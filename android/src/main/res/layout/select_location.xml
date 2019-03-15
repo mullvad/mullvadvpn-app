@@ -6,6 +6,7 @@
         android:background="@color/darkBlue"
         android:orientation="vertical"
         android:gravity="left"
+        android:elevation="1dp"
         >
     <ImageButton android:id="@+id/close"
             android:layout_width="wrap_content"

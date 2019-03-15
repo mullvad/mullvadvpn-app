@@ -75,6 +75,12 @@ class ConnectFragment : Fragment() {
 
     private fun openSwitchLocationScreen() {
         fragmentManager?.beginTransaction()?.apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_bottom,
+                R.anim.do_nothing,
+                R.anim.do_nothing,
+                R.anim.fragment_exit_to_bottom
+            )
             replace(R.id.main_fragment, SelectLocationFragment())
             addToBackStack(null)
             commit()
