@@ -164,16 +164,18 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   <Cell.Container>
                     <Cell.Label>{pgettext('advanced-settings-view', 'Mssfix')}</Cell.Label>
                     <Cell.InputFrame style={styles.advanced_settings__mssfix_frame}>
-                      <Cell.Input
-                        keyboardType={'numeric'}
-                        maxLength={4}
-                        placeholder={pgettext('advanced-settings-view', 'Default')}
-                        value={mssfixValue ? mssfixValue.toString() : ''}
-                        style={mssfixStyle}
-                        onChangeText={this.onMssfixChange}
-                        onFocus={this.onMssfixFocus}
-                        onBlur={this.onMssfixBlur}
-                      />
+                      <Cell.AutoSizingTextInputContainer>
+                        <Cell.Input
+                          keyboardType={'numeric'}
+                          maxLength={4}
+                          placeholder={pgettext('advanced-settings-view', 'Default')}
+                          value={mssfixValue ? mssfixValue.toString() : ''}
+                          style={[styles.advanced_settings__mssfix_input, mssfixStyle]}
+                          onChangeText={this.onMssfixChange}
+                          onFocus={this.onMssfixFocus}
+                          onBlur={this.onMssfixBlur}
+                        />
+                      </Cell.AutoSizingTextInputContainer>
                     </Cell.InputFrame>
                   </Cell.Container>
                   <Cell.Footer>
