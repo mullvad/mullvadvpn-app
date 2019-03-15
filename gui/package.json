@@ -88,7 +88,7 @@
     "check-format": "yarn run private:format --list-different",
     "develop": "cross-env run-s private:copy-assets private:watch",
     "test": "electron-mocha --renderer -R spec --require ts-node/register --require-main ts-node/register --require-main \"test/setup/main.ts\" --preload \"test/setup/renderer.ts\" \"test/*.spec.ts\" \"test/**/*.spec.ts\" \"test/**/*.spec.tsx\" || true",
-    "update-translations": "node scripts/extract-translations && ./scripts/update-translations.sh",
+    "update-translations": "node scripts/extract-translations",
     "pack:mac": "run-s build private:pack:mac private:postbuild:mac",
     "pack:win": "run-s build private:pack:win",
     "pack:linux": "run-s build private:pack:linux",
