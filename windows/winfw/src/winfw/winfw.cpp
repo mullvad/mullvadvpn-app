@@ -10,8 +10,8 @@ namespace
 
 uint32_t g_timeout = 0;
 
-WinFwErrorSink g_ErrorSink = nullptr;
-void * g_ErrorContext = nullptr;
+WinFwErrorSink g_errorSink = nullptr;
+void * g_errorContext = nullptr;
 
 FwContext *g_fwContext = nullptr;
 
@@ -38,8 +38,8 @@ WinFw_Initialize(
 	// Convert seconds to milliseconds.
 	g_timeout = timeout * 1000;
 
-	g_ErrorSink = errorSink;
-	g_ErrorContext = errorContext;
+	g_errorSink = errorSink;
+	g_errorContext = errorContext;
 
 	try
 	{
@@ -47,9 +47,9 @@ WinFw_Initialize(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_ErrorSink)
+		if (nullptr != g_errorSink)
 		{
-			g_ErrorSink(err.what(), g_ErrorContext);
+			g_errorSink(err.what(), g_errorContext);
 		}
 
 		return false;
@@ -97,9 +97,9 @@ WinFw_ApplyPolicyConnecting(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_ErrorSink)
+		if (nullptr != g_errorSink)
 		{
-			g_ErrorSink(err.what(), g_ErrorContext);
+			g_errorSink(err.what(), g_errorContext);
 		}
 
 		return false;
@@ -132,9 +132,9 @@ WinFw_ApplyPolicyConnected(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_ErrorSink)
+		if (nullptr != g_errorSink)
 		{
-			g_ErrorSink(err.what(), g_ErrorContext);
+			g_errorSink(err.what(), g_errorContext);
 		}
 
 		return false;
@@ -163,9 +163,9 @@ WinFw_ApplyPolicyBlocked(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_ErrorSink)
+		if (nullptr != g_errorSink)
 		{
-			g_ErrorSink(err.what(), g_ErrorContext);
+			g_errorSink(err.what(), g_errorContext);
 		}
 
 		return false;
@@ -196,9 +196,9 @@ WinFw_Reset()
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_ErrorSink)
+		if (nullptr != g_errorSink)
 		{
-			g_ErrorSink(err.what(), g_ErrorContext);
+			g_errorSink(err.what(), g_errorContext);
 		}
 
 		return false;
