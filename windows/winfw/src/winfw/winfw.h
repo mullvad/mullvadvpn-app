@@ -133,7 +133,7 @@ WinFw_ApplyPolicyConnecting(
 //
 // tunnelInterfaceAlias:
 //   Friendly name of VPN tunnel interface
-// primaryDns:
+// v4DnsHost/v6DnsHost:
 //   String encoded IP address of DNS to use inside tunnel
 //
 extern "C"
@@ -144,8 +144,8 @@ WinFw_ApplyPolicyConnected(
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
 	const wchar_t *tunnelInterfaceAlias,
-	const wchar_t *v4Gateway,
-	const wchar_t *v6Gateway
+	const wchar_t *v4DnsHost,
+	const wchar_t *v6DnsHost
 );
 
 //

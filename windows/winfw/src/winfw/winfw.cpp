@@ -2,7 +2,6 @@
 #include "winfw.h"
 #include "fwcontext.h"
 #include "objectpurger.h"
-#include "libwfp/ipaddress.h"
 #include <windows.h>
 #include <stdexcept>
 
@@ -165,8 +164,8 @@ WinFw_ApplyPolicyConnected(
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
 	const wchar_t *tunnelInterfaceAlias,
-	const wchar_t *v4Gateway,
-	const wchar_t *v6Gateway
+	const wchar_t *v4DnsHost,
+	const wchar_t *v6DnsHost
 )
 {
 	if (nullptr == g_fwContext)
@@ -176,7 +175,7 @@ WinFw_ApplyPolicyConnected(
 
 	try
 	{
-		return g_fwContext->applyPolicyConnected(settings, relay, tunnelInterfaceAlias, v4Gateway, v6Gateway);
+		return g_fwContext->applyPolicyConnected(settings, relay, tunnelInterfaceAlias, v4DnsHost, v6DnsHost);
 	}
 	catch (std::exception &err)
 	{

@@ -14,6 +14,7 @@
 #include "rules/restrictdns.h"
 #include "libwfp/transaction.h"
 #include "libwfp/filterengine.h"
+#include "libwfp/ipaddress.h"
 #include <functional>
 #include <stdexcept>
 #include <utility>
@@ -110,7 +111,14 @@ bool FwContext::applyPolicyConnecting(const WinFwSettings &settings, const WinFw
 	return applyRuleset(ruleset);
 }
 
-bool FwContext::applyPolicyConnected(const WinFwSettings &settings, const WinFwRelay &relay, const wchar_t *tunnelInterfaceAlias, const wchar_t *v4Gateway, const wchar_t *v6Gateway)
+bool FwContext::applyPolicyConnected
+(
+	const WinFwSettings &settings,
+	const WinFwRelay &relay,
+	const wchar_t *tunnelInterfaceAlias,
+	const wchar_t *v4DnsHost,
+	const wchar_t *v6DnsHost
+)
 {
 	Ruleset ruleset;
 
@@ -131,11 +139,10 @@ bool FwContext::applyPolicyConnected(const WinFwSettings &settings, const WinFwR
 		tunnelInterfaceAlias
 	));
 
-	/// We currently expect DNS servers to only be ran on the tunnel gateway IPs
 	ruleset.emplace_back(std::make_unique<rules::RestrictDns>(
 		tunnelInterfaceAlias,
-		wfp::IpAddress(v4Gateway),
-		(v6Gateway != nullptr) ? std::make_unique<wfp::IpAddress>(v6Gateway) : nullptr
+		wfp::IpAddress(v4DnsHost),
+		(v6DnsHost != nullptr) ? std::make_unique<wfp::IpAddress>(v6DnsHost) : nullptr
 	));
 
 	return applyRuleset(ruleset);
