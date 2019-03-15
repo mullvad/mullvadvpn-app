@@ -79,7 +79,11 @@ fn ping_cmd(
         &ip,
     ];
     if exit_on_first_reply {
-        args.push("-o");
+        if cfg!(target_os = "macos") {
+            args.push("-o");
+        } else {
+            args.extend_from_slice(&["-c", "1"])
+        }
     }
     duct::cmd("ping", args)
         .stdin_null()
