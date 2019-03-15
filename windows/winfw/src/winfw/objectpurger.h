@@ -15,4 +15,6 @@ public:
 
 	static RemovalFunctor GetRemoveFiltersFunctor();
 	static RemovalFunctor GetRemoveAllFunctor();
+
+	static bool Execute(RemovalFunctor f);
 };

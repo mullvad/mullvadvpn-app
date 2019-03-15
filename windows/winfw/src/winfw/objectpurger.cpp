@@ -4,6 +4,7 @@
 #include "wfpobjecttype.h"
 #include "libwfp/filterengine.h"
 #include "libwfp/objectdeleter.h"
+#include "libwfp/transaction.h"
 #include <algorithm>
 
 namespace
@@ -51,4 +52,17 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveAllFunctor()
 		RemoveRange(engine, wfp::ObjectDeleter::DeleteSublayer, registry.equal_range(WfpObjectType::Sublayer));
 		RemoveRange(engine, wfp::ObjectDeleter::DeleteProvider, registry.equal_range(WfpObjectType::Provider));
 	};
+}
+
+//static
+bool ObjectPurger::Execute(RemovalFunctor f)
+{
+	auto engine = wfp::FilterEngine::StandardSession();
+
+	auto wrapper = [&]()
+	{
+		return f(*engine), true;
+	};
+
+	return wfp::Transaction::Execute(*engine, wrapper);
 }

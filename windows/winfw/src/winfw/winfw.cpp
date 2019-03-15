@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "winfw.h"
 #include "fwcontext.h"
+#include "objectpurger.h"
 #include "libwfp/ipaddress.h"
 #include <windows.h>
 #include <stdexcept>
@@ -228,17 +229,13 @@ bool
 WINFW_API
 WinFw_Reset()
 {
-	if (nullptr == g_fwContext)
-	{
-		//
-		// This is OK because the practical difference between having no instance
-		// and having a reset instance is negligible.
-		//
-		return true;
-	}
-
 	try
 	{
+		if (nullptr == g_fwContext)
+		{
+			return ObjectPurger::Execute(ObjectPurger::GetRemoveAllFunctor());
+		}
+
 		return g_fwContext->reset();
 	}
 	catch (std::exception &err)
