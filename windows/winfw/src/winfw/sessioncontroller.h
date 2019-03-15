@@ -4,6 +4,7 @@
 #include "sessionrecord.h"
 #include "libwfp/filterengine.h"
 #include "libwfp/iidentifiable.h"
+#include <functional>
 #include <atomic>
 #include <memory>
 #include <vector>
@@ -19,8 +20,10 @@ public:
 	bool addSublayer(wfp::SublayerBuilder &sublayerBuilder) override;
 	bool addFilter(wfp::FilterBuilder &filterBuilder, const wfp::IConditionBuilder &conditionBuilder) override;
 
-	bool executeTransaction(std::function<bool()> operation);
-	bool executeReadOnlyTransaction(std::function<bool()> operation);
+	using TransactionFunctor = std::function<bool(SessionController &, wfp::FilterEngine &)>;
+
+	bool executeTransaction(TransactionFunctor operation);
+	bool executeReadOnlyTransaction(TransactionFunctor operation);
 
 	//
 	// Retrieve checkpoint key that can be used to restore the current session state

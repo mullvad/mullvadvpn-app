@@ -84,7 +84,7 @@ SessionController::~SessionController()
 
 	try
 	{
-		executeTransaction([this]()
+		executeTransaction([this](SessionController &, wfp::FilterEngine &)
 		{
 			reset();
 			return true;
@@ -159,7 +159,7 @@ bool SessionController::addFilter(wfp::FilterBuilder &filterBuilder, const wfp::
 	return status;
 }
 
-bool SessionController::executeTransaction(std::function<bool()> operation)
+bool SessionController::executeTransaction(TransactionFunctor operation)
 {
 	if (m_activeTransaction.exchange(true))
 	{
@@ -175,7 +175,12 @@ bool SessionController::executeTransaction(std::function<bool()> operation)
 
 	m_transactionRecords = m_records;
 
-	auto status = wfp::Transaction::Execute(*m_engine, operation);
+	auto transactionForwarder = [this, operation]()
+	{
+		return operation(*this, *m_engine);
+	};
+
+	auto status = wfp::Transaction::Execute(*m_engine, transactionForwarder);
 
 	if (status)
 	{
@@ -185,7 +190,7 @@ bool SessionController::executeTransaction(std::function<bool()> operation)
 	return status;
 }
 
-bool SessionController::executeReadOnlyTransaction(std::function<bool()> operation)
+bool SessionController::executeReadOnlyTransaction(TransactionFunctor operation)
 {
 	if (m_activeTransaction.exchange(true))
 	{
@@ -199,7 +204,12 @@ bool SessionController::executeReadOnlyTransaction(std::function<bool()> operati
 		m_activeTransaction.store(false);
 	};
 
-	return wfp::Transaction::ExecuteReadOnly(*m_engine, operation);
+	auto transactionForwarder = [this, operation]()
+	{
+		return operation(*this, *m_engine);
+	};
+
+	return wfp::Transaction::ExecuteReadOnly(*m_engine, transactionForwarder);
 }
 
 uint32_t SessionController::checkpoint()
