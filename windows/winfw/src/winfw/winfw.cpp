@@ -62,6 +62,53 @@ WinFw_Initialize(
 	return true;
 }
 
+extern "C"
+WINFW_LINKAGE
+bool
+WINFW_API
+WinFw_InitializeBlocked(
+	uint32_t timeout,
+	const WinFwSettings &settings,
+	WinFwErrorSink errorSink,
+	void *errorContext
+)
+{
+	if (nullptr != g_fwContext)
+	{
+		//
+		// This is an error.
+		// The existing instance may have a different timeout etc.
+		//
+		return false;
+	}
+
+	// Convert seconds to milliseconds.
+	g_timeout = timeout * 1000;
+
+	g_errorSink = errorSink;
+	g_errorContext = errorContext;
+
+	try
+	{
+		g_fwContext = new FwContext(g_timeout, settings);
+	}
+	catch (std::exception &err)
+	{
+		if (nullptr != g_errorSink)
+		{
+			g_errorSink(err.what(), g_errorContext);
+		}
+
+		return false;
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 WINFW_LINKAGE
 bool
 WINFW_API

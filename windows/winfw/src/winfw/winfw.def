@@ -2,6 +2,7 @@ LIBRARY winfw
 EXPORTS
 
 WinFw_Initialize
+WinFw_InitializeBlocked
 WinFw_Deinitialize
 WinFw_ApplyPolicyConnecting
 WinFw_ApplyPolicyConnected
