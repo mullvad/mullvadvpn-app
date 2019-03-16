@@ -37,10 +37,11 @@ export default {
     color: colors.white,
     flex: 0,
   }),
+  advanced_settings__mssfix_input: Styles.createTextInputStyle({
+    minWidth: 80,
+  }),
   advanced_settings__mssfix_frame: Styles.createViewStyle({
-    flexGrow: 0,
-    flexShrink: 0,
-    flexBasis: 80,
+    flex: 0,
   }),
   advanced_settings__mssfix_valid_value: Styles.createTextStyle({
     color: colors.white,

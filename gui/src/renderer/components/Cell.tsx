@@ -71,10 +71,9 @@ const styles = {
       flexGrow: 0,
       backgroundColor: 'rgba(255,255,255,0.1)',
       borderRadius: 4,
-      paddingHorizontal: 2,
-      paddingVertical: 2,
+      padding: 4,
     }),
-    text: Styles.createTextStyle({
+    text: Styles.createTextInputStyle({
       color: colors.white,
       backgroundColor: 'transparent',
       fontFamily: 'Open Sans',
@@ -82,6 +81,17 @@ const styles = {
       fontWeight: '600',
       lineHeight: 26,
       textAlign: 'right',
+      padding: 0,
+    }),
+  },
+  autoSizingInputContainer: {
+    measuringView: Styles.createViewStyle({
+      position: 'absolute',
+      opacity: 0,
+    }),
+    measureText: Styles.createTextStyle({
+      width: undefined,
+      flexBasis: undefined,
     }),
   },
   icon: Styles.createViewStyle({
@@ -254,15 +264,74 @@ export const Input = React.forwardRef(function CellInput(
   return (
     <TextInput
       ref={ref as any}
-      maxLength={10}
       placeholderTextColor={colors.white60}
       autoCorrect={false}
-      autoFocus={false}
       style={[styles.input.text, style]}
       {...otherProps}
     />
   );
 });
+
+interface IAutoSizingTextInputContainerProps {
+  style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
+  children: React.ReactElement<Types.TextInputProps>;
+}
+
+interface IAutoSizingTextInputContainerState {
+  placeholderWidth?: number;
+  widthStyle?: Types.TextInputStyleRuleSet;
+}
+
+export const AutoSizingTextInputContainer = class CellAutoSizingTextInputContainer extends Component<
+  IAutoSizingTextInputContainerProps,
+  IAutoSizingTextInputContainerState
+> {
+  public state: IAutoSizingTextInputContainerState = {};
+
+  public render() {
+    const children: React.ReactElement<Types.TextInputProps> = this.props.children;
+
+    return (
+      <View style={this.props.style}>
+        <View style={styles.autoSizingInputContainer.measuringView} onLayout={this.onLayout}>
+          <Text
+            style={[
+              styles.input.text,
+
+              // TextInputStyle is basically an alias for TextStyle, so it's legit to assume that we
+              // can use both of them interchangably.
+              children.props.style,
+
+              // this style resets any style properties that could constraint the text width.
+              styles.autoSizingInputContainer.measureText,
+            ]}
+            numberOfLines={1}>
+            {children.props.placeholder}
+          </Text>
+        </View>
+
+        {React.cloneElement(children, {
+          ...children.props,
+          style: [children.props.style, this.state.widthStyle],
+        })}
+      </View>
+    );
+  }
+
+  private onLayout = (layout: Types.ViewOnLayoutEvent) => {
+    if (this.state.placeholderWidth !== layout.width) {
+      this.setState({
+        placeholderWidth: layout.width,
+        widthStyle: Styles.createTextInputStyle(
+          {
+            width: layout.width,
+          },
+          false,
+        ),
+      });
+    }
+  };
+};
 
 type SubTextProps = Types.TextProps & {
   cellHoverStyle?: Types.ViewStyle;
