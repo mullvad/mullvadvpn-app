@@ -26,4 +26,11 @@
             android:textStyle="bold"
             android:text=""
             />
+    <ImageButton android:id="@+id/chevron"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/icon_chevron_expand"
+            />
 </LinearLayout>

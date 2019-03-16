@@ -1,9 +1,26 @@
 package net.mullvad.mullvadvpn.relaylist
 
-class RelayCountry(val country: String, val cities: List<RelayCity>, var expanded: Boolean) {
+class RelayCountry(
+    override val name: String,
+    override var expanded: Boolean,
+    val cities: List<RelayCity>
+) : RelayItem {
+    override val type = RelayItemType.Country
+    override val hasChildren
+        get() = getRelayCount() > 1
+
+    override val visibleChildCount: Int
+        get() {
+            if (expanded) {
+                return cities.map { city -> city.visibleItemCount }.sum()
+            } else {
+                return 0
+            }
+        }
+
     fun getItem(position: Int): GetItemResult {
         if (position == 0) {
-            return GetItemResult.Item(RelayItem(RelayItemType.Country, country))
+            return GetItemResult.Item(this)
         }
 
         var itemCount = 1
@@ -26,11 +43,5 @@ class RelayCountry(val country: String, val cities: List<RelayCity>, var expande
         return GetItemResult.Count(itemCount)
     }
 
-    fun getItemCount(): Int {
-        if (expanded) {
-            return 1 + cities.map { city -> city.getItemCount() }.sum()
-        } else {
-            return 1
-        }
-    }
+    fun getRelayCount(): Int = cities.map { city -> city.getRelayCount() }.sum()
 }
