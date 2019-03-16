@@ -1,9 +1,26 @@
 package net.mullvad.mullvadvpn.relaylist
 
-class RelayCity(val city: String, val relays: List<Relay>, var expanded: Boolean) {
+class RelayCity(
+    override val name: String,
+    override var expanded: Boolean,
+    val relays: List<Relay>
+) : RelayItem {
+    override val type = RelayItemType.City
+    override val hasChildren
+        get() = relays.size > 1
+
+    override val visibleChildCount: Int
+        get() {
+            if (expanded) {
+                return relays.size
+            } else {
+                return 0
+            }
+        }
+
     fun getItem(position: Int): GetItemResult {
         if (position == 0) {
-            return GetItemResult.Item(RelayItem(RelayItemType.City, city))
+            return GetItemResult.Item(this)
         }
 
         if (!expanded) {
@@ -16,7 +33,7 @@ class RelayCity(val city: String, val relays: List<Relay>, var expanded: Boolean
         if (offset >= relayCount) {
             return GetItemResult.Count(1 + relayCount)
         } else {
-            return GetItemResult.Item(RelayItem(RelayItemType.Relay, relays[offset].hostname))
+            return GetItemResult.Item(relays[offset])
         }
     }
 
@@ -27,4 +44,6 @@ class RelayCity(val city: String, val relays: List<Relay>, var expanded: Boolean
             return 1
         }
     }
+
+    fun getRelayCount(): Int = relays.size
 }

@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.relaylist
 
+import java.lang.ref.WeakReference
+import java.util.LinkedList
+
 import android.support.v7.widget.RecyclerView.Adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,12 +11,16 @@ import net.mullvad.mullvadvpn.R
 
 class RelayListAdapter : Adapter<RelayItemHolder>() {
     private val relayList = fakeRelayList
+    private val activeIndices = LinkedList<WeakReference<RelayListAdapterPosition>>()
 
     override fun onCreateViewHolder(parentView: ViewGroup, type: Int): RelayItemHolder {
         val inflater = LayoutInflater.from(parentView.context)
         val view = inflater.inflate(R.layout.relay_list_item, parentView, false)
+        val index = RelayListAdapterPosition(0)
 
-        return RelayItemHolder(view)
+        activeIndices.add(WeakReference(index))
+
+        return RelayItemHolder(view, this, index)
     }
 
     override fun onBindViewHolder(holder: RelayItemHolder, position: Int) {
@@ -25,6 +32,7 @@ class RelayListAdapter : Adapter<RelayItemHolder>() {
             when (itemOrCount) {
                 is GetItemResult.Item -> {
                     holder.item = itemOrCount.item
+                    holder.itemPosition.position = position
                     return
                 }
                 is GetItemResult.Count -> remaining -= itemOrCount.count
@@ -32,59 +40,91 @@ class RelayListAdapter : Adapter<RelayItemHolder>() {
         }
     }
 
-    override fun getItemCount(): Int {
-        return relayList.map { country -> country.getItemCount() }.sum()
+    override fun getItemCount() = relayList.map { country -> country.visibleItemCount }.sum()
+
+    fun expandItem(itemIndex: RelayListAdapterPosition, childCount: Int) {
+        val position = itemIndex.position
+
+        updateActiveIndices(position, childCount)
+        notifyItemRangeInserted(position + 1, childCount)
+    }
+
+    fun collapseItem(itemIndex: RelayListAdapterPosition, childCount: Int) {
+        val position = itemIndex.position
+
+        updateActiveIndices(position, -childCount)
+        notifyItemRangeRemoved(position + 1, childCount)
+    }
+
+    private fun updateActiveIndices(position: Int, delta: Int) {
+        val activeIndicesIterator = activeIndices.iterator()
+
+        while (activeIndicesIterator.hasNext()) {
+            val index = activeIndicesIterator.next().get()
+
+            if (index == null) {
+                activeIndicesIterator.remove()
+            } else {
+                val indexPosition = index.position
+
+                if (indexPosition > position) {
+                    index.position = indexPosition + delta
+                }
+            }
+        }
     }
 }
 
 val fakeRelayList = listOf(
     RelayCountry(
         "Australia",
+        false,
         listOf(
             RelayCity(
                 "Brisbane",
-                listOf(Relay("au-bne-001")),
-                false
+                false,
+                listOf(Relay("au-bne-001"))
             ),
             RelayCity(
                 "Melbourne",
-                listOf(Relay("au-mel-002"), Relay("au-mel-003"), Relay("au-mel-004")),
-                false
+                false,
+                listOf(Relay("au-mel-002"), Relay("au-mel-003"), Relay("au-mel-004"))
             ),
             RelayCity(
                 "Perth",
-                listOf(Relay("au-per-001")),
-                false
+                false,
+                listOf(Relay("au-per-001"))
             ),
             RelayCity(
                 "Sydney",
+                false,
                 listOf(
                     Relay("au1-wireguard"),
                     Relay("au-syd-001"),
                     Relay("au-syd-002"),
                     Relay("au-mel-003")
-                ),
-                false
+                )
             )
-        ),
-        false
+        )
     ),
     RelayCountry(
         "South Africa",
+        false,
         listOf(
             RelayCity(
                 "Johannesburg",
-                listOf(Relay("za-jnb-001")),
-                false
+                false,
+                listOf(Relay("za-jnb-001"))
             )
-        ),
-        false
+        )
     ),
     RelayCountry(
         "Sweden",
+        false,
         listOf(
             RelayCity(
                 "Gothenburg",
+                false,
                 listOf(
                     Relay("se3-wireguard"),
                     Relay("se5-wireguard"),
@@ -95,11 +135,11 @@ val fakeRelayList = listOf(
                     Relay("se-got-005"),
                     Relay("se-got-006"),
                     Relay("se-got-007")
-                ),
-                false
+                )
             ),
             RelayCity(
                 "Helsingborg",
+                false,
                 listOf(
                     Relay("se-hel-001"),
                     Relay("se-hel-002"),
@@ -107,11 +147,11 @@ val fakeRelayList = listOf(
                     Relay("se-hel-004"),
                     Relay("se-hel-007"),
                     Relay("se-hel-008")
-                ),
-                false
+                )
             ),
             RelayCity(
                 "Malmö",
+                false,
                 listOf(
                     Relay("se4-wireguard"),
                     Relay("se-mma-001"),
@@ -124,11 +164,11 @@ val fakeRelayList = listOf(
                     Relay("se-mma-008"),
                     Relay("se-mma-009"),
                     Relay("se-mma-010")
-                ),
-                false
+                )
             ),
             RelayCity(
                 "Stockholm",
+                false,
                 listOf(
                     Relay("se2-wireguard"),
                     Relay("se6-wireguard"),
@@ -159,10 +199,8 @@ val fakeRelayList = listOf(
                     Relay("se-sto-023"),
                     Relay("se-sto-024"),
                     Relay("se-sto-025")
-                ),
-                false
+                )
             )
-        ),
-        false
+        )
     )
 )
