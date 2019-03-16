@@ -2,12 +2,18 @@ package net.mullvad.mullvadvpn.relaylist
 
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.View
+import android.widget.ImageButton
 import android.widget.TextView
 
 import net.mullvad.mullvadvpn.R
 
-class RelayItemHolder(private val view: View) : ViewHolder(view) {
+class RelayItemHolder(
+    private val view: View,
+    private val adapter: RelayListAdapter,
+    var itemPosition: RelayListAdapterPosition
+) : ViewHolder(view) {
     private val name: TextView = view.findViewById(R.id.name)
+    private val chevron: ImageButton = view.findViewById(R.id.chevron)
 
     private val countryColor = view.context.getColor(R.color.blue)
     private val cityColor = view.context.getColor(R.color.blue40)
@@ -23,6 +29,10 @@ class RelayItemHolder(private val view: View) : ViewHolder(view) {
             updateView()
         }
 
+    init {
+        chevron.setOnClickListener { toggle() }
+    }
+
     private fun updateView() {
         val item = this.item
 
@@ -34,8 +44,15 @@ class RelayItemHolder(private val view: View) : ViewHolder(view) {
                 RelayItemType.City -> setViewStyle(cityColor, cityPadding)
                 RelayItemType.Relay -> setViewStyle(relayColor, relayPadding)
             }
+
+            if (item.hasChildren) {
+                chevron.visibility = View.VISIBLE
+            } else {
+                chevron.visibility = View.GONE
+            }
         } else {
             name.text = ""
+            chevron.visibility = View.GONE
         }
     }
 
@@ -48,6 +65,22 @@ class RelayItemHolder(private val view: View) : ViewHolder(view) {
         view.apply {
             setBackgroundColor(backgroundColor)
             setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
+        }
+    }
+
+    private fun toggle() {
+        item?.let { item ->
+            if (!item.expanded) {
+                item.expanded = true
+                chevron.rotation = 180.0F
+                adapter.expandItem(itemPosition, item.visibleChildCount)
+            } else {
+                val childCount = item.visibleChildCount
+
+                item.expanded = false
+                chevron.rotation = 0.0F
+                adapter.collapseItem(itemPosition, childCount)
+            }
         }
     }
 }
