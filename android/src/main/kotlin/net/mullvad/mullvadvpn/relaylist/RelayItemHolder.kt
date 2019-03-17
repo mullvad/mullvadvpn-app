@@ -14,10 +14,13 @@ class RelayItemHolder(
 ) : ViewHolder(view) {
     private val name: TextView = view.findViewById(R.id.name)
     private val chevron: ImageButton = view.findViewById(R.id.chevron)
+    private val relayActive: View = view.findViewById(R.id.relay_active)
+    private val selectedIcon: View = view.findViewById(R.id.selected)
 
     private val countryColor = view.context.getColor(R.color.blue)
     private val cityColor = view.context.getColor(R.color.blue40)
     private val relayColor = view.context.getColor(R.color.blue20)
+    private val selectedColor = view.context.getColor(R.color.green)
 
     private val countryPadding = view.resources.getDimensionPixelSize(R.dimen.country_row_padding)
     private val cityPadding = view.resources.getDimensionPixelSize(R.dimen.city_row_padding)
@@ -29,8 +32,15 @@ class RelayItemHolder(
             updateView()
         }
 
+    var selected = false
+        set(value) {
+            field = value
+            updateView()
+        }
+
     init {
         chevron.setOnClickListener { toggle() }
+        view.setOnClickListener { adapter.selectItem(item, this) }
     }
 
     private fun updateView() {
@@ -38,6 +48,14 @@ class RelayItemHolder(
 
         if (item != null) {
             name.text = item.name
+
+            if (selected) {
+                relayActive.visibility = View.INVISIBLE
+                selectedIcon.visibility = View.VISIBLE
+            } else {
+                relayActive.visibility = View.VISIBLE
+                selectedIcon.visibility = View.INVISIBLE
+            }
 
             when (item.type) {
                 RelayItemType.Country -> setViewStyle(countryColor, countryPadding)
@@ -56,11 +74,16 @@ class RelayItemHolder(
         }
     }
 
-    private fun setViewStyle(backgroundColor: Int, padding: Int) {
+    private fun setViewStyle(rowColor: Int, padding: Int) {
+        var backgroundColor = rowColor
         val paddingLeft = padding
         val paddingTop = view.paddingTop
         val paddingRight = view.paddingRight
         val paddingBottom = view.paddingBottom
+
+        if (selected) {
+            backgroundColor = selectedColor
+        }
 
         view.apply {
             setBackgroundColor(backgroundColor)
