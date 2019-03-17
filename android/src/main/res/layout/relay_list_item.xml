@@ -10,12 +10,26 @@
         android:orientation="horizontal"
         android:gravity="center"
         >
-    <ImageView
+    <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            android:src="@drawable/icon_relay_active"
-            />
+            android:gravity="center"
+            >
+        <ImageView android:id="@+id/relay_active"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:src="@drawable/icon_relay_active"
+                />
+        <ImageView android:id="@+id/selected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:src="@drawable/icon_tick"
+                android:visibility="invisible"
+                />
+    </FrameLayout>
     <TextView android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

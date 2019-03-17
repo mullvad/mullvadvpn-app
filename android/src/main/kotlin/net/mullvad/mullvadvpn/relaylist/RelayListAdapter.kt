@@ -12,6 +12,8 @@ import net.mullvad.mullvadvpn.R
 class RelayListAdapter : Adapter<RelayItemHolder>() {
     private val relayList = fakeRelayList
     private val activeIndices = LinkedList<WeakReference<RelayListAdapterPosition>>()
+    private var selectedItem: RelayItem? = null
+    private var selectedItemHolder: RelayItemHolder? = null
 
     override fun onCreateViewHolder(parentView: ViewGroup, type: Int): RelayItemHolder {
         val inflater = LayoutInflater.from(parentView.context)
@@ -31,8 +33,7 @@ class RelayListAdapter : Adapter<RelayItemHolder>() {
 
             when (itemOrCount) {
                 is GetItemResult.Item -> {
-                    holder.item = itemOrCount.item
-                    holder.itemPosition.position = position
+                    bindHolderToItem(holder, itemOrCount.item, position)
                     return
                 }
                 is GetItemResult.Count -> remaining -= itemOrCount.count
@@ -41,6 +42,14 @@ class RelayListAdapter : Adapter<RelayItemHolder>() {
     }
 
     override fun getItemCount() = relayList.map { country -> country.visibleItemCount }.sum()
+
+    fun selectItem(item: RelayItem?, holder: RelayItemHolder?) {
+        selectedItemHolder?.selected = false
+
+        selectedItem = item
+        selectedItemHolder = holder
+        selectedItemHolder?.apply { selected = true }
+    }
 
     fun expandItem(itemIndex: RelayListAdapterPosition, childCount: Int) {
         val position = itemIndex.position
@@ -71,6 +80,18 @@ class RelayListAdapter : Adapter<RelayItemHolder>() {
                     index.position = indexPosition + delta
                 }
             }
+        }
+    }
+
+    private fun bindHolderToItem(holder: RelayItemHolder, item: RelayItem, position: Int) {
+        holder.item = item
+        holder.itemPosition.position = position
+
+        if (selectedItem != null && selectedItem == item) {
+            holder.selected = true
+            selectedItemHolder = holder
+        } else {
+            holder.selected = false
         }
     }
 }
