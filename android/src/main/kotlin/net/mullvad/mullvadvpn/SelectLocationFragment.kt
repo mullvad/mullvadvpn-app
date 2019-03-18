@@ -32,9 +32,13 @@ class SelectLocationFragment : Fragment() {
     }
 
     private fun configureRelayList(relayList: RecyclerView) {
-        val relayListAdapter = RelayListAdapter()
+        val parentActivity = activity as MainActivity?
+        val relayListAdapter = RelayListAdapter(parentActivity?.selectedRelayItemCode)
 
-        relayListAdapter.onSelect = { close() }
+        relayListAdapter.onSelect = { relayItemCode ->
+            parentActivity?.selectedRelayItemCode = relayItemCode
+            close()
+        }
 
         relayList.apply {
             layoutManager = LinearLayoutManager(context!!)

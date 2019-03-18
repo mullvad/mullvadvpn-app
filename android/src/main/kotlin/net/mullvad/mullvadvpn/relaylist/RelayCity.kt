@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.relaylist
 
 class RelayCity(
     override val name: String,
+    override val code: String,
     override var expanded: Boolean,
     val relays: List<Relay>
 ) : RelayItem {
@@ -46,4 +47,6 @@ class RelayCity(
     }
 
     fun getRelayCount(): Int = relays.size
+
+    fun findRelayByCode(code: String): RelayItem? = relays.find { relay -> relay.code == code }
 }

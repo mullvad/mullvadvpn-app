@@ -9,13 +9,17 @@ import android.view.ViewGroup
 
 import net.mullvad.mullvadvpn.R
 
-class RelayListAdapter : Adapter<RelayItemHolder>() {
+class RelayListAdapter(private val initialSelectedItemCode: String?) : Adapter<RelayItemHolder>() {
     private val relayList = fakeRelayList
     private val activeIndices = LinkedList<WeakReference<RelayListAdapterPosition>>()
     private var selectedItem: RelayItem? = null
     private var selectedItemHolder: RelayItemHolder? = null
 
-    var onSelect: (() -> Unit)? = null
+    var onSelect: ((String?) -> Unit)? = null
+
+    init {
+        initialSelectedItemCode?.let { code -> selectedItem = findRelayItemByCode(code) }
+    }
 
     override fun onCreateViewHolder(parentView: ViewGroup, type: Int): RelayItemHolder {
         val inflater = LayoutInflater.from(parentView.context)
@@ -52,7 +56,7 @@ class RelayListAdapter : Adapter<RelayItemHolder>() {
         selectedItemHolder = holder
         selectedItemHolder?.apply { selected = true }
 
-        onSelect?.invoke()
+        onSelect?.invoke(item?.code)
     }
 
     fun expandItem(itemIndex: RelayListAdapterPosition, childCount: Int) {
@@ -98,30 +102,57 @@ class RelayListAdapter : Adapter<RelayItemHolder>() {
             holder.selected = false
         }
     }
+
+    private fun findRelayItemByCode(code: String): RelayItem? {
+        val codeParts = code.split('-')
+
+        for (country in relayList) {
+            if (country.code == codeParts[0]) {
+                if (codeParts.size == 1) {
+                    return country
+                } else {
+                    var relayCode: String? = null
+
+                    if (codeParts.size == 3) {
+                        relayCode = codeParts[2]
+                    }
+
+                    return country.findRelayItemByCode("${codeParts[0]}-${codeParts[1]}", relayCode)
+                }
+            }
+        }
+
+        return null
+    }
 }
 
 val fakeRelayList = listOf(
     RelayCountry(
         "Australia",
+        "au",
         false,
         listOf(
             RelayCity(
                 "Brisbane",
+                "au-bne",
                 false,
                 listOf(Relay("au-bne-001"))
             ),
             RelayCity(
                 "Melbourne",
+                "au-mel",
                 false,
                 listOf(Relay("au-mel-002"), Relay("au-mel-003"), Relay("au-mel-004"))
             ),
             RelayCity(
                 "Perth",
+                "au-per",
                 false,
                 listOf(Relay("au-per-001"))
             ),
             RelayCity(
                 "Sydney",
+                "au-syd",
                 false,
                 listOf(
                     Relay("au1-wireguard"),
@@ -134,10 +165,12 @@ val fakeRelayList = listOf(
     ),
     RelayCountry(
         "South Africa",
+        "za",
         false,
         listOf(
             RelayCity(
                 "Johannesburg",
+                "za-jnb",
                 false,
                 listOf(Relay("za-jnb-001"))
             )
@@ -145,10 +178,12 @@ val fakeRelayList = listOf(
     ),
     RelayCountry(
         "Sweden",
+        "se",
         false,
         listOf(
             RelayCity(
                 "Gothenburg",
+                "se-got",
                 false,
                 listOf(
                     Relay("se3-wireguard"),
@@ -164,6 +199,7 @@ val fakeRelayList = listOf(
             ),
             RelayCity(
                 "Helsingborg",
+                "se-hel",
                 false,
                 listOf(
                     Relay("se-hel-001"),
@@ -176,6 +212,7 @@ val fakeRelayList = listOf(
             ),
             RelayCity(
                 "Malmö",
+                "se-mma",
                 false,
                 listOf(
                     Relay("se4-wireguard"),
@@ -193,6 +230,7 @@ val fakeRelayList = listOf(
             ),
             RelayCity(
                 "Stockholm",
+                "se-sto",
                 false,
                 listOf(
                     Relay("se2-wireguard"),
