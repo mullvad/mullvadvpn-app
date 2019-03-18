@@ -47,7 +47,7 @@ export function loadTranslations(currentLocale: string) {
 }
 
 function parseTranslation(locale: string, domain: string): boolean {
-  const filename = path.join(LOCALES_DIR, locale, `${domain}-${locale}.po`);
+  const filename = path.join(LOCALES_DIR, locale, `${domain}.po`);
   let buffer: Buffer;
 
   try {

@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad <admin@mullvad.net>\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2019-03-18 14:19\n"
+"PO-Revision-Date: 2019-03-18 15:52\n"
 
 #: src/renderer/components/SecuredLabel.tsx:40
 msgid "BLOCKED CONNECTION"
@@ -55,7 +55,7 @@ msgctxt "account-view"
 msgid "Account ID"
 msgstr "Konto-ID"
 
-#: src/renderer/components/Account.tsx:69
+#: src/renderer/components/Account.tsx:71
 msgctxt "account-view"
 msgid "Buy more credit"
 msgstr "Mehr Guthaben erwerben"
@@ -65,20 +65,25 @@ msgctxt "account-view"
 msgid "COPIED TO CLIPBOARD!"
 msgstr "IN DIE ZWISCHENABLAGE KOPIERT!"
 
-#: src/renderer/components/Account.tsx:101
+#: src/renderer/components/Account.tsx:103
 msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "Derzeit nicht verfügbar"
 
-#: src/renderer/components/Account.tsx:74
+#: src/renderer/components/Account.tsx:76
 msgctxt "account-view"
 msgid "Log out"
 msgstr "Abmelden"
 
-#: src/renderer/components/Account.tsx:93
+#: src/renderer/components/Account.tsx:95
 msgctxt "account-view"
 msgid "OUT OF TIME"
 msgstr "ZEIT ABGELAUFEN"
+
+#: src/renderer/components/Account.tsx:57
+msgctxt "account-view"
+msgid "Paid until"
+msgstr ""
 
 #. Title label in navigation bar
 #: src/renderer/components/AdvancedSettings.tsx:97
