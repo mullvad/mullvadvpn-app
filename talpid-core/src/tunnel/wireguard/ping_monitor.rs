@@ -12,25 +12,16 @@ error_chain! {
     }
 }
 
-pub fn spawn_ping_monitor<F: FnOnce() + Send + 'static>(
-    ip: IpAddr,
-    timeout_secs: u16,
-    interface: String,
-    on_fail: F,
-) {
-    thread::spawn(move || loop {
+pub fn monitor_ping(ip: IpAddr, timeout_secs: u16, interface: &str) -> Result<()> {
+    loop {
         let start = time::Instant::now();
-        if let Err(e) = ping(ip, timeout_secs, &interface, false) {
-            log::debug!("ping failed - {}", e);
-            on_fail();
-            return;
-        }
+        ping(ip, timeout_secs, &interface, false)?;
         if let Some(remaining) =
             time::Duration::from_secs(timeout_secs.into()).checked_sub(start.elapsed())
         {
             thread::sleep(remaining);
         }
-    });
+    }
 }
 
 pub fn ping(
