@@ -346,26 +346,8 @@ impl TunnelState for ConnectingState {
                             log::error!("Failed to start tunnel: {}", error);
                             let block_reason = match *error.kind() {
                                 tunnel::ErrorKind::EnableIpv6Error => BlockReason::Ipv6Unavailable,
-
-                                #[cfg(unix)]
-                                tunnel::ErrorKind::WirguardTunnelMonitoringError(ref err) => {
-                                    match &err {
-                                        tunnel::wireguard::ErrorKind::PingTimeoutError => {
-                                            if crate::offline::is_offline() {
-                                                BlockReason::IsOffline
-                                            } else {
-                                                BlockReason::StartTunnelError
-                                            }
-                                        }
-                                        _ => BlockReason::StartTunnelError,
-                                    }
-                                }
                                 _ => BlockReason::StartTunnelError,
                             };
-
-                            let chained_error = error.chain_err(|| "Failed to start tunnel");
-                            error!("{}", chained_error.display_chain());
-
                             BlockedState::enter(shared_values, block_reason)
                         }
                     }
