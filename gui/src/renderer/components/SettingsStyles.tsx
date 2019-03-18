@@ -50,4 +50,7 @@ export default {
     letterSpacing: -0.2,
     color: colors.white60,
   }),
+  settings__appversion: Styles.createTextStyle({
+    flex: 0,
+  }),
 };

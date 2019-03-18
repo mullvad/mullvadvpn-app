@@ -25,21 +25,8 @@ body {
   display: flex;
 }
 
-#app {
+.app-container {
   height: 100%;
   width: 100%;
   display: flex;
-}
-
-/*
- Temporary fix for placeholder colors until the following PR lands in master:
- https://github.com/Microsoft/reactxp/pull/868
- */
-
-* [data-test-id='AccountInput']::placeholder {
-  color: rgba(41, 77, 115, 0.4);
-}
-
-* [data-test-id='CellInputField']::placeholder {
-  color: rgba(255, 255, 255, 0.6);
 }
