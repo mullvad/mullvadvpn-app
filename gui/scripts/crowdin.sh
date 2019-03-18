@@ -34,18 +34,6 @@ function download_translations {
     unzip -o all.zip -d $LOCALE_DIR
     find $LOCALE_DIR -type d -exec chmod 755 {} \;
     find $LOCALE_DIR -type f -exec chmod 644 {} \;
-
-    # Rename some of the locales to align with the locale codes expected by Electron
-    # [1] https://electronjs.org/docs/api/locales
-    # [2] https://support.crowdin.com/api/language-codes/
-    rm -rf "$LOCALE_DIR/es"
-    mv "$LOCALE_DIR/es-ES" "$LOCALE_DIR/es"
-    mv "$LOCALE_DIR/es/messages-es-ES.po" "$LOCALE_DIR/es/messages-es.po"
-
-    rm -rf "$LOCALE_DIR/sv"
-    mv "$LOCALE_DIR/sv-SE" "$LOCALE_DIR/sv"
-    mv "$LOCALE_DIR/sv/messages-sv-SE.po" "$LOCALE_DIR/sv/messages-sv.po"
-
     rm all.zip
 }
 

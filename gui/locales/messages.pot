@@ -45,7 +45,7 @@ msgctxt "account-view"
 msgid "Account ID"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:69
+#: src/renderer/components/Account.tsx:71
 msgctxt "account-view"
 msgid "Buy more credit"
 msgstr ""
@@ -55,19 +55,24 @@ msgctxt "account-view"
 msgid "COPIED TO CLIPBOARD!"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:101
+#: src/renderer/components/Account.tsx:103
 msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:74
+#: src/renderer/components/Account.tsx:76
 msgctxt "account-view"
 msgid "Log out"
 msgstr ""
 
-#: src/renderer/components/Account.tsx:93
+#: src/renderer/components/Account.tsx:95
 msgctxt "account-view"
 msgid "OUT OF TIME"
+msgstr ""
+
+#: src/renderer/components/Account.tsx:57
+msgctxt "account-view"
+msgid "Paid until"
 msgstr ""
 
 #. Title label in navigation bar

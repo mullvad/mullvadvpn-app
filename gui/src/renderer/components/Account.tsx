@@ -53,7 +53,9 @@ export default class Account extends Component<IProps> {
                   </View>
 
                   <View style={styles.account__row}>
-                    <Text style={styles.account__row_label}>Paid until</Text>
+                    <Text style={styles.account__row_label}>
+                      {pgettext('account-view', 'Paid until')}
+                    </Text>
                     <FormattedAccountExpiry
                       expiry={this.props.accountExpiry}
                       locale={this.props.expiryLocale}
