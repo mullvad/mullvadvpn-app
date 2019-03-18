@@ -13,6 +13,7 @@
             android:gravity="center_vertical"
             android:padding="12dp"
             android:background="@color/red"
+            android:elevation="0.5dp"
             >
         <ImageView
                 android:layout_width="49dp"
@@ -38,7 +39,7 @@
             android:background="@color/darkBlue"
             android:orientation="horizontal"
             android:gravity="center"
-            android:visibility="gone"
+            android:visibility="invisible"
             >
         <ImageView
                 android:layout_width="wrap_content"
