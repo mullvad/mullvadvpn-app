@@ -2,7 +2,7 @@
 use self::config::Config;
 use super::{TunnelEvent, TunnelMetadata};
 use crate::routing;
-use std::{net::IpAddr, path::Path, sync::mpsc};
+use std::{path::Path, sync::mpsc};
 
 pub mod config;
 mod ping_monitor;
@@ -59,14 +59,14 @@ pub struct WireguardMonitor {
 }
 
 impl WireguardMonitor {
-    pub fn start<F: Fn(TunnelEvent) + Send + Sync + 'static>(
+    pub fn start<F: Fn(TunnelEvent) + Send + Sync + Clone + 'static>(
         config: &Config,
         log_path: Option<&Path>,
         on_event: F,
     ) -> Result<WireguardMonitor> {
         let tunnel = Box::new(WgGoTunnel::start_tunnel(&config, log_path)?);
         let router = routing::RouteManager::new().chain_err(|| ErrorKind::SetupRoutingError)?;
-        let event_callback = Box::new(on_event);
+        let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
         let mut monitor = WireguardMonitor {
             tunnel,
@@ -76,16 +76,29 @@ impl WireguardMonitor {
             close_msg_receiver,
         };
         monitor.setup_routing(&config)?;
-        monitor.tunnel_up(&config);
 
-        ping_monitor::ping(
-            config.ipv4_gateway.into(),
-            PING_TIMEOUT,
-            &monitor.tunnel.get_interface_name().to_string(),
-            true,
-        )
-        .chain_err(|| ErrorKind::PingTimeoutError)?;
-        monitor.start_pinger(&config);
+        let metadata = monitor.tunnel_metadata(&config);
+        let iface_name = monitor.tunnel.get_interface_name().to_string();
+        let gateway = config.ipv4_gateway.into();
+        let close_sender = monitor.close_msg_sender.clone();
+
+        ::std::thread::spawn(move || {
+            match ping_monitor::ping(gateway, PING_TIMEOUT, &iface_name, true) {
+                Ok(()) => {
+                    (on_event)(TunnelEvent::Up(metadata));
+                }
+                Err(e) => {
+                    log::error!("First ping to gateway failed - {}", e);
+                    let _ = close_sender.send(CloseMsg::PingErr);
+                }
+            };
+
+            if let Err(e) = ping_monitor::monitor_ping(gateway, PING_TIMEOUT, &iface_name) {
+                log::trace!("Ping monitor failed - {}", e);
+            }
+            let _ = close_sender.send(CloseMsg::PingErr);
+        });
+
 
         Ok(monitor)
     }
@@ -153,28 +166,14 @@ impl WireguardMonitor {
             .chain_err(|| ErrorKind::SetupRoutingError)
     }
 
-    fn start_pinger(&self, config: &Config) {
-        let close_sender = self.close_msg_sender.clone();
-
-        ping_monitor::spawn_ping_monitor(
-            IpAddr::from(config.ipv4_gateway),
-            PING_TIMEOUT,
-            self.tunnel.get_interface_name().to_string(),
-            move || {
-                let _ = close_sender.send(CloseMsg::PingErr);
-            },
-        )
-    }
-
-    fn tunnel_up(&self, config: &Config) {
+    fn tunnel_metadata(&self, config: &Config) -> TunnelMetadata {
         let interface_name = self.tunnel.get_interface_name();
-        let metadata = TunnelMetadata {
+        TunnelMetadata {
             interface: interface_name.to_string(),
             ips: config.tunnel.addresses.clone(),
             ipv4_gateway: config.ipv4_gateway,
             ipv6_gateway: config.ipv6_gateway,
-        };
-        (self.event_callback)(TunnelEvent::Up(metadata));
+        }
     }
 }
 
