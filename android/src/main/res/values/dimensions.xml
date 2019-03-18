@@ -1,0 +1,6 @@
+<resources>
+    <dimen name="country_row_padding">20dp</dimen>
+    <dimen name="city_row_padding">40dp</dimen>
+    <dimen name="relay_row_padding">60dp</dimen>
+    <dimen name="relay_list_divider">1dp</dimen>
+</resources>
