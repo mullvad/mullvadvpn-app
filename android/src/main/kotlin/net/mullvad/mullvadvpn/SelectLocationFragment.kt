@@ -20,17 +20,27 @@ class SelectLocationFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.select_location, container, false)
 
-        view.findViewById<ImageButton>(R.id.close).setOnClickListener {
-            activity?.onBackPressed()
-        }
+        view.findViewById<ImageButton>(R.id.close).setOnClickListener { close() }
 
-        view.findViewById<RecyclerView>(R.id.relay_list).apply {
+        configureRelayList(view.findViewById<RecyclerView>(R.id.relay_list))
+
+        return view
+    }
+
+    fun close() {
+        activity?.onBackPressed()
+    }
+
+    private fun configureRelayList(relayList: RecyclerView) {
+        val relayListAdapter = RelayListAdapter()
+
+        relayListAdapter.onSelect = { close() }
+
+        relayList.apply {
             layoutManager = LinearLayoutManager(context!!)
-            adapter = RelayListAdapter()
+            adapter = relayListAdapter
 
             addItemDecoration(RelayItemDividerDecoration(context!!))
         }
-
-        return view
     }
 }

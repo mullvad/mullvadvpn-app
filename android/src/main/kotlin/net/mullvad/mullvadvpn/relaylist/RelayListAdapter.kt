@@ -15,6 +15,8 @@ class RelayListAdapter : Adapter<RelayItemHolder>() {
     private var selectedItem: RelayItem? = null
     private var selectedItemHolder: RelayItemHolder? = null
 
+    var onSelect: (() -> Unit)? = null
+
     override fun onCreateViewHolder(parentView: ViewGroup, type: Int): RelayItemHolder {
         val inflater = LayoutInflater.from(parentView.context)
         val view = inflater.inflate(R.layout.relay_list_item, parentView, false)
@@ -49,6 +51,8 @@ class RelayListAdapter : Adapter<RelayItemHolder>() {
         selectedItem = item
         selectedItemHolder = holder
         selectedItemHolder?.apply { selected = true }
+
+        onSelect?.invoke()
     }
 
     fun expandItem(itemIndex: RelayListAdapterPosition, childCount: Int) {
