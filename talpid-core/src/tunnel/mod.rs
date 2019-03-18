@@ -137,7 +137,7 @@ impl TunnelMonitor {
         on_event: L,
     ) -> Result<Self>
     where
-        L: Fn(TunnelEvent) + Send + Sync + 'static,
+        L: Fn(TunnelEvent) + Send + Clone + Sync + 'static,
     {
         Self::ensure_ipv6_can_be_used_if_enabled(&tunnel_parameters.get_generic_options())?;
         let log_file = Self::prepare_tunnel_log_file(&tunnel_parameters, log_dir)?;
@@ -162,7 +162,7 @@ impl TunnelMonitor {
         on_event: L,
     ) -> Result<Self>
     where
-        L: Fn(TunnelEvent) + Send + Sync + 'static,
+        L: Fn(TunnelEvent) + Send + Sync + Clone + 'static,
     {
         let config = wireguard::config::Config::from_parameters(&params)
             .chain_err(|| ErrorKind::WireguardConfigError)?;
