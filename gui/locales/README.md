@@ -1,26 +1,5 @@
 This is a folder with gettext translations for Mullvad VPN app.
 
-## Dependency installation notes
-
-Make sure to install the GNU Gettext utilities.
-
-### Linux
-
-Normally shipped with the OS.
-
-### macOS
-
-Install `gettext` via Homebrew:
-
-```
-brew install gettext
-```
-
-### Windows
-
-Please follow the downlaod instructions at https://www.gnu.org/software/gettext/
-
-
 ## Adding new translations
 
 Create a new sub-folder under `gui/locales`, use the locale identifier for the

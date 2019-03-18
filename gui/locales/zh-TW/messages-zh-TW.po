@@ -1,25 +1,35 @@
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Language: zh-TW\n"
+"X-Crowdin-File: messages.pot\n"
+"Project-Id-Version: mullvad-app\n"
+"Last-Translator: adminmullvad <admin@mullvad.net>\n"
+"Language-Team: Chinese Traditional\n"
+"Language: zh_TW\n"
+"PO-Revision-Date: 2019-03-18 14:19\n"
 
 #: src/renderer/components/SecuredLabel.tsx:40
 msgid "BLOCKED CONNECTION"
-msgstr ""
+msgstr "被封鎖的連線"
 
 #: src/renderer/components/SecuredLabel.tsx:43
 msgid "CREATING SECURE CONNECTION"
-msgstr ""
+msgstr "建立安全連線"
 
 #: src/renderer/components/SecuredLabel.tsx:37
 #: src/renderer/components/Support.tsx:282
 #: src/renderer/components/Support.tsx:317
 #: src/renderer/components/Support.tsx:342
 msgid "SECURE CONNECTION"
-msgstr ""
+msgstr "安全連線"
 
 #: src/renderer/components/SecuredLabel.tsx:46
 msgid "UNSECURED CONNECTION"
-msgstr ""
+msgstr "不安全的連線"
 
 #. The remaining time left on the account displayed across the app.
 #. Available placeholders:
@@ -27,60 +37,60 @@ msgstr ""
 #: src/renderer/lib/account-expiry.ts:31
 msgctxt "account-expiry"
 msgid "%(duration)s left"
-msgstr ""
+msgstr "剩餘 %(duration)s"
 
 #. Back button in navigation bar
 #: src/renderer/components/Account.tsx:33
 msgctxt "account-nav"
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 #: src/renderer/components/Account.tsx:39
 msgctxt "account-view"
 msgid "Account"
-msgstr ""
+msgstr "帳戶"
 
 #: src/renderer/components/Account.tsx:46
 msgctxt "account-view"
 msgid "Account ID"
-msgstr ""
+msgstr "帳戶 ID"
 
 #: src/renderer/components/Account.tsx:69
 msgctxt "account-view"
 msgid "Buy more credit"
-msgstr ""
+msgstr "購買更多點數"
 
 #: src/renderer/components/Account.tsx:51
 msgctxt "account-view"
 msgid "COPIED TO CLIPBOARD!"
-msgstr ""
+msgstr "已複製到剪貼簿！"
 
 #: src/renderer/components/Account.tsx:101
 msgctxt "account-view"
 msgid "Currently unavailable"
-msgstr ""
+msgstr "目前不可用"
 
 #: src/renderer/components/Account.tsx:74
 msgctxt "account-view"
 msgid "Log out"
-msgstr ""
+msgstr "登出"
 
 #: src/renderer/components/Account.tsx:93
 msgctxt "account-view"
 msgid "OUT OF TIME"
-msgstr ""
+msgstr "逾時"
 
 #. Title label in navigation bar
 #: src/renderer/components/AdvancedSettings.tsx:97
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
-msgstr ""
+msgstr "進階"
 
 #. Back button in navigation bar
 #: src/renderer/components/AdvancedSettings.tsx:93
 msgctxt "advanced-settings-nav"
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 #. The title for the port selector section.
 #. Available placeholders:
@@ -88,47 +98,47 @@ msgstr ""
 #: src/renderer/components/AdvancedSettings.tsx:150
 msgctxt "advanced-settings-view"
 msgid "%(portType)s port"
-msgstr ""
+msgstr "%(portType)s 連接埠"
 
 #: src/renderer/components/AdvancedSettings.tsx:104
 msgctxt "advanced-settings-view"
 msgid "Advanced"
-msgstr ""
+msgstr "進階"
 
 #: src/renderer/components/AdvancedSettings.tsx:265
 msgctxt "advanced-settings-view"
 msgid "Automatic"
-msgstr ""
+msgstr "自動"
 
 #: src/renderer/components/AdvancedSettings.tsx:120
 msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
-msgstr ""
+msgstr "中斷連線時封鎖"
 
 #: src/renderer/components/AdvancedSettings.tsx:171
 msgctxt "advanced-settings-view"
 msgid "Default"
-msgstr ""
+msgstr "預設"
 
 #: src/renderer/components/AdvancedSettings.tsx:108
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
-msgstr ""
+msgstr "啟用 IPv6"
 
 #: src/renderer/components/AdvancedSettings.tsx:112
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
-msgstr ""
+msgstr "透過通道啟用 IPv6 通訊。"
 
 #: src/renderer/components/AdvancedSettings.tsx:165
 msgctxt "advanced-settings-view"
 msgid "Mssfix"
-msgstr ""
+msgstr "Mssfix"
 
 #: src/renderer/components/AdvancedSettings.tsx:136
 msgctxt "advanced-settings-view"
 msgid "Network protocols"
-msgstr ""
+msgstr "網路通訊協定"
 
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
@@ -137,32 +147,32 @@ msgstr ""
 #: src/renderer/components/AdvancedSettings.tsx:187
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr ""
+msgstr "設定 OpenVPN MSS 值。有效範圍：%(min)d - %(max)d。"
 
 #: src/renderer/components/AdvancedSettings.tsx:128
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
-msgstr ""
+msgstr "除非已連線，否則一律封鎖所有網路流量，即便您已中斷連線或退出應用程式亦同。"
 
 #: src/renderer/lib/auth-failure.ts:80
 msgctxt "auth-failure"
 msgid "Account authentication failed."
-msgstr ""
+msgstr "帳戶驗證失敗。"
 
 #: src/renderer/lib/auth-failure.ts:74
 msgctxt "auth-failure"
 msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
-msgstr ""
+msgstr "此帳戶有太多的同時連線。請中斷其他裝置的連線，或是稍後再次嘗試連線。"
 
 #: src/renderer/lib/auth-failure.ts:68
 msgctxt "auth-failure"
 msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr ""
+msgstr "您在此帳戶沒有更多 VPN 時間了。請登入我們的網站，購買更多點數。"
 
 #: src/renderer/lib/auth-failure.ts:62
 msgctxt "auth-failure"
 msgid "You've logged in with an account number that is not valid. Please log out and try another one."
-msgstr ""
+msgstr "您登入時使用的帳號是無效的。請登出並使用另一個。"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -172,83 +182,83 @@ msgstr ""
 #: src/renderer/containers/ConnectPage.tsx:54
 msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
-msgstr ""
+msgstr "%(city)s (%(hostname)s)"
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:136
 #: src/renderer/components/ExpiredAccountErrorView.tsx:157
 msgctxt "connect-view"
 msgid "Buy more credit"
-msgstr ""
+msgstr "購買更多點數"
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:114
 msgctxt "connect-view"
 msgid "Disconnect and buy more credit"
-msgstr ""
+msgstr "中斷連線並購買更多點數"
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:78
 msgctxt "connect-view"
 msgid "Out of time"
-msgstr ""
+msgstr "逾時"
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:150
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
-msgstr ""
+msgstr "您在此帳戶沒有更多 VPN 時間了。您必須先關閉應用程式「進階」設定下的「中斷連線時封鎖」選項，再到我們網站購買更多點數。"
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:129
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr ""
+msgstr "您在此帳戶沒有更多 VPN 時間了。請登入我們的網站，購買更多點數。"
 
 #: src/renderer/components/ExpiredAccountErrorView.tsx:106
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
-msgstr ""
+msgstr "您在此帳戶沒有更多 VPN 時間了。若要在我們網站上購買更多點數，您必須使用不安全的連線存取網際網路。"
 
 #: src/renderer/components/NotificationArea.tsx:281
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr ""
+msgstr "帳戶點數即將到期"
 
 #: src/renderer/components/NotificationArea.tsx:200
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
-msgstr ""
+msgstr "封鎖網際網路"
 
 #: src/renderer/components/NotificationArea.tsx:48
 msgctxt "in-app-notifications"
 msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
-msgstr ""
+msgstr "無法配置 IPv6，請在我們系統啟用，或在應用程式中停用"
 
 #: src/renderer/components/NotificationArea.tsx:53
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr ""
+msgstr "無法套用防火牆規則。裝置目前可能不安全"
 
 #: src/renderer/components/NotificationArea.tsx:58
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
-msgstr ""
+msgstr "無法設定系統 DNS 伺服器"
 
 #: src/renderer/components/NotificationArea.tsx:60
 msgctxt "in-app-notifications"
 msgid "Failed to start tunnel connection"
-msgstr ""
+msgstr "無法啟動通道連線"
 
 #: src/renderer/components/NotificationArea.tsx:188
 msgctxt "in-app-notifications"
 msgid "FAILURE - UNSECURED"
-msgstr ""
+msgstr "失敗 - 不安全"
 
 #: src/renderer/components/NotificationArea.tsx:215
 msgctxt "in-app-notifications"
 msgid "Inconsistent internal version information, please restart the app"
-msgstr ""
+msgstr "內部版本資訊不一致，請重新啟動應用程式"
 
 #: src/renderer/components/NotificationArea.tsx:212
 msgctxt "in-app-notifications"
 msgid "INCONSISTENT VERSION"
-msgstr ""
+msgstr "版本不一致"
 
 #. The in-app banner displayed to the user when the app update is available.
 #. Available placeholders:
@@ -256,32 +266,32 @@ msgstr ""
 #: src/renderer/components/NotificationArea.tsx:262
 msgctxt "in-app-notifications"
 msgid "Install Mullvad VPN (%(version)s) to stay up to date"
-msgstr ""
+msgstr "安裝 Mullvad VPN (%(version)s) 以保持最新狀態"
 
 #: src/renderer/components/NotificationArea.tsx:62
 msgctxt "in-app-notifications"
 msgid "No relay server matches the current settings"
-msgstr ""
+msgstr "沒有與目前設定相符的中繼伺服器"
 
 #: src/renderer/components/NotificationArea.tsx:64
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
-msgstr ""
+msgstr "此裝置目前離線中，無法建立通道"
 
 #: src/renderer/components/NotificationArea.tsx:69
 msgctxt "in-app-notifications"
 msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
-msgstr ""
+msgstr "在裝置上偵測不到運作中的 TAP 配接器。如果您已停用，請再次啟用。否則，請重新安裝應用程式"
 
 #: src/renderer/components/NotificationArea.tsx:229
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
-msgstr ""
+msgstr "不支援的版本"
 
 #: src/renderer/components/NotificationArea.tsx:255
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
-msgstr ""
+msgstr "可用的更新"
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -289,102 +299,102 @@ msgstr ""
 #: src/renderer/components/NotificationArea.tsx:236
 msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr ""
+msgstr "您正在執行不受支援的應用程式版本。請立即升級到 %(version)s，以確保您的安全"
 
 #: src/renderer/components/Launch.tsx:53
 msgctxt "launch-view"
 msgid "Connecting to daemon..."
-msgstr ""
+msgstr "正在連線至精靈..."
 
 #: src/renderer/components/Launch.tsx:51
 msgctxt "launch-view"
 msgid "MULLVAD VPN"
-msgstr ""
+msgstr "MULLVAD VPN"
 
 #: src/renderer/components/Login.tsx:231
 msgctxt "login-view"
 msgid "Checking account number"
-msgstr ""
+msgstr "檢查帳號中"
 
 #: src/renderer/components/Login.tsx:233
 msgctxt "login-view"
 msgid "Correct account number"
-msgstr ""
+msgstr "正確的帳號"
 
 #: src/renderer/components/Login.tsx:403
 msgctxt "login-view"
 msgid "Create account"
-msgstr ""
+msgstr "建立帳戶"
 
 #: src/renderer/components/Login.tsx:400
 msgctxt "login-view"
 msgid "Don't have an account number?"
-msgstr ""
+msgstr "沒有帳號？"
 
 #: src/renderer/components/Login.tsx:235
 msgctxt "login-view"
 msgid "Enter your account number"
-msgstr ""
+msgstr "輸入您的帳號"
 
 #: src/renderer/components/Login.tsx:219
 msgctxt "login-view"
 msgid "Logged in"
-msgstr ""
+msgstr "已登入"
 
 #: src/renderer/components/Login.tsx:215
 msgctxt "login-view"
 msgid "Logging in..."
-msgstr ""
+msgstr "登入中..."
 
 #: src/renderer/components/Login.tsx:221
 msgctxt "login-view"
 msgid "Login"
-msgstr ""
+msgstr "登入"
 
 #: src/renderer/components/Login.tsx:217
 msgctxt "login-view"
 msgid "Login failed"
-msgstr ""
+msgstr "登入失敗"
 
 #: src/renderer/components/Login.tsx:229
 msgctxt "login-view"
 msgid "Unknown error"
-msgstr ""
+msgstr "未知錯誤"
 
 #: src/main/notification-controller.ts:46
 msgctxt "notifications"
 msgid "Blocked all connections"
-msgstr ""
+msgstr "已封鎖所有連線"
 
 #: src/main/notification-controller.ts:29
 msgctxt "notifications"
 msgid "Connecting"
-msgstr ""
+msgstr "連線中"
 
 #: src/main/notification-controller.ts:42
 msgctxt "notifications"
 msgid "Critical failure - Unsecured"
-msgstr ""
+msgstr "嚴重失敗 - 不安全"
 
 #: src/main/notification-controller.ts:71
 msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
-msgstr ""
+msgstr "內部版本資訊不一致，請重新啟動應用程式"
 
 #: src/main/notification-controller.ts:57
 msgctxt "notifications"
 msgid "Reconnecting"
-msgstr ""
+msgstr "正在重新連線"
 
 #: src/main/notification-controller.ts:33
 msgctxt "notifications"
 msgid "Secured"
-msgstr ""
+msgstr "安全"
 
 #: src/main/notification-controller.ts:36
 msgctxt "notifications"
 msgid "Unsecured"
-msgstr ""
+msgstr "不安全"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -392,254 +402,255 @@ msgstr ""
 #: src/main/notification-controller.ts:90
 msgctxt "notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr ""
+msgstr "您正在執行不受支援的應用程式版本。請立即升級到 %(version)s，以確保您的安全"
 
 #. Title label in navigation bar
 #: src/renderer/components/Preferences.tsx:46
 msgctxt "preferences-nav"
 msgid "Preferences"
-msgstr ""
+msgstr "喜好設定"
 
 #. Back button in navigation bar
 #: src/renderer/components/Preferences.tsx:42
 msgctxt "preferences-nav"
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 #: src/renderer/components/Preferences.tsx:86
 msgctxt "preferences-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr ""
+msgstr "允許存取同一網路上的其他裝置，以進行共用、列印等。"
 
 #: src/renderer/components/Preferences.tsx:66
 msgctxt "preferences-view"
 msgid "Auto-connect"
-msgstr ""
+msgstr "自動連線"
 
 #: src/renderer/components/Preferences.tsx:73
 msgctxt "preferences-view"
 msgid "Automatically connect to a server when the app launches."
-msgstr ""
+msgstr "啟動應用程式時，自動連線伺服器。"
 
 #: src/renderer/components/Preferences.tsx:59
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
-msgstr ""
+msgstr "啟動時啟動應用程式"
 
 #: src/renderer/components/Preferences.tsx:81
 msgctxt "preferences-view"
 msgid "Local network sharing"
-msgstr ""
+msgstr "本機網路分享"
 
 #: src/renderer/components/Preferences.tsx:130
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
-msgstr ""
+msgstr "單色系統匣圖示"
 
 #: src/renderer/components/Preferences.tsx:53
 msgctxt "preferences-view"
 msgid "Preferences"
-msgstr ""
+msgstr "喜好設定"
 
 #: src/renderer/components/Preferences.tsx:163
 msgctxt "preferences-view"
 msgid "Show only the tray icon when the app starts."
-msgstr ""
+msgstr "啟動應用程式時，僅顯示系統匣圖示。"
 
 #: src/renderer/components/Preferences.tsx:159
 msgctxt "preferences-view"
 msgid "Start minimized"
-msgstr ""
+msgstr "啟動時永遠最小化"
 
 #: src/renderer/components/Preferences.tsx:134
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
-msgstr ""
+msgstr "使用單色系統匣圖示，而不是彩色的圖示。"
 
 #. Title label in navigation bar
 #: src/renderer/components/SelectLocation.tsx:118
 msgctxt "select-location-nav"
 msgid "Select location"
-msgstr ""
+msgstr "選擇位置"
 
 #: src/renderer/components/SelectLocation.tsx:126
 msgctxt "select-location-view"
 msgid "Select location"
-msgstr ""
+msgstr "選擇位置"
 
 #: src/renderer/components/SelectLocation.tsx:129
 msgctxt "select-location-view"
 msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr ""
+msgstr "連線時，會以所選區域中的一個私密安全位置將您的真實位置遮住。"
 
 #: src/renderer/components/Settings.tsx:104
 msgctxt "settings-view"
 msgid "Account"
-msgstr ""
+msgstr "帳戶"
 
 #: src/renderer/components/Settings.tsx:119
 msgctxt "settings-view"
 msgid "Advanced"
-msgstr ""
+msgstr "進階"
 
 #: src/renderer/components/Settings.tsx:165
 msgctxt "settings-view"
 msgid "App version"
-msgstr ""
+msgstr "應用程式版本"
 
 #: src/renderer/components/Settings.tsx:186
 msgctxt "settings-view"
 msgid "FAQs & Guides"
-msgstr ""
+msgstr "常見問題集與指南"
 
 #: src/renderer/components/Settings.tsx:131
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
-msgstr ""
+msgstr "內部版本資訊不一致，請重新啟動應用程式。"
 
 #: src/renderer/components/Settings.tsx:98
 msgctxt "settings-view"
 msgid "OUT OF TIME"
-msgstr ""
+msgstr "逾時"
 
 #: src/renderer/components/Settings.tsx:114
 msgctxt "settings-view"
 msgid "Preferences"
-msgstr ""
+msgstr "喜好設定"
 
 #: src/renderer/components/Settings.tsx:80
 msgctxt "settings-view"
 msgid "Quit app"
-msgstr ""
+msgstr "退出應用程式"
 
 #: src/renderer/components/Settings.tsx:181
 msgctxt "settings-view"
 msgid "Report a problem"
-msgstr ""
+msgstr "回報問題"
 
 #: src/renderer/components/Settings.tsx:58
 msgctxt "settings-view"
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 #: src/renderer/components/Settings.tsx:136
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
-msgstr ""
+msgstr "更新可用，請下載以保持安全。"
 
 #. Title label in navigation bar
 #: src/renderer/components/Settings.tsx:50
 msgctxt "settings-view-nav"
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 #. Back button in navigation bar
 #: src/renderer/components/Support.tsx:146
 msgctxt "support-nav"
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 #: src/renderer/components/Support.tsx:392
 msgctxt "support-view"
 msgid "Back"
-msgstr ""
+msgstr "返回"
 
 #: src/renderer/components/Support.tsx:252
 msgctxt "support-view"
 msgid "Describe your problem"
-msgstr ""
+msgstr "描述您的問題"
 
 #: src/renderer/components/Support.tsx:357
 msgctxt "support-view"
 msgid "Edit message"
-msgstr ""
+msgstr "編輯訊息"
 
 #: src/renderer/components/Support.tsx:345
 msgctxt "support-view"
 msgid "Failed to send"
-msgstr ""
+msgstr "無法傳送"
 
 #: src/renderer/components/Support.tsx:297
 msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
-msgstr ""
+msgstr "如有需要，我們將以 %(email)s 與您聯繫"
 
 #: src/renderer/components/Support.tsx:123
 msgctxt "support-view"
 msgid "Report a problem"
-msgstr ""
+msgstr "回報問題"
 
 #: src/renderer/components/Support.tsx:265
 msgctxt "support-view"
 msgid "Send"
-msgstr ""
+msgstr "傳送"
 
 #: src/renderer/components/Support.tsx:389
 msgctxt "support-view"
 msgid "Send anyway"
-msgstr ""
+msgstr "仍要傳送"
 
 #: src/renderer/components/Support.tsx:285
 msgctxt "support-view"
 msgid "Sending..."
-msgstr ""
+msgstr "傳送中..."
 
 #: src/renderer/components/Support.tsx:319
 msgctxt "support-view"
 msgid "Sent"
-msgstr ""
+msgstr "已傳送"
 
 #: src/renderer/components/Support.tsx:322
 msgctxt "support-view"
 msgid "Thanks! We will look into this."
-msgstr ""
+msgstr "謝謝！我們會對此進行調查。"
 
 #: src/renderer/components/Support.tsx:126
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
-msgstr ""
+msgstr "為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。"
 
 #: src/renderer/components/Support.tsx:360
 msgctxt "support-view"
 msgid "Try again"
-msgstr ""
+msgstr "再試一次"
 
 #: src/renderer/components/Support.tsx:261
 msgctxt "support-view"
 msgid "View app logs"
-msgstr ""
+msgstr "檢視應用程式日誌"
 
 #: src/renderer/components/Support.tsx:383
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
-msgstr ""
+msgstr "您即將傳送的問題報告未包含回覆方式資訊。如果想收到您這份報告的回覆，請輸入您的電子郵件位址。"
 
 #: src/renderer/components/Support.tsx:348
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
-msgstr ""
+msgstr "在重試之前，您可能需要返回應用程式的主畫面，然後按一下「中斷連線」。請不用擔心，您輸入的資訊將保留在表單中。"
 
 #: src/renderer/components/Support.tsx:242
 msgctxt "support-view"
 msgid "Your email (optional)"
-msgstr ""
+msgstr "您的電子郵件 (選填)"
 
 #: src/renderer/components/TunnelControl.tsx:121
 msgctxt "tunnel-control"
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 #: src/renderer/components/TunnelControl.tsx:115
 msgctxt "tunnel-control"
 msgid "Disconnect"
-msgstr ""
+msgstr "中斷連線"
 
 #: src/renderer/components/TunnelControl.tsx:109
 msgctxt "tunnel-control"
 msgid "Secure my connection"
-msgstr ""
+msgstr "保護我的連線"
 
 #: src/renderer/components/TunnelControl.tsx:93
 msgctxt "tunnel-control"
 msgid "Switch location"
-msgstr ""
+msgstr "切換位置"
+
