@@ -95,7 +95,7 @@
                 android:textSize="13sp"
                 android:text="@string/login_description"
                 />
-        <LinearLayout
+        <LinearLayout android:id="@+id/account_input_container"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:orientation="horizontal"
