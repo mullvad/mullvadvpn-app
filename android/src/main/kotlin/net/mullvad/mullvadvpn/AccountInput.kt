@@ -45,7 +45,9 @@ class AccountInput(val parentView: View, val context: Context) {
 
         input.apply {
             addTextChangedListener(InputWatcher())
-            onFocusChangeListener = OnFocusChangeListener { _, hasFocus -> updateBorder(hasFocus) }
+            onFocusChangeListener = OnFocusChangeListener { view, hasFocus ->
+                updateBorder(hasFocus && view.isEnabled())
+            }
         }
 
         container.apply {
@@ -73,6 +75,7 @@ class AccountInput(val parentView: View, val context: Context) {
             setTextColor(disabledTextColor)
             setEnabled(false)
             visibility = View.VISIBLE
+            clearFocus()
         }
     }
 
@@ -87,6 +90,7 @@ class AccountInput(val parentView: View, val context: Context) {
         button.visibility = View.VISIBLE
 
         input.apply {
+            findFocus()
             setTextColor(errorTextColor)
             setEnabled(true)
             visibility = View.VISIBLE
