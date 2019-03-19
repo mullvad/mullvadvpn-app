@@ -3,4 +3,5 @@
     <dimen name="city_row_padding">40dp</dimen>
     <dimen name="relay_row_padding">60dp</dimen>
     <dimen name="relay_list_divider">1dp</dimen>
+    <dimen name="account_input_corner_radius">4dp</dimen>
 </resources>

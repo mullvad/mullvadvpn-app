@@ -37,6 +37,11 @@ class AccountInput(val parentView: View, val context: Context) {
         input.addTextChangedListener(InputWatcher())
         button.setOnClickListener { onLogin?.invoke(input.text.toString()) }
         setButtonEnabled(false)
+
+        parentView.findViewById<View>(R.id.account_input_container)?.apply {
+            clipToOutline = true
+            outlineProvider = AccountInputOutlineProvider(context)
+        }
     }
 
     private fun initialState() {
