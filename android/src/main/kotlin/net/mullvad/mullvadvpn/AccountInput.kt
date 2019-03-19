@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn
 
 import android.content.Context
 import android.view.View
+import android.view.View.OnFocusChangeListener
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
@@ -16,6 +17,10 @@ class AccountInput(val parentView: View, val context: Context) {
     private val enabledTextColor = context.getColor(R.color.blue)
     private val errorTextColor = context.getColor(R.color.red)
 
+    private val resources = context.resources
+    private val focusedBorder = resources.getDrawable(R.drawable.account_input_border_focused, null)
+    private val errorBorder = resources.getDrawable(R.drawable.account_input_border_error, null)
+
     private var usingErrorColor = false
 
     var state = LoginState.Initial
@@ -28,17 +33,22 @@ class AccountInput(val parentView: View, val context: Context) {
             }
         }
 
+    val container: View = parentView.findViewById(R.id.account_input_container)
     val input: EditText = parentView.findViewById(R.id.account_input)
     val button: ImageButton = parentView.findViewById(R.id.login_button)
 
     var onLogin: ((String) -> Unit)? = null
 
     init {
-        input.addTextChangedListener(InputWatcher())
         button.setOnClickListener { onLogin?.invoke(input.text.toString()) }
         setButtonEnabled(false)
 
-        parentView.findViewById<View>(R.id.account_input_container)?.apply {
+        input.apply {
+            addTextChangedListener(InputWatcher())
+            onFocusChangeListener = OnFocusChangeListener { _, hasFocus -> updateBorder(hasFocus) }
+        }
+
+        container.apply {
             clipToOutline = true
             outlineProvider = AccountInputOutlineProvider(context)
         }
@@ -49,7 +59,6 @@ class AccountInput(val parentView: View, val context: Context) {
         button.visibility = View.VISIBLE
 
         input.apply {
-            setBackgroundColor(enabledBackgroundColor)
             setTextColor(enabledTextColor)
             setEnabled(true)
             visibility = View.VISIBLE
@@ -61,7 +70,6 @@ class AccountInput(val parentView: View, val context: Context) {
         button.visibility = View.GONE
 
         input.apply {
-            setBackgroundColor(disabledBackgroundColor)
             setTextColor(disabledTextColor)
             setEnabled(false)
             visibility = View.VISIBLE
@@ -79,13 +87,13 @@ class AccountInput(val parentView: View, val context: Context) {
         button.visibility = View.VISIBLE
 
         input.apply {
-            setBackgroundColor(enabledBackgroundColor)
             setTextColor(errorTextColor)
             setEnabled(true)
             visibility = View.VISIBLE
         }
 
         usingErrorColor = true
+        updateBorder(false)
     }
 
     private fun setButtonEnabled(enabled: Boolean) {
@@ -94,6 +102,18 @@ class AccountInput(val parentView: View, val context: Context) {
                 setEnabled(enabled)
                 setClickable(enabled)
                 setFocusable(enabled)
+            }
+        }
+    }
+
+    private fun updateBorder(inputHasFocus: Boolean) {
+        if (usingErrorColor) {
+            container.foreground = errorBorder
+        } else {
+            if (inputHasFocus) {
+                container.foreground = focusedBorder
+            } else {
+                container.foreground = null
             }
         }
     }
@@ -109,6 +129,7 @@ class AccountInput(val parentView: View, val context: Context) {
             if (usingErrorColor) {
                 input.setTextColor(enabledTextColor)
                 usingErrorColor = false
+                updateBorder(true)
             }
         }
     }
