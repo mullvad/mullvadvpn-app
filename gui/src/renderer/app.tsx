@@ -543,14 +543,6 @@ export default class AppRenderer {
   }
 
   private setRelays(relayList: IRelayList) {
-    const compareStrings = (strA: string, strB: string) => {
-      if (strA > strB) {
-        return 1;
-      } else if (strA < strB) {
-        return -1;
-      }
-      return 0;
-    };
     const locations = relayList.countries
       .map((country) => ({
         name: country.name,
@@ -565,9 +557,9 @@ export default class AppRenderer {
             hasActiveRelays: city.relays.length > 0,
             relays: city.relays,
           }))
-          .sort((cityA, cityB) => compareStrings(cityA.name, cityB.name)),
+          .sort((cityA, cityB) => cityA.name.localeCompare(cityB.name)),
       }))
-      .sort((countryA, countryB) => compareStrings(countryA.name, countryB.name));
+      .sort((countryA, countryB) => countryA.name.localeCompare(countryB.name));
 
     this.reduxActions.settings.updateRelayLocations(locations);
   }
