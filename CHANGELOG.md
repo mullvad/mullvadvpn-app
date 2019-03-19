@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Integrate initial Shadowsocks proxy support. Accessible via CLI.
+- Add initial Wireguard support on macOS and Linux. Accessible via CLI.
 - Improve "Out of time" view button leading to the account website by unlocking internet access
   before opening the browser
 - Add translations for German, Spanish, French, Swedish, Chinese languages
@@ -38,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix DNS when using IPv6.
 - Fix the bug when the "Out of time" view remained visible, even when the app managed to reconnect
   the VPN tunnel after a successful credit top-up.
+- Sort the relay location list alphabetically in the GUI.
 
 #### Linux
 - Fix startup failure when network device with a hardware address that's not a MAC address is
@@ -47,6 +49,8 @@ Line wrap the file at 100 chars.                                              Th
 - Improve error handling related to DNS management at the time of establishing the tunnel.
 
 ### Changed
+- Increase the timeout to the Mullvad API from 5 to 10 seconds.
+
 #### Linux
 - Increase `NetworkManager` DBus RPC timeout from 1 second to 3 seconds.
 - Improve notification look by adding application name and icon.
@@ -119,11 +123,11 @@ This release is identical to 2018.6-beta1
 - Add extra level of kill-switch called "block when disconnected". Blocks all network traffic even
   in the disconnected state. Not activated by default and can be changed via the CLI subcommand
   `block-when-disconnected`.
-- Ability to debug firewall rules on macOS with the `TALPID_FIREWALL_DEBUG` variable.
 
 #### macOS
 - Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show
   an error message.
+- Add ability to debug firewall rules with the `TALPID_FIREWALL_DEBUG` variable.
 
 #### Windows
 - Install tray icon in visible part of the notification area.
