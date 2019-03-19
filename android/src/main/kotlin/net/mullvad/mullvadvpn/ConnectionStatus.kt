@@ -27,14 +27,14 @@ class ConnectionStatus(val parentView: View, val context: Context) {
         spinner.visibility = View.GONE
 
         text.setTextColor(disconnectedTextColor)
-        text.setText(R.string.creating_secure_connection)
+        text.setText(R.string.unsecured_connection)
     }
 
     private fun connecting() {
         spinner.visibility = View.VISIBLE
 
         text.setTextColor(connectingTextColor)
-        text.setText(R.string.unsecured_connection)
+        text.setText(R.string.creating_secure_connection)
     }
 
     private fun connected() {
