@@ -123,11 +123,11 @@ This release is identical to 2018.6-beta1
 - Add extra level of kill-switch called "block when disconnected". Blocks all network traffic even
   in the disconnected state. Not activated by default and can be changed via the CLI subcommand
   `block-when-disconnected`.
-- Ability to debug firewall rules on macOS with the `TALPID_FIREWALL_DEBUG` variable.
 
 #### macOS
 - Detect if the computer is offline. If so, don't sit in a reconnect loop, instead block and show
   an error message.
+- Add ability to debug firewall rules with the `TALPID_FIREWALL_DEBUG` variable.
 
 #### Windows
 - Install tray icon in visible part of the notification area.
