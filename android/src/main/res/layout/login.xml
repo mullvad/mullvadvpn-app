@@ -106,7 +106,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:paddingHorizontal="12dp"
-                    android:background="@color/white"
+                    android:background="@drawable/account_input_background"
                     android:inputType="number"
                     android:singleLine="true"
                     android:imeOptions="flagNoPersonalizedLearning"

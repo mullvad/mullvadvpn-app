@@ -7,14 +7,12 @@
         <inset
                 android:insetTop="1dp"
                 android:insetBottom="1dp"
+                android:insetLeft="1dp"
                 android:insetRight="1dp"
                 >
             <shape android:shape="rectangle">
-                <corners
-                        android:bottomRightRadius="@dimen/account_input_corner_radius"
-                        android:topRightRadius="@dimen/account_input_corner_radius"
-                        />
-                <solid android:color="@color/white"/>
+                <corners android:radius="@dimen/account_input_corner_radius"/>
+                <solid android:color="@color/white20"/>
             </shape>
         </inset>
     </item>
@@ -23,14 +21,14 @@
         <inset
                 android:insetTop="1dp"
                 android:insetBottom="1dp"
-                android:insetRight="1dp"
+                android:insetLeft="1dp"
                 >
             <shape android:shape="rectangle">
                 <corners
-                        android:bottomRightRadius="@dimen/account_input_corner_radius"
-                        android:topRightRadius="@dimen/account_input_corner_radius"
+                        android:bottomLeftRadius="@dimen/account_input_corner_radius"
+                        android:topLeftRadius="@dimen/account_input_corner_radius"
                         />
-                <solid android:color="@color/green"/>
+                <solid android:color="@color/white"/>
             </shape>
         </inset>
     </item>
