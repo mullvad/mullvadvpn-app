@@ -3,12 +3,12 @@ use duct;
 use super::stoppable_process::StoppableProcess;
 use atty;
 use os_pipe::{pipe, PipeWriter};
+use parking_lot::Mutex;
 use shell_escape;
 use std::{
     ffi::{OsStr, OsString},
     fmt, io,
     path::{Path, PathBuf},
-    sync::Mutex,
 };
 use talpid_types::net;
 
@@ -378,10 +378,9 @@ impl OpenVpnProcHandle {
 impl StoppableProcess for OpenVpnProcHandle {
     /// Closes STDIN to stop the openvpn process
     fn stop(&self) {
-        let mut stdin = self.stdin.lock().unwrap();
         // Dropping our stdin handle so that it is closed once. Closing the handle should
         // gracefully stop our openvpn child process.
-        let _ = stdin.take();
+        let _ = self.stdin.lock().take();
     }
 
     fn kill(&self) -> io::Result<()> {

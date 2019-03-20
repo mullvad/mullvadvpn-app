@@ -153,7 +153,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         };
 
         let log_dir: Option<PathBuf> = if let Some(ref log_path) = log_path {
-            Some(log_path.parent().unwrap().into())
+            Some(log_path.parent().expect("log_path has no parent").into())
         } else {
             None
         };
@@ -256,7 +256,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
                 let _ = tunnel_close_handle.close();
             });
 
-            let result = rx.recv().unwrap();
+            let result = rx.recv().expect("wait got no result");
             let _ = rx.recv();
 
             match result {
@@ -324,7 +324,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         let child_wait_handle = self.child.clone();
         let closed_handle = self.closed.clone();
         let child_close_handle = self.close_handle();
-        let event_dispatcher = self.event_dispatcher.take().unwrap();
+        let event_dispatcher = self.event_dispatcher.take().expect("No event_dispatcher");
         let dispatcher_handle = event_dispatcher.close_handle();
 
         let (child_tx, rx) = mpsc::channel();
@@ -342,8 +342,8 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             let _ = child_close_handle.close();
         });
 
-        let result = rx.recv().unwrap();
-        let _ = rx.recv().unwrap();
+        let result = rx.recv().expect("inner_wait_tunnel no result");
+        let _ = rx.recv().expect("inner_wait_tunnel no second result");
         result
     }
 
@@ -620,9 +620,10 @@ mod event_server {
 mod tests {
     use super::*;
     use crate::mktemp::TempFile;
+    use parking_lot::Mutex;
     use std::{
         path::{Path, PathBuf},
-        sync::{Arc, Mutex},
+        sync::Arc,
     };
 
     #[derive(Debug, Default, Clone)]
@@ -636,12 +637,12 @@ mod tests {
         type ProcessHandle = TestProcessHandle;
 
         fn plugin(&mut self, path: impl AsRef<Path>, _args: Vec<String>) -> &mut Self {
-            *self.plugin.lock().unwrap() = Some(path.as_ref().to_path_buf());
+            *self.plugin.lock() = Some(path.as_ref().to_path_buf());
             self
         }
 
         fn log(&mut self, log: Option<impl AsRef<Path>>) -> &mut Self {
-            *self.log.lock().unwrap() = log.as_ref().map(|path| path.as_ref().to_path_buf());
+            *self.log.lock() = log.as_ref().map(|path| path.as_ref().to_path_buf());
             self
         }
 
@@ -686,7 +687,7 @@ mod tests {
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
-            *builder.plugin.lock().unwrap()
+            *builder.plugin.lock()
         );
     }
 
@@ -704,7 +705,7 @@ mod tests {
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_log_file")),
-            *builder.log.lock().unwrap()
+            *builder.log.lock()
         );
     }
 
