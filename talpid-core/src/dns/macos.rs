@@ -1,11 +1,12 @@
 use error_chain::ChainedError;
 use log::{debug, trace};
+use parking_lot::Mutex;
 use std::{
     collections::HashMap,
     fmt,
     net::IpAddr,
     path::Path,
-    sync::{mpsc, Arc, Mutex},
+    sync::{mpsc, Arc},
     thread,
 };
 use system_configuration::{
@@ -145,7 +146,7 @@ impl super::DnsMonitorT for DnsMonitor {
     fn set(&mut self, _interface: &str, servers: &[IpAddr]) -> Result<()> {
         let servers: Vec<DnsServer> = servers.iter().map(|ip| ip.to_string()).collect();
         let settings = DnsSettings::from_server_addresses(&servers);
-        let mut state_lock = self.state.lock().unwrap();
+        let mut state_lock = self.state.lock();
         *state_lock = Some(match state_lock.take() {
             None => {
                 let backup = read_all_dns(&self.store);
@@ -177,7 +178,7 @@ impl super::DnsMonitorT for DnsMonitor {
     }
 
     fn reset(&mut self) -> Result<()> {
-        let mut state_lock = self.state.lock().unwrap();
+        let mut state_lock = self.state.lock();
         if let Some(state) = state_lock.take() {
             trace!("Restoring DNS settings to: {:#?}", state.backup);
             for (service_path, settings) in state.backup {
@@ -253,7 +254,7 @@ fn dns_change_callback(
     changed_keys: CFArray<CFString>,
     state: &mut Arc<Mutex<Option<State>>>,
 ) {
-    let mut state_lock = state.lock().unwrap();
+    let mut state_lock = state.lock();
     match *state_lock {
         None => {
             trace!("Not injecting DNS at this time");

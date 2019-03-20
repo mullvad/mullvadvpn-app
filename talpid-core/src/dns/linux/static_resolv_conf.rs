@@ -1,11 +1,12 @@
 use super::RESOLV_CONF_PATH;
 use error_chain::ChainedError;
 use notify::{RecommendedWatcher, RecursiveMode, Watcher};
+use parking_lot::Mutex;
 use resolv_conf::{Config, ScopedIp};
 use std::{
     fs, io,
     net::IpAddr,
-    sync::{mpsc, Arc, Mutex, MutexGuard},
+    sync::{mpsc, Arc},
     thread,
 };
 
@@ -50,7 +51,7 @@ impl StaticResolvConf {
     }
 
     pub fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
-        let mut state = self.lock_state();
+        let mut state = self.state.lock();
         let new_state = match state.take() {
             None => {
                 let backup = read_config().chain_err(|| ErrorKind::BackupResolvConf)?;
@@ -75,18 +76,12 @@ impl StaticResolvConf {
     }
 
     pub fn reset(&mut self) -> Result<()> {
-        if let Some(state) = self.lock_state().take() {
+        if let Some(state) = self.state.lock().take() {
             write_config(&state.backup)?;
             let _ = fs::remove_file(RESOLV_CONF_BACKUP_PATH);
         }
 
         Ok(())
-    }
-
-    fn lock_state(&self) -> MutexGuard<Option<State>> {
-        self.state
-            .lock()
-            .expect("a thread panicked while using the DNS configuration state")
     }
 }
 
@@ -129,9 +124,7 @@ impl DnsWatcher {
 
     fn event_loop(events: mpsc::Receiver<notify::RawEvent>, state: &Arc<Mutex<Option<State>>>) {
         for _ in events {
-            let mut locked_state = state
-                .lock()
-                .expect("a thread panicked while using the DNS configuration state");
+            let mut locked_state = state.lock();
 
             if let Err(error) = Self::update(locked_state.as_mut()) {
                 let chained_error = error

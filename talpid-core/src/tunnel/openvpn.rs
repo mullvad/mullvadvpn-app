@@ -620,9 +620,10 @@ mod event_server {
 mod tests {
     use super::*;
     use crate::mktemp::TempFile;
+    use parking_lot::Mutex;
     use std::{
         path::{Path, PathBuf},
-        sync::{Arc, Mutex},
+        sync::Arc,
     };
 
     #[derive(Debug, Default, Clone)]
@@ -636,12 +637,12 @@ mod tests {
         type ProcessHandle = TestProcessHandle;
 
         fn plugin(&mut self, path: impl AsRef<Path>, _args: Vec<String>) -> &mut Self {
-            *self.plugin.lock().unwrap() = Some(path.as_ref().to_path_buf());
+            *self.plugin.lock() = Some(path.as_ref().to_path_buf());
             self
         }
 
         fn log(&mut self, log: Option<impl AsRef<Path>>) -> &mut Self {
-            *self.log.lock().unwrap() = log.as_ref().map(|path| path.as_ref().to_path_buf());
+            *self.log.lock() = log.as_ref().map(|path| path.as_ref().to_path_buf());
             self
         }
 
@@ -686,7 +687,7 @@ mod tests {
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
-            *builder.plugin.lock().unwrap()
+            *builder.plugin.lock()
         );
     }
 
@@ -704,7 +705,7 @@ mod tests {
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_log_file")),
-            *builder.log.lock().unwrap()
+            *builder.log.lock()
         );
     }
 
