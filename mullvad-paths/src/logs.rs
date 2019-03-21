@@ -23,14 +23,21 @@ pub fn get_log_dir() -> Result<PathBuf> {
 }
 
 pub fn get_default_log_dir() -> Result<PathBuf> {
-    let dir;
-    #[cfg(unix)]
+    #[cfg(not(target_os = "android"))]
     {
-        dir = Ok(PathBuf::from("/var/log"));
+        let dir;
+        #[cfg(unix)]
+        {
+            dir = Ok(PathBuf::from("/var/log"));
+        }
+        #[cfg(windows)]
+        {
+            dir = crate::get_allusersprofile_dir();
+        }
+        dir.map(|dir| dir.join(crate::PRODUCT_NAME))
     }
-    #[cfg(windows)]
+    #[cfg(target_os = "android")]
     {
-        dir = crate::get_allusersprofile_dir();
+        Ok(PathBuf::from(crate::APP_PATH))
     }
-    dir.map(|dir| dir.join(crate::PRODUCT_NAME))
 }
