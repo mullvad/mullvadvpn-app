@@ -19,7 +19,7 @@ pub enum Error {
     NoProgramDataDir,
 }
 
-#[cfg(unix)]
+#[cfg(all(unix, not(target_os = "android")))]
 const PRODUCT_NAME: &str = "mullvad-vpn";
 
 #[cfg(windows)]
