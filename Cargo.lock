@@ -1403,15 +1403,6 @@ dependencies = [
 
 [[package]]
 name = "os_pipe"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "nix 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "winapi 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "os_pipe"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
@@ -2042,7 +2033,7 @@ dependencies = [
  "nix 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify 4.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn-plugin 0.3.0 (git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event)",
- "os_pipe 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "os_pipe 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "parking_lot 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pfctl 0.2.1 (git+https://github.com/mullvad/pfctl-rs?rev=9f31b5ddcab941862470075eab83bb398195f3d6)",
  "regex 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2776,7 +2767,6 @@ dependencies = [
 "checksum openssl 0.10.16 (registry+https://github.com/rust-lang/crates.io-index)" = "ec7bd7ca4cce6dbdc77e7c1230682740d307d1218a87fb0349a571272be749f9"
 "checksum openssl-sys 0.9.40 (registry+https://github.com/rust-lang/crates.io-index)" = "1bb974e77de925ef426b6bc82fce15fd45bdcbeb5728bffcfc7cdeeb7ce1c2d6"
 "checksum openvpn-plugin 0.3.0 (git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event)" = "<none>"
-"checksum os_pipe 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cd9d339267cdef39ee54ef165fdfaa2c7289a7465f0188ebe1c8a63872ca64c7"
 "checksum os_pipe 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "ce1d819d394515aae0530eae02156fedfc98b4f0359bf3048a442be89a95157b"
 "checksum owning_ref 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "49a4b8ea2179e6a2e27411d3bca09ca6dd630821cf6894c6c7c8467a8ee7ef13"
 "checksum parity-tokio-ipc 0.1.0 (git+https://github.com/nikvolf/parity-tokio-ipc)" = "<none>"
