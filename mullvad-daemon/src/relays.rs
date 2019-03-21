@@ -18,7 +18,7 @@ use serde_json;
 use talpid_types::net::{all_of_the_internet, wireguard, TransportProtocol};
 
 use std::{
-    fs::File,
+    fs::{self, File},
     io,
     net::{IpAddr, SocketAddr},
     path::{Path, PathBuf},
@@ -469,11 +469,49 @@ impl RelaySelector {
 
     /// Try to read the relays, first from cache and if that fails from the resources.
     fn read_cached_relays(cache_path: &Path, resource_path: &Path) -> Result<ParsedRelays> {
-        match ParsedRelays::from_file(cache_path).chain_err(|| "Unable to read relays from cache") {
+        // prefer the resource path's relay list if the cached one doesn't exist or was modified
+        // before the resource one was created.
+        let (first_option, second_option) = || -> (&Path, &Path) {
+            let cache_mtime =
+                match fs::metadata(cache_path).and_then(|metadata| metadata.modified()) {
+                    Ok(data) => data,
+                    // cached relay list metadata is not readable, assuming it's not even there
+                    Err(e) => {
+                        log::trace!(
+                            "Failed to read metadata of cached relay list ({}) - {}",
+                            cache_path.display(),
+                            e
+                        );
+                        return (resource_path, cache_path);
+                    }
+                };
+            let bundled_mtime =
+                match fs::metadata(cache_path).and_then(|metadata| metadata.modified()) {
+                    Ok(data) => data,
+                    // bundled relay list metadata is not readable, assuming it's not even there
+                    Err(e) => {
+                        log::trace!(
+                            "Failed to read metadata of bundled relay list ({}) - {}",
+                            resource_path.display(),
+                            e
+                        );
+                        return (cache_path, resource_path);
+                    }
+                };
+            if bundled_mtime > cache_mtime {
+                (resource_path, cache_path)
+            } else {
+                (cache_path, resource_path)
+            }
+        }();
+
+        match ParsedRelays::from_file(first_option)
+            .chain_err(|| "Unable to read relays from first option")
+        {
             Ok(value) => Ok(value),
             Err(error) => {
                 debug!("{}", error.display_chain());
-                ParsedRelays::from_file(resource_path)
+                ParsedRelays::from_file(second_option)
             }
         }
     }
