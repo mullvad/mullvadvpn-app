@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.2-beta1] - 2019-03-21
 ### Added
 - Integrate initial Shadowsocks proxy support. Accessible via CLI.
 - Add initial Wireguard support on macOS and Linux. Accessible via CLI.
