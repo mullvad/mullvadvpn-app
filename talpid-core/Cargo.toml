@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 atty = "0.2"
-duct = "0.11"
+duct = "0.12"
 error-chain = "0.12"
 futures = "0.1"
 jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
