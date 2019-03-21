@@ -8,12 +8,16 @@ pub fn get_rpc_socket_path() -> PathBuf {
 }
 
 pub fn get_default_rpc_socket_path() -> PathBuf {
-    #[cfg(unix)]
+    #[cfg(all(unix, not(target_os = "android")))]
     {
         PathBuf::from("/var/run/mullvad-vpn")
     }
     #[cfg(windows)]
     {
         PathBuf::from("//./pipe/Mullvad VPN")
+    }
+    #[cfg(target_os = "android")]
+    {
+        PathBuf::from(format!("{}/rpc-socket", crate::APP_PATH))
     }
 }
