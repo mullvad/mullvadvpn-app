@@ -32,7 +32,7 @@ fi
 echo "Updating version in metadata files..."
 SEMVER_VERSION=`echo $VERSION | sed -Ee 's/($|-.*)/.0\1/g'`
 sed -i.bak -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
-    gui/packages/desktop/package.json
+    gui/package.json
 sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
@@ -44,7 +44,7 @@ cargo build
 
 echo "Commiting metadata changes to git..."
 git commit -S -m "Updating version in package files" \
-    gui/packages/desktop/package.json \
+    gui/package.json \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml \
