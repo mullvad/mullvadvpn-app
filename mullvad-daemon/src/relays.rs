@@ -150,7 +150,7 @@ impl RelaySelector {
     pub fn new(rpc_handle: HttpHandle, resource_dir: &Path, cache_dir: &Path) -> Self {
         let cache_path = cache_dir.join(RELAYS_FILENAME);
         let resource_path = resource_dir.join(RELAYS_FILENAME);
-        let unsynchronized_parsed_relays = Self::read_cached_relays(&cache_path, &resource_path)
+        let unsynchronized_parsed_relays = Self::read_relays_from_disk(&cache_path, &resource_path)
             .unwrap_or_else(|error| {
                 let chained_error = error.chain_err(|| "Unable to load cached relays");
                 error!("{}", chained_error.display_chain());
@@ -467,14 +467,27 @@ impl RelaySelector {
         }
     }
 
-    /// Try to read the relays, first from cache and if that fails from the resources.
-    fn read_cached_relays(cache_path: &Path, resource_path: &Path) -> Result<ParsedRelays> {
-        match ParsedRelays::from_file(cache_path).chain_err(|| "Unable to read relays from cache") {
-            Ok(value) => Ok(value),
-            Err(error) => {
-                debug!("{}", error.display_chain());
-                ParsedRelays::from_file(resource_path)
+    /// Try to read the relays from disk, preferring the newer ones.
+    fn read_relays_from_disk(cache_path: &Path, resource_path: &Path) -> Result<ParsedRelays> {
+        // prefer the resource path's relay list if the cached one doesn't exist or was modified
+        // before the resource one was created.
+        let cached_relays = ParsedRelays::from_file(cache_path);
+        let bundled_relays = match ParsedRelays::from_file(resource_path) {
+            Ok(bundled_relays) => bundled_relays,
+            Err(e) => {
+                log::error!("Failed to load bundled relays - {}", e);
+                return cached_relays;
             }
+        };
+
+        if cached_relays
+            .as_ref()
+            .map(|cached| cached.last_updated > bundled_relays.last_updated)
+            .unwrap_or(false)
+        {
+            cached_relays
+        } else {
+            Ok(bundled_relays)
         }
     }
 }
