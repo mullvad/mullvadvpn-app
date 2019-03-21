@@ -10,7 +10,7 @@ edition = "2018"
 integration-tests = []
 
 [dependencies]
-duct = "0.11"
+duct = "0.12"
 mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-paths = { path = "../mullvad-paths" }
 notify = "4.0"
