@@ -37,6 +37,10 @@
 !define PTI_GENERAL_ERROR 0
 !define PTI_SUCCESS 1
 
+# Return codes from cleanup::RemoveRelayCache
+!define RRC_GENERAL_ERROR 0
+!define RRC_SUCCESS 1
+
 # Windows error codes
 !define ERROR_SERVICE_DEPENDENCY_DELETED 1075
 
@@ -416,6 +420,40 @@
 !define RemoveSettings '!insertmacro "RemoveSettings"'
 
 #
+# RemoveRelayCache
+#
+# Call into helper DLL instructing it to remove all relay cache.
+# Currently, errors are only logged and not propagated.
+#
+!macro RemoveRelayCache
+
+	log::Log "RemoveRelayCache()"
+	
+	Push $0
+	Push $1
+
+	cleanup::RemoveRelayCache
+	
+	Pop $0
+	Pop $1
+	
+	${If} $0 != ${RRC_SUCCESS}
+		log::Log "Failed to remove relay cache: $1"
+		Goto RemoveRelayCache_return
+	${EndIf}
+
+	log::Log "RemoveRelayCache() completed successfully"
+	
+	RemoveRelayCache_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemoveRelayCache '!insertmacro "RemoveRelayCache"'
+
+#
 # customInit
 #
 # This macro is activated right when the installer first starts up.
@@ -471,6 +509,8 @@
 	SetShellVarContext current
 	RMDir /r "$APPDATA\${PRODUCT_NAME}"
 
+	${RemoveRelayCache}
+	
 	${ExtractDriver}
 	${InstallDriver}
 

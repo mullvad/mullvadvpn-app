@@ -4,3 +4,4 @@ EXPORTS
 
 RemoveLogsAndCache
 RemoveSettings
+RemoveRelayCache

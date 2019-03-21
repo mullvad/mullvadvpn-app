@@ -75,3 +75,5 @@ if [ -d "$OLD_CACHE_DIR" ]; then
     mv "$OLD_CACHE_DIR"/* "$NEW_CACHE_DIR/" || echo "Unable to migrate cache. No cache files?"
     rm -rf "$OLD_CACHE_DIR"
 fi
+
+rm -f "$NEW_CACHE_DIR/relays.json" || true
