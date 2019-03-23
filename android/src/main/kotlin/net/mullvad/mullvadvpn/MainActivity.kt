@@ -38,7 +38,7 @@ class MainActivity : FragmentActivity() {
 
     private fun addInitialFragment() {
         supportFragmentManager?.beginTransaction()?.apply {
-            add(R.id.main_fragment, LoginFragment())
+            add(R.id.main_fragment, LaunchFragment())
             commit()
         }
     }
