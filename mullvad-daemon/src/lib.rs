@@ -512,7 +512,8 @@ impl Daemon {
                     Some(location_from_relay) => Box::new(
                         self.get_geo_location()
                             .map(|fetched_location| GeoIpLocation {
-                                ip: fetched_location.ip,
+                                ipv4: fetched_location.ipv4,
+                                ipv6: fetched_location.ipv6,
                                 ..location_from_relay
                             })
                             .map(Some),
@@ -545,7 +546,8 @@ impl Daemon {
         let hostname = relay.hostname.clone();
 
         Some(GeoIpLocation {
-            ip: None,
+            ipv4: None,
+            ipv6: None,
             country: location.country,
             city: Some(location.city),
             latitude: location.latitude,
