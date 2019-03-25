@@ -31,7 +31,8 @@ import {
 
 const locationSchema = maybe(
   partialObject({
-    ip: maybe(string),
+    ipv4: maybe(string),
+    ipv6: maybe(string),
     country: string,
     city: maybe(string),
     latitude: number,
