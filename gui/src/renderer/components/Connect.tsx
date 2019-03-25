@@ -151,7 +151,8 @@ export default class Connect extends Component<IProps, IState> {
     const status = this.props.connection.status;
 
     const relayOutAddress: IRelayOutAddress = {
-      ipv4: this.props.connection.ip,
+      ipv4: this.props.connection.ipv4,
+      ipv6: this.props.connection.ipv6,
     };
     const relayInAddress: IRelayInAddress | undefined =
       (status.state === 'connecting' || status.state === 'connected') && status.details
