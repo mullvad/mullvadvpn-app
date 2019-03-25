@@ -12,6 +12,7 @@ import kotlinx.coroutines.Job
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 
+import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 
@@ -27,6 +28,11 @@ class MainActivity : FragmentActivity() {
     val relayList: RelayList
         get() = runBlocking { asyncRelayList.await() }
 
+    var asyncSettings = fetchSettings()
+        private set
+    val settings
+        get() = runBlocking { asyncSettings.await() }
+
     var selectedRelayItem: RelayItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +47,7 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onDestroy() {
+        asyncSettings.cancel()
         asyncRelayList.cancel()
         asyncDaemon.cancel()
 
@@ -62,5 +69,9 @@ class MainActivity : FragmentActivity() {
 
     private fun fetchRelayList() = GlobalScope.async(Dispatchers.Default) {
         RelayList(asyncDaemon.await().getRelayLocations())
+    }
+
+    private fun fetchSettings() = GlobalScope.async(Dispatchers.Default) {
+        asyncDaemon.await().getSettings()
     }
 }
