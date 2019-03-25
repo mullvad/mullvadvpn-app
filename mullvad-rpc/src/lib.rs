@@ -13,7 +13,6 @@ extern crate error_chain;
 use chrono::{offset::Utc, DateTime};
 use jsonrpc_client_core::{expand_params, jsonrpc_client};
 use jsonrpc_client_http::{header::Host, HttpTransport, HttpTransportBuilder};
-use lazy_static::lazy_static;
 use mullvad_types::{account::AccountToken, relay_list::RelayList, version};
 use std::{
     collections::HashMap,
@@ -43,9 +42,7 @@ const DNS_THREADS: usize = 2;
 const API_HOST: &str = "api.mullvad.net";
 const RPC_TIMEOUT: Duration = Duration::from_secs(10);
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
-lazy_static! {
-    static ref API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 73));
-}
+const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 73));
 
 
 /// A type that helps with the creation of RPC connections.
@@ -58,7 +55,7 @@ impl MullvadRpcFactory {
     /// Create a new `MullvadRpcFactory`.
     pub fn new<P: Into<PathBuf>>(ca_path: P) -> Self {
         MullvadRpcFactory {
-            cached_dns_resolver: CachedDnsResolver::new(API_HOST.to_owned(), None, *API_IP),
+            cached_dns_resolver: CachedDnsResolver::new(API_HOST.to_owned(), None, API_IP),
             ca_path: ca_path.into(),
         }
     }
@@ -67,7 +64,7 @@ impl MullvadRpcFactory {
     pub fn with_cache_dir<P: Into<PathBuf>>(cache_dir: &Path, ca_path: P) -> Self {
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
         let cached_dns_resolver =
-            CachedDnsResolver::new(API_HOST.to_owned(), Some(cache_file), *API_IP);
+            CachedDnsResolver::new(API_HOST.to_owned(), Some(cache_file), API_IP);
 
         MullvadRpcFactory {
             cached_dns_resolver,
