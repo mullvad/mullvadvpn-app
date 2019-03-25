@@ -12,6 +12,7 @@ import kotlinx.coroutines.Job
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 
+import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 
 class MainActivity : FragmentActivity() {
@@ -26,7 +27,7 @@ class MainActivity : FragmentActivity() {
     val relayList: RelayList
         get() = runBlocking { asyncRelayList.await() }
 
-    var selectedRelayItemCode: String? = null
+    var selectedRelayItem: RelayItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

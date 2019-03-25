@@ -11,17 +11,12 @@ import net.mullvad.mullvadvpn.R
 
 class RelayListAdapter(
     private val relayList: RelayList,
-    private val initialSelectedItemCode: String?
+    private var selectedItem: RelayItem?
 ) : Adapter<RelayItemHolder>() {
     private val activeIndices = LinkedList<WeakReference<RelayListAdapterPosition>>()
-    private var selectedItem: RelayItem? = null
     private var selectedItemHolder: RelayItemHolder? = null
 
-    var onSelect: ((String?) -> Unit)? = null
-
-    init {
-        initialSelectedItemCode?.let { code -> selectedItem = findRelayItemByCode(code) }
-    }
+    var onSelect: ((RelayItem?) -> Unit)? = null
 
     override fun onCreateViewHolder(parentView: ViewGroup, type: Int): RelayItemHolder {
         val inflater = LayoutInflater.from(parentView.context)
@@ -59,7 +54,7 @@ class RelayListAdapter(
         selectedItemHolder = holder
         selectedItemHolder?.apply { selected = true }
 
-        onSelect?.invoke(item?.code)
+        onSelect?.invoke(item)
     }
 
     fun expandItem(itemIndex: RelayListAdapterPosition, childCount: Int) {
@@ -104,27 +99,5 @@ class RelayListAdapter(
         } else {
             holder.selected = false
         }
-    }
-
-    private fun findRelayItemByCode(code: String): RelayItem? {
-        val codeParts = code.split('-')
-
-        for (country in relayList.countries) {
-            if (country.code == codeParts[0]) {
-                if (codeParts.size == 1) {
-                    return country
-                } else {
-                    var relayCode: String? = null
-
-                    if (codeParts.size == 3) {
-                        relayCode = codeParts[2]
-                    }
-
-                    return country.findRelayItemByCode("${codeParts[0]}-${codeParts[1]}", relayCode)
-                }
-            }
-        }
-
-        return null
     }
 }

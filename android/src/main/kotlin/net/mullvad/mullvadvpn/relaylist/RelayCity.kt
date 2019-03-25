@@ -47,6 +47,4 @@ class RelayCity(
     }
 
     fun getRelayCount(): Int = relays.size
-
-    fun findRelayByCode(code: String): RelayItem? = relays.find { relay -> relay.code == code }
 }

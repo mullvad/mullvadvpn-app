@@ -45,18 +45,4 @@ class RelayCountry(
     }
 
     fun getRelayCount(): Int = cities.map { city -> city.getRelayCount() }.sum()
-
-    fun findRelayItemByCode(cityCode: String, relayCode: String?): RelayItem? {
-        for (city in cities) {
-            if (city.code == cityCode) {
-                if (relayCode != null) {
-                    return city.findRelayByCode("$cityCode-$relayCode")
-                } else {
-                    return city
-                }
-            }
-        }
-
-        return null
-    }
 }
