@@ -4,7 +4,8 @@ import { ReduxAction } from '../store';
 export interface IConnectionReduxState {
   status: TunnelStateTransition;
   isBlocked: boolean;
-  ip?: Ip;
+  ipv4?: Ip;
+  ipv6?: Ip;
   hostname?: string;
   latitude?: number;
   longitude?: number;
@@ -15,7 +16,8 @@ export interface IConnectionReduxState {
 const initialState: IConnectionReduxState = {
   status: { state: 'disconnected' },
   isBlocked: false,
-  ip: undefined,
+  ipv4: undefined,
+  ipv6: undefined,
   hostname: undefined,
   latitude: undefined,
   longitude: undefined,
