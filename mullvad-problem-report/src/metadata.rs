@@ -96,7 +96,7 @@ mod os {
                 Some("OS Name") => {
                     version = info_parts
                         .next()
-                        .map(|s| s.trim().trim_left_matches("Microsoft Windows "))
+                        .map(|s| s.trim().trim_start_matches("Microsoft Windows "))
                 }
                 Some("OS Version") => full_version = info_parts.next().map(str::trim),
                 _ => {}
