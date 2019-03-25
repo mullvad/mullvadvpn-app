@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Removed
+- Remove the Mullvad OpenVPN intermediate transition CA. Used when transitioning from the old to
+  the new root CA. Now the app only bundles and trust the new Mullvad root CA valid until 2028.
 
 
 ## [2019.2-beta1] - 2019-03-21
