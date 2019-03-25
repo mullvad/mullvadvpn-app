@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 
 import net.mullvad.mullvadvpn.relaylist.RelayItemDividerDecoration
+import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
 
 class SelectLocationFragment : Fragment() {
@@ -32,11 +33,12 @@ class SelectLocationFragment : Fragment() {
     }
 
     private fun configureRelayList(relayList: RecyclerView) {
-        val parentActivity = activity as MainActivity?
-        val relayListAdapter = RelayListAdapter(parentActivity?.selectedRelayItemCode)
+        val parentActivity = activity as MainActivity
+        val relayListAdapter =
+            RelayListAdapter(parentActivity.relayList, parentActivity.selectedRelayItemCode)
 
         relayListAdapter.onSelect = { relayItemCode ->
-            parentActivity?.selectedRelayItemCode = relayItemCode
+            parentActivity.selectedRelayItemCode = relayItemCode
             close()
         }
 
