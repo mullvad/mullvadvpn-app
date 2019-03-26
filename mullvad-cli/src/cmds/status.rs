@@ -87,12 +87,13 @@ fn print_location(rpc: &mut DaemonRpcClient) -> Result<()> {
     if let Some(ipv6) = location.ipv6 {
         println!("IPv6: {}", ipv6);
     }
-    let city_and_country = if let Some(city) = location.city {
-        format!("{}, {}", city, location.country)
-    } else {
-        location.country.clone()
-    };
-    println!("Location: {}", city_and_country);
+
+    print!("Location: ");
+    if let Some(city) = location.city {
+        print!("{}, ", city);
+    }
+    println!("{}", location.country);
+
     println!(
         "Position: {:.5}°N, {:.5}°W",
         location.latitude, location.longitude
