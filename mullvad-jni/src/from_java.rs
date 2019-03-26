@@ -1,10 +1,10 @@
-use crate::get_class;
+use crate::{get_class, is_null::IsNull};
 use jni::{
     objects::{JObject, JString},
     JNIEnv,
 };
 use mullvad_types::relay_constraints::{Constraint, LocationConstraint};
-use std::{fmt::Debug, ops::Deref};
+use std::fmt::Debug;
 
 pub trait FromJava<'env> {
     type JavaType: 'env;
@@ -15,7 +15,7 @@ pub trait FromJava<'env> {
 impl<'env, T> FromJava<'env> for Option<T>
 where
     T: FromJava<'env>,
-    T::JavaType: Deref<Target = JObject<'env>>,
+    T::JavaType: IsNull,
 {
     type JavaType = T::JavaType;
 

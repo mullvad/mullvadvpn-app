@@ -3,6 +3,7 @@
 mod daemon_interface;
 mod from_java;
 mod into_java;
+mod is_null;
 
 use crate::{daemon_interface::DaemonInterface, from_java::FromJava, into_java::IntoJava};
 use jni::{
