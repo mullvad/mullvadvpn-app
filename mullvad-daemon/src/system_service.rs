@@ -3,7 +3,6 @@ use error_chain::ChainedError;
 use std::{
     env,
     ffi::OsString,
-    io,
     sync::{
         atomic::{AtomicUsize, Ordering},
         mpsc, Arc,
@@ -135,7 +134,7 @@ impl PersistentServiceStatus {
 
     /// Tell the system that the service is pending start and provide the time estimate until
     /// initialization is complete.
-    fn set_pending_start(&mut self, wait_hint: Duration) -> io::Result<()> {
+    fn set_pending_start(&mut self, wait_hint: Duration) -> windows_service::Result<()> {
         self.report_status(
             ServiceState::StartPending,
             wait_hint,
@@ -144,7 +143,7 @@ impl PersistentServiceStatus {
     }
 
     /// Tell the system that the service is running.
-    fn set_running(&mut self) -> io::Result<()> {
+    fn set_running(&mut self) -> windows_service::Result<()> {
         self.report_status(
             ServiceState::Running,
             Duration::default(),
@@ -154,7 +153,7 @@ impl PersistentServiceStatus {
 
     /// Tell the system that the service is pending stop and provide the time estimate until the
     /// service is stopped.
-    fn set_pending_stop(&mut self, wait_hint: Duration) -> io::Result<()> {
+    fn set_pending_stop(&mut self, wait_hint: Duration) -> windows_service::Result<()> {
         self.report_status(
             ServiceState::StopPending,
             wait_hint,
@@ -163,7 +162,7 @@ impl PersistentServiceStatus {
     }
 
     /// Tell the system that the service is stopped and provide the exit code.
-    fn set_stopped(&mut self, exit_code: ServiceExitCode) -> io::Result<()> {
+    fn set_stopped(&mut self, exit_code: ServiceExitCode) -> windows_service::Result<()> {
         self.report_status(ServiceState::Stopped, Duration::default(), exit_code)
     }
 
@@ -173,7 +172,7 @@ impl PersistentServiceStatus {
         next_state: ServiceState,
         wait_hint: Duration,
         exit_code: ServiceExitCode,
-    ) -> io::Result<()> {
+    ) -> windows_service::Result<()> {
         // Automatically bump the checkpoint when updating the pending events to tell the system
         // that the service is making a progress in transition from pending to final state.
         // `wait_hint` should reflect the estimated time for transition to complete.
