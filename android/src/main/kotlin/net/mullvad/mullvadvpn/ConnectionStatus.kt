@@ -4,6 +4,8 @@ import android.content.Context
 import android.view.View
 import android.widget.TextView
 
+import net.mullvad.mullvadvpn.model.TunnelStateTransition
+
 class ConnectionStatus(val parentView: View, val context: Context) {
     private val spinner: View = parentView.findViewById(R.id.connecting_spinner)
     private val text: TextView = parentView.findViewById(R.id.connection_status)
@@ -12,16 +14,15 @@ class ConnectionStatus(val parentView: View, val context: Context) {
     private val connectingTextColor = context.getColor(R.color.white)
     private val connectedTextColor = context.getColor(R.color.green)
 
-    var state = ConnectionState.Disconnected
-        set(value) {
-            when (value) {
-                ConnectionState.Disconnected -> disconnected()
-                ConnectionState.Connecting -> connecting()
-                ConnectionState.Connected -> connected()
-            }
-
-            field = value
+    fun setState(state: TunnelStateTransition) {
+        when (state) {
+            is TunnelStateTransition.Disconnecting -> disconnected()
+            is TunnelStateTransition.Disconnected -> disconnected()
+            is TunnelStateTransition.Connecting -> connecting()
+            is TunnelStateTransition.Connected -> connected()
+            is TunnelStateTransition.Blocked -> connected()
         }
+    }
 
     private fun disconnected() {
         spinner.visibility = View.GONE
