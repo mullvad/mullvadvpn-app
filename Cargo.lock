@@ -1132,7 +1132,7 @@ dependencies = [
  "tokio-timer 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "windows-service 0.1.0 (git+https://github.com/mullvad/windows-service-rs.git?rev=da48aacfce712969437a756230b9aa8213ff6fba)",
+ "windows-service 0.1.0 (git+https://github.com/mullvad/windows-service-rs.git?rev=aab5b26beae364253802b6e5554c9ecdc6285454)",
  "winres 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -2590,10 +2590,10 @@ dependencies = [
 [[package]]
 name = "windows-service"
 version = "0.1.0"
-source = "git+https://github.com/mullvad/windows-service-rs.git?rev=da48aacfce712969437a756230b9aa8213ff6fba#da48aacfce712969437a756230b9aa8213ff6fba"
+source = "git+https://github.com/mullvad/windows-service-rs.git?rev=aab5b26beae364253802b6e5554c9ecdc6285454#aab5b26beae364253802b6e5554c9ecdc6285454"
 dependencies = [
  "bitflags 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "error-chain 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "err-derive 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "widestring 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -2893,7 +2893,7 @@ dependencies = [
 "checksum winapi-util 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7168bab6e1daee33b4557efd0e95d5ca70a03706d39fa5f3fe7a236f584b03c9"
 "checksum winapi-x86_64-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 "checksum wincolor 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "561ed901ae465d6185fa7864d63fbd5720d0ef718366c9a4dc83cf6170d7e9ba"
-"checksum windows-service 0.1.0 (git+https://github.com/mullvad/windows-service-rs.git?rev=da48aacfce712969437a756230b9aa8213ff6fba)" = "<none>"
+"checksum windows-service 0.1.0 (git+https://github.com/mullvad/windows-service-rs.git?rev=aab5b26beae364253802b6e5554c9ecdc6285454)" = "<none>"
 "checksum winreg 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "a27a759395c1195c4cc5cda607ef6f8f6498f64e78f7900f5de0a127a424704a"
 "checksum winres 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = "aea48d0b4b15ba195fc7250fdfb27736ce3bc327535db1c87a2fcb62371f9ecd"
 "checksum ws2_32-sys 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d59cefebd0c892fa2dd6de581e937301d8552cb44489cdff035c6187cb63fa5e"
