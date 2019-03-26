@@ -1196,7 +1196,6 @@ dependencies = [
  "hyper-openssl 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-client-core 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-client-http 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lazy_static 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "mullvad-types 0.1.0",
  "serde_json 1.0.38 (registry+https://github.com/rust-lang/crates.io-index)",

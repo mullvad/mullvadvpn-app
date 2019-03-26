@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- When IPv6 is enabled, get both exit IP versions from am.i.mullvad.net and show in UI.
+
 ### Removed
 - Remove the Mullvad OpenVPN intermediate transition CA. Used when transitioning from the old to
   the new root CA. Now the app only bundles and trust the new Mullvad root CA valid until 2028.

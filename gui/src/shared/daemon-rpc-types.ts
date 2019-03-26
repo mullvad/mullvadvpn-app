@@ -4,7 +4,8 @@ export interface IAccountData {
 export type AccountToken = string;
 export type Ip = string;
 export interface ILocation {
-  ip?: string;
+  ipv4?: string;
+  ipv6?: string;
   country: string;
   city?: string;
   latitude: number;
