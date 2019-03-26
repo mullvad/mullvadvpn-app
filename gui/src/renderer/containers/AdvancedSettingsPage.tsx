@@ -2,7 +2,7 @@ import { goBack } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { RelayProtocol } from '../../shared/daemon-rpc-types';
+import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
 import AdvancedSettings from '../components/AdvancedSettings';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
 
@@ -17,6 +17,7 @@ const mapStateToProps = (state: IReduxState) => {
     enableIpv6: state.settings.enableIpv6,
     blockWhenDisconnected: state.settings.blockWhenDisconnected,
     mssfix: state.settings.openVpn.mssfix,
+    bridgeState: state.settings.bridgeState,
     ...protocolAndPort,
   };
 };
@@ -79,6 +80,14 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
         await props.app.setBlockWhenDisconnected(blockWhenDisconnected);
       } catch (e) {
         log.error('Failed to update block when disconnected', e.message);
+      }
+    },
+
+    setBridgeState: async (bridgeState: BridgeState) => {
+      try {
+        await props.app.setBridgeState(bridgeState);
+      } catch (e) {
+        log.error(`Failed to update bridge state: ${e.message}`);
       }
     },
 

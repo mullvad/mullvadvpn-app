@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
-import { RelayProtocol } from '../../shared/daemon-rpc-types';
+import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import styles from './AdvancedSettingsStyles';
 import * as Cell from './Cell';
@@ -36,12 +36,27 @@ function mapPortToSelectorItem(value: number): ISelectorItem<number> {
   return { label: value.toString(), value };
 }
 
+function makeBridgeItems(): Array<ISelectorItem<BridgeState>> {
+  return [
+    {
+      label: messages.pgettext('advanced-settings-view', 'On'),
+      value: 'on',
+    },
+    {
+      label: messages.pgettext('advanced-settings-view', 'Off'),
+      value: 'off',
+    },
+  ];
+}
+
 interface IProps {
   enableIpv6: boolean;
   blockWhenDisconnected: boolean;
   protocol?: RelayProtocol;
   mssfix?: number;
   port?: number;
+  bridgeState?: BridgeState;
+  setBridgeState: (value: BridgeState) => void;
   setEnableIpv6: (value: boolean) => void;
   setBlockWhenDisconnected: (value: boolean) => void;
   setOpenVpnMssfix: (value: number | undefined) => void;
@@ -56,6 +71,8 @@ interface IState {
 }
 
 export default class AdvancedSettings extends Component<IProps, IState> {
+  private bridgeSelectorItems = makeBridgeItems();
+
   constructor(props: IProps) {
     super(props);
 
@@ -163,6 +180,16 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     )}
                   </View>
 
+                  <Selector
+                    title={
+                      // TRANSLATORS: The title for the shadowsocks bridge selector section.
+                      messages.pgettext('advanced-settings-view', 'Shadowsocks bridge')
+                    }
+                    values={this.bridgeSelectorItems}
+                    value={this.props.bridgeState}
+                    onSelect={this.onSelectBridgeState}
+                  />
+
                   <Cell.Container>
                     <Cell.Label>{messages.pgettext('advanced-settings-view', 'Mssfix')}</Cell.Label>
                     <Cell.InputFrame style={styles.advanced_settings__mssfix_frame}>
@@ -211,6 +238,14 @@ export default class AdvancedSettings extends Component<IProps, IState> {
 
   private onSelectPort = (port?: number) => {
     this.props.setRelayProtocolAndPort(this.props.protocol, port);
+  };
+
+  private onSelectBridgeState = (bridgeState?: BridgeState) => {
+    if (bridgeState) {
+      this.props.setBridgeState(bridgeState);
+    } else {
+      this.props.setBridgeState('auto');
+    }
   };
 
   private onMssfixChange = (mssfixString: string) => {

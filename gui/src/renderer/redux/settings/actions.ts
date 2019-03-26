@@ -1,3 +1,4 @@
+import { BridgeState } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { IRelayLocationRedux, RelaySettingsRedux } from './reducers';
 
@@ -31,6 +32,11 @@ export interface IUpdateBlockWhenDisconnectedAction {
   blockWhenDisconnected: boolean;
 }
 
+export interface IUpdateBridgeStateAction {
+  type: 'UPDATE_BRIDGE_STATE';
+  bridgeState: BridgeState;
+}
+
 export interface IUpdateOpenVpnMssfixAction {
   type: 'UPDATE_OPENVPN_MSSFIX';
   mssfix?: number;
@@ -48,6 +54,7 @@ export type SettingsAction =
   | IUpdateAllowLanAction
   | IUpdateEnableIpv6Action
   | IUpdateBlockWhenDisconnectedAction
+  | IUpdateBridgeStateAction
   | IUpdateOpenVpnMssfixAction
   | IUpdateAutoStartAction;
 
@@ -95,6 +102,13 @@ function updateBlockWhenDisconnected(
   };
 }
 
+function updateBridgeState(bridgeState: BridgeState): IUpdateBridgeStateAction {
+  return {
+    type: 'UPDATE_BRIDGE_STATE',
+    bridgeState,
+  };
+}
+
 function updateOpenVpnMssfix(mssfix?: number): IUpdateOpenVpnMssfixAction {
   return {
     type: 'UPDATE_OPENVPN_MSSFIX',
@@ -116,6 +130,7 @@ export default {
   updateAllowLan,
   updateEnableIpv6,
   updateBlockWhenDisconnected,
+  updateBridgeState,
   updateOpenVpnMssfix,
   updateAutoStart,
 };
