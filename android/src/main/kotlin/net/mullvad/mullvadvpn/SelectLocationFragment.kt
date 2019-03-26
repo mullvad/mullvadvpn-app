@@ -1,5 +1,9 @@
 package net.mullvad.mullvadvpn
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -9,6 +13,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 
+import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
+import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayItemDividerDecoration
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
@@ -39,6 +47,7 @@ class SelectLocationFragment : Fragment() {
 
         relayListAdapter.onSelect = { relayItem ->
             parentActivity.selectedRelayItem = relayItem
+            updateLocationConstraint(relayItem)
             close()
         }
 
@@ -48,5 +57,21 @@ class SelectLocationFragment : Fragment() {
 
             addItemDecoration(RelayItemDividerDecoration(context!!))
         }
+    }
+
+    private fun updateLocationConstraint(relayItem: RelayItem?) =
+            GlobalScope.launch(Dispatchers.Default) {
+        val parentActivity = activity as MainActivity
+        var constraint: Constraint<LocationConstraint>
+
+        if (relayItem == null) {
+            constraint = Constraint.Any()
+        } else {
+            constraint = Constraint.Only(relayItem.location)
+        }
+
+        parentActivity.asyncDaemon.await().updateRelaySettings(
+            RelaySettingsUpdate.RelayConstraintsUpdate(constraint)
+        )
     }
 }
