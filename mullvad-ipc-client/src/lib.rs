@@ -11,6 +11,7 @@ use mullvad_types::{
     relay_list::RelayList,
     settings::{Settings, TunnelOptions},
     version::AppVersionInfo,
+    DaemonEvent,
 };
 use serde::{Deserialize, Serialize};
 use std::{path::Path, thread};
@@ -248,16 +249,16 @@ impl DaemonRpcClient {
             .chain_err(|| ErrorKind::RpcCallError(method.to_owned()))
     }
 
-    pub fn new_state_subscribe(
+    pub fn daemon_event_subscribe(
         &mut self,
     ) -> impl Future<
-        Item = jsonrpc_client_pubsub::Subscription<TunnelStateTransition>,
+        Item = jsonrpc_client_pubsub::Subscription<DaemonEvent>,
         Error = jsonrpc_client_pubsub::Error,
     > {
         self.subscriber.subscribe(
-            "new_state_subscribe".to_string(),
-            "new_state_unsubscribe".to_string(),
-            "new_state".to_string(),
+            "daemon_event_subscribe".to_string(),
+            "daemon_event_unsubscribe".to_string(),
+            "daemon_event".to_string(),
             0,
             &NO_ARGS,
         )
