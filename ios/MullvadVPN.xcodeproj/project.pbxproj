@@ -1,0 +1,536 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */; };
+		5867A51C2248F26A005513C0 /* SegueIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867A51B2248F26A005513C0 /* SegueIdentifier.swift */; };
+		58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */; };
+		58CCA010224249A1004F3011 /* ConnectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA00F224249A1004F3011 /* ConnectViewController.swift */; };
+		58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA01122424D11004F3011 /* SettingsViewController.swift */; };
+		58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA0152242560B004F3011 /* UIColor+Palette.swift */; };
+		58CCA01822426713004F3011 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA01722426713004F3011 /* AccountViewController.swift */; };
+		58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA01D2242787B004F3011 /* AccountTextField.swift */; };
+		58CE5E64224146200008646E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E63224146200008646E /* AppDelegate.swift */; };
+		58CE5E66224146200008646E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E65224146200008646E /* LoginViewController.swift */; };
+		58CE5E69224146200008646E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58CE5E67224146200008646E /* Main.storyboard */; };
+		58CE5E6B224146210008646E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58CE5E6A224146210008646E /* Assets.xcassets */; };
+		58CE5E6E224146210008646E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58CE5E6C224146210008646E /* LaunchScreen.storyboard */; };
+		58CE5E7C224146470008646E /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
+		58CE5E81224146470008646E /* PacketTunnel.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 58CE5E79224146470008646E /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		58F37E7D2243ECCB00C75C97 /* HeaderBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F37E7C2243ECCB00C75C97 /* HeaderBarViewController.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		58CE5E7F224146470008646E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58CE5E78224146470008646E;
+			remoteInfo = PacketTunnel;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		58CE5E85224146470008646E /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				58CE5E81224146470008646E /* PacketTunnel.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslucentButtonBlurView.swift; sourceTree = "<group>"; };
+		5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MullvadVPN.entitlements; sourceTree = "<group>"; };
+		5867A51B2248F26A005513C0 /* SegueIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegueIdentifier.swift; sourceTree = "<group>"; };
+		58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInputGroupView.swift; sourceTree = "<group>"; };
+		58CCA00F224249A1004F3011 /* ConnectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectViewController.swift; sourceTree = "<group>"; };
+		58CCA01122424D11004F3011 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		58CCA0152242560B004F3011 /* UIColor+Palette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Palette.swift"; sourceTree = "<group>"; };
+		58CCA01722426713004F3011 /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
+		58CCA01D2242787B004F3011 /* AccountTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTextField.swift; sourceTree = "<group>"; };
+		58CE5E60224146200008646E /* MullvadVPN.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MullvadVPN.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		58CE5E63224146200008646E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		58CE5E65224146200008646E /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		58CE5E68224146200008646E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		58CE5E6A224146210008646E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		58CE5E6D224146210008646E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		58CE5E6F224146210008646E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		58CE5E79224146470008646E /* PacketTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		58CE5E7B224146470008646E /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
+		58CE5E7D224146470008646E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		58CE5E7E224146470008646E /* PacketTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PacketTunnel.entitlements; sourceTree = "<group>"; };
+		58F37E7C2243ECCB00C75C97 /* HeaderBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBarViewController.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		58CE5E5D224146200008646E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		58CE5E76224146470008646E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		58CE5E57224146200008646E = {
+			isa = PBXGroup;
+			children = (
+				58CE5E62224146200008646E /* MullvadVPN */,
+				58CE5E7A224146470008646E /* PacketTunnel */,
+				58CE5E61224146200008646E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		58CE5E61224146200008646E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				58CE5E60224146200008646E /* MullvadVPN.app */,
+				58CE5E79224146470008646E /* PacketTunnel.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		58CE5E62224146200008646E /* MullvadVPN */ = {
+			isa = PBXGroup;
+			children = (
+				58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */,
+				58CCA01D2242787B004F3011 /* AccountTextField.swift */,
+				58CCA01722426713004F3011 /* AccountViewController.swift */,
+				5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */,
+				58CE5E63224146200008646E /* AppDelegate.swift */,
+				58CE5E6A224146210008646E /* Assets.xcassets */,
+				58CCA00F224249A1004F3011 /* ConnectViewController.swift */,
+				58F37E7C2243ECCB00C75C97 /* HeaderBarViewController.swift */,
+				58CE5E6F224146210008646E /* Info.plist */,
+				58CE5E6C224146210008646E /* LaunchScreen.storyboard */,
+				58CE5E65224146200008646E /* LoginViewController.swift */,
+				58CE5E67224146200008646E /* Main.storyboard */,
+				5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */,
+				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
+				58CCA0152242560B004F3011 /* UIColor+Palette.swift */,
+				5867A51B2248F26A005513C0 /* SegueIdentifier.swift */,
+			);
+			path = MullvadVPN;
+			sourceTree = "<group>";
+		};
+		58CE5E7A224146470008646E /* PacketTunnel */ = {
+			isa = PBXGroup;
+			children = (
+				58CE5E7B224146470008646E /* PacketTunnelProvider.swift */,
+				58CE5E7D224146470008646E /* Info.plist */,
+				58CE5E7E224146470008646E /* PacketTunnel.entitlements */,
+			);
+			path = PacketTunnel;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		58CE5E5F224146200008646E /* MullvadVPN */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 58CE5E72224146210008646E /* Build configuration list for PBXNativeTarget "MullvadVPN" */;
+			buildPhases = (
+				58CE5E5C224146200008646E /* Sources */,
+				58CE5E5D224146200008646E /* Frameworks */,
+				58CE5E5E224146200008646E /* Resources */,
+				58CE5E85224146470008646E /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				58CE5E80224146470008646E /* PBXTargetDependency */,
+			);
+			name = MullvadVPN;
+			productName = MullvadVPN;
+			productReference = 58CE5E60224146200008646E /* MullvadVPN.app */;
+			productType = "com.apple.product-type.application";
+		};
+		58CE5E78224146470008646E /* PacketTunnel */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 58CE5E82224146470008646E /* Build configuration list for PBXNativeTarget "PacketTunnel" */;
+			buildPhases = (
+				58CE5E75224146470008646E /* Sources */,
+				58CE5E76224146470008646E /* Frameworks */,
+				58CE5E77224146470008646E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PacketTunnel;
+			productName = PacketTunnel;
+			productReference = 58CE5E79224146470008646E /* PacketTunnel.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		58CE5E58224146200008646E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1000;
+				LastUpgradeCheck = 1000;
+				ORGANIZATIONNAME = "Amagicom AB";
+				TargetAttributes = {
+					58CE5E5F224146200008646E = {
+						CreatedOnToolsVersion = 10.0;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
+					58CE5E78224146470008646E = {
+						CreatedOnToolsVersion = 10.0;
+					};
+				};
+			};
+			buildConfigurationList = 58CE5E5B224146200008646E /* Build configuration list for PBXProject "MullvadVPN" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 58CE5E57224146200008646E;
+			productRefGroup = 58CE5E61224146200008646E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				58CE5E5F224146200008646E /* MullvadVPN */,
+				58CE5E78224146470008646E /* PacketTunnel */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		58CE5E5E224146200008646E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				58CE5E6E224146210008646E /* LaunchScreen.storyboard in Resources */,
+				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
+				58CE5E69224146200008646E /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		58CE5E77224146470008646E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		58CE5E5C224146200008646E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				58CCA010224249A1004F3011 /* ConnectViewController.swift in Sources */,
+				58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */,
+				58CCA01822426713004F3011 /* AccountViewController.swift in Sources */,
+				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
+				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
+				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
+				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
+				58F37E7D2243ECCB00C75C97 /* HeaderBarViewController.swift in Sources */,
+				5867A51C2248F26A005513C0 /* SegueIdentifier.swift in Sources */,
+				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
+				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		58CE5E75224146470008646E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				58CE5E7C224146470008646E /* PacketTunnelProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		58CE5E80224146470008646E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58CE5E78224146470008646E /* PacketTunnel */;
+			targetProxy = 58CE5E7F224146470008646E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		58CE5E67224146200008646E /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58CE5E68224146200008646E /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		58CE5E6C224146210008646E /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58CE5E6D224146210008646E /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		58CE5E70224146210008646E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		58CE5E71224146210008646E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		58CE5E73224146210008646E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MullvadVPN/MullvadVPN.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = G7CDBEG477;
+				INFOPLIST_FILE = MullvadVPN/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		58CE5E74224146210008646E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MullvadVPN/MullvadVPN.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = G7CDBEG477;
+				INFOPLIST_FILE = MullvadVPN/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		58CE5E83224146470008646E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = G7CDBEG477;
+				INFOPLIST_FILE = PacketTunnel/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnel;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		58CE5E84224146470008646E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = G7CDBEG477;
+				INFOPLIST_FILE = PacketTunnel/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnel;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		58CE5E5B224146200008646E /* Build configuration list for PBXProject "MullvadVPN" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58CE5E70224146210008646E /* Debug */,
+				58CE5E71224146210008646E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		58CE5E72224146210008646E /* Build configuration list for PBXNativeTarget "MullvadVPN" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58CE5E73224146210008646E /* Debug */,
+				58CE5E74224146210008646E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		58CE5E82224146470008646E /* Build configuration list for PBXNativeTarget "PacketTunnel" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58CE5E83224146470008646E /* Debug */,
+				58CE5E84224146470008646E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 58CE5E58224146200008646E /* Project object */;
+}
