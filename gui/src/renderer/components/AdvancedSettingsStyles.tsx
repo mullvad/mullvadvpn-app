@@ -16,14 +16,14 @@ export default {
   advanced_settings__content: Styles.createViewStyle({
     flex: 0,
   }),
+  advanced_settings__selector_section: Styles.createViewStyle({
+    marginBottom: 24,
+  }),
   advanced_settings__cell_hover: Styles.createButtonStyle({
     backgroundColor: colors.blue80,
   }),
   advanced_settings__cell_selected_hover: Styles.createButtonStyle({
     backgroundColor: colors.green,
-  }),
-  advanced_settings__cell_spacer: Styles.createViewStyle({
-    height: 24,
   }),
   advanced_settings__cell_icon_invisible: Styles.createViewStyle({
     opacity: 0,

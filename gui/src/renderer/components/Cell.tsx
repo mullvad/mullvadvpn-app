@@ -176,12 +176,13 @@ export const SectionTitle = function CellSectionTitle(props: ISectionTitleProps)
 
 interface ISectionProps {
   children?: React.ReactNode;
+  style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
 }
 
 export const Section = class CellSection extends Component<ISectionProps> {
   public render() {
     return (
-      <View>
+      <View style={this.props.style}>
         <CellSectionContext.Provider value={true}>
           {this.props.children}
         </CellSectionContext.Provider>

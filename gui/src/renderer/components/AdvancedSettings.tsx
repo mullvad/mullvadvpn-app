@@ -139,8 +139,6 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                       onSelect={this.onSelectProtocol}
                     />
 
-                    <View style={styles.advanced_settings__cell_spacer} />
-
                     {this.props.protocol ? (
                       <Selector
                         title={sprintf(
@@ -256,7 +254,7 @@ interface ISelectorProps<T> {
 class Selector<T> extends Component<ISelectorProps<T>> {
   public render() {
     return (
-      <Cell.Section>
+      <Cell.Section style={styles.advanced_settings__selector_section}>
         <Cell.SectionTitle>{this.props.title}</Cell.SectionTitle>
         <SelectorCell
           key={'auto'}
