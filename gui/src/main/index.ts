@@ -7,6 +7,7 @@ import * as path from 'path';
 import * as uuid from 'uuid';
 import {
   AccountToken,
+  DaemonEvent,
   IAppVersionInfo,
   ILocation,
   IRelayList,
@@ -491,28 +492,20 @@ class ApplicationMain {
   }
 
   private async subscribeEvents(): Promise<void> {
-    const stateListener = new SubscriptionListener(
-      (newState: TunnelStateTransition) => {
-        this.setTunnelState(newState);
+    const daemonEventListener = new SubscriptionListener(
+      (daemonEvent: DaemonEvent) => {
+        if ('stateTransition' in daemonEvent) {
+          this.setTunnelState(daemonEvent.stateTransition);
+        } else if ('settings' in daemonEvent) {
+          this.setSettings(daemonEvent.settings);
+        }
       },
       (error: Error) => {
-        log.error(`Cannot deserialize the new state: ${error.message}`);
+        log.error(`Cannot deserialize the daemon event: ${error.message}`);
       },
     );
 
-    const settingsListener = new SubscriptionListener(
-      (newSettings: ISettings) => {
-        this.setSettings(newSettings);
-      },
-      (error: Error) => {
-        log.error(`Cannot deserialize the new settings: ${error.message}`);
-      },
-    );
-
-    await Promise.all([
-      this.daemonRpc.subscribeStateListener(stateListener),
-      this.daemonRpc.subscribeSettingsListener(settingsListener),
-    ]);
+    return this.daemonRpc.subscribeDaemonEventListener(daemonEventListener);
   }
 
   private setAccountHistory(accountHistory: AccountToken[]) {
