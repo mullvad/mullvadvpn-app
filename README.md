@@ -79,8 +79,7 @@ sudo dnf install rpm-build
 
 1. Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
-1. Get the latest version 8 LTS release of Node.js (>=8.10) and the latest version of
-   yarn (>=1.7.0).
+1. Get the latest version 8 LTS release of Node.js and the latest version of yarn (>=1.7.0).
    #### macOS
    ```bash
    brew install node@8 yarn
