@@ -22,3 +22,14 @@ pub mod wireguard;
 
 mod custom_tunnel;
 pub use crate::custom_tunnel::*;
+
+/// An event sent out from the daemon to frontends.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DaemonEvent {
+    /// The daemon transitioned into a new state.
+    StateTransition(talpid_types::tunnel::TunnelStateTransition),
+
+    /// The daemon settings changed.
+    Settings(settings::Settings),
+}

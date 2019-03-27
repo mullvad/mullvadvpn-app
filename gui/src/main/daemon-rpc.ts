@@ -1,5 +1,6 @@
 import {
   AccountToken,
+  DaemonEvent,
   IAccountData,
   IAppVersionInfo,
   ILocation,
@@ -295,6 +296,15 @@ const settingsSchema = partialObject({
   tunnel_options: tunnelOptionsSchema,
 });
 
+const daemonEventSchema = oneOf(
+  object({
+    state_transition: tunnelStateTransitionSchema,
+  }),
+  object({
+    settings: settingsSchema,
+  }),
+);
+
 export class ResponseParseError extends Error {
   constructor(message: string, private validationErrorValue?: Error) {
     super(message);
@@ -432,28 +442,15 @@ export class DaemonRpc {
     }
   }
 
-  public subscribeStateListener(
-    listener: SubscriptionListener<TunnelStateTransition>,
-  ): Promise<void> {
-    return this.transport.subscribe('new_state', (payload) => {
+  public subscribeDaemonEventListener(listener: SubscriptionListener<DaemonEvent>): Promise<void> {
+    return this.transport.subscribe('daemon_event', (payload) => {
       try {
-        const newState = camelCaseObjectKeys(
-          validate(tunnelStateTransitionSchema, payload),
-        ) as TunnelStateTransition;
-        listener.onEvent(newState);
+        const daemonEvent = camelCaseObjectKeys(
+          validate(daemonEventSchema, payload),
+        ) as DaemonEvent;
+        listener.onEvent(daemonEvent);
       } catch (error) {
-        listener.onError(new ResponseParseError('Invalid payload from new_state', error));
-      }
-    });
-  }
-
-  public subscribeSettingsListener(listener: SubscriptionListener<ISettings>): Promise<void> {
-    return this.transport.subscribe('settings', (payload) => {
-      try {
-        const newSettings = camelCaseObjectKeys(validate(settingsSchema, payload)) as ISettings;
-        listener.onEvent(newSettings);
-      } catch (error) {
-        listener.onError(new ResponseParseError('Invalid payload from settings', error));
+        listener.onError(new ResponseParseError('Invalid payload from daemon_event', error));
       }
     });
   }

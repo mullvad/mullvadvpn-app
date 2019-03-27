@@ -5,6 +5,7 @@ use mullvad_tests::{
     mock_openvpn::search_openvpn_args, watch_event, DaemonRunner, MockOpenVpnPluginRpcClient,
     PathWatcher,
 };
+use mullvad_types::DaemonEvent;
 use std::{fs, path::Path, time::Duration};
 use talpid_types::{
     net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType},
@@ -59,7 +60,7 @@ fn respawns_openvpn_if_it_crashes() {
 fn changes_to_connecting_state() {
     let mut daemon = DaemonRunner::spawn();
     let mut rpc_client = daemon.rpc_client().unwrap();
-    let state_events = rpc_client.new_state_subscribe().wait().unwrap();
+    let state_events = rpc_client.daemon_event_subscribe().wait().unwrap();
 
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
@@ -80,7 +81,7 @@ fn changes_to_connected_state() {
     let mut rpc_client = daemon.rpc_client().unwrap();
     let openvpn_args_file = daemon.mock_openvpn_args_file();
     let mut openvpn_args_file_events = PathWatcher::watch(&openvpn_args_file).unwrap();
-    let state_events = rpc_client.new_state_subscribe().wait().unwrap();
+    let state_events = rpc_client.daemon_event_subscribe().wait().unwrap();
 
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
@@ -111,7 +112,7 @@ fn returns_to_connecting_state() {
     let mut rpc_client = daemon.rpc_client().unwrap();
     let openvpn_args_file = daemon.mock_openvpn_args_file();
     let mut openvpn_args_file_events = PathWatcher::watch(&openvpn_args_file).unwrap();
-    let state_events = rpc_client.new_state_subscribe().wait().unwrap();
+    let state_events = rpc_client.daemon_event_subscribe().wait().unwrap();
 
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
@@ -149,7 +150,7 @@ fn disconnects() {
     let mut rpc_client = daemon.rpc_client().unwrap();
     let openvpn_args_file = daemon.mock_openvpn_args_file();
     let mut openvpn_args_file_events = PathWatcher::watch(&openvpn_args_file).unwrap();
-    let state_events = rpc_client.new_state_subscribe().wait().unwrap();
+    let state_events = rpc_client.daemon_event_subscribe().wait().unwrap();
 
     rpc_client.set_account(Some("123456".to_owned())).unwrap();
     rpc_client.connect().unwrap();
@@ -189,23 +190,28 @@ fn get_default_endpoint() -> TunnelEndpoint {
 }
 
 fn assert_state_event<
-    S: Stream<Item = TunnelStateTransition, Error = jsonrpc_client_core::Error> + std::fmt::Debug,
+    S: Stream<Item = DaemonEvent, Error = jsonrpc_client_core::Error> + std::fmt::Debug,
 >(
-    receiver: S,
+    mut receiver: S,
     expected_state: TunnelStateTransition,
 ) -> S {
     use futures::future::Either;
 
-    let timer = tokio_timer::Timer::default();
-    let timeout = timer.sleep(Duration::from_secs(3));
+    let mut transition = None;
+    while transition.is_none() {
+        let timer = tokio_timer::Timer::default();
+        let timeout = timer.sleep(Duration::from_secs(3));
+        let (event, receiver2) = match receiver.into_future().select2(timeout).wait() {
+            Ok(Either::A((stream_result, _timer))) => stream_result,
+            _ => panic!("Timed out waiting for tunnel state transition"),
+        };
+        receiver = receiver2;
+        if let DaemonEvent::StateTransition(new_state) = event.unwrap() {
+            transition = Some(new_state);
+        }
+    }
 
-    let (received_state, receiver) = match receiver.into_future().select2(timeout).wait() {
-        Ok(Either::A((stream_result, _timer))) => stream_result,
-        _ => panic!("Timed out waiting for tunnel state transition"),
-    };
-
-
-    assert_eq!(received_state.unwrap(), expected_state);
+    assert_eq!(transition.unwrap(), expected_state);
     receiver
 }
 
