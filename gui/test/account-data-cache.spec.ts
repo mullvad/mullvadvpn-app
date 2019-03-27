@@ -1,16 +1,11 @@
-import { AccountDataCache } from '../src/renderer/app';
-import { AccountData } from '../src/shared/daemon-rpc-types';
+import AccountDataCache, { AccountFetchRetryAction } from '../src/renderer/lib/account-data-cache';
+import { IAccountData } from '../src/shared/daemon-rpc-types';
 import * as sinon from 'sinon';
-import chai from 'chai';
-import spies from 'chai-spies';
-import chaiAsPromised from 'chai-as-promised';
-import { it, describe, beforeEach, afterEach } from 'mocha';
+import { expect, spy } from 'chai';
 
-const { expect, spy } = chai;
-
-describe('AccountData cache', () => {
+describe('IAccountData cache', () => {
   const dummyAccountToken = '9876543210';
-  const dummyAccountData: AccountData = {
+  const dummyAccountData: IAccountData = {
     expiry: new Date('2038-01-01').toISOString(),
   };
 
@@ -35,7 +30,7 @@ describe('AccountData cache', () => {
         onFinish: () => resolve(),
         onError: (_error: Error) => {
           reject();
-          return 'stop';
+          return AccountFetchRetryAction.stop;
         },
       });
     });
@@ -54,7 +49,7 @@ describe('AccountData cache', () => {
         onFinish: (_reason?: any) => resolve(),
         onError: (_error: Error) => {
           reject();
-          return 'stop';
+          return AccountFetchRetryAction.stop;
         },
       });
     });
@@ -70,7 +65,7 @@ describe('AccountData cache', () => {
         onFinish: spy(),
         onError: (_error: Error) => {
           reject();
-          return 'stop';
+          return AccountFetchRetryAction.stop;
         },
       });
     });
@@ -96,7 +91,7 @@ describe('AccountData cache', () => {
 
       cache.fetch(dummyAccountToken, {
         onFinish: () => reject(),
-        onError: spy((_error: Error) => 'retry'),
+        onError: spy((_error: Error) => AccountFetchRetryAction.retry),
       });
     });
 
@@ -123,7 +118,7 @@ describe('AccountData cache', () => {
 
       cache.fetch(dummyAccountToken, {
         onFinish: spy(),
-        onError: spy((_error: Error) => 'stop'),
+        onError: spy((_error: Error) => AccountFetchRetryAction.stop),
       });
     });
 
@@ -131,12 +126,12 @@ describe('AccountData cache', () => {
   });
 
   it('should cancel first fetch', async () => {
-    const firstError = spy((_) => 'stop');
+    const firstError = spy((_error: Error) => AccountFetchRetryAction.stop);
     const secondSuccess = spy();
 
-    const update = new Promise((resolve, reject) => {
+    const update = new Promise<IAccountData>((resolve, reject) => {
       let firstAttempt = true;
-      const fetch = () => {
+      const fetch = (_token: string) => {
         if (firstAttempt) {
           firstAttempt = false;
 
@@ -144,18 +139,22 @@ describe('AccountData cache', () => {
             onFinish: secondSuccess,
             onError: () => {
               reject();
-              return 'stop';
+              return AccountFetchRetryAction.stop;
             },
           });
 
-          return new Promise((resolve) => setTimeout(() => resolve(dummyAccountData), 1000));
+          return new Promise<IAccountData>((resolve) => {
+            setTimeout(() => resolve(dummyAccountData), 1000);
+          });
         } else {
           reject();
           return Promise.resolve(dummyAccountData);
         }
       };
 
-      const cache = new AccountDataCache(fetch, () => resolve());
+      const cache = new AccountDataCache(fetch, (_accountData?: IAccountData) => {
+        resolve();
+      });
 
       setTimeout(resolve, 12000);
 

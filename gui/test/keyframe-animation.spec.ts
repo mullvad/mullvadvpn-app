@@ -19,7 +19,7 @@ describe('lib/keyframe-animation', function() {
     };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([0, 1, 2, 3, 4]);
-      expect(animation._currentFrame).to.be.equal(4);
+      expect(animation.currentFrame).to.be.equal(4);
       done();
     };
 
@@ -34,7 +34,7 @@ describe('lib/keyframe-animation', function() {
     };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([3]);
-      expect(animation._currentFrame).to.be.equal(3);
+      expect(animation.currentFrame).to.be.equal(3);
       done();
     };
 
@@ -49,7 +49,7 @@ describe('lib/keyframe-animation', function() {
     };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([2, 3, 4]);
-      expect(animation._currentFrame).to.be.equal(4);
+      expect(animation.currentFrame).to.be.equal(4);
       done();
     };
 
@@ -64,7 +64,7 @@ describe('lib/keyframe-animation', function() {
     };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([4, 3, 2]);
-      expect(animation._currentFrame).to.be.equal(2);
+      expect(animation.currentFrame).to.be.equal(2);
       done();
     };
 
@@ -79,11 +79,11 @@ describe('lib/keyframe-animation', function() {
     };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([0, 1, 2, 3, 4]);
-      expect(animation._currentFrame).to.be.equal(4);
+      expect(animation.currentFrame).to.be.equal(4);
       done();
     };
 
-    animation._currentFrame = 0;
+    animation.currentFrame = 0;
     animation.play({ end: 4 });
   });
 
@@ -95,11 +95,11 @@ describe('lib/keyframe-animation', function() {
     };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([4, 3, 2]);
-      expect(animation._currentFrame).to.be.equal(2);
+      expect(animation.currentFrame).to.be.equal(2);
       done();
     };
 
-    animation._currentFrame = 4;
+    animation.currentFrame = 4;
     animation.play({ end: 2 });
   });
 
@@ -111,11 +111,11 @@ describe('lib/keyframe-animation', function() {
     };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([4, 3, 2, 1]);
-      expect(animation._currentFrame).to.be.equal(1);
+      expect(animation.currentFrame).to.be.equal(1);
       done();
     };
 
-    animation._currentFrame = 4;
+    animation.currentFrame = 4;
     animation.play({ end: 1 });
   });
 
@@ -127,7 +127,7 @@ describe('lib/keyframe-animation', function() {
     };
     animation.onFinish = () => {
       expect(seq).to.be.deep.equal([4, 3, 2, 1, 0]);
-      expect(animation._currentFrame).to.be.equal(0);
+      expect(animation.currentFrame).to.be.equal(0);
       done();
     };
 

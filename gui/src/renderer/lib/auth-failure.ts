@@ -18,8 +18,7 @@ export function parseAuthFailure(rawFailureMessage?: string): IAuthFailure {
 
     if (results && results.length === 3) {
       const kind = parseRawFailureKind(results[1]);
-      const message =
-        kind === AuthFailureKind.unknown ? rawFailureMessage : messageForFailureKind(kind);
+      const message = kind === AuthFailureKind.unknown ? results[2] : messageForFailureKind(kind);
 
       return {
         kind,

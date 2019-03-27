@@ -3067,10 +3067,10 @@ jsonparse@^1.2.0:
   resolved "https://registry.yarnpkg.com/jsonparse/-/jsonparse-1.3.1.tgz#3f4dae4a91fac315f71062f8521cc239f1366280"
   integrity sha1-P02uSpH6wxX3EGL4UhzCOfE2YoA=
 
-jsonrpc-lite@^2.0.1:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/jsonrpc-lite/-/jsonrpc-lite-2.0.4.tgz#a8f8e9db2830d1a383d21ee97bd259c3321cff25"
-  integrity sha512-vr78eFnTrluTljM3lEydW9qDclgfGGpRoRDe1y/0i650oSx5fiTefW3PwDMUQ/+uJN76wG7yGPwTh0BVFaBP4Q==
+jsonrpc-lite@^2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/jsonrpc-lite/-/jsonrpc-lite-2.0.5.tgz#00d60b5ab0f1a81e19f7806ca9c236dad66bb5ff"
+  integrity sha512-3+WESfAxrlU7//u8qS+UeKYjkeTxcQuGwASwOwNdAjWU9lFCvo1/2yceKE2IXDPpL1YIDLZyBshEcu6cfTMZaA==
 
 jsprim@^1.2.2:
   version "1.4.1"
@@ -3473,13 +3473,6 @@ mocha@^5.2.0:
     minimatch "3.0.4"
     mkdirp "0.5.1"
     supports-color "5.4.0"
-
-mock-socket@^8.0.5:
-  version "8.0.5"
-  resolved "https://registry.yarnpkg.com/mock-socket/-/mock-socket-8.0.5.tgz#4ce8909601b2bcdf5f7680f35c2f7b34beb2afc4"
-  integrity sha512-dE2EbcxJKQCeYLZSsI7BAiMZCe/bHbJ2LHb5aGwUuDmfoOINEJ8QI6qYJ85NHsSNkNa90F3s6onZcmt/+MppFA==
-  dependencies:
-    url-parse "^1.2.0"
 
 moment@^2.24.0:
   version "2.24.0"
@@ -4254,11 +4247,6 @@ qs@~6.5.2:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
   integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
 
-querystringify@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.0.0.tgz#fa3ed6e68eb15159457c89b37bc6472833195755"
-  integrity sha512-eTPo5t/4bgaMNZxyjWx6N2a6AuE0mq51KWvpc7nU/MAqixcI6v6KrGUKES0HaomdnolQBBXU/++X6/QQ9KL4tw==
-
 quickselect@^1.0.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/quickselect/-/quickselect-1.1.1.tgz#852e412ce418f237ad5b660d70cffac647ae94c2"
@@ -4628,7 +4616,7 @@ require-main-filename@^2.0.0:
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-2.0.0.tgz#d0b329ecc7cc0f61649f62215be69af54aa8989b"
   integrity sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==
 
-requires-port@1.x.x, requires-port@^1.0.0:
+requires-port@1.x.x:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
   integrity sha1-kl0mAdOaxIXgkc8NpcbmlNw9yv8=
@@ -5586,14 +5574,6 @@ url-parse-lax@^1.0.0:
   integrity sha1-evjzA2Rem9eaJy56FKxovAYJ2nM=
   dependencies:
     prepend-http "^1.0.1"
-
-url-parse@^1.2.0:
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.4.3.tgz#bfaee455c889023219d757e045fa6a684ec36c15"
-  integrity sha512-rh+KuAW36YKo0vClhQzLLveoj8FwPJNu65xLb7Mrt+eZht0IPT0IXgSv8gcMegZ6NvjJUALf6Mf25POlMwD1Fw==
-  dependencies:
-    querystringify "^2.0.0"
-    requires-port "^1.0.0"
 
 use@^3.1.0:
   version "3.1.1"
