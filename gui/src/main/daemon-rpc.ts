@@ -303,6 +303,9 @@ const daemonEventSchema = oneOf(
   object({
     settings: settingsSchema,
   }),
+  object({
+    relay_list: relayListSchema,
+  }),
 );
 
 export class ResponseParseError extends Error {
