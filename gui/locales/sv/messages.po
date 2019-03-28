@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad <admin@mullvad.net>\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2019-03-18 15:52\n"
+"PO-Revision-Date: 2019-03-28 10:30\n"
 
 #: src/renderer/components/SecuredLabel.tsx:40
 msgid "BLOCKED CONNECTION"
@@ -83,7 +83,7 @@ msgstr "INGEN TID KVAR"
 #: src/renderer/components/Account.tsx:57
 msgctxt "account-view"
 msgid "Paid until"
-msgstr ""
+msgstr "Betalat till"
 
 #. Title label in navigation bar
 #: src/renderer/components/AdvancedSettings.tsx:97
@@ -118,7 +118,7 @@ msgstr "Automatisk"
 #: src/renderer/components/AdvancedSettings.tsx:120
 msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
-msgstr "Blockera vid frånkoppling"
+msgstr "Blockera när frånkopplad"
 
 #: src/renderer/components/AdvancedSettings.tsx:171
 msgctxt "advanced-settings-view"
@@ -157,7 +157,7 @@ msgstr "Ange värde för OpenVPN MSS. Giltigt intervall: %(min)d-%(max)d."
 #: src/renderer/components/AdvancedSettings.tsx:128
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
-msgstr "Om du inte är ansluten bör du alltid blockera all nätverkstrafik, även när du har kopplats från eller avslutat appen."
+msgstr "Blockera nätverkstrafik i frånkopplat läge, samt när appen är avstängd."
 
 #: src/renderer/lib/auth-failure.ts:80
 msgctxt "auth-failure"
@@ -228,7 +228,7 @@ msgstr "KONTOKREDITEN GÅR SNART UT"
 #: src/renderer/components/NotificationArea.tsx:200
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
-msgstr "BLOCKERING AV INTERNET"
+msgstr "BLOCKERAR INTERNET"
 
 #: src/renderer/components/NotificationArea.tsx:48
 msgctxt "in-app-notifications"
@@ -281,7 +281,7 @@ msgstr "Ingen relayserver matchar de aktuella inställningarna"
 #: src/renderer/components/NotificationArea.tsx:64
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
-msgstr "Denna enhet är frånkopplad, inga tunnlar kan fastställas"
+msgstr "Denna enhet är frånkopplad, inga tunnlar kan skapas"
 
 #: src/renderer/components/NotificationArea.tsx:69
 msgctxt "in-app-notifications"
