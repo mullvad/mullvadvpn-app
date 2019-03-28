@@ -585,7 +585,7 @@ impl Daemon {
                 Self::oneshot_send(tx, (), "set_account response");
                 if account_changed {
                     self.management_interface_broadcaster
-                        .notify_settings(&self.settings);
+                        .notify_settings(self.settings.clone());
                     match account_token {
                         Some(token) => {
                             if let Err(e) = self.account_history.bump_history(&token) {
@@ -651,7 +651,7 @@ impl Daemon {
                 Self::oneshot_send(tx, (), "update_relay_settings response");
                 if settings_changed {
                     self.management_interface_broadcaster
-                        .notify_settings(&self.settings);
+                        .notify_settings(self.settings.clone());
                     info!("Initiating tunnel restart because the relay settings changed");
                     self.reconnect_tunnel();
                 }
@@ -667,7 +667,7 @@ impl Daemon {
                 Self::oneshot_send(tx, (), "set_allow_lan response");
                 if settings_changed {
                     self.management_interface_broadcaster
-                        .notify_settings(&self.settings);
+                        .notify_settings(self.settings.clone());
                     self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
                 }
             }
@@ -688,7 +688,7 @@ impl Daemon {
                 Self::oneshot_send(tx, (), "set_block_when_disconnected response");
                 if settings_changed {
                     self.management_interface_broadcaster
-                        .notify_settings(&self.settings);
+                        .notify_settings(self.settings.clone());
                     self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
                         block_when_disconnected,
                     ));
@@ -705,7 +705,7 @@ impl Daemon {
                 Self::oneshot_send(tx, (), "set auto-connect response");
                 if settings_changed {
                     self.management_interface_broadcaster
-                        .notify_settings(&self.settings);
+                        .notify_settings(self.settings.clone());
                 }
             }
             Err(e) => error!("{}", e.display_chain()),
@@ -719,7 +719,7 @@ impl Daemon {
                 Self::oneshot_send(tx, (), "set_openvpn_mssfix response");
                 if settings_changed {
                     self.management_interface_broadcaster
-                        .notify_settings(&self.settings);
+                        .notify_settings(self.settings.clone());
                     info!("Initiating tunnel restart because the OpenVPN mssfix setting changed");
                     self.reconnect_tunnel();
                 }
@@ -744,7 +744,7 @@ impl Daemon {
                 Self::oneshot_send(tx, Ok(()), "set_openvpn_proxy response");
                 if proxy_changed || constraints_changed {
                     self.management_interface_broadcaster
-                        .notify_settings(&self.settings);
+                        .notify_settings(self.settings.clone());
                     info!("Initiating tunnel restart because the OpenVPN proxy setting changed");
                     self.reconnect_tunnel();
                 }
@@ -786,7 +786,7 @@ impl Daemon {
                 Self::oneshot_send(tx, (), "set_enable_ipv6 response");
                 if settings_changed {
                     self.management_interface_broadcaster
-                        .notify_settings(&self.settings);
+                        .notify_settings(self.settings.clone());
                     info!("Initiating tunnel restart because the enable IPv6 setting changed");
                     self.reconnect_tunnel();
                 }
@@ -802,7 +802,7 @@ impl Daemon {
                 Self::oneshot_send(tx, (), "set_wireguard_mtu response");
                 if settings_changed {
                     self.management_interface_broadcaster
-                        .notify_settings(&self.settings);
+                        .notify_settings(self.settings.clone());
                     info!("Initiating tunnel restart because the WireGuard MTU setting changed");
                     self.reconnect_tunnel();
                 }

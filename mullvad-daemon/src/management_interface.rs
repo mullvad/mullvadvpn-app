@@ -283,9 +283,9 @@ impl EventBroadcaster {
     }
 
     /// Sends settings to all `settings` subscribers of the management interface.
-    pub fn notify_settings(&self, settings: &Settings) {
+    pub fn notify_settings(&self, settings: Settings) {
         log::debug!("Broadcasting new settings");
-        self.notify(DaemonEvent::Settings(settings.clone()));
+        self.notify(DaemonEvent::Settings(settings));
     }
 
     fn notify(&self, value: DaemonEvent) {
