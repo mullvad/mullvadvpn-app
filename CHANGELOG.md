@@ -23,9 +23,15 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.2] - 2019-03-28
 ### Removed
 - Remove the Mullvad OpenVPN intermediate transition CA. Used when transitioning from the old to
   the new root CA. Now the app only bundles and trust the new Mullvad root CA valid until 2028.
+
+### Fixed
+- Read the relay list from cache only if it's newer than the version bundled in the app.
 
 
 ## [2019.2-beta1] - 2019-03-21
