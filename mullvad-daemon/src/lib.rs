@@ -198,15 +198,28 @@ impl Daemon {
         let rpc_handle = rpc_handle.chain_err(|| "Unable to create RPC client")?;
         let https_handle = https_handle.chain_err(|| "Unable to create am.i.mullvad client")?;
 
-        let relay_selector =
-            relays::RelaySelector::new(rpc_handle.clone(), &resource_dir, &cache_dir);
+        let (internal_event_tx, internal_event_rx) = mpsc::channel();
+
+        let management_interface_result =
+            Self::start_management_interface(internal_event_tx.clone())?;
+
+        let management_interface_broadcaster = management_interface_result.0.clone();
+        let on_relay_list_update = move |relay_list: &RelayList| {
+            management_interface_broadcaster.notify_relay_list(relay_list.clone());
+        };
+        let relay_selector = relays::RelaySelector::new(
+            rpc_handle.clone(),
+            on_relay_list_update,
+            &resource_dir,
+            &cache_dir,
+        );
         let settings = Settings::load().chain_err(|| "Unable to read settings")?;
         let account_history = account_history::AccountHistory::new(&cache_dir)
             .chain_err(|| "Unable to read wireguard key cache")?;
 
-
-        let (tx, rx) = mpsc::channel();
-        let tunnel_parameters_generator = MullvadTunnelParametersGenerator { tx: tx.clone() };
+        let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
+            tx: internal_event_tx.clone(),
+        };
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.get_allow_lan(),
             settings.get_block_when_disconnected(),
@@ -214,11 +227,8 @@ impl Daemon {
             log_dir,
             resource_dir,
             cache_dir.clone(),
-            IntoSender::from(tx.clone()),
+            IntoSender::from(internal_event_tx.clone()),
         )?;
-
-        let target_state = TargetState::Unsecured;
-        let management_interface_result = Self::start_management_interface(tx.clone())?;
 
         // Attempt to download a fresh relay list
         relay_selector.update();
@@ -226,10 +236,10 @@ impl Daemon {
         Ok(Daemon {
             tunnel_command_tx: Sink::wait(tunnel_command_tx),
             tunnel_state: TunnelStateTransition::Disconnected,
-            target_state,
+            target_state: TargetState::Unsecured,
             state: DaemonExecutionState::Running,
-            rx,
-            tx,
+            rx: internal_event_rx,
+            tx: internal_event_tx,
             reconnection_loop_tx: None,
             management_interface_broadcaster: management_interface_result.0,
             #[cfg(unix)]

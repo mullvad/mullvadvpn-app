@@ -147,7 +147,12 @@ pub struct RelaySelector {
 impl RelaySelector {
     /// Returns a new `RelaySelector` backed by relays cached on disk. Use the `update` method
     /// to refresh the relay list from the internet.
-    pub fn new(rpc_handle: HttpHandle, resource_dir: &Path, cache_dir: &Path) -> Self {
+    pub fn new(
+        rpc_handle: HttpHandle,
+        on_update: impl Fn(&RelayList) + Send + 'static,
+        resource_dir: &Path,
+        cache_dir: &Path,
+    ) -> Self {
         let cache_path = cache_dir.join(RELAYS_FILENAME);
         let resource_path = resource_dir.join(RELAYS_FILENAME);
         let unsynchronized_parsed_relays = Self::read_relays_from_disk(&cache_path, &resource_path)
@@ -163,7 +168,12 @@ impl RelaySelector {
                 .format(DATE_TIME_FORMAT_STR)
         );
         let parsed_relays = Arc::new(Mutex::new(unsynchronized_parsed_relays));
-        let updater = RelayListUpdater::spawn(rpc_handle, cache_path, parsed_relays.clone());
+        let updater = RelayListUpdater::spawn(
+            rpc_handle,
+            cache_path,
+            parsed_relays.clone(),
+            Box::new(on_update),
+        );
         RelaySelector {
             parsed_relays,
             rng: rand::thread_rng(),
@@ -498,6 +508,7 @@ struct RelayListUpdater {
     rpc_client: RelayListProxy<HttpHandle>,
     cache_path: PathBuf,
     parsed_relays: Arc<Mutex<ParsedRelays>>,
+    on_update: Box<dyn Fn(&RelayList)>,
     close_handle: mpsc::Receiver<()>,
 }
 
@@ -506,10 +517,13 @@ impl RelayListUpdater {
         rpc_handle: HttpHandle,
         cache_path: PathBuf,
         parsed_relays: Arc<Mutex<ParsedRelays>>,
+        on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
     ) -> RelayListUpdaterHandle {
         let (tx, rx) = mpsc::channel();
 
-        thread::spawn(move || Self::new(rpc_handle, cache_path, parsed_relays, rx).run());
+        thread::spawn(move || {
+            Self::new(rpc_handle, cache_path, parsed_relays, on_update, rx).run()
+        });
 
         tx
     }
@@ -518,6 +532,7 @@ impl RelayListUpdater {
         rpc_handle: HttpHandle,
         cache_path: PathBuf,
         parsed_relays: Arc<Mutex<ParsedRelays>>,
+        on_update: Box<dyn Fn(&RelayList)>,
         close_handle: mpsc::Receiver<()>,
     ) -> Self {
         let rpc_client = RelayListProxy::new(rpc_handle);
@@ -526,6 +541,7 @@ impl RelayListUpdater {
             rpc_client,
             cache_path,
             parsed_relays,
+            on_update,
             close_handle,
         }
     }
@@ -582,8 +598,9 @@ impl RelayListUpdater {
             new_parsed_relays.relays().len()
         );
 
-        *self.lock_parsed_relays() = new_parsed_relays;
-
+        let mut parsed_relays = self.lock_parsed_relays();
+        *parsed_relays = new_parsed_relays;
+        (self.on_update)(parsed_relays.locations());
         Ok(())
     }
 
