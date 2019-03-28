@@ -645,6 +645,8 @@ impl Daemon {
         const PLATFORM: &str = "macos";
         #[cfg(target_os = "windows")]
         const PLATFORM: &str = "windows";
+        #[cfg(target_os = "android")]
+        const PLATFORM: &str = "android";
 
         let fut = self
             .version_proxy
