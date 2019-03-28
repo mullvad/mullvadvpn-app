@@ -32,4 +32,7 @@ pub enum DaemonEvent {
 
     /// The daemon settings changed.
     Settings(settings::Settings),
+
+    /// The daemon got an updated relay list.
+    RelayList(relay_list::RelayList),
 }

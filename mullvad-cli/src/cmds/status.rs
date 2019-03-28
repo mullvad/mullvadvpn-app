@@ -15,7 +15,13 @@ impl Command for Status {
         clap::SubCommand::with_name(self.name())
             .about("View the state of the VPN tunnel")
             .subcommand(
-                clap::SubCommand::with_name("listen").about("Listen for VPN tunnel state changes"),
+                clap::SubCommand::with_name("listen")
+                    .about("Listen for VPN tunnel state changes")
+                    .arg(
+                        clap::Arg::with_name("verbose")
+                            .short("v")
+                            .help("Enables verbose output"),
+                    ),
             )
     }
 
@@ -25,20 +31,31 @@ impl Command for Status {
 
         print_state(&state);
         print_location(&mut rpc)?;
-        if matches.subcommand_matches("listen").is_some() {
+        if let Some(listen_matches) = matches.subcommand_matches("listen") {
+            let verbose = listen_matches.is_present("verbose");
             let subscription = rpc
                 .daemon_event_subscribe()
                 .wait()
                 .map_err(|_err| Error::from(ErrorKind::CantSubscribe))?;
             for event in subscription.wait() {
-                if let DaemonEvent::StateTransition(new_state) =
-                    event.chain_err(|| "Subscription failed")?
-                {
-                    print_state(&new_state);
-                    use self::TunnelStateTransition::*;
-                    match new_state {
-                        Connected(_) | Disconnected => print_location(&mut rpc)?,
-                        _ => {}
+                match event.chain_err(|| "Subscription failed")? {
+                    DaemonEvent::StateTransition(new_state) => {
+                        print_state(&new_state);
+                        use self::TunnelStateTransition::*;
+                        match new_state {
+                            Connected(_) | Disconnected => print_location(&mut rpc)?,
+                            _ => {}
+                        }
+                    }
+                    DaemonEvent::Settings(settings) => {
+                        if verbose {
+                            println!("New settings: {:#?}", settings);
+                        }
+                    }
+                    DaemonEvent::RelayList(relay_list) => {
+                        if verbose {
+                            println!("New relay list: {:#?}", relay_list);
+                        }
                     }
                 }
             }

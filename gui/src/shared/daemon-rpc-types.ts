@@ -41,7 +41,10 @@ export interface ITunnelEndpoint {
   tunnel: TunnelType;
 }
 
-export type DaemonEvent = { stateTransition: TunnelStateTransition } | { settings: ISettings };
+export type DaemonEvent =
+  | { stateTransition: TunnelStateTransition }
+  | { settings: ISettings }
+  | { relayList: IRelayList };
 
 export type TunnelStateTransition =
   | { state: 'disconnected' }

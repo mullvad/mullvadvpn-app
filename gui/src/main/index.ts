@@ -28,7 +28,6 @@ import ReconnectionBackoff from './reconnection-backoff';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController from './window-controller';
 
-const RELAY_LIST_UPDATE_INTERVAL = 60 * 60 * 1000;
 const VERSION_UPDATE_INTERVAL = 24 * 60 * 60 * 1000;
 
 const DAEMON_RPC_PATH =
@@ -96,7 +95,6 @@ class ApplicationMain {
   private lastDisconnectedLocation?: ILocation;
 
   private relays: IRelayList = { countries: [] };
-  private relaysInterval?: NodeJS.Timeout;
 
   private currentVersion: ICurrentAppVersionInfo = {
     daemon: '',
@@ -417,7 +415,6 @@ class ApplicationMain {
     this.fetchLatestVersion();
 
     // start periodic updates
-    this.startRelaysPeriodicUpdates();
     this.startLatestVersionPeriodicUpdates();
 
     // notify user about inconsistent version
@@ -447,7 +444,6 @@ class ApplicationMain {
       this.connectedToDaemon = false;
 
       // stop periodic updates
-      this.stopRelaysPeriodicUpdates();
       this.stopLatestVersionPeriodicUpdates();
 
       // notify renderer process
@@ -498,6 +494,8 @@ class ApplicationMain {
           this.setTunnelState(daemonEvent.stateTransition);
         } else if ('settings' in daemonEvent) {
           this.setSettings(daemonEvent.settings);
+        } else if ('relayList' in daemonEvent) {
+          this.setRelays(daemonEvent.relayList, this.settings.relaySettings);
         }
       },
       (error: Error) => {
@@ -603,29 +601,6 @@ class ApplicationMain {
         };
       }),
     };
-  }
-
-  private startRelaysPeriodicUpdates() {
-    log.debug('Start relays periodic updates');
-
-    const handler = async () => {
-      try {
-        this.setRelays(await this.daemonRpc.getRelayLocations(), this.settings.relaySettings);
-      } catch (error) {
-        log.error(`Failed to fetch relay locations: ${error.message}`);
-      }
-    };
-
-    this.relaysInterval = global.setInterval(handler, RELAY_LIST_UPDATE_INTERVAL);
-  }
-
-  private stopRelaysPeriodicUpdates() {
-    if (this.relaysInterval) {
-      clearInterval(this.relaysInterval);
-      this.relaysInterval = undefined;
-
-      log.debug('Stop relays periodic updates');
-    }
   }
 
   private setDaemonVersion(daemonVersion: string) {

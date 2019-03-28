@@ -271,6 +271,7 @@ impl ManagementInterfaceServer {
 }
 
 /// A handle that allows broadcasting messages to all subscribers of the management interface.
+#[derive(Clone)]
 pub struct EventBroadcaster {
     subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
 }
@@ -283,9 +284,15 @@ impl EventBroadcaster {
     }
 
     /// Sends settings to all `settings` subscribers of the management interface.
-    pub fn notify_settings(&self, settings: &Settings) {
+    pub fn notify_settings(&self, settings: Settings) {
         log::debug!("Broadcasting new settings");
-        self.notify(DaemonEvent::Settings(settings.clone()));
+        self.notify(DaemonEvent::Settings(settings));
+    }
+
+    /// Sends settings to all `settings` subscribers of the management interface.
+    pub fn notify_relay_list(&self, relay_list: RelayList) {
+        log::debug!("Broadcasting new relay list");
+        self.notify(DaemonEvent::RelayList(relay_list));
     }
 
     fn notify(&self, value: DaemonEvent) {
