@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad <admin@mullvad.net>\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2019-03-18 15:52\n"
+"PO-Revision-Date: 2019-03-28 10:30\n"
 
 #: src/renderer/components/SecuredLabel.tsx:40
 msgid "BLOCKED CONNECTION"
@@ -83,7 +83,7 @@ msgstr "逾時"
 #: src/renderer/components/Account.tsx:57
 msgctxt "account-view"
 msgid "Paid until"
-msgstr ""
+msgstr "支付至"
 
 #. Title label in navigation bar
 #: src/renderer/components/AdvancedSettings.tsx:97
