@@ -79,7 +79,7 @@ error_chain! {
 type SyncUnboundedSender<T> = ::futures::sink::Wait<UnboundedSender<T>>;
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
-pub enum DaemonEvent {
+enum InternalDaemonEvent {
     /// Tunnel has changed state.
     TunnelStateTransition(TunnelStateTransition),
     /// Request from the `MullvadTunnelParametersGenerator` to obtain a new relay.
@@ -92,15 +92,15 @@ pub enum DaemonEvent {
     TriggerShutdown,
 }
 
-impl From<TunnelStateTransition> for DaemonEvent {
+impl From<TunnelStateTransition> for InternalDaemonEvent {
     fn from(tunnel_state_transition: TunnelStateTransition) -> Self {
-        DaemonEvent::TunnelStateTransition(tunnel_state_transition)
+        InternalDaemonEvent::TunnelStateTransition(tunnel_state_transition)
     }
 }
 
-impl From<ManagementCommand> for DaemonEvent {
+impl From<ManagementCommand> for InternalDaemonEvent {
     fn from(command: ManagementCommand) -> Self {
-        DaemonEvent::ManagementInterfaceEvent(command)
+        InternalDaemonEvent::ManagementInterfaceEvent(command)
     }
 }
 
@@ -153,8 +153,8 @@ pub struct Daemon {
     tunnel_state: TunnelStateTransition,
     target_state: TargetState,
     state: DaemonExecutionState,
-    rx: mpsc::Receiver<DaemonEvent>,
-    tx: mpsc::Sender<DaemonEvent>,
+    rx: mpsc::Receiver<InternalDaemonEvent>,
+    tx: mpsc::Sender<InternalDaemonEvent>,
     reconnection_loop_tx: Option<mpsc::Sender<()>>,
     management_interface_broadcaster: management_interface::EventBroadcaster,
     #[cfg(unix)]
@@ -250,7 +250,7 @@ impl Daemon {
     // Starts the management interface and spawns a thread that will process it.
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(
-        event_tx: mpsc::Sender<DaemonEvent>,
+        event_tx: mpsc::Sender<InternalDaemonEvent>,
     ) -> Result<(management_interface::EventBroadcaster, String)> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
         let server = Self::start_management_interface_server(multiplex_event_tx)?;
@@ -261,7 +261,7 @@ impl Daemon {
     }
 
     fn start_management_interface_server(
-        event_tx: IntoSender<ManagementCommand, DaemonEvent>,
+        event_tx: IntoSender<ManagementCommand, InternalDaemonEvent>,
     ) -> Result<ManagementInterfaceServer> {
         let server = ManagementInterfaceServer::start(event_tx)
             .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"))?;
@@ -275,12 +275,12 @@ impl Daemon {
 
     fn spawn_management_interface_wait_thread(
         server: ManagementInterfaceServer,
-        exit_tx: mpsc::Sender<DaemonEvent>,
+        exit_tx: mpsc::Sender<InternalDaemonEvent>,
     ) {
         thread::spawn(move || {
             server.wait();
             error!("Mullvad management interface shut down");
-            let _ = exit_tx.send(DaemonEvent::ManagementInterfaceExited);
+            let _ = exit_tx.send(InternalDaemonEvent::ManagementInterfaceExited);
         });
     }
 
@@ -300,8 +300,8 @@ impl Daemon {
         Ok(())
     }
 
-    fn handle_event(&mut self, event: DaemonEvent) -> Result<()> {
-        use self::DaemonEvent::*;
+    fn handle_event(&mut self, event: InternalDaemonEvent) -> Result<()> {
+        use self::InternalDaemonEvent::*;
         match event {
             TunnelStateTransition(transition) => self.handle_tunnel_state_transition(transition),
             GenerateTunnelParameters(tunnel_parameters_tx, retry_attempt) => {
@@ -434,7 +434,7 @@ impl Daemon {
 
             if let Err(mpsc::RecvTimeoutError::Timeout) = rx.recv_timeout(delay) {
                 debug!("Attempting to reconnect");
-                let _ = tunnel_command_tx.send(DaemonEvent::ManagementInterfaceEvent(
+                let _ = tunnel_command_tx.send(InternalDaemonEvent::ManagementInterfaceEvent(
                     ManagementCommand::SetTargetState(result_tx, TargetState::Secured),
                 ));
             }
@@ -979,12 +979,12 @@ impl Daemon {
 }
 
 pub struct DaemonShutdownHandle {
-    tx: mpsc::Sender<DaemonEvent>,
+    tx: mpsc::Sender<InternalDaemonEvent>,
 }
 
 impl DaemonShutdownHandle {
     pub fn shutdown(&self) {
-        let _ = self.tx.send(DaemonEvent::TriggerShutdown);
+        let _ = self.tx.send(InternalDaemonEvent::TriggerShutdown);
     }
 }
 
@@ -1005,14 +1005,14 @@ impl Drop for Daemon {
 
 
 struct MullvadTunnelParametersGenerator {
-    tx: mpsc::Sender<DaemonEvent>,
+    tx: mpsc::Sender<InternalDaemonEvent>,
 }
 
 impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
     fn generate(&mut self, retry_attempt: u32) -> Option<TunnelParameters> {
         let (response_tx, response_rx) = mpsc::channel();
         self.tx
-            .send(DaemonEvent::GenerateTunnelParameters(
+            .send(InternalDaemonEvent::GenerateTunnelParameters(
                 response_tx,
                 retry_attempt,
             ))
