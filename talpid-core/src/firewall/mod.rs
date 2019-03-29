@@ -77,7 +77,7 @@ pub enum FirewallPolicy {
 }
 
 impl fmt::Display for FirewallPolicy {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             FirewallPolicy::Connecting {
                 peer_endpoint,
@@ -154,15 +154,15 @@ impl Firewall {
 /// Abstract firewall interaction trait. Used by the OS specific implementations.
 trait FirewallT: Sized {
     /// The error type thrown by the implementer of this trait
-    type Error: ::std::error::Error;
+    type Error: std::error::Error;
 
     /// Create new instance
-    fn new() -> ::std::result::Result<Self, Self::Error>;
+    fn new() -> Result<Self, Self::Error>;
 
     /// Enable the given FirewallPolicy
-    fn apply_policy(&mut self, policy: FirewallPolicy) -> ::std::result::Result<(), Self::Error>;
+    fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Self::Error>;
 
     /// Revert the system firewall state to what it was before this instance started
     /// modifying the system.
-    fn reset_policy(&mut self) -> ::std::result::Result<(), Self::Error>;
+    fn reset_policy(&mut self) -> Result<(), Self::Error>;
 }
