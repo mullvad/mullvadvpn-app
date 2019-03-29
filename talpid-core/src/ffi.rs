@@ -9,7 +9,7 @@ macro_rules! ffi_error {
         }
 
         impl $result {
-            pub fn into_result(self) -> Result<()> {
+            pub fn into_result(self) -> Result<(), Error> {
                 match self.success {
                     true => Ok(()),
                     false => Err($error),
@@ -17,8 +17,8 @@ macro_rules! ffi_error {
             }
         }
 
-        impl Into<Result<()>> for $result {
-            fn into(self) -> Result<()> {
+        impl Into<Result<(), Error>> for $result {
+            fn into(self) -> Result<(), Error> {
                 self.into_result()
             }
         }

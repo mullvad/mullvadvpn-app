@@ -6,43 +6,36 @@ use std::{
     path::Path,
     ptr, slice,
 };
+use widestring::WideCString;
 
 mod system_state;
 use self::system_state::SystemStateWriter;
 
-use error_chain::ChainedError;
-use widestring::WideCString;
-
 
 const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
 
-error_chain! {
-    errors{
-        /// Failure to initialize WinDns
-        Initialization{
-            description("Failed to initialize WinDns")
-        }
+/// Errors that can happen when configuring DNS on Windows.
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Failure to initialize WinDns.
+    #[error(display = "Failed to initialize WinDns")]
+    Initialization,
 
-        /// Failure to deinitialize WinDns
-        Deinitialization{
-            description("Failed to deinitialize WinDns")
-        }
+    /// Failure to deinitialize WinDns.
+    #[error(display = "Failed to deinitialize WinDns")]
+    Deinitialization,
 
-        /// Failure to set new DNS servers
-        Setting{
-            description("Failed to set new DNS servers")
-        }
+    /// Failure to set new DNS servers.
+    #[error(display = "Failed to set new DNS servers")]
+    Setting,
 
-        /// Failure to reset DNS settings
-        Resetting{
-            description("Failed to reset DNS")
-        }
+    /// Failure to reset DNS settings.
+    #[error(display = "Failed to reset DNS")]
+    Resetting,
 
-        /// Failure to reset DNS settings from backup
-        Recovery{
-            description("Failed to recover to backed up system state")
-        }
-    }
+    /// Failure to reset DNS settings from backup.
+    #[error(display = "Failed to recover to backed up system state")]
+    Recovery,
 }
 
 pub struct DnsMonitor {
@@ -52,7 +45,7 @@ pub struct DnsMonitor {
 impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
-    fn new(cache_dir: impl AsRef<Path>) -> Result<Self> {
+    fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
         unsafe { WinDns_Initialize(Some(log_sink), ptr::null_mut()).into_result()? };
 
         let backup_writer = SystemStateWriter::new(
@@ -62,16 +55,11 @@ impl super::DnsMonitorT for DnsMonitor {
                 .into_boxed_path(),
         );
         let mut dns = DnsMonitor { backup_writer };
-        if let Err(error) = dns
-            .restore_system_backup()
-            .chain_err(|| "Failed to restore DNS backup")
-        {
-            error!("{}", error.display_chain());
-        }
+        dns.restore_system_backup();
         Ok(dns)
     }
 
-    fn set(&mut self, _interface: &str, servers: &[IpAddr]) -> Result<()> {
+    fn set(&mut self, _interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
         let ipv4 = servers
             .iter()
             .filter(|ip| ip.is_ipv4())
@@ -109,7 +97,7 @@ impl super::DnsMonitorT for DnsMonitor {
         }
     }
 
-    fn reset(&mut self) -> Result<()> {
+    fn reset(&mut self) -> Result<(), Error> {
         unsafe { WinDns_Reset().into_result()? };
 
         if let Err(e) = self.backup_writer.remove_backup() {
@@ -120,30 +108,27 @@ impl super::DnsMonitorT for DnsMonitor {
 }
 
 impl DnsMonitor {
-    fn restore_dns_settings(&mut self, data: &[u8]) -> Result<()> {
+    fn restore_dns_settings(&mut self, data: &[u8]) -> Result<(), Error> {
         unsafe { WinDns_Recover(data.as_ptr(), data.len() as u32) }.into_result()
     }
 
-    fn restore_system_backup(&mut self) -> Result<()> {
-        if let Some(previous_state) = self
-            .backup_writer
-            .read_backup()
-            .chain_err(|| "Failed to read backed up DNS state")?
-        {
-            info!("Restoring DNS state from backup");
-            if let Err(e) = self.restore_dns_settings(&previous_state) {
-                error!("Failed to restore DNS settings - {}", e);
-            } else {
-                trace!("Successfully restored DNS state");
-            };
-            self.backup_writer
-                .remove_backup()
-                .chain_err(|| "Failed to remove backed up DNS state after restoring it")?;
-            debug!("DNS recovery file removed!");
-        } else {
-            trace!("No DNS state to restore");
+    fn restore_system_backup(&mut self) {
+        match self.backup_writer.read_backup() {
+            Ok(Some(previous_state)) => {
+                info!("Restoring DNS state from backup");
+                if let Err(e) = self.restore_dns_settings(&previous_state) {
+                    error!("Failed to restore DNS settings - {}", e);
+                } else {
+                    trace!("Successfully restored DNS state");
+                };
+                if let Err(e) = self.backup_writer.remove_backup() {
+                    error!("Failed to remove backed up DNS state after restore - {}", e);
+                }
+                debug!("DNS recovery file removed!");
+            }
+            Ok(None) => trace!("No DNS state to restore"),
+            Err(e) => error!("Failed to read backed up DNS state - {}", e),
         }
-        Ok(())
     }
 }
 
@@ -201,11 +186,11 @@ impl Drop for DnsMonitor {
 }
 
 
-ffi_error!(InitializationResult, ErrorKind::Initialization.into());
-ffi_error!(DeinitializationResult, ErrorKind::Deinitialization.into());
-ffi_error!(SettingResult, ErrorKind::Setting.into());
-ffi_error!(ResettingResult, ErrorKind::Resetting.into());
-ffi_error!(RecoveringResult, ErrorKind::Recovery.into());
+ffi_error!(InitializationResult, Error::Initialization);
+ffi_error!(DeinitializationResult, Error::Deinitialization);
+ffi_error!(SettingResult, Error::Setting);
+ffi_error!(ResettingResult, Error::Resetting);
+ffi_error!(RecoverResult, Error::Recovery);
 
 
 /// A callback for writing system state data
@@ -289,5 +274,5 @@ extern "system" {
     pub fn WinDns_Reset() -> ResettingResult;
 
     #[link_name = "WinDns_Recover"]
-    pub fn WinDns_Recover(data: *const u8, length: u32) -> RecoveringResult;
+    pub fn WinDns_Recover(data: *const u8, length: u32) -> RecoverResult;
 }
