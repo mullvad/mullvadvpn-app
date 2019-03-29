@@ -1,21 +1,30 @@
 use super::{NetNode, RequiredRoutes, Route};
 
 use super::subprocess::{Exec, RunExpr};
-use std::{collections::HashSet, net::IpAddr};
+use std::{
+    collections::HashSet,
+    io,
+    net::{AddrParseError, IpAddr},
+};
 
+pub type Result<T> = std::result::Result<T, Error>;
 
-error_chain! {
-    errors {
-        FailedToAddRoute {
-            description("Failed to add route")
-        }
-        FailedToRemoveRoute {
-            description("Failed to remove route")
-        }
-        FailedToGetDefaultRoute {
-            description("Failed to get default route")
-        }
-    }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Failed to add route")]
+    FailedToAddRoute(#[error(cause)] io::Error),
+
+    #[error(display = "Failed to remove route")]
+    FailedToRemoveRoute(#[error(cause)] io::Error),
+
+    #[error(display = "Error while running \"ip route\"")]
+    FailedToRunIp(#[error(cause)] io::Error),
+
+    #[error(display = "No default route in \"ip route\" output")]
+    NoDefaultRoute,
+
+    #[error(display = "Failed to parse default route as IP: {}", _0)]
+    ParseDefaultRoute(String, #[error(cause)] AddrParseError),
 }
 
 
@@ -42,7 +51,7 @@ impl RouteManager {
 
         cmd.into_expr()
             .run_expr()
-            .chain_err(|| ErrorKind::FailedToAddRoute)?;
+            .map_err(Error::FailedToAddRoute)?;
 
         self.added_routes.insert(route);
         Ok(())
@@ -99,7 +108,7 @@ impl super::RoutingT for RouteManager {
                 route.prefix.to_string()
             )
             .run_expr()
-            .chain_err(|| ErrorKind::FailedToRemoveRoute);
+            .map_err(Error::FailedToRemoveRoute);
             if let Err(e) = result {
                 log::error!("Failed to remove route {} - {}", route.prefix, e);
                 end_result = Err(e);
@@ -112,15 +121,15 @@ impl super::RoutingT for RouteManager {
     fn get_default_route_node(&mut self) -> Result<IpAddr> {
         let output = duct::cmd!("ip", "route")
             .stdout()
-            .chain_err(|| ErrorKind::FailedToGetDefaultRoute)?;
+            .map_err(Error::FailedToRunIp)?;
         let ip_str: &str = output
             .lines()
             .find(|line| line.trim().starts_with("default via "))
             .and_then(|line| line.trim().split_whitespace().nth(2))
-            .ok_or_else(|| Error::from(ErrorKind::FailedToGetDefaultRoute))?;
+            .ok_or(Error::NoDefaultRoute)?;
 
         ip_str
             .parse()
-            .map_err(|_| Error::from(ErrorKind::FailedToGetDefaultRoute))
+            .map_err(|e| Error::ParseDefaultRoute(ip_str.to_owned(), e))
     }
 }
