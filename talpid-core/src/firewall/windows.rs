@@ -7,43 +7,37 @@ use log::{debug, error, trace};
 use talpid_types::net::Endpoint;
 use widestring::WideCString;
 
-error_chain! {
-    errors {
-        /// Failure to initialize windows firewall module
-        Initialization {
-            description("Failed to initialise windows firewall module")
-        }
 
-        /// Failure to deinitialize windows firewall module
-        Deinitialization {
-            description("Failed to deinitialize windows firewall module")
-        }
+/// Errors that can happen when configuring the Windows firewall.
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Failure to initialize windows firewall module
+    #[error(display = "Failed to initialize windows firewall module")]
+    Initialization,
 
-        /// Failure to apply a firewall _connecting_ policy
-        ApplyingConnectingPolicy {
-            description("Failed to apply firewall policy for when the daemon is connecting to a tunnel")
-        }
+    /// Failure to deinitialize windows firewall module
+    #[error(display = "Failed to deinitialize windows firewall module")]
+    Deinitialization,
 
-        /// Failure to apply a firewall _connected_ policy
-        ApplyingConnectedPolicy {
-            description("Failed to apply firewall policy for when the daemon is connected to a tunnel")
-        }
+    /// Failure to apply a firewall _connecting_ policy
+    #[error(display = "Failed to apply connecting firewall policy")]
+    ApplyingConnectingPolicy,
 
-        /// Failure to apply firewall _blocked_ policy
-        ApplyingBlockedPolicy {
-            description("Failed to apply blocked firewall policy")
-        }
+    /// Failure to apply a firewall _connected_ policy
+    #[error(display = "Failed to apply connected firewall policy")]
+    ApplyingConnectedPolicy,
 
-        /// Failure to reset firewall policies
-        ResettingPolicy {
-            description("Failed to reset firewall policies")
-        }
+    /// Failure to apply firewall _blocked_ policy
+    #[error(display = "Failed to apply blocked firewall policy")]
+    ApplyingBlockedPolicy,
 
-        /// Failure to set TAP adapter metric
-        SetTapMetric {
-            description("Unable to set TAP adapter metric")
-        }
-    }
+    /// Failure to reset firewall policies
+    #[error(display = "Failed to reset firewall policies")]
+    ResettingPolicy,
+
+    /// Failure to set TAP adapter metric
+    #[error(display = "Unable to set TAP adapter metric")]
+    SetTapMetric(#[error(cause)] crate::winnet::Error),
 }
 
 const WINFW_TIMEOUT_SECONDS: u32 = 2;
@@ -54,7 +48,7 @@ pub struct Firewall(());
 impl FirewallT for Firewall {
     type Error = Error;
 
-    fn new() -> Result<Self> {
+    fn new() -> Result<Self, Self::Error> {
         unsafe {
             WinFw_Initialize(
                 WINFW_TIMEOUT_SECONDS,
@@ -67,7 +61,7 @@ impl FirewallT for Firewall {
         Ok(Firewall(()))
     }
 
-    fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
+    fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Self::Error> {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
@@ -93,7 +87,7 @@ impl FirewallT for Firewall {
         }
     }
 
-    fn reset_policy(&mut self) -> Result<()> {
+    fn reset_policy(&mut self) -> Result<(), Self::Error> {
         unsafe { WinFw_Reset().into_result() }?;
         Ok(())
     }
@@ -114,7 +108,7 @@ impl Firewall {
         &mut self,
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
-    ) -> Result<()> {
+    ) -> Result<(), Error> {
         trace!("Applying 'connecting' firewall policy");
         let ip_str = Self::widestring_ip(endpoint.address.ip());
 
@@ -138,7 +132,7 @@ impl Firewall {
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
         tunnel_metadata: &crate::tunnel::TunnelMetadata,
-    ) -> Result<()> {
+    ) -> Result<(), Error> {
         trace!("Applying 'connected' firewall policy");
         let ip_str = Self::widestring_ip(endpoint.address.ip());
         let v4_gateway = Self::widestring_ip(tunnel_metadata.ipv4_gateway.into());
@@ -157,7 +151,7 @@ impl Firewall {
         };
 
         let metrics_set = winnet::ensure_top_metric_for_interface(&tunnel_metadata.interface)
-            .chain_err(|| ErrorKind::SetTapMetric)?;
+            .map_err(Error::SetTapMetric)?;
 
         if metrics_set {
             debug!("Network interface metrics were changed");
@@ -182,7 +176,7 @@ impl Firewall {
         }
     }
 
-    fn set_blocked_state(&mut self, winfw_settings: &WinFwSettings) -> Result<()> {
+    fn set_blocked_state(&mut self, winfw_settings: &WinFwSettings) -> Result<(), Error> {
         trace!("Applying 'blocked' firewall policy");
         unsafe { WinFw_ApplyPolicyBlocked(winfw_settings).into_result() }
     }
@@ -191,7 +185,7 @@ impl Firewall {
 
 #[allow(non_snake_case)]
 mod winfw {
-    use super::{ErrorKind, Result};
+    use super::Error;
     use crate::winnet;
     use libc;
     use talpid_types::net::TransportProtocol;
@@ -234,18 +228,12 @@ mod winfw {
         }
     }
 
-    ffi_error!(InitializationResult, ErrorKind::Initialization.into());
-    ffi_error!(DeinitializationResult, ErrorKind::Deinitialization.into());
-    ffi_error!(
-        ApplyConnectingResult,
-        ErrorKind::ApplyingConnectingPolicy.into()
-    );
-    ffi_error!(
-        ApplyConnectedResult,
-        ErrorKind::ApplyingConnectedPolicy.into()
-    );
-    ffi_error!(ApplyBlockedResult, ErrorKind::ApplyingBlockedPolicy.into());
-    ffi_error!(ResettingPolicyResult, ErrorKind::ResettingPolicy.into());
+    ffi_error!(InitializationResult, Error::Initialization);
+    ffi_error!(DeinitializationResult, Error::Deinitialization);
+    ffi_error!(ApplyConnectingResult, Error::ApplyingConnectingPolicy);
+    ffi_error!(ApplyConnectedResult, Error::ApplyingConnectedPolicy);
+    ffi_error!(ApplyBlockedResult, Error::ApplyingBlockedPolicy);
+    ffi_error!(ResettingPolicyResult, Error::ResettingPolicy);
 
     extern "system" {
         #[link_name = "WinFw_Initialize"]
