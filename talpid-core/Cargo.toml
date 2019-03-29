@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 atty = "0.2"
+derive_more = "0.14"
 duct = "0.12"
 error-chain = "0.12"
 err-derive = "0.1.5"

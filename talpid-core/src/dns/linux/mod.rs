@@ -12,19 +12,30 @@ use std::{env, fmt, net::IpAddr, path::Path};
 
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
 
-error_chain! {
-    errors {
-        NoDnsMonitor {
-            description("No suitable DNS monitor implementation detected")
-        }
-    }
+pub type Result<T> = std::result::Result<T, Error>;
 
-    links {
-        Resolvconf(resolvconf::Error, resolvconf::ErrorKind);
-        StaticResolvConf(static_resolv_conf::Error, static_resolv_conf::ErrorKind);
-        SystemdResolved(systemd_resolved::Error, systemd_resolved::ErrorKind);
-        NetworkManager(network_manager::Error, network_manager::ErrorKind);
-    }
+/// Errors that can happen in the Linux DNS monitor
+#[derive(err_derive::Error, derive_more::From, Debug)]
+pub enum Error {
+    /// Error in systemd-resolved DNS monitor
+    #[error(display = "Error in systemd-resolved DNS monitor")]
+    SystemdResolved(#[error(cause)] systemd_resolved::Error),
+
+    /// Error in NetworkManager DNS monitor
+    #[error(display = "Error in NetworkManager DNS monitor")]
+    NetworkManager(#[error(cause)] network_manager::Error),
+
+    /// Error in resolvconf DNS monitor
+    #[error(display = "Error in resolvconf DNS monitor")]
+    Resolvconf(#[error(cause)] resolvconf::Error),
+
+    /// Error in static /etc/resolv.conf DNS monitor
+    #[error(display = "Error in static /etc/resolv.conf DNS monitor")]
+    StaticResolvConf(#[error(cause)] static_resolv_conf::Error),
+
+    /// No suitable DNS monitor implementation detected
+    #[error(display = "No suitable DNS monitor implementation detected")]
+    NoDnsMonitor,
 }
 
 pub struct DnsMonitor {
@@ -56,10 +67,10 @@ impl super::DnsMonitorT for DnsMonitor {
 }
 
 pub enum DnsMonitorHolder {
-    Resolvconf(Resolvconf),
-    StaticResolvConf(StaticResolvConf),
     SystemdResolved(SystemdResolved),
     NetworkManager(NetworkManager),
+    Resolvconf(Resolvconf),
+    StaticResolvConf(StaticResolvConf),
 }
 
 impl fmt::Display for DnsMonitorHolder {
@@ -96,7 +107,7 @@ impl DnsMonitorHolder {
             .or_else(|_| NetworkManager::new().map(DnsMonitorHolder::NetworkManager))
             .or_else(|_| Resolvconf::new().map(DnsMonitorHolder::Resolvconf))
             .or_else(|_| StaticResolvConf::new().map(DnsMonitorHolder::StaticResolvConf))
-            .chain_err(|| ErrorKind::NoDnsMonitor)
+            .map_err(|_| Error::NoDnsMonitor)
     }
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {

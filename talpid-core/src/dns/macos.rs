@@ -1,4 +1,3 @@
-use error_chain::ChainedError;
 use log::{debug, trace};
 use parking_lot::Mutex;
 use std::{
@@ -22,11 +21,18 @@ use system_configuration::{
     sys::schema_definitions::kSCPropNetDNSServerAddresses,
 };
 
-error_chain! {
-    errors {
-        SettingDnsFailed { description("Error while setting DNS servers") }
-        DynamicStoreInitError { description("Failed to initialize dynamic store") }
-    }
+pub type Result<T> = std::result::Result<T, Error>;
+
+/// Errors that can happen when setting/monitoring DNS on macOS.
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Error while setting DNS servers
+    #[error(display = "Error while setting DNS servers")]
+    SettingDnsFailed,
+
+    /// Failed to initialize dynamic store
+    #[error(display = "Failed to initialize dynamic store")]
+    DynamicStoreInitError,
 }
 
 const STATE_PATH_PATTERN: &str = "State:/Network/Service/.*/DNS";
@@ -88,7 +94,7 @@ impl DnsSettings {
         if store.set(path, self.0.clone()) {
             Ok(())
         } else {
-            bail!(ErrorKind::SettingDnsFailed)
+            Err(Error::SettingDnsFailed)
         }
     }
 
@@ -187,7 +193,7 @@ impl super::DnsMonitorT for DnsMonitor {
                 } else {
                     debug!("Removing DNS for {}", service_path);
                     if !self.store.remove(CFString::new(&service_path)) {
-                        bail!(ErrorKind::SettingDnsFailed);
+                        return Err(Error::SettingDnsFailed);
                     }
                 }
             }
@@ -235,7 +241,7 @@ fn create_dynamic_store(state: Arc<Mutex<Option<State>>>) -> Result<SCDynamicSto
         trace!("Registered for dynamic store notifications");
         Ok(store)
     } else {
-        bail!(ErrorKind::DynamicStoreInitError)
+        Err(Error::DynamicStoreInitError)
     }
 }
 
@@ -260,9 +266,7 @@ fn dns_change_callback(
             trace!("Not injecting DNS at this time");
         }
         Some(ref mut state) => {
-            if let Err(e) = dns_change_callback_internal(store, changed_keys, state) {
-                log::error!("{}", e.display_chain());
-            }
+            dns_change_callback_internal(store, changed_keys, state);
         }
     }
 }
@@ -271,7 +275,7 @@ fn dns_change_callback_internal(
     store: SCDynamicStore,
     changed_keys: CFArray<CFString>,
     state: &mut State,
-) -> Result<()> {
+) {
     for path in &changed_keys {
         let should_set_dns = match DnsSettings::load(&store, path.clone()) {
             None => {
@@ -291,10 +295,9 @@ fn dns_change_callback_internal(
             }
         };
         if should_set_dns {
-            state
-                .dns_settings
-                .save(&store, path.clone())
-                .chain_err(|| format!("Failed changing DNS for {}", *path))?;
+            if let Err(e) = state.dns_settings.save(&store, path.clone()) {
+                log::error!("Failed changing DNS for {}: {}", *path, e);
+            }
             // If we changed a "state" entry, also set the corresponding "setup" entry.
             if let Some(setup_path_str) = state_to_setup_path(&path.to_string()) {
                 let setup_path = CFString::new(&setup_path_str);
@@ -304,14 +307,12 @@ fn dns_change_callback_internal(
                         DnsSettings::load(&store, setup_path.clone()),
                     );
                 }
-                state
-                    .dns_settings
-                    .save(&store, setup_path.clone())
-                    .chain_err(|| format!("Failed changing DNS for {}", setup_path))?;
+                if let Err(e) = state.dns_settings.save(&store, setup_path.clone()) {
+                    log::error!("Failed changing DNS for {}: {}", setup_path, e);
+                }
             }
         }
     }
-    Ok(())
 }
 
 /// Read all existing DNS settings and return them.

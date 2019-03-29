@@ -231,7 +231,7 @@ pub struct ManagementInterfaceServer {
 }
 
 impl ManagementInterfaceServer {
-    pub fn start<T>(tunnel_tx: IntoSender<ManagementCommand, T>) -> talpid_ipc::Result<Self>
+    pub fn start<T>(tunnel_tx: IntoSender<ManagementCommand, T>) -> Result<Self, talpid_ipc::Error>
     where
         T: From<ManagementCommand> + 'static + Send,
     {

@@ -1,23 +1,25 @@
-use std::{net::IpAddr, thread, time};
+use std::{
+    io,
+    net::IpAddr,
+    thread,
+    time::{Duration, Instant},
+};
 
-error_chain! {
-    errors {
-        PingError{
-            description("Failed to run ping")
-        }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Failed to run ping command")]
+    PingError(#[error(cause)] io::Error),
 
-        TimeoutError {
-            description("Ping timed out")
-        }
-    }
+    #[error(display = "Ping timed out")]
+    TimeoutError,
 }
 
-pub fn monitor_ping(ip: IpAddr, timeout_secs: u16, interface: &str) -> Result<()> {
+pub fn monitor_ping(ip: IpAddr, timeout_secs: u16, interface: &str) -> Result<(), Error> {
     loop {
-        let start = time::Instant::now();
+        let start = Instant::now();
         ping(ip, timeout_secs, &interface, false)?;
         if let Some(remaining) =
-            time::Duration::from_secs(timeout_secs.into()).checked_sub(start.elapsed())
+            Duration::from_secs(timeout_secs.into()).checked_sub(start.elapsed())
         {
             thread::sleep(remaining);
         }
@@ -29,14 +31,15 @@ pub fn ping(
     timeout_secs: u16,
     interface: &str,
     exit_on_first_reply: bool,
-) -> Result<()> {
+) -> Result<(), Error> {
     let output = ping_cmd(ip, timeout_secs, interface, exit_on_first_reply)
         .run()
-        .chain_err(|| ErrorKind::PingError)?;
-    if !output.status.success() {
-        bail!(ErrorKind::TimeoutError);
+        .map_err(Error::PingError)?;
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(Error::TimeoutError)
     }
-    Ok(())
 }
 
 fn ping_cmd(
