@@ -1,23 +1,22 @@
-#[macro_use]
-extern crate error_chain;
+use std::{fs, io, path::PathBuf};
 
-use std::{fs, path::PathBuf};
+pub type Result<T> = std::result::Result<T, Error>;
 
-error_chain! {
-    errors {
-        CreateDirFailed(path: PathBuf) {
-            description("Failed to create directory")
-            display("Failed to create directory {}", path.display())
-        }
-        SetDirPermissionFailed(path: PathBuf) {
-            description("Failed to set directory permissions")
-            display("Failed to set directory permissions on {}", path.display())
-        }
-        #[cfg(any(windows, target_os = "macos"))]
-        FindDirError { description("Not able to find requested directory" )}
-        #[cfg(windows)]
-        NoProgramDataDir { description("Missing %ALLUSERSPROFILE% environment variable") }
-    }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Failed to create directory {}", _0)]
+    CreateDirFailed(String, #[error(cause)] io::Error),
+
+    #[error(display = "Failed to set directory permissions on {}", _0)]
+    SetDirPermissionFailed(String, #[error(cause)] io::Error),
+
+    #[cfg(any(windows, target_os = "macos"))]
+    #[error(display = "Not able to find requested directory")]
+    FindDirError,
+
+    #[cfg(windows)]
+    #[error(display = "Missing %ALLUSERSPROFILE% environment variable")]
+    NoProgramDataDir,
 }
 
 #[cfg(unix)]
@@ -31,7 +30,7 @@ const PRODUCT_NAME: &str = "Mullvad VPN";
 fn get_allusersprofile_dir() -> Result<PathBuf> {
     match std::env::var_os("ALLUSERSPROFILE") {
         Some(dir) => Ok(PathBuf::from(&dir)),
-        None => bail!(ErrorKind::NoProgramDataDir),
+        None => Err(Error::NoProgramDataDir),
     }
 }
 
@@ -40,10 +39,10 @@ fn create_and_return(
     permissions: Option<fs::Permissions>,
 ) -> Result<PathBuf> {
     let dir = dir_fn()?;
-    fs::create_dir_all(&dir).chain_err(|| ErrorKind::CreateDirFailed(dir.clone()))?;
+    fs::create_dir_all(&dir).map_err(|e| Error::CreateDirFailed(dir.display().to_string(), e))?;
     if let Some(permissions) = permissions {
         fs::set_permissions(&dir, permissions)
-            .chain_err(|| ErrorKind::SetDirPermissionFailed(dir.clone()))?;
+            .map_err(|e| Error::SetDirPermissionFailed(dir.display().to_string(), e))?;
     }
     Ok(dir)
 }

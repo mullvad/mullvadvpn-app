@@ -22,7 +22,7 @@ pub fn get_default_cache_dir() -> Result<PathBuf> {
     }
     #[cfg(any(target_os = "macos", windows))]
     {
-        dir = dirs::cache_dir().ok_or_else(|| crate::ErrorKind::FindDirError.into())
+        dir = dirs::cache_dir().ok_or(crate::Error::FindDirError)
     }
     dir.map(|dir| dir.join(crate::PRODUCT_NAME))
 }
