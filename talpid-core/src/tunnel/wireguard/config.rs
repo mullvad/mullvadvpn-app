@@ -17,24 +17,20 @@ pub struct Config {
 const SMALLEST_IPV6_MTU: u16 = 1420;
 const DEFAULT_MTU: u16 = SMALLEST_IPV6_MTU;
 
-error_chain! {
-    errors {
-        InvalidTunnelIpError {
-            description("No valid tunnel IP"),
-        }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "No valid tunnel IP")]
+    InvalidTunnelIpError,
 
-        InvalidPeerIpError {
-            description("Supplied peer has no valid IPs")
-        }
+    #[error(display = "Supplied peer has no valid IPs")]
+    InvalidPeerIpError,
 
-        NoPeersSuppliedError{
-            description("No peers supplied")
-        }
-    }
+    #[error(display = "No peers supplied")]
+    NoPeersSuppliedError,
 }
 
 impl Config {
-    pub fn from_parameters(params: &wireguard::TunnelParameters) -> Result<Config> {
+    pub fn from_parameters(params: &wireguard::TunnelParameters) -> Result<Config, Error> {
         let tunnel = params.connection.tunnel.clone();
         let peer = vec![params.connection.peer.clone()];
         Self::new(
@@ -52,8 +48,10 @@ impl Config {
         connection_config: &wireguard::ConnectionConfig,
         wg_options: &wireguard::TunnelOptions,
         generic_options: &GenericTunnelOptions,
-    ) -> Result<Config> {
-        ensure!(!peers.is_empty(), ErrorKind::NoPeersSuppliedError);
+    ) -> Result<Config, Error> {
+        if peers.is_empty() {
+            return Err(Error::NoPeersSuppliedError);
+        }
         let mtu = wg_options.mtu.unwrap_or(DEFAULT_MTU);
         let is_ipv6_enabled = mtu >= SMALLEST_IPV6_MTU && generic_options.enable_ipv6;
 
@@ -64,7 +62,9 @@ impl Config {
                 .cloned()
                 .filter(|ip| ip.is_ipv4() || is_ipv6_enabled)
                 .collect();
-            ensure!(!peer.allowed_ips.is_empty(), ErrorKind::InvalidPeerIpError);
+            if peer.allowed_ips.is_empty() {
+                return Err(Error::InvalidPeerIpError);
+            }
         }
 
         tunnel.addresses = tunnel
@@ -72,10 +72,9 @@ impl Config {
             .into_iter()
             .filter(|ip| ip.is_ipv4() || is_ipv6_enabled)
             .collect();
-        ensure!(
-            !tunnel.addresses.is_empty(),
-            ErrorKind::InvalidTunnelIpError
-        );
+        if tunnel.addresses.is_empty() {
+            return Err(Error::InvalidTunnelIpError);
+        }
 
         Ok(Config {
             tunnel,
