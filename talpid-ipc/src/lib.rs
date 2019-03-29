@@ -6,14 +6,8 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-#![recursion_limit = "128"]
-
-#[macro_use]
-extern crate error_chain;
-
-
 use futures::Future;
-use std::thread;
+use std::{io, thread};
 
 use jsonrpc_core::{MetaIoHandler, Metadata};
 use jsonrpc_ipc_server::{MetaExtractor, NoopExtractor, SecurityAttributes, Server, ServerBuilder};
@@ -24,16 +18,16 @@ use std::fmt;
 /// An Id created by the Ipc server that the client can use to connect to it
 pub type IpcServerId = String;
 
-error_chain! {
-    errors {
-        IpcServerError {
-            description("Error in IPC server")
-        }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Unable to start IPC server")]
+    StartServerError(#[error(cause)] io::Error),
 
-        PermissionsError {
-            description("Unable to set permissions for IPC endpoint")
-        }
-    }
+    #[error(display = "Error in IPC server")]
+    IpcServerError(#[error(cause)] io::Error),
+
+    #[error(display = "Unable to set permissions for IPC endpoint")]
+    PermissionsError(#[error(cause)] io::Error),
 }
 
 
@@ -43,7 +37,10 @@ pub struct IpcServer {
 }
 
 impl IpcServer {
-    pub fn start<M: Metadata + Default>(handler: MetaIoHandler<M>, path: &str) -> Result<Self> {
+    pub fn start<M: Metadata + Default>(
+        handler: MetaIoHandler<M>,
+        path: &str,
+    ) -> Result<Self, Error> {
         Self::start_with_metadata(handler, NoopExtractor, path)
     }
 
@@ -51,17 +48,17 @@ impl IpcServer {
         handler: MetaIoHandler<M>,
         meta_extractor: E,
         path: &str,
-    ) -> Result<Self>
+    ) -> Result<Self, Error>
     where
         M: Metadata + Default,
         E: MetaExtractor<M>,
     {
-        let security_attributes = SecurityAttributes::allow_everyone_create()
-            .chain_err(|| ErrorKind::PermissionsError)?;
+        let security_attributes =
+            SecurityAttributes::allow_everyone_create().map_err(Error::PermissionsError)?;
         let server = ServerBuilder::with_meta_extractor(handler, meta_extractor)
             .set_security_attributes(security_attributes)
             .start(path)
-            .chain_err(|| ErrorKind::IpcServerError)
+            .map_err(Error::StartServerError)
             .and_then(|(fut, start, server)| {
                 thread::spawn(move || tokio::run(fut));
                 start
@@ -69,7 +66,7 @@ impl IpcServer {
                     .expect("server panicked")
                     .map(Err)
                     .unwrap_or_else(|| Ok(server))
-                    .chain_err(|| ErrorKind::IpcServerError)
+                    .map_err(Error::IpcServerError)
             })
             .map(|server| IpcServer {
                 path: path.to_owned(),
@@ -80,7 +77,7 @@ impl IpcServer {
         {
             use std::{fs, os::unix::fs::PermissionsExt};
             fs::set_permissions(&path, PermissionsExt::from_mode(0o766))
-                .chain_err(|| ErrorKind::PermissionsError)?;
+                .map_err(Error::PermissionsError)?;
         }
         Ok(server)
     }

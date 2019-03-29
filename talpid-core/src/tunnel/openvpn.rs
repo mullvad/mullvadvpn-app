@@ -569,7 +569,7 @@ mod event_server {
     use uuid;
 
     /// Construct and start the IPC server with the given event listener callback.
-    pub fn start<L>(on_event: L) -> talpid_ipc::Result<talpid_ipc::IpcServer>
+    pub fn start<L>(on_event: L) -> std::result::Result<talpid_ipc::IpcServer, talpid_ipc::Error>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
     {
