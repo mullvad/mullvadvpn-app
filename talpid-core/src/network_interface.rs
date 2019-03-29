@@ -1,34 +1,45 @@
 use nix::fcntl;
 use std::{
+    io,
     net::IpAddr,
     os::unix::io::{AsRawFd, IntoRawFd, RawFd},
 };
 use tun::{platform, Configuration, Device};
 
-error_chain! {
-    errors {
-        /// Unable to open a tunnel device
-        SetupDeviceError { description("Failed to setup a device") }
-        /// Unable to get the name of a tunnel device
-        GetNameError { description("Failed to get a name for the device") }
-        /// Failed to set IP address
-        SetIpError{ description( "Failed to set IP address" ) }
-        /// Failed to toggle device state
-        ToggleDeviceError{ description( "Failed to enable/disable link device" ) }
-    }
-}
+/// Errors that can happen when working with *nix tunnel interfaces.
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Failed to set IP address
+    #[error(display = "Failed to set IPv4 address")]
+    SetIpv4Error(#[error(cause)] tun::Error),
 
+    /// Failed to set IP address
+    #[error(display = "Failed to set IPv6 address")]
+    SetIpv6Error(#[error(cause)] io::Error),
+
+    /// Unable to open a tunnel device
+    #[error(display = "Unable to open a tunnel device")]
+    CreateDeviceError(#[error(cause)] tun::Error),
+
+    /// Failed to apply async flags to tunnel device
+    #[error(display = "Failed to apply async flags to tunnel device")]
+    SetDeviceAsyncError(#[error(cause)] nix::Error),
+
+    /// Failed to enable/disable link device
+    #[error(display = "Failed to enable/disable link device")]
+    ToggleDeviceError(#[error(cause)] tun::Error),
+}
 
 /// A trait for managing link devices
 pub trait NetworkInterface: Sized {
     /// Bring a given interface up or down
-    fn set_up(&mut self, up: bool) -> Result<()>;
+    fn set_up(&mut self, up: bool) -> Result<(), Error>;
 
     /// Set host IPs for interface
-    fn set_ip(&mut self, ip: IpAddr) -> Result<()>;
+    fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error>;
 
     /// Set MTU for interface
-    fn set_mtu(&mut self, mtu: u16) -> Result<()>;
+    fn set_mtu(&mut self, mtu: u16) -> Result<(), Error>;
 
     /// Get name of interface
     fn get_name(&self) -> &str;
@@ -37,10 +48,10 @@ pub trait NetworkInterface: Sized {
 
 trait WireguardLink: AsRawFd + IntoRawFd {}
 
-fn apply_async_flags(fd: RawFd) -> Result<()> {
-    fcntl::fcntl(fd, fcntl::FcntlArg::F_GETFL).chain_err(|| ErrorKind::SetupDeviceError)?;
+fn apply_async_flags(fd: RawFd) -> Result<(), nix::Error> {
+    fcntl::fcntl(fd, fcntl::FcntlArg::F_GETFL)?;
     let arg = fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_RDWR | fcntl::OFlag::O_NONBLOCK);
-    fcntl::fcntl(fd, arg).chain_err(|| ErrorKind::SetupDeviceError)?;
+    fcntl::fcntl(fd, arg)?;
     Ok(())
 }
 
@@ -52,15 +63,15 @@ pub struct TunnelDevice {
 impl TunnelDevice {
     /// Creates a new Tunnel device
     #[allow(unused_mut)]
-    pub fn new() -> Result<Self> {
+    pub fn new() -> Result<Self, Error> {
         let mut config = Configuration::default();
 
         #[cfg(target_os = "linux")]
         config.platform(|config| {
             config.packet_information(true);
         });
-        let mut dev = platform::create(&config).chain_err(|| ErrorKind::SetupDeviceError)?;
-        apply_async_flags(dev.as_raw_fd())?;
+        let mut dev = platform::create(&config).map_err(Error::CreateDeviceError)?;
+        apply_async_flags(dev.as_raw_fd()).map_err(Error::SetDeviceAsyncError)?;
         Ok(Self { dev })
     }
 }
@@ -78,12 +89,9 @@ impl IntoRawFd for TunnelDevice {
 }
 
 impl NetworkInterface for TunnelDevice {
-    fn set_ip(&mut self, ip: IpAddr) -> Result<()> {
+    fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
         match ip {
-            IpAddr::V4(ipv4) => self
-                .dev
-                .set_address(ipv4)
-                .chain_err(|| ErrorKind::SetIpError),
+            IpAddr::V4(ipv4) => self.dev.set_address(ipv4).map_err(Error::SetIpv4Error),
             IpAddr::V6(ipv6) => {
                 #[cfg(target_os = "linux")]
                 {
@@ -98,7 +106,7 @@ impl NetworkInterface for TunnelDevice {
                     )
                     .run()
                     .map(|_| ())
-                    .chain_err(|| ErrorKind::SetIpError)
+                    .map_err(Error::SetIpv6Error)
                 }
                 #[cfg(target_os = "macos")]
                 {
@@ -111,22 +119,20 @@ impl NetworkInterface for TunnelDevice {
                     )
                     .run()
                     .map(|_| ())
-                    .chain_err(|| ErrorKind::SetIpError)
+                    .map_err(Error::SetIpv6Error)
                 }
             }
         }
     }
 
-    fn set_up(&mut self, up: bool) -> Result<()> {
-        self.dev
-            .enabled(up)
-            .chain_err(|| ErrorKind::ToggleDeviceError)
+    fn set_up(&mut self, up: bool) -> Result<(), Error> {
+        self.dev.enabled(up).map_err(Error::ToggleDeviceError)
     }
 
-    fn set_mtu(&mut self, mtu: u16) -> Result<()> {
+    fn set_mtu(&mut self, mtu: u16) -> Result<(), Error> {
         self.dev
             .set_mtu(i32::from(mtu))
-            .chain_err(|| ErrorKind::ToggleDeviceError)
+            .map_err(Error::ToggleDeviceError)
     }
 
     fn get_name(&self) -> &str {
