@@ -28,7 +28,7 @@ use std::{
 };
 
 use log::{debug, error, info, warn};
-use rand::{self, Rng, ThreadRng};
+use rand::{self, rngs::ThreadRng, seq::SliceRandom, Rng};
 use tokio_timer::{TimeoutError, Timer};
 
 const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
@@ -403,14 +403,16 @@ impl RelaySelector {
         match constraints {
             // TODO: Handle Constraint::Any case by selecting from both openvpn and wireguard
             // tunnels once wireguard is mature enough
-            Constraint::Only(TunnelConstraints::OpenVpn(_)) | Constraint::Any => self
-                .rng
-                .choose(&relay.tunnels.openvpn)
+            Constraint::Only(TunnelConstraints::OpenVpn(_)) | Constraint::Any => relay
+                .tunnels
+                .openvpn
+                .choose(&mut self.rng)
                 .cloned()
                 .map(|endpoint| endpoint.into_mullvad_endpoint(relay.ipv4_addr_in.into())),
-            Constraint::Only(TunnelConstraints::Wireguard(wg_constraints)) => self
-                .rng
-                .choose(&relay.tunnels.wireguard)
+            Constraint::Only(TunnelConstraints::Wireguard(wg_constraints)) => relay
+                .tunnels
+                .wireguard
+                .choose(&mut self.rng)
                 .cloned()
                 .and_then(|wg_tunnel| {
                     self.wg_data_to_endpoint(relay.ipv4_addr_in.into(), wg_tunnel, wg_constraints)
