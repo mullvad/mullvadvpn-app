@@ -1,31 +1,30 @@
 use std::{
     collections::HashSet,
     ffi::OsStr,
-    fs,
+    fs, io,
     net::IpAddr,
     path::{Path, PathBuf},
 };
 use which::which;
 
-error_chain! {
-    errors {
-        NoResolvconf {
-            description("Failed to detect 'resolvconf' program")
-        }
-        ResolvconfUsesResolved {
-            description("The existing resolvconf binary is just a symlink to systemd-resolved")
-        }
-        RunResolvconf {
-            description("Failed to execute 'resolvconf' program")
-        }
-        AddRecordError(stderr: String) {
-            description("Using 'resolvconf' to add a record failed")
-            display("Using 'resolvconf' to add a record failed: {}", stderr)
-        }
-        DeleteRecordError {
-            description("Using 'resolvconf' to delete a record failed")
-        }
-    }
+pub type Result<T> = std::result::Result<T, Error>;
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Failed to detect 'resolvconf' program")]
+    NoResolvconf,
+
+    #[error(display = "The resolvconf in PATH is just a symlink to systemd-resolved")]
+    ResolvconfUsesResolved,
+
+    #[error(display = "Failed to execute 'resolvconf' program")]
+    RunResolvconf(#[error(cause)] io::Error),
+
+    #[error(display = "Using 'resolvconf' to add a record failed: {}", stderr)]
+    AddRecordError { stderr: String },
+
+    #[error(display = "Using 'resolvconf' to delete a record failed")]
+    DeleteRecordError,
 }
 
 pub struct Resolvconf {
@@ -35,10 +34,9 @@ pub struct Resolvconf {
 
 impl Resolvconf {
     pub fn new() -> Result<Self> {
-        let resolvconf_path =
-            which("resolvconf").map_err(|_| Error::from(ErrorKind::NoResolvconf))?;
+        let resolvconf_path = which("resolvconf").map_err(|_| Error::NoResolvconf)?;
         if Self::resolvconf_is_resolved_symlink(&resolvconf_path) {
-            bail!(ErrorKind::ResolvconfUsesResolved);
+            return Err(Error::ResolvconfUsesResolved);
         }
         Ok(Resolvconf {
             record_names: HashSet::new(),
@@ -69,12 +67,12 @@ impl Resolvconf {
             .stderr_capture()
             .unchecked()
             .run()
-            .chain_err(|| ErrorKind::RunResolvconf)?;
+            .map_err(Error::RunResolvconf)?;
 
-        ensure!(
-            output.status.success(),
-            ErrorKind::AddRecordError(String::from_utf8_lossy(&output.stderr).to_string())
-        );
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+            return Err(Error::AddRecordError { stderr });
+        }
 
         self.record_names.insert(record_name);
 
@@ -89,7 +87,7 @@ impl Resolvconf {
                 .stderr_capture()
                 .unchecked()
                 .run()
-                .chain_err(|| ErrorKind::RunResolvconf)?;
+                .map_err(Error::RunResolvconf)?;
 
             if !output.status.success() {
                 log::error!(
@@ -97,7 +95,7 @@ impl Resolvconf {
                     record_name,
                     String::from_utf8_lossy(&output.stderr)
                 );
-                result = Err(Error::from(ErrorKind::DeleteRecordError));
+                result = Err(Error::DeleteRecordError);
             }
         }
 
