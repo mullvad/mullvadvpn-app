@@ -399,7 +399,7 @@ mod tests {
     fn make_file_old(file: &Path) {
         let file_metadata = file.metadata().unwrap();
         let last_access_time = FileTime::from_last_access_time(&file_metadata);
-        let fake_modification_time = FileTime::from_seconds_since_1970(100_000, 0);
+        let fake_modification_time = FileTime::from_unix_time(100_000, 0);
 
         filetime::set_file_times(&file, last_access_time, fake_modification_time).unwrap();
     }

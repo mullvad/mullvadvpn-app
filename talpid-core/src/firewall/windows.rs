@@ -120,7 +120,7 @@ impl Firewall {
 
         // ip_str has to outlive winfw_relay
         let winfw_relay = WinFwRelay {
-            ip: ip_str.as_wide_c_str().as_ptr(),
+            ip: ip_str.as_ptr(),
             port: endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.protocol),
         };
@@ -151,7 +151,7 @@ impl Firewall {
 
         // ip_str, gateway_str and tunnel_alias have to outlive winfw_relay
         let winfw_relay = WinFwRelay {
-            ip: ip_str.as_wide_c_str().as_ptr(),
+            ip: ip_str.as_ptr(),
             port: endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.protocol),
         };
@@ -174,7 +174,7 @@ impl Firewall {
             WinFw_ApplyPolicyConnected(
                 winfw_settings,
                 &winfw_relay,
-                tunnel_alias.as_wide_c_str().as_ptr(),
+                tunnel_alias.as_ptr(),
                 v4_gateway.as_ptr(),
                 v6_gateway_ptr,
             )
