@@ -43,6 +43,7 @@ use mullvad_types::{
     settings::{self, Settings},
     states::TargetState,
     version::{AppVersion, AppVersionInfo},
+    DaemonEvent,
 };
 use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
@@ -190,6 +191,35 @@ pub trait EventBroadcaster {
 
     /// Notify that the relay list changed.
     fn notify_relay_list(&self, relay_list: RelayList);
+}
+
+impl<T> EventBroadcaster for mpsc::Sender<T>
+where
+    T: From<DaemonEvent>,
+{
+    fn notify_new_state(&self, new_state: TunnelStateTransition) {
+        if self
+            .send(T::from(DaemonEvent::StateTransition(new_state)))
+            .is_err()
+        {
+            warn!("Failed to broadcast tunnel state transition");
+        }
+    }
+
+    fn notify_settings(&self, settings: Settings) {
+        if self.send(T::from(DaemonEvent::Settings(settings))).is_err() {
+            warn!("Failed to broadcast new settings");
+        }
+    }
+
+    fn notify_relay_list(&self, relay_list: RelayList) {
+        if self
+            .send(T::from(DaemonEvent::RelayList(relay_list)))
+            .is_err()
+        {
+            warn!("Failed to broadcast new relay list");
+        }
+    }
 }
 
 pub struct Daemon<B: EventBroadcaster = ManagementInterfaceEventBroadcaster> {
