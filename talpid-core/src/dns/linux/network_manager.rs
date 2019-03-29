@@ -3,7 +3,6 @@ use dbus::{
     stdintf::*,
     BusType,
 };
-use error_chain::ChainedError;
 use std::{
     collections::HashMap,
     fs::File,
@@ -12,22 +11,21 @@ use std::{
     path::Path,
 };
 
-error_chain! {
-    errors {
-        NoNetworkManager {
-            description("NetworkManager not detected")
-        }
-        NmTooOld {
-            description("NetworkManager is too old")
-        }
-        NmNotManagingDns{
-            description("NetworkManager is not managing DNS")
-        }
-    }
+pub type Result<T> = std::result::Result<T, Error>;
 
-    foreign_links {
-        DbusError(dbus::Error);
-    }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "NetworkManager not detected")]
+    NetworkManagerNotDetected(#[error(cause)] dbus::Error),
+
+    #[error(display = "NetworkManager is too old")]
+    TooOldNetworkManager(#[error(cause)] dbus::Error),
+
+    #[error(display = "NetworkManager is not managing DNS")]
+    NetworkManagerNotManagingDns,
+
+    #[error(display = "Error while communicating over Dbus")]
+    Dbus(#[error(cause)] dbus::Error),
 }
 
 const NM_BUS: &str = "org.freedesktop.NetworkManager";
@@ -46,7 +44,8 @@ pub struct NetworkManager {
 
 impl NetworkManager {
     pub fn new() -> Result<Self> {
-        let dbus_connection = dbus::Connection::get_private(BusType::System)?;
+        let dbus_connection =
+            dbus::Connection::get_private(BusType::System).map_err(Error::Dbus)?;
         let manager = NetworkManager { dbus_connection };
         manager.ensure_network_manager_exists()?;
         manager.ensure_resolv_conf_is_managed()?;
@@ -57,7 +56,7 @@ impl NetworkManager {
         let _: Box<RefArg> = self
             .as_manager()
             .get(&NM_TOP_OBJECT, GLOBAL_DNS_CONF_KEY)
-            .chain_err(|| ErrorKind::NoNetworkManager)?;
+            .map_err(Error::NetworkManagerNotDetected)?;
         Ok(())
     }
 
@@ -67,16 +66,13 @@ impl NetworkManager {
             .dbus_connection
             .with_path(NM_BUS, NM_DNS_MANAGER_PATH, RPC_TIMEOUT_MS)
             .get(NM_DNS_MANAGER, RC_MANAGEMENT_MODE_KEY)
-            .chain_err(|| ErrorKind::NmTooOld);
+            .map_err(Error::TooOldNetworkManager);
 
         match management_mode {
-            Err(e) => {
-                log::debug!("Failed to get NM management mode - {}", e.display_chain());
-                return Err(e);
-            }
+            Err(e) => return Err(e),
             Ok(management_mode) => {
                 if management_mode == "unmanaged" {
-                    return Err(Error::from(ErrorKind::NmNotManagingDns));
+                    return Err(Error::NetworkManagerNotManagingDns);
                 }
             }
         }
@@ -85,7 +81,7 @@ impl NetworkManager {
         let actual_resolv_conf = "/etc/resolv.conf";
         if !eq_file_content(&expected_resolv_conf, &actual_resolv_conf) {
             log::debug!("/etc/resolv.conf differs from reference resolv.conf, therefore NM is not managing DNS");
-            bail!(ErrorKind::NmNotManagingDns);
+            return Err(Error::NetworkManagerNotManagingDns);
         }
 
         Ok(())
@@ -103,7 +99,7 @@ impl NetworkManager {
     fn set_global_dns(&mut self, config: GlobalDnsConfig) -> Result<()> {
         self.as_manager()
             .set(NM_TOP_OBJECT, GLOBAL_DNS_CONF_KEY, config)
-            .map_err(|e| e.into())
+            .map_err(Error::Dbus)
     }
 
     pub fn reset(&mut self) -> Result<()> {
