@@ -56,7 +56,7 @@ system-configuration = "0.2"
 
 [target.'cfg(windows)'.dependencies]
 widestring = "0.4"
-winreg = "0.5"
+winreg = "0.6"
 winapi = { version = "0.3.6", features = ["handleapi", "libloaderapi", "synchapi", "winbase", "winuser"] }
 
 
