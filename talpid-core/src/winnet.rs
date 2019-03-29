@@ -36,7 +36,7 @@ pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool> {
 
     let metric_result = unsafe {
         WinRoute_EnsureTopMetric(
-            interface_alias_ws.as_wide_c_str().as_ptr(),
+            interface_alias_ws.as_ptr(),
             Some(error_sink),
             ptr::null_mut(),
         )

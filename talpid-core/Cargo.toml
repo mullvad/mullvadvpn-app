@@ -31,7 +31,7 @@ hex = "0.3"
 ipnetwork = "0.14"
 lazy_static = "1.0"
 tun = { git = "https://github.com/pinkisemils/rust-tun", branch = "add-raw-fd-traits" }
-nix = "0.12"
+nix = "0.13"
 
 
 [target.'cfg(target_os = "linux")'.dependencies]
@@ -55,7 +55,7 @@ system-configuration = "0.2"
 
 
 [target.'cfg(windows)'.dependencies]
-widestring = "0.3"
+widestring = "0.4"
 winreg = "0.5"
 winapi = { version = "0.3.6", features = ["handleapi", "libloaderapi", "synchapi", "winbase", "winuser"] }
 
