@@ -1,46 +1,56 @@
 use super::RESOLV_CONF_PATH;
-use crate::linux::iface_index;
+use crate::{linux::iface_index, ErrorExt as _};
 use dbus::{
     arg::RefArg, stdintf::*, BusType, Interface, Member, Message, MessageItem, MessageItemArray,
     Signature,
 };
-use error_chain::ChainedError;
 use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
 use std::{
-    fs,
+    fs, io,
     net::{IpAddr, Ipv4Addr},
     path::Path,
 };
 
+pub type Result<T> = std::result::Result<T, Error>;
 
-error_chain! {
-    errors {
-        NoSystemdResolved {
-            description("Systemd resolved not detected")
-        }
-        InvalidInterfaceName {
-            description("Invalid network interface name")
-        }
-        DbusRpcError {
-            description("Failed to perform RPC call on DBus")
-        }
-        GetLinkError {
-            description("Failed to find link interface in resolved manager")
-        }
-        SetDnsError {
-            description("Failed to configure DNS servers")
-        }
-        SetDomainsError {
-            description("Failed to configure DNS domains")
-        }
-        RevertDnsError {
-            description("Failed to revert DNS configuration")
-        }
-        DBusError {
-            description("Failed to initialize a connection to dbus")
-        }
-    }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Failed to initialize a connection to D-Bus")]
+    ConnectDBus(#[error(cause)] dbus::Error),
+
+    #[error(display = "/etc/resolv.conf is not a symlink to Systemd resolved")]
+    NotSymlinkedToResolvConf,
+
+    #[error(display = "Systemd resolved DNS 127.0.0.53, is not currently configured")]
+    NoDnsPointsToResolved,
+
+    #[error(display = "Systemd resolved not detected")]
+    NoSystemdResolved(#[error(cause)] dbus::Error),
+
+    #[error(display = "Failed to read Systemd resolved's resolv.conf")]
+    ReadResolvConfFailed(#[error(cause)] io::Error),
+
+    #[error(display = "Failed to parse Systemd resolved's resolv.conf")]
+    ParseResolvConfFailed(#[error(cause)] resolv_conf::ParseError),
+
+    #[error(display = "Invalid network interface name")]
+    InvalidInterfaceName(#[error(cause)] crate::linux::IfaceIndexLookupError),
+
+    #[error(display = "Failed to find link interface in resolved manager")]
+    GetLinkError(#[error(cause)] Box<Error>),
+
+    #[error(display = "Failed to configure DNS domains")]
+    SetDomainsError(#[error(cause)] dbus::Error),
+
+    #[error(display = "Failed to revert DNS settings of interface: {}", _0)]
+    RevertDnsError(String, #[error(cause)] dbus::Error),
+
+    #[error(display = "Failed to perform RPC call on D-Bus")]
+    DBusRpcError(#[error(cause)] dbus::Error),
+
+    #[error(display = "Failed to match the returned D-Bus object with expected type")]
+    MatchDBusTypeError(#[error(cause)] dbus::arg::TypeMismatchError),
 }
 
 const DYNAMIC_RESOLV_CONF_PATH: &str = "/run/systemd/resolve/resolv.conf";
@@ -68,14 +78,15 @@ pub struct SystemdResolved {
 impl SystemdResolved {
     pub fn new() -> Result<Self> {
         let dbus_connection =
-            dbus::Connection::get_private(BusType::System).chain_err(|| ErrorKind::DBusError)?;
+            dbus::Connection::get_private(BusType::System).map_err(Error::ConnectDBus)?;
         let systemd_resolved = SystemdResolved {
             dbus_connection,
             interface_link: None,
         };
 
-        SystemdResolved::ensure_resolved_is_active()?;
         systemd_resolved.ensure_resolved_exists()?;
+        Self::ensure_resolv_conf_is_resolved_symlink()?;
+        Self::ensure_resolv_conf_has_resolved_dns()?;
 
         Ok(systemd_resolved)
     }
@@ -84,38 +95,39 @@ impl SystemdResolved {
         let _: Box<RefArg> = self
             .as_manager_object()
             .get(&MANAGER_INTERFACE, "DNS")
-            .chain_err(|| ErrorKind::NoSystemdResolved)?;
+            .map_err(Error::NoSystemdResolved)?;
 
         Ok(())
     }
 
-    fn ensure_resolved_is_active() -> Result<()> {
-        ensure!(
-            Self::resolv_conf_is_resolved_symlink() || Self::resolv_conf_has_resolved_dns()?,
-            ErrorKind::NoSystemdResolved
-        );
-
-        Ok(())
-    }
-
-    fn resolv_conf_is_resolved_symlink() -> bool {
-        fs::read_link(RESOLV_CONF_PATH)
+    fn ensure_resolv_conf_is_resolved_symlink() -> Result<()> {
+        let is_correct_symlink = fs::read_link(RESOLV_CONF_PATH)
             .map(|resolv_conf_target| resolv_conf_target == Path::new(DYNAMIC_RESOLV_CONF_PATH))
-            .unwrap_or_else(|_| false)
+            .unwrap_or_else(|_| false);
+        if is_correct_symlink {
+            Ok(())
+        } else {
+            Err(Error::NotSymlinkedToResolvConf)
+        }
     }
 
-    fn resolv_conf_has_resolved_dns() -> Result<bool> {
+    fn ensure_resolv_conf_has_resolved_dns() -> Result<()> {
         let resolv_conf_contents =
-            fs::read_to_string(RESOLV_CONF_PATH).chain_err(|| ErrorKind::NoSystemdResolved)?;
+            fs::read_to_string(RESOLV_CONF_PATH).map_err(Error::ReadResolvConfFailed)?;
         let parsed_resolv_conf = resolv_conf::Config::parse(resolv_conf_contents)
-            .chain_err(|| ErrorKind::NoSystemdResolved)?;
+            .map_err(Error::ParseResolvConfFailed)?;
         let resolved_dns_server =
             resolv_conf::ScopedIp::V4(Ipv4Addr::from(RESOLVED_DNS_SERVER_ADDRESS));
 
-        Ok(parsed_resolv_conf
+        if parsed_resolv_conf
             .nameservers
             .into_iter()
-            .any(|nameserver| nameserver == resolved_dns_server))
+            .any(|nameserver| nameserver == resolved_dns_server)
+        {
+            Ok(())
+        } else {
+            Err(Error::NoDnsPointsToResolved)
+        }
     }
 
     fn as_manager_object(&self) -> dbus::ConnPath<&dbus::Connection> {
@@ -132,7 +144,9 @@ impl SystemdResolved {
     }
 
     pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
-        let link_object_path = self.fetch_link(interface_name)?;
+        let link_object_path = self
+            .fetch_link(interface_name)
+            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
         if let Err(e) = self.reset() {
             log::debug!(
                 "Failed to reset previous DNS settings - {}",
@@ -147,19 +161,19 @@ impl SystemdResolved {
     }
 
     fn fetch_link(&self, interface_name: &str) -> Result<dbus::Path<'static>> {
-        let interface_index =
-            iface_index(interface_name).chain_err(|| ErrorKind::InvalidInterfaceName)?;
+        let interface_index = iface_index(interface_name).map_err(Error::InvalidInterfaceName)?;
 
         let mut reply = self
             .as_manager_object()
             .method_call_with_args(&MANAGER_INTERFACE, &GET_LINK_METHOD, |message| {
                 message.append_items(&[MessageItem::Int32(interface_index as i32)]);
             })
-            .chain_err(|| ErrorKind::DbusRpcError)?;
-
-        let result = reply.as_result().chain_err(|| ErrorKind::GetLinkError)?;
-
-        result.read1().chain_err(|| ErrorKind::GetLinkError)
+            .map_err(Error::DBusRpcError)?;
+        reply
+            .as_result()
+            .map_err(Error::DBusRpcError)?
+            .read1()
+            .map_err(Error::MatchDBusTypeError)
     }
 
     fn set_link_dns<'a, 'b: 'a>(
@@ -168,18 +182,12 @@ impl SystemdResolved {
         servers: &[IpAddr],
     ) -> Result<()> {
         let server_addresses = build_addresses_argument(servers);
-
-        let mut reply = self
-            .as_link_object(link_object_path.clone())
+        self.as_link_object(link_object_path.clone())
             .method_call_with_args(&LINK_INTERFACE, &SET_DNS_METHOD, |message| {
                 message.append_items(&[server_addresses]);
             })
-            .chain_err(|| ErrorKind::DbusRpcError)?;
-
-        reply
-            .as_result()
-            .map(|_| ())
-            .chain_err(|| ErrorKind::SetDnsError)?;
+            .and_then(|mut reply| reply.as_result().map(|_| ()))
+            .map_err(Error::DBusRpcError)?;
 
         // set the search domain to catch all DNS requests, forces the link to be the prefered
         // resolver, otherwise systemd-resolved will use other interfaces to do DNS lookups
@@ -194,43 +202,31 @@ impl SystemdResolved {
         .expect("failed to construct a new dbus message")
         .append1(dns_domains);
 
-        let mut reply = self
-            .dbus_connection
+        self.dbus_connection
             .send_with_reply_and_block(msg, RPC_TIMEOUT_MS)
-            .chain_err(|| ErrorKind::SetDomainsError)?;
-        reply
-            .as_result()
-            .map(|_| ())
-            .chain_err(|| ErrorKind::SetDomainsError)
+            .and_then(|mut reply| reply.as_result().map(|_| ()))
+            .map_err(Error::SetDomainsError)
     }
 
     pub fn reset(&mut self) -> Result<()> {
         if let Some((interface_name, link_object_path)) = self.interface_link.take() {
             self.revert_link(link_object_path, &interface_name)
-                .chain_err(|| {
-                    format!(
-                        "Failed to revert DNS settings of interface: {}",
-                        interface_name
-                    )
-                })?;
+                .map_err(|e| Error::RevertDnsError(interface_name.to_owned(), e))
         } else {
             log::trace!("No DNS settings to reset");
-        };
-        Ok(())
+            Ok(())
+        }
     }
 
     fn revert_link(
         &mut self,
         link_object_path: dbus::Path<'static>,
         interface_name: &str,
-    ) -> Result<()> {
+    ) -> std::result::Result<(), dbus::Error> {
         let link = self.as_link_object(link_object_path);
 
         match link.method_call_with_args(&LINK_INTERFACE, &REVERT_METHOD, |_| {}) {
-            Ok(mut reply) => reply
-                .as_result()
-                .map(|_| ())
-                .chain_err(|| ErrorKind::RevertDnsError),
+            Ok(mut reply) => reply.as_result().map(|_| ()),
             Err(error) => {
                 if error.name() == Some("org.freedesktop.DBus.Error.UnknownObject") {
                     log::info!(
@@ -239,7 +235,7 @@ impl SystemdResolved {
                     );
                     Ok(())
                 } else {
-                    Err(error).chain_err(|| ErrorKind::DbusRpcError)
+                    Err(error)
                 }
             }
         }

@@ -59,3 +59,20 @@ mod mktemp;
 /// Misc utilities for the Linux platform.
 #[cfg(target_os = "linux")]
 mod linux;
+
+
+trait ErrorExt {
+    fn display_chain(&self) -> String;
+}
+
+impl<E: std::error::Error> ErrorExt for E {
+    fn display_chain(&self) -> String {
+        let mut s = format!("Error: {}", self);
+        let mut source = self.source();
+        while let Some(error) = source {
+            s.push_str(&format!("\nCaused by: {}", error));
+            source = error.source();
+        }
+        s
+    }
+}
