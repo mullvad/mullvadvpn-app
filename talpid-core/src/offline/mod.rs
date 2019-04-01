@@ -17,10 +17,10 @@ mod imp;
 #[path = "dummy.rs"]
 mod imp;
 
-pub use self::imp::is_offline;
+pub use self::imp::{is_offline, Error};
 
 pub struct MonitorHandle(imp::MonitorHandle);
 
-pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle, imp::Error> {
+pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle, Error> {
     Ok(MonitorHandle(imp::spawn_monitor(sender)?))
 }

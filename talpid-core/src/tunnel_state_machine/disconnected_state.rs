@@ -1,9 +1,8 @@
 use super::{
-    BlockedState, ConnectingState, EventConsequence, ResultExt, SharedTunnelStateValues,
-    TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    BlockedState, ConnectingState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
+    TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use crate::firewall::FirewallPolicy;
-use error_chain::ChainedError;
+use crate::{firewall::FirewallPolicy, ErrorExt};
 use futures::{sync::mpsc, Stream};
 
 /// No tunnel is running.
@@ -15,18 +14,19 @@ impl DisconnectedState {
             let policy = FirewallPolicy::Blocked {
                 allow_lan: shared_values.allow_lan,
             };
-            shared_values
-                .firewall
-                .apply_policy(policy)
-                .chain_err(|| "Failed to apply blocking firewall policy for disconnected state")
+            shared_values.firewall.apply_policy(policy).map_err(|e| {
+                e.display_chain_with_msg(
+                    "Failed to apply blocking firewall policy for disconnected state",
+                )
+            })
         } else {
             shared_values
                 .firewall
                 .reset_policy()
-                .chain_err(|| "Failed to reset firewall policy")
+                .map_err(|e| e.display_chain_with_msg("Failed to reset firewall policy"))
         };
-        if let Err(error) = result {
-            log::error!("{}", error.display_chain());
+        if let Err(error_chain) = result {
+            log::error!("{}", error_chain);
         }
     }
 }
