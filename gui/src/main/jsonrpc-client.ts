@@ -246,9 +246,8 @@ export default class JsonRpcClient<T> extends EventEmitter {
   }
 
   private onMessage(obj: object) {
-    let message: any;
+    let message: ReturnType<typeof jsonrpc.parseObject>;
     try {
-      // @ts-ignore
       message = jsonrpc.parseObject(obj);
     } catch (error) {
       log.error(`Failed to parse JSON-RPC message: ${error} for object`);
@@ -256,9 +255,9 @@ export default class JsonRpcClient<T> extends EventEmitter {
     }
 
     if (message.type === 'notification') {
-      this.onNotification(message);
+      this.onNotification(message as IJsonRpcNotification);
     } else {
-      this.onReply(message);
+      this.onReply(message as (IJsonRpcErrorResponse | IJsonRpcSuccess));
     }
   }
 
@@ -297,74 +296,13 @@ export default class JsonRpcClient<T> extends EventEmitter {
   }
 }
 
-interface ITransport<T> {
+export interface ITransport<T> {
   onOpen: () => void;
   onMessage: (data: object) => void;
   onClose: (error?: Error) => void;
   close(): void;
   send(message: string): void;
   connect(params: T): void;
-}
-
-export class WebsocketTransport implements ITransport<string> {
-  public ws?: WebSocket;
-
-  constructor(ws?: WebSocket) {
-    this.ws = ws;
-  }
-  public onOpen = () => {
-    // no-op
-  };
-  public onMessage = (_message: object) => {
-    // no-op
-  };
-  public onClose = (_error?: Error) => {
-    // no-op
-  };
-
-  public close() {
-    if (this.ws) {
-      this.ws.close();
-    }
-  }
-
-  public send(msg: string) {
-    if (this.ws) {
-      this.ws.send(msg);
-    }
-  }
-
-  public connect(params: string): void {
-    if (this.ws) {
-      this.ws.close();
-    }
-    this.ws = new WebSocket(params);
-    this.ws.onopen = (_event) => {
-      this.onOpen();
-    };
-    this.ws.onmessage = (event) => {
-      try {
-        const data = event.data;
-        if (typeof data === 'string') {
-          const msg = JSON.parse(data);
-          this.onMessage(msg);
-        } else {
-          throw event;
-        }
-      } catch (error) {
-        log.error('Got invalid reply from server: ', error);
-      }
-    };
-
-    this.ws.onclose = (event) => {
-      log.info(`The websocket connection closed with code: ${event.code}`);
-      if (event.code === 1000) {
-        this.onClose();
-      } else {
-        this.onClose(new WebSocketError(event.code));
-      }
-    };
-  }
 }
 
 // Given the correct parameters, this transport supports named pipes/unix

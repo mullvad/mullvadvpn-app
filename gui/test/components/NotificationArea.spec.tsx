@@ -2,7 +2,9 @@ import moment from 'moment';
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import NotificationArea from '../../src/renderer/components/NotificationArea';
+import { AfterDisconnect } from '../../src/shared/daemon-rpc-types';
 import AccountExpiry from '../../src/renderer/lib/account-expiry';
+import { expect } from 'chai';
 
 describe('components/NotificationArea', () => {
   const defaultVersion = {
@@ -12,7 +14,6 @@ describe('components/NotificationArea', () => {
     current: '2018.2',
     latest: '2018.2-beta1',
     latestStable: '2018.2',
-    nextUpgrade: null,
   };
 
   const defaultExpiry = new AccountExpiry(
@@ -23,35 +24,90 @@ describe('components/NotificationArea', () => {
   );
 
   it('handles disconnecting state', () => {
-    for (const reason of ['nothing', 'block', 'reconnect']) {
+    for (const reason of ['nothing', 'block'] as AfterDisconnect[]) {
       const component = shallow(
         <NotificationArea
           tunnelState={{
             state: 'disconnecting',
-            details: { reason },
+            details: reason,
           }}
           version={defaultVersion}
           accountExpiry={defaultExpiry}
+          openExternalLink={() => {}}
+          blockWhenDisconnected={false}
         />,
       );
       expect(component.state('visible')).to.be.false;
     }
   });
 
-  it('handles connected or disconnected states', () => {
-    for (const state of ['connected', 'disconnected']) {
-      const component = shallow(
-        <NotificationArea
-          tunnelState={{
-            state,
-          }}
-          version={defaultVersion}
-          accountExpiry={defaultExpiry}
-        />,
-      );
+  it('handles disconnecting state when reconnecting', () => {
+    const component = shallow(
+      <NotificationArea
+        tunnelState={{
+          state: 'disconnecting',
+          details: 'reconnect',
+        }}
+        version={defaultVersion}
+        accountExpiry={defaultExpiry}
+        openExternalLink={() => {}}
+        blockWhenDisconnected={false}
+      />,
+    );
+    expect(component.state('visible')).to.be.true;
+  });
 
-      expect(component.state('visible')).to.be.false;
-    }
+  it('handles connected state', () => {
+    const component = shallow(
+      <NotificationArea
+        tunnelState={{
+          state: 'connected',
+          details: {
+            address: '1.2.3.4',
+            protocol: 'tcp',
+            tunnel: 'openvpn',
+          },
+        }}
+        version={defaultVersion}
+        accountExpiry={defaultExpiry}
+        openExternalLink={() => {}}
+        blockWhenDisconnected={false}
+      />,
+    );
+
+    expect(component.state('visible')).to.be.false;
+  });
+
+  it('handles disconnected state', () => {
+    const component = shallow(
+      <NotificationArea
+        tunnelState={{
+          state: 'disconnected',
+        }}
+        version={defaultVersion}
+        accountExpiry={defaultExpiry}
+        openExternalLink={() => {}}
+        blockWhenDisconnected={false}
+      />,
+    );
+
+    expect(component.state('visible')).to.be.false;
+  });
+
+  it('handles disconnected state, blocking when connected', () => {
+    const component = shallow(
+      <NotificationArea
+        tunnelState={{
+          state: 'disconnected',
+        }}
+        version={defaultVersion}
+        accountExpiry={defaultExpiry}
+        openExternalLink={() => {}}
+        blockWhenDisconnected={true}
+      />,
+    );
+
+    expect(component.state('visible')).to.be.true;
   });
 
   it('handles connecting state', () => {
@@ -62,6 +118,8 @@ describe('components/NotificationArea', () => {
         }}
         version={defaultVersion}
         accountExpiry={defaultExpiry}
+        openExternalLink={() => {}}
+        blockWhenDisconnected={false}
       />,
     );
 
@@ -80,6 +138,8 @@ describe('components/NotificationArea', () => {
         }}
         version={defaultVersion}
         accountExpiry={defaultExpiry}
+        openExternalLink={() => {}}
+        blockWhenDisconnected={false}
       />,
     );
 
@@ -98,6 +158,8 @@ describe('components/NotificationArea', () => {
           consistent: false,
         }}
         accountExpiry={defaultExpiry}
+        openExternalLink={() => {}}
+        blockWhenDisconnected={false}
       />,
     );
 
@@ -119,6 +181,8 @@ describe('components/NotificationArea', () => {
           nextUpgrade: '2018.2',
         }}
         accountExpiry={defaultExpiry}
+        openExternalLink={() => {}}
+        blockWhenDisconnected={false}
       />,
     );
 
@@ -141,6 +205,8 @@ describe('components/NotificationArea', () => {
           nextUpgrade: '2018.3',
         }}
         accountExpiry={defaultExpiry}
+        openExternalLink={() => {}}
+        blockWhenDisconnected={false}
       />,
     );
 
@@ -164,6 +230,8 @@ describe('components/NotificationArea', () => {
           nextUpgrade: '2018.4-beta3',
         }}
         accountExpiry={defaultExpiry}
+        openExternalLink={() => {}}
+        blockWhenDisconnected={false}
       />,
     );
 
@@ -186,6 +254,8 @@ describe('components/NotificationArea', () => {
         }}
         version={defaultVersion}
         accountExpiry={expiry}
+        openExternalLink={() => {}}
+        blockWhenDisconnected={false}
       />,
     );
 

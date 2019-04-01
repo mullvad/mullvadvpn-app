@@ -13,13 +13,27 @@ export default class KeyframeAnimation {
   private onFrameValue?: OnFrameFn;
   private onFinishValue?: OnFinishFn;
 
-  private currentFrame: number = 0;
+  private currentFrameValue: number = 0;
   private targetFrame: number = 0;
 
   private isRunningValue: boolean = false;
   private isFinishedValue: boolean = false;
 
   private timeout?: NodeJS.Timeout;
+
+  get currentFrame(): number {
+    return this.currentFrameValue;
+  }
+
+  // This setter is only meant to be used when running tests
+  // @internal
+  set currentFrame(newValue: number) {
+    if (process.env.NODE_ENV === 'test') {
+      this.currentFrameValue = newValue;
+    } else {
+      throw new Error('The setter for currentFrame is only available in test environment.');
+    }
+  }
 
   set onFrame(newValue: OnFrameFn | undefined) {
     this.onFrameValue = newValue;
@@ -56,7 +70,7 @@ export default class KeyframeAnimation {
     const { start, end } = options;
 
     if (start !== undefined) {
-      this.currentFrame = start;
+      this.currentFrameValue = start;
     }
 
     this.targetFrame = end;
@@ -88,7 +102,7 @@ export default class KeyframeAnimation {
 
   private render() {
     if (this.onFrameValue) {
-      this.onFrameValue(this.currentFrame);
+      this.onFrameValue(this.currentFrameValue);
     }
   }
 
@@ -119,12 +133,12 @@ export default class KeyframeAnimation {
       return;
     }
 
-    if (this.currentFrame === this.targetFrame) {
+    if (this.currentFrameValue === this.targetFrame) {
       this.didFinish();
-    } else if (this.currentFrame < this.targetFrame) {
-      this.currentFrame += 1;
+    } else if (this.currentFrameValue < this.targetFrame) {
+      this.currentFrameValue += 1;
     } else {
-      this.currentFrame -= 1;
+      this.currentFrameValue -= 1;
     }
   }
 }
