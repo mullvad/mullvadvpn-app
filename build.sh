@@ -66,6 +66,7 @@ SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
     mv gui/package.json.bak gui/package.json || true
+    mv gui/package-lock.json.bak gui/package-lock.json || true
     mv Cargo.lock.bak Cargo.lock || true
     mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
     mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
@@ -79,6 +80,7 @@ trap 'restore_metadata_backups' EXIT
 sed -i.bak \
     -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
     gui/package.json
+cp gui/package-lock.json gui/package-lock.json.bak
 
 cp Cargo.lock Cargo.lock.bak
 sed -i.bak \
