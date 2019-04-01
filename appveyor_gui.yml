@@ -1,14 +1,14 @@
 install:
-  - yarn --version
+  - npm --version
   - node --version
   - cd gui
-  - yarn install
+  - npm install
 
 # This is the "test phase", tweak it as you see fit
 test_script:
-  - yarn lint
-  - yarn build
-  - yarn test
+  - npm run lint
+  - npm run build
+  - npm test
 
 # Stops feature branches from triggering two builds (One for branch and one for PR)
 skip_branch_with_pr: true

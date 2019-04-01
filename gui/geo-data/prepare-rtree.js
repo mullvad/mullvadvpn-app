@@ -1,6 +1,6 @@
 //
 // Script that generates r-trees for geo data.
-// run with `yarn babel-node geo-data/prepare-rtree.js`
+// run with `npx babel-node geo-data/prepare-rtree.js`
 //
 
 import fs from 'fs';

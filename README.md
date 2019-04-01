@@ -79,19 +79,19 @@ sudo dnf install rpm-build
 
 1. Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
-1. Get the latest version 8 LTS release of Node.js and the latest version of yarn (>=1.7.0).
+1. Get the latest version 8 LTS release of Node.js and the latest version of npm.
    #### macOS
    ```bash
-   brew install node@8 yarn
+   brew install node@8
    export PATH="/usr/local/opt/node@8/bin:$PATH"
    ```
 
    #### Linux
    Just download and unpack the `node-v8.xxxx.tar.xz` tarball and add its `bin` directory to your
-   `PATH`. Then install yarn with the help of the instructions on their website.
+   `PATH`.
 
    #### Windows
-   Download the Node.js and yarn installers from their official websites.
+   Download the Node.js installer from the official website.
 
 ## Building and packaging the app
 
@@ -171,12 +171,12 @@ sections.
 
 1. Install all the JavaScript dependencies by running:
     ```bash
-    yarn install
+    npm install
     ```
 
 1. Start the GUI in development mode by running:
     ```bash
-    yarn develop
+    npm run develop
     ```
 
 If you change any javascript file while the development mode is running it will automatically
@@ -247,11 +247,11 @@ this procedure, the `integration-tests.sh` script can be used to run all integra
 
 ## Command line tools for Electron GUI app development
 
-- `$ yarn develop` - develop app with live-reload enabled
-- `$ yarn lint` - lint code
-- `$ yarn pack:<OS>` - prepare app for distribution for your platform. Where `<OS>` can be
+- `$ npm run develop` - develop app with live-reload enabled
+- `$ npm run lint` - lint code
+- `$ npm run pack:<OS>` - prepare app for distribution for your platform. Where `<OS>` can be
   `linux`, `mac` or `win`
-- `$ yarn test` - run tests
+- `$ npm test` - run tests
 
 ## Repository structure
 
