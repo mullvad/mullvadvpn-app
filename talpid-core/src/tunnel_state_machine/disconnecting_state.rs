@@ -1,17 +1,14 @@
-use std::thread;
-
-use error_chain::ChainedError;
+use super::{
+    BlockedState, ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues,
+    TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+};
+use crate::{tunnel::CloseHandle, ErrorExt};
 use futures::{
     sync::{mpsc, oneshot},
     Async, Future, Stream,
 };
+use std::thread;
 use talpid_types::tunnel::{ActionAfterDisconnect, BlockReason};
-
-use super::{
-    BlockedState, ConnectingState, DisconnectedState, EventConsequence, ResultExt,
-    SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
-};
-use crate::tunnel::CloseHandle;
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.
@@ -141,12 +138,11 @@ impl TunnelState for DisconnectingState {
         (close_handle, exited, after_disconnect): Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         thread::spawn(move || {
-            let close_result = close_handle
-                .close()
-                .chain_err(|| "Failed to close the tunnel");
-
-            if let Err(error) = close_result {
-                log::error!("{}", error.display_chain());
+            if let Err(error) = close_handle.close() {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to close the tunnel")
+                );
             }
         });
 

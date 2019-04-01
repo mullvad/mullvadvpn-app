@@ -1,4 +1,12 @@
-use error_chain::ChainedError;
+use super::{
+    AfterDisconnect, BlockedState, ConnectingState, DisconnectingState, EventConsequence,
+    SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+};
+use crate::{
+    firewall::FirewallPolicy,
+    tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
+    ErrorExt,
+};
 use futures::{
     sync::{mpsc, oneshot},
     Async, Future, Stream,
@@ -6,16 +14,6 @@ use futures::{
 use talpid_types::{
     net::{Endpoint, TunnelParameters},
     tunnel::BlockReason,
-};
-
-use super::{
-    AfterDisconnect, BlockedState, ConnectingState, DisconnectingState, EventConsequence, Result,
-    ResultExt, SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition,
-    TunnelStateWrapper,
-};
-use crate::{
-    firewall::FirewallPolicy,
-    tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
 
 pub struct ConnectedStateBootstrap {
@@ -46,7 +44,10 @@ impl ConnectedState {
         }
     }
 
-    fn set_firewall_policy(&self, shared_values: &mut SharedTunnelStateValues) -> Result<()> {
+    fn set_firewall_policy(
+        &self,
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> Result<(), crate::firewall::Error> {
         // If a proxy is specified we need to pass it on as the peer endpoint.
         let peer_endpoint = self.get_endpoint_from_params();
 
@@ -55,10 +56,7 @@ impl ConnectedState {
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
         };
-        shared_values
-            .firewall
-            .apply_policy(policy)
-            .chain_err(|| "Failed to apply firewall policy for connected state")
+        shared_values.firewall.apply_policy(policy)
     }
 
     fn get_endpoint_from_params(&self) -> Endpoint {
@@ -71,7 +69,10 @@ impl ConnectedState {
         }
     }
 
-    fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<()> {
+    fn set_dns(
+        &self,
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> Result<(), crate::dns::Error> {
         let mut dns_ips = vec![self.metadata.ipv4_gateway.into()];
         if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
             dns_ips.push(ipv6_gateway.into());
@@ -80,16 +81,11 @@ impl ConnectedState {
         shared_values
             .dns_monitor
             .set(&self.metadata.interface, &dns_ips)
-            .chain_err(|| "Failed to set system DNS settings")
     }
 
     fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
-        if let Err(error) = shared_values
-            .dns_monitor
-            .reset()
-            .chain_err(|| "Unable to reset DNS")
-        {
-            log::error!("{}", error.display_chain());
+        if let Err(error) = shared_values.dns_monitor.reset() {
+            log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
         }
     }
 
@@ -119,7 +115,12 @@ impl ConnectedState {
                 match self.set_firewall_policy(shared_values) {
                     Ok(()) => SameState(self),
                     Err(error) => {
-                        log::error!("{}", error.display_chain());
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg(
+                                "Failed to apply firewall policy for connected state"
+                            )
+                        );
                         self.disconnect(
                             shared_values,
                             AfterDisconnect::Block(BlockReason::SetFirewallPolicyError),
@@ -201,7 +202,10 @@ impl TunnelState for ConnectedState {
         let tunnel_endpoint = connected_state.tunnel_parameters.get_tunnel_endpoint();
 
         if let Err(error) = connected_state.set_firewall_policy(shared_values) {
-            log::error!("{}", error.display_chain());
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to apply firewall policy for connected state")
+            );
             DisconnectingState::enter(
                 shared_values,
                 (
@@ -211,7 +215,10 @@ impl TunnelState for ConnectedState {
                 ),
             )
         } else if let Err(error) = connected_state.set_dns(shared_values) {
-            log::error!("{}", error.display_chain());
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set system DNS settings")
+            );
             DisconnectingState::enter(
                 shared_values,
                 (
