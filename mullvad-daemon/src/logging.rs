@@ -14,10 +14,8 @@ error_chain! {
             display("Unable to open log file for writing: {}", path.display())
         }
     }
-    links {
-        RotateLog(::talpid_core::logging::Error, ::talpid_core::logging::ErrorKind);
-    }
     foreign_links {
+        RotateLog(::talpid_core::logging::RotateLogError);
         SetLoggerError(log::SetLoggerError);
         Io(io::Error);
     }
