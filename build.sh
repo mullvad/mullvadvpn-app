@@ -178,7 +178,7 @@ echo $JSONRPC_RESPONSE | node -e "$JSONRPC_CODE" >  dist-assets/relays.json
 pushd "$SCRIPT_DIR/gui"
 
 echo "Installing JavaScript dependencies..."
-yarn install
+npm install
 
 ################################################################################
 # Package release.
@@ -186,9 +186,9 @@ yarn install
 
 echo "Packing final release artifact..."
 case "$(uname -s)" in
-    Linux*)     yarn pack:linux;;
-    Darwin*)    yarn pack:mac;;
-    MINGW*)     yarn pack:win;;
+    Linux*)     npm run pack:linux;;
+    Darwin*)    npm run pack:mac;;
+    MINGW*)     npm run pack:win;;
 esac
 
 popd

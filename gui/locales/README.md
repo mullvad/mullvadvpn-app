@@ -15,7 +15,7 @@ procedure, described in the section below.
 
 ## Updating translations template
 
-Run `yarn update-translations` to extract the new translations from the source
+Run `npm run update-translations` to extract the new translations from the source
 code and update all of the existing catalogues.
 
 The new translations are automatically added to empty sub-folders using the POT template at
