@@ -1,12 +1,10 @@
-use error_chain::ChainedError;
+use super::{
+    ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
+    TunnelState, TunnelStateTransition, TunnelStateWrapper,
+};
+use crate::{firewall::FirewallPolicy, ErrorExt};
 use futures::{sync::mpsc, Stream};
 use talpid_types::tunnel::BlockReason;
-
-use super::{
-    ConnectingState, DisconnectedState, EventConsequence, ResultExt, SharedTunnelStateValues,
-    TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
-};
-use crate::firewall::FirewallPolicy;
 
 /// No tunnel is running and all network connections are blocked.
 pub struct BlockedState {
@@ -19,14 +17,15 @@ impl BlockedState {
             allow_lan: shared_values.allow_lan,
         };
 
-        match shared_values
-            .firewall
-            .apply_policy(policy)
-            .chain_err(|| "Failed to apply firewall policy for blocked state")
-        {
+        match shared_values.firewall.apply_policy(policy) {
             Ok(()) => None,
             Err(error) => {
-                log::error!("{}", error.display_chain());
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to apply firewall policy for blocked state"
+                    )
+                );
                 Some(BlockReason::SetFirewallPolicyError)
             }
         }

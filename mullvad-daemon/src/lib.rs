@@ -71,8 +71,10 @@ error_chain! {
         }
     }
     links {
-        TunnelError(tunnel_state_machine::Error, tunnel_state_machine::ErrorKind);
         AccountHistory(account_history::Error, account_history::ErrorKind);
+    }
+    foreign_links {
+        TunnelError(tunnel_state_machine::Error);
     }
 }
 

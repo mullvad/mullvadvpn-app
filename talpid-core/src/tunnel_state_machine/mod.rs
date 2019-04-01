@@ -7,21 +7,6 @@ mod connecting_state;
 mod disconnected_state;
 mod disconnecting_state;
 
-use std::{
-    path::{Path, PathBuf},
-    sync::mpsc as sync_mpsc,
-    thread,
-};
-
-use error_chain::ChainedError;
-use futures::{sync::mpsc, Async, Future, Poll, Stream};
-use tokio_core::reactor::Core;
-
-use talpid_types::{
-    net::TunnelParameters,
-    tunnel::{BlockReason, TunnelStateTransition},
-};
-
 use self::{
     blocked_state::BlockedState,
     connected_state::{ConnectedState, ConnectedStateBootstrap},
@@ -29,24 +14,42 @@ use self::{
     disconnected_state::DisconnectedState,
     disconnecting_state::{AfterDisconnect, DisconnectingState},
 };
-use crate::{dns::DnsMonitor, firewall::Firewall, mpsc::IntoSender, offline};
+use crate::{dns::DnsMonitor, firewall::Firewall, mpsc::IntoSender, offline, ErrorExt};
+use futures::{sync::mpsc, Async, Future, Poll, Stream};
+use std::{
+    io,
+    path::{Path, PathBuf},
+    sync::mpsc as sync_mpsc,
+    thread,
+};
+use talpid_types::{
+    net::TunnelParameters,
+    tunnel::{BlockReason, TunnelStateTransition},
+};
+use tokio_core::reactor::Core;
 
-error_chain! {
-    errors {
-        /// An error occurred while setting up the network security.
-        FirewallError {
-            description("Firewall error")
-        }
-        /// Unable to start the DNS settings monitor and enforcer.
-        DnsMonitorError {
-            description("Unable to start the DNS settings enforcer and monitor")
-        }
-        /// An error occurred while attempting to set up the event loop for the tunnel state
-        /// machine.
-        ReactorError {
-            description("Failed to initialize tunnel state machine event loop executor")
-        }
-    }
+/// Errors that can happen when setting up or using the state machine.
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Unable to spawn offline state monitor
+    #[error(display = "Unable to spawn offline state monitor")]
+    OfflineMonitorError(#[error(cause)] crate::offline::Error),
+
+    /// Failed to initialize the system firewall integration.
+    #[error(display = "Failed to initialize the system firewall integration")]
+    InitFirewallError(#[error(cause)] crate::firewall::Error),
+
+    /// Failed to initialize the system DNS manager and monitor.
+    #[error(display = "Failed to initialize the system DNS manager and monitor")]
+    InitDnsMonitorError(#[error(cause)] crate::dns::Error),
+
+    /// Failed to initialize tunnel state machine event loop executor
+    #[error(display = "Failed to initialize tunnel state machine event loop executor")]
+    ReactorError(#[error(cause)] io::Error),
+
+    /// Failed to send state change event to listener
+    #[error(display = "Failed to send state change event to listener")]
+    SendStateChange,
 }
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
@@ -58,14 +61,14 @@ pub fn spawn<P, T>(
     resource_dir: PathBuf,
     cache_dir: P,
     state_change_listener: IntoSender<TunnelStateTransition, T>,
-) -> Result<mpsc::UnboundedSender<TunnelCommand>>
+) -> Result<mpsc::UnboundedSender<TunnelCommand>, Error>
 where
     P: AsRef<Path> + Send + 'static,
     T: From<TunnelStateTransition> + Send + 'static,
 {
     let (command_tx, command_rx) = mpsc::unbounded();
-    let offline_monitor = offline::spawn_monitor(command_tx.clone())
-        .chain_err(|| "Unable to spawn offline state monitor")?;
+    let offline_monitor =
+        offline::spawn_monitor(command_tx.clone()).map_err(Error::OfflineMonitorError)?;
     let is_offline = offline::is_offline();
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
@@ -86,10 +89,11 @@ where
                     "Tunnel state machine won't be started because the owner thread crashed",
                 );
 
-                if let Err(error) = reactor.run(event_loop) {
-                    let chained_error =
-                        Error::with_chain(error, "Tunnel state machine exited with an error");
-                    log::error!("{}", chained_error.display_chain());
+                if let Err(e) = reactor.run(event_loop) {
+                    log::error!(
+                        "{}",
+                        e.display_chain_with_msg("Tunnel state machine exited with an error")
+                    );
                 }
             }
             Err(startup_error) => {
@@ -117,11 +121,11 @@ fn create_event_loop<T>(
     cache_dir: impl AsRef<Path>,
     commands: mpsc::UnboundedReceiver<TunnelCommand>,
     state_change_listener: IntoSender<TunnelStateTransition, T>,
-) -> Result<(Core, impl Future<Item = (), Error = Error>)>
+) -> Result<(Core, impl Future<Item = (), Error = Error>), Error>
 where
     T: From<TunnelStateTransition> + Send + 'static,
 {
-    let reactor = Core::new().chain_err(|| ErrorKind::ReactorError)?;
+    let reactor = Core::new().map_err(Error::ReactorError)?;
     let state_machine = TunnelStateMachine::new(
         allow_lan,
         block_when_disconnected,
@@ -136,7 +140,7 @@ where
     let future = state_machine.for_each(move |state_change_event| {
         state_change_listener
             .send(state_change_event)
-            .chain_err(|| "Failed to send state change event to listener")
+            .map_err(|_| Error::SendStateChange)
     });
 
     Ok((reactor, future))
@@ -180,9 +184,9 @@ impl TunnelStateMachine {
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
-    ) -> Result<Self> {
-        let firewall = Firewall::new().chain_err(|| ErrorKind::FirewallError)?;
-        let dns_monitor = DnsMonitor::new(cache_dir).chain_err(|| ErrorKind::DnsMonitorError)?;
+    ) -> Result<Self, Error> {
+        let firewall = Firewall::new().map_err(Error::InitFirewallError)?;
+        let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
         let mut shared_values = SharedTunnelStateValues {
             firewall,
             dns_monitor,

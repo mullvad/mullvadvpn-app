@@ -1,22 +1,3 @@
-use std::{
-    ffi::OsString,
-    net::IpAddr,
-    path::{Path, PathBuf},
-    thread,
-    time::{Duration, Instant},
-};
-
-use error_chain::ChainedError;
-use futures::{
-    sync::{mpsc, oneshot},
-    Async, Future, Stream,
-};
-use log::{debug, error, info, trace, warn};
-use talpid_types::{
-    net::{openvpn, TunnelParameters},
-    tunnel::BlockReason,
-};
-
 use super::{
     AfterDisconnect, BlockedState, ConnectedState, ConnectedStateBootstrap, DisconnectingState,
     EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition,
@@ -25,6 +6,23 @@ use super::{
 use crate::{
     firewall::FirewallPolicy,
     tunnel::{self, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor},
+    ErrorExt,
+};
+use futures::{
+    sync::{mpsc, oneshot},
+    Async, Future, Stream,
+};
+use log::{debug, error, info, trace, warn};
+use std::{
+    ffi::OsString,
+    net::IpAddr,
+    path::{Path, PathBuf},
+    thread,
+    time::{Duration, Instant},
+};
+use talpid_types::{
+    net::{openvpn, TunnelParameters},
+    tunnel::BlockReason,
 };
 
 
@@ -34,8 +32,6 @@ const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 const TUNNEL_INTERFACE_ALIAS: Option<&str> = Some("Mullvad");
 #[cfg(not(windows))]
 const TUNNEL_INTERFACE_ALIAS: Option<&str> = None;
-
-error_chain! {}
 
 /// The tunnel has been started, but it is not established/functional.
 pub struct ConnectingState {
@@ -50,7 +46,7 @@ impl ConnectingState {
     fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
         params: &TunnelParameters,
-    ) -> Result<()> {
+    ) -> Result<(), crate::firewall::Error> {
         let proxy = &get_openvpn_proxy_settings(&params);
         let endpoint = params.get_tunnel_endpoint().endpoint;
 
@@ -64,10 +60,7 @@ impl ConnectingState {
             pingable_hosts: gateway_list_from_params(params),
             allow_lan: shared_values.allow_lan,
         };
-        shared_values
-            .firewall
-            .apply_policy(policy)
-            .chain_err(|| "Failed to apply firewall policy for connecting state")
+        shared_values.firewall.apply_policy(policy)
     }
 
     fn start_tunnel(
@@ -145,13 +138,17 @@ impl ConnectingState {
                     ),
                     _,
                 ) => {
-                    let chained_error = error.chain_err(|| "TAP adapter problem detected");
-                    warn!("{}", chained_error.display_chain());
+                    warn!(
+                        "{}",
+                        error.display_chain_with_msg("TAP adapter problem detected")
+                    );
                     Some(BlockReason::TapAdapterProblem)
                 }
                 error => {
-                    let chained_error = error.chain_err(|| "Tunnel has stopped unexpectedly");
-                    warn!("{}", chained_error.display_chain());
+                    warn!(
+                        "{}",
+                        error.display_chain_with_msg("Tunnel has stopped unexpectedly")
+                    );
                     None
                 }
             },
@@ -181,7 +178,12 @@ impl ConnectingState {
                 match Self::set_firewall_policy(shared_values, &self.tunnel_parameters) {
                     Ok(()) => SameState(self),
                     Err(error) => {
-                        error!("{}", error.display_chain());
+                        error!(
+                            "{}",
+                            error.display_chain_with_msg(
+                                "Failed to apply firewall policy for connecting state"
+                            )
+                        );
 
                         NewState(DisconnectingState::enter(
                             shared_values,
@@ -326,7 +328,12 @@ impl TunnelState for ConnectingState {
             None => BlockedState::enter(shared_values, BlockReason::NoMatchingRelay),
             Some(tunnel_parameters) => {
                 if let Err(error) = Self::set_firewall_policy(shared_values, &tunnel_parameters) {
-                    error!("{}", error.display_chain());
+                    error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to apply firewall policy for connecting state"
+                        )
+                    );
                     BlockedState::enter(shared_values, BlockReason::StartTunnelError)
                 } else {
                     match Self::start_tunnel(
