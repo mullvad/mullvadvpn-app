@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.3] - 2019-04-02
 ### Fixed
 #### Windows
 - Correct dependencies on installer logger plugin to resolve installation issues on Windows 7/8.
