@@ -1061,7 +1061,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-cli"
-version = "2019.2.0"
+version = "2019.3.0"
 dependencies = [
  "base64 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1080,7 +1080,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-daemon"
-version = "2019.2.0"
+version = "2019.3.0"
 dependencies = [
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1148,7 +1148,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-problem-report"
-version = "2019.2.0"
+version = "2019.3.0"
 dependencies = [
  "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "dirs 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
