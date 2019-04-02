@@ -58,7 +58,7 @@ python extract-geo-data.py
 and finally generate the R-Tree cache:
 
 ```
-npx babel-node prepare-rtree.js
+npx ts-node prepare-rtree.ts
 ```
 
 At this point all of the data should be saved in `gui/geo-data/out` folder.
