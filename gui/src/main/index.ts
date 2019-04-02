@@ -446,6 +446,9 @@ class ApplicationMain {
       // stop periodic updates
       this.stopLatestVersionPeriodicUpdates();
 
+      // update the tray icon to indicate that the computer is not secure anymore
+      this.updateTrayIcon({ state: 'disconnected' }, false);
+
       // notify renderer process
       if (this.windowController) {
         IpcMainEventChannel.daemonDisconnected.notify(
