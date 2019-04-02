@@ -7,7 +7,7 @@ import shutil
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIR = os.path.join(SCRIPT_DIR, "out")
-DESTINATION_DIR = os.path.realpath(os.path.join(SCRIPT_DIR, "../src/assets/geo"))
+DESTINATION_DIR = os.path.realpath(os.path.join(SCRIPT_DIR, "../assets/geo"))
 
 FILES_TO_COPY = [
   "cities.rbush.json",
