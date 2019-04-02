@@ -26,9 +26,12 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - When IPv6 is enabled, get both exit IP versions from am.i.mullvad.net and show in UI.
 
+
+## [2019.3] - 2019-04-02
 ### Fixed
 #### Windows
 - Correct dependencies on installer logger plugin to resolve installation issues on Windows 7/8.
+
 
 ## [2019.2] - 2019-03-28
 ### Removed
