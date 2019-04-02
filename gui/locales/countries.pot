@@ -1,0 +1,967 @@
+#
+msgid ""
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:0
+msgid "Zimbabwe"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:1
+msgid "Zambia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:2
+msgid "Yemen"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:3
+msgid "Vietnam"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:4
+msgid "Venezuela"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:5
+msgid "Vatican"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:6
+msgid "Vanuatu"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:7
+msgid "Uzbekistan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:8
+msgid "Uruguay"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:9
+msgid "Micronesia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:10
+msgid "Marshall Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:11
+msgid "N. Mariana Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:12
+msgid "U.S. Virgin Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:13
+msgid "Guam"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:14
+msgid "American Samoa"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:15
+msgid "Puerto Rico"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:16
+msgid "United States of America"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:17
+msgid "S. Geo. and the Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:18
+msgid "Br. Indian Ocean Ter."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:19
+msgid "Saint Helena"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:20
+msgid "Pitcairn Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:21
+msgid "Anguilla"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:22
+msgid "Falkland Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:23
+msgid "Cayman Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:24
+msgid "Bermuda"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:25
+msgid "British Virgin Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:26
+msgid "Turks and Caicos Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:27
+msgid "Montserrat"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:28
+msgid "Jersey"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:29
+msgid "Guernsey"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:30
+msgid "Isle of Man"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:31
+msgid "United Kingdom"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:32
+msgid "United Arab Emirates"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:33
+msgid "Ukraine"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:34
+msgid "Uganda"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:35
+msgid "Turkmenistan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:36
+msgid "Turkey"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:37
+msgid "Tunisia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:38
+msgid "Trinidad and Tobago"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:39
+msgid "Tonga"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:40
+msgid "Togo"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:41
+msgid "Timor-Leste"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:42
+msgid "Thailand"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:43
+msgid "Tanzania"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:44
+msgid "Tajikistan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:45
+msgid "Taiwan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:46
+msgid "Syria"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:47
+msgid "Switzerland"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:48
+msgid "Sweden"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:49
+msgid "eSwatini"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:50
+msgid "Suriname"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:51
+msgid "S. Sudan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:52
+msgid "Sudan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:53
+msgid "Sri Lanka"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:54
+msgid "Spain"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:55
+msgid "South Korea"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:56
+msgid "South Africa"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:57
+msgid "Somalia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:58
+msgid "Somaliland"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:59
+msgid "Solomon Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:60
+msgid "Slovakia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:61
+msgid "Slovenia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:62
+msgid "Singapore"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:63
+msgid "Sierra Leone"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:64
+msgid "Seychelles"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:65
+msgid "Serbia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:66
+msgid "Senegal"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:67
+msgid "Saudi Arabia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:68
+msgid "São Tomé and Principe"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:69
+msgid "San Marino"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:70
+msgid "Samoa"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:71
+msgid "St. Vin. and Gren."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:72
+msgid "Saint Lucia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:73
+msgid "St. Kitts and Nevis"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:74
+msgid "Rwanda"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:75
+msgid "Russia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:76
+msgid "Romania"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:77
+msgid "Qatar"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:78
+msgid "Portugal"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:79
+msgid "Poland"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:80
+msgid "Philippines"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:81
+msgid "Peru"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:82
+msgid "Paraguay"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:83
+msgid "Papua New Guinea"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:84
+msgid "Panama"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:85
+msgid "Palau"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:86
+msgid "Pakistan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:87
+msgid "Oman"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:88
+msgid "Norway"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:89
+msgid "North Korea"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:90
+msgid "Nigeria"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:91
+msgid "Niger"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:92
+msgid "Nicaragua"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:93
+msgid "New Zealand"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:94
+msgid "Niue"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:95
+msgid "Cook Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:96
+msgid "Netherlands"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:97
+msgid "Aruba"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:98
+msgid "Curaçao"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:99
+msgid "Nepal"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:100
+msgid "Nauru"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:101
+msgid "Namibia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:102
+msgid "Mozambique"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:103
+msgid "Morocco"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:104
+msgid "W. Sahara"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:105
+msgid "Montenegro"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:106
+msgid "Mongolia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:107
+msgid "Moldova"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:108
+msgid "Monaco"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:109
+msgid "Mexico"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:110
+msgid "Mauritius"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:111
+msgid "Mauritania"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:112
+msgid "Malta"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:113
+msgid "Mali"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:114
+msgid "Maldives"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:115
+msgid "Malaysia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:116
+msgid "Malawi"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:117
+msgid "Madagascar"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:118
+msgid "Macedonia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:119
+msgid "Luxembourg"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:120
+msgid "Lithuania"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:121
+msgid "Liechtenstein"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:122
+msgid "Libya"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:123
+msgid "Liberia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:124
+msgid "Lesotho"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:125
+msgid "Lebanon"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:126
+msgid "Latvia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:127
+msgid "Laos"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:128
+msgid "Kyrgyzstan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:129
+msgid "Kuwait"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:130
+msgid "Kosovo"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:131
+msgid "Kiribati"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:132
+msgid "Kenya"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:133
+msgid "Kazakhstan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:134
+msgid "Jordan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:135
+msgid "Japan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:136
+msgid "Jamaica"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:137
+msgid "Italy"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:138
+msgid "Israel"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:139
+msgid "Palestine"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:140
+msgid "Ireland"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:141
+msgid "Iraq"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:142
+msgid "Iran"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:143
+msgid "Indonesia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:144
+msgid "India"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:145
+msgid "Iceland"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:146
+msgid "Hungary"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:147
+msgid "Honduras"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:148
+msgid "Haiti"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:149
+msgid "Guyana"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:150
+msgid "Guinea-Bissau"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:151
+msgid "Guinea"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:152
+msgid "Guatemala"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:153
+msgid "Grenada"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:154
+msgid "Greece"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:155
+msgid "Ghana"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:156
+msgid "Germany"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:157
+msgid "Georgia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:158
+msgid "Gambia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:159
+msgid "Gabon"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:160
+msgid "France"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:161
+msgid "St. Pierre and Miquelon"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:162
+msgid "Wallis and Futuna Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:163
+msgid "St-Martin"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:164
+msgid "St-Barthélemy"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:165
+msgid "Fr. Polynesia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:166
+msgid "New Caledonia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:167
+msgid "Fr. S. Antarctic Lands"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:168
+msgid "Åland"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:169
+msgid "Finland"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:170
+msgid "Fiji"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:171
+msgid "Ethiopia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:172
+msgid "Estonia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:173
+msgid "Eritrea"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:174
+msgid "Eq. Guinea"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:175
+msgid "El Salvador"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:176
+msgid "Egypt"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:177
+msgid "Ecuador"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:178
+msgid "Dominican Rep."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:179
+msgid "Dominica"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:180
+msgid "Djibouti"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:181
+msgid "Greenland"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:182
+msgid "Faeroe Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:183
+msgid "Denmark"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:184
+msgid "Czechia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:185
+msgid "N. Cyprus"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:186
+msgid "Cyprus"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:187
+msgid "Cuba"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:188
+msgid "Croatia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:189
+msgid "Côte d'Ivoire"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:190
+msgid "Costa Rica"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:191
+msgid "Dem. Rep. Congo"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:192
+msgid "Congo"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:193
+msgid "Comoros"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:194
+msgid "Colombia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:195
+msgid "China"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:196
+msgid "Macao"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:197
+msgid "Hong Kong"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:198
+msgid "Chile"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:199
+msgid "Chad"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:200
+msgid "Central African Rep."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:201
+msgid "Cabo Verde"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:202
+msgid "Canada"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:203
+msgid "Cameroon"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:204
+msgid "Cambodia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:205
+msgid "Myanmar"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:206
+msgid "Burundi"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:207
+msgid "Burkina Faso"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:208
+msgid "Bulgaria"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:209
+msgid "Brunei"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:210
+msgid "Brazil"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:211
+msgid "Botswana"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:212
+msgid "Bosnia and Herz."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:213
+msgid "Bolivia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:214
+msgid "Bhutan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:215
+msgid "Benin"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:216
+msgid "Belize"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:217
+msgid "Belgium"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:218
+msgid "Belarus"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:219
+msgid "Barbados"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:220
+msgid "Bangladesh"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:221
+msgid "Bahrain"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:222
+msgid "Bahamas"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:223
+msgid "Azerbaijan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:224
+msgid "Austria"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:225
+msgid "Australia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:226
+msgid "Indian Ocean Ter."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:227
+msgid "Heard I. and McDonald Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:228
+msgid "Norfolk Island"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:229
+msgid "Ashmore and Cartier Is."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:230
+msgid "Armenia"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:231
+msgid "Argentina"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:232
+msgid "Antigua and Barb."
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:233
+msgid "Angola"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:234
+msgid "Andorra"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:235
+msgid "Algeria"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:236
+msgid "Albania"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:237
+msgid "Afghanistan"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:238
+msgid "Siachen Glacier"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:239
+msgid "Antarctica"
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:240
+msgid "Sint Maarten"
+msgstr ""
