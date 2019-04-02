@@ -1,0 +1,5198 @@
+#
+msgid ""
+msgstr ""
+
+#. Uganda UGA
+#: ne_50m_populated_places_simple.shp:0
+msgid "Bombo"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:2
+msgid "Potenza"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:3
+msgid "Campobasso"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:8
+msgid "Poitier"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:9
+msgid "Clermont-Ferrand"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:10
+msgid "Besançon"
+msgstr ""
+
+#. Zambia ZMB
+#: ne_50m_populated_places_simple.shp:12
+msgid "Chipata"
+msgstr ""
+
+#. Uganda UGA
+#: ne_50m_populated_places_simple.shp:13
+msgid "Jinja"
+msgstr ""
+
+#. Uganda UGA
+#: ne_50m_populated_places_simple.shp:14
+msgid "Arua"
+msgstr ""
+
+#. Uganda UGA
+#: ne_50m_populated_places_simple.shp:15
+msgid "Mbale"
+msgstr ""
+
+#. Uganda UGA
+#: ne_50m_populated_places_simple.shp:17
+msgid "Masaka"
+msgstr ""
+
+#. Uganda UGA
+#: ne_50m_populated_places_simple.shp:18
+msgid "Mbarara"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:20
+msgid "Bologna"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:21
+msgid "Cagliari"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:22
+msgid "Catanzaro"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:23
+msgid "Bari"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:24
+msgid "L'Aquila"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:25
+msgid "Ancona"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:26
+msgid "Perugia"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:27
+msgid "Trieste"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:28
+msgid "Trento"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:29
+msgid "Fort-de-France"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:30
+msgid "Gifu"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:32
+msgid "Caen"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:33
+msgid "Nantes"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:34
+msgid "Ajaccio"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:35
+msgid "Montpellier"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:36
+msgid "Dijon"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:37
+msgid "Orléans"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:38
+msgid "Rouen"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:39
+msgid "Reims"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:40
+msgid "Amiens"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:41
+msgid "Nancy"
+msgstr ""
+
+#. Serbia SRB
+#: ne_50m_populated_places_simple.shp:43
+msgid "Novi Sad"
+msgstr ""
+
+#. Bosnia and Herzegovina BIH
+#: ne_50m_populated_places_simple.shp:44
+msgid "Banja Luka"
+msgstr ""
+
+#. Curacao CUW
+#: ne_50m_populated_places_simple.shp:49
+msgid "Willemstad"
+msgstr ""
+
+#. Aruba ABW
+#: ne_50m_populated_places_simple.shp:50
+msgid "Oranjestad"
+msgstr ""
+
+#. Gibraltar GIB
+#: ne_50m_populated_places_simple.shp:91
+msgid "Gibraltar"
+msgstr ""
+
+#. United Kingdom GBR
+#: ne_50m_populated_places_simple.shp:93
+msgid "Edinburgh"
+msgstr ""
+
+#. United Kingdom GBR
+#: ne_50m_populated_places_simple.shp:94
+msgid "Cardiff"
+msgstr ""
+
+#. Luxembourg LUX
+#: ne_50m_populated_places_simple.shp:96
+msgid "Luxembourg"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:97
+msgid "Turin"
+msgstr ""
+
+#. New Caledonia NCL
+#: ne_50m_populated_places_simple.shp:98
+msgid "Nouméa"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:99
+msgid "Matsuyama"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:100
+msgid "Rennes"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:101
+msgid "Toulouse"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:102
+msgid "Limoges"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:103
+msgid "Lille"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:104
+msgid "Strasbourg"
+msgstr ""
+
+#. Georgia GEO
+#: ne_50m_populated_places_simple.shp:105
+msgid "Batumi"
+msgstr ""
+
+#. Portugal PRT
+#: ne_50m_populated_places_simple.shp:106
+msgid "Funchal"
+msgstr ""
+
+#. Sudan SDN
+#: ne_50m_populated_places_simple.shp:107
+msgid "El Fasher"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:110
+msgid "Genoa"
+msgstr ""
+
+#. Georgia GEO
+#: ne_50m_populated_places_simple.shp:111
+msgid "Sukhumi"
+msgstr ""
+
+#. Guam GUM
+#: ne_50m_populated_places_simple.shp:114
+msgid "Agana"
+msgstr ""
+
+#. Comoros COM
+#: ne_50m_populated_places_simple.shp:120
+msgid "Moroni"
+msgstr ""
+
+#. Macau S.A.R MAC
+#: ne_50m_populated_places_simple.shp:121
+msgid "Macau"
+msgstr ""
+
+#. Andorra AND
+#: ne_50m_populated_places_simple.shp:122
+msgid "Andorra"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:123
+msgid "San Bernardino"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:124
+msgid "Bridgeport"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:125
+msgid "Rochester"
+msgstr ""
+
+#. United Kingdom GBR
+#: ne_50m_populated_places_simple.shp:126
+msgid "Manchester"
+msgstr ""
+
+#. Pakistan PAK
+#: ne_50m_populated_places_simple.shp:127
+msgid "Gujranwala"
+msgstr ""
+
+#. South Korea KOR
+#: ne_50m_populated_places_simple.shp:128
+msgid "Incheon"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:129
+msgid "Benin City"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:130
+msgid "Xiamen"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:131
+msgid "Nanchong"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:132
+msgid "Neijiang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:133
+msgid "Nanyang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:134
+msgid "Jinxi"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:135
+msgid "Yantai"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:136
+msgid "Zaozhuang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:137
+msgid "Suzhou"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:138
+msgid "Xuzhou"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:139
+msgid "Wuxi"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:140
+msgid "Jilin"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:141
+msgid "Chandigarh"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:142
+msgid "Jammu"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:143
+msgid "Sholapur"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:144
+msgid "Aurangabad"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:145
+msgid "Nasik"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:147
+msgid "Jullundur"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:148
+msgid "Allahabad"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:149
+msgid "Moradabad"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:150
+msgid "Ghaziabad"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:151
+msgid "Agra"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:152
+msgid "Aligarh"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:153
+msgid "Meerut"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:154
+msgid "Dhanbad"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:155
+msgid "Gwalior"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:156
+msgid "Vadodara"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:157
+msgid "Rajkot"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:160
+msgid "St. Paul"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:161
+msgid "Billings"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:162
+msgid "Great Falls"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:163
+msgid "Missoula"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:165
+msgid "Fargo"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:166
+msgid "Hilo"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:167
+msgid "Olympia"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:168
+msgid "Spokane"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:169
+msgid "Vancouver"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:170
+msgid "Flagstaff"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:171
+msgid "Tucson"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:172
+msgid "Santa Barbara"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:173
+msgid "Fresno"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:175
+msgid "Colorado Springs"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:176
+msgid "Reno"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:178
+msgid "Albuquerque"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:179
+msgid "Salem"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:180
+msgid "Casper"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:181
+msgid "Topeka"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:182
+msgid "Kansas City"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:183
+msgid "Tulsa"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:184
+msgid "Sioux Falls"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:185
+msgid "Shreveport"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:186
+msgid "Baton Rouge"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:187
+msgid "Ft. Worth"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:188
+msgid "Corpus Christi"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:189
+msgid "Austin"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:190
+msgid "Amarillo"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:191
+msgid "El Paso"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:192
+msgid "Laredo"
+msgstr ""
+
+#. Venezuela VEN
+#: ne_50m_populated_places_simple.shp:193
+msgid "Merida"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:194
+msgid "Burlington"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:195
+msgid "Montgomery"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:196
+msgid "Tallahassee"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:197
+msgid "Orlando"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:198
+msgid "Jacksonville"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:199
+msgid "Savannah"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:200
+msgid "Columbia"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:201
+msgid "Indianapolis"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:202
+msgid "Wilmington"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:203
+msgid "Knoxville"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:204
+msgid "Richmond"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:205
+msgid "Charleston"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:206
+msgid "Baltimore"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:207
+msgid "Syracuse"
+msgstr ""
+
+#. Venezuela VEN
+#: ne_50m_populated_places_simple.shp:208
+msgid "Puerto Ayacucho"
+msgstr ""
+
+#. Trinidad and Tobago TTO
+#: ne_50m_populated_places_simple.shp:209
+msgid "Port-of-Spain"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:211
+msgid "Sault Ste. Marie"
+msgstr ""
+
+#. Togo TGO
+#: ne_50m_populated_places_simple.shp:212
+msgid "Atakpamé"
+msgstr ""
+
+#. Tunisia TUN
+#: ne_50m_populated_places_simple.shp:213
+msgid "Sousse"
+msgstr ""
+
+#. Yemen YEM
+#: ne_50m_populated_places_simple.shp:214
+msgid "Taizz"
+msgstr ""
+
+#. Ukraine UKR
+#: ne_50m_populated_places_simple.shp:216
+msgid "Lvov"
+msgstr ""
+
+#. Ukraine UKR
+#: ne_50m_populated_places_simple.shp:217
+msgid "Odessa"
+msgstr ""
+
+#. Ukraine UKR
+#: ne_50m_populated_places_simple.shp:218
+msgid "Zhytomyr"
+msgstr ""
+
+#. Ukraine UKR
+#: ne_50m_populated_places_simple.shp:219
+msgid "Dnipro"
+msgstr ""
+
+#. Ukraine UKR
+#: ne_50m_populated_places_simple.shp:220
+msgid "Donetsk"
+msgstr ""
+
+#. Ukraine UKR
+#: ne_50m_populated_places_simple.shp:221
+msgid "Kharkiv"
+msgstr ""
+
+#. Turkmenistan TKM
+#: ne_50m_populated_places_simple.shp:222
+msgid "Türkmenbaşy"
+msgstr ""
+
+#. Uzbekistan UZB
+#: ne_50m_populated_places_simple.shp:223
+msgid "Bukhara"
+msgstr ""
+
+#. Uzbekistan UZB
+#: ne_50m_populated_places_simple.shp:224
+msgid "Nukus"
+msgstr ""
+
+#. Turkmenistan TKM
+#: ne_50m_populated_places_simple.shp:225
+msgid "Türkmenabat"
+msgstr ""
+
+#. Turkmenistan TKM
+#: ne_50m_populated_places_simple.shp:226
+msgid "Mary"
+msgstr ""
+
+#. Uzbekistan UZB
+#: ne_50m_populated_places_simple.shp:227
+msgid "Andijon"
+msgstr ""
+
+#. Vietnam VNM
+#: ne_50m_populated_places_simple.shp:228
+msgid "Haiphong"
+msgstr ""
+
+#. Vietnam VNM
+#: ne_50m_populated_places_simple.shp:229
+msgid "Da Nang"
+msgstr ""
+
+#. Zambia ZMB
+#: ne_50m_populated_places_simple.shp:230
+msgid "Kabwe"
+msgstr ""
+
+#. Zambia ZMB
+#: ne_50m_populated_places_simple.shp:231
+msgid "Mufulira"
+msgstr ""
+
+#. Zambia ZMB
+#: ne_50m_populated_places_simple.shp:232
+msgid "Kitwe"
+msgstr ""
+
+#. Zambia ZMB
+#: ne_50m_populated_places_simple.shp:233
+msgid "Livingstone"
+msgstr ""
+
+#. Zimbabwe ZWE
+#: ne_50m_populated_places_simple.shp:234
+msgid "Chitungwiza"
+msgstr ""
+
+#. Cameroon CMR
+#: ne_50m_populated_places_simple.shp:235
+msgid "Douala"
+msgstr ""
+
+#. United Kingdom GBR
+#: ne_50m_populated_places_simple.shp:236
+msgid "Birmingham"
+msgstr ""
+
+#. United Kingdom GBR
+#: ne_50m_populated_places_simple.shp:237
+msgid "Belfast"
+msgstr ""
+
+#. Turkey TUR
+#: ne_50m_populated_places_simple.shp:238
+msgid "İzmir"
+msgstr ""
+
+#. Turkey TUR
+#: ne_50m_populated_places_simple.shp:239
+msgid "Bursa"
+msgstr ""
+
+#. Turkey TUR
+#: ne_50m_populated_places_simple.shp:240
+msgid "Samsun"
+msgstr ""
+
+#. Turkey TUR
+#: ne_50m_populated_places_simple.shp:241
+msgid "Konya"
+msgstr ""
+
+#. Turkey TUR
+#: ne_50m_populated_places_simple.shp:242
+msgid "Adana"
+msgstr ""
+
+#. Uganda UGA
+#: ne_50m_populated_places_simple.shp:243
+msgid "Gulu"
+msgstr ""
+
+#. Rwanda RWA
+#: ne_50m_populated_places_simple.shp:244
+msgid "Kigali"
+msgstr ""
+
+#. Spain ESP
+#: ne_50m_populated_places_simple.shp:246
+msgid "Córdoba"
+msgstr ""
+
+#. Niger NER
+#: ne_50m_populated_places_simple.shp:247
+msgid "Maradi"
+msgstr ""
+
+#. Niger NER
+#: ne_50m_populated_places_simple.shp:248
+msgid "Tahoua"
+msgstr ""
+
+#. Romania ROU
+#: ne_50m_populated_places_simple.shp:249
+msgid "Constanța"
+msgstr ""
+
+#. Sweden SWE
+#: ne_50m_populated_places_simple.shp:251
+msgid "Sundsvall"
+msgstr ""
+
+#. Romania ROU
+#: ne_50m_populated_places_simple.shp:252
+msgid "Iași"
+msgstr ""
+
+#. Thailand THA
+#: ne_50m_populated_places_simple.shp:253
+msgid "Surat Thani"
+msgstr ""
+
+#. Thailand THA
+#: ne_50m_populated_places_simple.shp:254
+msgid "Chiang Mai"
+msgstr ""
+
+#. Thailand THA
+#: ne_50m_populated_places_simple.shp:255
+msgid "Nakhon Ratchasima"
+msgstr ""
+
+#. Swaziland SWZ
+#: ne_50m_populated_places_simple.shp:256
+msgid "Mbabane"
+msgstr ""
+
+#. Peru PER
+#: ne_50m_populated_places_simple.shp:257
+msgid "Piura"
+msgstr ""
+
+#. Peru PER
+#: ne_50m_populated_places_simple.shp:258
+msgid "Arequipa"
+msgstr ""
+
+#. Peru PER
+#: ne_50m_populated_places_simple.shp:259
+msgid "Chimbote"
+msgstr ""
+
+#. Peru PER
+#: ne_50m_populated_places_simple.shp:260
+msgid "Pucallpa"
+msgstr ""
+
+#. Peru PER
+#: ne_50m_populated_places_simple.shp:261
+msgid "Iquitos"
+msgstr ""
+
+#. Peru PER
+#: ne_50m_populated_places_simple.shp:262
+msgid "Huancayo"
+msgstr ""
+
+#. Paraguay PRY
+#: ne_50m_populated_places_simple.shp:263
+msgid "Ciudad del Este"
+msgstr ""
+
+#. Portugal PRT
+#: ne_50m_populated_places_simple.shp:264
+msgid "Ponta Delgada"
+msgstr ""
+
+#. Spain ESP
+#: ne_50m_populated_places_simple.shp:265
+msgid "Vigo"
+msgstr ""
+
+#. Spain ESP
+#: ne_50m_populated_places_simple.shp:266
+msgid "Bilbao"
+msgstr ""
+
+#. Senegal SEN
+#: ne_50m_populated_places_simple.shp:267
+msgid "Kaolack"
+msgstr ""
+
+#. Sudan SDN
+#: ne_50m_populated_places_simple.shp:269
+msgid "Geneina"
+msgstr ""
+
+#. Saudi Arabia SAU
+#: ne_50m_populated_places_simple.shp:270
+msgid "Medina"
+msgstr ""
+
+#. Saudi Arabia SAU
+#: ne_50m_populated_places_simple.shp:271
+msgid "Tabuk"
+msgstr ""
+
+#. South Sudan SSD
+#: ne_50m_populated_places_simple.shp:272
+msgid "Juba"
+msgstr ""
+
+#. South Sudan SSD
+#: ne_50m_populated_places_simple.shp:273
+msgid "Malakal"
+msgstr ""
+
+#. Sudan SDN
+#: ne_50m_populated_places_simple.shp:274
+msgid "Omdurman"
+msgstr ""
+
+#. Sudan SDN
+#: ne_50m_populated_places_simple.shp:275
+msgid "El Obeid"
+msgstr ""
+
+#. Netherlands NLD
+#: ne_50m_populated_places_simple.shp:276
+msgid "The Hague"
+msgstr ""
+
+#. Norway NOR
+#: ne_50m_populated_places_simple.shp:277
+msgid "Kristiansand"
+msgstr ""
+
+#. Slovenia SVN
+#: ne_50m_populated_places_simple.shp:278
+msgid "Ljubljana"
+msgstr ""
+
+#. Slovakia SVK
+#: ne_50m_populated_places_simple.shp:279
+msgid "Bratislava"
+msgstr ""
+
+#. Qatar QAT
+#: ne_50m_populated_places_simple.shp:281
+msgid "Doha"
+msgstr ""
+
+#. Pakistan PAK
+#: ne_50m_populated_places_simple.shp:282
+msgid "Quetta"
+msgstr ""
+
+#. Pakistan PAK
+#: ne_50m_populated_places_simple.shp:283
+msgid "Larkana"
+msgstr ""
+
+#. South Africa ZAF
+#: ne_50m_populated_places_simple.shp:285
+msgid "Upington"
+msgstr ""
+
+#. South Africa ZAF
+#: ne_50m_populated_places_simple.shp:286
+msgid "Worcester"
+msgstr ""
+
+#. South Africa ZAF
+#: ne_50m_populated_places_simple.shp:287
+msgid "George"
+msgstr ""
+
+#. Mozambique MOZ
+#: ne_50m_populated_places_simple.shp:288
+msgid "Tete"
+msgstr ""
+
+#. Mozambique MOZ
+#: ne_50m_populated_places_simple.shp:289
+msgid "Pemba"
+msgstr ""
+
+#. Mozambique MOZ
+#: ne_50m_populated_places_simple.shp:290
+msgid "Nampula"
+msgstr ""
+
+#. South Africa ZAF
+#: ne_50m_populated_places_simple.shp:291
+msgid "Welkom"
+msgstr ""
+
+#. Mozambique MOZ
+#: ne_50m_populated_places_simple.shp:292
+msgid "Xai-Xai"
+msgstr ""
+
+#. Papua New Guinea PNG
+#: ne_50m_populated_places_simple.shp:294
+msgid "Mt. Hagen"
+msgstr ""
+
+#. Papua New Guinea PNG
+#: ne_50m_populated_places_simple.shp:296
+msgid "Lae"
+msgstr ""
+
+#. Panama PAN
+#: ne_50m_populated_places_simple.shp:297
+msgid "David"
+msgstr ""
+
+#. Morocco MAR
+#: ne_50m_populated_places_simple.shp:298
+msgid "Oujda"
+msgstr ""
+
+#. Morocco MAR
+#: ne_50m_populated_places_simple.shp:299
+msgid "Safi"
+msgstr ""
+
+#. Montenegro MNE
+#: ne_50m_populated_places_simple.shp:300
+msgid "Podgorica"
+msgstr ""
+
+#. Mozambique MOZ
+#: ne_50m_populated_places_simple.shp:301
+msgid "Quelimane"
+msgstr ""
+
+#. South Africa ZAF
+#: ne_50m_populated_places_simple.shp:302
+msgid "East London"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:304
+msgid "Naltchik"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:305
+msgid "Stavropol"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:307
+msgid "Kaliningrad"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:308
+msgid "Pskov"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:309
+msgid "Bryansk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:310
+msgid "Smolensk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:311
+msgid "Petrozavodsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:312
+msgid "Tver"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:313
+msgid "Vologda"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:314
+msgid "Yaroslavl"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:315
+msgid "Rostov"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:316
+msgid "Sochi"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:317
+msgid "Krasnodar"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:318
+msgid "Penza"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:319
+msgid "Ryazan"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:320
+msgid "Voronezh"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:321
+msgid "Magnitogorsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:322
+msgid "Chelyabinsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:323
+msgid "Vorkuta"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:324
+msgid "Kirov"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:325
+msgid "Nizhny Tagil"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:326
+msgid "Astrakhan"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:327
+msgid "Orenburg"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:328
+msgid "Saratov"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:329
+msgid "Ulyanovsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:330
+msgid "Omsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:331
+msgid "Tyumen"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:332
+msgid "Novokuznetsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:333
+msgid "Kemerovo"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:334
+msgid "Groznyy"
+msgstr ""
+
+#. Sri Lanka LKA
+#: ne_50m_populated_places_simple.shp:335
+msgid "Kandy"
+msgstr ""
+
+#. Sri Lanka LKA
+#: ne_50m_populated_places_simple.shp:336
+msgid "Sri Jawewardenepura Kotte"
+msgstr ""
+
+#. South Korea KOR
+#: ne_50m_populated_places_simple.shp:337
+msgid "Daejeon"
+msgstr ""
+
+#. South Korea KOR
+#: ne_50m_populated_places_simple.shp:338
+msgid "Gwangju"
+msgstr ""
+
+#. South Korea KOR
+#: ne_50m_populated_places_simple.shp:339
+msgid "Busan"
+msgstr ""
+
+#. Philippines PHL
+#: ne_50m_populated_places_simple.shp:340
+msgid "Zamboanga"
+msgstr ""
+
+#. Philippines PHL
+#: ne_50m_populated_places_simple.shp:341
+msgid "Laoag"
+msgstr ""
+
+#. Philippines PHL
+#: ne_50m_populated_places_simple.shp:342
+msgid "Baguio City"
+msgstr ""
+
+#. Philippines PHL
+#: ne_50m_populated_places_simple.shp:343
+msgid "General Santos"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:344
+msgid "Ust-Ulimsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:345
+msgid "Angarsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:346
+msgid "Abakan"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:347
+msgid "Norilsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:349
+msgid "Kyzyl"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:350
+msgid "Ulan Ude"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:351
+msgid "Blagoveshchensk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:363
+msgid "Khabarovsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:365
+msgid "Yuzhno Sakhalinsk"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:366
+msgid "Mexicali"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:367
+msgid "La Paz"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:368
+msgid "Torreón"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:369
+msgid "Culiacán"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:370
+msgid "Nogales"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:371
+msgid "Hermosillo"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:372
+msgid "Guaymas"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:373
+msgid "San Luis Potosí"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:374
+msgid "Matamoros"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:375
+msgid "Nuevo Laredo"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:376
+msgid "Colima"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:377
+msgid "Campeche"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:378
+msgid "Oaxaca"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:379
+msgid "León"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:380
+msgid "Maiduguri"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:381
+msgid "Port Harcourt"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:382
+msgid "Makurdi"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:383
+msgid "Ibadan"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:384
+msgid "Ogbomosho"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:385
+msgid "Warri"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:386
+msgid "Kaduna"
+msgstr ""
+
+#. Poland POL
+#: ne_50m_populated_places_simple.shp:387
+msgid "Gdańsk"
+msgstr ""
+
+#. Poland POL
+#: ne_50m_populated_places_simple.shp:388
+msgid "Kraków"
+msgstr ""
+
+#. North Korea PRK
+#: ne_50m_populated_places_simple.shp:390
+msgid "Wonsan"
+msgstr ""
+
+#. North Korea PRK
+#: ne_50m_populated_places_simple.shp:391
+msgid "Sinuiju"
+msgstr ""
+
+#. Namibia NAM
+#: ne_50m_populated_places_simple.shp:395
+msgid "Walvis Bay"
+msgstr ""
+
+#. Tanzania TZA
+#: ne_50m_populated_places_simple.shp:396
+msgid "Mwanza"
+msgstr ""
+
+#. Tanzania TZA
+#: ne_50m_populated_places_simple.shp:397
+msgid "Morogoro"
+msgstr ""
+
+#. Tanzania TZA
+#: ne_50m_populated_places_simple.shp:398
+msgid "Dodoma"
+msgstr ""
+
+#. Tanzania TZA
+#: ne_50m_populated_places_simple.shp:399
+msgid "Arusha"
+msgstr ""
+
+#. Switzerland CHE
+#: ne_50m_populated_places_simple.shp:400
+msgid "Bern"
+msgstr ""
+
+#. Sweden SWE
+#: ne_50m_populated_places_simple.shp:401
+msgid "Malmö"
+msgstr ""
+
+#. Morocco MAR
+#: ne_50m_populated_places_simple.shp:402
+msgid "Laayoune"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:403
+msgid "Ternate"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:404
+msgid "Ambon"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:405
+msgid "Raba"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:406
+msgid "Jayapura"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:407
+msgid "Florence"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:408
+msgid "Catania"
+msgstr ""
+
+#. Kosovo KOS
+#: ne_50m_populated_places_simple.shp:409
+msgid "Pristina"
+msgstr ""
+
+#. Kenya KEN
+#: ne_50m_populated_places_simple.shp:411
+msgid "Eldoret"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:412
+msgid "Banda Aceh"
+msgstr ""
+
+#. Malaysia MYS
+#: ne_50m_populated_places_simple.shp:413
+msgid "George Town"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:414
+msgid "Zhangye"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:415
+msgid "Wuwei"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:416
+msgid "Dunhuang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:417
+msgid "Tianshui"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:419
+msgid "Golmud"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:420
+msgid "Yulin"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:421
+msgid "Bose"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:422
+msgid "Wuzhou"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:423
+msgid "Lupanshui"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:424
+msgid "Quanzhou"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:425
+msgid "Hefei"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:426
+msgid "Suzhou"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:427
+msgid "Zhanjiang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:428
+msgid "Shaoguan"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:429
+msgid "Balikpapan"
+msgstr ""
+
+#. Malaysia MYS
+#: ne_50m_populated_places_simple.shp:430
+msgid "Kuching"
+msgstr ""
+
+#. Madagascar MDG
+#: ne_50m_populated_places_simple.shp:431
+msgid "Antsiranana"
+msgstr ""
+
+#. Madagascar MDG
+#: ne_50m_populated_places_simple.shp:432
+msgid "Fianarantsoa"
+msgstr ""
+
+#. Madagascar MDG
+#: ne_50m_populated_places_simple.shp:433
+msgid "Mahajanga"
+msgstr ""
+
+#. Madagascar MDG
+#: ne_50m_populated_places_simple.shp:434
+msgid "Toliara"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:435
+msgid "Surakarta"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:436
+msgid "Bandar Lampung"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:437
+msgid "Tanjungpandan"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:438
+msgid "Malang"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:439
+msgid "Kupang"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:440
+msgid "Parepare"
+msgstr ""
+
+#. Ecuador ECU
+#: ne_50m_populated_places_simple.shp:441
+msgid "Cuenca"
+msgstr ""
+
+#. Costa Rica CRI
+#: ne_50m_populated_places_simple.shp:443
+msgid "Puerto Limon"
+msgstr ""
+
+#. Cuba CUB
+#: ne_50m_populated_places_simple.shp:444
+msgid "Santiago de Cuba"
+msgstr ""
+
+#. Dominican Republic DOM
+#: ne_50m_populated_places_simple.shp:445
+msgid "Santiago"
+msgstr ""
+
+#. Colombia COL
+#: ne_50m_populated_places_simple.shp:446
+msgid "Manizales"
+msgstr ""
+
+#. Colombia COL
+#: ne_50m_populated_places_simple.shp:447
+msgid "Pasto"
+msgstr ""
+
+#. Colombia COL
+#: ne_50m_populated_places_simple.shp:448
+msgid "Barranquilla"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:450
+msgid "Mbandaka"
+msgstr ""
+
+#. Chad TCD
+#: ne_50m_populated_places_simple.shp:451
+msgid "Moundou"
+msgstr ""
+
+#. Egypt EGY
+#: ne_50m_populated_places_simple.shp:452
+msgid "Suez"
+msgstr ""
+
+#. Egypt EGY
+#: ne_50m_populated_places_simple.shp:453
+msgid "Bur Said"
+msgstr ""
+
+#. Egypt EGY
+#: ne_50m_populated_places_simple.shp:454
+msgid "El Faiyum"
+msgstr ""
+
+#. Egypt EGY
+#: ne_50m_populated_places_simple.shp:455
+msgid "Aswan"
+msgstr ""
+
+#. Egypt EGY
+#: ne_50m_populated_places_simple.shp:456
+msgid "Asyut"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:457
+msgid "Kisangani"
+msgstr ""
+
+#. Eritrea ERI
+#: ne_50m_populated_places_simple.shp:458
+msgid "Assab"
+msgstr ""
+
+#. Djibouti DJI
+#: ne_50m_populated_places_simple.shp:459
+msgid "Djibouti"
+msgstr ""
+
+#. Germany DEU
+#: ne_50m_populated_places_simple.shp:460
+msgid "Dresden"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:461
+msgid "Xigaze"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:462
+msgid "Shache"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:463
+msgid "Yining"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:464
+msgid "Altay"
+msgstr ""
+
+#. Malaysia MYS
+#: ne_50m_populated_places_simple.shp:465
+msgid "Putrajaya"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:466
+msgid "Shizuishan"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:467
+msgid "Yulin"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:468
+msgid "Ankang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:469
+msgid "Houma"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:470
+msgid "Yueyang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:471
+msgid "Hengyang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:472
+msgid "Mianyang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:473
+msgid "Xichang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:474
+msgid "Baoshan"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:475
+msgid "Gejiu"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:476
+msgid "Shijianzhuang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:477
+msgid "Handan"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:478
+msgid "Anshan"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:479
+msgid "Dalian"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:480
+msgid "Qingdao"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:481
+msgid "Linyi"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:482
+msgid "Huaiyin"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:483
+msgid "Wenzhou"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:484
+msgid "Ningbo"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:485
+msgid "Fukuoka"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:486
+msgid "Miyazaki"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:487
+msgid "Naha"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:488
+msgid "Kōchi"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:489
+msgid "Gorontalo"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:490
+msgid "Tongliao"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:491
+msgid "Hohhot"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:492
+msgid "Chifeng"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:493
+msgid "Ulanhot"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:494
+msgid "Hailar"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:495
+msgid "Jiamusi"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:496
+msgid "Beian"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:497
+msgid "Daqing"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:498
+msgid "Jixi"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:499
+msgid "Nagoya"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:500
+msgid "Nagano"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:501
+msgid "Kushiro"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:502
+msgid "Hakodate"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:503
+msgid "Kyoto"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:504
+msgid "Sendai"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:505
+msgid "Sakata"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:506
+msgid "Bandundu"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:507
+msgid "Kananga"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:508
+msgid "Kasongo"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:509
+msgid "Mbuji-Mayi"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:510
+msgid "Kalemie"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:511
+msgid "Butembo"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:512
+msgid "Goma"
+msgstr ""
+
+#. Malawi MWI
+#: ne_50m_populated_places_simple.shp:513
+msgid "Mzuzu"
+msgstr ""
+
+#. Malawi MWI
+#: ne_50m_populated_places_simple.shp:514
+msgid "Blantyre"
+msgstr ""
+
+#. Guatemala GTM
+#: ne_50m_populated_places_simple.shp:515
+msgid "Quetzaltenango"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:517
+msgid "Faridabad"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:518
+msgid "Srinagar"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:519
+msgid "Vijayawada"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:520
+msgid "Thiruvananthapuram"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:521
+msgid "Kochi"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:522
+msgid "Cuttack"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:523
+msgid "Hubli"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:524
+msgid "Mangalore"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:525
+msgid "Mysore"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:526
+msgid "Gulbarga"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:527
+msgid "Kolhapur"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:528
+msgid "Nanded"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:529
+msgid "Akola"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:530
+msgid "Guwahati"
+msgstr ""
+
+#. Congo (Brazzaville) COG
+#: ne_50m_populated_places_simple.shp:531
+msgid "Kayes"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:533
+msgid "Bordeaux"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:534
+msgid "Marseille"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:535
+msgid "Le Havre"
+msgstr ""
+
+#. Mali MLI
+#: ne_50m_populated_places_simple.shp:536
+msgid "Gao"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:538
+msgid "Arica"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:539
+msgid "Copiapó"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:540
+msgid "La Serena"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:541
+msgid "Los Angeles"
+msgstr ""
+
+#. Mauritania MRT
+#: ne_50m_populated_places_simple.shp:546
+msgid "Nouadhibou"
+msgstr ""
+
+#. Mali MLI
+#: ne_50m_populated_places_simple.shp:547
+msgid "Kayes"
+msgstr ""
+
+#. Mali MLI
+#: ne_50m_populated_places_simple.shp:549
+msgid "Ségou"
+msgstr ""
+
+#. Macedonia MKD
+#: ne_50m_populated_places_simple.shp:550
+msgid "Skopje"
+msgstr ""
+
+#. Libya LBY
+#: ne_50m_populated_places_simple.shp:553
+msgid "Misratah"
+msgstr ""
+
+#. Libya LBY
+#: ne_50m_populated_places_simple.shp:554
+msgid "Zuwarah"
+msgstr ""
+
+#. Iraq IRQ
+#: ne_50m_populated_places_simple.shp:555
+msgid "Kirkuk"
+msgstr ""
+
+#. Iraq IRQ
+#: ne_50m_populated_places_simple.shp:556
+msgid "Mosul"
+msgstr ""
+
+#. Iraq IRQ
+#: ne_50m_populated_places_simple.shp:557
+msgid "An Najaf"
+msgstr ""
+
+#. Ethiopia ETH
+#: ne_50m_populated_places_simple.shp:558
+msgid "Bahir Dar"
+msgstr ""
+
+#. Ethiopia ETH
+#: ne_50m_populated_places_simple.shp:559
+msgid "Mekele"
+msgstr ""
+
+#. Ethiopia ETH
+#: ne_50m_populated_places_simple.shp:560
+msgid "Dire Dawa"
+msgstr ""
+
+#. Finland FIN
+#: ne_50m_populated_places_simple.shp:562
+msgid "Vaasa"
+msgstr ""
+
+#. Finland FIN
+#: ne_50m_populated_places_simple.shp:563
+msgid "Tampere"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:564
+msgid "Aqtobe"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:565
+msgid "Rudny"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:566
+msgid "Qyzylorda"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:567
+msgid "Atyrau"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:568
+msgid "Ekibastuz"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:569
+msgid "Pavlodar"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:570
+msgid "Semey"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:571
+msgid "Oskemen"
+msgstr ""
+
+#. Iran IRN
+#: ne_50m_populated_places_simple.shp:572
+msgid "Yazd"
+msgstr ""
+
+#. Iran IRN
+#: ne_50m_populated_places_simple.shp:573
+msgid "Ahvaz"
+msgstr ""
+
+#. Iraq IRQ
+#: ne_50m_populated_places_simple.shp:574
+msgid "Basra"
+msgstr ""
+
+#. Iran IRN
+#: ne_50m_populated_places_simple.shp:575
+msgid "Bandar-e-Abbas"
+msgstr ""
+
+#. Iran IRN
+#: ne_50m_populated_places_simple.shp:576
+msgid "Hamadan"
+msgstr ""
+
+#. Iran IRN
+#: ne_50m_populated_places_simple.shp:577
+msgid "Tabriz"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:578
+msgid "Ludhiana"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:579
+msgid "Kota"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:580
+msgid "Jodhpur"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:581
+msgid "Shymkent"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:582
+msgid "Taraz"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:583
+msgid "Lucknow"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:584
+msgid "Saharanpur"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:585
+msgid "Ranchi"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:586
+msgid "Bhagalpur"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:587
+msgid "Raipur"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:588
+msgid "Jabalpur"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:589
+msgid "Indore"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:590
+msgid "Pondicherry"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:591
+msgid "Salem"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:592
+msgid "Tiruchirappalli"
+msgstr ""
+
+#. Congo (Brazzaville) COG
+#: ne_50m_populated_places_simple.shp:593
+msgid "Pointe-Noire"
+msgstr ""
+
+#. Guinea GIN
+#: ne_50m_populated_places_simple.shp:594
+msgid "Kankan"
+msgstr ""
+
+#. Guinea GIN
+#: ne_50m_populated_places_simple.shp:595
+msgid "Nzérékoré"
+msgstr ""
+
+#. Ivory Coast CIV
+#: ne_50m_populated_places_simple.shp:596
+msgid "Bouaké"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:597
+msgid "St.-Denis"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:598
+msgid "Rio Branco"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:599
+msgid "São Luís"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:600
+msgid "Porto Velho"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:602
+msgid "Corumbá"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:603
+msgid "Belo Horizonte"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:604
+msgid "Montes Claros"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:605
+msgid "Uberlândia"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:608
+msgid "Cuiabá"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:609
+msgid "Pelotas"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:610
+msgid "Caxias do Sul"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:611
+msgid "Ponta Grossa"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:612
+msgid "Teresina"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:613
+msgid "Maceió"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:614
+msgid "Vitória da Conquista"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:615
+msgid "Barreiras"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:616
+msgid "Vila Velha"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:617
+msgid "Natal"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:633
+msgid "North Bay"
+msgstr ""
+
+#. Cameroon CMR
+#: ne_50m_populated_places_simple.shp:638
+msgid "Ebolowa"
+msgstr ""
+
+#. Central African Republic CAF
+#: ne_50m_populated_places_simple.shp:639
+msgid "Bambari"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:640
+msgid "Venice"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:642
+msgid "San Juan"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:644
+msgid "Neuquén"
+msgstr ""
+
+#. Bolivia BOL
+#: ne_50m_populated_places_simple.shp:645
+msgid "Trinidad"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:646
+msgid "Santa Rosa"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:647
+msgid "San Carlos de Bariloche"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:648
+msgid "Salta"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:649
+msgid "Tucumán"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:650
+msgid "Formosa"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:651
+msgid "Santa Fe"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:652
+msgid "Rosario"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:653
+msgid "Campinas"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:654
+msgid "Sorocaba"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:655
+msgid "Ribeirão Preto"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:656
+msgid "Petrolina"
+msgstr ""
+
+#. Cameroon CMR
+#: ne_50m_populated_places_simple.shp:657
+msgid "Bamenda"
+msgstr ""
+
+#. Cameroon CMR
+#: ne_50m_populated_places_simple.shp:658
+msgid "Garoua"
+msgstr ""
+
+#. Afghanistan AFG
+#: ne_50m_populated_places_simple.shp:659
+msgid "Herat"
+msgstr ""
+
+#. Afghanistan AFG
+#: ne_50m_populated_places_simple.shp:660
+msgid "Mazar-e Sharif"
+msgstr ""
+
+#. Cambodia KHM
+#: ne_50m_populated_places_simple.shp:661
+msgid "Battambang"
+msgstr ""
+
+#. Cambodia KHM
+#: ne_50m_populated_places_simple.shp:662
+msgid "Siem Reap"
+msgstr ""
+
+#. Angola AGO
+#: ne_50m_populated_places_simple.shp:663
+msgid "Malanje"
+msgstr ""
+
+#. Angola AGO
+#: ne_50m_populated_places_simple.shp:664
+msgid "Benguela"
+msgstr ""
+
+#. Angola AGO
+#: ne_50m_populated_places_simple.shp:665
+msgid "Lubango"
+msgstr ""
+
+#. Angola AGO
+#: ne_50m_populated_places_simple.shp:666
+msgid "Namibe"
+msgstr ""
+
+#. Bolivia BOL
+#: ne_50m_populated_places_simple.shp:667
+msgid "Tarija"
+msgstr ""
+
+#. Barbados BRB
+#: ne_50m_populated_places_simple.shp:668
+msgid "Bridgetown"
+msgstr ""
+
+#. Algeria DZA
+#: ne_50m_populated_places_simple.shp:669
+msgid "Annaba"
+msgstr ""
+
+#. Benin BEN
+#: ne_50m_populated_places_simple.shp:670
+msgid "Parakou"
+msgstr ""
+
+#. Benin BEN
+#: ne_50m_populated_places_simple.shp:671
+msgid "Porto-Novo"
+msgstr ""
+
+#. Algeria DZA
+#: ne_50m_populated_places_simple.shp:672
+msgid "Constantine"
+msgstr ""
+
+#. Belarus BLR
+#: ne_50m_populated_places_simple.shp:673
+msgid "Brest"
+msgstr ""
+
+#. Bangladesh BGD
+#: ne_50m_populated_places_simple.shp:674
+msgid "Khulna"
+msgstr ""
+
+#. Botswana BWA
+#: ne_50m_populated_places_simple.shp:675
+msgid "Francistown"
+msgstr ""
+
+#. Botswana BWA
+#: ne_50m_populated_places_simple.shp:676
+msgid "Mahalapye"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:680
+msgid "Mandurah"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:695
+msgid "Bendigo"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:699
+msgid "Rockhampton"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:700
+msgid "Cairns"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:701
+msgid "Gold Coast"
+msgstr ""
+
+#. Burkina Faso BFA
+#: ne_50m_populated_places_simple.shp:703
+msgid "Bobo Dioulasso"
+msgstr ""
+
+#. Bangladesh BGD
+#: ne_50m_populated_places_simple.shp:704
+msgid "Rajshahi"
+msgstr ""
+
+#. Myanmar MMR
+#: ne_50m_populated_places_simple.shp:705
+msgid "Mandalay"
+msgstr ""
+
+#. Myanmar MMR
+#: ne_50m_populated_places_simple.shp:706
+msgid "Sittwe"
+msgstr ""
+
+#. Burundi BDI
+#: ne_50m_populated_places_simple.shp:707
+msgid "Bujumbura"
+msgstr ""
+
+#. Spain ESP
+#: ne_50m_populated_places_simple.shp:712
+msgid "Las Palmas"
+msgstr ""
+
+#. Somaliland SOL
+#: ne_50m_populated_places_simple.shp:713
+msgid "Berbera"
+msgstr ""
+
+#. Mauritius MUS
+#: ne_50m_populated_places_simple.shp:714
+msgid "Port Louis"
+msgstr ""
+
+#. Palestine PSX
+#: ne_50m_populated_places_simple.shp:715
+msgid "Gaza"
+msgstr ""
+
+#. French Polynesia PYF
+#: ne_50m_populated_places_simple.shp:717
+msgid "Papeete"
+msgstr ""
+
+#. Bahrain BHR
+#: ne_50m_populated_places_simple.shp:718
+msgid "Manama"
+msgstr ""
+
+#. Taiwan TWN
+#: ne_50m_populated_places_simple.shp:721
+msgid "Taichung"
+msgstr ""
+
+#. New Zealand NZL
+#: ne_50m_populated_places_simple.shp:722
+msgid "Napier"
+msgstr ""
+
+#. New Zealand NZL
+#: ne_50m_populated_places_simple.shp:723
+msgid "Manukau"
+msgstr ""
+
+#. New Zealand NZL
+#: ne_50m_populated_places_simple.shp:724
+msgid "Hamilton"
+msgstr ""
+
+#. New Zealand NZL
+#: ne_50m_populated_places_simple.shp:726
+msgid "Dunedin"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:727
+msgid "Kozhikode"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:728
+msgid "Bhubaneshwar"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:729
+msgid "Jamshedpur"
+msgstr ""
+
+#. Uruguay URY
+#: ne_50m_populated_places_simple.shp:730
+msgid "Montevideo"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:732
+msgid "Bismarck"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:733
+msgid "Boise"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:734
+msgid "San Jose"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:735
+msgid "Sacramento"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:736
+msgid "Las Vegas"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:737
+msgid "Santa Fe"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:738
+msgid "Portland"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:739
+msgid "Salt Lake City"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:740
+msgid "Cheyenne"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:741
+msgid "Des Moines"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:742
+msgid "Omaha"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:743
+msgid "Oklahoma City"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:745
+msgid "San Antonio"
+msgstr ""
+
+#. Venezuela VEN
+#: ne_50m_populated_places_simple.shp:746
+msgid "San Cristóbal"
+msgstr ""
+
+#. Venezuela VEN
+#: ne_50m_populated_places_simple.shp:747
+msgid "Valencia"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:748
+msgid "Jackson"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:749
+msgid "Raleigh"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:750
+msgid "Cleveland"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:751
+msgid "Cincinnati"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:752
+msgid "Nashville"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:753
+msgid "Memphis"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:754
+msgid "Norfolk"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:755
+msgid "Milwaukee"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:756
+msgid "Buffalo"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:757
+msgid "Pittsburgh"
+msgstr ""
+
+#. Venezuela VEN
+#: ne_50m_populated_places_simple.shp:758
+msgid "Ciudad Guayana"
+msgstr ""
+
+#. Togo TGO
+#: ne_50m_populated_places_simple.shp:759
+msgid "Lomé"
+msgstr ""
+
+#. Tunisia TUN
+#: ne_50m_populated_places_simple.shp:760
+msgid "Tunis"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:769
+msgid "Fairbanks"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:771
+msgid "Sevastapol"
+msgstr ""
+
+#. United Arab Emirates ARE
+#: ne_50m_populated_places_simple.shp:772
+msgid "Abu Dhabi"
+msgstr ""
+
+#. Turkmenistan TKM
+#: ne_50m_populated_places_simple.shp:773
+msgid "Ashgabat"
+msgstr ""
+
+#. Uzbekistan UZB
+#: ne_50m_populated_places_simple.shp:774
+msgid "Samarqand"
+msgstr ""
+
+#. Zambia ZMB
+#: ne_50m_populated_places_simple.shp:775
+msgid "Lusaka"
+msgstr ""
+
+#. Zimbabwe ZWE
+#: ne_50m_populated_places_simple.shp:776
+msgid "Harare"
+msgstr ""
+
+#. Zimbabwe ZWE
+#: ne_50m_populated_places_simple.shp:777
+msgid "Bulawayo"
+msgstr ""
+
+#. East Timor TLS
+#: ne_50m_populated_places_simple.shp:778
+msgid "Dili"
+msgstr ""
+
+#. Honduras HND
+#: ne_50m_populated_places_simple.shp:780
+msgid "Tegucigalpa"
+msgstr ""
+
+#. Guyana GUY
+#: ne_50m_populated_places_simple.shp:781
+msgid "Georgetown"
+msgstr ""
+
+#. Iceland ISL
+#: ne_50m_populated_places_simple.shp:782
+msgid "Reykjavík"
+msgstr ""
+
+#. Haiti HTI
+#: ne_50m_populated_places_simple.shp:783
+msgid "Port-au-Prince"
+msgstr ""
+
+#. United Kingdom GBR
+#: ne_50m_populated_places_simple.shp:784
+msgid "Glasgow"
+msgstr ""
+
+#. Uganda UGA
+#: ne_50m_populated_places_simple.shp:785
+msgid "Kampala"
+msgstr ""
+
+#. Yemen YEM
+#: ne_50m_populated_places_simple.shp:786
+msgid "Aden"
+msgstr ""
+
+#. Suriname SUR
+#: ne_50m_populated_places_simple.shp:787
+msgid "Paramaribo"
+msgstr ""
+
+#. Spain ESP
+#: ne_50m_populated_places_simple.shp:788
+msgid "Seville"
+msgstr ""
+
+#. Niger NER
+#: ne_50m_populated_places_simple.shp:789
+msgid "Zinder"
+msgstr ""
+
+#. Niger NER
+#: ne_50m_populated_places_simple.shp:790
+msgid "Niamey"
+msgstr ""
+
+#. Sudan SDN
+#: ne_50m_populated_places_simple.shp:791
+msgid "Port Sudan"
+msgstr ""
+
+#. Tajikistan TJK
+#: ne_50m_populated_places_simple.shp:792
+msgid "Dushanbe"
+msgstr ""
+
+#. Peru PER
+#: ne_50m_populated_places_simple.shp:793
+msgid "Cusco"
+msgstr ""
+
+#. Peru PER
+#: ne_50m_populated_places_simple.shp:794
+msgid "Tacna"
+msgstr ""
+
+#. Peru PER
+#: ne_50m_populated_places_simple.shp:795
+msgid "Trujillo"
+msgstr ""
+
+#. Peru PER
+#: ne_50m_populated_places_simple.shp:796
+msgid "Ica"
+msgstr ""
+
+#. Paraguay PRY
+#: ne_50m_populated_places_simple.shp:797
+msgid "Asunción"
+msgstr ""
+
+#. Nicaragua NIC
+#: ne_50m_populated_places_simple.shp:798
+msgid "Managua"
+msgstr ""
+
+#. Sierra Leone SLE
+#: ne_50m_populated_places_simple.shp:799
+msgid "Freetown"
+msgstr ""
+
+#. Niger NER
+#: ne_50m_populated_places_simple.shp:800
+msgid "Agadez"
+msgstr ""
+
+#. Sudan SDN
+#: ne_50m_populated_places_simple.shp:801
+msgid "Niyala"
+msgstr ""
+
+#. South Sudan SSD
+#: ne_50m_populated_places_simple.shp:802
+msgid "Wau"
+msgstr ""
+
+#. Sudan SDN
+#: ne_50m_populated_places_simple.shp:804
+msgid "Kassala"
+msgstr ""
+
+#. Norway NOR
+#: ne_50m_populated_places_simple.shp:805
+msgid "Tromsø"
+msgstr ""
+
+#. Norway NOR
+#: ne_50m_populated_places_simple.shp:806
+msgid "Trondheim"
+msgstr ""
+
+#. Norway NOR
+#: ne_50m_populated_places_simple.shp:807
+msgid "Bergen"
+msgstr ""
+
+#. Pakistan PAK
+#: ne_50m_populated_places_simple.shp:808
+msgid "Islamabad"
+msgstr ""
+
+#. Pakistan PAK
+#: ne_50m_populated_places_simple.shp:809
+msgid "Multan"
+msgstr ""
+
+#. Pakistan PAK
+#: ne_50m_populated_places_simple.shp:810
+msgid "Hyderabad"
+msgstr ""
+
+#. Pakistan PAK
+#: ne_50m_populated_places_simple.shp:811
+msgid "Peshawar"
+msgstr ""
+
+#. Nepal NPL
+#: ne_50m_populated_places_simple.shp:812
+msgid "Kathmandu"
+msgstr ""
+
+#. Mozambique MOZ
+#: ne_50m_populated_places_simple.shp:813
+msgid "Nacala"
+msgstr ""
+
+#. South Africa ZAF
+#: ne_50m_populated_places_simple.shp:814
+msgid "Bloemfontein"
+msgstr ""
+
+#. South Africa ZAF
+#: ne_50m_populated_places_simple.shp:815
+msgid "Pretoria"
+msgstr ""
+
+#. Papua New Guinea PNG
+#: ne_50m_populated_places_simple.shp:816
+msgid "Port Moresby"
+msgstr ""
+
+#. Solomon Islands SLB
+#: ne_50m_populated_places_simple.shp:817
+msgid "Honiara"
+msgstr ""
+
+#. Panama PAN
+#: ne_50m_populated_places_simple.shp:818
+msgid "Panama City"
+msgstr ""
+
+#. Morocco MAR
+#: ne_50m_populated_places_simple.shp:819
+msgid "Fez"
+msgstr ""
+
+#. Morocco MAR
+#: ne_50m_populated_places_simple.shp:820
+msgid "Rabat"
+msgstr ""
+
+#. Morocco MAR
+#: ne_50m_populated_places_simple.shp:821
+msgid "Marrakesh"
+msgstr ""
+
+#. Moldova MDA
+#: ne_50m_populated_places_simple.shp:822
+msgid "Chișinău"
+msgstr ""
+
+#. Mozambique MOZ
+#: ne_50m_populated_places_simple.shp:823
+msgid "Beira"
+msgstr ""
+
+#. South Africa ZAF
+#: ne_50m_populated_places_simple.shp:824
+msgid "Port Elizabeth"
+msgstr ""
+
+#. Mozambique MOZ
+#: ne_50m_populated_places_simple.shp:825
+msgid "Maputo"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:826
+msgid "Tomsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:828
+msgid "Murmansk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:829
+msgid "Archangel"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:830
+msgid "Nizhny Novgorod"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:831
+msgid "Volgograd"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:832
+msgid "Ufa"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:833
+msgid "Yekaterinburg"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:834
+msgid "Samara"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:835
+msgid "Kazan"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:836
+msgid "Surgut"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:837
+msgid "Barnaul"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:838
+msgid "Novosibirsk"
+msgstr ""
+
+#. Somalia SOM
+#: ne_50m_populated_places_simple.shp:839
+msgid "Mogadishu"
+msgstr ""
+
+#. Oman OMN
+#: ne_50m_populated_places_simple.shp:840
+msgid "Muscat"
+msgstr ""
+
+#. Sri Lanka LKA
+#: ne_50m_populated_places_simple.shp:841
+msgid "Colombo"
+msgstr ""
+
+#. Philippines PHL
+#: ne_50m_populated_places_simple.shp:842
+msgid "Cebu"
+msgstr ""
+
+#. Philippines PHL
+#: ne_50m_populated_places_simple.shp:843
+msgid "Iloilo"
+msgstr ""
+
+#. Philippines PHL
+#: ne_50m_populated_places_simple.shp:844
+msgid "Davao"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:845
+msgid "Bratsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:846
+msgid "Irkutsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:847
+msgid "Krasnoyarsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:849
+msgid "Chita"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:850
+msgid "Vladivostok"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:852
+msgid "Yakutsk"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:854
+msgid "Magadan"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:855
+msgid "Tijuana"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:856
+msgid "Chihuahua"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:857
+msgid "Mazatlán"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:858
+msgid "Tampico"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:859
+msgid "Acapulco"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:860
+msgid "Veracruz"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:861
+msgid "Tuxtla Gutiérrez"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:862
+msgid "Cancún"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:863
+msgid "Mérida"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:864
+msgid "Enugu"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:865
+msgid "Sokoto"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:866
+msgid "Perm"
+msgstr ""
+
+#. Mongolia MNG
+#: ne_50m_populated_places_simple.shp:867
+msgid "Erdenet"
+msgstr ""
+
+#. Mongolia MNG
+#: ne_50m_populated_places_simple.shp:868
+msgid "Ulaanbaatar"
+msgstr ""
+
+#. Tanzania TZA
+#: ne_50m_populated_places_simple.shp:869
+msgid "Mbeya"
+msgstr ""
+
+#. Namibia NAM
+#: ne_50m_populated_places_simple.shp:870
+msgid "Windhoek"
+msgstr ""
+
+#. Tanzania TZA
+#: ne_50m_populated_places_simple.shp:872
+msgid "Zanzibar"
+msgstr ""
+
+#. Spain ESP
+#: ne_50m_populated_places_simple.shp:873
+msgid "Valencia"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:875
+msgid "Petropavlovsk Kamchatskiy"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:876
+msgid "Abuja"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:877
+msgid "Padang"
+msgstr ""
+
+#. Guinea Bissau GNB
+#: ne_50m_populated_places_simple.shp:878
+msgid "Bissau"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:879
+msgid "Palermo"
+msgstr ""
+
+#. Jordan JOR
+#: ne_50m_populated_places_simple.shp:880
+msgid "Amman"
+msgstr ""
+
+#. Lithuania LTU
+#: ne_50m_populated_places_simple.shp:881
+msgid "Vilnius"
+msgstr ""
+
+#. Latvia LVA
+#: ne_50m_populated_places_simple.shp:882
+msgid "Riga"
+msgstr ""
+
+#. Kyrgyzstan KGZ
+#: ne_50m_populated_places_simple.shp:883
+msgid "Bishkek"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:884
+msgid "Jiayuguan"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:885
+msgid "Xining"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:886
+msgid "Guilin"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:887
+msgid "Huainan"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:888
+msgid "Shantou"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:889
+msgid "Tarakan"
+msgstr ""
+
+#. Kenya KEN
+#: ne_50m_populated_places_simple.shp:890
+msgid "Mombasa"
+msgstr ""
+
+#. Lesotho LSO
+#: ne_50m_populated_places_simple.shp:891
+msgid "Maseru"
+msgstr ""
+
+#. Madagascar MDG
+#: ne_50m_populated_places_simple.shp:892
+msgid "Antananarivo"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:893
+msgid "Semarang"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:894
+msgid "Palembang"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:895
+msgid "Bandjarmasin"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:896
+msgid "Ujungpandang"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:897
+msgid "Lyon"
+msgstr ""
+
+#. Ecuador ECU
+#: ne_50m_populated_places_simple.shp:898
+msgid "Quito"
+msgstr ""
+
+#. Costa Rica CRI
+#: ne_50m_populated_places_simple.shp:899
+msgid "San José"
+msgstr ""
+
+#. El Salvador SLV
+#: ne_50m_populated_places_simple.shp:900
+msgid "San Salvador"
+msgstr ""
+
+#. Jamaica JAM
+#: ne_50m_populated_places_simple.shp:901
+msgid "Kingston"
+msgstr ""
+
+#. Colombia COL
+#: ne_50m_populated_places_simple.shp:902
+msgid "Cartagena"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:904
+msgid "Bumba"
+msgstr ""
+
+#. Chad TCD
+#: ne_50m_populated_places_simple.shp:905
+msgid "Ndjamena"
+msgstr ""
+
+#. Chad TCD
+#: ne_50m_populated_places_simple.shp:906
+msgid "Abéché"
+msgstr ""
+
+#. Equatorial Guinea GNQ
+#: ne_50m_populated_places_simple.shp:907
+msgid "Malabo"
+msgstr ""
+
+#. Egypt EGY
+#: ne_50m_populated_places_simple.shp:908
+msgid "Luxor"
+msgstr ""
+
+#. Eritrea ERI
+#: ne_50m_populated_places_simple.shp:909
+msgid "Asmara"
+msgstr ""
+
+#. Croatia HRV
+#: ne_50m_populated_places_simple.shp:910
+msgid "Zagreb"
+msgstr ""
+
+#. Estonia EST
+#: ne_50m_populated_places_simple.shp:911
+msgid "Tallinn"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:912
+msgid "Lhasa"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:913
+msgid "Hami"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:914
+msgid "Hotan"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:915
+msgid "Kashgar"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:916
+msgid "Yinchuan"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:917
+msgid "Pingxiang"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:918
+msgid "Nagasaki"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:919
+msgid "Qiqihar"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:920
+msgid "Kikwit"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:921
+msgid "Matadi"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:922
+msgid "Kolwezi"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:923
+msgid "Lubumbashi"
+msgstr ""
+
+#. Malawi MWI
+#: ne_50m_populated_places_simple.shp:924
+msgid "Lilongwe"
+msgstr ""
+
+#. Guatemala GTM
+#: ne_50m_populated_places_simple.shp:925
+msgid "Guatemala"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:926
+msgid "Cayenne"
+msgstr ""
+
+#. Gabon GAB
+#: ne_50m_populated_places_simple.shp:927
+msgid "Libreville"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:928
+msgid "Vishakhapatnam"
+msgstr ""
+
+#. Fiji FJI
+#: ne_50m_populated_places_simple.shp:929
+msgid "Suva"
+msgstr ""
+
+#. Gabon GAB
+#: ne_50m_populated_places_simple.shp:930
+msgid "Port-Gentil"
+msgstr ""
+
+#. Mali MLI
+#: ne_50m_populated_places_simple.shp:931
+msgid "Timbuktu"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:932
+msgid "Punta Arenas"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:933
+msgid "Iquique"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:934
+msgid "Antofagasta"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:935
+msgid "Valparaíso"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:936
+msgid "Valdivia"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:937
+msgid "Concepción"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:938
+msgid "Puerto Montt"
+msgstr ""
+
+#. Mauritania MRT
+#: ne_50m_populated_places_simple.shp:940
+msgid "Nouakchott"
+msgstr ""
+
+#. Mali MLI
+#: ne_50m_populated_places_simple.shp:941
+msgid "Bamako"
+msgstr ""
+
+#. Libya LBY
+#: ne_50m_populated_places_simple.shp:944
+msgid "Sabha"
+msgstr ""
+
+#. Libya LBY
+#: ne_50m_populated_places_simple.shp:945
+msgid "Banghazi"
+msgstr ""
+
+#. Greece GRC
+#: ne_50m_populated_places_simple.shp:946
+msgid "Thessaloniki"
+msgstr ""
+
+#. Lebanon LBN
+#: ne_50m_populated_places_simple.shp:947
+msgid "Beirut"
+msgstr ""
+
+#. Georgia GEO
+#: ne_50m_populated_places_simple.shp:948
+msgid "Tbilisi"
+msgstr ""
+
+#. Ethiopia ETH
+#: ne_50m_populated_places_simple.shp:949
+msgid "Gondar"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:950
+msgid "Astana"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:951
+msgid "Qaraghandy"
+msgstr ""
+
+#. Kazakhstan KAZ
+#: ne_50m_populated_places_simple.shp:952
+msgid "Almaty"
+msgstr ""
+
+#. Iran IRN
+#: ne_50m_populated_places_simple.shp:953
+msgid "Isfahan"
+msgstr ""
+
+#. Iran IRN
+#: ne_50m_populated_places_simple.shp:954
+msgid "Shiraz"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:955
+msgid "Amritsar"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:956
+msgid "Varanasi"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:957
+msgid "Asansol"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:958
+msgid "Bhilai"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:959
+msgid "Bhopal"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:960
+msgid "Madurai"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:961
+msgid "Coimbatore"
+msgstr ""
+
+#. Laos LAO
+#: ne_50m_populated_places_simple.shp:962
+msgid "Vientiane"
+msgstr ""
+
+#. Congo (Brazzaville) COG
+#: ne_50m_populated_places_simple.shp:963
+msgid "Brazzaville"
+msgstr ""
+
+#. Guinea GIN
+#: ne_50m_populated_places_simple.shp:964
+msgid "Conakry"
+msgstr ""
+
+#. Ivory Coast CIV
+#: ne_50m_populated_places_simple.shp:965
+msgid "Yamoussoukro"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:966
+msgid "Cruzeiro do Sul"
+msgstr ""
+
+#. Colombia COL
+#: ne_50m_populated_places_simple.shp:967
+msgid "Leticia"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:968
+msgid "Manaus"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:969
+msgid "Caxias"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:970
+msgid "Santarém"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:971
+msgid "Marabá"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:972
+msgid "Vilhena"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:973
+msgid "Ji-Paraná"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:974
+msgid "Campo Grande"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:975
+msgid "Florianópolis"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:976
+msgid "Feira de Santana"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:977
+msgid "Winnipeg"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:979
+msgid "Regina"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:980
+msgid "Saskatoon"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:981
+msgid "Calgary"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:983
+msgid "Victoria"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:990
+msgid "Boa Vista"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:991
+msgid "Macapá"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:992
+msgid "Ottawa"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:994
+msgid "Thunder Bay"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:995
+msgid "Québec"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:996
+msgid "Halifax"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:997
+msgid "St. John's"
+msgstr ""
+
+#. Serbia SRB
+#: ne_50m_populated_places_simple.shp:1001
+msgid "Belgrade"
+msgstr ""
+
+#. Brunei BRN
+#: ne_50m_populated_places_simple.shp:1003
+msgid "Bandar Seri Begawan"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:1005
+msgid "Río Gallegos"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:1006
+msgid "Comodoro Rivadavia"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:1007
+msgid "Mendoza"
+msgstr ""
+
+#. Bolivia BOL
+#: ne_50m_populated_places_simple.shp:1008
+msgid "Sucre"
+msgstr ""
+
+#. Bolivia BOL
+#: ne_50m_populated_places_simple.shp:1009
+msgid "Riberalta"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:1010
+msgid "Bahía Blanca"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:1011
+msgid "Mar del Plata"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:1012
+msgid "Córdoba"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:1013
+msgid "Posadas"
+msgstr ""
+
+#. Central African Republic CAF
+#: ne_50m_populated_places_simple.shp:1015
+msgid "Bangui"
+msgstr ""
+
+#. Cameroon CMR
+#: ne_50m_populated_places_simple.shp:1016
+msgid "Maroua"
+msgstr ""
+
+#. Cameroon CMR
+#: ne_50m_populated_places_simple.shp:1017
+msgid "Yaounde"
+msgstr ""
+
+#. Albania ALB
+#: ne_50m_populated_places_simple.shp:1018
+msgid "Tirana"
+msgstr ""
+
+#. Armenia ARM
+#: ne_50m_populated_places_simple.shp:1019
+msgid "Yerevan"
+msgstr ""
+
+#. Azerbaijan AZE
+#: ne_50m_populated_places_simple.shp:1020
+msgid "Baku"
+msgstr ""
+
+#. Afghanistan AFG
+#: ne_50m_populated_places_simple.shp:1021
+msgid "Kandahar"
+msgstr ""
+
+#. Cambodia KHM
+#: ne_50m_populated_places_simple.shp:1022
+msgid "Phnom Penh"
+msgstr ""
+
+#. Angola AGO
+#: ne_50m_populated_places_simple.shp:1024
+msgid "Huambo"
+msgstr ""
+
+#. Bolivia BOL
+#: ne_50m_populated_places_simple.shp:1025
+msgid "La Paz"
+msgstr ""
+
+#. Bolivia BOL
+#: ne_50m_populated_places_simple.shp:1026
+msgid "Santa Cruz"
+msgstr ""
+
+#. Algeria DZA
+#: ne_50m_populated_places_simple.shp:1027
+msgid "Oran"
+msgstr ""
+
+#. Benin BEN
+#: ne_50m_populated_places_simple.shp:1028
+msgid "Cotonou"
+msgstr ""
+
+#. Algeria DZA
+#: ne_50m_populated_places_simple.shp:1029
+msgid "Tamanrasset"
+msgstr ""
+
+#. Algeria DZA
+#: ne_50m_populated_places_simple.shp:1030
+msgid "Ghardaia"
+msgstr ""
+
+#. Bulgaria BGR
+#: ne_50m_populated_places_simple.shp:1031
+msgid "Sofia"
+msgstr ""
+
+#. Belarus BLR
+#: ne_50m_populated_places_simple.shp:1032
+msgid "Minsk"
+msgstr ""
+
+#. Bhutan BTN
+#: ne_50m_populated_places_simple.shp:1033
+msgid "Thimphu"
+msgstr ""
+
+#. Botswana BWA
+#: ne_50m_populated_places_simple.shp:1034
+msgid "Gaborone"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:1035
+msgid "Darwin"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:1037
+msgid "Canberra"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:1038
+msgid "Newcastle"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:1039
+msgid "Adelaide"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:1040
+msgid "Townsville"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:1041
+msgid "Brisbane"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:1042
+msgid "Hobart"
+msgstr ""
+
+#. Burkina Faso BFA
+#: ne_50m_populated_places_simple.shp:1043
+msgid "Ouagadougou"
+msgstr ""
+
+#. Bosnia and Herzegovina BIH
+#: ne_50m_populated_places_simple.shp:1044
+msgid "Sarajevo"
+msgstr ""
+
+#. Myanmar MMR
+#: ne_50m_populated_places_simple.shp:1045
+msgid "Naypyidaw"
+msgstr ""
+
+#. Puerto Rico PRI
+#: ne_50m_populated_places_simple.shp:1046
+msgid "San Juan"
+msgstr ""
+
+#. Bermuda BMU
+#: ne_50m_populated_places_simple.shp:1048
+msgid "Hamilton"
+msgstr ""
+
+#. Somaliland SOL
+#: ne_50m_populated_places_simple.shp:1050
+msgid "Hargeysa"
+msgstr ""
+
+#. Sao Tome and Principe STP
+#: ne_50m_populated_places_simple.shp:1052
+msgid "São Tomé"
+msgstr ""
+
+#. Samoa WSM
+#: ne_50m_populated_places_simple.shp:1053
+msgid "Apia"
+msgstr ""
+
+#. Malta MLT
+#: ne_50m_populated_places_simple.shp:1054
+msgid "Valletta"
+msgstr ""
+
+#. Maldives MDV
+#: ne_50m_populated_places_simple.shp:1055
+msgid "Malé"
+msgstr ""
+
+#. Israel ISR
+#: ne_50m_populated_places_simple.shp:1056
+msgid "Jerusalem"
+msgstr ""
+
+#. Cape Verde CPV
+#: ne_50m_populated_places_simple.shp:1057
+msgid "Praia"
+msgstr ""
+
+#. The Bahamas BHS
+#: ne_50m_populated_places_simple.shp:1058
+msgid "Nassau"
+msgstr ""
+
+#. Cyprus CYP
+#: ne_50m_populated_places_simple.shp:1059
+msgid "Nicosia"
+msgstr ""
+
+#. Taiwan TWN
+#: ne_50m_populated_places_simple.shp:1060
+msgid "Kaohsiung"
+msgstr ""
+
+#. New Zealand NZL
+#: ne_50m_populated_places_simple.shp:1061
+msgid "Wellington"
+msgstr ""
+
+#. New Zealand NZL
+#: ne_50m_populated_places_simple.shp:1062
+msgid "Christchurch"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1063
+msgid "Shenzhen"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1064
+msgid "Zibo"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1065
+msgid "Minneapolis"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1066
+msgid "Honolulu"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1067
+msgid "Seattle"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1068
+msgid "Phoenix"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1069
+msgid "San Diego"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1070
+msgid "St. Louis"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1071
+msgid "New Orleans"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1072
+msgid "Dallas"
+msgstr ""
+
+#. Venezuela VEN
+#: ne_50m_populated_places_simple.shp:1073
+msgid "Maracaibo"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1074
+msgid "Boston"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1075
+msgid "Tampa"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1076
+msgid "Philadelphia"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1077
+msgid "Detroit"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1078
+msgid "Anchorage"
+msgstr ""
+
+#. Vietnam VNM
+#: ne_50m_populated_places_simple.shp:1079
+msgid "Hanoi"
+msgstr ""
+
+#. Vietnam VNM
+#: ne_50m_populated_places_simple.shp:1080
+msgid "Ho Chi Minh City"
+msgstr ""
+
+#. Turkey TUR
+#: ne_50m_populated_places_simple.shp:1081
+msgid "Ankara"
+msgstr ""
+
+#. Hungary HUN
+#: ne_50m_populated_places_simple.shp:1082
+msgid "Budapest"
+msgstr ""
+
+#. Yemen YEM
+#: ne_50m_populated_places_simple.shp:1083
+msgid "Sanaa"
+msgstr ""
+
+#. Spain ESP
+#: ne_50m_populated_places_simple.shp:1084
+msgid "Barcelona"
+msgstr ""
+
+#. Romania ROU
+#: ne_50m_populated_places_simple.shp:1085
+msgid "Bucharest"
+msgstr ""
+
+#. Syria SYR
+#: ne_50m_populated_places_simple.shp:1086
+msgid "Aleppo"
+msgstr ""
+
+#. Syria SYR
+#: ne_50m_populated_places_simple.shp:1087
+msgid "Damascus"
+msgstr ""
+
+#. Switzerland CHE
+#: ne_50m_populated_places_simple.shp:1088
+msgid "Zürich"
+msgstr ""
+
+#. Portugal PRT
+#: ne_50m_populated_places_simple.shp:1089
+msgid "Lisbon"
+msgstr ""
+
+#. Sudan SDN
+#: ne_50m_populated_places_simple.shp:1090
+msgid "Khartoum"
+msgstr ""
+
+#. Saudi Arabia SAU
+#: ne_50m_populated_places_simple.shp:1091
+msgid "Jeddah"
+msgstr ""
+
+#. Saudi Arabia SAU
+#: ne_50m_populated_places_simple.shp:1092
+msgid "Makkah"
+msgstr ""
+
+#. Norway NOR
+#: ne_50m_populated_places_simple.shp:1093
+msgid "Oslo"
+msgstr ""
+
+#. Pakistan PAK
+#: ne_50m_populated_places_simple.shp:1094
+msgid "Lahore"
+msgstr ""
+
+#. Pakistan PAK
+#: ne_50m_populated_places_simple.shp:1095
+msgid "Karachi"
+msgstr ""
+
+#. South Africa ZAF
+#: ne_50m_populated_places_simple.shp:1096
+msgid "Durban"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:1097
+msgid "St. Petersburg"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:1098
+msgid "Guadalajara"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:1099
+msgid "Puebla"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:1100
+msgid "Kano"
+msgstr ""
+
+#. Poland POL
+#: ne_50m_populated_places_simple.shp:1101
+msgid "Warsaw"
+msgstr ""
+
+#. North Korea PRK
+#: ne_50m_populated_places_simple.shp:1102
+msgid "Pyongyang"
+msgstr ""
+
+#. Tanzania TZA
+#: ne_50m_populated_places_simple.shp:1103
+msgid "Dar es Salaam"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:1104
+msgid "Medan"
+msgstr ""
+
+#. Ireland IRL
+#: ne_50m_populated_places_simple.shp:1105
+msgid "Dublin"
+msgstr ""
+
+#. Liberia LBR
+#: ne_50m_populated_places_simple.shp:1106
+msgid "Monrovia"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:1107
+msgid "Naples"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:1108
+msgid "Milan"
+msgstr ""
+
+#. Malaysia MYS
+#: ne_50m_populated_places_simple.shp:1109
+msgid "Kuala Lumpur"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1110
+msgid "Lanzhou"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1111
+msgid "Nanning"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1112
+msgid "Guiyang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1113
+msgid "Chongqing"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1114
+msgid "Fuzhou"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1115
+msgid "Guangzhou"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1116
+msgid "Dongguan"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:1117
+msgid "Bandung"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:1118
+msgid "Surabaya"
+msgstr ""
+
+#. Ecuador ECU
+#: ne_50m_populated_places_simple.shp:1119
+msgid "Guayaquil"
+msgstr ""
+
+#. Colombia COL
+#: ne_50m_populated_places_simple.shp:1120
+msgid "Medellín"
+msgstr ""
+
+#. Colombia COL
+#: ne_50m_populated_places_simple.shp:1121
+msgid "Cali"
+msgstr ""
+
+#. Cuba CUB
+#: ne_50m_populated_places_simple.shp:1122
+msgid "Havana"
+msgstr ""
+
+#. Egypt EGY
+#: ne_50m_populated_places_simple.shp:1123
+msgid "Alexandria"
+msgstr ""
+
+#. Germany DEU
+#: ne_50m_populated_places_simple.shp:1124
+msgid "Frankfurt"
+msgstr ""
+
+#. Germany DEU
+#: ne_50m_populated_places_simple.shp:1125
+msgid "Hamburg"
+msgstr ""
+
+#. Germany DEU
+#: ne_50m_populated_places_simple.shp:1126
+msgid "Munich"
+msgstr ""
+
+#. Czech Republic CZE
+#: ne_50m_populated_places_simple.shp:1127
+msgid "Prague"
+msgstr ""
+
+#. Kuwait KWT
+#: ne_50m_populated_places_simple.shp:1128
+msgid "Kuwait"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1129
+msgid "Xian"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1130
+msgid "Taiyuan"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1131
+msgid "Wuhan"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1132
+msgid "Changsha"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1133
+msgid "Kunming"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1134
+msgid "Zhengzhou"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1135
+msgid "Shenyeng"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1136
+msgid "Jinan"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1137
+msgid "Tianjin"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1138
+msgid "Nanchang"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1139
+msgid "Nanjing"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1140
+msgid "Hangzhou"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:1141
+msgid "Hiroshima"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1142
+msgid "Changchun"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1143
+msgid "Baotou"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1144
+msgid "Harbin"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:1145
+msgid "Sapporo"
+msgstr ""
+
+#. Dominican Republic DOM
+#: ne_50m_populated_places_simple.shp:1146
+msgid "Santo Domingo"
+msgstr ""
+
+#. Ghana GHA
+#: ne_50m_populated_places_simple.shp:1147
+msgid "Accra"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1148
+msgid "Delhi"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1149
+msgid "Hyderabad"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1150
+msgid "Pune"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1151
+msgid "Nagpur"
+msgstr ""
+
+#. Libya LBY
+#: ne_50m_populated_places_simple.shp:1152
+msgid "Tripoli"
+msgstr ""
+
+#. Israel ISR
+#: ne_50m_populated_places_simple.shp:1153
+msgid "Tel Aviv-Yafo"
+msgstr ""
+
+#. Finland FIN
+#: ne_50m_populated_places_simple.shp:1154
+msgid "Helsinki"
+msgstr ""
+
+#. Iran IRN
+#: ne_50m_populated_places_simple.shp:1155
+msgid "Mashhad"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1156
+msgid "Jaipur"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1157
+msgid "Kanpur"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1158
+msgid "Patna"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1159
+msgid "Chennai"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1160
+msgid "Ahmedabad"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1161
+msgid "Surat"
+msgstr ""
+
+#. Denmark DNK
+#: ne_50m_populated_places_simple.shp:1162
+msgid "København"
+msgstr ""
+
+#. Ivory Coast CIV
+#: ne_50m_populated_places_simple.shp:1163
+msgid "Abidjan"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:1164
+msgid "Belém"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:1165
+msgid "Brasília"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:1166
+msgid "Porto Alegre"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:1167
+msgid "Curitiba"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:1168
+msgid "Fortaleza"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:1169
+msgid "Salvador"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:1170
+msgid "Edmonton"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:1171
+msgid "Montréal"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:1172
+msgid "Goiânia"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:1173
+msgid "Recife"
+msgstr ""
+
+#. Belgium BEL
+#: ne_50m_populated_places_simple.shp:1174
+msgid "Brussels"
+msgstr ""
+
+#. Bangladesh BGD
+#: ne_50m_populated_places_simple.shp:1175
+msgid "Dhaka"
+msgstr ""
+
+#. Angola AGO
+#: ne_50m_populated_places_simple.shp:1176
+msgid "Luanda"
+msgstr ""
+
+#. Algeria DZA
+#: ne_50m_populated_places_simple.shp:1177
+msgid "Algiers"
+msgstr ""
+
+#. Bangladesh BGD
+#: ne_50m_populated_places_simple.shp:1178
+msgid "Chittagong"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:1179
+msgid "Perth"
+msgstr ""
+
+#. Myanmar MMR
+#: ne_50m_populated_places_simple.shp:1180
+msgid "Rangoon"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1181
+msgid "San Francisco"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1182
+msgid "Denver"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1183
+msgid "Houston"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1184
+msgid "Miami"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1185
+msgid "Atlanta"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1186
+msgid "Chicago"
+msgstr ""
+
+#. Venezuela VEN
+#: ne_50m_populated_places_simple.shp:1187
+msgid "Caracas"
+msgstr ""
+
+#. Ukraine UKR
+#: ne_50m_populated_places_simple.shp:1188
+msgid "Kiev"
+msgstr ""
+
+#. United Arab Emirates ARE
+#: ne_50m_populated_places_simple.shp:1189
+msgid "Dubai"
+msgstr ""
+
+#. Uzbekistan UZB
+#: ne_50m_populated_places_simple.shp:1190
+msgid "Tashkent"
+msgstr ""
+
+#. Spain ESP
+#: ne_50m_populated_places_simple.shp:1191
+msgid "Madrid"
+msgstr ""
+
+#. Switzerland CHE
+#: ne_50m_populated_places_simple.shp:1192
+msgid "Geneva"
+msgstr ""
+
+#. Sweden SWE
+#: ne_50m_populated_places_simple.shp:1193
+msgid "Stockholm"
+msgstr ""
+
+#. Thailand THA
+#: ne_50m_populated_places_simple.shp:1194
+msgid "Bangkok"
+msgstr ""
+
+#. Peru PER
+#: ne_50m_populated_places_simple.shp:1195
+msgid "Lima"
+msgstr ""
+
+#. Senegal SEN
+#: ne_50m_populated_places_simple.shp:1196
+msgid "Dakar"
+msgstr ""
+
+#. South Africa ZAF
+#: ne_50m_populated_places_simple.shp:1197
+msgid "Johannesburg"
+msgstr ""
+
+#. Netherlands NLD
+#: ne_50m_populated_places_simple.shp:1198
+msgid "Amsterdam"
+msgstr ""
+
+#. Morocco MAR
+#: ne_50m_populated_places_simple.shp:1199
+msgid "Casablanca"
+msgstr ""
+
+#. South Korea KOR
+#: ne_50m_populated_places_simple.shp:1200
+msgid "Seoul"
+msgstr ""
+
+#. Philippines PHL
+#: ne_50m_populated_places_simple.shp:1201
+msgid "Manila"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:1202
+msgid "Monterrey"
+msgstr ""
+
+#. Germany DEU
+#: ne_50m_populated_places_simple.shp:1203
+msgid "Berlin"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1204
+msgid "Ürümqi"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1205
+msgid "Chengdu"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:1206
+msgid "Ōsaka"
+msgstr ""
+
+#. Congo (Kinshasa) COD
+#: ne_50m_populated_places_simple.shp:1207
+msgid "Kinshasa"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1208
+msgid "New Delhi"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1209
+msgid "Bangalore"
+msgstr ""
+
+#. Greece GRC
+#: ne_50m_populated_places_simple.shp:1210
+msgid "Athens"
+msgstr ""
+
+#. Iraq IRQ
+#: ne_50m_populated_places_simple.shp:1211
+msgid "Baghdad"
+msgstr ""
+
+#. Ethiopia ETH
+#: ne_50m_populated_places_simple.shp:1212
+msgid "Addis Ababa"
+msgstr ""
+
+#. Iran IRN
+#: ne_50m_populated_places_simple.shp:1213
+msgid "Tehran"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:1214
+msgid "Vancouver"
+msgstr ""
+
+#. Canada CAN
+#: ne_50m_populated_places_simple.shp:1215
+msgid "Toronto"
+msgstr ""
+
+#. Argentina ARG
+#: ne_50m_populated_places_simple.shp:1216
+msgid "Buenos Aires"
+msgstr ""
+
+#. Afghanistan AFG
+#: ne_50m_populated_places_simple.shp:1217
+msgid "Kabul"
+msgstr ""
+
+#. Austria AUT
+#: ne_50m_populated_places_simple.shp:1218
+msgid "Vienna"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:1219
+msgid "Melbourne"
+msgstr ""
+
+#. Taiwan TWN
+#: ne_50m_populated_places_simple.shp:1220
+msgid "Taipei"
+msgstr ""
+
+#. New Zealand NZL
+#: ne_50m_populated_places_simple.shp:1221
+msgid "Auckland"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1222
+msgid "Los Angeles"
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1223
+msgid "Washington, D.C."
+msgstr ""
+
+#. United States of America USA
+#: ne_50m_populated_places_simple.shp:1224
+msgid "New York"
+msgstr ""
+
+#. United Kingdom GBR
+#: ne_50m_populated_places_simple.shp:1225
+msgid "London"
+msgstr ""
+
+#. Turkey TUR
+#: ne_50m_populated_places_simple.shp:1226
+msgid "Istanbul"
+msgstr ""
+
+#. Saudi Arabia SAU
+#: ne_50m_populated_places_simple.shp:1227
+msgid "Riyadh"
+msgstr ""
+
+#. South Africa ZAF
+#: ne_50m_populated_places_simple.shp:1228
+msgid "Cape Town"
+msgstr ""
+
+#. Russia RUS
+#: ne_50m_populated_places_simple.shp:1229
+msgid "Moscow"
+msgstr ""
+
+#. Mexico MEX
+#: ne_50m_populated_places_simple.shp:1230
+msgid "Mexico City"
+msgstr ""
+
+#. Nigeria NGA
+#: ne_50m_populated_places_simple.shp:1231
+msgid "Lagos"
+msgstr ""
+
+#. Italy ITA
+#: ne_50m_populated_places_simple.shp:1232
+msgid "Rome"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1233
+msgid "Beijing"
+msgstr ""
+
+#. Kenya KEN
+#: ne_50m_populated_places_simple.shp:1234
+msgid "Nairobi"
+msgstr ""
+
+#. Indonesia IDN
+#: ne_50m_populated_places_simple.shp:1235
+msgid "Jakarta"
+msgstr ""
+
+#. Colombia COL
+#: ne_50m_populated_places_simple.shp:1236
+msgid "Bogota"
+msgstr ""
+
+#. Egypt EGY
+#: ne_50m_populated_places_simple.shp:1237
+msgid "Cairo"
+msgstr ""
+
+#. China CHN
+#: ne_50m_populated_places_simple.shp:1238
+msgid "Shanghai"
+msgstr ""
+
+#. Japan JPN
+#: ne_50m_populated_places_simple.shp:1239
+msgid "Tokyo"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1240
+msgid "Mumbai"
+msgstr ""
+
+#. France FRA
+#: ne_50m_populated_places_simple.shp:1241
+msgid "Paris"
+msgstr ""
+
+#. Chile CHL
+#: ne_50m_populated_places_simple.shp:1242
+msgid "Santiago"
+msgstr ""
+
+#. India IND
+#: ne_50m_populated_places_simple.shp:1243
+msgid "Kolkata"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:1244
+msgid "Rio de Janeiro"
+msgstr ""
+
+#. Brazil BRA
+#: ne_50m_populated_places_simple.shp:1245
+msgid "São Paulo"
+msgstr ""
+
+#. Australia AUS
+#: ne_50m_populated_places_simple.shp:1246
+msgid "Sydney"
+msgstr ""
+
+#. Singapore SGP
+#: ne_50m_populated_places_simple.shp:1247
+msgid "Singapore"
+msgstr ""
+
+#. Hong Kong S.A.R. HKG
+#: ne_50m_populated_places_simple.shp:1248
+msgid "Hong Kong"
+msgstr ""
