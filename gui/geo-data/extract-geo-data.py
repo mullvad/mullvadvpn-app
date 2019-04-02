@@ -2,23 +2,26 @@
 This module forms a geo json of highly populated cities in the world
 """
 
-import os
+from os import path, makedirs
 import json
+from polib import POFile, POEntry
 from subprocess import Popen, PIPE
 
 # import order is important, see https://github.com/Toblerity/Shapely/issues/553
 from shapely.geometry import shape, mapping
 import fiona
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-OUT_DIR = os.path.join(SCRIPT_DIR, "out")
+SCRIPT_DIR = path.dirname(path.realpath(__file__))
+OUT_DIR = path.join(SCRIPT_DIR, "out")
+
+POPULATION_MAX_FILTER = 50000
 
 def get_shape_path(dataset_name):
-  return os.path.join(SCRIPT_DIR, dataset_name, dataset_name + ".shp")
+  return path.join(SCRIPT_DIR, dataset_name, dataset_name + ".shp")
 
 def extract_cites():
   input_path = get_shape_path("ne_50m_populated_places_simple")
-  output_path = os.path.join(OUT_DIR, "cities.json")
+  output_path = path.join(OUT_DIR, "cities.json")
 
   props_to_keep = frozenset(["scalerank", "name", "latitude", "longitude"])
 
@@ -26,7 +29,7 @@ def extract_cites():
   with fiona.collection(input_path, "r") as source:
     for feat in source:
       props = feat["properties"]
-      if props["scalerank"] < 8:
+      if props["pop_max"] >= POPULATION_MAX_FILTER:
         for k in frozenset(props) - props_to_keep:
           del props[k]
         features.append(feat)
@@ -44,7 +47,7 @@ def extract_cites():
 
 def extract_countries():
   input_path = get_shape_path("ne_50m_admin_0_countries")
-  output_path = os.path.join(OUT_DIR, "countries.json")
+  output_path = path.join(OUT_DIR, "countries.json")
 
   props_to_keep = frozenset(["name"])
 
@@ -79,7 +82,7 @@ def extract_countries():
 
 def extract_geometry():
   input_path = get_shape_path("ne_50m_admin_0_countries")
-  output_path = os.path.join(OUT_DIR, "geometry.json")
+  output_path = path.join(OUT_DIR, "geometry.json")
 
   features = []
   with fiona.open(input_path) as source:
@@ -107,7 +110,7 @@ def extract_geometry():
 
 def extract_provinces_and_states_lines():
   input_path = get_shape_path("ne_50m_admin_1_states_provinces_lines")
-  output_path = os.path.join(OUT_DIR, "states-provinces-lines.json")
+  output_path = path.join(OUT_DIR, "states-provinces-lines.json")
 
   features = []
   with fiona.open(input_path) as source:
@@ -132,13 +135,59 @@ def extract_provinces_and_states_lines():
   else:
     print "geo2topo exited with {}. {}".format(p.returncode, errors.decode('utf-8').strip())
 
+def extract_countries_pot():
+  input_path = get_shape_path("ne_50m_admin_0_countries")
+  input_basename = path.basename(input_path)
+  output_path = path.join(OUT_DIR, "countries.pot")
+
+  pot = POFile(encoding='UTF-8')
+
+  with fiona.open(input_path) as source:
+    for feat in source:
+      # lowercase all keys
+      props = dict((k.lower(), v) for k, v in feat["properties"].iteritems())
+
+      entry = POEntry(
+        msgid=props["name"],
+        msgstr=u"",
+        occurrences=[(input_basename, feat["id"])]
+      )
+      pot.append(entry)
+
+  pot.save(output_path)
+  print "Extracted {} countries to {}".format(len(pot), output_path)
+
+def extract_cities_pot():
+  input_path = get_shape_path("ne_50m_populated_places_simple")
+  input_basename = path.basename(input_path)
+  output_path = path.join(OUT_DIR, "cities.pot")
+
+  pot = POFile(encoding='UTF-8')
+
+  with fiona.open(input_path) as source:
+    for feat in source:
+      props = feat["properties"]
+      if props["pop_max"] >= POPULATION_MAX_FILTER:
+        entry = POEntry(
+          msgid=props["name"],
+          msgstr=u"",
+          comment=u"{} {}".format(props["adm0name"], props["adm0_a3"]),
+          occurrences=[(input_basename, feat["id"])]
+        )
+        pot.append(entry)
+
+  pot.save(output_path)
+  print "Extracted {} cities to {}".format(len(pot), output_path)
+
 
 # ensure output path exists
-if not os.path.exists(OUT_DIR):
-  os.makedirs(OUT_DIR)
+if not path.exists(OUT_DIR):
+  makedirs(OUT_DIR)
 
 # extract all data
 extract_cites()
 extract_countries()
 extract_geometry()
 extract_provinces_and_states_lines()
+extract_countries_pot()
+extract_cities_pot()
