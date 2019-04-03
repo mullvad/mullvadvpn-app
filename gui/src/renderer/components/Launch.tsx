@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component, Styles, Text, View } from 'reactxp';
 import { colors } from '../../config.json';
-import { pgettext } from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 import { SettingsBarButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
@@ -48,9 +48,9 @@ export default class Launch extends Component<IProps> {
         <Container>
           <View style={styles.container}>
             <ImageView height={120} width={120} source="logo-icon" style={styles.logo} />
-            <Text style={styles.title}>{pgettext('launch-view', 'MULLVAD VPN')}</Text>
+            <Text style={styles.title}>{messages.pgettext('launch-view', 'MULLVAD VPN')}</Text>
             <Text style={styles.subtitle}>
-              {pgettext('launch-view', 'Connecting to daemon...')}
+              {messages.pgettext('launch-view', 'Connecting to daemon...')}
             </Text>
           </View>
         </Container>

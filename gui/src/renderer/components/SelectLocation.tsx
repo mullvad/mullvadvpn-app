@@ -1,7 +1,7 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Component, View } from 'reactxp';
-import { pgettext } from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 import CustomScrollbars from './CustomScrollbars';
 import { Container, Layout } from './Layout';
 import {
@@ -115,7 +115,7 @@ export default class SelectLocation extends Component<IProps, IState> {
                 <CloseBarItem action={this.props.onClose} />
                 <TitleBarItem>
                   {// TRANSLATORS: Title label in navigation bar
-                  pgettext('select-location-nav', 'Select location')}
+                  messages.pgettext('select-location-nav', 'Select location')}
                 </TitleBarItem>
               </NavigationBar>
               <View style={styles.container}>
@@ -123,10 +123,10 @@ export default class SelectLocation extends Component<IProps, IState> {
                   <View style={styles.content}>
                     <SettingsHeader style={styles.subtitle_header}>
                       <HeaderTitle>
-                        {pgettext('select-location-view', 'Select location')}
+                        {messages.pgettext('select-location-view', 'Select location')}
                       </HeaderTitle>
                       <HeaderSubTitle>
-                        {pgettext(
+                        {messages.pgettext(
                           'select-location-view',
                           'While connected, your real location is masked with a private and secure location in the selected region',
                         )}

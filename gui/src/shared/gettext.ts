@@ -72,9 +72,4 @@ function parseTranslation(locale: string, domain: string): boolean {
   return true;
 }
 
-export const gettext = (msgid: string): string => {
-  return catalogue.gettext(msgid);
-};
-export const pgettext = (msgctx: string, msgid: string): string => {
-  return catalogue.pgettext(msgctx, msgid);
-};
+export const messages = catalogue;

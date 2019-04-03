@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
-import { pgettext } from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import ConnectionInfo from './ConnectionInfo';
 import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
@@ -90,7 +90,7 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
         <AppButton.TransparentButton
           style={styles.switch_location_button}
           onPress={this.props.onSelectLocation}>
-          {pgettext('tunnel-control', 'Switch location')}
+          {messages.pgettext('tunnel-control', 'Switch location')}
         </AppButton.TransparentButton>
       );
     };
@@ -106,19 +106,19 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
 
     const Connect = () => (
       <AppButton.GreenButton onPress={this.props.onConnect}>
-        {pgettext('tunnel-control', 'Secure my connection')}
+        {messages.pgettext('tunnel-control', 'Secure my connection')}
       </AppButton.GreenButton>
     );
 
     const Disconnect = () => (
       <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
-        {pgettext('tunnel-control', 'Disconnect')}
+        {messages.pgettext('tunnel-control', 'Disconnect')}
       </AppButton.RedTransparentButton>
     );
 
     const Cancel = () => (
       <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
-        {pgettext('tunnel-control', 'Cancel')}
+        {messages.pgettext('tunnel-control', 'Cancel')}
       </AppButton.RedTransparentButton>
     );
 

@@ -4,7 +4,7 @@ import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { sprintf } from 'sprintf-js';
-import { pgettext } from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 import Connect from '../components/Connect';
 import AccountExpiry from '../lib/account-expiry';
 import userInterfaceActions from '../redux/userinterface/actions';
@@ -51,7 +51,7 @@ function getRelayName(
             // TRANSLATORS: Available placeholders:
             // TRANSLATORS: %(city)s - a city name
             // TRANSLATORS: %(hostname)s - a hostname
-            pgettext('connect-container', '%(city)s (%(hostname)s)'),
+            messages.pgettext('connect-container', '%(city)s (%(hostname)s)'),
             {
               city: city.name,
               hostname,
