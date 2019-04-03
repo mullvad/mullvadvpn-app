@@ -10,27 +10,43 @@ use nftnl::{
 use std::{
     env,
     ffi::{CStr, CString},
+    io,
     net::{IpAddr, Ipv4Addr},
 };
 use talpid_types::net::{Endpoint, TransportProtocol};
 
-error_chain! {
-    errors {
-        /// Unable to open netlink socket to netfilter
-        NetlinkOpenError { description("Unable to open netlink socket to netfilter") }
-        /// Unable to send netlink command to netfilter
-        NetlinkSendError { description("Unable to send netlink command to netfilter") }
-        /// Error while reading from netlink socket
-        NetlinkRecvError { description("Error while reading from netlink socket") }
-        /// Error while processing an incoming netlink message
-        ProcessNetlinkError { description("Error while processing an incoming netlink message") }
-        /// Failed to verify that our tables are set. Probably means that
-        /// it's the host does not support nftables properly.
-        NetfilterTableNotSetError{ description("Failed to set firewall rules") }
-    }
-    foreign_links {
-        IfaceIndexLookupError(crate::linux::IfaceIndexLookupError);
-    }
+pub type Result<T> = std::result::Result<T, Error>;
+
+/// Errors that can happen when interacting with Linux netfilter.
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Unable to open netlink socket to netfilter.
+    #[error(display = "Unable to open netlink socket to netfilter")]
+    NetlinkOpenError(#[error(cause)] io::Error),
+
+    /// Unable to send netlink command to netfilter.
+    #[error(display = "Unable to send netlink command to netfilter")]
+    NetlinkSendError(#[error(cause)] io::Error),
+
+    /// Error while reading from netlink socket.
+    #[error(display = "Error while reading from netlink socket")]
+    NetlinkRecvError(#[error(cause)] io::Error),
+
+    /// Error while processing an incoming netlink message.
+    #[error(display = "Error while processing an incoming netlink message")]
+    ProcessNetlinkError(#[error(cause)] io::Error),
+
+    /// Failed to verify that our tables are set. Probably means that
+    /// it's the host that does not support nftables properly.
+    #[error(display = "Failed to set firewall rules")]
+    NetfilterTableNotSetError,
+
+    /// Unable to translate network interface name into index.
+    #[error(
+        display = "Unable to translate network interface name \"{}\" into index",
+        _0
+    )]
+    LookupIfaceIndexError(String, #[error(cause)] crate::linux::IfaceIndexLookupError),
 }
 
 lazy_static! {
@@ -98,18 +114,15 @@ impl FirewallT for Firewall {
 
 impl Firewall {
     fn send_and_process(&self, batch: &FinalizedBatch) -> Result<()> {
-        let socket =
-            mnl::Socket::new(mnl::Bus::Netfilter).chain_err(|| ErrorKind::NetlinkOpenError)?;
-        socket
-            .send_all(batch)
-            .chain_err(|| ErrorKind::NetlinkSendError)?;
+        let socket = mnl::Socket::new(mnl::Bus::Netfilter).map_err(Error::NetlinkOpenError)?;
+        socket.send_all(batch).map_err(Error::NetlinkSendError)?;
 
         let portid = socket.portid();
         let mut buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
 
         let seq = 0;
         while let Some(message) = Self::socket_recv(&socket, &mut buffer[..])? {
-            match mnl::cb_run(message, seq, portid).chain_err(|| ErrorKind::ProcessNetlinkError)? {
+            match mnl::cb_run(message, seq, portid).map_err(Error::ProcessNetlinkError)? {
                 mnl::CbResult::Stop => {
                     log::trace!("cb_run STOP");
                     break;
@@ -121,22 +134,21 @@ impl Firewall {
     }
 
     fn verify_tables(&self, expected_tables: &[&CStr]) -> Result<()> {
-        let socket =
-            mnl::Socket::new(mnl::Bus::Netfilter).chain_err(|| ErrorKind::NetlinkOpenError)?;
+        let socket = mnl::Socket::new(mnl::Bus::Netfilter).map_err(Error::NetlinkOpenError)?;
         let portid = socket.portid();
         let seq = 0;
 
         let get_tables_msg = table::get_tables_nlmsg(seq);;
         socket
             .send(&get_tables_msg)
-            .chain_err(|| ErrorKind::NetlinkSendError)?;
+            .map_err(Error::NetlinkSendError)?;
 
         let mut table_set = ::std::collections::HashSet::new();
         let mut msg_buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
 
         while let Some(message) = Self::socket_recv(&socket, &mut msg_buffer)? {
             match mnl::cb_run2(message, seq, portid, table::get_tables_cb, &mut table_set)
-                .chain_err(|| ErrorKind::ProcessNetlinkError)?
+                .map_err(Error::ProcessNetlinkError)?
             {
                 mnl::CbResult::Stop => {
                     log::trace!("cb_run STOP");
@@ -152,14 +164,14 @@ impl Firewall {
                     "Expected '{}' netfilter table to be set, but it is not",
                     expected_table.to_string_lossy()
                 );
-                bail!(ErrorKind::NetfilterTableNotSetError)
+                bail!(Error::NetfilterTableNotSetError)
             }
         }
         Ok(())
     }
 
     fn socket_recv<'a>(socket: &mnl::Socket, buf: &'a mut [u8]) -> Result<Option<&'a [u8]>> {
-        let ret = socket.recv(buf).chain_err(|| ErrorKind::NetlinkRecvError)?;
+        let ret = socket.recv(buf).map_err(Error::NetlinkRecvError)?;
         log::trace!("Read {} bytes from netlink", ret);
         if ret > 0 {
             Ok(Some(&buf[..ret]))
@@ -446,7 +458,8 @@ fn allow_interface_rule<'a>(
 }
 
 fn check_iface(rule: &mut Rule, direction: Direction, iface: &str) -> Result<()> {
-    let iface_index = crate::linux::iface_index(iface)?;
+    let iface_index = crate::linux::iface_index(iface)
+        .map_err(|e| Error::LookupIfaceIndexError(iface.to_owned(), e))?;
     rule.add_expr(&match direction {
         Direction::In => nft_expr!(meta iif),
         Direction::Out => nft_expr!(meta oif),
