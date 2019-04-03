@@ -44,7 +44,7 @@ netlink-socket = { git = "https://github.com/mullvad/netlink", branch = "ignore-
 notify = "4.0"
 resolv-conf = "0.6.1"
 rtnetlink = { git = "https://github.com/mullvad/netlink", branch = "ignore-hw-address" }
-nftnl = { git = "https://github.com/mullvad/nftnl-rs", rev = "f0b1492fd2fd1f737dbffd047c9c60c300e6f7d6", features = ["nftnl-1-1-0"] }
+nftnl = { git = "https://github.com/mullvad/nftnl-rs", rev = "29651f4370fdf22cc2e3abf5097a51f8ff17e3a3", features = ["nftnl-1-1-0"] }
 mnl = { git = "https://github.com/mullvad/mnl-rs", rev = "f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6", features = ["mnl-1-0-4"] }
 which = "2.0"
 err-derive = "0.1.5"
