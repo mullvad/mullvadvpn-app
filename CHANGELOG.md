@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - When IPv6 is enabled, get both exit IP versions from am.i.mullvad.net and show in UI.
+- Add GUI translations for the relay list and map.
 
 ### Fixed
 - Reset the tray icon padlock to the unsecured state, when losing connectivity with the daemon.

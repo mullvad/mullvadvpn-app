@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { sprintf } from 'sprintf-js';
-import { pgettext } from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 
 export default class AccountExpiry {
   private expiry: moment.Moment;
@@ -28,7 +28,7 @@ export default class AccountExpiry {
       // TRANSLATORS: The remaining time left on the account displayed across the app.
       // TRANSLATORS: Available placeholders:
       // TRANSLATORS: %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
-      pgettext('account-expiry', '%(duration)s left'),
+      messages.pgettext('account-expiry', '%(duration)s left'),
       { duration },
     );
   }

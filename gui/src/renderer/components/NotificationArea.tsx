@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Component, Types } from 'reactxp';
 import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
-import { pgettext } from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 import {
   NotificationActions,
   NotificationBanner,
@@ -45,28 +45,31 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
     case 'auth_failed':
       return parseAuthFailure(blockReason.details).message;
     case 'ipv6_unavailable':
-      return pgettext(
+      return messages.pgettext(
         'in-app-notifications',
         'Could not configure IPv6, please enable it on your system or disable it in the app',
       );
     case 'set_firewall_policy_error':
-      return pgettext(
+      return messages.pgettext(
         'in-app-notifications',
         'Failed to apply firewall rules. The device might currently be unsecured',
       );
     case 'set_dns_error':
-      return pgettext('in-app-notifications', 'Failed to set system DNS server');
+      return messages.pgettext('in-app-notifications', 'Failed to set system DNS server');
     case 'start_tunnel_error':
-      return pgettext('in-app-notifications', 'Failed to start tunnel connection');
+      return messages.pgettext('in-app-notifications', 'Failed to start tunnel connection');
     case 'no_matching_relay':
-      return pgettext('in-app-notifications', 'No relay server matches the current settings');
+      return messages.pgettext(
+        'in-app-notifications',
+        'No relay server matches the current settings',
+      );
     case 'is_offline':
-      return pgettext(
+      return messages.pgettext(
         'in-app-notifications',
         'This device is offline, no tunnels can be established',
       );
     case 'tap_adapter_problem':
-      return pgettext(
+      return messages.pgettext(
         'in-app-notifications',
         "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app",
       );
@@ -185,7 +188,7 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'error'} />
             <NotificationContent>
               <NotificationTitle>
-                {pgettext('in-app-notifications', 'FAILURE - UNSECURED')}
+                {messages.pgettext('in-app-notifications', 'FAILURE - UNSECURED')}
               </NotificationTitle>
               <NotificationSubtitle>{this.state.reason}</NotificationSubtitle>
             </NotificationContent>
@@ -197,7 +200,7 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'error'} />
             <NotificationContent>
               <NotificationTitle>
-                {pgettext('in-app-notifications', 'BLOCKING INTERNET')}
+                {messages.pgettext('in-app-notifications', 'BLOCKING INTERNET')}
               </NotificationTitle>
               <NotificationSubtitle>{this.state.reason}</NotificationSubtitle>
             </NotificationContent>
@@ -209,10 +212,10 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'error'} />
             <NotificationContent>
               <NotificationTitle>
-                {pgettext('in-app-notifications', 'INCONSISTENT VERSION')}
+                {messages.pgettext('in-app-notifications', 'INCONSISTENT VERSION')}
               </NotificationTitle>
               <NotificationSubtitle>
-                {pgettext(
+                {messages.pgettext(
                   'in-app-notifications',
                   'Inconsistent internal version information, please restart the app',
                 )}
@@ -226,14 +229,14 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'error'} />
             <NotificationContent>
               <NotificationTitle>
-                {pgettext('in-app-notifications', 'UNSUPPORTED VERSION')}
+                {messages.pgettext('in-app-notifications', 'UNSUPPORTED VERSION')}
               </NotificationTitle>
               <NotificationSubtitle>
                 {sprintf(
                   // TRANSLATORS: The in-app banner displayed to the user when the running app becomes unsupported.
                   // TRANSLATORS: Available placeholders:
                   // TRANSLATORS: %(version)s - the newest available version of the app
-                  pgettext(
+                  messages.pgettext(
                     'in-app-notifications',
                     'You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security',
                   ),
@@ -252,14 +255,14 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'warning'} />
             <NotificationContent>
               <NotificationTitle>
-                {pgettext('in-app-notifications', 'UPDATE AVAILABLE')}
+                {messages.pgettext('in-app-notifications', 'UPDATE AVAILABLE')}
               </NotificationTitle>
               <NotificationSubtitle>
                 {sprintf(
                   // TRANSLATORS: The in-app banner displayed to the user when the app update is available.
                   // TRANSLATORS: Available placeholders:
                   // TRANSLATORS: %(version)s - the newest available version of the app
-                  pgettext(
+                  messages.pgettext(
                     'in-app-notifications',
                     'Install Mullvad VPN (%(version)s) to stay up to date',
                   ),
@@ -278,7 +281,7 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'warning'} />
             <NotificationContent>
               <NotificationTitle>
-                {pgettext('in-app-notifications', 'ACCOUNT CREDIT EXPIRES SOON')}
+                {messages.pgettext('in-app-notifications', 'ACCOUNT CREDIT EXPIRES SOON')}
               </NotificationTitle>
               <NotificationSubtitle>{this.state.timeLeft}</NotificationSubtitle>
             </NotificationContent>

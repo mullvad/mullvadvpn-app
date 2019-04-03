@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
-import { pgettext } from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 import AccountExpiry from '../lib/account-expiry';
 import styles from './AccountStyles';
 import * as AppButton from './AppButton';
@@ -30,31 +30,31 @@ export default class Account extends Component<IProps> {
             <NavigationBar>
               <BackBarItem action={this.props.onClose}>
                 {// TRANSLATORS: Back button in navigation bar
-                pgettext('account-nav', 'Settings')}
+                messages.pgettext('account-nav', 'Settings')}
               </BackBarItem>
             </NavigationBar>
 
             <View style={styles.account__container}>
               <SettingsHeader>
-                <HeaderTitle>{pgettext('account-view', 'Account')}</HeaderTitle>
+                <HeaderTitle>{messages.pgettext('account-view', 'Account')}</HeaderTitle>
               </SettingsHeader>
 
               <View style={styles.account__content}>
                 <View style={styles.account__main}>
                   <View style={styles.account__row}>
                     <Text style={styles.account__row_label}>
-                      {pgettext('account-view', 'Account ID')}
+                      {messages.pgettext('account-view', 'Account ID')}
                     </Text>
                     <ClipboardLabel
                       style={styles.account__row_value}
                       value={this.props.accountToken || ''}
-                      message={pgettext('account-view', 'COPIED TO CLIPBOARD!')}
+                      message={messages.pgettext('account-view', 'COPIED TO CLIPBOARD!')}
                     />
                   </View>
 
                   <View style={styles.account__row}>
                     <Text style={styles.account__row_label}>
-                      {pgettext('account-view', 'Paid until')}
+                      {messages.pgettext('account-view', 'Paid until')}
                     </Text>
                     <FormattedAccountExpiry
                       expiry={this.props.accountExpiry}
@@ -68,12 +68,12 @@ export default class Account extends Component<IProps> {
                       disabled={this.props.isOffline}
                       onPress={this.props.onBuyMore}>
                       <AppButton.Label>
-                        {pgettext('account-view', 'Buy more credit')}
+                        {messages.pgettext('account-view', 'Buy more credit')}
                       </AppButton.Label>
                       <AppButton.Icon source="icon-extLink" height={16} width={16} />
                     </AppButton.GreenButton>
                     <AppButton.RedButton onPress={this.props.onLogout}>
-                      {pgettext('account-view', 'Log out')}
+                      {messages.pgettext('account-view', 'Log out')}
                     </AppButton.RedButton>
                   </View>
                 </View>
@@ -92,7 +92,9 @@ function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
 
     if (expiry.hasExpired()) {
       return (
-        <Text style={styles.account__out_of_time}>{pgettext('account-view', 'OUT OF TIME')}</Text>
+        <Text style={styles.account__out_of_time}>
+          {messages.pgettext('account-view', 'OUT OF TIME')}
+        </Text>
       );
     } else {
       return <Text style={styles.account__row_value}>{expiry.formattedDate()}</Text>;
@@ -100,7 +102,7 @@ function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
   } else {
     return (
       <Text style={styles.account__row_value}>
-        {pgettext('account-view', 'Currently unavailable')}
+        {messages.pgettext('account-view', 'Currently unavailable')}
       </Text>
     );
   }

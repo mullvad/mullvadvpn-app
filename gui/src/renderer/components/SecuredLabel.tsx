@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types } from 'reactxp';
-import { gettext } from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 
 export enum SecuredDisplayStyle {
   secured,
@@ -34,16 +34,16 @@ export default class SecuredLabel extends Component<IProps> {
   private getText() {
     switch (this.props.displayStyle) {
       case SecuredDisplayStyle.secured:
-        return gettext('SECURE CONNECTION');
+        return messages.gettext('SECURE CONNECTION');
 
       case SecuredDisplayStyle.blocked:
-        return gettext('BLOCKED CONNECTION');
+        return messages.gettext('BLOCKED CONNECTION');
 
       case SecuredDisplayStyle.securing:
-        return gettext('CREATING SECURE CONNECTION');
+        return messages.gettext('CREATING SECURE CONNECTION');
 
       case SecuredDisplayStyle.unsecured:
-        return gettext('UNSECURED CONNECTION');
+        return messages.gettext('UNSECURED CONNECTION');
     }
   }
 
