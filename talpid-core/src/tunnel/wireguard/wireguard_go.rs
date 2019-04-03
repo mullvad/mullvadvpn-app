@@ -1,4 +1,4 @@
-use super::{Config, ErrorKind, Result, ResultExt, Tunnel};
+use super::{Config, Error, Result, Tunnel};
 use crate::network_interface::{NetworkInterface, TunnelDevice};
 use std::{ffi::CString, fs, os::unix::io::AsRawFd, path::Path};
 
@@ -14,25 +14,24 @@ pub struct WgGoTunnel {
 
 impl WgGoTunnel {
     pub fn start_tunnel(config: &Config, log_path: Option<&Path>) -> Result<Self> {
-        let mut tunnel_device =
-            TunnelDevice::new().chain_err(|| ErrorKind::SetupTunnelDeviceError)?;
+        let mut tunnel_device = TunnelDevice::new().map_err(Error::SetupTunnelDeviceError)?;
 
         for ip in config.tunnel.addresses.iter() {
             tunnel_device
                 .set_ip(*ip)
-                .chain_err(|| ErrorKind::SetupTunnelDeviceError)?;
+                .map_err(Error::SetupTunnelDeviceError)?;
         }
 
         tunnel_device
             .set_up(true)
-            .chain_err(|| ErrorKind::SetupTunnelDeviceError)?;
+            .map_err(Error::SetupTunnelDeviceError)?;
 
         let interface_name: String = tunnel_device.get_name().to_string();
         let log_file = prepare_log_file(log_path)?;
 
         let wg_config_str = config.to_userspace_format();
         let iface_name =
-            CString::new(interface_name.as_bytes()).chain_err(|| ErrorKind::InterfaceNameError)?;
+            CString::new(interface_name.as_bytes()).map_err(Error::InterfaceNameError)?;
 
         let handle = unsafe {
             wgTurnOnWithFd(
@@ -46,7 +45,7 @@ impl WgGoTunnel {
         };
 
         if handle < 0 {
-            bail!(ErrorKind::StartWireguardError(handle));
+            return Err(Error::StartWireguardError { status: handle });
         }
 
         Ok(WgGoTunnel {
@@ -61,7 +60,7 @@ impl WgGoTunnel {
         if let Some(handle) = self.handle.take() {
             let status = unsafe { wgTurnOff(handle) };
             if status < 0 {
-                bail!(ErrorKind::StopWireguardError(status))
+                return Err(Error::StopWireguardError { status });
             }
         }
         return Ok(());
@@ -77,8 +76,7 @@ impl Drop for WgGoTunnel {
 }
 
 fn prepare_log_file(log_path: Option<&Path>) -> Result<fs::File> {
-    fs::File::create(log_path.unwrap_or("/dev/null".as_ref()))
-        .chain_err(|| ErrorKind::PrepareLogFileError)
+    fs::File::create(log_path.unwrap_or("/dev/null".as_ref())).map_err(Error::PrepareLogFileError)
 }
 
 impl Tunnel for WgGoTunnel {

@@ -351,8 +351,8 @@ impl TunnelState for ConnectingState {
                         }
                         Err(error) => {
                             log::error!("Failed to start tunnel: {}", error);
-                            let block_reason = match *error.kind() {
-                                tunnel::ErrorKind::EnableIpv6Error => BlockReason::Ipv6Unavailable,
+                            let block_reason = match error {
+                                tunnel::Error::EnableIpv6Error => BlockReason::Ipv6Unavailable,
                                 _ => BlockReason::StartTunnelError,
                             };
                             BlockedState::enter(shared_values, block_reason)

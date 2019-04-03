@@ -28,52 +28,70 @@ use talpid_types::net::openvpn;
 #[cfg(target_os = "linux")]
 use which;
 
-error_chain! {
-    errors {
-        /// Unable to start, wait for or kill the OpenVPN process.
-        ChildProcessError(msg: &'static str) {
-            description("Unable to start, wait for or kill the OpenVPN process")
-            display("OpenVPN process error: {}", msg)
-        }
-        /// Unable to start or manage the IPC server listening for events from OpenVPN.
-        EventDispatcherError {
-            description("Unable to start or manage the event dispatcher IPC server")
-        }
-        #[cfg(windows)]
-        /// No TAP adapter was detected
-        MissingTapAdapter {
-            description("No TAP adapter was detected")
-        }
-        #[cfg(windows)]
-        /// TAP adapter seems to be disabled
-        DisabledTapAdapter {
-            description("The TAP adapter appears to be disabled")
-        }
-        /// The IP routing program was not found.
-        #[cfg(target_os = "linux")]
-        IpRouteNotFound {
-            description("The IP routing program `ip` was not found.")
-        }
-        /// The OpenVPN binary was not found.
-        OpenVpnNotFound(path: PathBuf) {
-            description("No OpenVPN binary found")
-            display("No OpenVPN binary found at {}", path.display())
-        }
-        /// The OpenVPN plugin was not found.
-        PluginNotFound(path: PathBuf) {
-            description("No OpenVPN plugin found")
-            display("No OpenVPN plugin found at {}", path.display())
-        }
-        /// There was an error when writing authentication credentials to temporary file.
-        CredentialsWriteError {
-            description("Error while writing credentials to temporary file")
-        }
-        /// Failures related to the proxy service.
-        ProxyError(msg: String) {
-            description("Unable to start, wait for or kill the proxy service")
-            display("Proxy error: {}", msg)
-        }
-    }
+
+/// Results from fallible operations on the OpenVPN tunnel.
+pub type Result<T> = std::result::Result<T, Error>;
+
+/// Errors that can happen when using the OpenVPN tunnel.
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Unable to start, wait for or kill the OpenVPN process.
+    #[error(display = "Error in OpenVPN process management: {}", _0)]
+    ChildProcessError(&'static str, #[error(cause)] io::Error),
+
+    /// Unable to start or manage the IPC server listening for events from OpenVPN.
+    #[error(display = "Unable to start or manage the event dispatcher IPC server")]
+    EventDispatcherError(#[error(cause)] talpid_ipc::Error),
+
+    /// The OpenVPN event dispatcher exited unexpectedly
+    #[error(display = "The OpenVPN event dispatcher exited unexpectedly")]
+    EventDispatcherExited,
+
+    /// No TAP adapter was detected
+    #[cfg(windows)]
+    #[error(display = "No TAP adapter was detected")]
+    MissingTapAdapter,
+
+    /// TAP adapter seems to be disabled
+    #[cfg(windows)]
+    #[error(display = "The TAP adapter appears to be disabled")]
+    DisabledTapAdapter,
+
+    /// OpenVPN process died unexpectedly
+    #[error(display = "OpenVPN process died unexpectedly")]
+    ChildProcessDied,
+
+    /// The IP routing program was not found.
+    #[cfg(target_os = "linux")]
+    #[error(display = "The IP routing program `ip` was not found")]
+    IpRouteNotFound(#[error(cause)] failure::Compat<which::Error>),
+
+    /// The OpenVPN binary was not found.
+    #[error(display = "No OpenVPN binary found at {}", _0)]
+    OpenVpnNotFound(String),
+
+    /// The OpenVPN plugin was not found.
+    #[error(display = "No OpenVPN plugin found at {}", _0)]
+    PluginNotFound(String),
+
+    /// Error while writing credentials to temporary file.
+    #[error(display = "Error while writing credentials to temporary file")]
+    CredentialsWriteError(#[error(cause)] io::Error),
+
+    /// Failures related to the proxy service.
+    #[error(display = "Unable to start the proxy service")]
+    StartProxyError(#[error(cause)] io::Error),
+
+    /// Error while monitoring proxy service
+    #[error(display = "Error while monitoring proxy service")]
+    MonitorProxyError(#[error(cause)] io::Error),
+
+    /// The proxy exited unexpectedly
+    #[error(
+        display = "The proxy exited unexpectedly providing these details: {}",
+        _0
+    )]
+    ProxyExited(String),
 }
 
 
@@ -124,10 +142,10 @@ impl OpenVpnMonitor<OpenVpnCommand> {
     {
         let user_pass_file =
             Self::create_credentials_file(&params.config.username, &params.config.password)
-                .chain_err(|| ErrorKind::CredentialsWriteError)?;
+                .map_err(Error::CredentialsWriteError)?;
 
         let proxy_auth_file = Self::create_proxy_auth_file(&params.options.proxy)
-            .chain_err(|| ErrorKind::CredentialsWriteError)?;
+            .map_err(Error::CredentialsWriteError)?;
 
         let user_pass_file_path = user_pass_file.to_path_buf();
 
@@ -205,13 +223,13 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
     {
         let event_dispatcher =
-            event_server::start(on_event).chain_err(|| ErrorKind::EventDispatcherError)?;
+            event_server::start(on_event).map_err(Error::EventDispatcherError)?;
 
         let child = cmd
             .plugin(plugin_path, vec![event_dispatcher.path().to_owned()])
             .log(log_path.as_ref().map(|p| p.as_path()))
             .start()
-            .chain_err(|| ErrorKind::ChildProcessError("Failed to start"))?;
+            .map_err(|e| Error::ChildProcessError("Failed to start", e))?;
 
         Ok(OpenVpnMonitor {
             child: Arc::new(child),
@@ -267,21 +285,13 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
                     // The proxy should never exit before openvpn.
                     match proxy_result {
                         Ok(proxy::WaitResult::ProperShutdown) => {
-                            return Err(ErrorKind::ProxyError("The proxy exited unexpectedly without providing additional details".into()).into());
+                            return Err(Error::ProxyExited("No details".to_owned()));
                         }
                         Ok(proxy::WaitResult::UnexpectedExit(details)) => {
-                            return Err(ErrorKind::ProxyError(format!(
-                                "The proxy exited unexpectedly providing these details: {}",
-                                details
-                            ))
-                            .into());
+                            return Err(Error::ProxyExited(details));
                         }
                         Err(err) => {
-                            return Err(err).chain_err(|| {
-                                ErrorKind::ProxyError(
-                                    "Failed to wait for/monitor proxy service".into(),
-                                )
-                            });
+                            return Err(err).map_err(Error::MonitorProxyError);
                         }
                     }
                 }
@@ -309,11 +319,11 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             }
             WaitResult::Child(Err(e), _) => {
                 log::error!("OpenVPN process wait error: {}", e);
-                Err(e).chain_err(|| ErrorKind::ChildProcessError("Error when waiting"))
+                Err(Error::ChildProcessError("Error when waiting", e))
             }
             WaitResult::EventDispatcher => {
                 log::error!("OpenVPN Event server exited unexpectedly");
-                Err(ErrorKind::EventDispatcherError.into())
+                Err(Error::EventDispatcherExited)
             }
         }
     }
@@ -356,16 +366,16 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             if let Some(log_path) = self.log_path.take() {
                 if let Ok(log) = fs::read_to_string(log_path) {
                     if log.contains("There are no TAP-Windows adapters on this system") {
-                        return ErrorKind::MissingTapAdapter.into();
+                        return Error::MissingTapAdapter;
                     }
                     if log.contains("CreateFile failed on TAP device") {
-                        return ErrorKind::DisabledTapAdapter.into();
+                        return Error::DisabledTapAdapter;
                     }
                 }
             }
         }
 
-        ErrorKind::ChildProcessError("Died unexpectedly").into()
+        Error::ChildProcessDied
     }
 
     fn create_proxy_auth_file(
@@ -388,8 +398,8 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         proxy_resources: &ProxyResourceData,
     ) -> Result<Option<Box<dyn ProxyMonitor>>> {
         if let Some(ref settings) = proxy_settings {
-            let proxy_monitor = proxy::start_proxy(settings, proxy_resources)
-                .chain_err(|| ErrorKind::ProxyError("Failed to start proxy service".into()))?;
+            let proxy_monitor =
+                proxy::start_proxy(settings, proxy_resources).map_err(Error::StartProxyError)?;
             return Ok(Some(proxy_monitor));
         }
         Ok(None)
@@ -423,7 +433,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             log::trace!("Using OpenVPN plugin at {}", path.display());
             Ok(path)
         } else {
-            bail!(ErrorKind::PluginNotFound(path));
+            Err(Error::PluginNotFound(path.display().to_string()))
         }
     }
 
@@ -443,7 +453,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         cmd.iproute_bin(
             which::which("ip")
                 .compat()
-                .chain_err(|| ErrorKind::IpRouteNotFound)?,
+                .map_err(Error::IpRouteNotFound)?,
         );
         cmd.remote(params.config.get_tunnel_endpoint().endpoint)
             .user_pass(user_pass_file)
@@ -467,7 +477,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             log::trace!("Using OpenVPN at {}", path.display());
             Ok(path)
         } else {
-            bail!(ErrorKind::OpenVpnNotFound(path));
+            Err(Error::OpenVpnNotFound(path.display().to_string()))
         }
     }
 
@@ -746,8 +756,8 @@ mod tests {
         let error =
             OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None, None)
                 .unwrap_err();
-        match error.kind() {
-            ErrorKind::ChildProcessError(_) => (),
+        match error {
+            Error::ChildProcessError(..) => (),
             _ => panic!("Wrong error"),
         }
     }

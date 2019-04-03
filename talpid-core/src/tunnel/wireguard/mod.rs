@@ -1,8 +1,9 @@
 #![allow(missing_docs)]
+
 use self::config::Config;
 use super::{TunnelEvent, TunnelMetadata};
 use crate::routing;
-use std::{path::Path, sync::mpsc};
+use std::{io, path::Path, sync::mpsc};
 
 pub mod config;
 mod ping_monitor;
@@ -13,37 +14,38 @@ pub use self::wireguard_go::WgGoTunnel;
 // amount of seconds to run `ping` until it returns.
 const PING_TIMEOUT: u16 = 7;
 
-error_chain! {
-    errors {
-        /// Failed to setup a tunnel device
-        SetupTunnelDeviceError {
-            description("Failed to create tunnel device")
-        }
-        /// Failed to setup wireguard tunnel
-        StartWireguardError(status: i32) {
-            display("Failed to start wireguard tunnel - {}", status)
-        }
-        /// Failed to tear down wireguard tunnel
-        StopWireguardError(status: i32) {
-            display("Failed to stop wireguard tunnel - {}", status)
-        }
-        /// Failed to set up routing
-        SetupRoutingError {
-            display("Failed to setup routing")
-        }
-        /// Failed to move or craete a log file
-        PrepareLogFileError {
-            display("Failed to setup a logging file")
-        }
-        /// Tunnel interface name contained null bytes
-        InterfaceNameError {
-            display("Tunnel interface name contains null bytes")
-        }
-        /// Pinging timed out
-        PingTimeoutError {
-            display("Ping timed out")
-        }
-    }
+pub type Result<T> = std::result::Result<T, Error>;
+
+/// Errors that can happen in the Wireguard tunnel monitor.
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Failed to setup a tunnel device.
+    #[error(display = "Failed to create tunnel device")]
+    SetupTunnelDeviceError(#[error(cause)] crate::network_interface::Error),
+
+    /// Failed to setup wireguard tunnel.
+    #[error(display = "Failed to start wireguard tunnel - {}", status)]
+    StartWireguardError { status: i32 },
+
+    /// Failed to tear down wireguard tunnel.
+    #[error(display = "Failed to stop wireguard tunnel - {}", status)]
+    StopWireguardError { status: i32 },
+
+    /// Failed to set up routing.
+    #[error(display = "Failed to setup routing")]
+    SetupRoutingError(#[error(cause)] crate::routing::Error),
+
+    /// Failed to move or craete a log file.
+    #[error(display = "Failed to setup a logging file")]
+    PrepareLogFileError(#[error(cause)] io::Error),
+
+    /// Invalid tunnel interface name.
+    #[error(display = "Invalid tunnel interface name")]
+    InterfaceNameError(#[error(cause)] std::ffi::NulError),
+
+    /// Pinging timed out.
+    #[error(display = "Ping timed out")]
+    PingTimeoutError,
 }
 
 /// Spawns and monitors a wireguard tunnel
@@ -65,7 +67,7 @@ impl WireguardMonitor {
         on_event: F,
     ) -> Result<WireguardMonitor> {
         let tunnel = Box::new(WgGoTunnel::start_tunnel(&config, log_path)?);
-        let router = routing::RouteManager::new().chain_err(|| ErrorKind::SetupRoutingError)?;
+        let router = routing::RouteManager::new().map_err(Error::SetupRoutingError)?;
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
         let mut monitor = WireguardMonitor {
@@ -111,7 +113,7 @@ impl WireguardMonitor {
 
     pub fn wait(mut self) -> Result<()> {
         let wait_result = match self.close_msg_receiver.recv() {
-            Ok(CloseMsg::PingErr) => Err(ErrorKind::PingTimeoutError.into()),
+            Ok(CloseMsg::PingErr) => Err(Error::PingTimeoutError),
             Ok(CloseMsg::Stop) => Ok(()),
             Err(_) => Ok(()),
         };
@@ -148,7 +150,7 @@ impl WireguardMonitor {
         let default_node = self
             .router
             .get_default_route_node()
-            .chain_err(|| ErrorKind::SetupRoutingError)?;
+            .map_err(Error::SetupRoutingError)?;
 
         // route endpoints with specific routes
         for peer in config.peers.iter() {
@@ -163,7 +165,7 @@ impl WireguardMonitor {
 
         self.router
             .add_routes(required_routes)
-            .chain_err(|| ErrorKind::SetupRoutingError)
+            .map_err(Error::SetupRoutingError)
     }
 
     fn tunnel_metadata(&self, config: &Config) -> TunnelMetadata {
