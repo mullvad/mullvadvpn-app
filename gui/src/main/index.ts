@@ -17,7 +17,7 @@ import {
   RelaySettingsUpdate,
   TunnelStateTransition,
 } from '../shared/daemon-rpc-types';
-import { loadTranslations } from '../shared/gettext';
+import { loadTranslations, messages } from '../shared/gettext';
 import { IpcMainEventChannel } from '../shared/ipc-event-channel';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
@@ -282,7 +282,7 @@ class ApplicationMain {
 
     log.info(`Detected locale: ${this.locale}`);
 
-    loadTranslations(this.locale);
+    loadTranslations(this.locale, messages);
 
     this.daemonRpc.addConnectionObserver(
       new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),

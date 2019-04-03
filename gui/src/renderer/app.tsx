@@ -22,7 +22,7 @@ import versionActions from './redux/version/actions';
 
 import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main';
 import { IWindowShapeParameters } from '../main/window-controller';
-import { loadTranslations } from '../shared/gettext';
+import { loadTranslations, messages, cities, countries } from '../shared/gettext';
 import { IGuiSettingsState } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
 import AccountDataCache, { AccountFetchRetryAction } from './lib/account-data-cache';
@@ -176,7 +176,9 @@ export default class AppRenderer {
     webFrame.setVisualZoomLevelLimits(1, 1);
 
     // Load translations
-    loadTranslations(this.locale);
+    for (const catalogue of [messages, countries, cities]) {
+      loadTranslations(this.locale, catalogue);
+    }
   }
 
   public renderView() {

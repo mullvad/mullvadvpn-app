@@ -5,23 +5,9 @@ import Gettext from 'node-gettext';
 import path from 'path';
 
 const SOURCE_LANGUAGE = 'en';
-let SELECTED_LANGUAGE = SOURCE_LANGUAGE;
 const LOCALES_DIR = path.resolve(__dirname, '../../locales');
 
-// `{debug: false}` option prevents Gettext from printing the warnings to console in development
-// the errors are handled separately in the "error" handler below
-const catalogue = new Gettext({ debug: false });
-catalogue.setTextDomain('messages');
-catalogue.on('error', (error) => {
-  // Filter out the "no translation was found" errors for the source language
-  if (SELECTED_LANGUAGE === SOURCE_LANGUAGE && error.indexOf('No translation was found') !== -1) {
-    return;
-  }
-
-  log.warn(`Gettext error: ${error}`);
-});
-
-export function loadTranslations(currentLocale: string) {
+export function loadTranslations(currentLocale: string, catalogue: Gettext) {
   // First look for exact match of the current locale
   const preferredLocales = [];
 
@@ -36,17 +22,15 @@ export function loadTranslations(currentLocale: string) {
   }
 
   for (const locale of preferredLocales) {
-    if (parseTranslation(locale, 'messages')) {
+    if (parseTranslation(locale, 'messages', catalogue)) {
       log.info(`Loaded translations for ${locale}`);
       catalogue.setLocale(locale);
-
-      SELECTED_LANGUAGE = locale;
       return;
     }
   }
 }
 
-function parseTranslation(locale: string, domain: string): boolean {
+function parseTranslation(locale: string, domain: string, catalogue: Gettext): boolean {
   const filename = path.join(LOCALES_DIR, locale, `${domain}.po`);
   let buffer: Buffer;
 
@@ -72,4 +56,30 @@ function parseTranslation(locale: string, domain: string): boolean {
   return true;
 }
 
-export const messages = catalogue;
+function setErrorHandler(catalogue: Gettext) {
+  catalogue.on('error', (error) => {
+    // NOTE: locale is not publicly exposed
+    const catalogueLocale = (catalogue as any)['locale'];
+
+    // Filter out the "no translation was found" errors for the source language
+    if (catalogueLocale === SOURCE_LANGUAGE && error.indexOf('No translation was found') !== -1) {
+      return;
+    }
+
+    log.warn(`Gettext error: ${error}`);
+  });
+}
+
+// `{debug: false}` option prevents Gettext from printing the warnings to console in development
+// the errors are handled separately in the "error" handler below
+export const messages = new Gettext({ debug: false });
+messages.setTextDomain('messages');
+setErrorHandler(messages);
+
+export const countries = new Gettext({ debug: false });
+countries.setTextDomain('countries');
+setErrorHandler(countries);
+
+export const cities = new Gettext({ debug: false });
+cities.setTextDomain('cities');
+setErrorHandler(cities);
