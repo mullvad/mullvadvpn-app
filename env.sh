@@ -4,6 +4,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ -n "$1" ]; then
     PLATFORM="$1"
+else
+    PLATFORM=""
 fi
 
 if [ -z "$PLATFORM" ]; then
