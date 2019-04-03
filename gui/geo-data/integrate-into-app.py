@@ -3,12 +3,15 @@ A helper script to integrate the generated geo data into the app.
 """
 
 import os
+from os import path
+from distutils import dir_util
 import shutil
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-SOURCE_DIR = os.path.join(SCRIPT_DIR, "out")
-GEO_ASSETS_DEST_DIR = os.path.realpath(os.path.join(SCRIPT_DIR, "../assets/geo"))
-TRANSLATIONS_DEST_DIR = os.path.realpath(os.path.join(SCRIPT_DIR, "../locales"))
+SCRIPT_DIR = path.dirname(path.realpath(__file__))
+SOURCE_DIR = path.join(SCRIPT_DIR, "out")
+GEO_ASSETS_DEST_DIR = path.realpath(path.join(SCRIPT_DIR, "../assets/geo"))
+TRANSLATIONS_SOURCE_DIR = path.join(SOURCE_DIR, "locales")
+TRANSLATIONS_DEST_DIR = path.realpath(path.join(SCRIPT_DIR, "../locales"))
 
 GEO_ASSETS_TO_COPY = [
   "cities.rbush.json",
@@ -19,28 +22,19 @@ GEO_ASSETS_TO_COPY = [
   "states-provinces-lines.rbush.json",
 ]
 
-TRANSLATIONS_TO_COPY = [
-  "countries.pot",
-  "cities.pot",
-]
-
-if not os.path.exists(GEO_ASSETS_DEST_DIR):
+if not path.exists(GEO_ASSETS_DEST_DIR):
   os.makedirs(GEO_ASSETS_DEST_DIR)
 
 for f in GEO_ASSETS_TO_COPY:
-  src = os.path.join(SOURCE_DIR, f)
-  dst = os.path.join(GEO_ASSETS_DEST_DIR, f)
-  prefix_len = len(os.path.commonprefix((src, dst)))
+  src = path.join(SOURCE_DIR, f)
+  dst = path.join(GEO_ASSETS_DEST_DIR, f)
+  prefix_len = len(path.commonprefix((src, dst)))
 
   print "Copying {} to {}".format(src[prefix_len:], dst[prefix_len:])
 
   shutil.copyfile(src, dst)
 
-for f in TRANSLATIONS_TO_COPY:
-  src = os.path.join(SOURCE_DIR, f)
-  dst = os.path.join(TRANSLATIONS_DEST_DIR, f)
-  prefix_len = len(os.path.commonprefix((src, dst)))
 
-  print "Copying {} to {}".format(src[prefix_len:], dst[prefix_len:])
+print "Copying subtree {} -> {}".format(TRANSLATIONS_SOURCE_DIR, TRANSLATIONS_DEST_DIR)
 
-  shutil.copyfile(src, dst)
+dir_util.copy_tree(TRANSLATIONS_SOURCE_DIR, TRANSLATIONS_DEST_DIR)
