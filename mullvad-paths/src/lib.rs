@@ -19,12 +19,14 @@ pub enum Error {
     NoProgramDataDir,
 }
 
-#[cfg(unix)]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 const PRODUCT_NAME: &str = "mullvad-vpn";
 
 #[cfg(windows)]
 const PRODUCT_NAME: &str = "Mullvad VPN";
 
+#[cfg(target_os = "android")]
+const APP_PATH: &str = "/data/data/net.mullvad.mullvadvpn";
 
 #[cfg(windows)]
 fn get_allusersprofile_dir() -> Result<PathBuf> {

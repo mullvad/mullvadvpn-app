@@ -21,7 +21,7 @@ mod ffi;
 #[cfg(windows)]
 mod winnet;
 
-#[cfg(unix)]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 /// Working with IP interface devices
 pub mod network_interface;
 #[cfg(unix)]
