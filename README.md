@@ -341,7 +341,8 @@ The settings directory can be changed by setting the `MULLVAD_SETTINGS_DIR` envi
 |----------|------|
 | Linux | `/etc/mullvad-vpn/` |
 | macOS | `/etc/mullvad-vpn/` |
-| Windows | `%LOCALAPPDATA%\Mullvad VPN\`
+| Windows | `%LOCALAPPDATA%\Mullvad VPN\` |
+| Android | `/data/data/net.mullvad.mullvadvpn/` |
 
 #### Logs
 
@@ -352,6 +353,7 @@ The log directory can be changed by setting the `MULLVAD_LOG_DIR` environment va
 | Linux | `/var/log/mullvad-vpn/` + systemd |
 | macOS | `/var/log/mullvad-vpn/` |
 | Windows | `C:\ProgramData\Mullvad VPN\` |
+| Android | `/data/data/net.mullvad.mullvadvpn/` |
 
 #### Cache
 
@@ -362,6 +364,7 @@ The cache directory can be changed by setting the `MULLVAD_CACHE_DIR` environmen
 | Linux | `/var/cache/mullvad-vpn/` |
 | macOS | `/var/root/Library/Caches/mullvad-vpn/` |
 | Windows | `%LOCALAPPDATA%\Mullvad VPN\` |
+| Android | `/data/data/net.mullvad.mullvadvpn/cache` |
 
 #### RPC address file
 
@@ -373,6 +376,7 @@ environment variable.
 | Linux | `/var/run/mullvad-vpn` |
 | macOS | `/var/run/mullvad-vpn` |
 | Windows | `//./pipe/Mullvad VPN` |
+| Android | `/data/data/net.mullvad.mullvadvpn/rpc-socket` |
 
 ### GUI
 
@@ -384,6 +388,7 @@ The GUI has a specific settings file that is configured for each user. The path 
 | Linux | `$XDG_CONFIG_HOME/Mullvad VPN/gui_settings.json` |
 | macOS | `~/Library/Application Support/Mullvad VPN/gui_settings.json` |
 | Windows | `%LOCALAPPDATA%\Mullvad VPN\gui_settings.json` |
+| Android | Present in Android's `logcat` |
 
 ## Audits, pentests and external security reviews
 
