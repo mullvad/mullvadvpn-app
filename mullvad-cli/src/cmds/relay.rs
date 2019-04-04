@@ -165,7 +165,7 @@ impl Command for Relay {
             )
     }
 
-    fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
+    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             self.set(set_matches)
         } else if matches.subcommand_matches("get").is_some() {
@@ -188,7 +188,7 @@ impl Relay {
         Ok(())
     }
 
-    fn set(&self, matches: &clap::ArgMatches) -> Result<()> {
+    fn set(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(custom_matches) = matches.subcommand_matches("custom") {
             self.set_custom(custom_matches)
         } else if let Some(location_matches) = matches.subcommand_matches("location") {
@@ -200,7 +200,7 @@ impl Relay {
         }
     }
 
-    fn set_custom(&self, matches: &clap::ArgMatches) -> Result<()> {
+    fn set_custom(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let custom_endpoint = match matches.subcommand() {
             ("openvpn", Some(openvpn_matches)) => Self::read_custom_openvpn_relay(openvpn_matches),
             ("wireguard", Some(wg_matches)) => Self::read_custom_wireguard_relay(wg_matches),
@@ -209,7 +209,7 @@ impl Relay {
         self.update_constraints(RelaySettingsUpdate::CustomTunnelEndpoint(custom_endpoint))
     }
 
-    fn read_custom_openvpn_relay(matches: &clap::ArgMatches) -> CustomTunnelEndpoint {
+    fn read_custom_openvpn_relay(matches: &clap::ArgMatches<'_>) -> CustomTunnelEndpoint {
         let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
         let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
         let username = value_t!(matches.value_of("username"), String).unwrap_or_else(|e| e.exit());
@@ -226,7 +226,7 @@ impl Relay {
         )
     }
 
-    fn read_custom_wireguard_relay(matches: &clap::ArgMatches) -> CustomTunnelEndpoint {
+    fn read_custom_wireguard_relay(matches: &clap::ArgMatches<'_>) -> CustomTunnelEndpoint {
         let host = value_t!(matches.value_of("host"), String).unwrap_or_else(|e| e.exit());
         let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
         let addresses = values_t!(matches.values_of("addr"), IpAddr).unwrap_or_else(|e| e.exit());
@@ -288,7 +288,7 @@ impl Relay {
         key
     }
 
-    fn set_location(&self, matches: &clap::ArgMatches) -> Result<()> {
+    fn set_location(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let country = matches.value_of("country").unwrap();
         let city = matches.value_of("city");
         let hostname = matches.value_of("hostname");
@@ -327,7 +327,7 @@ impl Relay {
         }))
     }
 
-    fn set_tunnel(&self, matches: &clap::ArgMatches) -> Result<()> {
+    fn set_tunnel(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let vpn_protocol = matches.value_of("vpn protocol").unwrap();
         let port = parse_port_constraint(matches.value_of("port").unwrap())?;
         let protocol = parse_protocol_constraint(matches.value_of("transport protocol").unwrap());

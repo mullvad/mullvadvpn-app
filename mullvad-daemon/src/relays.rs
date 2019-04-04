@@ -194,7 +194,7 @@ impl RelaySelector {
         self.lock_parsed_relays().locations().clone()
     }
 
-    fn lock_parsed_relays(&self) -> MutexGuard<ParsedRelays> {
+    fn lock_parsed_relays(&self) -> MutexGuard<'_, ParsedRelays> {
         self.parsed_relays
             .lock()
             .expect("Relay updater thread crashed while it held a lock to the list of relays")
@@ -628,7 +628,7 @@ impl RelayListUpdater {
             .chain_err(|| ErrorKind::SerializationError)
     }
 
-    fn lock_parsed_relays(&self) -> MutexGuard<ParsedRelays> {
+    fn lock_parsed_relays(&self) -> MutexGuard<'_, ParsedRelays> {
         self.parsed_relays
             .lock()
             .expect("A thread crashed while it held a lock to the list of relays")

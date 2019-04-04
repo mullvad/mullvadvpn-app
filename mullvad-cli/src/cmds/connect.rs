@@ -13,7 +13,7 @@ impl Command for Connect {
             .about("Command the client to start establishing a VPN tunnel")
     }
 
-    fn run(&self, _matches: &clap::ArgMatches) -> Result<()> {
+    fn run(&self, _matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_rpc_client()?;
         if let Err(e) = rpc.connect() {
             eprintln!("{}", e.display_chain());

@@ -335,7 +335,7 @@ impl OpenVpnCommand {
 impl fmt::Display for OpenVpnCommand {
     /// Format the program and arguments of an `OpenVpnCommand` for display. Any non-utf8 data
     /// is lossily converted using the utf8 replacement character.
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt.write_str(&shell_escape::escape(self.openvpn_bin.to_string_lossy()))?;
         for arg in &self.get_arguments() {
             fmt.write_str(" ")?;

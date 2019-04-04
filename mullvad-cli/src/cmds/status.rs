@@ -25,7 +25,7 @@ impl Command for Status {
             )
     }
 
-    fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
+    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_rpc_client()?;
         let state = rpc.get_state()?;
 

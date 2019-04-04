@@ -1,8 +1,5 @@
 use crate::Result;
-use std::{
-    env,
-    path::{Path, PathBuf},
-};
+use std::{env, path::PathBuf};
 
 /// Creates and returns the cache directory pointed to by `MULLVAD_CACHE_DIR`, or the default
 /// one if that variable is unset.

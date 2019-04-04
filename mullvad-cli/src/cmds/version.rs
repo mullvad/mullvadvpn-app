@@ -12,7 +12,7 @@ impl Command for Version {
             .about("Shows current version, and the currently supported versions")
     }
 
-    fn run(&self, _: &clap::ArgMatches) -> Result<()> {
+    fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_rpc_client()?;
         let current_version = rpc.get_current_version()?;
         println!("Current version: {}", current_version);

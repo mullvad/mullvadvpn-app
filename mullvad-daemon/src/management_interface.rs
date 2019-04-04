@@ -36,7 +36,7 @@ use uuid;
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
 /// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
 /// Remove this and use the one in jsonrpc_core when that is released.
-pub type BoxFuture<T, E> = Box<Future<Item = T, Error = E> + Send>;
+pub type BoxFuture<T, E> = Box<dyn Future<Item = T, Error = E> + Send>;
 
 build_rpc_trait! {
     pub trait ManagementInterfaceApi {
@@ -702,7 +702,7 @@ impl PubSubMetadata for Meta {
 }
 
 /// Metadata extractor function for `Meta`.
-fn meta_extractor(context: &jsonrpc_ipc_server::RequestContext) -> Meta {
+fn meta_extractor(context: &jsonrpc_ipc_server::RequestContext<'_>) -> Meta {
     Meta {
         session: Some(Arc::new(Session::new(context.sender.clone()))),
     }

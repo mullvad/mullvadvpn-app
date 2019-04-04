@@ -92,7 +92,7 @@ impl SystemdResolved {
     }
 
     fn ensure_resolved_exists(&self) -> Result<()> {
-        let _: Box<RefArg> = self
+        let _: Box<dyn RefArg> = self
             .as_manager_object()
             .get(&MANAGER_INTERFACE, "DNS")
             .map_err(Error::NoSystemdResolved)?;
@@ -130,7 +130,7 @@ impl SystemdResolved {
         }
     }
 
-    fn as_manager_object(&self) -> dbus::ConnPath<&dbus::Connection> {
+    fn as_manager_object(&self) -> dbus::ConnPath<'_, &dbus::Connection> {
         self.dbus_connection
             .with_path(RESOLVED_BUS, "/org/freedesktop/resolve1", RPC_TIMEOUT_MS)
     }

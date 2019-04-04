@@ -122,7 +122,7 @@ impl Formatter {
         }
     }
 
-    fn get_record_level(&self, level: log::Level) -> Box<fmt::Display> {
+    fn get_record_level(&self, level: log::Level) -> Box<dyn fmt::Display> {
         if self.output_color && cfg!(not(windows)) {
             Box::new(COLORS.color(level))
         } else {
@@ -132,9 +132,9 @@ impl Formatter {
 
     pub fn output_msg(
         &self,
-        out: fern::FormatCallback,
-        message: &fmt::Arguments,
-        record: &log::Record,
+        out: fern::FormatCallback<'_>,
+        message: &fmt::Arguments<'_>,
+        record: &log::Record<'_>,
     ) {
         let message = escape_newlines(format!("{}", message));
 

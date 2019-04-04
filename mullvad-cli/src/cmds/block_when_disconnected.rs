@@ -27,7 +27,7 @@ impl Command for BlockWhenDisconnected {
             )
     }
 
-    fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
+    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             let block_when_disconnected = value_t_or_exit!(set_matches.value_of("policy"), String);
             self.set(block_when_disconnected == "on")

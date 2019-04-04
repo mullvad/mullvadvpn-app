@@ -12,7 +12,7 @@ impl Command for Disconnect {
             .about("Command the client to disconnect the VPN tunnel")
     }
 
-    fn run(&self, _matches: &clap::ArgMatches) -> Result<()> {
+    fn run(&self, _matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_rpc_client()?;
         rpc.disconnect()?;
         Ok(())

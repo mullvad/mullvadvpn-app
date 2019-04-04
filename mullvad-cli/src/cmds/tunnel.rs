@@ -22,7 +22,7 @@ impl Command for Tunnel {
             .subcommand(create_ipv6_subcommand())
     }
 
-    fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
+    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("openvpn", Some(openvpn_matches)) => Self::handle_openvpn_cmd(openvpn_matches),
             ("wireguard", Some(wg_matches)) => Self::handle_wireguard_cmd(wg_matches),
@@ -187,7 +187,7 @@ fn create_ipv6_subcommand() -> clap::App<'static, 'static> {
 }
 
 impl Tunnel {
-    fn handle_openvpn_cmd(matches: &clap::ArgMatches) -> Result<()> {
+    fn handle_openvpn_cmd(matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("mssfix", Some(mssfix_matches)) => Self::handle_openvpn_mssfix_cmd(mssfix_matches),
             ("proxy", Some(proxy_matches)) => Self::handle_openvpn_proxy_cmd(proxy_matches),
@@ -195,7 +195,7 @@ impl Tunnel {
         }
     }
 
-    fn handle_openvpn_mssfix_cmd(matches: &clap::ArgMatches) -> Result<()> {
+    fn handle_openvpn_mssfix_cmd(matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("get", Some(_)) => Self::process_openvpn_mssfix_get(),
             ("unset", Some(_)) => Self::process_openvpn_mssfix_unset(),
@@ -204,7 +204,7 @@ impl Tunnel {
         }
     }
 
-    fn handle_openvpn_proxy_cmd(matches: &clap::ArgMatches) -> Result<()> {
+    fn handle_openvpn_proxy_cmd(matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("get", Some(_)) => Self::process_openvpn_proxy_get(),
             ("unset", Some(_)) => Self::process_openvpn_proxy_unset(),
@@ -213,7 +213,7 @@ impl Tunnel {
         }
     }
 
-    fn handle_wireguard_cmd(matches: &clap::ArgMatches) -> Result<()> {
+    fn handle_wireguard_cmd(matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("mtu", Some(matches)) => match matches.subcommand() {
                 ("get", _) => Self::process_wireguard_mtu_get(),
@@ -244,7 +244,7 @@ impl Tunnel {
         Ok(())
     }
 
-    fn process_wireguard_mtu_set(matches: &clap::ArgMatches) -> Result<()> {
+    fn process_wireguard_mtu_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mtu = value_t!(matches.value_of("mtu"), u16).unwrap_or_else(|e| e.exit());
         let mut rpc = new_rpc_client()?;
         rpc.set_wireguard_mtu(Some(mtu))?;
@@ -281,7 +281,7 @@ impl Tunnel {
         rpc.generate_wireguard_key().map_err(|e| e.into())
     }
 
-    fn handle_ipv6_cmd(matches: &clap::ArgMatches) -> Result<()> {
+    fn handle_ipv6_cmd(matches: &clap::ArgMatches<'_>) -> Result<()> {
         if matches.subcommand_matches("get").is_some() {
             Self::process_ipv6_get()
         } else if let Some(m) = matches.subcommand_matches("set") {
@@ -315,7 +315,7 @@ impl Tunnel {
         Ok(())
     }
 
-    fn process_openvpn_mssfix_set(matches: &clap::ArgMatches) -> Result<()> {
+    fn process_openvpn_mssfix_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let new_value = value_t!(matches.value_of("mssfix"), u16).unwrap_or_else(|e| e.exit());
         let mut rpc = new_rpc_client()?;
         rpc.set_openvpn_mssfix(Some(new_value))?;
@@ -376,7 +376,7 @@ impl Tunnel {
         Ok(())
     }
 
-    fn process_openvpn_proxy_set(matches: &clap::ArgMatches) -> Result<()> {
+    fn process_openvpn_proxy_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(args) = matches.subcommand_matches("local") {
             let local_port =
                 value_t!(args.value_of("local-port"), u16).unwrap_or_else(|e| e.exit());
@@ -471,7 +471,7 @@ impl Tunnel {
         Ok(())
     }
 
-    fn process_ipv6_set(matches: &clap::ArgMatches) -> Result<()> {
+    fn process_ipv6_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let enabled = matches.value_of("enable").unwrap() == "on";
 
         let mut rpc = new_rpc_client()?;
