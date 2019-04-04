@@ -7,27 +7,28 @@ use serde_json;
 use std::{fs::File, io, path::PathBuf};
 use talpid_types::net::{openvpn, wireguard, GenericTunnelOptions};
 
-error_chain! {
-    errors {
-        DirectoryError {
-            description("Unable to create settings directory for program")
-        }
-        ReadError(path: PathBuf) {
-            description("Unable to read settings file")
-            display("Unable to read settings from {}", path.display())
-        }
-        WriteError(path: PathBuf) {
-            description("Unable to write settings file")
-            display("Unable to write settings to {}", path.display())
-        }
-        ParseError {
-            description("Malformed settings")
-        }
-        InvalidProxyData(reason: String) {
-            description("Invalid proxy configuration was rejected")
-            display("Invalid proxy configuration was rejected: {}", reason)
-        }
-    }
+
+pub type Result<T> = std::result::Result<T, Error>;
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Unable to create settings directory")]
+    DirectoryError(#[error(cause)] mullvad_paths::Error),
+
+    #[error(display = "Unable to read settings from {}", _0)]
+    ReadError(String, #[error(cause)] io::Error),
+
+    #[error(display = "Malformed settings")]
+    ParseError(#[error(cause)] serde_json::Error),
+
+    #[error(display = "Unable to serialize settings to JSON")]
+    SerializeError(#[error(cause)] serde_json::Error),
+
+    #[error(display = "Unable to write settings to {}", _0)]
+    WriteError(String, #[error(cause)] io::Error),
+
+    #[error(display = "Invalid OpenVPN proxy configuration: {}", _0)]
+    InvalidProxyData(String),
 }
 
 static SETTINGS_FILE: &str = "settings.json";
@@ -70,20 +71,17 @@ impl Default for Settings {
 impl Settings {
     /// Loads user settings from file. If no file is present it returns the defaults.
     pub fn load() -> Result<Settings> {
-        let settings_path = Self::get_settings_path()?;
-        match File::open(&settings_path) {
+        let path = Self::get_settings_path()?;
+        match File::open(&path) {
             Ok(file) => {
-                info!("Loading settings from {}", settings_path.display());
+                info!("Loading settings from {}", path.display());
                 Self::read_settings(&mut io::BufReader::new(file))
             }
             Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
-                info!(
-                    "No settings file at {}, using defaults",
-                    settings_path.display()
-                );
+                info!("No settings file at {}, using defaults", path.display());
                 Ok(Settings::default())
             }
-            Err(e) => Err(e).chain_err(|| ErrorKind::ReadError(settings_path)),
+            Err(e) => Err(Error::ReadError(path.display().to_string(), e)),
         }
     }
 
@@ -92,20 +90,21 @@ impl Settings {
         let path = Self::get_settings_path()?;
 
         debug!("Writing settings to {}", path.display());
-        let mut file = File::create(&path).chain_err(|| ErrorKind::WriteError(path.clone()))?;
+        let mut file =
+            File::create(&path).map_err(|e| Error::WriteError(path.display().to_string(), e))?;
 
-        serde_json::to_writer_pretty(&mut file, self)
-            .chain_err(|| ErrorKind::WriteError(path.clone()))?;
-        file.sync_all().chain_err(|| ErrorKind::WriteError(path))
+        serde_json::to_writer_pretty(&mut file, self).map_err(Error::SerializeError)?;
+        file.sync_all()
+            .map_err(|e| Error::WriteError(path.display().to_string(), e))
     }
 
     fn get_settings_path() -> Result<PathBuf> {
-        let dir = ::mullvad_paths::settings_dir().chain_err(|| ErrorKind::DirectoryError)?;
+        let dir = ::mullvad_paths::settings_dir().map_err(Error::DirectoryError)?;
         Ok(dir.join(SETTINGS_FILE))
     }
 
     fn read_settings<T: io::Read>(file: &mut T) -> Result<Settings> {
-        serde_json::from_reader(file).chain_err(|| ErrorKind::ParseError)
+        serde_json::from_reader(file).map_err(Error::ParseError)
     }
 
     pub fn get_account_token(&self) -> Option<String> {
@@ -203,9 +202,8 @@ impl Settings {
 
     pub fn set_openvpn_proxy(&mut self, proxy: Option<openvpn::ProxySettings>) -> Result<bool> {
         if let Some(ref settings) = proxy {
-            if let Err(validation_error) = openvpn::ProxySettingsValidation::validate(settings) {
-                bail!(ErrorKind::InvalidProxyData(validation_error));
-            }
+            openvpn::ProxySettingsValidation::validate(settings)
+                .map_err(Error::InvalidProxyData)?;
         }
 
         if self.tunnel_options.openvpn.proxy != proxy {

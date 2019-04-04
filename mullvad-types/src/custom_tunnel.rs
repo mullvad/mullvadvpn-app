@@ -1,20 +1,19 @@
 use crate::settings::TunnelOptions;
 use serde::{Deserialize, Serialize};
 use std::{
-    fmt,
+    fmt, io,
     net::{IpAddr, SocketAddr, ToSocketAddrs},
 };
 use talpid_types::net::{openvpn, wireguard, TunnelParameters};
 
-error_chain! {
-    errors {
-        InvalidHost(host: String) {
-            display("Invalid host: {}", host)
-        }
-        Unsupported {
-            description("Tunnel type not supported")
-        }
-    }
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Invalid host/domain: {}", _0)]
+    InvalidHost(String, #[error(cause)] io::Error),
+
+    #[error(display = "Host has no IPv4 address: {}", _0)]
+    HostHasNoIpv4(String),
 }
 
 
@@ -29,7 +28,10 @@ impl CustomTunnelEndpoint {
         Self { host, config }
     }
 
-    pub fn to_tunnel_parameters(&self, tunnel_options: TunnelOptions) -> Result<TunnelParameters> {
+    pub fn to_tunnel_parameters(
+        &self,
+        tunnel_options: TunnelOptions,
+    ) -> Result<TunnelParameters, Error> {
         let ip = resolve_to_ip(&self.host)?;
         let mut config = self.config.clone();
         config.set_ip(ip);
@@ -76,10 +78,10 @@ impl fmt::Display for CustomTunnelEndpoint {
 /// Returns the first IPv4 address if one exists, otherwise the first IPv6 address.
 /// Rust only provides means to resolve a socket addr, not just a host, for some reason. So
 /// because of this we do the resolving with port zero and then pick out the IPs.
-fn resolve_to_ip(host: &str) -> Result<IpAddr> {
+fn resolve_to_ip(host: &str) -> Result<IpAddr, Error> {
     let (mut ipv4, mut ipv6): (Vec<IpAddr>, Vec<IpAddr>) = (host, 0)
         .to_socket_addrs()
-        .chain_err(|| ErrorKind::InvalidHost(host.to_owned()))?
+        .map_err(|e| Error::InvalidHost(host.to_owned(), e))?
         .map(|addr| addr.ip())
         .partition(|addr| addr.is_ipv4());
 
@@ -88,7 +90,7 @@ fn resolve_to_ip(host: &str) -> Result<IpAddr> {
             log::info!("No IPv4 for host {}", host);
             ipv6.pop()
         })
-        .ok_or_else(|| ErrorKind::InvalidHost(host.to_owned()).into())
+        .ok_or_else(|| Error::HostHasNoIpv4(host.to_owned()))
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]

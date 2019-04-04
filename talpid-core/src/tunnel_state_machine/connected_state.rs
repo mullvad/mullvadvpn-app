@@ -5,7 +5,6 @@ use super::{
 use crate::{
     firewall::FirewallPolicy,
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
-    ErrorExt,
 };
 use futures::{
     sync::{mpsc, oneshot},
@@ -14,6 +13,7 @@ use futures::{
 use talpid_types::{
     net::{Endpoint, TunnelParameters},
     tunnel::BlockReason,
+    ErrorExt,
 };
 
 pub struct ConnectedStateBootstrap {
