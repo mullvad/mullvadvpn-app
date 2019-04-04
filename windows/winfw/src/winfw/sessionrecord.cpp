@@ -12,7 +12,7 @@ std::atomic<uint32_t> g_keybase = 0;
 
 } // anonymous namespace
 
-SessionRecord::SessionRecord(const GUID &id, ObjectType type)
+SessionRecord::SessionRecord(const GUID &id, WfpObjectType type)
 	: m_type(type)
 	, m_id(id)
 	, m_key(g_keybase++)
@@ -20,7 +20,7 @@ SessionRecord::SessionRecord(const GUID &id, ObjectType type)
 }
 
 SessionRecord::SessionRecord(UINT64 id)
-	: m_type(ObjectType::Filter)
+	: m_type(WfpObjectType::Filter)
 	, m_filterId(id)
 	, m_key(g_keybase++)
 {
@@ -30,17 +30,17 @@ void SessionRecord::purge(wfp::FilterEngine &engine)
 {
 	switch (m_type)
 	{
-		case ObjectType::Provider:
+		case WfpObjectType::Provider:
 		{
 			wfp::ObjectDeleter::DeleteProvider(engine, m_id);
 			break;
 		}
-		case ObjectType::Sublayer:
+		case WfpObjectType::Sublayer:
 		{
 			wfp::ObjectDeleter::DeleteSublayer(engine, m_id);
 			break;
 		}
-		case ObjectType::Filter:
+		case WfpObjectType::Filter:
 		{
 			wfp::ObjectDeleter::DeleteFilter(engine, m_filterId);
 			break;

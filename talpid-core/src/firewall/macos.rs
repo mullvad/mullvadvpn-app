@@ -1,4 +1,4 @@
-use super::{FirewallPolicy, FirewallT};
+use super::{FirewallArguments, FirewallPolicy, FirewallT};
 use pfctl::FilterRuleAction;
 use std::{
     env,
@@ -24,7 +24,7 @@ pub struct Firewall {
 impl FirewallT for Firewall {
     type Error = Error;
 
-    fn new() -> Result<Self> {
+    fn new(_args: FirewallArguments) -> Result<Self> {
         // Allows controlling whether firewall rules should log to pflog0. Useful for debugging the
         // rules.
         let firewall_debugging = env::var("TALPID_FIREWALL_DEBUG");

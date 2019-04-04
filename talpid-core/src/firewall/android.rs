@@ -1,4 +1,4 @@
-use super::{FirewallPolicy, FirewallT};
+use super::{FirewallArguments, FirewallPolicy, FirewallT};
 
 /// Stub error type for Firewall errors on Android.
 #[derive(Debug, err_derive::Error)]
@@ -11,7 +11,7 @@ pub struct Firewall;
 impl FirewallT for Firewall {
     type Error = Error;
 
-    fn new() -> Result<Self, Self::Error> {
+    fn new(_args: FirewallArguments) -> Result<Self, Self::Error> {
         Ok(Firewall)
     }
 

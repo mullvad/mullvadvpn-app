@@ -1,7 +1,7 @@
 use std::{net::IpAddr, ptr};
 
 use self::winfw::*;
-use super::{FirewallPolicy, FirewallT};
+use super::{FirewallArguments, FirewallPolicy, FirewallT};
 use crate::winnet;
 use log::{debug, error, trace};
 use talpid_types::net::Endpoint;
@@ -48,15 +48,29 @@ pub struct Firewall(());
 impl FirewallT for Firewall {
     type Error = Error;
 
-    fn new() -> Result<Self, Self::Error> {
-        unsafe {
-            WinFw_Initialize(
-                WINFW_TIMEOUT_SECONDS,
-                Some(winnet::error_sink),
-                ptr::null_mut(),
-            )
-            .into_result()?
-        };
+    fn new(args: FirewallArguments) -> Result<Self, Self::Error> {
+        if args.initialize_blocked {
+            let cfg = &WinFwSettings::new(args.allow_lan.unwrap());
+            unsafe {
+                WinFw_InitializeBlocked(
+                    WINFW_TIMEOUT_SECONDS,
+                    &cfg,
+                    Some(winnet::error_sink),
+                    ptr::null_mut(),
+                )
+                .into_result()?
+            };
+        } else {
+            unsafe {
+                WinFw_Initialize(
+                    WINFW_TIMEOUT_SECONDS,
+                    Some(winnet::error_sink),
+                    ptr::null_mut(),
+                )
+                .into_result()?
+            };
+        }
+
         trace!("Successfully initialized windows firewall module");
         Ok(Firewall(()))
     }
@@ -239,6 +253,14 @@ mod winfw {
         #[link_name = "WinFw_Initialize"]
         pub fn WinFw_Initialize(
             timeout: libc::c_uint,
+            sink: Option<winnet::ErrorSink>,
+            sink_context: *mut libc::c_void,
+        ) -> InitializationResult;
+
+        #[link_name = "WinFw_InitializeBlocked"]
+        pub fn WinFw_InitializeBlocked(
+            timeout: libc::c_uint,
+            settings: &WinFwSettings,
             sink: Option<winnet::ErrorSink>,
             sink_context: *mut libc::c_void,
         ) -> InitializationResult;

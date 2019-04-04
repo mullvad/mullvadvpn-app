@@ -73,6 +73,27 @@ WinFw_Initialize(
 );
 
 //
+// WinFw_InitializeBlocked
+//
+// Same as `WinFw_Initialize` with the addition that the blocked policy is
+// immediately applied, within the same initialization transaction.
+//
+// This function is preferred rather than first initializing and then applying
+// the blocked policy. Using two separate operations leaves a tiny window
+// for traffic to leak out.
+//
+extern "C"
+WINFW_LINKAGE
+bool
+WINFW_API
+WinFw_InitializeBlocked(
+	uint32_t timeout,
+	const WinFwSettings &settings,
+	WinFwErrorSink errorSink,
+	void *errorContext
+);
+
+//
 // Deinitialize:
 //
 // Call this function once before unloading WINFW or exiting the process.
@@ -112,7 +133,7 @@ WinFw_ApplyPolicyConnecting(
 //
 // tunnelInterfaceAlias:
 //   Friendly name of VPN tunnel interface
-// primaryDns:
+// v4DnsHost/v6DnsHost:
 //   String encoded IP address of DNS to use inside tunnel
 //
 extern "C"
@@ -123,8 +144,8 @@ WinFw_ApplyPolicyConnected(
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
 	const wchar_t *tunnelInterfaceAlias,
-	const wchar_t *v4Gateway,
-	const wchar_t *v6Gateway
+	const wchar_t *v4DnsHost,
+	const wchar_t *v6DnsHost
 );
 
 //

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "winfw.h"
 #include "fwcontext.h"
-#include "libwfp/ipaddress.h"
+#include "objectpurger.h"
 #include <windows.h>
 #include <stdexcept>
 
@@ -10,8 +10,8 @@ namespace
 
 uint32_t g_timeout = 0;
 
-WinFwErrorSink g_ErrorSink = nullptr;
-void * g_ErrorContext = nullptr;
+WinFwErrorSink g_errorSink = nullptr;
+void * g_errorContext = nullptr;
 
 FwContext *g_fwContext = nullptr;
 
@@ -38,8 +38,8 @@ WinFw_Initialize(
 	// Convert seconds to milliseconds.
 	g_timeout = timeout * 1000;
 
-	g_ErrorSink = errorSink;
-	g_ErrorContext = errorContext;
+	g_errorSink = errorSink;
+	g_errorContext = errorContext;
 
 	try
 	{
@@ -47,9 +47,56 @@ WinFw_Initialize(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_ErrorSink)
+		if (nullptr != g_errorSink)
 		{
-			g_ErrorSink(err.what(), g_ErrorContext);
+			g_errorSink(err.what(), g_errorContext);
+		}
+
+		return false;
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+extern "C"
+WINFW_LINKAGE
+bool
+WINFW_API
+WinFw_InitializeBlocked(
+	uint32_t timeout,
+	const WinFwSettings &settings,
+	WinFwErrorSink errorSink,
+	void *errorContext
+)
+{
+	if (nullptr != g_fwContext)
+	{
+		//
+		// This is an error.
+		// The existing instance may have a different timeout etc.
+		//
+		return false;
+	}
+
+	// Convert seconds to milliseconds.
+	g_timeout = timeout * 1000;
+
+	g_errorSink = errorSink;
+	g_errorContext = errorContext;
+
+	try
+	{
+		g_fwContext = new FwContext(g_timeout, settings);
+	}
+	catch (std::exception &err)
+	{
+		if (nullptr != g_errorSink)
+		{
+			g_errorSink(err.what(), g_errorContext);
 		}
 
 		return false;
@@ -97,9 +144,9 @@ WinFw_ApplyPolicyConnecting(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_ErrorSink)
+		if (nullptr != g_errorSink)
 		{
-			g_ErrorSink(err.what(), g_ErrorContext);
+			g_errorSink(err.what(), g_errorContext);
 		}
 
 		return false;
@@ -117,8 +164,8 @@ WinFw_ApplyPolicyConnected(
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
 	const wchar_t *tunnelInterfaceAlias,
-	const wchar_t *v4Gateway,
-	const wchar_t *v6Gateway
+	const wchar_t *v4DnsHost,
+	const wchar_t *v6DnsHost
 )
 {
 	if (nullptr == g_fwContext)
@@ -128,13 +175,13 @@ WinFw_ApplyPolicyConnected(
 
 	try
 	{
-		return g_fwContext->applyPolicyConnected(settings, relay, tunnelInterfaceAlias, v4Gateway, v6Gateway);
+		return g_fwContext->applyPolicyConnected(settings, relay, tunnelInterfaceAlias, v4DnsHost, v6DnsHost);
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_ErrorSink)
+		if (nullptr != g_errorSink)
 		{
-			g_ErrorSink(err.what(), g_ErrorContext);
+			g_errorSink(err.what(), g_errorContext);
 		}
 
 		return false;
@@ -163,9 +210,9 @@ WinFw_ApplyPolicyBlocked(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_ErrorSink)
+		if (nullptr != g_errorSink)
 		{
-			g_ErrorSink(err.what(), g_ErrorContext);
+			g_errorSink(err.what(), g_errorContext);
 		}
 
 		return false;
@@ -181,24 +228,20 @@ bool
 WINFW_API
 WinFw_Reset()
 {
-	if (nullptr == g_fwContext)
-	{
-		//
-		// This is OK because the practical difference between having no instance
-		// and having a reset instance is negligible.
-		//
-		return true;
-	}
-
 	try
 	{
+		if (nullptr == g_fwContext)
+		{
+			return ObjectPurger::Execute(ObjectPurger::GetRemoveAllFunctor());
+		}
+
 		return g_fwContext->reset();
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_ErrorSink)
+		if (nullptr != g_errorSink)
 		{
-			g_ErrorSink(err.what(), g_ErrorContext);
+			g_errorSink(err.what(), g_errorContext);
 		}
 
 		return false;

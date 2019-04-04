@@ -1,10 +1,13 @@
 #include "stdafx.h"
 #include "sessioncontroller.h"
+#include "wfpobjecttype.h"
+#include "mullvadguids.h"
 #include "libwfp/objectinstaller.h"
 #include "libwfp/objectdeleter.h"
 #include "libwfp/transaction.h"
 #include "libcommon/memory.h"
 #include <utility>
+#include <stdexcept>
 
 namespace
 {
@@ -54,6 +57,17 @@ bool CheckpointKeyToIndex(const std::vector<SessionRecord> &container, uint32_t 
 	return false;
 }
 
+void ValidateObject(const wfp::IIdentifiable &object)
+{
+	const auto registry = MullvadGuids::Registry();
+
+	if (registry.end() == registry.find(object.id()))
+	{
+		throw std::runtime_error("Attempting to install non-registered WFP object");
+	}
+}
+
+
 } // anonymous namespace
 
 SessionController::SessionController(std::unique_ptr<wfp::FilterEngine> &&engine)
@@ -70,7 +84,7 @@ SessionController::~SessionController()
 
 	try
 	{
-		executeTransaction([this]()
+		executeTransaction([this](SessionController &, wfp::FilterEngine &)
 		{
 			reset();
 			return true;
@@ -89,13 +103,15 @@ bool SessionController::addProvider(wfp::ProviderBuilder &providerBuilder)
 		throw std::runtime_error("Cannot add provider outside transaction");
 	}
 
+	ValidateObject(providerBuilder);
+
 	GUID key;
 
 	auto status = wfp::ObjectInstaller::AddProvider(*m_engine, providerBuilder, &key);
 
 	if (status)
 	{
-		m_transactionRecords.emplace_back(SessionRecord(key, SessionRecord::ObjectType::Provider));
+		m_transactionRecords.emplace_back(SessionRecord(key, WfpObjectType::Provider));
 	}
 
 	return status;
@@ -108,13 +124,15 @@ bool SessionController::addSublayer(wfp::SublayerBuilder &sublayerBuilder)
 		throw std::runtime_error("Cannot add sublayer outside transaction");
 	}
 
+	ValidateObject(sublayerBuilder);
+
 	GUID key;
 
 	auto status = wfp::ObjectInstaller::AddSublayer(*m_engine, sublayerBuilder, &key);
 
 	if (status)
 	{
-		m_transactionRecords.emplace_back(SessionRecord(key, SessionRecord::ObjectType::Sublayer));
+		m_transactionRecords.emplace_back(SessionRecord(key, WfpObjectType::Sublayer));
 	}
 
 	return status;
@@ -126,6 +144,8 @@ bool SessionController::addFilter(wfp::FilterBuilder &filterBuilder, const wfp::
 	{
 		throw std::runtime_error("Cannot add filter outside transaction");
 	}
+
+	ValidateObject(filterBuilder);
 
 	UINT64 id;
 
@@ -139,7 +159,7 @@ bool SessionController::addFilter(wfp::FilterBuilder &filterBuilder, const wfp::
 	return status;
 }
 
-bool SessionController::executeTransaction(std::function<bool()> operation)
+bool SessionController::executeTransaction(TransactionFunctor operation)
 {
 	if (m_activeTransaction.exchange(true))
 	{
@@ -155,7 +175,12 @@ bool SessionController::executeTransaction(std::function<bool()> operation)
 
 	m_transactionRecords = m_records;
 
-	auto status = wfp::Transaction::Execute(*m_engine, operation);
+	auto transactionForwarder = [this, operation]()
+	{
+		return operation(*this, *m_engine);
+	};
+
+	auto status = wfp::Transaction::Execute(*m_engine, transactionForwarder);
 
 	if (status)
 	{
@@ -165,7 +190,7 @@ bool SessionController::executeTransaction(std::function<bool()> operation)
 	return status;
 }
 
-bool SessionController::executeReadOnlyTransaction(std::function<bool()> operation)
+bool SessionController::executeReadOnlyTransaction(TransactionFunctor operation)
 {
 	if (m_activeTransaction.exchange(true))
 	{
@@ -179,7 +204,12 @@ bool SessionController::executeReadOnlyTransaction(std::function<bool()> operati
 		m_activeTransaction.store(false);
 	};
 
-	return wfp::Transaction::ExecuteReadOnly(*m_engine, operation);
+	auto transactionForwarder = [this, operation]()
+	{
+		return operation(*this, *m_engine);
+	};
+
+	return wfp::Transaction::ExecuteReadOnly(*m_engine, transactionForwarder);
 }
 
 uint32_t SessionController::checkpoint()
@@ -195,6 +225,16 @@ uint32_t SessionController::checkpoint()
 	}
 
 	return m_records.back().key();
+}
+
+uint32_t SessionController::peekCheckpoint()
+{
+	if (m_transactionRecords.empty())
+	{
+		return 0;
+	}
+
+	return m_transactionRecords.back().key();
 }
 
 void SessionController::revert(uint32_t key)

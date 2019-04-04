@@ -13,8 +13,18 @@ public:
 
 	FwContext(uint32_t timeout);
 
+	// This ctor applies the "blocked" policy.
+	FwContext(uint32_t timeout, const WinFwSettings &settings);
+
 	bool applyPolicyConnecting(const WinFwSettings &settings, const WinFwRelay &relay);
-	bool applyPolicyConnected(const WinFwSettings &settings, const WinFwRelay &relay, const wchar_t *tunnelInterfaceAlias, const wchar_t *v4DnsHosts, const wchar_t *v6DnsHost);
+	bool applyPolicyConnected
+	(
+		const WinFwSettings &settings,
+		const WinFwRelay &relay,
+		const wchar_t *tunnelInterfaceAlias,
+		const wchar_t *v4DnsHost,
+		const wchar_t *v6DnsHost
+	);
 	bool applyPolicyBlocked(const WinFwSettings &settings);
 
 	bool reset();
@@ -26,8 +36,14 @@ private:
 	FwContext(const FwContext &) = delete;
 	FwContext &operator=(const FwContext &) = delete;
 
+	Ruleset composePolicyBlocked(const WinFwSettings &settings);
+
 	bool applyBaseConfiguration();
+	bool applyBlockedBaseConfiguration(const WinFwSettings &settings, uint32_t &checkpoint);
+	bool applyCommonBaseConfiguration(SessionController &controller, wfp::FilterEngine &engine);
+
 	bool applyRuleset(const Ruleset &ruleset);
+	bool applyRulesetDirectly(const Ruleset &ruleset, SessionController &controller);
 
 	std::unique_ptr<SessionController> m_sessionController;
 

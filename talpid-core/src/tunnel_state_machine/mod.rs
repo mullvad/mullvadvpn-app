@@ -14,7 +14,12 @@ use self::{
     disconnected_state::DisconnectedState,
     disconnecting_state::{AfterDisconnect, DisconnectingState},
 };
-use crate::{dns::DnsMonitor, firewall::Firewall, mpsc::IntoSender, offline};
+use crate::{
+    dns::DnsMonitor,
+    firewall::{Firewall, FirewallArguments},
+    mpsc::IntoSender,
+    offline,
+};
 use futures::{sync::mpsc, Async, Future, Poll, Stream};
 use std::{
     io,
@@ -186,7 +191,18 @@ impl TunnelStateMachine {
         cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self, Error> {
-        let firewall = Firewall::new().map_err(Error::InitFirewallError)?;
+        let args = if block_when_disconnected {
+            FirewallArguments {
+                initialize_blocked: true,
+                allow_lan: Some(allow_lan),
+            }
+        } else {
+            FirewallArguments {
+                initialize_blocked: false,
+                allow_lan: None,
+            }
+        };
+        let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
         let mut shared_values = SharedTunnelStateValues {
             firewall,
