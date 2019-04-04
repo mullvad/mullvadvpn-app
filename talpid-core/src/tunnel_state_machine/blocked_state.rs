@@ -2,9 +2,9 @@ use super::{
     ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use crate::{firewall::FirewallPolicy, ErrorExt};
+use crate::firewall::FirewallPolicy;
 use futures::{sync::mpsc, Stream};
-use talpid_types::tunnel::BlockReason;
+use talpid_types::{tunnel::BlockReason, ErrorExt};
 
 /// No tunnel is running and all network connections are blocked.
 pub struct BlockedState {

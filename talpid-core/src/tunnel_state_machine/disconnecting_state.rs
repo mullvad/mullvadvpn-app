@@ -2,13 +2,16 @@ use super::{
     BlockedState, ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues,
     TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use crate::{tunnel::CloseHandle, ErrorExt};
+use crate::tunnel::CloseHandle;
 use futures::{
     sync::{mpsc, oneshot},
     Async, Future, Stream,
 };
 use std::thread;
-use talpid_types::tunnel::{ActionAfterDisconnect, BlockReason};
+use talpid_types::{
+    tunnel::{ActionAfterDisconnect, BlockReason},
+    ErrorExt,
+};
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.

@@ -8,9 +8,6 @@
 
 #![deny(rust_2018_idioms)]
 
-#[macro_use]
-extern crate error_chain;
-
 pub mod account;
 pub mod auth_failed;
 pub mod endpoint;

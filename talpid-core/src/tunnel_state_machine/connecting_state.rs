@@ -6,7 +6,6 @@ use super::{
 use crate::{
     firewall::FirewallPolicy,
     tunnel::{self, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor},
-    ErrorExt,
 };
 use futures::{
     sync::{mpsc, oneshot},
@@ -23,6 +22,7 @@ use std::{
 use talpid_types::{
     net::{openvpn, TunnelParameters},
     tunnel::BlockReason,
+    ErrorExt,
 };
 
 

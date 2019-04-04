@@ -1,5 +1,5 @@
 use super::RESOLV_CONF_PATH;
-use crate::{linux::iface_index, ErrorExt as _};
+use crate::linux::iface_index;
 use dbus::{
     arg::RefArg, stdintf::*, BusType, Interface, Member, Message, MessageItem, MessageItemArray,
     Signature,
@@ -11,6 +11,7 @@ use std::{
     net::{IpAddr, Ipv4Addr},
     path::Path,
 };
+use talpid_types::ErrorExt as _;
 
 pub type Result<T> = std::result::Result<T, Error>;
 

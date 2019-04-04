@@ -14,7 +14,7 @@ use self::{
     disconnected_state::DisconnectedState,
     disconnecting_state::{AfterDisconnect, DisconnectingState},
 };
-use crate::{dns::DnsMonitor, firewall::Firewall, mpsc::IntoSender, offline, ErrorExt};
+use crate::{dns::DnsMonitor, firewall::Firewall, mpsc::IntoSender, offline};
 use futures::{sync::mpsc, Async, Future, Poll, Stream};
 use std::{
     io,
@@ -25,6 +25,7 @@ use std::{
 use talpid_types::{
     net::TunnelParameters,
     tunnel::{BlockReason, TunnelStateTransition},
+    ErrorExt,
 };
 use tokio_core::reactor::Core;
 

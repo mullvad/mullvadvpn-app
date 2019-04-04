@@ -544,9 +544,9 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
             .send_command_to_daemon(ManagementCommand::SetOpenVpnProxy(tx, proxy))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|settings_result| {
-                settings_result.map_err(|err| match err.kind() {
-                    settings::ErrorKind::InvalidProxyData(msg) => {
-                        Error::invalid_params(msg.to_owned())
+                settings_result.map_err(|error| match error {
+                    settings::Error::InvalidProxyData(reason) => {
+                        Error::invalid_params(reason.to_owned())
                     }
                     _ => Error::internal_error(),
                 })

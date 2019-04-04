@@ -2,8 +2,9 @@ use super::{
     BlockedState, ConnectingState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use crate::{firewall::FirewallPolicy, ErrorExt};
+use crate::firewall::FirewallPolicy;
 use futures::{sync::mpsc, Stream};
+use talpid_types::ErrorExt;
 
 /// No tunnel is running.
 pub struct DisconnectedState;
