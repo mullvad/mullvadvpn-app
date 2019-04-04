@@ -6,6 +6,8 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
+#![deny(rust_2018_idioms)]
+
 use futures::Future;
 use std::{io, thread};
 
@@ -102,7 +104,7 @@ impl IpcServer {
 // FIXME: This custom impl is because `Server` does not implement `Debug` yet:
 // https://github.com/paritytech/jsonrpc/pull/195
 impl fmt::Debug for IpcServer {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("IpcServer")
             .field("path", &self.path)
             .finish()

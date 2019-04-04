@@ -53,7 +53,7 @@ impl NetworkManager {
     }
 
     fn ensure_network_manager_exists(&self) -> Result<()> {
-        let _: Box<RefArg> = self
+        let _: Box<dyn RefArg> = self
             .as_manager()
             .get(&NM_TOP_OBJECT, GLOBAL_DNS_CONF_KEY)
             .map_err(Error::NetworkManagerNotDetected)?;
@@ -87,7 +87,7 @@ impl NetworkManager {
         Ok(())
     }
 
-    fn as_manager(&self) -> dbus::ConnPath<&dbus::Connection> {
+    fn as_manager(&self) -> dbus::ConnPath<'_, &dbus::Connection> {
         self.dbus_connection
             .with_path(NM_BUS, NM_OBJECT_PATH, RPC_TIMEOUT_MS)
     }
@@ -107,7 +107,7 @@ impl NetworkManager {
     }
 }
 
-type GlobalDnsConfig = HashMap<&'static str, Variant<Box<RefArg>>>;
+type GlobalDnsConfig = HashMap<&'static str, Variant<Box<dyn RefArg>>>;
 
 // The NetworkManager GlobalDnsConfiguration schema looks something like this
 // {
@@ -146,8 +146,8 @@ fn create_empty_global_settings() -> GlobalDnsConfig {
     HashMap::new()
 }
 
-fn as_variant<T: RefArg + 'static>(t: T) -> Variant<Box<RefArg>> {
-    Variant(Box::new(t) as Box<RefArg>)
+fn as_variant<T: RefArg + 'static>(t: T) -> Variant<Box<dyn RefArg>> {
+    Variant(Box::new(t) as Box<dyn RefArg>)
 }
 
 fn eq_file_content<P: AsRef<Path>>(a: &P, b: &P) -> bool {

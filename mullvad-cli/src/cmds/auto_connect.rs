@@ -27,7 +27,7 @@ impl Command for AutoConnect {
             )
     }
 
-    fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
+    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             let auto_connect = value_t_or_exit!(set_matches.value_of("policy"), String);
             self.set(auto_connect == "on")

@@ -53,7 +53,7 @@ impl CustomTunnelEndpoint {
 }
 
 impl fmt::Display for CustomTunnelEndpoint {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.config {
             ConnectionConfig::OpenVpn(config) => write!(
                 f,

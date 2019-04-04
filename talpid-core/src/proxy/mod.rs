@@ -22,8 +22,8 @@ pub trait ProxyMonitor: Send {
     fn port(&self) -> u16;
 }
 
-impl fmt::Debug for ProxyMonitor {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl fmt::Debug for dyn ProxyMonitor {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "ProxyMonitor {{ port: {} }}", self.port())
     }
 }
