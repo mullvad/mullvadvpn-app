@@ -53,7 +53,7 @@ pub struct WireguardMonitor {
     /// Route manager
     router: routing::RouteManager,
     /// Callback to signal tunnel events
-    event_callback: Box<Fn(TunnelEvent) + Send + Sync + 'static>,
+    event_callback: Box<dyn Fn(TunnelEvent) + Send + Sync + 'static>,
     close_msg_sender: mpsc::Sender<CloseMsg>,
     close_msg_receiver: mpsc::Receiver<CloseMsg>,
 }

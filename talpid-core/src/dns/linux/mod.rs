@@ -74,7 +74,7 @@ pub enum DnsMonitorHolder {
 }
 
 impl fmt::Display for DnsMonitorHolder {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::DnsMonitorHolder::*;
         let name = match self {
             Resolvconf(..) => "resolvconf",
