@@ -29,6 +29,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Reset the tray icon padlock to the unsecured state, when losing connectivity with the daemon.
 
+### Changed
+#### Windows
+- Make the firewall rules permanent until reboot, or until the daemon removes them.
+
 ## [2019.3] - 2019-04-02
 ### Fixed
 #### Windows
