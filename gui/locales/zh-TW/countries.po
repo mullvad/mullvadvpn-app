@@ -1,0 +1,967 @@
+#
+msgid ""
+msgstr ""
+
+#: ne_50m_admin_0_countries.shp:0
+msgid "Zimbabwe"
+msgstr "辛巴威"
+
+#: ne_50m_admin_0_countries.shp:1
+msgid "Zambia"
+msgstr "赞比亚"
+
+#: ne_50m_admin_0_countries.shp:2
+msgid "Yemen"
+msgstr "也门"
+
+#: ne_50m_admin_0_countries.shp:3
+msgid "Vietnam"
+msgstr "越南"
+
+#: ne_50m_admin_0_countries.shp:4
+msgid "Venezuela"
+msgstr "委內瑞拉"
+
+#: ne_50m_admin_0_countries.shp:5
+msgid "Vatican"
+msgstr "梵蒂冈"
+
+#: ne_50m_admin_0_countries.shp:6
+msgid "Vanuatu"
+msgstr "萬那杜"
+
+#: ne_50m_admin_0_countries.shp:7
+msgid "Uzbekistan"
+msgstr "乌兹别克斯坦"
+
+#: ne_50m_admin_0_countries.shp:8
+msgid "Uruguay"
+msgstr "乌拉圭"
+
+#: ne_50m_admin_0_countries.shp:9
+msgid "Micronesia"
+msgstr "密克罗尼西亚联邦"
+
+#: ne_50m_admin_0_countries.shp:10
+msgid "Marshall Is."
+msgstr "馬紹爾群島"
+
+#: ne_50m_admin_0_countries.shp:11
+msgid "N. Mariana Is."
+msgstr "北马里亚纳群岛"
+
+#: ne_50m_admin_0_countries.shp:12
+msgid "U.S. Virgin Is."
+msgstr "美屬維爾京群島"
+
+#: ne_50m_admin_0_countries.shp:13
+msgid "Guam"
+msgstr "關島"
+
+#: ne_50m_admin_0_countries.shp:14
+msgid "American Samoa"
+msgstr "美屬薩摩亞"
+
+#: ne_50m_admin_0_countries.shp:15
+msgid "Puerto Rico"
+msgstr "波多黎各"
+
+#: ne_50m_admin_0_countries.shp:16
+msgid "United States of America"
+msgstr "美国"
+
+#: ne_50m_admin_0_countries.shp:17
+msgid "S. Geo. and the Is."
+msgstr "南喬治亞島與南桑威奇群島"
+
+#: ne_50m_admin_0_countries.shp:18
+msgid "Br. Indian Ocean Ter."
+msgstr "英屬印度洋領地"
+
+#: ne_50m_admin_0_countries.shp:19
+msgid "Saint Helena"
+msgstr "圣赫勒拿岛"
+
+#: ne_50m_admin_0_countries.shp:20
+msgid "Pitcairn Is."
+msgstr "皮特凯恩群岛"
+
+#: ne_50m_admin_0_countries.shp:21
+msgid "Anguilla"
+msgstr "安圭拉"
+
+#: ne_50m_admin_0_countries.shp:22
+msgid "Falkland Is."
+msgstr "福克兰群岛"
+
+#: ne_50m_admin_0_countries.shp:23
+msgid "Cayman Is."
+msgstr "開曼群島"
+
+#: ne_50m_admin_0_countries.shp:24
+msgid "Bermuda"
+msgstr "百慕大"
+
+#: ne_50m_admin_0_countries.shp:25
+msgid "British Virgin Is."
+msgstr "英屬維爾京群島"
+
+#: ne_50m_admin_0_countries.shp:26
+msgid "Turks and Caicos Is."
+msgstr "特克斯和凯科斯群岛"
+
+#: ne_50m_admin_0_countries.shp:27
+msgid "Montserrat"
+msgstr "蒙塞拉特島"
+
+#: ne_50m_admin_0_countries.shp:28
+msgid "Jersey"
+msgstr "澤西島"
+
+#: ne_50m_admin_0_countries.shp:29
+msgid "Guernsey"
+msgstr "根西岛"
+
+#: ne_50m_admin_0_countries.shp:30
+msgid "Isle of Man"
+msgstr "马恩岛"
+
+#: ne_50m_admin_0_countries.shp:31
+msgid "United Kingdom"
+msgstr "英国"
+
+#: ne_50m_admin_0_countries.shp:32
+msgid "United Arab Emirates"
+msgstr "阿拉伯联合酋长国"
+
+#: ne_50m_admin_0_countries.shp:33
+msgid "Ukraine"
+msgstr "乌克兰"
+
+#: ne_50m_admin_0_countries.shp:34
+msgid "Uganda"
+msgstr "乌干达"
+
+#: ne_50m_admin_0_countries.shp:35
+msgid "Turkmenistan"
+msgstr "土库曼斯坦"
+
+#: ne_50m_admin_0_countries.shp:36
+msgid "Turkey"
+msgstr "土耳其"
+
+#: ne_50m_admin_0_countries.shp:37
+msgid "Tunisia"
+msgstr "突尼西亞"
+
+#: ne_50m_admin_0_countries.shp:38
+msgid "Trinidad and Tobago"
+msgstr "千里達及托巴哥"
+
+#: ne_50m_admin_0_countries.shp:39
+msgid "Tonga"
+msgstr "東加"
+
+#: ne_50m_admin_0_countries.shp:40
+msgid "Togo"
+msgstr "多哥"
+
+#: ne_50m_admin_0_countries.shp:41
+msgid "Timor-Leste"
+msgstr "东帝汶"
+
+#: ne_50m_admin_0_countries.shp:42
+msgid "Thailand"
+msgstr "泰国"
+
+#: ne_50m_admin_0_countries.shp:43
+msgid "Tanzania"
+msgstr "坦桑尼亚"
+
+#: ne_50m_admin_0_countries.shp:44
+msgid "Tajikistan"
+msgstr "塔吉克斯坦"
+
+#: ne_50m_admin_0_countries.shp:45
+msgid "Taiwan"
+msgstr "中華民國"
+
+#: ne_50m_admin_0_countries.shp:46
+msgid "Syria"
+msgstr "叙利亚"
+
+#: ne_50m_admin_0_countries.shp:47
+msgid "Switzerland"
+msgstr "瑞士"
+
+#: ne_50m_admin_0_countries.shp:48
+msgid "Sweden"
+msgstr "瑞典"
+
+#: ne_50m_admin_0_countries.shp:49
+msgid "eSwatini"
+msgstr "斯威士兰"
+
+#: ne_50m_admin_0_countries.shp:50
+msgid "Suriname"
+msgstr "蘇利南"
+
+#: ne_50m_admin_0_countries.shp:51
+msgid "S. Sudan"
+msgstr "南苏丹"
+
+#: ne_50m_admin_0_countries.shp:52
+msgid "Sudan"
+msgstr "苏丹共和国"
+
+#: ne_50m_admin_0_countries.shp:53
+msgid "Sri Lanka"
+msgstr "斯里蘭卡"
+
+#: ne_50m_admin_0_countries.shp:54
+msgid "Spain"
+msgstr "西班牙"
+
+#: ne_50m_admin_0_countries.shp:55
+msgid "South Korea"
+msgstr "大韩民国"
+
+#: ne_50m_admin_0_countries.shp:56
+msgid "South Africa"
+msgstr "南非"
+
+#: ne_50m_admin_0_countries.shp:57
+msgid "Somalia"
+msgstr "索马里"
+
+#: ne_50m_admin_0_countries.shp:58
+msgid "Somaliland"
+msgstr "索马里兰"
+
+#: ne_50m_admin_0_countries.shp:59
+msgid "Solomon Is."
+msgstr "索羅門群島"
+
+#: ne_50m_admin_0_countries.shp:60
+msgid "Slovakia"
+msgstr "斯洛伐克"
+
+#: ne_50m_admin_0_countries.shp:61
+msgid "Slovenia"
+msgstr "斯洛文尼亚"
+
+#: ne_50m_admin_0_countries.shp:62
+msgid "Singapore"
+msgstr "新加坡"
+
+#: ne_50m_admin_0_countries.shp:63
+msgid "Sierra Leone"
+msgstr "塞拉利昂"
+
+#: ne_50m_admin_0_countries.shp:64
+msgid "Seychelles"
+msgstr "塞舌尔"
+
+#: ne_50m_admin_0_countries.shp:65
+msgid "Serbia"
+msgstr "塞尔维亚"
+
+#: ne_50m_admin_0_countries.shp:66
+msgid "Senegal"
+msgstr "塞内加尔"
+
+#: ne_50m_admin_0_countries.shp:67
+msgid "Saudi Arabia"
+msgstr "沙特阿拉伯"
+
+#: ne_50m_admin_0_countries.shp:68
+msgid "São Tomé and Principe"
+msgstr "圣多美和普林西比"
+
+#: ne_50m_admin_0_countries.shp:69
+msgid "San Marino"
+msgstr "圣马力诺"
+
+#: ne_50m_admin_0_countries.shp:70
+msgid "Samoa"
+msgstr "萨摩亚"
+
+#: ne_50m_admin_0_countries.shp:71
+msgid "St. Vin. and Gren."
+msgstr "圣文森特和格林纳丁斯"
+
+#: ne_50m_admin_0_countries.shp:72
+msgid "Saint Lucia"
+msgstr "圣卢西亚"
+
+#: ne_50m_admin_0_countries.shp:73
+msgid "St. Kitts and Nevis"
+msgstr "聖克里斯多福與尼維斯"
+
+#: ne_50m_admin_0_countries.shp:74
+msgid "Rwanda"
+msgstr "卢旺达"
+
+#: ne_50m_admin_0_countries.shp:75
+msgid "Russia"
+msgstr "俄罗斯"
+
+#: ne_50m_admin_0_countries.shp:76
+msgid "Romania"
+msgstr "羅馬尼亞"
+
+#: ne_50m_admin_0_countries.shp:77
+msgid "Qatar"
+msgstr "卡塔尔"
+
+#: ne_50m_admin_0_countries.shp:78
+msgid "Portugal"
+msgstr "葡萄牙"
+
+#: ne_50m_admin_0_countries.shp:79
+msgid "Poland"
+msgstr "波兰"
+
+#: ne_50m_admin_0_countries.shp:80
+msgid "Philippines"
+msgstr "菲律宾"
+
+#: ne_50m_admin_0_countries.shp:81
+msgid "Peru"
+msgstr "秘鲁"
+
+#: ne_50m_admin_0_countries.shp:82
+msgid "Paraguay"
+msgstr "巴拉圭"
+
+#: ne_50m_admin_0_countries.shp:83
+msgid "Papua New Guinea"
+msgstr "巴布亚新几内亚"
+
+#: ne_50m_admin_0_countries.shp:84
+msgid "Panama"
+msgstr "巴拿马"
+
+#: ne_50m_admin_0_countries.shp:85
+msgid "Palau"
+msgstr "帛琉"
+
+#: ne_50m_admin_0_countries.shp:86
+msgid "Pakistan"
+msgstr "巴基斯坦"
+
+#: ne_50m_admin_0_countries.shp:87
+msgid "Oman"
+msgstr "阿曼"
+
+#: ne_50m_admin_0_countries.shp:88
+msgid "Norway"
+msgstr "挪威"
+
+#: ne_50m_admin_0_countries.shp:89
+msgid "North Korea"
+msgstr "朝鲜民主主义人民共和国"
+
+#: ne_50m_admin_0_countries.shp:90
+msgid "Nigeria"
+msgstr "奈及利亞"
+
+#: ne_50m_admin_0_countries.shp:91
+msgid "Niger"
+msgstr "尼日尔"
+
+#: ne_50m_admin_0_countries.shp:92
+msgid "Nicaragua"
+msgstr "尼加拉瓜"
+
+#: ne_50m_admin_0_countries.shp:93
+msgid "New Zealand"
+msgstr "新西兰"
+
+#: ne_50m_admin_0_countries.shp:94
+msgid "Niue"
+msgstr "紐埃"
+
+#: ne_50m_admin_0_countries.shp:95
+msgid "Cook Is."
+msgstr "库克群岛"
+
+#: ne_50m_admin_0_countries.shp:96
+msgid "Netherlands"
+msgstr "荷蘭"
+
+#: ne_50m_admin_0_countries.shp:97
+msgid "Aruba"
+msgstr "阿魯巴"
+
+#: ne_50m_admin_0_countries.shp:98
+msgid "Curaçao"
+msgstr "库拉索"
+
+#: ne_50m_admin_0_countries.shp:99
+msgid "Nepal"
+msgstr "尼泊尔"
+
+#: ne_50m_admin_0_countries.shp:100
+msgid "Nauru"
+msgstr "諾魯"
+
+#: ne_50m_admin_0_countries.shp:101
+msgid "Namibia"
+msgstr "纳米比亚"
+
+#: ne_50m_admin_0_countries.shp:102
+msgid "Mozambique"
+msgstr "莫桑比克"
+
+#: ne_50m_admin_0_countries.shp:103
+msgid "Morocco"
+msgstr "摩洛哥"
+
+#: ne_50m_admin_0_countries.shp:104
+msgid "W. Sahara"
+msgstr "西撒哈拉"
+
+#: ne_50m_admin_0_countries.shp:105
+msgid "Montenegro"
+msgstr "蒙特內哥羅"
+
+#: ne_50m_admin_0_countries.shp:106
+msgid "Mongolia"
+msgstr "蒙古国"
+
+#: ne_50m_admin_0_countries.shp:107
+msgid "Moldova"
+msgstr "摩尔多瓦"
+
+#: ne_50m_admin_0_countries.shp:108
+msgid "Monaco"
+msgstr "摩纳哥"
+
+#: ne_50m_admin_0_countries.shp:109
+msgid "Mexico"
+msgstr "墨西哥"
+
+#: ne_50m_admin_0_countries.shp:110
+msgid "Mauritius"
+msgstr "毛里求斯"
+
+#: ne_50m_admin_0_countries.shp:111
+msgid "Mauritania"
+msgstr "毛里塔尼亚"
+
+#: ne_50m_admin_0_countries.shp:112
+msgid "Malta"
+msgstr "马耳他"
+
+#: ne_50m_admin_0_countries.shp:113
+msgid "Mali"
+msgstr "马里共和国"
+
+#: ne_50m_admin_0_countries.shp:114
+msgid "Maldives"
+msgstr "马尔代夫"
+
+#: ne_50m_admin_0_countries.shp:115
+msgid "Malaysia"
+msgstr "马来西亚"
+
+#: ne_50m_admin_0_countries.shp:116
+msgid "Malawi"
+msgstr "马拉维"
+
+#: ne_50m_admin_0_countries.shp:117
+msgid "Madagascar"
+msgstr "马达加斯加"
+
+#: ne_50m_admin_0_countries.shp:118
+msgid "Macedonia"
+msgstr "馬其頓共和國"
+
+#: ne_50m_admin_0_countries.shp:119
+msgid "Luxembourg"
+msgstr "卢森堡"
+
+#: ne_50m_admin_0_countries.shp:120
+msgid "Lithuania"
+msgstr "立陶宛"
+
+#: ne_50m_admin_0_countries.shp:121
+msgid "Liechtenstein"
+msgstr "列支敦斯登"
+
+#: ne_50m_admin_0_countries.shp:122
+msgid "Libya"
+msgstr "利比亚"
+
+#: ne_50m_admin_0_countries.shp:123
+msgid "Liberia"
+msgstr "利比里亚"
+
+#: ne_50m_admin_0_countries.shp:124
+msgid "Lesotho"
+msgstr "莱索托"
+
+#: ne_50m_admin_0_countries.shp:125
+msgid "Lebanon"
+msgstr "黎巴嫩"
+
+#: ne_50m_admin_0_countries.shp:126
+msgid "Latvia"
+msgstr "拉脫維亞"
+
+#: ne_50m_admin_0_countries.shp:127
+msgid "Laos"
+msgstr "老挝"
+
+#: ne_50m_admin_0_countries.shp:128
+msgid "Kyrgyzstan"
+msgstr "吉尔吉斯斯坦"
+
+#: ne_50m_admin_0_countries.shp:129
+msgid "Kuwait"
+msgstr "科威特"
+
+#: ne_50m_admin_0_countries.shp:130
+msgid "Kosovo"
+msgstr "科索沃"
+
+#: ne_50m_admin_0_countries.shp:131
+msgid "Kiribati"
+msgstr "吉里巴斯"
+
+#: ne_50m_admin_0_countries.shp:132
+msgid "Kenya"
+msgstr "肯尼亚"
+
+#: ne_50m_admin_0_countries.shp:133
+msgid "Kazakhstan"
+msgstr "哈萨克斯坦"
+
+#: ne_50m_admin_0_countries.shp:134
+msgid "Jordan"
+msgstr "约旦"
+
+#: ne_50m_admin_0_countries.shp:135
+msgid "Japan"
+msgstr "日本"
+
+#: ne_50m_admin_0_countries.shp:136
+msgid "Jamaica"
+msgstr "牙买加"
+
+#: ne_50m_admin_0_countries.shp:137
+msgid "Italy"
+msgstr "意大利"
+
+#: ne_50m_admin_0_countries.shp:138
+msgid "Israel"
+msgstr "以色列"
+
+#: ne_50m_admin_0_countries.shp:139
+msgid "Palestine"
+msgstr "巴勒斯坦"
+
+#: ne_50m_admin_0_countries.shp:140
+msgid "Ireland"
+msgstr "爱尔兰共和国"
+
+#: ne_50m_admin_0_countries.shp:141
+msgid "Iraq"
+msgstr "伊拉克"
+
+#: ne_50m_admin_0_countries.shp:142
+msgid "Iran"
+msgstr "伊朗"
+
+#: ne_50m_admin_0_countries.shp:143
+msgid "Indonesia"
+msgstr "印度尼西亚"
+
+#: ne_50m_admin_0_countries.shp:144
+msgid "India"
+msgstr "印度"
+
+#: ne_50m_admin_0_countries.shp:145
+msgid "Iceland"
+msgstr "冰岛"
+
+#: ne_50m_admin_0_countries.shp:146
+msgid "Hungary"
+msgstr "匈牙利"
+
+#: ne_50m_admin_0_countries.shp:147
+msgid "Honduras"
+msgstr "洪都拉斯"
+
+#: ne_50m_admin_0_countries.shp:148
+msgid "Haiti"
+msgstr "海地"
+
+#: ne_50m_admin_0_countries.shp:149
+msgid "Guyana"
+msgstr "圭亚那"
+
+#: ne_50m_admin_0_countries.shp:150
+msgid "Guinea-Bissau"
+msgstr "幾內亞比索"
+
+#: ne_50m_admin_0_countries.shp:151
+msgid "Guinea"
+msgstr "几内亚"
+
+#: ne_50m_admin_0_countries.shp:152
+msgid "Guatemala"
+msgstr "危地马拉"
+
+#: ne_50m_admin_0_countries.shp:153
+msgid "Grenada"
+msgstr "格林纳达"
+
+#: ne_50m_admin_0_countries.shp:154
+msgid "Greece"
+msgstr "希腊"
+
+#: ne_50m_admin_0_countries.shp:155
+msgid "Ghana"
+msgstr "迦納"
+
+#: ne_50m_admin_0_countries.shp:156
+msgid "Germany"
+msgstr "德国"
+
+#: ne_50m_admin_0_countries.shp:157
+msgid "Georgia"
+msgstr "格鲁吉亚"
+
+#: ne_50m_admin_0_countries.shp:158
+msgid "Gambia"
+msgstr "冈比亚"
+
+#: ne_50m_admin_0_countries.shp:159
+msgid "Gabon"
+msgstr "加蓬"
+
+#: ne_50m_admin_0_countries.shp:160
+msgid "France"
+msgstr "法国"
+
+#: ne_50m_admin_0_countries.shp:161
+msgid "St. Pierre and Miquelon"
+msgstr "圣皮埃尔和密克隆群岛"
+
+#: ne_50m_admin_0_countries.shp:162
+msgid "Wallis and Futuna Is."
+msgstr "瓦利斯和富圖納"
+
+#: ne_50m_admin_0_countries.shp:163
+msgid "St-Martin"
+msgstr "法屬聖馬丁"
+
+#: ne_50m_admin_0_countries.shp:164
+msgid "St-Barthélemy"
+msgstr "聖巴泰勒米島"
+
+#: ne_50m_admin_0_countries.shp:165
+msgid "Fr. Polynesia"
+msgstr "法屬玻里尼西亞"
+
+#: ne_50m_admin_0_countries.shp:166
+msgid "New Caledonia"
+msgstr "新喀里多尼亞"
+
+#: ne_50m_admin_0_countries.shp:167
+msgid "Fr. S. Antarctic Lands"
+msgstr "法属南部领地"
+
+#: ne_50m_admin_0_countries.shp:168
+msgid "Åland"
+msgstr "奥兰群岛"
+
+#: ne_50m_admin_0_countries.shp:169
+msgid "Finland"
+msgstr "芬兰"
+
+#: ne_50m_admin_0_countries.shp:170
+msgid "Fiji"
+msgstr "斐濟"
+
+#: ne_50m_admin_0_countries.shp:171
+msgid "Ethiopia"
+msgstr "埃塞俄比亚"
+
+#: ne_50m_admin_0_countries.shp:172
+msgid "Estonia"
+msgstr "爱沙尼亚"
+
+#: ne_50m_admin_0_countries.shp:173
+msgid "Eritrea"
+msgstr "厄立特里亚"
+
+#: ne_50m_admin_0_countries.shp:174
+msgid "Eq. Guinea"
+msgstr "赤道几内亚"
+
+#: ne_50m_admin_0_countries.shp:175
+msgid "El Salvador"
+msgstr "萨尔瓦多"
+
+#: ne_50m_admin_0_countries.shp:176
+msgid "Egypt"
+msgstr "埃及"
+
+#: ne_50m_admin_0_countries.shp:177
+msgid "Ecuador"
+msgstr "厄瓜多尔"
+
+#: ne_50m_admin_0_countries.shp:178
+msgid "Dominican Rep."
+msgstr "多明尼加"
+
+#: ne_50m_admin_0_countries.shp:179
+msgid "Dominica"
+msgstr "多米尼克"
+
+#: ne_50m_admin_0_countries.shp:180
+msgid "Djibouti"
+msgstr "吉布提"
+
+#: ne_50m_admin_0_countries.shp:181
+msgid "Greenland"
+msgstr "格陵兰"
+
+#: ne_50m_admin_0_countries.shp:182
+msgid "Faeroe Is."
+msgstr "法罗群岛"
+
+#: ne_50m_admin_0_countries.shp:183
+msgid "Denmark"
+msgstr "丹麦"
+
+#: ne_50m_admin_0_countries.shp:184
+msgid "Czechia"
+msgstr "捷克"
+
+#: ne_50m_admin_0_countries.shp:185
+msgid "N. Cyprus"
+msgstr "北賽普勒斯土耳其共和國"
+
+#: ne_50m_admin_0_countries.shp:186
+msgid "Cyprus"
+msgstr "賽普勒斯"
+
+#: ne_50m_admin_0_countries.shp:187
+msgid "Cuba"
+msgstr "古巴"
+
+#: ne_50m_admin_0_countries.shp:188
+msgid "Croatia"
+msgstr "克罗地亚"
+
+#: ne_50m_admin_0_countries.shp:189
+msgid "Côte d'Ivoire"
+msgstr "科特迪瓦"
+
+#: ne_50m_admin_0_countries.shp:190
+msgid "Costa Rica"
+msgstr "哥斯达黎加"
+
+#: ne_50m_admin_0_countries.shp:191
+msgid "Dem. Rep. Congo"
+msgstr "刚果民主共和国"
+
+#: ne_50m_admin_0_countries.shp:192
+msgid "Congo"
+msgstr "刚果共和国"
+
+#: ne_50m_admin_0_countries.shp:193
+msgid "Comoros"
+msgstr "葛摩"
+
+#: ne_50m_admin_0_countries.shp:194
+msgid "Colombia"
+msgstr "哥伦比亚"
+
+#: ne_50m_admin_0_countries.shp:195
+msgid "China"
+msgstr "中华人民共和国"
+
+#: ne_50m_admin_0_countries.shp:196
+msgid "Macao"
+msgstr "澳門"
+
+#: ne_50m_admin_0_countries.shp:197
+msgid "Hong Kong"
+msgstr "香港"
+
+#: ne_50m_admin_0_countries.shp:198
+msgid "Chile"
+msgstr "智利"
+
+#: ne_50m_admin_0_countries.shp:199
+msgid "Chad"
+msgstr "乍得"
+
+#: ne_50m_admin_0_countries.shp:200
+msgid "Central African Rep."
+msgstr "中非共和國"
+
+#: ne_50m_admin_0_countries.shp:201
+msgid "Cabo Verde"
+msgstr "佛得角"
+
+#: ne_50m_admin_0_countries.shp:202
+msgid "Canada"
+msgstr "加拿大"
+
+#: ne_50m_admin_0_countries.shp:203
+msgid "Cameroon"
+msgstr "喀麦隆"
+
+#: ne_50m_admin_0_countries.shp:204
+msgid "Cambodia"
+msgstr "柬埔寨"
+
+#: ne_50m_admin_0_countries.shp:205
+msgid "Myanmar"
+msgstr "缅甸"
+
+#: ne_50m_admin_0_countries.shp:206
+msgid "Burundi"
+msgstr "蒲隆地"
+
+#: ne_50m_admin_0_countries.shp:207
+msgid "Burkina Faso"
+msgstr "布吉納法索"
+
+#: ne_50m_admin_0_countries.shp:208
+msgid "Bulgaria"
+msgstr "保加利亚"
+
+#: ne_50m_admin_0_countries.shp:209
+msgid "Brunei"
+msgstr "文莱"
+
+#: ne_50m_admin_0_countries.shp:210
+msgid "Brazil"
+msgstr "巴西"
+
+#: ne_50m_admin_0_countries.shp:211
+msgid "Botswana"
+msgstr "波札那"
+
+#: ne_50m_admin_0_countries.shp:212
+msgid "Bosnia and Herz."
+msgstr "波斯尼亚和黑塞哥维那"
+
+#: ne_50m_admin_0_countries.shp:213
+msgid "Bolivia"
+msgstr "玻利維亞"
+
+#: ne_50m_admin_0_countries.shp:214
+msgid "Bhutan"
+msgstr "不丹"
+
+#: ne_50m_admin_0_countries.shp:215
+msgid "Benin"
+msgstr "贝宁"
+
+#: ne_50m_admin_0_countries.shp:216
+msgid "Belize"
+msgstr "伯利兹"
+
+#: ne_50m_admin_0_countries.shp:217
+msgid "Belgium"
+msgstr "比利时"
+
+#: ne_50m_admin_0_countries.shp:218
+msgid "Belarus"
+msgstr "白罗斯"
+
+#: ne_50m_admin_0_countries.shp:219
+msgid "Barbados"
+msgstr "巴巴多斯"
+
+#: ne_50m_admin_0_countries.shp:220
+msgid "Bangladesh"
+msgstr "孟加拉国"
+
+#: ne_50m_admin_0_countries.shp:221
+msgid "Bahrain"
+msgstr "巴林"
+
+#: ne_50m_admin_0_countries.shp:222
+msgid "Bahamas"
+msgstr "巴哈马"
+
+#: ne_50m_admin_0_countries.shp:223
+msgid "Azerbaijan"
+msgstr "阿塞拜疆"
+
+#: ne_50m_admin_0_countries.shp:224
+msgid "Austria"
+msgstr "奥地利"
+
+#: ne_50m_admin_0_countries.shp:225
+msgid "Australia"
+msgstr "澳大利亚"
+
+#: ne_50m_admin_0_countries.shp:226
+msgid "Indian Ocean Ter."
+msgstr "澳屬印度洋領地"
+
+#: ne_50m_admin_0_countries.shp:227
+msgid "Heard I. and McDonald Is."
+msgstr "赫德島和麥克唐納群島"
+
+#: ne_50m_admin_0_countries.shp:228
+msgid "Norfolk Island"
+msgstr "诺福克岛"
+
+#: ne_50m_admin_0_countries.shp:229
+msgid "Ashmore and Cartier Is."
+msgstr "阿什莫尔和卡捷岛"
+
+#: ne_50m_admin_0_countries.shp:230
+msgid "Armenia"
+msgstr "亞美尼亞"
+
+#: ne_50m_admin_0_countries.shp:231
+msgid "Argentina"
+msgstr "阿根廷"
+
+#: ne_50m_admin_0_countries.shp:232
+msgid "Antigua and Barb."
+msgstr "安提瓜和巴布达"
+
+#: ne_50m_admin_0_countries.shp:233
+msgid "Angola"
+msgstr "安哥拉"
+
+#: ne_50m_admin_0_countries.shp:234
+msgid "Andorra"
+msgstr "安道尔"
+
+#: ne_50m_admin_0_countries.shp:235
+msgid "Algeria"
+msgstr "阿尔及利亚"
+
+#: ne_50m_admin_0_countries.shp:236
+msgid "Albania"
+msgstr "阿尔巴尼亚"
+
+#: ne_50m_admin_0_countries.shp:237
+msgid "Afghanistan"
+msgstr "阿富汗"
+
+#: ne_50m_admin_0_countries.shp:238
+msgid "Siachen Glacier"
+msgstr "锡亚琴冰川"
+
+#: ne_50m_admin_0_countries.shp:239
+msgid "Antarctica"
+msgstr "南极洲"
+
+#: ne_50m_admin_0_countries.shp:240
+msgid "Sint Maarten"
+msgstr "荷屬聖馬丁"
