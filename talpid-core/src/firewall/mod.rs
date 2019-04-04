@@ -131,11 +131,19 @@ pub struct Firewall {
     inner: imp::Firewall,
 }
 
+/// Arguments required when first initializing the firewall.
+pub struct FirewallArguments {
+    /// Determines whether the firewall should atomically enter the blocked state during init.
+    pub initialize_blocked: bool,
+    /// This argument is required for the blocked state to configure the firewall correctly.
+    pub allow_lan: Option<bool>,
+}
+
 impl Firewall {
     /// Returns a new `Firewall`, ready to apply policies.
-    pub fn new() -> Result<Self, Error> {
+    pub fn new(args: FirewallArguments) -> Result<Self, Error> {
         Ok(Firewall {
-            inner: imp::Firewall::new()?,
+            inner: imp::Firewall::new(args)?,
         })
     }
 
@@ -160,7 +168,7 @@ trait FirewallT: Sized {
     type Error: std::error::Error;
 
     /// Create new instance
-    fn new() -> Result<Self, Self::Error>;
+    fn new(args: FirewallArguments) -> Result<Self, Self::Error>;
 
     /// Enable the given FirewallPolicy
     fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Self::Error>;

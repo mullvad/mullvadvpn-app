@@ -1,4 +1,4 @@
-use super::{FirewallPolicy, FirewallT};
+use super::{FirewallArguments, FirewallPolicy, FirewallT};
 use crate::tunnel;
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
@@ -83,7 +83,7 @@ pub struct Firewall {
 impl FirewallT for Firewall {
     type Error = Error;
 
-    fn new() -> Result<Self> {
+    fn new(_args: FirewallArguments) -> Result<Self> {
         Ok(Firewall {
             table_name: TABLE_NAME.clone(),
         })
