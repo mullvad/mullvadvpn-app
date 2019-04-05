@@ -38,6 +38,7 @@ pub enum Error {
     RotateLogError(#[error(cause)] crate::logging::RotateLogError),
 
     /// Failure to build Wireguard configuration.
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     #[error(display = "Failed to configure Wireguard with the given parameters")]
     WireguardConfigError(#[error(cause)] self::wireguard::config::Error),
 
@@ -46,7 +47,7 @@ pub enum Error {
     OpenVpnTunnelMonitoringError(#[error(cause)] openvpn::Error),
 
     /// There was an error listening for events from the Wireguard tunnel
-    #[cfg(unix)]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     #[error(display = "Failed while listening for events from the Wireguard tunnel")]
     WirguardTunnelMonitoringError(#[error(cause)] wireguard::Error),
 }

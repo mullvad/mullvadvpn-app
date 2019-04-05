@@ -126,17 +126,11 @@ impl ConnectingState {
             }
             Err(error) => match error {
                 #[cfg(windows)]
-                error @ tunnel::Error(
-                    tunnel::ErrorKind::OpenVpnTunnelMonitoringError(
-                        tunnel::openvpn::ErrorKind::DisabledTapAdapter,
-                    ),
-                    _,
+                error @ tunnel::Error::OpenVpnTunnelMonitoringError(
+                    tunnel::openvpn::Error::DisabledTapAdapter,
                 )
-                | error @ tunnel::Error(
-                    tunnel::ErrorKind::OpenVpnTunnelMonitoringError(
-                        tunnel::openvpn::ErrorKind::MissingTapAdapter,
-                    ),
-                    _,
+                | error @ tunnel::Error::OpenVpnTunnelMonitoringError(
+                    tunnel::openvpn::Error::MissingTapAdapter,
                 ) => {
                     warn!(
                         "{}",

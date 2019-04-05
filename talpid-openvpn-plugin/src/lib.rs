@@ -21,7 +21,7 @@ pub enum Error {
     #[error(display = "No core server id given as first argument")]
     MissingCoreServerId,
 
-    #[error(display = "Failed to sending an event to daemon over the IPC channel")]
+    #[error(display = "Failed to send an event to daemon over the IPC channel")]
     SendEvent(#[error(cause)] jsonrpc_client_core::Error),
 
     #[error(display = "Connection is shut down")]
