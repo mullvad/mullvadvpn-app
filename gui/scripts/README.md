@@ -22,9 +22,10 @@ download ZIP files with the following shapes:
 or use cURL to download all ZIPs:
 
 ```
-curl -L -O http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/cultural/ne_50m_admin_0_countries.zip
-curl -L -O http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/cultural/ne_50m_admin_1_states_provinces_lines.zip
-curl -L -O http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/cultural/ne_50m_populated_places.zip
+curl -L -O https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/cultural/ne_50m_admin_0_countries.zip
+curl -L -O https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/cultural/ne_50m_admin_1_states_provinces_lines.zip
+curl -L -O https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_populated_places.zip
+curl -L -O https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/cultural/ne_50m_populated_places.zip
 ```
 
 Extract the downloaded ZIP files into geo-data.
@@ -32,17 +33,20 @@ Make sure the following folders exist after extraction:
 
 - ne_50m_admin_0_countries
 - ne_50m_admin_1_states_provinces_lines
+- ne_10m_populated_places
 - ne_50m_populated_places
 
 or use the following script:
 
 ```
 mkdir ne_50m_admin_1_states_provinces_lines
+mkdir ne_10m_populated_places
 mkdir ne_50m_populated_places
 mkdir ne_50m_admin_0_countries
 
 unzip ne_50m_admin_0_countries.zip -d ne_50m_admin_0_countries
 unzip ne_50m_admin_1_states_provinces_lines.zip -d ne_50m_admin_1_states_provinces_lines
+unzip ne_10m_populated_places.zip -d ne_10m_populated_places
 unzip ne_50m_populated_places.zip -d ne_50m_populated_places
 ```
 
