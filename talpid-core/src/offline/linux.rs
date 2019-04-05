@@ -1,30 +1,34 @@
 use crate::tunnel_state_machine::TunnelCommand;
-use error_chain::ChainedError;
 use futures::{future::Either, sync::mpsc::UnboundedSender, Future, Stream};
 use iproute2::{Address, Connection, ConnectionHandle, Link, NetlinkIpError};
 use log::{error, warn};
 use netlink_socket::{Protocol, SocketAddr, TokioSocket};
 use rtnetlink::{LinkLayerType, NetlinkCodec, NetlinkFramed, NetlinkMessage};
-use std::{collections::BTreeSet, thread};
+use std::{collections::BTreeSet, io, thread};
+use talpid_types::ErrorExt;
 
-error_chain! {
-    errors {
-        GetLinksError {
-            description("Failed to get list of IP links")
-        }
-        NetlinkConnectionError {
-            description("Failed to connect to netlink socket")
-        }
-        NetlinkBindError {
-            description("Failed to start listening on netlink socket")
-        }
-        NetlinkError {
-            description("Error while communicating on the netlink socket")
-        }
-        NetlinkDisconnected {
-            description("Netlink connection has unexpectedly disconnected")
-        }
-    }
+
+pub type Result<T> = std::result::Result<T, Error>;
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Failed to get list of IP links")]
+    GetLinksError(#[error(cause)] failure::Compat<iproute2::NetlinkIpError>),
+
+    #[error(display = "Failed to connect to netlink socket")]
+    NetlinkConnectionError(#[error(cause)] io::Error),
+
+    #[error(display = "Failed to start listening on netlink socket")]
+    NetlinkBindError(#[error(cause)] io::Error),
+
+    #[error(display = "Error while communicating on the netlink socket")]
+    NetlinkError(#[error(cause)] io::Error),
+
+    #[error(display = "Error while processing netlink messages")]
+    MonitorNetlinkError(#[error(cause)] failure::Compat<rtnetlink::Error>),
+
+    #[error(display = "Netlink connection has unexpectedly disconnected")]
+    NetlinkDisconnected,
 }
 
 const RTMGRP_NOTIFY: u32 = 1;
@@ -35,22 +39,23 @@ const RTMGRP_IPV6_IFADDR: u32 = 0x100;
 pub struct MonitorHandle;
 
 pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle> {
-    let mut socket =
-        TokioSocket::new(Protocol::Route).chain_err(|| ErrorKind::NetlinkConnectionError)?;
+    let mut socket = TokioSocket::new(Protocol::Route).map_err(Error::NetlinkConnectionError)?;
     socket
         .bind(&SocketAddr::new(
             0,
             RTMGRP_NOTIFY | RTMGRP_LINK | RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR,
         ))
-        .chain_err(|| ErrorKind::NetlinkBindError)?;
+        .map_err(Error::NetlinkBindError)?;
 
     let channel = NetlinkFramed::new(socket, NetlinkCodec::<NetlinkMessage>::new());
     let link_monitor = LinkMonitor::new(sender);
 
     thread::spawn(|| {
         if let Err(error) = monitor_event_loop(channel, link_monitor) {
-            let chained_error = error.chain_err(|| "Error running link monitor event loop");
-            error!("{}", chained_error.display_chain());
+            error!(
+                "{}",
+                error.display_chain_with_msg("Error running link monitor event loop")
+            );
         }
     });
 
@@ -59,8 +64,10 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHa
 
 pub fn is_offline() -> bool {
     check_if_offline().unwrap_or_else(|error| {
-        let chained_error = error.chain_err(|| "Failed to check for internet connection");
-        warn!("{}", chained_error.display_chain());
+        warn!(
+            "{}",
+            error.display_chain_with_msg("Failed to check for internet connection")
+        );
         false
     })
 }
@@ -91,7 +98,7 @@ impl NetlinkConnection {
     /// Open a connection on the netlink socket.
     pub fn new() -> Result<Self> {
         let (connection, connection_handle) =
-            iproute2::new_connection().chain_err(|| ErrorKind::NetlinkConnectionError)?;
+            iproute2::new_connection().map_err(Error::NetlinkConnectionError)?;
 
         Ok(NetlinkConnection {
             connection: Some(connection),
@@ -125,20 +132,14 @@ impl NetlinkConnection {
     where
         R: Future<Error = NetlinkIpError>,
     {
-        let connection = self
-            .connection
-            .take()
-            .ok_or(ErrorKind::NetlinkDisconnected)?;
+        let connection = self.connection.take().ok_or(Error::NetlinkDisconnected)?;
 
         let (result, connection) = match connection.select2(request).wait() {
-            Ok(Either::A(_)) => bail!(ErrorKind::NetlinkDisconnected),
-            Err(Either::A((error, _))) => bail!(Error::with_chain(error, ErrorKind::NetlinkError)),
+            Ok(Either::A(_)) => return Err(Error::NetlinkDisconnected),
+            Err(Either::A((error, _))) => return Err(Error::NetlinkError(error)),
             Ok(Either::B((links, connection))) => (Ok(links), connection),
             Err(Either::B((error, connection))) => (
-                Err(Error::with_chain(
-                    failure::Fail::compat(error),
-                    ErrorKind::GetLinksError,
-                )),
+                Err(Error::GetLinksError(failure::Fail::compat(error))),
                 connection,
             ),
         };
@@ -165,9 +166,7 @@ fn monitor_event_loop(
             Ok(())
         })
         .wait()
-        .map_err(|error| {
-            Error::with_chain(failure::Fail::compat(error), ErrorKind::NetlinkError)
-        })?;
+        .map_err(|error| Error::MonitorNetlinkError(failure::Fail::compat(error)))?;
 
     Ok(())
 }

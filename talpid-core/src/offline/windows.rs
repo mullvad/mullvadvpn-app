@@ -11,6 +11,7 @@ use futures::sync::mpsc::UnboundedSender;
 use log::debug;
 use std::{
     ffi::c_void,
+    io,
     mem::zeroed,
     os::windows::io::{IntoRawHandle, RawHandle},
     ptr, thread,
@@ -40,13 +41,13 @@ use winapi::{
 const CLASS_NAME: &[u8] = b"S\0T\0A\0T\0I\0C\0\0\0";
 const REQUEST_THREAD_SHUTDOWN: UINT = WM_USER + 1;
 
-error_chain! {
-    errors {
-        ThreadCreationError {
-            description("Unable to create listener thread")
-        }
-    }
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Unable to create listener thread")]
+    ThreadCreationError(#[error(cause)] io::Error),
 }
+
 
 pub struct BroadcastListener {
     thread_handle: RawHandle,
@@ -56,7 +57,7 @@ pub struct BroadcastListener {
 unsafe impl Send for BroadcastListener {}
 
 impl BroadcastListener {
-    pub fn start<F>(client_callback: F) -> Result<Self>
+    pub fn start<F>(client_callback: F) -> Result<Self, Error>
     where
         F: Fn(UINT, WPARAM, LPARAM) + 'static + Send,
     {
@@ -64,7 +65,7 @@ impl BroadcastListener {
             .spawn(move || unsafe {
                 Self::message_pump(client_callback);
             })
-            .chain_err(|| ErrorKind::ThreadCreationError)?;
+            .map_err(Error::ThreadCreationError)?;
 
         let real_handle = join_handle.into_raw_handle();
 
@@ -169,7 +170,7 @@ impl Drop for BroadcastListener {
 
 pub type MonitorHandle = BroadcastListener;
 
-pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle> {
+pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle, Error> {
     let listener =
         BroadcastListener::start(move |message: UINT, wparam: WPARAM, _lparam: LPARAM| {
             if message == WM_POWERBROADCAST {

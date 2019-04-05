@@ -14,15 +14,16 @@ use system_configuration::{
 
 const PRIMARY_INTERFACE_KEY: &str = "State:/Network/Global/IPv4";
 
-error_chain! {
-    errors {
-        DynamicStoreInitError { description("Failed to initialize dynamic store") }
-    }
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Failed to initialize dynamic store")]
+    DynamicStoreInitError,
 }
 
 pub struct MonitorHandle;
 
-pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle> {
+pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle, Error> {
     let (result_tx, result_rx) = mpsc::channel();
     thread::spawn(move || match create_dynamic_store(sender) {
         Ok(store) => {
@@ -41,7 +42,7 @@ pub fn is_offline() -> bool {
     is_offline
 }
 
-fn create_dynamic_store(sender: UnboundedSender<TunnelCommand>) -> Result<SCDynamicStore> {
+fn create_dynamic_store(sender: UnboundedSender<TunnelCommand>) -> Result<SCDynamicStore, Error> {
     let callback_context = SCDynamicStoreCallBackContext {
         callout: primary_interface_change_callback,
         info: sender,
@@ -58,7 +59,7 @@ fn create_dynamic_store(sender: UnboundedSender<TunnelCommand>) -> Result<SCDyna
         trace!("Registered for dynamic store notifications");
         Ok(store)
     } else {
-        bail!(ErrorKind::DynamicStoreInitError)
+        Err(Error::DynamicStoreInitError)
     }
 }
 
