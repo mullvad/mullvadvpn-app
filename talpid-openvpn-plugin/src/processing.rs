@@ -35,7 +35,7 @@ impl EventProcessor {
             let mut rt = Runtime::new().expect("failed to spawn runtime");
 
             let (client, client_handle) =
-                IpcTransport::new(&arguments.ipc_socket_path, &Handle::current())
+                IpcTransport::new(&arguments.ipc_socket_path, &Handle::default())
                     .expect("Unable to create IPC transport")
                     .into_client();
 
