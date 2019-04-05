@@ -17,7 +17,7 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
-error-chain = "0.12"
+err-derive = "0.1.5"
 log = "0.4"
 env_logger = "0.6"
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
@@ -28,6 +28,7 @@ futures = "0.1"
 
 openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde", "log"] }
 talpid-ipc = { path = "../talpid-ipc" }
+talpid-types = { path = "../talpid-types" }
 
 
 [target.'cfg(windows)'.build-dependencies]
