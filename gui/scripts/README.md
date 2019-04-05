@@ -1,5 +1,4 @@
-This is a folder with python 2 and node scripts to produce geographical
-data for the Mullvad VPN app.
+This is a folder with the supporting scripts written in python 2, node, bash.
 
 
 ## Dependency installation notes

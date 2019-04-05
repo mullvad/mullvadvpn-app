@@ -70,7 +70,7 @@ def extract_pot(countries):
           entry = POEntry(
             msgid=city_name,
             msgstr=u"",
-            comment=u"{} {}".format(country.get("code"), city.get("code"))
+            comment=u"{} {}".format(country.get("code").upper(), city.get("code").upper())
           )
           pot.append(entry)
           print u"  {} ({})".format(city["name"], city["code"]).encode('utf-8')
@@ -107,7 +107,7 @@ def extract_po(fiona_source, countries, locale):
           entry = POEntry(
             msgid=city_name,
             msgstr=translated_name,
-            comment=u"{} {}".format(country.get("code"), city.get("code"))
+            comment=u"{} {}".format(country.get("code").upper(), city.get("code").upper())
           )
           po.append(entry)
           print u"  {} ({}) -> \"{}\"".format(city["name"], city["code"], translated_name).encode('utf-8')
