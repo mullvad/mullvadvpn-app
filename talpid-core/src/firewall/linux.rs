@@ -164,7 +164,7 @@ impl Firewall {
                     "Expected '{}' netfilter table to be set, but it is not",
                     expected_table.to_string_lossy()
                 );
-                bail!(Error::NetfilterTableNotSetError)
+                return Err(Error::NetfilterTableNotSetError);
             }
         }
         Ok(())
