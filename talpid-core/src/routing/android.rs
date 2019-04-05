@@ -7,7 +7,10 @@ use std::{
     net::{IpAddr, Ipv4Addr},
 };
 
-error_chain! {}
+/// Stub error type for routing errors on Android.
+#[derive(Debug, err_derive::Error)]
+#[error(display = "Unknown Android routing error")]
+pub struct Error;
 
 pub struct RouteManager;
 
@@ -18,15 +21,15 @@ impl super::RoutingT for RouteManager {
         Ok(RouteManager)
     }
 
-    fn add_routes(&mut self, _required_routes: RequiredRoutes) -> Result<()> {
+    fn add_routes(&mut self, _required_routes: RequiredRoutes) -> Result<(), Self::Error> {
         Ok(())
     }
 
-    fn delete_routes(&mut self) -> Result<()> {
+    fn delete_routes(&mut self) -> Result<(), Self::Error> {
         Ok(())
     }
 
-    fn get_default_route_node(&mut self) -> Result<IpAddr> {
+    fn get_default_route_node(&mut self) -> Result<IpAddr, Self::Error> {
         Ok(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)))
     }
 }

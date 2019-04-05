@@ -8,36 +8,36 @@
 
 #![deny(rust_2018_idioms)]
 
-#[macro_use]
-extern crate error_chain;
-
-use error_chain::ChainedError;
 use openvpn_plugin::{openvpn_plugin, EventResult, EventType};
-use std::{collections::HashMap, ffi::CString, sync::Mutex};
-
+use std::{collections::HashMap, ffi::CString, io, sync::Mutex};
+use talpid_types::ErrorExt;
 
 mod processing;
 use crate::processing::EventProcessor;
 
 
-error_chain! {
-    errors {
-        InitHandleFailed {
-            description("Unable to initialize event processor")
-        }
-        InvalidEventType {
-            description("Invalid event type constant")
-        }
-        ParseEnvFailed {
-            description("Unable to parse environment variables from OpenVPN")
-        }
-        ParseArgsFailed {
-            description("Unable to parse arguments from OpenVPN")
-        }
-        EventProcessingFailed {
-            description("Failed to process the event")
-        }
-    }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "No core server id given as first argument")]
+    MissingCoreServerId,
+
+    #[error(display = "Failed to send an event to daemon over the IPC channel")]
+    SendEvent(#[error(cause)] jsonrpc_client_core::Error),
+
+    #[error(display = "Connection is shut down")]
+    Shutdown,
+
+    #[error(display = "Unable to start Tokio runtime")]
+    CreateRuntime(#[error(cause)] io::Error),
+
+    #[error(display = "Unable to create IPC transport")]
+    CreateTransport(#[error(cause)] io::Error),
+
+    #[error(display = "Unable to parse environment variables from OpenVPN")]
+    ParseEnvFailed(#[error(cause)] std::str::Utf8Error),
+
+    #[error(display = "Unable to parse arguments from OpenVPN")]
+    ParseArgsFailed(#[error(cause)] std::str::Utf8Error),
 }
 
 
@@ -63,7 +63,7 @@ pub struct Arguments {
 fn openvpn_open(
     args: Vec<CString>,
     _env: HashMap<CString, CString>,
-) -> Result<(Vec<EventType>, Mutex<EventProcessor>)> {
+) -> Result<(Vec<EventType>, Mutex<EventProcessor>), Error> {
     env_logger::init();
     log::debug!("Initializing plugin");
 
@@ -72,20 +72,18 @@ fn openvpn_open(
         "Connecting back to talpid core at {}",
         arguments.ipc_socket_path
     );
-    let processor = EventProcessor::new(arguments).chain_err(|| ErrorKind::InitHandleFailed)?;
+    let processor = EventProcessor::new(arguments)?;
 
     Ok((INTERESTING_EVENTS.to_vec(), Mutex::new(processor)))
 }
 
-fn parse_args(args: &[CString]) -> Result<Arguments> {
+fn parse_args(args: &[CString]) -> Result<Arguments, Error> {
     let mut args_iter = openvpn_plugin::ffi::parse::string_array_utf8(args)
-        .chain_err(|| ErrorKind::ParseArgsFailed)?
+        .map_err(Error::ParseArgsFailed)?
         .into_iter();
 
     let _plugin_path = args_iter.next();
-    let ipc_socket_path: String = args_iter
-        .next()
-        .ok_or_else(|| ErrorKind::Msg("No core server id given as first argument".to_owned()))?;
+    let ipc_socket_path: String = args_iter.next().ok_or_else(|| Error::MissingCoreServerId)?;
 
     Ok(Arguments { ipc_socket_path })
 }
@@ -100,17 +98,15 @@ fn openvpn_event(
     _args: Vec<CString>,
     env: HashMap<CString, CString>,
     handle: &mut Mutex<EventProcessor>,
-) -> Result<EventResult> {
+) -> Result<EventResult, Error> {
     log::debug!("Received event: {:?}", event);
 
-    let parsed_env =
-        openvpn_plugin::ffi::parse::env_utf8(&env).chain_err(|| ErrorKind::ParseEnvFailed)?;
+    let parsed_env = openvpn_plugin::ffi::parse::env_utf8(&env).map_err(Error::ParseEnvFailed)?;
 
     let result = handle
         .lock()
         .expect("failed to obtain mutex for EventProcessor")
-        .process_event(event, parsed_env)
-        .chain_err(|| ErrorKind::EventProcessingFailed);
+        .process_event(event, parsed_env);
     match result {
         Ok(()) => Ok(EventResult::Success),
         Err(e) => {

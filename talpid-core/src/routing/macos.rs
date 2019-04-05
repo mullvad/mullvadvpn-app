@@ -10,20 +10,26 @@ use std::{
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+/// Errors that can happen in the macOS routing integration.
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
+    /// Failed to add route.
     #[error(display = "Failed to add route")]
     FailedToAddRoute(#[error(cause)] io::Error),
 
+    /// Failed to remove route.
     #[error(display = "Failed to remove route")]
     FailedToRemoveRoute(#[error(cause)] io::Error),
 
+    /// Error while running "ip route".
     #[error(display = "Error while running \"ip route\"")]
     FailedToRunIp(#[error(cause)] io::Error),
 
+    /// No default route in "ip route" output.
     #[error(display = "No default route in \"ip route\" output")]
     NoDefaultRoute,
 
+    /// Failed to parse default route as IP.
     #[error(display = "Failed to parse default route as IP: {}", _0)]
     ParseDefaultRoute(String, #[error(cause)] AddrParseError),
 }

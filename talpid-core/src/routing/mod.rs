@@ -13,6 +13,8 @@ mod imp;
 #[path = "android.rs"]
 mod imp;
 
+pub use self::imp::Error;
+
 mod subprocess;
 
 /// A single route
@@ -53,24 +55,24 @@ pub struct RouteManager {
 
 impl RouteManager {
     /// Creates a new RouteManager.
-    pub fn new() -> Result<Self, imp::Error> {
+    pub fn new() -> Result<Self, Error> {
         Ok(RouteManager {
             inner: imp::RouteManager::new()?,
         })
     }
 
     /// Set routes in the routing table.
-    pub fn add_routes(&mut self, required_routes: RequiredRoutes) -> Result<(), imp::Error> {
+    pub fn add_routes(&mut self, required_routes: RequiredRoutes) -> Result<(), Error> {
         self.inner.add_routes(required_routes)
     }
 
     /// Remove previously set routes from the routing table.
-    pub fn delete_routes(&mut self) -> Result<(), imp::Error> {
+    pub fn delete_routes(&mut self) -> Result<(), Error> {
         self.inner.delete_routes()
     }
 
     /// Retrieves the gateway for the default route.
-    pub fn get_default_route_node(&mut self) -> Result<std::net::IpAddr, imp::Error> {
+    pub fn get_default_route_node(&mut self) -> Result<std::net::IpAddr, Error> {
         // use routing::RoutingT;
         self.inner.get_default_route_node()
     }
@@ -87,7 +89,7 @@ impl Drop for RouteManager {
 /// This trait unifies platform specific implementations of route managers
 pub trait RoutingT: Sized {
     /// Error type of the implementation
-    type Error: ::std::error::Error;
+    type Error: std::error::Error;
 
     /// Creates a new router
     fn new() -> Result<Self, Self::Error>;

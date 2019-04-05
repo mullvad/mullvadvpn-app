@@ -19,36 +19,37 @@ pub mod wireguard;
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
+/// Results from operations in the tunnel module.
+pub type Result<T> = std::result::Result<T, Error>;
 
-error_chain! {
-    errors {
-        /// Tunnel can't have IPv6 enabled because the system has disabled IPv6 support.
-        EnableIpv6Error {
-            description("Can't enable IPv6 on tunnel interface because IPv6 is disabled")
-        }
-        /// Running on an operating system which is not supported yet.
-        UnsupportedPlatform {
-            description("Tunnel type not supported on this operating system")
-        }
-        /// Failed to rotate tunnel log file
-        RotateLogError {
-            description("Failed to rotate tunnel log file")
-        }
-        /// Failure to build Wireguard configuration.
-        WireguardConfigError {
-            description("Failed to configure Wireguard with the given parameters")
-        }
-    }
+/// Errors that can occur in the [`TunnelMonitor`].
+#[derive(err_derive::Error, Debug, derive_more::From)]
+pub enum Error {
+    /// Tunnel can't have IPv6 enabled because the system has disabled IPv6 support.
+    #[error(display = "Can't enable IPv6 on tunnel interface because IPv6 is disabled")]
+    EnableIpv6Error,
 
-    links {
-        OpenVpnTunnelMonitoringError(openvpn::Error, openvpn::ErrorKind)
-        /// There was an error listening for events from the OpenVPN tunnel
-        ;
-        WirguardTunnelMonitoringError(wireguard::Error, wireguard::ErrorKind)
-        /// There was an error listening for events from the OpenVPN tunnel
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
-        ;
-    }
+    /// Running on an operating system which is not supported yet.
+    #[error(display = "Tunnel type not supported on this operating system")]
+    UnsupportedPlatform,
+
+    /// Failed to rotate tunnel log file
+    #[error(display = "Failed to rotate tunnel log file")]
+    RotateLogError(#[error(cause)] crate::logging::RotateLogError),
+
+    /// Failure to build Wireguard configuration.
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[error(display = "Failed to configure Wireguard with the given parameters")]
+    WireguardConfigError(#[error(cause)] self::wireguard::config::Error),
+
+    /// There was an error listening for events from the OpenVPN tunnel
+    #[error(display = "Failed while listening for events from the OpenVPN tunnel")]
+    OpenVpnTunnelMonitoringError(#[error(cause)] openvpn::Error),
+
+    /// There was an error listening for events from the Wireguard tunnel
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[error(display = "Failed while listening for events from the Wireguard tunnel")]
+    WirguardTunnelMonitoringError(#[error(cause)] wireguard::Error),
 }
 
 
@@ -151,7 +152,7 @@ impl TunnelMonitor {
                 Self::start_wireguard_tunnel(&config, log_file, on_event)
             }
             #[cfg(any(windows, target_os = "android"))]
-            TunnelParameters::Wireguard(_) => bail!(ErrorKind::UnsupportedPlatform),
+            TunnelParameters::Wireguard(_) => Err(Error::UnsupportedPlatform),
         }
     }
 
@@ -164,8 +165,7 @@ impl TunnelMonitor {
     where
         L: Fn(TunnelEvent) + Send + Sync + Clone + 'static,
     {
-        let config = wireguard::config::Config::from_parameters(&params)
-            .chain_err(|| ErrorKind::WireguardConfigError)?;
+        let config = wireguard::config::Config::from_parameters(&params)?;
         let monitor = wireguard::WireguardMonitor::start(
             &config,
             log.as_ref().map(|p| p.as_path()),
@@ -195,7 +195,7 @@ impl TunnelMonitor {
 
     fn ensure_ipv6_can_be_used_if_enabled(tunnel_options: &GenericTunnelOptions) -> Result<()> {
         if tunnel_options.enable_ipv6 && !is_ipv6_enabled_in_os() {
-            bail!(ErrorKind::EnableIpv6Error);
+            Err(Error::EnableIpv6Error)
         } else {
             Ok(())
         }
@@ -211,7 +211,7 @@ impl TunnelMonitor {
                 TunnelParameters::Wireguard(_) => WIREGUARD_LOG_FILENAME,
             };
             let tunnel_log = log_dir.join(filename);
-            logging::rotate_log(&tunnel_log).chain_err(|| ErrorKind::RotateLogError)?;
+            logging::rotate_log(&tunnel_log)?;
             Ok(Some(tunnel_log))
         } else {
             Ok(None)
