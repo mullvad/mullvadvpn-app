@@ -11,10 +11,8 @@ error_chain! {
     errors {
         NoResponse { description("The request was dropped without any response") }
     }
-    links {
-        Transport(mullvad_rpc::rest::Error, mullvad_rpc::rest::ErrorKind);
-    }
     foreign_links {
+        Transport(mullvad_rpc::rest::Error);
         Deserialize(serde_json::error::Error);
     }
 }

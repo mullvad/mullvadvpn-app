@@ -8,7 +8,8 @@ edition = "2018"
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
-error-chain = "0.12"
+derive_more = "0.14.0"
+err-derive = "0.1.5"
 futures = "0.1.15"
 jsonrpc-client-core = "0.5"
 jsonrpc-client-http = "0.5"

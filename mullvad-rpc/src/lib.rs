@@ -8,9 +8,6 @@
 
 #![deny(rust_2018_idioms)]
 
-#[macro_use]
-extern crate error_chain;
-
 use chrono::{offset::Utc, DateTime};
 use jsonrpc_client_core::{expand_params, jsonrpc_client};
 use jsonrpc_client_http::{header::Host, HttpTransport, HttpTransportBuilder};
