@@ -12,9 +12,9 @@
 extern crate error_chain;
 
 use clap::{crate_authors, crate_description, crate_name};
-use error_chain::ChainedError;
 use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
 use std::io;
+use talpid_types::ErrorExt;
 
 mod cmds;
 
@@ -24,7 +24,7 @@ pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/produc
 error_chain! {
 
     errors {
-        DaemonNotRunning(err: mullvad_ipc_client::Error) {
+        DaemonNotRunning(err: io::Error) {
             description("Failed to connect to daemon")
             display("Failed to connect to daemon: {}Is the daemon running?", err.display_chain())
         }
@@ -36,10 +36,7 @@ error_chain! {
     foreign_links {
         Io(io::Error);
         ParseIntError(::std::num::ParseIntError);
-    }
-
-    links {
-        RpcClientError(mullvad_ipc_client::Error, mullvad_ipc_client::ErrorKind);
+        RpcClientError(mullvad_ipc_client::Error);
     }
 }
 

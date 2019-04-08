@@ -1,8 +1,6 @@
-use error_chain::ChainedError;
-
 use mullvad_ipc_client::new_standalone_ipc_client;
 use mullvad_paths;
-
+use talpid_types::ErrorExt;
 
 /// Checks if there is another instance of the daemon running.
 ///

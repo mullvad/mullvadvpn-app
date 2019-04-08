@@ -1,8 +1,5 @@
 #![deny(rust_2018_idioms)]
 
-#[macro_use]
-extern crate error_chain;
-
 use futures::sync::oneshot;
 use jsonrpc_client_core::{Client, ClientHandle, Future};
 use jsonrpc_client_ipc::IpcTransport;
@@ -16,64 +13,32 @@ use mullvad_types::{
     DaemonEvent,
 };
 use serde::{Deserialize, Serialize};
-use std::{path::Path, thread};
+use std::{io, path::Path, thread};
 use talpid_types::{
     net::{openvpn, wireguard},
     tunnel::TunnelStateTransition,
 };
 
-pub use jsonrpc_client_core::{Error as RpcError, ErrorKind as RpcErrorKind};
-
-error_chain! {
-    errors {
-        AuthenticationError {
-            description("Failed to authenticate the connection with the daemon")
-        }
-
-        RpcCallError(method: String) {
-            description("Failed to call RPC method")
-            display("Failed to call RPC method \"{}\"", method)
-        }
-
-        RpcSubscribeError(event: String) {
-            description("Failed to subscribe to RPC event")
-            display("Failed to subscribe to RPC event \"{}\"", event)
-        }
-
-        StartRpcClient(address: String) {
-            description("Failed to start RPC client")
-            display("Failed to start RPC client to {}", address)
-        }
-
-        TokioError {
-            description("Failed to setup a standalone event loop")
-        }
-
-        TransportError {
-            description("Failed to setup a transport")
-        }
-    }
-}
-
 static NO_ARGS: [u8; 0] = [];
 
+pub type Result<T> = std::result::Result<T, jsonrpc_client_core::Error>;
+pub use jsonrpc_client_core::Error;
 
-pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> Result<DaemonRpcClient> {
+pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> io::Result<DaemonRpcClient> {
     let path = path.as_ref().to_string_lossy().to_string();
 
     new_standalone_transport(path, |path| {
         IpcTransport::new(&path, &tokio::reactor::Handle::default())
-            .chain_err(|| ErrorKind::TransportError)
     })
 }
 
 pub fn new_standalone_transport<
-    F: Send + 'static + FnOnce(String) -> Result<T>,
+    F: Send + 'static + FnOnce(String) -> io::Result<T>,
     T: jsonrpc_client_core::DuplexTransport + 'static,
 >(
     rpc_path: String,
     transport_func: F,
-) -> Result<DaemonRpcClient> {
+) -> io::Result<DaemonRpcClient> {
     let (tx, rx) = oneshot::channel();
     thread::spawn(move || match spawn_transport(rpc_path, transport_func) {
         Err(e) => tx
@@ -92,7 +57,7 @@ pub fn new_standalone_transport<
         }
     });
 
-    rx.wait().chain_err(|| ErrorKind::TransportError)?.map(
+    rx.wait().expect("No transport handles returned").map(
         |(rpc_client, server_handle, executor)| {
             let subscriber =
                 jsonrpc_client_pubsub::Subscriber::new(executor, rpc_client.clone(), server_handle);
@@ -105,12 +70,12 @@ pub fn new_standalone_transport<
 }
 
 fn spawn_transport<
-    F: Send + FnOnce(String) -> Result<T>,
+    F: Send + FnOnce(String) -> io::Result<T>,
     T: jsonrpc_client_core::DuplexTransport + 'static,
 >(
     address: String,
     transport_func: F,
-) -> Result<(
+) -> io::Result<(
     Client<T, jsonrpc_client_core::server::Server>,
     jsonrpc_client_core::server::ServerHandle,
     ClientHandle,
@@ -245,10 +210,7 @@ impl DaemonRpcClient {
         A: Serialize + Send + 'static,
         O: for<'de> Deserialize<'de> + Send + 'static,
     {
-        self.rpc_client
-            .call_method(method, args)
-            .wait()
-            .chain_err(|| ErrorKind::RpcCallError(method.to_owned()))
+        self.rpc_client.call_method(method, args).wait()
     }
 
     pub fn daemon_event_subscribe(

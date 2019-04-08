@@ -4,7 +4,7 @@ use self::{mock_openvpn::MOCK_OPENVPN_ARGS_FILE, platform_specific::*};
 use futures::sync::oneshot;
 use jsonrpc_client_core::{Future, Transport};
 use jsonrpc_client_ipc::IpcTransport;
-use mullvad_ipc_client::{DaemonRpcClient, ResultExt};
+use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_paths::resources::API_CA_FILENAME;
 use notify::{RawEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use std::{
@@ -303,8 +303,8 @@ impl DaemonRunner {
         let socket_path: String = self.rpc_socket_path.to_string_lossy().to_string();
         mullvad_ipc_client::new_standalone_transport(socket_path, |path| {
             IpcTransport::new(&path, &Handle::default())
-                .chain_err(|| mullvad_ipc_client::ErrorKind::TransportError)
         })
+        .map_err(|e| e.to_string())
         .map_err(|e| format!("Failed to construct an RPC client - {}", e))
     }
 
