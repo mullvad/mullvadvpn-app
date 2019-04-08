@@ -37,6 +37,11 @@ def get_common_path(src, dst):
   prefix_len = len(path.commonprefix((src, dst)))
   return (src[prefix_len:], dst[prefix_len:])
 
+def run_program(*args):
+  p = Popen(*args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+  errors = p.communicate()[1]
+  return (p.returncode, errors)
+
 
 if not path.exists(GEO_ASSETS_DEST_DIR):
   os.makedirs(GEO_ASSETS_DEST_DIR)
@@ -66,24 +71,17 @@ for f in os.listdir(TRANSLATIONS_SOURCE_DIR):
           pot_basename = path.basename(path.splitext(dst_po)[0])
           pot_path = path.join(TRANSLATIONS_DEST_DIR, pot_basename + ".pot")
 
-          # shutil.copy(src_po, dst_po)
-          #
-          # p = Popen(
-          #   ["msgmerge", "--update", "--no-fuzzy-matching", dst_po, pot_path],
-          #   stdin=PIPE, stdout=PIPE, stderr=PIPE
-          # )
-          # errors = p.communicate()[1]
-          # if p.returncode == 0:
-          #   print c.green("Merged {} and {}".format(*get_common_path(src_po, dst_po)))
-          # else:
-          #   print c.red("msgmerge exited with {}. {}".format(p.returncode, errors.decode('utf-8').strip()))
-          #
-          # p = Popen(["msgcat", src_po, dst_po, "--output-file", dst_po])
-          # errors = p.communicate()[1]
-          # if p.returncode == 0:
-          #   print c.green("Concatenated {} -> {}".format(*get_common_path(src_po, dst_po)))
-          # else:
-          #   print c.red("msgcat exited with {}. {}".format(p.returncode, errors.decode('utf-8').strip()))
+          (msgmerge_code, msgmerge_errors) = run_program(["msgmerge", "--update", "--no-fuzzy-matching", dst_po, pot_path])
+
+          if msgmerge_code == 0:
+            (msgcat_code, msgcat_errors) = run_program(["msgcat", src_po, dst_po, "--output-file", dst_po])
+
+            if msgcat_code == 0:
+              print c.green("Merged and concatenated the catalogues.")
+            else:
+              print c.red("msgcat exited with {}: {}".format(msgcat_code, msgcat_errors.decode('utf-8').strip()))
+          else:
+            print c.red("msgmerge exited with {}: {}".format(msgmerge_code, msgmerge_errors.decode('utf-8').strip()))
         else:
           shutil.copy(src_po, dst_po)
       else:
