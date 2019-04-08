@@ -281,7 +281,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <ImageView source="icon-spinner" height={60} width={60} />
             </View>
             <View style={styles.support__status_security__secure}>
-              messages.gettext('SECURE CONNECTION')}
+              {messages.gettext('SECURE CONNECTION')}
             </View>
             <Text style={styles.support__send_status}>
               {messages.pgettext('support-view', 'Sending...')}
@@ -315,7 +315,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <ImageView source="icon-success" height={60} width={60} />
             </View>
             <Text style={styles.support__status_security__secure}>
-              messages.gettext('SECURE CONNECTION')}
+              {messages.gettext('SECURE CONNECTION')}
             </Text>
             <Text style={styles.support__send_status}>
               {messages.pgettext('support-view', 'Sent')}
@@ -342,7 +342,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <ImageView source="icon-fail" height={60} width={60} />
             </View>
             <Text style={styles.support__status_security__secure}>
-              messages.gettext('SECURE CONNECTION')}
+              {messages.gettext('SECURE CONNECTION')}
             </Text>
             <Text style={styles.support__send_status}>
               {messages.pgettext('support-view', 'Failed to send')}

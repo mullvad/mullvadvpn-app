@@ -11,27 +11,27 @@ const comments = {
 
 extractor
   .createJsParser([
-    JsExtractors.callExpression('gettext', {
+    JsExtractors.callExpression('messages.gettext', {
       arguments: {
         text: 0,
       },
       comments,
     }),
-    JsExtractors.callExpression('pgettext', {
+    JsExtractors.callExpression('messages.pgettext', {
       arguments: {
         context: 0,
         text: 1,
       },
       comments,
     }),
-    JsExtractors.callExpression('ngettext', {
+    JsExtractors.callExpression('messages.ngettext', {
       arguments: {
         text: 0,
         textPlural: 1,
       },
       comments,
     }),
-    JsExtractors.callExpression('npgettext', {
+    JsExtractors.callExpression('messages.npgettext', {
       arguments: {
         context: 0,
         text: 1,
