@@ -74,7 +74,7 @@ fn create_client(ipc_path: String) -> jsonrpc_client_core::ClientHandle {
 
     thread::spawn(move || {
         let (client, client_handle) =
-            jsonrpc_client_ipc::IpcTransport::new(&ipc_path, &tokio::reactor::Handle::current())
+            jsonrpc_client_ipc::IpcTransport::new(&ipc_path, &tokio::reactor::Handle::default())
                 .expect("failed to construct a transport")
                 .into_client();
         tx.send(client_handle).unwrap();

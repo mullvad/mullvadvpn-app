@@ -7,16 +7,23 @@ use serde_json;
 const URI_V4: &str = "https://ipv4.am.i.mullvad.net/json";
 const URI_V6: &str = "https://ipv6.am.i.mullvad.net/json";
 
-error_chain! {
-    errors {
-        NoResponse { description("The request was dropped without any response") }
-    }
-    links {
-        Transport(mullvad_rpc::rest::Error, mullvad_rpc::rest::ErrorKind);
-    }
-    foreign_links {
-        Deserialize(serde_json::error::Error);
-    }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Unable to send request to HTTP client.
+    #[error(display = "Unable to send GeoIP request to HTTP client")]
+    SendRequestError,
+
+    /// The request was dropped without any response
+    #[error(display = "The GeoIP request was dropped without any response")]
+    NoResponse,
+
+    /// Error in the HTTP client when requesting GeoIP
+    #[error(display = "Failed to request GeoIP")]
+    Transport(#[error(cause)] mullvad_rpc::rest::Error),
+
+    /// Failed to deserialize GeoIP response
+    #[error(display = "Failed to deserialize GeoIP response")]
+    Deserialize(#[error(cause)] serde_json::error::Error),
 }
 
 
@@ -55,8 +62,8 @@ fn send_location_request_internal(
     let request = mullvad_rpc::rest::create_get_request(uri.parse().unwrap());
 
     futures::Sink::send(request_sender, (request, response_tx))
-        .map_err(|e| Error::with_chain(e, ErrorKind::NoResponse))
-        .and_then(|_| response_rx.map_err(|e| Error::with_chain(e, ErrorKind::NoResponse)))
-        .and_then(|response_result| response_result.map_err(Error::from))
-        .and_then(|response| serde_json::from_slice(&response).map_err(Error::from))
+        .map_err(|_| Error::SendRequestError)
+        .and_then(|_| response_rx.map_err(|_| Error::NoResponse))
+        .and_then(|response_result| response_result.map_err(Error::Transport))
+        .and_then(|response| serde_json::from_slice(&response).map_err(Error::Deserialize))
 }
