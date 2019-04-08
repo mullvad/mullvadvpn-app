@@ -9,6 +9,7 @@ import {
   Markers,
   ZoomableGroup,
 } from 'react-simple-maps';
+import { countries, cities } from '../../../shared/gettext';
 
 import geographyData from '../../../assets/geo/geometry.json';
 import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines.json';
@@ -179,7 +180,7 @@ export default class SvgMap extends React.Component<IProps, IState> {
         marker={{ coordinates: item.geometry.coordinates }}
         style={markerStyle}>
         <text fill="rgba(255,255,255,.6)" fontSize="22" textAnchor="middle">
-          {item.properties.name}
+          {countries.gettext(item.properties.name)}
         </text>
       </Marker>
     ));
@@ -191,7 +192,7 @@ export default class SvgMap extends React.Component<IProps, IState> {
         style={markerStyle}>
         <circle r="2" fill="rgba(255,255,255,.6)" />
         <text x="0" y="-10" fill="rgba(255,255,255,.6)" fontSize="16" textAnchor="middle">
-          {item.properties.name}
+          {cities.gettext(item.properties.name)}
         </text>
       </Marker>
     ));
