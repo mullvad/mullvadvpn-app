@@ -22,7 +22,10 @@ export function loadTranslations(currentLocale: string, catalogue: Gettext) {
   }
 
   for (const locale of preferredLocales) {
-    if (parseTranslation(locale, 'messages', catalogue)) {
+    // NOTE: domain is not publicly exposed
+    const domain = (catalogue as any)['domain'];
+
+    if (parseTranslation(locale, domain, catalogue)) {
       log.info(`Loaded translations for ${locale}`);
       catalogue.setLocale(locale);
       return;
