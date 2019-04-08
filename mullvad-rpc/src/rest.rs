@@ -9,19 +9,26 @@ use hyper_openssl::openssl::error::ErrorStack;
 use std::path::Path;
 use tokio_core::reactor::Handle;
 
-error_chain! {
-    errors {
-        /// When the http status code of the response is not 200 OK
-        HttpError(http_code: StatusCode) {
-            description("Http error. Server did not return 200 OK")
-            display("Http error. Status code {}", http_code)
-        }
-    }
-    foreign_links {
-        Hyper(hyper::Error) #[doc = "An error occured in Hyper."];
-        Uri(hyper::error::UriError) #[doc = "The string given was not a valid URI."];
-        OpenSsl(ErrorStack) #[doc = "Error in OpenSSL"];
-    }
+
+pub type Result<T> = std::result::Result<T, Error>;
+
+#[derive(derive_more::From, err_derive::Error, Debug)]
+pub enum Error {
+    /// When the http status code of the response is not 200 OK.
+    #[error(display = "Http error. Status code {}", _0)]
+    HttpError(StatusCode),
+
+    /// An error occured in Hyper.
+    #[error(display = "Error in HTTP client")]
+    Hyper(#[error(cause)] hyper::Error),
+
+    /// The string given was not a valid URI.
+    #[error(display = "Not a valid URI")]
+    Uri(#[error(cause)] hyper::error::UriError),
+
+    /// Error in OpenSSL
+    #[error(display = "Error in OpenSSL")]
+    OpenSsl(#[error(cause)] ErrorStack),
 }
 
 
@@ -53,7 +60,7 @@ fn create_request_processing_future<CC: hyper::client::Connect>(
                 if response.status() == hyper::StatusCode::Ok {
                     future::ok(response)
                 } else {
-                    future::err(ErrorKind::HttpError(response.status()).into())
+                    future::err(Error::HttpError(response.status()).into())
                 }
             })
             .and_then(|response: hyper::Response| response.body().concat2().from_err())
