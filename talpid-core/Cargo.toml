@@ -46,14 +46,14 @@ nftnl = { git = "https://github.com/mullvad/nftnl-rs", rev = "29651f4370fdf22cc2
 mnl = { git = "https://github.com/mullvad/mnl-rs", rev = "f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6", features = ["mnl-1-0-4"] }
 which = "2.0"
 err-derive = "0.1.5"
-tun = { git = "https://github.com/pinkisemils/rust-tun", branch = "add-raw-fd-traits" }
+tun = "0.4.3"
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
 # TODO: Specify 0.2.1 once the crate gets published
 pfctl = { git = "https://github.com/mullvad/pfctl-rs", rev = "9f31b5ddcab941862470075eab83bb398195f3d6" }
 system-configuration = "0.2"
-tun = { git = "https://github.com/pinkisemils/rust-tun", branch = "add-raw-fd-traits" }
+tun = "0.4.3"
 
 
 [target.'cfg(windows)'.dependencies]
