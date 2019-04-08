@@ -21,7 +21,6 @@ mod relays;
 mod rpc_uniqueness_check;
 
 use crate::management_interface::{BoxFuture, ManagementCommand, ManagementInterfaceServer};
-use error_chain::ChainedError;
 use futures::{
     future,
     sync::{mpsc::UnboundedSender, oneshot},
@@ -553,7 +552,7 @@ impl Daemon {
         geoip::send_location_request(https_handle).map_err(|e| {
             warn!(
                 "Unable to fetch GeoIP location: {}",
-                ChainedError::display_chain(&e)
+                ErrorExt::display_chain(&e)
             );
         })
     }
