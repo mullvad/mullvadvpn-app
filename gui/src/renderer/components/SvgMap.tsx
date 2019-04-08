@@ -9,7 +9,7 @@ import {
   Markers,
   ZoomableGroup,
 } from 'react-simple-maps';
-import { countries, cities } from '../../shared/gettext';
+import { cities, countries } from '../../shared/gettext';
 
 import geographyData from '../../../assets/geo/geometry.json';
 import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines.json';

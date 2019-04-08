@@ -1,10 +1,9 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Component, View } from 'reactxp';
-import { messages } from '../../shared/gettext';
+import { countries, messages, relayLocations } from '../../shared/gettext';
 import CustomScrollbars from './CustomScrollbars';
 import { Container, Layout } from './Layout';
-import { countries, relayLocations } from '../../shared/gettext';
 import {
   CloseBarItem,
   NavigationBar,

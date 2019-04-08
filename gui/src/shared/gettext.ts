@@ -23,7 +23,7 @@ export function loadTranslations(currentLocale: string, catalogue: Gettext) {
 
   for (const locale of preferredLocales) {
     // NOTE: domain is not publicly exposed
-    const domain = (catalogue as any)['domain'];
+    const domain = (catalogue as any).domain;
 
     if (parseTranslation(locale, domain, catalogue)) {
       log.info(`Loaded translations for ${locale}`);
@@ -62,7 +62,7 @@ function parseTranslation(locale: string, domain: string, catalogue: Gettext): b
 function setErrorHandler(catalogue: Gettext) {
   catalogue.on('error', (error) => {
     // NOTE: locale is not publicly exposed
-    const catalogueLocale = (catalogue as any)['locale'];
+    const catalogueLocale = (catalogue as any).locale;
 
     // Filter out the "no translation was found" errors for the source language
     if (catalogueLocale === SOURCE_LANGUAGE && error.indexOf('No translation was found') !== -1) {
