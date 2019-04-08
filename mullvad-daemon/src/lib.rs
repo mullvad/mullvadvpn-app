@@ -388,7 +388,7 @@ impl Daemon {
                 })
             });
         if let Err(e) = result {
-            error!("{}", ErrorExt::display_chain(&e));
+            error!("{}", e.display_chain());
         }
     }
 
@@ -552,7 +552,7 @@ impl Daemon {
         geoip::send_location_request(https_handle).map_err(|e| {
             warn!(
                 "Unable to fetch GeoIP location: {}",
-                ErrorExt::display_chain(&e)
+                e.display_chain()
             );
         })
     }
@@ -618,7 +618,7 @@ impl Daemon {
                     }
                 }
             }
-            Err(e) => error!("{}", ErrorExt::display_chain(&e)),
+            Err(e) => error!("{}", e.display_chain()),
         }
     }
 
@@ -675,7 +675,7 @@ impl Daemon {
                     self.reconnect_tunnel();
                 }
             }
-            Err(e) => error!("{}", ErrorExt::display_chain(&e)),
+            Err(e) => error!("{}", e.display_chain()),
         }
     }
 
@@ -690,7 +690,7 @@ impl Daemon {
                     self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
                 }
             }
-            Err(e) => error!("{}", ErrorExt::display_chain(&e)),
+            Err(e) => error!("{}", e.display_chain()),
         }
     }
 
@@ -713,7 +713,7 @@ impl Daemon {
                     ));
                 }
             }
-            Err(e) => error!("{}", ErrorExt::display_chain(&e)),
+            Err(e) => error!("{}", e.display_chain()),
         }
     }
 
@@ -727,7 +727,7 @@ impl Daemon {
                         .notify_settings(self.settings.clone());
                 }
             }
-            Err(e) => error!("{}", ErrorExt::display_chain(&e)),
+            Err(e) => error!("{}", e.display_chain()),
         }
     }
 
@@ -743,7 +743,7 @@ impl Daemon {
                     self.reconnect_tunnel();
                 }
             }
-            Err(e) => error!("{}", ErrorExt::display_chain(&e)),
+            Err(e) => error!("{}", e.display_chain()),
         }
     }
 
@@ -810,7 +810,7 @@ impl Daemon {
                     self.reconnect_tunnel();
                 }
             }
-            Err(e) => error!("{}", ErrorExt::display_chain(&e)),
+            Err(e) => error!("{}", e.display_chain()),
         }
     }
 
@@ -826,7 +826,7 @@ impl Daemon {
                     self.reconnect_tunnel();
                 }
             }
-            Err(e) => error!("{}", ErrorExt::display_chain(&e)),
+            Err(e) => error!("{}", e.display_chain()),
         }
     }
 
