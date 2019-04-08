@@ -4,10 +4,13 @@ This is a folder with the supporting scripts written in python 2, node, bash.
 ## Dependency installation notes
 
 1. Run the following command in terminal to install python dependencies:
-`pip install -r requirements.txt`
+   `pip install -r requirements.txt`
 
 2. Run `npm install -g topojson-server` to install `geo2topo` tool which is
-used by python scripts to convert GeoJSON to TopoJSON
+   used by python scripts to convert GeoJSON to TopoJSON
+
+3. Make sure you have gettext utilities installed.
+   https://www.gnu.org/software/gettext/
 
 
 ## Geo data installation notes

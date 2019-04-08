@@ -4,6 +4,7 @@ import { Component, View } from 'reactxp';
 import { messages } from '../../shared/gettext';
 import CustomScrollbars from './CustomScrollbars';
 import { Container, Layout } from './Layout';
+import { countries, relayLocations } from '../../shared/gettext';
 import {
   CloseBarItem,
   NavigationBar,
@@ -139,7 +140,7 @@ export default class SelectLocation extends Component<IProps, IState> {
                       return (
                         <CountryRow
                           key={getLocationKey(countryLocation)}
-                          name={relayCountry.name}
+                          name={countries.gettext(relayCountry.name)}
                           hasActiveRelays={relayCountry.hasActiveRelays}
                           expanded={this.isExpanded(countryLocation)}
                           onSelect={this.handleSelection}
@@ -153,7 +154,7 @@ export default class SelectLocation extends Component<IProps, IState> {
                             return (
                               <CityRow
                                 key={getLocationKey(cityLocation)}
-                                name={relayCity.name}
+                                name={relayLocations.gettext(relayCity.name)}
                                 hasActiveRelays={relayCity.hasActiveRelays}
                                 expanded={this.isExpanded(cityLocation)}
                                 onSelect={this.handleSelection}

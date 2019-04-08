@@ -87,5 +87,3 @@ setErrorHandler(cities);
 export const relayLocations = new Gettext({ debug: false });
 relayLocations.setTextDomain('relay-locations');
 setErrorHandler(relayLocations);
-
-

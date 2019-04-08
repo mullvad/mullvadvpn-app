@@ -500,6 +500,6 @@ def main():
   # extract translations
   extract_countries_po()
   extract_cities_po()
-  # extract_relay_translations()
+  extract_relay_translations()
 
 main()
