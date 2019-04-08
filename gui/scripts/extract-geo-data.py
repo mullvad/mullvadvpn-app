@@ -138,7 +138,7 @@ def extract_provinces_and_states_lines():
     print c.red("geo2topo exited with {}. {}".format(p.returncode, errors.decode('utf-8').strip()))
 
 
-def extract_countries_pot():
+def extract_countries_po():
   input_path = get_shape_path("ne_50m_admin_0_countries")
   input_basename = path.basename(input_path)
 
@@ -148,7 +148,8 @@ def extract_countries_pot():
 
     if os.path.isdir(locale_dir):
       with fiona.open(input_path) as source:
-        pot = POFile(encoding='UTF-8')
+        po = POFile(encoding='UTF-8')
+        po.metadata = { "Content-Type": "text/plain; charset=utf-8" }
         output_path = path.join(locale_out_dir, "countries.po")
 
         if not path.exists(locale_out_dir):
@@ -180,16 +181,15 @@ def extract_countries_pot():
             msgstr=translated_name,
             occurrences=[(input_basename, feat["id"])]
           )
-          pot.append(entry)
+          po.append(entry)
 
-        pot.save(output_path)
-        print c.green("Extracted {} countries for {} to {}".format(len(pot), locale, output_path))
+        po.save(output_path)
+        print c.green("Extracted {} countries for {} to {}".format(len(po), locale, output_path))
 
 
-def extract_cities_pot():
+def extract_cities_po():
   input_path = get_shape_path("ne_50m_populated_places")
   input_basename = path.basename(input_path)
-  output_path = path.join(OUT_DIR, "cities.pot")
 
   stats = []
 
@@ -198,7 +198,8 @@ def extract_cities_pot():
     locale_out_dir = path.join(LOCALE_OUT_DIR, locale)
 
     if os.path.isdir(locale_dir):
-      pot = POFile(encoding='UTF-8')
+      po = POFile(encoding='UTF-8')
+      po.metadata = { "Content-Type": "text/plain; charset=utf-8" }
       output_path = path.join(locale_out_dir, "cities.po")
       hits = 0
       misses = 0
@@ -238,10 +239,10 @@ def extract_cities_pot():
               msgstr=translated_name,
               occurrences=[(input_basename, feat["id"])]
             )
-            pot.append(entry)
+            po.append(entry)
 
-      pot.save(output_path)
-      print c.green("Extracted {} cities to {}".format(len(pot), output_path))
+      po.save(output_path)
+      print c.green("Extracted {} cities to {}".format(len(po), output_path))
 
       stats.append((locale, hits, misses))
 
@@ -269,6 +270,7 @@ def extract_relay_translations():
 
 def extract_relay_locations_pot(countries):
   pot = POFile(encoding='UTF-8')
+  pot.metadata = { "Content-Type": "text/plain; charset=utf-8" }
   output_path = path.join(LOCALE_OUT_DIR, "relay-locations.pot")
 
   print "Generating relay-locations.pot"
@@ -333,6 +335,7 @@ def translate_relay_locations_pot(countries):
 
 def translate_relay_locations(place_translator, countries, locale):
   po = POFile(encoding='UTF-8')
+  po.metadata = { "Content-Type": "text/plain; charset=utf-8" }
   locale_out_dir = path.join(LOCALE_OUT_DIR, locale)
   output_path = path.join(locale_out_dir, "relay-locations.po")
 
@@ -495,8 +498,8 @@ def main():
   extract_provinces_and_states_lines()
 
   # extract translations
-  extract_countries_pot()
-  extract_cities_pot()
-  extract_relay_translations()
+  extract_countries_po()
+  extract_cities_po()
+  # extract_relay_translations()
 
 main()

@@ -1,6 +1,6 @@
 #
 msgid ""
-msgstr ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 #. AU BNE
 msgid "Brisbane"

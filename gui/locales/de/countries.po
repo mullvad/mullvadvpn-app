@@ -1,6 +1,6 @@
 #
 msgid ""
-msgstr ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 #: ne_50m_admin_0_countries.shp:0
 msgid "Zimbabwe"
