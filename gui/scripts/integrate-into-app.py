@@ -33,7 +33,7 @@ TRANSLATIONS_TO_MERGE = [
 ]
 
 
-def get_common_path(src, dst):
+def remove_common_prefix(src, dst):
   prefix_len = len(path.commonprefix((src, dst)))
   return (src[prefix_len:], dst[prefix_len:])
 
@@ -50,7 +50,7 @@ for f in GEO_ASSETS_TO_COPY:
   src = path.join(SOURCE_DIR, f)
   dst = path.join(GEO_ASSETS_DEST_DIR, f)
 
-  print "Copying {} to {}".format(*get_common_path(src, dst))
+  print "Copying {} to {}".format(*remove_common_prefix(src, dst))
 
   shutil.copyfile(src, dst)
 
@@ -64,7 +64,7 @@ for f in os.listdir(TRANSLATIONS_SOURCE_DIR):
       dst_po = path.join(dst, f)
 
       if f in TRANSLATIONS_TO_COPY:
-        print "Copying {} to {}".format(*get_common_path(src_po, dst_po))
+        print "Copying {} to {}".format(*remove_common_prefix(src_po, dst_po))
         shutil.copyfile(src_po, dst_po)
       elif f in TRANSLATIONS_TO_MERGE:
         if path.exists(dst_po):
@@ -89,5 +89,5 @@ for f in os.listdir(TRANSLATIONS_SOURCE_DIR):
 
 
   else:
-    print "Copying {} to {}".format(*get_common_path(src, dst))
+    print "Copying {} to {}".format(*remove_common_prefix(src, dst))
     shutil.copyfile(src, dst)
