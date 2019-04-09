@@ -17,7 +17,7 @@ pub struct RouteManager;
 impl super::RoutingT for RouteManager {
     type Error = Error;
 
-    fn new() -> Result<Self> {
+    fn new() -> Result<Self, Self::Error> {
         Ok(RouteManager)
     }
 
