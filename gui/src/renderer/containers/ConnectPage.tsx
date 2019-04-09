@@ -4,7 +4,11 @@ import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { sprintf } from 'sprintf-js';
-import { countries, messages, relayLocations as relayLocationsLocalization } from '../../shared/gettext';
+import {
+  countries,
+  messages,
+  relayLocations as relayLocationsLocalization,
+} from '../../shared/gettext';
 import Connect from '../components/Connect';
 import AccountExpiry from '../lib/account-expiry';
 import userInterfaceActions from '../redux/userinterface/actions';
