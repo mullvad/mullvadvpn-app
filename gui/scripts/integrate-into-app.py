@@ -36,7 +36,7 @@ def remove_common_prefix(source, destination):
   prefix_len = len(path.commonprefix((source, destination)))
   return (source[prefix_len:], destination[prefix_len:])
 
-def run_program(*args):
+def run_program(args):
   p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
   errors = p.communicate()[1]
   return (p.returncode, errors)
