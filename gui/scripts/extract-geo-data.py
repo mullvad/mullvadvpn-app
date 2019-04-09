@@ -333,7 +333,6 @@ def translate_relay_locations_pot(countries):
   print_stats_table("Relay location translations", stats)
 
 
-
 def translate_relay_locations(place_translator, countries, locale):
   po = POFile(encoding='UTF-8')
   po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
