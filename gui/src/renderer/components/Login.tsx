@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Animated, Component, Styles, Text, TextInput, Types, UserInterface, View } from 'reactxp';
 import { colors, links } from '../../config.json';
-import { pgettext } from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
@@ -212,13 +212,13 @@ export default class Login extends Component<IProps, IState> {
   private formTitle() {
     switch (this.props.loginState) {
       case 'logging in':
-        return pgettext('login-view', 'Logging in...');
+        return messages.pgettext('login-view', 'Logging in...');
       case 'failed':
-        return pgettext('login-view', 'Login failed');
+        return messages.pgettext('login-view', 'Login failed');
       case 'ok':
-        return pgettext('login-view', 'Logged in');
+        return messages.pgettext('login-view', 'Logged in');
       default:
-        return pgettext('login-view', 'Login');
+        return messages.pgettext('login-view', 'Login');
     }
   }
 
@@ -226,13 +226,15 @@ export default class Login extends Component<IProps, IState> {
     const { loginState, loginError } = this.props;
     switch (loginState) {
       case 'failed':
-        return (loginError && loginError.message) || pgettext('login-view', 'Unknown error');
+        return (
+          (loginError && loginError.message) || messages.pgettext('login-view', 'Unknown error')
+        );
       case 'logging in':
-        return pgettext('login-view', 'Checking account number');
+        return messages.pgettext('login-view', 'Checking account number');
       case 'ok':
-        return pgettext('login-view', 'Correct account number');
+        return messages.pgettext('login-view', 'Correct account number');
       default:
-        return pgettext('login-view', 'Enter your account number');
+        return messages.pgettext('login-view', 'Enter your account number');
     }
   }
 
@@ -397,10 +399,10 @@ export default class Login extends Component<IProps, IState> {
     return (
       <View>
         <Text style={styles.login_footer__prompt}>
-          {pgettext('login-view', "Don't have an account number?")}
+          {messages.pgettext('login-view', "Don't have an account number?")}
         </Text>
         <AppButton.BlueButton onPress={this.onCreateAccount}>
-          <AppButton.Label>{pgettext('login-view', 'Create account')}</AppButton.Label>
+          <AppButton.Label>{messages.pgettext('login-view', 'Create account')}</AppButton.Label>
           <AppButton.Icon source="icon-extLink" height={16} width={16} />
         </AppButton.BlueButton>
       </View>

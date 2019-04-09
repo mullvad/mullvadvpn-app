@@ -1,4159 +1,3120 @@
 #
 msgid ""
-msgstr ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
 
-#: ne_50m_populated_places.shp:0
 msgid "Bombo"
 msgstr "Bombo"
 
-#: ne_50m_populated_places.shp:2
 msgid "Potenza"
 msgstr "波坦察"
 
-#: ne_50m_populated_places.shp:3
 msgid "Campobasso"
 msgstr "坎波巴索"
 
-#: ne_50m_populated_places.shp:8
 msgid "Poitier"
 msgstr "普瓦捷"
 
-#: ne_50m_populated_places.shp:9
 msgid "Clermont-Ferrand"
 msgstr "克莱蒙费朗"
 
-#: ne_50m_populated_places.shp:10
 msgid "Besançon"
 msgstr "贝桑松"
 
-#: ne_50m_populated_places.shp:12
 msgid "Chipata"
 msgstr "奇帕塔"
 
-#: ne_50m_populated_places.shp:13
 msgid "Jinja"
 msgstr "金賈"
 
-#: ne_50m_populated_places.shp:14
 msgid "Arua"
 msgstr "阿鲁阿"
 
-#: ne_50m_populated_places.shp:15
 msgid "Mbale"
 msgstr "姆巴萊"
 
-#: ne_50m_populated_places.shp:17
 msgid "Masaka"
 msgstr "Masaka"
 
-#: ne_50m_populated_places.shp:18
 msgid "Mbarara"
 msgstr "姆巴拉拉"
 
-#: ne_50m_populated_places.shp:20
 msgid "Bologna"
 msgstr "博洛尼亚"
 
-#: ne_50m_populated_places.shp:21
 msgid "Cagliari"
 msgstr "卡利亚里"
 
-#: ne_50m_populated_places.shp:22
 msgid "Catanzaro"
 msgstr "卡坦扎罗"
 
-#: ne_50m_populated_places.shp:23
 msgid "Bari"
 msgstr "巴里"
 
-#: ne_50m_populated_places.shp:24
 msgid "L'Aquila"
 msgstr "拉奎拉"
 
-#: ne_50m_populated_places.shp:25
 msgid "Ancona"
 msgstr "安科纳"
 
-#: ne_50m_populated_places.shp:26
 msgid "Perugia"
 msgstr "佩鲁贾"
 
-#: ne_50m_populated_places.shp:27
 msgid "Trieste"
 msgstr "的里雅斯特"
 
-#: ne_50m_populated_places.shp:28
 msgid "Trento"
 msgstr "特伦托"
 
-#: ne_50m_populated_places.shp:29
 msgid "Fort-de-France"
 msgstr "法兰西堡"
 
-#: ne_50m_populated_places.shp:30
 msgid "Gifu"
 msgstr "岐阜"
 
-#: ne_50m_populated_places.shp:32
 msgid "Caen"
 msgstr "卡昂"
 
-#: ne_50m_populated_places.shp:33
 msgid "Nantes"
 msgstr "南特"
 
-#: ne_50m_populated_places.shp:34
 msgid "Ajaccio"
 msgstr "阿雅克肖"
 
-#: ne_50m_populated_places.shp:35
 msgid "Montpellier"
 msgstr "蒙彼利埃"
 
-#: ne_50m_populated_places.shp:36
 msgid "Dijon"
 msgstr "第戎"
 
-#: ne_50m_populated_places.shp:37
 msgid "Orléans"
 msgstr "奥尔良"
 
-#: ne_50m_populated_places.shp:38
 msgid "Rouen"
 msgstr "鲁昂"
 
-#: ne_50m_populated_places.shp:39
 msgid "Reims"
 msgstr "汉斯"
 
-#: ne_50m_populated_places.shp:40
 msgid "Amiens"
 msgstr "亞眠"
 
-#: ne_50m_populated_places.shp:41
 msgid "Nancy"
 msgstr "南锡"
 
-#: ne_50m_populated_places.shp:43
 msgid "Novi Sad"
 msgstr "诺威萨"
 
-#: ne_50m_populated_places.shp:44
 msgid "Banja Luka"
 msgstr "巴尼亚卢卡"
 
-#: ne_50m_populated_places.shp:49
 msgid "Willemstad"
 msgstr "威廉斯塔德"
 
-#: ne_50m_populated_places.shp:50
 msgid "Oranjestad"
 msgstr "奥腊涅斯塔德"
 
-#: ne_50m_populated_places.shp:91
 msgid "Gibraltar"
 msgstr "直布罗陀"
 
-#: ne_50m_populated_places.shp:93
 msgid "Edinburgh"
 msgstr "爱丁堡"
 
-#: ne_50m_populated_places.shp:94
 msgid "Cardiff"
 msgstr "加的夫"
 
-#: ne_50m_populated_places.shp:96
 msgid "Luxembourg"
 msgstr "盧森堡"
 
-#: ne_50m_populated_places.shp:97
 msgid "Turin"
 msgstr "都灵"
 
-#: ne_50m_populated_places.shp:98
 msgid "Nouméa"
 msgstr "努美阿"
 
-#: ne_50m_populated_places.shp:99
 msgid "Matsuyama"
 msgstr "松山"
 
-#: ne_50m_populated_places.shp:100
 msgid "Rennes"
 msgstr "雷恩"
 
-#: ne_50m_populated_places.shp:101
 msgid "Toulouse"
 msgstr "圖盧茲"
 
-#: ne_50m_populated_places.shp:102
 msgid "Limoges"
 msgstr "利摩日"
 
-#: ne_50m_populated_places.shp:103
 msgid "Lille"
 msgstr "里尔"
 
-#: ne_50m_populated_places.shp:104
 msgid "Strasbourg"
 msgstr "斯特拉斯堡"
 
-#: ne_50m_populated_places.shp:105
 msgid "Batumi"
 msgstr "巴统"
 
-#: ne_50m_populated_places.shp:106
 msgid "Funchal"
 msgstr "丰沙尔"
 
-#: ne_50m_populated_places.shp:107
 msgid "El Fasher"
 msgstr "法希尔"
 
-#: ne_50m_populated_places.shp:110
 msgid "Genoa"
 msgstr "热那亚"
 
-#: ne_50m_populated_places.shp:111
 msgid "Sukhumi"
 msgstr "苏呼米"
 
-#: ne_50m_populated_places.shp:114
 msgid "Agana"
 msgstr "阿加尼亚"
 
-#: ne_50m_populated_places.shp:120
 msgid "Moroni"
 msgstr "莫洛尼"
 
-#: ne_50m_populated_places.shp:121
 msgid "Macau"
 msgstr "澳門"
 
-#: ne_50m_populated_places.shp:122
 msgid "Andorra"
 msgstr "安道尔城"
 
-#: ne_50m_populated_places.shp:123
 msgid "San Bernardino"
 msgstr "聖貝納迪諾"
 
-#: ne_50m_populated_places.shp:124
 msgid "Bridgeport"
 msgstr "布里奇波特"
 
-#: ne_50m_populated_places.shp:125
 msgid "Rochester"
 msgstr "羅徹斯特"
 
-#: ne_50m_populated_places.shp:126
 msgid "Manchester"
 msgstr "曼彻斯特"
 
-#: ne_50m_populated_places.shp:127
 msgid "Gujranwala"
 msgstr "古吉兰瓦拉"
 
-#: ne_50m_populated_places.shp:128
 msgid "Incheon"
 msgstr "仁川廣域"
 
-#: ne_50m_populated_places.shp:129
 msgid "Benin City"
 msgstr "贝宁城"
 
-#: ne_50m_populated_places.shp:130
 msgid "Xiamen"
 msgstr "厦门"
 
-#: ne_50m_populated_places.shp:131
 msgid "Nanchong"
 msgstr "南充"
 
-#: ne_50m_populated_places.shp:132
 msgid "Neijiang"
 msgstr "内江"
 
-#: ne_50m_populated_places.shp:133
 msgid "Nanyang"
 msgstr "南阳"
 
-#: ne_50m_populated_places.shp:134
 msgid "Jinxi"
 msgstr "Jinxi"
 
-#: ne_50m_populated_places.shp:135
 msgid "Yantai"
 msgstr "烟台"
 
-#: ne_50m_populated_places.shp:136
 msgid "Zaozhuang"
 msgstr "枣庄"
 
-#: ne_50m_populated_places.shp:137
 msgid "Suzhou"
 msgstr "苏州"
 
-#: ne_50m_populated_places.shp:138
 msgid "Xuzhou"
 msgstr "徐州"
 
-#: ne_50m_populated_places.shp:139
 msgid "Wuxi"
 msgstr "无锡"
 
-#: ne_50m_populated_places.shp:140
 msgid "Jilin"
 msgstr "吉林"
 
-#: ne_50m_populated_places.shp:141
 msgid "Chandigarh"
 msgstr "昌迪加尔"
 
-#: ne_50m_populated_places.shp:142
 msgid "Jammu"
 msgstr "贾姆穆"
 
-#: ne_50m_populated_places.shp:143
 msgid "Sholapur"
 msgstr "索拉普"
 
-#: ne_50m_populated_places.shp:144
 msgid "Aurangabad"
 msgstr "奥郎加巴德"
 
-#: ne_50m_populated_places.shp:145
 msgid "Nasik"
 msgstr "纳西克"
 
-#: ne_50m_populated_places.shp:147
 msgid "Jullundur"
 msgstr "賈朗達爾"
 
-#: ne_50m_populated_places.shp:148
 msgid "Allahabad"
 msgstr "安拉阿巴德"
 
-#: ne_50m_populated_places.shp:149
 msgid "Moradabad"
 msgstr "莫拉達巴德"
 
-#: ne_50m_populated_places.shp:150
 msgid "Ghaziabad"
 msgstr "加濟阿巴德"
 
-#: ne_50m_populated_places.shp:151
 msgid "Agra"
 msgstr "阿格拉"
 
-#: ne_50m_populated_places.shp:152
 msgid "Aligarh"
 msgstr "阿里格尔"
 
-#: ne_50m_populated_places.shp:153
 msgid "Meerut"
 msgstr "密拉特"
 
-#: ne_50m_populated_places.shp:154
 msgid "Dhanbad"
 msgstr "丹巴德"
 
-#: ne_50m_populated_places.shp:155
 msgid "Gwalior"
 msgstr "瓜廖尔"
 
-#: ne_50m_populated_places.shp:156
 msgid "Vadodara"
 msgstr "巴罗达"
 
-#: ne_50m_populated_places.shp:157
 msgid "Rajkot"
 msgstr "拉杰果德"
 
-#: ne_50m_populated_places.shp:160
 msgid "St. Paul"
 msgstr "圣保罗"
 
-#: ne_50m_populated_places.shp:161
 msgid "Billings"
 msgstr "比靈斯"
 
-#: ne_50m_populated_places.shp:162
 msgid "Great Falls"
 msgstr "大瀑布城"
 
-#: ne_50m_populated_places.shp:163
 msgid "Missoula"
 msgstr "米蘇拉"
 
-#: ne_50m_populated_places.shp:165
 msgid "Fargo"
 msgstr "法戈"
 
-#: ne_50m_populated_places.shp:166
 msgid "Hilo"
 msgstr "希洛"
 
-#: ne_50m_populated_places.shp:167
 msgid "Olympia"
 msgstr "奧林匹亞"
 
-#: ne_50m_populated_places.shp:168
 msgid "Spokane"
 msgstr "斯波坎"
 
-#: ne_50m_populated_places.shp:169
 msgid "Vancouver"
 msgstr "溫哥華"
 
-#: ne_50m_populated_places.shp:170
 msgid "Flagstaff"
 msgstr "弗拉格斯塔夫"
 
-#: ne_50m_populated_places.shp:171
 msgid "Tucson"
 msgstr "图森"
 
-#: ne_50m_populated_places.shp:172
 msgid "Santa Barbara"
 msgstr "圣巴巴拉"
 
-#: ne_50m_populated_places.shp:173
 msgid "Fresno"
 msgstr "弗雷斯诺"
 
-#: ne_50m_populated_places.shp:175
 msgid "Colorado Springs"
 msgstr "科罗拉多斯普林斯"
 
-#: ne_50m_populated_places.shp:176
 msgid "Reno"
 msgstr "雷諾"
 
-#: ne_50m_populated_places.shp:178
 msgid "Albuquerque"
 msgstr "阿布奎基"
 
-#: ne_50m_populated_places.shp:179
 msgid "Salem"
 msgstr "塞勒姆"
 
-#: ne_50m_populated_places.shp:180
 msgid "Casper"
 msgstr "卡斯珀"
 
-#: ne_50m_populated_places.shp:181
 msgid "Topeka"
 msgstr "托皮卡"
 
-#: ne_50m_populated_places.shp:182
 msgid "Kansas City"
 msgstr "堪薩斯城"
 
-#: ne_50m_populated_places.shp:183
 msgid "Tulsa"
 msgstr "塔爾薩"
 
-#: ne_50m_populated_places.shp:184
 msgid "Sioux Falls"
 msgstr "蘇瀑"
 
-#: ne_50m_populated_places.shp:185
 msgid "Shreveport"
 msgstr "什里夫波特"
 
-#: ne_50m_populated_places.shp:186
 msgid "Baton Rouge"
 msgstr "巴頓魯治"
 
-#: ne_50m_populated_places.shp:187
 msgid "Ft. Worth"
 msgstr "沃思堡"
 
-#: ne_50m_populated_places.shp:188
 msgid "Corpus Christi"
 msgstr "科珀斯克里斯蒂"
 
-#: ne_50m_populated_places.shp:189
 msgid "Austin"
 msgstr "奧斯汀"
 
-#: ne_50m_populated_places.shp:190
 msgid "Amarillo"
 msgstr "阿馬里洛"
 
-#: ne_50m_populated_places.shp:191
 msgid "El Paso"
 msgstr "艾爾帕索"
 
-#: ne_50m_populated_places.shp:192
 msgid "Laredo"
 msgstr "拉雷多"
 
-#: ne_50m_populated_places.shp:193
 msgid "Merida"
 msgstr "梅里達"
 
-#: ne_50m_populated_places.shp:194
 msgid "Burlington"
 msgstr "伯靈頓"
 
-#: ne_50m_populated_places.shp:195
 msgid "Montgomery"
 msgstr "蒙哥马利"
 
-#: ne_50m_populated_places.shp:196
 msgid "Tallahassee"
 msgstr "塔拉哈西"
 
-#: ne_50m_populated_places.shp:197
 msgid "Orlando"
 msgstr "奥兰多"
 
-#: ne_50m_populated_places.shp:198
 msgid "Jacksonville"
 msgstr "杰克逊维尔"
 
-#: ne_50m_populated_places.shp:199
 msgid "Savannah"
 msgstr "薩凡納"
 
-#: ne_50m_populated_places.shp:200
 msgid "Columbia"
 msgstr "哥伦比亚"
 
-#: ne_50m_populated_places.shp:201
 msgid "Indianapolis"
 msgstr "印第安納波利斯"
 
-#: ne_50m_populated_places.shp:202
 msgid "Wilmington"
 msgstr "威尔明顿"
 
-#: ne_50m_populated_places.shp:203
 msgid "Knoxville"
 msgstr "諾克斯維爾"
 
-#: ne_50m_populated_places.shp:204
 msgid "Richmond"
 msgstr "里士满"
 
-#: ne_50m_populated_places.shp:205
 msgid "Charleston"
 msgstr "查尔斯顿"
 
-#: ne_50m_populated_places.shp:206
 msgid "Baltimore"
 msgstr "巴爾的摩"
 
-#: ne_50m_populated_places.shp:207
 msgid "Syracuse"
 msgstr "锡拉丘兹"
 
-#: ne_50m_populated_places.shp:208
 msgid "Puerto Ayacucho"
 msgstr "阿亞庫喬港"
 
-#: ne_50m_populated_places.shp:209
 msgid "Port-of-Spain"
 msgstr "西班牙港"
 
-#: ne_50m_populated_places.shp:211
 msgid "Sault Ste. Marie"
 msgstr "蘇聖瑪麗"
 
-#: ne_50m_populated_places.shp:212
 msgid "Atakpamé"
 msgstr "阿塔帕梅"
 
-#: ne_50m_populated_places.shp:213
 msgid "Sousse"
 msgstr "苏塞"
 
-#: ne_50m_populated_places.shp:214
 msgid "Taizz"
 msgstr "塔伊茲"
 
-#: ne_50m_populated_places.shp:216
 msgid "Lvov"
 msgstr "利沃夫"
 
-#: ne_50m_populated_places.shp:217
 msgid "Odessa"
 msgstr "敖德薩"
 
-#: ne_50m_populated_places.shp:218
 msgid "Zhytomyr"
 msgstr "日托米尔"
 
-#: ne_50m_populated_places.shp:219
 msgid "Dnipro"
 msgstr "第聂伯罗"
 
-#: ne_50m_populated_places.shp:220
 msgid "Donetsk"
 msgstr "頓涅茨克"
 
-#: ne_50m_populated_places.shp:221
 msgid "Kharkiv"
 msgstr "哈爾科夫"
 
-#: ne_50m_populated_places.shp:222
 msgid "Türkmenbaşy"
 msgstr "土庫曼巴希"
 
-#: ne_50m_populated_places.shp:223
 msgid "Bukhara"
 msgstr "布哈拉"
 
-#: ne_50m_populated_places.shp:224
 msgid "Nukus"
 msgstr "努库斯"
 
-#: ne_50m_populated_places.shp:225
 msgid "Türkmenabat"
 msgstr "土庫曼納巴德"
 
-#: ne_50m_populated_places.shp:226
 msgid "Mary"
 msgstr "马雷"
 
-#: ne_50m_populated_places.shp:227
 msgid "Andijon"
 msgstr "安集延"
 
-#: ne_50m_populated_places.shp:228
 msgid "Haiphong"
 msgstr "海防"
 
-#: ne_50m_populated_places.shp:229
 msgid "Da Nang"
 msgstr "岘港"
 
-#: ne_50m_populated_places.shp:230
 msgid "Kabwe"
 msgstr "卡布韦"
 
-#: ne_50m_populated_places.shp:231
 msgid "Mufulira"
 msgstr "穆富利拉"
 
-#: ne_50m_populated_places.shp:232
 msgid "Kitwe"
 msgstr "基特韦"
 
-#: ne_50m_populated_places.shp:233
 msgid "Livingstone"
 msgstr "利文斯顿"
 
-#: ne_50m_populated_places.shp:234
 msgid "Chitungwiza"
 msgstr "奇通圭扎"
 
-#: ne_50m_populated_places.shp:235
 msgid "Douala"
 msgstr "杜阿拉"
 
-#: ne_50m_populated_places.shp:236
 msgid "Birmingham"
 msgstr "伯明翰"
 
-#: ne_50m_populated_places.shp:237
 msgid "Belfast"
 msgstr "贝尔法斯特"
 
-#: ne_50m_populated_places.shp:238
 msgid "İzmir"
 msgstr "伊兹密尔"
 
-#: ne_50m_populated_places.shp:239
 msgid "Bursa"
 msgstr "布尔萨"
 
-#: ne_50m_populated_places.shp:240
 msgid "Samsun"
 msgstr "薩姆松"
 
-#: ne_50m_populated_places.shp:241
 msgid "Konya"
 msgstr "科尼亞"
 
-#: ne_50m_populated_places.shp:242
 msgid "Adana"
 msgstr "阿达纳"
 
-#: ne_50m_populated_places.shp:243
 msgid "Gulu"
 msgstr "古盧"
 
-#: ne_50m_populated_places.shp:244
 msgid "Kigali"
 msgstr "吉佳利"
 
-#: ne_50m_populated_places.shp:246
 msgid "Córdoba"
 msgstr "科爾多瓦"
 
-#: ne_50m_populated_places.shp:247
 msgid "Maradi"
 msgstr "Maradi"
 
-#: ne_50m_populated_places.shp:248
 msgid "Tahoua"
 msgstr "塔瓦"
 
-#: ne_50m_populated_places.shp:249
 msgid "Constanța"
 msgstr "康斯坦察"
 
-#: ne_50m_populated_places.shp:251
 msgid "Sundsvall"
 msgstr "松茲瓦爾"
 
-#: ne_50m_populated_places.shp:252
 msgid "Iași"
 msgstr "雅西"
 
-#: ne_50m_populated_places.shp:253
 msgid "Surat Thani"
 msgstr "素叻他尼"
 
-#: ne_50m_populated_places.shp:254
 msgid "Chiang Mai"
 msgstr "清邁"
 
-#: ne_50m_populated_places.shp:255
 msgid "Nakhon Ratchasima"
 msgstr "呵叻"
 
-#: ne_50m_populated_places.shp:256
 msgid "Mbabane"
 msgstr "墨巴本"
 
-#: ne_50m_populated_places.shp:257
 msgid "Piura"
 msgstr "皮乌拉"
 
-#: ne_50m_populated_places.shp:258
 msgid "Arequipa"
 msgstr "阿雷基帕"
 
-#: ne_50m_populated_places.shp:259
 msgid "Chimbote"
 msgstr "钦博特"
 
-#: ne_50m_populated_places.shp:260
 msgid "Pucallpa"
 msgstr "普兰尔帕"
 
-#: ne_50m_populated_places.shp:261
 msgid "Iquitos"
 msgstr "伊基托斯"
 
-#: ne_50m_populated_places.shp:262
 msgid "Huancayo"
 msgstr "万卡约"
 
-#: ne_50m_populated_places.shp:263
 msgid "Ciudad del Este"
 msgstr "東方"
 
-#: ne_50m_populated_places.shp:264
 msgid "Ponta Delgada"
 msgstr "蓬塔德爾加達"
 
-#: ne_50m_populated_places.shp:265
 msgid "Vigo"
 msgstr "維戈"
 
-#: ne_50m_populated_places.shp:266
 msgid "Bilbao"
 msgstr "毕尔巴鄂"
 
-#: ne_50m_populated_places.shp:267
 msgid "Kaolack"
 msgstr "考拉克"
 
-#: ne_50m_populated_places.shp:269
 msgid "Geneina"
 msgstr "朱奈納"
 
-#: ne_50m_populated_places.shp:270
 msgid "Medina"
 msgstr "麦地那"
 
-#: ne_50m_populated_places.shp:271
 msgid "Tabuk"
 msgstr "塔布克"
 
-#: ne_50m_populated_places.shp:272
 msgid "Juba"
 msgstr "朱巴"
 
-#: ne_50m_populated_places.shp:273
 msgid "Malakal"
 msgstr "馬拉卡爾"
 
-#: ne_50m_populated_places.shp:274
 msgid "Omdurman"
 msgstr "恩图曼"
 
-#: ne_50m_populated_places.shp:275
 msgid "El Obeid"
 msgstr "欧拜伊德"
 
-#: ne_50m_populated_places.shp:276
 msgid "The Hague"
 msgstr "海牙"
 
-#: ne_50m_populated_places.shp:277
 msgid "Kristiansand"
 msgstr "克里斯蒂安桑"
 
-#: ne_50m_populated_places.shp:278
 msgid "Ljubljana"
 msgstr "卢布尔雅那"
 
-#: ne_50m_populated_places.shp:279
 msgid "Bratislava"
 msgstr "布拉迪斯拉发"
 
-#: ne_50m_populated_places.shp:281
 msgid "Doha"
 msgstr "多哈"
 
-#: ne_50m_populated_places.shp:282
 msgid "Quetta"
 msgstr "奎達"
 
-#: ne_50m_populated_places.shp:283
 msgid "Larkana"
 msgstr "拉爾卡納"
 
-#: ne_50m_populated_places.shp:285
 msgid "Upington"
 msgstr "烏平通"
 
-#: ne_50m_populated_places.shp:286
 msgid "Worcester"
 msgstr "伍斯特"
 
-#: ne_50m_populated_places.shp:287
 msgid "George"
 msgstr "喬治"
 
-#: ne_50m_populated_places.shp:288
 msgid "Tete"
 msgstr "太特"
 
-#: ne_50m_populated_places.shp:289
 msgid "Pemba"
 msgstr "彭巴"
 
-#: ne_50m_populated_places.shp:290
 msgid "Nampula"
 msgstr "楠普拉"
 
-#: ne_50m_populated_places.shp:291
 msgid "Welkom"
 msgstr "韋爾科姆"
 
-#: ne_50m_populated_places.shp:292
 msgid "Xai-Xai"
 msgstr "賽賽"
 
-#: ne_50m_populated_places.shp:294
 msgid "Mt. Hagen"
 msgstr "芒特哈根"
 
-#: ne_50m_populated_places.shp:296
 msgid "Lae"
 msgstr "莱城"
 
-#: ne_50m_populated_places.shp:297
 msgid "David"
 msgstr "戴维"
 
-#: ne_50m_populated_places.shp:298
 msgid "Oujda"
 msgstr "乌季达"
 
-#: ne_50m_populated_places.shp:299
 msgid "Safi"
 msgstr "薩非"
 
-#: ne_50m_populated_places.shp:300
 msgid "Podgorica"
 msgstr "波德戈里察"
 
-#: ne_50m_populated_places.shp:301
 msgid "Quelimane"
 msgstr "克利馬內"
 
-#: ne_50m_populated_places.shp:302
 msgid "East London"
 msgstr "東倫敦"
 
-#: ne_50m_populated_places.shp:304
 msgid "Naltchik"
 msgstr "納爾奇克"
 
-#: ne_50m_populated_places.shp:305
 msgid "Stavropol"
 msgstr "斯塔夫罗波尔"
 
-#: ne_50m_populated_places.shp:307
 msgid "Kaliningrad"
 msgstr "加里寧格勒"
 
-#: ne_50m_populated_places.shp:308
 msgid "Pskov"
 msgstr "普斯科夫"
 
-#: ne_50m_populated_places.shp:309
 msgid "Bryansk"
 msgstr "布良斯克"
 
-#: ne_50m_populated_places.shp:310
 msgid "Smolensk"
 msgstr "斯摩棱斯克"
 
-#: ne_50m_populated_places.shp:311
 msgid "Petrozavodsk"
 msgstr "彼得罗扎沃茨克"
 
-#: ne_50m_populated_places.shp:312
 msgid "Tver"
 msgstr "特维尔"
 
-#: ne_50m_populated_places.shp:313
 msgid "Vologda"
 msgstr "沃洛格达"
 
-#: ne_50m_populated_places.shp:314
 msgid "Yaroslavl"
 msgstr "雅罗斯拉夫尔"
 
-#: ne_50m_populated_places.shp:315
 msgid "Rostov"
 msgstr "顿河畔罗斯托夫"
 
-#: ne_50m_populated_places.shp:316
 msgid "Sochi"
 msgstr "索契"
 
-#: ne_50m_populated_places.shp:317
 msgid "Krasnodar"
 msgstr "克拉斯诺达尔"
 
-#: ne_50m_populated_places.shp:318
 msgid "Penza"
 msgstr "奔萨"
 
-#: ne_50m_populated_places.shp:319
 msgid "Ryazan"
 msgstr "梁赞"
 
-#: ne_50m_populated_places.shp:320
 msgid "Voronezh"
 msgstr "沃罗涅日"
 
-#: ne_50m_populated_places.shp:321
 msgid "Magnitogorsk"
 msgstr "马格尼托哥尔斯克"
 
-#: ne_50m_populated_places.shp:322
 msgid "Chelyabinsk"
 msgstr "車里雅賓斯克"
 
-#: ne_50m_populated_places.shp:323
 msgid "Vorkuta"
 msgstr "沃尔库塔"
 
-#: ne_50m_populated_places.shp:324
 msgid "Kirov"
 msgstr "基洛夫"
 
-#: ne_50m_populated_places.shp:325
 msgid "Nizhny Tagil"
 msgstr "下塔吉尔"
 
-#: ne_50m_populated_places.shp:326
 msgid "Astrakhan"
 msgstr "阿斯特拉罕"
 
-#: ne_50m_populated_places.shp:327
 msgid "Orenburg"
 msgstr "奥伦堡"
 
-#: ne_50m_populated_places.shp:328
 msgid "Saratov"
 msgstr "薩拉托夫"
 
-#: ne_50m_populated_places.shp:329
 msgid "Ulyanovsk"
 msgstr "乌里扬诺夫斯克"
 
-#: ne_50m_populated_places.shp:330
 msgid "Omsk"
 msgstr "鄂木斯克"
 
-#: ne_50m_populated_places.shp:331
 msgid "Tyumen"
 msgstr "秋明"
 
-#: ne_50m_populated_places.shp:332
 msgid "Novokuznetsk"
 msgstr "新库兹涅茨克"
 
-#: ne_50m_populated_places.shp:333
 msgid "Kemerovo"
 msgstr "克麥羅沃"
 
-#: ne_50m_populated_places.shp:334
 msgid "Groznyy"
 msgstr "格罗兹尼"
 
-#: ne_50m_populated_places.shp:335
 msgid "Kandy"
 msgstr "康提"
 
-#: ne_50m_populated_places.shp:336
 msgid "Sri Jawewardenepura Kotte"
 msgstr "斯里賈亞瓦德納普拉科特"
 
-#: ne_50m_populated_places.shp:337
 msgid "Daejeon"
 msgstr "大田廣域"
 
-#: ne_50m_populated_places.shp:338
 msgid "Gwangju"
 msgstr "光州廣域"
 
-#: ne_50m_populated_places.shp:339
 msgid "Busan"
 msgstr "釜山"
 
-#: ne_50m_populated_places.shp:340
 msgid "Zamboanga"
 msgstr "三宝颜"
 
-#: ne_50m_populated_places.shp:341
 msgid "Laoag"
 msgstr "佬沃"
 
-#: ne_50m_populated_places.shp:342
 msgid "Baguio City"
 msgstr "碧瑶"
 
-#: ne_50m_populated_places.shp:343
 msgid "General Santos"
 msgstr "三投斯將軍"
 
-#: ne_50m_populated_places.shp:344
 msgid "Ust-Ulimsk"
 msgstr "乌斯季伊利姆斯克"
 
-#: ne_50m_populated_places.shp:345
 msgid "Angarsk"
 msgstr "安加尔斯克"
 
-#: ne_50m_populated_places.shp:346
 msgid "Abakan"
 msgstr "阿巴坎"
 
-#: ne_50m_populated_places.shp:347
 msgid "Norilsk"
 msgstr "諾里爾斯克"
 
-#: ne_50m_populated_places.shp:349
 msgid "Kyzyl"
 msgstr "克孜勒"
 
-#: ne_50m_populated_places.shp:350
 msgid "Ulan Ude"
 msgstr "烏蘭烏德"
 
-#: ne_50m_populated_places.shp:351
 msgid "Blagoveshchensk"
 msgstr "海兰泡"
 
-#: ne_50m_populated_places.shp:363
 msgid "Khabarovsk"
 msgstr "伯力"
 
-#: ne_50m_populated_places.shp:365
 msgid "Yuzhno Sakhalinsk"
 msgstr "丰原"
 
-#: ne_50m_populated_places.shp:366
 msgid "Mexicali"
 msgstr "墨西卡利"
 
-#: ne_50m_populated_places.shp:367
 msgid "La Paz"
 msgstr "拉巴斯"
 
-#: ne_50m_populated_places.shp:368
 msgid "Torreón"
 msgstr "托雷翁"
 
-#: ne_50m_populated_places.shp:369
 msgid "Culiacán"
 msgstr "库利亚坎"
 
-#: ne_50m_populated_places.shp:370
 msgid "Nogales"
 msgstr "诺加利斯"
 
-#: ne_50m_populated_places.shp:371
 msgid "Hermosillo"
 msgstr "埃莫西约"
 
-#: ne_50m_populated_places.shp:372
 msgid "Guaymas"
 msgstr "瓜伊馬斯"
 
-#: ne_50m_populated_places.shp:373
 msgid "San Luis Potosí"
 msgstr "圣路易斯波托西"
 
-#: ne_50m_populated_places.shp:374
 msgid "Matamoros"
 msgstr "馬塔莫羅斯"
 
-#: ne_50m_populated_places.shp:375
 msgid "Nuevo Laredo"
 msgstr "新拉雷多"
 
-#: ne_50m_populated_places.shp:376
 msgid "Colima"
 msgstr "科利马"
 
-#: ne_50m_populated_places.shp:377
 msgid "Campeche"
 msgstr "坎佩切"
 
-#: ne_50m_populated_places.shp:378
 msgid "Oaxaca"
 msgstr "瓦哈卡"
 
-#: ne_50m_populated_places.shp:379
 msgid "León"
 msgstr "莱昂"
 
-#: ne_50m_populated_places.shp:380
 msgid "Maiduguri"
 msgstr "邁杜古里"
 
-#: ne_50m_populated_places.shp:381
 msgid "Port Harcourt"
 msgstr "哈科特港"
 
-#: ne_50m_populated_places.shp:382
 msgid "Makurdi"
 msgstr "马库尔迪"
 
-#: ne_50m_populated_places.shp:383
 msgid "Ibadan"
 msgstr "伊巴丹"
 
-#: ne_50m_populated_places.shp:384
 msgid "Ogbomosho"
 msgstr "奧博莫紹"
 
-#: ne_50m_populated_places.shp:385
 msgid "Warri"
 msgstr "瓦里"
 
-#: ne_50m_populated_places.shp:386
 msgid "Kaduna"
 msgstr "卡杜納"
 
-#: ne_50m_populated_places.shp:387
 msgid "Gdańsk"
 msgstr "格但斯克"
 
-#: ne_50m_populated_places.shp:388
 msgid "Kraków"
 msgstr "克拉科夫"
 
-#: ne_50m_populated_places.shp:390
 msgid "Wonsan"
 msgstr "元山"
 
-#: ne_50m_populated_places.shp:391
 msgid "Sinuiju"
 msgstr "新義州"
 
-#: ne_50m_populated_places.shp:395
 msgid "Walvis Bay"
 msgstr "鲸湾港"
 
-#: ne_50m_populated_places.shp:396
 msgid "Mwanza"
 msgstr "姆万扎"
 
-#: ne_50m_populated_places.shp:397
 msgid "Morogoro"
 msgstr "莫罗戈罗"
 
-#: ne_50m_populated_places.shp:398
 msgid "Dodoma"
 msgstr "多多马"
 
-#: ne_50m_populated_places.shp:399
 msgid "Arusha"
 msgstr "阿鲁沙"
 
-#: ne_50m_populated_places.shp:400
 msgid "Bern"
 msgstr "伯尔尼"
 
-#: ne_50m_populated_places.shp:401
 msgid "Malmö"
 msgstr "马尔默"
 
-#: ne_50m_populated_places.shp:402
 msgid "Laayoune"
 msgstr "阿尤恩"
 
-#: ne_50m_populated_places.shp:403
 msgid "Ternate"
 msgstr "特爾納特"
 
-#: ne_50m_populated_places.shp:404
 msgid "Ambon"
 msgstr "安汶"
 
-#: ne_50m_populated_places.shp:405
 msgid "Raba"
 msgstr "Raba"
 
-#: ne_50m_populated_places.shp:406
 msgid "Jayapura"
 msgstr "查雅普拉"
 
-#: ne_50m_populated_places.shp:407
 msgid "Florence"
 msgstr "佛罗伦萨"
 
-#: ne_50m_populated_places.shp:408
 msgid "Catania"
 msgstr "卡塔尼亞"
 
-#: ne_50m_populated_places.shp:409
 msgid "Pristina"
 msgstr "普里什蒂纳"
 
-#: ne_50m_populated_places.shp:411
 msgid "Eldoret"
 msgstr "埃爾多雷特"
 
-#: ne_50m_populated_places.shp:412
 msgid "Banda Aceh"
 msgstr "班達亞齊"
 
-#: ne_50m_populated_places.shp:413
 msgid "George Town"
 msgstr "乔治"
 
-#: ne_50m_populated_places.shp:414
 msgid "Zhangye"
 msgstr "张掖"
 
-#: ne_50m_populated_places.shp:415
 msgid "Wuwei"
 msgstr "武威"
 
-#: ne_50m_populated_places.shp:416
 msgid "Dunhuang"
 msgstr "敦煌"
 
-#: ne_50m_populated_places.shp:417
 msgid "Tianshui"
 msgstr "天水"
 
-#: ne_50m_populated_places.shp:419
 msgid "Golmud"
 msgstr "格尔木"
 
-#: ne_50m_populated_places.shp:420
 msgid "Yulin"
 msgstr "玉林"
 
-#: ne_50m_populated_places.shp:421
 msgid "Bose"
 msgstr "白城"
 
-#: ne_50m_populated_places.shp:422
 msgid "Wuzhou"
 msgstr "梧州"
 
-#: ne_50m_populated_places.shp:423
 msgid "Lupanshui"
 msgstr "六盘水"
 
-#: ne_50m_populated_places.shp:424
 msgid "Quanzhou"
 msgstr "泉州"
 
-#: ne_50m_populated_places.shp:425
 msgid "Hefei"
 msgstr "合肥"
 
-#: ne_50m_populated_places.shp:426
 msgid "Suzhou"
 msgstr "宿州"
 
-#: ne_50m_populated_places.shp:427
 msgid "Zhanjiang"
 msgstr "湛江"
 
-#: ne_50m_populated_places.shp:428
 msgid "Shaoguan"
 msgstr "韶关"
 
-#: ne_50m_populated_places.shp:429
 msgid "Balikpapan"
 msgstr "巴厘巴板"
 
-#: ne_50m_populated_places.shp:430
 msgid "Kuching"
 msgstr "古晉"
 
-#: ne_50m_populated_places.shp:431
 msgid "Antsiranana"
 msgstr "安齊拉納納"
 
-#: ne_50m_populated_places.shp:432
 msgid "Fianarantsoa"
 msgstr "菲亞納蘭楚阿"
 
-#: ne_50m_populated_places.shp:433
 msgid "Mahajanga"
 msgstr "马哈赞加"
 
-#: ne_50m_populated_places.shp:434
 msgid "Toliara"
 msgstr "圖利亞拉"
 
-#: ne_50m_populated_places.shp:435
 msgid "Surakarta"
 msgstr "梭罗"
 
-#: ne_50m_populated_places.shp:436
 msgid "Bandar Lampung"
 msgstr "班達楠榜"
 
-#: ne_50m_populated_places.shp:437
 msgid "Tanjungpandan"
 msgstr "丹絨香蘭"
 
-#: ne_50m_populated_places.shp:438
 msgid "Malang"
 msgstr "瑪琅"
 
-#: ne_50m_populated_places.shp:439
 msgid "Kupang"
 msgstr "古邦"
 
-#: ne_50m_populated_places.shp:440
 msgid "Parepare"
 msgstr "巴里巴里"
 
-#: ne_50m_populated_places.shp:441
 msgid "Cuenca"
 msgstr "昆卡"
 
-#: ne_50m_populated_places.shp:443
 msgid "Puerto Limon"
 msgstr "利蒙"
 
-#: ne_50m_populated_places.shp:444
 msgid "Santiago de Cuba"
 msgstr "圣地亚哥-德古巴"
 
-#: ne_50m_populated_places.shp:445
 msgid "Santiago"
 msgstr "聖地牙哥"
 
-#: ne_50m_populated_places.shp:446
 msgid "Manizales"
 msgstr "馬尼薩萊斯"
 
-#: ne_50m_populated_places.shp:447
 msgid "Pasto"
 msgstr "帕斯托"
 
-#: ne_50m_populated_places.shp:448
 msgid "Barranquilla"
 msgstr "巴兰基亚"
 
-#: ne_50m_populated_places.shp:450
 msgid "Mbandaka"
 msgstr "姆班达卡"
 
-#: ne_50m_populated_places.shp:451
 msgid "Moundou"
 msgstr "蒙杜"
 
-#: ne_50m_populated_places.shp:452
 msgid "Suez"
 msgstr "苏伊士"
 
-#: ne_50m_populated_places.shp:453
 msgid "Bur Said"
 msgstr "塞德港"
 
-#: ne_50m_populated_places.shp:454
 msgid "El Faiyum"
 msgstr "法尤姆"
 
-#: ne_50m_populated_places.shp:455
 msgid "Aswan"
 msgstr "阿斯旺"
 
-#: ne_50m_populated_places.shp:456
 msgid "Asyut"
 msgstr "艾斯尤特"
 
-#: ne_50m_populated_places.shp:457
 msgid "Kisangani"
 msgstr "基桑加尼"
 
-#: ne_50m_populated_places.shp:458
 msgid "Assab"
 msgstr "阿萨布"
 
-#: ne_50m_populated_places.shp:459
 msgid "Djibouti"
 msgstr "吉布地"
 
-#: ne_50m_populated_places.shp:460
 msgid "Dresden"
 msgstr "德累斯顿"
 
-#: ne_50m_populated_places.shp:461
 msgid "Xigaze"
 msgstr "桑珠孜区"
 
-#: ne_50m_populated_places.shp:462
 msgid "Shache"
 msgstr "莎车县"
 
-#: ne_50m_populated_places.shp:463
 msgid "Yining"
 msgstr "伊宁"
 
-#: ne_50m_populated_places.shp:464
 msgid "Altay"
 msgstr "阿勒泰"
 
-#: ne_50m_populated_places.shp:465
 msgid "Putrajaya"
 msgstr "布城"
 
-#: ne_50m_populated_places.shp:466
 msgid "Shizuishan"
 msgstr "石嘴山"
 
-#: ne_50m_populated_places.shp:467
 msgid "Yulin"
 msgstr "榆林"
 
-#: ne_50m_populated_places.shp:468
 msgid "Ankang"
 msgstr "安康"
 
-#: ne_50m_populated_places.shp:469
 msgid "Houma"
 msgstr "侯马"
 
-#: ne_50m_populated_places.shp:470
 msgid "Yueyang"
 msgstr "岳陽"
 
-#: ne_50m_populated_places.shp:471
 msgid "Hengyang"
 msgstr "衡陽"
 
-#: ne_50m_populated_places.shp:472
 msgid "Mianyang"
 msgstr "绵阳"
 
-#: ne_50m_populated_places.shp:473
 msgid "Xichang"
 msgstr "西昌"
 
-#: ne_50m_populated_places.shp:474
 msgid "Baoshan"
 msgstr "保山"
 
-#: ne_50m_populated_places.shp:475
 msgid "Gejiu"
 msgstr "个旧"
 
-#: ne_50m_populated_places.shp:476
 msgid "Shijianzhuang"
 msgstr "石家庄"
 
-#: ne_50m_populated_places.shp:477
 msgid "Handan"
 msgstr "邯郸"
 
-#: ne_50m_populated_places.shp:478
 msgid "Anshan"
 msgstr "鞍山"
 
-#: ne_50m_populated_places.shp:479
 msgid "Dalian"
 msgstr "大连"
 
-#: ne_50m_populated_places.shp:480
 msgid "Qingdao"
 msgstr "青岛"
 
-#: ne_50m_populated_places.shp:481
 msgid "Linyi"
 msgstr "临沂"
 
-#: ne_50m_populated_places.shp:482
 msgid "Huaiyin"
 msgstr "淮安"
 
-#: ne_50m_populated_places.shp:483
 msgid "Wenzhou"
 msgstr "温州"
 
-#: ne_50m_populated_places.shp:484
 msgid "Ningbo"
 msgstr "宁波"
 
-#: ne_50m_populated_places.shp:485
 msgid "Fukuoka"
 msgstr "福岡"
 
-#: ne_50m_populated_places.shp:486
 msgid "Miyazaki"
 msgstr "宮崎"
 
-#: ne_50m_populated_places.shp:487
 msgid "Naha"
 msgstr "那霸"
 
-#: ne_50m_populated_places.shp:488
 msgid "Kōchi"
 msgstr "高知"
 
-#: ne_50m_populated_places.shp:489
 msgid "Gorontalo"
 msgstr "哥倫打洛"
 
-#: ne_50m_populated_places.shp:490
 msgid "Tongliao"
 msgstr "通辽"
 
-#: ne_50m_populated_places.shp:491
 msgid "Hohhot"
 msgstr "呼和浩特"
 
-#: ne_50m_populated_places.shp:492
 msgid "Chifeng"
 msgstr "赤峰"
 
-#: ne_50m_populated_places.shp:493
 msgid "Ulanhot"
 msgstr "乌兰浩特"
 
-#: ne_50m_populated_places.shp:494
 msgid "Hailar"
 msgstr "海拉尔区"
 
-#: ne_50m_populated_places.shp:495
 msgid "Jiamusi"
 msgstr "佳木斯"
 
-#: ne_50m_populated_places.shp:496
 msgid "Beian"
 msgstr "北安"
 
-#: ne_50m_populated_places.shp:497
 msgid "Daqing"
 msgstr "大庆"
 
-#: ne_50m_populated_places.shp:498
 msgid "Jixi"
 msgstr "鸡西"
 
-#: ne_50m_populated_places.shp:499
 msgid "Nagoya"
 msgstr "名古屋"
 
-#: ne_50m_populated_places.shp:500
 msgid "Nagano"
 msgstr "長野"
 
-#: ne_50m_populated_places.shp:501
 msgid "Kushiro"
 msgstr "釧路"
 
-#: ne_50m_populated_places.shp:502
 msgid "Hakodate"
 msgstr "函館"
 
-#: ne_50m_populated_places.shp:503
 msgid "Kyoto"
 msgstr "京都"
 
-#: ne_50m_populated_places.shp:504
 msgid "Sendai"
 msgstr "仙台"
 
-#: ne_50m_populated_places.shp:505
 msgid "Sakata"
 msgstr "酒田"
 
-#: ne_50m_populated_places.shp:506
 msgid "Bandundu"
 msgstr "班顿杜"
 
-#: ne_50m_populated_places.shp:507
 msgid "Kananga"
 msgstr "卡南加"
 
-#: ne_50m_populated_places.shp:508
 msgid "Kasongo"
 msgstr "卡松戈"
 
-#: ne_50m_populated_places.shp:509
 msgid "Mbuji-Mayi"
 msgstr "姆布吉马伊"
 
-#: ne_50m_populated_places.shp:510
 msgid "Kalemie"
 msgstr "卡萊米"
 
-#: ne_50m_populated_places.shp:511
 msgid "Butembo"
 msgstr "布滕博"
 
-#: ne_50m_populated_places.shp:512
 msgid "Goma"
 msgstr "戈马"
 
-#: ne_50m_populated_places.shp:513
 msgid "Mzuzu"
 msgstr "姆祖祖"
 
-#: ne_50m_populated_places.shp:514
 msgid "Blantyre"
 msgstr "布兰太尔"
 
-#: ne_50m_populated_places.shp:515
 msgid "Quetzaltenango"
 msgstr "克薩爾特南戈"
 
-#: ne_50m_populated_places.shp:517
 msgid "Faridabad"
 msgstr "法里達巴德"
 
-#: ne_50m_populated_places.shp:518
 msgid "Srinagar"
 msgstr "斯利那加"
 
-#: ne_50m_populated_places.shp:519
 msgid "Vijayawada"
 msgstr "维杰亚瓦达"
 
-#: ne_50m_populated_places.shp:520
 msgid "Thiruvananthapuram"
 msgstr "锡鲁万纳塔普拉姆"
 
-#: ne_50m_populated_places.shp:521
 msgid "Kochi"
 msgstr "柯枝"
 
-#: ne_50m_populated_places.shp:522
 msgid "Cuttack"
 msgstr "克塔克"
 
-#: ne_50m_populated_places.shp:523
 msgid "Hubli"
 msgstr "胡布利"
 
-#: ne_50m_populated_places.shp:524
 msgid "Mangalore"
 msgstr "门格洛尔"
 
-#: ne_50m_populated_places.shp:525
 msgid "Mysore"
 msgstr "迈索尔"
 
-#: ne_50m_populated_places.shp:526
 msgid "Gulbarga"
 msgstr "古尔伯加"
 
-#: ne_50m_populated_places.shp:527
 msgid "Kolhapur"
 msgstr "戈爾哈布爾"
 
-#: ne_50m_populated_places.shp:528
 msgid "Nanded"
 msgstr "楠代德"
 
-#: ne_50m_populated_places.shp:529
 msgid "Akola"
 msgstr "阿科拉"
 
-#: ne_50m_populated_places.shp:530
 msgid "Guwahati"
 msgstr "古瓦哈提"
 
-#: ne_50m_populated_places.shp:531
 msgid "Kayes"
 msgstr "Kayes"
 
-#: ne_50m_populated_places.shp:533
 msgid "Bordeaux"
 msgstr "波尔多"
 
-#: ne_50m_populated_places.shp:534
 msgid "Marseille"
 msgstr "马赛"
 
-#: ne_50m_populated_places.shp:535
 msgid "Le Havre"
 msgstr "勒阿弗尔"
 
-#: ne_50m_populated_places.shp:536
 msgid "Gao"
 msgstr "加奥"
 
-#: ne_50m_populated_places.shp:538
 msgid "Arica"
 msgstr "阿里卡"
 
-#: ne_50m_populated_places.shp:539
 msgid "Copiapó"
 msgstr "科皮亞波"
 
-#: ne_50m_populated_places.shp:540
 msgid "La Serena"
 msgstr "拉塞雷纳"
 
-#: ne_50m_populated_places.shp:541
 msgid "Los Angeles"
 msgstr "洛桑赫萊斯"
 
-#: ne_50m_populated_places.shp:546
 msgid "Nouadhibou"
 msgstr "努瓦迪布"
 
-#: ne_50m_populated_places.shp:547
 msgid "Kayes"
 msgstr "卡伊"
 
-#: ne_50m_populated_places.shp:549
 msgid "Ségou"
 msgstr "塞古"
 
-#: ne_50m_populated_places.shp:550
 msgid "Skopje"
 msgstr "斯科普里"
 
-#: ne_50m_populated_places.shp:553
 msgid "Misratah"
 msgstr "米蘇拉塔"
 
-#: ne_50m_populated_places.shp:554
 msgid "Zuwarah"
 msgstr "祖瓦拉"
 
-#: ne_50m_populated_places.shp:555
 msgid "Kirkuk"
 msgstr "基爾庫克"
 
-#: ne_50m_populated_places.shp:556
 msgid "Mosul"
 msgstr "摩苏尔"
 
-#: ne_50m_populated_places.shp:557
 msgid "An Najaf"
 msgstr "納杰夫"
 
-#: ne_50m_populated_places.shp:558
 msgid "Bahir Dar"
 msgstr "巴赫達爾"
 
-#: ne_50m_populated_places.shp:559
 msgid "Mekele"
 msgstr "默克萊"
 
-#: ne_50m_populated_places.shp:560
 msgid "Dire Dawa"
 msgstr "德雷达瓦"
 
-#: ne_50m_populated_places.shp:562
 msgid "Vaasa"
 msgstr "瓦萨"
 
-#: ne_50m_populated_places.shp:563
 msgid "Tampere"
 msgstr "坦佩雷"
 
-#: ne_50m_populated_places.shp:564
 msgid "Aqtobe"
 msgstr "阿克托比"
 
-#: ne_50m_populated_places.shp:565
 msgid "Rudny"
 msgstr "魯德內"
 
-#: ne_50m_populated_places.shp:566
 msgid "Qyzylorda"
 msgstr "克孜勒奧爾達"
 
-#: ne_50m_populated_places.shp:567
 msgid "Atyrau"
 msgstr "阿特勞"
 
-#: ne_50m_populated_places.shp:568
 msgid "Ekibastuz"
 msgstr "埃基巴斯圖茲"
 
-#: ne_50m_populated_places.shp:569
 msgid "Pavlodar"
 msgstr "巴甫洛達爾"
 
-#: ne_50m_populated_places.shp:570
 msgid "Semey"
 msgstr "塞米伊"
 
-#: ne_50m_populated_places.shp:571
 msgid "Oskemen"
 msgstr "厄斯克門"
 
-#: ne_50m_populated_places.shp:572
 msgid "Yazd"
 msgstr "亚兹德"
 
-#: ne_50m_populated_places.shp:573
 msgid "Ahvaz"
 msgstr "阿瓦士"
 
-#: ne_50m_populated_places.shp:574
 msgid "Basra"
 msgstr "巴士拉"
 
-#: ne_50m_populated_places.shp:575
 msgid "Bandar-e-Abbas"
 msgstr "阿巴斯港"
 
-#: ne_50m_populated_places.shp:576
 msgid "Hamadan"
 msgstr "哈马丹"
 
-#: ne_50m_populated_places.shp:577
 msgid "Tabriz"
 msgstr "大不里士"
 
-#: ne_50m_populated_places.shp:578
 msgid "Ludhiana"
 msgstr "卢迪亚纳"
 
-#: ne_50m_populated_places.shp:579
 msgid "Kota"
 msgstr "科塔"
 
-#: ne_50m_populated_places.shp:580
 msgid "Jodhpur"
 msgstr "焦特布尔"
 
-#: ne_50m_populated_places.shp:581
 msgid "Shymkent"
 msgstr "奇姆肯特"
 
-#: ne_50m_populated_places.shp:582
 msgid "Taraz"
 msgstr "塔拉兹"
 
-#: ne_50m_populated_places.shp:583
 msgid "Lucknow"
 msgstr "勒克瑙"
 
-#: ne_50m_populated_places.shp:584
 msgid "Saharanpur"
 msgstr "薩哈蘭普爾"
 
-#: ne_50m_populated_places.shp:585
 msgid "Ranchi"
 msgstr "蘭契"
 
-#: ne_50m_populated_places.shp:586
 msgid "Bhagalpur"
 msgstr "帕格爾布爾"
 
-#: ne_50m_populated_places.shp:587
 msgid "Raipur"
 msgstr "賴布爾"
 
-#: ne_50m_populated_places.shp:588
 msgid "Jabalpur"
 msgstr "贾巴尔普尔"
 
-#: ne_50m_populated_places.shp:589
 msgid "Indore"
 msgstr "印多尔"
 
-#: ne_50m_populated_places.shp:590
 msgid "Pondicherry"
 msgstr "本地治里"
 
-#: ne_50m_populated_places.shp:591
 msgid "Salem"
 msgstr "塞勒姆"
 
-#: ne_50m_populated_places.shp:592
 msgid "Tiruchirappalli"
 msgstr "蒂魯吉拉帕利"
 
-#: ne_50m_populated_places.shp:593
 msgid "Pointe-Noire"
 msgstr "黑角"
 
-#: ne_50m_populated_places.shp:594
 msgid "Kankan"
 msgstr "Kankan"
 
-#: ne_50m_populated_places.shp:595
 msgid "Nzérékoré"
 msgstr "Nzérékoré"
 
-#: ne_50m_populated_places.shp:596
 msgid "Bouaké"
 msgstr "布瓦凯"
 
-#: ne_50m_populated_places.shp:597
 msgid "St.-Denis"
 msgstr "圣但尼"
 
-#: ne_50m_populated_places.shp:598
 msgid "Rio Branco"
 msgstr "里約布蘭科"
 
-#: ne_50m_populated_places.shp:599
 msgid "São Luís"
 msgstr "圣路易斯"
 
-#: ne_50m_populated_places.shp:600
 msgid "Porto Velho"
 msgstr "韋柳港"
 
-#: ne_50m_populated_places.shp:602
 msgid "Corumbá"
 msgstr "科倫巴"
 
-#: ne_50m_populated_places.shp:603
 msgid "Belo Horizonte"
 msgstr "贝洛奥里藏特"
 
-#: ne_50m_populated_places.shp:604
 msgid "Montes Claros"
 msgstr "蒙蒂斯克拉魯斯"
 
-#: ne_50m_populated_places.shp:605
 msgid "Uberlândia"
 msgstr "烏貝蘭迪亞"
 
-#: ne_50m_populated_places.shp:608
 msgid "Cuiabá"
 msgstr "库亚巴"
 
-#: ne_50m_populated_places.shp:609
 msgid "Pelotas"
 msgstr "佩洛塔斯"
 
-#: ne_50m_populated_places.shp:610
 msgid "Caxias do Sul"
 msgstr "南卡希亞斯"
 
-#: ne_50m_populated_places.shp:611
 msgid "Ponta Grossa"
 msgstr "蓬塔格羅薩"
 
-#: ne_50m_populated_places.shp:612
 msgid "Teresina"
 msgstr "特雷西納"
 
-#: ne_50m_populated_places.shp:613
 msgid "Maceió"
 msgstr "马塞约"
 
-#: ne_50m_populated_places.shp:614
 msgid "Vitória da Conquista"
 msgstr "Vitória da Conquista"
 
-#: ne_50m_populated_places.shp:615
 msgid "Barreiras"
 msgstr "巴雷拉斯"
 
-#: ne_50m_populated_places.shp:616
 msgid "Vila Velha"
 msgstr "韦利亚镇"
 
-#: ne_50m_populated_places.shp:617
 msgid "Natal"
 msgstr "纳塔尔"
 
-#: ne_50m_populated_places.shp:633
 msgid "North Bay"
 msgstr "北灣"
 
-#: ne_50m_populated_places.shp:638
 msgid "Ebolowa"
 msgstr "埃博洛瓦"
 
-#: ne_50m_populated_places.shp:639
 msgid "Bambari"
 msgstr "班巴里"
 
-#: ne_50m_populated_places.shp:640
 msgid "Venice"
 msgstr "威尼斯"
 
-#: ne_50m_populated_places.shp:642
 msgid "San Juan"
 msgstr "圣胡安"
 
-#: ne_50m_populated_places.shp:644
 msgid "Neuquén"
 msgstr "内乌肯"
 
-#: ne_50m_populated_places.shp:645
 msgid "Trinidad"
 msgstr "特立尼达"
 
-#: ne_50m_populated_places.shp:646
 msgid "Santa Rosa"
 msgstr "聖羅莎"
 
-#: ne_50m_populated_places.shp:647
 msgid "San Carlos de Bariloche"
 msgstr "圣卡洛斯-德巴里洛切"
 
-#: ne_50m_populated_places.shp:648
 msgid "Salta"
 msgstr "萨尔塔"
 
-#: ne_50m_populated_places.shp:649
 msgid "Tucumán"
 msgstr "聖米格爾-德-圖庫曼"
 
-#: ne_50m_populated_places.shp:650
 msgid "Formosa"
 msgstr "福莫萨"
 
-#: ne_50m_populated_places.shp:651
 msgid "Santa Fe"
 msgstr "圣菲"
 
-#: ne_50m_populated_places.shp:652
 msgid "Rosario"
 msgstr "罗萨里奥"
 
-#: ne_50m_populated_places.shp:653
 msgid "Campinas"
 msgstr "坎皮纳斯"
 
-#: ne_50m_populated_places.shp:654
 msgid "Sorocaba"
 msgstr "索羅卡巴"
 
-#: ne_50m_populated_places.shp:655
 msgid "Ribeirão Preto"
 msgstr "里貝朗普雷圖"
 
-#: ne_50m_populated_places.shp:656
 msgid "Petrolina"
 msgstr "彼得羅利納"
 
-#: ne_50m_populated_places.shp:657
 msgid "Bamenda"
 msgstr "巴门达"
 
-#: ne_50m_populated_places.shp:658
 msgid "Garoua"
 msgstr "加鲁阿"
 
-#: ne_50m_populated_places.shp:659
 msgid "Herat"
 msgstr "赫拉特"
 
-#: ne_50m_populated_places.shp:660
 msgid "Mazar-e Sharif"
 msgstr "马扎里沙里夫"
 
-#: ne_50m_populated_places.shp:661
 msgid "Battambang"
 msgstr "马德望"
 
-#: ne_50m_populated_places.shp:662
 msgid "Siem Reap"
 msgstr "暹粒"
 
-#: ne_50m_populated_places.shp:663
 msgid "Malanje"
 msgstr "馬蘭哲"
 
-#: ne_50m_populated_places.shp:664
 msgid "Benguela"
 msgstr "本吉拉"
 
-#: ne_50m_populated_places.shp:665
 msgid "Lubango"
 msgstr "盧班戈"
 
-#: ne_50m_populated_places.shp:666
 msgid "Namibe"
 msgstr "納米貝"
 
-#: ne_50m_populated_places.shp:667
 msgid "Tarija"
 msgstr "塔里哈"
 
-#: ne_50m_populated_places.shp:668
 msgid "Bridgetown"
 msgstr "布里奇敦"
 
-#: ne_50m_populated_places.shp:669
 msgid "Annaba"
 msgstr "安纳巴"
 
-#: ne_50m_populated_places.shp:670
 msgid "Parakou"
 msgstr "帕拉庫"
 
-#: ne_50m_populated_places.shp:671
 msgid "Porto-Novo"
 msgstr "波多诺伏"
 
-#: ne_50m_populated_places.shp:672
 msgid "Constantine"
 msgstr "君士坦丁"
 
-#: ne_50m_populated_places.shp:673
 msgid "Brest"
 msgstr "布列斯特"
 
-#: ne_50m_populated_places.shp:674
 msgid "Khulna"
 msgstr "库尔纳"
 
-#: ne_50m_populated_places.shp:675
 msgid "Francistown"
 msgstr "弗朗西斯敦"
 
-#: ne_50m_populated_places.shp:676
 msgid "Mahalapye"
 msgstr "馬哈拉佩"
 
-#: ne_50m_populated_places.shp:680
 msgid "Mandurah"
 msgstr "曼杜拉"
 
-#: ne_50m_populated_places.shp:695
 msgid "Bendigo"
 msgstr "本迪戈"
 
-#: ne_50m_populated_places.shp:699
 msgid "Rockhampton"
 msgstr "洛坎普頓"
 
-#: ne_50m_populated_places.shp:700
 msgid "Cairns"
 msgstr "凱恩斯"
 
-#: ne_50m_populated_places.shp:701
 msgid "Gold Coast"
 msgstr "黄金海岸"
 
-#: ne_50m_populated_places.shp:703
 msgid "Bobo Dioulasso"
 msgstr "博博迪乌拉索"
 
-#: ne_50m_populated_places.shp:704
 msgid "Rajshahi"
 msgstr "拉杰沙希"
 
-#: ne_50m_populated_places.shp:705
 msgid "Mandalay"
 msgstr "曼德勒"
 
-#: ne_50m_populated_places.shp:706
 msgid "Sittwe"
 msgstr "实兑"
 
-#: ne_50m_populated_places.shp:707
 msgid "Bujumbura"
 msgstr "布琼布拉"
 
-#: ne_50m_populated_places.shp:712
 msgid "Las Palmas"
 msgstr "拉斯帕尔马斯"
 
-#: ne_50m_populated_places.shp:713
 msgid "Berbera"
 msgstr "柏培拉"
 
-#: ne_50m_populated_places.shp:714
 msgid "Port Louis"
 msgstr "路易港"
 
-#: ne_50m_populated_places.shp:715
 msgid "Gaza"
 msgstr "加薩"
 
-#: ne_50m_populated_places.shp:717
 msgid "Papeete"
 msgstr "帕皮提"
 
-#: ne_50m_populated_places.shp:718
 msgid "Manama"
 msgstr "麦纳麦"
 
-#: ne_50m_populated_places.shp:721
 msgid "Taichung"
 msgstr "臺中"
 
-#: ne_50m_populated_places.shp:722
 msgid "Napier"
 msgstr "內皮爾"
 
-#: ne_50m_populated_places.shp:723
 msgid "Manukau"
 msgstr "曼努考"
 
-#: ne_50m_populated_places.shp:724
 msgid "Hamilton"
 msgstr "哈密尔顿"
 
-#: ne_50m_populated_places.shp:726
 msgid "Dunedin"
 msgstr "但尼丁"
 
-#: ne_50m_populated_places.shp:727
 msgid "Kozhikode"
 msgstr "科泽科德"
 
-#: ne_50m_populated_places.shp:728
 msgid "Bhubaneshwar"
 msgstr "布巴内什瓦尔"
 
-#: ne_50m_populated_places.shp:729
 msgid "Jamshedpur"
 msgstr "贾姆谢德布尔"
 
-#: ne_50m_populated_places.shp:730
 msgid "Montevideo"
 msgstr "蒙得维的亚"
 
-#: ne_50m_populated_places.shp:732
 msgid "Bismarck"
 msgstr "俾斯麥"
 
-#: ne_50m_populated_places.shp:733
 msgid "Boise"
 msgstr "博伊西"
 
-#: ne_50m_populated_places.shp:734
 msgid "San Jose"
 msgstr "聖荷西"
 
-#: ne_50m_populated_places.shp:735
 msgid "Sacramento"
 msgstr "沙加緬度"
 
-#: ne_50m_populated_places.shp:736
 msgid "Las Vegas"
 msgstr "拉斯维加斯"
 
-#: ne_50m_populated_places.shp:737
 msgid "Santa Fe"
 msgstr "圣菲"
 
-#: ne_50m_populated_places.shp:738
 msgid "Portland"
 msgstr "波特蘭"
 
-#: ne_50m_populated_places.shp:739
 msgid "Salt Lake City"
 msgstr "盐湖城"
 
-#: ne_50m_populated_places.shp:740
 msgid "Cheyenne"
 msgstr "夏延"
 
-#: ne_50m_populated_places.shp:741
 msgid "Des Moines"
 msgstr "德梅因"
 
-#: ne_50m_populated_places.shp:742
 msgid "Omaha"
 msgstr "奥马哈"
 
-#: ne_50m_populated_places.shp:743
 msgid "Oklahoma City"
 msgstr "奧克拉荷馬"
 
-#: ne_50m_populated_places.shp:745
 msgid "San Antonio"
 msgstr "圣安东尼奥"
 
-#: ne_50m_populated_places.shp:746
 msgid "San Cristóbal"
 msgstr "聖克里斯托瓦爾"
 
-#: ne_50m_populated_places.shp:747
 msgid "Valencia"
 msgstr "巴伦西亚"
 
-#: ne_50m_populated_places.shp:748
 msgid "Jackson"
 msgstr "杰克逊"
 
-#: ne_50m_populated_places.shp:749
 msgid "Raleigh"
 msgstr "罗利"
 
-#: ne_50m_populated_places.shp:750
 msgid "Cleveland"
 msgstr "克里夫蘭"
 
-#: ne_50m_populated_places.shp:751
 msgid "Cincinnati"
 msgstr "辛辛那提"
 
-#: ne_50m_populated_places.shp:752
 msgid "Nashville"
 msgstr "纳什维尔"
 
-#: ne_50m_populated_places.shp:753
 msgid "Memphis"
 msgstr "孟菲斯"
 
-#: ne_50m_populated_places.shp:754
 msgid "Norfolk"
 msgstr "諾福克"
 
-#: ne_50m_populated_places.shp:755
 msgid "Milwaukee"
 msgstr "密尔沃基"
 
-#: ne_50m_populated_places.shp:756
 msgid "Buffalo"
 msgstr "水牛城"
 
-#: ne_50m_populated_places.shp:757
 msgid "Pittsburgh"
 msgstr "匹兹堡"
 
-#: ne_50m_populated_places.shp:758
 msgid "Ciudad Guayana"
 msgstr "圭亞那城"
 
-#: ne_50m_populated_places.shp:759
 msgid "Lomé"
 msgstr "洛美"
 
-#: ne_50m_populated_places.shp:760
 msgid "Tunis"
 msgstr "突尼斯"
 
-#: ne_50m_populated_places.shp:769
 msgid "Fairbanks"
 msgstr "費爾班克斯"
 
-#: ne_50m_populated_places.shp:771
 msgid "Sevastapol"
 msgstr "塞瓦斯托波爾"
 
-#: ne_50m_populated_places.shp:772
 msgid "Abu Dhabi"
 msgstr "阿布扎比"
 
-#: ne_50m_populated_places.shp:773
 msgid "Ashgabat"
 msgstr "阿什哈巴德"
 
-#: ne_50m_populated_places.shp:774
 msgid "Samarqand"
 msgstr "撒馬爾罕"
 
-#: ne_50m_populated_places.shp:775
 msgid "Lusaka"
 msgstr "路沙卡"
 
-#: ne_50m_populated_places.shp:776
 msgid "Harare"
 msgstr "哈拉雷"
 
-#: ne_50m_populated_places.shp:777
 msgid "Bulawayo"
 msgstr "布拉瓦约"
 
-#: ne_50m_populated_places.shp:778
 msgid "Dili"
 msgstr "帝力"
 
-#: ne_50m_populated_places.shp:780
 msgid "Tegucigalpa"
 msgstr "德古斯加巴"
 
-#: ne_50m_populated_places.shp:781
 msgid "Georgetown"
 msgstr "乔治敦"
 
-#: ne_50m_populated_places.shp:782
 msgid "Reykjavík"
 msgstr "雷克雅未克"
 
-#: ne_50m_populated_places.shp:783
 msgid "Port-au-Prince"
 msgstr "太子港"
 
-#: ne_50m_populated_places.shp:784
 msgid "Glasgow"
 msgstr "格拉斯哥"
 
-#: ne_50m_populated_places.shp:785
 msgid "Kampala"
 msgstr "坎帕拉"
 
-#: ne_50m_populated_places.shp:786
 msgid "Aden"
 msgstr "亞丁"
 
-#: ne_50m_populated_places.shp:787
 msgid "Paramaribo"
 msgstr "帕拉马里博"
 
-#: ne_50m_populated_places.shp:788
 msgid "Seville"
 msgstr "塞维利亚"
 
-#: ne_50m_populated_places.shp:789
 msgid "Zinder"
 msgstr "津德尔"
 
-#: ne_50m_populated_places.shp:790
 msgid "Niamey"
 msgstr "尼亞美"
 
-#: ne_50m_populated_places.shp:791
 msgid "Port Sudan"
 msgstr "苏丹港"
 
-#: ne_50m_populated_places.shp:792
 msgid "Dushanbe"
 msgstr "杜尚别"
 
-#: ne_50m_populated_places.shp:793
 msgid "Cusco"
 msgstr "庫斯科"
 
-#: ne_50m_populated_places.shp:794
 msgid "Tacna"
 msgstr "塔克纳"
 
-#: ne_50m_populated_places.shp:795
 msgid "Trujillo"
 msgstr "特鲁希略"
 
-#: ne_50m_populated_places.shp:796
 msgid "Ica"
 msgstr "伊卡"
 
-#: ne_50m_populated_places.shp:797
 msgid "Asunción"
 msgstr "亞松森"
 
-#: ne_50m_populated_places.shp:798
 msgid "Managua"
 msgstr "馬納瓜"
 
-#: ne_50m_populated_places.shp:799
 msgid "Freetown"
 msgstr "弗里敦"
 
-#: ne_50m_populated_places.shp:800
 msgid "Agadez"
 msgstr "阿加德茲"
 
-#: ne_50m_populated_places.shp:801
 msgid "Niyala"
 msgstr "尼亚拉"
 
-#: ne_50m_populated_places.shp:802
 msgid "Wau"
 msgstr "瓦烏"
 
-#: ne_50m_populated_places.shp:804
 msgid "Kassala"
 msgstr "卡薩拉"
 
-#: ne_50m_populated_places.shp:805
 msgid "Tromsø"
 msgstr "特罗姆瑟"
 
-#: ne_50m_populated_places.shp:806
 msgid "Trondheim"
 msgstr "特隆赫姆"
 
-#: ne_50m_populated_places.shp:807
 msgid "Bergen"
 msgstr "卑爾根"
 
-#: ne_50m_populated_places.shp:808
 msgid "Islamabad"
 msgstr "伊斯兰堡"
 
-#: ne_50m_populated_places.shp:809
 msgid "Multan"
 msgstr "木爾坦"
 
-#: ne_50m_populated_places.shp:810
 msgid "Hyderabad"
 msgstr "海得拉巴"
 
-#: ne_50m_populated_places.shp:811
 msgid "Peshawar"
 msgstr "白沙瓦"
 
-#: ne_50m_populated_places.shp:812
 msgid "Kathmandu"
 msgstr "加德滿都"
 
-#: ne_50m_populated_places.shp:813
 msgid "Nacala"
 msgstr "纳卡拉"
 
-#: ne_50m_populated_places.shp:814
 msgid "Bloemfontein"
 msgstr "布隆方丹"
 
-#: ne_50m_populated_places.shp:815
 msgid "Pretoria"
 msgstr "比勒陀利亞"
 
-#: ne_50m_populated_places.shp:816
 msgid "Port Moresby"
 msgstr "莫尔兹比港"
 
-#: ne_50m_populated_places.shp:817
 msgid "Honiara"
 msgstr "霍尼亚拉"
 
-#: ne_50m_populated_places.shp:818
 msgid "Panama City"
 msgstr "巴拿馬城"
 
-#: ne_50m_populated_places.shp:819
 msgid "Fez"
 msgstr "非斯"
 
-#: ne_50m_populated_places.shp:820
 msgid "Rabat"
 msgstr "拉巴特"
 
-#: ne_50m_populated_places.shp:821
 msgid "Marrakesh"
 msgstr "马拉喀什"
 
-#: ne_50m_populated_places.shp:822
 msgid "Chișinău"
 msgstr "基希讷乌"
 
-#: ne_50m_populated_places.shp:823
 msgid "Beira"
 msgstr "贝拉"
 
-#: ne_50m_populated_places.shp:824
 msgid "Port Elizabeth"
 msgstr "伊莉莎白港"
 
-#: ne_50m_populated_places.shp:825
 msgid "Maputo"
 msgstr "马普托"
 
-#: ne_50m_populated_places.shp:826
 msgid "Tomsk"
 msgstr "托木斯克"
 
-#: ne_50m_populated_places.shp:828
 msgid "Murmansk"
 msgstr "摩爾曼斯克"
 
-#: ne_50m_populated_places.shp:829
 msgid "Archangel"
 msgstr "阿尔汉格尔斯克"
 
-#: ne_50m_populated_places.shp:830
 msgid "Nizhny Novgorod"
 msgstr "下诺夫哥罗德"
 
-#: ne_50m_populated_places.shp:831
 msgid "Volgograd"
 msgstr "伏尔加格勒"
 
-#: ne_50m_populated_places.shp:832
 msgid "Ufa"
 msgstr "烏法"
 
-#: ne_50m_populated_places.shp:833
 msgid "Yekaterinburg"
 msgstr "葉卡捷琳堡"
 
-#: ne_50m_populated_places.shp:834
 msgid "Samara"
 msgstr "薩馬拉"
 
-#: ne_50m_populated_places.shp:835
 msgid "Kazan"
 msgstr "喀山"
 
-#: ne_50m_populated_places.shp:836
 msgid "Surgut"
 msgstr "蘇爾古特"
 
-#: ne_50m_populated_places.shp:837
 msgid "Barnaul"
 msgstr "巴尔瑙尔"
 
-#: ne_50m_populated_places.shp:838
 msgid "Novosibirsk"
 msgstr "新西伯利亚"
 
-#: ne_50m_populated_places.shp:839
 msgid "Mogadishu"
 msgstr "摩加迪休"
 
-#: ne_50m_populated_places.shp:840
 msgid "Muscat"
 msgstr "马斯喀特"
 
-#: ne_50m_populated_places.shp:841
 msgid "Colombo"
 msgstr "科伦坡"
 
-#: ne_50m_populated_places.shp:842
 msgid "Cebu"
 msgstr "宿霧"
 
-#: ne_50m_populated_places.shp:843
 msgid "Iloilo"
 msgstr "伊洛伊洛"
 
-#: ne_50m_populated_places.shp:844
 msgid "Davao"
 msgstr "达沃"
 
-#: ne_50m_populated_places.shp:845
 msgid "Bratsk"
 msgstr "布拉茨克"
 
-#: ne_50m_populated_places.shp:846
 msgid "Irkutsk"
 msgstr "伊爾庫茨克"
 
-#: ne_50m_populated_places.shp:847
 msgid "Krasnoyarsk"
 msgstr "克拉斯諾亞爾斯克"
 
-#: ne_50m_populated_places.shp:849
 msgid "Chita"
 msgstr "赤塔"
 
-#: ne_50m_populated_places.shp:850
 msgid "Vladivostok"
 msgstr "海參崴"
 
-#: ne_50m_populated_places.shp:852
 msgid "Yakutsk"
 msgstr "雅库茨克"
 
-#: ne_50m_populated_places.shp:854
 msgid "Magadan"
 msgstr "马加丹"
 
-#: ne_50m_populated_places.shp:855
 msgid "Tijuana"
 msgstr "蒂華納"
 
-#: ne_50m_populated_places.shp:856
 msgid "Chihuahua"
 msgstr "奇瓦瓦"
 
-#: ne_50m_populated_places.shp:857
 msgid "Mazatlán"
 msgstr "馬薩特蘭"
 
-#: ne_50m_populated_places.shp:858
 msgid "Tampico"
 msgstr "坦皮科"
 
-#: ne_50m_populated_places.shp:859
 msgid "Acapulco"
 msgstr "阿卡普尔科"
 
-#: ne_50m_populated_places.shp:860
 msgid "Veracruz"
 msgstr "韦拉克鲁斯"
 
-#: ne_50m_populated_places.shp:861
 msgid "Tuxtla Gutiérrez"
 msgstr "图斯特拉－古铁雷斯"
 
-#: ne_50m_populated_places.shp:862
 msgid "Cancún"
 msgstr "坎昆"
 
-#: ne_50m_populated_places.shp:863
 msgid "Mérida"
 msgstr "梅里達"
 
-#: ne_50m_populated_places.shp:864
 msgid "Enugu"
 msgstr "埃努古"
 
-#: ne_50m_populated_places.shp:865
 msgid "Sokoto"
 msgstr "索科托"
 
-#: ne_50m_populated_places.shp:866
 msgid "Perm"
 msgstr "彼尔姆"
 
-#: ne_50m_populated_places.shp:867
 msgid "Erdenet"
 msgstr "额尔登特"
 
-#: ne_50m_populated_places.shp:868
 msgid "Ulaanbaatar"
 msgstr "乌兰巴托"
 
-#: ne_50m_populated_places.shp:869
 msgid "Mbeya"
 msgstr "姆貝亞"
 
-#: ne_50m_populated_places.shp:870
 msgid "Windhoek"
 msgstr "温得和克"
 
-#: ne_50m_populated_places.shp:872
 msgid "Zanzibar"
 msgstr "桑给巴尔"
 
-#: ne_50m_populated_places.shp:873
 msgid "Valencia"
 msgstr "巴倫西亞"
 
-#: ne_50m_populated_places.shp:875
 msgid "Petropavlovsk Kamchatskiy"
 msgstr "堪察加彼得巴甫洛夫斯克"
 
-#: ne_50m_populated_places.shp:876
 msgid "Abuja"
 msgstr "阿布贾"
 
-#: ne_50m_populated_places.shp:877
 msgid "Padang"
 msgstr "巴東"
 
-#: ne_50m_populated_places.shp:878
 msgid "Bissau"
 msgstr "比绍"
 
-#: ne_50m_populated_places.shp:879
 msgid "Palermo"
 msgstr "巴勒莫"
 
-#: ne_50m_populated_places.shp:880
 msgid "Amman"
 msgstr "安曼"
 
-#: ne_50m_populated_places.shp:881
 msgid "Vilnius"
 msgstr "维尔纽斯"
 
-#: ne_50m_populated_places.shp:882
 msgid "Riga"
 msgstr "里加"
 
-#: ne_50m_populated_places.shp:883
 msgid "Bishkek"
 msgstr "比什凯克"
 
-#: ne_50m_populated_places.shp:884
 msgid "Jiayuguan"
 msgstr "嘉峪關"
 
-#: ne_50m_populated_places.shp:885
 msgid "Xining"
 msgstr "西宁"
 
-#: ne_50m_populated_places.shp:886
 msgid "Guilin"
 msgstr "桂林"
 
-#: ne_50m_populated_places.shp:887
 msgid "Huainan"
 msgstr "淮南"
 
-#: ne_50m_populated_places.shp:888
 msgid "Shantou"
 msgstr "汕头"
 
-#: ne_50m_populated_places.shp:889
 msgid "Tarakan"
 msgstr "塔拉卡恩"
 
-#: ne_50m_populated_places.shp:890
 msgid "Mombasa"
 msgstr "蒙巴萨"
 
-#: ne_50m_populated_places.shp:891
 msgid "Maseru"
 msgstr "马塞卢"
 
-#: ne_50m_populated_places.shp:892
 msgid "Antananarivo"
 msgstr "塔那那利佛"
 
-#: ne_50m_populated_places.shp:893
 msgid "Semarang"
 msgstr "三寶瓏"
 
-#: ne_50m_populated_places.shp:894
 msgid "Palembang"
 msgstr "巨港"
 
-#: ne_50m_populated_places.shp:895
 msgid "Bandjarmasin"
 msgstr "馬辰"
 
-#: ne_50m_populated_places.shp:896
 msgid "Ujungpandang"
 msgstr "望加錫"
 
-#: ne_50m_populated_places.shp:897
 msgid "Lyon"
 msgstr "里昂"
 
-#: ne_50m_populated_places.shp:898
 msgid "Quito"
 msgstr "基多"
 
-#: ne_50m_populated_places.shp:899
 msgid "San José"
 msgstr "聖荷西"
 
-#: ne_50m_populated_places.shp:900
 msgid "San Salvador"
 msgstr "聖薩爾瓦多"
 
-#: ne_50m_populated_places.shp:901
 msgid "Kingston"
 msgstr "京斯敦"
 
-#: ne_50m_populated_places.shp:902
 msgid "Cartagena"
 msgstr "卡塔赫纳"
 
-#: ne_50m_populated_places.shp:904
 msgid "Bumba"
 msgstr "奔巴"
 
-#: ne_50m_populated_places.shp:905
 msgid "Ndjamena"
 msgstr "恩賈梅納"
 
-#: ne_50m_populated_places.shp:906
 msgid "Abéché"
 msgstr "阿贝歇"
 
-#: ne_50m_populated_places.shp:907
 msgid "Malabo"
 msgstr "馬拉博"
 
-#: ne_50m_populated_places.shp:908
 msgid "Luxor"
 msgstr "樂蜀"
 
-#: ne_50m_populated_places.shp:909
 msgid "Asmara"
 msgstr "阿斯馬拉"
 
-#: ne_50m_populated_places.shp:910
 msgid "Zagreb"
 msgstr "萨格勒布"
 
-#: ne_50m_populated_places.shp:911
 msgid "Tallinn"
 msgstr "塔林"
 
-#: ne_50m_populated_places.shp:912
 msgid "Lhasa"
 msgstr "拉萨"
 
-#: ne_50m_populated_places.shp:913
 msgid "Hami"
 msgstr "伊州区"
 
-#: ne_50m_populated_places.shp:914
 msgid "Hotan"
 msgstr "和田"
 
-#: ne_50m_populated_places.shp:915
 msgid "Kashgar"
 msgstr "喀什"
 
-#: ne_50m_populated_places.shp:916
 msgid "Yinchuan"
 msgstr "銀川"
 
-#: ne_50m_populated_places.shp:917
 msgid "Pingxiang"
 msgstr "萍乡"
 
-#: ne_50m_populated_places.shp:918
 msgid "Nagasaki"
 msgstr "长崎"
 
-#: ne_50m_populated_places.shp:919
 msgid "Qiqihar"
 msgstr "齐齐哈尔"
 
-#: ne_50m_populated_places.shp:920
 msgid "Kikwit"
 msgstr "基奎特"
 
-#: ne_50m_populated_places.shp:921
 msgid "Matadi"
 msgstr "马塔迪"
 
-#: ne_50m_populated_places.shp:922
 msgid "Kolwezi"
 msgstr "科卢韦齐"
 
-#: ne_50m_populated_places.shp:923
 msgid "Lubumbashi"
 msgstr "盧本巴希"
 
-#: ne_50m_populated_places.shp:924
 msgid "Lilongwe"
 msgstr "利隆圭"
 
-#: ne_50m_populated_places.shp:925
 msgid "Guatemala"
 msgstr "瓜地馬拉"
 
-#: ne_50m_populated_places.shp:926
 msgid "Cayenne"
 msgstr "開雲"
 
-#: ne_50m_populated_places.shp:927
 msgid "Libreville"
 msgstr "利伯维尔"
 
-#: ne_50m_populated_places.shp:928
 msgid "Vishakhapatnam"
 msgstr "维沙卡帕特南"
 
-#: ne_50m_populated_places.shp:929
 msgid "Suva"
 msgstr "蘇瓦"
 
-#: ne_50m_populated_places.shp:930
 msgid "Port-Gentil"
 msgstr "让蒂尔港"
 
-#: ne_50m_populated_places.shp:931
 msgid "Timbuktu"
 msgstr "廷巴克图"
 
-#: ne_50m_populated_places.shp:932
 msgid "Punta Arenas"
 msgstr "蓬塔阿雷纳斯"
 
-#: ne_50m_populated_places.shp:933
 msgid "Iquique"
 msgstr "伊基克"
 
-#: ne_50m_populated_places.shp:934
 msgid "Antofagasta"
 msgstr "安托法加斯塔"
 
-#: ne_50m_populated_places.shp:935
 msgid "Valparaíso"
 msgstr "瓦尔帕莱索"
 
-#: ne_50m_populated_places.shp:936
 msgid "Valdivia"
 msgstr "瓦尔迪维亚"
 
-#: ne_50m_populated_places.shp:937
 msgid "Concepción"
 msgstr "康塞普西翁"
 
-#: ne_50m_populated_places.shp:938
 msgid "Puerto Montt"
 msgstr "蒙特港"
 
-#: ne_50m_populated_places.shp:940
 msgid "Nouakchott"
 msgstr "努瓦克肖特"
 
-#: ne_50m_populated_places.shp:941
 msgid "Bamako"
 msgstr "巴馬科"
 
-#: ne_50m_populated_places.shp:944
 msgid "Sabha"
 msgstr "拾哈"
 
-#: ne_50m_populated_places.shp:945
 msgid "Banghazi"
 msgstr "班加西"
 
-#: ne_50m_populated_places.shp:946
 msgid "Thessaloniki"
 msgstr "塞萨洛尼基"
 
-#: ne_50m_populated_places.shp:947
 msgid "Beirut"
 msgstr "贝鲁特"
 
-#: ne_50m_populated_places.shp:948
 msgid "Tbilisi"
 msgstr "第比利斯"
 
-#: ne_50m_populated_places.shp:949
 msgid "Gondar"
 msgstr "貢德爾"
 
-#: ne_50m_populated_places.shp:950
 msgid "Astana"
 msgstr "阿斯塔納"
 
-#: ne_50m_populated_places.shp:951
 msgid "Qaraghandy"
 msgstr "卡拉干達"
 
-#: ne_50m_populated_places.shp:952
 msgid "Almaty"
 msgstr "阿拉木圖"
 
-#: ne_50m_populated_places.shp:953
 msgid "Isfahan"
 msgstr "伊斯法罕"
 
-#: ne_50m_populated_places.shp:954
 msgid "Shiraz"
 msgstr "設拉子"
 
-#: ne_50m_populated_places.shp:955
 msgid "Amritsar"
 msgstr "阿姆利则"
 
-#: ne_50m_populated_places.shp:956
 msgid "Varanasi"
 msgstr "瓦拉納西"
 
-#: ne_50m_populated_places.shp:957
 msgid "Asansol"
 msgstr "阿桑索尔"
 
-#: ne_50m_populated_places.shp:958
 msgid "Bhilai"
 msgstr "比萊"
 
-#: ne_50m_populated_places.shp:959
 msgid "Bhopal"
 msgstr "博帕尔"
 
-#: ne_50m_populated_places.shp:960
 msgid "Madurai"
 msgstr "马杜赖"
 
-#: ne_50m_populated_places.shp:961
 msgid "Coimbatore"
 msgstr "哥印拜陀"
 
-#: ne_50m_populated_places.shp:962
 msgid "Vientiane"
 msgstr "永珍"
 
-#: ne_50m_populated_places.shp:963
 msgid "Brazzaville"
 msgstr "布拉柴维尔"
 
-#: ne_50m_populated_places.shp:964
 msgid "Conakry"
 msgstr "科納克里"
 
-#: ne_50m_populated_places.shp:965
 msgid "Yamoussoukro"
 msgstr "亚穆苏克罗"
 
-#: ne_50m_populated_places.shp:966
 msgid "Cruzeiro do Sul"
 msgstr "南克魯賽羅"
 
-#: ne_50m_populated_places.shp:967
 msgid "Leticia"
 msgstr "萊蒂西亞"
 
-#: ne_50m_populated_places.shp:968
 msgid "Manaus"
 msgstr "马瑙斯"
 
-#: ne_50m_populated_places.shp:969
 msgid "Caxias"
 msgstr "卡希亚斯"
 
-#: ne_50m_populated_places.shp:970
 msgid "Santarém"
 msgstr "聖塔倫"
 
-#: ne_50m_populated_places.shp:971
 msgid "Marabá"
 msgstr "马拉巴"
 
-#: ne_50m_populated_places.shp:972
 msgid "Vilhena"
 msgstr "維列納"
 
-#: ne_50m_populated_places.shp:973
 msgid "Ji-Paraná"
 msgstr "日帕拉納"
 
-#: ne_50m_populated_places.shp:974
 msgid "Campo Grande"
 msgstr "大坎普"
 
-#: ne_50m_populated_places.shp:975
 msgid "Florianópolis"
 msgstr "弗洛里亚诺波利斯"
 
-#: ne_50m_populated_places.shp:976
 msgid "Feira de Santana"
 msgstr "費拉迪聖安娜"
 
-#: ne_50m_populated_places.shp:977
 msgid "Winnipeg"
 msgstr "温尼伯"
 
-#: ne_50m_populated_places.shp:979
 msgid "Regina"
 msgstr "里贾纳"
 
-#: ne_50m_populated_places.shp:980
 msgid "Saskatoon"
 msgstr "萨斯卡通"
 
-#: ne_50m_populated_places.shp:981
 msgid "Calgary"
 msgstr "卡尔加里"
 
-#: ne_50m_populated_places.shp:983
 msgid "Victoria"
 msgstr "維多利亞"
 
-#: ne_50m_populated_places.shp:990
 msgid "Boa Vista"
 msgstr "博阿維斯塔"
 
-#: ne_50m_populated_places.shp:991
 msgid "Macapá"
 msgstr "馬卡帕"
 
-#: ne_50m_populated_places.shp:992
 msgid "Ottawa"
 msgstr "渥太華"
 
-#: ne_50m_populated_places.shp:994
 msgid "Thunder Bay"
 msgstr "桑德贝"
 
-#: ne_50m_populated_places.shp:995
 msgid "Québec"
 msgstr "魁北克"
 
-#: ne_50m_populated_places.shp:996
 msgid "Halifax"
 msgstr "哈利法克斯"
 
-#: ne_50m_populated_places.shp:997
 msgid "St. John's"
 msgstr "聖約翰斯"
 
-#: ne_50m_populated_places.shp:1001
 msgid "Belgrade"
 msgstr "贝尔格莱德"
 
-#: ne_50m_populated_places.shp:1003
 msgid "Bandar Seri Begawan"
 msgstr "斯里巴加湾"
 
-#: ne_50m_populated_places.shp:1005
 msgid "Río Gallegos"
 msgstr "里奥加耶戈斯"
 
-#: ne_50m_populated_places.shp:1006
 msgid "Comodoro Rivadavia"
 msgstr "里瓦达维亚海军准将城"
 
-#: ne_50m_populated_places.shp:1007
 msgid "Mendoza"
 msgstr "门多萨"
 
-#: ne_50m_populated_places.shp:1008
 msgid "Sucre"
 msgstr "苏克雷"
 
-#: ne_50m_populated_places.shp:1009
 msgid "Riberalta"
 msgstr "里韋拉爾塔"
 
-#: ne_50m_populated_places.shp:1010
 msgid "Bahía Blanca"
 msgstr "布兰卡港"
 
-#: ne_50m_populated_places.shp:1011
 msgid "Mar del Plata"
 msgstr "马德普拉塔"
 
-#: ne_50m_populated_places.shp:1012
 msgid "Córdoba"
 msgstr "科尔多瓦"
 
-#: ne_50m_populated_places.shp:1013
 msgid "Posadas"
 msgstr "波萨达斯"
 
-#: ne_50m_populated_places.shp:1015
 msgid "Bangui"
 msgstr "班基"
 
-#: ne_50m_populated_places.shp:1016
 msgid "Maroua"
 msgstr "马鲁阿"
 
-#: ne_50m_populated_places.shp:1017
 msgid "Yaounde"
 msgstr "雅温得"
 
-#: ne_50m_populated_places.shp:1018
 msgid "Tirana"
 msgstr "地拉那"
 
-#: ne_50m_populated_places.shp:1019
 msgid "Yerevan"
 msgstr "葉里溫"
 
-#: ne_50m_populated_places.shp:1020
 msgid "Baku"
 msgstr "巴库"
 
-#: ne_50m_populated_places.shp:1021
 msgid "Kandahar"
 msgstr "坎大哈"
 
-#: ne_50m_populated_places.shp:1022
 msgid "Phnom Penh"
 msgstr "金边"
 
-#: ne_50m_populated_places.shp:1024
 msgid "Huambo"
 msgstr "万博"
 
-#: ne_50m_populated_places.shp:1025
 msgid "La Paz"
 msgstr "拉巴斯"
 
-#: ne_50m_populated_places.shp:1026
 msgid "Santa Cruz"
 msgstr "圣克鲁斯"
 
-#: ne_50m_populated_places.shp:1027
 msgid "Oran"
 msgstr "瓦赫蘭"
 
-#: ne_50m_populated_places.shp:1028
 msgid "Cotonou"
 msgstr "科托努"
 
-#: ne_50m_populated_places.shp:1029
 msgid "Tamanrasset"
 msgstr "塔曼拉塞特"
 
-#: ne_50m_populated_places.shp:1030
 msgid "Ghardaia"
 msgstr "盖尔达耶"
 
-#: ne_50m_populated_places.shp:1031
 msgid "Sofia"
 msgstr "索菲亞"
 
-#: ne_50m_populated_places.shp:1032
 msgid "Minsk"
 msgstr "明斯克"
 
-#: ne_50m_populated_places.shp:1033
 msgid "Thimphu"
 msgstr "廷布"
 
-#: ne_50m_populated_places.shp:1034
 msgid "Gaborone"
 msgstr "嘉柏隆里"
 
-#: ne_50m_populated_places.shp:1035
 msgid "Darwin"
 msgstr "达尔文"
 
-#: ne_50m_populated_places.shp:1037
 msgid "Canberra"
 msgstr "堪培拉"
 
-#: ne_50m_populated_places.shp:1038
 msgid "Newcastle"
 msgstr "纽卡斯尔"
 
-#: ne_50m_populated_places.shp:1039
 msgid "Adelaide"
 msgstr "阿德莱德"
 
-#: ne_50m_populated_places.shp:1040
 msgid "Townsville"
 msgstr "汤斯维尔"
 
-#: ne_50m_populated_places.shp:1041
 msgid "Brisbane"
 msgstr "布里斯班"
 
-#: ne_50m_populated_places.shp:1042
 msgid "Hobart"
 msgstr "荷巴特"
 
-#: ne_50m_populated_places.shp:1043
 msgid "Ouagadougou"
 msgstr "瓦加杜古"
 
-#: ne_50m_populated_places.shp:1044
 msgid "Sarajevo"
 msgstr "塞拉耶佛"
 
-#: ne_50m_populated_places.shp:1045
 msgid "Naypyidaw"
 msgstr "奈比多"
 
-#: ne_50m_populated_places.shp:1046
 msgid "San Juan"
 msgstr "圣胡安"
 
-#: ne_50m_populated_places.shp:1048
 msgid "Hamilton"
 msgstr "哈密尔顿"
 
-#: ne_50m_populated_places.shp:1050
 msgid "Hargeysa"
 msgstr "哈尔格萨"
 
-#: ne_50m_populated_places.shp:1052
 msgid "São Tomé"
 msgstr "圣多美"
 
-#: ne_50m_populated_places.shp:1053
 msgid "Apia"
 msgstr "阿皮亚"
 
-#: ne_50m_populated_places.shp:1054
 msgid "Valletta"
 msgstr "瓦莱塔"
 
-#: ne_50m_populated_places.shp:1055
 msgid "Malé"
 msgstr "馬累"
 
-#: ne_50m_populated_places.shp:1056
 msgid "Jerusalem"
 msgstr "耶路撒冷"
 
-#: ne_50m_populated_places.shp:1057
 msgid "Praia"
 msgstr "培亞"
 
-#: ne_50m_populated_places.shp:1058
 msgid "Nassau"
 msgstr "拿骚"
 
-#: ne_50m_populated_places.shp:1059
 msgid "Nicosia"
 msgstr "尼科西亚"
 
-#: ne_50m_populated_places.shp:1060
 msgid "Kaohsiung"
 msgstr "高雄"
 
-#: ne_50m_populated_places.shp:1061
 msgid "Wellington"
 msgstr "惠灵顿"
 
-#: ne_50m_populated_places.shp:1062
 msgid "Christchurch"
 msgstr "基督城"
 
-#: ne_50m_populated_places.shp:1063
 msgid "Shenzhen"
 msgstr "深圳"
 
-#: ne_50m_populated_places.shp:1064
 msgid "Zibo"
 msgstr "淄博"
 
-#: ne_50m_populated_places.shp:1065
 msgid "Minneapolis"
 msgstr "明尼阿波利斯"
 
-#: ne_50m_populated_places.shp:1066
 msgid "Honolulu"
 msgstr "檀香山"
 
-#: ne_50m_populated_places.shp:1067
 msgid "Seattle"
 msgstr "西雅圖"
 
-#: ne_50m_populated_places.shp:1068
 msgid "Phoenix"
 msgstr "鳳凰城"
 
-#: ne_50m_populated_places.shp:1069
 msgid "San Diego"
 msgstr "聖地牙哥"
 
-#: ne_50m_populated_places.shp:1070
 msgid "St. Louis"
 msgstr "圣路易斯"
 
-#: ne_50m_populated_places.shp:1071
 msgid "New Orleans"
 msgstr "新奥尔良"
 
-#: ne_50m_populated_places.shp:1072
 msgid "Dallas"
 msgstr "達拉斯"
 
-#: ne_50m_populated_places.shp:1073
 msgid "Maracaibo"
 msgstr "马拉开波"
 
-#: ne_50m_populated_places.shp:1074
 msgid "Boston"
 msgstr "波士顿"
 
-#: ne_50m_populated_places.shp:1075
 msgid "Tampa"
 msgstr "坦帕"
 
-#: ne_50m_populated_places.shp:1076
 msgid "Philadelphia"
 msgstr "費城"
 
-#: ne_50m_populated_places.shp:1077
 msgid "Detroit"
 msgstr "底特律"
 
-#: ne_50m_populated_places.shp:1078
 msgid "Anchorage"
 msgstr "安克拉治"
 
-#: ne_50m_populated_places.shp:1079
 msgid "Hanoi"
 msgstr "河內"
 
-#: ne_50m_populated_places.shp:1080
 msgid "Ho Chi Minh City"
 msgstr "胡志明"
 
-#: ne_50m_populated_places.shp:1081
 msgid "Ankara"
 msgstr "安卡拉"
 
-#: ne_50m_populated_places.shp:1082
 msgid "Budapest"
 msgstr "布达佩斯"
 
-#: ne_50m_populated_places.shp:1083
 msgid "Sanaa"
 msgstr "萨那"
 
-#: ne_50m_populated_places.shp:1084
 msgid "Barcelona"
 msgstr "巴塞罗那"
 
-#: ne_50m_populated_places.shp:1085
 msgid "Bucharest"
 msgstr "布加勒斯特"
 
-#: ne_50m_populated_places.shp:1086
 msgid "Aleppo"
 msgstr "阿勒颇"
 
-#: ne_50m_populated_places.shp:1087
 msgid "Damascus"
 msgstr "大马士革"
 
-#: ne_50m_populated_places.shp:1088
 msgid "Zürich"
 msgstr "苏黎世"
 
-#: ne_50m_populated_places.shp:1089
 msgid "Lisbon"
 msgstr "里斯本"
 
-#: ne_50m_populated_places.shp:1090
 msgid "Khartoum"
 msgstr "喀土穆"
 
-#: ne_50m_populated_places.shp:1091
 msgid "Jeddah"
 msgstr "吉达"
 
-#: ne_50m_populated_places.shp:1092
 msgid "Makkah"
 msgstr "麥加"
 
-#: ne_50m_populated_places.shp:1093
 msgid "Oslo"
 msgstr "奥斯陆"
 
-#: ne_50m_populated_places.shp:1094
 msgid "Lahore"
 msgstr "拉合爾"
 
-#: ne_50m_populated_places.shp:1095
 msgid "Karachi"
 msgstr "卡拉奇"
 
-#: ne_50m_populated_places.shp:1096
 msgid "Durban"
 msgstr "德班"
 
-#: ne_50m_populated_places.shp:1097
 msgid "St. Petersburg"
 msgstr "圣彼得堡"
 
-#: ne_50m_populated_places.shp:1098
 msgid "Guadalajara"
 msgstr "瓜达拉哈拉"
 
-#: ne_50m_populated_places.shp:1099
 msgid "Puebla"
 msgstr "普埃布拉"
 
-#: ne_50m_populated_places.shp:1100
 msgid "Kano"
 msgstr "卡諾"
 
-#: ne_50m_populated_places.shp:1101
 msgid "Warsaw"
 msgstr "华沙"
 
-#: ne_50m_populated_places.shp:1102
 msgid "Pyongyang"
 msgstr "平壤"
 
-#: ne_50m_populated_places.shp:1103
 msgid "Dar es Salaam"
 msgstr "达累斯萨拉姆"
 
-#: ne_50m_populated_places.shp:1104
 msgid "Medan"
 msgstr "棉蘭"
 
-#: ne_50m_populated_places.shp:1105
 msgid "Dublin"
 msgstr "都柏林"
 
-#: ne_50m_populated_places.shp:1106
 msgid "Monrovia"
 msgstr "蒙羅維亞"
 
-#: ne_50m_populated_places.shp:1107
 msgid "Naples"
 msgstr "那不勒斯"
 
-#: ne_50m_populated_places.shp:1108
 msgid "Milan"
 msgstr "米蘭"
 
-#: ne_50m_populated_places.shp:1109
 msgid "Kuala Lumpur"
 msgstr "吉隆坡"
 
-#: ne_50m_populated_places.shp:1110
 msgid "Lanzhou"
 msgstr "蘭州"
 
-#: ne_50m_populated_places.shp:1111
 msgid "Nanning"
 msgstr "南寧"
 
-#: ne_50m_populated_places.shp:1112
 msgid "Guiyang"
 msgstr "貴陽"
 
-#: ne_50m_populated_places.shp:1113
 msgid "Chongqing"
 msgstr "重庆"
 
-#: ne_50m_populated_places.shp:1114
 msgid "Fuzhou"
 msgstr "福州"
 
-#: ne_50m_populated_places.shp:1115
 msgid "Guangzhou"
 msgstr "廣州"
 
-#: ne_50m_populated_places.shp:1116
 msgid "Dongguan"
 msgstr "东莞"
 
-#: ne_50m_populated_places.shp:1117
 msgid "Bandung"
 msgstr "萬隆"
 
-#: ne_50m_populated_places.shp:1118
 msgid "Surabaya"
 msgstr "泗水"
 
-#: ne_50m_populated_places.shp:1119
 msgid "Guayaquil"
 msgstr "瓜亞基爾"
 
-#: ne_50m_populated_places.shp:1120
 msgid "Medellín"
 msgstr "麦德林"
 
-#: ne_50m_populated_places.shp:1121
 msgid "Cali"
 msgstr "卡利"
 
-#: ne_50m_populated_places.shp:1122
 msgid "Havana"
 msgstr "哈瓦那"
 
-#: ne_50m_populated_places.shp:1123
 msgid "Alexandria"
 msgstr "亞歷山大港"
 
-#: ne_50m_populated_places.shp:1124
 msgid "Frankfurt"
 msgstr "美茵河畔法蘭克福"
 
-#: ne_50m_populated_places.shp:1125
 msgid "Hamburg"
 msgstr "汉堡"
 
-#: ne_50m_populated_places.shp:1126
 msgid "Munich"
 msgstr "慕尼黑"
 
-#: ne_50m_populated_places.shp:1127
 msgid "Prague"
 msgstr "布拉格"
 
-#: ne_50m_populated_places.shp:1128
 msgid "Kuwait"
 msgstr "科威特"
 
-#: ne_50m_populated_places.shp:1129
 msgid "Xian"
 msgstr "西安"
 
-#: ne_50m_populated_places.shp:1130
 msgid "Taiyuan"
 msgstr "太原"
 
-#: ne_50m_populated_places.shp:1131
 msgid "Wuhan"
 msgstr "武汉"
 
-#: ne_50m_populated_places.shp:1132
 msgid "Changsha"
 msgstr "长沙"
 
-#: ne_50m_populated_places.shp:1133
 msgid "Kunming"
 msgstr "昆明"
 
-#: ne_50m_populated_places.shp:1134
 msgid "Zhengzhou"
 msgstr "郑州"
 
-#: ne_50m_populated_places.shp:1135
 msgid "Shenyeng"
 msgstr "瀋陽"
 
-#: ne_50m_populated_places.shp:1136
 msgid "Jinan"
 msgstr "济南"
 
-#: ne_50m_populated_places.shp:1137
 msgid "Tianjin"
 msgstr "天津"
 
-#: ne_50m_populated_places.shp:1138
 msgid "Nanchang"
 msgstr "南昌"
 
-#: ne_50m_populated_places.shp:1139
 msgid "Nanjing"
 msgstr "南京"
 
-#: ne_50m_populated_places.shp:1140
 msgid "Hangzhou"
 msgstr "杭州"
 
-#: ne_50m_populated_places.shp:1141
 msgid "Hiroshima"
 msgstr "广岛"
 
-#: ne_50m_populated_places.shp:1142
 msgid "Changchun"
 msgstr "长春"
 
-#: ne_50m_populated_places.shp:1143
 msgid "Baotou"
 msgstr "包头"
 
-#: ne_50m_populated_places.shp:1144
 msgid "Harbin"
 msgstr "哈尔滨"
 
-#: ne_50m_populated_places.shp:1145
 msgid "Sapporo"
 msgstr "札幌"
 
-#: ne_50m_populated_places.shp:1146
 msgid "Santo Domingo"
 msgstr "聖多明哥"
 
-#: ne_50m_populated_places.shp:1147
 msgid "Accra"
 msgstr "阿克拉"
 
-#: ne_50m_populated_places.shp:1148
 msgid "Delhi"
 msgstr "德里"
 
-#: ne_50m_populated_places.shp:1149
 msgid "Hyderabad"
 msgstr "海得拉巴"
 
-#: ne_50m_populated_places.shp:1150
 msgid "Pune"
 msgstr "浦那"
 
-#: ne_50m_populated_places.shp:1151
 msgid "Nagpur"
 msgstr "那格浦尔"
 
-#: ne_50m_populated_places.shp:1152
 msgid "Tripoli"
 msgstr "的黎波里"
 
-#: ne_50m_populated_places.shp:1153
 msgid "Tel Aviv-Yafo"
 msgstr "特拉维夫"
 
-#: ne_50m_populated_places.shp:1154
 msgid "Helsinki"
 msgstr "赫尔辛基"
 
-#: ne_50m_populated_places.shp:1155
 msgid "Mashhad"
 msgstr "馬什哈德"
 
-#: ne_50m_populated_places.shp:1156
 msgid "Jaipur"
 msgstr "齋浦爾"
 
-#: ne_50m_populated_places.shp:1157
 msgid "Kanpur"
 msgstr "坎普尔"
 
-#: ne_50m_populated_places.shp:1158
 msgid "Patna"
 msgstr "巴特那"
 
-#: ne_50m_populated_places.shp:1159
 msgid "Chennai"
 msgstr "金奈"
 
-#: ne_50m_populated_places.shp:1160
 msgid "Ahmedabad"
 msgstr "艾哈迈达巴德"
 
-#: ne_50m_populated_places.shp:1161
 msgid "Surat"
 msgstr "苏拉特"
 
-#: ne_50m_populated_places.shp:1162
 msgid "København"
 msgstr "哥本哈根"
 
-#: ne_50m_populated_places.shp:1163
 msgid "Abidjan"
 msgstr "阿比让"
 
-#: ne_50m_populated_places.shp:1164
 msgid "Belém"
 msgstr "贝伦"
 
-#: ne_50m_populated_places.shp:1165
 msgid "Brasília"
 msgstr "巴西利亚"
 
-#: ne_50m_populated_places.shp:1166
 msgid "Porto Alegre"
 msgstr "阿雷格里港"
 
-#: ne_50m_populated_places.shp:1167
 msgid "Curitiba"
 msgstr "庫里奇巴"
 
-#: ne_50m_populated_places.shp:1168
 msgid "Fortaleza"
 msgstr "福塔雷萨"
 
-#: ne_50m_populated_places.shp:1169
 msgid "Salvador"
 msgstr "萨尔瓦多"
 
-#: ne_50m_populated_places.shp:1170
 msgid "Edmonton"
 msgstr "埃德蒙顿"
 
-#: ne_50m_populated_places.shp:1171
 msgid "Montréal"
 msgstr "蒙特利尔"
 
-#: ne_50m_populated_places.shp:1172
 msgid "Goiânia"
 msgstr "戈亚尼亚"
 
-#: ne_50m_populated_places.shp:1173
 msgid "Recife"
 msgstr "累西腓"
 
-#: ne_50m_populated_places.shp:1174
 msgid "Brussels"
 msgstr "布鲁塞尔"
 
-#: ne_50m_populated_places.shp:1175
 msgid "Dhaka"
 msgstr "达卡"
 
-#: ne_50m_populated_places.shp:1176
 msgid "Luanda"
 msgstr "罗安达"
 
-#: ne_50m_populated_places.shp:1177
 msgid "Algiers"
 msgstr "阿爾及爾"
 
-#: ne_50m_populated_places.shp:1178
 msgid "Chittagong"
 msgstr "吉大港"
 
-#: ne_50m_populated_places.shp:1179
 msgid "Perth"
 msgstr "珀斯"
 
-#: ne_50m_populated_places.shp:1180
 msgid "Rangoon"
 msgstr "仰光"
 
-#: ne_50m_populated_places.shp:1181
 msgid "San Francisco"
 msgstr "舊金山"
 
-#: ne_50m_populated_places.shp:1182
 msgid "Denver"
 msgstr "丹佛"
 
-#: ne_50m_populated_places.shp:1183
 msgid "Houston"
 msgstr "休斯敦"
 
-#: ne_50m_populated_places.shp:1184
 msgid "Miami"
 msgstr "迈阿密"
 
-#: ne_50m_populated_places.shp:1185
 msgid "Atlanta"
 msgstr "亚特兰大"
 
-#: ne_50m_populated_places.shp:1186
 msgid "Chicago"
 msgstr "芝加哥"
 
-#: ne_50m_populated_places.shp:1187
 msgid "Caracas"
 msgstr "加拉加斯"
 
-#: ne_50m_populated_places.shp:1188
 msgid "Kiev"
 msgstr "基輔"
 
-#: ne_50m_populated_places.shp:1189
 msgid "Dubai"
 msgstr "杜拜"
 
-#: ne_50m_populated_places.shp:1190
 msgid "Tashkent"
 msgstr "塔什干"
 
-#: ne_50m_populated_places.shp:1191
 msgid "Madrid"
 msgstr "马德里"
 
-#: ne_50m_populated_places.shp:1192
 msgid "Geneva"
 msgstr "日內瓦"
 
-#: ne_50m_populated_places.shp:1193
 msgid "Stockholm"
 msgstr "斯德哥尔摩"
 
-#: ne_50m_populated_places.shp:1194
 msgid "Bangkok"
 msgstr "曼谷"
 
-#: ne_50m_populated_places.shp:1195
 msgid "Lima"
 msgstr "利馬"
 
-#: ne_50m_populated_places.shp:1196
 msgid "Dakar"
 msgstr "達喀爾"
 
-#: ne_50m_populated_places.shp:1197
 msgid "Johannesburg"
 msgstr "约翰内斯堡"
 
-#: ne_50m_populated_places.shp:1198
 msgid "Amsterdam"
 msgstr "阿姆斯特丹"
 
-#: ne_50m_populated_places.shp:1199
 msgid "Casablanca"
 msgstr "卡萨布兰卡"
 
-#: ne_50m_populated_places.shp:1200
 msgid "Seoul"
 msgstr "首爾"
 
-#: ne_50m_populated_places.shp:1201
 msgid "Manila"
 msgstr "马尼拉"
 
-#: ne_50m_populated_places.shp:1202
 msgid "Monterrey"
 msgstr "蒙特雷"
 
-#: ne_50m_populated_places.shp:1203
 msgid "Berlin"
 msgstr "柏林"
 
-#: ne_50m_populated_places.shp:1204
 msgid "Ürümqi"
 msgstr "乌鲁木齐"
 
-#: ne_50m_populated_places.shp:1205
 msgid "Chengdu"
 msgstr "成都"
 
-#: ne_50m_populated_places.shp:1206
 msgid "Ōsaka"
 msgstr "大阪"
 
-#: ne_50m_populated_places.shp:1207
 msgid "Kinshasa"
 msgstr "金夏沙"
 
-#: ne_50m_populated_places.shp:1208
 msgid "New Delhi"
 msgstr "新德里"
 
-#: ne_50m_populated_places.shp:1209
 msgid "Bangalore"
 msgstr "班加羅爾"
 
-#: ne_50m_populated_places.shp:1210
 msgid "Athens"
 msgstr "雅典"
 
-#: ne_50m_populated_places.shp:1211
 msgid "Baghdad"
 msgstr "巴格达"
 
-#: ne_50m_populated_places.shp:1212
 msgid "Addis Ababa"
 msgstr "亚的斯亚贝巴"
 
-#: ne_50m_populated_places.shp:1213
 msgid "Tehran"
 msgstr "德黑兰"
 
-#: ne_50m_populated_places.shp:1214
 msgid "Vancouver"
 msgstr "溫哥華"
 
-#: ne_50m_populated_places.shp:1215
 msgid "Toronto"
 msgstr "多伦多"
 
-#: ne_50m_populated_places.shp:1216
 msgid "Buenos Aires"
 msgstr "布宜諾斯艾利斯"
 
-#: ne_50m_populated_places.shp:1217
 msgid "Kabul"
 msgstr "喀布尔"
 
-#: ne_50m_populated_places.shp:1218
 msgid "Vienna"
 msgstr "維也納"
 
-#: ne_50m_populated_places.shp:1219
 msgid "Melbourne"
 msgstr "墨尔本"
 
-#: ne_50m_populated_places.shp:1220
 msgid "Taipei"
 msgstr "臺北"
 
-#: ne_50m_populated_places.shp:1221
 msgid "Auckland"
 msgstr "奧克蘭都會區"
 
-#: ne_50m_populated_places.shp:1222
 msgid "Los Angeles"
 msgstr "洛杉矶"
 
-#: ne_50m_populated_places.shp:1223
 msgid "Washington, D.C."
 msgstr "華盛頓哥倫比亞特區"
 
-#: ne_50m_populated_places.shp:1224
 msgid "New York"
 msgstr "纽约"
 
-#: ne_50m_populated_places.shp:1225
 msgid "London"
 msgstr "倫敦"
 
-#: ne_50m_populated_places.shp:1226
 msgid "Istanbul"
 msgstr "伊斯坦堡"
 
-#: ne_50m_populated_places.shp:1227
 msgid "Riyadh"
 msgstr "利雅德"
 
-#: ne_50m_populated_places.shp:1228
 msgid "Cape Town"
 msgstr "開普敦"
 
-#: ne_50m_populated_places.shp:1229
 msgid "Moscow"
 msgstr "莫斯科"
 
-#: ne_50m_populated_places.shp:1230
 msgid "Mexico City"
 msgstr "墨西哥城"
 
-#: ne_50m_populated_places.shp:1231
 msgid "Lagos"
 msgstr "拉哥斯"
 
-#: ne_50m_populated_places.shp:1232
 msgid "Rome"
 msgstr "罗马"
 
-#: ne_50m_populated_places.shp:1233
 msgid "Beijing"
 msgstr "北京"
 
-#: ne_50m_populated_places.shp:1234
 msgid "Nairobi"
 msgstr "奈洛比"
 
-#: ne_50m_populated_places.shp:1235
 msgid "Jakarta"
 msgstr "雅加达"
 
-#: ne_50m_populated_places.shp:1236
 msgid "Bogota"
 msgstr "波哥大"
 
-#: ne_50m_populated_places.shp:1237
 msgid "Cairo"
 msgstr "開羅"
 
-#: ne_50m_populated_places.shp:1238
 msgid "Shanghai"
 msgstr "上海"
 
-#: ne_50m_populated_places.shp:1239
 msgid "Tokyo"
 msgstr "東京都"
 
-#: ne_50m_populated_places.shp:1240
 msgid "Mumbai"
 msgstr "孟买"
 
-#: ne_50m_populated_places.shp:1241
 msgid "Paris"
 msgstr "巴黎"
 
-#: ne_50m_populated_places.shp:1242
 msgid "Santiago"
 msgstr "圣地亚哥－德智利"
 
-#: ne_50m_populated_places.shp:1243
 msgid "Kolkata"
 msgstr "加尔各答"
 
-#: ne_50m_populated_places.shp:1244
 msgid "Rio de Janeiro"
 msgstr "里约热内卢"
 
-#: ne_50m_populated_places.shp:1245
 msgid "São Paulo"
 msgstr "聖保羅"
 
-#: ne_50m_populated_places.shp:1246
 msgid "Sydney"
 msgstr "悉尼"
 
-#: ne_50m_populated_places.shp:1247
 msgid "Singapore"
 msgstr "新加坡"
 
-#: ne_50m_populated_places.shp:1248
 msgid "Hong Kong"
 msgstr "香港"

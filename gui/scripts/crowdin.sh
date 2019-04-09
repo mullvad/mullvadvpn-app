@@ -19,6 +19,7 @@ mode=$1
 function upload_pot {
     curl \
         -F "files[/messages.pot]=@$LOCALE_DIR/messages.pot" \
+        -F "files[/relay-locations.pot]=@$LOCALE_DIR/relay-locations.pot" \
         $BASE_URL/update-file?key="$CROWDIN_API_KEY"
 }
 

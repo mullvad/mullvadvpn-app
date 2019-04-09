@@ -1,4 +1,4 @@
-import { pgettext } from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 
 export enum AuthFailureKind {
   invalidAccount,
@@ -58,24 +58,24 @@ function parseRawFailureKind(failureId: string): AuthFailureKind {
 function messageForFailureKind(kind: AuthFailureKind): string {
   switch (kind) {
     case AuthFailureKind.invalidAccount:
-      return pgettext(
+      return messages.pgettext(
         'auth-failure',
         "You've logged in with an account number that is not valid. Please log out and try another one.",
       );
 
     case AuthFailureKind.expiredAccount:
-      return pgettext(
+      return messages.pgettext(
         'auth-failure',
         'You have no more VPN time left on this account. Please log in on our website to buy more credit.',
       );
 
     case AuthFailureKind.tooManyConnections:
-      return pgettext(
+      return messages.pgettext(
         'auth-failure',
         'This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.',
       );
 
     case AuthFailureKind.unknown:
-      return pgettext('auth-failure', 'Account authentication failed.');
+      return messages.pgettext('auth-failure', 'Account authentication failed.');
   }
 }

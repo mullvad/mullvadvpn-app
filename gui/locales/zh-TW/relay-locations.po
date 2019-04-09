@@ -1,0 +1,307 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+#. AU BNE
+msgid "Brisbane"
+msgstr "布里斯班"
+
+#. AU MEL
+msgid "Melbourne"
+msgstr "墨爾本"
+
+#. AU PER
+msgid "Perth"
+msgstr "伯斯"
+
+#. AU SYD
+msgid "Sydney"
+msgstr "悉尼"
+
+#. AT VIE
+msgid "Wien"
+msgstr "維也納"
+
+#. BE BRU
+msgid "Brussels"
+msgstr "布鲁塞尔"
+
+#. BR SAO
+msgid "Sao Paulo"
+msgstr "聖保羅"
+
+#. BG SOF
+msgid "Sofia"
+msgstr "索菲亞"
+
+#. CA MTR
+msgid "Montreal"
+msgstr "蒙特利尔"
+
+#. CA TOR
+msgid "Toronto"
+msgstr "多伦多"
+
+#. CA VAN
+msgid "Vancouver"
+msgstr "溫哥華"
+
+#. CZ PRG
+msgid "Prague"
+msgstr "布拉格"
+
+#. DK CPH
+msgid "Copenhagen"
+msgstr "哥本哈根"
+
+#. FI HEL
+msgid "Helsinki"
+msgstr "赫尔辛基"
+
+#. FR MRS
+msgid "Marseille"
+msgstr "马赛"
+
+#. FR PAR
+msgid "Paris"
+msgstr "巴黎"
+
+#. DE FRA
+msgid "Frankfurt"
+msgstr "美茵河畔法蘭克福"
+
+#. GR ATH
+msgid "Athens"
+msgstr "雅典"
+
+#. HK HKG
+msgid "Hong Kong"
+msgstr "香港"
+
+#. HU BUD
+msgid "Budapest"
+msgstr "布达佩斯"
+
+#. IN PNQ
+msgid "Pune"
+msgstr "浦那"
+
+#. IL PET
+msgid "Petach-Tikva"
+msgstr ""
+
+#. IT MIL
+msgid "Milan"
+msgstr "米蘭"
+
+#. JP TYO
+msgid "Tokyo"
+msgstr "東京都"
+
+#. LV RIX
+msgid "Riga"
+msgstr "里加"
+
+#. LU LUX
+msgid "Luxembourg"
+msgstr "盧森堡"
+
+#. MD KIV
+msgid "Chisinau"
+msgstr "基希讷乌"
+
+#. NL AMS
+msgid "Amsterdam"
+msgstr "阿姆斯特丹"
+
+#. NZ AKL
+msgid "Auckland"
+msgstr "奧克蘭都會區"
+
+#. NO OSL
+msgid "Oslo"
+msgstr "奥斯陆"
+
+#. PL WAW
+msgid "Warsaw"
+msgstr "华沙"
+
+#. PT LIS
+msgid "Lisbon"
+msgstr "里斯本"
+
+#. RO BUH
+msgid "Bucharest"
+msgstr "布加勒斯特"
+
+#. RS BEG
+msgid "Belgrade"
+msgstr "贝尔格莱德"
+
+#. RS INI
+msgid "Nis"
+msgstr "尼什"
+
+#. SG SIN
+msgid "Singapore"
+msgstr "新加坡"
+
+#. ZA JNB
+msgid "Johannesburg"
+msgstr "约翰内斯堡"
+
+#. ES MAD
+msgid "Madrid"
+msgstr "马德里"
+
+#. SE GOT
+msgid "Gothenburg"
+msgstr "哥德堡"
+
+#. SE HEL
+msgid "Helsingborg"
+msgstr "赫尔辛堡"
+
+#. SE MMA
+msgid "Malmö"
+msgstr "马尔默"
+
+#. SE STO
+msgid "Stockholm"
+msgstr "斯德哥尔摩"
+
+#. CH ZRH
+msgid "Zurich"
+msgstr "苏黎世"
+
+#. GB LON
+msgid "London"
+msgstr "伦敦"
+
+#. GB MNC
+msgid "Manchester"
+msgstr "曼徹斯特"
+
+#. UA IEV
+msgid "Kiev"
+msgstr "基輔"
+
+#. US ATL
+msgid "Atlanta, GA"
+msgstr "亚特兰大, GA"
+
+#. US BOS
+msgid "Boston, MA"
+msgstr "波士顿, MA"
+
+#. US CLT
+msgid "Charlotte, NC"
+msgstr "夏洛特, NC"
+
+#. US CHI
+msgid "Chicago, IL"
+msgstr "芝加哥, IL"
+
+#. US CLE
+msgid "Cleveland, OH"
+msgstr "克里夫蘭, OH"
+
+#. US DAL
+msgid "Dallas, TX"
+msgstr "達拉斯, TX"
+
+#. US DEN
+msgid "Denver, CO"
+msgstr "丹佛, CO"
+
+#. US HNL
+msgid "Honolulu, HI"
+msgstr "檀香山, HI"
+
+#. US JAN
+msgid "Jackson, MS"
+msgstr "傑克遜, MS"
+
+#. US LAX
+msgid "Los Angeles, CA"
+msgstr "洛桑赫萊斯, CA"
+
+#. US LUI
+msgid "Louisville, KY"
+msgstr "路易維爾, KY"
+
+#. US MIA
+msgid "Miami, FL"
+msgstr "迈阿密, FL"
+
+#. US MKE
+msgid "Milwaukee, WI"
+msgstr "密尔沃基, WI"
+
+#. US MSP
+msgid "Minneapolis/St. Paul Apt, MN"
+msgstr ""
+
+#. US NYC
+msgid "New York, NY"
+msgstr "纽约, NY"
+
+#. US OKC
+msgid "Oklahoma City, OK"
+msgstr "奧克拉荷馬, OK"
+
+#. US PHL
+msgid "Philadelphia, PA"
+msgstr "費城, PA"
+
+#. US PHX
+msgid "Phoenix, AZ"
+msgstr "鳳凰城, AZ"
+
+#. US PIL
+msgid "Piscataway, NJ"
+msgstr ""
+
+#. US PDX
+msgid "Portland, OR"
+msgstr "波特蘭, OR"
+
+#. US RIC
+msgid "Richmond, VA"
+msgstr "里士满, VA"
+
+#. US SLC
+msgid "Salt Lake City, UT"
+msgstr "盐湖城, UT"
+
+#. US SFO
+msgid "San Francisco, CA"
+msgstr "聖弗朗西斯科, CA"
+
+#. US SJC
+msgid "San Jose, CA"
+msgstr "聖何塞港, CA"
+
+#. US SEA
+msgid "Seattle, WA"
+msgstr "西雅圖, WA"
+
+#. US UYK
+msgid "Secaucus, NJ"
+msgstr ""
+
+#. US FSD
+msgid "Sioux Falls, SD"
+msgstr "蘇瀑, SD"
+
+#. US XLX
+msgid "Stamford, CT"
+msgstr "斯坦福, CT"
+
+#. US STL
+msgid "St. Louis , MO"
+msgstr "圣路易斯, MO"
+
+#. US WAS
+msgid "Washington DC"
+msgstr ""

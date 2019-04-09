@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component, Styles, View } from 'reactxp';
 import { colors } from '../../config.json';
-import { pgettext } from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 
@@ -75,7 +75,7 @@ export default class ExpiredAccountErrorView extends Component<IProps, IState> {
           <ImageView source="icon-fail" height={60} width={60} />
         </View>
         <View style={styles.body}>
-          <View style={styles.title}>{pgettext('connect-view', 'Out of time')}</View>
+          <View style={styles.title}>{messages.pgettext('connect-view', 'Out of time')}</View>
           {this.renderContent()}
         </View>
       </View>
@@ -103,7 +103,7 @@ class DisconnectAndOpenBrowserContentView extends Component<{ actionHandler: () 
     return (
       <View>
         <View style={styles.message}>
-          {pgettext(
+          {messages.pgettext(
             'connect-view',
             'You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection.',
           )}
@@ -111,7 +111,7 @@ class DisconnectAndOpenBrowserContentView extends Component<{ actionHandler: () 
         <View>
           <AppButton.RedButton onPress={this.props.actionHandler}>
             <AppButton.Label>
-              {pgettext('connect-view', 'Disconnect and buy more credit')}
+              {messages.pgettext('connect-view', 'Disconnect and buy more credit')}
             </AppButton.Label>
             <AppButton.Icon source="icon-extLink" height={16} width={16} />
           </AppButton.RedButton>
@@ -126,14 +126,16 @@ class OpenBrowserContentView extends Component<{ actionHandler: () => void }> {
     return (
       <View>
         <View style={styles.message}>
-          {pgettext(
+          {messages.pgettext(
             'connect-view',
             'You have no more VPN time left on this account. Please log in on our website to buy more credit.',
           )}
         </View>
         <View>
           <AppButton.GreenButton onPress={this.props.actionHandler}>
-            <AppButton.Label>{pgettext('connect-view', 'Buy more credit')}</AppButton.Label>
+            <AppButton.Label>
+              {messages.pgettext('connect-view', 'Buy more credit')}
+            </AppButton.Label>
             <AppButton.Icon source="icon-extLink" height={16} width={16} />
           </AppButton.GreenButton>
         </View>
@@ -147,14 +149,16 @@ class DisableBlockWhenDisconnectedContentView extends Component {
     return (
       <View>
         <View style={styles.message}>
-          {pgettext(
+          {messages.pgettext(
             'connect-view',
             'You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app\'s "Block when disconnected" option under Advanced settings.',
           )}
         </View>
         <View>
           <AppButton.GreenButton disabled={true}>
-            <AppButton.Label>{pgettext('connect-view', 'Buy more credit')}</AppButton.Label>
+            <AppButton.Label>
+              {messages.pgettext('connect-view', 'Buy more credit')}
+            </AppButton.Label>
             <AppButton.Icon source="icon-extLink" height={16} width={16} />
           </AppButton.GreenButton>
         </View>
