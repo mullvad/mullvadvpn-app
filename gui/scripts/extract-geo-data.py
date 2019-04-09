@@ -333,6 +333,7 @@ def translate_relay_locations_pot(countries):
   print_stats_table("Relay location translations", stats)
 
 
+
 def translate_relay_locations(place_translator, countries, locale):
   po = POFile(encoding='UTF-8')
   po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
@@ -351,7 +352,8 @@ def translate_relay_locations(place_translator, countries, locale):
     cities = country.get("cities")
 
     if cities is None:
-      print c.orange(u"Skip {} ({}) because no cities were found.".format(country_name, country_code))
+      print c.orange(u"Skip {} ({}) because no cities were found.".format(
+        country_name, country_code))
       continue
 
     for city in cities:
@@ -378,7 +380,8 @@ def translate_relay_locations(place_translator, countries, locale):
         translated_name = ""
         misses += 1
 
-      log_message = u"  {} ({}) -> \"{}\"".format(city_name, city_code, translated_name).encode('utf-8')
+      log_message = u"  {} ({}) -> \"{}\"".format(
+        city_name, city_code, translated_name).encode('utf-8')
       if found_translation:
         print c.green(log_message)
       else:
@@ -439,9 +442,8 @@ class PlaceTranslator(object):
           if value is not None:
             return value
 
-        print c.orange(
-          u"Missing translation for {} ({}). Probe keys: {}".format(english_city_name, locale, match_prop_keys)
-          .encode('utf-8'))
+        print c.orange(u"Missing translation for {} ({}). Probe keys: {}".format(
+          english_city_name, locale, match_prop_keys).encode('utf-8'))
 
     return None
 
