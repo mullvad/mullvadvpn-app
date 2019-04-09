@@ -140,7 +140,6 @@ def extract_provinces_and_states_lines():
 
 def extract_countries_po():
   input_path = get_shape_path("ne_50m_admin_0_countries")
-  input_basename = path.basename(input_path)
 
   for locale in os.listdir(LOCALE_DIR):
     locale_dir = path.join(LOCALE_DIR, locale)
@@ -178,8 +177,7 @@ def extract_countries_po():
 
           entry = POEntry(
             msgid=props["name"],
-            msgstr=translated_name,
-            occurrences=[(input_basename, feat["id"])]
+            msgstr=translated_name
           )
           po.append(entry)
 
@@ -189,8 +187,6 @@ def extract_countries_po():
 
 def extract_cities_po():
   input_path = get_shape_path("ne_50m_populated_places")
-  input_basename = path.basename(input_path)
-
   stats = []
 
   for locale in os.listdir(LOCALE_DIR):
@@ -236,8 +232,7 @@ def extract_cities_po():
 
             entry = POEntry(
               msgid=props["name"],
-              msgstr=translated_name,
-              occurrences=[(input_basename, feat["id"])]
+              msgstr=translated_name
             )
             po.append(entry)
 
