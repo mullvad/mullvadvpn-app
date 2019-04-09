@@ -2,7 +2,8 @@ use crate::tunnel_state_machine::TunnelCommand;
 use futures::sync::mpsc::UnboundedSender;
 
 #[derive(err_derive::Error, Debug)]
-pub struct Error(());
+#[error(display = "Dummy offline check error")]
+pub struct Error;
 
 pub struct MonitorHandle;
 
