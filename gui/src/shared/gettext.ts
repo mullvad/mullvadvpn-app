@@ -38,7 +38,7 @@ function parseTranslation(locale: string, domain: string, catalogue: Gettext): b
   let buffer: Buffer;
 
   try {
-    buffer = fs.readFileSync(filename);
+    buffer = fs.readFileSync(filename, { encoding: 'utf8' });
   } catch (error) {
     if (error.code !== 'ENOENT') {
       log.error(`Cannot read the gettext file "${filename}": ${error.message}`);
