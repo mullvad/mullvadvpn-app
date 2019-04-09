@@ -35,10 +35,10 @@ export function loadTranslations(currentLocale: string, catalogue: Gettext) {
 
 function parseTranslation(locale: string, domain: string, catalogue: Gettext): boolean {
   const filename = path.join(LOCALES_DIR, locale, `${domain}.po`);
-  let buffer: Buffer;
+  let contents: string;
 
   try {
-    buffer = fs.readFileSync(filename);
+    contents = fs.readFileSync(filename, { encoding: 'utf8' });
   } catch (error) {
     if (error.code !== 'ENOENT') {
       log.error(`Cannot read the gettext file "${filename}": ${error.message}`);
@@ -48,7 +48,7 @@ function parseTranslation(locale: string, domain: string, catalogue: Gettext): b
 
   let translations: object;
   try {
-    translations = po.parse(buffer);
+    translations = po.parse(contents);
   } catch (error) {
     log.error(`Cannot parse the gettext file "${filename}": ${error.message}`);
     return false;
