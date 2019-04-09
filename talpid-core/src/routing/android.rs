@@ -1,11 +1,5 @@
-use super::{
-    subprocess::{Exec, RunExpr},
-    NetNode, RequiredRoutes,
-};
-use std::{
-    collections::HashSet,
-    net::{IpAddr, Ipv4Addr},
-};
+use super::RequiredRoutes;
+use std::net::{IpAddr, Ipv4Addr};
 
 /// Stub error type for routing errors on Android.
 #[derive(Debug, err_derive::Error)]
