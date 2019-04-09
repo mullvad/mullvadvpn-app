@@ -8,11 +8,7 @@
 
 #![deny(rust_2018_idioms)]
 
-#[macro_use]
-extern crate error_chain;
-
 use clap::crate_authors;
-use error_chain::ChainedError;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -23,7 +19,9 @@ use std::{
     fs::{self, File},
     io::{self, BufWriter, Read, Seek, SeekFrom, Write},
     path::{Path, PathBuf},
+    process,
 };
+use talpid_types::ErrorExt;
 use tokio_core::reactor::Core;
 
 
@@ -56,32 +54,64 @@ macro_rules! write_line {
     };
 }
 
-error_chain! {
-    errors {
-        LogDirError(path: PathBuf) {
-            description("Error listing the files in the mullvad-daemon log directory")
-            display(
-                "Error listing the files in the mullvad-daemon log directory: {}",
-                path.display()
-            )
-        }
-        WriteReportError(path: PathBuf) {
-            description("Error writing the problem report file")
-            display("Error writing the problem report file: {}", path.display())
-        }
-        ReadLogError(path: PathBuf) {
-            description("Error reading the contents of log file")
-            display("Error reading the contents of log file: {}", path.display())
-        }
-        RpcError {
-            description("Error during RPC call")
-        }
-    }
+/// These are critical errors that can happen when using the tool, that stops
+/// it from working. Meaning it will print the error and exit.
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Failed to write the problem report to {}", path)]
+    WriteReportError {
+        path: String,
+        #[error(cause)]
+        source: io::Error,
+    },
+
+    #[error(display = "Failed to read the problem report at {}", path)]
+    ReadProblemReportError {
+        path: String,
+        #[error(cause)]
+        source: io::Error,
+    },
+
+    #[error(display = "Unable to create JSON-RPC 2.0 client")]
+    CreateRpcClientError(#[error(cause)] mullvad_rpc::HttpError),
+
+    #[error(display = "Error during RPC call")]
+    SendRpcError(#[error(cause)] mullvad_rpc::Error),
 }
 
-quick_main!(run);
+/// These are errors that can happen during problem report collection.
+/// They are not critical, but they will be added inside the problem report,
+/// instead of whatever content was supposed to be there.
+#[derive(err_derive::Error, Debug)]
+pub enum LogError {
+    #[error(display = "Unable to get log directory")]
+    GetLogDir(#[error(source)] mullvad_paths::Error),
 
-fn run() -> Result<()> {
+    #[error(
+        display = "Failed to list the files in the mullvad-daemon log directory: {}",
+        path
+    )]
+    ListLogDir {
+        path: String,
+        #[error(cause)]
+        source: io::Error,
+    },
+
+    #[error(display = "Error reading the contents of log file: {}", path)]
+    ReadLogError { path: String },
+}
+
+fn main() {
+    process::exit(match run() {
+        Ok(()) => 0,
+        Err(error) => {
+            eprintln!("{}", error.display_chain());
+            1
+        }
+    })
+}
+
+fn run() -> Result<(), Error> {
     env_logger::init();
     let app = clap::App::new("problem-report")
         .version(metadata::PRODUCT_VERSION)
@@ -172,7 +202,7 @@ fn collect_report(
     extra_logs: &[&Path],
     output_path: &Path,
     redact_custom_strings: Vec<String>,
-) -> Result<()> {
+) -> Result<(), Error> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
     match logs_from_log_directory() {
@@ -199,15 +229,20 @@ fn collect_report(
 
     problem_report.add_logs(extra_logs);
 
-    write_problem_report(&output_path, &problem_report)
-        .chain_err(|| ErrorKind::WriteReportError(output_path.to_path_buf()))
+    write_problem_report(&output_path, &problem_report).map_err(|source| Error::WriteReportError {
+        path: output_path.display().to_string(),
+        source,
+    })
 }
 
-fn logs_from_log_directory() -> Result<impl Iterator<Item = Result<PathBuf>>> {
-    let log_dir = mullvad_paths::get_log_dir().chain_err(|| "Unable to get log directory")?;
+fn logs_from_log_directory() -> Result<impl Iterator<Item = Result<PathBuf, LogError>>, LogError> {
+    let log_dir = mullvad_paths::get_log_dir().map_err(LogError::GetLogDir)?;
 
     fs::read_dir(&log_dir)
-        .chain_err(|| ErrorKind::LogDirError(log_dir.clone()))
+        .map_err(|source| LogError::ListLogDir {
+            path: log_dir.display().to_string(),
+            source,
+        })
         .map(|dir_entries| {
             let log_extension = Some(OsStr::new("log"));
 
@@ -221,10 +256,10 @@ fn logs_from_log_directory() -> Result<impl Iterator<Item = Result<PathBuf>>> {
                         None
                     }
                 }
-                Err(cause) => Some(Err(Error::with_chain(
-                    cause,
-                    ErrorKind::LogDirError(log_dir.clone()),
-                ))),
+                Err(source) => Some(Err(LogError::ListLogDir {
+                    path: log_dir.display().to_string(),
+                    source,
+                })),
             })
         })
 }
@@ -236,10 +271,18 @@ fn is_tunnel_log(path: &Path) -> bool {
     }
 }
 
-fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path) -> Result<()> {
+fn send_problem_report(
+    user_email: &str,
+    user_message: &str,
+    report_path: &Path,
+) -> Result<(), Error> {
     let report_content = normalize_newlines(
-        read_file_lossy(report_path, REPORT_MAX_SIZE)
-            .chain_err(|| ErrorKind::ReadLogError(report_path.to_path_buf()))?,
+        read_file_lossy(report_path, REPORT_MAX_SIZE).map_err(|source| {
+            Error::ReadProblemReportError {
+                path: report_path.display().to_string(),
+                source,
+            }
+        })?,
     );
     let metadata = metadata::collect();
 
@@ -249,12 +292,11 @@ fn send_problem_report(user_email: &str, user_message: &str, report_path: &Path)
     let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new(ca_path);
     let rpc_http_handle = rpc_manager
         .new_connection_on_event_loop(&core.handle())
-        .chain_err(|| ErrorKind::RpcError)?;
+        .map_err(Error::CreateRpcClientError)?;
     let mut rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_http_handle);
 
-    let result =
-        core.run(rpc_client.problem_report(user_email, user_message, &report_content, &metadata));
-    result.chain_err(|| ErrorKind::RpcError)
+    core.run(rpc_client.problem_report(user_email, user_message, &report_content, &metadata))
+        .map_err(Error::SendRpcError)
 }
 
 fn write_problem_report(path: &Path, problem_report: &ProblemReport) -> io::Result<()> {
@@ -307,18 +349,21 @@ impl ProblemReport {
         let expanded_path = path.canonicalize().unwrap_or_else(|_| path.to_owned());
         if self.log_paths.insert(expanded_path.clone()) {
             let redacted_path = self.redact(&expanded_path.to_string_lossy());
-            let content = self.redact(
-                &read_file_lossy(path, LOG_MAX_READ_BYTES)
-                    .chain_err(|| ErrorKind::ReadLogError(expanded_path))
-                    .unwrap_or_else(|e| e.display_chain().to_string()),
-            );
+            let content = self.redact(&read_file_lossy(path, LOG_MAX_READ_BYTES).unwrap_or_else(
+                |error| {
+                    error.display_chain_with_msg(&format!(
+                        "Error reading the contents of log file: {}",
+                        expanded_path.display()
+                    ))
+                },
+            ));
             self.logs.push((redacted_path, content));
         }
     }
 
     /// Attach an error to the report.
-    pub fn add_error(&mut self, message: &'static str, error: &impl ChainedError) {
-        let redacted_error = self.redact(&error.display_chain().to_string());
+    pub fn add_error(&mut self, message: &'static str, error: &impl ErrorExt) {
+        let redacted_error = self.redact(&error.display_chain());
         self.logs.push((message.to_string(), redacted_error));
     }
 
