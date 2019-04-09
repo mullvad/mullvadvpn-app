@@ -33,12 +33,12 @@ TRANSLATIONS_TO_MERGE = [
 ]
 
 
-def remove_common_prefix(src, dst):
-  prefix_len = len(path.commonprefix((src, dst)))
-  return (src[prefix_len:], dst[prefix_len:])
+def remove_common_prefix(source, destination):
+  prefix_len = len(path.commonprefix((source, destination)))
+  return (source[prefix_len:], destination[prefix_len:])
 
 def run_program(*args):
-  p = Popen(*args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+  p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
   errors = p.communicate()[1]
   return (p.returncode, errors)
 

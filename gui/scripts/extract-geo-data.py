@@ -149,7 +149,7 @@ def extract_countries_po():
     if os.path.isdir(locale_dir):
       with fiona.open(input_path) as source:
         po = POFile(encoding='UTF-8')
-        po.metadata = { "Content-Type": "text/plain; charset=utf-8" }
+        po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
         output_path = path.join(locale_out_dir, "countries.po")
 
         if not path.exists(locale_out_dir):
@@ -199,7 +199,7 @@ def extract_cities_po():
 
     if os.path.isdir(locale_dir):
       po = POFile(encoding='UTF-8')
-      po.metadata = { "Content-Type": "text/plain; charset=utf-8" }
+      po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
       output_path = path.join(locale_out_dir, "cities.po")
       hits = 0
       misses = 0
@@ -270,7 +270,7 @@ def extract_relay_translations():
 
 def extract_relay_locations_pot(countries):
   pot = POFile(encoding='UTF-8')
-  pot.metadata = { "Content-Type": "text/plain; charset=utf-8" }
+  pot.metadata = {"Content-Type": "text/plain; charset=utf-8"}
   output_path = path.join(LOCALE_OUT_DIR, "relay-locations.pot")
 
   print "Generating relay-locations.pot"
@@ -335,7 +335,7 @@ def translate_relay_locations_pot(countries):
 
 def translate_relay_locations(place_translator, countries, locale):
   po = POFile(encoding='UTF-8')
-  po.metadata = { "Content-Type": "text/plain; charset=utf-8" }
+  po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
   locale_out_dir = path.join(LOCALE_OUT_DIR, locale)
   output_path = path.join(locale_out_dir, "relay-locations.po")
 
@@ -354,7 +354,7 @@ def translate_relay_locations(place_translator, countries, locale):
       print c.orange(u"Skip {} ({}) because no cities were found.".format(country_name, country_code))
       continue
 
-    for (index, city) in enumerate(cities):
+    for city in cities:
       city_name = city.get("name")
       city_code = city.get("code")
       if city_name is None:
