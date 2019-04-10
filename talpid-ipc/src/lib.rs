@@ -66,12 +66,13 @@ impl IpcServer {
             .map_err(Error::StartServerError)
             .and_then(|(fut, start, server)| {
                 thread::spawn(move || tokio::run(fut));
-                start
+                if let Some(error) = start
                     .wait()
                     .map_err(|_cancelled| Error::ServerThreadPanicError)?
-                    .map(Err)
-                    .unwrap_or_else(|| Ok(server))
-                    .map_err(Error::IpcServerError)
+                {
+                    return Err(Error::IpcServerError(error));
+                }
+                Ok(server)
             })
             .map(|server| IpcServer {
                 path: path.to_owned(),
