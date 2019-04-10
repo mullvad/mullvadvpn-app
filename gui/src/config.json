@@ -4,7 +4,7 @@
     "purchase": "https://mullvad.net/account/login/",
     "faq": "https://mullvad.net/faq/",
     "download": "https://mullvad.net/download/",
-    "supportEmail": "mailto:support@mullvad.net"
+    "supportEmail": "support@mullvad.net"
   },
   "colors": {
     "darkBlue": "rgb(25, 46, 69)",
