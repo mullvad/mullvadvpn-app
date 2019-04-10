@@ -25,6 +25,9 @@ pub enum Error {
     #[error(display = "Unable to start IPC server")]
     StartServerError(#[error(cause)] io::Error),
 
+    #[error(display = "IPC server thread panicked and never returned a start result")]
+    ServerThreadPanicError,
+
     #[error(display = "Error in IPC server")]
     IpcServerError(#[error(cause)] io::Error),
 
@@ -65,7 +68,7 @@ impl IpcServer {
                 thread::spawn(move || tokio::run(fut));
                 start
                     .wait()
-                    .expect("server panicked")
+                    .map_err(|_cancelled| Error::ServerThreadPanicError)?
                     .map(Err)
                     .unwrap_or_else(|| Ok(server))
                     .map_err(Error::IpcServerError)
