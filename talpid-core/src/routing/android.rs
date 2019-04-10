@@ -1,11 +1,5 @@
-use super::{
-    subprocess::{Exec, RunExpr},
-    NetNode, RequiredRoutes,
-};
-use std::{
-    collections::HashSet,
-    net::{IpAddr, Ipv4Addr},
-};
+use super::RequiredRoutes;
+use std::net::{IpAddr, Ipv4Addr};
 
 /// Stub error type for routing errors on Android.
 #[derive(Debug, err_derive::Error)]
@@ -17,7 +11,7 @@ pub struct RouteManager;
 impl super::RoutingT for RouteManager {
     type Error = Error;
 
-    fn new() -> Result<Self> {
+    fn new() -> Result<Self, Self::Error> {
         Ok(RouteManager)
     }
 
