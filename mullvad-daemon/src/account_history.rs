@@ -5,16 +5,20 @@ use std::{
     io::{self, Seek, Write},
     path::Path,
 };
+use talpid_types::ErrorExt;
 
-error_chain! {
-    errors {
-        ReadError {
-            description("Unable to read account history file")
-        }
-        WriteError {
-            description("Unable to write account history file")
-        }
-    }
+pub type Result<T> = std::result::Result<T, Error>;
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Unable to read account history file")]
+    Read(#[error(cause)] io::Error),
+
+    #[error(display = "Failed to serialize account history")]
+    Serialize(#[error(cause)] serde_json::Error),
+
+    #[error(display = "Unable to write account history file")]
+    Write(#[error(cause)] io::Error),
 }
 
 static ACCOUNT_HISTORY_FILE: &str = "account-history.json";
@@ -49,11 +53,14 @@ impl AccountHistory {
             .create(true)
             .open(path)
             .map(io::BufReader::new)
-            .chain_err(|| ErrorKind::ReadError)?;
+            .map_err(Error::Read)?;
 
         let accounts: VecDeque<AccountEntry> = match serde_json::from_reader(&mut reader) {
             Err(e) => {
-                log::error!("Failed to read account history - {}", e);
+                log::warn!(
+                    "{}",
+                    e.display_chain_with_msg("Failed to read+deserialize account history")
+                );
                 Self::try_old_format(&mut reader)?
                     .into_iter()
                     .map(|account| AccountEntry {
@@ -73,9 +80,7 @@ impl AccountHistory {
         struct OldFormat {
             accounts: Vec<AccountToken>,
         }
-        reader
-            .seek(io::SeekFrom::Start(0))
-            .chain_err(|| ErrorKind::ReadError)?;
+        reader.seek(io::SeekFrom::Start(0)).map_err(Error::Read)?;
         Ok(serde_json::from_reader(reader)
             .map(|old_format: OldFormat| old_format.accounts)
             .unwrap_or(vec![]))
@@ -143,20 +148,13 @@ impl AccountHistory {
     }
 
     fn save_to_disk(&mut self) -> Result<()> {
-        self.file
-            .get_mut()
-            .set_len(0)
-            .chain_err(|| ErrorKind::WriteError)?;
+        self.file.get_mut().set_len(0).map_err(Error::Write)?;
         self.file
             .seek(io::SeekFrom::Start(0))
-            .chain_err(|| ErrorKind::WriteError)?;
-        serde_json::to_writer_pretty(&mut self.file, &self.accounts)
-            .chain_err(|| ErrorKind::WriteError)?;
-        self.file.flush().chain_err(|| ErrorKind::WriteError)?;
-        self.file
-            .get_mut()
-            .sync_all()
-            .chain_err(|| ErrorKind::WriteError)
+            .map_err(Error::Write)?;
+        serde_json::to_writer_pretty(&mut self.file, &self.accounts).map_err(Error::Serialize)?;
+        self.file.flush().map_err(Error::Write)?;
+        self.file.get_mut().sync_all().map_err(Error::Write)
     }
 }
 
