@@ -174,7 +174,7 @@ msgstr ""
 #. Available placeholders:
 #. %(city)s - a city name
 #. %(hostname)s - a hostname
-#: src/renderer/containers/ConnectPage.tsx:54
+#: src/renderer/containers/ConnectPage.tsx:56
 msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr ""
@@ -208,6 +208,19 @@ msgstr ""
 #: src/renderer/components/ExpiredAccountErrorView.tsx:106
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
+msgstr ""
+
+#: src/renderer/components/ErrorBoundary.tsx:70
+msgctxt "error-boundary-view"
+msgid "MULLVAD VPN"
+msgstr ""
+
+#. The message displayed to the user in case of critical error in the GUI
+#. Available placeholders:
+#. %(email)s - support email
+#: src/renderer/components/ErrorBoundary.tsx:77
+msgctxt "error-boundary-view"
+msgid "Something went wrong. Please contact support at %(email)s"
 msgstr ""
 
 #: src/renderer/components/NotificationArea.tsx:284
@@ -462,78 +475,78 @@ msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr ""
 
 #. Title label in navigation bar
-#: src/renderer/components/SelectLocation.tsx:119
+#: src/renderer/components/SelectLocation.tsx:118
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr ""
 
-#: src/renderer/components/SelectLocation.tsx:127
+#: src/renderer/components/SelectLocation.tsx:126
 msgctxt "select-location-view"
 msgid "Select location"
 msgstr ""
 
-#: src/renderer/components/SelectLocation.tsx:130
+#: src/renderer/components/SelectLocation.tsx:129
 msgctxt "select-location-view"
 msgid "While connected, your real location is masked with a private and secure location in the selected region"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:104
+#: src/renderer/components/Settings.tsx:105
 msgctxt "settings-view"
 msgid "Account"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:119
+#: src/renderer/components/Settings.tsx:120
 msgctxt "settings-view"
 msgid "Advanced"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:165
+#: src/renderer/components/Settings.tsx:166
 msgctxt "settings-view"
 msgid "App version"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:186
+#: src/renderer/components/Settings.tsx:187
 msgctxt "settings-view"
 msgid "FAQs & Guides"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:131
+#: src/renderer/components/Settings.tsx:132
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:98
+#: src/renderer/components/Settings.tsx:99
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:114
+#: src/renderer/components/Settings.tsx:115
 msgctxt "settings-view"
 msgid "Preferences"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:80
+#: src/renderer/components/Settings.tsx:81
 msgctxt "settings-view"
 msgid "Quit app"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:181
+#: src/renderer/components/Settings.tsx:182
 msgctxt "settings-view"
 msgid "Report a problem"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:58
+#: src/renderer/components/Settings.tsx:59
 msgctxt "settings-view"
 msgid "Settings"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:136
+#: src/renderer/components/Settings.tsx:137
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr ""
 
 #. Title label in navigation bar
-#: src/renderer/components/Settings.tsx:50
+#: src/renderer/components/Settings.tsx:51
 msgctxt "settings-view-nav"
 msgid "Settings"
 msgstr ""
