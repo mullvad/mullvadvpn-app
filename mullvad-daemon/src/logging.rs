@@ -7,18 +7,21 @@ use log;
 use std::{fmt, io, path::PathBuf};
 use talpid_core::logging::rotate_log;
 
-error_chain! {
-    errors {
-        WriteFileError(path: PathBuf) {
-            description("Unable to open log file for writing")
-            display("Unable to open log file for writing: {}", path.display())
-        }
-    }
-    foreign_links {
-        RotateLog(::talpid_core::logging::RotateLogError);
-        SetLoggerError(log::SetLoggerError);
-        Io(io::Error);
-    }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Unable to open log file for writing
+    #[error(display = "Unable to open log file for writing: {}", path)]
+    WriteFile {
+        path: String,
+        #[error(cause)]
+        source: io::Error,
+    },
+
+    #[error(display = "Unable to rotate daemon log file")]
+    RotateLog(#[error(cause)] talpid_core::logging::RotateLogError),
+
+    #[error(display = "Unable to set logger")]
+    SetLoggerError(#[error(cause)] log::SetLoggerError),
 }
 
 const SILENCED_CRATES: &[&str] = &[
@@ -60,7 +63,7 @@ pub fn init_logger(
     log_level: log::LevelFilter,
     log_file: Option<&PathBuf>,
     output_timestamp: bool,
-) -> Result<()> {
+) -> Result<(), Error> {
     let mut top_dispatcher = fern::Dispatch::new().level(log_level);
     for silenced_crate in SILENCED_CRATES {
         top_dispatcher = top_dispatcher.level_for(*silenced_crate, log::LevelFilter::Warn);
@@ -79,19 +82,21 @@ pub fn init_logger(
     top_dispatcher = top_dispatcher.chain(stdout_dispatcher);
 
     if let Some(ref log_file) = log_file {
-        rotate_log(log_file)?;
+        rotate_log(log_file).map_err(Error::RotateLog)?;
         let file_formatter = Formatter {
             output_timestamp: true,
             output_color: false,
         };
-        let f = fern::log_file(log_file)
-            .chain_err(|| ErrorKind::WriteFileError(log_file.to_path_buf()))?;
+        let f = fern::log_file(log_file).map_err(|source| Error::WriteFile {
+            path: log_file.display().to_string(),
+            source,
+        })?;
         let file_dispatcher = fern::Dispatch::new()
             .format(move |out, message, record| file_formatter.output_msg(out, message, record))
             .chain(Output::file(f, LINE_SEPARATOR));
         top_dispatcher = top_dispatcher.chain(file_dispatcher);
     }
-    top_dispatcher.apply()?;
+    top_dispatcher.apply().map_err(Error::SetLoggerError)?;
     Ok(())
 }
 
