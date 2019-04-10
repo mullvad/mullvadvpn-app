@@ -64,8 +64,9 @@ function setErrorHandler(catalogue: Gettext) {
     // NOTE: locale is not publicly exposed
     const catalogueLocale = (catalogue as any).locale;
 
-    // Filter out the "no translation was found" errors for the source language
-    if (catalogueLocale === SOURCE_LANGUAGE && error.indexOf('No translation was found') !== -1) {
+    // Filter out the "no translation was found" errors for the source language.
+    // The catalogue's locale is set to an empty string when using the source translation.
+    if (catalogueLocale === '' && error.indexOf('No translation was found') !== -1) {
       return;
     }
 
