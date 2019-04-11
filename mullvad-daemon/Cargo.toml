@@ -16,7 +16,6 @@ edition = "2018"
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 clap = "2.25"
-error-chain = "0.12"
 err-derive = "0.1.5"
 fern = { version = "0.5", features = ["colored"] }
 futures = "0.1"

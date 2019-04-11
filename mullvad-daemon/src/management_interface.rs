@@ -1,4 +1,3 @@
-use error_chain::ChainedError;
 use jsonrpc_core::{
     futures::{
         future,
@@ -30,6 +29,7 @@ use talpid_ipc;
 use talpid_types::{
     net::{openvpn, wireguard},
     tunnel::TunnelStateTransition,
+    ErrorExt,
 };
 use uuid;
 
