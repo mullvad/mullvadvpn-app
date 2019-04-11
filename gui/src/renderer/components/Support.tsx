@@ -293,12 +293,13 @@ export default class Support extends Component<ISupportProps, ISupportState> {
   }
 
   private renderSent() {
-    // TRANSLATORS: The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
-    // TRANSLATORS: Available placeholders:
-    // TRANSLATORS: %(email)s
-    const reachBackMessage: React.ReactNodeArray = messages
-      .pgettext('support-view', 'If needed we will contact you on %(email)s')
-      .split('%(email)s', 2);
+    const reachBackMessage: React.ReactNodeArray =
+      // TRANSLATORS: The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+      // TRANSLATORS: Available placeholders:
+      // TRANSLATORS: %(email)s
+      messages
+        .pgettext('support-view', 'If needed we will contact you on %(email)s')
+        .split('%(email)s', 2);
     reachBackMessage.splice(
       1,
       0,

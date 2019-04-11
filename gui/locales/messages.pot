@@ -577,7 +577,10 @@ msgctxt "support-view"
 msgid "Failed to send"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:299
+#. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+#. Available placeholders:
+#. %(email)s
+#: src/renderer/components/Support.tsx:300
 msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
 msgstr ""
