@@ -187,8 +187,6 @@ pub struct Daemon {
     tx: mpsc::Sender<InternalDaemonEvent>,
     reconnection_loop_tx: Option<mpsc::Sender<()>>,
     management_interface_broadcaster: management_interface::EventBroadcaster,
-    #[cfg(unix)]
-    management_interface_socket_path: String,
     settings: Settings,
     account_history: account_history::AccountHistory,
     wg_key_proxy: WireguardKeyProxy<HttpHandle>,
@@ -229,12 +227,12 @@ impl Daemon {
 
         let (internal_event_tx, internal_event_rx) = mpsc::channel();
 
-        let management_interface_result =
+        let management_interface_broadcaster =
             Self::start_management_interface(internal_event_tx.clone())?;
+        let relay_list_broadcaster = management_interface_broadcaster.clone();
 
-        let management_interface_broadcaster = management_interface_result.0.clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
-            management_interface_broadcaster.notify_relay_list(relay_list.clone());
+            relay_list_broadcaster.notify_relay_list(relay_list.clone());
         };
         let relay_selector = relays::RelaySelector::new(
             rpc_handle.clone(),
@@ -271,9 +269,7 @@ impl Daemon {
             rx: internal_event_rx,
             tx: internal_event_tx,
             reconnection_loop_tx: None,
-            management_interface_broadcaster: management_interface_result.0,
-            #[cfg(unix)]
-            management_interface_socket_path: management_interface_result.1,
+            management_interface_broadcaster,
             settings,
             account_history,
             wg_key_proxy: WireguardKeyProxy::new(rpc_handle.clone()),
@@ -291,13 +287,12 @@ impl Daemon {
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(
         event_tx: mpsc::Sender<InternalDaemonEvent>,
-    ) -> Result<(management_interface::EventBroadcaster, String)> {
+    ) -> Result<management_interface::EventBroadcaster> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
         let server = Self::start_management_interface_server(multiplex_event_tx)?;
         let event_broadcaster = server.event_broadcaster();
-        let socket_path = server.socket_path().to_owned();
         Self::spawn_management_interface_wait_thread(server, event_tx);
-        Ok((event_broadcaster, socket_path))
+        Ok(event_broadcaster)
     }
 
     fn start_management_interface_server(
@@ -342,6 +337,7 @@ impl Daemon {
                 break;
             }
         }
+        self.management_interface_broadcaster.close();
         Ok(())
     }
 
@@ -1037,22 +1033,6 @@ impl DaemonShutdownHandle {
         let _ = self.tx.send(InternalDaemonEvent::TriggerShutdown);
     }
 }
-
-impl Drop for Daemon {
-    fn drop(&mut self) {
-        #[cfg(unix)]
-        {
-            use std::fs;
-            if let Err(e) = fs::remove_file(&self.management_interface_socket_path) {
-                error!(
-                    "Failed to remove RPC socket {}: {}",
-                    self.management_interface_socket_path, e
-                );
-            }
-        }
-    }
-}
-
 
 struct MullvadTunnelParametersGenerator {
     tx: mpsc::Sender<InternalDaemonEvent>,
