@@ -260,6 +260,7 @@ impl ManagementInterfaceServer {
     pub fn event_broadcaster(&self) -> EventBroadcaster {
         EventBroadcaster {
             subscriptions: self.subscriptions.clone(),
+            close_handle: self.server.close_handle(),
         }
     }
 
@@ -274,9 +275,15 @@ impl ManagementInterfaceServer {
 #[derive(Clone)]
 pub struct EventBroadcaster {
     subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
+    close_handle: talpid_ipc::CloseHandle,
 }
 
 impl EventBroadcaster {
+    /// Notifies that the management interface should be closed
+    pub fn close(self) {
+        self.close_handle.close();
+    }
+
     /// Sends a new state update to all `new_state` subscribers of the management interface.
     pub fn notify_new_state(&self, new_state: TunnelStateTransition) {
         log::debug!("Broadcasting new state: {:?}", new_state);
