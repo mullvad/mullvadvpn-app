@@ -70,8 +70,7 @@ fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), St
         system_service::run()
     } else {
         if config.register_service {
-            let install_result =
-                system_service::install_service().chain_err(|| "Unable to install the service");
+            let install_result = system_service::install_service().map_err(|e| e.display_chain());
             if install_result.is_ok() {
                 println!("Installed the service.");
             }

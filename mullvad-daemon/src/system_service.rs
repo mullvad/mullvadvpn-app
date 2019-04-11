@@ -1,5 +1,6 @@
+use super::Result;
 use crate::cli;
-use error_chain::ChainedError;
+use mullvad_daemon::DaemonShutdownHandle;
 use std::{
     env,
     ffi::OsString,
@@ -10,6 +11,7 @@ use std::{
     thread,
     time::Duration,
 };
+use talpid_types::ErrorExt;
 use windows_service::{
     service::{
         ServiceAccess, ServiceControl, ServiceControlAccept, ServiceDependency,
@@ -21,19 +23,16 @@ use windows_service::{
     service_manager::{ServiceManager, ServiceManagerAccess},
 };
 
-use super::{Result, ResultExt};
-use mullvad_daemon::DaemonShutdownHandle;
-
 static SERVICE_NAME: &'static str = "MullvadVPN";
 static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
 static SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
-pub fn run() -> Result<()> {
+pub fn run() -> Result<(), String> {
     // Start the service dispatcher.
     // This will block current thread until the service stopped and spawn `service_main` on a
     // background thread.
     service_dispatcher::start(SERVICE_NAME, service_main)
-        .chain_err(|| "Failed to start a service dispatcher")
+        .map_err(|e| e.display_chain_with_msg("Failed to start a service dispatcher"))
 }
 
 windows_service::define_windows_service!(service_main, handle_service_main);
@@ -46,7 +45,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
     };
 }
 
-fn run_service() -> Result<()> {
+fn run_service() -> Result<(), String> {
     let (event_tx, event_rx) = mpsc::channel();
 
     // Register service event handler
@@ -65,7 +64,7 @@ fn run_service() -> Result<()> {
         }
     };
     let status_handle = service_control_handler::register(SERVICE_NAME, event_handler)
-        .chain_err(|| "Failed to register a service control handler")?;
+        .map_err(|e| e.display_chain_with_msg("Failed to register a service control handler"))?;
     let mut persistent_service_status = PersistentServiceStatus::new(status_handle);
     persistent_service_status
         .set_pending_start(Duration::from_secs(1))
@@ -90,7 +89,7 @@ fn run_service() -> Result<()> {
 
     persistent_service_status.set_stopped(exit_code).unwrap();
 
-    result
+    result.map_err(|e| e.display_chain())
 }
 
 /// Start event monitor thread that polls for `ServiceControl` and translates them into calls to
@@ -216,14 +215,23 @@ fn accepted_controls_by_state(state: ServiceState) -> ServiceControlAccept {
     }
 }
 
+#[derive(err_derive::Error, Debug)]
+pub enum InstallError {
+    #[error(display = "Unable to connect to service manager")]
+    ConnectServiceManager(#[error(cause)] windows_service::Error),
+
+    #[error(display = "Unable to create a service")]
+    CreateService(#[error(cause)] windows_service::Error),
+}
+
 pub fn install_service() -> Result<()> {
     let manager_access = ServiceManagerAccess::CONNECT | ServiceManagerAccess::CREATE_SERVICE;
     let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
-        .chain_err(|| "Unable to connect to service manager")?;
+        .map_err(InstallError::ConnectServiceManager)?;
     service_manager
         .create_service(get_service_info()?, ServiceAccess::empty())
         .map(|_| ())
-        .chain_err(|| "Unable to create a service")
+        .map_err(Error::CreateService)
 }
 
 fn get_service_info() -> Result<ServiceInfo> {
