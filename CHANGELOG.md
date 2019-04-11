@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 #### Windows
 - Make the firewall rules permanent until reboot, or until the daemon removes them.
+- Increase timeout when updating DNS settings.
 
 ## [2019.3] - 2019-04-02
 ### Fixed
