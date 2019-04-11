@@ -9,8 +9,6 @@
 #![deny(rust_2018_idioms)]
 
 #[macro_use]
-extern crate error_chain;
-#[macro_use]
 extern crate serde;
 
 
@@ -193,10 +191,9 @@ impl Daemon {
         cache_dir: PathBuf,
         version: String,
     ) -> Result<Self> {
-        ensure!(
-            !rpc_uniqueness_check::is_another_instance_running(),
-            Error::DaemonIsAlreadyRunning
-        );
+        if rpc_uniqueness_check::is_another_instance_running() {
+            return Err(Error::DaemonIsAlreadyRunning);
+        }
         let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
 
         let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir, &ca_path);
