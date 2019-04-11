@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Result, ResultExt};
+use crate::{new_rpc_client, Command, Error, Result};
 use clap::{value_t, values_t};
 use std::{
     io::{self, BufRead},
@@ -335,7 +335,7 @@ impl Relay {
         match vpn_protocol {
             "wireguard" => {
                 if let Constraint::Only(TransportProtocol::Tcp) = protocol {
-                    return Err("WireGuard does not support TCP".into());
+                    return Err(Error::InvalidCommand("WireGuard does not support TCP"));
                 }
                 self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
                     location: None,
@@ -393,9 +393,9 @@ impl Relay {
 fn parse_port_constraint(raw_port: &str) -> Result<Constraint<u16>> {
     match raw_port.to_lowercase().as_str() {
         "any" => Ok(Constraint::Any),
-        port => Ok(Constraint::Only(
-            u16::from_str(port).chain_err(|| "Invalid port")?,
-        )),
+        port => Ok(Constraint::Only(u16::from_str(port).map_err(|_| {
+            Error::InvalidCommand("Invalid port. Must be \"any\" or [0-65535].")
+        })?)),
     }
 }
 

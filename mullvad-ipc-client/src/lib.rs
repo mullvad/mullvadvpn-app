@@ -23,6 +23,7 @@ static NO_ARGS: [u8; 0] = [];
 
 pub type Result<T> = std::result::Result<T, jsonrpc_client_core::Error>;
 pub use jsonrpc_client_core::Error;
+pub use jsonrpc_client_pubsub::Error as PubSubError;
 
 pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> io::Result<DaemonRpcClient> {
     let path = path.as_ref().to_string_lossy().to_string();
