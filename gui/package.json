@@ -35,7 +35,7 @@
     "validated": "^2.0.1"
   },
   "optionalDependencies": {
-    "nseventmonitor": "https://github.com/mullvad/NSEventMonitor.git#0.0.12"
+    "nseventmonitor": "https://github.com/mullvad/NSEventMonitor.git#0.0.14"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
@@ -63,7 +63,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-spies": "^1.0.0",
     "cross-env": "^5.1.3",
-    "electron": "^3.0.8",
+    "electron": "^4.1.4",
     "electron-builder": "^20.39.0",
     "electron-devtools-installer": "^2.2.1",
     "electron-mocha": "^6.0.4",
