@@ -86,8 +86,8 @@ export default class ErrorBoundary extends Component<IProps, IState> {
           </Layout>
         </PlatformWindowContainer>
       );
+    } else {
+      return this.props.children;
     }
-
-    return this.props.children;
   }
 }
