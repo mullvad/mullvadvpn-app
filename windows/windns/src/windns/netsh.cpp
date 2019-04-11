@@ -260,7 +260,7 @@ NetSh::NetSh(ILogSink *logSink)
 
 void NetSh::ValidateShellOut(common::ApplicationRunner &netsh, uint32_t timeout)
 {
-	const uint32_t actualTimeout = (0 == timeout ? 3000 : timeout);
+	const uint32_t actualTimeout = (0 == timeout ? 10000 : timeout);
 
 	const auto startTime = GetTickCount64();
 
