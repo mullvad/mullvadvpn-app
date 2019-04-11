@@ -11,6 +11,7 @@ import { Provider } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import { InvalidAccountError } from '../main/errors';
+import ErrorBoundary from './components/ErrorBoundary';
 import AppRoutes from './routes';
 
 import accountActions from './redux/account/actions';
@@ -185,12 +186,14 @@ export default class AppRenderer {
     return (
       <Provider store={this.reduxStore}>
         <ConnectedRouter history={this.memoryHistory}>
-          <AppRoutes
-            sharedProps={{
-              app: this,
-              locale: this.locale,
-            }}
-          />
+          <ErrorBoundary>
+            <AppRoutes
+              sharedProps={{
+                app: this,
+                locale: this.locale,
+              }}
+            />
+          </ErrorBoundary>
         </ConnectedRouter>
       </Provider>
     );

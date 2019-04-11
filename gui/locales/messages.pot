@@ -12,8 +12,8 @@ msgstr ""
 
 #: src/renderer/components/SecuredLabel.tsx:37
 #: src/renderer/components/Support.tsx:284
-#: src/renderer/components/Support.tsx:318
-#: src/renderer/components/Support.tsx:345
+#: src/renderer/components/Support.tsx:319
+#: src/renderer/components/Support.tsx:346
 msgid "SECURE CONNECTION"
 msgstr ""
 
@@ -174,7 +174,7 @@ msgstr ""
 #. Available placeholders:
 #. %(city)s - a city name
 #. %(hostname)s - a hostname
-#: src/renderer/containers/ConnectPage.tsx:54
+#: src/renderer/containers/ConnectPage.tsx:56
 msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr ""
@@ -208,6 +208,19 @@ msgstr ""
 #: src/renderer/components/ExpiredAccountErrorView.tsx:106
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
+msgstr ""
+
+#: src/renderer/components/ErrorBoundary.tsx:81
+msgctxt "error-boundary-view"
+msgid "MULLVAD VPN"
+msgstr ""
+
+#. The message displayed to the user in case of critical error in the GUI
+#. Available placeholders:
+#. %(email)s - support email
+#: src/renderer/components/ErrorBoundary.tsx:69
+msgctxt "error-boundary-view"
+msgid "Something went wrong. Please contact us at %(email)s"
 msgstr ""
 
 #: src/renderer/components/NotificationArea.tsx:284
@@ -462,78 +475,78 @@ msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr ""
 
 #. Title label in navigation bar
-#: src/renderer/components/SelectLocation.tsx:119
+#: src/renderer/components/SelectLocation.tsx:118
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr ""
 
-#: src/renderer/components/SelectLocation.tsx:127
+#: src/renderer/components/SelectLocation.tsx:126
 msgctxt "select-location-view"
 msgid "Select location"
 msgstr ""
 
-#: src/renderer/components/SelectLocation.tsx:130
+#: src/renderer/components/SelectLocation.tsx:129
 msgctxt "select-location-view"
 msgid "While connected, your real location is masked with a private and secure location in the selected region"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:104
+#: src/renderer/components/Settings.tsx:105
 msgctxt "settings-view"
 msgid "Account"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:119
+#: src/renderer/components/Settings.tsx:120
 msgctxt "settings-view"
 msgid "Advanced"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:165
+#: src/renderer/components/Settings.tsx:166
 msgctxt "settings-view"
 msgid "App version"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:186
+#: src/renderer/components/Settings.tsx:187
 msgctxt "settings-view"
 msgid "FAQs & Guides"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:131
+#: src/renderer/components/Settings.tsx:132
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:98
+#: src/renderer/components/Settings.tsx:99
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:114
+#: src/renderer/components/Settings.tsx:115
 msgctxt "settings-view"
 msgid "Preferences"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:80
+#: src/renderer/components/Settings.tsx:81
 msgctxt "settings-view"
 msgid "Quit app"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:181
+#: src/renderer/components/Settings.tsx:182
 msgctxt "settings-view"
 msgid "Report a problem"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:58
+#: src/renderer/components/Settings.tsx:59
 msgctxt "settings-view"
 msgid "Settings"
 msgstr ""
 
-#: src/renderer/components/Settings.tsx:136
+#: src/renderer/components/Settings.tsx:137
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr ""
 
 #. Title label in navigation bar
-#: src/renderer/components/Settings.tsx:50
+#: src/renderer/components/Settings.tsx:51
 msgctxt "settings-view-nav"
 msgid "Settings"
 msgstr ""
@@ -544,7 +557,7 @@ msgctxt "support-nav"
 msgid "Settings"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:395
+#: src/renderer/components/Support.tsx:396
 msgctxt "support-view"
 msgid "Back"
 msgstr ""
@@ -554,17 +567,20 @@ msgctxt "support-view"
 msgid "Describe your problem"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:360
+#: src/renderer/components/Support.tsx:361
 msgctxt "support-view"
 msgid "Edit message"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:348
+#: src/renderer/components/Support.tsx:349
 msgctxt "support-view"
 msgid "Failed to send"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:299
+#. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+#. Available placeholders:
+#. %(email)s
+#: src/renderer/components/Support.tsx:300
 msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
 msgstr ""
@@ -579,7 +595,7 @@ msgctxt "support-view"
 msgid "Send"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:392
+#: src/renderer/components/Support.tsx:393
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr ""
@@ -589,12 +605,12 @@ msgctxt "support-view"
 msgid "Sending..."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:321
+#: src/renderer/components/Support.tsx:322
 msgctxt "support-view"
 msgid "Sent"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:325
+#: src/renderer/components/Support.tsx:326
 msgctxt "support-view"
 msgid "Thanks! We will look into this."
 msgstr ""
@@ -604,7 +620,7 @@ msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:363
+#: src/renderer/components/Support.tsx:364
 msgctxt "support-view"
 msgid "Try again"
 msgstr ""
@@ -614,12 +630,12 @@ msgctxt "support-view"
 msgid "View app logs"
 msgstr ""
 
-#: src/renderer/components/Support.tsx:386
+#: src/renderer/components/Support.tsx:387
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
 msgstr ""
 
-#: src/renderer/components/Support.tsx:351
+#: src/renderer/components/Support.tsx:352
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr ""
