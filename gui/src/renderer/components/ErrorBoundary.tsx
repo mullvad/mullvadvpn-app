@@ -76,7 +76,7 @@ export default class ErrorBoundary extends Component<IProps, IState> {
                     // TRANSLATORS: %(email)s - support email
                     messages.pgettext(
                       'error-boundary-view',
-                      'Something went wrong. Please contact support at %(email)s',
+                      'Something went wrong. Please contact us at %(email)s',
                     ),
                     { email: links.supportEmail },
                   )}
