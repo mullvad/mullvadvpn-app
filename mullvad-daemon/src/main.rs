@@ -24,11 +24,11 @@ const DAEMON_LOG_FILENAME: &str = "daemon.log";
 
 fn main() {
     let config = cli::get_config();
-    let log_dir = init_logging(&config).unwrap_or_else(|error| {
+    let log_dir = init_logging(config).unwrap_or_else(|error| {
         eprintln!("{}", error);
         std::process::exit(1)
     });
-    let exit_code = match run_platform(&config, log_dir) {
+    let exit_code = match run_platform(config, log_dir) {
         Ok(_) => 0,
         Err(error) => {
             error!("{}", error);
@@ -40,14 +40,7 @@ fn main() {
 }
 
 fn init_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
-    let log_dir = if config.log_to_file {
-        Some(
-            mullvad_paths::log_dir()
-                .map_err(|e| e.display_chain_with_msg("Unable to get log directory"))?,
-        )
-    } else {
-        None
-    };
+    let log_dir = get_log_dir(config)?;
     let log_file = log_dir.as_ref().map(|dir| dir.join(DAEMON_LOG_FILENAME));
 
     logging::init_logger(
@@ -64,14 +57,23 @@ fn init_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
     Ok(log_dir)
 }
 
+fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
+    if config.log_to_file {
+        Ok(Some(mullvad_paths::log_dir().map_err(|e| {
+            e.display_chain_with_msg("Unable to get log directory")
+        })?))
+    } else {
+        Ok(None)
+    }
+}
+
 #[cfg(windows)]
 fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
     if config.run_as_service {
         system_service::run()
     } else {
         if config.register_service {
-            let install_result =
-                system_service::install_service().chain_err(|| "Unable to install the service");
+            let install_result = system_service::install_service().map_err(|e| e.display_chain());
             if install_result.is_ok() {
                 println!("Installed the service.");
             }
