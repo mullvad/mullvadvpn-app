@@ -1,7 +1,5 @@
 use chrono::{DateTime, Local};
-use error_chain::ChainedError;
 use futures::Future;
-
 use mullvad_rpc::{HttpHandle, RelayListProxy};
 use mullvad_types::{
     endpoint::MullvadEndpoint,
@@ -12,11 +10,6 @@ use mullvad_types::{
     },
     relay_list::{Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
-
-use serde_json;
-
-use talpid_types::net::{all_of_the_internet, wireguard, TransportProtocol};
-
 use std::{
     fs::File,
     io,
@@ -25,6 +18,10 @@ use std::{
     sync::{mpsc, Arc, Mutex, MutexGuard},
     thread,
     time::{self, Duration, SystemTime},
+};
+use talpid_types::{
+    net::{all_of_the_internet, wireguard, TransportProtocol},
+    ErrorExt,
 };
 
 use log::{debug, error, info, warn};
@@ -41,19 +38,30 @@ const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 2);
 /// How old the cached relays need to be to trigger an update
 const UPDATE_INTERVAL: Duration = Duration::from_secs(3600);
 
-error_chain! {
-    errors {
-        RelayCacheError { description("Error with relay cache on disk") }
-        DownloadError { description("Error when trying to download the list of relays") }
-        DownloadTimeoutError { description("Timed out when trying to download the list of relays") }
-        NoRelay { description("No relays matching current constraints") }
-        SerializationError { description("Error in serialization of relaylist") }
-    }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Failed to open relay cache file for reading")]
+    ReadCachedRelays(#[error(cause)] io::Error),
+
+    #[error(display = "Failed to open relay cache file for writing")]
+    WriteRelayCache(#[error(cause)] io::Error),
+
+    #[error(display = "Failed to download the list of relays")]
+    Download(#[error(cause)] mullvad_rpc::Error),
+
+    #[error(display = "Timed out when trying to download the list of relays")]
+    DownloadTimeout,
+
+    #[error(display = "No relays matching current constraints")]
+    NoRelay,
+
+    #[error(display = "Failure in serialization of the relay list")]
+    Serialize(#[error(cause)] serde_json::Error),
 }
 
 impl<F> From<TimeoutError<F>> for Error {
     fn from(_: TimeoutError<F>) -> Error {
-        Error::from_kind(ErrorKind::DownloadTimeoutError)
+        Error::DownloadTimeout
     }
 }
 
@@ -109,12 +117,12 @@ impl ParsedRelays {
         }
     }
 
-    pub fn from_file(path: impl AsRef<Path>) -> Result<Self> {
+    pub fn from_file(path: impl AsRef<Path>) -> Result<Self, Error> {
         debug!("Reading relays from {}", path.as_ref().display());
         let (last_modified, file) =
-            Self::open_file(path.as_ref()).chain_err(|| ErrorKind::RelayCacheError)?;
-        let relay_list = serde_json::from_reader(io::BufReader::new(file))
-            .chain_err(|| ErrorKind::SerializationError)?;
+            Self::open_file(path.as_ref()).map_err(Error::ReadCachedRelays)?;
+        let relay_list =
+            serde_json::from_reader(io::BufReader::new(file)).map_err(Error::Serialize)?;
 
         Ok(Self::from_relay_list(relay_list, last_modified))
     }
@@ -157,8 +165,10 @@ impl RelaySelector {
         let resource_path = resource_dir.join(RELAYS_FILENAME);
         let unsynchronized_parsed_relays = Self::read_relays_from_disk(&cache_path, &resource_path)
             .unwrap_or_else(|error| {
-                let chained_error = error.chain_err(|| "Unable to load cached relays");
-                error!("{}", chained_error.display_chain());
+                error!(
+                    "{}",
+                    error.display_chain_with_msg("Unable to load cached relays")
+                );
                 ParsedRelays::empty()
             });
         info!(
@@ -206,7 +216,7 @@ impl RelaySelector {
         &mut self,
         constraints: &RelayConstraints,
         retry_attempt: u32,
-    ) -> Result<(Relay, MullvadEndpoint)> {
+    ) -> Result<(Relay, MullvadEndpoint), Error> {
         let preferred_constraints = Self::preferred_constraints(constraints, retry_attempt);
         if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(&preferred_constraints) {
             debug!(
@@ -222,7 +232,7 @@ impl RelaySelector {
             Ok((relay, endpoint))
         } else {
             warn!("No relays matching {}", constraints);
-            bail!(ErrorKind::NoRelay);
+            Err(Error::NoRelay)
         }
     }
 
@@ -480,7 +490,10 @@ impl RelaySelector {
     }
 
     /// Try to read the relays from disk, preferring the newer ones.
-    fn read_relays_from_disk(cache_path: &Path, resource_path: &Path) -> Result<ParsedRelays> {
+    fn read_relays_from_disk(
+        cache_path: &Path,
+        resource_path: &Path,
+    ) -> Result<ParsedRelays, Error> {
         // prefer the resource path's relay list if the cached one doesn't exist or was modified
         // before the resource one was created.
         let cached_relays = ParsedRelays::from_file(cache_path);
@@ -552,12 +565,12 @@ impl RelayListUpdater {
         debug!("Starting relay list updater thread");
         while self.wait_for_next_iteration() {
             if self.should_update() {
-                match self
-                    .update()
-                    .chain_err(|| "Failed to update list of relays")
-                {
+                match self.update() {
                     Ok(()) => info!("Updated list of relays"),
-                    Err(error) => error!("{}", error.display_chain()),
+                    Err(error) => error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to update list of relays")
+                    ),
                 }
             }
         }
@@ -584,14 +597,14 @@ impl RelayListUpdater {
         }
     }
 
-    fn update(&mut self) -> Result<()> {
-        let new_relay_list = self
-            .download_relay_list()
-            .chain_err(|| "Failed to download relay list")?;
+    fn update(&mut self) -> Result<(), Error> {
+        let new_relay_list = self.download_relay_list()?;
 
         if let Err(error) = self.cache_relays(&new_relay_list) {
-            let chained_error = error.chain_err(|| "Failed to update relay cache on disk");
-            error!("{}", chained_error.display_chain());
+            error!(
+                "{}",
+                error.display_chain_with_msg("Failed to update relay cache on disk")
+            );
         }
 
         let new_parsed_relays = ParsedRelays::from_relay_list(new_relay_list, SystemTime::now());
@@ -606,13 +619,10 @@ impl RelayListUpdater {
         Ok(())
     }
 
-    fn download_relay_list(&mut self) -> Result<RelayList> {
+    fn download_relay_list(&mut self) -> Result<RelayList, Error> {
         info!("Downloading list of relays...");
 
-        let download_future = self
-            .rpc_client
-            .relay_list_v2()
-            .map_err(|e| Error::with_chain(e, ErrorKind::DownloadError));
+        let download_future = self.rpc_client.relay_list_v2().map_err(Error::Download);
         let relay_list = Timer::default()
             .timeout(download_future, DOWNLOAD_TIMEOUT)
             .wait()?;
@@ -621,11 +631,10 @@ impl RelayListUpdater {
     }
 
     /// Write a `RelayList` to the cache file.
-    fn cache_relays(&self, relays: &RelayList) -> Result<()> {
+    fn cache_relays(&self, relays: &RelayList) -> Result<(), Error> {
         debug!("Writing relays cache to {}", self.cache_path.display());
-        let file = File::create(&self.cache_path).chain_err(|| ErrorKind::RelayCacheError)?;
-        serde_json::to_writer_pretty(io::BufWriter::new(file), relays)
-            .chain_err(|| ErrorKind::SerializationError)
+        let file = File::create(&self.cache_path).map_err(Error::WriteRelayCache)?;
+        serde_json::to_writer_pretty(io::BufWriter::new(file), relays).map_err(Error::Serialize)
     }
 
     fn lock_parsed_relays(&self) -> MutexGuard<'_, ParsedRelays> {

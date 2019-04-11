@@ -72,10 +72,8 @@ error_chain! {
             description("No wireguard private key available")
         }
     }
-    links {
-        AccountHistory(account_history::Error, account_history::ErrorKind);
-    }
     foreign_links {
+        AccountHistory(account_history::Error);
         TunnelError(tunnel_state_machine::Error);
     }
 }

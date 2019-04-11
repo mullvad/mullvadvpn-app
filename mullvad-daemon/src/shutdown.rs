@@ -1,14 +1,9 @@
-error_chain! {}
-
 #[cfg(unix)]
 mod platform {
-    use super::Result;
     use simple_signal::Signal;
+    use std::io;
 
-    pub fn set_shutdown_signal_handler<F>(f: F) -> Result<()>
-    where
-        F: Fn() + 'static + Send,
-    {
+    pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), io::Error> {
         simple_signal::set_handler(&[Signal::Term, Signal::Int], move |s| {
             log::debug!("Process received signal: {:?}", s);
             f();
@@ -19,17 +14,16 @@ mod platform {
 
 #[cfg(windows)]
 mod platform {
-    use super::{Result, ResultExt};
+    #[derive(err_derive::Error, Debug)]
+    #[error(display = "Unable to attach ctrl-c handler")]
+    pub struct Error(#[error(cause)] ctrlc::Error);
 
-    pub fn set_shutdown_signal_handler<F>(f: F) -> Result<()>
-    where
-        F: Fn() + 'static + Send,
-    {
+    pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), Error> {
         ctrlc::set_handler(move || {
             log::debug!("Process received Ctrl-c");
             f();
         })
-        .chain_err(|| "Unable to attach ctrl-c handler")
+        .map_err(Error)
     }
 }
 
