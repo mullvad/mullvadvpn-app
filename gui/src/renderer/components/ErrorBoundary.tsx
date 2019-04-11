@@ -1,7 +1,6 @@
 import log from 'electron-log';
 import * as React from 'react';
 import { Component, Styles, Text, View } from 'reactxp';
-import { sprintf } from 'sprintf-js';
 import { colors, links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import PlatformWindowContainer from '../containers/PlatformWindowContainer';
@@ -44,6 +43,9 @@ const styles = {
     marginHorizontal: 20,
     textAlign: 'center',
   }),
+  email: Styles.createTextStyle({
+    fontWeight: '900',
+  }),
 };
 
 export default class ErrorBoundary extends Component<IProps, IState> {
@@ -60,6 +62,15 @@ export default class ErrorBoundary extends Component<IProps, IState> {
 
   public render() {
     if (this.state.hasError) {
+      const reachBackMessage: React.ReactNodeArray =
+        // TRANSLATORS: The message displayed to the user in case of critical error in the GUI
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(email)s - support email
+        messages
+          .pgettext('error-boundary-view', 'Something went wrong. Please contact us at %(email)s')
+          .split('%(email)s', 2);
+      reachBackMessage.splice(1, 0, <Text style={styles.email}>{links.supportEmail}</Text>);
+
       return (
         <PlatformWindowContainer>
           <Layout>
@@ -69,18 +80,7 @@ export default class ErrorBoundary extends Component<IProps, IState> {
                 <Text style={styles.title}>
                   {messages.pgettext('error-boundary-view', 'MULLVAD VPN')}
                 </Text>
-                <Text style={styles.subtitle}>
-                  {sprintf(
-                    // TRANSLATORS: The message displayed to the user in case of critical error in the GUI
-                    // TRANSLATORS: Available placeholders:
-                    // TRANSLATORS: %(email)s - support email
-                    messages.pgettext(
-                      'error-boundary-view',
-                      'Something went wrong. Please contact us at %(email)s',
-                    ),
-                    { email: links.supportEmail },
-                  )}
-                </Text>
+                <Text style={styles.subtitle}>{reachBackMessage}</Text>
               </View>
             </Container>
           </Layout>
