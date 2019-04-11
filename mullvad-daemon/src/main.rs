@@ -33,8 +33,8 @@ error_chain! {
             display("Error setting up log: {}", msg)
         }
     }
-    links {
-        DaemonError(mullvad_daemon::Error, mullvad_daemon::ErrorKind);
+    foreign_links {
+        DaemonError(mullvad_daemon::Error);
     }
 }
 
