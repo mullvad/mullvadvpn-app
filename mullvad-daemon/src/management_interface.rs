@@ -20,6 +20,8 @@ use mullvad_types::{
     states::TargetState,
     version, DaemonEvent,
 };
+#[cfg(unix)]
+use std::path::PathBuf;
 use std::{
     collections::{hash_map::Entry, HashMap},
     sync::{Arc, Mutex, RwLock},
@@ -228,6 +230,8 @@ pub enum ManagementCommand {
 pub struct ManagementInterfaceServer {
     server: talpid_ipc::IpcServer,
     subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
+    #[cfg(unix)]
+    _rpc_remover: RpcFileRemover,
 }
 
 impl ManagementInterfaceServer {
@@ -250,6 +254,8 @@ impl ManagementInterfaceServer {
         Ok(ManagementInterfaceServer {
             server,
             subscriptions,
+            #[cfg(unix)]
+            _rpc_remover: RpcFileRemover(path),
         })
     }
 
@@ -267,6 +273,19 @@ impl ManagementInterfaceServer {
     /// due to an error.
     pub fn wait(self) {
         self.server.wait()
+    }
+}
+
+#[cfg(unix)]
+struct RpcFileRemover(PathBuf);
+
+#[cfg(unix)]
+impl Drop for RpcFileRemover {
+    fn drop(&mut self) {
+        use std::fs;
+        if let Err(e) = fs::remove_file(&self.0) {
+            log::error!("Failed to remove RPC socket {}: {}", self.0.display(), e);
+        }
     }
 }
 
