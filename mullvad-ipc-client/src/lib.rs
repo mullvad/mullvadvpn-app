@@ -57,16 +57,16 @@ pub fn new_standalone_transport<
         }
     });
 
-    rx.wait().expect("No transport handles returned").map(
-        |(rpc_client, server_handle, executor)| {
+    rx.wait()
+        .map_err(|_| io::Error::new(io::ErrorKind::NotFound, "No transport handles returned"))?
+        .map(|(rpc_client, server_handle, executor)| {
             let subscriber =
                 jsonrpc_client_pubsub::Subscriber::new(executor, rpc_client.clone(), server_handle);
             DaemonRpcClient {
                 rpc_client,
                 subscriber,
             }
-        },
-    )
+        })
 }
 
 fn spawn_transport<
