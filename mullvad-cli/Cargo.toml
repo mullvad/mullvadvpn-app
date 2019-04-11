@@ -19,7 +19,7 @@ path = "src/main.rs"
 
 [dependencies]
 clap = "2.32"
-error-chain = "0.12"
+err-derive = "0.1.5"
 env_logger = "0.6"
 serde = "1.0"
 futures = "0.1"

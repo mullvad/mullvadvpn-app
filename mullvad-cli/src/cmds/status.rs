@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Error, ErrorKind, Result, ResultExt};
+use crate::{new_rpc_client, Command, Error, Result};
 use futures::{Future, Stream};
 use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_types::{auth_failed::AuthFailed, DaemonEvent};
@@ -36,9 +36,9 @@ impl Command for Status {
             let subscription = rpc
                 .daemon_event_subscribe()
                 .wait()
-                .map_err(|_err| Error::from(ErrorKind::CantSubscribe))?;
+                .map_err(Error::CantSubscribe)?;
             for event in subscription.wait() {
-                match event.chain_err(|| "Subscription failed")? {
+                match event? {
                     DaemonEvent::StateTransition(new_state) => {
                         print_state(&new_state);
                         use self::TunnelStateTransition::*;
