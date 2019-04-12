@@ -9,8 +9,6 @@
 #![deny(rust_2018_idioms)]
 
 #[macro_use]
-extern crate error_chain;
-#[macro_use]
 extern crate serde;
 
 
@@ -41,7 +39,7 @@ use mullvad_types::{
     states::TargetState,
     version::{AppVersion, AppVersionInfo},
 };
-use std::{mem, path::PathBuf, sync::mpsc, thread, time::Duration};
+use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
@@ -52,30 +50,43 @@ use talpid_types::{
     ErrorExt,
 };
 
+pub type Result<T> = std::result::Result<T, Error>;
 
-error_chain! {
-    errors {
-        NoCacheDir {
-            description("Unable to create cache directory")
-        }
-        DaemonIsAlreadyRunning {
-            description("Another instance of the daemon is already running")
-        }
-        UnsupportedTunnel {
-            description("Unsupported tunnel")
-        }
-        ManagementInterfaceError(msg: &'static str) {
-            description("Error in the management interface")
-            display("Management interface error: {}", msg)
-        }
-        NoKeyAvailable {
-            description("No wireguard private key available")
-        }
-    }
-    foreign_links {
-        AccountHistory(account_history::Error);
-        TunnelError(tunnel_state_machine::Error);
-    }
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Another instance of the daemon is already running")]
+    DaemonIsAlreadyRunning,
+
+    #[error(display = "Unable to initialize network event loop")]
+    InitIoEventLoop(#[error(cause)] io::Error),
+
+    #[error(display = "Unable to create RPC client")]
+    InitRpcClient(#[error(cause)] mullvad_rpc::HttpError),
+
+    #[error(display = "Unable to create am.i.mullvad client")]
+    InitHttpsClient(#[error(cause)] mullvad_rpc::rest::Error),
+
+    #[error(display = "Unable to load settings")]
+    LoadSettings(#[error(cause)] settings::Error),
+
+    #[error(display = "Unable to load account history with wireguard key cache")]
+    LoadAccountHistory(#[error(cause)] account_history::Error),
+
+    /// Error in the management interface
+    #[error(display = "Unable to start management interface server")]
+    StartManagementInterface(#[error(cause)] talpid_ipc::Error),
+
+    #[error(display = "Management interface server exited unexpectedly")]
+    ManagementInterfaceExited,
+
+    #[error(display = "No wireguard private key available")]
+    NoKeyAvailable,
+
+    #[error(display = "Account history problems")]
+    AccountHistory(#[error(cause)] account_history::Error),
+
+    #[error(display = "Tunnel state machine error")]
+    TunnelError(#[error(cause)] tunnel_state_machine::Error),
 }
 
 type SyncUnboundedSender<T> = ::futures::sink::Wait<UnboundedSender<T>>;
@@ -180,10 +191,9 @@ impl Daemon {
         cache_dir: PathBuf,
         version: String,
     ) -> Result<Self> {
-        ensure!(
-            !rpc_uniqueness_check::is_another_instance_running(),
-            ErrorKind::DaemonIsAlreadyRunning
-        );
+        if rpc_uniqueness_check::is_another_instance_running() {
+            return Err(Error::DaemonIsAlreadyRunning);
+        }
         let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
 
         let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir, &ca_path);
@@ -196,9 +206,9 @@ impl Daemon {
                 let remote = core.remote();
                 (rpc, https_handle, remote)
             })
-            .chain_err(|| "Unable to initialize network event loop")?;
-        let rpc_handle = rpc_handle.chain_err(|| "Unable to create RPC client")?;
-        let https_handle = https_handle.chain_err(|| "Unable to create am.i.mullvad client")?;
+            .map_err(Error::InitIoEventLoop)?;
+        let rpc_handle = rpc_handle.map_err(Error::InitRpcClient)?;
+        let https_handle = https_handle.map_err(Error::InitHttpsClient)?;
 
         let (internal_event_tx, internal_event_rx) = mpsc::channel();
 
@@ -215,9 +225,9 @@ impl Daemon {
             &resource_dir,
             &cache_dir,
         );
-        let settings = Settings::load().chain_err(|| "Unable to read settings")?;
-        let account_history = account_history::AccountHistory::new(&cache_dir)
-            .chain_err(|| "Unable to read wireguard key cache")?;
+        let settings = Settings::load().map_err(Error::LoadSettings)?;
+        let account_history =
+            account_history::AccountHistory::new(&cache_dir).map_err(Error::LoadAccountHistory)?;
 
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
@@ -230,7 +240,8 @@ impl Daemon {
             resource_dir,
             cache_dir.clone(),
             IntoSender::from(internal_event_tx.clone()),
-        )?;
+        )
+        .map_err(Error::TunnelError)?;
 
         // Attempt to download a fresh relay list
         relay_selector.update();
@@ -275,8 +286,8 @@ impl Daemon {
     fn start_management_interface_server(
         event_tx: IntoSender<ManagementCommand, InternalDaemonEvent>,
     ) -> Result<ManagementInterfaceServer> {
-        let server = ManagementInterfaceServer::start(event_tx)
-            .chain_err(|| ErrorKind::ManagementInterfaceError("Failed to start server"))?;
+        let server =
+            ManagementInterfaceServer::start(event_tx).map_err(Error::StartManagementInterface)?;
         info!(
             "Mullvad management interface listening on {}",
             server.socket_path()
@@ -321,9 +332,7 @@ impl Daemon {
             }
             ManagementInterfaceEvent(event) => self.handle_management_interface_event(event),
             ManagementInterfaceExited => {
-                return Err(
-                    ErrorKind::ManagementInterfaceError("Server exited unexpectedly").into(),
-                );
+                return Err(Error::ManagementInterfaceExited);
             }
             TriggerShutdown => self.handle_trigger_shutdown_event(),
         }
@@ -358,35 +367,39 @@ impl Daemon {
         tunnel_parameters_tx: &mpsc::Sender<TunnelParameters>,
         retry_attempt: u32,
     ) {
-        let result = self
-            .settings
-            .get_account_token()
-            .ok_or_else(|| Error::from("No account token configured"))
-            .map(|account_token| {
-                match self.settings.get_relay_settings() {
-                    RelaySettings::CustomTunnelEndpoint(custom_relay) => {
-                        self.last_generated_relay = None;
-                        custom_relay
-                            .to_tunnel_parameters(self.settings.get_tunnel_options().clone())
-                            .chain_err(|| "Custom tunnel endpoint could not be resolved")
-                    }
-                    RelaySettings::Normal(constraints) => self
-                        .relay_selector
-                        .get_tunnel_endpoint(&constraints, retry_attempt)
-                        .chain_err(|| "No valid relay servers match the current settings")
-                        .and_then(|(relay, endpoint)| {
-                            self.last_generated_relay = Some(relay);
-                            self.create_tunnel_parameters(endpoint, account_token)
-                        }),
+        if let Some(account_token) = self.settings.get_account_token() {
+            if let Err(error_str) = match self.settings.get_relay_settings() {
+                RelaySettings::CustomTunnelEndpoint(custom_relay) => {
+                    self.last_generated_relay = None;
+                    custom_relay
+                        .to_tunnel_parameters(self.settings.get_tunnel_options().clone())
+                        .map_err(|e| {
+                            e.display_chain_with_msg("Custom tunnel endpoint could not be resolved")
+                        })
                 }
-                .map(|tunnel_params| {
-                    tunnel_parameters_tx
-                        .send(tunnel_params)
-                        .map_err(|_| Error::from("Tunnel parameters receiver stopped listening"))
+                RelaySettings::Normal(constraints) => self
+                    .relay_selector
+                    .get_tunnel_endpoint(&constraints, retry_attempt)
+                    .map_err(|e| {
+                        e.display_chain_with_msg(
+                            "No valid relay servers match the current settings",
+                        )
+                    })
+                    .and_then(|(relay, endpoint)| {
+                        self.last_generated_relay = Some(relay);
+                        self.create_tunnel_parameters(endpoint, account_token)
+                            .map_err(|e| e.display_chain())
+                    }),
+            }
+            .and_then(|tunnel_params| {
+                tunnel_parameters_tx.send(tunnel_params).map_err(|e| {
+                    e.display_chain_with_msg("Tunnel parameters receiver stopped listening")
                 })
-            });
-        if let Err(e) = result {
-            error!("{}", e.display_chain());
+            }) {
+                error!("{}", error_str);
+            }
+        } else {
+            error!("No account token configured");
         }
     }
 
@@ -410,9 +423,10 @@ impl Daemon {
             } => {
                 let wg_data = self
                     .account_history
-                    .get(&account_token)?
+                    .get(&account_token)
+                    .map_err(Error::AccountHistory)?
                     .and_then(|entry| entry.wireguard)
-                    .ok_or(ErrorKind::NoKeyAvailable)?;
+                    .ok_or(Error::NoKeyAvailable)?;
                 let tunnel = wireguard::TunnelConfig {
                     private_key: wg_data.private_key,
                     addresses: vec![
@@ -592,7 +606,7 @@ impl Daemon {
     fn on_set_account(&mut self, tx: oneshot::Sender<()>, account_token: Option<String>) {
         let save_result = self.settings.set_account_token(account_token.clone());
 
-        match save_result.chain_err(|| "Unable to save settings") {
+        match save_result {
             Ok(account_changed) => {
                 Self::oneshot_send(tx, (), "set_account response");
                 if account_changed {
@@ -613,7 +627,7 @@ impl Daemon {
                     }
                 }
             }
-            Err(e) => error!("{}", e.display_chain()),
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
         }
     }
 
@@ -660,7 +674,7 @@ impl Daemon {
 
     fn on_update_relay_settings(&mut self, tx: oneshot::Sender<()>, update: RelaySettingsUpdate) {
         let save_result = self.settings.update_relay_settings(update);
-        match save_result.chain_err(|| "Unable to save settings") {
+        match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "update_relay_settings response");
                 if settings_changed {
@@ -670,13 +684,13 @@ impl Daemon {
                     self.reconnect_tunnel();
                 }
             }
-            Err(e) => error!("{}", e.display_chain()),
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
         }
     }
 
     fn on_set_allow_lan(&mut self, tx: oneshot::Sender<()>, allow_lan: bool) {
         let save_result = self.settings.set_allow_lan(allow_lan);
-        match save_result.chain_err(|| "Unable to save settings") {
+        match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_allow_lan response");
                 if settings_changed {
@@ -685,7 +699,7 @@ impl Daemon {
                     self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
                 }
             }
-            Err(e) => error!("{}", e.display_chain()),
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
         }
     }
 
@@ -697,7 +711,7 @@ impl Daemon {
         let save_result = self
             .settings
             .set_block_when_disconnected(block_when_disconnected);
-        match save_result.chain_err(|| "Unable to save settings") {
+        match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_block_when_disconnected response");
                 if settings_changed {
@@ -708,13 +722,13 @@ impl Daemon {
                     ));
                 }
             }
-            Err(e) => error!("{}", e.display_chain()),
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
         }
     }
 
     fn on_set_auto_connect(&mut self, tx: oneshot::Sender<()>, auto_connect: bool) {
         let save_result = self.settings.set_auto_connect(auto_connect);
-        match save_result.chain_err(|| "Unable to save settings") {
+        match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set auto-connect response");
                 if settings_changed {
@@ -722,13 +736,13 @@ impl Daemon {
                         .notify_settings(self.settings.clone());
                 }
             }
-            Err(e) => error!("{}", e.display_chain()),
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
         }
     }
 
     fn on_set_openvpn_mssfix(&mut self, tx: oneshot::Sender<()>, mssfix_arg: Option<u16>) {
         let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
-        match save_result.chain_err(|| "Unable to save settings") {
+        match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_openvpn_mssfix response");
                 if settings_changed {
@@ -738,7 +752,7 @@ impl Daemon {
                     self.reconnect_tunnel();
                 }
             }
-            Err(e) => error!("{}", e.display_chain()),
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
         }
     }
 
@@ -795,7 +809,7 @@ impl Daemon {
 
     fn on_set_enable_ipv6(&mut self, tx: oneshot::Sender<()>, enable_ipv6: bool) {
         let save_result = self.settings.set_enable_ipv6(enable_ipv6);
-        match save_result.chain_err(|| "Unable to save settings") {
+        match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_enable_ipv6 response");
                 if settings_changed {
@@ -805,13 +819,13 @@ impl Daemon {
                     self.reconnect_tunnel();
                 }
             }
-            Err(e) => error!("{}", e.display_chain()),
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
         }
     }
 
     fn on_set_wireguard_mtu(&mut self, tx: oneshot::Sender<()>, mtu: Option<u16>) {
         let save_result = self.settings.set_wireguard_mtu(mtu);
-        match save_result.chain_err(|| "Unable to save settings") {
+        match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_wireguard_mtu response");
                 if settings_changed {
@@ -821,7 +835,7 @@ impl Daemon {
                     self.reconnect_tunnel();
                 }
             }
-            Err(e) => error!("{}", e.display_chain()),
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
         }
     }
 
