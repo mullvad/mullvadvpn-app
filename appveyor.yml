@@ -18,6 +18,7 @@ environment:
   # overridden on a case by case basis down below
     RUST_VERSION: stable
     RUST_BACKTRACE: "1"
+    RUSTFLAGS: "--deny unused_imports --deny dead_code"
     CPP_BUILD_MODES: "Debug"
     OPENSSL_STATIC: "1"
 
