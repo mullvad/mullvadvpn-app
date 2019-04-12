@@ -23,6 +23,36 @@ matrix:
         - npm run build
         - npm test
 
+    # Android
+    - language: android
+      sudo: true
+      android:
+        components:
+          - android-28
+          - build-tools-28.0.3
+      install:
+        - curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y
+        - source $HOME/.cargo/env
+        - rustup target add aarch64-linux-android
+        - curl -sf -L -o /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-r19b-linux-x86_64.zip
+        - sudo mkdir /opt/android
+        - sudo unzip -q -d /opt/android/ /tmp/ndk.zip
+        - sudo /opt/android/android-ndk-r19b/build/tools/make-standalone-toolchain.sh --platform=android-28 --arch=arm64 --install-dir=/opt/android/toolchains/android28-aarch64
+        - |
+            cat >> $HOME/.cargo/config << EOF
+            [target.aarch64-linux-android]
+            ar = "/opt/android/android-ndk-r19b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
+            linker = "/opt/android/android-ndk-r19b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android28-clang"
+      before_script:
+        - export RUSTFLAGS="--deny unused_imports --deny dead_code"
+        - export AR_aarch64_linux_android=/opt/android/toolchains/android28-aarch64/bin/aarch64-linux-android-ar
+        - export CC_aarch64_linux_android=/opt/android/toolchains/android28-aarch64/bin/aarch64-linux-android28-clang
+        - source env.sh android
+        - env
+      script:
+        - cargo build --target aarch64-linux-android --verbose
+        - cd android
+        - ./gradlew --console plain assembleDebug
 
     # Daemon - macOS
     - language: rust
@@ -70,37 +100,6 @@ matrix:
       addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_script
-
-    # Android
-    - language: android
-      sudo: true
-      android:
-        components:
-          - android-28
-          - build-tools-28.0.3
-      install:
-        - curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y
-        - source $HOME/.cargo/env
-        - rustup target add aarch64-linux-android
-        - curl -sf -L -o /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-r19b-linux-x86_64.zip
-        - sudo mkdir /opt/android
-        - sudo unzip -q -d /opt/android/ /tmp/ndk.zip
-        - sudo /opt/android/android-ndk-r19b/build/tools/make-standalone-toolchain.sh --platform=android-28 --arch=arm64 --install-dir=/opt/android/toolchains/android28-aarch64
-        - |
-            cat >> $HOME/.cargo/config << EOF
-            [target.aarch64-linux-android]
-            ar = "/opt/android/android-ndk-r19b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-            linker = "/opt/android/android-ndk-r19b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android28-clang"
-      before_script:
-        - export RUSTFLAGS="--deny unused_imports --deny dead_code"
-        - export AR_aarch64_linux_android=/opt/android/toolchains/android28-aarch64/bin/aarch64-linux-android-ar 
-        - export CC_aarch64_linux_android=/opt/android/toolchains/android28-aarch64/bin/aarch64-linux-android28-clang
-        - source env.sh android
-        - env
-      script:
-        - cargo build --target aarch64-linux-android --verbose
-        - cd android
-        - ./gradlew --console plain assembleDebug
 
 
 notifications:
