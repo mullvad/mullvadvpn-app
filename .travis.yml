@@ -30,6 +30,7 @@ matrix:
       os: osx
       before_script: &rust_before_script
         - source env.sh
+        - export RUSTFLAGS="--deny unused_imports --deny dead_code"
         - env
       script: &rust_script
         - cargo build --verbose
@@ -90,10 +91,13 @@ matrix:
             [target.aarch64-linux-android]
             ar = "/opt/android/android-ndk-r19b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
             linker = "/opt/android/android-ndk-r19b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android28-clang"
-      script:
+      before_script:
+        - export RUSTFLAGS="--deny unused_imports --deny dead_code"
         - export AR_aarch64_linux_android=/opt/android/toolchains/android28-aarch64/bin/aarch64-linux-android-ar 
         - export CC_aarch64_linux_android=/opt/android/toolchains/android28-aarch64/bin/aarch64-linux-android28-clang
         - source env.sh android
+        - env
+      script:
         - cargo build --target aarch64-linux-android --verbose
         - cd android
         - ./gradlew --console plain assembleDebug

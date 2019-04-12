@@ -15,6 +15,7 @@ mod imp;
 
 pub use self::imp::Error;
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 mod subprocess;
 
 /// A single route
