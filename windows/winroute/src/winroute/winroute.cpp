@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "winroute.h"
 #include "NetworkInterfaces.h"
+#include "interfaceutils.h"
 #include "libcommon/error.h"
 #include <cstdint>
 #include <stdexcept>
@@ -78,5 +79,58 @@ GetTapInterfaceIpv6Status(
 	catch (...)
 	{
 		return TAP_IPV6_STATUS::FAILURE;
+	}
+}
+
+extern "C"
+WINROUTE_LINKAGE
+TAP_GET_ALIAS_STATUS
+WINROUTE_API
+GetTapInterfaceAlias(
+	wchar_t **alias,
+	WinRouteErrorSink errorSink,
+	void* errorSinkContext
+)
+{
+	try
+	{
+		const auto currentAlias = InterfaceUtils::GetTapInterfaceAlias();
+
+		auto stringBuffer = new wchar_t[currentAlias.size() + 1];
+		wcscpy(stringBuffer, currentAlias.c_str());
+
+		*alias = stringBuffer;
+
+		return TAP_GET_ALIAS_STATUS::SUCCESS;
+	}
+	catch (std::exception &err)
+	{
+		if (nullptr != errorSink)
+		{
+			errorSink(err.what(), errorSinkContext);
+		}
+
+		return TAP_GET_ALIAS_STATUS::GENERAL_ERROR;
+	}
+	catch (...)
+	{
+		return TAP_GET_ALIAS_STATUS::GENERAL_ERROR;
+	}
+}
+
+extern "C"
+WINROUTE_LINKAGE
+void
+WINROUTE_API
+ReleaseString(
+	wchar_t *str
+)
+{
+	try
+	{
+		delete[] str;
+	}
+	catch (...)
+	{
 	}
 }

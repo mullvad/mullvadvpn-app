@@ -6,6 +6,7 @@
     <ClCompile Include="winroute.cpp" />
     <ClCompile Include="NetworkInterfaces.cpp" />
     <ClCompile Include="InterfacePair.cpp" />
+    <ClCompile Include="interfaceutils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -13,6 +14,7 @@
     <ClInclude Include="winroute.h" />
     <ClInclude Include="NetworkInterfaces.h" />
     <ClInclude Include="InterfacePair.h" />
+    <ClInclude Include="interfaceutils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="winroute.def" />

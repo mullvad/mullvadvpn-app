@@ -48,3 +48,36 @@ GetTapInterfaceIpv6Status(
 	WinRouteErrorSink errorSink,
 	void* errorSinkContext
 );
+
+enum class TAP_GET_ALIAS_STATUS : uint32_t
+{
+	GENERAL_ERROR = 0,
+	SUCCESS = 1,
+};
+
+
+//
+// This has nothing to do with routing.
+// We should probably rename this module and use it to gather one-off network functions.
+//
+extern "C"
+WINROUTE_LINKAGE
+TAP_GET_ALIAS_STATUS
+WINROUTE_API
+GetTapInterfaceAlias(
+	wchar_t **alias,
+	WinRouteErrorSink errorSink,
+	void* errorSinkContext
+);
+
+//
+// As of now, this is a companion function to the above function.
+// Generically named in case we need other functions here that return strings.
+//
+extern "C"
+WINROUTE_LINKAGE
+void
+WINROUTE_API
+ReleaseString(
+	wchar_t *str
+);
