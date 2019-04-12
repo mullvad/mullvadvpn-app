@@ -1,4 +1,5 @@
 import { ipcMain, ipcRenderer, WebContents } from 'electron';
+import log from 'electron-log';
 import * as uuid from 'uuid';
 
 import { IGuiSettingsState } from './gui-settings-state';
@@ -333,11 +334,19 @@ function requestHandler<T>(event: string): (fn: (...args: any[]) => Promise<T>) 
       try {
         const result: RequestResult<T> = { type: 'success', value: await fn(...args) };
 
-        ipcEvent.sender.send(responseEvent, result);
+        if (ipcEvent.sender.isDestroyed()) {
+          log.debug(`Cannot send the reply for ${responseEvent} since the sender was destroyed.`);
+        } else {
+          ipcEvent.sender.send(responseEvent, result);
+        }
       } catch (error) {
         const result: RequestResult<T> = { type: 'error', message: error.message || '' };
 
-        ipcEvent.sender.send(responseEvent, result);
+        if (ipcEvent.sender.isDestroyed()) {
+          log.debug(`Cannot send the reply for ${responseEvent} since the sender was destroyed.`);
+        } else {
+          ipcEvent.sender.send(responseEvent, result);
+        }
       }
     });
   };

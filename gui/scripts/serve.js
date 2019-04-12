@@ -17,7 +17,7 @@ const getClientUrl = (options) => {
 };
 
 function runElectron(browserSyncUrl) {
-  const child = spawn(electron, ['.', '--enable-logging'], {
+  const child = spawn(electron, ['.'], {
     env: {
       ...{
         NODE_ENV: 'development',
