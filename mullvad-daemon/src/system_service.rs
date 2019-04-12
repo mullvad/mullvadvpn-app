@@ -228,13 +228,13 @@ pub fn install_service() -> Result<(), InstallError> {
     let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
         .map_err(InstallError::ConnectServiceManager)?;
     service_manager
-        .create_service(get_service_info()?, ServiceAccess::empty())
+        .create_service(get_service_info(), ServiceAccess::empty())
         .map(|_| ())
         .map_err(InstallError::CreateService)
 }
 
-fn get_service_info() -> Result<ServiceInfo> {
-    Ok(ServiceInfo {
+fn get_service_info() -> ServiceInfo {
+    ServiceInfo {
         name: OsString::from(SERVICE_NAME),
         display_name: OsString::from(SERVICE_DISPLAY_NAME),
         service_type: SERVICE_TYPE,
@@ -250,5 +250,5 @@ fn get_service_info() -> Result<ServiceInfo> {
         ],
         account_name: None, // run as System
         account_password: None,
-    })
+    }
 }
