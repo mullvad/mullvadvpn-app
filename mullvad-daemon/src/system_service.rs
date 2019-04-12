@@ -40,7 +40,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
     log::info!("Service started.");
     match run_service() {
         Ok(()) => log::info!("Service stopped."),
-        Err(error) => log::error!("{}", error.display_chain()),
+        Err(error) => log::error!("{}", error),
     };
 }
 
@@ -78,7 +78,7 @@ fn run_service() -> Result<(), String> {
 
         persistent_service_status.set_running().unwrap();
 
-        Ok(daemon.run()?)
+        daemon.run().map_err(|e| e.display_chain())
     });
 
     let exit_code = match result {
@@ -88,7 +88,7 @@ fn run_service() -> Result<(), String> {
 
     persistent_service_status.set_stopped(exit_code).unwrap();
 
-    result.map_err(|e| e.display_chain())
+    result
 }
 
 /// Start event monitor thread that polls for `ServiceControl` and translates them into calls to
