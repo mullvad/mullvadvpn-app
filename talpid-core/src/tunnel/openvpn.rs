@@ -361,8 +361,6 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
     fn postmortem(&mut self) -> Error {
         #[cfg(windows)]
         {
-            use std::fs;
-
             if let Some(log_path) = self.log_path.take() {
                 if let Ok(log) = fs::read_to_string(log_path) {
                     if log.contains("There are no TAP-Windows adapters on this system") {
