@@ -18,6 +18,7 @@ pub mod logging;
 mod management_interface;
 mod relays;
 mod rpc_uniqueness_check;
+pub mod version;
 
 use crate::management_interface::{BoxFuture, ManagementCommand, ManagementInterfaceServer};
 use futures::{

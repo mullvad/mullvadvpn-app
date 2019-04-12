@@ -9,7 +9,7 @@
 #![deny(rust_2018_idioms)]
 
 use log::{debug, error, info, warn};
-use mullvad_daemon::{logging, Daemon};
+use mullvad_daemon::{logging, version, Daemon};
 use std::{path::PathBuf, thread, time::Duration};
 use talpid_types::ErrorExt;
 
@@ -17,7 +17,6 @@ mod cli;
 mod shutdown;
 #[cfg(windows)]
 mod system_service;
-mod version;
 
 const DAEMON_LOG_FILENAME: &str = "daemon.log";
 
