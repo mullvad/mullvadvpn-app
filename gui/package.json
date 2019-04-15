@@ -30,6 +30,7 @@
     "reactxp": "^1.6.1",
     "redux": "^4.0.1",
     "sprintf-js": "^1.1.2",
+    "stream-json": "^1.2.1",
     "uuid": "^3.0.1",
     "validated": "^2.0.1"
   },
@@ -55,6 +56,7 @@
     "@types/react-router": "^4.4.3",
     "@types/sinon": "^7.0.5",
     "@types/sprintf-js": "^1.1.2",
+    "@types/stream-json": "^1.0.0",
     "@types/topojson-specification": "^1.0.1",
     "@types/uuid": "^3.4.4",
     "browser-sync": "^2.26.3",
