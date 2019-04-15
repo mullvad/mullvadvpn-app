@@ -299,7 +299,7 @@ msgid "Stamford, CT"
 msgstr "Stamford, CT"
 
 #. US STL
-msgid "St. Louis , MO"
+msgid "St. Louis, MO"
 msgstr "Saint Louis, MO"
 
 #. US WAS
