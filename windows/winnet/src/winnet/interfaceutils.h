@@ -35,5 +35,8 @@ public:
 	static std::set<NetworkAdapter> GetAllAdapters();
 	static std::set<NetworkAdapter> GetTapAdapters(const std::set<NetworkAdapter> &adapters);
 
+	//
+	// Determines alias of primary TAP adapter.
+	//
 	static std::wstring GetTapInterfaceAlias();
 };
