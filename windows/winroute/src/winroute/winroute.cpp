@@ -50,7 +50,7 @@ GetTapInterfaceIpv6Status(
 	{
 		MIB_IPINTERFACE_ROW interface = { 0 };
 
-		interface.InterfaceLuid = NetworkInterfaces::GetInterfaceLuid(L"Mullvad");
+		interface.InterfaceLuid = NetworkInterfaces::GetInterfaceLuid(InterfaceUtils::GetTapInterfaceAlias());
 		interface.Family = AF_INET6;
 
 		const auto status = GetIpInterfaceEntry(&interface);
