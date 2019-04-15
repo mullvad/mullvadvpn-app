@@ -11,7 +11,6 @@ use crate::{
 use failure::ResultExt as FailureResultExt;
 use std::{
     collections::HashMap,
-    ffi::OsString,
     fs,
     io::{self, Write},
     path::{Path, PathBuf},
@@ -92,6 +91,11 @@ pub enum Error {
         _0
     )]
     ProxyExited(String),
+
+    /// Failure in Windows syscall.
+    #[cfg(windows)]
+    #[error(display = "Failure in Windows syscall")]
+    WinnetError(#[error(cause)] crate::winnet::Error),
 }
 
 
@@ -133,7 +137,6 @@ impl OpenVpnMonitor<OpenVpnCommand> {
     pub fn start<L>(
         on_event: L,
         params: &openvpn::TunnelParameters,
-        tunnel_alias: Option<OsString>,
         log_path: Option<PathBuf>,
         resource_dir: &Path,
     ) -> Result<Self>
@@ -185,7 +188,6 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
         let cmd = Self::create_openvpn_cmd(
             params,
-            tunnel_alias,
             user_pass_file.as_ref(),
             match proxy_auth_file {
                 Some(ref file) => Some(file.as_ref()),
@@ -437,7 +439,6 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
 
     fn create_openvpn_cmd(
         params: &openvpn::TunnelParameters,
-        tunnel_alias: Option<OsString>,
         user_pass_file: &Path,
         proxy_auth_file: Option<&Path>,
         resource_dir: &Path,
@@ -457,8 +458,11 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             .user_pass(user_pass_file)
             .tunnel_options(&params.options)
             .enable_ipv6(params.generic_options.enable_ipv6)
-            .tunnel_alias(tunnel_alias)
             .ca(resource_dir.join("ca.crt"));
+        #[cfg(windows)]
+        cmd.tunnel_alias(Some(
+            crate::winnet::get_tap_interface_alias().map_err(Error::WinnetError)?,
+        ));
         if let Some(proxy_auth_file) = proxy_auth_file {
             cmd.proxy_auth(proxy_auth_file);
         }

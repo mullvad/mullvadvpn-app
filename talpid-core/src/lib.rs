@@ -16,8 +16,9 @@
 #[macro_use]
 mod ffi;
 
+/// Misc networking functions for Windows.
 #[cfg(windows)]
-mod winnet;
+pub mod winnet;
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 /// Working with IP interface devices

@@ -13,7 +13,6 @@ use futures::{
 };
 use log::{debug, error, info, trace, warn};
 use std::{
-    ffi::OsString,
     net::IpAddr,
     path::{Path, PathBuf},
     thread,
@@ -27,11 +26,6 @@ use talpid_types::{
 
 
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
-
-#[cfg(windows)]
-const TUNNEL_INTERFACE_ALIAS: Option<&str> = Some("Mullvad");
-#[cfg(not(windows))]
-const TUNNEL_INTERFACE_ALIAS: Option<&str> = None;
 
 /// The tunnel has been started, but it is not established/functional.
 pub struct ConnectingState {
@@ -73,13 +67,7 @@ impl ConnectingState {
         let on_tunnel_event = move |event| {
             let _ = event_tx.unbounded_send(event);
         };
-        let monitor = TunnelMonitor::start(
-            &parameters,
-            TUNNEL_INTERFACE_ALIAS.to_owned().map(OsString::from),
-            log_dir,
-            resource_dir,
-            on_tunnel_event,
-        )?;
+        let monitor = TunnelMonitor::start(&parameters, log_dir, resource_dir, on_tunnel_event)?;
         let close_handle = monitor.close_handle();
         let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
 
