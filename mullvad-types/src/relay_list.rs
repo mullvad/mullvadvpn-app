@@ -6,9 +6,12 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
-use talpid_types::net::{wireguard, Endpoint, TransportProtocol};
+use talpid_types::net::{
+    openvpn::{ProxySettings, ShadowsocksProxySettings},
+    wireguard, Endpoint, TransportProtocol,
+};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -48,6 +51,8 @@ pub struct Relay {
     pub weight: u64,
     #[serde(skip_serializing_if = "RelayTunnels::is_empty", default)]
     pub tunnels: RelayTunnels,
+    #[serde(skip_serializing_if = "RelayBridges::is_empty", default)]
+    pub bridges: RelayBridges,
     #[serde(skip)]
     pub location: Option<Location>,
 }
@@ -113,5 +118,39 @@ impl fmt::Display for WireguardEndpointData {
                 .join(","),
             self.public_key,
         )
+    }
+}
+
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[serde(default)]
+pub struct RelayBridges {
+    pub shadowsocks: Vec<ShadowsocksEndpointData>,
+}
+
+impl RelayBridges {
+    pub fn is_empty(&self) -> bool {
+        self.shadowsocks.is_empty()
+    }
+
+    pub fn clear(&mut self) {
+        self.shadowsocks.clear();
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct ShadowsocksEndpointData {
+    pub port: u16,
+    pub cipher: String,
+    pub password: String,
+    pub protocol: TransportProtocol,
+}
+
+impl ShadowsocksEndpointData {
+    pub fn to_proxy_settings(self, addr: IpAddr) -> ProxySettings {
+        ProxySettings::Shadowsocks(ShadowsocksProxySettings {
+            peer: SocketAddr::new(addr, self.port),
+            password: self.password,
+            cipher: self.cipher,
+        })
     }
 }
