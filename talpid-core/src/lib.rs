@@ -16,6 +16,7 @@
 #[macro_use]
 mod ffi;
 
+/// Misc networking functions for Windows.
 #[cfg(windows)]
 mod winnet;
 
