@@ -38,6 +38,9 @@ def remove_common_prefix(source, destination):
 
 def run_program(args):
   p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+
+  print "Run: {}".format(' '.join(args))
+
   errors = p.communicate()[1]
   return (p.returncode, errors)
 
