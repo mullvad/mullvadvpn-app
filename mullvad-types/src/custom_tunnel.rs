@@ -4,8 +4,8 @@ use std::{
     fmt, io,
     net::{IpAddr, SocketAddr, ToSocketAddrs},
 };
+use talpid_core::tap::resolve_tunnel_interface_alias;
 use talpid_types::net::{openvpn, wireguard, TunnelParameters};
-
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -14,8 +14,10 @@ pub enum Error {
 
     #[error(display = "Host has no IPv4 address: {}", _0)]
     HostHasNoIpv4(String),
-}
 
+    #[error(display = "Failed to get TAP interface alias")]
+    FailedToGetTapInterfaceAlias(#[error(cause)] talpid_core::tap::Error),
+}
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct CustomTunnelEndpoint {
@@ -41,6 +43,8 @@ impl CustomTunnelEndpoint {
                 config,
                 options: tunnel_options.openvpn.clone(),
                 generic_options: tunnel_options.generic.clone(),
+                interface_alias: resolve_tunnel_interface_alias()
+                    .map_err(Error::FailedToGetTapInterfaceAlias)?,
             }
             .into(),
             ConnectionConfig::Wireguard(connection) => wireguard::TunnelParameters {
