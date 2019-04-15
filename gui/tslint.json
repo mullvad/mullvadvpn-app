@@ -17,7 +17,8 @@
     ],
     "no-submodule-imports": [
       true,
-      "validated"
+      "validated",
+      "stream-json"
     ],
     "object-literal-sort-keys": false,
     "variable-name": [

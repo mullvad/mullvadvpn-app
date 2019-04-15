@@ -2,8 +2,8 @@ import assert from 'assert';
 import log from 'electron-log';
 import { EventEmitter } from 'events';
 import jsonrpc from 'jsonrpc-lite';
-import JSONStream from 'JSONStream';
 import * as net from 'net';
+import StreamValues from 'stream-json/streamers/StreamValues';
 import * as uuid from 'uuid';
 
 export interface IUnansweredRequest {
@@ -325,7 +325,7 @@ export class SocketTransport implements ITransport<{ path: string }> {
   public connect(options: { path: string }) {
     assert(!this.connection, 'Make sure to close the existing socket');
 
-    const jsonStream = JSONStream.parse(null)
+    const jsonStream = StreamValues.withParser()
       .on('data', this.onJsonStreamData)
       .once('error', this.onJsonStreamError);
 
@@ -406,8 +406,8 @@ export class SocketTransport implements ITransport<{ path: string }> {
     }
   };
 
-  private onJsonStreamData = (data: object) => {
-    this.onMessage(data);
+  private onJsonStreamData = (data: { key: number; value: any }) => {
+    this.onMessage(data.value);
   };
 
   private onJsonStreamError = (error: Error) => {
