@@ -163,15 +163,15 @@ function main
 {
   local winfw_root_path=${CPP_ROOT_PATH:-"./windows/winfw"}
   local windns_root_path=${CPP_ROOT_PATH:-"./windows/windns"}
-  local winroute_root_path=${CPP_ROOT_PATH:-"./windows/winroute"}
+  local winnet_root_path=${CPP_ROOT_PATH:-"./windows/winnet"}
 
   build_solution "$winfw_root_path" "winfw.sln"
   build_solution "$windns_root_path" "windns.sln"
-  build_solution "$winroute_root_path" "winroute.sln"
+  build_solution "$winnet_root_path" "winnet.sln"
 
   copy_outputs $winfw_root_path "winfw.dll"
   copy_outputs $windns_root_path "windns.dll"
-  copy_outputs $winroute_root_path "winroute.dll"
+  copy_outputs $winnet_root_path "winnet.dll"
 
   build_nsis_plugins
 }

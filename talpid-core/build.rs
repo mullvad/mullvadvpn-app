@@ -7,7 +7,7 @@ mod win {
 
     pub static WINFW_BUILD_DIR: &'static str = "..\\windows\\winfw\\bin";
     pub static WINDNS_BUILD_DIR: &'static str = "..\\windows\\windns\\bin";
-    pub static WINROUTE_BUILD_DIR: &'static str = "..\\windows\\winroute\\bin";
+    pub static WINNET_BUILD_DIR: &'static str = "..\\windows\\winnet\\bin";
 
     pub fn default_windows_build_artifact_dir(build_dir: &str) -> PathBuf {
         manifest_dir().join(build_dir).join(&target_platform_dir())
@@ -49,10 +49,10 @@ fn main() {
 
     const WINFW_DIR_VAR: &str = "WINFW_LIB_DIR";
     const WINDNS_DIR_VAR: &str = "WINDNS_LIB_DIR";
-    const WINROUTE_DIR_VAR: &str = "WINROUTE_LIB_DIR";
+    const WINNET_DIR_VAR: &str = "WINNET_LIB_DIR";
     declare_library(WINFW_DIR_VAR, WINFW_BUILD_DIR, "winfw");
     declare_library(WINDNS_DIR_VAR, WINDNS_BUILD_DIR, "windns");
-    declare_library(WINROUTE_DIR_VAR, WINROUTE_BUILD_DIR, "winroute");
+    declare_library(WINNET_DIR_VAR, WINNET_BUILD_DIR, "winnet");
 }
 
 #[cfg(not(windows))]
