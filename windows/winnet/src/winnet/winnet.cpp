@@ -1,26 +1,26 @@
 #include "stdafx.h"
-#include "winroute.h"
+#include "winnet.h"
 #include "NetworkInterfaces.h"
 #include "interfaceutils.h"
 #include "libcommon/error.h"
 #include <cstdint>
 #include <stdexcept>
 
-
 extern "C"
-WINROUTE_LINKAGE
-WINROUTE_STATUS
-WINROUTE_API
-WinRoute_EnsureTopMetric(
+WINNET_LINKAGE
+WINNET_ETM_STATUS
+WINNET_API
+WinNet_EnsureTopMetric(
 	const wchar_t *deviceAlias,
-	WinRouteErrorSink errorSink,
+	WinNetErrorSink errorSink,
 	void* errorSinkContext
-) {
+)
+{
 	try
 	{
 		NetworkInterfaces interfaces;
 		bool metrics_set = interfaces.SetTopMetricForInterfacesByAlias(deviceAlias);
-		return metrics_set ? WINROUTE_STATUS::METRIC_SET : WINROUTE_STATUS::METRIC_NO_CHANGE;
+		return metrics_set ? WINNET_ETM_STATUS::METRIC_SET : WINNET_ETM_STATUS::METRIC_NO_CHANGE;
 	}
 	catch (std::exception &err)
 	{
@@ -28,21 +28,21 @@ WinRoute_EnsureTopMetric(
 		{
 			errorSink(err.what(), errorSinkContext);
 		}
-		return WINROUTE_STATUS::FAILURE;
 
+		return WINNET_ETM_STATUS::FAILURE;
 	}
 	catch (...)
 	{
-		return WINROUTE_STATUS::FAILURE;
+		return WINNET_ETM_STATUS::FAILURE;
 	}
 };
 
 extern "C"
-WINROUTE_LINKAGE
-TAP_IPV6_STATUS
-WINROUTE_API
-GetTapInterfaceIpv6Status(
-	WinRouteErrorSink errorSink,
+WINNET_LINKAGE
+WINNET_GTII_STATUS
+WINNET_API
+WinNet_GetTapInterfaceIpv6Status(
+	WinNetErrorSink errorSink,
 	void* errorSinkContext
 )
 {
@@ -57,12 +57,12 @@ GetTapInterfaceIpv6Status(
 
 		if (NO_ERROR == status)
 		{
-			return TAP_IPV6_STATUS::ENABLED;
+			return WINNET_GTII_STATUS::ENABLED;
 		}
 
 		if (ERROR_NOT_FOUND == status)
 		{
-			return TAP_IPV6_STATUS::DISABLED;
+			return WINNET_GTII_STATUS::DISABLED;
 		}
 
 		common::error::Throw("Resolve TAP IPv6 interface", status);
@@ -74,21 +74,21 @@ GetTapInterfaceIpv6Status(
 			errorSink(err.what(), errorSinkContext);
 		}
 
-		return TAP_IPV6_STATUS::FAILURE;
+		return WINNET_GTII_STATUS::FAILURE;
 	}
 	catch (...)
 	{
-		return TAP_IPV6_STATUS::FAILURE;
+		return WINNET_GTII_STATUS::FAILURE;
 	}
 }
 
 extern "C"
-WINROUTE_LINKAGE
-TAP_GET_ALIAS_STATUS
-WINROUTE_API
-GetTapInterfaceAlias(
+WINNET_LINKAGE
+WINNET_GTIA_STATUS
+WINNET_API
+WinNet_GetTapInterfaceAlias(
 	wchar_t **alias,
-	WinRouteErrorSink errorSink,
+	WinNetErrorSink errorSink,
 	void* errorSinkContext
 )
 {
@@ -101,7 +101,7 @@ GetTapInterfaceAlias(
 
 		*alias = stringBuffer;
 
-		return TAP_GET_ALIAS_STATUS::SUCCESS;
+		return WINNET_GTIA_STATUS::SUCCESS;
 	}
 	catch (std::exception &err)
 	{
@@ -110,19 +110,19 @@ GetTapInterfaceAlias(
 			errorSink(err.what(), errorSinkContext);
 		}
 
-		return TAP_GET_ALIAS_STATUS::GENERAL_ERROR;
+		return WINNET_GTIA_STATUS::FAILURE;
 	}
 	catch (...)
 	{
-		return TAP_GET_ALIAS_STATUS::GENERAL_ERROR;
+		return WINNET_GTIA_STATUS::FAILURE;
 	}
 }
 
 extern "C"
-WINROUTE_LINKAGE
+WINNET_LINKAGE
 void
-WINROUTE_API
-ReleaseString(
+WINNET_API
+WinNet_ReleaseString(
 	wchar_t *str
 )
 {

@@ -1,0 +1,6 @@
+LIBRARY winnet
+EXPORTS
+	WinNet_EnsureTopMetric
+	WinNet_GetTapInterfaceIpv6Status
+	WinNet_GetTapInterfaceAlias
+	WinNet_ReleaseString

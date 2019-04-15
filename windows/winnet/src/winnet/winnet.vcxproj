@@ -24,7 +24,7 @@
     <ClCompile Include="interfaceutils.cpp" />
     <ClCompile Include="NetworkInterfaces.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="winroute.cpp" />
+    <ClCompile Include="winnet.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InterfacePair.h" />
@@ -32,19 +32,19 @@
     <ClInclude Include="NetworkInterfaces.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="winroute.h" />
+    <ClInclude Include="winnet.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="winroute.def" />
+    <None Include="winnet.def" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="winroute.rc" />
+    <ResourceCompile Include="winnet.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>winroute</RootNamespace>
+    <RootNamespace>winnet</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -118,7 +118,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;WINROUTE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;WINNET_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -127,7 +127,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ModuleDefinitionFile>winroute.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>winnet.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -138,7 +138,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;WINROUTE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WINNET_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -149,7 +149,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
-      <ModuleDefinitionFile>winroute.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>winnet.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -160,7 +160,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;WINROUTE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;WINNET_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -171,7 +171,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ModuleDefinitionFile>winroute.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>winnet.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -184,7 +184,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;WINROUTE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;WINNET_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -195,7 +195,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ModuleDefinitionFile>winroute.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>winnet.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
