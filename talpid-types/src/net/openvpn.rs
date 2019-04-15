@@ -1,12 +1,16 @@
 use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol, TunnelEndpoint, TunnelType};
 use serde::{Deserialize, Serialize};
-use std::net::SocketAddr;
+use std::{
+    ffi::OsString,
+    net::SocketAddr,
+};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct TunnelParameters {
     pub config: ConnectionConfig,
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
+    pub interface_alias: Option<OsString>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]

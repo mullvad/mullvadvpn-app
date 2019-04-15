@@ -43,6 +43,7 @@ use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
+    tap::resolve_tunnel_interface_alias,
 };
 use talpid_types::{
     net::{openvpn, wireguard, TransportProtocol, TunnelParameters},
@@ -87,6 +88,9 @@ pub enum Error {
 
     #[error(display = "Tunnel state machine error")]
     TunnelError(#[error(cause)] tunnel_state_machine::Error),
+
+    #[error(display = "Failed to get TAP interface alias")]
+    FailedToGetTapInterfaceAlias(#[error(cause)] talpid_core::tap::Error),
 }
 
 type SyncUnboundedSender<T> = ::futures::sink::Wait<UnboundedSender<T>>;
@@ -414,6 +418,7 @@ impl Daemon {
                 config: openvpn::ConnectionConfig::new(endpoint, account_token, "-".to_string()),
                 options: tunnel_options.openvpn,
                 generic_options: tunnel_options.generic,
+                interface_alias: resolve_tunnel_interface_alias().map_err(Error::FailedToGetTapInterfaceAlias)?,
             }
             .into()),
             MullvadEndpoint::Wireguard {
