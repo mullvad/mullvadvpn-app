@@ -47,6 +47,7 @@ pub enum TunnelEndpointData {
     #[serde(rename = "wireguard")]
     Wireguard(WireguardEndpointData),
 }
+
 impl From<OpenVpnEndpointData> for TunnelEndpointData {
     fn from(endpoint_data: OpenVpnEndpointData) -> TunnelEndpointData {
         TunnelEndpointData::OpenVpn(endpoint_data)
