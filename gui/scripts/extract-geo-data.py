@@ -36,6 +36,8 @@ def extract_cities():
       if props["pop_max"] >= POPULATION_MAX_FILTER:
         for k in frozenset(props) - props_to_keep:
           del props[k]
+
+        feat["properties"] = props
         features.append(feat)
 
   my_layer = {
@@ -68,7 +70,6 @@ def extract_countries():
         del props[k]
 
       feat["properties"] = props
-
       features.append(feat)
 
   my_layer = {
