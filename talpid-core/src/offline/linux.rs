@@ -1,7 +1,9 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use futures::{future::Either, sync::mpsc::UnboundedSender, Future, Stream};
 use log::{error, warn};
-use netlink_packet::{AddressMessage, LinkLayerType, LinkMessage, NetlinkMessage};
+use netlink_packet::{
+    AddressMessage, LinkInfo, LinkInfoKind, LinkLayerType, LinkMessage, LinkNla, NetlinkMessage,
+};
 use netlink_sys::SocketAddr;
 use rtnetlink::{
     constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV6_IFADDR, RTMGRP_LINK, RTMGRP_NOTIFY},
@@ -33,11 +35,6 @@ pub enum Error {
     NetlinkDisconnected,
 }
 
-// const RTMGRP_NOTIFY: u32 = 1;
-// const RTMGRP_LINK: u32 = 2;
-// const RTMGRP_IPV4_IFADDR: u32 = 0x10;
-// const RTMGRP_IPV6_IFADDR: u32 = 0x100;
-
 pub struct MonitorHandle;
 
 pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle> {
@@ -55,7 +52,7 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHa
     let link_monitor = LinkMonitor::new(sender);
 
     thread::spawn(|| {
-        if let Err(error) = monitor_event_loop(messages, link_monitor) {
+        if let Err(error) = monitor_event_loop(connection, messages, link_monitor) {
             error!(
                 "{}",
                 error.display_chain_with_msg("Error running link monitor event loop")
@@ -158,21 +155,44 @@ fn link_provides_connectivity(link: &LinkMessage) -> bool {
     link.header.link_layer_type != LinkLayerType::Loopback
         && link.header.link_layer_type != LinkLayerType::None
         && link.header.flags.is_running()
+        && !is_virtual_interface(link)
+}
+
+fn is_virtual_interface(link: &LinkMessage) -> bool {
+    for nla in link.nlas.iter() {
+        if let LinkNla::LinkInfo(link_info) = nla {
+            for info in link_info.iter() {
+                // LinkInfo::Kind seems to only be set when the link is actually virtual
+                if let LinkInfo::Kind(ref kind) = info {
+                    use LinkInfoKind::*;
+                    return match kind {
+                        Dummy | Bridge | Tun | Nlmon | IpTun => true,
+                        _ => false,
+                    };
+                }
+            }
+        }
+    }
+    false
 }
 
 fn monitor_event_loop(
+    connection: Connection,
     channel: impl Stream<Item = NetlinkMessage, Error = ()>,
     mut link_monitor: LinkMonitor,
 ) -> Result<()> {
-    channel
+    let monitor = channel
         .for_each(|_message| {
             link_monitor.update();
             Ok(())
         })
-        .wait()
-        .map_err(|_| Error::MonitorNetlinkError)?;
+        .map_err(|_| Error::MonitorNetlinkError);
 
-    Ok(())
+    connection
+        .map_err(Error::NetlinkError)
+        .join(monitor)
+        .wait()
+        .map(|_| ())
 }
 
 struct LinkMonitor {
