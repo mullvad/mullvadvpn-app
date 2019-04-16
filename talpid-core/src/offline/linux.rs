@@ -1,19 +1,23 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use futures::{future::Either, sync::mpsc::UnboundedSender, Future, Stream};
-use iproute2::{Address, Connection, ConnectionHandle, Link, NetlinkIpError};
 use log::{error, warn};
-use netlink_socket::{Protocol, SocketAddr, TokioSocket};
-use rtnetlink::{LinkLayerType, NetlinkCodec, NetlinkFramed, NetlinkMessage};
+use netlink_packet::{
+    AddressMessage, LinkInfo, LinkInfoKind, LinkLayerType, LinkMessage, LinkNla, NetlinkMessage,
+};
+use netlink_sys::SocketAddr;
+use rtnetlink::{
+    constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV6_IFADDR, RTMGRP_LINK, RTMGRP_NOTIFY},
+    Connection, Handle,
+};
 use std::{collections::BTreeSet, io, thread};
 use talpid_types::ErrorExt;
-
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to get list of IP links")]
-    GetLinksError(#[error(cause)] failure::Compat<iproute2::NetlinkIpError>),
+    GetLinksError(#[error(cause)] failure::Compat<rtnetlink::Error>),
 
     #[error(display = "Failed to connect to netlink socket")]
     NetlinkConnectionError(#[error(cause)] io::Error),
@@ -22,36 +26,33 @@ pub enum Error {
     NetlinkBindError(#[error(cause)] io::Error),
 
     #[error(display = "Error while communicating on the netlink socket")]
-    NetlinkError(#[error(cause)] io::Error),
+    NetlinkError(#[error(cause)] netlink_proto::Error),
 
     #[error(display = "Error while processing netlink messages")]
-    MonitorNetlinkError(#[error(cause)] failure::Compat<rtnetlink::Error>),
+    MonitorNetlinkError,
 
     #[error(display = "Netlink connection has unexpectedly disconnected")]
     NetlinkDisconnected,
 }
 
-const RTMGRP_NOTIFY: u32 = 1;
-const RTMGRP_LINK: u32 = 2;
-const RTMGRP_IPV4_IFADDR: u32 = 0x10;
-const RTMGRP_IPV6_IFADDR: u32 = 0x100;
-
 pub struct MonitorHandle;
 
 pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle> {
-    let mut socket = TokioSocket::new(Protocol::Route).map_err(Error::NetlinkConnectionError)?;
-    socket
-        .bind(&SocketAddr::new(
-            0,
-            RTMGRP_NOTIFY | RTMGRP_LINK | RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR,
-        ))
+    let socket = SocketAddr::new(
+        0,
+        RTMGRP_NOTIFY | RTMGRP_LINK | RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR,
+    );
+
+    let (mut connection, _, messages) = rtnetlink::new_connection_with_messages().unwrap();
+    connection
+        .socket_mut()
+        .bind(&socket)
         .map_err(Error::NetlinkBindError)?;
 
-    let channel = NetlinkFramed::new(socket, NetlinkCodec::<NetlinkMessage>::new());
     let link_monitor = LinkMonitor::new(sender);
 
     thread::spawn(|| {
-        if let Err(error) = monitor_event_loop(channel, link_monitor) {
+        if let Err(error) = monitor_event_loop(connection, messages, link_monitor) {
             error!(
                 "{}",
                 error.display_chain_with_msg("Error running link monitor event loop")
@@ -85,35 +86,35 @@ fn check_if_offline() -> Result<bool> {
         Ok(connection
             .addresses()?
             .into_iter()
-            .all(|address| !interfaces.contains(&address.index())))
+            .all(|address| !interfaces.contains(&address.header.index)))
     }
 }
 
 struct NetlinkConnection {
     connection: Option<Connection>,
-    connection_handle: ConnectionHandle,
+    handle: Handle,
 }
 
 impl NetlinkConnection {
     /// Open a connection on the netlink socket.
     pub fn new() -> Result<Self> {
-        let (connection, connection_handle) =
-            iproute2::new_connection().map_err(Error::NetlinkConnectionError)?;
+        let (connection, handle) =
+            rtnetlink::new_connection().map_err(Error::NetlinkConnectionError)?;
 
         Ok(NetlinkConnection {
             connection: Some(connection),
-            connection_handle,
+            handle,
         })
     }
 
     /// List all IP addresses assigned to all interfaces.
-    pub fn addresses(&mut self) -> Result<Vec<Address>> {
-        self.execute_request(self.connection_handle.address().get().execute())
+    pub fn addresses(&mut self) -> Result<Vec<AddressMessage>> {
+        self.execute_request(self.handle.address().get().execute().collect())
     }
 
     /// List all links registered on the system.
-    fn links(&mut self) -> Result<Vec<Link>> {
-        self.execute_request(self.connection_handle.link().get().execute())
+    fn links(&mut self) -> Result<Vec<LinkMessage>> {
+        self.execute_request(self.handle.link().get().execute().collect())
     }
 
     /// List all unique interface indices that have a running link.
@@ -123,14 +124,14 @@ impl NetlinkConnection {
         Ok(links
             .into_iter()
             .filter(link_provides_connectivity)
-            .map(|link| link.index())
+            .map(|link| link.header.index)
             .collect())
     }
 
     /// Helper function to execute an asynchronous request synchronously.
     fn execute_request<R>(&mut self, request: R) -> Result<R::Item>
     where
-        R: Future<Error = NetlinkIpError>,
+        R: Future<Error = rtnetlink::Error>,
     {
         let connection = self.connection.take().ok_or(Error::NetlinkDisconnected)?;
 
@@ -149,26 +150,49 @@ impl NetlinkConnection {
     }
 }
 
-fn link_provides_connectivity(link: &Link) -> bool {
+fn link_provides_connectivity(link: &LinkMessage) -> bool {
     // Some tunnels have the link layer type set to None
-    link.link_layer_type() != LinkLayerType::Loopback
-        && link.link_layer_type() != LinkLayerType::None
-        && link.flags().is_running()
+    link.header.link_layer_type != LinkLayerType::Loopback
+        && link.header.link_layer_type != LinkLayerType::None
+        && link.header.flags.is_running()
+        && !is_virtual_interface(link)
+}
+
+fn is_virtual_interface(link: &LinkMessage) -> bool {
+    for nla in link.nlas.iter() {
+        if let LinkNla::LinkInfo(link_info) = nla {
+            for info in link_info.iter() {
+                // LinkInfo::Kind seems to only be set when the link is actually virtual
+                if let LinkInfo::Kind(ref kind) = info {
+                    use LinkInfoKind::*;
+                    return match kind {
+                        Dummy | Bridge | Tun | Nlmon | IpTun => true,
+                        _ => false,
+                    };
+                }
+            }
+        }
+    }
+    false
 }
 
 fn monitor_event_loop(
-    channel: NetlinkFramed<NetlinkCodec<NetlinkMessage>>,
+    connection: Connection,
+    channel: impl Stream<Item = NetlinkMessage, Error = ()>,
     mut link_monitor: LinkMonitor,
 ) -> Result<()> {
-    channel
-        .for_each(|(_message, _address)| {
+    let monitor = channel
+        .for_each(|_message| {
             link_monitor.update();
             Ok(())
         })
-        .wait()
-        .map_err(|error| Error::MonitorNetlinkError(failure::Fail::compat(error)))?;
+        .map_err(|_| Error::MonitorNetlinkError);
 
-    Ok(())
+    connection
+        .map_err(Error::NetlinkError)
+        .join(monitor)
+        .wait()
+        .map(|_| ())
 }
 
 struct LinkMonitor {
