@@ -245,12 +245,12 @@ export const Switch = function CellSwitch(props: SwitchControl['props']) {
   );
 };
 
-interface InputFrameProps {
+interface IInputFrameProps {
   children?: React.ReactNode;
   style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
 }
 
-export const InputFrame = function CellInputFrame(props: InputFrameProps) {
+export const InputFrame = function CellInputFrame(props: IInputFrameProps) {
   const { style, children } = props;
 
   return <View style={[styles.input.frame, style]}>{children}</View>;
