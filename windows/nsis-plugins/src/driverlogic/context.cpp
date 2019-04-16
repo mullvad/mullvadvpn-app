@@ -10,6 +10,8 @@
 #include <vector>
 #include <list>
 #include <stdexcept>
+#include <sstream>
+#include <algorithm>
 
 namespace
 {
@@ -100,9 +102,40 @@ Context::BaselineStatus Context::establishBaseline()
 		return BaselineStatus::NO_TAP_ADAPTERS_PRESENT;
 	}
 
-	for (const auto &adapter : tapAdapters)
+	//
+	// Look for TAP adapter with alias "Mullvad".
+	//
+
+	auto findByAlias = [](const std::set<NetworkAdapter> &adapters, const std::wstring &alias)
 	{
-		if (0 == _wcsicmp(adapter.alias.c_str(), L"mullvad"))
+		const auto it = std::find_if(adapters.begin(), adapters.end(), [&alias](const NetworkAdapter &candidate)
+		{
+			return 0 == _wcsicmp(candidate.alias.c_str(), alias.c_str());
+		});
+
+		return it != adapters.end();
+	};
+
+	static const wchar_t baseAlias[] = L"Mullvad";
+
+	if (findByAlias(tapAdapters, baseAlias))
+	{
+		return BaselineStatus::MULLVAD_ADAPTER_PRESENT;
+	}
+
+	//
+	// Look for TAP adapter with alias "Mullvad-1", "Mullvad-2", etc.
+	//
+
+	for (auto i = 0; i < 10; ++i)
+	{
+		std::wstringstream ss;
+
+		ss << baseAlias << L"-" << i;
+
+		const auto alias = ss.str();
+
+		if (findByAlias(tapAdapters, alias))
 		{
 			return BaselineStatus::MULLVAD_ADAPTER_PRESENT;
 		}

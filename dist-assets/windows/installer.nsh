@@ -197,7 +197,7 @@
 	${EndIf}
 
 	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_ADAPTER_PRESENT}
-		log::Log "Virtual adapter named $\"Mullvad$\" already present on system"
+		log::Log "Virtual adapter with custom name already present on system"
 		Goto InstallDriver_return_success
 	${EndIf}
 
