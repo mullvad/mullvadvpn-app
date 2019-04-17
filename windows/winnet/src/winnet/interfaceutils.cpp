@@ -92,7 +92,7 @@ std::wstring InterfaceUtils::GetTapInterfaceAlias()
 	{
 		const auto it = std::find_if(adapters.begin(), adapters.end(), [&alias](const NetworkAdapter &candidate)
 		{
-			return _wcsicmp(candidate.alias.c_str(), alias.c_str());
+			return 0 == _wcsicmp(candidate.alias.c_str(), alias.c_str());
 		});
 
 		return it != adapters.end();
