@@ -6,6 +6,7 @@ use std::{
 };
 use talpid_types::net::{openvpn, wireguard, TunnelParameters};
 
+
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Invalid host/domain: {}", _0)]
@@ -14,6 +15,7 @@ pub enum Error {
     #[error(display = "Host has no IPv4 address: {}", _0)]
     HostHasNoIpv4(String),
 }
+
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct CustomTunnelEndpoint {

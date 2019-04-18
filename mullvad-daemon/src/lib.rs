@@ -328,7 +328,7 @@ impl Daemon {
         match event {
             TunnelStateTransition(transition) => self.handle_tunnel_state_transition(transition),
             GenerateTunnelParameters(tunnel_parameters_tx, retry_attempt) => {
-                self.handle_generate_tunnel_parameters(&tunnel_parameters_tx, retry_attempt)?;
+                self.handle_generate_tunnel_parameters(&tunnel_parameters_tx, retry_attempt)
             }
             ManagementInterfaceEvent(event) => self.handle_management_interface_event(event),
             ManagementInterfaceExited => {
@@ -366,7 +366,7 @@ impl Daemon {
         &mut self,
         tunnel_parameters_tx: &mpsc::Sender<TunnelParameters>,
         retry_attempt: u32,
-    ) -> Result<()> {
+    ) {
         if let Some(account_token) = self.settings.get_account_token() {
             if let Err(error_str) = match self.settings.get_relay_settings() {
                 RelaySettings::CustomTunnelEndpoint(custom_relay) => {
@@ -401,9 +401,7 @@ impl Daemon {
         } else {
             error!("No account token configured");
         }
-        Ok(())
     }
-
 
     fn create_tunnel_parameters(
         &mut self,
