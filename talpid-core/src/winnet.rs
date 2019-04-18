@@ -1,23 +1,30 @@
-use std::ptr;
-
+pub use self::api::ErrorSink;
+use self::api::*;
 use libc::{c_char, c_void, wchar_t};
+use std::{ffi::OsString, ptr};
 use widestring::WideCString;
 
+/// Errors that this module may produce.
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
-    /// Failure to set metrics of network interfaces
+    /// Failed to set the metrics for a network interface.
     #[error(display = "Failed to set the metrics for a network interface")]
     MetricApplication,
 
+    /// Supplied interface alias is invalid.
     #[error(display = "Supplied interface alias is invalid")]
     InvalidInterfaceAlias(#[error(cause)] widestring::NulError<u16>),
 
+    /// Failed to read IPv6 status on the TAP network interface.
     #[error(display = "Failed to read IPv6 status on the TAP network interface")]
     GetIpv6Status,
+
+    /// Failed to determine alias of TAP adapter.
+    #[error(display = "Failed to determine alias of TAP adapter")]
+    GetTapAlias,
 }
 
-pub type ErrorSink = extern "system" fn(msg: *const c_char, ctx: *mut c_void);
-
+/// Error callback used with `winnet.dll`.
 pub extern "system" fn error_sink(msg: *const c_char, _ctx: *mut c_void) {
     use std::ffi::CStr;
     if msg.is_null() {
@@ -33,7 +40,7 @@ pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool, Er
         WideCString::from_str(interface_alias).map_err(Error::InvalidInterfaceAlias)?;
 
     let metric_result = unsafe {
-        WinRoute_EnsureTopMetric(
+        WinNet_EnsureTopMetric(
             interface_alias_ws.as_ptr(),
             Some(error_sink),
             ptr::null_mut(),
@@ -49,28 +56,16 @@ pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool, Er
         2 => Err(Error::MetricApplication),
         // Unexpected value
         i => {
-            log::error!(
-                "Unexpected return code from WinRoute_EnsureTopMetric: {}",
-                i
-            );
+            log::error!("Unexpected return code from WinNet_EnsureTopMetric: {}", i);
             Err(Error::MetricApplication)
         }
     }
 }
 
-extern "system" {
-    #[link_name = "WinRoute_EnsureTopMetric"]
-    fn WinRoute_EnsureTopMetric(
-        tunnel_interface_alias: *const wchar_t,
-        sink: Option<ErrorSink>,
-        sink_context: *mut c_void,
-    ) -> u32;
-}
-
-
 /// Checks if IPv6 is enabled for the TAP interface
 pub fn get_tap_interface_ipv6_status() -> Result<bool, Error> {
-    let tap_ipv6_status = unsafe { GetTapInterfaceIpv6Status(Some(error_sink), ptr::null_mut()) };
+    let tap_ipv6_status =
+        unsafe { WinNet_GetTapInterfaceIpv6Status(Some(error_sink), ptr::null_mut()) };
 
     match tap_ipv6_status {
         // Enabled
@@ -82,7 +77,7 @@ pub fn get_tap_interface_ipv6_status() -> Result<bool, Error> {
         // Unexpected value
         i => {
             log::error!(
-                "Unexpected return code from GetTapInterfaceIpv6Status: {}",
+                "Unexpected return code from WinNet_GetTapInterfaceIpv6Status: {}",
                 i
             );
             Err(Error::GetIpv6Status)
@@ -90,7 +85,65 @@ pub fn get_tap_interface_ipv6_status() -> Result<bool, Error> {
     }
 }
 
-extern "system" {
-    #[link_name = "GetTapInterfaceIpv6Status"]
-    fn GetTapInterfaceIpv6Status(sink: Option<ErrorSink>, sink_context: *mut c_void) -> u32;
+/// Dynamically determines the alias of the TAP adapter.
+pub fn get_tap_interface_alias() -> Result<OsString, Error> {
+    let mut alias_ptr: *mut wchar_t = ptr::null_mut();
+    let status = unsafe {
+        WinNet_GetTapInterfaceAlias(&mut alias_ptr as *mut _, Some(error_sink), ptr::null_mut())
+    };
+
+    if status != 0 {
+        if status != 1 {
+            log::error!(
+                "Unexpected return code from WinNet_GetTapInterfaceAlias: {}",
+                status
+            );
+        }
+
+        return Err(Error::GetTapAlias);
+    }
+
+    let alias = unsafe { WideCString::from_ptr_str(alias_ptr) };
+    unsafe { WinNet_ReleaseString(alias_ptr) };
+
+    Ok(alias.to_os_string())
+}
+
+#[allow(non_snake_case)]
+mod api {
+    use libc::{c_char, c_void, wchar_t};
+
+    /// Error callback type for use with `winnet.dll`.
+    pub type ErrorSink = extern "system" fn(msg: *const c_char, ctx: *mut c_void);
+
+    extern "system" {
+        #[link_name = "WinNet_EnsureTopMetric"]
+        pub fn WinNet_EnsureTopMetric(
+            tunnel_interface_alias: *const wchar_t,
+            sink: Option<ErrorSink>,
+            sink_context: *mut c_void,
+        ) -> u32;
+    }
+
+    extern "system" {
+        #[link_name = "WinNet_GetTapInterfaceIpv6Status"]
+        pub fn WinNet_GetTapInterfaceIpv6Status(
+            sink: Option<ErrorSink>,
+            sink_context: *mut c_void,
+        ) -> u32;
+    }
+
+    extern "system" {
+        #[link_name = "WinNet_GetTapInterfaceAlias"]
+        pub fn WinNet_GetTapInterfaceAlias(
+            tunnel_interface_alias: *mut *mut wchar_t,
+            sink: Option<ErrorSink>,
+            sink_context: *mut c_void,
+        ) -> u32;
+    }
+
+    extern "system" {
+        #[link_name = "WinNet_ReleaseString"]
+        pub fn WinNet_ReleaseString(string: *mut wchar_t) -> u32;
+    }
 }

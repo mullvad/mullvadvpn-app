@@ -5,6 +5,9 @@
 
 #pragma once
 
+// wcscpy
+#define _CRT_SECURE_NO_WARNINGS 1
+
 #include "targetver.h"
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers

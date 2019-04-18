@@ -1,7 +1,6 @@
 use crate::logging;
 use std::{
     collections::HashMap,
-    ffi::OsString,
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::{Path, PathBuf},
@@ -132,7 +131,6 @@ impl TunnelMonitor {
     /// on tunnel state changes.
     pub fn start<L>(
         tunnel_parameters: &TunnelParameters,
-        tunnel_alias: Option<OsString>,
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
@@ -145,7 +143,7 @@ impl TunnelMonitor {
 
         match tunnel_parameters {
             TunnelParameters::OpenVpn(config) => {
-                Self::start_openvpn_tunnel(&config, tunnel_alias, log_file, resource_dir, on_event)
+                Self::start_openvpn_tunnel(&config, log_file, resource_dir, on_event)
             }
             #[cfg(any(target_os = "linux", target_os = "macos"))]
             TunnelParameters::Wireguard(config) => {
@@ -178,7 +176,6 @@ impl TunnelMonitor {
 
     fn start_openvpn_tunnel<L>(
         config: &openvpn_types::TunnelParameters,
-        tunnel_alias: Option<OsString>,
         log: Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
@@ -186,8 +183,7 @@ impl TunnelMonitor {
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
-        let monitor =
-            openvpn::OpenVpnMonitor::start(on_event, config, tunnel_alias, log, resource_dir)?;
+        let monitor = openvpn::OpenVpnMonitor::start(on_event, config, log, resource_dir)?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::OpenVpn(monitor),
         })

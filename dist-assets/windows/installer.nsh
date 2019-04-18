@@ -76,6 +76,66 @@
 !define ExtractDriver '!insertmacro "ExtractDriver"'
 
 #
+# ForceRenameAdapter
+#
+# For when there's a broken TAP adapter present, such that the adapter name
+# we're trying to use is already taken.
+#
+# This function will iteratively find a name that is not taken.
+# Names tried follow the pattern "NewAdapterBaseName-1", "NewAdapterBaseName-2", etc.
+#
+# Returns: 0 in $R0 on success, otherwise an error message in $R0
+#
+!macro ForceRenameAdapter CurrentAdapterName NewAdapterBaseName
+
+	Var /GLOBAL ForceRenameAdapter_Counter
+
+	log::Log "ForceRenameAdapter()"
+
+	Push $0
+	Push $1
+
+	Push 0
+	Pop $ForceRenameAdapter_Counter
+
+	ForceRenameAdapter_retry:
+
+	${If} $ForceRenameAdapter_Counter == 10
+		StrCpy $R0 "Exhausted namespace when forcing adapter rename"
+		log::Log $R0
+		Goto ForceRenameAdapter_return
+	${EndIf}
+
+	IntOp $ForceRenameAdapter_Counter $ForceRenameAdapter_Counter + 1
+	StrCpy $0 "${NewAdapterBaseName}-$ForceRenameAdapter_Counter"
+	log::Log "Renaming adapter to $\"$0$\""
+
+	nsExec::ExecToStack '"$SYSDIR\netsh.exe" interface set interface name = "${CurrentAdapterName}" newname = "$0"'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != 0
+		StrCpy $R0 "Failed to rename virtual adapter: error $0"
+		log::LogWithDetails $R0 $1
+		Goto ForceRenameAdapter_retry
+	${EndIf}
+
+	log::Log "ForceRenameAdapter() completed successfully"
+
+	Push 0
+	Pop $R0
+
+	ForceRenameAdapter_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define ForceRenameAdapter '!insertmacro "ForceRenameAdapter"'
+
+#
 # InstallDriver
 #
 # Install tunnel driver or update it if already present on the system
@@ -85,6 +145,7 @@
 !macro InstallDriver
 
 	Var /GLOBAL InstallDriver_BaselineStatus
+	Var /GLOBAL InstallDriver_TapName
 
 	log::Log "InstallDriver()"
 	
@@ -136,7 +197,7 @@
 	${EndIf}
 
 	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_ADAPTER_PRESENT}
-		log::Log "Virtual adapter named $\"Mullvad$\" already present on system"
+		log::Log "Virtual adapter with custom name already present on system"
 		Goto InstallDriver_return_success
 	${EndIf}
 
@@ -170,9 +231,11 @@
 		Goto InstallDriver_return
 	${EndIf}
 
-	log::Log "New virtual adapter is named $\"$1$\""
+	StrCpy $InstallDriver_TapName $1
 	
+	log::Log "New virtual adapter is named $\"$1$\""
 	log::Log "Renaming adapter to $\"Mullvad$\""
+
 	nsExec::ExecToStack '"$SYSDIR\netsh.exe" interface set interface name = "$1" newname = "Mullvad"'
 
 	Pop $0
@@ -181,7 +244,12 @@
 	${If} $0 != 0
 		StrCpy $R0 "Failed to rename virtual adapter: error $0"
 		log::LogWithDetails $R0 $1
-		Goto InstallDriver_return
+
+		${ForceRenameAdapter} $InstallDriver_TapName "Mullvad"
+
+		${If} $R0 != 0
+			Goto InstallDriver_return
+		${EndIf}
 	${EndIf}
 
 	InstallDriver_return_success:

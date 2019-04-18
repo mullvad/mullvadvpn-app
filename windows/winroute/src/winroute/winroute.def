@@ -1,4 +1,0 @@
-LIBRARY winroute
-EXPORTS
-	WinRoute_EnsureTopMetric
-	GetTapInterfaceIpv6Status

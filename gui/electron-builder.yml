@@ -90,7 +90,7 @@ win:
       to: .
     - from: ../windows/windns/bin/x64-Release/windns.dll
       to: .
-    - from: ../windows/winroute/bin/x64-Release/winroute.dll
+    - from: ../windows/winnet/bin/x64-Release/winnet.dll
       to: .
     - from: ../dist-assets/binaries/windows/openvpn.exe
       to: .
