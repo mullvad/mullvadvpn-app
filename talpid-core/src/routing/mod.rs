@@ -1,107 +1,154 @@
+#![allow(missing_docs)]
+
 use ipnetwork::IpNetwork;
-use std::net::IpAddr;
+use std::{collections::HashMap, net::IpAddr};
+
+
+use futures::{sync::oneshot, Future};
+use tokio_executor::Executor;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
-mod imp;
+pub mod imp;
 
 #[cfg(target_os = "linux")]
 #[path = "linux.rs"]
-mod imp;
+pub mod imp;
 
 #[cfg(target_os = "android")]
 #[path = "android.rs"]
 mod imp;
 
-pub use self::imp::Error;
-
-#[cfg(any(target_os = "macos", target_os = "linux"))]
-mod subprocess;
-
-/// A single route
-#[derive(Hash, Eq, PartialEq)]
-pub struct Route {
-    /// Route prefix
-    pub prefix: IpNetwork,
-    /// Route node
-    pub node: NetNode,
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Platform specific error: {}", _0)]
+    PlatformError(#[error(cause)] imp::Error),
+    #[error(display = "Failed to spawn route manager")]
+    FailedToSpawnManager,
 }
 
-impl Route {
-    /// Create a new route
-    pub fn new(prefix: IpNetwork, node: NetNode) -> Self {
-        Self { prefix, node }
-    }
+pub struct RouteManagerHandle {
+    tx: Option<oneshot::Sender<oneshot::Sender<()>>>,
 }
 
-/// A network node for a given route
-#[derive(Hash, Eq, PartialEq, Clone)]
-pub enum NetNode {
-    /// For routing something through a network host
-    Address(IpAddr),
-    /// For routing something through an interface
-    Device(String),
-}
+impl RouteManagerHandle {
+    pub fn new(
+        required_routes: HashMap<IpNetwork, NetNode>,
+        exec: &mut impl Executor,
+    ) -> Result<Self, Error> {
+        let (tx, rx) = oneshot::channel();
 
-/// Contains a set of routes to be added
-pub struct RequiredRoutes {
-    /// List of routes to be applied to the routing table.
-    pub routes: Vec<Route>,
-}
+        let route_manager = RouteManager::new(required_routes, rx).map_err(Error::PlatformError)?;
+        exec.spawn(Box::new(
+            route_manager.map_err(|e| log::error!("Routing manager failed - {}", e)),
+        ))
+        .map_err(|_| Error::FailedToSpawnManager)?;
 
-/// Manages adding and removing routes from the routing table.
-pub struct RouteManager {
-    inner: imp::RouteManager,
-}
 
-impl RouteManager {
-    /// Creates a new RouteManager.
-    pub fn new() -> Result<Self, Error> {
-        Ok(RouteManager {
-            inner: imp::RouteManager::new()?,
-        })
+        Ok(Self { tx: Some(tx) })
     }
 
-    /// Set routes in the routing table.
-    pub fn add_routes(&mut self, required_routes: RequiredRoutes) -> Result<(), Error> {
-        self.inner.add_routes(required_routes)
-    }
+    pub fn stop(&mut self) {
+        if let Some(tx) = self.tx.take() {
+            let (wait_tx, wait_rx) = oneshot::channel();
+            if let Err(_) = tx.send(wait_tx) {
+                log::error!("RouteManager already down!");
+                return;
+            }
 
-    /// Remove previously set routes from the routing table.
-    pub fn delete_routes(&mut self) -> Result<(), Error> {
-        self.inner.delete_routes()
-    }
-
-    /// Retrieves the gateway for the default route.
-    pub fn get_default_route_node(&mut self) -> Result<std::net::IpAddr, Error> {
-        // use routing::RoutingT;
-        self.inner.get_default_route_node()
-    }
-}
-
-impl Drop for RouteManager {
-    fn drop(&mut self) {
-        if let Err(e) = self.delete_routes() {
-            log::error!("Failed to reset routes on drop - {}", e);
+            if wait_rx.wait().is_err() {
+                log::error!("RouteManager already down!");
+            }
         }
     }
 }
 
-/// This trait unifies platform specific implementations of route managers
-pub trait RoutingT: Sized {
-    /// Error type of the implementation
-    type Error: std::error::Error;
+impl Drop for RouteManagerHandle {
+    fn drop(&mut self) {
+        self.stop();
+    }
+}
 
-    /// Creates a new router
-    fn new() -> Result<Self, Self::Error>;
 
-    /// Adds routes to the system routing table.
-    fn add_routes(&mut self, required_routes: RequiredRoutes) -> Result<(), Self::Error>;
+type RouteManager = imp::RouteManager;
 
-    /// Removes previously set routes. If routes were set for specific tables, the whole tables
-    /// will be removed.
-    fn delete_routes(&mut self) -> Result<(), Self::Error>;
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+pub struct Route {
+    node: Node,
+    prefix: IpNetwork,
+    metric: Option<u32>,
+}
 
-    /// Retrieves the gateway for the default route
-    fn get_default_route_node(&mut self) -> Result<std::net::IpAddr, Self::Error>;
+impl Route {
+    fn new(node: Node, prefix: IpNetwork) -> Self {
+        Self {
+            node,
+            prefix,
+            metric: None,
+        }
+    }
+}
+
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+pub struct RequiredRoute {
+    prefix: IpNetwork,
+    node: NetNode,
+}
+
+impl RequiredRoute {
+    pub fn new(prefix: IpNetwork, node: impl Into<NetNode>) -> Self {
+        Self {
+            node: node.into(),
+            prefix,
+        }
+    }
+}
+
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+pub enum NetNode {
+    RealNode(Node),
+    DefaultNode,
+}
+
+impl From<Node> for NetNode {
+    fn from(node: Node) -> NetNode {
+        NetNode::RealNode(node)
+    }
+}
+
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+pub struct Node {
+    ip: Option<IpAddr>,
+    device: Option<String>,
+}
+
+impl Node {
+    pub fn new(address: IpAddr, iface_name: String) -> Self {
+        Self {
+            ip: Some(address),
+            device: Some(iface_name),
+        }
+    }
+
+    pub fn address(address: IpAddr) -> Node {
+        Self {
+            ip: Some(address),
+            device: None,
+        }
+    }
+
+    pub fn device(iface_name: String) -> Node {
+        Self {
+            ip: None,
+            device: Some(iface_name),
+        }
+    }
+
+    pub fn get_address(&self) -> Option<IpAddr> {
+        self.ip
+    }
+
+    pub fn get_device(&self) -> Option<&str> {
+        self.device.as_ref().map(|s| s.as_ref())
+    }
 }
