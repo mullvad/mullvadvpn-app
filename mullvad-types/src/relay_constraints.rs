@@ -87,7 +87,6 @@ impl RelaySettings {
 }
 
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
 pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
     pub tunnel: Constraint<TunnelConstraints>,
@@ -139,7 +138,6 @@ impl fmt::Display for LocationConstraint {
         }
     }
 }
-
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub enum TunnelConstraints {
@@ -234,6 +232,28 @@ impl Match<WireguardEndpointData> for WireguardConstraints {
     }
 }
 
+
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct BridgeSettings {
+    /// Let the relay selection algorithm decide on bridges, based on the relay list.
+    pub location: Constraint<LocationConstraint>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BridgeState {
+    Auto,
+    On,
+    Off,
+    Custom(talpid_types::net::openvpn::ProxySettings),
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub struct BridgeConstraints {
+    pub location: Constraint<LocationConstraint>,
+    pub transport_protocol: Constraint<TransportProtocol>,
+}
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
