@@ -142,46 +142,42 @@ pub static SHADOWSOCKS_CIPHERS: &[&str] = &[
     "aes-256-pmac-siv",
 ];
 
-pub struct ProxySettingsValidation;
-
-impl ProxySettingsValidation {
-    pub fn validate(proxy: &ProxySettings) -> Result<(), String> {
-        match proxy {
-            ProxySettings::Local(local) => {
-                if local.port == 0 {
-                    return Err(String::from("Invalid local port number"));
-                }
-                if local.peer.ip().is_loopback() {
-                    return Err(String::from(
-                        "localhost is not a valid peer in this context",
-                    ));
-                }
-                if local.peer.port() == 0 {
-                    return Err(String::from("Invalid remote port number"));
-                }
+pub fn validate_proxy_settings(proxy: &ProxySettings) -> Result<(), String> {
+    match proxy {
+        ProxySettings::Local(local) => {
+            if local.port == 0 {
+                return Err(String::from("Invalid local port number"));
             }
-            ProxySettings::Remote(remote) => {
-                if remote.address.port() == 0 {
-                    return Err(String::from("Invalid port number"));
-                }
-                if remote.address.ip().is_loopback() {
-                    return Err(String::from("localhost is not a valid remote server"));
-                }
+            if local.peer.ip().is_loopback() {
+                return Err(String::from(
+                    "localhost is not a valid peer in this context",
+                ));
             }
-            ProxySettings::Shadowsocks(ss) => {
-                if ss.peer.ip().is_loopback() {
-                    return Err(String::from(
-                        "localhost is not a valid peer in this context",
-                    ));
-                }
-                if ss.peer.port() == 0 {
-                    return Err(String::from("Invalid remote port number"));
-                }
-                if !SHADOWSOCKS_CIPHERS.contains(&ss.cipher.as_str()) {
-                    return Err(String::from("Invalid cipher"));
-                }
+            if local.peer.port() == 0 {
+                return Err(String::from("Invalid remote port number"));
             }
-        };
-        Ok(())
-    }
+        }
+        ProxySettings::Remote(remote) => {
+            if remote.address.port() == 0 {
+                return Err(String::from("Invalid port number"));
+            }
+            if remote.address.ip().is_loopback() {
+                return Err(String::from("localhost is not a valid remote server"));
+            }
+        }
+        ProxySettings::Shadowsocks(ss) => {
+            if ss.peer.ip().is_loopback() {
+                return Err(String::from(
+                    "localhost is not a valid peer in this context",
+                ));
+            }
+            if ss.peer.port() == 0 {
+                return Err(String::from("Invalid remote port number"));
+            }
+            if !SHADOWSOCKS_CIPHERS.contains(&ss.cipher.as_str()) {
+                return Err(String::from("Invalid cipher"));
+            }
+        }
+    };
+    Ok(())
 }

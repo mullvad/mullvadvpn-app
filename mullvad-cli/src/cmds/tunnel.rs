@@ -392,7 +392,7 @@ impl Tunnel {
 
             let packed_proxy = openvpn::ProxySettings::Local(proxy);
 
-            if let Err(error) = openvpn::ProxySettingsValidation::validate(&packed_proxy) {
+            if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
                 panic!(error);
             }
 
@@ -421,7 +421,7 @@ impl Tunnel {
 
             let packed_proxy = openvpn::ProxySettings::Remote(proxy);
 
-            if let Err(error) = openvpn::ProxySettingsValidation::validate(&packed_proxy) {
+            if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
                 panic!(error);
             }
 
@@ -443,7 +443,7 @@ impl Tunnel {
 
             let packed_proxy = openvpn::ProxySettings::Shadowsocks(proxy);
 
-            if let Err(error) = openvpn::ProxySettingsValidation::validate(&packed_proxy) {
+            if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
                 panic!(error);
             }
 
