@@ -1,5 +1,6 @@
 use crate::relay_constraints::{
-    Constraint, LocationConstraint, RelayConstraints, RelaySettings, RelaySettingsUpdate,
+    BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
+    RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
@@ -40,6 +41,8 @@ static SETTINGS_FILE: &str = "settings.json";
 pub struct Settings {
     account_token: Option<String>,
     relay_settings: RelaySettings,
+    bridge_settings: BridgeSettings,
+    bridge_state: BridgeState,
     /// If the daemon should allow communication with private (LAN) networks.
     allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
@@ -60,6 +63,10 @@ impl Default for Settings {
                 location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
                 tunnel: Constraint::Any,
             }),
+            bridge_settings: BridgeSettings::Normal(BridgeConstraints {
+                location: Constraint::Any,
+            }),
+            bridge_state: BridgeState::Auto,
             allow_lan: false,
             block_when_disconnected: false,
             auto_connect: false,
@@ -233,6 +240,32 @@ impl Settings {
 
     pub fn get_tunnel_options(&self) -> &TunnelOptions {
         &self.tunnel_options
+    }
+
+    pub fn get_bridge_settings(&self) -> &BridgeSettings {
+        &self.bridge_settings
+    }
+
+    pub fn set_bridge_settings(&mut self, bridge_settings: BridgeSettings) -> Result<bool> {
+        if self.bridge_settings != bridge_settings {
+            self.bridge_settings = bridge_settings;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    pub fn get_bridge_state(&self) -> &BridgeState {
+        &self.bridge_state
+    }
+
+    pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> Result<bool> {
+        if self.bridge_state != bridge_state {
+            self.bridge_state = bridge_state;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
     }
 }
 
