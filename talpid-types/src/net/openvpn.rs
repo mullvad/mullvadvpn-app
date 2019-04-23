@@ -109,6 +109,15 @@ pub struct ShadowsocksProxySettings {
     pub cipher: String,
 }
 
+impl ShadowsocksProxySettings {
+    pub fn get_endpoint(&self) -> Endpoint {
+        Endpoint {
+            address: self.peer,
+            protocol: TransportProtocol::Tcp,
+        }
+    }
+}
+
 pub static SHADOWSOCKS_CIPHERS: &[&str] = &[
     // Stream ciphers.
     "aes-128-cfb",
@@ -132,15 +141,6 @@ pub static SHADOWSOCKS_CIPHERS: &[&str] = &[
     "aes-128-pmac-siv",
     "aes-256-pmac-siv",
 ];
-
-impl ShadowsocksProxySettings {
-    pub fn get_endpoint(&self) -> Endpoint {
-        Endpoint {
-            address: self.peer,
-            protocol: TransportProtocol::Tcp,
-        }
-    }
-}
 
 pub struct ProxySettingsValidation;
 
