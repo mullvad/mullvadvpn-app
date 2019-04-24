@@ -1,7 +1,6 @@
 import { execFile } from 'child_process';
 import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, Tray } from 'electron';
 import log from 'electron-log';
-import * as fs from 'fs';
 import mkdirp from 'mkdirp';
 import * as path from 'path';
 import * as uuid from 'uuid';
@@ -19,6 +18,13 @@ import {
 } from '../shared/daemon-rpc-types';
 import { loadTranslations, messages } from '../shared/gettext';
 import { IpcMainEventChannel } from '../shared/ipc-event-channel';
+import {
+  backupLogFile,
+  getLogsDirectory,
+  getMainLogFile,
+  getRendererLogFile,
+  setupLogging,
+} from '../shared/logging';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import GuiSettings from './gui-settings';
@@ -59,8 +65,8 @@ class ApplicationMain {
   private reconnectBackoff = new ReconnectionBackoff();
   private connectedToDaemon = false;
 
-  private logFilePath = '';
-  private oldLogFilePath?: string;
+  private logFilePaths: string[] = [];
+  private oldLogFilePaths: string[] = [];
   private quitStage = AppQuitStage.unready;
 
   private accountHistory: AccountToken[] = [];
@@ -171,54 +177,22 @@ class ApplicationMain {
   }
 
   private initLogging() {
-    const logDirectory = this.getLogsDirectory();
-    const format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}][{level}] {text}';
+    const logDirectory = getLogsDirectory();
+    const mainLogFile = getMainLogFile();
+    const rendererLogFile = getRendererLogFile();
+    const logFiles = [mainLogFile, rendererLogFile];
 
-    this.logFilePath = path.join(logDirectory, 'frontend.log');
-
-    log.transports.console.format = format;
-    log.transports.file.format = format;
-    if (process.env.NODE_ENV === 'development') {
-      log.transports.console.level = 'debug';
-
-      // Disable log file in development
-      log.transports.file.level = false;
-    } else {
-      // Create log folder
+    if (process.env.NODE_ENV !== 'development') {
+      // Ensure log directory exists
       mkdirp.sync(logDirectory);
 
-      // Backup previous log file if it exists
-      try {
-        fs.accessSync(this.logFilePath);
-        this.oldLogFilePath = path.join(logDirectory, 'frontend.old.log');
-        fs.renameSync(this.logFilePath, this.oldLogFilePath);
-      } catch (error) {
-        // No previous log file exists
-      }
-
-      // Configure logging to file
-      log.transports.console.level = 'debug';
-      log.transports.file.level = 'debug';
-      log.transports.file.file = this.logFilePath;
-
-      log.debug(`Logging to ${this.logFilePath}`);
+      this.logFilePaths = logFiles;
+      this.oldLogFilePaths = logFiles
+        .map((logFile) => backupLogFile(logFile))
+        .filter((oldLogFile): oldLogFile is string => typeof oldLogFile === 'string');
     }
-  }
 
-  // Returns platform specific logs folder for application
-  // See open issue and PR on Github:
-  // 1. https://github.com/electron/electron/issues/10118
-  // 2. https://github.com/electron/electron/pull/10191
-  private getLogsDirectory() {
-    switch (process.platform) {
-      case 'darwin':
-        // macOS: ~/Library/Logs/{appname}
-        return path.join(app.getPath('home'), 'Library/Logs', app.getName());
-      default:
-        // Windows: %LOCALAPPDATA%\{appname}\logs
-        // Linux: ~/.config/{appname}/logs
-        return path.join(app.getPath('userData'), 'logs');
-    }
+    setupLogging(mainLogFile);
   }
 
   private onActivate = () => {
@@ -880,10 +854,8 @@ class ApplicationMain {
       if (toRedact.length > 0) {
         args.push('--redact', ...toRedact, '--');
       }
-      args.push(this.logFilePath);
-      if (this.oldLogFilePath) {
-        args.push(this.oldLogFilePath);
-      }
+      args.push(...this.logFilePaths);
+      args.push(...this.oldLogFilePaths);
 
       execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
         if (error) {

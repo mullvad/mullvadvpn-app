@@ -26,6 +26,7 @@ import { IWindowShapeParameters } from '../main/window-controller';
 import { cities, countries, loadTranslations, messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
+import { getRendererLogFile, setupLogging } from '../shared/logging';
 import AccountDataCache, { AccountFetchRetryAction } from './lib/account-data-cache';
 import AccountExpiry from './lib/account-expiry';
 
@@ -78,6 +79,8 @@ export default class AppRenderer {
   private loginTimer?: NodeJS.Timeout;
 
   constructor() {
+    setupLogging(getRendererLogFile());
+
     ipcRenderer.on(
       'update-window-shape',
       (_event: Electron.Event, shapeParams: IWindowShapeParameters) => {
