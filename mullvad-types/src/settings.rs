@@ -202,8 +202,7 @@ impl Settings {
 
     pub fn set_openvpn_proxy(&mut self, proxy: Option<openvpn::ProxySettings>) -> Result<bool> {
         if let Some(ref settings) = proxy {
-            openvpn::ProxySettingsValidation::validate(settings)
-                .map_err(Error::InvalidProxyData)?;
+            openvpn::validate_proxy_settings(settings).map_err(Error::InvalidProxyData)?;
         }
 
         if self.tunnel_options.openvpn.proxy != proxy {

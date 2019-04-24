@@ -70,12 +70,6 @@ impl fmt::Display for RelaySettings {
     }
 }
 
-impl Default for RelaySettings {
-    fn default() -> Self {
-        RelaySettings::Normal(RelayConstraints::default())
-    }
-}
-
 impl RelaySettings {
     pub fn merge(&mut self, update: RelaySettingsUpdate) -> Self {
         match update {

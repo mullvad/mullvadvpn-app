@@ -28,7 +28,7 @@ use log::{debug, error, info, warn};
 use rand::{self, rngs::ThreadRng, seq::SliceRandom, Rng};
 use tokio_timer::{TimeoutError, Timer};
 
-const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
+const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
 const RELAYS_FILENAME: &str = "relays.json";
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 /// How often the updater should wake up to check the cache of the in-memory cache of relays.
