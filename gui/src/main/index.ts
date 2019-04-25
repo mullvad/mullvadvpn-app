@@ -967,7 +967,7 @@ class ApplicationMain {
     // the size of transparent area around arrow on macOS
     const headerBarArrowHeight = 12;
 
-    const options = {
+    const options: Electron.BrowserWindowConstructorOptions = {
       width: 320,
       minWidth: 320,
       height: contentHeight,
@@ -1003,8 +1003,16 @@ class ApplicationMain {
           skipTaskbar: true,
         });
 
-      default:
-        return new BrowserWindow(options);
+      default: {
+        const appWindow = new BrowserWindow({
+          ...options,
+          frame: true,
+        });
+
+        appWindow.setMenuBarVisibility(false);
+
+        return appWindow;
+      }
     }
   }
 
@@ -1129,7 +1137,7 @@ class ApplicationMain {
 
   private installLinuxWindowCloseHandler(windowController: WindowController) {
     windowController.window.on('close', (closeEvent: Event) => {
-      if (process.platform === 'linux' && this.quitStage !== AppQuitStage.ready) {
+      if (this.quitStage !== AppQuitStage.ready) {
         closeEvent.preventDefault();
         windowController.hide();
       }
