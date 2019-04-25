@@ -1205,7 +1205,7 @@ dependencies = [
 [[package]]
 name = "netlink-packet"
 version = "0.1.1"
-source = "git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9#f752af0ccf313b2834fd90794028c3f3e86b2ba9"
+source = "git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat#448fcbe49e666d773b345e84ed2ab7748eb2aaf6"
 dependencies = [
  "byteorder 1.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1213,21 +1213,21 @@ dependencies = [
  "lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.51 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "netlink-sys 0.1.0 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)",
+ "netlink-sys 0.1.0 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)",
 ]
 
 [[package]]
 name = "netlink-proto"
 version = "0.1.1"
-source = "git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9#f752af0ccf313b2834fd90794028c3f3e86b2ba9"
+source = "git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat#448fcbe49e666d773b345e84ed2ab7748eb2aaf6"
 dependencies = [
  "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "netlink-packet 0.1.1 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)",
- "netlink-sys 0.1.0 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)",
+ "netlink-packet 0.1.1 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)",
+ "netlink-sys 0.1.0 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)",
  "tokio-io 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1243,7 +1243,7 @@ dependencies = [
 [[package]]
 name = "netlink-sys"
 version = "0.1.0"
-source = "git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9#f752af0ccf313b2834fd90794028c3f3e86b2ba9"
+source = "git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat#448fcbe49e666d773b345e84ed2ab7748eb2aaf6"
 dependencies = [
  "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.51 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1737,14 +1737,14 @@ dependencies = [
 [[package]]
 name = "rtnetlink"
 version = "0.1.1"
-source = "git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9#f752af0ccf313b2834fd90794028c3f3e86b2ba9"
+source = "git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat#448fcbe49e666d773b345e84ed2ab7748eb2aaf6"
 dependencies = [
  "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "netlink-packet 0.1.1 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)",
- "netlink-proto 0.1.1 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)",
+ "netlink-packet 0.1.1 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)",
+ "netlink-proto 0.1.1 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)",
 ]
 
 [[package]]
@@ -1992,10 +1992,10 @@ dependencies = [
  "libc 0.2.51 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "mnl 0.1.0 (git+https://github.com/mullvad/mnl-rs?rev=f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6)",
- "netlink-packet 0.1.1 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)",
- "netlink-proto 0.1.1 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)",
+ "netlink-packet 0.1.1 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)",
+ "netlink-proto 0.1.1 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)",
  "netlink-socket 0.0.2 (git+https://github.com/mullvad/netlink?branch=ignore-hw-address)",
- "netlink-sys 0.1.0 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)",
+ "netlink-sys 0.1.0 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)",
  "nftnl 0.1.0 (git+https://github.com/mullvad/nftnl-rs?rev=29651f4370fdf22cc2e3abf5097a51f8ff17e3a3)",
  "nix 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify 4.0.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2005,7 +2005,7 @@ dependencies = [
  "pfctl 0.2.1 (git+https://github.com/mullvad/pfctl-rs?rev=9f31b5ddcab941862470075eab83bb398195f3d6)",
  "regex 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "resolv-conf 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "rtnetlink 0.1.1 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)",
+ "rtnetlink 0.1.1 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)",
  "shell-escape 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "system-configuration 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",
@@ -2722,10 +2722,10 @@ dependencies = [
 "checksum mnl 0.1.0 (git+https://github.com/mullvad/mnl-rs?rev=f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6)" = "<none>"
 "checksum mnl-sys 0.1.0 (git+https://github.com/mullvad/mnl-rs?rev=f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6)" = "<none>"
 "checksum net2 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)" = "42550d9fb7b6684a6d404d9fa7250c2eb2646df731d1c06afc06dcee9e1bcf88"
-"checksum netlink-packet 0.1.1 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)" = "<none>"
-"checksum netlink-proto 0.1.1 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)" = "<none>"
+"checksum netlink-packet 0.1.1 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)" = "<none>"
+"checksum netlink-proto 0.1.1 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)" = "<none>"
 "checksum netlink-socket 0.0.2 (git+https://github.com/mullvad/netlink?branch=ignore-hw-address)" = "<none>"
-"checksum netlink-sys 0.1.0 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)" = "<none>"
+"checksum netlink-sys 0.1.0 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)" = "<none>"
 "checksum nftnl 0.1.0 (git+https://github.com/mullvad/nftnl-rs?rev=29651f4370fdf22cc2e3abf5097a51f8ff17e3a3)" = "<none>"
 "checksum nftnl-sys 0.1.0 (git+https://github.com/mullvad/nftnl-rs?rev=29651f4370fdf22cc2e3abf5097a51f8ff17e3a3)" = "<none>"
 "checksum nix 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d37e713a259ff641624b6cb20e3b12b2952313ba36b6823c0f16e6cfd9e5de17"
@@ -2777,7 +2777,7 @@ dependencies = [
 "checksum remove_dir_all 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "3488ba1b9a2084d38645c4c08276a1752dcbf2c7130d74f1569681ad5d2799c5"
 "checksum resolv-conf 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "b263b4aa1b5de9ffc0054a2386f96992058bb6870aab516f8cdeb8a667d56dcb"
 "checksum rs-release 0.1.7 (git+https://github.com/mullvad/rs-release?branch=snailquote-unescape)" = "<none>"
-"checksum rtnetlink 0.1.1 (git+https://github.com/little-dude/netlink?rev=f752af0ccf313b2834fd90794028c3f3e86b2ba9)" = "<none>"
+"checksum rtnetlink 0.1.1 (git+https://github.com/mullvad/netlink?branch=hack-older-kernel-compat)" = "<none>"
 "checksum rustc-demangle 0.1.13 (registry+https://github.com/rust-lang/crates.io-index)" = "adacaae16d02b6ec37fdc7acfcddf365978de76d1983d3ee22afc260e1ca9619"
 "checksum rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
 "checksum ryu 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)" = "eb9e9b8cde282a9fe6a42dd4681319bfb63f121b8a8ee9439c6f4107e58a46f7"
