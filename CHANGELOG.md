@@ -24,17 +24,21 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- When IPv6 is enabled, get both exit IP versions from am.i.mullvad.net and show in UI.
-- Add GUI translations for the relay list and map.
+- When IPv6 is enabled, get both exit IP versions from am.i.mullvad.net and show.
+- Add translations for country and city names in the relay list and map.
 
 ### Fixed
-- Reset the tray icon padlock to the unsecured state, when losing connectivity with the daemon.
+- Reset the tray icon padlock to the unsecured state when losing connectivity with the daemon.
 
-### Changed
 #### Windows
-- Make the firewall rules permanent until reboot, or until the daemon removes them.
-- Increase timeout when updating DNS settings.
+- Increase timeout when updating DNS settings. Should make the DNS management fail less often.
 - Use dynamic naming of TAP adapter to avoid collisions with existing adapters.
+
+### Security
+#### Windows
+- Make the firewall rules permanent until reboot, or until the daemon removes them. Should make
+  the kill switch active even if the daemon dies unexpectedly.
+
 
 ## [2019.3] - 2019-04-02
 ### Fixed
