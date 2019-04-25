@@ -39,6 +39,7 @@ const SILENCED_CRATES: &[&str] = &[
     "mio",
     "hyper",
     "rtnetlink",
+    "netlink_proto",
     "iproute2",
 ];
 const SLIGHTLY_SILENCED_CRATES: &[&str] = &["mnl", "nftnl"];
