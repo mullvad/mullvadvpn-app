@@ -1,6 +1,16 @@
-#
 msgid ""
-msgstr "Content-Type: text/plain; charset=utf-8\n"
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Language: es-ES\n"
+"X-Crowdin-File: relay-locations.pot\n"
+"Project-Id-Version: mullvad-app\n"
+"Last-Translator: adminmullvad\n"
+"Language-Team: Spanish\n"
+"Language: es_ES\n"
+"PO-Revision-Date: 2019-04-25 08:34\n"
 
 #. AU BNE
 msgid "Brisbane"
@@ -16,7 +26,7 @@ msgstr "Perth"
 
 #. AU SYD
 msgid "Sydney"
-msgstr "Sydney"
+msgstr "Sídney"
 
 #. AT VIE
 msgid "Wien"
@@ -68,11 +78,11 @@ msgstr "París"
 
 #. DE FRA
 msgid "Frankfurt"
-msgstr "Fráncfort del Meno"
+msgstr "Fráncfort"
 
 #. GR ATH
 msgid "Athens"
-msgstr "Athens"
+msgstr "Atenas"
 
 #. HK HKG
 msgid "Hong Kong"
@@ -88,7 +98,7 @@ msgstr "Pune"
 
 #. IL PET
 msgid "Petach-Tikva"
-msgstr ""
+msgstr "Petach-Tikva"
 
 #. IT MIL
 msgid "Milan"
@@ -176,7 +186,7 @@ msgstr "Zúrich"
 
 #. GB LON
 msgid "London"
-msgstr "London"
+msgstr "Londres"
 
 #. GB MNC
 msgid "Manchester"
@@ -240,7 +250,7 @@ msgstr "Milwaukee, WI"
 
 #. US MSP
 msgid "Minneapolis/St. Paul Apt, MN"
-msgstr ""
+msgstr "Minneapolis/St Paul Apt, MN"
 
 #. US NYC
 msgid "New York, NY"
@@ -260,7 +270,7 @@ msgstr "Phoenix, AZ"
 
 #. US PIL
 msgid "Piscataway, NJ"
-msgstr ""
+msgstr "Piscataway, NJ"
 
 #. US PDX
 msgid "Portland, OR"
@@ -280,7 +290,7 @@ msgstr "San Francisco, CA"
 
 #. US SJC
 msgid "San Jose, CA"
-msgstr "Puerto Quetzal, CA"
+msgstr "San José, CA"
 
 #. US SEA
 msgid "Seattle, WA"
@@ -288,7 +298,7 @@ msgstr "Seattle, WA"
 
 #. US UYK
 msgid "Secaucus, NJ"
-msgstr ""
+msgstr "Secaucus, NJ"
 
 #. US FSD
 msgid "Sioux Falls, SD"
@@ -304,4 +314,5 @@ msgstr "San Luis, MO"
 
 #. US WAS
 msgid "Washington DC"
-msgstr ""
+msgstr "Washington DC"
+
