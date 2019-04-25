@@ -44,5 +44,9 @@ extractor
     cwd: path.resolve(__dirname, '..'),
   });
 
+// clean file references
+extractor.getMessages().forEach((msg) => {
+  msg.references = [];
+});
 extractor.savePotFile(outputPotFile);
 extractor.printStats();

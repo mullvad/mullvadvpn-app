@@ -67,7 +67,7 @@ At this point all of the data should be saved in `gui/geo-data/out` folder.
 ## App integration notes
 
 Once you've extracted all the geo data, run the integration script that will
-copy all files ignoring intermediate ones into the `gui/src/assets/geo` folder:
+copy all files ignoring intermediate ones into the `gui/assets/geo` folder:
 
 ```
 python integrate-into-app.py
