@@ -75,6 +75,3 @@ if [ -d "$OLD_CACHE_DIR" ]; then
     mv "$OLD_CACHE_DIR"/* "$NEW_CACHE_DIR/" || echo "Unable to migrate cache. No cache files?"
     rm -rf "$OLD_CACHE_DIR"
 fi
-
-# TODO: Remove after 2019.2 has been released
-rm "$NEW_CACHE_DIR/relays.json" || echo "Unable to remove old relay list"
