@@ -447,9 +447,13 @@ interface ICloseBarItemProps {
 
 export class CloseBarItem extends Component<ICloseBarItemProps> {
   public render() {
+    // Use the arrow down icon on Linux, to avoid confusion with the close button in the window
+    // title bar.
+    const iconName = process.platform === 'linux' ? 'icon-close-down' : 'icon-close';
+
     return (
       <Button style={[styles.closeBarItem.default]} onPress={this.props.action}>
-        <ImageView height={24} width={24} style={[styles.closeBarItem.icon]} source="icon-close" />
+        <ImageView height={24} width={24} style={[styles.closeBarItem.icon]} source={iconName} />
       </Button>
     );
   }
