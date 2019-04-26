@@ -275,7 +275,7 @@ class ApplicationMain {
 
     this.registerWindowListener(windowController);
     this.registerIpcListeners();
-    this.setAppMenu();
+    // this.setAppMenu();
     this.addContextMenu(window);
 
     this.windowController = windowController;
@@ -1016,25 +1016,25 @@ class ApplicationMain {
     }
   }
 
-  private setAppMenu() {
-    const template: Electron.MenuItemConstructorOptions[] = [
-      {
-        label: 'Mullvad',
-        submenu: [{ role: 'about' }, { type: 'separator' }, { role: 'quit' }],
-      },
-      {
-        label: 'Edit',
-        submenu: [
-          { role: 'cut' },
-          { role: 'copy' },
-          { role: 'paste' },
-          { type: 'separator' },
-          { role: 'selectall' },
-        ],
-      },
-    ];
-    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-  }
+  // private setAppMenu() {
+  //   const template: Electron.MenuItemConstructorOptions[] = [
+  //     {
+  //       label: 'Mullvad',
+  //       submenu: [{ role: 'about' }, { type: 'separator' }, { role: 'quit' }],
+  //     },
+  //     {
+  //       label: 'Edit',
+  //       submenu: [
+  //         { role: 'cut' },
+  //         { role: 'copy' },
+  //         { role: 'paste' },
+  //         { type: 'separator' },
+  //         { role: 'selectall' },
+  //       ],
+  //     },
+  //   ];
+  //   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  // }
 
   private addContextMenu(window: BrowserWindow) {
     const menuTemplate: Electron.MenuItemConstructorOptions[] = [
