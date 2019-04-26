@@ -40,10 +40,10 @@ failure = "0.1"
 netlink-socket = { git = "https://github.com/mullvad/netlink", branch = "ignore-hw-address" }
 notify = "4.0"
 resolv-conf = "0.6.1"
-rtnetlink = { git = "https://github.com/little-dude/netlink", rev = "f752af0ccf313b2834fd90794028c3f3e86b2ba9" }
-netlink-proto = { git = "https://github.com/little-dude/netlink", rev = "f752af0ccf313b2834fd90794028c3f3e86b2ba9" }
-netlink-packet = { git = "https://github.com/little-dude/netlink", rev = "f752af0ccf313b2834fd90794028c3f3e86b2ba9" }
-netlink-sys = { git = "https://github.com/little-dude/netlink", rev = "f752af0ccf313b2834fd90794028c3f3e86b2ba9" }
+rtnetlink = { git = "https://github.com/mullvad/netlink", branch = "hack-older-kernel-compat" }
+netlink-proto = { git = "https://github.com/mullvad/netlink", branch = "hack-older-kernel-compat" }
+netlink-packet = { git = "https://github.com/mullvad/netlink", branch = "hack-older-kernel-compat" }
+netlink-sys = { git = "https://github.com/mullvad/netlink", branch = "hack-older-kernel-compat" }
 nftnl = { git = "https://github.com/mullvad/nftnl-rs", rev = "29651f4370fdf22cc2e3abf5097a51f8ff17e3a3", features = ["nftnl-1-1-0"] }
 mnl = { git = "https://github.com/mullvad/mnl-rs", rev = "f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6", features = ["mnl-1-0-4"] }
 which = "2.0"
