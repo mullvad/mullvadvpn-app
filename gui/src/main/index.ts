@@ -275,7 +275,6 @@ class ApplicationMain {
 
     this.registerWindowListener(windowController);
     this.registerIpcListeners();
-    this.setAppMenu();
     this.addContextMenu(window);
 
     this.windowController = windowController;
@@ -311,6 +310,7 @@ class ApplicationMain {
         break;
       case 'darwin':
         this.installMacOsMenubarAppWindowHandlers(tray, windowController);
+        this.setMacOsAppMenu();
         break;
       case 'linux':
         this.installGenericMenubarAppWindowHandlers(tray, windowController);
@@ -1009,18 +1009,18 @@ class ApplicationMain {
           frame: true,
         });
 
-        appWindow.setMenuBarVisibility(false);
-
         return appWindow;
       }
     }
   }
 
-  private setAppMenu() {
+  // On macOS, hotkeys are bound to the app menu and won't work if it's not set,
+  // even though the app menu itself is not visible because the app does not appear in the dock.
+  private setMacOsAppMenu() {
     const template: Electron.MenuItemConstructorOptions[] = [
       {
         label: 'Mullvad',
-        submenu: [{ role: 'about' }, { type: 'separator' }, { role: 'quit' }],
+        submenu: [{ role: 'quit' }],
       },
       {
         label: 'Edit',
