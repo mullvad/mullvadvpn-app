@@ -23,14 +23,9 @@ const headerBarStyles = {
       paddingLeft: 12,
       paddingRight: 12,
     }),
-    platformOverride: {
-      darwin: Styles.createViewStyle({
-        paddingTop: 24,
-      }),
-      linux: Styles.createViewStyle({
-        appRegion: 'drag',
-      }),
-    },
+    darwin: Styles.createViewStyle({
+      paddingTop: 24,
+    }),
   },
   content: Styles.createViewStyle({
     flexDirection: 'row',
@@ -63,8 +58,7 @@ export default class HeaderBar extends Component<IHeaderBarProps> {
   public render() {
     const style = [
       headerBarStyles.container.base,
-      // @ts-ignore
-      headerBarStyles.container.platformOverride[process.platform],
+      process.platform === 'darwin' ? headerBarStyles.container.darwin : undefined,
       headerBarStyles.barStyle[this.props.barStyle],
       this.props.style,
     ];
@@ -109,31 +103,16 @@ interface ISettingsButtonProps {
   onPress?: () => void;
 }
 
-const settingsBarButtonStyles = {
-  container: {
-    base: Styles.createViewStyle({
-      cursor: 'default',
-      padding: 0,
-      marginLeft: 8,
-    }),
-    platformOverride: {
-      linux: Styles.createViewStyle({
-        appRegion: 'no-drag',
-      }),
-    },
-  },
-};
+const settingsBarButtonStyle = Styles.createButtonStyle({
+  cursor: 'default',
+  padding: 0,
+  marginLeft: 8,
+});
 
 export class SettingsBarButton extends Component<ISettingsButtonProps> {
   public render() {
     return (
-      <Button
-        style={[
-          settingsBarButtonStyles.container.base,
-          // @ts-ignore
-          settingsBarButtonStyles.container.platformOverride[process.platform],
-        ]}
-        onPress={this.props.onPress}>
+      <Button style={settingsBarButtonStyle} onPress={this.props.onPress}>
         <ImageView
           height={24}
           width={24}

@@ -28,7 +28,6 @@ const styles = {
     }),
     linux: Styles.createViewStyle({
       paddingTop: 12,
-      appRegion: 'drag',
     }),
   },
   navigationBarTitle: {
@@ -54,7 +53,6 @@ const styles = {
   buttonBarItem: {
     default: Styles.createButtonStyle({
       cursor: 'default',
-      appRegion: 'no-drag',
     }),
     content: Styles.createViewStyle({
       flexDirection: 'row',
@@ -70,7 +68,6 @@ const styles = {
   closeBarItem: {
     default: Styles.createViewStyle({
       cursor: 'default',
-      appRegion: 'no-drag',
     }),
     icon: Styles.createViewStyle({
       flex: 0,
@@ -83,7 +80,6 @@ const styles = {
       padding: 0,
       margin: 0,
       cursor: 'default',
-      appRegion: 'no-drag',
     }),
     content: Styles.createViewStyle({
       flexDirection: 'row',
