@@ -28,7 +28,6 @@ const styles = {
     }),
     linux: Styles.createViewStyle({
       paddingTop: 12,
-      appRegion: 'drag',
     }),
   },
   navigationBarTitle: {
@@ -54,7 +53,6 @@ const styles = {
   buttonBarItem: {
     default: Styles.createButtonStyle({
       cursor: 'default',
-      appRegion: 'no-drag',
     }),
     content: Styles.createViewStyle({
       flexDirection: 'row',
@@ -70,7 +68,6 @@ const styles = {
   closeBarItem: {
     default: Styles.createViewStyle({
       cursor: 'default',
-      appRegion: 'no-drag',
     }),
     icon: Styles.createViewStyle({
       flex: 0,
@@ -83,7 +80,6 @@ const styles = {
       padding: 0,
       margin: 0,
       cursor: 'default',
-      appRegion: 'no-drag',
     }),
     content: Styles.createViewStyle({
       flexDirection: 'row',
@@ -447,9 +443,13 @@ interface ICloseBarItemProps {
 
 export class CloseBarItem extends Component<ICloseBarItemProps> {
   public render() {
+    // Use the arrow down icon on Linux, to avoid confusion with the close button in the window
+    // title bar.
+    const iconName = process.platform === 'linux' ? 'icon-close-down' : 'icon-close';
+
     return (
       <Button style={[styles.closeBarItem.default]} onPress={this.props.action}>
-        <ImageView height={24} width={24} style={[styles.closeBarItem.icon]} source="icon-close" />
+        <ImageView height={24} width={24} style={[styles.closeBarItem.icon]} source={iconName} />
       </Button>
     );
   }

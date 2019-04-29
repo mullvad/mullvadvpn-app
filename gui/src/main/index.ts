@@ -275,7 +275,6 @@ class ApplicationMain {
 
     this.registerWindowListener(windowController);
     this.registerIpcListeners();
-    this.setAppMenu();
     this.addContextMenu(window);
 
     this.windowController = windowController;
@@ -311,6 +310,7 @@ class ApplicationMain {
         break;
       case 'darwin':
         this.installMacOsMenubarAppWindowHandlers(tray, windowController);
+        this.setMacOsAppMenu();
         break;
       case 'linux':
         this.installGenericMenubarAppWindowHandlers(tray, windowController);
@@ -967,7 +967,7 @@ class ApplicationMain {
     // the size of transparent area around arrow on macOS
     const headerBarArrowHeight = 12;
 
-    const options = {
+    const options: Electron.BrowserWindowConstructorOptions = {
       width: 320,
       minWidth: 320,
       height: contentHeight,
@@ -1003,16 +1003,24 @@ class ApplicationMain {
           skipTaskbar: true,
         });
 
-      default:
-        return new BrowserWindow(options);
+      default: {
+        const appWindow = new BrowserWindow({
+          ...options,
+          frame: true,
+        });
+
+        return appWindow;
+      }
     }
   }
 
-  private setAppMenu() {
+  // On macOS, hotkeys are bound to the app menu and won't work if it's not set,
+  // even though the app menu itself is not visible because the app does not appear in the dock.
+  private setMacOsAppMenu() {
     const template: Electron.MenuItemConstructorOptions[] = [
       {
         label: 'Mullvad',
-        submenu: [{ role: 'about' }, { type: 'separator' }, { role: 'quit' }],
+        submenu: [{ role: 'quit' }],
       },
       {
         label: 'Edit',
@@ -1129,7 +1137,7 @@ class ApplicationMain {
 
   private installLinuxWindowCloseHandler(windowController: WindowController) {
     windowController.window.on('close', (closeEvent: Event) => {
-      if (process.platform === 'linux' && this.quitStage !== AppQuitStage.ready) {
+      if (this.quitStage !== AppQuitStage.ready) {
         closeEvent.preventDefault();
         windowController.hide();
       }
