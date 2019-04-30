@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add support for roaming between connections when using wireguard
+- Allow mDNS/discover to 239.255.255.251 when local network sharing is enabled. This change fixes
+  the Wi-Fi calling via iPhone when both devices are on the same network.
 
 #### Linux
 - Add standard window decorations to the application window.
