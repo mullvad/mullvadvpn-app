@@ -32,4 +32,10 @@ class ConnectViewController: UIViewController, HeaderBarViewControllerDelegate {
         performSegue(withIdentifier: SegueIdentifier.Connect.showSettings.rawValue, sender: self)
     }
     
+    // MARK: - Actions
+    
+    @IBAction func unwindFromSelectLocation(segue: UIStoryboardSegue) {
+        
+    }
+    
 }
