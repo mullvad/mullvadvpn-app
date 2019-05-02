@@ -10,15 +10,19 @@ import UIKit
 
 // A phantom struct holding the storyboard segue identifiers for each view controller
 struct SegueIdentifier {
-    
+
     enum Connect: String, SegueConvertible {
         case embedHeader = "EmbedHeaderBar"
         case showSettings = "ShowSettings"
     }
-    
+
     enum Login: String, SegueConvertible {
         case embedHeader = "EmbedHeaderBar"
         case showSettings = "ShowSettings"
+    }
+
+    enum SelectLocation: String, SegueConvertible {
+        case returnToConnectWithNewRelay = "ReturnToConnectWithNewRelay"
     }
 
     private init() {}

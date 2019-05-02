@@ -15,7 +15,7 @@ struct RelayList: Decodable {
         let code: String
         let cities: [City]
     }
-    
+
     struct City: Decodable {
         let name: String
         let code: String
@@ -23,13 +23,13 @@ struct RelayList: Decodable {
         let longitude: Double
         let relays: [Hostname]
     }
-    
+
     struct Hostname: Decodable {
         let hostname: String
         let ipv4AddrIn: String
         let includeInCountry: Bool
         let weight: Int32
     }
-    
+
     let countries: [Country]
 }
