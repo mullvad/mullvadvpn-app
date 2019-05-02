@@ -20,6 +20,10 @@ struct SegueIdentifier {
         case embedHeader = "EmbedHeaderBar"
         case showSettings = "ShowSettings"
     }
+    
+    enum SelectLocation: String, SegueConvertible {
+        case returnToConnectWithNewRelay = "ReturnToConnectWithNewRelay"
+    }
 
     private init() {}
 }
