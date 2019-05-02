@@ -39,7 +39,7 @@ sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
     mullvad-problem-report/Cargo.toml
 
 echo "Syncing Cargo.lock with new version numbers"
-source env.sh
+source env.sh ""
 cargo build
 
 echo "Commiting metadata changes to git..."
