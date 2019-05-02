@@ -24,11 +24,14 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- When IPv6 is enabled, get both exit IP versions from am.i.mullvad.net and show.
-- Add translations for country and city names in the relay list and map.
-
 #### Linux
 - Add standard window decorations to the application window.
+
+
+## [2019.4-beta1] - 2019-05-02
+### Added
+- When IPv6 is enabled, get both exit IP versions from am.i.mullvad.net and show.
+- Add translations for country and city names in the relay list and map.
 
 ### Fixed
 - Reset the tray icon padlock to the unsecured state when losing connectivity with the daemon.
