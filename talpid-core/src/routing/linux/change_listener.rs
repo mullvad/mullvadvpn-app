@@ -27,7 +27,7 @@ pub enum Error {
     InvalidIpBytes,
     #[error(display = "Invalid network prefix")]
     InvalidNetworkPrefix(#[error(cause)] ipnetwork::IpNetworkError),
-    #[error(display = "Unknown device index")]
+    #[error(display = "Unknown device index - {}", _0)]
     UnknownDeviceIndex(u32),
     #[error(display = "Failed to bind netlink socket")]
     BindError(#[error(cause)] io::Error),
@@ -37,7 +37,7 @@ pub enum Error {
 
 type Result<T> = ::std::result::Result<T, Error>;
 
-pub struct RouteChangeListener {
+pub(super) struct RouteChangeListener {
     connection: rtnetlink::Connection,
     messages: mpsc::UnboundedReceiver<NetlinkMessage>,
     iface_map: BTreeMap<u32, String>,
@@ -92,6 +92,7 @@ impl RouteChangeListener {
         }
     }
 
+    // Tries to coax a Route out of a RouteMessage
     fn get_route(&self, msg: RouteMessage) -> Result<Route> {
         let mut prefix = None;
         let mut node_addr = None;

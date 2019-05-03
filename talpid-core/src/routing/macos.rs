@@ -42,7 +42,7 @@ pub enum Error {
     BadOutputFromNetstat,
 }
 
-pub enum RouteAction {
+enum RouteAction {
     Listening(ChangeListener),
     ObtainingDefaultRoutes(
         Box<dyn Future<Item = (Option<Node>, Option<Node>), Error = Error> + Send>,
@@ -62,7 +62,7 @@ pub enum RouteAction {
 /// waiting for changes to the route table.  If any change is deteceted, it will stop listening for
 /// new changes, obtain new default routes and reapply routes that should be routed through the
 /// default nodes. Once the routes are reapplied, the route table changes are monitored again.
-pub struct RouteManager {
+pub struct RouteManagerImpl {
     default_destinations: HashSet<IpNetwork>,
     applied_routes: HashSet<Route>,
     current_state: RouteAction,
@@ -72,7 +72,7 @@ pub struct RouteManager {
 }
 
 
-impl RouteManager {
+impl RouteManagerImpl {
     pub fn new(
         required_routes: HashMap<IpNetwork, NetNode>,
         shutdown_rx: oneshot::Receiver<oneshot::Sender<()>>,
@@ -266,7 +266,7 @@ impl RouteManager {
                 .and_then(|_| {
                     if let Some(tx) = shutdown_done_tx {
                         if tx.send(()).is_err() {
-                            log::debug!("RouteManagerHandle already dropped")
+                            log::debug!("RouteManager already dropped")
                         }
                     }
                     Ok(())
@@ -320,7 +320,7 @@ impl RouteManager {
     }
 }
 
-impl Future for RouteManager {
+impl Future for RouteManagerImpl {
     type Item = ();
     type Error = Error;
     fn poll(&mut self) -> Result<Async<()>> {
