@@ -7,8 +7,8 @@ use std::{
     process::{Command, Stdio},
 };
 
-pub mod linux_change_listener;
-pub use linux_change_listener::{Error as RouteChangeListenerError, RouteChangeListener};
+mod change_listener;
+use change_listener::{Error as RouteChangeListenerError, RouteChangeListener};
 
 use futures::{sync::oneshot, Async, Future, IntoFuture, Stream};
 use tokio_process::CommandExt;
@@ -30,30 +30,35 @@ pub enum Error {
     #[error(display = "Error while running \"ip route\"")]
     FailedToRunIp(#[error(cause)] io::Error),
 
+    /// Invocation of `ip route` ended with a non-zero exit code
     #[error(display = "ip returend a non-zero exit code")]
     ErrorIpFailed,
 
+    /// Received unexpected output from `ip route`
     #[error(display = "Received unexpected output from \"ip\"")]
     UnexpectedOutput,
 
+    /// No default route exists
     #[error(display = "No default route in \"ip route\" output")]
     NoDefaultRoute,
 
-    #[error(display = "Route change listener failed: {}", _0)]
+    /// Route table change stream failed.
+    #[error(display = "Route change listener failed")]
     ChangeListenerError(#[error(cause)] RouteChangeListenerError),
 
+    /// Route table change stream failed.
     #[error(display = "Route change listener closed unexpectedly")]
     ChangeListenerClosed,
 }
 
-pub struct RouteManager {
+pub struct RouteManagerImpl {
     changes: RouteChangeListener,
 
-    // destinations that should be routed through the default route
-    required_default_routes: HashSet<IpNetwork>,
     // currently added routes
     added_routes: HashSet<Route>,
     // default route tracking
+    // destinations that should be routed through the default route
+    required_default_routes: HashSet<IpNetwork>,
     default_routes: HashSet<Route>,
     best_default_node_v4: Option<Node>,
     best_default_node_v6: Option<Node>,
@@ -69,7 +74,7 @@ pub struct RouteManager {
     should_shut_down: bool,
 }
 
-impl RouteManager {
+impl RouteManagerImpl {
     /// Creates a new RouteManager.
     pub fn new(
         required_routes: HashMap<IpNetwork, NetNode>,
@@ -255,7 +260,8 @@ of route monitor -{}",
     }
 
     fn enque_route_change(&mut self, route_change: RouteChange) {
-        // currently applied change already achieves this.
+        // Only add a route change to the queue of changes if a change like this doesn't exist
+        // already.
         if self
             .pending_change
             .as_ref()
@@ -273,8 +279,7 @@ of route monitor -{}",
     }
 
     fn pick_best_default_node(routes: &HashSet<Route>, v4: bool) -> Option<Node> {
-        // Usually, routes with better reachability get lower
-        // picks the best route based on metrics
+        // Pick the route with the lowest metric - thus the most favourable route.
         routes
             .iter()
             .filter(|route| route.prefix.is_ipv4() & v4)
@@ -294,7 +299,7 @@ of route monitor -{}",
             .map(|route| route.node)
     }
 
-    // Try and apply changes to the routing table if they are necessary.
+    // Try and apply changes to the routing table if any are necessary.
     // Returns true if no more changes are to be made.
     fn apply_route_table_changes(&mut self) -> Result<bool> {
         let mut should_stop = false;
@@ -447,7 +452,7 @@ impl IpVersion {
     }
 }
 
-impl Future for RouteManager {
+impl Future for RouteManagerImpl {
     type Item = ();
     type Error = Error;
     fn poll(&mut self) -> Result<Async<()>> {
@@ -536,7 +541,7 @@ fn ip_vers(route: &Route) -> &'static str {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum RouteChange {
+enum RouteChange {
     Add(Route),
     Remove(Route),
 }
@@ -545,18 +550,3 @@ struct PendingChange {
     change: RouteChange,
     process: Box<dyn Future<Item = (), Error = Error> + Send>,
 }
-
-// impl super::RoutingT for RouteManager {
-//     /// Error type of the implementation
-//     type Error = Error;
-
-//     /// Creates a new router
-//     fn new() -> Result<Self> {
-//         Ok(Self {})
-//     }
-
-
-//     fn spawn_change_listener(&mut self) -> Result<RouteChangeListener> {
-//         RouteChangeListener::new().map_err(Error::ChangeListenerError)
-//     }
-// }
