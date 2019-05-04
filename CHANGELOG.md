@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add support for roaming between connections when using wireguard
+
 #### Linux
 - Add standard window decorations to the application window.
 - Allow a subset of NDP (Router solicitation, router advertisement and redirects) in the firewall.
