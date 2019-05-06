@@ -83,9 +83,7 @@ impl RouteChangeListener {
                 self.get_route(new_route).map(RouteChange::Add).map(Some)
             }
             NetlinkPayload::Rtnl(RtnlMessage::DelRoute(old_route)) => {
-                println!("REMOVING ROUTE - {:?}", &old_route);
                 let things = self.get_route(old_route).map(RouteChange::Remove).map(Some);
-                println!("WILL GIVE Out - {:?}", &things);
                 things
             }
             _ => Ok(None),
@@ -186,7 +184,7 @@ impl RouteChangeListener {
             ipv6_bytes.copy_from_slice(bytes);
             Ok(IpAddr::from(ipv6_bytes))
         } else {
-            log::error!("Expected IP address bytes, got {}", bytes.len());
+            log::error!("Expected either 4 or 16 bytes, got {} bytes", bytes.len());
             Err(Error::InvalidIpBytes)
         }
     }
@@ -199,7 +197,7 @@ impl RouteChangeListener {
             .link()
             .get()
             .execute()
-            .filter_map(|link| Self::iface_name_idx_pair(link))
+            .filter_map(Self::iface_name_idx_pair)
             .collect();
 
         match connection.select2(request).wait() {
