@@ -428,10 +428,7 @@ of route monitor -{}",
             Self::get_default_routes_inner(IpVersion::V4)
                 .join(Self::get_default_routes_inner(IpVersion::V6))
                 .map(|(v4_routes, v6_routes)| {
-                    let mut routes = HashSet::new();
-                    routes.extend(v4_routes);
-                    routes.extend(v6_routes);
-                    routes
+                    v4_routes.into_iter().chain(v6_routes.into_iter()).collect()
                 }),
         )
     }
