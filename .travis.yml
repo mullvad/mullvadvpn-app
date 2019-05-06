@@ -58,11 +58,11 @@ matrix:
     - language: rust
       rust: stable
       os: osx
-      before_script: &rust_before_script
+      before_script:
         - source env.sh
         - export RUSTFLAGS="--deny unused_imports --deny dead_code"
         - env
-      script: &rust_script
+      script:
         - cargo build --verbose
         - cargo test --verbose
 
@@ -70,36 +70,43 @@ matrix:
     - language: rust
       rust: nightly
       os: linux
-      addons: &rust_linux_addons
-        apt:
-         sources:
-          - sourceline: "ppa:jonathonf/gcc-7.3"
-            key_url: "https://pgp.key-server.io/download/0xE03043828C3FF4BB"
-         packages:
-          - binutils
-          - libdbus-1-dev
-      before_script: *rust_before_script
+      dist: xenial
+      services: docker
+      before_script: &rust_before_script
+        - docker run -d --name mvd-build -v $(pwd):/travis -w /travis  mullvadvpn/mullvadvpn-app-build:latest tail -f /dev/null
+        - docker ps
+        - export SH="docker exec -t mvd-build"
+        - $SH rustup update
       script:
-        - cargo build --verbose
-        - cargo test --verbose
+        - $SH rustup default nightly
+        - $SH bash -c "source env.sh && cargo build --verbose"
+        - $SH bash -c "source env.sh && cargo test --verbose"
         # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
-        - rustup component add rustfmt-preview
-        - cargo fmt --version || true
-        - cargo fmt -- --check --unstable-features
+        - $SH rustup component add rustfmt-preview
+        - $SH cargo fmt --version || true
+        - $SH cargo fmt -- --check --unstable-features
 
     - language: rust
       rust: beta
       os: linux
-      addons: *rust_linux_addons
+      dist: xenial
+      services: docker
       before_script: *rust_before_script
-      script: *rust_script
+      script:
+        - $SH rustup default beta
+        - $SH bash -c "source env.sh && cargo build --verbose"
+        - $SH bash -c "source env.sh && cargo test --verbose"
 
     - language: rust
       rust: stable
       os: linux
-      addons: *rust_linux_addons
+      dist: xenial
+      services: docker
       before_script: *rust_before_script
-      script: *rust_script
+      script: 
+        - $SH rustup default stable
+        - $SH bash -c "source env.sh && cargo build --verbose"
+        - $SH bash -c "source env.sh && cargo test --verbose"
 
 
 notifications:
