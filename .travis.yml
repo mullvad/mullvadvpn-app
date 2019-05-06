@@ -70,14 +70,8 @@ matrix:
     - language: rust
       rust: nightly
       os: linux
-      addons: &rust_linux_addons
-        apt:
-         sources:
-          - sourceline: "ppa:jonathonf/gcc-7.3"
-            key_url: "https://pgp.key-server.io/download/0xE03043828C3FF4BB"
-         packages:
-          - binutils
-          - libdbus-1-dev
+      # addons: *rust_linux_addons
+
       before_script: *rust_before_script
       script:
         - cargo build --verbose
@@ -90,14 +84,14 @@ matrix:
     - language: rust
       rust: beta
       os: linux
-      addons: *rust_linux_addons
+      # addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_script
 
     - language: rust
       rust: stable
       os: linux
-      addons: *rust_linux_addons
+      # addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_script
 
