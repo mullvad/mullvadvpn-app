@@ -58,7 +58,7 @@ matrix:
     - language: rust
       rust: stable
       os: osx
-      before_script: &rust_before_script
+      before_script:
         - source env.sh
         - export RUSTFLAGS="--deny unused_imports --deny dead_code"
         - env
@@ -70,7 +70,12 @@ matrix:
     - language: rust
       rust: nightly
       os: linux
-      # addons: *rust_linux_addons
+      before_script: &rust_before_script
+        - source env.sh
+        - export RUSTFLAGS="--deny unused_imports --deny dead_code"
+        - env        
+        - sudo apt-get update
+        - sudo apt-get install libdbus-1-dev
 
       before_script: *rust_before_script
       script:
