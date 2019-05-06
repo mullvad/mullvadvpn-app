@@ -36,6 +36,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Increase timeout when updating DNS settings. Should make the DNS management fail less often.
 - Use dynamic naming of TAP adapter to avoid collisions with existing adapters.
+- On Windows Surface devices the keyboard now shows up correctly when selecting the account
+  token input field.
 
 ### Security
 #### Windows
