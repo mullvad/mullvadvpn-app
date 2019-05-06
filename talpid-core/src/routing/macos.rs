@@ -223,7 +223,7 @@ impl RouteManagerImpl {
             cmd.arg("-gateway").arg(addr.to_string());
         } else if let Some(device) = route.node.get_device() {
             cmd.arg("-interface").arg(device);
-        };
+        }
 
         futures::lazy(move || cmd.spawn_async().into_future().and_then(|f| f))
             .map_err(Error::FailedToAddRoute)
