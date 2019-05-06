@@ -58,48 +58,40 @@ matrix:
     - language: rust
       rust: stable
       os: osx
-      before_script: &rust_before_script
+      before_script:
         - source env.sh
         - export RUSTFLAGS="--deny unused_imports --deny dead_code"
         - env
-      script: &rust_script
+      script:
         - cargo build --verbose
         - cargo test --verbose
 
     # Daemon - Linux
-    - language: rust
-      rust: nightly
-      os: linux
-      addons: &rust_linux_addons
-        apt:
-         sources:
-          - sourceline: "ppa:jonathonf/gcc-7.3"
-            key_url: "https://pgp.key-server.io/download/0xE03043828C3FF4BB"
-         packages:
-          - binutils
-          - libdbus-1-dev
+    - os: linux 
+      language: minimal
+      dist: xenial
+      services: docker
+      before_script: &rust_before_script
+        - docker run -d --name mvd-build -v $(pwd):/travis -w /travis  mullvadvpn/mullvadvpn-app-build:latest tail -f /dev/null
+        - docker ps
+      script:
+        - docker exec -t mvd-build bash ci/rust-linux-script.sh nightly
+
+    - os: linux
+      language: minimal
+      dist: xenial
+      services: docker
       before_script: *rust_before_script
       script:
-        - cargo build --verbose
-        - cargo test --verbose
-        # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
-        - rustup component add rustfmt-preview
-        - cargo fmt --version || true
-        - cargo fmt -- --check --unstable-features
+        - docker exec -t mvd-build bash ci/rust-linux-script.sh beta
 
-    - language: rust
-      rust: beta
-      os: linux
-      addons: *rust_linux_addons
+    - os: linux
+      language: minimal
+      dist: xenial
+      services: docker
       before_script: *rust_before_script
-      script: *rust_script
-
-    - language: rust
-      rust: stable
-      os: linux
-      addons: *rust_linux_addons
-      before_script: *rust_before_script
-      script: *rust_script
+      script: 
+        - docker exec -t mvd-build bash ci/rust-linux-script.sh stable
 
 
 notifications:

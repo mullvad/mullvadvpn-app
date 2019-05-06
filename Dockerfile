@@ -1,4 +1,4 @@
-# To build the image: 
+# To build the image:
 # docker build . -t mullvadvpn/mullvadvpn-app-build
 # To push the image to our docker hub:
 # docker push mullvadvpn/mullvadvpn-app-build
