@@ -42,7 +42,7 @@ pub enum Error {
     BadOutputFromNetstat,
 }
 
-enum RouteAction {
+enum RouteManagerState {
     Listening(ChangeListener),
     ObtainingDefaultRoutes(
         Box<dyn Future<Item = (Option<Node>, Option<Node>), Error = Error> + Send>,
@@ -59,13 +59,13 @@ enum RouteAction {
 ///
 /// Only the _shutting down_ state can be reached from all other states, but during normal
 /// operation, the route manager will add all the required routes during startup and will start
-/// waiting for changes to the route table.  If any change is deteceted, it will stop listening for
+/// waiting for changes to the route table.  If any change is detected, it will stop listening for
 /// new changes, obtain new default routes and reapply routes that should be routed through the
 /// default nodes. Once the routes are reapplied, the route table changes are monitored again.
 pub struct RouteManagerImpl {
     default_destinations: HashSet<IpNetwork>,
     applied_routes: HashSet<Route>,
-    current_state: RouteAction,
+    current_state: RouteManagerState,
     v4_gateway: Option<Node>,
     v6_gateway: Option<Node>,
     shutdown_rx: Option<oneshot::Receiver<oneshot::Sender<()>>>,
@@ -134,11 +134,32 @@ impl RouteManagerImpl {
         Ok(Self {
             default_destinations,
             applied_routes,
-            current_state: RouteAction::Listening(change_listener),
+            current_state: RouteManagerState::Listening(change_listener),
             shutdown_rx: Some(shutdown_rx),
             v4_gateway,
             v6_gateway,
         })
+    }
+
+    fn apply_routes_sync(
+        applied_routes: &mut HashSet<Route>,
+        default_destinations: &HashSet<Node>,
+        routes_to_apply: Vec,
+    ) -> Result<()> {
+        for route in routes_to_apply {
+            Self::add_route(&route).wait()?;
+            applied_routes.insert(route);
+        }
+        for destination in default_destinations.iter() {
+            match (&v4_gateway, &v6_gateway, destination.is_ipv4()) {
+                (Some(gateway), _, true) | (_, Some(gateway), false) => {
+                    let route = Route::new(gateway.clone(), *destination);
+                    Self::add_route(&route).wait()?;
+                    applied_routes.insert(route);
+                }
+                _ => (),
+            };
+        }
     }
 
     // Retrieves the node that's currently used to reach 0.0.0.0/0
@@ -238,7 +259,7 @@ impl RouteManagerImpl {
                 match removal {
                     Ok(status) => {
                         if !status.success() {
-                            log::debug!("Failed to remove route during shutdown - ");
+                            log::debug!("Failed to remove route during shutdown");
                         }
                     }
                     Err(e) => log::error!("Failed to remove route during shutdown - {}", e),
@@ -260,18 +281,16 @@ impl RouteManagerImpl {
                 _ => None,
             }
         }));
-        Box::new(
-            stream::futures_ordered(routes_to_remove)
-                .for_each(|_| Ok(()))
-                .and_then(|_| {
-                    if let Some(tx) = shutdown_done_tx {
-                        if tx.send(()).is_err() {
-                            log::debug!("RouteManager already dropped")
-                        }
+        stream::futures_ordered(routes_to_remove)
+            .for_each(|_| Ok(()))
+            .and_then(|_| {
+                if let Some(tx) = shutdown_done_tx {
+                    if tx.send(()).is_err() {
+                        log::debug!("RouteManager already dropped")
                     }
-                    Ok(())
-                }),
-        )
+                }
+                Ok(())
+            })
     }
 
     fn apply_new_default_routes(
@@ -288,7 +307,7 @@ impl RouteManagerImpl {
                 .then(|addition| {
                     match addition {
                         Ok(status) => {
-                            if status.success() {
+                            if !status.success() {
                                 log::info!("Failed to reapply route");
                             }
                         }
@@ -327,13 +346,14 @@ impl Future for RouteManagerImpl {
         if let Some(mut shutdown_rx) = self.shutdown_rx.take() {
             match shutdown_rx.poll() {
                 Ok(Async::Ready(shutdown_tx)) => {
-                    self.current_state =
-                        RouteAction::Shutdown(Box::new(self.shutdown_future(Some(shutdown_tx))));
+                    self.current_state = RouteManagerState::Shutdown(Box::new(
+                        self.shutdown_future(Some(shutdown_tx)),
+                    ));
                 }
                 // handle is already dropped
                 Err(_) => {
                     self.current_state =
-                        RouteAction::Shutdown(Box::new(self.shutdown_future(None)));
+                        RouteManagerState::Shutdown(Box::new(self.shutdown_future(None)));
                 }
                 Ok(Async::NotReady) => {
                     self.shutdown_rx = Some(shutdown_rx);
@@ -344,40 +364,40 @@ impl Future for RouteManagerImpl {
 
         loop {
             match &mut self.current_state {
-                RouteAction::Listening(listener) => {
+                RouteManagerState::Listening(listener) => {
                     match listener.poll().map_err(Error::FailedToMonitorRoutes)? {
                         Async::Ready(()) => {
-                            self.current_state = RouteAction::ObtainingDefaultRoutes(Box::new(
-                                self.get_default_routes_future(),
-                            ));
+                            self.current_state = RouteManagerState::ObtainingDefaultRoutes(
+                                Box::new(self.get_default_routes_future()),
+                            );
                         }
                         Async::NotReady => break,
                     }
                 }
 
-                RouteAction::ObtainingDefaultRoutes(f) => match f.poll()? {
+                RouteManagerState::ObtainingDefaultRoutes(f) => match f.poll()? {
                     Async::Ready((v4_gateway, v6_gateway)) => {
-                        self.current_state = RouteAction::Applying(Box::new(
+                        self.current_state = RouteManagerState::Applying(Box::new(
                             self.apply_new_default_routes(v4_gateway, v6_gateway),
                         ));
                     }
                     Async::NotReady => break,
                 },
 
-                RouteAction::Applying(f) => {
+                RouteManagerState::Applying(f) => {
                     match f.poll() {
                         // the future for reapplying routes never fails - just logs failures
                         Err(_) => unreachable!(),
                         Ok(Async::NotReady) => break,
                         Ok(Async::Ready(_)) => {
-                            self.current_state = RouteAction::Listening(
+                            self.current_state = RouteManagerState::Listening(
                                 ChangeListener::new().map_err(Error::FailedToMonitorRoutes)?,
                             );
                         }
                     }
                 }
 
-                RouteAction::Shutdown(shutdown_future) => {
+                RouteManagerState::Shutdown(shutdown_future) => {
                     return Ok(shutdown_future.poll().unwrap_or(Async::Ready(())));
                 }
             }
