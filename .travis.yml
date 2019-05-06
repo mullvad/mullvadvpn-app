@@ -70,12 +70,13 @@ matrix:
     - language: rust
       rust: nightly
       os: linux
+      dist: xenial
       before_script: &rust_before_script
         - source env.sh
         - export RUSTFLAGS="--deny unused_imports --deny dead_code"
         - env        
         - sudo apt-get update
-        - sudo apt-get install libdbus-1-dev
+        - sudo apt-get install libedbus-dev
 
       before_script: *rust_before_script
       script:
@@ -89,6 +90,7 @@ matrix:
     - language: rust
       rust: beta
       os: linux
+      dist: xenial
       # addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_script
@@ -96,6 +98,7 @@ matrix:
     - language: rust
       rust: stable
       os: linux
+      dist: xenial
       # addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_script
