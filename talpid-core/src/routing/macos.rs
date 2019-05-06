@@ -141,27 +141,6 @@ impl RouteManagerImpl {
         })
     }
 
-    fn apply_routes_sync(
-        applied_routes: &mut HashSet<Route>,
-        default_destinations: &HashSet<Node>,
-        routes_to_apply: Vec,
-    ) -> Result<()> {
-        for route in routes_to_apply {
-            Self::add_route(&route).wait()?;
-            applied_routes.insert(route);
-        }
-        for destination in default_destinations.iter() {
-            match (&v4_gateway, &v6_gateway, destination.is_ipv4()) {
-                (Some(gateway), _, true) | (_, Some(gateway), false) => {
-                    let route = Route::new(gateway.clone(), *destination);
-                    Self::add_route(&route).wait()?;
-                    applied_routes.insert(route);
-                }
-                _ => (),
-            };
-        }
-    }
-
     // Retrieves the node that's currently used to reach 0.0.0.0/0
     // Arguments can be either -inet or -inet6
     fn get_default_node_cmd(
