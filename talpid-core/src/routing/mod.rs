@@ -1,8 +1,6 @@
+use futures::{sync::oneshot, Future};
 use ipnetwork::IpNetwork;
 use std::{collections::HashMap, net::IpAddr};
-
-
-use futures::{sync::oneshot, Future};
 use tokio_executor::Executor;
 
 #[cfg(target_os = "macos")]
@@ -23,10 +21,10 @@ pub use imp::Error as PlatformError;
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     /// Platform sepcific error occured
-    #[error(display = "Failed to create route manager: {}", _0)]
+    #[error(display = "Failed to create route manager")]
     FailedToInitializeManager(#[error(cause)] imp::Error),
     /// Failed to spawn route manager future
-    #[error(display = "Failed to spawn route manager")]
+    #[error(display = "Failed to spawn route manager on the provided executor")]
     FailedToSpawnManager,
 }
 
@@ -47,13 +45,13 @@ impl RouteManagerHandle {
     ) -> Result<Self, Error> {
         let (tx, rx) = oneshot::channel();
 
+
         let route_manager = imp::RouteManagerImpl::new(required_routes, rx)
             .map_err(Error::FailedToInitializeManager)?;
         exec.spawn(Box::new(
             route_manager.map_err(|e| log::error!("Routing manager failed - {}", e)),
         ))
         .map_err(|_| Error::FailedToSpawnManager)?;
-
 
         Ok(Self { tx: Some(tx) })
     }
@@ -68,7 +66,7 @@ impl RouteManagerHandle {
             }
 
             if let Err(_) = wait_rx.wait() {
-                log::error!("RouteManager already down!");
+                log::error!("RouteManager paniced why shutting down");
             }
         }
     }
