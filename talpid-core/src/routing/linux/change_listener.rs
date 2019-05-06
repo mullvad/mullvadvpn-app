@@ -230,9 +230,11 @@ impl Stream for RouteChangeListener {
                     if let Some(route_change) = self.map_netlink_to_route_change(message)? {
                         return Ok(Async::Ready(Some(route_change)));
                     };
-                    continue
+                    continue;
                 }
-                None => { return Err(Error::NetlinkConnectionClosed); },
+                None => {
+                    return Err(Error::NetlinkConnectionClosed);
+                }
             }
         }
     }
