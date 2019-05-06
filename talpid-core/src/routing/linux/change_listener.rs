@@ -220,18 +220,20 @@ impl Stream for RouteChangeListener {
             .map_err(failure::Fail::compat)
             .map_err(Error::NetlinkProtocolError)?;
 
-        match self
-            .messages
-            .poll()
-            .map_err(|_| Error::NetlinkConnectionClosed)?
-        {
-            Async::NotReady => Ok(Async::NotReady),
-            Async::Ready(Some(message)) => Ok(self
-                .map_netlink_to_route_change(message)?
-                .map(Some)
-                .map(Async::Ready)
-                .unwrap_or(Async::NotReady)),
-            Async::Ready(None) => Err(Error::NetlinkConnectionClosed),
+        loop {
+            match futures::try_ready!(self
+                .messages
+                .poll()
+                .map_err(|_| Error::NetlinkConnectionClosed))
+            {
+                Some(message) => {
+                    if let Some(route_change) = self.map_netlink_to_route_change(message)? {
+                        return Ok(Async::Ready(Some(route_change)));
+                    };
+                    continue
+                }
+                None => { return Err(Error::NetlinkConnectionClosed); },
+            }
         }
     }
 }
