@@ -67,13 +67,13 @@ impl RouteChangeListener {
     fn map_netlink_to_route_change(&mut self, msg: NetlinkMessage) -> Result<Option<RouteChange>> {
         match msg.payload {
             NetlinkPayload::Rtnl(RtnlMessage::NewLink(new_link)) => {
-                if let Some((idx, name)) = Self::iface_name_idx_pair(new_link) {
+                if let Some((idx, name)) = Self::map_iface_name_to_idx(new_link) {
                     self.iface_map.insert(idx, name);
                 }
                 Ok(None)
             }
             NetlinkPayload::Rtnl(RtnlMessage::DelLink(old_link)) => {
-                if let Some((idx, _)) = Self::iface_name_idx_pair(old_link) {
+                if let Some((idx, _)) = Self::map_iface_name_to_idx(old_link) {
                     self.iface_map.remove(&idx);
                 }
                 Ok(None)
@@ -83,8 +83,7 @@ impl RouteChangeListener {
                 self.get_route(new_route).map(RouteChange::Add).map(Some)
             }
             NetlinkPayload::Rtnl(RtnlMessage::DelRoute(old_route)) => {
-                let things = self.get_route(old_route).map(RouteChange::Remove).map(Some);
-                things
+                self.get_route(old_route).map(RouteChange::Remove).map(Some)
             }
             _ => Ok(None),
         }
@@ -163,7 +162,7 @@ impl RouteChangeListener {
         })
     }
 
-    fn iface_name_idx_pair(msg: LinkMessage) -> Option<(u32, String)> {
+    fn map_iface_name_to_idx(msg: LinkMessage) -> Option<(u32, String)> {
         let index = msg.header.index;
         for nla in msg.nlas {
             match nla {
@@ -197,7 +196,7 @@ impl RouteChangeListener {
             .link()
             .get()
             .execute()
-            .filter_map(Self::iface_name_idx_pair)
+            .filter_map(Self::map_iface_name_to_idx)
             .collect();
 
         match connection.select2(request).wait() {

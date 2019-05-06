@@ -66,7 +66,7 @@ impl RouteManagerHandle {
             }
 
             if let Err(_) = wait_rx.wait() {
-                log::error!("RouteManager paniced why shutting down");
+                log::error!("RouteManager paniced while shutting down");
             }
         }
     }
