@@ -3,7 +3,6 @@
 use self::config::Config;
 use super::{TunnelEvent, TunnelMetadata};
 use crate::routing;
-
 use std::{collections::HashMap, io, path::Path, sync::mpsc};
 
 pub mod config;
