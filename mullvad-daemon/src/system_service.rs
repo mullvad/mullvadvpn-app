@@ -245,8 +245,6 @@ fn get_service_info() -> ServiceInfo {
         dependencies: vec![
             // Base Filter Engine
             ServiceDependency::Service(OsString::from("BFE")),
-            // Windows Management Instrumentation (WMI)
-            ServiceDependency::Service(OsString::from("winmgmt")),
         ],
         account_name: None, // run as System
         account_password: None,
