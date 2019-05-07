@@ -4,7 +4,8 @@ use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use libc;
 use nftnl::{
-    expr::{self, Verdict},
+    self,
+    expr::{self, Payload, Verdict},
     nft_expr, table, Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
 };
 use std::{
@@ -273,6 +274,52 @@ impl<'a> PolicyBatch<'a> {
             check_port(&mut in_v6, Udp, End::Dst, CLIENT_PORT_V6);
             add_verdict(&mut in_v6, &Verdict::Accept);
             self.batch.add(&in_v6, nftnl::MsgType::Add);
+        }
+        // Outgoing Router solicitation (part of NDP)
+        {
+            let mut rule = Rule::new(&self.out_chain);
+
+            check_ip(
+                &mut rule,
+                End::Dst,
+                *super::ROUTER_SOLICITATION_OUT_DST_ADDR,
+            );
+
+            rule.add_expr(&nft_expr!(meta l4proto));
+            rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_ICMPV6 as u8));
+
+            rule.add_expr(&Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 133u8));
+            rule.add_expr(&nftnl::expr::Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 0u8));
+
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+        // Incoming Router advertisement (part of NDP)
+        {
+            let mut rule = Rule::new(&self.in_chain);
+
+            check_net(&mut rule, End::Src, *super::ROUTER_ADVERTISEMENT_IN_SRC_NET);
+
+            rule.add_expr(&nft_expr!(meta l4proto));
+            rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_ICMPV6 as u8));
+
+            rule.add_expr(&Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 134u8));
+            rule.add_expr(&nftnl::expr::Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 0u8));
+
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
         }
     }
 

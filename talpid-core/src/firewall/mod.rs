@@ -50,12 +50,22 @@ lazy_static! {
         // Site-local IPv6 multicast.
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 0, 0), 16).unwrap()),
     ];
+    // The firewall should always allow DHCPv6 to enable automatic configuring of network adapters
+    /// The allowed source address of outbound DHCPv6 requests
     static ref DHCPV6_SRC_ADDR: Ipv6Network = Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
+    /// The allowed target addresses of outbound DHCPv6 requests
     static ref DHCPV6_SERVER_ADDRS: [Ipv6Addr; 2] = [
         Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2),
         Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
     ];
+    // The firewall needs to always allow Router Solicitation/Advertisement (part of NDP)
+    // It should only allow ICMPv6 packets on these addresses. If the platform supports it
+    // it should check that the solicitation packet has ICMP type 133, code 0 for solicitation
+    // and type 134, code 0 for advertisement.
+    static ref ROUTER_SOLICITATION_OUT_DST_ADDR: Ipv6Addr = Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2);
+    static ref ROUTER_ADVERTISEMENT_IN_SRC_NET: Ipv6Network = Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
 }
+
 
 /// A enum that describes network security strategy
 #[derive(Debug, Clone, Eq, PartialEq)]
