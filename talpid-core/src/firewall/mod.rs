@@ -58,10 +58,10 @@ lazy_static! {
         Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2),
         Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
     ];
-    // The firewall needs to always allow Router Solicitation/Advertisement (part of NDP)
+    // The firewall needs to always allow Router Solicitation/Advertisement/Redirect (part of NDP)
     // It should only allow ICMPv6 packets on these addresses. If the platform supports it
-    // it should check that the solicitation packet has ICMP type 133, code 0 for solicitation
-    // and type 134, code 0 for advertisement.
+    // it should check that the solicitation packet has ICMP type 133 and code 0.
+    // Advertisement packet type 134, code 0. And Redirect type 137, code 0.
     static ref ROUTER_SOLICITATION_OUT_DST_ADDR: Ipv6Addr = Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2);
     static ref ROUTER_ADVERTISEMENT_IN_SRC_NET: Ipv6Network = Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
 }

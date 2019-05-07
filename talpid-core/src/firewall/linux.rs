@@ -278,7 +278,6 @@ impl<'a> PolicyBatch<'a> {
         // Outgoing Router solicitation (part of NDP)
         {
             let mut rule = Rule::new(&self.out_chain);
-
             check_ip(
                 &mut rule,
                 End::Dst,
@@ -303,7 +302,6 @@ impl<'a> PolicyBatch<'a> {
         // Incoming Router advertisement (part of NDP)
         {
             let mut rule = Rule::new(&self.in_chain);
-
             check_net(&mut rule, End::Src, *super::ROUTER_ADVERTISEMENT_IN_SRC_NET);
 
             rule.add_expr(&nft_expr!(meta l4proto));
@@ -313,6 +311,26 @@ impl<'a> PolicyBatch<'a> {
                 nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
             ));
             rule.add_expr(&nft_expr!(cmp == 134u8));
+            rule.add_expr(&nftnl::expr::Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 0u8));
+
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+        // Incoming Redirect (part of NDP)
+        {
+            let mut rule = Rule::new(&self.in_chain);
+            check_net(&mut rule, End::Src, *super::ROUTER_ADVERTISEMENT_IN_SRC_NET);
+
+            rule.add_expr(&nft_expr!(meta l4proto));
+            rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_ICMPV6 as u8));
+
+            rule.add_expr(&Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 137u8));
             rule.add_expr(&nftnl::expr::Payload::Transport(
                 nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
             ));
