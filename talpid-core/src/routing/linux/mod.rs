@@ -176,8 +176,8 @@ of route monitor -{}",
 
     fn process_new_route(&mut self, route: Route) {
         self.needed_changes.retain(|change| {
-            if let RouteChange::Add(route) = change {
-                &route != &route
+            if let RouteChange::Add(old_route) = change {
+                old_route != &route
             } else {
                 true
             }
@@ -185,23 +185,19 @@ of route monitor -{}",
         if route.prefix.prefix() == 0 {
             self.default_routes.insert(route);
             self.update_default_rotues();
-            return;
         }
     }
 
     fn process_deleted_route(&mut self, route: Route) {
         self.needed_changes.retain(|change| {
-            if let RouteChange::Remove(route) = change {
-                &route != &route
+            if let RouteChange::Remove(old_route) = change {
+                old_route != &route
             } else {
                 true
             }
         });
         if route.prefix.prefix() == 0 {
-            let existed = self.default_routes.remove(&route);
-            dbg!(existed);
             self.update_default_rotues();
-            return;
         }
     }
 
@@ -265,24 +261,22 @@ of route monitor -{}",
         if self
             .pending_change
             .as_ref()
-            .map(|pending_change| &pending_change.change == &route_change)
-            .unwrap_or(false)
-            || self
+            .map(|pending_change| &pending_change.change != &route_change)
+            .unwrap_or(true)
+            && self
                 .needed_changes
                 .iter()
-                .any(|enqued_change| enqued_change == &route_change)
+                .all(|enqued_change| enqued_change != &route_change)
         {
-            return;
+            self.needed_changes.push_back(route_change);
         }
-
-        self.needed_changes.push_back(route_change);
     }
 
     fn pick_best_default_node(routes: &HashSet<Route>, v4: bool) -> Option<Node> {
         // Pick the route with the lowest metric - thus the most favourable route.
         routes
             .iter()
-            .filter(|route| route.prefix.is_ipv4() & v4)
+            .filter(|route| route.prefix.is_ipv4() == v4)
             .fold(
                 None,
                 |best_route: Option<Route>, next_route| match best_route {
@@ -336,8 +330,6 @@ of route monitor -{}",
             }
         }
 
-        dbg!(&self.needed_changes);
-        dbg!(&self.pending_change.is_none());
         Ok(self.pending_change.is_none() && self.needed_changes.len() == 0)
     }
 
@@ -351,7 +343,6 @@ of route monitor -{}",
 
         if let Some(addr) = route.node.get_address() {
             cmd.arg("via").arg(addr.to_string());
-            // } else if let Some(device) = route.node.get_device() {
         };
         if let Some(device) = route.node.get_device() {
             cmd.arg("dev").arg(device);
@@ -364,17 +355,17 @@ of route monitor -{}",
     }
 
     fn run_cmd(mut cmd: Command, err: Error) -> Box<dyn Future<Item = (), Error = Error> + Send> {
-        println!("running cmd - {:?}", &cmd);
+        log::trace!("running cmd - {:?}", &cmd);
         Box::new(
             cmd.spawn_async()
                 .into_future()
-                .and_then(|proc| proc)
+                .flatten()
                 .map_err(Error::FailedToRunIp)
                 .and_then(|exit_status| {
                     if exit_status.success() {
-                        futures::future::ok(())
+                        Ok(())
                     } else {
-                        futures::future::err(err)
+                        Err(err)
                     }
                 }),
         )
@@ -500,7 +491,8 @@ fn parse_ip_route_show_line(line: &str, ip_version: IpVersion) -> Option<Route> 
     let tokens: Vec<&str> = tokens.collect();
     for pair in tokens.chunks(2) {
         if pair.len() != 2 {
-            log::trace!("unexpected output from ip");
+            log::error!("unexpected output from ip");
+            continue;
         }
         let kind = pair[0];
         let value = pair[1];
