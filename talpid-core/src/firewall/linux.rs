@@ -258,7 +258,7 @@ impl<'a> PolicyBatch<'a> {
         }
         for dhcpv6_server in &*super::DHCPV6_SERVER_ADDRS {
             let mut out_v6 = Rule::new(&self.out_chain);
-            check_net(&mut out_v6, End::Src, *super::LOCAL_INET6_NET);
+            check_net(&mut out_v6, End::Src, *super::DHCPV6_SRC_ADDR);
             check_port(&mut out_v6, Udp, End::Src, CLIENT_PORT_V6);
             check_ip(&mut out_v6, End::Dst, *dhcpv6_server);
             check_port(&mut out_v6, Udp, End::Dst, SERVER_PORT_V6);
@@ -267,9 +267,9 @@ impl<'a> PolicyBatch<'a> {
         }
         {
             let mut in_v6 = Rule::new(&self.in_chain);
-            check_net(&mut in_v6, End::Src, *super::LOCAL_INET6_NET);
+            check_net(&mut in_v6, End::Src, *super::DHCPV6_SRC_ADDR);
             check_port(&mut in_v6, Udp, End::Src, SERVER_PORT_V6);
-            check_net(&mut in_v6, End::Dst, *super::LOCAL_INET6_NET);
+            check_net(&mut in_v6, End::Dst, *super::DHCPV6_SRC_ADDR);
             check_port(&mut in_v6, Udp, End::Dst, CLIENT_PORT_V6);
             add_verdict(&mut in_v6, &Verdict::Accept);
             self.batch.add(&in_v6, nftnl::MsgType::Add);
@@ -406,42 +406,24 @@ impl<'a> PolicyBatch<'a> {
 
     fn add_allow_lan_rules(&mut self) {
         // LAN -> LAN
-        for chain in &[&self.in_chain, &self.out_chain] {
-            for net in &*super::PRIVATE_NETS {
-                let mut rule = Rule::new(chain);
-                check_net(&mut rule, End::Src, *net);
-                check_net(&mut rule, End::Dst, *net);
-                add_verdict(&mut rule, &Verdict::Accept);
-                self.batch.add(&rule, nftnl::MsgType::Add);
-            }
-            let mut rule = Rule::new(chain);
-            check_net(&mut rule, End::Src, *super::LOCAL_INET6_NET);
-            check_net(&mut rule, End::Dst, *super::LOCAL_INET6_NET);
+        for net in &*super::ALLOWED_LAN_NETS {
+            let mut in_rule = Rule::new(&self.in_chain);
+            check_net(&mut in_rule, End::Src, *net);
+            add_verdict(&mut in_rule, &Verdict::Accept);
+            self.batch.add(&in_rule, nftnl::MsgType::Add);
+
+            let mut out_rule = Rule::new(&self.out_chain);
+            check_net(&mut out_rule, End::Dst, *net);
+            add_verdict(&mut out_rule, &Verdict::Accept);
+            self.batch.add(&out_rule, nftnl::MsgType::Add);
+        }
+        // LAN -> Multicast
+        for net in &*super::ALLOWED_LAN_MULTICAST_NETS {
+            let mut rule = Rule::new(&self.out_chain);
+            check_net(&mut rule, End::Dst, *net);
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
-        // LAN -> multicast
-        for net in &*super::PRIVATE_NETS {
-            let mut rule = Rule::new(&self.out_chain);
-            check_net(&mut rule, End::Src, *net);
-            check_net(&mut rule, End::Dst, *super::MULTICAST_NET);
-            add_verdict(&mut rule, &Verdict::Accept);
-
-            self.batch.add(&rule, nftnl::MsgType::Add);
-
-            // LAN -> SSDP + WS-Discovery protocols
-            let mut rule = Rule::new(&self.out_chain);
-            check_net(&mut rule, End::Src, *net);
-            check_ip(&mut rule, End::Dst, *super::SSDP_IP);
-            add_verdict(&mut rule, &Verdict::Accept);
-
-            self.batch.add(&rule, nftnl::MsgType::Add);
-        }
-        let mut rule = Rule::new(&self.out_chain);
-        check_net(&mut rule, End::Src, *super::LOCAL_INET6_NET);
-        check_net(&mut rule, End::Dst, *super::MULTICAST_INET6_NET);
-        add_verdict(&mut rule, &Verdict::Accept);
-        self.batch.add(&rule, nftnl::MsgType::Add);
     }
 }
 
@@ -468,7 +450,8 @@ fn check_iface(rule: &mut Rule<'_>, direction: Direction, iface: &str) -> Result
     Ok(())
 }
 
-fn check_net(rule: &mut Rule<'_>, end: End, net: IpNetwork) {
+fn check_net(rule: &mut Rule<'_>, end: End, net: impl Into<IpNetwork>) {
+    let net = net.into();
     // Must check network layer protocol before loading network layer payload
     check_l3proto(rule, net.ip());
 
@@ -490,7 +473,8 @@ fn check_endpoint(rule: &mut Rule<'_>, end: End, endpoint: &Endpoint) {
     check_port(rule, endpoint.protocol, end, endpoint.address.port());
 }
 
-fn check_ip(rule: &mut Rule<'_>, end: End, ip: IpAddr) {
+fn check_ip(rule: &mut Rule<'_>, end: End, ip: impl Into<IpAddr>) {
+    let ip = ip.into();
     // Must check network layer protocol before loading network layer payload
     check_l3proto(rule, ip);
 
