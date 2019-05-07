@@ -358,7 +358,6 @@ of route monitor -{}",
         log::trace!("running cmd - {:?}", &cmd);
         Box::new(
             cmd.spawn_async()
-                .into_future()
                 .flatten()
                 .map_err(Error::FailedToRunIp)
                 .and_then(|exit_status| {
@@ -492,7 +491,7 @@ fn parse_ip_route_show_line(line: &str, ip_version: IpVersion) -> Option<Route> 
     for pair in tokens.chunks(2) {
         if pair.len() != 2 {
             log::error!("unexpected output from ip");
-            continue;
+            break;
         }
         let kind = pair[0];
         let value = pair[1];
