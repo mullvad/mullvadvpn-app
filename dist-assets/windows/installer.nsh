@@ -37,6 +37,9 @@
 !define PTI_GENERAL_ERROR 0
 !define PTI_SUCCESS 1
 
+# Windows error codes
+!define ERROR_SERVICE_DEPENDENCY_DELETED 1075
+
 #
 # BreakInstallation
 #
@@ -314,7 +317,11 @@
 
 	${If} $0 != ${SERVICE_STARTED}
 	${AndIf} $0 != ${SERVICE_START_PENDING}
-		StrCpy $R0 "Failed to start Mullvad service: error $0"
+		${If} $0 == ${ERROR_SERVICE_DEPENDENCY_DELETED}
+			StrCpy $R0 'Failed to start Mullvad service: The firewall service "Base Filtering Engine" is missing or unavailable.'
+		${Else}
+			StrCpy $R0 "Failed to start Mullvad service: error $0"
+		${EndIf}
 		log::LogWithDetails $R0 $1
 		Goto InstallService_return
 	${EndIf}
