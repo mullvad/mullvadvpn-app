@@ -358,6 +358,7 @@ of route monitor -{}",
         log::trace!("running cmd - {:?}", &cmd);
         Box::new(
             cmd.spawn_async()
+                .into_future()
                 .flatten()
                 .map_err(Error::FailedToRunIp)
                 .and_then(|exit_status| {
