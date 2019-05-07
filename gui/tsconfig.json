@@ -16,6 +16,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2017",
+    "incremental": true,
     "lib": ["es2017", "dom"],
     "typeRoots": [
       "./types",

@@ -29,6 +29,7 @@ files:
   - init.js
   - build/
   - node_modules/
+  - "!**/*.tsbuildinfo"
 
 mac:
   target: pkg
