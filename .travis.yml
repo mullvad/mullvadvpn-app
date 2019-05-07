@@ -78,14 +78,7 @@ matrix:
             key_url: "https://pgp.key-server.io/download/0xE03043828C3FF4BB"
          packages:
           - binutils
-          - libdbus-1-dev
-      # before_script: &rust_before_script
-      #   - source env.sh
-      #   - export RUSTFLAGS="--deny unused_imports --deny dead_code"
-      #   - env        
-      #   - sudo apt-get update
-      #   - sudo apt-get install libedbus-dev
-
+          - libdbus-dev
       before_script: *rust_before_script
       script:
         - cargo build --verbose
@@ -99,7 +92,7 @@ matrix:
       rust: beta
       os: linux
       dist: xenial
-      # addons: *rust_linux_addons
+      addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_script
 
@@ -107,7 +100,7 @@ matrix:
       rust: stable
       os: linux
       dist: xenial
-      # addons: *rust_linux_addons
+      addons: *rust_linux_addons
       before_script: *rust_before_script
       script: *rust_script
 
