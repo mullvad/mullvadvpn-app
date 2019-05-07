@@ -74,7 +74,7 @@ matrix:
       addons: &rust_linux_addons
         apt:
          sources:
-          - sourceline: "ppa:jonathonf/gcc-7.3"
+          - sourceline: "ppa:jonathonf/binutils"
             key_url: "https://pgp.key-server.io/download/0xE03043828C3FF4BB"
          packages:
           - binutils
