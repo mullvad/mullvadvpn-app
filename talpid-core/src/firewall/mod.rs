@@ -30,22 +30,30 @@ pub use self::imp::Error;
 
 #[cfg(unix)]
 lazy_static! {
-    static ref PRIVATE_NETS: [IpNetwork; 4] = [
+    /// When "allow local network" is enabled the app will allow traffic to and from these networks.
+    static ref ALLOWED_LAN_NETS: [IpNetwork; 5] = [
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(169, 254, 0, 0), 16).unwrap()),
+        // Link-local IPv6 addresses.
+        IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap()),
     ];
-    static ref LOCAL_INET6_NET: IpNetwork =
-        IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap());
-    static ref MULTICAST_NET: IpNetwork =
-        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap());
-    static ref MULTICAST_INET6_NET: IpNetwork =
-        IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfe02, 0, 0, 0, 0, 0, 0, 0), 16).unwrap());
-    static ref SSDP_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(239, 255, 255, 250));
-    static ref DHCPV6_SERVER_ADDRS: [IpAddr; 2] = [
-        IpAddr::V6(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2)),
-        IpAddr::V6(Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3)),
+    /// When "allow local network" is enabled the app will allow traffic to these networks.
+    static ref ALLOWED_LAN_MULTICAST_NETS: [IpNetwork; 4] = [
+        // Local subnetwork multicast. Not routable
+        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap()),
+        // Simple Service Discovery Protocol (SSDP) address
+        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(239, 255, 255, 250), 32).unwrap()),
+        // Link-local IPv6 multicast. IPv6 equivalent of 224.0.0.0/24
+        IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 0), 16).unwrap()),
+        // Site-local IPv6 multicast.
+        IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 0, 0), 16).unwrap()),
+    ];
+    static ref DHCPV6_SRC_ADDR: Ipv6Network = Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
+    static ref DHCPV6_SERVER_ADDRS: [Ipv6Addr; 2] = [
+        Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2),
+        Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
     ];
 }
 
