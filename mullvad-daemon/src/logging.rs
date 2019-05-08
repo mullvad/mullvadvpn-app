@@ -40,6 +40,7 @@ const SILENCED_CRATES: &[&str] = &[
     "hyper",
     "rtnetlink",
     "netlink_proto",
+    "netlink_sys",
     "iproute2",
 ];
 const SLIGHTLY_SILENCED_CRATES: &[&str] = &["mnl", "nftnl"];
