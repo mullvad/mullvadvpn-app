@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2019.4] - 2019-05-08
+This release is identical to 2019.4-beta1
+
+
 ## [2019.4-beta1] - 2019-05-02
 ### Added
 - When IPv6 is enabled, get both exit IP versions from am.i.mullvad.net and show.
