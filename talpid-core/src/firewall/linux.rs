@@ -4,7 +4,8 @@ use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use libc;
 use nftnl::{
-    expr::{self, Verdict},
+    self,
+    expr::{self, Payload, Verdict},
     nft_expr, table, Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
 };
 use std::{
@@ -199,6 +200,7 @@ impl<'a> PolicyBatch<'a> {
         out_chain.set_policy(nftnl::Policy::Drop);
         in_chain.set_policy(nftnl::Policy::Drop);
 
+        // A little dance that will make sure the table exists, but is cleared.
         batch.add(table, nftnl::MsgType::Add);
         batch.add(table, nftnl::MsgType::Del);
         batch.add(table, nftnl::MsgType::Add);
@@ -237,42 +239,102 @@ impl<'a> PolicyBatch<'a> {
 
     fn add_dhcp_rules(&mut self) {
         use self::TransportProtocol::Udp;
-        const SERVER_PORT_V4: u16 = 67;
-        const CLIENT_PORT_V4: u16 = 68;
-        const SERVER_PORT_V6: u16 = 547;
-        const CLIENT_PORT_V6: u16 = 546;
         {
             let mut out_v4 = Rule::new(&self.out_chain);
-            check_port(&mut out_v4, Udp, End::Src, CLIENT_PORT_V4);
+            check_port(&mut out_v4, Udp, End::Src, super::DHCPV4_CLIENT_PORT);
             check_ip(&mut out_v4, End::Dst, IpAddr::V4(Ipv4Addr::BROADCAST));
-            check_port(&mut out_v4, Udp, End::Dst, SERVER_PORT_V4);
+            check_port(&mut out_v4, Udp, End::Dst, super::DHCPV4_SERVER_PORT);
             add_verdict(&mut out_v4, &Verdict::Accept);
             self.batch.add(&out_v4, nftnl::MsgType::Add);
         }
         {
             let mut in_v4 = Rule::new(&self.in_chain);
-            check_port(&mut in_v4, Udp, End::Src, SERVER_PORT_V4);
-            check_port(&mut in_v4, Udp, End::Dst, CLIENT_PORT_V4);
+            check_port(&mut in_v4, Udp, End::Src, super::DHCPV4_SERVER_PORT);
+            check_port(&mut in_v4, Udp, End::Dst, super::DHCPV4_CLIENT_PORT);
             add_verdict(&mut in_v4, &Verdict::Accept);
             self.batch.add(&in_v4, nftnl::MsgType::Add);
         }
         for dhcpv6_server in &*super::DHCPV6_SERVER_ADDRS {
             let mut out_v6 = Rule::new(&self.out_chain);
-            check_net(&mut out_v6, End::Src, *super::LOCAL_INET6_NET);
-            check_port(&mut out_v6, Udp, End::Src, CLIENT_PORT_V6);
+            check_net(&mut out_v6, End::Src, *super::IPV6_LINK_LOCAL);
+            check_port(&mut out_v6, Udp, End::Src, super::DHCPV6_CLIENT_PORT);
             check_ip(&mut out_v6, End::Dst, *dhcpv6_server);
-            check_port(&mut out_v6, Udp, End::Dst, SERVER_PORT_V6);
+            check_port(&mut out_v6, Udp, End::Dst, super::DHCPV6_SERVER_PORT);
             add_verdict(&mut out_v6, &Verdict::Accept);
             self.batch.add(&out_v6, nftnl::MsgType::Add);
         }
         {
             let mut in_v6 = Rule::new(&self.in_chain);
-            check_net(&mut in_v6, End::Src, *super::LOCAL_INET6_NET);
-            check_port(&mut in_v6, Udp, End::Src, SERVER_PORT_V6);
-            check_net(&mut in_v6, End::Dst, *super::LOCAL_INET6_NET);
-            check_port(&mut in_v6, Udp, End::Dst, CLIENT_PORT_V6);
+            check_net(&mut in_v6, End::Src, *super::IPV6_LINK_LOCAL);
+            check_port(&mut in_v6, Udp, End::Src, super::DHCPV6_SERVER_PORT);
+            check_net(&mut in_v6, End::Dst, *super::IPV6_LINK_LOCAL);
+            check_port(&mut in_v6, Udp, End::Dst, super::DHCPV6_CLIENT_PORT);
             add_verdict(&mut in_v6, &Verdict::Accept);
             self.batch.add(&in_v6, nftnl::MsgType::Add);
+        }
+        // Outgoing Router solicitation (part of NDP)
+        {
+            let mut rule = Rule::new(&self.out_chain);
+            check_ip(
+                &mut rule,
+                End::Dst,
+                *super::ROUTER_SOLICITATION_OUT_DST_ADDR,
+            );
+
+            rule.add_expr(&nft_expr!(meta l4proto));
+            rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_ICMPV6 as u8));
+
+            rule.add_expr(&Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 133u8));
+            rule.add_expr(&nftnl::expr::Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 0u8));
+
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+        // Incoming Router advertisement (part of NDP)
+        {
+            let mut rule = Rule::new(&self.in_chain);
+            check_net(&mut rule, End::Src, *super::IPV6_LINK_LOCAL);
+
+            rule.add_expr(&nft_expr!(meta l4proto));
+            rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_ICMPV6 as u8));
+
+            rule.add_expr(&Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 134u8));
+            rule.add_expr(&nftnl::expr::Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 0u8));
+
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+        // Incoming Redirect (part of NDP)
+        {
+            let mut rule = Rule::new(&self.in_chain);
+            check_net(&mut rule, End::Src, *super::IPV6_LINK_LOCAL);
+
+            rule.add_expr(&nft_expr!(meta l4proto));
+            rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_ICMPV6 as u8));
+
+            rule.add_expr(&Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 137u8));
+            rule.add_expr(&nftnl::expr::Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 0u8));
+
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
         }
     }
 
@@ -406,42 +468,24 @@ impl<'a> PolicyBatch<'a> {
 
     fn add_allow_lan_rules(&mut self) {
         // LAN -> LAN
-        for chain in &[&self.in_chain, &self.out_chain] {
-            for net in &*super::PRIVATE_NETS {
-                let mut rule = Rule::new(chain);
-                check_net(&mut rule, End::Src, *net);
-                check_net(&mut rule, End::Dst, *net);
-                add_verdict(&mut rule, &Verdict::Accept);
-                self.batch.add(&rule, nftnl::MsgType::Add);
-            }
-            let mut rule = Rule::new(chain);
-            check_net(&mut rule, End::Src, *super::LOCAL_INET6_NET);
-            check_net(&mut rule, End::Dst, *super::LOCAL_INET6_NET);
+        for net in &*super::ALLOWED_LAN_NETS {
+            let mut out_rule = Rule::new(&self.out_chain);
+            check_net(&mut out_rule, End::Dst, *net);
+            add_verdict(&mut out_rule, &Verdict::Accept);
+            self.batch.add(&out_rule, nftnl::MsgType::Add);
+
+            let mut in_rule = Rule::new(&self.in_chain);
+            check_net(&mut in_rule, End::Src, *net);
+            add_verdict(&mut in_rule, &Verdict::Accept);
+            self.batch.add(&in_rule, nftnl::MsgType::Add);
+        }
+        // LAN -> Multicast
+        for net in &*super::ALLOWED_LAN_MULTICAST_NETS {
+            let mut rule = Rule::new(&self.out_chain);
+            check_net(&mut rule, End::Dst, *net);
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
-        // LAN -> multicast
-        for net in &*super::PRIVATE_NETS {
-            let mut rule = Rule::new(&self.out_chain);
-            check_net(&mut rule, End::Src, *net);
-            check_net(&mut rule, End::Dst, *super::MULTICAST_NET);
-            add_verdict(&mut rule, &Verdict::Accept);
-
-            self.batch.add(&rule, nftnl::MsgType::Add);
-
-            // LAN -> SSDP + WS-Discovery protocols
-            let mut rule = Rule::new(&self.out_chain);
-            check_net(&mut rule, End::Src, *net);
-            check_ip(&mut rule, End::Dst, *super::SSDP_IP);
-            add_verdict(&mut rule, &Verdict::Accept);
-
-            self.batch.add(&rule, nftnl::MsgType::Add);
-        }
-        let mut rule = Rule::new(&self.out_chain);
-        check_net(&mut rule, End::Src, *super::LOCAL_INET6_NET);
-        check_net(&mut rule, End::Dst, *super::MULTICAST_INET6_NET);
-        add_verdict(&mut rule, &Verdict::Accept);
-        self.batch.add(&rule, nftnl::MsgType::Add);
     }
 }
 
@@ -468,7 +512,8 @@ fn check_iface(rule: &mut Rule<'_>, direction: Direction, iface: &str) -> Result
     Ok(())
 }
 
-fn check_net(rule: &mut Rule<'_>, end: End, net: IpNetwork) {
+fn check_net(rule: &mut Rule<'_>, end: End, net: impl Into<IpNetwork>) {
+    let net = net.into();
     // Must check network layer protocol before loading network layer payload
     check_l3proto(rule, net.ip());
 
@@ -490,7 +535,8 @@ fn check_endpoint(rule: &mut Rule<'_>, end: End, endpoint: &Endpoint) {
     check_port(rule, endpoint.protocol, end, endpoint.address.port());
 }
 
-fn check_ip(rule: &mut Rule<'_>, end: End, ip: IpAddr) {
+fn check_ip(rule: &mut Rule<'_>, end: End, ip: impl Into<IpAddr>) {
+    let ip = ip.into();
     // Must check network layer protocol before loading network layer payload
     check_l3proto(rule, ip);
 

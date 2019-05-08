@@ -1,4 +1,5 @@
 use super::{FirewallArguments, FirewallPolicy, FirewallT};
+use ipnetwork::IpNetwork;
 use pfctl::FilterRuleAction;
 use std::{
     env,
@@ -206,21 +207,21 @@ impl Firewall {
 
             let out_rule = self
                 .create_rule_builder(FilterRuleAction::Pass)
-                .direction(pfctl::Direction::Out)
-                .to(pfctl::Endpoint::new(*host, 0))
-                .proto(icmp_proto)
-                .keep_state(pfctl::StatePolicy::Keep)
                 .quick(true)
+                .direction(pfctl::Direction::Out)
+                .proto(icmp_proto)
+                .to(pfctl::Endpoint::new(*host, 0))
+                .keep_state(pfctl::StatePolicy::Keep)
                 .build()?;
             rules.push(out_rule);
 
             let in_rule = self
                 .create_rule_builder(FilterRuleAction::Pass)
-                .direction(pfctl::Direction::In)
-                .from(pfctl::Endpoint::new(*host, 0))
-                .proto(icmp_proto)
-                .keep_state(pfctl::StatePolicy::Keep)
                 .quick(true)
+                .direction(pfctl::Direction::In)
+                .proto(icmp_proto)
+                .from(pfctl::Endpoint::new(*host, 0))
+                .keep_state(pfctl::StatePolicy::Keep)
                 .build()?;
             rules.push(in_rule);
         }
@@ -230,107 +231,130 @@ impl Firewall {
     fn get_allow_tunnel_rule(&self, tunnel_interface: &str) -> Result<pfctl::FilterRule> {
         Ok(self
             .create_rule_builder(FilterRuleAction::Pass)
+            .quick(true)
             .interface(tunnel_interface)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
-            .quick(true)
             .build()?)
     }
 
     fn get_allow_loopback_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
         let lo0_rule = self
             .create_rule_builder(FilterRuleAction::Pass)
+            .quick(true)
             .interface("lo0")
             .keep_state(pfctl::StatePolicy::Keep)
-            .quick(true)
             .build()?;
         Ok(vec![lo0_rule])
     }
 
     fn get_allow_lan_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
         let mut rules = vec![];
-        // IPv4
-        for net in &*super::PRIVATE_NETS {
+        for net in &*super::ALLOWED_LAN_NETS {
             let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
-            rule_builder
-                .quick(true)
-                .af(pfctl::AddrFamily::Ipv4)
-                .from(pfctl::Ip::from(*net));
-            let allow_net = rule_builder.to(pfctl::Ip::from(*net)).build()?;
-            let allow_multicast = rule_builder
-                .to(pfctl::Ip::from(*super::MULTICAST_NET))
+            rule_builder.quick(true).af(match net {
+                IpNetwork::V4(_) => pfctl::AddrFamily::Ipv4,
+                IpNetwork::V6(_) => pfctl::AddrFamily::Ipv6,
+            });
+            let allow_out = rule_builder
+                .direction(pfctl::Direction::Out)
+                .from(pfctl::Ip::Any)
+                .to(pfctl::Ip::from(*net))
                 .build()?;
-            let allow_ssdp = rule_builder.to(pfctl::Ip::from(*super::SSDP_IP)).build()?;
-            rules.push(allow_net);
-            rules.push(allow_multicast);
-            rules.push(allow_ssdp);
+            let allow_in = rule_builder
+                .direction(pfctl::Direction::In)
+                .from(pfctl::Ip::from(*net))
+                .to(pfctl::Ip::Any)
+                .build()?;
+            rules.push(allow_out);
+            rules.push(allow_in);
         }
-        // IPv6
-        let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
-        rule_builder
-            .quick(true)
-            .af(pfctl::AddrFamily::Ipv6)
-            .from(pfctl::Ip::from(*super::LOCAL_INET6_NET));
-        let allow_net_v6 = rule_builder
-            .to(pfctl::Ip::from(*super::LOCAL_INET6_NET))
-            .build()?;
-        let allow_multicast_v6 = rule_builder
-            .to(pfctl::Ip::from(*super::MULTICAST_INET6_NET))
-            .build()?;
-        rules.push(allow_net_v6);
-        rules.push(allow_multicast_v6);
-
+        for multicast_net in &*super::ALLOWED_LAN_MULTICAST_NETS {
+            let allow_multicast_out = self
+                .create_rule_builder(FilterRuleAction::Pass)
+                .quick(true)
+                .direction(pfctl::Direction::Out)
+                .af(match multicast_net {
+                    IpNetwork::V4(_) => pfctl::AddrFamily::Ipv4,
+                    IpNetwork::V6(_) => pfctl::AddrFamily::Ipv6,
+                })
+                .to(pfctl::Ip::from(*multicast_net))
+                .build()?;
+            rules.push(allow_multicast_out);
+        }
         Ok(rules)
     }
 
     fn get_allow_dhcp_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
-        let server_port_v4 = pfctl::Port::from(67);
-        let client_port_v4 = pfctl::Port::from(68);
-        let server_port_v6 = pfctl::Port::from(547);
-        let client_port_v6 = pfctl::Port::from(546);
         let mut dhcp_rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
         dhcp_rule_builder.quick(true).proto(pfctl::Proto::Udp);
 
         let mut rules = Vec::new();
+
+        // DHCPv4
+        dhcp_rule_builder.af(pfctl::AddrFamily::Ipv4);
         let allow_outgoing_dhcp_v4 = dhcp_rule_builder
             .direction(pfctl::Direction::Out)
-            .from(client_port_v4)
-            .to(pfctl::Endpoint::new(Ipv4Addr::BROADCAST, server_port_v4))
+            .from(pfctl::Port::from(super::DHCPV4_CLIENT_PORT))
+            .to(pfctl::Endpoint::new(
+                Ipv4Addr::BROADCAST,
+                pfctl::Port::from(super::DHCPV4_SERVER_PORT),
+            ))
+            .build()?;
+        let allow_incoming_dhcp_v4 = dhcp_rule_builder
+            .direction(pfctl::Direction::In)
+            .from(pfctl::Port::from(super::DHCPV4_SERVER_PORT))
+            .to(pfctl::Port::from(super::DHCPV4_CLIENT_PORT))
             .build()?;
         rules.push(allow_outgoing_dhcp_v4);
-        let allow_incoming_dhcp_v4 = dhcp_rule_builder
-            .af(pfctl::AddrFamily::Ipv4)
-            .direction(pfctl::Direction::In)
-            .from(server_port_v4)
-            .to(client_port_v4)
-            .build()?;
         rules.push(allow_incoming_dhcp_v4);
 
+        // DHCPv6
+        dhcp_rule_builder.af(pfctl::AddrFamily::Ipv6);
         for dhcpv6_server in &*super::DHCPV6_SERVER_ADDRS {
             let allow_outgoing_dhcp_v6 = dhcp_rule_builder
-                .af(pfctl::AddrFamily::Ipv6)
                 .direction(pfctl::Direction::Out)
                 .from(pfctl::Endpoint::new(
-                    *super::LOCAL_INET6_NET,
-                    client_port_v6,
+                    IpNetwork::V6(*super::IPV6_LINK_LOCAL),
+                    pfctl::Port::from(super::DHCPV6_CLIENT_PORT),
                 ))
-                .to(pfctl::Endpoint::new(*dhcpv6_server, server_port_v6))
+                .to(pfctl::Endpoint::new(
+                    *dhcpv6_server,
+                    pfctl::Port::from(super::DHCPV6_SERVER_PORT),
+                ))
                 .build()?;
             rules.push(allow_outgoing_dhcp_v6);
         }
         let allow_incoming_dhcp_v6 = dhcp_rule_builder
-            .af(pfctl::AddrFamily::Ipv6)
             .direction(pfctl::Direction::In)
             .from(pfctl::Endpoint::new(
-                *super::LOCAL_INET6_NET,
-                server_port_v6,
+                pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)),
+                pfctl::Port::from(super::DHCPV6_SERVER_PORT),
             ))
             .to(pfctl::Endpoint::new(
-                *super::LOCAL_INET6_NET,
-                client_port_v6,
+                pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)),
+                pfctl::Port::from(super::DHCPV6_CLIENT_PORT),
             ))
             .build()?;
         rules.push(allow_incoming_dhcp_v6);
+
+        // NDP (router solicitation, advertisement and redirect)
+        let allow_router_solicitation = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .quick(true)
+            .proto(pfctl::Proto::IcmpV6)
+            .direction(pfctl::Direction::Out)
+            .to(*super::ROUTER_SOLICITATION_OUT_DST_ADDR)
+            .build()?;
+        let allow_router_advertisement_and_redirect = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .quick(true)
+            .proto(pfctl::Proto::IcmpV6)
+            .direction(pfctl::Direction::In)
+            .from(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
+            .build()?;
+        rules.push(allow_router_solicitation);
+        rules.push(allow_router_advertisement_and_redirect);
 
         Ok(rules)
     }
