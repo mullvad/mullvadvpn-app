@@ -58,11 +58,11 @@ matrix:
     - language: rust
       rust: stable
       os: osx
-      before_script: &rust_before_script
+      before_script:
         - source env.sh
         - export RUSTFLAGS="--deny unused_imports --deny dead_code"
         - env
-      script: &rust_script
+      script:
         - cargo build --verbose
         - cargo test --verbose
 
@@ -71,36 +71,35 @@ matrix:
       rust: nightly
       os: linux
       dist: xenial
-      addons: &rust_linux_addons
-        apt:
-         sources:
-          - sourceline: "ppa:jonathonf/binutils"
-            key_url: "https://pgp.key-server.io/download/0xE03043828C3FF4BB"
-         packages:
-          - binutils
-          - libdbus-1-dev
-      before_script: *rust_before_script
+      services: docker
+      before_script: &rust_before_script
+        - docker run -d --name mvd-build -e LC_ALL="en_US.UTF-8" -e LANG="en_US.UTF-8" -v $(pwd):/travis -w /travis  mvdemils/mullvadvpn-app-build:latest tail -f /dev/null
+        - docker ps
+        - export SH="docker exec -t mvd-build bash -c"
       script:
-        - cargo build --verbose
-        - cargo test --verbose
+        - $SH rustup update nightly
+        - $SH cargo build --verbose
+        - $SH cargo test --verbose
         # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
-        - rustup component add rustfmt-preview
-        - cargo fmt --version || true
-        - cargo fmt -- --check --unstable-features
+        - $SH rustup component add rustfmt-preview
+        - $SH cargo fmt --version || true
+        - $SH cargo fmt -- --check --unstable-features
 
     - language: rust
       rust: beta
       os: linux
       dist: xenial
-      addons: *rust_linux_addons
+      services: docker
       before_script: *rust_before_script
-      script: *rust_script
+      script: &rust_script
+        - $SH cargo build --verbose
+        - $SH cargo test --verbose
 
     - language: rust
       rust: stable
       os: linux
       dist: xenial
-      addons: *rust_linux_addons
+      services: docker
       before_script: *rust_before_script
       script: *rust_script
 
