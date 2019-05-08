@@ -75,7 +75,7 @@ matrix:
       before_script: &rust_before_script
         - docker run -d --name mvd-build -v $(pwd):/travis -w /travis  mvdemils/mullvadvpn-app-build:latest tail -f /dev/null
         - docker ps
-        - export SH="docker exec -t mvd-build bash -c"
+        - export SH="docker exec -t mvd-build"
         - $SH rustup update
       script:
         - $SH rustup default nightly
