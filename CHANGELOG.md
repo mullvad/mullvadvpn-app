@@ -26,6 +26,15 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 #### Linux
 - Add standard window decorations to the application window.
+- Allow a subset of NDP (Router solicitation, router advertisement and redirects) in the firewall.
+
+### Changed
+- Relax the allow local network rules slightly. only checking either source or destination IP field
+  instead of both. They are still unroutable
+
+### Fixed
+- Stop allowing the wrong IPv6 net fe02::/16 in the firewall when allow local network was enabled.
+  Instead allow the correct multicast nets ff02::/16 and ff05::/16.
 
 
 ## [2019.4-beta1] - 2019-05-02
