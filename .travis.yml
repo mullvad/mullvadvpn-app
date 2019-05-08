@@ -76,8 +76,9 @@ matrix:
         - docker run -d --name mvd-build -v $(pwd):/travis -w /travis  mvdemils/mullvadvpn-app-build:latest tail -f /dev/null
         - docker ps
         - export SH="docker exec -t mvd-build bash -c"
+        - $SH rustup update
       script:
-        - $SH rustup update nightly
+        - $SH rustup default nightly
         - $SH cargo build --verbose
         - $SH cargo test --verbose
         # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
@@ -91,7 +92,8 @@ matrix:
       dist: xenial
       services: docker
       before_script: *rust_before_script
-      script: &rust_script
+      script:
+        - $SH rustup default beta
         - $SH cargo build --verbose
         - $SH cargo test --verbose
 
@@ -101,7 +103,10 @@ matrix:
       dist: xenial
       services: docker
       before_script: *rust_before_script
-      script: *rust_script
+      script: 
+        - $SH rustup default stable
+        - $SH cargo build --verbose
+        - $SH cargo test --verbose
 
 
 notifications:
