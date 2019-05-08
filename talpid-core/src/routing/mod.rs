@@ -1,3 +1,5 @@
+#![cfg_attr(target_os = "android", allow(dead_code))]
+// TODO: remove the allow(dead_code) for android once it's up to scratch.
 use futures::{sync::oneshot, Future};
 use ipnetwork::IpNetwork;
 use std::{collections::HashMap, net::IpAddr};
