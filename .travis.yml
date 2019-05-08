@@ -79,8 +79,8 @@ matrix:
         - $SH rustup update
       script:
         - $SH rustup default nightly
-        - $SH cargo build --verbose
-        - $SH cargo test --verbose
+        - $SH bash -c "source env.sh && cargo build --verbose"
+        - $SH bash -c "source env.sh && cargo test --verbose"
         # Install and run rustfmt on nightly only until rustfmt.toml settings are stabilized.
         - $SH rustup component add rustfmt-preview
         - $SH cargo fmt --version || true
@@ -94,8 +94,8 @@ matrix:
       before_script: *rust_before_script
       script:
         - $SH rustup default beta
-        - $SH cargo build --verbose
-        - $SH cargo test --verbose
+        - $SH bash -c "source env.sh && cargo build --verbose"
+        - $SH bash -c "source env.sh && cargo test --verbose"
 
     - language: rust
       rust: stable
@@ -105,8 +105,8 @@ matrix:
       before_script: *rust_before_script
       script: 
         - $SH rustup default stable
-        - $SH cargo build --verbose
-        - $SH cargo test --verbose
+        - $SH bash -c "source env.sh && cargo build --verbose"
+        - $SH bash -c "source env.sh && cargo test --verbose"
 
 
 notifications:
