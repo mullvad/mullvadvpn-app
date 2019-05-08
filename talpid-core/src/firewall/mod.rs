@@ -57,9 +57,13 @@ lazy_static! {
     ];
     static ref ROUTER_SOLICITATION_OUT_DST_ADDR: Ipv6Addr = Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2);
 }
+#[cfg(all(unix, not(target_os = "android")))]
 const DHCPV4_SERVER_PORT: u16 = 67;
+#[cfg(all(unix, not(target_os = "android")))]
 const DHCPV4_CLIENT_PORT: u16 = 68;
+#[cfg(all(unix, not(target_os = "android")))]
 const DHCPV6_SERVER_PORT: u16 = 547;
+#[cfg(all(unix, not(target_os = "android")))]
 const DHCPV6_CLIENT_PORT: u16 = 546;
 
 
