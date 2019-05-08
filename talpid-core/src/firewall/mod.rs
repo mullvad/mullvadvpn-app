@@ -36,7 +36,6 @@ lazy_static! {
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(169, 254, 0, 0), 16).unwrap()),
-        // Link-local IPv6 addresses.
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap()),
     ];
     /// When "allow local network" is enabled the app will allow traffic to these networks.
@@ -50,24 +49,53 @@ lazy_static! {
         // Site-local IPv6 multicast.
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 0, 0), 16).unwrap()),
     ];
-    // The firewall should always allow DHCPv6 to enable automatic configuring of network adapters
-    /// The allowed source address of outbound DHCPv6 requests
-    static ref DHCPV6_SRC_ADDR: Ipv6Network = Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
+    static ref IPV6_LINK_LOCAL: Ipv6Network = Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
     /// The allowed target addresses of outbound DHCPv6 requests
     static ref DHCPV6_SERVER_ADDRS: [Ipv6Addr; 2] = [
         Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2),
         Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
     ];
-    // The firewall needs to always allow Router Solicitation/Advertisement/Redirect (part of NDP)
-    // It should only allow ICMPv6 packets on these addresses. If the platform supports it
-    // it should check that the solicitation packet has ICMP type 133 and code 0.
-    // Advertisement packet type 134, code 0. And Redirect type 137, code 0.
     static ref ROUTER_SOLICITATION_OUT_DST_ADDR: Ipv6Addr = Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2);
-    static ref ROUTER_ADVERTISEMENT_IN_SRC_NET: Ipv6Network = Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
 }
+const DHCPV4_SERVER_PORT: u16 = 67;
+const DHCPV4_CLIENT_PORT: u16 = 68;
+const DHCPV6_SERVER_PORT: u16 = 547;
+const DHCPV6_CLIENT_PORT: u16 = 546;
 
 
 /// A enum that describes network security strategy
+///
+/// # Firewall block/allow specification.
+///
+/// Except what's described as allowed below, all network packets should be blocked.
+///
+/// ## In all policies the firewall should always allow the following traffic
+///
+/// 1. All traffic on loopback adapters
+/// 2. DHCPv4 and DHCPv6 requests to go out and responses to come in:
+///    * Outgoing from *:DHCPV4_CLIENT_PORT to 255.255.255.255:DHCPV4_SERVER_PORT
+///    * Incoming *:DHCPV4_SERVER_PORT to *:DHCPV4_CLIENT_PORT
+///    * Outgoing from IPV6_LINK_LOCAL:DHCPV6_CLIENT_PORT to DHCPV6_SERVER_ADDRS:DHCPV6_SERVER_PORT
+///    * Incoming from IPV6_LINK_LOCAL:DHCPV6_SERVER_PORT to IPV6_LINK_LOCAL:DHCPV6_CLIENT_PORT
+/// 3. Router solicitation, advertisement and redirects (subset of NDP):
+///    * Outgoing to ROUTER_SOLICITATION_OUT_DST_ADDR, but only ICMPv6 with type 133 and code 0.
+///    * Incoming from IPV6_LINK_LOCAL, but only ICMPv6 type 134 or 137 and code 0.
+/// 4. If `allow_lan` is enabled, all policies should allow the following traffic:
+///    * Outgoing to, and incoming from, any IP in the networks listed in ALLOWED_LAN_NETS
+///    * Outgoing to any IP in the networks listed in ALLOWED_LAN_MULTICAST_NETS
+///
+/// ## Policy specific rules
+///
+/// 1. In the `Connecting` and `Connected` policies traffic should be allowed to and from the IP and
+///    port in `peer_endpoint`
+/// 2. In the `Connecting` policy, ICMP packets should be allowed to and from all IPs in
+///    `pingable_hosts`.
+/// 3. In the `Connected` policy, DNS requests (destination port 53 on both UDP and TCP) should be
+///    allowed over the tunnel interface in `tunnel.interface` and to the IPs `tunnel.ipv4_gateway`
+///    and `tunnel.ipv6_gateway`. But blocked to all other destinations and over all other
+///    interfaces.
+/// 4. In the `Connected` policy, all traffic should be allowed over the tunnel interface in
+///    `tunnel.interface`, minus the DNS packets described above.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum FirewallPolicy {
     /// Allow traffic only to server
