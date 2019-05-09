@@ -1,29 +1,28 @@
-use super::RequiredRoutes;
-use std::net::{IpAddr, Ipv4Addr};
+use futures::{sync::oneshot, Async, Future};
+use ipnetwork::IpNetwork;
+use std::collections::HashMap;
 
 /// Stub error type for routing errors on Android.
 #[derive(Debug, err_derive::Error)]
 #[error(display = "Unknown Android routing error")]
 pub struct Error;
 
-pub struct RouteManager;
+/// Stub route manager for Android
+pub struct RouteManagerImpl;
 
-impl super::RoutingT for RouteManager {
+impl RouteManagerImpl {
+    pub fn new(
+        _required_routes: HashMap<IpNetwork, super::NetNode>,
+        _shutdown_rx: oneshot::Receiver<oneshot::Sender<()>>,
+    ) -> Result<Self, Error> {
+        Ok(Self {})
+    }
+}
+
+impl Future for RouteManagerImpl {
+    type Item = ();
     type Error = Error;
-
-    fn new() -> Result<Self, Self::Error> {
-        Ok(RouteManager)
-    }
-
-    fn add_routes(&mut self, _required_routes: RequiredRoutes) -> Result<(), Self::Error> {
-        Ok(())
-    }
-
-    fn delete_routes(&mut self) -> Result<(), Self::Error> {
-        Ok(())
-    }
-
-    fn get_default_route_node(&mut self) -> Result<IpAddr, Self::Error> {
-        Ok(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)))
+    fn poll(&mut self) -> Result<Async<()>, Error> {
+        Ok(Async::Ready(()))
     }
 }
