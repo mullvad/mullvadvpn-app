@@ -1,5 +1,6 @@
 set -eu
 RUST_TOOLCHAIN_CHANNEL=$1
+RUSTFLAGS="--deny unused_imports --deny dead_code"
 
 source env.sh ""
 rustup update $RUST_TOOLCHAIN_CHANNEL
