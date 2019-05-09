@@ -67,7 +67,8 @@ matrix:
         - cargo test --verbose
 
     # Daemon - Linux
-    - os: linux 
+    - os: linux
+      name: Daemon - nigtly Rust
       language: minimal
       dist: xenial
       services: docker
@@ -78,6 +79,7 @@ matrix:
         - docker exec -t mvd-build bash ci/rust-linux-script.sh nightly
 
     - os: linux
+      name: Daemon - beta Rust
       language: minimal
       dist: xenial
       services: docker
@@ -86,11 +88,12 @@ matrix:
         - docker exec -t mvd-build bash ci/rust-linux-script.sh beta
 
     - os: linux
+      name: Daemon - stable Rust
       language: minimal
       dist: xenial
       services: docker
       before_script: *rust_before_script
-      script: 
+      script:
         - docker exec -t mvd-build bash ci/rust-linux-script.sh stable
 
 
