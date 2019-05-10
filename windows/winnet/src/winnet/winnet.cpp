@@ -3,8 +3,16 @@
 #include "NetworkInterfaces.h"
 #include "interfaceutils.h"
 #include "libcommon/error.h"
+#include "netmonitor.h"
 #include <cstdint>
 #include <stdexcept>
+
+namespace
+{
+
+NetMonitor *g_NetMonitor = nullptr;
+
+} //anonymous namespace
 
 extern "C"
 WINNET_LINKAGE
@@ -129,6 +137,72 @@ WinNet_ReleaseString(
 	try
 	{
 		delete[] str;
+	}
+	catch (...)
+	{
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
+WINNET_ACM_STATUS
+WINNET_API
+WinNet_ActivateConnectivityMonitor(
+	WinNetConnectivityMonitorCallback callback,
+	uint8_t *currentConnectivity,
+	WinNetErrorSink errorSink,
+	void* errorSinkContext
+)
+{
+	try
+	{
+		if (nullptr != g_NetMonitor)
+		{
+			throw std::runtime_error("Cannot activate connectivity monitor twice");
+		}
+
+		auto forwarder = [callback](bool connected)
+		{
+			callback(static_cast<uint8_t>(connected));
+		};
+
+		bool connected = false;
+
+		g_NetMonitor = new NetMonitor(forwarder, connected);
+
+		if (nullptr != currentConnectivity)
+		{
+			*currentConnectivity = static_cast<uint8_t>(connected);
+		}
+
+		return WINNET_ACM_STATUS::SUCCESS;
+	}
+	catch (std::exception &err)
+	{
+		if (nullptr != errorSink)
+		{
+			errorSink(err.what(), errorSinkContext);
+		}
+
+		return WINNET_ACM_STATUS::FAILURE;
+	}
+	catch (...)
+	{
+		return WINNET_ACM_STATUS::FAILURE;
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
+void
+WINNET_API
+WinNet_DeactivateConnectivityMonitor(
+)
+{
+	try
+	{
+		delete g_NetMonitor;
+		g_NetMonitor = nullptr;
 	}
 	catch (...)
 	{
