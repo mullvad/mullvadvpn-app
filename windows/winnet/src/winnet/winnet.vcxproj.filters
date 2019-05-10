@@ -7,6 +7,7 @@
     <ClCompile Include="NetworkInterfaces.cpp" />
     <ClCompile Include="InterfacePair.cpp" />
     <ClCompile Include="interfaceutils.cpp" />
+    <ClCompile Include="netmonitor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -15,6 +16,7 @@
     <ClInclude Include="NetworkInterfaces.h" />
     <ClInclude Include="InterfacePair.h" />
     <ClInclude Include="interfaceutils.h" />
+    <ClInclude Include="netmonitor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="winnet.def" />
