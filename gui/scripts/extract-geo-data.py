@@ -421,7 +421,7 @@ class PlaceTranslator(object):
     Returns None when either there is no match or there is no translation for the matched city.
     """
     preferred_locales = (get_locale_language(locale), convert_locale_ident(locale))
-    match_prop_keys = ("name_" + x for x in preferred_locales)
+    match_prop_keys = list("name_" + x for x in preferred_locales)
 
     for feat in self.source:
       props = lower_dict_keys(feat["properties"])
