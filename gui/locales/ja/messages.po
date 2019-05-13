@@ -1,0 +1,548 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Language: ja\n"
+"X-Crowdin-File: messages.pot\n"
+"Project-Id-Version: mullvad-app\n"
+"Last-Translator: adminmullvad\n"
+"Language-Team: Japanese\n"
+"Language: ja_JP\n"
+"PO-Revision-Date: 2019-05-20 10:11\n"
+
+msgid "BLOCKED CONNECTION"
+msgstr "ブロックされた接続"
+
+msgid "CREATING SECURE CONNECTION"
+msgstr "セキュリティ保護接続を確立中"
+
+msgid "SECURE CONNECTION"
+msgstr "セキュリティ保護された接続"
+
+msgid "UNSECURED CONNECTION"
+msgstr "セキュリティ保護されていない接続"
+
+#. The remaining time left on the account displayed across the app.
+#. Available placeholders:
+#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
+msgctxt "account-expiry"
+msgid "%(duration)s left"
+msgstr "残り%(duration)s"
+
+#. Back button in navigation bar
+msgctxt "account-nav"
+msgid "Settings"
+msgstr "設定"
+
+msgctxt "account-view"
+msgid "Account"
+msgstr "アカウント"
+
+msgctxt "account-view"
+msgid "Account ID"
+msgstr "アカウントID"
+
+msgctxt "account-view"
+msgid "Buy more credit"
+msgstr "追加クレジットを購入する"
+
+msgctxt "account-view"
+msgid "COPIED TO CLIPBOARD!"
+msgstr "クリップボードにコピーしました！"
+
+msgctxt "account-view"
+msgid "Currently unavailable"
+msgstr "現在使用不可"
+
+msgctxt "account-view"
+msgid "Log out"
+msgstr "ログアウト"
+
+msgctxt "account-view"
+msgid "OUT OF TIME"
+msgstr "時間切れ"
+
+msgctxt "account-view"
+msgid "Paid until"
+msgstr "次の日時まで支払い済み"
+
+#. Title label in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Advanced"
+msgstr "詳細"
+
+#. Back button in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Settings"
+msgstr "設定"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "%(portType)s port"
+msgstr "%(portType)s ポート"
+
+msgctxt "advanced-settings-view"
+msgid "Advanced"
+msgstr "詳細"
+
+msgctxt "advanced-settings-view"
+msgid "Automatic"
+msgstr "自動"
+
+msgctxt "advanced-settings-view"
+msgid "Block when disconnected"
+msgstr "接続解除時にブロックする"
+
+msgctxt "advanced-settings-view"
+msgid "Default"
+msgstr "デフォルト"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6"
+msgstr "IPv6を有効化する"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6 communication through the tunnel."
+msgstr "トンネルを通じてIPv6 通信を有効化する"
+
+msgctxt "advanced-settings-view"
+msgid "Mssfix"
+msgstr "Mssfix"
+
+msgctxt "advanced-settings-view"
+msgid "Network protocols"
+msgstr "ネットワークプロトコル"
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "advanced-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr "OpenVPN MSS の値を設定します。有効範囲：%(min)d ～ %(max)d。"
+
+msgctxt "advanced-settings-view"
+msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
+msgstr "接続中でない限り、アプリが未接続または終了状態であっても、すべてのネットワークトラフィックをブロックします。"
+
+msgctxt "auth-failure"
+msgid "Account authentication failed."
+msgstr "アカウントの認証に失敗しました。"
+
+msgctxt "auth-failure"
+msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
+msgstr "このアカウントの同時接続数が多すぎます。別のデバイスの接続を解除するか、しばらく待ってから再接続してください。"
+
+msgctxt "auth-failure"
+msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgstr "このアカウントにはもうVPNの残り時間がありません。弊社ウェブサイトにログインして、追加クレジットを購入してください。"
+
+msgctxt "auth-failure"
+msgid "You've logged in with an account number that is not valid. Please log out and try another one."
+msgstr "無効なアカウント番号でログインしました。いったんログアウトして、別のアカウント番号でもう一度ログインしてください。"
+
+#. The selected location label displayed on the main view, when a user selected a specific host to connect to.
+#. Example: Malmö (se-mma-001)
+#. Available placeholders:
+#. %(city)s - a city name
+#. %(hostname)s - a hostname
+msgctxt "connect-container"
+msgid "%(city)s (%(hostname)s)"
+msgstr "%(city)s (%(hostname)s)"
+
+msgctxt "connect-view"
+msgid "Buy more credit"
+msgstr "追加クレジットを購入する"
+
+msgctxt "connect-view"
+msgid "Disconnect and buy more credit"
+msgstr "接続解除して追加クレジットを購入する"
+
+msgctxt "connect-view"
+msgid "Out of time"
+msgstr "時間切れ"
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
+msgstr "このアカウントにはもうVPNの残り時間がありません。弊社ウェブサイトで追加クレジットを購入できるようにするには、アプリの詳細設定で「接続解除時にブロックする」のオプションをオフにする必要があります。"
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgstr "このアカウントにはもうVPNの残り時間がありません。弊社ウェブサイトにログインして、追加クレジットを購入してください。"
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
+msgstr "このアカウントにはもうVPNの残り時間がありません。弊社ウェブサイトで追加クレジットを購入するには、セキュリティ保護されていない接続でインターネットにアクセスする必要があります。"
+
+msgctxt "error-boundary-view"
+msgid "MULLVAD VPN"
+msgstr "MULLVAD VPN"
+
+#. The message displayed to the user in case of critical error in the GUI
+#. Available placeholders:
+#. %(email)s - support email
+msgctxt "error-boundary-view"
+msgid "Something went wrong. Please contact us at %(email)s"
+msgstr "何か問題が生じたようです。 %(email)s までご連絡ください。"
+
+msgctxt "in-app-notifications"
+msgid "ACCOUNT CREDIT EXPIRES SOON"
+msgstr "アカウントのクレジットがもうすぐ無効になります。"
+
+msgctxt "in-app-notifications"
+msgid "BLOCKING INTERNET"
+msgstr "インターネットをブロック中"
+
+msgctxt "in-app-notifications"
+msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
+msgstr "IPv6を設定できませんでした。IPv6をお使いのシステムで有効化するか、アプリ内で無効化してください。"
+
+msgctxt "in-app-notifications"
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "ファイヤーウォール規則の適用に失敗しました。現在、デバイスがセキュリティ保護されていない可能性があります。"
+
+msgctxt "in-app-notifications"
+msgid "Failed to set system DNS server"
+msgstr "システムの DNS サーバーの設定に失敗しました"
+
+msgctxt "in-app-notifications"
+msgid "Failed to start tunnel connection"
+msgstr "トンネル接続の開始に失敗しました"
+
+msgctxt "in-app-notifications"
+msgid "FAILURE - UNSECURED"
+msgstr "失敗－セキュリティ保護されていません"
+
+msgctxt "in-app-notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr "内部バージョン情報が一致しません。アプリを再起動してください。"
+
+msgctxt "in-app-notifications"
+msgid "INCONSISTENT VERSION"
+msgstr "バージョンの不一致"
+
+#. The in-app banner displayed to the user when the app update is available.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid "Install Mullvad VPN (%(version)s) to stay up to date"
+msgstr "Mullvad VPN (%(version)s) をインストールして常に最新の状態を保ちましょう"
+
+msgctxt "in-app-notifications"
+msgid "No relay server matches the current settings"
+msgstr "現在の設定に一致する中継サーバーはありません"
+
+msgctxt "in-app-notifications"
+msgid "This device is offline, no tunnels can be established"
+msgstr "このデバイスはオフラインであるため、トンネルを作成できません。"
+
+msgctxt "in-app-notifications"
+msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
+msgstr "このデバイスでは動作中のTAPアダプタを検知できませんでした。無効化している場合は、もう一度有効化してください。または、アプリを再インストールしてください。"
+
+msgctxt "in-app-notifications"
+msgid "UNSUPPORTED VERSION"
+msgstr "未対応のバージョン"
+
+msgctxt "in-app-notifications"
+msgid "UPDATE AVAILABLE"
+msgstr "アップデート可"
+
+#. The in-app banner displayed to the user when the running app becomes unsupported.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
+msgstr "未対応のアプリバージョンを実行中です。今すぐ %(version)s にアップデートしてセキュリティを確保してください。"
+
+msgctxt "launch-view"
+msgid "Connecting to daemon..."
+msgstr "デーモンに接続中..."
+
+msgctxt "launch-view"
+msgid "MULLVAD VPN"
+msgstr "MULLVAD VPN"
+
+msgctxt "login-view"
+msgid "Checking account number"
+msgstr "アカウント番号を確認中"
+
+msgctxt "login-view"
+msgid "Correct account number"
+msgstr "正確なアカウント番号"
+
+msgctxt "login-view"
+msgid "Create account"
+msgstr "アカウントを作成する"
+
+msgctxt "login-view"
+msgid "Don't have an account number?"
+msgstr "アカウント番号を持っていませんか？"
+
+msgctxt "login-view"
+msgid "Enter your account number"
+msgstr "アカウント番号を入力してください"
+
+msgctxt "login-view"
+msgid "Logged in"
+msgstr "ログインしました"
+
+msgctxt "login-view"
+msgid "Logging in..."
+msgstr "ログイン中..."
+
+msgctxt "login-view"
+msgid "Login"
+msgstr "ログイン"
+
+msgctxt "login-view"
+msgid "Login failed"
+msgstr "ログインに失敗しました"
+
+msgctxt "login-view"
+msgid "Unknown error"
+msgstr "不明なエラー"
+
+msgctxt "notifications"
+msgid "Blocked all connections"
+msgstr "すべての接続をブロックしました"
+
+msgctxt "notifications"
+msgid "Connecting"
+msgstr "接続中"
+
+msgctxt "notifications"
+msgid "Critical failure - Unsecured"
+msgstr "重大な失敗－セキュリティ保護されていません"
+
+msgctxt "notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr "内部バージョン情報が一致しません。アプリを再起動してください。"
+
+msgctxt "notifications"
+msgid "Reconnecting"
+msgstr "再接続中"
+
+msgctxt "notifications"
+msgid "Secured"
+msgstr "セキュリティ保護されています"
+
+msgctxt "notifications"
+msgid "Unsecured"
+msgstr "セキュリティ保護されていません"
+
+#. The system notification displayed to the user when the running app becomes unsupported.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
+msgstr "未対応のアプリバージョンを実行中です。今すぐ %(version)s にアップデートしてセキュリティを確保してください。"
+
+#. Title label in navigation bar
+msgctxt "preferences-nav"
+msgid "Preferences"
+msgstr "環境設定"
+
+#. Back button in navigation bar
+msgctxt "preferences-nav"
+msgid "Settings"
+msgstr "設定"
+
+msgctxt "preferences-view"
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "共有や印刷のため、同一ネットワーク上の他のデバイスへのアクセスを許可します。"
+
+msgctxt "preferences-view"
+msgid "Auto-connect"
+msgstr "自動接続"
+
+msgctxt "preferences-view"
+msgid "Automatically connect to a server when the app launches."
+msgstr "アプリ起動時に自動的にサーバーに接続します。"
+
+msgctxt "preferences-view"
+msgid "Launch app on start-up"
+msgstr "システム起動時にアプリを起動"
+
+msgctxt "preferences-view"
+msgid "Local network sharing"
+msgstr "ローカルネットワーク共有"
+
+msgctxt "preferences-view"
+msgid "Monochromatic tray icon"
+msgstr "単色のトレイアイコン"
+
+msgctxt "preferences-view"
+msgid "Preferences"
+msgstr "環境設定"
+
+msgctxt "preferences-view"
+msgid "Show only the tray icon when the app starts."
+msgstr "アプリ開始時にトレイアイコンのみを表示します。"
+
+msgctxt "preferences-view"
+msgid "Start minimized"
+msgstr "最小化状態で起動"
+
+msgctxt "preferences-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr "多色ではなく単色のトレイアイコンを使います。"
+
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "場所を選択する"
+
+msgctxt "select-location-view"
+msgid "Select location"
+msgstr "場所を選択する"
+
+msgctxt "select-location-view"
+msgid "While connected, your real location is masked with a private and secure location in the selected region"
+msgstr "接続中、あなたの実際の場所は、選択した地域内の非公開かつセキュリティ保護された場所で隠蔽されています。"
+
+msgctxt "settings-view"
+msgid "Account"
+msgstr "アカウント"
+
+msgctxt "settings-view"
+msgid "Advanced"
+msgstr "詳細"
+
+msgctxt "settings-view"
+msgid "App version"
+msgstr "アプリのバージョン"
+
+msgctxt "settings-view"
+msgid "FAQs & Guides"
+msgstr "よくある質問とガイド"
+
+msgctxt "settings-view"
+msgid "Inconsistent internal version information, please restart the app."
+msgstr "内部バージョン情報が一致しません。アプリを再起動してください。"
+
+msgctxt "settings-view"
+msgid "OUT OF TIME"
+msgstr "時間切れ"
+
+msgctxt "settings-view"
+msgid "Preferences"
+msgstr "環境設定"
+
+msgctxt "settings-view"
+msgid "Quit app"
+msgstr "アプリを終了する"
+
+msgctxt "settings-view"
+msgid "Report a problem"
+msgstr "問題を報告する"
+
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "設定"
+
+msgctxt "settings-view"
+msgid "Update available, download to remain safe."
+msgstr "アップデートできます。ダウンロードしてセキュリティを維持してください。"
+
+#. Title label in navigation bar
+msgctxt "settings-view-nav"
+msgid "Settings"
+msgstr "設定"
+
+#. Back button in navigation bar
+msgctxt "support-nav"
+msgid "Settings"
+msgstr "設定"
+
+msgctxt "support-view"
+msgid "Back"
+msgstr "戻る"
+
+msgctxt "support-view"
+msgid "Describe your problem"
+msgstr "問題の内容をご説明ください"
+
+msgctxt "support-view"
+msgid "Edit message"
+msgstr "メッセージを編集する"
+
+msgctxt "support-view"
+msgid "Failed to send"
+msgstr "送信に失敗しました"
+
+#. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+#. Available placeholders:
+#. %(email)s
+msgctxt "support-view"
+msgid "If needed we will contact you on %(email)s"
+msgstr "必要に応じて %(email)s までご連絡いたします"
+
+msgctxt "support-view"
+msgid "Report a problem"
+msgstr "問題を報告する"
+
+msgctxt "support-view"
+msgid "Send"
+msgstr "送信"
+
+msgctxt "support-view"
+msgid "Send anyway"
+msgstr "とにかく送信する"
+
+msgctxt "support-view"
+msgid "Sending..."
+msgstr "送信中..."
+
+msgctxt "support-view"
+msgid "Sent"
+msgstr "送信済み"
+
+msgctxt "support-view"
+msgid "Thanks! We will look into this."
+msgstr "ありがとうございます！この問題を調査いたします。"
+
+msgctxt "support-view"
+msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgstr "さらに効率よく問題解決を支援するため、お使いのアプリのログファイルをこのメッセージに添付します。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全性は維持され、公開されることはありません。"
+
+msgctxt "support-view"
+msgid "Try again"
+msgstr "再試行"
+
+msgctxt "support-view"
+msgid "View app logs"
+msgstr "アプリのログを表示"
+
+msgctxt "support-view"
+msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
+msgstr "お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。"
+
+msgctxt "support-view"
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr "再試行する前に、アプリのメイン画面に戻って「接続解除」をクリックする必要があるかもしれません。すでにフォームに入力された情報が失われることはありませんので、ご安心ください。"
+
+msgctxt "support-view"
+msgid "Your email (optional)"
+msgstr "あなたのメールアドレス（任意）"
+
+msgctxt "tunnel-control"
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgctxt "tunnel-control"
+msgid "Disconnect"
+msgstr "接続解除"
+
+msgctxt "tunnel-control"
+msgid "Secure my connection"
+msgstr "接続を保護する"
+
+msgctxt "tunnel-control"
+msgid "Switch location"
+msgstr "場所を切り替える"
+

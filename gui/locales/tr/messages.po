@@ -1,0 +1,548 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Language: tr\n"
+"X-Crowdin-File: messages.pot\n"
+"Project-Id-Version: mullvad-app\n"
+"Last-Translator: adminmullvad\n"
+"Language-Team: Turkish\n"
+"Language: tr_TR\n"
+"PO-Revision-Date: 2019-05-20 10:11\n"
+
+msgid "BLOCKED CONNECTION"
+msgstr "ENGELLENEN BAĞLANTI"
+
+msgid "CREATING SECURE CONNECTION"
+msgstr "GÜVENLİ BAĞLANTI OLUŞTURULUYOR"
+
+msgid "SECURE CONNECTION"
+msgstr "GÜVENLİ BAĞLANTI"
+
+msgid "UNSECURED CONNECTION"
+msgstr "GÜVENLİ OLMAYAN BAĞLANTI"
+
+#. The remaining time left on the account displayed across the app.
+#. Available placeholders:
+#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
+msgctxt "account-expiry"
+msgid "%(duration)s left"
+msgstr "%(duration)s kaldı"
+
+#. Back button in navigation bar
+msgctxt "account-nav"
+msgid "Settings"
+msgstr "Ayarlar"
+
+msgctxt "account-view"
+msgid "Account"
+msgstr "Hesap"
+
+msgctxt "account-view"
+msgid "Account ID"
+msgstr "Hesap Kimliği"
+
+msgctxt "account-view"
+msgid "Buy more credit"
+msgstr "Daha fazla kredi satın alın"
+
+msgctxt "account-view"
+msgid "COPIED TO CLIPBOARD!"
+msgstr "PANOYA KOPYALANDI!"
+
+msgctxt "account-view"
+msgid "Currently unavailable"
+msgstr "Şu an kullanılamıyor"
+
+msgctxt "account-view"
+msgid "Log out"
+msgstr "Oturumu kapat"
+
+msgctxt "account-view"
+msgid "OUT OF TIME"
+msgstr "SÜRE DOLDU"
+
+msgctxt "account-view"
+msgid "Paid until"
+msgstr "Şu tarihe kadar ödendi:"
+
+#. Title label in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Advanced"
+msgstr "Gelişmiş"
+
+#. Back button in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Settings"
+msgstr "Ayarlar"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "%(portType)s port"
+msgstr "%(portType)s portu"
+
+msgctxt "advanced-settings-view"
+msgid "Advanced"
+msgstr "Gelişmiş"
+
+msgctxt "advanced-settings-view"
+msgid "Automatic"
+msgstr "Otomatik"
+
+msgctxt "advanced-settings-view"
+msgid "Block when disconnected"
+msgstr "Bağlantı kesilince engelle"
+
+msgctxt "advanced-settings-view"
+msgid "Default"
+msgstr "Varsayılan"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6"
+msgstr "IPv6'yı etkinleştir"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6 communication through the tunnel."
+msgstr "Tünel üzerinden IPv6 iletişimini etkinleştir."
+
+msgctxt "advanced-settings-view"
+msgid "Mssfix"
+msgstr "Mssfix"
+
+msgctxt "advanced-settings-view"
+msgid "Network protocols"
+msgstr "Ağ protokolleri"
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "advanced-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr "OpenVPN MSS değerini belirleyin. Geçerli aralık: %(min)d - %(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
+msgstr "Bağlanılmadığı sürece, bağlantı kesilse veya uygulamadan çıkılsa dahi tüm ağ trafiğini her zaman engelle."
+
+msgctxt "auth-failure"
+msgid "Account authentication failed."
+msgstr "Hesap kimlik doğrulaması başarısız oldu."
+
+msgctxt "auth-failure"
+msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
+msgstr "Bu hesabın çok fazla eş zamanlı bağlantısı var. Diğer cihazlardan bir tanesinin bağlantısını kesin veya kısa süre sonra tekrar bağlanmayı deneyin."
+
+msgctxt "auth-failure"
+msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Daha fazla kredi satın almak için lütfen web sitemizde oturum açın."
+
+msgctxt "auth-failure"
+msgid "You've logged in with an account number that is not valid. Please log out and try another one."
+msgstr "Geçerli olmayan bir hesap numarasıyla oturum açtınız. Lütfen oturumu kapatıp başka bir tanesini deneyin."
+
+#. The selected location label displayed on the main view, when a user selected a specific host to connect to.
+#. Example: Malmö (se-mma-001)
+#. Available placeholders:
+#. %(city)s - a city name
+#. %(hostname)s - a hostname
+msgctxt "connect-container"
+msgid "%(city)s (%(hostname)s)"
+msgstr "%(city)s (%(hostname)s)"
+
+msgctxt "connect-view"
+msgid "Buy more credit"
+msgstr "Daha fazla kredi satın al"
+
+msgctxt "connect-view"
+msgid "Disconnect and buy more credit"
+msgstr "Bağlantıyı kes ve daha fazla kredi satın al"
+
+msgctxt "connect-view"
+msgid "Out of time"
+msgstr "Süre doldu"
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
+msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Web sitemizden daha fazla kredi satın almadan önce uygulamanın Gelişmiş ayarlar sekmesi altındaki \"Bağlantı kesilince engelle\" seçeneğini kapatmanız gerekir."
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Daha fazla kredi satın almak için lütfen web sitemizde oturum açın."
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
+msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Web sitemizden daha fazla kredi satın almak için güvenli olmayan bir bağlantıyla internete erişmeniz gerekecek."
+
+msgctxt "error-boundary-view"
+msgid "MULLVAD VPN"
+msgstr "MULLVAD VPN"
+
+#. The message displayed to the user in case of critical error in the GUI
+#. Available placeholders:
+#. %(email)s - support email
+msgctxt "error-boundary-view"
+msgid "Something went wrong. Please contact us at %(email)s"
+msgstr "Bir sorun oluştu. Lütfen bizimle %(email)s adresinden iletişime geçin"
+
+msgctxt "in-app-notifications"
+msgid "ACCOUNT CREDIT EXPIRES SOON"
+msgstr "HESAP KREDİSİNİN SÜRESİ YAKINDA DOLACAK"
+
+msgctxt "in-app-notifications"
+msgid "BLOCKING INTERNET"
+msgstr "İNTERNET ENGELLENİYOR"
+
+msgctxt "in-app-notifications"
+msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
+msgstr "IPv6 yapılandırılamıyor, lütfen sisteminizden etkinleştirin veya uygulamadan devre dışı bırakın"
+
+msgctxt "in-app-notifications"
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "Güvenlik duvarı kuralları uygulanamıyor. Cihaz şu an korumasız olabilir"
+
+msgctxt "in-app-notifications"
+msgid "Failed to set system DNS server"
+msgstr "Sistem DNS sunucusu belirlenemiyor"
+
+msgctxt "in-app-notifications"
+msgid "Failed to start tunnel connection"
+msgstr "Tünel bağlantısı başlatılamıyor"
+
+msgctxt "in-app-notifications"
+msgid "FAILURE - UNSECURED"
+msgstr "BAŞARISIZ - GÜVENLİ DEĞİL"
+
+msgctxt "in-app-notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr "Tutarsız iç sürüm bilgisi, lütfen uygulamayı yeniden başlatın"
+
+msgctxt "in-app-notifications"
+msgid "INCONSISTENT VERSION"
+msgstr "TUTARSIZ SÜRÜM"
+
+#. The in-app banner displayed to the user when the app update is available.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid "Install Mullvad VPN (%(version)s) to stay up to date"
+msgstr "Güncel kalmak için Mullvad VPN'in (%(version)s) sürümünü yükleyin"
+
+msgctxt "in-app-notifications"
+msgid "No relay server matches the current settings"
+msgstr "Geçerli ayarlara uyan aktarma sunucusu yok"
+
+msgctxt "in-app-notifications"
+msgid "This device is offline, no tunnels can be established"
+msgstr "Bu cihaz çevrimdışı, tünel oluşturulamaz"
+
+msgctxt "in-app-notifications"
+msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
+msgstr "Bu cihazda çalışan bir TAP adaptörü tespit edilemedi. Devre dışı bıraktıysanız, yeniden etkinleştirin. Aksi takdirde, lütfen uygulamayı tekrar yükleyin"
+
+msgctxt "in-app-notifications"
+msgid "UNSUPPORTED VERSION"
+msgstr "DESTEKLENMEYEN SÜRÜM"
+
+msgctxt "in-app-notifications"
+msgid "UPDATE AVAILABLE"
+msgstr "GÜNCELLEME MEVCUT"
+
+#. The in-app banner displayed to the user when the running app becomes unsupported.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
+msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %(version)s sürümüne yükseltin"
+
+msgctxt "launch-view"
+msgid "Connecting to daemon..."
+msgstr "Aracı programa bağlanılıyor..."
+
+msgctxt "launch-view"
+msgid "MULLVAD VPN"
+msgstr "MULLVAD VPN"
+
+msgctxt "login-view"
+msgid "Checking account number"
+msgstr "Hesap numarası kontrol ediliyor"
+
+msgctxt "login-view"
+msgid "Correct account number"
+msgstr "Doğru hesap numarası"
+
+msgctxt "login-view"
+msgid "Create account"
+msgstr "Hesap oluştur"
+
+msgctxt "login-view"
+msgid "Don't have an account number?"
+msgstr "Hesap numaranız yok mu?"
+
+msgctxt "login-view"
+msgid "Enter your account number"
+msgstr "Hesap numaranızı girin"
+
+msgctxt "login-view"
+msgid "Logged in"
+msgstr "Oturum açıldı"
+
+msgctxt "login-view"
+msgid "Logging in..."
+msgstr "Oturum açılıyor..."
+
+msgctxt "login-view"
+msgid "Login"
+msgstr "Oturum Aç"
+
+msgctxt "login-view"
+msgid "Login failed"
+msgstr "Oturum açma başarısız"
+
+msgctxt "login-view"
+msgid "Unknown error"
+msgstr "Bilinmeyen hata"
+
+msgctxt "notifications"
+msgid "Blocked all connections"
+msgstr "Tüm bağlantılar engellendi"
+
+msgctxt "notifications"
+msgid "Connecting"
+msgstr "Bağlanılıyor"
+
+msgctxt "notifications"
+msgid "Critical failure - Unsecured"
+msgstr "Kritik hata - Güvenli Değil"
+
+msgctxt "notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr "Tutarsız iç sürüm bilgisi, lütfen uygulamayı yeniden başlatın"
+
+msgctxt "notifications"
+msgid "Reconnecting"
+msgstr "Yeniden Bağlanılıyor"
+
+msgctxt "notifications"
+msgid "Secured"
+msgstr "Güvenli"
+
+msgctxt "notifications"
+msgid "Unsecured"
+msgstr "Güvenli Değil"
+
+#. The system notification displayed to the user when the running app becomes unsupported.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
+msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %(version)s sürümüne yükseltin"
+
+#. Title label in navigation bar
+msgctxt "preferences-nav"
+msgid "Preferences"
+msgstr "Tercihler"
+
+#. Back button in navigation bar
+msgctxt "preferences-nav"
+msgid "Settings"
+msgstr "Ayarlar"
+
+msgctxt "preferences-view"
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "Paylaşım, yazdırma vb. için aynı ağdaki diğer cihazlara erişime izin verir."
+
+msgctxt "preferences-view"
+msgid "Auto-connect"
+msgstr "Otomatik Bağlan"
+
+msgctxt "preferences-view"
+msgid "Automatically connect to a server when the app launches."
+msgstr "Uygulama başladığında bir sunucuya otomatik olarak bağlan."
+
+msgctxt "preferences-view"
+msgid "Launch app on start-up"
+msgstr "Uygulamayı başlangıçta çalıştır"
+
+msgctxt "preferences-view"
+msgid "Local network sharing"
+msgstr "Yerel ağ paylaşımı"
+
+msgctxt "preferences-view"
+msgid "Monochromatic tray icon"
+msgstr "Monokrom sistem çubuğu simgesi"
+
+msgctxt "preferences-view"
+msgid "Preferences"
+msgstr "Tercihler"
+
+msgctxt "preferences-view"
+msgid "Show only the tray icon when the app starts."
+msgstr "Uygulama başladığında sadece sistem çubuğu simgesini göster."
+
+msgctxt "preferences-view"
+msgid "Start minimized"
+msgstr "Küçültülmüş olarak başlat"
+
+msgctxt "preferences-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr "Renkli yerine monokrom bir sistem çubuğu simgesi kullan."
+
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "Konum seçin"
+
+msgctxt "select-location-view"
+msgid "Select location"
+msgstr "Konum seçin"
+
+msgctxt "select-location-view"
+msgid "While connected, your real location is masked with a private and secure location in the selected region"
+msgstr "Bağlıyken gerçek konumunuz seçilen bölgedeki özel ve gizli bir konumla maskelenir"
+
+msgctxt "settings-view"
+msgid "Account"
+msgstr "Hesap"
+
+msgctxt "settings-view"
+msgid "Advanced"
+msgstr "Gelişmiş"
+
+msgctxt "settings-view"
+msgid "App version"
+msgstr "Uygulama sürümü"
+
+msgctxt "settings-view"
+msgid "FAQs & Guides"
+msgstr "SSS ve Kılavuzlar"
+
+msgctxt "settings-view"
+msgid "Inconsistent internal version information, please restart the app."
+msgstr "Tutarsız iç sürüm bilgisi, lütfen uygulamayı yeniden başlatın."
+
+msgctxt "settings-view"
+msgid "OUT OF TIME"
+msgstr "SÜRE DOLDU"
+
+msgctxt "settings-view"
+msgid "Preferences"
+msgstr "Tercihler"
+
+msgctxt "settings-view"
+msgid "Quit app"
+msgstr "Uygulamadan çık"
+
+msgctxt "settings-view"
+msgid "Report a problem"
+msgstr "Bir sorun bildir"
+
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "Ayarlar"
+
+msgctxt "settings-view"
+msgid "Update available, download to remain safe."
+msgstr "Güncelleme mevcut, güvende olmak için indirin."
+
+#. Title label in navigation bar
+msgctxt "settings-view-nav"
+msgid "Settings"
+msgstr "Ayarlar"
+
+#. Back button in navigation bar
+msgctxt "support-nav"
+msgid "Settings"
+msgstr "Ayarlar"
+
+msgctxt "support-view"
+msgid "Back"
+msgstr "Geri"
+
+msgctxt "support-view"
+msgid "Describe your problem"
+msgstr "Sorununuzu açıklayın"
+
+msgctxt "support-view"
+msgid "Edit message"
+msgstr "Mesajı düzenle"
+
+msgctxt "support-view"
+msgid "Failed to send"
+msgstr "Gönderme başarısız"
+
+#. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+#. Available placeholders:
+#. %(email)s
+msgctxt "support-view"
+msgid "If needed we will contact you on %(email)s"
+msgstr "Gerektiğinde sizinle %(email)s adresinden iletişime geçeceğiz"
+
+msgctxt "support-view"
+msgid "Report a problem"
+msgstr "Bir sorun bildir"
+
+msgctxt "support-view"
+msgid "Send"
+msgstr "Gönder"
+
+msgctxt "support-view"
+msgid "Send anyway"
+msgstr "Yine de gönder"
+
+msgctxt "support-view"
+msgid "Sending..."
+msgstr "Gönderiliyor..."
+
+msgctxt "support-view"
+msgid "Sent"
+msgstr "Gönderildi"
+
+msgctxt "support-view"
+msgid "Thanks! We will look into this."
+msgstr "Teşekkürler! Bunu araştıracağız."
+
+msgctxt "support-view"
+msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgstr "Size daha etkin bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır."
+
+msgctxt "support-view"
+msgid "Try again"
+msgstr "Tekrar dene"
+
+msgctxt "support-view"
+msgid "View app logs"
+msgstr "Uygulama kayıtlarını görüntüle"
+
+msgctxt "support-view"
+msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
+msgstr "Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz."
+
+msgctxt "support-view"
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr "Yeniden denemeden önce uygulamanın ana ekranına dönüp Bağlantıyı Kes'e tıklamanız gerekebilir. Endişelenmeyin, girdiğiniz bilgiler formda kalacaktır."
+
+msgctxt "support-view"
+msgid "Your email (optional)"
+msgstr "E-posta adresiniz (isteğe bağlı)"
+
+msgctxt "tunnel-control"
+msgid "Cancel"
+msgstr "İptal"
+
+msgctxt "tunnel-control"
+msgid "Disconnect"
+msgstr "Bağlantıyı Kes"
+
+msgctxt "tunnel-control"
+msgid "Secure my connection"
+msgstr "Bağlantımı güvenceye al"
+
+msgctxt "tunnel-control"
+msgid "Switch location"
+msgstr "Konum değiştir"
+

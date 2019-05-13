@@ -1,0 +1,548 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Language: it\n"
+"X-Crowdin-File: messages.pot\n"
+"Project-Id-Version: mullvad-app\n"
+"Last-Translator: adminmullvad\n"
+"Language-Team: Italian\n"
+"Language: it_IT\n"
+"PO-Revision-Date: 2019-05-20 10:11\n"
+
+msgid "BLOCKED CONNECTION"
+msgstr "CONNESSIONE BLOCCATA"
+
+msgid "CREATING SECURE CONNECTION"
+msgstr "CREAZIONE CONNESSIONE PROTETTA"
+
+msgid "SECURE CONNECTION"
+msgstr "CONNESSIONE PROTETTA"
+
+msgid "UNSECURED CONNECTION"
+msgstr "CONNESSIONE NON PROTETTA"
+
+#. The remaining time left on the account displayed across the app.
+#. Available placeholders:
+#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
+msgctxt "account-expiry"
+msgid "%(duration)s left"
+msgstr "%(duration)s residui"
+
+#. Back button in navigation bar
+msgctxt "account-nav"
+msgid "Settings"
+msgstr "Impostazioni"
+
+msgctxt "account-view"
+msgid "Account"
+msgstr "Account"
+
+msgctxt "account-view"
+msgid "Account ID"
+msgstr "ID account"
+
+msgctxt "account-view"
+msgid "Buy more credit"
+msgstr "Acquista altro credito"
+
+msgctxt "account-view"
+msgid "COPIED TO CLIPBOARD!"
+msgstr "COPIATO NEGLI APPUNTI!"
+
+msgctxt "account-view"
+msgid "Currently unavailable"
+msgstr "Attualmente non disponibile"
+
+msgctxt "account-view"
+msgid "Log out"
+msgstr "Esci"
+
+msgctxt "account-view"
+msgid "OUT OF TIME"
+msgstr "SCADUTO"
+
+msgctxt "account-view"
+msgid "Paid until"
+msgstr "Pagato fino al"
+
+#. Title label in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Advanced"
+msgstr "Avanzate"
+
+#. Back button in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Settings"
+msgstr "Impostazioni"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "%(portType)s port"
+msgstr "Porta %(portType)s"
+
+msgctxt "advanced-settings-view"
+msgid "Advanced"
+msgstr "Avanzate"
+
+msgctxt "advanced-settings-view"
+msgid "Automatic"
+msgstr "Automatico"
+
+msgctxt "advanced-settings-view"
+msgid "Block when disconnected"
+msgstr "Blocca quando disconnesso"
+
+msgctxt "advanced-settings-view"
+msgid "Default"
+msgstr "Predefinito"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6"
+msgstr "Attiva IPv6"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6 communication through the tunnel."
+msgstr "Attiva comunicazione IPv6 nel tunnel."
+
+msgctxt "advanced-settings-view"
+msgid "Mssfix"
+msgstr "Mssfix"
+
+msgctxt "advanced-settings-view"
+msgid "Network protocols"
+msgstr "Protocolli di rete"
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "advanced-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr "Imposta valore OpenVPN MSS. Intervallo valido: %(min)d - %(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
+msgstr "Se non sei connesso blocca sempre tutto il traffico di rete, anche quando sei disconnesso o esci dall'app."
+
+msgctxt "auth-failure"
+msgid "Account authentication failed."
+msgstr "Autenticazione account non riuscita."
+
+msgctxt "auth-failure"
+msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
+msgstr "Questo account ha troppe connessioni simultanee. Disconnetti l'altro dispositivo o prova a riconnetterti a breve."
+
+msgctxt "auth-failure"
+msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgstr "Hai esaurito il tempo VPN disponibile su questo account. Accedi al nostro sito per acquistare altro credito."
+
+msgctxt "auth-failure"
+msgid "You've logged in with an account number that is not valid. Please log out and try another one."
+msgstr "Hai eseguito l'accesso con un numero di account non valido. Disconnettiti e prova con un altro numero."
+
+#. The selected location label displayed on the main view, when a user selected a specific host to connect to.
+#. Example: Malmö (se-mma-001)
+#. Available placeholders:
+#. %(city)s - a city name
+#. %(hostname)s - a hostname
+msgctxt "connect-container"
+msgid "%(city)s (%(hostname)s)"
+msgstr "%(city)s (%(hostname)s)"
+
+msgctxt "connect-view"
+msgid "Buy more credit"
+msgstr "Acquista altro credito"
+
+msgctxt "connect-view"
+msgid "Disconnect and buy more credit"
+msgstr "Disconnettiti e acquista altro credito"
+
+msgctxt "connect-view"
+msgid "Out of time"
+msgstr "Scaduto"
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
+msgstr "Hai esaurito il tempo VPN disponibile su questo account. Prima di poter acquistare altro credito sul nostro sito, devi disattivare l'opzione \"Blocca quando disconnesso\" dell'app nelle impostazioni Avanzate."
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgstr "Hai esaurito il tempo VPN disponibile su questo account. Accedi al nostro sito per acquistare altro credito."
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
+msgstr "Hai esaurito il tempo VPN disponibile su questo account. Per acquistare altro credito sul nostro sito, devi eseguire l'accesso a Internet da una connessione non protetta."
+
+msgctxt "error-boundary-view"
+msgid "MULLVAD VPN"
+msgstr "MULLVAD VPN"
+
+#. The message displayed to the user in case of critical error in the GUI
+#. Available placeholders:
+#. %(email)s - support email
+msgctxt "error-boundary-view"
+msgid "Something went wrong. Please contact us at %(email)s"
+msgstr "Si è verificato un errore. Contattaci all'indirizzo %(email)s"
+
+msgctxt "in-app-notifications"
+msgid "ACCOUNT CREDIT EXPIRES SOON"
+msgstr "CREDITO ACCOUNT IN SCADENZA"
+
+msgctxt "in-app-notifications"
+msgid "BLOCKING INTERNET"
+msgstr "BLOCCO INTERNET"
+
+msgctxt "in-app-notifications"
+msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
+msgstr "Impossibile configurare IPv6. Attivalo sul sistema o disattivalo nell'app"
+
+msgctxt "in-app-notifications"
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "Impossibile applicare le regole firewall. Il dispositivo potrebbe essere non protetto"
+
+msgctxt "in-app-notifications"
+msgid "Failed to set system DNS server"
+msgstr "Impossibile impostare il server DNS di sistema"
+
+msgctxt "in-app-notifications"
+msgid "Failed to start tunnel connection"
+msgstr "Impossibile avviare la connessione tunnel"
+
+msgctxt "in-app-notifications"
+msgid "FAILURE - UNSECURED"
+msgstr "ERRORE - NON PROTETTO"
+
+msgctxt "in-app-notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr "Informazioni incoerenti sulla versione interna, riavvia l'app"
+
+msgctxt "in-app-notifications"
+msgid "INCONSISTENT VERSION"
+msgstr "VERSIONE INCOERENTE"
+
+#. The in-app banner displayed to the user when the app update is available.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid "Install Mullvad VPN (%(version)s) to stay up to date"
+msgstr "Installa Mullvad VPN (%(version)s) per rimanere aggiornato"
+
+msgctxt "in-app-notifications"
+msgid "No relay server matches the current settings"
+msgstr "Nessun relay server corrispondente alle impostazioni correnti"
+
+msgctxt "in-app-notifications"
+msgid "This device is offline, no tunnels can be established"
+msgstr "Il dispositivo è offline. Impossibile stabilire tunnel"
+
+msgctxt "in-app-notifications"
+msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
+msgstr "Impossibile rilevare un adattatore TAP funzionante su questo dispositivo. Se l'hai disattivato, attivalo di nuovo. In alternativa, reinstalla l'app"
+
+msgctxt "in-app-notifications"
+msgid "UNSUPPORTED VERSION"
+msgstr "VERSIONE NON SUPPORTATA"
+
+msgctxt "in-app-notifications"
+msgid "UPDATE AVAILABLE"
+msgstr "AGGIORNAMENTO DISPONIBILE"
+
+#. The in-app banner displayed to the user when the running app becomes unsupported.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
+msgstr "Stai utilizzando una versione dell'app non supportata. Aggiorna alla versione %(version)s per continuare a essere protetto"
+
+msgctxt "launch-view"
+msgid "Connecting to daemon..."
+msgstr "Connessione al daemon..."
+
+msgctxt "launch-view"
+msgid "MULLVAD VPN"
+msgstr "MULLVAD VPN"
+
+msgctxt "login-view"
+msgid "Checking account number"
+msgstr "Verifica numero di account"
+
+msgctxt "login-view"
+msgid "Correct account number"
+msgstr "Numero di account corretto"
+
+msgctxt "login-view"
+msgid "Create account"
+msgstr "Crea account"
+
+msgctxt "login-view"
+msgid "Don't have an account number?"
+msgstr "Non hai un numero di account?"
+
+msgctxt "login-view"
+msgid "Enter your account number"
+msgstr "Inserisci il tuo numero di account"
+
+msgctxt "login-view"
+msgid "Logged in"
+msgstr "Accesso effettuato"
+
+msgctxt "login-view"
+msgid "Logging in..."
+msgstr "Accesso..."
+
+msgctxt "login-view"
+msgid "Login"
+msgstr "Accedi"
+
+msgctxt "login-view"
+msgid "Login failed"
+msgstr "Accesso non riuscito"
+
+msgctxt "login-view"
+msgid "Unknown error"
+msgstr "Errore sconosciuto"
+
+msgctxt "notifications"
+msgid "Blocked all connections"
+msgstr "Tutte le connessioni bloccate"
+
+msgctxt "notifications"
+msgid "Connecting"
+msgstr "Connessione"
+
+msgctxt "notifications"
+msgid "Critical failure - Unsecured"
+msgstr "Errore critico - Non protetto"
+
+msgctxt "notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr "Informazioni incoerenti sulla versione interna, riavvia l'app"
+
+msgctxt "notifications"
+msgid "Reconnecting"
+msgstr "Riconnessione"
+
+msgctxt "notifications"
+msgid "Secured"
+msgstr "Protetto"
+
+msgctxt "notifications"
+msgid "Unsecured"
+msgstr "Non protetto"
+
+#. The system notification displayed to the user when the running app becomes unsupported.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
+msgstr "Stai utilizzando una versione dell'app non supportata. Aggiorna alla versione %(version)s per continuare a essere protetto"
+
+#. Title label in navigation bar
+msgctxt "preferences-nav"
+msgid "Preferences"
+msgstr "Preferenze"
+
+#. Back button in navigation bar
+msgctxt "preferences-nav"
+msgid "Settings"
+msgstr "Impostazioni"
+
+msgctxt "preferences-view"
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "Consenti l'accesso ad altri dispositivi sulla stessa rete per condividere, stampare e altro."
+
+msgctxt "preferences-view"
+msgid "Auto-connect"
+msgstr "Connessione automatica"
+
+msgctxt "preferences-view"
+msgid "Automatically connect to a server when the app launches."
+msgstr "Connettiti automaticamente al server all'avvio dell'app."
+
+msgctxt "preferences-view"
+msgid "Launch app on start-up"
+msgstr "Lancia app all'avvio"
+
+msgctxt "preferences-view"
+msgid "Local network sharing"
+msgstr "Condivisione rete locale"
+
+msgctxt "preferences-view"
+msgid "Monochromatic tray icon"
+msgstr "Icona nell'area di notifica monocromatica"
+
+msgctxt "preferences-view"
+msgid "Preferences"
+msgstr "Preferenze"
+
+msgctxt "preferences-view"
+msgid "Show only the tray icon when the app starts."
+msgstr "Mostra solo l'icona nell'area di notifica all'avvio dell'app."
+
+msgctxt "preferences-view"
+msgid "Start minimized"
+msgstr "Avvia ridotta a icona"
+
+msgctxt "preferences-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr "Usa un'icona nell'area di notifica monocromatica e non colorata."
+
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "Seleziona posizione"
+
+msgctxt "select-location-view"
+msgid "Select location"
+msgstr "Seleziona posizione"
+
+msgctxt "select-location-view"
+msgid "While connected, your real location is masked with a private and secure location in the selected region"
+msgstr "Durante la connessione, la tua posizione reale è nascosta da una posizione privata e protetta nell'area selezionata"
+
+msgctxt "settings-view"
+msgid "Account"
+msgstr "Account"
+
+msgctxt "settings-view"
+msgid "Advanced"
+msgstr "Avanzate"
+
+msgctxt "settings-view"
+msgid "App version"
+msgstr "Versione app"
+
+msgctxt "settings-view"
+msgid "FAQs & Guides"
+msgstr "FAQ e guide"
+
+msgctxt "settings-view"
+msgid "Inconsistent internal version information, please restart the app."
+msgstr "Informazioni incoerenti sulla versione interna, riavvia l'app."
+
+msgctxt "settings-view"
+msgid "OUT OF TIME"
+msgstr "SCADUTO"
+
+msgctxt "settings-view"
+msgid "Preferences"
+msgstr "Preferenze"
+
+msgctxt "settings-view"
+msgid "Quit app"
+msgstr "Esci dall'app"
+
+msgctxt "settings-view"
+msgid "Report a problem"
+msgstr "Segnala un problema"
+
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "Impostazioni"
+
+msgctxt "settings-view"
+msgid "Update available, download to remain safe."
+msgstr "Aggiornamento disponibile; scarica per rimanere protetto."
+
+#. Title label in navigation bar
+msgctxt "settings-view-nav"
+msgid "Settings"
+msgstr "Impostazioni"
+
+#. Back button in navigation bar
+msgctxt "support-nav"
+msgid "Settings"
+msgstr "Impostazioni"
+
+msgctxt "support-view"
+msgid "Back"
+msgstr "Indietro"
+
+msgctxt "support-view"
+msgid "Describe your problem"
+msgstr "Descrivi il tuo problema"
+
+msgctxt "support-view"
+msgid "Edit message"
+msgstr "Modifica messaggio"
+
+msgctxt "support-view"
+msgid "Failed to send"
+msgstr "Impossibile inviare"
+
+#. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+#. Available placeholders:
+#. %(email)s
+msgctxt "support-view"
+msgid "If needed we will contact you on %(email)s"
+msgstr "Se necessario, ti contatteremo all'indirizzo %(email)s"
+
+msgctxt "support-view"
+msgid "Report a problem"
+msgstr "Segnala un problema"
+
+msgctxt "support-view"
+msgid "Send"
+msgstr "Invia"
+
+msgctxt "support-view"
+msgid "Send anyway"
+msgstr "Invia comunque"
+
+msgctxt "support-view"
+msgid "Sending..."
+msgstr "Invio..."
+
+msgctxt "support-view"
+msgid "Sent"
+msgstr "Inviato"
+
+msgctxt "support-view"
+msgid "Thanks! We will look into this."
+msgstr "Grazie! Verificheremo."
+
+msgctxt "support-view"
+msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgstr "Per aiutarti in modo più efficace, il file di registro della tua app sarà allegato a questo messaggio. I tuoi dati rimarranno protetti e privati, e saranno anonimizzati prima di essere inviati tramite un canale crittografato."
+
+msgctxt "support-view"
+msgid "Try again"
+msgstr "Riprova"
+
+msgctxt "support-view"
+msgid "View app logs"
+msgstr "Visualizza registri app"
+
+msgctxt "support-view"
+msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
+msgstr "Stai inviando la segnalazione di un problema senza averci indicato un modo per ricontattarti. Se desideri ricevere risposta, inserisci un indirizzo e-mail."
+
+msgctxt "support-view"
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr "Prima di riprovare, potresti dover tornare alla schermata principale dell'app e fare clic su Disconnetti. Non preoccuparti: le informazioni inserite rimarranno nel modulo."
+
+msgctxt "support-view"
+msgid "Your email (optional)"
+msgstr "La tua e-mail (opzionale)"
+
+msgctxt "tunnel-control"
+msgid "Cancel"
+msgstr "Annulla"
+
+msgctxt "tunnel-control"
+msgid "Disconnect"
+msgstr "Disconnetti"
+
+msgctxt "tunnel-control"
+msgid "Secure my connection"
+msgstr "Proteggi mia connessione"
+
+msgctxt "tunnel-control"
+msgid "Switch location"
+msgstr "Cambia posizione"
+

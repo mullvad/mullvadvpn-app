@@ -1,0 +1,548 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Language: ru\n"
+"X-Crowdin-File: messages.pot\n"
+"Project-Id-Version: mullvad-app\n"
+"Last-Translator: adminmullvad\n"
+"Language-Team: Russian\n"
+"Language: ru_RU\n"
+"PO-Revision-Date: 2019-05-20 10:11\n"
+
+msgid "BLOCKED CONNECTION"
+msgstr "ПОДКЛЮЧЕНИЕ ЗАБЛОКИРОВАНО"
+
+msgid "CREATING SECURE CONNECTION"
+msgstr "СОЗДАНИЕ ЗАЩИЩЕННОГО ПОДКЛЮЧЕНИЯ"
+
+msgid "SECURE CONNECTION"
+msgstr "ЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ"
+
+msgid "UNSECURED CONNECTION"
+msgstr "НЕЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ"
+
+#. The remaining time left on the account displayed across the app.
+#. Available placeholders:
+#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
+msgctxt "account-expiry"
+msgid "%(duration)s left"
+msgstr "Осталось: %(duration)s"
+
+#. Back button in navigation bar
+msgctxt "account-nav"
+msgid "Settings"
+msgstr "Настройки"
+
+msgctxt "account-view"
+msgid "Account"
+msgstr "Учетная запись"
+
+msgctxt "account-view"
+msgid "Account ID"
+msgstr "Номер учетной записи"
+
+msgctxt "account-view"
+msgid "Buy more credit"
+msgstr "Пополнить баланс"
+
+msgctxt "account-view"
+msgid "COPIED TO CLIPBOARD!"
+msgstr "СКОПИРОВАНО В БУФЕР ОБМЕНА!"
+
+msgctxt "account-view"
+msgid "Currently unavailable"
+msgstr "Сейчас недоступно"
+
+msgctxt "account-view"
+msgid "Log out"
+msgstr "Выйти"
+
+msgctxt "account-view"
+msgid "OUT OF TIME"
+msgstr "ЗАКОНЧИЛОСЬ ВРЕМЯ"
+
+msgctxt "account-view"
+msgid "Paid until"
+msgstr "Оплачено до"
+
+#. Title label in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Advanced"
+msgstr "Дополнительные"
+
+#. Back button in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Settings"
+msgstr "Настройки"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "%(portType)s port"
+msgstr "Порт %(portType)s"
+
+msgctxt "advanced-settings-view"
+msgid "Advanced"
+msgstr "Дополнительные"
+
+msgctxt "advanced-settings-view"
+msgid "Automatic"
+msgstr "Автоматически"
+
+msgctxt "advanced-settings-view"
+msgid "Block when disconnected"
+msgstr "Блокировать при отключении"
+
+msgctxt "advanced-settings-view"
+msgid "Default"
+msgstr "По умолчанию"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6"
+msgstr "Включить IPv6"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6 communication through the tunnel."
+msgstr "Включить передачу данных по IPv6 через туннель."
+
+msgctxt "advanced-settings-view"
+msgid "Mssfix"
+msgstr "MSSfix"
+
+msgctxt "advanced-settings-view"
+msgid "Network protocols"
+msgstr "Сетевые протоколы"
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "advanced-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr "Установить значение MSS для OpenVPN. Диапазон значений: %(min)d — %(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
+msgstr "Блокировать весь сетевой трафик при отсутствиии подключения, даже если вы намеренно отключились или вышли из приложения."
+
+msgctxt "auth-failure"
+msgid "Account authentication failed."
+msgstr "Ошибка аутентификации учетной записи."
+
+msgctxt "auth-failure"
+msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
+msgstr "На этой учетной записи слишком много одновременных подключений. Отключите другое устройство или попробуйте подключиться еще раз."
+
+msgctxt "auth-failure"
+msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgstr "У этой учетной записи закончилось время на услуге VPN. Войдите в учетную запись на нашем сайте и пополните счет."
+
+msgctxt "auth-failure"
+msgid "You've logged in with an account number that is not valid. Please log out and try another one."
+msgstr "Вы вошли с недействительным номером учетной записи. Выйдите и попробуйте другой номер."
+
+#. The selected location label displayed on the main view, when a user selected a specific host to connect to.
+#. Example: Malmö (se-mma-001)
+#. Available placeholders:
+#. %(city)s - a city name
+#. %(hostname)s - a hostname
+msgctxt "connect-container"
+msgid "%(city)s (%(hostname)s)"
+msgstr "%(city)s (%(hostname)s)"
+
+msgctxt "connect-view"
+msgid "Buy more credit"
+msgstr "Пополнить баланс"
+
+msgctxt "connect-view"
+msgid "Disconnect and buy more credit"
+msgstr "Отключиться и пополнить баланс"
+
+msgctxt "connect-view"
+msgid "Out of time"
+msgstr "Закончилось время"
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
+msgstr "У этой учетной записи закончилось время на услуге VPN. Прежде чем можно будет пополнить баланс на нашем веб-сайте, нужно отключить функцию «Блокировать при отключении» в разделе настроек «Дополнительные»."
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgstr "У этой учетной записи закончилось время на услуге VPN. Войдите в учетную запись на нашем сайте и пополните баланс."
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
+msgstr "У этой учетной записи закончилось время на услуге VPN. Чтобы пополнить баланс на нашем веб-сайте, вам нужно выйти в интернет по незащищенному подключению."
+
+msgctxt "error-boundary-view"
+msgid "MULLVAD VPN"
+msgstr "MULLVAD VPN"
+
+#. The message displayed to the user in case of critical error in the GUI
+#. Available placeholders:
+#. %(email)s - support email
+msgctxt "error-boundary-view"
+msgid "Something went wrong. Please contact us at %(email)s"
+msgstr "Ошибка. Свяжитесь с нами по адресу %(email)s"
+
+msgctxt "in-app-notifications"
+msgid "ACCOUNT CREDIT EXPIRES SOON"
+msgstr "ЗАКАНЧИВАЕТСЯ БАЛАНС НА УЧЕТНОЙ ЗАПИСИ"
+
+msgctxt "in-app-notifications"
+msgid "BLOCKING INTERNET"
+msgstr "ИНТЕРНЕТ ЗАБЛОКИРОВАН"
+
+msgctxt "in-app-notifications"
+msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
+msgstr "Не удалось настроить протокол IPv6: включите его в системе или отключите в приложении"
+
+msgctxt "in-app-notifications"
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "Не удалось применить правила брандмауэра. Сейчас устройство может быть не защищено"
+
+msgctxt "in-app-notifications"
+msgid "Failed to set system DNS server"
+msgstr "Не удалось установить системный DNS-сервер"
+
+msgctxt "in-app-notifications"
+msgid "Failed to start tunnel connection"
+msgstr "Не удалось запустить подключение к туннелю"
+
+msgctxt "in-app-notifications"
+msgid "FAILURE - UNSECURED"
+msgstr "ОШИБКА: НЕ ЗАЩИЩЕНО"
+
+msgctxt "in-app-notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr "Несоответствие внутренних данных о версии — перезапустите приложение"
+
+msgctxt "in-app-notifications"
+msgid "INCONSISTENT VERSION"
+msgstr "НЕСООТВЕТСТВИЕ ВЕРСИИ"
+
+#. The in-app banner displayed to the user when the app update is available.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid "Install Mullvad VPN (%(version)s) to stay up to date"
+msgstr "Чтобы пользоваться свежей версией, установите Mullvad VPN (%(version)s)"
+
+msgctxt "in-app-notifications"
+msgid "No relay server matches the current settings"
+msgstr "Текущим настройкам не соответствует ни один сервер ретрансляции"
+
+msgctxt "in-app-notifications"
+msgid "This device is offline, no tunnels can be established"
+msgstr "Устройство вне сети, установить подключение к туннелям невозможно"
+
+msgctxt "in-app-notifications"
+msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
+msgstr "На устройстве не удалось обнаружить работающий TAP-адаптер. Если он отключен, включите его. В противном случае переустановите приложение"
+
+msgctxt "in-app-notifications"
+msgid "UNSUPPORTED VERSION"
+msgstr "НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ"
+
+msgctxt "in-app-notifications"
+msgid "UPDATE AVAILABLE"
+msgstr "ЕСТЬ ОБНОВЛЕНИЕ"
+
+#. The in-app banner displayed to the user when the running app becomes unsupported.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
+msgstr "Вы используете неподдерживаемую версию приложения. Чтобы обеспечить безопасность, обновитесь до версии %(version)s"
+
+msgctxt "launch-view"
+msgid "Connecting to daemon..."
+msgstr "Подключение к демону..."
+
+msgctxt "launch-view"
+msgid "MULLVAD VPN"
+msgstr "MULLVAD VPN"
+
+msgctxt "login-view"
+msgid "Checking account number"
+msgstr "Проверка номера учетной записи"
+
+msgctxt "login-view"
+msgid "Correct account number"
+msgstr "Номер учетной записи подтвержден"
+
+msgctxt "login-view"
+msgid "Create account"
+msgstr "Создать учетную запись"
+
+msgctxt "login-view"
+msgid "Don't have an account number?"
+msgstr "У вас нет номера учетной записи?"
+
+msgctxt "login-view"
+msgid "Enter your account number"
+msgstr "Введите номер учетной записи"
+
+msgctxt "login-view"
+msgid "Logged in"
+msgstr "Вход выполнен"
+
+msgctxt "login-view"
+msgid "Logging in..."
+msgstr "Выполняется вход..."
+
+msgctxt "login-view"
+msgid "Login"
+msgstr "Вход"
+
+msgctxt "login-view"
+msgid "Login failed"
+msgstr "Ошибка входа"
+
+msgctxt "login-view"
+msgid "Unknown error"
+msgstr "Неизвестная ошибка"
+
+msgctxt "notifications"
+msgid "Blocked all connections"
+msgstr "Все подключения заблокированы"
+
+msgctxt "notifications"
+msgid "Connecting"
+msgstr "Идет подключение"
+
+msgctxt "notifications"
+msgid "Critical failure - Unsecured"
+msgstr "Критическая ошибка: подключение не защищено"
+
+msgctxt "notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr "Несоответствие внутренних данных о версии — перезапустите приложение"
+
+msgctxt "notifications"
+msgid "Reconnecting"
+msgstr "Идет переподключение"
+
+msgctxt "notifications"
+msgid "Secured"
+msgstr "Подключение защищено"
+
+msgctxt "notifications"
+msgid "Unsecured"
+msgstr "Подключение не защищено"
+
+#. The system notification displayed to the user when the running app becomes unsupported.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
+msgstr "Вы используете неподдерживаемую версию приложения. Чтобы обеспечить безопасность, обновитесь до версии %(version)s"
+
+#. Title label in navigation bar
+msgctxt "preferences-nav"
+msgid "Preferences"
+msgstr "Параметры"
+
+#. Back button in navigation bar
+msgctxt "preferences-nav"
+msgid "Settings"
+msgstr "Настройки"
+
+msgctxt "preferences-view"
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "Разрешить доступ к другим устройствам в той же сети для передачи данных, печати и т. д."
+
+msgctxt "preferences-view"
+msgid "Auto-connect"
+msgstr "Автоподключение"
+
+msgctxt "preferences-view"
+msgid "Automatically connect to a server when the app launches."
+msgstr "Автоматически подключаться к серверу при запуске приложения."
+
+msgctxt "preferences-view"
+msgid "Launch app on start-up"
+msgstr "Автозапуск приложения при загрузке системы"
+
+msgctxt "preferences-view"
+msgid "Local network sharing"
+msgstr "Обмен данными в локальной сети"
+
+msgctxt "preferences-view"
+msgid "Monochromatic tray icon"
+msgstr "Черно-белый значок в области уведомлений"
+
+msgctxt "preferences-view"
+msgid "Preferences"
+msgstr "Параметры"
+
+msgctxt "preferences-view"
+msgid "Show only the tray icon when the app starts."
+msgstr "При запуске приложения показывать только значок в области уведомлений."
+
+msgctxt "preferences-view"
+msgid "Start minimized"
+msgstr "Запускать свернутым"
+
+msgctxt "preferences-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr "Использовать в области уведомлений черно-белый значок вместо цветного."
+
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "Выбор местоположения"
+
+msgctxt "select-location-view"
+msgid "Select location"
+msgstr "Выбор местоположения"
+
+msgctxt "select-location-view"
+msgid "While connected, your real location is masked with a private and secure location in the selected region"
+msgstr "При подключении реальное местоположение маскируется защищенным конфиденциальным местоположением в выбранном регионе"
+
+msgctxt "settings-view"
+msgid "Account"
+msgstr "Учетная запись"
+
+msgctxt "settings-view"
+msgid "Advanced"
+msgstr "Дополнительные"
+
+msgctxt "settings-view"
+msgid "App version"
+msgstr "Версия приложения"
+
+msgctxt "settings-view"
+msgid "FAQs & Guides"
+msgstr "Ответы на вопросы и руководства"
+
+msgctxt "settings-view"
+msgid "Inconsistent internal version information, please restart the app."
+msgstr "Несоответствие внутренних данных о версии — перезапустите приложение."
+
+msgctxt "settings-view"
+msgid "OUT OF TIME"
+msgstr "ЗАКОНЧИЛОСЬ ВРЕМЯ"
+
+msgctxt "settings-view"
+msgid "Preferences"
+msgstr "Параметры"
+
+msgctxt "settings-view"
+msgid "Quit app"
+msgstr "Выйти из приложения"
+
+msgctxt "settings-view"
+msgid "Report a problem"
+msgstr "Сообщить о проблеме"
+
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "Настройки"
+
+msgctxt "settings-view"
+msgid "Update available, download to remain safe."
+msgstr "Есть обновление. Чтобы оставаться в безопасности, обновитесь."
+
+#. Title label in navigation bar
+msgctxt "settings-view-nav"
+msgid "Settings"
+msgstr "Настройки"
+
+#. Back button in navigation bar
+msgctxt "support-nav"
+msgid "Settings"
+msgstr "Настройки"
+
+msgctxt "support-view"
+msgid "Back"
+msgstr "Назад"
+
+msgctxt "support-view"
+msgid "Describe your problem"
+msgstr "Опишите проблему"
+
+msgctxt "support-view"
+msgid "Edit message"
+msgstr "Изменить сообщение"
+
+msgctxt "support-view"
+msgid "Failed to send"
+msgstr "Ошибка отправки"
+
+#. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+#. Available placeholders:
+#. %(email)s
+msgctxt "support-view"
+msgid "If needed we will contact you on %(email)s"
+msgstr "При необходимости мы свяжемся с вами по адресу %(email)s"
+
+msgctxt "support-view"
+msgid "Report a problem"
+msgstr "Сообщение о проблеме"
+
+msgctxt "support-view"
+msgid "Send"
+msgstr "Отправить"
+
+msgctxt "support-view"
+msgid "Send anyway"
+msgstr "Все равно отправить"
+
+msgctxt "support-view"
+msgid "Sending..."
+msgstr "Идет отправка..."
+
+msgctxt "support-view"
+msgid "Sent"
+msgstr "Отправлено"
+
+msgctxt "support-view"
+msgid "Thanks! We will look into this."
+msgstr "Спасибо! Мы рассмотрим эту проблему."
+
+msgctxt "support-view"
+msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgstr "Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу."
+
+msgctxt "support-view"
+msgid "Try again"
+msgstr "Повторить попытку"
+
+msgctxt "support-view"
+msgid "View app logs"
+msgstr "Открыть журналы"
+
+msgctxt "support-view"
+msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
+msgstr "Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ, введите свой адрес электронной почты."
+
+msgctxt "support-view"
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr "Прежде чем повторить попытку, может понадобиться вернуться на главный экран приложения и нажать «Отключить». Не волнуйтесь: введенные в форму данные сохранятся."
+
+msgctxt "support-view"
+msgid "Your email (optional)"
+msgstr "Ваша электронная почта (необязательно)"
+
+msgctxt "tunnel-control"
+msgid "Cancel"
+msgstr "Отмена"
+
+msgctxt "tunnel-control"
+msgid "Disconnect"
+msgstr "Отключить"
+
+msgctxt "tunnel-control"
+msgid "Secure my connection"
+msgstr "Защитить мое подключение"
+
+msgctxt "tunnel-control"
+msgid "Switch location"
+msgstr "Сменить местоположение"
+
