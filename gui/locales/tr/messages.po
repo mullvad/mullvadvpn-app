@@ -1,0 +1,548 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Language: tr\n"
+"X-Crowdin-File: messages.pot\n"
+"Project-Id-Version: mullvad-app\n"
+"Last-Translator: adminmullvad\n"
+"Language-Team: Turkish\n"
+"Language: tr_TR\n"
+"PO-Revision-Date: 2019-05-13 12:30\n"
+
+msgid "BLOCKED CONNECTION"
+msgstr ""
+
+msgid "CREATING SECURE CONNECTION"
+msgstr ""
+
+msgid "SECURE CONNECTION"
+msgstr ""
+
+msgid "UNSECURED CONNECTION"
+msgstr ""
+
+#. The remaining time left on the account displayed across the app.
+#. Available placeholders:
+#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
+msgctxt "account-expiry"
+msgid "%(duration)s left"
+msgstr ""
+
+#. Back button in navigation bar
+msgctxt "account-nav"
+msgid "Settings"
+msgstr ""
+
+msgctxt "account-view"
+msgid "Account"
+msgstr ""
+
+msgctxt "account-view"
+msgid "Account ID"
+msgstr ""
+
+msgctxt "account-view"
+msgid "Buy more credit"
+msgstr ""
+
+msgctxt "account-view"
+msgid "COPIED TO CLIPBOARD!"
+msgstr ""
+
+msgctxt "account-view"
+msgid "Currently unavailable"
+msgstr ""
+
+msgctxt "account-view"
+msgid "Log out"
+msgstr ""
+
+msgctxt "account-view"
+msgid "OUT OF TIME"
+msgstr ""
+
+msgctxt "account-view"
+msgid "Paid until"
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Advanced"
+msgstr ""
+
+#. Back button in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Settings"
+msgstr ""
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "%(portType)s port"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Advanced"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Automatic"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Block when disconnected"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Default"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6 communication through the tunnel."
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Mssfix"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Network protocols"
+msgstr ""
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "advanced-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
+msgstr ""
+
+msgctxt "auth-failure"
+msgid "Account authentication failed."
+msgstr ""
+
+msgctxt "auth-failure"
+msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
+msgstr ""
+
+msgctxt "auth-failure"
+msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgstr ""
+
+msgctxt "auth-failure"
+msgid "You've logged in with an account number that is not valid. Please log out and try another one."
+msgstr ""
+
+#. The selected location label displayed on the main view, when a user selected a specific host to connect to.
+#. Example: Malmö (se-mma-001)
+#. Available placeholders:
+#. %(city)s - a city name
+#. %(hostname)s - a hostname
+msgctxt "connect-container"
+msgid "%(city)s (%(hostname)s)"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Buy more credit"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Disconnect and buy more credit"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Out of time"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
+msgstr ""
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgstr ""
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
+msgstr ""
+
+msgctxt "error-boundary-view"
+msgid "MULLVAD VPN"
+msgstr ""
+
+#. The message displayed to the user in case of critical error in the GUI
+#. Available placeholders:
+#. %(email)s - support email
+msgctxt "error-boundary-view"
+msgid "Something went wrong. Please contact us at %(email)s"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "ACCOUNT CREDIT EXPIRES SOON"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "BLOCKING INTERNET"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "Failed to set system DNS server"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "Failed to start tunnel connection"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "FAILURE - UNSECURED"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "INCONSISTENT VERSION"
+msgstr ""
+
+#. The in-app banner displayed to the user when the app update is available.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid "Install Mullvad VPN (%(version)s) to stay up to date"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "No relay server matches the current settings"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "This device is offline, no tunnels can be established"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "UNSUPPORTED VERSION"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "UPDATE AVAILABLE"
+msgstr ""
+
+#. The in-app banner displayed to the user when the running app becomes unsupported.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
+msgstr ""
+
+msgctxt "launch-view"
+msgid "Connecting to daemon..."
+msgstr ""
+
+msgctxt "launch-view"
+msgid "MULLVAD VPN"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Checking account number"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Correct account number"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Create account"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Don't have an account number?"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Enter your account number"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Logged in"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Logging in..."
+msgstr ""
+
+msgctxt "login-view"
+msgid "Login"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Login failed"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Unknown error"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Blocked all connections"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Connecting"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Critical failure - Unsecured"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Reconnecting"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Secured"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Unsecured"
+msgstr ""
+
+#. The system notification displayed to the user when the running app becomes unsupported.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "preferences-nav"
+msgid "Preferences"
+msgstr ""
+
+#. Back button in navigation bar
+msgctxt "preferences-nav"
+msgid "Settings"
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Auto-connect"
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Automatically connect to a server when the app launches."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Launch app on start-up"
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Local network sharing"
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Monochromatic tray icon"
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Preferences"
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Show only the tray icon when the app starts."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Start minimized"
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Select location"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "While connected, your real location is masked with a private and secure location in the selected region"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "Account"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "Advanced"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "App version"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "FAQs & Guides"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "Inconsistent internal version information, please restart the app."
+msgstr ""
+
+msgctxt "settings-view"
+msgid "OUT OF TIME"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "Preferences"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "Quit app"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "Report a problem"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "Settings"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "Update available, download to remain safe."
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "settings-view-nav"
+msgid "Settings"
+msgstr ""
+
+#. Back button in navigation bar
+msgctxt "support-nav"
+msgid "Settings"
+msgstr ""
+
+msgctxt "support-view"
+msgid "Back"
+msgstr ""
+
+msgctxt "support-view"
+msgid "Describe your problem"
+msgstr ""
+
+msgctxt "support-view"
+msgid "Edit message"
+msgstr ""
+
+msgctxt "support-view"
+msgid "Failed to send"
+msgstr ""
+
+#. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+#. Available placeholders:
+#. %(email)s
+msgctxt "support-view"
+msgid "If needed we will contact you on %(email)s"
+msgstr ""
+
+msgctxt "support-view"
+msgid "Report a problem"
+msgstr ""
+
+msgctxt "support-view"
+msgid "Send"
+msgstr ""
+
+msgctxt "support-view"
+msgid "Send anyway"
+msgstr ""
+
+msgctxt "support-view"
+msgid "Sending..."
+msgstr ""
+
+msgctxt "support-view"
+msgid "Sent"
+msgstr ""
+
+msgctxt "support-view"
+msgid "Thanks! We will look into this."
+msgstr ""
+
+msgctxt "support-view"
+msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgstr ""
+
+msgctxt "support-view"
+msgid "Try again"
+msgstr ""
+
+msgctxt "support-view"
+msgid "View app logs"
+msgstr ""
+
+msgctxt "support-view"
+msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
+msgstr ""
+
+msgctxt "support-view"
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr ""
+
+msgctxt "support-view"
+msgid "Your email (optional)"
+msgstr ""
+
+msgctxt "tunnel-control"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "tunnel-control"
+msgid "Disconnect"
+msgstr ""
+
+msgctxt "tunnel-control"
+msgid "Secure my connection"
+msgstr ""
+
+msgctxt "tunnel-control"
+msgid "Switch location"
+msgstr ""
+
