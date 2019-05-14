@@ -1,252 +1,244 @@
 msgid ""
 msgstr ""
+"Project-Id-Version: mullvad-app\n"
+"PO-Revision-Date: 2019-05-13 12:30\n"
+"Last-Translator: adminmullvad\n"
+"Language-Team: Japanese\n"
+"Language: ja_JP\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Language: ja\n"
 "X-Crowdin-File: relay-locations.pot\n"
-"Project-Id-Version: mullvad-app\n"
-"Last-Translator: adminmullvad\n"
-"Language-Team: Japanese\n"
-"Language: ja_JP\n"
-"PO-Revision-Date: 2019-05-13 12:30\n"
 
 #. AU BNE
 msgid "Brisbane"
-msgstr ""
+msgstr "ブリスベン"
 
 #. AU MEL
 msgid "Melbourne"
-msgstr ""
+msgstr "メルボルン"
 
 #. AU PER
 msgid "Perth"
-msgstr ""
+msgstr "パース"
 
 #. AU SYD
 msgid "Sydney"
-msgstr ""
+msgstr "シドニー"
 
 #. AT VIE
 msgid "Wien"
-msgstr ""
+msgstr "ウィーン"
 
 #. BE BRU
 msgid "Brussels"
-msgstr ""
+msgstr "ブリュッセル＝ヴィル"
 
 #. BR SAO
 msgid "Sao Paulo"
-msgstr ""
+msgstr "サンパウロ"
 
 #. BG SOF
 msgid "Sofia"
-msgstr ""
+msgstr "ソフィア"
 
 #. CA MTR
 msgid "Montreal"
-msgstr ""
+msgstr "モントリオール"
 
 #. CA TOR
 msgid "Toronto"
-msgstr ""
+msgstr "トロント"
 
 #. CA VAN
 msgid "Vancouver"
-msgstr ""
+msgstr "バンクーバー"
 
 #. CZ PRG
 msgid "Prague"
-msgstr ""
+msgstr "プラハ"
 
 #. DK CPH
 msgid "Copenhagen"
-msgstr ""
+msgstr "コペンハーゲン"
 
 #. FI HEL
 msgid "Helsinki"
-msgstr ""
+msgstr "ヘルシンキ"
 
 #. FR MRS
 msgid "Marseille"
-msgstr ""
+msgstr "マルセイユ"
 
 #. FR PAR
 msgid "Paris"
-msgstr ""
+msgstr "パリ"
 
 #. DE FRA
 msgid "Frankfurt"
-msgstr ""
+msgstr "フランクフルト・アム・マイン"
 
 #. GR ATH
 msgid "Athens"
-msgstr ""
+msgstr "アセンズ"
 
 #. HK HKG
 msgid "Hong Kong"
-msgstr ""
+msgstr "香港"
 
 #. HU BUD
 msgid "Budapest"
-msgstr ""
+msgstr "ブダペスト"
 
 #. IN PNQ
 msgid "Pune"
-msgstr ""
-
-#. IL PET
-msgid "Petach-Tikva"
-msgstr ""
+msgstr "プネー"
 
 #. IT MIL
 msgid "Milan"
-msgstr ""
+msgstr "ミラノ"
 
 #. JP TYO
 msgid "Tokyo"
-msgstr ""
+msgstr "東京都"
 
 #. LV RIX
 msgid "Riga"
-msgstr ""
+msgstr "リガ"
 
 #. LU LUX
 msgid "Luxembourg"
-msgstr ""
+msgstr "ルクセンブルク市"
 
 #. MD KIV
 msgid "Chisinau"
-msgstr ""
+msgstr "キシナウ"
 
 #. NL AMS
 msgid "Amsterdam"
-msgstr ""
+msgstr "アムステルダム"
 
 #. NZ AKL
 msgid "Auckland"
-msgstr ""
+msgstr "オークランド"
 
 #. NO OSL
 msgid "Oslo"
-msgstr ""
+msgstr "オスロ"
 
 #. PL WAW
 msgid "Warsaw"
-msgstr ""
-
-#. PT LIS
-msgid "Lisbon"
-msgstr ""
+msgstr "ワルシャワ"
 
 #. RO BUH
 msgid "Bucharest"
-msgstr ""
+msgstr "ブカレスト"
 
 #. RS BEG
 msgid "Belgrade"
-msgstr ""
+msgstr "ベオグラード"
 
 #. RS INI
 msgid "Nis"
-msgstr ""
+msgstr "ニシュ"
 
 #. SG SIN
 msgid "Singapore"
-msgstr ""
+msgstr "シンガポール"
 
 #. ZA JNB
 msgid "Johannesburg"
-msgstr ""
+msgstr "ヨハネスブルグ"
 
 #. ES MAD
 msgid "Madrid"
-msgstr ""
+msgstr "マドリード"
 
 #. SE GOT
 msgid "Gothenburg"
-msgstr ""
+msgstr "ヨーテボリ"
 
 #. SE HEL
 msgid "Helsingborg"
-msgstr ""
+msgstr "ヘルシンボリ"
 
 #. SE MMA
 msgid "Malmö"
-msgstr ""
+msgstr "マルメ"
 
 #. SE STO
 msgid "Stockholm"
-msgstr ""
+msgstr "ストックホルム"
 
 #. CH ZRH
 msgid "Zurich"
-msgstr ""
+msgstr "チューリッヒ"
 
 #. GB LON
 msgid "London"
-msgstr ""
+msgstr "ロンドン"
 
 #. GB MNC
 msgid "Manchester"
-msgstr ""
+msgstr "マンチェスター"
 
 #. UA IEV
 msgid "Kiev"
-msgstr ""
+msgstr "キエフ"
 
 #. US ATL
 msgid "Atlanta, GA"
-msgstr ""
+msgstr "アトランタ, GA"
 
 #. US BOS
 msgid "Boston, MA"
-msgstr ""
+msgstr "ボストン, MA"
 
 #. US CLT
 msgid "Charlotte, NC"
-msgstr ""
+msgstr "シャーロット, NC"
 
 #. US CHI
 msgid "Chicago, IL"
-msgstr ""
+msgstr "シカゴ, IL"
 
 #. US CLE
 msgid "Cleveland, OH"
-msgstr ""
+msgstr "クリーブランド, OH"
 
 #. US DAL
 msgid "Dallas, TX"
-msgstr ""
+msgstr "ダラス, TX"
 
 #. US DEN
 msgid "Denver, CO"
-msgstr ""
+msgstr "デンバー, CO"
 
 #. US HNL
 msgid "Honolulu, HI"
-msgstr ""
+msgstr "ホノルル, HI"
 
 #. US JAN
 msgid "Jackson, MS"
-msgstr ""
+msgstr "ジャクソン, MS"
 
 #. US LAX
 msgid "Los Angeles, CA"
-msgstr ""
+msgstr "ロス・アンヘレス, CA"
 
 #. US LUI
 msgid "Louisville, KY"
-msgstr ""
+msgstr "ルイビル, KY"
 
 #. US MIA
 msgid "Miami, FL"
-msgstr ""
+msgstr "マイアミ, FL"
 
 #. US MKE
 msgid "Milwaukee, WI"
-msgstr ""
+msgstr "ミルウォーキー, WI"
 
 #. US MSP
 msgid "Minneapolis/St. Paul Apt, MN"
@@ -254,19 +246,19 @@ msgstr ""
 
 #. US NYC
 msgid "New York, NY"
-msgstr ""
+msgstr "ニューヨーク, NY"
 
 #. US OKC
 msgid "Oklahoma City, OK"
-msgstr ""
+msgstr "オクラホマシティ, OK"
 
 #. US PHL
 msgid "Philadelphia, PA"
-msgstr ""
+msgstr "フィラデルフィア, PA"
 
 #. US PHX
 msgid "Phoenix, AZ"
-msgstr ""
+msgstr "フェニックス, AZ"
 
 #. US PIL
 msgid "Piscataway, NJ"
@@ -274,15 +266,15 @@ msgstr ""
 
 #. US PDX
 msgid "Portland, OR"
-msgstr ""
+msgstr "ポートランド, OR"
 
 #. US RIC
 msgid "Richmond, VA"
-msgstr ""
+msgstr "リッチモンド, VA"
 
 #. US SLC
 msgid "Salt Lake City, UT"
-msgstr ""
+msgstr "ソルトレイクシティ, UT"
 
 #. US SFO
 msgid "San Francisco, CA"
@@ -290,11 +282,11 @@ msgstr ""
 
 #. US SJC
 msgid "San Jose, CA"
-msgstr ""
+msgstr "プエルト・サンホセ, CA"
 
 #. US SEA
 msgid "Seattle, WA"
-msgstr ""
+msgstr "シアトル, WA"
 
 #. US UYK
 msgid "Secaucus, NJ"
@@ -302,17 +294,16 @@ msgstr ""
 
 #. US FSD
 msgid "Sioux Falls, SD"
-msgstr ""
+msgstr "スーフォールズ, SD"
 
 #. US XLX
 msgid "Stamford, CT"
-msgstr ""
+msgstr "スタンフォード, CT"
 
 #. US STL
 msgid "St. Louis, MO"
-msgstr ""
+msgstr "セントルイス, MO"
 
 #. US WAS
 msgid "Washington DC"
 msgstr ""
-
