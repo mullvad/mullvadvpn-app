@@ -7,31 +7,31 @@
 //
 
 import Foundation
+import ProcedureKit
 
 private let kMullvadAPIURL = URL(string: "https://api.mullvad.net/rpc/")!
 
 class MullvadAPI {
 
-    class func getRelayList(completion: @escaping (_ result: Result<JsonRpcResponse<RelayList>, Error>) -> Void) -> URLSessionDataTask {
-        let urlRequest = try! makeURLRequest(method: "POST", rpcRequest: JsonRpcRequest(method: "relay_list_v2"))
-
-        return sendRequest(urlRequest, completion: completion)
+    class func getRelayList() -> JSONRequestProcedure<Void, JsonRpcResponse<RelayList>> {
+        return JSONRequestProcedure(requestBuilder: {
+            try makeURLRequest(method: "POST", rpcRequest: JsonRpcRequest(method: "relay_list_v2"))
+        })
     }
 
-    class func getAccountData(accountToken: String, completion: @escaping (_ result: Result<JsonRpcResponse<AccountData>, Error>) -> Void) -> URLSessionDataTask {
-        let urlRequest = try! makeURLRequest(method: "POST", rpcRequest: JsonRpcRequest(method: "get_account_data", params: [accountToken]))
-
-        return sendRequest(urlRequest, completion: completion)
-    }
-
-    private class func decodeResponse<T: Decodable>(data: Data) throws -> JsonRpcResponse<T> {
-        let decoder = defaultJsonDecoder()
-
-        return try decoder.decode(JsonRpcResponse<T>.self, from: data)
+    class func getAccountData(accountToken: String? = nil) -> JSONRequestProcedure<String, JsonRpcResponse<AccountData>> {
+        return JSONRequestProcedure(input: accountToken, requestBuilder: {
+            try makeURLRequest(
+                method: "POST",
+                rpcRequest: JsonRpcRequest(method: "get_account_data", params: [$0])
+            )
+        })
     }
 
     private class func makeURLRequest<T: Encodable>(method: String, rpcRequest: JsonRpcRequest<T>) throws -> URLRequest {
-        let encoder = defaultJsonEncoder()
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        encoder.dateEncodingStrategy = .iso8601
 
         var urlRequest = URLRequest(url: kMullvadAPIURL)
         urlRequest.httpMethod = method
@@ -41,29 +41,4 @@ class MullvadAPI {
         return urlRequest
     }
 
-    private class func sendRequest<T: Decodable>(_ urlRequest: URLRequest, completion: @escaping (_ result: Result<JsonRpcResponse<T>, Error>) -> Void) -> URLSessionDataTask {
-        return URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
-            DispatchQueue.main.async {
-                completion(error.flatMap({ Result.failure($0) }) ?? Result(catching: {
-                    try self.decodeResponse(data: try data.unwrap())
-                }))
-            }
-        }
-    }
-
 }
-
-private func defaultJsonEncoder() -> JSONEncoder {
-    let encoder = JSONEncoder()
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    encoder.dateEncodingStrategy = .iso8601
-    return encoder
-}
-
-private func defaultJsonDecoder() -> JSONDecoder {
-    let decoder = JSONDecoder()
-    decoder.keyDecodingStrategy = .convertFromSnakeCase
-    decoder.dateDecodingStrategy = .iso8601
-    return decoder
-}
-
