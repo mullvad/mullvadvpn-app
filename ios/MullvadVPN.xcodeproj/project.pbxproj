@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		08A905C56DDB0A0A887BB5F5 /* Pods_MullvadVPN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F506AB938C45AEB812886B4 /* Pods_MullvadVPN.framework */; };
+		543203592C79FAD36BC1E700 /* Pods_PacketTunnel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A931E0F6F380B4B3FD45D987 /* Pods_PacketTunnel.framework */; };
 		5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */; };
 		5867A51C2248F26A005513C0 /* SegueIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867A51B2248F26A005513C0 /* SegueIdentifier.swift */; };
 		587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587CBFE222807F530028DED3 /* UIColor+Helpers.swift */; };
@@ -60,6 +62,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3F506AB938C45AEB812886B4 /* Pods_MullvadVPN.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MullvadVPN.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		40D54D8A8B75B67DC37C5CCE /* Pods-PacketTunnel.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PacketTunnel.release.xcconfig"; path = "Target Support Files/Pods-PacketTunnel/Pods-PacketTunnel.release.xcconfig"; sourceTree = "<group>"; };
 		5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslucentButtonBlurView.swift; sourceTree = "<group>"; };
 		5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MullvadVPN.entitlements; sourceTree = "<group>"; };
 		5867A51B2248F26A005513C0 /* SegueIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegueIdentifier.swift; sourceTree = "<group>"; };
@@ -91,6 +95,10 @@
 		58CE5E7D224146470008646E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58CE5E7E224146470008646E /* PacketTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PacketTunnel.entitlements; sourceTree = "<group>"; };
 		58F37E7C2243ECCB00C75C97 /* HeaderBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBarViewController.swift; sourceTree = "<group>"; };
+		627D4CE562B85202FCFA0EB1 /* Pods-MullvadVPN.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MullvadVPN.debug.xcconfig"; path = "Target Support Files/Pods-MullvadVPN/Pods-MullvadVPN.debug.xcconfig"; sourceTree = "<group>"; };
+		9F1362F46063B1D06EB0C685 /* Pods-PacketTunnel.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PacketTunnel.debug.xcconfig"; path = "Target Support Files/Pods-PacketTunnel/Pods-PacketTunnel.debug.xcconfig"; sourceTree = "<group>"; };
+		A931E0F6F380B4B3FD45D987 /* Pods_PacketTunnel.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PacketTunnel.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DBBD45CCF670C9D1C5C1AD03 /* Pods-MullvadVPN.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MullvadVPN.release.xcconfig"; path = "Target Support Files/Pods-MullvadVPN/Pods-MullvadVPN.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +106,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08A905C56DDB0A0A887BB5F5 /* Pods_MullvadVPN.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -105,18 +114,30 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				543203592C79FAD36BC1E700 /* Pods_PacketTunnel.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0E15C74FDCF763609B367486 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3F506AB938C45AEB812886B4 /* Pods_MullvadVPN.framework */,
+				A931E0F6F380B4B3FD45D987 /* Pods_PacketTunnel.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		58CE5E57224146200008646E = {
 			isa = PBXGroup;
 			children = (
 				58CE5E62224146200008646E /* MullvadVPN */,
 				58CE5E7A224146470008646E /* PacketTunnel */,
 				58CE5E61224146200008646E /* Products */,
+				EA56DDD29D7312EAC382022A /* Pods */,
+				0E15C74FDCF763609B367486 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -172,6 +193,17 @@
 			path = PacketTunnel;
 			sourceTree = "<group>";
 		};
+		EA56DDD29D7312EAC382022A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				627D4CE562B85202FCFA0EB1 /* Pods-MullvadVPN.debug.xcconfig */,
+				DBBD45CCF670C9D1C5C1AD03 /* Pods-MullvadVPN.release.xcconfig */,
+				9F1362F46063B1D06EB0C685 /* Pods-PacketTunnel.debug.xcconfig */,
+				40D54D8A8B75B67DC37C5CCE /* Pods-PacketTunnel.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -179,10 +211,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58CE5E72224146210008646E /* Build configuration list for PBXNativeTarget "MullvadVPN" */;
 			buildPhases = (
+				A4E72CCF49FD4D29D984E1FC /* [CP] Check Pods Manifest.lock */,
 				58CE5E5C224146200008646E /* Sources */,
 				58CE5E5D224146200008646E /* Frameworks */,
 				58CE5E5E224146200008646E /* Resources */,
 				58CE5E85224146470008646E /* Embed App Extensions */,
+				423609432954668DE7DEA7D5 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -198,6 +232,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58CE5E82224146470008646E /* Build configuration list for PBXNativeTarget "PacketTunnel" */;
 			buildPhases = (
+				C8E26D766ABD05BF7B4EB4AC /* [CP] Check Pods Manifest.lock */,
 				58CE5E75224146470008646E /* Sources */,
 				58CE5E76224146470008646E /* Frameworks */,
 				58CE5E77224146470008646E /* Resources */,
@@ -274,6 +309,75 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		423609432954668DE7DEA7D5 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MullvadVPN/Pods-MullvadVPN-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/ProcedureKit/ProcedureKit.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProcedureKit.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MullvadVPN/Pods-MullvadVPN-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A4E72CCF49FD4D29D984E1FC /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MullvadVPN-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C8E26D766ABD05BF7B4EB4AC /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PacketTunnel-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		58CE5E5C224146200008646E /* Sources */ = {
@@ -460,6 +564,7 @@
 		};
 		58CE5E73224146210008646E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 627D4CE562B85202FCFA0EB1 /* Pods-MullvadVPN.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -482,6 +587,7 @@
 		};
 		58CE5E74224146210008646E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DBBD45CCF670C9D1C5C1AD03 /* Pods-MullvadVPN.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -504,6 +610,7 @@
 		};
 		58CE5E83224146470008646E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9F1362F46063B1D06EB0C685 /* Pods-PacketTunnel.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -524,6 +631,7 @@
 		};
 		58CE5E84224146470008646E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 40D54D8A8B75B67DC37C5CCE /* Pods-PacketTunnel.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
