@@ -30,16 +30,16 @@ bool ValidInterfaceType(const MIB_IF_ROW2 &iface)
 } // anonyomus namespace
 
 NetMonitor::NetMonitor(NetMonitor::Notifier notifier, bool &currentConnectivity)
-	: m_notifier(notifier)
-	, m_connected(false)
+	: m_connected(false)
+	, m_notifier(notifier)
 	, m_notificationHandle(nullptr)
 {
-	createCache();
+	m_cache = CreateCache();
 	updateConnectivity();
 
 	currentConnectivity = m_connected;
 
-	const auto status = NotifyIpInterfaceChange(AF_UNSPEC, callback, this, FALSE, &m_notificationHandle);
+	const auto status = NotifyIpInterfaceChange(AF_UNSPEC, Callback, this, FALSE, &m_notificationHandle);
 
 	THROW_UNLESS(NO_ERROR, status, "Register interface change notification");
 }
@@ -49,7 +49,14 @@ NetMonitor::~NetMonitor()
 	CancelMibChangeNotify2(m_notificationHandle);
 }
 
-void NetMonitor::createCache()
+// static
+bool NetMonitor::CheckConnectivity()
+{
+	return CheckConnectivity(CreateCache());
+}
+
+// static
+NetMonitor::Cache NetMonitor::CreateCache()
 {
 	MIB_IF_TABLE2 *table;
 
@@ -64,13 +71,17 @@ void NetMonitor::createCache()
 		FreeMibTable(table);
 	};
 
+	std::map<uint64_t, CacheEntry> cache;
+
 	for (ULONG i = 0; i < table->NumEntries; ++i)
 	{
-		addCacheEntry(table->Table[i]);
+		AddCacheEntry(cache, table->Table[i]);
 	}
+	return cache;
 }
 
-void NetMonitor::addCacheEntry(const MIB_IF_ROW2 &iface)
+// static
+void NetMonitor::AddCacheEntry(Cache &cache, const MIB_IF_ROW2 &iface)
 {
 	CacheEntry e;
 
@@ -87,27 +98,32 @@ void NetMonitor::addCacheEntry(const MIB_IF_ROW2 &iface)
 		e.connected = (MediaConnectStateConnected == iface.MediaConnectState);
 	}
 
-	m_cache.insert(std::make_pair(e.luid, e));
+	cache.insert(std::make_pair(e.luid, e));
 }
 
-void NetMonitor::updateConnectivity()
+// static
+bool NetMonitor::CheckConnectivity(const Cache &cache)
 {
-	for (const auto cacheEntryIter : m_cache)
+	for (const auto cacheEntryIter : cache)
 	{
 		const auto entry = cacheEntryIter.second;
 
 		if (entry.valid && entry.connected)
 		{
-			m_connected = true;
-			return;
+			return true;
 		}
 	}
 
-	m_connected = false;
+	return false;
+}
+
+void NetMonitor::updateConnectivity()
+{
+	m_connected = NetMonitor::CheckConnectivity(m_cache);
 }
 
 //static
-void __stdcall NetMonitor::callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType)
+void __stdcall NetMonitor::Callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType)
 {
 	auto thiz = reinterpret_cast<NetMonitor *>(context);
 
@@ -126,7 +142,7 @@ void __stdcall NetMonitor::callback(void *context, MIB_IPINTERFACE_ROW *hint, MI
 				return;
 			}
 
-			thiz->addCacheEntry(iface);
+			thiz->AddCacheEntry(thiz->m_cache, iface);
 
 			break;
 		}
@@ -161,7 +177,7 @@ void __stdcall NetMonitor::callback(void *context, MIB_IPINTERFACE_ROW *hint, MI
 					return;
 				}
 
-				thiz->addCacheEntry(iface);
+				thiz->AddCacheEntry(thiz->m_cache, iface);
 			}
 			else
 			{

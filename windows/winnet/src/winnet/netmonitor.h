@@ -23,11 +23,9 @@ public:
 	NetMonitor(Notifier notifier, bool &currentConnectivity);
 	~NetMonitor();
 
+	static bool CheckConnectivity();
+
 private:
-
-	std::mutex m_processingMutex;
-
-	Notifier m_notifier;
 
 	struct CacheEntry
 	{
@@ -41,15 +39,20 @@ private:
 		bool connected;
 	};
 
-	std::map<uint64_t, CacheEntry> m_cache;
+	using Cache = std::map<uint64_t, CacheEntry>;
 
+	std::mutex m_processingMutex;
+	Cache m_cache;
 	bool m_connected;
+	Notifier m_notifier;
 
 	HANDLE m_notificationHandle;
 
-	void createCache();
-	void addCacheEntry(const MIB_IF_ROW2 &iface);
+	static Cache CreateCache();
+	static void AddCacheEntry(Cache &cache, const MIB_IF_ROW2 &iface);
+	static bool CheckConnectivity(const Cache &cache);
+
 	void updateConnectivity();
 
-	static void __stdcall callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType);
+	static void __stdcall Callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType);
 };

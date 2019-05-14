@@ -21,7 +21,7 @@ WINNET_API
 WinNet_EnsureTopMetric(
 	const wchar_t *deviceAlias,
 	WinNetErrorSink errorSink,
-	void* errorSinkContext
+	void *errorSinkContext
 )
 {
 	try
@@ -51,7 +51,7 @@ WINNET_GTII_STATUS
 WINNET_API
 WinNet_GetTapInterfaceIpv6Status(
 	WinNetErrorSink errorSink,
-	void* errorSinkContext
+	void *errorSinkContext
 )
 {
 	try
@@ -92,12 +92,12 @@ WinNet_GetTapInterfaceIpv6Status(
 
 extern "C"
 WINNET_LINKAGE
-WINNET_GTIA_STATUS
+bool
 WINNET_API
 WinNet_GetTapInterfaceAlias(
 	wchar_t **alias,
 	WinNetErrorSink errorSink,
-	void* errorSinkContext
+	void *errorSinkContext
 )
 {
 	try
@@ -109,7 +109,7 @@ WinNet_GetTapInterfaceAlias(
 
 		*alias = stringBuffer;
 
-		return WINNET_GTIA_STATUS::SUCCESS;
+		return true;
 	}
 	catch (std::exception &err)
 	{
@@ -118,11 +118,11 @@ WinNet_GetTapInterfaceAlias(
 			errorSink(err.what(), errorSinkContext);
 		}
 
-		return WINNET_GTIA_STATUS::FAILURE;
+		return false;
 	}
 	catch (...)
 	{
-		return WINNET_GTIA_STATUS::FAILURE;
+		return false;
 	}
 }
 
@@ -145,13 +145,14 @@ WinNet_ReleaseString(
 
 extern "C"
 WINNET_LINKAGE
-WINNET_ACM_STATUS
+bool
 WINNET_API
 WinNet_ActivateConnectivityMonitor(
 	WinNetConnectivityMonitorCallback callback,
-	uint8_t *currentConnectivity,
+	void *callbackContext,
+	bool *currentConnectivity,
 	WinNetErrorSink errorSink,
-	void* errorSinkContext
+	void *errorSinkContext
 )
 {
 	try
@@ -161,9 +162,9 @@ WinNet_ActivateConnectivityMonitor(
 			throw std::runtime_error("Cannot activate connectivity monitor twice");
 		}
 
-		auto forwarder = [callback](bool connected)
+		auto forwarder = [callback, callbackContext](bool connected)
 		{
-			callback(static_cast<uint8_t>(connected));
+			callback(connected, callbackContext);
 		};
 
 		bool connected = false;
@@ -172,10 +173,10 @@ WinNet_ActivateConnectivityMonitor(
 
 		if (nullptr != currentConnectivity)
 		{
-			*currentConnectivity = static_cast<uint8_t>(connected);
+			*currentConnectivity = connected;
 		}
 
-		return WINNET_ACM_STATUS::SUCCESS;
+		return true;
 	}
 	catch (std::exception &err)
 	{
@@ -184,11 +185,11 @@ WinNet_ActivateConnectivityMonitor(
 			errorSink(err.what(), errorSinkContext);
 		}
 
-		return WINNET_ACM_STATUS::FAILURE;
+		return false;
 	}
 	catch (...)
 	{
-		return WINNET_ACM_STATUS::FAILURE;
+		return false;
 	}
 }
 
@@ -206,5 +207,33 @@ WinNet_DeactivateConnectivityMonitor(
 	}
 	catch (...)
 	{
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
+WINNET_CC_STATUS
+WINNET_API
+WinNet_CheckConnectivity(
+	WinNetErrorSink errorSink,
+	void *errorSinkContext
+)
+{
+	try
+	{
+		return (NetMonitor::CheckConnectivity() ? WINNET_CC_STATUS::CONNECTED : WINNET_CC_STATUS::NOT_CONNECTED);
+	}
+	catch (std::exception &err)
+	{
+		if (nullptr != errorSink)
+		{
+			errorSink(err.what(), errorSinkContext);
+		}
+
+		return WINNET_CC_STATUS::CONNECTIVITY_UNKNOWN;
+	}
+	catch (...)
+	{
+		return WINNET_CC_STATUS::CONNECTIVITY_UNKNOWN;
 	}
 }
