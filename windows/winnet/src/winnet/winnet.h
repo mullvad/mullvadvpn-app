@@ -72,7 +72,7 @@ WinNet_ReleaseString(
 	wchar_t *str
 );
 
-typedef void (WINNET_API *WinNetConnectivityMonitorCallback)(uint8_t connected);
+typedef void (WINNET_API *WinNetConnectivityMonitorCallback)(uint8_t connected, void* context);
 
 enum class WINNET_ACM_STATUS : uint32_t
 {
@@ -86,6 +86,7 @@ WINNET_ACM_STATUS
 WINNET_API
 WinNet_ActivateConnectivityMonitor(
 	WinNetConnectivityMonitorCallback callback,
+	void* callbackContext,
 	uint8_t *currentConnectivity,
 	WinNetErrorSink errorSink,
 	void* errorSinkContext
@@ -97,3 +98,11 @@ void
 WINNET_API
 WinNet_DeactivateConnectivityMonitor(
 );
+
+extern "C"
+WINNET_LINKAGE
+uint8_t
+WINNET_API
+WinNet_CheckConnectivity(
+);
+
