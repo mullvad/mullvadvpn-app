@@ -89,6 +89,9 @@ const DHCPV6_CLIENT_PORT: u16 = 546;
 /// 4. If `allow_lan` is enabled, all policies should allow the following traffic:
 ///    * Outgoing to, and incoming from, any IP in the networks listed in ALLOWED_LAN_NETS
 ///    * Outgoing to any IP in the networks listed in ALLOWED_LAN_MULTICAST_NETS
+///    * Incoming DHCPv4 requests and outgoing responses (be a DHCPv4 server):
+///      * Incoming from *:DHCPV4_CLIENT_PORT to 255.255.255.255:DHCPV4_SERVER_PORT
+///      * Outgoing from *:DHCPV4_SERVER_PORT to *:DHCPV4_CLIENT_PORT
 ///
 /// ## Policy specific rules
 ///
