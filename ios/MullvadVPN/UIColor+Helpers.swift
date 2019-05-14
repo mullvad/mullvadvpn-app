@@ -10,17 +10,20 @@ import UIKit
 
 extension UIColor {
 
-    func lightened(by factor: CGFloat) -> UIColor? {
-        return darkened(by: -factor)
+    /// Returns the color lighter by the given percent (in range from 0..1)
+    func lightened(by percent: CGFloat) -> UIColor? {
+        return darkened(by: -percent)
     }
 
-    func darkened(by factor: CGFloat) -> UIColor? {
+    /// Returns the color darker by the given percent (in range from 0..1)
+    func darkened(by percent: CGFloat) -> UIColor? {
         var r = CGFloat.zero, g = CGFloat.zero, b = CGFloat.zero, a = CGFloat.zero
+        let factor = 1.0 - percent
 
         if getRed(&r, green: &g, blue: &b, alpha: &a) {
-            return UIColor(red: clampColorComponent(r + factor),
-                    green: clampColorComponent(g + factor),
-                    blue: clampColorComponent(b + factor),
+            return UIColor(red: clampColorComponent(r * factor),
+                    green: clampColorComponent(g * factor),
+                    blue: clampColorComponent(b * factor),
                     alpha: a)
         }
 
