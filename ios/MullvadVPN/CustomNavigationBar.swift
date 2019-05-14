@@ -53,7 +53,7 @@ class CustomNavigationBar: UINavigationBar {
 
         isBarVisible = visible
 
-        let executor = {
+        let action = {
             self.setBarBackgroundVisibility(visible)
             self.setTitleVisibility(visible)
         }
@@ -61,9 +61,9 @@ class CustomNavigationBar: UINavigationBar {
         if animated {
             UIView.animate(withDuration: 0.25, delay: 0,
                            options: [.beginFromCurrentState],
-                           animations: executor)
+                           animations: action)
         } else {
-            executor()
+            action()
         }
     }
 
