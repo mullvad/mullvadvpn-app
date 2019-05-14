@@ -124,15 +124,13 @@ class SelectLocationController: UITableViewController {
 
         if let index = expandedItems.firstIndex(of: item) {
             expandedItems.remove(at: index)
-            updateDisplayedItems()
-
             cell.isExpanded = false
         } else {
             expandedItems.append(item)
-            updateDisplayedItems()
-
             cell.isExpanded = true
         }
+
+        updateDisplayedItems()
 
         let numberOfItemsAfter = displayedItems.count - numberOfItemsBefore
         let indexPathsOfAffectedItems = cellIndexPath.subsequentIndexPaths(count: abs(numberOfItemsAfter))
