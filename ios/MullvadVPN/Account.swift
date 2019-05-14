@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ProcedureKit
 import os.log
 
 /// Application group identifier used for sharing user settings between processes
@@ -19,14 +20,17 @@ private let kUserDefaultsAccountTokenKey = "accountToken"
 enum AccountVerification {
     /// The app should attempt to verify the account token at some point later because the network
     /// may not be available at this time.
-    case deferred
+    case deferred(Error)
 
     /// The app successfully verified the account token with the server
     case verified
+
+    // Invalid token
+    case invalid(Error)
 }
 
 class Account {
-    class var accountToken : String? {
+    class var accountToken: String? {
         return UserDefaults.mullvadUserDefaults().string(forKey: kUserDefaultsAccountTokenKey)
     }
 
@@ -34,22 +38,8 @@ class Account {
         UserDefaults.mullvadUserDefaults().setValue(accountToken, forKey: kUserDefaultsAccountTokenKey)
     }
 
-    class func verifyAccountToken(_ accountToken: String, completion: @escaping (_ result: Result<AccountVerification, Error>) -> Void) -> URLSessionDataTask {
-        return MullvadAPI.getAccountData(accountToken: accountToken) { (result) in
-            switch result {
-            case .success(let response):
-                switch response.result {
-                case .success(_):
-                    completion(.success(.verified))
-                case .failure(let serverError):
-                    completion(.failure(serverError))
-                }
-            case .failure(let networkError):
-                os_log(.fault, "Cannot verify the account token. Network error: %{public}s", networkError.localizedDescription)
-
-                completion(.success(.deferred))
-            }
-        }
+    class func verifyAccountToken(_ accountToken: String? = nil) -> AccountVerificationProcedure {
+        return AccountVerificationProcedure(accountToken: accountToken)
     }
 }
 

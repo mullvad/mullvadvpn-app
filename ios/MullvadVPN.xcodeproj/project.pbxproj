@@ -36,6 +36,8 @@
 		58CE5E81224146470008646E /* PacketTunnel.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 58CE5E79224146470008646E /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		58F19E2B228AFA7000C7710B /* AccountData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E2A228AFA7000C7710B /* AccountData.swift */; };
 		58F19E2D228B0A9100C7710B /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E2C228B0A9100C7710B /* Account.swift */; };
+		58F19E31228B2AEB00C7710B /* JSONRequestProcedure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E30228B2AEB00C7710B /* JSONRequestProcedure.swift */; };
+		58F19E33228B383300C7710B /* AccountVerificationProcedure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E32228B383300C7710B /* AccountVerificationProcedure.swift */; };
 		58F37E7D2243ECCB00C75C97 /* HeaderBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F37E7C2243ECCB00C75C97 /* HeaderBarViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -98,6 +100,8 @@
 		58CE5E7E224146470008646E /* PacketTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PacketTunnel.entitlements; sourceTree = "<group>"; };
 		58F19E2A228AFA7000C7710B /* AccountData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountData.swift; sourceTree = "<group>"; };
 		58F19E2C228B0A9100C7710B /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
+		58F19E30228B2AEB00C7710B /* JSONRequestProcedure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRequestProcedure.swift; sourceTree = "<group>"; };
+		58F19E32228B383300C7710B /* AccountVerificationProcedure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountVerificationProcedure.swift; sourceTree = "<group>"; };
 		58F37E7C2243ECCB00C75C97 /* HeaderBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBarViewController.swift; sourceTree = "<group>"; };
 		627D4CE562B85202FCFA0EB1 /* Pods-MullvadVPN.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MullvadVPN.debug.xcconfig"; path = "Target Support Files/Pods-MullvadVPN/Pods-MullvadVPN.debug.xcconfig"; sourceTree = "<group>"; };
 		9F1362F46063B1D06EB0C685 /* Pods-PacketTunnel.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PacketTunnel.debug.xcconfig"; path = "Target Support Files/Pods-PacketTunnel/Pods-PacketTunnel.debug.xcconfig"; sourceTree = "<group>"; };
@@ -185,6 +189,8 @@
 				5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */,
 				587CBFE222807F530028DED3 /* UIColor+Helpers.swift */,
 				58CCA0152242560B004F3011 /* UIColor+Palette.swift */,
+				58F19E30228B2AEB00C7710B /* JSONRequestProcedure.swift */,
+				58F19E32228B383300C7710B /* AccountVerificationProcedure.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -406,10 +412,12 @@
 				58ADDB3C227B1BD200FAFEA7 /* JsonRpc.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
+				58F19E33228B383300C7710B /* AccountVerificationProcedure.swift in Sources */,
 				58F37E7D2243ECCB00C75C97 /* HeaderBarViewController.swift in Sources */,
 				589AB4F7227B64450039131E /* BasicTableViewCell.swift in Sources */,
 				5888AD7F2279B6BF0051EB06 /* RelayStatusIndicatorView.swift in Sources */,
 				5867A51C2248F26A005513C0 /* SegueIdentifier.swift in Sources */,
+				58F19E31228B2AEB00C7710B /* JSONRequestProcedure.swift in Sources */,
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
 				5888AD89227B18C40051EB06 /* RelayList.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
