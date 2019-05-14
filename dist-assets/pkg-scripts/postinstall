@@ -35,6 +35,12 @@ DAEMON_PLIST=$(cat <<-EOM
                 <key>KeepAlive</key>
                 <true/>
 
+                <key>SoftResourceLimits</key>
+                <dict>
+                        <key>NumberOfFiles</key>
+                        <integer>1024</integer>
+                </dict>
+
                 <key>StandardErrorPath</key>
                 <string>$LOG_DIR/stderr.log</string>
         </dict>
