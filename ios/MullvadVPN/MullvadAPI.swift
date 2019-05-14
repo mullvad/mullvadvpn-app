@@ -15,13 +15,13 @@ class MullvadAPI {
     class func getRelayList(completion: @escaping (_ result: Result<JsonRpcResponse<RelayList>, Error>) -> Void) -> URLSessionDataTask {
         let urlRequest = try! makeURLRequest(method: "POST", rpcRequest: JsonRpcRequest(method: "relay_list_v2"))
 
-        return URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
-            DispatchQueue.main.async {
-                completion(error.flatMap({ Result.failure($0) }) ?? Result(catching: {
-                    try self.decodeResponse(data: try data.unwrap())
-                }))
-            }
-        }
+        return sendRequest(urlRequest, completion: completion)
+    }
+
+    class func getAccountData(accountToken: String, completion: @escaping (_ result: Result<JsonRpcResponse<AccountData>, Error>) -> Void) -> URLSessionDataTask {
+        let urlRequest = try! makeURLRequest(method: "POST", rpcRequest: JsonRpcRequest(method: "get_account_data", params: [accountToken]))
+
+        return sendRequest(urlRequest, completion: completion)
     }
 
     private class func decodeResponse<T: Decodable>(data: Data) throws -> JsonRpcResponse<T> {
@@ -39,6 +39,16 @@ class MullvadAPI {
         urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
         return urlRequest
+    }
+
+    private class func sendRequest<T: Decodable>(_ urlRequest: URLRequest, completion: @escaping (_ result: Result<JsonRpcResponse<T>, Error>) -> Void) -> URLSessionDataTask {
+        return URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
+            DispatchQueue.main.async {
+                completion(error.flatMap({ Result.failure($0) }) ?? Result(catching: {
+                    try self.decodeResponse(data: try data.unwrap())
+                }))
+            }
+        }
     }
 
 }
