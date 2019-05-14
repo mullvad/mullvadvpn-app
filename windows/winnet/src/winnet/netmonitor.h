@@ -21,6 +21,7 @@ public:
 	using Notifier = std::function<void(bool)>;
 
 	NetMonitor(Notifier notifier, bool &currentConnectivity);
+	static bool checkConnectivity();
 	~NetMonitor();
 
 private:
@@ -47,8 +48,9 @@ private:
 
 	HANDLE m_notificationHandle;
 
-	void createCache();
-	void addCacheEntry(const MIB_IF_ROW2 &iface);
+	static std::map<uint64_t, CacheEntry> createCache();
+	static void addCacheEntry(const MIB_IF_ROW2 &iface, std::map<uint64_t, CacheEntry>  &cache);
+	static bool checkConnectivity(const std::map<uint64_t, CacheEntry>  &cache);
 	void updateConnectivity();
 
 	static void __stdcall callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType);

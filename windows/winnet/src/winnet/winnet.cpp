@@ -149,6 +149,7 @@ WINNET_ACM_STATUS
 WINNET_API
 WinNet_ActivateConnectivityMonitor(
 	WinNetConnectivityMonitorCallback callback,
+	void* callbackContext,
 	uint8_t *currentConnectivity,
 	WinNetErrorSink errorSink,
 	void* errorSinkContext
@@ -161,9 +162,9 @@ WinNet_ActivateConnectivityMonitor(
 			throw std::runtime_error("Cannot activate connectivity monitor twice");
 		}
 
-		auto forwarder = [callback](bool connected)
+		auto forwarder = [callback, callbackContext](bool connected)
 		{
-			callback(static_cast<uint8_t>(connected));
+			callback(static_cast<uint8_t>(connected), callbackContext);
 		};
 
 		bool connected = false;
@@ -206,5 +207,22 @@ WinNet_DeactivateConnectivityMonitor(
 	}
 	catch (...)
 	{
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
+uint8_t
+WINNET_API
+WinNet_CheckConnectivity()
+{
+	try
+	{
+		auto is_online = NetMonitor::checkConnectivity();
+		return static_cast<uint8_t>(is_online);
+	}
+	catch (...)
+	{
+		return static_cast<uint8_t>(false);
 	}
 }
