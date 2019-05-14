@@ -11,4 +11,15 @@ import UIKit
 extension UIColor {
     // Account text field
     static let accountTextFieldBorderColor = UIColor(red: 0.10, green: 0.18, blue: 0.27, alpha: 1.0)
+
+    // Relay availability indicator view
+    static let relayStatusIndicatorActiveColor = UIColor(red: 0.27, green: 0.68, blue: 0.30, alpha: 0.9)
+    static let relayStatusIndicatorInactiveColor = UIColor(red: 0.82, green: 0.01, blue: 0.11, alpha: 0.95)
+
+    // Cells
+    static let cellBackgroundColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.0)
+    static let subCellBackgroundColor = UIColor(red:0.15, green:0.23, blue:0.33, alpha:1.0)
+    static let subSubCellBackgroundColor = UIColor(red:0.13, green:0.20, blue:0.30, alpha:1.0)
+
+    static let cellSelectedBackgroundColor = UIColor(red: 0.27, green: 0.68, blue: 0.30, alpha: 1.0)
 }

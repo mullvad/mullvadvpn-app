@@ -14,7 +14,7 @@ protocol HeaderBarViewControllerDelegate: class {
 
 class HeaderBarViewController: UIViewController {
     weak var delegate: HeaderBarViewControllerDelegate?
-    
+
     @IBAction func handleSettingsButton() {
         delegate?.headerBarViewControllerShouldOpenSettings(self)
     }
