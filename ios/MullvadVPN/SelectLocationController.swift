@@ -48,7 +48,7 @@ class SelectLocationController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! SelectLocationCell
         let item = displayedItems[indexPath.row]
 
-        cell.locationLabel.text = item.dispayName()
+        cell.locationLabel.text = item.displayName()
         cell.statusIndicator.isActive = item.hasActiveRelays()
         cell.showsCollapseControl = item.isCollapsibleLevel()
         cell.isExpanded = expandedItems.contains(item)
@@ -244,8 +244,8 @@ private extension RelayListDataSourceItem {
             return 2
         }
     }
-    
-    func dispayName() -> String {
+
+    func displayName() -> String {
         switch self {
         case .country(let country):
             return country.name
