@@ -67,7 +67,7 @@ impl Firewall {
         let mut new_filter_rules = vec![];
 
         new_filter_rules.append(&mut self.get_allow_loopback_rules()?);
-        new_filter_rules.append(&mut self.get_allow_dhcp_rules()?);
+        new_filter_rules.append(&mut self.get_allow_dhcp_client_rules()?);
         new_filter_rules.append(&mut self.get_policy_specific_rules(policy)?);
 
         let drop_all_rule = self
@@ -275,10 +275,32 @@ impl Firewall {
                 .build()?;
             rules.push(allow_multicast_out);
         }
+
+        let dhcpv4_out = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .quick(true)
+            .direction(pfctl::Direction::Out)
+            .af(pfctl::AddrFamily::Ipv4)
+            .from(pfctl::Port::from(super::DHCPV4_SERVER_PORT))
+            .to(pfctl::Port::from(super::DHCPV4_CLIENT_PORT))
+            .build()?;
+        let dhcpv4_in = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .quick(true)
+            .direction(pfctl::Direction::In)
+            .from(pfctl::Port::from(super::DHCPV4_CLIENT_PORT))
+            .to(pfctl::Endpoint::new(
+                Ipv4Addr::BROADCAST,
+                pfctl::Port::from(super::DHCPV4_SERVER_PORT),
+            ))
+            .build()?;
+        rules.push(dhcpv4_out);
+        rules.push(dhcpv4_in);
+
         Ok(rules)
     }
 
-    fn get_allow_dhcp_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
+    fn get_allow_dhcp_client_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
         let mut dhcp_rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
         dhcp_rule_builder.quick(true).proto(pfctl::Proto::Udp);
 
