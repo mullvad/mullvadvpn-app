@@ -1,0 +1,16 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '12.0'
+
+# Disable sending stats
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+target 'MullvadVPN' do
+  use_frameworks!
+
+  pod 'ProcedureKit', '5.2.0'
+  pod 'ProcedureKit/Network', '5.2.0'
+end
+
+target 'PacketTunnel' do
+  use_frameworks!
+end
