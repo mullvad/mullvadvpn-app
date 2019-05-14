@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import ProcedureKit
+import os.log
 
 class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
 
@@ -14,6 +16,9 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
     @IBOutlet var accountTextField: UITextField!
     @IBOutlet var loginForm: UIView!
     @IBOutlet var loginFormWrapperBottomConstraint: NSLayoutConstraint!
+    @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
+
+    private let procedureQueue = ProcedureQueue()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -68,13 +73,57 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
     }
 
     @IBAction func doLogin() {
-        view.endEditing(true)
+        let accountToken = accountTextField.text ?? ""
 
-        // TODO: Add the code to initiate the log in
-        performSegue(withIdentifier: "ShowConnect", sender: self)
+        beginLoginAnimations()
+
+        verifyAccount(accountToken: accountToken) { [weak self] (result) in
+            guard let self = self else { return }
+
+            switch result {
+            case .success:
+                self.performSegue(withIdentifier: SegueIdentifier.Login.showConnect.rawValue,
+                                  sender: self)
+
+            case .failure(let error as Account.Error):
+                // TODO: Handle account errors
+                break
+
+            case .failure(let error):
+                // TODO: Handle any other errors
+                break
+            }
+
+            self.endLoginAnimations()
+        }
+
     }
 
     // MARK: - Private
+
+    private func verifyAccount(accountToken: String, completion: @escaping (Result<(), Error>) -> Void) {
+        let delayProcedure = DelayProcedure(by: 1)
+        let loginProcedure = Account.login(with: accountToken)
+
+        loginProcedure.addDependency(delayProcedure)
+        loginProcedure.addDidFinishBlockObserver(synchronizedWith: DispatchQueue.main) { (_, error) in
+            completion(error.flatMap({ .failure($0) }) ?? .success(()))
+        }
+
+        procedureQueue.addOperations([delayProcedure, loginProcedure])
+    }
+
+    private func beginLoginAnimations() {
+        activityIndicator.isAnimating = true
+        accountTextField.isEnabled = false
+
+        view.endEditing(true)
+    }
+
+    private func endLoginAnimations() {
+        activityIndicator.isAnimating = false
+        accountTextField.isEnabled = true
+    }
 
     private func makeLoginFormVisible(keyboardFrame: CGRect) {
         let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)

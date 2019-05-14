@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ProcedureKit
 import os.log
 
 private let cellIdentifier = "Cell"
@@ -16,6 +17,8 @@ class SelectLocationController: UITableViewController {
     private var relayList: RelayList?
     private var expandedItems = [RelayListDataSourceItem]()
     private var displayedItems = [RelayListDataSourceItem]()
+
+    private let procedureQueue = ProcedureQueue()
 
     var selectedItem: RelayListDataSourceItem?
 
@@ -85,15 +88,18 @@ class SelectLocationController: UITableViewController {
     // MARK: - Relay list handling
 
     private func loadRelayList() {
-        let task = MullvadAPI.getRelayList { [weak self] (result) in
-            do {
-                self?.didReceiveRelayList(try result.get())
-            } catch {
-                os_log(.error, "Relay list network error: %{public}s", error.localizedDescription)
+        let procedure = MullvadAPI.getRelayList()
+
+        procedure.addDidFinishBlockObserver(synchronizedWith: DispatchQueue.main) { [weak self] (procedure, error) in
+            guard let response = procedure.output.success else {
+                os_log(.error, "Relay list network error: %{public}s", error?.localizedDescription ?? "(null)")
+                return
             }
+
+            self?.didReceiveRelayList(response)
         }
 
-        task.resume()
+        procedureQueue.addOperation(procedure)
     }
 
     private func didReceiveRelayList(_ response: JsonRpcResponse<RelayList>) {
