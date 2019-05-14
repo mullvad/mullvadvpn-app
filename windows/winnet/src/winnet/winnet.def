@@ -4,3 +4,6 @@ EXPORTS
 	WinNet_GetTapInterfaceIpv6Status
 	WinNet_GetTapInterfaceAlias
 	WinNet_ReleaseString
+	WinNet_ActivateConnectivityMonitor
+	WinNet_DeactivateConnectivityMonitor
+	WinNet_CheckConnectivity
