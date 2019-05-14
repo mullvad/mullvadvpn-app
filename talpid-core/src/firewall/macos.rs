@@ -252,10 +252,7 @@ impl Firewall {
         let mut rules = vec![];
         for net in &*super::ALLOWED_LAN_NETS {
             let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
-            rule_builder.quick(true).af(match net {
-                IpNetwork::V4(_) => pfctl::AddrFamily::Ipv4,
-                IpNetwork::V6(_) => pfctl::AddrFamily::Ipv6,
-            });
+            rule_builder.quick(true);
             let allow_out = rule_builder
                 .direction(pfctl::Direction::Out)
                 .from(pfctl::Ip::Any)
@@ -274,10 +271,6 @@ impl Firewall {
                 .create_rule_builder(FilterRuleAction::Pass)
                 .quick(true)
                 .direction(pfctl::Direction::Out)
-                .af(match multicast_net {
-                    IpNetwork::V4(_) => pfctl::AddrFamily::Ipv4,
-                    IpNetwork::V6(_) => pfctl::AddrFamily::Ipv6,
-                })
                 .to(pfctl::Ip::from(*multicast_net))
                 .build()?;
             rules.push(allow_multicast_out);
