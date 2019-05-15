@@ -1,15 +1,19 @@
 use crate::logging;
+#[cfg(not(target_os = "android"))]
+use std::collections::HashMap;
 use std::{
-    collections::HashMap,
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::{Path, PathBuf},
 };
+#[cfg(not(target_os = "android"))]
+use talpid_types::net::openvpn as openvpn_types;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use talpid_types::net::wireguard as wireguard_types;
-use talpid_types::net::{openvpn as openvpn_types, GenericTunnelOptions, TunnelParameters};
+use talpid_types::net::{GenericTunnelOptions, TunnelParameters};
 
 /// A module for all OpenVPN related tunnel management.
+#[cfg(not(target_os = "android"))]
 pub mod openvpn;
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -42,6 +46,7 @@ pub enum Error {
     WireguardConfigError(#[error(cause)] self::wireguard::config::Error),
 
     /// There was an error listening for events from the OpenVPN tunnel
+    #[cfg(not(target_os = "android"))]
     #[error(display = "Failed while listening for events from the OpenVPN tunnel")]
     OpenVpnTunnelMonitoringError(#[error(cause)] openvpn::Error),
 
@@ -76,6 +81,7 @@ pub struct TunnelMetadata {
     pub ipv6_gateway: Option<Ipv6Addr>,
 }
 
+#[cfg(not(target_os = "android"))]
 impl TunnelEvent {
     /// Converts an `openvpn_plugin::EventType` to a `TunnelEvent`.
     /// Returns `None` if there is no corresponding `TunnelEvent`.
@@ -142,6 +148,7 @@ impl TunnelMonitor {
         let log_file = Self::prepare_tunnel_log_file(&tunnel_parameters, log_dir)?;
 
         match tunnel_parameters {
+            #[cfg(not(target_os = "android"))]
             TunnelParameters::OpenVpn(config) => {
                 Self::start_openvpn_tunnel(&config, log_file, resource_dir, on_event)
             }
@@ -149,6 +156,8 @@ impl TunnelMonitor {
             TunnelParameters::Wireguard(config) => {
                 Self::start_wireguard_tunnel(&config, log_file, on_event)
             }
+            #[cfg(target_os = "android")]
+            TunnelParameters::OpenVpn(_) => Err(Error::UnsupportedPlatform),
             #[cfg(any(windows, target_os = "android"))]
             TunnelParameters::Wireguard(_) => Err(Error::UnsupportedPlatform),
         }
@@ -174,6 +183,7 @@ impl TunnelMonitor {
         })
     }
 
+    #[cfg(not(target_os = "android"))]
     fn start_openvpn_tunnel<L>(
         config: &openvpn_types::TunnelParameters,
         log: Option<PathBuf>,
@@ -231,6 +241,7 @@ impl TunnelMonitor {
 
 /// A handle to a `TunnelMonitor`
 pub enum CloseHandle {
+    #[cfg(not(target_os = "android"))]
     /// OpenVpn close handle
     OpenVpn(openvpn::OpenVpnCloseHandle),
     #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -241,6 +252,10 @@ pub enum CloseHandle {
 impl CloseHandle {
     /// Closes the underlying tunnel, making the `TunnelMonitor::wait` method return.
     pub fn close(self) -> io::Result<()> {
+        #[cfg(target_os = "android")]
+        unimplemented!();
+
+        #[cfg(not(target_os = "android"))]
         match self {
             CloseHandle::OpenVpn(handle) => handle.close(),
             #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -253,6 +268,7 @@ impl CloseHandle {
 }
 
 enum InternalTunnelMonitor {
+    #[cfg(not(target_os = "android"))]
     OpenVpn(openvpn::OpenVpnMonitor),
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     Wireguard(wireguard::WireguardMonitor),
@@ -260,14 +276,19 @@ enum InternalTunnelMonitor {
 
 impl InternalTunnelMonitor {
     fn close_handle(&self) -> CloseHandle {
+        #[cfg(not(target_os = "android"))]
         match self {
             InternalTunnelMonitor::OpenVpn(tun) => CloseHandle::OpenVpn(tun.close_handle()),
             #[cfg(any(target_os = "linux", target_os = "macos"))]
             InternalTunnelMonitor::Wireguard(tun) => CloseHandle::Wireguard(tun.close_handle()),
         }
+
+        #[cfg(target_os = "android")]
+        unimplemented!();
     }
 
     fn wait(self) -> Result<()> {
+        #[cfg(not(target_os = "android"))]
         match self {
             InternalTunnelMonitor::OpenVpn(tun) => tun.wait()?,
             #[cfg(any(target_os = "linux", target_os = "macos"))]
