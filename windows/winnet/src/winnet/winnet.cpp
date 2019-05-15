@@ -218,7 +218,7 @@ WinNet_CheckConnectivity()
 {
 	try
 	{
-		auto is_online = NetMonitor::checkConnectivity();
+		auto is_online = NetMonitor::CheckConnectivity();
 		return static_cast<uint8_t>(is_online);
 	}
 	catch (...)
