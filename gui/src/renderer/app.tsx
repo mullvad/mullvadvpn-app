@@ -243,7 +243,7 @@ export default class AppRenderer {
       this.accountDataCache.fetch(accountToken, {
         onFinish: () => resolve({ status: 'verified' }),
         onError: (error): AccountFetchRetryAction => {
-          if (error instanceof InvalidAccountError) {
+          if (error.message === new InvalidAccountError().message) {
             reject(error);
             return AccountFetchRetryAction.stop;
           } else {
