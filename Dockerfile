@@ -14,7 +14,7 @@ RUN apt install build-essential \
 	curl \
 	p7zip-full \
 	git -y
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --default-toolchain none
 ENV PATH="/root/.cargo/bin/:${PATH}"
 RUN mkdir /mvd
 CMD tail -f /dev/null
