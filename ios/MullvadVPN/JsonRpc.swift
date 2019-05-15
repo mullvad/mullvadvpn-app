@@ -29,20 +29,22 @@ extension JsonRpcRequest where T == NoData {
 struct NoData: Encodable {}
 
 class JsonRpcResponseError: Error, Decodable {
-    let serverErrorMessage: String
-
-    init(serverErrorMessage: String) {
-        self.serverErrorMessage = serverErrorMessage
-    }
+    let code: Int
+    let message: String
 
     var localizedDescription: String? {
-        return serverErrorMessage
+        return message
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case code, message
     }
 
     required init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
+        let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        serverErrorMessage = try container.decode(String.self)
+        code = try container.decode(Int.self, forKey: .code)
+        message = try container.decode(String.self, forKey: .message)
     }
 }
 
