@@ -29,6 +29,17 @@
                             <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0ZY-Kh-JiM" userLabel="Container">
                                 <rect key="frame" x="0.0" y="94" width="375" height="573"/>
                                 <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pID-oa-Rrg" customClass="SpinnerActivityIndicatorView" customModule="MullvadVPN" customModuleProvider="target">
+                                        <rect key="frame" x="163.5" y="125.5" width="48" height="48"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="48" id="2J4-Qc-ctc"/>
+                                            <constraint firstAttribute="width" constant="48" id="ohE-fk-mg9"/>
+                                        </constraints>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isAnimating" value="YES"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </view>
                                     <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="V3j-Lb-fSQ" userLabel="Form">
                                         <rect key="frame" x="0.0" y="203.5" width="375" height="126"/>
                                         <subviews>
@@ -84,8 +95,10 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
+                                    <constraint firstItem="V3j-Lb-fSQ" firstAttribute="top" secondItem="pID-oa-Rrg" secondAttribute="bottom" constant="30" id="2Sy-bS-AZZ"/>
                                     <constraint firstItem="V3j-Lb-fSQ" firstAttribute="centerY" secondItem="0ZY-Kh-JiM" secondAttribute="centerY" constant="-20" id="3Uk-YZ-4C3"/>
                                     <constraint firstAttribute="trailing" secondItem="V3j-Lb-fSQ" secondAttribute="trailing" id="EHy-Cx-cGj"/>
+                                    <constraint firstItem="pID-oa-Rrg" firstAttribute="centerX" secondItem="0ZY-Kh-JiM" secondAttribute="centerX" id="Ojm-D5-HnO"/>
                                     <constraint firstItem="V3j-Lb-fSQ" firstAttribute="leading" secondItem="0ZY-Kh-JiM" secondAttribute="leading" id="alr-G1-L4w"/>
                                 </constraints>
                             </view>
@@ -528,7 +541,7 @@
         <image name="TranslucentNeutralButton" width="9" height="9"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="qKR-6L-kfz"/>
-        <segue reference="fxZ-Uq-nxv"/>
+        <segue reference="tVd-Lw-FVU"/>
+        <segue reference="RjC-Wk-Enk"/>
     </inferredMetricsTieBreakers>
 </document>
