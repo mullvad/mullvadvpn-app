@@ -19,18 +19,18 @@ class AccountVerificationProcedure: GroupProcedure, InputProcedure, OutputProced
         // Request account data from the API
         // Wrap the original procedure into IgnoreErrorsProcedure to suppress any networking errors
         // from bubbling upwards.
-        let networkRequest = IgnoreErrorsProcedure(MullvadAPI.getAccountData(accountToken: accountToken))
+        let networkRequest = IgnoreErrorsProcedure(MullvadAPI.getAccountExpiry(accountToken: accountToken))
 
         // Transform the response into AccountVerification
-        let transformResponse = TransformProcedure<ProcedureResult<JsonRpcResponse<AccountData>>, AccountVerification> { (procedureResult) -> AccountVerification in
+        let transformResponse = TransformProcedure<ProcedureResult<JsonRpcResponse<Date>>, AccountVerification> { (procedureResult) -> AccountVerification in
             // Unwrap the result of the network request procedure
             switch procedureResult {
             case .success(let response):
                 // Unwrap the JSON RPC response
                 switch response.result {
-                case .success:
+                case .success(let expiryDate):
                     // Mark account as verified if the account data was successfuly received
-                    return .verified
+                    return .verified(expiryDate)
 
                 case .failure(let serverError):
                     // Mark the account as invalid if the server returned an error along with
