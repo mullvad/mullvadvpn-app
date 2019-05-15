@@ -16,5 +16,6 @@ RUN apt install build-essential \
 	git -y
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin/:${PATH}"
+RUN rustup toolchain uninstall stable
 RUN mkdir /mvd
 CMD tail -f /dev/null
