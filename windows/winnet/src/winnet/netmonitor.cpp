@@ -30,22 +30,18 @@ bool ValidInterfaceType(const MIB_IF_ROW2 &iface)
 } // anonyomus namespace
 
 NetMonitor::NetMonitor(NetMonitor::Notifier notifier, bool &currentConnectivity)
-	: m_notifier(notifier)
-	, m_connected(false)
+	: m_connected(false)
+	, m_notifier(notifier)
 	, m_notificationHandle(nullptr)
 {
-	m_cache = createCache();
+	m_cache = CreateCache();
 	updateConnectivity();
 
 	currentConnectivity = m_connected;
 
-	const auto status = NotifyIpInterfaceChange(AF_UNSPEC, callback, this, FALSE, &m_notificationHandle);
+	const auto status = NotifyIpInterfaceChange(AF_UNSPEC, Callback, this, FALSE, &m_notificationHandle);
 
 	THROW_UNLESS(NO_ERROR, status, "Register interface change notification");
-}
-
-bool NetMonitor::checkConnectivity() {
-	return NetMonitor::checkConnectivity(NetMonitor::createCache());
 }
 
 NetMonitor::~NetMonitor()
@@ -53,7 +49,14 @@ NetMonitor::~NetMonitor()
 	CancelMibChangeNotify2(m_notificationHandle);
 }
 
-std::map<uint64_t, NetMonitor::CacheEntry> NetMonitor::createCache()
+// static
+bool NetMonitor::CheckConnectivity()
+{
+	return CheckConnectivity(CreateCache());
+}
+
+// static
+NetMonitor::Cache NetMonitor::CreateCache()
 {
 	MIB_IF_TABLE2 *table;
 
@@ -72,12 +75,13 @@ std::map<uint64_t, NetMonitor::CacheEntry> NetMonitor::createCache()
 
 	for (ULONG i = 0; i < table->NumEntries; ++i)
 	{
-		addCacheEntry(table->Table[i], cache);
+		AddCacheEntry(cache, table->Table[i]);
 	}
 	return cache;
 }
 
-void NetMonitor::addCacheEntry(const MIB_IF_ROW2 &iface, std::map<uint64_t, NetMonitor::CacheEntry> &cache)
+// static
+void NetMonitor::AddCacheEntry(Cache &cache, const MIB_IF_ROW2 &iface)
 {
 	CacheEntry e;
 
@@ -94,15 +98,18 @@ void NetMonitor::addCacheEntry(const MIB_IF_ROW2 &iface, std::map<uint64_t, NetM
 		e.connected = (MediaConnectStateConnected == iface.MediaConnectState);
 	}
 
-	auto pair = std::make_pair(e.luid, e);
-	cache.insert(pair);
+	cache.insert(std::make_pair(e.luid, e));
 }
 
-
-bool NetMonitor::checkConnectivity(const std::map<uint64_t, NetMonitor::CacheEntry> &cache) {
-	for (const auto cacheEntryIter : cache) {
+// static
+bool NetMonitor::CheckConnectivity(const Cache &cache)
+{
+	for (const auto cacheEntryIter : cache)
+	{
 		const auto entry = cacheEntryIter.second;
-		if (entry.valid && entry.connected) {
+
+		if (entry.valid && entry.connected)
+		{
 			return true;
 		}
 	}
@@ -112,11 +119,11 @@ bool NetMonitor::checkConnectivity(const std::map<uint64_t, NetMonitor::CacheEnt
 
 void NetMonitor::updateConnectivity()
 {
-	m_connected = NetMonitor::checkConnectivity(m_cache);
+	m_connected = NetMonitor::CheckConnectivity(m_cache);
 }
 
 //static
-void __stdcall NetMonitor::callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType)
+void __stdcall NetMonitor::Callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType)
 {
 	auto thiz = reinterpret_cast<NetMonitor *>(context);
 
@@ -135,7 +142,7 @@ void __stdcall NetMonitor::callback(void *context, MIB_IPINTERFACE_ROW *hint, MI
 				return;
 			}
 
-			thiz->addCacheEntry(iface, thiz->m_cache);
+			thiz->AddCacheEntry(thiz->m_cache, iface);
 
 			break;
 		}
@@ -170,7 +177,7 @@ void __stdcall NetMonitor::callback(void *context, MIB_IPINTERFACE_ROW *hint, MI
 					return;
 				}
 
-				thiz->addCacheEntry(iface, thiz->m_cache);
+				thiz->AddCacheEntry(thiz->m_cache, iface);
 			}
 			else
 			{
