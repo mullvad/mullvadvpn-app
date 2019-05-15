@@ -75,52 +75,63 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
     @IBAction func doLogin() {
         let accountToken = accountTextField.text ?? ""
 
-        let delayProcedure = DelayProcedure(by: 1)
-        let verifyProcedure = Account.verifyAccountToken(accountToken)
+        beginLoginAnimations()
 
-        verifyProcedure.addDependency(delayProcedure)
-        verifyProcedure.addDidFinishBlockObserver(synchronizedWith: DispatchQueue.main) { [weak self] (procedure, error) in
+        verifyAccount(accountToken: accountToken) { [weak self] (result) in
             guard let self = self else { return }
 
-            if let error = error {
-                os_log(.error, "Failed to verify the account: %s", error.localizedDescription)
+            switch result {
+            case .success(let verification):
+                self.didReceiveAccountVerification(verification)
+            case .failure(let error):
+                os_log(.error, "Failed to request the account verification: %{public}s", error.localizedDescription)
             }
 
-            if let result = procedure.output.success {
-                self.didReceiveAccountVerification(result: result)
-            }
-
-            self.endLogin()
+            self.endLoginAnimations()
         }
 
-        beginLogin()
-
-        procedureQueue.addOperations([delayProcedure, verifyProcedure])
     }
 
     // MARK: - Private
 
-    private func beginLogin() {
+    private func verifyAccount(accountToken: String, completion: @escaping (Result<AccountVerification, Error>) -> Void) {
+        let delayProcedure = DelayProcedure(by: 1)
+        let verifyProcedure = MullvadAPI.verifyAccountToken(accountToken)
+
+        verifyProcedure.addDependency(delayProcedure)
+        verifyProcedure.addDidFinishBlockObserver(synchronizedWith: DispatchQueue.main) { (procedure, error) in
+            let result = error.flatMap({ .failure($0) })
+                ?? Result(catching: { try procedure.output.success.unwrap() })
+
+            completion(result)
+        }
+
+        procedureQueue.addOperations([delayProcedure, verifyProcedure])
+    }
+
+    private func beginLoginAnimations() {
         activityIndicator.isAnimating = true
         accountTextField.isEnabled = false
 
         view.endEditing(true)
     }
 
-    private func endLogin() {
+    private func endLoginAnimations() {
         activityIndicator.isAnimating = false
         accountTextField.isEnabled = true
     }
 
-    private func didReceiveAccountVerification(result: AccountVerification) {
+    private func didReceiveAccountVerification(_ result: AccountVerification) {
         switch result {
         case .deferred(let networkError):
             print("Network error: \(networkError.localizedDescription)")
 
             performSegue(withIdentifier: "ShowConnect", sender: self)
 
-        case .invalid(let serverError):
-            print("Server error: \(serverError.localizedDescription)")
+        case .invalid:
+            print("Invalid account token")
+
+            // TODO: Show the error
 
         case .verified(let expiryDate):
             print("All good! The account expires on \(expiryDate)")
