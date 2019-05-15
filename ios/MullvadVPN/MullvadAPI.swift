@@ -28,6 +28,10 @@ class MullvadAPI {
         })
     }
 
+    class func verifyAccountToken(_ accountToken: String? = nil) -> AccountVerificationProcedure {
+        return AccountVerificationProcedure(accountToken: accountToken)
+    }
+
     private class func makeURLRequest<T: Encodable>(method: String, rpcRequest: JsonRpcRequest<T>) throws -> URLRequest {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase

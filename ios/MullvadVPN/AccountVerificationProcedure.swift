@@ -19,7 +19,7 @@ enum AccountVerification {
     case verified(Date)
 
     // Invalid token
-    case invalid(Error)
+    case invalid
 }
 
 private let kAccountDoesNotExistErrorCode = -200
@@ -51,7 +51,7 @@ class AccountVerificationProcedure: GroupProcedure, InputProcedure, OutputProced
 
                 case .failure(let serverError):
                     if serverError.code == kAccountDoesNotExistErrorCode {
-                        return .invalid(serverError)
+                        return .invalid
                     } else {
                         return .deferred(serverError)
                     }
