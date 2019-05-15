@@ -34,7 +34,6 @@
 		58CE5E6E224146210008646E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58CE5E6C224146210008646E /* LaunchScreen.storyboard */; };
 		58CE5E7C224146470008646E /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
 		58CE5E81224146470008646E /* PacketTunnel.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 58CE5E79224146470008646E /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		58F19E2B228AFA7000C7710B /* AccountData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E2A228AFA7000C7710B /* AccountData.swift */; };
 		58F19E2D228B0A9100C7710B /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E2C228B0A9100C7710B /* Account.swift */; };
 		58F19E31228B2AEB00C7710B /* JSONRequestProcedure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E30228B2AEB00C7710B /* JSONRequestProcedure.swift */; };
 		58F19E33228B383300C7710B /* AccountVerificationProcedure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E32228B383300C7710B /* AccountVerificationProcedure.swift */; };
@@ -99,7 +98,6 @@
 		58CE5E7B224146470008646E /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		58CE5E7D224146470008646E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58CE5E7E224146470008646E /* PacketTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PacketTunnel.entitlements; sourceTree = "<group>"; };
-		58F19E2A228AFA7000C7710B /* AccountData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountData.swift; sourceTree = "<group>"; };
 		58F19E2C228B0A9100C7710B /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
 		58F19E30228B2AEB00C7710B /* JSONRequestProcedure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRequestProcedure.swift; sourceTree = "<group>"; };
 		58F19E32228B383300C7710B /* AccountVerificationProcedure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountVerificationProcedure.swift; sourceTree = "<group>"; };
@@ -164,7 +162,6 @@
 			isa = PBXGroup;
 			children = (
 				58F19E2C228B0A9100C7710B /* Account.swift */,
-				58F19E2A228AFA7000C7710B /* AccountData.swift */,
 				58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */,
 				58CCA01D2242787B004F3011 /* AccountTextField.swift */,
 				58F19E32228B383300C7710B /* AccountVerificationProcedure.swift */,
@@ -410,7 +407,6 @@
 				58ADDB3E227B1CD900FAFEA7 /* MullvadAPI.swift in Sources */,
 				58F19E2D228B0A9100C7710B /* Account.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
-				58F19E2B228AFA7000C7710B /* AccountData.swift in Sources */,
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
 				58ADDB3C227B1BD200FAFEA7 /* JsonRpc.swift in Sources */,

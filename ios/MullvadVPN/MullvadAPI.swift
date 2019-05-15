@@ -19,11 +19,11 @@ class MullvadAPI {
         })
     }
 
-    class func getAccountData(accountToken: String? = nil) -> JSONRequestProcedure<String, JsonRpcResponse<AccountData>> {
+    class func getAccountExpiry(accountToken: String? = nil) -> JSONRequestProcedure<String, JsonRpcResponse<Date>> {
         return JSONRequestProcedure(input: accountToken, requestBuilder: {
             try makeURLRequest(
                 method: "POST",
-                rpcRequest: JsonRpcRequest(method: "get_account_data", params: [$0])
+                rpcRequest: JsonRpcRequest(method: "get_expiry", params: [$0])
             )
         })
     }

@@ -23,7 +23,7 @@ enum AccountVerification {
     case deferred(Error)
 
     /// The app successfully verified the account token with the server
-    case verified
+    case verified(Date)
 
     // Invalid token
     case invalid(Error)
