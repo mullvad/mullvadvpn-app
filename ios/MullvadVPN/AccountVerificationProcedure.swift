@@ -9,6 +9,24 @@
 import Foundation
 import ProcedureKit
 
+/// Account verification result
+enum AccountVerification {
+    /// The app should attempt to verify the account token at some point later because the network
+    /// may not be available at this time.
+    case deferred(Error)
+
+    /// The app successfully verified the account token with the server
+    case verified(Date)
+
+    // Invalid token
+    case invalid(Error)
+}
+
+private let kAccountDoesNotExistErrorCode = -200
+
+/// The procedure that implements account verification by sending the account expiry request to the
+/// Mullvad API. This procedure is non-fallable so even in the case of network issues it will set
+/// the output.
 class AccountVerificationProcedure: GroupProcedure, InputProcedure, OutputProcedure {
     var input: Pending<String>
     var output: Pending<ProcedureResult<AccountVerification>> = .pending
@@ -29,13 +47,14 @@ class AccountVerificationProcedure: GroupProcedure, InputProcedure, OutputProced
                 // Unwrap the JSON RPC response
                 switch response.result {
                 case .success(let expiryDate):
-                    // Mark account as verified if the account data was successfuly received
                     return .verified(expiryDate)
 
                 case .failure(let serverError):
-                    // Mark the account as invalid if the server returned an error along with
-                    // the JSON RPC response
-                    return .invalid(serverError)
+                    if serverError.code == kAccountDoesNotExistErrorCode {
+                        return .invalid(serverError)
+                    } else {
+                        return .deferred(serverError)
+                    }
                 }
             case .failure(let networkError):
                 // Check back later in case of network issues
