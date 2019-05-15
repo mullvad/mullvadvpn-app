@@ -36,9 +36,6 @@
                                             <constraint firstAttribute="height" constant="48" id="2J4-Qc-ctc"/>
                                             <constraint firstAttribute="width" constant="48" id="ohE-fk-mg9"/>
                                         </constraints>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isAnimating" value="YES"/>
-                                        </userDefinedRuntimeAttributes>
                                     </view>
                                     <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="V3j-Lb-fSQ" userLabel="Form">
                                         <rect key="frame" x="0.0" y="203.5" width="375" height="126"/>
@@ -151,6 +148,7 @@
                     </view>
                     <connections>
                         <outlet property="accountTextField" destination="XOB-ct-yLU" id="mXd-SV-E16"/>
+                        <outlet property="activityIndicator" destination="pID-oa-Rrg" id="GG2-Hv-FWl"/>
                         <outlet property="keyboardToolbar" destination="waX-JF-VTG" id="kav-5t-mkA"/>
                         <outlet property="loginForm" destination="V3j-Lb-fSQ" id="tYu-S8-ylm"/>
                         <outlet property="loginFormWrapperBottomConstraint" destination="09L-EV-qfI" id="fYF-OK-trh"/>
