@@ -37,6 +37,9 @@
       <Filter>rules</Filter>
     </ClCompile>
     <ClCompile Include="objectpurger.cpp" />
+    <ClCompile Include="rules\permitdhcpserver.cpp">
+      <Filter>rules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -81,6 +84,9 @@
     <ClInclude Include="wfpobjecttype.h" />
     <ClInclude Include="guidhash.h" />
     <ClInclude Include="objectpurger.h" />
+    <ClInclude Include="rules\permitdhcpserver.h">
+      <Filter>rules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rules">

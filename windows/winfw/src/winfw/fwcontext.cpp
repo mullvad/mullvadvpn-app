@@ -5,6 +5,7 @@
 #include "rules/blockall.h"
 #include "rules/ifirewallrule.h"
 #include "rules/permitdhcp.h"
+#include "rules/permitdhcpserver.h"
 #include "rules/permitlan.h"
 #include "rules/permitlanservice.h"
 #include "rules/permitloopback.h"
@@ -46,6 +47,7 @@ void AppendSettingsRules(FwContext::Ruleset &ruleset, const WinFwSettings &setti
 	{
 		ruleset.emplace_back(std::make_unique<rules::PermitLan>());
 		ruleset.emplace_back(std::make_unique<rules::PermitLanService>());
+		ruleset.emplace_back(std::make_unique<rules::PermitDhcpServer>());
 	}
 }
 
