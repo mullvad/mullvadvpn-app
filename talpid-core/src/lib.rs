@@ -50,6 +50,7 @@ pub mod dns;
 /// State machine to handle tunnel configuration.
 pub mod tunnel_state_machine;
 
+#[cfg(not(target_os = "android"))]
 /// Internal code for managing bundled proxy software.
 mod proxy;
 
