@@ -31,7 +31,7 @@ final class JSONRequestProcedure<Input, Output: Decodable>: GroupProcedure, Inpu
             ).injectPayload(fromNetwork: networkRequest)
 
         super.init(dispatchQueue: nil, operations: [createRequest, networkRequest, payloadParsing])
-        
+
         bind(from: payloadParsing)
 
         addWillExecuteBlockObserver { (procedure, _) in
