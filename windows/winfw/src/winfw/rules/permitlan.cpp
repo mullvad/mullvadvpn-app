@@ -107,9 +107,11 @@ bool PermitLan::applyIpv6(IObjectInstaller &objectInstaller) const
 
 	conditionBuilder.reset();
 
-	wfp::IpAddress::Literal6 fe02{ 0xFE02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+	wfp::IpAddress::Literal6 linkLocal{ 0xFF02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+	wfp::IpAddress::Literal6 siteLocal{ 0xFF05, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
 
-	conditionBuilder.add_condition(ConditionIp::Remote(fe02, uint8_t(16)));
+	conditionBuilder.add_condition(ConditionIp::Remote(linkLocal, uint8_t(16)));
+	conditionBuilder.add_condition(ConditionIp::Remote(siteLocal, uint8_t(16)));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
