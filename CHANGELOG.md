@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Stop allowing the wrong IPv6 net fe02::/16 in the firewall when allow local network was enabled.
   Instead allow the correct multicast nets ff02::/16 and ff05::/16.
+- Fix the regression that allowed to get past the login screen using the invalid account token.
 
 #### macOS
 - Raise max number of open files for the daemon to 1024. Should prevent threads from panicking.
