@@ -82,7 +82,8 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
 
             switch result {
             case .success:
-                self.performSegue(withIdentifier: "ShowConnect", sender: self)
+                self.performSegue(withIdentifier: SegueIdentifier.Login.showConnect.rawValue,
+                                  sender: self)
 
             case .failure(let error as Account.Error):
                 // TODO: Handle account errors
