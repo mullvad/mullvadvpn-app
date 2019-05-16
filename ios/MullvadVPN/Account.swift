@@ -22,8 +22,10 @@ class Account {
     class func login(with accountToken: String) -> Procedure {
         let userDefaultsInteractor = UserDefaultsInteractor.withApplicationGroupUserDefaults()
 
+        // Request account token verification
         let verificationProcedure = AccountVerificationProcedure(accountToken: accountToken)
 
+        // Update the application preferences based on the AccountVerification result.
         let saveAccountDataProcedure = TransformProcedure { (verification) in
             switch verification {
             case .verified(let expiry):
