@@ -25,7 +25,7 @@ class UserDefaultsInteractor {
     /// scoped to the application group.
     class func withApplicationGroupUserDefaults() -> UserDefaultsInteractor {
         let userDefaults = UserDefaults(suiteName: kApplicationGroupIdentifier)!
-        
+
         return UserDefaultsInteractor(userDefaults: userDefaults)
     }
 
@@ -50,5 +50,5 @@ class UserDefaultsInteractor {
             userDefaults.set(newValue, forKey: UserDefaultsKeys.accountExpiry.rawValue)
         }
     }
-    
+
 }

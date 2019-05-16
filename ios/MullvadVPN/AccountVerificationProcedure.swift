@@ -44,7 +44,7 @@ class AccountVerificationProcedure: GroupProcedure, InputProcedure, OutputProced
             // with the AccountVerification via the output.
             IgnoreErrorsProcedure(dispatchQueue: underlyingQueue, operation: networkRequest)
         ])
-        
+
         // Copy the input of the group procedure to the input of the starting procedure
         addWillExecuteBlockObserver { [weak networkRequest] (groupProcedure, _) in
             networkRequest?.input = groupProcedure.input
