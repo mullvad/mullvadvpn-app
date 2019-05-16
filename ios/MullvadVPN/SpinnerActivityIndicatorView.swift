@@ -77,7 +77,7 @@ private let kAnimationDuration = 0.6
     override func didMoveToWindow() {
         super.didMoveToWindow()
 
-        if let _ = window {
+        if window != nil {
             restartAnimationIfNeeded()
         }
     }
