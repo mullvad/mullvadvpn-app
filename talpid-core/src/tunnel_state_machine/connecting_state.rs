@@ -57,6 +57,7 @@ impl ConnectingState {
         shared_values.firewall.apply_policy(policy)
     }
 
+    #[cfg_attr(target_os = "android", allow(unused_variables))]
     fn start_tunnel(
         parameters: TunnelParameters,
         log_dir: &Option<PathBuf>,

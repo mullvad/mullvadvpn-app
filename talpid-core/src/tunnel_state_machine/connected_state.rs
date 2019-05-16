@@ -194,6 +194,7 @@ impl ConnectedState {
 impl TunnelState for ConnectedState {
     type Bootstrap = ConnectedStateBootstrap;
 
+    #[cfg_attr(target_os = "android", allow(unused_variables))]
     fn enter(
         shared_values: &mut SharedTunnelStateValues,
         bootstrap: Self::Bootstrap,
