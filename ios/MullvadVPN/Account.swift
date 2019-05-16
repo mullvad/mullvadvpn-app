@@ -22,7 +22,7 @@ class Account {
     class func login(with accountToken: String) -> Procedure {
         let userDefaultsInteractor = UserDefaultsInteractor.withApplicationGroupUserDefaults()
 
-        let verificationProcedure = AccountVerificationProcedure(dispatchQueue: nil, accountToken: accountToken)
+        let verificationProcedure = AccountVerificationProcedure(accountToken: accountToken)
 
         let saveAccountDataProcedure = TransformProcedure { (verification) in
             switch verification {
