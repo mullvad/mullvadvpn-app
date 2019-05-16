@@ -81,10 +81,16 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
             guard let self = self else { return }
 
             switch result {
-            case .success(let verification):
-                self.didReceiveAccountVerification(verification)
+            case .success:
+                self.performSegue(withIdentifier: "ShowConnect", sender: self)
+
+            case .failure(let error as Account.Error):
+                // TODO: Handle account errors
+                break
+
             case .failure(let error):
-                os_log(.error, "Failed to request the account verification: %{public}s", error.localizedDescription)
+                // TODO: Handle any other errors
+                break
             }
 
             self.endLoginAnimations()
@@ -94,19 +100,16 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
 
     // MARK: - Private
 
-    private func verifyAccount(accountToken: String, completion: @escaping (Result<AccountVerification, Error>) -> Void) {
+    private func verifyAccount(accountToken: String, completion: @escaping (Result<(), Error>) -> Void) {
         let delayProcedure = DelayProcedure(by: 1)
-        let verifyProcedure = MullvadAPI.verifyAccountToken(accountToken)
+        let loginProcedure = Account.login(with: accountToken)
 
-        verifyProcedure.addDependency(delayProcedure)
-        verifyProcedure.addDidFinishBlockObserver(synchronizedWith: DispatchQueue.main) { (procedure, error) in
-            let result = error.flatMap({ .failure($0) })
-                ?? Result(catching: { try procedure.output.success.unwrap() })
-
-            completion(result)
+        loginProcedure.addDependency(delayProcedure)
+        loginProcedure.addDidFinishBlockObserver(synchronizedWith: DispatchQueue.main) { (_, error) in
+            completion(error.flatMap({ .failure($0) }) ?? .success(()))
         }
 
-        procedureQueue.addOperations([delayProcedure, verifyProcedure])
+        procedureQueue.addOperations([delayProcedure, loginProcedure])
     }
 
     private func beginLoginAnimations() {
@@ -119,25 +122,6 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
     private func endLoginAnimations() {
         activityIndicator.isAnimating = false
         accountTextField.isEnabled = true
-    }
-
-    private func didReceiveAccountVerification(_ result: AccountVerification) {
-        switch result {
-        case .deferred(let networkError):
-            print("Network error: \(networkError.localizedDescription)")
-
-            performSegue(withIdentifier: "ShowConnect", sender: self)
-
-        case .invalid:
-            print("Invalid account token")
-
-            // TODO: Show the error
-
-        case .verified(let expiryDate):
-            print("All good! The account expires on \(expiryDate)")
-
-            performSegue(withIdentifier: "ShowConnect", sender: self)
-        }
     }
 
     private func makeLoginFormVisible(keyboardFrame: CGRect) {
