@@ -22,6 +22,7 @@ enum AccountVerification {
     case invalid
 }
 
+/// The error code returned by the API when it cannot find the given account token
 private let kAccountDoesNotExistErrorCode = -200
 
 /// The procedure that implements account verification by sending the account expiry request to the
