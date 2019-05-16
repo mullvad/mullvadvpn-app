@@ -54,6 +54,7 @@ pub mod tunnel_state_machine;
 /// Internal code for managing bundled proxy software.
 mod proxy;
 
+#[cfg(not(target_os = "android"))]
 mod mktemp;
 
 /// Misc utilities for the Linux platform.
