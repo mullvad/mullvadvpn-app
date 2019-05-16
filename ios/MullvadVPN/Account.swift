@@ -10,14 +10,15 @@ import Foundation
 import ProcedureKit
 import os.log
 
+/// A class that groups the account related operations
 class Account {
 
     enum Error: Swift.Error {
         case invalidAccount
     }
 
-    private let userDefaultsInteractor = UserDefaultsInteractor.withApplicationGroupUserDefaults()
-
+    /// Perform the login and save the account token along with expriy (if available) to the
+    /// application preferences.
     class func login(with accountToken: String) -> Procedure {
         let userDefaultsInteractor = UserDefaultsInteractor.withApplicationGroupUserDefaults()
 
@@ -44,6 +45,7 @@ class Account {
         return GroupProcedure(operations: [verificationProcedure, saveAccountDataProcedure])
     }
 
+    /// Perform the logout by erasing the account token and expiry from the application preferences.
     class func logout() {
         let userDefaultsInteractor = UserDefaultsInteractor.withApplicationGroupUserDefaults()
 

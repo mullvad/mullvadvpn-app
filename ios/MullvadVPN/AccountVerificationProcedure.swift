@@ -26,7 +26,7 @@ private let kAccountDoesNotExistErrorCode = -200
 
 /// The procedure that implements account verification by sending the account expiry request to the
 /// Mullvad API. This procedure is non-fallable so even in the case of network issues it will set
-/// the output.
+/// the output and return no errors.
 class AccountVerificationProcedure: GroupProcedure, InputProcedure, OutputProcedure {
     var input: Pending<String>
     var output: Pending<ProcedureResult<AccountVerification>> = .pending
@@ -38,7 +38,9 @@ class AccountVerificationProcedure: GroupProcedure, InputProcedure, OutputProced
         let networkRequest = MullvadAPI.getAccountExpiry(accountToken: accountToken)
 
         super.init(dispatchQueue: underlyingQueue, operations: [
-            // Wrap the network request into the ignoreErrorsProcedure
+            // Wrap the network request into the ignoreErrorsProcedure to make sure that any network
+            // or JSON decoding errors do not get propagates. These errors will be returned along
+            // with the AccountVerification via the output.
             IgnoreErrorsProcedure(dispatchQueue: underlyingQueue, operation: networkRequest)
         ])
         

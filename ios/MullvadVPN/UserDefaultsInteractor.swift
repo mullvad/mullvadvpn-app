@@ -16,8 +16,8 @@ private enum UserDefaultsKeys: String {
     case accountToken, accountExpiry
 }
 
-/// The interactor class that provides the convenient interface for accessing the Mullvad VPN
-/// settings stored in UserDefaults store.
+/// The interactor class that provides a convenient interface for accessing the Mullvad VPN
+/// preferences stored in the UserDefaults store.
 class UserDefaultsInteractor {
     let userDefaults: UserDefaults
 
