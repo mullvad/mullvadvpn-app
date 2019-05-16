@@ -135,6 +135,7 @@ pub struct TunnelMonitor {
 impl TunnelMonitor {
     /// Creates a new `TunnelMonitor` that connects to the given remote and notifies `on_event`
     /// on tunnel state changes.
+    #[cfg_attr(target_os = "android", allow(unused_variables))]
     pub fn start<L>(
         tunnel_parameters: &TunnelParameters,
         log_dir: &Option<PathBuf>,
