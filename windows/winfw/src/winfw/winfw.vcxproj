@@ -25,6 +25,7 @@
     <ClCompile Include="objectpurger.cpp" />
     <ClCompile Include="rules\blockall.cpp" />
     <ClCompile Include="rules\permitdhcp.cpp" />
+    <ClCompile Include="rules\permitdhcpserver.cpp" />
     <ClCompile Include="rules\permitlan.cpp" />
     <ClCompile Include="rules\permitlanservice.cpp" />
     <ClCompile Include="rules\permitloopback.cpp" />
@@ -49,6 +50,7 @@
     <ClInclude Include="mullvadguids.h" />
     <ClInclude Include="mullvadobjects.h" />
     <ClInclude Include="objectpurger.h" />
+    <ClInclude Include="rules\permitdhcpserver.h" />
     <ClInclude Include="wfpobjecttype.h" />
     <ClInclude Include="rules\blockall.h" />
     <ClInclude Include="rules\ifirewallrule.h" />

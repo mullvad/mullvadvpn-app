@@ -48,6 +48,9 @@ public:
 	static const GUID &FilterPermitDhcpV4_Inbound_Response();
 	static const GUID &FilterPermitDhcpV6_Inbound_Response();
 
+	static const GUID &FilterPermitDhcpV4Server_Inbound_Request();
+	static const GUID &FilterPermitDhcpV4Server_Outbound_Response();
+
 	static const GUID &FilterPermitVpnRelay();
 
 	static const GUID &FilterPermitVpnTunnel_Outbound_Ipv4();
