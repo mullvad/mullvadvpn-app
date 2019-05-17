@@ -314,7 +314,7 @@ impl Daemon {
     ) {
         thread::spawn(move || {
             server.wait();
-            error!("Mullvad management interface shut down");
+            info!("Mullvad management interface shut down");
             let _ = exit_tx.send(InternalDaemonEvent::ManagementInterfaceExited);
         });
     }
