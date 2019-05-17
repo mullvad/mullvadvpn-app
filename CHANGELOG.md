@@ -29,10 +29,10 @@ Line wrap the file at 100 chars.                                              Th
   the Wi-Fi calling via iPhone when both devices are on the same network.
 - Allow incoming DHCPv4 requests and outgoing responses if allow local network is enabled. Enables
   being a DHCPv4 server.
+- Allow a subset of NDP (Router solicitation, router advertisement and redirects) in the firewall.
 
 #### Linux
 - Add standard window decorations to the application window.
-- Allow a subset of NDP (Router solicitation, router advertisement and redirects) in the firewall.
 
 ### Changed
 - Relax the allow local network rules slightly. only checking either source or destination IP field
