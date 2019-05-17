@@ -25,7 +25,7 @@ bool PermitVpnTunnelService::apply(IObjectInstaller &objectInstaller)
 
 	filterBuilder
 		.key(MullvadGuids::FilterPermitVpnTunnelService_Ipv4())
-		.name(L"Permit incoming requests on VPN tunnel IPv4")
+		.name(L"Permit inbound on tunnel interface (IPv4)")
 		.description(L"This filter is part of a rule that permits hosting services that listen on the tunnel interface")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)
@@ -48,7 +48,7 @@ bool PermitVpnTunnelService::apply(IObjectInstaller &objectInstaller)
 
 	filterBuilder
 		.key(MullvadGuids::FilterPermitVpnTunnelService_Ipv6())
-		.name(L"Permit incoming requests on VPN tunnel IPv6")
+		.name(L"Permit inbound on tunnel interface (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
 	conditionBuilder.reset(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);

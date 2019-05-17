@@ -35,8 +35,8 @@ bool PermitDhcpServer::applyIpv4(IObjectInstaller &objectInstaller) const
 	wfp::FilterBuilder filterBuilder;
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitDhcpV4Server_Inbound_Request())
-		.name(L"Permit inbound DHCPv4 request")
+		.key(MullvadGuids::FilterPermitDhcpServer_Inbound_Request_Ipv4())
+		.name(L"Permit inbound DHCP request (IPv4)")
 		.description(L"This filter is part of a rule that permits DHCP server traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)
@@ -63,8 +63,8 @@ bool PermitDhcpServer::applyIpv4(IObjectInstaller &objectInstaller) const
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitDhcpV4Server_Outbound_Response())
-		.name(L"Permit outbound DHCPv4 response")
+		.key(MullvadGuids::FilterPermitDhcpServer_Outbound_Response_Ipv4())
+		.name(L"Permit outbound DHCP response (IPv4)")
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);

@@ -27,7 +27,7 @@ bool PermitLan::applyIpv4(IObjectInstaller &objectInstaller) const
 
 	filterBuilder
 		.key(MullvadGuids::FilterPermitLan_Outbound_Ipv4())
-		.name(L"Permit locally-initiated LAN traffic")
+		.name(L"Permit outbound LAN traffic (IPv4)")
 		.description(L"This filter is part of a rule that permits LAN traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
@@ -53,7 +53,7 @@ bool PermitLan::applyIpv4(IObjectInstaller &objectInstaller) const
 
 	filterBuilder
 		.key(MullvadGuids::FilterPermitLan_Outbound_Multicast_Ipv4())
-		.name(L"Permit locally-initiated multicast traffic");
+		.name(L"Permit outbound LAN multicast traffic (IPv4)");
 
 	conditionBuilder.reset();
 
@@ -79,7 +79,7 @@ bool PermitLan::applyIpv6(IObjectInstaller &objectInstaller) const
 
 	filterBuilder
 		.key(MullvadGuids::FilterPermitLan_Outbound_Ipv6())
-		.name(L"Permit locally-initiated LAN traffic")
+		.name(L"Permit outbound LAN traffic (IPv6)")
 		.description(L"This filter is part of a rule that permits LAN traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
@@ -104,7 +104,7 @@ bool PermitLan::applyIpv6(IObjectInstaller &objectInstaller) const
 
 	filterBuilder
 		.key(MullvadGuids::FilterPermitLan_Outbound_Multicast_Ipv6())
-		.name(L"Permit locally-initiated IPv6 multicast traffic");
+		.name(L"Permit outbound LAN multicast traffic (IPv6)");
 
 	conditionBuilder.reset();
 

@@ -26,8 +26,8 @@ public:
 	static const GUID &SublayerBlacklist();
 
 	static const GUID &FilterBlockAll_Outbound_Ipv4();
-	static const GUID &FilterBlockAll_Outbound_Ipv6();
 	static const GUID &FilterBlockAll_Inbound_Ipv4();
+	static const GUID &FilterBlockAll_Outbound_Ipv6();
 	static const GUID &FilterBlockAll_Inbound_Ipv6();
 
 	static const GUID &FilterPermitLan_Outbound_Ipv4();
@@ -39,17 +39,17 @@ public:
 	static const GUID &FilterPermitLanService_Inbound_Ipv6();
 
 	static const GUID &FilterPermitLoopback_Outbound_Ipv4();
-	static const GUID &FilterPermitLoopback_Outbound_Ipv6();
 	static const GUID &FilterPermitLoopback_Inbound_Ipv4();
+	static const GUID &FilterPermitLoopback_Outbound_Ipv6();
 	static const GUID &FilterPermitLoopback_Inbound_Ipv6();
 
-	static const GUID &FilterPermitDhcpV4_Outbound_Request();
-	static const GUID &FilterPermitDhcpV6_Outbound_Request();
-	static const GUID &FilterPermitDhcpV4_Inbound_Response();
-	static const GUID &FilterPermitDhcpV6_Inbound_Response();
+	static const GUID &FilterPermitDhcp_Outbound_Request_Ipv4();
+	static const GUID &FilterPermitDhcp_Inbound_Response_Ipv4();
+	static const GUID &FilterPermitDhcp_Outbound_Request_Ipv6();
+	static const GUID &FilterPermitDhcp_Inbound_Response_Ipv6();
 
-	static const GUID &FilterPermitDhcpV4Server_Inbound_Request();
-	static const GUID &FilterPermitDhcpV4Server_Outbound_Response();
+	static const GUID &FilterPermitDhcpServer_Inbound_Request_Ipv4();
+	static const GUID &FilterPermitDhcpServer_Outbound_Response_Ipv4();
 
 	static const GUID &FilterPermitVpnRelay();
 
@@ -57,8 +57,8 @@ public:
 	static const GUID &FilterPermitVpnTunnel_Outbound_Ipv6();
 
 	static const GUID &FilterRestrictDns_Outbound_Ipv4();
-	static const GUID &FilterRestrictDns_Outbound_Ipv6();
 	static const GUID &FilterRestrictDns_Outbound_Tunnel_Ipv4();
+	static const GUID &FilterRestrictDns_Outbound_Ipv6();
 	static const GUID &FilterRestrictDns_Outbound_Tunnel_Ipv6();
 
 	static const GUID &FilterPermitVpnTunnelService_Ipv4();
