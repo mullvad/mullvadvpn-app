@@ -30,7 +30,7 @@ final class JSONRequestProcedure<Input, Output: Decodable>: GroupProcedure, Inpu
             keyDecodingStrategy: .convertFromSnakeCase
             ).injectPayload(fromNetwork: networkRequest)
 
-        super.init(dispatchQueue: nil, operations: [createRequest, networkRequest, payloadParsing])
+        super.init(dispatchQueue: underlyingQueue, operations: [createRequest, networkRequest, payloadParsing])
 
         bind(from: payloadParsing)
 
