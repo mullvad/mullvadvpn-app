@@ -39,7 +39,16 @@ use mullvad_types::{
     states::TargetState,
     version::{AppVersion, AppVersionInfo},
 };
-use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
+use std::{
+    io, mem,
+    path::PathBuf,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        mpsc, Arc,
+    },
+    thread,
+    time::Duration,
+};
 use talpid_core::{
     mpsc::IntoSender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
@@ -170,6 +179,7 @@ pub struct Daemon {
     tx: mpsc::Sender<InternalDaemonEvent>,
     reconnection_loop_tx: Option<mpsc::Sender<()>>,
     management_interface_broadcaster: management_interface::EventBroadcaster,
+    closing_management_interface: Arc<AtomicBool>,
     settings: Settings,
     account_history: account_history::AccountHistory,
     wg_key_proxy: WireguardKeyProxy<HttpHandle>,
@@ -210,8 +220,11 @@ impl Daemon {
 
         let (internal_event_tx, internal_event_rx) = mpsc::channel();
 
-        let management_interface_broadcaster =
-            Self::start_management_interface(internal_event_tx.clone())?;
+        let closing_management_interface = Arc::new(AtomicBool::new(false));
+        let management_interface_broadcaster = Self::start_management_interface(
+            internal_event_tx.clone(),
+            closing_management_interface.clone(),
+        )?;
         let relay_list_broadcaster = management_interface_broadcaster.clone();
 
         let on_relay_list_update = move |relay_list: &RelayList| {
@@ -253,6 +266,7 @@ impl Daemon {
             tx: internal_event_tx,
             reconnection_loop_tx: None,
             management_interface_broadcaster,
+            closing_management_interface,
             settings,
             account_history,
             wg_key_proxy: WireguardKeyProxy::new(rpc_handle.clone()),
@@ -270,11 +284,12 @@ impl Daemon {
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(
         event_tx: mpsc::Sender<InternalDaemonEvent>,
+        closing_flag: Arc<AtomicBool>,
     ) -> Result<management_interface::EventBroadcaster> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
         let server = Self::start_management_interface_server(multiplex_event_tx)?;
         let event_broadcaster = server.event_broadcaster();
-        Self::spawn_management_interface_wait_thread(server, event_tx);
+        Self::spawn_management_interface_wait_thread(server, event_tx, closing_flag);
         Ok(event_broadcaster)
     }
 
@@ -294,10 +309,13 @@ impl Daemon {
     fn spawn_management_interface_wait_thread(
         server: ManagementInterfaceServer,
         exit_tx: mpsc::Sender<InternalDaemonEvent>,
+        closing_flag: Arc<AtomicBool>,
     ) {
         thread::spawn(move || {
             server.wait();
-            error!("Mullvad management interface shut down");
+            if !closing_flag.load(Ordering::Acquire) {
+                error!("Mullvad management interface shut down");
+            }
             let _ = exit_tx.send(InternalDaemonEvent::ManagementInterfaceExited);
         });
     }
@@ -315,7 +333,7 @@ impl Daemon {
                 break;
             }
         }
-        self.management_interface_broadcaster.close();
+        self.stop_management_interface();
         Ok(())
     }
 
@@ -999,6 +1017,12 @@ impl Daemon {
         DaemonShutdownHandle {
             tx: self.tx.clone(),
         }
+    }
+
+    fn stop_management_interface(self) {
+        self.closing_management_interface
+            .store(true, Ordering::Release);
+        self.management_interface_broadcaster.close();
     }
 }
 
