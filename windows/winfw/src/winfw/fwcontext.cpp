@@ -49,7 +49,7 @@ void AppendSettingsRules(FwContext::Ruleset &ruleset, const WinFwSettings &setti
 	{
 		ruleset.emplace_back(std::make_unique<rules::PermitLan>());
 		ruleset.emplace_back(std::make_unique<rules::PermitLanService>());
-		ruleset.emplace_back(std::make_unique<rules::PermitDhcpServer>());
+		ruleset.emplace_back(rules::PermitDhcpServer::WithExtent(rules::PermitDhcpServer::Extent::IPv4Only));
 	}
 }
 

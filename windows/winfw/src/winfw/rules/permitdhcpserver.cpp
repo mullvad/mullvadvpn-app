@@ -7,6 +7,7 @@
 #include "libwfp/conditions/conditionprotocol.h"
 #include "libwfp/conditions/conditionport.h"
 #include "libwfp/conditions/conditionip.h"
+#include <stdexcept>
 
 using namespace wfp::conditions;
 
@@ -20,6 +21,17 @@ static const uint32_t DHCPV4_CLIENT_PORT = 68;
 static const uint32_t DHCPV4_SERVER_PORT = 67;
 
 } // anonymous namespace
+
+//static
+std::unique_ptr<PermitDhcpServer> PermitDhcpServer::WithExtent(Extent extent)
+{
+	if (extent != Extent::IPv4Only)
+	{
+		throw std::runtime_error("The only supported mode is IPv4Only");
+	}
+
+	return std::unique_ptr<PermitDhcpServer>(new PermitDhcpServer);
+}
 
 bool PermitDhcpServer::apply(IObjectInstaller &objectInstaller)
 {
