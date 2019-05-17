@@ -45,8 +45,8 @@ bool PermitDhcp::applyIpv4(IObjectInstaller &objectInstaller) const
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitDhcpV4_Outbound_Request())
-		.name(L"Permit outbound DHCPv4 request")
+		.key(MullvadGuids::FilterPermitDhcp_Outbound_Request_Ipv4())
+		.name(L"Permit outbound DHCP request (IPv4)")
 		.description(L"This filter is part of a rule that permits DHCP client traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
@@ -73,8 +73,8 @@ bool PermitDhcp::applyIpv4(IObjectInstaller &objectInstaller) const
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitDhcpV4_Inbound_Response())
-		.name(L"Permit inbound DHCPv4 response")
+		.key(MullvadGuids::FilterPermitDhcp_Inbound_Response_Ipv4())
+		.name(L"Permit inbound DHCP response (IPv4)")
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
@@ -97,8 +97,8 @@ bool PermitDhcp::applyIpv6(IObjectInstaller &objectInstaller) const
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitDhcpV6_Outbound_Request())
-		.name(L"Permit outbound DHCPv6 request")
+		.key(MullvadGuids::FilterPermitDhcp_Outbound_Request_Ipv6())
+		.name(L"Permit outbound DHCP request (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 	{
@@ -125,8 +125,8 @@ bool PermitDhcp::applyIpv6(IObjectInstaller &objectInstaller) const
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitDhcpV6_Inbound_Response())
-		.name(L"Permit inbound DHCPv6 response")
+		.key(MullvadGuids::FilterPermitDhcp_Inbound_Response_Ipv6())
+		.name(L"Permit inbound DHCP response (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);

@@ -27,7 +27,7 @@ bool PermitLanService::applyIpv4(IObjectInstaller &objectInstaller) const
 
 	filterBuilder
 		.key(MullvadGuids::FilterPermitLanService_Inbound_Ipv4())
-		.name(L"Permit incoming requests on LAN")
+		.name(L"Permit inbound LAN traffic (IPv4)")
 		.description(L"This filter is part of a rule that permits hosting services in a LAN environment")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)
@@ -55,7 +55,7 @@ bool PermitLanService::applyIpv6(IObjectInstaller &objectInstaller) const
 
 	filterBuilder
 		.key(MullvadGuids::FilterPermitLanService_Inbound_Ipv6())
-		.name(L"Permit incoming requests on LAN")
+		.name(L"Permit inbound LAN traffic (IPv6)")
 		.description(L"This filter is part of a rule that permits hosting services in a LAN environment")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6)
