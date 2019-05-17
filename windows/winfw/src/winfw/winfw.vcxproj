@@ -29,6 +29,7 @@
     <ClCompile Include="rules\permitlan.cpp" />
     <ClCompile Include="rules\permitlanservice.cpp" />
     <ClCompile Include="rules\permitloopback.cpp" />
+    <ClCompile Include="rules\permitndp.cpp" />
     <ClCompile Include="rules\permitvpntunnelservice.cpp" />
     <ClCompile Include="rules\permitvpnrelay.cpp" />
     <ClCompile Include="rules\permitvpntunnel.cpp" />
@@ -51,6 +52,7 @@
     <ClInclude Include="mullvadobjects.h" />
     <ClInclude Include="objectpurger.h" />
     <ClInclude Include="rules\permitdhcpserver.h" />
+    <ClInclude Include="rules\permitndp.h" />
     <ClInclude Include="wfpobjecttype.h" />
     <ClInclude Include="rules\blockall.h" />
     <ClInclude Include="rules\ifirewallrule.h" />

@@ -63,4 +63,8 @@ public:
 
 	static const GUID &FilterPermitVpnTunnelService_Ipv4();
 	static const GUID &FilterPermitVpnTunnelService_Ipv6();
+
+	static const GUID &FilterPermitNdp_Outbound_Router_Solicitation();
+	static const GUID &FilterPermitNdp_Inbound_Router_Advertisement();
+	static const GUID &FilterPermitNdp_Inbound_Redirect();
 };
