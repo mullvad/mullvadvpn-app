@@ -68,11 +68,11 @@ build_ref() {
   tag_or_branch=$2
 
   ref_filename="${ref/\//_}"
-  last_built_hash=$(cat $LAST_BUILT_DIR/$ref_filename || echo "N/A")
+  last_built_hash="$(cat $LAST_BUILT_DIR/$ref_filename || echo "N/A")"
   current_hash="$(git rev-parse $ref)"
 
   if [ "$last_built_hash" == "$current_hash" ]; then
-    #echo "[#] $ref: $last_built_hash. Same commit, not building."
+    # Same commit as last time this ref was built, not building
     return 0
   fi
 
@@ -97,6 +97,7 @@ build_ref() {
   git reset --hard
   git checkout $ref
   git submodule update
+  git clean -df
 
   ./build.sh || return 0
   upload $current_hash || return 0
@@ -107,7 +108,7 @@ build_ref() {
 cd "$BUILD_DIR"
 
 while true; do
-    # Delete all tags. So when fetching we only get the ones existing on the remote
+  # Delete all tags. So when fetching we only get the ones existing on the remote
   git tag | xargs git tag -d > /dev/null
 
   git fetch --prune --tags 2> /dev/null || continue
