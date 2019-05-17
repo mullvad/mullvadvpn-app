@@ -56,6 +56,9 @@ DetailedWfpObjectRegistry MullvadGuids::BuildDetailedRegistry()
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Tunnel_Ipv6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnelService_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnelService_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitNdp_Outbound_Router_Solicitation()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitNdp_Inbound_Router_Advertisement()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitNdp_Inbound_Redirect()));
 
 	return registry;
 }
@@ -518,6 +521,48 @@ const GUID &MullvadGuids::FilterPermitVpnTunnelService_Ipv6()
 		0x1845,
 		0x42e5,
 		{ 0xad, 0xf3, 0x33, 0xb2, 0x7a, 0xd, 0x5d, 0x38 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::FilterPermitNdp_Outbound_Router_Solicitation()
+{
+	static const GUID g =
+	{
+		0xbc5a85e4,
+		0x5319,
+		0x4224,
+		{ 0x8a, 0x27, 0x53, 0xeb, 0x61, 0xef, 0x3b, 0x1 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::FilterPermitNdp_Inbound_Router_Advertisement()
+{
+	static const GUID g =
+	{
+		0x4d996f1d,
+		0x4915,
+		0x4a6a,
+		{ 0xbd, 0xf5, 0xb5, 0x1a, 0x2d, 0xbc, 0xb8, 0xe9 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::FilterPermitNdp_Inbound_Redirect()
+{
+	static const GUID g =
+	{
+		0xcec23a8,
+		0x4fdd,
+		0x4a96,
+		{ 0xae, 0xba, 0x33, 0xd2, 0xa7, 0xf, 0x85, 0x22 }
 	};
 
 	return g;
