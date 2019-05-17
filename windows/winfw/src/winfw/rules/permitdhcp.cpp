@@ -4,6 +4,7 @@
 #include "libwfp/filterbuilder.h"
 #include "libwfp/conditionbuilder.h"
 #include "libwfp/ipaddress.h"
+#include "libwfp/ipnetwork.h"
 #include "libwfp/conditions/conditionprotocol.h"
 #include "libwfp/conditions/conditionport.h"
 #include "libwfp/conditions/conditionip.h"
@@ -87,7 +88,7 @@ bool PermitDhcp::applyIpv4(IObjectInstaller &objectInstaller) const
 
 bool PermitDhcp::applyIpv6(IObjectInstaller &objectInstaller) const
 {
-	const wfp::IpAddress::Literal6 fe80{ 0xFE80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+	const wfp::IpNetwork linkLocal(wfp::IpAddress::Literal6({ 0xFE80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 10);
 
 	wfp::FilterBuilder filterBuilder;
 
@@ -103,11 +104,11 @@ bool PermitDhcp::applyIpv6(IObjectInstaller &objectInstaller) const
 	{
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
-		const wfp::IpAddress::Literal6 linkLocalDhcpMulticast{ 0xFF02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x2 };
-		const wfp::IpAddress::Literal6 siteLocalDhcpMulticast{ 0xFF05, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x3 };
+		const wfp::IpAddress::Literal6 linkLocalDhcpMulticast({ 0xFF02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x2 });
+		const wfp::IpAddress::Literal6 siteLocalDhcpMulticast({ 0xFF05, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x3 });
 
 		conditionBuilder.add_condition(ConditionProtocol::Udp());
-		conditionBuilder.add_condition(ConditionIp::Local(fe80, uint8_t(10)));
+		conditionBuilder.add_condition(ConditionIp::Local(linkLocal));
 		conditionBuilder.add_condition(ConditionPort::Local(DHCPV6_CLIENT_PORT));
 		conditionBuilder.add_condition(ConditionIp::Remote(linkLocalDhcpMulticast));
 		conditionBuilder.add_condition(ConditionIp::Remote(siteLocalDhcpMulticast));
@@ -131,9 +132,9 @@ bool PermitDhcp::applyIpv6(IObjectInstaller &objectInstaller) const
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
 	conditionBuilder.add_condition(ConditionProtocol::Udp());
-	conditionBuilder.add_condition(ConditionIp::Local(fe80, uint8_t(10)));
+	conditionBuilder.add_condition(ConditionIp::Local(linkLocal));
 	conditionBuilder.add_condition(ConditionPort::Local(DHCPV6_CLIENT_PORT));
-	conditionBuilder.add_condition(ConditionIp::Remote(fe80, uint8_t(10)));
+	conditionBuilder.add_condition(ConditionIp::Remote(linkLocal));
 	conditionBuilder.add_condition(ConditionPort::Remote(DHCPV6_SERVER_PORT));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
