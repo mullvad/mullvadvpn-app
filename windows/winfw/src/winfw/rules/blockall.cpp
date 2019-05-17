@@ -33,12 +33,13 @@ bool BlockAll::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #2 block outbound connections, ipv6
+	// #2 block inbound connections, ipv4
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterBlockAll_Outbound_Ipv6())
-		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+		.key(MullvadGuids::FilterBlockAll_Inbound_Ipv4())
+		.name(L"Block all inbound connections")
+		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
 
 	if (false == objectInstaller.addFilter(filterBuilder, nullConditionBuilder))
 	{
@@ -46,13 +47,12 @@ bool BlockAll::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #3 block inbound connections, ipv4
+	// #3 block outbound connections, ipv6
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterBlockAll_Inbound_Ipv4())
-		.name(L"Block all inbound connections")
-		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
+		.key(MullvadGuids::FilterBlockAll_Outbound_Ipv6())
+		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 	if (false == objectInstaller.addFilter(filterBuilder, nullConditionBuilder))
 	{
