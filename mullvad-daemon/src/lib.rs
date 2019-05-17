@@ -14,11 +14,14 @@ extern crate serde;
 
 mod account_history;
 mod geoip;
+pub mod logging;
 mod management_interface;
 mod relays;
 mod rpc_uniqueness_check;
+pub mod version;
 
-use crate::management_interface::{BoxFuture, ManagementCommand, ManagementInterfaceServer};
+pub use crate::management_interface::ManagementCommand;
+use crate::management_interface::{BoxFuture, ManagementInterfaceServer};
 use futures::{
     future,
     sync::{mpsc::UnboundedSender, oneshot},
@@ -56,6 +59,9 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error(display = "Another instance of the daemon is already running")]
     DaemonIsAlreadyRunning,
+
+    #[error(display = "Failed to send command to daemon because it is not running")]
+    DaemonUnavailable,
 
     #[error(display = "Unable to initialize network event loop")]
     InitIoEventLoop(#[error(cause)] io::Error),
@@ -160,6 +166,17 @@ impl DaemonExecutionState {
     }
 }
 
+pub struct DaemonCommandSender(IntoSender<ManagementCommand, InternalDaemonEvent>);
+
+impl DaemonCommandSender {
+    pub(crate) fn new(internal_event_sender: mpsc::Sender<InternalDaemonEvent>) -> Self {
+        DaemonCommandSender(IntoSender::from(internal_event_sender))
+    }
+
+    pub fn send(&self, command: ManagementCommand) -> Result<()> {
+        self.0.send(command).map_err(|_| Error::DaemonUnavailable)
+    }
+}
 
 pub struct Daemon {
     tunnel_command_tx: SyncUnboundedSender<TunnelCommand>,
@@ -305,6 +322,11 @@ impl Daemon {
             error!("Mullvad management interface shut down");
             let _ = exit_tx.send(InternalDaemonEvent::ManagementInterfaceExited);
         });
+    }
+
+    /// Retrieve a channel for sending daemon commands.
+    pub fn command_sender(&self) -> DaemonCommandSender {
+        DaemonCommandSender::new(self.tx.clone())
     }
 
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
