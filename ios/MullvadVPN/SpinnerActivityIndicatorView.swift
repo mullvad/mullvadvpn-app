@@ -88,7 +88,7 @@ private let kAnimationDuration = 0.6
         setFrontCircleLayerColor()
     }
 
-    // MARK: - Public
+    // MARK: - Private
 
     private func startAnimating() {
         isHidden = false
@@ -99,8 +99,6 @@ private let kAnimationDuration = 0.6
         isHidden = true
         removeAnimation()
     }
-
-    // MARK: - Private
 
     private func commonInit() {
         registerForAppStateNotifications()
@@ -178,11 +176,11 @@ private let kAnimationDuration = 0.6
     private func setupBezierPaths() {
         let center = CGPoint(x: bounds.size.width * 0.5, y: bounds.size.height * 0.5)
         let radius = bounds.size.width * 0.5 - thickness
-        let ringPath = UIBezierPath(arcCenter: center, radius: radius, startAngle: CGFloat(0), endAngle: CGFloat.pi * 2, clockwise: true)
-        let quarterRingPath = UIBezierPath(arcCenter: center, radius: radius, startAngle: 0, endAngle: CGFloat.pi + CGFloat.pi * 0.5, clockwise: true)
+        let closedRingPath = UIBezierPath(arcCenter: center, radius: radius, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
+        let openRingPath = UIBezierPath(arcCenter: center, radius: radius, startAngle: 0, endAngle: CGFloat.pi * 1.5, clockwise: true)
 
-        backCircle.path = ringPath.cgPath
-        frontCircle.path = quarterRingPath.cgPath
+        backCircle.path = closedRingPath.cgPath
+        frontCircle.path = openRingPath.cgPath
     }
 
 }
