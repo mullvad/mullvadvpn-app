@@ -4,6 +4,7 @@
 #include "libwfp/filterbuilder.h"
 #include "libwfp/conditionbuilder.h"
 #include "libwfp/ipaddress.h"
+#include "libwfp/ipnetwork.h"
 #include "libwfp/conditions/conditionip.h"
 
 using namespace wfp::conditions;
@@ -36,10 +37,10 @@ bool PermitLan::applyIpv4(IObjectInstaller &objectInstaller) const
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 10, 0, 0, 0 }), uint8_t(8)));
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 172, 16, 0, 0 }), uint8_t(12)));
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 192, 168, 0, 0 }), uint8_t(16)));
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 169, 254, 0, 0 }), uint8_t(16)));
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 10, 0, 0, 0 }), 8)));
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 172, 16, 0, 0 }), 12)));
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 192, 168, 0, 0 }), 16)));
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 169, 254, 0, 0 }), 16)));
 
 	if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 	{
@@ -57,13 +58,13 @@ bool PermitLan::applyIpv4(IObjectInstaller &objectInstaller) const
 	conditionBuilder.reset();
 
 	// Local subnet multicast.
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 224, 0, 0, 0 }), uint8_t(24)));
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 224, 0, 0, 0 }), 24)));
 
 	// Simple Service Discovery Protocol (SSDP) address.
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 239, 255, 255, 250 }), uint8_t(32)));
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 239, 255, 255, 250 }), 32)));
 
 	// mDNS Service Discovery address.
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpAddress::Literal({ 239, 255, 255, 251 }), uint8_t(32)));
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 239, 255, 255, 251 }), 32)));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
@@ -88,9 +89,9 @@ bool PermitLan::applyIpv6(IObjectInstaller &objectInstaller) const
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
-	wfp::IpAddress::Literal6 fe80 { 0xFE80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+	const wfp::IpNetwork linkLocal(wfp::IpAddress::Literal6({ 0xFE80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 10);
 
-	conditionBuilder.add_condition(ConditionIp::Remote(fe80, uint8_t(10)));
+	conditionBuilder.add_condition(ConditionIp::Remote(linkLocal));
 
 	if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 	{
@@ -107,11 +108,11 @@ bool PermitLan::applyIpv6(IObjectInstaller &objectInstaller) const
 
 	conditionBuilder.reset();
 
-	wfp::IpAddress::Literal6 linkLocal{ 0xFF02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
-	wfp::IpAddress::Literal6 siteLocal{ 0xFF05, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+	const wfp::IpNetwork linkLocalMulticast(wfp::IpAddress::Literal6({ 0xFF02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
+	const wfp::IpNetwork siteLocalMulticast(wfp::IpAddress::Literal6({ 0xFF05, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
 
-	conditionBuilder.add_condition(ConditionIp::Remote(linkLocal, uint8_t(16)));
-	conditionBuilder.add_condition(ConditionIp::Remote(siteLocal, uint8_t(16)));
+	conditionBuilder.add_condition(ConditionIp::Remote(linkLocalMulticast));
+	conditionBuilder.add_condition(ConditionIp::Remote(siteLocalMulticast));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
