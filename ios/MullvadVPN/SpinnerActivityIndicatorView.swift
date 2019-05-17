@@ -132,12 +132,14 @@ private let kAnimationDuration = 0.6
     }
 
     private func addAnimation() {
+        let timeOffset = stopTime - startTime
+
         let anim = animation()
-        anim.timeOffset = stopTime - startTime
+        anim.timeOffset = timeOffset
 
         layer.add(anim, forKey: kRotationAnimationKey)
 
-        startTime = layer.convertTime(CACurrentMediaTime(), from: nil)
+        startTime = layer.convertTime(CACurrentMediaTime(), from: nil) - timeOffset
     }
 
     private func removeAnimation() {
