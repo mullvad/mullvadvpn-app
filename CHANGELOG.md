@@ -46,6 +46,9 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Raise max number of open files for the daemon to 1024. Should prevent threads from panicking.
 
+#### Windows
+- Add better offline detection
+
 
 ## [2019.4] - 2019-05-08
 This release is identical to 2019.4-beta1
