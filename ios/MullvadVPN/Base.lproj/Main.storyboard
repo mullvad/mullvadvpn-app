@@ -4,7 +4,6 @@
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -30,6 +29,14 @@
                             <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0ZY-Kh-JiM" userLabel="Container">
                                 <rect key="frame" x="0.0" y="94" width="375" height="573"/>
                                 <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pID-oa-Rrg" customClass="SpinnerActivityIndicatorView" customModule="MullvadVPN" customModuleProvider="target">
+                                        <rect key="frame" x="163.5" y="125.5" width="48" height="48"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="48" id="2J4-Qc-ctc"/>
+                                            <constraint firstAttribute="width" constant="48" id="ohE-fk-mg9"/>
+                                        </constraints>
+                                    </view>
                                     <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="V3j-Lb-fSQ" userLabel="Form">
                                         <rect key="frame" x="0.0" y="203.5" width="375" height="126"/>
                                         <subviews>
@@ -85,8 +92,10 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
+                                    <constraint firstItem="V3j-Lb-fSQ" firstAttribute="top" secondItem="pID-oa-Rrg" secondAttribute="bottom" constant="30" id="2Sy-bS-AZZ"/>
                                     <constraint firstItem="V3j-Lb-fSQ" firstAttribute="centerY" secondItem="0ZY-Kh-JiM" secondAttribute="centerY" constant="-20" id="3Uk-YZ-4C3"/>
                                     <constraint firstAttribute="trailing" secondItem="V3j-Lb-fSQ" secondAttribute="trailing" id="EHy-Cx-cGj"/>
+                                    <constraint firstItem="pID-oa-Rrg" firstAttribute="centerX" secondItem="0ZY-Kh-JiM" secondAttribute="centerX" id="Ojm-D5-HnO"/>
                                     <constraint firstItem="V3j-Lb-fSQ" firstAttribute="leading" secondItem="0ZY-Kh-JiM" secondAttribute="leading" id="alr-G1-L4w"/>
                                 </constraints>
                             </view>
@@ -139,6 +148,7 @@
                     </view>
                     <connections>
                         <outlet property="accountTextField" destination="XOB-ct-yLU" id="mXd-SV-E16"/>
+                        <outlet property="activityIndicator" destination="pID-oa-Rrg" id="GG2-Hv-FWl"/>
                         <outlet property="keyboardToolbar" destination="waX-JF-VTG" id="kav-5t-mkA"/>
                         <outlet property="loginForm" destination="V3j-Lb-fSQ" id="tYu-S8-ylm"/>
                         <outlet property="loginFormWrapperBottomConstraint" destination="09L-EV-qfI" id="fYF-OK-trh"/>
@@ -529,7 +539,7 @@
         <image name="TranslucentNeutralButton" width="9" height="9"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="qKR-6L-kfz"/>
-        <segue reference="fxZ-Uq-nxv"/>
+        <segue reference="tVd-Lw-FVU"/>
+        <segue reference="RjC-Wk-Enk"/>
     </inferredMetricsTieBreakers>
 </document>

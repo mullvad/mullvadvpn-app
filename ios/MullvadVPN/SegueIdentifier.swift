@@ -19,6 +19,7 @@ struct SegueIdentifier {
     enum Login: String, SegueConvertible {
         case embedHeader = "EmbedHeaderBar"
         case showSettings = "ShowSettings"
+        case showConnect = "ShowConnect"
     }
 
     enum SelectLocation: String, SegueConvertible {
