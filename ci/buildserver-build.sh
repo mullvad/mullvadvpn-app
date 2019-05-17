@@ -44,23 +44,20 @@ sign_win() {
 
 upload() {
   current_hash=$1
-  case "$(uname -s)" in
-    # Linux is both the build and upload server. Just move directly to target dir
-    Linux*)
-      mv dist/MullvadVPN-*.{deb,rpm} $UPLOAD_DIR/
-      ;;
-    # Other platforms need to transfer their artifacts to the Linux build machine.
-    Darwin*)
-      upload_sftp "dist/MullvadVPN-*.pkg"
-      ;;
-    MINGW*|MSYS_NT*)
-      sign_win || return 1
-      echo "Packaging all PDB files..."
-      find ./windows/ -iname "*.pdb" | tar -cJf $SCRIPT_DIR/pdb/$current_hash.tar.xz -T -
-
-      upload_sftp "dist/MullvadVPN-*.exe" || return 1
-      ;;
-  esac
+  for f in MullvadVPN-*; do
+    sha256sum "$f" > "$f.sha256"
+    case "$(uname -s)" in
+      # Linux is both the build and upload server. Just move directly to target dir
+      Linux*)
+        mv "$f" "$f.sha256" "$UPLOAD_DIR/"
+        ;;
+      # Other platforms need to transfer their artifacts to the Linux build machine.
+      Darwin*|MINGW*|MSYS_NT*)
+        upload_sftp "$f" || return 1
+        upload_sftp "$f.sha256" || return 1
+        ;;
+    esac
+  done
 }
 
 build_ref() {
@@ -68,11 +65,11 @@ build_ref() {
   tag_or_branch=$2
 
   ref_filename="${ref/\//_}"
-  last_built_hash=$(cat $LAST_BUILT_DIR/$ref_filename || echo "N/A")
+  last_built_hash="$(cat $LAST_BUILT_DIR/$ref_filename || echo "N/A")"
   current_hash="$(git rev-parse $ref)"
 
   if [ "$last_built_hash" == "$current_hash" ]; then
-    #echo "[#] $ref: $last_built_hash. Same commit, not building."
+    # Same commit as last time this ref was built, not building
     return 0
   fi
 
@@ -93,13 +90,26 @@ build_ref() {
     return 0
   fi
 
+  # Clean our working dir and check out the code we want to build
   rm -r dist/ 2&>/dev/null || true
   git reset --hard
   git checkout $ref
   git submodule update
+  git clean -df
+
+  # Make sure we have the latest Rust toolchain before the build
+  rustup update
 
   ./build.sh || return 0
-  upload $current_hash || return 0
+  case "$(uname -s)" in
+    MINGW*|MSYS_NT*)
+      sign_win || return 1
+      echo "Packaging all PDB files..."
+      find ./windows/ -iname "*.pdb" | tar -cJf $SCRIPT_DIR/pdb/$current_hash.tar.xz -T -
+      ;;
+  esac
+
+  (cd dist/ && upload $current_hash) || return 0
   echo "$current_hash" > "$LAST_BUILT_DIR/$ref_filename"
   echo "Successfully finished build at $(date)"
 }
@@ -107,7 +117,7 @@ build_ref() {
 cd "$BUILD_DIR"
 
 while true; do
-    # Delete all tags. So when fetching we only get the ones existing on the remote
+  # Delete all tags. So when fetching we only get the ones existing on the remote
   git tag | xargs git tag -d > /dev/null
 
   git fetch --prune --tags 2> /dev/null || continue
