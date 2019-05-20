@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2019-04-25 10:41\n"
+"PO-Revision-Date: 2019-05-20 12:54\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "被封鎖的連線"
@@ -41,7 +41,7 @@ msgid "Account"
 msgstr "帳戶"
 
 msgctxt "account-view"
-msgid "Account ID"
+msgid "Account number"
 msgstr "帳戶 ID"
 
 msgctxt "account-view"
@@ -178,6 +178,18 @@ msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr "您在此帳戶沒有更多 VPN 時間了。若要在我們網站上購買更多點數，您必須使用不安全的連線存取網際網路。"
 
+msgctxt "connection-info"
+msgid "Connection details"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "In"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "Out"
+msgstr ""
+
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
@@ -188,6 +200,10 @@ msgstr "MULLVAD VPN"
 msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "出現了問題。請與我們聯絡：%(email)s"
+
+msgctxt "headerbar"
+msgid "MULLVAD VPN"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"

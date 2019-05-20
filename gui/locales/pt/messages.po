@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2019-05-20 10:11\n"
+"PO-Revision-Date: 2019-05-20 12:54\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "LIGAÇÃO BLOQUEADA"
@@ -41,7 +41,7 @@ msgid "Account"
 msgstr "Conta"
 
 msgctxt "account-view"
-msgid "Account ID"
+msgid "Account number"
 msgstr "ID de Conta"
 
 msgctxt "account-view"
@@ -178,6 +178,18 @@ msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr "Já não tem mais tempo de VPN nesta conta. Para comprar mais créditos no nosso site, tem de aceder à Internet com uma ligação insegura."
 
+msgctxt "connection-info"
+msgid "Connection details"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "In"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "Out"
+msgstr ""
+
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
@@ -188,6 +200,10 @@ msgstr "MULLVAD VPN"
 msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Ocorreu um erro. Por favor contate-nos através de %(email)s"
+
+msgctxt "headerbar"
+msgid "MULLVAD VPN"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
