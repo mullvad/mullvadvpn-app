@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
   the Wi-Fi calling via iPhone when both devices are on the same network.
 - Allow incoming DHCPv4 requests and outgoing responses if allow local network is enabled. Enables
   being a DHCPv4 server.
+- Add GUI translations for Italian, Japanese, Dutch, Portugese, Russian and Turkish.
+- Add missing GUI translations for Czech Republic, USA and UK in the select location view.
+- Add translations for the current location displayed on the main screen in the GUI.
 
 #### Linux
 - Add standard window decorations to the application window.
@@ -42,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
 - Stop allowing the wrong IPv6 net fe02::/16 in the firewall when allow local network was enabled.
   Instead allow the correct multicast nets ff02::/16 and ff05::/16.
 - Fix the regression that allowed to get past the login screen using the invalid account token.
+- Fix the GUI crash caused by a derefence of the already released remote object in Electron.
 
 #### macOS
 - Raise max number of open files for the daemon to 1024. Should prevent threads from panicking.
