@@ -1,3 +1,4 @@
+use crate::EventListener;
 use jsonrpc_core::{
     futures::{
         future,
@@ -257,10 +258,10 @@ impl ManagementInterfaceServer {
         self.server.path()
     }
 
-    pub fn event_broadcaster(&self) -> EventBroadcaster {
-        EventBroadcaster {
+    pub fn event_broadcaster(&self) -> ManagementInterfaceEventBroadcaster {
+        ManagementInterfaceEventBroadcaster {
             subscriptions: self.subscriptions.clone(),
-            close_handle: self.server.close_handle(),
+            close_handle: Some(self.server.close_handle()),
         }
     }
 
@@ -273,39 +274,44 @@ impl ManagementInterfaceServer {
 
 /// A handle that allows broadcasting messages to all subscribers of the management interface.
 #[derive(Clone)]
-pub struct EventBroadcaster {
+pub struct ManagementInterfaceEventBroadcaster {
     subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
-    close_handle: talpid_ipc::CloseHandle,
+    close_handle: Option<talpid_ipc::CloseHandle>,
 }
 
-impl EventBroadcaster {
-    /// Notifies that the management interface should be closed
-    pub fn close(self) {
-        self.close_handle.close();
-    }
-
+impl EventListener for ManagementInterfaceEventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
-    pub fn notify_new_state(&self, new_state: TunnelStateTransition) {
+    fn notify_new_state(&self, new_state: TunnelStateTransition) {
         log::debug!("Broadcasting new state: {:?}", new_state);
         self.notify(DaemonEvent::StateTransition(new_state));
     }
 
     /// Sends settings to all `settings` subscribers of the management interface.
-    pub fn notify_settings(&self, settings: Settings) {
+    fn notify_settings(&self, settings: Settings) {
         log::debug!("Broadcasting new settings");
         self.notify(DaemonEvent::Settings(settings));
     }
 
     /// Sends settings to all `settings` subscribers of the management interface.
-    pub fn notify_relay_list(&self, relay_list: RelayList) {
+    fn notify_relay_list(&self, relay_list: RelayList) {
         log::debug!("Broadcasting new relay list");
         self.notify(DaemonEvent::RelayList(relay_list));
     }
+}
 
+impl ManagementInterfaceEventBroadcaster {
     fn notify(&self, value: DaemonEvent) {
         let subscriptions = self.subscriptions.read().unwrap();
         for sink in subscriptions.values() {
             let _ = sink.notify(Ok(value.clone())).wait();
+        }
+    }
+}
+
+impl Drop for ManagementInterfaceEventBroadcaster {
+    fn drop(&mut self) {
+        if let Some(close_handle) = self.close_handle.take() {
+            close_handle.close();
         }
     }
 }
