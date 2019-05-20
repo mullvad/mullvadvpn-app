@@ -4,6 +4,7 @@ members = [
     "mullvad-cli",
     "mullvad-problem-report",
     "mullvad-ipc-client",
+    "mullvad-jni",
     "mullvad-paths",
     "mullvad-types",
     "mullvad-rpc",
