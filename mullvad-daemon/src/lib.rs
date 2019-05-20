@@ -300,10 +300,7 @@ impl Daemon {
     ) -> Result<ManagementInterfaceServer> {
         let server =
             ManagementInterfaceServer::start(event_tx).map_err(Error::StartManagementInterface)?;
-        info!(
-            "Mullvad management interface listening on {}",
-            server.socket_path()
-        );
+        info!("Management interface listening on {}", server.socket_path());
 
         Ok(server)
     }
@@ -314,7 +311,7 @@ impl Daemon {
     ) {
         thread::spawn(move || {
             server.wait();
-            info!("Mullvad management interface shut down");
+            info!("Management interface shut down");
             let _ = exit_tx.send(InternalDaemonEvent::ManagementInterfaceExited);
         });
     }
