@@ -6,6 +6,10 @@ msgstr "Content-Type: text/plain; charset=utf-8\n"
 msgid "Brisbane"
 msgstr ""
 
+#. AU CBR
+msgid "Canberra"
+msgstr ""
+
 #. AU MEL
 msgid "Melbourne"
 msgstr ""
