@@ -15,6 +15,7 @@
 #     signtool sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /d "Mullvad VPN" /du https://github.com/mullvad/mullvadvpn-app#readme /f comodo.pfx /p <PASSWORD TO comodo.pfx> "%1"
 
 set -eu
+shopt -s nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
@@ -44,7 +45,7 @@ sign_win() {
 
 upload() {
   current_hash=$1
-  for f in MullvadVPN-*; do
+  for f in MullvadVPN-*.{deb,rpm,exe,pkg}; do
     sha256sum "$f" > "$f.sha256"
     case "$(uname -s)" in
       # Linux is both the build and upload server. Just move directly to target dir

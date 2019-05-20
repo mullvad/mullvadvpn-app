@@ -9,7 +9,7 @@ cd $UPLOAD_DIR
 
 while true; do
   sleep 10
-  for f_checksum in MullvadVPN-*.sha256; do
+  for f_checksum in MullvadVPN-*.{deb,rpm,exe,pkg}.sha256; do
     sleep 1
     f="${f_checksum/.sha256/}"
     if ! sha256sum --quiet -c "$f_checksum"; then
