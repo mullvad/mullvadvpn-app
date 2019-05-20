@@ -163,6 +163,9 @@ def extract_countries_po():
           name_alt_key = "_".join(("name", convert_locale_ident(locale)))
           name_fallback = "name"
 
+          country_name = props.get("name")
+          formal_country_name = props.get("formal_en", country_name)
+
           if props.get(name_key) is not None:
             translated_name = props.get(name_key)
           elif props.get(name_alt_key) is not None:
@@ -177,10 +180,18 @@ def extract_countries_po():
               )
 
           entry = POEntry(
-            msgid=props["name"],
+            msgid=country_name,
             msgstr=translated_name
           )
           po.append(entry)
+
+          # add additional record for the formal country name.
+          if country_name != formal_country_name and formal_country_name is not None:
+            entry = POEntry(
+              msgid=formal_country_name,
+              msgstr=translated_name
+            )
+            po.append(entry)
 
         po.save(output_path)
         print c.green("Extracted {} countries for {} to {}".format(len(po), locale, output_path))
