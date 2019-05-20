@@ -115,7 +115,7 @@ pub fn is_offline() -> Result<bool, Error> {
         0 => Ok(true),
         // Connected
         1 => Ok(false),
-        // 2 means that connectivity can't be established, but any other return value is unexpected
+        // 2 means that connectivity can't be determined, but any other return value is unexpected
         // and as such, is considered to be an error.
         _ => Err(Error::ConnectivityUnkown),
     }
