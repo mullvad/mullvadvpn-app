@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
-import { messages } from '../../shared/gettext';
+import { RelayProtocol, TunnelStateTransition } from '../../shared/daemon-rpc-types';
+import { cities, countries, messages, relayLocations } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import ConnectionInfo from './ConnectionInfo';
 import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
-
-import { RelayProtocol, TunnelStateTransition } from '../../shared/daemon-rpc-types';
 
 export interface IRelayInAddress {
   ip: string;
@@ -82,8 +81,22 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
     const Location = ({ children }: { children?: React.ReactNode }) => (
       <View style={styles.status_location}>{children}</View>
     );
-    const City = () => <Text style={styles.status_location_text}>{this.props.city}</Text>;
-    const Country = () => <Text style={styles.status_location_text}>{this.props.country}</Text>;
+    const City = () => (
+      <Text style={styles.status_location_text}>
+        {this.props.city
+          ? relayLocations.gettext(this.props.city) ||
+            cities.gettext(this.props.city) ||
+            this.props.city
+          : undefined}
+      </Text>
+    );
+    const Country = () => (
+      <Text style={styles.status_location_text}>
+        {this.props.country
+          ? countries.gettext(this.props.country) || this.props.country
+          : undefined}
+      </Text>
+    );
 
     const SwitchLocation = () => {
       return (
