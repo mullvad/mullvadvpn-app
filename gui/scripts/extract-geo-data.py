@@ -165,6 +165,7 @@ def extract_countries_po():
 
           country_name = props.get("name")
           formal_country_name = props.get("formal_en", country_name)
+
           if props.get(name_key) is not None:
             translated_name = props.get(name_key)
           elif props.get(name_alt_key) is not None:
@@ -188,6 +189,22 @@ def extract_countries_po():
           if country_name != formal_country_name and formal_country_name is not None:
             entry = POEntry(
               msgid=formal_country_name,
+              msgstr=translated_name
+            )
+            po.append(entry)
+
+          # exception for the US
+          if props.get("iso_a3") == "USA":
+            entry = POEntry(
+              msgid="USA",
+              msgstr=translated_name
+            )
+            po.append(entry)
+
+          # exception for the UK
+          if props.get("iso_a3") == "GBR":
+            entry = POEntry(
+              msgid="UK",
               msgstr=translated_name
             )
             po.append(entry)
