@@ -189,6 +189,10 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Es ist etwas schiefgegangen. Bitte kontaktieren Sie uns unter %(email)s"
 
+msgctxt "headerbar"
+msgid "MULLVAD VPN"
+msgstr ""
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "KONTOGUTHABEN LÄUFT BALD AB"

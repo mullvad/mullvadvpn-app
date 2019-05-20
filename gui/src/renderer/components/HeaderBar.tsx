@@ -1,6 +1,6 @@
-import { remote } from 'electron';
 import * as React from 'react';
 import { Button, Component, Styles, Text, Types, View } from 'reactxp';
+import { messages } from '../../shared/gettext';
 import ImageView from './ImageView';
 
 export enum HeaderBarStyle {
@@ -93,7 +93,7 @@ export class Brand extends Component {
     return (
       <View style={brandStyles.container}>
         <ImageView width={50} height={50} source="logo-icon" />
-        <Text style={brandStyles.title}>{remote.app.getName().toUpperCase()}</Text>
+        <Text style={brandStyles.title}>{messages.pgettext('headerbar', 'MULLVAD VPN')}</Text>
       </View>
     );
   }

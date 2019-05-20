@@ -189,6 +189,10 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "何か問題が生じたようです。 %(email)s までご連絡ください。"
 
+msgctxt "headerbar"
+msgid "MULLVAD VPN"
+msgstr ""
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "アカウントのクレジットがもうすぐ無効になります。"
