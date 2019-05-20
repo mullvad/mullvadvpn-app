@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, Component, Styles, Text, Types, View } from 'reactxp';
-import ImageView from './ImageView';
 import { messages } from '../../shared/gettext';
+import ImageView from './ImageView';
 
 export enum HeaderBarStyle {
   default = 'default',

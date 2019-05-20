@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
-import { messages } from '../../shared/gettext';
+import { RelayProtocol, TunnelStateTransition } from '../../shared/daemon-rpc-types';
+import { cities, countries, messages, relayLocations } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import ConnectionInfo from './ConnectionInfo';
 import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
-import { RelayProtocol, TunnelStateTransition } from '../../shared/daemon-rpc-types';
-import { countries, cities, relayLocations } from '../../shared/gettext';
 
 export interface IRelayInAddress {
   ip: string;

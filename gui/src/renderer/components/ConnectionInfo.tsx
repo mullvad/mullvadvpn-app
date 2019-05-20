@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types, View } from 'reactxp';
-import { default as ConnectionInfoDisclosure } from './ConnectionInfoDisclosure';
 import { messages } from '../../shared/gettext';
+import { default as ConnectionInfoDisclosure } from './ConnectionInfoDisclosure';
 
 const styles = {
   row: Styles.createViewStyle({
