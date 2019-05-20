@@ -43,7 +43,7 @@ export default class Account extends Component<IProps> {
                 <View style={styles.account__main}>
                   <View style={styles.account__row}>
                     <Text style={styles.account__row_label}>
-                      {messages.pgettext('account-view', 'Account ID')}
+                      {messages.pgettext('account-view', 'Account number')}
                     </Text>
                     <ClipboardLabel
                       style={styles.account__row_value}
