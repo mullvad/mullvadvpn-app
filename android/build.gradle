@@ -4,6 +4,9 @@ import org.jmailen.gradle.kotlinter.tasks.LintTask
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
+def repoRootPath = projectDir.absoluteFile.parentFile.absolutePath
+def extraJniDirectory = "$project.buildDir/extraJni"
+
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
@@ -20,6 +23,20 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs {
+                srcDirs = files(extraJniDirectory)
+            }
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.ndkCompileProvider.configure {
+            dependsOn copyMullvadJni
         }
     }
 }
@@ -65,3 +82,9 @@ task format(type: FormatTask, group: 'formatting') {
 }
 
 lint.dependsOn lintKotlin
+
+task copyMullvadJni(type: Copy) {
+    from "$repoRootPath/target/aarch64-linux-android/debug"
+    include 'libmullvad_jni.so'
+    into "$extraJniDirectory/arm64-v8a"
+}
