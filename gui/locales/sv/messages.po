@@ -41,7 +41,7 @@ msgid "Account"
 msgstr "Konto"
 
 msgctxt "account-view"
-msgid "Account ID"
+msgid "Account number"
 msgstr "Konto-ID"
 
 msgctxt "account-view"
