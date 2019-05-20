@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2019-05-20 10:11\n"
+"PO-Revision-Date: 2019-05-20 12:39\n"
 
 #. AU BNE
 msgid "Brisbane"
