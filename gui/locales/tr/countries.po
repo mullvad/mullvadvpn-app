@@ -98,6 +98,9 @@ msgstr "Porto Riko"
 msgid "United States of America"
 msgstr "Amerika Birleşik Devletleri"
 
+msgid "USA"
+msgstr "Amerika Birleşik Devletleri"
+
 msgid "S. Geo. and the Is."
 msgstr "Güney Georgia ve Güney Sandwich Adaları"
 
@@ -171,6 +174,9 @@ msgid "United Kingdom"
 msgstr "Birleşik Krallık"
 
 msgid "United Kingdom of Great Britain and Northern Ireland"
+msgstr "Birleşik Krallık"
+
+msgid "UK"
 msgstr "Birleşik Krallık"
 
 msgid "United Arab Emirates"

@@ -98,6 +98,9 @@ msgstr "プエルトリコ"
 msgid "United States of America"
 msgstr "アメリカ合衆国"
 
+msgid "USA"
+msgstr "アメリカ合衆国"
+
 msgid "S. Geo. and the Is."
 msgstr "サウスジョージア・サウスサンドウィッチ諸島"
 
@@ -171,6 +174,9 @@ msgid "United Kingdom"
 msgstr "イギリス"
 
 msgid "United Kingdom of Great Britain and Northern Ireland"
+msgstr "イギリス"
+
+msgid "UK"
 msgstr "イギリス"
 
 msgid "United Arab Emirates"

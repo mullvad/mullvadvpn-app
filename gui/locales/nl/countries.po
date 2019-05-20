@@ -98,6 +98,9 @@ msgstr "Puerto Rico"
 msgid "United States of America"
 msgstr "Verenigde Staten van Amerika"
 
+msgid "USA"
+msgstr "Verenigde Staten van Amerika"
+
 msgid "S. Geo. and the Is."
 msgstr "Zuid-Georgia en de Zuidelijke Sandwicheilanden"
 
@@ -171,6 +174,9 @@ msgid "United Kingdom"
 msgstr "Verenigd Koninkrijk"
 
 msgid "United Kingdom of Great Britain and Northern Ireland"
+msgstr "Verenigd Koninkrijk"
+
+msgid "UK"
 msgstr "Verenigd Koninkrijk"
 
 msgid "United Arab Emirates"
