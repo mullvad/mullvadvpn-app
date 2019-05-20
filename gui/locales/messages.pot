@@ -31,7 +31,7 @@ msgid "Account"
 msgstr ""
 
 msgctxt "account-view"
-msgid "Account ID"
+msgid "Account number"
 msgstr ""
 
 msgctxt "account-view"
@@ -168,6 +168,18 @@ msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr ""
 
+msgctxt "connection-info"
+msgid "Connection details"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "In"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "Out"
+msgstr ""
+
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"
 msgstr ""
@@ -177,6 +189,10 @@ msgstr ""
 #. %(email)s - support email
 msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
+msgstr ""
+
+msgctxt "headerbar"
+msgid "MULLVAD VPN"
 msgstr ""
 
 msgctxt "in-app-notifications"
