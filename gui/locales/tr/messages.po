@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2019-05-20 10:11\n"
+"PO-Revision-Date: 2019-05-20 12:54\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ENGELLENEN BAĞLANTI"
@@ -177,6 +177,18 @@ msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Daha fazla kredi satın
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Web sitemizden daha fazla kredi satın almak için güvenli olmayan bir bağlantıyla internete erişmeniz gerekecek."
+
+msgctxt "connection-info"
+msgid "Connection details"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "In"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "Out"
+msgstr ""
 
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"

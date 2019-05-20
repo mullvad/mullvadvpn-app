@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2019-05-20 10:11\n"
+"PO-Revision-Date: 2019-05-20 12:54\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "GEBLOKKEERDE VERBINDING"
@@ -177,6 +177,18 @@ msgstr "U hebt geen VPN-tijd meer op dit account. Meld u aan op onze website voo
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr "U hebt geen VPN-tijd meer op dit account. Om meer krediet op onze website te kopen, moet u internetverbinding maken met een onbeveiligde verbinding."
+
+msgctxt "connection-info"
+msgid "Connection details"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "In"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "Out"
+msgstr ""
 
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"

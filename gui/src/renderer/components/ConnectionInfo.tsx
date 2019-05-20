@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types, View } from 'reactxp';
+import { messages } from '../../shared/gettext';
 import { default as ConnectionInfoDisclosure } from './ConnectionInfoDisclosure';
 
 const styles = {
@@ -78,7 +79,7 @@ export default class ConnectionInfo extends Component<IProps, IState> {
         <View style={styles.header}>
           <Text style={styles.hostname}>{this.props.hostname || ''}</Text>
           <ConnectionInfoDisclosure defaultOpen={this.props.defaultOpen} onToggle={this.onToggle}>
-            {'Connection details'}
+            {messages.pgettext('connection-info', 'Connection details')}
           </ConnectionInfoDisclosure>
         </View>
 
@@ -86,7 +87,7 @@ export default class ConnectionInfo extends Component<IProps, IState> {
           <React.Fragment>
             {inAddress && (
               <View style={styles.row}>
-                <Text style={styles.caption}>{'In'}</Text>
+                <Text style={styles.caption}>{messages.pgettext('connection-info', 'In')}</Text>
                 <Text style={styles.value}>
                   {`${inAddress.ip}:${inAddress.port} ${inAddress.protocol.toUpperCase()}`}
                 </Text>
@@ -95,7 +96,7 @@ export default class ConnectionInfo extends Component<IProps, IState> {
 
             {outAddress && (outAddress.ipv4 || outAddress.ipv6) && (
               <View style={styles.row}>
-                <Text style={styles.caption}>{'Out'}</Text>
+                <Text style={styles.caption}>{messages.pgettext('connection-info', 'Out')}</Text>
                 <View>
                   {outAddress.ipv4 && <Text style={styles.value}>{outAddress.ipv4}</Text>}
                   {outAddress.ipv6 && <Text style={styles.value}>{outAddress.ipv6}</Text>}

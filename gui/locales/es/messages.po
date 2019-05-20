@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
-"PO-Revision-Date: 2019-04-25 10:41\n"
+"PO-Revision-Date: 2019-05-20 12:54\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "CONEXIÓN BLOQUEADA"
@@ -177,6 +177,18 @@ msgstr "Ya no le queda más tiempo de VPN en esta cuenta. Inicie sesión en nues
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr "Ya no le queda más tiempo de VPN en esta cuenta. Para comprar más crédito en nuestro sitio web, necesita acceder a Internet con una conexión no segura."
+
+msgctxt "connection-info"
+msgid "Connection details"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "In"
+msgstr ""
+
+msgctxt "connection-info"
+msgid "Out"
+msgstr ""
 
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"
