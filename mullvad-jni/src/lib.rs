@@ -1,6 +1,7 @@
 #![cfg(target_os = "android")]
 
 mod daemon_interface;
+mod from_java;
 
 use crate::daemon_interface::DaemonInterface;
 use jni::{objects::JObject, JNIEnv};
