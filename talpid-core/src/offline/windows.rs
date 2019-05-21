@@ -8,13 +8,14 @@
 
 use crate::{tunnel_state_machine::TunnelCommand, winnet};
 use futures::sync::mpsc::UnboundedSender;
+use parking_lot::Mutex;
 use std::{
     ffi::c_void,
     io,
     mem::zeroed,
     os::windows::io::{IntoRawHandle, RawHandle},
     ptr,
-    sync::{Arc, Mutex},
+    sync::Arc,
     thread,
     time::Duration,
 };
@@ -69,10 +70,10 @@ impl BroadcastListener {
             daemon_channel: sender,
         }));
 
-        let shutdown_state_ref = system_state.clone();
+        let power_broadcast_state_ref = system_state.clone();
 
-        let shutdown_callback = move |message: UINT, wparam: WPARAM, _lparam: LPARAM| {
-            let state = shutdown_state_ref.clone();
+        let power_broadcast_callback = move |message: UINT, wparam: WPARAM, _lparam: LPARAM| {
+            let state = power_broadcast_state_ref.clone();
             if message == WM_POWERBROADCAST {
                 if wparam == PBT_APMSUSPEND {
                     log::debug!("Machine is preparing to enter sleep mode");
@@ -91,7 +92,7 @@ impl BroadcastListener {
 
         let join_handle = thread::Builder::new()
             .spawn(move || unsafe {
-                Self::message_pump(shutdown_callback);
+                Self::message_pump(power_broadcast_callback);
             })
             .map_err(Error::ThreadCreationError)?;
 
@@ -194,7 +195,7 @@ impl BroadcastListener {
         system_state: &Mutex<SystemState>,
     ) -> Result<(), Error> {
         let callback_context = system_state as *const _ as *mut libc::c_void;
-        let mut state = system_state.lock().expect("System state lock poisend");
+        let mut state = system_state.lock();
         let mut current_connectivity = true;
         if !winnet::WinNet_ActivateConnectivityMonitor(
             Some(Self::connectivity_callback),
@@ -211,9 +212,8 @@ impl BroadcastListener {
 
     unsafe extern "system" fn connectivity_callback(connectivity: bool, context: *mut c_void) {
         let state_lock: &mut Mutex<SystemState> = &mut *(context as *mut _);
-        if let Ok(mut state) = state_lock.lock() {
-            state.apply_change(StateChange::NetworkConnectivity(connectivity));
-        }
+        let mut state = state_lock.lock();
+        state.apply_change(StateChange::NetworkConnectivity(connectivity));
     }
 }
 
@@ -244,26 +244,22 @@ struct SystemState {
 
 impl SystemState {
     fn apply_change(&mut self, change: StateChange) {
-        let new_state = match change {
+        let old_state = self.is_offline_currently();
+        match change {
             StateChange::NetworkConnectivity(connectivity) => {
-                let old_state = self.is_offline_currently();
                 self.network_connectivity = connectivity;
-                let new_state = self.is_offline_currently();
-                old_state != new_state
             }
 
             StateChange::Suspended(suspended) => {
-                let old_state = self.is_offline_currently();
                 self.suspended = suspended;
-                let new_state = self.is_offline_currently();
-                old_state != new_state
             }
         };
 
-        if new_state {
+        let new_state = self.is_offline_currently();
+        if old_state != new_state {
             if let Err(e) = self
                 .daemon_channel
-                .unbounded_send(TunnelCommand::IsOffline(self.is_offline_currently()))
+                .unbounded_send(TunnelCommand::IsOffline(new_state))
             {
                 log::error!("Failed to send new offline state to daemon: {}", e);
             }
@@ -282,9 +278,8 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHa
 }
 
 fn apply_system_state_change(state: Arc<Mutex<SystemState>>, change: StateChange) {
-    if let Ok(mut state) = state.lock() {
-        state.apply_change(change)
-    }
+    let mut state = state.lock();
+    state.apply_change(change);
 }
 
 pub fn is_offline() -> bool {
