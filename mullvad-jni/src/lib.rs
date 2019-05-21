@@ -1,12 +1,21 @@
 #![cfg(target_os = "android")]
 
+mod daemon_interface;
+
+use crate::daemon_interface::DaemonInterface;
 use jni::{objects::JObject, JNIEnv};
-use mullvad_daemon::{logging, version, Daemon, EventListener};
+use lazy_static::lazy_static;
+use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender, EventListener};
 use mullvad_types::{relay_list::RelayList, settings::Settings};
+use parking_lot::Mutex;
 use std::{path::PathBuf, sync::mpsc, thread};
 use talpid_types::{tunnel::TunnelStateTransition, ErrorExt};
 
 const LOG_FILENAME: &str = "daemon.log";
+
+lazy_static! {
+    static ref DAEMON_INTERFACE: Mutex<DaemonInterface> = Mutex::new(DaemonInterface::new());
+}
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
@@ -39,15 +48,21 @@ fn start_logging() -> PathBuf {
 }
 
 fn initialize(log_dir: PathBuf) -> Result<(), Error> {
-    spawn_daemon(log_dir)
+    let daemon_command_sender = spawn_daemon(log_dir)?;
+
+    DAEMON_INTERFACE
+        .lock()
+        .set_command_sender(daemon_command_sender);
+
+    Ok(())
 }
 
-fn spawn_daemon(log_dir: PathBuf) -> Result<(), Error> {
+fn spawn_daemon(log_dir: PathBuf) -> Result<DaemonCommandSender, Error> {
     let (tx, rx) = mpsc::channel();
 
     thread::spawn(move || match create_daemon(log_dir) {
         Ok(daemon) => {
-            let _ = tx.send(Ok(()));
+            let _ = tx.send(Ok(daemon.command_sender()));
             match daemon.run() {
                 Ok(()) => log::info!("Mullvad daemon has stopped"),
                 Err(error) => log::error!("{}", error.display_chain()),
