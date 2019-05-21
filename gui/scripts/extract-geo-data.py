@@ -193,6 +193,22 @@ def extract_countries_po():
             )
             po.append(entry)
 
+          # exception for the US
+          if props.get("iso_a3") == "USA":
+            entry = POEntry(
+              msgid="USA",
+              msgstr=translated_name
+            )
+            po.append(entry)
+
+          # exception for the UK
+          if props.get("iso_a3") == "GBR":
+            entry = POEntry(
+              msgid="UK",
+              msgstr=translated_name
+            )
+            po.append(entry)
+
         po.save(output_path)
         print c.green("Extracted {} countries for {} to {}".format(len(po), locale, output_path))
 

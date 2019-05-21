@@ -98,6 +98,9 @@ msgstr "波多黎各"
 msgid "United States of America"
 msgstr "美国"
 
+msgid "USA"
+msgstr "美国"
+
 msgid "S. Geo. and the Is."
 msgstr "南喬治亞島與南桑威奇群島"
 
@@ -171,6 +174,9 @@ msgid "United Kingdom"
 msgstr "英国"
 
 msgid "United Kingdom of Great Britain and Northern Ireland"
+msgstr "英国"
+
+msgid "UK"
 msgstr "英国"
 
 msgid "United Arab Emirates"
