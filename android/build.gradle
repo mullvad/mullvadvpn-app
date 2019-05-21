@@ -5,6 +5,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 def repoRootPath = projectDir.absoluteFile.parentFile.absolutePath
+def extraAssetsDirectory = "$project.buildDir/extraAssets"
 def extraJniDirectory = "$project.buildDir/extraJni"
 
 android {
@@ -28,6 +29,10 @@ android {
 
     sourceSets {
         main {
+            assets {
+                srcDirs = files(extraAssetsDirectory)
+            }
+
             jniLibs {
                 srcDirs = files(extraJniDirectory)
             }
@@ -35,6 +40,10 @@ android {
     }
 
     applicationVariants.all { variant ->
+        variant.mergeAssetsProvider.configure {
+            dependsOn copyApiRootCertificate
+        }
+
         variant.ndkCompileProvider.configure {
             dependsOn copyMullvadJni
         }
@@ -50,6 +59,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:recyclerview-v7:28.0.0'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.21'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1'
 }
 
 buildscript {
@@ -87,4 +97,10 @@ task copyMullvadJni(type: Copy) {
     from "$repoRootPath/target/aarch64-linux-android/debug"
     include 'libmullvad_jni.so'
     into "$extraJniDirectory/arm64-v8a"
+}
+
+task copyApiRootCertificate(type: Copy) {
+    from "$repoRootPath/dist-assets"
+    include "api_root_ca.pem"
+    into extraAssetsDirectory
 }
