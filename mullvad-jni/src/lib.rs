@@ -2,6 +2,7 @@
 
 mod daemon_interface;
 mod from_java;
+mod into_java;
 
 use crate::daemon_interface::DaemonInterface;
 use jni::{objects::JObject, JNIEnv};
