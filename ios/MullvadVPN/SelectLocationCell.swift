@@ -91,11 +91,11 @@ class SelectLocationCell: BasicTableViewCell {
     private func colorForIdentationLevel() -> UIColor {
         switch indentationLevel {
         case 1:
-            return UIColor.subCellBackgroundColor
+            return UIColor.Cell.subCellBackgroundColor
         case 2:
-            return UIColor.subSubCellBackgroundColor
+            return UIColor.Cell.subSubCellBackgroundColor
         default:
-            return UIColor.cellBackgroundColor
+            return UIColor.Cell.backgroundColor
         }
     }
 
