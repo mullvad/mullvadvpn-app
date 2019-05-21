@@ -45,6 +45,14 @@ impl DaemonInterface {
             .map_err(Error::RpcError)
     }
 
+    pub fn set_account(&self, account_token: Option<String>) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::SetAccount(tx, account_token))?;
+
+        rx.wait().map_err(|_| Error::NoResponse)
+    }
+
     fn send_command(&self, command: ManagementCommand) -> Result<()> {
         let sender = self.command_sender.as_ref().ok_or(Error::NoSender)?;
 
