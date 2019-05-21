@@ -11,8 +11,9 @@ import ProcedureKit
 import os.log
 
 private let kMinimumAccountTokenLength = 10
+private let kValidAccountTokenCharacterSet = CharacterSet(charactersIn: "01234567890")
 
-class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
+class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UITextFieldDelegate {
 
     @IBOutlet var keyboardToolbar: UIToolbar!
     @IBOutlet var keyboardToolbarLoginButton: UIBarButtonItem!
@@ -127,6 +128,13 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
 
         // Enable the log in button in the keyboard toolbar
         updateKeyboardToolbar()
+    }
+
+    // MARK: - UITextFieldDelegate
+
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        // prevent the change if the replacement string contains disallowed characters
+        return string.unicodeScalars.allSatisfy { kValidAccountTokenCharacterSet.contains($0) }
     }
 
     // MARK: - IBActions
