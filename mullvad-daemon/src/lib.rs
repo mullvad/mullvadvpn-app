@@ -621,6 +621,7 @@ where
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect),
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
             SetOpenVpnProxy(tx, proxy) => self.on_set_openvpn_proxy(tx, proxy),
+            SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
             GetSettings(tx) => self.on_get_settings(tx),
@@ -905,6 +906,29 @@ where
                 Self::oneshot_send(tx, Err(error), "set_openvpn_proxy response");
             }
         }
+    }
+
+    fn on_set_bridge_state(
+        &mut self,
+        tx: oneshot::Sender<::std::result::Result<(), settings::Error>>,
+        bridge_state: BridgeState,
+    ) {
+        let result = match self.settings.set_bridge_state(bridge_state) {
+            Ok(settings_changed) => {
+                if settings_changed {
+                    self.management_interface_broadcaster
+                        .notify_settings(self.settings.clone());
+                    info!("Initiating tunnel restart because bridge state changed");
+                    self.reconnect_tunnel();
+                }
+                Ok(())
+            },
+            Err(error) => {
+                error!("{}", error.display_chain_with_msg("Failed"));
+                Err(error)
+            }
+        };
+        Self::oneshot_send(tx, result, "on_set_bridge_state response");
     }
 
     // Set the OpenVPN tunnel to use TCP.

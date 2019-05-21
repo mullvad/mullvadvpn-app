@@ -15,7 +15,7 @@ use mullvad_rpc;
 use mullvad_types::{
     account::{AccountData, AccountToken},
     location::GeoIpLocation,
-    relay_constraints::RelaySettingsUpdate,
+    relay_constraints::{BridgeState, RelaySettingsUpdate},
     relay_list::RelayList,
     settings::{self, Settings},
     states::TargetState,
@@ -118,6 +118,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "set_openvpn_proxy")]
         fn set_openvpn_proxy(&self, Self::Metadata, Option<openvpn::ProxySettings>) -> BoxFuture<(), Error>;
 
+        /// Sets bridge state
+        #[rpc(meta, name = "set_bridge_state")]
+        fn set_bridge_state(&self, Self::Metadata, BridgeState) -> BoxFuture<(), Error>;
+
         /// Set if IPv6 is enabled in the tunnel
         #[rpc(meta, name = "set_enable_ipv6")]
         fn set_enable_ipv6(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
@@ -205,6 +209,11 @@ pub enum ManagementCommand {
     SetOpenVpnProxy(
         OneshotSender<Result<(), settings::Error>>,
         Option<openvpn::ProxySettings>,
+    ),
+    /// Set proxy state
+    SetBridgeState(
+        OneshotSender<Result<(), settings::Error>>,
+        BridgeState,
     ),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(OneshotSender<()>, bool),
@@ -563,6 +572,23 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
                     }
                     _ => Error::internal_error(),
                 })
+            });
+
+        Box::new(future)
+    }
+
+    fn set_bridge_state(
+        &self,
+        _: Self::Metadata,
+        bridge_state: BridgeState,
+    ) -> BoxFuture<(), Error> {
+        log::debug!("set_bridge_state({:?})", bridge_state);
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::SetBridgeState(tx, bridge_state))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .and_then(|settings_result| {
+                settings_result.map_err(|_| Error::internal_error())
             });
 
         Box::new(future)
