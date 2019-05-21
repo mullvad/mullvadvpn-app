@@ -24,6 +24,23 @@ UPLOAD_DIR="/home/upload/upload"
 
 BRANCHES_TO_BUILD=("origin/master")
 
+case "$(uname -s)" in
+  Darwin*)
+    if [[ -z ${CSC_KEY_PASSWORD-} ]]; then
+      read -sp "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
+      echo ""
+      export CSC_KEY_PASSWORD
+    fi
+    ;;
+  MINGW*|MSYS_NT*)
+    if [[ -z ${CERT_PASSPHRASE-} ]]; then
+      read -sp "CERT_PASSPHRASE = " CERT_PASSPHRASE
+      echo ""
+      export CERT_PASSPHRASE
+    fi
+  ;;
+esac
+
 # Uploads whatever matches the first argument to the Linux build server
 upload_sftp() {
   echo "Uploading Mullvad VPN installers to app-build-linux:upload/"
@@ -34,13 +51,17 @@ bye
 EOF
 }
 
-# Sign the Windows app. We try multiple times because it can randomly fail
+# Sign the Windows app. We try multiple times because it can randomly fail to
+# contact the timestamp server.
+# signtool must be called via a bat file, I cant make it work any other way :(
 sign_win() {
   echo "Signing Windows Mullvad VPN installer"
-  pushd $SCRIPT_DIR
-  sleep 1
-  ./sign.bat "mullvadvpn-app/dist/MullvadVPN-*.exe" || ./sign.bat "mullvadvpn-app/dist/MullvadVPN-*.exe" || ./sign.bat "mullvadvpn-app/dist/MullvadVPN-*.exe" || return 1
-  popd
+  echo 'signtool sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /d "Mullvad VPN" /du https://github.com/mullvad/mullvadvpn-app#readme /f "%1" /p "%2" "%3"' > "$SCRIPT_DIR/sign.bat"
+  for _ in {0..3}; do
+    sleep 1
+    $SCRIPT_DIR/sign.bat $SCRIPT_DIR/comodo.pfx "$CERT_PASSPHRASE" dist/MullvadVPN-*.exe && return 0
+  done
+  return 1
 }
 
 upload() {
@@ -104,7 +125,7 @@ build_ref() {
   ./build.sh || return 0
   case "$(uname -s)" in
     MINGW*|MSYS_NT*)
-      sign_win || return 1
+      sign_win || return 0
       echo "Packaging all PDB files..."
       find ./windows/ -iname "*.pdb" | tar -cJf $SCRIPT_DIR/pdb/$current_hash.tar.xz -T -
       ;;
