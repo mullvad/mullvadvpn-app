@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn
 
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -10,9 +11,11 @@ import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 
 class MainActivity : FragmentActivity() {
-    private val extractApiRootCaFile = doExtractApiRootCaFile()
-
     val activityCreated = CompletableDeferred<Unit>()
+
+    val asyncDaemon = startDaemon()
+    val daemon
+        get() = runBlocking { asyncDaemon.await() }
 
     var selectedRelayItemCode: String? = null
 
@@ -28,7 +31,7 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onDestroy() {
-        extractApiRootCaFile.cancel()
+        asyncDaemon.cancel()
 
         super.onDestroy()
     }
@@ -40,8 +43,9 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun doExtractApiRootCaFile() = GlobalScope.launch(Dispatchers.Default) {
+    private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
         activityCreated.await()
         ApiRootCaFile().extract(this@MainActivity)
+        MullvadDaemon()
     }
 }
