@@ -34,8 +34,8 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{
-        Constraint, OpenVpnConstraints, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
-        TunnelConstraints,
+        BridgeConstraints, BridgeState, Constraint, OpenVpnConstraints, RelayConstraintsUpdate,
+        RelaySettings, RelaySettingsUpdate, TunnelConstraints,
     },
     relay_list::{Relay, RelayList},
     settings::{self, Settings},
@@ -87,6 +87,9 @@ pub enum Error {
 
     #[error(display = "No wireguard private key available")]
     NoKeyAvailable,
+
+    #[error(display = "No bridge available")]
+    NoBridgeAvailable,
 
     #[error(display = "Account history problems")]
     AccountHistory(#[error(cause)] account_history::Error),
@@ -401,9 +404,16 @@ impl Daemon {
                         )
                     })
                     .and_then(|(relay, endpoint)| {
+                        let result = self
+                            .create_tunnel_parameters(
+                                &relay,
+                                endpoint,
+                                account_token,
+                                retry_attempt,
+                            )
+                            .map_err(|e| e.display_chain());
                         self.last_generated_relay = Some(relay);
-                        self.create_tunnel_parameters(endpoint, account_token)
-                            .map_err(|e| e.display_chain())
+                        result
                     }),
             }
             .and_then(|tunnel_params| {
@@ -420,17 +430,46 @@ impl Daemon {
 
     fn create_tunnel_parameters(
         &mut self,
+        relay: &Relay,
         endpoint: MullvadEndpoint,
         account_token: String,
+        retry_attempt: u32,
     ) -> Result<TunnelParameters> {
         let tunnel_options = self.settings.get_tunnel_options().clone();
         match endpoint {
-            MullvadEndpoint::OpenVpn(endpoint) => Ok(openvpn::TunnelParameters {
-                config: openvpn::ConnectionConfig::new(endpoint, account_token, "-".to_string()),
-                options: tunnel_options.openvpn,
-                generic_options: tunnel_options.generic,
+            MullvadEndpoint::OpenVpn(endpoint) => {
+                let bridge_settings = self.settings.get_bridge_settings();
+                let bridge_constraints = BridgeConstraints {
+                    location: bridge_settings.location.clone(),
+                    transport_protocol: Constraint::Only(endpoint.protocol),
+                };
+                let mut options = tunnel_options.openvpn;
+                options.proxy = match self.settings.get_bridge_state() {
+                    BridgeState::On => self
+                        .relay_selector
+                        .get_proxy_settings(&bridge_constraints, &relay.location)
+                        .ok_or(Error::NoBridgeAvailable)
+                        .map(Some)?,
+                    BridgeState::Auto => self.relay_selector.get_auto_proxy_settings(
+                        &bridge_constraints,
+                        &relay.location,
+                        retry_attempt,
+                    ),
+                    BridgeState::Off => None,
+                    BridgeState::Custom(settings) => Some(settings.clone()),
+                };
+
+                Ok(openvpn::TunnelParameters {
+                    config: openvpn::ConnectionConfig::new(
+                        endpoint,
+                        account_token,
+                        "-".to_string(),
+                    ),
+                    options,
+                    generic_options: tunnel_options.generic,
+                }
+                .into())
             }
-            .into()),
             MullvadEndpoint::Wireguard {
                 peer,
                 ipv4_gateway,
