@@ -11,6 +11,21 @@ pub trait IntoJava<'env> {
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType;
 }
 
+impl<'env, T> IntoJava<'env> for Option<T>
+where
+    T: IntoJava<'env>,
+    T::JavaType: From<JObject<'env>>,
+{
+    type JavaType = T::JavaType;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        match self {
+            Some(data) => data.into_java(env),
+            None => T::JavaType::from(JObject::null()),
+        }
+    }
+}
+
 impl<'env> IntoJava<'env> for String {
     type JavaType = JString<'env>;
 
