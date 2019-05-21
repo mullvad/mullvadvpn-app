@@ -10,15 +10,28 @@ import UIKit
 import ProcedureKit
 import os.log
 
+private let kMinimumAccountTokenLength = 10
+
 class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
 
     @IBOutlet var keyboardToolbar: UIToolbar!
+    @IBOutlet var keyboardToolbarLoginButton: UIBarButtonItem!
+    @IBOutlet var accountInputGroup: AccountInputGroupView!
     @IBOutlet var accountTextField: UITextField!
+    @IBOutlet var messageLabel: UILabel!
     @IBOutlet var loginForm: UIView!
     @IBOutlet var loginFormWrapperBottomConstraint: NSLayoutConstraint!
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
+    @IBOutlet var statusImageView: UIImageView!
+
+    private weak var headerBarController: HeaderBarViewController?
 
     private let procedureQueue = ProcedureQueue()
+    private var loginState = LoginState.default {
+        didSet {
+            loginStateDidChange()
+        }
+    }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -26,7 +39,7 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if case .embedHeader? = SegueIdentifier.Login.from(segue: segue) {
-            let headerBarController = segue.destination as? HeaderBarViewController
+            headerBarController = segue.destination as? HeaderBarViewController
             headerBarController?.delegate = self
         }
     }
@@ -36,9 +49,39 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
 
         accountTextField.inputAccessoryView = keyboardToolbar
 
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIWindow.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChangeFrame(_:)), name: UIWindow.keyboardWillChangeFrameNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIWindow.keyboardWillHideNotification, object: nil)
+        updateDisplayedMessage()
+        updateStatusIcon()
+        updateKeyboardToolbar()
+
+        let notificationCenter = NotificationCenter.default
+
+        notificationCenter.addObserver(self,
+                                       selector: #selector(keyboardWillShow(_:)),
+                                       name: UIWindow.keyboardWillShowNotification,
+                                       object: nil)
+        notificationCenter.addObserver(self,
+                                       selector: #selector(keyboardWillChangeFrame(_:)),
+                                       name: UIWindow.keyboardWillChangeFrameNotification,
+                                       object: nil)
+        notificationCenter.addObserver(self,
+                                       selector: #selector(keyboardWillHide(_:)),
+                                       name: UIWindow.keyboardWillHideNotification,
+                                       object: nil)
+
+        notificationCenter.addObserver(self,
+                                       selector: #selector(textDidBeginEditing(_:)),
+                                       name: UITextField.textDidBeginEditingNotification,
+                                       object: accountTextField)
+
+        notificationCenter.addObserver(self,
+                                       selector: #selector(textDidEndEditing(_:)),
+                                       name: UITextField.textDidEndEditingNotification,
+                                       object: accountTextField)
+
+        notificationCenter.addObserver(self,
+                                       selector: #selector(textDidChange(_:)),
+                                       name: UITextField.textDidChangeNotification,
+                                       object: accountTextField)
     }
 
     // MARK: - HeaderBarViewControllerDelegate
@@ -66,6 +109,26 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
         view.layoutIfNeeded()
     }
 
+    // MARK: - UITextField notifications
+
+    @objc func textDidBeginEditing(_ notification: Notification) {
+        updateStatusIcon()
+    }
+
+    @objc func textDidEndEditing(_ notification: Notification) {
+        updateStatusIcon()
+    }
+
+    @objc func textDidChange(_ notification: Notification) {
+        // Reset the text style as user start typing
+        if case .failure = loginState {
+            loginState = .default
+        }
+
+        // Enable the log in button in the keyboard toolbar
+        updateKeyboardToolbar()
+    }
+
     // MARK: - IBActions
 
     @IBAction func cancelLogin() {
@@ -75,28 +138,23 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
     @IBAction func doLogin() {
         let accountToken = accountTextField.text ?? ""
 
-        beginLoginAnimations()
+        beginLogin()
 
         verifyAccount(accountToken: accountToken) { [weak self] (result) in
             guard let self = self else { return }
 
             switch result {
             case .success:
-                self.performSegue(withIdentifier: SegueIdentifier.Login.showConnect.rawValue,
-                                  sender: self)
-
-            case .failure(let error as Account.Error):
-                // TODO: Handle account errors
-                break
+                self.endLogin(.success)
 
             case .failure(let error):
-                // TODO: Handle any other errors
-                break
+                self.endLogin(.failure(error))
             }
-
-            self.endLoginAnimations()
         }
+    }
 
+    @IBAction func openCreateAccount() {
+        UIApplication.shared.open(WebLinks.createAccountURL, options: [:])
     }
 
     // MARK: - Private
@@ -113,16 +171,72 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
         procedureQueue.addOperations([delayProcedure, loginProcedure])
     }
 
-    private func beginLoginAnimations() {
-        activityIndicator.isAnimating = true
-        accountTextField.isEnabled = false
+    private func loginStateDidChange() {
+        accountInputGroup.loginState = loginState
+
+        if case .authenticating = loginState {
+            activityIndicator.isAnimating = true
+            headerBarController?.settingsButton.isEnabled = false
+        } else {
+            activityIndicator.isAnimating = false
+            headerBarController?.settingsButton.isEnabled = true
+        }
+
+        updateDisplayedMessage()
+        updateStatusIcon()
+    }
+
+    private func updateStatusIcon() {
+        switch loginState {
+        case .failure:
+            let opacity: CGFloat = self.accountTextField.isEditing ? 0 : 1
+            statusImageView.image = UIImage(imageLiteralResourceName: "IconFail")
+            animateStatusImage(to: opacity)
+
+        case .success:
+            statusImageView.image = UIImage(imageLiteralResourceName: "IconSuccess")
+            animateStatusImage(to: 1)
+
+        default:
+            animateStatusImage(to: 0)
+        }
+    }
+
+    private func animateStatusImage(to alpha: CGFloat) {
+        UIView.animate(withDuration: 0.25) {
+            self.statusImageView.alpha = alpha
+        }
+    }
+
+    private func beginLogin() {
+        loginState = .authenticating
 
         view.endEditing(true)
     }
 
-    private func endLoginAnimations() {
-        activityIndicator.isAnimating = false
-        accountTextField.isEnabled = true
+    private func endLogin(_ nextLoginState: LoginState) {
+        loginState = nextLoginState
+
+        if case .failure = loginState {
+            accountTextField.becomeFirstResponder()
+        } else if case .success = loginState {
+            // Navigate to the main view after 1s delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+                self.performSegue(withIdentifier: SegueIdentifier.Login.showConnect.rawValue,
+                                  sender: self)
+            }
+        }
+    }
+
+    private func updateDisplayedMessage() {
+        messageLabel.text = loginState.localizedDescription
+    }
+
+    private func updateKeyboardToolbar() {
+        let accountTokenLength = accountTextField.text?.count ?? 0
+        let enableButton = accountTokenLength >= kMinimumAccountTokenLength
+
+        keyboardToolbarLoginButton.isEnabled = enableButton
     }
 
     private func makeLoginFormVisible(keyboardFrame: CGRect) {
@@ -134,3 +248,25 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate {
     }
 }
 
+/// Private extension that brings localizable messages displayed in the Login view controller
+private extension LoginState {
+    var localizedDescription: String {
+        switch self {
+        case .default:
+            return NSLocalizedString("Enter your account number", tableName: "Login", comment: "")
+
+        case .authenticating:
+            return NSLocalizedString("Checking account number", tableName: "Login", comment: "")
+
+        case .failure(let error):
+            if case .invalidAccount? = error as? Account.Error {
+                return NSLocalizedString("Invalid account number", tableName: "Login", comment: "")
+            } else {
+                return NSLocalizedString("Internal error", tableName: "Login", comment: "")
+            }
+
+        case .success:
+            return NSLocalizedString("Correct account number", tableName: "Login", comment: "")
+        }
+    }
+}
