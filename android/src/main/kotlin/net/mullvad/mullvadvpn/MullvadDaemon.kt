@@ -9,6 +9,7 @@ class MullvadDaemon {
     }
 
     external fun getAccountData(accountToken: String): AccountData?
+    external fun setAccount(accountToken: String?)
 
     private external fun initialize()
 }

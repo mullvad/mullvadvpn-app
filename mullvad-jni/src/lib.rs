@@ -162,3 +162,19 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
         }
     }
 }
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
+    env: JNIEnv,
+    _: JObject,
+    accountToken: JString,
+) {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    let account = <Option<String> as FromJava>::from_java(&env, accountToken);
+
+    if let Err(error) = daemon.set_account(account) {
+        log::error!("{}", error.display_chain_with_msg("Failed to set account"));
+    }
+}
