@@ -11,9 +11,12 @@ crate_type = ["cdylib"]
 
 [dependencies]
 err-derive = "0.1.5"
+jni = "0.11"
+lazy_static = "1"
 log = "0.4"
 log-panics = "2"
-jni = "0.11"
+parking_lot = "0.8"
+
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-types = { path = "../mullvad-types" }
