@@ -1,5 +1,7 @@
-pub use self::api::ErrorSink;
 use self::api::*;
+pub use self::api::{
+    ErrorSink, WinNet_ActivateConnectivityMonitor, WinNet_DeactivateConnectivityMonitor,
+};
 use libc::{c_char, c_void, wchar_t};
 use std::{ffi::OsString, ptr};
 use widestring::WideCString;
@@ -22,6 +24,10 @@ pub enum Error {
     /// Failed to determine alias of TAP adapter.
     #[error(display = "Failed to determine alias of TAP adapter")]
     GetTapAlias,
+
+    /// Can't establish whether host is connected to a non-virtual network
+    #[error(display = "Network connectivity undecideable")]
+    ConnectivityUnkown,
 }
 
 /// Error callback used with `winnet.dll`.
@@ -92,14 +98,7 @@ pub fn get_tap_interface_alias() -> Result<OsString, Error> {
         WinNet_GetTapInterfaceAlias(&mut alias_ptr as *mut _, Some(error_sink), ptr::null_mut())
     };
 
-    if status != 0 {
-        if status != 1 {
-            log::error!(
-                "Unexpected return code from WinNet_GetTapInterfaceAlias: {}",
-                status
-            );
-        }
-
+    if !status {
         return Err(Error::GetTapAlias);
     }
 
@@ -109,12 +108,27 @@ pub fn get_tap_interface_alias() -> Result<OsString, Error> {
     Ok(alias.to_os_string())
 }
 
+/// Returns true if current host is not connected to any network
+pub fn is_offline() -> Result<bool, Error> {
+    match unsafe { WinNet_CheckConnectivity(Some(error_sink), ptr::null_mut()) } {
+        // Not connected
+        0 => Ok(true),
+        // Connected
+        1 => Ok(false),
+        // 2 means that connectivity can't be determined, but any other return value is unexpected
+        // and as such, is considered to be an error.
+        _ => Err(Error::ConnectivityUnkown),
+    }
+}
+
 #[allow(non_snake_case)]
 mod api {
     use libc::{c_char, c_void, wchar_t};
 
     /// Error callback type for use with `winnet.dll`.
     pub type ErrorSink = extern "system" fn(msg: *const c_char, ctx: *mut c_void);
+
+    pub type ConnectivityCallback = unsafe extern "system" fn(is_connected: bool, ctx: *mut c_void);
 
     extern "system" {
         #[link_name = "WinNet_EnsureTopMetric"]
@@ -123,27 +137,36 @@ mod api {
             sink: Option<ErrorSink>,
             sink_context: *mut c_void,
         ) -> u32;
-    }
 
-    extern "system" {
         #[link_name = "WinNet_GetTapInterfaceIpv6Status"]
         pub fn WinNet_GetTapInterfaceIpv6Status(
             sink: Option<ErrorSink>,
             sink_context: *mut c_void,
         ) -> u32;
-    }
 
-    extern "system" {
         #[link_name = "WinNet_GetTapInterfaceAlias"]
         pub fn WinNet_GetTapInterfaceAlias(
             tunnel_interface_alias: *mut *mut wchar_t,
             sink: Option<ErrorSink>,
             sink_context: *mut c_void,
-        ) -> u32;
-    }
+        ) -> bool;
 
-    extern "system" {
         #[link_name = "WinNet_ReleaseString"]
         pub fn WinNet_ReleaseString(string: *mut wchar_t) -> u32;
+
+        #[link_name = "WinNet_ActivateConnectivityMonitor"]
+        pub fn WinNet_ActivateConnectivityMonitor(
+            callback: Option<ConnectivityCallback>,
+            callbackContext: *mut libc::c_void,
+            currentConnectivity: *mut bool,
+            sink: Option<ErrorSink>,
+            sink_context: *mut c_void,
+        ) -> bool;
+
+        #[link_name = "WinNet_DeactivateConnectivityMonitor"]
+        pub fn WinNet_DeactivateConnectivityMonitor() -> bool;
+
+        #[link_name = "WinNet_CheckConnectivity"]
+        pub fn WinNet_CheckConnectivity(sink: Option<ErrorSink>, sink_context: *mut c_void) -> u32;
     }
 }

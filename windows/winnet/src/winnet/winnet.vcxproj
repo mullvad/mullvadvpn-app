@@ -22,6 +22,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="InterfacePair.cpp" />
     <ClCompile Include="interfaceutils.cpp" />
+    <ClCompile Include="netmonitor.cpp" />
     <ClCompile Include="NetworkInterfaces.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="winnet.cpp" />
@@ -29,6 +30,7 @@
   <ItemGroup>
     <ClInclude Include="InterfacePair.h" />
     <ClInclude Include="interfaceutils.h" />
+    <ClInclude Include="netmonitor.h" />
     <ClInclude Include="NetworkInterfaces.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
