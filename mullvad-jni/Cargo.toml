@@ -11,6 +11,7 @@ crate_type = ["cdylib"]
 
 [dependencies]
 err-derive = "0.1.5"
+lazy_static = "1"
 log = "0.4"
 log-panics = "2"
 jni = "0.11"
