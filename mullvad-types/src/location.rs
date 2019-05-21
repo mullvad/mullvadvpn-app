@@ -15,6 +15,14 @@ pub struct Location {
     pub longitude: f64,
 }
 
+impl Location {
+    pub fn distance_from(&self, other: &Location) -> f64 {
+        let diff_latitude = self.latitude - other.latitude;
+        let diff_longitude = self.longitude - other.longitude;
+        (diff_latitude.powi(2) + diff_longitude.powi(2)).sqrt()
+    }
+}
+
 /// The response from the am.i.mullvad.net location service.
 #[derive(Debug, Deserialize)]
 pub struct AmIMullvad {
