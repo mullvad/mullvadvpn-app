@@ -10,4 +10,11 @@ edition = "2018"
 crate_type = ["cdylib"]
 
 [dependencies]
+err-derive = "0.1.5"
+log = "0.4"
+log-panics = "2"
 jni = "0.11"
+mullvad-daemon = { path = "../mullvad-daemon" }
+mullvad-paths = { path = "../mullvad-paths" }
+mullvad-types = { path = "../mullvad-types" }
+talpid-types = { path = "../talpid-types" }

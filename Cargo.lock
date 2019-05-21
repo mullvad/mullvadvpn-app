@@ -1156,7 +1156,14 @@ dependencies = [
 name = "mullvad-jni"
 version = "0.1.0"
 dependencies = [
+ "err-derive 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "jni 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log-panics 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mullvad-daemon 2019.4.0",
+ "mullvad-paths 0.1.0",
+ "mullvad-types 0.1.0",
+ "talpid-types 0.1.0",
 ]
 
 [[package]]
