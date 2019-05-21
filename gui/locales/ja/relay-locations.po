@@ -1,0 +1,318 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Language: ja\n"
+"X-Crowdin-File: relay-locations.pot\n"
+"Project-Id-Version: mullvad-app\n"
+"Last-Translator: adminmullvad\n"
+"Language-Team: Japanese\n"
+"Language: ja_JP\n"
+"PO-Revision-Date: 2019-05-20 10:11\n"
+
+#. AU BNE
+msgid "Brisbane"
+msgstr "ブリスベン"
+
+#. AU MEL
+msgid "Melbourne"
+msgstr "メルボルン"
+
+#. AU PER
+msgid "Perth"
+msgstr "パース"
+
+#. AU SYD
+msgid "Sydney"
+msgstr "シドニー"
+
+#. AT VIE
+msgid "Wien"
+msgstr "ウィーン"
+
+#. BE BRU
+msgid "Brussels"
+msgstr "ブリュッセル"
+
+#. BR SAO
+msgid "Sao Paulo"
+msgstr "サンパウロ"
+
+#. BG SOF
+msgid "Sofia"
+msgstr "ソフィア"
+
+#. CA MTR
+msgid "Montreal"
+msgstr "モントリオール"
+
+#. CA TOR
+msgid "Toronto"
+msgstr "トロント"
+
+#. CA VAN
+msgid "Vancouver"
+msgstr "バンクーバー"
+
+#. CZ PRG
+msgid "Prague"
+msgstr "プラハ"
+
+#. DK CPH
+msgid "Copenhagen"
+msgstr "コペンハーゲン"
+
+#. FI HEL
+msgid "Helsinki"
+msgstr "ヘルシンキ"
+
+#. FR MRS
+msgid "Marseille"
+msgstr "マルセイユ"
+
+#. FR PAR
+msgid "Paris"
+msgstr "パリ"
+
+#. DE FRA
+msgid "Frankfurt"
+msgstr "フランクフルト"
+
+#. GR ATH
+msgid "Athens"
+msgstr "アテネ"
+
+#. HK HKG
+msgid "Hong Kong"
+msgstr "香港"
+
+#. HU BUD
+msgid "Budapest"
+msgstr "ブダペスト"
+
+#. IN PNQ
+msgid "Pune"
+msgstr "プネー"
+
+#. IL PET
+msgid "Petach-Tikva"
+msgstr "ペタフ・ティクヴァ"
+
+#. IT MIL
+msgid "Milan"
+msgstr "ミラノ"
+
+#. JP TYO
+msgid "Tokyo"
+msgstr "東京"
+
+#. LV RIX
+msgid "Riga"
+msgstr "リガ"
+
+#. LU LUX
+msgid "Luxembourg"
+msgstr "ルクセンブルク"
+
+#. MD KIV
+msgid "Chisinau"
+msgstr "キシナウ"
+
+#. NL AMS
+msgid "Amsterdam"
+msgstr "アムステルダム"
+
+#. NZ AKL
+msgid "Auckland"
+msgstr "オークランド"
+
+#. NO OSL
+msgid "Oslo"
+msgstr "オスロ"
+
+#. PL WAW
+msgid "Warsaw"
+msgstr "ワルシャワ"
+
+#. PT LIS
+msgid "Lisbon"
+msgstr "リスボン"
+
+#. RO BUH
+msgid "Bucharest"
+msgstr "ブカレスト"
+
+#. RS BEG
+msgid "Belgrade"
+msgstr "ベオグラード"
+
+#. RS INI
+msgid "Nis"
+msgstr "ニシュ"
+
+#. SG SIN
+msgid "Singapore"
+msgstr "シンガポール"
+
+#. ZA JNB
+msgid "Johannesburg"
+msgstr "ヨハネスブルグ"
+
+#. ES MAD
+msgid "Madrid"
+msgstr "マドリード"
+
+#. SE GOT
+msgid "Gothenburg"
+msgstr "ヨーテボリ"
+
+#. SE HEL
+msgid "Helsingborg"
+msgstr "ヘルシンボリ"
+
+#. SE MMA
+msgid "Malmö"
+msgstr "マルメ"
+
+#. SE STO
+msgid "Stockholm"
+msgstr "ストックホルム"
+
+#. CH ZRH
+msgid "Zurich"
+msgstr "チューリッヒ"
+
+#. GB LON
+msgid "London"
+msgstr "ロンドン"
+
+#. GB MNC
+msgid "Manchester"
+msgstr "マンチェスター"
+
+#. UA IEV
+msgid "Kiev"
+msgstr "キエフ"
+
+#. US ATL
+msgid "Atlanta, GA"
+msgstr "アトランタ、GA"
+
+#. US BOS
+msgid "Boston, MA"
+msgstr "ボストン、MA"
+
+#. US CLT
+msgid "Charlotte, NC"
+msgstr "シャーロット、NC"
+
+#. US CHI
+msgid "Chicago, IL"
+msgstr "シカゴ、IL"
+
+#. US CLE
+msgid "Cleveland, OH"
+msgstr "クリーブランド、OH"
+
+#. US DAL
+msgid "Dallas, TX"
+msgstr "ダラス、TX"
+
+#. US DEN
+msgid "Denver, CO"
+msgstr "デンバー、CO"
+
+#. US HNL
+msgid "Honolulu, HI"
+msgstr "ホノルル、HI"
+
+#. US JAN
+msgid "Jackson, MS"
+msgstr "ジャクソン、MS"
+
+#. US LAX
+msgid "Los Angeles, CA"
+msgstr "ロサンゼルス、CA"
+
+#. US LUI
+msgid "Louisville, KY"
+msgstr "ルイビル、KY"
+
+#. US MIA
+msgid "Miami, FL"
+msgstr "マイアミ、FL"
+
+#. US MKE
+msgid "Milwaukee, WI"
+msgstr "ミルウォーキー、WI"
+
+#. US MSP
+msgid "Minneapolis/St. Paul Apt, MN"
+msgstr "ミネアポリス／セントポール国際空港、MN"
+
+#. US NYC
+msgid "New York, NY"
+msgstr "ニューヨーク、NY"
+
+#. US OKC
+msgid "Oklahoma City, OK"
+msgstr "オクラホマシティ、OK"
+
+#. US PHL
+msgid "Philadelphia, PA"
+msgstr "フィラデルフィア、PA"
+
+#. US PHX
+msgid "Phoenix, AZ"
+msgstr "フェニックス、AZ"
+
+#. US PIL
+msgid "Piscataway, NJ"
+msgstr "ピスカタウェイ、NJ"
+
+#. US PDX
+msgid "Portland, OR"
+msgstr "ポートランド、OR"
+
+#. US RIC
+msgid "Richmond, VA"
+msgstr "リッチモンド、VA"
+
+#. US SLC
+msgid "Salt Lake City, UT"
+msgstr "ソルトレイクシティ、UT"
+
+#. US SFO
+msgid "San Francisco, CA"
+msgstr "サンフランシスコ、CA"
+
+#. US SJC
+msgid "San Jose, CA"
+msgstr "サンノゼ、CA"
+
+#. US SEA
+msgid "Seattle, WA"
+msgstr "シアトル、WA"
+
+#. US UYK
+msgid "Secaucus, NJ"
+msgstr "セコーカス、NJ"
+
+#. US FSD
+msgid "Sioux Falls, SD"
+msgstr "スーフォールズ、SD"
+
+#. US XLX
+msgid "Stamford, CT"
+msgstr "スタンフォード、CT"
+
+#. US STL
+msgid "St. Louis, MO"
+msgstr "セントルイス、MO"
+
+#. US WAS
+msgid "Washington DC"
+msgstr "ワシントン DC"
+

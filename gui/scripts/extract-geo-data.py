@@ -163,6 +163,9 @@ def extract_countries_po():
           name_alt_key = "_".join(("name", convert_locale_ident(locale)))
           name_fallback = "name"
 
+          country_name = props.get("name")
+          formal_country_name = props.get("formal_en", country_name)
+
           if props.get(name_key) is not None:
             translated_name = props.get(name_key)
           elif props.get(name_alt_key) is not None:
@@ -177,10 +180,34 @@ def extract_countries_po():
               )
 
           entry = POEntry(
-            msgid=props["name"],
+            msgid=country_name,
             msgstr=translated_name
           )
           po.append(entry)
+
+          # add additional record for the formal country name.
+          if country_name != formal_country_name and formal_country_name is not None:
+            entry = POEntry(
+              msgid=formal_country_name,
+              msgstr=translated_name
+            )
+            po.append(entry)
+
+          # exception for the US
+          if props.get("iso_a3") == "USA":
+            entry = POEntry(
+              msgid="USA",
+              msgstr=translated_name
+            )
+            po.append(entry)
+
+          # exception for the UK
+          if props.get("iso_a3") == "GBR":
+            entry = POEntry(
+              msgid="UK",
+              msgstr=translated_name
+            )
+            po.append(entry)
 
         po.save(output_path)
         print c.green("Extracted {} countries for {} to {}".format(len(po), locale, output_path))
@@ -404,11 +431,8 @@ class PlaceTranslator(object):
 
   def __init__(self):
     super(PlaceTranslator, self).__init__()
-    shape_path = get_shape_path("ne_10m_populated_places")
-    self.source = fiona.open(shape_path, "r")
 
-  def __del__(self):
-    self.source.close()
+    self.dataset = self.__build_index()
 
   def translate(self, locale, english_city_name):
     """
@@ -421,26 +445,53 @@ class PlaceTranslator(object):
     Returns None when either there is no match or there is no translation for the matched city.
     """
     preferred_locales = (get_locale_language(locale), convert_locale_ident(locale))
-    match_prop_keys = ("name_" + x for x in preferred_locales)
+    match_prop_keys = list("name_" + x for x in preferred_locales)
 
-    for feat in self.source:
-      props = lower_dict_keys(feat["properties"])
+    props = self.dataset.get(english_city_name)
 
-      # namepar works for "Wien"
-      # use nameascii to match "Sao Paolo"
-      if props.get("name") == english_city_name or \
-         props.get("namepar") == english_city_name or \
-         props.get("nameascii") == english_city_name:
-        for key in match_prop_keys:
-          value = props.get(key)
+    if props is not None:
+      for key in match_prop_keys:
+        value = props.get(key)
 
-          if value is not None:
-            return value
+        if value is not None:
+          return value
 
-        print c.orange(u"Missing translation for {} ({}). Probe keys: {}".format(
-          english_city_name, locale, match_prop_keys).encode('utf-8'))
+      print c.orange(u"Missing translation for {} ({}). Probe keys: {}".format(
+        english_city_name, locale, match_prop_keys).encode('utf-8'))
 
     return None
+
+  def __build_index(self):
+    """
+    Private helper to build the index for the geo dataset, that can be used to speed up the
+    translations lookup.
+    """
+    shape_path = get_shape_path("ne_10m_populated_places")
+    dataset = dict()
+
+    # build a hash map of the entire datasource in memory
+    with fiona.open(shape_path, "r") as source:
+      for feat in source:
+        props = lower_dict_keys(feat["properties"])
+
+        name = props.get("name")
+
+        # namepar works for "Wien"
+        namepar = props.get("namepar")
+
+        # use nameascii to match "Sao Paolo"
+        nameascii = props.get("nameascii")
+
+        if name is not None:
+          dataset[name] = props
+
+        if namepar is not None:
+          dataset[namepar] = props
+
+        if nameascii is not None:
+          dataset[nameascii] = props
+
+    return dataset
 
 
 def get_shape_path(dataset_name):

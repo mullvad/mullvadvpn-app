@@ -1,113 +1,113 @@
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
-"X-Crowdin-Language: zh-TW\n"
+"X-Crowdin-Language: tr\n"
 "X-Crowdin-File: messages.pot\n"
 "Project-Id-Version: mullvad-app\n"
 "Last-Translator: adminmullvad\n"
-"Language-Team: Chinese Traditional\n"
-"Language: zh_TW\n"
+"Language-Team: Turkish\n"
+"Language: tr_TR\n"
 "PO-Revision-Date: 2019-05-20 12:54\n"
 
 msgid "BLOCKED CONNECTION"
-msgstr "被封鎖的連線"
+msgstr "ENGELLENEN BAĞLANTI"
 
 msgid "CREATING SECURE CONNECTION"
-msgstr "建立安全連線"
+msgstr "GÜVENLİ BAĞLANTI OLUŞTURULUYOR"
 
 msgid "SECURE CONNECTION"
-msgstr "安全連線"
+msgstr "GÜVENLİ BAĞLANTI"
 
 msgid "UNSECURED CONNECTION"
-msgstr "不安全的連線"
+msgstr "GÜVENLİ OLMAYAN BAĞLANTI"
 
 #. The remaining time left on the account displayed across the app.
 #. Available placeholders:
 #. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
 msgctxt "account-expiry"
 msgid "%(duration)s left"
-msgstr "剩餘 %(duration)s"
+msgstr "%(duration)s kaldı"
 
 #. Back button in navigation bar
 msgctxt "account-nav"
 msgid "Settings"
-msgstr "設定"
+msgstr "Ayarlar"
 
 msgctxt "account-view"
 msgid "Account"
-msgstr "帳戶"
+msgstr "Hesap"
 
 msgctxt "account-view"
 msgid "Account number"
-msgstr "帳戶 ID"
+msgstr "Hesap Kimliği"
 
 msgctxt "account-view"
 msgid "Buy more credit"
-msgstr "購買更多點數"
+msgstr "Daha fazla kredi satın alın"
 
 msgctxt "account-view"
 msgid "COPIED TO CLIPBOARD!"
-msgstr "已複製到剪貼簿！"
+msgstr "PANOYA KOPYALANDI!"
 
 msgctxt "account-view"
 msgid "Currently unavailable"
-msgstr "目前不可用"
+msgstr "Şu an kullanılamıyor"
 
 msgctxt "account-view"
 msgid "Log out"
-msgstr "登出"
+msgstr "Oturumu kapat"
 
 msgctxt "account-view"
 msgid "OUT OF TIME"
-msgstr "逾時"
+msgstr "SÜRE DOLDU"
 
 msgctxt "account-view"
 msgid "Paid until"
-msgstr "支付至"
+msgstr "Şu tarihe kadar ödendi:"
 
 #. Title label in navigation bar
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
-msgstr "進階"
+msgstr "Gelişmiş"
 
 #. Back button in navigation bar
 msgctxt "advanced-settings-nav"
 msgid "Settings"
-msgstr "設定"
+msgstr "Ayarlar"
 
 #. The title for the port selector section.
 #. Available placeholders:
 #. %(portType)s - a selected protocol (either TCP or UDP)
 msgctxt "advanced-settings-view"
 msgid "%(portType)s port"
-msgstr "%(portType)s 連接埠"
+msgstr "%(portType)s portu"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
-msgstr "進階"
+msgstr "Gelişmiş"
 
 msgctxt "advanced-settings-view"
 msgid "Automatic"
-msgstr "自動"
+msgstr "Otomatik"
 
 msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
-msgstr "中斷連線則封鎖"
+msgstr "Bağlantı kesilince engelle"
 
 msgctxt "advanced-settings-view"
 msgid "Default"
-msgstr "預設"
+msgstr "Varsayılan"
 
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
-msgstr "啟用 IPv6"
+msgstr "IPv6'yı etkinleştir"
 
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
-msgstr "透過通道啟用 IPv6 通訊。"
+msgstr "Tünel üzerinden IPv6 iletişimini etkinleştir."
 
 msgctxt "advanced-settings-view"
 msgid "Mssfix"
@@ -115,7 +115,7 @@ msgstr "Mssfix"
 
 msgctxt "advanced-settings-view"
 msgid "Network protocols"
-msgstr "網路通訊協定"
+msgstr "Ağ protokolleri"
 
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
@@ -123,27 +123,27 @@ msgstr "網路通訊協定"
 #. %(min)d - the minimum possible mssfix value
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr "設定 OpenVPN MSS 值。有效範圍：%(min)d - %(max)d。"
+msgstr "OpenVPN MSS değerini belirleyin. Geçerli aralık: %(min)d - %(max)d."
 
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
-msgstr "除非已連線，否則一律封鎖所有網路流量，即便您已中斷連線或退出應用程式亦同。"
+msgstr "Bağlanılmadığı sürece, bağlantı kesilse veya uygulamadan çıkılsa dahi tüm ağ trafiğini her zaman engelle."
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
-msgstr "帳戶驗證失敗。"
+msgstr "Hesap kimlik doğrulaması başarısız oldu."
 
 msgctxt "auth-failure"
 msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
-msgstr "此帳戶有太多的同時連線。請中斷其他裝置的連線，或是稍後再次嘗試連線。"
+msgstr "Bu hesabın çok fazla eş zamanlı bağlantısı var. Diğer cihazlardan bir tanesinin bağlantısını kesin veya kısa süre sonra tekrar bağlanmayı deneyin."
 
 msgctxt "auth-failure"
 msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "您在此帳戶沒有更多 VPN 時間了。請登入我們的網站，購買更多點數。"
+msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Daha fazla kredi satın almak için lütfen web sitemizde oturum açın."
 
 msgctxt "auth-failure"
 msgid "You've logged in with an account number that is not valid. Please log out and try another one."
-msgstr "您登入時使用的帳號是無效的。請登出並使用另一個。"
+msgstr "Geçerli olmayan bir hesap numarasıyla oturum açtınız. Lütfen oturumu kapatıp başka bir tanesini deneyin."
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -156,27 +156,27 @@ msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
 msgid "Buy more credit"
-msgstr "購買更多點數"
+msgstr "Daha fazla kredi satın al"
 
 msgctxt "connect-view"
 msgid "Disconnect and buy more credit"
-msgstr "中斷連線並購買更多點數"
+msgstr "Bağlantıyı kes ve daha fazla kredi satın al"
 
 msgctxt "connect-view"
 msgid "Out of time"
-msgstr "逾時"
+msgstr "Süre doldu"
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
-msgstr "您在此帳戶沒有更多 VPN 時間了。您必須先關閉應用程式「進階」設定下的「中斷連線時封鎖」選項，再到我們網站購買更多點數。"
+msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Web sitemizden daha fazla kredi satın almadan önce uygulamanın Gelişmiş ayarlar sekmesi altındaki \"Bağlantı kesilince engelle\" seçeneğini kapatmanız gerekir."
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "您在此帳戶沒有更多 VPN 時間了。請登入我們的網站，購買更多點數。"
+msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Daha fazla kredi satın almak için lütfen web sitemizde oturum açın."
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
-msgstr "您在此帳戶沒有更多 VPN 時間了。若要在我們網站上購買更多點數，您必須使用不安全的連線存取網際網路。"
+msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Web sitemizden daha fazla kredi satın almak için güvenli olmayan bir bağlantıyla internete erişmeniz gerekecek."
 
 msgctxt "connection-info"
 msgid "Connection details"
@@ -199,7 +199,7 @@ msgstr "MULLVAD VPN"
 #. %(email)s - support email
 msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
-msgstr "出現了問題。請與我們聯絡：%(email)s"
+msgstr "Bir sorun oluştu. Lütfen bizimle %(email)s adresinden iletişime geçin"
 
 msgctxt "headerbar"
 msgid "MULLVAD VPN"
@@ -207,77 +207,77 @@ msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "帳戶點數即將到期"
+msgstr "HESAP KREDİSİNİN SÜRESİ YAKINDA DOLACAK"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
-msgstr "封鎖網際網路"
+msgstr "İNTERNET ENGELLENİYOR"
 
 msgctxt "in-app-notifications"
 msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
-msgstr "無法配置 IPv6，請在我們系統啟用，或在應用程式中停用"
+msgstr "IPv6 yapılandırılamıyor, lütfen sisteminizden etkinleştirin veya uygulamadan devre dışı bırakın"
 
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "無法套用防火牆規則。裝置目前可能不安全"
+msgstr "Güvenlik duvarı kuralları uygulanamıyor. Cihaz şu an korumasız olabilir"
 
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
-msgstr "無法設定系統 DNS 伺服器"
+msgstr "Sistem DNS sunucusu belirlenemiyor"
 
 msgctxt "in-app-notifications"
 msgid "Failed to start tunnel connection"
-msgstr "無法啟動通道連線"
+msgstr "Tünel bağlantısı başlatılamıyor"
 
 msgctxt "in-app-notifications"
 msgid "FAILURE - UNSECURED"
-msgstr "失敗 - 不安全"
+msgstr "BAŞARISIZ - GÜVENLİ DEĞİL"
 
 msgctxt "in-app-notifications"
 msgid "Inconsistent internal version information, please restart the app"
-msgstr "內部版本資訊不一致，請重新啟動應用程式"
+msgstr "Tutarsız iç sürüm bilgisi, lütfen uygulamayı yeniden başlatın"
 
 msgctxt "in-app-notifications"
 msgid "INCONSISTENT VERSION"
-msgstr "版本不一致"
+msgstr "TUTARSIZ SÜRÜM"
 
 #. The in-app banner displayed to the user when the app update is available.
 #. Available placeholders:
 #. %(version)s - the newest available version of the app
 msgctxt "in-app-notifications"
 msgid "Install Mullvad VPN (%(version)s) to stay up to date"
-msgstr "安裝 Mullvad VPN (%(version)s) 以保持最新狀態"
+msgstr "Güncel kalmak için Mullvad VPN'in (%(version)s) sürümünü yükleyin"
 
 msgctxt "in-app-notifications"
 msgid "No relay server matches the current settings"
-msgstr "沒有與目前設定相符的中繼伺服器"
+msgstr "Geçerli ayarlara uyan aktarma sunucusu yok"
 
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
-msgstr "此裝置目前離線中，無法建立通道"
+msgstr "Bu cihaz çevrimdışı, tünel oluşturulamaz"
 
 msgctxt "in-app-notifications"
 msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
-msgstr "在裝置上偵測不到運作中的 TAP 配接器。如果您已停用，請再次啟用。否則，請重新安裝應用程式"
+msgstr "Bu cihazda çalışan bir TAP adaptörü tespit edilemedi. Devre dışı bıraktıysanız, yeniden etkinleştirin. Aksi takdirde, lütfen uygulamayı tekrar yükleyin"
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
-msgstr "不支援的版本"
+msgstr "DESTEKLENMEYEN SÜRÜM"
 
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
-msgstr "可用的更新"
+msgstr "GÜNCELLEME MEVCUT"
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
 #. %(version)s - the newest available version of the app
 msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "您正在執行不受支援的應用程式版本。請立即升級到 %(version)s，以確保您的安全"
+msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %(version)s sürümüne yükseltin"
 
 msgctxt "launch-view"
 msgid "Connecting to daemon..."
-msgstr "正在連線至精靈..."
+msgstr "Aracı programa bağlanılıyor..."
 
 msgctxt "launch-view"
 msgid "MULLVAD VPN"
@@ -285,280 +285,280 @@ msgstr "MULLVAD VPN"
 
 msgctxt "login-view"
 msgid "Checking account number"
-msgstr "檢查帳號中"
+msgstr "Hesap numarası kontrol ediliyor"
 
 msgctxt "login-view"
 msgid "Correct account number"
-msgstr "正確的帳號"
+msgstr "Doğru hesap numarası"
 
 msgctxt "login-view"
 msgid "Create account"
-msgstr "建立帳戶"
+msgstr "Hesap oluştur"
 
 msgctxt "login-view"
 msgid "Don't have an account number?"
-msgstr "沒有帳號？"
+msgstr "Hesap numaranız yok mu?"
 
 msgctxt "login-view"
 msgid "Enter your account number"
-msgstr "輸入您的帳號"
+msgstr "Hesap numaranızı girin"
 
 msgctxt "login-view"
 msgid "Logged in"
-msgstr "已登入"
+msgstr "Oturum açıldı"
 
 msgctxt "login-view"
 msgid "Logging in..."
-msgstr "登入中..."
+msgstr "Oturum açılıyor..."
 
 msgctxt "login-view"
 msgid "Login"
-msgstr "登入"
+msgstr "Oturum Aç"
 
 msgctxt "login-view"
 msgid "Login failed"
-msgstr "登入失敗"
+msgstr "Oturum açma başarısız"
 
 msgctxt "login-view"
 msgid "Unknown error"
-msgstr "未知錯誤"
+msgstr "Bilinmeyen hata"
 
 msgctxt "notifications"
 msgid "Blocked all connections"
-msgstr "已封鎖所有連線"
+msgstr "Tüm bağlantılar engellendi"
 
 msgctxt "notifications"
 msgid "Connecting"
-msgstr "連線中"
+msgstr "Bağlanılıyor"
 
 msgctxt "notifications"
 msgid "Critical failure - Unsecured"
-msgstr "嚴重失敗 - 不安全"
+msgstr "Kritik hata - Güvenli Değil"
 
 msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
-msgstr "內部版本資訊不一致，請重新啟動應用程式"
+msgstr "Tutarsız iç sürüm bilgisi, lütfen uygulamayı yeniden başlatın"
 
 msgctxt "notifications"
 msgid "Reconnecting"
-msgstr "正在重新連線"
+msgstr "Yeniden Bağlanılıyor"
 
 msgctxt "notifications"
 msgid "Secured"
-msgstr "安全"
+msgstr "Güvenli"
 
 msgctxt "notifications"
 msgid "Unsecured"
-msgstr "不安全"
+msgstr "Güvenli Değil"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
 #. %(version) - the newest available version of the app
 msgctxt "notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "您正在執行不受支援的應用程式版本。請立即升級到 %(version)s，以確保您的安全"
+msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %(version)s sürümüne yükseltin"
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
 msgid "Preferences"
-msgstr "喜好設定"
+msgstr "Tercihler"
 
 #. Back button in navigation bar
 msgctxt "preferences-nav"
 msgid "Settings"
-msgstr "設定"
+msgstr "Ayarlar"
 
 msgctxt "preferences-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "允許存取同一網路上的其他裝置，以進行共用、列印等。"
+msgstr "Paylaşım, yazdırma vb. için aynı ağdaki diğer cihazlara erişime izin verir."
 
 msgctxt "preferences-view"
 msgid "Auto-connect"
-msgstr "自動連線"
+msgstr "Otomatik Bağlan"
 
 msgctxt "preferences-view"
 msgid "Automatically connect to a server when the app launches."
-msgstr "啟動應用程式時，自動連線伺服器。"
+msgstr "Uygulama başladığında bir sunucuya otomatik olarak bağlan."
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
-msgstr "啟動時啟動應用程式"
+msgstr "Uygulamayı başlangıçta çalıştır"
 
 msgctxt "preferences-view"
 msgid "Local network sharing"
-msgstr "本機網路分享"
+msgstr "Yerel ağ paylaşımı"
 
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
-msgstr "單色系統匣圖示"
+msgstr "Monokrom sistem çubuğu simgesi"
 
 msgctxt "preferences-view"
 msgid "Preferences"
-msgstr "喜好設定"
+msgstr "Tercihler"
 
 msgctxt "preferences-view"
 msgid "Show only the tray icon when the app starts."
-msgstr "啟動應用程式時，僅顯示系統匣圖示。"
+msgstr "Uygulama başladığında sadece sistem çubuğu simgesini göster."
 
 msgctxt "preferences-view"
 msgid "Start minimized"
-msgstr "啟動時永遠最小化"
+msgstr "Küçültülmüş olarak başlat"
 
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
-msgstr "使用單色系統匣圖示，而不是彩色的圖示。"
+msgstr "Renkli yerine monokrom bir sistem çubuğu simgesi kullan."
 
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
-msgstr "選擇位置"
+msgstr "Konum seçin"
 
 msgctxt "select-location-view"
 msgid "Select location"
-msgstr "選擇位置"
+msgstr "Konum seçin"
 
 msgctxt "select-location-view"
 msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr "連線時，會以所選區域中的一個私密安全位置將您的真實位置遮住。"
+msgstr "Bağlıyken gerçek konumunuz seçilen bölgedeki özel ve gizli bir konumla maskelenir"
 
 msgctxt "settings-view"
 msgid "Account"
-msgstr "帳戶"
+msgstr "Hesap"
 
 msgctxt "settings-view"
 msgid "Advanced"
-msgstr "進階"
+msgstr "Gelişmiş"
 
 msgctxt "settings-view"
 msgid "App version"
-msgstr "應用程式版本"
+msgstr "Uygulama sürümü"
 
 msgctxt "settings-view"
 msgid "FAQs & Guides"
-msgstr "常見問題集與指南"
+msgstr "SSS ve Kılavuzlar"
 
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
-msgstr "內部版本資訊不一致，請重新啟動應用程式。"
+msgstr "Tutarsız iç sürüm bilgisi, lütfen uygulamayı yeniden başlatın."
 
 msgctxt "settings-view"
 msgid "OUT OF TIME"
-msgstr "逾時"
+msgstr "SÜRE DOLDU"
 
 msgctxt "settings-view"
 msgid "Preferences"
-msgstr "喜好設定"
+msgstr "Tercihler"
 
 msgctxt "settings-view"
 msgid "Quit app"
-msgstr "退出應用程式"
+msgstr "Uygulamadan çık"
 
 msgctxt "settings-view"
 msgid "Report a problem"
-msgstr "回報問題"
+msgstr "Bir sorun bildir"
 
 msgctxt "settings-view"
 msgid "Settings"
-msgstr "設定"
+msgstr "Ayarlar"
 
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
-msgstr "更新可用，請下載以保持安全。"
+msgstr "Güncelleme mevcut, güvende olmak için indirin."
 
 #. Title label in navigation bar
 msgctxt "settings-view-nav"
 msgid "Settings"
-msgstr "設定"
+msgstr "Ayarlar"
 
 #. Back button in navigation bar
 msgctxt "support-nav"
 msgid "Settings"
-msgstr "設定"
+msgstr "Ayarlar"
 
 msgctxt "support-view"
 msgid "Back"
-msgstr "返回"
+msgstr "Geri"
 
 msgctxt "support-view"
 msgid "Describe your problem"
-msgstr "描述您的問題"
+msgstr "Sorununuzu açıklayın"
 
 msgctxt "support-view"
 msgid "Edit message"
-msgstr "編輯訊息"
+msgstr "Mesajı düzenle"
 
 msgctxt "support-view"
 msgid "Failed to send"
-msgstr "無法傳送"
+msgstr "Gönderme başarısız"
 
 #. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
 #. Available placeholders:
 #. %(email)s
 msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
-msgstr "如有需要，我們將以 %(email)s 與您聯繫"
+msgstr "Gerektiğinde sizinle %(email)s adresinden iletişime geçeceğiz"
 
 msgctxt "support-view"
 msgid "Report a problem"
-msgstr "回報問題"
+msgstr "Bir sorun bildir"
 
 msgctxt "support-view"
 msgid "Send"
-msgstr "傳送"
+msgstr "Gönder"
 
 msgctxt "support-view"
 msgid "Send anyway"
-msgstr "仍要傳送"
+msgstr "Yine de gönder"
 
 msgctxt "support-view"
 msgid "Sending..."
-msgstr "傳送中..."
+msgstr "Gönderiliyor..."
 
 msgctxt "support-view"
 msgid "Sent"
-msgstr "已傳送"
+msgstr "Gönderildi"
 
 msgctxt "support-view"
 msgid "Thanks! We will look into this."
-msgstr "謝謝！我們會對此進行調查。"
+msgstr "Teşekkürler! Bunu araştıracağız."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
-msgstr "為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。"
+msgstr "Size daha etkin bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır."
 
 msgctxt "support-view"
 msgid "Try again"
-msgstr "再試一次"
+msgstr "Tekrar dene"
 
 msgctxt "support-view"
 msgid "View app logs"
-msgstr "檢視應用程式日誌"
+msgstr "Uygulama kayıtlarını görüntüle"
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
-msgstr "您即將傳送的問題報告未包含回覆方式資訊。如果想收到您這份報告的回覆，請輸入您的電子郵件位址。"
+msgstr "Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz."
 
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
-msgstr "在重試之前，您可能需要返回應用程式的主畫面，然後按一下「中斷連線」。請不用擔心，您輸入的資訊將保留在表單中。"
+msgstr "Yeniden denemeden önce uygulamanın ana ekranına dönüp Bağlantıyı Kes'e tıklamanız gerekebilir. Endişelenmeyin, girdiğiniz bilgiler formda kalacaktır."
 
 msgctxt "support-view"
 msgid "Your email (optional)"
-msgstr "您的電子郵件 (選填)"
+msgstr "E-posta adresiniz (isteğe bağlı)"
 
 msgctxt "tunnel-control"
 msgid "Cancel"
-msgstr "取消"
+msgstr "İptal"
 
 msgctxt "tunnel-control"
 msgid "Disconnect"
-msgstr "中斷連線"
+msgstr "Bağlantıyı Kes"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
-msgstr "保護我的連線"
+msgstr "Bağlantımı güvenceye al"
 
 msgctxt "tunnel-control"
 msgid "Switch location"
-msgstr "切換位置"
+msgstr "Konum değiştir"
 
