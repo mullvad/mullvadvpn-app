@@ -18,7 +18,10 @@ use talpid_types::{tunnel::TunnelStateTransition, ErrorExt};
 
 const LOG_FILENAME: &str = "daemon.log";
 
-const CLASSES_TO_LOAD: &[&str] = &["net/mullvad/mullvadvpn/model/AccountData"];
+const CLASSES_TO_LOAD: &[&str] = &[
+    "net/mullvad/mullvadvpn/model/AccountData",
+    "net/mullvad/mullvadvpn/model/Settings",
+];
 
 lazy_static! {
     static ref DAEMON_INTERFACE: Mutex<DaemonInterface> = Mutex::new(DaemonInterface::new());
