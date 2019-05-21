@@ -49,8 +49,8 @@ import UIKit
 
     private func updateCircleLayerColor() {
         let baseColor = isActive
-            ? UIColor.relayStatusIndicatorActiveColor
-            : UIColor.relayStatusIndicatorInactiveColor
+            ? UIColor.RelayStatusIndicator.activeColor
+            : UIColor.RelayStatusIndicator.inactiveColor
 
         let circleColor = isHighlighted
             ? baseColor.darkened(by: 0.2) ?? baseColor

@@ -14,10 +14,10 @@ class BasicTableViewCell: UITableViewCell {
         super.awakeFromNib()
 
         let backgroundView = UIView()
-        backgroundView.backgroundColor = UIColor.cellBackgroundColor
+        backgroundView.backgroundColor = UIColor.Cell.backgroundColor
 
         let selectedBackgroundView = UIView()
-        selectedBackgroundView.backgroundColor = UIColor.cellSelectedBackgroundColor
+        selectedBackgroundView.backgroundColor = UIColor.Cell.selectedBackgroundColor
 
         self.backgroundView = backgroundView
         self.selectedBackgroundView = selectedBackgroundView
