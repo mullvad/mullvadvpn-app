@@ -168,6 +168,7 @@
                         <outlet property="loginFormWrapperBottomConstraint" destination="09L-EV-qfI" id="fYF-OK-trh"/>
                         <outlet property="messageLabel" destination="XSV-Lk-dj4" id="8bd-TU-yhD"/>
                         <outlet property="statusImageView" destination="7ux-Tb-Fzq" id="UhU-kS-PKR"/>
+                        <outlet property="titleLabel" destination="Nxn-Fc-EGe" id="lOm-uS-4Ff"/>
                         <segue destination="Ki6-Mt-b6R" kind="presentation" identifier="ShowConnect" animates="NO" id="ccw-Nc-l0Q"/>
                         <segue destination="Kqv-qu-mfF" kind="presentation" identifier="ShowSettings" id="RjC-Wk-Enk"/>
                     </connections>
@@ -211,7 +212,7 @@
                                 </connections>
                             </containerView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="MapBackground" translatesAutoresizingMaskIntoConstraints="NO" id="3Ck-JT-ogd">
-                                <rect key="frame" x="0.0" y="94" width="375" height="573"/>
+                                <rect key="frame" x="0.0" y="94" width="375" height="573.00000000000023"/>
                             </imageView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="shY-Lj-oYx">
                                 <rect key="frame" x="24" y="533" width="327" height="110"/>
@@ -390,17 +391,17 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoIcon" translatesAutoresizingMaskIntoConstraints="NO" id="cKg-hE-JsS">
-                                <rect key="frame" x="11" y="29" width="16" height="16"/>
+                                <rect key="frame" x="11" y="12" width="49.000000000000014" height="50"/>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uXv-Tf-PET">
-                                <rect key="frame" x="343" y="26" width="16" height="22"/>
+                                <rect key="frame" x="335" y="25" width="24" height="24"/>
                                 <state key="normal" image="IconSettings"/>
                                 <connections>
                                     <action selector="handleSettingsButton" destination="rCI-6x-aLd" eventType="touchUpInside" id="TaM-cZ-TvJ"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MULLVAD VPN" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dqy-A0-TdV">
-                                <rect key="frame" x="35" y="22" width="168" height="30"/>
+                                <rect key="frame" x="68" y="22" width="168" height="30"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
                                 <color key="textColor" white="1" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>

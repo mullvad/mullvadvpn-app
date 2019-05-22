@@ -19,6 +19,7 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
     @IBOutlet var keyboardToolbarLoginButton: UIBarButtonItem!
     @IBOutlet var accountInputGroup: AccountInputGroupView!
     @IBOutlet var accountTextField: UITextField!
+    @IBOutlet var titleLabel: UILabel!
     @IBOutlet var messageLabel: UILabel!
     @IBOutlet var loginForm: UIView!
     @IBOutlet var loginFormWrapperBottomConstraint: NSLayoutConstraint!
@@ -237,7 +238,8 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
     }
 
     private func updateDisplayedMessage() {
-        messageLabel.text = loginState.localizedDescription
+        titleLabel.text = loginState.localizedTitle
+        messageLabel.text = loginState.localizedMessage
     }
 
     private func updateKeyboardToolbar() {
@@ -258,7 +260,23 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
 
 /// Private extension that brings localizable messages displayed in the Login view controller
 private extension LoginState {
-    var localizedDescription: String {
+    var localizedTitle: String {
+        switch self {
+        case .default:
+            return NSLocalizedString("Login", tableName: "Login", comment: "")
+
+        case .authenticating:
+            return NSLocalizedString("Logging in...", tableName: "Login", comment: "")
+
+        case .failure:
+            return NSLocalizedString("Login failed", tableName: "Login", comment: "")
+
+        case .success:
+            return NSLocalizedString("Logged in", tableName: "Login", comment: "")
+        }
+    }
+
+    var localizedMessage: String {
         switch self {
         case .default:
             return NSLocalizedString("Enter your account number", tableName: "Login", comment: "")
