@@ -197,7 +197,7 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
         case .success:
             headerBarController?.settingsButton.isEnabled = false
 
-        default:
+        case .default, .failure:
             headerBarController?.settingsButton.isEnabled = true
             activityIndicator.isAnimating = false
         }
@@ -217,7 +217,7 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
             statusImageView.image = UIImage(imageLiteralResourceName: "IconSuccess")
             animateStatusImage(to: 1)
 
-        default:
+        case .default, .authenticating:
             animateStatusImage(to: 0)
         }
     }
