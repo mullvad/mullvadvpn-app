@@ -15,13 +15,31 @@ pub struct Location {
     pub longitude: f64,
 }
 
+const RAIDUS_OF_EARTH: f64 = 6372.8;
+
 impl Location {
     pub fn distance_from(&self, other: &Location) -> f64 {
-        let diff_latitude = self.latitude - other.latitude;
-        let diff_longitude = self.longitude - other.longitude;
-        (diff_latitude.powi(2) + diff_longitude.powi(2)).sqrt()
+        Self::haversine_distance(
+            self.latitude,
+            self.longitude,
+            other.latitude,
+            other.longitude,
+        )
+    }
+
+    /// Implemented as per https://en.wikipedia.org/wiki/Haversine_formula and https://rosettacode.org/wiki/Haversine_formula#Rust
+    fn haversine_distance(lat: f64, lon: f64, other_lat: f64, other_lon: f64) -> f64 {
+        let d_lat = (lat - other_lat).to_radians();
+        let d_lon = (lon - other_lon).to_radians();
+        // Computing the haversine between two points
+        ((d_lat/2.0).sin().powi(2) + (d_lon/2.0).sin().powi(2) * lat.to_radians().cos() * other_lat.to_radians().cos())
+            // using the haversine to compute the distance between two points
+            .sqrt().asin()
+            * 2.0
+            * RAIDUS_OF_EARTH
     }
 }
+
 
 /// The response from the am.i.mullvad.net location service.
 #[derive(Debug, Deserialize)]
@@ -63,5 +81,16 @@ impl From<AmIMullvad> for GeoIpLocation {
             mullvad_exit_ip: location.mullvad_exit_ip,
             hostname: None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_haversine_dist() {
+        assert_eq!(
+            super::Location::haversine_distance(36.12, -86.67, 33.94, -118.40),
+            2887.2599506071106
+        );
     }
 }
