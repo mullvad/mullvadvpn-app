@@ -1,5 +1,12 @@
 package net.mullvad.mullvadvpn
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -15,6 +22,8 @@ class LoginFragment : Fragment() {
     private lateinit var loggedInStatus: View
     private lateinit var loginFailStatus: View
     private lateinit var accountInput: AccountInput
+
+    private var loginJob: Deferred<Boolean>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,11 +54,27 @@ class LoginFragment : Fragment() {
 
         accountInput.state = LoginState.InProgress
 
-        // TODO: Actually log in
-        if ("1234567890".equals(accountToken)) {
-            Handler().postDelayed(Runnable { loggedIn() }, 1000)
+        performLogin(accountToken)
+    }
+
+    private fun performLogin(accountToken: String) = GlobalScope.launch(Dispatchers.Main) {
+        loginJob?.cancel()
+        loginJob = GlobalScope.async(Dispatchers.Default) {
+            val parentActivity = activity as MainActivity
+            val daemon = parentActivity.asyncDaemon.await()
+            val accountData = daemon.getAccountData(accountToken)
+
+            if (accountData != null) {
+                true
+            } else {
+                false
+            }
+        }
+
+        if (loginJob?.await() ?: false) {
+            loggedIn()
         } else {
-            Handler().postDelayed(Runnable { loginFailure() }, 1000)
+            loginFailure()
         }
     }
 
