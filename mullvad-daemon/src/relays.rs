@@ -172,14 +172,6 @@ impl RelaySelector {
             DateTime::<Local>::from(unsynchronized_parsed_relays.last_updated())
                 .format(DATE_TIME_FORMAT_STR)
         );
-        for relay in unsynchronized_parsed_relays.relays() {
-            if !relay.bridges.is_empty() {
-                debug!(
-                    "relay {} has these bridges: {:#?}",
-                    relay.hostname, relay.bridges
-                );
-            }
-        }
         let parsed_relays = Arc::new(Mutex::new(unsynchronized_parsed_relays));
         let updater = RelayListUpdater::spawn(
             rpc_handle,
