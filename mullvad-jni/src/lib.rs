@@ -21,6 +21,8 @@ const LOG_FILENAME: &str = "daemon.log";
 const CLASSES_TO_LOAD: &[&str] = &[
     "java/util/ArrayList",
     "net/mullvad/mullvadvpn/model/AccountData",
+    "net/mullvad/mullvadvpn/model/Constraint$Any",
+    "net/mullvad/mullvadvpn/model/Constraint$Only",
     "net/mullvad/mullvadvpn/model/Relay",
     "net/mullvad/mullvadvpn/model/RelayList",
     "net/mullvad/mullvadvpn/model/RelayListCity",

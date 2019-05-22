@@ -12,7 +12,7 @@ crate_type = ["cdylib"]
 [dependencies]
 err-derive = "0.1.5"
 futures = "0.1"
-jni = "0.11"
+jni = "0.12"
 jsonrpc-client-core = "0.5"
 lazy_static = "1"
 log = "0.4"
