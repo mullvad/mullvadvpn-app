@@ -19,6 +19,7 @@
                         <subviews>
                             <containerView opaque="NO" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VIF-P4-vZU" userLabel="Header">
                                 <rect key="frame" x="0.0" y="20" width="375" height="74"/>
+                                <color key="backgroundColor" red="0.16078431369999999" green="0.30196078430000001" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="74" id="ohH-N4-eN7"/>
                                 </constraints>
@@ -37,6 +38,9 @@
                                             <constraint firstAttribute="width" constant="48" id="ohE-fk-mg9"/>
                                         </constraints>
                                     </view>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="IconSuccess" translatesAutoresizingMaskIntoConstraints="NO" id="7ux-Tb-Fzq">
+                                        <rect key="frame" x="157.5" y="119.5" width="60" height="60"/>
+                                    </imageView>
                                     <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="V3j-Lb-fSQ" userLabel="Form">
                                         <rect key="frame" x="0.0" y="203.5" width="375" height="126"/>
                                         <subviews>
@@ -60,6 +64,9 @@
                                                         <nil key="textColor"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                                         <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="numberPad" enablesReturnKeyAutomatically="YES" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no" textContentType="username"/>
+                                                        <connections>
+                                                            <outlet property="delegate" destination="BYZ-38-t0r" id="jeF-vG-YXi"/>
+                                                        </connections>
                                                     </textField>
                                                 </subviews>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -92,8 +99,10 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
+                                    <constraint firstItem="7ux-Tb-Fzq" firstAttribute="centerX" secondItem="pID-oa-Rrg" secondAttribute="centerX" id="0pe-6n-wrA"/>
                                     <constraint firstItem="V3j-Lb-fSQ" firstAttribute="top" secondItem="pID-oa-Rrg" secondAttribute="bottom" constant="30" id="2Sy-bS-AZZ"/>
                                     <constraint firstItem="V3j-Lb-fSQ" firstAttribute="centerY" secondItem="0ZY-Kh-JiM" secondAttribute="centerY" constant="-20" id="3Uk-YZ-4C3"/>
+                                    <constraint firstItem="7ux-Tb-Fzq" firstAttribute="centerY" secondItem="pID-oa-Rrg" secondAttribute="centerY" id="BRH-Bd-Pe8"/>
                                     <constraint firstAttribute="trailing" secondItem="V3j-Lb-fSQ" secondAttribute="trailing" id="EHy-Cx-cGj"/>
                                     <constraint firstItem="pID-oa-Rrg" firstAttribute="centerX" secondItem="0ZY-Kh-JiM" secondAttribute="centerX" id="Ojm-D5-HnO"/>
                                     <constraint firstItem="V3j-Lb-fSQ" firstAttribute="leading" secondItem="0ZY-Kh-JiM" secondAttribute="leading" id="alr-G1-L4w"/>
@@ -115,6 +124,9 @@
                                         <state key="normal" title="Create account" backgroundImage="DefaultButton">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
+                                        <connections>
+                                            <action selector="openCreateAccount" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ejr-wN-rdN"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" red="0.098039215686274508" green="0.1803921568627451" blue="0.27058823529411763" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -147,11 +159,16 @@
                         <viewLayoutGuide key="safeArea" id="RSb-dJ-fKl"/>
                     </view>
                     <connections>
+                        <outlet property="accountInputGroup" destination="VmT-ya-ufe" id="ku3-qa-yfV"/>
                         <outlet property="accountTextField" destination="XOB-ct-yLU" id="mXd-SV-E16"/>
                         <outlet property="activityIndicator" destination="pID-oa-Rrg" id="GG2-Hv-FWl"/>
                         <outlet property="keyboardToolbar" destination="waX-JF-VTG" id="kav-5t-mkA"/>
+                        <outlet property="keyboardToolbarLoginButton" destination="0VH-wf-oEs" id="fsM-6o-9nL"/>
                         <outlet property="loginForm" destination="V3j-Lb-fSQ" id="tYu-S8-ylm"/>
                         <outlet property="loginFormWrapperBottomConstraint" destination="09L-EV-qfI" id="fYF-OK-trh"/>
+                        <outlet property="messageLabel" destination="XSV-Lk-dj4" id="8bd-TU-yhD"/>
+                        <outlet property="statusImageView" destination="7ux-Tb-Fzq" id="UhU-kS-PKR"/>
+                        <outlet property="titleLabel" destination="Nxn-Fc-EGe" id="lOm-uS-4Ff"/>
                         <segue destination="Ki6-Mt-b6R" kind="presentation" identifier="ShowConnect" animates="NO" id="ccw-Nc-l0Q"/>
                         <segue destination="Kqv-qu-mfF" kind="presentation" identifier="ShowSettings" id="RjC-Wk-Enk"/>
                     </connections>
@@ -404,6 +421,9 @@
                         <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                         <viewLayoutGuide key="safeArea" id="oeE-aF-UYv"/>
                     </view>
+                    <connections>
+                        <outlet property="settingsButton" destination="uXv-Tf-PET" id="MuL-Bu-ZRF"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Kbx-AI-gkv" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -532,6 +552,7 @@
         <image name="IconChevronDown" width="24" height="24"/>
         <image name="IconClose" width="24" height="24"/>
         <image name="IconSettings" width="24" height="24"/>
+        <image name="IconSuccess" width="60" height="60"/>
         <image name="IconTick" width="24" height="24"/>
         <image name="LogoIcon" width="49" height="50"/>
         <image name="MapBackground" width="637" height="982"/>
