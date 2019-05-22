@@ -5,18 +5,25 @@ mod from_java;
 mod into_java;
 
 use crate::daemon_interface::DaemonInterface;
-use jni::{objects::JObject, JNIEnv};
+use jni::{
+    objects::{GlobalRef, JObject},
+    JNIEnv,
+};
 use lazy_static::lazy_static;
 use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender, EventListener};
 use mullvad_types::{relay_list::RelayList, settings::Settings};
-use parking_lot::Mutex;
-use std::{path::PathBuf, sync::mpsc, thread};
+use parking_lot::{Mutex, RwLock};
+use std::{collections::HashMap, path::PathBuf, sync::mpsc, thread};
 use talpid_types::{tunnel::TunnelStateTransition, ErrorExt};
 
 const LOG_FILENAME: &str = "daemon.log";
 
+const CLASSES_TO_LOAD: &[&str] = &[];
+
 lazy_static! {
     static ref DAEMON_INTERFACE: Mutex<DaemonInterface> = Mutex::new(DaemonInterface::new());
+    static ref CLASSES: RwLock<HashMap<&'static str, GlobalRef>> =
+        RwLock::new(HashMap::with_capacity(CLASSES_TO_LOAD.len()));
 }
 
 #[derive(Debug, err_derive::Error)]
@@ -30,8 +37,13 @@ pub enum Error {
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(_: JNIEnv, _: JObject) {
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
+    env: JNIEnv,
+    _: JObject,
+) {
     let log_dir = start_logging();
+
+    load_classes(&env);
 
     if let Err(error) = initialize(log_dir) {
         log::error!("{}", error.display_chain());
@@ -47,6 +59,24 @@ fn start_logging() -> PathBuf {
     version::log_version();
 
     log_dir
+}
+
+fn load_classes(env: &JNIEnv) {
+    let mut classes = CLASSES.write();
+
+    for class in CLASSES_TO_LOAD {
+        classes.insert(class, load_class_reference(env, class));
+    }
+}
+
+fn load_class_reference(env: &JNIEnv, name: &str) -> GlobalRef {
+    let class = match env.find_class(name) {
+        Ok(class) => class,
+        Err(_) => panic!("Failed to find {} Java class", name),
+    };
+
+    env.new_global_ref(JObject::from(class))
+        .expect("Failed to convert local reference to Java class into a global reference")
 }
 
 fn initialize(log_dir: PathBuf) -> Result<(), Error> {
@@ -101,4 +131,11 @@ impl EventListener for DummyListener {
     fn notify_new_state(&self, _: TunnelStateTransition) {}
     fn notify_settings(&self, _: Settings) {}
     fn notify_relay_list(&self, _: RelayList) {}
+}
+
+fn get_class(name: &str) -> GlobalRef {
+    match CLASSES.read().get(name) {
+        Some(class) => class.clone(),
+        None => panic!("Class not loaded: {}", name),
+    }
 }
