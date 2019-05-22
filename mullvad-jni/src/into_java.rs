@@ -1,6 +1,7 @@
 use crate::get_class;
 use jni::{
-    objects::{JObject, JString, JValue},
+    objects::{JList, JObject, JString, JValue},
+    sys::jint,
     JNIEnv,
 };
 use mullvad_types::{account::AccountData, settings::Settings};
@@ -31,6 +32,36 @@ impl<'env> IntoJava<'env> for String {
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         env.new_string(&self).expect("Failed to create Java String")
+    }
+}
+
+impl<'env, T> IntoJava<'env> for Vec<T>
+where
+    T: IntoJava<'env>,
+    JObject<'env>: From<T::JavaType>,
+{
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("java/util/ArrayList");
+        let initial_capacity = self.len();
+        let parameters = [JValue::Int(initial_capacity as jint)];
+
+        let list_object = env
+            .new_object(&class, "(I)V", &parameters)
+            .expect("Failed to create ArrayList object");
+
+        let list =
+            JList::from_env(env, list_object).expect("Failed to create JList from ArrayList");
+
+        for element in self {
+            let java_element = env.auto_local(JObject::from(element.into_java(env)));
+
+            list.add(java_element.as_obj())
+                .expect("Failed to add element to ArrayList");
+        }
+
+        list_object
     }
 }
 

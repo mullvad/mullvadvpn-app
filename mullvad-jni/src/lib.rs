@@ -19,6 +19,7 @@ use talpid_types::{tunnel::TunnelStateTransition, ErrorExt};
 const LOG_FILENAME: &str = "daemon.log";
 
 const CLASSES_TO_LOAD: &[&str] = &[
+    "java/util/ArrayList",
     "net/mullvad/mullvadvpn/model/AccountData",
     "net/mullvad/mullvadvpn/model/Settings",
 ];
