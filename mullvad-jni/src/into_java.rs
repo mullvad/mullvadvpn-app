@@ -4,7 +4,11 @@ use jni::{
     sys::jint,
     JNIEnv,
 };
-use mullvad_types::{account::AccountData, settings::Settings};
+use mullvad_types::{
+    account::AccountData,
+    relay_list::{Relay, RelayList, RelayListCity, RelayListCountry},
+    settings::Settings,
+};
 
 pub trait IntoJava<'env> {
     type JavaType;
@@ -75,6 +79,78 @@ impl<'env> IntoJava<'env> for AccountData {
 
         env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
             .expect("Failed to create AccountData Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for RelayList {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/RelayList");
+        let relay_countries = env.auto_local(self.countries.into_java(env));
+        let parameters = [JValue::Object(relay_countries.as_obj())];
+
+        env.new_object(&class, "(Ljava/util/List;)V", &parameters)
+            .expect("Failed to create RelayList Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for RelayListCountry {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/RelayListCountry");
+        let name = env.auto_local(JObject::from(self.name.into_java(env)));
+        let code = env.auto_local(JObject::from(self.code.into_java(env)));
+        let relay_cities = env.auto_local(self.cities.into_java(env));
+        let parameters = [
+            JValue::Object(name.as_obj()),
+            JValue::Object(code.as_obj()),
+            JValue::Object(relay_cities.as_obj()),
+        ];
+
+        env.new_object(
+            &class,
+            "(Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V",
+            &parameters,
+        )
+        .expect("Failed to create RelayListCountry Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for RelayListCity {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/RelayListCity");
+        let name = env.auto_local(JObject::from(self.name.into_java(env)));
+        let code = env.auto_local(JObject::from(self.code.into_java(env)));
+        let relays = env.auto_local(self.relays.into_java(env));
+        let parameters = [
+            JValue::Object(name.as_obj()),
+            JValue::Object(code.as_obj()),
+            JValue::Object(relays.as_obj()),
+        ];
+
+        env.new_object(
+            &class,
+            "(Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V",
+            &parameters,
+        )
+        .expect("Failed to create RelayListCity Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for Relay {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/Relay");
+        let hostname = env.auto_local(JObject::from(self.hostname.into_java(env)));
+        let parameters = [JValue::Object(hostname.as_obj())];
+
+        env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
+            .expect("Failed to create Relay Java object")
     }
 }
 
