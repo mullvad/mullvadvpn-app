@@ -1,6 +1,6 @@
 use futures::{sync::oneshot, Future};
 use mullvad_daemon::{DaemonCommandSender, ManagementCommand};
-use mullvad_types::{account::AccountData, settings::Settings};
+use mullvad_types::{account::AccountData, relay_list::RelayList, settings::Settings};
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
@@ -43,6 +43,14 @@ impl DaemonInterface {
             .map_err(|_| Error::NoResponse)?
             .wait()
             .map_err(Error::RpcError)
+    }
+
+    pub fn get_relay_locations(&self) -> Result<RelayList> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::GetRelayLocations(tx))?;
+
+        Ok(rx.wait().map_err(|_| Error::NoResponse)?)
     }
 
     pub fn get_settings(&self) -> Result<Settings> {
