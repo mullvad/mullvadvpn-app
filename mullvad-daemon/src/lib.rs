@@ -34,8 +34,8 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{
-        BridgeConstraints, BridgeState, Constraint, OpenVpnConstraints, RelayConstraintsUpdate,
-        RelaySettings, RelaySettingsUpdate, TunnelConstraints,
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, OpenVpnConstraints,
+        RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TunnelConstraints,
     },
     relay_list::{Relay, RelayList},
     settings::{self, Settings},
@@ -435,29 +435,45 @@ impl Daemon {
         account_token: String,
         retry_attempt: u32,
     ) -> Result<TunnelParameters> {
-        let tunnel_options = self.settings.get_tunnel_options().clone();
+        let mut tunnel_options = self.settings.get_tunnel_options().clone();
         match endpoint {
             MullvadEndpoint::OpenVpn(endpoint) => {
                 let bridge_settings = self.settings.get_bridge_settings();
-                let bridge_constraints = BridgeConstraints {
-                    location: bridge_settings.location.clone(),
-                    transport_protocol: Constraint::Only(endpoint.protocol),
+                let proxy_settings = match bridge_settings {
+                    BridgeSettings::Normal(settings) => {
+                        let bridge_constraints = BridgeConstraints {
+                            location: settings.location.clone(),
+                            transport_protocol: Constraint::Only(endpoint.protocol),
+                        };
+                        match self.settings.get_bridge_state() {
+                            BridgeState::On => self
+                                .relay_selector
+                                .get_proxy_settings(&bridge_constraints, &relay.location)
+                                .ok_or(Error::NoBridgeAvailable)
+                                .map(Some)?,
+                            BridgeState::Auto => self.relay_selector.get_auto_proxy_settings(
+                                &bridge_constraints,
+                                &relay.location,
+                                retry_attempt,
+                            ),
+                            BridgeState::Off => None,
+                        }
+                    }
+                    BridgeSettings::Custom(proxy_settings) => {
+                        match self.settings.get_bridge_state() {
+                            BridgeState::On => Some(proxy_settings.clone()),
+                            BridgeState::Auto => {
+                                if self.relay_selector.should_use_bridge(retry_attempt) {
+                                    Some(proxy_settings.clone())
+                                } else {
+                                    None
+                                }
+                            }
+                            BridgeState::Off => None,
+                        }
+                    }
                 };
-                let mut options = tunnel_options.openvpn;
-                options.proxy = match self.settings.get_bridge_state() {
-                    BridgeState::On => self
-                        .relay_selector
-                        .get_proxy_settings(&bridge_constraints, &relay.location)
-                        .ok_or(Error::NoBridgeAvailable)
-                        .map(Some)?,
-                    BridgeState::Auto => self.relay_selector.get_auto_proxy_settings(
-                        &bridge_constraints,
-                        &relay.location,
-                        retry_attempt,
-                    ),
-                    BridgeState::Off => None,
-                    BridgeState::Custom(settings) => Some(settings.clone()),
-                };
+                tunnel_options.openvpn.proxy = proxy_settings;
 
                 Ok(openvpn::TunnelParameters {
                     config: openvpn::ConnectionConfig::new(
@@ -465,7 +481,7 @@ impl Daemon {
                         account_token,
                         "-".to_string(),
                     ),
-                    options,
+                    options: tunnel_options.openvpn,
                     generic_options: tunnel_options.generic,
                 }
                 .into())

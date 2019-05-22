@@ -5,7 +5,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use talpid_types::net::TransportProtocol;
+use talpid_types::net::{openvpn::ProxySettings, TransportProtocol};
 
 
 pub trait Match<T> {
@@ -235,8 +235,16 @@ impl Match<WireguardEndpointData> for WireguardConstraints {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
-pub struct BridgeSettings {
+pub enum BridgeSettings {
     /// Let the relay selection algorithm decide on bridges, based on the relay list.
+    Normal(NormalBridgeSettings),
+    Custom(ProxySettings),
+}
+
+
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub struct NormalBridgeSettings {
     pub location: Constraint<LocationConstraint>,
 }
 
@@ -246,7 +254,6 @@ pub enum BridgeState {
     Auto,
     On,
     Off,
-    Custom(talpid_types::net::openvpn::ProxySettings),
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]

@@ -1,6 +1,6 @@
 use crate::relay_constraints::{
-    BridgeSettings, BridgeState, Constraint, LocationConstraint, RelayConstraints, RelaySettings,
-    RelaySettingsUpdate,
+    BridgeSettings, BridgeState, Constraint, LocationConstraint, NormalBridgeSettings,
+    RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
@@ -63,9 +63,9 @@ impl Default for Settings {
                 location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
                 tunnel: Constraint::Any,
             }),
-            bridge_settings: BridgeSettings {
+            bridge_settings: BridgeSettings::Normal(NormalBridgeSettings {
                 location: Constraint::Any,
-            },
+            }),
             bridge_state: BridgeState::Auto,
             allow_lan: false,
             block_when_disconnected: false,

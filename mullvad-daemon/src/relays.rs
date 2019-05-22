@@ -282,10 +282,14 @@ impl RelaySelector {
         location: &Option<Location>,
         retry_attempt: u32,
     ) -> Option<ProxySettings> {
-        if retry_attempt < 4 {
+        if !self.should_use_bridge(retry_attempt) {
             return None;
         }
         self.get_proxy_settings(bridge_constraints, location)
+    }
+
+    pub fn should_use_bridge(&self, retry_attempt: u32) -> bool {
+        retry_attempt < 4
     }
 
     pub fn get_proxy_settings(
