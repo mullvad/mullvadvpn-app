@@ -7,14 +7,42 @@
 //
 
 import UIKit
-
-private let kAccountCellIdentifier = "Account"
+import Foundation
 
 class SettingsViewController: UITableViewController {
 
+    @IBOutlet var staticDataSource: SettingsTableViewDataSource!
+
+    private enum CellIdentifier: String {
+        case account = "Account"
+        case appVersion = "AppVersion"
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+
+        if Account.isLoggedIn {
+            let topSection = StaticTableViewSection()
+            let accountRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.account.rawValue) { (_, cell) in
+                let cell = cell as! SettingsAccountCell
+
+                cell.accountExpiryDate = Account.expiry
+            }
+            topSection.addRows([accountRow])
+            staticDataSource.addSections([topSection])
+        }
+
+        let middleSection = StaticTableViewSection()
+        let versionRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.appVersion.rawValue) { (_, cell) in
+            let cell = cell as! SettingsAppVersionCell
+            let versionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+
+            cell.versionLabel.text = versionString
+        }
+        versionRow.isSelectable = false
+
+        middleSection.addRows([versionRow])
+        staticDataSource.addSections([middleSection])
     }
 
     // MARK: - IBActions
@@ -23,37 +51,18 @@ class SettingsViewController: UITableViewController {
         dismiss(animated: true)
     }
 
-    // MARK: - UITableViewDataSource
+}
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // TODO: implement
-    }
+class SettingsTableViewDataSource: StaticTableViewDataSource {
 
     // MARK: - UITableViewDelegate
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        if indexPath.section == 0 {
-            switch indexPath.row {
-            case 0:
-                let cell = tableView.dequeueReusableCell(withIdentifier: kAccountCellIdentifier, for: indexPath)
-
-                return cell
-
-            default:
-                break
-            }
-        }
-
-        fatalError("Index path \(indexPath) is not handled.")
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 24
     }
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0.01
     }
 
 }
