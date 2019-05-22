@@ -65,6 +65,7 @@ class LoginFragment : Fragment() {
             val accountData = daemon.getAccountData(accountToken)
 
             if (accountData != null) {
+                daemon.setAccount(accountToken)
                 true
             } else {
                 false

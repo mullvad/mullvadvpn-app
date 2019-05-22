@@ -1,0 +1,37 @@
+<FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            >
+        <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginBottom="4dp"
+                android:src="@drawable/launch_logo"
+                />
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:textColor="@color/white60"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:text="@string/app_name"
+                android:textAllCaps="true"
+                />
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white40"
+                android:textSize="14sp"
+                android:text="@string/connecting_to_daemon"
+                />
+    </LinearLayout>
+</FrameLayout>

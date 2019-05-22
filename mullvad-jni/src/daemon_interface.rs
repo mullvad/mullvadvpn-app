@@ -1,6 +1,6 @@
 use futures::{sync::oneshot, Future};
 use mullvad_daemon::{DaemonCommandSender, ManagementCommand};
-use mullvad_types::account::AccountData;
+use mullvad_types::{account::AccountData, settings::Settings};
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
@@ -43,6 +43,22 @@ impl DaemonInterface {
             .map_err(|_| Error::NoResponse)?
             .wait()
             .map_err(Error::RpcError)
+    }
+
+    pub fn get_settings(&self) -> Result<Settings> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::GetSettings(tx))?;
+
+        Ok(rx.wait().map_err(|_| Error::NoResponse)?)
+    }
+
+    pub fn set_account(&self, account_token: Option<String>) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::SetAccount(tx, account_token))?;
+
+        rx.wait().map_err(|_| Error::NoResponse)
     }
 
     fn send_command(&self, command: ManagementCommand) -> Result<()> {

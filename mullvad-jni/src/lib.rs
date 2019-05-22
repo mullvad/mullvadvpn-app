@@ -18,7 +18,10 @@ use talpid_types::{tunnel::TunnelStateTransition, ErrorExt};
 
 const LOG_FILENAME: &str = "daemon.log";
 
-const CLASSES_TO_LOAD: &[&str] = &["net/mullvad/mullvadvpn/model/AccountData"];
+const CLASSES_TO_LOAD: &[&str] = &[
+    "net/mullvad/mullvadvpn/model/AccountData",
+    "net/mullvad/mullvadvpn/model/Settings",
+];
 
 lazy_static! {
     static ref DAEMON_INTERFACE: Mutex<DaemonInterface> = Mutex::new(DaemonInterface::new());
@@ -160,5 +163,38 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
             );
             JObject::null()
         }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getSettings<'env, 'this>(
+    env: JNIEnv<'env>,
+    _: JObject<'this>,
+) -> JObject<'env> {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    match daemon.get_settings() {
+        Ok(settings) => settings.into_java(&env),
+        Err(error) => {
+            log::error!("{}", error.display_chain_with_msg("Failed to get settings"));
+            JObject::null()
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
+    env: JNIEnv,
+    _: JObject,
+    accountToken: JString,
+) {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    let account = <Option<String> as FromJava>::from_java(&env, accountToken);
+
+    if let Err(error) = daemon.set_account(account) {
+        log::error!("{}", error.display_chain_with_msg("Failed to set account"));
     }
 }
