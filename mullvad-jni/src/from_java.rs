@@ -3,7 +3,7 @@ use jni::{
     objects::{JObject, JString},
     JNIEnv,
 };
-use mullvad_types::relay_constraints::{Constraint, LocationConstraint};
+use mullvad_types::relay_constraints::{Constraint, LocationConstraint, RelayConstraintsUpdate};
 use std::fmt::Debug;
 
 pub trait FromJava<'env> {
@@ -91,6 +91,24 @@ impl<'env> FromJava<'env> for LocationConstraint {
             )
         } else {
             panic!("Invalid LocationConstraint Java sub-class");
+        }
+    }
+}
+
+impl<'env> FromJava<'env> for RelayConstraintsUpdate {
+    type JavaType = JObject<'env>;
+
+    fn from_java(env: &JNIEnv<'env>, source: Self::JavaType) -> Self {
+        let location = get_object_field(
+            env,
+            source,
+            "location",
+            "Lnet/mullvad/mullvadvpn/model/Constraint;",
+        );
+
+        RelayConstraintsUpdate {
+            location: FromJava::from_java(env, location),
+            tunnel: None,
         }
     }
 }
