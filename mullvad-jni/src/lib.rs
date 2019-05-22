@@ -231,3 +231,22 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
         log::error!("{}", error.display_chain_with_msg("Failed to set account"));
     }
 }
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_updateRelaySettings(
+    env: JNIEnv,
+    _: JObject,
+    relaySettingsUpdate: JObject,
+) {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    let update = FromJava::from_java(&env, relaySettingsUpdate);
+
+    if let Err(error) = daemon.update_relay_settings(update) {
+        log::error!(
+            "{}",
+            error.display_chain_with_msg("Failed to update relay settings")
+        );
+    }
+}
