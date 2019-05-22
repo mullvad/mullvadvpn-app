@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		08A905C56DDB0A0A887BB5F5 /* Pods_MullvadVPN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F506AB938C45AEB812886B4 /* Pods_MullvadVPN.framework */; };
 		543203592C79FAD36BC1E700 /* Pods_PacketTunnel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A931E0F6F380B4B3FD45D987 /* Pods_PacketTunnel.framework */; };
+		582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1AE229566420055B6EF /* SettingsCell.swift */; };
 		58461AD3228D622E00B72ECB /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58461AD2228D622E00B72ECB /* Account.swift */; };
 		5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */; };
 		5867A51C2248F26A005513C0 /* SegueIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867A51B2248F26A005513C0 /* SegueIdentifier.swift */; };
@@ -71,6 +72,7 @@
 /* Begin PBXFileReference section */
 		3F506AB938C45AEB812886B4 /* Pods_MullvadVPN.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MullvadVPN.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		40D54D8A8B75B67DC37C5CCE /* Pods-PacketTunnel.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PacketTunnel.release.xcconfig"; path = "Target Support Files/Pods-PacketTunnel/Pods-PacketTunnel.release.xcconfig"; sourceTree = "<group>"; };
+		582BB1AE229566420055B6EF /* SettingsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsCell.swift; sourceTree = "<group>"; };
 		58461AD2228D622E00B72ECB /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
 		5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslucentButtonBlurView.swift; sourceTree = "<group>"; };
 		5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MullvadVPN.entitlements; sourceTree = "<group>"; };
@@ -193,6 +195,7 @@
 				5867A51B2248F26A005513C0 /* SegueIdentifier.swift */,
 				5888AD82227B11080051EB06 /* SelectLocationCell.swift */,
 				5888AD86227B17950051EB06 /* SelectLocationController.swift */,
+				582BB1AE229566420055B6EF /* SettingsCell.swift */,
 				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */,
@@ -417,6 +420,7 @@
 				58CCA01822426713004F3011 /* AccountViewController.swift in Sources */,
 				58ADDB3E227B1CD900FAFEA7 /* MullvadAPI.swift in Sources */,
 				587B08E0229433EB000E6F17 /* LoginState.swift in Sources */,
+				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
