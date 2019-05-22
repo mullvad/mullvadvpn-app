@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn
 
 import net.mullvad.mullvadvpn.model.AccountData
+import net.mullvad.mullvadvpn.model.Settings
 
 class MullvadDaemon {
     init {
@@ -9,6 +10,7 @@ class MullvadDaemon {
     }
 
     external fun getAccountData(accountToken: String): AccountData?
+    external fun getSettings(): Settings
     external fun setAccount(accountToken: String?)
 
     private external fun initialize()
