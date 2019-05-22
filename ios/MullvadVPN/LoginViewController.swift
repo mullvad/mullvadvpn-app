@@ -183,12 +183,23 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
     private func loginStateDidChange() {
         accountInputGroup.loginState = loginState
 
-        if case .authenticating = loginState {
+        // Keep the settings button disabled to prevent user from going to settings while
+        // authentication or during the delay after the successful login and transition to the main
+        // controller.
+        switch loginState {
+        case .authenticating:
             activityIndicator.isAnimating = true
+
+            // Fallthrough to make sure that the settings button is disabled
+            // in .authenticating and .success cases.
+            fallthrough
+
+        case .success:
             headerBarController?.settingsButton.isEnabled = false
-        } else {
-            activityIndicator.isAnimating = false
+
+        default:
             headerBarController?.settingsButton.isEnabled = true
+            activityIndicator.isAnimating = false
         }
 
         updateDisplayedMessage()
