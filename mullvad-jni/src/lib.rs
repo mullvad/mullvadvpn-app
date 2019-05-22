@@ -4,9 +4,9 @@ mod daemon_interface;
 mod from_java;
 mod into_java;
 
-use crate::daemon_interface::DaemonInterface;
+use crate::{daemon_interface::DaemonInterface, from_java::FromJava, into_java::IntoJava};
 use jni::{
-    objects::{GlobalRef, JObject},
+    objects::{GlobalRef, JObject, JString},
     JNIEnv,
 };
 use lazy_static::lazy_static;
@@ -137,5 +137,28 @@ fn get_class(name: &str) -> GlobalRef {
     match CLASSES.read().get(name) {
         Some(class) => class.clone(),
         None => panic!("Class not loaded: {}", name),
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<'env, 'this>(
+    env: JNIEnv<'env>,
+    _: JObject<'this>,
+    accountToken: JString,
+) -> JObject<'env> {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    let account = String::from_java(&env, accountToken);
+
+    match daemon.get_account_data(account) {
+        Ok(data) => data.into_java(&env),
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to get account data")
+            );
+            JObject::null()
+        }
     }
 }
