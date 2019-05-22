@@ -3,7 +3,9 @@ use jni::{
     objects::{JObject, JString},
     JNIEnv,
 };
-use mullvad_types::relay_constraints::{Constraint, LocationConstraint, RelayConstraintsUpdate};
+use mullvad_types::relay_constraints::{
+    Constraint, LocationConstraint, RelayConstraintsUpdate, RelaySettingsUpdate,
+};
 use std::fmt::Debug;
 
 pub trait FromJava<'env> {
@@ -109,6 +111,25 @@ impl<'env> FromJava<'env> for RelayConstraintsUpdate {
         RelayConstraintsUpdate {
             location: FromJava::from_java(env, location),
             tunnel: None,
+        }
+    }
+}
+
+impl<'env> FromJava<'env> for RelaySettingsUpdate {
+    type JavaType = JObject<'env>;
+
+    fn from_java(env: &JNIEnv<'env>, source: Self::JavaType) -> Self {
+        let custom_tunnel_endpoint_class =
+            "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$CustomTunnelEndpoint";
+        let relay_constraints_update_class =
+            "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$RelayConstraintsUpdate";
+
+        if is_instance_of(env, source, custom_tunnel_endpoint_class) {
+            unimplemented!("Can't specify custom tunnels from Android app");
+        } else if is_instance_of(env, source, relay_constraints_update_class) {
+            RelaySettingsUpdate::Normal(RelayConstraintsUpdate::from_java(env, source))
+        } else {
+            panic!("Invalid RelaySettingsUpdate Java sub-class");
         }
     }
 }
