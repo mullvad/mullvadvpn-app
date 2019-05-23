@@ -147,8 +147,8 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             Self::create_credentials_file(&params.config.username, &params.config.password)
                 .map_err(Error::CredentialsWriteError)?;
 
-        let proxy_auth_file = Self::create_proxy_auth_file(&params.options.proxy)
-            .map_err(Error::CredentialsWriteError)?;
+        let proxy_auth_file =
+            Self::create_proxy_auth_file(&params.proxy).map_err(Error::CredentialsWriteError)?;
 
         let user_pass_file_path = user_pass_file.to_path_buf();
 
@@ -184,7 +184,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             log_dir,
         };
 
-        let proxy_monitor = Self::start_proxy(&params.options.proxy, &proxy_resources)?;
+        let proxy_monitor = Self::start_proxy(&params.proxy, &proxy_resources)?;
 
         let cmd = Self::create_openvpn_cmd(
             params,

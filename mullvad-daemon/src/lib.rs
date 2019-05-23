@@ -446,7 +446,8 @@ where
                 RelaySettings::CustomTunnelEndpoint(custom_relay) => {
                     self.last_generated_relay = None;
                     custom_relay
-                        .to_tunnel_parameters(self.settings.get_tunnel_options().clone())
+                        // TODO(emilsp): generate proxy settings for custom tunnels
+                        .to_tunnel_parameters(self.settings.get_tunnel_options().clone(), None)
                         .map_err(|e| {
                             e.display_chain_with_msg("Custom tunnel endpoint could not be resolved")
                         })
@@ -491,7 +492,7 @@ where
         account_token: String,
         retry_attempt: u32,
     ) -> Result<TunnelParameters> {
-        let mut tunnel_options = self.settings.get_tunnel_options().clone();
+        let tunnel_options = self.settings.get_tunnel_options().clone();
         let location = relay.location.as_ref().expect("Relay has no location set");
         match endpoint {
             MullvadEndpoint::OpenVpn(endpoint) => {
@@ -529,7 +530,6 @@ where
                         }
                     }
                 };
-                tunnel_options.openvpn.proxy = proxy_settings;
 
                 Ok(openvpn::TunnelParameters {
                     config: openvpn::ConnectionConfig::new(
@@ -539,6 +539,7 @@ where
                     ),
                     options: tunnel_options.openvpn,
                     generic_options: tunnel_options.generic,
+                    proxy: proxy_settings,
                 }
                 .into())
             }
