@@ -485,11 +485,10 @@ impl RelaySelector {
         if relay.bridges.shadowsocks.len() == 0 {
             return None;
         }
-        let range = self.rng.gen_range(0, relay.bridges.shadowsocks.len());
         relay
             .bridges
             .shadowsocks
-            .get(range)
+            .choose(&mut self.rng)
             .map(|data| data.clone().to_proxy_settings(relay.ipv4_addr_in.into()))
     }
 
