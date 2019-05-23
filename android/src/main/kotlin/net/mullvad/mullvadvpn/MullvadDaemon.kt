@@ -12,6 +12,7 @@ class MullvadDaemon {
     }
 
     external fun connect()
+    external fun disconnect()
     external fun getAccountData(accountToken: String): AccountData?
     external fun getRelayLocations(): RelayList
     external fun getSettings(): Settings
