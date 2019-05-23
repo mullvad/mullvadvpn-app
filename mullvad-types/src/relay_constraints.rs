@@ -241,6 +241,14 @@ pub enum BridgeSettings {
     Custom(ProxySettings),
 }
 
+impl Default for BridgeSettings {
+    fn default() -> BridgeSettings {
+        BridgeSettings::Normal(BridgeConstraints {
+            location: Constraint::Any,
+        })
+    }
+}
+
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -267,11 +275,15 @@ pub enum BridgeState {
 
 impl fmt::Display for BridgeState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", match self {
-            BridgeState::Auto => "auto",
-            BridgeState::On => "on",
-            BridgeState::Off => "off",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                BridgeState::Auto => "auto",
+                BridgeState::On => "on",
+                BridgeState::Off => "off",
+            }
+        )
     }
 }
 
