@@ -19,7 +19,12 @@ use talpid_types::{tunnel::TunnelStateTransition, ErrorExt};
 const LOG_FILENAME: &str = "daemon.log";
 
 const CLASSES_TO_LOAD: &[&str] = &[
+    "java/util/ArrayList",
     "net/mullvad/mullvadvpn/model/AccountData",
+    "net/mullvad/mullvadvpn/model/Relay",
+    "net/mullvad/mullvadvpn/model/RelayList",
+    "net/mullvad/mullvadvpn/model/RelayListCity",
+    "net/mullvad/mullvadvpn/model/RelayListCountry",
     "net/mullvad/mullvadvpn/model/Settings",
 ];
 
@@ -160,6 +165,26 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to get account data")
+            );
+            JObject::null()
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getRelayLocations<'env, 'this>(
+    env: JNIEnv<'env>,
+    _: JObject<'this>,
+) -> JObject<'env> {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    match daemon.get_relay_locations() {
+        Ok(relay_list) => relay_list.into_java(&env),
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to get relay locations")
             );
             JObject::null()
         }
