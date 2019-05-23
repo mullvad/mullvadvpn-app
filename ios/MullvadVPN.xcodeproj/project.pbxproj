@@ -21,6 +21,7 @@
 		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
 		5888AD87227B17950051EB06 /* SelectLocationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationController.swift */; };
 		5888AD89227B18C40051EB06 /* RelayList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD88227B18C40051EB06 /* RelayList.swift */; };
+		5894FC492296A8090017471D /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5894FC482296A8090017471D /* CustomButton.swift */; };
 		589AB4F7227B64450039131E /* BasicTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589AB4F6227B64450039131E /* BasicTableViewCell.swift */; };
 		589AB4F9227C50D80039131E /* CustomNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589AB4F8227C50D80039131E /* CustomNavigationBar.swift */; };
 		58ADDB3C227B1BD200FAFEA7 /* JsonRpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ADDB3B227B1BD200FAFEA7 /* JsonRpc.swift */; };
@@ -86,6 +87,7 @@
 		5888AD82227B11080051EB06 /* SelectLocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationCell.swift; sourceTree = "<group>"; };
 		5888AD86227B17950051EB06 /* SelectLocationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationController.swift; sourceTree = "<group>"; };
 		5888AD88227B18C40051EB06 /* RelayList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayList.swift; sourceTree = "<group>"; };
+		5894FC482296A8090017471D /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		589AB4F6227B64450039131E /* BasicTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicTableViewCell.swift; sourceTree = "<group>"; };
 		589AB4F8227C50D80039131E /* CustomNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationBar.swift; sourceTree = "<group>"; };
 		58ADDB3B227B1BD200FAFEA7 /* JsonRpc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonRpc.swift; sourceTree = "<group>"; };
@@ -182,6 +184,7 @@
 				589AB4F6227B64450039131E /* BasicTableViewCell.swift */,
 				58CCA00F224249A1004F3011 /* ConnectViewController.swift */,
 				589AB4F8227C50D80039131E /* CustomNavigationBar.swift */,
+				5894FC482296A8090017471D /* CustomButton.swift */,
 				58F37E7C2243ECCB00C75C97 /* HeaderBarViewController.swift */,
 				58CE5E6F224146210008646E /* Info.plist */,
 				58F19E30228B2AEB00C7710B /* JSONRequestProcedure.swift */,
@@ -437,6 +440,7 @@
 				5888AD7F2279B6BF0051EB06 /* RelayStatusIndicatorView.swift in Sources */,
 				5867A51C2248F26A005513C0 /* SegueIdentifier.swift in Sources */,
 				58F19E31228B2AEB00C7710B /* JSONRequestProcedure.swift in Sources */,
+				5894FC492296A8090017471D /* CustomButton.swift in Sources */,
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
 				58FFE444228C82A00036F391 /* UserDefaultsInteractor.swift in Sources */,
 				5888AD89227B18C40051EB06 /* RelayList.swift in Sources */,
