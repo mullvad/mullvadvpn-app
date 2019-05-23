@@ -289,7 +289,14 @@ impl RelaySelector {
     }
 
     pub fn should_use_bridge(&self, retry_attempt: u32) -> bool {
-        retry_attempt < 4
+        // shouldn't use a bridge for the first 3 times
+        retry_attempt > 3 &&
+            // we only want to use a bridge every other couple of connection attempts
+            // i.e. 4th and 5th with bridge, 6th & 7th without
+            // The test is to see whether the current _couple of connections_ is even or not.
+            // | retry_attempt                | 4 | 5 | 6 | 7 | 8 | 9 |
+            // | (retry_attempt / 2) % 2 != 0 | t | t | f | f | t | t |
+            (retry_attempt / 2) % 2 == 0
     }
 
     pub fn get_proxy_settings(
