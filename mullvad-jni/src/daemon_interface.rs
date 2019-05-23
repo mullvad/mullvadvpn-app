@@ -2,7 +2,7 @@ use futures::{sync::oneshot, Future};
 use mullvad_daemon::{DaemonCommandSender, ManagementCommand};
 use mullvad_types::{
     account::AccountData, relay_constraints::RelaySettingsUpdate, relay_list::RelayList,
-    settings::Settings,
+    settings::Settings, states::TargetState,
 };
 
 #[derive(Debug, err_derive::Error)]
@@ -35,6 +35,16 @@ impl DaemonInterface {
 
     pub fn set_command_sender(&mut self, sender: DaemonCommandSender) {
         self.command_sender = Some(sender);
+    }
+
+    pub fn connect(&self) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::SetTargetState(tx, TargetState::Secured))?;
+
+        rx.wait().map_err(|_| Error::NoResponse)?.unwrap();
+
+        Ok(())
     }
 
     pub fn get_account_data(&self, account_token: String) -> Result<AccountData> {
