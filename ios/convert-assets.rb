@@ -74,6 +74,7 @@ APP_ICON_SIZES=[
 ADDITIONAL_ASSETS = [
   "DefaultButton.svg",
   "SuccessButton.svg",
+  "DangerButton.svg",
   "TranslucentDangerButton.svg",
   "TranslucentNeutralButton.svg"
 ]
