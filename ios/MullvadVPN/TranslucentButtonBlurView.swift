@@ -1,5 +1,5 @@
 //
-//  AppButton.swift
+//  TranslucentButtonBlurView.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 20/03/2019.
