@@ -21,13 +21,13 @@ private enum UserDefaultsKeys: String {
 class UserDefaultsInteractor {
     let userDefaults: UserDefaults
 
-    /// Returns the instance of UserDefaultsInteractor initialized with the application preferences
-    /// scoped to the application group.
-    class func withApplicationGroupUserDefaults() -> UserDefaultsInteractor {
+    /// The shared instance of UserDefaultsInteractor initialized with the application group
+    /// preferences
+    static let sharedApplicationGroupInteractor: UserDefaultsInteractor = {
         let userDefaults = UserDefaults(suiteName: kApplicationGroupIdentifier)!
 
         return UserDefaultsInteractor(userDefaults: userDefaults)
-    }
+    }()
 
     init(userDefaults: UserDefaults) {
         self.userDefaults = userDefaults
