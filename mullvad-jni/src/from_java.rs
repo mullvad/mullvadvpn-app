@@ -3,7 +3,7 @@ use jni::{
     objects::{JObject, JString},
     JNIEnv,
 };
-use mullvad_types::relay_constraints::Constraint;
+use mullvad_types::relay_constraints::{Constraint, LocationConstraint};
 use std::{fmt::Debug, ops::Deref};
 
 pub trait FromJava<'env> {
@@ -59,6 +59,42 @@ where
     }
 }
 
+impl<'env> FromJava<'env> for LocationConstraint {
+    type JavaType = JObject<'env>;
+
+    fn from_java(env: &JNIEnv<'env>, source: Self::JavaType) -> Self {
+        let country_class = "net/mullvad/mullvadvpn/model/LocationConstraint$Country";
+        let city_class = "net/mullvad/mullvadvpn/model/LocationConstraint$City";
+        let hostname_class = "net/mullvad/mullvadvpn/model/LocationConstraint$Hostname";
+
+        if is_instance_of(env, source, country_class) {
+            let country = get_string_field(env, source, "countryCode");
+
+            LocationConstraint::Country(String::from_java(env, country))
+        } else if is_instance_of(env, source, city_class) {
+            let country = get_string_field(env, source, "countryCode");
+            let city = get_string_field(env, source, "cityCode");
+
+            LocationConstraint::City(
+                String::from_java(env, country),
+                String::from_java(env, city),
+            )
+        } else if is_instance_of(env, source, hostname_class) {
+            let country = get_string_field(env, source, "countryCode");
+            let city = get_string_field(env, source, "cityCode");
+            let hostname = get_string_field(env, source, "hostname");
+
+            LocationConstraint::Hostname(
+                String::from_java(env, country),
+                String::from_java(env, city),
+                String::from_java(env, hostname),
+            )
+        } else {
+            panic!("Invalid LocationConstraint Java sub-class");
+        }
+    }
+}
+
 fn is_instance_of<'env>(
     env: &JNIEnv<'env>,
     object: JObject<'env>,
@@ -68,6 +104,19 @@ fn is_instance_of<'env>(
 
     env.is_instance_of(object, &class)
         .expect("Failed to check if an object is an instance of a specified class")
+}
+
+fn get_string_field<'env>(
+    env: &JNIEnv<'env>,
+    object: JObject<'env>,
+    field_name: &str,
+) -> JString<'env> {
+    JString::from(get_object_field(
+        env,
+        object,
+        field_name,
+        "Ljava/lang/String;",
+    ))
 }
 
 fn get_object_field<'env>(
