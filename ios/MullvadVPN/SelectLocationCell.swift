@@ -49,15 +49,8 @@ class SelectLocationCell: BasicTableViewCell {
         collapseButton.addTarget(self, action: #selector(handleCollapseButton(_ :)), for: .touchUpInside)
 
         updateCollapseImage()
-    }
 
-    override func layoutMarginsDidChange() {
-        super.layoutMarginsDidChange()
-
-        // enforce the preferred layout margins
-        if contentView.layoutMargins != preferredMargins {
-            contentView.layoutMargins = preferredMargins
-        }
+        contentView.layoutMargins = preferredMargins
     }
 
     override func layoutSubviews() {

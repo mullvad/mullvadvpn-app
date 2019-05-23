@@ -10,22 +10,15 @@ import UIKit
 
 class SettingsCell: BasicTableViewCell {
 
-    private let preferredMargins = UIEdgeInsets(top: 16, left: 28, bottom: 16, right: 12)
+    private let preferredMargins = UIEdgeInsets(top: 36, left: 24, bottom: 36, right: 12)
 
     override func awakeFromNib() {
         super.awakeFromNib()
 
         backgroundView?.backgroundColor = UIColor.Cell.backgroundColor
         selectedBackgroundView?.backgroundColor = UIColor.Cell.selectedAltBackgroundColor
-    }
 
-    override func layoutMarginsDidChange() {
-        super.layoutMarginsDidChange()
-
-        // enforce the preferred layout margins
-        if contentView.layoutMargins != preferredMargins {
-            contentView.layoutMargins = preferredMargins
-        }
+        layoutMargins = preferredMargins
     }
 
 }
