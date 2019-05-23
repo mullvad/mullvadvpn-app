@@ -83,6 +83,10 @@ class ConnectFragment : Fragment() {
     private fun disconnect() {
         state = ConnectionState.Disconnected
 
+        GlobalScope.launch(Dispatchers.Default) {
+            daemon.await().disconnect()
+        }
+
         connectHandler.removeCallbacksAndMessages(null)
     }
 
