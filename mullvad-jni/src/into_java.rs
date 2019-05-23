@@ -6,10 +6,11 @@ use jni::{
 };
 use mullvad_types::{
     account::AccountData,
-    relay_constraints::LocationConstraint,
+    relay_constraints::{Constraint, LocationConstraint},
     relay_list::{Relay, RelayList, RelayListCity, RelayListCountry},
     settings::Settings,
 };
+use std::fmt::Debug;
 
 pub trait IntoJava<'env> {
     type JavaType;
@@ -152,6 +153,33 @@ impl<'env> IntoJava<'env> for Relay {
 
         env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
             .expect("Failed to create Relay Java object")
+    }
+}
+
+impl<'env, T> IntoJava<'env> for Constraint<T>
+where
+    T: Clone + Eq + Debug + IntoJava<'env>,
+    JObject<'env>: From<T::JavaType>,
+{
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        match self {
+            Constraint::Any => {
+                let class = get_class("net/mullvad/mullvadvpn/model/Constraint$Any");
+
+                env.new_object(&class, "()V", &[])
+                    .expect("Failed to create Constraint.Any Java object")
+            }
+            Constraint::Only(constraint) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/Constraint$Only");
+                let value = env.auto_local(JObject::from(constraint.into_java(env)));
+                let parameters = [JValue::Object(value.as_obj())];
+
+                env.new_object(&class, "(Ljava/lang/Object;)V", &parameters)
+                    .expect("Failed to create Constraint.Only Java object")
+            }
+        }
     }
 }
 
