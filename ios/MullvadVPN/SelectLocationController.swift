@@ -79,12 +79,6 @@ class SelectLocationController: UITableViewController {
         }
     }
 
-    // MARK: - UIScrollViewDelegate
-
-    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        updateBarVisibility(threshold: 12)
-    }
-
     // MARK: - Relay list handling
 
     private func loadRelayList() {
@@ -146,18 +140,6 @@ class SelectLocationController: UITableViewController {
         } else {
             tableView.deleteRows(at: indexPathsOfAffectedItems, with: .automatic)
         }
-    }
-
-    // MARK: - Bar visibility
-
-    private func updateBarVisibility(threshold: CGFloat) {
-        guard let navigationBar = navigationController?.navigationBar as? CustomNavigationBar else {
-            return
-        }
-
-        let shouldShowBar = tableView.contentOffset.y > (-tableView.adjustedContentInset.top + threshold)
-
-        navigationBar.setBarVisible(shouldShowBar, animated: true)
     }
 
     // MARK: - UITableView header
