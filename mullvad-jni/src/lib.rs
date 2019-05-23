@@ -160,6 +160,19 @@ fn get_class(name: &str) -> GlobalRef {
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_connect(_: JNIEnv, _: JObject) {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    if let Err(error) = daemon.connect() {
+        log::error!(
+            "{}",
+            error.display_chain_with_msg("Failed to request daemon to connect")
+        );
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<'env, 'this>(
     env: JNIEnv<'env>,
     _: JObject<'this>,
