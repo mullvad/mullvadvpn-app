@@ -1,5 +1,11 @@
 package net.mullvad.mullvadvpn
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -15,6 +21,7 @@ class ConnectFragment : Fragment() {
     private lateinit var status: ConnectionStatus
 
     private lateinit var connectHandler: Handler
+    private lateinit var daemon: Deferred<MullvadDaemon>
 
     private var state = ConnectionState.Disconnected
         set(value) {
@@ -25,6 +32,12 @@ class ConnectFragment : Fragment() {
 
             field = value
         }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        daemon = (context as MainActivity).asyncDaemon
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +72,10 @@ class ConnectFragment : Fragment() {
 
     private fun connect() {
         state = ConnectionState.Connecting
+
+        GlobalScope.launch(Dispatchers.Default) {
+            daemon.await().connect()
+        }
 
         connectHandler.postDelayed(Runnable { connected() }, 1000)
     }
