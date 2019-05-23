@@ -47,6 +47,19 @@ impl DaemonInterface {
         Ok(())
     }
 
+    pub fn disconnect(&self) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::SetTargetState(
+            tx,
+            TargetState::Unsecured,
+        ))?;
+
+        rx.wait().map_err(|_| Error::NoResponse)?.unwrap();
+
+        Ok(())
+    }
+
     pub fn get_account_data(&self, account_token: String) -> Result<AccountData> {
         let (tx, rx) = oneshot::channel();
 
