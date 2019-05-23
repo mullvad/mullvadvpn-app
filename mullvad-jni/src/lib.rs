@@ -4,18 +4,21 @@ mod daemon_interface;
 mod from_java;
 mod into_java;
 mod is_null;
+mod jni_event_listener;
 
-use crate::{daemon_interface::DaemonInterface, from_java::FromJava, into_java::IntoJava};
+use crate::{
+    daemon_interface::DaemonInterface, from_java::FromJava, into_java::IntoJava,
+    jni_event_listener::JniEventListener,
+};
 use jni::{
     objects::{GlobalRef, JObject, JString},
     JNIEnv,
 };
 use lazy_static::lazy_static;
-use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender, EventListener};
-use mullvad_types::{relay_list::RelayList, settings::Settings};
+use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
 use parking_lot::{Mutex, RwLock};
 use std::{collections::HashMap, path::PathBuf, sync::mpsc, thread};
-use talpid_types::{tunnel::TunnelStateTransition, ErrorExt};
+use talpid_types::ErrorExt;
 
 const LOG_FILENAME: &str = "daemon.log";
 
@@ -36,6 +39,12 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$CustomTunnelEndpoint",
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$RelayConstraintsUpdate",
     "net/mullvad/mullvadvpn/model/Settings",
+    "net/mullvad/mullvadvpn/model/TunnelStateTransition$Blocked",
+    "net/mullvad/mullvadvpn/model/TunnelStateTransition$Connected",
+    "net/mullvad/mullvadvpn/model/TunnelStateTransition$Connecting",
+    "net/mullvad/mullvadvpn/model/TunnelStateTransition$Disconnected",
+    "net/mullvad/mullvadvpn/model/TunnelStateTransition$Disconnecting",
+    "net/mullvad/mullvadvpn/MullvadDaemon",
 ];
 
 lazy_static! {
@@ -51,19 +60,22 @@ pub enum Error {
 
     #[error(display = "Failed to initialize the mullvad daemon")]
     InitializeDaemon(#[error(cause)] mullvad_daemon::Error),
+
+    #[error(display = "Failed to spawn the JNI event listener")]
+    SpawnJniEventListener(#[error(cause)] jni_event_listener::Error),
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
     env: JNIEnv,
-    _: JObject,
+    this: JObject,
 ) {
     let log_dir = start_logging();
 
     load_classes(&env);
 
-    if let Err(error) = initialize(log_dir) {
+    if let Err(error) = initialize(&env, &this, log_dir) {
         log::error!("{}", error.display_chain());
     }
 }
@@ -97,8 +109,8 @@ fn load_class_reference(env: &JNIEnv, name: &str) -> GlobalRef {
         .expect("Failed to convert local reference to Java class into a global reference")
 }
 
-fn initialize(log_dir: PathBuf) -> Result<(), Error> {
-    let daemon_command_sender = spawn_daemon(log_dir)?;
+fn initialize(env: &JNIEnv, this: &JObject, log_dir: PathBuf) -> Result<(), Error> {
+    let daemon_command_sender = spawn_daemon(env, this, log_dir)?;
 
     DAEMON_INTERFACE
         .lock()
@@ -107,10 +119,15 @@ fn initialize(log_dir: PathBuf) -> Result<(), Error> {
     Ok(())
 }
 
-fn spawn_daemon(log_dir: PathBuf) -> Result<DaemonCommandSender, Error> {
+fn spawn_daemon(
+    env: &JNIEnv,
+    this: &JObject,
+    log_dir: PathBuf,
+) -> Result<DaemonCommandSender, Error> {
+    let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
     let (tx, rx) = mpsc::channel();
 
-    thread::spawn(move || match create_daemon(log_dir) {
+    thread::spawn(move || match create_daemon(listener, log_dir) {
         Ok(daemon) => {
             let _ = tx.send(Ok(daemon.command_sender()));
             match daemon.run() {
@@ -126,12 +143,15 @@ fn spawn_daemon(log_dir: PathBuf) -> Result<DaemonCommandSender, Error> {
     rx.recv().unwrap()
 }
 
-fn create_daemon(log_dir: PathBuf) -> Result<Daemon<DummyListener>, Error> {
+fn create_daemon(
+    listener: JniEventListener,
+    log_dir: PathBuf,
+) -> Result<Daemon<JniEventListener>, Error> {
     let resource_dir = mullvad_paths::get_resource_dir();
     let cache_dir = mullvad_paths::cache_dir().map_err(Error::GetCacheDir)?;
 
     let daemon = Daemon::start_with_event_listener(
-        DummyListener,
+        listener,
         Some(log_dir),
         resource_dir,
         cache_dir,
@@ -140,15 +160,6 @@ fn create_daemon(log_dir: PathBuf) -> Result<Daemon<DummyListener>, Error> {
     .map_err(Error::InitializeDaemon)?;
 
     Ok(daemon)
-}
-
-#[derive(Clone, Copy, Debug)]
-struct DummyListener;
-
-impl EventListener for DummyListener {
-    fn notify_new_state(&self, _: TunnelStateTransition) {}
-    fn notify_settings(&self, _: Settings) {}
-    fn notify_relay_list(&self, _: RelayList) {}
 }
 
 fn get_class(name: &str) -> GlobalRef {

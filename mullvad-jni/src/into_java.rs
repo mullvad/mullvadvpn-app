@@ -12,6 +12,7 @@ use mullvad_types::{
     CustomTunnelEndpoint,
 };
 use std::fmt::Debug;
+use talpid_types::tunnel::TunnelStateTransition;
 
 pub trait IntoJava<'env> {
     type JavaType;
@@ -292,5 +293,27 @@ impl<'env> IntoJava<'env> for Settings {
             &parameters,
         )
         .expect("Failed to create Settings Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for TunnelStateTransition {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let variant = match self {
+            TunnelStateTransition::Disconnected => "Disconnected",
+            TunnelStateTransition::Connecting(_) => "Connecting",
+            TunnelStateTransition::Connected(_) => "Connected",
+            TunnelStateTransition::Disconnecting(_) => "Disconnecting",
+            TunnelStateTransition::Blocked(_) => "Blocked",
+        };
+
+        let class = get_class(&format!(
+            "net/mullvad/mullvadvpn/model/TunnelStateTransition${}",
+            variant
+        ));
+
+        env.new_object(&class, "()V", &[])
+            .expect("Failed to create TunnelStateTransition sub-class variant Java object")
     }
 }
