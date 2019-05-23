@@ -17,10 +17,24 @@ class Account {
         case invalidAccount
     }
 
+    /// Returns the currently used account token
+    static var token: String? {
+        return UserDefaultsInteractor.sharedApplicationGroupInteractor.accountToken
+    }
+
+    /// Returns the account expiry for the currently used account token
+    static var expiry: Date? {
+        return UserDefaultsInteractor.sharedApplicationGroupInteractor.accountExpiry
+    }
+
+    static var isLoggedIn: Bool {
+        return token != nil
+    }
+
     /// Perform the login and save the account token along with expiry (if available) to the
     /// application preferences.
     class func login(with accountToken: String) -> Procedure {
-        let userDefaultsInteractor = UserDefaultsInteractor.withApplicationGroupUserDefaults()
+        let userDefaultsInteractor = UserDefaultsInteractor.sharedApplicationGroupInteractor
 
         // Request account token verification
         let verificationProcedure = AccountVerificationProcedure(accountToken: accountToken)
@@ -49,7 +63,7 @@ class Account {
 
     /// Perform the logout by erasing the account token and expiry from the application preferences.
     class func logout() {
-        let userDefaultsInteractor = UserDefaultsInteractor.withApplicationGroupUserDefaults()
+        let userDefaultsInteractor = UserDefaultsInteractor.sharedApplicationGroupInteractor
 
         userDefaultsInteractor.accountToken = nil
         userDefaultsInteractor.accountExpiry = nil
