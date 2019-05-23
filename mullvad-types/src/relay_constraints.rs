@@ -248,12 +248,35 @@ pub struct BridgeConstraints {
     pub location: Constraint<LocationConstraint>,
 }
 
+impl fmt::Display for BridgeConstraints {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self.location {
+            Constraint::Any => write!(f, "any location"),
+            Constraint::Only(ref location_constraint) => location_constraint.fmt(f),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BridgeState {
     Auto,
     On,
     Off,
+}
+
+impl fmt::Display for BridgeState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                BridgeState::Auto => "auto",
+                BridgeState::On => "on",
+                BridgeState::Off => "off",
+            }
+        )
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
