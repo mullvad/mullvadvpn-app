@@ -42,8 +42,7 @@ import UIKit
         }
 
         contentEdgeInsets = contentInsets
-
-        titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         titleLabel?.textColor = UIColor.white
     }
 

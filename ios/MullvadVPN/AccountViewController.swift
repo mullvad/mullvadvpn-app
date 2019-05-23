@@ -10,9 +10,24 @@ import UIKit
 
 class AccountViewController: UIViewController {
 
+    @IBOutlet var accountLabel: UILabel!
+    @IBOutlet var expiryLabel: UILabel!
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+
+        accountLabel.text = Account.token
+
+        if let expiryDate = Account.expiry {
+            let expiry = AccountExpiry(date: expiryDate)
+            
+            expiryLabel.text = expiry.formattedDate
+        }
     }
 
+    @IBAction func doLogout() {
+        Account.logout()
+
+        performSegue(withIdentifier: SegueIdentifier.Account.logout.rawValue, sender: self)
+    }
 }
