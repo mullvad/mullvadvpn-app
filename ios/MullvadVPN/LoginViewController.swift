@@ -138,7 +138,12 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
         return string.unicodeScalars.allSatisfy { kValidAccountTokenCharacterSet.contains($0) }
     }
 
-    // MARK: - IBActions
+    // MARK: - Actions
+
+    @IBAction func unwindFromAccount(segue: UIStoryboardSegue) {
+        loginState = .default
+        accountTextField.text = ""
+    }
 
     @IBAction func cancelLogin() {
         view.endEditing(true)
