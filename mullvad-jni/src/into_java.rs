@@ -6,9 +6,10 @@ use jni::{
 };
 use mullvad_types::{
     account::AccountData,
-    relay_constraints::{Constraint, LocationConstraint},
+    relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
     relay_list::{Relay, RelayList, RelayListCity, RelayListCountry},
     settings::Settings,
+    CustomTunnelEndpoint,
 };
 use std::fmt::Debug;
 
@@ -231,6 +232,45 @@ impl<'env> IntoJava<'env> for LocationConstraint {
                 .expect("Failed to create LocationConstraint.Hostname Java object")
             }
         }
+    }
+}
+
+impl<'env> IntoJava<'env> for RelaySettings {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        match self {
+            RelaySettings::CustomTunnelEndpoint(endpoint) => endpoint.into_java(env),
+            RelaySettings::Normal(relay_constraints) => relay_constraints.into_java(env),
+        }
+    }
+}
+
+impl<'env> IntoJava<'env> for CustomTunnelEndpoint {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/RelaySettings$CustomTunnelEndpoint");
+
+        env.new_object(&class, "()V", &[])
+            .expect("Failed to create CustomTunnelEndpoint Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for RelayConstraints {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/RelaySettings$RelayConstraints");
+        let location = env.auto_local(self.location.into_java(env));
+        let parameters = [JValue::Object(location.as_obj())];
+
+        env.new_object(
+            &class,
+            "(Lnet/mullvad/mullvadvpn/model/Constraint;)V",
+            &parameters,
+        )
+        .expect("Failed to create RelaySettings.RelayConstraints Java object")
     }
 }
 

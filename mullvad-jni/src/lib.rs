@@ -31,6 +31,8 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/RelayList",
     "net/mullvad/mullvadvpn/model/RelayListCity",
     "net/mullvad/mullvadvpn/model/RelayListCountry",
+    "net/mullvad/mullvadvpn/model/RelaySettings$CustomTunnelEndpoint",
+    "net/mullvad/mullvadvpn/model/RelaySettings$RelayConstraints",
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$CustomTunnelEndpoint",
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$RelayConstraintsUpdate",
     "net/mullvad/mullvadvpn/model/Settings",
