@@ -34,8 +34,9 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, OpenVpnConstraints,
-        RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TunnelConstraints,
+        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints,
+        OpenVpnConstraints, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
+        TunnelConstraints,
     },
     relay_list::{Relay, RelayList},
     settings::{self, Settings},
@@ -438,10 +439,9 @@ impl Daemon {
         let mut tunnel_options = self.settings.get_tunnel_options().clone();
         match endpoint {
             MullvadEndpoint::OpenVpn(endpoint) => {
-                let bridge_settings = self.settings.get_bridge_settings();
-                let proxy_settings = match bridge_settings {
+                let proxy_settings = match self.settings.get_bridge_settings() {
                     BridgeSettings::Normal(settings) => {
-                        let bridge_constraints = BridgeConstraints {
+                        let bridge_constraints = InternalBridgeConstraints {
                             location: settings.location.clone(),
                             transport_protocol: Constraint::Only(endpoint.protocol),
                         };

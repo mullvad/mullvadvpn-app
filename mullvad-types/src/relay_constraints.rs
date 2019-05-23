@@ -237,14 +237,14 @@ impl Match<WireguardEndpointData> for WireguardConstraints {
 #[serde(rename_all = "snake_case")]
 pub enum BridgeSettings {
     /// Let the relay selection algorithm decide on bridges, based on the relay list.
-    Normal(NormalBridgeSettings),
+    Normal(BridgeConstraints),
     Custom(ProxySettings),
 }
 
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
-pub struct NormalBridgeSettings {
+pub struct BridgeConstraints {
     pub location: Constraint<LocationConstraint>,
 }
 
@@ -257,7 +257,7 @@ pub enum BridgeState {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
-pub struct BridgeConstraints {
+pub struct InternalBridgeConstraints {
     pub location: Constraint<LocationConstraint>,
     pub transport_protocol: Constraint<TransportProtocol>,
 }

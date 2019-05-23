@@ -5,7 +5,7 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::Location,
     relay_constraints::{
-        BridgeConstraints, Constraint, LocationConstraint, Match, OpenVpnConstraints,
+        InternalBridgeConstraints, Constraint, LocationConstraint, Match, OpenVpnConstraints,
         RelayConstraints, TunnelConstraints, WireguardConstraints,
     },
     relay_list::{Relay, RelayList, RelayTunnels, WireguardEndpointData},
@@ -278,7 +278,7 @@ impl RelaySelector {
 
     pub fn get_auto_proxy_settings(
         &mut self,
-        bridge_constraints: &BridgeConstraints,
+        bridge_constraints: &InternalBridgeConstraints,
         location: &Option<Location>,
         retry_attempt: u32,
     ) -> Option<ProxySettings> {
@@ -294,7 +294,7 @@ impl RelaySelector {
 
     pub fn get_proxy_settings(
         &mut self,
-        constraints: &BridgeConstraints,
+        constraints: &InternalBridgeConstraints,
         location: &Option<Location>,
     ) -> Option<ProxySettings> {
         let mut matching_relays: Vec<Relay> = self
@@ -407,7 +407,7 @@ impl RelaySelector {
         }
     }
 
-    fn matching_bridge_relay(relay: &Relay, constraints: &BridgeConstraints) -> Option<Relay> {
+    fn matching_bridge_relay(relay: &Relay, constraints: &InternalBridgeConstraints) -> Option<Relay> {
         if !Self::relay_matches_location(relay, &constraints.location) {
             return None;
         }

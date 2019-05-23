@@ -1,5 +1,5 @@
 use crate::relay_constraints::{
-    BridgeSettings, BridgeState, Constraint, LocationConstraint, NormalBridgeSettings,
+    BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
     RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
 use log::{debug, info};
@@ -63,7 +63,7 @@ impl Default for Settings {
                 location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
                 tunnel: Constraint::Any,
             }),
-            bridge_settings: BridgeSettings::Normal(NormalBridgeSettings {
+            bridge_settings: BridgeSettings::Normal(BridgeConstraints {
                 location: Constraint::Any,
             }),
             bridge_state: BridgeState::Auto,
