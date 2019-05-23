@@ -65,6 +65,12 @@ class RelayItemHolder(
 
             if (item.hasChildren) {
                 chevron.visibility = View.VISIBLE
+
+                if (item.expanded) {
+                    chevron.rotation = 180.0F
+                } else {
+                    chevron.rotation = 0.0F
+                }
             } else {
                 chevron.visibility = View.GONE
             }

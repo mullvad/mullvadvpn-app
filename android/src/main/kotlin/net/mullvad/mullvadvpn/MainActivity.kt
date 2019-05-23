@@ -88,7 +88,7 @@ class MainActivity : FragmentActivity() {
                 val location = relaySettings.location
                 val relayList = asyncRelayList.await()
 
-                selectedRelayItem = relayList.findItemForLocation(location)
+                selectedRelayItem = relayList.findItemForLocation(location, true)
             }
         }
     }
