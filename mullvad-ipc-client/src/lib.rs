@@ -6,7 +6,7 @@ use jsonrpc_client_ipc::IpcTransport;
 use mullvad_types::{
     account::{AccountData, AccountToken},
     location::GeoIpLocation,
-    relay_constraints::{RelaySettings, RelaySettingsUpdate},
+    relay_constraints::{BridgeSettings, BridgeState, RelaySettings, RelaySettingsUpdate},
     relay_list::RelayList,
     settings::{Settings, TunnelOptions},
     version::AppVersionInfo,
@@ -14,10 +14,7 @@ use mullvad_types::{
 };
 use serde::{Deserialize, Serialize};
 use std::{io, path::Path, thread};
-use talpid_types::{
-    net::{openvpn, wireguard},
-    tunnel::TunnelStateTransition,
-};
+use talpid_types::{net::wireguard, tunnel::TunnelStateTransition};
 
 static NO_ARGS: [u8; 0] = [];
 
@@ -194,8 +191,12 @@ impl DaemonRpcClient {
         self.call("set_openvpn_mssfix", &[mssfix])
     }
 
-    pub fn set_openvpn_proxy(&mut self, proxy: Option<openvpn::ProxySettings>) -> Result<()> {
-        self.call("set_openvpn_proxy", &[proxy])
+    pub fn set_bridge_settings(&mut self, settings: BridgeSettings) -> Result<()> {
+        self.call("set_bridge_settings", &[settings])
+    }
+
+    pub fn set_bridge_state(&mut self, state: BridgeState) -> Result<()> {
+        self.call("set_bridge_state", &[state])
     }
 
     pub fn shutdown(&mut self) -> Result<()> {
