@@ -3,6 +3,7 @@
 mod daemon_interface;
 mod from_java;
 mod into_java;
+mod is_null;
 
 use crate::{daemon_interface::DaemonInterface, from_java::FromJava, into_java::IntoJava};
 use jni::{
@@ -21,10 +22,17 @@ const LOG_FILENAME: &str = "daemon.log";
 const CLASSES_TO_LOAD: &[&str] = &[
     "java/util/ArrayList",
     "net/mullvad/mullvadvpn/model/AccountData",
+    "net/mullvad/mullvadvpn/model/Constraint$Any",
+    "net/mullvad/mullvadvpn/model/Constraint$Only",
+    "net/mullvad/mullvadvpn/model/LocationConstraint$City",
+    "net/mullvad/mullvadvpn/model/LocationConstraint$Country",
+    "net/mullvad/mullvadvpn/model/LocationConstraint$Hostname",
     "net/mullvad/mullvadvpn/model/Relay",
     "net/mullvad/mullvadvpn/model/RelayList",
     "net/mullvad/mullvadvpn/model/RelayListCity",
     "net/mullvad/mullvadvpn/model/RelayListCountry",
+    "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$CustomTunnelEndpoint",
+    "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$RelayConstraintsUpdate",
     "net/mullvad/mullvadvpn/model/Settings",
 ];
 
@@ -221,5 +229,24 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
 
     if let Err(error) = daemon.set_account(account) {
         log::error!("{}", error.display_chain_with_msg("Failed to set account"));
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_updateRelaySettings(
+    env: JNIEnv,
+    _: JObject,
+    relaySettingsUpdate: JObject,
+) {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    let update = FromJava::from_java(&env, relaySettingsUpdate);
+
+    if let Err(error) = daemon.update_relay_settings(update) {
+        log::error!(
+            "{}",
+            error.display_chain_with_msg("Failed to update relay settings")
+        );
     }
 }
