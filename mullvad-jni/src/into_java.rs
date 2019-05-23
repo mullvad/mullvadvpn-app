@@ -280,9 +280,17 @@ impl<'env> IntoJava<'env> for Settings {
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let class = get_class("net/mullvad/mullvadvpn/model/Settings");
         let account_token = env.auto_local(JObject::from(self.get_account_token().into_java(env)));
-        let parameters = [JValue::Object(account_token.as_obj())];
+        let relay_settings = env.auto_local(self.get_relay_settings().into_java(env));
+        let parameters = [
+            JValue::Object(account_token.as_obj()),
+            JValue::Object(relay_settings.as_obj()),
+        ];
 
-        env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
-            .expect("Failed to create Settings Java object")
+        env.new_object(
+            &class,
+            "(Ljava/lang/String;Lnet/mullvad/mullvadvpn/model/RelaySettings;)V",
+            &parameters,
+        )
+        .expect("Failed to create Settings Java object")
     }
 }
