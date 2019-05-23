@@ -26,6 +26,10 @@ struct SegueIdentifier {
         case returnToConnectWithNewRelay = "ReturnToConnectWithNewRelay"
     }
 
+    enum Account: String, SegueConvertible {
+        case logout = "Logout"
+    }
+
     private init() {}
 }
 

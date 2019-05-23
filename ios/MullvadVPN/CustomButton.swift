@@ -36,14 +36,13 @@ import UIKit
         if contentInsets.right == 0 {
             contentInsets.right = 10
         }
-        
+
         if contentInsets.left == 0 {
             contentInsets.left = 10
         }
 
         contentEdgeInsets = contentInsets
-
-        titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         titleLabel?.textColor = UIColor.white
     }
 
