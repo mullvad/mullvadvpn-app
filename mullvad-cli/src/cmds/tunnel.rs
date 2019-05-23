@@ -1,7 +1,7 @@
 use crate::{new_rpc_client, Command, Result};
 use clap::value_t;
 
-use mullvad_types::settings::TunnelOptions;
+use mullvad_types::{relay_constraints::BridgeSettings, settings::TunnelOptions};
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
 use std::net::{IpAddr, SocketAddr};
@@ -324,20 +324,27 @@ impl Tunnel {
     }
 
     fn process_openvpn_proxy_get() -> Result<()> {
-        let tunnel_options = Self::get_tunnel_options()?;
-        if let Some(proxy) = tunnel_options.openvpn.proxy {
-            if let openvpn::ProxySettings::Local(local_proxy) = proxy {
-                Self::print_local_proxy(&local_proxy)
-            } else if let openvpn::ProxySettings::Remote(remote_proxy) = proxy {
-                Self::print_remote_proxy(&remote_proxy)
-            } else if let openvpn::ProxySettings::Shadowsocks(shadowsocks_proxy) = proxy {
-                Self::print_shadowsocks_proxy(&shadowsocks_proxy)
-            } else {
-                unreachable!("unhandled proxy type");
+        let mut rpc = new_rpc_client()?;
+        let settings = rpc.get_settings()?;
+        println!("Bridge state - {}", settings.get_bridge_state());
+        match settings.get_bridge_settings() {
+            BridgeSettings::Custom(proxy) => {
+                match proxy {
+                    openvpn::ProxySettings::Local(local_proxy) => {
+                        Self::print_local_proxy(&local_proxy)
+                    }
+                    openvpn::ProxySettings::Remote(remote_proxy) => {
+                        Self::print_remote_proxy(&remote_proxy)
+                    }
+                    openvpn::ProxySettings::Shadowsocks(shadowsocks_proxy) => {
+                        Self::print_shadowsocks_proxy(&shadowsocks_proxy)
+                    }
+                };
             }
-        } else {
-            println!("proxy: unset");
-        }
+            BridgeSettings::Normal(constraints) => {
+                println!("Bridge constraitns: {}", constraints);
+            }
+        };
         Ok(())
     }
 
@@ -371,7 +378,7 @@ impl Tunnel {
 
     fn process_openvpn_proxy_unset() -> Result<()> {
         let mut rpc = new_rpc_client()?;
-        rpc.set_openvpn_proxy(None)?;
+        rpc.set_bridge_settings(BridgeSettings::default())?;
         println!("proxy details have been unset");
         Ok(())
     }
@@ -397,7 +404,7 @@ impl Tunnel {
             }
 
             let mut rpc = new_rpc_client()?;
-            rpc.set_openvpn_proxy(Some(packed_proxy))?;
+            rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))?;
         } else if let Some(args) = matches.subcommand_matches("remote") {
             let remote_ip =
                 value_t!(args.value_of("remote-ip"), IpAddr).unwrap_or_else(|e| e.exit());
@@ -426,7 +433,7 @@ impl Tunnel {
             }
 
             let mut rpc = new_rpc_client()?;
-            rpc.set_openvpn_proxy(Some(packed_proxy))?;
+            rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))?;
         } else if let Some(args) = matches.subcommand_matches("shadowsocks") {
             let remote_ip =
                 value_t!(args.value_of("remote-ip"), IpAddr).unwrap_or_else(|e| e.exit());
@@ -448,7 +455,7 @@ impl Tunnel {
             }
 
             let mut rpc = new_rpc_client()?;
-            rpc.set_openvpn_proxy(Some(packed_proxy))?;
+            rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))?;
         } else {
             unreachable!("unhandled proxy type");
         }
