@@ -6,9 +6,12 @@ use jni::{
 };
 use mullvad_types::{
     account::AccountData,
+    relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
     relay_list::{Relay, RelayList, RelayListCity, RelayListCountry},
     settings::Settings,
+    CustomTunnelEndpoint,
 };
+use std::fmt::Debug;
 
 pub trait IntoJava<'env> {
     type JavaType;
@@ -154,15 +157,140 @@ impl<'env> IntoJava<'env> for Relay {
     }
 }
 
+impl<'env, T> IntoJava<'env> for Constraint<T>
+where
+    T: Clone + Eq + Debug + IntoJava<'env>,
+    JObject<'env>: From<T::JavaType>,
+{
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        match self {
+            Constraint::Any => {
+                let class = get_class("net/mullvad/mullvadvpn/model/Constraint$Any");
+
+                env.new_object(&class, "()V", &[])
+                    .expect("Failed to create Constraint.Any Java object")
+            }
+            Constraint::Only(constraint) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/Constraint$Only");
+                let value = env.auto_local(JObject::from(constraint.into_java(env)));
+                let parameters = [JValue::Object(value.as_obj())];
+
+                env.new_object(&class, "(Ljava/lang/Object;)V", &parameters)
+                    .expect("Failed to create Constraint.Only Java object")
+            }
+        }
+    }
+}
+
+impl<'env> IntoJava<'env> for LocationConstraint {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        match self {
+            LocationConstraint::Country(country_code) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/LocationConstraint$Country");
+                let country = env.auto_local(JObject::from(country_code.into_java(env)));
+                let parameters = [JValue::Object(country.as_obj())];
+
+                env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
+                    .expect("Failed to create LocationConstraint.Country Java object")
+            }
+            LocationConstraint::City(country_code, city_code) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/LocationConstraint$City");
+                let country = env.auto_local(JObject::from(country_code.into_java(env)));
+                let city = env.auto_local(JObject::from(city_code.into_java(env)));
+                let parameters = [
+                    JValue::Object(country.as_obj()),
+                    JValue::Object(city.as_obj()),
+                ];
+
+                env.new_object(
+                    &class,
+                    "(Ljava/lang/String;Ljava/lang/String;)V",
+                    &parameters,
+                )
+                .expect("Failed to create LocationConstraint.City Java object")
+            }
+            LocationConstraint::Hostname(country_code, city_code, hostname) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/LocationConstraint$Hostname");
+                let country = env.auto_local(JObject::from(country_code.into_java(env)));
+                let city = env.auto_local(JObject::from(city_code.into_java(env)));
+                let hostname = env.auto_local(JObject::from(hostname.into_java(env)));
+                let parameters = [
+                    JValue::Object(country.as_obj()),
+                    JValue::Object(city.as_obj()),
+                    JValue::Object(hostname.as_obj()),
+                ];
+
+                env.new_object(
+                    &class,
+                    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+                    &parameters,
+                )
+                .expect("Failed to create LocationConstraint.Hostname Java object")
+            }
+        }
+    }
+}
+
+impl<'env> IntoJava<'env> for RelaySettings {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        match self {
+            RelaySettings::CustomTunnelEndpoint(endpoint) => endpoint.into_java(env),
+            RelaySettings::Normal(relay_constraints) => relay_constraints.into_java(env),
+        }
+    }
+}
+
+impl<'env> IntoJava<'env> for CustomTunnelEndpoint {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/RelaySettings$CustomTunnelEndpoint");
+
+        env.new_object(&class, "()V", &[])
+            .expect("Failed to create CustomTunnelEndpoint Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for RelayConstraints {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/RelaySettings$RelayConstraints");
+        let location = env.auto_local(self.location.into_java(env));
+        let parameters = [JValue::Object(location.as_obj())];
+
+        env.new_object(
+            &class,
+            "(Lnet/mullvad/mullvadvpn/model/Constraint;)V",
+            &parameters,
+        )
+        .expect("Failed to create RelaySettings.RelayConstraints Java object")
+    }
+}
+
 impl<'env> IntoJava<'env> for Settings {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let class = get_class("net/mullvad/mullvadvpn/model/Settings");
         let account_token = env.auto_local(JObject::from(self.get_account_token().into_java(env)));
-        let parameters = [JValue::Object(account_token.as_obj())];
+        let relay_settings = env.auto_local(self.get_relay_settings().into_java(env));
+        let parameters = [
+            JValue::Object(account_token.as_obj()),
+            JValue::Object(relay_settings.as_obj()),
+        ];
 
-        env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
-            .expect("Failed to create Settings Java object")
+        env.new_object(
+            &class,
+            "(Ljava/lang/String;Lnet/mullvad/mullvadvpn/model/RelaySettings;)V",
+            &parameters,
+        )
+        .expect("Failed to create Settings Java object")
     }
 }
