@@ -61,6 +61,16 @@ impl DaemonInterface {
         Ok(())
     }
 
+    pub fn generate_wireguard_key(&self) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::GenerateWireguardKey(tx))?;
+
+        rx.wait()
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::RpcError)
+    }
+
     pub fn get_account_data(&self, account_token: String) -> Result<AccountData> {
         let (tx, rx) = oneshot::channel();
 
