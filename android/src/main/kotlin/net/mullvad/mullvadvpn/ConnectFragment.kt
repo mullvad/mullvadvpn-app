@@ -97,6 +97,7 @@ class ConnectFragment : Fragment() {
     }
 
     private fun connect() = GlobalScope.launch(Dispatchers.Default) {
+        generateWireguardKeyJob.join()
         daemon.await().connect()
     }
 
