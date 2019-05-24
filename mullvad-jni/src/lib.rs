@@ -258,6 +258,26 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getSettings<'en
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey<'env, 'this>(
+    env: JNIEnv<'env>,
+    _: JObject<'this>,
+) -> JObject<'env> {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    match daemon.get_wireguard_key() {
+        Ok(public_key) => public_key.into_java(&env),
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to get wireguard key")
+            );
+            JObject::null()
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
     env: JNIEnv,
     _: JObject,
