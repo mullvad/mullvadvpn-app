@@ -4,6 +4,7 @@ use mullvad_types::{
     account::AccountData, relay_constraints::RelaySettingsUpdate, relay_list::RelayList,
     settings::Settings, states::TargetState,
 };
+use talpid_types::net::wireguard;
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
@@ -85,6 +86,14 @@ impl DaemonInterface {
         self.send_command(ManagementCommand::GetSettings(tx))?;
 
         Ok(rx.wait().map_err(|_| Error::NoResponse)?)
+    }
+
+    pub fn get_wireguard_key(&self) -> Result<Option<wireguard::PublicKey>> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::GetWireguardKey(tx))?;
+
+        rx.wait().map_err(|_| Error::NoResponse)
     }
 
     pub fn set_account(&self, account_token: Option<String>) -> Result<()> {
