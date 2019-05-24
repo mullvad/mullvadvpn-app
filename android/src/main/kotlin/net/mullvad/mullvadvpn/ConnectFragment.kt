@@ -28,6 +28,7 @@ class ConnectFragment : Fragment() {
 
     private var generateWireguardKeyJob = generateWireguardKey()
 
+    private var activeAction: Job? = null
     private var attachListenerJob: Job? = null
     private var updateViewJob: Job? = null
     private var waitForDaemonJob: Job? = null
@@ -96,13 +97,21 @@ class ConnectFragment : Fragment() {
         }
     }
 
-    private fun connect() = GlobalScope.launch(Dispatchers.Default) {
-        generateWireguardKeyJob.join()
-        daemon.await().connect()
+    private fun connect() {
+        activeAction?.cancel()
+
+        activeAction = GlobalScope.launch(Dispatchers.Default) {
+            generateWireguardKeyJob.join()
+            daemon.await().connect()
+        }
     }
 
-    private fun disconnect() = GlobalScope.launch(Dispatchers.Default) {
-        daemon.await().disconnect()
+    private fun disconnect() {
+        activeAction?.cancel()
+
+        activeAction = GlobalScope.launch(Dispatchers.Default) {
+            daemon.await().disconnect()
+        }
     }
 
     private fun updateView(state: TunnelStateTransition) = GlobalScope.launch(Dispatchers.Main) {
