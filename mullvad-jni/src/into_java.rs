@@ -12,7 +12,7 @@ use mullvad_types::{
     CustomTunnelEndpoint,
 };
 use std::fmt::Debug;
-use talpid_types::tunnel::TunnelStateTransition;
+use talpid_types::{net::wireguard::PublicKey, tunnel::TunnelStateTransition};
 
 pub trait IntoJava<'env> {
     type JavaType;
@@ -88,6 +88,19 @@ impl<'array, 'env> IntoJava<'env> for &'array [u8] {
             .expect("Failed to copy bytes to Java array");
 
         JObject::from(array)
+    }
+}
+
+impl<'env> IntoJava<'env> for PublicKey {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/PublicKey");
+        let key = env.auto_local(self.as_bytes().into_java(env));
+        let parameters = [JValue::Object(key.as_obj())];
+
+        env.new_object(&class, "([B)V", &parameters)
+            .expect("Failed to create PublicKey Java object")
     }
 }
 
