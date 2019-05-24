@@ -26,6 +26,7 @@ class ConnectFragment : Fragment() {
     private lateinit var daemon: Deferred<MullvadDaemon>
 
     private var attachListenerJob: Job? = null
+    private var generateWireguardKeyJob: Job? = null
     private var updateViewJob: Job? = null
 
     override fun onAttach(context: Context) {
@@ -57,6 +58,7 @@ class ConnectFragment : Fragment() {
         }
 
         attachListenerJob = attachListener()
+        generateWireguardKeyJob = generateWireguardKey()
 
         return view
     }
@@ -65,6 +67,7 @@ class ConnectFragment : Fragment() {
     override fun onDestroyView() {
         attachListenerJob?.cancel()
         detachListener()
+        generateWireguardKeyJob?.cancel()
         updateViewJob?.cancel()
         super.onDestroyView()
     }
@@ -75,6 +78,15 @@ class ConnectFragment : Fragment() {
 
     private fun detachListener() = GlobalScope.launch(Dispatchers.Default) {
         daemon.await().onTunnelStateChange = null
+    }
+
+    private fun generateWireguardKey() = GlobalScope.launch(Dispatchers.Default) {
+        val daemon = this@ConnectFragment.daemon.await()
+        val key = daemon.getWireguardKey()
+
+        if (key == null) {
+            daemon.generateWireguardKey()
+        }
     }
 
     private fun connect() = GlobalScope.launch(Dispatchers.Default) {
