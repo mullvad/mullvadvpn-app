@@ -12,6 +12,7 @@ use crate::{
 };
 use jni::{
     objects::{GlobalRef, JObject, JString},
+    sys::{jboolean, JNI_FALSE, JNI_TRUE},
     JNIEnv,
 };
 use lazy_static::lazy_static;
@@ -193,6 +194,26 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_disconnect(_: J
             "{}",
             error.display_chain_with_msg("Failed to request daemon to disconnect")
         );
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWireguardKey(
+    _: JNIEnv,
+    _: JObject,
+) -> jboolean {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    match daemon.generate_wireguard_key() {
+        Ok(()) => JNI_TRUE,
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to generate wireguard key")
+            );
+            JNI_FALSE
+        }
     }
 }
 
