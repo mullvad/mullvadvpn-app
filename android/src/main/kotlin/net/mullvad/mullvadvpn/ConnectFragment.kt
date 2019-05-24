@@ -98,6 +98,7 @@ class ConnectFragment : Fragment() {
     }
 
     private fun connect() {
+        updateViewToPreConnecting()
         activeAction?.cancel()
 
         activeAction = GlobalScope.launch(Dispatchers.Default) {
@@ -112,6 +113,17 @@ class ConnectFragment : Fragment() {
         activeAction = GlobalScope.launch(Dispatchers.Default) {
             daemon.await().disconnect()
         }
+    }
+
+    private fun updateViewToPreConnecting() {
+        val connecting = TunnelStateTransition.Connecting()
+        val disconnected = TunnelStateTransition.Disconnected()
+
+        headerBar.setState(disconnected)
+
+        actionButton.state = connecting
+        notificationBanner.setState(connecting)
+        status.setState(connecting)
     }
 
     private fun updateView(state: TunnelStateTransition) = GlobalScope.launch(Dispatchers.Main) {
