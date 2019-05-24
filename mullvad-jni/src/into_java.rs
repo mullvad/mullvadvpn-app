@@ -1,7 +1,7 @@
 use crate::get_class;
 use jni::{
     objects::{JList, JObject, JString, JValue},
-    sys::jint,
+    sys::{jint, jsize},
     JNIEnv,
 };
 use mullvad_types::{
@@ -70,6 +70,24 @@ where
         }
 
         list_object
+    }
+}
+
+impl<'array, 'env> IntoJava<'env> for &'array [u8] {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let size = self.len();
+        let array = env
+            .new_byte_array(size as jsize)
+            .expect("Failed to create a Java array of bytes");
+
+        let data = unsafe { std::slice::from_raw_parts(self.as_ptr() as *const i8, size) };
+
+        env.set_byte_array_region(array, 0, data)
+            .expect("Failed to copy bytes to Java array");
+
+        JObject::from(array)
     }
 }
 
