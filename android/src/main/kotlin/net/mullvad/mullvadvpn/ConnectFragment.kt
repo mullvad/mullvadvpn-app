@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn
 
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -23,16 +24,18 @@ class ConnectFragment : Fragment() {
     private lateinit var notificationBanner: NotificationBanner
     private lateinit var status: ConnectionStatus
 
-    private lateinit var daemon: Deferred<MullvadDaemon>
+    private var daemon = CompletableDeferred<MullvadDaemon>()
+
+    private var generateWireguardKeyJob = generateWireguardKey()
 
     private var attachListenerJob: Job? = null
-    private var generateWireguardKeyJob: Job? = null
     private var updateViewJob: Job? = null
+    private var waitForDaemonJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        daemon = (context as MainActivity).asyncDaemon
+        waitForDaemonJob = waitForDaemon((context as MainActivity).asyncDaemon)
     }
 
     override fun onCreateView(
@@ -58,18 +61,22 @@ class ConnectFragment : Fragment() {
         }
 
         attachListenerJob = attachListener()
-        generateWireguardKeyJob = generateWireguardKey()
 
         return view
     }
 
-
     override fun onDestroyView() {
+        waitForDaemonJob?.cancel()
         attachListenerJob?.cancel()
         detachListener()
-        generateWireguardKeyJob?.cancel()
+        generateWireguardKeyJob.cancel()
         updateViewJob?.cancel()
         super.onDestroyView()
+    }
+
+    private fun waitForDaemon(asyncDaemon: Deferred<MullvadDaemon>) =
+            GlobalScope.launch(Dispatchers.Default) {
+        daemon.complete(asyncDaemon.await())
     }
 
     private fun attachListener() = GlobalScope.launch(Dispatchers.Default) {
