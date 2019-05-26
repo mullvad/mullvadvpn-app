@@ -21,6 +21,10 @@ class AccountViewController: UIViewController {
 
     // MARK: - Actions
 
+    @IBAction func doBuyCredits() {
+        UIApplication.shared.open(WebLinks.purchaseURL, options: [:])
+    }
+
     @IBAction func doLogout() {
         Account.logout()
 
