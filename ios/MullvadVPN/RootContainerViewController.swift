@@ -8,6 +8,23 @@
 
 import UIKit
 
+enum HeaderBarStyle {
+    case transparent, `default`, unsecured, secured
+
+    fileprivate func backgroundColor() -> UIColor {
+        switch self {
+        case .transparent:
+            return UIColor.clear
+        case .default:
+            return UIColor.HeaderBar.defaultBackgroundColor
+        case .secured:
+            return UIColor.HeaderBar.securedBackgroundColor
+        case .unsecured:
+            return UIColor.HeaderBar.unsecuredBackgroundColor
+        }
+    }
+}
+
 /// A root container class that primarily handles the unwind storyboard segues on log out
 class RootContainerViewController: UIViewController {
 
@@ -18,6 +35,12 @@ class RootContainerViewController: UIViewController {
     private var topViewController: UIViewController? {
         return viewControllers.last
     }
+
+    @IBOutlet var headerBarView: UIView!
+    @IBOutlet var headerBarSettingsButton: UIButton!
+    @IBOutlet var transitionContainer: UIView!
+
+    private(set) var headerBarStyle = HeaderBarStyle.default
 
     override var childForStatusBarStyle: UIViewController? {
         return topViewController
@@ -32,6 +55,29 @@ class RootContainerViewController: UIViewController {
     }
 
     // MARK: - View lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        var margins = view.layoutMargins
+        margins.left = 24
+        margins.right = 24
+        view.layoutMargins = margins
+
+        updateHeaderBarBackground()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        updateAdditionalSafeAreaInsetsIfNeeded()
+    }
+
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+
+        updateHeaderBarLayoutMarginsIfNeeded()
+    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -152,15 +198,17 @@ class RootContainerViewController: UIViewController {
 
         if shouldAnimate {
             CATransaction.begin()
+            CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeInEaseOut))
             CATransaction.setCompletionBlock {
                 finishTransition()
             }
 
             let transition = CATransition()
-            transition.duration = 0.25
-            transition.type = .fade
+            transition.duration = 0.35
+            transition.type = .push
+            transition.subtype = .fromRight
 
-            view.layer.add(transition, forKey: "transition")
+            transitionContainer.layer.add(transition, forKey: "transition")
 
             CATransaction.commit()
         } else {
@@ -175,14 +223,64 @@ class RootContainerViewController: UIViewController {
         setViewControllers(newViewControllers, animated: animated)
     }
 
+    func setHeaderBarStyle(_ style: HeaderBarStyle, animated: Bool) {
+        headerBarStyle = style
+
+        let action = {
+            self.updateHeaderBarBackground()
+        }
+
+        if animated {
+            UIView.animate(withDuration: 0.25, animations: action)
+        } else {
+            action()
+        }
+    }
+
+    private func updateHeaderBarBackground() {
+        headerBarView.backgroundColor = headerBarStyle.backgroundColor()
+    }
+
+    // MARK: - Actions
+
+    @IBAction func doShowSettings() {
+        performSegue(withIdentifier: SegueIdentifier.Root.showSettings.rawValue, sender: self)
+    }
+
     // MARK: - Private
 
     private func addChildView(_ childView: UIView) {
         childView.translatesAutoresizingMaskIntoConstraints = true
         childView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        childView.frame = view.bounds
+        childView.frame = transitionContainer.bounds
 
-        view.addSubview(childView)
+        transitionContainer.addSubview(childView)
+    }
+
+    /// Updates the header bar's layout margins to make sure it doesn't go below the system status
+    /// bar.
+    private func updateHeaderBarLayoutMarginsIfNeeded() {
+        let offsetTop = view.safeAreaInsets.top - additionalSafeAreaInsets.top
+
+        var layoutMargins = headerBarView.layoutMargins
+        layoutMargins.top = offsetTop
+        layoutMargins.left = view.layoutMargins.left
+        layoutMargins.right = view.layoutMargins.right
+        layoutMargins.bottom = 0
+
+        if layoutMargins != headerBarView.layoutMargins {
+            headerBarView.layoutMargins = layoutMargins
+        }
+    }
+
+    /// Updates additional safe area insets to push the child views below the header bar
+    private func updateAdditionalSafeAreaInsetsIfNeeded() {
+        var safeAreaInstes = additionalSafeAreaInsets
+        safeAreaInstes.top = headerBarView.frame.height
+
+        if additionalSafeAreaInsets != safeAreaInstes {
+            additionalSafeAreaInsets = safeAreaInstes
+        }
     }
     
 }
