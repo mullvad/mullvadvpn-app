@@ -48,7 +48,6 @@
 		58F19E31228B2AEB00C7710B /* JSONRequestProcedure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E30228B2AEB00C7710B /* JSONRequestProcedure.swift */; };
 		58F19E33228B383300C7710B /* AccountVerificationProcedure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E32228B383300C7710B /* AccountVerificationProcedure.swift */; };
 		58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */; };
-		58F37E7D2243ECCB00C75C97 /* HeaderBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F37E7C2243ECCB00C75C97 /* HeaderBarViewController.swift */; };
 		58FFE444228C82A00036F391 /* UserDefaultsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FFE443228C82A00036F391 /* UserDefaultsInteractor.swift */; };
 /* End PBXBuildFile section */
 
@@ -123,7 +122,6 @@
 		58F19E30228B2AEB00C7710B /* JSONRequestProcedure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRequestProcedure.swift; sourceTree = "<group>"; };
 		58F19E32228B383300C7710B /* AccountVerificationProcedure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountVerificationProcedure.swift; sourceTree = "<group>"; };
 		58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerActivityIndicatorView.swift; sourceTree = "<group>"; };
-		58F37E7C2243ECCB00C75C97 /* HeaderBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBarViewController.swift; sourceTree = "<group>"; };
 		58FFE443228C82A00036F391 /* UserDefaultsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsInteractor.swift; sourceTree = "<group>"; };
 		627D4CE562B85202FCFA0EB1 /* Pods-MullvadVPN.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MullvadVPN.debug.xcconfig"; path = "Target Support Files/Pods-MullvadVPN/Pods-MullvadVPN.debug.xcconfig"; sourceTree = "<group>"; };
 		9F1362F46063B1D06EB0C685 /* Pods-PacketTunnel.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PacketTunnel.debug.xcconfig"; path = "Target Support Files/Pods-PacketTunnel/Pods-PacketTunnel.debug.xcconfig"; sourceTree = "<group>"; };
@@ -195,7 +193,6 @@
 				58CCA00F224249A1004F3011 /* ConnectViewController.swift */,
 				5894FC482296A8090017471D /* CustomButton.swift */,
 				582BB1B0229569620055B6EF /* CustomNavigationBar.swift */,
-				58F37E7C2243ECCB00C75C97 /* HeaderBarViewController.swift */,
 				58CE5E6F224146210008646E /* Info.plist */,
 				58F19E30228B2AEB00C7710B /* JSONRequestProcedure.swift */,
 				58ADDB3B227B1BD200FAFEA7 /* JsonRpc.swift */,
@@ -454,7 +451,6 @@
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
 				58F19E33228B383300C7710B /* AccountVerificationProcedure.swift in Sources */,
-				58F37E7D2243ECCB00C75C97 /* HeaderBarViewController.swift in Sources */,
 				589AB4F7227B64450039131E /* BasicTableViewCell.swift in Sources */,
 				5888AD7F2279B6BF0051EB06 /* RelayStatusIndicatorView.swift in Sources */,
 				5867A51C2248F26A005513C0 /* SegueIdentifier.swift in Sources */,
