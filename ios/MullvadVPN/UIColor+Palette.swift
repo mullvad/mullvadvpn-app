@@ -45,6 +45,12 @@ extension UIColor {
         static let subSubCellBackgroundColor = UIColor(red: 0.13, green: 0.20, blue: 0.30, alpha: 1.0)
     }
 
+    struct HeaderBar {
+        static let defaultBackgroundColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.0)
+        static let unsecuredBackgroundColor = dangerColor
+        static let securedBackgroundColor = successColor
+    }
+
     // Common colors
     static let dangerColor = UIColor(red: 0.82, green: 0.01, blue: 0.11, alpha: 1.0)
     static let successColor = UIColor(red: 0.27, green: 0.68, blue: 0.30, alpha: 1.0)
