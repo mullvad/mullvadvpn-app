@@ -25,7 +25,7 @@ class SettingsViewController: UITableViewController {
             let topSection = StaticTableViewSection()
             let accountRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.account.rawValue) { (_, cell) in
                 let cell = cell as! SettingsAccountCell
-                
+
                 cell.accountExpiryDate = Account.expiry
             }
             topSection.addRows([accountRow])

@@ -237,7 +237,7 @@ class RootContainerViewController: UIViewController {
             finishTransition()
         }
     }
-    
+
     func pushViewController(_ viewController: UIViewController, animated: Bool) {
         var newViewControllers = viewControllers.filter({ $0 != viewController })
         newViewControllers.append(viewController)
@@ -315,7 +315,7 @@ class RootContainerViewController: UIViewController {
             setHeaderBarStyle(conforming.preferredHeaderBarStyle, animated: animated)
         }
     }
-    
+
 }
 
 class RootContainerPushSegue: UIStoryboardSegue {
