@@ -36,7 +36,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
-    
+
     var preferredHeaderBarStyle: HeaderBarStyle {
         return .transparent
     }
@@ -132,6 +132,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     @IBAction func unwindFromAccount(segue: UIStoryboardSegue) {
         loginState = .default
         accountTextField.text = ""
+        updateKeyboardToolbar()
     }
 
     @IBAction func cancelLogin() {
