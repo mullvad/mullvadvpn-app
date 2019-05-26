@@ -25,14 +25,8 @@ class SettingsViewController: UITableViewController {
             let topSection = StaticTableViewSection()
             let accountRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.account.rawValue) { (_, cell) in
                 let cell = cell as! SettingsAccountCell
-
-                if let expiryDate = Account.expiry {
-                    let accountExpiry = AccountExpiry(date: expiryDate)
-
-                    cell.expiryLabel.text = accountExpiry.formattedRemainingTime.uppercased()
-                } else {
-                    cell.expiryLabel.text = ""
-                }
+                
+                cell.accountExpiryDate = Account.expiry
             }
             topSection.addRows([accountRow])
             staticDataSource.addSections([topSection])
