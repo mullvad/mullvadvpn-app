@@ -24,11 +24,12 @@ class AccountExpiry {
         self.date = date
     }
 
-    var formattedRemainingTime: String {
-        let remainingTime = relativeFormatter.string(from: Date(), to: date)!
-        let localizedString = NSLocalizedString("%@ left", tableName: "AccountExpiry", comment: "")
+    var isExpired: Bool {
+        return date < Date()
+    }
 
-        return String(format: localizedString, remainingTime)
+    var formattedRemainingTime: String {
+        return relativeFormatter.string(from: Date(), to: date)!
     }
 
     var formattedDate: String {
