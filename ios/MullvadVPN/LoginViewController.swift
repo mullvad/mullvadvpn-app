@@ -13,7 +13,7 @@ import os.log
 private let kMinimumAccountTokenLength = 10
 private let kValidAccountTokenCharacterSet = CharacterSet(charactersIn: "01234567890")
 
-class LoginViewController: UIViewController, UITextFieldDelegate {
+class LoginViewController: UIViewController, UITextFieldDelegate, RootContainment {
 
     @IBOutlet var keyboardToolbar: UIToolbar!
     @IBOutlet var keyboardToolbarLoginButton: UIBarButtonItem!
@@ -35,6 +35,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
+    }
+    
+    var preferredHeaderBarStyle: HeaderBarStyle {
+        return .transparent
     }
 
     override func viewDidLoad() {
