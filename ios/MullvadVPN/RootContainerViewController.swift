@@ -57,8 +57,6 @@ class RootContainerViewController: UIViewController {
         topViewController?.endAppearanceTransition()
     }
 
-    // MARK: - Public
-
     override func allowedChildrenForUnwinding(from source: UIStoryboardUnwindSegueSource) -> [UIViewController] {
         let sourceViewController = childContaining(source)
 
@@ -67,6 +65,19 @@ class RootContainerViewController: UIViewController {
 
         return allowedChildren
     }
+
+    // MARK: - Storyboard segue handling
+
+    override func unwind(for unwindSegue: UIStoryboardSegue, towards subsequentVC: UIViewController) {
+        let index = viewControllers.firstIndex(of: subsequentVC)!
+        let newViewControllers = Array(viewControllers.prefix(through: index))
+
+        let animated = UIView.areAnimationsEnabled
+
+        setViewControllers(newViewControllers, animated: animated)
+    }
+
+    // MARK: - Public
 
     func setViewControllers(_ newViewControllers: [UIViewController], animated: Bool, completion: CompletionHandler? = nil) {
         // Dot not handle appearance events when the container itself is not visible
@@ -160,17 +171,6 @@ class RootContainerViewController: UIViewController {
     func pushViewController(_ viewController: UIViewController, animated: Bool) {
         var newViewControllers = viewControllers.filter({ $0 != viewController })
         newViewControllers.append(viewController)
-
-        setViewControllers(newViewControllers, animated: animated)
-    }
-
-    // MARK: - Storyboard segue handling
-
-    override func unwind(for unwindSegue: UIStoryboardSegue, towards subsequentVC: UIViewController) {
-        let index = viewControllers.firstIndex(of: subsequentVC)!
-        let newViewControllers = Array(viewControllers.prefix(through: index))
-
-        let animated = UIView.areAnimationsEnabled
 
         setViewControllers(newViewControllers, animated: animated)
     }
