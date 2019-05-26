@@ -111,15 +111,6 @@ class RootContainerViewController: UIViewController {
         topViewController?.endAppearanceTransition()
     }
 
-    override func allowedChildrenForUnwinding(from source: UIStoryboardUnwindSegueSource) -> [UIViewController] {
-        let sourceViewController = childContaining(source)
-
-        var allowedChildren = viewControllers
-        allowedChildren.removeAll(where: { $0 == sourceViewController })
-
-        return allowedChildren
-    }
-
     // MARK: - Storyboard segue handling
 
     override func unwind(for unwindSegue: UIStoryboardSegue, towards subsequentVC: UIViewController) {
@@ -140,16 +131,11 @@ class RootContainerViewController: UIViewController {
         // Animations won't run when the container is not visible, so prevent them
         let shouldAnimate = animated && shouldHandleAppearanceEvents
 
-        let currentTopViewController = topViewController
-        let nextTopViewController = newViewControllers.last
+        let sourceViewController = topViewController
+        let targetViewController = newViewControllers.last
 
-        let viewControllersToRemove = viewControllers.filter { (viewController) -> Bool in
-            return !newViewControllers.contains(viewController)
-        }
-
-        let viewControllersToAdd = newViewControllers.filter { (viewController) -> Bool in
-            return !viewControllers.contains(viewController)
-        }
+        let viewControllersToAdd = newViewControllers.filter { !viewControllers.contains($0) }
+        let viewControllersToRemove = viewControllers.filter { !newViewControllers.contains($0) }
 
         let finishTransition = {
             // Notify the added controllers that they finished a transition into the container
@@ -164,11 +150,16 @@ class RootContainerViewController: UIViewController {
                 child.removeFromParent()
             }
 
+            // Remove the source controller from view hierarchy
+            if sourceViewController != targetViewController {
+                sourceViewController?.view.removeFromSuperview()
+            }
+
             // Finish appearance transition
             if shouldHandleAppearanceEvents {
-                currentTopViewController?.endAppearanceTransition()
-                if currentTopViewController != nextTopViewController {
-                    nextTopViewController?.endAppearanceTransition()
+                sourceViewController?.endAppearanceTransition()
+                if sourceViewController != targetViewController {
+                    targetViewController?.endAppearanceTransition()
                 }
             }
 
@@ -179,10 +170,24 @@ class RootContainerViewController: UIViewController {
             self.updateHeaderBarStyleFromChildPreferences(animated: shouldAnimate)
         }
 
+        // Make sure that all new view controllers have loaded their views
+        // This is important because the unwind segue calls the unwind action which may rely on
+        // IB outlets to be set at that time.
+        for newViewController in newViewControllers {
+            newViewController.loadViewIfNeeded()
+        }
+
         // Add new child controllers. The call to addChild() automatically calls child.willMove()
+        // Children have to be registered in the container for Storyboard unwind segues to function
+        // properly, however the child controller views don't have to be added immediately, and
+        // appearance methods have to be handled manually.
         for child in viewControllersToAdd {
             addChild(child)
-            addChildView(child.view)
+        }
+
+        // Add the destination view into the view hierarchy
+        if let targetView = targetViewController?.view {
+            addChildView(targetView)
         }
 
         // Notify the controllers that they will transition out of the container
@@ -190,21 +195,13 @@ class RootContainerViewController: UIViewController {
             child.willMove(toParent: nil)
         }
 
-        // Hide all controllers except the current and the next top controller
-        let lastIndex = newViewControllers.count - 1
-        for (index, child) in newViewControllers.enumerated() {
-            let keepVisible = index == lastIndex || child == currentTopViewController
-
-            child.view.isHidden = !keepVisible
-        }
-
         viewControllers = newViewControllers
 
         // Begin appearance transition
         if shouldHandleAppearanceEvents {
-            currentTopViewController?.beginAppearanceTransition(false, animated: shouldAnimate)
-            if currentTopViewController != nextTopViewController {
-                nextTopViewController?.beginAppearanceTransition(true, animated: shouldAnimate)
+            sourceViewController?.beginAppearanceTransition(false, animated: shouldAnimate)
+            if sourceViewController != targetViewController {
+                targetViewController?.beginAppearanceTransition(true, animated: shouldAnimate)
             }
         }
 
@@ -217,7 +214,19 @@ class RootContainerViewController: UIViewController {
             let transition = CATransition()
             transition.duration = 0.35
             transition.type = .push
-            transition.subtype = .fromRight
+
+            // Pick the animation movement direction
+            let sourceIndex = sourceViewController.flatMap({ newViewControllers.firstIndex(of: $0) })
+            let targetIndex = targetViewController.flatMap({ newViewControllers.firstIndex(of: $0) })
+
+            switch (sourceIndex, targetIndex) {
+            case (.some(let lhs), .some(let rhs)):
+                transition.subtype = lhs > rhs ?  .fromLeft : .fromRight
+            case (.none, .some):
+                transition.subtype = .fromLeft
+            default:
+                transition.subtype = .fromRight
+            }
 
             transitionContainer.layer.add(transition, forKey: "transition")
             alongSideAnimations()
