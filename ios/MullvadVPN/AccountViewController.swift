@@ -16,18 +16,32 @@ class AccountViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        accountLabel.text = Account.token
-
-        if let expiryDate = Account.expiry {
-            let expiry = AccountExpiry(date: expiryDate)
-            
-            expiryLabel.text = expiry.formattedDate
-        }
+        updateView()
     }
+
+    // MARK: - Actions
 
     @IBAction func doLogout() {
         Account.logout()
 
         performSegue(withIdentifier: SegueIdentifier.Account.logout.rawValue, sender: self)
+    }
+
+    // MARK: - Private
+
+    private func updateView() {
+        accountLabel.text = Account.token
+
+        if let expiryDate = Account.expiry {
+            let accountExpiry = AccountExpiry(date: expiryDate)
+
+            if accountExpiry.isExpired {
+                expiryLabel.text = NSLocalizedString("OUT OF TIME", tableName: "Settings", comment: "")
+                expiryLabel.textColor = .dangerColor
+            } else {
+                expiryLabel.text = accountExpiry.formattedDate
+                expiryLabel.textColor = .white
+            }
+        }
     }
 }
