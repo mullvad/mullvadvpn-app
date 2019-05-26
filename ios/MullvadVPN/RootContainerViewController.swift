@@ -25,6 +25,14 @@ enum HeaderBarStyle {
     }
 }
 
+/// A protocol that defines the relationship between the root container and its child controllers
+protocol RootContainment {
+
+    /// Return the preferred header bar style
+    var preferredHeaderBarStyle: HeaderBarStyle { get }
+
+}
+
 /// A root container class that primarily handles the unwind storyboard segues on log out
 class RootContainerViewController: UIViewController {
 
@@ -167,6 +175,10 @@ class RootContainerViewController: UIViewController {
             completion?()
         }
 
+        let alongSideAnimations = {
+            self.updateHeaderBarStyleFromChildPreferences(animated: shouldAnimate)
+        }
+
         // Add new child controllers. The call to addChild() automatically calls child.willMove()
         for child in viewControllersToAdd {
             addChild(child)
@@ -198,7 +210,6 @@ class RootContainerViewController: UIViewController {
 
         if shouldAnimate {
             CATransaction.begin()
-            CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeInEaseOut))
             CATransaction.setCompletionBlock {
                 finishTransition()
             }
@@ -209,13 +220,15 @@ class RootContainerViewController: UIViewController {
             transition.subtype = .fromRight
 
             transitionContainer.layer.add(transition, forKey: "transition")
+            alongSideAnimations()
 
             CATransaction.commit()
         } else {
+            alongSideAnimations()
             finishTransition()
         }
     }
-
+    
     func pushViewController(_ viewController: UIViewController, animated: Bool) {
         var newViewControllers = viewControllers.filter({ $0 != viewController })
         newViewControllers.append(viewController)
@@ -223,22 +236,9 @@ class RootContainerViewController: UIViewController {
         setViewControllers(newViewControllers, animated: animated)
     }
 
-    func setHeaderBarStyle(_ style: HeaderBarStyle, animated: Bool) {
-        headerBarStyle = style
-
-        let action = {
-            self.updateHeaderBarBackground()
-        }
-
-        if animated {
-            UIView.animate(withDuration: 0.25, animations: action)
-        } else {
-            action()
-        }
-    }
-
-    private func updateHeaderBarBackground() {
-        headerBarView.backgroundColor = headerBarStyle.backgroundColor()
+    /// Request the root container to query the top controller for the new header bar style
+    func setNeedsHeaderBarStyleAppearance() {
+        updateHeaderBarStyleFromChildPreferences(animated: UIView.areAnimationsEnabled)
     }
 
     // MARK: - Actions
@@ -280,6 +280,30 @@ class RootContainerViewController: UIViewController {
 
         if additionalSafeAreaInsets != safeAreaInstes {
             additionalSafeAreaInsets = safeAreaInstes
+        }
+    }
+
+    private func setHeaderBarStyle(_ style: HeaderBarStyle, animated: Bool) {
+        headerBarStyle = style
+
+        let action = {
+            self.updateHeaderBarBackground()
+        }
+
+        if animated {
+            UIView.animate(withDuration: 0.25, animations: action)
+        } else {
+            action()
+        }
+    }
+
+    private func updateHeaderBarBackground() {
+        headerBarView.backgroundColor = headerBarStyle.backgroundColor()
+    }
+
+    private func updateHeaderBarStyleFromChildPreferences(animated: Bool) {
+        if let conforming = topViewController as? RootContainment {
+            setHeaderBarStyle(conforming.preferredHeaderBarStyle, animated: animated)
         }
     }
     

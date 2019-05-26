@@ -8,10 +8,14 @@
 
 import UIKit
 
-class ConnectViewController: UIViewController {
+class ConnectViewController: UIViewController, RootContainment {
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
+    }
+
+    var preferredHeaderBarStyle: HeaderBarStyle {
+        return .unsecured
     }
 
     override func viewDidLoad() {
