@@ -205,6 +205,7 @@
 				58ADDB3F227B1E7100FAFEA7 /* Optional+Unwrap.swift */,
 				5888AD88227B18C40051EB06 /* RelayList.swift */,
 				5888AD7E2279B6BF0051EB06 /* RelayStatusIndicatorView.swift */,
+				587425C02299833500CA2045 /* RootContainerViewController.swift */,
 				5867A51B2248F26A005513C0 /* SegueIdentifier.swift */,
 				5888AD82227B11080051EB06 /* SelectLocationCell.swift */,
 				5888AD86227B17950051EB06 /* SelectLocationController.swift */,
@@ -213,14 +214,13 @@
 				582BB1AE229566420055B6EF /* SettingsCell.swift */,
 				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
+				581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */,
 				5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */,
 				587CBFE222807F530028DED3 /* UIColor+Helpers.swift */,
 				58CCA0152242560B004F3011 /* UIColor+Palette.swift */,
 				58FFE443228C82A00036F391 /* UserDefaultsInteractor.swift */,
 				581CBCE52296B97300727D7F /* ViewControllerIdentifier.swift */,
 				587B08E1229460C1000E6F17 /* WebLinks.swift */,
-				581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */,
-				587425C02299833500CA2045 /* RootContainerViewController.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
