@@ -68,7 +68,11 @@ fn run() -> Result<()> {
         .version(PRODUCT_VERSION)
         .author(crate_authors!())
         .about(crate_description!())
-        .setting(clap::AppSettings::SubcommandRequired)
+        .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+        .global_settings(&[
+            clap::AppSettings::DisableHelpSubcommand,
+            clap::AppSettings::VersionlessSubcommands,
+        ])
         .subcommands(commands.values().map(|cmd| cmd.clap_subcommand()));
 
     let app_matches = app.get_matches();

@@ -11,7 +11,7 @@ impl Command for AutoConnect {
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
         clap::SubCommand::with_name(self.name())
             .about("Control the daemon auto-connect setting")
-            .setting(clap::AppSettings::SubcommandRequired)
+            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
                 clap::SubCommand::with_name("set")
                     .about("Change auto-connect setting")
