@@ -117,7 +117,11 @@ fn run() -> Result<(), Error> {
         .version(metadata::PRODUCT_VERSION)
         .author(crate_authors!())
         .about("Mullvad VPN problem report tool. Collects logs and sends them to Mullvad support.")
-        .setting(clap::AppSettings::SubcommandRequired)
+        .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+        .global_settings(&[
+            clap::AppSettings::DisableHelpSubcommand,
+            clap::AppSettings::VersionlessSubcommands,
+        ])
         .subcommand(
             clap::SubCommand::with_name("collect")
                 .about("Collect problem report")

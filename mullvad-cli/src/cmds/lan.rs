@@ -11,7 +11,7 @@ impl Command for Lan {
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
         clap::SubCommand::with_name(self.name())
             .about("Control the allow local network sharing setting")
-            .setting(clap::AppSettings::SubcommandRequired)
+            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
                 clap::SubCommand::with_name("set")
                     .about("Change allow LAN setting")
