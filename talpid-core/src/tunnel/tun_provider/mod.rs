@@ -3,6 +3,12 @@ use std::net::IpAddr;
 use std::os::unix::io::AsRawFd;
 use talpid_types::BoxedError;
 
+#[cfg(all(unix, not(target_os = "android")))]
+#[path = "unix.rs"]
+mod imp;
+#[cfg(all(unix, not(target_os = "android")))]
+pub use self::imp::UnixTunProvider;
+
 mod stub;
 pub use self::stub::StubTunProvider;
 
