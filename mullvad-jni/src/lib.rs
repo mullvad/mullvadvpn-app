@@ -19,6 +19,7 @@ use lazy_static::lazy_static;
 use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
 use parking_lot::{Mutex, RwLock};
 use std::{collections::HashMap, path::PathBuf, sync::mpsc, thread};
+use talpid_core::tunnel::tun_provider::StubTunProvider;
 use talpid_types::ErrorExt;
 
 const LOG_FILENAME: &str = "daemon.log";
@@ -152,8 +153,9 @@ fn create_daemon(
     let resource_dir = mullvad_paths::get_resource_dir();
     let cache_dir = mullvad_paths::cache_dir().map_err(Error::GetCacheDir)?;
 
-    let daemon = Daemon::start_with_event_listener(
+    let daemon = Daemon::start_with_event_listener_and_tun_provider(
         listener,
+        StubTunProvider,
         Some(log_dir),
         resource_dir,
         cache_dir,
