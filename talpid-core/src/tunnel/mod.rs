@@ -19,6 +19,9 @@ pub mod openvpn;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 pub mod wireguard;
 
+/// A module for low level platform specific tunnel device management.
+pub mod tun_provider;
+
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
