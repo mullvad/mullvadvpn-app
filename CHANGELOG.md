@@ -40,6 +40,11 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Relax the allow local network rules slightly. only checking either source or destination IP field
   instead of both. They are still unroutable
+- CLI commands that are just intermediate commands, and require another level of subcommands, will
+  automatically print the available subcommands, instead of an error if none is given.
+
+### Removed
+- The `help` subcommand in the CLI. Instead get help with the `--help` long flag.
 
 ### Fixed
 - Stop allowing the wrong IPv6 net fe02::/16 in the firewall when allow local network was enabled.
