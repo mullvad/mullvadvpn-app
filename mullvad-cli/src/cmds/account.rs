@@ -12,7 +12,7 @@ impl Command for Account {
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
         clap::SubCommand::with_name(self.name())
             .about("Control and display information about your Mullvad account")
-            .setting(clap::AppSettings::SubcommandRequired)
+            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
                 clap::SubCommand::with_name("set")
                     .about("Change account")
