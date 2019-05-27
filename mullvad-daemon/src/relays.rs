@@ -34,7 +34,7 @@ const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 /// How often the updater should wake up to check the cache of the in-memory cache of relays.
 /// This check is very cheap. The only reason to not have it very often is because if downloading
 /// constantly fails it will try very often and fill the logs etc.
-const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 2);
+const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 5);
 /// How old the cached relays need to be to trigger an update
 const UPDATE_INTERVAL: Duration = Duration::from_secs(3600);
 
@@ -642,10 +642,7 @@ impl RelayListUpdater {
             if self.should_update() {
                 match self.update() {
                     Ok(()) => info!("Updated list of relays"),
-                    Err(error) => error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to update list of relays")
-                    ),
+                    Err(error) => error!("{}", error.display_chain()),
                 }
             }
         }
@@ -695,8 +692,6 @@ impl RelayListUpdater {
     }
 
     fn download_relay_list(&mut self) -> Result<RelayList, Error> {
-        info!("Downloading list of relays...");
-
         let download_future = self.rpc_client.relay_list_v2().map_err(Error::Download);
         let relay_list = Timer::default()
             .timeout(download_future, DOWNLOAD_TIMEOUT)
