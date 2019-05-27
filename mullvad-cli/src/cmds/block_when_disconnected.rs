@@ -9,9 +9,8 @@ impl Command for BlockWhenDisconnected {
     }
 
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+        super::create_subcommand_with_subcommands(self.name())
             .about("Control if the system service should block network access when disconnected from VPN")
-            .setting(clap::AppSettings::SubcommandRequired)
             .subcommand(
                 clap::SubCommand::with_name("set")
                     .about("Change the block when disconnected setting")

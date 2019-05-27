@@ -23,15 +23,13 @@ impl Command for Relay {
     }
 
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+        super::create_subcommand_with_subcommands(self.name())
             .about("Manage relay and tunnel constraints")
-            .setting(clap::AppSettings::SubcommandRequired)
             .subcommand(
-                clap::SubCommand::with_name("set")
+                super::create_subcommand_with_subcommands(self.name())
                     .about(
                         "Set relay server selection parameters. Such as location and port/protocol",
                     )
-                    .setting(clap::AppSettings::SubcommandRequired)
                     .subcommand(
                         clap::SubCommand::with_name("custom")
                             .about("Set a custom VPN relay")

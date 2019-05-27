@@ -53,3 +53,10 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
     }
     map
 }
+
+fn create_subcommand_with_subcommands(name: &'static str) -> clap::App<'static, 'static> {
+    clap::SubCommand::with_name(name)
+        .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+        .setting(clap::AppSettings::DisableHelpSubcommand)
+        .setting(clap::AppSettings::VersionlessSubcommands)
+}

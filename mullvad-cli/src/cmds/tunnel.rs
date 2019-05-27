@@ -14,9 +14,8 @@ impl Command for Tunnel {
     }
 
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name())
+        super::create_subcommand_with_subcommands(self.name())
             .about("Manage tunnel specific options")
-            .setting(clap::AppSettings::SubcommandRequired)
             .subcommand(create_openvpn_subcommand())
             .subcommand(create_wireguard_subcommand())
             .subcommand(create_ipv6_subcommand())
@@ -35,17 +34,15 @@ impl Command for Tunnel {
 }
 
 fn create_wireguard_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("wireguard")
+    super::create_subcommand_with_subcommands("wireguard")
         .about("Manage options for Wireguard tunnels")
-        .setting(clap::AppSettings::SubcommandRequired)
         .subcommand(create_wireguard_mtu_subcommand())
         .subcommand(create_wireguard_keys_subcommand())
 }
 
 fn create_wireguard_mtu_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("mtu")
+    super::create_subcommand_with_subcommands("mtu")
         .about("Configure the MTU of the wireguard tunnel")
-        .setting(clap::AppSettings::SubcommandRequired)
         .subcommand(clap::SubCommand::with_name("get"))
         .subcommand(clap::SubCommand::with_name("unset"))
         .subcommand(
@@ -54,26 +51,23 @@ fn create_wireguard_mtu_subcommand() -> clap::App<'static, 'static> {
 }
 
 fn create_wireguard_keys_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("key")
+    super::create_subcommand_with_subcommands("key")
         .about("Manage your wireguard keys")
-        .setting(clap::AppSettings::SubcommandRequired)
         .subcommand(clap::SubCommand::with_name("check"))
         .subcommand(clap::SubCommand::with_name("generate"))
 }
 
 
 fn create_openvpn_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("openvpn")
+    super::create_subcommand_with_subcommands("openvpn")
         .about("Manage options for OpenVPN tunnels")
-        .setting(clap::AppSettings::SubcommandRequired)
         .subcommand(create_openvpn_mssfix_subcommand())
         .subcommand(create_openvpn_proxy_subcommand())
 }
 
 fn create_openvpn_mssfix_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("mssfix")
+    super::create_subcommand_with_subcommands("mssfix")
         .about("Configure the optional mssfix parameter")
-        .setting(clap::AppSettings::SubcommandRequired)
         .subcommand(clap::SubCommand::with_name("get"))
         .subcommand(clap::SubCommand::with_name("unset"))
         .subcommand(
@@ -82,14 +76,12 @@ fn create_openvpn_mssfix_subcommand() -> clap::App<'static, 'static> {
 }
 
 fn create_openvpn_proxy_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("proxy")
+    super::create_subcommand_with_subcommands("proxy")
         .about("Configure a SOCKS5 proxy")
-        .setting(clap::AppSettings::SubcommandRequired)
         .subcommand(clap::SubCommand::with_name("get"))
         .subcommand(clap::SubCommand::with_name("unset"))
         .subcommand(
-            clap::SubCommand::with_name("set")
-                .setting(clap::AppSettings::SubcommandRequired)
+            super::create_subcommand_with_subcommands("set")
                 .subcommand(
                     clap::SubCommand::with_name("local")
                         .about("Registers a local SOCKS5 proxy")
@@ -173,8 +165,7 @@ fn create_openvpn_proxy_subcommand() -> clap::App<'static, 'static> {
 }
 
 fn create_ipv6_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("ipv6")
-        .setting(clap::AppSettings::SubcommandRequired)
+    super::create_subcommand_with_subcommands("ipv6")
         .subcommand(clap::SubCommand::with_name("get"))
         .subcommand(
             clap::SubCommand::with_name("set").arg(
