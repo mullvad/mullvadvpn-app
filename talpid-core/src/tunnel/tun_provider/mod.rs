@@ -1,3 +1,4 @@
+use cfg_if::cfg_if;
 use std::net::IpAddr;
 #[cfg(unix)]
 use std::os::unix::io::AsRawFd;
@@ -5,6 +6,14 @@ use talpid_types::BoxedError;
 
 mod stub;
 pub use self::stub::StubTunProvider;
+
+cfg_if! {
+    if #[cfg(all(unix, not(target_os = "android")))] {
+        #[path = "unix.rs"]
+        mod imp;
+        use self::imp::UnixTunProvider;
+    }
+}
 
 /// Generic tunnel device.
 ///
