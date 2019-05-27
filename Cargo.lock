@@ -1175,6 +1175,7 @@ dependencies = [
  "mullvad-paths 0.1.0",
  "mullvad-types 0.1.0",
  "parking_lot 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "talpid-core 0.1.0",
  "talpid-types 0.1.0",
 ]
 
