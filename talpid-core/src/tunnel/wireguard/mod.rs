@@ -1,7 +1,7 @@
 #![allow(missing_docs)]
 
 use self::config::Config;
-use super::{TunnelEvent, TunnelMetadata};
+use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing;
 use std::{collections::HashMap, io, path::Path, sync::mpsc};
 
@@ -65,6 +65,7 @@ impl WireguardMonitor {
         config: &Config,
         log_path: Option<&Path>,
         on_event: F,
+        _tun_provider: &dyn TunProvider,
     ) -> Result<WireguardMonitor> {
         let tunnel = Box::new(WgGoTunnel::start_tunnel(&config, log_path)?);
         let iface_name = tunnel.get_interface_name();

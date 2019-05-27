@@ -45,6 +45,7 @@ use mullvad_types::{
     version::{AppVersion, AppVersionInfo},
 };
 use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
+use talpid_core::tunnel::tun_provider::StubTunProvider;
 use talpid_core::{
     mpsc::IntoSender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
@@ -345,6 +346,7 @@ where
             settings.get_allow_lan(),
             settings.get_block_when_disconnected(),
             tunnel_parameters_generator,
+            StubTunProvider,
             log_dir,
             resource_dir,
             cache_dir.clone(),
