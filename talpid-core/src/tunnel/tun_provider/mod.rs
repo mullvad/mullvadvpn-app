@@ -3,6 +3,9 @@ use std::net::IpAddr;
 use std::os::unix::io::AsRawFd;
 use talpid_types::BoxedError;
 
+mod stub;
+pub use self::stub::StubTunProvider;
+
 /// Generic tunnel device.
 ///
 /// Must be associated with a platform specific file descriptor representing the device.
