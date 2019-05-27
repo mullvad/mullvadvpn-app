@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2019-05-20 12:54\n"
+"PO-Revision-Date: 2019-06-17 08:47\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "被封鎖的連線"
@@ -97,6 +97,11 @@ msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
 msgstr "中斷連線則封鎖"
 
+#. The title for the shadowsocks bridge selector section.
+msgctxt "advanced-settings-view"
+msgid "Bridge mode"
+msgstr "橋接模式"
+
 msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "預設"
@@ -117,6 +122,14 @@ msgctxt "advanced-settings-view"
 msgid "Network protocols"
 msgstr "網路通訊協定"
 
+msgctxt "advanced-settings-view"
+msgid "Off"
+msgstr "關閉"
+
+msgctxt "advanced-settings-view"
+msgid "On"
+msgstr "開啟"
+
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
@@ -124,6 +137,14 @@ msgstr "網路通訊協定"
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "設定 OpenVPN MSS 值。有效範圍：%(min)d - %(max)d。"
+
+msgctxt "advanced-settings-view"
+msgid "TCP"
+msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "UDP"
+msgstr "UDP"
 
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
@@ -179,16 +200,12 @@ msgid "You have no more VPN time left on this account. To buy more credit on our
 msgstr "您在此帳戶沒有更多 VPN 時間了。若要在我們網站上購買更多點數，您必須使用不安全的連線存取網際網路。"
 
 msgctxt "connection-info"
-msgid "Connection details"
-msgstr ""
-
-msgctxt "connection-info"
 msgid "In"
-msgstr ""
+msgstr "入境"
 
 msgctxt "connection-info"
 msgid "Out"
-msgstr ""
+msgstr "出境"
 
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"
@@ -203,7 +220,7 @@ msgstr "出現了問題。請與我們聯絡：%(email)s"
 
 msgctxt "headerbar"
 msgid "MULLVAD VPN"
-msgstr ""
+msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -276,8 +293,8 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr "您正在執行不受支援的應用程式版本。請立即升級到 %(version)s，以確保您的安全"
 
 msgctxt "launch-view"
-msgid "Connecting to daemon..."
-msgstr "正在連線至精靈..."
+msgid "Connecting to Mullvad system service..."
+msgstr "連線 Mullvad 系統服務中..."
 
 msgctxt "launch-view"
 msgid "MULLVAD VPN"

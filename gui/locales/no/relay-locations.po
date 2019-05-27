@@ -4,12 +4,12 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
-"X-Crowdin-Language: sv-SE\n"
+"X-Crowdin-Language: no\n"
 "X-Crowdin-File: relay-locations.pot\n"
 "Project-Id-Version: mullvad-app\n"
 "Last-Translator: adminmullvad\n"
-"Language-Team: Swedish\n"
-"Language: sv_SE\n"
+"Language-Team: Norwegian\n"
+"Language: no_NO\n"
 "PO-Revision-Date: 2019-06-17 08:47\n"
 
 #. AU BNE
@@ -38,11 +38,11 @@ msgstr "Wien"
 
 #. BE BRU
 msgid "Brussels"
-msgstr "Bryssel"
+msgstr "Brussel"
 
 #. BR SAO
 msgid "Sao Paulo"
-msgstr "São Paulo"
+msgstr "Sao Paulo"
 
 #. BG SOF
 msgid "Sofia"
@@ -50,7 +50,7 @@ msgstr "Sofia"
 
 #. CA MTR
 msgid "Montreal"
-msgstr "Montréal"
+msgstr "Montreal"
 
 #. CA TOR
 msgid "Toronto"
@@ -62,15 +62,15 @@ msgstr "Vancouver"
 
 #. CZ PRG
 msgid "Prague"
-msgstr "Prag"
+msgstr "Praha"
 
 #. DK CPH
 msgid "Copenhagen"
-msgstr "Köpenhamn"
+msgstr "København"
 
 #. FI HEL
 msgid "Helsinki"
-msgstr "Helsingfors"
+msgstr "Helsinki"
 
 #. FR MRS
 msgid "Marseille"
@@ -82,15 +82,15 @@ msgstr "Paris"
 
 #. DE FRA
 msgid "Frankfurt"
-msgstr "Frankfurt am Main"
+msgstr "Frankfurt"
 
 #. GR ATH
 msgid "Athens"
-msgstr "Aten"
+msgstr "Athen"
 
 #. HK HKG
 msgid "Hong Kong"
-msgstr "Hongkong"
+msgstr "Hong Kong"
 
 #. HU BUD
 msgid "Budapest"
@@ -102,7 +102,7 @@ msgstr "Pune"
 
 #. IL PET
 msgid "Petach-Tikva"
-msgstr "Petah Tiqwa"
+msgstr "Petah-Tikva"
 
 #. IT MIL
 msgid "Milan"
@@ -118,7 +118,7 @@ msgstr "Riga"
 
 #. LU LUX
 msgid "Luxembourg"
-msgstr "Luxemburg"
+msgstr "Luxembourg"
 
 #. MD KIV
 msgid "Chisinau"
@@ -142,15 +142,15 @@ msgstr "Warszawa"
 
 #. PT LIS
 msgid "Lisbon"
-msgstr "Lissabon"
+msgstr "Lisboa"
 
 #. RO BUH
 msgid "Bucharest"
-msgstr "Bukarest"
+msgstr "București"
 
 #. RS BEG
 msgid "Belgrade"
-msgstr "Belgrad"
+msgstr "Beograd"
 
 #. RS INI
 msgid "Nis"
@@ -314,7 +314,7 @@ msgstr "Stamford, CT"
 
 #. US STL
 msgid "St. Louis, MO"
-msgstr "Saint Louis, MO"
+msgstr "St. Louis, MO"
 
 #. US WAS
 msgid "Washington DC"
