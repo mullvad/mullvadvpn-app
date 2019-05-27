@@ -158,7 +158,7 @@ impl fmt::Display for FirewallPolicy {
                 allow_lan,
             } => write!(
                 f,
-                "Connected to {} over \"{}\" (ip: {}, v4 gw: {}, v6 gw; {:?}), {} LAN",
+                "Connected to {} over \"{}\" (ip: {}, v4 gw: {}, v6 gw: {:?}), {} LAN",
                 peer_endpoint,
                 tunnel.interface,
                 tunnel
