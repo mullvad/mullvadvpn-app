@@ -10,11 +10,15 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2019-05-20 10:11\n"
+"PO-Revision-Date: 2019-06-17 08:47\n"
 
 #. AU BNE
 msgid "Brisbane"
 msgstr "Brisbane"
+
+#. AU CBR
+msgid "Canberra"
+msgstr "Canberra"
 
 #. AU MEL
 msgid "Melbourne"
