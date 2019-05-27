@@ -1,32 +1,28 @@
 use super::{Config, Error, Result, Tunnel};
-use crate::network_interface::{NetworkInterface, TunnelDevice};
+use crate::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
 use std::{ffi::CString, fs, os::unix::io::AsRawFd, path::Path};
-
 
 pub struct WgGoTunnel {
     interface_name: String,
     handle: Option<i32>,
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
-    _tunnel_device: TunnelDevice,
+    _tunnel_device: Box<dyn Tun>,
     _log_file: fs::File,
 }
 
 impl WgGoTunnel {
-    pub fn start_tunnel(config: &Config, log_path: Option<&Path>) -> Result<Self> {
-        let mut tunnel_device = TunnelDevice::new().map_err(Error::SetupTunnelDeviceError)?;
-
-        for ip in config.tunnel.addresses.iter() {
-            tunnel_device
-                .set_ip(*ip)
-                .map_err(Error::SetupTunnelDeviceError)?;
-        }
-
-        tunnel_device
-            .set_up(true)
+    pub fn start_tunnel(
+        config: &Config,
+        log_path: Option<&Path>,
+        tun_provider: &dyn TunProvider,
+    ) -> Result<Self> {
+        let tunnel_config = TunConfig::new(config.tunnel.addresses.clone());
+        let tunnel_device = tun_provider
+            .create_tun(tunnel_config)
             .map_err(Error::SetupTunnelDeviceError)?;
 
-        let interface_name: String = tunnel_device.get_name().to_string();
+        let interface_name: String = tunnel_device.interface_name().to_string();
         let log_file = prepare_log_file(log_path)?;
 
         let wg_config_str = config.to_userspace_format();
