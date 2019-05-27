@@ -45,10 +45,9 @@ use mullvad_types::{
     version::{AppVersion, AppVersionInfo},
 };
 use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
-use talpid_core::tunnel::tun_provider::StubTunProvider;
 use talpid_core::{
     mpsc::IntoSender,
-    tunnel::tun_provider::TunProvider,
+    tunnel::tun_provider::{PlatformTunProvider, TunProvider},
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
@@ -235,7 +234,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
             tx,
             rx,
             management_interface_broadcaster,
-            StubTunProvider,
+            PlatformTunProvider::default(),
             log_dir,
             resource_dir,
             cache_dir,
