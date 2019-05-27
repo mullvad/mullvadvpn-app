@@ -12,6 +12,16 @@ pub use self::imp::UnixTunProvider;
 mod stub;
 pub use self::stub::StubTunProvider;
 
+/// Default implementation of `TunProvider` for Unix based operating systems.
+///
+/// Android has a different mechanism to obtain tunnel interfaces, so it is not supported here.
+#[cfg(all(unix, not(target_os = "android")))]
+pub type PlatformTunProvider = UnixTunProvider;
+
+/// Default stub implementation of `TunProvider` for Android and Windows.
+#[cfg(any(target_os = "android", windows))]
+pub type PlatformTunProvider = StubTunProvider;
+
 /// Generic tunnel device.
 ///
 /// Must be associated with a platform specific file descriptor representing the device.
