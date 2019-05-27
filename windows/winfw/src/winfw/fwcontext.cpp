@@ -5,6 +5,8 @@
 #include "rules/blockall.h"
 #include "rules/ifirewallrule.h"
 #include "rules/permitdhcp.h"
+#include "rules/permitndp.h"
+#include "rules/permitdhcpserver.h"
 #include "rules/permitlan.h"
 #include "rules/permitlanservice.h"
 #include "rules/permitloopback.h"
@@ -40,12 +42,14 @@ void AppendSettingsRules(FwContext::Ruleset &ruleset, const WinFwSettings &setti
 	if (settings.permitDhcp)
 	{
 		ruleset.emplace_back(std::make_unique<rules::PermitDhcp>());
+		ruleset.emplace_back(std::make_unique<rules::PermitNdp>());
 	}
 
 	if (settings.permitLan)
 	{
 		ruleset.emplace_back(std::make_unique<rules::PermitLan>());
 		ruleset.emplace_back(std::make_unique<rules::PermitLanService>());
+		ruleset.emplace_back(rules::PermitDhcpServer::WithExtent(rules::PermitDhcpServer::Extent::IPv4Only));
 	}
 }
 

@@ -25,7 +25,7 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 
 	filterBuilder
 		.key(MullvadGuids::FilterPermitVpnTunnel_Outbound_Ipv4())
-		.name(L"Permit locally-initiated traffic on tunnel interface")
+		.name(L"Permit outbound on tunnel interface (IPv4)")
 		.description(L"This filter is part of a rule that permits communications inside the VPN tunnel")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
@@ -50,6 +50,7 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 
 	filterBuilder
 		.key(MullvadGuids::FilterPermitVpnTunnel_Outbound_Ipv6())
+		.name(L"Permit outbound on tunnel interface (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);

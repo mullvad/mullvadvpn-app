@@ -32,10 +32,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add GUI translations for Italian, Japanese, Dutch, Portugese, Russian and Turkish.
 - Add missing GUI translations for Czech Republic, USA and UK in the select location view.
 - Add translations for the current location displayed on the main screen in the GUI.
+- Allow a subset of NDP (Router solicitation, router advertisement and redirects) in the firewall.
 
 #### Linux
 - Add standard window decorations to the application window.
-- Allow a subset of NDP (Router solicitation, router advertisement and redirects) in the firewall.
 
 ### Changed
 - Relax the allow local network rules slightly. only checking either source or destination IP field

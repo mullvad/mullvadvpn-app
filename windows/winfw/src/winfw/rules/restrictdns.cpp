@@ -35,7 +35,7 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 
 	filterBuilder
 		.key(MullvadGuids::FilterRestrictDns_Outbound_Ipv4())
-		.name(L"Block DNS requests outside the VPN tunnel")
+		.name(L"Block DNS requests outside the VPN tunnel (IPv4)")
 		.description(L"This filter is part of a rule that restricts DNS traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
@@ -55,29 +55,8 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 		}
 	}
 
-	//
-	// IPv6 also
-	//
-
 	filterBuilder
-		.key(MullvadGuids::FilterRestrictDns_Outbound_Ipv6())
-		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
-
-	{
-		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
-
-		conditionBuilder.add_condition(ConditionPort::Remote(53));
-		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias, CompareNeq()));
-
-		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
-		{
-			return false;
-		}
-	}
-
-
-	filterBuilder
-		.name(L"Restrict IPv4 DNS requests inside the VPN tunnel")
+		.name(L"Restrict DNS requests inside the VPN tunnel (IPv4)")
 		.key(MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv4())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 
@@ -94,18 +73,38 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// Specified DNS is IPv6
+	// IPv6 also
 	//
+
 	filterBuilder
-		.name(L"Restrict IPv6 DNS requests inside the VPN tunnel")
-		.key(MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv6())
+		.key(MullvadGuids::FilterRestrictDns_Outbound_Ipv6())
+		.name(L"Block DNS requests outside the VPN tunnel (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 	{
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 		conditionBuilder.add_condition(ConditionPort::Remote(53));
-		if (m_v6DnsHost != nullptr) {
+		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias, CompareNeq()));
+
+		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+		{
+			return false;
+		}
+	}
+
+	filterBuilder
+		.key(MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv6())
+		.name(L"Restrict DNS requests inside the VPN tunnel (IPv6)")
+		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+
+	{
+		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+
+		conditionBuilder.add_condition(ConditionPort::Remote(53));
+
+		if (m_v6DnsHost != nullptr)
+		{
 			conditionBuilder.add_condition(ConditionIp::Remote(*m_v6DnsHost, CompareNeq()));
 		}
 
