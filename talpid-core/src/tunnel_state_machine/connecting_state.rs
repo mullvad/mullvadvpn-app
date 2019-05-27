@@ -5,7 +5,9 @@ use super::{
 };
 use crate::{
     firewall::FirewallPolicy,
-    tunnel::{self, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor},
+    tunnel::{
+        self, tun_provider::TunProvider, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor,
+    },
 };
 use futures::{
     sync::{mpsc, oneshot},
@@ -13,6 +15,7 @@ use futures::{
 };
 use log::{debug, error, info, trace, warn};
 use std::{
+    borrow::Borrow,
     net::IpAddr,
     path::{Path, PathBuf},
     thread,
@@ -62,13 +65,20 @@ impl ConnectingState {
         parameters: TunnelParameters,
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
+        tun_provider: &dyn TunProvider,
         retry_attempt: u32,
     ) -> crate::tunnel::Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
         let on_tunnel_event = move |event| {
             let _ = event_tx.unbounded_send(event);
         };
-        let monitor = TunnelMonitor::start(&parameters, log_dir, resource_dir, on_tunnel_event)?;
+        let monitor = TunnelMonitor::start(
+            &parameters,
+            log_dir,
+            resource_dir,
+            on_tunnel_event,
+            tun_provider,
+        )?;
         let close_handle = monitor.close_handle();
         let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
 
@@ -320,6 +330,7 @@ impl TunnelState for ConnectingState {
                         tunnel_parameters,
                         &shared_values.log_dir,
                         &shared_values.resource_dir,
+                        shared_values.tun_provider.borrow(),
                         retry_attempt,
                     ) {
                         Ok(connecting_state) => {
