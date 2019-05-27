@@ -2095,6 +2095,7 @@ name = "talpid-core"
 version = "0.1.0"
 dependencies = [
  "atty 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cfg-if 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "dbus 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "derive_more 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "duct 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
