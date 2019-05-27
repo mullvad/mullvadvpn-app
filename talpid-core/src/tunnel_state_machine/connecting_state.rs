@@ -109,10 +109,7 @@ impl ConnectingState {
 
     fn wait_for_tunnel_monitor(tunnel_monitor: TunnelMonitor) -> Option<BlockReason> {
         match tunnel_monitor.wait() {
-            Ok(_) => {
-                debug!("Tunnel has finished without errors");
-                None
-            }
+            Ok(_) => None,
             Err(error) => match error {
                 #[cfg(windows)]
                 error @ tunnel::Error::OpenVpnTunnelMonitoringError(
