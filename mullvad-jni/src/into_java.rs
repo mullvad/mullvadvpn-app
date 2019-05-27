@@ -1,7 +1,7 @@
 use crate::get_class;
 use jni::{
     objects::{JList, JObject, JString, JValue},
-    sys::jint,
+    sys::{jint, jsize},
     JNIEnv,
 };
 use mullvad_types::{
@@ -12,7 +12,7 @@ use mullvad_types::{
     CustomTunnelEndpoint,
 };
 use std::fmt::Debug;
-use talpid_types::tunnel::TunnelStateTransition;
+use talpid_types::{net::wireguard::PublicKey, tunnel::TunnelStateTransition};
 
 pub trait IntoJava<'env> {
     type JavaType;
@@ -70,6 +70,37 @@ where
         }
 
         list_object
+    }
+}
+
+impl<'array, 'env> IntoJava<'env> for &'array [u8] {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let size = self.len();
+        let array = env
+            .new_byte_array(size as jsize)
+            .expect("Failed to create a Java array of bytes");
+
+        let data = unsafe { std::slice::from_raw_parts(self.as_ptr() as *const i8, size) };
+
+        env.set_byte_array_region(array, 0, data)
+            .expect("Failed to copy bytes to Java array");
+
+        JObject::from(array)
+    }
+}
+
+impl<'env> IntoJava<'env> for PublicKey {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/PublicKey");
+        let key = env.auto_local(self.as_bytes().into_java(env));
+        let parameters = [JValue::Object(key.as_obj())];
+
+        env.new_object(&class, "([B)V", &parameters)
+            .expect("Failed to create PublicKey Java object")
     }
 }
 

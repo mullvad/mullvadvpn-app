@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn
 
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -23,15 +24,19 @@ class ConnectFragment : Fragment() {
     private lateinit var notificationBanner: NotificationBanner
     private lateinit var status: ConnectionStatus
 
-    private lateinit var daemon: Deferred<MullvadDaemon>
+    private var daemon = CompletableDeferred<MullvadDaemon>()
 
+    private var generateWireguardKeyJob = generateWireguardKey()
+
+    private var activeAction: Job? = null
     private var attachListenerJob: Job? = null
     private var updateViewJob: Job? = null
+    private var waitForDaemonJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        daemon = (context as MainActivity).asyncDaemon
+        waitForDaemonJob = waitForDaemon((context as MainActivity).asyncDaemon)
     }
 
     override fun onCreateView(
@@ -61,12 +66,18 @@ class ConnectFragment : Fragment() {
         return view
     }
 
-
     override fun onDestroyView() {
+        waitForDaemonJob?.cancel()
         attachListenerJob?.cancel()
         detachListener()
+        generateWireguardKeyJob.cancel()
         updateViewJob?.cancel()
         super.onDestroyView()
+    }
+
+    private fun waitForDaemon(asyncDaemon: Deferred<MullvadDaemon>) =
+            GlobalScope.launch(Dispatchers.Default) {
+        daemon.complete(asyncDaemon.await())
     }
 
     private fun attachListener() = GlobalScope.launch(Dispatchers.Default) {
@@ -77,12 +88,42 @@ class ConnectFragment : Fragment() {
         daemon.await().onTunnelStateChange = null
     }
 
-    private fun connect() = GlobalScope.launch(Dispatchers.Default) {
-        daemon.await().connect()
+    private fun generateWireguardKey() = GlobalScope.launch(Dispatchers.Default) {
+        val daemon = this@ConnectFragment.daemon.await()
+        val key = daemon.getWireguardKey()
+
+        if (key == null) {
+            daemon.generateWireguardKey()
+        }
     }
 
-    private fun disconnect() = GlobalScope.launch(Dispatchers.Default) {
-        daemon.await().disconnect()
+    private fun connect() {
+        updateViewToPreConnecting()
+        activeAction?.cancel()
+
+        activeAction = GlobalScope.launch(Dispatchers.Default) {
+            generateWireguardKeyJob.join()
+            daemon.await().connect()
+        }
+    }
+
+    private fun disconnect() {
+        activeAction?.cancel()
+
+        activeAction = GlobalScope.launch(Dispatchers.Default) {
+            daemon.await().disconnect()
+        }
+    }
+
+    private fun updateViewToPreConnecting() {
+        val connecting = TunnelStateTransition.Connecting()
+        val disconnected = TunnelStateTransition.Disconnected()
+
+        headerBar.setState(disconnected)
+
+        actionButton.state = connecting
+        notificationBanner.setState(connecting)
+        status.setState(connecting)
     }
 
     private fun updateView(state: TunnelStateTransition) = GlobalScope.launch(Dispatchers.Main) {

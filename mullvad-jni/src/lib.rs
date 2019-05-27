@@ -12,6 +12,7 @@ use crate::{
 };
 use jni::{
     objects::{GlobalRef, JObject, JString},
+    sys::{jboolean, JNI_FALSE, JNI_TRUE},
     JNIEnv,
 };
 use lazy_static::lazy_static;
@@ -30,6 +31,7 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/LocationConstraint$City",
     "net/mullvad/mullvadvpn/model/LocationConstraint$Country",
     "net/mullvad/mullvadvpn/model/LocationConstraint$Hostname",
+    "net/mullvad/mullvadvpn/model/PublicKey",
     "net/mullvad/mullvadvpn/model/Relay",
     "net/mullvad/mullvadvpn/model/RelayList",
     "net/mullvad/mullvadvpn/model/RelayListCity",
@@ -197,6 +199,26 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_disconnect(_: J
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWireguardKey(
+    _: JNIEnv,
+    _: JObject,
+) -> jboolean {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    match daemon.generate_wireguard_key() {
+        Ok(()) => JNI_TRUE,
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to generate wireguard key")
+            );
+            JNI_FALSE
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<'env, 'this>(
     env: JNIEnv<'env>,
     _: JObject<'this>,
@@ -250,6 +272,26 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getSettings<'en
         Ok(settings) => settings.into_java(&env),
         Err(error) => {
             log::error!("{}", error.display_chain_with_msg("Failed to get settings"));
+            JObject::null()
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey<'env, 'this>(
+    env: JNIEnv<'env>,
+    _: JObject<'this>,
+) -> JObject<'env> {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    match daemon.get_wireguard_key() {
+        Ok(public_key) => public_key.into_java(&env),
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to get wireguard key")
+            );
             JObject::null()
         }
     }
