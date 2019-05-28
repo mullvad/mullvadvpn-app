@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Error, Result};
+use crate::{location, new_rpc_client, Command, Error, Result};
 use clap::{value_t, values_t};
 use std::{
     io::{self, BufRead},
@@ -8,8 +8,8 @@ use std::{
 
 use mullvad_types::{
     relay_constraints::{
-        Constraint, LocationConstraint, OpenVpnConstraints, RelayConstraintsUpdate,
-        RelaySettingsUpdate, TunnelConstraints, WireguardConstraints,
+        Constraint, OpenVpnConstraints, RelayConstraintsUpdate, RelaySettingsUpdate,
+        TunnelConstraints, WireguardConstraints,
     },
     ConnectionConfig, CustomTunnelEndpoint,
 };
@@ -109,31 +109,9 @@ impl Command for Relay {
                             )
                     )
                     .subcommand(
-                        clap::SubCommand::with_name("location")
-                            .about(
-                                "Set country or city to select relays from. Use the 'list' \
-                                 command to show available alternatives.",
-                            )
-                            .arg(
-                                clap::Arg::with_name("country")
-                                    .help(
-                                        "The two letter country code, or 'any' for no preference.",
-                                    )
-                                    .required(true)
-                                    .index(1)
-                                    .validator(country_code_validator),
-                            )
-                            .arg(
-                                clap::Arg::with_name("city")
-                                    .help("The three letter city code")
-                                    .index(2)
-                                    .validator(city_code_validator),
-                            )
-                            .arg(
-                                clap::Arg::with_name("hostname")
-                                    .help("The relay hostname")
-                                    .index(3),
-                            ),
+                        location::get_subcommand()
+                            .about("Set country or city to select relays from. Use the 'list' \
+                                   command to show available alternatives.")
                     )
                     .subcommand(
                         clap::SubCommand::with_name("tunnel")
@@ -289,37 +267,7 @@ impl Relay {
     }
 
     fn set_location(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let country = matches.value_of("country").unwrap();
-        let city = matches.value_of("city");
-        let hostname = matches.value_of("hostname");
-
-        let location_constraint = match (country, city, hostname) {
-            ("any", None, None) => Constraint::Any,
-            ("any", ..) => clap::Error::with_description(
-                "City can't be given when selecting 'any' country",
-                clap::ErrorKind::InvalidValue,
-            )
-            .exit(),
-            (country, None, None) => {
-                Constraint::Only(LocationConstraint::Country(country.to_owned()))
-            }
-            (country, Some(city), None) => Constraint::Only(LocationConstraint::City(
-                country.to_owned(),
-                city.to_owned(),
-            )),
-            (country, Some(city), Some(hostname)) => {
-                Constraint::Only(LocationConstraint::Hostname(
-                    country.to_owned(),
-                    city.to_owned(),
-                    hostname.to_owned(),
-                ))
-            }
-            (..) => clap::Error::with_description(
-                "Invalid country, city and hostname combination given",
-                clap::ErrorKind::InvalidValue,
-            )
-            .exit(),
-        };
+        let location_constraint = location::get_constraint(matches);
 
         self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
             location: Some(location_constraint),
@@ -407,21 +355,5 @@ fn parse_protocol_constraint(raw_protocol: &str) -> Constraint<TransportProtocol
         "udp" => Constraint::Only(TransportProtocol::Udp),
         "tcp" => Constraint::Only(TransportProtocol::Tcp),
         _ => unreachable!(),
-    }
-}
-
-fn country_code_validator(code: String) -> ::std::result::Result<(), String> {
-    if code.len() == 2 || code == "any" {
-        Ok(())
-    } else {
-        Err(String::from("Country codes must be two letters, or 'any'."))
-    }
-}
-
-fn city_code_validator(code: String) -> ::std::result::Result<(), String> {
-    if code.len() == 3 {
-        Ok(())
-    } else {
-        Err(String::from("City codes must be three letters"))
     }
 }

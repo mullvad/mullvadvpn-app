@@ -7,6 +7,7 @@ pub struct TunnelParameters {
     pub config: ConnectionConfig,
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
+    pub proxy: Option<ProxySettings>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
@@ -40,8 +41,6 @@ pub struct TunnelOptions {
     /// Optional argument for openvpn to try and limit TCP packet size,
     /// as discussed [here](https://openvpn.net/archive/openvpn-users/2003-11/msg00154.html)
     pub mssfix: Option<u16>,
-    /// Proxy settings, for when the relay connection should be via a proxy.
-    pub proxy: Option<ProxySettings>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]

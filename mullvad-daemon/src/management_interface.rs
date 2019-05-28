@@ -15,7 +15,7 @@ use mullvad_rpc;
 use mullvad_types::{
     account::{AccountData, AccountToken},
     location::GeoIpLocation,
-    relay_constraints::RelaySettingsUpdate,
+    relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     relay_list::RelayList,
     settings::{self, Settings},
     states::TargetState,
@@ -27,11 +27,7 @@ use std::{
 };
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
-use talpid_types::{
-    net::{openvpn, wireguard},
-    tunnel::TunnelStateTransition,
-    ErrorExt,
-};
+use talpid_types::{net::wireguard, tunnel::TunnelStateTransition, ErrorExt};
 use uuid;
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
@@ -115,8 +111,12 @@ build_rpc_trait! {
         fn set_openvpn_mssfix(&self, Self::Metadata, Option<u16>) -> BoxFuture<(), Error>;
 
         /// Sets proxy details for OpenVPN
-        #[rpc(meta, name = "set_openvpn_proxy")]
-        fn set_openvpn_proxy(&self, Self::Metadata, Option<openvpn::ProxySettings>) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "set_bridge_settings")]
+        fn set_bridge_settings(&self, Self::Metadata, BridgeSettings) -> BoxFuture<(), Error>;
+
+        /// Sets bridge state
+        #[rpc(meta, name = "set_bridge_state")]
+        fn set_bridge_state(&self, Self::Metadata, BridgeState) -> BoxFuture<(), Error>;
 
         /// Set if IPv6 is enabled in the tunnel
         #[rpc(meta, name = "set_enable_ipv6")]
@@ -202,10 +202,9 @@ pub enum ManagementCommand {
     /// Set the mssfix argument for OpenVPN
     SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
     /// Set proxy details for OpenVPN
-    SetOpenVpnProxy(
-        OneshotSender<Result<(), settings::Error>>,
-        Option<openvpn::ProxySettings>,
-    ),
+    SetBridgeSettings(OneshotSender<Result<(), settings::Error>>, BridgeSettings),
+    /// Set proxy state
+    SetBridgeState(OneshotSender<Result<(), settings::Error>>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(OneshotSender<()>, bool),
     /// Set MTU for wireguard tunnels
@@ -546,15 +545,15 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn set_openvpn_proxy(
+    fn set_bridge_settings(
         &self,
         _: Self::Metadata,
-        proxy: Option<openvpn::ProxySettings>,
+        bridge_settings: BridgeSettings,
     ) -> BoxFuture<(), Error> {
-        log::debug!("set_openvpn_proxy({:?})", proxy);
+        log::debug!("set_bridge_settings({:?})", bridge_settings);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetOpenVpnProxy(tx, proxy))
+            .send_command_to_daemon(ManagementCommand::SetBridgeSettings(tx, bridge_settings))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|settings_result| {
                 settings_result.map_err(|error| match error {
@@ -564,6 +563,21 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
                     _ => Error::internal_error(),
                 })
             });
+
+        Box::new(future)
+    }
+
+    fn set_bridge_state(
+        &self,
+        _: Self::Metadata,
+        bridge_state: BridgeState,
+    ) -> BoxFuture<(), Error> {
+        log::debug!("set_bridge_state({:?})", bridge_state);
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::SetBridgeState(tx, bridge_state))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .and_then(|settings_result| settings_result.map_err(|_| Error::internal_error()));
 
         Box::new(future)
     }

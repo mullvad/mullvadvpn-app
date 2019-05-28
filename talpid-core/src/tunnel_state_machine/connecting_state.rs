@@ -286,7 +286,7 @@ fn get_openvpn_proxy_settings(
     tunnel_parameters: &TunnelParameters,
 ) -> &Option<openvpn::ProxySettings> {
     match tunnel_parameters {
-        TunnelParameters::OpenVpn(ref config) => &config.options.proxy,
+        TunnelParameters::OpenVpn(ref config) => &config.proxy,
         _ => &None,
     }
 }

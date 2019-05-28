@@ -14,6 +14,7 @@ use std::io;
 use talpid_types::ErrorExt;
 
 mod cmds;
+mod location;
 
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 

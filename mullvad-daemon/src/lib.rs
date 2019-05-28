@@ -446,7 +446,8 @@ where
                 RelaySettings::CustomTunnelEndpoint(custom_relay) => {
                     self.last_generated_relay = None;
                     custom_relay
-                        .to_tunnel_parameters(self.settings.get_tunnel_options().clone())
+                        // TODO(emilsp): generate proxy settings for custom tunnels
+                        .to_tunnel_parameters(self.settings.get_tunnel_options().clone(), None)
                         .map_err(|e| {
                             e.display_chain_with_msg("Custom tunnel endpoint could not be resolved")
                         })
@@ -491,7 +492,7 @@ where
         account_token: String,
         retry_attempt: u32,
     ) -> Result<TunnelParameters> {
-        let mut tunnel_options = self.settings.get_tunnel_options().clone();
+        let tunnel_options = self.settings.get_tunnel_options().clone();
         let location = relay.location.as_ref().expect("Relay has no location set");
         match endpoint {
             MullvadEndpoint::OpenVpn(endpoint) => {
@@ -529,7 +530,6 @@ where
                         }
                     }
                 };
-                tunnel_options.openvpn.proxy = proxy_settings;
 
                 Ok(openvpn::TunnelParameters {
                     config: openvpn::ConnectionConfig::new(
@@ -539,6 +539,7 @@ where
                     ),
                     options: tunnel_options.openvpn,
                     generic_options: tunnel_options.generic,
+                    proxy: proxy_settings,
                 }
                 .into())
             }
@@ -620,7 +621,10 @@ where
             }
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect),
             SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
-            SetOpenVpnProxy(tx, proxy) => self.on_set_openvpn_proxy(tx, proxy),
+            SetBridgeSettings(tx, bridge_settings) => {
+                self.on_set_bridge_settings(tx, bridge_settings)
+            }
+            SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
             GetSettings(tx) => self.on_get_settings(tx),
@@ -876,35 +880,62 @@ where
         }
     }
 
-    fn on_set_openvpn_proxy(
+    fn on_set_bridge_settings(
         &mut self,
         tx: oneshot::Sender<::std::result::Result<(), settings::Error>>,
-        proxy: Option<openvpn::ProxySettings>,
+        new_settings: BridgeSettings,
     ) {
-        let constraints_result = match proxy {
-            Some(_) => self.apply_proxy_constraints(),
-            _ => Ok(false),
-        };
-        let proxy_result = self.settings.set_openvpn_proxy(proxy);
-
-        match (proxy_result, constraints_result) {
-            (Ok(proxy_changed), Ok(constraints_changed)) => {
-                Self::oneshot_send(tx, Ok(()), "set_openvpn_proxy response");
-                if proxy_changed || constraints_changed {
+        match self.settings.set_bridge_settings(new_settings) {
+            Ok(settings_changes) => {
+                if settings_changes {
                     self.event_listener.notify_settings(self.settings.clone());
-                    info!("Initiating tunnel restart because the OpenVPN proxy setting changed");
                     self.reconnect_tunnel();
-                }
+                };
+                Self::oneshot_send(tx, Ok(()), "set_bridge_settings");
             }
-            (Ok(_), Err(error)) | (Err(error), Ok(_)) => {
-                error!("{}", error.display_chain());
-                Self::oneshot_send(tx, Err(error), "set_openvpn_proxy response");
-            }
-            (Err(error), Err(_)) => {
-                error!("{}", error.display_chain());
-                Self::oneshot_send(tx, Err(error), "set_openvpn_proxy response");
+
+            Err(e) => {
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Failed to set new bridge settings")
+                );
+                Self::oneshot_send(tx, Err(e), "set_bridge_settings");
             }
         }
+    }
+
+    fn on_set_bridge_state(
+        &mut self,
+        tx: oneshot::Sender<::std::result::Result<(), settings::Error>>,
+        bridge_state: BridgeState,
+    ) {
+        let result = match self.settings.set_bridge_state(bridge_state.clone()) {
+            Ok(settings_changed) => {
+                if settings_changed {
+                    if bridge_state == BridgeState::On {
+                        if let Err(e) = self.apply_proxy_constraints() {
+                            log::error!(
+                                "{}",
+                                e.display_chain_with_msg("Failed to apply proxy constraints")
+                            );
+                        }
+                    }
+
+                    self.event_listener.notify_settings(self.settings.clone());
+                    log::info!("Initiating tunnel restart because bridge state changed");
+                    self.reconnect_tunnel();
+                }
+                Ok(())
+            }
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to set new bridge state")
+                );
+                Err(error)
+            }
+        };
+        Self::oneshot_send(tx, result, "on_set_bridge_state response");
     }
 
     // Set the OpenVPN tunnel to use TCP.

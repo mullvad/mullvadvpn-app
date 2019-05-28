@@ -31,6 +31,7 @@ impl CustomTunnelEndpoint {
     pub fn to_tunnel_parameters(
         &self,
         tunnel_options: TunnelOptions,
+        proxy: Option<openvpn::ProxySettings>,
     ) -> Result<TunnelParameters, Error> {
         let ip = resolve_to_ip(&self.host)?;
         let mut config = self.config.clone();
@@ -41,6 +42,7 @@ impl CustomTunnelEndpoint {
                 config,
                 options: tunnel_options.openvpn.clone(),
                 generic_options: tunnel_options.generic.clone(),
+                proxy,
             }
             .into(),
             ConnectionConfig::Wireguard(connection) => wireguard::TunnelParameters {

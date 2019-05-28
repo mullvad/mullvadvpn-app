@@ -62,6 +62,7 @@ pub struct OpenVpnCommand {
     plugin: Option<(PathBuf, Vec<String>)>,
     log: Option<PathBuf>,
     tunnel_options: net::openvpn::TunnelOptions,
+    proxy_settings: Option<net::openvpn::ProxySettings>,
     tunnel_alias: Option<OsString>,
     enable_ipv6: bool,
     proxy_port: Option<u16>,
@@ -83,6 +84,7 @@ impl OpenVpnCommand {
             plugin: None,
             log: None,
             tunnel_options: net::openvpn::TunnelOptions::default(),
+            proxy_settings: None,
             tunnel_alias: None,
             enable_ipv6: true,
             proxy_port: None,
@@ -283,7 +285,7 @@ impl OpenVpnCommand {
 
     fn proxy_arguments(&self) -> Vec<String> {
         let mut args = vec![];
-        match self.tunnel_options.proxy {
+        match self.proxy_settings {
             Some(net::openvpn::ProxySettings::Local(ref local_proxy)) => {
                 args.push("--socks-proxy".to_owned());
                 args.push("127.0.0.1".to_owned());

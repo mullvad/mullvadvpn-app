@@ -7,6 +7,9 @@ pub use self::account::Account;
 mod auto_connect;
 pub use self::auto_connect::AutoConnect;
 
+mod bridge;
+pub use self::bridge::Bridge;
+
 mod status;
 pub use self::status::Status;
 
@@ -37,6 +40,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(Account),
         Box::new(AutoConnect),
         Box::new(BlockWhenDisconnected),
+        Box::new(Bridge),
         Box::new(Connect),
         Box::new(Disconnect),
         Box::new(Lan),
