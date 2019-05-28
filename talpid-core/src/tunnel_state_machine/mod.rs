@@ -19,6 +19,7 @@ use crate::{
     firewall::{Firewall, FirewallArguments},
     mpsc::IntoSender,
     offline,
+    tunnel::tun_provider::TunProvider,
 };
 use futures::{sync::mpsc, Async, Future, Poll, Stream};
 use std::{
@@ -63,6 +64,7 @@ pub fn spawn<P, T>(
     allow_lan: bool,
     block_when_disconnected: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
+    tun_provider: impl TunProvider,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     cache_dir: P,
@@ -84,6 +86,7 @@ where
             block_when_disconnected,
             is_offline,
             tunnel_parameters_generator,
+            tun_provider,
             log_dir,
             resource_dir,
             cache_dir,
@@ -122,6 +125,7 @@ fn create_event_loop<T>(
     block_when_disconnected: bool,
     is_offline: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
+    tun_provider: impl TunProvider,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     cache_dir: impl AsRef<Path>,
@@ -137,6 +141,7 @@ where
         block_when_disconnected,
         is_offline,
         tunnel_parameters_generator,
+        tun_provider,
         log_dir,
         resource_dir,
         cache_dir,
@@ -186,6 +191,7 @@ impl TunnelStateMachine {
         block_when_disconnected: bool,
         is_offline: bool,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
+        tun_provider: impl TunProvider,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
@@ -211,6 +217,7 @@ impl TunnelStateMachine {
             block_when_disconnected,
             is_offline,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
+            tun_provider: Box::new(tun_provider),
             log_dir,
             resource_dir,
         };
@@ -293,6 +300,8 @@ struct SharedTunnelStateValues {
     is_offline: bool,
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
+    /// The provider of tunnel devices.
+    tun_provider: Box<dyn TunProvider>,
     /// Directory to store tunnel log file.
     log_dir: Option<PathBuf>,
     /// Resource directory path.

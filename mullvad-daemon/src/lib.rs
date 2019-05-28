@@ -47,6 +47,7 @@ use mullvad_types::{
 use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
+    tunnel::tun_provider::{PlatformTunProvider, TunProvider},
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
@@ -233,6 +234,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
             tx,
             rx,
             management_interface_broadcaster,
+            PlatformTunProvider::default(),
             log_dir,
             resource_dir,
             cache_dir,
@@ -278,8 +280,9 @@ impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
 {
-    pub fn start_with_event_listener(
+    pub fn start_with_event_listener_and_tun_provider(
         event_listener: L,
+        tun_provider: impl TunProvider,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
@@ -291,6 +294,7 @@ where
             tx,
             rx,
             event_listener,
+            tun_provider,
             log_dir,
             resource_dir,
             cache_dir,
@@ -302,6 +306,7 @@ where
         internal_event_tx: mpsc::Sender<InternalDaemonEvent>,
         internal_event_rx: mpsc::Receiver<InternalDaemonEvent>,
         event_listener: L,
+        tun_provider: impl TunProvider,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
@@ -345,6 +350,7 @@ where
             settings.get_allow_lan(),
             settings.get_block_when_disconnected(),
             tunnel_parameters_generator,
+            tun_provider,
             log_dir,
             resource_dir,
             cache_dir.clone(),

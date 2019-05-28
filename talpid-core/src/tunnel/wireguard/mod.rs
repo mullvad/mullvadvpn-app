@@ -1,9 +1,10 @@
 #![allow(missing_docs)]
 
 use self::config::Config;
-use super::{TunnelEvent, TunnelMetadata};
+use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing;
 use std::{collections::HashMap, io, path::Path, sync::mpsc};
+use talpid_types::BoxedError;
 
 pub mod config;
 mod ping_monitor;
@@ -21,7 +22,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// Failed to setup a tunnel device.
     #[error(display = "Failed to create tunnel device")]
-    SetupTunnelDeviceError(#[error(cause)] crate::network_interface::Error),
+    SetupTunnelDeviceError(#[error(cause)] BoxedError),
 
     /// Failed to setup wireguard tunnel.
     #[error(display = "Failed to start wireguard tunnel - {}", status)]
@@ -65,8 +66,9 @@ impl WireguardMonitor {
         config: &Config,
         log_path: Option<&Path>,
         on_event: F,
+        tun_provider: &dyn TunProvider,
     ) -> Result<WireguardMonitor> {
-        let tunnel = Box::new(WgGoTunnel::start_tunnel(&config, log_path)?);
+        let tunnel = Box::new(WgGoTunnel::start_tunnel(&config, log_path, tun_provider)?);
         let iface_name = tunnel.get_interface_name();
         let route_handle = routing::RouteManager::new(
             Self::get_routes(iface_name, &config),
