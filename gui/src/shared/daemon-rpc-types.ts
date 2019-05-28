@@ -160,12 +160,17 @@ export interface IRelayListHostname {
   ipv4AddrIn: string;
   includeInCountry: boolean;
   weight: number;
-  tunnels: IRelayTunnels;
+  tunnels?: IRelayTunnels;
+  bridges?: IRelayBridges;
 }
 
 export interface IRelayTunnels {
   openvpn: IOpenVpnTunnelData[];
   wireguard: IWireguardTunnelData[];
+}
+
+export interface IRelayBridges {
+  shadowsocks: IShadowsocksEndpointData[];
 }
 
 export interface IOpenVpnTunnelData {
@@ -182,10 +187,16 @@ export interface IWireguardTunnelData {
   publicKey: string;
 }
 
+export interface IShadowsocksEndpointData {
+  port: number;
+  cipher: string;
+  password: string;
+  protocol: RelayProtocol;
+}
+
 export interface ITunnelOptions {
   openvpn: {
     mssfix?: number;
-    proxy?: ProxySettings;
   };
   wireguard: {
     mtu?: number;
@@ -233,7 +244,21 @@ export interface ISettings {
   blockWhenDisconnected: boolean;
   relaySettings: RelaySettings;
   tunnelOptions: ITunnelOptions;
+  bridgeSettings: BridgeSettings;
+  bridgeState: BridgeState;
 }
+
+export type BridgeState = 'auto' | 'on' | 'off';
+
+export interface IBridgeConstraints {
+  location:
+    | 'any'
+    | {
+        only: RelayLocation;
+      };
+}
+
+export type BridgeSettings = ProxySettings | IBridgeConstraints;
 
 export interface ISocketAddress {
   host: string;
