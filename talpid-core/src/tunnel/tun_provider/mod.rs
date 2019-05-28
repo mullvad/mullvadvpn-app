@@ -20,7 +20,7 @@ cfg_if! {
         pub type PlatformTunProvider = UnixTunProvider;
     } else {
         mod stub;
-        pub use self::stub::StubTunProvider;
+        use self::stub::StubTunProvider;
 
         /// Default stub implementation of `TunProvider` for Android and Windows.
         pub type PlatformTunProvider = StubTunProvider;
