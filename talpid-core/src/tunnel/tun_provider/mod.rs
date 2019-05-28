@@ -3,6 +3,8 @@ use ipnetwork::IpNetwork;
 use std::net::IpAddr;
 #[cfg(unix)]
 use std::os::unix::io::AsRawFd;
+#[cfg(target_os = "android")]
+use std::os::unix::io::RawFd;
 use talpid_types::BoxedError;
 
 cfg_if! {
@@ -32,6 +34,10 @@ cfg_if! {
 pub trait Tun: AsRawFd + Send {
     /// Retrieve the tunnel interface name.
     fn interface_name(&self) -> &str;
+
+    /// Allow a socket to bypass the tunnel.
+    #[cfg(target_os = "android")]
+    fn bypass(&mut self, socket: RawFd) -> Result<(), BoxedError>;
 }
 
 /// Stub tunnel device.
