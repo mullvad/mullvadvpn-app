@@ -17,7 +17,9 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: &dyn TunProvider,
     ) -> Result<Self> {
-        let tunnel_config = TunConfig::new(config.tunnel.addresses.clone());
+        let tunnel_config = TunConfig {
+            addresses: config.tunnel.addresses.clone())
+        };
         let tunnel_device = tun_provider
             .create_tun(tunnel_config)
             .map_err(Error::SetupTunnelDeviceError)?;

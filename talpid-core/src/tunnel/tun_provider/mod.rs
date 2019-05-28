@@ -51,12 +51,3 @@ pub struct TunConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
 }
-
-impl TunConfig {
-    /// Create a new tunnel device configuration using the specified tunnel addresses.
-    pub fn new(addresses: impl IntoIterator<Item = IpAddr>) -> Self {
-        TunConfig {
-            addresses: addresses.into_iter().collect(),
-        }
-    }
-}
