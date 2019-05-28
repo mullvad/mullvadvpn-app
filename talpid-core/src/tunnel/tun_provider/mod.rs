@@ -47,6 +47,7 @@ pub trait TunProvider: Send + 'static {
 }
 
 /// Configuration for creating a tunnel device.
+#[derive(Clone, Debug)]
 pub struct TunConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
