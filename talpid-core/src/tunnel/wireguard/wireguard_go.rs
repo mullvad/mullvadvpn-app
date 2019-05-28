@@ -17,11 +17,8 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: &dyn TunProvider,
     ) -> Result<Self> {
-        let tunnel_config = TunConfig {
-            addresses: config.tunnel.addresses.clone())
-        };
         let tunnel_device = tun_provider
-            .create_tun(tunnel_config)
+            .create_tun(Self::create_tunnel_config(config))
             .map_err(Error::SetupTunnelDeviceError)?;
 
         let interface_name: String = tunnel_device.interface_name().to_string();
@@ -52,6 +49,12 @@ impl WgGoTunnel {
             _tunnel_device: tunnel_device,
             _log_file: log_file,
         })
+    }
+
+    fn create_tunnel_config(config: &Config) -> TunConfig {
+        TunConfig {
+            addresses: config.tunnel.addresses.clone(),
+        }
     }
 
     fn stop_tunnel(&mut self) -> Result<()> {
