@@ -22,6 +22,12 @@ pub enum Error {
 /// Factory of tunnel devices on Unix systems.
 pub struct UnixTunProvider;
 
+impl Default for UnixTunProvider {
+    fn default() -> Self {
+        UnixTunProvider
+    }
+}
+
 impl TunProvider for UnixTunProvider {
     fn create_tun(&self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
         let mut tunnel_device = TunnelDevice::new()
