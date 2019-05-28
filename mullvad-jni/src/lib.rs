@@ -5,6 +5,7 @@ mod from_java;
 mod into_java;
 mod is_null;
 mod jni_event_listener;
+mod vpn_service_tun_provider;
 
 use crate::{
     daemon_interface::DaemonInterface, from_java::FromJava, into_java::IntoJava,
