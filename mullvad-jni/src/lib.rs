@@ -44,6 +44,7 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$CustomTunnelEndpoint",
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$RelayConstraintsUpdate",
     "net/mullvad/mullvadvpn/model/Settings",
+    "net/mullvad/mullvadvpn/model/TunConfig",
     "net/mullvad/mullvadvpn/model/TunnelStateTransition$Blocked",
     "net/mullvad/mullvadvpn/model/TunnelStateTransition$Connected",
     "net/mullvad/mullvadvpn/model/TunnelStateTransition$Connecting",

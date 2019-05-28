@@ -14,6 +14,7 @@ use mullvad_types::{
     CustomTunnelEndpoint,
 };
 use std::{fmt::Debug, net::IpAddr};
+use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{net::wireguard::PublicKey, tunnel::TunnelStateTransition};
 
 pub trait IntoJava<'env> {
@@ -186,6 +187,19 @@ impl<'env> IntoJava<'env> for AccountData {
 
         env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
             .expect("Failed to create AccountData Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for TunConfig {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/TunConfig");
+        let addresses = env.auto_local(self.addresses.into_java(env));
+        let parameters = [JValue::Object(addresses.as_obj())];
+
+        env.new_object(&class, "(Ljava/util/List;)V", &parameters)
+            .expect("Failed to create TunConfig Java object")
     }
 }
 
