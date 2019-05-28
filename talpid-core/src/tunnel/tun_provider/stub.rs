@@ -4,6 +4,12 @@ use talpid_types::BoxedError;
 /// Factory stub of tunnel devices.
 pub struct StubTunProvider;
 
+impl Default for StubTunProvider {
+    fn default() -> Self {
+        StubTunProvider
+    }
+}
+
 impl TunProvider for StubTunProvider {
     fn create_tun(&self, _: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
         unimplemented!();

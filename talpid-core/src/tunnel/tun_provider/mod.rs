@@ -12,6 +12,15 @@ cfg_if! {
         #[path = "unix.rs"]
         mod imp;
         use self::imp::UnixTunProvider;
+
+        /// Default implementation of `TunProvider` for Unix based operating systems.
+        ///
+        /// Android has a different mechanism to obtain tunnel interfaces, so it is not supported
+        /// here.
+        pub type PlatformTunProvider = UnixTunProvider;
+    } else {
+        /// Default stub implementation of `TunProvider` for Android and Windows.
+        pub type PlatformTunProvider = StubTunProvider;
     }
 }
 
