@@ -13,10 +13,13 @@ class AccountViewController: UIViewController {
     @IBOutlet var accountLabel: UILabel!
     @IBOutlet var expiryLabel: UILabel!
 
+    private var accountExpiryObserver: AccountExpiryRefresh.Observer?
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         updateView()
+        startAccountExpiryUpdates()
     }
 
     // MARK: - Actions
@@ -47,5 +50,12 @@ class AccountViewController: UIViewController {
                 expiryLabel.textColor = .white
             }
         }
+    }
+
+    private func startAccountExpiryUpdates() {
+        accountExpiryObserver = AccountExpiryRefresh.shared
+            .startMonitoringUpdates(with: { [weak self] (expiryDate) in
+                self?.updateView()
+            })
     }
 }

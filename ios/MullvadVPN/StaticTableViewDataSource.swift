@@ -39,10 +39,39 @@ class StaticTableViewSection {
 
 class StaticTableViewDataSource: NSObject, UITableViewDataSource, UITableViewDelegate {
 
+    @IBOutlet weak var tableView: UITableView?
+
     private(set) var sections = [StaticTableViewSection]()
 
     func addSections(_ sections: [StaticTableViewSection]) {
         self.sections.append(contentsOf: sections)
+    }
+
+    func reloadRows(_ rows: [StaticTableViewRow], with animation: UITableView.RowAnimation) {
+        let indexPaths = rows.compactMap { indexPathForRow($0) }
+
+        tableView?.reloadRows(at: indexPaths, with: animation)
+    }
+
+    func indexPathForRow(_ searchRow: StaticTableViewRow) -> IndexPath? {
+        var sectionIndex = 0
+
+        for section in sections {
+            let visibleRows = section.rows.filter { !$0.isHidden }
+
+            // skip incrementing the section index since invisible sections are normally collapsed
+            guard visibleRows.count > 0 else {
+                continue
+            }
+
+            if let rowIndex = visibleRows.firstIndex(where: { $0 === searchRow }) {
+                return IndexPath(row: rowIndex, section: sectionIndex)
+            }
+
+            sectionIndex += 1
+        }
+
+        return nil
     }
 
     // MARK: - UITableViewDelegate
