@@ -1,6 +1,7 @@
 use crate::get_class;
 use jni::{
     objects::{JList, JObject, JString, JValue},
+    signature::JavaType,
     sys::{jint, jsize},
     JNIEnv,
 };
@@ -11,7 +12,7 @@ use mullvad_types::{
     settings::Settings,
     CustomTunnelEndpoint,
 };
-use std::fmt::Debug;
+use std::{fmt::Debug, net::IpAddr};
 use talpid_types::{net::wireguard::PublicKey, tunnel::TunnelStateTransition};
 
 pub trait IntoJava<'env> {
@@ -88,6 +89,59 @@ impl<'array, 'env> IntoJava<'env> for &'array [u8] {
             .expect("Failed to copy bytes to Java array");
 
         JObject::from(array)
+    }
+}
+
+impl<'env> IntoJava<'env> for IpAddr {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("java/net/InetAddress");
+
+        let constructor = env
+            .get_static_method_id(&class, "getByAddress", "([B)Ljava/net/InetAddress;")
+            .expect("Failed to get InetAddress.getByAddress method ID");
+
+        let octet_count = if self.is_ipv4() { 4 } else { 16 };
+        let octets_array = env
+            .new_byte_array(octet_count)
+            .expect("Failed to create byte array to store IP address");
+
+        let octet_data: Vec<i8> = match self {
+            IpAddr::V4(address) => address
+                .octets()
+                .into_iter()
+                .map(|octet| *octet as i8)
+                .collect(),
+            IpAddr::V6(address) => address
+                .octets()
+                .into_iter()
+                .map(|octet| *octet as i8)
+                .collect(),
+        };
+
+        env.set_byte_array_region(octets_array, 0, &octet_data)
+            .expect("Failed to copy IP address octets to byte array");
+
+        let octets = env.auto_local(JObject::from(octets_array));
+        let result = env
+            .call_static_method_unchecked(
+                "java/net/InetAddress",
+                constructor,
+                JavaType::Object("java/net/InetAddress".to_owned()),
+                &[JValue::Object(octets.as_obj())],
+            )
+            .expect("Failed to create InetAddress Java object");
+
+        match result {
+            JValue::Object(object) => object,
+            value => {
+                panic!(
+                    "InetAddress.getByAddress returned an invalid value: {:?}",
+                    value
+                );
+            }
+        }
     }
 }
 
