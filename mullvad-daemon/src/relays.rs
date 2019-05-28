@@ -284,6 +284,12 @@ impl RelaySelector {
         if !self.should_use_bridge(retry_attempt) {
             return None;
         }
+
+        // For now, only TCP tunnels are supported.
+        if let &Constraint::Only(TransportProtocol::Udp) = &bridge_constraints.transport_protocol {
+            return None;
+        }
+
         self.get_proxy_settings(bridge_constraints, location)
     }
 
