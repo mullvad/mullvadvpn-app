@@ -18,8 +18,8 @@ extension UIColor {
         }
 
         struct ErrorState {
-            static let borderColor = UIColor(red: 0.82, green: 0.01, blue: 0.11, alpha: 0.4)
-            static let textColor = UIColor(red: 0.82, green: 0.01, blue: 0.11, alpha: 1.0)
+            static let borderColor = dangerColor.withAlphaComponent(0.4)
+            static let textColor = dangerColor
             static let backgroundColor = UIColor.white
         }
 
@@ -32,15 +32,26 @@ extension UIColor {
 
     // Relay availability indicator view
     struct RelayStatusIndicator {
-        static let activeColor = UIColor(red: 0.27, green: 0.68, blue: 0.30, alpha: 0.9)
-        static let inactiveColor = UIColor(red: 0.82, green: 0.01, blue: 0.11, alpha: 0.95)
+        static let activeColor = successColor.withAlphaComponent(0.9)
+        static let inactiveColor = dangerColor.withAlphaComponent(0.95)
     }
 
     // Cells
     struct Cell {
         static let backgroundColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.0)
-        static let selectedBackgroundColor = UIColor(red: 0.27, green: 0.68, blue: 0.30, alpha: 1.0)
-        static let subCellBackgroundColor = UIColor(red:0.15, green:0.23, blue:0.33, alpha:1.0)
-        static let subSubCellBackgroundColor = UIColor(red:0.13, green:0.20, blue:0.30, alpha:1.0)
+        static let selectedAltBackgroundColor = backgroundColor.darkened(by: 0.2)
+        static let selectedBackgroundColor = successColor
+        static let subCellBackgroundColor = UIColor(red: 0.15, green: 0.23, blue: 0.33, alpha: 1.0)
+        static let subSubCellBackgroundColor = UIColor(red: 0.13, green: 0.20, blue: 0.30, alpha: 1.0)
     }
+
+    struct HeaderBar {
+        static let defaultBackgroundColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.0)
+        static let unsecuredBackgroundColor = dangerColor
+        static let securedBackgroundColor = successColor
+    }
+
+    // Common colors
+    static let dangerColor = UIColor(red: 0.82, green: 0.01, blue: 0.11, alpha: 1.0)
+    static let successColor = UIColor(red: 0.27, green: 0.68, blue: 0.30, alpha: 1.0)
 }

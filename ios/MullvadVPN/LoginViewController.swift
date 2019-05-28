@@ -13,7 +13,7 @@ import os.log
 private let kMinimumAccountTokenLength = 10
 private let kValidAccountTokenCharacterSet = CharacterSet(charactersIn: "01234567890")
 
-class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UITextFieldDelegate {
+class LoginViewController: UIViewController, UITextFieldDelegate, RootContainment {
 
     @IBOutlet var keyboardToolbar: UIToolbar!
     @IBOutlet var keyboardToolbarLoginButton: UIBarButtonItem!
@@ -26,8 +26,6 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
     @IBOutlet var statusImageView: UIImageView!
 
-    private weak var headerBarController: HeaderBarViewController?
-
     private let procedureQueue = ProcedureQueue()
     private var loginState = LoginState.default {
         didSet {
@@ -39,11 +37,8 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
         return .lightContent
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if case .embedHeader? = SegueIdentifier.Login.from(segue: segue) {
-            headerBarController = segue.destination as? HeaderBarViewController
-            headerBarController?.delegate = self
-        }
+    var preferredHeaderBarStyle: HeaderBarStyle {
+        return .transparent
     }
 
     override func viewDidLoad() {
@@ -84,12 +79,6 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
                                        selector: #selector(textDidChange(_:)),
                                        name: UITextField.textDidChangeNotification,
                                        object: accountTextField)
-    }
-
-    // MARK: - HeaderBarViewControllerDelegate
-
-    func headerBarViewControllerShouldOpenSettings(_ controller: HeaderBarViewController) {
-        performSegue(withIdentifier: SegueIdentifier.Login.showSettings.rawValue, sender: self)
     }
 
     // MARK: - Keyboard notifications
@@ -138,7 +127,13 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
         return string.unicodeScalars.allSatisfy { kValidAccountTokenCharacterSet.contains($0) }
     }
 
-    // MARK: - IBActions
+    // MARK: - Actions
+
+    @IBAction func unwindFromAccount(segue: UIStoryboardSegue) {
+        loginState = .default
+        accountTextField.text = ""
+        updateKeyboardToolbar()
+    }
 
     @IBAction func cancelLogin() {
         view.endEditing(true)
@@ -195,10 +190,10 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
             fallthrough
 
         case .success:
-            headerBarController?.settingsButton.isEnabled = false
+            rootContainerController?.headerBarSettingsButton.isEnabled = false
 
         case .default, .failure:
-            headerBarController?.settingsButton.isEnabled = true
+            rootContainerController?.headerBarSettingsButton.isEnabled = true
             activityIndicator.isAnimating = false
         }
 
@@ -242,6 +237,8 @@ class LoginViewController: UIViewController, HeaderBarViewControllerDelegate, UI
         } else if case .success = loginState {
             // Navigate to the main view after 1s delay
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+                self.rootContainerController?.headerBarSettingsButton.isEnabled = true
+
                 self.performSegue(withIdentifier: SegueIdentifier.Login.showConnect.rawValue,
                                   sender: self)
             }

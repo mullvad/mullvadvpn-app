@@ -28,13 +28,12 @@ class SelectLocationController: UITableViewController {
         super.viewDidLoad()
 
         loadRelayList()
-        updateTableHeaderViewSize(tableViewSize: tableView.frame.size)
     }
 
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
 
-        updateTableHeaderViewSize(tableViewSize: size)
+        updateTableHeaderViewSizeIfNeeded()
     }
 
     // MARK: - UITableViewDataSource
@@ -77,12 +76,6 @@ class SelectLocationController: UITableViewController {
             self.performSegue(withIdentifier:
                 SegueIdentifier.SelectLocation.returnToConnectWithNewRelay.rawValue, sender: self)
         }
-    }
-
-    // MARK: - UIScrollViewDelegate
-
-    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        updateBarVisibility(threshold: 12)
     }
 
     // MARK: - Relay list handling
@@ -148,36 +141,26 @@ class SelectLocationController: UITableViewController {
         }
     }
 
-    // MARK: - Bar visibility
-
-    private func updateBarVisibility(threshold: CGFloat) {
-        guard let navigationBar = navigationController?.navigationBar as? CustomNavigationBar else {
-            return
-        }
-
-        let shouldShowBar = tableView.contentOffset.y > (-tableView.adjustedContentInset.top + threshold)
-
-        navigationBar.setBarVisible(shouldShowBar, animated: true)
-    }
-
     // MARK: - UITableView header
 
-    private func updateTableHeaderViewSize(tableViewSize: CGSize) {
+    private func updateTableHeaderViewSizeIfNeeded() {
         guard let header = tableView.tableHeaderView else { return }
-
-        // layout the header view
-        header.setNeedsLayout()
-        header.layoutIfNeeded()
 
         // measure the view size
         let sizeConstraint = CGSize(
-            width: tableViewSize.width,
+            width: tableView.bounds.width,
             height: UIView.layoutFittingCompressedSize.height
         )
-        header.frame.size = header.systemLayoutSizeFitting(sizeConstraint)
 
-        // reset the header view to force UITableView layout pass
-        tableView.tableHeaderView = header
+        let newSize = header.systemLayoutSizeFitting(sizeConstraint)
+        let oldSize = header.frame.size
+
+        if oldSize.height != newSize.height {
+            header.frame.size.height = newSize.height
+
+            // reset the header view to force UITableView layout pass
+            tableView.tableHeaderView = header
+        }
     }
 }
 

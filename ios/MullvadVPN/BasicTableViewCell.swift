@@ -24,4 +24,5 @@ class BasicTableViewCell: UITableViewCell {
         backgroundColor = UIColor.clear
         contentView.backgroundColor = UIColor.clear
     }
+
 }
