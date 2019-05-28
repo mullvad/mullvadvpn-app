@@ -52,6 +52,20 @@ const constraint = <T>(constraintValue: SchemaNode<T>) => {
   );
 };
 
+const locationConstraintSchema = constraint(
+  oneOf(
+    object({
+      hostname: arrayOf(string),
+    }),
+    object({
+      city: arrayOf(string),
+    }),
+    object({
+      country: string,
+    }),
+  ),
+);
+
 const customTunnelEndpointSchema = oneOf(
   object({
     openvpn: object({
@@ -83,19 +97,7 @@ const customTunnelEndpointSchema = oneOf(
 const relaySettingsSchema = oneOf(
   object({
     normal: partialObject({
-      location: constraint(
-        oneOf(
-          object({
-            hostname: arrayOf(string),
-          }),
-          object({
-            city: arrayOf(string),
-          }),
-          object({
-            country: string,
-          }),
-        ),
-      ),
+      location: locationConstraintSchema,
       tunnel: constraint(
         oneOf(
           object({
@@ -138,20 +140,34 @@ const relayListSchema = partialObject({
               ipv4_addr_in: string,
               include_in_country: boolean,
               weight: number,
-              tunnels: partialObject({
-                openvpn: arrayOf(
-                  partialObject({
-                    port: number,
-                    protocol: string,
-                  }),
-                ),
-                wireguard: arrayOf(
-                  partialObject({
-                    port_ranges: arrayOf(arrayOf(number)),
-                    public_key: string,
-                  }),
-                ),
-              }),
+              bridges: maybe(
+                partialObject({
+                  shadowsocks: arrayOf(
+                    object({
+                      port: number,
+                      cipher: string,
+                      password: string,
+                      protocol: enumeration('tcp', 'udp'),
+                    }),
+                  ),
+                }),
+              ),
+              tunnels: maybe(
+                partialObject({
+                  openvpn: arrayOf(
+                    partialObject({
+                      port: number,
+                      protocol: string,
+                    }),
+                  ),
+                  wireguard: arrayOf(
+                    partialObject({
+                      port_ranges: arrayOf(arrayOf(number)),
+                      public_key: string,
+                    }),
+                  ),
+                }),
+              ),
             }),
           ),
         }),
@@ -189,10 +205,14 @@ const openVpnProxySchema = maybe(
   ),
 );
 
+const bridgeSettingsSchema = oneOf(
+  partialObject({ location: locationConstraintSchema }),
+  openVpnProxySchema,
+);
+
 const tunnelOptionsSchema = partialObject({
   openvpn: partialObject({
     mssfix: maybe(number),
-    proxy: openVpnProxySchema,
   }),
   wireguard: partialObject({
     mtu: maybe(number),
@@ -292,6 +312,8 @@ const settingsSchema = partialObject({
   allow_lan: boolean,
   auto_connect: boolean,
   block_when_disconnected: boolean,
+  bridge_settings: bridgeSettingsSchema,
+  bridge_state: enumeration('on', 'auto', 'off'),
   relay_settings: relaySettingsSchema,
   tunnel_options: tunnelOptionsSchema,
 });

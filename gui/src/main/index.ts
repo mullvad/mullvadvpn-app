@@ -82,13 +82,16 @@ class ApplicationMain {
         tunnel: 'any',
       },
     },
+    bridgeSettings: {
+      location: 'any',
+    },
+    bridgeState: 'auto',
     tunnelOptions: {
       generic: {
         enableIpv6: false,
       },
       openvpn: {
         mssfix: undefined,
-        proxy: undefined,
       },
       wireguard: {
         mtu: undefined,
@@ -550,10 +553,19 @@ class ApplicationMain {
     // hasToHaveOpenvpn || hasToHaveWg, until then, only filter wireguard
     // relays if tunnel constraints specify wireguard tunnels.
     const hasOpenVpnTunnels = (relay: IRelayListHostname): boolean => {
-      return relay.tunnels.openvpn.length > 0;
+      if (relay.tunnels) {
+        return relay.tunnels.openvpn.length > 0;
+      } else {
+        return false;
+      }
     };
-    const hasWireguardTunnels = (relay: IRelayListHostname): boolean =>
-      relay.tunnels.wireguard.length > 0;
+    const hasWireguardTunnels = (relay: IRelayListHostname): boolean => {
+      if (relay.tunnels) {
+        return relay.tunnels.wireguard.length > 0;
+      } else {
+        return false;
+      }
+    };
     let fnHasWantedTunnels = hasOpenVpnTunnels;
 
     if ('normal' in relaySettings) {
