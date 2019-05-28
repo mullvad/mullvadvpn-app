@@ -4,9 +4,6 @@ use std::net::IpAddr;
 use std::os::unix::io::AsRawFd;
 use talpid_types::BoxedError;
 
-mod stub;
-pub use self::stub::StubTunProvider;
-
 cfg_if! {
     if #[cfg(all(unix, not(target_os = "android")))] {
         #[path = "unix.rs"]
@@ -19,6 +16,9 @@ cfg_if! {
         /// here.
         pub type PlatformTunProvider = UnixTunProvider;
     } else {
+        mod stub;
+        pub use self::stub::StubTunProvider;
+
         /// Default stub implementation of `TunProvider` for Android and Windows.
         pub type PlatformTunProvider = StubTunProvider;
     }
