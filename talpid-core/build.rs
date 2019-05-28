@@ -57,13 +57,20 @@ fn main() {
 
 #[cfg(not(windows))]
 fn main() {
-    let lib_dir = if cfg!(target_os = "macos") {
-        manifest_dir().join("../dist-assets/binaries/macos")
-    } else {
-        manifest_dir().join("../dist-assets/binaries/linux")
+    let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
+
+    let link_type = match target_os.as_str() {
+        "android" => "",
+        "linux" | "macos" => "=static",
+        _ => panic!("Unsupported platform: {}", target_os),
     };
-    println!("cargo:rustc-link-search={}", &lib_dir.display());
-    println!("cargo:rustc-link-lib=static=wg");
+
+    let lib_dir = manifest_dir()
+        .join("../dist-assets/binaries")
+        .join(target_os);
+
+    println!("cargo:rustc-link-search={}", lib_dir.display());
+    println!("cargo:rustc-link-lib{}=wg", link_type);
 }
 
 fn manifest_dir() -> PathBuf {
