@@ -73,6 +73,7 @@ pub enum Error {
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
     env: JNIEnv,
     this: JObject,
+    _vpnService: JObject,
 ) {
     let log_dir = start_logging();
 

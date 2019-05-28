@@ -68,7 +68,7 @@ class MainActivity : FragmentActivity() {
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
         activityCreated.await()
         ApiRootCaFile().extract(this@MainActivity)
-        MullvadDaemon()
+        MullvadDaemon(MullvadVpnService(this@MainActivity))
     }
 
     private fun fetchRelayList() = GlobalScope.async(Dispatchers.Default) {
