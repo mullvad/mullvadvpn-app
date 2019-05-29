@@ -32,9 +32,9 @@ impl WgGoTunnel {
 
         let handle = unsafe {
             wgTurnOnWithFd(
-                iface_name.as_ptr(),
+                iface_name.as_ptr() as *const i8,
                 config.mtu as i64,
-                wg_config_str.as_ptr(),
+                wg_config_str.as_ptr() as *const i8,
                 tunnel_device.as_raw_fd(),
                 log_file.as_raw_fd(),
                 WG_GO_LOG_DEBUG,
