@@ -2,6 +2,8 @@ use super::{Config, Error, Result, Tunnel};
 use crate::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
 use ipnetwork::IpNetwork;
 use std::{ffi::CString, fs, net::IpAddr, os::unix::io::AsRawFd, path::Path};
+#[cfg(target_os = "android")]
+use talpid_types::BoxedError;
 
 pub struct WgGoTunnel {
     interface_name: String,
@@ -19,7 +21,8 @@ impl WgGoTunnel {
         tun_provider: &dyn TunProvider,
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
-        let tunnel_device = tun_provider
+        #[cfg_attr(not(target_os = "android"), allow(unused_mut))]
+        let mut tunnel_device = tun_provider
             .create_tun(Self::create_tunnel_config(config, routes))
             .map_err(Error::SetupTunnelDeviceError)?;
 
@@ -45,6 +48,9 @@ impl WgGoTunnel {
             return Err(Error::StartWireguardError { status: handle });
         }
 
+        #[cfg(target_os = "android")]
+        Self::bypass_tunnel_sockets(&mut tunnel_device, handle).map_err(Error::BypassError)?;
+
         Ok(WgGoTunnel {
             interface_name,
             handle: Some(handle),
@@ -63,6 +69,20 @@ impl WgGoTunnel {
             routes: routes.collect(),
             mtu: config.mtu,
         }
+    }
+
+    #[cfg(target_os = "android")]
+    fn bypass_tunnel_sockets(
+        tunnel_device: &mut Box<dyn Tun>,
+        handle: i32,
+    ) -> std::result::Result<(), BoxedError> {
+        let socket_v4 = unsafe { wgGetSocketV4(handle) };
+        let socket_v6 = unsafe { wgGetSocketV6(handle) };
+
+        tunnel_device.bypass(socket_v4)?;
+        tunnel_device.bypass(socket_v6)?;
+
+        Ok(())
     }
 
     fn stop_tunnel(&mut self) -> Result<()> {
