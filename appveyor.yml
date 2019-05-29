@@ -5,13 +5,6 @@ image: Visual Studio 2017
 platform:
   - x64
 
-cache:
-  # - windows\nsis-plugins\bin
-  # - windows\windns\bin
-  # - windows\winfw\bin
-  # - windows\winroute\bin
-  # - .mtime_cache
-
 environment:
   global:
   # This is the Rust channel that build jobs will use by default but can be
@@ -53,7 +46,6 @@ install:
   - rustc --print cfg
   - cargo -V
   - git submodule update --init
-  - ruby ci/mtime_cache windows/**/*.{cpp,h} --verbose --cache .mtime_cache/cache.json
 
 # This is the "test phase", tweak it as you see fit
 test_script:
