@@ -50,7 +50,7 @@ export default class Launch extends Component<IProps> {
             <ImageView height={120} width={120} source="logo-icon" style={styles.logo} />
             <Text style={styles.title}>{messages.pgettext('launch-view', 'MULLVAD VPN')}</Text>
             <Text style={styles.subtitle}>
-              {messages.pgettext('launch-view', 'Connecting to daemon...')}
+              {messages.pgettext('launch-view', 'Connecting to Mullvad system service...')}
             </Text>
           </View>
         </Container>
