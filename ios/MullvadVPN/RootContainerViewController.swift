@@ -273,9 +273,6 @@ class RootContainerViewController: UIViewController {
 
         var layoutMargins = headerBarView.layoutMargins
         layoutMargins.top = offsetTop
-        layoutMargins.left = 12
-        layoutMargins.right = 16
-        layoutMargins.bottom = 0
 
         if layoutMargins != headerBarView.layoutMargins {
             headerBarView.layoutMargins = layoutMargins
