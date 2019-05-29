@@ -495,7 +495,13 @@ impl RelaySelector {
             Constraint::Any => {
                 let openvpn_tunnel_count = relay.tunnels.openvpn.len();
                 let tunnel_count = openvpn_tunnel_count + relay.tunnels.wireguard.len();
-                let tunnel_index = self.rng.gen_range(0, tunnel_count);
+                let (start, end) = if cfg!(target_os = "android") {
+                    (openvpn_tunnel_count, tunnel_count)
+                } else {
+                    // TODO: Include Wireguard endpoints for other platforms
+                    (0, openvpn_tunnel_count)
+                };
+                let tunnel_index = self.rng.gen_range(start, end);
 
                 if tunnel_index < openvpn_tunnel_count {
                     Some(
