@@ -25,10 +25,9 @@ class AccountExpiryRefresh {
         return queue
     }()
 
-    /// Recursive lock used to manipulate observers and repeatProcedure
+    /// Recursive lock used to manipulate observers
     private let lock = NSRecursiveLock()
     private var observers = [WeakBox<Observer>]()
-    private weak var repeatProcedure: RepeatProcedure<Operation>?
 
     private init() {}
 
@@ -44,17 +43,11 @@ class AccountExpiryRefresh {
     /// Register observer and start updating the account expiry if hasn't started yet
     private func addObserver(_ observer: Observer) {
         lock.withCriticalScope {
-            observers.append(WeakBox(observer))
-
-            let isExecuting = repeatProcedure?.isExecuting ?? false
-
-            if !isExecuting {
-                let procedure = self.makePeriodicUpdateProcedure()
-
-                repeatProcedure = procedure
-
-                procedureQueue.addOperation(procedure)
+            if observers.isEmpty {
+                procedureQueue.addOperation(makePeriodicUpdateProcedure())
             }
+            
+            observers.append(WeakBox(observer))
         }
 
     }
@@ -116,6 +109,9 @@ class AccountExpiryRefresh {
             // Return the group
             return GroupProcedure(operations: [getAccountTokenProcedure, requestProcedure, saveAccountExpiryProcedure])
         }
+
+        // Make sure that only one such operation runs at a time
+        repeatProcedure.addCondition(MutuallyExclusive<AccountExpiryRefresh>())
 
         return repeatProcedure
     }
