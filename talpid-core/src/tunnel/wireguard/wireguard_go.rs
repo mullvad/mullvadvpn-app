@@ -58,6 +58,7 @@ impl WgGoTunnel {
         TunConfig {
             addresses: config.tunnel.addresses.clone(),
             dns_servers,
+            mtu: config.mtu,
         }
     }
 
