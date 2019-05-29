@@ -1,6 +1,6 @@
 use super::{Config, Error, Result, Tunnel};
 use crate::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
-use std::{ffi::CString, fs, os::unix::io::AsRawFd, path::Path};
+use std::{ffi::CString, fs, net::IpAddr, os::unix::io::AsRawFd, path::Path};
 
 pub struct WgGoTunnel {
     interface_name: String,
@@ -52,8 +52,12 @@ impl WgGoTunnel {
     }
 
     fn create_tunnel_config(config: &Config) -> TunConfig {
+        let mut dns_servers = vec![IpAddr::V4(config.ipv4_gateway)];
+        dns_servers.extend(config.ipv6_gateway.clone().map(IpAddr::V6));
+
         TunConfig {
             addresses: config.tunnel.addresses.clone(),
+            dns_servers,
         }
     }
 

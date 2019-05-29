@@ -51,4 +51,7 @@ pub trait TunProvider: Send + 'static {
 pub struct TunConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
+
+    /// IP addresses for the DNS servers to use.
+    pub dns_servers: Vec<IpAddr>,
 }
