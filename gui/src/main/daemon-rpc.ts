@@ -206,8 +206,8 @@ const openVpnProxySchema = maybe(
 );
 
 const bridgeSettingsSchema = oneOf(
-  partialObject({ location: locationConstraintSchema }),
-  openVpnProxySchema,
+  partialObject({ normal: partialObject({ location: locationConstraintSchema }) }),
+  partialObject({ custom: openVpnProxySchema }),
 );
 
 const tunnelOptionsSchema = partialObject({
