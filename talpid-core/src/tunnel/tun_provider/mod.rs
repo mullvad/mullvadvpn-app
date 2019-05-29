@@ -1,4 +1,5 @@
 use cfg_if::cfg_if;
+use ipnetwork::IpNetwork;
 use std::net::IpAddr;
 #[cfg(unix)]
 use std::os::unix::io::AsRawFd;
@@ -47,16 +48,17 @@ pub trait TunProvider: Send + 'static {
 }
 
 /// Configuration for creating a tunnel device.
+#[derive(Clone, Debug)]
 pub struct TunConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
-}
 
-impl TunConfig {
-    /// Create a new tunnel device configuration using the specified tunnel addresses.
-    pub fn new(addresses: impl IntoIterator<Item = IpAddr>) -> Self {
-        TunConfig {
-            addresses: addresses.into_iter().collect(),
-        }
-    }
+    /// IP addresses for the DNS servers to use.
+    pub dns_servers: Vec<IpAddr>,
+
+    /// Routes to configure for the tunnel.
+    pub routes: Vec<IpNetwork>,
+
+    /// Maximum Transmission Unit in the tunnel.
+    pub mtu: u16,
 }
