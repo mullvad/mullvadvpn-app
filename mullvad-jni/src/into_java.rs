@@ -1,8 +1,9 @@
 use crate::get_class;
+use ipnetwork::IpNetwork;
 use jni::{
     objects::{JList, JObject, JString, JValue},
     signature::JavaType,
-    sys::{jint, jsize},
+    sys::{jint, jshort, jsize},
     JNIEnv,
 };
 use mullvad_types::{
@@ -142,6 +143,23 @@ impl<'env> IntoJava<'env> for IpAddr {
                 );
             }
         }
+    }
+}
+
+impl<'env> IntoJava<'env> for IpNetwork {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/InetNetwork");
+        let address = env.auto_local(self.ip().into_java(env));
+        let prefix_length = self.prefix() as jshort;
+        let parameters = [
+            JValue::Object(address.as_obj()),
+            JValue::Short(prefix_length),
+        ];
+
+        env.new_object(&class, "(Ljava/net/InetAddress;S)V", &parameters)
+            .expect("Failed to create InetNetwork Java object")
     }
 }
 
