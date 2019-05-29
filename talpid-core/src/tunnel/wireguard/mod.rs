@@ -44,6 +44,11 @@ pub enum Error {
     #[error(display = "Invalid tunnel interface name")]
     InterfaceNameError(#[error(cause)] std::ffi::NulError),
 
+    /// Failed to configure Wireguard sockets to bypass the tunnel.
+    #[cfg(target_os = "android")]
+    #[error(display = "Failed to configure Wireguard sockets to bypass the tunnel")]
+    BypassError(#[error(cause)] BoxedError),
+
     /// Pinging timed out.
     #[error(display = "Ping timed out")]
     PingTimeoutError,
