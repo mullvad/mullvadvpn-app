@@ -108,7 +108,8 @@ type WgLogLevel = i32;
 // wireguard-go supports log levels 0 through 3 with 3 being the most verbose
 const WG_GO_LOG_DEBUG: WgLogLevel = 3;
 
-#[link(name = "wg", kind = "static")]
+#[cfg_attr(target_os = "android", link(name = "wg", kind = "dylib"))]
+#[cfg_attr(not(target_os = "android"), link(name = "wg", kind = "static"))]
 extern "C" {
     // Creates a new wireguard tunnel, uses the specific interface name, MTU and file descriptors
     // for the tunnel device and logging.
@@ -123,6 +124,15 @@ extern "C" {
         log_fd: Fd,
         logLevel: WgLogLevel,
     ) -> i32;
+
     // Pass a handle that was created by wgTurnOnWithFd to stop a wireguard tunnel.
     fn wgTurnOff(handle: i32) -> i32;
+
+    // Returns the file descriptor of the tunnel IPv4 socket.
+    #[cfg(target_os = "android")]
+    fn wgGetSocketV4(handle: i32) -> Fd;
+
+    // Returns the file descriptor of the tunnel IPv6 socket.
+    #[cfg(target_os = "android")]
+    fn wgGetSocketV6(handle: i32) -> Fd;
 }
