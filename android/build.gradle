@@ -46,6 +46,7 @@ android {
 
         variant.ndkCompileProvider.configure {
             dependsOn copyMullvadJni
+            dependsOn copyWireguardGo
         }
     }
 }
@@ -96,6 +97,12 @@ lint.dependsOn lintKotlin
 task copyMullvadJni(type: Copy) {
     from "$repoRootPath/target/aarch64-linux-android/debug"
     include 'libmullvad_jni.so'
+    into "$extraJniDirectory/arm64-v8a"
+}
+
+task copyWireguardGo(type: Copy) {
+    from "$repoRootPath/dist-assets/binaries/android"
+    include 'libwg.so'
     into "$extraJniDirectory/arm64-v8a"
 }
 
