@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Mullvad VPN</string>
 
-    <string name="connecting_to_daemon">Connecting to daemon...</string>
+    <string name="connecting_to_daemon">Connecting to Mullvad system service...</string>
 
     <string name="login_title">Login</string>
     <string name="login_description">Enter your account number</string>
