@@ -49,11 +49,13 @@ fn ping_cmd(
     exit_on_first_reply: bool,
 ) -> duct::Expression {
     let interface_flag = if cfg!(target_os = "linux") {
-        "-I"
+        Some("-I")
+    } else if cfg!(target_os = "macos") {
+        Some("-b")
     } else {
-        "-b"
+        None
     };
-    let timeout_flag = if cfg!(target_os = "linux") {
+    let timeout_flag = if cfg!(target_os = "linux") || cfg!(target_os = "android") {
         "-w"
     } else {
         "-t"
@@ -62,16 +64,12 @@ fn ping_cmd(
     let timeout_secs = timeout_secs.to_string();
     let ip = ip.to_string();
 
-    let mut args = vec![
-        "-n",
-        "-i",
-        "1",
-        &interface_flag,
-        &interface,
-        timeout_flag,
-        &timeout_secs,
-        &ip,
-    ];
+    let mut args = vec!["-n", "-i", "1", timeout_flag, &timeout_secs];
+
+    if let Some(interface_flag) = interface_flag {
+        args.extend_from_slice(&[interface_flag, interface]);
+    }
+
     if exit_on_first_reply {
         if cfg!(target_os = "macos") {
             args.push("-o");
@@ -79,6 +77,9 @@ fn ping_cmd(
             args.extend_from_slice(&["-c", "1"])
         }
     }
+
+    args.push(&ip);
+
     duct::cmd("ping", args)
         .stdin_null()
         .stdout_null()
