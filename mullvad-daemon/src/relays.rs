@@ -492,9 +492,25 @@ impl RelaySelector {
         constraints: &Constraint<TunnelConstraints>,
     ) -> Option<MullvadEndpoint> {
         match constraints {
-            // TODO: Handle Constraint::Any case by selecting from both openvpn and wireguard
-            // tunnels once wireguard is mature enough
-            Constraint::Only(TunnelConstraints::OpenVpn(_)) | Constraint::Any => relay
+            Constraint::Any => {
+                let openvpn_tunnel_count = relay.tunnels.openvpn.len();
+                let tunnel_count = openvpn_tunnel_count + relay.tunnels.wireguard.len();
+                let tunnel_index = self.rng.gen_range(0, tunnel_count);
+
+                if tunnel_index < openvpn_tunnel_count {
+                    Some(
+                        relay.tunnels.openvpn[tunnel_index]
+                            .into_mullvad_endpoint(relay.ipv4_addr_in.into()),
+                    )
+                } else {
+                    self.wg_data_to_endpoint(
+                        relay.ipv4_addr_in.into(),
+                        relay.tunnels.wireguard[tunnel_index - openvpn_tunnel_count].clone(),
+                        &WireguardConstraints::default(),
+                    )
+                }
+            }
+            Constraint::Only(TunnelConstraints::OpenVpn(_)) => relay
                 .tunnels
                 .openvpn
                 .choose(&mut self.rng)
