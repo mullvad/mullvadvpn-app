@@ -29,7 +29,7 @@
                                         <rect key="frame" x="12" y="48.5" width="16" height="16"/>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uXv-Tf-PET">
-                                        <rect key="frame" x="335" y="45.5" width="16" height="22"/>
+                                        <rect key="frame" x="343" y="45.5" width="16" height="22"/>
                                         <state key="normal" image="IconSettings"/>
                                         <connections>
                                             <segue destination="Kqv-qu-mfF" kind="presentation" identifier="ShowSettings" id="cxu-NC-VeP"/>
@@ -49,11 +49,11 @@
                                     <constraint firstAttribute="bottomMargin" secondItem="dqy-A0-TdV" secondAttribute="bottom" constant="22" id="YTk-xg-wIk"/>
                                     <constraint firstItem="uXv-Tf-PET" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="dqy-A0-TdV" secondAttribute="trailing" constant="8" symbolic="YES" id="ZEb-xZ-1ga"/>
                                     <constraint firstItem="uXv-Tf-PET" firstAttribute="centerY" secondItem="dqy-A0-TdV" secondAttribute="centerY" id="gCl-OS-ONw"/>
-                                    <constraint firstItem="cKg-hE-JsS" firstAttribute="leading" secondItem="cw4-px-5hC" secondAttribute="leadingMargin" constant="-12" id="hGJ-yd-hnp"/>
+                                    <constraint firstItem="cKg-hE-JsS" firstAttribute="leading" secondItem="cw4-px-5hC" secondAttribute="leadingMargin" id="hGJ-yd-hnp"/>
                                     <constraint firstItem="dqy-A0-TdV" firstAttribute="top" secondItem="cw4-px-5hC" secondAttribute="topMargin" constant="22" id="mMF-ha-mRO"/>
                                     <constraint firstItem="dqy-A0-TdV" firstAttribute="leading" secondItem="cKg-hE-JsS" secondAttribute="trailing" constant="8" id="q8s-25-ASt"/>
                                 </constraints>
-                                <edgeInsets key="layoutMargins" top="20" left="24" bottom="0.0" right="24"/>
+                                <edgeInsets key="layoutMargins" top="20" left="12" bottom="0.0" right="16"/>
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="0.16078431369999999" green="0.30196078430000001" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
