@@ -54,4 +54,7 @@ pub struct TunConfig {
 
     /// IP addresses for the DNS servers to use.
     pub dns_servers: Vec<IpAddr>,
+
+    /// Maximum Transmission Unit in the tunnel.
+    pub mtu: u16,
 }
