@@ -68,7 +68,12 @@ impl WireguardMonitor {
         on_event: F,
         tun_provider: &dyn TunProvider,
     ) -> Result<WireguardMonitor> {
-        let tunnel = Box::new(WgGoTunnel::start_tunnel(&config, log_path, tun_provider)?);
+        let tunnel = Box::new(WgGoTunnel::start_tunnel(
+            &config,
+            log_path,
+            tun_provider,
+            Self::get_tunnel_routes(config),
+        )?);
         let iface_name = tunnel.get_interface_name();
         let route_handle = routing::RouteManager::new(
             Self::get_routes(iface_name, &config),
@@ -135,12 +140,8 @@ impl WireguardMonitor {
         wait_result
     }
 
-    fn get_routes(
-        iface_name: &str,
-        config: &Config,
-    ) -> HashMap<ipnetwork::IpNetwork, crate::routing::NetNode> {
-        let node = routing::Node::device(iface_name.to_string());
-        let mut routes: HashMap<_, _> = config
+    fn get_tunnel_routes(config: &Config) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
+        config
             .peers
             .iter()
             .flat_map(|peer| peer.allowed_ips.iter())
@@ -148,20 +149,23 @@ impl WireguardMonitor {
             .flat_map(|allowed_ip| {
                 if allowed_ip.prefix() == 0 {
                     if allowed_ip.is_ipv4() {
-                        vec![
-                            ("0.0.0.0/1".parse().unwrap(), node.clone().into()),
-                            ("128.0.0.0/1".parse().unwrap(), node.clone().into()),
-                        ]
+                        vec!["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()]
                     } else {
-                        vec![
-                            ("8000::/1".parse().unwrap(), node.clone().into()),
-                            ("::/1".parse().unwrap(), node.clone().into()),
-                        ]
+                        vec!["8000::/1".parse().unwrap(), "::/1".parse().unwrap()]
                     }
                 } else {
-                    vec![(allowed_ip, node.clone().into())]
+                    vec![allowed_ip]
                 }
             })
+    }
+
+    fn get_routes(
+        iface_name: &str,
+        config: &Config,
+    ) -> HashMap<ipnetwork::IpNetwork, crate::routing::NetNode> {
+        let node = routing::Node::device(iface_name.to_string());
+        let mut routes: HashMap<_, _> = Self::get_tunnel_routes(config)
+            .map(|network| (network, node.clone().into()))
             .collect();
 
         // route endpoints with specific routes

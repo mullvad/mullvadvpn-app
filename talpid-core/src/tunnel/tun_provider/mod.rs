@@ -1,4 +1,5 @@
 use cfg_if::cfg_if;
+use ipnetwork::IpNetwork;
 use std::net::IpAddr;
 #[cfg(unix)]
 use std::os::unix::io::AsRawFd;
@@ -54,6 +55,9 @@ pub struct TunConfig {
 
     /// IP addresses for the DNS servers to use.
     pub dns_servers: Vec<IpAddr>,
+
+    /// Routes to configure for the tunnel.
+    pub routes: Vec<IpNetwork>,
 
     /// Maximum Transmission Unit in the tunnel.
     pub mtu: u16,
