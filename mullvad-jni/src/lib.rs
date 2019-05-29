@@ -5,10 +5,11 @@ mod from_java;
 mod into_java;
 mod is_null;
 mod jni_event_listener;
+mod vpn_service_tun_provider;
 
 use crate::{
     daemon_interface::DaemonInterface, from_java::FromJava, into_java::IntoJava,
-    jni_event_listener::JniEventListener,
+    jni_event_listener::JniEventListener, vpn_service_tun_provider::VpnServiceTunProvider,
 };
 use jni::{
     objects::{GlobalRef, JObject, JString},
@@ -19,16 +20,17 @@ use lazy_static::lazy_static;
 use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
 use parking_lot::{Mutex, RwLock};
 use std::{collections::HashMap, path::PathBuf, sync::mpsc, thread};
-use talpid_core::tunnel::tun_provider::StubTunProvider;
 use talpid_types::ErrorExt;
 
 const LOG_FILENAME: &str = "daemon.log";
 
 const CLASSES_TO_LOAD: &[&str] = &[
+    "java/net/InetAddress",
     "java/util/ArrayList",
     "net/mullvad/mullvadvpn/model/AccountData",
     "net/mullvad/mullvadvpn/model/Constraint$Any",
     "net/mullvad/mullvadvpn/model/Constraint$Only",
+    "net/mullvad/mullvadvpn/model/InetNetwork",
     "net/mullvad/mullvadvpn/model/LocationConstraint$City",
     "net/mullvad/mullvadvpn/model/LocationConstraint$Country",
     "net/mullvad/mullvadvpn/model/LocationConstraint$Hostname",
@@ -42,12 +44,14 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$CustomTunnelEndpoint",
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$RelayConstraintsUpdate",
     "net/mullvad/mullvadvpn/model/Settings",
+    "net/mullvad/mullvadvpn/model/TunConfig",
     "net/mullvad/mullvadvpn/model/TunnelStateTransition$Blocked",
     "net/mullvad/mullvadvpn/model/TunnelStateTransition$Connected",
     "net/mullvad/mullvadvpn/model/TunnelStateTransition$Connecting",
     "net/mullvad/mullvadvpn/model/TunnelStateTransition$Disconnected",
     "net/mullvad/mullvadvpn/model/TunnelStateTransition$Disconnecting",
     "net/mullvad/mullvadvpn/MullvadDaemon",
+    "net/mullvad/mullvadvpn/MullvadVpnService",
 ];
 
 lazy_static! {
@@ -58,6 +62,9 @@ lazy_static! {
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
+    #[error(display = "Failed to create VpnService tunnel provider")]
+    CreateVpnServiceTunProvider(#[error(cause)] vpn_service_tun_provider::Error),
+
     #[error(display = "Failed to get cache directory path")]
     GetCacheDir(#[error(cause)] mullvad_paths::Error),
 
@@ -73,12 +80,13 @@ pub enum Error {
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
     env: JNIEnv,
     this: JObject,
+    vpnService: JObject,
 ) {
     let log_dir = start_logging();
 
     load_classes(&env);
 
-    if let Err(error) = initialize(&env, &this, log_dir) {
+    if let Err(error) = initialize(&env, &this, &vpnService, log_dir) {
         log::error!("{}", error.display_chain());
     }
 }
@@ -112,8 +120,15 @@ fn load_class_reference(env: &JNIEnv, name: &str) -> GlobalRef {
         .expect("Failed to convert local reference to Java class into a global reference")
 }
 
-fn initialize(env: &JNIEnv, this: &JObject, log_dir: PathBuf) -> Result<(), Error> {
-    let daemon_command_sender = spawn_daemon(env, this, log_dir)?;
+fn initialize(
+    env: &JNIEnv,
+    this: &JObject,
+    vpn_service: &JObject,
+    log_dir: PathBuf,
+) -> Result<(), Error> {
+    let tun_provider =
+        VpnServiceTunProvider::new(env, vpn_service).map_err(Error::CreateVpnServiceTunProvider)?;
+    let daemon_command_sender = spawn_daemon(env, this, tun_provider, log_dir)?;
 
     DAEMON_INTERFACE
         .lock()
@@ -125,29 +140,33 @@ fn initialize(env: &JNIEnv, this: &JObject, log_dir: PathBuf) -> Result<(), Erro
 fn spawn_daemon(
     env: &JNIEnv,
     this: &JObject,
+    tun_provider: VpnServiceTunProvider,
     log_dir: PathBuf,
 ) -> Result<DaemonCommandSender, Error> {
     let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
     let (tx, rx) = mpsc::channel();
 
-    thread::spawn(move || match create_daemon(listener, log_dir) {
-        Ok(daemon) => {
-            let _ = tx.send(Ok(daemon.command_sender()));
-            match daemon.run() {
-                Ok(()) => log::info!("Mullvad daemon has stopped"),
-                Err(error) => log::error!("{}", error.display_chain()),
+    thread::spawn(
+        move || match create_daemon(listener, tun_provider, log_dir) {
+            Ok(daemon) => {
+                let _ = tx.send(Ok(daemon.command_sender()));
+                match daemon.run() {
+                    Ok(()) => log::info!("Mullvad daemon has stopped"),
+                    Err(error) => log::error!("{}", error.display_chain()),
+                }
             }
-        }
-        Err(error) => {
-            let _ = tx.send(Err(error));
-        }
-    });
+            Err(error) => {
+                let _ = tx.send(Err(error));
+            }
+        },
+    );
 
     rx.recv().unwrap()
 }
 
 fn create_daemon(
     listener: JniEventListener,
+    tun_provider: VpnServiceTunProvider,
     log_dir: PathBuf,
 ) -> Result<Daemon<JniEventListener>, Error> {
     let resource_dir = mullvad_paths::get_resource_dir();
@@ -155,7 +174,7 @@ fn create_daemon(
 
     let daemon = Daemon::start_with_event_listener_and_tun_provider(
         listener,
-        StubTunProvider,
+        tun_provider,
         Some(log_dir),
         resource_dir,
         cache_dir,

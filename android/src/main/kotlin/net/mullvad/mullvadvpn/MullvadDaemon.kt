@@ -7,10 +7,10 @@ import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelStateTransition
 
-class MullvadDaemon {
+class MullvadDaemon(val vpnService: MullvadVpnService) {
     init {
         System.loadLibrary("mullvad_jni")
-        initialize()
+        initialize(vpnService)
     }
 
     var onTunnelStateChange: ((TunnelStateTransition) -> Unit)? = null
@@ -25,7 +25,7 @@ class MullvadDaemon {
     external fun setAccount(accountToken: String?)
     external fun updateRelaySettings(update: RelaySettingsUpdate)
 
-    private external fun initialize()
+    private external fun initialize(vpnService: MullvadVpnService)
 
     private fun notifyTunnelStateEvent(event: TunnelStateTransition) {
         onTunnelStateChange?.invoke(event)

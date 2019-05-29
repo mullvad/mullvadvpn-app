@@ -1,7 +1,9 @@
 use crate::get_class;
+use ipnetwork::IpNetwork;
 use jni::{
     objects::{JList, JObject, JString, JValue},
-    sys::{jint, jsize},
+    signature::JavaType,
+    sys::{jint, jshort, jsize},
     JNIEnv,
 };
 use mullvad_types::{
@@ -11,7 +13,8 @@ use mullvad_types::{
     settings::Settings,
     CustomTunnelEndpoint,
 };
-use std::fmt::Debug;
+use std::{fmt::Debug, net::IpAddr};
+use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{net::wireguard::PublicKey, tunnel::TunnelStateTransition};
 
 pub trait IntoJava<'env> {
@@ -91,6 +94,76 @@ impl<'array, 'env> IntoJava<'env> for &'array [u8] {
     }
 }
 
+impl<'env> IntoJava<'env> for IpAddr {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("java/net/InetAddress");
+
+        let constructor = env
+            .get_static_method_id(&class, "getByAddress", "([B)Ljava/net/InetAddress;")
+            .expect("Failed to get InetAddress.getByAddress method ID");
+
+        let octet_count = if self.is_ipv4() { 4 } else { 16 };
+        let octets_array = env
+            .new_byte_array(octet_count)
+            .expect("Failed to create byte array to store IP address");
+
+        let octet_data: Vec<i8> = match self {
+            IpAddr::V4(address) => address
+                .octets()
+                .into_iter()
+                .map(|octet| *octet as i8)
+                .collect(),
+            IpAddr::V6(address) => address
+                .octets()
+                .into_iter()
+                .map(|octet| *octet as i8)
+                .collect(),
+        };
+
+        env.set_byte_array_region(octets_array, 0, &octet_data)
+            .expect("Failed to copy IP address octets to byte array");
+
+        let octets = env.auto_local(JObject::from(octets_array));
+        let result = env
+            .call_static_method_unchecked(
+                "java/net/InetAddress",
+                constructor,
+                JavaType::Object("java/net/InetAddress".to_owned()),
+                &[JValue::Object(octets.as_obj())],
+            )
+            .expect("Failed to create InetAddress Java object");
+
+        match result {
+            JValue::Object(object) => object,
+            value => {
+                panic!(
+                    "InetAddress.getByAddress returned an invalid value: {:?}",
+                    value
+                );
+            }
+        }
+    }
+}
+
+impl<'env> IntoJava<'env> for IpNetwork {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/InetNetwork");
+        let address = env.auto_local(self.ip().into_java(env));
+        let prefix_length = self.prefix() as jshort;
+        let parameters = [
+            JValue::Object(address.as_obj()),
+            JValue::Short(prefix_length),
+        ];
+
+        env.new_object(&class, "(Ljava/net/InetAddress;S)V", &parameters)
+            .expect("Failed to create InetNetwork Java object")
+    }
+}
+
 impl<'env> IntoJava<'env> for PublicKey {
     type JavaType = JObject<'env>;
 
@@ -114,6 +187,19 @@ impl<'env> IntoJava<'env> for AccountData {
 
         env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
             .expect("Failed to create AccountData Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for TunConfig {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/TunConfig");
+        let addresses = env.auto_local(self.addresses.into_java(env));
+        let parameters = [JValue::Object(addresses.as_obj())];
+
+        env.new_object(&class, "(Ljava/util/List;)V", &parameters)
+            .expect("Failed to create TunConfig Java object")
     }
 }
 
