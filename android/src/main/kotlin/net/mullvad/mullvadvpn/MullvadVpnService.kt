@@ -17,7 +17,7 @@ var SERVICE_NOT_RUNNING = true
 
 class MullvadVpnService(val context: Context) {
     class InnerVpnService : VpnService() {
-        override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
             INNER_VPN_SERVICE.complete(this)
 
             return super.onStartCommand(intent, flags, startId)
