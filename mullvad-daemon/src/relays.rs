@@ -248,9 +248,14 @@ impl RelaySelector {
         // any constraints that are explicitly specified.
         let tunnel_constraints = match original_constraints.tunnel {
             // No constraints, we use our preferred ones.
+            #[cfg(not(target_os = "android"))]
             Constraint::Any => TunnelConstraints::OpenVpn(OpenVpnConstraints {
                 port: preferred_port,
                 protocol: Constraint::Only(preferred_protocol),
+            }),
+            #[cfg(target_os = "android")]
+            Constraint::Any => TunnelConstraints::Wireguard(WireguardConstraints {
+                port: Constraint::Any,
             }),
             Constraint::Only(TunnelConstraints::OpenVpn(ref openvpn_constraints)) => {
                 match openvpn_constraints {
