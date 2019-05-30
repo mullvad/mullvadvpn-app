@@ -196,10 +196,22 @@ impl<'env> IntoJava<'env> for TunConfig {
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let class = get_class("net/mullvad/mullvadvpn/model/TunConfig");
         let addresses = env.auto_local(self.addresses.into_java(env));
-        let parameters = [JValue::Object(addresses.as_obj())];
+        let dns_servers = env.auto_local(self.dns_servers.into_java(env));
+        let routes = env.auto_local(self.routes.into_java(env));
+        let mtu = self.mtu as jint;
+        let parameters = [
+            JValue::Object(addresses.as_obj()),
+            JValue::Object(dns_servers.as_obj()),
+            JValue::Object(routes.as_obj()),
+            JValue::Int(mtu),
+        ];
 
-        env.new_object(&class, "(Ljava/util/List;)V", &parameters)
-            .expect("Failed to create TunConfig Java object")
+        env.new_object(
+            &class,
+            "(Ljava/util/List;Ljava/util/List;Ljava/util/List;I)V",
+            &parameters,
+        )
+        .expect("Failed to create TunConfig Java object")
     }
 }
 
