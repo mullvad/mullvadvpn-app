@@ -21,6 +21,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     external fun getAccountData(accountToken: String): AccountData?
     external fun getRelayLocations(): RelayList
     external fun getSettings(): Settings
+    external fun getState(): TunnelStateTransition
     external fun getWireguardKey(): PublicKey?
     external fun setAccount(accountToken: String?)
     external fun updateRelaySettings(update: RelaySettingsUpdate)
