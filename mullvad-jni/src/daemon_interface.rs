@@ -1,8 +1,8 @@
 use futures::{sync::oneshot, Future};
 use mullvad_daemon::{DaemonCommandSender, ManagementCommand};
 use mullvad_types::{
-    account::AccountData, relay_constraints::RelaySettingsUpdate, relay_list::RelayList,
-    settings::Settings, states::TargetState,
+    account::AccountData, location::GeoIpLocation, relay_constraints::RelaySettingsUpdate,
+    relay_list::RelayList, settings::Settings, states::TargetState,
 };
 use talpid_types::{net::wireguard, tunnel::TunnelStateTransition};
 
@@ -80,6 +80,14 @@ impl DaemonInterface {
             .map_err(|_| Error::NoResponse)?
             .wait()
             .map_err(Error::RpcError)
+    }
+
+    pub fn get_current_location(&self) -> Result<Option<GeoIpLocation>> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::GetCurrentLocation(tx))?;
+
+        Ok(rx.wait().map_err(|_| Error::NoResponse)?)
     }
 
     pub fn get_relay_locations(&self) -> Result<RelayList> {
