@@ -8,6 +8,7 @@ use jni::{
 };
 use mullvad_types::{
     account::AccountData,
+    location::GeoIpLocation,
     relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
     relay_list::{Relay, RelayList, RelayListCity, RelayListCountry},
     settings::Settings,
@@ -212,6 +213,29 @@ impl<'env> IntoJava<'env> for TunConfig {
             &parameters,
         )
         .expect("Failed to create TunConfig Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for GeoIpLocation {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/GeoIpLocation");
+        let country = env.auto_local(JObject::from(self.country.into_java(env)));
+        let city = env.auto_local(JObject::from(self.city.into_java(env)));
+        let hostname = env.auto_local(JObject::from(self.hostname.into_java(env)));
+        let parameters = [
+            JValue::Object(country.as_obj()),
+            JValue::Object(city.as_obj()),
+            JValue::Object(hostname.as_obj()),
+        ];
+
+        env.new_object(
+            &class,
+            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+            &parameters,
+        )
+        .expect("Failed to create GeoIpLocation Java object")
     }
 }
 
