@@ -24,7 +24,7 @@
         </activity>
 
         <service
-                android:name=".MullvadVpnService$InnerVpnService"
+                android:name=".MullvadVpnService"
                 android:permission="android.permission.BIND_VPN_SERVICE"
                 >
             <intent-filter>
