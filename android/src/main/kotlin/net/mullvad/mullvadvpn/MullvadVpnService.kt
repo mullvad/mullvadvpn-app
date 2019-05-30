@@ -66,7 +66,7 @@ class MullvadVpnService(val context: Context) {
             }
 
             for (route in config.routes) {
-                addRoute(route.address, route.prefixLength as Int)
+                addRoute(route.address, route.prefixLength.toInt())
             }
 
             setMtu(config.mtu)
