@@ -22,13 +22,7 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 
 class MainActivity : FragmentActivity() {
-    val activityCreated = CompletableDeferred<Unit>()
-
-    var asyncService = CompletableDeferred<MullvadVpnService>()
-    val service
-        get() = runBlocking { asyncService.await() }
-
-    val asyncDaemon = startDaemon()
+    var asyncDaemon = CompletableDeferred<MullvadDaemon>()
     val daemon
         get() = runBlocking { asyncDaemon.await() }
 
@@ -45,24 +39,26 @@ class MainActivity : FragmentActivity() {
     var selectedRelayItem: RelayItem? = null
 
     private val restoreSelectedRelayListItemJob = restoreSelectedRelayListItem()
+    private var waitForDaemonJob: Job? = null
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             val localBinder = binder as MullvadVpnService.LocalBinder
 
-            asyncService.complete(localBinder.service)
+            waitForDaemonJob = GlobalScope.launch(Dispatchers.Default) {
+                asyncDaemon.complete(localBinder.asyncDaemon.await())
+            }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
-            asyncService = CompletableDeferred<MullvadVpnService>()
+            asyncDaemon.cancel()
+            asyncDaemon = CompletableDeferred<MullvadDaemon>()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)
-
-        activityCreated.complete(Unit)
 
         if (savedInstanceState == null) {
             addInitialFragment()
@@ -86,6 +82,7 @@ class MainActivity : FragmentActivity() {
 
     override fun onDestroy() {
         restoreSelectedRelayListItemJob.cancel()
+        waitForDaemonJob?.cancel()
         asyncSettings.cancel()
         asyncRelayList.cancel()
         asyncDaemon.cancel()
@@ -98,12 +95,6 @@ class MainActivity : FragmentActivity() {
             add(R.id.main_fragment, LaunchFragment())
             commit()
         }
-    }
-
-    private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
-        activityCreated.await()
-        ApiRootCaFile().extract(this@MainActivity)
-        MullvadDaemon(asyncService.await())
     }
 
     private fun fetchRelayList() = GlobalScope.async(Dispatchers.Default) {
