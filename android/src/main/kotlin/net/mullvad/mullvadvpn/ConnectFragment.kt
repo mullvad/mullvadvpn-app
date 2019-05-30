@@ -38,6 +38,8 @@ class ConnectFragment : Fragment() {
     private var fetchInitialStateJob = fetchInitialState()
     private var generateWireguardKeyJob = generateWireguardKey()
 
+    private var lastKnownRealLocation: GeoIpLocation? = null
+
     private var activeAction: Job? = null
     private var attachListenerJob: Job? = null
     private var updateViewJob: Job? = null
@@ -64,7 +66,7 @@ class ConnectFragment : Fragment() {
         headerBar = HeaderBar(view, context!!)
         notificationBanner = NotificationBanner(view)
         status = ConnectionStatus(view, context!!)
-        locationInfo = LocationInfo(view)
+        locationInfo = LocationInfo(view, daemon)
 
         actionButton = ConnectActionButton(view)
         actionButton.apply {
@@ -154,7 +156,6 @@ class ConnectFragment : Fragment() {
 
     private fun disconnect() {
         activeAction?.cancel()
-        clearLocation()
 
         activeAction = GlobalScope.launch(Dispatchers.Default) {
             daemon.await().disconnect()
@@ -177,16 +178,7 @@ class ConnectFragment : Fragment() {
         headerBar.setState(state)
         notificationBanner.setState(state)
         status.setState(state)
-
-        locationInfo.location = fetchLocation().await()
-    }
-
-    private fun fetchLocation() = GlobalScope.async(Dispatchers.Default) {
-        daemon.await().getCurrentLocation()
-    }
-
-    private fun clearLocation() = GlobalScope.launch(Dispatchers.Main) {
-        locationInfo.location = null
+        locationInfo.setState(state)
     }
 
     private fun openSwitchLocationScreen() {
