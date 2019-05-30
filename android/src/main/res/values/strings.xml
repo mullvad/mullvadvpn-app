@@ -16,7 +16,6 @@
     <string name="creating_secure_connection">Creating secure connection</string>
     <string name="secure_connection">Secure connection</string>
     <string name="blocking_internet">Blocking internet</string>
-    <string name="country">Country</string>
     <string name="connect">Secure my connection</string>
     <string name="cancel">Cancel</string>
     <string name="disconnect">Disconnect</string>
