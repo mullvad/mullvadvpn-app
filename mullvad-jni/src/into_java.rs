@@ -3,7 +3,7 @@ use ipnetwork::IpNetwork;
 use jni::{
     objects::{JList, JObject, JString, JValue},
     signature::JavaType,
-    sys::{jint, jshort, jsize},
+    sys::{jboolean, jint, jshort, jsize},
     JNIEnv,
 };
 use mullvad_types::{
@@ -304,9 +304,13 @@ impl<'env> IntoJava<'env> for Relay {
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let class = get_class("net/mullvad/mullvadvpn/model/Relay");
         let hostname = env.auto_local(JObject::from(self.hostname.into_java(env)));
-        let parameters = [JValue::Object(hostname.as_obj())];
+        let has_wireguard_tunnels = (!self.tunnels.wireguard.is_empty()) as jboolean;
+        let parameters = [
+            JValue::Object(hostname.as_obj()),
+            JValue::Bool(has_wireguard_tunnels),
+        ];
 
-        env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
+        env.new_object(&class, "(Ljava/lang/String;Z)V", &parameters)
             .expect("Failed to create Relay Java object")
     }
 }
