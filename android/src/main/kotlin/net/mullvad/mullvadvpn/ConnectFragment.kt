@@ -71,7 +71,7 @@ class ConnectFragment : Fragment() {
         actionButton = ConnectActionButton(view)
         actionButton.apply {
             onConnect = { connect() }
-            onCancel = { disconnect() }
+            onCancel = { cancel() }
             onDisconnect = { disconnect() }
         }
 
@@ -154,7 +154,16 @@ class ConnectFragment : Fragment() {
         }
     }
 
+    private fun cancel() {
+        activeAction?.cancel()
+
+        activeAction = GlobalScope.launch(Dispatchers.Default) {
+            daemon.await().disconnect()
+        }
+    }
+
     private fun disconnect() {
+        updateView(TunnelStateTransition.Disconnecting())
         activeAction?.cancel()
 
         activeAction = GlobalScope.launch(Dispatchers.Default) {
