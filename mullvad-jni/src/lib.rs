@@ -264,6 +264,26 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentLocation<'env, 'this>(
+    env: JNIEnv<'env>,
+    _: JObject<'this>,
+) -> JObject<'env> {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    match daemon.get_current_location() {
+        Ok(location) => location.into_java(&env),
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to get current location")
+            );
+            JObject::null()
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getRelayLocations<'env, 'this>(
     env: JNIEnv<'env>,
     _: JObject<'this>,
