@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 
 import android.view.View
 import android.widget.TextView
@@ -19,6 +20,8 @@ class LocationInfo(val parentView: View, val daemon: Deferred<MullvadDaemon>) {
 
     private var lastKnownRealLocation: GeoIpLocation? = null
 
+    private var activeFetch: Job? = null
+
     var location: GeoIpLocation? = null
         set(value) {
             field = value
@@ -26,10 +29,13 @@ class LocationInfo(val parentView: View, val daemon: Deferred<MullvadDaemon>) {
         }
 
     fun setState(state: TunnelStateTransition) {
+        activeFetch?.cancel()
+        activeFetch = null
+
         when (state) {
-            is TunnelStateTransition.Disconnected -> fetchRealLocation()
-            is TunnelStateTransition.Connecting -> fetchRelayLocation()
-            is TunnelStateTransition.Connected -> fetchRelayLocation()
+            is TunnelStateTransition.Disconnected -> activeFetch = fetchRealLocation()
+            is TunnelStateTransition.Connecting -> activeFetch = fetchRelayLocation()
+            is TunnelStateTransition.Connected -> activeFetch = fetchRelayLocation()
             is TunnelStateTransition.Disconnecting -> location = lastKnownRealLocation
             is TunnelStateTransition.Blocked -> location = null
         }
@@ -42,7 +48,13 @@ class LocationInfo(val parentView: View, val daemon: Deferred<MullvadDaemon>) {
     }
 
     private fun fetchRealLocation() = GlobalScope.launch(Dispatchers.Main) {
-        val realLocation = fetchLocation().await()
+        var realLocation: GeoIpLocation? = null
+        var remainingAttempts = 10
+
+        while (realLocation == null && remainingAttempts > 0) {
+            realLocation = fetchLocation().await()
+            remainingAttempts -= 1
+        }
 
         lastKnownRealLocation = realLocation
         location = realLocation
