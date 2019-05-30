@@ -155,6 +155,7 @@ class ConnectFragment : Fragment() {
     }
 
     private fun disconnect() {
+        updateView(TunnelStateTransition.Disconnecting())
         activeAction?.cancel()
 
         activeAction = GlobalScope.launch(Dispatchers.Default) {
