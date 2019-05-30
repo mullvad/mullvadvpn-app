@@ -154,6 +154,7 @@ class ConnectFragment : Fragment() {
 
     private fun disconnect() {
         activeAction?.cancel()
+        clearLocation()
 
         activeAction = GlobalScope.launch(Dispatchers.Default) {
             daemon.await().disconnect()
@@ -182,6 +183,10 @@ class ConnectFragment : Fragment() {
 
     private fun fetchLocation() = GlobalScope.async(Dispatchers.Default) {
         daemon.await().getCurrentLocation()
+    }
+
+    private fun clearLocation() = GlobalScope.launch(Dispatchers.Main) {
+        locationInfo.location = null
     }
 
     private fun openSwitchLocationScreen() {
