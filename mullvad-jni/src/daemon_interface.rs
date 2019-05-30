@@ -4,7 +4,7 @@ use mullvad_types::{
     account::AccountData, relay_constraints::RelaySettingsUpdate, relay_list::RelayList,
     settings::Settings, states::TargetState,
 };
-use talpid_types::net::wireguard;
+use talpid_types::{net::wireguard, tunnel::TunnelStateTransition};
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
@@ -94,6 +94,14 @@ impl DaemonInterface {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(ManagementCommand::GetSettings(tx))?;
+
+        Ok(rx.wait().map_err(|_| Error::NoResponse)?)
+    }
+
+    pub fn get_state(&self) -> Result<TunnelStateTransition> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::GetState(tx))?;
 
         Ok(rx.wait().map_err(|_| Error::NoResponse)?)
     }
