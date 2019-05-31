@@ -241,6 +241,15 @@ class ApplicationMain {
     } else {
       log.info('Cannot close the tunnel because there is no active connection to daemon.');
     }
+
+    // The window is not closable on macOS to be able to hide the titlebar and workaround
+    // a shadow bug rendered above the invisible title bar. This also prevents the window from
+    // closing normally, even programmatically. Therefore re-enable the close button just before
+    // quitting the app.
+    // Github issue: https://github.com/electron/electron/issues/15008
+    if (process.platform === 'darwin' && this.windowController) {
+      this.windowController.window.setClosable(true);
+    }
   }
 
   private getLocaleWithOverride(): string {
@@ -1003,6 +1012,9 @@ class ApplicationMain {
           height: contentHeight + headerBarArrowHeight,
           minHeight: contentHeight + headerBarArrowHeight,
           transparent: true,
+          titleBarStyle: 'customButtonsOnHover',
+          minimizable: false,
+          closable: false,
         });
 
         // make the window visible on all workspaces
