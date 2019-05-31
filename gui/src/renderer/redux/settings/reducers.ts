@@ -48,7 +48,7 @@ export interface ISettingsReduxState {
   relayLocations: IRelayLocationRedux[];
   allowLan: boolean;
   enableIpv6: boolean;
-  bridgeState?: BridgeState;
+  bridgeState: BridgeState;
   blockWhenDisconnected: boolean;
   openVpn: {
     mssfix?: number;
@@ -72,7 +72,7 @@ const initialState: ISettingsReduxState = {
   relayLocations: [],
   allowLan: false,
   enableIpv6: true,
-  bridgeState: undefined,
+  bridgeState: 'auto',
   blockWhenDisconnected: false,
   openVpn: {},
 };
@@ -136,7 +136,7 @@ export default function(
     case 'UPDATE_BRIDGE_STATE':
       return {
         ...state,
-        bridgeState: action.bridgeState === 'auto' ? undefined : action.bridgeState,
+        bridgeState: action.bridgeState,
       };
 
     default:
