@@ -59,7 +59,7 @@
     "@types/stream-json": "^1.0.0",
     "@types/topojson-specification": "^1.0.1",
     "@types/uuid": "^3.4.4",
-    "browser-sync": "^2.26.3",
+    "browser-sync": "^2.26.5",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-spies": "^1.0.0",
