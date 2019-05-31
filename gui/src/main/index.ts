@@ -977,41 +977,44 @@ class ApplicationMain {
       }
     });
 
-    ipcMain.on('collect-logs', (event: Electron.Event, requestId: string, toRedact: string[]) => {
-      const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
-      const executable = resolveBin('problem-report');
-      const args = ['collect', '--output', reportPath];
-      if (toRedact.length > 0) {
-        args.push('--redact', ...toRedact);
-      }
+    ipcMain.on(
+      'collect-logs',
+      (event: Electron.IpcMainEvent, requestId: string, toRedact: string[]) => {
+        const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
+        const executable = resolveBin('problem-report');
+        const args = ['collect', '--output', reportPath];
+        if (toRedact.length > 0) {
+          args.push('--redact', ...toRedact);
+        }
 
-      execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
-        if (error) {
-          log.error(
-            `Failed to collect a problem report.
+        execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
+          if (error) {
+            log.error(
+              `Failed to collect a problem report.
              Stdout: ${stdout.toString()}
              Stderr: ${stderr.toString()}`,
-          );
+            );
 
-          event.sender.send('collect-logs-reply', requestId, {
-            success: false,
-            error: error.message,
-          });
-        } else {
-          log.debug(`Problem report was written to ${reportPath}`);
+            event.sender.send('collect-logs-reply', requestId, {
+              success: false,
+              error: error.message,
+            });
+          } else {
+            log.debug(`Problem report was written to ${reportPath}`);
 
-          event.sender.send('collect-logs-reply', requestId, {
-            success: true,
-            reportPath,
-          });
-        }
-      });
-    });
+            event.sender.send('collect-logs-reply', requestId, {
+              success: true,
+              reportPath,
+            });
+          }
+        });
+      },
+    );
 
     ipcMain.on(
       'send-problem-report',
       (
-        event: Electron.Event,
+        event: Electron.IpcMainEvent,
         requestId: string,
         email: string,
         message: string,
