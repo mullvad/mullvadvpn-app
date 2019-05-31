@@ -32,6 +32,7 @@ import AccountExpiry from './lib/account-expiry';
 
 import {
   AccountToken,
+  BridgeState,
   ILocation,
   IRelayList,
   ISettings,
@@ -303,6 +304,12 @@ export default class AppRenderer {
     const actions = this.reduxActions;
     await IpcRendererEventChannel.settings.setEnableIpv6(enableIpv6);
     actions.settings.updateEnableIpv6(enableIpv6);
+  }
+
+  public async setBridgeState(bridgeState: BridgeState) {
+    const actions = this.reduxActions;
+    await IpcRendererEventChannel.settings.setBridgeState(bridgeState);
+    actions.settings.updateBridgeState(bridgeState);
   }
 
   public async setBlockWhenDisconnected(blockWhenDisconnected: boolean) {

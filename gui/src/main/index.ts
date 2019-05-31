@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as uuid from 'uuid';
 import {
   AccountToken,
+  BridgeState,
   DaemonEvent,
   IAppVersionInfo,
   ILocation,
@@ -812,6 +813,9 @@ class ApplicationMain {
     );
     IpcMainEventChannel.settings.handleBlockWhenDisconnected((blockWhenDisconnected: boolean) =>
       this.daemonRpc.setBlockWhenDisconnected(blockWhenDisconnected),
+    );
+    IpcMainEventChannel.settings.handleBridgeState((bridgeState: BridgeState) =>
+      this.daemonRpc.setBridgeState(bridgeState),
     );
     IpcMainEventChannel.settings.handleOpenVpnMssfix((mssfix?: number) =>
       this.daemonRpc.setOpenVpnMssfix(mssfix),

@@ -1,5 +1,6 @@
 import {
   AccountToken,
+  BridgeState,
   DaemonEvent,
   IAccountData,
   IAppVersionInfo,
@@ -415,6 +416,10 @@ export class DaemonRpc {
 
   public async setBlockWhenDisconnected(blockWhenDisconnected: boolean): Promise<void> {
     await this.transport.send('set_block_when_disconnected', [blockWhenDisconnected]);
+  }
+
+  public async setBridgeState(bridgeState: BridgeState): Promise<void> {
+    await this.transport.send('set_bridge_state', [bridgeState]);
   }
 
   public async setOpenVpnMssfix(mssfix?: number): Promise<void> {

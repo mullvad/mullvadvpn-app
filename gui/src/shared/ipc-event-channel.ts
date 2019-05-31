@@ -7,6 +7,7 @@ import { IGuiSettingsState } from './gui-settings-state';
 import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main/index';
 import {
   AccountToken,
+  BridgeState,
   IAccountData,
   ILocation,
   IRelayList,
@@ -55,6 +56,7 @@ interface ISettingsMethods extends IReceiver<ISettings> {
   setAllowLan(allowLan: boolean): Promise<void>;
   setEnableIpv6(enableIpv6: boolean): Promise<void>;
   setBlockWhenDisconnected(block: boolean): Promise<void>;
+  setBridgeState(state: BridgeState): Promise<void>;
   setOpenVpnMssfix(mssfix?: number): Promise<void>;
   updateRelaySettings(update: RelaySettingsUpdate): Promise<void>;
 }
@@ -63,6 +65,7 @@ interface ISettingsHandlers extends ISender<ISettings> {
   handleAllowLan(fn: (allowLan: boolean) => Promise<void>): void;
   handleEnableIpv6(fn: (enableIpv6: boolean) => Promise<void>): void;
   handleBlockWhenDisconnected(fn: (block: boolean) => Promise<void>): void;
+  handleBridgeState(fn: (state: BridgeState) => Promise<void>): void;
   handleOpenVpnMssfix(fn: (mssfix?: number) => Promise<void>): void;
   handleUpdateRelaySettings(fn: (update: RelaySettingsUpdate) => Promise<void>): void;
 }
@@ -120,6 +123,7 @@ const SETTINGS_CHANGED = 'settings-changed';
 const SET_ALLOW_LAN = 'set-allow-lan';
 const SET_ENABLE_IPV6 = 'set-enable-ipv6';
 const SET_BLOCK_WHEN_DISCONNECTED = 'set-block-when-disconnected';
+const SET_BRIDGE_STATE = 'set-bridge-state';
 const SET_OPENVPN_MSSFIX = 'set-openvpn-mssfix';
 const UPDATE_RELAY_SETTINGS = 'update-relay-settings';
 
@@ -177,6 +181,7 @@ export class IpcRendererEventChannel {
     setAllowLan: requestSender(SET_ALLOW_LAN),
     setEnableIpv6: requestSender(SET_ENABLE_IPV6),
     setBlockWhenDisconnected: requestSender(SET_BLOCK_WHEN_DISCONNECTED),
+    setBridgeState: requestSender(SET_BRIDGE_STATE),
     setOpenVpnMssfix: requestSender(SET_OPENVPN_MSSFIX),
     updateRelaySettings: requestSender(UPDATE_RELAY_SETTINGS),
   };
@@ -253,6 +258,7 @@ export class IpcMainEventChannel {
     handleAllowLan: requestHandler(SET_ALLOW_LAN),
     handleEnableIpv6: requestHandler(SET_ENABLE_IPV6),
     handleBlockWhenDisconnected: requestHandler(SET_BLOCK_WHEN_DISCONNECTED),
+    handleBridgeState: requestHandler(SET_BRIDGE_STATE),
     handleOpenVpnMssfix: requestHandler(SET_OPENVPN_MSSFIX),
     handleUpdateRelaySettings: requestHandler(UPDATE_RELAY_SETTINGS),
   };

@@ -1,4 +1,4 @@
-import { RelayLocation, RelayProtocol } from '../../../shared/daemon-rpc-types';
+import { BridgeState, RelayLocation, RelayProtocol } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { ReduxAction } from '../store';
 
@@ -48,6 +48,7 @@ export interface ISettingsReduxState {
   relayLocations: IRelayLocationRedux[];
   allowLan: boolean;
   enableIpv6: boolean;
+  bridgeState: BridgeState;
   blockWhenDisconnected: boolean;
   openVpn: {
     mssfix?: number;
@@ -71,6 +72,7 @@ const initialState: ISettingsReduxState = {
   relayLocations: [],
   allowLan: false,
   enableIpv6: true,
+  bridgeState: 'auto',
   blockWhenDisconnected: false,
   openVpn: {},
 };
@@ -129,6 +131,12 @@ export default function(
       return {
         ...state,
         autoStart: action.autoStart,
+      };
+
+    case 'UPDATE_BRIDGE_STATE':
+      return {
+        ...state,
+        bridgeState: action.bridgeState,
       };
 
     default:

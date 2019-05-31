@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
-import { RelayProtocol } from '../../shared/daemon-rpc-types';
+import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import styles from './AdvancedSettingsStyles';
 import * as Cell from './Cell';
@@ -18,19 +18,12 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
-const PROTOCOLS: RelayProtocol[] = ['udp', 'tcp'];
 const UDP_PORTS = [1194, 1195, 1196, 1197, 1300, 1301, 1302];
 const TCP_PORTS = [80, 443];
 
-const PORT_ITEMS: { [key in RelayProtocol]: Array<ISelectorItem<number>> } = {
-  udp: UDP_PORTS.map(mapPortToSelectorItem),
-  tcp: TCP_PORTS.map(mapPortToSelectorItem),
-};
+type OptionalPort = number | undefined;
 
-const PROTOCOL_ITEMS: Array<ISelectorItem<RelayProtocol>> = PROTOCOLS.map((value) => ({
-  label: value.toUpperCase(),
-  value,
-}));
+type OptionalRelayProtocol = RelayProtocol | undefined;
 
 function mapPortToSelectorItem(value: number): ISelectorItem<number> {
   return { label: value.toString(), value };
@@ -42,6 +35,8 @@ interface IProps {
   protocol?: RelayProtocol;
   mssfix?: number;
   port?: number;
+  bridgeState: BridgeState;
+  setBridgeState: (value: BridgeState) => void;
   setEnableIpv6: (value: boolean) => void;
   setBlockWhenDisconnected: (value: boolean) => void;
   setOpenVpnMssfix: (value: number | undefined) => void;
@@ -56,8 +51,52 @@ interface IState {
 }
 
 export default class AdvancedSettings extends Component<IProps, IState> {
+  private portItems: { [key in RelayProtocol]: Array<ISelectorItem<OptionalPort>> };
+  private protocolItems: Array<ISelectorItem<OptionalRelayProtocol>>;
+  private bridgeStateItems: Array<ISelectorItem<BridgeState>>;
+
   constructor(props: IProps) {
     super(props);
+
+    const automaticPort: ISelectorItem<OptionalPort> = {
+      label: messages.pgettext('advanced-settings-view', 'Automatic'),
+      value: undefined,
+    };
+
+    this.portItems = {
+      udp: [automaticPort].concat(UDP_PORTS.map(mapPortToSelectorItem)),
+      tcp: [automaticPort].concat(TCP_PORTS.map(mapPortToSelectorItem)),
+    };
+
+    this.protocolItems = [
+      {
+        label: messages.pgettext('advanced-settings-view', 'Automatic'),
+        value: undefined,
+      },
+      {
+        label: messages.pgettext('advanced-settings-view', 'TCP'),
+        value: 'tcp',
+      },
+      {
+        label: messages.pgettext('advanced-settings-view', 'UDP'),
+        value: 'udp',
+      },
+    ];
+
+    this.bridgeStateItems = [
+      {
+        label: messages.pgettext('advanced-settings-view', 'Automatic'),
+        value: 'auto',
+      },
+      {
+        label: messages.pgettext('advanced-settings-view', 'On'),
+        value: 'on',
+      },
+      {
+        label: messages.pgettext('advanced-settings-view', 'Off'),
+        value: 'off',
+      },
+    ];
 
     this.state = {
       persistedMssfix: props.mssfix,
@@ -138,7 +177,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   <View style={styles.advanced_settings__content}>
                     <Selector
                       title={messages.pgettext('advanced-settings-view', 'Network protocols')}
-                      values={PROTOCOL_ITEMS}
+                      values={this.protocolItems}
                       value={this.props.protocol}
                       onSelect={this.onSelectProtocol}
                     />
@@ -154,7 +193,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                             portType: this.props.protocol.toUpperCase(),
                           },
                         )}
-                        values={PORT_ITEMS[this.props.protocol]}
+                        values={this.portItems[this.props.protocol]}
                         value={this.props.port}
                         onSelect={this.onSelectPort}
                       />
@@ -162,6 +201,16 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                       undefined
                     )}
                   </View>
+
+                  <Selector
+                    title={
+                      // TRANSLATORS: The title for the shadowsocks bridge selector section.
+                      messages.pgettext('advanced-settings-view', 'Shadowsocks bridge')
+                    }
+                    values={this.bridgeStateItems}
+                    value={this.props.bridgeState}
+                    onSelect={this.onSelectBridgeState}
+                  />
 
                   <Cell.Container>
                     <Cell.Label>{messages.pgettext('advanced-settings-view', 'Mssfix')}</Cell.Label>
@@ -213,6 +262,10 @@ export default class AdvancedSettings extends Component<IProps, IState> {
     this.props.setRelayProtocolAndPort(this.props.protocol, port);
   };
 
+  private onSelectBridgeState = (bridgeState: BridgeState) => {
+    this.props.setBridgeState(bridgeState);
+  };
+
   private onMssfixChange = (mssfixString: string) => {
     const mssfix = mssfixString.replace(/[^0-9]/g, '');
 
@@ -251,8 +304,8 @@ interface ISelectorItem<T> {
 interface ISelectorProps<T> {
   title: string;
   values: Array<ISelectorItem<T>>;
-  value?: T;
-  onSelect: (value?: T) => void;
+  value: T;
+  onSelect: (value: T) => void;
 }
 
 class Selector<T> extends Component<ISelectorProps<T>> {
@@ -260,12 +313,6 @@ class Selector<T> extends Component<ISelectorProps<T>> {
     return (
       <Cell.Section style={styles.advanced_settings__selector_section}>
         <Cell.SectionTitle>{this.props.title}</Cell.SectionTitle>
-        <SelectorCell
-          key={'auto'}
-          selected={this.props.value === undefined}
-          onSelect={this.props.onSelect}>
-          {messages.pgettext('advanced-settings-view', 'Automatic')}
-        </SelectorCell>
         {this.props.values.map((item, i) => (
           <SelectorCell
             key={i}
@@ -281,9 +328,9 @@ class Selector<T> extends Component<ISelectorProps<T>> {
 }
 
 interface ISelectorCell<T> {
-  value?: T;
+  value: T;
   selected: boolean;
-  onSelect: (value?: T) => void;
+  onSelect: (value: T) => void;
   children?: React.ReactText;
 }
 
