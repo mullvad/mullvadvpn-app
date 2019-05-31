@@ -494,6 +494,7 @@ impl RelaySelector {
         match constraints {
             // TODO: Handle Constraint::Any case by selecting from both openvpn and wireguard
             // tunnels once wireguard is mature enough
+            #[cfg(not(target_os = "android"))]
             Constraint::Only(TunnelConstraints::OpenVpn(_)) | Constraint::Any => relay
                 .tunnels
                 .openvpn
@@ -508,6 +509,21 @@ impl RelaySelector {
                 .and_then(|wg_tunnel| {
                     self.wg_data_to_endpoint(relay.ipv4_addr_in.into(), wg_tunnel, wg_constraints)
                 }),
+            #[cfg(target_os = "android")]
+            Constraint::Any => relay
+                .tunnels
+                .wireguard
+                .choose(&mut self.rng)
+                .cloned()
+                .and_then(|wg_tunnel| {
+                    self.wg_data_to_endpoint(
+                        relay.ipv4_addr_in.into(),
+                        wg_tunnel,
+                        &WireguardConstraints::default(),
+                    )
+                }),
+            #[cfg(target_os = "android")]
+            Constraint::Only(TunnelConstraints::OpenVpn(_)) => None,
         }
     }
 
