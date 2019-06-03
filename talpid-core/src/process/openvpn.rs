@@ -173,6 +173,12 @@ impl OpenVpnCommand {
         self
     }
 
+    /// Sets the proxy settings.
+    pub fn proxy_settings(&mut self, proxy_settings: net::openvpn::ProxySettings) -> &mut Self {
+        self.proxy_settings = Some(proxy_settings);
+        self
+    }
+
     /// Build a runnable expression from the current state of the command.
     pub fn build(&self) -> duct::Expression {
         log::debug!("Building expression: {}", &self);

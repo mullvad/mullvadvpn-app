@@ -463,6 +463,9 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         cmd.tunnel_alias(Some(
             crate::winnet::get_tap_interface_alias().map_err(Error::WinnetError)?,
         ));
+        if let Some(proxy_settings) = params.proxy.clone().take() {
+            cmd.proxy_settings(proxy_settings);
+        }
         if let Some(proxy_auth_file) = proxy_auth_file {
             cmd.proxy_auth(proxy_auth_file);
         }
