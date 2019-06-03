@@ -133,6 +133,7 @@
 		58F19E32228B383300C7710B /* AccountVerificationProcedure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountVerificationProcedure.swift; sourceTree = "<group>"; };
 		58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerActivityIndicatorView.swift; sourceTree = "<group>"; };
 		58F83F07229D3F560086FCE3 /* AccountExpiryRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryRefresh.swift; sourceTree = "<group>"; };
+		58FBDAA422A52BDA00EB69A3 /* PacketTunnel-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PacketTunnel-Bridging-Header.h"; sourceTree = "<group>"; };
 		58FFE443228C82A00036F391 /* UserDefaultsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsInteractor.swift; sourceTree = "<group>"; };
 		627D4CE562B85202FCFA0EB1 /* Pods-MullvadVPN.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MullvadVPN.debug.xcconfig"; path = "Target Support Files/Pods-MullvadVPN/Pods-MullvadVPN.debug.xcconfig"; sourceTree = "<group>"; };
 		9F1362F46063B1D06EB0C685 /* Pods-PacketTunnel.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PacketTunnel.debug.xcconfig"; path = "Target Support Files/Pods-PacketTunnel/Pods-PacketTunnel.debug.xcconfig"; sourceTree = "<group>"; };
@@ -244,6 +245,7 @@
 				58CE5E7B224146470008646E /* PacketTunnelProvider.swift */,
 				58CE5E7D224146470008646E /* Info.plist */,
 				58CE5E7E224146470008646E /* PacketTunnel.entitlements */,
+				58FBDAA422A52BDA00EB69A3 /* PacketTunnel-Bridging-Header.h */,
 			);
 			path = PacketTunnel;
 			sourceTree = "<group>";
@@ -304,6 +306,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58CE5E82224146470008646E /* Build configuration list for PBXNativeTarget "PacketTunnel" */;
 			buildPhases = (
+				58FBDAA322A52AE700EB69A3 /* Extract wireguard-go Version */,
 				C8E26D766ABD05BF7B4EB4AC /* [CP] Check Pods Manifest.lock */,
 				58CE5E75224146470008646E /* Sources */,
 				58CE5E76224146470008646E /* Frameworks */,
@@ -408,6 +411,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MullvadVPN/Pods-MullvadVPN-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		58FBDAA322A52AE700EB69A3 /* Extract wireguard-go Version */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Extract wireguard-go Version";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "exec make -C \"$PROJECT_DIR/wireguard-go-bridge\" version-header\n";
 			showEnvVarsInLog = 0;
 		};
 		A4E72CCF49FD4D29D984E1FC /* [CP] Check Pods Manifest.lock */ = {
@@ -710,6 +732,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9F1362F46063B1D06EB0C685 /* Pods-PacketTunnel.debug.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = G7CDBEG477;
@@ -722,6 +745,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "PacketTunnel/PacketTunnel-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -731,6 +756,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 40D54D8A8B75B67DC37C5CCE /* Pods-PacketTunnel.release.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = G7CDBEG477;
@@ -743,6 +769,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "PacketTunnel/PacketTunnel-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
