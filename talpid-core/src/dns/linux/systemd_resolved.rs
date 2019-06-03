@@ -54,7 +54,11 @@ pub enum Error {
     MatchDBusTypeError(#[error(cause)] dbus::arg::TypeMismatchError),
 }
 
-const DYNAMIC_RESOLV_CONF_PATH: &str = "/run/systemd/resolve/resolv.conf";
+const RESOLVED_PATHS: &[&str] = &[
+    "/run/systemd/resolve/stub-resolv.conf",
+    "/run/systemd/resolve/resolv.conf",
+];
+
 const RESOLVED_DNS_SERVER_ADDRESS: [u8; 4] = [127, 0, 0, 53];
 
 const RESOLVED_BUS: &str = "org.freedesktop.resolve1";
@@ -103,13 +107,36 @@ impl SystemdResolved {
 
     fn ensure_resolv_conf_is_resolved_symlink() -> Result<()> {
         let is_correct_symlink = fs::read_link(RESOLV_CONF_PATH)
-            .map(|resolv_conf_target| resolv_conf_target == Path::new(DYNAMIC_RESOLV_CONF_PATH))
+            .map(|resolv_conf_target| Self::compare_resolvconf_symlink(&resolv_conf_target))
             .unwrap_or_else(|_| false);
         if is_correct_symlink {
             Ok(())
         } else {
             Err(Error::NotSymlinkedToResolvConf)
         }
+    }
+
+    fn compare_resolvconf_symlink(link_path: &Path) -> bool {
+        // if link path is relative to /etc/resolv.conf, resolve the path and compare it.
+        if link_path.is_relative() {
+            match Path::new("/etc/").join(link_path).canonicalize() {
+                Ok(link_destination) => Self::resolved_paths().any(|p| p == link_destination),
+                Err(e) => {
+                    log::error!(
+                        "Failed to canonicalize resolv conf path {} - {}",
+                        link_path.display(),
+                        e
+                    );
+                    false
+                }
+            }
+        } else {
+            Self::resolved_paths().any(|p| p == link_path)
+        }
+    }
+
+    fn resolved_paths() -> impl Iterator<Item = &'static Path> {
+        RESOLVED_PATHS.iter().map(Path::new)
     }
 
     fn ensure_resolv_conf_has_resolved_dns() -> Result<()> {
