@@ -61,6 +61,13 @@
 			remoteGlobalIDString = 58CE5E78224146470008646E;
 			remoteInfo = PacketTunnel;
 		};
+		58FBDAA122A52A6800EB69A3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58FBDA9722A519BC00EB69A3;
+			remoteInfo = WireGuardGoBridge;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -305,6 +312,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				58FBDAA222A52A6800EB69A3 /* PBXTargetDependency */,
 			);
 			name = PacketTunnel;
 			productName = PacketTunnel;
@@ -508,6 +516,11 @@
 			isa = PBXTargetDependency;
 			target = 58CE5E78224146470008646E /* PacketTunnel */;
 			targetProxy = 58CE5E7F224146470008646E /* PBXContainerItemProxy */;
+		};
+		58FBDAA222A52A6800EB69A3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58FBDA9722A519BC00EB69A3 /* WireGuardGoBridge */;
+			targetProxy = 58FBDAA122A52A6800EB69A3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
