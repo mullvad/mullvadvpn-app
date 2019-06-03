@@ -254,6 +254,23 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXLegacyTarget section */
+		58FBDA9722A519BC00EB69A3 /* WireGuardGoBridge */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 58FBDA9A22A519BC00EB69A3 /* Build configuration list for PBXLegacyTarget "WireGuardGoBridge" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(PROJECT_DIR)/wireguard-go-bridge";
+			dependencies = (
+			);
+			name = WireGuardGoBridge;
+			passBuildSettingsInEnvironment = 1;
+			productName = WireGuardGoBridge;
+		};
+/* End PBXLegacyTarget section */
+
 /* Begin PBXNativeTarget section */
 		58CE5E5F224146200008646E /* MullvadVPN */ = {
 			isa = PBXNativeTarget;
@@ -317,6 +334,9 @@
 						CreatedOnToolsVersion = 10.0;
 						LastSwiftMigration = 1020;
 					};
+					58FBDA9722A519BC00EB69A3 = {
+						CreatedOnToolsVersion = 10.2.1;
+					};
 				};
 			};
 			buildConfigurationList = 58CE5E5B224146200008646E /* Build configuration list for PBXProject "MullvadVPN" */;
@@ -334,6 +354,7 @@
 			targets = (
 				58CE5E5F224146200008646E /* MullvadVPN */,
 				58CE5E78224146470008646E /* PacketTunnel */,
+				58FBDA9722A519BC00EB69A3 /* WireGuardGoBridge */,
 			);
 		};
 /* End PBXProject section */
@@ -714,6 +735,31 @@
 			};
 			name = Release;
 		};
+		58FBDA9822A519BC00EB69A3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		58FBDA9922A519BC00EB69A3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -740,6 +786,15 @@
 			buildConfigurations = (
 				58CE5E83224146470008646E /* Debug */,
 				58CE5E84224146470008646E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		58FBDA9A22A519BC00EB69A3 /* Build configuration list for PBXLegacyTarget "WireGuardGoBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58FBDA9822A519BC00EB69A3 /* Debug */,
+				58FBDA9922A519BC00EB69A3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
