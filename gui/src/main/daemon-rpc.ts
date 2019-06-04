@@ -240,6 +240,13 @@ const tunnelStateTransitionSchema = oneOf(
       address: string,
       protocol: enumeration('tcp', 'udp'),
       tunnel_type: enumeration('wireguard', 'openvpn'),
+      bridge: maybe(
+        partialObject({
+          address: string,
+          protocol: enumeration('tcp', 'udp'),
+          bridge_type: enumeration('shadowsocks', 'custom'),
+        }),
+      ),
     }),
   }),
   object({

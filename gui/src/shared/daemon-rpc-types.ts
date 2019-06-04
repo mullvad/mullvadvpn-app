@@ -35,10 +35,19 @@ export type TunnelType = 'wireguard' | 'openvpn';
 
 export type RelayProtocol = 'tcp' | 'udp';
 
+export type BridgeType = 'shadowsocks' | 'custom';
+
 export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
   tunnel: TunnelType;
+  bridge?: IBridgeEndpoint;
+}
+
+export interface IBridgeEndpoint {
+  address: string;
+  protocol: RelayProtocol;
+  bridge_type: BridgeType;
 }
 
 export type DaemonEvent =
