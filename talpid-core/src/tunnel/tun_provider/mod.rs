@@ -27,6 +27,10 @@ cfg_if! {
     }
 }
 
+/// Windows tunnel
+#[cfg(target_os = "windows")]
+pub mod windows;
+
 /// Generic tunnel device.
 ///
 /// Must be associated with a platform specific file descriptor representing the device.

@@ -7,4 +7,4 @@ mod imp;
 #[path = "win.rs"]
 mod imp;
 
-pub use imp::{monitor_ping, ping, Error};
+pub use imp::{monitor_ping, ping, Error, Pinger};

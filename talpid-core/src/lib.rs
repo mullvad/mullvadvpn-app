@@ -23,7 +23,6 @@ mod winnet;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 /// Working with IP interface devices
 pub mod network_interface;
-#[cfg(not(windows))]
 /// Abstraction over operating system routing table.
 pub mod routing;
 
