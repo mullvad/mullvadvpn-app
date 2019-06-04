@@ -43,6 +43,11 @@ pub enum Error {
     #[error(display = "Failed to stop wireguard tunnel - {}", status)]
     StopWireguardError { status: i32 },
 
+    /// Failed to set ip addresses on tunnel interface.
+    #[cfg(target_os = "windows")]
+    #[error(display = "Failed to set IP addresses on WireGuard interface")]
+    SetIpAddressesError,
+
     /// Failed to set up routing.
     #[error(display = "Failed to setup routing")]
     SetupRoutingError(#[error(source)] crate::routing::Error),
@@ -99,6 +104,11 @@ impl WireguardMonitor {
         let iface_name = tunnel.get_interface_name();
         let route_handle = routing::RouteManager::new(Self::get_routes(iface_name, &config))
             .map_err(Error::SetupRoutingError)?;
+
+        #[cfg(target_os = "windows")]
+        route_handle
+            .set_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ());
+
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
         let (pinger_tx, pinger_rx) = mpsc::channel();
@@ -121,12 +131,10 @@ impl WireguardMonitor {
                 Ok(()) => {
                     (on_event)(TunnelEvent::Up(metadata));
 
-                    match ping_monitor::monitor_ping(gateway, PING_TIMEOUT, &iface_name, pinger_rx)
+                    if let Err(error) =
+                        ping_monitor::monitor_ping(gateway, PING_TIMEOUT, &iface_name, pinger_rx)
                     {
-                        Ok(()) => return,
-                        Err(error) => {
-                            log::trace!("{}", error.display_chain_with_msg("Ping monitor failed"));
-                        }
+                        log::trace!("{}", error.display_chain_with_msg("Ping monitor failed"));
                     }
                 }
                 Err(error) => {

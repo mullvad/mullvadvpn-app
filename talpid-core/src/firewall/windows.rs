@@ -85,12 +85,17 @@ impl FirewallT for Firewall {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
-                // TODO: Allow ICMP traffic to a list of hosts for wireguard
-                pingable_hosts: _,
+                pingable_hosts,
                 allow_lan,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                self.set_connecting_state(&peer_endpoint, &cfg)
+                // TODO: Determine interface alias at runtime
+                self.set_connecting_state(
+                    &peer_endpoint,
+                    &cfg,
+                    "wg-mullvad".to_string(),
+                    &pingable_hosts,
+                )
             }
             FirewallPolicy::Connected {
                 peer_endpoint,
@@ -128,6 +133,8 @@ impl Firewall {
         &mut self,
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
+        _tunnel_iface_alias: String,
+        pingable_hosts: &Vec<IpAddr>,
     ) -> Result<(), Error> {
         trace!("Applying 'connecting' firewall policy");
         let ip_str = Self::widestring_ip(endpoint.address.ip());
@@ -139,7 +146,31 @@ impl Firewall {
             protocol: WinFwProt::from(endpoint.protocol),
         };
 
-        unsafe { WinFw_ApplyPolicyConnecting(winfw_settings, &winfw_relay).into_result() }
+        if pingable_hosts.is_empty() {
+            unsafe {
+                return WinFw_ApplyPolicyConnecting(winfw_settings, &winfw_relay, ptr::null())
+                    .into_result();
+            }
+        }
+
+        let pingable_addresses = pingable_hosts
+            .iter()
+            .map(|ip| Self::widestring_ip(*ip))
+            .collect::<Vec<_>>();
+        let pingable_address_ptrs = pingable_addresses
+            .iter()
+            .map(|ip| ip.as_ptr())
+            .collect::<Vec<_>>();
+
+        let pingable_hosts = WinFwPingableHosts {
+            interfaceAlias: ptr::null(),
+            addresses: pingable_address_ptrs.as_ptr(),
+            num_addresses: pingable_addresses.len(),
+        };
+
+        unsafe {
+            WinFw_ApplyPolicyConnecting(winfw_settings, &winfw_relay, &pingable_hosts).into_result()
+        }
     }
 
     fn widestring_ip(ip: IpAddr) -> WideCString {
@@ -250,6 +281,14 @@ mod winfw {
         }
     }
 
+    #[repr(C)]
+    pub struct WinFwPingableHosts {
+        // a null pointer implies that all interfaces will be able to ping the supplied addresses
+        pub interfaceAlias: *const libc::wchar_t,
+        pub addresses: *const *const libc::wchar_t,
+        pub num_addresses: usize,
+    }
+
     ffi_error!(InitializationResult, Error::Initialization);
     ffi_error!(DeinitializationResult, Error::Deinitialization);
     ffi_error!(ApplyConnectingResult, Error::ApplyingConnectingPolicy);
@@ -280,6 +319,7 @@ mod winfw {
         pub fn WinFw_ApplyPolicyConnecting(
             settings: &WinFwSettings,
             relay: &WinFwRelay,
+            pingable_hosts: *const WinFwPingableHosts,
         ) -> ApplyConnectingResult;
 
         #[link_name = "WinFw_ApplyPolicyConnected"]

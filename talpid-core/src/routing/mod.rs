@@ -1,4 +1,5 @@
 #![cfg_attr(target_os = "android", allow(dead_code))]
+#![cfg_attr(target_os = "windows", allow(dead_code))]
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
 use futures::{sync::oneshot, Future};
 use ipnetwork::IpNetwork;
@@ -15,6 +16,12 @@ mod imp;
 #[cfg(target_os = "android")]
 #[path = "android.rs"]
 mod imp;
+
+#[cfg(target_os = "windows")]
+#[path = "windows.rs"]
+mod imp;
+#[cfg(target_os = "windows")]
+use crate::winnet;
 
 pub use imp::Error as PlatformError;
 
@@ -37,6 +44,8 @@ pub enum Error {
 /// the route will be adjusted dynamically when the default route changes.
 pub struct RouteManager {
     tx: Option<oneshot::Sender<oneshot::Sender<()>>>,
+    #[cfg(target_os = "windows")]
+    callback_handles: Vec<winnet::WinNetCallbackHandle>,
 }
 
 impl RouteManager {
@@ -61,9 +70,31 @@ impl RouteManager {
             },
         );
         match start_rx.wait() {
-            Ok(Ok(())) => Ok(Self { tx: Some(tx) }),
+            Ok(Ok(())) => Ok(Self {
+                tx: Some(tx),
+   	            #[cfg(target_os = "windows")]
+                callback_handles: vec![],
+            }),
             Ok(Err(e)) => Err(e),
             Err(_) => Err(Error::RoutingManagerThreadPanic),
+        }
+    }
+
+    /// Sets a callback that is called whenever the default route changes.
+    #[cfg(target_os = "windows")]
+    pub fn set_default_route_callback<T: 'static>(
+        &mut self,
+        callback: Option<winnet::DefaultRouteChangedCallback>,
+        context: T,
+    ) {
+        match winnet::set_default_route_change_callback(callback, context) {
+            Err(_e) => {
+                // not sure if this should panic
+                log::error!("Failed to add callback!");
+            }
+            Ok(handle) => {
+                self.callback_handles.push(handle);
+            }
         }
     }
 
@@ -85,6 +116,11 @@ impl RouteManager {
 
 impl Drop for RouteManager {
     fn drop(&mut self) {
+        // Ensuring callbacks are removed before the route manager is stopped
+        #[cfg(target_os = "windows")]
+        {
+            self.callback_handles.clear();
+        }
         self.stop();
     }
 }
