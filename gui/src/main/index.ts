@@ -70,9 +70,6 @@ class ApplicationMain {
   private daemonRpc = new DaemonRpc();
   private reconnectBackoff = new ReconnectionBackoff();
   private connectedToDaemon = false;
-
-  private logFilePaths: string[] = [];
-  private oldLogFilePaths: string[] = [];
   private quitStage = AppQuitStage.unready;
 
   private accountHistory: AccountToken[] = [];
@@ -188,17 +185,15 @@ class ApplicationMain {
   private initLogging() {
     const logDirectory = getLogsDirectory();
     const mainLogFile = getMainLogFile();
-    const rendererLogFile = getRendererLogFile();
-    const logFiles = [mainLogFile, rendererLogFile];
+    const logFiles = [mainLogFile, getRendererLogFile()];
 
     if (process.env.NODE_ENV !== 'development') {
       // Ensure log directory exists
       mkdirp.sync(logDirectory);
 
-      this.logFilePaths = logFiles;
-      this.oldLogFilePaths = logFiles
-        .map((logFile) => backupLogFile(logFile))
-        .filter((oldLogFile): oldLogFile is string => typeof oldLogFile === 'string');
+      for (const logFile of logFiles) {
+        backupLogFile(logFile);
+      }
     }
 
     setupLogging(mainLogFile);
@@ -886,10 +881,8 @@ class ApplicationMain {
       const executable = resolveBin('problem-report');
       const args = ['collect', '--output', reportPath];
       if (toRedact.length > 0) {
-        args.push('--redact', ...toRedact, '--');
+        args.push('--redact', ...toRedact);
       }
-      args.push(...this.logFilePaths);
-      args.push(...this.oldLogFilePaths);
 
       execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
         if (error) {
