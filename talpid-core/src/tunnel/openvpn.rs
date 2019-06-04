@@ -454,7 +454,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
                 .compat()
                 .map_err(Error::IpRouteNotFound)?,
         );
-        cmd.remote(params.config.get_tunnel_endpoint().endpoint)
+        cmd.remote(params.config.endpoint)
             .user_pass(user_pass_file)
             .tunnel_options(&params.options)
             .enable_ipv6(params.generic_options.enable_ipv6)
