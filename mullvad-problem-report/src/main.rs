@@ -88,10 +88,7 @@ pub enum LogError {
     #[error(display = "Unable to get log directory")]
     GetLogDir(#[error(source)] mullvad_paths::Error),
 
-    #[error(
-        display = "Failed to list the files in the mullvad-daemon log directory: {}",
-        path
-    )]
+    #[error(display = "Failed to list the files in the log directory: {}", path)]
     ListLogDir {
         path: String,
         #[error(cause)]
@@ -100,6 +97,9 @@ pub enum LogError {
 
     #[error(display = "Error reading the contents of log file: {}", path)]
     ReadLogError { path: String },
+
+    #[error(display = "No home directory for current user")]
+    NoHomeDir,
 }
 
 fn main() {
@@ -216,10 +216,13 @@ fn collect_report(
 ) -> Result<(), Error> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
-    match logs_from_log_directory() {
-        Ok(logs) => {
+    let daemon_logs = mullvad_paths::get_log_dir()
+        .map_err(LogError::GetLogDir)
+        .and_then(list_logs);
+    match daemon_logs {
+        Ok(daemon_logs) => {
             let mut other_logs = Vec::new();
-            for log in logs {
+            for log in daemon_logs {
                 match log {
                     Ok(path) => {
                         if is_tunnel_log(&path) {
@@ -235,8 +238,23 @@ fn collect_report(
                 problem_report.add_log(&other_log);
             }
         }
-        Err(error) => problem_report.add_error("Failed to list logs in log directory", &error),
+        Err(error) => {
+            problem_report.add_error("Failed to list logs in daemon log directory", &error)
+        }
     };
+    match frontend_log_dir().and_then(list_logs) {
+        Ok(frontend_logs) => {
+            for log in frontend_logs {
+                match log {
+                    Ok(path) => problem_report.add_log(&path),
+                    Err(error) => problem_report.add_error("Unable to get log path", &error),
+                }
+            }
+        }
+        Err(error) => {
+            problem_report.add_error("Failed to list logs in frontend log directory", &error)
+        }
+    }
 
     problem_report.add_logs(extra_logs);
 
@@ -246,9 +264,9 @@ fn collect_report(
     })
 }
 
-fn logs_from_log_directory() -> Result<impl Iterator<Item = Result<PathBuf, LogError>>, LogError> {
-    let log_dir = mullvad_paths::get_log_dir().map_err(LogError::GetLogDir)?;
-
+fn list_logs(
+    log_dir: PathBuf,
+) -> Result<impl Iterator<Item = Result<PathBuf, LogError>>, LogError> {
     fs::read_dir(&log_dir)
         .map_err(|source| LogError::ListLogDir {
             path: log_dir.display().to_string(),
@@ -273,6 +291,27 @@ fn logs_from_log_directory() -> Result<impl Iterator<Item = Result<PathBuf, LogE
                 })),
             })
         })
+}
+
+fn frontend_log_dir() -> Result<PathBuf, LogError> {
+    #[cfg(target_os = "linux")]
+    {
+        dirs::home_dir()
+            .ok_or(LogError::NoHomeDir)
+            .map(|home_dir| home_dir.join(".config/Mullvad VPN/logs"))
+    }
+    #[cfg(target_os = "macos")]
+    {
+        dirs::home_dir()
+            .ok_or(LogError::NoHomeDir)
+            .map(|home_dir| home_dir.join("Library/Logs/Mullvad VPN"))
+    }
+    #[cfg(target_os = "windows")]
+    {
+        mullvad_paths::get_allusersprofile_dir()
+            .map(|log_dir| log_dir.join("Mullvad VPN/logs"))
+            .map_err(LogError::GetLogDir)
+    }
 }
 
 fn is_tunnel_log(path: &Path) -> bool {
