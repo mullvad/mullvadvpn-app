@@ -88,10 +88,7 @@ pub enum LogError {
     #[error(display = "Unable to get log directory")]
     GetLogDir(#[error(source)] mullvad_paths::Error),
 
-    #[error(
-        display = "Failed to list the files in the mullvad-daemon log directory: {}",
-        path
-    )]
+    #[error(display = "Failed to list the files in the log directory: {}", path)]
     ListLogDir {
         path: String,
         #[error(cause)]
@@ -100,6 +97,14 @@ pub enum LogError {
 
     #[error(display = "Error reading the contents of log file: {}", path)]
     ReadLogError { path: String },
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[error(display = "No home directory for current user")]
+    NoHomeDir,
+
+    #[cfg(target_os = "windows")]
+    #[error(display = "Missing %LOCALAPPDATA% environment variable")]
+    NoLocalAppDataDir,
 }
 
 fn main() {
@@ -216,10 +221,13 @@ fn collect_report(
 ) -> Result<(), Error> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
-    match logs_from_log_directory() {
-        Ok(logs) => {
+    let daemon_logs = mullvad_paths::get_log_dir()
+        .map_err(LogError::GetLogDir)
+        .and_then(list_logs);
+    match daemon_logs {
+        Ok(daemon_logs) => {
             let mut other_logs = Vec::new();
-            for log in logs {
+            for log in daemon_logs {
                 match log {
                     Ok(path) => {
                         if is_tunnel_log(&path) {
@@ -235,8 +243,24 @@ fn collect_report(
                 problem_report.add_log(&other_log);
             }
         }
-        Err(error) => problem_report.add_error("Failed to list logs in log directory", &error),
+        Err(error) => {
+            problem_report.add_error("Failed to list logs in daemon log directory", &error)
+        }
     };
+    match frontend_log_dir().map(|dir| dir.and_then(list_logs)) {
+        Some(Ok(frontend_logs)) => {
+            for log in frontend_logs {
+                match log {
+                    Ok(path) => problem_report.add_log(&path),
+                    Err(error) => problem_report.add_error("Unable to get log path", &error),
+                }
+            }
+        }
+        Some(Err(error)) => {
+            problem_report.add_error("Failed to list logs in frontend log directory", &error)
+        }
+        None => {}
+    }
 
     problem_report.add_logs(extra_logs);
 
@@ -246,9 +270,10 @@ fn collect_report(
     })
 }
 
-fn logs_from_log_directory() -> Result<impl Iterator<Item = Result<PathBuf, LogError>>, LogError> {
-    let log_dir = mullvad_paths::get_log_dir().map_err(LogError::GetLogDir)?;
-
+/// Returns an iterator over all files in the given directory that has the `.log` extension.
+fn list_logs(
+    log_dir: PathBuf,
+) -> Result<impl Iterator<Item = Result<PathBuf, LogError>>, LogError> {
     fs::read_dir(&log_dir)
         .map_err(|source| LogError::ListLogDir {
             path: log_dir.display().to_string(),
@@ -273,6 +298,38 @@ fn logs_from_log_directory() -> Result<impl Iterator<Item = Result<PathBuf, LogE
                 })),
             })
         })
+}
+
+/// Returns the directory where the Mullvad GUI frontend stores its logs.
+/// If the current platform has a separate directory for frontend logs.
+fn frontend_log_dir() -> Option<Result<PathBuf, LogError>> {
+    #[cfg(target_os = "linux")]
+    {
+        Some(
+            dirs::home_dir()
+                .ok_or(LogError::NoHomeDir)
+                .map(|home_dir| home_dir.join(".config/Mullvad VPN/logs")),
+        )
+    }
+    #[cfg(target_os = "macos")]
+    {
+        Some(
+            dirs::home_dir()
+                .ok_or(LogError::NoHomeDir)
+                .map(|home_dir| home_dir.join("Library/Logs/Mullvad VPN")),
+        )
+    }
+    #[cfg(target_os = "windows")]
+    {
+        Some(match std::env::var_os("LOCALAPPDATA") {
+            Some(dir) => Ok(Path::new(&dir).join("Mullvad VPN/logs")),
+            None => Err(LogError::NoLocalAppDataDir),
+        })
+    }
+    #[cfg(target_os = "android")]
+    {
+        None
+    }
 }
 
 fn is_tunnel_log(path: &Path) -> bool {
