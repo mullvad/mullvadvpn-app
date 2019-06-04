@@ -15,6 +15,7 @@ use std::{
     borrow::Cow,
     cmp::min,
     collections::{HashMap, HashSet},
+    env,
     ffi::OsStr,
     fs::{self, File},
     io::{self, BufWriter, Read, Seek, SeekFrom, Write},
@@ -191,7 +192,13 @@ fn run() -> Result<(), Error> {
             .map(|os_values| os_values.map(Path::new).collect())
             .unwrap_or_else(Vec::new);
         let output_path = Path::new(collect_matches.value_of_os("output").unwrap());
-        collect_report(&extra_logs, output_path, redact_custom_strings)
+        collect_report(&extra_logs, output_path, redact_custom_strings)?;
+
+        println!("Problem report written to \"{}\"", output_path.display());
+        println!("");
+        println!("Send the problem report to support via the send subcommand. See:");
+        println!(" $ {} send --help", env::args().next().unwrap());
+        Ok(())
     } else if let Some(send_matches) = matches.subcommand_matches("send") {
         let report_path = Path::new(send_matches.value_of_os("report").unwrap());
         let user_email = send_matches.value_of("email").unwrap_or("");
@@ -362,6 +369,7 @@ impl ProblemReport {
                 },
             ));
             self.logs.push((redacted_path, content));
+            println!("Adding {} to report", expanded_path.display());
         }
     }
 
