@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-// TODO: Remove lint exemption once  ping monitor is used on Windows
 use pnet_packet::{
     icmp::{
         self,
@@ -17,6 +15,8 @@ use std::{
     thread,
     time::{Duration, Instant},
 };
+
+const SEND_RETRY_ATTEMPTS: u32 = 10;
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -40,10 +40,10 @@ pub enum Error {
 pub fn monitor_ping(
     ip: Ipv4Addr,
     timeout_secs: u16,
-    _interface: &str,
+    interface: &str,
     close_receiver: mpsc::Receiver<()>,
 ) -> Result<()> {
-    let mut pinger = Pinger::new(ip)?;
+    let mut pinger = Pinger::new(ip, interface)?;
     while let Err(mpsc::TryRecvError::Empty) = close_receiver.try_recv() {
         let start = Instant::now();
         pinger.send_ping(Duration::from_secs(timeout_secs.into()))?;
@@ -57,8 +57,8 @@ pub fn monitor_ping(
     Ok(())
 }
 
-pub fn ping(ip: Ipv4Addr, timeout_secs: u16, _interface: &str) -> Result<()> {
-    Pinger::new(ip)?.send_ping(Duration::from_secs(timeout_secs.into()))
+pub fn ping(ip: Ipv4Addr, timeout_secs: u16, interface: &str) -> Result<()> {
+    Pinger::new(ip, interface)?.send_ping(Duration::from_secs(timeout_secs.into()))
 }
 
 type Result<T> = std::result::Result<T, Error>;
@@ -71,10 +71,12 @@ pub struct Pinger {
 }
 
 impl Pinger {
-    pub fn new(addr: Ipv4Addr) -> Result<Self> {
+    pub fn new(addr: Ipv4Addr, _interface_name: &str) -> Result<Self> {
         let sock = Socket::new(Domain::ipv4(), Type::raw(), Some(Protocol::icmpv4()))
             .map_err(Error::OpenError)?;
         sock.set_nonblocking(true).map_err(Error::OpenError)?;
+
+
         Ok(Self {
             sock,
             id: rand::random(),
@@ -87,10 +89,33 @@ impl Pinger {
     pub fn send_ping(&mut self, timeout: Duration) -> Result<()> {
         let dest = SocketAddr::new(IpAddr::from(self.addr), 0);
         let request = self.next_ping_request();
-        self.sock
-            .send_to(request.packet(), &dest.into())
-            .map_err(Error::WriteError)?;
+        self.send_ping_request(&request, dest.into())?;
         self.wait_for_response(Instant::now() + timeout, &request)
+    }
+
+    fn send_ping_request(
+        &mut self,
+        request: &EchoRequestPacket<'static>,
+        destination: SocketAddr,
+    ) -> Result<()> {
+        let mut tries = 0;
+        let mut result = Ok(());
+        while tries < SEND_RETRY_ATTEMPTS {
+            match self.sock.send_to(request.packet(), &destination.into()) {
+                Ok(_) => {
+                    return Ok(());
+                }
+                Err(err) => {
+                    if Some(10065) != err.raw_os_error() {
+                        return Err(Error::WriteError(err));
+                    }
+                    result = Err(Error::WriteError(err));
+                }
+            }
+            thread::sleep(Duration::from_secs(1));
+            tries += 1;
+        }
+        result
     }
 
     /// returns the next ping packet

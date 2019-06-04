@@ -1,11 +1,34 @@
 use super::{Config, Error, Result, Tunnel};
-use crate::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
+use crate::tunnel::tun_provider::{Tun, TunProvider};
 use ipnetwork::IpNetwork;
-use std::{ffi::CString, net::IpAddr, os::unix::io::RawFd, path::Path, ptr};
+use std::{ffi::CString, fs, path::Path};
+
+#[cfg(not(target_os = "windows"))]
+use std::ptr;
+
+#[cfg(not(target_os = "windows"))]
+use crate::tunnel::tun_provider::TunConfig;
+
+#[cfg(not(target_os = "windows"))]
+use std::net::IpAddr;
+
+#[cfg(not(target_os = "windows"))]
+use std::os::unix::io::{AsRawFd, RawFd};
+
+#[cfg(target_os = "windows")]
+use std::os::windows::io::AsRawHandle;
+
+#[cfg(target_os = "windows")]
+use crate::tunnel::tun_provider::windows::WinTun;
+
 #[cfg(target_os = "android")]
 use talpid_types::BoxedError;
 
+#[cfg(not(target_os = "windows"))]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
+
+#[cfg(target_os = "windows")]
+use crate::winnet::{self, add_device_ip_addresses};
 
 pub struct WgGoTunnel {
     interface_name: String,
@@ -16,6 +39,7 @@ pub struct WgGoTunnel {
 }
 
 impl WgGoTunnel {
+    #[cfg(not(target_os = "windows"))]
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
@@ -66,6 +90,84 @@ impl WgGoTunnel {
         })
     }
 
+    #[cfg(target_os = "windows")]
+    pub fn start_tunnel(
+        config: &Config,
+        log_path: Option<&Path>,
+        _tun_provider: &dyn TunProvider,
+        _routes: impl Iterator<Item = IpNetwork>,
+    ) -> Result<Self> {
+        let log_file = prepare_log_file(log_path)?;
+        let wg_config_str = config.to_userspace_format();
+        let iface_name: String = "wg-mullvad".to_string();
+        let cstr_iface_name =
+            CString::new(iface_name.as_bytes()).map_err(Error::InterfaceNameError)?;
+
+        let handle = unsafe {
+            wgTurnOn(
+                cstr_iface_name.as_ptr(),
+                config.mtu as i64,
+                wg_config_str.as_ptr(),
+                log_file.as_raw_handle(),
+                WG_GO_LOG_DEBUG,
+            )
+        };
+
+        if handle < 0 {
+            return Err(Error::FatalStartWireguardError);
+        }
+
+        if !add_device_ip_addresses(&iface_name, &config.tunnel.addresses) {
+            // Todo: what kind of clean-up is required?
+            return Err(Error::SetIpAddressesError);
+        }
+
+        Ok(WgGoTunnel {
+            interface_name: iface_name.clone(),
+            handle: Some(handle),
+            _tunnel_device: Box::new(WinTun {
+                interface_name: iface_name.clone(),
+            }),
+            //_log_file: log_file,
+        })
+    }
+
+    // Callback to be used to rebind the tunnel sockets when the default route changes
+    #[cfg(target_os = "windows")]
+    pub unsafe extern "system" fn default_route_changed_callback(
+        event_type: winnet::WinNetDefaultRouteChangeEventType,
+        address_family: winnet::WinNetIpFamily,
+        interface_luid: u64,
+        _ctx: *mut libc::c_void,
+    ) {
+        use winapi::shared::{ifdef::NET_LUID, netioapi::ConvertInterfaceLuidToIndex};
+        let iface_idx: u32 = match event_type {
+            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => {
+                let mut iface_idx = 0u32;
+                let iface_luid = NET_LUID {
+                    Value: interface_luid,
+                };
+                let status =
+                    ConvertInterfaceLuidToIndex(&iface_luid as *const _, &mut iface_idx as *mut _);
+                if status != 0 {
+                    log::error!(
+                        "Failed to convert interface LUID to interface index - {} - {}",
+                        status,
+                        std::io::Error::last_os_error()
+                    );
+                    return;
+                }
+                iface_idx
+            }
+            // if there is no new default route, specify 0 as the interface index
+            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteRemoved => 0,
+        };
+
+        wgRebindTunnelSocket(address_family.to_windows_proto_enum(), iface_idx);
+    }
+
+
+    #[cfg(not(target_os = "windows"))]
     fn create_tunnel_config(config: &Config, routes: impl Iterator<Item = IpNetwork>) -> TunConfig {
         let mut dns_servers = vec![IpAddr::V4(config.ipv4_gateway)];
         dns_servers.extend(config.ipv6_gateway.map(IpAddr::V6));
@@ -102,6 +204,7 @@ impl WgGoTunnel {
         Ok(())
     }
 
+    #[cfg(not(target_os = "windows"))]
     fn get_tunnel(
         tun_provider: &mut dyn TunProvider,
         config: &Config,
@@ -138,6 +241,13 @@ impl Drop for WgGoTunnel {
     }
 }
 
+#[cfg(target_os = "windows")]
+static NULL_DEVICE: &str = "NUL";
+
+fn prepare_log_file(log_path: Option<&Path>) -> Result<fs::File> {
+    fs::File::create(log_path.unwrap_or(NULL_DEVICE.as_ref())).map_err(Error::PrepareLogFileError)
+}
+
 impl Tunnel for WgGoTunnel {
     fn get_interface_name(&self) -> &str {
         &self.interface_name
@@ -158,8 +268,6 @@ type WgLogLevel = i32;
 // wireguard-go supports log levels 0 through 3 with 3 being the most verbose
 const WG_GO_LOG_DEBUG: WgLogLevel = 3;
 
-#[cfg_attr(target_os = "android", link(name = "wg", kind = "dylib"))]
-#[cfg_attr(not(target_os = "android"), link(name = "wg", kind = "static"))]
 extern "C" {
     // Creates a new wireguard tunnel, uses the specific interface name, MTU and file descriptors
     // for the tunnel device and logging.
@@ -167,12 +275,23 @@ extern "C" {
     // Positive return values are tunnel handles for this specific wireguard tunnel instance.
     // Negative return values signify errors. All error codes are opaque.
     #[cfg_attr(target_os = "android", link_name = "wgTurnOnWithFdAndroid")]
+    #[cfg(not(target_os = "windows"))]
     fn wgTurnOnWithFd(
         iface_name: *const i8,
         mtu: isize,
         settings: *const i8,
         fd: Fd,
         log_path: *const i8,
+        logLevel: WgLogLevel,
+    ) -> i32;
+
+    // Windows
+    #[cfg(target_os = "windows")]
+    fn wgTurnOn(
+        iface_name: *const i8,
+        mtu: i64,
+        settings: *const i8,
+        log_fd: Fd,
         logLevel: WgLogLevel,
     ) -> i32;
 
@@ -186,4 +305,8 @@ extern "C" {
     // Returns the file descriptor of the tunnel IPv6 socket.
     #[cfg(target_os = "android")]
     fn wgGetSocketV6(handle: i32) -> Fd;
+
+    // Rebind tunnel socket when network interfaces change
+    #[cfg(target_os = "windows")]
+    fn wgRebindTunnelSocket(family: u16, interfaceIndex: u32);
 }
