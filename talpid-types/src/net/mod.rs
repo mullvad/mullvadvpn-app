@@ -6,6 +6,7 @@ use std::{
     str::FromStr,
 };
 
+pub mod bridge;
 pub mod openvpn;
 pub mod wireguard;
 
@@ -22,8 +23,13 @@ pub enum TunnelParameters {
 impl TunnelParameters {
     pub fn get_tunnel_endpoint(&self) -> TunnelEndpoint {
         match self {
-            TunnelParameters::OpenVpn(params) => params.config.get_tunnel_endpoint(),
-            TunnelParameters::Wireguard(params) => params.connection.get_tunnel_endpoint(),
+            TunnelParameters::OpenVpn(params) => params.config.get_tunnel_endpoint(
+                params
+                    .proxy
+                    .as_ref()
+                    .map(|settings| settings.get_endpoint()),
+            ),
+            TunnelParameters::Wireguard(params) => params.connection.get_tunnel_endpoint(None),
         }
     }
 
@@ -75,11 +81,24 @@ pub struct TunnelEndpoint {
     pub endpoint: Endpoint,
     /// Type of the tunnel
     pub tunnel_type: TunnelType,
+    pub bridge: Option<bridge::BridgeEndpoint>,
 }
 
 impl fmt::Display for TunnelEndpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{} - {}", self.tunnel_type, self.endpoint,)
+        let bridge_part = if let Some(ref bridge) = self.bridge {
+            format!(
+                " via {} {} over {}",
+                bridge.bridge_type, bridge.bridge_endpoint.address, bridge.bridge_endpoint.protocol
+            )
+        } else {
+            "".to_string()
+        };
+        write!(
+            f,
+            "{} - {} {}",
+            self.tunnel_type, self.endpoint, bridge_part
+        )
     }
 }
 

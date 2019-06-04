@@ -1,4 +1,7 @@
-use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol, TunnelEndpoint, TunnelType};
+use crate::net::{
+    bridge::BridgeEndpoint, Endpoint, GenericTunnelOptions, TransportProtocol, TunnelEndpoint,
+    TunnelType,
+};
 use ipnetwork::IpNetwork;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
@@ -26,7 +29,7 @@ pub struct ConnectionConfig {
 }
 
 impl ConnectionConfig {
-    pub fn get_tunnel_endpoint(&self) -> TunnelEndpoint {
+    pub fn get_tunnel_endpoint(&self, bridge: Option<BridgeEndpoint>) -> TunnelEndpoint {
         let host = self.peer.endpoint;
         TunnelEndpoint {
             tunnel_type: TunnelType::Wireguard,
@@ -34,6 +37,14 @@ impl ConnectionConfig {
                 address: host,
                 protocol: TransportProtocol::Udp,
             },
+            bridge,
+        }
+    }
+
+    pub fn get_endpoint(&self) -> Endpoint {
+        Endpoint {
+            address: self.peer.endpoint,
+            protocol: TransportProtocol::Udp,
         }
     }
 }

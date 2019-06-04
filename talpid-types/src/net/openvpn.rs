@@ -1,4 +1,7 @@
-use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol, TunnelEndpoint, TunnelType};
+use crate::net::{
+    bridge::{BridgeEndpoint, BridgeType},
+    Endpoint, GenericTunnelOptions, TransportProtocol, TunnelEndpoint, TunnelType,
+};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 
@@ -25,10 +28,11 @@ impl ConnectionConfig {
             password,
         }
     }
-    pub fn get_tunnel_endpoint(&self) -> TunnelEndpoint {
+    pub fn get_tunnel_endpoint(&self, bridge: Option<BridgeEndpoint>) -> TunnelEndpoint {
         TunnelEndpoint {
             tunnel_type: TunnelType::OpenVpn,
             endpoint: self.endpoint,
+            bridge,
         }
     }
 }
@@ -54,12 +58,22 @@ pub enum ProxySettings {
     Shadowsocks(ShadowsocksProxySettings),
 }
 
+
 impl ProxySettings {
-    pub fn get_endpoint(&self) -> Endpoint {
+    pub fn get_endpoint(&self) -> BridgeEndpoint {
         match self {
-            ProxySettings::Local(settings) => settings.get_endpoint(),
-            ProxySettings::Remote(settings) => settings.get_endpoint(),
-            ProxySettings::Shadowsocks(settings) => settings.get_endpoint(),
+            ProxySettings::Local(settings) => BridgeEndpoint {
+                bridge_endpoint: settings.get_endpoint(),
+                bridge_type: BridgeType::Custom,
+            },
+            ProxySettings::Remote(settings) => BridgeEndpoint {
+                bridge_endpoint: settings.get_endpoint(),
+                bridge_type: BridgeType::Custom,
+            },
+            ProxySettings::Shadowsocks(settings) => BridgeEndpoint {
+                bridge_endpoint: settings.get_endpoint(),
+                bridge_type: BridgeType::Shadowsocks,
+            },
         }
     }
 }
