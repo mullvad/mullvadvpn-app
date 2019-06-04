@@ -61,11 +61,11 @@ impl ConnectedState {
 
     fn get_endpoint_from_params(&self) -> Endpoint {
         match self.tunnel_parameters {
-            TunnelParameters::OpenVpn(ref config) => match config.proxy {
-                Some(ref proxy_settings) => proxy_settings.get_endpoint(),
-                None => self.tunnel_parameters.get_tunnel_endpoint().endpoint,
+            TunnelParameters::OpenVpn(ref params) => match params.proxy {
+                Some(ref proxy_settings) => proxy_settings.get_endpoint().endpoint,
+                None => params.config.endpoint,
             },
-            _ => self.tunnel_parameters.get_tunnel_endpoint().endpoint,
+            TunnelParameters::Wireguard(ref params) => params.connection.get_endpoint(),
         }
     }
 

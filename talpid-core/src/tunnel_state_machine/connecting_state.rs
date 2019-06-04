@@ -48,7 +48,7 @@ impl ConnectingState {
         let endpoint = params.get_tunnel_endpoint().endpoint;
 
         let peer_endpoint = match proxy {
-            Some(proxy_settings) => proxy_settings.get_endpoint(),
+            Some(proxy_settings) => proxy_settings.get_endpoint().endpoint,
             None => endpoint,
         };
 
