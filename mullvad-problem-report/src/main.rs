@@ -328,7 +328,7 @@ fn frontend_log_dir() -> Option<Result<PathBuf, LogError>> {
     #[cfg(target_os = "windows")]
     {
         Some(match std::env::var_os("LOCALAPPDATA") {
-            Some(dir) => Ok(Path::new(dir).join("Mullvad VPN/logs")),
+            Some(dir) => Ok(Path::new(&dir).join("Mullvad VPN/logs")),
             None => Err(Error::NoLocalAppDataDir),
         })
     }
