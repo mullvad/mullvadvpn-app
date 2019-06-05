@@ -27,7 +27,12 @@ import {
   setupLogging,
 } from '../shared/logging';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
-import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
+import {
+  ConnectionObserver,
+  DaemonRpc,
+  ResponseParseError,
+  SubscriptionListener,
+} from './daemon-rpc';
 import GuiSettings from './gui-settings';
 import NotificationController from './notification-controller';
 import { resolveBin } from './proc';
@@ -490,6 +495,10 @@ class ApplicationMain {
       },
       (error: Error) => {
         log.error(`Cannot deserialize the daemon event: ${error.message}`);
+
+        if (error instanceof ResponseParseError && error.validationError) {
+          log.error(error.validationError.message);
+        }
       },
     );
 
