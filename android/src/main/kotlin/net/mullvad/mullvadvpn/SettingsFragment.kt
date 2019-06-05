@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageButton
 
 class SettingsFragment : Fragment() {
@@ -18,6 +19,10 @@ class SettingsFragment : Fragment() {
 
         view.findViewById<ImageButton>(R.id.close).setOnClickListener {
             activity?.onBackPressed()
+        }
+
+        view.findViewById<Button>(R.id.quit_button).setOnClickListener {
+            activity?.finishAndRemoveTask()
         }
 
         return view
