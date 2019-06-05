@@ -27,4 +27,12 @@
             android:textStyle="bold"
             android:text="@string/settings"
             />
+    <Button android:id="@+id/quit_button"
+            android:layout_marginTop="24dp"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_marginBottom="24dp"
+            android:text="@string/quit"
+            style="@style/RedButton"
+            />
 </LinearLayout>
