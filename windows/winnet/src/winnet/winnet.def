@@ -6,3 +6,6 @@ EXPORTS
 	WinNet_ReleaseString
 	WinNet_ActivateConnectivityMonitor
 	WinNet_DeactivateConnectivityMonitor
+	WinNet_ActivateRouteManager
+	WinNet_DeactivateRouteManager
+

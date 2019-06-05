@@ -28,20 +28,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="networkadaptermonitor.cpp" />
+    <ClCompile Include="adapters.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="InterfacePair.cpp" />
     <ClCompile Include="interfaceutils.cpp" />
     <ClCompile Include="offlinemonitor.cpp" />
     <ClCompile Include="NetworkInterfaces.cpp" />
+    <ClCompile Include="routemanager.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="winnet.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="networkadaptermonitor.h" />
+    <ClInclude Include="adapters.h" />
     <ClInclude Include="InterfacePair.h" />
     <ClInclude Include="interfaceutils.h" />
     <ClInclude Include="offlinemonitor.h" />
     <ClInclude Include="NetworkInterfaces.h" />
+    <ClInclude Include="routemanager.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="winnet.h" />
