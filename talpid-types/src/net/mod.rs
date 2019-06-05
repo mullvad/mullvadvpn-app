@@ -7,6 +7,7 @@ use std::{
 };
 
 pub mod openvpn;
+pub mod proxy;
 pub mod wireguard;
 
 /// TunnelParameters are used to encapsulate all the data needed to start a tunnel. This is enum
@@ -22,8 +23,16 @@ pub enum TunnelParameters {
 impl TunnelParameters {
     pub fn get_tunnel_endpoint(&self) -> TunnelEndpoint {
         match self {
-            TunnelParameters::OpenVpn(params) => params.config.get_tunnel_endpoint(),
-            TunnelParameters::Wireguard(params) => params.connection.get_tunnel_endpoint(),
+            TunnelParameters::OpenVpn(params) => TunnelEndpoint {
+                tunnel_type: TunnelType::OpenVpn,
+                endpoint: params.config.endpoint,
+                proxy: params.proxy.as_ref().map(|proxy| proxy.get_endpoint()),
+            },
+            TunnelParameters::Wireguard(params) => TunnelEndpoint {
+                tunnel_type: TunnelType::Wireguard,
+                endpoint: params.connection.get_endpoint(),
+                proxy: None,
+            },
         }
     }
 
@@ -75,11 +84,20 @@ pub struct TunnelEndpoint {
     pub endpoint: Endpoint,
     /// Type of the tunnel
     pub tunnel_type: TunnelType,
+    pub proxy: Option<proxy::ProxyEndpoint>,
 }
 
 impl fmt::Display for TunnelEndpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{} - {}", self.tunnel_type, self.endpoint,)
+        write!(f, "{} - {}", self.tunnel_type, self.endpoint)?;
+        if let Some(ref proxy) = self.proxy {
+            write!(
+                f,
+                " via {} {} over {}",
+                proxy.proxy_type, proxy.endpoint.address, proxy.endpoint.protocol
+            )?;
+        }
+        Ok(())
     }
 }
 
