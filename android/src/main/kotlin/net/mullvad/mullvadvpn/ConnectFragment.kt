@@ -19,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelStateTransition
@@ -58,6 +59,10 @@ class ConnectFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.connect, container, false)
+
+        view.findViewById<ImageButton>(R.id.settings).setOnClickListener {
+            parentActivity.openSettings()
+        }
 
         view.findViewById<Button>(R.id.switch_location).setOnClickListener {
             openSwitchLocationScreen()
