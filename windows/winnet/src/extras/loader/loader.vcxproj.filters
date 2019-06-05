@@ -3,9 +3,13 @@
   <ItemGroup>
     <ClCompile Include="loader.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="..\..\winnet\routemanager.cpp" />
+    <ClCompile Include="..\..\winnet\adapters.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="..\..\winnet\routemanager.h" />
+    <ClInclude Include="..\..\winnet\adapters.h" />
   </ItemGroup>
 </Project>

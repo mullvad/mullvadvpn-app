@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../shared/logsink.h"
+#include <stdint.h>
 #include <stdbool.h>
 
 #ifndef WINNET_STATIC
@@ -89,3 +90,90 @@ void
 WINNET_API
 WinNet_DeactivateConnectivityMonitor(
 );
+
+
+enum WINNET_IP_TYPE
+{
+	WINNET_IP_TYPE_IPV4 = 0,
+	WINNET_IP_TYPE_IPV6 = 1,
+};
+
+typedef struct tag_WINNET_IPNETWORK
+{
+	WINNET_IP_TYPE type;
+	uint8_t bytes[16];	// Network byte order.
+	uint8_t prefix;
+}
+WINNET_IPNETWORK;
+
+typedef struct tag_WINNET_IP
+{
+	WINNET_IP_TYPE type;
+	uint8_t bytes[16];	// Network byte order.
+}
+WINNET_IP;
+
+typedef struct tag_WINNET_NODE
+{
+	const WINNET_IP *gateway;
+	const wchar_t *deviceName;
+}
+WINNET_NODE;
+
+typedef struct tag_WINNET_ROUTE
+{
+	WINNET_IPNETWORK network;
+	const WINNET_NODE *node;
+}
+WINNET_ROUTE;
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_ActivateRouteManager(
+	MullvadLogSink logSink,
+	void *logSinkContext
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_AddRoutes(
+	const WINNET_ROUTE *routes,
+	uint32_t numRoutes
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_AddRoute(
+	const WINNET_ROUTE *route
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_DeleteRoutes(
+	const WINNET_ROUTE *routes,
+	uint32_t numRoutes
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_DeleteRoute(
+	const WINNET_ROUTE *route
+);
+
+extern "C"
+WINNET_LINKAGE
+void
+WINNET_API
+WinNet_DeactivateRouteManager(
+);
+
