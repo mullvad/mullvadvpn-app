@@ -41,6 +41,7 @@ const locationSchema = maybe(
     longitude: number,
     mullvad_exit_ip: boolean,
     hostname: maybe(string),
+    bridge_hostname: maybe(string),
   }),
 );
 

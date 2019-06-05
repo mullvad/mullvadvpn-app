@@ -12,6 +12,7 @@ export interface ILocation {
   longitude: number;
   mullvadExitIp: boolean;
   hostname?: string;
+  bridgeHostname?: string;
 }
 
 export type BlockReason =
