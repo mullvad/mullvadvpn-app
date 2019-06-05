@@ -30,8 +30,8 @@ import { getOpenAtLogin, setOpenAtLogin } from './autostart';
 import {
   ConnectionObserver,
   DaemonRpc,
-  SubscriptionListener,
   ResponseParseError,
+  SubscriptionListener,
 } from './daemon-rpc';
 import GuiSettings from './gui-settings';
 import NotificationController from './notification-controller';
