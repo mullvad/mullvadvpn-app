@@ -199,7 +199,13 @@ fn run() -> Result<(), Error> {
         let output_path = Path::new(collect_matches.value_of_os("output").unwrap());
         collect_report(&extra_logs, output_path, redact_custom_strings)?;
 
-        println!("Problem report written to \"{}\"", output_path.display());
+        let expanded_output_path = output_path
+            .canonicalize()
+            .unwrap_or_else(|_| output_path.to_owned());
+        println!(
+            "Problem report written to {}",
+            expanded_output_path.display()
+        );
         println!("");
         println!("Send the problem report to support via the send subcommand. See:");
         println!(" $ {} send --help", env::args().next().unwrap());
@@ -426,7 +432,7 @@ impl ProblemReport {
                 },
             ));
             self.logs.push((redacted_path, content));
-            println!("Adding {} to report", expanded_path.display());
+            println!("Adding {}", expanded_path.display());
         }
     }
 
