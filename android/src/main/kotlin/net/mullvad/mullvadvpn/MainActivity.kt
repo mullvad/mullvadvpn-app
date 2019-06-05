@@ -90,6 +90,14 @@ class MainActivity : FragmentActivity() {
         super.onDestroy()
     }
 
+    fun openSettings() {
+        supportFragmentManager?.beginTransaction()?.apply {
+            replace(R.id.main_fragment, SettingsFragment())
+            addToBackStack(null)
+            commit()
+        }
+    }
+
     private fun addInitialFragment() {
         supportFragmentManager?.beginTransaction()?.apply {
             add(R.id.main_fragment, LaunchFragment())
