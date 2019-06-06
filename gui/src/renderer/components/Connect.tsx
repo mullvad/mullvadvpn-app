@@ -12,7 +12,7 @@ import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
 import NotificationArea from './NotificationArea';
-import TunnelControl, { IRelayInAddress, IRelayOutAddress } from './TunnelControl';
+import TunnelControl, { IBridgeData, IRelayInAddress, IRelayOutAddress } from './TunnelControl';
 
 interface IProps {
   connection: IConnectionReduxState;
@@ -50,7 +50,7 @@ const styles = {
     paddingLeft: 24,
     paddingRight: 24,
     paddingBottom: 0,
-    marginTop: 186,
+    marginTop: 176,
   }),
   container: Styles.createViewStyle({
     flex: 1,
@@ -159,6 +159,11 @@ export default class Connect extends Component<IProps, IState> {
         ? this.tunnelEndpointToRelayInAddress(status.details)
         : undefined;
 
+    const bridgeData: IBridgeData | undefined =
+      (status.state === 'connecting' || status.state === 'connected') && status.details
+        ? this.tunnelEndpointToBridgeData(status.details)
+        : undefined;
+
     return (
       <View style={styles.connect}>
         <Map style={styles.map} {...this.getMapProps()} />
@@ -178,6 +183,8 @@ export default class Connect extends Component<IProps, IState> {
             hostname={this.props.connection.hostname}
             defaultConnectionInfoOpen={this.props.connectionInfoOpen}
             relayInAddress={relayInAddress}
+            bridge={bridgeData}
+            bridgeHostname={this.props.connection.bridgeHostname}
             relayOutAddress={relayOutAddress}
             onConnect={this.props.onConnect}
             onDisconnect={this.props.onDisconnect}
@@ -321,6 +328,21 @@ export default class Connect extends Component<IProps, IState> {
       ip: socketAddr.host,
       port: socketAddr.port,
       protocol: tunnelEndpoint.protocol,
+      tunnelType: tunnelEndpoint.tunnelType,
+    };
+  }
+
+  private tunnelEndpointToBridgeData(endpoint: ITunnelEndpoint): IBridgeData | undefined {
+    if (!endpoint.proxy) {
+      return undefined;
+    }
+
+    const socketAddr = parseSocketAddress(endpoint.proxy.address);
+    return {
+      ip: socketAddr.host,
+      port: socketAddr.port,
+      protocol: endpoint.proxy.protocol,
+      bridgeType: endpoint.proxy.proxyType,
     };
   }
 }
