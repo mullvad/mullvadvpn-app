@@ -33,10 +33,30 @@ export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
 
 export type TunnelType = 'wireguard' | 'openvpn';
+export function tunnelTypeToString(tunnel: TunnelType): string {
+  switch (tunnel) {
+    case 'wireguard':
+      return 'WireGuard';
+    case 'openvpn':
+      return 'OpenVPN';
+    default:
+      return '';
+  }
+}
 
 export type RelayProtocol = 'tcp' | 'udp';
 
 export type ProxyType = 'shadowsocks' | 'custom';
+export function proxyTypeToString(proxy: ProxyType): string {
+  switch (proxy) {
+    case 'shadowsocks':
+      return 'Shadowsocks';
+    case 'custom':
+      return 'Custom';
+    default:
+      return '';
+  }
+}
 
 export interface ITunnelEndpoint {
   address: string;
