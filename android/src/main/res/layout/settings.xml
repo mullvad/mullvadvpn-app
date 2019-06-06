@@ -27,6 +27,25 @@
             android:textStyle="bold"
             android:text="@string/settings"
             />
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:background="@color/blue"
+            android:gravity="center"
+            >
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="17dp"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="@string/settings_account"
+                />
+    </LinearLayout>
     <Button android:id="@+id/quit_button"
             android:layout_marginTop="24dp"
             android:layout_marginLeft="24dp"
