@@ -41,14 +41,14 @@ export type ProxyType = 'shadowsocks' | 'custom';
 export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
-  tunnel: TunnelType;
+  tunnelType: TunnelType;
   proxy?: IProxyEndpoint;
 }
 
 export interface IProxyEndpoint {
   address: string;
   protocol: RelayProtocol;
-  proxy_type: ProxyType;
+  proxyType: ProxyType;
 }
 
 export type DaemonEvent =
