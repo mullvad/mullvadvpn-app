@@ -1,16 +1,29 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
-import { RelayProtocol, TunnelStateTransition } from '../../shared/daemon-rpc-types';
+import {
+  ProxyType,
+  RelayProtocol,
+  TunnelStateTransition,
+  TunnelType,
+} from '../../shared/daemon-rpc-types';
 import { cities, countries, messages, relayLocations } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import ConnectionInfo from './ConnectionInfo';
 import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
 
-export interface IRelayInAddress {
+export interface IEndpoint {
   ip: string;
   port: number;
   protocol: RelayProtocol;
+}
+
+export interface IRelayInAddress extends IEndpoint {
+  tunnelType: TunnelType;
+}
+
+export interface IBridgeData extends IEndpoint {
+  bridgeType: ProxyType;
 }
 
 export interface IRelayOutAddress {
@@ -27,6 +40,8 @@ interface ITunnelControlProps {
   defaultConnectionInfoOpen?: boolean;
   relayInAddress?: IRelayInAddress;
   relayOutAddress?: IRelayOutAddress;
+  bridge?: IBridgeData;
+  bridgeHostname?: string;
   onConnect: () => void;
   onDisconnect: () => void;
   onSelectLocation: () => void;
@@ -39,7 +54,7 @@ const styles = {
     paddingLeft: 24,
     paddingRight: 24,
     paddingBottom: 0,
-    marginTop: 186,
+    marginTop: 176,
     flex: 1,
   }),
   footer: Styles.createViewStyle({
@@ -145,7 +160,9 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
     const connectionDetails = (
       <ConnectionInfo
         hostname={this.props.hostname}
+        bridgeHostname={this.props.bridgeHostname}
         inAddress={this.props.relayInAddress}
+        bridgeInfo={this.props.bridge}
         outAddress={this.props.relayOutAddress}
         defaultOpen={this.props.defaultConnectionInfoOpen}
         onToggle={this.props.onToggleConnectionInfo}
