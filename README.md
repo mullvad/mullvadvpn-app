@@ -128,10 +128,11 @@ sections.
     cargo build
     ```
 
-1. Copy the OpenVPN binary, and our plugin for it, to the directory we will use as resource
-   directory. If you want to use any other directory, you would need to copy even more files.
+1. Copy the OpenVPN and Shadowsocks binaries, and our plugin for it, to the directory we will
+   use as resource directory. If you want to use any other directory, you would need to copy
+   even more files.
    ```bash
-   cp dist-assets/binaries/<platform>/openvpn[.exe] dist-assets/
+   cp dist-assets/binaries/<platform>/{openvpn, sslocal}[.exe] dist-assets/
    cp target/debug/*talpid_openvpn_plugin* dist-assets/
    ```
 
