@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, Styles, Text, Types, View } from 'reactxp';
+import { Component, Styles, Types, View } from 'reactxp';
 import ImageView from './ImageView';
 
 const styles = {
@@ -23,7 +23,7 @@ const styles = {
 interface IProps {
   onToggle?: (isOpen: boolean) => void;
   defaultOpen?: boolean;
-  children: string;
+  children: React.ReactNode;
   style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
 }
 
@@ -51,10 +51,7 @@ export default class ConnectionInfoDisclosure extends Component<IProps, IState> 
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
         onPress={this.onToggle}>
-        <Text
-          style={[styles.caption.base, this.state.isHovered ? styles.caption.hovered : undefined]}>
-          {this.props.children}
-        </Text>
+        {this.props.children}
         <ImageView
           source={this.state.isOpen ? 'icon-chevron-up' : 'icon-chevron-down'}
           width={24}

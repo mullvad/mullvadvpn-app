@@ -214,6 +214,7 @@ pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     tokio_remote: tokio_core::reactor::Remote,
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
+    last_generated_bridge_relay: Option<Relay>,
     version: String,
 }
 
@@ -379,6 +380,7 @@ where
             tokio_remote,
             relay_selector,
             last_generated_relay: None,
+            last_generated_bridge_relay: None,
             version,
         })
     }
@@ -500,6 +502,7 @@ where
     ) -> Result<TunnelParameters> {
         let tunnel_options = self.settings.get_tunnel_options().clone();
         let location = relay.location.as_ref().expect("Relay has no location set");
+        self.last_generated_bridge_relay = None;
         match endpoint {
             MullvadEndpoint::OpenVpn(endpoint) => {
                 let proxy_settings = match self.settings.get_bridge_settings() {
@@ -509,16 +512,28 @@ where
                             transport_protocol: Constraint::Only(endpoint.protocol),
                         };
                         match self.settings.get_bridge_state() {
-                            BridgeState::On => Some(
-                                self.relay_selector
+                            BridgeState::On => {
+                                let (bridge_settings, bridge_relay) = self
+                                    .relay_selector
                                     .get_proxy_settings(&bridge_constraints, location)
-                                    .ok_or(Error::NoBridgeAvailable)?,
-                            ),
-                            BridgeState::Auto => self.relay_selector.get_auto_proxy_settings(
-                                &bridge_constraints,
-                                location,
-                                retry_attempt,
-                            ),
+                                    .ok_or(Error::NoBridgeAvailable)?;
+                                self.last_generated_bridge_relay = Some(bridge_relay);
+                                Some(bridge_settings)
+                            }
+                            BridgeState::Auto => {
+                                if let Some((bridge_settings, bridge_relay)) =
+                                    self.relay_selector.get_auto_proxy_settings(
+                                        &bridge_constraints,
+                                        location,
+                                        retry_attempt,
+                                    )
+                                {
+                                    self.last_generated_bridge_relay = Some(bridge_relay);
+                                    Some(bridge_settings)
+                                } else {
+                                    None
+                                }
+                            }
                             BridgeState::Off => None,
                         }
                     }
@@ -704,6 +719,10 @@ where
 
     fn build_location_from_relay(&self) -> Option<GeoIpLocation> {
         let relay = self.last_generated_relay.as_ref()?;
+        let bridge_hostname = self
+            .last_generated_bridge_relay
+            .as_ref()
+            .map(|bridge| bridge.hostname.clone());
         let location = relay.location.as_ref().cloned().unwrap();
         let hostname = relay.hostname.clone();
 
@@ -716,6 +735,7 @@ where
             longitude: location.longitude,
             mullvad_exit_ip: true,
             hostname: Some(hostname),
+            bridge_hostname,
         })
     }
 

@@ -65,7 +65,7 @@ describe('components/NotificationArea', () => {
           details: {
             address: '1.2.3.4',
             protocol: 'tcp',
-            tunnel: 'openvpn',
+            tunnelType: 'openvpn',
           },
         }}
         version={defaultVersion}

@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types, View } from 'reactxp';
+import { proxyTypeToString, TunnelType, tunnelTypeToString } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { default as ConnectionInfoDisclosure } from './ConnectionInfoDisclosure';
+import { IBridgeData } from './TunnelControl';
 
 const styles = {
   row: Styles.createViewStyle({
@@ -42,6 +44,7 @@ interface IInAddress {
   ip: string;
   port: number;
   protocol: string;
+  tunnelType: TunnelType;
 }
 
 interface IOutAddress {
@@ -51,7 +54,9 @@ interface IOutAddress {
 
 interface IProps {
   hostname?: string;
+  bridgeHostname?: string;
   inAddress?: IInAddress;
+  bridgeInfo?: IBridgeData;
   outAddress?: IOutAddress;
   defaultOpen?: boolean;
   style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
@@ -72,24 +77,34 @@ export default class ConnectionInfo extends Component<IProps, IState> {
   }
 
   public render() {
-    const { inAddress, outAddress } = this.props;
+    const { inAddress, outAddress, bridgeInfo } = this.props;
+    const transportLine =
+      (inAddress ? tunnelTypeToString(inAddress.tunnelType) : '') +
+      (bridgeInfo && inAddress ? ' via ' + proxyTypeToString(bridgeInfo.bridgeType) : '');
+
+    const entryPoint = bridgeInfo && inAddress ? bridgeInfo : inAddress;
 
     return (
       <View style={this.props.style}>
         <View style={styles.header}>
-          <Text style={styles.hostname}>{this.props.hostname || ''}</Text>
           <ConnectionInfoDisclosure defaultOpen={this.props.defaultOpen} onToggle={this.onToggle}>
-            {messages.pgettext('connection-info', 'Connection details')}
+            <Text style={styles.hostname}>
+              {this.props.hostname || ''}{' '}
+              {this.props.bridgeHostname ? `via ${this.props.bridgeHostname}` : ''}
+            </Text>
           </ConnectionInfoDisclosure>
         </View>
 
         {this.state.isOpen && (
           <React.Fragment>
-            {inAddress && (
+            {this.props.inAddress && (
+              <View style={styles.row}>{<Text style={styles.value}>{transportLine}</Text>}</View>
+            )}
+            {entryPoint && (
               <View style={styles.row}>
                 <Text style={styles.caption}>{messages.pgettext('connection-info', 'In')}</Text>
                 <Text style={styles.value}>
-                  {`${inAddress.ip}:${inAddress.port} ${inAddress.protocol.toUpperCase()}`}
+                  {`${entryPoint.ip}:${entryPoint.port} ${entryPoint.protocol.toUpperCase()}`}
                 </Text>
               </View>
             )}

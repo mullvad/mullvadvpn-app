@@ -73,6 +73,7 @@ pub struct GeoIpLocation {
     pub longitude: f64,
     pub mullvad_exit_ip: bool,
     pub hostname: Option<String>,
+    pub bridge_hostname: Option<String>,
 }
 
 impl From<AmIMullvad> for GeoIpLocation {
@@ -81,6 +82,7 @@ impl From<AmIMullvad> for GeoIpLocation {
             IpAddr::V4(v4) => (Some(v4), None),
             IpAddr::V6(v6) => (None, Some(v6)),
         };
+
         GeoIpLocation {
             ipv4,
             ipv6,
@@ -90,6 +92,7 @@ impl From<AmIMullvad> for GeoIpLocation {
             longitude: location.longitude,
             mullvad_exit_ip: location.mullvad_exit_ip,
             hostname: None,
+            bridge_hostname: None,
         }
     }
 }
