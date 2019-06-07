@@ -45,6 +45,18 @@
                 android:textStyle="bold"
                 android:text="@string/settings_account"
                 />
+        <TextView android:id="@+id/remaining_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:gravity="right"
+                android:textColor="@color/white60"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:text=""
+                android:textAllCaps="true"
+                />
     </LinearLayout>
     <Button android:id="@+id/quit_button"
             android:layout_marginTop="24dp"

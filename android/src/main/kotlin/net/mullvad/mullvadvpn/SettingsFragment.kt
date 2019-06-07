@@ -10,6 +10,15 @@ import android.widget.Button
 import android.widget.ImageButton
 
 class SettingsFragment : Fragment() {
+    private lateinit var parentActivity: MainActivity
+    private lateinit var remainingTimeLabel: RemainingTimeLabel
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        parentActivity = context as MainActivity
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -25,6 +34,13 @@ class SettingsFragment : Fragment() {
             activity?.finishAndRemoveTask()
         }
 
+        remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
+
         return view
+    }
+
+    override fun onDestroyView() {
+        remainingTimeLabel.onDestroy()
+        super.onDestroyView()
     }
 }
