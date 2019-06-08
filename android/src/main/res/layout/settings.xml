@@ -31,7 +31,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="16dp"
-            android:background="@color/blue"
+            android:background="@drawable/cell_button_background"
+            android:clickable="true"
             android:gravity="center"
             >
         <TextView
