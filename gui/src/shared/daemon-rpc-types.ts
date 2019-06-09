@@ -52,7 +52,7 @@ export function proxyTypeToString(proxy: ProxyType): string {
     case 'shadowsocks':
       return 'Shadowsocks';
     case 'custom':
-      return 'Custom';
+      return 'custom bridge';
     default:
       return '';
   }
