@@ -205,7 +205,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   <Selector
                     title={
                       // TRANSLATORS: The title for the shadowsocks bridge selector section.
-                      messages.pgettext('advanced-settings-view', 'Shadowsocks bridge')
+                      messages.pgettext('advanced-settings-view', 'Bridge mode')
                     }
                     values={this.bridgeStateItems}
                     value={this.props.bridgeState}
