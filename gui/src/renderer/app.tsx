@@ -497,6 +497,7 @@ export default class AppRenderer {
     reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.generic.enableIpv6);
     reduxSettings.updateBlockWhenDisconnected(newSettings.blockWhenDisconnected);
     reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
+    reduxSettings.updateBridgeState(newSettings.bridgeState);
 
     this.setRelaySettings(newSettings.relaySettings);
 
