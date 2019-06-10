@@ -26,6 +26,9 @@ pub enum Error {
 
     #[error(display = "Error while communicating over Dbus")]
     Dbus(#[error(cause)] dbus::Error),
+
+    #[error(display = "DNS is managed by systemd-resolved - NM can't enforce DNS globally")]
+    SystemdResolved,
 }
 
 const NM_BUS: &str = "org.freedesktop.NetworkManager";
@@ -36,6 +39,7 @@ const NM_OBJECT_PATH: &str = "/org/freedesktop/NetworkManager";
 const RPC_TIMEOUT_MS: i32 = 3000;
 const GLOBAL_DNS_CONF_KEY: &str = "GlobalDnsConfiguration";
 const RC_MANAGEMENT_MODE_KEY: &str = "RcManager";
+const DNS_MODE_KEY: &str = "Mode";
 
 pub struct NetworkManager {
     dbus_connection: dbus::Connection,
@@ -47,8 +51,8 @@ impl NetworkManager {
         let dbus_connection =
             dbus::Connection::get_private(BusType::System).map_err(Error::Dbus)?;
         let manager = NetworkManager { dbus_connection };
-        manager.ensure_network_manager_exists()?;
         manager.ensure_resolv_conf_is_managed()?;
+        manager.ensure_network_manager_exists()?;
         Ok(manager)
     }
 
@@ -62,20 +66,30 @@ impl NetworkManager {
 
     fn ensure_resolv_conf_is_managed(&self) -> Result<()> {
         // check if NM is set to manage resolv.conf
-        let management_mode: Result<String> = self
+        let management_mode: String = self
             .dbus_connection
             .with_path(NM_BUS, NM_DNS_MANAGER_PATH, RPC_TIMEOUT_MS)
             .get(NM_DNS_MANAGER, RC_MANAGEMENT_MODE_KEY)
-            .map_err(Error::TooOldNetworkManager);
-
-        match management_mode {
-            Err(e) => return Err(e),
-            Ok(management_mode) => {
-                if management_mode == "unmanaged" {
-                    return Err(Error::NetworkManagerNotManagingDns);
-                }
-            }
+            .map_err(Error::TooOldNetworkManager)?;
+        if management_mode == "unmanaged" {
+            return Err(Error::NetworkManagerNotManagingDns);
         }
+
+        let dns_mode: String = self
+            .dbus_connection
+            .with_path(NM_BUS, NM_DNS_MANAGER_PATH, RPC_TIMEOUT_MS)
+            .get(NM_DNS_MANAGER, DNS_MODE_KEY)
+            .map_err(Error::Dbus)?;
+
+        match dns_mode.as_ref() {
+            // NetworkManager can only set DNS globally if it's not managing DNS through
+            // systemd-resolved.
+            "systemd-resolved" => return Err(Error::SystemdResolved),
+            // If NetworkManager isn't managing DNS for us, it's useless.
+            "none" => return Err(Error::NetworkManagerNotManagingDns),
+            _ => (),
+        };
+
 
         let expected_resolv_conf = "/var/run/NetworkManager/resolv.conf";
         let actual_resolv_conf = "/etc/resolv.conf";
