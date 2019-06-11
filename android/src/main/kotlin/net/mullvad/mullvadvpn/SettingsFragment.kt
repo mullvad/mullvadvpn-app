@@ -34,6 +34,8 @@ class SettingsFragment : Fragment() {
             activity?.finishAndRemoveTask()
         }
 
+        view.findViewById<View>(R.id.account).setOnClickListener { openAccountSettings() }
+
         remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
 
         return view
@@ -42,5 +44,13 @@ class SettingsFragment : Fragment() {
     override fun onDestroyView() {
         remainingTimeLabel.onDestroy()
         super.onDestroyView()
+    }
+
+    private fun openAccountSettings() {
+        fragmentManager?.beginTransaction()?.apply {
+            replace(R.id.main_fragment, AccountFragment())
+            addToBackStack(null)
+            commit()
+        }
     }
 }

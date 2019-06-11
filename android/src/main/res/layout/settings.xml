@@ -27,7 +27,7 @@
             android:textStyle="bold"
             android:text="@string/settings"
             />
-    <LinearLayout
+    <LinearLayout android:id="@+id/account"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="16dp"
