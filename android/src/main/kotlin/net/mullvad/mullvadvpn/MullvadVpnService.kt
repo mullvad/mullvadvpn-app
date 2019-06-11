@@ -2,61 +2,44 @@ package net.mullvad.mullvadvpn
 
 import java.net.InetAddress
 
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.VpnService
+import android.os.Binder
+import android.os.IBinder
 
 import net.mullvad.mullvadvpn.model.TunConfig
 
-var INNER_VPN_SERVICE = CompletableDeferred<MullvadVpnService.InnerVpnService>()
-var SERVICE_NOT_RUNNING = true
+class MullvadVpnService : VpnService() {
+    private val created = CompletableDeferred<Unit>()
+    private val binder = LocalBinder()
 
-class MullvadVpnService(val context: Context) {
-    class InnerVpnService : VpnService() {
-        override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-            INNER_VPN_SERVICE.complete(this)
+    val asyncDaemon = startDaemon()
+    val daemon
+        get() = runBlocking { asyncDaemon.await() }
 
-            return super.onStartCommand(intent, flags, startId)
-        }
+    override fun onCreate() {
+        created.complete(Unit)
+    }
 
-        override fun onDestroy() {
-            INNER_VPN_SERVICE = CompletableDeferred<MullvadVpnService.InnerVpnService>()
-            SERVICE_NOT_RUNNING = true
-            super.onDestroy()
-        }
+    override fun onBind(intent: Intent): IBinder {
+        return super.onBind(intent) ?: binder
+    }
 
-        fun builder(): Builder {
-            return Builder()
-        }
+    override fun onDestroy() {
+        asyncDaemon.cancel()
+        created.cancel()
     }
 
     fun createTun(config: TunConfig): Int {
-        return createTun(config, startService())
-    }
-
-    fun bypass(socket: Int): Boolean {
-        return startService().protect(socket)
-    }
-
-    private fun startService(): InnerVpnService {
-        lateinit var service: InnerVpnService
-
-        if (SERVICE_NOT_RUNNING) {
-            SERVICE_NOT_RUNNING = false
-            context.startService(Intent(context, InnerVpnService::class.java))
-        }
-
-        runBlocking { service = INNER_VPN_SERVICE.await() }
-
-        return service
-    }
-
-    private fun createTun(config: TunConfig, service: InnerVpnService): Int {
-        val builder = service.builder().apply {
+        val builder = Builder().apply {
             for (address in config.addresses) {
                 addAddress(address, 32)
             }
@@ -75,5 +58,20 @@ class MullvadVpnService(val context: Context) {
         val vpnInterface = builder.establish()
 
         return vpnInterface.detachFd()
+    }
+
+    fun bypass(socket: Int): Boolean {
+        return protect(socket)
+    }
+
+    inner class LocalBinder : Binder() {
+        val asyncDaemon
+            get() = this@MullvadVpnService.asyncDaemon
+    }
+
+    private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
+        created.await()
+        ApiRootCaFile().extract(application)
+        MullvadDaemon(this@MullvadVpnService)
     }
 }
