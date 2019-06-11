@@ -13,11 +13,8 @@ import org.joda.time.PeriodType
 import android.view.View
 import android.widget.TextView
 
-val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
-
 class RemainingTimeLabel(val parentActivity: MainActivity, val view: View) {
-    private val daemon = parentActivity.asyncDaemon
-    private val settings = parentActivity.asyncSettings
+    private val accountCache = parentActivity.accountCache
 
     private val expiredColor = parentActivity.getColor(R.color.red)
     private val normalColor = parentActivity.getColor(R.color.white60)
@@ -26,33 +23,14 @@ class RemainingTimeLabel(val parentActivity: MainActivity, val view: View) {
 
     private val label = view.findViewById<TextView>(R.id.remaining_time)
 
-    private var accountExpiry = loadAccountExpiry()
     private var updateJob = updateLabel()
 
     fun onDestroy() {
         updateJob.cancel()
-        accountExpiry.cancel()
-    }
-
-    private fun loadAccountExpiry() = GlobalScope.async(Dispatchers.Default) {
-        val accountToken = settings.await().accountToken
-
-        if (accountToken != null) {
-            val accountData = daemon.await().getAccountData(accountToken)
-            val accountExpiry = accountData?.expiry
-
-            if (accountExpiry != null) {
-                DateTime.parse(accountExpiry, EXPIRY_FORMAT)
-            } else {
-                null
-            }
-        } else {
-            null
-        }
     }
 
     private fun updateLabel() = GlobalScope.launch(Dispatchers.Main) {
-        val expiry = accountExpiry.await()
+        val expiry = accountCache.accountExpiry.await()
 
         if (expiry != null) {
             val remainingTime = Duration(DateTime.now(), expiry)
