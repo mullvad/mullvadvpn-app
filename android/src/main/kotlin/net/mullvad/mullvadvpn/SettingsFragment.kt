@@ -41,6 +41,11 @@ class SettingsFragment : Fragment() {
         return view
     }
 
+    override fun onResume() {
+        super.onResume()
+        remainingTimeLabel.onResume()
+    }
+
     override fun onDestroyView() {
         remainingTimeLabel.onDestroy()
         super.onDestroyView()
