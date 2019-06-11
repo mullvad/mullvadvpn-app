@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add support for roaming between connections when using wireguard
+- Add support for roaming between connections when using wireguard.
 - Allow mDNS/discover to 239.255.255.251 when local network sharing is enabled. This change fixes
   the Wi-Fi calling via iPhone when both devices are on the same network.
 - Allow incoming DHCPv4 requests and outgoing responses if allow local network is enabled. Enables
@@ -33,7 +33,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add missing GUI translations for Czech Republic, USA and UK in the select location view.
 - Add translations for the current location displayed on the main screen in the GUI.
 - Allow a subset of NDP (Router solicitation, router advertisement and redirects) in the firewall.
-- Allow setting proxy mode from UI.
+- Add automatic Shadowsocks bridge usage. Will automatically try to obfuscate the tunnel via
+  Shadowsocks after a number of failed connection attempts.
 - Automatically include frontend logs in problem report when ran from CLI.
 
 #### Linux
@@ -41,12 +42,12 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Relax the allow local network rules slightly. only checking either source or destination IP field
-  instead of both. They are still unroutable
+  instead of both. They are still unroutable.
 - CLI commands that are just intermediate commands, and require another level of subcommands, will
   automatically print the available subcommands, instead of an error if none is given.
 
 ### Removed
-- The `help` subcommand in the CLI. Instead get help with the `--help` long flag.
+- Remove the `help` subcommand in the CLI. Instead get help with the `--help` long flag.
 
 ### Fixed
 - Stop allowing the wrong IPv6 net fe02::/16 in the firewall when allow local network was enabled.
@@ -59,10 +60,11 @@ Line wrap the file at 100 chars.                                              Th
 - Fix the visual defect that resulted in a semi-transparent grey line rendered above the window.
 
 #### Windows
-- Add better offline detection
+- Add better offline detection.
 
 #### Linux
-- Fix `systemd-resolved` detection by better compraing `/etc/resolv.conf` symlinks.
+- Fix `systemd-resolved` detection by better checking `/etc/resolv.conf` symlinks.
+- Improve detection of whether NetworkManager is the preferred DNS solution.
 
 
 ## [2019.4] - 2019-05-08
