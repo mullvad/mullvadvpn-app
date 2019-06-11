@@ -18,6 +18,8 @@
     <string name="out_of_time">Out of time</string>
     <string name="quit">Quit</string>
 
+    <string name="account_number">Account number</string>
+
     <string name="unsecured_connection">Unsecured connection</string>
     <string name="creating_secure_connection">Creating secure connection</string>
     <string name="secure_connection">Secure connection</string>

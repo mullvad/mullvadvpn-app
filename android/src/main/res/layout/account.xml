@@ -31,15 +31,47 @@
                 android:text="@string/settings"
                 />
     </LinearLayout>
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="24dp"
             android:layout_marginTop="4dp"
-            android:layout_marginLeft="24dp"
             android:layout_marginBottom="24dp"
-            android:textColor="@color/white"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:text="@string/settings_account"
-            />
+            android:orientation="vertical"
+            >
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:textColor="@color/white"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:text="@string/settings_account"
+                />
+        <LinearLayout android:id="@+id/account_number_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical"
+                android:visibility="invisible"
+                >
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="9dp"
+                    android:textColor="@color/white60"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:text="@string/account_number"
+                    />
+            <TextView android:id="@+id/account_number_display"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:text=""
+                    />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
