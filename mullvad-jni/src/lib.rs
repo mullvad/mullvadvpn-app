@@ -300,6 +300,23 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getSettings<'en
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getState<'env, 'this>(
+    env: JNIEnv<'env>,
+    _: JObject<'this>,
+) -> JObject<'env> {
+    let daemon = DAEMON_INTERFACE.lock();
+
+    match daemon.get_state() {
+        Ok(state) => state.into_java(&env),
+        Err(error) => {
+            log::error!("{}", error.display_chain_with_msg("Failed to get state"));
+            JObject::null()
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey<'env, 'this>(
     env: JNIEnv<'env>,
     _: JObject<'this>,

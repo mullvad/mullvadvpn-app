@@ -32,6 +32,7 @@ class ConnectFragment : Fragment() {
     private var daemon = CompletableDeferred<MullvadDaemon>()
     private var vpnPermission = CompletableDeferred<Unit>()
 
+    private var fetchInitialStateJob = fetchInitialState()
     private var generateWireguardKeyJob = generateWireguardKey()
 
     private var activeAction: Job? = null
@@ -94,11 +95,23 @@ class ConnectFragment : Fragment() {
     }
 
     private fun attachListener() = GlobalScope.launch(Dispatchers.Default) {
-        daemon.await().onTunnelStateChange = { state -> updateViewJob = updateView(state) }
+        daemon.await().onTunnelStateChange = { state ->
+            synchronized(this@ConnectFragment) {
+                updateViewJob = updateView(state)
+            }
+        }
     }
 
     private fun detachListener() = GlobalScope.launch(Dispatchers.Default) {
         daemon.await().onTunnelStateChange = null
+    }
+
+    private fun fetchInitialState() = GlobalScope.launch(Dispatchers.Default) {
+        val state = daemon.await().getState()
+
+        synchronized(this@ConnectFragment) {
+            updateViewJob = updateViewJob ?: updateView(state)
+        }
     }
 
     private fun generateWireguardKey() = GlobalScope.launch(Dispatchers.Default) {
