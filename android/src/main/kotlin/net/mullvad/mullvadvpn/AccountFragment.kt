@@ -11,5 +11,13 @@ class AccountFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.account, container, false)
+    ): View {
+        val view = inflater.inflate(R.layout.account, container, false)
+
+        view.findViewById<View>(R.id.back).setOnClickListener {
+            activity?.onBackPressed()
+        }
+
+        return view
+    }
 }
