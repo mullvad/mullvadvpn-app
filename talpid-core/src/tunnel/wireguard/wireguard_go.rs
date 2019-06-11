@@ -2,6 +2,8 @@ use super::{Config, Error, Result, Tunnel};
 use crate::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
 use ipnetwork::IpNetwork;
 use std::{ffi::CString, fs, net::IpAddr, os::unix::io::AsRawFd, path::Path};
+#[cfg(target_os = "android")]
+use talpid_types::BoxedError;
 
 pub struct WgGoTunnel {
     interface_name: String,
@@ -19,7 +21,8 @@ impl WgGoTunnel {
         tun_provider: &dyn TunProvider,
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
-        let tunnel_device = tun_provider
+        #[cfg_attr(not(target_os = "android"), allow(unused_mut))]
+        let mut tunnel_device = tun_provider
             .create_tun(Self::create_tunnel_config(config, routes))
             .map_err(Error::SetupTunnelDeviceError)?;
 
@@ -32,9 +35,9 @@ impl WgGoTunnel {
 
         let handle = unsafe {
             wgTurnOnWithFd(
-                iface_name.as_ptr(),
+                iface_name.as_ptr() as *const i8,
                 config.mtu as i64,
-                wg_config_str.as_ptr(),
+                wg_config_str.as_ptr() as *const i8,
                 tunnel_device.as_raw_fd(),
                 log_file.as_raw_fd(),
                 WG_GO_LOG_DEBUG,
@@ -44,6 +47,9 @@ impl WgGoTunnel {
         if handle < 0 {
             return Err(Error::StartWireguardError { status: handle });
         }
+
+        #[cfg(target_os = "android")]
+        Self::bypass_tunnel_sockets(&mut tunnel_device, handle).map_err(Error::BypassError)?;
 
         Ok(WgGoTunnel {
             interface_name,
@@ -63,6 +69,20 @@ impl WgGoTunnel {
             routes: routes.collect(),
             mtu: config.mtu,
         }
+    }
+
+    #[cfg(target_os = "android")]
+    fn bypass_tunnel_sockets(
+        tunnel_device: &mut Box<dyn Tun>,
+        handle: i32,
+    ) -> std::result::Result<(), BoxedError> {
+        let socket_v4 = unsafe { wgGetSocketV4(handle) };
+        let socket_v6 = unsafe { wgGetSocketV6(handle) };
+
+        tunnel_device.bypass(socket_v4)?;
+        tunnel_device.bypass(socket_v6)?;
+
+        Ok(())
     }
 
     fn stop_tunnel(&mut self) -> Result<()> {
@@ -108,7 +128,8 @@ type WgLogLevel = i32;
 // wireguard-go supports log levels 0 through 3 with 3 being the most verbose
 const WG_GO_LOG_DEBUG: WgLogLevel = 3;
 
-#[link(name = "wg", kind = "static")]
+#[cfg_attr(target_os = "android", link(name = "wg", kind = "dylib"))]
+#[cfg_attr(not(target_os = "android"), link(name = "wg", kind = "static"))]
 extern "C" {
     // Creates a new wireguard tunnel, uses the specific interface name, MTU and file descriptors
     // for the tunnel device and logging.
@@ -123,6 +144,15 @@ extern "C" {
         log_fd: Fd,
         logLevel: WgLogLevel,
     ) -> i32;
+
     // Pass a handle that was created by wgTurnOnWithFd to stop a wireguard tunnel.
     fn wgTurnOff(handle: i32) -> i32;
+
+    // Returns the file descriptor of the tunnel IPv4 socket.
+    #[cfg(target_os = "android")]
+    fn wgGetSocketV4(handle: i32) -> Fd;
+
+    // Returns the file descriptor of the tunnel IPv6 socket.
+    #[cfg(target_os = "android")]
+    fn wgGetSocketV6(handle: i32) -> Fd;
 }
