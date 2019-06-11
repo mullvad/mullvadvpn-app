@@ -8,17 +8,18 @@
         android:elevation="2dp"
         >
     <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:orientation="horizontal"
             android:gravity="center_vertical | left"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground"
             >
-        <ImageButton android:id="@+id/back"
+        <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginRight="8dp"
-                android:background="?android:attr/selectableItemBackground"
                 android:src="@drawable/icon_back"
                 />
         <TextView
