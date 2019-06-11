@@ -1,5 +1,6 @@
 #include <stdafx.h>
 #include "cleaningops.h"
+#include <libcommon/string.h>
 #include <windows.h>
 #include <nsis/pluginapi.h>
 #include <functional>
@@ -77,5 +78,42 @@ void __declspec(dllexport) NSISCALL RemoveSettings
 	catch (...)
 	{
 		pushint(RemoveSettingsStatus::GENERAL_ERROR);
+	}
+}
+
+enum class RemoveRelayCacheStatus
+{
+	GENERAL_ERROR = 0,
+	SUCCESS
+};
+
+void __declspec(dllexport) NSISCALL RemoveRelayCache
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	try
+	{
+		cleaningops::RemoveRelayCacheServiceUser();
+
+		pushstring(L"");
+		pushint(RemoveRelayCacheStatus::SUCCESS);
+	}
+	catch (const std::exception &err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(RemoveRelayCacheStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(RemoveRelayCacheStatus::GENERAL_ERROR);
 	}
 }
