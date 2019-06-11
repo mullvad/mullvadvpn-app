@@ -108,6 +108,13 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    fun refetchSettings() {
+        if (asyncSettings.isCompleted) {
+            asyncSettings = fetchSettings()
+            accountCache.settings = asyncSettings
+        }
+    }
+
     private fun addInitialFragment() {
         supportFragmentManager?.beginTransaction()?.apply {
             add(R.id.main_fragment, LaunchFragment())

@@ -25,6 +25,13 @@ class RemainingTimeLabel(val parentActivity: MainActivity, val view: View) {
 
     private var updateJob = updateLabel()
 
+    fun onResume() {
+        if (updateJob.isCompleted) {
+            parentActivity.refetchSettings()
+            updateJob = updateLabel()
+        }
+    }
+
     fun onDestroy() {
         updateJob.cancel()
     }
