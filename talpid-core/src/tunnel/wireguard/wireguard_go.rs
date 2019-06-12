@@ -92,7 +92,7 @@ impl WgGoTunnel {
                 return Err(Error::StopWireguardError { status });
             }
         }
-        return Ok(());
+        Ok(())
     }
 }
 
