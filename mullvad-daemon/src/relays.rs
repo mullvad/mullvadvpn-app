@@ -570,7 +570,7 @@ impl RelaySelector {
                     if port_index < ports_in_range {
                         return Some(port_index as u16 + range.0);
                     }
-                    port_index = port_index - ports_in_range;
+                    port_index -= ports_in_range;
                 }
                 panic!("Port selection algorithm is broken")
             }
