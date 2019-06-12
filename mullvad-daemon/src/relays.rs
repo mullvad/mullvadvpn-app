@@ -315,7 +315,7 @@ impl RelaySelector {
             .filter_map(|relay| Self::matching_bridge_relay(relay, constraints))
             .collect();
 
-        if matching_relays.len() == 0 {
+        if matching_relays.is_empty() {
             return None;
         }
 
@@ -423,7 +423,7 @@ impl RelaySelector {
             .bridges
             .shadowsocks
             .retain(|bridge| constraints.transport_protocol.matches(&bridge.protocol));
-        if filtered_relay.bridges.shadowsocks.len() == 0 {
+        if filtered_relay.bridges.shadowsocks.is_empty() {
             return None;
         }
 

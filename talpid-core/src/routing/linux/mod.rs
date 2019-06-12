@@ -330,7 +330,7 @@ of route monitor -{}",
             }
         }
 
-        Ok(self.pending_change.is_none() && self.needed_changes.len() == 0)
+        Ok(self.pending_change.is_none() && self.needed_changes.is_empty())
     }
 
     fn route_cmd(action: &str, route: &Route) -> Command {
