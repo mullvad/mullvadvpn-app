@@ -98,5 +98,9 @@
                     android:text=""
                     />
         </LinearLayout>
+        <Button android:id="@+id/logout"
+                android:text="@string/log_out"
+                style="@style/RedButton"
+                />
     </LinearLayout>
 </LinearLayout>
