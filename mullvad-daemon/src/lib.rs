@@ -1021,7 +1021,7 @@ where
             let account_token = self
                 .settings
                 .get_account_token()
-                .ok_or("No account token set".to_string())?;
+                .ok_or_else(|| "No account token set".to_owned())?;
 
             let mut account_entry = self
                 .account_history
