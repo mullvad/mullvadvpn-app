@@ -432,7 +432,7 @@ enum IpVersion {
 }
 
 impl IpVersion {
-    fn to_route_arg(&self) -> &'static str {
+    fn to_route_arg(self) -> &'static str {
         match self {
             IpVersion::V4 => "-4",
             IpVersion::V6 => "-6",
