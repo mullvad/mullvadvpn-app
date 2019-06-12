@@ -104,6 +104,12 @@ class AccountFragment : Fragment() {
 
     private fun goToLoginScreen() {
         fragmentManager?.beginTransaction()?.apply {
+            setCustomAnimations(
+                R.anim.do_nothing,
+                R.anim.fragment_exit_to_bottom,
+                R.anim.do_nothing,
+                R.anim.do_nothing
+            )
             replace(R.id.main_fragment, LoginFragment())
             commit()
         }
