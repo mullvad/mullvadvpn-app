@@ -82,7 +82,14 @@ class AccountFragment : Fragment() {
     }
 
     private fun logout() {
+        clearAccountNumber()
         goToLoginScreen()
+    }
+
+    private fun clearAccountNumber() = GlobalScope.launch(Dispatchers.Default) {
+        val daemon = parentActivity.asyncDaemon.await()
+
+        daemon.setAccount(null)
     }
 
     private fun goToLoginScreen() {
