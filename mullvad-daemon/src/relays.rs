@@ -286,7 +286,7 @@ impl RelaySelector {
         }
 
         // For now, only TCP tunnels are supported.
-        if let &Constraint::Only(TransportProtocol::Udp) = &bridge_constraints.transport_protocol {
+        if let Constraint::Only(TransportProtocol::Udp) = bridge_constraints.transport_protocol {
             return None;
         }
 

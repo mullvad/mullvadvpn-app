@@ -261,7 +261,7 @@ of route monitor -{}",
         if self
             .pending_change
             .as_ref()
-            .map(|pending_change| &pending_change.change != &route_change)
+            .map(|pending_change| pending_change.change != route_change)
             .unwrap_or(true)
             && self
                 .needed_changes
