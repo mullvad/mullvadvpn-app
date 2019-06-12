@@ -1116,7 +1116,6 @@ where
             .check_wg_key(account, public_key.clone())
             .map(|is_valid| {
                 Self::oneshot_send(tx, is_valid, "verify_wireguard_key response");
-                ()
             })
             .map_err(|e| log::error!("Failed to verify wireguard key - {}", e));
         if let Err(e) = self.tokio_remote.execute(fut) {
