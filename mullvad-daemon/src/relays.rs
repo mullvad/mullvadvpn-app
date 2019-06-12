@@ -364,7 +364,7 @@ impl RelaySelector {
             Constraint::Any => relay.clone(),
             Constraint::Only(ref tunnel_constraints) => {
                 let mut relay = relay.clone();
-                relay.tunnels = Self::matching_tunnels(&mut relay.tunnels, tunnel_constraints);
+                relay.tunnels = Self::matching_tunnels(&relay.tunnels, tunnel_constraints);
                 relay
             }
         };
