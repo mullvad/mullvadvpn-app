@@ -61,7 +61,7 @@ impl WgGoTunnel {
 
     fn create_tunnel_config(config: &Config, routes: impl Iterator<Item = IpNetwork>) -> TunConfig {
         let mut dns_servers = vec![IpAddr::V4(config.ipv4_gateway)];
-        dns_servers.extend(config.ipv6_gateway.clone().map(IpAddr::V6));
+        dns_servers.extend(config.ipv6_gateway.map(IpAddr::V6));
 
         TunConfig {
             addresses: config.tunnel.addresses.clone(),
