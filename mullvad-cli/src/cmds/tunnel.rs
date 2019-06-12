@@ -134,7 +134,7 @@ impl Tunnel {
                 .wireguard
                 .mtu
                 .map(|mtu| mtu.to_string())
-                .unwrap_or("unset".into())
+                .unwrap_or_else(|| "unset".to_owned())
         );
         Ok(())
     }
@@ -193,7 +193,7 @@ impl Tunnel {
             tunnel_options
                 .openvpn
                 .mssfix
-                .map_or_else(|| "unset".to_string(), |v| v.to_string())
+                .map_or_else(|| "unset".to_owned(), |v| v.to_string())
         );
         Ok(())
     }
