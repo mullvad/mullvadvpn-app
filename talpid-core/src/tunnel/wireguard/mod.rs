@@ -175,10 +175,7 @@ impl WireguardMonitor {
 
         // route endpoints with specific routes
         for peer in config.peers.iter() {
-            routes.insert(
-                peer.endpoint.ip().into(),
-                routing::NetNode::DefaultNode.into(),
-            );
+            routes.insert(peer.endpoint.ip().into(), routing::NetNode::DefaultNode);
         }
 
         routes
