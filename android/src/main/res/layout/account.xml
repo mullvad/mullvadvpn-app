@@ -73,5 +73,30 @@
                     android:text=""
                     />
         </LinearLayout>
+        <LinearLayout android:id="@+id/account_expiry_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical"
+                android:visibility="invisible"
+                >
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="9dp"
+                    android:textColor="@color/white60"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:text="@string/paid_until"
+                    />
+            <TextView android:id="@+id/account_expiry_display"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:text=""
+                    />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
