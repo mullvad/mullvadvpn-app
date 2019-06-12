@@ -261,7 +261,7 @@ of route monitor -{}",
         if self
             .pending_change
             .as_ref()
-            .map(|pending_change| &pending_change.change != &route_change)
+            .map(|pending_change| pending_change.change != route_change)
             .unwrap_or(true)
             && self
                 .needed_changes
@@ -330,7 +330,7 @@ of route monitor -{}",
             }
         }
 
-        Ok(self.pending_change.is_none() && self.needed_changes.len() == 0)
+        Ok(self.pending_change.is_none() && self.needed_changes.is_empty())
     }
 
     fn route_cmd(action: &str, route: &Route) -> Command {
@@ -432,7 +432,7 @@ enum IpVersion {
 }
 
 impl IpVersion {
-    fn to_route_arg(&self) -> &'static str {
+    fn to_route_arg(self) -> &'static str {
         match self {
             IpVersion::V4 => "-4",
             IpVersion::V6 => "-6",
@@ -460,7 +460,7 @@ impl Future for RouteManagerImpl {
         let all_changes_applied = self.apply_route_table_changes()?;
         if all_changes_applied && self.should_shut_down {
             if let Some(tx) = self.shutdown_finished_tx.take() {
-                if let Err(_) = tx.send(()) {
+                if tx.send(()).is_err() {
                     log::error!("RouteManagerHandle already stopped");
                 }
             }

@@ -24,11 +24,7 @@ impl MullvadEndpoint {
     pub fn to_endpoint(&self) -> Endpoint {
         match self {
             MullvadEndpoint::OpenVpn(endpoint) => *endpoint,
-            MullvadEndpoint::Wireguard {
-                peer,
-                ipv4_gateway: _,
-                ipv6_gateway: _,
-            } => Endpoint::new(
+            MullvadEndpoint::Wireguard { peer, .. } => Endpoint::new(
                 peer.endpoint.ip(),
                 peer.endpoint.port(),
                 TransportProtocol::Udp,

@@ -799,7 +799,7 @@ where
         tx: oneshot::Sender<()>,
         account_token: AccountToken,
     ) {
-        if let Ok(_) = self.account_history.remove_account(&account_token) {
+        if self.account_history.remove_account(&account_token).is_ok() {
             Self::oneshot_send(tx, (), "remove_account_from_history response");
         }
     }
@@ -1021,7 +1021,7 @@ where
             let account_token = self
                 .settings
                 .get_account_token()
-                .ok_or("No account token set".to_string())?;
+                .ok_or_else(|| "No account token set".to_owned())?;
 
             let mut account_entry = self
                 .account_history
@@ -1116,7 +1116,6 @@ where
             .check_wg_key(account, public_key.clone())
             .map(|is_valid| {
                 Self::oneshot_send(tx, is_valid, "verify_wireguard_key response");
-                ()
             })
             .map_err(|e| log::error!("Failed to verify wireguard key - {}", e));
         if let Err(e) = self.tokio_remote.execute(fut) {

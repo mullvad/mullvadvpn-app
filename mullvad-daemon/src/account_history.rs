@@ -83,7 +83,7 @@ impl AccountHistory {
         reader.seek(io::SeekFrom::Start(0)).map_err(Error::Read)?;
         Ok(serde_json::from_reader(reader)
             .map(|old_format: OldFormat| old_format.accounts)
-            .unwrap_or(vec![]))
+            .unwrap_or_else(|_| Vec::new()))
     }
 
     /// Gets account data for a certain account id and bumps it's entry to the top of the list if
@@ -111,7 +111,7 @@ impl AccountHistory {
     /// Bumps history of an account token. If the account token is not in history, it will be
     /// added.
     pub fn bump_history(&mut self, account: &AccountToken) -> Result<()> {
-        if let None = self.get(account)? {
+        if self.get(account)?.is_none() {
             let new_entry = AccountEntry {
                 account: account.to_string(),
                 wireguard: None,

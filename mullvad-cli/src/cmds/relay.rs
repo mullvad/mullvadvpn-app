@@ -222,7 +222,7 @@ impl Relay {
         let mut private_key_str = String::new();
         println!("Reading private key from standard input");
         let _ = io::stdin().lock().read_line(&mut private_key_str);
-        if private_key_str.trim().len() == 0 {
+        if private_key_str.trim().is_empty() {
             eprintln!("Expected to read private key from standard input");
         }
         let private_key = Self::validate_wireguard_key(&private_key_str).into();

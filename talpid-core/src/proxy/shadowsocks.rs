@@ -212,7 +212,7 @@ impl ShadowsocksProxyMonitor {
             })?);
         }
 
-        return Err(Error::new(ErrorKind::Other, "No port number present"));
+        Err(Error::new(ErrorKind::Other, "No port number present"))
     }
 }
 

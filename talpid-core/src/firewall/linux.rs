@@ -395,8 +395,8 @@ impl<'a> PolicyBatch<'a> {
     fn add_allow_icmp_pingable_hosts(&mut self, pingable_hosts: &[IpAddr]) {
         for host in pingable_hosts {
             let icmp_proto = match &host {
-                &IpAddr::V4(_) => libc::IPPROTO_ICMP as u8,
-                &IpAddr::V6(_) => libc::IPPROTO_ICMPV6 as u8,
+                IpAddr::V4(_) => libc::IPPROTO_ICMP as u8,
+                IpAddr::V6(_) => libc::IPPROTO_ICMPV6 as u8,
             };
 
             let mut out_rule = Rule::new(&self.out_chain);
