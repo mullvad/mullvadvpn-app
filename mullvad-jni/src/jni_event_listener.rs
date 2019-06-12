@@ -1,6 +1,6 @@
 use crate::{get_class, into_java::IntoJava};
 use jni::{
-    objects::{JMethodID, JObject, JValue},
+    objects::{GlobalRef, JMethodID, JObject, JValue},
     signature::{JavaType, Primitive},
     AttachGuard, JNIEnv,
 };
@@ -83,13 +83,12 @@ impl<'env> JniEventHandler<'env> {
         events: mpsc::Receiver<TunnelStateTransition>,
     ) -> Result<Self, Error> {
         let class = get_class("net/mullvad/mullvadvpn/MullvadDaemon");
-        let notify_tunnel_event = env
-            .get_method_id(
-                &class,
-                "notifyTunnelStateEvent",
-                "(Lnet/mullvad/mullvadvpn/model/TunnelStateTransition;)V",
-            )
-            .map_err(|error| Error::FindMethod("notifyTunnelStateEvent", error))?;
+        let notify_tunnel_event = Self::get_method_id(
+            &env,
+            &class,
+            "notifyTunnelStateEvent",
+            "(Lnet/mullvad/mullvadvpn/model/TunnelStateTransition;)V",
+        )?;
 
         Ok(JniEventHandler {
             env,
@@ -97,6 +96,16 @@ impl<'env> JniEventHandler<'env> {
             notify_tunnel_event,
             events,
         })
+    }
+
+    fn get_method_id(
+        env: &AttachGuard<'env>,
+        class: &GlobalRef,
+        method: &'static str,
+        signature: &str,
+    ) -> Result<JMethodID<'env>, Error> {
+        env.get_method_id(class, method, signature)
+            .map_err(|error| Error::FindMethod(method, error))
     }
 
     fn run(&mut self) {
