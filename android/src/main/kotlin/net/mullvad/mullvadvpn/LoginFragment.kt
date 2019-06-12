@@ -1,12 +1,14 @@
 package net.mullvad.mullvadvpn
 
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -16,6 +18,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 
 class LoginFragment : Fragment() {
+    private lateinit var parentActivity: MainActivity
+
     private lateinit var title: TextView
     private lateinit var subtitle: TextView
     private lateinit var loggingInStatus: View
@@ -24,6 +28,12 @@ class LoginFragment : Fragment() {
     private lateinit var accountInput: AccountInput
 
     private var loginJob: Deferred<Boolean>? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        parentActivity = context as MainActivity
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,7 +48,7 @@ class LoginFragment : Fragment() {
         loggedInStatus = view.findViewById(R.id.logged_in_status)
         loginFailStatus = view.findViewById(R.id.login_fail_status)
 
-        accountInput = AccountInput(view, context!!)
+        accountInput = AccountInput(view, parentActivity)
         accountInput.onLogin = { accountToken -> login(accountToken) }
 
         return view
@@ -60,7 +70,6 @@ class LoginFragment : Fragment() {
     private fun performLogin(accountToken: String) = GlobalScope.launch(Dispatchers.Main) {
         loginJob?.cancel()
         loginJob = GlobalScope.async(Dispatchers.Default) {
-            val parentActivity = activity as MainActivity
             val daemon = parentActivity.asyncDaemon.await()
             val accountData = daemon.getAccountData(accountToken)
 
@@ -79,7 +88,14 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun loggedIn() {
+    private suspend fun loggedIn() {
+        showLoggedInMessage()
+        parentActivity.refetchSettings()
+        delay(1000)
+        openConnectScreen()
+    }
+
+    private fun showLoggedInMessage() {
         title.setText(R.string.logged_in_title)
         subtitle.setText("")
 
@@ -88,8 +104,6 @@ class LoginFragment : Fragment() {
         loggedInStatus.visibility = View.VISIBLE
 
         accountInput.state = LoginState.Success
-
-        Handler().postDelayed(Runnable { openConnectScreen() }, 1000)
     }
 
     private fun openConnectScreen() {
