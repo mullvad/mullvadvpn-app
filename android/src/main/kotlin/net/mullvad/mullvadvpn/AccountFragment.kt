@@ -44,6 +44,8 @@ class AccountFragment : Fragment() {
             parentActivity.onBackPressed()
         }
 
+        view.findViewById<View>(R.id.logout).setOnClickListener { logout() }
+
         accountExpiryContainer = view.findViewById<View>(R.id.account_expiry_container)
         accountNumberContainer = view.findViewById<View>(R.id.account_number_container)
 
@@ -77,5 +79,16 @@ class AccountFragment : Fragment() {
         val formatter = DateFormat.getDateTimeInstance()
 
         return formatter.format(expiryInstant)
+    }
+
+    private fun logout() {
+        goToLoginScreen()
+    }
+
+    private fun goToLoginScreen() {
+        fragmentManager?.beginTransaction()?.apply {
+            replace(R.id.main_fragment, LoginFragment())
+            commit()
+        }
     }
 }
