@@ -460,7 +460,7 @@ impl Future for RouteManagerImpl {
         let all_changes_applied = self.apply_route_table_changes()?;
         if all_changes_applied && self.should_shut_down {
             if let Some(tx) = self.shutdown_finished_tx.take() {
-                if let Err(_) = tx.send(()) {
+                if tx.send(()).is_err() {
                     log::error!("RouteManagerHandle already stopped");
                 }
             }

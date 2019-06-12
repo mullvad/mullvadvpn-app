@@ -111,7 +111,7 @@ impl AccountHistory {
     /// Bumps history of an account token. If the account token is not in history, it will be
     /// added.
     pub fn bump_history(&mut self, account: &AccountToken) -> Result<()> {
-        if let None = self.get(account)? {
+        if self.get(account)?.is_none() {
             let new_entry = AccountEntry {
                 account: account.to_string(),
                 wireguard: None,

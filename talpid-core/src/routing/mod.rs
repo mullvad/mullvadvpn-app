@@ -62,12 +62,12 @@ impl RouteManager {
     pub fn stop(&mut self) {
         if let Some(tx) = self.tx.take() {
             let (wait_tx, wait_rx) = oneshot::channel();
-            if let Err(_) = tx.send(wait_tx) {
+            if tx.send(wait_tx).is_err() {
                 log::error!("RouteManager already down!");
                 return;
             }
 
-            if let Err(_) = wait_rx.wait() {
+            if wait_rx.wait().is_err() {
                 log::error!("RouteManager paniced while shutting down");
             }
         }

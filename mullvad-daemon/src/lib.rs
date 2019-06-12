@@ -799,7 +799,7 @@ where
         tx: oneshot::Sender<()>,
         account_token: AccountToken,
     ) {
-        if let Ok(_) = self.account_history.remove_account(&account_token) {
+        if self.account_history.remove_account(&account_token).is_ok() {
             Self::oneshot_send(tx, (), "remove_account_from_history response");
         }
     }
