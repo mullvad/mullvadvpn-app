@@ -20,6 +20,7 @@
 
     <string name="account_number">Account number</string>
     <string name="paid_until">Paid until</string>
+    <string name="log_out">Log out</string>
 
     <string name="unsecured_connection">Unsecured connection</string>
     <string name="creating_secure_connection">Creating secure connection</string>
