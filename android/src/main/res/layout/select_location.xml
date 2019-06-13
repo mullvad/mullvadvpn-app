@@ -37,10 +37,25 @@
             android:textSize="13sp"
             android:text="@string/select_location_description"
             />
-    <android.support.v7.widget.RecyclerView android:id="@+id/relay_list"
+    <ViewSwitcher android:id="@+id/relay_list_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:scrollbars="vertical"
-            />
+            >
+        <ProgressBar
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                android:indeterminateOnly="true"
+                android:indeterminateDuration="600"
+                android:indeterminateDrawable="@drawable/icon_spinner"
+                android:visibility="invisible"
+                />
+        <android.support.v7.widget.RecyclerView android:id="@+id/relay_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical"
+                />
+    </ViewSwitcher>
 </LinearLayout>
