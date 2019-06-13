@@ -9,10 +9,9 @@ import android.view.ViewGroup
 
 import net.mullvad.mullvadvpn.R
 
-class RelayListAdapter(
-    private val relayList: RelayList,
-    private var selectedItem: RelayItem?
-) : Adapter<RelayItemHolder>() {
+class RelayListAdapter : Adapter<RelayItemHolder>() {
+    private var relayList: RelayList? = null
+    private var selectedItem: RelayItem? = null
     private val activeIndices = LinkedList<WeakReference<RelayListAdapterPosition>>()
     private var selectedItemHolder: RelayItemHolder? = null
 
@@ -29,23 +28,34 @@ class RelayListAdapter(
     }
 
     override fun onBindViewHolder(holder: RelayItemHolder, position: Int) {
-        var remaining = position
+        val relayList = this.relayList
 
-        for (country in relayList.countries) {
-            val itemOrCount = country.getItem(remaining)
+        if (relayList != null) {
+            var remaining = position
 
-            when (itemOrCount) {
-                is GetItemResult.Item -> {
-                    bindHolderToItem(holder, itemOrCount.item, position)
-                    return
+            for (country in relayList.countries) {
+                val itemOrCount = country.getItem(remaining)
+
+                when (itemOrCount) {
+                    is GetItemResult.Item -> {
+                        bindHolderToItem(holder, itemOrCount.item, position)
+                        return
+                    }
+                    is GetItemResult.Count -> remaining -= itemOrCount.count
                 }
-                is GetItemResult.Count -> remaining -= itemOrCount.count
             }
         }
     }
 
     override fun getItemCount() =
-        relayList.countries.map { country -> country.visibleItemCount }.sum()
+        relayList?.countries?.map { country -> country.visibleItemCount }?.sum() ?: 0
+
+    fun onRelayListChange(relayList: RelayList, selectedItem: RelayItem?) {
+        this.relayList = relayList
+        this.selectedItem = selectedItem
+
+        notifyDataSetChanged()
+    }
 
     fun selectItem(item: RelayItem?, holder: RelayItemHolder?) {
         selectedItemHolder?.selected = false

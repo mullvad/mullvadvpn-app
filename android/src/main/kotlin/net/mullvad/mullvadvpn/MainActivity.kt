@@ -20,16 +20,12 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
+import net.mullvad.mullvadvpn.relaylist.RelayListListener
 
 class MainActivity : FragmentActivity() {
     var asyncDaemon = CompletableDeferred<MullvadDaemon>()
     val daemon
         get() = runBlocking { asyncDaemon.await() }
-
-    var asyncRelayList: Deferred<RelayList> = fetchRelayList()
-        private set
-    val relayList: RelayList
-        get() = runBlocking { asyncRelayList.await() }
 
     var asyncSettings = fetchSettings()
         private set
@@ -37,10 +33,8 @@ class MainActivity : FragmentActivity() {
         get() = runBlocking { asyncSettings.await() }
 
     val accountCache = AccountCache(this)
+    var relayListListener = RelayListListener(this)
 
-    var selectedRelayItem: RelayItem? = null
-
-    private val restoreSelectedRelayListItemJob = restoreSelectedRelayListItem()
     private var waitForDaemonJob: Job? = null
 
     private val serviceConnection = object : ServiceConnection {
@@ -84,11 +78,10 @@ class MainActivity : FragmentActivity() {
 
     override fun onDestroy() {
         accountCache.onDestroy()
+        relayListListener.onDestroy()
 
-        restoreSelectedRelayListItemJob.cancel()
         waitForDaemonJob?.cancel()
         asyncSettings.cancel()
-        asyncRelayList.cancel()
         asyncDaemon.cancel()
 
         super.onDestroy()
@@ -122,25 +115,7 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun fetchRelayList() = GlobalScope.async(Dispatchers.Default) {
-        RelayList(asyncDaemon.await().getRelayLocations())
-    }
-
     private fun fetchSettings() = GlobalScope.async(Dispatchers.Default) {
         asyncDaemon.await().getSettings()
-    }
-
-    private fun restoreSelectedRelayListItem() = GlobalScope.launch(Dispatchers.Default) {
-        val relaySettings = asyncSettings.await().relaySettings
-
-        when (relaySettings) {
-            is RelaySettings.CustomTunnelEndpoint -> selectedRelayItem = null
-            is RelaySettings.RelayConstraints -> {
-                val location = relaySettings.location
-                val relayList = asyncRelayList.await()
-
-                selectedRelayItem = relayList.findItemForLocation(location, true)
-            }
-        }
     }
 }

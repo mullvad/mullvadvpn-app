@@ -3,7 +3,9 @@ package net.mullvad.mullvadvpn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -20,8 +22,35 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayItemDividerDecoration
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
+import net.mullvad.mullvadvpn.relaylist.RelayListListener
 
 class SelectLocationFragment : Fragment() {
+    private lateinit var parentActivity: MainActivity
+    private lateinit var relayListListener: RelayListListener
+
+    private val relayListAdapter = RelayListAdapter()
+
+    private var updateRelayListJob: Job? = null
+
+    init {
+        relayListAdapter.onSelect = { relayItem ->
+            relayListListener.selectedRelayItem = relayItem
+            updateLocationConstraint()
+            close()
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        parentActivity = context as MainActivity
+        relayListListener = parentActivity.relayListListener
+
+        relayListListener.onRelayListChange = { relayList, selectedItem ->
+            updateRelayListJob = updateRelayList(relayList, selectedItem)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,21 +65,17 @@ class SelectLocationFragment : Fragment() {
         return view
     }
 
+    override fun onDestroyView() {
+        updateRelayListJob?.cancel()
+
+        super.onDestroyView()
+    }
+
     fun close() {
         activity?.onBackPressed()
     }
 
     private fun configureRelayList(relayList: RecyclerView) {
-        val parentActivity = activity as MainActivity
-        val relayListAdapter =
-            RelayListAdapter(parentActivity.relayList, parentActivity.selectedRelayItem)
-
-        relayListAdapter.onSelect = { relayItem ->
-            parentActivity.selectedRelayItem = relayItem
-            updateLocationConstraint(relayItem)
-            close()
-        }
-
         relayList.apply {
             layoutManager = LinearLayoutManager(context!!)
             adapter = relayListAdapter
@@ -59,19 +84,16 @@ class SelectLocationFragment : Fragment() {
         }
     }
 
-    private fun updateLocationConstraint(relayItem: RelayItem?) =
-            GlobalScope.launch(Dispatchers.Default) {
-        val parentActivity = activity as MainActivity
-        var constraint: Constraint<LocationConstraint>
-
-        if (relayItem == null) {
-            constraint = Constraint.Any()
-        } else {
-            constraint = Constraint.Only(relayItem.location)
-        }
+    private fun updateLocationConstraint() = GlobalScope.launch(Dispatchers.Default) {
+        val constraint = relayListListener.selectedRelayLocation
 
         parentActivity.asyncDaemon.await().updateRelaySettings(
             RelaySettingsUpdate.RelayConstraintsUpdate(constraint)
         )
+    }
+
+    private fun updateRelayList(relayList: RelayList, selectedItem: RelayItem?) =
+            GlobalScope.launch(Dispatchers.Main) {
+        relayListAdapter.onRelayListChange(relayList, selectedItem)
     }
 }
