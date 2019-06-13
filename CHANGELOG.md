@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.5-beta1] - 2019-06-13
 ### Added
 - Add support for roaming between connections when using wireguard.
 - Allow mDNS/discover to 239.255.255.251 when local network sharing is enabled. This change fixes
