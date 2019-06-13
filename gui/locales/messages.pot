@@ -212,6 +212,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr ""
 
 msgctxt "in-app-notifications"
+msgid "Your kernel may be outdated"
+msgstr ""
+
+msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
 msgstr ""
 
