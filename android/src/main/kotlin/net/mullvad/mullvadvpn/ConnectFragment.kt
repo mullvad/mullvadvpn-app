@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn
 
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -19,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 
+import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelStateTransition
 
 class ConnectFragment : Fragment() {
@@ -26,6 +28,7 @@ class ConnectFragment : Fragment() {
     private lateinit var headerBar: HeaderBar
     private lateinit var notificationBanner: NotificationBanner
     private lateinit var status: ConnectionStatus
+    private lateinit var locationInfo: LocationInfo
 
     private lateinit var parentActivity: MainActivity
 
@@ -34,6 +37,8 @@ class ConnectFragment : Fragment() {
 
     private var fetchInitialStateJob = fetchInitialState()
     private var generateWireguardKeyJob = generateWireguardKey()
+
+    private var lastKnownRealLocation: GeoIpLocation? = null
 
     private var activeAction: Job? = null
     private var attachListenerJob: Job? = null
@@ -61,6 +66,7 @@ class ConnectFragment : Fragment() {
         headerBar = HeaderBar(view, context!!)
         notificationBanner = NotificationBanner(view)
         status = ConnectionStatus(view, context!!)
+        locationInfo = LocationInfo(view, daemon)
 
         actionButton = ConnectActionButton(view)
         actionButton.apply {
@@ -149,6 +155,7 @@ class ConnectFragment : Fragment() {
     }
 
     private fun disconnect() {
+        updateView(TunnelStateTransition.Disconnecting())
         activeAction?.cancel()
 
         activeAction = GlobalScope.launch(Dispatchers.Default) {
@@ -172,6 +179,7 @@ class ConnectFragment : Fragment() {
         headerBar.setState(state)
         notificationBanner.setState(state)
         status.setState(state)
+        locationInfo.setState(state)
     }
 
     private fun openSwitchLocationScreen() {
