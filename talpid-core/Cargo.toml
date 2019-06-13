@@ -41,13 +41,12 @@ tokio-io = "0.1"
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = "0.6"
 failure = "0.1"
-netlink-socket = { git = "https://github.com/mullvad/netlink", branch = "ignore-hw-address" }
 notify = "4.0"
 resolv-conf = "0.6.1"
-rtnetlink = { git = "https://github.com/mullvad/netlink", branch = "hack-older-kernel-compat" }
-netlink-proto = { git = "https://github.com/mullvad/netlink", branch = "hack-older-kernel-compat" }
-netlink-packet = { git = "https://github.com/mullvad/netlink", branch = "hack-older-kernel-compat" }
-netlink-sys = { git = "https://github.com/mullvad/netlink", branch = "hack-older-kernel-compat" }
+rtnetlink = { git = "https://github.com/mullvad/netlink", rev = "e629e58797c2d14d7f4777c4ade0d85ee0167027" }
+netlink-proto = { git = "https://github.com/mullvad/netlink", rev = "e629e58797c2d14d7f4777c4ade0d85ee0167027" }
+netlink-packet = { git = "https://github.com/mullvad/netlink", rev = "e629e58797c2d14d7f4777c4ade0d85ee0167027" }
+netlink-sys = { git = "https://github.com/mullvad/netlink", rev = "e629e58797c2d14d7f4777c4ade0d85ee0167027" }
 nftnl = { git = "https://github.com/mullvad/nftnl-rs", rev = "86b30cdc38a6d4b30a900c21f7c644857d6f7401", features = ["nftnl-1-1-0"] }
 mnl = { git = "https://github.com/mullvad/mnl-rs", rev = "f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6", features = ["mnl-1-0-4"] }
 which = "2.0"
