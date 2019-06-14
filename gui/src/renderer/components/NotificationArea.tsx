@@ -50,10 +50,14 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
         'Could not configure IPv6, please enable it on your system or disable it in the app',
       );
     case 'set_firewall_policy_error':
-      return messages.pgettext(
+      return `${messages.pgettext(
         'in-app-notifications',
         'Failed to apply firewall rules. The device might currently be unsecured',
-      );
+      )}${
+        process.platform === 'linux'
+          ? '. ' + messages.pgettext('in-app-notifications', 'Your kernel may be outdated')
+          : ''
+      }`;
     case 'set_dns_error':
       return messages.pgettext('in-app-notifications', 'Failed to set system DNS server');
     case 'start_tunnel_error':

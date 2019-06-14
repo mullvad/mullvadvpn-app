@@ -87,6 +87,11 @@ fn print_blocked_reason(reason: &BlockReason) {
                 .unwrap_or("Account authentication failed");
             println!("Blocked: {}", AuthFailed::from(auth_failure_str));
         }
+        #[cfg(target_os = "linux")]
+        BlockReason::SetFirewallPolicyError => {
+            println!("Blocked: {}", BlockReason::SetFirewallPolicyError);
+            println!("Your kernel might be terribly out of date or missing nftables");
+        }
         other => println!("Blocked: {}", other),
     }
 }
