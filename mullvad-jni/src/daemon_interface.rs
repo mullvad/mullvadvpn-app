@@ -4,6 +4,7 @@ use mullvad_types::{
     account::AccountData, location::GeoIpLocation, relay_constraints::RelaySettingsUpdate,
     relay_list::RelayList, settings::Settings, states::TargetState,
 };
+use parking_lot::Mutex;
 use talpid_types::{net::wireguard, tunnel::TunnelStateTransition};
 
 #[derive(Debug, err_derive::Error)]
@@ -24,18 +25,18 @@ pub enum Error {
 type Result<T> = std::result::Result<T, Error>;
 
 pub struct DaemonInterface {
-    command_sender: Option<DaemonCommandSender>,
+    command_sender: Option<Mutex<DaemonCommandSender>>,
 }
 
 impl DaemonInterface {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         DaemonInterface {
             command_sender: None,
         }
     }
 
     pub fn set_command_sender(&mut self, sender: DaemonCommandSender) {
-        self.command_sender = Some(sender);
+        self.command_sender = Some(Mutex::new(sender));
     }
 
     pub fn connect(&self) -> Result<()> {
@@ -139,7 +140,7 @@ impl DaemonInterface {
     }
 
     fn send_command(&self, command: ManagementCommand) -> Result<()> {
-        let sender = self.command_sender.as_ref().ok_or(Error::NoSender)?;
+        let sender = self.command_sender.as_ref().ok_or(Error::NoSender)?.lock();
 
         sender.send(command).map_err(Error::NoDaemon)
     }
