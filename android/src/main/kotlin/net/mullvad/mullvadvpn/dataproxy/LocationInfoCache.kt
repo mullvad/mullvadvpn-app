@@ -16,11 +16,15 @@ class LocationInfoCache(val daemon: Deferred<MullvadDaemon>) {
     private var activeFetch: Job? = null
 
     var onNewLocation: ((String, String, String) -> Unit)? = null
+        set(value) {
+            field = value
+            notifyNewLocation()
+        }
 
     var location: GeoIpLocation? = null
         set(value) {
             field = value
-            notifyNewLocation(value)
+            notifyNewLocation()
         }
 
     fun setState(state: TunnelStateTransition) {
@@ -36,7 +40,8 @@ class LocationInfoCache(val daemon: Deferred<MullvadDaemon>) {
         }
     }
 
-    fun notifyNewLocation(location: GeoIpLocation?) {
+    fun notifyNewLocation() {
+        val location = this.location
         val country = location?.country ?: ""
         val city = location?.city ?: ""
         val hostname = location?.hostname ?: ""
