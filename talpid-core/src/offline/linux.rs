@@ -154,6 +154,7 @@ fn link_provides_connectivity(link: &LinkMessage) -> bool {
     // Some tunnels have the link layer type set to None
     link.header.link_layer_type != LinkLayerType::Loopback
         && link.header.link_layer_type != LinkLayerType::None
+        && link.header.link_layer_type != LinkLayerType::Irda
         && link.header.flags.is_running()
         && !is_virtual_interface(link)
 }
