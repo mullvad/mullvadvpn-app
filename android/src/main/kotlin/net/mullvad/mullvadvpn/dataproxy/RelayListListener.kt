@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.relaylist
+package net.mullvad.mullvadvpn.dataproxy
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CompletableDeferred
@@ -10,6 +10,8 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.MullvadDaemon
+import net.mullvad.mullvadvpn.relaylist.RelayList
+import net.mullvad.mullvadvpn.relaylist.RelayItem
 
 class RelayListListener(val parentActivity: MainActivity) {
     private val daemon = CompletableDeferred<MullvadDaemon>()

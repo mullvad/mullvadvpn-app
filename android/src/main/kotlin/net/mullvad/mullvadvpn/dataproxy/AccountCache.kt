@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.dataproxy
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.Deferred
@@ -8,6 +8,7 @@ import kotlinx.coroutines.GlobalScope
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
 
+import net.mullvad.mullvadvpn.MainActivity
 import net.mullvad.mullvadvpn.model.Settings
 
 val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
