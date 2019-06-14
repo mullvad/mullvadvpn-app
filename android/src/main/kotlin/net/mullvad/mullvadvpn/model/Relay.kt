@@ -1,4 +1,4 @@
 package net.mullvad.mullvadvpn.model
 
-data class Relay(val hostname: String) {
+data class Relay(val hostname: String, val hasWireguardTunnels: Boolean) {
 }
