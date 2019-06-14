@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn
 
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -21,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 
+import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelStateTransition
 
@@ -32,6 +32,7 @@ class ConnectFragment : Fragment() {
     private lateinit var locationInfo: LocationInfo
 
     private lateinit var parentActivity: MainActivity
+    private lateinit var locationInfoCache: LocationInfoCache
 
     private var daemon = CompletableDeferred<MullvadDaemon>()
     private var vpnPermission = CompletableDeferred<Unit>()
@@ -50,6 +51,7 @@ class ConnectFragment : Fragment() {
         super.onAttach(context)
 
         parentActivity = context as MainActivity
+        locationInfoCache = parentActivity.locationInfoCache
         waitForDaemonJob = waitForDaemon(parentActivity.asyncDaemon)
     }
 
@@ -71,7 +73,7 @@ class ConnectFragment : Fragment() {
         headerBar = HeaderBar(view, context!!)
         notificationBanner = NotificationBanner(view)
         status = ConnectionStatus(view, context!!)
-        locationInfo = LocationInfo(view, daemon)
+        locationInfo = LocationInfo(view, locationInfoCache)
 
         actionButton = ConnectActionButton(view)
         actionButton.apply {
@@ -86,11 +88,16 @@ class ConnectFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        locationInfo.onDestroy()
+
         waitForDaemonJob?.cancel()
         attachListenerJob?.cancel()
+
         detachListener()
+
         generateWireguardKeyJob.cancel()
         updateViewJob?.cancel()
+
         super.onDestroyView()
     }
 
@@ -184,7 +191,7 @@ class ConnectFragment : Fragment() {
         headerBar.setState(state)
         notificationBanner.setState(state)
         status.setState(state)
-        locationInfo.setState(state)
+        locationInfoCache.setState(state)
     }
 
     private fun openSwitchLocationScreen() {

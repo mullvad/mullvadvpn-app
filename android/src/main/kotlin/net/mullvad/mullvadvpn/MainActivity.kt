@@ -17,6 +17,7 @@ import android.os.IBinder
 import android.support.v4.app.FragmentActivity
 
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
+import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
@@ -34,6 +35,7 @@ class MainActivity : FragmentActivity() {
         get() = runBlocking { asyncSettings.await() }
 
     val accountCache = AccountCache(this)
+    val locationInfoCache = LocationInfoCache(asyncDaemon)
     var relayListListener = RelayListListener(this)
 
     private var waitForDaemonJob: Job? = null
