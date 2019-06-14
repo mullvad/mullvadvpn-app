@@ -90,6 +90,20 @@ class MainActivity : FragmentActivity() {
         super.onDestroy()
     }
 
+    fun openSettings() {
+        supportFragmentManager?.beginTransaction()?.apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_bottom,
+                R.anim.do_nothing,
+                R.anim.do_nothing,
+                R.anim.fragment_exit_to_bottom
+            )
+            replace(R.id.main_fragment, SettingsFragment())
+            addToBackStack(null)
+            commit()
+        }
+    }
+
     private fun addInitialFragment() {
         supportFragmentManager?.beginTransaction()?.apply {
             add(R.id.main_fragment, LaunchFragment())

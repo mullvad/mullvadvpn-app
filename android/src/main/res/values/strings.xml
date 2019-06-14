@@ -12,6 +12,9 @@
     <string name="login_fail_title">Login failed</string>
     <string name="login_fail_description">Invalid account number, try again</string>
 
+    <string name="settings">Settings</string>
+    <string name="quit">Quit</string>
+
     <string name="unsecured_connection">Unsecured connection</string>
     <string name="creating_secure_connection">Creating secure connection</string>
     <string name="secure_connection">Secure connection</string>
