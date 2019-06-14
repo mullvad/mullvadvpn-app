@@ -189,11 +189,15 @@ fn monitor_event_loop(
         })
         .map_err(|_| Error::MonitorNetlinkError);
 
-    connection
+    // Under normal circumstances, this runs forever.
+    let result = connection
         .map_err(Error::NetlinkError)
         .join(monitor)
         .wait()
-        .map(|_| ())
+        .map(|_| ());
+    // But if it fails, it should fail open.
+    link_monitor.reset();
+    result
 }
 
 struct LinkMonitor {
@@ -219,5 +223,10 @@ impl LinkMonitor {
                 .sender
                 .unbounded_send(TunnelCommand::IsOffline(is_offline));
         }
+    }
+
+    /// Allow the offline check to fail open.
+    fn reset(&mut self) {
+        let _ = self.sender.unbounded_send(TunnelCommand::IsOffline(false));
     }
 }
