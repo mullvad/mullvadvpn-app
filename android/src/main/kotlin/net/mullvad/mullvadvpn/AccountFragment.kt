@@ -17,6 +17,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 
 import org.joda.time.DateTime
 
@@ -99,6 +100,9 @@ class AccountFragment : Fragment() {
         val clipData = ClipData.newPlainText(clipLabel, accountNumberDisplay.text)
 
         clipboard.primaryClip = clipData
+
+        Toast.makeText(parentActivity, R.string.copied_mullvad_account_number, Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun clearAccountNumber() = GlobalScope.launch(Dispatchers.Default) {
