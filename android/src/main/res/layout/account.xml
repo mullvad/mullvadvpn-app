@@ -34,7 +34,6 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="24dp"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="24dp"
             android:orientation="vertical"
@@ -42,7 +41,8 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="12dp"
+                android:layout_marginHorizontal="24dp"
                 android:textColor="@color/white"
                 android:textSize="32sp"
                 android:textStyle="bold"
@@ -51,9 +51,12 @@
         <LinearLayout android:id="@+id/account_number_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="12dp"
                 android:orientation="vertical"
                 android:visibility="invisible"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
                 >
             <TextView
                     android:layout_width="wrap_content"
@@ -76,7 +79,8 @@
         <LinearLayout android:id="@+id/account_expiry_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="12dp"
                 android:orientation="vertical"
                 android:visibility="invisible"
                 >
@@ -99,6 +103,8 @@
                     />
         </LinearLayout>
         <Button android:id="@+id/logout"
+                android:layout_marginTop="12dp"
+                android:layout_marginHorizontal="24dp"
                 android:text="@string/log_out"
                 style="@style/RedButton"
                 />
