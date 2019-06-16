@@ -47,6 +47,8 @@ class MullvadVpnService : VpnService() {
         }
 
         val builder = Builder().apply {
+            setBlocking(true)
+
             for (address in config.addresses) {
                 addAddress(address, 32)
             }
