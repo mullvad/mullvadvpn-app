@@ -40,8 +40,6 @@ class ConnectFragment : Fragment() {
     private var fetchInitialStateJob = fetchInitialState()
     private var generateWireguardKeyJob = generateWireguardKey()
 
-    private var lastKnownRealLocation: GeoIpLocation? = null
-
     private var activeAction: Job? = null
     private var attachListenerJob: Job? = null
     private var updateViewJob: Job? = null
