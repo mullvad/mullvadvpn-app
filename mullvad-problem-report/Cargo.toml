@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-problem-report"
-version = "2019.5.0-beta1"
+version = "2019.5.0"
 authors = [
     "Mullvad VPN <admin@mullvad.net>",
     "Andrej Mihajlov <and@mullvad.net>",
