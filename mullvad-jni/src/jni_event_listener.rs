@@ -1,6 +1,6 @@
 use crate::{get_class, into_java::IntoJava};
 use jni::{
-    objects::{JMethodID, JObject, JValue},
+    objects::{GlobalRef, JMethodID, JObject, JValue},
     signature::{JavaType, Primitive},
     AttachGuard, JNIEnv,
 };
@@ -21,8 +21,13 @@ pub enum Error {
     GetJvmInstance(#[error(cause)] jni::errors::Error),
 }
 
+enum Event {
+    RelayList(RelayList),
+    Tunnel(TunnelStateTransition),
+}
+
 #[derive(Clone, Debug)]
-pub struct JniEventListener(mpsc::Sender<TunnelStateTransition>);
+pub struct JniEventListener(mpsc::Sender<Event>);
 
 impl JniEventListener {
     pub fn spawn(env: &JNIEnv, mullvad_daemon: &JObject) -> Result<Self, Error> {
@@ -32,18 +37,22 @@ impl JniEventListener {
 
 impl EventListener for JniEventListener {
     fn notify_new_state(&self, state: TunnelStateTransition) {
-        let _ = self.0.send(state);
+        let _ = self.0.send(Event::Tunnel(state));
     }
 
     fn notify_settings(&self, _: Settings) {}
-    fn notify_relay_list(&self, _: RelayList) {}
+
+    fn notify_relay_list(&self, relay_list: RelayList) {
+        let _ = self.0.send(Event::RelayList(relay_list));
+    }
 }
 
 struct JniEventHandler<'env> {
     env: AttachGuard<'env>,
     mullvad_ipc_client: JObject<'env>,
+    notify_relay_list_event: JMethodID<'env>,
     notify_tunnel_event: JMethodID<'env>,
-    events: mpsc::Receiver<TunnelStateTransition>,
+    events: mpsc::Receiver<Event>,
 }
 
 impl JniEventHandler<'_> {
@@ -80,28 +89,63 @@ impl<'env> JniEventHandler<'env> {
     fn new(
         env: AttachGuard<'env>,
         mullvad_ipc_client: JObject<'env>,
-        events: mpsc::Receiver<TunnelStateTransition>,
+        events: mpsc::Receiver<Event>,
     ) -> Result<Self, Error> {
         let class = get_class("net/mullvad/mullvadvpn/MullvadDaemon");
-        let notify_tunnel_event = env
-            .get_method_id(
-                &class,
-                "notifyTunnelStateEvent",
-                "(Lnet/mullvad/mullvadvpn/model/TunnelStateTransition;)V",
-            )
-            .map_err(|error| Error::FindMethod("notifyTunnelStateEvent", error))?;
+        let notify_relay_list_event = Self::get_method_id(
+            &env,
+            &class,
+            "notifyRelayListEvent",
+            "(Lnet/mullvad/mullvadvpn/model/RelayList;)V",
+        )?;
+        let notify_tunnel_event = Self::get_method_id(
+            &env,
+            &class,
+            "notifyTunnelStateEvent",
+            "(Lnet/mullvad/mullvadvpn/model/TunnelStateTransition;)V",
+        )?;
 
         Ok(JniEventHandler {
             env,
             mullvad_ipc_client,
+            notify_relay_list_event,
             notify_tunnel_event,
             events,
         })
     }
 
+    fn get_method_id(
+        env: &AttachGuard<'env>,
+        class: &GlobalRef,
+        method: &'static str,
+        signature: &str,
+    ) -> Result<JMethodID<'env>, Error> {
+        env.get_method_id(class, method, signature)
+            .map_err(|error| Error::FindMethod(method, error))
+    }
+
     fn run(&mut self) {
         while let Ok(event) = self.events.recv() {
-            self.handle_tunnel_event(event);
+            match event {
+                Event::RelayList(relay_list) => self.handle_relay_list_event(relay_list),
+                Event::Tunnel(tunnel_event) => self.handle_tunnel_event(tunnel_event),
+            }
+        }
+    }
+
+    fn handle_relay_list_event(&self, relay_list: RelayList) {
+        let result = self.env.call_method_unchecked(
+            self.mullvad_ipc_client,
+            self.notify_relay_list_event,
+            JavaType::Primitive(Primitive::Void),
+            &[JValue::Object(relay_list.into_java(&self.env))],
+        );
+
+        if let Err(error) = result {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to call MullvadDaemon.notifyRelayListEvent")
+            );
         }
     }
 
