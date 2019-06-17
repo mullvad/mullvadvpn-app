@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2019-06-17 08:47\n"
+"PO-Revision-Date: 2019-06-17 09:23\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "GESPERRTE VERBINDUNG"
@@ -237,6 +237,10 @@ msgstr "IPv6 konnte nicht konfiguriert werden, bitte aktivieren Sie es auf Ihrem
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Fehler beim Anwenden der Firewall-Regeln. Das Gerät ist derzeit möglicherweise ungesichert"
+
+msgctxt "in-app-notifications"
+msgid "Your kernel may be outdated"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"

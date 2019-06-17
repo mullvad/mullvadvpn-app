@@ -1,134 +1,134 @@
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
-"X-Crowdin-Language: sv-SE\n"
+"X-Crowdin-Language: zh-CN\n"
 "X-Crowdin-File: messages.pot\n"
 "Project-Id-Version: mullvad-app\n"
 "Last-Translator: adminmullvad\n"
-"Language-Team: Swedish\n"
-"Language: sv_SE\n"
+"Language-Team: Chinese Simplified\n"
+"Language: zh_CN\n"
 "PO-Revision-Date: 2019-06-17 09:23\n"
 
 msgid "BLOCKED CONNECTION"
-msgstr "ANSLUTNINGEN BLOCKERAD"
+msgstr ""
 
 msgid "CREATING SECURE CONNECTION"
-msgstr "SKAPAR SÄKER ANSLUTNING"
+msgstr ""
 
 msgid "SECURE CONNECTION"
-msgstr "SÄKER ANSLUTNING"
+msgstr ""
 
 msgid "UNSECURED CONNECTION"
-msgstr "OSÄKER ANSLUTNING"
+msgstr ""
 
 #. The remaining time left on the account displayed across the app.
 #. Available placeholders:
 #. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
 msgctxt "account-expiry"
 msgid "%(duration)s left"
-msgstr "%(duration)s kvar"
+msgstr ""
 
 #. Back button in navigation bar
 msgctxt "account-nav"
 msgid "Settings"
-msgstr "Inställningar"
+msgstr ""
 
 msgctxt "account-view"
 msgid "Account"
-msgstr "Konto"
+msgstr ""
 
 msgctxt "account-view"
 msgid "Account number"
-msgstr "Kontonummer"
+msgstr ""
 
 msgctxt "account-view"
 msgid "Buy more credit"
-msgstr "Köp mer kredit"
+msgstr ""
 
 msgctxt "account-view"
 msgid "COPIED TO CLIPBOARD!"
-msgstr "KOPIERAT TILL URKLIPP!"
+msgstr ""
 
 msgctxt "account-view"
 msgid "Currently unavailable"
-msgstr "Inte tillgänglig för närvarande"
+msgstr ""
 
 msgctxt "account-view"
 msgid "Log out"
-msgstr "Logga ut"
+msgstr ""
 
 msgctxt "account-view"
 msgid "OUT OF TIME"
-msgstr "INGEN TID KVAR"
+msgstr ""
 
 msgctxt "account-view"
 msgid "Paid until"
-msgstr "Betalat till"
+msgstr ""
 
 #. Title label in navigation bar
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
-msgstr "Avancerat"
+msgstr ""
 
 #. Back button in navigation bar
 msgctxt "advanced-settings-nav"
 msgid "Settings"
-msgstr "Inställningar"
+msgstr ""
 
 #. The title for the port selector section.
 #. Available placeholders:
 #. %(portType)s - a selected protocol (either TCP or UDP)
 msgctxt "advanced-settings-view"
 msgid "%(portType)s port"
-msgstr "%(portType)s port"
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
-msgstr "Avancerat"
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Automatic"
-msgstr "Automatisk"
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
-msgstr "Blockera när frånkopplad"
+msgstr ""
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
 msgid "Bridge mode"
-msgstr "Broläge"
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Default"
-msgstr "Standard"
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
-msgstr "Aktivera IPv6"
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
-msgstr "Aktivera IPv6-kommunikation genom tunneln."
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Mssfix"
-msgstr "Mssfix"
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Network protocols"
-msgstr "Nätverksprotokoll"
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Off"
-msgstr "Av"
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "On"
-msgstr "På"
+msgstr ""
 
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
@@ -136,35 +136,35 @@ msgstr "På"
 #. %(min)d - the minimum possible mssfix value
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr "Ange värde för OpenVPN MSS. Giltigt intervall: %(min)d-%(max)d."
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "TCP"
-msgstr "TCP"
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "UDP"
-msgstr "UDP"
+msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
-msgstr "Blockera nätverkstrafik i frånkopplat läge, samt när appen är avstängd."
+msgstr ""
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
-msgstr "Autentiseringen av kontot misslyckades."
+msgstr ""
 
 msgctxt "auth-failure"
 msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
-msgstr "Detta konto har för många samtidiga anslutningar. Koppla från en annan enhet eller försök att ansluta igen inom kort."
+msgstr ""
 
 msgctxt "auth-failure"
 msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "Du har ingen VPN-tid kvar på kontot. Logga in på vår hemsida för att köpa mer kredit."
+msgstr ""
 
 msgctxt "auth-failure"
 msgid "You've logged in with an account number that is not valid. Please log out and try another one."
-msgstr "Du har loggat in med ett konto som inte är giltigt. Logga ut och försök med ett annat."
+msgstr ""
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -173,70 +173,70 @@ msgstr "Du har loggat in med ett konto som inte är giltigt. Logga ut och förs�
 #. %(hostname)s - a hostname
 msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
-msgstr "%(city)s (%(hostname)s)"
+msgstr ""
 
 msgctxt "connect-view"
 msgid "Buy more credit"
-msgstr "Köp mer kredit"
+msgstr ""
 
 msgctxt "connect-view"
 msgid "Disconnect and buy more credit"
-msgstr "Koppla från och köp mer kredit"
+msgstr ""
 
 msgctxt "connect-view"
 msgid "Out of time"
-msgstr "Ingen tid kvar"
+msgstr ""
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
-msgstr "Du har ingen VPN-tid kvar på kontot. Innan du kan köpa mer kredit på vår hemsida måste du först stänga av alternativet ”Blockera vid frånkoppling” under appens avancerade inställningar."
+msgstr ""
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "Du har ingen VPN-tid kvar på kontot. Logga in på vår hemsida för att köpa mer kredit."
+msgstr ""
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
-msgstr "Du har ingen VPN-tid kvar på kontot. För att köpa mer kredit på vår hemsida behöver du åtkomst till internet med en osäker anslutning."
+msgstr ""
 
 msgctxt "connection-info"
 msgid "In"
-msgstr "In"
+msgstr ""
 
 msgctxt "connection-info"
 msgid "Out"
-msgstr "Ut"
+msgstr ""
 
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
+msgstr ""
 
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
 msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
-msgstr "Ett fel har inträffat. Kontakta oss på %(email)s"
+msgstr ""
 
 msgctxt "headerbar"
 msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "KONTOKREDITEN GÅR SNART UT"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
-msgstr "BLOCKERAR INTERNET"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
-msgstr "IPv6 kunde inte konfigureras. Aktivera det på ditt system eller stäng av det i appen"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "Det gick inte att tillämpa brandväggsregler. Enheten kan för närvarande vara osäker"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Your kernel may be outdated"
@@ -244,342 +244,342 @@ msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
-msgstr "Det gick inte att ange systemets DNS-server"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to start tunnel connection"
-msgstr "Det gick inte att starta tunnelanslutning"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "FAILURE - UNSECURED"
-msgstr "MISSLYCKADES - OSKYDDAD"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Inconsistent internal version information, please restart the app"
-msgstr "Inkonsekvent intern versionsinformation, starta om appen"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "INCONSISTENT VERSION"
-msgstr "INKONSEKVENT VERSION"
+msgstr ""
 
 #. The in-app banner displayed to the user when the app update is available.
 #. Available placeholders:
 #. %(version)s - the newest available version of the app
 msgctxt "in-app-notifications"
 msgid "Install Mullvad VPN (%(version)s) to stay up to date"
-msgstr "Installera Mullvad VPN (%(version)s) för att hålla dig uppdaterad"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "No relay server matches the current settings"
-msgstr "Ingen relayserver matchar de aktuella inställningarna"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
-msgstr "Denna enhet är frånkopplad, inga tunnlar kan skapas"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
-msgstr "Det går inte att upptäcka en fungerande TAP-adapter på den här enheten. Aktivera den om den är inaktiverad. Installera om appen i annat fall"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
-msgstr "VERSION UTAN STÖD"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
-msgstr "UPPDATERING TILLGÄNGLIG"
+msgstr ""
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
 #. %(version)s - the newest available version of the app
 msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "Du kör en appversion utan stöd. Uppgradera till %(version)s nu för att garantera din säkerhet"
+msgstr ""
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
-msgstr "Ansluter till Mullvads systemtjänst..."
+msgstr ""
 
 msgctxt "launch-view"
 msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
+msgstr ""
 
 msgctxt "login-view"
 msgid "Checking account number"
-msgstr "Kontrollerar kontonummer"
+msgstr ""
 
 msgctxt "login-view"
 msgid "Correct account number"
-msgstr "Korrekt kontonummer"
+msgstr ""
 
 msgctxt "login-view"
 msgid "Create account"
-msgstr "Skapa konto"
+msgstr ""
 
 msgctxt "login-view"
 msgid "Don't have an account number?"
-msgstr "Har du inget kontonummer?"
+msgstr ""
 
 msgctxt "login-view"
 msgid "Enter your account number"
-msgstr "Ange ditt kontonummer"
+msgstr ""
 
 msgctxt "login-view"
 msgid "Logged in"
-msgstr "Inloggad"
+msgstr ""
 
 msgctxt "login-view"
 msgid "Logging in..."
-msgstr "Loggar in..."
+msgstr ""
 
 msgctxt "login-view"
 msgid "Login"
-msgstr "Logga in"
+msgstr ""
 
 msgctxt "login-view"
 msgid "Login failed"
-msgstr "Inloggningen misslyckades"
+msgstr ""
 
 msgctxt "login-view"
 msgid "Unknown error"
-msgstr "Okänt fel"
+msgstr ""
 
 msgctxt "notifications"
 msgid "Blocked all connections"
-msgstr "Blockera alla anslutningar"
+msgstr ""
 
 msgctxt "notifications"
 msgid "Connecting"
-msgstr "Ansluter"
+msgstr ""
 
 msgctxt "notifications"
 msgid "Critical failure - Unsecured"
-msgstr "Kritiskt fel - oskyddad"
+msgstr ""
 
 msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
-msgstr "Inkonsekvent intern versionsinformation, starta om appen"
+msgstr ""
 
 msgctxt "notifications"
 msgid "Reconnecting"
-msgstr "Återansluter"
+msgstr ""
 
 msgctxt "notifications"
 msgid "Secured"
-msgstr "Skyddad"
+msgstr ""
 
 msgctxt "notifications"
 msgid "Unsecured"
-msgstr "Oskyddad"
+msgstr ""
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
 #. %(version) - the newest available version of the app
 msgctxt "notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "Du kör en appversion utan stöd. Uppgradera till %(version)s nu för att garantera din säkerhet"
+msgstr ""
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
 msgid "Preferences"
-msgstr "Inställningar"
+msgstr ""
 
 #. Back button in navigation bar
 msgctxt "preferences-nav"
 msgid "Settings"
-msgstr "Inställningar"
+msgstr ""
 
 msgctxt "preferences-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "Tillåter åtkomst till andra enheter i samma nätverk för delning, utskrift etc."
+msgstr ""
 
 msgctxt "preferences-view"
 msgid "Auto-connect"
-msgstr "Anslut automatiskt"
+msgstr ""
 
 msgctxt "preferences-view"
 msgid "Automatically connect to a server when the app launches."
-msgstr "Anslut automatiskt till en server när appen startas."
+msgstr ""
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
-msgstr "Starta appen vid uppstart"
+msgstr ""
 
 msgctxt "preferences-view"
 msgid "Local network sharing"
-msgstr "Lokal nätverksdelning"
+msgstr ""
 
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
-msgstr "Enfärgad systemfältsikon"
+msgstr ""
 
 msgctxt "preferences-view"
 msgid "Preferences"
-msgstr "Inställningar"
+msgstr ""
 
 msgctxt "preferences-view"
 msgid "Show only the tray icon when the app starts."
-msgstr "Visa endast systemfältsikonen när appen startas."
+msgstr ""
 
 msgctxt "preferences-view"
 msgid "Start minimized"
-msgstr "Starta minimerat"
+msgstr ""
 
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
-msgstr "Använd en enfärgad systemfältsikon i stället för en flerfärgad."
+msgstr ""
 
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
-msgstr "Välj plats"
+msgstr ""
 
 msgctxt "select-location-view"
 msgid "Select location"
-msgstr "Välj plats"
+msgstr ""
 
 msgctxt "select-location-view"
 msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr "Medan du är ansluten maskeras din riktiga plats med en privat och säker plats i den valda regionen"
+msgstr ""
 
 msgctxt "settings-view"
 msgid "Account"
-msgstr "Konto"
+msgstr ""
 
 msgctxt "settings-view"
 msgid "Advanced"
-msgstr "Avancerat"
+msgstr ""
 
 msgctxt "settings-view"
 msgid "App version"
-msgstr "Appversion"
+msgstr ""
 
 msgctxt "settings-view"
 msgid "FAQs & Guides"
-msgstr "Vanliga frågor och guider"
+msgstr ""
 
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
-msgstr "Inkonsekvent intern versionsinformation, starta om appen."
+msgstr ""
 
 msgctxt "settings-view"
 msgid "OUT OF TIME"
-msgstr "INGEN TID KVAR"
+msgstr ""
 
 msgctxt "settings-view"
 msgid "Preferences"
-msgstr "Inställningar"
+msgstr ""
 
 msgctxt "settings-view"
 msgid "Quit app"
-msgstr "Avsluta appen"
+msgstr ""
 
 msgctxt "settings-view"
 msgid "Report a problem"
-msgstr "Rapportera ett problem"
+msgstr ""
 
 msgctxt "settings-view"
 msgid "Settings"
-msgstr "Inställningar"
+msgstr ""
 
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
-msgstr "Uppdatering tillgänglig. Ladda ned för att vara säker."
+msgstr ""
 
 #. Title label in navigation bar
 msgctxt "settings-view-nav"
 msgid "Settings"
-msgstr "Inställningar"
+msgstr ""
 
 #. Back button in navigation bar
 msgctxt "support-nav"
 msgid "Settings"
-msgstr "Inställningar"
+msgstr ""
 
 msgctxt "support-view"
 msgid "Back"
-msgstr "Tillbaka"
+msgstr ""
 
 msgctxt "support-view"
 msgid "Describe your problem"
-msgstr "Beskriv ditt problem"
+msgstr ""
 
 msgctxt "support-view"
 msgid "Edit message"
-msgstr "Redigera meddelande"
+msgstr ""
 
 msgctxt "support-view"
 msgid "Failed to send"
-msgstr "Det gick inte att skicka"
+msgstr ""
 
 #. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
 #. Available placeholders:
 #. %(email)s
 msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
-msgstr "Om det behövs kontaktar vi dig på %(email)s"
+msgstr ""
 
 msgctxt "support-view"
 msgid "Report a problem"
-msgstr "Rapportera ett problem"
+msgstr ""
 
 msgctxt "support-view"
 msgid "Send"
-msgstr "Skicka"
+msgstr ""
 
 msgctxt "support-view"
 msgid "Send anyway"
-msgstr "Skicka ändå"
+msgstr ""
 
 msgctxt "support-view"
 msgid "Sending..."
-msgstr "Skicka..."
+msgstr ""
 
 msgctxt "support-view"
 msgid "Sent"
-msgstr "Skickat"
+msgstr ""
 
 msgctxt "support-view"
 msgid "Thanks! We will look into this."
-msgstr "Tack! Vi kommer att undersöka detta."
+msgstr ""
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
-msgstr "För att hjälpa dig mer effektivt kommer appens loggfil att bifogas i detta meddelande. Dina uppgifter förblir säkra och privata, eftersom de anonymiseras innan de skickas över en krypterad kanal."
+msgstr ""
 
 msgctxt "support-view"
 msgid "Try again"
-msgstr "Försök igen"
+msgstr ""
 
 msgctxt "support-view"
 msgid "View app logs"
-msgstr "Visa appens loggar"
+msgstr ""
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
-msgstr "Du är på väg att skicka problemrapporten utan att vi har möjlighet att besvara dig. Om du vill ha svar på din rapport måste du ange en e-postadress."
+msgstr ""
 
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
-msgstr "Du kan behöva gå tillbaka till appens huvudskärm och klicka på Koppla från innan du försöker igen. Oroa dig inte, den information du angett i formuläret kommer att bli kvar där."
+msgstr ""
 
 msgctxt "support-view"
 msgid "Your email (optional)"
-msgstr "Din e-postadress (valfritt)"
+msgstr ""
 
 msgctxt "tunnel-control"
 msgid "Cancel"
-msgstr "Avbryt"
+msgstr ""
 
 msgctxt "tunnel-control"
 msgid "Disconnect"
-msgstr "Koppla från"
+msgstr ""
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
-msgstr "Skydda min anslutning"
+msgstr ""
 
 msgctxt "tunnel-control"
 msgid "Switch location"
-msgstr "Växla plats"
+msgstr ""
 
