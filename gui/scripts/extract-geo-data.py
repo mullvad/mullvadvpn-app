@@ -22,6 +22,11 @@ LOCALE_OUT_DIR = path.join(OUT_DIR, "locales")
 
 POPULATION_MAX_FILTER = 50000
 
+LOCALE_MAPPING = {
+  # "zh" in Natural Earth Data referes to simplified chinese
+  "zh-CN": "zh"
+}
+
 def extract_cities():
   input_path = get_shape_path("ne_50m_populated_places")
   output_path = path.join(OUT_DIR, "cities.json")
@@ -159,8 +164,8 @@ def extract_countries_po():
 
         for feat in source:
           props = lower_dict_keys(feat["properties"])
-          name_key = "_".join(("name", get_locale_language(locale)))
-          name_alt_key = "_".join(("name", convert_locale_ident(locale)))
+
+          name_key = "name_" + map_locale(locale)
           name_fallback = "name"
 
           country_name = props.get("name")
@@ -168,15 +173,13 @@ def extract_countries_po():
 
           if props.get(name_key) is not None:
             translated_name = props.get(name_key)
-          elif props.get(name_alt_key) is not None:
-            translated_name = props.get(name_alt_key)
           elif props.get(name_fallback) is not None:
             translated_name = props.get(name_fallback)
             print c.orange(u" Missing translation for {}".format(translated_name))
           else:
             raise ValueError(
               "Cannot find the translation for {}. Probe keys: {}"
-              .format(locale, (name_key, name_alt_key))
+              .format(locale, (name_key, name_fallback))
               )
 
           entry = POEntry(
@@ -238,15 +241,11 @@ def extract_cities_po():
           props = lower_dict_keys(feat["properties"])
 
           if props["pop_max"] >= POPULATION_MAX_FILTER:
-            name_key = "_".join(("name", get_locale_language(locale)))
-            name_alt_key = "_".join(("name", convert_locale_ident(locale)))
+            name_key = "name_" + map_locale(locale)
             name_fallback = "name"
 
             if props.get(name_key) is not None:
               translated_name = props.get(name_key)
-              hits += 1
-            elif props.get(name_alt_key) is not None:
-              translated_name = props.get(name_alt_key)
               hits += 1
             elif props.get(name_fallback) is not None:
               translated_name = props.get(name_fallback)
@@ -255,7 +254,7 @@ def extract_cities_po():
             else:
               raise ValueError(
                 "Cannot find the translation for {}. Probe keys: {}"
-                .format(locale, (name_key, name_alt_key))
+                .format(locale, (name_key, name_fallback))
                 )
 
             entry = POEntry(
@@ -425,8 +424,7 @@ def translate_relay_locations(place_translator, countries, locale):
 
 class PlaceTranslator(object):
   """
-  This class provides facilities for translating places from one language to the other.
-  It supports both English and
+  This class provides facilities for translating places from English.
   """
 
   def __init__(self):
@@ -444,20 +442,17 @@ class PlaceTranslator(object):
 
     Returns None when either there is no match or there is no translation for the matched city.
     """
-    preferred_locales = (get_locale_language(locale), convert_locale_ident(locale))
-    match_prop_keys = list("name_" + x for x in preferred_locales)
-
     props = self.dataset.get(english_city_name)
 
     if props is not None:
-      for key in match_prop_keys:
-        value = props.get(key)
+      name_key = "name_" + map_locale(locale)
+      value = props.get(name_key)
 
-        if value is not None:
-          return value
-
-      print c.orange(u"Missing translation for {} ({}). Probe keys: {}".format(
-        english_city_name, locale, match_prop_keys).encode('utf-8'))
+      if value is None:
+        print c.orange(u"Missing translation for {} ({}) under the {} key".format(
+          english_city_name, locale, name_key).encode('utf-8'))
+      else:
+        return value
 
     return None
 
@@ -511,14 +506,16 @@ def convert_locale_ident(locale_ident):
   return locale_ident.replace("-", "_")
 
 
-def get_locale_language(locale_ident):
+def map_locale(locale_ident):
   """
-  Return a langauge code from locale identifier.
+  Map the locale in Natural Earth Data with the locale in the app and Crowdin
+  """
+  if LOCALE_MAPPING.has_key(locale_ident):
+    locale_override = LOCALE_MAPPING[locale_ident]
+  else:
+    locale_override = locale_ident
 
-  Example #1: en-US, the function returns en
-  Example #2: en, the function returns en
-  """
-  return locale_ident.split("-")[0]
+  return convert_locale_ident(locale_override)
 
 
 def request_relays():
