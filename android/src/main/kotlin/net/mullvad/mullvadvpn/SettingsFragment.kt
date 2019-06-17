@@ -10,6 +10,15 @@ import android.widget.Button
 import android.widget.ImageButton
 
 class SettingsFragment : Fragment() {
+    private lateinit var parentActivity: MainActivity
+    private lateinit var remainingTimeLabel: RemainingTimeLabel
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        parentActivity = context as MainActivity
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -25,6 +34,34 @@ class SettingsFragment : Fragment() {
             activity?.finishAndRemoveTask()
         }
 
+        view.findViewById<View>(R.id.account).setOnClickListener { openAccountSettings() }
+
+        remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
+
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        remainingTimeLabel.onResume()
+    }
+
+    override fun onDestroyView() {
+        remainingTimeLabel.onDestroy()
+        super.onDestroyView()
+    }
+
+    private fun openAccountSettings() {
+        fragmentManager?.beginTransaction()?.apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_right,
+                R.anim.fragment_half_exit_to_left,
+                R.anim.fragment_half_enter_from_left,
+                R.anim.fragment_exit_to_right
+            )
+            replace(R.id.main_fragment, AccountFragment())
+            addToBackStack(null)
+            commit()
+        }
     }
 }

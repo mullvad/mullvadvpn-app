@@ -13,7 +13,13 @@
     <string name="login_fail_description">Invalid account number, try again</string>
 
     <string name="settings">Settings</string>
+    <string name="settings_account">Account</string>
+    <string name="less_than_a_day_left">less than a day left</string>
+    <string name="out_of_time">Out of time</string>
     <string name="quit">Quit</string>
+
+    <string name="account_number">Account number</string>
+    <string name="paid_until">Paid until</string>
 
     <string name="unsecured_connection">Unsecured connection</string>
     <string name="creating_secure_connection">Creating secure connection</string>

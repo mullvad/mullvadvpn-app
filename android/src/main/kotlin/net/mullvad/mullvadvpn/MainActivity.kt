@@ -36,6 +36,8 @@ class MainActivity : FragmentActivity() {
     val settings
         get() = runBlocking { asyncSettings.await() }
 
+    val accountCache = AccountCache(this)
+
     var selectedRelayItem: RelayItem? = null
 
     private val restoreSelectedRelayListItemJob = restoreSelectedRelayListItem()
@@ -81,6 +83,8 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onDestroy() {
+        accountCache.onDestroy()
+
         restoreSelectedRelayListItemJob.cancel()
         waitForDaemonJob?.cancel()
         asyncSettings.cancel()
@@ -101,6 +105,13 @@ class MainActivity : FragmentActivity() {
             replace(R.id.main_fragment, SettingsFragment())
             addToBackStack(null)
             commit()
+        }
+    }
+
+    fun refetchSettings() {
+        if (asyncSettings.isCompleted) {
+            asyncSettings = fetchSettings()
+            accountCache.settings = asyncSettings
         }
     }
 

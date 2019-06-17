@@ -27,6 +27,45 @@
             android:textStyle="bold"
             android:text="@string/settings"
             />
+    <LinearLayout android:id="@+id/account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:background="@drawable/cell_button_background"
+            android:clickable="true"
+            android:gravity="center"
+            >
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="17dp"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="@string/settings_account"
+                />
+        <TextView android:id="@+id/remaining_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:gravity="right"
+                android:textColor="@color/white60"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:text=""
+                android:textAllCaps="true"
+                />
+        <ImageView
+                android:layout_width="14dp"
+                android:layout_height="24dp"
+                android:layout_weight="0"
+                android:alpha="0.6"
+                android:src="@drawable/icon_chevron"
+                />
+    </LinearLayout>
     <Button android:id="@+id/quit_button"
             android:layout_marginTop="24dp"
             android:layout_marginLeft="24dp"

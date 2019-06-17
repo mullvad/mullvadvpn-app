@@ -1,0 +1,14 @@
+<resources>
+    <plurals name="years_left">
+        <item quantity="one">%d year left</item>
+        <item quantity="other">%d years left</item>
+    </plurals>
+    <plurals name="months_left">
+        <item quantity="one">%d month left</item>
+        <item quantity="other">%d months left</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">%d day left</item>
+        <item quantity="other">%d days left</item>
+    </plurals>
+</resources>
