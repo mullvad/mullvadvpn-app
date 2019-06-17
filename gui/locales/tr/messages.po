@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2019-05-20 12:54\n"
+"PO-Revision-Date: 2019-06-17 08:47\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ENGELLENEN BAĞLANTI"
@@ -97,6 +97,11 @@ msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
 msgstr "Bağlantı kesilince engelle"
 
+#. The title for the shadowsocks bridge selector section.
+msgctxt "advanced-settings-view"
+msgid "Bridge mode"
+msgstr "Köprü modu"
+
 msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "Varsayılan"
@@ -117,6 +122,14 @@ msgctxt "advanced-settings-view"
 msgid "Network protocols"
 msgstr "Ağ protokolleri"
 
+msgctxt "advanced-settings-view"
+msgid "Off"
+msgstr "Açık"
+
+msgctxt "advanced-settings-view"
+msgid "On"
+msgstr "Kapalı"
+
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
@@ -124,6 +137,14 @@ msgstr "Ağ protokolleri"
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "OpenVPN MSS değerini belirleyin. Geçerli aralık: %(min)d - %(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "TCP"
+msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "UDP"
+msgstr "UDP"
 
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
@@ -179,16 +200,12 @@ msgid "You have no more VPN time left on this account. To buy more credit on our
 msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Web sitemizden daha fazla kredi satın almak için güvenli olmayan bir bağlantıyla internete erişmeniz gerekecek."
 
 msgctxt "connection-info"
-msgid "Connection details"
-msgstr ""
-
-msgctxt "connection-info"
 msgid "In"
-msgstr ""
+msgstr "Giriş"
 
 msgctxt "connection-info"
 msgid "Out"
-msgstr ""
+msgstr "Çıkış"
 
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"
@@ -203,7 +220,7 @@ msgstr "Bir sorun oluştu. Lütfen bizimle %(email)s adresinden iletişime geçi
 
 msgctxt "headerbar"
 msgid "MULLVAD VPN"
-msgstr ""
+msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -276,8 +293,8 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %(version)s sürümüne yükseltin"
 
 msgctxt "launch-view"
-msgid "Connecting to daemon..."
-msgstr "Aracı programa bağlanılıyor..."
+msgid "Connecting to Mullvad system service..."
+msgstr "Mullvad sistem hizmetlerine bağlanılıyor..."
 
 msgctxt "launch-view"
 msgid "MULLVAD VPN"

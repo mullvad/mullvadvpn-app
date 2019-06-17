@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2019-05-20 12:39\n"
+"PO-Revision-Date: 2019-06-17 08:47\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ПОДКЛЮЧЕНИЕ ЗАБЛОКИРОВАНО"
@@ -97,6 +97,11 @@ msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
 msgstr "Блокировать при отключении"
 
+#. The title for the shadowsocks bridge selector section.
+msgctxt "advanced-settings-view"
+msgid "Bridge mode"
+msgstr "Режим моста"
+
 msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "По умолчанию"
@@ -117,6 +122,14 @@ msgctxt "advanced-settings-view"
 msgid "Network protocols"
 msgstr "Сетевые протоколы"
 
+msgctxt "advanced-settings-view"
+msgid "Off"
+msgstr "Выключен"
+
+msgctxt "advanced-settings-view"
+msgid "On"
+msgstr "Включен"
+
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
@@ -124,6 +137,14 @@ msgstr "Сетевые протоколы"
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "Установить значение MSS для OpenVPN. Диапазон значений: %(min)d — %(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "TCP"
+msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "UDP"
+msgstr "UDP"
 
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
@@ -179,16 +200,12 @@ msgid "You have no more VPN time left on this account. To buy more credit on our
 msgstr "У этой учетной записи закончилось время на услуге VPN. Чтобы пополнить баланс на нашем веб-сайте, вам нужно выйти в интернет по незащищенному подключению."
 
 msgctxt "connection-info"
-msgid "Connection details"
-msgstr ""
-
-msgctxt "connection-info"
 msgid "In"
-msgstr ""
+msgstr "Вход"
 
 msgctxt "connection-info"
 msgid "Out"
-msgstr ""
+msgstr "Выход"
 
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"
@@ -203,7 +220,7 @@ msgstr "Ошибка. Свяжитесь с нами по адресу %(email)s
 
 msgctxt "headerbar"
 msgid "MULLVAD VPN"
-msgstr ""
+msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -276,8 +293,8 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr "Вы используете неподдерживаемую версию приложения. Чтобы обеспечить безопасность, обновитесь до версии %(version)s"
 
 msgctxt "launch-view"
-msgid "Connecting to daemon..."
-msgstr "Подключение к демону..."
+msgid "Connecting to Mullvad system service..."
+msgstr "Подключение к системному сервису Mullvad..."
 
 msgctxt "launch-view"
 msgid "MULLVAD VPN"
