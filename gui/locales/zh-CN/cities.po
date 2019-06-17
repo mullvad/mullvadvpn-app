@@ -1,0 +1,3120 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgid "Bombo"
+msgstr "Bombo"
+
+msgid "Potenza"
+msgstr "波坦察"
+
+msgid "Campobasso"
+msgstr "坎波巴索"
+
+msgid "Poitier"
+msgstr "普瓦捷"
+
+msgid "Clermont-Ferrand"
+msgstr "克莱蒙费朗"
+
+msgid "Besançon"
+msgstr "贝桑松"
+
+msgid "Chipata"
+msgstr "奇帕塔"
+
+msgid "Jinja"
+msgstr "金賈"
+
+msgid "Arua"
+msgstr "阿鲁阿"
+
+msgid "Mbale"
+msgstr "姆巴萊"
+
+msgid "Masaka"
+msgstr "Masaka"
+
+msgid "Mbarara"
+msgstr "姆巴拉拉"
+
+msgid "Bologna"
+msgstr "博洛尼亚"
+
+msgid "Cagliari"
+msgstr "卡利亚里"
+
+msgid "Catanzaro"
+msgstr "卡坦扎罗"
+
+msgid "Bari"
+msgstr "巴里"
+
+msgid "L'Aquila"
+msgstr "拉奎拉"
+
+msgid "Ancona"
+msgstr "安科纳"
+
+msgid "Perugia"
+msgstr "佩鲁贾"
+
+msgid "Trieste"
+msgstr "的里雅斯特"
+
+msgid "Trento"
+msgstr "特伦托"
+
+msgid "Fort-de-France"
+msgstr "法兰西堡"
+
+msgid "Gifu"
+msgstr "岐阜"
+
+msgid "Caen"
+msgstr "卡昂"
+
+msgid "Nantes"
+msgstr "南特"
+
+msgid "Ajaccio"
+msgstr "阿雅克肖"
+
+msgid "Montpellier"
+msgstr "蒙彼利埃"
+
+msgid "Dijon"
+msgstr "第戎"
+
+msgid "Orléans"
+msgstr "奥尔良"
+
+msgid "Rouen"
+msgstr "鲁昂"
+
+msgid "Reims"
+msgstr "汉斯"
+
+msgid "Amiens"
+msgstr "亞眠"
+
+msgid "Nancy"
+msgstr "南锡"
+
+msgid "Novi Sad"
+msgstr "诺威萨"
+
+msgid "Banja Luka"
+msgstr "巴尼亚卢卡"
+
+msgid "Willemstad"
+msgstr "威廉斯塔德"
+
+msgid "Oranjestad"
+msgstr "奥腊涅斯塔德"
+
+msgid "Gibraltar"
+msgstr "直布罗陀"
+
+msgid "Edinburgh"
+msgstr "爱丁堡"
+
+msgid "Cardiff"
+msgstr "加的夫"
+
+msgid "Luxembourg"
+msgstr "盧森堡"
+
+msgid "Turin"
+msgstr "都灵"
+
+msgid "Nouméa"
+msgstr "努美阿"
+
+msgid "Matsuyama"
+msgstr "松山"
+
+msgid "Rennes"
+msgstr "雷恩"
+
+msgid "Toulouse"
+msgstr "圖盧茲"
+
+msgid "Limoges"
+msgstr "利摩日"
+
+msgid "Lille"
+msgstr "里尔"
+
+msgid "Strasbourg"
+msgstr "斯特拉斯堡"
+
+msgid "Batumi"
+msgstr "巴统"
+
+msgid "Funchal"
+msgstr "丰沙尔"
+
+msgid "El Fasher"
+msgstr "法希尔"
+
+msgid "Genoa"
+msgstr "热那亚"
+
+msgid "Sukhumi"
+msgstr "苏呼米"
+
+msgid "Agana"
+msgstr "阿加尼亚"
+
+msgid "Moroni"
+msgstr "莫洛尼"
+
+msgid "Macau"
+msgstr "澳門"
+
+msgid "Andorra"
+msgstr "安道尔城"
+
+msgid "San Bernardino"
+msgstr "聖貝納迪諾"
+
+msgid "Bridgeport"
+msgstr "布里奇波特"
+
+msgid "Rochester"
+msgstr "羅徹斯特"
+
+msgid "Manchester"
+msgstr "曼彻斯特"
+
+msgid "Gujranwala"
+msgstr "古吉兰瓦拉"
+
+msgid "Incheon"
+msgstr "仁川廣域"
+
+msgid "Benin City"
+msgstr "贝宁城"
+
+msgid "Xiamen"
+msgstr "厦门"
+
+msgid "Nanchong"
+msgstr "南充"
+
+msgid "Neijiang"
+msgstr "内江"
+
+msgid "Nanyang"
+msgstr "南阳"
+
+msgid "Jinxi"
+msgstr "Jinxi"
+
+msgid "Yantai"
+msgstr "烟台"
+
+msgid "Zaozhuang"
+msgstr "枣庄"
+
+msgid "Suzhou"
+msgstr "苏州"
+
+msgid "Xuzhou"
+msgstr "徐州"
+
+msgid "Wuxi"
+msgstr "无锡"
+
+msgid "Jilin"
+msgstr "吉林"
+
+msgid "Chandigarh"
+msgstr "昌迪加尔"
+
+msgid "Jammu"
+msgstr "贾姆穆"
+
+msgid "Sholapur"
+msgstr "索拉普"
+
+msgid "Aurangabad"
+msgstr "奥郎加巴德"
+
+msgid "Nasik"
+msgstr "纳西克"
+
+msgid "Jullundur"
+msgstr "賈朗達爾"
+
+msgid "Allahabad"
+msgstr "安拉阿巴德"
+
+msgid "Moradabad"
+msgstr "莫拉達巴德"
+
+msgid "Ghaziabad"
+msgstr "加濟阿巴德"
+
+msgid "Agra"
+msgstr "阿格拉"
+
+msgid "Aligarh"
+msgstr "阿里格尔"
+
+msgid "Meerut"
+msgstr "密拉特"
+
+msgid "Dhanbad"
+msgstr "丹巴德"
+
+msgid "Gwalior"
+msgstr "瓜廖尔"
+
+msgid "Vadodara"
+msgstr "巴罗达"
+
+msgid "Rajkot"
+msgstr "拉杰果德"
+
+msgid "St. Paul"
+msgstr "圣保罗"
+
+msgid "Billings"
+msgstr "比靈斯"
+
+msgid "Great Falls"
+msgstr "大瀑布城"
+
+msgid "Missoula"
+msgstr "米蘇拉"
+
+msgid "Fargo"
+msgstr "法戈"
+
+msgid "Hilo"
+msgstr "希洛"
+
+msgid "Olympia"
+msgstr "奧林匹亞"
+
+msgid "Spokane"
+msgstr "斯波坎"
+
+msgid "Vancouver"
+msgstr "溫哥華"
+
+msgid "Flagstaff"
+msgstr "弗拉格斯塔夫"
+
+msgid "Tucson"
+msgstr "图森"
+
+msgid "Santa Barbara"
+msgstr "圣巴巴拉"
+
+msgid "Fresno"
+msgstr "弗雷斯诺"
+
+msgid "Colorado Springs"
+msgstr "科罗拉多斯普林斯"
+
+msgid "Reno"
+msgstr "雷諾"
+
+msgid "Albuquerque"
+msgstr "阿布奎基"
+
+msgid "Salem"
+msgstr "塞勒姆"
+
+msgid "Casper"
+msgstr "卡斯珀"
+
+msgid "Topeka"
+msgstr "托皮卡"
+
+msgid "Kansas City"
+msgstr "堪薩斯城"
+
+msgid "Tulsa"
+msgstr "塔爾薩"
+
+msgid "Sioux Falls"
+msgstr "蘇瀑"
+
+msgid "Shreveport"
+msgstr "什里夫波特"
+
+msgid "Baton Rouge"
+msgstr "巴頓魯治"
+
+msgid "Ft. Worth"
+msgstr "沃思堡"
+
+msgid "Corpus Christi"
+msgstr "科珀斯克里斯蒂"
+
+msgid "Austin"
+msgstr "奧斯汀"
+
+msgid "Amarillo"
+msgstr "阿馬里洛"
+
+msgid "El Paso"
+msgstr "艾爾帕索"
+
+msgid "Laredo"
+msgstr "拉雷多"
+
+msgid "Merida"
+msgstr "梅里達"
+
+msgid "Burlington"
+msgstr "伯靈頓"
+
+msgid "Montgomery"
+msgstr "蒙哥马利"
+
+msgid "Tallahassee"
+msgstr "塔拉哈西"
+
+msgid "Orlando"
+msgstr "奥兰多"
+
+msgid "Jacksonville"
+msgstr "杰克逊维尔"
+
+msgid "Savannah"
+msgstr "薩凡納"
+
+msgid "Columbia"
+msgstr "哥伦比亚"
+
+msgid "Indianapolis"
+msgstr "印第安納波利斯"
+
+msgid "Wilmington"
+msgstr "威尔明顿"
+
+msgid "Knoxville"
+msgstr "諾克斯維爾"
+
+msgid "Richmond"
+msgstr "里士满"
+
+msgid "Charleston"
+msgstr "查尔斯顿"
+
+msgid "Baltimore"
+msgstr "巴爾的摩"
+
+msgid "Syracuse"
+msgstr "锡拉丘兹"
+
+msgid "Puerto Ayacucho"
+msgstr "阿亞庫喬港"
+
+msgid "Port-of-Spain"
+msgstr "西班牙港"
+
+msgid "Sault Ste. Marie"
+msgstr "蘇聖瑪麗"
+
+msgid "Atakpamé"
+msgstr "阿塔帕梅"
+
+msgid "Sousse"
+msgstr "苏塞"
+
+msgid "Taizz"
+msgstr "塔伊茲"
+
+msgid "Lvov"
+msgstr "利沃夫"
+
+msgid "Odessa"
+msgstr "敖德薩"
+
+msgid "Zhytomyr"
+msgstr "日托米尔"
+
+msgid "Dnipro"
+msgstr "第聂伯罗"
+
+msgid "Donetsk"
+msgstr "頓涅茨克"
+
+msgid "Kharkiv"
+msgstr "哈爾科夫"
+
+msgid "Türkmenbaşy"
+msgstr "土庫曼巴希"
+
+msgid "Bukhara"
+msgstr "布哈拉"
+
+msgid "Nukus"
+msgstr "努库斯"
+
+msgid "Türkmenabat"
+msgstr "土庫曼納巴德"
+
+msgid "Mary"
+msgstr "马雷"
+
+msgid "Andijon"
+msgstr "安集延"
+
+msgid "Haiphong"
+msgstr "海防"
+
+msgid "Da Nang"
+msgstr "岘港"
+
+msgid "Kabwe"
+msgstr "卡布韦"
+
+msgid "Mufulira"
+msgstr "穆富利拉"
+
+msgid "Kitwe"
+msgstr "基特韦"
+
+msgid "Livingstone"
+msgstr "利文斯顿"
+
+msgid "Chitungwiza"
+msgstr "奇通圭扎"
+
+msgid "Douala"
+msgstr "杜阿拉"
+
+msgid "Birmingham"
+msgstr "伯明翰"
+
+msgid "Belfast"
+msgstr "贝尔法斯特"
+
+msgid "İzmir"
+msgstr "伊兹密尔"
+
+msgid "Bursa"
+msgstr "布尔萨"
+
+msgid "Samsun"
+msgstr "薩姆松"
+
+msgid "Konya"
+msgstr "科尼亞"
+
+msgid "Adana"
+msgstr "阿达纳"
+
+msgid "Gulu"
+msgstr "古盧"
+
+msgid "Kigali"
+msgstr "吉佳利"
+
+msgid "Córdoba"
+msgstr "科爾多瓦"
+
+msgid "Maradi"
+msgstr "Maradi"
+
+msgid "Tahoua"
+msgstr "塔瓦"
+
+msgid "Constanța"
+msgstr "康斯坦察"
+
+msgid "Sundsvall"
+msgstr "松茲瓦爾"
+
+msgid "Iași"
+msgstr "雅西"
+
+msgid "Surat Thani"
+msgstr "素叻他尼"
+
+msgid "Chiang Mai"
+msgstr "清邁"
+
+msgid "Nakhon Ratchasima"
+msgstr "呵叻"
+
+msgid "Mbabane"
+msgstr "墨巴本"
+
+msgid "Piura"
+msgstr "皮乌拉"
+
+msgid "Arequipa"
+msgstr "阿雷基帕"
+
+msgid "Chimbote"
+msgstr "钦博特"
+
+msgid "Pucallpa"
+msgstr "普兰尔帕"
+
+msgid "Iquitos"
+msgstr "伊基托斯"
+
+msgid "Huancayo"
+msgstr "万卡约"
+
+msgid "Ciudad del Este"
+msgstr "東方"
+
+msgid "Ponta Delgada"
+msgstr "蓬塔德爾加達"
+
+msgid "Vigo"
+msgstr "維戈"
+
+msgid "Bilbao"
+msgstr "毕尔巴鄂"
+
+msgid "Kaolack"
+msgstr "考拉克"
+
+msgid "Geneina"
+msgstr "朱奈納"
+
+msgid "Medina"
+msgstr "麦地那"
+
+msgid "Tabuk"
+msgstr "塔布克"
+
+msgid "Juba"
+msgstr "朱巴"
+
+msgid "Malakal"
+msgstr "馬拉卡爾"
+
+msgid "Omdurman"
+msgstr "恩图曼"
+
+msgid "El Obeid"
+msgstr "欧拜伊德"
+
+msgid "The Hague"
+msgstr "海牙"
+
+msgid "Kristiansand"
+msgstr "克里斯蒂安桑"
+
+msgid "Ljubljana"
+msgstr "卢布尔雅那"
+
+msgid "Bratislava"
+msgstr "布拉迪斯拉发"
+
+msgid "Doha"
+msgstr "多哈"
+
+msgid "Quetta"
+msgstr "奎達"
+
+msgid "Larkana"
+msgstr "拉爾卡納"
+
+msgid "Upington"
+msgstr "烏平通"
+
+msgid "Worcester"
+msgstr "伍斯特"
+
+msgid "George"
+msgstr "喬治"
+
+msgid "Tete"
+msgstr "太特"
+
+msgid "Pemba"
+msgstr "彭巴"
+
+msgid "Nampula"
+msgstr "楠普拉"
+
+msgid "Welkom"
+msgstr "韋爾科姆"
+
+msgid "Xai-Xai"
+msgstr "賽賽"
+
+msgid "Mt. Hagen"
+msgstr "芒特哈根"
+
+msgid "Lae"
+msgstr "莱城"
+
+msgid "David"
+msgstr "戴维"
+
+msgid "Oujda"
+msgstr "乌季达"
+
+msgid "Safi"
+msgstr "薩非"
+
+msgid "Podgorica"
+msgstr "波德戈里察"
+
+msgid "Quelimane"
+msgstr "克利馬內"
+
+msgid "East London"
+msgstr "東倫敦"
+
+msgid "Naltchik"
+msgstr "納爾奇克"
+
+msgid "Stavropol"
+msgstr "斯塔夫罗波尔"
+
+msgid "Kaliningrad"
+msgstr "加里寧格勒"
+
+msgid "Pskov"
+msgstr "普斯科夫"
+
+msgid "Bryansk"
+msgstr "布良斯克"
+
+msgid "Smolensk"
+msgstr "斯摩棱斯克"
+
+msgid "Petrozavodsk"
+msgstr "彼得罗扎沃茨克"
+
+msgid "Tver"
+msgstr "特维尔"
+
+msgid "Vologda"
+msgstr "沃洛格达"
+
+msgid "Yaroslavl"
+msgstr "雅罗斯拉夫尔"
+
+msgid "Rostov"
+msgstr "顿河畔罗斯托夫"
+
+msgid "Sochi"
+msgstr "索契"
+
+msgid "Krasnodar"
+msgstr "克拉斯诺达尔"
+
+msgid "Penza"
+msgstr "奔萨"
+
+msgid "Ryazan"
+msgstr "梁赞"
+
+msgid "Voronezh"
+msgstr "沃罗涅日"
+
+msgid "Magnitogorsk"
+msgstr "马格尼托哥尔斯克"
+
+msgid "Chelyabinsk"
+msgstr "車里雅賓斯克"
+
+msgid "Vorkuta"
+msgstr "沃尔库塔"
+
+msgid "Kirov"
+msgstr "基洛夫"
+
+msgid "Nizhny Tagil"
+msgstr "下塔吉尔"
+
+msgid "Astrakhan"
+msgstr "阿斯特拉罕"
+
+msgid "Orenburg"
+msgstr "奥伦堡"
+
+msgid "Saratov"
+msgstr "薩拉托夫"
+
+msgid "Ulyanovsk"
+msgstr "乌里扬诺夫斯克"
+
+msgid "Omsk"
+msgstr "鄂木斯克"
+
+msgid "Tyumen"
+msgstr "秋明"
+
+msgid "Novokuznetsk"
+msgstr "新库兹涅茨克"
+
+msgid "Kemerovo"
+msgstr "克麥羅沃"
+
+msgid "Groznyy"
+msgstr "格罗兹尼"
+
+msgid "Kandy"
+msgstr "康提"
+
+msgid "Sri Jawewardenepura Kotte"
+msgstr "斯里賈亞瓦德納普拉科特"
+
+msgid "Daejeon"
+msgstr "大田廣域"
+
+msgid "Gwangju"
+msgstr "光州廣域"
+
+msgid "Busan"
+msgstr "釜山"
+
+msgid "Zamboanga"
+msgstr "三宝颜"
+
+msgid "Laoag"
+msgstr "佬沃"
+
+msgid "Baguio City"
+msgstr "碧瑶"
+
+msgid "General Santos"
+msgstr "三投斯將軍"
+
+msgid "Ust-Ulimsk"
+msgstr "乌斯季伊利姆斯克"
+
+msgid "Angarsk"
+msgstr "安加尔斯克"
+
+msgid "Abakan"
+msgstr "阿巴坎"
+
+msgid "Norilsk"
+msgstr "諾里爾斯克"
+
+msgid "Kyzyl"
+msgstr "克孜勒"
+
+msgid "Ulan Ude"
+msgstr "烏蘭烏德"
+
+msgid "Blagoveshchensk"
+msgstr "海兰泡"
+
+msgid "Khabarovsk"
+msgstr "伯力"
+
+msgid "Yuzhno Sakhalinsk"
+msgstr "丰原"
+
+msgid "Mexicali"
+msgstr "墨西卡利"
+
+msgid "La Paz"
+msgstr "拉巴斯"
+
+msgid "Torreón"
+msgstr "托雷翁"
+
+msgid "Culiacán"
+msgstr "库利亚坎"
+
+msgid "Nogales"
+msgstr "诺加利斯"
+
+msgid "Hermosillo"
+msgstr "埃莫西约"
+
+msgid "Guaymas"
+msgstr "瓜伊馬斯"
+
+msgid "San Luis Potosí"
+msgstr "圣路易斯波托西"
+
+msgid "Matamoros"
+msgstr "馬塔莫羅斯"
+
+msgid "Nuevo Laredo"
+msgstr "新拉雷多"
+
+msgid "Colima"
+msgstr "科利马"
+
+msgid "Campeche"
+msgstr "坎佩切"
+
+msgid "Oaxaca"
+msgstr "瓦哈卡"
+
+msgid "León"
+msgstr "莱昂"
+
+msgid "Maiduguri"
+msgstr "邁杜古里"
+
+msgid "Port Harcourt"
+msgstr "哈科特港"
+
+msgid "Makurdi"
+msgstr "马库尔迪"
+
+msgid "Ibadan"
+msgstr "伊巴丹"
+
+msgid "Ogbomosho"
+msgstr "奧博莫紹"
+
+msgid "Warri"
+msgstr "瓦里"
+
+msgid "Kaduna"
+msgstr "卡杜納"
+
+msgid "Gdańsk"
+msgstr "格但斯克"
+
+msgid "Kraków"
+msgstr "克拉科夫"
+
+msgid "Wonsan"
+msgstr "元山"
+
+msgid "Sinuiju"
+msgstr "新義州"
+
+msgid "Walvis Bay"
+msgstr "鲸湾港"
+
+msgid "Mwanza"
+msgstr "姆万扎"
+
+msgid "Morogoro"
+msgstr "莫罗戈罗"
+
+msgid "Dodoma"
+msgstr "多多马"
+
+msgid "Arusha"
+msgstr "阿鲁沙"
+
+msgid "Bern"
+msgstr "伯尔尼"
+
+msgid "Malmö"
+msgstr "马尔默"
+
+msgid "Laayoune"
+msgstr "阿尤恩"
+
+msgid "Ternate"
+msgstr "特爾納特"
+
+msgid "Ambon"
+msgstr "安汶"
+
+msgid "Raba"
+msgstr "Raba"
+
+msgid "Jayapura"
+msgstr "查雅普拉"
+
+msgid "Florence"
+msgstr "佛罗伦萨"
+
+msgid "Catania"
+msgstr "卡塔尼亞"
+
+msgid "Pristina"
+msgstr "普里什蒂纳"
+
+msgid "Eldoret"
+msgstr "埃爾多雷特"
+
+msgid "Banda Aceh"
+msgstr "班達亞齊"
+
+msgid "George Town"
+msgstr "乔治"
+
+msgid "Zhangye"
+msgstr "张掖"
+
+msgid "Wuwei"
+msgstr "武威"
+
+msgid "Dunhuang"
+msgstr "敦煌"
+
+msgid "Tianshui"
+msgstr "天水"
+
+msgid "Golmud"
+msgstr "格尔木"
+
+msgid "Yulin"
+msgstr "玉林"
+
+msgid "Bose"
+msgstr "白城"
+
+msgid "Wuzhou"
+msgstr "梧州"
+
+msgid "Lupanshui"
+msgstr "六盘水"
+
+msgid "Quanzhou"
+msgstr "泉州"
+
+msgid "Hefei"
+msgstr "合肥"
+
+msgid "Suzhou"
+msgstr "宿州"
+
+msgid "Zhanjiang"
+msgstr "湛江"
+
+msgid "Shaoguan"
+msgstr "韶关"
+
+msgid "Balikpapan"
+msgstr "巴厘巴板"
+
+msgid "Kuching"
+msgstr "古晉"
+
+msgid "Antsiranana"
+msgstr "安齊拉納納"
+
+msgid "Fianarantsoa"
+msgstr "菲亞納蘭楚阿"
+
+msgid "Mahajanga"
+msgstr "马哈赞加"
+
+msgid "Toliara"
+msgstr "圖利亞拉"
+
+msgid "Surakarta"
+msgstr "梭罗"
+
+msgid "Bandar Lampung"
+msgstr "班達楠榜"
+
+msgid "Tanjungpandan"
+msgstr "丹絨香蘭"
+
+msgid "Malang"
+msgstr "瑪琅"
+
+msgid "Kupang"
+msgstr "古邦"
+
+msgid "Parepare"
+msgstr "巴里巴里"
+
+msgid "Cuenca"
+msgstr "昆卡"
+
+msgid "Puerto Limon"
+msgstr "利蒙"
+
+msgid "Santiago de Cuba"
+msgstr "圣地亚哥-德古巴"
+
+msgid "Santiago"
+msgstr "聖地牙哥"
+
+msgid "Manizales"
+msgstr "馬尼薩萊斯"
+
+msgid "Pasto"
+msgstr "帕斯托"
+
+msgid "Barranquilla"
+msgstr "巴兰基亚"
+
+msgid "Mbandaka"
+msgstr "姆班达卡"
+
+msgid "Moundou"
+msgstr "蒙杜"
+
+msgid "Suez"
+msgstr "苏伊士"
+
+msgid "Bur Said"
+msgstr "塞德港"
+
+msgid "El Faiyum"
+msgstr "法尤姆"
+
+msgid "Aswan"
+msgstr "阿斯旺"
+
+msgid "Asyut"
+msgstr "艾斯尤特"
+
+msgid "Kisangani"
+msgstr "基桑加尼"
+
+msgid "Assab"
+msgstr "阿萨布"
+
+msgid "Djibouti"
+msgstr "吉布地"
+
+msgid "Dresden"
+msgstr "德累斯顿"
+
+msgid "Xigaze"
+msgstr "桑珠孜区"
+
+msgid "Shache"
+msgstr "莎车县"
+
+msgid "Yining"
+msgstr "伊宁"
+
+msgid "Altay"
+msgstr "阿勒泰"
+
+msgid "Putrajaya"
+msgstr "布城"
+
+msgid "Shizuishan"
+msgstr "石嘴山"
+
+msgid "Yulin"
+msgstr "榆林"
+
+msgid "Ankang"
+msgstr "安康"
+
+msgid "Houma"
+msgstr "侯马"
+
+msgid "Yueyang"
+msgstr "岳陽"
+
+msgid "Hengyang"
+msgstr "衡陽"
+
+msgid "Mianyang"
+msgstr "绵阳"
+
+msgid "Xichang"
+msgstr "西昌"
+
+msgid "Baoshan"
+msgstr "保山"
+
+msgid "Gejiu"
+msgstr "个旧"
+
+msgid "Shijianzhuang"
+msgstr "石家庄"
+
+msgid "Handan"
+msgstr "邯郸"
+
+msgid "Anshan"
+msgstr "鞍山"
+
+msgid "Dalian"
+msgstr "大连"
+
+msgid "Qingdao"
+msgstr "青岛"
+
+msgid "Linyi"
+msgstr "临沂"
+
+msgid "Huaiyin"
+msgstr "淮安"
+
+msgid "Wenzhou"
+msgstr "温州"
+
+msgid "Ningbo"
+msgstr "宁波"
+
+msgid "Fukuoka"
+msgstr "福岡"
+
+msgid "Miyazaki"
+msgstr "宮崎"
+
+msgid "Naha"
+msgstr "那霸"
+
+msgid "Kōchi"
+msgstr "高知"
+
+msgid "Gorontalo"
+msgstr "哥倫打洛"
+
+msgid "Tongliao"
+msgstr "通辽"
+
+msgid "Hohhot"
+msgstr "呼和浩特"
+
+msgid "Chifeng"
+msgstr "赤峰"
+
+msgid "Ulanhot"
+msgstr "乌兰浩特"
+
+msgid "Hailar"
+msgstr "海拉尔区"
+
+msgid "Jiamusi"
+msgstr "佳木斯"
+
+msgid "Beian"
+msgstr "北安"
+
+msgid "Daqing"
+msgstr "大庆"
+
+msgid "Jixi"
+msgstr "鸡西"
+
+msgid "Nagoya"
+msgstr "名古屋"
+
+msgid "Nagano"
+msgstr "長野"
+
+msgid "Kushiro"
+msgstr "釧路"
+
+msgid "Hakodate"
+msgstr "函館"
+
+msgid "Kyoto"
+msgstr "京都"
+
+msgid "Sendai"
+msgstr "仙台"
+
+msgid "Sakata"
+msgstr "酒田"
+
+msgid "Bandundu"
+msgstr "班顿杜"
+
+msgid "Kananga"
+msgstr "卡南加"
+
+msgid "Kasongo"
+msgstr "卡松戈"
+
+msgid "Mbuji-Mayi"
+msgstr "姆布吉马伊"
+
+msgid "Kalemie"
+msgstr "卡萊米"
+
+msgid "Butembo"
+msgstr "布滕博"
+
+msgid "Goma"
+msgstr "戈马"
+
+msgid "Mzuzu"
+msgstr "姆祖祖"
+
+msgid "Blantyre"
+msgstr "布兰太尔"
+
+msgid "Quetzaltenango"
+msgstr "克薩爾特南戈"
+
+msgid "Faridabad"
+msgstr "法里達巴德"
+
+msgid "Srinagar"
+msgstr "斯利那加"
+
+msgid "Vijayawada"
+msgstr "维杰亚瓦达"
+
+msgid "Thiruvananthapuram"
+msgstr "锡鲁万纳塔普拉姆"
+
+msgid "Kochi"
+msgstr "柯枝"
+
+msgid "Cuttack"
+msgstr "克塔克"
+
+msgid "Hubli"
+msgstr "胡布利"
+
+msgid "Mangalore"
+msgstr "门格洛尔"
+
+msgid "Mysore"
+msgstr "迈索尔"
+
+msgid "Gulbarga"
+msgstr "古尔伯加"
+
+msgid "Kolhapur"
+msgstr "戈爾哈布爾"
+
+msgid "Nanded"
+msgstr "楠代德"
+
+msgid "Akola"
+msgstr "阿科拉"
+
+msgid "Guwahati"
+msgstr "古瓦哈提"
+
+msgid "Kayes"
+msgstr "Kayes"
+
+msgid "Bordeaux"
+msgstr "波尔多"
+
+msgid "Marseille"
+msgstr "马赛"
+
+msgid "Le Havre"
+msgstr "勒阿弗尔"
+
+msgid "Gao"
+msgstr "加奥"
+
+msgid "Arica"
+msgstr "阿里卡"
+
+msgid "Copiapó"
+msgstr "科皮亞波"
+
+msgid "La Serena"
+msgstr "拉塞雷纳"
+
+msgid "Los Angeles"
+msgstr "洛桑赫萊斯"
+
+msgid "Nouadhibou"
+msgstr "努瓦迪布"
+
+msgid "Kayes"
+msgstr "卡伊"
+
+msgid "Ségou"
+msgstr "塞古"
+
+msgid "Skopje"
+msgstr "斯科普里"
+
+msgid "Misratah"
+msgstr "米蘇拉塔"
+
+msgid "Zuwarah"
+msgstr "祖瓦拉"
+
+msgid "Kirkuk"
+msgstr "基爾庫克"
+
+msgid "Mosul"
+msgstr "摩苏尔"
+
+msgid "An Najaf"
+msgstr "納杰夫"
+
+msgid "Bahir Dar"
+msgstr "巴赫達爾"
+
+msgid "Mekele"
+msgstr "默克萊"
+
+msgid "Dire Dawa"
+msgstr "德雷达瓦"
+
+msgid "Vaasa"
+msgstr "瓦萨"
+
+msgid "Tampere"
+msgstr "坦佩雷"
+
+msgid "Aqtobe"
+msgstr "阿克托比"
+
+msgid "Rudny"
+msgstr "魯德內"
+
+msgid "Qyzylorda"
+msgstr "克孜勒奧爾達"
+
+msgid "Atyrau"
+msgstr "阿特勞"
+
+msgid "Ekibastuz"
+msgstr "埃基巴斯圖茲"
+
+msgid "Pavlodar"
+msgstr "巴甫洛達爾"
+
+msgid "Semey"
+msgstr "塞米伊"
+
+msgid "Oskemen"
+msgstr "厄斯克門"
+
+msgid "Yazd"
+msgstr "亚兹德"
+
+msgid "Ahvaz"
+msgstr "阿瓦士"
+
+msgid "Basra"
+msgstr "巴士拉"
+
+msgid "Bandar-e-Abbas"
+msgstr "阿巴斯港"
+
+msgid "Hamadan"
+msgstr "哈马丹"
+
+msgid "Tabriz"
+msgstr "大不里士"
+
+msgid "Ludhiana"
+msgstr "卢迪亚纳"
+
+msgid "Kota"
+msgstr "科塔"
+
+msgid "Jodhpur"
+msgstr "焦特布尔"
+
+msgid "Shymkent"
+msgstr "奇姆肯特"
+
+msgid "Taraz"
+msgstr "塔拉兹"
+
+msgid "Lucknow"
+msgstr "勒克瑙"
+
+msgid "Saharanpur"
+msgstr "薩哈蘭普爾"
+
+msgid "Ranchi"
+msgstr "蘭契"
+
+msgid "Bhagalpur"
+msgstr "帕格爾布爾"
+
+msgid "Raipur"
+msgstr "賴布爾"
+
+msgid "Jabalpur"
+msgstr "贾巴尔普尔"
+
+msgid "Indore"
+msgstr "印多尔"
+
+msgid "Pondicherry"
+msgstr "本地治里"
+
+msgid "Salem"
+msgstr "塞勒姆"
+
+msgid "Tiruchirappalli"
+msgstr "蒂魯吉拉帕利"
+
+msgid "Pointe-Noire"
+msgstr "黑角"
+
+msgid "Kankan"
+msgstr "Kankan"
+
+msgid "Nzérékoré"
+msgstr "Nzérékoré"
+
+msgid "Bouaké"
+msgstr "布瓦凯"
+
+msgid "St.-Denis"
+msgstr "圣但尼"
+
+msgid "Rio Branco"
+msgstr "里約布蘭科"
+
+msgid "São Luís"
+msgstr "圣路易斯"
+
+msgid "Porto Velho"
+msgstr "韋柳港"
+
+msgid "Corumbá"
+msgstr "科倫巴"
+
+msgid "Belo Horizonte"
+msgstr "贝洛奥里藏特"
+
+msgid "Montes Claros"
+msgstr "蒙蒂斯克拉魯斯"
+
+msgid "Uberlândia"
+msgstr "烏貝蘭迪亞"
+
+msgid "Cuiabá"
+msgstr "库亚巴"
+
+msgid "Pelotas"
+msgstr "佩洛塔斯"
+
+msgid "Caxias do Sul"
+msgstr "南卡希亞斯"
+
+msgid "Ponta Grossa"
+msgstr "蓬塔格羅薩"
+
+msgid "Teresina"
+msgstr "特雷西納"
+
+msgid "Maceió"
+msgstr "马塞约"
+
+msgid "Vitória da Conquista"
+msgstr "Vitória da Conquista"
+
+msgid "Barreiras"
+msgstr "巴雷拉斯"
+
+msgid "Vila Velha"
+msgstr "韦利亚镇"
+
+msgid "Natal"
+msgstr "纳塔尔"
+
+msgid "North Bay"
+msgstr "北灣"
+
+msgid "Ebolowa"
+msgstr "埃博洛瓦"
+
+msgid "Bambari"
+msgstr "班巴里"
+
+msgid "Venice"
+msgstr "威尼斯"
+
+msgid "San Juan"
+msgstr "圣胡安"
+
+msgid "Neuquén"
+msgstr "内乌肯"
+
+msgid "Trinidad"
+msgstr "特立尼达"
+
+msgid "Santa Rosa"
+msgstr "聖羅莎"
+
+msgid "San Carlos de Bariloche"
+msgstr "圣卡洛斯-德巴里洛切"
+
+msgid "Salta"
+msgstr "萨尔塔"
+
+msgid "Tucumán"
+msgstr "聖米格爾-德-圖庫曼"
+
+msgid "Formosa"
+msgstr "福莫萨"
+
+msgid "Santa Fe"
+msgstr "圣菲"
+
+msgid "Rosario"
+msgstr "罗萨里奥"
+
+msgid "Campinas"
+msgstr "坎皮纳斯"
+
+msgid "Sorocaba"
+msgstr "索羅卡巴"
+
+msgid "Ribeirão Preto"
+msgstr "里貝朗普雷圖"
+
+msgid "Petrolina"
+msgstr "彼得羅利納"
+
+msgid "Bamenda"
+msgstr "巴门达"
+
+msgid "Garoua"
+msgstr "加鲁阿"
+
+msgid "Herat"
+msgstr "赫拉特"
+
+msgid "Mazar-e Sharif"
+msgstr "马扎里沙里夫"
+
+msgid "Battambang"
+msgstr "马德望"
+
+msgid "Siem Reap"
+msgstr "暹粒"
+
+msgid "Malanje"
+msgstr "馬蘭哲"
+
+msgid "Benguela"
+msgstr "本吉拉"
+
+msgid "Lubango"
+msgstr "盧班戈"
+
+msgid "Namibe"
+msgstr "納米貝"
+
+msgid "Tarija"
+msgstr "塔里哈"
+
+msgid "Bridgetown"
+msgstr "布里奇敦"
+
+msgid "Annaba"
+msgstr "安纳巴"
+
+msgid "Parakou"
+msgstr "帕拉庫"
+
+msgid "Porto-Novo"
+msgstr "波多诺伏"
+
+msgid "Constantine"
+msgstr "君士坦丁"
+
+msgid "Brest"
+msgstr "布列斯特"
+
+msgid "Khulna"
+msgstr "库尔纳"
+
+msgid "Francistown"
+msgstr "弗朗西斯敦"
+
+msgid "Mahalapye"
+msgstr "馬哈拉佩"
+
+msgid "Mandurah"
+msgstr "曼杜拉"
+
+msgid "Bendigo"
+msgstr "本迪戈"
+
+msgid "Rockhampton"
+msgstr "洛坎普頓"
+
+msgid "Cairns"
+msgstr "凱恩斯"
+
+msgid "Gold Coast"
+msgstr "黄金海岸"
+
+msgid "Bobo Dioulasso"
+msgstr "博博迪乌拉索"
+
+msgid "Rajshahi"
+msgstr "拉杰沙希"
+
+msgid "Mandalay"
+msgstr "曼德勒"
+
+msgid "Sittwe"
+msgstr "实兑"
+
+msgid "Bujumbura"
+msgstr "布琼布拉"
+
+msgid "Las Palmas"
+msgstr "拉斯帕尔马斯"
+
+msgid "Berbera"
+msgstr "柏培拉"
+
+msgid "Port Louis"
+msgstr "路易港"
+
+msgid "Gaza"
+msgstr "加薩"
+
+msgid "Papeete"
+msgstr "帕皮提"
+
+msgid "Manama"
+msgstr "麦纳麦"
+
+msgid "Taichung"
+msgstr "臺中"
+
+msgid "Napier"
+msgstr "內皮爾"
+
+msgid "Manukau"
+msgstr "曼努考"
+
+msgid "Hamilton"
+msgstr "哈密尔顿"
+
+msgid "Dunedin"
+msgstr "但尼丁"
+
+msgid "Kozhikode"
+msgstr "科泽科德"
+
+msgid "Bhubaneshwar"
+msgstr "布巴内什瓦尔"
+
+msgid "Jamshedpur"
+msgstr "贾姆谢德布尔"
+
+msgid "Montevideo"
+msgstr "蒙得维的亚"
+
+msgid "Bismarck"
+msgstr "俾斯麥"
+
+msgid "Boise"
+msgstr "博伊西"
+
+msgid "San Jose"
+msgstr "聖荷西"
+
+msgid "Sacramento"
+msgstr "沙加緬度"
+
+msgid "Las Vegas"
+msgstr "拉斯维加斯"
+
+msgid "Santa Fe"
+msgstr "圣菲"
+
+msgid "Portland"
+msgstr "波特蘭"
+
+msgid "Salt Lake City"
+msgstr "盐湖城"
+
+msgid "Cheyenne"
+msgstr "夏延"
+
+msgid "Des Moines"
+msgstr "德梅因"
+
+msgid "Omaha"
+msgstr "奥马哈"
+
+msgid "Oklahoma City"
+msgstr "奧克拉荷馬"
+
+msgid "San Antonio"
+msgstr "圣安东尼奥"
+
+msgid "San Cristóbal"
+msgstr "聖克里斯托瓦爾"
+
+msgid "Valencia"
+msgstr "巴伦西亚"
+
+msgid "Jackson"
+msgstr "杰克逊"
+
+msgid "Raleigh"
+msgstr "罗利"
+
+msgid "Cleveland"
+msgstr "克里夫蘭"
+
+msgid "Cincinnati"
+msgstr "辛辛那提"
+
+msgid "Nashville"
+msgstr "纳什维尔"
+
+msgid "Memphis"
+msgstr "孟菲斯"
+
+msgid "Norfolk"
+msgstr "諾福克"
+
+msgid "Milwaukee"
+msgstr "密尔沃基"
+
+msgid "Buffalo"
+msgstr "水牛城"
+
+msgid "Pittsburgh"
+msgstr "匹兹堡"
+
+msgid "Ciudad Guayana"
+msgstr "圭亞那城"
+
+msgid "Lomé"
+msgstr "洛美"
+
+msgid "Tunis"
+msgstr "突尼斯"
+
+msgid "Fairbanks"
+msgstr "費爾班克斯"
+
+msgid "Sevastapol"
+msgstr "塞瓦斯托波爾"
+
+msgid "Abu Dhabi"
+msgstr "阿布扎比"
+
+msgid "Ashgabat"
+msgstr "阿什哈巴德"
+
+msgid "Samarqand"
+msgstr "撒馬爾罕"
+
+msgid "Lusaka"
+msgstr "路沙卡"
+
+msgid "Harare"
+msgstr "哈拉雷"
+
+msgid "Bulawayo"
+msgstr "布拉瓦约"
+
+msgid "Dili"
+msgstr "帝力"
+
+msgid "Tegucigalpa"
+msgstr "德古斯加巴"
+
+msgid "Georgetown"
+msgstr "乔治敦"
+
+msgid "Reykjavík"
+msgstr "雷克雅未克"
+
+msgid "Port-au-Prince"
+msgstr "太子港"
+
+msgid "Glasgow"
+msgstr "格拉斯哥"
+
+msgid "Kampala"
+msgstr "坎帕拉"
+
+msgid "Aden"
+msgstr "亞丁"
+
+msgid "Paramaribo"
+msgstr "帕拉马里博"
+
+msgid "Seville"
+msgstr "塞维利亚"
+
+msgid "Zinder"
+msgstr "津德尔"
+
+msgid "Niamey"
+msgstr "尼亞美"
+
+msgid "Port Sudan"
+msgstr "苏丹港"
+
+msgid "Dushanbe"
+msgstr "杜尚别"
+
+msgid "Cusco"
+msgstr "庫斯科"
+
+msgid "Tacna"
+msgstr "塔克纳"
+
+msgid "Trujillo"
+msgstr "特鲁希略"
+
+msgid "Ica"
+msgstr "伊卡"
+
+msgid "Asunción"
+msgstr "亞松森"
+
+msgid "Managua"
+msgstr "馬納瓜"
+
+msgid "Freetown"
+msgstr "弗里敦"
+
+msgid "Agadez"
+msgstr "阿加德茲"
+
+msgid "Niyala"
+msgstr "尼亚拉"
+
+msgid "Wau"
+msgstr "瓦烏"
+
+msgid "Kassala"
+msgstr "卡薩拉"
+
+msgid "Tromsø"
+msgstr "特罗姆瑟"
+
+msgid "Trondheim"
+msgstr "特隆赫姆"
+
+msgid "Bergen"
+msgstr "卑爾根"
+
+msgid "Islamabad"
+msgstr "伊斯兰堡"
+
+msgid "Multan"
+msgstr "木爾坦"
+
+msgid "Hyderabad"
+msgstr "海得拉巴"
+
+msgid "Peshawar"
+msgstr "白沙瓦"
+
+msgid "Kathmandu"
+msgstr "加德滿都"
+
+msgid "Nacala"
+msgstr "纳卡拉"
+
+msgid "Bloemfontein"
+msgstr "布隆方丹"
+
+msgid "Pretoria"
+msgstr "比勒陀利亞"
+
+msgid "Port Moresby"
+msgstr "莫尔兹比港"
+
+msgid "Honiara"
+msgstr "霍尼亚拉"
+
+msgid "Panama City"
+msgstr "巴拿馬城"
+
+msgid "Fez"
+msgstr "非斯"
+
+msgid "Rabat"
+msgstr "拉巴特"
+
+msgid "Marrakesh"
+msgstr "马拉喀什"
+
+msgid "Chișinău"
+msgstr "基希讷乌"
+
+msgid "Beira"
+msgstr "贝拉"
+
+msgid "Port Elizabeth"
+msgstr "伊莉莎白港"
+
+msgid "Maputo"
+msgstr "马普托"
+
+msgid "Tomsk"
+msgstr "托木斯克"
+
+msgid "Murmansk"
+msgstr "摩爾曼斯克"
+
+msgid "Archangel"
+msgstr "阿尔汉格尔斯克"
+
+msgid "Nizhny Novgorod"
+msgstr "下诺夫哥罗德"
+
+msgid "Volgograd"
+msgstr "伏尔加格勒"
+
+msgid "Ufa"
+msgstr "烏法"
+
+msgid "Yekaterinburg"
+msgstr "葉卡捷琳堡"
+
+msgid "Samara"
+msgstr "薩馬拉"
+
+msgid "Kazan"
+msgstr "喀山"
+
+msgid "Surgut"
+msgstr "蘇爾古特"
+
+msgid "Barnaul"
+msgstr "巴尔瑙尔"
+
+msgid "Novosibirsk"
+msgstr "新西伯利亚"
+
+msgid "Mogadishu"
+msgstr "摩加迪休"
+
+msgid "Muscat"
+msgstr "马斯喀特"
+
+msgid "Colombo"
+msgstr "科伦坡"
+
+msgid "Cebu"
+msgstr "宿霧"
+
+msgid "Iloilo"
+msgstr "伊洛伊洛"
+
+msgid "Davao"
+msgstr "达沃"
+
+msgid "Bratsk"
+msgstr "布拉茨克"
+
+msgid "Irkutsk"
+msgstr "伊爾庫茨克"
+
+msgid "Krasnoyarsk"
+msgstr "克拉斯諾亞爾斯克"
+
+msgid "Chita"
+msgstr "赤塔"
+
+msgid "Vladivostok"
+msgstr "海參崴"
+
+msgid "Yakutsk"
+msgstr "雅库茨克"
+
+msgid "Magadan"
+msgstr "马加丹"
+
+msgid "Tijuana"
+msgstr "蒂華納"
+
+msgid "Chihuahua"
+msgstr "奇瓦瓦"
+
+msgid "Mazatlán"
+msgstr "馬薩特蘭"
+
+msgid "Tampico"
+msgstr "坦皮科"
+
+msgid "Acapulco"
+msgstr "阿卡普尔科"
+
+msgid "Veracruz"
+msgstr "韦拉克鲁斯"
+
+msgid "Tuxtla Gutiérrez"
+msgstr "图斯特拉－古铁雷斯"
+
+msgid "Cancún"
+msgstr "坎昆"
+
+msgid "Mérida"
+msgstr "梅里達"
+
+msgid "Enugu"
+msgstr "埃努古"
+
+msgid "Sokoto"
+msgstr "索科托"
+
+msgid "Perm"
+msgstr "彼尔姆"
+
+msgid "Erdenet"
+msgstr "额尔登特"
+
+msgid "Ulaanbaatar"
+msgstr "乌兰巴托"
+
+msgid "Mbeya"
+msgstr "姆貝亞"
+
+msgid "Windhoek"
+msgstr "温得和克"
+
+msgid "Zanzibar"
+msgstr "桑给巴尔"
+
+msgid "Valencia"
+msgstr "巴倫西亞"
+
+msgid "Petropavlovsk Kamchatskiy"
+msgstr "堪察加彼得巴甫洛夫斯克"
+
+msgid "Abuja"
+msgstr "阿布贾"
+
+msgid "Padang"
+msgstr "巴東"
+
+msgid "Bissau"
+msgstr "比绍"
+
+msgid "Palermo"
+msgstr "巴勒莫"
+
+msgid "Amman"
+msgstr "安曼"
+
+msgid "Vilnius"
+msgstr "维尔纽斯"
+
+msgid "Riga"
+msgstr "里加"
+
+msgid "Bishkek"
+msgstr "比什凯克"
+
+msgid "Jiayuguan"
+msgstr "嘉峪關"
+
+msgid "Xining"
+msgstr "西宁"
+
+msgid "Guilin"
+msgstr "桂林"
+
+msgid "Huainan"
+msgstr "淮南"
+
+msgid "Shantou"
+msgstr "汕头"
+
+msgid "Tarakan"
+msgstr "塔拉卡恩"
+
+msgid "Mombasa"
+msgstr "蒙巴萨"
+
+msgid "Maseru"
+msgstr "马塞卢"
+
+msgid "Antananarivo"
+msgstr "塔那那利佛"
+
+msgid "Semarang"
+msgstr "三寶瓏"
+
+msgid "Palembang"
+msgstr "巨港"
+
+msgid "Bandjarmasin"
+msgstr "馬辰"
+
+msgid "Ujungpandang"
+msgstr "望加錫"
+
+msgid "Lyon"
+msgstr "里昂"
+
+msgid "Quito"
+msgstr "基多"
+
+msgid "San José"
+msgstr "聖荷西"
+
+msgid "San Salvador"
+msgstr "聖薩爾瓦多"
+
+msgid "Kingston"
+msgstr "京斯敦"
+
+msgid "Cartagena"
+msgstr "卡塔赫纳"
+
+msgid "Bumba"
+msgstr "奔巴"
+
+msgid "Ndjamena"
+msgstr "恩賈梅納"
+
+msgid "Abéché"
+msgstr "阿贝歇"
+
+msgid "Malabo"
+msgstr "馬拉博"
+
+msgid "Luxor"
+msgstr "樂蜀"
+
+msgid "Asmara"
+msgstr "阿斯馬拉"
+
+msgid "Zagreb"
+msgstr "萨格勒布"
+
+msgid "Tallinn"
+msgstr "塔林"
+
+msgid "Lhasa"
+msgstr "拉萨"
+
+msgid "Hami"
+msgstr "伊州区"
+
+msgid "Hotan"
+msgstr "和田"
+
+msgid "Kashgar"
+msgstr "喀什"
+
+msgid "Yinchuan"
+msgstr "銀川"
+
+msgid "Pingxiang"
+msgstr "萍乡"
+
+msgid "Nagasaki"
+msgstr "长崎"
+
+msgid "Qiqihar"
+msgstr "齐齐哈尔"
+
+msgid "Kikwit"
+msgstr "基奎特"
+
+msgid "Matadi"
+msgstr "马塔迪"
+
+msgid "Kolwezi"
+msgstr "科卢韦齐"
+
+msgid "Lubumbashi"
+msgstr "盧本巴希"
+
+msgid "Lilongwe"
+msgstr "利隆圭"
+
+msgid "Guatemala"
+msgstr "瓜地馬拉"
+
+msgid "Cayenne"
+msgstr "開雲"
+
+msgid "Libreville"
+msgstr "利伯维尔"
+
+msgid "Vishakhapatnam"
+msgstr "维沙卡帕特南"
+
+msgid "Suva"
+msgstr "蘇瓦"
+
+msgid "Port-Gentil"
+msgstr "让蒂尔港"
+
+msgid "Timbuktu"
+msgstr "廷巴克图"
+
+msgid "Punta Arenas"
+msgstr "蓬塔阿雷纳斯"
+
+msgid "Iquique"
+msgstr "伊基克"
+
+msgid "Antofagasta"
+msgstr "安托法加斯塔"
+
+msgid "Valparaíso"
+msgstr "瓦尔帕莱索"
+
+msgid "Valdivia"
+msgstr "瓦尔迪维亚"
+
+msgid "Concepción"
+msgstr "康塞普西翁"
+
+msgid "Puerto Montt"
+msgstr "蒙特港"
+
+msgid "Nouakchott"
+msgstr "努瓦克肖特"
+
+msgid "Bamako"
+msgstr "巴馬科"
+
+msgid "Sabha"
+msgstr "拾哈"
+
+msgid "Banghazi"
+msgstr "班加西"
+
+msgid "Thessaloniki"
+msgstr "塞萨洛尼基"
+
+msgid "Beirut"
+msgstr "贝鲁特"
+
+msgid "Tbilisi"
+msgstr "第比利斯"
+
+msgid "Gondar"
+msgstr "貢德爾"
+
+msgid "Astana"
+msgstr "阿斯塔納"
+
+msgid "Qaraghandy"
+msgstr "卡拉干達"
+
+msgid "Almaty"
+msgstr "阿拉木圖"
+
+msgid "Isfahan"
+msgstr "伊斯法罕"
+
+msgid "Shiraz"
+msgstr "設拉子"
+
+msgid "Amritsar"
+msgstr "阿姆利则"
+
+msgid "Varanasi"
+msgstr "瓦拉納西"
+
+msgid "Asansol"
+msgstr "阿桑索尔"
+
+msgid "Bhilai"
+msgstr "比萊"
+
+msgid "Bhopal"
+msgstr "博帕尔"
+
+msgid "Madurai"
+msgstr "马杜赖"
+
+msgid "Coimbatore"
+msgstr "哥印拜陀"
+
+msgid "Vientiane"
+msgstr "永珍"
+
+msgid "Brazzaville"
+msgstr "布拉柴维尔"
+
+msgid "Conakry"
+msgstr "科納克里"
+
+msgid "Yamoussoukro"
+msgstr "亚穆苏克罗"
+
+msgid "Cruzeiro do Sul"
+msgstr "南克魯賽羅"
+
+msgid "Leticia"
+msgstr "萊蒂西亞"
+
+msgid "Manaus"
+msgstr "马瑙斯"
+
+msgid "Caxias"
+msgstr "卡希亚斯"
+
+msgid "Santarém"
+msgstr "聖塔倫"
+
+msgid "Marabá"
+msgstr "马拉巴"
+
+msgid "Vilhena"
+msgstr "維列納"
+
+msgid "Ji-Paraná"
+msgstr "日帕拉納"
+
+msgid "Campo Grande"
+msgstr "大坎普"
+
+msgid "Florianópolis"
+msgstr "弗洛里亚诺波利斯"
+
+msgid "Feira de Santana"
+msgstr "費拉迪聖安娜"
+
+msgid "Winnipeg"
+msgstr "温尼伯"
+
+msgid "Regina"
+msgstr "里贾纳"
+
+msgid "Saskatoon"
+msgstr "萨斯卡通"
+
+msgid "Calgary"
+msgstr "卡尔加里"
+
+msgid "Victoria"
+msgstr "維多利亞"
+
+msgid "Boa Vista"
+msgstr "博阿維斯塔"
+
+msgid "Macapá"
+msgstr "馬卡帕"
+
+msgid "Ottawa"
+msgstr "渥太華"
+
+msgid "Thunder Bay"
+msgstr "桑德贝"
+
+msgid "Québec"
+msgstr "魁北克"
+
+msgid "Halifax"
+msgstr "哈利法克斯"
+
+msgid "St. John's"
+msgstr "聖約翰斯"
+
+msgid "Belgrade"
+msgstr "贝尔格莱德"
+
+msgid "Bandar Seri Begawan"
+msgstr "斯里巴加湾"
+
+msgid "Río Gallegos"
+msgstr "里奥加耶戈斯"
+
+msgid "Comodoro Rivadavia"
+msgstr "里瓦达维亚海军准将城"
+
+msgid "Mendoza"
+msgstr "门多萨"
+
+msgid "Sucre"
+msgstr "苏克雷"
+
+msgid "Riberalta"
+msgstr "里韋拉爾塔"
+
+msgid "Bahía Blanca"
+msgstr "布兰卡港"
+
+msgid "Mar del Plata"
+msgstr "马德普拉塔"
+
+msgid "Córdoba"
+msgstr "科尔多瓦"
+
+msgid "Posadas"
+msgstr "波萨达斯"
+
+msgid "Bangui"
+msgstr "班基"
+
+msgid "Maroua"
+msgstr "马鲁阿"
+
+msgid "Yaounde"
+msgstr "雅温得"
+
+msgid "Tirana"
+msgstr "地拉那"
+
+msgid "Yerevan"
+msgstr "葉里溫"
+
+msgid "Baku"
+msgstr "巴库"
+
+msgid "Kandahar"
+msgstr "坎大哈"
+
+msgid "Phnom Penh"
+msgstr "金边"
+
+msgid "Huambo"
+msgstr "万博"
+
+msgid "La Paz"
+msgstr "拉巴斯"
+
+msgid "Santa Cruz"
+msgstr "圣克鲁斯"
+
+msgid "Oran"
+msgstr "瓦赫蘭"
+
+msgid "Cotonou"
+msgstr "科托努"
+
+msgid "Tamanrasset"
+msgstr "塔曼拉塞特"
+
+msgid "Ghardaia"
+msgstr "盖尔达耶"
+
+msgid "Sofia"
+msgstr "索菲亞"
+
+msgid "Minsk"
+msgstr "明斯克"
+
+msgid "Thimphu"
+msgstr "廷布"
+
+msgid "Gaborone"
+msgstr "嘉柏隆里"
+
+msgid "Darwin"
+msgstr "达尔文"
+
+msgid "Canberra"
+msgstr "堪培拉"
+
+msgid "Newcastle"
+msgstr "纽卡斯尔"
+
+msgid "Adelaide"
+msgstr "阿德莱德"
+
+msgid "Townsville"
+msgstr "汤斯维尔"
+
+msgid "Brisbane"
+msgstr "布里斯班"
+
+msgid "Hobart"
+msgstr "荷巴特"
+
+msgid "Ouagadougou"
+msgstr "瓦加杜古"
+
+msgid "Sarajevo"
+msgstr "塞拉耶佛"
+
+msgid "Naypyidaw"
+msgstr "奈比多"
+
+msgid "San Juan"
+msgstr "圣胡安"
+
+msgid "Hamilton"
+msgstr "哈密尔顿"
+
+msgid "Hargeysa"
+msgstr "哈尔格萨"
+
+msgid "São Tomé"
+msgstr "圣多美"
+
+msgid "Apia"
+msgstr "阿皮亚"
+
+msgid "Valletta"
+msgstr "瓦莱塔"
+
+msgid "Malé"
+msgstr "馬累"
+
+msgid "Jerusalem"
+msgstr "耶路撒冷"
+
+msgid "Praia"
+msgstr "培亞"
+
+msgid "Nassau"
+msgstr "拿骚"
+
+msgid "Nicosia"
+msgstr "尼科西亚"
+
+msgid "Kaohsiung"
+msgstr "高雄"
+
+msgid "Wellington"
+msgstr "惠灵顿"
+
+msgid "Christchurch"
+msgstr "基督城"
+
+msgid "Shenzhen"
+msgstr "深圳"
+
+msgid "Zibo"
+msgstr "淄博"
+
+msgid "Minneapolis"
+msgstr "明尼阿波利斯"
+
+msgid "Honolulu"
+msgstr "檀香山"
+
+msgid "Seattle"
+msgstr "西雅圖"
+
+msgid "Phoenix"
+msgstr "鳳凰城"
+
+msgid "San Diego"
+msgstr "聖地牙哥"
+
+msgid "St. Louis"
+msgstr "圣路易斯"
+
+msgid "New Orleans"
+msgstr "新奥尔良"
+
+msgid "Dallas"
+msgstr "達拉斯"
+
+msgid "Maracaibo"
+msgstr "马拉开波"
+
+msgid "Boston"
+msgstr "波士顿"
+
+msgid "Tampa"
+msgstr "坦帕"
+
+msgid "Philadelphia"
+msgstr "費城"
+
+msgid "Detroit"
+msgstr "底特律"
+
+msgid "Anchorage"
+msgstr "安克拉治"
+
+msgid "Hanoi"
+msgstr "河內"
+
+msgid "Ho Chi Minh City"
+msgstr "胡志明"
+
+msgid "Ankara"
+msgstr "安卡拉"
+
+msgid "Budapest"
+msgstr "布达佩斯"
+
+msgid "Sanaa"
+msgstr "萨那"
+
+msgid "Barcelona"
+msgstr "巴塞罗那"
+
+msgid "Bucharest"
+msgstr "布加勒斯特"
+
+msgid "Aleppo"
+msgstr "阿勒颇"
+
+msgid "Damascus"
+msgstr "大马士革"
+
+msgid "Zürich"
+msgstr "苏黎世"
+
+msgid "Lisbon"
+msgstr "里斯本"
+
+msgid "Khartoum"
+msgstr "喀土穆"
+
+msgid "Jeddah"
+msgstr "吉达"
+
+msgid "Makkah"
+msgstr "麥加"
+
+msgid "Oslo"
+msgstr "奥斯陆"
+
+msgid "Lahore"
+msgstr "拉合爾"
+
+msgid "Karachi"
+msgstr "卡拉奇"
+
+msgid "Durban"
+msgstr "德班"
+
+msgid "St. Petersburg"
+msgstr "圣彼得堡"
+
+msgid "Guadalajara"
+msgstr "瓜达拉哈拉"
+
+msgid "Puebla"
+msgstr "普埃布拉"
+
+msgid "Kano"
+msgstr "卡諾"
+
+msgid "Warsaw"
+msgstr "华沙"
+
+msgid "Pyongyang"
+msgstr "平壤"
+
+msgid "Dar es Salaam"
+msgstr "达累斯萨拉姆"
+
+msgid "Medan"
+msgstr "棉蘭"
+
+msgid "Dublin"
+msgstr "都柏林"
+
+msgid "Monrovia"
+msgstr "蒙羅維亞"
+
+msgid "Naples"
+msgstr "那不勒斯"
+
+msgid "Milan"
+msgstr "米蘭"
+
+msgid "Kuala Lumpur"
+msgstr "吉隆坡"
+
+msgid "Lanzhou"
+msgstr "蘭州"
+
+msgid "Nanning"
+msgstr "南寧"
+
+msgid "Guiyang"
+msgstr "貴陽"
+
+msgid "Chongqing"
+msgstr "重庆"
+
+msgid "Fuzhou"
+msgstr "福州"
+
+msgid "Guangzhou"
+msgstr "廣州"
+
+msgid "Dongguan"
+msgstr "东莞"
+
+msgid "Bandung"
+msgstr "萬隆"
+
+msgid "Surabaya"
+msgstr "泗水"
+
+msgid "Guayaquil"
+msgstr "瓜亞基爾"
+
+msgid "Medellín"
+msgstr "麦德林"
+
+msgid "Cali"
+msgstr "卡利"
+
+msgid "Havana"
+msgstr "哈瓦那"
+
+msgid "Alexandria"
+msgstr "亞歷山大港"
+
+msgid "Frankfurt"
+msgstr "美茵河畔法蘭克福"
+
+msgid "Hamburg"
+msgstr "汉堡"
+
+msgid "Munich"
+msgstr "慕尼黑"
+
+msgid "Prague"
+msgstr "布拉格"
+
+msgid "Kuwait"
+msgstr "科威特"
+
+msgid "Xian"
+msgstr "西安"
+
+msgid "Taiyuan"
+msgstr "太原"
+
+msgid "Wuhan"
+msgstr "武汉"
+
+msgid "Changsha"
+msgstr "长沙"
+
+msgid "Kunming"
+msgstr "昆明"
+
+msgid "Zhengzhou"
+msgstr "郑州"
+
+msgid "Shenyeng"
+msgstr "瀋陽"
+
+msgid "Jinan"
+msgstr "济南"
+
+msgid "Tianjin"
+msgstr "天津"
+
+msgid "Nanchang"
+msgstr "南昌"
+
+msgid "Nanjing"
+msgstr "南京"
+
+msgid "Hangzhou"
+msgstr "杭州"
+
+msgid "Hiroshima"
+msgstr "广岛"
+
+msgid "Changchun"
+msgstr "长春"
+
+msgid "Baotou"
+msgstr "包头"
+
+msgid "Harbin"
+msgstr "哈尔滨"
+
+msgid "Sapporo"
+msgstr "札幌"
+
+msgid "Santo Domingo"
+msgstr "聖多明哥"
+
+msgid "Accra"
+msgstr "阿克拉"
+
+msgid "Delhi"
+msgstr "德里"
+
+msgid "Hyderabad"
+msgstr "海得拉巴"
+
+msgid "Pune"
+msgstr "浦那"
+
+msgid "Nagpur"
+msgstr "那格浦尔"
+
+msgid "Tripoli"
+msgstr "的黎波里"
+
+msgid "Tel Aviv-Yafo"
+msgstr "特拉维夫"
+
+msgid "Helsinki"
+msgstr "赫尔辛基"
+
+msgid "Mashhad"
+msgstr "馬什哈德"
+
+msgid "Jaipur"
+msgstr "齋浦爾"
+
+msgid "Kanpur"
+msgstr "坎普尔"
+
+msgid "Patna"
+msgstr "巴特那"
+
+msgid "Chennai"
+msgstr "金奈"
+
+msgid "Ahmedabad"
+msgstr "艾哈迈达巴德"
+
+msgid "Surat"
+msgstr "苏拉特"
+
+msgid "København"
+msgstr "哥本哈根"
+
+msgid "Abidjan"
+msgstr "阿比让"
+
+msgid "Belém"
+msgstr "贝伦"
+
+msgid "Brasília"
+msgstr "巴西利亚"
+
+msgid "Porto Alegre"
+msgstr "阿雷格里港"
+
+msgid "Curitiba"
+msgstr "庫里奇巴"
+
+msgid "Fortaleza"
+msgstr "福塔雷萨"
+
+msgid "Salvador"
+msgstr "萨尔瓦多"
+
+msgid "Edmonton"
+msgstr "埃德蒙顿"
+
+msgid "Montréal"
+msgstr "蒙特利尔"
+
+msgid "Goiânia"
+msgstr "戈亚尼亚"
+
+msgid "Recife"
+msgstr "累西腓"
+
+msgid "Brussels"
+msgstr "布鲁塞尔"
+
+msgid "Dhaka"
+msgstr "达卡"
+
+msgid "Luanda"
+msgstr "罗安达"
+
+msgid "Algiers"
+msgstr "阿爾及爾"
+
+msgid "Chittagong"
+msgstr "吉大港"
+
+msgid "Perth"
+msgstr "珀斯"
+
+msgid "Rangoon"
+msgstr "仰光"
+
+msgid "San Francisco"
+msgstr "舊金山"
+
+msgid "Denver"
+msgstr "丹佛"
+
+msgid "Houston"
+msgstr "休斯敦"
+
+msgid "Miami"
+msgstr "迈阿密"
+
+msgid "Atlanta"
+msgstr "亚特兰大"
+
+msgid "Chicago"
+msgstr "芝加哥"
+
+msgid "Caracas"
+msgstr "加拉加斯"
+
+msgid "Kiev"
+msgstr "基輔"
+
+msgid "Dubai"
+msgstr "杜拜"
+
+msgid "Tashkent"
+msgstr "塔什干"
+
+msgid "Madrid"
+msgstr "马德里"
+
+msgid "Geneva"
+msgstr "日內瓦"
+
+msgid "Stockholm"
+msgstr "斯德哥尔摩"
+
+msgid "Bangkok"
+msgstr "曼谷"
+
+msgid "Lima"
+msgstr "利馬"
+
+msgid "Dakar"
+msgstr "達喀爾"
+
+msgid "Johannesburg"
+msgstr "约翰内斯堡"
+
+msgid "Amsterdam"
+msgstr "阿姆斯特丹"
+
+msgid "Casablanca"
+msgstr "卡萨布兰卡"
+
+msgid "Seoul"
+msgstr "首爾"
+
+msgid "Manila"
+msgstr "马尼拉"
+
+msgid "Monterrey"
+msgstr "蒙特雷"
+
+msgid "Berlin"
+msgstr "柏林"
+
+msgid "Ürümqi"
+msgstr "乌鲁木齐"
+
+msgid "Chengdu"
+msgstr "成都"
+
+msgid "Ōsaka"
+msgstr "大阪"
+
+msgid "Kinshasa"
+msgstr "金夏沙"
+
+msgid "New Delhi"
+msgstr "新德里"
+
+msgid "Bangalore"
+msgstr "班加羅爾"
+
+msgid "Athens"
+msgstr "雅典"
+
+msgid "Baghdad"
+msgstr "巴格达"
+
+msgid "Addis Ababa"
+msgstr "亚的斯亚贝巴"
+
+msgid "Tehran"
+msgstr "德黑兰"
+
+msgid "Vancouver"
+msgstr "溫哥華"
+
+msgid "Toronto"
+msgstr "多伦多"
+
+msgid "Buenos Aires"
+msgstr "布宜諾斯艾利斯"
+
+msgid "Kabul"
+msgstr "喀布尔"
+
+msgid "Vienna"
+msgstr "維也納"
+
+msgid "Melbourne"
+msgstr "墨尔本"
+
+msgid "Taipei"
+msgstr "臺北"
+
+msgid "Auckland"
+msgstr "奧克蘭都會區"
+
+msgid "Los Angeles"
+msgstr "洛杉矶"
+
+msgid "Washington, D.C."
+msgstr "華盛頓哥倫比亞特區"
+
+msgid "New York"
+msgstr "纽约"
+
+msgid "London"
+msgstr "倫敦"
+
+msgid "Istanbul"
+msgstr "伊斯坦堡"
+
+msgid "Riyadh"
+msgstr "利雅德"
+
+msgid "Cape Town"
+msgstr "開普敦"
+
+msgid "Moscow"
+msgstr "莫斯科"
+
+msgid "Mexico City"
+msgstr "墨西哥城"
+
+msgid "Lagos"
+msgstr "拉哥斯"
+
+msgid "Rome"
+msgstr "罗马"
+
+msgid "Beijing"
+msgstr "北京"
+
+msgid "Nairobi"
+msgstr "奈洛比"
+
+msgid "Jakarta"
+msgstr "雅加达"
+
+msgid "Bogota"
+msgstr "波哥大"
+
+msgid "Cairo"
+msgstr "開羅"
+
+msgid "Shanghai"
+msgstr "上海"
+
+msgid "Tokyo"
+msgstr "東京都"
+
+msgid "Mumbai"
+msgstr "孟买"
+
+msgid "Paris"
+msgstr "巴黎"
+
+msgid "Santiago"
+msgstr "圣地亚哥－德智利"
+
+msgid "Kolkata"
+msgstr "加尔各答"
+
+msgid "Rio de Janeiro"
+msgstr "里约热内卢"
+
+msgid "São Paulo"
+msgstr "聖保羅"
+
+msgid "Sydney"
+msgstr "悉尼"
+
+msgid "Singapore"
+msgstr "新加坡"
+
+msgid "Hong Kong"
+msgstr "香港"
