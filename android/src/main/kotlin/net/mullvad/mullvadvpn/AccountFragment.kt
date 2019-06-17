@@ -10,6 +10,7 @@ import kotlinx.coroutines.Job
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,6 +45,8 @@ class AccountFragment : Fragment() {
             parentActivity.onBackPressed()
         }
 
+        view.findViewById<View>(R.id.logout).setOnClickListener { logout() }
+
         accountExpiryContainer = view.findViewById<View>(R.id.account_expiry_container)
         accountNumberContainer = view.findViewById<View>(R.id.account_number_container)
 
@@ -77,5 +80,38 @@ class AccountFragment : Fragment() {
         val formatter = DateFormat.getDateTimeInstance()
 
         return formatter.format(expiryInstant)
+    }
+
+    private fun logout() {
+        clearAccountNumber()
+        clearBackStack()
+        goToLoginScreen()
+    }
+
+    private fun clearAccountNumber() = GlobalScope.launch(Dispatchers.Default) {
+        val daemon = parentActivity.asyncDaemon.await()
+
+        daemon.setAccount(null)
+    }
+
+    private fun clearBackStack() {
+        fragmentManager?.apply {
+            val firstEntry = getBackStackEntryAt(0)
+
+            popBackStack(firstEntry.id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        }
+    }
+
+    private fun goToLoginScreen() {
+        fragmentManager?.beginTransaction()?.apply {
+            setCustomAnimations(
+                R.anim.do_nothing,
+                R.anim.fragment_exit_to_bottom,
+                R.anim.do_nothing,
+                R.anim.do_nothing
+            )
+            replace(R.id.main_fragment, LoginFragment())
+            commit()
+        }
     }
 }
