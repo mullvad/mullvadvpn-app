@@ -23,8 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.5] - 2019-06-17
 ### Added
-- Add norwegian translations
+- Add Norwegian translations
+
 
 ## [2019.5-beta1] - 2019-06-13
 ### Added
