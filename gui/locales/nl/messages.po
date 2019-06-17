@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2019-05-20 12:54\n"
+"PO-Revision-Date: 2019-06-17 08:47\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "GEBLOKKEERDE VERBINDING"
@@ -42,7 +42,7 @@ msgstr "Account"
 
 msgctxt "account-view"
 msgid "Account number"
-msgstr "Account-ID"
+msgstr "Accountnummer"
 
 msgctxt "account-view"
 msgid "Buy more credit"
@@ -97,6 +97,11 @@ msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
 msgstr "Blokkeren bij verbroken verbinding"
 
+#. The title for the shadowsocks bridge selector section.
+msgctxt "advanced-settings-view"
+msgid "Bridge mode"
+msgstr "Bridge-modus"
+
 msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "Standaard"
@@ -117,6 +122,14 @@ msgctxt "advanced-settings-view"
 msgid "Network protocols"
 msgstr "Netwerkprotocollen"
 
+msgctxt "advanced-settings-view"
+msgid "Off"
+msgstr "Uit"
+
+msgctxt "advanced-settings-view"
+msgid "On"
+msgstr "Aan"
+
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
@@ -124,6 +137,14 @@ msgstr "Netwerkprotocollen"
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "Stel OpenVPN MMS-waarde in. Geldig bereik: %(min)d - %(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "TCP"
+msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "UDP"
+msgstr "UDP"
 
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
@@ -179,16 +200,12 @@ msgid "You have no more VPN time left on this account. To buy more credit on our
 msgstr "U hebt geen VPN-tijd meer op dit account. Om meer krediet op onze website te kopen, moet u internetverbinding maken met een onbeveiligde verbinding."
 
 msgctxt "connection-info"
-msgid "Connection details"
-msgstr ""
-
-msgctxt "connection-info"
 msgid "In"
-msgstr ""
+msgstr "In"
 
 msgctxt "connection-info"
 msgid "Out"
-msgstr ""
+msgstr "Uit"
 
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"
@@ -203,7 +220,7 @@ msgstr "Er is iets misgelopen. Neem contact met ons op via %(email)s"
 
 msgctxt "headerbar"
 msgid "MULLVAD VPN"
-msgstr ""
+msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -276,8 +293,8 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr "U gebruikt een niet-ondersteunde versie van de app. Upgrade nu naar %(version)s om uw veiligheid te garanderen"
 
 msgctxt "launch-view"
-msgid "Connecting to daemon..."
-msgstr "Verbinden met daemon..."
+msgid "Connecting to Mullvad system service..."
+msgstr "Verbinden met Mullvad-systeemdienst..."
 
 msgctxt "launch-view"
 msgid "MULLVAD VPN"

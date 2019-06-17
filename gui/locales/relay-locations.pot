@@ -2,6 +2,10 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
+#. AL TIA
+msgid "Tirana"
+msgstr ""
+
 #. AU BNE
 msgid "Brisbane"
 msgstr ""
@@ -92,6 +96,10 @@ msgstr ""
 
 #. IL PET
 msgid "Petach-Tikva"
+msgstr ""
+
+#. IL TLV
+msgid "Tel Aviv"
 msgstr ""
 
 #. IT MIL

@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2019-05-20 12:54\n"
+"PO-Revision-Date: 2019-06-17 08:47\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ブロックされた接続"
@@ -97,6 +97,11 @@ msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
 msgstr "接続解除時にブロックする"
 
+#. The title for the shadowsocks bridge selector section.
+msgctxt "advanced-settings-view"
+msgid "Bridge mode"
+msgstr "ブリッジモード"
+
 msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "デフォルト"
@@ -117,6 +122,14 @@ msgctxt "advanced-settings-view"
 msgid "Network protocols"
 msgstr "ネットワークプロトコル"
 
+msgctxt "advanced-settings-view"
+msgid "Off"
+msgstr "オフ"
+
+msgctxt "advanced-settings-view"
+msgid "On"
+msgstr "オン"
+
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
@@ -124,6 +137,14 @@ msgstr "ネットワークプロトコル"
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "OpenVPN MSS の値を設定します。有効範囲：%(min)d ～ %(max)d。"
+
+msgctxt "advanced-settings-view"
+msgid "TCP"
+msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "UDP"
+msgstr "UDP"
 
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
@@ -179,16 +200,12 @@ msgid "You have no more VPN time left on this account. To buy more credit on our
 msgstr "このアカウントにはもうVPNの残り時間がありません。弊社ウェブサイトで追加クレジットを購入するには、セキュリティ保護されていない接続でインターネットにアクセスする必要があります。"
 
 msgctxt "connection-info"
-msgid "Connection details"
-msgstr ""
-
-msgctxt "connection-info"
 msgid "In"
-msgstr ""
+msgstr "内側"
 
 msgctxt "connection-info"
 msgid "Out"
-msgstr ""
+msgstr "外側"
 
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"
@@ -203,7 +220,7 @@ msgstr "何か問題が生じたようです。 %(email)s までご連絡くだ�
 
 msgctxt "headerbar"
 msgid "MULLVAD VPN"
-msgstr ""
+msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -276,8 +293,8 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr "未対応のアプリバージョンを実行中です。今すぐ %(version)s にアップデートしてセキュリティを確保してください。"
 
 msgctxt "launch-view"
-msgid "Connecting to daemon..."
-msgstr "デーモンに接続中..."
+msgid "Connecting to Mullvad system service..."
+msgstr "Mullvad システムサービスに接続中..."
 
 msgctxt "launch-view"
 msgid "MULLVAD VPN"

@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2019-05-20 12:54\n"
+"PO-Revision-Date: 2019-06-17 08:47\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ANSLUTNINGEN BLOCKERAD"
@@ -42,7 +42,7 @@ msgstr "Konto"
 
 msgctxt "account-view"
 msgid "Account number"
-msgstr "Konto-ID"
+msgstr "Kontonummer"
 
 msgctxt "account-view"
 msgid "Buy more credit"
@@ -97,6 +97,11 @@ msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
 msgstr "Blockera när frånkopplad"
 
+#. The title for the shadowsocks bridge selector section.
+msgctxt "advanced-settings-view"
+msgid "Bridge mode"
+msgstr "Broläge"
+
 msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "Standard"
@@ -117,6 +122,14 @@ msgctxt "advanced-settings-view"
 msgid "Network protocols"
 msgstr "Nätverksprotokoll"
 
+msgctxt "advanced-settings-view"
+msgid "Off"
+msgstr "Av"
+
+msgctxt "advanced-settings-view"
+msgid "On"
+msgstr "På"
+
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
@@ -124,6 +137,14 @@ msgstr "Nätverksprotokoll"
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "Ange värde för OpenVPN MSS. Giltigt intervall: %(min)d-%(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "TCP"
+msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "UDP"
+msgstr "UDP"
 
 msgctxt "advanced-settings-view"
 msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
@@ -179,16 +200,12 @@ msgid "You have no more VPN time left on this account. To buy more credit on our
 msgstr "Du har ingen VPN-tid kvar på kontot. För att köpa mer kredit på vår hemsida behöver du åtkomst till internet med en osäker anslutning."
 
 msgctxt "connection-info"
-msgid "Connection details"
-msgstr ""
-
-msgctxt "connection-info"
 msgid "In"
-msgstr ""
+msgstr "In"
 
 msgctxt "connection-info"
 msgid "Out"
-msgstr ""
+msgstr "Ut"
 
 msgctxt "error-boundary-view"
 msgid "MULLVAD VPN"
@@ -203,7 +220,7 @@ msgstr "Ett fel har inträffat. Kontakta oss på %(email)s"
 
 msgctxt "headerbar"
 msgid "MULLVAD VPN"
-msgstr ""
+msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -276,8 +293,8 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr "Du kör en appversion utan stöd. Uppgradera till %(version)s nu för att garantera din säkerhet"
 
 msgctxt "launch-view"
-msgid "Connecting to daemon..."
-msgstr "Ansluter till daemon..."
+msgid "Connecting to Mullvad system service..."
+msgstr "Ansluter till Mullvads systemtjänst..."
 
 msgctxt "launch-view"
 msgid "MULLVAD VPN"

@@ -87,6 +87,11 @@ msgctxt "advanced-settings-view"
 msgid "Block when disconnected"
 msgstr ""
 
+#. The title for the shadowsocks bridge selector section.
+msgctxt "advanced-settings-view"
+msgid "Bridge mode"
+msgstr ""
+
 msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr ""
@@ -107,12 +112,28 @@ msgctxt "advanced-settings-view"
 msgid "Network protocols"
 msgstr ""
 
+msgctxt "advanced-settings-view"
+msgid "Off"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "On"
+msgstr ""
+
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "TCP"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "UDP"
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -166,10 +187,6 @@ msgstr ""
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
-msgstr ""
-
-msgctxt "connection-info"
-msgid "Connection details"
 msgstr ""
 
 msgctxt "connection-info"
@@ -270,7 +287,7 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr ""
 
 msgctxt "launch-view"
-msgid "Connecting to daemon..."
+msgid "Connecting to Mullvad system service..."
 msgstr ""
 
 msgctxt "launch-view"
