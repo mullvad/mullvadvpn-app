@@ -75,6 +75,57 @@ sudo dnf install dbus-devel
 sudo dnf install rpm-build
 ```
 
+### Android
+
+These instructions are for building the app for Android **under Linux**.
+
+#### Install dependencies
+```bash
+sudo apt install zip default-jdk
+```
+
+#### Download and install the SDK and NDK:
+```bash
+wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
+unzip sdk-tools-linux-4333796.zip
+./tools/bin/sdkmanager "platforms;android-28" "build-tools;28.0.3" "platform-tools"
+
+wget https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip
+unzip android-ndk-r20-linux-x86_64.zip
+./android-ndk-r20/build/tools/make-standalone-toolchain.sh \
+  --platform=android-28 \
+  --arch=arm64 \
+  --install-dir=$PWD/toolchains/android28-aarch64
+```
+
+Set up the required environment variables:
+```
+export AR_aarch64_linux_android="$PWD/toolchains/android28-aarch64/bin/aarch64-linux-android-ar"
+export CC_aarch64_linux_android="$PWD/toolchains/android28-aarch64/bin/aarch64-linux-android28-clang"
+export ANDROID_HOME="$PWD"
+```
+
+#### Configuring Rust
+
+These steps has to be done **after** you have installed Rust in the section below:
+
+##### Install the Rust Android target
+```bash
+rustup target add aarch64-linux-android
+```
+
+##### Set up cargo to use the correct linker and archiver
+
+This block assumes you installed everything under `/opt/android`, but you can install it wherever
+you want as long as the `ANDROID_HOME` variable is set accordingly.
+
+Add to `~/.cargo/config`:
+```
+[target.aarch64-linux-android]
+ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
+linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android28-clang"
+```
+
 ### All platforms
 
 1. Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
@@ -107,7 +158,7 @@ Building this requires at least 1GB of memory.
 If you want to build each component individually, or run in development mode, read the following
 sections.
 
-## Building and running mullvad-daemon
+## Building and running mullvad-daemon on desktop
 
 1. Firstly, one should source `env.sh` to set the default environment variables.
    One can also source the variables on Powershell with `env.ps1`,
@@ -136,7 +187,6 @@ sections.
    cp target/debug/*talpid_openvpn_plugin* dist-assets/
    ```
 
-
 1. Run the daemon with verbose logging with:
     ```
     sudo MULLVAD_RESOURCE_DIR="./dist-assets" ./target/debug/mullvad-daemon -vv
@@ -163,7 +213,7 @@ sections.
     * `"network-manager"`: use `NetworkManager` service through DBus
 
 
-## Building and running the Electron GUI app
+## Building and running the desktop Electron GUI app
 
 1. Go to the `gui` directory
    ```bash
@@ -196,6 +246,27 @@ to do that before starting the GUI.
     ```
     MULLVAD_LOCALE=en-US ./mullvad-vpn
     ```
+
+
+## Building the Android app
+
+Build the Rust daemon with:
+```bash
+. env.sh "android"
+cargo build --target aarch64-linux-android --release
+```
+
+Packaging the APK:
+```bash
+cd android/
+./gradlew assembleRelease
+```
+
+If the above fails with an error related to compression, try allowing more memory to the JVM:
+```bash
+echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
+./gradlew --stop
+```
 
 
 ## Making a release
