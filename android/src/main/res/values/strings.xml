@@ -25,6 +25,14 @@
     <string name="paid_until">Paid until</string>
     <string name="log_out">Log out</string>
 
+    <string name="problem_report_description">
+        To help you more effectively, your app\'s log file will be attached to this message. Your
+        data will remain secure and private, as it is anonymised before being sent over an encrypted
+        channel.
+    </string>
+    <string name="user_email_hint">Your email (optional)</string>
+    <string name="user_message_hint">Describe your problem</string>
+
     <string name="unsecured_connection">Unsecured connection</string>
     <string name="creating_secure_connection">Creating secure connection</string>
     <string name="secure_connection">Secure connection</string>
