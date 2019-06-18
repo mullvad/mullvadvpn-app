@@ -23,7 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-
+### Added
+#### Windows
+- Add migration logic to restore lost settings after major Windows update.
 
 ## [2019.5] - 2019-06-17
 ### Added
