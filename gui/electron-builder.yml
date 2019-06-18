@@ -97,7 +97,9 @@ win:
       to: .
     - from: ../dist-assets/binaries/windows/sslocal.exe
       to: .
-
+    - from: ../windows/winutil/bin/x64-Release/winutil.dll
+      to: .
+      
 linux:
   target:
     - deb
