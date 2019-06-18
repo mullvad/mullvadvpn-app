@@ -1,8 +1,6 @@
 package net.mullvad.mullvadvpn
 
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -10,61 +8,31 @@ import kotlinx.coroutines.Job
 import android.view.View
 import android.widget.TextView
 
-import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.TunnelStateTransition
+import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 
-class LocationInfo(val parentView: View, val daemon: Deferred<MullvadDaemon>) {
-    private val country: TextView = parentView.findViewById(R.id.country)
-    private val city: TextView = parentView.findViewById(R.id.city)
-    private val hostname: TextView = parentView.findViewById(R.id.hostname)
+class LocationInfo(val parentView: View, val locationInfoCache: LocationInfoCache) {
+    private val countryLabel: TextView = parentView.findViewById(R.id.country)
+    private val cityLabel: TextView = parentView.findViewById(R.id.city)
+    private val hostnameLabel: TextView = parentView.findViewById(R.id.hostname)
 
-    private var lastKnownRealLocation: GeoIpLocation? = null
+    private var updateJob: Job? = null
 
-    private var activeFetch: Job? = null
-
-    var location: GeoIpLocation? = null
-        set(value) {
-            field = value
-            updateViews(value)
-        }
-
-    fun setState(state: TunnelStateTransition) {
-        activeFetch?.cancel()
-        activeFetch = null
-
-        when (state) {
-            is TunnelStateTransition.Disconnected -> activeFetch = fetchRealLocation()
-            is TunnelStateTransition.Connecting -> activeFetch = fetchRelayLocation()
-            is TunnelStateTransition.Connected -> activeFetch = fetchRelayLocation()
-            is TunnelStateTransition.Disconnecting -> location = lastKnownRealLocation
-            is TunnelStateTransition.Blocked -> location = null
+    init {
+        locationInfoCache.onNewLocation = { country, city, hostname ->
+            updateJob?.cancel()
+            updateJob = updateViews(country, city, hostname)
         }
     }
 
-    fun updateViews(location: GeoIpLocation?) {
-        country.text = location?.country ?: ""
-        city.text = location?.city ?: ""
-        hostname.text = location?.hostname ?: ""
+    fun onDestroy() {
+        updateJob?.cancel()
+        locationInfoCache.onNewLocation = null
     }
 
-    private fun fetchRealLocation() = GlobalScope.launch(Dispatchers.Main) {
-        var realLocation: GeoIpLocation? = null
-        var remainingAttempts = 10
-
-        while (realLocation == null && remainingAttempts > 0) {
-            realLocation = fetchLocation().await()
-            remainingAttempts -= 1
-        }
-
-        lastKnownRealLocation = realLocation
-        location = realLocation
-    }
-
-    private fun fetchRelayLocation() = GlobalScope.launch(Dispatchers.Main) {
-        location = fetchLocation().await()
-    }
-
-    private fun fetchLocation() = GlobalScope.async(Dispatchers.Default) {
-        daemon.await().getCurrentLocation()
+    fun updateViews(country: String, city: String, hostname: String) =
+            GlobalScope.launch(Dispatchers.Main) {
+        countryLabel.text = country
+        cityLabel.text = city
+        hostnameLabel.text = hostname
     }
 }
