@@ -18,7 +18,7 @@ use jni::{
 };
 use lazy_static::lazy_static;
 use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 use std::{collections::HashMap, path::PathBuf, sync::mpsc, thread};
 use talpid_types::ErrorExt;
 
@@ -56,7 +56,7 @@ const CLASSES_TO_LOAD: &[&str] = &[
 ];
 
 lazy_static! {
-    static ref DAEMON_INTERFACE: Mutex<DaemonInterface> = Mutex::new(DaemonInterface::new());
+    static ref DAEMON_INTERFACE: DaemonInterface = DaemonInterface::new();
     static ref CLASSES: RwLock<HashMap<&'static str, GlobalRef>> =
         RwLock::new(HashMap::with_capacity(CLASSES_TO_LOAD.len()));
 }
@@ -131,9 +131,7 @@ fn initialize(
         VpnServiceTunProvider::new(env, vpn_service).map_err(Error::CreateVpnServiceTunProvider)?;
     let daemon_command_sender = spawn_daemon(env, this, tun_provider, log_dir)?;
 
-    DAEMON_INTERFACE
-        .lock()
-        .set_command_sender(daemon_command_sender);
+    DAEMON_INTERFACE.set_command_sender(daemon_command_sender);
 
     Ok(())
 }
@@ -196,9 +194,7 @@ fn get_class(name: &str) -> GlobalRef {
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_connect(_: JNIEnv, _: JObject) {
-    let daemon = DAEMON_INTERFACE.lock();
-
-    if let Err(error) = daemon.connect() {
+    if let Err(error) = DAEMON_INTERFACE.connect() {
         log::error!(
             "{}",
             error.display_chain_with_msg("Failed to request daemon to connect")
@@ -209,9 +205,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_connect(_: JNIE
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_disconnect(_: JNIEnv, _: JObject) {
-    let daemon = DAEMON_INTERFACE.lock();
-
-    if let Err(error) = daemon.disconnect() {
+    if let Err(error) = DAEMON_INTERFACE.disconnect() {
         log::error!(
             "{}",
             error.display_chain_with_msg("Failed to request daemon to disconnect")
@@ -225,9 +219,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWiregua
     _: JNIEnv,
     _: JObject,
 ) -> jboolean {
-    let daemon = DAEMON_INTERFACE.lock();
-
-    match daemon.generate_wireguard_key() {
+    match DAEMON_INTERFACE.generate_wireguard_key() {
         Ok(()) => JNI_TRUE,
         Err(error) => {
             log::error!(
@@ -246,11 +238,9 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
     _: JObject<'this>,
     accountToken: JString,
 ) -> JObject<'env> {
-    let daemon = DAEMON_INTERFACE.lock();
-
     let account = String::from_java(&env, accountToken);
 
-    match daemon.get_account_data(account) {
+    match DAEMON_INTERFACE.get_account_data(account) {
         Ok(data) => data.into_java(&env),
         Err(error) => {
             log::error!(
@@ -268,9 +258,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentLocat
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
-    let daemon = DAEMON_INTERFACE.lock();
-
-    match daemon.get_current_location() {
+    match DAEMON_INTERFACE.get_current_location() {
         Ok(location) => location.into_java(&env),
         Err(error) => {
             log::error!(
@@ -288,9 +276,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getRelayLocatio
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
-    let daemon = DAEMON_INTERFACE.lock();
-
-    match daemon.get_relay_locations() {
+    match DAEMON_INTERFACE.get_relay_locations() {
         Ok(relay_list) => relay_list.into_java(&env),
         Err(error) => {
             log::error!(
@@ -308,9 +294,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getSettings<'en
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
-    let daemon = DAEMON_INTERFACE.lock();
-
-    match daemon.get_settings() {
+    match DAEMON_INTERFACE.get_settings() {
         Ok(settings) => settings.into_java(&env),
         Err(error) => {
             log::error!("{}", error.display_chain_with_msg("Failed to get settings"));
@@ -325,9 +309,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getState<'env, 
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
-    let daemon = DAEMON_INTERFACE.lock();
-
-    match daemon.get_state() {
+    match DAEMON_INTERFACE.get_state() {
         Ok(state) => state.into_java(&env),
         Err(error) => {
             log::error!("{}", error.display_chain_with_msg("Failed to get state"));
@@ -342,9 +324,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
-    let daemon = DAEMON_INTERFACE.lock();
-
-    match daemon.get_wireguard_key() {
+    match DAEMON_INTERFACE.get_wireguard_key() {
         Ok(public_key) => public_key.into_java(&env),
         Err(error) => {
             log::error!(
@@ -363,11 +343,9 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
     _: JObject,
     accountToken: JString,
 ) {
-    let daemon = DAEMON_INTERFACE.lock();
-
     let account = <Option<String> as FromJava>::from_java(&env, accountToken);
 
-    if let Err(error) = daemon.set_account(account) {
+    if let Err(error) = DAEMON_INTERFACE.set_account(account) {
         log::error!("{}", error.display_chain_with_msg("Failed to set account"));
     }
 }
@@ -379,11 +357,9 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_updateRelaySett
     _: JObject,
     relaySettingsUpdate: JObject,
 ) {
-    let daemon = DAEMON_INTERFACE.lock();
-
     let update = FromJava::from_java(&env, relaySettingsUpdate);
 
-    if let Err(error) = daemon.update_relay_settings(update) {
+    if let Err(error) = DAEMON_INTERFACE.update_relay_settings(update) {
         log::error!(
             "{}",
             error.display_chain_with_msg("Failed to update relay settings")
