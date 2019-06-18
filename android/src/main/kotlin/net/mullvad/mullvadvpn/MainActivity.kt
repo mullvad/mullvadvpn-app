@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentActivity
 
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
+import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
@@ -36,6 +37,7 @@ class MainActivity : FragmentActivity() {
 
     val accountCache = AccountCache(this)
     val locationInfoCache = LocationInfoCache(asyncDaemon)
+    val problemReport = MullvadProblemReport()
     var relayListListener = RelayListListener(this)
 
     private var waitForDaemonJob: Job? = null
