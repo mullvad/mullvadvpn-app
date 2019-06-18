@@ -18,6 +18,7 @@ pub mod logging;
 mod management_interface;
 mod relays;
 mod rpc_uniqueness_check;
+mod settings;
 pub mod version;
 
 pub use crate::management_interface::ManagementCommand;
@@ -40,10 +41,10 @@ use mullvad_types::{
         RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TunnelConstraints,
     },
     relay_list::{Relay, RelayList},
-    settings::{self, Settings},
     states::TargetState,
     version::{AppVersion, AppVersionInfo},
 };
+use settings::Settings;
 use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
@@ -74,9 +75,6 @@ pub enum Error {
 
     #[error(display = "Unable to create am.i.mullvad client")]
     InitHttpsClient(#[error(cause)] mullvad_rpc::rest::Error),
-
-    #[error(display = "Unable to load settings")]
-    LoadSettings(#[error(cause)] settings::Error),
 
     #[error(display = "Unable to load account history with wireguard key cache")]
     LoadAccountHistory(#[error(cause)] account_history::Error),
@@ -340,7 +338,9 @@ where
             &resource_dir,
             &cache_dir,
         );
-        let settings = Settings::load().map_err(Error::LoadSettings)?;
+
+        let settings = settings::load();
+
         let account_history =
             account_history::AccountHistory::new(&cache_dir).map_err(Error::LoadAccountHistory)?;
 
