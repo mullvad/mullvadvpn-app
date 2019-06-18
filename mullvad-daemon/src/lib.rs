@@ -18,6 +18,8 @@ pub mod logging;
 mod management_interface;
 mod relays;
 mod rpc_uniqueness_check;
+#[path = "settings.rs"]
+mod daemon_settings;
 pub mod version;
 
 pub use crate::management_interface::ManagementCommand;
@@ -74,9 +76,6 @@ pub enum Error {
 
     #[error(display = "Unable to create am.i.mullvad client")]
     InitHttpsClient(#[error(cause)] mullvad_rpc::rest::Error),
-
-    #[error(display = "Unable to load settings")]
-    LoadSettings(#[error(cause)] settings::Error),
 
     #[error(display = "Unable to load account history with wireguard key cache")]
     LoadAccountHistory(#[error(cause)] account_history::Error),
@@ -340,7 +339,9 @@ where
             &resource_dir,
             &cache_dir,
         );
-        let settings = Settings::load().map_err(Error::LoadSettings)?;
+
+        let settings = daemon_settings::load();
+
         let account_history =
             account_history::AccountHistory::new(&cache_dir).map_err(Error::LoadAccountHistory)?;
 

@@ -84,10 +84,6 @@ impl Settings {
                 info!("Loading settings from {}", path.display());
                 Self::read_settings(&mut io::BufReader::new(file))
             }
-            Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
-                info!("No settings file at {}, using defaults", path.display());
-                Ok(Settings::default())
-            }
             Err(e) => Err(Error::ReadError(path.display().to_string(), e)),
         }
     }
