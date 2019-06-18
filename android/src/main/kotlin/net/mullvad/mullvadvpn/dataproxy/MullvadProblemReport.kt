@@ -37,4 +37,9 @@ class MullvadProblemReport {
     }
 
     private external fun collectReport(reportPath: String): Boolean
+    private external fun sendProblemReport(
+        userEmail: String,
+        userMessage: String,
+        reportPath: String
+    ): Boolean
 }

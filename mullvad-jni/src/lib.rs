@@ -393,3 +393,29 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
         }
     }
 }
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemReport_sendProblemReport(
+    env: JNIEnv,
+    _: JObject,
+    userEmail: JString,
+    userMessage: JString,
+    outputPath: JString,
+) -> jboolean {
+    let user_email = String::from_java(&env, userEmail);
+    let user_message = String::from_java(&env, userMessage);
+    let output_path_string = String::from_java(&env, outputPath);
+    let output_path = Path::new(&output_path_string);
+
+    match mullvad_problem_report::send_problem_report(&user_email, &user_message, output_path) {
+        Ok(()) => JNI_TRUE,
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to collect problem report")
+            );
+            JNI_FALSE
+        }
+    }
+}
