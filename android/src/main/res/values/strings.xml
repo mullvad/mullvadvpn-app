@@ -19,6 +19,8 @@
     <string name="quit">Quit</string>
 
     <string name="account_number">Account number</string>
+    <string name="mullvad_account_number">Mullvad account number</string>
+    <string name="copied_mullvad_account_number">Copied Mullvad account number</string>
     <string name="paid_until">Paid until</string>
     <string name="log_out">Log out</string>
 

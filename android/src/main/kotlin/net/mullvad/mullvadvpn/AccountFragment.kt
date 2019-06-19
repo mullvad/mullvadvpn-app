@@ -8,6 +8,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
 import android.content.Context
+import android.content.ClipboardManager
+import android.content.ClipData
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -15,6 +17,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 
 import org.joda.time.DateTime
 
@@ -53,6 +56,8 @@ class AccountFragment : Fragment() {
         accountExpiryDisplay = view.findViewById<TextView>(R.id.account_expiry_display)
         accountNumberDisplay = view.findViewById<TextView>(R.id.account_number_display)
 
+        accountNumberContainer.setOnClickListener { copyAccountNumberToClipboard() }
+
         updateViewJob = updateView()
 
         return view
@@ -86,6 +91,18 @@ class AccountFragment : Fragment() {
         clearAccountNumber()
         clearBackStack()
         goToLoginScreen()
+    }
+
+    private fun copyAccountNumberToClipboard() {
+        val clipboard =
+            parentActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipLabel = parentActivity.resources.getString(R.string.mullvad_account_number)
+        val clipData = ClipData.newPlainText(clipLabel, accountNumberDisplay.text)
+
+        clipboard.primaryClip = clipData
+
+        Toast.makeText(parentActivity, R.string.copied_mullvad_account_number, Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun clearAccountNumber() = GlobalScope.launch(Dispatchers.Default) {
