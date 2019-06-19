@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, Styles, Types, View } from 'reactxp';
+import { Component, Styles, Text, Types, View } from 'reactxp';
 import ImageView from './ImageView';
 
 const styles = {
@@ -10,8 +10,9 @@ const styles = {
   caption: {
     base: Styles.createTextStyle({
       fontFamily: 'Open Sans',
-      fontSize: 13,
+      fontSize: 15,
       fontWeight: '600',
+      lineHeight: 20,
       color: 'rgb(255, 255, 255, 0.4)',
     }),
     hovered: Styles.createTextStyle({
@@ -23,7 +24,7 @@ const styles = {
 interface IProps {
   onToggle?: (isOpen: boolean) => void;
   defaultOpen?: boolean;
-  children: React.ReactNode;
+  children: React.ReactText;
   style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
 }
 
@@ -44,6 +45,8 @@ export default class ConnectionInfoDisclosure extends Component<IProps, IState> 
 
   public render() {
     const tintColor = this.state.isHovered ? 'rgb(255, 255, 255)' : 'rgb(255, 255, 255, 0.4)';
+    const textHoverStyle =
+      this.state.isOpen || this.state.isHovered ? styles.caption.hovered : undefined;
 
     return (
       <View
@@ -51,7 +54,7 @@ export default class ConnectionInfoDisclosure extends Component<IProps, IState> 
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
         onPress={this.onToggle}>
-        {this.props.children}
+        <Text style={[styles.caption.base, textHoverStyle]}>{this.props.children}</Text>
         <ImageView
           source={this.state.isOpen ? 'icon-chevron-up' : 'icon-chevron-down'}
           width={24}
