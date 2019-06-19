@@ -189,6 +189,22 @@ msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr ""
 
+#. The hostname line displayed below the country on the main screen
+#. Available placeholders:
+#. %(relay)s - the relay hostname
+#. %(bridge)s - the bridge hostname
+msgctxt "connection-info"
+msgid "%(relay)s via %(bridge)s"
+msgstr ""
+
+#. The tunnel type line displayed below the hostname line on the main screen
+#. Available placeholders:
+#. %(tunnelType)s - the tunnel type, i.e OpenVPN
+#. %(bridgeType)s - the bridge type, i.e Shadowsocks
+msgctxt "connection-info"
+msgid "%(tunnelType)s via %(bridgeType)s"
+msgstr ""
+
 msgctxt "connection-info"
 msgid "In"
 msgstr ""
@@ -226,10 +242,6 @@ msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -284,6 +296,10 @@ msgstr ""
 #. %(version)s - the newest available version of the app
 msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "Your kernel may be outdated"
 msgstr ""
 
 msgctxt "launch-view"
