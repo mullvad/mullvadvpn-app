@@ -1042,15 +1042,23 @@ where
             let private_key = wireguard::PrivateKey::new_from_random()
                 .map_err(|e| format!("Failed to generate new key - {}", e))?;
 
+            let (tx, rx) = oneshot::channel();
             let fut = self
                 .wg_key_proxy
-                .push_wg_key(account_token, private_key.public_key());
+                .push_wg_key(account_token, private_key.public_key())
+                .then(move |result| {
+                    let _ = tx.send(result);
+                    Ok(())
+                });
 
-            let mut core = tokio_core::reactor::Core::new()
-                .map_err(|e| format!("Failed to spawn future for pushing wg key - {}", e))?;
 
-            let addresses = core
-                .run(fut)
+            self.tokio_remote
+                .execute(fut)
+                .map_err(|e| format!("Failed to spawn key pushing future - {:?}", e))?;
+
+            let addresses = rx
+                .wait()
+                .map_err(|e| format!("Tokio reactor panicked: {}", e))?
                 .map_err(|e| format!("Failed to push new wireguard key: {}", e))?;
 
             account_entry.wireguard = Some(mullvad_types::wireguard::WireguardData {
