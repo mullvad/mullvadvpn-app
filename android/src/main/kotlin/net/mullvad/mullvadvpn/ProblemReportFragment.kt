@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn
 
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -30,6 +31,8 @@ class ProblemReportFragment : Fragment() {
 
     private lateinit var sendingSpinner: View
     private lateinit var sentSuccessfullyIcon: View
+    private lateinit var failedToSendIcon: View
+
     private lateinit var sendStatusLabel: TextView
     private lateinit var sendDetailsLabel: TextView
     private lateinit var responseMessageLabel: TextView
@@ -64,6 +67,8 @@ class ProblemReportFragment : Fragment() {
 
         sendingSpinner = view.findViewById<View>(R.id.sending_spinner)
         sentSuccessfullyIcon = view.findViewById<View>(R.id.sent_successfully_icon)
+        failedToSendIcon = view.findViewById<View>(R.id.failed_to_send_icon)
+
         sendStatusLabel = view.findViewById<TextView>(R.id.send_status)
         sendDetailsLabel = view.findViewById<TextView>(R.id.send_details)
         responseMessageLabel = view.findViewById<TextView>(R.id.response_message)
@@ -93,8 +98,11 @@ class ProblemReportFragment : Fragment() {
 
         bodyContainer.showNext()
 
-        problemReport.send().await()
-        showSuccessScreen(userEmail)
+        if (problemReport.send().await()) {
+            showSuccessScreen(userEmail)
+        } else {
+            showErrorScreen()
+        }
     }
 
     private fun showSuccessScreen(userEmail: String) {
@@ -111,6 +119,17 @@ class ProblemReportFragment : Fragment() {
         }
 
         sendStatusLabel.setText(R.string.sent)
+    }
+
+    private fun showErrorScreen() {
+        sendingSpinner.visibility = View.GONE
+
+        failedToSendIcon.visibility = View.VISIBLE
+        sendStatusLabel.visibility = View.VISIBLE
+        sendDetailsLabel.visibility = View.VISIBLE
+
+        sendStatusLabel.setText(R.string.failed_to_send)
+        sendDetailsLabel.setText(R.string.failed_to_send_details)
     }
 
     private fun setSendButtonEnabled(enabled: Boolean) {
