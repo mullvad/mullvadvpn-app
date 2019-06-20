@@ -59,5 +59,25 @@
                 android:textSize="13sp"
                 android:text="@string/problem_report_description"
                 />
+        <EditText android:id="@+id/user_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:layout_marginBottom="12dp"
+                android:layout_marginHorizontal="22dp"
+                android:singleLine="true"
+                android:hint="@string/user_email_hint"
+                style="@style/InputText"
+                />
+        <EditText android:id="@+id/user_message"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="22dp"
+                android:singleLine="false"
+                android:hint="@string/user_message_hint"
+                android:gravity="top"
+                style="@style/InputText"
+                />
     </LinearLayout>
 </LinearLayout>
