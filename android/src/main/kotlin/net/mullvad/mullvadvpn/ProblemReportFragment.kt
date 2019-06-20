@@ -1,14 +1,26 @@
 package net.mullvad.mullvadvpn
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-import org.joda.time.DateTime
+import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 
 class ProblemReportFragment : Fragment() {
+    private lateinit var problemReport: MullvadProblemReport
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        val parentActivity = context as MainActivity
+
+        problemReport = parentActivity.problemReport
+        problemReport.collect()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
