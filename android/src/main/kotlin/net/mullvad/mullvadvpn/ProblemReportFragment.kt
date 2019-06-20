@@ -93,7 +93,10 @@ class ProblemReportFragment : Fragment() {
             sendReportJob = sendReport()
         }
 
-        setSendButtonEnabled(false)
+        userEmailInput.setText(problemReport.userEmail)
+        userMessageInput.setText(problemReport.userMessage)
+
+        setSendButtonEnabled(!userMessageInput.text.isEmpty())
         userMessageInput.addTextChangedListener(InputWatcher())
 
         return view
@@ -101,6 +104,10 @@ class ProblemReportFragment : Fragment() {
 
     override fun onDestroyView() {
         sendReportJob?.cancel()
+
+        problemReport.userEmail = userEmailInput.text.toString()
+        problemReport.userMessage = userMessageInput.text.toString()
+
         super.onDestroyView()
     }
 
@@ -113,10 +120,19 @@ class ProblemReportFragment : Fragment() {
         showSendingScreen()
 
         if (problemReport.send().await()) {
+            clearForm()
             showSuccessScreen(userEmail)
         } else {
             showErrorScreen()
         }
+    }
+
+    private fun clearForm() {
+        userEmailInput.setText("")
+        userMessageInput.setText("")
+
+        problemReport.userEmail = ""
+        problemReport.userMessage = ""
     }
 
     private fun showForm() {
