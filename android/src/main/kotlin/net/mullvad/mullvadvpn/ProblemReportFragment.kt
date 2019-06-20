@@ -10,12 +10,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ViewSwitcher
 
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 
 class ProblemReportFragment : Fragment() {
     private lateinit var problemReport: MullvadProblemReport
 
+    private lateinit var bodyContainer: ViewSwitcher
     private lateinit var userEmailInput: EditText
     private lateinit var userMessageInput: EditText
     private lateinit var sendButton: Button
@@ -40,6 +42,7 @@ class ProblemReportFragment : Fragment() {
             activity?.onBackPressed()
         }
 
+        bodyContainer = view.findViewById<ViewSwitcher>(R.id.body_container)
         userEmailInput = view.findViewById<EditText>(R.id.user_email)
         userMessageInput = view.findViewById<EditText>(R.id.user_message)
         sendButton = view.findViewById<Button>(R.id.send_button)
@@ -56,6 +59,8 @@ class ProblemReportFragment : Fragment() {
         problemReport.userEmail = userEmailInput.text.toString()
         problemReport.userMessage = userMessageInput.text.toString()
         problemReport.send()
+
+        bodyContainer.showNext()
     }
 
     private fun setSendButtonEnabled(enabled: Boolean) {

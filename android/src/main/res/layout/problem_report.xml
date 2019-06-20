@@ -31,61 +31,107 @@
                 android:text="@string/settings"
                 />
     </LinearLayout>
-    <LinearLayout
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginHorizontal="24dp"
+            android:textColor="@color/white"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:text="@string/report_a_problem"
+            />
+    <ViewSwitcher android:id="@+id/body_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp"
-            android:orientation="vertical"
             >
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:layout_marginBottom="8dp"
-                android:layout_marginHorizontal="24dp"
-                android:textColor="@color/white"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                android:text="@string/report_a_problem"
-                />
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:layout_marginBottom="24dp"
-                android:layout_marginHorizontal="24dp"
-                android:textColor="@color/white80"
-                android:textSize="13sp"
-                android:text="@string/problem_report_description"
-                />
-        <EditText android:id="@+id/user_email"
+        <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:layout_marginBottom="12dp"
-                android:layout_marginHorizontal="22dp"
-                android:singleLine="true"
-                android:hint="@string/user_email_hint"
-                style="@style/InputText"
-                />
-        <EditText android:id="@+id/user_message"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                >
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:layout_marginBottom="24dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:textColor="@color/white80"
+                    android:textSize="13sp"
+                    android:text="@string/problem_report_description"
+                    />
+            <EditText android:id="@+id/user_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginHorizontal="22dp"
+                    android:singleLine="true"
+                    android:hint="@string/user_email_hint"
+                    style="@style/InputText"
+                    />
+            <EditText android:id="@+id/user_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="22dp"
+                    android:singleLine="false"
+                    android:hint="@string/user_message_hint"
+                    android:gravity="top"
+                    style="@style/InputText"
+                    />
+            <Button android:id="@+id/send_button"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginVertical="16dp"
+                    android:enabled="false"
+                    android:text="@string/send"
+                    style="@style/GreenButton"
+                    />
+        </LinearLayout>
+        <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="22dp"
-                android:singleLine="false"
-                android:hint="@string/user_message_hint"
-                android:gravity="top"
-                style="@style/InputText"
-                />
-        <Button android:id="@+id/send_button"
+                android:layout_height="match_parent"
                 android:layout_marginTop="16dp"
-                android:layout_marginLeft="24dp"
-                android:layout_marginRight="24dp"
-                android:enabled="false"
-                android:text="@string/send"
-                style="@style/GreenButton"
-                />
-    </LinearLayout>
+                android:layout_marginHorizontal="24dp"
+                android:orientation="vertical"
+                >
+            <FrameLayout
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="32dp"
+                    >
+                <ProgressBar
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:indeterminate="true"
+                        android:indeterminateOnly="true"
+                        android:indeterminateDuration="600"
+                        android:indeterminateDrawable="@drawable/icon_spinner"
+                        />
+            </FrameLayout>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:textColor="@color/green"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:text="@string/secure_connection"
+                    android:textAllCaps="true"
+                    />
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:textColor="@color/white"
+                    android:textSize="34sp"
+                    android:textStyle="bold"
+                    android:text="@string/sending"
+                    />
+        </LinearLayout>
+    </ViewSwitcher>
 </LinearLayout>
