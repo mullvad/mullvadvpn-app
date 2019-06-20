@@ -32,6 +32,8 @@ class ProblemReportFragment : Fragment() {
             activity?.onBackPressed()
         }
 
+        view.findViewById<View>(R.id.send_button).alpha = 0.5F
+
         return view
     }
 }

@@ -79,5 +79,13 @@
                 android:gravity="top"
                 style="@style/InputText"
                 />
+        <Button android:id="@+id/send_button"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="24dp"
+                android:enabled="false"
+                android:text="@string/send"
+                style="@style/GreenButton"
+                />
     </LinearLayout>
 </LinearLayout>

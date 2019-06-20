@@ -32,6 +32,7 @@
     </string>
     <string name="user_email_hint">Your email (optional)</string>
     <string name="user_message_hint">Describe your problem</string>
+    <string name="send">Send</string>
 
     <string name="unsecured_connection">Unsecured connection</string>
     <string name="creating_secure_connection">Creating secure connection</string>
