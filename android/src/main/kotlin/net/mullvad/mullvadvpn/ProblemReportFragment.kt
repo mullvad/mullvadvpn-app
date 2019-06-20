@@ -15,6 +15,9 @@ import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 
 class ProblemReportFragment : Fragment() {
     private lateinit var problemReport: MullvadProblemReport
+
+    private lateinit var userEmailInput: EditText
+    private lateinit var userMessageInput: EditText
     private lateinit var sendButton: Button
 
     override fun onAttach(context: Context) {
@@ -37,12 +40,22 @@ class ProblemReportFragment : Fragment() {
             activity?.onBackPressed()
         }
 
+        userEmailInput = view.findViewById<EditText>(R.id.user_email)
+        userMessageInput = view.findViewById<EditText>(R.id.user_message)
         sendButton = view.findViewById<Button>(R.id.send_button)
-        setSendButtonEnabled(false)
 
-        view.findViewById<EditText>(R.id.user_message).addTextChangedListener(InputWatcher())
+        sendButton.setOnClickListener { sendReport() }
+
+        setSendButtonEnabled(false)
+        userMessageInput.addTextChangedListener(InputWatcher())
 
         return view
+    }
+
+    private fun sendReport() {
+        problemReport.userEmail = userEmailInput.text.toString()
+        problemReport.userMessage = userMessageInput.text.toString()
+        problemReport.send()
     }
 
     private fun setSendButtonEnabled(enabled: Boolean) {
