@@ -127,6 +127,7 @@
                         android:visibility="gone"
                         />
             </FrameLayout>
+
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -169,6 +170,19 @@
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:visibility="gone"
+                    />
+
+            <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    />
+
+            <Button android:id="@+id/try_again_button"
+                    android:layout_marginVertical="16dp"
+                    android:text="@string/try_again"
+                    android:visibility="gone"
+                    style="@style/GreenButton"
                     />
         </LinearLayout>
     </ViewSwitcher>

@@ -42,6 +42,7 @@
         You may need to go back to the app\'s main screen and click Disconnect before trying again.
         Don\'t worry, the information you entered will remain in the form.
     </string>
+    <string name="try_again">Try again</string>
 
     <string name="unsecured_connection">Unsecured connection</string>
     <string name="creating_secure_connection">Creating secure connection</string>

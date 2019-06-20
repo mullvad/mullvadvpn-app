@@ -38,6 +38,8 @@ class ProblemReportFragment : Fragment() {
     private lateinit var responseMessageLabel: TextView
     private lateinit var responseEmailLabel: TextView
 
+    private lateinit var tryAgainButton: Button
+
     private var sendReportJob: Job? = null
 
     override fun onAttach(context: Context) {
@@ -74,8 +76,14 @@ class ProblemReportFragment : Fragment() {
         responseMessageLabel = view.findViewById<TextView>(R.id.response_message)
         responseEmailLabel = view.findViewById<TextView>(R.id.response_email)
 
+        tryAgainButton = view.findViewById<Button>(R.id.try_again_button)
+
         sendButton.setOnClickListener {
             sendReportJob?.cancel()
+            sendReportJob = sendReport()
+        }
+
+        tryAgainButton.setOnClickListener {
             sendReportJob = sendReport()
         }
 
@@ -96,13 +104,30 @@ class ProblemReportFragment : Fragment() {
         problemReport.userEmail = userEmail
         problemReport.userMessage = userMessageInput.text.toString()
 
-        bodyContainer.showNext()
+        showSendingScreen()
 
         if (problemReport.send().await()) {
             showSuccessScreen(userEmail)
         } else {
             showErrorScreen()
         }
+    }
+
+    private fun showSendingScreen() {
+        bodyContainer.displayedChild = 1
+
+        sendingSpinner.visibility = View.VISIBLE
+        sentSuccessfullyIcon.visibility = View.GONE
+        failedToSendIcon.visibility = View.GONE
+
+        sendStatusLabel.visibility = View.VISIBLE
+        sendDetailsLabel.visibility = View.GONE
+        responseMessageLabel.visibility = View.GONE
+        responseEmailLabel.visibility = View.GONE
+
+        sendStatusLabel.setText(R.string.sending)
+
+        tryAgainButton.visibility = View.GONE
     }
 
     private fun showSuccessScreen(userEmail: String) {
@@ -119,6 +144,7 @@ class ProblemReportFragment : Fragment() {
         }
 
         sendStatusLabel.setText(R.string.sent)
+        sendDetailsLabel.setText(R.string.sent_thanks)
     }
 
     private fun showErrorScreen() {
@@ -130,6 +156,8 @@ class ProblemReportFragment : Fragment() {
 
         sendStatusLabel.setText(R.string.failed_to_send)
         sendDetailsLabel.setText(R.string.failed_to_send_details)
+
+        tryAgainButton.visibility = View.VISIBLE
     }
 
     private fun setSendButtonEnabled(enabled: Boolean) {
