@@ -38,6 +38,7 @@ class ProblemReportFragment : Fragment() {
     private lateinit var responseMessageLabel: TextView
     private lateinit var responseEmailLabel: TextView
 
+    private lateinit var editMessageButton: Button
     private lateinit var tryAgainButton: Button
 
     private var sendReportJob: Job? = null
@@ -76,11 +77,16 @@ class ProblemReportFragment : Fragment() {
         responseMessageLabel = view.findViewById<TextView>(R.id.response_message)
         responseEmailLabel = view.findViewById<TextView>(R.id.response_email)
 
+        editMessageButton = view.findViewById<Button>(R.id.edit_message_button)
         tryAgainButton = view.findViewById<Button>(R.id.try_again_button)
 
         sendButton.setOnClickListener {
             sendReportJob?.cancel()
             sendReportJob = sendReport()
+        }
+
+        editMessageButton.setOnClickListener {
+            showForm()
         }
 
         tryAgainButton.setOnClickListener {
@@ -113,6 +119,10 @@ class ProblemReportFragment : Fragment() {
         }
     }
 
+    private fun showForm() {
+        bodyContainer.displayedChild = 0
+    }
+
     private fun showSendingScreen() {
         bodyContainer.displayedChild = 1
 
@@ -127,6 +137,7 @@ class ProblemReportFragment : Fragment() {
 
         sendStatusLabel.setText(R.string.sending)
 
+        editMessageButton.visibility = View.GONE
         tryAgainButton.visibility = View.GONE
     }
 
@@ -157,6 +168,7 @@ class ProblemReportFragment : Fragment() {
         sendStatusLabel.setText(R.string.failed_to_send)
         sendDetailsLabel.setText(R.string.failed_to_send_details)
 
+        editMessageButton.visibility = View.VISIBLE
         tryAgainButton.visibility = View.VISIBLE
     }
 
