@@ -103,7 +103,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="32dp"
                     >
-                <ProgressBar
+                <ProgressBar android:id="@+id/sending_spinner"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
@@ -111,6 +111,13 @@
                         android:indeterminateOnly="true"
                         android:indeterminateDuration="600"
                         android:indeterminateDrawable="@drawable/icon_spinner"
+                        />
+                <ImageView android:id="@+id/sent_successfully_icon"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:src="@drawable/icon_success"
+                        android:visibility="gone"
                         />
             </FrameLayout>
             <TextView
@@ -123,7 +130,7 @@
                     android:text="@string/secure_connection"
                     android:textAllCaps="true"
                     />
-            <TextView
+            <TextView android:id="@+id/send_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
@@ -131,6 +138,30 @@
                     android:textSize="34sp"
                     android:textStyle="bold"
                     android:text="@string/sending"
+                    />
+            <TextView android:id="@+id/send_details"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white60"
+                    android:textSize="13sp"
+                    android:text="@string/sent_thanks"
+                    android:visibility="gone"
+                    />
+            <TextView android:id="@+id/response_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white60"
+                    android:textSize="13sp"
+                    android:text="@string/sent_contact"
+                    android:visibility="gone"
+                    />
+            <TextView android:id="@+id/response_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
                     />
         </LinearLayout>
     </ViewSwitcher>

@@ -1,5 +1,10 @@
 package net.mullvad.mullvadvpn
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -10,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.ViewSwitcher
 
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
@@ -21,6 +27,15 @@ class ProblemReportFragment : Fragment() {
     private lateinit var userEmailInput: EditText
     private lateinit var userMessageInput: EditText
     private lateinit var sendButton: Button
+
+    private lateinit var sendingSpinner: View
+    private lateinit var sentSuccessfullyIcon: View
+    private lateinit var sendStatusLabel: TextView
+    private lateinit var sendDetailsLabel: TextView
+    private lateinit var responseMessageLabel: TextView
+    private lateinit var responseEmailLabel: TextView
+
+    private var sendReportJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -47,7 +62,17 @@ class ProblemReportFragment : Fragment() {
         userMessageInput = view.findViewById<EditText>(R.id.user_message)
         sendButton = view.findViewById<Button>(R.id.send_button)
 
-        sendButton.setOnClickListener { sendReport() }
+        sendingSpinner = view.findViewById<View>(R.id.sending_spinner)
+        sentSuccessfullyIcon = view.findViewById<View>(R.id.sent_successfully_icon)
+        sendStatusLabel = view.findViewById<TextView>(R.id.send_status)
+        sendDetailsLabel = view.findViewById<TextView>(R.id.send_details)
+        responseMessageLabel = view.findViewById<TextView>(R.id.response_message)
+        responseEmailLabel = view.findViewById<TextView>(R.id.response_email)
+
+        sendButton.setOnClickListener {
+            sendReportJob?.cancel()
+            sendReportJob = sendReport()
+        }
 
         setSendButtonEnabled(false)
         userMessageInput.addTextChangedListener(InputWatcher())
@@ -55,12 +80,37 @@ class ProblemReportFragment : Fragment() {
         return view
     }
 
-    private fun sendReport() {
-        problemReport.userEmail = userEmailInput.text.toString()
+    override fun onDestroyView() {
+        sendReportJob?.cancel()
+        super.onDestroyView()
+    }
+
+    private fun sendReport() = GlobalScope.launch(Dispatchers.Main) {
+        val userEmail = userEmailInput.text.toString()
+
+        problemReport.userEmail = userEmail
         problemReport.userMessage = userMessageInput.text.toString()
-        problemReport.send()
 
         bodyContainer.showNext()
+
+        problemReport.send().await()
+        showSuccessScreen(userEmail)
+    }
+
+    private fun showSuccessScreen(userEmail: String) {
+        sendingSpinner.visibility = View.GONE
+
+        sentSuccessfullyIcon.visibility = View.VISIBLE
+        sendStatusLabel.visibility = View.VISIBLE
+        sendDetailsLabel.visibility = View.VISIBLE
+
+        if (!userEmail.isEmpty()) {
+            responseMessageLabel.visibility = View.VISIBLE
+            responseEmailLabel.visibility = View.VISIBLE
+            responseEmailLabel.text = userEmail
+        }
+
+        sendStatusLabel.setText(R.string.sent)
     }
 
     private fun setSendButtonEnabled(enabled: Boolean) {

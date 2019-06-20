@@ -34,6 +34,9 @@
     <string name="user_message_hint">Describe your problem</string>
     <string name="send">Send</string>
     <string name="sending">Sending...</string>
+    <string name="sent">Sent</string>
+    <string name="sent_thanks">Thanks! We will look into this.</string>
+    <string name="sent_contact">If needed we will contact you on</string>
 
     <string name="unsecured_connection">Unsecured connection</string>
     <string name="creating_secure_connection">Creating secure connection</string>
