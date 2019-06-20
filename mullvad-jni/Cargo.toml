@@ -22,6 +22,7 @@ parking_lot = "0.8"
 
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }
+mullvad-problem-report = { path = "../mullvad-problem-report" }
 mullvad-types = { path = "../mullvad-types" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
