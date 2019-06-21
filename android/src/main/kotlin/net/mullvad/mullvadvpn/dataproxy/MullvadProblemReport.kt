@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.dataproxy
 import java.io.File
 
 import kotlinx.coroutines.async
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -12,6 +13,8 @@ const val PROBLEM_REPORT_PATH = "/data/data/net.mullvad.mullvadvpn/problem_repor
 class MullvadProblemReport {
     private var collectJob: Deferred<Boolean>? = null
     private var sendJob: Deferred<Boolean>? = null
+
+    var confirmNoEmail: CompletableDeferred<Boolean>? = null
 
     var userEmail = ""
     var userMessage = ""
