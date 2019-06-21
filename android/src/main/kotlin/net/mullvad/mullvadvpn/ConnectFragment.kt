@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.model.TunnelStateTransition
 
 class ConnectFragment : Fragment() {
     private lateinit var actionButton: ConnectActionButton
+    private lateinit var switchLocationButton: SwitchLocationButton
     private lateinit var headerBar: HeaderBar
     private lateinit var notificationBanner: NotificationBanner
     private lateinit var status: ConnectionStatus
@@ -64,10 +65,6 @@ class ConnectFragment : Fragment() {
             parentActivity.openSettings()
         }
 
-        view.findViewById<Button>(R.id.switch_location).setOnClickListener {
-            openSwitchLocationScreen()
-        }
-
         headerBar = HeaderBar(view, context!!)
         notificationBanner = NotificationBanner(view)
         status = ConnectionStatus(view, context!!)
@@ -79,6 +76,9 @@ class ConnectFragment : Fragment() {
             onCancel = { disconnect() }
             onDisconnect = { disconnect() }
         }
+
+        switchLocationButton = SwitchLocationButton(view)
+        switchLocationButton.onClick = { openSwitchLocationScreen() }
 
         attachListenerJob = attachListener()
 
