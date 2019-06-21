@@ -152,6 +152,9 @@ pub fn collect_report(
         None => {}
     }
 
+    #[cfg(target_os = "android")]
+    add_logcat(&mut problem_report);
+
     problem_report.add_logs(extra_logs);
 
     write_problem_report(&output_path, &problem_report).map_err(|source| Error::WriteReportError {
@@ -226,6 +229,20 @@ fn is_tunnel_log(path: &Path) -> bool {
     match path.file_name() {
         Some(file_name) => file_name.to_string_lossy().contains("openvpn"),
         None => false,
+    }
+}
+
+#[cfg(target_os = "android")]
+fn add_logcat(problem_report: &mut ProblemReport) {
+    let logcat_path = Path::new("/data/data/net.mullvad.mullvadvpn/logcat.txt");
+    let result = duct::cmd!("logcat", "-d")
+        .stderr_to_stdout()
+        .stdout(&logcat_path)
+        .run();
+
+    match result {
+        Ok(_) => problem_report.add_log(&logcat_path),
+        Err(error) => problem_report.add_error("Failed to collect logcat", &error),
     }
 }
 
