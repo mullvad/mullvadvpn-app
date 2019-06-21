@@ -9,11 +9,18 @@ import android.view.View
 import android.widget.Button
 
 import net.mullvad.mullvadvpn.model.TunnelStateTransition
+import net.mullvad.mullvadvpn.relaylist.RelayItem
 
 class SwitchLocationButton(val parentView: View) {
     private val button: Button = parentView.findViewById(R.id.switch_location)
 
     private var updateJob: Job? = null
+
+    var location: RelayItem? = null
+        set(value) {
+            field = value
+            update()
+        }
 
     var state: TunnelStateTransition = TunnelStateTransition.Disconnected()
         set(value) {
@@ -49,6 +56,12 @@ class SwitchLocationButton(val parentView: View) {
     }
 
     private fun showLocation() {
-        showLabel()
+        val locationName = location?.locationName
+
+        if (locationName == null) {
+            showLabel()
+        } else {
+            button.setText(locationName)
+        }
     }
 }
