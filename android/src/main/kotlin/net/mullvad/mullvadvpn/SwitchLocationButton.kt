@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
+import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.Button
 
@@ -13,6 +14,7 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 
 class SwitchLocationButton(val parentView: View) {
     private val button: Button = parentView.findViewById(R.id.switch_location)
+    private val chevron: Drawable = button.compoundDrawables[2]
 
     private var updateJob: Job? = null
 
@@ -53,6 +55,7 @@ class SwitchLocationButton(val parentView: View) {
 
     private fun showLabel() {
         button.setText(R.string.switch_location)
+        button.setCompoundDrawables(null, null, null, null)
     }
 
     private fun showLocation() {
@@ -62,6 +65,7 @@ class SwitchLocationButton(val parentView: View) {
             showLabel()
         } else {
             button.setText(locationName)
+            button.setCompoundDrawables(null, null, chevron, null)
         }
     }
 }
