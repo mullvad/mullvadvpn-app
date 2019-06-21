@@ -87,6 +87,7 @@ class ConnectFragment : Fragment() {
 
     override fun onDestroyView() {
         locationInfo.onDestroy()
+        switchLocationButton.onDestroy()
 
         waitForDaemonJob?.cancel()
         attachListenerJob?.cancel()
@@ -186,6 +187,8 @@ class ConnectFragment : Fragment() {
 
     private fun updateView(state: TunnelStateTransition) = GlobalScope.launch(Dispatchers.Main) {
         actionButton.state = state
+        switchLocationButton.state = state
+
         headerBar.setState(state)
         notificationBanner.setState(state)
         status.setState(state)
