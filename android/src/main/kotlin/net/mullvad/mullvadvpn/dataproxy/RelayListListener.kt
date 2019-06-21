@@ -79,7 +79,7 @@ class RelayListListener(val parentActivity: MainActivity) {
         relaySettings = parentActivity.asyncSettings.await().relaySettings
 
         synchronized(this) {
-            if (relayList == null) {
+            if (relayList == null && !relayLocations.countries.isEmpty()) {
                 relayListChanged(RelayList(relayLocations))
             }
         }
