@@ -107,6 +107,7 @@ class ProblemReportFragment : Fragment() {
 
         problemReport.userEmail = userEmailInput.text.toString()
         problemReport.userMessage = userMessageInput.text.toString()
+        problemReport.deleteReportFile()
 
         super.onDestroyView()
     }

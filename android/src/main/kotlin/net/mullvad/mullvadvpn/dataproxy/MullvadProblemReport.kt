@@ -65,7 +65,7 @@ class MullvadProblemReport {
         }
     }
 
-    private fun deleteReportFile() {
+    fun deleteReportFile() {
         File(PROBLEM_REPORT_PATH).delete()
     }
 
