@@ -48,10 +48,6 @@ class SelectLocationFragment : Fragment() {
 
         parentActivity = context as MainActivity
         relayListListener = parentActivity.relayListListener
-
-        relayListListener.onRelayListChange = { relayList, selectedItem ->
-            updateRelayListJob = updateRelayList(relayList, selectedItem)
-        }
     }
 
     override fun onCreateView(
@@ -69,6 +65,20 @@ class SelectLocationFragment : Fragment() {
         configureRelayList(view.findViewById<RecyclerView>(R.id.relay_list))
 
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        relayListListener.onRelayListChange = { relayList, selectedItem ->
+            updateRelayListJob = updateRelayList(relayList, selectedItem)
+        }
+    }
+
+    override fun onPause() {
+        relayListListener.onRelayListChange = null
+
+        super.onPause()
     }
 
     override fun onDestroyView() {
