@@ -13,5 +13,8 @@ interface RelayItem {
     val visibleItemCount: Int
         get() = visibleChildCount + 1
 
+    val locationName: String
+        get() = name
+
     var expanded: Boolean
 }

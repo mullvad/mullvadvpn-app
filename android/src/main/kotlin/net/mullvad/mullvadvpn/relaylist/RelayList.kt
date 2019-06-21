@@ -13,7 +13,9 @@ class RelayList {
                     .map { city -> 
                         val relays = city.relays
                             .filter { relay -> relay.hasWireguardTunnels }
-                            .map { relay -> Relay(country.code, city.code, relay.hostname) }
+                            .map { relay ->
+                                Relay(country.code, city.code, relay.hostname, city.name)
+                            }
 
                         RelayCity(city.name, country.code, city.code, false, relays)
                     }
