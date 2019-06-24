@@ -15,6 +15,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     }
 
     var onRelayListChange: ((RelayList) -> Unit)? = null
+    var onSettingsChange: ((Settings) -> Unit)? = null
     var onTunnelStateChange: ((TunnelStateTransition) -> Unit)? = null
 
     external fun connect()
@@ -33,6 +34,10 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
 
     private fun notifyRelayListEvent(relayList: RelayList) {
         onRelayListChange?.invoke(relayList)
+    }
+
+    private fun notifySettingsEvent(settings: Settings) {
+        onSettingsChange?.invoke(settings)
     }
 
     private fun notifyTunnelStateEvent(event: TunnelStateTransition) {
