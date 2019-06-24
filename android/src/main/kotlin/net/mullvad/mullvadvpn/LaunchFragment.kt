@@ -38,7 +38,8 @@ class LaunchFragment : Fragment() {
 
     private fun checkForAccountToken() = GlobalScope.async(Dispatchers.Default) {
         val parentActivity = activity as MainActivity
-        val settings = parentActivity.asyncSettings.await()
+        val daemon = parentActivity.asyncDaemon.await()
+        val settings = daemon.getSettings()
 
         settings.accountToken != null
     }
