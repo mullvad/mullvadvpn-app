@@ -31,11 +31,6 @@ class MainActivity : FragmentActivity() {
     val daemon
         get() = runBlocking { asyncDaemon.await() }
 
-    var asyncSettings = fetchSettings()
-        private set
-    val settings
-        get() = runBlocking { asyncSettings.await() }
-
     val locationInfoCache = LocationInfoCache(asyncDaemon)
     val problemReport = MullvadProblemReport()
     var settingsListener = SettingsListener(this)
@@ -89,7 +84,6 @@ class MainActivity : FragmentActivity() {
         settingsListener.onDestroy()
 
         waitForDaemonJob?.cancel()
-        asyncSettings.cancel()
         asyncDaemon.cancel()
 
         super.onDestroy()
