@@ -21,11 +21,13 @@ import android.widget.Button
 import android.widget.ImageButton
 
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
+import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelStateTransition
 
 class ConnectFragment : Fragment() {
     private lateinit var actionButton: ConnectActionButton
+    private lateinit var switchLocationButton: SwitchLocationButton
     private lateinit var headerBar: HeaderBar
     private lateinit var notificationBanner: NotificationBanner
     private lateinit var status: ConnectionStatus
@@ -33,6 +35,7 @@ class ConnectFragment : Fragment() {
 
     private lateinit var parentActivity: MainActivity
     private lateinit var locationInfoCache: LocationInfoCache
+    private lateinit var relayListListener: RelayListListener
 
     private var daemon = CompletableDeferred<MullvadDaemon>()
     private var vpnPermission = CompletableDeferred<Unit>()
@@ -50,6 +53,7 @@ class ConnectFragment : Fragment() {
 
         parentActivity = context as MainActivity
         locationInfoCache = parentActivity.locationInfoCache
+        relayListListener = parentActivity.relayListListener
         waitForDaemonJob = waitForDaemon(parentActivity.asyncDaemon)
     }
 
@@ -64,10 +68,6 @@ class ConnectFragment : Fragment() {
             parentActivity.openSettings()
         }
 
-        view.findViewById<Button>(R.id.switch_location).setOnClickListener {
-            openSwitchLocationScreen()
-        }
-
         headerBar = HeaderBar(view, context!!)
         notificationBanner = NotificationBanner(view)
         status = ConnectionStatus(view, context!!)
@@ -80,13 +80,31 @@ class ConnectFragment : Fragment() {
             onDisconnect = { disconnect() }
         }
 
+        switchLocationButton = SwitchLocationButton(view)
+        switchLocationButton.onClick = { openSwitchLocationScreen() }
+
         attachListenerJob = attachListener()
 
         return view
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        relayListListener.onRelayListChange = { relayList, selectedRelayItem ->
+            switchLocationButton.location = selectedRelayItem
+        }
+    }
+
+    override fun onPause() {
+        relayListListener.onRelayListChange = null
+
+        super.onPause()
+    }
+
     override fun onDestroyView() {
         locationInfo.onDestroy()
+        switchLocationButton.onDestroy()
 
         waitForDaemonJob?.cancel()
         attachListenerJob?.cancel()
@@ -186,6 +204,8 @@ class ConnectFragment : Fragment() {
 
     private fun updateView(state: TunnelStateTransition) = GlobalScope.launch(Dispatchers.Main) {
         actionButton.state = state
+        switchLocationButton.state = state
+
         headerBar.setState(state)
         notificationBanner.setState(state)
         status.setState(state)
