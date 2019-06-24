@@ -25,6 +25,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     external fun generateWireguardKey(): KeygenEvent?
     external fun getAccountData(accountToken: String): AccountData?
     external fun getCurrentLocation(): GeoIpLocation?
+    external fun getCurrentVersion(): String
     external fun getRelayLocations(): RelayList
     external fun getSettings(): Settings
     external fun getState(): TunnelState
