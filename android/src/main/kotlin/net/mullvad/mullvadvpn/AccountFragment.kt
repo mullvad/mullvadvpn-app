@@ -80,11 +80,15 @@ class AccountFragment : Fragment() {
         if (accountNumber != null) {
             accountNumberDisplay.setText(accountNumber)
             accountNumberContainer.visibility = View.VISIBLE
+        } else {
+            accountNumberContainer.visibility = View.INVISIBLE
         }
 
         if (accountExpiry != null) {
             accountExpiryDisplay.setText(formatExpiry(accountExpiry))
             accountExpiryContainer.visibility = View.VISIBLE
+        } else {
+            accountExpiryContainer.visibility = View.INVISIBLE
         }
     }
 
