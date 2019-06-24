@@ -54,7 +54,7 @@ class ConnectFragment : Fragment() {
         parentActivity = context as MainActivity
         locationInfoCache = parentActivity.locationInfoCache
         relayListListener = parentActivity.relayListListener
-        waitForDaemonJob = waitForDaemon(parentActivity.asyncDaemon)
+        waitForDaemonJob = waitForDaemon(parentActivity.daemon)
     }
 
     override fun onCreateView(
@@ -123,9 +123,9 @@ class ConnectFragment : Fragment() {
         }
     }
 
-    private fun waitForDaemon(asyncDaemon: Deferred<MullvadDaemon>) =
+    private fun waitForDaemon(originalDaemon: Deferred<MullvadDaemon>) =
             GlobalScope.launch(Dispatchers.Default) {
-        daemon.complete(asyncDaemon.await())
+        daemon.complete(originalDaemon.await())
     }
 
     private fun attachListener() = GlobalScope.launch(Dispatchers.Default) {

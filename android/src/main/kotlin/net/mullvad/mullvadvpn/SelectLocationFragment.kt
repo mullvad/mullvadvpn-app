@@ -104,7 +104,7 @@ class SelectLocationFragment : Fragment() {
         val constraint: Constraint<LocationConstraint> =
             relayItem?.run { Constraint.Only(location) } ?: Constraint.Any()
 
-        parentActivity.asyncDaemon.await().updateRelaySettings(
+        parentActivity.daemon.await().updateRelaySettings(
             RelaySettingsUpdate.RelayConstraintsUpdate(constraint)
         )
     }

@@ -114,7 +114,7 @@ class AccountFragment : Fragment() {
     }
 
     private fun clearAccountNumber() = GlobalScope.launch(Dispatchers.Default) {
-        val daemon = parentActivity.asyncDaemon.await()
+        val daemon = parentActivity.daemon.await()
 
         daemon.setAccount(null)
     }

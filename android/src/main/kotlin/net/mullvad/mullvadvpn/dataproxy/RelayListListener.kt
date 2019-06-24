@@ -54,7 +54,7 @@ class RelayListListener(val parentActivity: MainActivity) {
     }
 
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
-        daemon.complete(parentActivity.asyncDaemon.await())
+        daemon.complete(parentActivity.daemon.await())
 
         setUpListener()
         fetchInitialRelayList()

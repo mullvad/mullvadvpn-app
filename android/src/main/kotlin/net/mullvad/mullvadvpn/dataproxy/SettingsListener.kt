@@ -41,7 +41,7 @@ class SettingsListener(val parentActivity: MainActivity) {
     }
 
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
-        daemon = parentActivity.asyncDaemon.await()
+        daemon = parentActivity.daemon.await()
         daemon.onSettingsChange = { settings -> handleNewSettings(settings) }
         fetchInitialSettings()
     }

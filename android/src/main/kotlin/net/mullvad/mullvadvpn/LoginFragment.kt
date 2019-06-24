@@ -70,7 +70,7 @@ class LoginFragment : Fragment() {
     private fun performLogin(accountToken: String) = GlobalScope.launch(Dispatchers.Main) {
         loginJob?.cancel()
         loginJob = GlobalScope.async(Dispatchers.Default) {
-            val daemon = parentActivity.asyncDaemon.await()
+            val daemon = parentActivity.daemon.await()
             val accountData = daemon.getAccountData(accountToken)
 
             if (accountData != null) {

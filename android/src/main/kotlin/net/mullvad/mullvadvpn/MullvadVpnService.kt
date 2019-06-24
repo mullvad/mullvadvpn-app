@@ -22,9 +22,7 @@ class MullvadVpnService : VpnService() {
     private val created = CompletableDeferred<Unit>()
     private val binder = LocalBinder()
 
-    val asyncDaemon = startDaemon()
-    val daemon
-        get() = runBlocking { asyncDaemon.await() }
+    val daemon = startDaemon()
 
     override fun onCreate() {
         created.complete(Unit)
@@ -37,7 +35,7 @@ class MullvadVpnService : VpnService() {
 
     override fun onDestroy() {
         connectivityListener.unregister(this)
-        asyncDaemon.cancel()
+        daemon.cancel()
         created.cancel()
     }
 
@@ -72,8 +70,8 @@ class MullvadVpnService : VpnService() {
     }
 
     inner class LocalBinder : Binder() {
-        val asyncDaemon
-            get() = this@MullvadVpnService.asyncDaemon
+        val daemon
+            get() = this@MullvadVpnService.daemon
     }
 
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
