@@ -16,6 +16,7 @@
     <string name="settings_account">Account</string>
     <string name="less_than_a_day_left">less than a day left</string>
     <string name="out_of_time">Out of time</string>
+    <string name="report_a_problem">Report a problem</string>
     <string name="quit">Quit</string>
 
     <string name="account_number">Account number</string>
@@ -23,6 +24,26 @@
     <string name="copied_mullvad_account_number">Copied Mullvad account number</string>
     <string name="paid_until">Paid until</string>
     <string name="log_out">Log out</string>
+
+    <string name="problem_report_description">
+        To help you more effectively, your app\'s log file will be attached to this message. Your
+        data will remain secure and private, as it is anonymised before being sent over an encrypted
+        channel.
+    </string>
+    <string name="user_email_hint">Your email (optional)</string>
+    <string name="user_message_hint">Describe your problem</string>
+    <string name="send">Send</string>
+    <string name="sending">Sending...</string>
+    <string name="sent">Sent</string>
+    <string name="failed_to_send">Failed to send</string>
+    <string name="sent_thanks">Thanks! We will look into this.</string>
+    <string name="sent_contact">If needed we will contact you on</string>
+    <string name="failed_to_send_details">
+        You may need to go back to the app\'s main screen and click Disconnect before trying again.
+        Don\'t worry, the information you entered will remain in the form.
+    </string>
+    <string name="edit_message">Edit message</string>
+    <string name="try_again">Try again</string>
 
     <string name="unsecured_connection">Unsecured connection</string>
     <string name="creating_secure_connection">Creating secure connection</string>

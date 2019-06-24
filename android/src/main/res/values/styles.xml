@@ -4,6 +4,15 @@
         <item name="android:windowBackground">@color/blue</item>
     </style>
 
+    <style name="InputText" parent="Widget.AppCompat.EditText">
+        <item name="android:padding">14dp</item>
+        <item name="android:background">@drawable/input_text_background</item>
+        <item name="android:textCursorDrawable">@drawable/text_input_cursor</item>
+        <item name="android:textColorHint">@color/blue40</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
     <style name="Button" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:layout_height">44dp</item>
         <item name="android:layout_width">match_parent</item>
@@ -19,6 +28,10 @@
 
     <style name="RedButton" parent="Button">
         <item name="android:background">@drawable/red_button_background</item>
+    </style>
+
+    <style name="BlueButton" parent="Button">
+        <item name="android:background">@drawable/blue_button_background</item>
     </style>
 
     <style name="White20Button" parent="Button">

@@ -1,0 +1,195 @@
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/darkBlue"
+        android:orientation="vertical"
+        android:gravity="left"
+        android:elevation="2dp"
+        >
+    <LinearLayout android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical | left"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground"
+            >
+        <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginRight="8dp"
+                android:src="@drawable/icon_back"
+                />
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white60"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:text="@string/settings"
+                />
+    </LinearLayout>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginHorizontal="24dp"
+            android:textColor="@color/white"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:text="@string/report_a_problem"
+            />
+    <ViewSwitcher android:id="@+id/body_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                >
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:layout_marginBottom="24dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:textColor="@color/white80"
+                    android:textSize="13sp"
+                    android:text="@string/problem_report_description"
+                    />
+            <EditText android:id="@+id/user_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginHorizontal="22dp"
+                    android:singleLine="true"
+                    android:hint="@string/user_email_hint"
+                    style="@style/InputText"
+                    />
+            <EditText android:id="@+id/user_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="22dp"
+                    android:singleLine="false"
+                    android:hint="@string/user_message_hint"
+                    android:gravity="top"
+                    style="@style/InputText"
+                    />
+            <Button android:id="@+id/send_button"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginVertical="16dp"
+                    android:enabled="false"
+                    android:text="@string/send"
+                    style="@style/GreenButton"
+                    />
+        </LinearLayout>
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginVertical="16dp"
+                android:layout_marginHorizontal="24dp"
+                android:orientation="vertical"
+                >
+            <FrameLayout
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="32dp"
+                    >
+                <ProgressBar android:id="@+id/sending_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:indeterminate="true"
+                        android:indeterminateOnly="true"
+                        android:indeterminateDuration="600"
+                        android:indeterminateDrawable="@drawable/icon_spinner"
+                        />
+                <ImageView android:id="@+id/sent_successfully_icon"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:src="@drawable/icon_success"
+                        android:visibility="gone"
+                        />
+                <ImageView android:id="@+id/failed_to_send_icon"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:src="@drawable/icon_fail"
+                        android:visibility="gone"
+                        />
+            </FrameLayout>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:textColor="@color/green"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:text="@string/secure_connection"
+                    android:textAllCaps="true"
+                    />
+            <TextView android:id="@+id/send_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:textColor="@color/white"
+                    android:textSize="34sp"
+                    android:textStyle="bold"
+                    android:text="@string/sending"
+                    />
+            <TextView android:id="@+id/send_details"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white60"
+                    android:textSize="13sp"
+                    android:text="@string/sent_thanks"
+                    android:visibility="gone"
+                    />
+            <TextView android:id="@+id/response_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white60"
+                    android:textSize="13sp"
+                    android:text="@string/sent_contact"
+                    android:visibility="gone"
+                    />
+            <TextView android:id="@+id/response_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    />
+
+            <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    />
+
+            <Button android:id="@+id/edit_message_button"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/edit_message"
+                    android:visibility="gone"
+                    style="@style/BlueButton"
+                    />
+            <Button android:id="@+id/try_again_button"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/try_again"
+                    android:visibility="gone"
+                    style="@style/GreenButton"
+                    />
+        </LinearLayout>
+    </ViewSwitcher>
+</LinearLayout>

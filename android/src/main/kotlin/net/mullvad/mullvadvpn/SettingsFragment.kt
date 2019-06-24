@@ -34,7 +34,12 @@ class SettingsFragment : Fragment() {
             activity?.finishAndRemoveTask()
         }
 
-        view.findViewById<View>(R.id.account).setOnClickListener { openAccountSettings() }
+        view.findViewById<View>(R.id.account).setOnClickListener {
+            openSubFragment(AccountFragment())
+        }
+        view.findViewById<View>(R.id.report_a_problem).setOnClickListener {
+            openSubFragment(ProblemReportFragment())
+        }
 
         remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
 
@@ -51,7 +56,7 @@ class SettingsFragment : Fragment() {
         super.onDestroyView()
     }
 
-    private fun openAccountSettings() {
+    private fun openSubFragment(fragment: Fragment) {
         fragmentManager?.beginTransaction()?.apply {
             setCustomAnimations(
                 R.anim.fragment_enter_from_right,
@@ -59,7 +64,7 @@ class SettingsFragment : Fragment() {
                 R.anim.fragment_half_enter_from_left,
                 R.anim.fragment_exit_to_right
             )
-            replace(R.id.main_fragment, AccountFragment())
+            replace(R.id.main_fragment, fragment)
             addToBackStack(null)
             commit()
         }

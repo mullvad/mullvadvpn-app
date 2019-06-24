@@ -2,10 +2,12 @@
     <color name="colorPrimary">#294D73</color>
     <color name="blue">#294D73</color>
     <color name="blue80">#CC294D73</color>
+    <color name="blue60">#99294D73</color>
     <color name="blue40">#66294D73</color>
     <color name="blue20">#33294D73</color>
     <color name="darkBlue">#192E45</color>
     <color name="white">#FFFFFF</color>
+    <color name="white80">#CCFFFFFF</color>
     <color name="white60">#99FFFFFF</color>
     <color name="white40">#66FFFFFF</color>
     <color name="white20">#33FFFFFF</color>
