@@ -58,25 +58,33 @@ class AccountFragment : Fragment() {
 
         accountNumberContainer.setOnClickListener { copyAccountNumberToClipboard() }
 
-        updateViewJob = updateView()
-
         return view
     }
 
-    private fun updateView() = GlobalScope.launch(Dispatchers.Main) {
-        val accountCache = parentActivity.accountCache
-        val accountNumber = accountCache.accountNumber.await()
+    override fun onResume() {
+        super.onResume()
 
+        parentActivity.accountCache.onAccountDataChange = { accountNumber, accountExpiry ->
+            updateViewJob = updateView(accountNumber, accountExpiry)
+        }
+    }
+
+    override fun onPause() {
+        parentActivity.accountCache.onAccountDataChange = null
+
+        super.onPause()
+    }
+
+    private fun updateView(accountNumber: String?, accountExpiry: DateTime?) =
+            GlobalScope.launch(Dispatchers.Main) {
         if (accountNumber != null) {
-            accountNumberDisplay.setText(accountCache.accountNumber.await())
+            accountNumberDisplay.setText(accountNumber)
             accountNumberContainer.visibility = View.VISIBLE
+        }
 
-            val accountExpiry = accountCache.accountExpiry.await()
-
-            if (accountExpiry != null) {
-                accountExpiryDisplay.setText(formatExpiry(accountExpiry))
-                accountExpiryContainer.visibility = View.VISIBLE
-            }
+        if (accountExpiry != null) {
+            accountExpiryDisplay.setText(formatExpiry(accountExpiry))
+            accountExpiryContainer.visibility = View.VISIBLE
         }
     }
 

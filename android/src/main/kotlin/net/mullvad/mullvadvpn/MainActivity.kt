@@ -36,11 +36,11 @@ class MainActivity : FragmentActivity() {
     val settings
         get() = runBlocking { asyncSettings.await() }
 
-    val accountCache = AccountCache(this)
     val locationInfoCache = LocationInfoCache(asyncDaemon)
     val problemReport = MullvadProblemReport()
     var relayListListener = RelayListListener(this)
     var settingsListener = SettingsListener(this)
+    val accountCache = AccountCache(settingsListener, asyncDaemon)
 
     private var waitForDaemonJob: Job? = null
 
@@ -106,13 +106,6 @@ class MainActivity : FragmentActivity() {
             replace(R.id.main_fragment, SettingsFragment())
             addToBackStack(null)
             commit()
-        }
-    }
-
-    fun refetchSettings() {
-        if (asyncSettings.isCompleted) {
-            asyncSettings = fetchSettings()
-            accountCache.settings = asyncSettings
         }
     }
 
