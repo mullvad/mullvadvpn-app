@@ -96,6 +96,14 @@ impl DaemonInterface {
         Ok(rx.wait().map_err(|_| Error::NoResponse)?)
     }
 
+    pub fn get_current_version(&self) -> Result<String> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::GetCurrentVersion(tx))?;
+
+        Ok(rx.wait().map_err(|_| Error::NoResponse)?)
+    }
+
     pub fn get_relay_locations(&self) -> Result<RelayList> {
         let (tx, rx) = oneshot::channel();
 
