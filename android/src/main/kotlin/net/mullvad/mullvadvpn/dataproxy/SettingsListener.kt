@@ -15,6 +15,14 @@ class SettingsListener(val parentActivity: MainActivity) {
 
     private var settings: Settings? = null
 
+    var onAccountNumberChange: ((String?) -> Unit)? = null
+        set(value) {
+            synchronized(this) {
+                field = value
+                value?.invoke(settings?.accountToken)
+            }
+        }
+
     fun onDestroy() {
         setUpJob.cancel()
 
@@ -41,6 +49,10 @@ class SettingsListener(val parentActivity: MainActivity) {
 
     private fun handleNewSettings(newSettings: Settings) {
         synchronized(this) {
+            if (settings?.accountToken != newSettings.accountToken) {
+                onAccountNumberChange?.invoke(newSettings.accountToken)
+            }
+
             settings = newSettings
         }
     }
