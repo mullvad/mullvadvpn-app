@@ -23,6 +23,7 @@ pub enum Error {
 
 enum Event {
     RelayList(RelayList),
+    Settings(Settings),
     Tunnel(TunnelStateTransition),
 }
 
@@ -40,7 +41,9 @@ impl EventListener for JniEventListener {
         let _ = self.0.send(Event::Tunnel(state));
     }
 
-    fn notify_settings(&self, _: Settings) {}
+    fn notify_settings(&self, settings: Settings) {
+        let _ = self.0.send(Event::Settings(settings));
+    }
 
     fn notify_relay_list(&self, relay_list: RelayList) {
         let _ = self.0.send(Event::RelayList(relay_list));
@@ -51,6 +54,7 @@ struct JniEventHandler<'env> {
     env: AttachGuard<'env>,
     mullvad_ipc_client: JObject<'env>,
     notify_relay_list_event: JMethodID<'env>,
+    notify_settings_event: JMethodID<'env>,
     notify_tunnel_event: JMethodID<'env>,
     events: mpsc::Receiver<Event>,
 }
@@ -98,6 +102,12 @@ impl<'env> JniEventHandler<'env> {
             "notifyRelayListEvent",
             "(Lnet/mullvad/mullvadvpn/model/RelayList;)V",
         )?;
+        let notify_settings_event = Self::get_method_id(
+            &env,
+            &class,
+            "notifySettingsEvent",
+            "(Lnet/mullvad/mullvadvpn/model/Settings;)V",
+        )?;
         let notify_tunnel_event = Self::get_method_id(
             &env,
             &class,
@@ -109,6 +119,7 @@ impl<'env> JniEventHandler<'env> {
             env,
             mullvad_ipc_client,
             notify_relay_list_event,
+            notify_settings_event,
             notify_tunnel_event,
             events,
         })
@@ -128,6 +139,7 @@ impl<'env> JniEventHandler<'env> {
         while let Ok(event) = self.events.recv() {
             match event {
                 Event::RelayList(relay_list) => self.handle_relay_list_event(relay_list),
+                Event::Settings(settings) => self.handle_settings(settings),
                 Event::Tunnel(tunnel_event) => self.handle_tunnel_event(tunnel_event),
             }
         }
@@ -145,6 +157,22 @@ impl<'env> JniEventHandler<'env> {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to call MullvadDaemon.notifyRelayListEvent")
+            );
+        }
+    }
+
+    fn handle_settings(&self, settings: Settings) {
+        let result = self.env.call_method_unchecked(
+            self.mullvad_ipc_client,
+            self.notify_settings_event,
+            JavaType::Primitive(Primitive::Void),
+            &[JValue::Object(settings.into_java(&self.env))],
+        );
+
+        if let Err(error) = result {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to call MullvadDaemon.notifySettingsEvent")
             );
         }
     }
