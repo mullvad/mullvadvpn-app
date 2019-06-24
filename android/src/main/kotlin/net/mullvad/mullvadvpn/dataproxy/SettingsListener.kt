@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 
 import net.mullvad.mullvadvpn.MainActivity
+import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.MullvadDaemon
 
@@ -20,6 +21,14 @@ class SettingsListener(val parentActivity: MainActivity) {
             synchronized(this) {
                 field = value
                 value?.invoke(settings?.accountToken)
+            }
+        }
+
+    var onRelaySettingsChange: ((RelaySettings?) -> Unit)? = null
+        set(value) {
+            synchronized(this) {
+                field = value
+                value?.invoke(settings?.relaySettings)
             }
         }
 
@@ -51,6 +60,10 @@ class SettingsListener(val parentActivity: MainActivity) {
         synchronized(this) {
             if (settings?.accountToken != newSettings.accountToken) {
                 onAccountNumberChange?.invoke(newSettings.accountToken)
+            }
+
+            if (settings?.relaySettings != newSettings.relaySettings) {
+                onRelaySettingsChange?.invoke(newSettings.relaySettings)
             }
 
             settings = newSettings
