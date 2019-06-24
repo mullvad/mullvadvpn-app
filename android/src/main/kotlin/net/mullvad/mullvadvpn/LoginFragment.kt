@@ -90,7 +90,6 @@ class LoginFragment : Fragment() {
 
     private suspend fun loggedIn() {
         showLoggedInMessage()
-        parentActivity.refetchSettings()
         delay(1000)
         openConnectScreen()
     }
