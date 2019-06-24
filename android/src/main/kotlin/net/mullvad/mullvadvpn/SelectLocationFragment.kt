@@ -37,8 +37,7 @@ class SelectLocationFragment : Fragment() {
 
     init {
         relayListAdapter.onSelect = { relayItem ->
-            relayListListener.selectedRelayItem = relayItem
-            updateLocationConstraint()
+            updateLocationConstraint(relayItem)
             close()
         }
     }
@@ -100,8 +99,10 @@ class SelectLocationFragment : Fragment() {
         }
     }
 
-    private fun updateLocationConstraint() = GlobalScope.launch(Dispatchers.Default) {
-        val constraint = relayListListener.selectedRelayLocation
+    private fun updateLocationConstraint(relayItem: RelayItem?) =
+            GlobalScope.launch(Dispatchers.Default) {
+        val constraint: Constraint<LocationConstraint> =
+            relayItem?.run { Constraint.Only(location) } ?: Constraint.Any()
 
         parentActivity.asyncDaemon.await().updateRelaySettings(
             RelaySettingsUpdate.RelayConstraintsUpdate(constraint)

@@ -38,8 +38,8 @@ class MainActivity : FragmentActivity() {
 
     val locationInfoCache = LocationInfoCache(asyncDaemon)
     val problemReport = MullvadProblemReport()
-    var relayListListener = RelayListListener(this)
     var settingsListener = SettingsListener(this)
+    var relayListListener = RelayListListener(this)
     val accountCache = AccountCache(settingsListener, asyncDaemon)
 
     private var waitForDaemonJob: Job? = null
