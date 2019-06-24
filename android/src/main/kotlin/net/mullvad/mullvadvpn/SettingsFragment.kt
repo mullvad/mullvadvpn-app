@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -37,6 +39,9 @@ class SettingsFragment : Fragment() {
         view.findViewById<View>(R.id.account).setOnClickListener {
             openSubFragment(AccountFragment())
         }
+        view.findViewById<View>(R.id.app_version).setOnClickListener {
+            openLink("https://mullvad.net/download/")
+        }
         view.findViewById<View>(R.id.report_a_problem).setOnClickListener {
             openSubFragment(ProblemReportFragment())
         }
@@ -68,5 +73,11 @@ class SettingsFragment : Fragment() {
             addToBackStack(null)
             commit()
         }
+    }
+
+    private fun openLink(url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+
+        startActivity(intent)
     }
 }
