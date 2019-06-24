@@ -36,6 +36,12 @@
     <string name="sending">Sending...</string>
     <string name="sent">Sent</string>
     <string name="failed_to_send">Failed to send</string>
+    <string name="confirm_no_email">
+        You are about to send the problem report without a way for us to get back to you. If you
+        want an answer to your report you will have to enter an email address.
+    </string>
+    <string name="send_anyway">Send anyway</string>
+    <string name="back">Back</string>
     <string name="sent_thanks">Thanks! We will look into this.</string>
     <string name="sent_contact">If needed we will contact you on</string>
     <string name="failed_to_send_details">

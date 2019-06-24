@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -82,7 +83,7 @@ class ProblemReportFragment : Fragment() {
 
         sendButton.setOnClickListener {
             sendReportJob?.cancel()
-            sendReportJob = sendReport()
+            sendReportJob = sendReport(true)
         }
 
         editMessageButton.setOnClickListener {
@@ -90,7 +91,7 @@ class ProblemReportFragment : Fragment() {
         }
 
         tryAgainButton.setOnClickListener {
-            sendReportJob = sendReport()
+            sendReportJob = sendReport(false)
         }
 
         userEmailInput.setText(problemReport.userEmail)
@@ -112,20 +113,31 @@ class ProblemReportFragment : Fragment() {
         super.onDestroyView()
     }
 
-    private fun sendReport() = GlobalScope.launch(Dispatchers.Main) {
+    private fun sendReport(shouldConfirmNoEmail: Boolean) = GlobalScope.launch(Dispatchers.Main) {
         val userEmail = userEmailInput.text.toString()
 
         problemReport.userEmail = userEmail
         problemReport.userMessage = userMessageInput.text.toString()
 
-        showSendingScreen()
+        if (!userEmail.isEmpty() || !shouldConfirmNoEmail || confirmSendWithNoEmail()) {
+            showSendingScreen()
 
-        if (problemReport.send().await()) {
-            clearForm()
-            showSuccessScreen(userEmail)
-        } else {
-            showErrorScreen()
+            if (problemReport.send().await()) {
+                clearForm()
+                showSuccessScreen(userEmail)
+            } else {
+                showErrorScreen()
+            }
         }
+    }
+
+    private suspend fun confirmSendWithNoEmail(): Boolean {
+        val confirmation = CompletableDeferred<Boolean>()
+
+        problemReport.confirmNoEmail = confirmation
+        showConfirmNoEmailDialog()
+
+        return confirmation.await()
     }
 
     private fun clearForm() {
@@ -138,6 +150,14 @@ class ProblemReportFragment : Fragment() {
 
     private fun showForm() {
         bodyContainer.displayedChild = 0
+    }
+
+    private fun showConfirmNoEmailDialog() {
+        val transaction = fragmentManager?.beginTransaction()
+
+        transaction?.addToBackStack(null)
+
+        ConfirmNoEmailDialogFragment().show(transaction, null)
     }
 
     private fun showSendingScreen() {
