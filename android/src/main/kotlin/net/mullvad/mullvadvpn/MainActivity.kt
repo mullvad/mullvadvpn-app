@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
+import net.mullvad.mullvadvpn.dataproxy.SettingsListener
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
@@ -39,6 +40,7 @@ class MainActivity : FragmentActivity() {
     val locationInfoCache = LocationInfoCache(asyncDaemon)
     val problemReport = MullvadProblemReport()
     var relayListListener = RelayListListener(this)
+    var settingsListener = SettingsListener(this)
 
     private var waitForDaemonJob: Job? = null
 
@@ -84,6 +86,7 @@ class MainActivity : FragmentActivity() {
     override fun onDestroy() {
         accountCache.onDestroy()
         relayListListener.onDestroy()
+        settingsListener.onDestroy()
 
         waitForDaemonJob?.cancel()
         asyncSettings.cancel()

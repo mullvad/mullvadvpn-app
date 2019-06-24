@@ -1,18 +1,26 @@
 package net.mullvad.mullvadvpn.dataproxy
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+
 import net.mullvad.mullvadvpn.MainActivity
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.MullvadDaemon
 
 class SettingsListener(val parentActivity: MainActivity) {
-    private var daemon: MullvadDaemon? = null
+    private lateinit var daemon: MullvadDaemon
+
     private val setUpJob = setUp()
 
     private var settings: Settings? = null
 
     fun onDestroy() {
         setUpJob.cancel()
-        daemon?.onSettingsChange = null
+
+        if (::daemon.isInitialized) {
+            daemon.onSettingsChange = null
+        }
     }
 
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
@@ -26,7 +34,7 @@ class SettingsListener(val parentActivity: MainActivity) {
 
         synchronized(this) {
             if (settings == null) {
-                settings = initialSettings
+                handleNewSettings(initialSettings)
             }
         }
     }
