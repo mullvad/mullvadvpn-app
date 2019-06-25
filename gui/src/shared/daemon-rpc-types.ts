@@ -74,7 +74,8 @@ export interface IProxyEndpoint {
 export type DaemonEvent =
   | { stateTransition: TunnelStateTransition }
   | { settings: ISettings }
-  | { relayList: IRelayList };
+  | { relayList: IRelayList }
+  | { wireguardKey: KeygenEvent };
 
 export type TunnelStateTransition =
   | { state: 'disconnected' }
@@ -276,6 +277,12 @@ export interface ISettings {
   tunnelOptions: ITunnelOptions;
   bridgeSettings: BridgeSettings;
   bridgeState: BridgeState;
+}
+
+export type KeygenEvent = INewWireguardKey | 'too_many_keys' | 'generation_failure';
+
+export interface INewWireguardKey {
+  newKey: string;
 }
 
 export type BridgeState = 'auto' | 'on' | 'off';

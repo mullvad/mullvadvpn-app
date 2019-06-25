@@ -486,6 +486,10 @@ class ApplicationMain {
           this.setSettings(daemonEvent.settings);
         } else if ('relayList' in daemonEvent) {
           this.setRelays(daemonEvent.relayList, this.settings.relaySettings);
+        } else if ('wireguardKey' in daemonEvent) {
+          /// TODO: handle wireguard key events properly.
+          log.info(`Received new key event`);
+          log.info(daemonEvent);
         }
       },
       (error: Error) => {
