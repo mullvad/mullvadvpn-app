@@ -1,5 +1,10 @@
 package net.mullvad.mullvadvpn
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -10,10 +15,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.TextView
 
 class SettingsFragment : Fragment() {
     private lateinit var parentActivity: MainActivity
     private lateinit var remainingTimeLabel: RemainingTimeLabel
+    private lateinit var appVersionLabel: TextView
+
+    private var showCurrentVersionJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -47,6 +56,9 @@ class SettingsFragment : Fragment() {
         }
 
         remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
+        appVersionLabel = view.findViewById<TextView>(R.id.app_version_label)
+
+        showCurrentVersionJob = showCurrentVersion()
 
         return view
     }
@@ -59,6 +71,11 @@ class SettingsFragment : Fragment() {
     override fun onPause() {
         remainingTimeLabel.onPause()
         super.onPause()
+    }
+
+    override fun onDestroyView() {
+        showCurrentVersionJob?.cancel()
+        super.onDestroyView()
     }
 
     private fun openSubFragment(fragment: Fragment) {
@@ -79,5 +96,11 @@ class SettingsFragment : Fragment() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
 
         startActivity(intent)
+    }
+
+    private fun showCurrentVersion() = GlobalScope.launch(Dispatchers.Main) {
+        val version = parentActivity.currentVersion.await()
+
+        appVersionLabel.setText(version)
     }
 }
