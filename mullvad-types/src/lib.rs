@@ -34,4 +34,7 @@ pub enum DaemonEvent {
 
     /// The daemon got an updated relay list.
     RelayList(relay_list::RelayList),
+
+    /// Key event
+    WireguardKey(wireguard::KeygenEvent),
 }
