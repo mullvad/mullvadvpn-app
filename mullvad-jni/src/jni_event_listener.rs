@@ -5,7 +5,7 @@ use jni::{
     AttachGuard, JNIEnv,
 };
 use mullvad_daemon::EventListener;
-use mullvad_types::{relay_list::RelayList, settings::Settings};
+use mullvad_types::{relay_list::RelayList, settings::Settings, wireguard::KeygenEvent};
 use std::{sync::mpsc, thread};
 use talpid_types::{tunnel::TunnelStateTransition, ErrorExt};
 
@@ -25,6 +25,7 @@ enum Event {
     RelayList(RelayList),
     Settings(Settings),
     Tunnel(TunnelStateTransition),
+    KeyEvent(KeygenEvent),
 }
 
 #[derive(Clone, Debug)]
@@ -48,6 +49,9 @@ impl EventListener for JniEventListener {
     fn notify_relay_list(&self, relay_list: RelayList) {
         let _ = self.0.send(Event::RelayList(relay_list));
     }
+
+    // TODO: manage key events properly
+    fn notify_key_event(&self, _key_event: KeygenEvent) {}
 }
 
 struct JniEventHandler<'env> {
