@@ -55,6 +55,8 @@ use talpid_types::{
     tunnel::{BlockReason, TunnelStateTransition},
     ErrorExt,
 };
+#[path = "wireguard.rs"]
+mod key_pusher;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
