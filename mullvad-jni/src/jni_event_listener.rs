@@ -167,11 +167,13 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_settings(&self, settings: Settings) {
+        let java_settings = self.env.auto_local(settings.into_java(&self.env));
+
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
             self.notify_settings_event,
             JavaType::Primitive(Primitive::Void),
-            &[JValue::Object(settings.into_java(&self.env))],
+            &[JValue::Object(java_settings.as_obj())],
         );
 
         if let Err(error) = result {
