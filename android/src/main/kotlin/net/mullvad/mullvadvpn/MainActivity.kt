@@ -9,14 +9,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.net.VpnService
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.FragmentActivity
 
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
+import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
@@ -27,9 +30,12 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 
 class MainActivity : FragmentActivity() {
+    private var vpnPermission: CompletableDeferred<Boolean>? = null
+
     var daemon = CompletableDeferred<MullvadDaemon>()
         private set
 
+    val connectionProxy = ConnectionProxy(this)
     val locationInfoCache = LocationInfoCache(daemon)
     val problemReport = MullvadProblemReport()
     var settingsListener = SettingsListener(this)
@@ -71,6 +77,14 @@ class MainActivity : FragmentActivity() {
         bindService(intent, serviceConnection, 0)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+            vpnPermission?.complete(true)
+        } else {
+            vpnPermission?.complete(false)
+        }
+    }
+
     override fun onStop() {
         unbindService(serviceConnection)
 
@@ -100,6 +114,21 @@ class MainActivity : FragmentActivity() {
             addToBackStack(null)
             commit()
         }
+    }
+
+    fun requestVpnPermission(): Deferred<Boolean> {
+        val intent = VpnService.prepare(this)
+        val request = CompletableDeferred<Boolean>()
+
+        vpnPermission = request
+
+        if (intent != null) {
+            startActivityForResult(intent, 0)
+        } else {
+            request.complete(true)
+        }
+
+        return request
     }
 
     private fun addInitialFragment() {
