@@ -32,6 +32,7 @@ const LOG_FILENAME: &str = "daemon.log";
 const CLASSES_TO_LOAD: &[&str] = &[
     "java/net/InetAddress",
     "java/util/ArrayList",
+    "java/util/List",
     "net/mullvad/mullvadvpn/model/AccountData",
     "net/mullvad/mullvadvpn/model/Constraint$Any",
     "net/mullvad/mullvadvpn/model/Constraint$Only",
