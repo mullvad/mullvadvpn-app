@@ -26,7 +26,7 @@ use crate::management_interface::{
     BoxFuture, ManagementInterfaceEventBroadcaster, ManagementInterfaceServer,
 };
 use futures::{
-    future,
+    future::{self, Executor},
     sync::{mpsc::UnboundedSender, oneshot},
     Future, Sink,
 };
@@ -43,6 +43,7 @@ use mullvad_types::{
     relay_list::{Relay, RelayList},
     states::TargetState,
     version::{AppVersion, AppVersionInfo},
+    wireguard::KeygenEvent,
 };
 use settings::Settings;
 use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
@@ -52,12 +53,13 @@ use talpid_core::{
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::{openvpn, wireguard, TransportProtocol, TunnelParameters},
+    net::{openvpn, TransportProtocol, TunnelParameters},
     tunnel::{BlockReason, TunnelStateTransition},
     ErrorExt,
 };
+
 #[path = "wireguard.rs"]
-mod key_pusher;
+mod wireguard;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -104,7 +106,7 @@ pub enum Error {
 type SyncUnboundedSender<T> = ::futures::sink::Wait<UnboundedSender<T>>;
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
-enum InternalDaemonEvent {
+pub(crate) enum InternalDaemonEvent {
     /// Tunnel has changed state.
     TunnelStateTransition(TunnelStateTransition),
     /// Request from the `MullvadTunnelParametersGenerator` to obtain a new relay.
@@ -115,6 +117,13 @@ enum InternalDaemonEvent {
     ManagementInterfaceExited,
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
     TriggerShutdown,
+    /// Wireguard key generation event
+    WgKeyEvent(
+        (
+            AccountToken,
+            ::std::result::Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
+        ),
+    ),
 }
 
 impl From<TunnelStateTransition> for InternalDaemonEvent {
@@ -194,6 +203,9 @@ pub trait EventListener {
 
     /// Notify that the relay list changed.
     fn notify_relay_list(&self, relay_list: RelayList);
+
+    /// Notify clients of a key generation event.
+    fn notify_key_event(&self, key_event: KeygenEvent);
 }
 
 pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
@@ -211,6 +223,7 @@ pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     accounts_proxy: AccountsProxy<HttpHandle>,
     version_proxy: AppVersionProxy<HttpHandle>,
     https_handle: mullvad_rpc::rest::RequestSender,
+    wireguard_key_manager: wireguard::KeyManager,
     tokio_remote: tokio_core::reactor::Remote,
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
@@ -326,6 +339,7 @@ where
                 (rpc, https_handle, remote)
             })
             .map_err(Error::InitIoEventLoop)?;
+
         let rpc_handle = rpc_handle.map_err(Error::InitRpcClient)?;
         let https_handle = https_handle.map_err(Error::InitHttpsClient)?;
 
@@ -333,6 +347,7 @@ where
         let on_relay_list_update = move |relay_list: &RelayList| {
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
+
 
         let relay_selector = relays::RelaySelector::new(
             rpc_handle.clone(),
@@ -361,10 +376,17 @@ where
         )
         .map_err(Error::TunnelError)?;
 
+
+        let wireguard_key_manager = wireguard::KeyManager::new(
+            internal_event_tx.clone(),
+            rpc_handle.clone(),
+            tokio_remote.clone(),
+        );
+
         // Attempt to download a fresh relay list
         relay_selector.update();
 
-        Ok(Daemon {
+        let mut daemon = Daemon {
             tunnel_command_tx: Sink::wait(tunnel_command_tx),
             tunnel_state: TunnelStateTransition::Disconnected,
             target_state: TargetState::Unsecured,
@@ -384,13 +406,19 @@ where
             last_generated_relay: None,
             last_generated_bridge_relay: None,
             version,
-        })
+            wireguard_key_manager,
+        };
+
+        daemon.ensure_wireguard_keys_for_current_account();
+
+        Ok(daemon)
     }
 
     /// Retrieve a channel for sending daemon commands.
     pub fn command_sender(&self) -> DaemonCommandSender {
         DaemonCommandSender::new(self.tx.clone())
     }
+
 
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
@@ -420,6 +448,7 @@ where
                 return Err(Error::ManagementInterfaceExited);
             }
             TriggerShutdown => self.handle_trigger_shutdown_event(),
+            WgKeyEvent(key_event) => self.handle_wireguard_key_event(key_event),
         }
         Ok(())
     }
@@ -660,6 +689,70 @@ where
         }
     }
 
+    fn handle_wireguard_key_event(
+        &mut self,
+        event: (
+            AccountToken,
+            ::std::result::Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
+        ),
+    ) {
+        let (account, result) = event;
+        // If the account has been reset whilst a key was being generated, the event should be
+        // dropped even if a new key was generated.
+        if self
+            .settings
+            .get_account_token()
+            .map(|current_account| current_account != account)
+            .unwrap_or(true)
+        {
+            log::info!("Dropping wireguard key event since account has been changed");
+            return;
+        }
+
+        match result {
+            Ok(data) => {
+                let public_key = data.private_key.public_key();
+                let mut account_entry = self
+                    .account_history
+                    .get(&account)
+                    .ok()
+                    .and_then(|entry| entry)
+                    .unwrap_or_else(|| account_history::AccountEntry {
+                        account: account.clone(),
+                        wireguard: None,
+                    });
+                account_entry.wireguard = Some(data.clone());
+                match self.account_history.insert(account_entry) {
+                    Ok(_) => self
+                        .event_listener
+                        .notify_key_event(KeygenEvent::NewKey(public_key)),
+                    Err(e) => {
+                        log::error!(
+                            "{}",
+                            e.display_chain_with_msg(
+                                "Failed to add new wireguard key to account data"
+                            )
+                        );
+                        self.event_listener
+                            .notify_key_event(KeygenEvent::GenerationFailure)
+                    }
+                }
+            }
+            Err(wireguard::Error::TooManyKeys) => {
+                self.event_listener
+                    .notify_key_event(KeygenEvent::TooManyKeys);
+            }
+            Err(e) => {
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Failed to generate wireguard key")
+                );
+                self.event_listener
+                    .notify_key_event(KeygenEvent::GenerationFailure);
+            }
+        }
+    }
+
     fn on_set_target_state(
         &mut self,
         tx: oneshot::Sender<::std::result::Result<(), ()>>,
@@ -768,6 +861,7 @@ where
             Ok(account_changed) => {
                 Self::oneshot_send(tx, (), "set_account response");
                 if account_changed {
+                    self.ensure_wireguard_keys_for_current_account();
                     self.event_listener.notify_settings(self.settings.clone());
                     match account_token {
                         Some(token) => {
@@ -787,7 +881,6 @@ where
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
         }
     }
-
     fn on_get_account_history(&mut self, tx: oneshot::Sender<Vec<AccountToken>>) {
         Self::oneshot_send(
             tx,
@@ -1015,11 +1108,32 @@ where
         }
     }
 
-    fn on_generate_wireguard_key(
-        &mut self,
-        tx: oneshot::Sender<::std::result::Result<(), mullvad_rpc::Error>>,
-    ) {
-        let mut result = || -> ::std::result::Result<(), String> {
+    fn ensure_wireguard_keys_for_current_account(&mut self) {
+        if let Some(account) = self.settings.get_account_token() {
+            if self
+                .account_history
+                .get(&account)
+                .map(|entry| entry.map(|e| e.wireguard.is_none()).unwrap_or(true))
+                .unwrap_or(true)
+            {
+                log::info!("Autoamtically generating new wireguard key for account");
+                if let Err(e) = self
+                    .wireguard_key_manager
+                    .generate_key_async(account.to_owned())
+                {
+                    log::error!(
+                        "{}",
+                        e.display_chain_with_msg("Failed to start generating wireguard key")
+                    );
+                }
+            } else {
+                log::info!("Account already has wireguard key");
+            }
+        }
+    }
+
+    fn on_generate_wireguard_key(&mut self, tx: oneshot::Sender<KeygenEvent>) {
+        let mut result = || -> ::std::result::Result<KeygenEvent, String> {
             let account_token = self
                 .settings
                 .get_account_token()
@@ -1039,40 +1153,26 @@ where
                     })
                 })?;
 
-            let private_key = wireguard::PrivateKey::new_from_random()
-                .map_err(|e| format!("Failed to generate new key - {}", e))?;
-
-            let (tx, rx) = oneshot::channel();
-            let fut = self
-                .wg_key_proxy
-                .push_wg_key(account_token, private_key.public_key())
-                .then(move |result| {
-                    let _ = tx.send(result);
-                    Ok(())
-                });
-
-
-            self.tokio_remote
-                .execute(fut)
-                .map_err(|e| format!("Failed to spawn key pushing future - {:?}", e))?;
-
-            let addresses = rx
-                .wait()
-                .map_err(|e| format!("Tokio reactor panicked: {}", e))?
-                .map_err(|e| format!("Failed to push new wireguard key: {}", e))?;
-
-            account_entry.wireguard = Some(mullvad_types::wireguard::WireguardData {
-                private_key,
-                addresses,
-            });
-
-            self.account_history
-                .insert(account_entry)
-                .map_err(|e| format!("Failed to add new wireguard key to account data: {}", e))
+            match self
+                .wireguard_key_manager
+                .generate_key_sync(account_token.clone())
+            {
+                Ok(new_data) => {
+                    let public_key = new_data.private_key.public_key();
+                    account_entry.wireguard = Some(new_data.clone());
+                    self.account_history.insert(account_entry).map_err(|e| {
+                        format!("Failed to add new wireguard key to account data: {}", e)
+                    })?;
+                    Ok(KeygenEvent::NewKey(public_key))
+                }
+                Err(wireguard::Error::TooManyKeys) => Ok(KeygenEvent::TooManyKeys),
+                Err(e) => Err(format!("Failed to generate new key - {}", e)),
+            }
         };
+
         match result() {
-            Ok(()) => {
-                Self::oneshot_send(tx, Ok(()), "generate_wireguard_key response");
+            Ok(key_event) => {
+                Self::oneshot_send(tx, key_event, "generate_wireguard_key response");
             }
             Err(e) => {
                 log::error!("Failed to generate new wireguard key - {}", e);
@@ -1095,7 +1195,6 @@ where
     }
 
     fn on_verify_wireguard_key(&mut self, tx: oneshot::Sender<bool>) {
-        use futures::future::Executor;
         let account = match self.settings.get_account_token() {
             Some(account) => account,
             None => {
