@@ -57,6 +57,11 @@ impl Command for Status {
                             println!("New relay list: {:#?}", relay_list);
                         }
                     }
+                    DaemonEvent::WireguardKey(key_event) => {
+                        if verbose {
+                            println!("{}", key_event);
+                        }
+                    }
                 }
             }
         }
