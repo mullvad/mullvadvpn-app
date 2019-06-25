@@ -159,7 +159,7 @@ impl DaemonRpcClient {
         self.call("get_settings", &NO_ARGS)
     }
 
-    pub fn generate_wireguard_key(&mut self) -> Result<()> {
+    pub fn generate_wireguard_key(&mut self) -> Result<mullvad_types::wireguard::KeygenEvent> {
         self.call("generate_wireguard_key", &NO_ARGS)
     }
 
