@@ -149,11 +149,13 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_relay_list_event(&self, relay_list: RelayList) {
+        let java_relay_list = self.env.auto_local(relay_list.into_java(&self.env));
+
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
             self.notify_relay_list_event,
             JavaType::Primitive(Primitive::Void),
-            &[JValue::Object(relay_list.into_java(&self.env))],
+            &[JValue::Object(java_relay_list.as_obj())],
         );
 
         if let Err(error) = result {
