@@ -1,8 +1,8 @@
 use crate::get_class;
 use ipnetwork::IpNetwork;
 use jni::{
-    objects::{JList, JObject, JString, JValue},
-    signature::JavaType,
+    objects::{JObject, JString, JValue},
+    signature::{JavaType, Primitive},
     sys::{jboolean, jint, jshort, jsize},
     JNIEnv,
 };
@@ -63,14 +63,21 @@ where
             .new_object(&class, "(I)V", &parameters)
             .expect("Failed to create ArrayList object");
 
-        let list =
-            JList::from_env(env, list_object).expect("Failed to create JList from ArrayList");
+        let list_class = get_class("java/util/List");
+        let add_method = env
+            .get_method_id(&list_class, "add", "(Ljava/lang/Object;)Z")
+            .expect("Failed to get List.add(Object) method id");
 
         for element in self {
             let java_element = env.auto_local(JObject::from(element.into_java(env)));
 
-            list.add(java_element.as_obj())
-                .expect("Failed to add element to ArrayList");
+            env.call_method_unchecked(
+                list_object,
+                add_method,
+                JavaType::Primitive(Primitive::Boolean),
+                &[JValue::Object(java_element.as_obj())],
+            )
+            .expect("Failed to add element to ArrayList");
         }
 
         list_object
