@@ -173,7 +173,11 @@ impl Tunnel {
 
     fn process_wireguard_key_generate() -> Result<()> {
         let mut rpc = new_rpc_client()?;
-        rpc.generate_wireguard_key().map_err(|e| e.into())
+        let result = rpc
+            .generate_wireguard_key()
+            .map_err(|e| crate::Error::RpcClientError(e))?;
+        println!("{}", result);
+        Ok(())
     }
 
     fn handle_ipv6_cmd(matches: &clap::ArgMatches<'_>) -> Result<()> {
