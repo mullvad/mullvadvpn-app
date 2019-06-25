@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn
 
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
@@ -23,22 +23,25 @@ class RemainingTimeLabel(val parentActivity: MainActivity, val view: View) {
 
     private val label = view.findViewById<TextView>(R.id.remaining_time)
 
-    private var updateJob = updateLabel()
+    private var updateJob: Job? = null
 
     fun onResume() {
-        if (updateJob.isCompleted) {
-            parentActivity.refetchSettings()
-            updateJob = updateLabel()
+        parentActivity.accountCache.apply {
+            refetch()
+
+            onAccountDataChange = { accountNumber, accountExpiry ->
+                updateJob?.cancel()
+                updateJob = updateLabel(accountExpiry)
+            }
         }
     }
 
-    fun onDestroy() {
-        updateJob.cancel()
+    fun onPause() {
+        parentActivity.accountCache.onAccountDataChange = null
+        updateJob?.cancel()
     }
 
-    private fun updateLabel() = GlobalScope.launch(Dispatchers.Main) {
-        val expiry = accountCache.accountExpiry.await()
-
+    private fun updateLabel(expiry: DateTime?) = GlobalScope.launch(Dispatchers.Main) {
         if (expiry != null) {
             val remainingTime = Duration(DateTime.now(), expiry)
 

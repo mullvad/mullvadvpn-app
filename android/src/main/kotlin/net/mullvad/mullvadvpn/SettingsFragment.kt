@@ -51,9 +51,9 @@ class SettingsFragment : Fragment() {
         remainingTimeLabel.onResume()
     }
 
-    override fun onDestroyView() {
-        remainingTimeLabel.onDestroy()
-        super.onDestroyView()
+    override fun onPause() {
+        remainingTimeLabel.onPause()
+        super.onPause()
     }
 
     private fun openSubFragment(fragment: Fragment) {

@@ -21,21 +21,7 @@ class RelayListListener(val parentActivity: MainActivity) {
     private var relaySettings: RelaySettings? = null
 
     var selectedRelayItem: RelayItem? = null
-        set(value) {
-            field = value
-            updateRelaySettings()
-        }
-
-    val selectedRelayLocation: Constraint<LocationConstraint>
-        get() {
-            val location = selectedRelayItem?.location
-
-            if (location == null) {
-                return Constraint.Any()
-            } else {
-                return Constraint.Only(location)
-            }
-        }
+        private set
 
     var onRelayListChange: ((RelayList, RelayItem?) -> Unit)? = null
         set(value) {
@@ -50,8 +36,15 @@ class RelayListListener(val parentActivity: MainActivity) {
             }
         }
 
+    init {
+        parentActivity.settingsListener.onRelaySettingsChange = { newRelaySettings ->
+            relaySettingsChanged(newRelaySettings)
+        }
+    }
+
     fun onDestroy() {
         setUpJob.cancel()
+        parentActivity.settingsListener.onRelaySettingsChange = null
 
         if (daemon.isActive) {
             daemon.cancel()
@@ -61,7 +54,7 @@ class RelayListListener(val parentActivity: MainActivity) {
     }
 
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
-        daemon.complete(parentActivity.asyncDaemon.await())
+        daemon.complete(parentActivity.daemon.await())
 
         setUpListener()
         fetchInitialRelayList()
@@ -76,11 +69,21 @@ class RelayListListener(val parentActivity: MainActivity) {
     private suspend fun fetchInitialRelayList() {
         val relayLocations = daemon.await().getRelayLocations()
 
-        relaySettings = parentActivity.asyncSettings.await().relaySettings
-
         synchronized(this) {
             if (relayList == null) {
                 relayListChanged(RelayList(relayLocations))
+            }
+        }
+    }
+
+    private fun relaySettingsChanged(newRelaySettings: RelaySettings?) {
+        synchronized(this) {
+            val relayList = this.relayList
+
+            relaySettings = newRelaySettings ?: RelaySettings.RelayConstraints(Constraint.Any())
+
+            if (relayList != null) {
+                relayListChanged(relayList)
             }
         }
     }
@@ -107,9 +110,5 @@ class RelayListListener(val parentActivity: MainActivity) {
         }
 
         return null
-    }
-
-    private fun updateRelaySettings() {
-        relaySettings = RelaySettings.RelayConstraints(selectedRelayLocation)
     }
 }

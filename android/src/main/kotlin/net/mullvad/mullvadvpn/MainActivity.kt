@@ -20,25 +20,21 @@ import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
+import net.mullvad.mullvadvpn.dataproxy.SettingsListener
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 
 class MainActivity : FragmentActivity() {
-    var asyncDaemon = CompletableDeferred<MullvadDaemon>()
-    val daemon
-        get() = runBlocking { asyncDaemon.await() }
-
-    var asyncSettings = fetchSettings()
+    var daemon = CompletableDeferred<MullvadDaemon>()
         private set
-    val settings
-        get() = runBlocking { asyncSettings.await() }
 
-    val accountCache = AccountCache(this)
-    val locationInfoCache = LocationInfoCache(asyncDaemon)
+    val locationInfoCache = LocationInfoCache(daemon)
     val problemReport = MullvadProblemReport()
+    var settingsListener = SettingsListener(this)
     var relayListListener = RelayListListener(this)
+    val accountCache = AccountCache(settingsListener, daemon)
 
     private var waitForDaemonJob: Job? = null
 
@@ -47,13 +43,13 @@ class MainActivity : FragmentActivity() {
             val localBinder = binder as MullvadVpnService.LocalBinder
 
             waitForDaemonJob = GlobalScope.launch(Dispatchers.Default) {
-                asyncDaemon.complete(localBinder.asyncDaemon.await())
+                daemon.complete(localBinder.daemon.await())
             }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
-            asyncDaemon.cancel()
-            asyncDaemon = CompletableDeferred<MullvadDaemon>()
+            daemon.cancel()
+            daemon = CompletableDeferred<MullvadDaemon>()
         }
     }
 
@@ -84,10 +80,10 @@ class MainActivity : FragmentActivity() {
     override fun onDestroy() {
         accountCache.onDestroy()
         relayListListener.onDestroy()
+        settingsListener.onDestroy()
 
         waitForDaemonJob?.cancel()
-        asyncSettings.cancel()
-        asyncDaemon.cancel()
+        daemon.cancel()
 
         super.onDestroy()
     }
@@ -106,13 +102,6 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    fun refetchSettings() {
-        if (asyncSettings.isCompleted) {
-            asyncSettings = fetchSettings()
-            accountCache.settings = asyncSettings
-        }
-    }
-
     private fun addInitialFragment() {
         supportFragmentManager?.beginTransaction()?.apply {
             add(R.id.main_fragment, LaunchFragment())
@@ -121,6 +110,6 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun fetchSettings() = GlobalScope.async(Dispatchers.Default) {
-        asyncDaemon.await().getSettings()
+        daemon.await().getSettings()
     }
 }

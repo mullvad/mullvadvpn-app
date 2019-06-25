@@ -1,54 +1,76 @@
 package net.mullvad.mullvadvpn.dataproxy
 
-import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
 
-import net.mullvad.mullvadvpn.MainActivity
+import net.mullvad.mullvadvpn.MullvadDaemon
 
 val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
 
-class AccountCache(val parentActivity: MainActivity) {
-    private var daemon = parentActivity.asyncDaemon
+class AccountCache(val settingsListener: SettingsListener, val daemon: Deferred<MullvadDaemon>) {
+    private var fetchJob: Job? = null
+    private var accountNumber: String? = null
+    private var accountExpiry: DateTime? = null
 
-    var settings = parentActivity.asyncSettings
+    var onAccountDataChange: ((String?, DateTime?) -> Unit)? = null
         set(value) {
-            field = value
-            accountNumber = fetchAccountNumber()
-            accountExpiry = fetchAccountExpiry()
+            synchronized(this) {
+                field = value
+                notifyChange()
+            }
         }
 
-    var accountNumber = fetchAccountNumber()
-        private set
-    var accountExpiry = fetchAccountExpiry()
-        private set
+    init {
+        settingsListener.onAccountNumberChange = { accountNumber ->
+            handleNewAccountNumber(accountNumber)
+        }
+    }
+
+    fun refetch() {
+        fetchJob?.cancel()
+        fetchJob = fetchAccountExpiry()
+    }
 
     fun onDestroy() {
-        accountExpiry.cancel()
-        accountNumber.cancel()
+        settingsListener.onAccountNumberChange = null
+
+        fetchJob?.cancel()
     }
 
-    private fun fetchAccountNumber() = GlobalScope.async(Dispatchers.Default) {
-        settings.await().accountToken
-    }
+    private fun handleNewAccountNumber(newAccountNumber: String?) {
+        synchronized(this) {
+            accountNumber = newAccountNumber
+            accountExpiry = null
 
-    private fun fetchAccountExpiry() = GlobalScope.async(Dispatchers.Default) {
-        val accountNumber = accountNumber.await()
-
-        if (accountNumber != null) {
-            val accountData = daemon.await().getAccountData(accountNumber)
-            val accountExpiry = accountData?.expiry
-
-            if (accountExpiry != null) {
-                DateTime.parse(accountExpiry, EXPIRY_FORMAT)
-            } else {
-                null
-            }
-        } else {
-            null
+            notifyChange()
+            refetch()
         }
+    }
+
+    private fun fetchAccountExpiry() = GlobalScope.launch(Dispatchers.Default) {
+        val accountNumber = this@AccountCache.accountNumber
+        val accountData = accountNumber?.let { account ->
+            daemon.await().getAccountData(account)
+        }
+
+        synchronized(this@AccountCache) {
+            if (this@AccountCache.accountNumber === accountNumber) {
+                accountExpiry = accountData?.expiry?.let { expiry ->
+                    DateTime.parse(expiry, EXPIRY_FORMAT)
+                }
+
+                notifyChange()
+            }
+        }
+    }
+
+    private fun notifyChange() {
+        onAccountDataChange?.invoke(accountNumber, accountExpiry)
     }
 }
