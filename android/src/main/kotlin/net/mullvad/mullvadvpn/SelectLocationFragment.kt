@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ViewSwitcher
 
+import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
@@ -27,6 +28,7 @@ import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
 
 class SelectLocationFragment : Fragment() {
     private lateinit var parentActivity: MainActivity
+    private lateinit var connectionProxy: ConnectionProxy
     private lateinit var relayListListener: RelayListListener
 
     private lateinit var relayListContainer: ViewSwitcher
@@ -38,6 +40,7 @@ class SelectLocationFragment : Fragment() {
     init {
         relayListAdapter.onSelect = { relayItem ->
             updateLocationConstraint(relayItem)
+            connectionProxy.connect()
             close()
         }
     }
@@ -46,6 +49,7 @@ class SelectLocationFragment : Fragment() {
         super.onAttach(context)
 
         parentActivity = context as MainActivity
+        connectionProxy = parentActivity.connectionProxy
         relayListListener = parentActivity.relayListListener
     }
 
