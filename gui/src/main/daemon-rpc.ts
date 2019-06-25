@@ -337,6 +337,14 @@ const daemonEventSchema = oneOf(
   object({
     relay_list: relayListSchema,
   }),
+  object({
+    wireguard_key: oneOf(
+      enumeration('too_many_keys', 'generation_failure'),
+      object({
+        new_key: string,
+      }),
+    ),
+  }),
 );
 
 export class ResponseParseError extends Error {
