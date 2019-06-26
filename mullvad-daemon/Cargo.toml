@@ -32,6 +32,8 @@ uuid = { version = "0.7", features = ["v4"] }
 lazy_static = "1.0"
 rand = "0.6"
 tokio-core = "0.1"
+tokio-retry = "0.2"
+jsonrpc-client-core = "0.5"
 tokio-timer = "0.1"
 regex = "1.0"
 

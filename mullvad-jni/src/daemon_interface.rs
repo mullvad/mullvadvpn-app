@@ -2,7 +2,7 @@ use futures::{sync::oneshot, Future};
 use mullvad_daemon::{DaemonCommandSender, ManagementCommand};
 use mullvad_types::{
     account::AccountData, location::GeoIpLocation, relay_constraints::RelaySettingsUpdate,
-    relay_list::RelayList, settings::Settings, states::TargetState,
+    relay_list::RelayList, settings::Settings, states::TargetState, wireguard::KeygenEvent,
 };
 use parking_lot::Mutex;
 use talpid_types::{net::wireguard, tunnel::TunnelStateTransition};
@@ -64,14 +64,12 @@ impl DaemonInterface {
         Ok(())
     }
 
-    pub fn generate_wireguard_key(&self) -> Result<()> {
+    pub fn generate_wireguard_key(&self) -> Result<KeygenEvent> {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(ManagementCommand::GenerateWireguardKey(tx))?;
 
-        rx.wait()
-            .map_err(|_| Error::NoResponse)?
-            .map_err(Error::RpcError)
+        rx.wait().map_err(|_| Error::NoResponse)
     }
 
     pub fn get_account_data(&self, account_token: String) -> Result<AccountData> {
