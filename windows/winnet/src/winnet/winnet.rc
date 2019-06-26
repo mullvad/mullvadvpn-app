@@ -9,11 +9,11 @@ BEGIN
     BLOCK "040904E4"
     BEGIN
         VALUE "CompanyName", "Amagicom AB"
-        VALUE "FileDescription", "Mullvad VPN routing module"
+        VALUE "FileDescription", "Mullvad VPN networking module"
         VALUE "FileVersion", PRODUCT_VERSION
-        VALUE "InternalName", "winroute"
-        VALUE "LegalCopyright", "(c) 2018 Amagicom AB"
-        VALUE "OriginalFilename", "winroute.dll"
+        VALUE "InternalName", "winnet"
+        VALUE "LegalCopyright", "(c) 2019 Amagicom AB"
+        VALUE "OriginalFilename", "winnet.dll"
         VALUE "ProductName", "Mullvad VPN"
         VALUE "ProductVersion", PRODUCT_VERSION
     END
