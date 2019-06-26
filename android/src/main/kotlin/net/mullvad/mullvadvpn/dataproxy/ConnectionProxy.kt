@@ -51,7 +51,6 @@ class ConnectionProxy(val parentActivity: MainActivity) {
         uiState = TunnelStateTransition.Connecting()
 
         cancelActiveAction()
-        generateWireguardKey()
 
         val vpnPermission = parentActivity.requestVpnPermission()
 

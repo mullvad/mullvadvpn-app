@@ -48,6 +48,8 @@ class LaunchFragment : Fragment() {
         val accountTokenIsSet = accountTokenCheckJob.await()
 
         if (accountTokenIsSet) {
+            val parentActivitiy = activity as MainActivity
+            parentActivity.connectionProxy.generateWireguardKey()
             advanceToConnectScreen()
         } else {
             advanceToLoginScreen()

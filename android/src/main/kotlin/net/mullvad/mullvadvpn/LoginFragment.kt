@@ -81,6 +81,8 @@ class LoginFragment : Fragment() {
             }
         }
 
+        parentActivity.connectionProxy.generateWireguardKey()
+
         if (loginJob?.await() ?: false) {
             loggedIn()
         } else {
