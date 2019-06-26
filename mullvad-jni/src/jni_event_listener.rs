@@ -149,11 +149,13 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_relay_list_event(&self, relay_list: RelayList) {
+        let java_relay_list = self.env.auto_local(relay_list.into_java(&self.env));
+
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
             self.notify_relay_list_event,
             JavaType::Primitive(Primitive::Void),
-            &[JValue::Object(relay_list.into_java(&self.env))],
+            &[JValue::Object(java_relay_list.as_obj())],
         );
 
         if let Err(error) = result {
@@ -165,11 +167,13 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_settings(&self, settings: Settings) {
+        let java_settings = self.env.auto_local(settings.into_java(&self.env));
+
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
             self.notify_settings_event,
             JavaType::Primitive(Primitive::Void),
-            &[JValue::Object(settings.into_java(&self.env))],
+            &[JValue::Object(java_settings.as_obj())],
         );
 
         if let Err(error) = result {
@@ -181,11 +185,13 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_tunnel_event(&self, event: TunnelStateTransition) {
+        let java_tunnel_state_transition = self.env.auto_local(event.into_java(&self.env));
+
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
             self.notify_tunnel_event,
             JavaType::Primitive(Primitive::Void),
-            &[JValue::Object(event.into_java(&self.env))],
+            &[JValue::Object(java_tunnel_state_transition.as_obj())],
         );
 
         if let Err(error) = result {
