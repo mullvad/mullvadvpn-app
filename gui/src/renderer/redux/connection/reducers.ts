@@ -41,13 +41,13 @@ export default function(
     case 'CONNECTING':
       return {
         ...state,
-        status: { state: 'connecting', details: action.tunnelEndpoint },
+        status: { state: 'connecting', details: action.details },
       };
 
     case 'CONNECTED':
       return {
         ...state,
-        status: { state: 'connected', details: action.tunnelEndpoint },
+        status: { state: 'connected', details: action.details },
       };
 
     case 'DISCONNECTED':

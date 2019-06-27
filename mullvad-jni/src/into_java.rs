@@ -467,8 +467,8 @@ impl<'env> IntoJava<'env> for TunnelState {
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let variant = match self {
             TunnelState::Disconnected => "Disconnected",
-            TunnelState::Connecting(_) => "Connecting",
-            TunnelState::Connected(_) => "Connected",
+            TunnelState::Connecting { .. } => "Connecting",
+            TunnelState::Connected { .. } => "Connected",
             TunnelState::Disconnecting(_) => "Disconnecting",
             TunnelState::Blocked(_) => "Blocked",
         };

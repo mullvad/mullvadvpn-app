@@ -2,17 +2,17 @@ import {
   AfterDisconnect,
   BlockReason,
   ILocation,
-  ITunnelEndpoint,
+  ITunnelStateRelayInfo,
 } from '../../../shared/daemon-rpc-types';
 
 interface IConnectingAction {
   type: 'CONNECTING';
-  tunnelEndpoint?: ITunnelEndpoint;
+  details?: ITunnelStateRelayInfo;
 }
 
 interface IConnectedAction {
   type: 'CONNECTED';
-  tunnelEndpoint: ITunnelEndpoint;
+  details: ITunnelStateRelayInfo;
 }
 
 interface IDisconnectedAction {
@@ -48,17 +48,17 @@ export type ConnectionAction =
   | IBlockedAction
   | IUpdateBlockStateAction;
 
-function connecting(tunnelEndpoint?: ITunnelEndpoint): IConnectingAction {
+function connecting(details?: ITunnelStateRelayInfo): IConnectingAction {
   return {
     type: 'CONNECTING',
-    tunnelEndpoint,
+    details,
   };
 }
 
-function connected(tunnelEndpoint: ITunnelEndpoint): IConnectedAction {
+function connected(details: ITunnelStateRelayInfo): IConnectedAction {
   return {
     type: 'CONNECTED',
-    tunnelEndpoint,
+    details,
   };
 }
 

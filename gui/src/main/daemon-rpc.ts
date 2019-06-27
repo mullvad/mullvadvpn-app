@@ -237,17 +237,19 @@ const tunnelStateSchema = oneOf(
   }),
   object({
     state: enumeration('connecting', 'connected'),
-    details: partialObject({
-      address: string,
-      protocol: enumeration('tcp', 'udp'),
-      tunnel_type: enumeration('wireguard', 'openvpn'),
-      proxy: maybe(
-        partialObject({
-          address: string,
-          protocol: enumeration('tcp', 'udp'),
-          proxy_type: enumeration('shadowsocks', 'custom'),
-        }),
-      ),
+    details: object({
+      endpoint: partialObject({
+        address: string,
+        protocol: enumeration('tcp', 'udp'),
+        tunnel_type: enumeration('wireguard', 'openvpn'),
+        proxy: maybe(
+          partialObject({
+            address: string,
+            protocol: enumeration('tcp', 'udp'),
+            proxy_type: enumeration('shadowsocks', 'custom'),
+          }),
+        ),
+      }),
     }),
   }),
   object({

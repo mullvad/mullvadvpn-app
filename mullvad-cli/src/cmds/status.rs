@@ -43,7 +43,7 @@ impl Command for Status {
                         print_state(&new_state);
                         use self::TunnelState::*;
                         match new_state {
-                            Connected(_) | Disconnected => print_location(&mut rpc)?,
+                            Connected { .. } | Disconnected => print_location(&mut rpc)?,
                             _ => {}
                         }
                     }
@@ -74,10 +74,10 @@ fn print_state(state: &TunnelState) {
     print!("Tunnel status: ");
     match state {
         Blocked(reason) => print_blocked_reason(reason),
-        Connected(details) => {
-            println!("Connected to {}", details);
+        Connected { endpoint } => {
+            println!("Connected to {}", endpoint);
         }
-        Connecting(details) => println!("Connecting to {}...", details),
+        Connecting { endpoint } => println!("Connecting to {}...", endpoint),
         Disconnected => println!("Disconnected"),
         Disconnecting(_) => println!("Disconnecting..."),
     }

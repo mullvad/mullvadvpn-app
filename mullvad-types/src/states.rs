@@ -20,8 +20,8 @@ pub enum TargetState {
 #[serde(tag = "state", content = "details")]
 pub enum TunnelState {
     Disconnected,
-    Connecting(TunnelEndpoint),
-    Connected(TunnelEndpoint),
+    Connecting { endpoint: TunnelEndpoint },
+    Connected { endpoint: TunnelEndpoint },
     Disconnecting(ActionAfterDisconnect),
     Blocked(BlockReason),
 }
