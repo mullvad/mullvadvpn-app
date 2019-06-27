@@ -332,7 +332,7 @@ const settingsSchema = partialObject({
 
 const daemonEventSchema = oneOf(
   object({
-    state_transition: tunnelStateSchema,
+    tunnel_state: tunnelStateSchema,
   }),
   object({
     settings: settingsSchema,

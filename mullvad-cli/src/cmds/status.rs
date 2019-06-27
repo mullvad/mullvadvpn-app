@@ -39,7 +39,7 @@ impl Command for Status {
                 .map_err(Error::CantSubscribe)?;
             for event in subscription.wait() {
                 match event? {
-                    DaemonEvent::StateTransition(new_state) => {
+                    DaemonEvent::TunnelState(new_state) => {
                         print_state(&new_state);
                         use self::TunnelState::*;
                         match new_state {
