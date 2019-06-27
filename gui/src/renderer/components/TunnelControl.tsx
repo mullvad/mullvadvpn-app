@@ -1,51 +1,20 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
-import {
-  ProxyType,
-  RelayProtocol,
-  TunnelStateTransition,
-  TunnelType,
-} from '../../shared/daemon-rpc-types';
+import { TunnelStateTransition } from '../../shared/daemon-rpc-types';
 import { cities, countries, messages, relayLocations } from '../../shared/gettext';
+import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
-import ConnectionInfo from './ConnectionInfo';
 import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
-
-export interface IEndpoint {
-  ip: string;
-  port: number;
-  protocol: RelayProtocol;
-}
-
-export interface IRelayInAddress extends IEndpoint {
-  tunnelType: TunnelType;
-}
-
-export interface IBridgeData extends IEndpoint {
-  bridgeType: ProxyType;
-}
-
-export interface IRelayOutAddress {
-  ipv4?: string;
-  ipv6?: string;
-}
 
 interface ITunnelControlProps {
   tunnelState: TunnelStateTransition;
   selectedRelayName: string;
   city?: string;
   country?: string;
-  hostname?: string;
-  defaultConnectionInfoOpen?: boolean;
-  relayInAddress?: IRelayInAddress;
-  relayOutAddress?: IRelayOutAddress;
-  bridge?: IBridgeData;
-  bridgeHostname?: string;
   onConnect: () => void;
   onDisconnect: () => void;
   onSelectLocation: () => void;
-  onToggleConnectionInfo: (value: boolean) => void;
 }
 
 const styles = {
@@ -157,18 +126,6 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
       <View style={styles.footer}>{children}</View>
     );
 
-    const connectionDetails = (
-      <ConnectionInfo
-        hostname={this.props.hostname}
-        bridgeHostname={this.props.bridgeHostname}
-        inAddress={this.props.relayInAddress}
-        bridgeInfo={this.props.bridge}
-        outAddress={this.props.relayOutAddress}
-        defaultOpen={this.props.defaultConnectionInfoOpen}
-        onToggle={this.props.onToggleConnectionInfo}
-      />
-    );
-
     let state = this.props.tunnelState.state;
 
     switch (this.props.tunnelState.state) {
@@ -208,7 +165,7 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
                 <City />
                 <Country />
               </Location>
-              {connectionDetails}
+              <ConnectionPanelContainer />
             </Body>
             <Footer>
               <SwitchLocation />
@@ -225,7 +182,7 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
                 <City />
                 <Country />
               </Location>
-              {connectionDetails}
+              <ConnectionPanelContainer />
             </Body>
             <Footer>
               <SwitchLocation />

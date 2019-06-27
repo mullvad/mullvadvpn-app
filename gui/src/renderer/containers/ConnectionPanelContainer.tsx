@@ -1,10 +1,63 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { Component, Styles, Text, Types, View } from 'reactxp';
+import { bindActionCreators } from 'redux';
 import { sprintf } from 'sprintf-js';
-import { proxyTypeToString, TunnelType, tunnelTypeToString } from '../../shared/daemon-rpc-types';
+import {
+  ITunnelEndpoint,
+  parseSocketAddress,
+  ProxyType,
+  proxyTypeToString,
+  RelayProtocol,
+  TunnelType,
+  tunnelTypeToString,
+} from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import { default as ConnectionInfoDisclosure } from './ConnectionInfoDisclosure';
-import { IBridgeData } from './TunnelControl';
+import { default as ConnectionPanelDisclosure } from '../components/ConnectionPanelDisclosure';
+import { IReduxState, ReduxDispatch } from '../redux/store';
+import userInterfaceActions from '../redux/userinterface/actions';
+
+interface IEndpoint {
+  ip: string;
+  port: number;
+  protocol: RelayProtocol;
+}
+
+interface IRelayInAddress extends IEndpoint {
+  tunnelType: TunnelType;
+}
+
+interface IBridgeData extends IEndpoint {
+  bridgeType: ProxyType;
+}
+
+interface IRelayOutAddress {
+  ipv4?: string;
+  ipv6?: string;
+}
+
+interface IInAddress {
+  ip: string;
+  port: number;
+  protocol: string;
+  tunnelType: TunnelType;
+}
+
+interface IOutAddress {
+  ipv4?: string;
+  ipv6?: string;
+}
+
+interface IProps {
+  isOpen: boolean;
+  hostname?: string;
+  bridgeHostname?: string;
+  inAddress?: IInAddress;
+  bridgeInfo?: IBridgeData;
+  outAddress?: IOutAddress;
+  onToggle: () => void;
+  style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
+}
 
 const styles = {
   row: Styles.createViewStyle({
@@ -32,42 +85,7 @@ const styles = {
   }),
 };
 
-interface IInAddress {
-  ip: string;
-  port: number;
-  protocol: string;
-  tunnelType: TunnelType;
-}
-
-interface IOutAddress {
-  ipv4?: string;
-  ipv6?: string;
-}
-
-interface IProps {
-  hostname?: string;
-  bridgeHostname?: string;
-  inAddress?: IInAddress;
-  bridgeInfo?: IBridgeData;
-  outAddress?: IOutAddress;
-  defaultOpen?: boolean;
-  style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
-  onToggle?: (isOpen: boolean) => void;
-}
-
-interface IState {
-  isOpen: boolean;
-}
-
-export default class ConnectionInfo extends Component<IProps, IState> {
-  constructor(props: IProps) {
-    super(props);
-
-    this.state = {
-      isOpen: props.defaultOpen === true,
-    };
-  }
-
+class ConnectionPanelContainer extends Component<IProps> {
   public render() {
     const { inAddress, outAddress, bridgeInfo } = this.props;
     const entryPoint = bridgeInfo && inAddress ? bridgeInfo : inAddress;
@@ -76,13 +94,13 @@ export default class ConnectionInfo extends Component<IProps, IState> {
       <View style={this.props.style}>
         {this.props.hostname && (
           <View style={styles.header}>
-            <ConnectionInfoDisclosure defaultOpen={this.props.defaultOpen} onToggle={this.onToggle}>
+            <ConnectionPanelDisclosure pointsUp={this.props.isOpen} onToggle={this.props.onToggle}>
               {this.hostnameLine()}
-            </ConnectionInfoDisclosure>
+            </ConnectionPanelDisclosure>
           </View>
         )}
 
-        {this.state.isOpen && this.props.hostname && (
+        {this.props.isOpen && this.props.hostname && (
           <React.Fragment>
             {this.props.inAddress && (
               <View style={styles.row}>
@@ -159,15 +177,69 @@ export default class ConnectionInfo extends Component<IProps, IState> {
       return '';
     }
   }
+}
 
-  private onToggle = (isOpen: boolean) => {
-    this.setState(
-      (state) => ({ ...state, isOpen }),
-      () => {
-        if (this.props.onToggle) {
-          this.props.onToggle(isOpen);
-        }
-      },
-    );
+function tunnelEndpointToRelayInAddress(tunnelEndpoint: ITunnelEndpoint): IRelayInAddress {
+  const socketAddr = parseSocketAddress(tunnelEndpoint.address);
+  return {
+    ip: socketAddr.host,
+    port: socketAddr.port,
+    protocol: tunnelEndpoint.protocol,
+    tunnelType: tunnelEndpoint.tunnelType,
   };
 }
+
+function tunnelEndpointToBridgeData(endpoint: ITunnelEndpoint): IBridgeData | undefined {
+  if (!endpoint.proxy) {
+    return undefined;
+  }
+
+  const socketAddr = parseSocketAddress(endpoint.proxy.address);
+  return {
+    ip: socketAddr.host,
+    port: socketAddr.port,
+    protocol: endpoint.proxy.protocol,
+    bridgeType: endpoint.proxy.proxyType,
+  };
+}
+
+const mapStateToProps = (state: IReduxState) => {
+  const status = state.connection.status;
+
+  const outAddress: IRelayOutAddress = {
+    ipv4: state.connection.ipv4,
+    ipv6: state.connection.ipv6,
+  };
+
+  const inAddress: IRelayInAddress | undefined =
+    (status.state === 'connecting' || status.state === 'connected') && status.details
+      ? tunnelEndpointToRelayInAddress(status.details)
+      : undefined;
+
+  const bridgeInfo: IBridgeData | undefined =
+    (status.state === 'connecting' || status.state === 'connected') && status.details
+      ? tunnelEndpointToBridgeData(status.details)
+      : undefined;
+
+  return {
+    isOpen: state.userInterface.connectionPanelVisible,
+    hostname: state.connection.hostname,
+    bridgeHostname: state.connection.bridgeHostname,
+    inAddress,
+    bridgeInfo,
+    outAddress,
+  };
+};
+
+const mapDispatchToProps = (dispatch: ReduxDispatch) => {
+  const userInterface = bindActionCreators(userInterfaceActions, dispatch);
+
+  return {
+    onToggle: userInterface.toggleConnectionPanel,
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ConnectionPanelContainer);

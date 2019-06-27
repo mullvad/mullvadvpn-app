@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Component, Styles, View } from 'reactxp';
 import { links } from '../../config.json';
-import { ITunnelEndpoint, parseSocketAddress } from '../../shared/daemon-rpc-types';
 import AccountExpiry from '../lib/account-expiry';
 import { AuthFailureKind, parseAuthFailure } from '../lib/auth-failure';
 import { IConnectionReduxState } from '../redux/connection/reducers';
@@ -12,21 +11,19 @@ import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
 import NotificationArea from './NotificationArea';
-import TunnelControl, { IBridgeData, IRelayInAddress, IRelayOutAddress } from './TunnelControl';
+import TunnelControl from './TunnelControl';
 
 interface IProps {
   connection: IConnectionReduxState;
   version: IVersionReduxState;
   accountExpiry?: AccountExpiry;
   selectedRelayName: string;
-  connectionInfoOpen: boolean;
   blockWhenDisconnected: boolean;
   onSettings: () => void;
   onSelectLocation: () => void;
   onConnect: () => void;
   onDisconnect: () => void;
   onExternalLink: (url: string) => void;
-  onToggleConnectionInfo: (value: boolean) => void;
 }
 
 type MarkerOrSpinner = 'marker' | 'spinner';
@@ -148,22 +145,6 @@ export default class Connect extends Component<IProps, IState> {
   }
 
   private renderMap() {
-    const status = this.props.connection.status;
-
-    const relayOutAddress: IRelayOutAddress = {
-      ipv4: this.props.connection.ipv4,
-      ipv6: this.props.connection.ipv6,
-    };
-    const relayInAddress: IRelayInAddress | undefined =
-      (status.state === 'connecting' || status.state === 'connected') && status.details
-        ? this.tunnelEndpointToRelayInAddress(status.details)
-        : undefined;
-
-    const bridgeData: IBridgeData | undefined =
-      (status.state === 'connecting' || status.state === 'connected') && status.details
-        ? this.tunnelEndpointToBridgeData(status.details)
-        : undefined;
-
     return (
       <View style={styles.connect}>
         <Map style={styles.map} {...this.getMapProps()} />
@@ -180,16 +161,9 @@ export default class Connect extends Component<IProps, IState> {
             selectedRelayName={this.props.selectedRelayName}
             city={this.props.connection.city}
             country={this.props.connection.country}
-            hostname={this.props.connection.hostname}
-            defaultConnectionInfoOpen={this.props.connectionInfoOpen}
-            relayInAddress={relayInAddress}
-            bridge={bridgeData}
-            bridgeHostname={this.props.connection.bridgeHostname}
-            relayOutAddress={relayOutAddress}
             onConnect={this.props.onConnect}
             onDisconnect={this.props.onDisconnect}
             onSelectLocation={this.props.onSelectLocation}
-            onToggleConnectionInfo={this.props.onToggleConnectionInfo}
           />
 
           <NotificationArea
@@ -320,29 +294,5 @@ export default class Connect extends Component<IProps, IState> {
       (status.state === 'disconnecting' && status.details === 'reconnect')
       ? 'spinner'
       : 'marker';
-  }
-
-  private tunnelEndpointToRelayInAddress(tunnelEndpoint: ITunnelEndpoint): IRelayInAddress {
-    const socketAddr = parseSocketAddress(tunnelEndpoint.address);
-    return {
-      ip: socketAddr.host,
-      port: socketAddr.port,
-      protocol: tunnelEndpoint.protocol,
-      tunnelType: tunnelEndpoint.tunnelType,
-    };
-  }
-
-  private tunnelEndpointToBridgeData(endpoint: ITunnelEndpoint): IBridgeData | undefined {
-    if (!endpoint.proxy) {
-      return undefined;
-    }
-
-    const socketAddr = parseSocketAddress(endpoint.proxy.address);
-    return {
-      ip: socketAddr.host,
-      port: socketAddr.port,
-      protocol: endpoint.proxy.protocol,
-      bridgeType: endpoint.proxy.proxyType,
-    };
   }
 }
