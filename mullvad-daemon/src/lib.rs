@@ -456,8 +456,8 @@ where
     fn handle_tunnel_state_transition(&mut self, tunnel_state_transition: TunnelStateTransition) {
         let tunnel_state = match tunnel_state_transition {
             TunnelStateTransition::Disconnected => TunnelState::Disconnected,
-            TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting(endpoint),
-            TunnelStateTransition::Connected(endpoint) => TunnelState::Connected(endpoint),
+            TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting { endpoint },
+            TunnelStateTransition::Connected(endpoint) => TunnelState::Connected { endpoint },
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
             }
@@ -783,12 +783,12 @@ where
         let get_location: Box<dyn Future<Item = Option<GeoIpLocation>, Error = ()> + Send> =
             match self.tunnel_state {
                 Disconnected => Box::new(self.get_geo_location().map(Some)),
-                Connecting(_) | Disconnecting(..) => match self.build_location_from_relay() {
+                Connecting { .. } | Disconnecting(..) => match self.build_location_from_relay() {
                     Some(relay_location) => Box::new(future::result(Ok(Some(relay_location)))),
                     // Custom relay is set, no location is known
                     None => Box::new(future::result(Ok(None))),
                 },
-                Connected(_) => match self.build_location_from_relay() {
+                Connected { .. } => match self.build_location_from_relay() {
                     Some(location_from_relay) => Box::new(
                         self.get_geo_location()
                             .map(|fetched_location| GeoIpLocation {

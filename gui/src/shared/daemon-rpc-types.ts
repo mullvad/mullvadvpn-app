@@ -75,10 +75,14 @@ export type DaemonEvent =
   | { relayList: IRelayList }
   | { wireguardKey: KeygenEvent };
 
+export interface ITunnelStateRelayInfo {
+  endpoint: ITunnelEndpoint;
+}
+
 export type TunnelState =
   | { state: 'disconnected' }
-  | { state: 'connecting'; details?: ITunnelEndpoint }
-  | { state: 'connected'; details: ITunnelEndpoint }
+  | { state: 'connecting'; details?: ITunnelStateRelayInfo }
+  | { state: 'connected'; details: ITunnelStateRelayInfo }
   | { state: 'disconnecting'; details: AfterDisconnect }
   | { state: 'blocked'; details: BlockReason };
 
