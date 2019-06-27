@@ -58,6 +58,7 @@ export interface ISettingsReduxState {
 const initialState: ISettingsReduxState = {
   autoStart: false,
   guiSettings: {
+    enableSystemNotifications: true,
     autoConnect: true,
     monochromaticIcon: false,
     startMinimized: false,

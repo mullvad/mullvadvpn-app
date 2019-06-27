@@ -408,6 +408,10 @@ msgid "Automatically connect to a server when the app launches."
 msgstr ""
 
 msgctxt "preferences-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr ""
+
+msgctxt "preferences-view"
 msgid "Launch app on start-up"
 msgstr ""
 
@@ -417,6 +421,10 @@ msgstr ""
 
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Notifications"
 msgstr ""
 
 msgctxt "preferences-view"

@@ -407,7 +407,7 @@ class ApplicationMain {
     // notify user about inconsistent version
     if (
       process.env.NODE_ENV !== 'development' &&
-      !this.shouldSuppressNotifications() &&
+      !this.shouldSuppressNotifications(true) &&
       !this.currentVersion.isConsistent
     ) {
       this.notificationController.notifyInconsistentVersion();
@@ -517,7 +517,7 @@ class ApplicationMain {
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
     this.updateLocation();
 
-    if (!this.shouldSuppressNotifications()) {
+    if (!this.shouldSuppressNotifications(false)) {
       this.notificationController.notifyTunnelState(newState);
     }
 
@@ -677,7 +677,7 @@ class ApplicationMain {
     // notify user to update the app if it became unsupported
     if (
       process.env.NODE_ENV !== 'development' &&
-      !this.shouldSuppressNotifications() &&
+      !this.shouldSuppressNotifications(true) &&
       currentVersionInfo.isConsistent &&
       !latestVersionInfo.currentIsSupported &&
       upgradeVersion
@@ -713,8 +713,14 @@ class ApplicationMain {
     }
   }
 
-  private shouldSuppressNotifications(): boolean {
-    return this.windowController ? this.windowController.isVisible() : false;
+  private shouldSuppressNotifications(isCriticalNotification: boolean): boolean {
+    const isVisible = this.windowController ? this.windowController.isVisible() : false;
+
+    if (isCriticalNotification) {
+      return isVisible;
+    } else {
+      return isVisible || !this.guiSettings.enableSystemNotifications;
+    }
   }
 
   private async updateLocation() {
@@ -847,6 +853,10 @@ class ApplicationMain {
 
     IpcMainEventChannel.tunnel.handleConnect(() => this.daemonRpc.connectTunnel());
     IpcMainEventChannel.tunnel.handleDisconnect(() => this.daemonRpc.disconnectTunnel());
+
+    IpcMainEventChannel.guiSettings.handleEnableSystemNotifications((flag: boolean) => {
+      this.guiSettings.enableSystemNotifications = flag;
+    });
 
     IpcMainEventChannel.guiSettings.handleAutoConnect((autoConnect: boolean) => {
       this.guiSettings.autoConnect = autoConnect;

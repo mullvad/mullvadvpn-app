@@ -9,8 +9,9 @@ import { ISharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: IReduxState) => ({
   autoStart: state.settings.autoStart,
-  autoConnect: state.settings.guiSettings.autoConnect,
   allowLan: state.settings.allowLan,
+  autoConnect: state.settings.guiSettings.autoConnect,
+  enableSystemNotifications: state.settings.guiSettings.enableSystemNotifications,
   monochromaticIcon: state.settings.guiSettings.monochromaticIcon,
   startMinimized: state.settings.guiSettings.startMinimized,
 });
@@ -21,6 +22,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
     onClose: () => {
       history.goBack();
     },
+    setEnableSystemNotifications: (flag: boolean) => {
+      props.app.setEnableSystemNotifications(flag);
+    },
     setAutoStart: async (autoStart: boolean) => {
       try {
         await props.app.setAutoStart(autoStart);
@@ -28,12 +32,8 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
         log.error(`Cannot set auto-start: ${error.message}`);
       }
     },
-    setAutoConnect: async (autoConnect: boolean) => {
-      try {
-        props.app.setAutoConnect(autoConnect);
-      } catch (error) {
-        log.error(`Cannot set auto-connect: ${error.message}`);
-      }
+    setAutoConnect: (autoConnect: boolean) => {
+      props.app.setAutoConnect(autoConnect);
     },
     setAllowLan: (allowLan: boolean) => {
       props.app.setAllowLan(allowLan);
