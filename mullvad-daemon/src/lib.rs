@@ -456,8 +456,14 @@ where
     fn handle_tunnel_state_transition(&mut self, tunnel_state_transition: TunnelStateTransition) {
         let tunnel_state = match tunnel_state_transition {
             TunnelStateTransition::Disconnected => TunnelState::Disconnected,
-            TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting { endpoint },
-            TunnelStateTransition::Connected(endpoint) => TunnelState::Connected { endpoint },
+            TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
+                endpoint,
+                location: self.build_location_from_relay().unwrap(),
+            },
+            TunnelStateTransition::Connected(endpoint) => TunnelState::Connected {
+                endpoint,
+                location: self.build_location_from_relay().unwrap(),
+            },
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
             }

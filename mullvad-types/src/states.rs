@@ -1,3 +1,4 @@
+use crate::location::GeoIpLocation;
 use serde::{Deserialize, Serialize};
 use talpid_types::{
     net::TunnelEndpoint,
@@ -20,8 +21,14 @@ pub enum TargetState {
 #[serde(tag = "state", content = "details")]
 pub enum TunnelState {
     Disconnected,
-    Connecting { endpoint: TunnelEndpoint },
-    Connected { endpoint: TunnelEndpoint },
+    Connecting {
+        endpoint: TunnelEndpoint,
+        location: GeoIpLocation,
+    },
+    Connected {
+        endpoint: TunnelEndpoint,
+        location: GeoIpLocation,
+    },
     Disconnecting(ActionAfterDisconnect),
     Blocked(BlockReason),
 }

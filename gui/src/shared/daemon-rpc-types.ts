@@ -77,6 +77,7 @@ export type DaemonEvent =
 
 export interface ITunnelStateRelayInfo {
   endpoint: ITunnelEndpoint;
+  location: ILocation;
 }
 
 export type TunnelState =
