@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use talpid_types::tunnel::TunnelStateTransition;
 
 /// Represents the state the client strives towards.
 /// When in `Secured`, the client should keep the computer from leaking and try to
@@ -9,3 +10,6 @@ pub enum TargetState {
     Unsecured,
     Secured,
 }
+
+/// Temporary alias used to migrate the usages.
+pub type TunnelState = TunnelStateTransition;
