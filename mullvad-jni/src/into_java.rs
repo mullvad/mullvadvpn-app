@@ -12,11 +12,12 @@ use mullvad_types::{
     relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
     relay_list::{Relay, RelayList, RelayListCity, RelayListCountry},
     settings::Settings,
+    states::TunnelState,
     CustomTunnelEndpoint,
 };
 use std::{fmt::Debug, net::IpAddr};
 use talpid_core::tunnel::tun_provider::TunConfig;
-use talpid_types::{net::wireguard::PublicKey, tunnel::TunnelStateTransition};
+use talpid_types::net::wireguard::PublicKey;
 
 pub trait IntoJava<'env> {
     type JavaType;
@@ -460,7 +461,7 @@ impl<'env> IntoJava<'env> for Settings {
     }
 }
 
-impl<'env> IntoJava<'env> for TunnelStateTransition {
+impl<'env> IntoJava<'env> for TunnelState {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
