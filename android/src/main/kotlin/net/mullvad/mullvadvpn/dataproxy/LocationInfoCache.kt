@@ -33,8 +33,11 @@ class LocationInfoCache(val daemon: Deferred<MullvadDaemon>) {
 
             when (value) {
                 is TunnelState.Disconnected -> fetchLocation()
-                is TunnelState.Connecting -> fetchLocation()
-                is TunnelState.Connected -> fetchLocation()
+                is TunnelState.Connecting -> location = value.location
+                is TunnelState.Connected -> {
+                    location = value.location
+                    fetchLocation()
+                }
                 is TunnelState.Disconnecting -> location = lastKnownRealLocation
                 is TunnelState.Blocked -> location = null
             }
