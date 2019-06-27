@@ -4,8 +4,7 @@ export interface IUpdateWindowArrowPositionAction {
 }
 
 export interface IUpdateConnectionInfoOpenAction {
-  type: 'UPDATE_CONNECTION_INFO_OPEN';
-  isOpen: boolean;
+  type: 'TOGGLE_CONNECTION_PANEL';
 }
 
 export type UserInterfaceAction =
@@ -19,11 +18,10 @@ function updateWindowArrowPosition(arrowPosition: number): IUpdateWindowArrowPos
   };
 }
 
-function updateConnectionInfoOpen(isOpen: boolean): IUpdateConnectionInfoOpenAction {
+function toggleConnectionPanel(): IUpdateConnectionInfoOpenAction {
   return {
-    type: 'UPDATE_CONNECTION_INFO_OPEN',
-    isOpen,
+    type: 'TOGGLE_CONNECTION_PANEL',
   };
 }
 
-export default { updateWindowArrowPosition, updateConnectionInfoOpen };
+export default { updateWindowArrowPosition, toggleConnectionPanel };

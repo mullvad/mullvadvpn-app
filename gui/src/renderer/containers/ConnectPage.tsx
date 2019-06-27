@@ -11,12 +11,9 @@ import {
 } from '../../shared/gettext';
 import Connect from '../components/Connect';
 import AccountExpiry from '../lib/account-expiry';
-import userInterfaceActions from '../redux/userinterface/actions';
-
+import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import { ISharedRouteProps } from '../routes';
-
-import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 
 function getRelayName(
   relaySettings: RelaySettingsRedux,
@@ -79,19 +76,14 @@ const mapStateToProps = (state: IReduxState, props: ISharedRouteProps) => {
     selectedRelayName: getRelayName(state.settings.relaySettings, state.settings.relayLocations),
     connection: state.connection,
     version: state.version,
-    connectionInfoOpen: state.userInterface.connectionInfoOpen,
     blockWhenDisconnected: state.settings.blockWhenDisconnected,
   };
 };
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
-  const userInterface = bindActionCreators(userInterfaceActions, dispatch);
   const history = bindActionCreators({ push }, dispatch);
 
   return {
-    onToggleConnectionInfo: (isOpen: boolean) => {
-      userInterface.updateConnectionInfoOpen(isOpen);
-    },
     onSettings: () => {
       history.push('/settings');
     },
