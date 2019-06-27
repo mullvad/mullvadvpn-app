@@ -466,11 +466,11 @@ impl<'env> IntoJava<'env> for TunnelState {
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let variant = match self {
-            TunnelStateTransition::Disconnected => "Disconnected",
-            TunnelStateTransition::Connecting(_) => "Connecting",
-            TunnelStateTransition::Connected(_) => "Connected",
-            TunnelStateTransition::Disconnecting(_) => "Disconnecting",
-            TunnelStateTransition::Blocked(_) => "Blocked",
+            TunnelState::Disconnected => "Disconnected",
+            TunnelState::Connecting(_) => "Connecting",
+            TunnelState::Connected(_) => "Connected",
+            TunnelState::Disconnecting(_) => "Disconnecting",
+            TunnelState::Blocked(_) => "Blocked",
         };
 
         let class = get_class(&format!(

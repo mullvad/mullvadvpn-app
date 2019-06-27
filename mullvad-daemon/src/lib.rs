@@ -152,7 +152,7 @@ impl DaemonExecutionState {
         match self {
             Running => {
                 match tunnel_state {
-                    TunnelStateTransition::Disconnected => mem::replace(self, Finished),
+                    TunnelState::Disconnected => mem::replace(self, Finished),
                     _ => mem::replace(self, Exiting),
                 };
             }
@@ -388,7 +388,7 @@ where
 
         let mut daemon = Daemon {
             tunnel_command_tx: Sink::wait(tunnel_command_tx),
-            tunnel_state: TunnelStateTransition::Disconnected,
+            tunnel_state: TunnelState::Disconnected,
             target_state: TargetState::Unsecured,
             state: DaemonExecutionState::Running,
             rx: internal_event_rx,
@@ -779,7 +779,7 @@ where
     }
 
     fn on_get_current_location(&self, tx: oneshot::Sender<Option<GeoIpLocation>>) {
-        use self::TunnelStateTransition::*;
+        use self::TunnelState::*;
         let get_location: Box<dyn Future<Item = Option<GeoIpLocation>, Error = ()> + Send> =
             match self.tunnel_state {
                 Disconnected => Box::new(self.get_geo_location().map(Some)),
