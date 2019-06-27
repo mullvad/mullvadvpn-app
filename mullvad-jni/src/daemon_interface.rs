@@ -1,11 +1,16 @@
 use futures::{sync::oneshot, Future};
 use mullvad_daemon::{DaemonCommandSender, ManagementCommand};
 use mullvad_types::{
-    account::AccountData, location::GeoIpLocation, relay_constraints::RelaySettingsUpdate,
-    relay_list::RelayList, settings::Settings, states::TargetState, wireguard::KeygenEvent,
+    account::AccountData,
+    location::GeoIpLocation,
+    relay_constraints::RelaySettingsUpdate,
+    relay_list::RelayList,
+    settings::Settings,
+    states::{TargetState, TunnelState},
+    wireguard::KeygenEvent,
 };
 use parking_lot::Mutex;
-use talpid_types::{net::wireguard, tunnel::TunnelStateTransition};
+use talpid_types::net::wireguard;
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
@@ -107,7 +112,7 @@ impl DaemonInterface {
         Ok(rx.wait().map_err(|_| Error::NoResponse)?)
     }
 
-    pub fn get_state(&self) -> Result<TunnelStateTransition> {
+    pub fn get_state(&self) -> Result<TunnelState> {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(ManagementCommand::GetState(tx))?;
