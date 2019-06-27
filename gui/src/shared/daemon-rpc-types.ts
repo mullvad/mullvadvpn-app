@@ -30,8 +30,6 @@ export type BlockReason =
 
 export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
-export type TunnelState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected' | 'blocked';
-
 export type TunnelType = 'wireguard' | 'openvpn';
 export function tunnelTypeToString(tunnel: TunnelType): string {
   switch (tunnel) {
