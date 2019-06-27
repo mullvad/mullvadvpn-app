@@ -27,7 +27,7 @@ pub use crate::custom_tunnel::*;
 #[serde(rename_all = "snake_case")]
 pub enum DaemonEvent {
     /// The daemon transitioned into a new state.
-    StateTransition(talpid_types::tunnel::TunnelStateTransition),
+    StateTransition(states::TunnelState),
 
     /// The daemon settings changed.
     Settings(settings::Settings),
