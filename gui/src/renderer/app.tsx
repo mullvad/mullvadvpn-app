@@ -324,11 +324,15 @@ export default class AppRenderer {
     await IpcRendererEventChannel.settings.setOpenVpnMssfix(mssfix);
   }
 
-  public async setAutoConnect(autoConnect: boolean) {
-    return IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);
+  public setAutoConnect(autoConnect: boolean) {
+    IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);
   }
 
-  public async setAutoStart(autoStart: boolean): Promise<void> {
+  public setEnableSystemNotifications(flag: boolean) {
+    IpcRendererEventChannel.guiSettings.setEnableSystemNotifications(flag);
+  }
+
+  public setAutoStart(autoStart: boolean): Promise<void> {
     this.storeAutoStart(autoStart);
 
     return IpcRendererEventChannel.autoStart.set(autoStart);

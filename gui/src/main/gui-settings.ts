@@ -10,6 +10,14 @@ export default class GuiSettings {
     return this.stateValue;
   }
 
+  set enableSystemNotifications(newValue: boolean) {
+    this.changeStateAndNotify({ ...this.stateValue, enableSystemNotifications: newValue });
+  }
+
+  get enableSystemNotifications(): boolean {
+    return this.stateValue.enableSystemNotifications;
+  }
+
   set autoConnect(newValue: boolean) {
     this.changeStateAndNotify({ ...this.stateValue, autoConnect: newValue });
   }
@@ -38,6 +46,7 @@ export default class GuiSettings {
 
   private stateValue: IGuiSettingsState = {
     autoConnect: true,
+    enableSystemNotifications: true,
     monochromaticIcon: false,
     startMinimized: false,
   };
@@ -50,6 +59,10 @@ export default class GuiSettings {
 
       this.stateValue.autoConnect =
         typeof settings.autoConnect === 'boolean' ? settings.autoConnect : true;
+      this.stateValue.enableSystemNotifications =
+        settings.enableSystemNotifications === 'boolean'
+          ? settings.enableSystemNotifications
+          : true;
       this.stateValue.monochromaticIcon = settings.monochromaticIcon || false;
       this.stateValue.startMinimized = settings.startMinimized || false;
     } catch (error) {
