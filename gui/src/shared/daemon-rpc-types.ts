@@ -70,12 +70,12 @@ export interface IProxyEndpoint {
 }
 
 export type DaemonEvent =
-  | { stateTransition: TunnelStateTransition }
+  | { stateTransition: TunnelState }
   | { settings: ISettings }
   | { relayList: IRelayList }
   | { wireguardKey: KeygenEvent };
 
-export type TunnelStateTransition =
+export type TunnelState =
   | { state: 'disconnected' }
   | { state: 'connecting'; details?: ITunnelEndpoint }
   | { state: 'connected'; details: ITunnelEndpoint }

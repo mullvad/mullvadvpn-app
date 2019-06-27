@@ -15,7 +15,7 @@ import {
   ISettings,
   RelaySettings,
   RelaySettingsUpdate,
-  TunnelStateTransition,
+  TunnelState,
 } from '../shared/daemon-rpc-types';
 import { loadTranslations, messages } from '../shared/gettext';
 import { IpcMainEventChannel } from '../shared/ipc-event-channel';
@@ -73,7 +73,7 @@ class ApplicationMain {
   private quitStage = AppQuitStage.unready;
 
   private accountHistory: AccountToken[] = [];
-  private tunnelState: TunnelStateTransition = { state: 'disconnected' };
+  private tunnelState: TunnelState = { state: 'disconnected' };
   private settings: ISettings = {
     accountToken: undefined,
     allowLan: false,
@@ -480,8 +480,8 @@ class ApplicationMain {
   private async subscribeEvents(): Promise<void> {
     const daemonEventListener = new SubscriptionListener(
       (daemonEvent: DaemonEvent) => {
-        if ('stateTransition' in daemonEvent) {
-          this.setTunnelState(daemonEvent.stateTransition);
+        if ('tunnelState' in daemonEvent) {
+          this.setTunnelState(daemonEvent.tunnelState);
         } else if ('settings' in daemonEvent) {
           this.setSettings(daemonEvent.settings);
         } else if ('relayList' in daemonEvent) {
@@ -512,7 +512,7 @@ class ApplicationMain {
     }
   }
 
-  private setTunnelState(newState: TunnelStateTransition) {
+  private setTunnelState(newState: TunnelState) {
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
     this.updateLocation();
@@ -760,10 +760,7 @@ class ApplicationMain {
     }
   }
 
-  private trayIconType(
-    tunnelState: TunnelStateTransition,
-    blockWhenDisconnected: boolean,
-  ): TrayIconType {
+  private trayIconType(tunnelState: TunnelState, blockWhenDisconnected: boolean): TrayIconType {
     switch (tunnelState.state) {
       case 'connected':
         return 'secured';
@@ -791,7 +788,7 @@ class ApplicationMain {
     }
   }
 
-  private updateTrayIcon(tunnelState: TunnelStateTransition, blockWhenDisconnected: boolean) {
+  private updateTrayIcon(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
     const type = this.trayIconType(tunnelState, blockWhenDisconnected);
 
     if (this.trayIconController) {
