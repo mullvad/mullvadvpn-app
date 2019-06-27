@@ -791,26 +791,26 @@ where
     fn on_get_current_location(&self, tx: oneshot::Sender<Option<GeoIpLocation>>) {
         use self::TunnelState::*;
         let get_location: Box<dyn Future<Item = Option<GeoIpLocation>, Error = ()> + Send> =
-            match self.tunnel_state {
+            match &self.tunnel_state {
                 Disconnected => Box::new(self.get_geo_location().map(Some)),
-                Connecting { .. } | Disconnecting(..) => match self.build_location_from_relay() {
+                Connecting { location, .. } => Box::new(future::result(Ok(Some(location.clone())))),
+                Disconnecting(..) => match self.build_location_from_relay() {
                     Some(relay_location) => Box::new(future::result(Ok(Some(relay_location)))),
                     // Custom relay is set, no location is known
                     None => Box::new(future::result(Ok(None))),
                 },
-                Connected { .. } => match self.build_location_from_relay() {
-                    Some(location_from_relay) => Box::new(
+                Connected { location, .. } => {
+                    let relay_location = location.clone();
+                    Box::new(
                         self.get_geo_location()
                             .map(|fetched_location| GeoIpLocation {
                                 ipv4: fetched_location.ipv4,
                                 ipv6: fetched_location.ipv6,
-                                ..location_from_relay
+                                ..relay_location
                             })
                             .map(Some),
-                    ),
-                    // Custom relay is set, no location is known intrinsicly
-                    None => Box::new(self.get_geo_location().map(Some)),
-                },
+                    )
+                }
                 Blocked(..) => {
                     // We are not online at all at this stage so no location data is available.
                     Box::new(future::result(Ok(None)))
