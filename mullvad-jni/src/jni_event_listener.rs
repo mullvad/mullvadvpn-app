@@ -117,7 +117,7 @@ impl<'env> JniEventHandler<'env> {
             &env,
             &class,
             "notifyTunnelStateEvent",
-            "(Lnet/mullvad/mullvadvpn/model/TunnelStateTransition;)V",
+            "(Lnet/mullvad/mullvadvpn/model/TunnelState;)V",
         )?;
 
         Ok(JniEventHandler {
@@ -187,13 +187,13 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_tunnel_event(&self, event: TunnelState) {
-        let java_tunnel_state_transition = self.env.auto_local(event.into_java(&self.env));
+        let java_tunnel_state = self.env.auto_local(event.into_java(&self.env));
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
             self.notify_tunnel_event,
             JavaType::Primitive(Primitive::Void),
-            &[JValue::Object(java_tunnel_state_transition.as_obj())],
+            &[JValue::Object(java_tunnel_state.as_obj())],
         );
 
         if let Err(error) = result {

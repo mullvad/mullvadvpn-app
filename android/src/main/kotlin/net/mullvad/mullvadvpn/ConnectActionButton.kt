@@ -3,19 +3,19 @@ package net.mullvad.mullvadvpn
 import android.view.View
 import android.widget.Button
 
-import net.mullvad.mullvadvpn.model.TunnelStateTransition
+import net.mullvad.mullvadvpn.model.TunnelState
 
 class ConnectActionButton(val parentView: View) {
     private val button: Button = parentView.findViewById(R.id.action_button)
 
-    var state: TunnelStateTransition = TunnelStateTransition.Disconnected()
+    var state: TunnelState = TunnelState.Disconnected()
         set(value) {
             when (value) {
-                is TunnelStateTransition.Disconnected -> disconnected()
-                is TunnelStateTransition.Disconnecting -> disconnected()
-                is TunnelStateTransition.Connecting -> connecting()
-                is TunnelStateTransition.Connected -> connected()
-                is TunnelStateTransition.Blocked -> connected()
+                is TunnelState.Disconnected -> disconnected()
+                is TunnelState.Disconnecting -> disconnected()
+                is TunnelState.Connecting -> connecting()
+                is TunnelState.Connected -> connected()
+                is TunnelState.Blocked -> connected()
             }
 
             field = value
@@ -31,11 +31,11 @@ class ConnectActionButton(val parentView: View) {
 
     private fun action() {
         when (state) {
-            is TunnelStateTransition.Disconnected -> onConnect?.invoke()
-            is TunnelStateTransition.Disconnecting -> onConnect?.invoke()
-            is TunnelStateTransition.Connecting -> onCancel?.invoke()
-            is TunnelStateTransition.Connected -> onDisconnect?.invoke()
-            is TunnelStateTransition.Blocked -> onDisconnect?.invoke()
+            is TunnelState.Disconnected -> onConnect?.invoke()
+            is TunnelState.Disconnecting -> onConnect?.invoke()
+            is TunnelState.Connecting -> onCancel?.invoke()
+            is TunnelState.Connected -> onDisconnect?.invoke()
+            is TunnelState.Blocked -> onDisconnect?.invoke()
         }
     }
 
