@@ -1,10 +1,45 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
-import { proxyTypeToString, TunnelType, tunnelTypeToString } from '../../shared/daemon-rpc-types';
+import {
+  ProxyType,
+  proxyTypeToString,
+  RelayProtocol,
+  TunnelType,
+  tunnelTypeToString,
+} from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import { default as ConnectionInfoDisclosure } from './ConnectionInfoDisclosure';
-import { IBridgeData } from './TunnelControl';
+import { default as ConnectionPanelDisclosure } from '../components/ConnectionPanelDisclosure';
+
+export interface IEndpoint {
+  ip: string;
+  port: number;
+  protocol: RelayProtocol;
+}
+
+export interface IInAddress extends IEndpoint {
+  tunnelType: TunnelType;
+}
+
+export interface IBridgeData extends IEndpoint {
+  bridgeType: ProxyType;
+}
+
+export interface IOutAddress {
+  ipv4?: string;
+  ipv6?: string;
+}
+
+interface IProps {
+  isOpen: boolean;
+  hostname?: string;
+  bridgeHostname?: string;
+  inAddress?: IInAddress;
+  bridgeInfo?: IBridgeData;
+  outAddress?: IOutAddress;
+  onToggle: () => void;
+  style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
+}
 
 const styles = {
   row: Styles.createViewStyle({
@@ -32,42 +67,7 @@ const styles = {
   }),
 };
 
-interface IInAddress {
-  ip: string;
-  port: number;
-  protocol: string;
-  tunnelType: TunnelType;
-}
-
-interface IOutAddress {
-  ipv4?: string;
-  ipv6?: string;
-}
-
-interface IProps {
-  hostname?: string;
-  bridgeHostname?: string;
-  inAddress?: IInAddress;
-  bridgeInfo?: IBridgeData;
-  outAddress?: IOutAddress;
-  defaultOpen?: boolean;
-  style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
-  onToggle?: (isOpen: boolean) => void;
-}
-
-interface IState {
-  isOpen: boolean;
-}
-
-export default class ConnectionInfo extends Component<IProps, IState> {
-  constructor(props: IProps) {
-    super(props);
-
-    this.state = {
-      isOpen: props.defaultOpen === true,
-    };
-  }
-
+export default class ConnectionPanel extends Component<IProps> {
   public render() {
     const { inAddress, outAddress, bridgeInfo } = this.props;
     const entryPoint = bridgeInfo && inAddress ? bridgeInfo : inAddress;
@@ -76,13 +76,13 @@ export default class ConnectionInfo extends Component<IProps, IState> {
       <View style={this.props.style}>
         {this.props.hostname && (
           <View style={styles.header}>
-            <ConnectionInfoDisclosure defaultOpen={this.props.defaultOpen} onToggle={this.onToggle}>
+            <ConnectionPanelDisclosure pointsUp={this.props.isOpen} onToggle={this.props.onToggle}>
               {this.hostnameLine()}
-            </ConnectionInfoDisclosure>
+            </ConnectionPanelDisclosure>
           </View>
         )}
 
-        {this.state.isOpen && this.props.hostname && (
+        {this.props.isOpen && this.props.hostname && (
           <React.Fragment>
             {this.props.inAddress && (
               <View style={styles.row}>
@@ -159,15 +159,4 @@ export default class ConnectionInfo extends Component<IProps, IState> {
       return '';
     }
   }
-
-  private onToggle = (isOpen: boolean) => {
-    this.setState(
-      (state) => ({ ...state, isOpen }),
-      () => {
-        if (this.props.onToggle) {
-          this.props.onToggle(isOpen);
-        }
-      },
-    );
-  };
 }

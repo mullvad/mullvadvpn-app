@@ -22,41 +22,39 @@ const styles = {
 };
 
 interface IProps {
-  onToggle?: (isOpen: boolean) => void;
-  defaultOpen?: boolean;
+  pointsUp: boolean;
+  onToggle?: () => void;
   children: React.ReactText;
   style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
 }
 
 interface IState {
   isHovered: boolean;
-  isOpen: boolean;
 }
 
-export default class ConnectionInfoDisclosure extends Component<IProps, IState> {
+export default class ConnectionPanelDisclosure extends Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
 
     this.state = {
       isHovered: false,
-      isOpen: props.defaultOpen === true,
     };
   }
 
   public render() {
     const tintColor = this.state.isHovered ? 'rgb(255, 255, 255)' : 'rgb(255, 255, 255, 0.4)';
     const textHoverStyle =
-      this.state.isOpen || this.state.isHovered ? styles.caption.hovered : undefined;
+      this.props.pointsUp || this.state.isHovered ? styles.caption.hovered : undefined;
 
     return (
       <View
         style={[styles.container, this.props.style]}
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
-        onPress={this.onToggle}>
+        onPress={this.props.onToggle}>
         <Text style={[styles.caption.base, textHoverStyle]}>{this.props.children}</Text>
         <ImageView
-          source={this.state.isOpen ? 'icon-chevron-up' : 'icon-chevron-down'}
+          source={this.props.pointsUp ? 'icon-chevron-up' : 'icon-chevron-down'}
           width={24}
           height={24}
           tintColor={tintColor}
@@ -71,19 +69,5 @@ export default class ConnectionInfoDisclosure extends Component<IProps, IState> 
 
   private onMouseLeave = () => {
     this.setState({ isHovered: false });
-  };
-
-  private onToggle = () => {
-    this.setState(
-      (state) => ({
-        ...state,
-        isOpen: !state.isOpen,
-      }),
-      () => {
-        if (this.props.onToggle) {
-          this.props.onToggle(this.state.isOpen);
-        }
-      },
-    );
   };
 }

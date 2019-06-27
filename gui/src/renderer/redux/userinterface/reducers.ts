@@ -2,11 +2,11 @@ import { ReduxAction } from '../store';
 
 export interface IUserInterfaceReduxState {
   arrowPosition?: number;
-  connectionInfoOpen: boolean;
+  connectionPanelVisible: boolean;
 }
 
 const initialState: IUserInterfaceReduxState = {
-  connectionInfoOpen: false,
+  connectionPanelVisible: false,
 };
 
 export default function(
@@ -17,8 +17,8 @@ export default function(
     case 'UPDATE_WINDOW_ARROW_POSITION':
       return { ...state, arrowPosition: action.arrowPosition };
 
-    case 'UPDATE_CONNECTION_INFO_OPEN':
-      return { ...state, connectionInfoOpen: action.isOpen };
+    case 'TOGGLE_CONNECTION_PANEL':
+      return { ...state, connectionPanelVisible: !state.connectionPanelVisible };
 
     default:
       return state;
