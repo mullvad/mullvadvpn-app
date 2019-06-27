@@ -2,7 +2,7 @@ use crate::{new_rpc_client, Command, Error, Result};
 use futures::{Future, Stream};
 use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_types::{auth_failed::AuthFailed, states::TunnelState, DaemonEvent};
-use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
+use talpid_types::tunnel::BlockReason;
 
 pub struct Status;
 
@@ -41,7 +41,7 @@ impl Command for Status {
                 match event? {
                     DaemonEvent::StateTransition(new_state) => {
                         print_state(&new_state);
-                        use self::TunnelStateTransition::*;
+                        use self::TunnelState::*;
                         match new_state {
                             Connected(_) | Disconnected => print_location(&mut rpc)?,
                             _ => {}
@@ -70,7 +70,7 @@ impl Command for Status {
 }
 
 fn print_state(state: &TunnelState) {
-    use self::TunnelStateTransition::*;
+    use self::TunnelState::*;
     print!("Tunnel status: ");
     match state {
         Blocked(reason) => print_blocked_reason(reason),
