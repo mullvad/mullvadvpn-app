@@ -453,15 +453,23 @@ where
         Ok(())
     }
 
-    fn handle_tunnel_state_transition(&mut self, tunnel_state: TunnelStateTransition) {
-        use self::TunnelStateTransition::*;
+    fn handle_tunnel_state_transition(&mut self, tunnel_state_transition: TunnelStateTransition) {
+        let tunnel_state = match tunnel_state_transition {
+            TunnelStateTransition::Disconnected => TunnelState::Disconnected,
+            TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting(endpoint),
+            TunnelStateTransition::Connected(endpoint) => TunnelState::Connected(endpoint),
+            TunnelStateTransition::Disconnecting(after_disconnect) => {
+                TunnelState::Disconnecting(after_disconnect)
+            }
+            TunnelStateTransition::Blocked(reason) => TunnelState::Blocked(reason.clone()),
+        };
 
         self.unschedule_reconnect();
 
         debug!("New tunnel state: {:?}", tunnel_state);
         match tunnel_state {
-            Disconnected => self.state.disconnected(),
-            Blocked(ref reason) => {
+            TunnelState::Disconnected => self.state.disconnected(),
+            TunnelState::Blocked(ref reason) => {
                 info!("Blocking all network connections, reason: {}", reason);
 
                 if let BlockReason::AuthFailed(_) = reason {
