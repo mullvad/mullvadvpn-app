@@ -17,11 +17,13 @@ export interface IPreferencesProps {
   autoStart: boolean;
   autoConnect: boolean;
   allowLan: boolean;
+  enableSystemNotifications: boolean;
   monochromaticIcon: boolean;
   startMinimized: boolean;
   enableMonochromaticIconToggle: boolean;
   enableStartMinimizedToggle: boolean;
   setAutoStart: (autoStart: boolean) => void;
+  setEnableSystemNotifications: (flag: boolean) => void;
   setAutoConnect: (autoConnect: boolean) => void;
   setAllowLan: (allowLan: boolean) => void;
   setStartMinimized: (startMinimized: boolean) => void;
@@ -90,6 +92,22 @@ export default class Preferences extends Component<IPreferencesProps> {
                       {messages.pgettext(
                         'preferences-view',
                         'Allows access to other devices on the same network for sharing, printing etc.',
+                      )}
+                    </Cell.Footer>
+
+                    <Cell.Container>
+                      <Cell.Label>
+                        {messages.pgettext('preferences-view', 'Notifications')}
+                      </Cell.Label>
+                      <Cell.Switch
+                        isOn={this.props.enableSystemNotifications}
+                        onChange={this.props.setEnableSystemNotifications}
+                      />
+                    </Cell.Container>
+                    <Cell.Footer>
+                      {messages.pgettext(
+                        'preferences-view',
+                        'Enable or disable system notifications. The critical notifications will always be displayed.',
                       )}
                     </Cell.Footer>
 
