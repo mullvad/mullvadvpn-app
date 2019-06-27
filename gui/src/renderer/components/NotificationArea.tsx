@@ -14,7 +14,7 @@ import {
   NotificationTitle,
 } from './NotificationBanner';
 
-import { BlockReason, TunnelStateTransition } from '../../shared/daemon-rpc-types';
+import { BlockReason, TunnelState } from '../../shared/daemon-rpc-types';
 import AccountExpiry from '../lib/account-expiry';
 import { parseAuthFailure } from '../lib/auth-failure';
 import { IVersionReduxState } from '../redux/version/reducers';
@@ -22,7 +22,7 @@ import { IVersionReduxState } from '../redux/version/reducers';
 interface IProps {
   style?: Types.ViewStyleRuleSet;
   accountExpiry?: AccountExpiry;
-  tunnelState: TunnelStateTransition;
+  tunnelState: TunnelState;
   version: IVersionReduxState;
   openExternalLink: (url: string) => void;
   blockWhenDisconnected: boolean;

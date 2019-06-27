@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
-import { TunnelStateTransition } from '../../shared/daemon-rpc-types';
+import { TunnelState } from '../../shared/daemon-rpc-types';
 import { cities, countries, messages, relayLocations } from '../../shared/gettext';
 import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
 import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
 
 interface ITunnelControlProps {
-  tunnelState: TunnelStateTransition;
+  tunnelState: TunnelState;
   selectedRelayName: string;
   city?: string;
   country?: string;

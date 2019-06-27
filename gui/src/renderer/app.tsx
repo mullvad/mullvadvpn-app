@@ -38,7 +38,7 @@ import {
   ISettings,
   RelaySettings,
   RelaySettingsUpdate,
-  TunnelStateTransition,
+  TunnelState,
 } from '../shared/daemon-rpc-types';
 
 type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
@@ -70,7 +70,7 @@ export default class AppRenderer {
   );
 
   private locale: string;
-  private tunnelState: TunnelStateTransition;
+  private tunnelState: TunnelState;
   private settings: ISettings;
   private guiSettings: IGuiSettingsState;
   private accountExpiry?: AccountExpiry;
@@ -109,7 +109,7 @@ export default class AppRenderer {
       this.setAccountHistory(newAccountHistory);
     });
 
-    IpcRendererEventChannel.tunnel.listen((newState: TunnelStateTransition) => {
+    IpcRendererEventChannel.tunnel.listen((newState: TunnelState) => {
       this.setTunnelState(newState);
       this.updateBlockedState(newState, this.settings.blockWhenDisconnected);
 
@@ -461,7 +461,7 @@ export default class AppRenderer {
     this.reduxActions.account.updateAccountHistory(accountHistory);
   }
 
-  private setTunnelState(tunnelState: TunnelStateTransition) {
+  private setTunnelState(tunnelState: TunnelState) {
     const actions = this.reduxActions;
 
     log.debug(`Tunnel state: ${tunnelState.state}`);
@@ -513,7 +513,7 @@ export default class AppRenderer {
     }
   }
 
-  private updateBlockedState(tunnelState: TunnelStateTransition, blockWhenDisconnected: boolean) {
+  private updateBlockedState(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
     const actions = this.reduxActions.connection;
     switch (tunnelState.state) {
       case 'connecting':
@@ -604,10 +604,7 @@ export default class AppRenderer {
     this.reduxActions.account.updateAccountExpiry(expiry);
   }
 
-  private detectStaleAccountExpiry(
-    tunnelState: TunnelStateTransition,
-    accountExpiry: AccountExpiry,
-  ) {
+  private detectStaleAccountExpiry(tunnelState: TunnelState, accountExpiry: AccountExpiry) {
     // It's likely that the account expiry is stale if the daemon managed to establish the tunnel.
     if (tunnelState.state === 'connected' && accountExpiry.hasExpired()) {
       log.info('Detected the stale account expiry.');

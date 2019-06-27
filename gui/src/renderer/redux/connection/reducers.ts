@@ -1,8 +1,8 @@
-import { Ip, TunnelStateTransition } from '../../../shared/daemon-rpc-types';
+import { Ip, TunnelState } from '../../../shared/daemon-rpc-types';
 import { ReduxAction } from '../store';
 
 export interface IConnectionReduxState {
-  status: TunnelStateTransition;
+  status: TunnelState;
   isBlocked: boolean;
   ipv4?: Ip;
   ipv6?: Ip;
