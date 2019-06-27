@@ -36,7 +36,7 @@ class ConnectionProxy(val parentActivity: MainActivity) {
     var onUiStateChange: ((TunnelState) -> Unit)? = null
 
     fun connect() {
-        uiState = TunnelState.Connecting()
+        uiState = TunnelState.Connecting(null)
 
         cancelActiveAction()
 
