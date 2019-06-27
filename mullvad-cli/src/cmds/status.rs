@@ -74,10 +74,10 @@ fn print_state(state: &TunnelState) {
     print!("Tunnel status: ");
     match state {
         Blocked(reason) => print_blocked_reason(reason),
-        Connected { endpoint } => {
+        Connected { endpoint, .. } => {
             println!("Connected to {}", endpoint);
         }
-        Connecting { endpoint } => println!("Connecting to {}...", endpoint),
+        Connecting { endpoint, .. } => println!("Connecting to {}...", endpoint),
         Disconnected => println!("Disconnected"),
         Disconnecting(_) => println!("Disconnecting..."),
     }
