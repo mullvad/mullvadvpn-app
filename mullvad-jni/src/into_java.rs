@@ -474,11 +474,11 @@ impl<'env> IntoJava<'env> for TunnelState {
         };
 
         let class = get_class(&format!(
-            "net/mullvad/mullvadvpn/model/TunnelStateTransition${}",
+            "net/mullvad/mullvadvpn/model/TunnelState${}",
             variant
         ));
 
         env.new_object(&class, "()V", &[])
-            .expect("Failed to create TunnelStateTransition sub-class variant Java object")
+            .expect("Failed to create TunnelState sub-class variant Java object")
     }
 }

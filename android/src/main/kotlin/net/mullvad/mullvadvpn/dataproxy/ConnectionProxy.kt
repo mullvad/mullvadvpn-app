@@ -6,7 +6,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
 import net.mullvad.mullvadvpn.MainActivity
-import net.mullvad.mullvadvpn.model.TunnelStateTransition
+import net.mullvad.mullvadvpn.model.TunnelState
 
 class ConnectionProxy(val parentActivity: MainActivity) {
     val daemon = parentActivity.daemon
@@ -16,27 +16,27 @@ class ConnectionProxy(val parentActivity: MainActivity) {
     private val attachListenerJob = attachListener()
     private val fetchInitialStateJob = fetchInitialState()
 
-    private var realState: TunnelStateTransition? = null
+    private var realState: TunnelState? = null
         set(value) {
             field = value
-            uiState = value ?: TunnelStateTransition.Disconnected()
+            uiState = value ?: TunnelState.Disconnected()
         }
 
-    val state: TunnelStateTransition
+    val state: TunnelState
         get() {
-            return realState ?: TunnelStateTransition.Disconnected()
+            return realState ?: TunnelState.Disconnected()
         }
 
-    var uiState: TunnelStateTransition = TunnelStateTransition.Disconnected()
+    var uiState: TunnelState = TunnelState.Disconnected()
         private set(value) {
             field = value
             onUiStateChange?.invoke(value)
         }
 
-    var onUiStateChange: ((TunnelStateTransition) -> Unit)? = null
+    var onUiStateChange: ((TunnelState) -> Unit)? = null
 
     fun connect() {
-        uiState = TunnelStateTransition.Connecting()
+        uiState = TunnelState.Connecting()
 
         cancelActiveAction()
 
@@ -50,7 +50,7 @@ class ConnectionProxy(val parentActivity: MainActivity) {
     }
 
     fun disconnect() {
-        uiState = TunnelStateTransition.Disconnecting()
+        uiState = TunnelState.Disconnecting()
 
         cancelActiveAction()
         activeAction = GlobalScope.launch(Dispatchers.Default) {

@@ -2,19 +2,19 @@ package net.mullvad.mullvadvpn
 
 import android.view.View
 
-import net.mullvad.mullvadvpn.model.TunnelStateTransition
+import net.mullvad.mullvadvpn.model.TunnelState
 
 class NotificationBanner(val parentView: View) {
     private val banner: View = parentView.findViewById(R.id.notification_banner)
     private var visible = false
 
-    fun setState(state: TunnelStateTransition) {
+    fun setState(state: TunnelState) {
         when (state) {
-            is TunnelStateTransition.Disconnecting -> hide()
-            is TunnelStateTransition.Disconnected -> hide()
-            is TunnelStateTransition.Connecting -> show()
-            is TunnelStateTransition.Connected -> hide()
-            is TunnelStateTransition.Blocked -> show()
+            is TunnelState.Disconnecting -> hide()
+            is TunnelState.Disconnected -> hide()
+            is TunnelState.Connecting -> show()
+            is TunnelState.Connected -> hide()
+            is TunnelState.Blocked -> show()
         }
     }
 

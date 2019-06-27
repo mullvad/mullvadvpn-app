@@ -8,7 +8,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
 import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.TunnelStateTransition
+import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.MullvadDaemon
 
 class LocationInfoCache(val daemon: Deferred<MullvadDaemon>) {
@@ -27,16 +27,16 @@ class LocationInfoCache(val daemon: Deferred<MullvadDaemon>) {
             notifyNewLocation()
         }
 
-    var state: TunnelStateTransition = TunnelStateTransition.Disconnected()
+    var state: TunnelState = TunnelState.Disconnected()
         set(value) {
             field = value
 
             when (value) {
-                is TunnelStateTransition.Disconnected -> fetchLocation()
-                is TunnelStateTransition.Connecting -> fetchLocation()
-                is TunnelStateTransition.Connected -> fetchLocation()
-                is TunnelStateTransition.Disconnecting -> location = lastKnownRealLocation
-                is TunnelStateTransition.Blocked -> location = null
+                is TunnelState.Disconnected -> fetchLocation()
+                is TunnelState.Connecting -> fetchLocation()
+                is TunnelState.Connected -> fetchLocation()
+                is TunnelState.Disconnecting -> location = lastKnownRealLocation
+                is TunnelState.Blocked -> location = null
             }
         }
 
@@ -64,12 +64,12 @@ class LocationInfoCache(val daemon: Deferred<MullvadDaemon>) {
 
             if (newLocation != null && state == initialState) {
                 when (state) {
-                    is TunnelStateTransition.Disconnected -> {
+                    is TunnelState.Disconnected -> {
                         lastKnownRealLocation = newLocation
                         location = newLocation
                     }
-                    is TunnelStateTransition.Connecting -> location = newLocation
-                    is TunnelStateTransition.Connected -> location = newLocation
+                    is TunnelState.Connecting -> location = newLocation
+                    is TunnelState.Connected -> location = newLocation
                 }
             }
         }
@@ -82,7 +82,7 @@ class LocationInfoCache(val daemon: Deferred<MullvadDaemon>) {
     private fun shouldRetryFetch(): Boolean {
         val state = this.state
 
-        return state is TunnelStateTransition.Disconnected ||
-            state is TunnelStateTransition.Connected
+        return state is TunnelState.Disconnected ||
+            state is TunnelState.Connected
     }
 }

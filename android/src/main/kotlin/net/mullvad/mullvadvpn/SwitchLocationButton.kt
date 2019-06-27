@@ -9,7 +9,7 @@ import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.Button
 
-import net.mullvad.mullvadvpn.model.TunnelStateTransition
+import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 
 class SwitchLocationButton(val parentView: View) {
@@ -24,7 +24,7 @@ class SwitchLocationButton(val parentView: View) {
             update()
         }
 
-    var state: TunnelStateTransition = TunnelStateTransition.Disconnected()
+    var state: TunnelState = TunnelState.Disconnected()
         set(value) {
             field = value
             update()
@@ -44,11 +44,11 @@ class SwitchLocationButton(val parentView: View) {
         updateJob?.cancel()
         updateJob = GlobalScope.launch(Dispatchers.Main) {
             when (state) {
-                is TunnelStateTransition.Disconnected -> showLocation()
-                is TunnelStateTransition.Disconnecting -> showLocation()
-                is TunnelStateTransition.Connecting -> showLabel()
-                is TunnelStateTransition.Connected -> showLabel()
-                is TunnelStateTransition.Blocked -> showLocation()
+                is TunnelState.Disconnected -> showLocation()
+                is TunnelState.Disconnecting -> showLocation()
+                is TunnelState.Connecting -> showLabel()
+                is TunnelState.Connected -> showLabel()
+                is TunnelState.Blocked -> showLocation()
             }
         }
     }
