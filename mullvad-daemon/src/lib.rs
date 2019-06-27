@@ -41,7 +41,7 @@ use mullvad_types::{
         RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TunnelConstraints,
     },
     relay_list::{Relay, RelayList},
-    states::TargetState,
+    states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
     wireguard::KeygenEvent,
 };
@@ -146,7 +146,7 @@ enum DaemonExecutionState {
 }
 
 impl DaemonExecutionState {
-    pub fn shutdown(&mut self, tunnel_state: &TunnelStateTransition) {
+    pub fn shutdown(&mut self, tunnel_state: &TunnelState) {
         use self::DaemonExecutionState::*;
 
         match self {
@@ -196,7 +196,7 @@ impl DaemonCommandSender {
 /// Trait representing something that can broadcast daemon events.
 pub trait EventListener {
     /// Notify that the tunnel state changed.
-    fn notify_new_state(&self, new_state: TunnelStateTransition);
+    fn notify_new_state(&self, new_state: TunnelState);
 
     /// Notify that the settings changed.
     fn notify_settings(&self, settings: Settings);
@@ -210,7 +210,7 @@ pub trait EventListener {
 
 pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     tunnel_command_tx: SyncUnboundedSender<TunnelCommand>,
-    tunnel_state: TunnelStateTransition,
+    tunnel_state: TunnelState,
     target_state: TargetState,
     state: DaemonExecutionState,
     rx: mpsc::Receiver<InternalDaemonEvent>,
@@ -766,7 +766,7 @@ where
         Self::oneshot_send(tx, Ok(()), "target state");
     }
 
-    fn on_get_state(&self, tx: oneshot::Sender<TunnelStateTransition>) {
+    fn on_get_state(&self, tx: oneshot::Sender<TunnelState>) {
         Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
     }
 
