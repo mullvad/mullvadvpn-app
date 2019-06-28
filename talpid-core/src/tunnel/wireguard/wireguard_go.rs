@@ -136,6 +136,7 @@ extern "C" {
     //
     // Positive return values are tunnel handles for this specific wireguard tunnel instance.
     // Negative return values signify errors. All error codes are opaque.
+    #[cfg_attr(target_os = "android", link_name = "wgTurnOnWithFdAndroid")]
     fn wgTurnOnWithFd(
         iface_name: *const i8,
         mtu: i64,
