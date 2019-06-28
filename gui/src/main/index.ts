@@ -724,16 +724,24 @@ class ApplicationMain {
   }
 
   private async updateLocation() {
-    const state = this.tunnelState.state;
+    const tunnelState = this.tunnelState;
 
-    if (state === 'connected' || state === 'disconnected' || state === 'connecting') {
+    if (tunnelState.state === 'connected' || tunnelState.state === 'connecting') {
+      // Location was broadcasted with the tunnel state, but it doesn't contain the relay out IP
+      // address, so it will have to be fetched afterwards
+      if (tunnelState.details) {
+        this.setLocation(tunnelState.details.location);
+      }
+    } else if (tunnelState.state === 'disconnected') {
+      // It may take some time to fetch the new user location.
+      // So take the user to the last known location when disconnected.
+      if (this.lastDisconnectedLocation) {
+        this.setLocation(this.lastDisconnectedLocation);
+      }
+    }
+
+    if (tunnelState.state === 'connected' || tunnelState.state === 'disconnected') {
       try {
-        // It may take some time to fetch the new user location.
-        // So take the user to the last known location when disconnected.
-        if (state === 'disconnected' && this.lastDisconnectedLocation) {
-          this.setLocation(this.lastDisconnectedLocation);
-        }
-
         // Fetch the new user location
         const location = await this.daemonRpc.getLocation();
         // If the location is currently unavailable, do nothing! This only ever
@@ -751,7 +759,7 @@ class ApplicationMain {
         // Broadcast the new location.
         // There is a chance that the location is not stale if the tunnel state before the location
         // request is the same as after receiving the response.
-        if (this.tunnelState.state === state) {
+        if (this.tunnelState.state === tunnelState.state) {
           this.setLocation(location);
         }
       } catch (error) {
