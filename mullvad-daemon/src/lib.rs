@@ -790,11 +790,7 @@ where
             match &self.tunnel_state {
                 Disconnected => Box::new(self.get_geo_location().map(Some)),
                 Connecting { location, .. } => Box::new(future::result(Ok(location.clone()))),
-                Disconnecting(..) => match self.build_location_from_relay() {
-                    Some(relay_location) => Box::new(future::result(Ok(Some(relay_location)))),
-                    // Custom relay is set, no location is known
-                    None => Box::new(future::result(Ok(None))),
-                },
+                Disconnecting(..) => Box::new(future::result(Ok(self.build_location_from_relay()))),
                 Connected { location, .. } => {
                     let relay_location = location.clone();
                     Box::new(
