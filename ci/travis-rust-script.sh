@@ -13,3 +13,9 @@ if [ "${RUST_TOOLCHAIN_CHANNEL}" = "nightly" ]; then
   rustfmt --version;
   cargo fmt -- --check --unstable-features;
 fi
+
+if ! git diff-index --quiet HEAD; then
+  echo "!!! Working directory is dirty !!!";
+  git diff-index HEAD
+  exit 1;
+fi
