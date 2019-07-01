@@ -250,7 +250,7 @@ const tunnelStateSchema = oneOf(
           }),
         ),
       }),
-      location: locationSchema,
+      location: maybe(locationSchema),
     }),
   }),
   object({

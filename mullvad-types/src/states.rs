@@ -23,11 +23,11 @@ pub enum TunnelState {
     Disconnected,
     Connecting {
         endpoint: TunnelEndpoint,
-        location: GeoIpLocation,
+        location: Option<GeoIpLocation>,
     },
     Connected {
         endpoint: TunnelEndpoint,
-        location: GeoIpLocation,
+        location: Option<GeoIpLocation>,
     },
     Disconnecting(ActionAfterDisconnect),
     Blocked(BlockReason),
