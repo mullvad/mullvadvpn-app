@@ -60,7 +60,7 @@ export default class GuiSettings {
       this.stateValue.autoConnect =
         typeof settings.autoConnect === 'boolean' ? settings.autoConnect : true;
       this.stateValue.enableSystemNotifications =
-        settings.enableSystemNotifications === 'boolean'
+        typeof settings.enableSystemNotifications === 'boolean'
           ? settings.enableSystemNotifications
           : true;
       this.stateValue.monochromaticIcon = settings.monochromaticIcon || false;
