@@ -9,12 +9,13 @@ use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettings, RelaySettingsUpdate},
     relay_list::RelayList,
     settings::{Settings, TunnelOptions},
+    states::TunnelState,
     version::AppVersionInfo,
     DaemonEvent,
 };
 use serde::{Deserialize, Serialize};
 use std::{io, path::Path, thread};
-use talpid_types::{net::wireguard, tunnel::TunnelStateTransition};
+use talpid_types::net::wireguard;
 
 static NO_ARGS: [u8; 0] = [];
 
@@ -147,7 +148,7 @@ impl DaemonRpcClient {
         self.call("get_relay_settings", &NO_ARGS)
     }
 
-    pub fn get_state(&mut self) -> Result<TunnelStateTransition> {
+    pub fn get_state(&mut self) -> Result<TunnelState> {
         self.call("get_state", &NO_ARGS)
     }
 

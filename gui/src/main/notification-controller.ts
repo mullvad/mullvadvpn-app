@@ -2,7 +2,7 @@ import { app, nativeImage, NativeImage, Notification, shell } from 'electron';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
 import config from '../config.json';
-import { TunnelStateTransition } from '../shared/daemon-rpc-types';
+import { TunnelState } from '../shared/daemon-rpc-types';
 import { messages } from '../shared/gettext';
 
 export default class NotificationController {
@@ -22,7 +22,7 @@ export default class NotificationController {
     }
   }
 
-  public notifyTunnelState(tunnelState: TunnelStateTransition) {
+  public notifyTunnelState(tunnelState: TunnelState) {
     switch (tunnelState.state) {
       case 'connecting':
         if (!this.reconnecting) {

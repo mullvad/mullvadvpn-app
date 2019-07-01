@@ -41,7 +41,7 @@ use mullvad_types::{
         RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TunnelConstraints,
     },
     relay_list::{Relay, RelayList},
-    states::TargetState,
+    states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
     wireguard::KeygenEvent,
 };
@@ -146,13 +146,13 @@ enum DaemonExecutionState {
 }
 
 impl DaemonExecutionState {
-    pub fn shutdown(&mut self, tunnel_state: &TunnelStateTransition) {
+    pub fn shutdown(&mut self, tunnel_state: &TunnelState) {
         use self::DaemonExecutionState::*;
 
         match self {
             Running => {
                 match tunnel_state {
-                    TunnelStateTransition::Disconnected => mem::replace(self, Finished),
+                    TunnelState::Disconnected => mem::replace(self, Finished),
                     _ => mem::replace(self, Exiting),
                 };
             }
@@ -196,7 +196,7 @@ impl DaemonCommandSender {
 /// Trait representing something that can broadcast daemon events.
 pub trait EventListener {
     /// Notify that the tunnel state changed.
-    fn notify_new_state(&self, new_state: TunnelStateTransition);
+    fn notify_new_state(&self, new_state: TunnelState);
 
     /// Notify that the settings changed.
     fn notify_settings(&self, settings: Settings);
@@ -210,7 +210,7 @@ pub trait EventListener {
 
 pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     tunnel_command_tx: SyncUnboundedSender<TunnelCommand>,
-    tunnel_state: TunnelStateTransition,
+    tunnel_state: TunnelState,
     target_state: TargetState,
     state: DaemonExecutionState,
     rx: mpsc::Receiver<InternalDaemonEvent>,
@@ -388,7 +388,7 @@ where
 
         let mut daemon = Daemon {
             tunnel_command_tx: Sink::wait(tunnel_command_tx),
-            tunnel_state: TunnelStateTransition::Disconnected,
+            tunnel_state: TunnelState::Disconnected,
             target_state: TargetState::Unsecured,
             state: DaemonExecutionState::Running,
             rx: internal_event_rx,
@@ -453,15 +453,33 @@ where
         Ok(())
     }
 
-    fn handle_tunnel_state_transition(&mut self, tunnel_state: TunnelStateTransition) {
-        use self::TunnelStateTransition::*;
+    fn handle_tunnel_state_transition(&mut self, tunnel_state_transition: TunnelStateTransition) {
+        let tunnel_state = match tunnel_state_transition {
+            TunnelStateTransition::Disconnected => TunnelState::Disconnected,
+            TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
+                endpoint,
+                location: self
+                    .build_location_from_relay()
+                    .expect("No relay to get location from"),
+            },
+            TunnelStateTransition::Connected(endpoint) => TunnelState::Connected {
+                endpoint,
+                location: self
+                    .build_location_from_relay()
+                    .expect("No relay to get location from"),
+            },
+            TunnelStateTransition::Disconnecting(after_disconnect) => {
+                TunnelState::Disconnecting(after_disconnect)
+            }
+            TunnelStateTransition::Blocked(reason) => TunnelState::Blocked(reason.clone()),
+        };
 
         self.unschedule_reconnect();
 
         debug!("New tunnel state: {:?}", tunnel_state);
         match tunnel_state {
-            Disconnected => self.state.disconnected(),
-            Blocked(ref reason) => {
+            TunnelState::Disconnected => self.state.disconnected(),
+            TunnelState::Blocked(ref reason) => {
                 info!("Blocking all network connections, reason: {}", reason);
 
                 if let BlockReason::AuthFailed(_) = reason {
@@ -766,33 +784,33 @@ where
         Self::oneshot_send(tx, Ok(()), "target state");
     }
 
-    fn on_get_state(&self, tx: oneshot::Sender<TunnelStateTransition>) {
+    fn on_get_state(&self, tx: oneshot::Sender<TunnelState>) {
         Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
     }
 
     fn on_get_current_location(&self, tx: oneshot::Sender<Option<GeoIpLocation>>) {
-        use self::TunnelStateTransition::*;
+        use self::TunnelState::*;
         let get_location: Box<dyn Future<Item = Option<GeoIpLocation>, Error = ()> + Send> =
-            match self.tunnel_state {
+            match &self.tunnel_state {
                 Disconnected => Box::new(self.get_geo_location().map(Some)),
-                Connecting(_) | Disconnecting(..) => match self.build_location_from_relay() {
+                Connecting { location, .. } => Box::new(future::result(Ok(Some(location.clone())))),
+                Disconnecting(..) => match self.build_location_from_relay() {
                     Some(relay_location) => Box::new(future::result(Ok(Some(relay_location)))),
                     // Custom relay is set, no location is known
                     None => Box::new(future::result(Ok(None))),
                 },
-                Connected(_) => match self.build_location_from_relay() {
-                    Some(location_from_relay) => Box::new(
+                Connected { location, .. } => {
+                    let relay_location = location.clone();
+                    Box::new(
                         self.get_geo_location()
                             .map(|fetched_location| GeoIpLocation {
                                 ipv4: fetched_location.ipv4,
                                 ipv6: fetched_location.ipv6,
-                                ..location_from_relay
+                                ..relay_location
                             })
                             .map(Some),
-                    ),
-                    // Custom relay is set, no location is known intrinsicly
-                    None => Box::new(self.get_geo_location().map(Some)),
-                },
+                    )
+                }
                 Blocked(..) => {
                     // We are not online at all at this stage so no location data is available.
                     Box::new(future::result(Ok(None)))

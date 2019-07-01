@@ -63,7 +63,7 @@ pub struct AmIMullvad {
 }
 
 /// GeoIP information exposed from the daemon to frontends.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GeoIpLocation {
     pub ipv4: Option<Ipv4Addr>,
     pub ipv6: Option<Ipv6Addr>,

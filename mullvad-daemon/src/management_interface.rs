@@ -18,7 +18,7 @@ use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     relay_list::RelayList,
     settings::{self, Settings},
-    states::TargetState,
+    states::{TargetState, TunnelState},
     version, DaemonEvent,
 };
 use std::{
@@ -27,7 +27,7 @@ use std::{
 };
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
-use talpid_types::{net::wireguard, tunnel::TunnelStateTransition, ErrorExt};
+use talpid_types::{net::wireguard, ErrorExt};
 use uuid;
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
@@ -87,7 +87,7 @@ build_rpc_trait! {
         /// Returns the current state of the Mullvad client. Changes to this state will
         /// be announced to subscribers of `new_state`.
         #[rpc(meta, name = "get_state")]
-        fn get_state(&self, Self::Metadata) -> BoxFuture<TunnelStateTransition, Error>;
+        fn get_state(&self, Self::Metadata) -> BoxFuture<TunnelState, Error>;
 
         /// Performs a geoIP lookup and returns the current location as perceived by the public
         /// internet.
@@ -172,7 +172,7 @@ pub enum ManagementCommand {
     /// Change target state.
     SetTargetState(OneshotSender<Result<(), ()>>, TargetState),
     /// Request the current state.
-    GetState(OneshotSender<TunnelStateTransition>),
+    GetState(OneshotSender<TunnelState>),
     /// Get the current geographical location.
     GetCurrentLocation(OneshotSender<Option<GeoIpLocation>>),
     /// Request the metadata for an account.
@@ -280,9 +280,9 @@ pub struct ManagementInterfaceEventBroadcaster {
 
 impl EventListener for ManagementInterfaceEventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
-    fn notify_new_state(&self, new_state: TunnelStateTransition) {
+    fn notify_new_state(&self, new_state: TunnelState) {
         log::debug!("Broadcasting new state: {:?}", new_state);
-        self.notify(DaemonEvent::StateTransition(new_state));
+        self.notify(DaemonEvent::TunnelState(new_state));
     }
 
     /// Sends settings to all `settings` subscribers of the management interface.
@@ -492,7 +492,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         Box::new(future)
     }
 
-    fn get_state(&self, _: Self::Metadata) -> BoxFuture<TunnelStateTransition, Error> {
+    fn get_state(&self, _: Self::Metadata) -> BoxFuture<TunnelState, Error> {
         log::debug!("get_state");
         let (state_tx, state_rx) = sync::oneshot::channel();
         let future = self

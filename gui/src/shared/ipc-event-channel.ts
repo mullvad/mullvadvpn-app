@@ -13,7 +13,7 @@ import {
   IRelayList,
   ISettings,
   RelaySettingsUpdate,
-  TunnelStateTransition,
+  TunnelState,
 } from './daemon-rpc-types';
 
 export interface IAppStateSnapshot {
@@ -21,7 +21,7 @@ export interface IAppStateSnapshot {
   isConnected: boolean;
   autoStart: boolean;
   accountHistory: AccountToken[];
-  tunnelState: TunnelStateTransition;
+  tunnelState: TunnelState;
   settings: ISettings;
   location?: ILocation;
   relays: IRelayList;
@@ -42,12 +42,12 @@ interface IReceiver<T> {
   listen(fn: (value: T) => void): void;
 }
 
-interface ITunnelMethods extends IReceiver<TunnelStateTransition> {
+interface ITunnelMethods extends IReceiver<TunnelState> {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
 }
 
-interface ITunnelHandlers extends ISender<TunnelStateTransition> {
+interface ITunnelHandlers extends ISender<TunnelState> {
   handleConnect(fn: () => Promise<void>): void;
   handleDisconnect(fn: () => Promise<void>): void;
 }

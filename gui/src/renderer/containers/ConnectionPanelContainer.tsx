@@ -43,12 +43,12 @@ const mapStateToProps = (state: IReduxState) => {
 
   const inAddress: IInAddress | undefined =
     (status.state === 'connecting' || status.state === 'connected') && status.details
-      ? tunnelEndpointToRelayInAddress(status.details)
+      ? tunnelEndpointToRelayInAddress(status.details.endpoint)
       : undefined;
 
   const bridgeInfo: IBridgeData | undefined =
     (status.state === 'connecting' || status.state === 'connected') && status.details
-      ? tunnelEndpointToBridgeData(status.details)
+      ? tunnelEndpointToBridgeData(status.details.endpoint)
       : undefined;
 
   return {

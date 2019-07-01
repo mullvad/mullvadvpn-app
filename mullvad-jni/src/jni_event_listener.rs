@@ -5,9 +5,11 @@ use jni::{
     AttachGuard, JNIEnv,
 };
 use mullvad_daemon::EventListener;
-use mullvad_types::{relay_list::RelayList, settings::Settings, wireguard::KeygenEvent};
+use mullvad_types::{
+    relay_list::RelayList, settings::Settings, states::TunnelState, wireguard::KeygenEvent,
+};
 use std::{sync::mpsc, thread};
-use talpid_types::{tunnel::TunnelStateTransition, ErrorExt};
+use talpid_types::ErrorExt;
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
@@ -24,7 +26,7 @@ pub enum Error {
 enum Event {
     RelayList(RelayList),
     Settings(Settings),
-    Tunnel(TunnelStateTransition),
+    Tunnel(TunnelState),
 }
 
 #[derive(Clone, Debug)]
@@ -37,7 +39,7 @@ impl JniEventListener {
 }
 
 impl EventListener for JniEventListener {
-    fn notify_new_state(&self, state: TunnelStateTransition) {
+    fn notify_new_state(&self, state: TunnelState) {
         let _ = self.0.send(Event::Tunnel(state));
     }
 
@@ -115,7 +117,7 @@ impl<'env> JniEventHandler<'env> {
             &env,
             &class,
             "notifyTunnelStateEvent",
-            "(Lnet/mullvad/mullvadvpn/model/TunnelStateTransition;)V",
+            "(Lnet/mullvad/mullvadvpn/model/TunnelState;)V",
         )?;
 
         Ok(JniEventHandler {
@@ -184,14 +186,14 @@ impl<'env> JniEventHandler<'env> {
         }
     }
 
-    fn handle_tunnel_event(&self, event: TunnelStateTransition) {
-        let java_tunnel_state_transition = self.env.auto_local(event.into_java(&self.env));
+    fn handle_tunnel_event(&self, event: TunnelState) {
+        let java_tunnel_state = self.env.auto_local(event.into_java(&self.env));
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
             self.notify_tunnel_event,
             JavaType::Primitive(Primitive::Void),
-            &[JValue::Object(java_tunnel_state_transition.as_obj())],
+            &[JValue::Object(java_tunnel_state.as_obj())],
         );
 
         if let Err(error) = result {

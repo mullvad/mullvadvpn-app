@@ -63,9 +63,17 @@ describe('components/NotificationArea', () => {
         tunnelState={{
           state: 'connected',
           details: {
-            address: '1.2.3.4',
-            protocol: 'tcp',
-            tunnelType: 'openvpn',
+            endpoint: {
+              address: '1.2.3.4',
+              protocol: 'tcp',
+              tunnelType: 'openvpn',
+            },
+            location: {
+              country: 'Sweden',
+              latitude: 57.70887,
+              longitude: 11.97456,
+              mullvadExitIp: true,
+            },
           },
         }}
         version={defaultVersion}

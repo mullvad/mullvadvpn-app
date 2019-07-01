@@ -8,7 +8,7 @@ import {
   IRelayList,
   ISettings,
   RelaySettingsUpdate,
-  TunnelStateTransition,
+  TunnelState,
 } from '../shared/daemon-rpc-types';
 import { CommunicationError, InvalidAccountError, NoDaemonError } from './errors';
 import JsonRpcClient, {
@@ -230,24 +230,27 @@ const accountDataSchema = partialObject({
   expiry: string,
 });
 
-const tunnelStateTransitionSchema = oneOf(
+const tunnelStateSchema = oneOf(
   object({
     state: enumeration('disconnecting'),
     details: enumeration('nothing', 'block', 'reconnect'),
   }),
   object({
     state: enumeration('connecting', 'connected'),
-    details: partialObject({
-      address: string,
-      protocol: enumeration('tcp', 'udp'),
-      tunnel_type: enumeration('wireguard', 'openvpn'),
-      proxy: maybe(
-        partialObject({
-          address: string,
-          protocol: enumeration('tcp', 'udp'),
-          proxy_type: enumeration('shadowsocks', 'custom'),
-        }),
-      ),
+    details: object({
+      endpoint: partialObject({
+        address: string,
+        protocol: enumeration('tcp', 'udp'),
+        tunnel_type: enumeration('wireguard', 'openvpn'),
+        proxy: maybe(
+          partialObject({
+            address: string,
+            protocol: enumeration('tcp', 'udp'),
+            proxy_type: enumeration('shadowsocks', 'custom'),
+          }),
+        ),
+      }),
+      location: locationSchema,
     }),
   }),
   object({
@@ -329,7 +332,7 @@ const settingsSchema = partialObject({
 
 const daemonEventSchema = oneOf(
   object({
-    state_transition: tunnelStateTransitionSchema,
+    tunnel_state: tunnelStateSchema,
   }),
   object({
     settings: settingsSchema,
@@ -468,12 +471,10 @@ export class DaemonRpc {
     }
   }
 
-  public async getState(): Promise<TunnelStateTransition> {
+  public async getState(): Promise<TunnelState> {
     const response = await this.transport.send('get_state');
     try {
-      return camelCaseObjectKeys(
-        validate(tunnelStateTransitionSchema, response),
-      ) as TunnelStateTransition;
+      return camelCaseObjectKeys(validate(tunnelStateSchema, response)) as TunnelState;
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_state', error);
     }

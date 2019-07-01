@@ -1,8 +1,8 @@
 use crate::{new_rpc_client, Command, Error, Result};
 use futures::{Future, Stream};
 use mullvad_ipc_client::DaemonRpcClient;
-use mullvad_types::{auth_failed::AuthFailed, DaemonEvent};
-use talpid_types::tunnel::{BlockReason, TunnelStateTransition};
+use mullvad_types::{auth_failed::AuthFailed, states::TunnelState, DaemonEvent};
+use talpid_types::tunnel::BlockReason;
 
 pub struct Status;
 
@@ -39,11 +39,11 @@ impl Command for Status {
                 .map_err(Error::CantSubscribe)?;
             for event in subscription.wait() {
                 match event? {
-                    DaemonEvent::StateTransition(new_state) => {
+                    DaemonEvent::TunnelState(new_state) => {
                         print_state(&new_state);
-                        use self::TunnelStateTransition::*;
+                        use self::TunnelState::*;
                         match new_state {
-                            Connected(_) | Disconnected => print_location(&mut rpc)?,
+                            Connected { .. } | Disconnected => print_location(&mut rpc)?,
                             _ => {}
                         }
                     }
@@ -69,15 +69,15 @@ impl Command for Status {
     }
 }
 
-fn print_state(state: &TunnelStateTransition) {
-    use self::TunnelStateTransition::*;
+fn print_state(state: &TunnelState) {
+    use self::TunnelState::*;
     print!("Tunnel status: ");
     match state {
         Blocked(reason) => print_blocked_reason(reason),
-        Connected(details) => {
-            println!("Connected to {}", details);
+        Connected { endpoint, .. } => {
+            println!("Connected to {}", endpoint);
         }
-        Connecting(details) => println!("Connecting to {}...", details),
+        Connecting { endpoint, .. } => println!("Connecting to {}...", endpoint),
         Disconnected => println!("Disconnected"),
         Disconnecting(_) => println!("Disconnecting..."),
     }

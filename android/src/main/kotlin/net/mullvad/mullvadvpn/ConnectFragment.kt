@@ -16,7 +16,7 @@ import android.widget.ImageButton
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
-import net.mullvad.mullvadvpn.model.TunnelStateTransition
+import net.mullvad.mullvadvpn.model.TunnelState
 
 class ConnectFragment : Fragment() {
     private lateinit var actionButton: ConnectActionButton
@@ -104,7 +104,7 @@ class ConnectFragment : Fragment() {
         super.onDestroyView()
     }
 
-    private fun updateView(uiState: TunnelStateTransition) {
+    private fun updateView(uiState: TunnelState) {
         val realState = connectionProxy.state
 
         locationInfoCache.state = realState
