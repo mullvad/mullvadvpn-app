@@ -12,6 +12,7 @@ import PreferencesPage from './containers/PreferencesPage';
 import SelectLocationPage from './containers/SelectLocationPage';
 import SettingsPage from './containers/SettingsPage';
 import SupportPage from './containers/SupportPage';
+import WireguardKeysPage from './containers/WireguardKeysPage';
 import { getTransitionProps } from './transitions';
 
 export interface ISharedRouteProps {
@@ -89,6 +90,11 @@ class AppRoutes extends React.Component<IAppRoutesProps, IAppRoutesState> {
                 exact={true}
                 path="/settings/advanced"
                 component={AdvancedSettingsPage}
+              />
+              <CustomRoute
+                exact={true}
+                path="/settings/advanced/wireguard-keys"
+                component={WireguardKeysPage}
               />
               <CustomRoute exact={true} path="/settings/support" component={SupportPage} />
               <CustomRoute exact={true} path="/select-location" component={SelectLocationPage} />
