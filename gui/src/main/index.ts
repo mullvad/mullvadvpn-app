@@ -729,7 +729,7 @@ class ApplicationMain {
     if (tunnelState.state === 'connected' || tunnelState.state === 'connecting') {
       // Location was broadcasted with the tunnel state, but it doesn't contain the relay out IP
       // address, so it will have to be fetched afterwards
-      if (tunnelState.details) {
+      if (tunnelState.details && tunnelState.details.location) {
         this.setLocation(tunnelState.details.location);
       }
     } else if (tunnelState.state === 'disconnected') {
