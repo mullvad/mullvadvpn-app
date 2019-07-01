@@ -1,4 +1,4 @@
-import { goBack } from 'connected-react-router';
+import { goBack, push } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -38,7 +38,7 @@ const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) =>
 };
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
-  const history = bindActionCreators({ goBack }, dispatch);
+  const history = bindActionCreators({ push, goBack }, dispatch);
   return {
     onClose: () => {
       history.goBack();
@@ -98,6 +98,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
         log.error('Failed to update mssfix value', e.message);
       }
     },
+    onViewWireguardKeys: () => history.push('/settings/advanced/wireguard-keys'),
   };
 };
 

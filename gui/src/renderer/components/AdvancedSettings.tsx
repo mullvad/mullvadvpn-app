@@ -41,6 +41,7 @@ interface IProps {
   setBlockWhenDisconnected: (value: boolean) => void;
   setOpenVpnMssfix: (value: number | undefined) => void;
   setRelayProtocolAndPort: (protocol?: RelayProtocol, port?: number) => void;
+  onViewWireguardKeys: () => void;
   onClose: () => void;
 }
 
@@ -255,6 +256,14 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                       },
                     )}
                   </Cell.Footer>
+                  <View>
+                    <Cell.CellButton onPress={this.props.onViewWireguardKeys}>
+                      <Cell.Label>
+                        {messages.pgettext('advanced-settings-view', 'WireGuard keys')}
+                      </Cell.Label>
+                      <Cell.Icon height={12} width={7} source="icon-chevron" />
+                    </Cell.CellButton>
+                  </View>
                 </NavigationScrollbars>
               </View>
             </NavigationContainer>
