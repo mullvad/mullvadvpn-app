@@ -59,12 +59,9 @@ matrix:
       rust: stable
       os: osx
       before_script:
-        - source env.sh
-        - export RUSTFLAGS="--deny unused_imports --deny dead_code"
         - env
       script:
-        - cargo build --verbose
-        - cargo test --verbose
+        - ./ci/travis-rust-script.sh stable
 
     # Daemon - Linux
     - os: linux
@@ -76,7 +73,7 @@ matrix:
         - docker run -d --name mvd-build -v $(pwd):/travis -w /travis  mullvadvpn/mullvadvpn-app-build:latest tail -f /dev/null
         - docker ps
       script:
-        - docker exec -t mvd-build bash ci/rust-linux-script.sh nightly
+        - docker exec -t mvd-build bash ci/travis-rust-script.sh nightly
 
     - os: linux
       name: Daemon - beta Rust
@@ -85,7 +82,7 @@ matrix:
       services: docker
       before_script: *rust_before_script
       script:
-        - docker exec -t mvd-build bash ci/rust-linux-script.sh beta
+        - docker exec -t mvd-build bash ci/travis-rust-script.sh beta
 
     - os: linux
       name: Daemon - stable Rust
@@ -94,7 +91,7 @@ matrix:
       services: docker
       before_script: *rust_before_script
       script:
-        - docker exec -t mvd-build bash ci/rust-linux-script.sh stable
+        - docker exec -t mvd-build bash ci/travis-rust-script.sh stable
 
 
 notifications:
