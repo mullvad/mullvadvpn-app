@@ -465,12 +465,12 @@ impl<'env> IntoJava<'env> for TunnelState {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let variant = match self {
-            TunnelState::Disconnected => "Disconnected",
-            TunnelState::Connecting { .. } => "Connecting",
-            TunnelState::Connected { .. } => "Connected",
-            TunnelState::Disconnecting(_) => "Disconnecting",
-            TunnelState::Blocked(_) => "Blocked",
+        let (variant, location) = match self {
+            TunnelState::Disconnected => ("Disconnected", None),
+            TunnelState::Connecting { location, .. } => ("Connecting", Some(location)),
+            TunnelState::Connected { location, .. } => ("Connected", Some(location)),
+            TunnelState::Disconnecting(_) => ("Disconnecting", None),
+            TunnelState::Blocked(_) => ("Blocked", None),
         };
 
         let class = get_class(&format!(
@@ -478,7 +478,16 @@ impl<'env> IntoJava<'env> for TunnelState {
             variant
         ));
 
-        env.new_object(&class, "()V", &[])
-            .expect("Failed to create TunnelState sub-class variant Java object")
+        match location {
+            Some(location) => {
+                let location = env.auto_local(location.into_java(env));
+                let parameters = [JValue::Object(location.as_obj())];
+                let signature = "(Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
+
+                env.new_object(&class, signature, &parameters)
+            }
+            None => env.new_object(&class, "()V", &[]),
+        }
+        .expect("Failed to create TunnelState sub-class variant Java object")
     }
 }
