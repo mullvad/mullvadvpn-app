@@ -21,7 +21,7 @@ impl Command for Bridge {
             .subcommand(
                 clap::SubCommand::with_name("get").about("Get current bridge settings and state"),
             )
-            .subcommand(clap::SubCommand::with_name("list").about("List brigde relays"))
+            .subcommand(clap::SubCommand::with_name("list").about("List bridge relays"))
     }
 
     fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
