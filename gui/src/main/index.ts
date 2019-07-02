@@ -13,6 +13,7 @@ import {
   IRelayList,
   IRelayListHostname,
   ISettings,
+  KeygenEvent,
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -125,6 +126,8 @@ class ApplicationMain {
 
   // The UI locale which is set once from onReady handler
   private locale = 'en';
+
+  private wireguardPublicKey?: string;
 
   public run() {
     // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
@@ -487,9 +490,7 @@ class ApplicationMain {
         } else if ('relayList' in daemonEvent) {
           this.setRelays(daemonEvent.relayList, this.settings.relaySettings);
         } else if ('wireguardKey' in daemonEvent) {
-          /// TODO: handle wireguard key events properly.
-          log.info(`Received new key event`);
-          log.info(daemonEvent);
+          this.handleWireguardKeygenEvent(daemonEvent.wireguardKey);
         }
       },
       (error: Error) => {
@@ -509,6 +510,28 @@ class ApplicationMain {
 
     if (this.windowController) {
       IpcMainEventChannel.accountHistory.notify(this.windowController.webContents, accountHistory);
+    }
+  }
+
+  private setWireguardKey(wireguardKey?: string) {
+    this.wireguardPublicKey = wireguardKey;
+    if (this.windowController) {
+      IpcMainEventChannel.wireguardKeys.notify(this.windowController.webContents, wireguardKey);
+    }
+  }
+
+  private handleWireguardKeygenEvent(event: KeygenEvent) {
+    switch (event) {
+      case 'too_many_keys':
+      case 'generation_failure':
+        this.notificationController.notifyKeyGenerationFailed();
+        this.wireguardPublicKey = undefined;
+        break;
+      default:
+        this.wireguardPublicKey = event.newKey;
+    }
+    if (this.windowController) {
+      IpcMainEventChannel.wireguardKeys.notifyKeygenEvent(this.windowController.webContents, event);
     }
   }
 
@@ -534,6 +557,7 @@ class ApplicationMain {
 
     if (oldSettings.accountToken !== newSettings.accountToken) {
       this.updateAccountHistory();
+      this.fetchWireguardKey();
     }
 
     if (this.windowController) {
@@ -831,6 +855,7 @@ class ApplicationMain {
       currentVersion: this.currentVersion,
       upgradeVersion: this.upgradeVersion,
       guiSettings: this.guiSettings.state,
+      wireguardPublicKey: this.wireguardPublicKey,
     }));
 
     IpcMainEventChannel.settings.handleAllowLan((allowLan: boolean) =>
@@ -887,6 +912,15 @@ class ApplicationMain {
       await this.daemonRpc.removeAccountFromHistory(token);
       this.updateAccountHistory();
     });
+
+    IpcMainEventChannel.wireguardKeys.handleGenerateKey(async () => {
+      try {
+        return await this.daemonRpc.generateWireguardKey();
+      } catch {
+        return 'generation_failure';
+      }
+    });
+    IpcMainEventChannel.wireguardKeys.handleVerifyKey(() => this.daemonRpc.verifyWireguardKey());
 
     ipcMain.on('show-window', () => {
       const windowController = this.windowController;
@@ -967,6 +1001,14 @@ class ApplicationMain {
       this.setAccountHistory(await this.daemonRpc.getAccountHistory());
     } catch (error) {
       log.error(`Failed to fetch the account history: ${error.message}`);
+    }
+  }
+
+  private async fetchWireguardKey(): Promise<void> {
+    try {
+      this.setWireguardKey(await this.daemonRpc.getWireguardKey());
+    } catch (error) {
+      log.error(`Failed to fetch wireguard key: ${error.message}`);
     }
   }
 
