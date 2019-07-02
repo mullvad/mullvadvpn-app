@@ -1,4 +1,10 @@
-import { BridgeState, RelayLocation, RelayProtocol } from '../../../shared/daemon-rpc-types';
+import log from 'electron-log';
+import {
+  BridgeState,
+  KeygenEvent,
+  RelayLocation,
+  RelayProtocol,
+} from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { ReduxAction } from '../store';
 
@@ -41,6 +47,41 @@ export interface IRelayLocationRedux {
   cities: IRelayLocationCityRedux[];
 }
 
+interface IWgKeySet {
+  type: 'key-set';
+  publicKey: string;
+  valid?: boolean;
+}
+
+interface IWgKeyNotSet {
+  type: 'key-not-set';
+}
+
+interface IWgTooManyKeys {
+  type: 'too-many-keys';
+}
+
+interface IWgKeyGenerationFailure {
+  type: 'generation-failure';
+}
+
+interface IWgKeyBeingGenerated {
+  type: 'being-generated';
+}
+
+interface IWgKeyBeingVerified {
+  type: 'being-verified';
+  publicKey: string;
+}
+
+export type WgKeyState =
+  | IWgKeySet
+  | IWgKeyNotSet
+  | IWgKeyGenerationFailure
+  | IWgTooManyKeys
+  | IWgKeyBeingVerified
+  | IWgKeyBeingGenerated;
+
 export interface ISettingsReduxState {
   autoStart: boolean;
   guiSettings: IGuiSettingsState;
@@ -53,6 +94,7 @@ export interface ISettingsReduxState {
   openVpn: {
     mssfix?: number;
   };
+  wireguardKeyState: WgKeyState;
 }
 
 const initialState: ISettingsReduxState = {
@@ -76,6 +118,9 @@ const initialState: ISettingsReduxState = {
   bridgeState: 'auto',
   blockWhenDisconnected: false,
   openVpn: {},
+  wireguardKeyState: {
+    type: 'key-not-set',
+  },
 };
 
 export default function(
@@ -140,7 +185,77 @@ export default function(
         bridgeState: action.bridgeState,
       };
 
+    case 'SET_WIREGUARD_KEY':
+      return {
+        ...state,
+        wireguardKeyState: setWireguardKey(action.publicKey),
+      };
+    case 'WIREGUARD_KEYGEN_EVENT':
+      return {
+        ...state,
+        wireguardKeyState: setWireguardKeygenEvent(action.event),
+      };
+    case 'WIREGUARD_KEY_VERIFICATION_COMPLETE':
+      return {
+        ...state,
+        wireguardKeyState: applyKeyVerification(state.wireguardKeyState, action.verified),
+      };
+    case 'VERIFY_WIREGUARD_KEY':
+      return {
+        ...state,
+        wireguardKeyState: { type: 'being-verified', publicKey: action.publicKey },
+      };
+
+    case 'GENERATE_WIREGUARD_KEY':
+      return {
+        ...state,
+        wireguardKeyState: { type: 'being-generated' },
+      };
+
     default:
+      return state;
+  }
+}
+
+function setWireguardKey(publicKey?: string): WgKeyState {
+  if (publicKey) {
+    return {
+      type: 'key-set',
+      publicKey,
+    };
+  } else {
+    return {
+      type: 'key-not-set',
+    };
+  }
+}
+
+function setWireguardKeygenEvent(keygenEvent: KeygenEvent): WgKeyState {
+  switch (keygenEvent) {
+    case 'too_many_keys':
+      return { type: 'too-many-keys' };
+    case 'generation_failure':
+      return { type: 'generation-failure' };
+    default:
+      return {
+        type: 'key-set',
+        publicKey: keygenEvent.newKey,
+        valid: true,
+      };
+  }
+}
+
+function applyKeyVerification(state: WgKeyState, verified: boolean): WgKeyState {
+  switch (state.type) {
+    case 'being-verified':
+      return {
+        ...state,
+        type: 'key-set',
+        valid: verified,
+      };
+    // drop the verification event if the key wasn't being verified.
+    default:
+      log.error(`Received key verification event when key wasn't being verified`);
       return state;
   }
 }
