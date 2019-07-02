@@ -1,4 +1,4 @@
-import { BridgeState } from '../../../shared/daemon-rpc-types';
+import { BridgeState, KeygenEvent } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { IRelayLocationRedux, RelaySettingsRedux } from './reducers';
 
@@ -47,6 +47,31 @@ export interface IUpdateAutoStartAction {
   autoStart: boolean;
 }
 
+// Used to set wireguard key when accounts are changed.
+export interface IWireguardSetKey {
+  type: 'SET_WIREGUARD_KEY';
+  publicKey?: string;
+}
+
+export interface IWireguardGenerateKey {
+  type: 'GENERATE_WIREGUARD_KEY';
+}
+
+export interface IWireguardVerifyKey {
+  type: 'VERIFY_WIREGUARD_KEY';
+  publicKey: string;
+}
+
+export interface IWireguardKeygenEvent {
+  type: 'WIREGUARD_KEYGEN_EVENT';
+  event: KeygenEvent;
+}
+
+export interface IWireguardKeyVerifiedAction {
+  type: 'WIREGUARD_KEY_VERIFICATION_COMPLETE';
+  verified: boolean;
+}
+
 export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
@@ -56,7 +81,12 @@ export type SettingsAction =
   | IUpdateBlockWhenDisconnectedAction
   | IUpdateBridgeStateAction
   | IUpdateOpenVpnMssfixAction
-  | IUpdateAutoStartAction;
+  | IUpdateAutoStartAction
+  | IWireguardSetKey
+  | IWireguardVerifyKey
+  | IWireguardGenerateKey
+  | IWireguardKeygenEvent
+  | IWireguardKeyVerifiedAction;
 
 function updateGuiSettings(guiSettings: IGuiSettingsState): IUpdateGuiSettingsAction {
   return {
@@ -123,6 +153,40 @@ function updateAutoStart(autoStart: boolean): IUpdateAutoStartAction {
   };
 }
 
+function setWireguardKey(publicKey?: string): IWireguardSetKey {
+  return {
+    type: 'SET_WIREGUARD_KEY',
+    publicKey,
+  };
+}
+
+function setWireguardKeygenEvent(event: KeygenEvent): IWireguardKeygenEvent {
+  return {
+    type: 'WIREGUARD_KEYGEN_EVENT',
+    event,
+  };
+}
+
+function generateWireguardKey(): IWireguardGenerateKey {
+  return {
+    type: 'GENERATE_WIREGUARD_KEY',
+  };
+}
+
+function verifyWireguardKey(publicKey: string): IWireguardVerifyKey {
+  return {
+    type: 'VERIFY_WIREGUARD_KEY',
+    publicKey,
+  };
+}
+
+function completeWireguardKeyVerification(verified: boolean): IWireguardKeyVerifiedAction {
+  return {
+    type: 'WIREGUARD_KEY_VERIFICATION_COMPLETE',
+    verified,
+  };
+}
+
 export default {
   updateGuiSettings,
   updateRelay,
@@ -133,4 +197,9 @@ export default {
   updateBridgeState,
   updateOpenVpnMssfix,
   updateAutoStart,
+  setWireguardKey,
+  setWireguardKeygenEvent,
+  generateWireguardKey,
+  verifyWireguardKey,
+  completeWireguardKeyVerification,
 };
