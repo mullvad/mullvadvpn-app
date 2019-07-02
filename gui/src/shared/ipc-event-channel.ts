@@ -12,6 +12,7 @@ import {
   ILocation,
   IRelayList,
   ISettings,
+  KeygenEvent,
   RelaySettingsUpdate,
   TunnelState,
 } from './daemon-rpc-types';
@@ -28,6 +29,7 @@ export interface IAppStateSnapshot {
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppUpgradeInfo;
   guiSettings: IGuiSettingsState;
+  wireguardPublicKey?: string;
 }
 
 interface ISender<T> {
@@ -112,6 +114,18 @@ interface IAutoStartHandlers extends ISender<boolean> {
   handleSet(fn: (value: boolean) => Promise<void>): void;
 }
 
+interface IWireguardKeyMethods extends IReceiver<string> {
+  listenKeygenEvents(fn: (event: KeygenEvent) => void): void;
+  generateKey(): Promise<KeygenEvent>;
+  verifyKey(): Promise<boolean>;
+}
+
+interface IWireguardKeyHandlers extends ISender<string | undefined> {
+  notifyKeygenEvent(webContents: WebContents, event: KeygenEvent): void;
+  handleGenerateKey(fn: () => Promise<KeygenEvent>): void;
+  handleVerifyKey(fn: () => Promise<boolean>): void;
+}
+
 /// Events names
 
 const DAEMON_CONNECTED = 'daemon-connected';
@@ -151,6 +165,11 @@ const GET_ACCOUNT_DATA = 'get-account-data';
 
 const AUTO_START_CHANGED = 'auto-start-changed';
 const SET_AUTO_START = 'set-auto-start';
+
+const WIREGUARD_KEY_SET = 'wireguard-key-change-event';
+const WIREGUARD_KEYGEN_EVENT = 'wireguard-keygen-event';
+const GENERATE_WIREGUARD_KEY = 'generate-wireguard-key';
+const VERIFY_WIREGUARD_KEY = 'verify-wireguard-key';
 
 /// Typed IPC event channel
 ///
@@ -228,6 +247,13 @@ export class IpcRendererEventChannel {
     listen: listen(ACCOUNT_HISTORY_CHANGED),
     removeItem: requestSender(REMOVE_ACCOUNT_HISTORY_ITEM),
   };
+
+  public static wireguardKeys: IWireguardKeyMethods = {
+    listen: listen(WIREGUARD_KEY_SET),
+    listenKeygenEvents: listen(WIREGUARD_KEYGEN_EVENT),
+    generateKey: requestSender(GENERATE_WIREGUARD_KEY),
+    verifyKey: requestSender(VERIFY_WIREGUARD_KEY),
+  };
 }
 
 export class IpcMainEventChannel {
@@ -301,6 +327,13 @@ export class IpcMainEventChannel {
   public static accountHistory: IAccountHistoryHandlers = {
     notify: sender<AccountToken[]>(ACCOUNT_HISTORY_CHANGED),
     handleRemoveItem: requestHandler(REMOVE_ACCOUNT_HISTORY_ITEM),
+  };
+
+  public static wireguardKeys: IWireguardKeyHandlers = {
+    notify: sender<string | undefined>(WIREGUARD_KEY_SET),
+    notifyKeygenEvent: sender<KeygenEvent>(WIREGUARD_KEYGEN_EVENT),
+    handleGenerateKey: requestHandler(GENERATE_WIREGUARD_KEY),
+    handleVerifyKey: requestHandler(VERIFY_WIREGUARD_KEY),
   };
 }
 
