@@ -114,7 +114,7 @@ interface IAutoStartHandlers extends ISender<boolean> {
   handleSet(fn: (value: boolean) => Promise<void>): void;
 }
 
-interface IWireguardKeyMethods extends IReceiver<string> {
+interface IWireguardKeyMethods extends IReceiver<string | undefined> {
   listenKeygenEvents(fn: (event: KeygenEvent) => void): void;
   generateKey(): Promise<KeygenEvent>;
   verifyKey(): Promise<boolean>;
