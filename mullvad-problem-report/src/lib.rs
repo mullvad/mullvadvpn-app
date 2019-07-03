@@ -258,7 +258,8 @@ pub fn send_problem_report(
             }
         })?,
     );
-    let metadata = metadata::collect();
+    let metadata =
+        ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
 
     let ca_path = mullvad_paths::resources::get_api_ca_path();
 
@@ -389,10 +390,12 @@ impl ProblemReport {
     }
 
     fn write_to<W: Write>(&self, mut output: W) -> io::Result<()> {
+        // IMPORTANT: Make sure this implementation stays in sync with `parse_metadata` below.
         write_line!(output, "System information:")?;
         for (key, value) in &self.metadata {
             write_line!(output, "{}: {}", key, value)?;
         }
+        // Write empty line to separate metadata from first log
         write_line!(output)?;
         for &(ref label, ref content) in &self.logs {
             write_line!(output, "{}", LOG_DELIMITER)?;
@@ -402,6 +405,30 @@ impl ProblemReport {
             write_line!(output)?;
         }
         Ok(())
+    }
+
+    /// Tries to parse out the metadata map from a string that is supposed to be a report written by
+    /// this struct.
+    pub fn parse_metadata(report: &str) -> Option<HashMap<String, String>> {
+        // IMPORTANT: Make sure this implementation stays in sync with `write_to` above.
+        const PATTERN: &str = ": ";
+        let mut lines = report.lines();
+        if lines.next() != Some("System information:") {
+            return None;
+        }
+        let mut metadata = HashMap::new();
+        for line in lines {
+            // Abort on first empty line, as this is the separator between the metadata and the
+            // first log
+            if line.is_empty() {
+                break;
+            }
+            let split_i = line.find(PATTERN)?;
+            let key = &line[..split_i];
+            let value = &line[split_i + PATTERN.len()..];
+            metadata.insert(key.to_owned(), value.to_owned());
+        }
+        Some(metadata)
     }
 }
 
