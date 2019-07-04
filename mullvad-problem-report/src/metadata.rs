@@ -1,10 +1,10 @@
-use std::{collections::HashMap, process::Command};
+use std::{collections::BTreeMap, process::Command};
 
 
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
-pub fn collect() -> HashMap<String, String> {
-    let mut metadata = HashMap::new();
+pub fn collect() -> BTreeMap<String, String> {
+    let mut metadata = BTreeMap::new();
     metadata.insert("id".to_owned(), uuid::Uuid::new_v4().to_string());
     metadata.insert(
         "mullvad-product-version".to_owned(),
