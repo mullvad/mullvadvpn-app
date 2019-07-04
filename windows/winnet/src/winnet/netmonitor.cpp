@@ -18,7 +18,8 @@ bool ValidInterfaceType(const MIB_IF_ROW2 &iface)
 		}
 	}
 
-	if (FALSE == iface.InterfaceAndOperStatusFlags.ConnectorPresent
+	if (FALSE != iface.InterfaceAndOperStatusFlags.FilterInterface
+		|| 0 == iface.PhysicalAddressLength
 		|| FALSE != iface.InterfaceAndOperStatusFlags.EndPointInterface)
 	{
 		return false;
@@ -85,17 +86,17 @@ void NetMonitor::AddCacheEntry(Cache &cache, const MIB_IF_ROW2 &iface)
 {
 	CacheEntry e;
 
-	if (false == ValidInterfaceType(iface))
-	{
-		e.luid = iface.InterfaceLuid.Value;
-		e.valid = false;
-		e.connected = false;
-	}
-	else
+	if (ValidInterfaceType(iface))
 	{
 		e.luid = iface.InterfaceLuid.Value;
 		e.valid = true;
 		e.connected = (MediaConnectStateConnected == iface.MediaConnectState);
+	}
+	else
+	{
+		e.luid = iface.InterfaceLuid.Value;
+		e.valid = false;
+		e.connected = false;
 	}
 
 	cache.insert(std::make_pair(e.luid, e));
