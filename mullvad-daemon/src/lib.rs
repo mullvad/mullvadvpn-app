@@ -1173,7 +1173,9 @@ where
                     self.account_history.insert(account_entry).map_err(|e| {
                         format!("Failed to add new wireguard key to account data: {}", e)
                     })?;
-                    Ok(KeygenEvent::NewKey(public_key))
+                    let keygen_event = KeygenEvent::NewKey(public_key);
+                    self.event_listener.notify_key_event(keygen_event.clone());
+                    Ok(keygen_event)
                 }
                 Err(wireguard::Error::TooManyKeys) => Ok(KeygenEvent::TooManyKeys),
                 Err(e) => Err(format!("Failed to generate new key - {}", e)),
@@ -1182,6 +1184,7 @@ where
 
         match result() {
             Ok(key_event) => {
+                self.
                 Self::oneshot_send(tx, key_event, "generate_wireguard_key response");
             }
             Err(e) => {
