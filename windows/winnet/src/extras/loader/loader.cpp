@@ -2,7 +2,7 @@
 #include "../../winnet/winnet.h"
 #include <iostream>
 
-void __stdcall ConnectivityChanged(uint8_t connected)
+void __stdcall ConnectivityChanged(bool connected, void *)
 {
 	std::wcout << (0 != connected? L"Connected" : L"NOT connected") << std::endl;
 }
@@ -27,12 +27,12 @@ int main()
 	//	}
 	//};
 
-	uint8_t currentConnectivity = 0;
+	bool currentConnectivity = 0;
 
-	const auto status = WinNet_ActivateConnectivityMonitor(ConnectivityChanged, &currentConnectivity, nullptr, nullptr);
+	const auto status = WinNet_ActivateConnectivityMonitor(ConnectivityChanged, nullptr, &currentConnectivity, nullptr, nullptr);
 
 	std::wcout << L"Current connectivity: "
-		<< (0 != currentConnectivity ? L"Connected" : L"NOT connected") << std::endl;
+		<< (currentConnectivity ? L"Connected" : L"NOT connected") << std::endl;
 
 	_getwch();
 
