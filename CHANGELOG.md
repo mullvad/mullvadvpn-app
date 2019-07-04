@@ -29,6 +29,11 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add migration logic to restore lost settings after major Windows update.
 
+### Fixed
+
+#### Windows
+- Adjust network interface checks in offline detection logic.
+
 ## [2019.5] - 2019-06-17
 ### Added
 - Add Norwegian translations
