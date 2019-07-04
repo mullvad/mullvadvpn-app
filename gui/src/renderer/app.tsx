@@ -36,6 +36,7 @@ import {
   ILocation,
   IRelayList,
   ISettings,
+  KeygenEvent,
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -152,6 +153,10 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.wireguardKeys.listen((publicKey?: string) => {
       this.setWireguardPublicKey(publicKey);
+    });
+
+    IpcRendererEventChannel.wireguardKeys.listenKeygenEvents((event: KeygenEvent) => {
+      this.reduxActions.settings.setWireguardKeygenEvent(event);
     });
 
     // Request the initial state from the main process
