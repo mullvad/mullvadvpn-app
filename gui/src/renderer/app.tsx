@@ -150,6 +150,10 @@ export default class AppRenderer {
       this.storeAutoStart(autoStart);
     });
 
+    IpcRendererEventChannel.wireguardKeys.listen((publicKey?: string) => {
+      this.setWireguardPublicKey(publicKey);
+    });
+
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
@@ -172,6 +176,7 @@ export default class AppRenderer {
     this.setUpgradeVersion(initialState.upgradeVersion);
     this.setGuiSettings(initialState.guiSettings);
     this.storeAutoStart(initialState.autoStart);
+    this.setWireguardPublicKey(initialState.wireguardPublicKey);
 
     if (initialState.isConnected) {
       this.onDaemonConnected();
@@ -344,6 +349,20 @@ export default class AppRenderer {
 
   public setMonochromaticIcon(monochromaticIcon: boolean) {
     IpcRendererEventChannel.guiSettings.setMonochromaticIcon(monochromaticIcon);
+  }
+
+  public async verifyWireguardKey(publicKey: string) {
+    const actions = this.reduxActions;
+    actions.settings.verifyWireguardKey(publicKey);
+    const valid = await IpcRendererEventChannel.wireguardKeys.verifyKey();
+    actions.settings.completeWireguardKeyVerification(valid);
+  }
+
+  public async generateWireguardKey() {
+    const actions = this.reduxActions;
+    actions.settings.generateWireguardKey();
+    const keygenEvent = await IpcRendererEventChannel.wireguardKeys.generateKey();
+    actions.settings.setWireguardKeygenEvent(keygenEvent);
   }
 
   private setRelaySettings(relaySettings: RelaySettings) {
@@ -614,5 +633,9 @@ export default class AppRenderer {
 
   private storeAutoStart(autoStart: boolean) {
     this.reduxActions.settings.updateAutoStart(autoStart);
+  }
+
+  private setWireguardPublicKey(publicKey?: string) {
+    this.reduxActions.settings.setWireguardKey(publicKey);
   }
 }
