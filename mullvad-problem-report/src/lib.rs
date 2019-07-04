@@ -583,7 +583,7 @@ mod tests {
     }
 
     #[test]
-    fn test_does_not_redact_time() {
+    fn does_not_redact_time() {
         assert_does_not_redact("09:47:59");
     }
 
@@ -591,5 +591,36 @@ mod tests {
         let report = ProblemReport::new(vec![]);
         let res = report.redact(input);
         assert_eq!(input, res);
+    }
+
+    #[test]
+    fn parse_metadata() {
+        let report = ProblemReport::new(Vec::new());
+        let mut report_data = Vec::new();
+        report
+            .write_to(&mut report_data)
+            .expect("Unable to write report to vector");
+
+        let report_string = std::str::from_utf8(&report_data).expect("Report is not correct UTF-8");
+
+        let parsed_metadata = ProblemReport::parse_metadata(report_string)
+            .expect("Unable to parse metadata from report");
+        let expected_metadata = metadata::collect();
+
+        assert_eq!(parsed_metadata.len(), expected_metadata.len());
+        for (key, value) in &expected_metadata {
+            let parsed_value = parsed_metadata
+                .get(key)
+                .expect("Parsed metadata and new one don't match");
+            if key == "id" {
+                assert_ne!(parsed_value, value, "id not supposed to match");
+            } else {
+                assert_eq!(
+                    parsed_value, value,
+                    "value for key '{}' does not match",
+                    key
+                );
+            }
+        }
     }
 }
