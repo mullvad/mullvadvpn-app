@@ -13,7 +13,7 @@ use jsonrpc_client_core::{expand_params, jsonrpc_client};
 use jsonrpc_client_http::{header::Host, HttpTransport, HttpTransportBuilder};
 use mullvad_types::{account::AccountToken, relay_list::RelayList, version};
 use std::{
-    collections::HashMap,
+    collections::BTreeMap,
     net::{IpAddr, Ipv4Addr},
     path::{Path, PathBuf},
     time::Duration,
@@ -113,7 +113,7 @@ jsonrpc_client!(pub struct ProblemReportProxy {
         email: &str,
         message: &str,
         log: &str,
-        metadata: &HashMap<String, String>)
+        metadata: &BTreeMap<String, String>)
         -> RpcRequest<()>;
 });
 

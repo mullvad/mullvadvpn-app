@@ -13,7 +13,7 @@ use regex::Regex;
 use std::{
     borrow::Cow,
     cmp::min,
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashSet},
     ffi::OsStr,
     fs::{self, File},
     io::{self, BufWriter, Read, Seek, SeekFrom, Write},
@@ -285,7 +285,7 @@ fn write_problem_report(path: &Path, problem_report: &ProblemReport) -> io::Resu
 
 #[derive(Debug)]
 struct ProblemReport {
-    metadata: HashMap<String, String>,
+    metadata: BTreeMap<String, String>,
     logs: Vec<(String, String)>,
     log_paths: HashSet<PathBuf>,
     redact_custom_strings: Vec<String>,
@@ -409,14 +409,14 @@ impl ProblemReport {
 
     /// Tries to parse out the metadata map from a string that is supposed to be a report written by
     /// this struct.
-    pub fn parse_metadata(report: &str) -> Option<HashMap<String, String>> {
+    pub fn parse_metadata(report: &str) -> Option<BTreeMap<String, String>> {
         // IMPORTANT: Make sure this implementation stays in sync with `write_to` above.
         const PATTERN: &str = ": ";
         let mut lines = report.lines();
         if lines.next() != Some("System information:") {
             return None;
         }
-        let mut metadata = HashMap::new();
+        let mut metadata = BTreeMap::new();
         for line in lines {
             // Abort on first empty line, as this is the separator between the metadata and the
             // first log
