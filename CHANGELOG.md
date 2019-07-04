@@ -34,6 +34,11 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Adjust network interface checks in offline detection logic.
 
+#### Linux
+- Fix some netlink packet parsing error in DNS handling.
+- Improve offline check so if it fails, it always fails as online.
+
+
 ## [2019.5] - 2019-06-17
 ### Added
 - Add Norwegian translations
