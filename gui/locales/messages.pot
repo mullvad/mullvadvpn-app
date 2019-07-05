@@ -137,7 +137,11 @@ msgid "UDP"
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
+msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app. Unless connected to Mullvad, this setting will completely block your internet, even when you have quit the app."
 msgstr ""
 
 msgctxt "auth-failure"
