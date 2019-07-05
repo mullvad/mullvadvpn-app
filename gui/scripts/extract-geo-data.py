@@ -510,7 +510,7 @@ def map_locale(locale_ident):
   """
   Map the locale in Natural Earth Data with the locale in the app and Crowdin
   """
-  if LOCALE_MAPPING.has_key(locale_ident):
+  if locale_ident in LOCALE_MAPPING:
     locale_override = LOCALE_MAPPING[locale_ident]
   else:
     locale_override = locale_ident
