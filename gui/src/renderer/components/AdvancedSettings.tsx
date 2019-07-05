@@ -177,7 +177,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     <Cell.Footer>
                       {messages.pgettext(
                         'advanced-settings-view',
-                        "Warning: Your internet won't work without a VPN connection, even when you've quit the app. Unless connected to Mullvad, this setting will completely block your internet, even when you have quit the app.",
+                        "Warning: Your internet won't work without a VPN connection, even when you've quit the app.",
                       )}
                     </Cell.Footer>
                   ) : (

@@ -141,7 +141,7 @@ msgid "Unless connected to Mullvad, this setting will completely block your inte
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app. Unless connected to Mullvad, this setting will completely block your internet, even when you have quit the app."
+msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
 msgstr ""
 
 msgctxt "auth-failure"
