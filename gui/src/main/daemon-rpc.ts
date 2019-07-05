@@ -7,6 +7,7 @@ import {
   ILocation,
   IRelayList,
   ISettings,
+  KeygenEvent,
   RelaySettingsUpdate,
   TunnelState,
 } from '../shared/daemon-rpc-types';
@@ -330,6 +331,13 @@ const settingsSchema = partialObject({
   tunnel_options: tunnelOptionsSchema,
 });
 
+const keygenEventSchema = oneOf(
+  enumeration('too_many_keys', 'generation_failure'),
+  object({
+    new_key: string,
+  }),
+);
+
 const daemonEventSchema = oneOf(
   object({
     tunnel_state: tunnelStateSchema,
@@ -341,12 +349,7 @@ const daemonEventSchema = oneOf(
     relay_list: relayListSchema,
   }),
   object({
-    wireguard_key: oneOf(
-      enumeration('too_many_keys', 'generation_failure'),
-      object({
-        new_key: string,
-      }),
-    ),
+    wireguard_key: keygenEventSchema,
   }),
 );
 
@@ -521,6 +524,40 @@ export class DaemonRpc {
       return validate(string, response);
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_current_version');
+    }
+  }
+
+  public async generateWireguardKey(): Promise<KeygenEvent> {
+    const response = await this.transport.send('generate_wireguard_key');
+    try {
+      const validatedResponse: any = validate(keygenEventSchema, response);
+      switch (validatedResponse) {
+        case 'too_many_keys':
+        case 'generation_failure':
+          return validatedResponse;
+        default:
+          return camelCaseObjectKeys(validatedResponse as object) as KeygenEvent;
+      }
+    } catch (error) {
+      throw new ResponseParseError(`Invalid response from generate_wireguard_key ${error}`);
+    }
+  }
+
+  public async getWireguardKey(): Promise<string | undefined> {
+    const response = await this.transport.send('get_wireguard_key');
+    try {
+      return validate(maybe(string), response) || undefined;
+    } catch (error) {
+      throw new ResponseParseError('Invalid response from get_wireguard_key');
+    }
+  }
+
+  public async verifyWireguardKey(): Promise<boolean> {
+    const response = await this.transport.send('verify_wireguard_key');
+    try {
+      return validate(boolean, response);
+    } catch (error) {
+      throw new ResponseParseError('Invalid response from verify_wireguard_key');
     }
   }
 

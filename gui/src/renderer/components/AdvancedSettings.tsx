@@ -36,11 +36,13 @@ interface IProps {
   mssfix?: number;
   port?: number;
   bridgeState: BridgeState;
+  enableWireguardKeysPage: boolean;
   setBridgeState: (value: BridgeState) => void;
   setEnableIpv6: (value: boolean) => void;
   setBlockWhenDisconnected: (value: boolean) => void;
   setOpenVpnMssfix: (value: number | undefined) => void;
   setRelayProtocolAndPort: (protocol?: RelayProtocol, port?: number) => void;
+  onViewWireguardKeys: () => void;
   onClose: () => void;
 }
 
@@ -255,6 +257,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                       },
                     )}
                   </Cell.Footer>
+                  {this.wireguardKeysButton()}
                 </NavigationScrollbars>
               </View>
             </NavigationContainer>
@@ -262,6 +265,21 @@ export default class AdvancedSettings extends Component<IProps, IState> {
         </Container>
       </Layout>
     );
+  }
+
+  private wireguardKeysButton() {
+    if (this.props.enableWireguardKeysPage) {
+      return (
+        <View>
+          <Cell.CellButton onPress={this.props.onViewWireguardKeys}>
+            <Cell.Label>{messages.pgettext('advanced-settings-view', 'WireGuard keys')}</Cell.Label>
+            <Cell.Icon height={12} width={7} source="icon-chevron" />
+          </Cell.CellButton>
+        </View>
+      );
+    } else {
+      return null;
+    }
   }
 
   private onSelectProtocol = (protocol?: RelayProtocol) => {

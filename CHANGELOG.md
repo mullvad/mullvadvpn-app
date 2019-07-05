@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add a switch to turn off system notifications under Preferences in the GUI.
+- Add new settings page for generating and verifying wireguard keys.
 
 #### Windows
 - Add migration logic to restore lost settings after major Windows update.

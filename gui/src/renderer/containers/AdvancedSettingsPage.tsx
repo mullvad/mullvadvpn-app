@@ -1,4 +1,4 @@
-import { goBack } from 'connected-react-router';
+import { goBack, push } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -12,12 +12,14 @@ import { ISharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: IReduxState) => {
   const protocolAndPort = mapRelaySettingsToProtocolAndPort(state.settings.relaySettings);
+  const enableWireguardKeysPage = process.platform === 'linux' || process.platform === 'darwin';
 
   return {
     enableIpv6: state.settings.enableIpv6,
     blockWhenDisconnected: state.settings.blockWhenDisconnected,
     mssfix: state.settings.openVpn.mssfix,
     bridgeState: state.settings.bridgeState,
+    enableWireguardKeysPage,
     ...protocolAndPort,
   };
 };
@@ -38,7 +40,7 @@ const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) =>
 };
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
-  const history = bindActionCreators({ goBack }, dispatch);
+  const history = bindActionCreators({ push, goBack }, dispatch);
   return {
     onClose: () => {
       history.goBack();
@@ -98,6 +100,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
         log.error('Failed to update mssfix value', e.message);
       }
     },
+    onViewWireguardKeys: () => history.push('/settings/advanced/wireguard-keys'),
   };
 };
 
