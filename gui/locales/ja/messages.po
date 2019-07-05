@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2019-06-17 08:47\n"
+"PO-Revision-Date: 2019-06-17 09:23\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ブロックされた接続"
@@ -237,6 +237,10 @@ msgstr "IPv6を設定できませんでした。IPv6をお使いのシステム�
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "ファイヤーウォール規則の適用に失敗しました。現在、デバイスがセキュリティ保護されていない可能性があります。"
+
+msgctxt "in-app-notifications"
+msgid "Your kernel may be outdated"
+msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
