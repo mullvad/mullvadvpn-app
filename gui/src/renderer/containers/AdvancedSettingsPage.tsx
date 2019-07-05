@@ -12,12 +12,14 @@ import { ISharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: IReduxState) => {
   const protocolAndPort = mapRelaySettingsToProtocolAndPort(state.settings.relaySettings);
+  const enableWireguardKeysPage = process.platform === 'linux' || process.platform === 'darwin';
 
   return {
     enableIpv6: state.settings.enableIpv6,
     blockWhenDisconnected: state.settings.blockWhenDisconnected,
     mssfix: state.settings.openVpn.mssfix,
     bridgeState: state.settings.bridgeState,
+    enableWireguardKeysPage,
     ...protocolAndPort,
   };
 };
