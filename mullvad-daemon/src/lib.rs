@@ -1119,6 +1119,11 @@ where
     }
 
     fn ensure_wireguard_keys_for_current_account(&mut self) {
+        // Temporary hack to disable wireguard key generation
+        if true {
+            return;
+        }
+
         if let Some(account) = self.settings.get_account_token() {
             if self
                 .account_history
