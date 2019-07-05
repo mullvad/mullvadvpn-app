@@ -29,6 +29,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add migration logic to restore lost settings after major Windows update.
 
+#### macOS
+- Add the Mullvad CLI frontend and problem report CLI tool to the PATH, so it can be
+  run directly from a terminal.
+
 ### Fixed
 
 #### Windows
