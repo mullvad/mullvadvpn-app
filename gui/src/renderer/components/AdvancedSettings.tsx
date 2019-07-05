@@ -170,7 +170,15 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   <Cell.Footer>
                     {messages.pgettext(
                       'advanced-settings-view',
-                      "Unless connected, always block all network traffic, even when you've disconnected or quit the app.",
+                      "Unless connected to Mullvad, this setting will completely block your internet, even when you have quit the app.",
+                    )}
+                    {this.props.blockWhenDisconnected ? (
+                      messages.pgettext(
+                        'advanced-settings-view',
+                        "\n\nWarning: Your internet won't work without a VPN connection, even when you've quit the app. Unless connected to Mullvad, this setting will completely block your internet, even when you have quit the app.",
+                      )
+                    ) : (
+                      undefined
                     )}
                   </Cell.Footer>
 
