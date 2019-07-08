@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.6-beta1] - 2019-07-08
 ### Added
 - Add a switch to turn off system notifications under Preferences in the GUI.
 - Add new settings page for generating and verifying wireguard keys.
@@ -35,9 +38,12 @@ Line wrap the file at 100 chars.                                              Th
   run directly from a terminal.
 
 ### Fixed
+- Fix the mix of traditional and simplified Chinese. Separating them to two locales and fall back
+  to English where translations are missing.
 
 #### Windows
-- Adjust network interface checks in offline detection logic.
+- Adjust network interface checks in offline detection logic. Prevents the app from being stuck
+  in the offline state when the computer is in fact online.
 
 #### Linux
 - Fix some netlink packet parsing error in DNS handling.
