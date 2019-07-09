@@ -335,8 +335,11 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
     }
 
     /// Sends a command to the daemon and maps the error to an RPC error.
-    fn send_command_to_daemon(&self, command: ManagementCommand) -> BoxFuture<(), Error> {
-        Box::new(future::result(self.tx.lock().send(command)).map_err(|_| Error::internal_error()))
+    fn send_command_to_daemon(
+        &self,
+        command: ManagementCommand,
+    ) -> impl Future<Item = (), Error = Error> {
+        future::result(self.tx.lock().send(command)).map_err(|_| Error::internal_error())
     }
 
     /// Converts the given error to an error that can be given to the caller of the API.
@@ -396,7 +399,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
     fn update_relay_locations(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
         log::debug!("update_relay_locations");
-        self.send_command_to_daemon(ManagementCommand::UpdateRelayLocations)
+        Box::new(self.send_command_to_daemon(ManagementCommand::UpdateRelayLocations))
     }
 
     fn set_account(
@@ -510,7 +513,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
     fn shutdown(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
         log::debug!("shutdown");
-        self.send_command_to_daemon(ManagementCommand::Shutdown)
+        Box::new(self.send_command_to_daemon(ManagementCommand::Shutdown))
     }
 
     fn get_account_history(&self, _: Self::Metadata) -> BoxFuture<Vec<AccountToken>, Error> {
