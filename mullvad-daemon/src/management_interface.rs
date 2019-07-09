@@ -21,9 +21,10 @@ use mullvad_types::{
     states::{TargetState, TunnelState},
     version, DaemonEvent,
 };
+use parking_lot::{Mutex, RwLock};
 use std::{
     collections::{hash_map::Entry, HashMap},
-    sync::{Arc, Mutex, RwLock},
+    sync::Arc,
 };
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
@@ -305,7 +306,7 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
 
 impl ManagementInterfaceEventBroadcaster {
     fn notify(&self, value: DaemonEvent) {
-        let subscriptions = self.subscriptions.read().unwrap();
+        let subscriptions = self.subscriptions.read();
         for sink in subscriptions.values() {
             let _ = sink.notify(Ok(value.clone())).wait();
         }
@@ -335,10 +336,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
 
     /// Sends a command to the daemon and maps the error to an RPC error.
     fn send_command_to_daemon(&self, command: ManagementCommand) -> BoxFuture<(), Error> {
-        Box::new(
-            future::result(self.tx.lock().unwrap().send(command))
-                .map_err(|_| Error::internal_error()),
-        )
+        Box::new(future::result(self.tx.lock().send(command)).map_err(|_| Error::internal_error()))
     }
 
     /// Converts the given error to an error that can be given to the caller of the API.
@@ -684,7 +682,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         subscriber: pubsub::Subscriber<DaemonEvent>,
     ) {
         log::debug!("daemon_event_subscribe");
-        let mut subscriptions = self.subscriptions.write().unwrap();
+        let mut subscriptions = self.subscriptions.write();
         loop {
             let id = SubscriptionId::String(uuid::Uuid::new_v4().to_string());
             if let Entry::Vacant(entry) = subscriptions.entry(id.clone()) {
@@ -699,7 +697,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
     fn daemon_event_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
         log::debug!("daemon_event_unsubscribe");
-        let was_removed = self.subscriptions.write().unwrap().remove(&id).is_some();
+        let was_removed = self.subscriptions.write().remove(&id).is_some();
         let result = if was_removed {
             log::debug!("Unsubscribing id {:?}", id);
             future::ok(())
