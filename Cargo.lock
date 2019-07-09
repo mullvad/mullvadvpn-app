@@ -2114,7 +2114,7 @@ dependencies = [
  "notify 4.0.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn-plugin 0.3.0 (git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event)",
  "os_pipe 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "parking_lot 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parking_lot 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pfctl 0.2.1 (git+https://github.com/mullvad/pfctl-rs?rev=9f31b5ddcab941862470075eab83bb398195f3d6)",
  "regex 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "resolv-conf 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",

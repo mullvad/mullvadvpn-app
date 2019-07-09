@@ -20,7 +20,7 @@ libc = "0.2.20"
 log = "0.4"
 openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde"] }
 os_pipe = "0.8"
-parking_lot = "0.7"
+parking_lot = "0.8"
 regex = "1.1.0"
 shell-escape = "0.1"
 talpid-ipc = { path = "../talpid-ipc" }
