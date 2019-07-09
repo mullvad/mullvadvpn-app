@@ -12,4 +12,4 @@ ipnetwork = "0.14"
 base64 = "0.10"
 hex = "0.3"
 x25519-dalek = { version = "0.4.5", features = [ "std", "u64_backend" ], default-features = false }
-rand = "0.6"
+rand = "0.7"
