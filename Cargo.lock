@@ -1125,6 +1125,7 @@ dependencies = [
  "mullvad-paths 0.1.0",
  "mullvad-rpc 0.1.0",
  "mullvad-types 0.1.0",
+ "parking_lot 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.89 (registry+https://github.com/rust-lang/crates.io-index)",
