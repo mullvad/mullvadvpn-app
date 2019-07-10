@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2019-06-17 09:23\n"
+"PO-Revision-Date: 2019-07-10 05:10\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "被封鎖的連線"
@@ -42,7 +42,7 @@ msgstr "帳戶"
 
 msgctxt "account-view"
 msgid "Account number"
-msgstr "帳戶 ID"
+msgstr "帳戶編號"
 
 msgctxt "account-view"
 msgid "Buy more credit"
@@ -147,8 +147,12 @@ msgid "UDP"
 msgstr "UDP"
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
-msgstr "除非已連線，否則一律封鎖所有網路流量，即便您已中斷連線或退出應用程式亦同。"
+msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
+msgstr "除非連線到 Mullvad，否則此設置將完全封鎖您的網際網路，即使您已中斷連線或退出應用程式。"
+
+msgctxt "advanced-settings-view"
+msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
+msgstr "警告：若無 VPN 連線，您的網際網路將不會運作，即使您已退出應用程式。"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -199,6 +203,22 @@ msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr "您在此帳戶沒有更多 VPN 時間了。若要在我們網站上購買更多點數，您必須使用不安全的連線存取網際網路。"
 
+#. The hostname line displayed below the country on the main screen
+#. Available placeholders:
+#. %(relay)s - the relay hostname
+#. %(bridge)s - the bridge hostname
+msgctxt "connection-info"
+msgid "%(relay)s via %(bridge)s"
+msgstr "%(relay)s 透過 %(bridge)s"
+
+#. The tunnel type line displayed below the hostname line on the main screen
+#. Available placeholders:
+#. %(tunnelType)s - the tunnel type, i.e OpenVPN
+#. %(bridgeType)s - the bridge type, i.e Shadowsocks
+msgctxt "connection-info"
+msgid "%(tunnelType)s via %(bridgeType)s"
+msgstr "%(tunnelType)s 透過 %(bridgeType)s"
+
 msgctxt "connection-info"
 msgid "In"
 msgstr "入境"
@@ -237,10 +257,6 @@ msgstr "無法配置 IPv6，請在我們系統啟用，或在應用程式中停�
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "無法套用防火牆規則。裝置目前可能不安全"
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
-msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
@@ -295,6 +311,10 @@ msgstr "可用的更新"
 msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
 msgstr "您正在執行不受支援的應用程式版本。請立即升級到 %(version)s，以確保您的安全"
+
+msgctxt "in-app-notifications"
+msgid "Your kernel may be outdated"
+msgstr "您的核心已過期"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -402,6 +422,10 @@ msgid "Automatically connect to a server when the app launches."
 msgstr "啟動應用程式時，自動連線伺服器。"
 
 msgctxt "preferences-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr "啟用或停用系統通知。重要通知一律會顯示。"
+
+msgctxt "preferences-view"
 msgid "Launch app on start-up"
 msgstr "啟動時啟動應用程式"
 
@@ -412,6 +436,10 @@ msgstr "本機網路分享"
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
 msgstr "單色系統匣圖示"
+
+msgctxt "preferences-view"
+msgid "Notifications"
+msgstr "通知"
 
 msgctxt "preferences-view"
 msgid "Preferences"

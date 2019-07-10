@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2019-06-17 09:23\n"
+"PO-Revision-Date: 2019-07-10 05:10\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "GESPERRTE VERBINDUNG"
@@ -42,7 +42,7 @@ msgstr "Konto"
 
 msgctxt "account-view"
 msgid "Account number"
-msgstr "Konto-ID"
+msgstr "Kontonummer"
 
 msgctxt "account-view"
 msgid "Buy more credit"
@@ -147,8 +147,12 @@ msgid "UDP"
 msgstr "UDP"
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
-msgstr "Wenn keine Verbindung besteht, allen Netzwerkdatenverkehr sperren, selbst wenn Sie die App getrennt oder beendet haben."
+msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
+msgstr "Wenn keine Verbindung zu Mullvad besteht, sperrt diese Einstellungen Ihren Internetzugang, selbst wenn Sie die App getrennt oder beendet haben."
+
+msgctxt "advanced-settings-view"
+msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
+msgstr "Warnung: Ohne eine VPN-Verbindung wird Ihr Internet nicht funktionieren, selbst wenn Sie die App beenden."
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -199,6 +203,22 @@ msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr "Sie haben keine VPN-Zeit mehr auf diesem Konto. Um auf unserer Website mehr Guthaben kaufen zu können, müssen Sie mit einer ungesicherten Verbindung ins Internet gehen."
 
+#. The hostname line displayed below the country on the main screen
+#. Available placeholders:
+#. %(relay)s - the relay hostname
+#. %(bridge)s - the bridge hostname
+msgctxt "connection-info"
+msgid "%(relay)s via %(bridge)s"
+msgstr "%(relay)s über %(bridge)s"
+
+#. The tunnel type line displayed below the hostname line on the main screen
+#. Available placeholders:
+#. %(tunnelType)s - the tunnel type, i.e OpenVPN
+#. %(bridgeType)s - the bridge type, i.e Shadowsocks
+msgctxt "connection-info"
+msgid "%(tunnelType)s via %(bridgeType)s"
+msgstr "%(tunnelType)s über %(bridgeType)s"
+
 msgctxt "connection-info"
 msgid "In"
 msgstr "Eingehend"
@@ -237,10 +257,6 @@ msgstr "IPv6 konnte nicht konfiguriert werden, bitte aktivieren Sie es auf Ihrem
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Fehler beim Anwenden der Firewall-Regeln. Das Gerät ist derzeit möglicherweise ungesichert"
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
-msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
@@ -295,6 +311,10 @@ msgstr "UPDATE VERFÜGBAR"
 msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
 msgstr "Sie führen eine nicht unterstützte App-Version aus. Bitte führen Sie jetzt ein Upgrade auf %(version)s durch, um Ihre Sicherheit zu gewährleisten"
+
+msgctxt "in-app-notifications"
+msgid "Your kernel may be outdated"
+msgstr "Möglicherweise ist Ihr Kernel veraltet"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -402,6 +422,10 @@ msgid "Automatically connect to a server when the app launches."
 msgstr "Stellt automatisch eine Verbindung zum Server her, wenn die App startet."
 
 msgctxt "preferences-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr "Aktivieren oder deaktivieren Sie Systembenachrichtigungen. Kritische Benachrichtigungen werden immer angezeigt."
+
+msgctxt "preferences-view"
 msgid "Launch app on start-up"
 msgstr "App beim Hochfahren starten"
 
@@ -412,6 +436,10 @@ msgstr "Teilen im lokalen Netzwerk"
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
 msgstr "Monochromatisches Leistensymbol"
+
+msgctxt "preferences-view"
+msgid "Notifications"
+msgstr "Benachrichtigungen"
 
 msgctxt "preferences-view"
 msgid "Preferences"

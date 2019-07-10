@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2019-06-17 09:23\n"
+"PO-Revision-Date: 2019-07-10 05:10\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ENGELLENEN BAĞLANTI"
@@ -147,8 +147,12 @@ msgid "UDP"
 msgstr "UDP"
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
-msgstr "Bağlanılmadığı sürece, bağlantı kesilse veya uygulamadan çıkılsa dahi tüm ağ trafiğini her zaman engelle."
+msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
+msgstr "Mullvad'a bağlı olmadığınız sürece bu ayar, internetinizi bağlantınız kesilse veya uygulamadan çıksanız dahi tamamen engelleyecektir."
+
+msgctxt "advanced-settings-view"
+msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
+msgstr "Uyarı: Uygulamadan çıksanız bile internetiniz bir VPN bağlantısı olmadan çalışmayacak."
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -199,6 +203,22 @@ msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Web sitemizden daha fazla kredi satın almak için güvenli olmayan bir bağlantıyla internete erişmeniz gerekecek."
 
+#. The hostname line displayed below the country on the main screen
+#. Available placeholders:
+#. %(relay)s - the relay hostname
+#. %(bridge)s - the bridge hostname
+msgctxt "connection-info"
+msgid "%(relay)s via %(bridge)s"
+msgstr "%(bridge)s aracılığıyla %(relay)s"
+
+#. The tunnel type line displayed below the hostname line on the main screen
+#. Available placeholders:
+#. %(tunnelType)s - the tunnel type, i.e OpenVPN
+#. %(bridgeType)s - the bridge type, i.e Shadowsocks
+msgctxt "connection-info"
+msgid "%(tunnelType)s via %(bridgeType)s"
+msgstr "%(bridgeType)s aracılığıyla %(tunnelType)s"
+
 msgctxt "connection-info"
 msgid "In"
 msgstr "Giriş"
@@ -237,10 +257,6 @@ msgstr "IPv6 yapılandırılamıyor, lütfen sisteminizden etkinleştirin veya u
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Güvenlik duvarı kuralları uygulanamıyor. Cihaz şu an korumasız olabilir"
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
-msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
@@ -295,6 +311,10 @@ msgstr "GÜNCELLEME MEVCUT"
 msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
 msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %(version)s sürümüne yükseltin"
+
+msgctxt "in-app-notifications"
+msgid "Your kernel may be outdated"
+msgstr "Kernel'inizin süresi dolmuş olabilir"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -402,6 +422,10 @@ msgid "Automatically connect to a server when the app launches."
 msgstr "Uygulama başladığında bir sunucuya otomatik olarak bağlan."
 
 msgctxt "preferences-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr "Sistem bildirimlerini açın veya kapatın. Önemli bildirimler her zaman gösterilir."
+
+msgctxt "preferences-view"
 msgid "Launch app on start-up"
 msgstr "Uygulamayı başlangıçta çalıştır"
 
@@ -412,6 +436,10 @@ msgstr "Yerel ağ paylaşımı"
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
 msgstr "Monokrom sistem çubuğu simgesi"
+
+msgctxt "preferences-view"
+msgid "Notifications"
+msgstr "Bildirimler"
 
 msgctxt "preferences-view"
 msgid "Preferences"
