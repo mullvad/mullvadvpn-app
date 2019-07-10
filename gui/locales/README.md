@@ -29,7 +29,14 @@ After updating the translations template (POT) locally, make sure to upload it t
 CROWDIN_API_KEY=$YOUR_CROWDIN_KEY ./gui/scripts/crowdin.sh upload
 ```
 
+Triggering Crowdin to start translating has to be done manually. Speak to the project owner
+
 ## Downloading translations from Crowdin
+
+Before downloading from Crowdin the project must be "built" through their web interface. When you
+later download you will receive the translations from the last point in time when it was built:
+
+Go to the Crowdin project > Settings > "Build & Download" dropdown button > "Build project"
 
 In order to download and integrate the new translations from Crowdin into the app, use the following
 command:
