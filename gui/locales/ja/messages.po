@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2019-06-17 09:23\n"
+"PO-Revision-Date: 2019-07-10 05:10\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ブロックされた接続"
@@ -42,7 +42,7 @@ msgstr "アカウント"
 
 msgctxt "account-view"
 msgid "Account number"
-msgstr "アカウントID"
+msgstr "アカウント番号"
 
 msgctxt "account-view"
 msgid "Buy more credit"
@@ -147,8 +147,12 @@ msgid "UDP"
 msgstr "UDP"
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
-msgstr "接続中でない限り、アプリが未接続または終了状態であっても、すべてのネットワークトラフィックをブロックします。"
+msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
+msgstr "Mullvadに接続していない限り、この設定は、接続を切断した場合でも、またはアプリを終了した場合でも、インターネットを完全にブロックします。"
+
+msgctxt "advanced-settings-view"
+msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
+msgstr "警告：インターネットは、アプリを終了しても、VPN との接続なしには利用できません。"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -199,6 +203,22 @@ msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr "このアカウントにはもうVPNの残り時間がありません。弊社ウェブサイトで追加クレジットを購入するには、セキュリティ保護されていない接続でインターネットにアクセスする必要があります。"
 
+#. The hostname line displayed below the country on the main screen
+#. Available placeholders:
+#. %(relay)s - the relay hostname
+#. %(bridge)s - the bridge hostname
+msgctxt "connection-info"
+msgid "%(relay)s via %(bridge)s"
+msgstr "%(bridge)s経由で%(relay)s"
+
+#. The tunnel type line displayed below the hostname line on the main screen
+#. Available placeholders:
+#. %(tunnelType)s - the tunnel type, i.e OpenVPN
+#. %(bridgeType)s - the bridge type, i.e Shadowsocks
+msgctxt "connection-info"
+msgid "%(tunnelType)s via %(bridgeType)s"
+msgstr "%(bridgeType)s経由で%(tunnelType)s"
+
 msgctxt "connection-info"
 msgid "In"
 msgstr "内側"
@@ -237,10 +257,6 @@ msgstr "IPv6を設定できませんでした。IPv6をお使いのシステム�
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "ファイヤーウォール規則の適用に失敗しました。現在、デバイスがセキュリティ保護されていない可能性があります。"
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
-msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
@@ -295,6 +311,10 @@ msgstr "アップデート可"
 msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
 msgstr "未対応のアプリバージョンを実行中です。今すぐ %(version)s にアップデートしてセキュリティを確保してください。"
+
+msgctxt "in-app-notifications"
+msgid "Your kernel may be outdated"
+msgstr "お使いのカーネルが古い可能性があります"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -402,6 +422,10 @@ msgid "Automatically connect to a server when the app launches."
 msgstr "アプリ起動時に自動的にサーバーに接続します。"
 
 msgctxt "preferences-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr "システム通知を有効または無効にします。重要な通知は必ず表示されます。"
+
+msgctxt "preferences-view"
 msgid "Launch app on start-up"
 msgstr "システム起動時にアプリを起動"
 
@@ -412,6 +436,10 @@ msgstr "ローカルネットワーク共有"
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
 msgstr "単色のトレイアイコン"
+
+msgctxt "preferences-view"
+msgid "Notifications"
+msgstr "通知"
 
 msgctxt "preferences-view"
 msgid "Preferences"

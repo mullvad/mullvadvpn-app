@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Italian\n"
 "Language: it_IT\n"
-"PO-Revision-Date: 2019-06-17 09:23\n"
+"PO-Revision-Date: 2019-07-10 05:10\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "CONNESSIONE BLOCCATA"
@@ -147,8 +147,12 @@ msgid "UDP"
 msgstr "UDP"
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected, always block all network traffic, even when you've disconnected or quit the app."
-msgstr "Se non sei connesso blocca sempre tutto il traffico di rete, anche quando sei disconnesso o esci dall'app."
+msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
+msgstr "A meno che non ci sia connessione tramite Mullvad, questa impostazione bloccherà completamente Internet, anche se ti sei disconnesso o sei uscito dall'app."
+
+msgctxt "advanced-settings-view"
+msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
+msgstr "Attenzione: Internet non funzionerà senza una connessione VPN, anche se sei uscito dall'app."
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -199,6 +203,22 @@ msgctxt "connect-view"
 msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
 msgstr "Hai esaurito il tempo VPN disponibile su questo account. Per acquistare altro credito sul nostro sito, devi eseguire l'accesso a Internet da una connessione non protetta."
 
+#. The hostname line displayed below the country on the main screen
+#. Available placeholders:
+#. %(relay)s - the relay hostname
+#. %(bridge)s - the bridge hostname
+msgctxt "connection-info"
+msgid "%(relay)s via %(bridge)s"
+msgstr "%(relay)s tramite %(bridge)s"
+
+#. The tunnel type line displayed below the hostname line on the main screen
+#. Available placeholders:
+#. %(tunnelType)s - the tunnel type, i.e OpenVPN
+#. %(bridgeType)s - the bridge type, i.e Shadowsocks
+msgctxt "connection-info"
+msgid "%(tunnelType)s via %(bridgeType)s"
+msgstr "%(tunnelType)s tramite %(bridgeType)s"
+
 msgctxt "connection-info"
 msgid "In"
 msgstr "Ricezione"
@@ -237,10 +257,6 @@ msgstr "Impossibile configurare IPv6. Attivalo sul sistema o disattivalo nell'ap
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Impossibile applicare le regole firewall. Il dispositivo potrebbe essere non protetto"
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
-msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
@@ -295,6 +311,10 @@ msgstr "AGGIORNAMENTO DISPONIBILE"
 msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
 msgstr "Stai utilizzando una versione dell'app non supportata. Aggiorna alla versione %(version)s per continuare a essere protetto"
+
+msgctxt "in-app-notifications"
+msgid "Your kernel may be outdated"
+msgstr "Il kernel potrebbe essere obsoleto"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -402,6 +422,10 @@ msgid "Automatically connect to a server when the app launches."
 msgstr "Connettiti automaticamente al server all'avvio dell'app."
 
 msgctxt "preferences-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr "Attiva o disattiva le notifiche di sistema. Le notifiche critiche saranno sempre visualizzate."
+
+msgctxt "preferences-view"
 msgid "Launch app on start-up"
 msgstr "Lancia app all'avvio"
 
@@ -412,6 +436,10 @@ msgstr "Condivisione rete locale"
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
 msgstr "Icona nell'area di notifica monocromatica"
+
+msgctxt "preferences-view"
+msgid "Notifications"
+msgstr "Notifiche"
 
 msgctxt "preferences-view"
 msgid "Preferences"
