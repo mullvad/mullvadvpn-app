@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add simplified Chinese translations.
 
 
 ## [2019.6-beta1] - 2019-07-08
@@ -52,7 +54,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [2019.5] - 2019-06-17
 ### Added
-- Add Norwegian translations
+- Add Norwegian translations.
 
 
 ## [2019.5-beta1] - 2019-06-13
