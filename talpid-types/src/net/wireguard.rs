@@ -1,12 +1,11 @@
 use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol};
 use ipnetwork::IpNetwork;
+use rand::{rngs::OsRng, RngCore};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
     fmt,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
-
-use rand::RngCore;
 
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
@@ -73,7 +72,7 @@ impl PrivateKey {
 
     pub fn new_from_random() -> Result<Self, rand::Error> {
         let mut bytes = [0u8; 32];
-        rand::rngs::OsRng::new()?.fill_bytes(&mut bytes);
+        OsRng.fill_bytes(&mut bytes);
         Ok(Self::from(bytes))
     }
 
