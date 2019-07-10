@@ -10,12 +10,13 @@ use mullvad_types::{
     },
     relay_list::{Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
+use parking_lot::Mutex;
 use std::{
     fs::File,
     io,
     net::{IpAddr, SocketAddr},
     path::{Path, PathBuf},
-    sync::{mpsc, Arc, Mutex, MutexGuard},
+    sync::{mpsc, Arc},
     thread,
     time::{self, Duration, SystemTime},
 };
@@ -195,13 +196,7 @@ impl RelaySelector {
     /// Returns all countries and cities. The cities in the object returned does not have any
     /// relays in them.
     pub fn get_locations(&mut self) -> RelayList {
-        self.lock_parsed_relays().locations().clone()
-    }
-
-    fn lock_parsed_relays(&self) -> MutexGuard<'_, ParsedRelays> {
-        self.parsed_relays
-            .lock()
-            .expect("Relay updater thread crashed while it held a lock to the list of relays")
+        self.parsed_relays.lock().locations().clone()
     }
 
     /// Returns a random relay and relay endpoint matching the given constraints and with
@@ -314,7 +309,8 @@ impl RelaySelector {
         location: &Location,
     ) -> Option<(ProxySettings, Relay)> {
         let mut matching_relays: Vec<Relay> = self
-            .lock_parsed_relays()
+            .parsed_relays
+            .lock()
             .relays()
             .iter()
             .filter_map(|relay| Self::matching_bridge_relay(relay, constraints))
@@ -341,7 +337,8 @@ impl RelaySelector {
         constraints: &RelayConstraints,
     ) -> Option<(Relay, MullvadEndpoint)> {
         let matching_relays: Vec<Relay> = self
-            .lock_parsed_relays()
+            .parsed_relays
+            .lock()
             .relays()
             .iter()
             .filter_map(|relay| Self::matching_relay(relay, constraints))
@@ -689,7 +686,7 @@ impl RelayListUpdater {
     }
 
     fn should_update(&mut self) -> bool {
-        match SystemTime::now().duration_since(self.lock_parsed_relays().last_updated()) {
+        match SystemTime::now().duration_since(self.parsed_relays.lock().last_updated()) {
             Ok(duration) => duration > UPDATE_INTERVAL,
             // If the clock is skewed we have no idea by how much or when the last update
             // actually was, better download again to get in sync and get a `last_updated`
@@ -714,7 +711,7 @@ impl RelayListUpdater {
             new_parsed_relays.relays().len()
         );
 
-        let mut parsed_relays = self.lock_parsed_relays();
+        let mut parsed_relays = self.parsed_relays.lock();
         *parsed_relays = new_parsed_relays;
         (self.on_update)(parsed_relays.locations());
         Ok(())
@@ -734,11 +731,5 @@ impl RelayListUpdater {
         debug!("Writing relays cache to {}", self.cache_path.display());
         let file = File::create(&self.cache_path).map_err(Error::WriteRelayCache)?;
         serde_json::to_writer_pretty(io::BufWriter::new(file), relays).map_err(Error::Serialize)
-    }
-
-    fn lock_parsed_relays(&self) -> MutexGuard<'_, ParsedRelays> {
-        self.parsed_relays
-            .lock()
-            .expect("A thread crashed while it held a lock to the list of relays")
     }
 }
