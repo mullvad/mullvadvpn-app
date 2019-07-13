@@ -24,15 +24,19 @@ fi
 
 case "$PLATFORM" in
   linux)
-    export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
-    export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
+    export TARGET_TRIPLET="x86_64-unknown-linux-gnu"
+    export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET_TRIPLET"
+    export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET_TRIPLET"
     ;;
   macos)
+    export TARGET_TRIPLET="x86_64-apple-darwin"
     export MACOSX_DEPLOYMENT_TARGET="10.7"
     ;;
   windows)
+    export TARGET_TRIPLET="x86_64-pc-windows-msvc"
     ;;
   android*)
+    export TARGET_TRIPLET="aarch64-linux-android"
     ;;
   *)
     echo "Unknown target platform \"$PLATFORM\"" >&2
@@ -41,5 +45,5 @@ case "$PLATFORM" in
 esac
 
 export OPENSSL_STATIC="1"
-export OPENSSL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$PLATFORM"
-export OPENSSL_INCLUDE_DIR="$SCRIPT_DIR/dist-assets/binaries/$PLATFORM/include"
+export OPENSSL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET_TRIPLET"
+export OPENSSL_INCLUDE_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET_TRIPLET/include"
