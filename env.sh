@@ -3,43 +3,43 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ -n "$1" ]; then
-    PLATFORM="$1"
+    TARGET="$1"
 else
-    PLATFORM=""
+    TARGET=""
 fi
 
-if [ -z "$PLATFORM" ]; then
+if [ -z "$TARGET" ]; then
     case "$(uname -s)" in
       Linux*)
-        PLATFORM="linux"
+        TARGET="x86_64-unknown-linux-gnu"
         ;;
       Darwin*)
-        PLATFORM="macos"
+        TARGET="x86_64-apple-darwin"
         ;;
       MINGW*|MSYS_NT*)
-        PLATFORM="windows"
+        TARGET="x86_64-pc-windows-msvc"
         ;;
     esac
 fi
 
-case "$PLATFORM" in
-  linux)
-    export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
-    export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/linux"
+case "$TARGET" in
+  *android*)
     ;;
-  macos)
+  *linux*)
+    export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET"
+    export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET"
+    ;;
+  *darwin*)
     export MACOSX_DEPLOYMENT_TARGET="10.7"
     ;;
-  windows)
-    ;;
-  android*)
+  *windows*)
     ;;
   *)
-    echo "Unknown target platform \"$PLATFORM\"" >&2
+    echo "Unknown target \"$TARGET\"" >&2
     exit 1
     ;;
 esac
 
 export OPENSSL_STATIC="1"
-export OPENSSL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$PLATFORM"
-export OPENSSL_INCLUDE_DIR="$SCRIPT_DIR/dist-assets/binaries/$PLATFORM/include"
+export OPENSSL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET"
+export OPENSSL_INCLUDE_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET/include"
