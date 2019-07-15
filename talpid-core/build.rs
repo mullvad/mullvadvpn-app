@@ -58,6 +58,7 @@ fn main() {
 #[cfg(not(windows))]
 fn main() {
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
+    let target_triplet = env::var("TARGET").expect("TARGET is not set");
 
     let link_type = match target_os.as_str() {
         "android" => "",
@@ -67,7 +68,7 @@ fn main() {
 
     let lib_dir = manifest_dir()
         .join("../dist-assets/binaries")
-        .join(target_os);
+        .join(target_triplet);
 
     println!("cargo:rustc-link-search={}", lib_dir.display());
     println!("cargo:rustc-link-lib{}=wg", link_type);
