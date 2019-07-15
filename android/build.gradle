@@ -62,11 +62,6 @@ android {
         variant.mergeAssetsProvider.configure {
             dependsOn copyApiRootCertificate
         }
-
-        variant.ndkCompileProvider.configure {
-            dependsOn copyMullvadJni
-            dependsOn copyWireguardGo
-        }
     }
 }
 
@@ -113,18 +108,6 @@ task format(type: FormatTask, group: 'formatting') {
 }
 
 lint.dependsOn lintKotlin
-
-task copyMullvadJni(type: Copy) {
-    from "$repoRootPath/target/aarch64-linux-android/debug"
-    include 'libmullvad_jni.so'
-    into "$extraJniDirectory/arm64-v8a"
-}
-
-task copyWireguardGo(type: Copy) {
-    from "$repoRootPath/dist-assets/binaries/aarch64-linux-android"
-    include 'libwg.so'
-    into "$extraJniDirectory/arm64-v8a"
-}
 
 task copyApiRootCertificate(type: Copy) {
     from "$repoRootPath/dist-assets"
