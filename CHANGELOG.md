@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.6] - 2019-07-15
 ### Added
 - Add simplified Chinese translations.
 
