@@ -24,13 +24,17 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add new settings page for generating and verifying wireguard keys.
+
+
+## [2019.6] - 2019-07-15
+### Added
 - Add simplified Chinese translations.
 
 
 ## [2019.6-beta1] - 2019-07-08
 ### Added
 - Add a switch to turn off system notifications under Preferences in the GUI.
-- Add new settings page for generating and verifying wireguard keys.
 
 #### Windows
 - Add migration logic to restore lost settings after major Windows update.
