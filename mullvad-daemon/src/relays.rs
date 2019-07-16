@@ -6,7 +6,7 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{
         Constraint, InternalBridgeConstraints, LocationConstraint, Match, OpenVpnConstraints,
-        RelayConstraints, TunnelConstraints, WireguardConstraints,
+        RelayConstraints, TunnelProtocol, WireguardConstraints,
     },
     relay_list::{Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
@@ -239,40 +239,48 @@ impl RelaySelector {
             _ => (Constraint::Any, TransportProtocol::Tcp),
         };
 
+        let mut relay_constraints = RelayConstraints {
+            location: original_constraints.location.clone(),
+            tunnel_protocol: original_constraints.tunnel_protocol.clone(),
+            ..Default::default()
+        };
         // Highest priority preference. Where we prefer OpenVPN using UDP. But without changing
         // any constraints that are explicitly specified.
-        let tunnel_constraints = match original_constraints.tunnel {
-            // No constraints, we use our preferred ones.
+        match original_constraints.tunnel_protocol {
+            // If no tunnel protocol is selected, use preferred constraints
             #[cfg(not(target_os = "android"))]
-            Constraint::Any => TunnelConstraints::OpenVpn(OpenVpnConstraints {
-                port: preferred_port,
-                protocol: Constraint::Only(preferred_protocol),
-            }),
-            #[cfg(target_os = "android")]
-            Constraint::Any => TunnelConstraints::Wireguard(WireguardConstraints {
-                port: Constraint::Any,
-            }),
-            Constraint::Only(TunnelConstraints::OpenVpn(ref openvpn_constraints)) => {
-                match openvpn_constraints {
-                    // Constrained to OpenVpn, but port/protocol not constrained. Use our preferred.
-                    OpenVpnConstraints {
-                        port: Constraint::Any,
-                        protocol: Constraint::Any,
-                    } => TunnelConstraints::OpenVpn(OpenVpnConstraints {
+            Constraint::Any => {
+                if original_constraints.openvpn_constraints.port.is_any()
+                    && original_constraints.openvpn_constraints.protocol.is_any()
+                {
+                    relay_constraints.openvpn_constraints = OpenVpnConstraints {
                         port: preferred_port,
                         protocol: Constraint::Only(preferred_protocol),
-                    }),
-                    // Other constraints, use the original constraints.
-                    openvpn_constraints => TunnelConstraints::OpenVpn(openvpn_constraints.clone()),
+                    };
+                } else {
+                    relay_constraints.openvpn_constraints = OpenVpnConstraints {
+                        port: original_constraints.openvpn_constraints.port,
+                        protocol: original_constraints.openvpn_constraints.protocol,
+                    };
                 }
             }
-            // Non-OpenVPN constraints. Respect and keep those constraints.
-            Constraint::Only(ref tunnel_constraints) => tunnel_constraints.clone(),
-        };
-        RelayConstraints {
-            location: original_constraints.location.clone(),
-            tunnel: Constraint::Only(tunnel_constraints),
+            #[cfg(not(target_os = "android"))]
+            Constraint::Only(TunnelProtocol::OpenVpn) => {
+                relay_constraints.openvpn_constraints = original_constraints.openvpn_constraints;
+            }
+            #[cfg(not(target_os = "android"))]
+            Constraint::Only(TunnelProtocol::Wireguard) => {
+                relay_constraints.wireguard_constraints =
+                    original_constraints.wireguard_constraints;
+            }
+            #[cfg(target_os = "android")]
+            _ => {
+                relay_constraints.wireguard_constraints =
+                    original_constraints.wireguard_constraints;
+            }
         }
+
+        relay_constraints
     }
 
     pub fn get_auto_proxy_settings(
@@ -350,7 +358,7 @@ impl RelaySelector {
                     "Selected relay {} at {}",
                     selected_relay.hostname, selected_relay.ipv4_addr_in
                 );
-                self.get_random_tunnel(&selected_relay, &constraints.tunnel)
+                self.get_random_tunnel(&selected_relay, &constraints)
                     .map(|endpoint| (selected_relay.clone(), endpoint))
             })
     }
@@ -362,22 +370,34 @@ impl RelaySelector {
             return None;
         }
 
-        let relay = match constraints.tunnel {
+        let relay = match constraints.tunnel_protocol {
             Constraint::Any => relay.clone(),
-            Constraint::Only(ref tunnel_constraints) => {
+            Constraint::Only(TunnelProtocol::Wireguard) => {
                 let mut relay = relay.clone();
-                relay.tunnels = Self::matching_tunnels(&relay.tunnels, tunnel_constraints);
+                relay.tunnels = Self::matching_wireguard_tunnels(
+                    &relay.tunnels,
+                    &constraints.wireguard_constraints,
+                );
+                relay
+            }
+
+            Constraint::Only(TunnelProtocol::OpenVpn) => {
+                let mut relay = relay.clone();
+                relay.tunnels = Self::matching_openvpn_tunnels(
+                    &relay.tunnels,
+                    &constraints.openvpn_constraints,
+                );
                 relay
             }
         };
-        let relay_matches = match constraints.tunnel {
+
+
+        let relay_matches = match constraints.tunnel_protocol {
             Constraint::Any => {
                 !relay.tunnels.openvpn.is_empty() || !relay.tunnels.wireguard.is_empty()
             }
-            Constraint::Only(TunnelConstraints::OpenVpn(_)) => !relay.tunnels.openvpn.is_empty(),
-            Constraint::Only(TunnelConstraints::Wireguard(_)) => {
-                !relay.tunnels.wireguard.is_empty()
-            }
+            Constraint::Only(TunnelProtocol::OpenVpn) => !relay.tunnels.openvpn.is_empty(),
+            Constraint::Only(TunnelProtocol::Wireguard) => !relay.tunnels.wireguard.is_empty(),
         };
 
         if relay_matches {
@@ -432,29 +452,35 @@ impl RelaySelector {
         Some(filtered_relay)
     }
 
-    /// Takes a `RelayTunnels` object which in turn is a collection of tunnel configurations for
-    /// a given relay. Then returns a new `RelayTunnels` instance with only the entries that
-    /// matches the given `TunnelConstraints`.
-    fn matching_tunnels(
+    fn matching_openvpn_tunnels(
         tunnels: &RelayTunnels,
-        tunnel_constraints: &TunnelConstraints,
+        constraints: &OpenVpnConstraints,
     ) -> RelayTunnels {
         RelayTunnels {
             openvpn: tunnels
                 .openvpn
                 .iter()
-                .filter(|endpoint| tunnel_constraints.matches(*endpoint))
+                .filter(|endpoint| constraints.matches(*endpoint))
                 .cloned()
                 .collect(),
+            wireguard: vec![],
+        }
+    }
+
+    fn matching_wireguard_tunnels(
+        tunnels: &RelayTunnels,
+        constraints: &WireguardConstraints,
+    ) -> RelayTunnels {
+        RelayTunnels {
+            openvpn: vec![],
             wireguard: tunnels
                 .wireguard
                 .iter()
-                .filter(|endpoint| tunnel_constraints.matches(*endpoint))
+                .filter(|endpoint| constraints.matches(*endpoint))
                 .cloned()
                 .collect(),
         }
     }
-
     /// Pick a random relay from the given slice. Will return `None` if the given slice is empty
     /// or all relays in it has zero weight.
     fn pick_random_relay<'a>(&mut self, relays: &'a [Relay]) -> Option<&'a Relay> {
@@ -493,25 +519,29 @@ impl RelaySelector {
     fn get_random_tunnel(
         &mut self,
         relay: &Relay,
-        constraints: &Constraint<TunnelConstraints>,
+        constraints: &RelayConstraints,
     ) -> Option<MullvadEndpoint> {
-        match constraints {
+        match constraints.tunnel_protocol {
             // TODO: Handle Constraint::Any case by selecting from both openvpn and wireguard
             // tunnels once wireguard is mature enough
             #[cfg(not(target_os = "android"))]
-            Constraint::Only(TunnelConstraints::OpenVpn(_)) | Constraint::Any => relay
+            Constraint::Only(TunnelProtocol::OpenVpn) | Constraint::Any => relay
                 .tunnels
                 .openvpn
                 .choose(&mut self.rng)
                 .cloned()
                 .map(|endpoint| endpoint.into_mullvad_endpoint(relay.ipv4_addr_in.into())),
-            Constraint::Only(TunnelConstraints::Wireguard(wg_constraints)) => relay
+            Constraint::Only(TunnelProtocol::Wireguard) => relay
                 .tunnels
                 .wireguard
                 .choose(&mut self.rng)
                 .cloned()
                 .and_then(|wg_tunnel| {
-                    self.wg_data_to_endpoint(relay.ipv4_addr_in.into(), wg_tunnel, wg_constraints)
+                    self.wg_data_to_endpoint(
+                        relay.ipv4_addr_in.into(),
+                        wg_tunnel,
+                        &constraints.wireguard_constraints,
+                    )
                 }),
             #[cfg(target_os = "android")]
             Constraint::Any => relay
@@ -527,7 +557,7 @@ impl RelaySelector {
                     )
                 }),
             #[cfg(target_os = "android")]
-            Constraint::Only(TunnelConstraints::OpenVpn(_)) => None,
+            Constraint::Only(TunnelProtocol::OpenVpn) => None,
         }
     }
 
@@ -537,7 +567,7 @@ impl RelaySelector {
         data: WireguardEndpointData,
         constraints: &WireguardConstraints,
     ) -> Option<MullvadEndpoint> {
-        let port = self.get_port_for_wireguard_relay(&data, constraints)?;
+        let port = self.get_port_for_wireguard_relay(&data, &constraints)?;
         let peer_config = wireguard::PeerConfig {
             public_key: data.public_key,
             endpoint: SocketAddr::new(host, port),
