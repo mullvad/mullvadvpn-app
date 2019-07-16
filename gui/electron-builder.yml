@@ -47,9 +47,9 @@ mac:
       to: .
     - from: ../dist-assets/libtalpid_openvpn_plugin.dylib
       to: .
-    - from: ../dist-assets/binaries/macos/openvpn
+    - from: ../dist-assets/binaries/x86_64-apple-darwin/openvpn
       to: .
-    - from: ../dist-assets/binaries/macos/sslocal
+    - from: ../dist-assets/binaries/x86_64-apple-darwin/sslocal
       to: .
     - from: ../dist-assets/uninstall_macos.sh
       to: ./uninstall.sh
@@ -93,9 +93,9 @@ win:
       to: .
     - from: ../windows/winnet/bin/x64-Release/winnet.dll
       to: .
-    - from: ../dist-assets/binaries/windows/openvpn.exe
+    - from: ../dist-assets/binaries/x86_64-pc-windows-msvc/openvpn.exe
       to: .
-    - from: ../dist-assets/binaries/windows/sslocal.exe
+    - from: ../dist-assets/binaries/x86_64-pc-windows-msvc/sslocal.exe
       to: .
     - from: ../windows/winutil/bin/x64-Release/winutil.dll
       to: .
@@ -113,9 +113,9 @@ linux:
       to: .
     - from: ../dist-assets/libtalpid_openvpn_plugin.so
       to: .
-    - from: ../dist-assets/binaries/linux/openvpn
+    - from: ../dist-assets/binaries/x86_64-unknown-linux-gnu/openvpn
       to: .
-    - from: ../dist-assets/binaries/linux/sslocal
+    - from: ../dist-assets/binaries/x86_64-unknown-linux-gnu/sslocal
       to: .
     - from: ../dist-assets/linux/mullvad-daemon.conf
       to: .
