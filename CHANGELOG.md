@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add new settings page for generating and verifying wireguard keys.
 
+### Changed
+- Upgrade OpenVPN from 2.4.6 to 2.4.7.
+- Upgrade OpenSSL from 1.1.0h to 1.1.1c.
 
 ## [2019.6] - 2019-07-15
 ### Added
