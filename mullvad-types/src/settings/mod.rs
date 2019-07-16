@@ -8,6 +8,8 @@ use serde_json;
 use std::{fs::File, io, path::PathBuf};
 use talpid_types::net::{openvpn, wireguard, GenericTunnelOptions};
 
+mod migrations;
+
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -30,6 +32,9 @@ pub enum Error {
 
     #[error(display = "Invalid OpenVPN proxy configuration: {}", _0)]
     InvalidProxyData(String),
+
+    #[error(display = "Unable to read any version of the settings")]
+    NoMatchingVersion,
 }
 
 static SETTINGS_FILE: &str = "settings.json";
@@ -61,7 +66,7 @@ impl Default for Settings {
             account_token: None,
             relay_settings: RelaySettings::Normal(RelayConstraints {
                 location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
-                tunnel: Constraint::Any,
+                ..Default::default()
             }),
             bridge_settings: BridgeSettings::Normal(BridgeConstraints {
                 location: Constraint::Any,
@@ -82,7 +87,14 @@ impl Settings {
         match File::open(&path) {
             Ok(file) => {
                 info!("Loading settings from {}", path.display());
-                Self::read_settings(&mut io::BufReader::new(file))
+                let mut reader = &mut io::BufReader::new(file);
+                Self::read_settings(&mut reader).or_else(|_e| {
+                    let settings = migrations::try_migrate_settings(reader)?;
+                    if let Err(e) = settings.save() {
+                        log::error!("Failed to save settings after migration: {}", e);
+                    }
+                    Ok(settings)
+                })
             }
             Err(e) => Err(Error::ReadError(path.display().to_string(), e)),
         }
