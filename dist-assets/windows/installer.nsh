@@ -70,12 +70,12 @@
 !macro ExtractDriver
 
 	SetOutPath "$TEMP\driver"
-	File "${BUILD_RESOURCES_DIR}\binaries\windows\driver\*"
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\*"
 
 	${If} ${IsWin7}
-		File "${BUILD_RESOURCES_DIR}\binaries\windows\driver\ndis5\*"
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis5\*"
 	${Else}
-		File "${BUILD_RESOURCES_DIR}\binaries\windows\driver\ndis6\*"
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis6\*"
 	${EndIf}
 	
 !macroend
