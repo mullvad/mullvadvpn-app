@@ -33,6 +33,13 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
             Constraint::Only(value) => Constraint::Only(value),
         }
     }
+
+    pub fn is_any(&self) -> bool {
+        match self {
+            Constraint::Any => true,
+            Constraint::Only(_value) => false,
+        }
+    }
 }
 
 impl<T: fmt::Debug + Clone + Eq + PartialEq> Default for Constraint<T> {
@@ -89,23 +96,43 @@ impl RelaySettings {
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
-    pub tunnel: Constraint<TunnelConstraints>,
+    pub tunnel_protocol: Constraint<TunnelProtocol>,
+    pub wireguard_constraints: WireguardConstraints,
+    pub openvpn_constraints: OpenVpnConstraints,
 }
 
 impl RelayConstraints {
     pub fn merge(&self, update: RelayConstraintsUpdate) -> Self {
         RelayConstraints {
             location: update.location.unwrap_or_else(|| self.location.clone()),
-            tunnel: update.tunnel.unwrap_or_else(|| self.tunnel.clone()),
+            tunnel_protocol: update
+                .tunnel_protocol
+                .unwrap_or_else(|| self.tunnel_protocol.clone()),
+            wireguard_constraints: update
+                .wireguard_constraints
+                .unwrap_or_else(|| self.wireguard_constraints.clone()),
+            openvpn_constraints: update
+                .openvpn_constraints
+                .unwrap_or_else(|| self.openvpn_constraints.clone()),
         }
     }
 }
 
 impl fmt::Display for RelayConstraints {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self.tunnel {
-            Constraint::Any => write!(f, "any relay")?,
-            Constraint::Only(ref tunnel_constraint) => tunnel_constraint.fmt(f)?,
+        match self.tunnel_protocol {
+            Constraint::Any => write!(f, "any tunnel protocol")?,
+            Constraint::Only(ref tunnel_protocol) => {
+                tunnel_protocol.fmt(f)?;
+                match tunnel_protocol {
+                    TunnelProtocol::Wireguard => {
+                        write!(f, " over {}", &self.wireguard_constraints)?;
+                    }
+                    TunnelProtocol::OpenVpn => {
+                        write!(f, " over {}", &self.openvpn_constraints)?;
+                    }
+                };
+            }
         }
         write!(f, " in ")?;
         match self.location {
@@ -135,6 +162,23 @@ impl fmt::Display for LocationConstraint {
             LocationConstraint::Hostname(country, city, hostname) => {
                 write!(f, "city {}, {}, hostname {}", city, country, hostname)
             }
+        }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub enum TunnelProtocol {
+    #[serde(rename = "wireguard")]
+    Wireguard,
+    #[serde(rename = "openvpn")]
+    OpenVpn,
+}
+
+impl fmt::Display for TunnelProtocol {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            TunnelProtocol::Wireguard => write!(f, "WireGuard"),
+            TunnelProtocol::OpenVpn => write!(f, "OpenVPN"),
         }
     }
 }
@@ -180,7 +224,7 @@ impl Match<WireguardEndpointData> for TunnelConstraints {
     }
 }
 
-#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct OpenVpnConstraints {
     pub port: Constraint<u16>,
     pub protocol: Constraint<TransportProtocol>,
@@ -206,7 +250,7 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
     }
 }
 
-#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
 }
@@ -296,5 +340,7 @@ pub enum RelaySettingsUpdate {
 #[serde(default)]
 pub struct RelayConstraintsUpdate {
     pub location: Option<Constraint<LocationConstraint>>,
-    pub tunnel: Option<Constraint<TunnelConstraints>>,
+    pub tunnel_protocol: Option<Constraint<TunnelProtocol>>,
+    pub wireguard_constraints: Option<WireguardConstraints>,
+    pub openvpn_constraints: Option<OpenVpnConstraints>,
 }
