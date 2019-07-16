@@ -37,8 +37,8 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{
-        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, OpenVpnConstraints,
-        RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TunnelConstraints,
+        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, RelayConstraintsUpdate,
+        RelaySettings, RelaySettingsUpdate, TunnelProtocol,
     },
     relay_list::{Relay, RelayList},
     states::{TargetState, TunnelState},
@@ -53,7 +53,7 @@ use talpid_core::{
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::{openvpn, TransportProtocol, TunnelParameters},
+    net::{openvpn, TunnelParameters},
     tunnel::{BlockReason, TunnelStateTransition},
     ErrorExt,
 };
@@ -1071,16 +1071,9 @@ where
 
     // Set the OpenVPN tunnel to use TCP.
     fn apply_proxy_constraints(&mut self) -> settings::Result<bool> {
-        let openvpn_constraints = OpenVpnConstraints {
-            port: Constraint::Any,
-            protocol: Constraint::Only(TransportProtocol::Tcp),
-        };
-
-        let tunnel_constraints = TunnelConstraints::OpenVpn(openvpn_constraints);
-
         let constraints_update = RelayConstraintsUpdate {
-            location: None,
-            tunnel: Some(Constraint::Only(tunnel_constraints)),
+            tunnel_protocol: Some(Constraint::Only(TunnelProtocol::OpenVpn)),
+            ..Default::default()
         };
 
         let settings_update = RelaySettingsUpdate::Normal(constraints_update);
