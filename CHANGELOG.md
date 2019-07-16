@@ -27,6 +27,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add new settings page for generating and verifying wireguard keys.
 
 
+### Fixed
+- Mark CLI `bridge set state` argument as required to avoid a crash.
+
+
 ## [2019.6] - 2019-07-15
 ### Added
 - Add simplified Chinese translations.
