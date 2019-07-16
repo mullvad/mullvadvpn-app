@@ -138,6 +138,7 @@ fn create_set_state_subcommand() -> clap::App<'static, 'static> {
         .arg(
             clap::Arg::with_name("state")
                 .help("Specifies whether a bridge should be used")
+                .required(true)
                 .index(1)
                 .possible_values(&["auto", "on", "off"]),
         )
