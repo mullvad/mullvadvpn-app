@@ -52,7 +52,7 @@ function getRelayName(
             // TRANSLATORS: %(hostname)s - a hostname
             messages.pgettext('connect-container', '%(city)s (%(hostname)s)'),
             {
-              city: city.name,
+              city: relayLocationsLocalization.gettext(city.name),
               hostname,
             },
           );
