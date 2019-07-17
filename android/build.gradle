@@ -102,7 +102,7 @@ task copyMullvadJni(type: Copy) {
 }
 
 task copyWireguardGo(type: Copy) {
-    from "$repoRootPath/dist-assets/binaries/android"
+    from "$repoRootPath/dist-assets/binaries/aarch64-linux-android"
     include 'libwg.so'
     into "$extraJniDirectory/arm64-v8a"
 }

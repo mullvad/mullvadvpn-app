@@ -47,7 +47,7 @@ matrix:
         - export RUSTFLAGS="--deny unused_imports --deny dead_code"
         - export AR_aarch64_linux_android=/opt/android/toolchains/android28-aarch64/bin/aarch64-linux-android-ar
         - export CC_aarch64_linux_android=/opt/android/toolchains/android28-aarch64/bin/aarch64-linux-android28-clang
-        - source env.sh android
+        - source env.sh aarch64-linux-android
         - env
       script:
         - cargo build --target aarch64-linux-android --verbose
