@@ -252,7 +252,7 @@ to do that before starting the GUI.
 
 Build the Rust daemon with:
 ```bash
-. env.sh "android"
+. env.sh "aarch64-linux-android"
 cargo build --target aarch64-linux-android --release
 ```
 
