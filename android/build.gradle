@@ -8,6 +8,9 @@ def repoRootPath = projectDir.absoluteFile.parentFile.absolutePath
 def extraAssetsDirectory = "$project.buildDir/extraAssets"
 def extraJniDirectory = "$project.buildDir/extraJni"
 
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(file('keystore.properties')))
+
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
@@ -20,10 +23,20 @@ android {
         versionName "2019.1"
     }
 
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig signingConfigs.release
         }
     }
 
