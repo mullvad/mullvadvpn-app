@@ -96,12 +96,30 @@ unzip android-ndk-r20-linux-x86_64.zip
   --platform=android-21 \
   --arch=arm64 \
   --install-dir=$PWD/toolchains/android21-aarch64
+./android-ndk-r20/build/tools/make-standalone-toolchain.sh \
+  --platform=android-21 \
+  --arch=arm \
+  --install-dir=$PWD/toolchains/android21-armv7
+./android-ndk-r20/build/tools/make-standalone-toolchain.sh \
+  --platform=android-21 \
+  --arch=x86_64 \
+  --install-dir=$PWD/toolchains/android21-x86_64
+./android-ndk-r20/build/tools/make-standalone-toolchain.sh \
+  --platform=android-21 \
+  --arch=x86 \
+  --install-dir=$PWD/toolchains/android21-i686
 ```
 
 Set up the required environment variables:
 ```
 export AR_aarch64_linux_android="$PWD/toolchains/android21-aarch64/bin/aarch64-linux-android-ar"
+export AR_armv7_linux_androideabi="$PWD/toolchains/android21-armv7/bin/arm-linux-androideabi-ar"
+export AR_x86_64_linux_android="$PWD/toolchains/android21-x86_64/bin/x86_64-linux-android-ar"
+export AR_i686_linux_android="$PWD/toolchains/android21-i686/bin/i686-linux-android-ar"
 export CC_aarch64_linux_android="$PWD/toolchains/android21-aarch64/bin/aarch64-linux-android21-clang"
+export CC_armv7_linux_androideabi="$PWD/toolchains/android21-armv7/bin/armv7a-linux-androideabi21-clang"
+export CC_x86_64_linux_android="$PWD/toolchains/android21-x86_64/bin/x86_64-linux-android21-clang"
+export CC_i686_linux_android="$PWD/toolchains/android21-i686/bin/i686-linux-android21-clang"
 export ANDROID_HOME="$PWD"
 ```
 
@@ -111,7 +129,7 @@ These steps has to be done **after** you have installed Rust in the section belo
 
 ##### Install the Rust Android target
 ```bash
-rustup target add aarch64-linux-android
+rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 ```
 
 ##### Set up cargo to use the correct linker and archiver
@@ -123,7 +141,19 @@ Add to `~/.cargo/config`:
 ```
 [target.aarch64-linux-android]
 ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android28-clang"
+linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
+
+[target.armv7-linux-androideabi]
+ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
+linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang"
+
+[target.x86_64-linux-android]
+ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
+linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
+
+[target.i686-linux-android]
+ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar"
+linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
 ```
 
 ### All platforms
@@ -250,16 +280,11 @@ to do that before starting the GUI.
 
 ## Building the Android app
 
-Build the Rust daemon with:
+Running the `build-apk.sh` script will build the necessary Rust daemon for all supported ABIs and
+build the final APK. You may pass a `--dev-build` to build the Rust daemon and the UI in debug mode
+and sign the APK with automatically generated debug keys.
 ```bash
-. env.sh "aarch64-linux-android"
-cargo build --target aarch64-linux-android --release
-```
-
-Packaging the APK:
-```bash
-cd android/
-./gradlew assembleRelease
+./build-apk.sh
 ```
 
 If the above fails with an error related to compression, try allowing more memory to the JVM:
