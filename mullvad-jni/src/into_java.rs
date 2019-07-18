@@ -13,6 +13,7 @@ use mullvad_types::{
     relay_list::{Relay, RelayList, RelayListCity, RelayListCountry},
     settings::Settings,
     states::TunnelState,
+    wireguard::KeygenEvent,
     CustomTunnelEndpoint,
 };
 use std::{fmt::Debug, net::IpAddr};
@@ -420,6 +421,39 @@ impl<'env> IntoJava<'env> for CustomTunnelEndpoint {
 
         env.new_object(&class, "()V", &[])
             .expect("Failed to create CustomTunnelEndpoint Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for KeygenEvent {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        match self {
+            KeygenEvent::NewKey(public_key) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/KeygenEvent$NewKey");
+                let java_public_key = env.auto_local(public_key.into_java(env));
+                let parameters = [JValue::Object(java_public_key.as_obj())];
+
+                env.new_object(
+                    &class,
+                    "(Lnet/mullvad/mullvadvpn/model/PublicKey;)V",
+                    &parameters,
+                )
+                .expect("Failed to create KeygenEvent.NewKey Java object")
+            }
+            KeygenEvent::TooManyKeys => {
+                let class = get_class("net/mullvad/mullvadvpn/model/KeygenEvent$TooManyKeys");
+
+                env.new_object(&class, "()V", &[])
+                    .expect("Failed to create KeygenEvent.TooManyKeys Java object")
+            }
+            KeygenEvent::GenerationFailure => {
+                let class = get_class("net/mullvad/mullvadvpn/model/KeygenEvent$GenerationFailure");
+
+                env.new_object(&class, "()V", &[])
+                    .expect("Failed to create KeygenEvent.GenerationFailure Java object")
+            }
+        }
     }
 }
 
