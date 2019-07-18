@@ -156,6 +156,27 @@ ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/i68
 linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
 ```
 
+#### Signing the release APK
+
+In order to build release APKs, they need to be signed. First, a signing key must be generated and
+stored in a keystore file. In the example below, the keystore file will be
+`/home/user/app-keys.jks` and will contain a key called `release`.
+
+```
+keytool -genkey -v -keystore /home/user/app-keys.jks -alias release -keyalg RSA -keysize 4096 -validity 10000
+```
+
+Fill in the requested information to generate the key and the keystore file. Suppose the file was
+protected by a password `keystore-password` and the key with a password `key-password`. This
+information should then be added to the `android/keystore.properties` file:
+
+```
+keyAlias = release
+keyPassword = key-password
+storeFile = /home/user/app-keys.jks
+storePassword = keystore-password
+```
+
 ### All platforms
 
 1. Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
