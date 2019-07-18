@@ -17,5 +17,7 @@
 /dist-assets/openvpn
 /dist-assets/openvpn.exe
 /windows/**/bin/
+/android/keystore.properties
+/android/local.properties
 **/.vs/
 *.bak
