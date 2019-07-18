@@ -265,7 +265,7 @@ cd android/
 If the above fails with an error related to compression, try allowing more memory to the JVM:
 ```bash
 echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
-./gradlew --stop
+./android/gradlew --stop
 ```
 
 
