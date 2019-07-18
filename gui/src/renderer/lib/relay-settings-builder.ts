@@ -80,19 +80,13 @@ class NormalRelaySettingsBuilder {
 
   get tunnel(): ITunnelBuilder {
     const updateOpenvpn = (next: Partial<IOpenVpnConstraints>) => {
-      const tunnel = this.payload.tunnel;
-      if (typeof tunnel === 'string' || typeof tunnel === 'undefined') {
-        this.payload.tunnel = {
-          only: {
-            openvpn: next,
-          },
-        };
-      } else if (typeof tunnel === 'object') {
-        const prev = tunnel.only && 'openvpn' in tunnel.only ? tunnel.only.openvpn : {};
-        this.payload.tunnel = {
-          only: {
-            openvpn: { ...prev, ...next },
-          },
+      if (this.payload.openvpnConstraints === undefined) {
+        this.payload.openvpnConstraints = next;
+      } else {
+        const prev = this.payload.openvpnConstraints;
+        this.payload.openvpnConstraints = {
+          ...prev,
+          ...next,
         };
       }
     };
@@ -127,7 +121,7 @@ class NormalRelaySettingsBuilder {
         return this;
       },
       any: () => {
-        this.payload.tunnel = 'any';
+        this.payload.tunnelProtocol = 'any';
         return this;
       },
     };
