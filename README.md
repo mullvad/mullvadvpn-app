@@ -93,15 +93,15 @@ unzip sdk-tools-linux-4333796.zip
 wget https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip
 unzip android-ndk-r20-linux-x86_64.zip
 ./android-ndk-r20/build/tools/make-standalone-toolchain.sh \
-  --platform=android-28 \
+  --platform=android-21 \
   --arch=arm64 \
-  --install-dir=$PWD/toolchains/android28-aarch64
+  --install-dir=$PWD/toolchains/android21-aarch64
 ```
 
 Set up the required environment variables:
 ```
-export AR_aarch64_linux_android="$PWD/toolchains/android28-aarch64/bin/aarch64-linux-android-ar"
-export CC_aarch64_linux_android="$PWD/toolchains/android28-aarch64/bin/aarch64-linux-android28-clang"
+export AR_aarch64_linux_android="$PWD/toolchains/android21-aarch64/bin/aarch64-linux-android-ar"
+export CC_aarch64_linux_android="$PWD/toolchains/android21-aarch64/bin/aarch64-linux-android21-clang"
 export ANDROID_HOME="$PWD"
 ```
 

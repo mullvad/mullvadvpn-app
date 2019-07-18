@@ -34,19 +34,19 @@ matrix:
         - curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y
         - source $HOME/.cargo/env
         - rustup target add aarch64-linux-android
-        - curl -sf -L -o /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-r19b-linux-x86_64.zip
+        - curl -sf -L -o /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip
         - sudo mkdir /opt/android
         - sudo unzip -q -d /opt/android/ /tmp/ndk.zip
-        - sudo /opt/android/android-ndk-r19b/build/tools/make-standalone-toolchain.sh --platform=android-28 --arch=arm64 --install-dir=/opt/android/toolchains/android28-aarch64
+        - sudo /opt/android/android-ndk-r20/build/tools/make-standalone-toolchain.sh --platform=android-21 --arch=arm64 --install-dir=/opt/android/toolchains/android21-aarch64
         - |
             cat >> $HOME/.cargo/config << EOF
             [target.aarch64-linux-android]
-            ar = "/opt/android/android-ndk-r19b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-            linker = "/opt/android/android-ndk-r19b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android28-clang"
+            ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
+            linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
       before_script:
         - export RUSTFLAGS="--deny unused_imports --deny dead_code"
-        - export AR_aarch64_linux_android=/opt/android/toolchains/android28-aarch64/bin/aarch64-linux-android-ar
-        - export CC_aarch64_linux_android=/opt/android/toolchains/android28-aarch64/bin/aarch64-linux-android28-clang
+        - export AR_aarch64_linux_android=/opt/android/toolchains/android21-aarch64/bin/aarch64-linux-android-ar
+        - export CC_aarch64_linux_android=/opt/android/toolchains/android21-aarch64/bin/aarch64-linux-android21-clang
         - source env.sh aarch64-linux-android
         - env
       script:
