@@ -83,7 +83,14 @@ class ApplicationMain {
     relaySettings: {
       normal: {
         location: 'any',
-        tunnel: 'any',
+        tunnelProtocol: 'any',
+        openvpnConstraints: {
+          port: 'any',
+          protocol: 'any',
+        },
+        wireguardConstraints: {
+          port: 'any',
+        },
       },
     },
     bridgeSettings: {
@@ -611,8 +618,8 @@ class ApplicationMain {
     let fnHasWantedTunnels = hasOpenVpnTunnels;
 
     if ('normal' in relaySettings) {
-      const tunnelConstraints = relaySettings.normal.tunnel;
-      if (tunnelConstraints !== 'any' && 'wireguard' in tunnelConstraints.only) {
+      const tunnelConstraints = relaySettings.normal.tunnelProtocol;
+      if (tunnelConstraints !== 'any' && 'wireguard' === tunnelConstraints.only) {
         fnHasWantedTunnels = hasWireguardTunnels;
       }
     }
