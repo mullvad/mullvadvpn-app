@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn
 
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.PublicKey
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
@@ -14,6 +15,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         initialize(vpnService)
     }
 
+    var onKeygenEvent: ((KeygenEvent) -> Unit)? = null
     var onRelayListChange: ((RelayList) -> Unit)? = null
     var onSettingsChange: ((Settings) -> Unit)? = null
     var onTunnelStateChange: ((TunnelState) -> Unit)? = null
@@ -31,6 +33,10 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     external fun updateRelaySettings(update: RelaySettingsUpdate)
 
     private external fun initialize(vpnService: MullvadVpnService)
+
+    private fun notifyKeygenEvent(event: KeygenEvent) {
+        onKeygenEvent?.invoke(event)
+    }
 
     private fun notifyRelayListEvent(relayList: RelayList) {
         onRelayListChange?.invoke(relayList)
