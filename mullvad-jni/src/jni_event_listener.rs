@@ -24,6 +24,7 @@ pub enum Error {
 }
 
 enum Event {
+    KeygenEvent(KeygenEvent),
     RelayList(RelayList),
     Settings(Settings),
     Tunnel(TunnelState),
@@ -39,6 +40,10 @@ impl JniEventListener {
 }
 
 impl EventListener for JniEventListener {
+    fn notify_key_event(&self, key_event: KeygenEvent) {
+        let _ = self.0.send(Event::KeygenEvent(key_event));
+    }
+
     fn notify_new_state(&self, state: TunnelState) {
         let _ = self.0.send(Event::Tunnel(state));
     }
@@ -50,14 +55,12 @@ impl EventListener for JniEventListener {
     fn notify_relay_list(&self, relay_list: RelayList) {
         let _ = self.0.send(Event::RelayList(relay_list));
     }
-
-    // TODO: manage key events properly
-    fn notify_key_event(&self, _key_event: KeygenEvent) {}
 }
 
 struct JniEventHandler<'env> {
     env: AttachGuard<'env>,
     mullvad_ipc_client: JObject<'env>,
+    notify_keygen_event: JMethodID<'env>,
     notify_relay_list_event: JMethodID<'env>,
     notify_settings_event: JMethodID<'env>,
     notify_tunnel_event: JMethodID<'env>,
@@ -101,6 +104,12 @@ impl<'env> JniEventHandler<'env> {
         events: mpsc::Receiver<Event>,
     ) -> Result<Self, Error> {
         let class = get_class("net/mullvad/mullvadvpn/MullvadDaemon");
+        let notify_keygen_event = Self::get_method_id(
+            &env,
+            &class,
+            "notifyKeygenEvent",
+            "(Lnet/mullvad/mullvadvpn/model/KeygenEvent;)V",
+        )?;
         let notify_relay_list_event = Self::get_method_id(
             &env,
             &class,
@@ -123,6 +132,7 @@ impl<'env> JniEventHandler<'env> {
         Ok(JniEventHandler {
             env,
             mullvad_ipc_client,
+            notify_keygen_event,
             notify_relay_list_event,
             notify_settings_event,
             notify_tunnel_event,
@@ -143,10 +153,29 @@ impl<'env> JniEventHandler<'env> {
     fn run(&mut self) {
         while let Ok(event) = self.events.recv() {
             match event {
+                Event::KeygenEvent(keygen_event) => self.handle_keygen_event(keygen_event),
                 Event::RelayList(relay_list) => self.handle_relay_list_event(relay_list),
                 Event::Settings(settings) => self.handle_settings(settings),
                 Event::Tunnel(tunnel_event) => self.handle_tunnel_event(tunnel_event),
             }
+        }
+    }
+
+    fn handle_keygen_event(&self, event: KeygenEvent) {
+        let java_keygen_event = self.env.auto_local(event.into_java(&self.env));
+
+        let result = self.env.call_method_unchecked(
+            self.mullvad_ipc_client,
+            self.notify_keygen_event,
+            JavaType::Primitive(Primitive::Void),
+            &[JValue::Object(java_keygen_event.as_obj())],
+        );
+
+        if let Err(error) = result {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to call MullvadDaemon.notifyKeygenEvent")
+            );
         }
     }
 
