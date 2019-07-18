@@ -4,6 +4,7 @@ import {
   KeygenEvent,
   RelayLocation,
   RelayProtocol,
+  TunnelProtocol,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { ReduxAction } from '../store';
@@ -11,6 +12,7 @@ import { ReduxAction } from '../store';
 export type RelaySettingsRedux =
   | {
       normal: {
+        tunnelProtocol: 'any' | TunnelProtocol;
         location: 'any' | RelayLocation;
         port: 'any' | number;
         protocol: 'any' | RelayProtocol;
@@ -108,6 +110,7 @@ const initialState: ISettingsReduxState = {
   relaySettings: {
     normal: {
       location: 'any',
+      tunnelProtocol: 'any',
       port: 'any',
       protocol: 'any',
     },

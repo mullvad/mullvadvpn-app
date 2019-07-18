@@ -54,13 +54,9 @@ describe('Relay settings builder', () => {
         .build(),
     ).to.deep.equal({
       normal: {
-        tunnel: {
-          only: {
-            openvpn: {
-              port: 'any',
-              protocol: 'any',
-            },
-          },
+        openvpnConstraints: {
+          port: 'any',
+          protocol: 'any',
         },
       },
     });
@@ -75,13 +71,9 @@ describe('Relay settings builder', () => {
         .build(),
     ).to.deep.equal({
       normal: {
-        tunnel: {
-          only: {
-            openvpn: {
-              port: { only: 80 },
-              protocol: { only: 'tcp' },
-            },
-          },
+        openvpnConstraints: {
+          port: { only: 80 },
+          protocol: { only: 'tcp' },
         },
       },
     });
