@@ -274,16 +274,9 @@ impl RelaySelector {
                     original_constraints.wireguard_constraints;
             }
             #[cfg(target_os = "android")]
-            _ => match &original_constraints.wireguard_constraints {
-                Constraint::Only(constraints) => {
-                    relay_constraints.wireguard_constraints = constraints;
-                }
-                Constraint::Any => {
-                    relay_constraints.wireguard_constraints = WireguardConstraints {
-                        port: Constraint::Any,
-                    }
-                }
-            },
+            _ => {
+                relay_constraints.wireguard_constraints = constraints;
+            }
         }
 
         relay_constraints
