@@ -44,16 +44,6 @@ export function tunnelTypeToString(tunnel: TunnelType): string {
 
 export type RelayProtocol = 'tcp' | 'udp';
 
-export function mapConstraint<T, R>(
-  constraint: 'any' | { only: T },
-  func: (only: T) => R,
-): 'any' | R {
-  if (constraint === 'any') {
-    return 'any';
-  }
-  return func(constraint.only);
-}
-
 export function liftConstraint<T>(constraint: 'any' | { only: T }): 'any' | T {
   if (constraint === 'any') {
     return 'any';
