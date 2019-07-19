@@ -38,8 +38,8 @@ impl super::SettingsVersion for Migration {
             .map_err(Error::ParseError)
     }
     fn migrate(&self, old: VersionedSettings) -> VersionedSettings {
-        if let VersionedSettings::V1(old) = old {
-            VersionedSettings::V2(crate::settings::Settings {
+        match old {
+            VersionedSettings::V1(old) => VersionedSettings::V2(crate::settings::Settings {
                 account_token: old.account_token,
                 relay_settings: migrate_relay_settings(old.relay_settings),
                 bridge_settings: old.bridge_settings,
@@ -48,9 +48,8 @@ impl super::SettingsVersion for Migration {
                 block_when_disconnected: old.block_when_disconnected,
                 auto_connect: old.auto_connect,
                 tunnel_options: old.tunnel_options,
-            })
-        } else {
-            panic!("Unexpected settings version, expected v1");
+            }),
+            VersionedSettings::V2(new) => VersionedSettings::V2(new),
         }
     }
 }
