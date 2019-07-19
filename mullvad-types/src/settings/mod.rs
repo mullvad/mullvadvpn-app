@@ -41,7 +41,7 @@ static SETTINGS_FILE: &str = "settings.json";
 
 
 /// Mullvad daemon settings.
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 pub struct Settings {
     account_token: Option<String>,
