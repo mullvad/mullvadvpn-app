@@ -100,3 +100,122 @@ pub enum TunnelConstraints {
     #[serde(rename = "wireguard")]
     Wireguard(WireguardConstraints),
 }
+
+#[cfg(test)]
+mod test {
+    use super::super::SettingsMigration;
+    use serde_json;
+    const OLD_SETTINGS: &str = r#"
+{
+  "account_token": "1234",
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "country": "se"
+        }
+      },
+      "tunnel": {
+        "only": {
+          "openvpn": {
+            "port": {
+              "only": 53
+            },
+            "protocol": {
+              "only": "udp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "bridge_settings": {
+    "normal": {
+      "location": "any"
+    }
+  },
+  "bridge_state": "auto",
+  "allow_lan": true,
+  "block_when_disconnected": false,
+  "auto_connect": false,
+  "tunnel_options": {
+    "openvpn": {
+      "mssfix": null
+    },
+    "wireguard": {
+      "mtu": null
+    },
+    "generic": {
+      "enable_ipv6": false
+    }
+  }
+}
+"#;
+
+    const NEW_SETTINGS: &str = r#"
+{
+  "account_token": "1234",
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "country": "se"
+        }
+      },
+      "tunnel_protocol": "any",
+      "wireguard_constraints": {
+        "port": "any"
+      },
+      "openvpn_constraints": {
+        "port": {
+          "only": 53
+        },
+        "protocol": {
+          "only": "udp"
+        }
+      }
+    }
+  },
+  "bridge_settings": {
+    "normal": {
+      "location": "any"
+    }
+  },
+  "bridge_state": "auto",
+  "allow_lan": true,
+  "block_when_disconnected": false,
+  "auto_connect": false,
+  "tunnel_options": {
+    "openvpn": {
+      "mssfix": null
+    },
+    "wireguard": {
+      "mtu": null
+    },
+    "generic": {
+      "enable_ipv6": false
+    }
+  },
+  "settings_version": 2
+}
+"#;
+
+    #[test]
+    fn test_migration() {
+        let m = super::Migration;
+        let old_settings = m
+            .read(&mut OLD_SETTINGS.as_bytes())
+            .expect("Failed to deserialize old format");
+        let new_settings = serde_json::from_str(&NEW_SETTINGS).unwrap();
+
+        assert_eq!(&m.migrate(old_settings).unwrap(), &new_settings);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_deserialization_failure() {
+        let m = super::Migration;
+        m.read(&mut NEW_SETTINGS.as_bytes())
+            .expect("Failed to deserialize old format");
+    }
+}
