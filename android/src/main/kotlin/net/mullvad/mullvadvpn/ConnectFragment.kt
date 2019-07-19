@@ -112,8 +112,7 @@ class ConnectFragment : Fragment() {
 
         actionButton.state = uiState
         switchLocationButton.state = uiState
-
-        notificationBanner.setState(uiState)
+        notificationBanner.tunnelState = uiState
         status.setState(uiState)
     }
 

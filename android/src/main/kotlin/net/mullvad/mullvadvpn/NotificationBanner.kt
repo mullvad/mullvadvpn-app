@@ -8,13 +8,21 @@ class NotificationBanner(val parentView: View) {
     private val banner: View = parentView.findViewById(R.id.notification_banner)
     private var visible = false
 
-    fun setState(state: TunnelState) {
-        when (state) {
-            is TunnelState.Disconnecting -> hide()
-            is TunnelState.Disconnected -> hide()
-            is TunnelState.Connecting -> show()
-            is TunnelState.Connected -> hide()
-            is TunnelState.Blocked -> show()
+    var tunnelState: TunnelState = TunnelState.Disconnected()
+        set(value) {
+            field = value
+            update()
+        }
+
+    private fun update() {
+        synchronized(this) {
+            when (tunnelState) {
+                is TunnelState.Disconnecting -> hide()
+                is TunnelState.Disconnected -> hide()
+                is TunnelState.Connecting -> show()
+                is TunnelState.Connected -> hide()
+                is TunnelState.Blocked -> show()
+            }
         }
     }
 
