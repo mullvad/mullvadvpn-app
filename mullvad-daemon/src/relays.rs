@@ -275,7 +275,8 @@ impl RelaySelector {
             }
             #[cfg(target_os = "android")]
             _ => {
-                relay_constraints.wireguard_constraints = constraints;
+                relay_constraints.wireguard_constraints =
+                    original_constraints.wireguard_constraints;
             }
         }
 
@@ -556,7 +557,7 @@ impl RelaySelector {
                     )
                 }),
             #[cfg(target_os = "android")]
-            Constraint::Only(TunnelConstraints::OpenVpn(_)) => None,
+            Constraint::Only(TunnelProtocol::OpenVpn) => None,
         }
     }
 

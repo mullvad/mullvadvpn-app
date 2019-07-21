@@ -110,7 +110,9 @@ impl<'env> FromJava<'env> for RelayConstraintsUpdate {
 
         RelayConstraintsUpdate {
             location: FromJava::from_java(env, location),
-            tunnel: None,
+            tunnel_protocol: None,
+            openvpn_constraints: None,
+            wireguard_constraints: None,
         }
     }
 }
