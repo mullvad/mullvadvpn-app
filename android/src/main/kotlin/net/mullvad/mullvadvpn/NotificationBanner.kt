@@ -2,11 +2,18 @@ package net.mullvad.mullvadvpn
 
 import android.view.View
 
+import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class NotificationBanner(val parentView: View) {
     private val banner: View = parentView.findViewById(R.id.notification_banner)
     private var visible = false
+
+    var keyState: KeygenEvent? = null
+        set(value) {
+            field = value
+            update()
+        }
 
     var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
@@ -16,14 +23,31 @@ class NotificationBanner(val parentView: View) {
 
     private fun update() {
         synchronized(this) {
-            when (tunnelState) {
-                is TunnelState.Disconnecting -> hide()
-                is TunnelState.Disconnected -> hide()
-                is TunnelState.Connecting -> show()
-                is TunnelState.Connected -> hide()
-                is TunnelState.Blocked -> show()
-            }
+            updateBasedOnKeyState() || updateBasedOnTunnelState()
         }
+    }
+
+    private fun updateBasedOnKeyState(): Boolean {
+        when (keyState) {
+            null -> return false
+            is KeygenEvent.NewKey -> return false
+            is KeygenEvent.TooManyKeys -> show()
+            is KeygenEvent.GenerationFailure -> show()
+        }
+
+        return true
+    }
+
+    private fun updateBasedOnTunnelState(): Boolean {
+        when (tunnelState) {
+            is TunnelState.Disconnecting -> hide()
+            is TunnelState.Disconnected -> hide()
+            is TunnelState.Connecting -> show()
+            is TunnelState.Connected -> hide()
+            is TunnelState.Blocked -> show()
+        }
+
+        return true
     }
 
     private fun show() {
