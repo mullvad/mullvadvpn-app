@@ -1,5 +1,5 @@
 use super::{Error, Result, Settings};
-use std::io::{Read, Seek, SeekFrom};
+use std::io::Read;
 mod v1;
 
 
@@ -31,18 +31,13 @@ fn migrations() -> Vec<Box<dyn SettingsVersion>> {
     vec![Box::new(v1::Migration)]
 }
 
-pub fn try_migrate_settings<R: Read + Seek>(
-    mut reader: &mut R,
-) -> Result<crate::settings::Settings> {
+pub fn try_migrate_settings(mut settings_file: &[u8]) -> Result<crate::settings::Settings> {
     let mut migrations_to_apply = vec![];
     let mut valid_settings = None;
 
     let migrations = migrations();
-    for migration in migrations.iter().rev() {
-        reader
-            .seek(SeekFrom::Start(0))
-            .map_err(|e| Error::ReadError(format!("Failed to seek reader"), e))?;
-        match migration.read(&mut reader) {
+    for migration in migrations.iter() {
+        match migration.read(&mut settings_file) {
             Ok(settings) => {
                 valid_settings = Some(migration.migrate(settings));
                 break;

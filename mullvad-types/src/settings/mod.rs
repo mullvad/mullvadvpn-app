@@ -5,8 +5,16 @@ use crate::relay_constraints::{
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::{fs::File, io, path::PathBuf};
-use talpid_types::net::{openvpn, wireguard, GenericTunnelOptions};
+use std::{
+    fs::File,
+    io::{self, Read},
+    path::PathBuf,
+};
+use talpid_types::{
+    net::{openvpn, wireguard, GenericTunnelOptions},
+    ErrorExt,
+};
+
 
 mod migrations;
 
@@ -87,9 +95,16 @@ impl Settings {
         match File::open(&path) {
             Ok(file) => {
                 info!("Loading settings from {}", path.display());
-                let mut reader = &mut io::BufReader::new(file);
-                Self::read_settings(&mut reader).or_else(|_e| {
-                    let settings = migrations::try_migrate_settings(reader)?;
+                let mut settings_bytes = vec![];
+                io::BufReader::new(file)
+                    .read_to_end(&mut settings_bytes)
+                    .map_err(|e| Error::ReadError("Failed to read settings file".to_owned(), e))?;
+                Self::parse_settings(&mut settings_bytes).or_else(|e| {
+                    log::error!(
+                        "{}",
+                        e.display_chain_with_msg("Failed to parse settings file")
+                    );
+                    let settings = migrations::try_migrate_settings(&settings_bytes)?;
                     if let Err(e) = settings.save() {
                         log::error!("Failed to save settings after migration: {}", e);
                     }
@@ -118,8 +133,8 @@ impl Settings {
         Ok(dir.join(SETTINGS_FILE))
     }
 
-    fn read_settings<T: io::Read>(file: &mut T) -> Result<Settings> {
-        serde_json::from_reader(file).map_err(Error::ParseError)
+    fn parse_settings(bytes: &[u8]) -> Result<Settings> {
+        serde_json::from_slice(bytes).map_err(Error::ParseError)
     }
 
     pub fn get_account_token(&self) -> Option<String> {
