@@ -31,7 +31,7 @@ class ConnectFragment : Fragment() {
     private lateinit var locationInfoCache: LocationInfoCache
     private lateinit var relayListListener: RelayListListener
 
-    private var updateViewJob: Job? = null
+    private lateinit var updateTunnelStateJob: Job
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -68,13 +68,11 @@ class ConnectFragment : Fragment() {
         switchLocationButton = SwitchLocationButton(view)
         switchLocationButton.onClick = { openSwitchLocationScreen() }
 
-        updateView(connectionProxy.uiState)
+        updateTunnelStateJob = updateTunnelState(connectionProxy.uiState)
 
         connectionProxy.onUiStateChange = { uiState ->
-            updateViewJob?.cancel()
-            updateViewJob = GlobalScope.launch(Dispatchers.Main) {
-                updateView(uiState)
-            }
+            updateTunnelStateJob.cancel()
+            updateTunnelStateJob = updateTunnelState(uiState)
         }
 
         return view
@@ -99,12 +97,12 @@ class ConnectFragment : Fragment() {
         switchLocationButton.onDestroy()
 
         connectionProxy.onUiStateChange = null
-        updateViewJob?.cancel()
+        updateTunnelStateJob.cancel()
 
         super.onDestroyView()
     }
 
-    private fun updateView(uiState: TunnelState) {
+    private fun updateTunnelState(uiState: TunnelState) = GlobalScope.launch(Dispatchers.Main) {
         val realState = connectionProxy.state
 
         locationInfoCache.state = realState
