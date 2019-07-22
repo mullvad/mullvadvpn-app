@@ -28,6 +28,9 @@ pub use self::relay::Relay;
 mod lan;
 pub use self::lan::Lan;
 
+mod reset;
+pub use self::reset::Reset;
+
 mod tunnel;
 pub use self::tunnel::Tunnel;
 
@@ -45,6 +48,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(Disconnect),
         Box::new(Lan),
         Box::new(Relay),
+        Box::new(Reset),
         Box::new(Status),
         Box::new(Tunnel),
         Box::new(Version),
