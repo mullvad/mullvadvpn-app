@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add new settings page for generating and verifying wireguard keys.
+- Add `factory-reset` CLI command for removing settings, logs and clearing the cache.
 
 ### Changed
 - Upgrade OpenVPN from 2.4.6 to 2.4.7.
