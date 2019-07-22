@@ -708,6 +708,7 @@ where
             VerifyWireguardKey(tx) => self.on_verify_wireguard_key(tx),
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
+            #[cfg(not(target_os = "android"))]
             FactoryReset(tx) => self.on_factory_reset(tx),
             Shutdown => self.trigger_shutdown_event(),
         }
@@ -942,6 +943,7 @@ where
         Self::oneshot_send(tx, self.version.clone(), "get_current_version response");
     }
 
+    #[cfg(not(target_os = "android"))]
     fn on_factory_reset(&mut self, tx: oneshot::Sender<()>) {
         let mut failed = false;
 
