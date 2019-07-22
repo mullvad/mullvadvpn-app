@@ -7,43 +7,48 @@ import net.mullvad.mullvadvpn.model.TunnelState
 
 class NotificationBanner(val parentView: View) {
     private val banner: View = parentView.findViewById(R.id.notification_banner)
+
+    private var showingKeyState = false
     private var visible = false
 
     var keyState: KeygenEvent? = null
         set(value) {
-            field = value
-            update()
+            if (value != field) {
+                field = value
+                updateBasedOnKeyState()
+            }
         }
 
     var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
             field = value
-            update()
+
+            if (!showingKeyState) {
+                updateBasedOnTunnelState()
+            }
         }
 
-    private fun update() {
-        synchronized(this) {
-            updateBasedOnKeyState() || updateBasedOnTunnelState()
-        }
-    }
-
-    private fun updateBasedOnKeyState(): Boolean {
+    private fun updateBasedOnKeyState() {
         val state = keyState
 
-        if (state == null) {
-            return false
+        if (state == null || state is KeygenEvent.NewKey) {
+            // Only update based on tunnel state if it wasn't already showing the tunnel state
+            if (showingKeyState) {
+                updateBasedOnTunnelState()
+            }
         } else {
+            showingKeyState = true
+
             when (state) {
-                is KeygenEvent.NewKey -> return false
                 is KeygenEvent.TooManyKeys -> show()
                 is KeygenEvent.GenerationFailure -> show()
             }
-
-            return true
         }
     }
 
-    private fun updateBasedOnTunnelState(): Boolean {
+    private fun updateBasedOnTunnelState() {
+        showingKeyState = false
+
         when (tunnelState) {
             is TunnelState.Disconnecting -> hide()
             is TunnelState.Disconnected -> hide()
@@ -51,8 +56,6 @@ class NotificationBanner(val parentView: View) {
             is TunnelState.Connected -> hide()
             is TunnelState.Blocked -> show()
         }
-
-        return true
     }
 
     private fun show() {
