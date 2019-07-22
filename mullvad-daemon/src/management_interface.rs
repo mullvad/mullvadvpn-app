@@ -226,6 +226,7 @@ pub enum ManagementCommand {
     GetVersionInfo(OneshotSender<BoxFuture<version::AppVersionInfo, mullvad_rpc::Error>>),
     /// Get current version of the app
     GetCurrentVersion(OneshotSender<version::AppVersion>),
+    #[cfg(not(target_os = "android"))]
     /// Remove settings and clear the cache
     FactoryReset(OneshotSender<()>),
     /// Makes the daemon exit the main loop and quit.
@@ -686,13 +687,20 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     fn factory_reset(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
-        log::debug!("factory_reset");
-        let (tx, rx) = sync::oneshot::channel();
-        let future = self
-            .send_command_to_daemon(ManagementCommand::FactoryReset(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        #[cfg(not(target_os = "android"))]
+        {
+            log::debug!("factory_reset");
+            let (tx, rx) = sync::oneshot::channel();
+            let future = self
+                .send_command_to_daemon(ManagementCommand::FactoryReset(tx))
+                .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
-        Box::new(future)
+            Box::new(future)
+        }
+        #[cfg(target_os = "android")]
+        {
+            Box::new(future::ok(()))
+        }
     }
 
 
