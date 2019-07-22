@@ -238,6 +238,7 @@ pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
     version: String,
+    shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
 }
 
 impl Daemon<ManagementInterfaceEventBroadcaster> {
@@ -416,6 +417,7 @@ where
             last_generated_bridge_relay: None,
             version,
             wireguard_key_manager,
+            shutdown_callbacks: vec![],
         };
 
         daemon.ensure_wireguard_keys_for_current_account();
@@ -441,6 +443,9 @@ where
             if self.state == DaemonExecutionState::Finished {
                 break;
             }
+        }
+        for cb in self.shutdown_callbacks.into_iter() {
+            cb();
         }
         Ok(())
     }
@@ -970,9 +975,11 @@ where
         // Shut the daemon down.
         self.trigger_shutdown_event();
 
-        if !failed {
-            Self::oneshot_send(tx, (), "factory_reset response");
-        }
+        self.shutdown_callbacks.push(Box::new(move || {
+            if !failed {
+                Self::oneshot_send(tx, (), "factory_reset response");
+            }
+        }));
     }
 
     fn on_update_relay_settings(&mut self, tx: oneshot::Sender<()>, update: RelaySettingsUpdate) {
