@@ -1343,12 +1343,14 @@ where
             .expect("Tunnel state machine has stopped");
     }
 
+    #[cfg(not(target_os = "android"))]
     fn clear_log_directory(&self) -> Result<()> {
         let log_dir = mullvad_paths::get_log_dir().map_err(Error::PathError)?;
         fs::remove_dir_all(&log_dir).map_err(Error::RemovalError)?;
         fs::create_dir_all(&log_dir).map_err(Error::CreateDirError)
     }
 
+    #[cfg(not(target_os = "android"))]
     fn clear_cache_directory(&self) -> Result<()> {
         let cache_dir = mullvad_paths::cache_dir().map_err(Error::PathError)?;
         fs::remove_dir_all(&cache_dir).map_err(Error::RemovalError)?;

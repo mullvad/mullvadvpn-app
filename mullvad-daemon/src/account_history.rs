@@ -148,6 +148,7 @@ impl AccountHistory {
     }
 
     /// Remove account history
+    #[cfg(not(target_os = "android"))]
     pub fn clear(&mut self) -> Result<()> {
         self.accounts = VecDeque::new();
         self.save_to_disk()
