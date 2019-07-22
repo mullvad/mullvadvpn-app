@@ -14,8 +14,10 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
+import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
+import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class ConnectFragment : Fragment() {
@@ -28,9 +30,11 @@ class ConnectFragment : Fragment() {
 
     private lateinit var parentActivity: MainActivity
     private lateinit var connectionProxy: ConnectionProxy
+    private lateinit var keyStatusListener: KeyStatusListener
     private lateinit var locationInfoCache: LocationInfoCache
     private lateinit var relayListListener: RelayListListener
 
+    private lateinit var updateKeyStatusJob: Job
     private lateinit var updateTunnelStateJob: Job
 
     override fun onAttach(context: Context) {
@@ -38,6 +42,7 @@ class ConnectFragment : Fragment() {
 
         parentActivity = context as MainActivity
         connectionProxy = parentActivity.connectionProxy
+        keyStatusListener = parentActivity.keyStatusListener
         locationInfoCache = parentActivity.locationInfoCache
         relayListListener = parentActivity.relayListListener
     }
@@ -68,6 +73,7 @@ class ConnectFragment : Fragment() {
         switchLocationButton = SwitchLocationButton(view)
         switchLocationButton.onClick = { openSwitchLocationScreen() }
 
+        updateKeyStatusJob = updateKeyStatus(keyStatusListener.keyStatus)
         updateTunnelStateJob = updateTunnelState(connectionProxy.uiState)
 
         connectionProxy.onUiStateChange = { uiState ->
@@ -81,12 +87,18 @@ class ConnectFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
+        keyStatusListener.onKeyStatusChange = { keyStatus ->
+            updateKeyStatusJob.cancel()
+            updateKeyStatusJob = updateKeyStatus(keyStatus)
+        }
+
         relayListListener.onRelayListChange = { relayList, selectedRelayItem ->
             switchLocationButton.location = selectedRelayItem
         }
     }
 
     override fun onPause() {
+        keyStatusListener.onKeyStatusChange = null
         relayListListener.onRelayListChange = null
 
         super.onPause()
@@ -112,6 +124,10 @@ class ConnectFragment : Fragment() {
         switchLocationButton.state = uiState
         notificationBanner.tunnelState = uiState
         status.setState(uiState)
+    }
+
+    private fun updateKeyStatus(keyStatus: KeygenEvent?) = GlobalScope.launch(Dispatchers.Main) {
+        notificationBanner.keyState = keyStatus
     }
 
     private fun openSwitchLocationScreen() {
