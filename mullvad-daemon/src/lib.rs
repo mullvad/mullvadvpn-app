@@ -456,7 +456,7 @@ where
             ManagementInterfaceExited => {
                 return Err(Error::ManagementInterfaceExited);
             }
-            TriggerShutdown => self.handle_trigger_shutdown_event(),
+            TriggerShutdown => self.trigger_shutdown_event(),
             WgKeyEvent(key_event) => self.handle_wireguard_key_event(key_event),
         }
         Ok(())
@@ -709,7 +709,7 @@ where
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             FactoryReset(tx) => self.on_factory_reset(tx),
-            Shutdown => self.handle_trigger_shutdown_event(),
+            Shutdown => self.trigger_shutdown_event(),
         }
     }
 
@@ -943,7 +943,6 @@ where
     }
 
     fn on_factory_reset(&mut self, tx: oneshot::Sender<()>) {
-        self.set_target_state(TargetState::Unsecured);
         let mut failed = false;
 
         if let Err(e) = self.clear_cache_directory() {
@@ -965,6 +964,9 @@ where
             log::error!("Failed to clear account history - {}", e);
             failed = true;
         }
+
+        // Shut the daemon down.
+        self.trigger_shutdown_event();
 
         if !failed {
             Self::oneshot_send(tx, (), "factory_reset response");
@@ -1293,7 +1295,7 @@ where
         }
     }
 
-    fn handle_trigger_shutdown_event(&mut self) {
+    fn trigger_shutdown_event(&mut self) {
         self.state.shutdown(&self.tunnel_state);
         self.disconnect_tunnel();
     }
