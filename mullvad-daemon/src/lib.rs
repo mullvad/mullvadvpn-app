@@ -444,9 +444,13 @@ where
                 break;
             }
         }
-        for cb in self.shutdown_callbacks.into_iter() {
+        let mut cbs = vec![];
+        mem::swap(&mut self.shutdown_callbacks, &mut cbs);
+        mem::drop(self);
+        for cb in cbs.into_iter() {
             cb();
         }
+
         Ok(())
     }
 
@@ -952,15 +956,6 @@ where
     fn on_factory_reset(&mut self, tx: oneshot::Sender<()>) {
         let mut failed = false;
 
-        if let Err(e) = self.clear_cache_directory() {
-            log::error!("Failed to clear cache directory - {}", e);
-            failed = true;
-        }
-
-        if let Err(e) = self.clear_log_directory() {
-            log::error!("Failed to clear log directory - {}", e);
-            failed = true;
-        }
 
         if let Err(e) = self.settings.reset() {
             log::error!("Failed to reset settings - {}", e);
@@ -976,7 +971,16 @@ where
         self.trigger_shutdown_event();
 
         self.shutdown_callbacks.push(Box::new(move || {
-            if !failed {
+            if let Err(e) = Self::clear_cache_directory() {
+                log::error!("Failed to clear cache directory - {}", e);
+                failed = true;
+            }
+
+            if let Err(e) = Self::clear_log_directory() {
+                log::error!("Failed to clear log directory - {}", e);
+                failed = true;
+            }
+                if !failed {
                 Self::oneshot_send(tx, (), "factory_reset response");
             }
         }));
@@ -1343,13 +1347,13 @@ where
             .expect("Tunnel state machine has stopped");
     }
 
-    fn clear_log_directory(&self) -> Result<()> {
+    fn clear_log_directory() -> Result<()> {
         let log_dir = mullvad_paths::get_log_dir().map_err(Error::PathError)?;
         fs::remove_dir_all(&log_dir).map_err(Error::RemovalError)?;
         fs::create_dir_all(&log_dir).map_err(Error::CreateDirError)
     }
 
-    fn clear_cache_directory(&self) -> Result<()> {
+    fn clear_cache_directory() -> Result<()> {
         let cache_dir = mullvad_paths::cache_dir().map_err(Error::PathError)?;
         fs::remove_dir_all(&cache_dir).map_err(Error::RemovalError)?;
         fs::create_dir_all(&cache_dir).map_err(Error::CreateDirError)
