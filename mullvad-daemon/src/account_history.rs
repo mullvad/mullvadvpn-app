@@ -147,6 +147,12 @@ impl AccountHistory {
         self.save_to_disk()
     }
 
+    /// Remove account history
+    pub fn clear(&mut self) -> Result<()> {
+        self.accounts = VecDeque::new();
+        self.save_to_disk()
+    }
+
     fn save_to_disk(&mut self) -> Result<()> {
         self.file.get_mut().set_len(0).map_err(Error::Write)?;
         self.file

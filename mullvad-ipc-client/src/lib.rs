@@ -204,6 +204,10 @@ impl DaemonRpcClient {
         self.call("shutdown", &NO_ARGS)
     }
 
+    pub fn factory_reset(&mut self) -> Result<()> {
+        self.call("factory_reset", &NO_ARGS)
+    }
+
     pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<()> {
         self.call("update_relay_settings", &[update])
     }
