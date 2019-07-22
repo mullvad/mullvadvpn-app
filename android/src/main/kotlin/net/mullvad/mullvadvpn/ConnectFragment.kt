@@ -120,7 +120,7 @@ class ConnectFragment : Fragment() {
         locationInfoCache.state = realState
         headerBar.setState(realState)
 
-        actionButton.state = uiState
+        actionButton.tunnelState = uiState
         switchLocationButton.state = uiState
         notificationBanner.tunnelState = uiState
         status.setState(uiState)
@@ -128,6 +128,7 @@ class ConnectFragment : Fragment() {
 
     private fun updateKeyStatus(keyStatus: KeygenEvent?) = GlobalScope.launch(Dispatchers.Main) {
         notificationBanner.keyState = keyStatus
+        actionButton.keyState = keyStatus
     }
 
     private fun openSwitchLocationScreen() {
