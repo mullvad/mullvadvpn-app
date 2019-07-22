@@ -46,7 +46,7 @@ use mullvad_types::{
     wireguard::KeygenEvent,
 };
 use settings::Settings;
-use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
+use std::{fs, io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
     tunnel::tun_provider::{PlatformTunProvider, TunProvider},
@@ -101,6 +101,15 @@ pub enum Error {
 
     #[error(display = "Tunnel state machine error")]
     TunnelError(#[error(cause)] tunnel_state_machine::Error),
+
+    #[error(display = "Failed to remove a directory")]
+    RemovalError(#[error(cause)] io::Error),
+
+    #[error(display = "Failed to create a directory")]
+    CreateDirError(#[error(cause)] io::Error),
+
+    #[error(display = "Failed to get path")]
+    PathError(#[error(cause)] mullvad_paths::Error),
 }
 
 type SyncUnboundedSender<T> = ::futures::sink::Wait<UnboundedSender<T>>;
@@ -699,6 +708,7 @@ where
             VerifyWireguardKey(tx) => self.on_verify_wireguard_key(tx),
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
+            FactoryReset(tx) => self.on_factory_reset(tx),
             Shutdown => self.handle_trigger_shutdown_event(),
         }
     }
@@ -930,6 +940,35 @@ where
 
     fn on_get_current_version(&mut self, tx: oneshot::Sender<AppVersion>) {
         Self::oneshot_send(tx, self.version.clone(), "get_current_version response");
+    }
+
+    fn on_factory_reset(&mut self, tx: oneshot::Sender<()>) {
+        self.set_target_state(TargetState::Unsecured);
+        let mut failed = false;
+
+        if let Err(e) = self.clear_cache_directory() {
+            log::error!("Failed to clear cache directory - {}", e);
+            failed = true;
+        }
+
+        if let Err(e) = self.clear_log_directory() {
+            log::error!("Failed to clear log directory - {}", e);
+            failed = true;
+        }
+
+        if let Err(e) = self.settings.reset() {
+            log::error!("Failed to reset settings - {}", e);
+            failed = true;
+        }
+
+        if let Err(e) = self.account_history.clear() {
+            log::error!("Failed to clear account history - {}", e);
+            failed = true;
+        }
+
+        if !failed {
+            Self::oneshot_send(tx, (), "factory_reset response");
+        }
     }
 
     fn on_update_relay_settings(&mut self, tx: oneshot::Sender<()>, update: RelaySettingsUpdate) {
@@ -1291,6 +1330,18 @@ where
         self.tunnel_command_tx
             .send(command)
             .expect("Tunnel state machine has stopped");
+    }
+
+    fn clear_log_directory(&self) -> Result<()> {
+        let log_dir = mullvad_paths::get_log_dir().map_err(Error::PathError)?;
+        fs::remove_dir_all(&log_dir).map_err(Error::RemovalError)?;
+        fs::create_dir_all(&log_dir).map_err(Error::CreateDirError)
+    }
+
+    fn clear_cache_directory(&self) -> Result<()> {
+        let cache_dir = mullvad_paths::cache_dir().map_err(Error::PathError)?;
+        fs::remove_dir_all(&cache_dir).map_err(Error::RemovalError)?;
+        fs::create_dir_all(&cache_dir).map_err(Error::CreateDirError)
     }
 
     pub fn shutdown_handle(&self) -> DaemonShutdownHandle {

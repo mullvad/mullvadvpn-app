@@ -151,6 +151,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "get_version_info")]
         fn get_version_info(&self, Self::Metadata) -> BoxFuture<version::AppVersionInfo, Error>;
 
+        /// Remove all configuration and cache files
+        #[rpc(meta, name = "factory_reset")]
+        fn factory_reset(&self, Self::Metadata) -> BoxFuture<(), Error>;
+
         #[pubsub(name = "daemon_event")] {
             /// Subscribes to events from the daemon.
             #[rpc(name = "daemon_event_subscribe")]
@@ -222,6 +226,8 @@ pub enum ManagementCommand {
     GetVersionInfo(OneshotSender<BoxFuture<version::AppVersionInfo, mullvad_rpc::Error>>),
     /// Get current version of the app
     GetCurrentVersion(OneshotSender<version::AppVersion>),
+    /// Remove settings and clear the cache
+    FactoryReset(OneshotSender<()>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
 }
@@ -678,6 +684,17 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
 
         Box::new(future)
     }
+
+    fn factory_reset(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
+        log::debug!("factory_reset");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::FactoryReset(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+
+        Box::new(future)
+    }
+
 
     fn daemon_event_subscribe(
         &self,
