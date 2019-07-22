@@ -19,6 +19,7 @@ import android.widget.ViewSwitcher
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.relaylist.RelayItem
@@ -40,7 +41,7 @@ class SelectLocationFragment : Fragment() {
     init {
         relayListAdapter.onSelect = { relayItem ->
             updateLocationConstraint(relayItem)
-            connectionProxy.connect()
+            maybeConnect()
             close()
         }
     }
@@ -121,6 +122,14 @@ class SelectLocationFragment : Fragment() {
             relayListContainer.showPrevious()
         } else if (relayListContainer.displayedChild == 0) {
             relayListContainer.showNext()
+        }
+    }
+
+    private fun maybeConnect() {
+        val keyStatus = parentActivity.keyStatusListener.keyStatus
+
+        if (keyStatus == null || keyStatus is KeygenEvent.NewKey) {
+            connectionProxy.connect()
         }
     }
 }
