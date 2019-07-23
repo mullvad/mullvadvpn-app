@@ -519,10 +519,16 @@ impl<'env> IntoJava<'env> for TunnelState {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let (variant, location) = match self {
+        let (variant, parameter) = match self {
             TunnelState::Disconnected => ("Disconnected", None),
-            TunnelState::Connecting { location, .. } => ("Connecting", Some(location)),
-            TunnelState::Connected { location, .. } => ("Connected", Some(location)),
+            TunnelState::Connecting { location, .. } => (
+                "Connecting",
+                Some((location.into_java(env), "GeoIpLocation")),
+            ),
+            TunnelState::Connected { location, .. } => (
+                "Connected",
+                Some((location.into_java(env), "GeoIpLocation")),
+            ),
             TunnelState::Disconnecting(_) => ("Disconnecting", None),
             TunnelState::Blocked(_) => ("Blocked", None),
         };
@@ -532,13 +538,13 @@ impl<'env> IntoJava<'env> for TunnelState {
             variant
         ));
 
-        match location {
-            Some(location) => {
-                let location = env.auto_local(location.into_java(env));
-                let parameters = [JValue::Object(location.as_obj())];
-                let signature = "(Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
+        match parameter {
+            Some((java_object, class_name)) => {
+                let parameter = env.auto_local(java_object);
+                let parameters = [JValue::Object(parameter.as_obj())];
+                let signature = format!("(Lnet/mullvad/mullvadvpn/model/{};)V", class_name);
 
-                env.new_object(&class, signature, &parameters)
+                env.new_object(&class, &signature, &parameters)
             }
             None => env.new_object(&class, "()V", &[]),
         }
