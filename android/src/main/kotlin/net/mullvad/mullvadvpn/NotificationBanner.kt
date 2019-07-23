@@ -22,9 +22,7 @@ class NotificationBanner(val parentView: View) {
         }
 
     private fun update() {
-        synchronized(this) {
-            updateBasedOnKeyState() || updateBasedOnTunnelState()
-        }
+        updateBasedOnKeyState() || updateBasedOnTunnelState()
     }
 
     private fun updateBasedOnKeyState(): Boolean {
