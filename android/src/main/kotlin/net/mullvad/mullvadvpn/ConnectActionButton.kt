@@ -19,13 +19,25 @@ class ConnectActionButton(val parentView: View) {
             }
         }
 
+    private var canConnect = true
+        set(value) {
+            field = value
+            updateEnabled()
+        }
+
+    private var showingConnect = true
+        set(value) {
+            field = value
+            updateEnabled()
+        }
+
     var keyState: KeygenEvent? = null
         set(value) {
             when (value) {
-                null -> enabled = true
-                is KeygenEvent.NewKey -> enabled = true
-                is KeygenEvent.TooManyKeys -> enabled = false
-                is KeygenEvent.GenerationFailure -> enabled = false
+                null -> canConnect = true
+                is KeygenEvent.NewKey -> canConnect = true
+                is KeygenEvent.TooManyKeys -> canConnect = false
+                is KeygenEvent.GenerationFailure -> canConnect = false
             }
 
             field = value
@@ -65,15 +77,22 @@ class ConnectActionButton(val parentView: View) {
     private fun disconnected() {
         button.setBackgroundResource(R.drawable.green_button_background)
         button.setText(R.string.connect)
+        showingConnect = true
     }
 
     private fun connecting() {
         button.setBackgroundResource(R.drawable.transparent_red_button_background)
         button.setText(R.string.cancel)
+        showingConnect = false
     }
 
     private fun connected() {
         button.setBackgroundResource(R.drawable.transparent_red_button_background)
         button.setText(R.string.disconnect)
+        showingConnect = false
+    }
+
+    private fun updateEnabled() {
+        enabled = !showingConnect || canConnect
     }
 }
