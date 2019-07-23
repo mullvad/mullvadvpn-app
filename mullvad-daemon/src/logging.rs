@@ -4,7 +4,12 @@ use fern::{
     Output,
 };
 use log;
-use std::{fmt, io, path::PathBuf};
+use std::{
+    fmt,
+    fs::File,
+    io,
+    path::{Path, PathBuf},
+};
 use talpid_core::logging::rotate_log;
 
 #[derive(err_derive::Error, Debug)]
@@ -89,7 +94,7 @@ pub fn init_logger(
             output_timestamp: true,
             output_color: false,
         };
-        let f = fern::log_file(log_file).map_err(|source| Error::WriteFile {
+        let f = open_log_file(log_file).map_err(|source| Error::WriteFile {
             path: log_file.display().to_string(),
             source,
         })?;
@@ -100,6 +105,26 @@ pub fn init_logger(
     }
     top_dispatcher.apply().map_err(Error::SetLoggerError)?;
     Ok(())
+}
+
+fn open_log_file(path: &Path) -> io::Result<File> {
+    #[cfg(target_os = "windows")]
+    {
+        use std::{fs::OpenOptions, os::windows::fs::OpenOptionsExt};
+        use winapi::um::winnt::*;
+
+        OpenOptions::new()
+            .write(true)
+            .create(true)
+            .append(true)
+            .share_mode(FILE_SHARE_DELETE | FILE_SHARE_READ)
+            .open(path)
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        fern::log_file(path)
+    }
 }
 
 fn one_level_quieter(level: log::LevelFilter) -> log::LevelFilter {
