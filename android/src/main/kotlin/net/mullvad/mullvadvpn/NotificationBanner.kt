@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn
 
+import android.widget.TextView
 import android.view.View
 
 import net.mullvad.mullvadvpn.model.KeygenEvent
@@ -7,6 +8,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 
 class NotificationBanner(val parentView: View) {
     private val banner: View = parentView.findViewById(R.id.notification_banner)
+    private val title: TextView = parentView.findViewById(R.id.notification_title)
 
     private var showingKeyState = false
     private var visible = false
@@ -40,8 +42,8 @@ class NotificationBanner(val parentView: View) {
             showingKeyState = true
 
             when (state) {
-                is KeygenEvent.TooManyKeys -> show()
-                is KeygenEvent.GenerationFailure -> show()
+                is KeygenEvent.TooManyKeys -> show(R.string.too_many_keys)
+                is KeygenEvent.GenerationFailure -> show(R.string.failed_to_generate_key)
             }
         }
     }
@@ -52,19 +54,21 @@ class NotificationBanner(val parentView: View) {
         when (tunnelState) {
             is TunnelState.Disconnecting -> hide()
             is TunnelState.Disconnected -> hide()
-            is TunnelState.Connecting -> show()
+            is TunnelState.Connecting -> show(R.string.blocking_internet)
             is TunnelState.Connected -> hide()
-            is TunnelState.Blocked -> show()
+            is TunnelState.Blocked -> show(R.string.blocking_internet)
         }
     }
 
-    private fun show() {
+    private fun show(message: Int) {
         if (!visible) {
             visible = true
             banner.visibility = View.VISIBLE
             banner.translationY = -banner.height.toFloat()
             banner.animate().translationY(0.0F).setDuration(350).start()
         }
+
+        title.setText(message)
     }
 
     private fun hide() {
