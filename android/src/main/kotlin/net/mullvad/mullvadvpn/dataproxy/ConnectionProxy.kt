@@ -6,6 +6,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
 import net.mullvad.mullvadvpn.MainActivity
+import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class ConnectionProxy(val parentActivity: MainActivity) {
@@ -54,7 +55,7 @@ class ConnectionProxy(val parentActivity: MainActivity) {
     }
 
     fun disconnect() {
-        uiState = TunnelState.Disconnecting()
+        uiState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing())
 
         cancelActiveAction()
         activeAction = GlobalScope.launch(Dispatchers.Default) {

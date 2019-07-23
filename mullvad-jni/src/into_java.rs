@@ -529,7 +529,13 @@ impl<'env> IntoJava<'env> for TunnelState {
                 "Connected",
                 Some((location.into_java(env), "GeoIpLocation")),
             ),
-            TunnelState::Disconnecting(_) => ("Disconnecting", None),
+            TunnelState::Disconnecting(action_after_disconnect) => (
+                "Disconnecting",
+                Some((
+                    action_after_disconnect.into_java(env),
+                    "ActionAfterDisconnect",
+                )),
+            ),
             TunnelState::Blocked(_) => ("Blocked", None),
         };
 

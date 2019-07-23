@@ -4,6 +4,6 @@ sealed class TunnelState() {
     class Disconnected() : TunnelState()
     class Connecting(val location: GeoIpLocation?) : TunnelState()
     class Connected(val location: GeoIpLocation?) : TunnelState()
-    class Disconnecting() : TunnelState()
+    class Disconnecting(val actionAfterDisconnect: ActionAfterDisconnect) : TunnelState()
     class Blocked() : TunnelState()
 }
