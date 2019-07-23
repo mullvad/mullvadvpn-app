@@ -46,6 +46,8 @@ use mullvad_types::{
     wireguard::KeygenEvent,
 };
 use settings::Settings;
+#[cfg(not(target_os = "android"))]
+use std::path::Path;
 use std::{fs, io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
@@ -110,6 +112,13 @@ pub enum Error {
 
     #[error(display = "Failed to get path")]
     PathError(#[error(cause)] mullvad_paths::Error),
+
+    #[error(display = " Failed to get file type info")]
+    FileTypeError(#[error(cause)] io::Error),
+    #[error(display = " Failed to get dir entry")]
+    FileEntryError(#[error(cause)] io::Error),
+    #[error(display = " Failed to read dir entries")]
+    ReadDirError(#[error(cause)] io::Error),
 }
 
 type SyncUnboundedSender<T> = ::futures::sink::Wait<UnboundedSender<T>>;
@@ -972,15 +981,18 @@ where
 
         self.shutdown_callbacks.push(Box::new(move || {
             if let Err(e) = Self::clear_cache_directory() {
-                log::error!("Failed to clear cache directory - {}", e);
+                log::error!("{}", e.display_chain_with_msg("Failed to clear cache directory"));
                 failed = true;
             }
 
             if let Err(e) = Self::clear_log_directory() {
-                log::error!("Failed to clear log directory - {}", e);
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Failed to clear log directory")
+                );
                 failed = true;
             }
-                if !failed {
+            if !failed {
                 Self::oneshot_send(tx, (), "factory_reset response");
             }
         }));
@@ -1347,17 +1359,46 @@ where
             .expect("Tunnel state machine has stopped");
     }
 
+    #[cfg(not(target_os = "android"))]
     fn clear_log_directory() -> Result<()> {
         let log_dir = mullvad_paths::get_log_dir().map_err(Error::PathError)?;
-        fs::remove_dir_all(&log_dir).map_err(Error::RemovalError)?;
-        fs::create_dir_all(&log_dir).map_err(Error::CreateDirError)
+        Self::clear_directory(&log_dir)
     }
 
+    #[cfg(not(target_os = "android"))]
     fn clear_cache_directory() -> Result<()> {
         let cache_dir = mullvad_paths::cache_dir().map_err(Error::PathError)?;
-        fs::remove_dir_all(&cache_dir).map_err(Error::RemovalError)?;
-        fs::create_dir_all(&cache_dir).map_err(Error::CreateDirError)
+        Self::clear_directory(cache_dir)
     }
+
+    #[cfg(not(target_os = "android"))]
+    fn clear_directory(path: &Path) -> Result<()> {
+        use std::fs;
+        #[cfg(not(target_os = "windows"))]
+        {
+            fs::remove_dir_all(path).map_err(Error::RemovalError)?;
+            fs::create_dir_all(path).map_err(Error::CreateDirError)
+        }
+        #[cfg(target_os = "windows")]
+        {
+            fs::read_dir(&path)
+                .map_err(Error::ReadDirError)
+                .and_then(|dir_entries| {
+                    dir_entries
+                        .into_iter()
+                        .map(|file_entry| {
+                            let file_entry = file_entry.map_err(Error::FileEntryError)?;
+                            if file_entry.file_type().map_err(Error::FileEntryError)?.is_file() {
+                                fs::remove_file(file_entry.path()).map_err(Error::RemovalError)
+                            } else {
+                                Ok(())
+                            }
+                        })
+                        .collect::<Result<()>>()
+                })
+        }
+    }
+
 
     pub fn shutdown_handle(&self) -> DaemonShutdownHandle {
         DaemonShutdownHandle {
