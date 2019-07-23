@@ -34,6 +34,10 @@ class ConnectionProxy(val parentActivity: MainActivity) {
         }
 
     var onUiStateChange: ((TunnelState) -> Unit)? = null
+        set(value) {
+            field = value
+            value?.invoke(uiState)
+        }
 
     fun connect() {
         uiState = TunnelState.Connecting(null)
