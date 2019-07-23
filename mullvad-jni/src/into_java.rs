@@ -18,7 +18,7 @@ use mullvad_types::{
 };
 use std::{fmt::Debug, net::IpAddr};
 use talpid_core::tunnel::tun_provider::TunConfig;
-use talpid_types::net::wireguard::PublicKey;
+use talpid_types::{net::wireguard::PublicKey, tunnel::ActionAfterDisconnect};
 
 pub trait IntoJava<'env> {
     type JavaType;
@@ -492,6 +492,26 @@ impl<'env> IntoJava<'env> for Settings {
             &parameters,
         )
         .expect("Failed to create Settings Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for ActionAfterDisconnect {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let variant = match self {
+            ActionAfterDisconnect::Nothing => "Nothing",
+            ActionAfterDisconnect::Block => "Block",
+            ActionAfterDisconnect::Reconnect => "Reconnect",
+        };
+        let class_name = format!(
+            "net/mullvad/mullvadvpn/model/ActionAfterDisconnect${}",
+            variant
+        );
+        let class = get_class(&class_name);
+
+        env.new_object(&class, "()V", &[])
+            .expect("Failed to create ActionAfterDisconnect sub-class variant Java object")
     }
 }
 
