@@ -20,6 +20,7 @@ import android.support.v4.app.FragmentActivity
 
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
+import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
@@ -36,6 +37,7 @@ class MainActivity : FragmentActivity() {
         private set
 
     val connectionProxy = ConnectionProxy(this)
+    val keyStatusListener = KeyStatusListener(daemon)
     val locationInfoCache = LocationInfoCache(daemon)
     val problemReport = MullvadProblemReport()
     var settingsListener = SettingsListener(this)
@@ -93,6 +95,7 @@ class MainActivity : FragmentActivity() {
 
     override fun onDestroy() {
         accountCache.onDestroy()
+        keyStatusListener.onDestroy()
         relayListListener.onDestroy()
         settingsListener.onDestroy()
 
