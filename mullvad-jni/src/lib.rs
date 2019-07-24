@@ -23,7 +23,7 @@ use parking_lot::RwLock;
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
-    sync::mpsc,
+    sync::{mpsc, Once},
     thread,
 };
 use talpid_types::ErrorExt;
@@ -76,6 +76,8 @@ lazy_static! {
         RwLock::new(HashMap::with_capacity(CLASSES_TO_LOAD.len()));
 }
 
+static LOAD_CLASSES: Once = Once::new();
+
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
     #[error(display = "Failed to create VpnService tunnel provider")]
@@ -106,7 +108,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
 ) {
     match *LOG_INIT_RESULT {
         Ok(ref log_dir) => {
-            load_classes(&env);
+            LOAD_CLASSES.call_once(|| load_classes(&env));
 
             if let Err(error) = initialize(&env, &this, &vpnService, log_dir.clone()) {
                 log::error!("{}", error.display_chain());
