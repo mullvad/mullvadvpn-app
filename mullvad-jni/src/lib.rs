@@ -82,11 +82,17 @@ pub enum Error {
     #[error(display = "Failed to get cache directory path")]
     GetCacheDir(#[error(cause)] mullvad_paths::Error),
 
+    #[error(display = "Failed to get log directory path")]
+    GetLogDir(#[error(cause)] mullvad_paths::Error),
+
     #[error(display = "Failed to initialize the mullvad daemon")]
     InitializeDaemon(#[error(cause)] mullvad_daemon::Error),
 
     #[error(display = "Failed to spawn the JNI event listener")]
     SpawnJniEventListener(#[error(cause)] jni_event_listener::Error),
+
+    #[error(display = "Failed to start logger")]
+    StartLogging(#[error(cause)] logging::Error),
 }
 
 #[no_mangle]
@@ -96,24 +102,30 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
     this: JObject,
     vpnService: JObject,
 ) {
-    let log_dir = start_logging();
+    match start_logging() {
+        Ok(log_dir) => {
+            load_classes(&env);
 
-    load_classes(&env);
-
-    if let Err(error) = initialize(&env, &this, &vpnService, log_dir) {
-        log::error!("{}", error.display_chain());
+            if let Err(error) = initialize(&env, &this, &vpnService, log_dir) {
+                log::error!("{}", error.display_chain());
+            }
+        }
+        Err(error) => env
+            .throw(error.display_chain())
+            .expect("Failed to throw exception"),
     }
 }
 
-fn start_logging() -> PathBuf {
-    let log_dir = mullvad_paths::log_dir().unwrap();
+fn start_logging() -> Result<PathBuf, Error> {
+    let log_dir = mullvad_paths::log_dir().map_err(Error::GetLogDir)?;
     let log_file = log_dir.join(LOG_FILENAME);
 
-    logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true).unwrap();
+    logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
+        .map_err(Error::StartLogging)?;
     log_panics::init();
     version::log_version();
 
-    log_dir
+    Ok(log_dir)
 }
 
 fn load_classes(env: &JNIEnv) {
