@@ -69,6 +69,8 @@ const CLASSES_TO_LOAD: &[&str] = &[
 ];
 
 lazy_static! {
+    static ref LOG_INIT_RESULT: Result<PathBuf, String> =
+        start_logging().map_err(|error| error.display_chain());
     static ref DAEMON_INTERFACE: DaemonInterface = DaemonInterface::new();
     static ref CLASSES: RwLock<HashMap<&'static str, GlobalRef>> =
         RwLock::new(HashMap::with_capacity(CLASSES_TO_LOAD.len()));
@@ -102,16 +104,16 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
     this: JObject,
     vpnService: JObject,
 ) {
-    match start_logging() {
-        Ok(log_dir) => {
+    match *LOG_INIT_RESULT {
+        Ok(ref log_dir) => {
             load_classes(&env);
 
-            if let Err(error) = initialize(&env, &this, &vpnService, log_dir) {
+            if let Err(error) = initialize(&env, &this, &vpnService, log_dir.clone()) {
                 log::error!("{}", error.display_chain());
             }
         }
-        Err(error) => env
-            .throw(error.display_chain())
+        Err(ref message) => env
+            .throw(message.as_str())
             .expect("Failed to throw exception"),
     }
 }
