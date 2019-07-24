@@ -18,7 +18,7 @@ use mullvad_types::{
 };
 use std::{fmt::Debug, net::IpAddr};
 use talpid_core::tunnel::tun_provider::TunConfig;
-use talpid_types::net::wireguard::PublicKey;
+use talpid_types::{net::wireguard::PublicKey, tunnel::ActionAfterDisconnect};
 
 pub trait IntoJava<'env> {
     type JavaType;
@@ -495,15 +495,47 @@ impl<'env> IntoJava<'env> for Settings {
     }
 }
 
+impl<'env> IntoJava<'env> for ActionAfterDisconnect {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let variant = match self {
+            ActionAfterDisconnect::Nothing => "Nothing",
+            ActionAfterDisconnect::Block => "Block",
+            ActionAfterDisconnect::Reconnect => "Reconnect",
+        };
+        let class_name = format!(
+            "net/mullvad/mullvadvpn/model/ActionAfterDisconnect${}",
+            variant
+        );
+        let class = get_class(&class_name);
+
+        env.new_object(&class, "()V", &[])
+            .expect("Failed to create ActionAfterDisconnect sub-class variant Java object")
+    }
+}
+
 impl<'env> IntoJava<'env> for TunnelState {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let (variant, location) = match self {
+        let (variant, parameter) = match self {
             TunnelState::Disconnected => ("Disconnected", None),
-            TunnelState::Connecting { location, .. } => ("Connecting", Some(location)),
-            TunnelState::Connected { location, .. } => ("Connected", Some(location)),
-            TunnelState::Disconnecting(_) => ("Disconnecting", None),
+            TunnelState::Connecting { location, .. } => (
+                "Connecting",
+                Some((location.into_java(env), "GeoIpLocation")),
+            ),
+            TunnelState::Connected { location, .. } => (
+                "Connected",
+                Some((location.into_java(env), "GeoIpLocation")),
+            ),
+            TunnelState::Disconnecting(action_after_disconnect) => (
+                "Disconnecting",
+                Some((
+                    action_after_disconnect.into_java(env),
+                    "ActionAfterDisconnect",
+                )),
+            ),
             TunnelState::Blocked(_) => ("Blocked", None),
         };
 
@@ -512,13 +544,13 @@ impl<'env> IntoJava<'env> for TunnelState {
             variant
         ));
 
-        match location {
-            Some(location) => {
-                let location = env.auto_local(location.into_java(env));
-                let parameters = [JValue::Object(location.as_obj())];
-                let signature = "(Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
+        match parameter {
+            Some((java_object, class_name)) => {
+                let parameter = env.auto_local(java_object);
+                let parameters = [JValue::Object(parameter.as_obj())];
+                let signature = format!("(Lnet/mullvad/mullvadvpn/model/{};)V", class_name);
 
-                env.new_object(&class, signature, &parameters)
+                env.new_object(&class, &signature, &parameters)
             }
             None => env.new_object(&class, "()V", &[]),
         }

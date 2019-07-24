@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn
 import android.view.View
 import android.widget.Button
 
+import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
@@ -47,7 +48,13 @@ class ConnectActionButton(val parentView: View) {
         set(value) {
             when (value) {
                 is TunnelState.Disconnected -> disconnected()
-                is TunnelState.Disconnecting -> disconnected()
+                is TunnelState.Disconnecting -> {
+                    when (value.actionAfterDisconnect) {
+                        is ActionAfterDisconnect.Nothing -> disconnected()
+                        is ActionAfterDisconnect.Block -> connected()
+                        is ActionAfterDisconnect.Reconnect -> connecting()
+                    }
+                }
                 is TunnelState.Connecting -> connecting()
                 is TunnelState.Connected -> connected()
                 is TunnelState.Blocked -> connected()

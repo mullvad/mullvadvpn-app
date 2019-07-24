@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn
 import android.widget.TextView
 import android.view.View
 
+import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
@@ -40,8 +41,16 @@ class NotificationBanner(val parentView: View) {
     }
 
     private fun updateBasedOnTunnelState(): Boolean {
-        when (tunnelState) {
-            is TunnelState.Disconnecting -> hide()
+        val state = tunnelState
+
+        when (state) {
+            is TunnelState.Disconnecting -> {
+                when (state.actionAfterDisconnect) {
+                    is ActionAfterDisconnect.Nothing -> hide()
+                    is ActionAfterDisconnect.Block -> show(R.string.blocking_internet)
+                    is ActionAfterDisconnect.Reconnect -> show(R.string.blocking_internet)
+                }
+            }
             is TunnelState.Disconnected -> hide()
             is TunnelState.Connecting -> show(R.string.blocking_internet)
             is TunnelState.Connected -> hide()

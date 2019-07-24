@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.View
 import android.widget.TextView
 
+import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class ConnectionStatus(val parentView: View, val context: Context) {
@@ -16,7 +17,13 @@ class ConnectionStatus(val parentView: View, val context: Context) {
 
     fun setState(state: TunnelState) {
         when (state) {
-            is TunnelState.Disconnecting -> disconnected()
+            is TunnelState.Disconnecting -> {
+                when (state.actionAfterDisconnect) {
+                    is ActionAfterDisconnect.Nothing -> disconnected()
+                    is ActionAfterDisconnect.Block -> connected()
+                    is ActionAfterDisconnect.Reconnect -> connecting()
+                }
+            }
             is TunnelState.Disconnected -> disconnected()
             is TunnelState.Connecting -> connecting()
             is TunnelState.Connected -> connected()

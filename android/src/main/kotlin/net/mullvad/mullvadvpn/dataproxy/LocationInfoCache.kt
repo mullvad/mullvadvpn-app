@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
+import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.MullvadDaemon
@@ -38,7 +39,13 @@ class LocationInfoCache(val daemon: Deferred<MullvadDaemon>) {
                     location = value.location
                     fetchLocation()
                 }
-                is TunnelState.Disconnecting -> location = lastKnownRealLocation
+                is TunnelState.Disconnecting -> {
+                    when (value.actionAfterDisconnect) {
+                        is ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
+                        is ActionAfterDisconnect.Block -> location = null
+                        is ActionAfterDisconnect.Reconnect -> {} // Leave location unchanged
+                    }
+                }
                 is TunnelState.Blocked -> location = null
             }
         }
