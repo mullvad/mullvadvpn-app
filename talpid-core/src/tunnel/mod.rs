@@ -57,7 +57,7 @@ pub enum Error {
     /// There was an error listening for events from the Wireguard tunnel
     #[cfg(any(target_os = "android", target_os = "linux", target_os = "macos"))]
     #[error(display = "Failed while listening for events from the Wireguard tunnel")]
-    WirguardTunnelMonitoringError(#[error(cause)] wireguard::Error),
+    WireguardTunnelMonitoringError(#[error(cause)] wireguard::Error),
 }
 
 
