@@ -23,7 +23,7 @@ use parking_lot::RwLock;
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
-    sync::mpsc,
+    sync::{mpsc, Once},
     thread,
 };
 use talpid_types::ErrorExt;
@@ -69,10 +69,14 @@ const CLASSES_TO_LOAD: &[&str] = &[
 ];
 
 lazy_static! {
+    static ref LOG_INIT_RESULT: Result<PathBuf, String> =
+        start_logging().map_err(|error| error.display_chain());
     static ref DAEMON_INTERFACE: DaemonInterface = DaemonInterface::new();
     static ref CLASSES: RwLock<HashMap<&'static str, GlobalRef>> =
         RwLock::new(HashMap::with_capacity(CLASSES_TO_LOAD.len()));
 }
+
+static LOAD_CLASSES: Once = Once::new();
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
@@ -82,11 +86,17 @@ pub enum Error {
     #[error(display = "Failed to get cache directory path")]
     GetCacheDir(#[error(cause)] mullvad_paths::Error),
 
+    #[error(display = "Failed to get log directory path")]
+    GetLogDir(#[error(cause)] mullvad_paths::Error),
+
     #[error(display = "Failed to initialize the mullvad daemon")]
     InitializeDaemon(#[error(cause)] mullvad_daemon::Error),
 
     #[error(display = "Failed to spawn the JNI event listener")]
     SpawnJniEventListener(#[error(cause)] jni_event_listener::Error),
+
+    #[error(display = "Failed to start logger")]
+    StartLogging(#[error(cause)] logging::Error),
 }
 
 #[no_mangle]
@@ -96,24 +106,30 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
     this: JObject,
     vpnService: JObject,
 ) {
-    let log_dir = start_logging();
+    match *LOG_INIT_RESULT {
+        Ok(ref log_dir) => {
+            LOAD_CLASSES.call_once(|| load_classes(&env));
 
-    load_classes(&env);
-
-    if let Err(error) = initialize(&env, &this, &vpnService, log_dir) {
-        log::error!("{}", error.display_chain());
+            if let Err(error) = initialize(&env, &this, &vpnService, log_dir.clone()) {
+                log::error!("{}", error.display_chain());
+            }
+        }
+        Err(ref message) => env
+            .throw(message.as_str())
+            .expect("Failed to throw exception"),
     }
 }
 
-fn start_logging() -> PathBuf {
-    let log_dir = mullvad_paths::log_dir().unwrap();
+fn start_logging() -> Result<PathBuf, Error> {
+    let log_dir = mullvad_paths::log_dir().map_err(Error::GetLogDir)?;
     let log_file = log_dir.join(LOG_FILENAME);
 
-    logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true).unwrap();
+    logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
+        .map_err(Error::StartLogging)?;
     log_panics::init();
     version::log_version();
 
-    log_dir
+    Ok(log_dir)
 }
 
 fn load_classes(env: &JNIEnv) {
