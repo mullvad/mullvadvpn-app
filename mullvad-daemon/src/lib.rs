@@ -116,9 +116,11 @@ pub enum Error {
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to get file type info")]
     FileTypeError(#[error(cause)] io::Error),
+
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to get dir entry")]
     FileEntryError(#[error(cause)] io::Error),
+
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to read dir entries")]
     ReadDirError(#[error(cause)] io::Error),
