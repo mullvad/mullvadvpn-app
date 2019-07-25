@@ -9,19 +9,25 @@ class RelayList {
     constructor(model: net.mullvad.mullvadvpn.model.RelayList) {
         countries = model.countries
             .map { country ->
-                val cities = country.cities
-                    .map { city -> 
-                        val relays = city.relays
-                            .filter { relay -> relay.hasWireguardTunnels }
-                            .map { relay ->
-                                Relay(country.code, city.code, relay.hostname, city.name)
-                            }
+                val cities = mutableListOf<RelayCity>()
+                val relayCountry = RelayCountry(country.name, country.code, false, cities)
 
-                        RelayCity(city.name, country.code, city.code, false, relays)
+                for (city in country.cities) {
+                    val relays = mutableListOf<Relay>()
+                    val relayCity = RelayCity(relayCountry, city.name, city.code, false, relays)
+
+                    val validCityRelays = city.relays.filter { relay -> relay.hasWireguardTunnels }
+
+                    for (relay in validCityRelays) {
+                        relays.add(Relay(relayCity, relay.hostname))
                     }
-                    .filter { city -> city.relays.isNotEmpty() }
 
-                RelayCountry(country.name, country.code, false, cities)
+                    if (relays.isNotEmpty()) {
+                        cities.add(relayCity)
+                    }
+                }
+
+                relayCountry
             }
             .filter { country -> country.cities.isNotEmpty() }
     }
