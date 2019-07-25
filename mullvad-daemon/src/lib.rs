@@ -46,7 +46,9 @@ use mullvad_types::{
     wireguard::KeygenEvent,
 };
 use settings::Settings;
-use std::{fs, io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
+#[cfg(not(target_os = "android"))]
+use std::path::Path;
+use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
     tunnel::tun_provider::{PlatformTunProvider, TunProvider},
@@ -102,14 +104,26 @@ pub enum Error {
     #[error(display = "Tunnel state machine error")]
     TunnelError(#[error(cause)] tunnel_state_machine::Error),
 
-    #[error(display = "Failed to remove a directory")]
-    RemovalError(#[error(cause)] io::Error),
+    #[error(display = "Failed to remove directory {}", _0)]
+    RemoveDirError(String, #[error(cause)] io::Error),
 
-    #[error(display = "Failed to create a directory")]
-    CreateDirError(#[error(cause)] io::Error),
+    #[error(display = "Failed to create directory {}", _0)]
+    CreateDirError(String, #[error(cause)] io::Error),
 
     #[error(display = "Failed to get path")]
     PathError(#[error(cause)] mullvad_paths::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error(display = "Failed to get file type info")]
+    FileTypeError(#[error(cause)] io::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error(display = "Failed to get dir entry")]
+    FileEntryError(#[error(cause)] io::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error(display = "Failed to read dir entries")]
+    ReadDirError(#[error(cause)] io::Error),
 }
 
 type SyncUnboundedSender<T> = ::futures::sink::Wait<UnboundedSender<T>>;
@@ -238,6 +252,7 @@ pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
     version: String,
+    shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
 }
 
 impl Daemon<ManagementInterfaceEventBroadcaster> {
@@ -416,6 +431,7 @@ where
             last_generated_bridge_relay: None,
             version,
             wireguard_key_manager,
+            shutdown_callbacks: vec![],
         };
 
         daemon.ensure_wireguard_keys_for_current_account();
@@ -442,8 +458,30 @@ where
                 break;
             }
         }
+
+        self.finalize();
         Ok(())
     }
+
+    fn finalize(self) {
+        let (event_listener, shutdown_callbacks) = self.shutdown();
+        for cb in shutdown_callbacks {
+            cb();
+        }
+        mem::drop(event_listener);
+    }
+
+    /// Shuts down the daemon without shutting down the underlying management interface event
+    /// listener and the shutdown callbacks
+    fn shutdown(self) -> (L, Vec<Box<dyn FnOnce()>>) {
+        let Daemon {
+            event_listener,
+            shutdown_callbacks,
+            ..
+        } = self;
+        (event_listener, shutdown_callbacks)
+    }
+
 
     fn handle_event(&mut self, event: InternalDaemonEvent) -> Result<()> {
         use self::InternalDaemonEvent::*;
@@ -456,7 +494,7 @@ where
             ManagementInterfaceExited => {
                 return Err(Error::ManagementInterfaceExited);
             }
-            TriggerShutdown => self.handle_trigger_shutdown_event(),
+            TriggerShutdown => self.trigger_shutdown_event(),
             WgKeyEvent(key_event) => self.handle_wireguard_key_event(key_event),
         }
         Ok(())
@@ -677,6 +715,10 @@ where
 
     fn handle_management_interface_event(&mut self, event: ManagementCommand) {
         use self::ManagementCommand::*;
+        if !self.state.is_running() {
+            log::trace!("Dropping management command because the daemon is shutting down",);
+            return;
+        }
         match event {
             SetTargetState(tx, state) => self.on_set_target_state(tx, state),
             GetState(tx) => self.on_get_state(tx),
@@ -708,8 +750,9 @@ where
             VerifyWireguardKey(tx) => self.on_verify_wireguard_key(tx),
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
+            #[cfg(not(target_os = "android"))]
             FactoryReset(tx) => self.on_factory_reset(tx),
-            Shutdown => self.handle_trigger_shutdown_event(),
+            Shutdown => self.trigger_shutdown_event(),
         }
     }
 
@@ -942,19 +985,10 @@ where
         Self::oneshot_send(tx, self.version.clone(), "get_current_version response");
     }
 
+    #[cfg(not(target_os = "android"))]
     fn on_factory_reset(&mut self, tx: oneshot::Sender<()>) {
-        self.set_target_state(TargetState::Unsecured);
         let mut failed = false;
 
-        if let Err(e) = self.clear_cache_directory() {
-            log::error!("Failed to clear cache directory - {}", e);
-            failed = true;
-        }
-
-        if let Err(e) = self.clear_log_directory() {
-            log::error!("Failed to clear log directory - {}", e);
-            failed = true;
-        }
 
         if let Err(e) = self.settings.reset() {
             log::error!("Failed to reset settings - {}", e);
@@ -966,9 +1000,29 @@ where
             failed = true;
         }
 
-        if !failed {
-            Self::oneshot_send(tx, (), "factory_reset response");
-        }
+        // Shut the daemon down.
+        self.trigger_shutdown_event();
+
+        self.shutdown_callbacks.push(Box::new(move || {
+            if let Err(e) = Self::clear_cache_directory() {
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Failed to clear cache directory")
+                );
+                failed = true;
+            }
+
+            if let Err(e) = Self::clear_log_directory() {
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Failed to clear log directory")
+                );
+                failed = true;
+            }
+            if !failed {
+                Self::oneshot_send(tx, (), "factory_reset response");
+            }
+        }));
     }
 
     fn on_update_relay_settings(&mut self, tx: oneshot::Sender<()>, update: RelaySettingsUpdate) {
@@ -1293,7 +1347,7 @@ where
         }
     }
 
-    fn handle_trigger_shutdown_event(&mut self) {
+    fn trigger_shutdown_event(&mut self) {
         self.state.shutdown(&self.tunnel_state);
         self.disconnect_tunnel();
     }
@@ -1332,17 +1386,54 @@ where
             .expect("Tunnel state machine has stopped");
     }
 
-    fn clear_log_directory(&self) -> Result<()> {
+    #[cfg(not(target_os = "android"))]
+    fn clear_log_directory() -> Result<()> {
         let log_dir = mullvad_paths::get_log_dir().map_err(Error::PathError)?;
-        fs::remove_dir_all(&log_dir).map_err(Error::RemovalError)?;
-        fs::create_dir_all(&log_dir).map_err(Error::CreateDirError)
+        Self::clear_directory(&log_dir)
     }
 
-    fn clear_cache_directory(&self) -> Result<()> {
+    #[cfg(not(target_os = "android"))]
+    fn clear_cache_directory() -> Result<()> {
         let cache_dir = mullvad_paths::cache_dir().map_err(Error::PathError)?;
-        fs::remove_dir_all(&cache_dir).map_err(Error::RemovalError)?;
-        fs::create_dir_all(&cache_dir).map_err(Error::CreateDirError)
+        Self::clear_directory(&cache_dir)
     }
+
+    #[cfg(not(target_os = "android"))]
+    fn clear_directory(path: &Path) -> Result<()> {
+        use std::fs;
+        #[cfg(not(target_os = "windows"))]
+        {
+            fs::remove_dir_all(path)
+                .map_err(|e| Error::RemoveDirError(path.display().to_string(), e))?;
+            fs::create_dir_all(path)
+                .map_err(|e| Error::CreateDirError(path.display().to_string(), e))
+        }
+        #[cfg(target_os = "windows")]
+        {
+            fs::read_dir(&path)
+                .map_err(Error::ReadDirError)
+                .and_then(|dir_entries| {
+                    dir_entries
+                        .into_iter()
+                        .map(|entry| {
+                            let entry = entry.map_err(Error::FileEntryError)?;
+                            let entry_type = entry.file_type().map_err(Error::FileTypeError)?;
+
+
+                            let removal = if entry_type.is_file() || entry_type.is_symlink() {
+                                fs::remove_file(entry.path())
+                            } else {
+                                fs::remove_dir_all(entry.path())
+                            };
+                            removal.map_err(|e| {
+                                Error::RemoveDirError(entry.path().display().to_string(), e)
+                            })
+                        })
+                        .collect::<Result<()>>()
+                })
+        }
+    }
+
 
     pub fn shutdown_handle(&self) -> DaemonShutdownHandle {
         DaemonShutdownHandle {

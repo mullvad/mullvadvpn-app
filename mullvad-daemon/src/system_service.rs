@@ -4,7 +4,7 @@ use std::{
     env,
     ffi::OsString,
     sync::{
-        atomic::{AtomicUsize, Ordering},
+        atomic::{AtomicBool, AtomicUsize, Ordering},
         mpsc, Arc,
     },
     thread,
@@ -13,9 +13,10 @@ use std::{
 use talpid_types::ErrorExt;
 use windows_service::{
     service::{
-        ServiceAccess, ServiceControl, ServiceControlAccept, ServiceDependency,
-        ServiceErrorControl, ServiceExitCode, ServiceInfo, ServiceStartType, ServiceState,
-        ServiceStatus, ServiceType,
+        ServiceAccess, ServiceAction, ServiceActionType, ServiceControl, ServiceControlAccept,
+        ServiceDependency, ServiceErrorControl, ServiceExitCode, ServiceFailureActions,
+        ServiceFailureResetPeriod, ServiceInfo, ServiceStartType, ServiceState, ServiceStatus,
+        ServiceType,
     },
     service_control_handler::{self, ServiceControlHandlerResult, ServiceStatusHandle},
     service_dispatcher,
@@ -69,26 +70,42 @@ fn run_service() -> Result<(), String> {
         .set_pending_start(Duration::from_secs(1))
         .unwrap();
 
+    let clean_shutdown = Arc::new(AtomicBool::new(false));
+
     let log_dir = crate::get_log_dir(cli::get_config()).expect("Log dir should be available here");
     let result = crate::create_daemon(log_dir).and_then(|daemon| {
         let shutdown_handle = daemon.shutdown_handle();
 
         // Register monitor that translates `ServiceControl` to Daemon events
-        start_event_monitor(persistent_service_status.clone(), shutdown_handle, event_rx);
+        start_event_monitor(
+            persistent_service_status.clone(),
+            shutdown_handle,
+            event_rx,
+            clean_shutdown.clone(),
+        );
 
         persistent_service_status.set_running().unwrap();
 
         daemon.run().map_err(|e| e.display_chain())
     });
 
+
     let exit_code = match result {
-        Ok(()) => ServiceExitCode::default(),
+        Ok(()) => {
+            // check if shutdown signal was sent from the system
+            if clean_shutdown.load(Ordering::Acquire) {
+                ServiceExitCode::default()
+            } else {
+                // otherwise return a non-zero code so that the daemon gets restarted
+                ServiceExitCode::ServiceSpecific(1)
+            }
+        }
         Err(_) => ServiceExitCode::ServiceSpecific(1),
     };
 
     persistent_service_status.set_stopped(exit_code).unwrap();
 
-    result
+    result.map(|_| ())
 }
 
 /// Start event monitor thread that polls for `ServiceControl` and translates them into calls to
@@ -97,6 +114,7 @@ fn start_event_monitor(
     mut persistent_service_status: PersistentServiceStatus,
     shutdown_handle: DaemonShutdownHandle,
     event_rx: mpsc::Receiver<ServiceControl>,
+    clean_shutdown: Arc<AtomicBool>,
 ) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         for event in event_rx {
@@ -106,6 +124,7 @@ fn start_event_monitor(
                         .set_pending_stop(Duration::from_secs(10))
                         .unwrap();
 
+                    clean_shutdown.store(true, Ordering::Release);
                     shutdown_handle.shutdown();
                 }
                 _ => (),
@@ -227,9 +246,33 @@ pub fn install_service() -> Result<(), InstallError> {
     let manager_access = ServiceManagerAccess::CONNECT | ServiceManagerAccess::CREATE_SERVICE;
     let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
         .map_err(InstallError::ConnectServiceManager)?;
-    service_manager
-        .create_service(get_service_info(), ServiceAccess::empty())
-        .map(|_| ())
+    let service_access = ServiceAccess::QUERY_CONFIG
+        | ServiceAccess::CHANGE_CONFIG
+        | ServiceAccess::START
+        | ServiceAccess::DELETE;
+
+    let service = service_manager
+        .create_service(get_service_info(), service_access)
+        .or(service_manager.open_service(SERVICE_NAME, service_access))
+        .map_err(InstallError::CreateService)?;
+
+    let recovery_actions = vec![ServiceAction {
+        action_type: ServiceActionType::Restart,
+        delay: Duration::from_secs(3),
+    }];
+
+    let failure_actions = ServiceFailureActions {
+        reset_period: ServiceFailureResetPeriod::After(Duration::from_secs(2)),
+        reboot_msg: None,
+        command: None,
+        actions: Some(recovery_actions),
+    };
+
+    service
+        .update_failure_actions(failure_actions)
+        .map_err(InstallError::CreateService)?;
+    service
+        .set_failure_actions_on_non_crash_failures(true)
         .map_err(InstallError::CreateService)
 }
 
