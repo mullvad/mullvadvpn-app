@@ -22,7 +22,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
 
     external fun connect()
     external fun disconnect()
-    external fun generateWireguardKey(): Boolean
+    external fun generateWireguardKey(): KeygenEvent?
     external fun getAccountData(accountToken: String): AccountData?
     external fun getCurrentLocation(): GeoIpLocation?
     external fun getRelayLocations(): RelayList
