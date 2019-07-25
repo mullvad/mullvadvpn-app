@@ -457,14 +457,24 @@ where
             }
         }
 
-        let mut cbs = vec![];
-        mem::swap(&mut self.shutdown_callbacks, &mut cbs);
-        mem::drop(self);
-        for cb in cbs.into_iter() {
+        let (event_listener, shutdown_callbacks) = self.shutdown();
+        for cb in shutdown_callbacks {
             cb();
         }
+        mem::drop(event_listener);
 
         Ok(())
+    }
+
+    /// Shuts down the daemon without shutting down the underlying management interface event
+    /// listener and the shutdown callbacks
+    fn shutdown(self) -> (L, Vec<Box<dyn FnOnce()>>) {
+        let Daemon {
+            event_listener,
+            shutdown_callbacks,
+            ..
+        } = self;
+        (event_listener, shutdown_callbacks)
     }
 
     fn handle_event(&mut self, event: InternalDaemonEvent) -> Result<()> {
