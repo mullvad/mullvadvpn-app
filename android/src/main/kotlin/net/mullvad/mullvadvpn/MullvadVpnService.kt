@@ -18,7 +18,6 @@ import android.os.IBinder
 import net.mullvad.mullvadvpn.model.TunConfig
 
 class MullvadVpnService : VpnService() {
-    private val connectivityListener = ConnectivityListener()
     private val created = CompletableDeferred<Unit>()
     private val binder = LocalBinder()
 
@@ -26,7 +25,6 @@ class MullvadVpnService : VpnService() {
 
     override fun onCreate() {
         created.complete(Unit)
-        connectivityListener.register(this)
     }
 
     override fun onBind(intent: Intent): IBinder {
@@ -34,16 +32,11 @@ class MullvadVpnService : VpnService() {
     }
 
     override fun onDestroy() {
-        connectivityListener.unregister(this)
         daemon.cancel()
         created.cancel()
     }
 
     fun createTun(config: TunConfig): Int {
-        runBlocking {
-            connectivityListener.vpnDisconnected.await()
-        }
-
         val builder = Builder().apply {
             for (address in config.addresses) {
                 addAddress(address, 32)
