@@ -710,6 +710,10 @@ where
     fn handle_management_interface_event(&mut self, event: ManagementCommand) {
         use self::ManagementCommand::*;
         if !self.state.is_running() {
+            log::trace!(
+                "Dropping management command because the daemon is shutting down - {:?}",
+                event
+            );
             return;
         }
         match event {
@@ -1398,11 +1402,12 @@ where
         {
             fs::remove_dir_all(path)
                 .map_err(|e| Error::RemoveDirError(path.display().to_string(), e))?;
-            fs::create_dir_all(path).map_err(|e| Error::CreateDirError(path.display().to_string(), e))
+            fs::create_dir_all(path)
+                .map_err(|e| Error::CreateDirError(path.display().to_string(), e))
         }
         #[cfg(target_os = "windows")]
         {
-            let r = fs::read_dir(&path)
+            fs::read_dir(&path)
                 .map_err(Error::ReadDirError)
                 .and_then(|dir_entries| {
                     dir_entries
@@ -1422,39 +1427,8 @@ where
                             })
                         })
                         .collect::<Result<()>>()
-                });
-            let s = format!("{:?}", &r);
-            r
+                })
         }
-        // #[cfg(target_os = "windows")]
-        // {
-        //     loop {
-        //         match fs::remove_dir_all(&path) {
-        //             // Successfully removing doesn't mean that the directory isn't there, yet.
-        //             Ok(()) => {},
-        //             // If the directory can't be removed because it's no longer exists,
-        // reinstating the directory can commence             Err(ref err) if err.kind() ==
-        // io::ErrorKind::NotFound => {                 match fs::create_dir(&path) {
-        //                     Ok(()) => break,
-        //                     Err(err) => {
-        //                         // if err.kind() == io::ErrorKind::PermissionDenied {
-        //                         //     return
-        // Err(Error::CreateDirError(path.display().to_string(), err));
-        // // }                         log::error!("Failed to create directory {} - {}",
-        // path.display(), &err);                     },
-        //                 }
-        //             },
-        //             // unrecoverable error
-        //             Err(err) => {
-        //                 // if err.kind() == io::ErrorKind::PermissionDenied {
-        //                 //     return Err(Error::RemoveDirError(path.display().to_string(), err))
-        //                 // }
-        //                 log::error!("Failed to remove directory {} - {}", path.display(), &err);
-        //             }
-        //         }
-        //     }
-        //     Ok(())
-        // }
     }
 
 
