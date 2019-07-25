@@ -36,7 +36,7 @@ impl WgGoTunnel {
         let handle = unsafe {
             wgTurnOnWithFd(
                 iface_name.as_ptr() as *const i8,
-                config.mtu as i64,
+                config.mtu as isize,
                 wg_config_str.as_ptr() as *const i8,
                 tunnel_device.as_raw_fd(),
                 log_file.as_raw_fd(),
@@ -139,7 +139,7 @@ extern "C" {
     #[cfg_attr(target_os = "android", link_name = "wgTurnOnWithFdAndroid")]
     fn wgTurnOnWithFd(
         iface_name: *const i8,
-        mtu: i64,
+        mtu: isize,
         settings: *const i8,
         fd: Fd,
         log_fd: Fd,
