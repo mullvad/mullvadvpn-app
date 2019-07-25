@@ -710,10 +710,7 @@ where
     fn handle_management_interface_event(&mut self, event: ManagementCommand) {
         use self::ManagementCommand::*;
         if !self.state.is_running() {
-            log::trace!(
-                "Dropping management command because the daemon is shutting down - {:?}",
-                event
-            );
+            log::trace!("Dropping management command because the daemon is shutting down",);
             return;
         }
         match event {
