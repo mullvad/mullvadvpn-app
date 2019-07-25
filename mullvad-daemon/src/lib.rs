@@ -104,10 +104,10 @@ pub enum Error {
     #[error(display = "Tunnel state machine error")]
     TunnelError(#[error(cause)] tunnel_state_machine::Error),
 
-    #[error(display = "Failed to remove a directory")]
+    #[error(display = "Failed to remove directory {}", _0)]
     RemoveDirError(String, #[error(cause)] io::Error),
 
-    #[error(display = "Failed to create a directory {}", _0)]
+    #[error(display = "Failed to create directory {}", _0)]
     CreateDirError(String, #[error(cause)] io::Error),
 
     #[error(display = "Failed to get path")]
@@ -1411,7 +1411,7 @@ where
                         .into_iter()
                         .map(|entry| {
                             let entry = entry.map_err(Error::FileEntryError)?;
-                            let entry_type = entry.file_type().map_err(Error::FileEntryError)?;
+                            let entry_type = entry.file_type().map_err(Error::FileTypeError)?;
 
 
                             let removal = if entry_type.is_file() || entry_type.is_symlink() {
