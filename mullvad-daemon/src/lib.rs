@@ -1397,8 +1397,8 @@ where
         #[cfg(not(target_os = "windows"))]
         {
             fs::remove_dir_all(path)
-                .map_err(|e| Error::RemovalError(path.display().to_string(), e))?;
-            fs::create_dir_all(path).map_err(|e| Error::CreateError(path.display().to_string(), e))
+                .map_err(|e| Error::RemoveDirError(path.display().to_string(), e))?;
+            fs::create_dir_all(path).map_err(|e| Error::CreateDirError(path.display().to_string(), e))
         }
         #[cfg(target_os = "windows")]
         {
