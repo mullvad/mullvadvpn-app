@@ -256,26 +256,16 @@ pub fn install_service() -> Result<(), InstallError> {
         .or(service_manager.open_service(SERVICE_NAME, service_access))
         .map_err(InstallError::CreateService)?;
 
-    let actions = vec![
-        ServiceAction {
-            action_type: ServiceActionType::Restart,
-            delay: Duration::from_secs(3),
-        },
-        ServiceAction {
-            action_type: ServiceActionType::Restart,
-            delay: Duration::from_secs(3),
-        },
-        ServiceAction {
-            action_type: ServiceActionType::Restart,
-            delay: Duration::from_secs(3),
-        },
-    ];
+    let recovery_actions = vec![ServiceAction {
+        action_type: ServiceActionType::Restart,
+        delay: Duration::from_secs(3),
+    }];
 
     let failure_actions = ServiceFailureActions {
         reset_period: ServiceFailureResetPeriod::After(Duration::from_secs(2)),
         reboot_msg: None,
         command: None,
-        actions: Some(actions),
+        actions: Some(recovery_actions),
     };
 
     service
