@@ -114,13 +114,13 @@ pub enum Error {
     PathError(#[error(cause)] mullvad_paths::Error),
 
     #[cfg(target_os = "windows")]
-    #[error(display = " Failed to get file type info")]
+    #[error(display = "Failed to get file type info")]
     FileTypeError(#[error(cause)] io::Error),
     #[cfg(target_os = "windows")]
-    #[error(display = " Failed to get dir entry")]
+    #[error(display = "Failed to get dir entry")]
     FileEntryError(#[error(cause)] io::Error),
     #[cfg(target_os = "windows")]
-    #[error(display = " Failed to read dir entries")]
+    #[error(display = "Failed to read dir entries")]
     ReadDirError(#[error(cause)] io::Error),
 }
 
@@ -457,13 +457,16 @@ where
             }
         }
 
+        self.finalize();
+        Ok(())
+    }
+
+    fn finalize(self) {
         let (event_listener, shutdown_callbacks) = self.shutdown();
         for cb in shutdown_callbacks {
             cb();
         }
         mem::drop(event_listener);
-
-        Ok(())
     }
 
     /// Shuts down the daemon without shutting down the underlying management interface event
@@ -476,6 +479,7 @@ where
         } = self;
         (event_listener, shutdown_callbacks)
     }
+
 
     fn handle_event(&mut self, event: InternalDaemonEvent) -> Result<()> {
         use self::InternalDaemonEvent::*;
