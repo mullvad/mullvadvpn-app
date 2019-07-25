@@ -48,7 +48,7 @@ use mullvad_types::{
 use settings::Settings;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
-use std::{fs, io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
+use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
 use talpid_core::{
     mpsc::IntoSender,
     tunnel::tun_provider::{PlatformTunProvider, TunProvider},
@@ -105,18 +105,21 @@ pub enum Error {
     TunnelError(#[error(cause)] tunnel_state_machine::Error),
 
     #[error(display = "Failed to remove a directory")]
-    RemovalError(#[error(cause)] io::Error),
+    RemoveDirError(String, #[error(cause)] io::Error),
 
-    #[error(display = "Failed to create a directory")]
-    CreateDirError(#[error(cause)] io::Error),
+    #[error(display = "Failed to create a directory {}", _0)]
+    CreateDirError(String, #[error(cause)] io::Error),
 
     #[error(display = "Failed to get path")]
     PathError(#[error(cause)] mullvad_paths::Error),
 
+    #[cfg(target_os = "windows")]
     #[error(display = " Failed to get file type info")]
     FileTypeError(#[error(cause)] io::Error),
+    #[cfg(target_os = "windows")]
     #[error(display = " Failed to get dir entry")]
     FileEntryError(#[error(cause)] io::Error),
+    #[cfg(target_os = "windows")]
     #[error(display = " Failed to read dir entries")]
     ReadDirError(#[error(cause)] io::Error),
 }
@@ -453,6 +456,7 @@ where
                 break;
             }
         }
+
         let mut cbs = vec![];
         mem::swap(&mut self.shutdown_callbacks, &mut cbs);
         mem::drop(self);
@@ -695,6 +699,9 @@ where
 
     fn handle_management_interface_event(&mut self, event: ManagementCommand) {
         use self::ManagementCommand::*;
+        if !self.state.is_running() {
+            return;
+        }
         match event {
             SetTargetState(tx, state) => self.on_set_target_state(tx, state),
             GetState(tx) => self.on_get_state(tx),
@@ -981,7 +988,10 @@ where
 
         self.shutdown_callbacks.push(Box::new(move || {
             if let Err(e) = Self::clear_cache_directory() {
-                log::error!("{}", e.display_chain_with_msg("Failed to clear cache directory"));
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Failed to clear cache directory")
+                );
                 failed = true;
             }
 
@@ -1368,7 +1378,7 @@ where
     #[cfg(not(target_os = "android"))]
     fn clear_cache_directory() -> Result<()> {
         let cache_dir = mullvad_paths::cache_dir().map_err(Error::PathError)?;
-        Self::clear_directory(cache_dir)
+        Self::clear_directory(&cache_dir)
     }
 
     #[cfg(not(target_os = "android"))]
@@ -1376,27 +1386,65 @@ where
         use std::fs;
         #[cfg(not(target_os = "windows"))]
         {
-            fs::remove_dir_all(path).map_err(Error::RemovalError)?;
-            fs::create_dir_all(path).map_err(Error::CreateDirError)
+            fs::remove_dir_all(path)
+                .map_err(|e| Error::RemovalError(path.display().to_string(), e))?;
+            fs::create_dir_all(path).map_err(|e| Error::CreateError(path.display().to_string(), e))
         }
         #[cfg(target_os = "windows")]
         {
-            fs::read_dir(&path)
+            let r = fs::read_dir(&path)
                 .map_err(Error::ReadDirError)
                 .and_then(|dir_entries| {
                     dir_entries
                         .into_iter()
-                        .map(|file_entry| {
-                            let file_entry = file_entry.map_err(Error::FileEntryError)?;
-                            if file_entry.file_type().map_err(Error::FileEntryError)?.is_file() {
-                                fs::remove_file(file_entry.path()).map_err(Error::RemovalError)
+                        .map(|entry| {
+                            let entry = entry.map_err(Error::FileEntryError)?;
+                            let entry_type = entry.file_type().map_err(Error::FileEntryError)?;
+
+
+                            let removal = if entry_type.is_file() || entry_type.is_symlink() {
+                                fs::remove_file(entry.path())
                             } else {
-                                Ok(())
-                            }
+                                fs::remove_dir_all(entry.path())
+                            };
+                            removal.map_err(|e| {
+                                Error::RemoveDirError(entry.path().display().to_string(), e)
+                            })
                         })
                         .collect::<Result<()>>()
-                })
+                });
+            let s = format!("{:?}", &r);
+            r
         }
+        // #[cfg(target_os = "windows")]
+        // {
+        //     loop {
+        //         match fs::remove_dir_all(&path) {
+        //             // Successfully removing doesn't mean that the directory isn't there, yet.
+        //             Ok(()) => {},
+        //             // If the directory can't be removed because it's no longer exists,
+        // reinstating the directory can commence             Err(ref err) if err.kind() ==
+        // io::ErrorKind::NotFound => {                 match fs::create_dir(&path) {
+        //                     Ok(()) => break,
+        //                     Err(err) => {
+        //                         // if err.kind() == io::ErrorKind::PermissionDenied {
+        //                         //     return
+        // Err(Error::CreateDirError(path.display().to_string(), err));
+        // // }                         log::error!("Failed to create directory {} - {}",
+        // path.display(), &err);                     },
+        //                 }
+        //             },
+        //             // unrecoverable error
+        //             Err(err) => {
+        //                 // if err.kind() == io::ErrorKind::PermissionDenied {
+        //                 //     return Err(Error::RemoveDirError(path.display().to_string(), err))
+        //                 // }
+        //                 log::error!("Failed to remove directory {} - {}", path.display(), &err);
+        //             }
+        //         }
+        //     }
+        //     Ok(())
+        // }
     }
 
 
