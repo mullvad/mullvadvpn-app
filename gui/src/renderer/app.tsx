@@ -380,27 +380,19 @@ export default class AppRenderer {
       const location = normal.location;
       const relayLocation = location === 'any' ? 'any' : location.only;
 
-      if (tunnelProtocol === 'any' || tunnelProtocol.only === 'openvpn') {
-        const { port, protocol } = normal.openvpnConstraints;
-        actions.settings.updateRelay({
-          normal: {
-            location: relayLocation,
+      const { port, protocol } = normal.openvpnConstraints;
+      const wireguardPort = normal.wireguardConstraints.port;
+      actions.settings.updateRelay({
+        normal: {
+          location: relayLocation,
+          openvpn: {
             port: port === 'any' ? port : port.only,
             protocol: protocol === 'any' ? protocol : protocol.only,
-            tunnelProtocol: liftConstraint(tunnelProtocol),
           },
-        });
-      } else {
-        const { port } = normal.wireguardConstraints;
-        actions.settings.updateRelay({
-          normal: {
-            tunnelProtocol: liftConstraint(tunnelProtocol),
-            location: relayLocation,
-            port: port === 'any' ? port : port.only,
-            protocol: 'udp',
-          },
-        });
-      }
+          wireguard: { port: wireguardPort === 'any' ? wireguardPort : wireguardPort.only },
+          tunnelProtocol: liftConstraint(tunnelProtocol),
+        },
+      });
     } else if ('customTunnelEndpoint' in relaySettings) {
       const customTunnelEndpoint = relaySettings.customTunnelEndpoint;
       const config = customTunnelEndpoint.config;

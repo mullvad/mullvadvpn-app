@@ -2,6 +2,10 @@ import { Styles } from 'reactxp';
 import { colors } from '../../config.json';
 
 export default {
+  wgkeys: Styles.createViewStyle({
+    backgroundColor: colors.darkBlue,
+    flex: 1,
+  }),
   wgkeys__container: Styles.createViewStyle({
     flexDirection: 'column',
     flex: 1,
