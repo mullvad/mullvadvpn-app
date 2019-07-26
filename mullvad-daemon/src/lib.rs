@@ -38,7 +38,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::{
         BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, OpenVpnConstraints,
-        RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TunnelConstraints,
+        RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TunnelProtocol,
     },
     relay_list::{Relay, RelayList},
     states::{TargetState, TunnelState},
@@ -1164,16 +1164,13 @@ where
 
     // Set the OpenVPN tunnel to use TCP.
     fn apply_proxy_constraints(&mut self) -> settings::Result<bool> {
-        let openvpn_constraints = OpenVpnConstraints {
-            port: Constraint::Any,
-            protocol: Constraint::Only(TransportProtocol::Tcp),
-        };
-
-        let tunnel_constraints = TunnelConstraints::OpenVpn(openvpn_constraints);
-
         let constraints_update = RelayConstraintsUpdate {
-            location: None,
-            tunnel: Some(Constraint::Only(tunnel_constraints)),
+            tunnel_protocol: Some(Constraint::Only(TunnelProtocol::OpenVpn)),
+            openvpn_constraints: Some(OpenVpnConstraints {
+                protocol: Constraint::Only(TransportProtocol::Tcp),
+                port: Constraint::Any,
+            }),
+            ..Default::default()
         };
 
         let settings_update = RelaySettingsUpdate::Normal(constraints_update);

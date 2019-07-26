@@ -44,6 +44,13 @@ export function tunnelTypeToString(tunnel: TunnelType): string {
 
 export type RelayProtocol = 'tcp' | 'udp';
 
+export function liftConstraint<T>(constraint: 'any' | { only: T }): 'any' | T {
+  if (constraint === 'any') {
+    return 'any';
+  }
+  return constraint.only;
+}
+
 export type ProxyType = 'shadowsocks' | 'custom';
 export function proxyTypeToString(proxy: ProxyType): string {
   switch (proxy) {
@@ -101,19 +108,21 @@ export interface IWireguardConstraints {
   port: 'any' | { only: number };
 }
 
-type TunnelConstraints<OpenVpn, Wireguard> = { wireguard: Wireguard } | { openvpn: OpenVpn };
+export type TunnelProtocol = 'wireguard' | 'openvpn';
 
-interface IRelaySettingsNormal<TTunnelConstraints> {
+interface IRelaySettingsNormal<OpenVpn, Wireguard> {
   location:
     | 'any'
     | {
         only: RelayLocation;
       };
-  tunnel:
+  tunnelProtocol:
     | 'any'
     | {
-        only: TTunnelConstraints;
+        only: TunnelProtocol;
       };
+  openvpnConstraints: OpenVpn;
+  wireguardConstraints: Wireguard;
 }
 
 export type ConnectionConfig =
@@ -150,7 +159,7 @@ export interface IRelaySettingsCustom {
 }
 export type RelaySettings =
   | {
-      normal: IRelaySettingsNormal<TunnelConstraints<IOpenVpnConstraints, IWireguardConstraints>>;
+      normal: IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>;
     }
   | {
       customTunnelEndpoint: IRelaySettingsCustom;
@@ -158,9 +167,7 @@ export type RelaySettings =
 
 // types describing the partial update of RelaySettings
 export type RelaySettingsNormalUpdate = Partial<
-  IRelaySettingsNormal<
-    TunnelConstraints<Partial<IOpenVpnConstraints>, Partial<IWireguardConstraints>>
-  >
+  IRelaySettingsNormal<Partial<IOpenVpnConstraints>, Partial<IWireguardConstraints>>
 >;
 
 export type RelaySettingsUpdate =

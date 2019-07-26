@@ -9,7 +9,7 @@ use std::{
 use mullvad_types::{
     relay_constraints::{
         Constraint, OpenVpnConstraints, RelayConstraintsUpdate, RelaySettingsUpdate,
-        TunnelConstraints, WireguardConstraints,
+        TunnelProtocol, WireguardConstraints,
     },
     ConnectionConfig, CustomTunnelEndpoint,
 };
@@ -271,7 +271,7 @@ impl Relay {
 
         self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
             location: Some(location_constraint),
-            tunnel: None,
+            ..Default::default()
         }))
     }
 
@@ -287,17 +287,17 @@ impl Relay {
                 }
                 self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
                     location: None,
-                    tunnel: Some(Constraint::Only(TunnelConstraints::Wireguard(
-                        WireguardConstraints { port },
-                    ))),
+                    tunnel_protocol: Some(Constraint::Only(TunnelProtocol::Wireguard)),
+                    wireguard_constraints: Some(WireguardConstraints { port }),
+                    ..Default::default()
                 }))
             }
             "openvpn" => {
                 self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
                     location: None,
-                    tunnel: Some(Constraint::Only(TunnelConstraints::OpenVpn(
-                        OpenVpnConstraints { port, protocol },
-                    ))),
+                    tunnel_protocol: Some(Constraint::Any),
+                    openvpn_constraints: Some(OpenVpnConstraints { port, protocol }),
+                    ..Default::default()
                 }))
             }
             _ => unreachable!(),

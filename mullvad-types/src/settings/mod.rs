@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{
     fs::{self, File},
-    io,
+    io::{self, Read},
     path::PathBuf,
 };
 use talpid_types::{
@@ -15,6 +15,7 @@ use talpid_types::{
     ErrorExt,
 };
 
+mod migrations;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -40,13 +41,16 @@ pub enum Error {
 
     #[error(display = "Invalid OpenVPN proxy configuration: {}", _0)]
     InvalidProxyData(String),
+
+    #[error(display = "Unable to read any version of the settings")]
+    NoMatchingVersion,
 }
 
 static SETTINGS_FILE: &str = "settings.json";
 
 
 /// Mullvad daemon settings.
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 pub struct Settings {
     account_token: Option<String>,
@@ -63,6 +67,8 @@ pub struct Settings {
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
     tunnel_options: TunnelOptions,
+    /// Specifies settings schema version
+    settings_version: migrations::SettingsVersion,
 }
 
 impl Default for Settings {
@@ -71,7 +77,7 @@ impl Default for Settings {
             account_token: None,
             relay_settings: RelaySettings::Normal(RelayConstraints {
                 location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
-                tunnel: Constraint::Any,
+                ..Default::default()
             }),
             bridge_settings: BridgeSettings::Normal(BridgeConstraints {
                 location: Constraint::Any,
@@ -81,6 +87,7 @@ impl Default for Settings {
             block_when_disconnected: false,
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
+            settings_version: migrations::SettingsVersion::V2,
         }
     }
 }
@@ -92,7 +99,21 @@ impl Settings {
         match File::open(&path) {
             Ok(file) => {
                 info!("Loading settings from {}", path.display());
-                Self::read_settings(&mut io::BufReader::new(file))
+                let mut settings_bytes = vec![];
+                io::BufReader::new(file)
+                    .read_to_end(&mut settings_bytes)
+                    .map_err(|e| Error::ReadError("Failed to read settings file".to_owned(), e))?;
+                Self::parse_settings(&mut settings_bytes).or_else(|e| {
+                    log::error!(
+                        "{}",
+                        e.display_chain_with_msg("Failed to parse settings file")
+                    );
+                    let settings = migrations::try_migrate_settings(&settings_bytes)?;
+                    if let Err(e) = settings.save() {
+                        log::error!("Failed to save settings after migration: {}", e);
+                    }
+                    Ok(settings)
+                })
             }
             Err(e) => Err(Error::ReadError(path.display().to_string(), e)),
         }
@@ -132,8 +153,8 @@ impl Settings {
         Ok(dir.join(SETTINGS_FILE))
     }
 
-    fn read_settings<T: io::Read>(file: &mut T) -> Result<Settings> {
-        serde_json::from_reader(file).map_err(Error::ParseError)
+    fn parse_settings(bytes: &[u8]) -> Result<Settings> {
+        serde_json::from_slice(bytes).map_err(Error::ParseError)
     }
 
     pub fn get_account_token(&self) -> Option<String> {

@@ -37,6 +37,7 @@ import {
   IRelayList,
   ISettings,
   KeygenEvent,
+  liftConstraint,
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -375,43 +376,30 @@ export default class AppRenderer {
 
     if ('normal' in relaySettings) {
       const normal = relaySettings.normal;
-      const tunnel = normal.tunnel;
+      const tunnelProtocol = normal.tunnelProtocol;
       const location = normal.location;
-
       const relayLocation = location === 'any' ? 'any' : location.only;
 
-      if (tunnel === 'any') {
+      if (tunnelProtocol === 'any' || tunnelProtocol.only === 'openvpn') {
+        const { port, protocol } = normal.openvpnConstraints;
         actions.settings.updateRelay({
           normal: {
             location: relayLocation,
-            port: 'any',
-            protocol: 'any',
+            port: port === 'any' ? port : port.only,
+            protocol: protocol === 'any' ? protocol : protocol.only,
+            tunnelProtocol: liftConstraint(tunnelProtocol),
           },
         });
       } else {
-        const constraints = tunnel.only;
-
-        if ('openvpn' in constraints) {
-          const { port, protocol } = constraints.openvpn;
-
-          actions.settings.updateRelay({
-            normal: {
-              location: relayLocation,
-              port: port === 'any' ? port : port.only,
-              protocol: protocol === 'any' ? protocol : protocol.only,
-            },
-          });
-        } else if ('wireguard' in constraints) {
-          const { port } = constraints.wireguard;
-
-          actions.settings.updateRelay({
-            normal: {
-              location: relayLocation,
-              port: port === 'any' ? port : port.only,
-              protocol: 'udp',
-            },
-          });
-        }
+        const { port } = normal.wireguardConstraints;
+        actions.settings.updateRelay({
+          normal: {
+            tunnelProtocol: liftConstraint(tunnelProtocol),
+            location: relayLocation,
+            port: port === 'any' ? port : port.only,
+            protocol: 'udp',
+          },
+        });
       }
     } else if ('customTunnelEndpoint' in relaySettings) {
       const customTunnelEndpoint = relaySettings.customTunnelEndpoint;
