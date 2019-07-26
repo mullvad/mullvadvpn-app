@@ -16,7 +16,7 @@ use talpid_types::{
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.
 pub struct DisconnectingState {
-    exited: oneshot::Receiver<Option<BlockReason>>,
+    exited: Option<oneshot::Receiver<Option<BlockReason>>>,
     after_disconnect: AfterDisconnect,
 }
 
@@ -101,7 +101,12 @@ impl DisconnectingState {
     ) -> EventConsequence<Self> {
         use self::EventConsequence::*;
 
-        match self.exited.poll() {
+        let poll_result = match &mut self.exited {
+            Some(exited) => exited.poll(),
+            None => Ok(Async::Ready(None)),
+        };
+
+        match poll_result {
             Ok(Async::NotReady) => NoEvents(self),
             Ok(Async::Ready(block_reason)) => {
                 NewState(self.after_disconnect(block_reason, shared_values))
@@ -132,7 +137,7 @@ impl DisconnectingState {
 impl TunnelState for DisconnectingState {
     type Bootstrap = (
         Option<CloseHandle>,
-        oneshot::Receiver<Option<BlockReason>>,
+        Option<oneshot::Receiver<Option<BlockReason>>>,
         AfterDisconnect,
     );
 

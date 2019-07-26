@@ -20,7 +20,7 @@ pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,
     pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     pub tunnel_parameters: TunnelParameters,
-    pub tunnel_close_event: oneshot::Receiver<Option<BlockReason>>,
+    pub tunnel_close_event: Option<oneshot::Receiver<Option<BlockReason>>>,
     pub close_handle: Option<CloseHandle>,
 }
 
@@ -29,7 +29,7 @@ pub struct ConnectedState {
     metadata: TunnelMetadata,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_parameters: TunnelParameters,
-    tunnel_close_event: oneshot::Receiver<Option<BlockReason>>,
+    tunnel_close_event: Option<oneshot::Receiver<Option<BlockReason>>>,
     close_handle: Option<CloseHandle>,
 }
 
@@ -175,7 +175,12 @@ impl ConnectedState {
     ) -> EventConsequence<Self> {
         use self::EventConsequence::*;
 
-        match self.tunnel_close_event.poll() {
+        let poll_result = match &mut self.tunnel_close_event {
+            Some(tunnel_close_event) => tunnel_close_event.poll(),
+            None => Ok(Async::NotReady),
+        };
+
+        match poll_result {
             Ok(Async::Ready(block_reason)) => {
                 if let Some(reason) = block_reason {
                     return NewState(BlockedState::enter(shared_values, reason));
