@@ -24,7 +24,7 @@ export default class WireguardKeys extends Component<IProps> {
     return (
       <Layout>
         <Container>
-          <View>
+          <View style={styles.wgkeys}>
             <NavigationContainer>
               <NavigationBar>
                 <BackBarItem action={this.props.onClose}>

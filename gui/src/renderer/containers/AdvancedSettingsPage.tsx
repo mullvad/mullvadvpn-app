@@ -2,7 +2,7 @@ import { goBack, push } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
+import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import AdvancedSettings from '../components/AdvancedSettings';
 import RelaySettingsBuilder from '../lib/relay-settings-builder';
 
@@ -26,14 +26,26 @@ const mapStateToProps = (state: IReduxState) => {
 
 const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) => {
   if ('normal' in relaySettings) {
-    const { protocol, port } = relaySettings.normal;
+    const { tunnelProtocol, openvpn, wireguard } = relaySettings.normal;
     return {
-      protocol: protocol === 'any' ? undefined : protocol,
-      port: port === 'any' ? undefined : port,
+      openvpn: {
+        protocol: openvpn.protocol === 'any' ? undefined : openvpn.protocol,
+        port: openvpn.port === 'any' ? undefined : openvpn.port,
+      },
+      wireguard: { port: wireguard.port === 'any' ? undefined : wireguard.port },
+      tunnelProtocol: tunnelProtocol === 'any' ? undefined : tunnelProtocol,
     };
+    // since the GUI doesn't display custom settings, just display the default ones.
+    // If the user sets any settings, then those will be applied.
   } else if ('customTunnelEndpoint' in relaySettings) {
-    const { protocol, port } = relaySettings.customTunnelEndpoint;
-    return { protocol, port };
+    return {
+      openvpn: {
+        protocol: undefined,
+        port: undefined,
+      },
+      wireguard: { port: undefined },
+      tunnelProtocol: undefined,
+    };
   } else {
     throw new Error('Unknown type of relay settings.');
   }
@@ -45,7 +57,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
     onClose: () => {
       history.goBack();
     },
-    setRelayProtocolAndPort: async (protocol?: RelayProtocol, port?: number) => {
+    setOpenVpnRelayProtocolAndPort: async (protocol?: RelayProtocol, port?: number) => {
       const relayUpdate = RelaySettingsBuilder.normal()
         .tunnel.openvpn((openvpn) => {
           if (protocol) {
@@ -66,6 +78,40 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
         await props.app.updateRelaySettings(relayUpdate);
       } catch (e) {
         log.error('Failed to update relay settings', e.message);
+      }
+    },
+
+    setWireguardRelayPort: async (port?: number) => {
+      const relayUpdate = RelaySettingsBuilder.normal()
+        .tunnel.wireguard((wireguard) => {
+          if (port) {
+            wireguard.port.exact(port);
+          } else {
+            wireguard.port.any();
+          }
+        })
+        .build();
+      try {
+        await props.app.updateRelaySettings(relayUpdate);
+      } catch (e) {
+        log.error('Failed to update relay settings', e.message);
+      }
+    },
+
+    setTunnelProtocol: async (tunnelProtocol: TunnelProtocol | undefined) => {
+      const relayUpdate = RelaySettingsBuilder.normal()
+        .tunnel.tunnelProtocol((config) => {
+          if (tunnelProtocol) {
+            config.tunnelProtocol.exact(tunnelProtocol);
+          } else {
+            config.tunnelProtocol.any();
+          }
+        })
+        .build();
+      try {
+        await props.app.updateRelaySettings(relayUpdate);
+      } catch (e) {
+        log.error('Failed to update tunnel protocol constraints', e.message);
       }
     },
 

@@ -1,9 +1,11 @@
 import {
   IOpenVpnConstraints,
+  IWireguardConstraints,
   RelayLocation,
   RelayProtocol,
   RelaySettingsNormalUpdate,
   RelaySettingsUpdate,
+  TunnelProtocol,
 } from '../../shared/daemon-rpc-types';
 
 interface ILocationBuilder<Self> {
@@ -24,11 +26,24 @@ interface IOpenVPNConfigurator {
   protocol: IExactOrAny<RelayProtocol, IOpenVPNConfigurator>;
 }
 
+interface IWireguardConfigurator {
+  port: IExactOrAny<number, IWireguardConfigurator>;
+}
+
+interface ITunnelProtocolConfigurator {
+  tunnelProtocol: IExactOrAny<TunnelProtocol, ITunnelProtocolConfigurator>;
+}
+
 interface ITunnelBuilder {
   openvpn(
     configurator: (openVpnConfigurator: IOpenVPNConfigurator) => void,
   ): NormalRelaySettingsBuilder;
-  any(): NormalRelaySettingsBuilder;
+  wireguard(
+    configurator: (wireguardConfigurator: IWireguardConfigurator) => void,
+  ): NormalRelaySettingsBuilder;
+  tunnelProtocol(
+    configurator: (tunnelProtocolConfigurator: ITunnelProtocolConfigurator) => void,
+  ): NormalRelaySettingsBuilder;
 }
 
 class NormalRelaySettingsBuilder {
@@ -91,6 +106,22 @@ class NormalRelaySettingsBuilder {
       }
     };
 
+    const updateWireguard = (next: Partial<IWireguardConstraints>) => {
+      if (this.payload.wireguardConstraints === undefined) {
+        this.payload.wireguardConstraints = next;
+      } else {
+        const prev = this.payload.wireguardConstraints;
+        this.payload.wireguardConstraints = {
+          ...prev,
+          ...next,
+        };
+      }
+    };
+
+    const updateTunnelProtocol = (next: { only: TunnelProtocol } | 'any' | undefined) => {
+      this.payload.tunnelProtocol = next;
+    };
+
     return {
       openvpn: (configurator: (configurator: IOpenVPNConfigurator) => void) => {
         const openvpnBuilder: IOpenVPNConfigurator = {
@@ -120,8 +151,41 @@ class NormalRelaySettingsBuilder {
 
         return this;
       },
-      any: () => {
-        this.payload.tunnelProtocol = 'any';
+
+      wireguard: (configurator: (configurator: IWireguardConfigurator) => void) => {
+        const wireguardBuilder: IWireguardConfigurator = {
+          get port() {
+            const apply = (port: 'any' | { only: number }) => {
+              updateWireguard({ port });
+              return this;
+            };
+            return {
+              exact: (value: number) => apply({ only: value }),
+              any: () => apply('any'),
+            };
+          },
+        };
+        configurator(wireguardBuilder);
+        return this;
+      },
+
+      tunnelProtocol: (configurator: (configurator: ITunnelProtocolConfigurator) => void) => {
+        const tunnelProtocolBuilder = {
+          get tunnelProtocol() {
+            return {
+              exact: (value: TunnelProtocol) => {
+                updateTunnelProtocol({ only: value });
+                return this;
+              },
+              any: () => {
+                updateTunnelProtocol('any');
+                return this;
+              },
+            };
+          },
+        };
+
+        configurator(tunnelProtocolBuilder);
         return this;
       },
     };

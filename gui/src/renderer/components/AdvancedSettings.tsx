@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
-import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
+import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import styles from './AdvancedSettingsStyles';
 import * as Cell from './Cell';
@@ -20,10 +20,12 @@ const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
 const UDP_PORTS = [1194, 1195, 1196, 1197, 1300, 1301, 1302];
 const TCP_PORTS = [80, 443];
+const WIREUGARD_UDP_PORTS = [53];
 
 type OptionalPort = number | undefined;
 
 type OptionalRelayProtocol = RelayProtocol | undefined;
+type OptionalTunnelProtocol = TunnelProtocol | undefined;
 
 function mapPortToSelectorItem(value: number): ISelectorItem<number> {
   return { label: value.toString(), value };
@@ -32,16 +34,22 @@ function mapPortToSelectorItem(value: number): ISelectorItem<number> {
 interface IProps {
   enableIpv6: boolean;
   blockWhenDisconnected: boolean;
-  protocol?: RelayProtocol;
+  tunnelProtocol?: TunnelProtocol;
+  openvpn: {
+    protocol?: RelayProtocol;
+    port?: number;
+  };
+  wireguard: { port?: number };
   mssfix?: number;
-  port?: number;
   bridgeState: BridgeState;
   enableWireguardKeysPage: boolean;
   setBridgeState: (value: BridgeState) => void;
   setEnableIpv6: (value: boolean) => void;
   setBlockWhenDisconnected: (value: boolean) => void;
+  setTunnelProtocol: (value: OptionalTunnelProtocol) => void;
   setOpenVpnMssfix: (value: number | undefined) => void;
-  setRelayProtocolAndPort: (protocol?: RelayProtocol, port?: number) => void;
+  setOpenVpnRelayProtocolAndPort: (protocol?: RelayProtocol, port?: number) => void;
+  setWireguardRelayPort: (port?: number) => void;
   onViewWireguardKeys: () => void;
   onClose: () => void;
 }
@@ -56,6 +64,8 @@ export default class AdvancedSettings extends Component<IProps, IState> {
   private portItems: { [key in RelayProtocol]: Array<ISelectorItem<OptionalPort>> };
   private protocolItems: Array<ISelectorItem<OptionalRelayProtocol>>;
   private bridgeStateItems: Array<ISelectorItem<BridgeState>>;
+  private tunnelProtocolItems: Array<ISelectorItem<OptionalTunnelProtocol>>;
+  private wireguardPortItems: Array<ISelectorItem<OptionalPort>>;
 
   constructor(props: IProps) {
     super(props);
@@ -69,6 +79,10 @@ export default class AdvancedSettings extends Component<IProps, IState> {
       udp: [automaticPort].concat(UDP_PORTS.map(mapPortToSelectorItem)),
       tcp: [automaticPort].concat(TCP_PORTS.map(mapPortToSelectorItem)),
     };
+
+    this.wireguardPortItems = [automaticPort].concat(
+      WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem),
+    );
 
     this.protocolItems = [
       {
@@ -84,6 +98,25 @@ export default class AdvancedSettings extends Component<IProps, IState> {
         value: 'udp',
       },
     ];
+
+    this.tunnelProtocolItems = [
+      {
+        label: messages.pgettext('advanced-settings-view', 'Automatic'),
+        value: undefined,
+      },
+      {
+        label: messages.pgettext('advanced-settings-view', 'OpenVPN'),
+        value: 'openvpn',
+      },
+      {
+        label: messages.pgettext('advanced-settings-view', 'WireGuard'),
+        value: 'wireguard',
+      },
+    ];
+
+    this.wireguardPortItems = [automaticPort].concat(
+      WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem),
+    );
 
     this.bridgeStateItems = [
       {
@@ -186,33 +219,68 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     undefined
                   )}
 
-                  <View style={styles.advanced_settings__content}>
-                    <Selector
-                      title={messages.pgettext('advanced-settings-view', 'Network protocols')}
-                      values={this.protocolItems}
-                      value={this.props.protocol}
-                      onSelect={this.onSelectProtocol}
-                    />
-
-                    {this.props.protocol ? (
+                  {process.platform !== 'win32' ? (
+                    <View style={styles.advanced_settings__content}>
                       <Selector
-                        title={sprintf(
-                          // TRANSLATORS: The title for the port selector section.
-                          // TRANSLATORS: Available placeholders:
-                          // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
-                          messages.pgettext('advanced-settings-view', '%(portType)s port'),
-                          {
-                            portType: this.props.protocol.toUpperCase(),
-                          },
-                        )}
-                        values={this.portItems[this.props.protocol]}
-                        value={this.props.port}
-                        onSelect={this.onSelectPort}
+                        title={messages.pgettext('advanced-settings-view', 'Tunnel protocols')}
+                        values={this.tunnelProtocolItems}
+                        value={this.props.tunnelProtocol}
+                        onSelect={this.onSelectTunnelProtocol}
                       />
-                    ) : (
-                      undefined
-                    )}
-                  </View>
+                    </View>
+                  ) : (
+                    undefined
+                  )}
+
+                  {this.props.tunnelProtocol === 'openvpn' ||
+                  this.props.tunnelProtocol === undefined ? (
+                    <View style={styles.advanced_settings__content}>
+                      <Selector
+                        title={messages.pgettext(
+                          'advanced-settings-view',
+                          'OpenVPN transport protocols',
+                        )}
+                        values={this.protocolItems}
+                        value={this.props.openvpn.protocol}
+                        onSelect={this.onSelectOpenvpnProtocol}
+                      />
+
+                      {this.props.openvpn.protocol ? (
+                        <Selector
+                          title={sprintf(
+                            // TRANSLATORS: The title for the port selector section.
+                            // TRANSLATORS: Available placeholders:
+                            // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
+                            messages.pgettext('advanced-settings-view', '%(portType)s port'),
+                            {
+                              portType: this.props.openvpn.protocol.toUpperCase(),
+                            },
+                          )}
+                          values={this.portItems[this.props.openvpn.protocol]}
+                          value={this.props.openvpn.port}
+                          onSelect={this.onSelectOpenVpnPort}
+                        />
+                      ) : (
+                        undefined
+                      )}
+                    </View>
+                  ) : (
+                    undefined
+                  )}
+
+                  {this.props.tunnelProtocol === 'wireguard' ? (
+                    <View style={styles.advanced_settings__content}>
+                      <Selector
+                        // TRANSLATORS: The title for the shadowsocks bridge selector section.
+                        title={messages.pgettext('advanced-settings-view', 'WireGuard port')}
+                        values={this.wireguardPortItems}
+                        value={this.props.wireguard.port}
+                        onSelect={this.onSelectWireguardPort}
+                      />
+                    </View>
+                  ) : (
+                    undefined
+                  )}
 
                   <Selector
                     title={
@@ -270,7 +338,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
   private wireguardKeysButton() {
     if (this.props.enableWireguardKeysPage) {
       return (
-        <View>
+        <View style={styles.advanced_settings__wgkeys_cell}>
           <Cell.CellButton onPress={this.props.onViewWireguardKeys}>
             <Cell.Label>{messages.pgettext('advanced-settings-view', 'WireGuard keys')}</Cell.Label>
             <Cell.Icon height={12} width={7} source="icon-chevron" />
@@ -282,12 +350,20 @@ export default class AdvancedSettings extends Component<IProps, IState> {
     }
   }
 
-  private onSelectProtocol = (protocol?: RelayProtocol) => {
-    this.props.setRelayProtocolAndPort(protocol);
+  private onSelectTunnelProtocol = (protocol?: TunnelProtocol) => {
+    this.props.setTunnelProtocol(protocol);
   };
 
-  private onSelectPort = (port?: number) => {
-    this.props.setRelayProtocolAndPort(this.props.protocol, port);
+  private onSelectOpenvpnProtocol = (protocol?: RelayProtocol) => {
+    this.props.setOpenVpnRelayProtocolAndPort(protocol);
+  };
+
+  private onSelectOpenVpnPort = (port?: number) => {
+    this.props.setOpenVpnRelayProtocolAndPort(this.props.openvpn.protocol, port);
+  };
+
+  private onSelectWireguardPort = (port?: number) => {
+    this.props.setWireguardRelayPort(port);
   };
 
   private onSelectBridgeState = (bridgeState: BridgeState) => {
