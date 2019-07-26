@@ -344,6 +344,18 @@ impl TunnelState for ConnectingState {
                                 TunnelStateTransition::Connecting(params.get_tunnel_endpoint()),
                             )
                         }
+                        #[cfg(not(windows))]
+                        Err(tunnel::Error::WireguardTunnelMonitoringError(
+                            tunnel::wireguard::Error::StartWireguardError { status: -2 },
+                        )) => {
+                            log::warn!(
+                                "Retrying to connect after failing to start Wireguard tunnel"
+                            );
+                            DisconnectingState::enter(
+                                shared_values,
+                                (None, None, AfterDisconnect::Reconnect(retry_attempt + 1)),
+                            )
+                        }
                         Err(error) => {
                             log::error!("Failed to start tunnel: {}", error);
                             let block_reason = match error {
