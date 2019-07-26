@@ -21,7 +21,7 @@ pub struct ConnectedStateBootstrap {
     pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     pub tunnel_parameters: TunnelParameters,
     pub tunnel_close_event: oneshot::Receiver<Option<BlockReason>>,
-    pub close_handle: CloseHandle,
+    pub close_handle: Option<CloseHandle>,
 }
 
 /// The tunnel is up and working.
@@ -30,7 +30,7 @@ pub struct ConnectedState {
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_parameters: TunnelParameters,
     tunnel_close_event: oneshot::Receiver<Option<BlockReason>>,
-    close_handle: CloseHandle,
+    close_handle: Option<CloseHandle>,
 }
 
 impl ConnectedState {

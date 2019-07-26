@@ -131,7 +131,7 @@ impl DisconnectingState {
 
 impl TunnelState for DisconnectingState {
     type Bootstrap = (
-        CloseHandle,
+        Option<CloseHandle>,
         oneshot::Receiver<Option<BlockReason>>,
         AfterDisconnect,
     );
@@ -140,14 +140,16 @@ impl TunnelState for DisconnectingState {
         _: &mut SharedTunnelStateValues,
         (close_handle, exited, after_disconnect): Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        thread::spawn(move || {
-            if let Err(error) = close_handle.close() {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to close the tunnel")
-                );
-            }
-        });
+        if let Some(close_handle) = close_handle {
+            thread::spawn(move || {
+                if let Err(error) = close_handle.close() {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to close the tunnel")
+                    );
+                }
+            });
+        }
 
         let action_after_disconnect = after_disconnect.action();
 

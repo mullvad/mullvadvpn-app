@@ -35,7 +35,7 @@ pub struct ConnectingState {
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_parameters: TunnelParameters,
     tunnel_close_event: oneshot::Receiver<Option<BlockReason>>,
-    close_handle: CloseHandle,
+    close_handle: Option<CloseHandle>,
     retry_attempt: u32,
 }
 
@@ -78,7 +78,7 @@ impl ConnectingState {
             on_tunnel_event,
             tun_provider,
         )?;
-        let close_handle = monitor.close_handle();
+        let close_handle = Some(monitor.close_handle());
         let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
 
         Ok(ConnectingState {
