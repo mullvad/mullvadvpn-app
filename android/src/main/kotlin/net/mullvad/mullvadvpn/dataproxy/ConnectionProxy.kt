@@ -41,25 +41,25 @@ class ConnectionProxy(val parentActivity: MainActivity) {
         }
 
     fun connect() {
-        uiState = TunnelState.Connecting(null)
+        if (anticipateConnectingState()) {
+            cancelActiveAction()
 
-        cancelActiveAction()
+            val vpnPermission = parentActivity.requestVpnPermission()
 
-        val vpnPermission = parentActivity.requestVpnPermission()
-
-        activeAction = GlobalScope.launch(Dispatchers.Default) {
-            if (vpnPermission.await()) {
-                daemon.await().connect()
+            activeAction = GlobalScope.launch(Dispatchers.Default) {
+                if (vpnPermission.await()) {
+                    daemon.await().connect()
+                }
             }
         }
     }
 
     fun disconnect() {
-        uiState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing())
-
-        cancelActiveAction()
-        activeAction = GlobalScope.launch(Dispatchers.Default) {
-            daemon.await().disconnect()
+        if (anticipateDisconnectingState()) {
+            cancelActiveAction()
+            activeAction = GlobalScope.launch(Dispatchers.Default) {
+                daemon.await().disconnect()
+            }
         }
     }
 
@@ -72,6 +72,32 @@ class ConnectionProxy(val parentActivity: MainActivity) {
         detachListener()
         fetchInitialStateJob.cancel()
         cancelActiveAction()
+    }
+
+    private fun anticipateConnectingState(): Boolean {
+        synchronized(this) {
+            val currentState = state
+
+            if (currentState is TunnelState.Connecting || currentState is TunnelState.Connected) {
+                return false
+            } else {
+                uiState = TunnelState.Connecting(null)
+                return true
+            }
+        }
+    }
+
+    private fun anticipateDisconnectingState(): Boolean {
+        synchronized(this) {
+            val currentState = state
+
+            if (currentState is TunnelState.Disconnected) {
+                return false
+            } else {
+                uiState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing())
+                return true
+            }
+        }
     }
 
     private fun fetchInitialState() = GlobalScope.launch(Dispatchers.Default) {
