@@ -39,7 +39,10 @@ class LocationInfoCache(
             field = value
 
             when (value) {
-                is TunnelState.Disconnected -> fetchLocation()
+                is TunnelState.Disconnected -> {
+                    location = lastKnownRealLocation
+                    fetchLocation()
+                }
                 is TunnelState.Connecting -> location = value.location
                 is TunnelState.Connected -> {
                     location = value.location
