@@ -4,12 +4,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 
 import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.KeygenEvent
 
 class KeyStatusListener(val asyncDaemon: Deferred<MullvadDaemon>) {
     private var daemon: MullvadDaemon? = null
+    private var retryJob: Job? = null
 
     private val setUpJob = setUp()
 
@@ -38,8 +40,21 @@ class KeyStatusListener(val asyncDaemon: Deferred<MullvadDaemon>) {
         daemon?.onKeygenEvent = { event -> keyStatus = event }
     }
 
+    fun onResume() {
+        if (keyStatus is KeygenEvent.TooManyKeys || keyStatus is KeygenEvent.GenerationFailure) {
+            retryJob?.cancel()
+            retryJob = retryKeyGeneration()
+        }
+    }
+
     fun onDestroy() {
         setUpJob.cancel()
+        retryJob?.cancel()
         daemon?.onKeygenEvent = null
+    }
+
+    private fun retryKeyGeneration() = GlobalScope.launch(Dispatchers.Default) {
+        setUpJob.join()
+        keyStatus = daemon?.generateWireguardKey()
     }
 }

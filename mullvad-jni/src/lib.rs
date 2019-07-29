@@ -18,7 +18,6 @@ use jni::{
 };
 use lazy_static::lazy_static;
 use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
-use mullvad_types::wireguard::KeygenEvent;
 use parking_lot::RwLock;
 use std::{
     collections::HashMap,
@@ -244,23 +243,18 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_disconnect(_: J
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWireguardKey(
-    _: JNIEnv,
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWireguardKey<'env>(
+    env: JNIEnv<'env>,
     _: JObject,
-) -> jboolean {
+) -> JObject<'env> {
     match DAEMON_INTERFACE.generate_wireguard_key() {
-        Ok(KeygenEvent::NewKey(_)) => JNI_TRUE,
-        // TODO: Handle the new result better.
-        Ok(keygen_failure) => {
-            log::error!("Failed to generate wireguard key {:?}", keygen_failure);
-            JNI_FALSE
-        }
+        Ok(keygen_event) => keygen_event.into_java(&env),
         Err(error) => {
             log::error!(
                 "{}",
-                error.display_chain_with_msg("Failed to generate wireguard key")
+                error.display_chain_with_msg("Failed to request to generate wireguard key")
             );
-            JNI_FALSE
+            JObject::null()
         }
     }
 }
