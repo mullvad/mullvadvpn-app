@@ -34,8 +34,8 @@ const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 pub struct ConnectingState {
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_parameters: TunnelParameters,
-    tunnel_close_event: oneshot::Receiver<Option<BlockReason>>,
-    close_handle: CloseHandle,
+    tunnel_close_event: Option<oneshot::Receiver<Option<BlockReason>>>,
+    close_handle: Option<CloseHandle>,
     retry_attempt: u32,
 }
 
@@ -78,7 +78,7 @@ impl ConnectingState {
             on_tunnel_event,
             tun_provider,
         )?;
-        let close_handle = monitor.close_handle();
+        let close_handle = Some(monitor.close_handle());
         let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
 
         Ok(ConnectingState {
@@ -92,7 +92,7 @@ impl ConnectingState {
 
     fn spawn_tunnel_monitor_wait_thread(
         tunnel_monitor: TunnelMonitor,
-    ) -> oneshot::Receiver<Option<BlockReason>> {
+    ) -> Option<oneshot::Receiver<Option<BlockReason>>> {
         let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
 
         thread::spawn(move || {
@@ -113,7 +113,7 @@ impl ConnectingState {
             trace!("Tunnel monitor thread exit");
         });
 
-        tunnel_close_event_rx
+        Some(tunnel_close_event_rx)
     }
 
     fn wait_for_tunnel_monitor(tunnel_monitor: TunnelMonitor) -> Option<BlockReason> {
@@ -270,7 +270,12 @@ impl ConnectingState {
         mut self,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
-        match self.tunnel_close_event.poll() {
+        let poll_result = match &mut self.tunnel_close_event {
+            Some(tunnel_close_event) => tunnel_close_event.poll(),
+            None => Ok(Async::NotReady),
+        };
+
+        match poll_result {
             Ok(Async::Ready(block_reason)) => {
                 if let Some(reason) = block_reason {
                     return EventConsequence::NewState(BlockedState::enter(shared_values, reason));
@@ -337,6 +342,18 @@ impl TunnelState for ConnectingState {
                             (
                                 TunnelStateWrapper::from(connecting_state),
                                 TunnelStateTransition::Connecting(params.get_tunnel_endpoint()),
+                            )
+                        }
+                        #[cfg(not(windows))]
+                        Err(tunnel::Error::WireguardTunnelMonitoringError(
+                            tunnel::wireguard::Error::StartWireguardError { status: -2 },
+                        )) => {
+                            log::warn!(
+                                "Retrying to connect after failing to start Wireguard tunnel"
+                            );
+                            DisconnectingState::enter(
+                                shared_values,
+                                (None, None, AfterDisconnect::Reconnect(retry_attempt + 1)),
                             )
                         }
                         Err(error) => {
