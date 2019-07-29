@@ -19,6 +19,7 @@ import android.os.IBinder
 import android.support.v4.app.FragmentActivity
 
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
+import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
@@ -38,6 +39,7 @@ class MainActivity : FragmentActivity() {
 
     var currentVersion = fetchCurrentVersion()
 
+    lateinit var appVersionInfoCache: AppVersionInfoCache
     val connectionProxy = ConnectionProxy(this)
     val keyStatusListener = KeyStatusListener(daemon)
     val problemReport = MullvadProblemReport()
@@ -70,6 +72,8 @@ class MainActivity : FragmentActivity() {
         if (savedInstanceState == null) {
             addInitialFragment()
         }
+
+        appVersionInfoCache = AppVersionInfoCache(this)
     }
 
     override fun onStart() {
@@ -102,6 +106,7 @@ class MainActivity : FragmentActivity() {
 
     override fun onDestroy() {
         accountCache.onDestroy()
+        appVersionInfoCache.onDestroy()
         keyStatusListener.onDestroy()
         relayListListener.onDestroy()
         settingsListener.onDestroy()
