@@ -1,11 +1,50 @@
 package net.mullvad.mullvadvpn.dataproxy
 
-class AppVersionInfoCache {
+import android.content.Context
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+
+class AppVersionInfoCache(val context: Context) {
     companion object {
         val KEY_CURRENT_IS_SUPPORTED = "current_is_supported"
         val KEY_LAST_UPDATED = "last_updated"
         val KEY_LATEST_STABLE = "latest_stable"
         val KEY_LATEST = "latest"
         val SHARED_PREFERENCES = "app_version_info_cache"
+    }
+
+    private val preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
+
+    var lastUpdated = 0L
+        private set
+    var isSupported = true
+        private set
+    var latestStable: String? = null
+        private set
+    var latest: String? = null
+        private set
+
+    private val listener = object : OnSharedPreferenceChangeListener {
+        override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String) {
+            when (key) {
+                KEY_CURRENT_IS_SUPPORTED -> isSupported = preferences.getBoolean(key, isSupported)
+                KEY_LAST_UPDATED -> lastUpdated = preferences.getLong(key, lastUpdated)
+                KEY_LATEST_STABLE -> latestStable = preferences.getString(key, latestStable)
+                KEY_LATEST -> latest = preferences.getString(key, latest)
+            }
+        }
+    }
+
+    init {
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+
+        lastUpdated = preferences.getLong(KEY_LAST_UPDATED, 0L)
+        isSupported = preferences.getBoolean(KEY_CURRENT_IS_SUPPORTED, true)
+        latestStable = preferences.getString(KEY_LATEST_STABLE, null)
+        latest = preferences.getString(KEY_LATEST, null)
+    }
+
+    fun onDestroy() {
+        preferences.unregisterOnSharedPreferenceChangeListener(listener)
     }
 }
