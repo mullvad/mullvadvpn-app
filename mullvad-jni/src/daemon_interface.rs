@@ -7,6 +7,7 @@ use mullvad_types::{
     relay_list::RelayList,
     settings::Settings,
     states::{TargetState, TunnelState},
+    version::AppVersionInfo,
     wireguard::KeygenEvent,
 };
 use parking_lot::Mutex;
@@ -126,6 +127,17 @@ impl DaemonInterface {
         self.send_command(ManagementCommand::GetState(tx))?;
 
         Ok(rx.wait().map_err(|_| Error::NoResponse)?)
+    }
+
+    pub fn get_version_info(&self) -> Result<AppVersionInfo> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::GetVersionInfo(tx))?;
+
+        rx.wait()
+            .map_err(|_| Error::NoResponse)?
+            .wait()
+            .map_err(Error::RpcError)
     }
 
     pub fn get_wireguard_key(&self) -> Result<Option<wireguard::PublicKey>> {
