@@ -11,8 +11,14 @@ import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.MullvadDaemon
+import net.mullvad.mullvadvpn.relaylist.RelayCity
+import net.mullvad.mullvadvpn.relaylist.RelayCountry
+import net.mullvad.mullvadvpn.relaylist.Relay
 
-class LocationInfoCache(val daemon: Deferred<MullvadDaemon>) {
+class LocationInfoCache(
+    val daemon: Deferred<MullvadDaemon>,
+    val relayListListener: RelayListListener
+) {
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var activeFetch: Job? = null
 
@@ -43,7 +49,7 @@ class LocationInfoCache(val daemon: Deferred<MullvadDaemon>) {
                     when (value.actionAfterDisconnect) {
                         is ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
                         is ActionAfterDisconnect.Block -> location = null
-                        is ActionAfterDisconnect.Reconnect -> {} // Leave location unchanged
+                        is ActionAfterDisconnect.Reconnect -> location = locationFromSelectedRelay()
                     }
                 }
                 is TunnelState.Blocked -> location = null
@@ -57,6 +63,22 @@ class LocationInfoCache(val daemon: Deferred<MullvadDaemon>) {
         val hostname = location?.hostname ?: ""
 
         onNewLocation?.invoke(country, city, hostname)
+    }
+
+    private fun locationFromSelectedRelay(): GeoIpLocation? {
+        val relayItem = relayListListener.selectedRelayItem
+
+        when (relayItem) {
+            is RelayCountry -> return GeoIpLocation(relayItem.name, null, null)
+            is RelayCity -> return GeoIpLocation(relayItem.country.name, relayItem.name, null)
+            is Relay -> return GeoIpLocation(
+                relayItem.city.country.name,
+                relayItem.city.name,
+                relayItem.name
+            )
+        }
+
+        return null
     }
 
     private fun fetchLocation() {

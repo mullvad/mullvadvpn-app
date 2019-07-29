@@ -38,10 +38,10 @@ class MainActivity : FragmentActivity() {
 
     val connectionProxy = ConnectionProxy(this)
     val keyStatusListener = KeyStatusListener(daemon)
-    val locationInfoCache = LocationInfoCache(daemon)
     val problemReport = MullvadProblemReport()
     var settingsListener = SettingsListener(this)
     var relayListListener = RelayListListener(this)
+    val locationInfoCache = LocationInfoCache(daemon, relayListListener)
     val accountCache = AccountCache(settingsListener, daemon)
 
     private var waitForDaemonJob: Job? = null
