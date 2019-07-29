@@ -248,7 +248,6 @@ impl RelaySelector {
         // any constraints that are explicitly specified.
         match original_constraints.tunnel_protocol {
             // If no tunnel protocol is selected, use preferred constraints
-            #[cfg(not(target_os = "android"))]
             Constraint::Any => {
                 if original_constraints.openvpn_constraints.port.is_any()
                     && original_constraints.openvpn_constraints.protocol.is_any()
@@ -264,17 +263,10 @@ impl RelaySelector {
                     };
                 }
             }
-            #[cfg(not(target_os = "android"))]
             Constraint::Only(TunnelProtocol::OpenVpn) => {
                 relay_constraints.openvpn_constraints = original_constraints.openvpn_constraints;
             }
-            #[cfg(not(target_os = "android"))]
             Constraint::Only(TunnelProtocol::Wireguard) => {
-                relay_constraints.wireguard_constraints =
-                    original_constraints.wireguard_constraints;
-            }
-            #[cfg(target_os = "android")]
-            _ => {
                 relay_constraints.wireguard_constraints =
                     original_constraints.wireguard_constraints;
             }

@@ -93,12 +93,25 @@ impl RelaySettings {
     }
 }
 
-#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(not(target_os = "android"), derive(Default))]
 pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
     pub tunnel_protocol: Constraint<TunnelProtocol>,
     pub wireguard_constraints: WireguardConstraints,
     pub openvpn_constraints: OpenVpnConstraints,
+}
+
+#[cfg(target_os = "android")]
+impl Default for RelayConstraints {
+    fn default() -> Self {
+        RelayConstraints {
+            location: Constraint::Any,
+            tunnel_protocol: Constraint::Only(TunnelProtocol::Wireguard),
+            wireguard_constraints: WireguardConstraints::default(),
+            openvpn_constraints: OpenVpnConstraints::default(),
+        }
+    }
 }
 
 impl RelayConstraints {
