@@ -37,6 +37,7 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/ActionAfterDisconnect$Block",
     "net/mullvad/mullvadvpn/model/ActionAfterDisconnect$Nothing",
     "net/mullvad/mullvadvpn/model/ActionAfterDisconnect$Reconnect",
+    "net/mullvad/mullvadvpn/model/AppVersionInfo",
     "net/mullvad/mullvadvpn/model/Constraint$Any",
     "net/mullvad/mullvadvpn/model/Constraint$Only",
     "net/mullvad/mullvadvpn/model/GeoIpLocation",
