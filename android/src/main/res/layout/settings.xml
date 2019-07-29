@@ -8,11 +8,9 @@
         android:elevation="1dp"
         >
     <ImageButton android:id="@+id/close"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginLeft="12dp"
-            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
             android:background="?android:attr/selectableItemBackground"
             android:src="@drawable/icon_close"
             />
