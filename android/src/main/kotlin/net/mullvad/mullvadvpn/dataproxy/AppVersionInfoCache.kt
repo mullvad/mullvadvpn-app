@@ -1,10 +1,16 @@
 package net.mullvad.mullvadvpn.dataproxy
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 
-class AppVersionInfoCache(val context: Context) {
+import net.mullvad.mullvadvpn.MainActivity
+
+class AppVersionInfoCache(val parentActivity: MainActivity) {
     companion object {
         val KEY_CURRENT_IS_SUPPORTED = "current_is_supported"
         val KEY_LAST_UPDATED = "last_updated"
@@ -13,7 +19,15 @@ class AppVersionInfoCache(val context: Context) {
         val SHARED_PREFERENCES = "app_version_info_cache"
     }
 
-    private val preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
+    private val preferences =
+        parentActivity.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
+
+    private val updateVersionJob = updateVersion()
+
+    var version: String? = null
+        private set
+    var isStable = true
+        private set
 
     var lastUpdated = 0L
         private set
@@ -45,6 +59,14 @@ class AppVersionInfoCache(val context: Context) {
     }
 
     fun onDestroy() {
+        updateVersionJob.cancel()
         preferences.unregisterOnSharedPreferenceChangeListener(listener)
+    }
+
+    private fun updateVersion() = GlobalScope.launch(Dispatchers.Default) {
+        val currentVersion = parentActivity.currentVersion.await()
+
+        version = currentVersion
+        isStable = !currentVersion.contains("-")
     }
 }
