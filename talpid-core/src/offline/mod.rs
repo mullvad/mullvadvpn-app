@@ -43,5 +43,12 @@ pub fn spawn_monitor(
             .map(|_| ()),
     );
 
-    Ok(MonitorHandle(imp::spawn_monitor(sender)?))
+    #[cfg(not(target_os = "linux"))]
+    {
+        return Ok(MonitorHandle(imp::spawn_monitor(tx)?));
+    }
+    #[cfg(target_os = "linux")]
+    {
+        return Ok(MonitorHandle(imp::spawn_monitor(tx, handle)?));
+    }
 }
