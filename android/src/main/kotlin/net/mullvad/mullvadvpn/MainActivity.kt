@@ -36,6 +36,8 @@ class MainActivity : FragmentActivity() {
     var daemon = CompletableDeferred<MullvadDaemon>()
         private set
 
+    var currentVersion = fetchCurrentVersion()
+
     val connectionProxy = ConnectionProxy(this)
     val keyStatusListener = KeyStatusListener(daemon)
     val problemReport = MullvadProblemReport()
@@ -148,5 +150,9 @@ class MainActivity : FragmentActivity() {
 
     private fun fetchSettings() = GlobalScope.async(Dispatchers.Default) {
         daemon.await().getSettings()
+    }
+
+    private fun fetchCurrentVersion() = GlobalScope.async(Dispatchers.Default) {
+        daemon.await().getCurrentVersion()
     }
 }

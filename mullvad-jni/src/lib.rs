@@ -300,6 +300,24 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentLocat
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentVersion<'env, 'this>(
+    env: JNIEnv<'env>,
+    _: JObject<'this>,
+) -> JString<'env> {
+    match DAEMON_INTERFACE.get_current_version() {
+        Ok(location) => location.into_java(&env),
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to get current version")
+            );
+            String::new().into_java(&env)
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getRelayLocations<'env, 'this>(
     env: JNIEnv<'env>,
     _: JObject<'this>,
