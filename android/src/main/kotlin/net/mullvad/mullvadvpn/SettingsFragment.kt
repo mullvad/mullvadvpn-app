@@ -20,7 +20,9 @@ import android.widget.TextView
 class SettingsFragment : Fragment() {
     private lateinit var parentActivity: MainActivity
     private lateinit var remainingTimeLabel: RemainingTimeLabel
+    private lateinit var appVersionWarning: View
     private lateinit var appVersionLabel: TextView
+    private lateinit var appVersionFooter: View
 
     private var showCurrentVersionJob: Job? = null
 
@@ -56,7 +58,9 @@ class SettingsFragment : Fragment() {
         }
 
         remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
+        appVersionWarning = view.findViewById(R.id.app_version_warning)
         appVersionLabel = view.findViewById<TextView>(R.id.app_version_label)
+        appVersionFooter = view.findViewById(R.id.app_version_footer)
 
         showCurrentVersionJob = showCurrentVersion()
 
@@ -100,7 +104,16 @@ class SettingsFragment : Fragment() {
 
     private fun showCurrentVersion() = GlobalScope.launch(Dispatchers.Main) {
         val version = parentActivity.currentVersion.await()
+        val versionInfoCache = parentActivity.appVersionInfoCache
 
         appVersionLabel.setText(version)
+
+        if (versionInfoCache.isLatest && versionInfoCache.isSupported) {
+            appVersionWarning.visibility = View.GONE
+            appVersionFooter.visibility = View.GONE
+        } else {
+            appVersionWarning.visibility = View.VISIBLE
+            appVersionFooter.visibility = View.VISIBLE
+        }
     }
 }

@@ -17,6 +17,7 @@
     <string name="less_than_a_day_left">less than a day left</string>
     <string name="out_of_time">Out of time</string>
     <string name="app_version">App version</string>
+    <string name="update_available">Update available, download to remain safe.</string>
     <string name="report_a_problem">Report a problem</string>
     <string name="quit">Quit</string>
 

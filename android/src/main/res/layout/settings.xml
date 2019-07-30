@@ -73,6 +73,13 @@
             android:clickable="true"
             android:gravity="center"
             >
+        <ImageView android:id="@+id/app_version_warning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:paddingLeft="8dp"
+                android:src="@drawable/icon_alert"
+                />
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -104,6 +111,15 @@
                 android:src="@drawable/icon_extlink"
                 />
     </LinearLayout>
+    <TextView android:id="@+id/app_version_footer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:paddingHorizontal="24dp"
+            android:textColor="@color/white60"
+            android:textSize="13sp"
+            android:text="@string/update_available"
+            />
     <LinearLayout android:id="@+id/report_a_problem"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
