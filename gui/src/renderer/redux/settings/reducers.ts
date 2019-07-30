@@ -14,8 +14,13 @@ export type RelaySettingsRedux =
       normal: {
         tunnelProtocol: 'any' | TunnelProtocol;
         location: 'any' | RelayLocation;
-        port: 'any' | number;
-        protocol: 'any' | RelayProtocol;
+        openvpn: {
+          port: 'any' | number;
+          protocol: 'any' | RelayProtocol;
+        };
+        wireguard: {
+          port: 'any' | number;
+        };
       };
     }
   | {
@@ -111,8 +116,11 @@ const initialState: ISettingsReduxState = {
     normal: {
       location: 'any',
       tunnelProtocol: 'any',
-      port: 'any',
-      protocol: 'any',
+      wireguard: { port: 'any' },
+      openvpn: {
+        port: 'any',
+        protocol: 'any',
+      },
     },
   },
   relayLocations: [],

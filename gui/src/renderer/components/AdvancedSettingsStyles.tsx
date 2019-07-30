@@ -19,6 +19,9 @@ export default {
   advanced_settings__selector_section: Styles.createViewStyle({
     marginBottom: 24,
   }),
+  advanced_settings__wgkeys_cell: Styles.createViewStyle({
+    marginBottom: 24,
+  }),
   advanced_settings__cell_hover: Styles.createButtonStyle({
     backgroundColor: colors.blue80,
   }),
