@@ -9,8 +9,9 @@ use rtnetlink::{
     constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV6_IFADDR, RTMGRP_LINK, RTMGRP_NOTIFY},
     Connection, Handle,
 };
-use std::{collections::BTreeSet, io, thread};
+use std::{collections::BTreeSet, io};
 use talpid_types::ErrorExt;
+use tokio_core::reactor;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -37,7 +38,10 @@ pub enum Error {
 
 pub struct MonitorHandle;
 
-pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle> {
+pub fn spawn_monitor(
+    sender: UnboundedSender<TunnelCommand>,
+    handle: &reactor::Handle,
+) -> Result<MonitorHandle> {
     let socket = SocketAddr::new(
         0,
         RTMGRP_NOTIFY | RTMGRP_LINK | RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR,
@@ -51,14 +55,7 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHa
 
     let link_monitor = LinkMonitor::new(sender);
 
-    thread::spawn(|| {
-        if let Err(error) = monitor_event_loop(connection, messages, link_monitor) {
-            error!(
-                "{}",
-                error.display_chain_with_msg("Error running link monitor event loop")
-            );
-        }
-    });
+    handle.spawn(monitor_event_loop(connection, messages, link_monitor));
 
     Ok(MonitorHandle)
 }
@@ -181,23 +178,27 @@ fn monitor_event_loop(
     connection: Connection,
     channel: impl Stream<Item = NetlinkMessage, Error = ()>,
     mut link_monitor: LinkMonitor,
-) -> Result<()> {
+) -> impl Future<Item = (), Error = ()> {
     let monitor = channel
-        .for_each(|_message| {
+        .for_each(move |_message| {
             link_monitor.update();
             Ok(())
         })
         .map_err(|_| Error::MonitorNetlinkError);
 
     // Under normal circumstances, this runs forever.
-    let result = connection
+    connection
         .map_err(Error::NetlinkError)
         .join(monitor)
-        .wait()
-        .map(|_| ());
-    // But if it fails, it should fail open.
-    link_monitor.reset();
-    result
+        .then(|res| {
+            if let Err(err) = res {
+                error!(
+                    "{}",
+                    err.display_chain_with_msg("Error running link monitor event loop")
+                );
+            }
+            Ok(())
+        })
 }
 
 struct LinkMonitor {
@@ -228,5 +229,11 @@ impl LinkMonitor {
     /// Allow the offline check to fail open.
     fn reset(&mut self) {
         let _ = self.sender.unbounded_send(TunnelCommand::IsOffline(false));
+    }
+}
+
+impl Drop for LinkMonitor {
+    fn drop(&mut self) {
+        self.reset()
     }
 }
