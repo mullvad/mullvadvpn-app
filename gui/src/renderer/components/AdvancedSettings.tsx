@@ -233,7 +233,8 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   )}
 
                   {this.props.tunnelProtocol === 'openvpn' ||
-                  this.props.tunnelProtocol === undefined ? (
+                  this.props.tunnelProtocol === undefined ||
+                  process.platform === 'win32' ? (
                     <View style={styles.advanced_settings__content}>
                       <Selector
                         title={messages.pgettext(
@@ -268,7 +269,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     undefined
                   )}
 
-                  {this.props.tunnelProtocol === 'wireguard' ? (
+                  {this.props.tunnelProtocol === 'wireguard' && process.platform !== 'win32' ? (
                     <View style={styles.advanced_settings__content}>
                       <Selector
                         // TRANSLATORS: The title for the shadowsocks bridge selector section.
