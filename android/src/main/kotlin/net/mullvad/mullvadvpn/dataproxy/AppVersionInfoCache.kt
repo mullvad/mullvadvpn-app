@@ -38,6 +38,11 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
     var latest: String? = null
         private set
 
+    var isLatest = true
+        private set
+    var upgradeVersion: String? = null
+        private set
+
     private val listener = object : OnSharedPreferenceChangeListener {
         override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String) {
             when (key) {
@@ -45,7 +50,10 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
                 KEY_LAST_UPDATED -> lastUpdated = preferences.getLong(key, lastUpdated)
                 KEY_LATEST_STABLE -> latestStable = preferences.getString(key, latestStable)
                 KEY_LATEST -> latest = preferences.getString(key, latest)
+                else -> return
             }
+
+            updateUpgradeVersion()
         }
     }
 
@@ -68,5 +76,19 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
 
         version = currentVersion
         isStable = !currentVersion.contains("-")
+
+        updateUpgradeVersion()
+    }
+
+    private fun updateUpgradeVersion() {
+        val target = if (isStable) latestStable else latest
+
+        if (target == version) {
+            isLatest = true
+            upgradeVersion = null
+        } else {
+            isLatest = false
+            upgradeVersion = target
+        }
     }
 }
