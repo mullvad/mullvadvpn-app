@@ -26,6 +26,7 @@ shell-escape = "0.1"
 talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 tokio-core = "0.1"
+tokio-timer = "0.1"
 uuid = { version = "0.7", features = ["v4"] }
 
 

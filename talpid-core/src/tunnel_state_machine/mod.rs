@@ -75,25 +75,24 @@ where
     T: From<TunnelStateTransition> + Send + 'static,
 {
     let (command_tx, command_rx) = mpsc::unbounded();
-    let offline_monitor =
-        offline::spawn_monitor(command_tx.clone()).map_err(Error::OfflineMonitorError)?;
-    let is_offline = offline::is_offline();
+
+    let inner_command_tx = command_tx.clone();
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
     thread::spawn(move || {
         match create_event_loop(
             allow_lan,
             block_when_disconnected,
-            is_offline,
             tunnel_parameters_generator,
             tun_provider,
             log_dir,
             resource_dir,
             cache_dir,
+            inner_command_tx,
             command_rx,
             state_change_listener,
         ) {
-            Ok((mut reactor, event_loop)) => {
+            Ok((mut reactor, event_loop, _offline_monitor)) => {
                 startup_result_tx.send(Ok(())).expect(
                     "Tunnel state machine won't be started because the owner thread crashed",
                 );
@@ -111,7 +110,6 @@ where
                     .expect("Failed to send startup error");
             }
         }
-        std::mem::drop(offline_monitor);
     });
 
     startup_result_rx
@@ -123,19 +121,29 @@ where
 fn create_event_loop<T>(
     allow_lan: bool,
     block_when_disconnected: bool,
-    is_offline: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     tun_provider: impl TunProvider,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     cache_dir: impl AsRef<Path>,
+    command_tx: mpsc::UnboundedSender<TunnelCommand>,
     commands: mpsc::UnboundedReceiver<TunnelCommand>,
     state_change_listener: IntoSender<TunnelStateTransition, T>,
-) -> Result<(Core, impl Future<Item = (), Error = Error>), Error>
+) -> Result<
+    (
+        Core,
+        impl Future<Item = (), Error = Error>,
+        offline::MonitorHandle,
+    ),
+    Error,
+>
 where
     T: From<TunnelStateTransition> + Send + 'static,
 {
     let reactor = Core::new().map_err(Error::ReactorError)?;
+    let offline_monitor = offline::spawn_monitor(command_tx, &reactor.handle())
+        .map_err(Error::OfflineMonitorError)?;
+    let is_offline = offline::is_offline();
     let state_machine = TunnelStateMachine::new(
         allow_lan,
         block_when_disconnected,
@@ -154,7 +162,7 @@ where
             .map_err(|_| Error::SendStateChange)
     });
 
-    Ok((reactor, future))
+    Ok((reactor, future, offline_monitor))
 }
 
 /// Representation of external commands for the tunnel state machine.
