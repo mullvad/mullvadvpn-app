@@ -50,6 +50,7 @@ class MainActivity : FragmentActivity() {
     val locationInfoCache = LocationInfoCache(daemon, relayListListener)
     val accountCache = AccountCache(settingsListener, daemon)
 
+    private var shouldStopService = false
     private var waitForDaemonJob: Job? = null
 
     private val serviceConnection = object : ServiceConnection {
@@ -106,6 +107,10 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onStop() {
+        if (shouldStopService) {
+            runBlocking { service.await().stop() }
+        }
+
         unbindService(serviceConnection)
 
         super.onStop()
@@ -151,6 +156,11 @@ class MainActivity : FragmentActivity() {
         }
 
         return request
+    }
+
+    fun quit()  {
+        shouldStopService = true
+        finishAndRemoveTask()
     }
 
     private fun addInitialFragment() {
