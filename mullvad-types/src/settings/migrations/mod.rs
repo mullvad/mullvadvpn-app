@@ -133,7 +133,8 @@ mod test {
 
     #[test]
     fn test_deserialization_success() {
-        let _version: SettingsVersion = serde_json::from_str("2").expect("Failed to deserialize valid version");
+        let _version: SettingsVersion =
+            serde_json::from_str("2").expect("Failed to deserialize valid version");
     }
 
     #[test]
