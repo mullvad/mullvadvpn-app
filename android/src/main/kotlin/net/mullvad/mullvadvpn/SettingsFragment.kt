@@ -44,7 +44,7 @@ class SettingsFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.quit_button).setOnClickListener {
-            activity?.finishAndRemoveTask()
+            parentActivity.quit()
         }
 
         view.findViewById<View>(R.id.account).setOnClickListener {

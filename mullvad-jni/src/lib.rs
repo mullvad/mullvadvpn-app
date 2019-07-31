@@ -425,6 +425,17 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_shutdown(_: JNIEnv, _: JObject) {
+    if let Err(error) = DAEMON_INTERFACE.shutdown() {
+        log::error!(
+            "{}",
+            error.display_chain_with_msg("Failed to shutdown daemon thread")
+        );
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_updateRelaySettings(
     env: JNIEnv,
     _: JObject,
