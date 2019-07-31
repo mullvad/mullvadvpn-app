@@ -137,7 +137,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:orientation="vertical"
-            android:padding="24dp"
+            android:paddingHorizontal="24dp"
             android:gravity="start"
             >
         <TextView android:id="@+id/connection_status"
@@ -166,21 +166,46 @@
                 android:textStyle="bold"
                 android:text=""
                 />
-        <TextView android:id="@+id/hostname"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:text=""
-                />
-    </LinearLayout>
 
-    <Space
-            android:layout_width="match_parent"
-            android:layout_height="32dp"
-            android:layout_weight="0"
-            />
+        <LinearLayout android:id="@+id/tunnel_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:orientation="vertical"
+                android:gravity="start"
+                >
+            <TextView android:id="@+id/hostname"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:text=""
+                    />
+            <TextView android:id="@+id/tunnel_protocol"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:text=""
+                    />
+            <TextView android:id="@+id/in_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:text=""
+                    />
+            <TextView android:id="@+id/out_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:text=""
+                    />
+        </LinearLayout>
+    </LinearLayout>
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -190,7 +215,7 @@
             android:padding="24dp"
             >
         <Button android:id="@+id/switch_location"
-                android:layout_marginVertical="16dp"
+                android:layout_marginBottom="16dp"
                 android:text="@string/switch_location"
                 android:drawableRight="@drawable/icon_chevron"
                 android:paddingRight="8dp"
