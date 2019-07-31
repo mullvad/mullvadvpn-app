@@ -60,7 +60,7 @@ class NotificationBanner(val parentView: View) {
         return true
     }
 
-    private fun show(message: Int) {
+    private fun show(titleText: Int) {
         if (!visible) {
             visible = true
             banner.visibility = View.VISIBLE
@@ -68,7 +68,7 @@ class NotificationBanner(val parentView: View) {
             banner.animate().translationY(0.0F).setDuration(350).start()
         }
 
-        title.setText(message)
+        title.setText(titleText)
     }
 
     private fun hide() {
