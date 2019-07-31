@@ -593,7 +593,9 @@ impl<'env> IntoJava<'env> for TunnelState {
                     "ActionAfterDisconnect",
                 )),
             ),
-            TunnelState::Blocked(_) => ("Blocked", None),
+            TunnelState::Blocked(reason) => {
+                ("Blocked", Some((reason.into_java(env), "BlockReason")))
+            }
         };
 
         let class = get_class(&format!(
