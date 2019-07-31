@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn
 
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.widget.TextView
 import android.view.View
@@ -9,7 +11,7 @@ import net.mullvad.mullvadvpn.model.BlockReason
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
-class NotificationBanner(val parentView: View) {
+class NotificationBanner(val parentView: View, val context: Context) {
     private val banner: View = parentView.findViewById(R.id.notification_banner)
     private val title: TextView = parentView.findViewById(R.id.notification_title)
     private val message: TextView = parentView.findViewById(R.id.notification_message)
@@ -29,6 +31,10 @@ class NotificationBanner(val parentView: View) {
             field = value
             update()
         }
+
+    init {
+        banner.setOnClickListener { onClick() }
+    }
 
     private fun update() {
         externalLink = null
@@ -102,8 +108,10 @@ class NotificationBanner(val parentView: View) {
         }
 
         if (externalLink == null) {
+            banner.setClickable(false)
             icon.visibility = View.GONE
         } else {
+            banner.setClickable(true)
             icon.visibility = View.VISIBLE
         }
     }
@@ -114,6 +122,14 @@ class NotificationBanner(val parentView: View) {
             banner.animate().translationY(-banner.height.toFloat()).setDuration(350).withEndAction {
                 banner.visibility = View.INVISIBLE
             }
+        }
+    }
+
+    private fun onClick() {
+        val externalLink = this.externalLink
+
+        if (externalLink != null) {
+            context.startActivity(Intent(Intent.ACTION_VIEW, externalLink))
         }
     }
 }
