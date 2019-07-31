@@ -80,4 +80,6 @@
         While connected, your real location is masked with a private and secure location in the
         selected region
     </string>
+
+    <string name="account_url">https://mullvad.net/en/account</string>
 </resources>

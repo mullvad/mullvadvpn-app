@@ -12,6 +12,8 @@ import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class NotificationBanner(val parentView: View, val context: Context) {
+    private val accountUrl = Uri.parse(context.getString(R.string.account_url))
+
     private val banner: View = parentView.findViewById(R.id.notification_banner)
     private val title: TextView = parentView.findViewById(R.id.notification_title)
     private val message: TextView = parentView.findViewById(R.id.notification_message)
@@ -45,7 +47,10 @@ class NotificationBanner(val parentView: View, val context: Context) {
         when (keyState) {
             null -> return false
             is KeygenEvent.NewKey -> return false
-            is KeygenEvent.TooManyKeys -> show(R.string.wireguard_error, R.string.too_many_keys)
+            is KeygenEvent.TooManyKeys -> {
+                externalLink = accountUrl
+                show(R.string.wireguard_error, R.string.too_many_keys)
+            }
             is KeygenEvent.GenerationFailure -> {
                 show(R.string.wireguard_error, R.string.failed_to_generate_key)
             }
