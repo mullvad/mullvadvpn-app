@@ -17,6 +17,7 @@
     <color name="red95">#C6021A</color>
     <color name="red45">#73021B</color>
     <color name="red40">#66021B</color>
+    <color name="yellow">#FFD323</color>
 
     <color name="textInputBorder">#234161</color>
 </resources>

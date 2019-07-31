@@ -17,6 +17,7 @@
     <string name="less_than_a_day_left">less than a day left</string>
     <string name="out_of_time">Out of time</string>
     <string name="app_version">App version</string>
+    <string name="update_available_footer">Update available, download to remain safe.</string>
     <string name="report_a_problem">Report a problem</string>
     <string name="quit">Quit</string>
 
@@ -74,6 +75,15 @@
     <string name="wireguard_error">WireGuard error</string>
     <string name="too_many_keys">Too many WireGuard keys registered to account</string>
     <string name="failed_to_generate_key">Failed to generate WireGuard key</string>
+    <string name="update_available">Update available</string>
+    <string name="update_available_description">
+        Install Mullvad VPN (%1$s) to stay up to date
+    </string>
+    <string name="unsupported_version">Unsupported version</string>
+    <string name="unsupported_version_description">
+        You are running an unsupported app version. Please upgrade to %1$s now to ensure your
+        security
+    </string>
 
     <string name="select_location">Select location</string>
     <string name="select_location_description">
@@ -82,4 +92,5 @@
     </string>
 
     <string name="account_url">https://mullvad.net/en/account</string>
+    <string name="download_url">https://mullvad.net/en/download</string>
 </resources>

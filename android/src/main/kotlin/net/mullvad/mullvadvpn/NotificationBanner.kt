@@ -3,18 +3,26 @@ package net.mullvad.mullvadvpn
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.ImageView
 import android.widget.TextView
 import android.view.View
 
+import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.BlockReason
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
-class NotificationBanner(val parentView: View, val context: Context) {
+class NotificationBanner(
+    val parentView: View,
+    val context: Context,
+    val versionInfoCache: AppVersionInfoCache
+) {
     private val accountUrl = Uri.parse(context.getString(R.string.account_url))
+    private val downloadUrl = Uri.parse(context.getString(R.string.download_url))
 
     private val banner: View = parentView.findViewById(R.id.notification_banner)
+    private val status: ImageView = parentView.findViewById(R.id.notification_status)
     private val title: TextView = parentView.findViewById(R.id.notification_title)
     private val message: TextView = parentView.findViewById(R.id.notification_message)
     private val icon: View = parentView.findViewById(R.id.notification_icon)
@@ -40,7 +48,7 @@ class NotificationBanner(val parentView: View, val context: Context) {
 
     private fun update() {
         externalLink = null
-        updateBasedOnKeyState() || updateBasedOnTunnelState()
+        updateBasedOnKeyState() || updateBasedOnTunnelState() || updateBasedOnVersionInfo()
     }
 
     private fun updateBasedOnKeyState(): Boolean {
@@ -49,10 +57,10 @@ class NotificationBanner(val parentView: View, val context: Context) {
             is KeygenEvent.NewKey -> return false
             is KeygenEvent.TooManyKeys -> {
                 externalLink = accountUrl
-                show(R.string.wireguard_error, R.string.too_many_keys)
+                showError(R.string.wireguard_error, R.string.too_many_keys)
             }
             is KeygenEvent.GenerationFailure -> {
-                show(R.string.wireguard_error, R.string.failed_to_generate_key)
+                showError(R.string.wireguard_error, R.string.failed_to_generate_key)
             }
         }
 
@@ -65,15 +73,44 @@ class NotificationBanner(val parentView: View, val context: Context) {
         when (state) {
             is TunnelState.Disconnecting -> {
                 when (state.actionAfterDisconnect) {
-                    is ActionAfterDisconnect.Nothing -> hide()
+                    is ActionAfterDisconnect.Nothing -> return false
                     is ActionAfterDisconnect.Block -> showBlocking(null)
                     is ActionAfterDisconnect.Reconnect -> showBlocking(null)
                 }
             }
-            is TunnelState.Disconnected -> hide()
+            is TunnelState.Disconnected -> return false
             is TunnelState.Connecting -> showBlocking(null)
-            is TunnelState.Connected -> hide()
+            is TunnelState.Connected -> return false
             is TunnelState.Blocked -> showBlocking(state.reason)
+        }
+
+        return true
+    }
+
+    private fun updateBasedOnVersionInfo(): Boolean {
+        if (versionInfoCache.isLatest) {
+            hide()
+        } else {
+            val title: Int
+            val statusImage: Int
+            val template: Int
+
+            if (versionInfoCache.isSupported) {
+                title = R.string.update_available
+                template = R.string.update_available_description
+                statusImage = R.drawable.icon_notification_warning
+            } else {
+                title = R.string.unsupported_version
+                template = R.string.unsupported_version_description
+                statusImage = R.drawable.icon_notification_error
+            }
+
+            val parameter = versionInfoCache.upgradeVersion
+            val description = context.getString(template, parameter)
+
+            externalLink = downloadUrl
+
+            show(statusImage, title, description)
         }
 
         return true
@@ -92,10 +129,18 @@ class NotificationBanner(val parentView: View, val context: Context) {
             is BlockReason.TapAdapterProblem -> R.string.tap_adapter_problem
         }
 
-        show(R.string.blocking_internet, messageText)
+        showError(R.string.blocking_internet, messageText)
     }
 
-    private fun show(titleText: Int, messageText: Int?) {
+    private fun showError(titleText: Int, messageText: Int?) {
+        showError(titleText, messageText?.let { context.getString(it) })
+    }
+
+    private fun showError(titleText: Int, messageText: String?) {
+        show(R.drawable.icon_notification_error, titleText, messageText)
+    }
+
+    private fun show(statusImage: Int, titleText: Int, messageText: String?) {
         if (!visible) {
             visible = true
             banner.visibility = View.VISIBLE
@@ -103,6 +148,7 @@ class NotificationBanner(val parentView: View, val context: Context) {
             banner.animate().translationY(0.0F).setDuration(350).start()
         }
 
+        status.setImageResource(statusImage)
         title.setText(titleText)
 
         if (messageText == null) {
