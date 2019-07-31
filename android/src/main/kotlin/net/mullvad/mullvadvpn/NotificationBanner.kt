@@ -4,6 +4,7 @@ import android.widget.TextView
 import android.view.View
 
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.model.BlockReason
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
@@ -48,17 +49,33 @@ class NotificationBanner(val parentView: View) {
             is TunnelState.Disconnecting -> {
                 when (state.actionAfterDisconnect) {
                     is ActionAfterDisconnect.Nothing -> hide()
-                    is ActionAfterDisconnect.Block -> show(R.string.blocking_internet, null)
-                    is ActionAfterDisconnect.Reconnect -> show(R.string.blocking_internet, null)
+                    is ActionAfterDisconnect.Block -> showBlocking(null)
+                    is ActionAfterDisconnect.Reconnect -> showBlocking(null)
                 }
             }
             is TunnelState.Disconnected -> hide()
-            is TunnelState.Connecting -> show(R.string.blocking_internet, null)
+            is TunnelState.Connecting -> showBlocking(null)
             is TunnelState.Connected -> hide()
-            is TunnelState.Blocked -> show(R.string.blocking_internet, null)
+            is TunnelState.Blocked -> showBlocking(state.reason)
         }
 
         return true
+    }
+
+    private fun showBlocking(reason: BlockReason?) {
+        val messageText = when (reason) {
+            null -> null
+            is BlockReason.AuthFailed -> R.string.auth_failed
+            is BlockReason.Ipv6Unavailable -> R.string.ipv6_unavailable
+            is BlockReason.SetFirewallPolicyError -> R.string.set_firewall_policy_error
+            is BlockReason.SetDnsError -> R.string.set_dns_error
+            is BlockReason.StartTunnelError -> R.string.start_tunnel_error
+            is BlockReason.NoMatchingRelay -> R.string.no_matching_relay
+            is BlockReason.IsOffline -> R.string.is_offline
+            is BlockReason.TapAdapterProblem -> R.string.tap_adapter_problem
+        }
+
+        show(R.string.blocking_internet, messageText)
     }
 
     private fun show(titleText: Int, messageText: Int?) {
