@@ -70,6 +70,16 @@ class MullvadVpnService : VpnService() {
     inner class LocalBinder : Binder() {
         val daemon
             get() = this@MullvadVpnService.daemon
+
+        fun stop() {
+            if (daemon.isCompleted) {
+                runBlocking { daemon.await().shutdown() }
+            } else {
+                daemon.cancel()
+            }
+
+            stopSelf()
+        }
     }
 
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
