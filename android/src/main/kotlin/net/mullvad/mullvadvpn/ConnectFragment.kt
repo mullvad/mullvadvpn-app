@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 
+import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
@@ -33,6 +34,7 @@ class ConnectFragment : Fragment() {
     private lateinit var keyStatusListener: KeyStatusListener
     private lateinit var locationInfoCache: LocationInfoCache
     private lateinit var relayListListener: RelayListListener
+    private lateinit var versionInfoCache: AppVersionInfoCache
 
     private lateinit var updateKeyStatusJob: Job
     private lateinit var updateTunnelStateJob: Job
@@ -45,6 +47,7 @@ class ConnectFragment : Fragment() {
         keyStatusListener = parentActivity.keyStatusListener
         locationInfoCache = parentActivity.locationInfoCache
         relayListListener = parentActivity.relayListListener
+        versionInfoCache = parentActivity.appVersionInfoCache
     }
 
     override fun onCreateView(
@@ -59,7 +62,7 @@ class ConnectFragment : Fragment() {
         }
 
         headerBar = HeaderBar(view, context!!)
-        notificationBanner = NotificationBanner(view, context!!)
+        notificationBanner = NotificationBanner(view, context!!, versionInfoCache)
         status = ConnectionStatus(view, context!!)
         locationInfo = LocationInfo(view, locationInfoCache)
 

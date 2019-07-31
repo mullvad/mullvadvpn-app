@@ -7,13 +7,19 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.view.View
 
+import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.BlockReason
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
-class NotificationBanner(val parentView: View, val context: Context) {
+class NotificationBanner(
+    val parentView: View,
+    val context: Context,
+    val versionInfoCache: AppVersionInfoCache
+) {
     private val accountUrl = Uri.parse(context.getString(R.string.account_url))
+    private val downloadUrl = Uri.parse(context.getString(R.string.download_url))
 
     private val banner: View = parentView.findViewById(R.id.notification_banner)
     private val status: ImageView = parentView.findViewById(R.id.notification_status)
@@ -42,7 +48,7 @@ class NotificationBanner(val parentView: View, val context: Context) {
 
     private fun update() {
         externalLink = null
-        updateBasedOnKeyState() || updateBasedOnTunnelState()
+        updateBasedOnKeyState() || updateBasedOnTunnelState() || updateBasedOnVersionInfo()
     }
 
     private fun updateBasedOnKeyState(): Boolean {
@@ -67,15 +73,26 @@ class NotificationBanner(val parentView: View, val context: Context) {
         when (state) {
             is TunnelState.Disconnecting -> {
                 when (state.actionAfterDisconnect) {
-                    is ActionAfterDisconnect.Nothing -> hide()
+                    is ActionAfterDisconnect.Nothing -> return false
                     is ActionAfterDisconnect.Block -> showBlocking(null)
                     is ActionAfterDisconnect.Reconnect -> showBlocking(null)
                 }
             }
-            is TunnelState.Disconnected -> hide()
+            is TunnelState.Disconnected -> return false
             is TunnelState.Connecting -> showBlocking(null)
-            is TunnelState.Connected -> hide()
+            is TunnelState.Connected -> return false
             is TunnelState.Blocked -> showBlocking(state.reason)
+        }
+
+        return true
+    }
+
+    private fun updateBasedOnVersionInfo(): Boolean {
+        if (versionInfoCache.isLatest) {
+            hide()
+        } else {
+            externalLink = downloadUrl
+            showError(R.string.unsupported_version, R.string.unsupported_version_description)
         }
 
         return true
