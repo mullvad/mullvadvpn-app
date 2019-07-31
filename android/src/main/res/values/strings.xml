@@ -75,6 +75,10 @@
     <string name="wireguard_error">WireGuard error</string>
     <string name="too_many_keys">Too many WireGuard keys registered to account</string>
     <string name="failed_to_generate_key">Failed to generate WireGuard key</string>
+    <string name="update_available">Update available</string>
+    <string name="update_available_description">
+        Install Mullvad VPN (%1$s) to stay up to date
+    </string>
     <string name="unsupported_version">Unsupported version</string>
     <string name="unsupported_version_description">
         You are running an unsupported app version. Please upgrade to %1$s now to ensure your

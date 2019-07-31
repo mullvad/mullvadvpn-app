@@ -91,12 +91,26 @@ class NotificationBanner(
         if (versionInfoCache.isLatest) {
             hide()
         } else {
-            val template = R.string.unsupported_version_description
+            val title: Int
+            val statusImage: Int
+            val template: Int
+
+            if (versionInfoCache.isSupported) {
+                title = R.string.update_available
+                template = R.string.update_available_description
+                statusImage = R.drawable.icon_notification_warning
+            } else {
+                title = R.string.unsupported_version
+                template = R.string.unsupported_version_description
+                statusImage = R.drawable.icon_notification_error
+            }
+
             val parameter = versionInfoCache.upgradeVersion
             val description = context.getString(template, parameter)
 
             externalLink = downloadUrl
-            showError(R.string.unsupported_version, description)
+
+            show(statusImage, title, description)
         }
 
         return true
