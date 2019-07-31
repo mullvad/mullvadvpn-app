@@ -59,7 +59,7 @@ class ConnectFragment : Fragment() {
         }
 
         headerBar = HeaderBar(view, context!!)
-        notificationBanner = NotificationBanner(view)
+        notificationBanner = NotificationBanner(view, context!!)
         status = ConnectionStatus(view, context!!)
         locationInfo = LocationInfo(view, locationInfoCache)
 

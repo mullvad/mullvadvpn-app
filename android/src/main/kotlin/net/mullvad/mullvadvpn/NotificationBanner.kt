@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.TextView
 import android.view.View
 
@@ -8,11 +11,15 @@ import net.mullvad.mullvadvpn.model.BlockReason
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
-class NotificationBanner(val parentView: View) {
+class NotificationBanner(val parentView: View, val context: Context) {
+    private val accountUrl = Uri.parse(context.getString(R.string.account_url))
+
     private val banner: View = parentView.findViewById(R.id.notification_banner)
     private val title: TextView = parentView.findViewById(R.id.notification_title)
     private val message: TextView = parentView.findViewById(R.id.notification_message)
+    private val icon: View = parentView.findViewById(R.id.notification_icon)
 
+    private var externalLink: Uri? = null
     private var visible = false
 
     var keyState: KeygenEvent? = null
@@ -27,7 +34,12 @@ class NotificationBanner(val parentView: View) {
             update()
         }
 
+    init {
+        banner.setOnClickListener { onClick() }
+    }
+
     private fun update() {
+        externalLink = null
         updateBasedOnKeyState() || updateBasedOnTunnelState()
     }
 
@@ -35,8 +47,13 @@ class NotificationBanner(val parentView: View) {
         when (keyState) {
             null -> return false
             is KeygenEvent.NewKey -> return false
-            is KeygenEvent.TooManyKeys -> show(R.string.too_many_keys, null)
-            is KeygenEvent.GenerationFailure -> show(R.string.failed_to_generate_key, null)
+            is KeygenEvent.TooManyKeys -> {
+                externalLink = accountUrl
+                show(R.string.wireguard_error, R.string.too_many_keys)
+            }
+            is KeygenEvent.GenerationFailure -> {
+                show(R.string.wireguard_error, R.string.failed_to_generate_key)
+            }
         }
 
         return true
@@ -94,6 +111,14 @@ class NotificationBanner(val parentView: View) {
             message.setText(messageText)
             message.visibility = View.VISIBLE
         }
+
+        if (externalLink == null) {
+            banner.setClickable(false)
+            icon.visibility = View.GONE
+        } else {
+            banner.setClickable(true)
+            icon.visibility = View.VISIBLE
+        }
     }
 
     private fun hide() {
@@ -102,6 +127,14 @@ class NotificationBanner(val parentView: View) {
             banner.animate().translationY(-banner.height.toFloat()).setDuration(350).withEndAction {
                 banner.visibility = View.INVISIBLE
             }
+        }
+    }
+
+    private fun onClick() {
+        val externalLink = this.externalLink
+
+        if (externalLink != null) {
+            context.startActivity(Intent(Intent.ACTION_VIEW, externalLink))
         }
     }
 }
