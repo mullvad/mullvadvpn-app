@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn
 
+import android.net.Uri
 import android.widget.TextView
 import android.view.View
 
@@ -12,7 +13,9 @@ class NotificationBanner(val parentView: View) {
     private val banner: View = parentView.findViewById(R.id.notification_banner)
     private val title: TextView = parentView.findViewById(R.id.notification_title)
     private val message: TextView = parentView.findViewById(R.id.notification_message)
+    private val icon: View = parentView.findViewById(R.id.notification_icon)
 
+    private var externalLink: Uri? = null
     private var visible = false
 
     var keyState: KeygenEvent? = null
@@ -28,6 +31,7 @@ class NotificationBanner(val parentView: View) {
         }
 
     private fun update() {
+        externalLink = null
         updateBasedOnKeyState() || updateBasedOnTunnelState()
     }
 
@@ -95,6 +99,12 @@ class NotificationBanner(val parentView: View) {
         } else {
             message.setText(messageText)
             message.visibility = View.VISIBLE
+        }
+
+        if (externalLink == null) {
+            icon.visibility = View.GONE
+        } else {
+            icon.visibility = View.VISIBLE
         }
     }
 
