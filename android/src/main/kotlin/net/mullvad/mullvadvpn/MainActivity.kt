@@ -36,6 +36,8 @@ class MainActivity : FragmentActivity() {
 
     var daemon = CompletableDeferred<MullvadDaemon>()
         private set
+    var service = CompletableDeferred<MullvadVpnService.LocalBinder>()
+        private set
 
     var currentVersion = fetchCurrentVersion()
 
@@ -54,13 +56,18 @@ class MainActivity : FragmentActivity() {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             val localBinder = binder as MullvadVpnService.LocalBinder
 
+            service.complete(localBinder)
+
             waitForDaemonJob = GlobalScope.launch(Dispatchers.Default) {
                 daemon.complete(localBinder.daemon.await())
             }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
+            service.cancel()
             daemon.cancel()
+
+            service = CompletableDeferred<MullvadVpnService.LocalBinder>()
             daemon = CompletableDeferred<MullvadDaemon>()
         }
     }
