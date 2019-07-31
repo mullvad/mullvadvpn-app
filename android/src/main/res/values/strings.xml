@@ -71,6 +71,7 @@
     <string name="no_matching_relay">No relay server matches the current settings</string>
     <string name="is_offline">This device is offline, no tunnels can be established</string>
     <string name="tap_adapter_problem">TAP adapter error</string>
+    <string name="wireguard_error">WireGuard error</string>
     <string name="too_many_keys">Too many WireGuard keys registered to account</string>
     <string name="failed_to_generate_key">Failed to generate WireGuard key</string>
 

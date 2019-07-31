@@ -35,8 +35,10 @@ class NotificationBanner(val parentView: View) {
         when (keyState) {
             null -> return false
             is KeygenEvent.NewKey -> return false
-            is KeygenEvent.TooManyKeys -> show(R.string.too_many_keys, null)
-            is KeygenEvent.GenerationFailure -> show(R.string.failed_to_generate_key, null)
+            is KeygenEvent.TooManyKeys -> show(R.string.wireguard_error, R.string.too_many_keys)
+            is KeygenEvent.GenerationFailure -> {
+                show(R.string.wireguard_error, R.string.failed_to_generate_key)
+            }
         }
 
         return true
