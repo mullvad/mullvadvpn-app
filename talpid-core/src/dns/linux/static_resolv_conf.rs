@@ -114,7 +114,7 @@ impl DnsWatcher {
         let mut watcher = notify::raw_watcher(event_tx).map_err(Error::WatchResolvConf)?;
 
         watcher
-            .watch(RESOLV_CONF_PATH, RecursiveMode::NonRecursive)
+            .watch("/etc", RecursiveMode::NonRecursive)
             .map_err(Error::WatchResolvConf)?;
 
         thread::spawn(move || Self::event_loop(event_rx, &state));
@@ -123,16 +123,22 @@ impl DnsWatcher {
     }
 
     fn event_loop(events: mpsc::Receiver<notify::RawEvent>, state: &Arc<Mutex<Option<State>>>) {
-        for _ in events {
-            let mut locked_state = state.lock();
-
-            if let Err(error) = Self::update(locked_state.as_mut()) {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg(
-                        "Failed to update DNS state after DNS settings changed"
-                    )
-                );
+        let resolv_conf_path: &::std::path::Path = RESOLV_CONF_PATH.as_ref();
+        for event in events {
+            if event
+                .path
+                .map(|p| p.as_path() == resolv_conf_path)
+                .unwrap_or(false)
+            {
+                let mut locked_state = state.lock();
+                if let Err(error) = Self::update(locked_state.as_mut()) {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to update DNS state after DNS settings changed"
+                        )
+                    );
+                }
             }
         }
     }
