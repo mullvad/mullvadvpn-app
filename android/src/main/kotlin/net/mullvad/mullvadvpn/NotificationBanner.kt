@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.ImageView
 import android.widget.TextView
 import android.view.View
 
@@ -15,6 +16,7 @@ class NotificationBanner(val parentView: View, val context: Context) {
     private val accountUrl = Uri.parse(context.getString(R.string.account_url))
 
     private val banner: View = parentView.findViewById(R.id.notification_banner)
+    private val status: ImageView = parentView.findViewById(R.id.notification_status)
     private val title: TextView = parentView.findViewById(R.id.notification_title)
     private val message: TextView = parentView.findViewById(R.id.notification_message)
     private val icon: View = parentView.findViewById(R.id.notification_icon)
@@ -49,10 +51,10 @@ class NotificationBanner(val parentView: View, val context: Context) {
             is KeygenEvent.NewKey -> return false
             is KeygenEvent.TooManyKeys -> {
                 externalLink = accountUrl
-                show(R.string.wireguard_error, R.string.too_many_keys)
+                showError(R.string.wireguard_error, R.string.too_many_keys)
             }
             is KeygenEvent.GenerationFailure -> {
-                show(R.string.wireguard_error, R.string.failed_to_generate_key)
+                showError(R.string.wireguard_error, R.string.failed_to_generate_key)
             }
         }
 
@@ -92,10 +94,14 @@ class NotificationBanner(val parentView: View, val context: Context) {
             is BlockReason.TapAdapterProblem -> R.string.tap_adapter_problem
         }
 
-        show(R.string.blocking_internet, messageText)
+        showError(R.string.blocking_internet, messageText)
     }
 
-    private fun show(titleText: Int, messageText: Int?) {
+    private fun showError(titleText: Int, messageText: Int?) {
+        show(R.drawable.icon_notification_error, titleText, messageText)
+    }
+
+    private fun show(statusImage: Int, titleText: Int, messageText: Int?) {
         if (!visible) {
             visible = true
             banner.visibility = View.VISIBLE
@@ -103,6 +109,7 @@ class NotificationBanner(val parentView: View, val context: Context) {
             banner.animate().translationY(0.0F).setDuration(350).start()
         }
 
+        status.setImageResource(statusImage)
         title.setText(titleText)
 
         if (messageText == null) {
