@@ -11,6 +11,7 @@ use std::{
 use talpid_types::ErrorExt;
 
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
+const RESOLV_CONF_DIR: &str = "/etc/";
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -114,7 +115,7 @@ impl DnsWatcher {
         let mut watcher = notify::raw_watcher(event_tx).map_err(Error::WatchResolvConf)?;
 
         watcher
-            .watch(RESOLV_CONF_PATH, RecursiveMode::NonRecursive)
+            .watch(&RESOLV_CONF_DIR, RecursiveMode::NonRecursive)
             .map_err(Error::WatchResolvConf)?;
 
         thread::spawn(move || Self::event_loop(event_rx, &state));
@@ -123,16 +124,22 @@ impl DnsWatcher {
     }
 
     fn event_loop(events: mpsc::Receiver<notify::RawEvent>, state: &Arc<Mutex<Option<State>>>) {
-        for _ in events {
-            let mut locked_state = state.lock();
-
-            if let Err(error) = Self::update(locked_state.as_mut()) {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg(
-                        "Failed to update DNS state after DNS settings changed"
-                    )
-                );
+        for event in events {
+            if event
+                .path
+                .as_ref()
+                .map(|p| p.as_path() == &RESOLV_CONF_PATH.as_ref())
+                .unwrap_or(false)
+            {
+                let mut locked_state = state.lock();
+                if let Err(error) = Self::update(locked_state.as_mut()) {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to update DNS state after DNS settings changed"
+                        )
+                    );
+                }
             }
         }
     }
