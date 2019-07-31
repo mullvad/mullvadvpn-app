@@ -13,6 +13,7 @@ use mullvad_types::{
     relay_list::{Relay, RelayList, RelayListCity, RelayListCountry},
     settings::Settings,
     states::TunnelState,
+    version::AppVersionInfo,
     wireguard::KeygenEvent,
     CustomTunnelEndpoint,
 };
@@ -184,6 +185,29 @@ impl<'env> IntoJava<'env> for PublicKey {
 
         env.new_object(&class, "([B)V", &parameters)
             .expect("Failed to create PublicKey Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for AppVersionInfo {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/AppVersionInfo");
+        let current_is_supported = self.current_is_supported as jboolean;
+        let latest_stable = env.auto_local(*self.latest_stable.into_java(env));
+        let latest = env.auto_local(*self.latest.into_java(env));
+        let parameters = [
+            JValue::Bool(current_is_supported),
+            JValue::Object(latest_stable.as_obj()),
+            JValue::Object(latest.as_obj()),
+        ];
+
+        env.new_object(
+            &class,
+            "(ZLjava/lang/String;Ljava/lang/String;)V",
+            &parameters,
+        )
+        .expect("Failed to create AppVersionInfo Java object")
     }
 }
 

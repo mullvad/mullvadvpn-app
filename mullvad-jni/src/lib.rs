@@ -37,6 +37,7 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/ActionAfterDisconnect$Block",
     "net/mullvad/mullvadvpn/model/ActionAfterDisconnect$Nothing",
     "net/mullvad/mullvadvpn/model/ActionAfterDisconnect$Reconnect",
+    "net/mullvad/mullvadvpn/model/AppVersionInfo",
     "net/mullvad/mullvadvpn/model/Constraint$Any",
     "net/mullvad/mullvadvpn/model/Constraint$Only",
     "net/mullvad/mullvadvpn/model/GeoIpLocation",
@@ -359,6 +360,24 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getState<'env, 
         Ok(state) => state.into_java(&env),
         Err(error) => {
             log::error!("{}", error.display_chain_with_msg("Failed to get state"));
+            JObject::null()
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getVersionInfo<'env, 'this>(
+    env: JNIEnv<'env>,
+    _: JObject<'this>,
+) -> JObject<'env> {
+    match DAEMON_INTERFACE.get_version_info() {
+        Ok(version_info) => version_info.into_java(&env),
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to get version information")
+            );
             JObject::null()
         }
     }

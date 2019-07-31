@@ -15,15 +15,19 @@ import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
 
+import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoFetcher
 import net.mullvad.mullvadvpn.model.TunConfig
 
 class MullvadVpnService : VpnService() {
     private val created = CompletableDeferred<Unit>()
     private val binder = LocalBinder()
 
+    private lateinit var versionInfoFetcher: AppVersionInfoFetcher
+
     val daemon = startDaemon()
 
     override fun onCreate() {
+        versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
         created.complete(Unit)
     }
 
@@ -32,6 +36,7 @@ class MullvadVpnService : VpnService() {
     }
 
     override fun onDestroy() {
+        versionInfoFetcher.stop()
         daemon.cancel()
         created.cancel()
     }
