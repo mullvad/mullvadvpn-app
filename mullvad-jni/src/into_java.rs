@@ -19,7 +19,10 @@ use mullvad_types::{
 };
 use std::{fmt::Debug, net::IpAddr};
 use talpid_core::tunnel::tun_provider::TunConfig;
-use talpid_types::{net::wireguard::PublicKey, tunnel::ActionAfterDisconnect};
+use talpid_types::{
+    net::wireguard::PublicKey,
+    tunnel::{ActionAfterDisconnect, BlockReason},
+};
 
 pub trait IntoJava<'env> {
     type JavaType;
@@ -539,6 +542,36 @@ impl<'env> IntoJava<'env> for ActionAfterDisconnect {
     }
 }
 
+impl<'env> IntoJava<'env> for BlockReason {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let variant = match self {
+            BlockReason::AuthFailed(reason) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/BlockReason$AuthFailed");
+                let reason = env.auto_local(JObject::from(reason.into_java(env)));
+                let parameters = [JValue::Object(reason.as_obj())];
+
+                return env
+                    .new_object(&class, "(Ljava/lang/String;)V", &parameters)
+                    .expect("Failed to create BlockReason.AuthFailed Java object");
+            }
+            BlockReason::Ipv6Unavailable => "Ipv6Unavailable",
+            BlockReason::SetFirewallPolicyError => "SetFirewallPolicyError",
+            BlockReason::SetDnsError => "SetDnsError",
+            BlockReason::StartTunnelError => "StartTunnelError",
+            BlockReason::NoMatchingRelay => "NoMatchingRelay",
+            BlockReason::IsOffline => "IsOffline",
+            BlockReason::TapAdapterProblem => "TapAdapterProblem",
+        };
+        let class_name = format!("net/mullvad/mullvadvpn/model/BlockReason${}", variant);
+        let class = get_class(&class_name);
+
+        env.new_object(&class, "()V", &[])
+            .expect("Failed to create BlockReason sub-class variant Java object")
+    }
+}
+
 impl<'env> IntoJava<'env> for TunnelState {
     type JavaType = JObject<'env>;
 
@@ -560,7 +593,9 @@ impl<'env> IntoJava<'env> for TunnelState {
                     "ActionAfterDisconnect",
                 )),
             ),
-            TunnelState::Blocked(_) => ("Blocked", None),
+            TunnelState::Blocked(reason) => {
+                ("Blocked", Some((reason.into_java(env), "BlockReason")))
+            }
         };
 
         let class = get_class(&format!(

@@ -4,12 +4,14 @@ import android.widget.TextView
 import android.view.View
 
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.model.BlockReason
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class NotificationBanner(val parentView: View) {
     private val banner: View = parentView.findViewById(R.id.notification_banner)
     private val title: TextView = parentView.findViewById(R.id.notification_title)
+    private val message: TextView = parentView.findViewById(R.id.notification_message)
 
     private var visible = false
 
@@ -33,8 +35,8 @@ class NotificationBanner(val parentView: View) {
         when (keyState) {
             null -> return false
             is KeygenEvent.NewKey -> return false
-            is KeygenEvent.TooManyKeys -> show(R.string.too_many_keys)
-            is KeygenEvent.GenerationFailure -> show(R.string.failed_to_generate_key)
+            is KeygenEvent.TooManyKeys -> show(R.string.too_many_keys, null)
+            is KeygenEvent.GenerationFailure -> show(R.string.failed_to_generate_key, null)
         }
 
         return true
@@ -47,20 +49,36 @@ class NotificationBanner(val parentView: View) {
             is TunnelState.Disconnecting -> {
                 when (state.actionAfterDisconnect) {
                     is ActionAfterDisconnect.Nothing -> hide()
-                    is ActionAfterDisconnect.Block -> show(R.string.blocking_internet)
-                    is ActionAfterDisconnect.Reconnect -> show(R.string.blocking_internet)
+                    is ActionAfterDisconnect.Block -> showBlocking(null)
+                    is ActionAfterDisconnect.Reconnect -> showBlocking(null)
                 }
             }
             is TunnelState.Disconnected -> hide()
-            is TunnelState.Connecting -> show(R.string.blocking_internet)
+            is TunnelState.Connecting -> showBlocking(null)
             is TunnelState.Connected -> hide()
-            is TunnelState.Blocked -> show(R.string.blocking_internet)
+            is TunnelState.Blocked -> showBlocking(state.reason)
         }
 
         return true
     }
 
-    private fun show(message: Int) {
+    private fun showBlocking(reason: BlockReason?) {
+        val messageText = when (reason) {
+            null -> null
+            is BlockReason.AuthFailed -> R.string.auth_failed
+            is BlockReason.Ipv6Unavailable -> R.string.ipv6_unavailable
+            is BlockReason.SetFirewallPolicyError -> R.string.set_firewall_policy_error
+            is BlockReason.SetDnsError -> R.string.set_dns_error
+            is BlockReason.StartTunnelError -> R.string.start_tunnel_error
+            is BlockReason.NoMatchingRelay -> R.string.no_matching_relay
+            is BlockReason.IsOffline -> R.string.is_offline
+            is BlockReason.TapAdapterProblem -> R.string.tap_adapter_problem
+        }
+
+        show(R.string.blocking_internet, messageText)
+    }
+
+    private fun show(titleText: Int, messageText: Int?) {
         if (!visible) {
             visible = true
             banner.visibility = View.VISIBLE
@@ -68,7 +86,14 @@ class NotificationBanner(val parentView: View) {
             banner.animate().translationY(0.0F).setDuration(350).start()
         }
 
-        title.setText(message)
+        title.setText(titleText)
+
+        if (messageText == null) {
+            message.visibility = View.GONE
+        } else {
+            message.setText(messageText)
+            message.visibility = View.VISIBLE
+        }
     }
 
     private fun hide() {

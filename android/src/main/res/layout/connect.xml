@@ -49,33 +49,52 @@
                 />
     </LinearLayout>
 
-    <LinearLayout android:id="@+id/notification_banner"
+    <RelativeLayout android:id="@+id/notification_banner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingVertical="8dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="10dp"
             android:background="@color/darkBlue"
-            android:orientation="horizontal"
-            android:gravity="center"
             android:visibility="invisible"
             >
-        <ImageView
+        <RelativeLayout android:id="@+id/notification_status_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:layout_marginLeft="19dp"
-                android:src="@drawable/icon_notification_error"
-                />
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignBottom="@id/notification_title"
+                >
+            <ImageView android:id="@+id/notification_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/icon_notification_error"
+                    />
+        </RelativeLayout>
         <TextView android:id="@+id/notification_title"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@id/notification_status_container"
                 android:layout_marginLeft="7dp"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:text="@string/blocking_internet"
                 android:textAllCaps="true"
                 />
-    </LinearLayout>
+        <TextView android:id="@+id/notification_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignLeft="@id/notification_title"
+                android:layout_below="@id/notification_title"
+                android:textSize="13sp"
+                android:textColor="@color/white60"
+                android:text=""
+                android:visibility="gone"
+                />
+    </RelativeLayout>
 
     <Space
             android:layout_width="match_parent"
