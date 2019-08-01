@@ -17,7 +17,10 @@ use mullvad_types::{
     wireguard::KeygenEvent,
     CustomTunnelEndpoint,
 };
-use std::{fmt::Debug, net::IpAddr};
+use std::{
+    fmt::Debug,
+    net::{IpAddr, SocketAddr},
+};
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
     net::{wireguard::PublicKey, TransportProtocol},
@@ -158,6 +161,20 @@ impl<'env> IntoJava<'env> for IpAddr {
                 );
             }
         }
+    }
+}
+
+impl<'env> IntoJava<'env> for SocketAddr {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("java/net/InetSocketAddress");
+        let ip_address = env.auto_local(self.ip().into_java(env));
+        let port = self.port() as jint;
+        let parameters = [JValue::Object(ip_address.as_obj()), JValue::Int(port)];
+
+        env.new_object(&class, "(Ljava/net/InetAddress;I)V", &parameters)
+            .expect("Failed to create InetSocketAddress Java object")
     }
 }
 
