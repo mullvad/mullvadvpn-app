@@ -20,7 +20,7 @@ use mullvad_types::{
 use std::{fmt::Debug, net::IpAddr};
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
-    net::wireguard::PublicKey,
+    net::{wireguard::PublicKey, TransportProtocol},
     tunnel::{ActionAfterDisconnect, BlockReason},
 };
 
@@ -249,6 +249,21 @@ impl<'env> IntoJava<'env> for TunConfig {
             &parameters,
         )
         .expect("Failed to create TunConfig Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for TransportProtocol {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class_name = match self {
+            TransportProtocol::Tcp => "net/mullvad/mullvadvpn/model/TransportProtocol$Tcp",
+            TransportProtocol::Udp => "net/mullvad/mullvadvpn/model/TransportProtocol$Udp",
+        };
+        let class = get_class(class_name);
+
+        env.new_object(&class, "()V", &[])
+            .expect("Failed to create TransportProtocol sub-class variant Java object")
     }
 }
 
