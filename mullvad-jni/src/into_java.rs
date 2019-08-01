@@ -652,19 +652,29 @@ impl<'env> IntoJava<'env> for TunnelState {
 
                 env.new_object(&class, "()V", &[])
             }
-            TunnelState::Connecting { location, .. } => {
+            TunnelState::Connecting { endpoint, location } => {
                 let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Connecting");
+                let endpoint = env.auto_local(endpoint.into_java(env));
                 let location = env.auto_local(location.into_java(env));
-                let parameters = [JValue::Object(location.as_obj())];
-                let signature = "(Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
+                let parameters = [
+                    JValue::Object(endpoint.as_obj()),
+                    JValue::Object(location.as_obj()),
+                ];
+                let signature =
+                    "(Lnet/mullvad/mullvadvpn/model/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
 
                 env.new_object(&class, signature, &parameters)
             }
-            TunnelState::Connected { location, .. } => {
+            TunnelState::Connected { endpoint, location } => {
                 let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Connected");
+                let endpoint = env.auto_local(endpoint.into_java(env));
                 let location = env.auto_local(location.into_java(env));
-                let parameters = [JValue::Object(location.as_obj())];
-                let signature = "(Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
+                let parameters = [
+                    JValue::Object(endpoint.as_obj()),
+                    JValue::Object(location.as_obj()),
+                ];
+                let signature =
+                    "(Lnet/mullvad/mullvadvpn/model/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
 
                 env.new_object(&class, signature, &parameters)
             }

@@ -81,7 +81,7 @@ class ConnectionProxy(val parentActivity: MainActivity) {
             if (currentState is TunnelState.Connecting || currentState is TunnelState.Connected) {
                 return false
             } else {
-                uiState = TunnelState.Connecting(null)
+                uiState = TunnelState.Connecting(null, null)
                 return true
             }
         }
