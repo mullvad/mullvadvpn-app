@@ -232,43 +232,36 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     undefined
                   )}
 
-                  {this.props.tunnelProtocol === 'openvpn' ||
-                  this.props.tunnelProtocol === undefined ||
-                  process.platform === 'win32' ? (
-                    <View style={styles.advanced_settings__content}>
-                      <Selector
-                        title={messages.pgettext(
-                          'advanced-settings-view',
-                          'OpenVPN transport protocols',
-                        )}
-                        values={this.protocolItems}
-                        value={this.props.openvpn.protocol}
-                        onSelect={this.onSelectOpenvpnProtocol}
-                      />
-
-                      {this.props.openvpn.protocol ? (
-                        <Selector
-                          title={sprintf(
-                            // TRANSLATORS: The title for the port selector section.
-                            // TRANSLATORS: Available placeholders:
-                            // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
-                            messages.pgettext('advanced-settings-view', '%(portType)s port'),
-                            {
-                              portType: this.props.openvpn.protocol.toUpperCase(),
-                            },
-                          )}
-                          values={this.portItems[this.props.openvpn.protocol]}
-                          value={this.props.openvpn.port}
-                          onSelect={this.onSelectOpenVpnPort}
-                        />
-                      ) : (
-                        undefined
+                  <View style={styles.advanced_settings__content}>
+                    <Selector
+                      title={messages.pgettext(
+                        'advanced-settings-view',
+                        'OpenVPN transport protocols',
                       )}
-                    </View>
-                  ) : (
-                    undefined
-                  )}
+                      values={this.protocolItems}
+                      value={this.props.openvpn.protocol}
+                      onSelect={this.onSelectOpenvpnProtocol}
+                    />
 
+                    {this.props.openvpn.protocol ? (
+                      <Selector
+                        title={sprintf(
+                          // TRANSLATORS: The title for the port selector section.
+                          // TRANSLATORS: Available placeholders:
+                          // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
+                          messages.pgettext('advanced-settings-view', '%(portType)s port'),
+                          {
+                            portType: this.props.openvpn.protocol.toUpperCase(),
+                          },
+                        )}
+                        values={this.portItems[this.props.openvpn.protocol]}
+                        value={this.props.openvpn.port}
+                        onSelect={this.onSelectOpenVpnPort}
+                      />
+                    ) : (
+                      undefined
+                    )}
+                  </View>
                   {this.props.tunnelProtocol === 'wireguard' && process.platform !== 'win32' ? (
                     <View style={styles.advanced_settings__content}>
                       <Selector
