@@ -646,42 +646,44 @@ impl<'env> IntoJava<'env> for TunnelState {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let (variant, parameter) = match self {
-            TunnelState::Disconnected => ("Disconnected", None),
-            TunnelState::Connecting { location, .. } => (
-                "Connecting",
-                Some((location.into_java(env), "GeoIpLocation")),
-            ),
-            TunnelState::Connected { location, .. } => (
-                "Connected",
-                Some((location.into_java(env), "GeoIpLocation")),
-            ),
-            TunnelState::Disconnecting(action_after_disconnect) => (
-                "Disconnecting",
-                Some((
-                    action_after_disconnect.into_java(env),
-                    "ActionAfterDisconnect",
-                )),
-            ),
-            TunnelState::Blocked(reason) => {
-                ("Blocked", Some((reason.into_java(env), "BlockReason")))
+        match self {
+            TunnelState::Disconnected => {
+                let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Disconnected");
+
+                env.new_object(&class, "()V", &[])
             }
-        };
+            TunnelState::Connecting { location, .. } => {
+                let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Connecting");
+                let location = env.auto_local(location.into_java(env));
+                let parameters = [JValue::Object(location.as_obj())];
+                let signature = "(Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
 
-        let class = get_class(&format!(
-            "net/mullvad/mullvadvpn/model/TunnelState${}",
-            variant
-        ));
-
-        match parameter {
-            Some((java_object, class_name)) => {
-                let parameter = env.auto_local(java_object);
-                let parameters = [JValue::Object(parameter.as_obj())];
-                let signature = format!("(Lnet/mullvad/mullvadvpn/model/{};)V", class_name);
-
-                env.new_object(&class, &signature, &parameters)
+                env.new_object(&class, signature, &parameters)
             }
-            None => env.new_object(&class, "()V", &[]),
+            TunnelState::Connected { location, .. } => {
+                let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Connected");
+                let location = env.auto_local(location.into_java(env));
+                let parameters = [JValue::Object(location.as_obj())];
+                let signature = "(Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
+
+                env.new_object(&class, signature, &parameters)
+            }
+            TunnelState::Disconnecting(action_after_disconnect) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Disconnecting");
+                let after_disconnect = env.auto_local(action_after_disconnect.into_java(env));
+                let parameters = [JValue::Object(after_disconnect.as_obj())];
+                let signature = "(Lnet/mullvad/mullvadvpn/model/ActionAfterDisconnect;)V";
+
+                env.new_object(&class, signature, &parameters)
+            }
+            TunnelState::Blocked(block_reason) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Blocked");
+                let reason = env.auto_local(block_reason.into_java(env));
+                let parameters = [JValue::Object(reason.as_obj())];
+                let signature = "(Lnet/mullvad/mullvadvpn/model/BlockReason;)V";
+
+                env.new_object(&class, signature, &parameters)
+            }
         }
         .expect("Failed to create TunnelState sub-class variant Java object")
     }
