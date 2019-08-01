@@ -63,9 +63,17 @@ class LocationInfoCache(
         val relayItem = relayListListener.selectedRelayItem
 
         when (relayItem) {
-            is RelayCountry -> return GeoIpLocation(relayItem.name, null, null)
-            is RelayCity -> return GeoIpLocation(relayItem.country.name, relayItem.name, null)
+            is RelayCountry -> return GeoIpLocation(null, null, relayItem.name, null, null)
+            is RelayCity -> return GeoIpLocation(
+                null,
+                null,
+                relayItem.country.name,
+                relayItem.name,
+                null
+            )
             is Relay -> return GeoIpLocation(
+                null,
+                null,
                 relayItem.city.country.name,
                 relayItem.city.name,
                 relayItem.name

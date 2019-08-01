@@ -1,3 +1,11 @@
 package net.mullvad.mullvadvpn.model
 
-data class GeoIpLocation(val country: String, val city: String?, val hostname: String?)
+import java.net.InetAddress
+
+data class GeoIpLocation(
+    val ipv4: InetAddress?,
+    val ipv6: InetAddress?,
+    val country: String,
+    val city: String?,
+    val hostname: String?
+)
