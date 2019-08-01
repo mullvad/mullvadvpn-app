@@ -19,7 +19,7 @@ use mullvad_types::{
 };
 use std::{
     fmt::Debug,
-    net::{IpAddr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, SocketAddr},
 };
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
@@ -148,6 +148,14 @@ fn ipvx_addr_into_java<'env>(original_octets: &[u8], env: &JNIEnv<'env>) -> JObj
                 value
             );
         }
+    }
+}
+
+impl<'env> IntoJava<'env> for Ipv4Addr {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        ipvx_addr_into_java(self.octets().as_ref(), env)
     }
 }
 
