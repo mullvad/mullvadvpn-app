@@ -49,6 +49,7 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/AppVersionInfo",
     "net/mullvad/mullvadvpn/model/Constraint$Any",
     "net/mullvad/mullvadvpn/model/Constraint$Only",
+    "net/mullvad/mullvadvpn/model/Endpoint",
     "net/mullvad/mullvadvpn/model/GeoIpLocation",
     "net/mullvad/mullvadvpn/model/InetNetwork",
     "net/mullvad/mullvadvpn/model/KeygenEvent$NewKey",

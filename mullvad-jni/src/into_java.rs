@@ -23,7 +23,7 @@ use std::{
 };
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
-    net::{wireguard::PublicKey, TransportProtocol},
+    net::{wireguard::PublicKey, Endpoint, TransportProtocol},
     tunnel::{ActionAfterDisconnect, BlockReason},
 };
 
@@ -281,6 +281,27 @@ impl<'env> IntoJava<'env> for TransportProtocol {
 
         env.new_object(&class, "()V", &[])
             .expect("Failed to create TransportProtocol sub-class variant Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for Endpoint {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/Endpoint");
+        let address = env.auto_local(self.address.into_java(env));
+        let protocol = env.auto_local(self.protocol.into_java(env));
+        let parameters = [
+            JValue::Object(address.as_obj()),
+            JValue::Object(protocol.as_obj()),
+        ];
+
+        env.new_object(
+            &class,
+            "(Ljava/net/InetSocketAddress;Lnet/mullvad/mullvadvpn/model/TransportProtocol;)V",
+            &parameters,
+        )
+        .expect("Failed to create Endpoint sub-class variant Java object")
     }
 }
 
