@@ -341,10 +341,14 @@ impl<'env> IntoJava<'env> for GeoIpLocation {
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let class = get_class("net/mullvad/mullvadvpn/model/GeoIpLocation");
+        let ipv4 = env.auto_local(self.ipv4.into_java(env));
+        let ipv6 = env.auto_local(self.ipv6.into_java(env));
         let country = env.auto_local(JObject::from(self.country.into_java(env)));
         let city = env.auto_local(JObject::from(self.city.into_java(env)));
         let hostname = env.auto_local(JObject::from(self.hostname.into_java(env)));
         let parameters = [
+            JValue::Object(ipv4.as_obj()),
+            JValue::Object(ipv6.as_obj()),
             JValue::Object(country.as_obj()),
             JValue::Object(city.as_obj()),
             JValue::Object(hostname.as_obj()),
@@ -352,7 +356,7 @@ impl<'env> IntoJava<'env> for GeoIpLocation {
 
         env.new_object(
             &class,
-            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+            "(Ljava/net/InetAddress;Ljava/net/InetAddress;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
             &parameters,
         )
         .expect("Failed to create GeoIpLocation Java object")
