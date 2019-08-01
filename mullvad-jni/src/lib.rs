@@ -71,6 +71,7 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/TransportProtocol$Tcp",
     "net/mullvad/mullvadvpn/model/TransportProtocol$Udp",
     "net/mullvad/mullvadvpn/model/TunConfig",
+    "net/mullvad/mullvadvpn/model/TunnelEndpoint",
     "net/mullvad/mullvadvpn/model/TunnelState$Blocked",
     "net/mullvad/mullvadvpn/model/TunnelState$Connected",
     "net/mullvad/mullvadvpn/model/TunnelState$Connecting",
