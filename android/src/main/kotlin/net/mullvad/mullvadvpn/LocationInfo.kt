@@ -12,13 +12,16 @@ import net.mullvad.mullvadvpn.model.TunnelState
 class LocationInfo(val parentView: View, val context: Context) {
     private val country: TextView = parentView.findViewById(R.id.country)
     private val city: TextView = parentView.findViewById(R.id.city)
+    private val tunnelInfo: View = parentView.findViewById(R.id.tunnel_info)
     private val hostname: TextView = parentView.findViewById(R.id.hostname)
+    private val chevron: View = parentView.findViewById(R.id.chevron)
     private val protocol: TextView = parentView.findViewById(R.id.tunnel_protocol)
     private val inAddress: TextView = parentView.findViewById(R.id.in_address)
     private val outAddress: TextView = parentView.findViewById(R.id.out_address)
 
     private var endpoint: Endpoint? = null
     private var isTunnelInfoVisible = false
+    private var isTunnelInfoExpanded = false
 
     var location: GeoIpLocation? = null
         set(value) {
@@ -51,6 +54,15 @@ class LocationInfo(val parentView: View, val context: Context) {
             updateTunnelInfo()
         }
 
+    init {
+        tunnelInfo.setOnClickListener { toggleTunnelInfo() }
+    }
+
+    private fun toggleTunnelInfo() {
+        isTunnelInfoExpanded = !isTunnelInfoExpanded
+        updateTunnelInfo()
+    }
+
     private fun updateTunnelInfo() {
         if (isTunnelInfoVisible) {
             showTunnelInfo()
@@ -60,15 +72,27 @@ class LocationInfo(val parentView: View, val context: Context) {
     }
 
     private fun hideTunnelInfo() {
+        chevron.visibility = View.INVISIBLE
+
         protocol.text = ""
         inAddress.text = ""
         outAddress.text = ""
     }
 
     private fun showTunnelInfo() {
-        protocol.setText(R.string.wireguard)
-        showInAddress(endpoint)
-        updateOutAddress(location)
+        chevron.visibility = View.VISIBLE
+
+        if (isTunnelInfoExpanded) {
+            chevron.rotation = 180.0F
+            protocol.setText(R.string.wireguard)
+            showInAddress(endpoint)
+            updateOutAddress(location)
+        } else {
+            chevron.rotation = 0.0F
+            protocol.text = ""
+            inAddress.text = ""
+            outAddress.text = ""
+        }
     }
 
     private fun showInAddress(endpoint: Endpoint?) {
@@ -92,7 +116,7 @@ class LocationInfo(val parentView: View, val context: Context) {
     private fun updateOutAddress(location: GeoIpLocation?) {
         val addressAvailable = location != null && (location.ipv4 != null || location.ipv6 != null)
 
-        if (isTunnelInfoVisible && addressAvailable) {
+        if (isTunnelInfoVisible && addressAvailable && isTunnelInfoExpanded) {
             val ipv4 = location!!.ipv4
             val ipv6 = location.ipv6
             val ipAddress: String
