@@ -61,6 +61,9 @@
     <string name="disconnect">Disconnect</string>
     <string name="switch_location">Switch location</string>
     <string name="wireguard">WireGuard</string>
+    <string name="tcp">TCP</string>
+    <string name="udp">UDP</string>
+    <string name="in_address">In  %1$s:%2$d %3$s</string>
 
     <string name="blocking_internet">Blocking internet</string>
     <string name="auth_failed">Account authentication failed.</string>

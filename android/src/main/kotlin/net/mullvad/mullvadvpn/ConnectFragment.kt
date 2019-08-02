@@ -64,7 +64,7 @@ class ConnectFragment : Fragment() {
         headerBar = HeaderBar(view, context!!)
         notificationBanner = NotificationBanner(view, context!!, versionInfoCache)
         status = ConnectionStatus(view, context!!)
-        locationInfo = LocationInfo(view)
+        locationInfo = LocationInfo(view, context!!)
 
         actionButton = ConnectActionButton(view)
         actionButton.apply {
