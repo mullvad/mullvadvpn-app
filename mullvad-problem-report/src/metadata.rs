@@ -112,16 +112,21 @@ mod os {
 #[cfg(target_os = "android")]
 mod os {
     pub fn version() -> String {
+        let version = get_prop("ro.build.version.release").unwrap_or_else(String::new);
+        let api_level = get_prop("ro.build.version.sdk")
+            .map(|api| format!(" (API level: {})", api))
+            .unwrap_or_else(String::new);
+        let abi_list = get_prop("ro.product.cpu.abilist")
+            .map(|abis| format!(" (ABI list: {})", abis))
+            .unwrap_or_else(String::new);
+
         let manufacturer = get_prop("ro.product.manufacturer").unwrap_or_else(String::new);
         let product = get_prop("ro.product.model").unwrap_or_else(String::new);
         let build = get_prop("ro.build.display.id").unwrap_or_else(String::new);
-        let api_level = get_prop("ro.build.version.sdk")
-            .map(|api| format!("(API level: {})", api))
-            .unwrap_or_else(String::new);
 
         format!(
-            "Android {} {} {} {}",
-            manufacturer, product, build, api_level
+            "Android {}{}{} - {} {} {}",
+            version, api_level, abi_list, manufacturer, product, build
         )
     }
 
