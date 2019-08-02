@@ -15,6 +15,7 @@ class LocationInfo(val parentView: View, val context: Context) {
     private val hostname: TextView = parentView.findViewById(R.id.hostname)
     private val protocol: TextView = parentView.findViewById(R.id.tunnel_protocol)
     private val inAddress: TextView = parentView.findViewById(R.id.in_address)
+    private val outAddress: TextView = parentView.findViewById(R.id.out_address)
 
     private var endpoint: Endpoint? = null
     private var isTunnelInfoVisible = false
@@ -24,6 +25,8 @@ class LocationInfo(val parentView: View, val context: Context) {
             country.text = value?.country ?: ""
             city.text = value?.city ?: ""
             hostname.text = value?.hostname ?: ""
+
+            updateOutAddress(value)
         }
 
     var state: TunnelState = TunnelState.Disconnected()
@@ -59,11 +62,13 @@ class LocationInfo(val parentView: View, val context: Context) {
     private fun hideTunnelInfo() {
         protocol.text = ""
         inAddress.text = ""
+        outAddress.text = ""
     }
 
     private fun showTunnelInfo() {
         protocol.setText(R.string.wireguard)
         showInAddress(endpoint)
+        updateOutAddress(location)
     }
 
     private fun showInAddress(endpoint: Endpoint?) {
@@ -81,6 +86,28 @@ class LocationInfo(val parentView: View, val context: Context) {
             )
         } else {
             inAddress.text = ""
+        }
+    }
+
+    private fun updateOutAddress(location: GeoIpLocation?) {
+        val addressAvailable = location != null && (location.ipv4 != null || location.ipv6 != null)
+
+        if (isTunnelInfoVisible && addressAvailable) {
+            val ipv4 = location!!.ipv4
+            val ipv6 = location.ipv6
+            val ipAddress: String
+
+            if (ipv6 == null) {
+                ipAddress = ipv4!!.hostAddress
+            } else if (ipv4 == null) {
+                ipAddress = ipv6.hostAddress
+            } else {
+                ipAddress = "${ipv4.hostAddress} / ${ipv6.hostAddress}"
+            }
+
+            outAddress.text = context.getString(R.string.out_address, ipAddress)
+        } else {
+            outAddress.text = ""
         }
     }
 }
