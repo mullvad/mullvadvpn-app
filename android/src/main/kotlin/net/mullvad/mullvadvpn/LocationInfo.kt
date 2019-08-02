@@ -21,7 +21,7 @@ class LocationInfo(val parentView: View, val context: Context) {
 
     private var endpoint: Endpoint? = null
     private var isTunnelInfoVisible = false
-    private var isTunnelInfoExpanded = false
+    var isTunnelInfoExpanded = false
 
     var location: GeoIpLocation? = null
         set(value) {
