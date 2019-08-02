@@ -172,8 +172,8 @@ impl<'env> IntoJava<'env> for IpAddr {
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         match self {
-            IpAddr::V4(address) => ipvx_addr_into_java(address.octets().as_ref(), env),
-            IpAddr::V6(address) => ipvx_addr_into_java(address.octets().as_ref(), env),
+            IpAddr::V4(address) => address.into_java(env),
+            IpAddr::V6(address) => address.into_java(env),
         }
     }
 }
