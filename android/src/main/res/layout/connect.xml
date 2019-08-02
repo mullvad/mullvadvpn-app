@@ -234,7 +234,9 @@
             android:padding="24dp"
             >
         <Button android:id="@+id/switch_location"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="16dp"
+                android:paddingHorizontal="8dp"
                 android:text="@string/switch_location"
                 android:drawableRight="@drawable/icon_chevron"
                 android:paddingRight="8dp"

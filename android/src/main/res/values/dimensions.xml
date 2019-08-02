@@ -4,4 +4,6 @@
     <dimen name="relay_row_padding">60dp</dimen>
     <dimen name="relay_list_divider">1dp</dimen>
     <dimen name="account_input_corner_radius">4dp</dimen>
+    <dimen name="normal_button_height">44dp</dimen>
+    <dimen name="tall_button_height">64dp</dimen>
 </resources>

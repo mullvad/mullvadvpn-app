@@ -86,7 +86,7 @@ class ConnectFragment : Fragment() {
             onDisconnect = { connectionProxy.disconnect() }
         }
 
-        switchLocationButton = SwitchLocationButton(view)
+        switchLocationButton = SwitchLocationButton(view, resources)
         switchLocationButton.onClick = { openSwitchLocationScreen() }
 
         updateKeyStatusJob = updateKeyStatus(keyStatusListener.keyStatus)
