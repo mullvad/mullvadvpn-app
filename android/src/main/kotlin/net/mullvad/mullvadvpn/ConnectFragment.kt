@@ -125,6 +125,7 @@ class ConnectFragment : Fragment() {
         val realState = connectionProxy.state
 
         locationInfoCache.state = realState
+        locationInfo.state = realState
         headerBar.setState(realState)
 
         actionButton.tunnelState = uiState

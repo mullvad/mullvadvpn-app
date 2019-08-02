@@ -60,6 +60,7 @@
     <string name="cancel">Cancel</string>
     <string name="disconnect">Disconnect</string>
     <string name="switch_location">Switch location</string>
+    <string name="wireguard">WireGuard</string>
 
     <string name="blocking_internet">Blocking internet</string>
     <string name="auth_failed">Account authentication failed.</string>
