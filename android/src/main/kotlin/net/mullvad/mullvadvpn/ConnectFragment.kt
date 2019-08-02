@@ -64,7 +64,7 @@ class ConnectFragment : Fragment() {
         headerBar = HeaderBar(view, context!!)
         notificationBanner = NotificationBanner(view, context!!, versionInfoCache)
         status = ConnectionStatus(view, context!!)
-        locationInfo = LocationInfo(view, locationInfoCache)
+        locationInfo = LocationInfo(view)
 
         actionButton = ConnectActionButton(view)
         actionButton.apply {
@@ -95,6 +95,10 @@ class ConnectFragment : Fragment() {
             updateKeyStatusJob = updateKeyStatus(keyStatus)
         }
 
+        locationInfoCache.onNewLocation = { location ->
+            locationInfo.location = location
+        }
+
         relayListListener.onRelayListChange = { relayList, selectedRelayItem ->
             switchLocationButton.location = selectedRelayItem
         }
@@ -102,13 +106,13 @@ class ConnectFragment : Fragment() {
 
     override fun onPause() {
         keyStatusListener.onKeyStatusChange = null
+        locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
 
         super.onPause()
     }
 
     override fun onDestroyView() {
-        locationInfo.onDestroy()
         switchLocationButton.onDestroy()
 
         connectionProxy.onUiStateChange = null
