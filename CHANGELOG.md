@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Mark CLI `bridge set state` argument as required to avoid a crash.
 - The VPN service on Windows will now be restarted when it crashes.
+- Retry to connect when WireGuard tunnel fails due to a bad file descriptor.
 
 
 ## [2019.6] - 2019-07-15
