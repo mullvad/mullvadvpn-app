@@ -17,10 +17,13 @@ use mullvad_types::{
     wireguard::KeygenEvent,
     CustomTunnelEndpoint,
 };
-use std::{fmt::Debug, net::IpAddr};
+use std::{
+    fmt::Debug,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+};
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
-    net::wireguard::PublicKey,
+    net::{wireguard::PublicKey, Endpoint, TransportProtocol, TunnelEndpoint},
     tunnel::{ActionAfterDisconnect, BlockReason},
 };
 
@@ -108,56 +111,84 @@ impl<'array, 'env> IntoJava<'env> for &'array [u8] {
     }
 }
 
+fn ipvx_addr_into_java<'env>(original_octets: &[u8], env: &JNIEnv<'env>) -> JObject<'env> {
+    let class = get_class("java/net/InetAddress");
+
+    let constructor = env
+        .get_static_method_id(&class, "getByAddress", "([B)Ljava/net/InetAddress;")
+        .expect("Failed to get InetAddress.getByAddress method ID");
+
+    let octets_array = env
+        .new_byte_array(original_octets.len() as i32)
+        .expect("Failed to create byte array to store IP address");
+
+    let octet_data: Vec<i8> = original_octets
+        .into_iter()
+        .map(|octet| *octet as i8)
+        .collect();
+
+    env.set_byte_array_region(octets_array, 0, &octet_data)
+        .expect("Failed to copy IP address octets to byte array");
+
+    let octets = env.auto_local(JObject::from(octets_array));
+    let result = env
+        .call_static_method_unchecked(
+            "java/net/InetAddress",
+            constructor,
+            JavaType::Object("java/net/InetAddress".to_owned()),
+            &[JValue::Object(octets.as_obj())],
+        )
+        .expect("Failed to create InetAddress Java object");
+
+    match result {
+        JValue::Object(object) => object,
+        value => {
+            panic!(
+                "InetAddress.getByAddress returned an invalid value: {:?}",
+                value
+            );
+        }
+    }
+}
+
+impl<'env> IntoJava<'env> for Ipv4Addr {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        ipvx_addr_into_java(self.octets().as_ref(), env)
+    }
+}
+
+impl<'env> IntoJava<'env> for Ipv6Addr {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        ipvx_addr_into_java(self.octets().as_ref(), env)
+    }
+}
+
 impl<'env> IntoJava<'env> for IpAddr {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let class = get_class("java/net/InetAddress");
-
-        let constructor = env
-            .get_static_method_id(&class, "getByAddress", "([B)Ljava/net/InetAddress;")
-            .expect("Failed to get InetAddress.getByAddress method ID");
-
-        let octet_count = if self.is_ipv4() { 4 } else { 16 };
-        let octets_array = env
-            .new_byte_array(octet_count)
-            .expect("Failed to create byte array to store IP address");
-
-        let octet_data: Vec<i8> = match self {
-            IpAddr::V4(address) => address
-                .octets()
-                .into_iter()
-                .map(|octet| *octet as i8)
-                .collect(),
-            IpAddr::V6(address) => address
-                .octets()
-                .into_iter()
-                .map(|octet| *octet as i8)
-                .collect(),
-        };
-
-        env.set_byte_array_region(octets_array, 0, &octet_data)
-            .expect("Failed to copy IP address octets to byte array");
-
-        let octets = env.auto_local(JObject::from(octets_array));
-        let result = env
-            .call_static_method_unchecked(
-                "java/net/InetAddress",
-                constructor,
-                JavaType::Object("java/net/InetAddress".to_owned()),
-                &[JValue::Object(octets.as_obj())],
-            )
-            .expect("Failed to create InetAddress Java object");
-
-        match result {
-            JValue::Object(object) => object,
-            value => {
-                panic!(
-                    "InetAddress.getByAddress returned an invalid value: {:?}",
-                    value
-                );
-            }
+        match self {
+            IpAddr::V4(address) => address.into_java(env),
+            IpAddr::V6(address) => address.into_java(env),
         }
+    }
+}
+
+impl<'env> IntoJava<'env> for SocketAddr {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("java/net/InetSocketAddress");
+        let ip_address = env.auto_local(self.ip().into_java(env));
+        let port = self.port() as jint;
+        let parameters = [JValue::Object(ip_address.as_obj()), JValue::Int(port)];
+
+        env.new_object(&class, "(Ljava/net/InetAddress;I)V", &parameters)
+            .expect("Failed to create InetSocketAddress Java object")
     }
 }
 
@@ -252,15 +283,72 @@ impl<'env> IntoJava<'env> for TunConfig {
     }
 }
 
+impl<'env> IntoJava<'env> for TransportProtocol {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class_name = match self {
+            TransportProtocol::Tcp => "net/mullvad/mullvadvpn/model/TransportProtocol$Tcp",
+            TransportProtocol::Udp => "net/mullvad/mullvadvpn/model/TransportProtocol$Udp",
+        };
+        let class = get_class(class_name);
+
+        env.new_object(&class, "()V", &[])
+            .expect("Failed to create TransportProtocol sub-class variant Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for Endpoint {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/Endpoint");
+        let address = env.auto_local(self.address.into_java(env));
+        let protocol = env.auto_local(self.protocol.into_java(env));
+        let parameters = [
+            JValue::Object(address.as_obj()),
+            JValue::Object(protocol.as_obj()),
+        ];
+
+        env.new_object(
+            &class,
+            "(Ljava/net/InetSocketAddress;Lnet/mullvad/mullvadvpn/model/TransportProtocol;)V",
+            &parameters,
+        )
+        .expect("Failed to create Endpoint sub-class variant Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for TunnelEndpoint {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class = get_class("net/mullvad/mullvadvpn/model/TunnelEndpoint");
+        let endpoint = env.auto_local(self.endpoint.into_java(env));
+        let parameters = [JValue::Object(endpoint.as_obj())];
+
+        env.new_object(
+            &class,
+            "(Lnet/mullvad/mullvadvpn/model/Endpoint;)V",
+            &parameters,
+        )
+        .expect("Failed to create TunnelEndpoint sub-class variant Java object")
+    }
+}
+
 impl<'env> IntoJava<'env> for GeoIpLocation {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let class = get_class("net/mullvad/mullvadvpn/model/GeoIpLocation");
+        let ipv4 = env.auto_local(self.ipv4.into_java(env));
+        let ipv6 = env.auto_local(self.ipv6.into_java(env));
         let country = env.auto_local(JObject::from(self.country.into_java(env)));
         let city = env.auto_local(JObject::from(self.city.into_java(env)));
         let hostname = env.auto_local(JObject::from(self.hostname.into_java(env)));
         let parameters = [
+            JValue::Object(ipv4.as_obj()),
+            JValue::Object(ipv6.as_obj()),
             JValue::Object(country.as_obj()),
             JValue::Object(city.as_obj()),
             JValue::Object(hostname.as_obj()),
@@ -268,7 +356,7 @@ impl<'env> IntoJava<'env> for GeoIpLocation {
 
         env.new_object(
             &class,
-            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+            "(Ljava/net/InetAddress;Ljava/net/InetAddress;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
             &parameters,
         )
         .expect("Failed to create GeoIpLocation Java object")
@@ -576,42 +664,54 @@ impl<'env> IntoJava<'env> for TunnelState {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let (variant, parameter) = match self {
-            TunnelState::Disconnected => ("Disconnected", None),
-            TunnelState::Connecting { location, .. } => (
-                "Connecting",
-                Some((location.into_java(env), "GeoIpLocation")),
-            ),
-            TunnelState::Connected { location, .. } => (
-                "Connected",
-                Some((location.into_java(env), "GeoIpLocation")),
-            ),
-            TunnelState::Disconnecting(action_after_disconnect) => (
-                "Disconnecting",
-                Some((
-                    action_after_disconnect.into_java(env),
-                    "ActionAfterDisconnect",
-                )),
-            ),
-            TunnelState::Blocked(reason) => {
-                ("Blocked", Some((reason.into_java(env), "BlockReason")))
+        match self {
+            TunnelState::Disconnected => {
+                let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Disconnected");
+
+                env.new_object(&class, "()V", &[])
             }
-        };
+            TunnelState::Connecting { endpoint, location } => {
+                let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Connecting");
+                let endpoint = env.auto_local(endpoint.into_java(env));
+                let location = env.auto_local(location.into_java(env));
+                let parameters = [
+                    JValue::Object(endpoint.as_obj()),
+                    JValue::Object(location.as_obj()),
+                ];
+                let signature =
+                    "(Lnet/mullvad/mullvadvpn/model/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
 
-        let class = get_class(&format!(
-            "net/mullvad/mullvadvpn/model/TunnelState${}",
-            variant
-        ));
-
-        match parameter {
-            Some((java_object, class_name)) => {
-                let parameter = env.auto_local(java_object);
-                let parameters = [JValue::Object(parameter.as_obj())];
-                let signature = format!("(Lnet/mullvad/mullvadvpn/model/{};)V", class_name);
-
-                env.new_object(&class, &signature, &parameters)
+                env.new_object(&class, signature, &parameters)
             }
-            None => env.new_object(&class, "()V", &[]),
+            TunnelState::Connected { endpoint, location } => {
+                let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Connected");
+                let endpoint = env.auto_local(endpoint.into_java(env));
+                let location = env.auto_local(location.into_java(env));
+                let parameters = [
+                    JValue::Object(endpoint.as_obj()),
+                    JValue::Object(location.as_obj()),
+                ];
+                let signature =
+                    "(Lnet/mullvad/mullvadvpn/model/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
+
+                env.new_object(&class, signature, &parameters)
+            }
+            TunnelState::Disconnecting(action_after_disconnect) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Disconnecting");
+                let after_disconnect = env.auto_local(action_after_disconnect.into_java(env));
+                let parameters = [JValue::Object(after_disconnect.as_obj())];
+                let signature = "(Lnet/mullvad/mullvadvpn/model/ActionAfterDisconnect;)V";
+
+                env.new_object(&class, signature, &parameters)
+            }
+            TunnelState::Blocked(block_reason) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Blocked");
+                let reason = env.auto_local(block_reason.into_java(env));
+                let parameters = [JValue::Object(reason.as_obj())];
+                let signature = "(Lnet/mullvad/mullvadvpn/model/BlockReason;)V";
+
+                env.new_object(&class, signature, &parameters)
+            }
         }
         .expect("Failed to create TunnelState sub-class variant Java object")
     }

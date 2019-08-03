@@ -22,16 +22,16 @@ class LocationInfoCache(
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var activeFetch: Job? = null
 
-    var onNewLocation: ((String, String, String) -> Unit)? = null
+    var onNewLocation: ((GeoIpLocation?) -> Unit)? = null
         set(value) {
             field = value
-            notifyNewLocation()
+            value?.invoke(location)
         }
 
     var location: GeoIpLocation? = null
         set(value) {
             field = value
-            notifyNewLocation()
+            onNewLocation?.invoke(value)
         }
 
     var state: TunnelState = TunnelState.Disconnected()
@@ -59,22 +59,21 @@ class LocationInfoCache(
             }
         }
 
-    fun notifyNewLocation() {
-        val location = this.location
-        val country = location?.country ?: ""
-        val city = location?.city ?: ""
-        val hostname = location?.hostname ?: ""
-
-        onNewLocation?.invoke(country, city, hostname)
-    }
-
     private fun locationFromSelectedRelay(): GeoIpLocation? {
         val relayItem = relayListListener.selectedRelayItem
 
         when (relayItem) {
-            is RelayCountry -> return GeoIpLocation(relayItem.name, null, null)
-            is RelayCity -> return GeoIpLocation(relayItem.country.name, relayItem.name, null)
+            is RelayCountry -> return GeoIpLocation(null, null, relayItem.name, null, null)
+            is RelayCity -> return GeoIpLocation(
+                null,
+                null,
+                relayItem.country.name,
+                relayItem.name,
+                null
+            )
             is Relay -> return GeoIpLocation(
+                null,
+                null,
                 relayItem.city.country.name,
                 relayItem.city.name,
                 relayItem.name

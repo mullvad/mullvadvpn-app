@@ -21,6 +21,8 @@ import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
+val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
+
 class ConnectFragment : Fragment() {
     private lateinit var actionButton: ConnectActionButton
     private lateinit var switchLocationButton: SwitchLocationButton
@@ -39,6 +41,8 @@ class ConnectFragment : Fragment() {
     private lateinit var updateKeyStatusJob: Job
     private lateinit var updateTunnelStateJob: Job
 
+    private var isTunnelInfoExpanded = false
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -48,6 +52,13 @@ class ConnectFragment : Fragment() {
         locationInfoCache = parentActivity.locationInfoCache
         relayListListener = parentActivity.relayListListener
         versionInfoCache = parentActivity.appVersionInfoCache
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        isTunnelInfoExpanded =
+            savedInstanceState?.getBoolean(KEY_IS_TUNNEL_INFO_EXPANDED, false) ?: false
     }
 
     override fun onCreateView(
@@ -64,7 +75,9 @@ class ConnectFragment : Fragment() {
         headerBar = HeaderBar(view, context!!)
         notificationBanner = NotificationBanner(view, context!!, versionInfoCache)
         status = ConnectionStatus(view, context!!)
-        locationInfo = LocationInfo(view, locationInfoCache)
+
+        locationInfo = LocationInfo(view, context!!)
+        locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
 
         actionButton = ConnectActionButton(view)
         actionButton.apply {
@@ -90,9 +103,15 @@ class ConnectFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
+        locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
+
         keyStatusListener.onKeyStatusChange = { keyStatus ->
             updateKeyStatusJob.cancel()
             updateKeyStatusJob = updateKeyStatus(keyStatus)
+        }
+
+        locationInfoCache.onNewLocation = { location ->
+            locationInfo.location = location
         }
 
         relayListListener.onRelayListChange = { relayList, selectedRelayItem ->
@@ -102,13 +121,15 @@ class ConnectFragment : Fragment() {
 
     override fun onPause() {
         keyStatusListener.onKeyStatusChange = null
+        locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
+
+        isTunnelInfoExpanded = locationInfo.isTunnelInfoExpanded
 
         super.onPause()
     }
 
     override fun onDestroyView() {
-        locationInfo.onDestroy()
         switchLocationButton.onDestroy()
 
         connectionProxy.onUiStateChange = null
@@ -117,10 +138,16 @@ class ConnectFragment : Fragment() {
         super.onDestroyView()
     }
 
+    override fun onSaveInstanceState(state: Bundle) {
+        isTunnelInfoExpanded = locationInfo.isTunnelInfoExpanded
+        state.putBoolean(KEY_IS_TUNNEL_INFO_EXPANDED, isTunnelInfoExpanded)
+    }
+
     private fun updateTunnelState(uiState: TunnelState) = GlobalScope.launch(Dispatchers.Main) {
         val realState = connectionProxy.state
 
         locationInfoCache.state = realState
+        locationInfo.state = realState
         headerBar.setState(realState)
 
         actionButton.tunnelState = uiState

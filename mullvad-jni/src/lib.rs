@@ -31,6 +31,7 @@ const LOG_FILENAME: &str = "daemon.log";
 
 const CLASSES_TO_LOAD: &[&str] = &[
     "java/net/InetAddress",
+    "java/net/InetSocketAddress",
     "java/util/ArrayList",
     "java/util/List",
     "net/mullvad/mullvadvpn/model/AccountData",
@@ -48,6 +49,7 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/AppVersionInfo",
     "net/mullvad/mullvadvpn/model/Constraint$Any",
     "net/mullvad/mullvadvpn/model/Constraint$Only",
+    "net/mullvad/mullvadvpn/model/Endpoint",
     "net/mullvad/mullvadvpn/model/GeoIpLocation",
     "net/mullvad/mullvadvpn/model/InetNetwork",
     "net/mullvad/mullvadvpn/model/KeygenEvent$NewKey",
@@ -66,7 +68,10 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$CustomTunnelEndpoint",
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$RelayConstraintsUpdate",
     "net/mullvad/mullvadvpn/model/Settings",
+    "net/mullvad/mullvadvpn/model/TransportProtocol$Tcp",
+    "net/mullvad/mullvadvpn/model/TransportProtocol$Udp",
     "net/mullvad/mullvadvpn/model/TunConfig",
+    "net/mullvad/mullvadvpn/model/TunnelEndpoint",
     "net/mullvad/mullvadvpn/model/TunnelState$Blocked",
     "net/mullvad/mullvadvpn/model/TunnelState$Connected",
     "net/mullvad/mullvadvpn/model/TunnelState$Connecting",
