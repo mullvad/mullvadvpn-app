@@ -345,11 +345,16 @@ impl TunnelState for ConnectingState {
                             )
                         }
                         #[cfg(not(windows))]
-                        Err(tunnel::Error::WireguardTunnelMonitoringError(
-                            tunnel::wireguard::Error::StartWireguardError { status: -2 },
-                        )) => {
+                        Err(
+                            error @ tunnel::Error::WireguardTunnelMonitoringError(
+                                tunnel::wireguard::Error::StartWireguardError { status: -2 },
+                            ),
+                        ) => {
                             log::warn!(
-                                "Retrying to connect after failing to start Wireguard tunnel"
+                                "{}",
+                                error.display_chain_with_msg(
+                                    "Retrying to connect after failing to start Wireguard tunnel"
+                                )
                             );
                             DisconnectingState::enter(
                                 shared_values,
