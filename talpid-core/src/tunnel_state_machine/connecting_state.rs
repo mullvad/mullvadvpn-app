@@ -305,6 +305,30 @@ fn get_openvpn_proxy_settings(
     }
 }
 
+enum StartTunnelResult {
+    Started(ConnectingState),
+    #[cfg(not(windows))]
+    Retry(tunnel::Error),
+    Block(tunnel::Error),
+}
+
+impl From<tunnel::Result<ConnectingState>> for StartTunnelResult {
+    fn from(result: tunnel::Result<ConnectingState>) -> Self {
+        match result {
+            Ok(state) => StartTunnelResult::Started(state),
+
+            #[cfg(not(windows))]
+            Err(
+                error @ tunnel::Error::WireguardTunnelMonitoringError(
+                    tunnel::wireguard::Error::StartWireguardError { status: -2 },
+                ),
+            ) => StartTunnelResult::Retry(error),
+
+            Err(error) => StartTunnelResult::Block(error),
+        }
+    }
+}
+
 impl TunnelState for ConnectingState {
     type Bootstrap = u32;
 
@@ -330,14 +354,14 @@ impl TunnelState for ConnectingState {
                     );
                     BlockedState::enter(shared_values, BlockReason::StartTunnelError)
                 } else {
-                    match Self::start_tunnel(
+                    match StartTunnelResult::from(Self::start_tunnel(
                         tunnel_parameters,
                         &shared_values.log_dir,
                         &shared_values.resource_dir,
                         shared_values.tun_provider.borrow(),
                         retry_attempt,
-                    ) {
-                        Ok(connecting_state) => {
+                    )) {
+                        StartTunnelResult::Started(connecting_state) => {
                             let params = connecting_state.tunnel_parameters.clone();
                             (
                                 TunnelStateWrapper::from(connecting_state),
@@ -345,15 +369,11 @@ impl TunnelState for ConnectingState {
                             )
                         }
                         #[cfg(not(windows))]
-                        Err(
-                            error @ tunnel::Error::WireguardTunnelMonitoringError(
-                                tunnel::wireguard::Error::StartWireguardError { status: -2 },
-                            ),
-                        ) => {
+                        StartTunnelResult::Retry(error) => {
                             log::warn!(
                                 "{}",
                                 error.display_chain_with_msg(
-                                    "Retrying to connect after failing to start Wireguard tunnel"
+                                    "Retrying to connect after failing to start tunnel"
                                 )
                             );
                             DisconnectingState::enter(
@@ -361,7 +381,7 @@ impl TunnelState for ConnectingState {
                                 (None, None, AfterDisconnect::Reconnect(retry_attempt + 1)),
                             )
                         }
-                        Err(error) => {
+                        StartTunnelResult::Block(error) => {
                             log::error!(
                                 "{}",
                                 error.display_chain_with_msg("Failed to start tunnel")
