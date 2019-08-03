@@ -324,6 +324,13 @@ impl From<tunnel::Result<ConnectingState>> for StartTunnelResult {
                 ),
             ) => StartTunnelResult::Retry(error),
 
+            #[cfg(target_os = "android")]
+            Err(
+                error @ tunnel::Error::WireguardTunnelMonitoringError(
+                    tunnel::wireguard::Error::BypassError(_),
+                ),
+            ) => StartTunnelResult::Retry(error),
+
             Err(error) => StartTunnelResult::Block(error),
         }
     }
