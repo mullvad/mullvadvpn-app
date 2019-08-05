@@ -312,6 +312,11 @@ fn should_retry(error: &tunnel::Error) -> bool {
             tunnel::wireguard::Error::RecoverableStartWireguardError,
         ) => true,
 
+        #[cfg(target_os = "android")]
+        tunnel::Error::WireguardTunnelMonitoringError(tunnel::wireguard::Error::BypassError(_)) => {
+            true
+        }
+
         _ => false,
     }
 }
