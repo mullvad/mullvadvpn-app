@@ -51,12 +51,8 @@ private:
 
 	std::unique_ptr<ILogSink> m_logsink;
 
-	size_t m_ordinal = 1;
-
 	static std::wstring Timestamp();
 
-	std::wstring ordinal();
-
 	static std::wstring Compose(const std::wstring &message, const std::wstring &timestamp,
-		const std::wstring &ordinal, size_t indentation = 0);
+		size_t indentation = 0);
 };
