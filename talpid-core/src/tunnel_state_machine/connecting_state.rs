@@ -305,6 +305,17 @@ fn get_openvpn_proxy_settings(
     }
 }
 
+fn should_retry(error: &tunnel::Error) -> bool {
+    match error {
+        #[cfg(not(windows))]
+        tunnel::Error::WireguardTunnelMonitoringError(
+            tunnel::wireguard::Error::RecoverableStartWireguardError,
+        ) => true,
+
+        _ => false,
+    }
+}
+
 impl TunnelState for ConnectingState {
     type Bootstrap = u32;
 
@@ -344,33 +355,29 @@ impl TunnelState for ConnectingState {
                                 TunnelStateTransition::Connecting(params.get_tunnel_endpoint()),
                             )
                         }
-                        #[cfg(not(windows))]
-                        Err(
-                            error @ tunnel::Error::WireguardTunnelMonitoringError(
-                                tunnel::wireguard::Error::RecoverableStartWireguardError,
-                            ),
-                        ) => {
-                            log::warn!(
-                                "{}",
-                                error.display_chain_with_msg(
-                                    "Retrying to connect after failing to start Wireguard tunnel"
-                                )
-                            );
-                            DisconnectingState::enter(
-                                shared_values,
-                                (None, None, AfterDisconnect::Reconnect(retry_attempt + 1)),
-                            )
-                        }
                         Err(error) => {
-                            log::error!(
-                                "{}",
-                                error.display_chain_with_msg("Failed to start tunnel")
-                            );
-                            let block_reason = match error {
-                                tunnel::Error::EnableIpv6Error => BlockReason::Ipv6Unavailable,
-                                _ => BlockReason::StartTunnelError,
-                            };
-                            BlockedState::enter(shared_values, block_reason)
+                            if should_retry(&error) {
+                                log::warn!(
+                                    "{}",
+                                    error.display_chain_with_msg(
+                                        "Retrying to connect after failing to start tunnel"
+                                    )
+                                );
+                                DisconnectingState::enter(
+                                    shared_values,
+                                    (None, None, AfterDisconnect::Reconnect(retry_attempt + 1)),
+                                )
+                            } else {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg("Failed to start tunnel")
+                                );
+                                let block_reason = match error {
+                                    tunnel::Error::EnableIpv6Error => BlockReason::Ipv6Unavailable,
+                                    _ => BlockReason::StartTunnelError,
+                                };
+                                BlockedState::enter(shared_values, block_reason)
+                            }
                         }
                     }
                 }
