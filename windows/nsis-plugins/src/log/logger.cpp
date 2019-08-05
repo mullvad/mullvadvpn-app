@@ -48,22 +48,21 @@ void AnsiFileLogSink::log(const std::wstring &message)
 
 void Logger::log(const std::wstring &message)
 {
-	m_logsink->log(Compose(message, Timestamp(), ordinal()));
+	m_logsink->log(Compose(message, Timestamp()));
 }
 
 void Logger::log(const std::wstring &message, const std::vector<std::wstring> &details)
 {
 	const auto timestamp = this->Timestamp();
-	const auto ordinal = this->ordinal();
 
-	m_logsink->log(Compose(message, timestamp, ordinal));
+	m_logsink->log(Compose(message, timestamp));
 
 	//
 	// Write details with indentation.
 	//
 	for (const auto detail : details)
 	{
-		m_logsink->log(Compose(detail, timestamp, ordinal, 4));
+		m_logsink->log(Compose(detail, timestamp, 4));
 	}
 }
 
@@ -77,33 +76,30 @@ std::wstring Logger::Timestamp()
 	std::wstringstream ss;
 
 	ss << L'['
+		<< std::right << std::setw(4) << std::setfill(L'0') << time.wYear
+		<< L'-'
+		<< std::right << std::setw(2) << std::setfill(L'0') << time.wMonth
+		<< L'-'
+		<< std::right << std::setw(2) << std::setfill(L'0') << time.wDay
+		<< L' '
 		<< std::right << std::setw(2) << std::setfill(L'0') << time.wHour
 		<< L':'
 		<< std::right << std::setw(2) << std::setfill(L'0') << time.wMinute
 		<< L':'
 		<< std::right << std::setw(2) << std::setfill(L'0') << time.wSecond
+		<< L'.'
+		<< std::right << std::setw(3) << std::setfill(L'0') << time.wMilliseconds
 		<< L']';
 
 	return ss.str();
 }
 
-std::wstring Logger::ordinal()
-{
-	std::wstringstream ss;
-
-	ss << std::right << std::setw(4) << std::setfill(L' ') << m_ordinal++;
-
-	return ss.str();
-}
-
 //static
-std::wstring Logger::Compose(const std::wstring &message, const std::wstring &timestamp,
-	const std::wstring &ordinal, size_t indentation)
+std::wstring Logger::Compose(const std::wstring &message, const std::wstring &timestamp, size_t indentation)
 {
 	std::wstringstream ss;
 
 	ss << timestamp << L' '
-		<< ordinal << L' '
 		<< std::wstring(indentation, L' ')
 		<< message;
 
