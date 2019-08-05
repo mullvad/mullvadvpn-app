@@ -45,7 +45,11 @@ impl WgGoTunnel {
         };
 
         if handle < 0 {
-            return Err(Error::StartWireguardError { status: handle });
+            return match handle {
+                -1 => Err(Error::FatalStartWireguardError),
+                -2 => Err(Error::RecoverableStartWireguardError),
+                status => Err(Error::UnknownStartWireguardError { status }),
+            };
         }
 
         #[cfg(target_os = "android")]
