@@ -24,9 +24,20 @@ pub enum Error {
     #[error(display = "Failed to create tunnel device")]
     SetupTunnelDeviceError(#[error(cause)] BoxedError),
 
-    /// Failed to setup wireguard tunnel.
-    #[error(display = "Failed to start wireguard tunnel - {}", status)]
-    StartWireguardError { status: i32 },
+    /// A recoverable error occurred while starting the wireguard tunnel
+    ///
+    /// This is an error returned by wireguard-go that indicates that trying to establish the
+    /// tunnel again should work normally. The error encountered is known to be sporadic.
+    #[error(display = "Recoverable error while starting wireguard tunnel")]
+    RecoverableStartWireguardError,
+
+    /// An unrecoverable error occurred while starting the wireguard tunnel
+    ///
+    /// This is an error returned by wireguard-go that indicates that trying to establish the
+    /// tunnel again will likely fail with the same error. An error was encountered during tunnel
+    /// configuration which can't be dealt with gracefully.
+    #[error(display = "Failed to start wireguard tunnel")]
+    FatalStartWireguardError,
 
     /// Failed to tear down wireguard tunnel.
     #[error(display = "Failed to stop wireguard tunnel - {}", status)]

@@ -347,7 +347,7 @@ impl TunnelState for ConnectingState {
                         #[cfg(not(windows))]
                         Err(
                             error @ tunnel::Error::WireguardTunnelMonitoringError(
-                                tunnel::wireguard::Error::StartWireguardError { status: -2 },
+                                tunnel::wireguard::Error::RecoverableStartWireguardError,
                             ),
                         ) => {
                             log::warn!(
