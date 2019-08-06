@@ -100,5 +100,4 @@ mod tests {
             assert_eq!(*expected_output, parse_string(input));
         }
     }
-
 }
