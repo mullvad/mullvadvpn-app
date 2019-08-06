@@ -120,9 +120,9 @@ mod os {
             .map(|abis| format!(" (ABI list: {})", abis))
             .unwrap_or_else(String::new);
 
-        let manufacturer = get_prop("ro.product.manufacturer").unwrap_or_else(String::new);
-        let product = get_prop("ro.product.model").unwrap_or_else(String::new);
-        let build = get_prop("ro.build.display.id").unwrap_or_else(String::new);
+        let manufacturer = get_prop("ro.product.manufacturer").unwrap_or_default();
+        let product = get_prop("ro.product.model").unwrap_or_default();
+        let build = get_prop("ro.build.display.id").unwrap_or_default();
 
         format!(
             "Android {}{}{} - {} {} {}",
