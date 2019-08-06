@@ -83,7 +83,7 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
     private fun updateUpgradeVersion() {
         val target = if (isStable) latestStable else latest
 
-        if (target == version) {
+        if (target == version || target == null) {
             isLatest = true
             upgradeVersion = null
         } else {
