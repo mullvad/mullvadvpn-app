@@ -76,7 +76,7 @@ class ConnectionProxy(val parentActivity: MainActivity) {
 
     private fun anticipateConnectingState(): Boolean {
         synchronized(this) {
-            val currentState = state
+            val currentState = uiState
 
             if (currentState is TunnelState.Connecting || currentState is TunnelState.Connected) {
                 return false
@@ -89,7 +89,7 @@ class ConnectionProxy(val parentActivity: MainActivity) {
 
     private fun anticipateDisconnectingState(): Boolean {
         synchronized(this) {
-            val currentState = state
+            val currentState = uiState
 
             if (currentState is TunnelState.Disconnected) {
                 return false
