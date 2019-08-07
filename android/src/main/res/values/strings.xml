@@ -95,6 +95,23 @@
         While connected, your real location is masked with a private and secure location in the
         selected region
     </string>
+    <string name="wireguard_key">WireGuard key</string>
+    <string name="wireguard_public_key">Public key</string>
+    <string name="wireguard_validate_key">Validate key</string>
+    <string name="wireguard_generate_key">Generate key</string>
+    <string name="wireguard_key_visit_website">Manage your keys on website</string>
+    <string name="wireguard_key_connectivity">
+        Connectivity required to manage your key.
+    </string>
+    <string name="wireguard_key_valid">
+        Key is valid
+    </string>
+    <string name="wireguard_key_invalid">
+        Key is invalid
+    </string>
+    <string name="wireguard_key_verification_failure">
+        Failed to validate key
+    </string>
 
     <string name="account_url">https://mullvad.net/en/account</string>
     <string name="download_url">https://mullvad.net/en/download</string>

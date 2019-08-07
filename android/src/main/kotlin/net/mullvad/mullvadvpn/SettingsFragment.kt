@@ -55,8 +55,11 @@ class SettingsFragment : Fragment() {
         view.findViewById<View>(R.id.account).setOnClickListener {
             openSubFragment(AccountFragment())
         }
+        view.findViewById<View>(R.id.wireguard_keys).setOnClickListener {
+            openSubFragment(WireguardKeyFragment())
+        }
         view.findViewById<View>(R.id.app_version).setOnClickListener {
-            openLink("https://mullvad.net/download/")
+            openLink(R.string.download_url)
         }
         view.findViewById<View>(R.id.report_a_problem).setOnClickListener {
             openSubFragment(ProblemReportFragment())
@@ -104,8 +107,8 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun openLink(url: String) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    private fun openLink(urlResourceId: Int) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(parentActivity.getString(urlResourceId)))
 
         startActivity(intent)
     }
