@@ -9,7 +9,7 @@ cd $UPLOAD_DIR
 
 while true; do
   sleep 10
-  for f_checksum in MullvadVPN-*.{deb,rpm,exe,pkg}.sha256; do
+  for f_checksum in MullvadVPN-*.{deb,rpm,exe,pkg,apk}.sha256; do
     sleep 1
     f="${f_checksum/.sha256/}"
     if ! sha256sum --quiet -c "$f_checksum"; then
@@ -17,7 +17,7 @@ while true; do
       continue
     fi
 
-    version=$(echo $f | sed -Ee 's/MullvadVPN-(.*)(\.exe|\.pkg|_amd64\.deb|_x86_64\.rpm)/\1/g')
+    version=$(echo $f | sed -Ee 's/MullvadVPN-(.*)(\.exe|\.pkg|_amd64\.deb|_x86_64\.rpm|.apk)/\1/g')
     ssh build.mullvad.net mkdir -p "app/$version" || continue
     scp -pB "$f" build.mullvad.net:app/$version/ || continue
 
