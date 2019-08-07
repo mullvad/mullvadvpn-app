@@ -55,7 +55,7 @@ export default class WireguardKeys extends Component<IProps> {
                   disabled={this.props.isOffline}
                   onPress={this.props.onVisitWebsiteKey}>
                   <AppButton.Label>
-                    {messages.pgettext('wireguard-key-view', 'Manage keys in website')}
+                    {messages.pgettext('wireguard-key-view', 'Manage keys')}
                   </AppButton.Label>
                   <AppButton.Icon source="icon-extLink" height={16} width={16} />
                 </AppButton.GreenButton>
