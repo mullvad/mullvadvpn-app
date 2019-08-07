@@ -8,7 +8,7 @@ use mullvad_types::{
         Constraint, InternalBridgeConstraints, LocationConstraint, Match, OpenVpnConstraints,
         RelayConstraints, TunnelProtocol, WireguardConstraints,
     },
-    relay_list::{Relay, RelayList, RelayTunnels, WireguardEndpointData},
+    relay_list::{OpenVpnEndpointData, Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
 use parking_lot::Mutex;
 use std::{
@@ -257,11 +257,12 @@ impl RelaySelector {
                         protocol: Constraint::Only(preferred_protocol),
                     };
                 } else {
-                    relay_constraints.openvpn_constraints = OpenVpnConstraints {
-                        port: original_constraints.openvpn_constraints.port,
-                        protocol: original_constraints.openvpn_constraints.protocol,
-                    };
+                    relay_constraints.openvpn_constraints =
+                        original_constraints.openvpn_constraints;
                 }
+                // TODO: remove this constraint once WireGuard can be enabled in auto-relay
+                // selection.
+                relay_constraints.tunnel_protocol = Constraint::Only(TunnelProtocol::OpenVpn);
             }
             Constraint::Only(TunnelProtocol::OpenVpn) => {
                 relay_constraints.openvpn_constraints = original_constraints.openvpn_constraints;
@@ -362,23 +363,43 @@ impl RelaySelector {
             return None;
         }
 
+
         let relay = match constraints.tunnel_protocol {
-            Constraint::Any => relay.clone(),
+            Constraint::Any => {
+                let mut relay = relay.clone();
+                relay.tunnels = RelayTunnels {
+                    wireguard: Self::matching_wireguard_tunnels(
+                        &relay.tunnels,
+                        &constraints.wireguard_constraints,
+                    ),
+                    openvpn: Self::matching_openvpn_tunnels(
+                        &relay.tunnels,
+                        &constraints.openvpn_constraints,
+                    ),
+                };
+                relay
+            }
             Constraint::Only(TunnelProtocol::Wireguard) => {
                 let mut relay = relay.clone();
-                relay.tunnels = Self::matching_wireguard_tunnels(
-                    &relay.tunnels,
-                    &constraints.wireguard_constraints,
-                );
+                relay.tunnels = RelayTunnels {
+                    wireguard: Self::matching_wireguard_tunnels(
+                        &relay.tunnels,
+                        &constraints.wireguard_constraints,
+                    ),
+                    openvpn: vec![],
+                };
                 relay
             }
 
             Constraint::Only(TunnelProtocol::OpenVpn) => {
                 let mut relay = relay.clone();
-                relay.tunnels = Self::matching_openvpn_tunnels(
-                    &relay.tunnels,
-                    &constraints.openvpn_constraints,
-                );
+                relay.tunnels = RelayTunnels {
+                    openvpn: Self::matching_openvpn_tunnels(
+                        &relay.tunnels,
+                        &constraints.openvpn_constraints,
+                    ),
+                    wireguard: vec![],
+                };
                 relay
             }
         };
@@ -447,31 +468,25 @@ impl RelaySelector {
     fn matching_openvpn_tunnels(
         tunnels: &RelayTunnels,
         constraints: &OpenVpnConstraints,
-    ) -> RelayTunnels {
-        RelayTunnels {
-            openvpn: tunnels
-                .openvpn
-                .iter()
-                .filter(|endpoint| constraints.matches(*endpoint))
-                .cloned()
-                .collect(),
-            wireguard: vec![],
-        }
+    ) -> Vec<OpenVpnEndpointData> {
+        tunnels
+            .openvpn
+            .iter()
+            .filter(|endpoint| constraints.matches(*endpoint))
+            .cloned()
+            .collect()
     }
 
     fn matching_wireguard_tunnels(
         tunnels: &RelayTunnels,
         constraints: &WireguardConstraints,
-    ) -> RelayTunnels {
-        RelayTunnels {
-            openvpn: vec![],
-            wireguard: tunnels
-                .wireguard
-                .iter()
-                .filter(|endpoint| constraints.matches(*endpoint))
-                .cloned()
-                .collect(),
-        }
+    ) -> Vec<WireguardEndpointData> {
+        tunnels
+            .wireguard
+            .iter()
+            .filter(|endpoint| constraints.matches(*endpoint))
+            .cloned()
+            .collect()
     }
     /// Pick a random relay from the given slice. Will return `None` if the given slice is empty
     /// or all relays in it has zero weight.
