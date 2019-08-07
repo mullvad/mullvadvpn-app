@@ -20,6 +20,7 @@ CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"$SCRIPT_DIR/target"}
 source env.sh ""
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
+    BUILD_MODE="release"
     if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
         echo "Dirty working directory!"
         echo "You should only build releases in clean working directories in order to make it"
@@ -46,12 +47,13 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
         export CSC_IDENTITY_AUTO_DISCOVERY=false
     fi
 else
+    BUILD_MODE="dev"
     echo "!! Development build. Not for general distribution !!"
     unset CSC_LINK CSC_KEY_PASSWORD
     export CSC_IDENTITY_AUTO_DISCOVERY=false
 fi
 
-if [[ "${1:-""}" == "--dev-build" || $(git describe) != "$PRODUCT_VERSION" ]]; then
+if [[ "$BUILD_MODE" == "dev" || $(git describe) != "$PRODUCT_VERSION" ]]; then
     GIT_COMMIT=$(git rev-parse --short HEAD)
     PRODUCT_VERSION="$PRODUCT_VERSION-dev-$GIT_COMMIT"
     echo "Modifying product version to $PRODUCT_VERSION"
@@ -65,7 +67,7 @@ SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 
 function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
-    if [[ "${1:-""}" == "--dev-build" ]]; then
+    if [[ "$BUILD_MODE" == "dev" ]]; then
         mv gui/electron-builder.yml.bak gui/electron-builder.yml || true
     fi
     mv gui/package.json.bak gui/package.json || true
@@ -80,7 +82,7 @@ function restore_metadata_backups() {
 }
 trap 'restore_metadata_backups' EXIT
 
-if [[ "${1:-""}" == "--dev-build" ]]; then
+if [[ "$BUILD_MODE" == "dev" ]]; then
     # Disable installer compression on *explicit* dev builds.
     # This does not disable compression on build server builds, since they
     # always run without --dev-buid.
