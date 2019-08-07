@@ -65,6 +65,9 @@ SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 
 function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
+    if [[ "${1:-""}" == "--dev-build" ]]; then
+        mv gui/electron-builder.yml.bak gui/electron-builder.yml || true
+    fi
     mv gui/package.json.bak gui/package.json || true
     mv gui/package-lock.json.bak gui/package-lock.json || true
     mv Cargo.lock.bak Cargo.lock || true
@@ -73,7 +76,6 @@ function restore_metadata_backups() {
     mv mullvad-problem-report/Cargo.toml.bak mullvad-problem-report/Cargo.toml || true
     mv talpid-openvpn-plugin/Cargo.toml.bak talpid-openvpn-plugin/Cargo.toml || true
     mv dist-assets/windows/version.h.bak dist-assets/windows/version.h || true
-    mv gui/electron-builder.yml.bak gui/electron-builder.yml || true
     popd
 }
 trap 'restore_metadata_backups' EXIT
