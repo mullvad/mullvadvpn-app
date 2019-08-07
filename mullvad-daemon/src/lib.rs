@@ -1208,7 +1208,12 @@ where
         }
     }
 
+    #[cfg_attr(target_os = "windows", allow(unreachable_code))]
     fn ensure_wireguard_keys_for_current_account(&mut self) {
+        #[cfg(target_os = "windows")]
+        {
+            return;
+        }
         if let Some(account) = self.settings.get_account_token() {
             if self
                 .account_history
