@@ -27,12 +27,9 @@ fi
 
 if [[ "$BUILD_TYPE" == "debug" || "$(git describe)" != "$PRODUCT_VERSION" ]]; then
     GIT_COMMIT="$(git rev-parse --short HEAD)"
-    APK_VERSION="${PRODUCT_VERSION}-dev-${GIT_COMMIT}"
-else
-    APK_VERSION="$PRODUCT_VERSION"
+    PRODUCT_VERSION="${PRODUCT_VERSION}-dev-${GIT_COMMIT}"
+    echo "Modifying product version to $PRODUCT_VERSION"
 fi
-
-ARCHITECTURES="aarch64 armv7 x86_64 i686"
 
 cd "$SCRIPT_DIR/android"
 ./gradlew --console plain clean
@@ -40,6 +37,7 @@ mkdir -p "${SCRIPT_DIR}/android/build/extraJni"
 
 cd "$SCRIPT_DIR"
 
+ARCHITECTURES="aarch64 armv7 x86_64 i686"
 for ARCHITECTURE in $ARCHITECTURES; do
     case "$ARCHITECTURE" in
         "x86_64")
@@ -70,7 +68,15 @@ done
 cd "$SCRIPT_DIR/android"
 ./gradlew --console plain "$GRADLE_TASK"
 
-GENERATED_APK="$SCRIPT_DIR/android/build/outputs/apk/$BUILD_TYPE/android-$BUILD_TYPE.apk"
+mkdir -p "$SCRIPT_DIR/dist"
+cp  "$SCRIPT_DIR/android/build/outputs/apk/$BUILD_TYPE/android-$BUILD_TYPE.apk" \
+    "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${APK_SUFFIX}.apk"
 
-mkdir -p ../dist
-cp "$GENERATED_APK" "$SCRIPT_DIR/dist/MullvadVPN-${APK_VERSION}${APK_SUFFIX}.apk"
+echo "**********************************"
+echo ""
+echo " The build finished successfully! "
+echo " You have built:"
+echo ""
+echo " $PRODUCT_VERSION"
+echo ""
+echo "**********************************"
