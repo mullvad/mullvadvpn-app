@@ -116,13 +116,12 @@ mod os {
         let api_level = get_prop("ro.build.version.sdk").unwrap_or("N/A");
         let abi_list = get_prop("ro.product.cpu.abilist").unwrap_or("N/A");
 
-        let manufacturer = get_prop("ro.product.manufacturer").unwrap_or_default();
-        let product = get_prop("ro.product.model").unwrap_or_default();
-        let build = get_prop("ro.build.display.id").unwrap_or_default();
+        let manufacturer = get_prop("ro.product.manufacturer").unwrap_or("Unknown brand");
+        let product = get_prop("ro.product.model").unwrap_or("Unknown model");
 
         format!(
-            "Android {} (API level: {}) (ABI list: {}) - {} {} {}",
-            version, api_level, abi_list, manufacturer, product, build
+            "Android {} (API: {}) - {} {}",
+            version, api_level, manufacturer, product
         )
     }
 
