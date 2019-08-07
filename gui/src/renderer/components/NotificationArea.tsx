@@ -65,7 +65,7 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
     case 'no_matching_relay':
       return messages.pgettext(
         'in-app-notifications',
-        'No relay server matches the current settings',
+        'No relay server matches the current settings. You can try changing the location or the relay settings.',
       );
     case 'is_offline':
       return messages.pgettext(
