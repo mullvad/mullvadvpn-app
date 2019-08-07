@@ -11,11 +11,14 @@ pub fn collect() -> BTreeMap<String, String> {
         PRODUCT_VERSION.to_owned(),
     );
     metadata.insert("os".to_owned(), os::version());
+    metadata.extend(os::extra_metadata());
     metadata
 }
 
 #[cfg(target_os = "linux")]
 mod os {
+    use std::collections::HashMap;
+
     pub fn version() -> String {
         // The OS version information is obtained first from the os-release file. If that
         // information is incomplete or unavailable, an attempt is made to obtain the
@@ -67,10 +70,16 @@ mod os {
             }
         })
     }
+
+    pub fn extra_metadata() -> HashMap<String, String> {
+        HashMap::new()
+    }
 }
 
 #[cfg(target_os = "macos")]
 mod os {
+    use std::collections::HashMap;
+
     pub fn version() -> String {
         format!(
             "macOS {}",
@@ -78,10 +87,16 @@ mod os {
                 .unwrap_or(String::from("[Failed to detect version]"))
         )
     }
+
+    pub fn extra_metadata() -> HashMap<String, String> {
+        HashMap::new()
+    }
 }
 
 #[cfg(windows)]
 mod os {
+    use std::collections::HashMap;
+
     pub fn version() -> String {
         let system_info =
             super::command_stdout_lossy("systeminfo", &["/FO", "LIST"]).unwrap_or_else(String::new);
@@ -107,14 +122,19 @@ mod os {
         let full_version = full_version.unwrap_or("N/A");
         format!("Windows {} ({})", version, full_version)
     }
+
+    pub fn extra_metadata() -> HashMap<String, String> {
+        HashMap::new()
+    }
 }
 
 #[cfg(target_os = "android")]
 mod os {
+    use std::collections::HashMap;
+
     pub fn version() -> String {
         let version = get_prop("ro.build.version.release").unwrap_or("N/A");
         let api_level = get_prop("ro.build.version.sdk").unwrap_or("N/A");
-        let abi_list = get_prop("ro.product.cpu.abilist").unwrap_or("N/A");
 
         let manufacturer = get_prop("ro.product.manufacturer").unwrap_or("Unknown brand");
         let product = get_prop("ro.product.model").unwrap_or("Unknown model");
@@ -123,6 +143,15 @@ mod os {
             "Android {} (API: {}) - {} {}",
             version, api_level, manufacturer, product
         )
+    }
+
+    pub fn extra_metadata() -> HashMap<String, String> {
+        let mut metadata = HashMap::new();
+        metadata.insert(
+            "abi".to_owned(),
+            get_prop("ro.product.cpu.abilist").unwrap_or("N/A"),
+        );
+        metadata
     }
 
     fn get_prop(property: &str) -> Option<String> {
