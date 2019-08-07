@@ -58,6 +58,7 @@ for ARCHITECTURE in $ARCHITECTURES; do
             ;;
     esac
 
+    echo "Building mullvad-daemon for $TARGET"
     source env.sh "$TARGET"
     cargo build $CARGO_FLAGS --target "$TARGET" --package mullvad-jni
 
