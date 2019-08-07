@@ -59,14 +59,6 @@ else
     echo "Removing old Rust build artifacts"
     cargo +stable clean
 fi
-if [[ "${1:-""}" == "--dev-build" ]]; then
-    # Disable installer compression on *explicit* dev builds.
-    # This does not disable compression on build server builds, since they
-    # always run without --dev-buid.
-    echo "Disabling compression of installer in this dev build"
-    cp gui/electron-builder.yml gui/electron-builder.yml.bak
-    echo "compression: store" >> gui/electron-builder.yml
-fi
 
 echo "Building Mullvad VPN $PRODUCT_VERSION"
 SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
@@ -85,6 +77,15 @@ function restore_metadata_backups() {
     popd
 }
 trap 'restore_metadata_backups' EXIT
+
+if [[ "${1:-""}" == "--dev-build" ]]; then
+    # Disable installer compression on *explicit* dev builds.
+    # This does not disable compression on build server builds, since they
+    # always run without --dev-buid.
+    echo "Disabling compression of installer in this dev build"
+    cp gui/electron-builder.yml gui/electron-builder.yml.bak
+    echo "compression: store" >> gui/electron-builder.yml
+fi
 
 sed -i.bak \
     -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
