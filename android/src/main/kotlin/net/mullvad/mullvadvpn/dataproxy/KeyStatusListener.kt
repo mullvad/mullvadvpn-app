@@ -6,6 +6,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
+import android.util.Log
+
 import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.KeygenEvent
 
@@ -38,13 +40,26 @@ class KeyStatusListener(val asyncDaemon: Deferred<MullvadDaemon>) {
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
         daemon = asyncDaemon.await()
         daemon?.onKeygenEvent = { event -> keyStatus = event }
+        val wireguardKey = daemon?.getWireguardKey()
+        if (wireguardKey != null) {
+                keyStatus = KeygenEvent.NewKey(wireguardKey, null)
+        }
     }
 
-    fun onResume() {
-        if (keyStatus is KeygenEvent.TooManyKeys || keyStatus is KeygenEvent.GenerationFailure) {
-            retryJob?.cancel()
-            retryJob = retryKeyGeneration()
-        }
+    fun generateKey() = GlobalScope.launch(Dispatchers.Default) {
+            setUpJob.join()
+            keyStatus = daemon?.generateWireguardKey()
+    }
+
+    fun verifyKey() = GlobalScope.launch(Dispatchers.Default) {
+            setUpJob.join()
+            val verified = daemon?.verifyWireguardKey()
+            // Only update verification status if the key is actually there
+            when (val state = keyStatus ){
+                    is KeygenEvent.NewKey -> {
+                            keyStatus = KeygenEvent.NewKey(state.publicKey, verified)
+                    }
+            }
     }
 
     fun onDestroy() {

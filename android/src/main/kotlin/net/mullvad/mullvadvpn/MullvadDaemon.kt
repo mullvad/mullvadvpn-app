@@ -35,6 +35,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     external fun setAccount(accountToken: String?)
     external fun shutdown()
     external fun updateRelaySettings(update: RelaySettingsUpdate)
+    external fun verifyWireguardKey(): Boolean?
 
     private external fun initialize(vpnService: MullvadVpnService)
 

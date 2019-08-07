@@ -101,7 +101,6 @@ class MainActivity : FragmentActivity() {
 
     override fun onResume() {
         super.onResume()
-        keyStatusListener.onResume()
     }
 
     override fun onStop() {
