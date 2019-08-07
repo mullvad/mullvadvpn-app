@@ -133,11 +133,12 @@ mod os {
     use std::collections::HashMap;
 
     pub fn version() -> String {
-        let version = get_prop("ro.build.version.release").unwrap_or("N/A");
-        let api_level = get_prop("ro.build.version.sdk").unwrap_or("N/A");
+        let version = get_prop("ro.build.version.release").unwrap_or_else(|| "N/A".to_owned());
+        let api_level = get_prop("ro.build.version.sdk").unwrap_or_else(|| "N/A".to_owned());
 
-        let manufacturer = get_prop("ro.product.manufacturer").unwrap_or("Unknown brand");
-        let product = get_prop("ro.product.model").unwrap_or("Unknown model");
+        let manufacturer =
+            get_prop("ro.product.manufacturer").unwrap_or_else(|| "Unknown brand".to_owned());
+        let product = get_prop("ro.product.model").unwrap_or_else(|| "Unknown model".to_owned());
 
         format!(
             "Android {} (API: {}) - {} {}",
@@ -149,7 +150,7 @@ mod os {
         let mut metadata = HashMap::new();
         metadata.insert(
             "abi".to_owned(),
-            get_prop("ro.product.cpu.abilist").unwrap_or("N/A"),
+            get_prop("ro.product.cpu.abilist").unwrap_or_else(|| "N/A".to_owned()),
         );
         metadata
     }
