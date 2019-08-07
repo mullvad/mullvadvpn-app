@@ -222,7 +222,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   {process.platform !== 'win32' ? (
                     <View style={styles.advanced_settings__content}>
                       <Selector
-                        title={messages.pgettext('advanced-settings-view', 'Tunnel protocols')}
+                        title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
                         values={this.tunnelProtocolItems}
                         value={this.props.tunnelProtocol}
                         onSelect={this.onSelectTunnelProtocol}
@@ -236,7 +236,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     <Selector
                       title={messages.pgettext(
                         'advanced-settings-view',
-                        'OpenVPN transport protocols',
+                        'OpenVPN transport protocol',
                       )}
                       values={this.protocolItems}
                       value={this.props.openvpn.protocol}
@@ -249,7 +249,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                           // TRANSLATORS: The title for the port selector section.
                           // TRANSLATORS: Available placeholders:
                           // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
-                          messages.pgettext('advanced-settings-view', '%(portType)s port'),
+                          messages.pgettext('advanced-settings-view', 'OpenVPN %(portType)s port'),
                           {
                             portType: this.props.openvpn.protocol.toUpperCase(),
                           },
