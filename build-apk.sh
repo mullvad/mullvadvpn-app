@@ -58,7 +58,7 @@ for ARCHITECTURE in $ARCHITECTURES; do
             ;;
     esac
 
-    . env.sh "$TARGET"
+    source env.sh "$TARGET"
     cargo build $CARGO_FLAGS --target "$TARGET" --package mullvad-jni
 
     cp -a "$SCRIPT_DIR/dist-assets/binaries/$TARGET" "$SCRIPT_DIR/android/build/extraJni/$ABI"
