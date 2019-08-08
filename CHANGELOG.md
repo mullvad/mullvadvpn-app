@@ -23,7 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-
+### Changed
+- Improve bridge and relay setting interaction.
 
 ## [2019.7-beta1] - 2019-08-08
 ### Added
