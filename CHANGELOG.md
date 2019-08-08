@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.7-beta1] - 2019-08-08
 ### Added
 - Add new settings page for generating and verifying wireguard keys.
 - Automatically generate and upload WireGuard keys on Linux and macOS.
