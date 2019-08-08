@@ -66,7 +66,7 @@ sign_win() {
 
 upload() {
   current_hash=$1
-  for f in MullvadVPN-*.{deb,rpm,exe,pkg}; do
+  for f in MullvadVPN-*.{deb,rpm,exe,pkg,apk}; do
     sha256sum "$f" > "$f.sha256"
     case "$(uname -s)" in
       # Linux is both the build and upload server. Just move directly to target dir
@@ -128,6 +128,10 @@ build_ref() {
       sign_win || return 0
       echo "Packaging all PDB files..."
       find ./windows/ -iname "*.pdb" | tar -cJf $SCRIPT_DIR/pdb/$current_hash.tar.xz -T -
+      ;;
+    Linux*)
+      echo "Building Android APK"
+      ./build-apk.sh || return 0
       ;;
   esac
 
