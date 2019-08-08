@@ -25,16 +25,22 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add new settings page for generating and verifying wireguard keys.
+- Automatically generate and upload WireGuard keys on Linux and macOS.
+- Allow activating and using WireGuard from the GUI under advanced settings on Linux and macOS.
 - Add `factory-reset` CLI command for removing settings, logs and clearing the cache.
 
 ### Changed
 - Upgrade OpenVPN from 2.4.6 to 2.4.7.
 - Upgrade OpenSSL from 1.1.0h to 1.1.1c.
+- Upgrade wireguard-go library to v0.0.20190805.
 
 ### Fixed
 - Mark CLI `bridge set state` argument as required to avoid a crash.
 - The VPN service on Windows will now be restarted when it crashes.
 - Retry to connect when WireGuard tunnel fails due to a bad file descriptor.
+
+#### Linux
+- Improve resolv.conf based DNS management to detect changes to file.
 
 
 ## [2019.6] - 2019-07-15
