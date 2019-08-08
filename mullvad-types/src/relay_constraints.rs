@@ -353,6 +353,31 @@ pub enum RelaySettingsUpdate {
     Normal(RelayConstraintsUpdate),
 }
 
+impl RelaySettingsUpdate {
+    /// Returns false if the specified relay settings update explicitly do not allow for bridging
+    /// (i.e. use UDP instead of TCP)
+    pub fn supports_bridge(&self) -> bool {
+        match &self {
+            RelaySettingsUpdate::CustomTunnelEndpoint(endpoint) => {
+                endpoint.endpoint().protocol == TransportProtocol::Tcp
+            }
+            RelaySettingsUpdate::Normal(update) => {
+                if let Some(Constraint::Only(TunnelProtocol::Wireguard)) = &update.tunnel_protocol {
+                    false
+                } else if let Some(constraints) = &update.openvpn_constraints {
+                    if let Constraint::Only(TransportProtocol::Udp) = &constraints.protocol {
+                        false
+                    } else {
+                        true
+                    }
+                } else {
+                    true
+                }
+            }
+        }
+    }
+}
+
 #[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct RelayConstraintsUpdate {
