@@ -91,6 +91,31 @@ impl RelaySettings {
             }),
         }
     }
+
+    pub(crate) fn ensure_bridge_compatibility(&mut self) {
+        match self {
+            RelaySettings::Normal(ref mut constraints) => {
+                if constraints.tunnel_protocol == Constraint::Only(TunnelProtocol::Wireguard) {
+                    constraints.tunnel_protocol = Constraint::Any;
+                }
+                if constraints.openvpn_constraints.protocol
+                    == Constraint::Only(TransportProtocol::Udp)
+                {
+                    constraints.openvpn_constraints = OpenVpnConstraints {
+                        protocol: Constraint::Any,
+                        port: Constraint::Any,
+                    }
+                }
+            }
+            RelaySettings::CustomTunnelEndpoint(config) => {
+                if config.endpoint().protocol == TransportProtocol::Udp {
+                    log::warn!(
+                        "Using custom tunnel endpoint with UDP, bridges will likely not work"
+                    );
+                }
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]

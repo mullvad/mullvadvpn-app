@@ -37,8 +37,8 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{
-        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, OpenVpnConstraints,
-        RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TunnelProtocol,
+        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, RelaySettings,
+        RelaySettingsUpdate,
     },
     relay_list::{Relay, RelayList},
     states::{TargetState, TunnelState},
@@ -1140,15 +1140,6 @@ where
         let result = match self.settings.set_bridge_state(bridge_state.clone()) {
             Ok(settings_changed) => {
                 if settings_changed {
-                    if bridge_state == BridgeState::On {
-                        if let Err(e) = self.apply_proxy_constraints() {
-                            log::error!(
-                                "{}",
-                                e.display_chain_with_msg("Failed to apply proxy constraints")
-                            );
-                        }
-                    }
-
                     self.event_listener.notify_settings(self.settings.clone());
                     log::info!("Initiating tunnel restart because bridge state changed");
                     self.reconnect_tunnel();
@@ -1166,21 +1157,6 @@ where
         Self::oneshot_send(tx, result, "on_set_bridge_state response");
     }
 
-    // Set the OpenVPN tunnel to use TCP.
-    fn apply_proxy_constraints(&mut self) -> settings::Result<bool> {
-        let constraints_update = RelayConstraintsUpdate {
-            tunnel_protocol: Some(Constraint::Only(TunnelProtocol::OpenVpn)),
-            openvpn_constraints: Some(OpenVpnConstraints {
-                protocol: Constraint::Any,
-                port: Constraint::Any,
-            }),
-            ..Default::default()
-        };
-
-        let settings_update = RelaySettingsUpdate::Normal(constraints_update);
-
-        self.settings.update_relay_settings(settings_update)
-    }
 
     fn on_set_enable_ipv6(&mut self, tx: oneshot::Sender<()>, enable_ipv6: bool) {
         let save_result = self.settings.set_enable_ipv6(enable_ipv6);
