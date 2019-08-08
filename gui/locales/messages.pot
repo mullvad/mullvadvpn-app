@@ -47,6 +47,10 @@ msgid "Currently unavailable"
 msgstr ""
 
 msgctxt "account-view"
+msgid "Key is valid"
+msgstr ""
+
+msgctxt "account-view"
 msgid "Log out"
 msgstr ""
 
@@ -66,13 +70,6 @@ msgstr ""
 #. Back button in navigation bar
 msgctxt "advanced-settings-nav"
 msgid "Settings"
-msgstr ""
-
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
-msgctxt "advanced-settings-view"
-msgid "%(portType)s port"
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -109,15 +106,26 @@ msgid "Mssfix"
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "Network protocols"
-msgstr ""
-
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "On"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN"
+msgstr ""
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "OpenVPN %(portType)s port"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN transport protocol"
 msgstr ""
 
 #. The hint displayed below the Mssfix input field.
@@ -133,6 +141,10 @@ msgid "TCP"
 msgstr ""
 
 msgctxt "advanced-settings-view"
+msgid "Tunnel protocol"
+msgstr ""
+
+msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr ""
 
@@ -142,6 +154,18 @@ msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard keys"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard port"
 msgstr ""
 
 msgctxt "auth-failure"
@@ -276,7 +300,7 @@ msgid "Install Mullvad VPN (%(version)s) to stay up to date"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings"
+msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -380,6 +404,10 @@ msgstr ""
 
 msgctxt "notifications"
 msgid "Unsecured"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Wireguard key generation failed"
 msgstr ""
 
 #. The system notification displayed to the user when the running app becomes unsupported.
@@ -599,4 +627,53 @@ msgstr ""
 
 msgctxt "tunnel-control"
 msgid "Switch location"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Account has too many keys already"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate key"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Generate key"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Generating key"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Key is invalid"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Manage keys"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "No key set"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Verify key"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Verifying key"
+msgstr ""
+
+msgctxt "wireguard-keys"
+msgid "Public key"
+msgstr ""
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "Advanced"
+msgstr ""
+
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard keys"
 msgstr ""
