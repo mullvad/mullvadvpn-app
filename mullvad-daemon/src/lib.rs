@@ -1171,7 +1171,7 @@ where
         let constraints_update = RelayConstraintsUpdate {
             tunnel_protocol: Some(Constraint::Only(TunnelProtocol::OpenVpn)),
             openvpn_constraints: Some(OpenVpnConstraints {
-                protocol: Constraint::Only(TransportProtocol::Tcp),
+                protocol: Constraint::Any,
                 port: Constraint::Any,
             }),
             ..Default::default()
