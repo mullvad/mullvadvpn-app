@@ -4,7 +4,7 @@ use std::{
     fmt, io,
     net::{IpAddr, SocketAddr, ToSocketAddrs},
 };
-use talpid_types::net::{openvpn, wireguard, TunnelParameters};
+use talpid_types::net::{openvpn, wireguard, Endpoint, TunnelParameters};
 
 
 #[derive(err_derive::Error, Debug)]
@@ -26,6 +26,13 @@ pub struct CustomTunnelEndpoint {
 impl CustomTunnelEndpoint {
     pub fn new(host: String, config: ConnectionConfig) -> Self {
         Self { host, config }
+    }
+
+    pub fn endpoint(&self) -> Endpoint {
+        match &self.config {
+            ConnectionConfig::OpenVpn(config) => config.endpoint,
+            ConnectionConfig::Wireguard(config) => config.get_endpoint(),
+        }
     }
 
     pub fn to_tunnel_parameters(
