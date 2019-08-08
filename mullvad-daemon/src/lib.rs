@@ -554,7 +554,11 @@ where
                 }
                 RelaySettings::Normal(constraints) => self
                     .relay_selector
-                    .get_tunnel_endpoint(&constraints, retry_attempt)
+                    .get_tunnel_endpoint(
+                        &constraints,
+                        self.settings.get_bridge_state(),
+                        retry_attempt,
+                    )
                     .map_err(|e| {
                         e.display_chain_with_msg(
                             "No valid relay servers match the current settings",
