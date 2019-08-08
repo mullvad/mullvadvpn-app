@@ -16,6 +16,10 @@ msgstr ""
 msgid "Tirana"
 msgstr "地拉那"
 
+#. AU ADL
+msgid "Adelaide"
+msgstr ""
+
 #. AU BNE
 msgid "Brisbane"
 msgstr "布利斯班"
@@ -103,10 +107,6 @@ msgstr "布達佩斯"
 #. IN PNQ
 msgid "Pune"
 msgstr "浦那"
-
-#. IL PET
-msgid "Petach-Tikva"
-msgstr "佩塔提克瓦"
 
 #. IL TLV
 msgid "Tel Aviv"
@@ -207,6 +207,10 @@ msgstr "曼徹斯特"
 #. UA IEV
 msgid "Kiev"
 msgstr "基輔"
+
+#. AE DXB
+msgid "Dubai"
+msgstr ""
 
 #. US ATL
 msgid "Atlanta, GA"
@@ -328,3 +332,6 @@ msgstr "密蘇里州，聖路易"
 msgid "Washington DC"
 msgstr "華盛頓特區"
 
+#. IL PET
+msgid "Petach-Tikva"
+msgstr "佩塔提克瓦"

@@ -16,6 +16,10 @@ msgstr ""
 msgid "Tirana"
 msgstr "Tirana"
 
+#. AU ADL
+msgid "Adelaide"
+msgstr "Adelaide"
+
 #. AU BNE
 msgid "Brisbane"
 msgstr "Brisbane"
@@ -103,10 +107,6 @@ msgstr "Budapest"
 #. IN PNQ
 msgid "Pune"
 msgstr "Pune"
-
-#. IL PET
-msgid "Petach-Tikva"
-msgstr "Petach-Tikva"
 
 #. IL TLV
 msgid "Tel Aviv"
@@ -207,6 +207,10 @@ msgstr "Manchester"
 #. UA IEV
 msgid "Kiev"
 msgstr "Kiev"
+
+#. AE DXB
+msgid "Dubai"
+msgstr "Dubai"
 
 #. US ATL
 msgid "Atlanta, GA"
@@ -328,3 +332,6 @@ msgstr "Saint Louis, MO"
 msgid "Washington DC"
 msgstr "Washington DC"
 
+#. IL PET
+msgid "Petach-Tikva"
+msgstr "Petach-Tikva"
