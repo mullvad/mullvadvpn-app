@@ -55,7 +55,7 @@ use talpid_core::{
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::{openvpn, TransportProtocol, TunnelParameters},
+    net::{openvpn, TunnelParameters},
     tunnel::{BlockReason, TunnelStateTransition},
     ErrorExt,
 };
@@ -1171,7 +1171,7 @@ where
         let constraints_update = RelayConstraintsUpdate {
             tunnel_protocol: Some(Constraint::Only(TunnelProtocol::OpenVpn)),
             openvpn_constraints: Some(OpenVpnConstraints {
-                protocol: Constraint::Only(TransportProtocol::Tcp),
+                protocol: Constraint::Any,
                 port: Constraint::Any,
             }),
             ..Default::default()
