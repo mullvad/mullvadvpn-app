@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade OpenVPN from 2.4.6 to 2.4.7.
 - Upgrade OpenSSL from 1.1.0h to 1.1.1c.
 - Upgrade wireguard-go library to v0.0.20190805.
+- Improve bridge and relay setting interaction.
 
 ### Fixed
 - Mark CLI `bridge set state` argument as required to avoid a crash.
