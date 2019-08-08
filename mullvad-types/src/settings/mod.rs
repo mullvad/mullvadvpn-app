@@ -188,8 +188,12 @@ impl Settings {
     }
 
     pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<bool> {
+        let update_supports_bridge = update.supports_bridge();
         let new_settings = self.relay_settings.merge(update);
         if self.relay_settings != new_settings {
+            if !update_supports_bridge && BridgeState::On == self.bridge_state {
+                self.bridge_state = BridgeState::Auto;
+            }
             debug!(
                 "changing relay settings from {} to {}",
                 self.relay_settings, new_settings
