@@ -298,7 +298,7 @@ impl Settings {
         if self.bridge_state != bridge_state {
             self.bridge_state = bridge_state;
             if self.bridge_state == BridgeState::On {
-                self.apply_proxy_constraints();
+                self.make_relay_constraints_bridge_compatible();
             }
             self.save().map(|_| true)
         } else {
@@ -307,9 +307,9 @@ impl Settings {
     }
 
     // Set the OpenVPN tunnel to use TCP.
-    fn apply_proxy_constraints(&mut self) {
+    fn make_relay_constraints_bridge_compatible(&mut self) {
         let constraints_update = RelayConstraintsUpdate {
-            tunnel_protocol: Some(Constraint::Only(TunnelProtocol::OpenVpn)),
+            tunnel_protocol: Some(Constraint::Any),
             openvpn_constraints: Some(OpenVpnConstraints {
                 protocol: Constraint::Any,
                 port: Constraint::Any,
