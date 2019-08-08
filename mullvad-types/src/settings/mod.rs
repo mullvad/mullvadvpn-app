@@ -1,6 +1,7 @@
 use crate::relay_constraints::{
     BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
-    RelayConstraints, RelaySettings, RelaySettingsUpdate,
+    OpenVpnConstraints, RelayConstraints, RelayConstraintsUpdate, RelaySettings,
+    RelaySettingsUpdate, TunnelProtocol,
 };
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
@@ -296,10 +297,29 @@ impl Settings {
     pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> Result<bool> {
         if self.bridge_state != bridge_state {
             self.bridge_state = bridge_state;
+            if self.bridge_state == BridgeState::On {
+                self.apply_proxy_constraints();
+            }
             self.save().map(|_| true)
         } else {
             Ok(false)
         }
+    }
+
+    // Set the OpenVPN tunnel to use TCP.
+    fn apply_proxy_constraints(&mut self) {
+        let constraints_update = RelayConstraintsUpdate {
+            tunnel_protocol: Some(Constraint::Only(TunnelProtocol::OpenVpn)),
+            openvpn_constraints: Some(OpenVpnConstraints {
+                protocol: Constraint::Any,
+                port: Constraint::Any,
+            }),
+            ..Default::default()
+        };
+
+        let settings_update = RelaySettingsUpdate::Normal(constraints_update);
+
+        self.relay_settings.merge(settings_update);
     }
 }
 
