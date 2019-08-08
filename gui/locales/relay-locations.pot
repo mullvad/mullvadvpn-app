@@ -6,6 +6,10 @@ msgstr "Content-Type: text/plain; charset=utf-8\n"
 msgid "Tirana"
 msgstr ""
 
+#. AU ADL
+msgid "Adelaide"
+msgstr ""
+
 #. AU BNE
 msgid "Brisbane"
 msgstr ""
@@ -92,10 +96,6 @@ msgstr ""
 
 #. IN PNQ
 msgid "Pune"
-msgstr ""
-
-#. IL PET
-msgid "Petach-Tikva"
 msgstr ""
 
 #. IL TLV
@@ -196,6 +196,10 @@ msgstr ""
 
 #. UA IEV
 msgid "Kiev"
+msgstr ""
+
+#. AE DXB
+msgid "Dubai"
 msgstr ""
 
 #. US ATL
