@@ -27,6 +27,10 @@ Line wrap the file at 100 chars.                                              Th
 - Check and adjust relay and bridge constraints when they are updated, so no incompatbile
   combinations are used.
 
+### Changed
+- Added more details to the block reason shown in GUI when the daemon fails to generate tunnel
+  parameters.
+
 
 ## [2019.7-beta1] - 2019-08-08
 ### Added
