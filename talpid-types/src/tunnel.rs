@@ -1,6 +1,6 @@
 use crate::net::TunnelEndpoint;
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{error::Error, fmt};
 
 /// Event resulting from a transition to a new tunnel state.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -52,12 +52,30 @@ pub enum BlockReason {
     SetDnsError,
     /// Failed to start connection to remote server.
     StartTunnelError,
-    /// No relay server matching the current filter parameters.
-    NoMatchingRelay,
+    /// Tunnel parameter generation failure
+    TunnelParameterError(ParameterGenerationError),
     /// This device is offline, no tunnels can be established.
     IsOffline,
     /// A problem with the TAP adapter has been detected.
     TapAdapterProblem,
+}
+
+/// Errors that can occur when generating tunnel parameters.
+#[derive(err_derive::Error, Debug, Serialize, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ParameterGenerationError {
+    /// Failure to select a matching tunnel relay
+    #[error(display = "Failure to select a matching tunnel relay")]
+    NoMatchingRelay,
+    /// Failure to select a matching bridge relay
+    #[error(display = "Failure to select a matching bridge relay")]
+    NoMatchingBridgeRelay,
+    /// Returned when tunnel parameters can't be generated because wireguard key is not available.
+    #[error(display = "No wireguard key available")]
+    NoWireguardKey,
+    /// Failure to resolve the hostname of a custom tunnel configuration
+    #[error(display = "Can't resolve hostname for custom tunnel host")]
+    CustomTunnelHostResultionError,
 }
 
 impl fmt::Display for BlockReason {
@@ -78,7 +96,13 @@ impl fmt::Display for BlockReason {
             SetFirewallPolicyError => "Failed to set firewall policy",
             SetDnsError => "Failed to set system DNS server",
             StartTunnelError => "Failed to start connection to remote server",
-            NoMatchingRelay => "No relay server matches the current settings",
+            TunnelParameterError(ref err) => {
+                return write!(
+                    f,
+                    "Failure to generate tunnel parameters: {}",
+                    err.description(),
+                );
+            }
             IsOffline => "This device is offline, no tunnels can be established",
             TapAdapterProblem => "A problem with the TAP adapter has been detected",
         };
