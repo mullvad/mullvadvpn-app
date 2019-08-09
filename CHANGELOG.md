@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+- Check and adjust relay and bridge constraints when they are updated, so no incompatbile
+  combinations are used.
 
 
 ## [2019.7-beta1] - 2019-08-08

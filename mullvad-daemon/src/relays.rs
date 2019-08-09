@@ -5,8 +5,8 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::Location,
     relay_constraints::{
-        Constraint, InternalBridgeConstraints, LocationConstraint, Match, OpenVpnConstraints,
-        RelayConstraints, TunnelProtocol, WireguardConstraints,
+        BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
+        OpenVpnConstraints, RelayConstraints, TunnelProtocol, WireguardConstraints,
     },
     relay_list::{OpenVpnEndpointData, Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
@@ -204,9 +204,11 @@ impl RelaySelector {
     pub fn get_tunnel_endpoint(
         &mut self,
         relay_constraints: &RelayConstraints,
+        bridge_state: &BridgeState,
         retry_attempt: u32,
     ) -> Result<(Relay, MullvadEndpoint), Error> {
-        let preferred_constraints = Self::preferred_constraints(relay_constraints, retry_attempt);
+        let preferred_constraints =
+            Self::preferred_constraints(relay_constraints, bridge_state, retry_attempt);
         if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(&preferred_constraints) {
             debug!(
                 "Relay matched on highest preference for retry attempt {}",
@@ -228,16 +230,20 @@ impl RelaySelector {
 
     fn preferred_constraints(
         original_constraints: &RelayConstraints,
+        bridge_state: &BridgeState,
         retry_attempt: u32,
     ) -> RelayConstraints {
         // Prefer UDP by default. But if that has failed a couple of times, then try TCP port 443,
         // which works for many with UDP problems. After that, just alternate between protocols.
-        let (preferred_port, preferred_protocol) = match retry_attempt {
+        let (preferred_port, mut preferred_protocol) = match retry_attempt {
             0 | 1 => (Constraint::Any, TransportProtocol::Udp),
             2 | 3 => (Constraint::Only(443), TransportProtocol::Tcp),
             attempt if attempt % 2 == 0 => (Constraint::Any, TransportProtocol::Udp),
             _ => (Constraint::Any, TransportProtocol::Tcp),
         };
+        if *bridge_state == BridgeState::On {
+            preferred_protocol = TransportProtocol::Tcp;
+        }
 
         let mut relay_constraints = RelayConstraints {
             location: original_constraints.location.clone(),
@@ -251,6 +257,7 @@ impl RelaySelector {
             Constraint::Any => {
                 if original_constraints.openvpn_constraints.port.is_any()
                     && original_constraints.openvpn_constraints.protocol.is_any()
+                    || *bridge_state == BridgeState::On
                 {
                     relay_constraints.openvpn_constraints = OpenVpnConstraints {
                         port: preferred_port,

@@ -91,6 +91,31 @@ impl RelaySettings {
             }),
         }
     }
+
+    pub(crate) fn ensure_bridge_compatibility(&mut self) {
+        match self {
+            RelaySettings::Normal(ref mut constraints) => {
+                if constraints.tunnel_protocol == Constraint::Only(TunnelProtocol::Wireguard) {
+                    constraints.tunnel_protocol = Constraint::Any;
+                }
+                if constraints.openvpn_constraints.protocol
+                    == Constraint::Only(TransportProtocol::Udp)
+                {
+                    constraints.openvpn_constraints = OpenVpnConstraints {
+                        protocol: Constraint::Any,
+                        port: Constraint::Any,
+                    }
+                }
+            }
+            RelaySettings::CustomTunnelEndpoint(config) => {
+                if config.endpoint().protocol == TransportProtocol::Udp {
+                    log::warn!(
+                        "Using custom tunnel endpoint with UDP, bridges will likely not work"
+                    );
+                }
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
@@ -351,6 +376,31 @@ pub struct InternalBridgeConstraints {
 pub enum RelaySettingsUpdate {
     CustomTunnelEndpoint(CustomTunnelEndpoint),
     Normal(RelayConstraintsUpdate),
+}
+
+impl RelaySettingsUpdate {
+    /// Returns false if the specified relay settings update explicitly do not allow for bridging
+    /// (i.e. use UDP instead of TCP)
+    pub fn supports_bridge(&self) -> bool {
+        match &self {
+            RelaySettingsUpdate::CustomTunnelEndpoint(endpoint) => {
+                endpoint.endpoint().protocol == TransportProtocol::Tcp
+            }
+            RelaySettingsUpdate::Normal(update) => {
+                if let Some(Constraint::Only(TunnelProtocol::Wireguard)) = &update.tunnel_protocol {
+                    false
+                } else if let Some(constraints) = &update.openvpn_constraints {
+                    if let Constraint::Only(TransportProtocol::Udp) = &constraints.protocol {
+                        false
+                    } else {
+                        true
+                    }
+                } else {
+                    true
+                }
+            }
+        }
+    }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
