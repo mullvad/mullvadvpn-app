@@ -256,7 +256,6 @@ const tunnelStateSchema = oneOf(
           'set_firewall_policy_error',
           'set_dns_error',
           'start_tunnel_error',
-          'no_matching_relay',
           'is_offline',
           'tap_adapter_problem',
         ),
@@ -264,6 +263,15 @@ const tunnelStateSchema = oneOf(
       object({
         reason: enumeration('auth_failed'),
         details: maybe(string),
+      }),
+      object({
+        reason: enumeration('tunnel_parameter_error'),
+        details: enumeration(
+          'no_matching_relay',
+          'no_matching_bridge_relay',
+          'no_wireguard_key',
+          'custom_tunnel_host_resultion_error',
+        ),
       }),
     ),
   }),
