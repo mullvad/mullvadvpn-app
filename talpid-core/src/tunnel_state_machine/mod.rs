@@ -30,7 +30,7 @@ use std::{
 };
 use talpid_types::{
     net::TunnelParameters,
-    tunnel::{BlockReason, TunnelStateTransition},
+    tunnel::{BlockReason, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
 use tokio_core::reactor::Core;
@@ -280,12 +280,16 @@ impl<T: TunnelState> From<EventConsequence<T>> for TunnelStateMachineAction {
     }
 }
 
+
 /// Trait for any type that can provide a stream of `TunnelParameters` to the `TunnelStateMachine`.
 pub trait TunnelParametersGenerator: Send + 'static {
     /// Given the number of consecutive failed retry attempts, it should yield a `TunnelParameters`
     /// to establish a tunnel with.
     /// If this returns `None` then the state machine goes into the `Blocked` state.
-    fn generate(&mut self, retry_attempt: u32) -> Option<TunnelParameters>;
+    fn generate(
+        &mut self,
+        retry_attempt: u32,
+    ) -> Result<TunnelParameters, ParameterGenerationError>;
 }
 
 /// Values that are common to all tunnel states.

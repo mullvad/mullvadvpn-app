@@ -335,8 +335,8 @@ impl TunnelState for ConnectingState {
             .tunnel_parameters_generator
             .generate(retry_attempt)
         {
-            None => BlockedState::enter(shared_values, BlockReason::NoMatchingRelay),
-            Some(tunnel_parameters) => {
+            Err(err) => BlockedState::enter(shared_values, BlockReason::TunnelParameterError(err)),
+            Ok(tunnel_parameters) => {
                 if let Err(error) = Self::set_firewall_policy(shared_values, &tunnel_parameters) {
                     error!(
                         "{}",

@@ -56,7 +56,7 @@ use talpid_core::{
 };
 use talpid_types::{
     net::{openvpn, TunnelParameters},
-    tunnel::{BlockReason, TunnelStateTransition},
+    tunnel::{BlockReason, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
 
@@ -133,7 +133,10 @@ pub(crate) enum InternalDaemonEvent {
     /// Tunnel has changed state.
     TunnelStateTransition(TunnelStateTransition),
     /// Request from the `MullvadTunnelParametersGenerator` to obtain a new relay.
-    GenerateTunnelParameters(mpsc::Sender<TunnelParameters>, u32),
+    GenerateTunnelParameters(
+        mpsc::Sender<std::result::Result<TunnelParameters, ParameterGenerationError>>,
+        u32,
+    ),
     /// An event coming from the JSONRPC-2.0 management interface.
     ManagementInterfaceEvent(ManagementCommand),
     /// Triggered if the server hosting the JSONRPC-2.0 management interface dies unexpectedly.
@@ -538,18 +541,21 @@ where
 
     fn handle_generate_tunnel_parameters(
         &mut self,
-        tunnel_parameters_tx: &mpsc::Sender<TunnelParameters>,
+        tunnel_parameters_tx: &mpsc::Sender<
+            std::result::Result<TunnelParameters, ParameterGenerationError>,
+        >,
         retry_attempt: u32,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
-            if let Err(error_str) = match self.settings.get_relay_settings() {
+            let result = match self.settings.get_relay_settings() {
                 RelaySettings::CustomTunnelEndpoint(custom_relay) => {
                     self.last_generated_relay = None;
                     custom_relay
                         // TODO(emilsp): generate proxy settings for custom tunnels
                         .to_tunnel_parameters(self.settings.get_tunnel_options().clone(), None)
                         .map_err(|e| {
-                            e.display_chain_with_msg("Custom tunnel endpoint could not be resolved")
+                            log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
+                            ParameterGenerationError::CustomTunnelHostResultionError
                         })
                 }
                 RelaySettings::Normal(constraints) => self
@@ -559,30 +565,37 @@ where
                         self.settings.get_bridge_state(),
                         retry_attempt,
                     )
-                    .map_err(|e| {
-                        e.display_chain_with_msg(
-                            "No valid relay servers match the current settings",
-                        )
-                    })
+                    .map_err(|_| ParameterGenerationError::NoMatchingRelay)
                     .and_then(|(relay, endpoint)| {
-                        let result = self
-                            .create_tunnel_parameters(
-                                &relay,
-                                endpoint,
-                                account_token,
-                                retry_attempt,
-                            )
-                            .map_err(|e| e.display_chain());
+                        let result = self.create_tunnel_parameters(
+                            &relay,
+                            endpoint,
+                            account_token,
+                            retry_attempt,
+                        );
                         self.last_generated_relay = Some(relay);
-                        result
+                        match result {
+                            Ok(result) => Ok(result),
+                            Err(Error::NoKeyAvailable) => {
+                                Err(ParameterGenerationError::NoWireguardKey)
+                            }
+                            Err(Error::NoBridgeAvailable) => {
+                                Err(ParameterGenerationError::NoMatchingBridgeRelay)
+                            }
+                            Err(err) => {
+                                log::error!(
+                                    "{}",
+                                    err.display_chain_with_msg(
+                                        "Failed to generate tunnel parameters"
+                                    )
+                                );
+                                Err(ParameterGenerationError::NoMatchingRelay)
+                            }
+                        }
                     }),
-            }
-            .and_then(|tunnel_params| {
-                tunnel_parameters_tx.send(tunnel_params).map_err(|e| {
-                    e.display_chain_with_msg("Tunnel parameters receiver stopped listening")
-                })
-            }) {
-                error!("{}", error_str);
+            };
+            if tunnel_parameters_tx.send(result).is_err() {
+                log::error!("Failed to send tunnel parameters");
             }
         } else {
             error!("No account token configured");
@@ -1439,14 +1452,25 @@ struct MullvadTunnelParametersGenerator {
 }
 
 impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
-    fn generate(&mut self, retry_attempt: u32) -> Option<TunnelParameters> {
+    fn generate(
+        &mut self,
+        retry_attempt: u32,
+    ) -> std::result::Result<TunnelParameters, ParameterGenerationError> {
         let (response_tx, response_rx) = mpsc::channel();
-        self.tx
-            .send(InternalDaemonEvent::GenerateTunnelParameters(
-                response_tx,
-                retry_attempt,
-            ))
-            .ok()
-            .and_then(|_| response_rx.recv().ok())
+        if let Err(_) = self.tx.send(InternalDaemonEvent::GenerateTunnelParameters(
+            response_tx,
+            retry_attempt,
+        )) {
+            log::error!("Failed to send daemon command to generate tunnel parameters!");
+            return Err(ParameterGenerationError::NoMatchingRelay);
+        }
+
+        match response_rx.recv() {
+            Ok(result) => result,
+            Err(_) => {
+                log::error!("Failed to receive tunnel parameter generation result!");
+                Err(ParameterGenerationError::NoMatchingRelay)
+            }
+        }
     }
 }
