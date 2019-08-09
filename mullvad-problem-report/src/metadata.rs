@@ -17,8 +17,6 @@ pub fn collect() -> BTreeMap<String, String> {
 
 #[cfg(target_os = "linux")]
 mod os {
-    use std::collections::HashMap;
-
     pub fn version() -> String {
         // The OS version information is obtained first from the os-release file. If that
         // information is incomplete or unavailable, an attempt is made to obtain the
@@ -71,15 +69,13 @@ mod os {
         })
     }
 
-    pub fn extra_metadata() -> HashMap<String, String> {
-        HashMap::new()
+    pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+        std::iter::empty()
     }
 }
 
 #[cfg(target_os = "macos")]
 mod os {
-    use std::collections::HashMap;
-
     pub fn version() -> String {
         format!(
             "macOS {}",
@@ -88,15 +84,13 @@ mod os {
         )
     }
 
-    pub fn extra_metadata() -> HashMap<String, String> {
-        HashMap::new()
+    pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+        std::iter::empty()
     }
 }
 
 #[cfg(windows)]
 mod os {
-    use std::collections::HashMap;
-
     pub fn version() -> String {
         let system_info =
             super::command_stdout_lossy("systeminfo", &["/FO", "LIST"]).unwrap_or_else(String::new);
@@ -123,8 +117,8 @@ mod os {
         format!("Windows {} ({})", version, full_version)
     }
 
-    pub fn extra_metadata() -> HashMap<String, String> {
-        HashMap::new()
+    pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+        std::iter::empty()
     }
 }
 
