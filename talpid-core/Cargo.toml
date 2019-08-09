@@ -50,7 +50,6 @@ netlink-sys = { git = "https://github.com/mullvad/netlink", rev = "b367ac9c012e6
 nftnl = { git = "https://github.com/mullvad/nftnl-rs", rev = "86b30cdc38a6d4b30a900c21f7c644857d6f7401", features = ["nftnl-1-1-0"] }
 mnl = { git = "https://github.com/mullvad/mnl-rs", rev = "f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6", features = ["mnl-1-0-4"] }
 which = "2.0"
-err-derive = "0.1.5"
 tun = "0.4.3"
 
 
