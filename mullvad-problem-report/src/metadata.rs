@@ -11,6 +11,7 @@ pub fn collect() -> BTreeMap<String, String> {
         PRODUCT_VERSION.to_owned(),
     );
     metadata.insert("os".to_owned(), os::version());
+    metadata.extend(os::extra_metadata());
     metadata
 }
 
@@ -67,6 +68,10 @@ mod os {
             }
         })
     }
+
+    pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+        std::iter::empty()
+    }
 }
 
 #[cfg(target_os = "macos")]
@@ -77,6 +82,10 @@ mod os {
             super::command_stdout_lossy("sw_vers", &["-productVersion"])
                 .unwrap_or(String::from("[Failed to detect version]"))
         )
+    }
+
+    pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+        std::iter::empty()
     }
 }
 
@@ -107,27 +116,37 @@ mod os {
         let full_version = full_version.unwrap_or("N/A");
         format!("Windows {} ({})", version, full_version)
     }
+
+    pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+        std::iter::empty()
+    }
 }
 
 #[cfg(target_os = "android")]
 mod os {
-    pub fn version() -> String {
-        let version = get_prop("ro.build.version.release").unwrap_or_else(String::new);
-        let api_level = get_prop("ro.build.version.sdk")
-            .map(|api| format!(" (API level: {})", api))
-            .unwrap_or_else(String::new);
-        let abi_list = get_prop("ro.product.cpu.abilist")
-            .map(|abis| format!(" (ABI list: {})", abis))
-            .unwrap_or_else(String::new);
+    use std::collections::HashMap;
 
-        let manufacturer = get_prop("ro.product.manufacturer").unwrap_or_else(String::new);
-        let product = get_prop("ro.product.model").unwrap_or_else(String::new);
-        let build = get_prop("ro.build.display.id").unwrap_or_else(String::new);
+    pub fn version() -> String {
+        let version = get_prop("ro.build.version.release").unwrap_or_else(|| "N/A".to_owned());
+        let api_level = get_prop("ro.build.version.sdk").unwrap_or_else(|| "N/A".to_owned());
+
+        let manufacturer =
+            get_prop("ro.product.manufacturer").unwrap_or_else(|| "Unknown brand".to_owned());
+        let product = get_prop("ro.product.model").unwrap_or_else(|| "Unknown model".to_owned());
 
         format!(
-            "Android {}{}{} - {} {} {}",
-            version, api_level, abi_list, manufacturer, product, build
+            "Android {} (API: {}) - {} {}",
+            version, api_level, manufacturer, product
         )
+    }
+
+    pub fn extra_metadata() -> HashMap<String, String> {
+        let mut metadata = HashMap::new();
+        metadata.insert(
+            "abi".to_owned(),
+            get_prop("ro.product.cpu.abilist").unwrap_or_else(|| "N/A".to_owned()),
+        );
+        metadata
     }
 
     fn get_prop(property: &str) -> Option<String> {
