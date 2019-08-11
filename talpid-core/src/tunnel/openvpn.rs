@@ -380,7 +380,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
 
     fn create_proxy_auth_file(
         proxy_settings: &Option<openvpn::ProxySettings>,
-    ) -> ::std::result::Result<Option<mktemp::TempFile>, io::Error> {
+    ) -> std::result::Result<Option<mktemp::TempFile>, io::Error> {
         if let Some(openvpn::ProxySettings::Remote(ref remote_proxy)) = proxy_settings {
             if let Some(ref proxy_auth) = remote_proxy.auth {
                 return Ok(Some(Self::create_credentials_file(

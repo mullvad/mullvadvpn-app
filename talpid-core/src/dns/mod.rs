@@ -52,7 +52,7 @@ impl DnsMonitor {
 }
 
 trait DnsMonitorT: Sized {
-    type Error: ::std::error::Error;
+    type Error: std::error::Error;
 
     fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Self::Error>;
 

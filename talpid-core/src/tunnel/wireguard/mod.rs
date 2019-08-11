@@ -111,7 +111,7 @@ impl WireguardMonitor {
         let gateway = config.ipv4_gateway.into();
         let close_sender = monitor.close_msg_sender.clone();
 
-        ::std::thread::spawn(move || {
+        std::thread::spawn(move || {
             match ping_monitor::ping(gateway, PING_TIMEOUT, &iface_name, true) {
                 Ok(()) => {
                     (on_event)(TunnelEvent::Up(metadata));

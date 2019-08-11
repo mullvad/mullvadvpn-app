@@ -35,7 +35,7 @@ pub enum Error {
     NetlinkConnectionClosed,
 }
 
-type Result<T> = ::std::result::Result<T, Error>;
+type Result<T> = std::result::Result<T, Error>;
 
 pub(super) struct RouteChangeListener {
     connection: rtnetlink::Connection,

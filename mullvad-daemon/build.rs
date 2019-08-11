@@ -88,7 +88,7 @@ fn commit_date() -> String {
         .args(&["log", "-1", "--date=short", "--pretty=format:%cd"])
         .output()
         .expect("Unable to get git commit date");
-    ::std::str::from_utf8(&output.stdout)
+    std::str::from_utf8(&output.stdout)
         .unwrap()
         .trim()
         .to_owned()

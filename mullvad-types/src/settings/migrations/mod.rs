@@ -12,7 +12,7 @@ pub enum SettingsVersion {
 
 impl SettingsVersion {
     pub fn as_u32(&self) -> u32 {
-        unsafe { ::std::mem::transmute(*self) }
+        unsafe { std::mem::transmute(*self) }
     }
 
     pub fn max_version() -> Self {
@@ -44,7 +44,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             )));
         }
 
-        unsafe { Ok(::std::mem::transmute(version)) }
+        unsafe { Ok(std::mem::transmute(version)) }
     }
 }
 

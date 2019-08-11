@@ -26,7 +26,7 @@ pub enum Error {
     TooManyKeys,
 }
 
-pub type Result<T> = ::std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 pub struct KeyManager {
     daemon_tx: mpsc::Sender<InternalDaemonEvent>,
