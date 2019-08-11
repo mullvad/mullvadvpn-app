@@ -23,8 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add more details to the block reason shown in GUI when the daemon fails to generate tunnel
+  parameters.
+
 ### Fixed
-- Check and adjust relay and bridge constraints when they are updated, so no incompatbile
+- Check and adjust relay and bridge constraints when they are updated, so no incompatible
   combinations are used.
 
 

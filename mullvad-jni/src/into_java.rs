@@ -648,7 +648,8 @@ impl<'env> IntoJava<'env> for BlockReason {
             BlockReason::SetFirewallPolicyError => "SetFirewallPolicyError",
             BlockReason::SetDnsError => "SetDnsError",
             BlockReason::StartTunnelError => "StartTunnelError",
-            BlockReason::NoMatchingRelay => "NoMatchingRelay",
+            // TODO(emilsp): Fix Android code to handle new TunnelParameterError block reason
+            BlockReason::TunnelParameterError(_) => "NoMatchingRelay",
             BlockReason::IsOffline => "IsOffline",
             BlockReason::TapAdapterProblem => "TapAdapterProblem",
         };

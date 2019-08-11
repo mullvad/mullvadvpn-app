@@ -141,7 +141,8 @@ describe('components/NotificationArea', () => {
         tunnelState={{
           state: 'blocked',
           details: {
-            reason: 'no_matching_relay',
+            reason: 'tunnel_parameter_error',
+            details: 'no_matching_relay',
           },
         }}
         version={defaultVersion}

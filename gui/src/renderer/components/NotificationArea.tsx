@@ -14,7 +14,7 @@ import {
   NotificationTitle,
 } from './NotificationBanner';
 
-import { BlockReason, TunnelState } from '../../shared/daemon-rpc-types';
+import { BlockReason, TunnelParameterError, TunnelState } from '../../shared/daemon-rpc-types';
 import AccountExpiry from '../lib/account-expiry';
 import { parseAuthFailure } from '../lib/auth-failure';
 import { IVersionReduxState } from '../redux/version/reducers';
@@ -39,6 +39,29 @@ type NotificationAreaPresentation =
 type State = NotificationAreaPresentation & {
   visible: boolean;
 };
+
+function getTunnelParameterMessage(err: TunnelParameterError): string {
+  switch (err) {
+    /// TODO: once bridge constraints can be set, add a more descriptive error message
+    case 'no_matching_bridge_relay':
+    case 'no_matching_relay':
+      return messages.pgettext(
+        'in-app-notifications',
+        'No relay server matches the current settings. You can try changing the location or the relay settings.',
+      );
+    case 'no_wireguard_key':
+      return messages.pgettext(
+        'in-app-notifications',
+        'WireGuard key not published to our servers. You can manage your key in Advanced settings.',
+      );
+      break;
+    case 'custom_tunnel_host_resultion_error':
+      return messages.pgettext(
+        'in-app-notifications',
+        'Failed to resolve host of custom tunnel. Consider changing the settings',
+      );
+  }
+}
 
 function getBlockReasonMessage(blockReason: BlockReason): string {
   switch (blockReason.reason) {
@@ -70,11 +93,8 @@ function getBlockReasonMessage(blockReason: BlockReason): string {
       return messages.pgettext('in-app-notifications', 'Failed to set system DNS server');
     case 'start_tunnel_error':
       return messages.pgettext('in-app-notifications', 'Failed to start tunnel connection');
-    case 'no_matching_relay':
-      return messages.pgettext(
-        'in-app-notifications',
-        'No relay server matches the current settings. You can try changing the location or the relay settings.',
-      );
+    case 'tunnel_parameter_error':
+      return getTunnelParameterMessage(blockReason.details);
     case 'is_offline':
       return messages.pgettext(
         'in-app-notifications',

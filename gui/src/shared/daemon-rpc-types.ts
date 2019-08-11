@@ -15,6 +15,12 @@ export interface ILocation {
   bridgeHostname?: string;
 }
 
+export type TunnelParameterError =
+  | 'no_matching_relay'
+  | 'no_matching_bridge_relay'
+  | 'no_wireguard_key'
+  | 'custom_tunnel_host_resultion_error';
+
 export type BlockReason =
   | {
       reason:
@@ -22,10 +28,10 @@ export type BlockReason =
         | 'set_firewall_policy_error'
         | 'set_dns_error'
         | 'start_tunnel_error'
-        | 'no_matching_relay'
         | 'is_offline'
         | 'tap_adapter_problem';
     }
+  | { reason: 'tunnel_parameter_error'; details: TunnelParameterError }
   | { reason: 'auth_failed'; details?: string };
 
 export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
