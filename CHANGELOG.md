@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Fixed
-- Check and adjust relay and bridge constraints when they are updated, so no incompatbile
+- Check and adjust relay and bridge constraints when they are updated, so no incompatible
   combinations are used.
 
 ### Added
