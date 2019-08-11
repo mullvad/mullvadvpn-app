@@ -296,7 +296,7 @@ mod tests {
 
         let mut cache = create_cached_dns_resolver(mock_resolver, &cache_dir, None);
 
-        ::std::mem::drop(temp_dir);
+        std::mem::drop(temp_dir);
 
         assert_eq!(cache.resolve(), mock_address);
     }

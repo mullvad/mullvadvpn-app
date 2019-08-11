@@ -9,7 +9,7 @@ where
     F: FnOnce(&mut Core) -> T + Send + 'static,
     T: Send + 'static,
 {
-    let (tx, rx) = ::std::sync::mpsc::channel();
+    let (tx, rx) = std::sync::mpsc::channel();
     thread::spawn(move || match create_core(init) {
         Err(e) => tx.send(Err(e)).unwrap(),
         Ok((mut core, out)) => {

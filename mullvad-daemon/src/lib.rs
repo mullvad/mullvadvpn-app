@@ -147,7 +147,7 @@ pub(crate) enum InternalDaemonEvent {
     WgKeyEvent(
         (
             AccountToken,
-            ::std::result::Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
+            std::result::Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
         ),
     ),
 }
@@ -777,7 +777,7 @@ where
         &mut self,
         event: (
             AccountToken,
-            ::std::result::Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
+            std::result::Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
         ),
     ) {
         let (account, result) = event;
@@ -839,7 +839,7 @@ where
 
     fn on_set_target_state(
         &mut self,
-        tx: oneshot::Sender<::std::result::Result<(), ()>>,
+        tx: oneshot::Sender<std::result::Result<(), ()>>,
         new_target_state: TargetState,
     ) {
         if self.state.is_running() {
@@ -1123,7 +1123,7 @@ where
 
     fn on_set_bridge_settings(
         &mut self,
-        tx: oneshot::Sender<::std::result::Result<(), settings::Error>>,
+        tx: oneshot::Sender<std::result::Result<(), settings::Error>>,
         new_settings: BridgeSettings,
     ) {
         match self.settings.set_bridge_settings(new_settings) {
@@ -1147,7 +1147,7 @@ where
 
     fn on_set_bridge_state(
         &mut self,
-        tx: oneshot::Sender<::std::result::Result<(), settings::Error>>,
+        tx: oneshot::Sender<std::result::Result<(), settings::Error>>,
         bridge_state: BridgeState,
     ) {
         let result = match self.settings.set_bridge_state(bridge_state.clone()) {
@@ -1231,7 +1231,7 @@ where
     }
 
     fn on_generate_wireguard_key(&mut self, tx: oneshot::Sender<KeygenEvent>) {
-        let mut result = || -> ::std::result::Result<KeygenEvent, String> {
+        let mut result = || -> std::result::Result<KeygenEvent, String> {
             let account_token = self
                 .settings
                 .get_account_token()

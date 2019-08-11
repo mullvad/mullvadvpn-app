@@ -144,7 +144,7 @@ impl Firewall {
             .send(&get_tables_msg)
             .map_err(Error::NetlinkSendError)?;
 
-        let mut table_set = ::std::collections::HashSet::new();
+        let mut table_set = std::collections::HashSet::new();
         let mut msg_buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
 
         while let Some(message) = Self::socket_recv(&socket, &mut msg_buffer)? {

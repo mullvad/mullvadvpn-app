@@ -24,7 +24,7 @@ pub use notify::op::{self as watch_event, Op as WatchEvent};
 
 pub mod mock_openvpn;
 
-type Result<T> = ::std::result::Result<T, String>;
+type Result<T> = std::result::Result<T, String>;
 
 pub const ASSETS_DIR: &str = "../dist-assets";
 
