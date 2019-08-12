@@ -250,7 +250,7 @@ impl Relay {
     fn validate_wireguard_key(key_str: &str) -> [u8; 32] {
         let key_bytes = base64::decode(key_str.trim()).unwrap_or_else(|e| {
             eprintln!("Failed to decode wireguard key: {}", e);
-            ::std::process::exit(1);
+            std::process::exit(1);
         });
 
         let mut key = [0u8; 32];
@@ -259,7 +259,7 @@ impl Relay {
                 "Expected key length to be 32 bytes, got {}",
                 key_bytes.len()
             );
-            ::std::process::exit(1);
+            std::process::exit(1);
         }
 
         key.copy_from_slice(&key_bytes);

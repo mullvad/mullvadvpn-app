@@ -10,41 +10,18 @@ pub enum SettingsVersion {
     V2 = 2,
 }
 
-impl SettingsVersion {
-    pub fn as_u32(&self) -> u32 {
-        unsafe { ::std::mem::transmute(*self) }
-    }
-
-    pub fn max_version() -> Self {
-        SettingsVersion::V2
-    }
-
-    pub fn min_version() -> Self {
-        SettingsVersion::V2
-    }
-}
-
 impl<'de> Deserialize<'de> for SettingsVersion {
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        let version = <u32>::deserialize(deserializer)?;
-        if version < SettingsVersion::min_version().as_u32() {
-            return Err(serde::de::Error::custom(format!(
-                "Version number {} too small",
-                version
-            )));
+        match <u32>::deserialize(deserializer)? {
+            v if v == SettingsVersion::V2 as u32 => Ok(SettingsVersion::V2),
+            v => Err(serde::de::Error::custom(format!(
+                "{} is not a valid SettingsVersion",
+                v
+            ))),
         }
-
-        if version > SettingsVersion::max_version().as_u32() {
-            return Err(serde::de::Error::custom(format!(
-                "Version number {} too large",
-                version
-            )));
-        }
-
-        unsafe { Ok(::std::mem::transmute(version)) }
     }
 }
 
@@ -53,7 +30,7 @@ impl Serialize for SettingsVersion {
     where
         S: Serializer,
     {
-        serializer.serialize_u32(self.as_u32())
+        serializer.serialize_u32(*self as u32)
     }
 }
 

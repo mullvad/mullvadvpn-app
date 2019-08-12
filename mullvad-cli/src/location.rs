@@ -52,7 +52,7 @@ pub fn get_constraint(matches: &clap::ArgMatches<'_>) -> Constraint<LocationCons
     }
 }
 
-fn country_code_validator(code: String) -> ::std::result::Result<(), String> {
+fn country_code_validator(code: String) -> std::result::Result<(), String> {
     if code.len() == 2 || code == "any" {
         Ok(())
     } else {
@@ -60,7 +60,7 @@ fn country_code_validator(code: String) -> ::std::result::Result<(), String> {
     }
 }
 
-fn city_code_validator(code: String) -> ::std::result::Result<(), String> {
+fn city_code_validator(code: String) -> std::result::Result<(), String> {
     if code.len() == 3 {
         Ok(())
     } else {

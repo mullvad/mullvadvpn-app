@@ -401,13 +401,13 @@ pub struct ChangeListener {
 }
 
 impl ChangeListener {
-    pub fn new() -> ::std::io::Result<Self> {
+    pub fn new() -> std::io::Result<Self> {
         let mut cmd = Command::new("route");
         cmd.arg("-vn").arg("monitor").stdout(Stdio::piped());
 
         let mut process = cmd.spawn_async()?;
 
-        let reader = ::std::io::BufReader::new(process.stdout().take().unwrap());
+        let reader = std::io::BufReader::new(process.stdout().take().unwrap());
         let lines = tokio_io::io::lines(reader);
 
         Ok(Self { process, lines })
@@ -416,9 +416,9 @@ impl ChangeListener {
 
 impl Future for ChangeListener {
     type Item = ();
-    type Error = ::std::io::Error;
+    type Error = std::io::Error;
 
-    fn poll(&mut self) -> ::std::io::Result<Async<Self::Item>> {
+    fn poll(&mut self) -> std::io::Result<Async<Self::Item>> {
         match self.process.poll() {
             Ok(Async::NotReady) => (),
             Ok(Async::Ready(status)) => {

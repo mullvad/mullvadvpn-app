@@ -1,5 +1,6 @@
 use lazy_static::lazy_static;
 use regex::Regex;
+use std::fmt;
 
 #[derive(Debug)]
 pub struct AuthFailed {
@@ -49,8 +50,8 @@ impl<'a> From<&'a str> for AuthFailed {
     }
 }
 
-impl ::std::fmt::Display for AuthFailed {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+impl fmt::Display for AuthFailed {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::AuthFailedInner::*;
         match self.reason {
             InvalidAccount => write!(f, "{}", INVALID_ACCOUNT_MSG),
