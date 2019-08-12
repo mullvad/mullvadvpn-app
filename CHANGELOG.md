@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.7] - 2019-08-12
 ### Added
 - Add more details to the block reason shown in GUI when the daemon fails to generate tunnel
   parameters.
