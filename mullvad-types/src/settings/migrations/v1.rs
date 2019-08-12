@@ -222,6 +222,49 @@ mod test {
 }
 "#;
 
+    const SETTINGS_2019V3: &str = r#"
+{
+  "account_token": "1234",
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "country": "se"
+        }
+      },
+      "tunnel": {
+        "only": {
+          "openvpn": {
+            "port": {
+              "only": 53
+            },
+            "protocol": {
+              "only": "udp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "allow_lan": true,
+  "block_when_disconnected": false,
+  "auto_connect": false,
+  "tunnel_options": {
+    "openvpn": {
+      "mssfix": null,
+      "proxy": null
+    },
+    "wireguard": {
+      "mtu": null
+    },
+    "generic": {
+      "enable_ipv6": false
+    }
+  }
+}
+
+"#;
+
     #[test]
     fn test_migration() {
         let m = super::Migration;
@@ -239,5 +282,18 @@ mod test {
         let m = super::Migration;
         m.read(&mut NEW_SETTINGS.as_bytes())
             .expect("Failed to deserialize old format");
+    }
+
+    #[test]
+    fn test_2019v3_migration() {
+        let m = super::Migration;
+        let old_settings = m
+            .read(&mut SETTINGS_2019V3.as_bytes())
+            .expect("Failed to deserialize old format");
+
+        let new_settings = serde_json::from_str(&NEW_SETTINGS).unwrap();
+
+
+        assert_eq!(&m.migrate(old_settings).unwrap(), &new_settings);
     }
 }
