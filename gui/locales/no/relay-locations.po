@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Norwegian\n"
 "Language: no_NO\n"
-"PO-Revision-Date: 2019-07-10 05:10\n"
+"PO-Revision-Date: 2019-08-12 08:53\n"
 
 #. AL TIA
 msgid "Tirana"
@@ -18,7 +18,7 @@ msgstr "Tirana"
 
 #. AU ADL
 msgid "Adelaide"
-msgstr ""
+msgstr "Adelaide"
 
 #. AU BNE
 msgid "Brisbane"
@@ -210,7 +210,7 @@ msgstr "Kiev"
 
 #. AE DXB
 msgid "Dubai"
-msgstr ""
+msgstr "Dubai"
 
 #. US ATL
 msgid "Atlanta, GA"

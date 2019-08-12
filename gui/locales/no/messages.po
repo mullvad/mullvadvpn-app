@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Norwegian\n"
 "Language: no_NO\n"
-"PO-Revision-Date: 2019-07-10 05:10\n"
+"PO-Revision-Date: 2019-08-12 08:53\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "TILKOBLING BLOKKERT"
@@ -57,6 +57,10 @@ msgid "Currently unavailable"
 msgstr "For øyeblikket utilgjengelig"
 
 msgctxt "account-view"
+msgid "Key is valid"
+msgstr "Nøkkel er gyldig"
+
+msgctxt "account-view"
 msgid "Log out"
 msgstr "Logg ut"
 
@@ -77,13 +81,6 @@ msgstr "Avansert"
 msgctxt "advanced-settings-nav"
 msgid "Settings"
 msgstr "Innstillinger"
-
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
-msgctxt "advanced-settings-view"
-msgid "%(portType)s port"
-msgstr "%(portType)s port"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -119,16 +116,27 @@ msgid "Mssfix"
 msgstr "Mssfix"
 
 msgctxt "advanced-settings-view"
-msgid "Network protocols"
-msgstr "Nettverksprotokoller"
-
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "Av"
 
 msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "På"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN"
+msgstr "OpenVPN"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "OpenVPN %(portType)s port"
+msgstr "OpenVPN %(portType)s-port"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN transport protocol"
+msgstr "Transportprotokoll for OpenVPN"
 
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
@@ -143,6 +151,10 @@ msgid "TCP"
 msgstr "TCP"
 
 msgctxt "advanced-settings-view"
+msgid "Tunnel protocol"
+msgstr "Tunnelprotokoll"
+
+msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -153,6 +165,18 @@ msgstr "Hvis du ikke er tilkoblet Mullvad, vil denne innstillingen blokkere nett
 msgctxt "advanced-settings-view"
 msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
 msgstr "Advarsel: Internettet fungerer ikke uten en VPN-tilkobling, selv om du har avsluttet appen."
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard"
+msgstr "WireGuard"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard keys"
+msgstr "WireGuard-nøkler"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard port"
+msgstr "WireGuard-port"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -286,12 +310,16 @@ msgid "Install Mullvad VPN (%(version)s) to stay up to date"
 msgstr "Installer Mullvad VPN (%(version)s) for å holde deg oppdatert"
 
 msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings"
-msgstr "Ingen relayservere passer til innstillingene"
+msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
+msgstr "Ingen relayservere passer til nåværende innstillinger. Du kan prøve å endre plassering eller relay-innstillinger."
 
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "Enheten er frakoblet. Ingen tunneler kan opprettes"
+
+msgctxt "in-app-notifications"
+msgid "This might be caused by third party security software"
+msgstr "Dette kan være forårsaket av en sikkerhetsprogramvare fra en tredjepart"
 
 msgctxt "in-app-notifications"
 msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
@@ -391,6 +419,10 @@ msgstr "Sikker tilkobling"
 msgctxt "notifications"
 msgid "Unsecured"
 msgstr "Usikker tilkobling"
+
+msgctxt "notifications"
+msgid "Wireguard key generation failed"
+msgstr "Generering av Wireguard-nøkkel mislyktes"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -610,4 +642,53 @@ msgstr "Gjør tilkoblingen sikker"
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "Bytt plassering"
+
+msgctxt "wireguard-key-view"
+msgid "Account has too many keys already"
+msgstr "Konto har allerede for mange nøkler"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate key"
+msgstr "Generering av nøkkel mislyktes"
+
+msgctxt "wireguard-key-view"
+msgid "Generate key"
+msgstr "Generer nøkkel"
+
+msgctxt "wireguard-key-view"
+msgid "Generating key"
+msgstr "Genererer nøkkel"
+
+msgctxt "wireguard-key-view"
+msgid "Key is invalid"
+msgstr "Nøkkel er ugyldig"
+
+msgctxt "wireguard-key-view"
+msgid "Manage keys"
+msgstr "Behandle nøkler"
+
+msgctxt "wireguard-key-view"
+msgid "No key set"
+msgstr "Ingen nøkkel angitt"
+
+msgctxt "wireguard-key-view"
+msgid "Verify key"
+msgstr "Bekreft nøkkel"
+
+msgctxt "wireguard-key-view"
+msgid "Verifying key"
+msgstr "Bekrefter nøkkel"
+
+msgctxt "wireguard-keys"
+msgid "Public key"
+msgstr "Offentlig nøkkel"
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "Advanced"
+msgstr "Avansert"
+
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard keys"
+msgstr "WireGuard-nøkler"
 

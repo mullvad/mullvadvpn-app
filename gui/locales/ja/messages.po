@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2019-07-10 05:10\n"
+"PO-Revision-Date: 2019-08-12 08:53\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ブロックされた接続"
@@ -57,6 +57,10 @@ msgid "Currently unavailable"
 msgstr "現在使用不可"
 
 msgctxt "account-view"
+msgid "Key is valid"
+msgstr "鍵は有効です"
+
+msgctxt "account-view"
 msgid "Log out"
 msgstr "ログアウト"
 
@@ -77,13 +81,6 @@ msgstr "詳細"
 msgctxt "advanced-settings-nav"
 msgid "Settings"
 msgstr "設定"
-
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
-msgctxt "advanced-settings-view"
-msgid "%(portType)s port"
-msgstr "%(portType)s ポート"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -119,16 +116,27 @@ msgid "Mssfix"
 msgstr "Mssfix"
 
 msgctxt "advanced-settings-view"
-msgid "Network protocols"
-msgstr "ネットワークプロトコル"
-
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "オフ"
 
 msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "オン"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN"
+msgstr "OpenVPN"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "OpenVPN %(portType)s port"
+msgstr "OpenVPN %(portType)s ポート"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN transport protocol"
+msgstr "OpenVPN転送プロトコル"
 
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
@@ -143,6 +151,10 @@ msgid "TCP"
 msgstr "TCP"
 
 msgctxt "advanced-settings-view"
+msgid "Tunnel protocol"
+msgstr "トンネルプロトコル"
+
+msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -153,6 +165,18 @@ msgstr "Mullvadに接続していない限り、この設定は、接続を切�
 msgctxt "advanced-settings-view"
 msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
 msgstr "警告：インターネットは、アプリを終了しても、VPN との接続なしには利用できません。"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard"
+msgstr "WireGuard"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard keys"
+msgstr "WireGuard鍵"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard port"
+msgstr "WireGuardポート"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -286,12 +310,16 @@ msgid "Install Mullvad VPN (%(version)s) to stay up to date"
 msgstr "Mullvad VPN (%(version)s) をインストールして常に最新の状態を保ちましょう"
 
 msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings"
-msgstr "現在の設定に一致する中継サーバーはありません"
+msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
+msgstr "現在の設定に一致する中継サーバーはありません。場所または中継の設定を変更してみてください。"
 
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "このデバイスはオフラインであるため、トンネルを作成できません。"
+
+msgctxt "in-app-notifications"
+msgid "This might be caused by third party security software"
+msgstr "これはサードパーティー製の製品が原因である可能性があります。"
 
 msgctxt "in-app-notifications"
 msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
@@ -391,6 +419,10 @@ msgstr "セキュリティ保護されています"
 msgctxt "notifications"
 msgid "Unsecured"
 msgstr "セキュリティ保護されていません"
+
+msgctxt "notifications"
+msgid "Wireguard key generation failed"
+msgstr "Wireguard鍵を生成できませんでした"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -610,4 +642,53 @@ msgstr "接続を保護する"
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "場所を切り替える"
+
+msgctxt "wireguard-key-view"
+msgid "Account has too many keys already"
+msgstr "アカウントがすでに所有している鍵が多すぎます"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate key"
+msgstr "鍵の生成に失敗しました"
+
+msgctxt "wireguard-key-view"
+msgid "Generate key"
+msgstr "鍵を生成"
+
+msgctxt "wireguard-key-view"
+msgid "Generating key"
+msgstr "鍵を生成しています"
+
+msgctxt "wireguard-key-view"
+msgid "Key is invalid"
+msgstr "鍵は無効です"
+
+msgctxt "wireguard-key-view"
+msgid "Manage keys"
+msgstr "鍵を管理"
+
+msgctxt "wireguard-key-view"
+msgid "No key set"
+msgstr "鍵が設定されていません"
+
+msgctxt "wireguard-key-view"
+msgid "Verify key"
+msgstr "鍵を検証"
+
+msgctxt "wireguard-key-view"
+msgid "Verifying key"
+msgstr "鍵を検証しています"
+
+msgctxt "wireguard-keys"
+msgid "Public key"
+msgstr "公開鍵"
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "Advanced"
+msgstr "詳細"
+
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard keys"
+msgstr "WireGuard鍵"
 

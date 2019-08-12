@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2019-07-10 05:10\n"
+"PO-Revision-Date: 2019-08-12 08:53\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "被封鎖的連線"
@@ -57,6 +57,10 @@ msgid "Currently unavailable"
 msgstr "目前不可用"
 
 msgctxt "account-view"
+msgid "Key is valid"
+msgstr "鑰匙有效"
+
+msgctxt "account-view"
 msgid "Log out"
 msgstr "登出"
 
@@ -77,13 +81,6 @@ msgstr "進階"
 msgctxt "advanced-settings-nav"
 msgid "Settings"
 msgstr "設定"
-
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
-msgctxt "advanced-settings-view"
-msgid "%(portType)s port"
-msgstr "%(portType)s 連接埠"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -119,16 +116,27 @@ msgid "Mssfix"
 msgstr "Mssfix"
 
 msgctxt "advanced-settings-view"
-msgid "Network protocols"
-msgstr "網路通訊協定"
-
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "關閉"
 
 msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "開啟"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN"
+msgstr "OpenVPN"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "OpenVPN %(portType)s port"
+msgstr "OpenVPN %(portType)s 連接埠"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN transport protocol"
+msgstr "OpenVPN 傳輸通訊協定"
 
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
@@ -143,6 +151,10 @@ msgid "TCP"
 msgstr "TCP"
 
 msgctxt "advanced-settings-view"
+msgid "Tunnel protocol"
+msgstr "通道通訊協定"
+
+msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -153,6 +165,18 @@ msgstr "除非連線到 Mullvad，否則此設置將完全封鎖您的網際網�
 msgctxt "advanced-settings-view"
 msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
 msgstr "警告：若無 VPN 連線，您的網際網路將不會運作，即使您已退出應用程式。"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard"
+msgstr "WireGuard"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard keys"
+msgstr "WireGuard 鑰匙"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard port"
+msgstr "WireGuard 連接埠"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -286,12 +310,16 @@ msgid "Install Mullvad VPN (%(version)s) to stay up to date"
 msgstr "安裝 Mullvad VPN (%(version)s) 以保持最新狀態"
 
 msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings"
-msgstr "沒有與目前設定相符的中繼伺服器"
+msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
+msgstr "沒有中繼伺服器與目前的設定相符。您可以嘗試變更位置或中繼設定。"
 
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "此裝置目前離線中，無法建立通道"
+
+msgctxt "in-app-notifications"
+msgid "This might be caused by third party security software"
+msgstr "這可能是由第三方安全軟體所引起的"
 
 msgctxt "in-app-notifications"
 msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
@@ -391,6 +419,10 @@ msgstr "安全"
 msgctxt "notifications"
 msgid "Unsecured"
 msgstr "不安全"
+
+msgctxt "notifications"
+msgid "Wireguard key generation failed"
+msgstr "WireGuard 鑰匙產生失敗"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -610,4 +642,53 @@ msgstr "保護我的連線"
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "切換位置"
+
+msgctxt "wireguard-key-view"
+msgid "Account has too many keys already"
+msgstr "帳戶已有過多鑰匙"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate key"
+msgstr "無法產生鑰匙"
+
+msgctxt "wireguard-key-view"
+msgid "Generate key"
+msgstr "產生鑰匙"
+
+msgctxt "wireguard-key-view"
+msgid "Generating key"
+msgstr "正在產生鑰匙"
+
+msgctxt "wireguard-key-view"
+msgid "Key is invalid"
+msgstr "鑰匙無效"
+
+msgctxt "wireguard-key-view"
+msgid "Manage keys"
+msgstr "管理鑰匙"
+
+msgctxt "wireguard-key-view"
+msgid "No key set"
+msgstr "未設定鑰匙"
+
+msgctxt "wireguard-key-view"
+msgid "Verify key"
+msgstr "驗證鑰匙"
+
+msgctxt "wireguard-key-view"
+msgid "Verifying key"
+msgstr "正在驗證鑰匙"
+
+msgctxt "wireguard-keys"
+msgid "Public key"
+msgstr "公開鑰匙"
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "Advanced"
+msgstr "進階"
+
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard keys"
+msgstr "WireGuard 鑰匙"
 

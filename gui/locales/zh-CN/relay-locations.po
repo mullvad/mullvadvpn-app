@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2019-07-10 05:10\n"
+"PO-Revision-Date: 2019-08-12 08:53\n"
 
 #. AL TIA
 msgid "Tirana"
@@ -210,7 +210,7 @@ msgstr "基辅"
 
 #. AE DXB
 msgid "Dubai"
-msgstr "杜拜"
+msgstr "迪拜"
 
 #. US ATL
 msgid "Atlanta, GA"
