@@ -15,11 +15,18 @@ procedure, described in the section below.
 
 ## Updating translations template
 
+### messages.pot
+
 Run `npm run update-translations` to extract the new translations from the source
 code and update all of the existing catalogues.
 
 The new translations are automatically added to empty sub-folders using the POT template at
 `gui/locales/messages.pot`. Folders that contain a `.gitkeep` file are ignored.
+
+### relay-locations.pot
+
+To update the countries and cities you have to run the geo data scripts. Follow the instructions
+in `gui/scripts/README.md`.
 
 ## Uploading translations template to Crowdin
 

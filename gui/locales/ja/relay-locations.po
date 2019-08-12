@@ -10,11 +10,15 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2019-07-10 05:10\n"
+"PO-Revision-Date: 2019-08-12 08:53\n"
 
 #. AL TIA
 msgid "Tirana"
 msgstr "ティラナ"
+
+#. AU ADL
+msgid "Adelaide"
+msgstr "アデレード"
 
 #. AU BNE
 msgid "Brisbane"
@@ -103,10 +107,6 @@ msgstr "ブダペスト"
 #. IN PNQ
 msgid "Pune"
 msgstr "プネー"
-
-#. IL PET
-msgid "Petach-Tikva"
-msgstr "ペタフ・ティクヴァ"
 
 #. IL TLV
 msgid "Tel Aviv"
@@ -207,6 +207,10 @@ msgstr "マンチェスター"
 #. UA IEV
 msgid "Kiev"
 msgstr "キエフ"
+
+#. AE DXB
+msgid "Dubai"
+msgstr "ドバイ"
 
 #. US ATL
 msgid "Atlanta, GA"
@@ -328,3 +332,5 @@ msgstr "セントルイス、MO"
 msgid "Washington DC"
 msgstr "ワシントン DC"
 
+#~ msgid "Petach-Tikva"
+#~ msgstr "ペタフ・ティクヴァ"

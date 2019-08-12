@@ -10,11 +10,15 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2019-07-10 05:10\n"
+"PO-Revision-Date: 2019-08-12 08:53\n"
 
 #. AL TIA
 msgid "Tirana"
 msgstr "地拉那"
+
+#. AU ADL
+msgid "Adelaide"
+msgstr "阿德萊德"
 
 #. AU BNE
 msgid "Brisbane"
@@ -103,10 +107,6 @@ msgstr "布達佩斯"
 #. IN PNQ
 msgid "Pune"
 msgstr "浦那"
-
-#. IL PET
-msgid "Petach-Tikva"
-msgstr "佩塔提克瓦"
 
 #. IL TLV
 msgid "Tel Aviv"
@@ -207,6 +207,10 @@ msgstr "曼徹斯特"
 #. UA IEV
 msgid "Kiev"
 msgstr "基輔"
+
+#. AE DXB
+msgid "Dubai"
+msgstr "杜拜"
 
 #. US ATL
 msgid "Atlanta, GA"
@@ -328,3 +332,6 @@ msgstr "密蘇里州，聖路易"
 msgid "Washington DC"
 msgstr "華盛頓特區"
 
+#. IL PET
+msgid "Petach-Tikva"
+msgstr "佩塔提克瓦"

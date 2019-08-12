@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
-"PO-Revision-Date: 2019-07-10 05:10\n"
+"PO-Revision-Date: 2019-08-12 08:53\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "CONEXIÓN BLOQUEADA"
@@ -57,6 +57,10 @@ msgid "Currently unavailable"
 msgstr "No disponible actualmente"
 
 msgctxt "account-view"
+msgid "Key is valid"
+msgstr "La clave es válida"
+
+msgctxt "account-view"
 msgid "Log out"
 msgstr "Cerrar sesión"
 
@@ -77,13 +81,6 @@ msgstr "Avanzadas"
 msgctxt "advanced-settings-nav"
 msgid "Settings"
 msgstr "Configuración"
-
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
-msgctxt "advanced-settings-view"
-msgid "%(portType)s port"
-msgstr "Puerto %(portType)s"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -119,16 +116,27 @@ msgid "Mssfix"
 msgstr "Mssfix"
 
 msgctxt "advanced-settings-view"
-msgid "Network protocols"
-msgstr "Protocolos de red"
-
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "Desactivado"
 
 msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "Activado"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN"
+msgstr "OpenVPN"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "OpenVPN %(portType)s port"
+msgstr "Puerto %(portType)s de OpenVPN"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN transport protocol"
+msgstr "Protocolo de transporte de OpenVPN"
 
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
@@ -143,6 +151,10 @@ msgid "TCP"
 msgstr "TCP"
 
 msgctxt "advanced-settings-view"
+msgid "Tunnel protocol"
+msgstr "Protocolo de tunelización"
+
+msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -153,6 +165,18 @@ msgstr "Si no está conectado a Mullvad, este ajuste bloqueará completamente In
 msgctxt "advanced-settings-view"
 msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
 msgstr "Advertencia: Su conexión a Internet no funcionará sin una conexión VPN, incluso aunque haya salido de la aplicación."
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard"
+msgstr "WireGuard"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard keys"
+msgstr "Claves de WireGuard"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard port"
+msgstr "Puerto de WireGuard"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -286,12 +310,16 @@ msgid "Install Mullvad VPN (%(version)s) to stay up to date"
 msgstr "Instale Mullvad VPN (%(version)s) para estar actualizado"
 
 msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings"
-msgstr "Ningún servidor de retransmisión coincide con la configuración actual"
+msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
+msgstr "No hay ningún servidor de retransmisión que coincida con la configuración actual. Pruebe a cambiar la ubicación o la configuración de retransmisión."
 
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "Este dispositivo no está conectado, no puede establecerse ningún túnel"
+
+msgctxt "in-app-notifications"
+msgid "This might be caused by third party security software"
+msgstr "Esto podría estar causado por software de seguridad de terceros"
 
 msgctxt "in-app-notifications"
 msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
@@ -391,6 +419,10 @@ msgstr "Protegido"
 msgctxt "notifications"
 msgid "Unsecured"
 msgstr "No protegido"
+
+msgctxt "notifications"
+msgid "Wireguard key generation failed"
+msgstr "No se pudo generar la clave de WireGuard"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -610,4 +642,53 @@ msgstr "Proteger mi conexión"
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "Cambiar ubicación"
+
+msgctxt "wireguard-key-view"
+msgid "Account has too many keys already"
+msgstr "La cuenta tiene demasiadas claves"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate key"
+msgstr "No se pudo generar la clave"
+
+msgctxt "wireguard-key-view"
+msgid "Generate key"
+msgstr "Generar clave"
+
+msgctxt "wireguard-key-view"
+msgid "Generating key"
+msgstr "Generando clave"
+
+msgctxt "wireguard-key-view"
+msgid "Key is invalid"
+msgstr "La clave no es válida"
+
+msgctxt "wireguard-key-view"
+msgid "Manage keys"
+msgstr "Administrar claves"
+
+msgctxt "wireguard-key-view"
+msgid "No key set"
+msgstr "No se ha configurado ninguna clave"
+
+msgctxt "wireguard-key-view"
+msgid "Verify key"
+msgstr "Verificar clave"
+
+msgctxt "wireguard-key-view"
+msgid "Verifying key"
+msgstr "Verificando clave"
+
+msgctxt "wireguard-keys"
+msgid "Public key"
+msgstr "Clave pública"
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "Advanced"
+msgstr "Avanzadas"
+
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard keys"
+msgstr "Claves de WireGuard"
 

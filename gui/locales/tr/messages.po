@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2019-07-10 05:10\n"
+"PO-Revision-Date: 2019-08-12 08:53\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ENGELLENEN BAĞLANTI"
@@ -57,6 +57,10 @@ msgid "Currently unavailable"
 msgstr "Şu an kullanılamıyor"
 
 msgctxt "account-view"
+msgid "Key is valid"
+msgstr "Anahtar geçerli"
+
+msgctxt "account-view"
 msgid "Log out"
 msgstr "Oturumu kapat"
 
@@ -77,13 +81,6 @@ msgstr "Gelişmiş"
 msgctxt "advanced-settings-nav"
 msgid "Settings"
 msgstr "Ayarlar"
-
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
-msgctxt "advanced-settings-view"
-msgid "%(portType)s port"
-msgstr "%(portType)s portu"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -119,16 +116,27 @@ msgid "Mssfix"
 msgstr "Mssfix"
 
 msgctxt "advanced-settings-view"
-msgid "Network protocols"
-msgstr "Ağ protokolleri"
-
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "Açık"
 
 msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "Kapalı"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN"
+msgstr "OpenVPN"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "OpenVPN %(portType)s port"
+msgstr "OpenVPN %(portType)s portu"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN transport protocol"
+msgstr "OpenVPN taşıma protokolü"
 
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
@@ -143,6 +151,10 @@ msgid "TCP"
 msgstr "TCP"
 
 msgctxt "advanced-settings-view"
+msgid "Tunnel protocol"
+msgstr "Tünel protokolü"
+
+msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -153,6 +165,18 @@ msgstr "Mullvad'a bağlı olmadığınız sürece bu ayar, internetinizi bağlan
 msgctxt "advanced-settings-view"
 msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
 msgstr "Uyarı: Uygulamadan çıksanız bile internetiniz bir VPN bağlantısı olmadan çalışmayacak."
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard"
+msgstr "WireGuard"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard keys"
+msgstr "WireGuard anahtarları"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard port"
+msgstr "WireGuard portu"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -286,12 +310,16 @@ msgid "Install Mullvad VPN (%(version)s) to stay up to date"
 msgstr "Güncel kalmak için Mullvad VPN'in (%(version)s) sürümünü yükleyin"
 
 msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings"
-msgstr "Geçerli ayarlara uyan aktarma sunucusu yok"
+msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
+msgstr "Geçerli ayarlarla eşleşen hiçbir aktarma sunucusu yok. Konumu veya aktarma ayarlarını değiştirmeyi deneyebilirsiniz."
 
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "Bu cihaz çevrimdışı, tünel oluşturulamaz"
+
+msgctxt "in-app-notifications"
+msgid "This might be caused by third party security software"
+msgstr "Bu durum, üçüncü taraf güvenlik yazılımdan kaynaklanabilir"
 
 msgctxt "in-app-notifications"
 msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
@@ -391,6 +419,10 @@ msgstr "Güvenli"
 msgctxt "notifications"
 msgid "Unsecured"
 msgstr "Güvenli Değil"
+
+msgctxt "notifications"
+msgid "Wireguard key generation failed"
+msgstr "Wireguard anahtarı oluşturulamadı"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -610,4 +642,53 @@ msgstr "Bağlantımı güvenceye al"
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "Konum değiştir"
+
+msgctxt "wireguard-key-view"
+msgid "Account has too many keys already"
+msgstr "Hesap zaten çok fazla anahtara sahip"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate key"
+msgstr "Anahtar oluşturulamadı"
+
+msgctxt "wireguard-key-view"
+msgid "Generate key"
+msgstr "Anahtar oluştur"
+
+msgctxt "wireguard-key-view"
+msgid "Generating key"
+msgstr "Anahtar oluşturuluyor"
+
+msgctxt "wireguard-key-view"
+msgid "Key is invalid"
+msgstr "Anahtar geçersiz"
+
+msgctxt "wireguard-key-view"
+msgid "Manage keys"
+msgstr "Anahtarları yönet"
+
+msgctxt "wireguard-key-view"
+msgid "No key set"
+msgstr "Anahtar seti yok"
+
+msgctxt "wireguard-key-view"
+msgid "Verify key"
+msgstr "Anahtarı doğrula"
+
+msgctxt "wireguard-key-view"
+msgid "Verifying key"
+msgstr "Anahtar doğrulanıyor"
+
+msgctxt "wireguard-keys"
+msgid "Public key"
+msgstr "Genel anahtar"
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "Advanced"
+msgstr "Gelişmiş"
+
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard keys"
+msgstr "WireGuard anahtarları"
 
