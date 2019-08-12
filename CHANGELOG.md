@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+- Fix old settings deserialization to allow migrating settings from versions older than 2019.6.
 
 
 ## [2019.7] - 2019-08-12

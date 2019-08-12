@@ -2,8 +2,9 @@ use super::{Error, Result, VersionedSettings};
 use crate::{
     custom_tunnel::CustomTunnelEndpoint,
     relay_constraints::{
-        BridgeSettings, BridgeState, Constraint, LocationConstraint, OpenVpnConstraints,
-        RelaySettings as NewRelaySettings, TunnelProtocol, WireguardConstraints,
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
+        OpenVpnConstraints, RelaySettings as NewRelaySettings, TunnelProtocol,
+        WireguardConstraints,
     },
     settings::TunnelOptions,
 };
@@ -13,6 +14,7 @@ use std::io::Read;
 
 /// Mullvad daemon settings.
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(default)]
 pub struct Settings {
     account_token: Option<String>,
     relay_settings: RelaySettings,
@@ -28,6 +30,26 @@ pub struct Settings {
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
     tunnel_options: TunnelOptions,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Settings {
+            account_token: None,
+            relay_settings: RelaySettings::Normal(RelayConstraints {
+                location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
+                tunnel: Constraint::Any,
+            }),
+            bridge_settings: BridgeSettings::Normal(BridgeConstraints {
+                location: Constraint::Any,
+            }),
+            bridge_state: BridgeState::Auto,
+            allow_lan: false,
+            block_when_disconnected: false,
+            auto_connect: false,
+            tunnel_options: TunnelOptions::default(),
+        }
+    }
 }
 
 pub(super) struct Migration;
@@ -200,6 +222,49 @@ mod test {
 }
 "#;
 
+    const SETTINGS_2019V3: &str = r#"
+{
+  "account_token": "1234",
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "country": "se"
+        }
+      },
+      "tunnel": {
+        "only": {
+          "openvpn": {
+            "port": {
+              "only": 53
+            },
+            "protocol": {
+              "only": "udp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "allow_lan": true,
+  "block_when_disconnected": false,
+  "auto_connect": false,
+  "tunnel_options": {
+    "openvpn": {
+      "mssfix": null,
+      "proxy": null
+    },
+    "wireguard": {
+      "mtu": null
+    },
+    "generic": {
+      "enable_ipv6": false
+    }
+  }
+}
+
+"#;
+
     #[test]
     fn test_migration() {
         let m = super::Migration;
@@ -217,5 +282,18 @@ mod test {
         let m = super::Migration;
         m.read(&mut NEW_SETTINGS.as_bytes())
             .expect("Failed to deserialize old format");
+    }
+
+    #[test]
+    fn test_2019v3_migration() {
+        let m = super::Migration;
+        let old_settings = m
+            .read(&mut SETTINGS_2019V3.as_bytes())
+            .expect("Failed to deserialize old format");
+
+        let new_settings = serde_json::from_str(&NEW_SETTINGS).unwrap();
+
+
+        assert_eq!(&m.migrate(old_settings).unwrap(), &new_settings);
     }
 }
