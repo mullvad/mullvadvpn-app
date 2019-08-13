@@ -4,13 +4,19 @@ platform :ios, '12.0'
 # Disable sending stats
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
-target 'MullvadVPN' do
-  use_frameworks!
-
+def shared_pods
   pod 'ProcedureKit', '5.2.0'
   pod 'ProcedureKit/Network', '5.2.0'
 end
 
+target 'MullvadVPN' do
+  use_frameworks!
+
+  shared_pods
+end
+
 target 'PacketTunnel' do
   use_frameworks!
+
+  shared_pods
 end
