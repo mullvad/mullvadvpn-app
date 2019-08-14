@@ -10,7 +10,6 @@ import * as React from 'react';
 import { Provider } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { InvalidAccountError } from '../main/errors';
 import ErrorBoundary from './components/ErrorBoundary';
 import AppRoutes from './routes';
 
@@ -26,12 +25,11 @@ import { cities, countries, loadTranslations, messages, relayLocations } from '.
 import { IGuiSettingsState } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
 import { getRendererLogFile, setupLogging } from '../shared/logging';
-import AccountDataCache, { AccountFetchRetryAction } from './lib/account-data-cache';
-import AccountExpiry from './lib/account-expiry';
 
 import {
   AccountToken,
   BridgeState,
+  IAccountData,
   ILocation,
   IRelayList,
   ISettings,
@@ -41,8 +39,6 @@ import {
   RelaySettingsUpdate,
   TunnelState,
 } from '../shared/daemon-rpc-types';
-
-type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
 
 export default class AppRenderer {
   private memoryHistory = createMemoryHistory();
@@ -61,20 +57,11 @@ export default class AppRenderer {
       this.reduxStore.dispatch,
     ),
   };
-  private accountDataCache = new AccountDataCache(
-    (accountToken) => {
-      return IpcRendererEventChannel.account.getData(accountToken);
-    },
-    (accountData) => {
-      this.setAccountExpiry(accountData && accountData.expiry);
-    },
-  );
 
   private locale: string;
   private tunnelState: TunnelState;
   private settings: ISettings;
   private guiSettings: IGuiSettingsState;
-  private accountExpiry?: AccountExpiry;
   private connectedToDaemon = false;
   private autoConnected = false;
   private doingLogin = false;
@@ -82,12 +69,6 @@ export default class AppRenderer {
 
   constructor() {
     setupLogging(getRendererLogFile());
-
-    ipcRenderer.on('window-shown', () => {
-      if (this.connectedToDaemon) {
-        this.updateAccountExpiry();
-      }
-    });
 
     IpcRendererEventChannel.windowShape.listen((windowShapeParams) => {
       if (typeof windowShapeParams.arrowPosition === 'number') {
@@ -103,6 +84,10 @@ export default class AppRenderer {
       this.onDaemonDisconnected(errorMessage ? new Error(errorMessage) : undefined);
     });
 
+    IpcRendererEventChannel.account.listen((newAccountData?: IAccountData) => {
+      this.setAccountExpiry(newAccountData && newAccountData.expiry);
+    });
+
     IpcRendererEventChannel.accountHistory.listen((newAccountHistory: AccountToken[]) => {
       this.setAccountHistory(newAccountHistory);
     });
@@ -110,10 +95,6 @@ export default class AppRenderer {
     IpcRendererEventChannel.tunnel.listen((newState: TunnelState) => {
       this.setTunnelState(newState);
       this.updateBlockedState(newState, this.settings.blockWhenDisconnected);
-
-      if (this.accountExpiry) {
-        this.detectStaleAccountExpiry(newState, this.accountExpiry);
-      }
     });
 
     IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
@@ -164,6 +145,7 @@ export default class AppRenderer {
     this.settings = initialState.settings;
     this.guiSettings = initialState.guiSettings;
 
+    this.setAccountExpiry(initialState.accountData && initialState.accountData.expiry);
     this.setAccountHistory(initialState.accountHistory);
     this.setSettings(initialState.settings);
     this.setTunnelState(initialState.tunnelState);
@@ -219,13 +201,7 @@ export default class AppRenderer {
     this.doingLogin = true;
 
     try {
-      const verification = await this.verifyAccount(accountToken);
-
-      if (verification.status === 'deferred') {
-        log.warn(`Failed to get account data, logging in anyway: ${verification.error.message}`);
-      }
-
-      await IpcRendererEventChannel.account.set(accountToken);
+      await IpcRendererEventChannel.account.login(accountToken);
 
       // Redirect the user after some time to allow for the 'Logged in' screen to be visible
       this.loginTimer = global.setTimeout(async () => {
@@ -239,33 +215,13 @@ export default class AppRenderer {
         }
       }, 1000);
     } catch (error) {
-      log.error('Failed to log in,', error.message);
-
       actions.account.loginFailed(error);
     }
   }
 
-  public verifyAccount(accountToken: AccountToken): Promise<AccountVerification> {
-    return new Promise((resolve, reject) => {
-      this.accountDataCache.invalidate();
-      this.accountDataCache.fetch(accountToken, {
-        onFinish: () => resolve({ status: 'verified' }),
-        onError: (error): AccountFetchRetryAction => {
-          if (error.message === new InvalidAccountError().message) {
-            reject(error);
-            return AccountFetchRetryAction.stop;
-          } else {
-            resolve({ status: 'deferred', error });
-            return AccountFetchRetryAction.retry;
-          }
-        },
-      });
-    });
-  }
-
   public async logout() {
     try {
-      await IpcRendererEventChannel.account.unset();
+      await IpcRendererEventChannel.account.logout();
     } catch (e) {
       log.info('Failed to logout: ', e.message);
     }
@@ -289,12 +245,6 @@ export default class AppRenderer {
 
   public updateRelaySettings(relaySettings: RelaySettingsUpdate) {
     return IpcRendererEventChannel.settings.updateRelaySettings(relaySettings);
-  }
-
-  public updateAccountExpiry() {
-    if (this.settings.accountToken) {
-      this.accountDataCache.fetch(this.settings.accountToken);
-    }
   }
 
   public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
@@ -540,21 +490,12 @@ export default class AppRenderer {
 
   private handleAccountChange(oldAccount?: string, newAccount?: string) {
     if (oldAccount && !newAccount) {
-      this.accountDataCache.invalidate();
-
       if (this.loginTimer) {
         clearTimeout(this.loginTimer);
       }
-
       this.memoryHistory.replace('/login');
-    } else if (!oldAccount && newAccount) {
-      this.accountDataCache.fetch(newAccount);
-
-      if (!this.doingLogin) {
-        this.memoryHistory.replace('/connect');
-      }
-    } else if (oldAccount && newAccount && oldAccount !== newAccount) {
-      this.accountDataCache.fetch(newAccount);
+    } else if (!oldAccount && newAccount && !this.doingLogin) {
+      this.memoryHistory.replace('/connect');
     }
 
     this.doingLogin = false;
@@ -600,16 +541,7 @@ export default class AppRenderer {
   }
 
   private setAccountExpiry(expiry?: string) {
-    this.accountExpiry = expiry ? new AccountExpiry(expiry, this.locale) : undefined;
     this.reduxActions.account.updateAccountExpiry(expiry);
-  }
-
-  private detectStaleAccountExpiry(tunnelState: TunnelState, accountExpiry: AccountExpiry) {
-    // It's likely that the account expiry is stale if the daemon managed to establish the tunnel.
-    if (tunnelState.state === 'connected' && accountExpiry.hasExpired()) {
-      log.info('Detected the stale account expiry.');
-      this.accountDataCache.invalidate();
-    }
   }
 
   private storeAutoStart(autoStart: boolean) {

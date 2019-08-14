@@ -8,6 +8,7 @@ import {
   AccountToken,
   BridgeState,
   DaemonEvent,
+  IAccountData,
   IAppVersionInfo,
   ILocation,
   IRelayList,
@@ -27,6 +28,7 @@ import {
   getRendererLogFile,
   setupLogging,
 } from '../shared/logging';
+import AccountDataCache, { AccountFetchRetryAction } from './account-data-cache';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
 import {
   ConnectionObserver,
@@ -34,6 +36,7 @@ import {
   ResponseParseError,
   SubscriptionListener,
 } from './daemon-rpc';
+import { InvalidAccountError } from './errors';
 import GuiSettings from './gui-settings';
 import NotificationController from './notification-controller';
 import { resolveBin } from './proc';
@@ -63,6 +66,8 @@ export interface IAppUpgradeInfo extends IAppVersionInfo {
   upToDate: boolean;
 }
 
+type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
+
 class ApplicationMain {
   private notificationController = new NotificationController();
   private windowController?: WindowController;
@@ -73,6 +78,7 @@ class ApplicationMain {
   private connectedToDaemon = false;
   private quitStage = AppQuitStage.unready;
 
+  private accountData?: IAccountData = undefined;
   private accountHistory: AccountToken[] = [];
   private tunnelState: TunnelState = { state: 'disconnected' };
   private settings: ISettings = {
@@ -135,6 +141,19 @@ class ApplicationMain {
   private locale = 'en';
 
   private wireguardPublicKey?: string;
+
+  private accountDataCache = new AccountDataCache(
+    (accountToken) => {
+      return this.daemonRpc.getAccountData(accountToken);
+    },
+    (accountData) => {
+      this.accountData = accountData;
+
+      if (this.windowController) {
+        IpcMainEventChannel.account.notify(this.windowController.webContents, accountData);
+      }
+    },
+  );
 
   public run() {
     // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
@@ -554,6 +573,10 @@ class ApplicationMain {
     if (this.windowController) {
       IpcMainEventChannel.tunnel.notify(this.windowController.webContents, newState);
     }
+
+    if (this.accountData) {
+      this.detectStaleAccountExpiry(newState, new Date(this.accountData.expiry));
+    }
   }
 
   private setSettings(newSettings: ISettings) {
@@ -561,6 +584,9 @@ class ApplicationMain {
     this.settings = newSettings;
 
     this.updateTrayIcon(this.tunnelState, newSettings.blockWhenDisconnected);
+
+    // make sure to invalidate the account data cache when account tokens change
+    this.updateAccountDataOnAccountChange(oldSettings.accountToken, newSettings.accountToken);
 
     if (oldSettings.accountToken !== newSettings.accountToken) {
       this.updateAccountHistory();
@@ -840,7 +866,7 @@ class ApplicationMain {
       // cancel notifications when window appears
       this.notificationController.cancelPendingNotifications();
 
-      windowController.send('window-shown');
+      this.updateAccountExpiryIfNeeded();
     });
 
     windowController.window.on('hide', () => {
@@ -854,6 +880,7 @@ class ApplicationMain {
       locale: this.locale,
       isConnected: this.connectedToDaemon,
       autoStart: getOpenAtLogin(),
+      accountData: this.accountData,
       accountHistory: this.accountHistory,
       tunnelState: this.tunnelState,
       settings: this.settings,
@@ -907,13 +934,8 @@ class ApplicationMain {
       this.guiSettings.monochromaticIcon = monochromaticIcon;
     });
 
-    IpcMainEventChannel.account.handleSet((token: AccountToken) =>
-      this.daemonRpc.setAccount(token),
-    );
-    IpcMainEventChannel.account.handleUnset(() => this.daemonRpc.setAccount());
-    IpcMainEventChannel.account.handleGetData((token: AccountToken) =>
-      this.daemonRpc.getAccountData(token),
-    );
+    IpcMainEventChannel.account.handleLogin((token: AccountToken) => this.login(token));
+    IpcMainEventChannel.account.handleLogout(() => this.logout());
 
     IpcMainEventChannel.accountHistory.handleRemoveItem(async (token: AccountToken) => {
       await this.daemonRpc.removeAccountFromHistory(token);
@@ -1001,6 +1023,76 @@ class ApplicationMain {
         });
       },
     );
+  }
+
+  private async login(accountToken: AccountToken): Promise<void> {
+    try {
+      const verification = await this.verifyAccount(accountToken);
+
+      if (verification.status === 'deferred') {
+        log.warn(`Failed to get account data, logging in anyway: ${verification.error.message}`);
+      }
+
+      await this.daemonRpc.setAccount(accountToken);
+    } catch (error) {
+      log.error(`Failed to login: ${error.message}`);
+
+      throw error;
+    }
+  }
+
+  private async logout(): Promise<void> {
+    try {
+      await this.daemonRpc.setAccount();
+    } catch (error) {
+      log.info(`Failed to logout: ${error.message}`);
+
+      throw error;
+    }
+  }
+
+  private verifyAccount(accountToken: AccountToken): Promise<AccountVerification> {
+    return new Promise((resolve, reject) => {
+      this.accountDataCache.invalidate();
+      this.accountDataCache.fetch(accountToken, {
+        onFinish: () => resolve({ status: 'verified' }),
+        onError: (error): AccountFetchRetryAction => {
+          if (error instanceof InvalidAccountError) {
+            reject(error);
+            return AccountFetchRetryAction.stop;
+          } else {
+            resolve({ status: 'deferred', error });
+            return AccountFetchRetryAction.retry;
+          }
+        },
+      });
+    });
+  }
+
+  private updateAccountDataOnAccountChange(oldAccount?: string, newAccount?: string) {
+    if (oldAccount && !newAccount) {
+      this.accountDataCache.invalidate();
+    } else if (!oldAccount && newAccount) {
+      this.accountDataCache.fetch(newAccount);
+    } else if (oldAccount && newAccount && oldAccount !== newAccount) {
+      this.accountDataCache.fetch(newAccount);
+    }
+  }
+
+  private updateAccountExpiryIfNeeded() {
+    if (this.connectedToDaemon && this.settings.accountToken) {
+      this.accountDataCache.fetch(this.settings.accountToken);
+    }
+  }
+
+  private detectStaleAccountExpiry(tunnelState: TunnelState, accountExpiry: Date) {
+    const hasExpired = new Date() >= accountExpiry;
+
+    // It's likely that the account expiry is stale if the daemon managed to establish the tunnel.
+    if (tunnelState.state === 'connected' && hasExpired) {
+      log.info('Detected the stale account expiry.');
+      this.accountDataCache.invalidate();
+    }
   }
 
   private async updateAccountHistory(): Promise<void> {
