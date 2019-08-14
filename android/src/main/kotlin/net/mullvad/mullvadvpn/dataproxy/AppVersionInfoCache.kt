@@ -19,8 +19,8 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
         val SHARED_PREFERENCES = "app_version_info_cache"
     }
 
-    private val preferences =
-        parentActivity.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
+    private val preferences: SharedPreferences
+        get() = parentActivity.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
 
     private val updateVersionJob = updateVersion()
 
