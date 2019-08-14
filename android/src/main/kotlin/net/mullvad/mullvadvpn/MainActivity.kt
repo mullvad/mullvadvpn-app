@@ -41,7 +41,7 @@ class MainActivity : FragmentActivity() {
 
     var currentVersion = fetchCurrentVersion()
 
-    lateinit var appVersionInfoCache: AppVersionInfoCache
+    var appVersionInfoCache = AppVersionInfoCache(this)
     val connectionProxy = ConnectionProxy(this)
     val keyStatusListener = KeyStatusListener(daemon)
     val problemReport = MullvadProblemReport()
@@ -81,7 +81,7 @@ class MainActivity : FragmentActivity() {
             addInitialFragment()
         }
 
-        appVersionInfoCache = AppVersionInfoCache(this)
+        appVersionInfoCache.onCreate()
     }
 
     override fun onStart() {

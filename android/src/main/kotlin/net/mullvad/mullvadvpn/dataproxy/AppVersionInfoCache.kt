@@ -57,7 +57,7 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
         }
     }
 
-    init {
+    fun onCreate() {
         preferences.registerOnSharedPreferenceChangeListener(listener)
 
         lastUpdated = preferences.getLong(KEY_LAST_UPDATED, 0L)
