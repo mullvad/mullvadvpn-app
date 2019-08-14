@@ -43,11 +43,13 @@ class AccountExpiryRefresh {
     /// Register observer and start updating the account expiry if hasn't started yet
     private func addObserver(_ observer: Observer) {
         lock.withCriticalScope {
-            if observers.isEmpty {
-                procedureQueue.addOperation(makePeriodicUpdateProcedure())
-            }
+            let wasEmpty = observers.isEmpty
 
             observers.append(WeakBox(observer))
+
+            if wasEmpty {
+                procedureQueue.addOperation(makePeriodicUpdateProcedure())
+            }
         }
 
     }
