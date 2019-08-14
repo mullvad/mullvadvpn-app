@@ -5,6 +5,7 @@ import * as uuid from 'uuid';
 import { IGuiSettingsState } from './gui-settings-state';
 
 import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main/index';
+import { IWindowShapeParameters } from '../main/window-controller';
 import {
   AccountToken,
   BridgeState,
@@ -128,6 +129,8 @@ interface IWireguardKeyHandlers extends ISender<string | undefined> {
 
 /// Events names
 
+const WINDOW_SHAPE_CHANGED = 'window-shape-changed';
+
 const DAEMON_CONNECTED = 'daemon-connected';
 const DAEMON_DISCONNECTED = 'daemon-disconnected';
 
@@ -182,6 +185,10 @@ export class IpcRendererEventChannel {
     get(): IAppStateSnapshot {
       return ipcRenderer.sendSync(GET_APP_STATE);
     },
+  };
+
+  public static windowShape: IReceiver<IWindowShapeParameters> = {
+    listen: listen(WINDOW_SHAPE_CHANGED),
   };
 
   public static daemonConnected: IReceiver<void> = {
@@ -263,6 +270,10 @@ export class IpcMainEventChannel {
         event.returnValue = fn();
       });
     },
+  };
+
+  public static windowShape: ISender<IWindowShapeParameters> = {
+    notify: sender<IWindowShapeParameters>(WINDOW_SHAPE_CHANGED),
   };
 
   public static daemonConnected: ISenderVoid = {

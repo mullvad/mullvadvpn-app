@@ -1,4 +1,5 @@
 import { BrowserWindow, Display, screen, Tray, WebContents } from 'electron';
+import { IpcMainEventChannel } from '../shared/ipc-event-channel';
 
 interface IPosition {
   x: number;
@@ -201,7 +202,8 @@ export default class WindowController {
 
   private notifyUpdateWindowShape() {
     const shapeParameters = this.windowPositioning.getWindowShapeParameters(this.windowValue);
-    this.windowValue.webContents.send('update-window-shape', shapeParameters);
+
+    IpcMainEventChannel.windowShape.notify(this.windowValue.webContents, shapeParameters);
   }
 
   // Installs display event handlers to update the window position on any changes in the display or
