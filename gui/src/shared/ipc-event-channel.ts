@@ -22,6 +22,7 @@ export interface IAppStateSnapshot {
   locale: string;
   isConnected: boolean;
   autoStart: boolean;
+  accountData?: IAccountData;
   accountHistory: AccountToken[];
   tunnelState: TunnelState;
   settings: ISettings;
@@ -87,16 +88,14 @@ interface IGuiSettingsHandlers extends ISender<IGuiSettingsState> {
   handleMonochromaticIcon(fn: (monochromaticIcon: boolean) => void): void;
 }
 
-interface IAccountHandlers {
-  handleSet(fn: (token: AccountToken) => Promise<void>): void;
-  handleUnset(fn: () => Promise<void>): void;
-  handleGetData(fn: (token: AccountToken) => Promise<IAccountData>): void;
+interface IAccountHandlers extends ISender<IAccountData | undefined> {
+  handleLogin(fn: (token: AccountToken) => Promise<void>): void;
+  handleLogout(fn: () => Promise<void>): void;
 }
 
-interface IAccountMethods {
-  set(token: AccountToken): Promise<void>;
-  unset(): Promise<void>;
-  getData(token: AccountToken): Promise<IAccountData>;
+interface IAccountMethods extends IReceiver<IAccountData | undefined> {
+  login(token: AccountToken): Promise<void>;
+  logout(): Promise<void>;
 }
 
 interface IAccountHistoryHandlers extends ISender<AccountToken[]> {
@@ -162,9 +161,9 @@ const GET_APP_STATE = 'get-app-state';
 const ACCOUNT_HISTORY_CHANGED = 'account-history-changed';
 const REMOVE_ACCOUNT_HISTORY_ITEM = 'remove-account-history-item';
 
-const SET_ACCOUNT = 'set-account';
-const UNSET_ACCOUNT = 'unset-account';
-const GET_ACCOUNT_DATA = 'get-account-data';
+const DO_LOGIN = 'do-login';
+const DO_LOGOUT = 'do-logout';
+const ACCOUNT_DATA_CHANGED = 'account-data-changed';
 
 const AUTO_START_CHANGED = 'auto-start-changed';
 const SET_AUTO_START = 'set-auto-start';
@@ -245,9 +244,9 @@ export class IpcRendererEventChannel {
   };
 
   public static account: IAccountMethods = {
-    set: requestSender(SET_ACCOUNT),
-    unset: requestSender(UNSET_ACCOUNT),
-    getData: requestSender(GET_ACCOUNT_DATA),
+    listen: listen(ACCOUNT_DATA_CHANGED),
+    login: requestSender(DO_LOGIN),
+    logout: requestSender(DO_LOGOUT),
   };
 
   public static accountHistory: IAccountHistoryMethods = {
@@ -330,9 +329,9 @@ export class IpcMainEventChannel {
   };
 
   public static account: IAccountHandlers = {
-    handleSet: requestHandler(SET_ACCOUNT),
-    handleUnset: requestHandler(UNSET_ACCOUNT),
-    handleGetData: requestHandler(GET_ACCOUNT_DATA),
+    notify: sender<IAccountData | undefined>(ACCOUNT_DATA_CHANGED),
+    handleLogin: requestHandler(DO_LOGIN),
+    handleLogout: requestHandler(DO_LOGOUT),
   };
 
   public static accountHistory: IAccountHistoryHandlers = {
