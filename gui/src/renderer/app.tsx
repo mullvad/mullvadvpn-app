@@ -22,7 +22,6 @@ import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
 
 import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main';
-import { IWindowShapeParameters } from '../main/window-controller';
 import { cities, countries, loadTranslations, messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
@@ -84,18 +83,15 @@ export default class AppRenderer {
   constructor() {
     setupLogging(getRendererLogFile());
 
-    ipcRenderer.on(
-      'update-window-shape',
-      (_event: Electron.Event, shapeParams: IWindowShapeParameters) => {
-        if (typeof shapeParams.arrowPosition === 'number') {
-          this.reduxActions.userInterface.updateWindowArrowPosition(shapeParams.arrowPosition);
-        }
-      },
-    );
-
     ipcRenderer.on('window-shown', () => {
       if (this.connectedToDaemon) {
         this.updateAccountExpiry();
+      }
+    });
+
+    IpcRendererEventChannel.windowShape.listen((windowShapeParams) => {
+      if (typeof windowShapeParams.arrowPosition === 'number') {
+        this.reduxActions.userInterface.updateWindowArrowPosition(windowShapeParams.arrowPosition);
       }
     });
 
