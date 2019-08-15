@@ -46,6 +46,14 @@ class NotificationBanner(
         banner.setOnClickListener { onClick() }
     }
 
+    fun onResume() {
+        versionInfoCache.onUpdate = { update() }
+    }
+
+    fun onPause() {
+        versionInfoCache.onUpdate = null
+    }
+
     private fun update() {
         externalLink = null
         updateBasedOnKeyState() || updateBasedOnTunnelState() || updateBasedOnVersionInfo()
