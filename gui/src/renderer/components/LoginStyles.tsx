@@ -99,9 +99,11 @@ export default {
     color: colors.blue,
   }),
   account_dropdown__label_container: Styles.createViewStyle({
-    marginLeft: 12,
-    marginTop: 11,
-    marginBottom: 11,
+    paddingLeft: 12,
+    paddingTop: 11,
+    paddingBottom: 11,
+    marginHorizontal: 0,
+    marginVertical: 0,
   }),
 
   login_footer__prompt: Styles.createTextStyle({
