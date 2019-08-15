@@ -101,7 +101,6 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:text=""
-                android:textAllCaps="true"
                 />
         <ImageView
                 android:layout_width="16dp"
