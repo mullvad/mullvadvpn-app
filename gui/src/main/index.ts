@@ -1037,7 +1037,11 @@ class ApplicationMain {
     } catch (error) {
       log.error(`Failed to login: ${error.message}`);
 
-      throw error;
+      if (error instanceof InvalidAccountError) {
+        throw Error(messages.gettext('Invalid account number'));
+      } else {
+        throw error;
+      }
     }
   }
 
