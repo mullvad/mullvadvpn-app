@@ -1,9 +1,3 @@
-export class NoCreditError extends Error {
-  constructor() {
-    super("Account doesn't have enough credit available for connection");
-  }
-}
-
 export class NoDaemonError extends Error {
   constructor() {
     super('Could not connect to Mullvad daemon');
