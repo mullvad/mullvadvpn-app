@@ -17,19 +17,24 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 
+import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
+
 class SettingsFragment : Fragment() {
     private lateinit var parentActivity: MainActivity
+    private lateinit var versionInfoCache: AppVersionInfoCache
+
     private lateinit var remainingTimeLabel: RemainingTimeLabel
     private lateinit var appVersionWarning: View
     private lateinit var appVersionLabel: TextView
     private lateinit var appVersionFooter: View
 
-    private var showCurrentVersionJob: Job? = null
+    private var updateVersionInfoJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
         parentActivity = context as MainActivity
+        versionInfoCache = parentActivity.appVersionInfoCache
     }
 
     override fun onCreateView(
@@ -62,23 +67,26 @@ class SettingsFragment : Fragment() {
         appVersionLabel = view.findViewById<TextView>(R.id.app_version_label)
         appVersionFooter = view.findViewById(R.id.app_version_footer)
 
-        showCurrentVersionJob = showCurrentVersion()
-
         return view
     }
 
     override fun onResume() {
         super.onResume()
         remainingTimeLabel.onResume()
+        versionInfoCache.onUpdate = {
+            updateVersionInfoJob?.cancel()
+            updateVersionInfoJob = updateVersionInfo()
+        }
     }
 
     override fun onPause() {
+        versionInfoCache.onUpdate = null
         remainingTimeLabel.onPause()
         super.onPause()
     }
 
     override fun onDestroyView() {
-        showCurrentVersionJob?.cancel()
+        updateVersionInfoJob?.cancel()
         super.onDestroyView()
     }
 
@@ -102,11 +110,8 @@ class SettingsFragment : Fragment() {
         startActivity(intent)
     }
 
-    private fun showCurrentVersion() = GlobalScope.launch(Dispatchers.Main) {
-        val version = parentActivity.currentVersion.await()
-        val versionInfoCache = parentActivity.appVersionInfoCache
-
-        appVersionLabel.setText(version)
+    private fun updateVersionInfo() = GlobalScope.launch(Dispatchers.Main) {
+        appVersionLabel.setText(versionInfoCache.version ?: "")
 
         if (versionInfoCache.isLatest && versionInfoCache.isSupported) {
             appVersionWarning.visibility = View.GONE

@@ -39,9 +39,7 @@ class MainActivity : FragmentActivity() {
     var service = CompletableDeferred<MullvadVpnService.LocalBinder>()
         private set
 
-    var currentVersion = fetchCurrentVersion()
-
-    lateinit var appVersionInfoCache: AppVersionInfoCache
+    var appVersionInfoCache = AppVersionInfoCache(this)
     val connectionProxy = ConnectionProxy(this)
     val keyStatusListener = KeyStatusListener(daemon)
     val problemReport = MullvadProblemReport()
@@ -81,7 +79,7 @@ class MainActivity : FragmentActivity() {
             addInitialFragment()
         }
 
-        appVersionInfoCache = AppVersionInfoCache(this)
+        appVersionInfoCache.onCreate()
     }
 
     override fun onStart() {
@@ -172,9 +170,5 @@ class MainActivity : FragmentActivity() {
 
     private fun fetchSettings() = GlobalScope.async(Dispatchers.Default) {
         daemon.await().getSettings()
-    }
-
-    private fun fetchCurrentVersion() = GlobalScope.async(Dispatchers.Default) {
-        daemon.await().getCurrentVersion()
     }
 }

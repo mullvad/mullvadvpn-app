@@ -19,10 +19,16 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
         val SHARED_PREFERENCES = "app_version_info_cache"
     }
 
-    private val preferences =
-        parentActivity.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
+    private val preferences: SharedPreferences
+        get() = parentActivity.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
 
-    private val updateVersionJob = updateVersion()
+    private val fetchCurrentVersionJob = fetchCurrentVersion()
+
+    var onUpdate: (() -> Unit)? = null
+        set(value) {
+            field = value
+            value?.invoke()
+        }
 
     var version: String? = null
         private set
@@ -57,7 +63,7 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
         }
     }
 
-    init {
+    fun onCreate() {
         preferences.registerOnSharedPreferenceChangeListener(listener)
 
         lastUpdated = preferences.getLong(KEY_LAST_UPDATED, 0L)
@@ -67,12 +73,12 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
     }
 
     fun onDestroy() {
-        updateVersionJob.cancel()
+        fetchCurrentVersionJob.cancel()
         preferences.unregisterOnSharedPreferenceChangeListener(listener)
     }
 
-    private fun updateVersion() = GlobalScope.launch(Dispatchers.Default) {
-        val currentVersion = parentActivity.currentVersion.await()
+    private fun fetchCurrentVersion() = GlobalScope.launch(Dispatchers.Default) {
+        val currentVersion = parentActivity.daemon.await().getCurrentVersion()
 
         version = currentVersion
         isStable = !currentVersion.contains("-")
@@ -90,5 +96,7 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
             isLatest = false
             upgradeVersion = target
         }
+
+        onUpdate?.invoke()
     }
 }

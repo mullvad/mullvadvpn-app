@@ -103,6 +103,8 @@ class ConnectFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
+        notificationBanner.onResume()
+
         locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
 
         keyStatusListener.onKeyStatusChange = { keyStatus ->
@@ -125,6 +127,8 @@ class ConnectFragment : Fragment() {
         relayListListener.onRelayListChange = null
 
         isTunnelInfoExpanded = locationInfo.isTunnelInfoExpanded
+
+        notificationBanner.onPause()
 
         super.onPause()
     }
