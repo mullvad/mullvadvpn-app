@@ -103,8 +103,8 @@ class SettingsFragment : Fragment() {
     }
 
     private fun showCurrentVersion() = GlobalScope.launch(Dispatchers.Main) {
-        val version = parentActivity.currentVersion.await()
         val versionInfoCache = parentActivity.appVersionInfoCache
+        val version = versionInfoCache.currentVersion.await()
 
         appVersionLabel.setText(version)
 

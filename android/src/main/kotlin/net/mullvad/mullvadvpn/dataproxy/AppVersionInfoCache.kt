@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.dataproxy
 
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -22,7 +23,7 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
     private val preferences: SharedPreferences
         get() = parentActivity.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
 
-    private val updateVersionJob = updateVersion()
+    val currentVersion = fetchCurrentVersion()
 
     var version: String? = null
         private set
@@ -67,17 +68,19 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
     }
 
     fun onDestroy() {
-        updateVersionJob.cancel()
+        currentVersion.cancel()
         preferences.unregisterOnSharedPreferenceChangeListener(listener)
     }
 
-    private fun updateVersion() = GlobalScope.launch(Dispatchers.Default) {
-        val currentVersion = parentActivity.currentVersion.await()
+    private fun fetchCurrentVersion() = GlobalScope.async(Dispatchers.Default) {
+        val currentVersion = parentActivity.daemon.await().getCurrentVersion()
 
         version = currentVersion
         isStable = !currentVersion.contains("-")
 
         updateUpgradeVersion()
+
+        currentVersion
     }
 
     private fun updateUpgradeVersion() {
