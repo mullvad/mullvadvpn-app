@@ -1,6 +1,6 @@
 use crate::net::TunnelEndpoint;
 use serde::{Deserialize, Serialize};
-use std::{error::Error, fmt};
+use std::fmt;
 
 /// Event resulting from a transition to a new tunnel state.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -97,11 +97,7 @@ impl fmt::Display for BlockReason {
             SetDnsError => "Failed to set system DNS server",
             StartTunnelError => "Failed to start connection to remote server",
             TunnelParameterError(ref err) => {
-                return write!(
-                    f,
-                    "Failure to generate tunnel parameters: {}",
-                    err.description(),
-                );
+                return write!(f, "Failure to generate tunnel parameters: {}", err);
             }
             IsOffline => "This device is offline, no tunnels can be established",
             TapAdapterProblem => "A problem with the TAP adapter has been detected",
