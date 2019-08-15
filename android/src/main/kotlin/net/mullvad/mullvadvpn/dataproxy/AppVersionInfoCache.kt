@@ -25,6 +25,12 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
 
     val currentVersion = fetchCurrentVersion()
 
+    var onUpdate: (() -> Unit)? = null
+        set(value) {
+            field = value
+            value?.invoke()
+        }
+
     var version: String? = null
         private set
     var isStable = true
@@ -93,5 +99,7 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
             isLatest = false
             upgradeVersion = target
         }
+
+        onUpdate?.invoke()
     }
 }
