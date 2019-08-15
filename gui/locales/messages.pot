@@ -8,6 +8,9 @@ msgstr ""
 msgid "CREATING SECURE CONNECTION"
 msgstr ""
 
+msgid "Invalid account number"
+msgstr ""
+
 msgid "SECURE CONNECTION"
 msgstr ""
 
@@ -273,6 +276,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr ""
 
 msgctxt "in-app-notifications"
+msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
+msgstr ""
+
+msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
 msgstr ""
 
@@ -321,6 +328,10 @@ msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
 msgstr ""
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
