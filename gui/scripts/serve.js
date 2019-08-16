@@ -81,3 +81,15 @@ watch.start(...prepareWatchArguments(path.resolve(__dirname, '..')));
 watch.on('first_success', () => {
   startBrowserSync();
 });
+
+process.on('exit', () => {
+  watch.kill();
+});
+
+process.on('SIGINT', () => {
+  process.exit();
+});
+
+process.on('SIGTERM', () => {
+  process.exit();
+});
