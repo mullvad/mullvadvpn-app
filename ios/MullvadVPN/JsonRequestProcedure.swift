@@ -1,5 +1,5 @@
 //
-//  JSONRequestProcedure.swift
+//  JsonRequestProcedure.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 14/05/2019.
@@ -9,7 +9,7 @@
 import Foundation
 import ProcedureKit
 
-final class JSONRequestProcedure<Input, Output: Decodable>: GroupProcedure, InputProcedure, OutputProcedure {
+final class JsonRequestProcedure<Input, Output: Decodable>: GroupProcedure, InputProcedure, OutputProcedure {
 
     typealias URLRequestBuilder = (Input) throws -> URLRequest
 
@@ -20,6 +20,7 @@ final class JSONRequestProcedure<Input, Output: Decodable>: GroupProcedure, Inpu
         self.input = input.flatMap { .ready($0) } ?? .pending
 
         let createRequest = TransformProcedure { try requestBuilder($0) }
+        createRequest.input = self.input
 
         let networkRequest = NetworkProcedure {
             NetworkDataProcedure(session: URLSession.shared)
@@ -27,20 +28,18 @@ final class JSONRequestProcedure<Input, Output: Decodable>: GroupProcedure, Inpu
 
         let payloadParsing = DecodeJSONProcedure<Output>(
             dateDecodingStrategy: .iso8601,
+            dataDecodingStrategy: .base64,
             keyDecodingStrategy: .convertFromSnakeCase
             ).injectPayload(fromNetwork: networkRequest)
 
         super.init(dispatchQueue: underlyingQueue, operations: [createRequest, networkRequest, payloadParsing])
 
         bind(from: payloadParsing)
-
-        addWillExecuteBlockObserver { (procedure, _) in
-            createRequest.input = procedure.input
-        }
+        bindAndNotifySetInputReady(to: createRequest)
     }
 }
 
-extension JSONRequestProcedure where Input == Void {
+extension JsonRequestProcedure where Input == Void {
     convenience init(requestBuilder: @escaping URLRequestBuilder) {
         self.init(input: (), requestBuilder: requestBuilder)
     }
