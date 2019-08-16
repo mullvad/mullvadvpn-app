@@ -114,7 +114,7 @@ class ProblemReportFragment : Fragment() {
     }
 
     private fun sendReport(shouldConfirmNoEmail: Boolean) = GlobalScope.launch(Dispatchers.Main) {
-        val userEmail = userEmailInput.text.toString()
+        val userEmail = userEmailInput.text.trim().toString()
 
         problemReport.userEmail = userEmail
         problemReport.userMessage = userMessageInput.text.toString()
