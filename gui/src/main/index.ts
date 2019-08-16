@@ -1246,7 +1246,7 @@ class ApplicationMain {
           { role: 'copy' },
           { role: 'paste' },
           { type: 'separator' },
-          { role: 'selectall' },
+          { role: 'selectAll' },
         ],
       },
     ];
@@ -1259,7 +1259,7 @@ class ApplicationMain {
       { role: 'copy' },
       { role: 'paste' },
       { type: 'separator' },
-      { role: 'selectall' },
+      { role: 'selectAll' },
     ];
 
     // add inspect element on right click menu
