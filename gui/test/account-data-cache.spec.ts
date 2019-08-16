@@ -1,4 +1,4 @@
-import AccountDataCache, { AccountFetchRetryAction } from '../src/renderer/lib/account-data-cache';
+import AccountDataCache, { AccountFetchRetryAction } from '../src/main/account-data-cache';
 import { IAccountData } from '../src/shared/daemon-rpc-types';
 import * as sinon from 'sinon';
 import { expect, spy } from 'chai';
