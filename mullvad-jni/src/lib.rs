@@ -12,7 +12,7 @@ use crate::{
     jni_event_listener::JniEventListener, vpn_service_tun_provider::VpnServiceTunProvider,
 };
 use jni::{
-    objects::{GlobalRef, JObject, JString},
+    objects::{GlobalRef, JObject, JString, JValue},
     sys::{jboolean, JNI_FALSE, JNI_TRUE},
     JNIEnv,
 };
@@ -32,6 +32,7 @@ const LOG_FILENAME: &str = "daemon.log";
 const CLASSES_TO_LOAD: &[&str] = &[
     "java/net/InetAddress",
     "java/net/InetSocketAddress",
+    "java/lang/Boolean",
     "java/util/ArrayList",
     "java/util/List",
     "net/mullvad/mullvadvpn/model/AccountData",
@@ -267,6 +268,30 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWiregua
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to request to generate wireguard key")
+            );
+            JObject::null()
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_verifyWireguardKey<'env, 'this>(
+    env: JNIEnv<'env>,
+    _: JObject<'this>,
+) -> JObject<'env> {
+    match DAEMON_INTERFACE.verify_wireguard_key() {
+        Ok(key_is_valid) => env
+            .new_object(
+                &get_class("java/lang/Boolean"),
+                "(Z)V",
+                &[JValue::Bool(key_is_valid as jboolean)],
+            )
+            .expect("Failed to create Boolean Java object"),
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to verify wireguard key")
             );
             JObject::null()
         }

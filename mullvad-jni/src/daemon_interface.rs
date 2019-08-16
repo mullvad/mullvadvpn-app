@@ -148,6 +148,13 @@ impl DaemonInterface {
         rx.wait().map_err(|_| Error::NoResponse)
     }
 
+    pub fn verify_wireguard_key(&self) -> Result<bool> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::VerifyWireguardKey(tx))?;
+        rx.wait().map_err(|_| Error::NoResponse)
+    }
+
     pub fn set_account(&self, account_token: Option<String>) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
