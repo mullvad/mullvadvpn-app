@@ -14,7 +14,7 @@ pub struct Config {
 }
 
 /// Smallest MTU that supports IPv6
-const SMALLEST_IPV6_MTU: u16 = 1420;
+const SMALLEST_IPV6_MTU: u16 = 1380;
 const DEFAULT_MTU: u16 = SMALLEST_IPV6_MTU;
 
 #[derive(err_derive::Error, Debug)]
