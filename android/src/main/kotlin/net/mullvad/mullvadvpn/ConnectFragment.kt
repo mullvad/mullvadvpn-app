@@ -119,12 +119,22 @@ class ConnectFragment : Fragment() {
         relayListListener.onRelayListChange = { relayList, selectedRelayItem ->
             switchLocationButton.location = selectedRelayItem
         }
+
+        updateTunnelStateJob = updateTunnelState(connectionProxy.uiState)
+        connectionProxy.onUiStateChange = { uiState ->
+            updateTunnelStateJob.cancel()
+            updateTunnelStateJob = updateTunnelState(uiState)
+        }
     }
 
     override fun onPause() {
         keyStatusListener.onKeyStatusChange = null
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
+
+        connectionProxy.onUiStateChange = null
+        updateTunnelStateJob.cancel()
+
 
         isTunnelInfoExpanded = locationInfo.isTunnelInfoExpanded
 
