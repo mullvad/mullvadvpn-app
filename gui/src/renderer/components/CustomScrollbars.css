@@ -2,11 +2,11 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
 }
 
 .custom-scrollbars__scrollable {
   width: 100%;
-  height: 100%;
 }
 
 .custom-scrollbars__scrollable::-webkit-scrollbar {
