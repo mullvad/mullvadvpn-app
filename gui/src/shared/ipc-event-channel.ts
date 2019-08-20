@@ -361,13 +361,21 @@ function set<T>(event: string): (value: T) => void {
 
 function sender<T>(event: string): (webContents: WebContents, value: T) => void {
   return (webContents: WebContents, value: T) => {
-    webContents.send(event, value);
+    if (webContents.isDestroyed()) {
+      log.error(`sender(${event}): webContents is already destroyed!`);
+    } else {
+      webContents.send(event, value);
+    }
   };
 }
 
 function senderVoid(event: string): (webContents: WebContents) => void {
   return (webContents: WebContents) => {
-    webContents.send(event);
+    if (webContents.isDestroyed()) {
+      log.error(`senderVoid(${event}): webContents is already destroyed!`);
+    } else {
+      webContents.send(event);
+    }
   };
 }
 
