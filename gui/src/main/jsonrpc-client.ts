@@ -163,11 +163,12 @@ export default class JsonRpcClient<T> extends EventEmitter {
     }
   }
 
-  public async subscribe(event: string, listener: (value: any) => void): Promise<void> {
+  public async subscribe(event: string, listener: (value: any) => void): Promise<string | number> {
     log.silly(`Adding a listener for ${event}`);
 
     try {
       const subscriptionId = await this.send(`${event}_subscribe`);
+
       if (typeof subscriptionId === 'string' || typeof subscriptionId === 'number') {
         this.subscriptions.set(subscriptionId, listener);
       } else {
@@ -176,9 +177,26 @@ export default class JsonRpcClient<T> extends EventEmitter {
           subscriptionId,
         );
       }
+
+      return subscriptionId;
     } catch (e) {
       log.error(`Failed adding listener to ${event}: ${e.message}`);
       throw e;
+    }
+  }
+
+  public async unsubscribe(event: string, subscriptionId: string | number): Promise<void> {
+    log.silly(`Removing a listener for ${event}`);
+
+    try {
+      if (this.subscriptions.has(subscriptionId)) {
+        await this.send(`${event}_unsubscribe`, [subscriptionId]);
+      }
+    } catch (e) {
+      log.error(`Failed removing listener to ${event}: ${e.message}`);
+      throw e;
+    } finally {
+      this.subscriptions.delete(subscriptionId);
     }
   }
 

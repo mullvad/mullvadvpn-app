@@ -303,6 +303,10 @@ export class ConnectionObserver {
 }
 
 export class SubscriptionListener<T> {
+  // Only meant to be used by DaemonRpc
+  // @internal
+  public subscriptionId?: string | number;
+
   constructor(
     private eventHandler: (payload: T) => void,
     private errorHandler: (error: Error) => void,
@@ -493,17 +497,31 @@ export class DaemonRpc {
     }
   }
 
-  public subscribeDaemonEventListener(listener: SubscriptionListener<DaemonEvent>): Promise<void> {
-    return this.transport.subscribe('daemon_event', (payload) => {
+  public async subscribeDaemonEventListener(
+    listener: SubscriptionListener<DaemonEvent>,
+  ): Promise<void> {
+    const subscriptionId = await this.transport.subscribe('daemon_event', (payload) => {
+      let daemonEvent: DaemonEvent;
+
       try {
-        const daemonEvent = camelCaseObjectKeys(
-          validate(daemonEventSchema, payload),
-        ) as DaemonEvent;
-        listener.onEvent(daemonEvent);
+        daemonEvent = camelCaseObjectKeys(validate(daemonEventSchema, payload)) as DaemonEvent;
       } catch (error) {
         listener.onError(new ResponseParseError('Invalid payload from daemon_event', error));
+        return;
       }
+
+      listener.onEvent(daemonEvent);
     });
+
+    listener.subscriptionId = subscriptionId;
+  }
+
+  public async unsubscribeDaemonEventListener(
+    listener: SubscriptionListener<DaemonEvent>,
+  ): Promise<void> {
+    if (listener.subscriptionId) {
+      return this.transport.unsubscribe('daemon_event', listener.subscriptionId);
+    }
   }
 
   public async getAccountHistory(): Promise<AccountToken[]> {
