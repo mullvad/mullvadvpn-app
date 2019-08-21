@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+use crate::tunnel::tun_provider::TunProvider;
 #[cfg(unix)]
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(unix)]
@@ -7,6 +9,8 @@ use std::fmt;
 use std::net::IpAddr;
 #[cfg(unix)]
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+#[cfg(target_os = "android")]
+use std::sync::Arc;
 use talpid_types::net::Endpoint;
 
 
@@ -192,6 +196,10 @@ pub struct FirewallArguments {
     pub initialize_blocked: bool,
     /// This argument is required for the blocked state to configure the firewall correctly.
     pub allow_lan: Option<bool>,
+    #[cfg(target_os = "android")]
+    /// This contains a reference to the tunnel provider, which is leveraged to proxy all packets
+    /// through the firewall.
+    pub tun_provider: Arc<dyn TunProvider>,
 }
 
 impl Firewall {

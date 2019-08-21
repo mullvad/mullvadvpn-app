@@ -25,7 +25,7 @@ use futures::{sync::mpsc, Async, Future, Poll, Stream};
 use std::{
     io,
     path::{Path, PathBuf},
-    sync::mpsc as sync_mpsc,
+    sync::{mpsc as sync_mpsc, Arc},
     thread,
 };
 use talpid_types::{
@@ -197,15 +197,20 @@ impl TunnelStateMachine {
         cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self, Error> {
+        let tun_provider: Arc<dyn TunProvider> = Arc::new(tun_provider);
         let args = if block_when_disconnected {
             FirewallArguments {
                 initialize_blocked: true,
                 allow_lan: Some(allow_lan),
+                #[cfg(target_os = "android")]
+                tun_provider: tun_provider.clone(),
             }
         } else {
             FirewallArguments {
                 initialize_blocked: false,
                 allow_lan: None,
+                #[cfg(target_os = "android")]
+                tun_provider: tun_provider.clone(),
             }
         };
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
@@ -217,7 +222,7 @@ impl TunnelStateMachine {
             block_when_disconnected,
             is_offline,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
-            tun_provider: Box::new(tun_provider),
+            tun_provider,
             log_dir,
             resource_dir,
         };
@@ -305,7 +310,7 @@ struct SharedTunnelStateValues {
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
     /// The provider of tunnel devices.
-    tun_provider: Box<dyn TunProvider>,
+    tun_provider: Arc<dyn TunProvider>,
     /// Directory to store tunnel log file.
     log_dir: Option<PathBuf>,
     /// Resource directory path.
