@@ -45,7 +45,7 @@ impl<E: Error> ErrorExt for E {
 }
 
 #[derive(Debug)]
-pub struct BoxedError(Box<dyn Error>);
+pub struct BoxedError(Box<dyn Error + Send>);
 
 impl fmt::Display for BoxedError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -64,7 +64,7 @@ impl Error for BoxedError {
 }
 
 impl BoxedError {
-    pub fn new(error: impl Error + 'static) -> Self {
+    pub fn new(error: impl Error + Send + 'static) -> Self {
         BoxedError(Box::new(error))
     }
 }
