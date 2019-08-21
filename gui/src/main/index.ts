@@ -1328,7 +1328,6 @@ class ApplicationMain {
   // setup NSEvent monitor to fix inconsistent window.blur on macOS
   // see https://github.com/electron/electron/issues/8689
   private installMacOsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
-    // $FlowFixMe: this module is only available on macOS
     const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
     const macEventMonitor = new NSEventMonitor();
     // tslint:disable-next-line
