@@ -74,6 +74,7 @@ class ApplicationMain {
   private trayIconController?: TrayIconController;
 
   private daemonRpc = new DaemonRpc();
+  private daemonEventListener?: SubscriptionListener<DaemonEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
   private connectedToDaemon = false;
   private quitStage = AppQuitStage.unready;
@@ -271,6 +272,17 @@ class ApplicationMain {
       log.info('Cannot close the tunnel because there is no active connection to daemon.');
     }
 
+    // Unsubscribe the event handler
+    try {
+      if (this.daemonEventListener) {
+        await this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
+
+        log.info('Unsubscribed from the daemon events');
+      }
+    } catch (e) {
+      log.error(`Failed to unsubscribe from daemon events: ${e.message}`);
+    }
+
     // The window is not closable on macOS to be able to hide the titlebar and workaround
     // a shadow bug rendered above the invisible title bar. This also prevents the window from
     // closing normally, even programmatically. Therefore re-enable the close button just before
@@ -375,7 +387,7 @@ class ApplicationMain {
 
     // subscribe to events
     try {
-      await this.subscribeEvents();
+      this.daemonEventListener = await this.subscribeEvents();
     } catch (error) {
       log.error(`Failed to subscribe: ${error.message}`);
 
@@ -456,6 +468,9 @@ class ApplicationMain {
     // connection loss.
     const wasConnected = this.connectedToDaemon;
 
+    // Reset the daemon event listener since it's going to be invalidated on disconnect
+    this.daemonEventListener = undefined;
+
     if (wasConnected) {
       this.connectedToDaemon = false;
 
@@ -506,7 +521,7 @@ class ApplicationMain {
     this.reconnectToDaemon();
   }
 
-  private async subscribeEvents(): Promise<void> {
+  private async subscribeEvents(): Promise<SubscriptionListener<DaemonEvent>> {
     const daemonEventListener = new SubscriptionListener(
       (daemonEvent: DaemonEvent) => {
         if ('tunnelState' in daemonEvent) {
@@ -528,7 +543,9 @@ class ApplicationMain {
       },
     );
 
-    return this.daemonRpc.subscribeDaemonEventListener(daemonEventListener);
+    await this.daemonRpc.subscribeDaemonEventListener(daemonEventListener);
+
+    return daemonEventListener;
   }
 
   private setAccountHistory(accountHistory: AccountToken[]) {
