@@ -349,25 +349,8 @@ export class SocketTransport implements ITransport<{ path: string }> {
     if (this.connection) {
       log.debug('Close socket');
 
-      // closing socket is not synchronous, so remove all of the event handlers first
-      this.connection
-        .removeListener('ready', this.onSocketReady)
-        .removeListener('error', this.onSocketError)
-        .removeListener('close', this.onSocketClose);
+      this.cleanupConnection(true);
 
-      this.jsonStream!.removeListener('data', this.onJsonStreamData).removeListener(
-        'error',
-        this.onJsonStreamError,
-      );
-
-      try {
-        this.connection.end();
-      } catch (error) {
-        log.error('Failed to close the socket: ', error);
-      }
-
-      this.connection = undefined;
-      this.jsonStream = undefined;
       this.onClose();
     }
   }
@@ -395,6 +378,8 @@ export class SocketTransport implements ITransport<{ path: string }> {
   };
 
   private onSocketClose = (hadError: boolean) => {
+    this.cleanupConnection(false);
+
     if (hadError) {
       log.debug(`Socket was closed due to an error: `, this.lastError);
 
@@ -418,4 +403,28 @@ export class SocketTransport implements ITransport<{ path: string }> {
       this.connection.destroy(error);
     }
   };
+
+  private cleanupConnection(shouldClose: boolean) {
+    // closing socket is not synchronous, so remove all of the event handlers first
+    this.connection!.removeListener('ready', this.onSocketReady)
+      .removeListener('error', this.onSocketError)
+      .removeListener('close', this.onSocketClose);
+
+    this.jsonStream!.removeListener('data', this.onJsonStreamData).removeListener(
+      'error',
+      this.onJsonStreamError,
+    );
+
+    if (shouldClose) {
+      try {
+        this.connection!.end();
+      } catch (error) {
+        log.error('Failed to close the socket: ', error);
+      }
+    }
+
+    this.connection = undefined;
+    this.jsonStream = undefined;
+    this.socketReady = false;
+  }
 }
