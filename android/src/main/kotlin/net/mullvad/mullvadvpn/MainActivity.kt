@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
+import net.mullvad.mullvadvpn.util.SmartDeferred
 
 class MainActivity : FragmentActivity() {
     companion object {
@@ -41,7 +42,7 @@ class MainActivity : FragmentActivity() {
         private set
 
     var appVersionInfoCache = AppVersionInfoCache(this)
-    val connectionProxy = ConnectionProxy(this, daemon)
+    val connectionProxy = SmartDeferred(configureConnectionProxy())
     val keyStatusListener = KeyStatusListener(daemon)
     val problemReport = MullvadProblemReport()
     var settingsListener = SettingsListener(this)
@@ -81,10 +82,9 @@ class MainActivity : FragmentActivity() {
         }
 
         appVersionInfoCache.onCreate()
-        connectionProxy.mainActivity = this
 
-        if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false)) {
-            connectionProxy.connect()
+        if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false) ?: false) {
+            connectionProxy.awaitThen { connect() }
         }
     }
 
@@ -98,11 +98,7 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            connectionProxy.vpnPermission.complete(true)
-        } else {
-            connectionProxy.vpnPermission.complete(false)
-        }
+        setVpnPermission(resultCode == Activity.RESULT_OK)
     }
 
     override fun onStop() {
@@ -116,7 +112,7 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onDestroy() {
-        connectionProxy.mainActivity = null
+        connectionProxy.cancel()
 
         accountCache.onDestroy()
         appVersionInfoCache.onDestroy()
@@ -157,6 +153,18 @@ class MainActivity : FragmentActivity() {
         supportFragmentManager?.beginTransaction()?.apply {
             add(R.id.main_fragment, LaunchFragment())
             commit()
+        }
+    }
+
+    private fun configureConnectionProxy() = GlobalScope.async(Dispatchers.Default) {
+        ConnectionProxy(this@MainActivity, daemon).apply {
+            mainActivity = this@MainActivity
+        }
+    }
+
+    private fun setVpnPermission(allow: Boolean) = GlobalScope.launch(Dispatchers.Default) {
+        connectionProxy.awaitThen {
+            vpnPermission.complete(allow)
         }
     }
 
