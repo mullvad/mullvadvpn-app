@@ -28,6 +28,7 @@ class WireguardKeyFragment : Fragment() {
     private var keyState: KeygenEvent? = null
     private var currentJob: Job? = null
     private var updateViewsJob: Job? = null
+    private var tunnelStateListener: Int? = null
     private lateinit var parentActivity: MainActivity
     private lateinit var connectionProxy: ConnectionProxy
     private lateinit var keyStatusListener: KeyStatusListener
@@ -205,7 +206,10 @@ class WireguardKeyFragment : Fragment() {
     }
 
     override fun onPause() {
-        connectionProxy.onUiStateChange = null
+        tunnelStateListener?.let { listener ->
+            connectionProxy.onUiStateChange.unsubscribe(listener)
+        }
+
         keyStatusListener.onKeyStatusChange = null
         currentJob?.cancel()
         updateViewsJob?.cancel()
@@ -216,7 +220,8 @@ class WireguardKeyFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        connectionProxy.onUiStateChange = { _ ->
+
+        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { _ ->
             updateViewsJob?.cancel()
             updateViewsJob = updateViewJob()
         }
