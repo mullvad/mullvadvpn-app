@@ -37,7 +37,7 @@ class MainActivity : FragmentActivity() {
         private set
 
     var appVersionInfoCache = AppVersionInfoCache(this)
-    val connectionProxy = ConnectionProxy(this)
+    val connectionProxy = ConnectionProxy(this, daemon)
     val keyStatusListener = KeyStatusListener(daemon)
     val problemReport = MullvadProblemReport()
     var settingsListener = SettingsListener(this)
@@ -77,6 +77,7 @@ class MainActivity : FragmentActivity() {
         }
 
         appVersionInfoCache.onCreate()
+        connectionProxy.mainActivity = this
     }
 
     override fun onStart() {
@@ -107,6 +108,8 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onDestroy() {
+        connectionProxy.mainActivity = null
+
         accountCache.onDestroy()
         appVersionInfoCache.onDestroy()
         keyStatusListener.onDestroy()

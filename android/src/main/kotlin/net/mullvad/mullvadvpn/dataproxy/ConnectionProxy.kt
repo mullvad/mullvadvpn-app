@@ -1,19 +1,22 @@
 package net.mullvad.mullvadvpn.dataproxy
 
+import android.content.Context
 import android.net.VpnService
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
 import net.mullvad.mullvadvpn.MainActivity
+import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
 
-class ConnectionProxy(val parentActivity: MainActivity) {
-    val daemon = parentActivity.daemon
+class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>) {
+    var mainActivity: MainActivity? = null
 
     private var activeAction: Job? = null
 
@@ -106,14 +109,20 @@ class ConnectionProxy(val parentActivity: MainActivity) {
     }
 
     private fun requestVpnPermission() {
-        val intent = VpnService.prepare(parentActivity)
+        val intent = VpnService.prepare(context)
 
         vpnPermission = CompletableDeferred()
 
         if (intent == null) {
             vpnPermission.complete(true)
         } else {
-            parentActivity.requestVpnPermission(intent)
+            val activity = mainActivity
+
+            if (activity != null) {
+                activity.requestVpnPermission(intent)
+            } else {
+                vpnPermission.complete(false)
+            }
         }
     }
 
