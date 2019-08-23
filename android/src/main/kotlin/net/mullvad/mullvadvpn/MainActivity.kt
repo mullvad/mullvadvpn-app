@@ -32,8 +32,6 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 
 class MainActivity : FragmentActivity() {
-    private var vpnPermission: CompletableDeferred<Boolean>? = null
-
     var daemon = CompletableDeferred<MullvadDaemon>()
         private set
     var service = CompletableDeferred<MullvadVpnService.LocalBinder>()
@@ -93,9 +91,9 @@ class MainActivity : FragmentActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
-            vpnPermission?.complete(true)
+            connectionProxy.vpnPermission.complete(true)
         } else {
-            vpnPermission?.complete(false)
+            connectionProxy.vpnPermission.complete(false)
         }
     }
 
@@ -136,19 +134,14 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    fun requestVpnPermission(): Deferred<Boolean> {
+    fun requestVpnPermission() {
         val intent = VpnService.prepare(this)
-        val request = CompletableDeferred<Boolean>()
-
-        vpnPermission = request
 
         if (intent != null) {
             startActivityForResult(intent, 0)
         } else {
-            request.complete(true)
+            connectionProxy.vpnPermission.complete(true)
         }
-
-        return request
     }
 
     fun quit()  {
