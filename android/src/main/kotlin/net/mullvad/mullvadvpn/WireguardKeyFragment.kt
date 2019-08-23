@@ -25,9 +25,9 @@ import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class WireguardKeyFragment : Fragment() {
-    private var keyState: KeygenEvent? = null;
-    private var currentJob: Job? = null;
-    private var updateViewsJob: Job? = null;
+    private var keyState: KeygenEvent? = null
+    private var currentJob: Job? = null
+    private var updateViewsJob: Job? = null
     private lateinit var parentActivity: MainActivity
     private lateinit var connectionProxy: ConnectionProxy
     private lateinit var keyStatusListener: KeyStatusListener
@@ -134,7 +134,7 @@ class WireguardKeyFragment : Fragment() {
     private fun setGenerateButton() {
         if (generatingKey) {
             showActionSpinner()
-            return;
+            return
         }
         actionSpinner.visibility = View.GONE
         actionButton.visibility = View.VISIBLE
@@ -147,7 +147,7 @@ class WireguardKeyFragment : Fragment() {
     private fun setValidateButton() {
         if (validatingKey) {
             showActionSpinner()
-            return;
+            return
         }
         actionSpinner.visibility = View.GONE
         actionButton.visibility = View.VISIBLE
@@ -175,24 +175,24 @@ class WireguardKeyFragment : Fragment() {
 
     private fun onGenerateKeyPress() {
         currentJob?.cancel()
-        generatingKey = true;
-        validatingKey = false;
+        generatingKey = true
+        validatingKey = false
         updateViews()
         currentJob = GlobalScope.launch(Dispatchers.Main) {
             keyStatusListener.generateKey().join()
-            generatingKey = false;
+            generatingKey = false
             updateViews()
         }
     }
 
     private fun onValidateKeyPress() {
         currentJob?.cancel()
-        validatingKey = true;
-        generatingKey = false;
+        validatingKey = true
+        generatingKey = false
         updateViews()
         currentJob = GlobalScope.launch(Dispatchers.Main) {
             keyStatusListener.verifyKey().join()
-            validatingKey = false;
+            validatingKey = false
             when (val state = keyStatusListener.keyStatus) {
                 is KeygenEvent.NewKey -> {
                     if (state.verified == null) {
@@ -209,8 +209,8 @@ class WireguardKeyFragment : Fragment() {
         keyStatusListener.onKeyStatusChange = null
         currentJob?.cancel()
         updateViewsJob?.cancel()
-        validatingKey = false;
-        generatingKey = false;
+        validatingKey = false
+        generatingKey = false
         super.onPause()
     }
 
