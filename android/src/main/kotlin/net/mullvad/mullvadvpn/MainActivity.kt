@@ -31,6 +31,10 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 
 class MainActivity : FragmentActivity() {
+    companion object {
+        val KEY_SHOULD_CONNECT = "should_connect"
+    }
+
     var daemon = CompletableDeferred<MullvadDaemon>()
         private set
     var service = CompletableDeferred<MullvadVpnService.LocalBinder>()
@@ -78,6 +82,10 @@ class MainActivity : FragmentActivity() {
 
         appVersionInfoCache.onCreate()
         connectionProxy.mainActivity = this
+
+        if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false)) {
+            connectionProxy.connect()
+        }
     }
 
     override fun onStart() {

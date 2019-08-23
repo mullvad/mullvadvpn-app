@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.dataproxy
 
 import android.content.Context
+import android.content.Intent
 import android.net.VpnService
 
 import kotlinx.coroutines.launch
@@ -121,7 +122,10 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
             if (activity != null) {
                 activity.requestVpnPermission(intent)
             } else {
-                vpnPermission.complete(false)
+                val activityIntent = Intent(context, MainActivity::class.java)
+                    .putExtra(MainActivity.KEY_SHOULD_CONNECT, true)
+
+                context.startActivity(activityIntent)
             }
         }
     }
