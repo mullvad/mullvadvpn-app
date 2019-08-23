@@ -109,6 +109,7 @@ export default {
     fontFamily: 'DINPro',
     fontSize: 34,
     fontWeight: '900',
+    lineHeight: 38,
     letterSpacing: -0.9,
     color: colors.white,
     marginBottom: 4,
