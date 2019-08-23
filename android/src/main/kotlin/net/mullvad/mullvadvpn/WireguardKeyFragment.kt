@@ -69,16 +69,6 @@ class WireguardKeyFragment : Fragment() {
 
         updateViews()
 
-        connectionProxy.onUiStateChange = { _ ->
-            updateViewsJob?.cancel()
-            updateViewsJob = updateViewJob()
-        }
-
-        keyStatusListener.onKeyStatusChange = { _ ->
-            updateViewsJob?.cancel()
-            updateViewsJob = updateViewJob()
-        }
-
         return view
     }
 
