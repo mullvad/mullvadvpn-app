@@ -25,6 +25,7 @@ interface ISupportState {
   message: string;
   savedReport?: string;
   sendState: SendState;
+  disableActions: boolean;
 }
 
 interface ISupportProps {
@@ -46,6 +47,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     message: '',
     savedReport: undefined,
     sendState: SendState.Initial,
+    disableActions: false,
   };
 
   private collectLogPromise?: Promise<string>;
@@ -74,13 +76,15 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     });
   };
 
-  public onViewLog = async (): Promise<void> => {
-    try {
-      const reportPath = await this.collectLog();
-      this.props.viewLog(reportPath);
-    } catch (error) {
-      // TODO: handle error
-    }
+  public onViewLog = () => {
+    this.performWithActionsDisabled(async () => {
+      try {
+        const reportPath = await this.collectLog();
+        this.props.viewLog(reportPath);
+      } catch (error) {
+        // TODO: handle error
+      }
+    });
   };
 
   public onSend = async (): Promise<void> => {
@@ -88,14 +92,10 @@ export default class Support extends Component<ISupportProps, ISupportState> {
       case SendState.Initial:
         if (this.state.email.length === 0) {
           this.setState({ sendState: SendState.Confirm });
+          break;
         } else {
-          try {
-            await this.sendReport();
-          } catch (error) {
-            // No-op
-          }
+          // fallthrough
         }
-        return Promise.resolve();
 
       case SendState.Confirm:
         try {
@@ -103,13 +103,11 @@ export default class Support extends Component<ISupportProps, ISupportState> {
         } catch (error) {
           // No-op
         }
-        return Promise.resolve();
+        break;
 
       default:
         break;
     }
-
-    return Promise.resolve();
   };
 
   public onCancelConfirmation = () => {
@@ -257,13 +255,18 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             </View>
           </View>
           <View style={styles.support__footer}>
-            <AppButton.BlueButton style={styles.view_logs_button} onPress={this.onViewLog}>
+            <AppButton.BlueButton
+              style={styles.view_logs_button}
+              onPress={this.onViewLog}
+              disabled={this.state.disableActions}>
               <AppButton.Label>
                 {messages.pgettext('support-view', 'View app logs')}
               </AppButton.Label>
               <AppButton.Icon source="icon-extLink" height={16} width={16} />
             </AppButton.BlueButton>
-            <AppButton.GreenButton disabled={!this.validate()} onPress={this.onSend}>
+            <AppButton.GreenButton
+              disabled={!this.validate() || this.state.disableActions}
+              onPress={this.onSend}>
               {messages.pgettext('support-view', 'Send')}
             </AppButton.GreenButton>
           </View>
@@ -371,6 +374,17 @@ export default class Support extends Component<ISupportProps, ISupportState> {
   private handleEditMessage = () => {
     this.setState({ sendState: SendState.Initial });
   };
+
+  private performWithActionsDisabled(work: () => Promise<void>) {
+    this.setState({ disableActions: true }, async () => {
+      try {
+        await work();
+      } catch {
+        // TODO: handle error
+      }
+      this.setState({ disableActions: false });
+    });
+  }
 }
 
 interface IConfirmNoEmailDialogProps {
