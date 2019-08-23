@@ -29,6 +29,7 @@ class WireguardKeyFragment : Fragment() {
     private var currentJob: Job? = null
     private var updateViewsJob: Job? = null
     private var tunnelStateListener: Int? = null
+    private var tunnelState: TunnelState = TunnelState.Disconnected()
     private lateinit var parentActivity: MainActivity
     private lateinit var connectionProxy: ConnectionProxy
     private lateinit var keyStatusListener: KeyStatusListener
@@ -164,7 +165,7 @@ class WireguardKeyFragment : Fragment() {
     }
 
     private fun drawNoConnectionState() {
-        when (connectionProxy.state) {
+        when (tunnelState) {
             is TunnelState.Connecting, is TunnelState.Disconnecting -> {
                 statusMessage.setText(R.string.wireguard_key_connectivity)
                 statusMessage.visibility = View.VISIBLE
@@ -221,7 +222,8 @@ class WireguardKeyFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { _ ->
+        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
+            tunnelState = uiState
             updateViewsJob?.cancel()
             updateViewsJob = updateViewJob()
         }
