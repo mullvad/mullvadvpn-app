@@ -358,6 +358,12 @@ export default class AppRenderer {
   }
 
   private async onDaemonConnected() {
+    // Filter out the calls coming from IPC events arriving right after the constructor finished
+    // execution.
+    if (this.connectedToDaemon) {
+      return;
+    }
+
     this.connectedToDaemon = true;
 
     if (this.settings.accountToken) {
