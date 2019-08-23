@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.dataproxy
 
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -40,11 +41,14 @@ class ConnectionProxy(val parentActivity: MainActivity) {
             value?.invoke(uiState)
         }
 
+    var vpnPermission = CompletableDeferred<Boolean>()
+
     fun connect() {
         if (anticipateConnectingState()) {
             cancelActiveAction()
 
-            val vpnPermission = parentActivity.requestVpnPermission()
+            vpnPermission = CompletableDeferred()
+            parentActivity.requestVpnPermission()
 
             activeAction = GlobalScope.launch(Dispatchers.Default) {
                 if (vpnPermission.await()) {
