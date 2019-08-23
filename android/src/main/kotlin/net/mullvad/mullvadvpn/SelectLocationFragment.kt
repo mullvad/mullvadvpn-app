@@ -26,10 +26,11 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayItemDividerDecoration
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
+import net.mullvad.mullvadvpn.util.SmartDeferred
 
 class SelectLocationFragment : Fragment() {
     private lateinit var parentActivity: MainActivity
-    private lateinit var connectionProxy: ConnectionProxy
+    private lateinit var connectionProxy: SmartDeferred<ConnectionProxy>
     private lateinit var relayListListener: RelayListListener
 
     private lateinit var relayListContainer: ViewSwitcher
@@ -129,7 +130,7 @@ class SelectLocationFragment : Fragment() {
         val keyStatus = parentActivity.keyStatusListener.keyStatus
 
         if (keyStatus == null || keyStatus is KeygenEvent.NewKey) {
-            connectionProxy.connect()
+            connectionProxy.awaitThen { connect() }
         }
     }
 }

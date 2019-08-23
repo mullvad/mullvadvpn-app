@@ -23,15 +23,17 @@ import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.util.SmartDeferred
 
 class WireguardKeyFragment : Fragment() {
     private var keyState: KeygenEvent? = null
     private var currentJob: Job? = null
     private var updateViewsJob: Job? = null
     private var tunnelStateListener: Int? = null
+    private var tunnelStateSubscriptionJob: Long? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
     private lateinit var parentActivity: MainActivity
-    private lateinit var connectionProxy: ConnectionProxy
+    private lateinit var connectionProxy: SmartDeferred<ConnectionProxy>
     private lateinit var keyStatusListener: KeyStatusListener
     private var generatingKey = false
     private var validatingKey = false
@@ -207,8 +209,14 @@ class WireguardKeyFragment : Fragment() {
     }
 
     override fun onPause() {
+        tunnelStateSubscriptionJob?.let { jobId ->
+            connectionProxy.cancelJob(jobId)
+        }
+
         tunnelStateListener?.let { listener ->
-            connectionProxy.onUiStateChange.unsubscribe(listener)
+            connectionProxy.awaitThen {
+                onUiStateChange.unsubscribe(listener)
+            }
         }
 
         keyStatusListener.onKeyStatusChange = null
@@ -222,10 +230,12 @@ class WireguardKeyFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
-            tunnelState = uiState
-            updateViewsJob?.cancel()
-            updateViewsJob = updateViewJob()
+        tunnelStateSubscriptionJob = connectionProxy.awaitThen {
+            tunnelStateListener = onUiStateChange.subscribe { uiState ->
+                tunnelState = uiState
+                updateViewsJob?.cancel()
+                updateViewsJob = updateViewJob()
+            }
         }
 
         keyStatusListener.onKeyStatusChange = { _ ->
