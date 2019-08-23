@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.dataproxy
 
+import android.net.VpnService
+
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -47,8 +49,7 @@ class ConnectionProxy(val parentActivity: MainActivity) {
         if (anticipateConnectingState()) {
             cancelActiveAction()
 
-            vpnPermission = CompletableDeferred()
-            parentActivity.requestVpnPermission()
+            requestVpnPermission()
 
             activeAction = GlobalScope.launch(Dispatchers.Default) {
                 if (vpnPermission.await()) {
@@ -101,6 +102,18 @@ class ConnectionProxy(val parentActivity: MainActivity) {
                 uiState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing())
                 return true
             }
+        }
+    }
+
+    private fun requestVpnPermission() {
+        val intent = VpnService.prepare(parentActivity)
+
+        vpnPermission = CompletableDeferred()
+
+        if (intent == null) {
+            vpnPermission.complete(true)
+        } else {
+            parentActivity.requestVpnPermission(intent)
         }
     }
 

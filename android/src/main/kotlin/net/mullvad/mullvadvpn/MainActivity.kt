@@ -13,7 +13,6 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.net.VpnService
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.FragmentActivity
@@ -134,14 +133,8 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    fun requestVpnPermission() {
-        val intent = VpnService.prepare(this)
-
-        if (intent != null) {
-            startActivityForResult(intent, 0)
-        } else {
-            connectionProxy.vpnPermission.complete(true)
-        }
+    fun requestVpnPermission(intent: Intent) {
+        startActivityForResult(intent, 0)
     }
 
     fun quit()  {
