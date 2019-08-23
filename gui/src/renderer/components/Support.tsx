@@ -88,14 +88,10 @@ export default class Support extends Component<ISupportProps, ISupportState> {
       case SendState.Initial:
         if (this.state.email.length === 0) {
           this.setState({ sendState: SendState.Confirm });
+          break;
         } else {
-          try {
-            await this.sendReport();
-          } catch (error) {
-            // No-op
-          }
+          // fallthrough
         }
-        return Promise.resolve();
 
       case SendState.Confirm:
         try {
@@ -103,13 +99,11 @@ export default class Support extends Component<ISupportProps, ISupportState> {
         } catch (error) {
           // No-op
         }
-        return Promise.resolve();
+        break;
 
       default:
         break;
     }
-
-    return Promise.resolve();
   };
 
   public onCancelConfirmation = () => {
