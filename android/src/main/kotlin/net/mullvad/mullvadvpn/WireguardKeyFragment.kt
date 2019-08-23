@@ -25,7 +25,6 @@ import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class WireguardKeyFragment : Fragment() {
-    private var TAG = "keyfragment";
     private var keyState: KeygenEvent? = null;
     private var currentJob: Job? = null;
     private var updateViewsJob: Job? = null;
