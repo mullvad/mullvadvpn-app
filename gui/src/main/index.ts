@@ -1336,6 +1336,13 @@ class ApplicationMain {
 
     window.on('show', () => macEventMonitor.start(eventMask, () => windowController.hide()));
     window.on('hide', () => macEventMonitor.stop());
+    window.on('blur', () => {
+      // Make sure to hide the menubar window when other program captures the focus.
+      // But avoid doing that when dev tools capture the focus to make it possible to inspect the UI
+      if (window.isVisible() && !window.webContents.isDevToolsFocused()) {
+        windowController.hide();
+      }
+    });
     tray.on('click', () => windowController.toggle());
   }
 
