@@ -15,7 +15,7 @@ const styles = {
     fontFamily: 'DINPro',
     fontSize: 32,
     fontWeight: '900',
-    lineHeight: 32,
+    lineHeight: 36,
     color: 'rgb(255, 255, 255)',
   }),
   subtitle: Styles.createTextStyle({
