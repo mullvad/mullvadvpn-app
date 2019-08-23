@@ -15,6 +15,7 @@ import net.mullvad.mullvadvpn.MainActivity
 import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.util.EventNotifier
 
 class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>) {
     var mainActivity: MainActivity? = null
@@ -38,15 +39,10 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
     var uiState: TunnelState = TunnelState.Disconnected()
         private set(value) {
             field = value
-            onUiStateChange?.invoke(value)
+            onUiStateChange.notify(value)
         }
 
-    var onUiStateChange: ((TunnelState) -> Unit)? = null
-        set(value) {
-            field = value
-            value?.invoke(uiState)
-        }
-
+    var onUiStateChange = EventNotifier(uiState)
     var vpnPermission = CompletableDeferred<Boolean>()
 
     fun connect() {
@@ -77,6 +73,7 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
     }
 
     fun onDestroy() {
+        onUiStateChange.unsubscribeAll()
         attachListenerJob.cancel()
         detachListener()
         fetchInitialStateJob.cancel()

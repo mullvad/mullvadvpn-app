@@ -39,9 +39,10 @@ class ConnectFragment : Fragment() {
     private lateinit var versionInfoCache: AppVersionInfoCache
 
     private lateinit var updateKeyStatusJob: Job
-    private lateinit var updateTunnelStateJob: Job
+    private var updateTunnelStateJob: Job? = null
 
     private var isTunnelInfoExpanded = false
+    private var tunnelStateListener: Int? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -97,9 +98,9 @@ class ConnectFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        notificationBanner.onResume()
-
         locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
+
+        notificationBanner.onResume()
 
         keyStatusListener.onKeyStatusChange = { keyStatus ->
             updateKeyStatusJob.cancel()
@@ -114,9 +115,8 @@ class ConnectFragment : Fragment() {
             switchLocationButton.location = selectedRelayItem
         }
 
-        updateTunnelStateJob = updateTunnelState(connectionProxy.uiState)
-        connectionProxy.onUiStateChange = { uiState ->
-            updateTunnelStateJob.cancel()
+        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
+            updateTunnelStateJob?.cancel()
             updateTunnelStateJob = updateTunnelState(uiState)
         }
     }
@@ -126,13 +126,14 @@ class ConnectFragment : Fragment() {
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
 
-        connectionProxy.onUiStateChange = null
-        updateTunnelStateJob.cancel()
+        tunnelStateListener?.let { listener ->
+            connectionProxy.onUiStateChange.unsubscribe(listener)
+        }
 
+        updateTunnelStateJob?.cancel()
+        notificationBanner.onPause()
 
         isTunnelInfoExpanded = locationInfo.isTunnelInfoExpanded
-
-        notificationBanner.onPause()
 
         super.onPause()
     }
