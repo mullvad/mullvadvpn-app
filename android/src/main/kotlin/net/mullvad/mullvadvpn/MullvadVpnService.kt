@@ -19,6 +19,7 @@ import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoFetcher
+import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.model.TunConfig
 
 val ONGOING_NOTIFICATION_ID: Int = 1
@@ -30,6 +31,7 @@ class MullvadVpnService : VpnService() {
     private lateinit var versionInfoFetcher: AppVersionInfoFetcher
 
     val daemon = startDaemon()
+    val connectionProxy = ConnectionProxy(this, daemon)
 
     override fun onCreate() {
         versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
@@ -42,6 +44,7 @@ class MullvadVpnService : VpnService() {
     }
 
     override fun onDestroy() {
+        connectionProxy.onDestroy()
         versionInfoFetcher.stop()
         daemon.cancel()
         created.cancel()
@@ -77,6 +80,8 @@ class MullvadVpnService : VpnService() {
     inner class LocalBinder : Binder() {
         val daemon
             get() = this@MullvadVpnService.daemon
+        val connectionProxy
+            get() = this@MullvadVpnService.connectionProxy
 
         fun stop() {
             if (daemon.isCompleted) {

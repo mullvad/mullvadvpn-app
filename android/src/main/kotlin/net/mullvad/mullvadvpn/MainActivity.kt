@@ -19,7 +19,6 @@ import android.support.v4.app.FragmentActivity
 
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
-import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
@@ -157,7 +156,7 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun configureConnectionProxy() = GlobalScope.async(Dispatchers.Default) {
-        ConnectionProxy(this@MainActivity, daemon).apply {
+        service.await().connectionProxy.apply {
             mainActivity = this@MainActivity
         }
     }
