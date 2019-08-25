@@ -130,6 +130,13 @@ class AccountInput(val parentView: View, val context: Context) {
         }
     }
 
+    private fun leaveErrorState() {
+        if (usingErrorColor) {
+            input.setTextColor(enabledTextColor)
+            usingErrorColor = false
+        }
+    }
+
     inner class InputWatcher : TextWatcher {
         override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {}
 
@@ -138,11 +145,7 @@ class AccountInput(val parentView: View, val context: Context) {
         override fun afterTextChanged(text: Editable) {
             inputHasFocus = true
             setButtonEnabled(text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
-
-            if (usingErrorColor) {
-                input.setTextColor(enabledTextColor)
-                usingErrorColor = false
-            }
+            leaveErrorState()
         }
     }
 }
