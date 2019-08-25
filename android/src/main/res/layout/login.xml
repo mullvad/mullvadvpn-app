@@ -132,4 +132,32 @@
                 android:layout_weight="3"
                 />
     </LinearLayout>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="24dp"
+            android:paddingTop="16dp"
+            android:background="@color/darkBlue"
+            >
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:gravity="start"
+                android:textColor="@color/white80"
+                android:textSize="13sp"
+                android:text="@string/dont_have_an_account"
+                />
+        <Button android:id="@+id/create_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="9dp"
+                android:drawableRight="@drawable/icon_extlink"
+                android:text="@string/create_account"
+                style="@style/BlueButton"
+                />
+    </LinearLayout>
 </LinearLayout>
