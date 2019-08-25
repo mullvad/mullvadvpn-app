@@ -9,6 +9,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -51,7 +53,16 @@ class LoginFragment : Fragment() {
         accountInput = AccountInput(view, parentActivity)
         accountInput.onLogin = { accountToken -> login(accountToken) }
 
+        view.findViewById<View>(R.id.create_account).setOnClickListener { createAccount() }
+
         return view
+    }
+
+    private fun createAccount() {
+        val uri = Uri.parse(parentActivity.getString(R.string.create_account_url))
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+
+        startActivity(intent)
     }
 
     private fun login(accountToken: String) {
