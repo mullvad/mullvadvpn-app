@@ -91,7 +91,7 @@
                 android:layout_weight="0"
                 android:layout_marginBottom="10dp"
                 android:gravity="start"
-                android:textColor="@color/white60"
+                android:textColor="@color/white80"
                 android:textSize="13sp"
                 android:text="@string/login_description"
                 />
