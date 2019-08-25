@@ -21,7 +21,16 @@ class AccountInput(val parentView: View, val context: Context) {
     private val focusedBorder = resources.getDrawable(R.drawable.account_input_border_focused, null)
     private val errorBorder = resources.getDrawable(R.drawable.account_input_border_error, null)
 
+    private var inputHasFocus = false
+        set(value) {
+            field = value
+            updateBorder()
+        }
     private var usingErrorColor = false
+        set(value) {
+            field = value
+            updateBorder()
+        }
 
     var state = LoginState.Initial
         set(value) {
@@ -46,7 +55,7 @@ class AccountInput(val parentView: View, val context: Context) {
         input.apply {
             addTextChangedListener(InputWatcher())
             onFocusChangeListener = OnFocusChangeListener { view, hasFocus ->
-                updateBorder(hasFocus && view.isEnabled())
+                inputHasFocus = hasFocus && view.isEnabled()
             }
         }
 
@@ -97,7 +106,6 @@ class AccountInput(val parentView: View, val context: Context) {
         }
 
         usingErrorColor = true
-        updateBorder(false)
     }
 
     private fun setButtonEnabled(enabled: Boolean) {
@@ -110,7 +118,7 @@ class AccountInput(val parentView: View, val context: Context) {
         }
     }
 
-    private fun updateBorder(inputHasFocus: Boolean) {
+    private fun updateBorder() {
         if (usingErrorColor) {
             container.foreground = errorBorder
         } else {
@@ -128,12 +136,12 @@ class AccountInput(val parentView: View, val context: Context) {
         override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {}
 
         override fun afterTextChanged(text: Editable) {
+            inputHasFocus = true
             setButtonEnabled(text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
 
             if (usingErrorColor) {
                 input.setTextColor(enabledTextColor)
                 usingErrorColor = false
-                updateBorder(true)
             }
         }
     }
