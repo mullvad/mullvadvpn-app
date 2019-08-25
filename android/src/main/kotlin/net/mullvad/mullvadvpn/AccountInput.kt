@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.text.Editable
+import android.text.style.MetricAffectingSpan
 import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.ImageButton
@@ -137,6 +138,12 @@ class AccountInput(val parentView: View, val context: Context) {
         }
     }
 
+    private fun removeFormattingSpans(text: Editable) {
+        for (span in text.getSpans(0, text.length, MetricAffectingSpan::class.java)) {
+            text.removeSpan(span)
+        }
+    }
+
     inner class InputWatcher : TextWatcher {
         override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {}
 
@@ -144,6 +151,7 @@ class AccountInput(val parentView: View, val context: Context) {
 
         override fun afterTextChanged(text: Editable) {
             inputHasFocus = true
+            removeFormattingSpans(text)
             setButtonEnabled(text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
             leaveErrorState()
         }
