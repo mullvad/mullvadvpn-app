@@ -57,6 +57,8 @@ class MainActivity : FragmentActivity() {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             val localBinder = binder as MullvadVpnService.LocalBinder
 
+            localBinder.onStop = { quit() }
+
             service.complete(localBinder)
 
             waitForDaemonJob = GlobalScope.launch(Dispatchers.Default) {
