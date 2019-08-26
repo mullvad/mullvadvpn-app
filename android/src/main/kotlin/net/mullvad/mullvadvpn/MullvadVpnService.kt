@@ -18,21 +18,16 @@ import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.model.TunConfig
 
 class MullvadVpnService : VpnService() {
-    private val created = CompletableDeferred<Unit>()
     private val binder = LocalBinder()
+    private val created = CompletableDeferred<Unit>()
 
+    private lateinit var daemon: Deferred<MullvadDaemon>
+    private lateinit var connectionProxy: ConnectionProxy
+    private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var versionInfoFetcher: AppVersionInfoFetcher
 
-    val daemon = startDaemon()
-    val connectionProxy = ConnectionProxy(this, daemon)
-    val notificationManager = ForegroundNotificationManager(this, connectionProxy)
-
     override fun onCreate() {
-        versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
-
-        notificationManager.onCreate()
-        notificationManager.onQuit = { binder.stop() }
-
+        setUp()
         created.complete(Unit)
     }
 
@@ -95,9 +90,24 @@ class MullvadVpnService : VpnService() {
         }
     }
 
+    private fun setUp() {
+        daemon = startDaemon()
+        connectionProxy = ConnectionProxy(this, daemon)
+        notificationManager = startNotificationManager()
+        versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
+    }
+
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
         created.await()
         ApiRootCaFile().extract(application)
         MullvadDaemon(this@MullvadVpnService)
+    }
+
+    private fun startNotificationManager(): ForegroundNotificationManager {
+        return ForegroundNotificationManager(this, connectionProxy).apply {
+            onCreate()
+
+            onQuit = { binder.stop() }
+        }
     }
 }
