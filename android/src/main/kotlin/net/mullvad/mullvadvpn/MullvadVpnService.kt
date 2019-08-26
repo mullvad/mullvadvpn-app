@@ -74,15 +74,7 @@ class MullvadVpnService : VpnService() {
         var onStop: (() -> Unit)? = null
 
         fun stop() {
-            if (daemon.isCompleted) {
-                runBlocking { daemon.await().shutdown() }
-            } else {
-                daemon.cancel()
-            }
-
-            onStop?.invoke()
-
-            stopSelf()
+            this@MullvadVpnService.stop()
         }
     }
 
@@ -105,6 +97,19 @@ class MullvadVpnService : VpnService() {
 
             onQuit = { binder.stop() }
         }
+    }
+
+    private fun stop() {
+        this@MullvadVpnService.resetComplete = CompletableDeferred()
+
+        if (daemon.isCompleted) {
+            runBlocking { daemon.await().shutdown() }
+        } else {
+            daemon.cancel()
+        }
+
+        binder.onStop?.invoke()
+        stopSelf()
     }
 
     private fun tearDown() {
