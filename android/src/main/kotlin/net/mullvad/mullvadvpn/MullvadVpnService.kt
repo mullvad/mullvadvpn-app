@@ -36,11 +36,7 @@ class MullvadVpnService : VpnService() {
     }
 
     override fun onDestroy() {
-        connectionProxy.onDestroy()
-        notificationManager.onDestroy()
-        versionInfoFetcher.stop()
-        daemon.cancel()
-        created.cancel()
+        tearDown()
     }
 
     fun createTun(config: TunConfig): Int {
@@ -109,5 +105,11 @@ class MullvadVpnService : VpnService() {
 
             onQuit = { binder.stop() }
         }
+    }
+
+    private fun tearDown() {
+        connectionProxy.onDestroy()
+        notificationManager.onDestroy()
+        versionInfoFetcher.stop()
     }
 }
