@@ -112,6 +112,8 @@ class MullvadVpnService : VpnService() {
         return ForegroundNotificationManager(this, connectionProxy).apply {
             onCreate()
 
+            onConnect = { connectionProxy.connect() }
+            onDisconnect = { connectionProxy.disconnect() }
             onQuit = { binder.stop() }
         }
     }
