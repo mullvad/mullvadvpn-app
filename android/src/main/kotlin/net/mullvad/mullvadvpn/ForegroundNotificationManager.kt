@@ -18,7 +18,10 @@ import net.mullvad.mullvadvpn.model.TunnelState
 
 val CHANNEL_ID = "vpn_tunnel_status"
 val FOREGROUND_NOTIFICATION_ID: Int = 1
+val KEY_CONNECT_ACTION = "connect_action"
+val KEY_DISCONNECT_ACTION = "disconnect_action"
 val KEY_QUIT_ACTION = "quit_action"
+val PERMISSION_TUNNEL_ACTION = "net.mullvad.mullvadvpn.permission.TUNNEL_ACTION"
 val PERMISSION_QUIT_APP = "net.mullvad.mullvadvpn.permission.QUIT_APP"
 
 class ForegroundNotificationManager(val service: Service, val connectionProxy: ConnectionProxy) {
@@ -64,12 +67,71 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             }
         }
 
+    private val tunnelActionText: Int
+        get() {
+            val state = tunnelState
+
+            return when (state) {
+                is TunnelState.Disconnected -> R.string.connect
+                is TunnelState.Connecting -> R.string.cancel
+                is TunnelState.Connected -> R.string.disconnect
+                is TunnelState.Disconnecting -> {
+                    when (state.actionAfterDisconnect) {
+                        is ActionAfterDisconnect.Reconnect -> R.string.cancel
+                        else -> R.string.connect
+                    }
+                }
+                is TunnelState.Blocked -> R.string.disconnect
+            }
+        }
+
+    private val tunnelActionKey: String
+        get() {
+            val state = tunnelState
+
+            return when (state) {
+                is TunnelState.Disconnected -> KEY_CONNECT_ACTION
+                is TunnelState.Connecting -> KEY_DISCONNECT_ACTION
+                is TunnelState.Connected -> KEY_DISCONNECT_ACTION
+                is TunnelState.Disconnecting -> {
+                    when (state.actionAfterDisconnect) {
+                        is ActionAfterDisconnect.Reconnect -> KEY_DISCONNECT_ACTION
+                        else -> KEY_CONNECT_ACTION
+                    }
+                }
+                is TunnelState.Blocked -> KEY_DISCONNECT_ACTION
+            }
+        }
+
+    private val tunnelActionIcon: Int
+        get() {
+            if (tunnelActionKey == KEY_CONNECT_ACTION) {
+                return R.drawable.icon_notification_connect
+            } else {
+                return R.drawable.icon_notification_disconnect
+            }
+        }
+
+    private val connectReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            onConnect?.invoke()
+        }
+    }
+
+    private val disconnectReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            onDisconnect?.invoke()
+        }
+    }
+
     private val quitReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             onQuit?.invoke()
         }
     }
 
+    var onConnect: (() -> Unit)? = null
+    var onDisconnect: (() -> Unit)? = null
     var onQuit: (() -> Unit)? = null
 
     fun onCreate() {
@@ -85,7 +147,14 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
         }
 
         service.apply {
-            registerReceiver(quitReceiver, IntentFilter(KEY_QUIT_ACTION), PERMISSION_QUIT_APP, null)
+            val connectFilter = IntentFilter(KEY_CONNECT_ACTION)
+            val disconnectFilter = IntentFilter(KEY_DISCONNECT_ACTION)
+            val quitFilter = IntentFilter(KEY_QUIT_ACTION)
+
+            registerReceiver(connectReceiver, connectFilter, PERMISSION_TUNNEL_ACTION, null)
+            registerReceiver(disconnectReceiver, disconnectFilter, PERMISSION_TUNNEL_ACTION, null)
+            registerReceiver(quitReceiver, quitFilter, PERMISSION_QUIT_APP, null)
+
             startForeground(FOREGROUND_NOTIFICATION_ID, buildNotification())
         }
     }
@@ -95,8 +164,13 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             connectionProxy.onUiStateChange.unsubscribe(listener)
         }
 
-        service.unregisterReceiver(quitReceiver)
-        service.stopForeground(FOREGROUND_NOTIFICATION_ID)
+        service.apply {
+            unregisterReceiver(connectReceiver)
+            unregisterReceiver(disconnectReceiver)
+            unregisterReceiver(quitReceiver)
+
+            stopForeground(FOREGROUND_NOTIFICATION_ID)
+        }
     }
 
     private fun initChannel() {
@@ -129,8 +203,20 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             .setColor(service.getColor(R.color.colorPrimary))
             .setContentTitle(service.getString(notificationText))
             .setContentIntent(pendingIntent)
+            .addAction(buildTunnelAction())
             .addAction(buildQuitAction())
             .build()
+    }
+
+    private fun buildTunnelAction(): NotificationCompat.Action {
+        val intent = Intent(tunnelActionKey).setPackage("net.mullvad.mullvadvpn")
+        val pendingIntent =
+            PendingIntent.getBroadcast(service, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val icon = tunnelActionIcon
+        val label = service.getString(tunnelActionText)
+
+        return NotificationCompat.Action(icon, label, pendingIntent)
     }
 
     private fun buildQuitAction(): NotificationCompat.Action {
