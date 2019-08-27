@@ -4,25 +4,35 @@ use std::collections::HashMap;
 
 /// Stub error type for routing errors on Android.
 #[derive(Debug, err_derive::Error)]
-#[error(display = "Unknown Android routing error")]
+#[error(display = "Failed to send shutdown result")]
 pub struct Error;
 
 /// Stub route manager for Android
-pub struct RouteManagerImpl;
+pub struct RouteManagerImpl {
+    shutdown_rx: oneshot::Receiver<oneshot::Sender<()>>,
+}
 
 impl RouteManagerImpl {
     pub fn new(
         _required_routes: HashMap<IpNetwork, super::NetNode>,
-        _shutdown_rx: oneshot::Receiver<oneshot::Sender<()>>,
+        shutdown_rx: oneshot::Receiver<oneshot::Sender<()>>,
     ) -> Result<Self, Error> {
-        Ok(Self {})
+        Ok(RouteManagerImpl { shutdown_rx })
     }
 }
 
 impl Future for RouteManagerImpl {
     type Item = ();
     type Error = Error;
+
     fn poll(&mut self) -> Result<Async<()>, Error> {
-        Ok(Async::Ready(()))
+        match self.shutdown_rx.poll() {
+            Ok(Async::Ready(result_tx)) => {
+                result_tx.send(()).map_err(|()| Error)?;
+                Ok(Async::Ready(()))
+            }
+            Ok(Async::NotReady) => Ok(Async::NotReady),
+            Err(_) => Ok(Async::Ready(())),
+        }
     }
 }
