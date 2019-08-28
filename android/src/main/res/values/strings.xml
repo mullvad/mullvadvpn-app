@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">Mullvad VPN</string>
 
+    <string name="connecting">Connecting</string>
+    <string name="reconnecting">Reconnecting</string>
+    <string name="disconnecting">Disconnecting</string>
+    <string name="secured">Secured</string>
+    <string name="unsecured">Unsecured</string>
+    <string name="blocking_all_connections">Blocking all connections</string>
+
     <string name="connecting_to_daemon">Connecting to Mullvad system service...</string>
 
     <string name="login_title">Login</string>
