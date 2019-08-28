@@ -25,7 +25,7 @@ class MullvadVpnService : VpnService() {
 
     val daemon = startDaemon()
     val connectionProxy = ConnectionProxy(this, daemon)
-    val notificationManager = ForegroundNotificationManager(this)
+    val notificationManager = ForegroundNotificationManager(this, connectionProxy)
 
     override fun onCreate() {
         versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
