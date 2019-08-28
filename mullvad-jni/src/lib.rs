@@ -8,8 +8,11 @@ mod jni_event_listener;
 mod vpn_service_tun_provider;
 
 use crate::{
-    daemon_interface::DaemonInterface, from_java::FromJava, into_java::IntoJava,
-    jni_event_listener::JniEventListener, vpn_service_tun_provider::VpnServiceTunProvider,
+    daemon_interface::DaemonInterface,
+    from_java::FromJava,
+    into_java::IntoJava,
+    jni_event_listener::JniEventListener,
+    vpn_service_tun_provider::{VpnServiceTunProvider, VpnServiceTunProviderHandle},
 };
 use jni::{
     objects::{GlobalRef, JObject, JString, JValue},
@@ -94,9 +97,6 @@ static LOAD_CLASSES: Once = Once::new();
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
-    #[error(display = "Failed to create VpnService tunnel provider")]
-    CreateVpnServiceTunProvider(#[error(cause)] vpn_service_tun_provider::Error),
-
     #[error(display = "Failed to get cache directory path")]
     GetCacheDir(#[error(cause)] mullvad_paths::Error),
 
@@ -108,6 +108,9 @@ pub enum Error {
 
     #[error(display = "Failed to spawn the JNI event listener")]
     SpawnJniEventListener(#[error(cause)] jni_event_listener::Error),
+
+    #[error(display = "Failed to spawn the VpnService tunnel provider")]
+    SpawnVpnServiceTunProvider(#[error(cause)] vpn_service_tun_provider::Error),
 
     #[error(display = "Failed to start logger")]
     StartLogging(#[error(cause)] logging::Error),
@@ -170,8 +173,8 @@ fn initialize(
     vpn_service: &JObject,
     log_dir: PathBuf,
 ) -> Result<(), Error> {
-    let tun_provider =
-        VpnServiceTunProvider::new(env, vpn_service).map_err(Error::CreateVpnServiceTunProvider)?;
+    let tun_provider = VpnServiceTunProvider::spawn(env, vpn_service)
+        .map_err(Error::SpawnVpnServiceTunProvider)?;
     let daemon_command_sender = spawn_daemon(env, this, tun_provider, log_dir)?;
 
     DAEMON_INTERFACE.set_command_sender(daemon_command_sender);
@@ -182,7 +185,7 @@ fn initialize(
 fn spawn_daemon(
     env: &JNIEnv,
     this: &JObject,
-    tun_provider: VpnServiceTunProvider,
+    tun_provider: VpnServiceTunProviderHandle,
     log_dir: PathBuf,
 ) -> Result<DaemonCommandSender, Error> {
     let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
@@ -208,7 +211,7 @@ fn spawn_daemon(
 
 fn create_daemon(
     listener: JniEventListener,
-    tun_provider: VpnServiceTunProvider,
+    tun_provider: VpnServiceTunProviderHandle,
     log_dir: PathBuf,
 ) -> Result<Daemon<JniEventListener>, Error> {
     let resource_dir = mullvad_paths::get_resource_dir();

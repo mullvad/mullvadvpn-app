@@ -1229,6 +1229,7 @@ dependencies = [
  "parking_lot 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-core 0.1.0",
  "talpid-types 0.1.0",
+ "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
