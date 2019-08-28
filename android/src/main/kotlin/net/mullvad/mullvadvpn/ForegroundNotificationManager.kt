@@ -92,6 +92,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
         return NotificationCompat.Builder(service)
             .setSmallIcon(R.drawable.notification)
+            .setColor(service.getColor(R.color.colorPrimary))
             .setContentTitle(service.getString(notificationText))
             .setContentIntent(pendingIntent)
             .build()
