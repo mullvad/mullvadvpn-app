@@ -11,6 +11,8 @@
     <string name="logged_in_title">Login successful</string>
     <string name="login_fail_title">Login failed</string>
     <string name="login_fail_description">Invalid account number, try again</string>
+    <string name="dont_have_an_account">Don\'t have an account number?</string>
+    <string name="create_account">Create account</string>
 
     <string name="settings">Settings</string>
     <string name="settings_account">Account</string>
@@ -114,5 +116,6 @@
     </string>
 
     <string name="account_url">https://mullvad.net/en/account</string>
+    <string name="create_account_url">https://mullvad.net/en/account/create</string>
     <string name="download_url">https://mullvad.net/en/download</string>
 </resources>
