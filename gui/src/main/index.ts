@@ -1185,6 +1185,9 @@ class ApplicationMain {
       fullscreenable: false,
       show: false,
       frame: false,
+      webPreferences: {
+        nodeIntegration: true,
+      },
     };
 
     switch (process.platform) {

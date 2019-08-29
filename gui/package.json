@@ -71,6 +71,10 @@
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.7.0",
     "gettext-extractor": "^3.5.1",
+    "gulp": "^4.0.2",
+    "gulp-envify": "^1.0.0",
+    "gulp-inject-string": "^1.1.2",
+    "gulp-typescript": "^5.0.1",
     "npm-run-all": "^4.0.1",
     "prettier": "1.16.4",
     "rimraf": "^2.7.1",
@@ -84,11 +88,11 @@
   },
   "scripts": {
     "postinstall": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true electron-builder install-app-deps",
-    "build": "run-s private:clean private:copy-assets private:compile",
+    "build": "gulp build",
     "lint": "tslint -t stylish -p .",
     "format": "npm run private:format -- --write",
     "check-format": "npm run private:format -- --list-different",
-    "develop": "cross-env run-s private:copy-assets private:watch",
+    "develop": "gulp develop",
     "test": "cross-env NODE_ENV=test electron-mocha --renderer --reporter spec --require-main \"test/setup/main.js\" --require ts-node/register --require \"test/setup/renderer.ts\" \"test/**/*.{ts,tsx}\"",
     "update-translations": "node scripts/extract-translations",
     "pack:mac": "run-s build private:pack:mac private:postbuild:mac",
@@ -99,14 +103,6 @@
     "private:postbuild:mac": "rimraf ../dist/mac",
     "private:pack:win": "npm run private:pack -- --win",
     "private:pack:linux": "npm run private:pack -- --linux",
-    "private:pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true electron-builder",
-    "private:copy-assets": "run-s private:assets:main private:assets:html private:assets:css private:assets:locales",
-    "private:assets:main": "cross-env mkdir -p ./build/assets && cp -R ./assets ./build",
-    "private:assets:html": "cross-env mkdir -p ./build/src/renderer && cp ./src/renderer/index.html ./build/src/renderer",
-    "private:assets:css": "cross-env mkdir -p ./build/src/renderer/components && cp ./src/renderer/components/*.css ./build/src/renderer/components",
-    "private:assets:locales": "cross-env mkdir -p ./build/locales && cp -R ./locales ./build",
-    "private:watch": "cross-env node \"scripts/serve.js\"",
-    "private:compile": "tsc",
-    "private:clean": "rimraf build"
+    "private:pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true electron-builder"
   }
 }
