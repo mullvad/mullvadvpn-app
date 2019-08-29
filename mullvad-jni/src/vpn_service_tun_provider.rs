@@ -51,6 +51,7 @@ pub enum Error {
 
 /// Commands that can be sent to the VpnServiceTunProvider
 pub enum VpnServiceTunCommand {
+    Bypass(RawFd, oneshot::Sender<bool>),
     GetTunnelInterface(TunConfig, oneshot::Sender<Option<VpnServiceTun>>),
 }
 
@@ -61,8 +62,10 @@ pub enum VpnServiceTunCommand {
 pub struct VpnServiceTunProvider<'env> {
     env: AttachGuard<'env>,
     mullvad_vpn_service: GlobalRef,
+    bypass_method: JMethodID<'env>,
     create_tun_method: JMethodID<'env>,
     commands: mpsc::UnboundedReceiver<VpnServiceTunCommand>,
+    handle: VpnServiceTunProviderHandle,
 }
 
 impl VpnServiceTunProvider<'_> {
@@ -79,9 +82,11 @@ impl VpnServiceTunProvider<'_> {
         let mullvad_vpn_service = old_env
             .new_global_ref(*old_mullvad_vpn_service)
             .map_err(Error::CreateGlobalReference)?;
+        let handle = VpnServiceTunProviderHandle(command_tx);
+        let handle_to_return = handle.clone();
 
         thread::spawn(move || {
-            match VpnServiceTunProvider::start(&jvm, mullvad_vpn_service, command_rx) {
+            match VpnServiceTunProvider::start(&jvm, mullvad_vpn_service, command_rx, handle) {
                 Ok((mut reactor, provider)) => {
                     let _ = result_tx.send(Ok(()));
                     let _ = reactor.run(provider);
@@ -101,7 +106,7 @@ impl VpnServiceTunProvider<'_> {
 
         result_rx.wait().map_err(|_| Error::ThreadStopped)??;
 
-        Ok(VpnServiceTunProviderHandle(command_tx))
+        Ok(handle_to_return)
     }
 }
 
@@ -110,12 +115,13 @@ impl<'env> VpnServiceTunProvider<'env> {
         jvm: &'env JavaVM,
         mullvad_vpn_service: GlobalRef,
         command_rx: mpsc::UnboundedReceiver<VpnServiceTunCommand>,
+        handle: VpnServiceTunProviderHandle,
     ) -> Result<(Core, Self), Error> {
         let env = jvm
             .attach_current_thread()
             .map_err(Error::AttachJvmToThread)?;
         let reactor = Core::new().map_err(Error::StartReactor)?;
-        let provider = VpnServiceTunProvider::new(env, mullvad_vpn_service, command_rx)?;
+        let provider = VpnServiceTunProvider::new(env, mullvad_vpn_service, command_rx, handle)?;
 
         Ok((reactor, provider))
     }
@@ -124,6 +130,7 @@ impl<'env> VpnServiceTunProvider<'env> {
         env: AttachGuard<'env>,
         mullvad_vpn_service: GlobalRef,
         commands: mpsc::UnboundedReceiver<VpnServiceTunCommand>,
+        handle: VpnServiceTunProviderHandle,
     ) -> Result<Self, Error> {
         let class = get_class("net/mullvad/mullvadvpn/MullvadVpnService");
         let create_tun_method = env
@@ -133,12 +140,17 @@ impl<'env> VpnServiceTunProvider<'env> {
                 "(Lnet/mullvad/mullvadvpn/model/TunConfig;)I",
             )
             .map_err(|cause| Error::FindMethod("MullvadVpnService.createTun", cause))?;
+        let bypass_method = env
+            .get_method_id(&class, "bypass", "(I)Z")
+            .map_err(|cause| Error::FindMethod("MullvadVpnService.bypass", cause))?;
 
         Ok(VpnServiceTunProvider {
             env,
             mullvad_vpn_service,
             create_tun_method,
+            bypass_method,
             commands,
+            handle,
         })
     }
 
@@ -153,11 +165,21 @@ impl<'env> VpnServiceTunProvider<'env> {
     }
 
     fn handle_command(&mut self, command: VpnServiceTunCommand) {
-        let VpnServiceTunCommand::GetTunnelInterface(config, result_tx) = command;
+        use VpnServiceTunCommand::*;
+        match command {
+            Bypass(socket, result_tx) => self.handle_bypass(socket, result_tx),
+            GetTunnelInterface(config, result_tx) => self.handle_create_tun(config, result_tx),
+        }
+    }
 
+    fn handle_create_tun(
+        &mut self,
+        config: TunConfig,
+        result_tx: oneshot::Sender<Option<VpnServiceTun>>,
+    ) {
         match self.create_tun(config) {
-            Ok(tun) => {
-                if result_tx.send(Some(tun)).is_err() {
+            Ok(value) => {
+                if result_tx.send(Some(value)).is_err() {
                     log::error!("Failed to send tun back to requester");
                 }
             }
@@ -185,11 +207,48 @@ impl<'env> VpnServiceTunProvider<'env> {
         match result {
             JValue::Int(fd) => Ok(VpnServiceTun {
                 tunnel: fd,
-                jvm: self.env.get_java_vm().map_err(Error::GetJvmInstance)?,
-                object: self.mullvad_vpn_service.clone(),
+                provider: self.handle.clone(),
             }),
             value => Err(Error::InvalidMethodResult(
                 "MullvadVpnService.createTun",
+                format!("{:?}", value),
+            )),
+        }
+    }
+
+    fn handle_bypass(&mut self, socket: RawFd, result_tx: oneshot::Sender<bool>) {
+        match self.bypass(socket) {
+            Ok(()) => {
+                if result_tx.send(true).is_err() {
+                    log::error!("Failed to send bypass result to requester");
+                }
+            }
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to make socket bypass tunnel")
+                );
+                let _ = result_tx.send(false);
+            }
+        }
+    }
+
+    fn bypass(&mut self, socket: RawFd) -> Result<(), Error> {
+        let result = self
+            .env
+            .call_method_unchecked(
+                self.mullvad_vpn_service.as_obj(),
+                self.bypass_method,
+                JavaType::Primitive(Primitive::Boolean),
+                &[JValue::Int(socket)],
+            )
+            .map_err(|cause| Error::CallMethod("MullvadVpnService.bypass", cause))?;
+
+        match result {
+            JValue::Bool(0) => Err(Error::Bypass),
+            JValue::Bool(_) => Ok(()),
+            value => Err(Error::InvalidMethodResult(
+                "MullvadVpnService.bypass",
                 format!("{:?}", value),
             )),
         }
@@ -206,6 +265,14 @@ impl<'env> Future for VpnServiceTunProvider<'env> {
 }
 
 #[derive(Clone, Copy, Debug, err_derive::Error)]
+enum BypassError {
+    #[error(display = "Failed to request tunnel provider to bypass a socket from the tunnel")]
+    Communication,
+    #[error(display = "Tunnel provider failed to bypass a socket from the tunnel")]
+    Operation,
+}
+
+#[derive(Clone, Copy, Debug, err_derive::Error)]
 enum CreateTunError {
     #[error(display = "Failed to request tunnel provider to create a tunnel")]
     Communication,
@@ -216,6 +283,21 @@ enum CreateTunError {
 /// Interface to `VpnServiceTunProvider`.
 #[derive(Clone)]
 pub struct VpnServiceTunProviderHandle(mpsc::UnboundedSender<VpnServiceTunCommand>);
+
+impl VpnServiceTunProviderHandle {
+    fn bypass(&self, socket: RawFd) -> Result<(), BypassError> {
+        let (tx, rx) = oneshot::channel();
+
+        self.0
+            .unbounded_send(VpnServiceTunCommand::Bypass(socket, tx))
+            .map_err(|_| BypassError::Communication)?;
+
+        match rx.wait().map_err(|_| BypassError::Communication)? {
+            true => Ok(()),
+            false => Err(BypassError::Operation),
+        }
+    }
+}
 
 impl TunProvider for VpnServiceTunProviderHandle {
     fn create_tun(&self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
@@ -240,8 +322,7 @@ impl TunProvider for VpnServiceTunProviderHandle {
 /// Handle to tunnel created by `VpnServiceTunProvider`.
 pub struct VpnServiceTun {
     tunnel: RawFd,
-    jvm: JavaVM,
-    object: GlobalRef,
+    provider: VpnServiceTunProviderHandle,
 }
 
 impl AsRawFd for VpnServiceTun {
@@ -256,35 +337,6 @@ impl Tun for VpnServiceTun {
     }
 
     fn bypass(&mut self, socket: RawFd) -> Result<(), BoxedError> {
-        let env = self
-            .jvm
-            .attach_current_thread()
-            .map_err(|cause| BoxedError::new(Error::AttachJvmToThread(cause)))?;
-        let class = get_class("net/mullvad/mullvadvpn/MullvadVpnService");
-        let create_tun_method = env
-            .get_method_id(&class, "bypass", "(I)Z")
-            .map_err(|cause| {
-                BoxedError::new(Error::FindMethod("MullvadVpnService.bypass", cause))
-            })?;
-
-        let result = env
-            .call_method_unchecked(
-                self.object.as_obj(),
-                create_tun_method,
-                JavaType::Primitive(Primitive::Boolean),
-                &[JValue::Int(socket)],
-            )
-            .map_err(|cause| {
-                BoxedError::new(Error::CallMethod("MullvadVpnService.bypass", cause))
-            })?;
-
-        match result {
-            JValue::Bool(0) => Err(BoxedError::new(Error::Bypass)),
-            JValue::Bool(_) => Ok(()),
-            value => Err(BoxedError::new(Error::InvalidMethodResult(
-                "MullvadVpnService.bypass",
-                format!("{:?}", value),
-            ))),
-        }
+        self.provider.bypass(socket).map_err(BoxedError::new)
     }
 }
