@@ -1,7 +1,6 @@
 const { parallel, series, src, dest } = require('gulp');
-const envify = require('gulp-envify');
 const ts = require('gulp-typescript');
-
+const inject = require('gulp-inject-string');
 const TscWatchClient = require('tsc-watch/client');
 
 function makeWatchCompiler(onFirstSuccess) {
@@ -22,7 +21,7 @@ function compileScripts() {
   return tsProject
     .src()
     .pipe(tsProject())
-    .pipe(envify({ NODE_ENV: 'production' }))
+    .pipe(inject.replace('process.env.NODE_ENV', '"production"'))
     .pipe(dest('build'));
 }
 
