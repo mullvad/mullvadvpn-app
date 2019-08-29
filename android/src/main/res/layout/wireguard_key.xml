@@ -70,7 +70,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:paddingTop="3dp"
-            android:textAllCaps="true"
+            android:textAllCaps="false"
             android:textColor="@color/white60"
             android:textSize="14sp"
             android:textStyle="bold" />
