@@ -13,14 +13,12 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.net.VpnService
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.FragmentActivity
 
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
-import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
@@ -30,9 +28,12 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
+import net.mullvad.mullvadvpn.util.SmartDeferred
 
 class MainActivity : FragmentActivity() {
-    private var vpnPermission: CompletableDeferred<Boolean>? = null
+    companion object {
+        val KEY_SHOULD_CONNECT = "should_connect"
+    }
 
     var daemon = CompletableDeferred<MullvadDaemon>()
         private set
@@ -40,7 +41,7 @@ class MainActivity : FragmentActivity() {
         private set
 
     var appVersionInfoCache = AppVersionInfoCache(this)
-    val connectionProxy = ConnectionProxy(this)
+    val connectionProxy = SmartDeferred(configureConnectionProxy())
     val keyStatusListener = KeyStatusListener(daemon)
     val problemReport = MullvadProblemReport()
     var settingsListener = SettingsListener(this)
@@ -80,6 +81,10 @@ class MainActivity : FragmentActivity() {
         }
 
         appVersionInfoCache.onCreate()
+
+        if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false) ?: false) {
+            connectionProxy.awaitThen { connect() }
+        }
     }
 
     override fun onStart() {
@@ -92,11 +97,7 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            vpnPermission?.complete(true)
-        } else {
-            vpnPermission?.complete(false)
-        }
+        setVpnPermission(resultCode == Activity.RESULT_OK)
     }
 
     override fun onStop() {
@@ -110,6 +111,8 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onDestroy() {
+        connectionProxy.cancel()
+
         accountCache.onDestroy()
         appVersionInfoCache.onDestroy()
         keyStatusListener.onDestroy()
@@ -136,19 +139,8 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    fun requestVpnPermission(): Deferred<Boolean> {
-        val intent = VpnService.prepare(this)
-        val request = CompletableDeferred<Boolean>()
-
-        vpnPermission = request
-
-        if (intent != null) {
-            startActivityForResult(intent, 0)
-        } else {
-            request.complete(true)
-        }
-
-        return request
+    fun requestVpnPermission(intent: Intent) {
+        startActivityForResult(intent, 0)
     }
 
     fun quit()  {
@@ -160,6 +152,18 @@ class MainActivity : FragmentActivity() {
         supportFragmentManager?.beginTransaction()?.apply {
             add(R.id.main_fragment, LaunchFragment())
             commit()
+        }
+    }
+
+    private fun configureConnectionProxy() = GlobalScope.async(Dispatchers.Default) {
+        service.await().connectionProxy.apply {
+            mainActivity = this@MainActivity
+        }
+    }
+
+    private fun setVpnPermission(allow: Boolean) = GlobalScope.launch(Dispatchers.Default) {
+        connectionProxy.awaitThen {
+            vpnPermission.complete(allow)
         }
     }
 

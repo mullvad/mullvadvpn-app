@@ -8,14 +8,13 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
 
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoFetcher
+import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.model.TunConfig
 
 class MullvadVpnService : VpnService() {
@@ -25,9 +24,12 @@ class MullvadVpnService : VpnService() {
     private lateinit var versionInfoFetcher: AppVersionInfoFetcher
 
     val daemon = startDaemon()
+    val connectionProxy = ConnectionProxy(this, daemon)
+    val notificationManager = ForegroundNotificationManager(this, connectionProxy)
 
     override fun onCreate() {
         versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
+        notificationManager.onCreate()
         created.complete(Unit)
     }
 
@@ -36,6 +38,8 @@ class MullvadVpnService : VpnService() {
     }
 
     override fun onDestroy() {
+        connectionProxy.onDestroy()
+        notificationManager.onDestroy()
         versionInfoFetcher.stop()
         daemon.cancel()
         created.cancel()
@@ -70,6 +74,8 @@ class MullvadVpnService : VpnService() {
     inner class LocalBinder : Binder() {
         val daemon
             get() = this@MullvadVpnService.daemon
+        val connectionProxy
+            get() = this@MullvadVpnService.connectionProxy
 
         fun stop() {
             if (daemon.isCompleted) {

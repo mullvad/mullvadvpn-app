@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
+import net.mullvad.mullvadvpn.util.SmartDeferred
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
@@ -32,16 +33,18 @@ class ConnectFragment : Fragment() {
     private lateinit var locationInfo: LocationInfo
 
     private lateinit var parentActivity: MainActivity
-    private lateinit var connectionProxy: ConnectionProxy
+    private lateinit var connectionProxy: SmartDeferred<ConnectionProxy>
     private lateinit var keyStatusListener: KeyStatusListener
     private lateinit var locationInfoCache: LocationInfoCache
     private lateinit var relayListListener: RelayListListener
     private lateinit var versionInfoCache: AppVersionInfoCache
 
     private lateinit var updateKeyStatusJob: Job
-    private lateinit var updateTunnelStateJob: Job
+    private var updateTunnelStateJob: Job? = null
+    private var tunnelStateSubscriptionJob: Long? = null
 
     private var isTunnelInfoExpanded = false
+    private var tunnelStateListener: Int? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -81,9 +84,9 @@ class ConnectFragment : Fragment() {
 
         actionButton = ConnectActionButton(view)
         actionButton.apply {
-            onConnect = { connectionProxy.connect() }
-            onCancel = { connectionProxy.disconnect() }
-            onDisconnect = { connectionProxy.disconnect() }
+            onConnect = { connectionProxy.awaitThen { connect() } }
+            onCancel = { connectionProxy.awaitThen { disconnect() } }
+            onDisconnect = { connectionProxy.awaitThen { disconnect() } }
         }
 
         switchLocationButton = SwitchLocationButton(view, resources)
@@ -97,9 +100,9 @@ class ConnectFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        notificationBanner.onResume()
-
         locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
+
+        notificationBanner.onResume()
 
         keyStatusListener.onKeyStatusChange = { keyStatus ->
             updateKeyStatusJob.cancel()
@@ -114,10 +117,11 @@ class ConnectFragment : Fragment() {
             switchLocationButton.location = selectedRelayItem
         }
 
-        updateTunnelStateJob = updateTunnelState(connectionProxy.uiState)
-        connectionProxy.onUiStateChange = { uiState ->
-            updateTunnelStateJob.cancel()
-            updateTunnelStateJob = updateTunnelState(uiState)
+        tunnelStateSubscriptionJob = connectionProxy.awaitThen {
+            tunnelStateListener = onUiStateChange.subscribe { uiState ->
+                updateTunnelStateJob?.cancel()
+                updateTunnelStateJob = updateTunnelState(uiState, state)
+            }
         }
     }
 
@@ -126,13 +130,20 @@ class ConnectFragment : Fragment() {
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
 
-        connectionProxy.onUiStateChange = null
-        updateTunnelStateJob.cancel()
+        tunnelStateSubscriptionJob?.let { jobId ->
+            connectionProxy.cancelJob(jobId)
+        }
 
+        tunnelStateListener?.let { listener ->
+            connectionProxy.awaitThen { 
+                onUiStateChange.unsubscribe(listener)
+            }
+        }
+
+        updateTunnelStateJob?.cancel()
+        notificationBanner.onPause()
 
         isTunnelInfoExpanded = locationInfo.isTunnelInfoExpanded
-
-        notificationBanner.onPause()
 
         super.onPause()
     }
@@ -148,9 +159,9 @@ class ConnectFragment : Fragment() {
         state.putBoolean(KEY_IS_TUNNEL_INFO_EXPANDED, isTunnelInfoExpanded)
     }
 
-    private fun updateTunnelState(uiState: TunnelState) = GlobalScope.launch(Dispatchers.Main) {
-        val realState = connectionProxy.state
-
+    private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) =
+        GlobalScope.launch(Dispatchers.Main)
+    {
         locationInfoCache.state = realState
         locationInfo.state = realState
         headerBar.setState(realState)

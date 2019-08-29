@@ -1,16 +1,24 @@
 package net.mullvad.mullvadvpn.dataproxy
 
+import android.content.Context
+import android.content.Intent
+import android.net.VpnService
+
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 
 import net.mullvad.mullvadvpn.MainActivity
+import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.util.EventNotifier
 
-class ConnectionProxy(val parentActivity: MainActivity) {
-    val daemon = parentActivity.daemon
+class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>) {
+    var mainActivity: MainActivity? = null
 
     private var activeAction: Job? = null
 
@@ -31,20 +39,17 @@ class ConnectionProxy(val parentActivity: MainActivity) {
     var uiState: TunnelState = TunnelState.Disconnected()
         private set(value) {
             field = value
-            onUiStateChange?.invoke(value)
+            onUiStateChange.notify(value)
         }
 
-    var onUiStateChange: ((TunnelState) -> Unit)? = null
-        set(value) {
-            field = value
-            value?.invoke(uiState)
-        }
+    var onUiStateChange = EventNotifier(uiState)
+    var vpnPermission = CompletableDeferred<Boolean>()
 
     fun connect() {
         if (anticipateConnectingState()) {
             cancelActiveAction()
 
-            val vpnPermission = parentActivity.requestVpnPermission()
+            requestVpnPermission()
 
             activeAction = GlobalScope.launch(Dispatchers.Default) {
                 if (vpnPermission.await()) {
@@ -68,6 +73,7 @@ class ConnectionProxy(val parentActivity: MainActivity) {
     }
 
     fun onDestroy() {
+        onUiStateChange.unsubscribeAll()
         attachListenerJob.cancel()
         detachListener()
         fetchInitialStateJob.cancel()
@@ -96,6 +102,27 @@ class ConnectionProxy(val parentActivity: MainActivity) {
             } else {
                 uiState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing())
                 return true
+            }
+        }
+    }
+
+    private fun requestVpnPermission() {
+        val intent = VpnService.prepare(context)
+
+        vpnPermission = CompletableDeferred()
+
+        if (intent == null) {
+            vpnPermission.complete(true)
+        } else {
+            val activity = mainActivity
+
+            if (activity != null) {
+                activity.requestVpnPermission(intent)
+            } else {
+                val activityIntent = Intent(context, MainActivity::class.java)
+                    .putExtra(MainActivity.KEY_SHOULD_CONNECT, true)
+
+                context.startActivity(activityIntent)
             }
         }
     }
