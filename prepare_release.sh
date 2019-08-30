@@ -14,7 +14,7 @@ VERSION=$1
 
 # Regex that only matches valid Mullvad VPN versions. It also captures
 # relevant values into capture groups, read out via BASH_REMATCH[x]
-VERSION_REGEX="^20([0-9]{2})\.([0-9]+)(-beta([0-9]+))?$"
+VERSION_REGEX="^20([0-9]{2})\.([1-9][0-9]?)(-beta([1-9][0-9]?))?$"
 if [[ ! $VERSION =~ $VERSION_REGEX ]]; then
     echo "Invalid version format. Please specify version as:"
     echo "<YEAR>.<NUMBER>[-beta<NUMBER>]"
