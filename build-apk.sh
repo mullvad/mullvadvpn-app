@@ -31,11 +31,21 @@ if [[ "$BUILD_TYPE" == "debug" || "$(git describe)" != "$PRODUCT_VERSION" ]]; th
     echo "Modifying product version to $PRODUCT_VERSION"
 fi
 
-cd "$SCRIPT_DIR/android"
+pushd "$SCRIPT_DIR/android"
 ./gradlew --console plain clean
-mkdir -p "${SCRIPT_DIR}/android/build/extraJni"
+mkdir -p "build/extraJni"
+popd
 
-cd "$SCRIPT_DIR"
+function restore_metadata_backups() {
+    pushd "$SCRIPT_DIR"
+    ./version_metadata.sh restore-backup
+    mv Cargo.lock.bak Cargo.lock || true
+    popd
+}
+trap 'restore_metadata_backups' EXIT
+
+cp Cargo.lock Cargo.lock.bak
+./version_metadata.sh inject $PRODUCT_VERSION
 
 ARCHITECTURES="aarch64 armv7 x86_64 i686"
 for ARCHITECTURE in $ARCHITECTURES; do
