@@ -67,9 +67,6 @@ SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 
 function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
-    if [[ "$BUILD_MODE" == "dev" ]]; then
-        mv gui/electron-builder.yml.bak gui/electron-builder.yml || true
-    fi
     mv gui/package.json.bak gui/package.json || true
     mv gui/package-lock.json.bak gui/package-lock.json || true
     mv Cargo.lock.bak Cargo.lock || true
@@ -82,15 +79,6 @@ function restore_metadata_backups() {
     popd
 }
 trap 'restore_metadata_backups' EXIT
-
-if [[ "$BUILD_MODE" == "dev" ]]; then
-    # Disable installer compression on *explicit* dev builds.
-    # This does not disable compression on build server builds, since they
-    # always run without --dev-buid.
-    echo "Disabling compression of installer in this dev build"
-    cp gui/electron-builder.yml gui/electron-builder.yml.bak
-    echo "compression: store" >> gui/electron-builder.yml
-fi
 
 cp gui/package-lock.json gui/package-lock.json.bak
 sed -i.bak -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
@@ -205,11 +193,25 @@ npm install
 ################################################################################
 
 echo "Packing final release artifact..."
-case "$(uname -s)" in
-    Linux*)     npm run pack:linux;;
-    Darwin*)    npm run pack:mac;;
-    MINGW*)     npm run pack:win;;
-esac
+
+if [[ "$BUILD_MODE" == "dev" ]]; then
+    # Disable installer compression on *explicit* dev builds.
+    # This does not disable compression on build server builds, since they
+    # always run without --dev-build.
+    echo "Disabling compression of installer in this dev build"
+
+    case "$(uname -s)" in
+        Linux*)     npm run pack:linux -- --no-compression;;
+        Darwin*)    npm run pack:mac -- --no-compression;;
+        MINGW*)     npm run pack:win -- --no-compression;;
+    esac
+else
+    case "$(uname -s)" in
+        Linux*)     npm run pack:linux;;
+        Darwin*)    npm run pack:mac;;
+        MINGW*)     npm run pack:win;;
+    esac
+fi
 
 popd
 

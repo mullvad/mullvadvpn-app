@@ -94,14 +94,9 @@
     "develop": "gulp develop",
     "test": "cross-env NODE_ENV=test electron-mocha --renderer --reporter spec --require-main \"test/setup/main.js\" --require ts-node/register --require \"test/setup/renderer.ts\" \"test/**/*.{ts,tsx}\"",
     "update-translations": "node scripts/extract-translations",
-    "pack:mac": "run-s build private:pack:mac private:postbuild:mac",
-    "pack:win": "run-s build private:pack:win",
-    "pack:linux": "run-s build private:pack:linux",
-    "private:format": "prettier \"**/*.{js,css,ts,tsx}\"",
-    "private:pack:mac": "npm run private:pack -- --mac",
-    "private:postbuild:mac": "rimraf ../dist/mac",
-    "private:pack:win": "npm run private:pack -- --win",
-    "private:pack:linux": "npm run private:pack -- --linux",
-    "private:pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true electron-builder"
+    "pack:mac": "gulp pack-mac",
+    "pack:win": "gulp pack-win",
+    "pack:linux": "gulp pack-linux",
+    "private:format": "prettier \"**/*.{js,css,ts,tsx}\""
   }
 }
