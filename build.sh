@@ -91,10 +91,9 @@ if [[ "$BUILD_MODE" == "dev" ]]; then
     echo "compression: store" >> gui/electron-builder.yml
 fi
 
-sed -i.bak \
-    -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
-    gui/package.json
 cp gui/package-lock.json gui/package-lock.json.bak
+sed -i.bak -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
+    gui/package.json
 
 cp Cargo.lock Cargo.lock.bak
 sed -i.bak \
