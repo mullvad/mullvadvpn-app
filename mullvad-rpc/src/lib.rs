@@ -131,6 +131,12 @@ jsonrpc_client!(pub struct WireguardKeyProxy {
         account_token: AccountToken,
         public_key: wireguard::PublicKey
     ) -> RpcRequest<mullvad_types::wireguard::AssociatedAddresses>;
+    pub fn replace_wg_key(
+        &mut self,
+        account_token: AccountToken,
+        old_key: wireguard::PublicKey,
+        new_key: wireguard::PublicKey
+    ) -> RpcRequest<mullvad_types::wireguard::AssociatedAddresses>;
     pub fn check_wg_key(
         &mut self,
         account_token: AccountToken,
