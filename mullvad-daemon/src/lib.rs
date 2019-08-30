@@ -1251,10 +1251,16 @@ where
                     })
                 })?;
 
-            match self
-                .wireguard_key_manager
-                .generate_key_sync(account_token.clone())
-            {
+            let gen_result = match &account_entry.wireguard {
+                Some(wireguard_data) => self
+                    .wireguard_key_manager
+                    .replace_key(account_token.clone(), wireguard_data.get_public_key()),
+                None => self
+                    .wireguard_key_manager
+                    .generate_key_sync(account_token.clone()),
+            };
+
+            match gen_result {
                 Ok(new_data) => {
                     let public_key = new_data.get_public_key();
                     account_entry.wireguard = Some(new_data.clone());
