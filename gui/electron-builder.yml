@@ -99,13 +99,17 @@ win:
       to: .
     - from: ../windows/winutil/bin/x64-Release/winutil.dll
       to: .
-      
+
 linux:
   target:
     - deb
     - rpm
   artifactName: MullvadVPN-${version}_${arch}.${ext}
   category: Network
+  executableName: mullvad-gui
+  extraFiles:
+    - from: '../dist-assets/linux/mullvad-gui-launcher.sh'
+    - to: ./mullvad-vpn
   extraResources:
     - from: ../dist-assets/problem-report
       to: .
