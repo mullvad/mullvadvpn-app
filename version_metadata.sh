@@ -83,7 +83,7 @@ EOF
         rm android/build.gradle.bak || true
         ;;
     *)
-        echo "Invalid command. Use inject or restore"
+        echo "Invalid command"
         exit 1
         ;;
 esac
