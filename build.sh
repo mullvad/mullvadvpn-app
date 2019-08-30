@@ -77,6 +77,7 @@ function restore_metadata_backups() {
     mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
     mv mullvad-problem-report/Cargo.toml.bak mullvad-problem-report/Cargo.toml || true
     mv talpid-openvpn-plugin/Cargo.toml.bak talpid-openvpn-plugin/Cargo.toml || true
+    mv android/build.gradle.bak android/build.gradle || true
     mv dist-assets/windows/version.h.bak dist-assets/windows/version.h || true
     popd
 }
@@ -102,6 +103,10 @@ sed -i.bak \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml \
     talpid-openvpn-plugin/Cargo.toml
+
+cp android/build.gradle android/build.gradle.bak
+sed -i.bak -Ee "s/versionName \"[^\"]+\"/versionName \"$PRODUCT_VERSION\"/g" \
+    android/build.gradle
 
 SEMVER_ARRAY=($(echo $SEMVER_VERSION | sed -Ee 's/[.-]+/ /g'))
 SEMVER_MAJOR=${SEMVER_ARRAY[0]}
