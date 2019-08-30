@@ -1,9 +1,13 @@
 use crate::InternalDaemonEvent;
+use chrono::offset::Utc;
 use futures::{future::Executor, sync::oneshot, Async, Future, Poll};
 use jsonrpc_client_core::Error as JsonRpcError;
-use mullvad_types::{account::AccountToken, wireguard::WireguardData};
+use mullvad_types::account::AccountToken;
+pub use mullvad_types::wireguard::*;
 use std::{sync::mpsc, time::Duration};
-pub use talpid_types::net::wireguard::*;
+pub use talpid_types::net::wireguard::{
+    ConnectionConfig, PrivateKey, TunnelConfig, TunnelParameters,
+};
 use talpid_types::ErrorExt;
 use tokio_core::reactor::Remote;
 use tokio_retry::{
@@ -60,17 +64,33 @@ impl KeyManager {
     pub fn generate_key_sync(&mut self, account: AccountToken) -> Result<WireguardData> {
         self.reset();
         let private_key = PrivateKey::new_from_random().map_err(Error::GenerationError)?;
+
+        self.run_future_sync(self.push_future_generator(account, private_key)())
+            .map_err(Self::map_rpc_error)
+    }
+
+    pub fn run_future_sync<T: Send + 'static, E: Send + 'static>(
+        &mut self,
+        fut: impl Future<Item = T, Error = E> + Send + 'static,
+    ) -> std::result::Result<T, E> {
+        self.reset();
         let (tx, rx) = oneshot::channel();
-        let fut = self.push_future_generator(account, private_key)().then(|result| {
+
+        let _ = self.tokio_remote.execute(fut.then(|result| {
             let _ = tx.send(result);
             Ok(())
-        });
-        self.tokio_remote
-            .execute(fut)
-            .map_err(|_e| Error::ExectuionError)?;
+        }));
+        rx.wait().unwrap()
+    }
 
-        rx.wait()
-            .map_err(|_| Error::ExectuionError)?
+    pub fn replace_key(
+        &mut self,
+        account: AccountToken,
+        old_key: PublicKey,
+    ) -> Result<WireguardData> {
+        self.reset();
+        let new_key = PrivateKey::new_from_random().map_err(Error::GenerationError)?;
+        self.run_future_sync(self.replace_key_rpc(account, old_key, new_key))
             .map_err(Self::map_rpc_error)
     }
 
@@ -165,10 +185,27 @@ impl KeyManager {
                     move |addresses| WireguardData {
                         private_key: key,
                         addresses,
+                        created: Utc::now(),
                     },
                 ))
             };
         Box::new(push_future)
+    }
+
+    fn replace_key_rpc(
+        &self,
+        account: AccountToken,
+        old_key: PublicKey,
+        new_key: PrivateKey,
+    ) -> impl Future<Item = WireguardData, Error = JsonRpcError> + Send {
+        let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
+        let new_public_key = new_key.public_key();
+        rpc.replace_wg_key(account.clone(), old_key.key, new_public_key)
+            .map(move |addresses| WireguardData {
+                private_key: new_key,
+                addresses,
+                created: Utc::now(),
+            })
     }
 
     fn map_rpc_error(err: jsonrpc_client_core::Error) -> Error {
