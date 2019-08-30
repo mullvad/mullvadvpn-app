@@ -795,7 +795,7 @@ where
 
         match result {
             Ok(data) => {
-                let public_key = data.private_key.public_key();
+                let public_key = data.get_public_key();
                 let mut account_entry = self
                     .account_history
                     .get(&account)
@@ -1256,7 +1256,7 @@ where
                 .generate_key_sync(account_token.clone())
             {
                 Ok(new_data) => {
-                    let public_key = new_data.private_key.public_key();
+                    let public_key = new_data.get_public_key();
                     account_entry.wireguard = Some(new_data.clone());
                     self.account_history.insert(account_entry).map_err(|e| {
                         format!("Failed to add new wireguard key to account data: {}", e)
@@ -1285,11 +1285,7 @@ where
             .settings
             .get_account_token()
             .and_then(|account| self.account_history.get(&account).ok()?)
-            .and_then(|account_entry| {
-                account_entry
-                    .wireguard
-                    .map(|wg| wg.private_key.public_key())
-            });
+            .and_then(|account_entry| account_entry.wireguard.map(|wg| wg.get_public_key()));
 
         Self::oneshot_send(tx, key, "get_wireguard_key response");
     }
