@@ -72,7 +72,11 @@ impl AccountHistory {
             Ok(accounts) => accounts,
         };
         let file = io::BufWriter::new(reader.into_inner());
-        Ok(AccountHistory { file, accounts })
+        let mut history = AccountHistory { file, accounts };
+        if let Err(e) = history.save_to_disk() {
+            log::error!("Failed to save account cache after opening it: {}", e);
+        }
+        Ok(history)
     }
 
     fn try_old_format(reader: &mut io::BufReader<fs::File>) -> Result<Vec<AccountToken>> {
