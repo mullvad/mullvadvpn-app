@@ -77,15 +77,6 @@ function restore_metadata_backups() {
 }
 trap 'restore_metadata_backups' EXIT
 
-if [[ "$BUILD_MODE" == "dev" ]]; then
-    # Disable installer compression on *explicit* dev builds.
-    # This does not disable compression on build server builds, since they
-    # always run without --dev-buid.
-    echo "Disabling compression of installer in this dev build"
-    cp gui/electron-builder.yml gui/electron-builder.yml.bak
-    echo "compression: store" >> gui/electron-builder.yml
-fi
-
 echo "Updating version in metadata files..."
 cp gui/package-lock.json gui/package-lock.json.bak
 cp Cargo.lock Cargo.lock.bak
@@ -175,10 +166,22 @@ npm install
 ################################################################################
 
 echo "Packing final release artifact..."
+
+if [[ "$BUILD_MODE" == "dev" ]]; then
+    # Disable installer compression on *explicit* dev builds.
+    # This does not disable compression on build server builds, since they
+    # always run without --dev-build.
+    echo "Disabling compression of installer in this dev build"
+
+    PACK_ARGS="--no-compression"
+else
+    PACK_ARGS=""
+fi
+
 case "$(uname -s)" in
-    Linux*)     npm run pack:linux;;
-    Darwin*)    npm run pack:mac;;
-    MINGW*)     npm run pack:win;;
+    Linux*)     npm run pack:linux -- $PACK_ARGS;;
+    Darwin*)    npm run pack:mac -- $PACK_ARGS;;
+    MINGW*)     npm run pack:win -- $PACK_ARGS;;
 esac
 
 popd
