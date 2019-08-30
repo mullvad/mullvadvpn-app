@@ -19,7 +19,7 @@ use mullvad_types::{
     relay_list::RelayList,
     settings::{self, Settings},
     states::{TargetState, TunnelState},
-    version, DaemonEvent,
+    version, wireguard, DaemonEvent,
 };
 use parking_lot::{Mutex, RwLock};
 use std::{
@@ -28,7 +28,7 @@ use std::{
 };
 use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
-use talpid_types::{net::wireguard, ErrorExt};
+use talpid_types::ErrorExt;
 use uuid;
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
@@ -133,7 +133,7 @@ build_rpc_trait! {
 
         /// Generates new wireguard key for current account
         #[rpc(meta, name = "generate_wireguard_key")]
-        fn generate_wireguard_key(&self, Self::Metadata) -> BoxFuture<mullvad_types::wireguard::KeygenEvent, Error>;
+        fn generate_wireguard_key(&self, Self::Metadata) -> BoxFuture<wireguard::KeygenEvent, Error>;
 
         /// Retrieve a public key for current account if the account has one.
         #[rpc(meta, name = "get_wireguard_key")]
@@ -217,7 +217,7 @@ pub enum ManagementCommand {
     /// Get the daemon settings
     GetSettings(OneshotSender<Settings>),
     /// Generate new wireguard key
-    GenerateWireguardKey(OneshotSender<mullvad_types::wireguard::KeygenEvent>),
+    GenerateWireguardKey(OneshotSender<wireguard::KeygenEvent>),
     /// Return a public key of the currently set wireguard private key, if there is one
     GetWireguardKey(OneshotSender<Option<wireguard::PublicKey>>),
     /// Verify if the currently set wireguard key is valid.
