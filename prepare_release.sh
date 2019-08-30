@@ -12,11 +12,21 @@ if [[ "$#" != "1" ]]; then
 fi
 VERSION=$1
 
-if [[ $(echo $VERSION | egrep '^[0-9]{4}\.[0-9]+(-(beta|alpha)[0-9]+)?$') == "" ]]; then
+# Regex that only matches valid Mullvad VPN versions. It also captures
+# relevant values into capture groups, read out via BASH_REMATCH[x]
+VERSION_REGEX="^20([0-9]{2})\.([1-9][0-9]?)(-beta([1-9][0-9]?))?$"
+if [[ ! $VERSION =~ $VERSION_REGEX ]]; then
     echo "Invalid version format. Please specify version as:"
-    echo "<YEAR>.<NUMBER>[-(beta|alpha)<NUMBER>]"
+    echo "<YEAR>.<NUMBER>[-beta<NUMBER>]"
     exit 1
 fi
+VERSION_YEAR=$(printf "%02d" ${BASH_REMATCH[1]})
+VERSION_NUMBER=$(printf "%02d" ${BASH_REMATCH[2]})
+VERSION_PATCH="00"
+VERSION_BETA=$(printf "%02d" ${BASH_REMATCH[4]:-99})
+ANDROID_VERSION_CODE=${VERSION_YEAR}${VERSION_NUMBER}${VERSION_PATCH}${VERSION_BETA}
+
+SEMVER_VERSION=$(echo $VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 
 if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
     echo "Dirty working directory! Will not accept that for an official release."
@@ -30,13 +40,18 @@ if [[ $(grep $VERSION CHANGELOG.md) == "" ]]; then
 fi
 
 echo "Updating version in metadata files..."
-SEMVER_VERSION=`echo $VERSION | sed -Ee 's/($|-.*)/.0\1/g'`
 sed -i.bak -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
     gui/package.json
 sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml
+
+sed -i.bak -Ee "s/versionCode [0-9]+/versionCode $ANDROID_VERSION_CODE/g" \
+    android/build.gradle
+sed -i.bak -Ee "s/versionName \"[^\"]+\"/versionName \"$VERSION\"/g" \
+    android/build.gradle
+
 
 echo "Syncing Cargo.lock with new version numbers"
 source env.sh ""
