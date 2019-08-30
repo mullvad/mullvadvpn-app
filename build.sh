@@ -63,22 +63,16 @@ else
 fi
 
 echo "Building Mullvad VPN $PRODUCT_VERSION"
-SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 
 function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
+    echo "Restoring version metadata files..."
+    ./version_metadata.sh restore-backup
     if [[ "$BUILD_MODE" == "dev" ]]; then
         mv gui/electron-builder.yml.bak gui/electron-builder.yml || true
     fi
-    mv gui/package.json.bak gui/package.json || true
     mv gui/package-lock.json.bak gui/package-lock.json || true
     mv Cargo.lock.bak Cargo.lock || true
-    mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
-    mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
-    mv mullvad-problem-report/Cargo.toml.bak mullvad-problem-report/Cargo.toml || true
-    mv talpid-openvpn-plugin/Cargo.toml.bak talpid-openvpn-plugin/Cargo.toml || true
-    mv android/build.gradle.bak android/build.gradle || true
-    mv dist-assets/windows/version.h.bak dist-assets/windows/version.h || true
     popd
 }
 trap 'restore_metadata_backups' EXIT
@@ -92,35 +86,11 @@ if [[ "$BUILD_MODE" == "dev" ]]; then
     echo "compression: store" >> gui/electron-builder.yml
 fi
 
+echo "Updating version in metadata files..."
 cp gui/package-lock.json gui/package-lock.json.bak
-sed -i.bak -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
-    gui/package.json
-
 cp Cargo.lock Cargo.lock.bak
-sed -i.bak \
-    -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
-    mullvad-daemon/Cargo.toml \
-    mullvad-cli/Cargo.toml \
-    mullvad-problem-report/Cargo.toml \
-    talpid-openvpn-plugin/Cargo.toml
+./version_metadata.sh inject $PRODUCT_VERSION
 
-cp android/build.gradle android/build.gradle.bak
-sed -i.bak -Ee "s/versionName \"[^\"]+\"/versionName \"$PRODUCT_VERSION\"/g" \
-    android/build.gradle
-
-SEMVER_ARRAY=($(echo $SEMVER_VERSION | sed -Ee 's/[.-]+/ /g'))
-SEMVER_MAJOR=${SEMVER_ARRAY[0]}
-SEMVER_MINOR=${SEMVER_ARRAY[1]}
-SEMVER_PATCH=${SEMVER_ARRAY[2]}
-
-cp dist-assets/windows/version.h dist-assets/windows/version.h.bak
-
-cat <<EOF > dist-assets/windows/version.h
-#define MAJOR_VERSION $SEMVER_MAJOR
-#define MINOR_VERSION $SEMVER_MINOR
-#define PATCH_VERSION $SEMVER_PATCH
-#define PRODUCT_VERSION "$PRODUCT_VERSION"
-EOF
 
 ################################################################################
 # Compile and link all binaries.
@@ -213,6 +183,7 @@ esac
 
 popd
 
+SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
 for semver_path in dist/*$SEMVER_VERSION*; do
     product_path=$(echo $semver_path | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
     echo "Moving $semver_path -> $product_path"
