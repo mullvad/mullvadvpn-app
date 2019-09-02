@@ -23,11 +23,17 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add button to regenerate WireGuard key in GUI.
+- Show when currently set WireGuard key was generated in GUI.
+
 ### Changed
 - Decreased default MTU for WireGuard to 1380 to improve performance over 4G
+- WireGuard key generation will try to replace old key if one exists.
 
 ### Fixed
 - Fix old settings deserialization to allow migrating settings from versions older than 2019.6.
+- Make GUI WireGuard key verification resiient to failure.
 
 
 ## [2019.7] - 2019-08-12
