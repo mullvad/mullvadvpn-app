@@ -155,7 +155,7 @@ class WireguardKeyFragment : Fragment() {
         }
         actionSpinner.visibility = View.GONE
         actionButton.visibility = View.VISIBLE
-        actionButton.setText(R.string.wireguard_validate_key)
+        actionButton.setText(R.string.wireguard_verify_key)
         actionButton.setOnClickListener {
             onValidateKeyPress()
         }
