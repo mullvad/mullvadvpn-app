@@ -1192,6 +1192,7 @@ class ApplicationMain {
       frame: false,
       webPreferences: {
         nodeIntegration: true,
+        devTools: process.env.NODE_ENV === 'development',
       },
     };
 
