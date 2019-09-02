@@ -54,7 +54,7 @@ else
 fi
 
 if [[ "$BUILD_MODE" == "dev" || $(git describe) != "$PRODUCT_VERSION" ]]; then
-    GIT_COMMIT=$(git rev-parse --short HEAD)
+    GIT_COMMIT=$(git rev-parse HEAD | head -c 6)
     PRODUCT_VERSION="$PRODUCT_VERSION-dev-$GIT_COMMIT"
     echo "Modifying product version to $PRODUCT_VERSION"
 else
