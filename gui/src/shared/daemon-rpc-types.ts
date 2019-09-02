@@ -311,7 +311,7 @@ export interface IBridgeConstraints {
       };
 }
 
-export type BridgeSettings = ProxySettings | IBridgeConstraints;
+export type BridgeSettings = { normal: IBridgeConstraints } | { custom: ProxySettings };
 
 export interface ISocketAddress {
   host: string;

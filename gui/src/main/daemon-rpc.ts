@@ -1,5 +1,6 @@
 import {
   AccountToken,
+  BridgeSettings,
   BridgeState,
   DaemonEvent,
   IAccountData,
@@ -447,6 +448,10 @@ export class DaemonRpc {
 
   public async setBridgeState(bridgeState: BridgeState): Promise<void> {
     await this.transport.send('set_bridge_state', [bridgeState]);
+  }
+
+  public async setBridgeSettings(bridgeSettings: BridgeSettings): Promise<void> {
+    await this.transport.send('set_bridge_settings', [bridgeSettings]);
   }
 
   public async setOpenVpnMssfix(mssfix?: number): Promise<void> {
