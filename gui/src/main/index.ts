@@ -14,6 +14,7 @@ import {
   IRelayList,
   IRelayListHostname,
   ISettings,
+  IWireguardPublicKey,
   KeygenEvent,
   RelaySettings,
   RelaySettingsUpdate,
@@ -143,7 +144,7 @@ class ApplicationMain {
   // The UI locale which is set once from onReady handler
   private locale = 'en';
 
-  private wireguardPublicKey?: string;
+  private wireguardPublicKey?: IWireguardPublicKey;
 
   private accountDataCache = new AccountDataCache(
     (accountToken) => {
@@ -560,7 +561,7 @@ class ApplicationMain {
     }
   }
 
-  private setWireguardKey(wireguardKey?: string) {
+  private setWireguardKey(wireguardKey?: IWireguardPublicKey) {
     this.wireguardPublicKey = wireguardKey;
     if (this.windowController) {
       IpcMainEventChannel.wireguardKeys.notify(this.windowController.webContents, wireguardKey);

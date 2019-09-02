@@ -1,6 +1,6 @@
-import { BridgeState, KeygenEvent } from '../../../shared/daemon-rpc-types';
+import { BridgeState, IWireguardPublicKey, KeygenEvent } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
-import { IRelayLocationRedux, RelaySettingsRedux } from './reducers';
+import { IRelayLocationRedux, IWgKey, RelaySettingsRedux } from './reducers';
 
 export interface IUpdateGuiSettingsAction {
   type: 'UPDATE_GUI_SETTINGS';
@@ -50,16 +50,21 @@ export interface IUpdateAutoStartAction {
 // Used to set wireguard key when accounts are changed.
 export interface IWireguardSetKey {
   type: 'SET_WIREGUARD_KEY';
-  publicKey?: string;
+  key?: IWgKey;
 }
 
 export interface IWireguardGenerateKey {
   type: 'GENERATE_WIREGUARD_KEY';
 }
 
+export interface IWireguardReplaceKey {
+  type: 'REPLACE_WIREGUARD_KEY';
+  oldKey: IWgKey;
+}
+
 export interface IWireguardVerifyKey {
   type: 'VERIFY_WIREGUARD_KEY';
-  publicKey: string;
+  key: IWgKey;
 }
 
 export interface IWireguardKeygenEvent {
@@ -69,7 +74,7 @@ export interface IWireguardKeygenEvent {
 
 export interface IWireguardKeyVerifiedAction {
   type: 'WIREGUARD_KEY_VERIFICATION_COMPLETE';
-  verified: boolean;
+  verified?: boolean;
 }
 
 export type SettingsAction =
@@ -85,6 +90,7 @@ export type SettingsAction =
   | IWireguardSetKey
   | IWireguardVerifyKey
   | IWireguardGenerateKey
+  | IWireguardReplaceKey
   | IWireguardKeygenEvent
   | IWireguardKeyVerifiedAction;
 
@@ -153,10 +159,17 @@ function updateAutoStart(autoStart: boolean): IUpdateAutoStartAction {
   };
 }
 
-function setWireguardKey(publicKey?: string): IWireguardSetKey {
+function setWireguardKey(publicKey?: IWireguardPublicKey): IWireguardSetKey {
+  const key = publicKey
+    ? {
+        publicKey: publicKey.key,
+        created: publicKey.created,
+        valid: undefined,
+      }
+    : undefined;
   return {
     type: 'SET_WIREGUARD_KEY',
-    publicKey,
+    key,
   };
 }
 
@@ -173,14 +186,21 @@ function generateWireguardKey(): IWireguardGenerateKey {
   };
 }
 
-function verifyWireguardKey(publicKey: string): IWireguardVerifyKey {
+function replaceWireguardKey(oldKey: IWgKey): IWireguardReplaceKey {
   return {
-    type: 'VERIFY_WIREGUARD_KEY',
-    publicKey,
+    type: 'REPLACE_WIREGUARD_KEY',
+    oldKey,
   };
 }
 
-function completeWireguardKeyVerification(verified: boolean): IWireguardKeyVerifiedAction {
+function verifyWireguardKey(key: IWgKey): IWireguardVerifyKey {
+  return {
+    type: 'VERIFY_WIREGUARD_KEY',
+    key,
+  };
+}
+
+function completeWireguardKeyVerification(verified?: boolean): IWireguardKeyVerifiedAction {
   return {
     type: 'WIREGUARD_KEY_VERIFICATION_COMPLETE',
     verified,
@@ -200,6 +220,7 @@ export default {
   setWireguardKey,
   setWireguardKeygenEvent,
   generateWireguardKey,
+  replaceWireguardKey,
   verifyWireguardKey,
   completeWireguardKeyVerification,
 };
