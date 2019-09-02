@@ -1,4 +1,4 @@
-const { parallel, series, src, dest } = require('gulp');
+const { src, dest } = require('gulp');
 const ts = require('gulp-typescript');
 const inject = require('gulp-inject-string');
 const TscWatchClient = require('tsc-watch/client');
