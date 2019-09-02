@@ -87,7 +87,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/wireguard_key_visit_website"
+        android:id="@+id/wireguard_manage_keys"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -102,7 +102,7 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="8dp"
             android:paddingVertical="17dp"
-            android:text="@string/wireguard_key_visit_website"
+            android:text="@string/wireguard_manage_keys"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold" />

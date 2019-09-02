@@ -65,7 +65,7 @@ class WireguardKeyFragment : Fragment() {
 
 
         statusMessage = view.findViewById<TextView>(R.id.wireguard_key_status)
-        visitWebsiteView = view.findViewById<View>(R.id.wireguard_key_visit_website)
+        visitWebsiteView = view.findViewById<View>(R.id.wireguard_manage_keys)
         publicKey = view.findViewById<TextView>(R.id.wireguard_public_key)
         actionButton = view.findViewById<Button>(R.id.wg_key_button)
         actionSpinner = view.findViewById<ProgressBar>(R.id.wg_action_spinner)
