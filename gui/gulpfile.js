@@ -1,4 +1,3 @@
-const path = require('path');
 const { task, series } = require('gulp');
 const rimraf = require('rimraf');
 
