@@ -70,6 +70,12 @@ class WireguardKeyFragment : Fragment() {
         actionButton = view.findViewById<Button>(R.id.wg_key_button)
         actionSpinner = view.findViewById<ProgressBar>(R.id.wg_action_spinner)
 
+        visitWebsiteView.visibility = View.VISIBLE
+        visitWebsiteView.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(parentActivity.getString(R.string.account_url)))
+            startActivity(intent)
+        }
+
         updateViews()
 
         return view
@@ -82,7 +88,6 @@ class WireguardKeyFragment : Fragment() {
 
     private fun updateViews() {
         clearErrorMessage()
-        visitWebsiteView.visibility = View.GONE
 
         actionButton.setClickable(true)
 
@@ -92,11 +97,6 @@ class WireguardKeyFragment : Fragment() {
                 setGenerateButton()
             }
             is KeygenEvent.TooManyKeys -> {
-                visitWebsiteView.visibility = View.VISIBLE
-                visitWebsiteView.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(parentActivity.getString(R.string.account_url)))
-                    startActivity(intent)
-                }
 
                 setStatusMessage(R.string.too_many_keys, R.color.red)
                 setGenerateButton()
