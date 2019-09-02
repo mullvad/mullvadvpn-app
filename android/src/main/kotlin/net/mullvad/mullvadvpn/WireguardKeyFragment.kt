@@ -65,10 +65,16 @@ class WireguardKeyFragment : Fragment() {
 
 
         statusMessage = view.findViewById<TextView>(R.id.wireguard_key_status)
-        visitWebsiteView = view.findViewById<View>(R.id.wireguard_key_visit_website)
+        visitWebsiteView = view.findViewById<View>(R.id.wireguard_manage_keys)
         publicKey = view.findViewById<TextView>(R.id.wireguard_public_key)
         actionButton = view.findViewById<Button>(R.id.wg_key_button)
         actionSpinner = view.findViewById<ProgressBar>(R.id.wg_action_spinner)
+
+        visitWebsiteView.visibility = View.VISIBLE
+        visitWebsiteView.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(parentActivity.getString(R.string.account_url)))
+            startActivity(intent)
+        }
 
         updateViews()
 
@@ -82,7 +88,6 @@ class WireguardKeyFragment : Fragment() {
 
     private fun updateViews() {
         clearErrorMessage()
-        visitWebsiteView.visibility = View.GONE
 
         actionButton.setClickable(true)
 
@@ -92,11 +97,6 @@ class WireguardKeyFragment : Fragment() {
                 setGenerateButton()
             }
             is KeygenEvent.TooManyKeys -> {
-                visitWebsiteView.visibility = View.VISIBLE
-                visitWebsiteView.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(parentActivity.getString(R.string.account_url)))
-                    startActivity(intent)
-                }
 
                 setStatusMessage(R.string.too_many_keys, R.color.red)
                 setGenerateButton()
@@ -110,7 +110,7 @@ class WireguardKeyFragment : Fragment() {
                 publicKey.visibility = View.VISIBLE
                 publicKey.setText(publicKeyString)
 
-                setValidateButton()
+                setVerifyButton()
 
                 if (keyState.verified != null) {
                     if (keyState.verified) {
@@ -148,14 +148,14 @@ class WireguardKeyFragment : Fragment() {
         }
     }
 
-    private fun setValidateButton() {
+    private fun setVerifyButton() {
         if (validatingKey) {
             showActionSpinner()
             return
         }
         actionSpinner.visibility = View.GONE
         actionButton.visibility = View.VISIBLE
-        actionButton.setText(R.string.wireguard_validate_key)
+        actionButton.setText(R.string.wireguard_verify_key)
         actionButton.setOnClickListener {
             onValidateKeyPress()
         }
