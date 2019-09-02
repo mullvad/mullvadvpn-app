@@ -101,7 +101,9 @@ class ApplicationMain {
       },
     },
     bridgeSettings: {
-      location: 'any',
+      normal: {
+        location: 'any',
+      },
     },
     bridgeState: 'auto',
     tunnelOptions: {
