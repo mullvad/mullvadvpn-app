@@ -110,7 +110,7 @@ class WireguardKeyFragment : Fragment() {
                 publicKey.visibility = View.VISIBLE
                 publicKey.setText(publicKeyString)
 
-                setValidateButton()
+                setVerifyButton()
 
                 if (keyState.verified != null) {
                     if (keyState.verified) {
@@ -148,7 +148,7 @@ class WireguardKeyFragment : Fragment() {
         }
     }
 
-    private fun setValidateButton() {
+    private fun setVerifyButton() {
         if (validatingKey) {
             showActionSpinner()
             return
