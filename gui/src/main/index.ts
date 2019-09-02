@@ -1241,7 +1241,7 @@ class ApplicationMain {
   private setMacOsAppMenu() {
     const template: Electron.MenuItemConstructorOptions[] = [
       {
-        label: 'Mullvad',
+        label: 'Mullvad VPN',
         submenu: [{ role: 'quit' }],
       },
       {
@@ -1261,7 +1261,7 @@ class ApplicationMain {
   private setLinuxAppMenu() {
     const template: Electron.MenuItemConstructorOptions[] = [
       {
-        label: 'Mullvad',
+        label: 'Mullvad VPN',
         submenu: [{ role: 'quit' }],
       },
     ];
