@@ -28,6 +28,13 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix old settings deserialization to allow migrating settings from versions older than 2019.6.
+- Fix various small issues in GUI<->daemon communication.
+
+#### macOS
+- Unregister the app properly from the OS when running the bundled `uninstall.sh` script.
+
+#### Linux
+- Fix bug in netlink parsing in offline detection code.
 
 
 ## [2019.7] - 2019-08-12
