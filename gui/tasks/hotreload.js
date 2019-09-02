@@ -1,4 +1,4 @@
-const { series, src, dest, watch } = require('gulp');
+const { series, src, dest } = require('gulp');
 const inject = require('gulp-inject-string');
 
 const browserSync = require('browser-sync').create();
