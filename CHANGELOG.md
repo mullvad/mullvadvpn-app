@@ -23,13 +23,19 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add button to regenerate WireGuard key in GUI.
+- Show when currently set WireGuard key was generated in GUI.
+
 ### Changed
 - Decreased default MTU for WireGuard to 1380 to improve performance over 4G
 - WireGuard key page now shows a label explaining why buttons are disabled when in a blocked state
+- WireGuard key generation will try to replace old key if one exists.
 
 ### Fixed
 - Fix old settings deserialization to allow migrating settings from versions older than 2019.6.
 - Fix various small issues in GUI<->daemon communication.
+- Make GUI WireGuard key verification resilient to failure.
 
 #### macOS
 - Unregister the app properly from the OS when running the bundled `uninstall.sh` script.
