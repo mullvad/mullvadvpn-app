@@ -369,6 +369,8 @@ class ApplicationMain {
       case 'linux':
         this.installGenericMenubarAppWindowHandlers(tray, windowController);
         this.installLinuxWindowCloseHandler(windowController);
+        this.setLinuxAppMenu();
+        window.setMenuBarVisibility(false);
         break;
       default:
         this.installGenericMenubarAppWindowHandlers(tray, windowController);
@@ -1249,6 +1251,16 @@ class ApplicationMain {
           { type: 'separator' },
           { role: 'selectAll' },
         ],
+      },
+    ];
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  }
+
+  private setLinuxAppMenu() {
+    const template: Electron.MenuItemConstructorOptions[] = [
+      {
+        label: 'Mullvad',
+        submenu: [{ role: 'quit' }],
       },
     ];
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
