@@ -52,7 +52,7 @@ fn create_wireguard_mtu_subcommand() -> clap::App<'static, 'static> {
 
 fn create_wireguard_keys_subcommand() -> clap::App<'static, 'static> {
     clap::SubCommand::with_name("key")
-        .about("Manage your wireguard keys")
+        .about("Manage your wireguard key")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
         .subcommand(clap::SubCommand::with_name("check"))
         .subcommand(clap::SubCommand::with_name("generate"))

@@ -342,7 +342,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
       return (
         <View style={styles.advanced_settings__wgkeys_cell}>
           <Cell.CellButton onPress={this.props.onViewWireguardKeys}>
-            <Cell.Label>{messages.pgettext('advanced-settings-view', 'WireGuard keys')}</Cell.Label>
+            <Cell.Label>{messages.pgettext('advanced-settings-view', 'WireGuard key')}</Cell.Label>
             <Cell.Icon height={12} width={7} source="icon-chevron" />
           </Cell.CellButton>
         </View>

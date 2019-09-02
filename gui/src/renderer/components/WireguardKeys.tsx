@@ -37,7 +37,7 @@ export default class WireguardKeys extends Component<IProps> {
             <View style={styles.wgkeys__container}>
               <SettingsHeader>
                 <HeaderTitle>
-                  {messages.pgettext('wireguard-keys-nav', 'WireGuard keys')}
+                  {messages.pgettext('wireguard-keys-nav', 'WireGuard key')}
                 </HeaderTitle>
               </SettingsHeader>
 
