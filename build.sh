@@ -68,9 +68,6 @@ function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
     echo "Restoring version metadata files..."
     ./version_metadata.sh restore-backup
-    if [[ "$BUILD_MODE" == "dev" ]]; then
-        mv gui/electron-builder.yml.bak gui/electron-builder.yml || true
-    fi
     mv gui/package-lock.json.bak gui/package-lock.json || true
     mv Cargo.lock.bak Cargo.lock || true
     popd
