@@ -16,6 +16,7 @@ import AppRoutes from './routes';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
+import { IWgKey } from './redux/settings/reducers';
 import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
@@ -33,6 +34,7 @@ import {
   ILocation,
   IRelayList,
   ISettings,
+  IWireguardPublicKey,
   KeygenEvent,
   liftConstraint,
   RelaySettings,
@@ -129,7 +131,7 @@ export default class AppRenderer {
       this.storeAutoStart(autoStart);
     });
 
-    IpcRendererEventChannel.wireguardKeys.listen((publicKey?: string) => {
+    IpcRendererEventChannel.wireguardKeys.listen((publicKey?: IWireguardPublicKey) => {
       this.setWireguardPublicKey(publicKey);
     });
 
@@ -303,16 +305,28 @@ export default class AppRenderer {
     IpcRendererEventChannel.guiSettings.setMonochromaticIcon(monochromaticIcon);
   }
 
-  public async verifyWireguardKey(publicKey: string) {
+  public async verifyWireguardKey(publicKey: IWgKey) {
     const actions = this.reduxActions;
     actions.settings.verifyWireguardKey(publicKey);
-    const valid = await IpcRendererEventChannel.wireguardKeys.verifyKey();
-    actions.settings.completeWireguardKeyVerification(valid);
+    try {
+      const valid = await IpcRendererEventChannel.wireguardKeys.verifyKey();
+      actions.settings.completeWireguardKeyVerification(valid);
+    } catch (error) {
+      log.error(`Failed to verify WireGuard key - ${error.message}`);
+      actions.settings.completeWireguardKeyVerification(undefined);
+    }
   }
 
   public async generateWireguardKey() {
     const actions = this.reduxActions;
     actions.settings.generateWireguardKey();
+    const keygenEvent = await IpcRendererEventChannel.wireguardKeys.generateKey();
+    actions.settings.setWireguardKeygenEvent(keygenEvent);
+  }
+
+  public async replaceWireguardKey(oldKey: IWgKey) {
+    const actions = this.reduxActions;
+    actions.settings.replaceWireguardKey(oldKey);
     const keygenEvent = await IpcRendererEventChannel.wireguardKeys.generateKey();
     actions.settings.setWireguardKeygenEvent(keygenEvent);
   }
@@ -554,7 +568,7 @@ export default class AppRenderer {
     this.reduxActions.settings.updateAutoStart(autoStart);
   }
 
-  private setWireguardPublicKey(publicKey?: string) {
+  private setWireguardPublicKey(publicKey?: IWireguardPublicKey) {
     this.reduxActions.settings.setWireguardKey(publicKey);
   }
 }
