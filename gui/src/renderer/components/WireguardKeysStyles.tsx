@@ -24,7 +24,6 @@ export default {
     lineHeight: 20,
     letterSpacing: -0.2,
     color: colors.white60,
-    marginBottom: 9,
   }),
   wgkeys__validity_row: Styles.createViewStyle({
     paddingTop: 5,

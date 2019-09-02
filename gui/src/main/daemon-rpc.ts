@@ -8,6 +8,7 @@ import {
   ILocation,
   IRelayList,
   ISettings,
+  IWireguardPublicKey,
   KeygenEvent,
   RelaySettingsUpdate,
   TunnelState,
@@ -337,10 +338,18 @@ const settingsSchema = partialObject({
   tunnel_options: tunnelOptionsSchema,
 });
 
+const wireguardPublicKey = object({
+  key: string,
+  created: string,
+});
+
 const keygenEventSchema = oneOf(
   enumeration('too_many_keys', 'generation_failure'),
   object({
-    new_key: string,
+    new_key: object({
+      key: string,
+      created: string,
+    }),
   }),
 );
 
@@ -567,10 +576,10 @@ export class DaemonRpc {
     }
   }
 
-  public async getWireguardKey(): Promise<string | undefined> {
+  public async getWireguardKey(): Promise<IWireguardPublicKey | undefined> {
     const response = await this.transport.send('get_wireguard_key');
     try {
-      return validate(maybe(string), response) || undefined;
+      return validate(maybe(wireguardPublicKey), response) || undefined;
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_wireguard_key');
     }
