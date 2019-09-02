@@ -20,6 +20,7 @@ sudo rm -f "$DAEMON_PLIST_PATH"
 
 echo "Removing app from /Applications ..."
 sudo rm -rf /Applications/Mullvad\ VPN.app
+sudo pkgutil --forget net.mullvad.vpn || true
 
 read -p "Do you want to delete the log and cache files the app has created? (y/n) "
 if [[ "$REPLY" =~ [Yy]$ ]]; then
