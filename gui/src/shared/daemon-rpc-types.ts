@@ -280,6 +280,7 @@ export interface IShadowsocksProxySettings {
 
 export interface IAppVersionInfo {
   currentIsSupported: boolean;
+  currentIsOutdated: boolean;
   latestStable: string;
   latest: string;
 }

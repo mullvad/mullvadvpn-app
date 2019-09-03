@@ -64,7 +64,6 @@ export interface ICurrentAppVersionInfo {
 
 export interface IAppUpgradeInfo extends IAppVersionInfo {
   nextUpgrade?: string;
-  upToDate: boolean;
 }
 
 type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
@@ -134,10 +133,10 @@ class ApplicationMain {
 
   private upgradeVersion: IAppUpgradeInfo = {
     currentIsSupported: true,
+    currentIsOutdated: false,
     latestStable: '',
     latest: '',
     nextUpgrade: undefined,
-    upToDate: true,
   };
   private latestVersionInterval?: NodeJS.Timeout;
 
@@ -722,23 +721,10 @@ class ApplicationMain {
       }
     }
 
-    function checkIfLatest(current: string, latest: string, latestStable: string): boolean {
-      // perhaps -beta?
-      if (isBeta(current)) {
-        return current === latest;
-      } else {
-        // must be stable
-        return current === latestStable;
-      }
-    }
-
     const currentVersionInfo = this.currentVersion;
     const latestVersion = latestVersionInfo.latest;
     const latestStableVersion = latestVersionInfo.latestStable;
 
-    // the reason why we rely on daemon version here is because daemon obtains the version info
-    // based on its built-in version information
-    const isUpToDate = checkIfLatest(currentVersionInfo.daemon, latestVersion, latestStableVersion);
     const upgradeVersion = nextUpgrade(
       currentVersionInfo.daemon,
       latestVersion,
@@ -748,7 +734,6 @@ class ApplicationMain {
     const upgradeInfo = {
       ...latestVersionInfo,
       nextUpgrade: upgradeVersion,
-      upToDate: isUpToDate,
     };
 
     this.upgradeVersion = upgradeInfo;

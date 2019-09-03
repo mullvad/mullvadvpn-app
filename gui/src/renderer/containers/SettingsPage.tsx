@@ -13,7 +13,7 @@ const mapStateToProps = (state: IReduxState, props: ISharedRouteProps) => ({
   expiryLocale: props.locale,
   appVersion: state.version.current,
   consistentVersion: state.version.consistent,
-  upToDateVersion: state.version.upToDate,
+  upToDateVersion: !state.version.currentIsOutdated,
   isOffline: state.connection.isBlocked,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, _props: ISharedRouteProps) => {

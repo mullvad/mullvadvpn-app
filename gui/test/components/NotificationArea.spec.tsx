@@ -10,7 +10,7 @@ describe('components/NotificationArea', () => {
   const defaultVersion = {
     consistent: true,
     currentIsSupported: true,
-    upToDate: true,
+    currentIsOutdated: false,
     current: '2018.2',
     latest: '2018.2-beta1',
     latestStable: '2018.2',
@@ -185,7 +185,7 @@ describe('components/NotificationArea', () => {
         version={{
           ...defaultVersion,
           currentIsSupported: false,
-          upToDate: false,
+          currentIsOutdated: true,
           current: '2018.1',
           nextUpgrade: '2018.2',
         }}
@@ -207,7 +207,7 @@ describe('components/NotificationArea', () => {
         }}
         version={{
           ...defaultVersion,
-          upToDate: false,
+          currentIsOutdated: true,
           current: '2018.2',
           latest: '2018.4-beta2',
           latestStable: '2018.3',
@@ -232,7 +232,7 @@ describe('components/NotificationArea', () => {
         }}
         version={{
           ...defaultVersion,
-          upToDate: false,
+          currentIsOutdated: true,
           current: '2018.4-beta1',
           latest: '2018.4-beta3',
           latestStable: '2018.3',

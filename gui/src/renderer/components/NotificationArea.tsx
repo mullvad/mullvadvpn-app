@@ -176,7 +176,7 @@ export default class NotificationArea extends Component<IProps, State> {
           };
         }
 
-        if (!version.upToDate && version.nextUpgrade) {
+        if (version.currentIsOutdated && version.nextUpgrade) {
           return {
             visible: true,
             type: 'update-available',
