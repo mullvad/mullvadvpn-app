@@ -11,9 +11,7 @@ environment:
   # overridden on a case by case basis down below
     RUST_VERSION: stable
     RUST_BACKTRACE: "1"
-    RUSTFLAGS: "--deny unused_imports --deny dead_code"
     CPP_BUILD_MODES: "Debug"
-    OPENSSL_STATIC: "1"
 
   # These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
@@ -49,10 +47,7 @@ install:
 
 # This is the "test phase", tweak it as you see fit
 test_script:
-  - ps: . .\env.ps1
-  - bash -x build_windows_modules.sh --dev-build
-  - cargo build
-  - cargo test
+  - bash -x ci/ci-rust-script.sh %RUST_VERSION%
 
 # Stops feature branches from triggering two builds (One for branch and one for PR)
 skip_branch_with_pr: true
