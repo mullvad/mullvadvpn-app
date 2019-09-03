@@ -65,6 +65,7 @@
     <string name="unsecured_connection">Unsecured connection</string>
     <string name="creating_secure_connection">Creating secure connection</string>
     <string name="secure_connection">Secure connection</string>
+    <string name="blocked_connection">Blocked connection</string>
     <string name="connect">Secure my connection</string>
     <string name="cancel">Cancel</string>
     <string name="disconnect">Disconnect</string>

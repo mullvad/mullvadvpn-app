@@ -27,7 +27,7 @@ class ConnectionStatus(val parentView: View, val context: Context) {
             is TunnelState.Disconnected -> disconnected()
             is TunnelState.Connecting -> connecting()
             is TunnelState.Connected -> connected()
-            is TunnelState.Blocked -> connected()
+            is TunnelState.Blocked -> blocked()
         }
     }
 
@@ -50,5 +50,12 @@ class ConnectionStatus(val parentView: View, val context: Context) {
 
         text.setTextColor(connectedTextColor)
         text.setText(R.string.secure_connection)
+    }
+
+    private fun blocked() {
+        spinner.visibility = View.GONE
+
+        text.setTextColor(connectedTextColor)
+        text.setText(R.string.blocked_connection)
     }
 }
