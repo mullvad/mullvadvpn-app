@@ -113,6 +113,9 @@
     <string name="wireguard_key_connectivity">
         Connectivity required to manage your key.
     </string>
+    <string name="wireguard_key_blocked_state_message">
+        Can\'t manage keys in blocked state
+    </string>
     <string name="wireguard_key_valid">
         Key is valid
     </string>

@@ -90,6 +90,9 @@ class WireguardKeyFragment : Fragment() {
         clearErrorMessage()
 
         actionButton.setClickable(true)
+        visitWebsiteView.setClickable(true)
+        actionButton.setAlpha(1f)
+        visitWebsiteView.setAlpha(1f)
 
         when (val keyState = keyStatusListener.keyStatus) {
             null -> {
@@ -173,6 +176,14 @@ class WireguardKeyFragment : Fragment() {
                 statusMessage.visibility = View.VISIBLE
                 actionButton.visibility = View.GONE
                 actionSpinner.visibility = View.VISIBLE
+            }
+            is TunnelState.Blocked -> {
+                statusMessage.setText(R.string.wireguard_key_blocked_state_message)
+                statusMessage.visibility = View.VISIBLE
+                actionButton.setClickable(false)
+                actionButton.setAlpha(0.5f)
+                visitWebsiteView.setClickable(false)
+                visitWebsiteView.setAlpha(0.5f)
             }
         }
     }
