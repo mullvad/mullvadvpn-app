@@ -89,8 +89,6 @@ class WireguardKeyFragment : Fragment() {
     private fun updateViews() {
         clearErrorMessage()
 
-        actionButton.setClickable(true)
-
         when (val keyState = keyStatusListener.keyStatus) {
             null -> {
                 publicKey.visibility = View.INVISIBLE
@@ -167,12 +165,25 @@ class WireguardKeyFragment : Fragment() {
     }
 
     private fun drawNoConnectionState() {
+        actionButton.setClickable(true)
+        visitWebsiteView.setClickable(true)
+        actionButton.setAlpha(1f)
+        visitWebsiteView.setAlpha(1f)
+
         when (tunnelState) {
             is TunnelState.Connecting, is TunnelState.Disconnecting -> {
                 statusMessage.setText(R.string.wireguard_key_connectivity)
                 statusMessage.visibility = View.VISIBLE
                 actionButton.visibility = View.GONE
                 actionSpinner.visibility = View.VISIBLE
+            }
+            is TunnelState.Blocked -> {
+                statusMessage.setText(R.string.wireguard_key_blocked_state_message)
+                statusMessage.visibility = View.VISIBLE
+                actionButton.setClickable(false)
+                actionButton.setAlpha(0.5f)
+                visitWebsiteView.setClickable(false)
+                visitWebsiteView.setAlpha(0.5f)
             }
         }
     }
