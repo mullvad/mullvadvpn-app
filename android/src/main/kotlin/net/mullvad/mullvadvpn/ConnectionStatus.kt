@@ -11,9 +11,9 @@ class ConnectionStatus(val parentView: View, val context: Context) {
     private val spinner: View = parentView.findViewById(R.id.connecting_spinner)
     private val text: TextView = parentView.findViewById(R.id.connection_status)
 
-    private val disconnectedTextColor = context.getColor(R.color.red)
+    private val unsecuredTextColor = context.getColor(R.color.red)
     private val connectingTextColor = context.getColor(R.color.white)
-    private val connectedTextColor = context.getColor(R.color.green)
+    private val securedTextColor = context.getColor(R.color.green)
 
     fun setState(state: TunnelState) {
         when (state) {
@@ -34,7 +34,7 @@ class ConnectionStatus(val parentView: View, val context: Context) {
     private fun disconnected() {
         spinner.visibility = View.GONE
 
-        text.setTextColor(disconnectedTextColor)
+        text.setTextColor(unsecuredTextColor)
         text.setText(R.string.unsecured_connection)
     }
 
@@ -48,14 +48,14 @@ class ConnectionStatus(val parentView: View, val context: Context) {
     private fun connected() {
         spinner.visibility = View.GONE
 
-        text.setTextColor(connectedTextColor)
+        text.setTextColor(securedTextColor)
         text.setText(R.string.secure_connection)
     }
 
     private fun blocked() {
         spinner.visibility = View.GONE
 
-        text.setTextColor(connectedTextColor)
+        text.setTextColor(securedTextColor)
         text.setText(R.string.blocked_connection)
     }
 }
