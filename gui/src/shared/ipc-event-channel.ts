@@ -265,7 +265,7 @@ export class IpcRendererEventChannel {
 export class IpcMainEventChannel {
   public static state = {
     handleGet(fn: () => IAppStateSnapshot) {
-      ipcMain.on(GET_APP_STATE, (event: Electron.Event) => {
+      ipcMain.on(GET_APP_STATE, (event: Electron.IpcMainEvent) => {
         event.returnValue = fn();
       });
     },
@@ -349,7 +349,7 @@ export class IpcMainEventChannel {
 
 function listen<T>(event: string): (fn: (value: T) => void) => void {
   return (fn: (value: T) => void) => {
-    ipcRenderer.on(event, (_event: Electron.Event, newState: T) => fn(newState));
+    ipcRenderer.on(event, (_event: Electron.IpcRendererEvent, newState: T) => fn(newState));
   };
 }
 
@@ -381,7 +381,7 @@ function senderVoid(event: string): (webContents: WebContents) => void {
 
 function handler<T>(event: string): (handlerFn: (value: T) => void) => void {
   return (handlerFn: (value: T) => void) => {
-    ipcMain.on(event, (_event: Electron.Event, newValue: T) => {
+    ipcMain.on(event, (_event: Electron.IpcMainEvent, newValue: T) => {
       handlerFn(newValue);
     });
   };
@@ -391,26 +391,29 @@ type RequestResult<T> = { type: 'success'; value: T } | { type: 'error'; message
 
 function requestHandler<T>(event: string): (fn: (...args: any[]) => Promise<T>) => void {
   return (fn: (...args: any[]) => Promise<T>) => {
-    ipcMain.on(event, async (ipcEvent: Electron.Event, requestId: string, ...args: any[]) => {
-      const responseEvent = `${event}-${requestId}`;
-      try {
-        const result: RequestResult<T> = { type: 'success', value: await fn(...args) };
+    ipcMain.on(
+      event,
+      async (ipcEvent: Electron.IpcMainEvent, requestId: string, ...args: any[]) => {
+        const responseEvent = `${event}-${requestId}`;
+        try {
+          const result: RequestResult<T> = { type: 'success', value: await fn(...args) };
 
-        if (ipcEvent.sender.isDestroyed()) {
-          log.debug(`Cannot send the reply for ${responseEvent} since the sender was destroyed.`);
-        } else {
-          ipcEvent.sender.send(responseEvent, result);
-        }
-      } catch (error) {
-        const result: RequestResult<T> = { type: 'error', message: error.message || '' };
+          if (ipcEvent.sender.isDestroyed()) {
+            log.debug(`Cannot send the reply for ${responseEvent} since the sender was destroyed.`);
+          } else {
+            ipcEvent.sender.send(responseEvent, result);
+          }
+        } catch (error) {
+          const result: RequestResult<T> = { type: 'error', message: error.message || '' };
 
-        if (ipcEvent.sender.isDestroyed()) {
-          log.debug(`Cannot send the reply for ${responseEvent} since the sender was destroyed.`);
-        } else {
-          ipcEvent.sender.send(responseEvent, result);
+          if (ipcEvent.sender.isDestroyed()) {
+            log.debug(`Cannot send the reply for ${responseEvent} since the sender was destroyed.`);
+          } else {
+            ipcEvent.sender.send(responseEvent, result);
+          }
         }
-      }
-    });
+      },
+    );
   };
 }
 
@@ -420,17 +423,20 @@ function requestSender<T>(event: string): (...args: any[]) => Promise<T> {
       const requestId = uuid.v4();
       const responseEvent = `${event}-${requestId}`;
 
-      ipcRenderer.once(responseEvent, (_ipcEvent: Electron.Event, result: RequestResult<T>) => {
-        switch (result.type) {
-          case 'error':
-            reject(new Error(result.message));
-            break;
+      ipcRenderer.once(
+        responseEvent,
+        (_ipcEvent: Electron.IpcRendererEvent, result: RequestResult<T>) => {
+          switch (result.type) {
+            case 'error':
+              reject(new Error(result.message));
+              break;
 
-          case 'success':
-            resolve(result.value);
-            break;
-        }
-      });
+            case 'success':
+              resolve(result.value);
+              break;
+          }
+        },
+      );
 
       ipcRenderer.send(event, requestId, ...args);
     });
