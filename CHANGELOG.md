@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Changed
 - Decreased default MTU for WireGuard to 1380 to improve performance over 4G
+- WireGuard key page now shows a label explaining why buttons are disabled when in a blocked state
 
 ### Fixed
 - Fix old settings deserialization to allow migrating settings from versions older than 2019.6.

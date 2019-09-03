@@ -41,6 +41,7 @@ export default class WireguardKeys extends Component<IProps> {
                 </HeaderTitle>
               </SettingsHeader>
 
+              <View style={styles.wgkeys__row}>{this.blockedStateLabel()}</View>
               <View style={styles.wgkeys__row}>
                 <Text style={styles.wgkeys__row_label}>
                   {messages.pgettext('wireguard-keys', 'Public key')}
@@ -164,5 +165,16 @@ export default class WireguardKeys extends Component<IProps> {
       default:
         return '';
     }
+  }
+
+  private blockedStateLabel() {
+    if (!this.props.isOffline) {
+      return undefined;
+    }
+    return (
+      <Text style={styles.wgkeys__invalid_key}>
+        {messages.pgettext('wireguard-key-view', "Can't manage keys whilst in a blocked state")}
+      </Text>
+    );
   }
 }
