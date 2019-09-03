@@ -1,6 +1,5 @@
 #pragma once
 
-#include "clientsinkinfo.h"
 #include "ilogsink.h"
 #include <mutex>
 

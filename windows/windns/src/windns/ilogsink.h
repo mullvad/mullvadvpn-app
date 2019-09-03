@@ -1,6 +1,13 @@
 #pragma once
 
+#include "windns.h"
 #include <cstdint>
+
+struct LogSinkInfo
+{
+	WinDnsLogSink sink;
+	void* context;
+};
 
 struct ILogSink
 {

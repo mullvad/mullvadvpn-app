@@ -6,35 +6,30 @@
 #include <vector>
 #include <cstdint>
 #include <stdexcept>
+#include <memory>
 
 class NetSh
 {
 public:
 
-	static void Construct(ILogSink *logSink);
+	NetSh(std::shared_ptr<ILogSink> logSink);
 
-	static NetSh &Instance();
-
-	void SetIpv4StaticDns(uint32_t interfaceIndex,
+	void setIpv4StaticDns(uint32_t interfaceIndex,
 		const std::vector<std::wstring> &nameServers, uint32_t timeout = 0);
 
-	void SetIpv4DhcpDns(uint32_t interfaceIndex, uint32_t timeout = 0);
+	void setIpv4DhcpDns(uint32_t interfaceIndex, uint32_t timeout = 0);
 
-	void SetIpv6StaticDns(uint32_t interfaceIndex,
+	void setIpv6StaticDns(uint32_t interfaceIndex,
 		const std::vector<std::wstring> &nameServers, uint32_t timeout = 0);
 
-	void SetIpv6DhcpDns(uint32_t interfaceIndex, uint32_t timeout = 0);
-
-	static uint32_t ConvertInterfaceGuidToIndex(const std::wstring &interfaceGuid);
+	void setIpv6DhcpDns(uint32_t interfaceIndex, uint32_t timeout = 0);
 
 private:
 
-	ILogSink *m_logSink;
+	std::shared_ptr<ILogSink> m_logSink;
 	std::wstring m_netShPath;
 
-	NetSh(ILogSink *logSink);
-
-	void ValidateShellOut(common::ApplicationRunner &netsh, uint32_t timeout);
+	void validateShellOut(common::ApplicationRunner &netsh, uint32_t timeout);
 };
 
 class NetShError : public std::exception

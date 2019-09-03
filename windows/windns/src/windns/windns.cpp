@@ -1,21 +1,19 @@
 #include "stdafx.h"
+#include <libcommon/string.h>
 #include "windns.h"
-#include "windnscontext.h"
-#include "clientsinkinfo.h"
 #include "confineoperation.h"
-#include "recoveryformatter.h"
-#include "recoverylogic.h"
 #include "netsh.h"
 #include "logsink.h"
 #include <memory>
 #include <vector>
 #include <string>
+#include <iphlpapi.h>
 
 namespace
 {
 
-LogSink *g_LogSink = nullptr;
-WinDnsContext *g_Context = nullptr;
+std::shared_ptr<LogSink> g_LogSink;
+std::shared_ptr<NetSh> g_NetSh;
 
 std::vector<std::wstring> MakeStringArray(const wchar_t **strings, uint32_t numStrings)
 {
@@ -37,6 +35,33 @@ void ForwardError(const char *message, const char **details, uint32_t numDetails
 	}
 }
 
+uint32_t ConvertInterfaceAliasToIndex(const std::wstring &interfaceAlias)
+{
+	NET_LUID luid;
+
+	if (NO_ERROR != ConvertInterfaceAliasToLuid(interfaceAlias.c_str(), &luid))
+	{
+		const auto err = std::wstring(L"Could not resolve LUID of interface: \"")
+			.append(interfaceAlias).append(L"\"");
+
+		throw std::runtime_error(common::string::ToAnsi(err).c_str());
+	}
+
+	NET_IFINDEX index;
+
+	if (NO_ERROR != ConvertInterfaceLuidToIndex(&luid, &index))
+	{
+		std::wstringstream ss;
+
+		ss << L"Could not resolve index of interface: \"" << interfaceAlias << L"\""
+			<< L"with LUID: 0x" << std::hex << luid.Value;
+
+		throw std::runtime_error(common::string::ToAnsi(ss.str()).c_str());
+	}
+
+	return static_cast<uint32_t>(index);
+}
+
 } // anonymous namespace
 
 WINDNS_LINKAGE
@@ -47,24 +72,24 @@ WinDns_Initialize(
 	void *logContext
 )
 {
-	if (nullptr != g_Context)
+	if (g_LogSink)
 	{
 		return false;
 	}
 
 	return ConfineOperation("Initialize", ForwardError, [&]()
 	{
-		if (nullptr == g_LogSink)
-		{
-			g_LogSink = new LogSink(LogSinkInfo{ logSink, logContext });
-			NetSh::Construct(g_LogSink);
-		}
-		else
-		{
-			g_LogSink->setTarget(LogSinkInfo{ logSink, logContext });
-		}
+		g_LogSink = std::make_shared<LogSink>(LogSinkInfo{ logSink, logContext });
 
-		g_Context = new WinDnsContext(g_LogSink);
+		try
+		{
+			g_NetSh = std::make_shared<NetSh>(g_LogSink);
+		}
+		catch (...)
+		{
+			g_LogSink.reset();
+			throw;
+		}
 	});
 }
 
@@ -74,17 +99,8 @@ WINDNS_API
 WinDns_Deinitialize(
 )
 {
-	if (nullptr == g_Context)
-	{
-		return true;
-	}
-
-	delete g_Context;
-	g_Context = nullptr;
-
-	// Maintain a single instance forever and invoke setTarget() on it.
-	//delete g_LogSink;
-	//g_LogSink = nullptr;
+	g_NetSh.reset();
+	g_LogSink.reset();
 
 	return true;
 }
@@ -93,60 +109,25 @@ WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Set(
+	const wchar_t *interfaceAlias,
 	const wchar_t **ipv4Servers,
 	uint32_t numIpv4Servers,
 	const wchar_t **ipv6Servers,
-	uint32_t numIpv6Servers,
-	WinDnsRecoverySink recoverySink,
-	void *recoveryContext
+	uint32_t numIpv6Servers
 )
 {
-	if (nullptr == g_Context
-		|| nullptr == ipv4Servers
-		|| 0 == numIpv4Servers
-		|| nullptr == recoverySink)
+	return ConfineOperation("Apply DNS settings", ForwardError, [&]()
 	{
-		return false;
-	}
+		const auto interfaceIndex = ConvertInterfaceAliasToIndex(interfaceAlias);
 
-	return ConfineOperation("Enforce DNS settings", ForwardError, [&]()
-	{
-		g_Context->set(MakeStringArray(ipv4Servers, numIpv4Servers), MakeStringArray(ipv6Servers, \
-			numIpv6Servers), RecoverySinkInfo{ recoverySink, recoveryContext });
-	});
-}
+		if (nullptr != ipv4Servers && 0 != numIpv4Servers)
+		{
+			g_NetSh->setIpv4StaticDns(interfaceIndex, MakeStringArray(ipv4Servers, numIpv4Servers));
+		}
 
-WINDNS_LINKAGE
-bool
-WINDNS_API
-WinDns_Reset(
-)
-{
-	if (nullptr == g_Context)
-	{
-		return true;
-	}
-
-	return ConfineOperation("Reset DNS settings", ForwardError, []()
-	{
-		g_Context->reset();
-	});
-}
-
-WINDNS_LINKAGE
-bool
-WINDNS_API
-WinDns_Recover(
-	const void *recoveryData,
-	uint32_t dataLength
-)
-{
-	return ConfineOperation("Recover DNS settings", ForwardError, [&]()
-	{
-		auto unpacked = RecoveryFormatter::Unpack(reinterpret_cast<const uint8_t *>(recoveryData), dataLength);
-
-		static const uint32_t TIMEOUT_TEN_SECONDS = 1000 * 10;
-
-		RecoveryLogic::RestoreInterfaces(unpacked, g_LogSink, TIMEOUT_TEN_SECONDS);
+		if (nullptr != ipv6Servers && 0 != numIpv6Servers)
+		{
+			g_NetSh->setIpv6StaticDns(interfaceIndex, MakeStringArray(ipv6Servers, numIpv6Servers));
+		}
 	});
 }
