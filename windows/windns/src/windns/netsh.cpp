@@ -11,8 +11,6 @@
 namespace
 {
 
-NetSh *g_Instance = nullptr;
-
 std::vector<std::string> BlockToRows(const std::string &textBlock)
 {
 	//
@@ -62,34 +60,14 @@ __declspec(noreturn) void ThrowWithDetails(std::string &&error, common::Applicat
 
 } // anonymous namespace
 
-//static
-void NetSh::Construct(ILogSink *logSink)
+NetSh::NetSh(std::shared_ptr<ILogSink> logSink)
+	: m_logSink(logSink)
 {
-	if (nullptr != g_Instance)
-	{
-		throw std::runtime_error("NetSh is already constructed");
-	}
-
-	if (nullptr == logSink)
-	{
-		throw std::runtime_error("Invalid logger sink");
-	}
-
-	g_Instance = new NetSh(logSink);
+	const auto system32 = common::fs::GetKnownFolderPath(FOLDERID_System, 0, nullptr);
+	m_netShPath = std::experimental::filesystem::path(system32).append(L"netsh.exe");
 }
 
-//static
-NetSh &NetSh::Instance()
-{
-	if (nullptr == g_Instance)
-	{
-		throw std::runtime_error("NetSh is being referenced prior to being constructed");
-	}
-
-	return *g_Instance;
-}
-
-void NetSh::SetIpv4StaticDns(uint32_t interfaceIndex,
+void NetSh::setIpv4StaticDns(uint32_t interfaceIndex,
 	const std::vector<std::wstring> &nameServers, uint32_t timeout)
 {
 	//
@@ -117,7 +95,7 @@ void NetSh::SetIpv4StaticDns(uint32_t interfaceIndex,
 
 		auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
-		ValidateShellOut(*netsh, timeout);
+		validateShellOut(*netsh, timeout);
 	}
 
 	//
@@ -138,11 +116,11 @@ void NetSh::SetIpv4StaticDns(uint32_t interfaceIndex,
 
 		auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
-		ValidateShellOut(*netsh, timeout);
+		validateShellOut(*netsh, timeout);
 	}
 }
 
-void NetSh::SetIpv4DhcpDns(uint32_t interfaceIndex, uint32_t timeout)
+void NetSh::setIpv4DhcpDns(uint32_t interfaceIndex, uint32_t timeout)
 {
 	//
 	// netsh interface ipv4 set dnsservers name="Ethernet 2" source=dhcp
@@ -158,10 +136,10 @@ void NetSh::SetIpv4DhcpDns(uint32_t interfaceIndex, uint32_t timeout)
 
 	auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
-	ValidateShellOut(*netsh, timeout);
+	validateShellOut(*netsh, timeout);
 }
 
-void NetSh::SetIpv6StaticDns(uint32_t interfaceIndex,
+void NetSh::setIpv6StaticDns(uint32_t interfaceIndex,
 	const std::vector<std::wstring> &nameServers, uint32_t timeout)
 {
 	//
@@ -189,7 +167,7 @@ void NetSh::SetIpv6StaticDns(uint32_t interfaceIndex,
 
 		auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
-		ValidateShellOut(*netsh, timeout);
+		validateShellOut(*netsh, timeout);
 	}
 
 	//
@@ -210,11 +188,11 @@ void NetSh::SetIpv6StaticDns(uint32_t interfaceIndex,
 
 		auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
-		ValidateShellOut(*netsh, timeout);
+		validateShellOut(*netsh, timeout);
 	}
 }
 
-void NetSh::SetIpv6DhcpDns(uint32_t interfaceIndex, uint32_t timeout)
+void NetSh::setIpv6DhcpDns(uint32_t interfaceIndex, uint32_t timeout)
 {
 	//
 	// netsh interface ipv6 set dnsservers name="Ethernet 2" source=dhcp
@@ -230,35 +208,10 @@ void NetSh::SetIpv6DhcpDns(uint32_t interfaceIndex, uint32_t timeout)
 
 	auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
-	ValidateShellOut(*netsh, timeout);
+	validateShellOut(*netsh, timeout);
 }
 
-//static
-uint32_t NetSh::ConvertInterfaceGuidToIndex(const std::wstring &interfaceGuid)
-{
-	auto rawGuid = common::Guid::FromString(interfaceGuid);
-
-	NET_LUID luid;
-	NET_IFINDEX index;
-
-	if (NO_ERROR != ConvertInterfaceGuidToLuid(&rawGuid, &luid)
-		|| NO_ERROR != ConvertInterfaceLuidToIndex(&luid, &index))
-	{
-		throw std::runtime_error("Invalid interface GUID");
-	}
-
-	return index;
-}
-
-NetSh::NetSh(ILogSink *logSink)
-	: m_logSink(logSink)
-{
-	const auto system32 = common::fs::GetKnownFolderPath(FOLDERID_System, 0, nullptr);
-
-	m_netShPath = std::experimental::filesystem::path(system32).append(L"netsh.exe");
-}
-
-void NetSh::ValidateShellOut(common::ApplicationRunner &netsh, uint32_t timeout)
+void NetSh::validateShellOut(common::ApplicationRunner &netsh, uint32_t timeout)
 {
 	const uint32_t actualTimeout = (0 == timeout ? 10000 : timeout);
 

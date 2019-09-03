@@ -4,40 +4,18 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="windns.h" />
-    <ClInclude Include="windnscontext.h" />
-    <ClInclude Include="clientsinkinfo.h" />
     <ClInclude Include="netsh.h" />
     <ClInclude Include="confineoperation.h" />
-    <ClInclude Include="interfacesnap.h" />
-    <ClInclude Include="interfacemonitor.h" />
-    <ClInclude Include="registrypaths.h" />
-    <ClInclude Include="types.h" />
-    <ClInclude Include="inameserversource.h" />
-    <ClInclude Include="irecoverysink.h" />
-    <ClInclude Include="dnsagent.h" />
-    <ClInclude Include="recoverysink.h" />
-    <ClInclude Include="recoveryformatter.h" />
-    <ClInclude Include="nameserversource.h" />
     <ClInclude Include="ilogsink.h" />
     <ClInclude Include="logsink.h" />
-    <ClInclude Include="recoverylogic.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="windns.cpp" />
-    <ClCompile Include="windnscontext.cpp" />
     <ClCompile Include="netsh.cpp" />
     <ClCompile Include="confineoperation.cpp" />
-    <ClCompile Include="interfacesnap.cpp" />
-    <ClCompile Include="interfacemonitor.cpp" />
-    <ClCompile Include="registrypaths.cpp" />
-    <ClCompile Include="dnsagent.cpp" />
-    <ClCompile Include="recoverysink.cpp" />
-    <ClCompile Include="recoveryformatter.cpp" />
-    <ClCompile Include="nameserversource.cpp" />
     <ClCompile Include="logsink.cpp" />
-    <ClCompile Include="recoverylogic.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="windns.rc" />
