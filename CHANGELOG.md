@@ -37,6 +37,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Fix bug in netlink parsing in offline detection code.
 
+### Removed
+#### Windows
+- Removed logic that implemented monitoring and enforcement of DNS settings.
 
 ## [2019.7] - 2019-08-12
 ### Added
