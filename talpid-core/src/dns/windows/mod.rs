@@ -1,4 +1,4 @@
-use log::{debug, error, info, trace, warn};
+use log::{error, info, trace};
 use std::{
     borrow::Borrow,
     net::IpAddr,
@@ -28,19 +28,9 @@ pub enum Error {
     /// Failure to set new DNS servers.
     #[error(display = "Failed to set new DNS servers")]
     Setting,
-
-    /// Failure to reset DNS settings.
-    #[error(display = "Failed to reset DNS")]
-    Resetting,
-
-    /// Failure to reset DNS settings from backup.
-    #[error(display = "Failed to recover to backed up system state")]
-    Recovery,
 }
 
-pub struct DnsMonitor {
-    backup_writer: SystemStateWriter,
-}
+pub struct DnsMonitor {}
 
 impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
@@ -54,12 +44,11 @@ impl super::DnsMonitorT for DnsMonitor {
                 .join(DNS_STATE_FILENAME)
                 .into_boxed_path(),
         );
-        let mut dns = DnsMonitor { backup_writer };
-        dns.restore_system_backup();
-        Ok(dns)
+        let _ = backup_writer.remove_backup();
+        Ok(DnsMonitor {})
     }
 
-    fn set(&mut self, _interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
+    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
         let ipv4 = servers
             .iter()
             .filter(|ip| ip.is_ipv4())
@@ -70,7 +59,6 @@ impl super::DnsMonitorT for DnsMonitor {
             .filter(|ip| ip.is_ipv6())
             .map(ip_to_widestring)
             .collect::<Vec<_>>();
-
 
         let mut ipv4_address_ptrs = ipv4
             .iter()
@@ -86,49 +74,18 @@ impl super::DnsMonitorT for DnsMonitor {
 
         unsafe {
             WinDns_Set(
+                WideCString::from_str(interface).unwrap().as_ptr(),
                 ipv4_address_ptrs.as_mut_ptr(),
                 ipv4_address_ptrs.len() as u32,
                 ipv6_address_ptrs.as_mut_ptr(),
                 ipv6_address_ptrs.len() as u32,
-                Some(write_system_state_backup_cb),
-                &self.backup_writer as *const _ as *const c_void,
             )
             .into_result()
         }
     }
 
     fn reset(&mut self) -> Result<(), Error> {
-        unsafe { WinDns_Reset().into_result()? };
-
-        if let Err(e) = self.backup_writer.remove_backup() {
-            warn!("Failed to remove DNS state backup file: {}", e);
-        }
         Ok(())
-    }
-}
-
-impl DnsMonitor {
-    fn restore_dns_settings(&mut self, data: &[u8]) -> Result<(), Error> {
-        unsafe { WinDns_Recover(data.as_ptr(), data.len() as u32) }.into_result()
-    }
-
-    fn restore_system_backup(&mut self) {
-        match self.backup_writer.read_backup() {
-            Ok(Some(previous_state)) => {
-                info!("Restoring DNS state from backup");
-                if let Err(e) = self.restore_dns_settings(&previous_state) {
-                    error!("Failed to restore DNS settings - {}", e);
-                } else {
-                    trace!("Successfully restored DNS state");
-                };
-                if let Err(e) = self.backup_writer.remove_backup() {
-                    error!("Failed to remove backed up DNS state after restore - {}", e);
-                }
-                debug!("DNS recovery file removed!");
-            }
-            Ok(None) => trace!("No DNS state to restore"),
-            Err(e) => error!("Failed to read backed up DNS state - {}", e),
-        }
     }
 }
 
@@ -189,46 +146,7 @@ impl Drop for DnsMonitor {
 ffi_error!(InitializationResult, Error::Initialization);
 ffi_error!(DeinitializationResult, Error::Deinitialization);
 ffi_error!(SettingResult, Error::Setting);
-ffi_error!(ResettingResult, Error::Resetting);
-ffi_error!(RecoverResult, Error::Recovery);
 
-
-/// A callback for writing system state data
-pub extern "system" fn write_system_state_backup_cb(
-    blob: *const u8,
-    length: u32,
-    state_writer_ptr: *mut c_void,
-) -> i32 {
-    let state_writer = state_writer_ptr as *mut SystemStateWriter;
-    if state_writer.is_null() {
-        error!("State writer pointer is null, can't save system state backup");
-        return -1;
-    }
-
-    unsafe {
-        trace!(
-            "Writing {} bytes to store system state backup to {}",
-            length,
-            (*state_writer).backup_path.to_string_lossy()
-        );
-        let data = slice::from_raw_parts(blob, length as usize);
-        match (*state_writer).write_backup(data) {
-            Ok(()) => 0,
-            Err(e) => {
-                error!(
-                    "Failed to write system state backup to {} because {}",
-                    (*state_writer).backup_path.to_string_lossy(),
-                    e
-                );
-                e.raw_os_error().unwrap_or(-1)
-            }
-        }
-    }
-}
-
-
-type DNSConfigSink =
-    extern "system" fn(data: *const u8, length: u32, state_writer: *mut c_void) -> i32;
 
 // This callback can be called from multiple threads concurrently, thus if there ever is a real
 // context object passed around, it should probably implement Sync.
@@ -258,21 +176,10 @@ extern "system" {
     // Configure which DNS servers should be used and start enforcing these settings.
     #[link_name = "WinDns_Set"]
     pub fn WinDns_Set(
+        interface_alias: *const u16,
         v4_ips: *mut *const u16,
         v4_n_ips: u32,
         v6_ips: *mut *const u16,
         v6_n_ips: u32,
-        callback: Option<DNSConfigSink>,
-        backup_writer: *const c_void,
     ) -> SettingResult;
-
-    // Revert server settings to what they were before calling WinDns_Set.
-    //
-    // (Also taking into account external changes to DNS settings that have ocurred
-    // during the period of enforcing specific settings.)
-    #[link_name = "WinDns_Reset"]
-    pub fn WinDns_Reset() -> ResettingResult;
-
-    #[link_name = "WinDns_Recover"]
-    pub fn WinDns_Recover(data: *const u8, length: u32) -> RecoverResult;
 }
