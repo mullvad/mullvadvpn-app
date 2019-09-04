@@ -546,7 +546,7 @@ impl<'env> IntoJava<'env> for KeygenEvent {
         match self {
             KeygenEvent::NewKey(public_key) => {
                 let class = get_class("net/mullvad/mullvadvpn/model/KeygenEvent$NewKey");
-                let java_public_key = env.auto_local(public_key.into_java(env));
+                let java_public_key = env.auto_local(public_key.key.into_java(env));
 
                 let parameters = [
                     JValue::Object(java_public_key.as_obj()),

@@ -428,7 +428,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey
     _: JObject<'this>,
 ) -> JObject<'env> {
     match DAEMON_INTERFACE.get_wireguard_key() {
-        Ok(public_key) => public_key.into_java(&env),
+        Ok(key) => key.map(|k| k.key).into_java(&env),
         Err(error) => {
             log::error!(
                 "{}",
