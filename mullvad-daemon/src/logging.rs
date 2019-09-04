@@ -24,7 +24,7 @@ pub enum Error {
     SetLoggerError(#[error(cause)] log::SetLoggerError),
 }
 
-const SILENCED_CRATES: &[&str] = &[
+pub const SILENCED_CRATES: &[&str] = &[
     "jsonrpc_core",
     // jsonrpc_core does some logging under the "rpc" target as well.
     "rpc",
@@ -98,6 +98,10 @@ pub fn init_logger(
             .chain(Output::file(f, LINE_SEPARATOR));
         top_dispatcher = top_dispatcher.chain(file_dispatcher);
     }
+    #[cfg(all(target_os = "android", debug_assertions))]
+    {
+        top_dispatcher = top_dispatcher.chain(get_android_logger())
+    }
     top_dispatcher.apply().map_err(Error::SetLoggerError)?;
     Ok(())
 }
@@ -163,4 +167,10 @@ fn escape_newlines(text: String) -> String {
 #[cfg(windows)]
 fn escape_newlines(text: String) -> String {
     text.replace("\n", LINE_SEPARATOR)
+}
+
+#[cfg(all(target_os = "android", debug_assertions))]
+fn get_android_logger() -> Box<dyn log::Log> {
+    use android_logger::{AndroidLogger, Config};
+    Box::new(AndroidLogger::new(Config::default().with_tag("mullvad-daemon")))
 }
