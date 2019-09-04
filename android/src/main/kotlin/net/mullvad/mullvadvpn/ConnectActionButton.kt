@@ -10,40 +10,6 @@ import net.mullvad.mullvadvpn.model.TunnelState
 class ConnectActionButton(val parentView: View) {
     private val button: Button = parentView.findViewById(R.id.action_button)
 
-    private var enabled = true
-        set(value) {
-            if (field != value) {
-                field = value
-
-                button.setEnabled(value)
-                button.setAlpha(if (value) 1.0F else 0.5F)
-            }
-        }
-
-    private var canConnect = true
-        set(value) {
-            field = value
-            updateEnabled()
-        }
-
-    private var showingConnect = true
-        set(value) {
-            field = value
-            updateEnabled()
-        }
-
-    var keyState: KeygenEvent? = null
-        set(value) {
-            when (value) {
-                null -> canConnect = true
-                is KeygenEvent.NewKey -> canConnect = true
-                is KeygenEvent.TooManyKeys -> canConnect = false
-                is KeygenEvent.GenerationFailure -> canConnect = false
-            }
-
-            field = value
-        }
-
     var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
             when (value) {
@@ -84,22 +50,15 @@ class ConnectActionButton(val parentView: View) {
     private fun disconnected() {
         button.setBackgroundResource(R.drawable.green_button_background)
         button.setText(R.string.connect)
-        showingConnect = true
     }
 
     private fun connecting() {
         button.setBackgroundResource(R.drawable.transparent_red_button_background)
         button.setText(R.string.cancel)
-        showingConnect = false
     }
 
     private fun connected() {
         button.setBackgroundResource(R.drawable.transparent_red_button_background)
         button.setText(R.string.disconnect)
-        showingConnect = false
-    }
-
-    private fun updateEnabled() {
-        enabled = !showingConnect || canConnect
     }
 }
