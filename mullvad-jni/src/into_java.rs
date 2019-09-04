@@ -24,7 +24,7 @@ use std::{
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
     net::{wireguard::PublicKey, Endpoint, TransportProtocol, TunnelEndpoint},
-    tunnel::{ActionAfterDisconnect, BlockReason},
+    tunnel::{ActionAfterDisconnect, BlockReason, ParameterGenerationError},
 };
 
 pub trait IntoJava<'env> {
@@ -652,8 +652,18 @@ impl<'env> IntoJava<'env> for BlockReason {
             BlockReason::SetFirewallPolicyError => "SetFirewallPolicyError",
             BlockReason::SetDnsError => "SetDnsError",
             BlockReason::StartTunnelError => "StartTunnelError",
-            // TODO(emilsp): Fix Android code to handle new TunnelParameterError block reason
-            BlockReason::TunnelParameterError(_) => "NoMatchingRelay",
+            BlockReason::TunnelParameterError(reason) => {
+                let class =
+                    get_class("net/mullvad/mullvadvpn/model/BlockReason$ParameterGeneration");
+                let parameters = [JValue::Object(reason.into_java(env))];
+                return env
+                    .new_object(
+                        &class,
+                        "(Lnet/mullvad/mullvadvpn/model/ParameterGenerationError;)V",
+                        &parameters,
+                    )
+                    .expect("Failed to create BlockReason.ParameterGeneration Java object");
+            }
             BlockReason::IsOffline => "IsOffline",
             BlockReason::TapAdapterProblem => "TapAdapterProblem",
         };
@@ -662,6 +672,28 @@ impl<'env> IntoJava<'env> for BlockReason {
 
         env.new_object(&class, "()V", &[])
             .expect("Failed to create BlockReason sub-class variant Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for ParameterGenerationError {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        let class_variant = match self {
+            ParameterGenerationError::NoMatchingRelay => "NoMatchingRelay",
+            ParameterGenerationError::NoMatchingBridgeRelay => "NoMatchingBridgeRelay ",
+            ParameterGenerationError::NoWireguardKey => "NoWireguardKey",
+            ParameterGenerationError::CustomTunnelHostResultionError => {
+                "CustomTunnelHostResultionError"
+            }
+        };
+        let class_name = format!(
+            "net/mullvad/mullvadvpn/model/ParameterGenerationError${}",
+            class_variant
+        );
+        let class = get_class(&class_name);
+        env.new_object(&class, "()V", &[])
+            .expect("Failed to create ParameterGenerationError sub-class variant Java object")
     }
 }
 
