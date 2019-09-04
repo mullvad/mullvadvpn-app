@@ -32,18 +32,6 @@ class ConnectActionButton(val parentView: View) {
             updateEnabled()
         }
 
-    var keyState: KeygenEvent? = null
-        set(value) {
-            when (value) {
-                null -> canConnect = true
-                is KeygenEvent.NewKey -> canConnect = true
-                is KeygenEvent.TooManyKeys -> canConnect = false
-                is KeygenEvent.GenerationFailure -> canConnect = false
-            }
-
-            field = value
-        }
-
     var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
             when (value) {
