@@ -56,7 +56,7 @@ class NotificationBanner(
 
     private fun update() {
         externalLink = null
-        updateBasedOnKeyState() || updateBasedOnTunnelState() || updateBasedOnVersionInfo()
+        updateBasedOnTunnelState() || updateBasedOnKeyState() ||  updateBasedOnVersionInfo()
     }
 
     private fun updateBasedOnKeyState(): Boolean {
