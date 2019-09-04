@@ -8,10 +8,9 @@ use mullvad_types::{
     settings::Settings,
     states::{TargetState, TunnelState},
     version::AppVersionInfo,
-    wireguard::KeygenEvent,
+    wireguard::{self, KeygenEvent},
 };
 use parking_lot::Mutex;
-use talpid_types::net::wireguard;
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
