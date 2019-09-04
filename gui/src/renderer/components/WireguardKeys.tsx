@@ -59,8 +59,18 @@ export default class WireguardKeys extends Component<IProps> {
                 <View style={styles.wgkeys__validity_row}>{this.keyValidityLabel()}</View>
               </View>
 
-              <View style={styles.wgkeys__row}>{this.getActionButton()}</View>
-              <View style={styles.wgkeys__row}>{this.regenerateButton()}</View>
+              <View style={styles.wgkeys__row}>{this.getGenerateButton()}</View>
+              <View style={styles.wgkeys__row}>
+                {
+                  <AppButton.GreenButton
+                    disabled={this.isVerifyButtonDisabled()}
+                    onPress={this.getOnVerifyKeyCb()}>
+                    <AppButton.Label>
+                      {messages.pgettext('wireguard-key-view', 'Verify key')}
+                    </AppButton.Label>
+                  </AppButton.GreenButton>
+                }
+              </View>
               <View style={styles.wgkeys__row}>
                 <AppButton.GreenButton
                   disabled={this.props.isOffline}
@@ -78,33 +88,50 @@ export default class WireguardKeys extends Component<IProps> {
     );
   }
 
-  /// Action button can either generate or verify a key
-  private getActionButton() {
+  private isVerifyButtonDisabled(): boolean {
     switch (this.props.keyState.type) {
       case 'key-set':
-        const key = this.props.keyState.key;
-        if (key.valid === false) {
+        return false || this.props.isOffline;
+      default:
+        return true;
+    }
+  }
+
+  private getOnVerifyKeyCb() {
+    return () => {
+      switch (this.props.keyState.type) {
+        case 'key-set':
+          const key = this.props.keyState.key;
+          this.props.onVerifyKey(key);
           break;
-        }
-        const verificationCallback = () => this.props.onVerifyKey(key);
+        default:
+          log.error(`onVerifyKey called from invalid state -  ${this.props.keyState.type}`);
+      }
+    };
+  }
 
-        return (
-          <AppButton.GreenButton disabled={this.props.isOffline} onPress={verificationCallback}>
-            <AppButton.Label>
-              {messages.pgettext('wireguard-key-view', 'Verify key')}
-            </AppButton.Label>
-          </AppButton.GreenButton>
-        );
+  /// Action button can either generate or verify a key
+  private getGenerateButton() {
+    const generateText = messages.pgettext('wireguard-key-view', 'Generate key');
+    const regenerateText = messages.pgettext('wireguard-key-view', 'Regenerate key');
+    let buttonText = generateText;
 
+    let generateKey = this.props.onGenerateKey;
+    switch (this.props.keyState.type) {
+      case 'key-set':
+        buttonText = regenerateText;
+        const key = this.props.keyState.key;
+        generateKey = () => this.props.onReplaceKey(key);
+        break;
       case 'being-verified':
-        return this.busyButton(messages.pgettext('wireguard-key-view', 'Verifying key'));
+        return this.busyButton(regenerateText);
       case 'being-replaced':
       case 'being-generated':
         return this.busyButton(messages.pgettext('wireguard-key-view', 'Generating key'));
     }
     return (
-      <AppButton.GreenButton disabled={this.props.isOffline} onPress={this.props.onGenerateKey}>
-        <AppButton.Label>{messages.pgettext('wireguard-key-view', 'Generate key')}</AppButton.Label>
+      <AppButton.GreenButton disabled={this.props.isOffline} onPress={generateKey}>
+        <AppButton.Label>{buttonText}</AppButton.Label>
       </AppButton.GreenButton>
     );
   }
@@ -116,46 +143,6 @@ export default class WireguardKeys extends Component<IProps> {
         <AppButton.Icon source="icon-spinner" height={16} width={16} />
       </AppButton.GreenButton>
     );
-  }
-
-  private regenerateButton() {
-    let disabled = true;
-    switch (this.props.keyState.type) {
-      case 'key-set':
-        // Only allow regenerating a valid key
-        if (this.props.keyState.key.valid === undefined || this.props.keyState.key.valid === true) {
-          disabled = false;
-        }
-        break;
-      case 'being-replaced':
-        return this.busyButton(messages.pgettext('wireguard-key-view', 'Regenerate key'));
-      default:
-        break;
-    }
-
-    const replacementCallback = () => this.onReplaceKey();
-    return (
-      <AppButton.GreenButton
-        disabled={this.props.isOffline || disabled}
-        onPress={replacementCallback}>
-        <AppButton.Label>
-          {messages.pgettext('wireguard-key-view', 'Regenerate key')}
-        </AppButton.Label>
-      </AppButton.GreenButton>
-    );
-  }
-
-  private onReplaceKey() {
-    switch (this.props.keyState.type) {
-      case 'key-set':
-        this.props.onReplaceKey(this.props.keyState.key);
-        break;
-      default:
-        log.error(
-          `Replace-key button pressed with no key set - key state ${this.props.keyState.type}`,
-        );
-        break;
-    }
   }
 
   private getKeyText() {
@@ -172,7 +159,7 @@ export default class WireguardKeys extends Component<IProps> {
         );
       case 'being-replaced':
       case 'being-generated':
-        return <ImageView source="icon-spinner" height={25} width={25} />;
+        return <ImageView source="icon-spinner" height={19} width={19} />;
       case 'too-many-keys':
       case 'generation-failure':
         return (
@@ -192,7 +179,7 @@ export default class WireguardKeys extends Component<IProps> {
   private keyValidityLabel() {
     switch (this.props.keyState.type) {
       case 'being-verified':
-        return <ImageView source="icon-spinner" height={25} width={25} />;
+        return <ImageView source="icon-spinner" height={20} width={20} />;
       case 'key-set':
         const key = this.props.keyState.key;
         if (key.valid === true) {
@@ -232,12 +219,15 @@ export default class WireguardKeys extends Component<IProps> {
         }
 
       default:
-        return undefined;
+        return (
+          // Placeholder to take up the same amount of space as the validity text/spinner
+          <View style={{ marginBottom: 20 }} />
+        );
     }
   }
 
   private ageOfKeyString(): string {
-    let keyCreatedSince = '';
+    let keyCreatedSince = '-';
     switch (this.props.keyState.type) {
       case 'key-set':
       case 'being-verified':
