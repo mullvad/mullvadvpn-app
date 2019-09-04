@@ -46,6 +46,9 @@ talpid-core = { path = "../talpid-core" }
 talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 
+[target.'cfg(target_os="android")'.dependencies]
+android_logger = "0.8"
+
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
 simple-signal = "1.1"

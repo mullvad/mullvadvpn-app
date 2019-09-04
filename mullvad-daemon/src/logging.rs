@@ -24,7 +24,7 @@ pub enum Error {
     SetLoggerError(#[error(cause)] log::SetLoggerError),
 }
 
-const SILENCED_CRATES: &[&str] = &[
+pub const SILENCED_CRATES: &[&str] = &[
     "jsonrpc_core",
     // jsonrpc_core does some logging under the "rpc" target as well.
     "rpc",
@@ -97,6 +97,12 @@ pub fn init_logger(
             .format(move |out, message, record| file_formatter.output_msg(out, message, record))
             .chain(Output::file(f, LINE_SEPARATOR));
         top_dispatcher = top_dispatcher.chain(file_dispatcher);
+    }
+    #[cfg(all(target_os = "android", debug_assertions))]
+    {
+        use android_logger::{AndroidLogger, Config};
+        let logger: Box<dyn log::Log> = Box::new(AndroidLogger::new(Config::default().with_tag("mullvad-daemon")));
+        top_dispatcher = top_dispatcher.chain(logger);
     }
     top_dispatcher.apply().map_err(Error::SetLoggerError)?;
     Ok(())
