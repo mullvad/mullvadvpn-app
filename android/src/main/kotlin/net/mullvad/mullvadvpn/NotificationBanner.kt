@@ -10,6 +10,7 @@ import android.view.View
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.BlockReason
+import net.mullvad.mullvadvpn.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
@@ -56,7 +57,7 @@ class NotificationBanner(
 
     private fun update() {
         externalLink = null
-        updateBasedOnTunnelState() || updateBasedOnKeyState() ||  updateBasedOnVersionInfo()
+        updateBasedOnTunnelState() || updateBasedOnKeyState() || updateBasedOnVersionInfo()
     }
 
     private fun updateBasedOnKeyState(): Boolean {
@@ -132,11 +133,17 @@ class NotificationBanner(
             is BlockReason.SetFirewallPolicyError -> R.string.set_firewall_policy_error
             is BlockReason.SetDnsError -> R.string.set_dns_error
             is BlockReason.StartTunnelError -> R.string.start_tunnel_error
-            is BlockReason.NoMatchingRelay -> R.string.no_matching_relay
             is BlockReason.IsOffline -> R.string.is_offline
             is BlockReason.TapAdapterProblem -> R.string.tap_adapter_problem
+            is BlockReason.ParameterGeneration -> {
+                when (reason.error) {
+                    is ParameterGenerationError.NoMatchingRelay -> R.string.no_matching_relay
+                    is ParameterGenerationError.NoMatchingBridgeRelay -> R.string.no_matching_bridge_relay
+                    is ParameterGenerationError.NoWireguardKey -> R.string.no_wireguard_key
+                    is ParameterGenerationError.CustomTunnelHostResultionError -> R.string.custom_tunnel_host_resolution_error
+                }
+            }
         }
-
         showError(R.string.blocking_internet, messageText)
     }
 
