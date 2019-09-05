@@ -42,7 +42,7 @@ const headerBarStyles = {
       backgroundColor: 'rgb(25, 46, 69)', // colors.darkBlue
     }),
     error: Styles.createViewStyle({
-      backgroundColor: 'rgb(208, 2, 27)', // colors.red
+      backgroundColor: 'rgb(227, 64, 57)', // colors.red
     }),
     success: Styles.createViewStyle({
       backgroundColor: 'rgb(68, 173, 77)', // colors.green

@@ -22,7 +22,7 @@ const styles = {
     color: 'rgb(68, 173, 77)', // green
   }),
   unsecured: Styles.createTextStyle({
-    color: 'rgb(208, 2, 27)', // red
+    color: 'rgb(227, 64, 57)', // red
   }),
 };
 

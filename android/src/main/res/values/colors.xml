@@ -13,10 +13,10 @@
     <color name="white20">#33FFFFFF</color>
     <color name="green">#44AD4D</color>
     <color name="green90">#E644AD4D</color>
-    <color name="red">#D0021B</color>
-    <color name="red95">#C6021A</color>
-    <color name="red45">#73021B</color>
-    <color name="red40">#66021B</color>
+    <color name="red">#FFE34039</color>
+    <color name="red95">#F2E34039</color>
+    <color name="red45">#72E34039</color>
+    <color name="red40">#66E34039</color>
     <color name="yellow">#FFD323</color>
 
     <color name="textInputBorder">#234161</color>
