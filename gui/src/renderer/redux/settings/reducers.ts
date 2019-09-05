@@ -54,10 +54,17 @@ export interface IRelayLocationRedux {
   cities: IRelayLocationCityRedux[];
 }
 
+export interface IWgKey {
+  publicKey: string;
+  created: string;
+  valid?: boolean;
+  replacementFailure?: KeygenEvent;
+  verificationFailed?: boolean;
+}
+
 interface IWgKeySet {
   type: 'key-set';
-  publicKey: string;
-  valid?: boolean;
+  key: IWgKey;
 }
 
 interface IWgKeyNotSet {
@@ -76,9 +83,14 @@ interface IWgKeyBeingGenerated {
   type: 'being-generated';
 }
 
+interface IWgKeyBeingReplaced {
+  type: 'being-replaced';
+  oldKey: IWgKey;
+}
+
 interface IWgKeyBeingVerified {
   type: 'being-verified';
-  publicKey: string;
+  key: IWgKey;
 }
 
 export type WgKeyState =
@@ -87,6 +99,7 @@ export type WgKeyState =
   | IWgKeyGenerationFailure
   | IWgTooManyKeys
   | IWgKeyBeingVerified
+  | IWgKeyBeingReplaced
   | IWgKeyBeingGenerated;
 
 export interface ISettingsReduxState {
@@ -199,12 +212,12 @@ export default function(
     case 'SET_WIREGUARD_KEY':
       return {
         ...state,
-        wireguardKeyState: setWireguardKey(action.publicKey),
+        wireguardKeyState: setWireguardKey(action.key),
       };
     case 'WIREGUARD_KEYGEN_EVENT':
       return {
         ...state,
-        wireguardKeyState: setWireguardKeygenEvent(action.event),
+        wireguardKeyState: setWireguardKeygenEvent(state, action.event),
       };
     case 'WIREGUARD_KEY_VERIFICATION_COMPLETE':
       return {
@@ -214,7 +227,7 @@ export default function(
     case 'VERIFY_WIREGUARD_KEY':
       return {
         ...state,
-        wireguardKeyState: { type: 'being-verified', publicKey: action.publicKey },
+        wireguardKeyState: { type: 'being-verified', key: action.key },
       };
 
     case 'GENERATE_WIREGUARD_KEY':
@@ -223,16 +236,22 @@ export default function(
         wireguardKeyState: { type: 'being-generated' },
       };
 
+    case 'REPLACE_WIREGUARD_KEY':
+      return {
+        ...state,
+        wireguardKeyState: { type: 'being-replaced', oldKey: action.oldKey },
+      };
+
     default:
       return state;
   }
 }
 
-function setWireguardKey(publicKey?: string): WgKeyState {
-  if (publicKey) {
+function setWireguardKey(key?: IWgKey): WgKeyState {
+  if (key) {
     return {
       type: 'key-set',
-      publicKey,
+      key,
     };
   } else {
     return {
@@ -241,7 +260,23 @@ function setWireguardKey(publicKey?: string): WgKeyState {
   }
 }
 
-function setWireguardKeygenEvent(keygenEvent: KeygenEvent): WgKeyState {
+function setWireguardKeygenEvent(state: ISettingsReduxState, keygenEvent: KeygenEvent): WgKeyState {
+  const oldKeyState = state.wireguardKeyState;
+  if (oldKeyState.type === 'being-replaced') {
+    switch (keygenEvent) {
+      case 'too_many_keys':
+      case 'generation_failure':
+        return {
+          type: 'key-set',
+          key: {
+            ...oldKeyState.oldKey,
+            replacementFailure: keygenEvent,
+          },
+        };
+      default:
+        break;
+    }
+  }
   switch (keygenEvent) {
     case 'too_many_keys':
       return { type: 'too-many-keys' };
@@ -250,19 +285,26 @@ function setWireguardKeygenEvent(keygenEvent: KeygenEvent): WgKeyState {
     default:
       return {
         type: 'key-set',
-        publicKey: keygenEvent.newKey,
-        valid: true,
+        key: {
+          publicKey: keygenEvent.newKey.key,
+          created: keygenEvent.newKey.created,
+          valid: undefined,
+        },
       };
   }
 }
 
-function applyKeyVerification(state: WgKeyState, verified: boolean): WgKeyState {
+function applyKeyVerification(state: WgKeyState, verified?: boolean): WgKeyState {
+  const verificationFailed = verified === undefined ? true : undefined;
   switch (state.type) {
     case 'being-verified':
       return {
-        ...state,
         type: 'key-set',
-        valid: verified,
+        key: {
+          ...state.key,
+          valid: verified,
+          verificationFailed,
+        },
       };
     // drop the verification event if the key wasn't being verified.
     default:

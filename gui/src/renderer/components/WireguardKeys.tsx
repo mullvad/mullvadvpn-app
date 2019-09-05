@@ -1,7 +1,10 @@
+import log from 'electron-log';
+import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
+import { sprintf } from 'sprintf-js';
 import { messages } from '../../shared/gettext';
-import { WgKeyState } from '../redux/settings/reducers';
+import { IWgKey, WgKeyState } from '../redux/settings/reducers';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
@@ -12,11 +15,13 @@ import styles from './WireguardKeysStyles';
 export interface IProps {
   keyState: WgKeyState;
   isOffline: boolean;
+  locale: string;
 
-  onGenerateKey: () => void;
-  onVerifyKey: (publicKey: string) => void;
-  onVisitWebsiteKey: () => void;
   onClose: () => void;
+  onGenerateKey: () => void;
+  onReplaceKey: (old: IWgKey) => void;
+  onVerifyKey: (publicKey: IWgKey) => void;
+  onVisitWebsiteKey: () => void;
 }
 
 export default class WireguardKeys extends Component<IProps> {
@@ -46,11 +51,24 @@ export default class WireguardKeys extends Component<IProps> {
                 <Text style={styles.wgkeys__row_label}>
                   {messages.pgettext('wireguard-keys', 'Public key')}
                 </Text>
-                <View style={styles.wgkeys__row_value}>{this.getKeyRow()}</View>
+                <View style={styles.wgkeys__row_value}>{this.getKeyText()}</View>
+                <Text style={styles.wgkeys__row_label}>
+                  {messages.pgettext('wireguard-keys', 'Key generated')}
+                </Text>
+                <Text style={styles.wgkeys__row_value}>{this.ageOfKeyString()}</Text>
                 <View style={styles.wgkeys__validity_row}>{this.keyValidityLabel()}</View>
               </View>
 
-              <View style={styles.wgkeys__row}>{this.getActionButton()}</View>
+              <View style={styles.wgkeys__row}>{this.getGenerateButton()}</View>
+              <View style={styles.wgkeys__row}>
+                <AppButton.GreenButton
+                  disabled={this.isVerifyButtonDisabled()}
+                  onPress={this.getOnVerifyKeyCb()}>
+                  <AppButton.Label>
+                    {messages.pgettext('wireguard-key-view', 'Verify key')}
+                  </AppButton.Label>
+                </AppButton.GreenButton>
+              </View>
               <View style={styles.wgkeys__row}>
                 <AppButton.GreenButton
                   disabled={this.props.isOffline}
@@ -68,34 +86,50 @@ export default class WireguardKeys extends Component<IProps> {
     );
   }
 
-  /// Action button can either generate or verify a key
-  private getActionButton() {
+  private isVerifyButtonDisabled(): boolean {
     switch (this.props.keyState.type) {
       case 'key-set':
-        const publicKey = this.props.keyState.publicKey;
-        // if the key is known to be invalid, allow the user to generate a new one
-        if (this.props.keyState.valid === false) {
+        return false || this.props.isOffline;
+      default:
+        return true;
+    }
+  }
+
+  private getOnVerifyKeyCb() {
+    return () => {
+      switch (this.props.keyState.type) {
+        case 'key-set':
+          const key = this.props.keyState.key;
+          this.props.onVerifyKey(key);
           break;
-        }
+        default:
+          log.error(`onVerifyKey called from invalid state -  ${this.props.keyState.type}`);
+      }
+    };
+  }
 
-        const verificationCallback = () => this.props.onVerifyKey(publicKey);
+  /// Action button can either generate or verify a key
+  private getGenerateButton() {
+    const generateText = messages.pgettext('wireguard-key-view', 'Generate key');
+    const regenerateText = messages.pgettext('wireguard-key-view', 'Regenerate key');
+    let buttonText = generateText;
 
-        return (
-          <AppButton.GreenButton disabled={this.props.isOffline} onPress={verificationCallback}>
-            <AppButton.Label>
-              {messages.pgettext('wireguard-key-view', 'Verify key')}
-            </AppButton.Label>
-          </AppButton.GreenButton>
-        );
-
+    let generateKey = this.props.onGenerateKey;
+    switch (this.props.keyState.type) {
+      case 'key-set':
+        buttonText = regenerateText;
+        const key = this.props.keyState.key;
+        generateKey = () => this.props.onReplaceKey(key);
+        break;
       case 'being-verified':
-        return this.busyButton(messages.pgettext('wireguard-key-view', 'Verifying key'));
+        return this.busyButton(regenerateText);
+      case 'being-replaced':
       case 'being-generated':
         return this.busyButton(messages.pgettext('wireguard-key-view', 'Generating key'));
     }
     return (
-      <AppButton.GreenButton disabled={this.props.isOffline} onPress={this.props.onGenerateKey}>
-        <AppButton.Label>{messages.pgettext('wireguard-key-view', 'Generate key')}</AppButton.Label>
+      <AppButton.GreenButton disabled={this.props.isOffline} onPress={generateKey}>
+        <AppButton.Label>{buttonText}</AppButton.Label>
       </AppButton.GreenButton>
     );
   }
@@ -109,30 +143,26 @@ export default class WireguardKeys extends Component<IProps> {
     );
   }
 
-  private getKeyRow() {
+  private getKeyText() {
     switch (this.props.keyState.type) {
       case 'being-verified':
       case 'key-set':
         // mimicking the truncating of the key from website
         return (
-          <View title={this.props.keyState.publicKey}>
+          <View title={this.props.keyState.key.publicKey}>
             <Text style={styles.wgkeys__row_value}>
-              {this.props.keyState.publicKey.substring(0, 20) + '...'}
+              {this.props.keyState.key.publicKey.substring(0, 20) + '...'}
             </Text>
           </View>
         );
+      case 'being-replaced':
       case 'being-generated':
-        return <ImageView source="icon-spinner" height={25} width={25} />;
+        return <ImageView source="icon-spinner" height={19} width={19} />;
       case 'too-many-keys':
-        return (
-          <Text style={styles.wgkeys__invalid_key}>
-            {messages.pgettext('wireguard-key-view', 'Account has too many keys already')}
-          </Text>
-        );
       case 'generation-failure':
         return (
           <Text style={styles.wgkeys__invalid_key}>
-            {messages.pgettext('wireguard-key-view', 'Failed to generate key')}
+            {this.formatKeygenFailure(this.props.keyState.type)}
           </Text>
         );
       default:
@@ -147,23 +177,75 @@ export default class WireguardKeys extends Component<IProps> {
   private keyValidityLabel() {
     switch (this.props.keyState.type) {
       case 'being-verified':
-        return <ImageView source="icon-spinner" height={25} width={25} />;
+        return <ImageView source="icon-spinner" height={20} width={20} />;
       case 'key-set':
-        if (this.props.keyState.valid === true) {
+        const key = this.props.keyState.key;
+        if (key.valid === true) {
           return (
             <Text style={styles.wgkeys__valid_key}>
               {messages.pgettext('account-view', 'Key is valid')}
             </Text>
           );
-        } else if (this.props.keyState.valid === false) {
+        } else if (key.valid === false) {
           return (
             <Text style={styles.wgkeys__invalid_key}>
               {messages.pgettext('wireguard-key-view', 'Key is invalid')}
             </Text>
           );
+        } else if (key.replacementFailure) {
+          let failure = '';
+          switch (key.replacementFailure) {
+            case 'too_many_keys':
+              failure = this.formatKeygenFailure('too-many-keys');
+              break;
+            case 'generation_failure':
+              failure = this.formatKeygenFailure('generation-failure');
+              break;
+          }
+
+          const failureMessage = sprintf(
+            messages.pgettext('wireguard-key-view', 'Failed to replace key - %(failure)s'),
+            { failure },
+          );
+          return <Text style={styles.wgkeys__invalid_key}>{failureMessage}</Text>;
+        } else if (key.verificationFailed) {
+          return (
+            <Text style={styles.wgkeys__invalid_key}>
+              {messages.pgettext('wireguard-key-view', 'Key verification failed')}
+            </Text>
+          );
         }
+
       default:
-        return '';
+        return (
+          // Placeholder to take up the same amount of space as the validity text/spinner
+          <View style={{ marginBottom: 20 }} />
+        );
+    }
+  }
+
+  private ageOfKeyString(): string {
+    let keyCreatedSince = '-';
+    switch (this.props.keyState.type) {
+      case 'key-set':
+      case 'being-verified':
+        keyCreatedSince = moment(this.props.keyState.key.created)
+          .locale(this.props.locale)
+          .fromNow();
+        break;
+    }
+
+    return keyCreatedSince;
+  }
+
+  private formatKeygenFailure(failure: 'too-many-keys' | 'generation-failure'): string {
+    switch (failure) {
+      case 'too-many-keys':
+        return messages.pgettext('wireguard-key-view', 'Account has too many keys already');
+      case 'generation-failure':
+        return messages.pgettext('wireguard-key-view', 'Failed to generate a key');
+      default:
+        return failure;
     }
   }
 

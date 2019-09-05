@@ -13,6 +13,7 @@ import {
   ILocation,
   IRelayList,
   ISettings,
+  IWireguardPublicKey,
   KeygenEvent,
   RelaySettingsUpdate,
   TunnelState,
@@ -31,7 +32,7 @@ export interface IAppStateSnapshot {
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppUpgradeInfo;
   guiSettings: IGuiSettingsState;
-  wireguardPublicKey?: string;
+  wireguardPublicKey?: IWireguardPublicKey;
 }
 
 interface ISender<T> {
@@ -114,13 +115,13 @@ interface IAutoStartHandlers extends ISender<boolean> {
   handleSet(fn: (value: boolean) => Promise<void>): void;
 }
 
-interface IWireguardKeyMethods extends IReceiver<string | undefined> {
+interface IWireguardKeyMethods extends IReceiver<IWireguardPublicKey | undefined> {
   listenKeygenEvents(fn: (event: KeygenEvent) => void): void;
   generateKey(): Promise<KeygenEvent>;
   verifyKey(): Promise<boolean>;
 }
 
-interface IWireguardKeyHandlers extends ISender<string | undefined> {
+interface IWireguardKeyHandlers extends ISender<IWireguardPublicKey | undefined> {
   notifyKeygenEvent(webContents: WebContents, event: KeygenEvent): void;
   handleGenerateKey(fn: () => Promise<KeygenEvent>): void;
   handleVerifyKey(fn: () => Promise<boolean>): void;
@@ -340,7 +341,7 @@ export class IpcMainEventChannel {
   };
 
   public static wireguardKeys: IWireguardKeyHandlers = {
-    notify: sender<string | undefined>(WIREGUARD_KEY_SET),
+    notify: sender<IWireguardPublicKey | undefined>(WIREGUARD_KEY_SET),
     notifyKeygenEvent: sender<KeygenEvent>(WIREGUARD_KEYGEN_EVENT),
     handleGenerateKey: requestHandler(GENERATE_WIREGUARD_KEY),
     handleVerifyKey: requestHandler(VERIFY_WIREGUARD_KEY),
