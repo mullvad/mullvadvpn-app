@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Button, Component, Styles, Text, Types, View } from 'reactxp';
+import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import ImageView from './ImageView';
 
@@ -36,16 +37,16 @@ const headerBarStyles = {
   }),
   barStyle: {
     default: Styles.createViewStyle({
-      backgroundColor: 'rgb(41, 77, 115)', // colors.blue
+      backgroundColor: colors.blue,
     }),
     defaultDark: Styles.createViewStyle({
-      backgroundColor: 'rgb(25, 46, 69)', // colors.darkBlue
+      backgroundColor: colors.darkBlue,
     }),
     error: Styles.createViewStyle({
-      backgroundColor: 'rgb(227, 64, 57)', // colors.red
+      backgroundColor: colors.red,
     }),
     success: Styles.createViewStyle({
-      backgroundColor: 'rgb(68, 173, 77)', // colors.green
+      backgroundColor: colors.green,
     }),
   },
 };
@@ -83,7 +84,7 @@ const brandStyles = {
     fontWeight: '900',
     lineHeight: 30,
     letterSpacing: -0.5,
-    color: 'rgba(255, 255, 255, 0.8)', // colors.white80
+    color: colors.white80,
     marginLeft: 8,
   }),
 };
