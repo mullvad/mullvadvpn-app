@@ -27,10 +27,10 @@ export default {
     backgroundColor: colors.white40,
   }),
   redTransparent: Styles.createButtonStyle({
-    backgroundColor: colors.red40,
+    backgroundColor: colors.red60,
   }),
   redTransparentHover: Styles.createButtonStyle({
-    backgroundColor: colors.red45,
+    backgroundColor: colors.red80,
   }),
   common: Styles.createViewStyle({
     cursor: 'default',

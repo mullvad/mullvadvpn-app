@@ -11,9 +11,9 @@
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
     </defs>
-    <circle id="outer-circle" fill-opacity="0.4" fill="#D0021B" cx="30" cy="30" r="30"></circle>
+    <circle id="outer-circle" fill-opacity="0.4" fill="#E34039" cx="30" cy="30" r="30"></circle>
     <g id="inner-circle">
         <use fill="black" fill-opacity="1" filter="url(#shadow)" xlink:href="#shadow-path"></use>
-        <use stroke="#FFFFFF" stroke-width="2" fill="#D0021B" fill-rule="evenodd" xlink:href="#shadow-path"></use>
+        <use stroke="#FFFFFF" stroke-width="2" fill="#E34039" fill-rule="evenodd" xlink:href="#shadow-path"></use>
 	</g>
 </svg>

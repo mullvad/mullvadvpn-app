@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types, View } from 'reactxp';
+import { colors } from '../../config.json';
 
 const styles = {
   header: {
@@ -16,7 +17,7 @@ const styles = {
     fontSize: 32,
     fontWeight: '900',
     lineHeight: 36,
-    color: 'rgb(255, 255, 255)',
+    color: colors.white,
   }),
   subtitle: Styles.createTextStyle({
     marginTop: 8,
@@ -24,7 +25,7 @@ const styles = {
     fontSize: 13,
     fontWeight: '600',
     overflow: 'visible',
-    color: 'rgba(255, 255, 255, 0.8)', // colors.white80
+    color: colors.white80,
     lineHeight: 20,
     letterSpacing: -0.2,
   }),
