@@ -83,7 +83,7 @@ const brandStyles = {
     fontWeight: '900',
     lineHeight: 30,
     letterSpacing: -0.5,
-    color: 'rgba(255, 255, 255, 0.6)', // colors.white60
+    color: 'rgba(255, 255, 255, 0.8)', // colors.white80
     marginLeft: 8,
   }),
 };
@@ -117,8 +117,8 @@ export class SettingsBarButton extends Component<ISettingsButtonProps> {
           height={24}
           width={24}
           source="icon-settings"
-          tintColor={'rgba(255, 255, 255, 0.6)'}
-          tintHoverColor={'rgba(255, 255, 255, 0.8)'}
+          tintColor={'rgba(255, 255, 255, 0.8)'}
+          tintHoverColor={'rgba(255, 255, 255, 1.0)'}
         />
       </Button>
     );
