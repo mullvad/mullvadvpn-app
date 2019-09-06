@@ -309,6 +309,10 @@ enum CreateTunError {
     Operation,
 }
 
+#[derive(Clone, Copy, Debug, err_derive::Error)]
+#[error(display = "Failed to request tunnel provider to close the tunnel")]
+struct CloseTunError;
+
 /// Interface to `VpnServiceTunProvider`.
 #[derive(Clone)]
 pub struct VpnServiceTunProviderHandle(mpsc::UnboundedSender<VpnServiceTunCommand>);
@@ -345,6 +349,16 @@ impl TunProvider for VpnServiceTunProviderHandle {
                 Ok(boxed_tun)
             })
             .map_err(BoxedError::new)
+    }
+
+    fn close_tun(&self) -> Result<(), BoxedError> {
+        let (tx, rx) = oneshot::channel();
+
+        self.0
+            .unbounded_send(VpnServiceTunCommand::CloseTunnel(tx))
+            .map_err(|_| BoxedError::new(CloseTunError))?;
+
+        rx.wait().map_err(|_| BoxedError::new(CloseTunError))
     }
 }
 
