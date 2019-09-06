@@ -2,26 +2,26 @@ use super::{FirewallArguments, FirewallPolicy, FirewallT};
 use crate::tunnel::tun_provider::{TunConfig, TunProvider};
 use ipnetwork::IpNetwork;
 use std::{
-    fs::File,
-    mem,
     net::{IpAddr, Ipv4Addr},
-    os::unix::io::{FromRawFd, RawFd},
     sync::Arc,
 };
 use talpid_types::BoxedError;
 
 /// Stub error type for Firewall errors on Android.
-#[derive(Debug, derive_more::From, err_derive::Error)]
+#[derive(Debug, err_derive::Error)]
 pub enum Error {
+    /// Failed to close the VPN tunnel.
+    #[error(display = "Failed to close the VPN tunnel to disable the firewall")]
+    CloseTunnel(#[error(cause)] BoxedError),
+
     /// Failed to open VPN tunnel.
     #[error(display = "Failed to open VPN tunnel used by the firewall")]
-    TunProvider(#[error(cause)] BoxedError),
+    OpenTunnel(#[error(cause)] BoxedError),
 }
 
 /// The Android stub implementation for the firewall.
 pub struct Firewall {
     tun_provider: Arc<dyn TunProvider>,
-    active_tun: Option<RawFd>,
     blocking_config: TunConfig,
 }
 
@@ -31,7 +31,6 @@ impl FirewallT for Firewall {
     fn new(args: FirewallArguments) -> Result<Self, Self::Error> {
         Ok(Firewall {
             tun_provider: args.tun_provider,
-            active_tun: None,
             blocking_config: TunConfig::blocking_config(),
         })
     }
@@ -39,23 +38,18 @@ impl FirewallT for Firewall {
     fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Self::Error> {
         match policy {
             FirewallPolicy::Connecting { .. } | FirewallPolicy::Blocked { .. } => {
-                let tun = self.tun_provider.create_tun(self.blocking_config.clone())?;
-                self.active_tun = Some(tun.as_raw_fd());
+                self.tun_provider
+                    .create_tun(self.blocking_config.clone())
+                    .map_err(Error::OpenTunnel)?;
             }
-            FirewallPolicy::Connected { .. } => self
-                .reset_policy()
-                .expect("Unexpected error from Firewall::reset_policy()"),
+            FirewallPolicy::Connected { .. } => {}
         }
 
         Ok(())
     }
 
     fn reset_policy(&mut self) -> Result<(), Self::Error> {
-        if let Some(tun) = self.active_tun.take() {
-            mem::drop(unsafe { File::from_raw_fd(tun) });
-        }
-
-        Ok(())
+        self.tun_provider.close_tun().map_err(Error::CloseTunnel)
     }
 }
 
