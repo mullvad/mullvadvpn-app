@@ -52,6 +52,10 @@ pub trait TunProvider: Send + 'static {
     /// Create a tunnel device using the provided configuration.
     fn create_tun(&self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError>;
 
+    /// Open a tunnel device using the previous or the default configuration.
+    #[cfg(target_os = "android")]
+    fn open_tun(&self) -> Result<(), BoxedError>;
+
     /// Close currently active tunnel device.
     #[cfg(target_os = "android")]
     fn close_tun(&self) -> Result<(), BoxedError>;

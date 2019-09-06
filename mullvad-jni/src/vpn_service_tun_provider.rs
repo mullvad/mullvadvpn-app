@@ -360,6 +360,16 @@ enum CreateTunError {
 }
 
 #[derive(Clone, Copy, Debug, err_derive::Error)]
+enum OpenTunError {
+    #[error(
+        display = "Failed to request tunnel provider to open a tunnel using the previous configuration"
+    )]
+    Communication,
+    #[error(display = "Tunnel provider failed to open a tunnel using the previous configuration")]
+    Operation,
+}
+
+#[derive(Clone, Copy, Debug, err_derive::Error)]
 #[error(display = "Failed to request tunnel provider to close the tunnel")]
 struct CloseTunError;
 
@@ -399,6 +409,18 @@ impl TunProvider for VpnServiceTunProviderHandle {
                 Ok(boxed_tun)
             })
             .map_err(BoxedError::new)
+    }
+
+    fn open_tun(&self) -> Result<(), BoxedError> {
+        let (tx, rx) = oneshot::channel();
+
+        self.0
+            .unbounded_send(VpnServiceTunCommand::OpenTunnel(tx))
+            .map_err(|_| BoxedError::new(OpenTunError::Communication))?;
+
+        rx.wait()
+            .map_err(|_| BoxedError::new(OpenTunError::Communication))?
+            .map_err(|_| BoxedError::new(OpenTunError::Operation))
     }
 
     fn close_tun(&self) -> Result<(), BoxedError> {
