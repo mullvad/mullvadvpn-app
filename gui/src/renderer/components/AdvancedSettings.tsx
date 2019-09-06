@@ -184,7 +184,10 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     <Cell.Label>
                       {messages.pgettext('advanced-settings-view', 'Enable IPv6')}
                     </Cell.Label>
-                    <Cell.Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
+                    <Cell.Switch
+                      defaultOn={this.props.enableIpv6}
+                      onChange={this.props.setEnableIpv6}
+                    />
                   </Cell.Container>
                   <Cell.Footer>
                     {messages.pgettext(
@@ -198,7 +201,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                       {messages.pgettext('advanced-settings-view', 'Block when disconnected')}
                     </Cell.Label>
                     <Cell.Switch
-                      isOn={this.props.blockWhenDisconnected}
+                      defaultOn={this.props.blockWhenDisconnected}
                       onChange={this.props.setBlockWhenDisconnected}
                     />
                   </Cell.Container>

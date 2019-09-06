@@ -62,7 +62,10 @@ export default class Preferences extends Component<IPreferencesProps> {
                       <Cell.Label>
                         {messages.pgettext('preferences-view', 'Launch app on start-up')}
                       </Cell.Label>
-                      <Cell.Switch isOn={this.props.autoStart} onChange={this.onChangeAutoStart} />
+                      <Cell.Switch
+                        defaultOn={this.props.autoStart}
+                        onChange={this.onChangeAutoStart}
+                      />
                     </Cell.Container>
                     <View style={styles.preferences__separator} />
 
@@ -71,7 +74,7 @@ export default class Preferences extends Component<IPreferencesProps> {
                         {messages.pgettext('preferences-view', 'Auto-connect')}
                       </Cell.Label>
                       <Cell.Switch
-                        isOn={this.props.autoConnect}
+                        defaultOn={this.props.autoConnect}
                         onChange={this.props.setAutoConnect}
                       />
                     </Cell.Container>
@@ -86,7 +89,10 @@ export default class Preferences extends Component<IPreferencesProps> {
                       <Cell.Label>
                         {messages.pgettext('preferences-view', 'Local network sharing')}
                       </Cell.Label>
-                      <Cell.Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
+                      <Cell.Switch
+                        defaultOn={this.props.allowLan}
+                        onChange={this.props.setAllowLan}
+                      />
                     </Cell.Container>
                     <Cell.Footer>
                       {messages.pgettext(
@@ -100,7 +106,7 @@ export default class Preferences extends Component<IPreferencesProps> {
                         {messages.pgettext('preferences-view', 'Notifications')}
                       </Cell.Label>
                       <Cell.Switch
-                        isOn={this.props.enableSystemNotifications}
+                        defaultOn={this.props.enableSystemNotifications}
                         onChange={this.props.setEnableSystemNotifications}
                       />
                     </Cell.Container>
@@ -152,7 +158,7 @@ class MonochromaticIconToggle extends Component<IMonochromaticIconProps> {
             <Cell.Label>
               {messages.pgettext('preferences-view', 'Monochromatic tray icon')}
             </Cell.Label>
-            <Cell.Switch isOn={this.props.monochromaticIcon} onChange={this.props.onChange} />
+            <Cell.Switch defaultOn={this.props.monochromaticIcon} onChange={this.props.onChange} />
           </Cell.Container>
           <Cell.Footer>
             {messages.pgettext(
@@ -181,7 +187,7 @@ class StartMinimizedToggle extends Component<IStartMinimizedProps> {
         <View>
           <Cell.Container>
             <Cell.Label>{messages.pgettext('preferences-view', 'Start minimized')}</Cell.Label>
-            <Cell.Switch isOn={this.props.startMinimized} onChange={this.props.onChange} />
+            <Cell.Switch defaultOn={this.props.startMinimized} onChange={this.props.onChange} />
           </Cell.Container>
           <Cell.Footer>
             {messages.pgettext('preferences-view', 'Show only the tray icon when the app starts.')}
