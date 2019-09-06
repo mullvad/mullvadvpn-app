@@ -1,4 +1,5 @@
 use crate::{get_class, into_java::IntoJava};
+use ipnetwork::IpNetwork;
 use jni::{
     objects::{GlobalRef, JObject, JValue},
     signature::{JavaType, Primitive},
@@ -7,6 +8,7 @@ use jni::{
 use std::{
     fs::File,
     io,
+    net::{IpAddr, Ipv4Addr},
     os::unix::io::{AsRawFd, FromRawFd, RawFd},
 };
 use talpid_core::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
@@ -50,7 +52,7 @@ pub struct VpnServiceTunProvider {
     class: GlobalRef,
     object: GlobalRef,
     active_tun: Option<File>,
-    current_tun_config: Option<TunConfig>,
+    current_tun_config: TunConfig,
 }
 
 impl VpnServiceTunProvider {
@@ -62,12 +64,23 @@ impl VpnServiceTunProvider {
             .new_global_ref(*mullvad_vpn_service)
             .map_err(Error::CreateGlobalReference)?;
 
+        // Initial configuration simply intercepts all packets. The only field that matters is
+        // `routes`, because it determines what must enter the tunnel. All other fields contain
+        // stub values.
+        let initial_tun_config = TunConfig {
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
+            dns_servers: Vec::new(),
+            routes: vec![IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0)
+                .expect("Invalid IP network prefix")],
+            mtu: 1380,
+        };
+
         Ok(VpnServiceTunProvider {
             jvm,
             class,
             object,
             active_tun: None,
-            current_tun_config: None,
+            current_tun_config: initial_tun_config,
         })
     }
 
@@ -91,11 +104,11 @@ impl VpnServiceTunProvider {
     }
 
     fn prepare_tun(&mut self, config: TunConfig) -> Result<&File, Error> {
-        if self.active_tun.is_none() || self.current_tun_config.as_ref() != Some(&config) {
+        if self.active_tun.is_none() || self.current_tun_config != config {
             let tun = self.create_tunnel(config.clone())?;
 
             self.active_tun = Some(tun);
-            self.current_tun_config = Some(config);
+            self.current_tun_config = config;
         };
 
         Ok(self
