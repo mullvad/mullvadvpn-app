@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Base64
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,12 +19,18 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.SmartDeferred
+
+val RFC3339_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSSSSSSSSS z")
+val KEY_AGE_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm")
 
 class WireguardKeyFragment : Fragment() {
     private var currentJob: Job? = null
@@ -40,6 +45,7 @@ class WireguardKeyFragment : Fragment() {
     private var validatingKey = false
 
     private lateinit var publicKey: TextView
+    private lateinit var publicKeyAge: TextView
     private lateinit var statusMessage: TextView
     private lateinit var visitWebsiteView: View
     private lateinit var generateButton: Button
@@ -72,6 +78,7 @@ class WireguardKeyFragment : Fragment() {
         generateSpinner = view.findViewById<ProgressBar>(R.id.wg_generate_key_spinner)
         verifyButton = view.findViewById<Button>(R.id.wg_verify_key_button)
         verifySpinner = view.findViewById<ProgressBar>(R.id.wg_verify_key_spinner)
+        publicKeyAge = view.findViewById<TextView>(R.id.wireguard_key_age)
 
         visitWebsiteView.visibility = View.VISIBLE
         visitWebsiteView.setOnClickListener {
@@ -100,9 +107,11 @@ class WireguardKeyFragment : Fragment() {
             }
 
             is KeygenEvent.NewKey -> {
-                val publicKeyString = Base64.encodeToString(keyState.publicKey.key, Base64.DEFAULT)
+                val key = keyState.publicKey
+                val publicKeyString = Base64.encodeToString(key.key, Base64.NO_WRAP)
                 publicKey.visibility = View.VISIBLE
                 publicKey.setText(publicKeyString)
+                publicKeyAge.setText(formatKeyDateCreated(key.dateCreated))
 
                 if (keyState.verified != null) {
                     if (keyState.verified) {
@@ -282,5 +291,9 @@ class WireguardKeyFragment : Fragment() {
             updateViewsJob?.cancel()
             updateViewsJob = updateViewJob()
         }
+    }
+
+    private fun formatKeyDateCreated(rfc3339: String): String {
+        return parentActivity.getString(R.string.wireguard_key_age) + " " + KEY_AGE_FORMAT.print(DateTime.parse(rfc3339, RFC3339_FORMAT))
     }
 }

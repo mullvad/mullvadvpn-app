@@ -69,12 +69,17 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:paddingTop="3dp"
             android:textAllCaps="false"
             android:textColor="@color/white60"
             android:textSize="14sp"
             android:textStyle="bold" />
-
+        <TextView
+            android:id="@+id/wireguard_key_age"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="2dp"
+            android:textSize="14sp"
+            android:gravity="center"/>
         <TextView
             android:id="@+id/wireguard_key_status"
             android:layout_width="wrap_content"
