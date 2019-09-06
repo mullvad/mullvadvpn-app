@@ -56,6 +56,7 @@ pub enum Error {
 /// Commands that can be sent to the VpnServiceTunProvider
 pub enum VpnServiceTunCommand {
     Bypass(RawFd, oneshot::Sender<bool>),
+    CloseTunnel(oneshot::Sender<()>),
     GetTunnelInterface(TunConfig, oneshot::Sender<Option<VpnServiceTun>>),
 }
 
@@ -174,10 +175,17 @@ impl<'env> VpnServiceTunProvider<'env> {
         use VpnServiceTunCommand::*;
         match command {
             Bypass(socket, result_tx) => self.handle_bypass(socket, result_tx),
+            CloseTunnel(result_tx) => self.handle_close_tunnel(result_tx),
             GetTunnelInterface(config, result_tx) => {
                 self.handle_get_tunnel_interface(config, result_tx)
             }
         }
+    }
+
+    fn handle_close_tunnel(&mut self, result_tx: oneshot::Sender<()>) {
+        self.active_tun = None;
+
+        let _ = result_tx.send(());
     }
 
     fn handle_get_tunnel_interface(
