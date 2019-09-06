@@ -157,6 +157,17 @@ impl TunProvider for VpnServiceTunProvider {
         }
     }
 
+    fn open_tun(&mut self) -> Result<(), BoxedError> {
+        if self.active_tun.is_none() {
+            self.active_tun = Some(
+                self.create_tunnel(self.current_tun_config.clone())
+                    .map_err(BoxedError::new)?,
+            );
+        }
+
+        Ok(())
+    }
+
     fn close_tun(&mut self) -> Result<(), BoxedError> {
         self.active_tun = None;
         Ok(())
