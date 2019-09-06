@@ -9,8 +9,9 @@ use jni::{
     AttachGuard, JNIEnv, JavaVM,
 };
 use std::{
+    fs::File,
     io,
-    os::unix::io::{AsRawFd, RawFd},
+    os::unix::io::{AsRawFd, FromRawFd, RawFd},
     thread,
 };
 use talpid_core::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
@@ -32,6 +33,9 @@ pub enum Error {
 
     #[error(display = "Failed to create global reference to MullvadVpnService instance")]
     CreateGlobalReference(#[error(cause)] jni::errors::Error),
+
+    #[error(display = "Failed to duplicate tunnel file descriptor")]
+    DuplicateTunFd(#[error(cause)] io::Error),
 
     #[error(display = "Failed to find {} method", _0)]
     FindMethod(&'static str, #[error(cause)] jni::errors::Error),
@@ -64,6 +68,7 @@ pub struct VpnServiceTunProvider<'env> {
     mullvad_vpn_service: GlobalRef,
     bypass_method: JMethodID<'env>,
     create_tun_method: JMethodID<'env>,
+    active_tun: Option<File>,
     commands: mpsc::UnboundedReceiver<VpnServiceTunCommand>,
     handle: VpnServiceTunProviderHandle,
 }
@@ -148,6 +153,7 @@ impl<'env> VpnServiceTunProvider<'env> {
             env,
             mullvad_vpn_service,
             create_tun_method,
+            active_tun: None,
             bypass_method,
             commands,
             handle,
@@ -168,16 +174,18 @@ impl<'env> VpnServiceTunProvider<'env> {
         use VpnServiceTunCommand::*;
         match command {
             Bypass(socket, result_tx) => self.handle_bypass(socket, result_tx),
-            GetTunnelInterface(config, result_tx) => self.handle_create_tun(config, result_tx),
+            GetTunnelInterface(config, result_tx) => {
+                self.handle_get_tunnel_interface(config, result_tx)
+            }
         }
     }
 
-    fn handle_create_tun(
+    fn handle_get_tunnel_interface(
         &mut self,
         config: TunConfig,
         result_tx: oneshot::Sender<Option<VpnServiceTun>>,
     ) {
-        match self.create_tun(config) {
+        match self.get_tunnel_interface(config) {
             Ok(value) => {
                 if result_tx.send(Some(value)).is_err() {
                     log::error!("Failed to send tun back to requester");
@@ -193,7 +201,23 @@ impl<'env> VpnServiceTunProvider<'env> {
         }
     }
 
-    fn create_tun(&self, config: TunConfig) -> Result<VpnServiceTun, Error> {
+    fn get_tunnel_interface(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
+        let tun = self.create_tun(config)?;
+        let tun_fd = unsafe { libc::dup(tun.as_raw_fd()) };
+
+        if tun_fd < 0 {
+            return Err(Error::DuplicateTunFd(io::Error::last_os_error()));
+        }
+
+        self.active_tun = Some(tun);
+
+        Ok(VpnServiceTun {
+            tunnel: tun_fd,
+            provider: self.handle.clone(),
+        })
+    }
+
+    fn create_tun(&self, config: TunConfig) -> Result<File, Error> {
         let result = self
             .env
             .call_method_unchecked(
@@ -205,10 +229,7 @@ impl<'env> VpnServiceTunProvider<'env> {
             .map_err(|cause| Error::CallMethod("MullvadVpnService.createTun", cause))?;
 
         match result {
-            JValue::Int(fd) => Ok(VpnServiceTun {
-                tunnel: fd,
-                provider: self.handle.clone(),
-            }),
+            JValue::Int(fd) => Ok(unsafe { File::from_raw_fd(fd) }),
             value => Err(Error::InvalidMethodResult(
                 "MullvadVpnService.createTun",
                 format!("{:?}", value),
