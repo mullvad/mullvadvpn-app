@@ -49,7 +49,6 @@ class WireguardKeyFragment : Fragment() {
     private var validatingKey = false
 
     private lateinit var publicKey: TextView
-    private lateinit var publicKeyAgeDisplay: View
     private lateinit var publicKeyAge: TextView
     private lateinit var statusMessage: TextView
     private lateinit var visitWebsiteView: View
@@ -79,7 +78,6 @@ class WireguardKeyFragment : Fragment() {
         statusMessage = view.findViewById<TextView>(R.id.wireguard_key_status)
         visitWebsiteView = view.findViewById<View>(R.id.wireguard_manage_keys)
         publicKey = view.findViewById<TextView>(R.id.wireguard_public_key)
-        publicKeyAgeDisplay = view.findViewById<TextView>(R.id.wireguard_key_age_display)
         publicKeyAge = view.findViewById<TextView>(R.id.wireguard_key_age)
         actionButton = view.findViewById<Button>(R.id.wg_key_button)
         actionSpinner = view.findViewById<ProgressBar>(R.id.wg_action_spinner)
@@ -103,9 +101,8 @@ class WireguardKeyFragment : Fragment() {
     private fun updateViews() {
         clearErrorMessage()
 
+        publicKey.visibility = View.INVISIBILE
         actionButton.setClickable(true)
-
-        publicKeyAgeDisplay.visibility = View.INVISIBLE;
 
         when (val keyState = keyStatusListener.keyStatus) {
             null -> {
@@ -126,9 +123,7 @@ class WireguardKeyFragment : Fragment() {
                 val publicKeyString = Base64.encodeToString(key.key, Base64.NO_WRAP)
                 publicKey.visibility = View.VISIBLE
                 publicKey.setText(publicKeyString)
-
-                publicKeyAgeDisplay.visibility = View.VISIBLE;
-                publicKeyAge.setText(formatKeyAge(key.age))
+                publicKeyAge.setText(formatKeyDateCreated(key.dateCreated))
 
                 setVerifyButton()
 
@@ -190,7 +185,7 @@ class WireguardKeyFragment : Fragment() {
         when (tunnelState) {
             is TunnelState.Connecting, is TunnelState.Disconnecting -> {
                 statusMessage.setText(R.string.wireguard_key_connectivity)
-                statusMessage.visibility = View.VISIBLE
+                statusMessDateCreated.visibility = View.VISIBLE
                 actionButton.visibility = View.GONE
                 actionSpinner.visibility = View.VISIBLE
             }
@@ -264,7 +259,7 @@ class WireguardKeyFragment : Fragment() {
         }
     }
 
-    private fun formatKeyAge(rfc3339: String): String {
-        return KEY_AGE_FORMAT.print(DateTime.parse(rfc3339, RFC3339_FORMAT))
+    private fun formatKeyDateCreated(rfc3339: String): String {
+        return parentActivity.getString(R.string.wireguard_key_age) + " " + KEY_AGE_FORMAT.print(DateTime.parse(rfc3339, RFC3339_FORMAT))
     }
 }
