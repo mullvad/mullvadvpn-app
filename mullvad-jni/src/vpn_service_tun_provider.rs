@@ -156,6 +156,11 @@ impl TunProvider for VpnServiceTunProvider {
             Err(error) => Err(BoxedError::new(error)),
         }
     }
+
+    fn close_tun(&mut self) -> Result<(), BoxedError> {
+        self.active_tun = None;
+        Ok(())
+    }
 }
 
 struct VpnServiceTun {
