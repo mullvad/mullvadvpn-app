@@ -70,6 +70,7 @@ pub struct VpnServiceTunProvider<'env> {
     bypass_method: JMethodID<'env>,
     create_tun_method: JMethodID<'env>,
     active_tun: Option<File>,
+    current_tun_config: Option<TunConfig>,
     commands: mpsc::UnboundedReceiver<VpnServiceTunCommand>,
     handle: VpnServiceTunProviderHandle,
 }
@@ -155,6 +156,7 @@ impl<'env> VpnServiceTunProvider<'env> {
             mullvad_vpn_service,
             create_tun_method,
             active_tun: None,
+            current_tun_config: None,
             bypass_method,
             commands,
             handle,
@@ -210,19 +212,31 @@ impl<'env> VpnServiceTunProvider<'env> {
     }
 
     fn get_tunnel_interface(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
-        let tun = self.create_tun(config)?;
+        let tun = self.prepare_tun(config)?;
         let tun_fd = unsafe { libc::dup(tun.as_raw_fd()) };
 
         if tun_fd < 0 {
             return Err(Error::DuplicateTunFd(io::Error::last_os_error()));
         }
 
-        self.active_tun = Some(tun);
-
         Ok(VpnServiceTun {
             tunnel: tun_fd,
             provider: self.handle.clone(),
         })
+    }
+
+    fn prepare_tun(&mut self, config: TunConfig) -> Result<&File, Error> {
+        if self.active_tun.is_none() || self.current_tun_config.as_ref() != Some(&config) {
+            let tun = self.create_tun(config.clone())?;
+
+            self.active_tun = Some(tun);
+            self.current_tun_config = Some(config);
+        };
+
+        Ok(self
+            .active_tun
+            .as_ref()
+            .expect("Tunnel should be configured"))
     }
 
     fn create_tun(&self, config: TunConfig) -> Result<File, Error> {
