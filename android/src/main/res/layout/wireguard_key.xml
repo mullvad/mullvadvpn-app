@@ -68,37 +68,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingBottom="5dp"
             android:gravity="center"
             android:textAllCaps="false"
-            android:text="bold"
             android:textColor="@color/white60"
             android:textSize="14sp"
             android:textStyle="bold" />
-        <LinearLayout
-            android:id="@+id/wireguard_key_age_display"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/wireguard_key_age"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingBottom="5dp"
-            android:paddingHorizontal="60dp"
-            android:clickable="true"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:visibility="visible">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left"
-                android:text="@string/wireguard_key_age"
-                android:textSize="16sp"/>
-            <TextView
-                android:id="@+id/wireguard_key_age"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:textSize="16sp"
-                android:gravity="right"/>
-        </LinearLayout>
+            android:paddingVertical="2dp"
+            android:textSize="14sp"
+            android:gravity="center"/>
         <TextView
             android:id="@+id/wireguard_key_status"
             android:layout_width="wrap_content"
@@ -107,8 +88,7 @@
             android:textColor="@color/red"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:text="bold"
-            android:visibility="visible" />
+            android:visibility="gone" />
     </LinearLayout>
 
     <LinearLayout
