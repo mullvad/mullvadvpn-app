@@ -10,13 +10,20 @@ export default {
     flexDirection: 'column',
     flex: 1,
   }),
-  title_header: Styles.createViewStyle({
-    paddingBottom: 0,
-  }),
-  subtitle_header: Styles.createViewStyle({
-    paddingTop: 0,
-  }),
   content: Styles.createViewStyle({
     overflow: 'visible',
+  }),
+  header: Styles.createViewStyle({
+    paddingBottom: 4,
+  }),
+  stickyHolder: Styles.createViewStyle({
+    marginTop: 4,
+  }),
+  stickyContent: Styles.createViewStyle({
+    paddingHorizontal: 12,
+    paddingBottom: 8,
+
+    // NavigationBar already adds some spacing
+    paddingTop: 0,
   }),
 };

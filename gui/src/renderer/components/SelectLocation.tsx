@@ -9,6 +9,10 @@ import {
   NavigationBar,
   NavigationContainer,
   NavigationScrollbars,
+  ScopeBar,
+  ScopeBarItem,
+  StickyContentContainer,
+  StickyContentHolder,
   TitleBarItem,
 } from './NavigationBar';
 import styles from './SelectLocationStyles';
@@ -33,12 +37,19 @@ interface IProps {
 }
 
 interface IState {
+  locationScope: LocationScope;
   selectedLocation?: RelayLocation;
   expandedItems: RelayLocation[];
 }
 
+enum LocationScope {
+  relay = 0,
+  bridge,
+}
+
 export default class SelectLocation extends Component<IProps, IState> {
   public state: IState = {
+    locationScope: LocationScope.relay,
     expandedItems: [],
   };
   private selectedCellRef = React.createRef<React.ReactNode>();
@@ -61,6 +72,7 @@ export default class SelectLocation extends Component<IProps, IState> {
         }
 
         this.state = {
+          ...this.state,
           selectedLocation: location,
           expandedItems,
         };
@@ -118,10 +130,10 @@ export default class SelectLocation extends Component<IProps, IState> {
                   messages.pgettext('select-location-nav', 'Select location')}
                 </TitleBarItem>
               </NavigationBar>
-              <View style={styles.container}>
+              <StickyContentContainer style={styles.container}>
                 <NavigationScrollbars ref={this.scrollViewRef}>
                   <View style={styles.content}>
-                    <SettingsHeader style={styles.subtitle_header}>
+                    <SettingsHeader style={styles.header}>
                       <HeaderTitle>
                         {messages.pgettext('select-location-view', 'Select location')}
                       </HeaderTitle>
@@ -132,6 +144,21 @@ export default class SelectLocation extends Component<IProps, IState> {
                         )}
                       </HeaderSubTitle>
                     </SettingsHeader>
+
+                    <StickyContentHolder style={styles.stickyHolder}>
+                      <View style={styles.stickyContent}>
+                        <ScopeBar
+                          defaultSelectedIndex={this.state.locationScope}
+                          onChange={this.onChangeScope}>
+                          <ScopeBarItem>
+                            {messages.pgettext('select-location-nav', 'Exit')}
+                          </ScopeBarItem>
+                          <ScopeBarItem>
+                            {messages.pgettext('select-location-nav', 'Entry')}
+                          </ScopeBarItem>
+                        </ScopeBar>
+                      </View>
+                    </StickyContentHolder>
 
                     {this.props.relayLocations.map((relayCountry) => {
                       const countryLocation: RelayLocation = { country: relayCountry.code };
@@ -181,13 +208,17 @@ export default class SelectLocation extends Component<IProps, IState> {
                     })}
                   </View>
                 </NavigationScrollbars>
-              </View>
+              </StickyContentContainer>
             </NavigationContainer>
           </View>
         </Container>
       </Layout>
     );
   }
+
+  private onChangeScope = (selectedIndex: number) => {
+    this.setState({ locationScope: selectedIndex });
+  };
 
   private isExpanded(relayLocation: RelayLocation) {
     return this.state.expandedItems.some((location) =>
