@@ -13,7 +13,7 @@ import {
 import styles from './PreferencesStyles';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
-export interface IPreferencesProps {
+export interface IProps {
   autoStart: boolean;
   autoConnect: boolean;
   allowLan: boolean;
@@ -31,7 +31,7 @@ export interface IPreferencesProps {
   onClose: () => void;
 }
 
-export default class Preferences extends Component<IPreferencesProps> {
+export default class Preferences extends Component<IProps> {
   public render() {
     return (
       <Layout>
@@ -62,7 +62,7 @@ export default class Preferences extends Component<IPreferencesProps> {
                       <Cell.Label>
                         {messages.pgettext('preferences-view', 'Launch app on start-up')}
                       </Cell.Label>
-                      <Cell.Switch isOn={this.props.autoStart} onChange={this.onChangeAutoStart} />
+                      <Cell.Switch isOn={this.props.autoStart} onChange={this.props.setAutoStart} />
                     </Cell.Container>
                     <View style={styles.preferences__separator} />
 
@@ -111,17 +111,49 @@ export default class Preferences extends Component<IPreferencesProps> {
                       )}
                     </Cell.Footer>
 
-                    <MonochromaticIconToggle
-                      enable={this.props.enableMonochromaticIconToggle}
-                      monochromaticIcon={this.props.monochromaticIcon}
-                      onChange={this.props.setMonochromaticIcon}
-                    />
+                    {this.props.enableMonochromaticIconToggle ? (
+                      <React.Fragment>
+                        <Cell.Container>
+                          <Cell.Label>
+                            {messages.pgettext('preferences-view', 'Monochromatic tray icon')}
+                          </Cell.Label>
+                          <Cell.Switch
+                            isOn={this.props.monochromaticIcon}
+                            onChange={this.props.setMonochromaticIcon}
+                          />
+                        </Cell.Container>
+                        <Cell.Footer>
+                          {messages.pgettext(
+                            'preferences-view',
+                            'Use a monochromatic tray icon instead of a colored one.',
+                          )}
+                        </Cell.Footer>
+                      </React.Fragment>
+                    ) : (
+                      undefined
+                    )}
 
-                    <StartMinimizedToggle
-                      enable={this.props.enableStartMinimizedToggle}
-                      startMinimized={this.props.startMinimized}
-                      onChange={this.props.setStartMinimized}
-                    />
+                    {this.props.enableStartMinimizedToggle ? (
+                      <React.Fragment>
+                        <Cell.Container>
+                          <Cell.Label>
+                            {messages.pgettext('preferences-view', 'Start minimized')}
+                          </Cell.Label>
+                          <Cell.Switch
+                            isOn={this.props.startMinimized}
+                            onChange={this.props.setStartMinimized}
+                          />
+                        </Cell.Container>
+                        <Cell.Footer>
+                          {messages.pgettext(
+                            'preferences-view',
+                            'Show only the tray icon when the app starts.',
+                          )}
+                        </Cell.Footer>
+                      </React.Fragment>
+                    ) : (
+                      undefined
+                    )}
                   </View>
                 </NavigationScrollbars>
               </View>
@@ -130,66 +162,5 @@ export default class Preferences extends Component<IPreferencesProps> {
         </Container>
       </Layout>
     );
-  }
-
-  private onChangeAutoStart = (autoStart: boolean) => {
-    this.props.setAutoStart(autoStart);
-  };
-}
-
-interface IMonochromaticIconProps {
-  enable: boolean;
-  monochromaticIcon: boolean;
-  onChange: (value: boolean) => void;
-}
-
-class MonochromaticIconToggle extends Component<IMonochromaticIconProps> {
-  public render() {
-    if (this.props.enable) {
-      return (
-        <View>
-          <Cell.Container>
-            <Cell.Label>
-              {messages.pgettext('preferences-view', 'Monochromatic tray icon')}
-            </Cell.Label>
-            <Cell.Switch isOn={this.props.monochromaticIcon} onChange={this.props.onChange} />
-          </Cell.Container>
-          <Cell.Footer>
-            {messages.pgettext(
-              'preferences-view',
-              'Use a monochromatic tray icon instead of a colored one.',
-            )}
-          </Cell.Footer>
-        </View>
-      );
-    } else {
-      return null;
-    }
-  }
-}
-
-interface IStartMinimizedProps {
-  enable: boolean;
-  startMinimized: boolean;
-  onChange: (value: boolean) => void;
-}
-
-class StartMinimizedToggle extends Component<IStartMinimizedProps> {
-  public render() {
-    if (this.props.enable) {
-      return (
-        <View>
-          <Cell.Container>
-            <Cell.Label>{messages.pgettext('preferences-view', 'Start minimized')}</Cell.Label>
-            <Cell.Switch isOn={this.props.startMinimized} onChange={this.props.onChange} />
-          </Cell.Container>
-          <Cell.Footer>
-            {messages.pgettext('preferences-view', 'Show only the tray icon when the app starts.')}
-          </Cell.Footer>
-        </View>
-      );
-    } else {
-      return null;
-    }
   }
 }
