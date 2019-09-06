@@ -10,6 +10,7 @@ use jni::{
     AttachGuard, JNIEnv, JavaVM,
 };
 use std::{
+    borrow::Cow,
     fs::File,
     io,
     net::{IpAddr, Ipv4Addr},
@@ -60,6 +61,7 @@ pub enum VpnServiceTunCommand {
     Bypass(RawFd, oneshot::Sender<bool>),
     CloseTunnel(oneshot::Sender<()>),
     GetTunnelInterface(TunConfig, oneshot::Sender<Option<VpnServiceTun>>),
+    OpenTunnel(oneshot::Sender<Result<(), Error>>),
 }
 
 /// VpnService tunnel interface provider.
@@ -194,7 +196,28 @@ impl<'env> VpnServiceTunProvider<'env> {
             GetTunnelInterface(config, result_tx) => {
                 self.handle_get_tunnel_interface(config, result_tx)
             }
+            OpenTunnel(result_tx) => self.handle_open_tunnel(result_tx),
         }
+    }
+
+    fn handle_open_tunnel(&mut self, result_tx: oneshot::Sender<Result<(), Error>>) {
+        if let Err(result) = result_tx.send(self.open_tunnel()) {
+            log::error!(
+                "Failed to send open tunnel result back to requester, which was: {}",
+                match result {
+                    Ok(()) => Cow::Borrowed("Success."),
+                    Err(error) => Cow::Owned(error.display_chain()),
+                }
+            )
+        }
+    }
+
+    fn open_tunnel(&mut self) -> Result<(), Error> {
+        if self.active_tun.is_none() {
+            self.active_tun = Some(self.create_tun(self.current_tun_config.clone())?);
+        }
+
+        Ok(())
     }
 
     fn handle_close_tunnel(&mut self, result_tx: oneshot::Sender<()>) {
