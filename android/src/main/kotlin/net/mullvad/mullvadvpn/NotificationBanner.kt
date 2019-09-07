@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.BlockReason
 import net.mullvad.mullvadvpn.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.model.KeygenEvent
+import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class NotificationBanner(
@@ -61,15 +62,20 @@ class NotificationBanner(
     }
 
     private fun updateBasedOnKeyState(): Boolean {
+        val keyState = keyState
         when (keyState) {
             null -> return false
             is KeygenEvent.NewKey -> return false
-            is KeygenEvent.TooManyKeys -> {
-                externalLink = accountUrl
-                showError(R.string.wireguard_error, R.string.too_many_keys)
-            }
-            is KeygenEvent.GenerationFailure -> {
-                showError(R.string.wireguard_error, R.string.failed_to_generate_key)
+            is KeygenEvent.Failure -> {
+                when (keyState.failure) {
+                    is KeygenFailure.TooManyKeys -> {
+                        externalLink = accountUrl
+                        showError(R.string.wireguard_error, R.string.too_many_keys)
+                    }
+                    is KeygenFailure.GenerationFailure -> {
+                        showError(R.string.wireguard_error, R.string.failed_to_generate_key)
+                    }
+                }
             }
         }
 
