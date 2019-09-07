@@ -1,17 +1,20 @@
 package net.mullvad.mullvadvpn
 
 import android.app.Notification
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.support.v4.app.NotificationCompat
 
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
 
+val CHANNEL_ID = "vpn_tunnel_status"
 val FOREGROUND_NOTIFICATION_ID: Int = 1
 
 class ForegroundNotificationManager(val service: Service, val connectionProxy: ConnectionProxy) {
@@ -65,6 +68,10 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             tunnelState = uiState
         }
 
+        if (Build.VERSION.SDK_INT >= 26) {
+            initChannel()
+        }
+
         service.startForeground(FOREGROUND_NOTIFICATION_ID, buildNotification())
     }
 
@@ -74,6 +81,17 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
         }
 
         service.stopForeground(FOREGROUND_NOTIFICATION_ID)
+    }
+
+    private fun initChannel() {
+        val channelName = service.getString(R.string.foreground_notification_channel_name)
+        val importance = NotificationManager.IMPORTANCE_MIN
+        val channel = NotificationChannel(CHANNEL_ID, channelName, importance).apply {
+            description = service.getString(R.string.foreground_notification_channel_description)
+            setShowBadge(true)
+        }
+
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun updateNotification() {
@@ -90,7 +108,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
         val pendingIntent =
             PendingIntent.getActivity(service, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        return NotificationCompat.Builder(service)
+        return NotificationCompat.Builder(service, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification)
             .setColor(service.getColor(R.color.colorPrimary))
             .setContentTitle(service.getString(notificationText))
