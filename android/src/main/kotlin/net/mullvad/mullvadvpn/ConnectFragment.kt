@@ -135,7 +135,7 @@ class ConnectFragment : Fragment() {
         }
 
         tunnelStateListener?.let { listener ->
-            connectionProxy.awaitThen { 
+            connectionProxy.awaitThen {
                 onUiStateChange.unsubscribe(listener)
             }
         }
@@ -174,7 +174,6 @@ class ConnectFragment : Fragment() {
 
     private fun updateKeyStatus(keyStatus: KeygenEvent?) = GlobalScope.launch(Dispatchers.Main) {
         notificationBanner.keyState = keyStatus
-        actionButton.keyState = keyStatus
     }
 
     private fun openSwitchLocationScreen() {
