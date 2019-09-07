@@ -40,13 +40,19 @@ class KeyStatusListener(val asyncDaemon: Deferred<MullvadDaemon>) {
         daemon?.onKeygenEvent = { event -> keyStatus = event }
         val wireguardKey = daemon?.getWireguardKey()
         if (wireguardKey != null) {
-            keyStatus = KeygenEvent.NewKey(wireguardKey, null)
+            keyStatus = KeygenEvent.NewKey(wireguardKey, null, null)
         }
     }
 
     fun generateKey() = GlobalScope.launch(Dispatchers.Default) {
             setUpJob.join()
-            keyStatus = daemon?.generateWireguardKey()
+            val oldStatus = keyStatus
+            val newStatus = daemon?.generateWireguardKey()
+            if (oldStatus is KeygenEvent.NewKey && newStatus is KeygenEvent.Failure) {
+                keyStatus = KeygenEvent.NewKey(oldStatus.publicKey, oldStatus.verified, newStatus.failure)
+            } else {
+                keyStatus = newStatus
+            }
     }
 
     fun verifyKey() = GlobalScope.launch(Dispatchers.Default) {
@@ -55,7 +61,7 @@ class KeyStatusListener(val asyncDaemon: Deferred<MullvadDaemon>) {
             // Only update verification status if the key is actually there
             when (val state = keyStatus) {
                 is KeygenEvent.NewKey -> {
-                    keyStatus = KeygenEvent.NewKey(state.publicKey, verified)
+                    keyStatus = KeygenEvent.NewKey(state.publicKey, verified, state.replacementFailure)
                 }
             }
     }

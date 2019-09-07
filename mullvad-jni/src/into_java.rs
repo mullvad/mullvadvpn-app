@@ -551,26 +551,46 @@ impl<'env> IntoJava<'env> for KeygenEvent {
                 let parameters = [
                     JValue::Object(java_public_key.as_obj()),
                     JValue::Object(JObject::null()),
+                    JValue::Object(JObject::null()),
                 ];
 
                 env.new_object(
                     &class,
-                    "(Lnet/mullvad/mullvadvpn/model/PublicKey;Ljava/lang/Boolean;)V",
+                    "(Lnet/mullvad/mullvadvpn/model/PublicKey;Ljava/lang/Boolean;Lnet/mullvad/mullvadvpn/model/KeygenFailure;)V",
                     &parameters,
                 )
                 .expect("Failed to create KeygenEvent.NewKey Java object")
             }
             KeygenEvent::TooManyKeys => {
-                let class = get_class("net/mullvad/mullvadvpn/model/KeygenEvent$TooManyKeys");
+                let failure_class =
+                    get_class("net/mullvad/mullvadvpn/model/KeygenFailure$TooManyKeys");
 
-                env.new_object(&class, "()V", &[])
-                    .expect("Failed to create KeygenEvent.TooManyKeys Java object")
+                let failure = env
+                    .new_object(&failure_class, "()V", &[])
+                    .expect("Failed to create KeygenFailure.TooManyKeys Java object");
+
+                let class = get_class("net/mullvad/mullvadvpn/model/KeygenEvent$Failure");
+                env.new_object(
+                    &class,
+                    "(Lnet/mullvad/mullvadvpn/model/KeygenFailure;)V",
+                    &[JValue::Object(failure)],
+                )
+                .expect("Failed to create KeygenEvent.Failure Java object")
             }
             KeygenEvent::GenerationFailure => {
-                let class = get_class("net/mullvad/mullvadvpn/model/KeygenEvent$GenerationFailure");
+                let failure_class =
+                    get_class("net/mullvad/mullvadvpn/model/KeygenFailure$GenerationFailure");
+                let failure = env
+                    .new_object(&failure_class, "()V", &[])
+                    .expect("Failed to create KeygenFailure.GenerationFailure Java object");
 
-                env.new_object(&class, "()V", &[])
-                    .expect("Failed to create KeygenEvent.GenerationFailure Java object")
+                let class = get_class("net/mullvad/mullvadvpn/model/KeygenEvent$Failure");
+                env.new_object(
+                    &class,
+                    "(Lnet/mullvad/mullvadvpn/model/KeygenFailure;)V",
+                    &[JValue::Object(failure)],
+                )
+                .expect("Failed to create KeygenEvent.GenerationFailure Java object")
             }
         }
     }
