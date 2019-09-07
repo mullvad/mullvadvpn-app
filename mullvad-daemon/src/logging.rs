@@ -101,7 +101,9 @@ pub fn init_logger(
     #[cfg(all(target_os = "android", debug_assertions))]
     {
         use android_logger::{AndroidLogger, Config};
-        let logger: Box<dyn log::Log> = Box::new(AndroidLogger::new(Config::default().with_tag("mullvad-daemon")));
+        let logger: Box<dyn log::Log> = Box::new(AndroidLogger::new(
+            Config::default().with_tag("mullvad-daemon"),
+        ));
         top_dispatcher = top_dispatcher.chain(logger);
     }
     top_dispatcher.apply().map_err(Error::SetLoggerError)?;
