@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,12 +22,12 @@ import android.widget.Toast
 
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
+import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.SmartDeferred
 
 class WireguardKeyFragment : Fragment() {
-    private var keyState: KeygenEvent? = null
     private var currentJob: Job? = null
     private var updateViewsJob: Job? = null
     private var tunnelStateListener: Int? = null
@@ -41,9 +42,10 @@ class WireguardKeyFragment : Fragment() {
     private lateinit var publicKey: TextView
     private lateinit var statusMessage: TextView
     private lateinit var visitWebsiteView: View
-    private lateinit var actionButton: Button
-    private lateinit var actionSpinner: ProgressBar
-
+    private lateinit var generateButton: Button
+    private lateinit var generateSpinner: ProgressBar
+    private lateinit var verifyButton: Button
+    private lateinit var verifySpinner: ProgressBar
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -53,9 +55,9 @@ class WireguardKeyFragment : Fragment() {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.wireguard_key, container, false)
 
@@ -63,12 +65,13 @@ class WireguardKeyFragment : Fragment() {
             parentActivity.onBackPressed()
         }
 
-
         statusMessage = view.findViewById<TextView>(R.id.wireguard_key_status)
         visitWebsiteView = view.findViewById<View>(R.id.wireguard_manage_keys)
         publicKey = view.findViewById<TextView>(R.id.wireguard_public_key)
-        actionButton = view.findViewById<Button>(R.id.wg_key_button)
-        actionSpinner = view.findViewById<ProgressBar>(R.id.wg_action_spinner)
+        generateButton = view.findViewById<Button>(R.id.wg_generate_key_button)
+        generateSpinner = view.findViewById<ProgressBar>(R.id.wg_generate_key_spinner)
+        verifyButton = view.findViewById<Button>(R.id.wg_verify_key_button)
+        verifySpinner = view.findViewById<ProgressBar>(R.id.wg_verify_key_spinner)
 
         visitWebsiteView.visibility = View.VISIBLE
         visitWebsiteView.setOnClickListener {
@@ -85,39 +88,35 @@ class WireguardKeyFragment : Fragment() {
         updateViews()
     }
 
-
     private fun updateViews() {
         clearErrorMessage()
+
+        setGenerateButton()
+        setVerifyButton()
 
         when (val keyState = keyStatusListener.keyStatus) {
             null -> {
                 publicKey.visibility = View.INVISIBLE
-                setGenerateButton()
             }
-            is KeygenEvent.TooManyKeys -> {
 
-                setStatusMessage(R.string.too_many_keys, R.color.red)
-                setGenerateButton()
-            }
-            is KeygenEvent.GenerationFailure -> {
-                setStatusMessage(R.string.failed_to_generate_key, R.color.red)
-                setGenerateButton()
-            }
             is KeygenEvent.NewKey -> {
                 val publicKeyString = Base64.encodeToString(keyState.publicKey.key, Base64.DEFAULT)
                 publicKey.visibility = View.VISIBLE
                 publicKey.setText(publicKeyString)
-
-                setVerifyButton()
 
                 if (keyState.verified != null) {
                     if (keyState.verified) {
                         setStatusMessage(R.string.wireguard_key_valid, R.color.green)
                     } else {
                         setStatusMessage(R.string.wireguard_key_invalid, R.color.red)
-                        setGenerateButton()
                     }
                 }
+                if (keyState.replacementFailure != null) {
+                    showKeygenFailure(keyState.replacementFailure)
+                }
+            }
+            is KeygenEvent.Failure -> {
+                showKeygenFailure(keyState.failure)
             }
         }
         drawNoConnectionState()
@@ -133,55 +132,85 @@ class WireguardKeyFragment : Fragment() {
         statusMessage.visibility = View.GONE
     }
 
+    private fun showKeygenFailure(failure: KeygenFailure) {
+        when (failure) {
+            is KeygenFailure.TooManyKeys -> {
+                setStatusMessage(R.string.too_many_keys, R.color.red)
+            }
+            is KeygenFailure.GenerationFailure -> {
+                setStatusMessage(R.string.failed_to_generate_key, R.color.red)
+            }
+        }
+    }
+
     private fun setGenerateButton() {
-        if (generatingKey) {
-            showActionSpinner()
+        generateButton.setClickable(true)
+        generateButton.setAlpha(1f)
+        if (validatingKey) {
+            generateButton.setClickable(false)
+            generateButton.setAlpha(0.5f)
             return
         }
-        actionSpinner.visibility = View.GONE
-        actionButton.visibility = View.VISIBLE
-        actionButton.setText(R.string.wireguard_generate_key)
-        actionButton.setOnClickListener {
+        if (generatingKey) {
+            generateButton.visibility = View.GONE
+            generateSpinner.visibility = View.VISIBLE
+            return
+        }
+        generateSpinner.visibility = View.GONE
+        generateButton.visibility = View.VISIBLE
+        if (keyStatusListener.keyStatus is KeygenEvent.NewKey) {
+            generateButton.setText(R.string.wireguard_replace_key)
+        } else {
+            generateButton.setText(R.string.wireguard_generate_key)
+        }
+
+        generateButton.setOnClickListener {
             onGenerateKeyPress()
         }
     }
 
     private fun setVerifyButton() {
-        if (validatingKey) {
-            showActionSpinner()
+        verifyButton.setClickable(true)
+        verifyButton.setAlpha(1f)
+        val keyState = keyStatusListener.keyStatus
+        if (generatingKey || keyState is KeygenEvent.Failure) {
+            verifyButton.setClickable(false)
+            verifyButton.setAlpha(0.5f)
             return
         }
-        actionSpinner.visibility = View.GONE
-        actionButton.visibility = View.VISIBLE
-        actionButton.setText(R.string.wireguard_verify_key)
-        actionButton.setOnClickListener {
+        if (validatingKey) {
+            verifyButton.visibility = View.GONE
+            verifySpinner.visibility = View.VISIBLE
+            return
+        }
+        verifySpinner.visibility = View.GONE
+        verifyButton.visibility = View.VISIBLE
+        verifyButton.setText(R.string.wireguard_verify_key)
+        verifyButton.setOnClickListener {
             onValidateKeyPress()
         }
     }
 
-    private fun showActionSpinner() {
-        actionButton.visibility = View.GONE
-        actionSpinner.visibility = View.VISIBLE
-    }
-
     private fun drawNoConnectionState() {
-        actionButton.setClickable(true)
         visitWebsiteView.setClickable(true)
-        actionButton.setAlpha(1f)
         visitWebsiteView.setAlpha(1f)
 
         when (tunnelState) {
             is TunnelState.Connecting, is TunnelState.Disconnecting -> {
                 statusMessage.setText(R.string.wireguard_key_connectivity)
                 statusMessage.visibility = View.VISIBLE
-                actionButton.visibility = View.GONE
-                actionSpinner.visibility = View.VISIBLE
+                generateButton.visibility = View.GONE
+                generateSpinner.visibility = View.VISIBLE
+                verifyButton.visibility = View.GONE
+                verifySpinner.visibility = View.VISIBLE
             }
             is TunnelState.Blocked -> {
                 statusMessage.setText(R.string.wireguard_key_blocked_state_message)
                 statusMessage.visibility = View.VISIBLE
-                actionButton.setClickable(false)
-                actionButton.setAlpha(0.5f)
+                generateButton.setClickable(false)
+                generateButton.setAlpha(0.5f)
+                verifyButton.setClickable(false)
+                verifyButton.setAlpha(0.5f)
                 visitWebsiteView.setClickable(false)
                 visitWebsiteView.setAlpha(0.5f)
             }
