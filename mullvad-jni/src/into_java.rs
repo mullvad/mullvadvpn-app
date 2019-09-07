@@ -14,7 +14,7 @@ use mullvad_types::{
     settings::Settings,
     states::TunnelState,
     version::AppVersionInfo,
-    wireguard::KeygenEvent,
+    wireguard::{KeygenEvent, PublicKey},
     CustomTunnelEndpoint,
 };
 use std::{
@@ -23,7 +23,7 @@ use std::{
 };
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
-    net::{wireguard::PublicKey, Endpoint, TransportProtocol, TunnelEndpoint},
+    net::{Endpoint, TransportProtocol, TunnelEndpoint},
     tunnel::{ActionAfterDisconnect, BlockReason, ParameterGenerationError},
 };
 
@@ -214,10 +214,14 @@ impl<'env> IntoJava<'env> for PublicKey {
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let class = get_class("net/mullvad/mullvadvpn/model/PublicKey");
-        let key = env.auto_local(self.as_bytes().into_java(env));
-        let parameters = [JValue::Object(key.as_obj())];
+        let key = env.auto_local(self.key.as_bytes().into_java(env));
+        let date_created = env.auto_local(*self.created.to_string().into_java(env));
+        let parameters = [
+            JValue::Object(key.as_obj()),
+            JValue::Object(date_created.as_obj()),
+        ];
 
-        env.new_object(&class, "([B)V", &parameters)
+        env.new_object(&class, "([BLjava/lang/String;)V", &parameters)
             .expect("Failed to create PublicKey Java object")
     }
 }
@@ -546,7 +550,7 @@ impl<'env> IntoJava<'env> for KeygenEvent {
         match self {
             KeygenEvent::NewKey(public_key) => {
                 let class = get_class("net/mullvad/mullvadvpn/model/KeygenEvent$NewKey");
-                let java_public_key = env.auto_local(public_key.key.into_java(env));
+                let java_public_key = env.auto_local(public_key.into_java(env));
 
                 let parameters = [
                     JValue::Object(java_public_key.as_obj()),

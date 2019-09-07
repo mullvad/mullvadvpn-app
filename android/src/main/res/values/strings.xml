@@ -118,6 +118,7 @@
     <string name="wireguard_generate_key">Generate key</string>
     <string name="wireguard_replace_key">Replace key</string>
     <string name="wireguard_manage_keys">Manage keys</string>
+    <string name="wireguard_key_age">Key generated on</string>
     <string name="wireguard_key_connectivity">
         Connectivity required to manage your key.
     </string>
