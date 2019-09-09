@@ -50,7 +50,7 @@ pub trait Tun: Send {
 /// Factory of tunnel devices.
 pub trait TunProvider: Send + 'static {
     /// Create a tunnel device using the provided configuration.
-    fn create_tun(&self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError>;
+    fn create_tun(&mut self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError>;
 }
 
 /// Configuration for creating a tunnel device.
