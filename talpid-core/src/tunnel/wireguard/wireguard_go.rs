@@ -18,7 +18,7 @@ impl WgGoTunnel {
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        tun_provider: &dyn TunProvider,
+        tun_provider: &mut dyn TunProvider,
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
         #[cfg_attr(not(target_os = "android"), allow(unused_mut))]

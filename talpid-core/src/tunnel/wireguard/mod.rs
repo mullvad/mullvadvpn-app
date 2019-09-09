@@ -82,7 +82,7 @@ impl WireguardMonitor {
         config: &Config,
         log_path: Option<&Path>,
         on_event: F,
-        tun_provider: &dyn TunProvider,
+        tun_provider: &mut dyn TunProvider,
     ) -> Result<WireguardMonitor> {
         let tunnel = Box::new(WgGoTunnel::start_tunnel(
             &config,
