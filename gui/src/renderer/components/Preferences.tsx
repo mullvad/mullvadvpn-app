@@ -33,48 +33,6 @@ export interface IProps {
 }
 
 export default class Preferences extends Component<IProps> {
-  private autoStartSwitch = React.createRef<Switch>();
-  private autoConnectSwitch = React.createRef<Switch>();
-  private allowLanSwitch = React.createRef<Switch>();
-  private notificationSwitch = React.createRef<Switch>();
-  private monoIconSwitch = React.createRef<Switch>();
-  private startMinimizedSwitch = React.createRef<Switch>();
-
-  public componentDidUpdate(prevProps: IProps) {
-    if (prevProps.autoStart !== this.props.autoStart && this.autoStartSwitch.current) {
-      this.autoStartSwitch.current.setOn(this.props.autoStart);
-    }
-
-    if (prevProps.autoConnect !== this.props.autoConnect && this.autoConnectSwitch.current) {
-      this.autoConnectSwitch.current.setOn(this.props.autoConnect);
-    }
-
-    if (prevProps.allowLan !== this.props.allowLan && this.allowLanSwitch.current) {
-      this.allowLanSwitch.current.setOn(this.props.allowLan);
-    }
-
-    if (
-      prevProps.enableSystemNotifications !== this.props.enableSystemNotifications &&
-      this.notificationSwitch.current
-    ) {
-      this.notificationSwitch.current.setOn(this.props.enableSystemNotifications);
-    }
-
-    if (
-      prevProps.monochromaticIcon !== this.props.monochromaticIcon &&
-      this.monoIconSwitch.current
-    ) {
-      this.monoIconSwitch.current.setOn(this.props.monochromaticIcon);
-    }
-
-    if (
-      prevProps.startMinimized !== this.props.startMinimized &&
-      this.startMinimizedSwitch.current
-    ) {
-      this.startMinimizedSwitch.current.setOn(this.props.startMinimized);
-    }
-  }
-
   public render() {
     return (
       <Layout>
@@ -105,10 +63,7 @@ export default class Preferences extends Component<IProps> {
                       <Cell.Label>
                         {messages.pgettext('preferences-view', 'Launch app on start-up')}
                       </Cell.Label>
-                      <Cell.Switch
-                        defaultOn={this.props.autoStart}
-                        onChange={this.props.setAutoStart}
-                      />
+                      <Cell.Switch isOn={this.props.autoStart} onChange={this.props.setAutoStart} />
                     </Cell.Container>
                     <View style={styles.preferences__separator} />
 
@@ -117,8 +72,7 @@ export default class Preferences extends Component<IProps> {
                         {messages.pgettext('preferences-view', 'Auto-connect')}
                       </Cell.Label>
                       <Cell.Switch
-                        ref={this.autoConnectSwitch}
-                        defaultOn={this.props.autoConnect}
+                        isOn={this.props.autoConnect}
                         onChange={this.props.setAutoConnect}
                       />
                     </Cell.Container>
@@ -133,11 +87,7 @@ export default class Preferences extends Component<IProps> {
                       <Cell.Label>
                         {messages.pgettext('preferences-view', 'Local network sharing')}
                       </Cell.Label>
-                      <Cell.Switch
-                        ref={this.allowLanSwitch}
-                        defaultOn={this.props.allowLan}
-                        onChange={this.props.setAllowLan}
-                      />
+                      <Cell.Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
                     </Cell.Container>
                     <Cell.Footer>
                       {messages.pgettext(
@@ -151,8 +101,7 @@ export default class Preferences extends Component<IProps> {
                         {messages.pgettext('preferences-view', 'Notifications')}
                       </Cell.Label>
                       <Cell.Switch
-                        ref={this.notificationSwitch}
-                        defaultOn={this.props.enableSystemNotifications}
+                        isOn={this.props.enableSystemNotifications}
                         onChange={this.props.setEnableSystemNotifications}
                       />
                     </Cell.Container>
@@ -170,8 +119,7 @@ export default class Preferences extends Component<IProps> {
                             {messages.pgettext('preferences-view', 'Monochromatic tray icon')}
                           </Cell.Label>
                           <Cell.Switch
-                            ref={this.monoIconSwitch}
-                            defaultOn={this.props.monochromaticIcon}
+                            isOn={this.props.monochromaticIcon}
                             onChange={this.props.setMonochromaticIcon}
                           />
                         </Cell.Container>
@@ -193,8 +141,7 @@ export default class Preferences extends Component<IProps> {
                             {messages.pgettext('preferences-view', 'Start minimized')}
                           </Cell.Label>
                           <Cell.Switch
-                            ref={this.startMinimizedSwitch}
-                            defaultOn={this.props.startMinimized}
+                            isOn={this.props.startMinimized}
                             onChange={this.props.setStartMinimized}
                           />
                         </Cell.Container>
