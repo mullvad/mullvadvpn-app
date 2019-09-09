@@ -22,19 +22,16 @@ const styles = {
     borderRadius: 16,
     padding: 2,
   }),
-  knob: {
-    base: Styles.createViewStyle({
-      height: 24,
-      borderRadius: 24,
-      backgroundColor: colors.red,
-    }),
-    on: Styles.createViewStyle({
-      backgroundColor: colors.green,
-    }),
-  },
+  knob: Styles.createViewStyle({
+    height: 24,
+    borderRadius: 24,
+  }),
 };
 
-interface IPosition { x: number; y: number }
+interface IPosition {
+  x: number;
+  y: number;
+}
 
 const SWITCH_DEFAULT_WIDTH = 24;
 const SWITCH_PRESSED_WIDTH = 28;
@@ -56,8 +53,15 @@ export default class Switch extends Component<IProps, IState> {
 
   private translationValue = Animated.createValue(0);
   private widthValue = Animated.createValue(SWITCH_DEFAULT_WIDTH);
+  private colorValue = Animated.createValue(0);
+  private interpolatedColorValue = Animated.interpolate(
+    this.colorValue,
+    [0, 1],
+    [colors.red, colors.green],
+  );
   private animatedStyle = Styles.createAnimatedViewStyle({
     width: this.widthValue,
+    backgroundColor: this.interpolatedColorValue,
     transform: [
       {
         translateX: this.translationValue,
@@ -66,8 +70,6 @@ export default class Switch extends Component<IProps, IState> {
   });
   private animation?: Types.Animated.CompositeAnimation;
 
-  private knobRef = React.createRef<View>();
-
   constructor(props: IProps) {
     super(props);
 
@@ -75,6 +77,7 @@ export default class Switch extends Component<IProps, IState> {
 
     if (props.defaultOn) {
       this.translationValue.setValue(this.computeTranslation(props.defaultOn, false));
+      this.colorValue.setValue(1);
     }
   }
 
@@ -82,6 +85,12 @@ export default class Switch extends Component<IProps, IState> {
     this.isPanning = false;
 
     this.setState({ isOn, isPressed: false });
+  }
+
+  public componentWillUnmount() {
+    if (this.animation) {
+      this.animation.stop();
+    }
   }
 
   public shouldComponentUpdate(_nextProps: IProps, nextState: IState) {
@@ -101,12 +110,7 @@ export default class Switch extends Component<IProps, IState> {
         onPanHorizontal={this.onPanHorizontal}
         onTap={this.onTap}>
         <View style={styles.holder}>
-          <Animated.View style={this.animatedStyle}>
-            <View
-              ref={this.knobRef}
-              style={[styles.knob.base, this.state.isOn ? styles.knob.on : undefined]}
-            />
-          </Animated.View>
+          <Animated.View style={[styles.knob, this.animatedStyle]} />
         </View>
       </GestureView>
     );
@@ -184,6 +188,10 @@ export default class Switch extends Component<IProps, IState> {
       }),
       Animated.timing(this.widthValue, {
         toValue: this.computeKnobWidth(this.state.isPressed),
+        duration,
+      }),
+      Animated.timing(this.colorValue, {
+        toValue: this.state.isOn ? 1 : 0,
         duration,
       }),
     ]);
