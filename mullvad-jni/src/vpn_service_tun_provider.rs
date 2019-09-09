@@ -21,6 +21,9 @@ pub enum Error {
     #[error(display = "Failed to call Java method {}", _0)]
     CallMethod(&'static str, #[error(cause)] jni::errors::Error),
 
+    #[error(display = "Failed to create Java VM handle clone")]
+    CloneJavaVm(#[error(cause)] jni::errors::Error),
+
     #[error(display = "Failed to create global reference to MullvadVpnService instance")]
     CreateGlobalReference(#[error(cause)] jni::errors::Error),
 
@@ -53,7 +56,20 @@ impl VpnServiceTunProvider {
         Ok(VpnServiceTunProvider { jvm, class, object })
     }
 
-    fn create_tunnel(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
+    fn get_tun(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
+        let tun_fd = self.create_tunnel(config)?;
+        let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
+            .map_err(Error::CloneJavaVm)?;
+
+        Ok(VpnServiceTun {
+            tunnel: tun_fd,
+            jvm,
+            class: self.class.clone(),
+            object: self.object.clone(),
+        })
+    }
+
+    fn create_tunnel(&mut self, config: TunConfig) -> Result<RawFd, Error> {
         let env = self
             .jvm
             .attach_current_thread()
@@ -76,12 +92,7 @@ impl VpnServiceTunProvider {
             .map_err(|cause| Error::CallMethod("MullvadVpnService.createTun", cause))?;
 
         match result {
-            JValue::Int(fd) => Ok(VpnServiceTun {
-                tunnel: fd,
-                jvm: env.get_java_vm().map_err(Error::GetJvmInstance)?,
-                class: self.class.clone(),
-                object: self.object.clone(),
-            }),
+            JValue::Int(fd) => Ok(fd),
             value => Err(Error::InvalidMethodResult(
                 "MullvadVpnService.createTun",
                 format!("{:?}", value),
@@ -92,7 +103,7 @@ impl VpnServiceTunProvider {
 
 impl TunProvider for VpnServiceTunProvider {
     fn create_tun(&mut self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
-        match self.create_tunnel(config) {
+        match self.get_tun(config) {
             Ok(tun) => Ok(Box::new(tun)),
             Err(error) => Err(BoxedError::new(error)),
         }
