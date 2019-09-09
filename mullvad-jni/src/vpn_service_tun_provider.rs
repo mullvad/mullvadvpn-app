@@ -55,7 +55,7 @@ impl VpnServiceTunProvider {
 }
 
 impl TunProvider for VpnServiceTunProvider {
-    fn create_tun(&self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
+    fn get_tun(&mut self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
         let env = self
             .jvm
             .attach_current_thread()

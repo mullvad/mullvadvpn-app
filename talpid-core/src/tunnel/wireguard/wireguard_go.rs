@@ -23,7 +23,7 @@ impl WgGoTunnel {
     ) -> Result<Self> {
         #[cfg_attr(not(target_os = "android"), allow(unused_mut))]
         let mut tunnel_device = tun_provider
-            .create_tun(Self::create_tunnel_config(config, routes))
+            .get_tun(Self::create_tunnel_config(config, routes))
             .map_err(Error::SetupTunnelDeviceError)?;
 
         let interface_name: String = tunnel_device.interface_name().to_string();

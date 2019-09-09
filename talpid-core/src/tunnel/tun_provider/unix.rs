@@ -29,7 +29,7 @@ impl Default for UnixTunProvider {
 }
 
 impl TunProvider for UnixTunProvider {
-    fn create_tun(&self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
+    fn get_tun(&mut self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
         let mut tunnel_device = TunnelDevice::new()
             .map_err(|cause| BoxedError::new(Error::CreateTunnelDevice(cause)))?;
 
