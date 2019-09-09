@@ -52,23 +52,19 @@ impl VpnServiceTunProvider {
 
         Ok(VpnServiceTunProvider { jvm, class, object })
     }
-}
 
-impl TunProvider for VpnServiceTunProvider {
-    fn create_tun(&mut self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
+    fn create_tunnel(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
         let env = self
             .jvm
             .attach_current_thread()
-            .map_err(|cause| BoxedError::new(Error::AttachJvmToThread(cause)))?;
+            .map_err(Error::AttachJvmToThread)?;
         let create_tun_method = env
             .get_method_id(
                 &self.class,
                 "createTun",
                 "(Lnet/mullvad/mullvadvpn/model/TunConfig;)I",
             )
-            .map_err(|cause| {
-                BoxedError::new(Error::FindMethod("MullvadVpnService.createTun", cause))
-            })?;
+            .map_err(|cause| Error::FindMethod("MullvadVpnService.createTun", cause))?;
 
         let result = env
             .call_method_unchecked(
@@ -77,23 +73,28 @@ impl TunProvider for VpnServiceTunProvider {
                 JavaType::Primitive(Primitive::Int),
                 &[JValue::Object(config.into_java(&env))],
             )
-            .map_err(|cause| {
-                BoxedError::new(Error::CallMethod("MullvadVpnService.createTun", cause))
-            })?;
+            .map_err(|cause| Error::CallMethod("MullvadVpnService.createTun", cause))?;
 
         match result {
-            JValue::Int(fd) => Ok(Box::new(VpnServiceTun {
+            JValue::Int(fd) => Ok(VpnServiceTun {
                 tunnel: fd,
-                jvm: env
-                    .get_java_vm()
-                    .map_err(|cause| BoxedError::new(Error::GetJvmInstance(cause)))?,
+                jvm: env.get_java_vm().map_err(Error::GetJvmInstance)?,
                 class: self.class.clone(),
                 object: self.object.clone(),
-            })),
-            value => Err(BoxedError::new(Error::InvalidMethodResult(
+            }),
+            value => Err(Error::InvalidMethodResult(
                 "MullvadVpnService.createTun",
                 format!("{:?}", value),
-            ))),
+            )),
+        }
+    }
+}
+
+impl TunProvider for VpnServiceTunProvider {
+    fn create_tun(&mut self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
+        match self.create_tunnel(config) {
+            Ok(tun) => Ok(Box::new(tun)),
+            Err(error) => Err(BoxedError::new(error)),
         }
     }
 }
