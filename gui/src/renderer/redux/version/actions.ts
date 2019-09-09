@@ -1,7 +1,6 @@
 import { IAppVersionInfo } from '../../../shared/daemon-rpc-types';
 
 interface IUpdateLatestActionPayload extends IAppVersionInfo {
-  upToDate: boolean;
   nextUpgrade?: string;
 }
 
