@@ -30,6 +30,22 @@ impl BlockedState {
             }
         }
     }
+
+    #[cfg(target_os = "android")]
+    fn create_blocking_tun(shared_values: &mut SharedTunnelStateValues) -> Option<BlockReason> {
+        match shared_values.tun_provider.create_tun_if_closed() {
+            Ok(()) => None,
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to open tunnel adapter to drop packets for blocked state"
+                    )
+                );
+                Some(BlockReason::SetFirewallPolicyError)
+            }
+        }
+    }
 }
 
 impl TunnelState for BlockedState {
@@ -40,6 +56,8 @@ impl TunnelState for BlockedState {
         block_reason: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         let block_reason = Self::set_firewall_policy(shared_values).unwrap_or_else(|| block_reason);
+        #[cfg(target_os = "android")]
+        let block_reason = Self::create_blocking_tun(shared_values).unwrap_or_else(|| block_reason);
 
         (
             TunnelStateWrapper::from(BlockedState {
