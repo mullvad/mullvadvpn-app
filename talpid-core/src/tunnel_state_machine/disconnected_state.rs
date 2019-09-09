@@ -30,6 +30,13 @@ impl DisconnectedState {
             log::error!("{}", error_chain);
         }
     }
+
+    #[cfg(target_os = "android")]
+    fn close_tun(shared_values: &mut SharedTunnelStateValues) {
+        if let Err(error) = shared_values.tun_provider.close_tun() {
+            log::error!("{}", error.display_chain_with_msg("Failed to close tunnel"));
+        }
+    }
 }
 
 impl TunnelState for DisconnectedState {
@@ -40,6 +47,9 @@ impl TunnelState for DisconnectedState {
         _: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         Self::set_firewall_policy(shared_values);
+        #[cfg(target_os = "android")]
+        Self::close_tun(shared_values);
+
         (
             TunnelStateWrapper::from(DisconnectedState),
             TunnelStateTransition::Disconnected,
