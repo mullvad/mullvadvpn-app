@@ -14,6 +14,12 @@ impl Command for Status {
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
         clap::SubCommand::with_name(self.name())
             .about("View the state of the VPN tunnel")
+            .arg(
+                clap::Arg::with_name("location")
+                    .long("location")
+                    .short("l")
+                    .help("Prints the current location and IP. Based on GeoIP lookups"),
+            )
             .subcommand(
                 clap::SubCommand::with_name("listen")
                     .about("Listen for VPN tunnel state changes")
@@ -30,7 +36,10 @@ impl Command for Status {
         let state = rpc.get_state()?;
 
         print_state(&state);
-        print_location(&mut rpc)?;
+        if matches.is_present("location") {
+            print_location(&mut rpc)?;
+        }
+
         if let Some(listen_matches) = matches.subcommand_matches("listen") {
             let verbose = listen_matches.is_present("verbose");
             let subscription = rpc
@@ -43,7 +52,11 @@ impl Command for Status {
                         print_state(&new_state);
                         use self::TunnelState::*;
                         match new_state {
-                            Connected { .. } | Disconnected => print_location(&mut rpc)?,
+                            Connected { .. } | Disconnected => {
+                                if matches.is_present("location") {
+                                    print_location(&mut rpc)?;
+                                }
+                            }
                             _ => {}
                         }
                     }
