@@ -3,7 +3,7 @@ import { Animated, Component, GestureView, Styles, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
 
 interface IProps {
-  defaultOn: boolean;
+  isOn: boolean;
   onChange?: (isOn: boolean) => void;
 }
 
@@ -38,7 +38,7 @@ const SWITCH_PRESSED_WIDTH = 28;
 
 export default class Switch extends Component<IProps, IState> {
   public static defaultProps: Partial<IProps> = {
-    defaultOn: false,
+    isOn: false,
     onChange: undefined,
   };
 
@@ -73,18 +73,12 @@ export default class Switch extends Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
 
-    this.state.isOn = props.defaultOn;
+    this.state.isOn = props.isOn;
 
-    if (props.defaultOn) {
-      this.translationValue.setValue(this.computeTranslation(props.defaultOn, false));
+    if (props.isOn) {
+      this.translationValue.setValue(this.computeTranslation(props.isOn, false));
       this.colorValue.setValue(1);
     }
-  }
-
-  public setOn(isOn: boolean) {
-    this.isPanning = false;
-
-    this.setState({ isOn, isPressed: false });
   }
 
   public componentWillUnmount() {
@@ -93,12 +87,22 @@ export default class Switch extends Component<IProps, IState> {
     }
   }
 
-  public shouldComponentUpdate(_nextProps: IProps, nextState: IState) {
-    return nextState.isOn !== this.state.isOn || nextState.isPressed !== this.state.isPressed;
+  public shouldComponentUpdate(nextProps: IProps, nextState: IState) {
+    return (
+      nextState.isOn !== this.state.isOn ||
+      nextState.isPressed !== this.state.isPressed ||
+      nextProps.isOn !== this.props.isOn
+    );
   }
 
-  public componentDidUpdate(_prevProps: IProps, prevState: IState) {
-    if (prevState.isOn !== this.state.isOn || prevState.isPressed !== this.state.isPressed) {
+  public componentDidUpdate(prevProps: IProps, prevState: IState) {
+    if (
+      this.props.isOn !== prevProps.isOn &&
+      this.props.isOn !== this.state.isOn &&
+      !this.isPanning
+    ) {
+      this.setState({ isOn: this.props.isOn });
+    } else if (prevState.isOn !== this.state.isOn || prevState.isPressed !== this.state.isPressed) {
       this.animate();
     }
   }

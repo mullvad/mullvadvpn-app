@@ -15,7 +15,6 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import Switch from './Switch';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
@@ -67,9 +66,6 @@ export default class AdvancedSettings extends Component<IProps, IState> {
   private bridgeStateItems: Array<ISelectorItem<BridgeState>>;
   private tunnelProtocolItems: Array<ISelectorItem<OptionalTunnelProtocol>>;
   private wireguardPortItems: Array<ISelectorItem<OptionalPort>>;
-
-  private enableIpv6Switch = React.createRef<Switch>();
-  private blockWhenConnectedSwitch = React.createRef<Switch>();
 
   constructor(props: IProps) {
     super(props);
@@ -152,17 +148,6 @@ export default class AdvancedSettings extends Component<IProps, IState> {
         editedMssfix: state.focusOnMssfix ? state.editedMssfix : props.mssfix,
       }));
     }
-
-    if (this.props.enableIpv6 !== prevProps.enableIpv6 && this.enableIpv6Switch.current) {
-      this.enableIpv6Switch.current.setOn(this.props.enableIpv6);
-    }
-
-    if (
-      this.props.blockWhenDisconnected !== prevProps.blockWhenDisconnected &&
-      this.blockWhenConnectedSwitch.current
-    ) {
-      this.blockWhenConnectedSwitch.current.setOn(this.props.blockWhenDisconnected);
-    }
   }
 
   public render() {
@@ -199,11 +184,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     <Cell.Label>
                       {messages.pgettext('advanced-settings-view', 'Enable IPv6')}
                     </Cell.Label>
-                    <Cell.Switch
-                      ref={this.enableIpv6Switch}
-                      defaultOn={this.props.enableIpv6}
-                      onChange={this.props.setEnableIpv6}
-                    />
+                    <Cell.Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
                   </Cell.Container>
                   <Cell.Footer>
                     {messages.pgettext(
@@ -217,8 +198,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                       {messages.pgettext('advanced-settings-view', 'Block when disconnected')}
                     </Cell.Label>
                     <Cell.Switch
-                      ref={this.blockWhenConnectedSwitch}
-                      defaultOn={this.props.blockWhenDisconnected}
+                      isOn={this.props.blockWhenDisconnected}
                       onChange={this.props.setBlockWhenDisconnected}
                     />
                   </Cell.Container>
