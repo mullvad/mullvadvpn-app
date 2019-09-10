@@ -159,6 +159,10 @@ impl TunProvider for VpnServiceTunProvider {
             object: self.object.clone(),
         }))
     }
+
+    fn close_tun(&mut self) {
+        self.active_tun = None;
+    }
 }
 
 struct VpnServiceTun {
