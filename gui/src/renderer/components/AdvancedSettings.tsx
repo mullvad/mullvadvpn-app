@@ -140,7 +140,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
     };
   }
 
-  public componentDidUpdate(_oldProps: IProps, _oldState: IState) {
+  public componentDidUpdate(_prevProps: IProps, _prevState: IState) {
     if (this.props.mssfix !== this.state.persistedMssfix) {
       this.setState((state, props) => ({
         ...state,

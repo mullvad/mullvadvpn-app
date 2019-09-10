@@ -237,13 +237,16 @@ export const Label = function CellLabel(props: ILabelProps) {
   );
 };
 
-export const Switch = function CellSwitch(props: SwitchControl['props']) {
+export const Switch = React.forwardRef(function CellSwitch(
+  props: SwitchControl['props'],
+  ref?: React.Ref<SwitchControl>,
+) {
   return (
     <View style={styles.switch}>
-      <SwitchControl {...props} />
+      <SwitchControl ref={ref} {...props} />
     </View>
   );
-};
+});
 
 interface IInputFrameProps {
   children?: React.ReactNode;
@@ -264,7 +267,7 @@ export const Input = React.forwardRef(function CellInput(
 
   return (
     <TextInput
-      ref={ref as any}
+      ref={ref}
       placeholderTextColor={colors.white60}
       autoCorrect={false}
       style={[styles.input.text, style]}
