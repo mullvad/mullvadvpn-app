@@ -13,7 +13,7 @@ export default {
   content: Styles.createViewStyle({
     overflow: 'visible',
   }),
-  header: Styles.createViewStyle({
+  headerWithScope: Styles.createViewStyle({
     paddingBottom: 4,
   }),
   stickyHolder: Styles.createViewStyle({

@@ -3,6 +3,7 @@ import {
   BridgeState,
   KeygenEvent,
   LiftedConstraint,
+  ProxySettings,
   RelayLocation,
   RelayProtocol,
   TunnelProtocol,
@@ -30,6 +31,16 @@ export type RelaySettingsRedux =
         port: number;
         protocol: RelayProtocol;
       };
+    };
+
+export type BridgeSettingsRedux =
+  | {
+      normal: {
+        location: LiftedConstraint<RelayLocation>;
+      };
+    }
+  | {
+      custom: ProxySettings;
     };
 
 export interface IRelayLocationRelayRedux {
@@ -108,8 +119,10 @@ export interface ISettingsReduxState {
   guiSettings: IGuiSettingsState;
   relaySettings: RelaySettingsRedux;
   relayLocations: IRelayLocationRedux[];
+  bridgeLocations: IRelayLocationRedux[];
   allowLan: boolean;
   enableIpv6: boolean;
+  bridgeSettings: BridgeSettingsRedux;
   bridgeState: BridgeState;
   blockWhenDisconnected: boolean;
   openVpn: {
@@ -138,8 +151,14 @@ const initialState: ISettingsReduxState = {
     },
   },
   relayLocations: [],
+  bridgeLocations: [],
   allowLan: false,
   enableIpv6: true,
+  bridgeSettings: {
+    normal: {
+      location: 'any',
+    },
+  },
   bridgeState: 'auto',
   blockWhenDisconnected: false,
   openVpn: {},
@@ -169,6 +188,12 @@ export default function(
       return {
         ...state,
         relayLocations: action.relayLocations,
+      };
+
+    case 'UPDATE_BRIDGE_LOCATIONS':
+      return {
+        ...state,
+        bridgeLocations: action.bridgeLocations,
       };
 
     case 'UPDATE_ALLOW_LAN':
@@ -202,6 +227,12 @@ export default function(
       return {
         ...state,
         autoStart: action.autoStart,
+      };
+
+    case 'UPDATE_BRIDGE_SETTINGS':
+      return {
+        ...state,
+        bridgeSettings: action.bridgeSettings,
       };
 
     case 'UPDATE_BRIDGE_STATE':
