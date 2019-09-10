@@ -1,5 +1,6 @@
 #pragma once
-#include <stdint.h>
+
+#include "../../shared/logsink.h"
 #include <stdbool.h>
 
 #ifdef WINNET_EXPORTS
@@ -10,13 +11,11 @@
 
 #define WINNET_API __stdcall
 
-typedef void (WINNET_API *WinNetErrorSink)(const char *errorMessage, void *context);
-
-enum class WINNET_ETM_STATUS : uint32_t
+enum WINNET_ETM_STATUS
 {
-	METRIC_NO_CHANGE = 0,
-	METRIC_SET = 1,
-	FAILURE = 2,
+	WINNET_ETM_STATUS_METRIC_NO_CHANGE = 0,
+	WINNET_ETM_STATUS_METRIC_SET = 1,
+	WINNET_ETM_STATUS_FAILURE = 2,
 };
 
 extern "C"
@@ -25,15 +24,15 @@ WINNET_ETM_STATUS
 WINNET_API
 WinNet_EnsureTopMetric(
 	const wchar_t *deviceAlias,
-	WinNetErrorSink errorSink,
-	void *errorSinkContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 );
 
-enum class WINNET_GTII_STATUS : uint32_t
+enum WINNET_GTII_STATUS
 {
-	ENABLED = 0,
-	DISABLED = 1,
-	FAILURE = 2,
+	WINNET_GTII_STATUS_ENABLED = 0,
+	WINNET_GTII_STATUS_DISABLED = 1,
+	WINNET_GTII_STATUS_FAILURE = 2,
 };
 
 extern "C"
@@ -41,8 +40,8 @@ WINNET_LINKAGE
 WINNET_GTII_STATUS
 WINNET_API
 WinNet_GetTapInterfaceIpv6Status(
-	WinNetErrorSink errorSink,
-	void *errorSinkContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 );
 
 extern "C"
@@ -51,8 +50,8 @@ bool
 WINNET_API
 WinNet_GetTapInterfaceAlias(
 	wchar_t **alias,
-	WinNetErrorSink errorSink,
-	void *errorSinkContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 );
 
 //
@@ -77,8 +76,8 @@ WinNet_ActivateConnectivityMonitor(
 	WinNetConnectivityMonitorCallback callback,
 	void *callbackContext,
 	bool *currentConnectivity,
-	WinNetErrorSink errorSink,
-	void *errorSinkContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 );
 
 extern "C"
@@ -88,11 +87,11 @@ WINNET_API
 WinNet_DeactivateConnectivityMonitor(
 );
 
-enum class WINNET_CC_STATUS : uint32_t
+enum WINNET_CC_STATUS
 {
-	NOT_CONNECTED = 0,
-	CONNECTED = 1,
-	CONNECTIVITY_UNKNOWN = 2,
+	WINNET_CC_STATUS_NOT_CONNECTED = 0,
+	WINNET_CC_STATUS_CONNECTED = 1,
+	WINNET_CC_STATUS_CONNECTIVITY_UNKNOWN = 2,
 };
 
 extern "C"
@@ -100,6 +99,6 @@ WINNET_LINKAGE
 WINNET_CC_STATUS
 WINNET_API
 WinNet_CheckConnectivity(
-	WinNetErrorSink errorSink,
-	void *errorSinkContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 );
