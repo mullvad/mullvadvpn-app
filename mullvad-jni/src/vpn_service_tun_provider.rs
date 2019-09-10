@@ -50,6 +50,7 @@ pub struct VpnServiceTunProvider {
     class: GlobalRef,
     object: GlobalRef,
     active_tun: Option<File>,
+    last_tun_config: Option<TunConfig>,
 }
 
 impl VpnServiceTunProvider {
@@ -66,6 +67,7 @@ impl VpnServiceTunProvider {
             class,
             object,
             active_tun: None,
+            last_tun_config: None,
         })
     }
 
@@ -80,38 +82,41 @@ impl VpnServiceTunProvider {
     }
 
     fn prepare_tun(&mut self, config: TunConfig) -> Result<&File, Error> {
-        let env = self
-            .jvm
-            .attach_current_thread()
-            .map_err(Error::AttachJvmToThread)?;
-        let create_tun_method = env
-            .get_method_id(
-                &self.class,
-                "createTun",
-                "(Lnet/mullvad/mullvadvpn/model/TunConfig;)I",
-            )
-            .map_err(|cause| Error::FindMethod("MullvadVpnService.createTun", cause))?;
+        if self.active_tun.is_none() || self.last_tun_config.as_ref() != Some(&config) {
+            let env = self
+                .jvm
+                .attach_current_thread()
+                .map_err(Error::AttachJvmToThread)?;
+            let create_tun_method = env
+                .get_method_id(
+                    &self.class,
+                    "createTun",
+                    "(Lnet/mullvad/mullvadvpn/model/TunConfig;)I",
+                )
+                .map_err(|cause| Error::FindMethod("MullvadVpnService.createTun", cause))?;
 
-        let result = env
-            .call_method_unchecked(
-                self.object.as_obj(),
-                create_tun_method,
-                JavaType::Primitive(Primitive::Int),
-                &[JValue::Object(config.into_java(&env))],
-            )
-            .map_err(|cause| Error::CallMethod("MullvadVpnService.createTun", cause))?;
+            let result = env
+                .call_method_unchecked(
+                    self.object.as_obj(),
+                    create_tun_method,
+                    JavaType::Primitive(Primitive::Int),
+                    &[JValue::Object(config.clone().into_java(&env))],
+                )
+                .map_err(|cause| Error::CallMethod("MullvadVpnService.createTun", cause))?;
 
-        match result {
-            JValue::Int(fd) => {
-                let tun = unsafe { File::from_raw_fd(fd) };
+            match result {
+                JValue::Int(fd) => {
+                    let tun = unsafe { File::from_raw_fd(fd) };
 
-                self.active_tun = Some(tun);
-            }
-            value => {
-                return Err(Error::InvalidMethodResult(
-                    "MullvadVpnService.createTun",
-                    format!("{:?}", value),
-                ))
+                    self.active_tun = Some(tun);
+                    self.last_tun_config = Some(config);
+                }
+                value => {
+                    return Err(Error::InvalidMethodResult(
+                        "MullvadVpnService.createTun",
+                        format!("{:?}", value),
+                    ))
+                }
             }
         }
 
