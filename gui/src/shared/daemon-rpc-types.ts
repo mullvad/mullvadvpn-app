@@ -50,11 +50,11 @@ export function tunnelTypeToString(tunnel: TunnelType): string {
 
 export type RelayProtocol = 'tcp' | 'udp';
 
-export function liftConstraint<T>(constraint: 'any' | { only: T }): 'any' | T {
-  if (constraint === 'any') {
-    return 'any';
-  }
-  return constraint.only;
+export type Constraint<T> = 'any' | { only: T };
+export type LiftedConstraint<T> = 'any' | T;
+
+export function liftConstraint<T>(constraint: Constraint<T>): LiftedConstraint<T> {
+  return constraint === 'any' ? constraint : constraint.only;
 }
 
 export type ProxyType = 'shadowsocks' | 'custom';
@@ -106,27 +106,19 @@ export type RelayLocation =
   | { country: string };
 
 export interface IOpenVpnConstraints {
-  port: 'any' | { only: number };
-  protocol: 'any' | { only: RelayProtocol };
+  port: Constraint<number>;
+  protocol: Constraint<RelayProtocol>;
 }
 
 export interface IWireguardConstraints {
-  port: 'any' | { only: number };
+  port: Constraint<number>;
 }
 
 export type TunnelProtocol = 'wireguard' | 'openvpn';
 
 interface IRelaySettingsNormal<OpenVpn, Wireguard> {
-  location:
-    | 'any'
-    | {
-        only: RelayLocation;
-      };
-  tunnelProtocol:
-    | 'any'
-    | {
-        only: TunnelProtocol;
-      };
+  location: Constraint<RelayLocation>;
+  tunnelProtocol: Constraint<TunnelProtocol>;
   openvpnConstraints: OpenVpn;
   wireguardConstraints: Wireguard;
 }
@@ -311,11 +303,7 @@ export interface IWireguardPublicKey {
 export type BridgeState = 'auto' | 'on' | 'off';
 
 export interface IBridgeConstraints {
-  location:
-    | 'any'
-    | {
-        only: RelayLocation;
-      };
+  location: Constraint<RelayLocation>;
 }
 
 export type BridgeSettings = { normal: IBridgeConstraints } | { custom: ProxySettings };

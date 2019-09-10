@@ -2,6 +2,7 @@ import log from 'electron-log';
 import {
   BridgeState,
   KeygenEvent,
+  LiftedConstraint,
   RelayLocation,
   RelayProtocol,
   TunnelProtocol,
@@ -12,14 +13,14 @@ import { ReduxAction } from '../store';
 export type RelaySettingsRedux =
   | {
       normal: {
-        tunnelProtocol: 'any' | TunnelProtocol;
-        location: 'any' | RelayLocation;
+        tunnelProtocol: LiftedConstraint<TunnelProtocol>;
+        location: LiftedConstraint<RelayLocation>;
         openvpn: {
-          port: 'any' | number;
-          protocol: 'any' | RelayProtocol;
+          port: LiftedConstraint<number>;
+          protocol: LiftedConstraint<RelayProtocol>;
         };
         wireguard: {
-          port: 'any' | number;
+          port: LiftedConstraint<number>;
         };
       };
     }
