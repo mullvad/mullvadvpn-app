@@ -15,6 +15,7 @@ import {
   ISettings,
   IWireguardPublicKey,
   KeygenEvent,
+  RelayLocation,
   RelaySettingsUpdate,
   TunnelState,
 } from './daemon-rpc-types';
@@ -29,10 +30,16 @@ export interface IAppStateSnapshot {
   settings: ISettings;
   location?: ILocation;
   relays: IRelayList;
+  bridges: IRelayList;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppUpgradeInfo;
   guiSettings: IGuiSettingsState;
   wireguardPublicKey?: IWireguardPublicKey;
+}
+
+export interface IRelayListPair {
+  relays: IRelayList;
+  bridges: IRelayList;
 }
 
 interface ISender<T> {
@@ -64,6 +71,7 @@ interface ISettingsMethods extends IReceiver<ISettings> {
   setBridgeState(state: BridgeState): Promise<void>;
   setOpenVpnMssfix(mssfix?: number): Promise<void>;
   updateRelaySettings(update: RelaySettingsUpdate): Promise<void>;
+  updateBridgeLocation(location: RelayLocation): Promise<void>;
 }
 
 interface ISettingsHandlers extends ISender<ISettings> {
@@ -73,6 +81,7 @@ interface ISettingsHandlers extends ISender<ISettings> {
   handleBridgeState(fn: (state: BridgeState) => Promise<void>): void;
   handleOpenVpnMssfix(fn: (mssfix?: number) => Promise<void>): void;
   handleUpdateRelaySettings(fn: (update: RelaySettingsUpdate) => Promise<void>): void;
+  handleUpdateBridgeLocation(fn: (location: RelayLocation) => Promise<void>): void;
 }
 
 interface IGuiSettingsMethods extends IReceiver<IGuiSettingsState> {
@@ -145,6 +154,7 @@ const SET_BLOCK_WHEN_DISCONNECTED = 'set-block-when-disconnected';
 const SET_BRIDGE_STATE = 'set-bridge-state';
 const SET_OPENVPN_MSSFIX = 'set-openvpn-mssfix';
 const UPDATE_RELAY_SETTINGS = 'update-relay-settings';
+const UPDATE_BRIDGE_LOCATION = 'update-bridge-location';
 
 const LOCATION_CHANGED = 'location-changed';
 const RELAYS_CHANGED = 'relays-changed';
@@ -213,13 +223,14 @@ export class IpcRendererEventChannel {
     setBridgeState: requestSender(SET_BRIDGE_STATE),
     setOpenVpnMssfix: requestSender(SET_OPENVPN_MSSFIX),
     updateRelaySettings: requestSender(UPDATE_RELAY_SETTINGS),
+    updateBridgeLocation: requestSender(UPDATE_BRIDGE_LOCATION),
   };
 
   public static location: IReceiver<ILocation> = {
     listen: listen(LOCATION_CHANGED),
   };
 
-  public static relays: IReceiver<IRelayList> = {
+  public static relays: IReceiver<IRelayListPair> = {
     listen: listen(RELAYS_CHANGED),
   };
 
@@ -302,9 +313,10 @@ export class IpcMainEventChannel {
     handleBridgeState: requestHandler(SET_BRIDGE_STATE),
     handleOpenVpnMssfix: requestHandler(SET_OPENVPN_MSSFIX),
     handleUpdateRelaySettings: requestHandler(UPDATE_RELAY_SETTINGS),
+    handleUpdateBridgeLocation: requestHandler(UPDATE_BRIDGE_LOCATION),
   };
 
-  public static relays: ISender<IRelayList> = {
+  public static relays: ISender<IRelayListPair> = {
     notify: sender(RELAYS_CHANGED),
   };
 

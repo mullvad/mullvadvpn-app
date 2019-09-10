@@ -1,12 +1,19 @@
 import { ReduxAction } from '../store';
 
+export enum LocationScope {
+  bridge = 0,
+  relay,
+}
+
 export interface IUserInterfaceReduxState {
   arrowPosition?: number;
   connectionPanelVisible: boolean;
+  locationScope: LocationScope;
 }
 
 const initialState: IUserInterfaceReduxState = {
   connectionPanelVisible: false,
+  locationScope: LocationScope.relay,
 };
 
 export default function(
@@ -19,6 +26,9 @@ export default function(
 
     case 'TOGGLE_CONNECTION_PANEL':
       return { ...state, connectionPanelVisible: !state.connectionPanelVisible };
+
+    case 'SET_LOCATION_SCOPE':
+      return { ...state, locationScope: action.scope };
 
     default:
       return state;
