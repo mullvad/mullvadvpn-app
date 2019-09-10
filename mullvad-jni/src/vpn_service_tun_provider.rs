@@ -24,7 +24,7 @@ pub enum Error {
     #[error(display = "Failed to allow socket to bypass tunnel")]
     Bypass,
 
-    #[error(display = "Failed to call Java method {}", _0)]
+    #[error(display = "Failed to call Java method MullvadVpnService.{}", _0)]
     CallMethod(&'static str, #[error(cause)] jni::errors::Error),
 
     #[error(display = "Failed to create Java VM handle clone")]
@@ -36,13 +36,17 @@ pub enum Error {
     #[error(display = "Failed to duplicate tunnel file descriptor")]
     DuplicateTunFd(#[error(cause)] io::Error),
 
-    #[error(display = "Failed to find {} method", _0)]
+    #[error(display = "Failed to find MullvadVpnService.{} method", _0)]
     FindMethod(&'static str, #[error(cause)] jni::errors::Error),
 
     #[error(display = "Failed to get Java VM instance")]
     GetJvmInstance(#[error(cause)] jni::errors::Error),
 
-    #[error(display = "Received an invalid result from {}: {}", _0, _1)]
+    #[error(
+        display = "Received an invalid result from MullvadVpnService.{}: {}",
+        _0,
+        _1
+    )]
     InvalidMethodResult(&'static str, String),
 }
 
@@ -110,7 +114,7 @@ impl VpnServiceTunProvider {
                     "createTun",
                     "(Lnet/mullvad/mullvadvpn/model/TunConfig;)I",
                 )
-                .map_err(|cause| Error::FindMethod("MullvadVpnService.createTun", cause))?;
+                .map_err(|cause| Error::FindMethod("createTun", cause))?;
 
             let result = env
                 .call_method_unchecked(
@@ -119,7 +123,7 @@ impl VpnServiceTunProvider {
                     JavaType::Primitive(Primitive::Int),
                     &[JValue::Object(config.clone().into_java(&env))],
                 )
-                .map_err(|cause| Error::CallMethod("MullvadVpnService.createTun", cause))?;
+                .map_err(|cause| Error::CallMethod("createTun", cause))?;
 
             match result {
                 JValue::Int(fd) => {
@@ -130,7 +134,7 @@ impl VpnServiceTunProvider {
                 }
                 value => {
                     return Err(Error::InvalidMethodResult(
-                        "MullvadVpnService.createTun",
+                        "createTun",
                         format!("{:?}", value),
                     ))
                 }
@@ -197,11 +201,9 @@ impl Tun for VpnServiceTun {
             .jvm
             .attach_current_thread()
             .map_err(|cause| BoxedError::new(Error::AttachJvmToThread(cause)))?;
-        let create_tun_method =
-            env.get_method_id(&self.class, "bypass", "(I)Z")
-                .map_err(|cause| {
-                    BoxedError::new(Error::FindMethod("MullvadVpnService.bypass", cause))
-                })?;
+        let create_tun_method = env
+            .get_method_id(&self.class, "bypass", "(I)Z")
+            .map_err(|cause| BoxedError::new(Error::FindMethod("bypass", cause)))?;
 
         let result = env
             .call_method_unchecked(
@@ -210,15 +212,13 @@ impl Tun for VpnServiceTun {
                 JavaType::Primitive(Primitive::Boolean),
                 &[JValue::Int(socket)],
             )
-            .map_err(|cause| {
-                BoxedError::new(Error::CallMethod("MullvadVpnService.bypass", cause))
-            })?;
+            .map_err(|cause| BoxedError::new(Error::CallMethod("bypass", cause)))?;
 
         match result {
             JValue::Bool(0) => Err(BoxedError::new(Error::Bypass)),
             JValue::Bool(_) => Ok(()),
             value => Err(BoxedError::new(Error::InvalidMethodResult(
-                "MullvadVpnService.bypass",
+                "bypass",
                 format!("{:?}", value),
             ))),
         }
