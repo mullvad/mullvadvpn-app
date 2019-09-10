@@ -2,15 +2,29 @@
 #include "winnet.h"
 #include "NetworkInterfaces.h"
 #include "interfaceutils.h"
-#include "libcommon/error.h"
 #include "netmonitor.h"
+#include "../../shared/logsinkadapter.h"
+#include <libcommon/error.h>
 #include <cstdint>
 #include <stdexcept>
+#include <memory>
 
 namespace
 {
 
 NetMonitor *g_NetMonitor = nullptr;
+
+void UnwindAndLog(MullvadLogSink logSink, void *logSinkContext, const std::exception &err)
+{
+	if (nullptr == logSink)
+	{
+		return;
+	}
+
+	auto logger = std::make_shared<shared::LogSinkAdapter>(logSink, logSinkContext);
+
+	common::error::UnwindException(err, logger);
+}
 
 } //anonymous namespace
 
@@ -20,28 +34,24 @@ WINNET_ETM_STATUS
 WINNET_API
 WinNet_EnsureTopMetric(
 	const wchar_t *deviceAlias,
-	WinNetErrorSink errorSink,
-	void *errorSinkContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 )
 {
 	try
 	{
 		NetworkInterfaces interfaces;
 		bool metrics_set = interfaces.SetTopMetricForInterfacesByAlias(deviceAlias);
-		return metrics_set ? WINNET_ETM_STATUS::METRIC_SET : WINNET_ETM_STATUS::METRIC_NO_CHANGE;
+		return metrics_set ? WINNET_ETM_STATUS_METRIC_SET : WINNET_ETM_STATUS_METRIC_NO_CHANGE;
 	}
-	catch (std::exception &err)
+	catch (const std::exception &err)
 	{
-		if (nullptr != errorSink)
-		{
-			errorSink(err.what(), errorSinkContext);
-		}
-
-		return WINNET_ETM_STATUS::FAILURE;
+		UnwindAndLog(logSink, logSinkContext, err);
+		return WINNET_ETM_STATUS_FAILURE;
 	}
 	catch (...)
 	{
-		return WINNET_ETM_STATUS::FAILURE;
+		return WINNET_ETM_STATUS_FAILURE;
 	}
 };
 
@@ -50,8 +60,8 @@ WINNET_LINKAGE
 WINNET_GTII_STATUS
 WINNET_API
 WinNet_GetTapInterfaceIpv6Status(
-	WinNetErrorSink errorSink,
-	void *errorSinkContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 )
 {
 	try
@@ -65,28 +75,24 @@ WinNet_GetTapInterfaceIpv6Status(
 
 		if (NO_ERROR == status)
 		{
-			return WINNET_GTII_STATUS::ENABLED;
+			return WINNET_GTII_STATUS_ENABLED;
 		}
 
 		if (ERROR_NOT_FOUND == status)
 		{
-			return WINNET_GTII_STATUS::DISABLED;
+			return WINNET_GTII_STATUS_DISABLED;
 		}
 
 		common::error::Throw("Resolve TAP IPv6 interface", status);
 	}
-	catch (std::exception &err)
+	catch (const std::exception &err)
 	{
-		if (nullptr != errorSink)
-		{
-			errorSink(err.what(), errorSinkContext);
-		}
-
-		return WINNET_GTII_STATUS::FAILURE;
+		UnwindAndLog(logSink, logSinkContext, err);
+		return WINNET_GTII_STATUS_FAILURE;
 	}
 	catch (...)
 	{
-		return WINNET_GTII_STATUS::FAILURE;
+		return WINNET_GTII_STATUS_FAILURE;
 	}
 }
 
@@ -96,8 +102,8 @@ bool
 WINNET_API
 WinNet_GetTapInterfaceAlias(
 	wchar_t **alias,
-	WinNetErrorSink errorSink,
-	void *errorSinkContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 )
 {
 	try
@@ -111,13 +117,9 @@ WinNet_GetTapInterfaceAlias(
 
 		return true;
 	}
-	catch (std::exception &err)
+	catch (const std::exception &err)
 	{
-		if (nullptr != errorSink)
-		{
-			errorSink(err.what(), errorSinkContext);
-		}
-
+		UnwindAndLog(logSink, logSinkContext, err);
 		return false;
 	}
 	catch (...)
@@ -151,8 +153,8 @@ WinNet_ActivateConnectivityMonitor(
 	WinNetConnectivityMonitorCallback callback,
 	void *callbackContext,
 	bool *currentConnectivity,
-	WinNetErrorSink errorSink,
-	void *errorSinkContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 )
 {
 	try
@@ -169,7 +171,9 @@ WinNet_ActivateConnectivityMonitor(
 
 		bool connected = false;
 
-		g_NetMonitor = new NetMonitor(forwarder, connected);
+		auto logger = std::make_shared<shared::LogSinkAdapter>(logSink, logSinkContext);
+
+		g_NetMonitor = new NetMonitor(logger, forwarder, connected);
 
 		if (nullptr != currentConnectivity)
 		{
@@ -178,13 +182,9 @@ WinNet_ActivateConnectivityMonitor(
 
 		return true;
 	}
-	catch (std::exception &err)
+	catch (const std::exception &err)
 	{
-		if (nullptr != errorSink)
-		{
-			errorSink(err.what(), errorSinkContext);
-		}
-
+		UnwindAndLog(logSink, logSinkContext, err);
 		return false;
 	}
 	catch (...)
@@ -215,25 +215,22 @@ WINNET_LINKAGE
 WINNET_CC_STATUS
 WINNET_API
 WinNet_CheckConnectivity(
-	WinNetErrorSink errorSink,
-	void *errorSinkContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 )
 {
 	try
 	{
-		return (NetMonitor::CheckConnectivity() ? WINNET_CC_STATUS::CONNECTED : WINNET_CC_STATUS::NOT_CONNECTED);
+		return (NetMonitor::CheckConnectivity(std::make_shared<shared::LogSinkAdapter>(logSink, logSinkContext))
+			? WINNET_CC_STATUS_CONNECTED : WINNET_CC_STATUS_NOT_CONNECTED);
 	}
-	catch (std::exception &err)
+	catch (const std::exception &err)
 	{
-		if (nullptr != errorSink)
-		{
-			errorSink(err.what(), errorSinkContext);
-		}
-
-		return WINNET_CC_STATUS::CONNECTIVITY_UNKNOWN;
+		UnwindAndLog(logSink, logSinkContext, err);
+		return WINNET_CC_STATUS_CONNECTIVITY_UNKNOWN;
 	}
 	catch (...)
 	{
-		return WINNET_CC_STATUS::CONNECTIVITY_UNKNOWN;
+		return WINNET_CC_STATUS_CONNECTIVITY_UNKNOWN;
 	}
 }
