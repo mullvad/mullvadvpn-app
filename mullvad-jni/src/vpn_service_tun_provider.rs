@@ -50,6 +50,7 @@ pub struct VpnServiceTunProvider {
     class: GlobalRef,
     object: GlobalRef,
     active_tun: Option<File>,
+    current_tun_config: Option<TunConfig>,
 }
 
 impl VpnServiceTunProvider {
@@ -66,18 +67,17 @@ impl VpnServiceTunProvider {
             class,
             object,
             active_tun: None,
+            current_tun_config: None,
         })
     }
 
     fn get_tun(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
-        let tun = self.create_tunnel(config)?;
+        let tun = self.prepare_tun(config)?;
         let tun_fd = unsafe { libc::dup(tun.as_raw_fd()) };
 
         if tun_fd < 0 {
             return Err(Error::DuplicateTunFd(io::Error::last_os_error()));
         }
-
-        self.active_tun = Some(tun);
 
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
@@ -88,6 +88,20 @@ impl VpnServiceTunProvider {
             class: self.class.clone(),
             object: self.object.clone(),
         })
+    }
+
+    fn prepare_tun(&mut self, config: TunConfig) -> Result<&File, Error> {
+        if self.active_tun.is_none() || self.current_tun_config.as_ref() != Some(&config) {
+            let tun = self.create_tunnel(config.clone())?;
+
+            self.active_tun = Some(tun);
+            self.current_tun_config = Some(config);
+        };
+
+        Ok(self
+            .active_tun
+            .as_ref()
+            .expect("Tunnel should be configured"))
     }
 
     fn create_tunnel(&mut self, config: TunConfig) -> Result<File, Error> {
