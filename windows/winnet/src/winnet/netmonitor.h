@@ -1,5 +1,7 @@
 #pragma once
 
+#include <libcommon/logging/ilogsink.h>
+#include <memory>
 #include <map>
 #include <string>
 #include <cstdint>
@@ -20,12 +22,15 @@ public:
 	//
 	using Notifier = std::function<void(bool)>;
 
-	NetMonitor(Notifier notifier, bool &currentConnectivity);
+	NetMonitor(std::shared_ptr<common::logging::ILogSink> logSink, Notifier notifier, bool &currentConnectivity);
 	~NetMonitor();
 
-	static bool CheckConnectivity();
+	static bool CheckConnectivity(std::shared_ptr<common::logging::ILogSink> logSink);
 
 private:
+
+	std::shared_ptr<common::logging::ILogSink> m_logSink;
+	Notifier m_notifier;
 
 	struct CacheEntry
 	{
@@ -44,7 +49,6 @@ private:
 	std::mutex m_processingMutex;
 	Cache m_cache;
 	bool m_connected;
-	Notifier m_notifier;
 
 	HANDLE m_notificationHandle;
 
@@ -55,4 +59,7 @@ private:
 	void updateConnectivity();
 
 	static void __stdcall Callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType);
+	void callback(MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType);
+
+	static void LogOfflineState(std::shared_ptr<common::logging::ILogSink> logSink);
 };
