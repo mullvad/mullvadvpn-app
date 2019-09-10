@@ -1,4 +1,5 @@
 use crate::{get_class, into_java::IntoJava};
+use ipnetwork::IpNetwork;
 use jni::{
     objects::{GlobalRef, JObject, JValue},
     signature::{JavaType, Primitive},
@@ -7,6 +8,7 @@ use jni::{
 use std::{
     fs::File,
     io,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::unix::io::{AsRawFd, FromRawFd, RawFd},
 };
 use talpid_core::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
@@ -50,7 +52,7 @@ pub struct VpnServiceTunProvider {
     class: GlobalRef,
     object: GlobalRef,
     active_tun: Option<File>,
-    last_tun_config: Option<TunConfig>,
+    last_tun_config: TunConfig,
 }
 
 impl VpnServiceTunProvider {
@@ -62,12 +64,27 @@ impl VpnServiceTunProvider {
             .new_global_ref(*mullvad_vpn_service)
             .map_err(Error::CreateGlobalReference)?;
 
+        // Initial configuration simply intercepts all packets. The only field that matters is
+        // `routes`, because it determines what must enter the tunnel. All other fields contain
+        // stub values.
+        let initial_tun_config = TunConfig {
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
+            dns_servers: Vec::new(),
+            routes: vec![
+                IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0)
+                    .expect("Invalid IP network prefix for IPv4 address"),
+                IpNetwork::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 0)
+                    .expect("Invalid IP network prefix for IPv6 address"),
+            ],
+            mtu: 1380,
+        };
+
         Ok(VpnServiceTunProvider {
             jvm,
             class,
             object,
             active_tun: None,
-            last_tun_config: None,
+            last_tun_config: initial_tun_config,
         })
     }
 
@@ -82,7 +99,7 @@ impl VpnServiceTunProvider {
     }
 
     fn prepare_tun(&mut self, config: TunConfig) -> Result<&File, Error> {
-        if self.active_tun.is_none() || self.last_tun_config.as_ref() != Some(&config) {
+        if self.active_tun.is_none() || self.last_tun_config != config {
             let env = self
                 .jvm
                 .attach_current_thread()
@@ -109,7 +126,7 @@ impl VpnServiceTunProvider {
                     let tun = unsafe { File::from_raw_fd(fd) };
 
                     self.active_tun = Some(tun);
-                    self.last_tun_config = Some(config);
+                    self.last_tun_config = config;
                 }
                 value => {
                     return Err(Error::InvalidMethodResult(
