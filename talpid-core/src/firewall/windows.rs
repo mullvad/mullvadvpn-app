@@ -55,7 +55,7 @@ impl FirewallT for Firewall {
                 WinFw_InitializeBlocked(
                     WINFW_TIMEOUT_SECONDS,
                     &cfg,
-                    Some(winnet::error_sink),
+                    Some(winnet::log_sink),
                     ptr::null_mut(),
                 )
                 .into_result()?
@@ -64,7 +64,7 @@ impl FirewallT for Firewall {
             unsafe {
                 WinFw_Initialize(
                     WINFW_TIMEOUT_SECONDS,
-                    Some(winnet::error_sink),
+                    Some(winnet::log_sink),
                     ptr::null_mut(),
                 )
                 .into_result()?
@@ -253,7 +253,7 @@ mod winfw {
         #[link_name = "WinFw_Initialize"]
         pub fn WinFw_Initialize(
             timeout: libc::c_uint,
-            sink: Option<winnet::ErrorSink>,
+            sink: Option<winnet::LogSink>,
             sink_context: *mut libc::c_void,
         ) -> InitializationResult;
 
@@ -261,7 +261,7 @@ mod winfw {
         pub fn WinFw_InitializeBlocked(
             timeout: libc::c_uint,
             settings: &WinFwSettings,
-            sink: Option<winnet::ErrorSink>,
+            sink: Option<winnet::LogSink>,
             sink_context: *mut libc::c_void,
         ) -> InitializationResult;
 

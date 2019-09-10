@@ -201,7 +201,7 @@ impl BroadcastListener {
             Some(Self::connectivity_callback),
             callback_context,
             &mut current_connectivity as *mut _,
-            Some(winnet::error_sink),
+            Some(winnet::log_sink),
             ptr::null_mut(),
         ) {
             return Err(Error::ConnectivityMonitorError);
