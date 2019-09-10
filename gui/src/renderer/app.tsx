@@ -335,21 +335,21 @@ export default class AppRenderer {
     const actions = this.reduxActions;
 
     if ('normal' in relaySettings) {
-      const normal = relaySettings.normal;
-      const tunnelProtocol = normal.tunnelProtocol;
-      const location = normal.location;
-      const relayLocation = location === 'any' ? 'any' : location.only;
+      const {
+        location,
+        openvpnConstraints,
+        wireguardConstraints,
+        tunnelProtocol,
+      } = relaySettings.normal;
 
-      const { port, protocol } = normal.openvpnConstraints;
-      const wireguardPort = normal.wireguardConstraints.port;
       actions.settings.updateRelay({
         normal: {
-          location: relayLocation,
+          location: liftConstraint(location),
           openvpn: {
-            port: port === 'any' ? port : port.only,
-            protocol: protocol === 'any' ? protocol : protocol.only,
+            port: liftConstraint(openvpnConstraints.port),
+            protocol: liftConstraint(openvpnConstraints.protocol),
           },
-          wireguard: { port: wireguardPort === 'any' ? wireguardPort : wireguardPort.only },
+          wireguard: { port: liftConstraint(wireguardConstraints.port) },
           tunnelProtocol: liftConstraint(tunnelProtocol),
         },
       });
