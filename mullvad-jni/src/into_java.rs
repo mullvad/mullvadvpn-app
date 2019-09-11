@@ -436,9 +436,10 @@ impl<'env> IntoJava<'env> for Relay {
         let parameters = [
             JValue::Object(hostname.as_obj()),
             JValue::Bool(has_wireguard_tunnels),
+            JValue::Bool(self.active as jboolean),
         ];
 
-        env.new_object(&class, "(Ljava/lang/String;Z)V", &parameters)
+        env.new_object(&class, "(Ljava/lang/String;ZZ)V", &parameters)
             .expect("Failed to create Relay Java object")
     }
 }
