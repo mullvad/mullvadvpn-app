@@ -29,7 +29,10 @@ class MullvadVpnService : VpnService() {
 
     override fun onCreate() {
         versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
+
         notificationManager.onCreate()
+        notificationManager.onQuit = { binder.stop() }
+
         created.complete(Unit)
     }
 
@@ -77,12 +80,16 @@ class MullvadVpnService : VpnService() {
         val connectionProxy
             get() = this@MullvadVpnService.connectionProxy
 
+        var onStop: (() -> Unit)? = null
+
         fun stop() {
             if (daemon.isCompleted) {
                 runBlocking { daemon.await().shutdown() }
             } else {
                 daemon.cancel()
             }
+
+            onStop?.invoke()
 
             stopSelf()
         }
