@@ -762,7 +762,7 @@ impl RelayListUpdater {
     }
 
     fn download_relay_list(&mut self) -> Result<RelayList, Error> {
-        let download_future = self.rpc_client.relay_list_v2().map_err(Error::Download);
+        let download_future = self.rpc_client.relay_list_v3().map_err(Error::Download);
         let relay_list = Timer::default()
             .timeout(download_future, DOWNLOAD_TIMEOUT)
             .wait()?;
