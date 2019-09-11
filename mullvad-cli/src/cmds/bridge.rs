@@ -353,6 +353,9 @@ impl Bridge {
                     "\t{} ({}) @ {:.5}°N, {:.5}°W",
                     city.name, city.code, city.latitude, city.longitude
                 );
+                for relay in &city.relays {
+                    println!("\t\t{} ({})", relay.hostname, relay.ipv4_addr_in);
+                }
             }
             println!();
         }

@@ -354,6 +354,20 @@ impl Relay {
                     "\t{} ({}) @ {:.5}°N, {:.5}°W",
                     city.name, city.code, city.latitude, city.longitude
                 );
+                for relay in &city.relays {
+                    let supports_openvpn = !relay.tunnels.openvpn.is_empty();
+                    let supports_wireguard = !relay.tunnels.wireguard.is_empty();
+                    let support_msg = match (supports_openvpn, supports_wireguard) {
+                        (true, true) => "OpenVPN and WireGuard",
+                        (true, false) => "OpenVPN",
+                        (false, true) => "WireGuard",
+                        _ => unreachable!("Bug in relay filtering earlier on"),
+                    };
+                    println!(
+                        "\t\t{} ({}) - {}",
+                        relay.hostname, relay.ipv4_addr_in, support_msg
+                    );
+                }
             }
             println!();
         }
