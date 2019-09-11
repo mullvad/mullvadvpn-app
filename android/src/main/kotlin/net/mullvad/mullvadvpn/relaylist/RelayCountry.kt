@@ -11,6 +11,9 @@ class RelayCountry(
     override val type = RelayItemType.Country
     override val location = LocationConstraint.Country(code)
 
+    override val active
+        get() = cities.any { city -> city.active }
+
     override val hasChildren
         get() = getRelayCount() > 1
 

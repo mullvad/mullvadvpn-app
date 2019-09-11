@@ -12,6 +12,9 @@ class RelayCity(
     override val type = RelayItemType.City
     override val location = LocationConstraint.City(country.code, code)
 
+    override val active
+        get() = relays.any { relay -> relay.active }
+
     override val hasChildren
         get() = relays.size > 1
 
