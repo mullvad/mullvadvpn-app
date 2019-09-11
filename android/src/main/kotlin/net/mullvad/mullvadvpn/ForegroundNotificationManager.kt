@@ -5,8 +5,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.support.v4.app.NotificationCompat
 
@@ -16,6 +18,8 @@ import net.mullvad.mullvadvpn.model.TunnelState
 
 val CHANNEL_ID = "vpn_tunnel_status"
 val FOREGROUND_NOTIFICATION_ID: Int = 1
+val KEY_QUIT_ACTION = "quit_action"
+val PERMISSION_QUIT_APP = "net.mullvad.mullvadvpn.permission.QUIT_APP"
 
 class ForegroundNotificationManager(val service: Service, val connectionProxy: ConnectionProxy) {
     private var listenerId: Int? = null
@@ -60,6 +64,14 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             }
         }
 
+    private val quitReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            onQuit?.invoke()
+        }
+    }
+
+    var onQuit: (() -> Unit)? = null
+
     fun onCreate() {
         notificationManager =
             service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -72,7 +84,10 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             initChannel()
         }
 
-        service.startForeground(FOREGROUND_NOTIFICATION_ID, buildNotification())
+        service.apply {
+            registerReceiver(quitReceiver, IntentFilter(KEY_QUIT_ACTION), PERMISSION_QUIT_APP, null)
+            startForeground(FOREGROUND_NOTIFICATION_ID, buildNotification())
+        }
     }
 
     fun onDestroy() {
@@ -80,6 +95,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             connectionProxy.onUiStateChange.unsubscribe(listener)
         }
 
+        service.unregisterReceiver(quitReceiver)
         service.stopForeground(FOREGROUND_NOTIFICATION_ID)
     }
 
@@ -113,6 +129,18 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             .setColor(service.getColor(R.color.colorPrimary))
             .setContentTitle(service.getString(notificationText))
             .setContentIntent(pendingIntent)
+            .addAction(buildQuitAction())
             .build()
+    }
+
+    private fun buildQuitAction(): NotificationCompat.Action {
+        val intent = Intent(KEY_QUIT_ACTION).setPackage("net.mullvad.mullvadvpn")
+        val pendingIntent =
+            PendingIntent.getBroadcast(service, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val icon = R.drawable.icon_notification_quit
+        val label = service.getString(R.string.quit)
+
+        return NotificationCompat.Action(icon, label, pendingIntent)
     }
 }
