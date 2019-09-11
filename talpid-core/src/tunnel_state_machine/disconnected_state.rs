@@ -40,6 +40,9 @@ impl TunnelState for DisconnectedState {
         _: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         Self::set_firewall_policy(shared_values);
+        #[cfg(target_os = "android")]
+        shared_values.tun_provider.close_tun();
+
         (
             TunnelStateWrapper::from(DisconnectedState),
             TunnelStateTransition::Disconnected,

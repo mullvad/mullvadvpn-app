@@ -145,7 +145,7 @@ impl TunnelMonitor {
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
-        tun_provider: &dyn TunProvider,
+        tun_provider: &mut dyn TunProvider,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Clone + Sync + 'static,
@@ -175,7 +175,7 @@ impl TunnelMonitor {
         params: &wireguard_types::TunnelParameters,
         log: Option<PathBuf>,
         on_event: L,
-        tun_provider: &dyn TunProvider,
+        tun_provider: &mut dyn TunProvider,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + Clone + 'static,

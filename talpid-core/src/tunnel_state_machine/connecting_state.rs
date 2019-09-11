@@ -15,7 +15,7 @@ use futures::{
 };
 use log::{debug, error, info, trace, warn};
 use std::{
-    borrow::Borrow,
+    borrow::BorrowMut,
     net::IpAddr,
     path::{Path, PathBuf},
     thread,
@@ -64,7 +64,7 @@ impl ConnectingState {
         parameters: TunnelParameters,
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
-        tun_provider: &dyn TunProvider,
+        tun_provider: &mut dyn TunProvider,
         retry_attempt: u32,
     ) -> crate::tunnel::Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
@@ -350,7 +350,7 @@ impl TunnelState for ConnectingState {
                         tunnel_parameters,
                         &shared_values.log_dir,
                         &shared_values.resource_dir,
-                        shared_values.tun_provider.borrow(),
+                        shared_values.tun_provider.borrow_mut(),
                         retry_attempt,
                     ) {
                         Ok(connecting_state) => {
