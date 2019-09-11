@@ -19,7 +19,7 @@ class RelayList {
                     val validCityRelays = city.relays.filter { relay -> relay.hasWireguardTunnels }
 
                     for (relay in validCityRelays) {
-                        relays.add(Relay(relayCity, relay.hostname))
+                        relays.add(Relay(relayCity, relay.hostname, relay.active))
                     }
 
                     if (relays.isNotEmpty()) {
