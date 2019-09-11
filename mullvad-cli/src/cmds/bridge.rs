@@ -323,7 +323,7 @@ impl Bridge {
                     .cities
                     .into_iter()
                     .filter_map(|mut city| {
-                        city.relays.retain(|relay| !relay.bridges.is_empty());
+                        city.relays.retain(|relay| relay.active && !relay.bridges.is_empty());
                         if !city.relays.is_empty() {
                             Some(city)
                         } else {
@@ -339,6 +339,7 @@ impl Bridge {
             })
             .collect();
 
+        locations.countries.sort_by(|c1, c2| c1.name.cmp(&c2.name));
         for mut country in locations.countries {
             country.cities.sort_by(|c1, c2| c1.name.cmp(&c2.name));
             println!("{} ({})", country.name, country.code);
