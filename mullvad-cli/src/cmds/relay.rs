@@ -349,7 +349,9 @@ impl Relay {
                 .cities
                 .sort_by(|c1, c2| c1.name.to_lowercase().cmp(&c2.name.to_lowercase()));
             println!("{} ({})", country.name, country.code);
-            for city in &country.cities {
+            for mut city in country.cities {
+                city.relays
+                    .sort_by(|r1, r2| r1.hostname.to_lowercase().cmp(&r2.hostname.to_lowercase()));
                 println!(
                     "\t{} ({}) @ {:.5}°N, {:.5}°W",
                     city.name, city.code, city.latitude, city.longitude
