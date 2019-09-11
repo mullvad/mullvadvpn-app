@@ -710,6 +710,7 @@ impl RelayListUpdater {
         debug!("Starting relay list updater thread");
         while self.wait_for_next_iteration() {
             if self.should_update() {
+                continue;
                 match self.update() {
                     Ok(()) => info!("Updated list of relays"),
                     Err(error) => error!("{}", error.display_chain()),
