@@ -321,6 +321,7 @@ impl RelaySelector {
             .lock()
             .relays()
             .iter()
+            .filter(|relay| relay.active)
             .filter_map(|relay| Self::matching_bridge_relay(relay, constraints))
             .collect();
 
@@ -349,6 +350,7 @@ impl RelaySelector {
             .lock()
             .relays()
             .iter()
+            .filter(|relay| relay.active)
             .filter_map(|relay| Self::matching_relay(relay, constraints))
             .collect();
 
@@ -495,6 +497,7 @@ impl RelaySelector {
             .cloned()
             .collect()
     }
+
     /// Pick a random relay from the given slice. Will return `None` if the given slice is empty
     /// or all relays in it has zero weight.
     fn pick_random_relay<'a>(&mut self, relays: &'a [Relay]) -> Option<&'a Relay> {
