@@ -95,6 +95,7 @@ const styles = {
       base: Styles.createButtonStyle({
         cursor: 'default',
         flex: 1,
+        flexBasis: 0,
         paddingHorizontal: 8,
         paddingVertical: 4,
       }),
