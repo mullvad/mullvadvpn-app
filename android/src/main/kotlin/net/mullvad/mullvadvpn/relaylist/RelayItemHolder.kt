@@ -50,6 +50,12 @@ class RelayItemHolder(
         if (item != null) {
             name.text = item.name
 
+            if (item.active) {
+                name.alpha = 1.0F
+            } else {
+                name.alpha = 0.5F
+            }
+
             if (selected) {
                 relayActive.visibility = View.INVISIBLE
                 selectedIcon.visibility = View.VISIBLE
