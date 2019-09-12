@@ -5,6 +5,7 @@ import java.net.InetAddress
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 
@@ -21,6 +22,8 @@ class MullvadVpnService : VpnService() {
     private val binder = LocalBinder()
     private val created = CompletableDeferred<Unit>()
 
+    private var resetComplete: CompletableDeferred<Unit>? = null
+
     private lateinit var daemon: Deferred<MullvadDaemon>
     private lateinit var connectionProxy: ConnectionProxy
     private lateinit var notificationManager: ForegroundNotificationManager
@@ -33,6 +36,18 @@ class MullvadVpnService : VpnService() {
 
     override fun onBind(intent: Intent): IBinder {
         return super.onBind(intent) ?: binder
+    }
+
+    override fun onRebind(intent: Intent) {
+        resetComplete?.let { reset ->
+            tearDown()
+            setUp()
+            reset.complete(Unit)
+        }
+    }
+
+    override fun onUnbind(intent: Intent): Boolean {
+        return true
     }
 
     override fun onDestroy() {
@@ -72,6 +87,8 @@ class MullvadVpnService : VpnService() {
             get() = this@MullvadVpnService.daemon
         val connectionProxy
             get() = this@MullvadVpnService.connectionProxy
+        val resetComplete
+            get() = this@MullvadVpnService.resetComplete
 
         fun stop() {
             this@MullvadVpnService.stop()
