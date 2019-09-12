@@ -13,7 +13,7 @@ derive_more = "0.14"
 duct = "0.12"
 err-derive = "0.1.5"
 futures = "0.1"
-ipnetwork = "0.14"
+ipnetwork = "0.15"
 jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 libc = "0.2.20"

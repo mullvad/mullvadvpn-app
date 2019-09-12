@@ -19,7 +19,7 @@ clap = "2.25"
 err-derive = "0.1.5"
 fern = { version = "0.5", features = ["colored"] }
 futures = "0.1"
-ipnetwork = "0.14"
+ipnetwork = "0.15"
 jsonrpc-client-core = "0.5"
 jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 jsonrpc-ipc-server = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }

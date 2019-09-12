@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 err-derive = "0.1.5"
-ipnetwork = { git = "https://github.com/mullvad/ipnetwork", branch = "fix-deserialization" }
+ipnetwork = "0.15"
 lazy_static = "1.1.0"
 log = "0.4"
 regex = "1"
