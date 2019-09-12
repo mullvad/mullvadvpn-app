@@ -948,9 +948,18 @@ class ApplicationMain {
     IpcMainEventChannel.settings.handleBlockWhenDisconnected((blockWhenDisconnected: boolean) =>
       this.daemonRpc.setBlockWhenDisconnected(blockWhenDisconnected),
     );
-    IpcMainEventChannel.settings.handleBridgeState((bridgeState: BridgeState) =>
-      this.daemonRpc.setBridgeState(bridgeState),
-    );
+    IpcMainEventChannel.settings.handleBridgeState(async (bridgeState: BridgeState) => {
+      await this.daemonRpc.setBridgeState(bridgeState);
+
+      // Reset bridge constraints to `any` when the state is set to auto or off
+      if (bridgeState === 'auto' || bridgeState === 'off') {
+        await this.daemonRpc.setBridgeSettings({
+          normal: {
+            location: 'any',
+          },
+        });
+      }
+    });
     IpcMainEventChannel.settings.handleOpenVpnMssfix((mssfix?: number) =>
       this.daemonRpc.setOpenVpnMssfix(mssfix),
     );
