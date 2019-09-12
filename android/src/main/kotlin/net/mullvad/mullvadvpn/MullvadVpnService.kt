@@ -74,13 +74,7 @@ class MullvadVpnService : VpnService() {
             get() = this@MullvadVpnService.connectionProxy
 
         fun stop() {
-            if (daemon.isCompleted) {
-                runBlocking { daemon.await().shutdown() }
-            } else {
-                daemon.cancel()
-            }
-
-            stopSelf()
+            this@MullvadVpnService.stop()
         }
     }
 
@@ -95,6 +89,18 @@ class MullvadVpnService : VpnService() {
         created.await()
         ApiRootCaFile().extract(application)
         MullvadDaemon(this@MullvadVpnService)
+    }
+
+    private fun stop() {
+        this@MullvadVpnService.resetComplete = CompletableDeferred()
+
+        if (daemon.isCompleted) {
+            runBlocking { daemon.await().shutdown() }
+        } else {
+            daemon.cancel()
+        }
+
+        stopSelf()
     }
 
     private fun tearDown() {
