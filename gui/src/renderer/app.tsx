@@ -550,7 +550,7 @@ export default class AppRenderer {
     this.reduxActions.connection.newLocation(location);
   }
 
-  private covertRelayListToLocationList(relayList: IRelayList): IRelayLocationRedux[] {
+  private convertRelayListToLocationList(relayList: IRelayList): IRelayLocationRedux[] {
     return relayList.countries
       .map((country) => ({
         name: country.name,
@@ -573,13 +573,13 @@ export default class AppRenderer {
   }
 
   private setRelays(relayList: IRelayList) {
-    const locations = this.covertRelayListToLocationList(relayList);
+    const locations = this.convertRelayListToLocationList(relayList);
 
     this.reduxActions.settings.updateRelayLocations(locations);
   }
 
   private setBridges(relayList: IRelayList) {
-    const locations = this.covertRelayListToLocationList(relayList);
+    const locations = this.convertRelayListToLocationList(relayList);
 
     this.reduxActions.settings.updateBridgeLocations(locations);
   }
