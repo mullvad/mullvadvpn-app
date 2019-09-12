@@ -198,6 +198,7 @@ export interface IRelayListHostname {
   hostname: string;
   ipv4AddrIn: string;
   includeInCountry: boolean;
+  active: boolean;
   weight: number;
   tunnels?: IRelayTunnels;
   bridges?: IRelayBridges;

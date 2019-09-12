@@ -84,6 +84,7 @@ export default class LocationList extends Component<IProps, IState> {
                       return (
                         <RelayRow
                           key={getLocationKey(relayLocation)}
+                          active={relay.active}
                           hostname={relay.hostname}
                           onSelect={this.handleSelection}
                           {...this.getCommonCellProps(relayLocation)}
