@@ -18,11 +18,15 @@ val CHANNEL_ID = "vpn_tunnel_status"
 val FOREGROUND_NOTIFICATION_ID: Int = 1
 
 class ForegroundNotificationManager(val service: Service, val connectionProxy: ConnectionProxy) {
-    private var listenerId: Int? = null
+    private val notificationManager =
+        service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+    private val listenerId = connectionProxy.onUiStateChange.subscribe { uiState ->
+        tunnelState = uiState
+    }
+
     private var reconnecting = false
     private var showingReconnecting = false
-
-    private lateinit var notificationManager: NotificationManager
 
     private var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
@@ -60,14 +64,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             }
         }
 
-    fun onCreate() {
-        notificationManager =
-            service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        listenerId = connectionProxy.onUiStateChange.subscribe { uiState ->
-            tunnelState = uiState
-        }
-
+    init {
         if (Build.VERSION.SDK_INT >= 26) {
             initChannel()
         }
