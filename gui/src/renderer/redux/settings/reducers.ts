@@ -2,6 +2,8 @@ import log from 'electron-log';
 import {
   BridgeState,
   KeygenEvent,
+  LiftedConstraint,
+  ProxySettings,
   RelayLocation,
   RelayProtocol,
   TunnelProtocol,
@@ -12,14 +14,14 @@ import { ReduxAction } from '../store';
 export type RelaySettingsRedux =
   | {
       normal: {
-        tunnelProtocol: 'any' | TunnelProtocol;
-        location: 'any' | RelayLocation;
+        tunnelProtocol: LiftedConstraint<TunnelProtocol>;
+        location: LiftedConstraint<RelayLocation>;
         openvpn: {
-          port: 'any' | number;
-          protocol: 'any' | RelayProtocol;
+          port: LiftedConstraint<number>;
+          protocol: LiftedConstraint<RelayProtocol>;
         };
         wireguard: {
-          port: 'any' | number;
+          port: LiftedConstraint<number>;
         };
       };
     }
@@ -29,6 +31,16 @@ export type RelaySettingsRedux =
         port: number;
         protocol: RelayProtocol;
       };
+    };
+
+export type BridgeSettingsRedux =
+  | {
+      normal: {
+        location: LiftedConstraint<RelayLocation>;
+      };
+    }
+  | {
+      custom: ProxySettings;
     };
 
 export interface IRelayLocationRelayRedux {
@@ -107,8 +119,10 @@ export interface ISettingsReduxState {
   guiSettings: IGuiSettingsState;
   relaySettings: RelaySettingsRedux;
   relayLocations: IRelayLocationRedux[];
+  bridgeLocations: IRelayLocationRedux[];
   allowLan: boolean;
   enableIpv6: boolean;
+  bridgeSettings: BridgeSettingsRedux;
   bridgeState: BridgeState;
   blockWhenDisconnected: boolean;
   openVpn: {
@@ -137,8 +151,14 @@ const initialState: ISettingsReduxState = {
     },
   },
   relayLocations: [],
+  bridgeLocations: [],
   allowLan: false,
   enableIpv6: true,
+  bridgeSettings: {
+    normal: {
+      location: 'any',
+    },
+  },
   bridgeState: 'auto',
   blockWhenDisconnected: false,
   openVpn: {},
@@ -168,6 +188,12 @@ export default function(
       return {
         ...state,
         relayLocations: action.relayLocations,
+      };
+
+    case 'UPDATE_BRIDGE_LOCATIONS':
+      return {
+        ...state,
+        bridgeLocations: action.bridgeLocations,
       };
 
     case 'UPDATE_ALLOW_LAN':
@@ -201,6 +227,12 @@ export default function(
       return {
         ...state,
         autoStart: action.autoStart,
+      };
+
+    case 'UPDATE_BRIDGE_SETTINGS':
+      return {
+        ...state,
+        bridgeSettings: action.bridgeSettings,
       };
 
     case 'UPDATE_BRIDGE_STATE':

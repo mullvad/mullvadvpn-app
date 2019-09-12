@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add ability to replace the WireGuard key with a new one. Allows manual key rotation.
 - Show age of currently set WireGuard key.
+- Add bridge selection under "Select location" view, when the bridge mode is explicitly set to "on".
 
 ### Changed
 - Decreased default MTU for WireGuard to 1380 to improve performance over 4G

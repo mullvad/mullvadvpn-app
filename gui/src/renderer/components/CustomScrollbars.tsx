@@ -56,6 +56,13 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
   private thumbRef = React.createRef<HTMLDivElement>();
   private autoHideTimer?: NodeJS.Timeout;
 
+  public scrollToTop() {
+    const scrollable = this.scrollableRef.current;
+    if (scrollable) {
+      scrollable.scrollTop = 0;
+    }
+  }
+
   public scrollTo(x: number, y: number) {
     const scrollable = this.scrollableRef.current;
     if (scrollable) {

@@ -1,3 +1,5 @@
+import { LocationScope } from './reducers';
+
 export interface IUpdateWindowArrowPositionAction {
   type: 'UPDATE_WINDOW_ARROW_POSITION';
   arrowPosition: number;
@@ -7,9 +9,15 @@ export interface IUpdateConnectionInfoOpenAction {
   type: 'TOGGLE_CONNECTION_PANEL';
 }
 
+export interface ISetLocationScopeAction {
+  type: 'SET_LOCATION_SCOPE';
+  scope: LocationScope;
+}
+
 export type UserInterfaceAction =
   | IUpdateWindowArrowPositionAction
-  | IUpdateConnectionInfoOpenAction;
+  | IUpdateConnectionInfoOpenAction
+  | ISetLocationScopeAction;
 
 function updateWindowArrowPosition(arrowPosition: number): IUpdateWindowArrowPositionAction {
   return {
@@ -24,4 +32,11 @@ function toggleConnectionPanel(): IUpdateConnectionInfoOpenAction {
   };
 }
 
-export default { updateWindowArrowPosition, toggleConnectionPanel };
+function setLocationScope(scope: LocationScope): ISetLocationScopeAction {
+  return {
+    type: 'SET_LOCATION_SCOPE',
+    scope,
+  };
+}
+
+export default { updateWindowArrowPosition, toggleConnectionPanel, setLocationScope };

@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as uuid from 'uuid';
 import {
   AccountToken,
+  BridgeSettings,
   BridgeState,
   DaemonEvent,
   IAccountData,
@@ -16,6 +17,7 @@ import {
   ISettings,
   IWireguardPublicKey,
   KeygenEvent,
+  RelayLocation,
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -427,7 +429,11 @@ class ApplicationMain {
 
     // fetch relays
     try {
-      this.setRelays(await this.daemonRpc.getRelayLocations(), this.settings.relaySettings);
+      this.setRelays(
+        await this.daemonRpc.getRelayLocations(),
+        this.settings.relaySettings,
+        this.settings.bridgeState,
+      );
     } catch (error) {
       log.error(`Failed to fetch relay locations: ${error.message}`);
 
@@ -533,7 +539,11 @@ class ApplicationMain {
         } else if ('settings' in daemonEvent) {
           this.setSettings(daemonEvent.settings);
         } else if ('relayList' in daemonEvent) {
-          this.setRelays(daemonEvent.relayList, this.settings.relaySettings);
+          this.setRelays(
+            daemonEvent.relayList,
+            this.settings.relaySettings,
+            this.settings.bridgeState,
+          );
         } else if ('wireguardKey' in daemonEvent) {
           this.handleWireguardKeygenEvent(daemonEvent.wireguardKey);
         }
@@ -620,7 +630,7 @@ class ApplicationMain {
 
     // since settings can have the relay constraints changed, the relay
     // list should also be updated
-    this.setRelays(this.relays, newSettings.relaySettings);
+    this.setRelays(this.relays, newSettings.relaySettings, newSettings.bridgeState);
   }
 
   private setLocation(newLocation: ILocation) {
@@ -631,16 +641,24 @@ class ApplicationMain {
     }
   }
 
-  private setRelays(newRelayList: IRelayList, relaySettings: RelaySettings) {
+  private setRelays(
+    newRelayList: IRelayList,
+    relaySettings: RelaySettings,
+    bridgeState: BridgeState,
+  ) {
     this.relays = newRelayList;
+
     const filteredRelays = this.processRelaysForPresentation(newRelayList, relaySettings);
+    const filteredBridges = this.processBridgesForPresentation(newRelayList, bridgeState);
 
     if (this.windowController) {
-      IpcMainEventChannel.relays.notify(this.windowController.webContents, filteredRelays);
+      IpcMainEventChannel.relays.notify(this.windowController.webContents, {
+        relays: filteredRelays,
+        bridges: filteredBridges,
+      });
     }
   }
 
-  //
   private processRelaysForPresentation(
     relayList: IRelayList,
     relaySettings: RelaySettings,
@@ -672,20 +690,39 @@ class ApplicationMain {
     }
 
     return {
-      countries: relayList.countries.map((country) => {
-        return {
+      countries: relayList.countries.map((country) => ({
+        ...country,
+        cities: country.cities
+          .map((city) => ({
+            ...city,
+            relays: city.relays.filter(fnHasWantedTunnels),
+          }))
+          .filter((city) => city.relays.length > 0),
+      })),
+    };
+  }
+
+  private processBridgesForPresentation(
+    relayList: IRelayList,
+    bridgeState: BridgeState,
+  ): IRelayList {
+    if (bridgeState === 'on') {
+      const filteredCountries = relayList.countries
+        .map((country) => ({
           ...country,
           cities: country.cities
-            .map((city) => {
-              return {
-                ...city,
-                relays: city.relays.filter(fnHasWantedTunnels),
-              };
-            })
+            .map((city) => ({
+              ...city,
+              relays: city.relays.filter((relay) => relay.bridges),
+            }))
             .filter((city) => city.relays.length > 0),
-        };
-      }),
-    };
+        }))
+        .filter((country) => country.cities.length > 0);
+
+      return { countries: filteredCountries };
+    } else {
+      return { countries: [] };
+    }
   }
 
   private setDaemonVersion(daemonVersion: string) {
@@ -893,6 +930,7 @@ class ApplicationMain {
       settings: this.settings,
       location: this.location,
       relays: this.processRelaysForPresentation(this.relays, this.settings.relaySettings),
+      bridges: this.processBridgesForPresentation(this.relays, this.settings.bridgeState),
       currentVersion: this.currentVersion,
       upgradeVersion: this.upgradeVersion,
       guiSettings: this.guiSettings.state,
@@ -917,7 +955,15 @@ class ApplicationMain {
     IpcMainEventChannel.settings.handleUpdateRelaySettings((update: RelaySettingsUpdate) =>
       this.daemonRpc.updateRelaySettings(update),
     );
+    IpcMainEventChannel.settings.handleUpdateBridgeLocation((location: RelayLocation) => {
+      const bridgeSettings: BridgeSettings = {
+        normal: {
+          location: { only: location },
+        },
+      };
 
+      return this.daemonRpc.setBridgeSettings(bridgeSettings);
+    });
     IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {
       return this.setAutoStart(autoStart);
     });

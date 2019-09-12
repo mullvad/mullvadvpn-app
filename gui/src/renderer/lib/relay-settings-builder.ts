@@ -1,6 +1,8 @@
 import {
+  Constraint,
   IOpenVpnConstraints,
   IWireguardConstraints,
+  LiftedConstraint,
   RelayLocation,
   RelayProtocol,
   RelaySettingsNormalUpdate,
@@ -13,7 +15,7 @@ interface ILocationBuilder<Self> {
   city: (country: string, city: string) => Self;
   hostname: (country: string, city: string, hostname: string) => Self;
   any: () => Self;
-  fromRaw: (location: 'any' | RelayLocation) => Self;
+  fromRaw: (location: LiftedConstraint<RelayLocation>) => Self;
 }
 
 interface IExactOrAny<T, Self> {
@@ -73,7 +75,7 @@ class NormalRelaySettingsBuilder {
         this.payload.location = 'any';
         return this;
       },
-      fromRaw(location: 'any' | RelayLocation) {
+      fromRaw(location: LiftedConstraint<RelayLocation>) {
         if (location === 'any') {
           return this.any();
         } else if ('hostname' in location) {
@@ -118,7 +120,7 @@ class NormalRelaySettingsBuilder {
       }
     };
 
-    const updateTunnelProtocol = (next: { only: TunnelProtocol } | 'any' | undefined) => {
+    const updateTunnelProtocol = (next?: Constraint<TunnelProtocol>) => {
       this.payload.tunnelProtocol = next;
     };
 
@@ -126,7 +128,7 @@ class NormalRelaySettingsBuilder {
       openvpn: (configurator: (configurator: IOpenVPNConfigurator) => void) => {
         const openvpnBuilder: IOpenVPNConfigurator = {
           get port() {
-            const apply = (port: 'any' | { only: number }) => {
+            const apply = (port: Constraint<number>) => {
               updateOpenvpn({ port });
               return this;
             };
@@ -136,7 +138,7 @@ class NormalRelaySettingsBuilder {
             };
           },
           get protocol() {
-            const apply = (protocol: 'any' | { only: RelayProtocol }) => {
+            const apply = (protocol: Constraint<RelayProtocol>) => {
               updateOpenvpn({ protocol });
               return this;
             };
@@ -155,7 +157,7 @@ class NormalRelaySettingsBuilder {
       wireguard: (configurator: (configurator: IWireguardConfigurator) => void) => {
         const wireguardBuilder: IWireguardConfigurator = {
           get port() {
-            const apply = (port: 'any' | { only: number }) => {
+            const apply = (port: Constraint<number>) => {
               updateWireguard({ port });
               return this;
             };

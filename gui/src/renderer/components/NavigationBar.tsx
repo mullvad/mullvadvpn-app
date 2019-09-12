@@ -95,6 +95,7 @@ const styles = {
       base: Styles.createButtonStyle({
         cursor: 'default',
         flex: 1,
+        flexBasis: 0,
         paddingHorizontal: 8,
         paddingVertical: 4,
       }),
@@ -188,7 +189,7 @@ export class NavigationContainer extends Component {
     const showsBarSeparator = event.scrollTop > 11 && !hasSticky;
 
     // that's when SettingsHeader.HeaderTitle goes behind the navigation bar
-    const showsBarTitle = event.scrollTop > 39;
+    const showsBarTitle = event.scrollTop > 20;
 
     if (
       this.state.showsBarSeparator !== showsBarSeparator ||

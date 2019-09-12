@@ -50,11 +50,11 @@ export function tunnelTypeToString(tunnel: TunnelType): string {
 
 export type RelayProtocol = 'tcp' | 'udp';
 
-export function liftConstraint<T>(constraint: 'any' | { only: T }): 'any' | T {
-  if (constraint === 'any') {
-    return 'any';
-  }
-  return constraint.only;
+export type Constraint<T> = 'any' | { only: T };
+export type LiftedConstraint<T> = 'any' | T;
+
+export function liftConstraint<T>(constraint: Constraint<T>): LiftedConstraint<T> {
+  return constraint === 'any' ? constraint : constraint.only;
 }
 
 export type ProxyType = 'shadowsocks' | 'custom';
@@ -106,27 +106,19 @@ export type RelayLocation =
   | { country: string };
 
 export interface IOpenVpnConstraints {
-  port: 'any' | { only: number };
-  protocol: 'any' | { only: RelayProtocol };
+  port: Constraint<number>;
+  protocol: Constraint<RelayProtocol>;
 }
 
 export interface IWireguardConstraints {
-  port: 'any' | { only: number };
+  port: Constraint<number>;
 }
 
 export type TunnelProtocol = 'wireguard' | 'openvpn';
 
 interface IRelaySettingsNormal<OpenVpn, Wireguard> {
-  location:
-    | 'any'
-    | {
-        only: RelayLocation;
-      };
-  tunnelProtocol:
-    | 'any'
-    | {
-        only: TunnelProtocol;
-      };
+  location: Constraint<RelayLocation>;
+  tunnelProtocol: Constraint<TunnelProtocol>;
   openvpnConstraints: OpenVpn;
   wireguardConstraints: Wireguard;
 }
@@ -311,11 +303,7 @@ export interface IWireguardPublicKey {
 export type BridgeState = 'auto' | 'on' | 'off';
 
 export interface IBridgeConstraints {
-  location:
-    | 'any'
-    | {
-        only: RelayLocation;
-      };
+  location: Constraint<RelayLocation>;
 }
 
 export type BridgeSettings = { normal: IBridgeConstraints } | { custom: ProxySettings };
@@ -339,17 +327,22 @@ export function parseSocketAddress(socketAddrStr: string): ISocketAddress {
   return socketAddress;
 }
 
-export function compareRelayLocation(lhs: RelayLocation, rhs: RelayLocation) {
-  if ('country' in lhs && 'country' in rhs && lhs.country && rhs.country) {
-    return lhs.country === rhs.country;
-  } else if ('city' in lhs && 'city' in rhs && lhs.city && rhs.city) {
-    return lhs.city[0] === rhs.city[0] && lhs.city[1] === rhs.city[1];
-  } else if ('hostname' in lhs && 'hostname' in rhs && lhs.hostname && rhs.hostname) {
-    return (
-      lhs.hostname[0] === rhs.hostname[0] &&
-      lhs.hostname[1] === rhs.hostname[1] &&
-      lhs.hostname[2] === rhs.hostname[2]
-    );
+export function relayLocationComponents(location: RelayLocation): string[] {
+  if ('country' in location) {
+    return [location.country];
+  } else if ('city' in location) {
+    return location.city;
+  } else {
+    return location.hostname;
+  }
+}
+
+export function compareRelayLocation(lhs: RelayLocation, rhs: RelayLocation): boolean {
+  const lhsComponents = relayLocationComponents(lhs);
+  const rhsComponents = relayLocationComponents(rhs);
+
+  if (lhsComponents.length === rhsComponents.length) {
+    return lhsComponents.every((value, index) => value === rhsComponents[index]);
   } else {
     return false;
   }

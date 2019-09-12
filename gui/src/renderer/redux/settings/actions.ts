@@ -1,6 +1,6 @@
 import { BridgeState, IWireguardPublicKey, KeygenEvent } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
-import { IRelayLocationRedux, IWgKey, RelaySettingsRedux } from './reducers';
+import { BridgeSettingsRedux, IRelayLocationRedux, IWgKey, RelaySettingsRedux } from './reducers';
 
 export interface IUpdateGuiSettingsAction {
   type: 'UPDATE_GUI_SETTINGS';
@@ -17,6 +17,11 @@ export interface IUpdateRelayLocationsAction {
   relayLocations: IRelayLocationRedux[];
 }
 
+export interface IUpdateBridgeLocationsAction {
+  type: 'UPDATE_BRIDGE_LOCATIONS';
+  bridgeLocations: IRelayLocationRedux[];
+}
+
 export interface IUpdateAllowLanAction {
   type: 'UPDATE_ALLOW_LAN';
   allowLan: boolean;
@@ -30,6 +35,11 @@ export interface IUpdateEnableIpv6Action {
 export interface IUpdateBlockWhenDisconnectedAction {
   type: 'UPDATE_BLOCK_WHEN_DISCONNECTED';
   blockWhenDisconnected: boolean;
+}
+
+export interface IUpdateBridgeSettingsAction {
+  type: 'UPDATE_BRIDGE_SETTINGS';
+  bridgeSettings: BridgeSettingsRedux;
 }
 
 export interface IUpdateBridgeStateAction {
@@ -81,9 +91,11 @@ export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
   | IUpdateRelayLocationsAction
+  | IUpdateBridgeLocationsAction
   | IUpdateAllowLanAction
   | IUpdateEnableIpv6Action
   | IUpdateBlockWhenDisconnectedAction
+  | IUpdateBridgeSettingsAction
   | IUpdateBridgeStateAction
   | IUpdateOpenVpnMssfixAction
   | IUpdateAutoStartAction
@@ -115,6 +127,15 @@ function updateRelayLocations(relayLocations: IRelayLocationRedux[]): IUpdateRel
   };
 }
 
+function updateBridgeLocations(
+  bridgeLocations: IRelayLocationRedux[],
+): IUpdateBridgeLocationsAction {
+  return {
+    type: 'UPDATE_BRIDGE_LOCATIONS',
+    bridgeLocations,
+  };
+}
+
 function updateAllowLan(allowLan: boolean): IUpdateAllowLanAction {
   return {
     type: 'UPDATE_ALLOW_LAN',
@@ -135,6 +156,13 @@ function updateBlockWhenDisconnected(
   return {
     type: 'UPDATE_BLOCK_WHEN_DISCONNECTED',
     blockWhenDisconnected,
+  };
+}
+
+function updateBridgeSettings(bridgeSettings: BridgeSettingsRedux): IUpdateBridgeSettingsAction {
+  return {
+    type: 'UPDATE_BRIDGE_SETTINGS',
+    bridgeSettings,
   };
 }
 
@@ -211,9 +239,11 @@ export default {
   updateGuiSettings,
   updateRelay,
   updateRelayLocations,
+  updateBridgeLocations,
   updateAllowLan,
   updateEnableIpv6,
   updateBlockWhenDisconnected,
+  updateBridgeSettings,
   updateBridgeState,
   updateOpenVpnMssfix,
   updateAutoStart,

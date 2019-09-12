@@ -16,7 +16,7 @@ import AppRoutes from './routes';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
-import { IWgKey } from './redux/settings/reducers';
+import { IRelayLocationRedux, IWgKey } from './redux/settings/reducers';
 import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
@@ -24,11 +24,12 @@ import versionActions from './redux/version/actions';
 import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main';
 import { cities, countries, loadTranslations, messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState } from '../shared/gui-settings-state';
-import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
+import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-channel';
 import { getRendererLogFile, setupLogging } from '../shared/logging';
 
 import {
   AccountToken,
+  BridgeSettings,
   BridgeState,
   IAccountData,
   ILocation,
@@ -37,6 +38,7 @@ import {
   IWireguardPublicKey,
   KeygenEvent,
   liftConstraint,
+  RelayLocation,
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -111,8 +113,9 @@ export default class AppRenderer {
       this.setLocation(newLocation);
     });
 
-    IpcRendererEventChannel.relays.listen((newRelays: IRelayList) => {
-      this.setRelays(newRelays);
+    IpcRendererEventChannel.relays.listen((relayListPair: IRelayListPair) => {
+      this.setRelays(relayListPair.relays);
+      this.setBridges(relayListPair.bridges);
     });
 
     IpcRendererEventChannel.currentVersion.listen((currentVersion: ICurrentAppVersionInfo) => {
@@ -158,6 +161,7 @@ export default class AppRenderer {
     }
 
     this.setRelays(initialState.relays);
+    this.setBridges(initialState.bridges);
     this.setCurrentVersion(initialState.currentVersion);
     this.setUpgradeVersion(initialState.upgradeVersion);
     this.setGuiSettings(initialState.guiSettings);
@@ -249,6 +253,10 @@ export default class AppRenderer {
     return IpcRendererEventChannel.settings.updateRelaySettings(relaySettings);
   }
 
+  public updateBridgeLocation(bridgeLocation: RelayLocation) {
+    return IpcRendererEventChannel.settings.updateBridgeLocation(bridgeLocation);
+  }
+
   public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
     return IpcRendererEventChannel.accountHistory.removeItem(accountToken);
   }
@@ -335,21 +343,21 @@ export default class AppRenderer {
     const actions = this.reduxActions;
 
     if ('normal' in relaySettings) {
-      const normal = relaySettings.normal;
-      const tunnelProtocol = normal.tunnelProtocol;
-      const location = normal.location;
-      const relayLocation = location === 'any' ? 'any' : location.only;
+      const {
+        location,
+        openvpnConstraints,
+        wireguardConstraints,
+        tunnelProtocol,
+      } = relaySettings.normal;
 
-      const { port, protocol } = normal.openvpnConstraints;
-      const wireguardPort = normal.wireguardConstraints.port;
       actions.settings.updateRelay({
         normal: {
-          location: relayLocation,
+          location: liftConstraint(location),
           openvpn: {
-            port: port === 'any' ? port : port.only,
-            protocol: protocol === 'any' ? protocol : protocol.only,
+            port: liftConstraint(openvpnConstraints.port),
+            protocol: liftConstraint(openvpnConstraints.protocol),
           },
-          wireguard: { port: wireguardPort === 'any' ? wireguardPort : wireguardPort.only },
+          wireguard: { port: liftConstraint(wireguardConstraints.port) },
           tunnelProtocol: liftConstraint(tunnelProtocol),
         },
       });
@@ -368,6 +376,22 @@ export default class AppRenderer {
       } else if ('wireguard' in config) {
         // TODO: handle wireguard
       }
+    }
+  }
+
+  private setBridgeSettings(bridgeSettings: BridgeSettings) {
+    const actions = this.reduxActions;
+
+    if ('normal' in bridgeSettings) {
+      actions.settings.updateBridgeSettings({
+        normal: {
+          location: liftConstraint(bridgeSettings.normal.location),
+        },
+      });
+    } else if ('custom' in bridgeSettings) {
+      actions.settings.updateBridgeSettings({
+        custom: bridgeSettings.custom,
+      });
     }
   }
 
@@ -474,6 +498,7 @@ export default class AppRenderer {
     reduxSettings.updateBridgeState(newSettings.bridgeState);
 
     this.setRelaySettings(newSettings.relaySettings);
+    this.setBridgeSettings(newSettings.bridgeSettings);
 
     if (newSettings.accountToken) {
       reduxAccount.updateAccountToken(newSettings.accountToken);
@@ -525,8 +550,8 @@ export default class AppRenderer {
     this.reduxActions.connection.newLocation(location);
   }
 
-  private setRelays(relayList: IRelayList) {
-    const locations = relayList.countries
+  private covertRelayListToLocationList(relayList: IRelayList): IRelayLocationRedux[] {
+    return relayList.countries
       .map((country) => ({
         name: country.name,
         code: country.code,
@@ -543,8 +568,18 @@ export default class AppRenderer {
           .sort((cityA, cityB) => cityA.name.localeCompare(cityB.name)),
       }))
       .sort((countryA, countryB) => countryA.name.localeCompare(countryB.name));
+  }
+
+  private setRelays(relayList: IRelayList) {
+    const locations = this.covertRelayListToLocationList(relayList);
 
     this.reduxActions.settings.updateRelayLocations(locations);
+  }
+
+  private setBridges(relayList: IRelayList) {
+    const locations = this.covertRelayListToLocationList(relayList);
+
+    this.reduxActions.settings.updateBridgeLocations(locations);
   }
 
   private setCurrentVersion(versionInfo: ICurrentAppVersionInfo) {
