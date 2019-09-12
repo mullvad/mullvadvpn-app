@@ -139,7 +139,7 @@ impl Firewall {
         let portid = socket.portid();
         let seq = 0;
 
-        let get_tables_msg = table::get_tables_nlmsg(seq);;
+        let get_tables_msg = table::get_tables_nlmsg(seq);
         socket
             .send(&get_tables_msg)
             .map_err(Error::NetlinkSendError)?;
