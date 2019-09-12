@@ -64,6 +64,8 @@ class RelayItemHolder(
                 }
             }
 
+            view.setEnabled(item.active)
+
             when (item.type) {
                 RelayItemType.Country -> setViewStyle(countryColor, countryPadding)
                 RelayItemType.City -> setViewStyle(cityColor, cityPadding)
