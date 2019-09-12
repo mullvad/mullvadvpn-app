@@ -21,15 +21,15 @@ class MullvadVpnService : VpnService() {
     private val created = CompletableDeferred<Unit>()
     private val binder = LocalBinder()
 
+    private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var versionInfoFetcher: AppVersionInfoFetcher
 
     val daemon = startDaemon()
     val connectionProxy = ConnectionProxy(this, daemon)
-    val notificationManager = ForegroundNotificationManager(this, connectionProxy)
 
     override fun onCreate() {
         versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
-        notificationManager.onCreate()
+        notificationManager = ForegroundNotificationManager(this, connectionProxy)
         created.complete(Unit)
     }
 
