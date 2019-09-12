@@ -707,7 +707,7 @@ class ApplicationMain {
     bridgeState: BridgeState,
   ): IRelayList {
     if (bridgeState === 'on') {
-      const fitleredCountries = relayList.countries
+      const filteredCountries = relayList.countries
         .map((country) => ({
           ...country,
           cities: country.cities
@@ -719,7 +719,7 @@ class ApplicationMain {
         }))
         .filter((country) => country.cities.length > 0);
 
-      return { countries: fitleredCountries };
+      return { countries: filteredCountries };
     } else {
       return { countries: [] };
     }
