@@ -36,9 +36,7 @@ class MullvadVpnService : VpnService() {
     }
 
     override fun onDestroy() {
-        connectionProxy.onDestroy()
-        notificationManager.onDestroy()
-        versionInfoFetcher.stop()
+        tearDown()
         daemon.cancel()
         created.cancel()
     }
@@ -97,5 +95,11 @@ class MullvadVpnService : VpnService() {
         created.await()
         ApiRootCaFile().extract(application)
         MullvadDaemon(this@MullvadVpnService)
+    }
+
+    private fun tearDown() {
+        connectionProxy.onDestroy()
+        notificationManager.onDestroy()
+        versionInfoFetcher.stop()
     }
 }
