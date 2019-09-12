@@ -26,4 +26,7 @@ export default {
     // NavigationBar already adds some spacing
     paddingTop: 0,
   }),
+  selectedCell: Styles.createViewStyle({
+    backgroundColor: colors.green,
+  }),
 };

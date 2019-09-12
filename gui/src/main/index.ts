@@ -4,6 +4,7 @@ import log from 'electron-log';
 import mkdirp from 'mkdirp';
 import * as path from 'path';
 import * as uuid from 'uuid';
+import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import {
   AccountToken,
   BridgeSettings,
@@ -17,7 +18,6 @@ import {
   IWireguardPublicKey,
   KeygenEvent,
   liftConstraint,
-  RelayLocation,
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -953,11 +953,7 @@ class ApplicationMain {
 
       // Reset bridge constraints to `any` when the state is set to auto or off
       if (bridgeState === 'auto' || bridgeState === 'off') {
-        await this.daemonRpc.setBridgeSettings({
-          normal: {
-            location: 'any',
-          },
-        });
+        await this.daemonRpc.setBridgeSettings(new BridgeSettingsBuilder().location.any().build());
       }
     });
     IpcMainEventChannel.settings.handleOpenVpnMssfix((mssfix?: number) =>
@@ -966,13 +962,7 @@ class ApplicationMain {
     IpcMainEventChannel.settings.handleUpdateRelaySettings((update: RelaySettingsUpdate) =>
       this.daemonRpc.updateRelaySettings(update),
     );
-    IpcMainEventChannel.settings.handleUpdateBridgeLocation((location: RelayLocation) => {
-      const bridgeSettings: BridgeSettings = {
-        normal: {
-          location: { only: location },
-        },
-      };
-
+    IpcMainEventChannel.settings.handleUpdateBridgeSettings((bridgeSettings: BridgeSettings) => {
       return this.daemonRpc.setBridgeSettings(bridgeSettings);
     });
     IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {

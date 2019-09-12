@@ -4,22 +4,18 @@ import { colors } from '../../config.json';
 import * as Cell from './Cell';
 
 const styles = {
-  relay_status: Styles.createViewStyle({
+  relayStatus: Styles.createViewStyle({
     width: 16,
     height: 16,
     borderRadius: 8,
-    marginLeft: 4,
+    marginLeft: 12,
     marginRight: 4,
   }),
-  relay_status__inactive: Styles.createViewStyle({
+  inactive: Styles.createViewStyle({
     backgroundColor: colors.red95,
   }),
-  relay_status__active: Styles.createViewStyle({
+  active: Styles.createViewStyle({
     backgroundColor: colors.green90,
-  }),
-  tick_icon: Styles.createViewStyle({
-    marginLeft: 0,
-    marginRight: 0,
   }),
 };
 
@@ -31,20 +27,9 @@ interface IProps {
 export default class RelayStatusIndicator extends Component<IProps> {
   public render() {
     return this.props.isSelected ? (
-      <Cell.Icon
-        style={styles.tick_icon}
-        tintColor={colors.white}
-        source="icon-tick"
-        height={24}
-        width={24}
-      />
+      <Cell.Icon tintColor={colors.white} source="icon-tick" height={24} width={24} />
     ) : (
-      <View
-        style={[
-          styles.relay_status,
-          this.props.isActive ? styles.relay_status__active : styles.relay_status__inactive,
-        ]}
-      />
+      <View style={[styles.relayStatus, this.props.isActive ? styles.active : styles.inactive]} />
     );
   }
 }

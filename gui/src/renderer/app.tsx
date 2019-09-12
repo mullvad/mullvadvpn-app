@@ -38,7 +38,6 @@ import {
   IWireguardPublicKey,
   KeygenEvent,
   liftConstraint,
-  RelayLocation,
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -253,8 +252,8 @@ export default class AppRenderer {
     return IpcRendererEventChannel.settings.updateRelaySettings(relaySettings);
   }
 
-  public updateBridgeLocation(bridgeLocation: RelayLocation) {
-    return IpcRendererEventChannel.settings.updateBridgeLocation(bridgeLocation);
+  public updateBridgeSettings(bridgeSettings: BridgeSettings) {
+    return IpcRendererEventChannel.settings.updateBridgeSettings(bridgeSettings);
   }
 
   public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {

@@ -3,8 +3,8 @@ import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
+import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import AdvancedSettings from '../components/AdvancedSettings';
-import RelaySettingsBuilder from '../lib/relay-settings-builder';
 
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
