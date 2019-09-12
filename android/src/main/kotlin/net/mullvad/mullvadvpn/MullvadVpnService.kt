@@ -21,15 +21,15 @@ class MullvadVpnService : VpnService() {
     private val created = CompletableDeferred<Unit>()
     private val binder = LocalBinder()
 
+    private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var versionInfoFetcher: AppVersionInfoFetcher
 
     val daemon = startDaemon()
     val connectionProxy = ConnectionProxy(this, daemon)
-    val notificationManager = ForegroundNotificationManager(this, connectionProxy)
 
     override fun onCreate() {
         versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
-        notificationManager.onCreate()
+        notificationManager = startNotificationManager()
         created.complete(Unit)
     }
 
@@ -92,5 +92,14 @@ class MullvadVpnService : VpnService() {
         created.await()
         ApiRootCaFile().extract(application)
         MullvadDaemon(this@MullvadVpnService)
+    }
+
+    private fun startNotificationManager(): ForegroundNotificationManager {
+        return ForegroundNotificationManager(this, connectionProxy).apply {
+            onCreate()
+
+            onConnect = { connectionProxy.connect() }
+            onDisconnect = { connectionProxy.disconnect() }
+        }
     }
 }
