@@ -3,9 +3,14 @@
         xmlns:tools="http://schemas.android.com/tools"
         package="net.mullvad.mullvadvpn"
         >
+    <permission android:name="net.mullvad.mullvadvpn.permission.TUNNEL_ACTION"
+            android:protectionLevel="signature"
+            />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="net.mullvad.mullvadvpn.permission.TUNNEL_ACTION" />
 
     <application
             android:label="@string/app_name"
