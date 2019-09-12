@@ -530,7 +530,18 @@ impl RelaySelector {
             .bridges
             .shadowsocks
             .choose(&mut self.rng)
-            .map(|data| data.clone().to_proxy_settings(relay.ipv4_addr_in.into()))
+            .map(|shadowsocks_endpoint| {
+                info!(
+                    "Selected Shadowsocks bridge {} at {}:{}/{}",
+                    relay.hostname,
+                    relay.ipv4_addr_in,
+                    shadowsocks_endpoint.port,
+                    shadowsocks_endpoint.protocol
+                );
+                shadowsocks_endpoint
+                    .clone()
+                    .to_proxy_settings(relay.ipv4_addr_in.into())
+            })
     }
 
     fn get_random_tunnel(
