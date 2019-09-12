@@ -7,6 +7,7 @@ import RelayStatusIndicator from './RelayStatusIndicator';
 
 interface IProps {
   location: RelayLocation;
+  active: boolean;
   hostname: string;
   selected: boolean;
   onSelect?: (location: RelayLocation) => void;
@@ -30,6 +31,7 @@ export default class RelayRow extends Component<IProps> {
     return (
       oldProps.hostname === nextProps.hostname &&
       oldProps.selected === nextProps.selected &&
+      oldProps.active === nextProps.active &&
       compareRelayLocation(oldProps.location, nextProps.location)
     );
   }
@@ -43,8 +45,9 @@ export default class RelayRow extends Component<IProps> {
       <Cell.CellButton
         onPress={this.handlePress}
         cellHoverStyle={this.props.selected ? styles.selected : undefined}
+        disabled={!this.props.active}
         style={[styles.base, this.props.selected ? styles.selected : undefined]}>
-        <RelayStatusIndicator isActive={true} isSelected={this.props.selected} />
+        <RelayStatusIndicator isActive={this.props.active} isSelected={this.props.selected} />
 
         <Cell.Label>{this.props.hostname}</Cell.Label>
       </Cell.CellButton>

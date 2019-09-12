@@ -13,10 +13,10 @@ import {
   IAppVersionInfo,
   ILocation,
   IRelayList,
-  IRelayListHostname,
   ISettings,
   IWireguardPublicKey,
   KeygenEvent,
+  liftConstraint,
   RelayLocation,
   RelaySettings,
   RelaySettingsUpdate,
@@ -663,42 +663,44 @@ class ApplicationMain {
     relayList: IRelayList,
     relaySettings: RelaySettings,
   ): IRelayList {
-    // TODO: once wireguard is stable, by default we should only filter by
-    // hasToHaveOpenvpn || hasToHaveWg, until then, only filter wireguard
-    // relays if tunnel constraints specify wireguard tunnels.
-    const hasOpenVpnTunnels = (relay: IRelayListHostname): boolean => {
-      if (relay.tunnels) {
-        return relay.tunnels.openvpn.length > 0;
-      } else {
-        return false;
-      }
-    };
-    const hasWireguardTunnels = (relay: IRelayListHostname): boolean => {
-      if (relay.tunnels) {
-        return relay.tunnels.wireguard.length > 0;
-      } else {
-        return false;
-      }
-    };
-    let fnHasWantedTunnels = hasOpenVpnTunnels;
+    const tunnelProtocol =
+      'normal' in relaySettings ? liftConstraint(relaySettings.normal.tunnelProtocol) : undefined;
 
-    if ('normal' in relaySettings) {
-      const tunnelConstraints = relaySettings.normal.tunnelProtocol;
-      if (tunnelConstraints !== 'any' && 'wireguard' === tunnelConstraints.only) {
-        fnHasWantedTunnels = hasWireguardTunnels;
-      }
-    }
-
-    return {
-      countries: relayList.countries.map((country) => ({
+    const filteredCountries = relayList.countries
+      .map((country) => ({
         ...country,
         cities: country.cities
           .map((city) => ({
             ...city,
-            relays: city.relays.filter(fnHasWantedTunnels),
+            relays: city.relays.filter((relay) => {
+              if (relay.tunnels) {
+                switch (tunnelProtocol) {
+                  case 'openvpn':
+                    return relay.tunnels.openvpn.length > 0;
+
+                  case 'wireguard':
+                    return relay.tunnels.wireguard.length > 0;
+
+                  case 'any':
+                    // TODO: once wireguard is stable, by default we should only filter by
+                    // hasToHaveOpenvpn || hasToHaveWg, until then, only filter wireguard
+                    // relays if tunnel constraints specify wireguard tunnels.
+                    return relay.tunnels.openvpn.length > 0;
+
+                  default:
+                    return false;
+                }
+              } else {
+                return false;
+              }
+            }),
           }))
           .filter((city) => city.relays.length > 0),
-      })),
+      }))
+      .filter((country) => country.cities.length > 0);
+
+    return {
+      countries: filteredCountries,
     };
   }
 
