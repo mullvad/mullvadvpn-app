@@ -23,10 +23,16 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.8-beta1] - 2019-09-19
 ### Added
 - Add ability to replace the WireGuard key with a new one. Allows manual key rotation.
 - Show age of currently set WireGuard key.
-- Add bridge selection under "Select location" view, when the bridge mode is explicitly set to "on".
+- Add bridge selection under "Select location" view, when the bridge mode is set to "On".
+
+#### Android
+- Initial support for the Android platform.
 
 ### Changed
 - Decreased default MTU for WireGuard to 1380 to improve performance over 4G
@@ -35,6 +41,11 @@ Line wrap the file at 100 chars.                                              Th
 - Show banner about new app versions only if current platform has changes in latest release.
 - Don't make a GeoIP lookup by default in CLI status command. Add --location flag for enabling it.
 - Sort relay locations and hostnames with natural sorting. Meaning `se10` will show up after `se2`.
+- Show inactive relays as disabled instead of hiding them completely from location selection list.
+- Upgrade Electron from version 4 to version 6.
+
+#### Windows
+- Change uninstaller registry key name from `Mullvad VPN` to a generated GUID.
 
 ### Fixed
 - Fix old settings deserialization to allow migrating settings from versions older than 2019.6.
@@ -54,6 +65,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Removed
 #### Windows
 - Removed logic that implemented monitoring and enforcement of DNS settings.
+
 
 ## [2019.7] - 2019-08-12
 ### Added
