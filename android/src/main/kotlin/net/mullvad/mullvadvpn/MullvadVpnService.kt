@@ -98,7 +98,7 @@ class MullvadVpnService : VpnService() {
     private fun setUp() {
         daemon = startDaemon()
         connectionProxy = ConnectionProxy(this, daemon)
-        notificationManager = ForegroundNotificationManager(this, connectionProxy)
+        notificationManager = startNotificationManager()
         versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
     }
 
@@ -106,6 +106,13 @@ class MullvadVpnService : VpnService() {
         created.await()
         ApiRootCaFile().extract(application)
         MullvadDaemon(this@MullvadVpnService)
+    }
+
+    private fun startNotificationManager(): ForegroundNotificationManager {
+        return ForegroundNotificationManager(this, connectionProxy).apply {
+            onConnect = { connectionProxy.connect() }
+            onDisconnect = { connectionProxy.disconnect() }
+        }
     }
 
     private fun stop() {
