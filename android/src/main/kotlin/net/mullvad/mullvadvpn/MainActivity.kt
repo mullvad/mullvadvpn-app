@@ -49,21 +49,25 @@ class MainActivity : FragmentActivity() {
     val locationInfoCache = LocationInfoCache(daemon, relayListListener)
     val accountCache = AccountCache(settingsListener, daemon)
 
-    private var shouldStopService = false
+    private var quitJob: Job? = null
+    private var serviceToStop: MullvadVpnService.LocalBinder? = null
     private var waitForDaemonJob: Job? = null
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             val localBinder = binder as MullvadVpnService.LocalBinder
 
-            service.complete(localBinder)
-
             waitForDaemonJob = GlobalScope.launch(Dispatchers.Default) {
+                localBinder.resetComplete?.await()
+                service.complete(localBinder)
                 daemon.complete(localBinder.daemon.await())
             }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
+            waitForDaemonJob?.cancel()
+            waitForDaemonJob = null
+
             service.cancel()
             daemon.cancel()
 
@@ -101,10 +105,9 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onStop() {
-        if (shouldStopService) {
-            runBlocking { service.await().stop() }
-        }
+        quitJob?.cancel()
 
+        serviceToStop?.apply { stop() }
         unbindService(serviceConnection)
 
         super.onStop()
@@ -143,9 +146,12 @@ class MainActivity : FragmentActivity() {
         startActivityForResult(intent, 0)
     }
 
-    fun quit()  {
-        shouldStopService = true
-        finishAndRemoveTask()
+    fun quit() {
+        quitJob?.cancel()
+        quitJob = GlobalScope.launch(Dispatchers.Main) {
+            serviceToStop = service.await()
+            finishAndRemoveTask()
+        }
     }
 
     private fun addInitialFragment() {

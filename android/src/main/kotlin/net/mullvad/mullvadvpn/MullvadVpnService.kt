@@ -5,6 +5,7 @@ import java.net.InetAddress
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 
@@ -18,18 +19,18 @@ import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.model.TunConfig
 
 class MullvadVpnService : VpnService() {
-    private val created = CompletableDeferred<Unit>()
     private val binder = LocalBinder()
+    private val created = CompletableDeferred<Unit>()
 
+    private var resetComplete: CompletableDeferred<Unit>? = null
+
+    private lateinit var daemon: Deferred<MullvadDaemon>
+    private lateinit var connectionProxy: ConnectionProxy
+    private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var versionInfoFetcher: AppVersionInfoFetcher
 
-    val daemon = startDaemon()
-    val connectionProxy = ConnectionProxy(this, daemon)
-    val notificationManager = ForegroundNotificationManager(this, connectionProxy)
-
     override fun onCreate() {
-        versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
-        notificationManager.onCreate()
+        setUp()
         created.complete(Unit)
     }
 
@@ -37,10 +38,20 @@ class MullvadVpnService : VpnService() {
         return super.onBind(intent) ?: binder
     }
 
+    override fun onRebind(intent: Intent) {
+        resetComplete?.let { reset ->
+            tearDown()
+            setUp()
+            reset.complete(Unit)
+        }
+    }
+
+    override fun onUnbind(intent: Intent): Boolean {
+        return true
+    }
+
     override fun onDestroy() {
-        connectionProxy.onDestroy()
-        notificationManager.onDestroy()
-        versionInfoFetcher.stop()
+        tearDown()
         daemon.cancel()
         created.cancel()
     }
@@ -76,21 +87,42 @@ class MullvadVpnService : VpnService() {
             get() = this@MullvadVpnService.daemon
         val connectionProxy
             get() = this@MullvadVpnService.connectionProxy
+        val resetComplete
+            get() = this@MullvadVpnService.resetComplete
 
         fun stop() {
-            if (daemon.isCompleted) {
-                runBlocking { daemon.await().shutdown() }
-            } else {
-                daemon.cancel()
-            }
-
-            stopSelf()
+            this@MullvadVpnService.stop()
         }
+    }
+
+    private fun setUp() {
+        daemon = startDaemon()
+        connectionProxy = ConnectionProxy(this, daemon)
+        notificationManager = ForegroundNotificationManager(this, connectionProxy)
+        versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
     }
 
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
         created.await()
         ApiRootCaFile().extract(application)
         MullvadDaemon(this@MullvadVpnService)
+    }
+
+    private fun stop() {
+        this@MullvadVpnService.resetComplete = CompletableDeferred()
+
+        if (daemon.isCompleted) {
+            runBlocking { daemon.await().shutdown() }
+        } else {
+            daemon.cancel()
+        }
+
+        stopSelf()
+    }
+
+    private fun tearDown() {
+        connectionProxy.onDestroy()
+        notificationManager.onDestroy()
+        versionInfoFetcher.stop()
     }
 }
