@@ -54,8 +54,7 @@ tun = "0.4.3"
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
-# TODO: Specify 0.2.1 once the crate gets published
-pfctl = { git = "https://github.com/mullvad/pfctl-rs", rev = "9f31b5ddcab941862470075eab83bb398195f3d6" }
+pfctl = "0.3"
 system-configuration = "0.2"
 tun = "0.4.3"
 
