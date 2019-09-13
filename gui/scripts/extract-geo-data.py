@@ -519,7 +519,7 @@ def map_locale(locale_ident):
 
 
 def request_relays():
-  data = json.dumps({"jsonrpc": "2.0", "id": "0", "method": "relay_list_v2"})
+  data = json.dumps({"jsonrpc": "2.0", "id": "0", "method": "relay_list_v3"})
   headers = {"Content-Type": "application/json"}
   request = urllib2.Request("https://api.mullvad.net/rpc/", data, headers)
   return json.load(urllib2.urlopen(request))

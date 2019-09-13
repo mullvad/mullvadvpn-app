@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.relaylist
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 
 import net.mullvad.mullvadvpn.R
@@ -14,7 +15,7 @@ class RelayItemHolder(
 ) : ViewHolder(view) {
     private val name: TextView = view.findViewById(R.id.name)
     private val chevron: ImageButton = view.findViewById(R.id.chevron)
-    private val relayActive: View = view.findViewById(R.id.relay_active)
+    private val relayActive: ImageView = view.findViewById(R.id.relay_active)
     private val selectedIcon: View = view.findViewById(R.id.selected)
 
     private val countryColor = view.context.getColor(R.color.blue)
@@ -49,13 +50,27 @@ class RelayItemHolder(
         if (item != null) {
             name.text = item.name
 
+            if (item.active) {
+                name.alpha = 1.0F
+            } else {
+                name.alpha = 0.5F
+            }
+
             if (selected) {
                 relayActive.visibility = View.INVISIBLE
                 selectedIcon.visibility = View.VISIBLE
             } else {
                 relayActive.visibility = View.VISIBLE
                 selectedIcon.visibility = View.INVISIBLE
+
+                if (item.active) {
+                    relayActive.setImageResource(R.drawable.icon_relay_active)
+                } else {
+                    relayActive.setImageResource(R.drawable.icon_relay_inactive)
+                }
             }
+
+            view.setEnabled(item.active)
 
             when (item.type) {
                 RelayItemType.Country -> setViewStyle(countryColor, countryPadding)

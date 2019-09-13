@@ -7,6 +7,7 @@ interface RelayItem {
     val name: String
     val code: String
     val location: LocationConstraint
+    val active: Boolean
     val hasChildren: Boolean
     val visibleChildCount: Int
 

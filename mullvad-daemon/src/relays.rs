@@ -321,6 +321,7 @@ impl RelaySelector {
             .lock()
             .relays()
             .iter()
+            .filter(|relay| relay.active)
             .filter_map(|relay| Self::matching_bridge_relay(relay, constraints))
             .collect();
 
@@ -349,6 +350,7 @@ impl RelaySelector {
             .lock()
             .relays()
             .iter()
+            .filter(|relay| relay.active)
             .filter_map(|relay| Self::matching_relay(relay, constraints))
             .collect();
 
@@ -495,6 +497,7 @@ impl RelaySelector {
             .cloned()
             .collect()
     }
+
     /// Pick a random relay from the given slice. Will return `None` if the given slice is empty
     /// or all relays in it has zero weight.
     fn pick_random_relay<'a>(&mut self, relays: &'a [Relay]) -> Option<&'a Relay> {
@@ -527,7 +530,18 @@ impl RelaySelector {
             .bridges
             .shadowsocks
             .choose(&mut self.rng)
-            .map(|data| data.clone().to_proxy_settings(relay.ipv4_addr_in.into()))
+            .map(|shadowsocks_endpoint| {
+                info!(
+                    "Selected Shadowsocks bridge {} at {}:{}/{}",
+                    relay.hostname,
+                    relay.ipv4_addr_in,
+                    shadowsocks_endpoint.port,
+                    shadowsocks_endpoint.protocol
+                );
+                shadowsocks_endpoint
+                    .clone()
+                    .to_proxy_settings(relay.ipv4_addr_in.into())
+            })
     }
 
     fn get_random_tunnel(
@@ -762,7 +776,7 @@ impl RelayListUpdater {
     }
 
     fn download_relay_list(&mut self) -> Result<RelayList, Error> {
-        let download_future = self.rpc_client.relay_list_v2().map_err(Error::Download);
+        let download_future = self.rpc_client.relay_list_v3().map_err(Error::Download);
         let relay_list = Timer::default()
             .timeout(download_future, DOWNLOAD_TIMEOUT)
             .wait()?;

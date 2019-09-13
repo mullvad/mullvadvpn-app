@@ -137,6 +137,7 @@ const relayListSchema = partialObject({
               hostname: string,
               ipv4_addr_in: string,
               include_in_country: boolean,
+              active: boolean,
               weight: number,
               bridges: maybe(
                 partialObject({

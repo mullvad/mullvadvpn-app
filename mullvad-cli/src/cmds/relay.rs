@@ -315,15 +315,61 @@ impl Relay {
     fn list(&self) -> Result<()> {
         let mut rpc = new_rpc_client()?;
         let mut locations = rpc.get_relay_locations()?;
-        locations.countries.sort_by(|c1, c2| c1.name.cmp(&c2.name));
+
+        locations.countries = locations
+            .countries
+            .into_iter()
+            .filter_map(|mut country| {
+                country.cities = country
+                    .cities
+                    .into_iter()
+                    .filter_map(|mut city| {
+                        city.relays
+                            .retain(|relay| relay.active && !relay.tunnels.is_empty());
+                        if !city.relays.is_empty() {
+                            Some(city)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                if !country.cities.is_empty() {
+                    Some(country)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        locations
+            .countries
+            .sort_by(|c1, c2| c1.name.to_lowercase().cmp(&c2.name.to_lowercase()));
         for mut country in locations.countries {
-            country.cities.sort_by(|c1, c2| c1.name.cmp(&c2.name));
+            country
+                .cities
+                .sort_by(|c1, c2| c1.name.to_lowercase().cmp(&c2.name.to_lowercase()));
             println!("{} ({})", country.name, country.code);
-            for city in &country.cities {
+            for mut city in country.cities {
+                city.relays
+                    .sort_by(|r1, r2| r1.hostname.to_lowercase().cmp(&r2.hostname.to_lowercase()));
                 println!(
                     "\t{} ({}) @ {:.5}°N, {:.5}°W",
                     city.name, city.code, city.latitude, city.longitude
                 );
+                for relay in &city.relays {
+                    let supports_openvpn = !relay.tunnels.openvpn.is_empty();
+                    let supports_wireguard = !relay.tunnels.wireguard.is_empty();
+                    let support_msg = match (supports_openvpn, supports_wireguard) {
+                        (true, true) => "OpenVPN and WireGuard",
+                        (true, false) => "OpenVPN",
+                        (false, true) => "WireGuard",
+                        _ => unreachable!("Bug in relay filtering earlier on"),
+                    };
+                    println!(
+                        "\t\t{} ({}) - {}",
+                        relay.hostname, relay.ipv4_addr_in, support_msg
+                    );
+                }
             }
             println!();
         }

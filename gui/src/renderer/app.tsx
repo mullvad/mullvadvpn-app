@@ -555,14 +555,14 @@ export default class AppRenderer {
       .map((country) => ({
         name: country.name,
         code: country.code,
-        hasActiveRelays: country.cities.some((city) => city.relays.length > 0),
+        hasActiveRelays: country.cities.some((city) => city.relays.some((relay) => relay.active)),
         cities: country.cities
           .map((city) => ({
             name: city.name,
             code: city.code,
             latitude: city.latitude,
             longitude: city.longitude,
-            hasActiveRelays: city.relays.length > 0,
+            hasActiveRelays: city.relays.some((relay) => relay.active),
             relays: city.relays,
           }))
           .sort((cityA, cityB) => cityA.name.localeCompare(cityB.name)),

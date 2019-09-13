@@ -148,7 +148,7 @@ set -e
 JSONRPC_RESPONSE="$(curl -X POST \
     --fail \
      -H "Content-Type: application/json" \
-     -d '{"jsonrpc": "2.0", "id": "0", "method": "relay_list_v2"}' \
+     -d '{"jsonrpc": "2.0", "id": "0", "method": "relay_list_v3"}' \
      https://api.mullvad.net/rpc/)"
 echo $JSONRPC_RESPONSE | node -e "$JSONRPC_CODE" >  dist-assets/relays.json
 

@@ -323,7 +323,8 @@ impl Bridge {
                     .cities
                     .into_iter()
                     .filter_map(|mut city| {
-                        city.relays.retain(|relay| !relay.bridges.is_empty());
+                        city.relays
+                            .retain(|relay| relay.active && !relay.bridges.is_empty());
                         if !city.relays.is_empty() {
                             Some(city)
                         } else {
@@ -339,14 +340,24 @@ impl Bridge {
             })
             .collect();
 
+        locations
+            .countries
+            .sort_by(|c1, c2| c1.name.to_lowercase().cmp(&c2.name.to_lowercase()));
         for mut country in locations.countries {
-            country.cities.sort_by(|c1, c2| c1.name.cmp(&c2.name));
+            country
+                .cities
+                .sort_by(|c1, c2| c1.name.to_lowercase().cmp(&c2.name.to_lowercase()));
             println!("{} ({})", country.name, country.code);
-            for city in &country.cities {
+            for mut city in country.cities {
+                city.relays
+                    .sort_by(|r1, r2| r1.hostname.to_lowercase().cmp(&r2.hostname.to_lowercase()));
                 println!(
                     "\t{} ({}) @ {:.5}°N, {:.5}°W",
                     city.name, city.code, city.latitude, city.longitude
                 );
+                for relay in &city.relays {
+                    println!("\t\t{} ({})", relay.hostname, relay.ipv4_addr_in);
+                }
             }
             println!();
         }
