@@ -563,7 +563,9 @@ export default class AppRenderer {
             latitude: city.latitude,
             longitude: city.longitude,
             hasActiveRelays: city.relays.some((relay) => relay.active),
-            relays: city.relays,
+            relays: city.relays.sort((relayA, relayB) =>
+              relayA.hostname.localeCompare(relayB.hostname),
+            ),
           }))
           .sort((cityA, cityB) => cityA.name.localeCompare(cityB.name)),
       }))
