@@ -27,10 +27,8 @@ const styles = {
     flex: 0,
   }),
   base: Styles.createViewStyle({
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingLeft: 20,
     paddingRight: 0,
+    paddingLeft: 16,
   }),
   selected: Styles.createViewStyle({
     backgroundColor: colors.green,

@@ -1,10 +1,12 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Component, View } from 'reactxp';
-import { RelayLocation } from '../../shared/daemon-rpc-types';
+import { colors } from '../../config.json';
+import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import { LocationScope } from '../redux/userinterface/reducers';
+import * as Cell from './Cell';
 import CustomScrollbars from './CustomScrollbars';
 import { Container, Layout } from './Layout';
 import LocationList from './LocationList';
@@ -25,7 +27,7 @@ import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 interface IProps {
   locationScope: LocationScope;
   selectedExitLocation?: RelayLocation;
-  selectedBridgeLocation?: RelayLocation;
+  selectedBridgeLocation?: LiftedConstraint<RelayLocation>;
   relayLocations: IRelayLocationRedux[];
   bridgeLocations: IRelayLocationRedux[];
   allowBridgeSelection: boolean;
@@ -33,6 +35,7 @@ interface IProps {
   onChangeLocationScope: (location: LocationScope) => void;
   onSelectExitLocation: (location: RelayLocation) => void;
   onSelectBridgeLocation: (location: RelayLocation) => void;
+  onSelectClosestToExit: () => void;
 }
 
 export default class SelectLocation extends Component<IProps> {
@@ -110,13 +113,25 @@ export default class SelectLocation extends Component<IProps> {
                         onSelect={this.props.onSelectExitLocation}
                       />
                     ) : (
-                      <LocationList
-                        key={'bridge-locations'}
-                        ref={this.bridgeLocationList}
-                        selectedLocation={this.props.selectedBridgeLocation}
-                        relayLocations={this.props.bridgeLocations}
-                        onSelect={this.props.onSelectBridgeLocation}
-                      />
+                      <React.Fragment>
+                        <View>
+                          <ClosestToExitCell
+                            onSelect={this.props.onSelectClosestToExit}
+                            isSelected={this.props.selectedBridgeLocation === 'any'}
+                          />
+                        </View>
+                        <LocationList
+                          key={'bridge-locations'}
+                          ref={this.bridgeLocationList}
+                          selectedLocation={
+                            this.props.selectedBridgeLocation !== 'any'
+                              ? this.props.selectedBridgeLocation
+                              : undefined
+                          }
+                          relayLocations={this.props.bridgeLocations}
+                          onSelect={this.props.onSelectBridgeLocation}
+                        />
+                      </React.Fragment>
                     )}
                   </View>
                 </NavigationScrollbars>
@@ -151,4 +166,26 @@ export default class SelectLocation extends Component<IProps> {
       }
     }
   }
+}
+
+interface IClosestToExitCellProps {
+  isSelected: boolean;
+  onSelect: () => void;
+}
+
+function ClosestToExitCell(props: IClosestToExitCellProps) {
+  return (
+    <Cell.CellButton
+      style={props.isSelected ? styles.selectedCell : undefined}
+      cellHoverStyle={props.isSelected ? styles.selectedCell : undefined}
+      onPress={props.onSelect}>
+      <Cell.Icon
+        source={props.isSelected ? 'icon-tick' : 'icon-nearest'}
+        tintColor={colors.white}
+        height={24}
+        width={24}
+      />
+      <Cell.Label>{messages.pgettext('select-location-view', 'Closest to exit server')}</Cell.Label>
+    </Cell.CellButton>
+  );
 }

@@ -2,18 +2,18 @@ import { goBack } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { RelayLocation } from '../../shared/daemon-rpc-types';
+import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
+import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
+import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import SelectLocation from '../components/SelectLocation';
-import RelaySettingsBuilder from '../lib/relay-settings-builder';
+import { IReduxState, ReduxDispatch } from '../redux/store';
 import userInterfaceActions from '../redux/userinterface/actions';
 import { LocationScope } from '../redux/userinterface/reducers';
-
-import { IReduxState, ReduxDispatch } from '../redux/store';
 import { ISharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: IReduxState) => {
   let selectedExitLocation: RelayLocation | undefined;
-  let selectedBridgeLocation: RelayLocation | undefined;
+  let selectedBridgeLocation: LiftedConstraint<RelayLocation> | undefined;
 
   if ('normal' in state.settings.relaySettings) {
     const exitLocation = state.settings.relaySettings.normal.location;
@@ -23,10 +23,7 @@ const mapStateToProps = (state: IReduxState) => {
   }
 
   if ('normal' in state.settings.bridgeSettings) {
-    const bridgeLocation = state.settings.bridgeSettings.normal.location;
-    if (bridgeLocation !== 'any') {
-      selectedBridgeLocation = bridgeLocation;
-    }
+    selectedBridgeLocation = state.settings.bridgeSettings.normal.location;
   }
 
   const allowBridgeSelection = state.settings.bridgeState === 'on';
@@ -72,9 +69,21 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
       history.goBack();
 
       try {
-        await props.app.updateBridgeLocation(bridgeLocation);
+        await props.app.updateBridgeSettings(
+          new BridgeSettingsBuilder().location.fromRaw(bridgeLocation).build(),
+        );
       } catch (e) {
         log.error(`Failed to select the bridge location: ${e.message}`);
+      }
+    },
+    onSelectClosestToExit: async () => {
+      // dismiss the view first
+      history.goBack();
+
+      try {
+        await props.app.updateBridgeSettings(new BridgeSettingsBuilder().location.any().build());
+      } catch (e) {
+        log.error(`Failed to set the bridge location to closest to exit: ${e.message}`);
       }
     },
   };

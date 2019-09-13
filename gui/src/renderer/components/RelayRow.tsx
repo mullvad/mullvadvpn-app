@@ -15,10 +15,8 @@ interface IProps {
 
 const styles = {
   base: Styles.createViewStyle({
-    paddingTop: 0,
-    paddingBottom: 0,
     paddingRight: 0,
-    paddingLeft: 60,
+    paddingLeft: 48,
     backgroundColor: colors.blue20,
   }),
   selected: Styles.createViewStyle({

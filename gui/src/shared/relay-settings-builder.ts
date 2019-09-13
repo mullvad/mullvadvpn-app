@@ -2,21 +2,12 @@ import {
   Constraint,
   IOpenVpnConstraints,
   IWireguardConstraints,
-  LiftedConstraint,
-  RelayLocation,
   RelayProtocol,
   RelaySettingsNormalUpdate,
   RelaySettingsUpdate,
   TunnelProtocol,
-} from '../../shared/daemon-rpc-types';
-
-interface ILocationBuilder<Self> {
-  country: (country: string) => Self;
-  city: (country: string, city: string) => Self;
-  hostname: (country: string, city: string, hostname: string) => Self;
-  any: () => Self;
-  fromRaw: (location: LiftedConstraint<RelayLocation>) => Self;
-}
+} from './daemon-rpc-types';
+import makeLocationBuilder, { ILocationBuilder } from './relay-location-builder';
 
 interface IExactOrAny<T, Self> {
   exact(value: T): Self;
@@ -58,41 +49,9 @@ class NormalRelaySettingsBuilder {
   }
 
   get location(): ILocationBuilder<NormalRelaySettingsBuilder> {
-    return {
-      country: (country: string) => {
-        this.payload.location = { only: { country } };
-        return this;
-      },
-      city: (country: string, city: string) => {
-        this.payload.location = { only: { city: [country, city] } };
-        return this;
-      },
-      hostname: (country: string, city: string, hostname: string) => {
-        this.payload.location = { only: { hostname: [country, city, hostname] } };
-        return this;
-      },
-      any: () => {
-        this.payload.location = 'any';
-        return this;
-      },
-      fromRaw(location: LiftedConstraint<RelayLocation>) {
-        if (location === 'any') {
-          return this.any();
-        } else if ('hostname' in location) {
-          const [country, city, hostname] = location.hostname;
-          return this.hostname(country, city, hostname);
-        } else if ('city' in location) {
-          const [country, city] = location.city;
-          return this.city(country, city);
-        } else if ('country' in location) {
-          return this.country(location.country);
-        }
-
-        throw new Error(
-          'Unsupported value of RelayLocation' + (location && JSON.stringify(location)),
-        );
-      },
-    };
+    return makeLocationBuilder(this, (location) => {
+      this.payload.location = location;
+    });
   }
 
   get tunnel(): ITunnelBuilder {

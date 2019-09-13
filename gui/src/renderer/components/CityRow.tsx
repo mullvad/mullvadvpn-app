@@ -23,10 +23,8 @@ interface IProps {
 
 const styles = {
   base: Styles.createButtonStyle({
-    paddingTop: 0,
-    paddingBottom: 0,
     paddingRight: 0,
-    paddingLeft: 40,
+    paddingLeft: 32,
     backgroundColor: colors.blue40,
   }),
   selected: Styles.createButtonStyle({
