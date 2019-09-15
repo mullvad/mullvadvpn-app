@@ -95,7 +95,7 @@ impl VpnServiceTunProvider {
     }
 
     fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
-        for _ in 0..MAX_PREPARE_TUN_ATTEMPTS {
+        for retry in 1..=MAX_PREPARE_TUN_ATTEMPTS {
             let tun = self.prepare_tun(config.clone())?;
 
             match Self::duplicate_tun(tun) {
@@ -104,7 +104,11 @@ impl VpnServiceTunProvider {
                     Some(libc::EBADF) => {
                         self.active_tun = None;
 
-                        log::warn!("VpnService returned a bad file descriptor, retrying");
+                        log::warn!(
+                            "VpnService returned a bad file descriptor, retrying ({}/{})",
+                            retry,
+                            MAX_PREPARE_TUN_ATTEMPTS
+                        );
                     }
                     _ => return Err(Error::DuplicateTunFd(error)),
                 },
