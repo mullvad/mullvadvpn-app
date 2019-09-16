@@ -25,24 +25,23 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
     private val attachListenerJob = attachListener()
     private val fetchInitialStateJob = fetchInitialState()
 
-    private var realState: TunnelState? = null
+    private val initialState: TunnelState = TunnelState.Disconnected()
+
+    var state = initialState
         set(value) {
             field = value
-            uiState = value ?: TunnelState.Disconnected()
+            onStateChange.notify(value)
+            uiState = value
         }
 
-    val state: TunnelState
-        get() {
-            return realState ?: TunnelState.Disconnected()
-        }
-
-    var uiState: TunnelState = TunnelState.Disconnected()
+    var uiState = initialState
         private set(value) {
             field = value
             onUiStateChange.notify(value)
         }
 
     var onUiStateChange = EventNotifier(uiState)
+    var onStateChange = EventNotifier(state)
     var vpnPermission = CompletableDeferred<Boolean>()
 
     fun connect() {
@@ -74,6 +73,7 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
 
     fun onDestroy() {
         onUiStateChange.unsubscribeAll()
+        onStateChange.unsubscribeAll()
         attachListenerJob.cancel()
         detachListener()
         fetchInitialStateJob.cancel()
@@ -128,11 +128,11 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
     }
 
     private fun fetchInitialState() = GlobalScope.launch(Dispatchers.Default) {
-        val initialState = daemon.await().getState()
+        val currentState = daemon.await().getState()
 
         synchronized(this) {
-            if (realState == null) {
-                realState = initialState
+            if (state === initialState) {
+                state = currentState
             }
         }
     }
@@ -140,7 +140,7 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
     private fun attachListener() = GlobalScope.launch(Dispatchers.Default) {
         daemon.await().onTunnelStateChange = { newState ->
             synchronized(this) {
-                realState = newState
+                state = newState
             }
         }
     }
