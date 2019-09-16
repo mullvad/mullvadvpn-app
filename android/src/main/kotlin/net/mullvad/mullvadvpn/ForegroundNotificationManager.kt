@@ -26,8 +26,8 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
     private val notificationManager =
         service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    private val listenerId = connectionProxy.onUiStateChange.subscribe { uiState ->
-        tunnelState = uiState
+    private val listenerId = connectionProxy.onStateChange.subscribe { state ->
+        tunnelState = state
     }
 
     private var reconnecting = false
@@ -147,7 +147,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
     fun onDestroy() {
         listenerId?.let { listener ->
-            connectionProxy.onUiStateChange.unsubscribe(listener)
+            connectionProxy.onStateChange.unsubscribe(listener)
         }
 
         service.apply {
