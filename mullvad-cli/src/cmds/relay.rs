@@ -35,6 +35,7 @@ impl Command for Relay {
                     .subcommand(
                         clap::SubCommand::with_name("custom")
                             .about("Set a custom VPN relay")
+                            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
                             .subcommand(clap::SubCommand::with_name("wireguard")
                                 .arg(
                                     clap::Arg::with_name("host")
