@@ -32,7 +32,7 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
     private val initialState: TunnelState = TunnelState.Disconnected()
 
     var state = initialState
-        set(value) {
+        private set(value) {
             field = value
             resetAnticipatedStateJob?.cancel()
             onStateChange.notify(value)
