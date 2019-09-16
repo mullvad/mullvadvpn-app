@@ -14,6 +14,8 @@ use std::{
 use talpid_core::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
 use talpid_types::BoxedError;
 
+const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
+
 /// Errors that occur while setting up VpnService tunnel.
 #[derive(Debug, err_derive::Error)]
 #[error(display = "Failed to set up the VpnService")]
@@ -92,13 +94,39 @@ impl VpnServiceTunProvider {
         })
     }
 
-    fn duplicate_tun(tun: &File) -> Result<RawFd, Error> {
+    fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
+        for retry in 1..=MAX_PREPARE_TUN_ATTEMPTS {
+            let tun = self.prepare_tun(config.clone())?;
+
+            match Self::duplicate_tun(tun) {
+                Ok(fd) => return Ok(fd),
+                Err(error) => match error.raw_os_error() {
+                    Some(libc::EBADF) => {
+                        self.active_tun = None;
+
+                        log::warn!(
+                            "VpnService returned a bad file descriptor, retrying ({}/{})",
+                            retry,
+                            MAX_PREPARE_TUN_ATTEMPTS
+                        );
+                    }
+                    _ => return Err(Error::DuplicateTunFd(error)),
+                },
+            }
+        }
+
+        Err(Error::DuplicateTunFd(io::Error::from_raw_os_error(
+            libc::EBADF,
+        )))
+    }
+
+    fn duplicate_tun(tun: &File) -> Result<RawFd, io::Error> {
         let tun_fd = unsafe { libc::dup(tun.as_raw_fd()) };
 
         if tun_fd >= 0 {
             Ok(tun_fd)
         } else {
-            Err(Error::DuplicateTunFd(io::Error::last_os_error()))
+            Err(io::Error::last_os_error())
         }
     }
 
@@ -150,8 +178,7 @@ impl VpnServiceTunProvider {
 
 impl TunProvider for VpnServiceTunProvider {
     fn get_tun(&mut self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
-        let tun = self.prepare_tun(config).map_err(BoxedError::new)?;
-        let tun_fd = Self::duplicate_tun(tun).map_err(BoxedError::new)?;
+        let tun_fd = self.get_tun_fd(config).map_err(BoxedError::new)?;
 
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(|cause| BoxedError::new(Error::CloneJavaVm(cause)))?;
