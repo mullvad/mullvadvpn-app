@@ -14,15 +14,14 @@ import {
   CloseBarItem,
   NavigationBar,
   NavigationContainer,
+  NavigationItems,
   NavigationScrollbars,
   ScopeBar,
   ScopeBarItem,
-  StickyContentContainer,
-  StickyContentHolder,
   TitleBarItem,
 } from './NavigationBar';
 import styles from './SelectLocationStyles';
-import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+import { HeaderSubTitle } from './SettingsHeader';
 
 interface IProps {
   locationScope: LocationScope;
@@ -75,51 +74,44 @@ export default class SelectLocation extends Component<IProps> {
         <Container>
           <View style={styles.select_location}>
             <NavigationContainer>
-              <NavigationBar>
-                <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {// TRANSLATORS: Title label in navigation bar
-                  messages.pgettext('select-location-nav', 'Select location')}
-                </TitleBarItem>
+              <NavigationBar alwaysDisplayBarTitle={true}>
+                <NavigationItems>
+                  <CloseBarItem action={this.props.onClose} />
+                  <TitleBarItem>
+                    {// TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('select-location-nav', 'Select location')}
+                  </TitleBarItem>
+                </NavigationItems>
+                <View style={styles.navigationBarAttachment}>
+                  <HeaderSubTitle>
+                    {this.props.allowBridgeSelection
+                      ? messages.pgettext(
+                          'select-location-view',
+                          'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
+                        )
+                      : messages.pgettext(
+                          'select-location-view',
+                          'While connected, your real location is masked with a private and secure location in the selected region.',
+                        )}
+                  </HeaderSubTitle>
+                  {this.props.allowBridgeSelection && (
+                    <ScopeBar
+                      style={styles.scopeBar}
+                      defaultSelectedIndex={this.props.locationScope}
+                      onChange={this.props.onChangeLocationScope}>
+                      <ScopeBarItem>
+                        {messages.pgettext('select-location-nav', 'Entry')}
+                      </ScopeBarItem>
+                      <ScopeBarItem>
+                        {messages.pgettext('select-location-nav', 'Exit')}
+                      </ScopeBarItem>
+                    </ScopeBar>
+                  )}
+                </View>
               </NavigationBar>
-              <StickyContentContainer style={styles.container}>
+              <View style={styles.container}>
                 <NavigationScrollbars ref={this.scrollView}>
                   <View style={styles.content}>
-                    <SettingsHeader
-                      style={this.props.allowBridgeSelection ? styles.headerWithScope : undefined}>
-                      <HeaderTitle>
-                        {messages.pgettext('select-location-view', 'Select location')}
-                      </HeaderTitle>
-                      <HeaderSubTitle>
-                        {this.props.allowBridgeSelection
-                          ? messages.pgettext(
-                              'select-location-view',
-                              'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
-                            )
-                          : messages.pgettext(
-                              'select-location-view',
-                              'While connected, your real location is masked with a private and secure location in the selected region.',
-                            )}
-                      </HeaderSubTitle>
-                    </SettingsHeader>
-
-                    {this.props.allowBridgeSelection && (
-                      <StickyContentHolder style={styles.stickyHolder}>
-                        <View style={styles.stickyContent}>
-                          <ScopeBar
-                            defaultSelectedIndex={this.props.locationScope}
-                            onChange={this.props.onChangeLocationScope}>
-                            <ScopeBarItem>
-                              {messages.pgettext('select-location-nav', 'Entry')}
-                            </ScopeBarItem>
-                            <ScopeBarItem>
-                              {messages.pgettext('select-location-nav', 'Exit')}
-                            </ScopeBarItem>
-                          </ScopeBar>
-                        </View>
-                      </StickyContentHolder>
-                    )}
-
                     {this.props.locationScope === LocationScope.relay ? (
                       <LocationList
                         key={'exit-locations'}
@@ -151,7 +143,7 @@ export default class SelectLocation extends Component<IProps> {
                     )}
                   </View>
                 </NavigationScrollbars>
-              </StickyContentContainer>
+              </View>
             </NavigationContainer>
           </View>
         </Container>

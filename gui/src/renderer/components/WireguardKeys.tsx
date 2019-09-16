@@ -8,7 +8,7 @@ import { IWgKey, WgKeyState } from '../redux/settings/reducers';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
-import { BackBarItem, NavigationBar, NavigationContainer } from './NavigationBar';
+import { BackBarItem, NavigationBar, NavigationContainer, NavigationItems } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import styles from './WireguardKeysStyles';
 
@@ -32,10 +32,12 @@ export default class WireguardKeys extends Component<IProps> {
           <View style={styles.wgkeys}>
             <NavigationContainer>
               <NavigationBar>
-                <BackBarItem action={this.props.onClose}>
-                  {// TRANSLATORS: Back button in navigation bar
-                  messages.pgettext('wireguard-keys-nav', 'Advanced')}
-                </BackBarItem>
+                <NavigationItems>
+                  <BackBarItem action={this.props.onClose}>
+                    {// TRANSLATORS: Back button in navigation bar
+                    messages.pgettext('wireguard-keys-nav', 'Advanced')}
+                  </BackBarItem>
+                </NavigationItems>
               </NavigationBar>
             </NavigationContainer>
 

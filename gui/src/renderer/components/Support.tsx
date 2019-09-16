@@ -5,7 +5,7 @@ import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
 import { ModalAlert, ModalContainer, ModalContent } from './Modal';
-import { BackBarItem, NavigationBar } from './NavigationBar';
+import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import styles from './SupportStyles';
 
@@ -139,10 +139,12 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             <ModalContent>
               <View style={styles.support}>
                 <NavigationBar>
-                  <BackBarItem action={this.props.onClose}>
-                    {// TRANSLATORS: Back button in navigation bar
-                    messages.pgettext('support-nav', 'Settings')}
-                  </BackBarItem>
+                  <NavigationItems>
+                    <BackBarItem action={this.props.onClose}>
+                      {// TRANSLATORS: Back button in navigation bar
+                      messages.pgettext('support-nav', 'Settings')}
+                    </BackBarItem>
+                  </NavigationItems>
                 </NavigationBar>
                 <View style={styles.support__container}>
                   {header}

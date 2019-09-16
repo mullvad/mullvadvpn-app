@@ -11,6 +11,7 @@ import {
   CloseBarItem,
   NavigationBar,
   NavigationContainer,
+  NavigationItems,
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
@@ -44,11 +45,13 @@ export default class Settings extends Component<IProps> {
           <View style={styles.settings}>
             <NavigationContainer>
               <NavigationBar>
-                <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {// TRANSLATORS: Title label in navigation bar
-                  messages.pgettext('settings-view-nav', 'Settings')}
-                </TitleBarItem>
+                <NavigationItems>
+                  <CloseBarItem action={this.props.onClose} />
+                  <TitleBarItem>
+                    {// TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('settings-view-nav', 'Settings')}
+                  </TitleBarItem>
+                </NavigationItems>
               </NavigationBar>
 
               <View style={styles.settings__container}>

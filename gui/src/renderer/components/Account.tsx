@@ -6,7 +6,7 @@ import styles from './AccountStyles';
 import * as AppButton from './AppButton';
 import ClipboardLabel from './ClipboardLabel';
 import { Container, Layout } from './Layout';
-import { BackBarItem, NavigationBar } from './NavigationBar';
+import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
@@ -28,10 +28,12 @@ export default class Account extends Component<IProps> {
         <Container>
           <View style={styles.account}>
             <NavigationBar>
-              <BackBarItem action={this.props.onClose}>
-                {// TRANSLATORS: Back button in navigation bar
-                messages.pgettext('account-nav', 'Settings')}
-              </BackBarItem>
+              <NavigationItems>
+                <BackBarItem action={this.props.onClose}>
+                  {// TRANSLATORS: Back button in navigation bar
+                  messages.pgettext('account-nav', 'Settings')}
+                </BackBarItem>
+              </NavigationItems>
             </NavigationBar>
 
             <View style={styles.account__container}>

@@ -13,18 +13,12 @@ export default {
   content: Styles.createViewStyle({
     overflow: 'visible',
   }),
-  headerWithScope: Styles.createViewStyle({
-    paddingBottom: 4,
+  navigationBarAttachment: Styles.createTextStyle({
+    marginTop: 8,
+    paddingHorizontal: 4,
   }),
-  stickyHolder: Styles.createViewStyle({
-    marginTop: 4,
-  }),
-  stickyContent: Styles.createViewStyle({
-    paddingHorizontal: 12,
-    paddingBottom: 8,
-
-    // NavigationBar already adds some spacing
-    paddingTop: 0,
+  scopeBar: Styles.createViewStyle({
+    marginTop: 8,
   }),
   selectedCell: Styles.createViewStyle({
     backgroundColor: colors.green,
