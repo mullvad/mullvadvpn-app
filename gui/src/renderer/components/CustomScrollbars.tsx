@@ -86,6 +86,15 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
     }
   }
 
+  public getScrollPosition(): [number, number] {
+    const scroll = this.scrollableRef.current;
+    if (scroll) {
+      return [scroll.scrollLeft, scroll.scrollTop];
+    } else {
+      return [0, 0];
+    }
+  }
+
   public componentDidMount() {
     this.updateScrollbarsHelper({
       position: true,

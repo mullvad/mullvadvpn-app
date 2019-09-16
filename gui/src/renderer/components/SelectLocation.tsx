@@ -43,13 +43,29 @@ export default class SelectLocation extends Component<IProps> {
   private exitLocationList = React.createRef<LocationList>();
   private bridgeLocationList = React.createRef<LocationList>();
 
+  private scrollPositionByScope: { [index: number]: [number, number] } = {};
+
   public componentDidMount() {
     this.scrollToSelectedCell();
   }
 
-  public componentDidUpdate(prevProps: IProps) {
+  public componentDidUpdate(prevProps: IProps, _prevState: {}, snapshot?: [number, number]) {
     if (this.props.locationScope !== prevProps.locationScope) {
-      this.scrollToSelectedCell();
+      this.restoreScrollPosition(this.props.locationScope);
+
+      if (snapshot) {
+        this.saveScrollPosition(prevProps.locationScope, snapshot);
+      }
+    }
+  }
+
+  public getSnapshotBeforeUpdate(_prevProps: IProps) {
+    const scrollView = this.scrollView.current;
+
+    if (scrollView) {
+      return scrollView.getScrollPosition();
+    } else {
+      return undefined;
     }
   }
 
@@ -141,6 +157,27 @@ export default class SelectLocation extends Component<IProps> {
         </Container>
       </Layout>
     );
+  }
+
+  public saveScrollPosition(scope: LocationScope, position: [number, number]) {
+    this.scrollPositionByScope[scope] = position;
+  }
+
+  public restoreScrollPosition(scope: LocationScope) {
+    const prevScrollPos = this.scrollPositionByScope[scope];
+
+    if (prevScrollPos) {
+      this.scrollToPosition(...prevScrollPos);
+    } else {
+      this.scrollToSelectedCell();
+    }
+  }
+
+  private scrollToPosition(x: number, y: number) {
+    const scrollView = this.scrollView.current;
+    if (scrollView) {
+      scrollView.scrollTo(x, y);
+    }
   }
 
   private scrollToSelectedCell() {
