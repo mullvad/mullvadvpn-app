@@ -30,6 +30,7 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
     var state = initialState
         set(value) {
             field = value
+            onStateChange.notify(value)
             uiState = value
         }
 
@@ -40,6 +41,7 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
         }
 
     var onUiStateChange = EventNotifier(uiState)
+    var onStateChange = EventNotifier(state)
     var vpnPermission = CompletableDeferred<Boolean>()
 
     fun connect() {
@@ -71,6 +73,7 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
 
     fun onDestroy() {
         onUiStateChange.unsubscribeAll()
+        onStateChange.unsubscribeAll()
         attachListenerJob.cancel()
         detachListener()
         fetchInitialStateJob.cancel()
