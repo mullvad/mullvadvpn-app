@@ -11,11 +11,10 @@ use mullvad_types::{
     settings::{Settings, TunnelOptions},
     states::TunnelState,
     version::AppVersionInfo,
-    DaemonEvent,
+    wireguard, DaemonEvent,
 };
 use serde::{Deserialize, Serialize};
 use std::{io, path::Path, thread};
-use talpid_types::net::wireguard;
 
 static NO_ARGS: [u8; 0] = [];
 
@@ -160,7 +159,7 @@ impl DaemonRpcClient {
         self.call("get_settings", &NO_ARGS)
     }
 
-    pub fn generate_wireguard_key(&mut self) -> Result<mullvad_types::wireguard::KeygenEvent> {
+    pub fn generate_wireguard_key(&mut self) -> Result<wireguard::KeygenEvent> {
         self.call("generate_wireguard_key", &NO_ARGS)
     }
 
