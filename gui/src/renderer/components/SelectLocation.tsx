@@ -75,14 +75,14 @@ export default class SelectLocation extends Component<IProps> {
                         {messages.pgettext('select-location-view', 'Select location')}
                       </HeaderTitle>
                       <HeaderSubTitle>
-                        {this.props.locationScope === LocationScope.relay
+                        {this.props.allowBridgeSelection
                           ? messages.pgettext(
                               'select-location-view',
-                              'While connected, your real location is masked with a private and secure location in the selected region',
+                              'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
                             )
                           : messages.pgettext(
                               'select-location-view',
-                              'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)',
+                              'While connected, your real location is masked with a private and secure location in the selected region.',
                             )}
                       </HeaderSubTitle>
                     </SettingsHeader>
