@@ -162,14 +162,14 @@ class ConnectFragment : Fragment() {
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) =
         GlobalScope.launch(Dispatchers.Main)
     {
+        notificationBanner.tunnelState = realState
         locationInfoCache.state = realState
         locationInfo.state = realState
         headerBar.setState(realState)
+        status.setState(realState)
 
         actionButton.tunnelState = uiState
         switchLocationButton.state = uiState
-        notificationBanner.tunnelState = uiState
-        status.setState(uiState)
     }
 
     private fun updateKeyStatus(keyStatus: KeygenEvent?) = GlobalScope.launch(Dispatchers.Main) {
