@@ -11,6 +11,7 @@ import {
   BackBarItem,
   NavigationBar,
   NavigationContainer,
+  NavigationItems,
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
@@ -162,14 +163,16 @@ export default class AdvancedSettings extends Component<IProps, IState> {
           <View style={styles.advanced_settings}>
             <NavigationContainer>
               <NavigationBar>
-                <BackBarItem action={this.props.onClose}>
-                  {// TRANSLATORS: Back button in navigation bar
-                  messages.pgettext('advanced-settings-nav', 'Settings')}
-                </BackBarItem>
-                <TitleBarItem>
-                  {// TRANSLATORS: Title label in navigation bar
-                  messages.pgettext('advanced-settings-nav', 'Advanced')}
-                </TitleBarItem>
+                <NavigationItems>
+                  <BackBarItem action={this.props.onClose}>
+                    {// TRANSLATORS: Back button in navigation bar
+                    messages.pgettext('advanced-settings-nav', 'Settings')}
+                  </BackBarItem>
+                  <TitleBarItem>
+                    {// TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('advanced-settings-nav', 'Advanced')}
+                  </TitleBarItem>
+                </NavigationItems>
               </NavigationBar>
 
               <View style={styles.advanced_settings__container}>
