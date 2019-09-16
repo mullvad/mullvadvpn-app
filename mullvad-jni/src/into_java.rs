@@ -680,7 +680,8 @@ impl<'env> IntoJava<'env> for BlockReason {
             BlockReason::TunnelParameterError(reason) => {
                 let class =
                     get_class("net/mullvad/mullvadvpn/model/BlockReason$ParameterGeneration");
-                let parameters = [JValue::Object(reason.into_java(env))];
+                let reason = env.auto_local(JObject::from(reason.into_java(env)));
+                let parameters = [JValue::Object(reason.as_obj())];
                 return env
                     .new_object(
                         &class,
