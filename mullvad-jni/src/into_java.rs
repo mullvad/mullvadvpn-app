@@ -133,7 +133,7 @@ fn ipvx_addr_into_java<'env>(original_octets: &[u8], env: &JNIEnv<'env>) -> JObj
     let octets = env.auto_local(JObject::from(octets_array));
     let result = env
         .call_static_method_unchecked(
-            "java/net/InetAddress",
+            class.as_obj(),
             constructor,
             JavaType::Object("java/net/InetAddress".to_owned()),
             &[JValue::Object(octets.as_obj())],
