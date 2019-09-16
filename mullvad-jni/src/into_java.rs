@@ -133,7 +133,7 @@ fn ipvx_addr_into_java<'env>(original_octets: &[u8], env: &JNIEnv<'env>) -> JObj
     let octets = env.auto_local(JObject::from(octets_array));
     let result = env
         .call_static_method_unchecked(
-            class.as_obj(),
+            &class,
             constructor,
             JavaType::Object("java/net/InetAddress".to_owned()),
             &[JValue::Object(octets.as_obj())],
@@ -141,7 +141,7 @@ fn ipvx_addr_into_java<'env>(original_octets: &[u8], env: &JNIEnv<'env>) -> JObj
         .expect("Failed to create InetAddress Java object");
 
     match result {
-        JValue::Object(object) => object,
+        JValue::Object(object) => JObject::from(object.into_inner()),
         value => {
             panic!(
                 "InetAddress.getByAddress returned an invalid value: {:?}",
