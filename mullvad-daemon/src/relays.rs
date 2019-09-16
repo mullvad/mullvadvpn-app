@@ -92,6 +92,17 @@ impl ParsedRelays {
                 let latitude = city.latitude;
                 let longitude = city.longitude;
                 for relay in &mut city.relays {
+                    // Filter out all UDP endpoints from relays. We currently don't support them.
+                    relay.bridges.shadowsocks = relay
+                        .bridges
+                        .shadowsocks
+                        .iter()
+                        .filter(|shadowsocks_endpoint| {
+                            shadowsocks_endpoint.protocol == TransportProtocol::Tcp
+                        })
+                        .cloned()
+                        .collect();
+
                     let mut relay_with_location = relay.clone();
                     relay_with_location.location = Some(Location {
                         country: country_name.clone(),
