@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.VpnService
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -17,10 +18,13 @@ import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.EventNotifier
 
+val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
+
 class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>) {
     var mainActivity: MainActivity? = null
 
     private var activeAction: Job? = null
+    private var resetAnticipatedStateJob: Job? = null
 
     private val attachListenerJob = attachListener()
     private val fetchInitialStateJob = fetchInitialState()
@@ -28,8 +32,9 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
     private val initialState: TunnelState = TunnelState.Disconnected()
 
     var state = initialState
-        set(value) {
+        private set(value) {
             field = value
+            resetAnticipatedStateJob?.cancel()
             onStateChange.notify(value)
             uiState = value
         }
@@ -87,6 +92,7 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
             if (currentState is TunnelState.Connecting || currentState is TunnelState.Connected) {
                 return false
             } else {
+                scheduleToResetAnticipatedState()
                 uiState = TunnelState.Connecting(null, null)
                 return true
             }
@@ -100,10 +106,30 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
             if (currentState is TunnelState.Disconnected) {
                 return false
             } else {
+                scheduleToResetAnticipatedState()
                 uiState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing())
                 return true
             }
         }
+    }
+
+    private fun scheduleToResetAnticipatedState() {
+        resetAnticipatedStateJob?.cancel()
+
+        var currentJob: Job? = null
+
+        val newJob = GlobalScope.launch(Dispatchers.Default) {
+            delay(ANTICIPATED_STATE_TIMEOUT_MS)
+
+            synchronized(this@ConnectionProxy) {
+                if (!currentJob!!.isCancelled) {
+                    uiState = state
+                }
+            }
+        }
+
+        currentJob = newJob
+        resetAnticipatedStateJob = newJob
     }
 
     private fun requestVpnPermission() {
