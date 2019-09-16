@@ -20,7 +20,6 @@ const styles = {
     color: colors.white,
   }),
   subtitle: Styles.createTextStyle({
-    marginTop: 8,
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '600',
@@ -29,26 +28,48 @@ const styles = {
     lineHeight: 20,
     letterSpacing: -0.2,
   }),
+  spacer: Styles.createViewStyle({
+    height: 8,
+  }),
 };
 
 interface ISettingsHeaderProps {
   style?: Types.ViewStyleRuleSet;
 }
 
+interface ISettingsTextProps {
+  style?: Types.TextStyleRuleSet;
+}
+
 export default class SettingsHeader extends Component<ISettingsHeaderProps> {
   public render() {
-    return <View style={[styles.header.default, this.props.style]}>{this.props.children}</View>;
+    return (
+      <View style={[styles.header.default, this.props.style]}>
+        {React.Children.map(this.props.children, (child, index) => {
+          if (React.isValidElement(child) && index > 0) {
+            return (
+              <React.Fragment>
+                <View style={styles.spacer} />
+                {child}
+              </React.Fragment>
+            );
+          } else {
+            return child;
+          }
+        })}
+      </View>
+    );
   }
 }
 
-export class HeaderTitle extends Component {
+export class HeaderTitle extends Component<ISettingsTextProps> {
   public render() {
-    return <Text style={[styles.title]}>{this.props.children}</Text>;
+    return <Text style={[styles.title, this.props.style]}>{this.props.children}</Text>;
   }
 }
 
-export class HeaderSubTitle extends Component {
+export class HeaderSubTitle extends Component<ISettingsTextProps> {
   public render() {
-    return <Text style={[styles.subtitle]}>{this.props.children}</Text>;
+    return <Text style={[styles.subtitle, this.props.style]}>{this.props.children}</Text>;
   }
 }
