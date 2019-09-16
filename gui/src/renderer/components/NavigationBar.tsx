@@ -100,7 +100,7 @@ const styles = {
         paddingVertical: 4,
       }),
       selected: Styles.createButtonStyle({
-        backgroundColor: colors.blue,
+        backgroundColor: colors.green,
       }),
       hover: Styles.createButtonStyle({
         backgroundColor: colors.blue40,
