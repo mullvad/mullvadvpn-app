@@ -58,6 +58,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Check and adjust relay and bridge constraints when they are updated, so no incompatible
   combinations are used.
+- Fix panic when running CLI "mullvad relay set custom" without any more arguments.
 
 
 ## [2019.7-beta1] - 2019-08-08
