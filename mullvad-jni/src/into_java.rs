@@ -133,7 +133,7 @@ fn ipvx_addr_into_java<'env>(original_octets: &[u8], env: &JNIEnv<'env>) -> JObj
     let octets = env.auto_local(JObject::from(octets_array));
     let result = env
         .call_static_method_unchecked(
-            "java/net/InetAddress",
+            class.as_obj(),
             constructor,
             JavaType::Object("java/net/InetAddress".to_owned()),
             &[JValue::Object(octets.as_obj())],
@@ -680,7 +680,8 @@ impl<'env> IntoJava<'env> for BlockReason {
             BlockReason::TunnelParameterError(reason) => {
                 let class =
                     get_class("net/mullvad/mullvadvpn/model/BlockReason$ParameterGeneration");
-                let parameters = [JValue::Object(reason.into_java(env))];
+                let reason = env.auto_local(JObject::from(reason.into_java(env)));
+                let parameters = [JValue::Object(reason.as_obj())];
                 return env
                     .new_object(
                         &class,
