@@ -344,15 +344,15 @@ impl Relay {
 
         locations
             .countries
-            .sort_by(|c1, c2| c1.name.to_lowercase().cmp(&c2.name.to_lowercase()));
+            .sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
         for mut country in locations.countries {
             country
                 .cities
-                .sort_by(|c1, c2| c1.name.to_lowercase().cmp(&c2.name.to_lowercase()));
+                .sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
             println!("{} ({})", country.name, country.code);
             for mut city in country.cities {
                 city.relays
-                    .sort_by(|r1, r2| r1.hostname.to_lowercase().cmp(&r2.hostname.to_lowercase()));
+                    .sort_by(|r1, r2| natord::compare_ignore_case(&r1.hostname, &r2.hostname));
                 println!(
                     "\t{} ({}) @ {:.5}°N, {:.5}°W",
                     city.name, city.code, city.latitude, city.longitude

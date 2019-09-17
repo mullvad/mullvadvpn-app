@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 - WireGuard key generation will try to replace old key if one exists.
 - Show banner about new app versions only if current platform has changes in latest release.
 - Don't make a GeoIP lookup by default in CLI status command. Add --location flag for enabling it.
+- Sort relay locations and hostnames with natural sorting. Meaning `se10` will show up after `se2`.
 
 ### Fixed
 - Fix old settings deserialization to allow migrating settings from versions older than 2019.6.
