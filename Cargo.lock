@@ -1191,6 +1191,7 @@ dependencies = [
  "mullvad-ipc-client 0.1.0",
  "mullvad-paths 0.1.0",
  "mullvad-types 0.1.0",
+ "natord 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.94 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",
  "talpid-types 0.1.0",
@@ -1373,6 +1374,11 @@ dependencies = [
  "serde_json 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-types 0.1.0",
 ]
+
+[[package]]
+name = "natord"
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "net2"
@@ -3113,6 +3119,7 @@ dependencies = [
 "checksum miow 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "396aa0f2003d7df8395cb93e09871561ccc3e785f0acb369170e8cc74ddf9226"
 "checksum mnl 0.1.0 (git+https://github.com/mullvad/mnl-rs?rev=f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6)" = "<none>"
 "checksum mnl-sys 0.1.0 (git+https://github.com/mullvad/mnl-rs?rev=f0d19501b9b85be9a1ffaec8317a378bcbdf4fa6)" = "<none>"
+"checksum natord 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)" = "308d96db8debc727c3fd9744aac51751243420e46edf401010908da7f8d5e57c"
 "checksum net2 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)" = "42550d9fb7b6684a6d404d9fa7250c2eb2646df731d1c06afc06dcee9e1bcf88"
 "checksum netlink-packet 0.1.1 (git+https://github.com/mullvad/netlink?rev=f768adfcc8c6b064ef7ae3c792c4c21d0d96d0b5)" = "<none>"
 "checksum netlink-proto 0.1.1 (git+https://github.com/mullvad/netlink?rev=f768adfcc8c6b064ef7ae3c792c4c21d0d96d0b5)" = "<none>"
