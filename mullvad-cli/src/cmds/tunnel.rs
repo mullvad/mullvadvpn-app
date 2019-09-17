@@ -158,7 +158,11 @@ impl Tunnel {
         let mut rpc = new_rpc_client()?;
         match rpc.get_wireguard_key()? {
             Some(key) => {
-                println!("Current key: {}", key);
+                println!("Current key    : {}", &key.key);
+                println!(
+                    "Key created on : {}",
+                    &key.created.with_timezone(&chrono::offset::Local)
+                );
             }
             None => {
                 println!("No key is set");

@@ -24,6 +24,7 @@ env_logger = "0.6"
 serde = "1.0"
 futures = "0.1"
 base64 = "0.10"
+chrono = { version = "0.4", features = ["serde"] }
 
 mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-types = { path = "../mullvad-types" }
