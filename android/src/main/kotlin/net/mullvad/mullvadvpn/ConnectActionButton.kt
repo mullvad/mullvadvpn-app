@@ -10,6 +10,11 @@ import net.mullvad.mullvadvpn.model.TunnelState
 class ConnectActionButton(val parentView: View) {
     private val button: Button = parentView.findViewById(R.id.action_button)
 
+    private val resources = parentView.context.resources
+    private val greenBackground = resources.getDrawable(R.drawable.green_button_background, null)
+    private val transparentRedBackground =
+        resources.getDrawable(R.drawable.transparent_red_button_background, null)
+
     var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
             when (value) {
@@ -48,17 +53,17 @@ class ConnectActionButton(val parentView: View) {
     }
 
     private fun disconnected() {
-        button.setBackgroundResource(R.drawable.green_button_background)
+        button.background = greenBackground
         button.setText(R.string.connect)
     }
 
     private fun connecting() {
-        button.setBackgroundResource(R.drawable.transparent_red_button_background)
+        button.background = transparentRedBackground
         button.setText(R.string.cancel)
     }
 
     private fun connected() {
-        button.setBackgroundResource(R.drawable.transparent_red_button_background)
+        button.background = transparentRedBackground
         button.setText(R.string.disconnect)
     }
 }
