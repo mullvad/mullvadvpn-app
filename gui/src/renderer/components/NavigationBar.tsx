@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { Animated, Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
 import { colors } from '../../config.json';
 import CustomScrollbars, { IScrollEvent } from './CustomScrollbars';
@@ -12,9 +11,9 @@ const styles = {
       paddingHorizontal: 12,
       paddingBottom: 12,
     }),
-    content: Styles.createViewStyle({
+    wrapper: Styles.createViewStyle({
       flex: 1,
-      flexDirection: 'row',
+      flexDirection: 'column',
     }),
     separator: Styles.createViewStyle({
       backgroundColor: 'rgba(0, 0, 0, 0.2)',
@@ -34,6 +33,10 @@ const styles = {
       paddingTop: 12,
     }),
   },
+  navigationItems: Styles.createViewStyle({
+    flex: 1,
+    flexDirection: 'row',
+  }),
   navigationBarTitle: {
     container: Styles.createViewStyle({
       flex: 1,
@@ -100,7 +103,7 @@ const styles = {
         paddingVertical: 4,
       }),
       selected: Styles.createButtonStyle({
-        backgroundColor: colors.blue,
+        backgroundColor: colors.green,
       }),
       hover: Styles.createButtonStyle({
         backgroundColor: colors.blue40,
@@ -113,13 +116,6 @@ const styles = {
       }),
     },
   },
-  stickyContentHolder: Styles.createViewStyle({
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: colors.darkBlue,
-  }),
 };
 
 interface INavigationScrollContextValue {
@@ -178,15 +174,8 @@ export class NavigationContainer extends Component {
   }
 
   private updateBarAppearance(event: IScrollEvent) {
-    // detect if any of child elements provide a sticky context
-    // in that case the navigation bar does not draw the separator line
-    // since the sticky content is expected to include it.
-    const hasSticky = React.Children.toArray(this.props.children).some((child) => {
-      return React.isValidElement(child) && child.type === StickyContentContainer;
-    });
-
     // that's where SettingsHeader.HeaderTitle intersects the navigation bar
-    const showsBarSeparator = event.scrollTop > 11 && !hasSticky;
+    const showsBarSeparator = event.scrollTop > 11;
 
     // that's when SettingsHeader.HeaderTitle goes behind the navigation bar
     const showsBarTitle = event.scrollTop > 20;
@@ -344,87 +333,6 @@ class PrivateBarItemAnimationContainer extends Component<IPrivateBarItemAnimatio
   }
 }
 
-interface IStickyContentContext {
-  container: HTMLDivElement | null;
-  holder: React.Ref<View>;
-  isSticky: boolean;
-}
-
-const StickyContentContext = React.createContext<IStickyContentContext>({
-  container: null,
-  holder: React.createRef<View>(),
-  isSticky: false,
-});
-
-export class StickyContentContainer extends Component<{
-  style: Types.StyleRuleSet<Types.ViewStyle>;
-}> {
-  public static contextType = NavigationScrollContext;
-  public context!: React.ContextType<typeof NavigationScrollContext>;
-
-  public state = {
-    container: null,
-    holder: React.createRef<View>(),
-    isSticky: false,
-  };
-
-  public componentDidMount() {
-    if (this.context.navigationContainer) {
-      this.context.navigationContainer.addScrollEventListener(this.onScroll);
-    }
-  }
-
-  public componentWillUnmount() {
-    if (this.context.navigationContainer) {
-      this.context.navigationContainer.removeScrollEventListener(this.onScroll);
-    }
-  }
-
-  public render() {
-    return (
-      <div
-        ref={this.onRef}
-        style={{
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}>
-        <View style={this.props.style}>
-          <StickyContentContext.Provider value={this.state}>
-            {this.props.children}
-          </StickyContentContext.Provider>
-        </View>
-      </div>
-    );
-  }
-
-  private onScroll = async (_scrollEvent: IScrollEvent) => {
-    const holder = this.state.holder.current;
-
-    if (holder) {
-      let layout: Types.LayoutInfo;
-
-      try {
-        layout = await UserInterface.measureLayoutRelativeToAncestor(holder, this);
-      } catch {
-        // TODO: handle error
-        return;
-      }
-
-      const isSticky = layout.y <= 0;
-
-      if (this.state.isSticky !== isSticky) {
-        this.setState({ isSticky });
-      }
-    }
-  };
-
-  private onRef = (ref: HTMLDivElement | null) => {
-    this.setState({ container: ref });
-  };
-}
-
 interface IScopeBarProps {
   defaultSelectedIndex: number;
   onChange?: (selectedIndex: number) => void;
@@ -493,67 +401,6 @@ export class ScopeBar extends Component<IScopeBarProps, IScopeBarState> {
   }
 }
 
-interface IStickyContentHolderProps {
-  style?: Types.ViewStyleRuleSet;
-}
-
-interface IStickyContentHolderState {
-  contentHeight: number;
-}
-
-export class StickyContentHolder extends Component<
-  IStickyContentHolderProps,
-  IStickyContentHolderState
-> {
-  public state = {
-    contentHeight: 0,
-  };
-
-  public render() {
-    return (
-      <StickyContentContext.Consumer>
-        {(stickyContext) => {
-          const contentStyle = stickyContext.isSticky ? styles.stickyContentHolder : undefined;
-          const contentPlaceholderStyle = stickyContext.isSticky
-            ? Styles.createViewStyle(
-                {
-                  height: this.state.contentHeight,
-                },
-                false,
-              )
-            : undefined;
-
-          const children = (
-            <View style={contentStyle} onLayout={this.onLayout}>
-              {this.props.children}
-              {stickyContext.isSticky ? <NavigationBarSeparator /> : undefined}
-            </View>
-          );
-
-          return (
-            <View style={this.props.style} ref={stickyContext.holder}>
-              {stickyContext.isSticky && stickyContext.container ? (
-                <React.Fragment>
-                  <View style={contentPlaceholderStyle} />
-                  {ReactDOM.createPortal(children, stickyContext.container)}
-                </React.Fragment>
-              ) : (
-                children
-              )}
-            </View>
-          );
-        }}
-      </StickyContentContext.Consumer>
-    );
-  }
-
-  private onLayout = async (layout: Types.LayoutInfo) => {
-    if (this.state.contentHeight !== layout.height) {
-      this.setState({ contentHeight: layout.height });
-    }
-  };
-}
-
 interface IScopeBarItemProps {
   children?: React.ReactText;
   selected?: boolean;
@@ -598,6 +445,7 @@ function NavigationBarSeparator() {
 
 interface INavigationBarProps {
   children?: React.ReactNode;
+  alwaysDisplayBarTitle?: boolean;
 }
 
 export const NavigationBar = React.forwardRef(function NavigationBarT(
@@ -609,7 +457,7 @@ export const NavigationBar = React.forwardRef(function NavigationBarT(
       {(context) => (
         <PrivateNavigationBar
           ref={ref}
-          showsBarTitle={context.showsBarTitle}
+          showsBarTitle={props.alwaysDisplayBarTitle || context.showsBarTitle}
           showsBarSeparator={context.showsBarSeparator}>
           {props.children}
         </PrivateNavigationBar>
@@ -634,6 +482,10 @@ const PrivateTitleBarItemContext = React.createContext({
   titleRef: React.createRef<PrivateTitleBarItem>(),
   measuringTextRef: React.createRef<Text>(),
 });
+
+export function NavigationItems(props: { children: React.ReactNode }) {
+  return <View style={styles.navigationItems}>{props.children}</View>;
+}
 
 class PrivateNavigationBar extends Component<
   IPrivateNavigationBarProps,
@@ -661,7 +513,7 @@ class PrivateNavigationBar extends Component<
   public render() {
     return (
       <View style={[styles.navigationBar.default, this.getPlatformStyle()]}>
-        <View style={styles.navigationBar.content} onLayout={this.onLayout}>
+        <View style={styles.navigationBar.wrapper} onLayout={this.onLayout}>
           <PrivateTitleBarItemContext.Provider
             value={{
               titleAdjustment: this.state.titleAdjustment,
