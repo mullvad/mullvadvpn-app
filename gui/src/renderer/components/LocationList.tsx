@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Component, View } from 'reactxp';
+import { Component, Styles, View } from 'reactxp';
+import { colors } from '../../config.json';
 import {
   compareRelayLocation,
   compareRelayLocationLoose,
@@ -8,49 +9,266 @@ import {
 } from '../../shared/daemon-rpc-types';
 import { countries, relayLocations } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
+import * as Cell from './Cell';
 import CityRow from './CityRow';
 import CountryRow from './CountryRow';
 import RelayRow from './RelayRow';
 
-interface IProps {
-  relayLocations: IRelayLocationRedux[];
-  selectedLocation?: RelayLocation;
-  onSelect: (location: RelayLocation) => void;
+const styles = {
+  selectedCell: Styles.createViewStyle({
+    backgroundColor: colors.green,
+  }),
+};
+
+export enum LocationSelectionType {
+  relay = 'relay',
+  special = 'special',
 }
 
-interface IState {
-  selectedLocation?: RelayLocation;
-  expandedItems: RelayLocation[];
+export type LocationSelection<SpecialValueType> =
+  | { type: LocationSelectionType.special; value: SpecialValueType }
+  | { type: LocationSelectionType.relay; value: RelayLocation };
+
+interface ILocationListState<SpecialValueType> {
+  selectedValue?: LocationSelection<SpecialValueType>;
+  expandedLocations: RelayLocation[];
 }
 
-interface ICommonCellProps<T> {
-  location: RelayLocation;
-  selected: boolean;
-  ref?: React.RefObject<T>;
+interface ILocationListProps<SpecialValueType> {
+  defaultExpandedLocations?: RelayLocation[];
+  selectedValue?: LocationSelection<SpecialValueType>;
+  selectedElementRef?: React.Ref<React.ReactInstance>;
+  onSelect?: (value: LocationSelection<SpecialValueType>) => void;
 }
 
-export default class LocationList extends Component<IProps, IState> {
-  public selectedCell = React.createRef<React.ReactNode>();
+export default class LocationList<SpecialValueType> extends Component<
+  ILocationListProps<SpecialValueType>,
+  ILocationListState<SpecialValueType>
+> {
+  public state: ILocationListState<SpecialValueType> = {
+    expandedLocations: [],
+  };
 
-  constructor(props: IProps) {
+  public selectedRelayLocationRef: React.ReactInstance | null = null;
+  public selectedSpecialLocationRef: React.ReactInstance | null = null;
+
+  constructor(props: ILocationListProps<SpecialValueType>) {
     super(props);
 
-    this.state = {
-      expandedItems: props.selectedLocation ? expandRelayLocation(props.selectedLocation) : [],
-      selectedLocation: props.selectedLocation,
-    };
+    if (props.selectedValue) {
+      const expandedLocations =
+        props.defaultExpandedLocations ||
+        (props.selectedValue.type === LocationSelectionType.relay
+          ? expandRelayLocation(props.selectedValue.value)
+          : []);
+
+      this.state = {
+        selectedValue: props.selectedValue,
+        expandedLocations,
+      };
+    }
   }
 
-  public componentDidUpdate(prevProps: IProps, _prevState: IState) {
-    if (this.props.selectedLocation !== prevProps.selectedLocation) {
-      this.setState({ selectedLocation: this.props.selectedLocation });
+  public getExpandedLocations(): RelayLocation[] {
+    return this.state.expandedLocations;
+  }
+
+  public componentDidUpdate(prevProps: ILocationListProps<SpecialValueType>) {
+    if (!compareLocationSelectionLoose(prevProps.selectedValue, this.props.selectedValue)) {
+      this.setState({ selectedValue: this.props.selectedValue });
     }
   }
 
   public render() {
+    const selection = this.state.selectedValue;
+    const specialSelection =
+      selection && selection.type === LocationSelectionType.special ? selection.value : undefined;
+    const relaySelection =
+      selection && selection.type === LocationSelectionType.relay ? selection.value : undefined;
+
     return (
       <View>
-        {this.props.relayLocations.map((relayCountry) => {
+        {React.Children.map(this.props.children, (child) => {
+          if (React.isValidElement(child)) {
+            if (child.type === SpecialLocations) {
+              return React.cloneElement(child, {
+                ...child.props,
+                selectedElementRef: this.onSpecialLocationRef,
+                selectedValue: specialSelection,
+                onSelect: this.onSelectSpecialLocation,
+              });
+            } else if (child.type === RelayLocations) {
+              return React.cloneElement(child, {
+                ...child.props,
+                selectedLocation: relaySelection,
+                selectedElementRef: this.onRelayLocationRef,
+                expandedItems: this.state.expandedLocations,
+                onSelect: this.onSelectRelayLocation,
+                onExpand: this.onExpandRelayLocation,
+              });
+            }
+          }
+          return child;
+        })}
+      </View>
+    );
+  }
+
+  private onSpecialLocationRef = (ref: React.ReactInstance | null) => {
+    this.selectedSpecialLocationRef = ref;
+
+    this.updateExternalRef();
+  };
+
+  private onRelayLocationRef = (ref: React.ReactInstance | null) => {
+    this.selectedRelayLocationRef = ref;
+
+    this.updateExternalRef();
+  };
+
+  private updateExternalRef() {
+    if (this.props.selectedElementRef) {
+      const value = this.selectedRelayLocationRef || this.selectedSpecialLocationRef;
+
+      if (typeof this.props.selectedElementRef === 'function') {
+        this.props.selectedElementRef(value);
+      } else {
+        // @ts-ignore
+        this.props.selectedElementRef.current = value;
+      }
+    }
+  }
+
+  private onSelectRelayLocation = (value: RelayLocation) => {
+    const selectedValue: LocationSelection<SpecialValueType> = {
+      type: LocationSelectionType.relay,
+      value,
+    };
+
+    this.setState({ selectedValue }, () => {
+      this.notifySelection(selectedValue);
+    });
+  };
+
+  private onSelectSpecialLocation = (value: SpecialValueType) => {
+    const selectedValue: LocationSelection<SpecialValueType> = {
+      type: LocationSelectionType.special,
+      value,
+    };
+
+    this.setState({ selectedValue }, () => {
+      this.notifySelection(selectedValue);
+    });
+  };
+
+  private notifySelection(value: LocationSelection<SpecialValueType>) {
+    if (this.props.onSelect) {
+      this.props.onSelect(value);
+    }
+  }
+
+  private onExpandRelayLocation = (location: RelayLocation, expand: boolean) => {
+    this.setState((state) => {
+      const expandedLocations = state.expandedLocations.filter(
+        (item) => !compareRelayLocation(item, location),
+      );
+
+      if (expand) {
+        expandedLocations.push(location);
+      }
+
+      return {
+        ...state,
+        expandedLocations,
+      };
+    });
+  };
+}
+
+export enum SpecialLocationIcon {
+  geoLocation = 'icon-nearest',
+}
+
+interface ISpecialLocationsProps<T> {
+  children: React.ReactNode;
+  selectedValue?: T;
+  selectedElementRef?: React.Ref<SpecialLocation<T>>;
+  onSelect?: (value: T) => void;
+}
+
+export function SpecialLocations<T>(props: ISpecialLocationsProps<T>) {
+  return (
+    <View>
+      {React.Children.map(props.children, (child) => {
+        if (React.isValidElement(child) && child.type === SpecialLocation) {
+          const isSelected = props.selectedValue === child.props.value;
+
+          return React.cloneElement(child, {
+            ...child.props,
+            ref: isSelected ? props.selectedElementRef : undefined,
+            onSelect: props.onSelect,
+            isSelected,
+          });
+        } else {
+          return undefined;
+        }
+      })}
+    </View>
+  );
+}
+
+interface ISpecialLocationProps<T> {
+  icon: SpecialLocationIcon;
+  value: T;
+  isSelected?: boolean;
+  onSelect?: (value: T) => void;
+}
+
+export class SpecialLocation<T> extends Component<ISpecialLocationProps<T>> {
+  public render() {
+    return (
+      <Cell.CellButton
+        style={this.props.isSelected ? styles.selectedCell : undefined}
+        cellHoverStyle={this.props.isSelected ? styles.selectedCell : undefined}
+        onPress={this.onSelect}>
+        <Cell.Icon
+          source={this.props.isSelected ? 'icon-tick' : this.props.icon}
+          tintColor={colors.white}
+          height={24}
+          width={24}
+        />
+        <Cell.Label>{this.props.children}</Cell.Label>
+      </Cell.CellButton>
+    );
+  }
+
+  private onSelect = () => {
+    if (!this.props.isSelected && this.props.onSelect) {
+      this.props.onSelect(this.props.value);
+    }
+  };
+}
+
+interface IRelayLocationsProps {
+  source: IRelayLocationRedux[];
+  selectedLocation?: RelayLocation;
+  selectedElementRef?: React.Ref<React.ReactInstance>;
+  expandedItems?: RelayLocation[];
+  onSelect?: (location: RelayLocation) => void;
+  onExpand?: (location: RelayLocation, expand: boolean) => void;
+}
+
+interface ICommonCellProps {
+  location: RelayLocation;
+  selected: boolean;
+  ref?: React.Ref<any>;
+}
+
+export class RelayLocations extends Component<IRelayLocationsProps> {
+  public render() {
+    return (
+      <View>
+        {this.props.source.map((relayCountry) => {
           const countryLocation: RelayLocation = { country: relayCountry.code };
 
           return (
@@ -102,43 +320,33 @@ export default class LocationList extends Component<IProps, IState> {
   }
 
   private isExpanded(relayLocation: RelayLocation) {
-    return this.state.expandedItems.some((location) =>
+    return (this.props.expandedItems || []).some((location) =>
       compareRelayLocation(location, relayLocation),
     );
   }
 
   private isSelected(relayLocation: RelayLocation) {
-    return compareRelayLocationLoose(this.state.selectedLocation, relayLocation);
+    return compareRelayLocationLoose(this.props.selectedLocation, relayLocation);
   }
 
   private handleSelection = (location: RelayLocation) => {
-    if (!compareRelayLocationLoose(this.state.selectedLocation, location)) {
-      this.setState({ selectedLocation: location }, () => {
+    if (!compareRelayLocationLoose(this.props.selectedLocation, location)) {
+      if (this.props.onSelect) {
         this.props.onSelect(location);
-      });
+      }
     }
   };
 
   private handleExpand = (location: RelayLocation, expand: boolean) => {
-    this.setState((state) => {
-      const expandedItems = state.expandedItems.filter(
-        (item) => !compareRelayLocation(item, location),
-      );
-
-      if (expand) {
-        expandedItems.push(location);
-      }
-
-      return {
-        ...state,
-        expandedItems,
-      };
-    });
+    if (this.props.onExpand) {
+      this.props.onExpand(location, expand);
+    }
   };
 
-  private getCommonCellProps<T>(location: RelayLocation): ICommonCellProps<T> {
+  private getCommonCellProps(location: RelayLocation): ICommonCellProps {
     const selected = this.isSelected(location);
-    const ref = selected ? (this.selectedCell as React.RefObject<T>) : undefined;
+    const ref =
+      selected && this.props.selectedElementRef ? this.props.selectedElementRef : undefined;
 
     return { ref, selected, location };
   }
@@ -159,4 +367,17 @@ function expandRelayLocation(location: RelayLocation): RelayLocation[] {
 
 function getLocationKey(location: RelayLocation): string {
   return relayLocationComponents(location).join('-');
+}
+
+function compareLocationSelectionLoose<SpecialValueType>(
+  lhs?: LocationSelection<SpecialValueType>,
+  rhs?: LocationSelection<SpecialValueType>,
+) {
+  if (!lhs || !rhs) {
+    return lhs === rhs;
+  } else if (lhs.type === LocationSelectionType.relay && rhs.type === LocationSelectionType.relay) {
+    return compareRelayLocation(lhs.value, rhs.value);
+  } else {
+    return lhs.value === rhs.value;
+  }
 }
