@@ -563,12 +563,16 @@ export default class AppRenderer {
             longitude: city.longitude,
             hasActiveRelays: city.relays.some((relay) => relay.active),
             relays: city.relays.sort((relayA, relayB) =>
-              relayA.hostname.localeCompare(relayB.hostname),
+              relayA.hostname.localeCompare(relayB.hostname, this.locale, { numeric: true }),
             ),
           }))
-          .sort((cityA, cityB) => cityA.name.localeCompare(cityB.name)),
+          .sort((cityA, cityB) =>
+            cityA.name.localeCompare(cityB.name, this.locale, { numeric: true }),
+          ),
       }))
-      .sort((countryA, countryB) => countryA.name.localeCompare(countryB.name));
+      .sort((countryA, countryB) =>
+        countryA.name.localeCompare(countryB.name, this.locale, { numeric: true }),
+      );
   }
 
   private setRelays(relayList: IRelayList) {
