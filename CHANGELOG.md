@@ -40,6 +40,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix old settings deserialization to allow migrating settings from versions older than 2019.6.
 - Fix various small issues in GUI<->daemon communication.
 - Make GUI WireGuard key verification resilient to failure.
+- Fix issue where daemon would try and connect with UDP when the tunnel protocol is set to OpenVPN
+  and the bridge mode is set to "On".
 
 #### macOS
 - Unregister the app properly from the OS when running the bundled `uninstall.sh` script.
