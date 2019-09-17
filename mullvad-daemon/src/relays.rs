@@ -273,6 +273,13 @@ impl RelaySelector {
             }
             Constraint::Only(TunnelProtocol::OpenVpn) => {
                 relay_constraints.openvpn_constraints = original_constraints.openvpn_constraints;
+                if *bridge_state == BridgeState::On
+                    && relay_constraints.openvpn_constraints.protocol.is_any()
+                {
+                    // FIXME: This is temporary while talpid-core only supports TCP proxies
+                    relay_constraints.openvpn_constraints.protocol =
+                        Constraint::Only(TransportProtocol::Tcp);
+                }
             }
             Constraint::Only(TunnelProtocol::Wireguard) => {
                 relay_constraints.wireguard_constraints =
