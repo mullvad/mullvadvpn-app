@@ -566,13 +566,9 @@ export default class AppRenderer {
               relayA.hostname.localeCompare(relayB.hostname, this.locale, { numeric: true }),
             ),
           }))
-          .sort((cityA, cityB) =>
-            cityA.name.localeCompare(cityB.name, this.locale, { numeric: true }),
-          ),
+          .sort((cityA, cityB) => cityA.name.localeCompare(cityB.name, this.locale)),
       }))
-      .sort((countryA, countryB) =>
-        countryA.name.localeCompare(countryB.name, this.locale, { numeric: true }),
-      );
+      .sort((countryA, countryB) => countryA.name.localeCompare(countryB.name, this.locale));
   }
 
   private setRelays(relayList: IRelayList) {
