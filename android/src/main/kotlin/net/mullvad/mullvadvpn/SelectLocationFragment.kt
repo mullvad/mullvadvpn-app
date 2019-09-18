@@ -35,17 +35,9 @@ class SelectLocationFragment : Fragment() {
 
     private lateinit var relayListContainer: ViewSwitcher
 
-    private val relayListAdapter = RelayListAdapter()
+    private lateinit var relayListAdapter: RelayListAdapter
 
     private var updateRelayListJob: Job? = null
-
-    init {
-        relayListAdapter.onSelect = { relayItem ->
-            updateLocationConstraint(relayItem)
-            maybeConnect()
-            close()
-        }
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -53,6 +45,14 @@ class SelectLocationFragment : Fragment() {
         parentActivity = context as MainActivity
         connectionProxy = parentActivity.connectionProxy
         relayListListener = parentActivity.relayListListener
+
+        relayListAdapter = RelayListAdapter(context.resources).apply {
+            onSelect = { relayItem ->
+                updateLocationConstraint(relayItem)
+                maybeConnect()
+                close()
+            }
+        }
     }
 
     override fun onCreateView(

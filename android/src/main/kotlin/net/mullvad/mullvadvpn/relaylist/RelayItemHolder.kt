@@ -64,9 +64,9 @@ class RelayItemHolder(
                 selectedIcon.visibility = View.INVISIBLE
 
                 if (item.active) {
-                    relayActive.setImageResource(R.drawable.icon_relay_active)
+                    relayActive.setImageDrawable(adapter.activeRelayIcon)
                 } else {
-                    relayActive.setImageResource(R.drawable.icon_relay_inactive)
+                    relayActive.setImageDrawable(adapter.inactiveRelayIcon)
                 }
             }
 
