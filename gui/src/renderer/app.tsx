@@ -149,6 +149,11 @@ export default class AppRenderer {
     this.settings = initialState.settings;
     this.guiSettings = initialState.guiSettings;
 
+    // Load translations
+    for (const catalogue of [messages, countries, cities, relayLocations]) {
+      loadTranslations(this.locale, catalogue);
+    }
+
     this.setAccountExpiry(initialState.accountData && initialState.accountData.expiry);
     this.setAccountHistory(initialState.accountHistory);
     this.setSettings(initialState.settings);
@@ -173,11 +178,6 @@ export default class AppRenderer {
 
     // disable pinch to zoom
     webFrame.setVisualZoomLevelLimits(1, 1);
-
-    // Load translations
-    for (const catalogue of [messages, countries, cities, relayLocations]) {
-      loadTranslations(this.locale, catalogue);
-    }
   }
 
   public renderView() {
@@ -546,7 +546,25 @@ export default class AppRenderer {
   }
 
   private setLocation(location: ILocation) {
-    this.reduxActions.connection.newLocation(location);
+    this.reduxActions.connection.newLocation(this.translateLocation(location));
+  }
+
+  private translateLocation(inputLocation: ILocation): ILocation {
+    const location = { ...inputLocation };
+
+    if (location.city) {
+      const city = location.city;
+
+      location.city = relayLocations.gettext(city) || cities.gettext(city) || city;
+    }
+
+    if (location.country) {
+      const country = location.country;
+
+      location.country = countries.gettext(country) || country;
+    }
+
+    return location;
   }
 
   private convertRelayListToLocationList(relayList: IRelayList): IRelayLocationRedux[] {
