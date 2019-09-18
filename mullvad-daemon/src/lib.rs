@@ -55,7 +55,7 @@ use talpid_core::{
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
-    net::{openvpn, TunnelParameters},
+    net::{openvpn, TransportProtocol, TunnelParameters},
     tunnel::{BlockReason, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
@@ -618,7 +618,8 @@ where
                     BridgeSettings::Normal(settings) => {
                         let bridge_constraints = InternalBridgeConstraints {
                             location: settings.location.clone(),
-                            transport_protocol: Constraint::Only(endpoint.protocol),
+                            // FIXME: This is temporary while talpid-core only supports TCP proxies
+                            transport_protocol: Constraint::Only(TransportProtocol::Tcp),
                         };
                         match self.settings.get_bridge_state() {
                             BridgeState::On => {
