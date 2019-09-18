@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.widget.ImageView
 import android.widget.TextView
@@ -20,8 +21,13 @@ class NotificationBanner(
     val context: Context,
     val versionInfoCache: AppVersionInfoCache
 ) {
+    private val resources = context.resources
+
     private val accountUrl = Uri.parse(context.getString(R.string.account_url))
     private val downloadUrl = Uri.parse(context.getString(R.string.download_url))
+
+    private val errorImage = resources.getDrawable(R.drawable.icon_notification_error, null)
+    private val warningImage = resources.getDrawable(R.drawable.icon_notification_warning, null)
 
     private val banner: View = parentView.findViewById(R.id.notification_banner)
     private val status: ImageView = parentView.findViewById(R.id.notification_status)
@@ -107,17 +113,17 @@ class NotificationBanner(
             hide()
         } else {
             val title: Int
-            val statusImage: Int
+            val statusImage: Drawable
             val template: Int
 
             if (versionInfoCache.isSupported) {
                 title = R.string.update_available
                 template = R.string.update_available_description
-                statusImage = R.drawable.icon_notification_warning
+                statusImage = warningImage
             } else {
                 title = R.string.unsupported_version
                 template = R.string.unsupported_version_description
-                statusImage = R.drawable.icon_notification_error
+                statusImage = errorImage
             }
 
             val parameter = versionInfoCache.upgradeVersion
@@ -158,10 +164,10 @@ class NotificationBanner(
     }
 
     private fun showError(titleText: Int, messageText: String?) {
-        show(R.drawable.icon_notification_error, titleText, messageText)
+        show(errorImage, titleText, messageText)
     }
 
-    private fun show(statusImage: Int, titleText: Int, messageText: String?) {
+    private fun show(statusImage: Drawable, titleText: Int, messageText: String?) {
         if (!visible) {
             visible = true
             banner.visibility = View.VISIBLE
@@ -169,7 +175,7 @@ class NotificationBanner(
             banner.animate().translationY(0.0F).setDuration(350).start()
         }
 
-        status.setImageResource(statusImage)
+        status.setImageDrawable(statusImage)
         title.setText(titleText)
 
         if (messageText == null) {
