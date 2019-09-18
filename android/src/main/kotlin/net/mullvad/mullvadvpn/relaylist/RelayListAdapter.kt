@@ -3,17 +3,21 @@ package net.mullvad.mullvadvpn.relaylist
 import java.lang.ref.WeakReference
 import java.util.LinkedList
 
+import android.content.res.Resources
 import android.support.v7.widget.RecyclerView.Adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 
 import net.mullvad.mullvadvpn.R
 
-class RelayListAdapter : Adapter<RelayItemHolder>() {
+class RelayListAdapter(private val resources: Resources) : Adapter<RelayItemHolder>() {
     private var relayList: RelayList? = null
     private var selectedItem: RelayItem? = null
     private val activeIndices = LinkedList<WeakReference<RelayListAdapterPosition>>()
     private var selectedItemHolder: RelayItemHolder? = null
+
+    val activeRelayIcon = resources.getDrawable(R.drawable.icon_relay_active, null)
+    val inactiveRelayIcon = resources.getDrawable(R.drawable.icon_relay_inactive, null)
 
     var onSelect: ((RelayItem?) -> Unit)? = null
 
