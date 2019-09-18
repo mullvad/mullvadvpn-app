@@ -164,7 +164,7 @@ msgid "WireGuard"
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "WireGuard keys"
+msgid "WireGuard key"
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -490,17 +490,29 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr ""
 
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr ""
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr ""
+
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr ""
 
 msgctxt "select-location-view"
-msgid "Select location"
+msgid "Closest to exit server"
 msgstr ""
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region"
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr ""
 
 msgctxt "settings-view"
@@ -649,7 +661,15 @@ msgid "Account has too many keys already"
 msgstr ""
 
 msgctxt "wireguard-key-view"
-msgid "Failed to generate key"
+msgid "Can't manage keys whilst in a blocked state"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Failed to replace key - %(failure)s"
 msgstr ""
 
 msgctxt "wireguard-key-view"
@@ -665,6 +685,10 @@ msgid "Key is invalid"
 msgstr ""
 
 msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr ""
+
+msgctxt "wireguard-key-view"
 msgid "Manage keys"
 msgstr ""
 
@@ -673,11 +697,15 @@ msgid "No key set"
 msgstr ""
 
 msgctxt "wireguard-key-view"
-msgid "Verify key"
+msgid "Regenerate key"
 msgstr ""
 
 msgctxt "wireguard-key-view"
-msgid "Verifying key"
+msgid "Verify key"
+msgstr ""
+
+msgctxt "wireguard-keys"
+msgid "Key generated"
 msgstr ""
 
 msgctxt "wireguard-keys"
@@ -690,5 +718,5 @@ msgid "Advanced"
 msgstr ""
 
 msgctxt "wireguard-keys-nav"
-msgid "WireGuard keys"
+msgid "WireGuard key"
 msgstr ""
