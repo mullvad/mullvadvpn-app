@@ -44,6 +44,10 @@
 # Windows error codes
 !define ERROR_SERVICE_DEPENDENCY_DELETED 1075
 
+# Override electron-builder generated application settings key.
+# electron-builder uses a GUID here rather than the application name.
+!define INSTALL_REGISTRY_KEY "Software\${PRODUCT_NAME}"
+
 #
 # BreakInstallation
 #
