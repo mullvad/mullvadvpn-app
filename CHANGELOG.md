@@ -42,6 +42,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make GUI WireGuard key verification resilient to failure.
 - Fix issue where daemon would try and connect with UDP when the tunnel protocol is set to OpenVPN
   and the bridge mode is set to "On".
+- Don't start ping monitor loop if first ping fails when checking WireGuard connection.
 
 #### macOS
 - Unregister the app properly from the OS when running the bundled `uninstall.sh` script.
