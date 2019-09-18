@@ -4,7 +4,7 @@ use self::config::Config;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing;
 use std::{collections::HashMap, io, path::Path, sync::mpsc};
-use talpid_types::BoxedError;
+use talpid_types::{BoxedError, ErrorExt};
 
 pub mod config;
 mod ping_monitor;
@@ -115,16 +115,19 @@ impl WireguardMonitor {
             match ping_monitor::ping(gateway, PING_TIMEOUT, &iface_name, true) {
                 Ok(()) => {
                     (on_event)(TunnelEvent::Up(metadata));
-                }
-                Err(e) => {
-                    log::error!("First ping to gateway failed - {}", e);
-                    let _ = close_sender.send(CloseMsg::PingErr);
-                }
-            };
 
-            if let Err(e) = ping_monitor::monitor_ping(gateway, PING_TIMEOUT, &iface_name) {
-                log::trace!("Ping monitor failed - {}", e);
+                    if let Err(e) = ping_monitor::monitor_ping(gateway, PING_TIMEOUT, &iface_name) {
+                        log::trace!("Ping monitor failed - {}", e);
+                    }
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("First ping to gateway failed")
+                    );
+                }
             }
+
             let _ = close_sender.send(CloseMsg::PingErr);
         });
 
