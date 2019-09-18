@@ -552,12 +552,12 @@ export default class AppRenderer {
   private convertRelayListToLocationList(relayList: IRelayList): IRelayLocationRedux[] {
     return relayList.countries
       .map((country) => ({
-        name: country.name,
+        name: countries.gettext(country.name) || country.name,
         code: country.code,
         hasActiveRelays: country.cities.some((city) => city.relays.some((relay) => relay.active)),
         cities: country.cities
           .map((city) => ({
-            name: city.name,
+            name: relayLocations.gettext(city.name) || cities.gettext(city.name) || city.name,
             code: city.code,
             latitude: city.latitude,
             longitude: city.longitude,

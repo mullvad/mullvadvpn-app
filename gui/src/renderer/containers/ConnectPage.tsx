@@ -4,11 +4,7 @@ import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { sprintf } from 'sprintf-js';
-import {
-  countries,
-  messages,
-  relayLocations as relayLocationsLocalization,
-} from '../../shared/gettext';
+import { messages } from '../../shared/gettext';
 import Connect from '../components/Connect';
 import AccountExpiry from '../lib/account-expiry';
 import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
@@ -27,7 +23,7 @@ function getRelayName(
     } else if ('country' in location) {
       const country = relayLocations.find(({ code }) => code === location.country);
       if (country) {
-        return countries.gettext(country.name);
+        return country.name;
       }
     } else if ('city' in location) {
       const [countryCode, cityCode] = location.city;
@@ -35,7 +31,7 @@ function getRelayName(
       if (country) {
         const city = country.cities.find(({ code }) => code === cityCode);
         if (city) {
-          return relayLocationsLocalization.gettext(city.name);
+          return city.name;
         }
       }
     } else if ('hostname' in location) {
@@ -52,7 +48,7 @@ function getRelayName(
             // TRANSLATORS: %(hostname)s - a hostname
             messages.pgettext('connect-container', '%(city)s (%(hostname)s)'),
             {
-              city: relayLocationsLocalization.gettext(city.name),
+              city: city.name,
               hostname,
             },
           );
