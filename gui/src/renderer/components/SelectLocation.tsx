@@ -1,15 +1,15 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Component, View } from 'reactxp';
-import { colors } from '../../config.json';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import { LocationScope } from '../redux/userinterface/reducers';
-import * as Cell from './Cell';
+import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
 import CustomScrollbars from './CustomScrollbars';
+import ExitLocations from './ExitLocations';
 import { Container, Layout } from './Layout';
-import LocationList from './LocationList';
+import LocationList, { LocationSelection, LocationSelectionType } from './LocationList';
 import {
   CloseBarItem,
   NavigationBar,
@@ -37,32 +37,47 @@ interface IProps {
   onSelectClosestToExit: () => void;
 }
 
+interface ISelectLocationSnapshot {
+  scrollPosition: [number, number];
+  expandedLocations: RelayLocation[];
+}
+
 export default class SelectLocation extends Component<IProps> {
   private scrollView = React.createRef<CustomScrollbars>();
-  private exitLocationList = React.createRef<LocationList>();
-  private bridgeLocationList = React.createRef<LocationList>();
+  private selectedExitLocationRef = React.createRef<React.ReactInstance>();
+  private selectedBridgeLocationRef = React.createRef<React.ReactInstance>();
 
-  private scrollPositionByScope: { [index: number]: [number, number] } = {};
+  private exitLocationList = React.createRef<LocationList<never>>();
+  private bridgeLocationList = React.createRef<LocationList<SpecialBridgeLocationType>>();
+
+  private snapshotByScope: { [index: number]: ISelectLocationSnapshot } = {};
 
   public componentDidMount() {
     this.scrollToSelectedCell();
   }
 
-  public componentDidUpdate(prevProps: IProps, _prevState: {}, snapshot?: [number, number]) {
+  public componentDidUpdate(prevProps: IProps, _prevState: {}, snapshot?: ISelectLocationSnapshot) {
     if (this.props.locationScope !== prevProps.locationScope) {
       this.restoreScrollPosition(this.props.locationScope);
 
       if (snapshot) {
-        this.saveScrollPosition(prevProps.locationScope, snapshot);
+        this.snapshotByScope[prevProps.locationScope] = snapshot;
       }
     }
   }
 
-  public getSnapshotBeforeUpdate(_prevProps: IProps) {
+  public getSnapshotBeforeUpdate(prevProps: IProps): ISelectLocationSnapshot | undefined {
     const scrollView = this.scrollView.current;
+    const locationList =
+      prevProps.locationScope === LocationScope.relay
+        ? this.exitLocationList.current
+        : this.bridgeLocationList.current;
 
-    if (scrollView) {
-      return scrollView.getScrollPosition();
+    if (scrollView && locationList) {
+      return {
+        scrollPosition: scrollView.getScrollPosition(),
+        expandedLocations: locationList.getExpandedLocations(),
+      };
     } else {
       return undefined;
     }
@@ -113,33 +128,23 @@ export default class SelectLocation extends Component<IProps> {
                 <NavigationScrollbars ref={this.scrollView}>
                   <View style={styles.content}>
                     {this.props.locationScope === LocationScope.relay ? (
-                      <LocationList
-                        key={'exit-locations'}
+                      <ExitLocations
                         ref={this.exitLocationList}
-                        selectedLocation={this.props.selectedExitLocation}
-                        relayLocations={this.props.relayLocations}
-                        onSelect={this.props.onSelectExitLocation}
+                        source={this.props.relayLocations}
+                        defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
+                        selectedValue={this.props.selectedExitLocation}
+                        selectedElementRef={this.selectedExitLocationRef}
+                        onSelect={this.onSelectExitLocation}
                       />
                     ) : (
-                      <React.Fragment>
-                        <View>
-                          <ClosestToExitCell
-                            onSelect={this.props.onSelectClosestToExit}
-                            isSelected={this.props.selectedBridgeLocation === 'any'}
-                          />
-                        </View>
-                        <LocationList
-                          key={'bridge-locations'}
-                          ref={this.bridgeLocationList}
-                          selectedLocation={
-                            this.props.selectedBridgeLocation !== 'any'
-                              ? this.props.selectedBridgeLocation
-                              : undefined
-                          }
-                          relayLocations={this.props.bridgeLocations}
-                          onSelect={this.props.onSelectBridgeLocation}
-                        />
-                      </React.Fragment>
+                      <BridgeLocations
+                        ref={this.bridgeLocationList}
+                        source={this.props.bridgeLocations}
+                        defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
+                        selectedValue={this.props.selectedBridgeLocation}
+                        selectedElementRef={this.selectedBridgeLocationRef}
+                        onSelect={this.onSelectBridgeLocation}
+                      />
                     )}
                   </View>
                 </NavigationScrollbars>
@@ -151,17 +156,22 @@ export default class SelectLocation extends Component<IProps> {
     );
   }
 
-  public saveScrollPosition(scope: LocationScope, position: [number, number]) {
-    this.scrollPositionByScope[scope] = position;
-  }
-
   public restoreScrollPosition(scope: LocationScope) {
-    const prevScrollPos = this.scrollPositionByScope[scope];
+    const snapshot = this.snapshotByScope[scope];
 
-    if (prevScrollPos) {
-      this.scrollToPosition(...prevScrollPos);
+    if (snapshot) {
+      this.scrollToPosition(...snapshot.scrollPosition);
     } else {
       this.scrollToSelectedCell();
+    }
+  }
+
+  private getExpandedLocationsFromSnapshot(): RelayLocation[] | undefined {
+    const snapshot = this.snapshotByScope[this.props.locationScope];
+    if (snapshot) {
+      return snapshot.expandedLocations;
+    } else {
+      return undefined;
     }
   }
 
@@ -175,46 +185,36 @@ export default class SelectLocation extends Component<IProps> {
   private scrollToSelectedCell() {
     const ref =
       this.props.locationScope === LocationScope.relay
-        ? this.exitLocationList
-        : this.bridgeLocationList;
-    const locationList = ref.current;
+        ? this.selectedExitLocationRef.current
+        : this.selectedBridgeLocationRef.current;
+    const scrollView = this.scrollView.current;
 
-    if (locationList) {
-      const cell = locationList.selectedCell.current;
-      const scrollView = this.scrollView.current;
-
-      if (scrollView) {
-        if (cell) {
-          const cellDOMNode = ReactDOM.findDOMNode(cell as Element);
-          if (cellDOMNode instanceof HTMLElement) {
-            scrollView.scrollToElement(cellDOMNode, 'middle');
-          }
-        } else {
-          scrollView.scrollToTop();
+    if (scrollView) {
+      if (ref) {
+        const cellDOMNode = ReactDOM.findDOMNode(ref);
+        if (cellDOMNode instanceof HTMLElement) {
+          scrollView.scrollToElement(cellDOMNode, 'middle');
         }
+      } else {
+        scrollView.scrollToTop();
       }
     }
   }
-}
 
-interface IClosestToExitCellProps {
-  isSelected: boolean;
-  onSelect: () => void;
-}
+  private onSelectExitLocation = (location: LocationSelection<never>) => {
+    if (location.type === LocationSelectionType.relay) {
+      this.props.onSelectExitLocation(location.value);
+    }
+  };
 
-function ClosestToExitCell(props: IClosestToExitCellProps) {
-  return (
-    <Cell.CellButton
-      style={props.isSelected ? styles.selectedCell : undefined}
-      cellHoverStyle={props.isSelected ? styles.selectedCell : undefined}
-      onPress={props.onSelect}>
-      <Cell.Icon
-        source={props.isSelected ? 'icon-tick' : 'icon-nearest'}
-        tintColor={colors.white}
-        height={24}
-        width={24}
-      />
-      <Cell.Label>{messages.pgettext('select-location-view', 'Closest to exit server')}</Cell.Label>
-    </Cell.CellButton>
-  );
+  private onSelectBridgeLocation = (location: LocationSelection<SpecialBridgeLocationType>) => {
+    if (location.type === LocationSelectionType.relay) {
+      this.props.onSelectBridgeLocation(location.value);
+    } else if (
+      location.type === LocationSelectionType.special &&
+      location.value === SpecialBridgeLocationType.closestToExit
+    ) {
+      this.props.onSelectClosestToExit();
+    }
+  };
 }
