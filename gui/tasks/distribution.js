@@ -60,7 +60,7 @@ const config = {
   },
 
   nsis: {
-    guid: 'Mullvad VPN',
+    guid: '2A356FD4-03B7-4F45-99B4-737BE580DC82',
     oneClick: false,
     perMachine: true,
     allowElevation: true,
