@@ -116,7 +116,7 @@ class SettingsFragment : Fragment() {
     private fun updateVersionInfo() = GlobalScope.launch(Dispatchers.Main) {
         appVersionLabel.setText(versionInfoCache.version ?: "")
 
-        if (versionInfoCache.isLatest && versionInfoCache.isSupported) {
+        if (!versionInfoCache.isOutdated && versionInfoCache.isSupported) {
             appVersionWarning.visibility = View.GONE
             appVersionFooter.visibility = View.GONE
         } else {

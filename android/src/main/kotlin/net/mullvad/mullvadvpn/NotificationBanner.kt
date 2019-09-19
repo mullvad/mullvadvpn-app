@@ -109,7 +109,7 @@ class NotificationBanner(
     }
 
     private fun updateBasedOnVersionInfo(): Boolean {
-        if (versionInfoCache.isLatest) {
+        if (!versionInfoCache.isOutdated && versionInfoCache.isSupported) {
             hide()
         } else {
             val title: Int
