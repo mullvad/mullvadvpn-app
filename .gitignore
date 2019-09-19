@@ -16,6 +16,8 @@
 /dist-assets/talpid_openvpn_plugin.dll
 /dist-assets/openvpn
 /dist-assets/openvpn.exe
+/dist-assets/sslocal
+/dist-assets/sslocal.exe
 /windows/**/bin/
 /android/keystore.properties
 /android/local.properties
