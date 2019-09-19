@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.MainActivity
 class AppVersionInfoCache(val parentActivity: MainActivity) {
     companion object {
         val KEY_CURRENT_IS_SUPPORTED = "current_is_supported"
+        val KEY_CURRENT_IS_OUTDATED = "current_is_outdated"
         val KEY_LAST_UPDATED = "last_updated"
         val KEY_LATEST_STABLE = "latest_stable"
         val KEY_LATEST = "latest"
@@ -39,13 +40,13 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
         private set
     var isSupported = true
         private set
+    var isOutdated = false
+        private set
     var latestStable: String? = null
         private set
     var latest: String? = null
         private set
 
-    var isLatest = true
-        private set
     var upgradeVersion: String? = null
         private set
 
@@ -53,6 +54,7 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
         override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String) {
             when (key) {
                 KEY_CURRENT_IS_SUPPORTED -> isSupported = preferences.getBoolean(key, isSupported)
+                KEY_CURRENT_IS_OUTDATED -> isOutdated = preferences.getBoolean(key, isOutdated)
                 KEY_LAST_UPDATED -> lastUpdated = preferences.getLong(key, lastUpdated)
                 KEY_LATEST_STABLE -> latestStable = preferences.getString(key, latestStable)
                 KEY_LATEST -> latest = preferences.getString(key, latest)
@@ -68,6 +70,7 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
 
         lastUpdated = preferences.getLong(KEY_LAST_UPDATED, 0L)
         isSupported = preferences.getBoolean(KEY_CURRENT_IS_SUPPORTED, true)
+        isOutdated = preferences.getBoolean(KEY_CURRENT_IS_OUTDATED, false)
         latestStable = preferences.getString(KEY_LATEST_STABLE, null)
         latest = preferences.getString(KEY_LATEST, null)
     }
@@ -90,13 +93,12 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
         val target = if (isStable) latestStable else latest
 
         if (target == version || target == null) {
-            isLatest = true
             upgradeVersion = null
         } else {
-            isLatest = false
             upgradeVersion = target
         }
 
         onUpdate?.invoke()
     }
+
 }

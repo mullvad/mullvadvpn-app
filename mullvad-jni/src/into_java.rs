@@ -232,17 +232,19 @@ impl<'env> IntoJava<'env> for AppVersionInfo {
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let class = get_class("net/mullvad/mullvadvpn/model/AppVersionInfo");
         let current_is_supported = self.current_is_supported as jboolean;
+        let current_is_outdated = self.current_is_outdated as jboolean;
         let latest_stable = env.auto_local(*self.latest_stable.into_java(env));
         let latest = env.auto_local(*self.latest.into_java(env));
         let parameters = [
             JValue::Bool(current_is_supported),
+            JValue::Bool(current_is_outdated),
             JValue::Object(latest_stable.as_obj()),
             JValue::Object(latest.as_obj()),
         ];
 
         env.new_object(
             &class,
-            "(ZLjava/lang/String;Ljava/lang/String;)V",
+            "(ZZLjava/lang/String;Ljava/lang/String;)V",
             &parameters,
         )
         .expect("Failed to create AppVersionInfo Java object")

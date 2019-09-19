@@ -61,6 +61,7 @@ class AppVersionInfoFetcher(val daemon: Deferred<MullvadDaemon>, val context: Co
                 with(AppVersionInfoCache) {
                     putLong(KEY_LAST_UPDATED, now)
                     putBoolean(KEY_CURRENT_IS_SUPPORTED, versionInfo.currentIsSupported)
+                    putBoolean(KEY_CURRENT_IS_OUTDATED, versionInfo.currentIsOutdated)
                     putString(KEY_LATEST_STABLE, versionInfo.latestStable)
                     putString(KEY_LATEST, versionInfo.latest)
                     commit()
