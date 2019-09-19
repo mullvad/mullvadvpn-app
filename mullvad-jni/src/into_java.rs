@@ -244,7 +244,7 @@ impl<'env> IntoJava<'env> for AppVersionInfo {
 
         env.new_object(
             &class,
-            "(ZLjava/lang/String;Ljava/lang/String;)V",
+            "(ZZLjava/lang/String;Ljava/lang/String;)V",
             &parameters,
         )
         .expect("Failed to create AppVersionInfo Java object")
