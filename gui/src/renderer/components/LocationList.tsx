@@ -7,7 +7,6 @@ import {
   RelayLocation,
   relayLocationComponents,
 } from '../../shared/daemon-rpc-types';
-import { countries, relayLocations } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import * as Cell from './Cell';
 import CityRow from './CityRow';
@@ -274,7 +273,7 @@ export class RelayLocations extends Component<IRelayLocationsProps> {
           return (
             <CountryRow
               key={getLocationKey(countryLocation)}
-              name={countries.gettext(relayCountry.name)}
+              name={relayCountry.name}
               hasActiveRelays={relayCountry.hasActiveRelays}
               expanded={this.isExpanded(countryLocation)}
               onSelect={this.handleSelection}
@@ -288,7 +287,7 @@ export class RelayLocations extends Component<IRelayLocationsProps> {
                 return (
                   <CityRow
                     key={getLocationKey(cityLocation)}
-                    name={relayLocations.gettext(relayCity.name)}
+                    name={relayCity.name}
                     hasActiveRelays={relayCity.hasActiveRelays}
                     expanded={this.isExpanded(cityLocation)}
                     onSelect={this.handleSelection}
