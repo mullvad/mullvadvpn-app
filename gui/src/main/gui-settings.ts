@@ -10,6 +10,14 @@ export default class GuiSettings {
     return this.stateValue;
   }
 
+  set preferredLocale(newValue: string | undefined) {
+    this.changeStateAndNotify({ ...this.stateValue, preferredLocale: newValue });
+  }
+
+  get preferredLocale(): string | undefined {
+    return this.preferredLocale;
+  }
+
   set enableSystemNotifications(newValue: boolean) {
     this.changeStateAndNotify({ ...this.stateValue, enableSystemNotifications: newValue });
   }
