@@ -23,7 +23,7 @@ import versionActions from './redux/version/actions';
 
 import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main';
 import { cities, countries, loadTranslations, messages, relayLocations } from '../shared/gettext';
-import { IGuiSettingsState } from '../shared/gui-settings-state';
+import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-channel';
 import { getRendererLogFile, setupLogging } from '../shared/logging';
 
@@ -48,7 +48,7 @@ interface IPreferredLocaleDescriptor {
   code: string;
 }
 
-const supportedLocaleList = [
+const SUPPORTED_LOCALE_LIST = [
   { name: 'Deutsche', code: 'de' },
   { name: 'English', code: 'en' },
   { name: 'Español', code: 'es' },
@@ -369,9 +369,9 @@ export default class AppRenderer {
         // TRANSLATORS: The option that represents the active operating system language in the
         // TRANSLATORS: user interface language selection list.
         name: messages.gettext('System default'),
-        code: 'system',
+        code: SYSTEM_PREFERRED_LOCALE_KEY,
       },
-      ...supportedLocaleList,
+      ...SUPPORTED_LOCALE_LIST,
     ];
   }
 
