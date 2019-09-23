@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add ability to change the desktop GUI language from within Settings.
+
+### Removed
+- Remove support for `MULLVAD_LOCALE` environment variable.
 
 
 ## [2019.8] - 2019-09-23
