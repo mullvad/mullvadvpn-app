@@ -7,18 +7,16 @@
 //
 
 import UIKit
-import ProcedureKit
-import os.log
+import os
 
 private let cellIdentifier = "Cell"
 
 class SelectLocationController: UITableViewController {
 
+    private let relayCache = try! RelayCache.withDefaultLocation()
     private var relayList: RelayList?
     private var expandedItems = [RelayListDataSourceItem]()
     private var displayedItems = [RelayListDataSourceItem]()
-
-    private let procedureQueue = ProcedureQueue()
 
     var selectedItem: RelayListDataSourceItem?
 
@@ -81,26 +79,21 @@ class SelectLocationController: UITableViewController {
     // MARK: - Relay list handling
 
     private func loadRelayList() {
-        let procedure = MullvadAPI.getRelayList()
+        relayCache.read { [weak self] (result) in
+            switch result {
+            case .success(let cachedRelays):
+                DispatchQueue.main.async {
+                    self?.didReceiveRelayList(cachedRelays.relayList)
+                }
 
-        procedure.addDidFinishBlockObserver(synchronizedWith: DispatchQueue.main) { [weak self] (procedure, error) in
-            guard let response = procedure.output.success else {
-                os_log(.error, "Relay list network error: %{public}s", error?.localizedDescription ?? "(null)")
-                return
+            case .failure(let error):
+                os_log(.error, "Failed to read the relay cache: %{public}s", error.localizedDescription)
             }
-
-            self?.didReceiveRelayList(response)
         }
-
-        procedureQueue.addOperation(procedure)
     }
 
-    private func didReceiveRelayList(_ response: JsonRpcResponse<RelayList>) {
-        do {
-            relayList = try response.result.get()
-        } catch {
-            os_log(.error, "Relay list server error: %{public}s", error.localizedDescription)
-        }
+    private func didReceiveRelayList(_ relayList: RelayList) {
+        self.relayList = relayList
 
         updateDisplayedItems()
         tableView.reloadData()
@@ -173,21 +166,34 @@ private extension RelayList {
         var items = [RelayListDataSourceItem]()
 
         for country in countries {
-            let countryItem = RelayListDataSourceItem.country(country)
+            let wrappedCountry = RelayListDataSourceItem.Country(
+                countryCode: country.code,
+                name: country.name,
+                cityCount: country.cities.count)
+            let countryItem = RelayListDataSourceItem.country(wrappedCountry)
 
             items.append(countryItem)
 
             guard filter(countryItem) else { continue }
 
             for city in country.cities {
-                let cityItem = RelayListDataSourceItem.city(city)
+                let wrappedCity = RelayListDataSourceItem.City(
+                    countryCode: country.code,
+                    cityCode: city.code,
+                    name: city.name,
+                    hostCount: city.relays.count)
+                let cityItem = RelayListDataSourceItem.city(wrappedCity)
 
                 items.append(cityItem)
 
                 guard filter(cityItem) else { continue }
 
                 for host in city.relays {
-                    items.append(.hostname(host))
+                    let wrappedHost = RelayListDataSourceItem.Hostname(
+                        countryCode: country.code,
+                        cityCode: city.code,
+                        hostname: host.hostname)
+                    items.append(.hostname(wrappedHost))
                 }
             }
         }
@@ -200,25 +206,46 @@ private extension RelayList {
 /// A wrapper type for RelayList to be able to represent it as a flat list
 enum RelayListDataSourceItem: Equatable {
 
-    case country(RelayList.Country)
-    case city(RelayList.City)
-    case hostname(RelayList.Hostname)
+    struct Country {
+        let countryCode: String
+        let name: String
+        let cityCount: Int
+    }
+
+    struct City {
+        let countryCode: String
+        let cityCode: String
+        let name: String
+        let hostCount: Int
+    }
+
+    struct Hostname {
+        let countryCode: String
+        let cityCode: String
+        let hostname: String
+    }
+
+    case country(Country)
+    case city(City)
+    case hostname(Hostname)
 
     static func == (lhs: RelayListDataSourceItem, rhs: RelayListDataSourceItem) -> Bool {
         switch (lhs, rhs) {
         case (.country(let a), .country(let b)):
-            return a.code == b.code
+            return a.countryCode == b.countryCode
 
         case (.city(let a), .city(let b)):
-            return a.code == b.code
+            return a.countryCode == b.countryCode && a.cityCode == b.cityCode
 
         case (.hostname(let a), .hostname(let b)):
-            return a.hostname == b.hostname
+            return a.countryCode == b.countryCode && a.cityCode == b.cityCode &&
+                a.hostname == b.hostname
 
         default:
             return false
         }
     }
+
 }
 
 private extension RelayListDataSourceItem {
@@ -248,9 +275,9 @@ private extension RelayListDataSourceItem {
     func hasActiveRelays() -> Bool {
         switch self {
         case .country(let country):
-            return country.cities.count > 0
+            return country.cityCount > 0
         case .city(let city):
-            return city.relays.count > 0
+            return city.hostCount > 0
         case .hostname:
             return true
         }
