@@ -1180,7 +1180,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-cli"
-version = "2019.8.0-beta1"
+version = "2019.8.0"
 dependencies = [
  "base64 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.7 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1201,7 +1201,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-daemon"
-version = "2019.8.0-beta1"
+version = "2019.8.0"
 dependencies = [
  "android_logger 0.8.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.7 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1275,9 +1275,9 @@ dependencies = [
  "libc 0.2.59 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "log-panics 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "mullvad-daemon 2019.8.0-beta1",
+ "mullvad-daemon 2019.8.0",
  "mullvad-paths 0.1.0",
- "mullvad-problem-report 2019.8.0-beta1",
+ "mullvad-problem-report 2019.8.0",
  "mullvad-types 0.1.0",
  "parking_lot 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-core 0.1.0",
@@ -1295,7 +1295,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-problem-report"
-version = "2019.8.0-beta1"
+version = "2019.8.0"
 dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "dirs 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2349,7 +2349,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-openvpn-plugin"
-version = "2019.8.0-beta1"
+version = "2019.8.0"
 dependencies = [
  "env_logger 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "err-derive 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
