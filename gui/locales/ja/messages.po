@@ -10,13 +10,16 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-09-23 09:18\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ブロックされた接続"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立中"
+
+msgid "Invalid account number"
+msgstr "アカウント番号が正しくありません"
 
 msgid "SECURE CONNECTION"
 msgstr "セキュリティ保護された接続"
@@ -171,7 +174,7 @@ msgid "WireGuard"
 msgstr "WireGuard"
 
 msgctxt "advanced-settings-view"
-msgid "WireGuard keys"
+msgid "WireGuard key"
 msgstr "WireGuard鍵"
 
 msgctxt "advanced-settings-view"
@@ -283,6 +286,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "ファイヤーウォール規則の適用に失敗しました。現在、デバイスがセキュリティ保護されていない可能性があります。"
 
 msgctxt "in-app-notifications"
+msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
+msgstr "カスタムトンネルのホストを解決できませんでした。設定変更を検討してください。"
+
+msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
 msgstr "システムの DNS サーバーの設定に失敗しました"
 
@@ -332,6 +339,10 @@ msgstr "未対応のバージョン"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "アップデート可"
+
+msgctxt "in-app-notifications"
+msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
+msgstr "当社のサーバーにWireGuard鍵が発行されていません。鍵は [詳細設定]（Advanced）で管理できます。"
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -489,18 +500,30 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "多色ではなく単色のトレイアイコンを使います。"
 
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr "入口"
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr "出口"
+
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "場所を選択する"
 
 msgctxt "select-location-view"
-msgid "Select location"
-msgstr "場所を選択する"
+msgid "Closest to exit server"
+msgstr "最寄りの出口サーバー"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region"
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "接続中、あなたの実際の場所は、選択した地域内の非公開かつセキュリティ保護された場所で隠蔽されています。"
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr "接続中、あなたのトラフィックはセキュリティで保護された2つの場所、入口（ブリッジサーバー）および出口（VPNサーバー）経由で転送されます。"
 
 msgctxt "settings-view"
 msgid "Account"
@@ -648,8 +671,16 @@ msgid "Account has too many keys already"
 msgstr "アカウントがすでに所有している鍵が多すぎます"
 
 msgctxt "wireguard-key-view"
-msgid "Failed to generate key"
+msgid "Can't manage keys whilst in a blocked state"
+msgstr "ブロックされた状態では鍵を管理できません"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
 msgstr "鍵の生成に失敗しました"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to replace key - %(failure)s"
+msgstr "鍵の交換に失敗しました - %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -664,6 +695,10 @@ msgid "Key is invalid"
 msgstr "鍵は無効です"
 
 msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr "鍵の検証に失敗しました"
+
+msgctxt "wireguard-key-view"
 msgid "Manage keys"
 msgstr "鍵を管理"
 
@@ -672,12 +707,16 @@ msgid "No key set"
 msgstr "鍵が設定されていません"
 
 msgctxt "wireguard-key-view"
+msgid "Regenerate key"
+msgstr "鍵を生成"
+
+msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "鍵を検証"
 
-msgctxt "wireguard-key-view"
-msgid "Verifying key"
-msgstr "鍵を検証しています"
+msgctxt "wireguard-keys"
+msgid "Key generated"
+msgstr "鍵が生成されました"
 
 msgctxt "wireguard-keys"
 msgid "Public key"
@@ -689,6 +728,6 @@ msgid "Advanced"
 msgstr "詳細"
 
 msgctxt "wireguard-keys-nav"
-msgid "WireGuard keys"
+msgid "WireGuard key"
 msgstr "WireGuard鍵"
 

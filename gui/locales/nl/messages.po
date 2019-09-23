@@ -10,13 +10,16 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-09-23 09:18\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "GEBLOKKEERDE VERBINDING"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "BEVEILIGDE VERBINDING AANMAKEN"
+
+msgid "Invalid account number"
+msgstr "Ongeldig accountnummer"
 
 msgid "SECURE CONNECTION"
 msgstr "BEVEILIGDE VERBINDING"
@@ -171,8 +174,8 @@ msgid "WireGuard"
 msgstr "WireGuard"
 
 msgctxt "advanced-settings-view"
-msgid "WireGuard keys"
-msgstr "WireGuard-sleutels"
+msgid "WireGuard key"
+msgstr "WireGuard-sleutel"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard port"
@@ -283,6 +286,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Toepassen van firewallregels is mislukt. Het toestel is nu mogelijk niet beveiligd"
 
 msgctxt "in-app-notifications"
+msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
+msgstr "Omzetten van host van aangepaste tunnel mislukt. Overweeg om de instellingen te wijzigen"
+
+msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
 msgstr "Instellen van DNS-server van systeem is mislukt"
 
@@ -332,6 +339,10 @@ msgstr "NIET-ONDERSTEUNDE VERSIE"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "UPDATE BESCHIKBAAR"
+
+msgctxt "in-app-notifications"
+msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
+msgstr "WireGuard-sleutel niet gepubliceerd op onze servers. U kunt uw sleutel beheren in Geavanceerde instellingen."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -489,18 +500,30 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Gebruik een monochroom pictogram op de taakbalk in plaats van een gekleurd."
 
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr "Ingang"
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr "Uitgang"
+
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "Locatie selecteren"
 
 msgctxt "select-location-view"
-msgid "Select location"
-msgstr "Locatie selecteren"
+msgid "Closest to exit server"
+msgstr "Dichtst bij uitgangsserver"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr "Wanneer u verbonden bent, wordt uw daadwerkelijke locatie gemaskeerd met een privé- en veilige locatie in de geselecteerde regio"
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "Wanneer u verbonden bent, wordt uw daadwerkelijke locatie gemaskeerd met een private en veilige locatie in de geselecteerde regio."
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr "Wanneer u verbonden bent, wordt uw verkeer omgeleid via twee veilige locaties, het ingangspunt (een bridge server) en het uitgangspunt (een VPN-server)."
 
 msgctxt "settings-view"
 msgid "Account"
@@ -648,8 +671,16 @@ msgid "Account has too many keys already"
 msgstr "Account heeft al te veel sleutels"
 
 msgctxt "wireguard-key-view"
-msgid "Failed to generate key"
+msgid "Can't manage keys whilst in a blocked state"
+msgstr "Kan sleutels niet beheren in geblokkeerde staat"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
 msgstr "Sleutel genereren mislukt"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to replace key - %(failure)s"
+msgstr "Sleutel vervangen mislukt - %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -664,6 +695,10 @@ msgid "Key is invalid"
 msgstr "Sleutel is ongeldig"
 
 msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr "Verificatie sleutel mislukt"
+
+msgctxt "wireguard-key-view"
 msgid "Manage keys"
 msgstr "Sleutels beheren"
 
@@ -672,12 +707,16 @@ msgid "No key set"
 msgstr "Geen sleutel ingesteld"
 
 msgctxt "wireguard-key-view"
+msgid "Regenerate key"
+msgstr "Sleutel opnieuw genereren"
+
+msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Sleutel verifiëren"
 
-msgctxt "wireguard-key-view"
-msgid "Verifying key"
-msgstr "Sleutel wordt geverifieerd"
+msgctxt "wireguard-keys"
+msgid "Key generated"
+msgstr "Sleutel gegenereerd"
 
 msgctxt "wireguard-keys"
 msgid "Public key"
@@ -689,6 +728,6 @@ msgid "Advanced"
 msgstr "Geavanceerd"
 
 msgctxt "wireguard-keys-nav"
-msgid "WireGuard keys"
-msgstr "WireGuard-sleutels"
+msgid "WireGuard key"
+msgstr "WireGuard-sleutel"
 

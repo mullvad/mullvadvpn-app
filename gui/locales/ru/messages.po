@@ -10,13 +10,16 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-09-23 09:18\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ПОДКЛЮЧЕНИЕ ЗАБЛОКИРОВАНО"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "СОЗДАНИЕ ЗАЩИЩЕННОГО ПОДКЛЮЧЕНИЯ"
+
+msgid "Invalid account number"
+msgstr "Недействительный номер учетной записи"
 
 msgid "SECURE CONNECTION"
 msgstr "ЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ"
@@ -171,8 +174,8 @@ msgid "WireGuard"
 msgstr "WireGuard"
 
 msgctxt "advanced-settings-view"
-msgid "WireGuard keys"
-msgstr "Ключи WireGuard"
+msgid "WireGuard key"
+msgstr "Ключ WireGuard"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard port"
@@ -283,6 +286,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Не удалось применить правила брандмауэра. Сейчас устройство может быть не защищено"
 
 msgctxt "in-app-notifications"
+msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
+msgstr "Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки"
+
+msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
 msgstr "Не удалось установить системный DNS-сервер"
 
@@ -332,6 +339,10 @@ msgstr "НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "ЕСТЬ ОБНОВЛЕНИЕ"
+
+msgctxt "in-app-notifications"
+msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
+msgstr "Ключ WireGuard не публикуется на наших серверах. Управлять ключом можно в «Дополнительных настройках»."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -489,18 +500,30 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Использовать в области уведомлений черно-белый значок вместо цветного."
 
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr "Вход"
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr "Выход"
+
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "Выбор местоположения"
 
 msgctxt "select-location-view"
-msgid "Select location"
-msgstr "Выбор местоположения"
+msgid "Closest to exit server"
+msgstr "Ближайший к выходному серверу"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr "При подключении реальное местоположение маскируется защищенным конфиденциальным местоположением в выбранном регионе"
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "При подключении реальное местоположение маскируется защищенным конфиденциальным местоположением в выбранном регионе."
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr "При подключении трафик будет направляться через два безопасных местоположения: точку входа (сервер-мост) и точку выхода (VPN-сервер)."
 
 msgctxt "settings-view"
 msgid "Account"
@@ -648,8 +671,16 @@ msgid "Account has too many keys already"
 msgstr "В учетной записи уже слишком много ключей"
 
 msgctxt "wireguard-key-view"
-msgid "Failed to generate key"
+msgid "Can't manage keys whilst in a blocked state"
+msgstr "Управлять ключами в заблокированном состоянии нельзя"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
 msgstr "Не удалось сгенерировать ключ"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to replace key - %(failure)s"
+msgstr "Не удалось заменить ключ. %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -664,6 +695,10 @@ msgid "Key is invalid"
 msgstr "Ключ недействителен"
 
 msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr "Ошибка проверки ключа"
+
+msgctxt "wireguard-key-view"
 msgid "Manage keys"
 msgstr "Управление ключами"
 
@@ -672,12 +707,16 @@ msgid "No key set"
 msgstr "Ключ не задан"
 
 msgctxt "wireguard-key-view"
+msgid "Regenerate key"
+msgstr "Повторно сгенерировать ключ"
+
+msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Проверка ключа"
 
-msgctxt "wireguard-key-view"
-msgid "Verifying key"
-msgstr "Идет проверка ключа"
+msgctxt "wireguard-keys"
+msgid "Key generated"
+msgstr "Ключ сгенерирован"
 
 msgctxt "wireguard-keys"
 msgid "Public key"
@@ -689,6 +728,6 @@ msgid "Advanced"
 msgstr "Дополнительные"
 
 msgctxt "wireguard-keys-nav"
-msgid "WireGuard keys"
-msgstr "Ключи WireGuard"
+msgid "WireGuard key"
+msgstr "Ключ WireGuard"
 

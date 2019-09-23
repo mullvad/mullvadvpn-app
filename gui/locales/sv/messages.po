@@ -10,13 +10,16 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-09-23 09:18\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ANSLUTNINGEN BLOCKERAD"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "SKAPAR SÄKER ANSLUTNING"
+
+msgid "Invalid account number"
+msgstr "Ogiltigt kontonummer"
 
 msgid "SECURE CONNECTION"
 msgstr "SÄKER ANSLUTNING"
@@ -171,8 +174,8 @@ msgid "WireGuard"
 msgstr "WireGuard"
 
 msgctxt "advanced-settings-view"
-msgid "WireGuard keys"
-msgstr "WireGuard-nycklar"
+msgid "WireGuard key"
+msgstr "WireGuard-nyckel"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard port"
@@ -283,6 +286,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Det gick inte att tillämpa brandväggsregler. Enheten kan för närvarande vara osäker"
 
 msgctxt "in-app-notifications"
+msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
+msgstr "Det gick inte att lösa värd för anpassad tunnel. Överväg att ändra inställningarna"
+
+msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
 msgstr "Det gick inte att ange systemets DNS-server"
 
@@ -311,7 +318,7 @@ msgstr "Installera Mullvad VPN (%(version)s) för att hålla dig uppdaterad"
 
 msgctxt "in-app-notifications"
 msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
-msgstr "Ingen reläserver matchar de nuvarande inställningarna. Du kan prova att ändra plats eller reläinställningarna."
+msgstr "Ingen reläserver matchar de aktuella inställningarna. Du kan prova att ändra plats eller reläinställningarna."
 
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
@@ -332,6 +339,10 @@ msgstr "VERSION UTAN STÖD"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "UPPDATERING TILLGÄNGLIG"
+
+msgctxt "in-app-notifications"
+msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
+msgstr "WireGuard-nyckel är inte publicerad på våra servrar. Du kan hantera din nyckel i Avancerade inställningar."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -489,18 +500,30 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Använd en enfärgad systemfältsikon i stället för en flerfärgad."
 
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr "Ingång"
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr "Utgång"
+
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "Välj plats"
 
 msgctxt "select-location-view"
-msgid "Select location"
-msgstr "Välj plats"
+msgid "Closest to exit server"
+msgstr "Närmast till slutserver"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr "Medan du är ansluten maskeras din riktiga plats med en privat och säker plats i den valda regionen"
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "Medan du är ansluten maskeras din riktiga plats med en privat och säker plats i den valda regionen."
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr "Medan du är ansluten kommer din trafik att dirigeras genom två säkra platser: startpunkten (en broserver) och slutpunkten (en VPN-server)."
 
 msgctxt "settings-view"
 msgid "Account"
@@ -648,8 +671,16 @@ msgid "Account has too many keys already"
 msgstr "Kontot har redan för många nycklar"
 
 msgctxt "wireguard-key-view"
-msgid "Failed to generate key"
-msgstr "Det gick inte att generera nyckel"
+msgid "Can't manage keys whilst in a blocked state"
+msgstr "Det går inte att hantera nycklar i blockerat tillstånd"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
+msgstr "Det gick inte att generera en nyckel"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to replace key - %(failure)s"
+msgstr "Det gick inte att ersätta nyckel - %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -664,6 +695,10 @@ msgid "Key is invalid"
 msgstr "Nyckeln är ogiltig"
 
 msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr "Det gick inte att verifiera nyckel"
+
+msgctxt "wireguard-key-view"
 msgid "Manage keys"
 msgstr "Hantera nycklar"
 
@@ -672,16 +707,20 @@ msgid "No key set"
 msgstr "Ingen nyckel har angetts"
 
 msgctxt "wireguard-key-view"
+msgid "Regenerate key"
+msgstr "Generera om nyckel"
+
+msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Verifiera nyckel"
 
-msgctxt "wireguard-key-view"
-msgid "Verifying key"
-msgstr "Verifierar nyckel"
+msgctxt "wireguard-keys"
+msgid "Key generated"
+msgstr "Nyckel har genererats"
 
 msgctxt "wireguard-keys"
 msgid "Public key"
-msgstr "Publik nyckel"
+msgstr "Offentlig nyckel"
 
 #. Back button in navigation bar
 msgctxt "wireguard-keys-nav"
@@ -689,6 +728,6 @@ msgid "Advanced"
 msgstr "Avancerat"
 
 msgctxt "wireguard-keys-nav"
-msgid "WireGuard keys"
-msgstr "WireGuard-nycklar"
+msgid "WireGuard key"
+msgstr "WireGuard-nyckel"
 
