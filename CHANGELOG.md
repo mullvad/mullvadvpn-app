@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2019.8] - 2019-09-23
+This release is identical to 2019.8-beta1
+
+
 ## [2019.8-beta1] - 2019-09-19
 ### Added
 - Add ability to replace the WireGuard key with a new one. Allows manual key rotation.
