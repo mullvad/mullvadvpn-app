@@ -23,6 +23,9 @@ const styles = {
     hover: Styles.createButtonStyle({
       backgroundColor: colors.blue80,
     }),
+    selected: Styles.createViewStyle({
+      backgroundColor: colors.green,
+    }),
   },
   cellContainer: Styles.createViewStyle({
     backgroundColor: colors.blue,
@@ -122,8 +125,9 @@ const styles = {
 interface ICellButtonProps {
   children?: React.ReactNode;
   disabled?: boolean;
-  cellHoverStyle?: Types.StyleRuleSetRecursive<Types.ButtonStyleRuleSet>;
+  selected?: boolean;
   style?: Types.StyleRuleSetRecursive<Types.ButtonStyleRuleSet>;
+  hoverStyle?: Types.StyleRuleSetRecursive<Types.ButtonStyleRuleSet>;
   onPress?: () => void;
 }
 
@@ -135,14 +139,20 @@ const CellSectionContext = React.createContext<boolean>(false);
 const CellHoverContext = React.createContext<boolean>(false);
 
 export class CellButton extends Component<ICellButtonProps, IState> {
-  public state = { hovered: false };
+  public state: IState = { hovered: false };
 
   public onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
   public onHoverEnd = () => (!this.props.disabled ? this.setState({ hovered: false }) : null);
 
   public render() {
-    const { children, style, cellHoverStyle, ...otherProps } = this.props;
-    const hoverStyle = cellHoverStyle || styles.cellButton.hover;
+    const { children, style, hoverStyle, ...otherProps } = this.props;
+
+    const stateStyle = this.props.selected
+      ? styles.cellButton.selected
+      : this.state.hovered
+      ? hoverStyle || styles.cellButton.hover
+      : undefined;
+
     return (
       <CellSectionContext.Consumer>
         {(containedInSection) => (
@@ -151,7 +161,7 @@ export class CellButton extends Component<ICellButtonProps, IState> {
               styles.cellButton.base,
               containedInSection ? styles.cellButton.section : undefined,
               style,
-              this.state.hovered ? hoverStyle : undefined,
+              stateStyle,
             ]}
             onHoverStart={this.onHoverStart}
             onHoverEnd={this.onHoverEnd}
