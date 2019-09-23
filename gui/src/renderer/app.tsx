@@ -366,7 +366,9 @@ export default class AppRenderer {
   public getPreferredLocaleList(): IPreferredLocaleDescriptor[] {
     return [
       {
-        name: messages.pgettext('application-languages', 'System default'),
+        // TRANSLATORS: The option that represents the active operating system language in the
+        // TRANSLATORS: user interface language selection list.
+        name: messages.gettext('System default'),
         code: 'system',
       },
       ...supportedLocaleList,
