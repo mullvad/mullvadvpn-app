@@ -21,6 +21,7 @@ import styles from './SettingsStyles';
 import { LoginState } from '../redux/account/reducers';
 
 export interface IProps {
+  preferredLocaleDisplayName: string;
   loginState: LoginState;
   accountExpiry?: string;
   expiryLocale: string;
@@ -64,6 +65,7 @@ export default class Settings extends Component<IProps> {
                     <View>
                       <Cell.CellButton onPress={this.props.onViewSelectLanguage}>
                         <Cell.Label>{messages.pgettext('settings-view', 'Language')}</Cell.Label>
+                        <Cell.SubText>{this.props.preferredLocaleDisplayName}</Cell.SubText>
                         <Cell.Icon height={12} width={7} source="icon-chevron" />
                       </Cell.CellButton>
 
