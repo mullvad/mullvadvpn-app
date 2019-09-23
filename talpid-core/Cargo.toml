@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 atty = "0.2"
 cfg-if = "0.1"
-derive_more = "0.14"
+derive_more = "0.15"
 duct = "0.12"
 err-derive = "0.1.5"
 futures = "0.1"
