@@ -20,16 +20,16 @@ const styles = {
 };
 
 interface IProps {
-  isActive: boolean;
-  isSelected: boolean;
+  active: boolean;
+  selected: boolean;
 }
 
 export default class RelayStatusIndicator extends Component<IProps> {
   public render() {
-    return this.props.isSelected ? (
+    return this.props.selected ? (
       <Cell.Icon tintColor={colors.white} source="icon-tick" height={24} width={24} />
     ) : (
-      <View style={[styles.relayStatus, this.props.isActive ? styles.active : styles.inactive]} />
+      <View style={[styles.relayStatus, this.props.active ? styles.active : styles.inactive]} />
     );
   }
 }
