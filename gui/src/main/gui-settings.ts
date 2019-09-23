@@ -79,7 +79,7 @@ export default class GuiSettings {
 
       this.stateValue = {
         ...defaultSettings,
-        ...(validate(settingsSchema, rawJson) as GuiSettings),
+        ...(validate(settingsSchema, rawJson) as Partial<IGuiSettingsState>),
       };
     } catch (error) {
       log.error(`Failed to read GUI settings file: ${error}`);
