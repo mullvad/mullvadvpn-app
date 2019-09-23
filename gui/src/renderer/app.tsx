@@ -377,6 +377,12 @@ export default class AppRenderer {
     IpcRendererEventChannel.guiSettings.setPreferredLocale(preferredLocale);
   }
 
+  private getPreferredLocaleDisplayName(localeCode: string): string {
+    const preferredLocale = this.getPreferredLocaleList().find((item) => item.code === localeCode);
+
+    return preferredLocale ? preferredLocale.name : '';
+  }
+
   private loadTranslations(locale: string) {
     for (const catalogue of [messages, countries, cities, relayLocations]) {
       loadTranslations(locale, catalogue);
@@ -670,6 +676,9 @@ export default class AppRenderer {
   private setGuiSettings(guiSettings: IGuiSettingsState) {
     this.guiSettings = guiSettings;
     this.reduxActions.settings.updateGuiSettings(guiSettings);
+    this.reduxActions.userInterface.updatePreferredLocaleName(
+      this.getPreferredLocaleDisplayName(guiSettings.preferredLocale),
+    );
   }
 
   private setAccountExpiry(expiry?: string) {

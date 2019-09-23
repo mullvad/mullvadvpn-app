@@ -8,6 +8,7 @@ import { IReduxState, ReduxDispatch } from '../redux/store';
 import { ISharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: IReduxState, _props: ISharedRouteProps) => ({
+  preferredLocaleDisplayName: state.userInterface.preferredLocaleName,
   loginState: state.account.status,
   accountExpiry: state.account.expiry,
   expiryLocale: state.userInterface.locale,
