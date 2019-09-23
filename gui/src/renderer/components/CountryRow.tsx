@@ -82,8 +82,8 @@ export default class CountryRow extends Component<IProps> {
           onPress={this.handlePress}
           disabled={!this.props.hasActiveRelays}>
           <RelayStatusIndicator
-            isActive={this.props.hasActiveRelays}
-            isSelected={this.props.selected}
+            active={this.props.hasActiveRelays}
+            selected={this.props.selected}
           />
           <Cell.Label>{this.props.name}</Cell.Label>
           {hasChildren ? (
