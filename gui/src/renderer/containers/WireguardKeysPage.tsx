@@ -8,10 +8,10 @@ import { IWgKey } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: IReduxState, props: ISharedRouteProps) => ({
+const mapStateToProps = (state: IReduxState, _props: ISharedRouteProps) => ({
   keyState: state.settings.wireguardKeyState,
   isOffline: state.connection.isBlocked,
-  locale: props.locale,
+  locale: state.userInterface.locale,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
   const history = bindActionCreators({ push, goBack }, dispatch);

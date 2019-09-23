@@ -2,20 +2,37 @@ import { app } from 'electron';
 import log from 'electron-log';
 import * as fs from 'fs';
 import * as path from 'path';
-
+import { validate } from 'validated/object';
+import { boolean, partialObject, string } from 'validated/schema';
 import { IGuiSettingsState } from '../shared/gui-settings-state';
+
+const settingsSchema = partialObject({
+  preferredLocale: string,
+  autoConnect: boolean,
+  enableSystemNotifications: boolean,
+  monochromaticIcon: boolean,
+  startMinimized: boolean,
+});
+
+const defaultSettings: IGuiSettingsState = {
+  preferredLocale: 'system',
+  autoConnect: true,
+  enableSystemNotifications: true,
+  monochromaticIcon: false,
+  startMinimized: false,
+};
 
 export default class GuiSettings {
   get state(): IGuiSettingsState {
     return this.stateValue;
   }
 
-  set preferredLocale(newValue: string | undefined) {
+  set preferredLocale(newValue: string) {
     this.changeStateAndNotify({ ...this.stateValue, preferredLocale: newValue });
   }
 
-  get preferredLocale(): string | undefined {
-    return this.preferredLocale;
+  get preferredLocale(): string {
+    return this.stateValue.preferredLocale;
   }
 
   set enableSystemNotifications(newValue: boolean) {
@@ -52,27 +69,18 @@ export default class GuiSettings {
 
   public onChange?: (newState: IGuiSettingsState, oldState: IGuiSettingsState) => void;
 
-  private stateValue: IGuiSettingsState = {
-    autoConnect: true,
-    enableSystemNotifications: true,
-    monochromaticIcon: false,
-    startMinimized: false,
-  };
+  private stateValue: IGuiSettingsState = { ...defaultSettings };
 
   public load() {
     try {
       const settingsFile = this.filePath();
       const contents = fs.readFileSync(settingsFile, 'utf8');
-      const settings = JSON.parse(contents);
+      const rawJson = JSON.parse(contents);
 
-      this.stateValue.autoConnect =
-        typeof settings.autoConnect === 'boolean' ? settings.autoConnect : true;
-      this.stateValue.enableSystemNotifications =
-        typeof settings.enableSystemNotifications === 'boolean'
-          ? settings.enableSystemNotifications
-          : true;
-      this.stateValue.monochromaticIcon = settings.monochromaticIcon || false;
-      this.stateValue.startMinimized = settings.startMinimized || false;
+      this.stateValue = {
+        ...defaultSettings,
+        ...(validate(settingsSchema, rawJson) as Partial<IGuiSettingsState>),
+      };
     } catch (error) {
       log.error(`Failed to read GUI settings file: ${error}`);
     }

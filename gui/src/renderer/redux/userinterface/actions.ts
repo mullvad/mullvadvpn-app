@@ -1,5 +1,10 @@
 import { LocationScope } from './reducers';
 
+export interface IUpdateLocaleAction {
+  type: 'UPDATE_LOCALE';
+  locale: string;
+}
+
 export interface IUpdateWindowArrowPositionAction {
   type: 'UPDATE_WINDOW_ARROW_POSITION';
   arrowPosition: number;
@@ -15,9 +20,17 @@ export interface ISetLocationScopeAction {
 }
 
 export type UserInterfaceAction =
+  | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
   | IUpdateConnectionInfoOpenAction
   | ISetLocationScopeAction;
+
+function updateLocale(locale: string): IUpdateLocaleAction {
+  return {
+    type: 'UPDATE_LOCALE',
+    locale,
+  };
+}
 
 function updateWindowArrowPosition(arrowPosition: number): IUpdateWindowArrowPositionAction {
   return {
@@ -39,4 +52,4 @@ function setLocationScope(scope: LocationScope): ISetLocationScopeAction {
   };
 }
 
-export default { updateWindowArrowPosition, toggleConnectionPanel, setLocationScope };
+export default { updateLocale, updateWindowArrowPosition, toggleConnectionPanel, setLocationScope };

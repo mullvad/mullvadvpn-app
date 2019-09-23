@@ -1,5 +1,5 @@
 export interface IGuiSettingsState {
-  preferredLocale?: string;
+  preferredLocale: string;
   enableSystemNotifications: boolean;
   autoConnect: boolean;
   monochromaticIcon: boolean;

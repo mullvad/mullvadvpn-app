@@ -40,6 +40,7 @@ const transitions: ITransitionMap = {
  * (null) is used to indicate any route.
  */
 const transitionRules = [
+  r('/settings', '/settings/language', transitions.push),
   r('/settings', '/settings/account', transitions.push),
   r('/settings', '/settings/preferences', transitions.push),
   r('/settings', '/settings/advanced', transitions.push),
