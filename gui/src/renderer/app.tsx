@@ -98,11 +98,11 @@ export default class AppRenderer {
     setupLogging(getRendererLogFile());
 
     IpcRendererEventChannel.locale.listen((locale) => {
-      // set current locale
-      this.setCurrentLocale(locale);
+      // load translations for the new locale
+      this.loadTranslations(locale);
 
-      // reload translations with the new locale
-      this.loadTranslations();
+      // set current locale
+      this.setLocale(locale);
 
       // refresh the relay list pair with the new translations
       this.propagateRelayListPairToRedux();
@@ -182,8 +182,8 @@ export default class AppRenderer {
     const initialState = IpcRendererEventChannel.state.get();
 
     // Load translations
-    this.setCurrentLocale(initialState.locale);
-    this.loadTranslations();
+    this.loadTranslations(initialState.locale);
+    this.setLocale(initialState.locale);
 
     this.setAccountExpiry(initialState.accountData && initialState.accountData.expiry);
     this.setAccountHistory(initialState.accountHistory);
@@ -377,13 +377,13 @@ export default class AppRenderer {
     IpcRendererEventChannel.guiSettings.setPreferredLocale(preferredLocale);
   }
 
-  private loadTranslations() {
+  private loadTranslations(locale: string) {
     for (const catalogue of [messages, countries, cities, relayLocations]) {
-      loadTranslations(this.locale, catalogue);
+      loadTranslations(locale, catalogue);
     }
   }
 
-  private setCurrentLocale(locale: string) {
+  private setLocale(locale: string) {
     this.locale = locale;
     this.reduxActions.userInterface.updateLocale(locale);
   }
