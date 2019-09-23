@@ -62,7 +62,7 @@ const supportedLocaleList = [
   { name: 'Svenska', code: 'sv' },
   { name: 'Türkçe', code: 'tr' },
   { name: '简体中文', code: 'zh-CN' },
-  { name: '中國傳統的', code: 'zh-TW' },
+  { name: '繁體中文', code: 'zh-TW' },
 ];
 
 export default class AppRenderer {
