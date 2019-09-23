@@ -64,10 +64,10 @@ function getRelayName(
   }
 }
 
-const mapStateToProps = (state: IReduxState, props: ISharedRouteProps) => {
+const mapStateToProps = (state: IReduxState, _props: ISharedRouteProps) => {
   return {
     accountExpiry: state.account.expiry
-      ? new AccountExpiry(state.account.expiry, props.locale)
+      ? new AccountExpiry(state.account.expiry, state.userInterface.locale)
       : undefined,
     selectedRelayName: getRelayName(state.settings.relaySettings, state.settings.relayLocations),
     connection: state.connection,

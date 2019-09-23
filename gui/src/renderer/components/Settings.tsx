@@ -30,6 +30,7 @@ export interface IProps {
   isOffline: boolean;
   onQuit: () => void;
   onClose: () => void;
+  onViewSelectLanguage: () => void;
   onViewAccount: () => void;
   onViewSupport: () => void;
   onViewPreferences: () => void;
@@ -61,6 +62,11 @@ export default class Settings extends Component<IProps> {
                       <HeaderTitle>{messages.pgettext('settings-view', 'Settings')}</HeaderTitle>
                     </SettingsHeader>
                     <View>
+                      <Cell.CellButton onPress={this.props.onViewSelectLanguage}>
+                        <Cell.Label>{messages.pgettext('settings-view', 'Language')}</Cell.Label>
+                        <Cell.Icon height={12} width={7} source="icon-chevron" />
+                      </Cell.CellButton>
+
                       {this.renderTopButtons()}
                       {this.renderMiddleButtons()}
                       {this.renderBottomButtons()}
