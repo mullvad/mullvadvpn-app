@@ -42,7 +42,7 @@ export default class RelayRow extends Component<IProps> {
         selected={this.props.selected}
         disabled={!this.props.active}
         style={styles.base}>
-        <RelayStatusIndicator isActive={this.props.active} isSelected={this.props.selected} />
+        <RelayStatusIndicator active={this.props.active} selected={this.props.selected} />
 
         <Cell.Label>{this.props.hostname}</Cell.Label>
       </Cell.CellButton>
