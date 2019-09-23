@@ -10,13 +10,16 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-09-23 09:18\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "被封鎖的連線"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "建立安全連線"
+
+msgid "Invalid account number"
+msgstr "帳號無效"
 
 msgid "SECURE CONNECTION"
 msgstr "安全連線"
@@ -58,7 +61,7 @@ msgstr "目前不可用"
 
 msgctxt "account-view"
 msgid "Key is valid"
-msgstr "鑰匙有效"
+msgstr "金鑰有效"
 
 msgctxt "account-view"
 msgid "Log out"
@@ -171,8 +174,8 @@ msgid "WireGuard"
 msgstr "WireGuard"
 
 msgctxt "advanced-settings-view"
-msgid "WireGuard keys"
-msgstr "WireGuard 鑰匙"
+msgid "WireGuard key"
+msgstr "WireGuard 金鑰"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard port"
@@ -283,6 +286,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "無法套用防火牆規則。裝置目前可能不安全"
 
 msgctxt "in-app-notifications"
+msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
+msgstr "無法解析自訂通道的主機。請考慮變更設定"
+
+msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
 msgstr "無法設定系統 DNS 伺服器"
 
@@ -311,7 +318,7 @@ msgstr "安裝 Mullvad VPN (%(version)s) 以保持最新狀態"
 
 msgctxt "in-app-notifications"
 msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
-msgstr "沒有中繼伺服器與目前的設定相符。您可以嘗試變更位置或中繼設定。"
+msgstr "沒有轉送伺服器與目前的設定相符。您可以嘗試變更位置或轉送設定。"
 
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
@@ -332,6 +339,10 @@ msgstr "不支援的版本"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "可用的更新"
+
+msgctxt "in-app-notifications"
+msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
+msgstr "WireGuard 金鑰未發佈到我們伺服器。您可以在「進階」設定中管理金鑰。"
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -422,7 +433,7 @@ msgstr "不安全"
 
 msgctxt "notifications"
 msgid "Wireguard key generation failed"
-msgstr "WireGuard 鑰匙產生失敗"
+msgstr "WireGuard 金鑰產生失敗"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -489,18 +500,30 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "使用單色系統匣圖示，而不是彩色的圖示。"
 
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr "入口"
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr "出口"
+
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "選擇位置"
 
 msgctxt "select-location-view"
-msgid "Select location"
-msgstr "選擇位置"
+msgid "Closest to exit server"
+msgstr "最靠近出口伺服器"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr "連線時，會以所選區域中的一個私密安全位置將您的真實位置遮住。"
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "連線時，會以所選區域中的一個私密安全位置，將您的真實位置遮住。"
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr "連線時，您的流量將透過兩個安全的位置來進行路由，即入口點 (橋接伺服器) 和出口點 (VPN 伺服器)。"
 
 msgctxt "settings-view"
 msgid "Account"
@@ -645,43 +668,59 @@ msgstr "切換位置"
 
 msgctxt "wireguard-key-view"
 msgid "Account has too many keys already"
-msgstr "帳戶已有過多鑰匙"
+msgstr "帳戶已有過多金鑰"
 
 msgctxt "wireguard-key-view"
-msgid "Failed to generate key"
-msgstr "無法產生鑰匙"
+msgid "Can't manage keys whilst in a blocked state"
+msgstr "無法在封鎖狀態下管理金鑰"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
+msgstr "無法產生金鑰"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to replace key - %(failure)s"
+msgstr "無法替換金鑰 - %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
-msgstr "產生鑰匙"
+msgstr "產生金鑰"
 
 msgctxt "wireguard-key-view"
 msgid "Generating key"
-msgstr "正在產生鑰匙"
+msgstr "正在產生金鑰"
 
 msgctxt "wireguard-key-view"
 msgid "Key is invalid"
-msgstr "鑰匙無效"
+msgstr "金鑰無效"
+
+msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr "金鑰驗證失敗"
 
 msgctxt "wireguard-key-view"
 msgid "Manage keys"
-msgstr "管理鑰匙"
+msgstr "管理金鑰"
 
 msgctxt "wireguard-key-view"
 msgid "No key set"
-msgstr "未設定鑰匙"
+msgstr "未設定金鑰"
+
+msgctxt "wireguard-key-view"
+msgid "Regenerate key"
+msgstr "重新產生金鑰"
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"
-msgstr "驗證鑰匙"
+msgstr "驗證金鑰"
 
-msgctxt "wireguard-key-view"
-msgid "Verifying key"
-msgstr "正在驗證鑰匙"
+msgctxt "wireguard-keys"
+msgid "Key generated"
+msgstr "已產生金鑰"
 
 msgctxt "wireguard-keys"
 msgid "Public key"
-msgstr "公開鑰匙"
+msgstr "公開金鑰"
 
 #. Back button in navigation bar
 msgctxt "wireguard-keys-nav"
@@ -689,6 +728,6 @@ msgid "Advanced"
 msgstr "進階"
 
 msgctxt "wireguard-keys-nav"
-msgid "WireGuard keys"
-msgstr "WireGuard 鑰匙"
+msgid "WireGuard key"
+msgstr "WireGuard 金鑰"
 

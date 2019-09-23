@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-09-23 09:18\n"
 
 #. AL TIA
 msgid "Tirana"
@@ -18,7 +18,7 @@ msgstr "地拉那"
 
 #. AU ADL
 msgid "Adelaide"
-msgstr "阿德萊德"
+msgstr "阿得雷德"
 
 #. AU BNE
 msgid "Brisbane"

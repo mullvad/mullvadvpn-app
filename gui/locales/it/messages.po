@@ -10,13 +10,16 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Italian\n"
 "Language: it_IT\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-09-23 09:18\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "CONNESSIONE BLOCCATA"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "CREAZIONE CONNESSIONE PROTETTA"
+
+msgid "Invalid account number"
+msgstr "Numero di account non valido"
 
 msgid "SECURE CONNECTION"
 msgstr "CONNESSIONE PROTETTA"
@@ -171,8 +174,8 @@ msgid "WireGuard"
 msgstr "WireGuard"
 
 msgctxt "advanced-settings-view"
-msgid "WireGuard keys"
-msgstr "Chiavi WireGuard"
+msgid "WireGuard key"
+msgstr "Chiave WireGuard"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard port"
@@ -283,6 +286,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Impossibile applicare le regole firewall. Il dispositivo potrebbe essere non protetto"
 
 msgctxt "in-app-notifications"
+msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
+msgstr "Impossibile risolvere l'host del tunnel personalizzato. È consigliabile modificare le impostazioni"
+
+msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
 msgstr "Impossibile impostare il server DNS di sistema"
 
@@ -332,6 +339,10 @@ msgstr "VERSIONE NON SUPPORTATA"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "AGGIORNAMENTO DISPONIBILE"
+
+msgctxt "in-app-notifications"
+msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
+msgstr "Chiave WireGuard non pubblicata sui nostri server. Puoi gestire la tua chiave nelle impostazioni avanzate."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -489,18 +500,30 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Usa un'icona nell'area di notifica monocromatica e non colorata."
 
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr "Ingresso"
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr "Uscita"
+
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "Seleziona posizione"
 
 msgctxt "select-location-view"
-msgid "Select location"
-msgstr "Seleziona posizione"
+msgid "Closest to exit server"
+msgstr "Più vicino al server di uscita"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr "Durante la connessione, la tua posizione reale è nascosta da una posizione privata e protetta nell'area selezionata"
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "Durante la connessione, la tua posizione reale è nascosta da una posizione privata e protetta nell'area selezionata."
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr "Durante la connessione, il tuo traffico sarà instradato attraverso due posizioni protette, il punto di ingresso (un bridge server) e il punto di uscita (un server VPN)."
 
 msgctxt "settings-view"
 msgid "Account"
@@ -648,8 +671,16 @@ msgid "Account has too many keys already"
 msgstr "L'account dispone già di troppe chiavi"
 
 msgctxt "wireguard-key-view"
-msgid "Failed to generate key"
-msgstr "Impossibile generare la chiave"
+msgid "Can't manage keys whilst in a blocked state"
+msgstr "Impossibile gestire le chiavi in uno stato bloccato"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
+msgstr "Impossibile generare una chiave"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to replace key - %(failure)s"
+msgstr "Impossibile sostituire la chiave - %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -664,6 +695,10 @@ msgid "Key is invalid"
 msgstr "La chiave non è valida"
 
 msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr "Verifica chiave non riuscita"
+
+msgctxt "wireguard-key-view"
 msgid "Manage keys"
 msgstr "Gestisci chiavi"
 
@@ -672,12 +707,16 @@ msgid "No key set"
 msgstr "Nessun set di chiavi"
 
 msgctxt "wireguard-key-view"
+msgid "Regenerate key"
+msgstr "Rigenera chiave"
+
+msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Verifica chiave"
 
-msgctxt "wireguard-key-view"
-msgid "Verifying key"
-msgstr "Verifica della chiave"
+msgctxt "wireguard-keys"
+msgid "Key generated"
+msgstr "Chiave generata"
 
 msgctxt "wireguard-keys"
 msgid "Public key"
@@ -689,6 +728,6 @@ msgid "Advanced"
 msgstr "Avanzate"
 
 msgctxt "wireguard-keys-nav"
-msgid "WireGuard keys"
-msgstr "Chiavi WireGuard"
+msgid "WireGuard key"
+msgstr "Chiave WireGuard"
 

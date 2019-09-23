@@ -10,13 +10,16 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Norwegian\n"
 "Language: no_NO\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-09-23 09:18\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "TILKOBLING BLOKKERT"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "OPPRETTER SIKKER TILKOBLING"
+
+msgid "Invalid account number"
+msgstr "Ugyldig kontonummer"
 
 msgid "SECURE CONNECTION"
 msgstr "SIKKER TILKOBLING"
@@ -171,8 +174,8 @@ msgid "WireGuard"
 msgstr "WireGuard"
 
 msgctxt "advanced-settings-view"
-msgid "WireGuard keys"
-msgstr "WireGuard-nøkler"
+msgid "WireGuard key"
+msgstr "WireGuard-nøkkel"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard port"
@@ -283,6 +286,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Kunne ikke anvende brannmurregler. Enheten kan være usikker"
 
 msgctxt "in-app-notifications"
+msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
+msgstr "Kunne ikke løse problem med vert for tilpasset tunnel. Vurder å endre innstillingene"
+
+msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
 msgstr "Kunne ikke angi systemets DNS-server"
 
@@ -332,6 +339,10 @@ msgstr "VERSJON UTEN STØTTE"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "OPPDATERING TILGJENGELIG"
+
+msgctxt "in-app-notifications"
+msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
+msgstr "WireGuard-nøkkel ikke publisert til serverne våre. Du kan administrere nøkkelen under avanserte innstillinger."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -489,18 +500,30 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Bruk ensfarget skuffeikon i stedet for flerfarget."
 
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr "Inngang"
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr "Utgang"
+
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "Velg plassering"
 
 msgctxt "select-location-view"
-msgid "Select location"
-msgstr "Velg plassering"
+msgid "Closest to exit server"
+msgstr "Nærmest til utgangsserver"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr "Mens du er tilkoblet vil din egentlige plassering være skjult med en privat og sikker plassering i den valgte regionen"
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "Mens du er tilkoblet vil din egentlige plassering være skjult med en privat og sikker plassering i den valgte regionen."
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr "Mens du er tilkoblet vil trafikken din videresendes gjennom to sikre plasseringer, inngangspunktet (en broserver) og utgangspunktet (en VPN-server)."
 
 msgctxt "settings-view"
 msgid "Account"
@@ -648,8 +671,16 @@ msgid "Account has too many keys already"
 msgstr "Konto har allerede for mange nøkler"
 
 msgctxt "wireguard-key-view"
-msgid "Failed to generate key"
-msgstr "Generering av nøkkel mislyktes"
+msgid "Can't manage keys whilst in a blocked state"
+msgstr "Nøkler kan ikke administreres i en blokkert tilstand"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
+msgstr "Generering av en nøkkel mislyktes"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to replace key - %(failure)s"
+msgstr "Kunne ikke erstatte nøkkel – %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -664,6 +695,10 @@ msgid "Key is invalid"
 msgstr "Nøkkel er ugyldig"
 
 msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr "Nøkkelverifisering mislyktes"
+
+msgctxt "wireguard-key-view"
 msgid "Manage keys"
 msgstr "Behandle nøkler"
 
@@ -672,12 +707,16 @@ msgid "No key set"
 msgstr "Ingen nøkkel angitt"
 
 msgctxt "wireguard-key-view"
+msgid "Regenerate key"
+msgstr "Generer nøkkel på nytt"
+
+msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Bekreft nøkkel"
 
-msgctxt "wireguard-key-view"
-msgid "Verifying key"
-msgstr "Bekrefter nøkkel"
+msgctxt "wireguard-keys"
+msgid "Key generated"
+msgstr "Nøkkel generert"
 
 msgctxt "wireguard-keys"
 msgid "Public key"
@@ -689,6 +728,6 @@ msgid "Advanced"
 msgstr "Avansert"
 
 msgctxt "wireguard-keys-nav"
-msgid "WireGuard keys"
-msgstr "WireGuard-nøkler"
+msgid "WireGuard key"
+msgstr "WireGuard-nøkkel"
 

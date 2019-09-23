@@ -10,13 +10,16 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-09-23 09:18\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ENGELLENEN BAĞLANTI"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI OLUŞTURULUYOR"
+
+msgid "Invalid account number"
+msgstr "Geçersiz hesap numarası"
 
 msgid "SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI"
@@ -171,8 +174,8 @@ msgid "WireGuard"
 msgstr "WireGuard"
 
 msgctxt "advanced-settings-view"
-msgid "WireGuard keys"
-msgstr "WireGuard anahtarları"
+msgid "WireGuard key"
+msgstr "WireGuard anahtarı"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard port"
@@ -283,6 +286,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Güvenlik duvarı kuralları uygulanamıyor. Cihaz şu an korumasız olabilir"
 
 msgctxt "in-app-notifications"
+msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
+msgstr "Özel tünel, ana bilgisayarı çözümleyemiyor. Ayarları değiştirmeyi deneyin"
+
+msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
 msgstr "Sistem DNS sunucusu belirlenemiyor"
 
@@ -332,6 +339,10 @@ msgstr "DESTEKLENMEYEN SÜRÜM"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "GÜNCELLEME MEVCUT"
+
+msgctxt "in-app-notifications"
+msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
+msgstr "WireGuard anahtarı sunucularımızda yayınlanmadı. Anahtarınızı, Gelişmiş Ayarlar'dan yönetebilirsiniz."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -489,18 +500,30 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Renkli yerine monokrom bir sistem çubuğu simgesi kullan."
 
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr "Giriş"
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr "Çıkış"
+
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "Konum seçin"
 
 msgctxt "select-location-view"
-msgid "Select location"
-msgstr "Konum seçin"
+msgid "Closest to exit server"
+msgstr "Çıkış sunucusuna en yakın"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr "Bağlıyken gerçek konumunuz seçilen bölgedeki özel ve gizli bir konumla maskelenir"
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "Bağlıyken gerçek konumunuz seçilen bölgedeki özel ve gizli bir konumla maskelenir."
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr "Bağlıyken, İnternet trafiğiniz giriş noktası (bir köprü sunucusu) ve çıkış noktası (bir VPN sunucusu) olmak üzere iki güvenli konum boyunca yönlendirilir."
 
 msgctxt "settings-view"
 msgid "Account"
@@ -648,8 +671,16 @@ msgid "Account has too many keys already"
 msgstr "Hesap zaten çok fazla anahtara sahip"
 
 msgctxt "wireguard-key-view"
-msgid "Failed to generate key"
+msgid "Can't manage keys whilst in a blocked state"
+msgstr "Anahtarlar engellenmiş durumdayken yönetilemez"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
 msgstr "Anahtar oluşturulamadı"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to replace key - %(failure)s"
+msgstr "Anahtar değiştirilemedi - %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -664,6 +695,10 @@ msgid "Key is invalid"
 msgstr "Anahtar geçersiz"
 
 msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr "Anahtar doğrulanamadı"
+
+msgctxt "wireguard-key-view"
 msgid "Manage keys"
 msgstr "Anahtarları yönet"
 
@@ -672,12 +707,16 @@ msgid "No key set"
 msgstr "Anahtar seti yok"
 
 msgctxt "wireguard-key-view"
+msgid "Regenerate key"
+msgstr "Yeniden anahtar oluştur"
+
+msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Anahtarı doğrula"
 
-msgctxt "wireguard-key-view"
-msgid "Verifying key"
-msgstr "Anahtar doğrulanıyor"
+msgctxt "wireguard-keys"
+msgid "Key generated"
+msgstr "Anahtar oluşturuldu"
 
 msgctxt "wireguard-keys"
 msgid "Public key"
@@ -689,6 +728,6 @@ msgid "Advanced"
 msgstr "Gelişmiş"
 
 msgctxt "wireguard-keys-nav"
-msgid "WireGuard keys"
-msgstr "WireGuard anahtarları"
+msgid "WireGuard key"
+msgstr "WireGuard anahtarı"
 

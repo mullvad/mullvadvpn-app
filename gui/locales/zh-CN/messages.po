@@ -10,13 +10,16 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-09-23 09:18\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "已屏蔽连接"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "正在创建安全连接"
+
+msgid "Invalid account number"
+msgstr "帐号无效"
 
 msgid "SECURE CONNECTION"
 msgstr "安全连接"
@@ -171,7 +174,7 @@ msgid "WireGuard"
 msgstr "WireGuard"
 
 msgctxt "advanced-settings-view"
-msgid "WireGuard keys"
+msgid "WireGuard key"
 msgstr "WireGuard 密钥"
 
 msgctxt "advanced-settings-view"
@@ -283,6 +286,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "无法应用防火墙规则。设备当前可能不会受到保护"
 
 msgctxt "in-app-notifications"
+msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
+msgstr "无法解析自定义隧道的主机。请考虑更改设置"
+
+msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
 msgstr "无法设置系统 DNS 服务器"
 
@@ -332,6 +339,10 @@ msgstr "不受支持的版本"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "有可用更新"
+
+msgctxt "in-app-notifications"
+msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
+msgstr "WireGuard 密钥未发布到我们的服务器。您可以在“高级”设置中管理您的密钥。"
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -489,18 +500,30 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "使用单色托盘图标而不是彩色图标。"
 
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr "入口"
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr "出口"
+
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "选择位置"
 
 msgctxt "select-location-view"
-msgid "Select location"
-msgstr "选择位置"
+msgid "Closest to exit server"
+msgstr "最靠近出口服务器"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region"
-msgstr "连接时，将使用选定区域中一个私密且安全的位置隐藏您的真实位置"
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "连接时，将使用选定区域中一个私密且安全的位置隐藏您的真实位置。"
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr "连接时，您的流量将通过两个安全位置路由，即入口点（桥接服务器）和出口点（VPN 服务器）。"
 
 msgctxt "settings-view"
 msgid "Account"
@@ -648,8 +671,16 @@ msgid "Account has too many keys already"
 msgstr "帐户已有过多密钥"
 
 msgctxt "wireguard-key-view"
-msgid "Failed to generate key"
+msgid "Can't manage keys whilst in a blocked state"
+msgstr "无法在阻止状态下管理密钥"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
 msgstr "无法生成密钥"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to replace key - %(failure)s"
+msgstr "无法替换密钥 - %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -664,6 +695,10 @@ msgid "Key is invalid"
 msgstr "密钥无效"
 
 msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr "密钥验证失败"
+
+msgctxt "wireguard-key-view"
 msgid "Manage keys"
 msgstr "管理密钥"
 
@@ -672,12 +707,16 @@ msgid "No key set"
 msgstr "未设置密钥"
 
 msgctxt "wireguard-key-view"
+msgid "Regenerate key"
+msgstr "重新生成密钥"
+
+msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "验证密钥"
 
-msgctxt "wireguard-key-view"
-msgid "Verifying key"
-msgstr "正在验证密钥"
+msgctxt "wireguard-keys"
+msgid "Key generated"
+msgstr "已生成密钥"
 
 msgctxt "wireguard-keys"
 msgid "Public key"
@@ -689,6 +728,6 @@ msgid "Advanced"
 msgstr "高级"
 
 msgctxt "wireguard-keys-nav"
-msgid "WireGuard keys"
+msgid "WireGuard key"
 msgstr "WireGuard 密钥"
 
