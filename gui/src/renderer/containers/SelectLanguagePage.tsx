@@ -18,6 +18,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
     preferredLocalesList: props.app.getPreferredLocaleList(),
     setPreferredLocale(locale: string) {
       props.app.setPreferredLocale(locale);
+      history.goBack();
     },
     onClose() {
       history.goBack();
