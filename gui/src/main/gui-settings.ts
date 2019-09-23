@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { validate } from 'validated/object';
 import { boolean, partialObject, string } from 'validated/schema';
-import { IGuiSettingsState } from '../shared/gui-settings-state';
+import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 
 const settingsSchema = partialObject({
   preferredLocale: string,
@@ -15,7 +15,7 @@ const settingsSchema = partialObject({
 });
 
 const defaultSettings: IGuiSettingsState = {
-  preferredLocale: 'system',
+  preferredLocale: SYSTEM_PREFERRED_LOCALE_KEY,
   autoConnect: true,
   enableSystemNotifications: true,
   monochromaticIcon: false,

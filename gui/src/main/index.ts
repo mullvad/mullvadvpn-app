@@ -23,6 +23,7 @@ import {
   TunnelState,
 } from '../shared/daemon-rpc-types';
 import { loadTranslations, messages } from '../shared/gettext';
+import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcMainEventChannel } from '../shared/ipc-event-channel';
 import {
   backupLogFile,
@@ -297,25 +298,12 @@ class ApplicationMain {
     }
   }
 
-  private getLocaleWithOverride(): string {
-    const localeOverride = process.env.MULLVAD_LOCALE;
-    const systemLocale = app.getLocale();
-
-    if (localeOverride) {
-      const trimmedLocaleOverride = localeOverride.trim();
-      if (trimmedLocaleOverride.length > 0) {
-        return trimmedLocaleOverride;
-      } else {
-        return systemLocale;
-      }
+  private detectLocale(): string {
+    const preferredLocale = this.guiSettings.preferredLocale;
+    if (preferredLocale === SYSTEM_PREFERRED_LOCALE_KEY) {
+      return app.getLocale();
     } else {
-      const preferredLocale = this.guiSettings.preferredLocale;
-      log.info('preferredLocale = ', preferredLocale);
-      if (preferredLocale === 'system') {
-        return systemLocale;
-      } else {
-        return preferredLocale;
-      }
+      return preferredLocale;
     }
   }
 
@@ -1210,7 +1198,7 @@ class ApplicationMain {
   }
 
   private updateCurrentLocale() {
-    this.locale = this.getLocaleWithOverride();
+    this.locale = this.detectLocale();
 
     log.info(`Detected locale: ${this.locale}`);
 
