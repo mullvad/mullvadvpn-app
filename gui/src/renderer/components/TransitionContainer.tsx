@@ -36,9 +36,9 @@ const styles = {
   transitionView: Styles.createViewStyle({
     flex: 1,
   }),
-  userInteractionBlocker: Styles.createViewStyle({
+  blockUserInteraction: Styles.createViewStyle({
     // @ts-ignore
-    zIndex: 2,
+    pointerEvents: 'none',
   }),
   transitionContainer: Styles.createViewStyle({
     flex: 1,
@@ -150,7 +150,12 @@ export default class TransitionContainer extends Component<IProps, IState> {
       this.state.itemQueue.length > 0 || this.state.nextItem ? true : false;
 
     return (
-      <View style={styles.transitionContainer} onLayout={this.onLayout}>
+      <View
+        style={[
+          styles.transitionContainer,
+          disableUserInteraction ? styles.blockUserInteraction : undefined,
+        ]}
+        onLayout={this.onLayout}>
         {this.state.currentItem && (
           <Animated.View
             key={this.state.currentItem.view.props.viewId}
@@ -165,10 +170,6 @@ export default class TransitionContainer extends Component<IProps, IState> {
             style={[styles.animatedContainer, this.state.nextItemStyle]}>
             {this.state.nextItem.view}
           </Animated.View>
-        )}
-
-        {disableUserInteraction && (
-          <View style={[styles.animatedContainer, styles.userInteractionBlocker]} />
         )}
       </View>
     );
