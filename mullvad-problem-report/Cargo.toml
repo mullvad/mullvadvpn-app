@@ -19,7 +19,7 @@ path = "src/main.rs"
 
 [dependencies]
 clap = "2.25"
-dirs = "1.0"
+dirs = "2.0"
 env_logger = "0.6"
 err-derive = "0.1.5"
 lazy_static = "1.0"

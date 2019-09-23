@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 atty = "0.2"
 cfg-if = "0.1"
-derive_more = "0.14"
+derive_more = "0.15"
 duct = "0.12"
 err-derive = "0.1.5"
 futures = "0.1"
@@ -20,7 +20,7 @@ libc = "0.2.20"
 log = "0.4"
 openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde"] }
 os_pipe = "0.8"
-parking_lot = "0.8"
+parking_lot = "0.9"
 regex = "1.1.0"
 shell-escape = "0.1"
 talpid-ipc = { path = "../talpid-ipc" }
@@ -30,9 +30,9 @@ uuid = { version = "0.7", features = ["v4"] }
 
 
 [target.'cfg(unix)'.dependencies]
-hex = "0.3"
+hex = "0.4"
 lazy_static = "1.0"
-nix = "0.13"
+nix = "0.15"
 tokio-process = "0.2"
 tokio-executor = "0.1"
 tokio-io = "0.1"
@@ -49,7 +49,7 @@ netlink-packet = { git = "https://github.com/mullvad/netlink", rev = "f768adfcc8
 netlink-sys = { git = "https://github.com/mullvad/netlink", rev = "f768adfcc8c6b064ef7ae3c792c4c21d0d96d0b5" }
 nftnl = { version = "0.2.1", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
-which = "2.0"
+which = "3.0"
 tun = "0.4.3"
 
 
