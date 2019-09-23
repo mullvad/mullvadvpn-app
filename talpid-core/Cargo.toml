@@ -30,9 +30,9 @@ uuid = { version = "0.7", features = ["v4"] }
 
 
 [target.'cfg(unix)'.dependencies]
-hex = "0.3"
+hex = "0.4"
 lazy_static = "1.0"
-nix = "0.13"
+nix = "0.15"
 tokio-process = "0.2"
 tokio-executor = "0.1"
 tokio-io = "0.1"
