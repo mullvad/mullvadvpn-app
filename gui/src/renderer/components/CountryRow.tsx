@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Component, Styles, Types, View } from 'reactxp';
-import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import Accordion from './Accordion';
 import * as Cell from './Cell';
@@ -29,9 +28,6 @@ const styles = {
   base: Styles.createViewStyle({
     paddingRight: 0,
     paddingLeft: 16,
-  }),
-  selected: Styles.createViewStyle({
-    backgroundColor: colors.green,
   }),
 };
 
@@ -82,8 +78,7 @@ export default class CountryRow extends Component<IProps> {
     return (
       <View style={styles.container}>
         <Cell.CellButton
-          cellHoverStyle={this.props.selected ? styles.selected : undefined}
-          style={[styles.base, this.props.selected ? styles.selected : undefined]}
+          style={styles.base}
           onPress={this.handlePress}
           disabled={!this.props.hasActiveRelays}>
           <RelayStatusIndicator

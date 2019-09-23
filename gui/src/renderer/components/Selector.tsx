@@ -21,11 +21,6 @@ const styles = {
   section: Styles.createViewStyle({
     marginBottom: 24,
   }),
-  cell: {
-    selectedHover: Styles.createButtonStyle({
-      backgroundColor: colors.green,
-    }),
-  },
   invisibleIcon: Styles.createViewStyle({
     opacity: 0,
   }),
@@ -65,10 +60,7 @@ interface ISelectorCellProps<T> {
 export class SelectorCell<T> extends Component<ISelectorCellProps<T>> {
   public render() {
     return (
-      <Cell.CellButton
-        style={this.props.selected ? styles.cell.selectedHover : undefined}
-        cellHoverStyle={this.props.selected ? styles.cell.selectedHover : undefined}
-        onPress={this.onPress}>
+      <Cell.CellButton onPress={this.onPress} selected={this.props.selected}>
         <Cell.Icon
           style={this.props.selected ? undefined : styles.invisibleIcon}
           source="icon-tick"
