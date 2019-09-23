@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, Styles, Types } from 'reactxp';
+import { Component, Styles, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
 import * as Cell from './Cell';
 
@@ -28,25 +28,26 @@ const styles = {
 
 export default class Selector<T> extends Component<ISelectorProps<T>> {
   public render() {
-    return (
-      <Cell.Section style={[styles.section, this.props.style]}>
-        {this.props.title && <Cell.SectionTitle>{this.props.title}</Cell.SectionTitle>}
-        {this.props.values.map((item, i) => {
-          const selected = item.value === this.props.value;
+    const items = this.props.values.map((item, i) => {
+      const selected = item.value === this.props.value;
 
-          return (
-            <SelectorCell
-              key={i}
-              value={item.value}
-              selected={selected}
-              ref={selected ? this.props.selectedCellRef : undefined}
-              onSelect={this.props.onSelect}>
-              {item.label}
-            </SelectorCell>
-          );
-        })}
-      </Cell.Section>
-    );
+      return (
+        <SelectorCell
+          key={i}
+          value={item.value}
+          selected={selected}
+          ref={selected ? this.props.selectedCellRef : undefined}
+          onSelect={this.props.onSelect}>
+          {item.label}
+        </SelectorCell>
+      );
+    });
+
+    if (this.props.title) {
+      return <Cell.Section style={[styles.section, this.props.style]}>{items}</Cell.Section>;
+    } else {
+      return <View style={[styles.section, this.props.style]}>{items}</View>;
+    }
   }
 }
 
