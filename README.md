@@ -293,11 +293,6 @@ to do that before starting the GUI.
 1. `MULLVAD_PATH` - Allows changing the path to the folder with the `problem-report` tool when
     running in development mode. Defaults to: `<repo>/target/debug/`.
 
-1. `MULLVAD_LOCALE` - Allows changing the UI locale, for example:
-    ```
-    MULLVAD_LOCALE=en-US ./mullvad-vpn
-    ```
-
 
 ## Building the Android app
 
