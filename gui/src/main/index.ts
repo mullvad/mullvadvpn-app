@@ -299,22 +299,28 @@ class ApplicationMain {
 
   private getLocaleWithOverride(): string {
     const localeOverride = process.env.MULLVAD_LOCALE;
+    const systemLocale = app.getLocale();
+
     if (localeOverride) {
       const trimmedLocaleOverride = localeOverride.trim();
       if (trimmedLocaleOverride.length > 0) {
         return trimmedLocaleOverride;
+      } else {
+        return systemLocale;
+      }
+    } else {
+      const preferredLocale = this.guiSettings.preferredLocale;
+      log.info('preferredLocale = ', preferredLocale);
+      if (preferredLocale === 'system') {
+        return systemLocale;
+      } else {
+        return preferredLocale;
       }
     }
-
-    return app.getLocale();
   }
 
   private onReady = async () => {
-    this.locale = this.getLocaleWithOverride();
-
-    log.info(`Detected locale: ${this.locale}`);
-
-    loadTranslations(this.locale, messages);
+    this.updateCurrentLocale();
 
     this.daemonRpc.addConnectionObserver(
       new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
@@ -931,8 +937,10 @@ class ApplicationMain {
       tunnelState: this.tunnelState,
       settings: this.settings,
       location: this.location,
-      relays: this.processRelaysForPresentation(this.relays, this.settings.relaySettings),
-      bridges: this.processBridgesForPresentation(this.relays, this.settings.bridgeState),
+      relayListPair: {
+        relays: this.processRelaysForPresentation(this.relays, this.settings.relaySettings),
+        bridges: this.processBridgesForPresentation(this.relays, this.settings.bridgeState),
+      },
       currentVersion: this.currentVersion,
       upgradeVersion: this.upgradeVersion,
       guiSettings: this.guiSettings.state,
@@ -986,6 +994,11 @@ class ApplicationMain {
 
     IpcMainEventChannel.guiSettings.handleMonochromaticIcon((monochromaticIcon: boolean) => {
       this.guiSettings.monochromaticIcon = monochromaticIcon;
+    });
+
+    IpcMainEventChannel.guiSettings.handleSetPreferredLocale((locale: string) => {
+      this.guiSettings.preferredLocale = locale;
+      this.didChangeLocale();
     });
 
     IpcMainEventChannel.account.handleLogin((token: AccountToken) => this.login(token));
@@ -1194,6 +1207,22 @@ class ApplicationMain {
       );
     }
     return Promise.resolve();
+  }
+
+  private updateCurrentLocale() {
+    this.locale = this.getLocaleWithOverride();
+
+    log.info(`Detected locale: ${this.locale}`);
+
+    loadTranslations(this.locale, messages);
+  }
+
+  private didChangeLocale() {
+    this.updateCurrentLocale();
+
+    if (this.windowController) {
+      IpcMainEventChannel.locale.notify(this.windowController.webContents, this.locale);
+    }
   }
 
   private async installDevTools() {

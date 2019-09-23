@@ -6,12 +6,14 @@ export enum LocationScope {
 }
 
 export interface IUserInterfaceReduxState {
+  locale: string;
   arrowPosition?: number;
   connectionPanelVisible: boolean;
   locationScope: LocationScope;
 }
 
 const initialState: IUserInterfaceReduxState = {
+  locale: 'en',
   connectionPanelVisible: false,
   locationScope: LocationScope.relay,
 };
@@ -21,6 +23,9 @@ export default function(
   action: ReduxAction,
 ): IUserInterfaceReduxState {
   switch (action.type) {
+    case 'UPDATE_LOCALE':
+      return { ...state, locale: action.locale };
+
     case 'UPDATE_WINDOW_ARROW_POSITION':
       return { ...state, arrowPosition: action.arrowPosition };
 

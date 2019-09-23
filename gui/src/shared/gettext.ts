@@ -21,16 +21,21 @@ export function loadTranslations(currentLocale: string, catalogue: Gettext) {
     preferredLocales.push(language);
   }
 
-  for (const locale of preferredLocales) {
-    // NOTE: domain is not publicly exposed
-    const domain = (catalogue as any).domain;
+  // NOTE: domain is not publicly exposed
+  const domain = (catalogue as any).domain;
 
+  for (const locale of preferredLocales) {
     if (parseTranslation(locale, domain, catalogue)) {
-      log.info(`Loaded translations for ${locale}`);
+      log.info(`Loaded translations ${locale}/${domain}`);
       catalogue.setLocale(locale);
       return;
     }
   }
+
+  // Reset the locale to source language if we couldn't load the catalogue for the requested locale
+  // Add empty translations to suppress some of the warnings produces by node-gettext
+  catalogue.addTranslations(SOURCE_LANGUAGE, domain, {});
+  catalogue.setLocale(SOURCE_LANGUAGE);
 }
 
 function parseTranslation(locale: string, domain: string, catalogue: Gettext): boolean {
@@ -66,7 +71,10 @@ function setErrorHandler(catalogue: Gettext) {
 
     // Filter out the "no translation was found" errors for the source language.
     // The catalogue's locale is set to an empty string when using the source translation.
-    if (catalogueLocale === '' && error.indexOf('No translation was found') !== -1) {
+    if (
+      (catalogueLocale === '' || catalogueLocale === SOURCE_LANGUAGE) &&
+      error.indexOf('No translation was found') !== -1
+    ) {
       return;
     }
 
