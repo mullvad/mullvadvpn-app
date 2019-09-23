@@ -75,8 +75,8 @@ export default class CityRow extends Component<IProps> {
           selected={this.props.selected}
           style={styles.base}>
           <RelayStatusIndicator
-            isActive={this.props.hasActiveRelays}
-            isSelected={this.props.selected}
+            active={this.props.hasActiveRelays}
+            selected={this.props.selected}
           />
           <Cell.Label>{this.props.name}</Cell.Label>
 
