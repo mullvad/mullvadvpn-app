@@ -449,7 +449,7 @@ class AccountDropdownItem extends Component<IAccountDropdownItemProps> {
         <View style={styles.account_dropdown__spacer} />
         <Cell.CellButton
           style={styles.account_dropdown__item}
-          cellHoverStyle={styles.account_dropdown__item_hover}>
+          hoverStyle={styles.account_dropdown__item_hover}>
           <Cell.Label
             textStyle={styles.account_dropdown__label}
             containerStyle={styles.account_dropdown__label_container}

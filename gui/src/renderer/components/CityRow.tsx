@@ -27,9 +27,6 @@ const styles = {
     paddingLeft: 32,
     backgroundColor: colors.blue40,
   }),
-  selected: Styles.createButtonStyle({
-    backgroundColor: colors.green,
-  }),
 };
 
 export default class CityRow extends Component<IProps> {
@@ -75,8 +72,8 @@ export default class CityRow extends Component<IProps> {
         <Cell.CellButton
           onPress={this.handlePress}
           disabled={!this.props.hasActiveRelays}
-          cellHoverStyle={this.props.selected ? styles.selected : undefined}
-          style={[styles.base, this.props.selected ? styles.selected : undefined]}>
+          selected={this.props.selected}
+          style={styles.base}>
           <RelayStatusIndicator
             isActive={this.props.hasActiveRelays}
             isSelected={this.props.selected}
