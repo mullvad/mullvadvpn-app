@@ -381,6 +381,10 @@ export const Icon = function CellIcon(props: ImageView['props']) {
   );
 };
 
+export const UntintedIcon = function CellIcon(props: ImageView['props']) {
+  return <ImageView {...props} style={[styles.icon, props.style]} />;
+};
+
 export const Footer = function CellFooter({ children }: IContainerProps) {
   return (
     <View style={styles.footer.container}>

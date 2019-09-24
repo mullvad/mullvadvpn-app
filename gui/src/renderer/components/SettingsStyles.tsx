@@ -6,43 +6,40 @@ export default {
     backgroundColor: colors.darkBlue,
     flex: 1,
   }),
-  settings__container: Styles.createViewStyle({
+  container: Styles.createViewStyle({
     flexDirection: 'column',
     flex: 1,
   }),
-  settings__content: Styles.createViewStyle({
+  content: Styles.createViewStyle({
     flexDirection: 'column',
     flex: 1,
     justifyContent: 'space-between',
     overflow: 'visible',
   }),
   // plain CSS style
-  settings__scrollview: {
+  scrollview: {
     flex: 1,
   },
-  settings__cell_spacer: Styles.createViewStyle({
+  cellSpacer: Styles.createViewStyle({
     height: 24,
     flex: 0,
   }),
-  settings__cell_footer: Styles.createViewStyle({
+  cellFooter: Styles.createViewStyle({
     paddingTop: 8,
     paddingRight: 24,
     paddingBottom: 24,
     paddingLeft: 24,
   }),
-  settings__footer: Styles.createViewStyle({
+  quitButtonFooter: Styles.createViewStyle({
     paddingTop: 24,
-    paddingBottom: 24,
+    paddingBottom: 19,
     paddingLeft: 24,
     paddingRight: 24,
   }),
-  settings__version_warning: Styles.createViewStyle({
-    marginLeft: 8,
-  }),
-  settings__account_paid_until_label__error: Styles.createTextStyle({
+  accountPaidUntilErrorLabel: Styles.createTextStyle({
     color: colors.red,
   }),
-  settings__cell_footer_label: Styles.createTextStyle({
+  cellFooterLabel: Styles.createTextStyle({
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '600',
@@ -50,7 +47,7 @@ export default {
     letterSpacing: -0.2,
     color: colors.white60,
   }),
-  settings__appversion: Styles.createTextStyle({
+  appVersionLabel: Styles.createTextStyle({
     flex: 0,
   }),
 };
