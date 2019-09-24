@@ -11,7 +11,6 @@ const mapStateToProps = (state: IReduxState) => ({
 });
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
-  // const { saveReportForm, clearReportForm } = bindActionCreators(supportActions, dispatch);
   const history = bindActionCreators({ goBack }, dispatch);
 
   return {
