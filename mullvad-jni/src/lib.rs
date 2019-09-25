@@ -34,7 +34,6 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "java/net/InetAddress",
     "java/net/InetSocketAddress",
     "java/util/ArrayList",
-    "java/util/List",
     "net/mullvad/mullvadvpn/model/AccountData",
     "net/mullvad/mullvadvpn/model/ActionAfterDisconnect$Block",
     "net/mullvad/mullvadvpn/model/ActionAfterDisconnect$Nothing",
