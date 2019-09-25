@@ -1,9 +1,17 @@
 use super::{Config, Error, Result, Tunnel};
 use crate::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
 use ipnetwork::IpNetwork;
-use std::{ffi::CString, fs, net::IpAddr, os::unix::io::AsRawFd, path::Path};
+use std::{
+    ffi::CString,
+    fs,
+    net::IpAddr,
+    os::unix::io::{AsRawFd, RawFd},
+    path::Path,
+};
 #[cfg(target_os = "android")]
 use talpid_types::BoxedError;
+
+const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 pub struct WgGoTunnel {
     interface_name: String,
@@ -22,10 +30,7 @@ impl WgGoTunnel {
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
         #[cfg_attr(not(target_os = "android"), allow(unused_mut))]
-        let mut tunnel_device = tun_provider
-            .get_tun(Self::create_tunnel_config(config, routes))
-            .map_err(Error::SetupTunnelDeviceError)?;
-
+        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
         let interface_name: String = tunnel_device.interface_name().to_string();
         let log_file = prepare_log_file(log_path)?;
 
@@ -33,12 +38,13 @@ impl WgGoTunnel {
         let iface_name =
             CString::new(interface_name.as_bytes()).map_err(Error::InterfaceNameError)?;
 
+
         let handle = unsafe {
             wgTurnOnWithFd(
                 iface_name.as_ptr() as *const i8,
                 config.mtu as isize,
                 wg_config_str.as_ptr() as *const i8,
-                tunnel_device.as_raw_fd(),
+                tunnel_fd,
                 log_file.as_raw_fd(),
                 WG_GO_LOG_DEBUG,
             )
@@ -98,6 +104,38 @@ impl WgGoTunnel {
             }
         }
         Ok(())
+    }
+
+    fn get_tunnel(
+        tun_provider: &mut dyn TunProvider,
+        config: &Config,
+        routes: impl Iterator<Item = IpNetwork>,
+    ) -> Result<(Box<dyn Tun>, RawFd)> {
+        let tunnel_config = Self::create_tunnel_config(config, routes);
+        for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
+            let tunnel_device = tun_provider
+                .get_tun(tunnel_config.clone())
+                .map_err(Error::SetupTunnelDeviceError)?;
+
+            match nix::unistd::dup(tunnel_device.as_raw_fd()) {
+                Ok(fd) => {
+                    return Ok((tunnel_device, fd));
+                }
+                #[cfg(not(target_os = "macos"))]
+                Err(nix::Error::Sys(nix::errno::Errno::EBADFD)) => continue,
+                #[cfg(target_os = "macos")]
+                Err(nix::Error::Sys(nix::errno::Errno::EBADF)) => continue,
+                Err(error) => return Err(Error::FdDuplicationError(error)),
+            }
+        }
+        #[cfg(not(target_os = "macos"))]
+        return Err(Error::FdDuplicationError(nix::Error::Sys(
+            nix::errno::Errno::EBADFD,
+        )));
+        #[cfg(target_os = "macos")]
+        return Err(Error::FdDuplicationError(nix::Error::Sys(
+            nix::errno::Errno::EBADF,
+        )));
     }
 }
 
