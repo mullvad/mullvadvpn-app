@@ -93,7 +93,7 @@ impl VpnServiceTunProvider {
         if self.active_tun.is_none() || self.last_tun_config != config {
             let env = self
                 .jvm
-                .attach_current_thread()
+                .attach_current_thread_as_daemon()
                 .map_err(Error::AttachJvmToThread)?;
             let create_tun_method = env
                 .get_method_id(
@@ -186,7 +186,7 @@ impl Tun for VpnServiceTun {
     fn bypass(&mut self, socket: RawFd) -> Result<(), BoxedError> {
         let env = self
             .jvm
-            .attach_current_thread()
+            .attach_current_thread_as_daemon()
             .map_err(|cause| BoxedError::new(Error::AttachJvmToThread(cause)))?;
         let create_tun_method = env
             .get_method_id(&self.class, "bypass", "(I)Z")
