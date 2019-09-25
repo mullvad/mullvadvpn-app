@@ -9,6 +9,7 @@ import LaunchPage from './containers/LaunchPage';
 import LoginPage from './containers/LoginPage';
 import PlatformWindowContainer from './containers/PlatformWindowContainer';
 import PreferencesPage from './containers/PreferencesPage';
+import SelectLanguagePage from './containers/SelectLanguagePage';
 import SelectLocationPage from './containers/SelectLocationPage';
 import SettingsPage from './containers/SettingsPage';
 import SupportPage from './containers/SupportPage';
@@ -17,7 +18,6 @@ import { getTransitionProps } from './transitions';
 
 export interface ISharedRouteProps {
   app: App;
-  locale: string;
 }
 
 type CustomRouteProps = {
@@ -84,6 +84,7 @@ class AppRoutes extends React.Component<IAppRoutesProps, IAppRoutesState> {
               <CustomRoute exact={true} path="/login" component={LoginPage} />
               <CustomRoute exact={true} path="/connect" component={ConnectPage} />
               <CustomRoute exact={true} path="/settings" component={SettingsPage} />
+              <CustomRoute exact={true} path="/settings/language" component={SelectLanguagePage} />
               <CustomRoute exact={true} path="/settings/account" component={AccountPage} />
               <CustomRoute exact={true} path="/settings/preferences" component={PreferencesPage} />
               <CustomRoute

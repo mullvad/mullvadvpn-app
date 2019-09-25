@@ -29,8 +29,7 @@ export interface IAppStateSnapshot {
   tunnelState: TunnelState;
   settings: ISettings;
   location?: ILocation;
-  relays: IRelayList;
-  bridges: IRelayList;
+  relayListPair: IRelayListPair;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppUpgradeInfo;
   guiSettings: IGuiSettingsState;
@@ -89,6 +88,7 @@ interface IGuiSettingsMethods extends IReceiver<IGuiSettingsState> {
   setAutoConnect(autoConnect: boolean): void;
   setStartMinimized(startMinimized: boolean): void;
   setMonochromaticIcon(monochromaticIcon: boolean): void;
+  setPreferredLocale(locale: string): void;
 }
 
 interface IGuiSettingsHandlers extends ISender<IGuiSettingsState> {
@@ -96,6 +96,7 @@ interface IGuiSettingsHandlers extends ISender<IGuiSettingsState> {
   handleAutoConnect(fn: (autoConnect: boolean) => void): void;
   handleStartMinimized(fn: (startMinimized: boolean) => void): void;
   handleMonochromaticIcon(fn: (monochromaticIcon: boolean) => void): void;
+  handleSetPreferredLocale(fn: (locale: string) => void): void;
 }
 
 interface IAccountHandlers extends ISender<IAccountData | undefined> {
@@ -138,6 +139,7 @@ interface IWireguardKeyHandlers extends ISender<IWireguardPublicKey | undefined>
 
 /// Events names
 
+const LOCALE_CHANGED = 'locale-changed';
 const WINDOW_SHAPE_CHANGED = 'window-shape-changed';
 
 const DAEMON_CONNECTED = 'daemon-connected';
@@ -166,6 +168,7 @@ const SET_ENABLE_SYSTEM_NOTIFICATIONS = 'set-enable-system-notifications';
 const SET_AUTO_CONNECT = 'set-auto-connect';
 const SET_MONOCHROMATIC_ICON = 'set-monochromatic-icon';
 const SET_START_MINIMIZED = 'set-start-minimized';
+const SET_PREFERRED_LOCALE = 'set-preferred-locale';
 
 const GET_APP_STATE = 'get-app-state';
 
@@ -195,6 +198,10 @@ export class IpcRendererEventChannel {
     get(): IAppStateSnapshot {
       return ipcRenderer.sendSync(GET_APP_STATE);
     },
+  };
+
+  public static locale: IReceiver<string> = {
+    listen: listen(LOCALE_CHANGED),
   };
 
   public static windowShape: IReceiver<IWindowShapeParameters> = {
@@ -248,6 +255,7 @@ export class IpcRendererEventChannel {
     setAutoConnect: set(SET_AUTO_CONNECT),
     setMonochromaticIcon: set(SET_MONOCHROMATIC_ICON),
     setStartMinimized: set(SET_START_MINIMIZED),
+    setPreferredLocale: set(SET_PREFERRED_LOCALE),
   };
 
   public static autoStart: IAutoStartMethods = {
@@ -283,8 +291,12 @@ export class IpcMainEventChannel {
     },
   };
 
+  public static locale: ISender<string> = {
+    notify: sender(LOCALE_CHANGED),
+  };
+
   public static windowShape: ISender<IWindowShapeParameters> = {
-    notify: sender<IWindowShapeParameters>(WINDOW_SHAPE_CHANGED),
+    notify: sender(WINDOW_SHAPE_CHANGED),
   };
 
   public static daemonConnected: ISenderVoid = {
@@ -334,6 +346,7 @@ export class IpcMainEventChannel {
     handleAutoConnect: handler(SET_AUTO_CONNECT),
     handleMonochromaticIcon: handler(SET_MONOCHROMATIC_ICON),
     handleStartMinimized: handler(SET_START_MINIMIZED),
+    handleSetPreferredLocale: handler(SET_PREFERRED_LOCALE),
   };
 
   public static autoStart: IAutoStartHandlers = {

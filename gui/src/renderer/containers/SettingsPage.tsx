@@ -7,10 +7,11 @@ import Settings from '../components/Settings';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: IReduxState, props: ISharedRouteProps) => ({
+const mapStateToProps = (state: IReduxState, _props: ISharedRouteProps) => ({
+  preferredLocaleDisplayName: state.userInterface.preferredLocaleName,
   loginState: state.account.status,
   accountExpiry: state.account.expiry,
-  expiryLocale: props.locale,
+  expiryLocale: state.userInterface.locale,
   appVersion: state.version.current,
   consistentVersion: state.version.consistent,
   upToDateVersion: !state.version.currentIsOutdated,
@@ -21,6 +22,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, _props: ISharedRouteProps) 
   return {
     onQuit: () => remote.app.quit(),
     onClose: () => history.goBack(),
+    onViewSelectLanguage: () => history.push('/settings/language'),
     onViewAccount: () => history.push('/settings/account'),
     onViewSupport: () => history.push('/settings/support'),
     onViewPreferences: () => history.push('/settings/preferences'),

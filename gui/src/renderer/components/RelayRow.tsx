@@ -19,9 +19,6 @@ const styles = {
     paddingLeft: 48,
     backgroundColor: colors.blue20,
   }),
-  selected: Styles.createViewStyle({
-    backgroundColor: colors.green,
-  }),
 };
 
 export default class RelayRow extends Component<IProps> {
@@ -42,10 +39,10 @@ export default class RelayRow extends Component<IProps> {
     return (
       <Cell.CellButton
         onPress={this.handlePress}
-        cellHoverStyle={this.props.selected ? styles.selected : undefined}
+        selected={this.props.selected}
         disabled={!this.props.active}
-        style={[styles.base, this.props.selected ? styles.selected : undefined]}>
-        <RelayStatusIndicator isActive={this.props.active} isSelected={this.props.selected} />
+        style={styles.base}>
+        <RelayStatusIndicator active={this.props.active} selected={this.props.selected} />
 
         <Cell.Label>{this.props.hostname}</Cell.Label>
       </Cell.CellButton>

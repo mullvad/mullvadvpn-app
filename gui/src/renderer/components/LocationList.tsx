@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, Styles, View } from 'reactxp';
+import { Component, View } from 'reactxp';
 import { colors } from '../../config.json';
 import {
   compareRelayLocation,
@@ -12,12 +12,6 @@ import * as Cell from './Cell';
 import CityRow from './CityRow';
 import CountryRow from './CountryRow';
 import RelayRow from './RelayRow';
-
-const styles = {
-  selectedCell: Styles.createViewStyle({
-    backgroundColor: colors.green,
-  }),
-};
 
 export enum LocationSelectionType {
   relay = 'relay',
@@ -226,10 +220,7 @@ interface ISpecialLocationProps<T> {
 export class SpecialLocation<T> extends Component<ISpecialLocationProps<T>> {
   public render() {
     return (
-      <Cell.CellButton
-        style={this.props.isSelected ? styles.selectedCell : undefined}
-        cellHoverStyle={this.props.isSelected ? styles.selectedCell : undefined}
-        onPress={this.onSelect}>
+      <Cell.CellButton selected={this.props.isSelected} onPress={this.onSelect}>
         <Cell.Icon
           source={this.props.isSelected ? 'icon-tick' : this.props.icon}
           tintColor={colors.white}

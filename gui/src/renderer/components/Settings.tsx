@@ -5,7 +5,6 @@ import { messages } from '../../shared/gettext';
 import AccountExpiry from '../lib/account-expiry';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
-import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
 import {
   CloseBarItem,
@@ -21,6 +20,7 @@ import styles from './SettingsStyles';
 import { LoginState } from '../redux/account/reducers';
 
 export interface IProps {
+  preferredLocaleDisplayName: string;
   loginState: LoginState;
   accountExpiry?: string;
   expiryLocale: string;
@@ -30,6 +30,7 @@ export interface IProps {
   isOffline: boolean;
   onQuit: () => void;
   onClose: () => void;
+  onViewSelectLanguage: () => void;
   onViewAccount: () => void;
   onViewSupport: () => void;
   onViewPreferences: () => void;
@@ -39,12 +40,14 @@ export interface IProps {
 
 export default class Settings extends Component<IProps> {
   public render() {
+    const showLargeTitle = this.props.loginState !== 'ok';
+
     return (
       <Layout>
         <Container>
           <View style={styles.settings}>
             <NavigationContainer>
-              <NavigationBar>
+              <NavigationBar alwaysDisplayBarTitle={!showLargeTitle}>
                 <NavigationItems>
                   <CloseBarItem action={this.props.onClose} />
                   <TitleBarItem>
@@ -54,12 +57,14 @@ export default class Settings extends Component<IProps> {
                 </NavigationItems>
               </NavigationBar>
 
-              <View style={styles.settings__container}>
-                <NavigationScrollbars style={styles.settings__scrollview}>
-                  <View style={styles.settings__content}>
-                    <SettingsHeader>
-                      <HeaderTitle>{messages.pgettext('settings-view', 'Settings')}</HeaderTitle>
-                    </SettingsHeader>
+              <View style={styles.container}>
+                <NavigationScrollbars style={styles.scrollview}>
+                  <View style={styles.content}>
+                    {showLargeTitle && (
+                      <SettingsHeader>
+                        <HeaderTitle>{messages.pgettext('settings-view', 'Settings')}</HeaderTitle>
+                      </SettingsHeader>
+                    )}
                     <View>
                       {this.renderTopButtons()}
                       {this.renderMiddleButtons()}
@@ -76,9 +81,12 @@ export default class Settings extends Component<IProps> {
     );
   }
 
+  private openDownloadLink = () => this.props.onExternalLink(links.download);
+  private openFaqLink = () => this.props.onExternalLink(links.faq);
+
   private renderQuitButton() {
     return (
-      <View style={styles.settings__footer}>
+      <View style={styles.quitButtonFooter}>
         <AppButton.RedButton onPress={this.props.onQuit}>
           {messages.pgettext('settings-view', 'Quit app')}
         </AppButton.RedButton>
@@ -105,8 +113,7 @@ export default class Settings extends Component<IProps> {
         <View>
           <Cell.CellButton onPress={this.props.onViewAccount}>
             <Cell.Label>{messages.pgettext('settings-view', 'Account')}</Cell.Label>
-            <Cell.SubText
-              style={isOutOfTime ? styles.settings__account_paid_until_label__error : undefined}>
+            <Cell.SubText style={isOutOfTime ? styles.accountPaidUntilErrorLabel : undefined}>
               {isOutOfTime ? outOfTimeMessage : formattedExpiry}
             </Cell.SubText>
             <Cell.Icon height={12} width={7} source="icon-chevron" />
@@ -122,7 +129,7 @@ export default class Settings extends Component<IProps> {
           <Cell.Label>{messages.pgettext('settings-view', 'Advanced')}</Cell.Label>
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
-        <View style={styles.settings__cell_spacer} />
+        <View style={styles.cellSpacer} />
       </View>
     );
   }
@@ -145,20 +152,14 @@ export default class Settings extends Component<IProps> {
         ? inconsistentVersionMessage
         : updateAvailableMessage;
 
-      icon = (
-        <ImageView
-          source="icon-alert"
-          tintColor={colors.red}
-          style={styles.settings__version_warning}
-        />
-      );
+      icon = <Cell.UntintedIcon source="icon-alert" tintColor={colors.red} />;
       footer = (
-        <View style={styles.settings__cell_footer}>
-          <Text style={styles.settings__cell_footer_label}>{message}</Text>
+        <View style={styles.cellFooter}>
+          <Text style={styles.cellFooterLabel}>{message}</Text>
         </View>
       );
     } else {
-      footer = <View style={styles.settings__cell_spacer} />;
+      footer = <View style={styles.cellSpacer} />;
     }
 
     return (
@@ -166,16 +167,13 @@ export default class Settings extends Component<IProps> {
         <Cell.CellButton disabled={this.props.isOffline} onPress={this.openDownloadLink}>
           {icon}
           <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
-          <Cell.SubText style={styles.settings__appversion}>{this.props.appVersion}</Cell.SubText>
+          <Cell.SubText style={styles.appVersionLabel}>{this.props.appVersion}</Cell.SubText>
           <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
         {footer}
       </View>
     );
   }
-
-  private openDownloadLink = () => this.props.onExternalLink(links.download);
-  private openFaqLink = () => this.props.onExternalLink(links.faq);
 
   private renderBottomButtons() {
     return (
@@ -188,6 +186,13 @@ export default class Settings extends Component<IProps> {
         <Cell.CellButton disabled={this.props.isOffline} onPress={this.openFaqLink}>
           <Cell.Label>{messages.pgettext('settings-view', 'FAQs & Guides')}</Cell.Label>
           <Cell.Icon height={16} width={16} source="icon-extLink" />
+        </Cell.CellButton>
+
+        <Cell.CellButton onPress={this.props.onViewSelectLanguage}>
+          <Cell.UntintedIcon width={24} height={24} source="icon-language" />
+          <Cell.Label>{messages.pgettext('settings-view', 'Language')}</Cell.Label>
+          <Cell.SubText>{this.props.preferredLocaleDisplayName}</Cell.SubText>
+          <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
       </View>
     );

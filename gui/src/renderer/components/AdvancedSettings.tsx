@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Component, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
-import { colors } from '../../config.json';
 import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import styles from './AdvancedSettingsStyles';
@@ -15,6 +14,7 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
+import Selector, { ISelectorItem } from './Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const MIN_MSSFIX_VALUE = 1000;
@@ -403,70 +403,4 @@ export default class AdvancedSettings extends Component<IProps, IState> {
 
     return mssfix === undefined || (mssfix >= MIN_MSSFIX_VALUE && mssfix <= MAX_MSSFIX_VALUE);
   }
-}
-
-interface ISelectorItem<T> {
-  label: string;
-  value: T;
-}
-
-interface ISelectorProps<T> {
-  title: string;
-  values: Array<ISelectorItem<T>>;
-  value: T;
-  onSelect: (value: T) => void;
-}
-
-class Selector<T> extends Component<ISelectorProps<T>> {
-  public render() {
-    return (
-      <Cell.Section style={styles.advanced_settings__selector_section}>
-        <Cell.SectionTitle>{this.props.title}</Cell.SectionTitle>
-        {this.props.values.map((item, i) => (
-          <SelectorCell
-            key={i}
-            value={item.value}
-            selected={item.value === this.props.value}
-            onSelect={this.props.onSelect}>
-            {item.label}
-          </SelectorCell>
-        ))}
-      </Cell.Section>
-    );
-  }
-}
-
-interface ISelectorCell<T> {
-  value: T;
-  selected: boolean;
-  onSelect: (value: T) => void;
-  children?: React.ReactText;
-}
-
-class SelectorCell<T> extends Component<ISelectorCell<T>> {
-  public render() {
-    return (
-      <Cell.CellButton
-        style={this.props.selected ? styles.advanced_settings__cell_selected_hover : undefined}
-        cellHoverStyle={
-          this.props.selected ? styles.advanced_settings__cell_selected_hover : undefined
-        }
-        onPress={this.onPress}>
-        <Cell.Icon
-          style={this.props.selected ? undefined : styles.advanced_settings__cell_icon_invisible}
-          source="icon-tick"
-          width={24}
-          height={24}
-          tintColor={colors.white}
-        />
-        <Cell.Label>{this.props.children}</Cell.Label>
-      </Cell.CellButton>
-    );
-  }
-
-  private onPress = () => {
-    if (!this.props.selected) {
-      this.props.onSelect(this.props.value);
-    }
-  };
 }

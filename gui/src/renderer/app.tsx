@@ -23,7 +23,7 @@ import versionActions from './redux/version/actions';
 
 import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main';
 import { cities, countries, loadTranslations, messages, relayLocations } from '../shared/gettext';
-import { IGuiSettingsState } from '../shared/gui-settings-state';
+import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-channel';
 import { getRendererLogFile, setupLogging } from '../shared/logging';
 
@@ -43,6 +43,28 @@ import {
   TunnelState,
 } from '../shared/daemon-rpc-types';
 
+interface IPreferredLocaleDescriptor {
+  name: string;
+  code: string;
+}
+
+const SUPPORTED_LOCALE_LIST = [
+  { name: 'Deutsche', code: 'de' },
+  { name: 'English', code: 'en' },
+  { name: 'Español', code: 'es' },
+  { name: 'Français', code: 'fr' },
+  { name: 'Italiano', code: 'it' },
+  { name: '日本語', code: 'ja' },
+  { name: 'Nederlands', code: 'nl' },
+  { name: 'Norsk', code: 'no' },
+  { name: 'Português', code: 'pt' },
+  { name: 'Русский', code: 'ru' },
+  { name: 'Svenska', code: 'sv' },
+  { name: 'Türkçe', code: 'tr' },
+  { name: '简体中文', code: 'zh-CN' },
+  { name: '繁體中文', code: 'zh-TW' },
+];
+
 export default class AppRenderer {
   private memoryHistory = createMemoryHistory();
   private reduxStore = configureStore(this.memoryHistory);
@@ -61,10 +83,12 @@ export default class AppRenderer {
     ),
   };
 
-  private locale: string;
-  private tunnelState: TunnelState;
-  private settings: ISettings;
-  private guiSettings: IGuiSettingsState;
+  private locale = 'en';
+  private location?: ILocation;
+  private relayListPair!: IRelayListPair;
+  private tunnelState!: TunnelState;
+  private settings!: ISettings;
+  private guiSettings!: IGuiSettingsState;
   private connectedToDaemon = false;
   private autoConnected = false;
   private doingLogin = false;
@@ -72,6 +96,20 @@ export default class AppRenderer {
 
   constructor() {
     setupLogging(getRendererLogFile());
+
+    IpcRendererEventChannel.locale.listen((locale) => {
+      // load translations for the new locale
+      this.loadTranslations(locale);
+
+      // set current locale
+      this.setLocale(locale);
+
+      // refresh the relay list pair with the new translations
+      this.propagateRelayListPairToRedux();
+
+      // refresh the location with the new translations
+      this.propagateLocationToRedux();
+    });
 
     IpcRendererEventChannel.windowShape.listen((windowShapeParams) => {
       if (typeof windowShapeParams.arrowPosition === 'number') {
@@ -113,8 +151,7 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.relays.listen((relayListPair: IRelayListPair) => {
-      this.setRelays(relayListPair.relays);
-      this.setBridges(relayListPair.bridges);
+      this.setRelayListPair(relayListPair);
     });
 
     IpcRendererEventChannel.currentVersion.listen((currentVersion: ICurrentAppVersionInfo) => {
@@ -144,15 +181,9 @@ export default class AppRenderer {
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
-    this.locale = initialState.locale;
-    this.tunnelState = initialState.tunnelState;
-    this.settings = initialState.settings;
-    this.guiSettings = initialState.guiSettings;
-
     // Load translations
-    for (const catalogue of [messages, countries, cities, relayLocations]) {
-      loadTranslations(this.locale, catalogue);
-    }
+    this.loadTranslations(initialState.locale);
+    this.setLocale(initialState.locale);
 
     this.setAccountExpiry(initialState.accountData && initialState.accountData.expiry);
     this.setAccountHistory(initialState.accountHistory);
@@ -164,8 +195,7 @@ export default class AppRenderer {
       this.setLocation(initialState.location);
     }
 
-    this.setRelays(initialState.relays);
-    this.setBridges(initialState.bridges);
+    this.setRelayListPair(initialState.relayListPair);
     this.setCurrentVersion(initialState.currentVersion);
     this.setUpgradeVersion(initialState.upgradeVersion);
     this.setGuiSettings(initialState.guiSettings);
@@ -185,12 +215,7 @@ export default class AppRenderer {
       <Provider store={this.reduxStore}>
         <ConnectedRouter history={this.memoryHistory}>
           <ErrorBoundary>
-            <AppRoutes
-              sharedProps={{
-                app: this,
-                locale: this.locale,
-              }}
-            />
+            <AppRoutes sharedProps={{ app: this }} />
           </ErrorBoundary>
         </ConnectedRouter>
       </Provider>
@@ -336,6 +361,39 @@ export default class AppRenderer {
     actions.settings.replaceWireguardKey(oldKey);
     const keygenEvent = await IpcRendererEventChannel.wireguardKeys.generateKey();
     actions.settings.setWireguardKeygenEvent(keygenEvent);
+  }
+
+  public getPreferredLocaleList(): IPreferredLocaleDescriptor[] {
+    return [
+      {
+        // TRANSLATORS: The option that represents the active operating system language in the
+        // TRANSLATORS: user interface language selection list.
+        name: messages.gettext('System default'),
+        code: SYSTEM_PREFERRED_LOCALE_KEY,
+      },
+      ...SUPPORTED_LOCALE_LIST,
+    ];
+  }
+
+  public setPreferredLocale(preferredLocale: string) {
+    IpcRendererEventChannel.guiSettings.setPreferredLocale(preferredLocale);
+  }
+
+  private getPreferredLocaleDisplayName(localeCode: string): string {
+    const preferredLocale = this.getPreferredLocaleList().find((item) => item.code === localeCode);
+
+    return preferredLocale ? preferredLocale.name : '';
+  }
+
+  private loadTranslations(locale: string) {
+    for (const catalogue of [messages, countries, cities, relayLocations]) {
+      loadTranslations(locale, catalogue);
+    }
+  }
+
+  private setLocale(locale: string) {
+    this.locale = locale;
+    this.reduxActions.userInterface.updateLocale(locale);
   }
 
   private setRelaySettings(relaySettings: RelaySettings) {
@@ -546,7 +604,14 @@ export default class AppRenderer {
   }
 
   private setLocation(location: ILocation) {
-    this.reduxActions.connection.newLocation(this.translateLocation(location));
+    this.location = location;
+    this.propagateLocationToRedux();
+  }
+
+  private propagateLocationToRedux() {
+    if (this.location) {
+      this.reduxActions.connection.newLocation(this.translateLocation(this.location));
+    }
   }
 
   private translateLocation(inputLocation: ILocation): ILocation {
@@ -589,16 +654,17 @@ export default class AppRenderer {
       .sort((countryA, countryB) => countryA.name.localeCompare(countryB.name, this.locale));
   }
 
-  private setRelays(relayList: IRelayList) {
-    const locations = this.convertRelayListToLocationList(relayList);
-
-    this.reduxActions.settings.updateRelayLocations(locations);
+  private setRelayListPair(relayListPair: IRelayListPair) {
+    this.relayListPair = relayListPair;
+    this.propagateRelayListPairToRedux();
   }
 
-  private setBridges(relayList: IRelayList) {
-    const locations = this.convertRelayListToLocationList(relayList);
+  private propagateRelayListPairToRedux() {
+    const relays = this.convertRelayListToLocationList(this.relayListPair.relays);
+    const bridges = this.convertRelayListToLocationList(this.relayListPair.relays);
 
-    this.reduxActions.settings.updateBridgeLocations(locations);
+    this.reduxActions.settings.updateRelayLocations(relays);
+    this.reduxActions.settings.updateBridgeLocations(bridges);
   }
 
   private setCurrentVersion(versionInfo: ICurrentAppVersionInfo) {
@@ -612,6 +678,9 @@ export default class AppRenderer {
   private setGuiSettings(guiSettings: IGuiSettingsState) {
     this.guiSettings = guiSettings;
     this.reduxActions.settings.updateGuiSettings(guiSettings);
+    this.reduxActions.userInterface.updatePreferredLocaleName(
+      this.getPreferredLocaleDisplayName(guiSettings.preferredLocale),
+    );
   }
 
   private setAccountExpiry(expiry?: string) {
