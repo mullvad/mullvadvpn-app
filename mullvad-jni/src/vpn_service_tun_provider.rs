@@ -103,12 +103,13 @@ impl VpnServiceTunProvider {
                 )
                 .map_err(|cause| Error::FindMethod("createTun", cause))?;
 
+            let java_config = env.auto_local(config.clone().into_java(&env));
             let result = env
                 .call_method_unchecked(
                     self.object.as_obj(),
                     create_tun_method,
                     JavaType::Primitive(Primitive::Int),
-                    &[JValue::Object(config.clone().into_java(&env))],
+                    &[JValue::Object(java_config.as_obj())],
                 )
                 .map_err(|cause| Error::CallMethod("createTun", cause))?;
 
