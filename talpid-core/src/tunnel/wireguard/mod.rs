@@ -80,6 +80,7 @@ pub struct WireguardMonitor {
     event_callback: Box<dyn Fn(TunnelEvent) + Send + Sync + 'static>,
     close_msg_sender: mpsc::Sender<CloseMsg>,
     close_msg_receiver: mpsc::Receiver<CloseMsg>,
+    pinger_stop_sender: mpsc::Sender<()>,
 }
 
 impl WireguardMonitor {
@@ -103,12 +104,14 @@ impl WireguardMonitor {
         .map_err(Error::SetupRoutingError)?;
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
+        let (pinger_tx, pinger_rx) = mpsc::channel();
         let monitor = WireguardMonitor {
             tunnel,
             route_handle,
             event_callback,
             close_msg_sender,
             close_msg_receiver,
+            pinger_stop_sender: pinger_tx,
         };
 
         let metadata = monitor.tunnel_metadata(&config);
@@ -121,8 +124,12 @@ impl WireguardMonitor {
                 Ok(()) => {
                     (on_event)(TunnelEvent::Up(metadata));
 
-                    if let Err(e) = ping_monitor::monitor_ping(gateway, PING_TIMEOUT, &iface_name) {
-                        log::trace!("Ping monitor failed - {}", e);
+                    match ping_monitor::monitor_ping(gateway, PING_TIMEOUT, &iface_name, pinger_rx)
+                    {
+                        Ok(()) => return,
+                        Err(error) => {
+                            log::trace!("{}", error.display_chain_with_msg("Ping monitor failed"));
+                        }
                     }
                 }
                 Err(error) => {
@@ -151,6 +158,8 @@ impl WireguardMonitor {
             Ok(CloseMsg::Stop) => Ok(()),
             Err(_) => Ok(()),
         };
+
+        let _ = self.pinger_stop_sender.send(());
 
         // Clear routes manually - otherwise there will be some log spam since the tunnel device
         // can be removed before the routes are cleared, which automatically clears some of the
