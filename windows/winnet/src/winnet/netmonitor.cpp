@@ -305,6 +305,9 @@ void NetMonitor::LogOfflineState(std::shared_ptr<common::logging::ILogSink> logS
 			L"Microsoft Teredo Tunneling Adapter",
 			L"Microsoft IP-HTTPS Platform Adapter",
 			L"Microsoft 6to4 Adapter",
+			L"WAN Miniport",
+			L"WiFi Filter Driver",
+			L"Microsoft Wi-Fi Direct Virtual Adapter",
 		};
 
 		bool blacklisted = false;
