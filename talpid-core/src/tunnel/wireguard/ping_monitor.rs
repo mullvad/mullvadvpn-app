@@ -1,6 +1,7 @@
 use std::{
     io,
     net::IpAddr,
+    sync::mpsc,
     thread,
     time::{Duration, Instant},
 };
@@ -14,8 +15,13 @@ pub enum Error {
     TimeoutError,
 }
 
-pub fn monitor_ping(ip: IpAddr, timeout_secs: u16, interface: &str) -> Result<(), Error> {
-    loop {
+pub fn monitor_ping(
+    ip: IpAddr,
+    timeout_secs: u16,
+    interface: &str,
+    close_receiver: mpsc::Receiver<()>,
+) -> Result<(), Error> {
+    while let Err(mpsc::TryRecvError::Empty) = close_receiver.try_recv() {
         let start = Instant::now();
         ping(ip, timeout_secs, &interface, false)?;
         if let Some(remaining) =
@@ -24,6 +30,8 @@ pub fn monitor_ping(ip: IpAddr, timeout_secs: u16, interface: &str) -> Result<()
             thread::sleep(remaining);
         }
     }
+
+    Ok(())
 }
 
 pub fn ping(
