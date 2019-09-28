@@ -161,7 +161,7 @@ impl fmt::Display for RelayConstraints {
         match self.tunnel_protocol {
             Constraint::Any => write!(
                 f,
-                "Any tunnel protcol with OpenVPN through {} and WireGuard through {}",
+                "Any tunnel protocol with OpenVPN through {} and WireGuard through {}",
                 &self.openvpn_constraints, &self.wireguard_constraints,
             )?,
             Constraint::Only(ref tunnel_protocol) => {
