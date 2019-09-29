@@ -60,9 +60,9 @@ pub enum Error {
     #[error(display = "Failed to configure Wireguard sockets to bypass the tunnel")]
     BypassError(#[error(cause)] BoxedError),
 
-    /// Failed to duplicate file descriptors for logging on wireguard-go
+    /// Failed to duplicate tunnel file descriptor for wireguard-go
     #[cfg(any(target_os = "linux", target_os = "macos", target_os = "android"))]
-    #[error(display = "Failed to configure Wireguard sockets to bypass the tunnel")]
+    #[error(display = "Failed to duplicate tunnel file descriptor for wireguard-go")]
     FdDuplicationError(#[error(cause)] nix::Error),
 
     /// Pinging timed out.
