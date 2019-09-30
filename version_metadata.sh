@@ -69,7 +69,9 @@ EOF
         # Windows C++
         mv dist-assets/windows/version.h.bak dist-assets/windows/version.h || true
         # Android
-        mv android/build.gradle.bak android/build.gradle || true
+        if [[ ("$(uname -s)" == "Linux") ]]; then
+            mv android/build.gradle.bak android/build.gradle || true
+        fi
         ;;
     "delete-backup")
         # Electron GUI
@@ -82,7 +84,9 @@ EOF
         # Windows C++
         rm dist-assets/windows/version.h.bak || true
         # Android
-        rm android/build.gradle.bak || true
+        if [[ ("$(uname -s)" == "Linux") ]]; then
+            rm android/build.gradle.bak || true
+        fi
         ;;
     *)
         echo "Invalid command"
