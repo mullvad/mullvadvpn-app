@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix `mullvad relay update` to trigger a relay list download even if the existing cache is new.
+- Show WireGuard key age in local timezone instead of UTC.
 
 
 ## [2019.8] - 2019-09-23
