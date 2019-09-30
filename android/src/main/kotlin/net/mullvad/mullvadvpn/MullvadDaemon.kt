@@ -12,16 +12,18 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.EventNotifier
 
 class MullvadDaemon(val vpnService: MullvadVpnService) {
-    init {
-        System.loadLibrary("mullvad_jni")
-        initialize(vpnService)
-    }
-
     val onSettingsChange = EventNotifier<Settings?>(null)
 
     var onKeygenEvent: ((KeygenEvent) -> Unit)? = null
     var onRelayListChange: ((RelayList) -> Unit)? = null
     var onTunnelStateChange: ((TunnelState) -> Unit)? = null
+
+    init {
+        System.loadLibrary("mullvad_jni")
+        initialize(vpnService)
+
+        onSettingsChange.notify(getSettings())
+    }
 
     external fun connect()
     external fun disconnect()

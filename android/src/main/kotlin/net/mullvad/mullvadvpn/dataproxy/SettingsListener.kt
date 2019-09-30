@@ -47,18 +47,6 @@ class SettingsListener(val parentActivity: MainActivity) {
         listenerId = daemon.onSettingsChange.subscribe { maybeSettings ->
             maybeSettings?.let { settings -> handleNewSettings(settings) }
         }
-
-        fetchInitialSettings()
-    }
-
-    private fun fetchInitialSettings() {
-        val initialSettings = daemon!!.getSettings()
-
-        synchronized(this) {
-            if (settings == null) {
-                handleNewSettings(initialSettings)
-            }
-        }
     }
 
     private fun handleNewSettings(newSettings: Settings) {
