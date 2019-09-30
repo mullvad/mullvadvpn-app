@@ -11,7 +11,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.support.v4.app.NotificationCompat
-
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -38,9 +37,9 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             field = value
 
             reconnecting =
-                (value is TunnelState.Disconnecting
-                    && value.actionAfterDisconnect is ActionAfterDisconnect.Reconnect)
-                || (value is TunnelState.Connecting && reconnecting)
+                (value is TunnelState.Disconnecting &&
+                    value.actionAfterDisconnect is ActionAfterDisconnect.Reconnect) ||
+                (value is TunnelState.Connecting && reconnecting)
 
             updateNotification()
         }

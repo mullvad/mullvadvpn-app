@@ -1,10 +1,5 @@
 package net.mullvad.mullvadvpn
 
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -12,15 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
-import net.mullvad.mullvadvpn.util.SmartDeferred
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.util.SmartDeferred
 
 val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
 
@@ -160,8 +158,7 @@ class ConnectFragment : Fragment() {
     }
 
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) =
-        GlobalScope.launch(Dispatchers.Main)
-    {
+        GlobalScope.launch(Dispatchers.Main) {
         notificationBanner.tunnelState = realState
         locationInfoCache.state = realState
         locationInfo.state = realState

@@ -1,13 +1,11 @@
 package net.mullvad.mullvadvpn.dataproxy
 
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.MainActivity
 
 class AppVersionInfoCache(val parentActivity: MainActivity) {
@@ -100,5 +98,4 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
 
         onUpdate?.invoke()
     }
-
 }
