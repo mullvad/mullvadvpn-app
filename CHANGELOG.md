@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Removed
 - Remove support for `MULLVAD_LOCALE` environment variable.
 
+### Fixed
+- Fix `mullvad relay update` to trigger a relay list download even if the existing cache is new.
+
 
 ## [2019.8] - 2019-09-23
 This release is identical to 2019.8-beta1

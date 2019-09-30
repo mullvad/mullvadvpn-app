@@ -729,8 +729,16 @@ impl RelayListUpdater {
 
     fn run(&mut self) {
         debug!("Starting relay list updater thread");
-        while self.wait_for_next_iteration() {
-            if self.should_update() {
+        loop {
+            let should_update = match self.close_handle.recv_timeout(UPDATE_CHECK_INTERVAL) {
+                // Someone sent an explicit update command
+                Ok(()) => true,
+                // Normal timeout, check cache age
+                Err(mpsc::RecvTimeoutError::Timeout) => self.should_update(),
+                // We have been canceled
+                Err(mpsc::RecvTimeoutError::Disconnected) => break,
+            };
+            if should_update {
                 match self.update() {
                     Ok(()) => info!("Updated list of relays"),
                     Err(error) => error!("{}", error.display_chain()),
@@ -740,16 +748,7 @@ impl RelayListUpdater {
         debug!("Relay list updater thread has finished");
     }
 
-    fn wait_for_next_iteration(&mut self) -> bool {
-        use self::mpsc::RecvTimeoutError::*;
-
-        match self.close_handle.recv_timeout(UPDATE_CHECK_INTERVAL) {
-            Ok(()) => true,
-            Err(Timeout) => true,
-            Err(Disconnected) => false,
-        }
-    }
-
+    /// Returns true if the current parsed_relays is older than UPDATE_INTERVAL
     fn should_update(&mut self) -> bool {
         match SystemTime::now().duration_since(self.parsed_relays.lock().last_updated()) {
             Ok(duration) => duration > UPDATE_INTERVAL,
