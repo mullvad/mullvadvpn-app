@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -29,7 +30,10 @@ class LoginFragment : Fragment() {
     private lateinit var loginFailStatus: View
     private lateinit var accountInput: AccountInput
 
+    private val loggedIn = CompletableDeferred<Unit>()
+
     private var loginJob: Deferred<Boolean>? = null
+    private var advanceToNextScreenJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -44,6 +48,8 @@ class LoginFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.login, container, false)
 
+        view.findViewById<View>(R.id.settings).setOnClickListener { parentActivity.openSettings() }
+
         title = view.findViewById(R.id.title)
         subtitle = view.findViewById(R.id.subtitle)
         loggingInStatus = view.findViewById(R.id.logging_in_status)
@@ -56,6 +62,19 @@ class LoginFragment : Fragment() {
         view.findViewById<View>(R.id.create_account).setOnClickListener { createAccount() }
 
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        advanceToNextScreenJob = GlobalScope.launch(Dispatchers.Main) {
+            loggedIn.join()
+            openConnectScreen()
+        }
+    }
+
+    override fun onPause() {
+        advanceToNextScreenJob?.cancel()
+        super.onPause()
     }
 
     private fun createAccount() {
@@ -102,7 +121,7 @@ class LoginFragment : Fragment() {
     private suspend fun loggedIn() {
         showLoggedInMessage()
         delay(1000)
-        openConnectScreen()
+        loggedIn.complete(Unit)
     }
 
     private fun showLoggedInMessage() {

@@ -17,23 +17,30 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 
+import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 
 class SettingsFragment : Fragment() {
     private lateinit var parentActivity: MainActivity
+
+    private lateinit var accountCache: AccountCache
     private lateinit var versionInfoCache: AppVersionInfoCache
 
-    private lateinit var remainingTimeLabel: RemainingTimeLabel
+    private lateinit var accountMenu: View
     private lateinit var appVersionWarning: View
     private lateinit var appVersionLabel: TextView
     private lateinit var appVersionFooter: View
+    private lateinit var remainingTimeLabel: RemainingTimeLabel
+    private lateinit var wireguardKeysMenu: View
 
+    private var updateLoggedInStatusJob: Job? = null
     private var updateVersionInfoJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
         parentActivity = context as MainActivity
+        accountCache = parentActivity.accountCache
         versionInfoCache = parentActivity.appVersionInfoCache
     }
 
@@ -52,12 +59,17 @@ class SettingsFragment : Fragment() {
             parentActivity.quit()
         }
 
-        view.findViewById<View>(R.id.account).setOnClickListener {
-            openSubFragment(AccountFragment())
+        accountMenu = view.findViewById<View>(R.id.account).apply {
+            setOnClickListener {
+                openSubFragment(AccountFragment())
+            }
         }
-        view.findViewById<View>(R.id.wireguard_keys).setOnClickListener {
-            openSubFragment(WireguardKeyFragment())
+        wireguardKeysMenu = view.findViewById<View>(R.id.wireguard_keys).apply {
+            setOnClickListener {
+                openSubFragment(WireguardKeyFragment())
+            }
         }
+
         view.findViewById<View>(R.id.app_version).setOnClickListener {
             openLink(R.string.download_url)
         }
@@ -65,17 +77,24 @@ class SettingsFragment : Fragment() {
             openSubFragment(ProblemReportFragment())
         }
 
-        remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
         appVersionWarning = view.findViewById(R.id.app_version_warning)
         appVersionLabel = view.findViewById<TextView>(R.id.app_version_label)
         appVersionFooter = view.findViewById(R.id.app_version_footer)
+        remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
 
         return view
     }
 
     override fun onResume() {
         super.onResume()
+
         remainingTimeLabel.onResume()
+
+        accountCache.onAccountDataChange = { account, _expiry ->
+            updateLoggedInStatusJob?.cancel()
+            updateLoggedInStatusJob = updateLoggedInStatus(account != null)
+        }
+
         versionInfoCache.onUpdate = {
             updateVersionInfoJob?.cancel()
             updateVersionInfoJob = updateVersionInfo()
@@ -84,11 +103,13 @@ class SettingsFragment : Fragment() {
 
     override fun onPause() {
         versionInfoCache.onUpdate = null
+        accountCache.onAccountDataChange = null
         remainingTimeLabel.onPause()
         super.onPause()
     }
 
     override fun onDestroyView() {
+        updateLoggedInStatusJob?.cancel()
         updateVersionInfoJob?.cancel()
         super.onDestroyView()
     }
@@ -111,6 +132,17 @@ class SettingsFragment : Fragment() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(parentActivity.getString(urlResourceId)))
 
         startActivity(intent)
+    }
+
+    private fun updateLoggedInStatus(loggedIn: Boolean) = GlobalScope.launch(Dispatchers.Main) {
+        val visibility = if (loggedIn) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
+        accountMenu.visibility = visibility
+        wireguardKeysMenu.visibility = visibility
     }
 
     private fun updateVersionInfo() = GlobalScope.launch(Dispatchers.Main) {
