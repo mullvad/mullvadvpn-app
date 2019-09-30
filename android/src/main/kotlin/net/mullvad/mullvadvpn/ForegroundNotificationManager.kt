@@ -128,6 +128,11 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
     var onConnect: (() -> Unit)? = null
     var onDisconnect: (() -> Unit)? = null
+    var loggedIn = false
+        set(value) {
+            field = value
+            updateNotification()
+        }
 
     init {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -183,13 +188,17 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
         val pendingIntent =
             PendingIntent.getActivity(service, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        return NotificationCompat.Builder(service, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(service, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification)
             .setColor(service.getColor(R.color.colorPrimary))
             .setContentTitle(service.getString(notificationText))
             .setContentIntent(pendingIntent)
-            .addAction(buildTunnelAction())
-            .build()
+
+        if (loggedIn) {
+            builder.addAction(buildTunnelAction())
+        }
+
+        return builder.build()
     }
 
     private fun buildTunnelAction(): NotificationCompat.Action {

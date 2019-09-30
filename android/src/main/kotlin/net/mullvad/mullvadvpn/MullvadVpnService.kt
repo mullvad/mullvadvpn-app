@@ -105,7 +105,11 @@ class MullvadVpnService : VpnService() {
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
         created.await()
         ApiRootCaFile().extract(application)
-        MullvadDaemon(this@MullvadVpnService)
+        MullvadDaemon(this@MullvadVpnService).apply { 
+            onSettingsChange.subscribe { settings ->
+                notificationManager.loggedIn = settings?.accountToken != null
+            }
+        }
     }
 
     private fun startNotificationManager(): ForegroundNotificationManager {
