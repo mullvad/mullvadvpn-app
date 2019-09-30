@@ -44,6 +44,8 @@ class LoginFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.login, container, false)
 
+        view.findViewById<View>(R.id.settings).setOnClickListener { parentActivity.openSettings() }
+
         title = view.findViewById(R.id.title)
         subtitle = view.findViewById(R.id.subtitle)
         loggingInStatus = view.findViewById(R.id.logging_in_status)
