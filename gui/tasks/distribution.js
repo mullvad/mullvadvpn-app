@@ -3,12 +3,14 @@ const fs = require('fs');
 const builder = require('electron-builder');
 const rimraf = require('rimraf');
 const util = require('util');
+const { notarize } = require('electron-notarize');
 
 const renameAsync = util.promisify(fs.rename);
 const unlinkAsync = util.promisify(fs.unlink);
 const rimrafAsync = util.promisify(rimraf);
 
 const compression = process.argv.indexOf('--no-compression') !== -1 ? 'store' : 'normal';
+const noAppleNotarization = process.argv.indexOf('--no-apple-notarization') !== -1;
 
 const config = {
   appId: 'net.mullvad.vpn',
@@ -156,6 +158,8 @@ function packWin() {
 
 function packMac() {
   let appOutDir;
+  let outDir;
+  let appVersion;
 
   return builder.build({
     targets: builder.Platform.MAC.createTarget(),
@@ -163,13 +167,35 @@ function packMac() {
       ...config,
       afterPack: (context) => {
         appOutDir = context.appOutDir;
+        outDir = context.outDir;
+        appVersion = context.packager.appInfo.version;
         return Promise.resolve();
       },
       afterAllArtifactBuild: (buildResult) => {
+        if (!noAppleNotarization) {
+          notarizeMac(path.join(outDir, `MullvadVPN-${appVersion}.pkg`));
+        }
         // remove the folder that contains the unpacked app
         return rimrafAsync(appOutDir);
       },
+      afterSign: noAppleNotarization
+        ? undefined
+        : (context) => {
+            const appOutDir = context.appOutDir;
+            const appName = context.packager.appInfo.productFilename;
+            return notarizeMac(path.join(appOutDir, `${appName}.app`));
+          },
     },
+  });
+}
+
+function notarizeMac(notarizePath) {
+  console.log('Notarizing ' + notarizePath);
+  return notarize({
+    appBundleId: config.appId,
+    appPath: notarizePath,
+    appleId: process.env.NOTARIZE_APPLE_ID,
+    appleIdPassword: process.env.NOTARIZE_APPLE_ID_PASSWORD,
   });
 }
 

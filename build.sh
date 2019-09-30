@@ -21,6 +21,7 @@ source env.sh ""
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
     BUILD_MODE="release"
+    NPM_PACK_ARGS=""
     if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
         echo "Dirty working directory!"
         echo "You should only build releases in clean working directories in order to make it"
@@ -48,6 +49,7 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
     fi
 else
     BUILD_MODE="dev"
+    NPM_PACK_ARGS="--no-compression"
     echo "!! Development build. Not for general distribution !!"
     unset CSC_LINK CSC_KEY_PASSWORD
     export CSC_IDENTITY_AUTO_DISCOVERY=false
@@ -57,6 +59,9 @@ if [[ "$BUILD_MODE" == "dev" || $(git describe) != "$PRODUCT_VERSION" ]]; then
     GIT_COMMIT=$(git rev-parse HEAD | head -c 6)
     PRODUCT_VERSION="$PRODUCT_VERSION-dev-$GIT_COMMIT"
     echo "Modifying product version to $PRODUCT_VERSION"
+
+    echo "Disabling Apple notarization (macOs only) of installer in this dev build"
+    NPM_PACK_ARGS+=" --no-apple-notarization"
 else
     echo "Removing old Rust build artifacts"
     cargo +stable clean
@@ -164,21 +169,10 @@ npm install
 
 echo "Packing final release artifact..."
 
-if [[ "$BUILD_MODE" == "dev" ]]; then
-    # Disable installer compression on *explicit* dev builds.
-    # This does not disable compression on build server builds, since they
-    # always run without --dev-build.
-    echo "Disabling compression of installer in this dev build"
-
-    PACK_ARGS="--no-compression"
-else
-    PACK_ARGS=""
-fi
-
 case "$(uname -s)" in
-    Linux*)     npm run pack:linux -- $PACK_ARGS;;
-    Darwin*)    npm run pack:mac -- $PACK_ARGS;;
-    MINGW*)     npm run pack:win -- $PACK_ARGS;;
+    Linux*)     npm run pack:linux -- $NPM_PACK_ARGS;;
+    Darwin*)    npm run pack:mac -- $NPM_PACK_ARGS;;
+    MINGW*)     npm run pack:win -- $NPM_PACK_ARGS;;
 esac
 
 popd
