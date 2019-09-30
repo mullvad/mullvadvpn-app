@@ -111,31 +111,26 @@ impl WgGoTunnel {
         config: &Config,
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<(Box<dyn Tun>, RawFd)> {
+        let mut last_error = None;
         let tunnel_config = Self::create_tunnel_config(config, routes);
+
         for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
             let tunnel_device = tun_provider
                 .get_tun(tunnel_config.clone())
                 .map_err(Error::SetupTunnelDeviceError)?;
 
             match nix::unistd::dup(tunnel_device.as_raw_fd()) {
-                Ok(fd) => {
-                    return Ok((tunnel_device, fd));
-                }
+                Ok(fd) => return Ok((tunnel_device, fd)),
                 #[cfg(not(target_os = "macos"))]
-                Err(nix::Error::Sys(nix::errno::Errno::EBADFD)) => continue,
-                #[cfg(target_os = "macos")]
-                Err(nix::Error::Sys(nix::errno::Errno::EBADF)) => continue,
+                Err(error @ nix::Error::Sys(nix::errno::Errno::EBADFD)) => last_error = Some(error),
+                Err(error @ nix::Error::Sys(nix::errno::Errno::EBADF)) => last_error = Some(error),
                 Err(error) => return Err(Error::FdDuplicationError(error)),
             }
         }
-        #[cfg(not(target_os = "macos"))]
-        return Err(Error::FdDuplicationError(nix::Error::Sys(
-            nix::errno::Errno::EBADFD,
-        )));
-        #[cfg(target_os = "macos")]
-        return Err(Error::FdDuplicationError(nix::Error::Sys(
-            nix::errno::Errno::EBADF,
-        )));
+
+        Err(Error::FdDuplicationError(
+            last_error.expect("Should be collected in loop"),
+        ))
     }
 }
 
