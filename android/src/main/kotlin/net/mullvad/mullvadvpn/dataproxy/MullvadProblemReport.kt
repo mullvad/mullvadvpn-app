@@ -1,12 +1,11 @@
 package net.mullvad.mullvadvpn.dataproxy
 
 import java.io.File
-
-import kotlinx.coroutines.async
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 
 const val PROBLEM_REPORT_PATH = "/data/data/net.mullvad.mullvadvpn/problem_report.txt"
 

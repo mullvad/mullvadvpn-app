@@ -1,11 +1,11 @@
 package net.mullvad.mullvadvpn
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
+import android.text.style.MetricAffectingSpan
 import android.view.View
 import android.view.View.OnFocusChangeListener
-import android.text.Editable
-import android.text.style.MetricAffectingSpan
-import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.ImageButton
 

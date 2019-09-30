@@ -1,13 +1,12 @@
 package net.mullvad.mullvadvpn.dataproxy
 
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.MainActivity
+import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
-import net.mullvad.mullvadvpn.MullvadDaemon
 
 class SettingsListener(val parentActivity: MainActivity) {
     private lateinit var daemon: MullvadDaemon

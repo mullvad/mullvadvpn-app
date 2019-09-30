@@ -5,7 +5,6 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-
 import net.mullvad.mullvadvpn.R
 
 class RelayItemHolder(

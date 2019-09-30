@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.RecyclerView.ItemDecoration
 import android.support.v7.widget.RecyclerView.State
 import android.view.View
-
 import net.mullvad.mullvadvpn.R
 
 class RelayItemDividerDecoration(private val context: Context) : ItemDecoration() {
