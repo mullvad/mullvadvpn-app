@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Removed
 - Remove support for `MULLVAD_LOCALE` environment variable.
 
+#### Android
+- Remove connect action button in notification when logged out.
+
 ### Fixed
 - Fix `mullvad relay update` to trigger a relay list download even if the existing cache is new.
 

@@ -14,6 +14,7 @@ class SettingsListener(val parentActivity: MainActivity) {
 
     private val setUpJob = setUp()
 
+    private var listenerId = -1
     private var settings: Settings? = null
 
     var onAccountNumberChange: ((String?) -> Unit)? = null
@@ -35,24 +36,16 @@ class SettingsListener(val parentActivity: MainActivity) {
     fun onDestroy() {
         setUpJob.cancel()
 
-        if (::daemon.isInitialized) {
-            daemon.onSettingsChange = null
+        if (listenerId != -1) {
+            daemon.onSettingsChange.unsubscribe(listenerId)
         }
     }
 
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
         daemon = parentActivity.daemon.await()
-        daemon.onSettingsChange = { settings -> handleNewSettings(settings) }
-        fetchInitialSettings()
-    }
 
-    private fun fetchInitialSettings() {
-        val initialSettings = daemon!!.getSettings()
-
-        synchronized(this) {
-            if (settings == null) {
-                handleNewSettings(initialSettings)
-            }
+        listenerId = daemon.onSettingsChange.subscribe { maybeSettings ->
+            maybeSettings?.let { settings -> handleNewSettings(settings) }
         }
     }
 

@@ -9,17 +9,21 @@ import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.util.EventNotifier
 
 class MullvadDaemon(val vpnService: MullvadVpnService) {
-    init {
-        System.loadLibrary("mullvad_jni")
-        initialize(vpnService)
-    }
+    val onSettingsChange = EventNotifier<Settings?>(null)
 
     var onKeygenEvent: ((KeygenEvent) -> Unit)? = null
     var onRelayListChange: ((RelayList) -> Unit)? = null
-    var onSettingsChange: ((Settings) -> Unit)? = null
     var onTunnelStateChange: ((TunnelState) -> Unit)? = null
+
+    init {
+        System.loadLibrary("mullvad_jni")
+        initialize(vpnService)
+
+        onSettingsChange.notify(getSettings())
+    }
 
     external fun connect()
     external fun disconnect()
@@ -48,7 +52,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     }
 
     private fun notifySettingsEvent(settings: Settings) {
-        onSettingsChange?.invoke(settings)
+        onSettingsChange.notify(settings)
     }
 
     private fun notifyTunnelStateEvent(event: TunnelState) {
