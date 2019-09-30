@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add ability to change the desktop GUI language from within Settings.
 
+#### Android
+- Add settings button in launch and login screens.
+
 ### Removed
 - Remove support for `MULLVAD_LOCALE` environment variable.
 
