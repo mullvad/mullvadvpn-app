@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn
 
-import java.net.InetAddress
-
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CompletableDeferred
@@ -105,7 +103,7 @@ class MullvadVpnService : VpnService() {
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
         created.await()
         ApiRootCaFile().extract(application)
-        MullvadDaemon(this@MullvadVpnService).apply { 
+        MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
                 notificationManager.loggedIn = settings?.accountToken != null
             }

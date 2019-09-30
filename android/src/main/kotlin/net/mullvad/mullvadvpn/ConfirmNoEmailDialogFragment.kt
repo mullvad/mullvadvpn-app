@@ -13,8 +13,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 
-import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-
 class ConfirmNoEmailDialogFragment : DialogFragment() {
     private var confirmNoEmail: CompletableDeferred<Boolean>? = null
 

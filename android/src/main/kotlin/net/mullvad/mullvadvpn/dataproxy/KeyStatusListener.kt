@@ -49,7 +49,9 @@ class KeyStatusListener(val asyncDaemon: Deferred<MullvadDaemon>) {
             val oldStatus = keyStatus
             val newStatus = daemon?.generateWireguardKey()
             if (oldStatus is KeygenEvent.NewKey && newStatus is KeygenEvent.Failure) {
-                keyStatus = KeygenEvent.NewKey(oldStatus.publicKey, oldStatus.verified, newStatus.failure)
+                keyStatus = KeygenEvent.NewKey(oldStatus.publicKey,
+                                oldStatus.verified,
+                                newStatus.failure)
             } else {
                 keyStatus = newStatus
             }
@@ -61,7 +63,9 @@ class KeyStatusListener(val asyncDaemon: Deferred<MullvadDaemon>) {
             // Only update verification status if the key is actually there
             when (val state = keyStatus) {
                 is KeygenEvent.NewKey -> {
-                    keyStatus = KeygenEvent.NewKey(state.publicKey, verified, state.replacementFailure)
+                    keyStatus = KeygenEvent.NewKey(state.publicKey,
+                                    verified,
+                                    state.replacementFailure)
                 }
             }
     }

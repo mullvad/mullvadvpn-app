@@ -100,5 +100,4 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
 
         onUpdate?.invoke()
     }
-
 }

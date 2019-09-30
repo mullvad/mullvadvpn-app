@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn
 
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
 
 import android.content.Context
 

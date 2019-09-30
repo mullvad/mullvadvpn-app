@@ -160,8 +160,7 @@ class ConnectFragment : Fragment() {
     }
 
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) =
-        GlobalScope.launch(Dispatchers.Main)
-    {
+        GlobalScope.launch(Dispatchers.Main) {
         notificationBanner.tunnelState = realState
         locationInfoCache.state = realState
         locationInfo.state = realState

@@ -150,9 +150,11 @@ class NotificationBanner(
             is BlockReason.ParameterGeneration -> {
                 when (reason.error) {
                     is ParameterGenerationError.NoMatchingRelay -> R.string.no_matching_relay
-                    is ParameterGenerationError.NoMatchingBridgeRelay -> R.string.no_matching_bridge_relay
+                    is ParameterGenerationError.NoMatchingBridgeRelay ->
+                        R.string.no_matching_bridge_relay
                     is ParameterGenerationError.NoWireguardKey -> R.string.no_wireguard_key
-                    is ParameterGenerationError.CustomTunnelHostResultionError -> R.string.custom_tunnel_host_resolution_error
+                    is ParameterGenerationError.CustomTunnelHostResultionError ->
+                        R.string.custom_tunnel_host_resolution_error
                 }
             }
         }

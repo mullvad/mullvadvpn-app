@@ -4,7 +4,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 
 class SmartDeferred<T>(private val deferred: Deferred<T>) {
     private val jobTracker = JobTracker()

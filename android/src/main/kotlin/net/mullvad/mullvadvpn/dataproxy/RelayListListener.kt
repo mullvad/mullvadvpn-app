@@ -7,7 +7,6 @@ import kotlinx.coroutines.GlobalScope
 
 import net.mullvad.mullvadvpn.MainActivity
 import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.relaylist.RelayList

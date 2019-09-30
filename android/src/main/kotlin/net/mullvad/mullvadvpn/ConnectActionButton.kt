@@ -4,7 +4,6 @@ import android.view.View
 import android.widget.Button
 
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
-import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class ConnectActionButton(val parentView: View) {

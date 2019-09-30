@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn
 
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers

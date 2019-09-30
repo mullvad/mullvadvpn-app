@@ -38,9 +38,9 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             field = value
 
             reconnecting =
-                (value is TunnelState.Disconnecting
-                    && value.actionAfterDisconnect is ActionAfterDisconnect.Reconnect)
-                || (value is TunnelState.Connecting && reconnecting)
+                (value is TunnelState.Disconnecting &&
+                    value.actionAfterDisconnect is ActionAfterDisconnect.Reconnect) ||
+                (value is TunnelState.Connecting && reconnecting)
 
             updateNotification()
         }

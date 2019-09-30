@@ -82,7 +82,8 @@ class WireguardKeyFragment : Fragment() {
 
         visitWebsiteView.visibility = View.VISIBLE
         visitWebsiteView.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(parentActivity.getString(R.string.account_url)))
+            val intent = Intent(Intent.ACTION_VIEW,
+                                Uri.parse(parentActivity.getString(R.string.account_url)))
             startActivity(intent)
         }
 
@@ -249,7 +250,9 @@ class WireguardKeyFragment : Fragment() {
             when (val state = keyStatusListener.keyStatus) {
                 is KeygenEvent.NewKey -> {
                     if (state.verified == null) {
-                        Toast.makeText(parentActivity, R.string.wireguard_key_verification_failure, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(parentActivity,
+                            R.string.wireguard_key_verification_failure,
+                            Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -294,6 +297,8 @@ class WireguardKeyFragment : Fragment() {
     }
 
     private fun formatKeyDateCreated(rfc3339: String): String {
-        return parentActivity.getString(R.string.wireguard_key_age) + " " + KEY_AGE_FORMAT.print(DateTime.parse(rfc3339, RFC3339_FORMAT))
+        return (parentActivity.getString(R.string.wireguard_key_age) +
+                    " " +
+                    KEY_AGE_FORMAT.print(DateTime.parse(rfc3339, RFC3339_FORMAT)))
     }
 }

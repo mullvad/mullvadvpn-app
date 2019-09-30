@@ -2,9 +2,7 @@ package net.mullvad.mullvadvpn
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -24,10 +22,6 @@ import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.dataproxy.SettingsListener
-import net.mullvad.mullvadvpn.model.RelaySettings
-import net.mullvad.mullvadvpn.model.Settings
-import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.util.SmartDeferred
 
 class MainActivity : FragmentActivity() {
