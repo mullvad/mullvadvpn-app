@@ -39,6 +39,10 @@ matrix:
         - sudo unzip -q -d /opt/android/ /tmp/ndk.zip
         - sudo /opt/android/android-ndk-r20/build/tools/make-standalone-toolchain.sh --platform=android-21 --arch=arm64 --install-dir=/opt/android/toolchains/android21-aarch64
         - |
+            curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.34.2/ktlint &&
+            chmod a+x ktlint &&
+            sudo mv ktlint /usr/local/bin/
+        - |
             cat >> $HOME/.cargo/config << EOF
             [target.aarch64-linux-android]
             ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
@@ -53,6 +57,8 @@ matrix:
         - cargo build --target aarch64-linux-android --verbose
         - cd android
         - ./gradlew --console plain assembleDebug
+        # Run ktlint with extra andorid rules
+        - ktlint -a
 
     # Daemon - macOS
     - language: rust
