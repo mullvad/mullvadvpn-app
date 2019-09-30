@@ -63,7 +63,9 @@ tun = "0.4.3"
 widestring = "0.4"
 winreg = "0.6"
 winapi = { version = "0.3.6", features = ["handleapi", "libloaderapi", "synchapi", "winbase", "winuser"] }
-
+socket2 = "0.3"
+rand = "0.7"
+pnet_packet = "0.22"
 
 [dev-dependencies]
 tempfile = "3.0"

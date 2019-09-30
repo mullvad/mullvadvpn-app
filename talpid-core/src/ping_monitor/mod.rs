@@ -2,6 +2,8 @@
 #[path = "unix.rs"]
 mod imp;
 
+
+#[cfg(target_os = "windows")]
 #[path = "win.rs"]
 mod imp;
 
