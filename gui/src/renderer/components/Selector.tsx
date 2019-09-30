@@ -44,7 +44,12 @@ export default class Selector<T> extends Component<ISelectorProps<T>> {
     });
 
     if (this.props.title) {
-      return <Cell.Section style={[styles.section, this.props.style]}>{items}</Cell.Section>;
+      return (
+        <Cell.Section style={[styles.section, this.props.style]}>
+          <Cell.SectionTitle>{this.props.title}</Cell.SectionTitle>
+          {items}
+        </Cell.Section>
+      );
     } else {
       return <View style={[styles.section, this.props.style]}>{items}</View>;
     }
