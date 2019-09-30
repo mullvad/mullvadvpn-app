@@ -153,7 +153,20 @@ void NetMonitor::updateConnectivity()
 //static
 void __stdcall NetMonitor::Callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType)
 {
-	reinterpret_cast<NetMonitor *>(context)->callback(hint, updateType);
+	auto nm = reinterpret_cast<NetMonitor *>(context);
+
+	try
+	{
+		nm->callback(hint, updateType);
+	}
+	catch (const std::exception &err)
+	{
+		nm->m_logSink->error(err.what());
+	}
+	catch (...)
+	{
+		nm->m_logSink->error("Unspecified error in NetMonitor::Callback()");
+	}
 }
 
 void NetMonitor::callback(MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType)
@@ -167,71 +180,70 @@ void NetMonitor::callback(MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updat
 			MIB_IF_ROW2 iface = { 0 };
 			iface.InterfaceLuid = hint->InterfaceLuid;
 
-			if (NO_ERROR != GetIfEntry2(&iface))
+			const auto status = GetIfEntry2(&iface);
+
+			if (NO_ERROR != status)
 			{
-				// Failed to query interface.
-				return;
+				std::stringstream ss;
+
+				ss << "GetIfEntry2() failed for LUID 0x" << std::hex << iface.InterfaceLuid.Value
+					<< " during processing of MibAddInstance, error: 0x" << status;
+
+				throw std::runtime_error(ss.str());
 			}
 
+			//
+			// The reason for removing an existing entry is that enabling
+			// an interface on the adapter might change the overall properties in the
+			// "row" which is merely an abstraction over all interfaces.
+			//
+
+			m_cache.erase(iface.InterfaceLuid.Value);
 			AddCacheEntry(m_cache, iface);
 
 			break;
 		}
 		case MibDeleteInstance:
 		{
-			const auto cacheEntry = m_cache.find(hint->InterfaceLuid.Value);
+			m_cache.erase(hint->InterfaceLuid.Value);
 
-			if (m_cache.end() != cacheEntry)
+			MIB_IF_ROW2 iface = { 0 };
+			iface.InterfaceLuid = hint->InterfaceLuid;
+
+			const auto status = GetIfEntry2(&iface);
+
+			if (NO_ERROR == status)
 			{
-				cacheEntry->second.connected = false;
+				AddCacheEntry(m_cache, iface);
 			}
 
 			break;
 		}
 		case MibParameterNotification:
 		{
-			auto cacheEntry = m_cache.find(hint->InterfaceLuid.Value);
+			MIB_IF_ROW2 iface = { 0 };
+			iface.InterfaceLuid = hint->InterfaceLuid;
 
-			if (m_cache.end() == cacheEntry)
+			const auto status = GetIfEntry2(&iface);
+
+			if (NO_ERROR != status)
 			{
 				//
-				// A change occurred on an interface that we're not tracking.
-				// Perhaps the MibAddInstance logic failed for some reason.
+				// Only update the cache if we can look up the interface details.
+				// This way, if the interface was connected and continues to be so, we don't
+				// mistakenly switch the status to "offline".
 				//
 
-				MIB_IF_ROW2 iface = { 0 };
-				iface.InterfaceLuid = hint->InterfaceLuid;
+				std::stringstream ss;
 
-				if (NO_ERROR != GetIfEntry2(&iface))
-				{
-					// Failed to query interface.
-					return;
-				}
+				ss << "GetIfEntry2() failed for LUID 0x" << std::hex << iface.InterfaceLuid.Value
+					<< " during processing of MibParameterNotification, error: 0x" << status;
 
-				AddCacheEntry(m_cache, iface);
+				throw std::runtime_error(ss.str());
 			}
-			else
-			{
-				//
-				// Abort processing if this is a known interface that we don't care about.
-				//
-				if (false == cacheEntry->second.valid)
-				{
-					return;
-				}
 
-				//
-				// Update cache.
-				//
-
-				MIB_IF_ROW2 iface = { 0 };
-				iface.InterfaceLuid = hint->InterfaceLuid;
-
-				const auto status = GetIfEntry2(&iface);
-
-				cacheEntry->second.connected =
-					(NO_ERROR == status ? MediaConnectStateConnected == iface.MediaConnectState : false);
-			}
+			m_cache.erase(iface.InterfaceLuid.Value);
+			AddCacheEntry(m_cache, iface);
 
 			break;
 		}
