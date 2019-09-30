@@ -17,9 +17,11 @@ import android.view.ViewGroup
 class LaunchFragment : Fragment() {
     private lateinit var accountTokenCheckJob: Deferred<Boolean>
     private lateinit var advanceToNextScreenJob: Job
+    private lateinit var parentActivity: MainActivity
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        parentActivity = context as MainActivity
         accountTokenCheckJob = checkForAccountToken()
         advanceToNextScreenJob = advanceToNextScreen()
     }
@@ -28,7 +30,15 @@ class LaunchFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ) = inflater.inflate(R.layout.launch, container, false)
+    ): View {
+        val view = inflater.inflate(R.layout.launch, container, false)
+
+        view.findViewById<View>(R.id.settings).setOnClickListener {
+            parentActivity.openSettings()
+        }
+
+        return view
+    }
 
     override fun onDestroy() {
         accountTokenCheckJob.cancel()
@@ -37,7 +47,6 @@ class LaunchFragment : Fragment() {
     }
 
     private fun checkForAccountToken() = GlobalScope.async(Dispatchers.Default) {
-        val parentActivity = activity as MainActivity
         val daemon = parentActivity.daemon.await()
         val settings = daemon.getSettings()
 
