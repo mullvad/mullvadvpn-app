@@ -23,7 +23,6 @@ class LaunchFragment : Fragment() {
         super.onAttach(context)
         parentActivity = context as MainActivity
         accountTokenCheckJob = checkForAccountToken()
-        advanceToNextScreenJob = advanceToNextScreen()
     }
 
     override fun onCreateView(
@@ -40,9 +39,18 @@ class LaunchFragment : Fragment() {
         return view
     }
 
+    override fun onResume() {
+        super.onResume()
+        advanceToNextScreenJob = advanceToNextScreen()
+    }
+
+    override fun onPause() {
+        advanceToNextScreenJob.cancel()
+        super.onPause()
+    }
+
     override fun onDestroy() {
         accountTokenCheckJob.cancel()
-        advanceToNextScreenJob.cancel()
         super.onDestroy()
     }
 
