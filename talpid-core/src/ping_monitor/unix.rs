@@ -1,6 +1,8 @@
+#[allow(dead_code)]
+// TODO: remove the lint exemption above when ping monitor is used
 use std::{
     io,
-    net::IpAddr,
+    net::Ipv4Addr,
     sync::mpsc,
     thread,
     time::{Duration, Instant},
@@ -16,14 +18,14 @@ pub enum Error {
 }
 
 pub fn monitor_ping(
-    ip: IpAddr,
+    ip: Ipv4Addr,
     timeout_secs: u16,
     interface: &str,
     close_receiver: mpsc::Receiver<()>,
 ) -> Result<(), Error> {
     while let Err(mpsc::TryRecvError::Empty) = close_receiver.try_recv() {
         let start = Instant::now();
-        ping(ip, timeout_secs, &interface, false)?;
+        internal_ping(ip, timeout_secs, &interface, false)?;
         if let Some(remaining) =
             Duration::from_secs(timeout_secs.into()).checked_sub(start.elapsed())
         {
@@ -34,8 +36,12 @@ pub fn monitor_ping(
     Ok(())
 }
 
-pub fn ping(
-    ip: IpAddr,
+pub fn ping(ip: Ipv4Addr, timeout_secs: u16, interface: &str) -> Result<(), Error> {
+    internal_ping(ip, timeout_secs, interface, true)
+}
+
+fn internal_ping(
+    ip: Ipv4Addr,
     timeout_secs: u16,
     interface: &str,
     exit_on_first_reply: bool,
@@ -51,7 +57,7 @@ pub fn ping(
 }
 
 fn ping_cmd(
-    ip: IpAddr,
+    ip: Ipv4Addr,
     timeout_secs: u16,
     interface: &str,
     exit_on_first_reply: bool,
