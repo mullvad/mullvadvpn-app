@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn
 import android.content.Context
 import android.view.View
 import android.widget.TextView
-
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
 

@@ -1,15 +1,12 @@
 package net.mullvad.mullvadvpn.dataproxy
 
+import android.content.Context
 import java.util.Calendar
-
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-
-import android.content.Context
-
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.MullvadDaemon
 
 val ONE_DAY_IN_MILLISECONDS = 24L * 60L * 60L * 1000L

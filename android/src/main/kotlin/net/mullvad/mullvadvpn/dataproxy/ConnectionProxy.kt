@@ -3,15 +3,13 @@ package net.mullvad.mullvadvpn.dataproxy
 import android.content.Context
 import android.content.Intent
 import android.net.VpnService
-
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.MainActivity
 import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect

@@ -1,17 +1,15 @@
 package net.mullvad.mullvadvpn
 
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.text.TextUtils.TruncateAt
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayItem
