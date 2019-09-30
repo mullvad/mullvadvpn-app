@@ -2,12 +2,11 @@
 
 use self::config::Config;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
-use crate::routing;
+use crate::{ping_monitor, routing};
 use std::{collections::HashMap, io, path::Path, sync::mpsc};
 use talpid_types::{BoxedError, ErrorExt};
 
 pub mod config;
-mod ping_monitor;
 pub mod wireguard_go;
 
 pub use self::wireguard_go::WgGoTunnel;
@@ -120,7 +119,7 @@ impl WireguardMonitor {
         let close_sender = monitor.close_msg_sender.clone();
 
         std::thread::spawn(move || {
-            match ping_monitor::ping(gateway, PING_TIMEOUT, &iface_name, true) {
+            match ping_monitor::ping(gateway, PING_TIMEOUT, &iface_name) {
                 Ok(()) => {
                     (on_event)(TunnelEvent::Up(metadata));
 
