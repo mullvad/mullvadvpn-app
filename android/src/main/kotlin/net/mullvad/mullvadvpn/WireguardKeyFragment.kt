@@ -19,7 +19,10 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 
+import java.util.TimeZone
+
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
@@ -294,6 +297,10 @@ class WireguardKeyFragment : Fragment() {
     }
 
     private fun formatKeyDateCreated(rfc3339: String): String {
-        return parentActivity.getString(R.string.wireguard_key_age) + " " + KEY_AGE_FORMAT.print(DateTime.parse(rfc3339, RFC3339_FORMAT))
+        val dateCreated = DateTime.parse(rfc3339, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
+        val localTimezone = DateTimeZone.forTimeZone(TimeZone.getDefault())
+        return parentActivity.getString(R.string.wireguard_key_age) +
+            " " +
+            KEY_AGE_FORMAT.print(dateCreated.withZone(localTimezone))
     }
 }
