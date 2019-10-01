@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Add settings button in launch and login screens.
 - Add support for Android Lollipop.
+- Allow logging in without connectivity.
 
 ### Removed
 - Remove support for `MULLVAD_LOCALE` environment variable.
