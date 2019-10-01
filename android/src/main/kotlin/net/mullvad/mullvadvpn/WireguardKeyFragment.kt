@@ -133,7 +133,7 @@ class WireguardKeyFragment : Fragment() {
 
     private fun setStatusMessage(message: Int, color: Int) {
         statusMessage.setText(message)
-        statusMessage.setTextColor(parentActivity.getColor(color))
+        statusMessage.setTextColor(resources.getColor(color))
         statusMessage.visibility = View.VISIBLE
     }
 

@@ -1,18 +1,18 @@
 package net.mullvad.mullvadvpn
 
-import android.content.Context
+import android.content.res.Resources
 import android.view.View
 import android.widget.TextView
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
 
-class ConnectionStatus(val parentView: View, val context: Context) {
+class ConnectionStatus(val parentView: View, val resources: Resources) {
     private val spinner: View = parentView.findViewById(R.id.connecting_spinner)
     private val text: TextView = parentView.findViewById(R.id.connection_status)
 
-    private val unsecuredTextColor = context.getColor(R.color.red)
-    private val connectingTextColor = context.getColor(R.color.white)
-    private val securedTextColor = context.getColor(R.color.green)
+    private val unsecuredTextColor = resources.getColor(R.color.red)
+    private val connectingTextColor = resources.getColor(R.color.white)
+    private val securedTextColor = resources.getColor(R.color.green)
 
     fun setState(state: TunnelState) {
         when (state) {

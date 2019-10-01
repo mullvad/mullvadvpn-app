@@ -13,10 +13,10 @@ import org.joda.time.PeriodType
 class RemainingTimeLabel(val parentActivity: MainActivity, val view: View) {
     private val accountCache = parentActivity.accountCache
 
-    private val expiredColor = parentActivity.getColor(R.color.red)
-    private val normalColor = parentActivity.getColor(R.color.white60)
-
     private val resources = parentActivity.resources
+
+    private val expiredColor = resources.getColor(R.color.red)
+    private val normalColor = resources.getColor(R.color.white60)
 
     private val label = view.findViewById<TextView>(R.id.remaining_time)
 

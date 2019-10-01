@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn
 
-import android.content.Context
+import android.content.res.Resources
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.style.MetricAffectingSpan
@@ -8,19 +8,16 @@ import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.widget.EditText
 import android.widget.ImageButton
+import net.mullvad.mullvadvpn.AccountInputContainer.BorderState
 
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
-class AccountInput(val parentView: View, val context: Context) {
-    private val disabledBackgroundColor = context.getColor(R.color.white20)
-    private val disabledTextColor = context.getColor(R.color.white)
-    private val enabledBackgroundColor = context.getColor(R.color.white)
-    private val enabledTextColor = context.getColor(R.color.blue)
-    private val errorTextColor = context.getColor(R.color.red)
-
-    private val resources = context.resources
-    private val focusedBorder = resources.getDrawable(R.drawable.account_input_border_focused, null)
-    private val errorBorder = resources.getDrawable(R.drawable.account_input_border_error, null)
+class AccountInput(val parentView: View, val resources: Resources) {
+    private val disabledBackgroundColor = resources.getColor(R.color.white20)
+    private val disabledTextColor = resources.getColor(R.color.white)
+    private val enabledBackgroundColor = resources.getColor(R.color.white)
+    private val enabledTextColor = resources.getColor(R.color.blue)
+    private val errorTextColor = resources.getColor(R.color.red)
 
     private var inputHasFocus = false
         set(value) {
@@ -43,7 +40,7 @@ class AccountInput(val parentView: View, val context: Context) {
             }
         }
 
-    val container: View = parentView.findViewById(R.id.account_input_container)
+    val container: AccountInputContainer = parentView.findViewById(R.id.account_input_container)
     val input: EditText = parentView.findViewById(R.id.account_input)
     val button: ImageButton = parentView.findViewById(R.id.login_button)
 
@@ -121,13 +118,11 @@ class AccountInput(val parentView: View, val context: Context) {
 
     private fun updateBorder() {
         if (usingErrorColor) {
-            container.foreground = errorBorder
+            container.borderState = BorderState.ERROR
+        } else if (inputHasFocus) {
+            container.borderState = BorderState.FOCUSED
         } else {
-            if (inputHasFocus) {
-                container.foreground = focusedBorder
-            } else {
-                container.foreground = null
-            }
+            container.borderState = BorderState.UNFOCUSED
         }
     }
 
