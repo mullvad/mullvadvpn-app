@@ -158,8 +158,6 @@ function packWin() {
 
 function packMac() {
   let appOutDir;
-  let outDir;
-  let appVersion;
 
   return builder.build({
     targets: builder.Platform.MAC.createTarget(),
@@ -167,13 +165,11 @@ function packMac() {
       ...config,
       afterPack: (context) => {
         appOutDir = context.appOutDir;
-        outDir = context.outDir;
-        appVersion = context.packager.appInfo.version;
         return Promise.resolve();
       },
       afterAllArtifactBuild: (buildResult) => {
         if (!noAppleNotarization) {
-          notarizeMac(path.join(outDir, `MullvadVPN-${appVersion}.pkg`));
+          notarizeMac(buildResult.artifactPaths[0]);
         }
         // remove the folder that contains the unpacked app
         return rimrafAsync(appOutDir);
