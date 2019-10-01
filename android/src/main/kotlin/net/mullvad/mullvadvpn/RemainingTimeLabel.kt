@@ -1,17 +1,14 @@
 package net.mullvad.mullvadvpn
 
-import kotlinx.coroutines.launch
+import android.view.View
+import android.widget.TextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-
-import org.joda.time.format.DateTimeFormat
+import kotlinx.coroutines.launch
 import org.joda.time.DateTime
 import org.joda.time.Duration
 import org.joda.time.PeriodType
-
-import android.view.View
-import android.widget.TextView
 
 class RemainingTimeLabel(val parentActivity: MainActivity, val view: View) {
     private val accountCache = parentActivity.accountCache

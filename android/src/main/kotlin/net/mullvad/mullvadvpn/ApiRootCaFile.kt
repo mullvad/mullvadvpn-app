@@ -1,10 +1,8 @@
 package net.mullvad.mullvadvpn
 
+import android.content.Context
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
-
-import android.content.Context
 
 private const val API_ROOT_CA_FILE = "api_root_ca.pem"
 private const val API_ROOT_CA_PATH = "/data/data/net.mullvad.mullvadvpn/api_root_ca.pem"

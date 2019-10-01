@@ -1,13 +1,11 @@
 package net.mullvad.mullvadvpn.relaylist
 
-import java.lang.ref.WeakReference
-import java.util.LinkedList
-
 import android.content.res.Resources
 import android.support.v7.widget.RecyclerView.Adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
-
+import java.lang.ref.WeakReference
+import java.util.LinkedList
 import net.mullvad.mullvadvpn.R
 
 class RelayListAdapter(private val resources: Resources) : Adapter<RelayItemHolder>() {

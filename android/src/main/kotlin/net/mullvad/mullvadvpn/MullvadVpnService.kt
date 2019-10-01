@@ -1,19 +1,15 @@
 package net.mullvad.mullvadvpn
 
-import java.net.InetAddress
-
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-
 import android.content.Intent
 import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
-
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoFetcher
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.model.TunConfig
@@ -105,7 +101,7 @@ class MullvadVpnService : VpnService() {
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
         created.await()
         ApiRootCaFile().extract(application)
-        MullvadDaemon(this@MullvadVpnService).apply { 
+        MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
                 notificationManager.loggedIn = settings?.accountToken != null
             }

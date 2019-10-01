@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.util
 
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class JobTracker {
     private val jobs = HashMap<Long, Job>()

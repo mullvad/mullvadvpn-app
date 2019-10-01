@@ -1,4 +1,3 @@
 package net.mullvad.mullvadvpn.model
 
-data class RelayListCountry(val name: String, val code: String, val cities: List<RelayListCity>) {
-}
+data class RelayListCountry(val name: String, val code: String, val cities: List<RelayListCity>)

@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn
 
 import android.content.Context
 import android.view.View
-
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class HeaderBar(val parentView: View, val context: Context) {
