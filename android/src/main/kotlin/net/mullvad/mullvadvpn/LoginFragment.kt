@@ -103,7 +103,7 @@ class LoginFragment : Fragment() {
             val accountDataResult = daemon.getAccountData(accountToken)
 
             when (accountDataResult) {
-                is GetAccountDataResult.Ok -> {
+                is GetAccountDataResult.Ok, is GetAccountDataResult.RpcError -> {
                     daemon.setAccount(accountToken)
                     true
                 }
