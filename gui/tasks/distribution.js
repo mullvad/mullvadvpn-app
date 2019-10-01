@@ -186,7 +186,7 @@ function packMac() {
 }
 
 function notarizeMac(notarizePath) {
-  console.log("Notarizing " + notarizePath);
+  console.log('Notarizing ' + notarizePath);
   return notarize({
     appBundleId: config.appId,
     appPath: notarizePath,
