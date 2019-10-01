@@ -299,11 +299,6 @@ void NetMonitor::LogOfflineState(std::shared_ptr<common::logging::ILogSink> logS
 	{
 		const auto &iface = table->Table[i];
 
-		std::stringstream ss;
-
-		ss << "Detailed interface logging" << std::endl;
-		ss << "Interface ordinal " << i << std::endl;
-
 		//
 		// Don't flood the log with garbage.
 		//
@@ -335,11 +330,13 @@ void NetMonitor::LogOfflineState(std::shared_ptr<common::logging::ILogSink> logS
 
 		if (blacklisted)
 		{
-			ss << "  filtered out to avoid flooding log";
-			logSink->info(ss.str().c_str());
-
 			continue;
 		}
+
+		std::stringstream ss;
+
+		ss << "Detailed interface logging" << std::endl;
+		ss << "Interface ordinal " << i << std::endl;
 
 		{
 			const auto s = std::wstring(L"  Alias: ").append(iface.Alias);
@@ -347,7 +344,7 @@ void NetMonitor::LogOfflineState(std::shared_ptr<common::logging::ILogSink> logS
 		}
 
 		{
-			const auto s = std::wstring(L"  \"Description\": ").append(iface.Description);
+			const auto s = std::wstring(L"  Description: ").append(iface.Description);
 			ss << common::string::ToAnsi(s) << std::endl;
 		}
 
