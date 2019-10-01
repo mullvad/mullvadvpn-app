@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Show WireGuard key age in local timezone instead of UTC.
+- Fix notification button icons.
 
 
 ## [2019.8] - 2019-09-23
