@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add ability to change the desktop GUI language from within Settings.
 
+#### macOS
+- Notarize release builds with Apple. Making them run without warning on 10.15 Catalina.
+
 #### Android
 - Add settings button in launch and login screens.
 
