@@ -167,9 +167,9 @@ function packMac() {
         appOutDir = context.appOutDir;
         return Promise.resolve();
       },
-      afterAllArtifactBuild: (buildResult) => {
+      afterAllArtifactBuild: async (buildResult) => {
         if (!noAppleNotarization) {
-          notarizeMac(buildResult.artifactPaths[0]);
+          await notarizeMac(buildResult.artifactPaths[0]);
         }
         // remove the folder that contains the unpacked app
         return rimrafAsync(appOutDir);
