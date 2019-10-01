@@ -29,6 +29,8 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
         tunnelState = state
     }
 
+    private val badgeColor = service.resources.getColor(R.color.colorPrimary)
+
     private var reconnecting = false
     private var showingReconnecting = false
 
@@ -189,7 +191,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
         val builder = NotificationCompat.Builder(service, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification)
-            .setColor(service.getColor(R.color.colorPrimary))
+            .setColor(badgeColor)
             .setContentTitle(service.getString(notificationText))
             .setContentIntent(pendingIntent)
 

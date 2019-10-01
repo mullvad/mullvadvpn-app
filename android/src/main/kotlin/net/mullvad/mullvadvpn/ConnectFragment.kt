@@ -68,14 +68,15 @@ class ConnectFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.connect, container, false)
+        val resources = parentActivity.resources
 
         view.findViewById<ImageButton>(R.id.settings).setOnClickListener {
             parentActivity.openSettings()
         }
 
-        headerBar = HeaderBar(view, context!!)
+        headerBar = HeaderBar(view, resources)
         notificationBanner = NotificationBanner(view, context!!, versionInfoCache)
-        status = ConnectionStatus(view, context!!)
+        status = ConnectionStatus(view, resources)
 
         locationInfo = LocationInfo(view, context!!)
         locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
