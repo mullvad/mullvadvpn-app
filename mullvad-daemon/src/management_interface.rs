@@ -45,6 +45,9 @@ build_rpc_trait! {
         #[rpc(meta, name = "get_account_data")]
         fn get_account_data(&self, Self::Metadata, AccountToken) -> BoxFuture<AccountData, Error>;
 
+        #[rpc(meta, name = "get_www_auth_token")]
+        fn get_www_auth_token(&self, Self::Metadata) -> BoxFuture<String, Error>;
+
         /// Returns available countries.
         #[rpc(meta, name = "get_relay_locations")]
         fn get_relay_locations(&self, Self::Metadata) -> BoxFuture<RelayList, Error>;
@@ -185,6 +188,8 @@ pub enum ManagementCommand {
         OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
         AccountToken,
     ),
+    /// Request www auth token for an account
+    GetWwwAuthToken(OneshotSender<BoxFuture<String, mullvad_rpc::Error>>),
     /// Request account history
     GetAccountHistory(OneshotSender<Vec<AccountToken>>),
     /// Request account history
@@ -382,6 +387,24 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetAccountData(tx, account_token))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .and_then(|rpc_future| {
+                rpc_future.map_err(|error: mullvad_rpc::Error| {
+                    log::error!(
+                        "Unable to get account data from API: {}",
+                        error.display_chain()
+                    );
+                    Self::map_rpc_error(&error)
+                })
+            });
+        Box::new(future)
+    }
+
+    fn get_www_auth_token(&self, _: Self::Metadata) -> BoxFuture<String, Error> {
+        log::debug!("get_account_data");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::GetWwwAuthToken(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|rpc_future| {
                 rpc_future.map_err(|error: mullvad_rpc::Error| {
