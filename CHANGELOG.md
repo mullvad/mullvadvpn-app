@@ -37,6 +37,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for Android Lollipop.
 - Allow logging in without connectivity.
 
+### Changed
+- Account and WireGuard keys links in the App will now log the user in automatically.
+
 ### Removed
 - Remove support for `MULLVAD_LOCALE` environment variable.
 
