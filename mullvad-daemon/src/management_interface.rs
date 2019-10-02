@@ -40,6 +40,10 @@ build_rpc_trait! {
     pub trait ManagementInterfaceApi {
         type Metadata;
 
+        /// Creates and sets a new account
+        #[rpc(meta, name = "create_new_account")]
+        fn create_new_account(&self, Self::Metadata) -> BoxFuture<String, Error>;
+
         /// Fetches and returns metadata about an account. Returns an error on non-existing
         /// accounts.
         #[rpc(meta, name = "get_account_data")]
@@ -183,6 +187,7 @@ pub enum ManagementCommand {
     GetState(OneshotSender<TunnelState>),
     /// Get the current geographical location.
     GetCurrentLocation(OneshotSender<Option<GeoIpLocation>>),
+    CreateNewAccount(OneshotSender<std::result::Result<String, mullvad_rpc::Error>>),
     /// Request the metadata for an account.
     GetAccountData(
         OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
@@ -377,6 +382,19 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     for ManagementInterface<T>
 {
     type Metadata = Meta;
+
+    fn create_new_account(&self, _: Self::Metadata) -> BoxFuture<String, Error> {
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::CreateNewAccount(tx))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .and_then(|result| match result {
+                Ok(account_token) => Ok(account_token),
+                Err(e) => Err(Self::map_rpc_error(&e)),
+            });
+
+        Box::new(future)
+    }
 
     fn get_account_data(
         &self,
