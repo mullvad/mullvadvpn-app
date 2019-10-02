@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// AppVersionInfo represents the current stable and the current latest release versions of the
 /// Mullvad VPN app.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct AppVersionInfo {
     /// False if Mullvad has stopped supporting the currently running version. This could mean
     /// a number of things. For example:
