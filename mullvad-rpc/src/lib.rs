@@ -105,6 +105,7 @@ impl MullvadRpcFactory {
 
 jsonrpc_client!(pub struct AccountsProxy {
     pub fn get_expiry(&mut self, account_token: AccountToken) -> RpcRequest<DateTime<Utc>>;
+    pub fn get_www_auth_token(&mut self, account_token: AccountToken) -> RpcRequest<String>;
 });
 
 jsonrpc_client!(pub struct ProblemReportProxy {

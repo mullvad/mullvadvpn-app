@@ -742,6 +742,7 @@ where
             GetState(tx) => self.on_get_state(tx),
             GetCurrentLocation(tx) => self.on_get_current_location(tx),
             GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token),
+            GetWwwAuthToken(tx) => self.on_get_www_auth_token(tx),
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations(),
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
@@ -926,6 +927,17 @@ where
             .map(|expiry| AccountData { expiry });
         Self::oneshot_send(tx, Box::new(rpc_call), "account data")
     }
+
+    fn on_get_www_auth_token(
+        &mut self,
+        tx: oneshot::Sender<BoxFuture<String, mullvad_rpc::Error>>,
+    ) {
+        if let Some(account_token) = self.settings.get_account_token() {
+            let rpc_call = self.accounts_proxy.get_www_auth_token(account_token);
+            Self::oneshot_send(tx, Box::new(rpc_call), "get_www_auth_token response")
+        }
+    }
+
 
     fn on_get_relay_locations(&mut self, tx: oneshot::Sender<RelayList>) {
         Self::oneshot_send(tx, self.relay_selector.get_locations(), "relay locations");
