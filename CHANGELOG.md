@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add ability to change the desktop GUI language from within Settings.
+- Add ability to create new accounts form the CLI
 
 #### macOS
 - Notarize release builds with Apple. Making them run without warning on 10.15 Catalina.
