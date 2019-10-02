@@ -160,7 +160,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             unregisterReceiver(connectReceiver)
             unregisterReceiver(disconnectReceiver)
 
-            stopForeground(FOREGROUND_NOTIFICATION_ID)
+            stopForeground(true)
         }
     }
 
