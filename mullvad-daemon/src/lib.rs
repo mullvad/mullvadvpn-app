@@ -20,6 +20,7 @@ mod relays;
 mod rpc_uniqueness_check;
 mod settings;
 pub mod version;
+mod version_check;
 
 pub use crate::management_interface::ManagementCommand;
 use crate::management_interface::{
@@ -235,6 +236,10 @@ pub trait EventListener {
     /// Notify that the relay list changed.
     fn notify_relay_list(&self, relay_list: RelayList);
 
+    /// Notify that info about the latest available app version changed.
+    /// Or some flag about the currently running version is changed.
+    fn notify_app_version(&self, app_version_info: AppVersionInfo);
+
     /// Notify clients of a key generation event.
     fn notify_key_event(&self, key_event: KeygenEvent);
 }
@@ -379,14 +384,24 @@ where
         let on_relay_list_update = move |relay_list: &RelayList| {
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
-
-
         let relay_selector = relays::RelaySelector::new(
             rpc_handle.clone(),
             on_relay_list_update,
             &resource_dir,
             &cache_dir,
         );
+
+        let version_check_listener = event_listener.clone();
+        let on_version_check_update = move |app_version_info: &AppVersionInfo| {
+            version_check_listener.notify_app_version(app_version_info.clone());
+        };
+        let version_check_future = version_check::spawn(
+            version.clone(),
+            rpc_handle.clone(),
+            on_version_check_update,
+            &cache_dir,
+        );
+        tokio_remote.spawn(|_| version_check_future);
 
         let settings = settings::load();
 
