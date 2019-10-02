@@ -428,6 +428,15 @@ export class DaemonRpc {
     }
   }
 
+  public async getWwwAuthToken(): Promise<string> {
+    const response = await this.transport.send('get_www_auth_token');
+    try {
+      return validate(string, response);
+    } catch (error) {
+      throw new ResponseParseError('Invalid response from get_www_auth_token', error);
+    }
+  }
+
   public async getRelayLocations(): Promise<IRelayList> {
     const response = await this.transport.send('get_relay_locations');
     try {

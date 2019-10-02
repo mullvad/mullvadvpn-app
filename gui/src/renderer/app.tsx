@@ -3,7 +3,7 @@ import {
   push as pushHistory,
   replace as replaceHistory,
 } from 'connected-react-router';
-import { ipcRenderer, webFrame } from 'electron';
+import { ipcRenderer, shell, webFrame } from 'electron';
 import log from 'electron-log';
 import { createMemoryHistory } from 'history';
 import * as React from 'react';
@@ -286,6 +286,16 @@ export default class AppRenderer {
 
   public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
     return IpcRendererEventChannel.accountHistory.removeItem(accountToken);
+  }
+
+  public async openLinkWithAuth(link: string) {
+    let token;
+    try {
+      token = await IpcRendererEventChannel.account.getWwwAuthToken();
+    } catch (e) {
+      token = '';
+    }
+    shell.openExternal(`${link}?token=${token}`);
   }
 
   public async setAllowLan(allowLan: boolean) {
