@@ -991,6 +991,7 @@ class ApplicationMain {
 
     IpcMainEventChannel.account.handleLogin((token: AccountToken) => this.login(token));
     IpcMainEventChannel.account.handleLogout(() => this.logout());
+    IpcMainEventChannel.account.handleWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
 
     IpcMainEventChannel.accountHistory.handleRemoveItem(async (token: AccountToken) => {
       await this.daemonRpc.removeAccountFromHistory(token);
