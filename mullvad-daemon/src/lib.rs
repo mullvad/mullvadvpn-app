@@ -741,6 +741,7 @@ where
             SetTargetState(tx, state) => self.on_set_target_state(tx, state),
             GetState(tx) => self.on_get_state(tx),
             GetCurrentLocation(tx) => self.on_get_current_location(tx),
+            CreateNewAccount(tx) => self.on_create_new_account(tx),
             GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token),
             GetWwwAuthToken(tx) => self.on_get_www_auth_token(tx),
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
@@ -916,6 +917,28 @@ where
         })
     }
 
+    fn on_create_new_account(
+        &mut self,
+        tx: oneshot::Sender<std::result::Result<(), mullvad_rpc::Error>>,
+    ) {
+        let new_token = match self.accounts_proxy.create_account().wait() {
+            Ok(new_token) => new_token,
+            Err(err) => {
+                let _ = tx.send(Err(err));
+                return;
+            }
+        };
+
+        match self.set_account(Some(new_token)) {
+            Ok(_) => {
+                let _ = tx.send(Ok(()));
+            }
+            Err(err) => {
+                log::error!("Failed to save new account - {}", err);
+            }
+        };
+    }
+
     fn on_get_account_data(
         &mut self,
         tx: oneshot::Sender<BoxFuture<AccountData, mullvad_rpc::Error>>,
@@ -948,19 +971,11 @@ where
     }
 
     fn on_set_account(&mut self, tx: oneshot::Sender<()>, account_token: Option<String>) {
-        let save_result = self.settings.set_account_token(account_token.clone());
-
-        match save_result {
+        match self.settings.set_account_token(account_token.clone()) {
             Ok(account_changed) => {
-                Self::oneshot_send(tx, (), "set_account response");
                 if account_changed {
-                    self.ensure_wireguard_keys_for_current_account();
-                    self.event_listener.notify_settings(self.settings.clone());
                     match account_token {
-                        Some(token) => {
-                            if let Err(e) = self.account_history.bump_history(&token) {
-                                log::error!("Failed to bump account history: {}", e);
-                            }
+                        Some(_) => {
                             info!("Initiating tunnel restart because the account token changed");
                             self.reconnect_tunnel();
                         }
@@ -968,12 +983,36 @@ where
                             info!("Disconnecting because account token was cleared");
                             self.set_target_state(TargetState::Unsecured);
                         }
-                    }
+                    };
                 }
+                Self::oneshot_send(tx, (), "set_account response");
             }
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+            Err(e) => {
+                log::error!("Failed to set account - {}", e);
+            }
         }
     }
+
+    fn set_account(
+        &mut self,
+        account_token: Option<String>,
+    ) -> std::result::Result<bool, settings::Error> {
+        let account_changed = self.settings.set_account_token(account_token.clone())?;
+        if account_changed {
+            self.event_listener.notify_settings(self.settings.clone());
+
+            // Bump account history if a token was set
+            if let Some(token) = account_token {
+                if let Err(e) = self.account_history.bump_history(&token) {
+                    log::error!("Failed to bump account history: {}", e);
+                }
+            }
+
+            self.ensure_wireguard_keys_for_current_account();
+        }
+        Ok(account_changed)
+    }
+
     fn on_get_account_history(&mut self, tx: oneshot::Sender<Vec<AccountToken>>) {
         Self::oneshot_send(
             tx,
