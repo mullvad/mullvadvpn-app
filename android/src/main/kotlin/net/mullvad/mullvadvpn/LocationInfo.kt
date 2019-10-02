@@ -24,6 +24,8 @@ class LocationInfo(val parentView: View, val context: Context) {
 
     var location: GeoIpLocation? = null
         set(value) {
+            field = value
+
             country.text = value?.country ?: ""
             city.text = value?.city ?: ""
             hostname.text = value?.hostname ?: ""
