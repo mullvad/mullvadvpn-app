@@ -18,7 +18,7 @@ interface IProps {
   isOffline: boolean;
   onLogout: () => void;
   onClose: () => void;
-  onBuyMore: () => void;
+  onBuyMore: () => Promise<void>;
 }
 
 export default class Account extends Component<IProps> {
@@ -65,15 +65,16 @@ export default class Account extends Component<IProps> {
                   </View>
 
                   <View style={styles.account__footer}>
-                    <AppButton.GreenButton
-                      style={styles.account__buy_button}
+                    <AppButton.BlockingButton
                       disabled={this.props.isOffline}
                       onPress={this.props.onBuyMore}>
-                      <AppButton.Label>
-                        {messages.pgettext('account-view', 'Buy more credit')}
-                      </AppButton.Label>
-                      <AppButton.Icon source="icon-extLink" height={16} width={16} />
-                    </AppButton.GreenButton>
+                      <AppButton.GreenButton style={styles.account__buy_button}>
+                        <AppButton.Label>
+                          {messages.pgettext('account-view', 'Buy more credit')}
+                        </AppButton.Label>
+                        <AppButton.Icon source="icon-extLink" height={16} width={16} />
+                      </AppButton.GreenButton>
+                    </AppButton.BlockingButton>
                     <AppButton.RedButton onPress={this.props.onLogout}>
                       {messages.pgettext('account-view', 'Log out')}
                     </AppButton.RedButton>

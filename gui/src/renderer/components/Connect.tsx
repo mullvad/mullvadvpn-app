@@ -23,7 +23,8 @@ interface IProps {
   onSelectLocation: () => void;
   onConnect: () => void;
   onDisconnect: () => void;
-  onExternalLink: (url: string) => void;
+  onExternalLink: (url: string) => Promise<void>;
+  onExternalLinkWithAuth: (url: string) => Promise<void>;
 }
 
 type MarkerOrSpinner = 'marker' | 'spinner';

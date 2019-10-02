@@ -24,8 +24,8 @@ interface IProps {
   tunnelState: TunnelState;
   version: IVersionReduxState;
   blockWhenDisconnected: boolean;
-  onOpenDownloadLink: () => void;
-  onOpenBuyMoreLink: () => void;
+  onOpenDownloadLink: () => Promise<void>;
+  onOpenBuyMoreLink: () => Promise<void>;
 }
 
 type NotificationAreaPresentation =

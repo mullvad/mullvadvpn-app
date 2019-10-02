@@ -288,12 +288,12 @@ export default class AppRenderer {
     return IpcRendererEventChannel.accountHistory.removeItem(accountToken);
   }
 
-  public async openLinkWithAuth(link: string) {
-    let token;
+  public async openLinkWithAuth(link: string): Promise<void> {
+    let token = '';
     try {
       token = await IpcRendererEventChannel.account.getWwwAuthToken();
     } catch (e) {
-      token = '';
+      log.error(`Failed to get the WWW auth token: ${e.message}`);
     }
     shell.openExternal(`${link}?token=${token}`);
   }

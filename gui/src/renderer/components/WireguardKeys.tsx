@@ -21,7 +21,7 @@ export interface IProps {
   onGenerateKey: () => void;
   onReplaceKey: (old: IWgKey) => void;
   onVerifyKey: (publicKey: IWgKey) => void;
-  onVisitWebsiteKey: () => void;
+  onVisitWebsiteKey: () => Promise<void>;
 }
 
 export default class WireguardKeys extends Component<IProps> {
@@ -85,14 +85,16 @@ export default class WireguardKeys extends Component<IProps> {
                 </AppButton.GreenButton>
               </View>
               <View style={styles.wgkeys__row}>
-                <AppButton.GreenButton
+                <AppButton.BlockingButton
                   disabled={this.props.isOffline}
                   onPress={this.props.onVisitWebsiteKey}>
-                  <AppButton.Label>
-                    {messages.pgettext('wireguard-key-view', 'Manage keys')}
-                  </AppButton.Label>
-                  <AppButton.Icon source="icon-extLink" height={16} width={16} />
-                </AppButton.GreenButton>
+                  <AppButton.GreenButton>
+                    <AppButton.Label>
+                      {messages.pgettext('wireguard-key-view', 'Manage keys')}
+                    </AppButton.Label>
+                    <AppButton.Icon source="icon-extLink" height={16} width={16} />
+                  </AppButton.GreenButton>
+                </AppButton.BlockingButton>
               </View>
             </View>
           </View>

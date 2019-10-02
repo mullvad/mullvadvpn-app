@@ -1,5 +1,4 @@
 import { goBack, push } from 'connected-react-router';
-import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { links } from '../../config.json';
@@ -20,7 +19,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
     onGenerateKey: () => props.app.generateWireguardKey(),
     onReplaceKey: (oldKey: IWgKey) => props.app.replaceWireguardKey(oldKey),
     onVerifyKey: (publicKey: IWgKey) => props.app.verifyWireguardKey(publicKey),
-    onVisitWebsiteKey: () => shell.openExternal(links.manageKeys),
+    onVisitWebsiteKey: () => props.app.openLinkWithAuth(links.manageKeys),
   };
 };
 
