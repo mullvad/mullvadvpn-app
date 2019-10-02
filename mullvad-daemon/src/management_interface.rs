@@ -315,6 +315,11 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         self.notify(DaemonEvent::RelayList(relay_list));
     }
 
+    fn notify_app_version(&self, app_version_info: version::AppVersionInfo) {
+        log::debug!("Broadcasting new app version info");
+        self.notify(DaemonEvent::AppVersionInfo(app_version_info));
+    }
+
     fn notify_key_event(&self, key_event: mullvad_types::wireguard::KeygenEvent) {
         log::debug!("Broadcasting new wireguard key event");
         self.notify(DaemonEvent::WireguardKey(key_event));
