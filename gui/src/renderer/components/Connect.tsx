@@ -23,7 +23,8 @@ interface IProps {
   onSelectLocation: () => void;
   onConnect: () => void;
   onDisconnect: () => void;
-  onExternalLink: (url: string) => void;
+  onExternalLink: (url: string) => Promise<void>;
+  onExternalLinkWithAuth: (url: string) => Promise<void>;
 }
 
 type MarkerOrSpinner = 'marker' | 'spinner';
@@ -172,6 +173,7 @@ export default class Connect extends Component<IProps, IState> {
             version={this.props.version}
             accountExpiry={this.props.accountExpiry}
             openExternalLink={this.props.onExternalLink}
+            openExternalLinkWithAuth={this.props.onExternalLinkWithAuth}
             blockWhenDisconnected={this.props.blockWhenDisconnected}
           />
         </View>
