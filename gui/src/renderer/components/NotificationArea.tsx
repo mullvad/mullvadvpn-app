@@ -24,7 +24,8 @@ interface IProps {
   accountExpiry?: AccountExpiry;
   tunnelState: TunnelState;
   version: IVersionReduxState;
-  openExternalLink: (url: string) => void;
+  openExternalLinkWithAuth: (url: string) => Promise<void>;
+  openExternalLink: (url: string) => Promise<void>;
   blockWhenDisconnected: boolean;
 }
 
@@ -308,14 +309,14 @@ export default class NotificationArea extends Component<IProps, State> {
           </React.Fragment>
         )}
 
-        {this.state.type === 'expires-soon' && (
+        {this.state.type === 'update-available' && (
           <React.Fragment>
             <NotificationIndicator type={'warning'} />
             <NotificationContent>
               <NotificationTitle>
                 {messages.pgettext('in-app-notifications', 'ACCOUNT CREDIT EXPIRES SOON')}
               </NotificationTitle>
-              <NotificationSubtitle>{this.state.timeLeft}</NotificationSubtitle>
+              <NotificationSubtitle>'no time left'</NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>
               <NotificationOpenLinkAction onPress={this.handleOpenBuyMoreLink} />
@@ -326,11 +327,11 @@ export default class NotificationArea extends Component<IProps, State> {
     );
   }
 
-  private handleOpenDownloadLink = () => {
-    this.props.openExternalLink(links.download);
+  private handleOpenDownloadLink = (): Promise<void> => {
+    return this.props.openExternalLinkWithAuth(links.download);
   };
 
-  private handleOpenBuyMoreLink = () => {
-    this.props.openExternalLink(links.purchase);
+  private handleOpenBuyMoreLink = (): Promise<void> => {
+    return this.props.openExternalLinkWithAuth(links.purchase);
   };
 }

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Animated, Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
 import { colors } from '../../config.json';
 import ImageView from './ImageView';
+import { BlockingButton } from './AppButton';
 
 const styles = {
   collapsible: Styles.createViewStyle({
@@ -83,25 +84,26 @@ export class NotificationSubtitle extends Component {
   }
 }
 
-export class NotificationOpenLinkAction extends Component<{ onPress: () => void }> {
+export class NotificationOpenLinkAction extends Component<{ onPress: () => Promise<void> }> {
   public state = {
     hovered: false,
   };
 
   public render() {
     return (
-      <Button
-        style={styles.actionButton}
-        onPress={this.props.onPress}
-        onHoverStart={this.onHoverStart}
-        onHoverEnd={this.onHoverEnd}>
-        <ImageView
-          height={12}
-          width={12}
-          tintColor={this.state.hovered ? colors.white80 : colors.white60}
-          source="icon-extLink"
-        />
-      </Button>
+      <BlockingButton onPress={this.props.onPress} disabled={false}>
+        <Button
+          style={styles.actionButton}
+          onHoverStart={this.onHoverStart}
+          onHoverEnd={this.onHoverEnd}>
+          <ImageView
+            height={12}
+            width={12}
+            tintColor={this.state.hovered ? colors.white80 : colors.white60}
+            source="icon-extLink"
+          />
+        </Button>
+      </BlockingButton>
     );
   }
 

@@ -34,6 +34,7 @@ describe('components/NotificationArea', () => {
           version={defaultVersion}
           accountExpiry={defaultExpiry}
           openExternalLink={() => {}}
+          openExternalLinkWithAuth={() => {}}
           blockWhenDisconnected={false}
         />,
       );
@@ -51,6 +52,7 @@ describe('components/NotificationArea', () => {
         version={defaultVersion}
         accountExpiry={defaultExpiry}
         openExternalLink={() => {}}
+        openExternalLinkWithAuth={() => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -79,6 +81,7 @@ describe('components/NotificationArea', () => {
         version={defaultVersion}
         accountExpiry={defaultExpiry}
         openExternalLink={() => {}}
+        openExternalLinkWithAuth={() => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -95,6 +98,7 @@ describe('components/NotificationArea', () => {
         version={defaultVersion}
         accountExpiry={defaultExpiry}
         openExternalLink={() => {}}
+        openExternalLinkWithAuth={() => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -111,6 +115,7 @@ describe('components/NotificationArea', () => {
         version={defaultVersion}
         accountExpiry={defaultExpiry}
         openExternalLink={() => {}}
+        openExternalLinkWithAuth={() => {}}
         blockWhenDisconnected={true}
       />,
     );
@@ -127,6 +132,7 @@ describe('components/NotificationArea', () => {
         version={defaultVersion}
         accountExpiry={defaultExpiry}
         openExternalLink={() => {}}
+        openExternalLinkWithAuth={() => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -148,6 +154,7 @@ describe('components/NotificationArea', () => {
         version={defaultVersion}
         accountExpiry={defaultExpiry}
         openExternalLink={() => {}}
+        openExternalLinkWithAuth={() => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -168,6 +175,7 @@ describe('components/NotificationArea', () => {
         }}
         accountExpiry={defaultExpiry}
         openExternalLink={() => {}}
+        openExternalLinkWithAuth={() => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -191,6 +199,7 @@ describe('components/NotificationArea', () => {
         }}
         accountExpiry={defaultExpiry}
         openExternalLink={() => {}}
+        openExternalLinkWithAuth={() => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -215,6 +224,7 @@ describe('components/NotificationArea', () => {
         }}
         accountExpiry={defaultExpiry}
         openExternalLink={() => {}}
+        openExternalLinkWithAuth={() => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -240,6 +250,7 @@ describe('components/NotificationArea', () => {
         }}
         accountExpiry={defaultExpiry}
         openExternalLink={() => {}}
+        openExternalLinkWithAuth={() => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -264,6 +275,7 @@ describe('components/NotificationArea', () => {
         version={defaultVersion}
         accountExpiry={expiry}
         openExternalLink={() => {}}
+        openExternalLinkWithAuth={() => {}}
         blockWhenDisconnected={false}
       />,
     );
