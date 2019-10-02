@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn
 
-import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.PublicKey
 import net.mullvad.mullvadvpn.model.RelayList
@@ -28,7 +28,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     external fun connect()
     external fun disconnect()
     external fun generateWireguardKey(): KeygenEvent?
-    external fun getAccountData(accountToken: String): AccountData?
+    external fun getAccountData(accountToken: String): GetAccountDataResult
     external fun getCurrentLocation(): GeoIpLocation?
     external fun getCurrentVersion(): String
     external fun getRelayLocations(): RelayList

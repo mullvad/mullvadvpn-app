@@ -1,4 +1,4 @@
-use crate::get_class;
+use crate::{daemon_interface, get_class};
 use ipnetwork::IpNetwork;
 use jni::{
     objects::{JList, JObject, JString, JValue},
@@ -772,5 +772,45 @@ impl<'env> IntoJava<'env> for TunnelState {
             }
         }
         .expect("Failed to create TunnelState sub-class variant Java object")
+    }
+}
+
+impl<'env> IntoJava<'env> for Result<AccountData, daemon_interface::Error> {
+    type JavaType = JObject<'env>;
+
+    fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
+        match self {
+            Ok(data) => {
+                let class = get_class("net/mullvad/mullvadvpn/model/GetAccountDataResult$Ok");
+                let java_account_data = env.auto_local(data.into_java(&env));
+                let parameters = [JValue::Object(java_account_data.as_obj())];
+
+                env.new_object(
+                    &class,
+                    "(Lnet/mullvad/mullvadvpn/model/AccountData;)V",
+                    &parameters,
+                )
+                .expect("Failed to create GetAccountDataResult.Ok Java object")
+            }
+            Err(error) => {
+                let class_name = match error {
+                    daemon_interface::Error::RpcError(jsonrpc_client_core::Error(
+                        jsonrpc_client_core::ErrorKind::JsonRpcError(jsonrpc_core::Error {
+                            code: jsonrpc_core::ErrorCode::ServerError(-200),
+                            ..
+                        }),
+                        _,
+                    )) => "net/mullvad/mullvadvpn/model/GetAccountDataResult$InvalidAccount",
+                    daemon_interface::Error::RpcError(_) => {
+                        "net/mullvad/mullvadvpn/model/GetAccountDataResult$RpcError"
+                    }
+                    _ => "net/mullvad/mullvadvpn/model/GetAccountDataResult$OtherError",
+                };
+                let class = get_class(class_name);
+
+                env.new_object(&class, "()V", &[])
+                    .expect("Failed to create a GetAccountDataResult error sub-class Java object")
+            }
+        }
     }
 }

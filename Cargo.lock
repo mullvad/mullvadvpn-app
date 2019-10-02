@@ -1287,6 +1287,7 @@ dependencies = [
  "ipnetwork 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jni 0.13.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-client-core 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jsonrpc-core 8.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "log-panics 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",

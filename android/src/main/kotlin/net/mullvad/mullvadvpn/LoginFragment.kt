@@ -17,6 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.model.GetAccountDataResult
 
 class LoginFragment : Fragment() {
     private lateinit var parentActivity: MainActivity
@@ -99,13 +100,14 @@ class LoginFragment : Fragment() {
         loginJob?.cancel()
         loginJob = GlobalScope.async(Dispatchers.Default) {
             val daemon = parentActivity.daemon.await()
-            val accountData = daemon.getAccountData(accountToken)
+            val accountDataResult = daemon.getAccountData(accountToken)
 
-            if (accountData != null) {
-                daemon.setAccount(accountToken)
-                true
-            } else {
-                false
+            when (accountDataResult) {
+                is GetAccountDataResult.Ok, is GetAccountDataResult.RpcError -> {
+                    daemon.setAccount(accountToken)
+                    true
+                }
+                else -> false
             }
         }
 

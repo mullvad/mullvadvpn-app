@@ -6,6 +6,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.MullvadDaemon
+import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
@@ -54,7 +55,12 @@ class AccountCache(val settingsListener: SettingsListener, val daemon: Deferred<
     private fun fetchAccountExpiry() = GlobalScope.launch(Dispatchers.Default) {
         val accountNumber = this@AccountCache.accountNumber
         val accountData = accountNumber?.let { account ->
-            daemon.await().getAccountData(account)
+            val result = daemon.await().getAccountData(account)
+
+            when (result) {
+                is GetAccountDataResult.Ok -> result.accountData
+                else -> null
+            }
         }
 
         synchronized(this@AccountCache) {
