@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add ability to change the desktop GUI language from within Settings.
 
+#### Windows
+- Add CLI tools (the resource/ directory) to the system PATH.
+
 #### macOS
 - Notarize release builds with Apple. Making them run without warning on 10.15 Catalina.
 

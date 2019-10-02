@@ -31,6 +31,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tray", "src\tray\tray.vcxpr
 		{1344152F-2BAD-4198-8E51-31AAC32BFBB2} = {1344152F-2BAD-4198-8E51-31AAC32BFBB2}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pathedit", "src\pathedit\pathedit.vcxproj", "{EF53BD9F-6D69-42BB-8635-958531776283}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -61,6 +63,10 @@ Global
 		{E3E05654-D5D6-4D39-A9B4-BB14B012C5FF}.Debug|x86.Build.0 = Debug|Win32
 		{E3E05654-D5D6-4D39-A9B4-BB14B012C5FF}.Release|x86.ActiveCfg = Release|Win32
 		{E3E05654-D5D6-4D39-A9B4-BB14B012C5FF}.Release|x86.Build.0 = Release|Win32
+		{EF53BD9F-6D69-42BB-8635-958531776283}.Debug|x86.ActiveCfg = Debug|Win32
+		{EF53BD9F-6D69-42BB-8635-958531776283}.Debug|x86.Build.0 = Debug|Win32
+		{EF53BD9F-6D69-42BB-8635-958531776283}.Release|x86.ActiveCfg = Release|Win32
+		{EF53BD9F-6D69-42BB-8635-958531776283}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
