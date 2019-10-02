@@ -24,6 +24,7 @@ interface IProps {
   accountExpiry?: AccountExpiry;
   tunnelState: TunnelState;
   version: IVersionReduxState;
+  openExternalLinkWithAuth: (url: string) => void;
   openExternalLink: (url: string) => void;
   blockWhenDisconnected: boolean;
 }
@@ -327,10 +328,10 @@ export default class NotificationArea extends Component<IProps, State> {
   }
 
   private handleOpenDownloadLink = () => {
-    this.props.openExternalLink(links.download);
+    this.props.openExternalLinkWithAuth(links.download);
   };
 
   private handleOpenBuyMoreLink = () => {
-    this.props.openExternalLink(links.purchase);
+    this.props.openExternalLinkWithAuth(links.purchase);
   };
 }
