@@ -30,6 +30,10 @@ impl Command for Account {
                 clap::SubCommand::with_name("unset")
                     .about("Removes the account number from the settings"),
             )
+            .subcommand(
+                clap::SubCommand::with_name("create")
+                    .about("Creates a new account and sets it as the active one"),
+            )
     }
 
     fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
@@ -40,6 +44,8 @@ impl Command for Account {
             self.set(None)
         } else if let Some(_matches) = matches.subcommand_matches("get") {
             self.get()
+        } else if let Some(_matches) = matches.subcommand_matches("create") {
+            self.create()
         } else {
             unreachable!("No account command given");
         }
@@ -69,5 +75,12 @@ impl Account {
             println!("No account configured");
         }
         Ok(())
+    }
+
+    fn create(&self) -> Result<()> {
+        let mut rpc = new_rpc_client()?;
+        rpc.create_new_account()?;
+        println!("New account created!");
+        self.get()
     }
 }
