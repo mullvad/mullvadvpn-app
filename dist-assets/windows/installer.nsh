@@ -41,6 +41,10 @@
 !define RRC_GENERAL_ERROR 0
 !define RRC_SUCCESS 1
 
+# Return codes from pathedit::UpdatePath
+!define UP_GENERAL_ERROR 0
+!define UP_SUCCESS 1
+
 # Windows error codes
 !define ERROR_SERVICE_DEPENDENCY_DELETED 1075
 
@@ -458,6 +462,73 @@
 !define RemoveRelayCache '!insertmacro "RemoveRelayCache"'
 
 #
+# UpdatePath
+#
+# Add "$INSTDIR\resources" to system env PATH,
+# unless it already exists.
+#
+!macro UpdatePath
+
+	log::Log "UpdatePath()"
+
+	Push $0
+	Push $1
+
+	pathedit::UpdatePath "$INSTDIR\resources"
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${UP_SUCCESS}
+		log::Log "UpdatePath() failed: $0 $1"
+		Goto UpdatePath_return
+	${EndIf}
+
+	log::Log "UpdatePath() completed successfully"
+
+	UpdatePath_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define UpdatePath '!insertmacro "UpdatePath"'
+
+#
+# RemovePath
+#
+# Remove "$INSTDIR\resources" to system env PATH
+#
+!macro RemovePath
+
+	log::Log "RemovePath()"
+
+	Push $0
+	Push $1
+
+	pathedit::RemovePath "$INSTDIR\resources"
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${UP_SUCCESS}
+		log::Log "RemovePath() failed: $0 $1"
+		Goto RemovePath_return
+	${EndIf}
+
+	log::Log "RemovePath() completed successfully"
+
+	RemovePath_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemovePath '!insertmacro "RemovePath"'
+
+#
 # customInit
 #
 # This macro is activated right when the installer first starts up.
@@ -545,7 +616,9 @@
 	${EndIf}
 	
 	${InstallTrayIcon}
-	
+
+	${UpdatePath}
+
 	Pop $R0
 
 !macroend
@@ -595,6 +668,8 @@
 		${RemoveSettings}
 		customRemoveFiles_after_remove_settings:
 	${EndIf}
+
+	${RemovePath}
 
 	Pop $1
 	Pop $0

@@ -1,0 +1,6 @@
+LIBRARY pathedit
+
+EXPORTS
+
+UpdatePath
+RemovePath
