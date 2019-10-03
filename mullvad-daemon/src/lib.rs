@@ -265,7 +265,6 @@ pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
-    version: String,
     app_version_info: AppVersionInfo,
     shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
 }
@@ -275,7 +274,6 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
-        version: String,
     ) -> Result<Self> {
         if rpc_uniqueness_check::is_another_instance_running() {
             return Err(Error::DaemonIsAlreadyRunning);
@@ -291,7 +289,6 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
             log_dir,
             resource_dir,
             cache_dir,
-            version,
         )
     }
 
@@ -339,7 +336,6 @@ where
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
-        version: String,
     ) -> Result<Self> {
         let (tx, rx) = mpsc::channel();
 
@@ -351,7 +347,6 @@ where
             log_dir,
             resource_dir,
             cache_dir,
-            version,
         )
     }
 
@@ -363,7 +358,6 @@ where
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
-        version: String,
     ) -> Result<Self> {
         let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
 
@@ -410,13 +404,12 @@ where
                 AppVersionInfo {
                     current_is_supported: true,
                     current_is_outdated: false,
-                    latest_stable: version.clone(),
-                    latest: version.clone(),
+                    latest_stable: version::PRODUCT_VERSION.to_owned(),
+                    latest: version::PRODUCT_VERSION.to_owned(),
                 }
             }
         };
         let version_check_future = version_check::VersionUpdater::new(
-            version.clone(),
             rpc_handle.clone(),
             cache_dir.clone(),
             on_version_check_update,
@@ -473,7 +466,6 @@ where
             relay_selector,
             last_generated_relay: None,
             last_generated_bridge_relay: None,
-            version,
             app_version_info,
             shutdown_callbacks: vec![],
         };
@@ -1109,7 +1101,11 @@ where
     }
 
     fn on_get_current_version(&mut self, tx: oneshot::Sender<AppVersion>) {
-        Self::oneshot_send(tx, self.version.clone(), "get_current_version response");
+        Self::oneshot_send(
+            tx,
+            version::PRODUCT_VERSION.to_owned(),
+            "get_current_version response",
+        );
     }
 
     #[cfg(not(target_os = "android"))]
