@@ -228,7 +228,6 @@ fn create_daemon(
         Some(log_dir),
         resource_dir,
         cache_dir,
-        version::PRODUCT_VERSION.to_owned(),
     )
     .map_err(Error::InitializeDaemon)?;
 
