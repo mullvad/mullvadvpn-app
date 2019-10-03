@@ -45,16 +45,44 @@ namespace
 
 using namespace common::registry;
 using ValueStringType = RegistryKey::ValueStringType;
+using common::string::Lower;
+
+using std::vector;
+using std::wstring;
+using std::wstring;
+
+static vector<wstring>::const_iterator FindSysPath(const vector<wstring> &pathTokens, const wstring &pathStr)
+{
+	wstring lowerPathStr(Lower(pathStr));
+
+	return std::find_if(
+		pathTokens.begin(),
+		pathTokens.end(),
+		[&lowerPathStr](const wstring &elem)
+		{
+			return Lower(elem).compare(lowerPathStr) == 0;
+		}
+	);
+}
+
+static bool SysPathExists(const wstring &allPaths, const wstring &pathToFind)
+{
+	auto pathTokens = common::string::Tokenize(allPaths, L";");
+	return FindSysPath(pathTokens, pathToFind) != pathTokens.end();
+}
+
+static const wchar_t pathKeyName[] = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
+static const wchar_t pathValName[] = L"Path";
 
 //
-// UpdatePath "path"
+// AddSysEnvPath "path"
 //
 // Adds "path" to the system PATH environment variable,
 // or does nothing if it already exists.
 //
 // Example usage:
 //
-// UpdatePath "C:\path\to\directory"
+// AddSysEnvPath "C:\path\to\directory"
 //
 
 enum class UpdatePathStatus
@@ -63,7 +91,7 @@ enum class UpdatePathStatus
 	SUCCESS
 };
 
-void __declspec(dllexport) NSISCALL UpdatePath
+void __declspec(dllexport) NSISCALL AddSysEnvPath
 (
 	HWND hwndParent,
 	int string_size,
@@ -78,9 +106,6 @@ void __declspec(dllexport) NSISCALL UpdatePath
 	try
 	{
 		const auto pathToAppend = PopString();
-		static const wchar_t pathKeyName[] =
-			L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
-		static const wchar_t pathValName[] = L"Path";
 
 		auto pathRegKey = Registry::OpenKey(
 			HKEY_LOCAL_MACHINE,
@@ -90,10 +115,7 @@ void __declspec(dllexport) NSISCALL UpdatePath
 		);
 		auto pathStr = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
 
-		// ensure it's not already added
-		auto pathTokens = common::string::Tokenize(pathStr, L";");
-		if (std::find(pathTokens.begin(), pathTokens.end(), pathToAppend) !=
-			pathTokens.end())
+		if (SysPathExists(pathStr, pathToAppend))
 		{
 			pushstring(L"");
 			pushint(UpdatePathStatus::SUCCESS);
@@ -134,17 +156,17 @@ void __declspec(dllexport) NSISCALL UpdatePath
 }
 
 //
-// RemovePath "path"
+// RemoveSysEnvPath "path"
 //
 // Removes "path" to the system PATH environment variable,
 // or does nothing if it doesn't exist.
 //
 // Example usage:
 //
-// RemovePath "C:\path\to\directory"
+// RemoveSysEnvPath "C:\path\to\directory"
 //
 
-void __declspec(dllexport) NSISCALL RemovePath
+void __declspec(dllexport) NSISCALL RemoveSysEnvPath
 (
 	HWND hwndParent,
 	int string_size,
@@ -159,8 +181,6 @@ void __declspec(dllexport) NSISCALL RemovePath
 	try
 	{
 		const auto pathToRemove = PopString();
-		static const wchar_t pathKeyName[] = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
-		static const wchar_t pathValName[] = L"Path";
 
 		auto pathRegKey = Registry::OpenKey(
 			HKEY_LOCAL_MACHINE,
@@ -170,9 +190,9 @@ void __declspec(dllexport) NSISCALL RemovePath
 		);
 		auto pathStr = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
 
-		// check whether the path exists
+		// remove value if it exists in PATH
 		auto pathTokens = common::string::Tokenize(pathStr, L";");
-		auto match = std::find(pathTokens.begin(), pathTokens.end(), pathToRemove);
+		auto match = FindSysPath(pathTokens, pathToRemove);
 		if (match != pathTokens.end())
 		{
 			pathTokens.erase(match);

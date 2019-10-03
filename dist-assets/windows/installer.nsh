@@ -474,7 +474,7 @@
 	Push $0
 	Push $1
 
-	pathedit::UpdatePath "$INSTDIR\resources"
+	pathedit::AddSysEnvPath "$INSTDIR\resources"
 
 	Pop $0
 	Pop $1
@@ -507,7 +507,7 @@
 	Push $0
 	Push $1
 
-	pathedit::RemovePath "$INSTDIR\resources"
+	pathedit::RemoveSysEnvPath "$INSTDIR\resources"
 
 	Pop $0
 	Pop $1
