@@ -150,6 +150,11 @@ pub(crate) enum InternalDaemonEvent {
             std::result::Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
         ),
     ),
+    /// New Account created
+    NewAccountEvent(
+        AccountToken,
+        oneshot::Sender<std::result::Result<(), mullvad_rpc::Error>>,
+    ),
 }
 
 impl From<TunnelStateTransition> for InternalDaemonEvent {
@@ -499,6 +504,7 @@ where
             }
             TriggerShutdown => self.trigger_shutdown_event(),
             WgKeyEvent(key_event) => self.handle_wireguard_key_event(key_event),
+            NewAccountEvent(account_token, tx) => self.handle_new_account_event(account_token, tx),
         }
         Ok(())
     }
@@ -921,14 +927,31 @@ where
         &mut self,
         tx: oneshot::Sender<std::result::Result<(), mullvad_rpc::Error>>,
     ) {
-        let new_token = match self.accounts_proxy.create_account().wait() {
-            Ok(new_token) => new_token,
-            Err(err) => {
-                let _ = tx.send(Err(err));
-                return;
-            }
-        };
+        let daemon_tx = self.tx.clone();
+        let f = self.accounts_proxy.create_account().then(
+            move |result| -> std::result::Result<(), ()> {
+                match result {
+                    Ok(new_token) => {
+                        let _ = daemon_tx.send(InternalDaemonEvent::NewAccountEvent(new_token, tx));
+                    }
+                    Err(err) => {
+                        let _ = tx.send(Err(err));
+                    }
+                };
+                Ok(())
+            },
+        );
 
+        if self.tokio_remote.execute(f).is_err() {
+            log::error!("Failed to spawn future for creating a new account");
+        }
+    }
+
+    fn handle_new_account_event(
+        &mut self,
+        new_token: AccountToken,
+        tx: oneshot::Sender<std::result::Result<(), mullvad_rpc::Error>>,
+    ) {
         match self.set_account(Some(new_token)) {
             Ok(_) => {
                 let _ = tx.send(Ok(()));
