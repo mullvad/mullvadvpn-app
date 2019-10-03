@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn
 import android.content.Context
 import android.view.View
 import android.widget.TextView
-
 import net.mullvad.mullvadvpn.model.Endpoint
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TransportProtocol
@@ -25,6 +24,8 @@ class LocationInfo(val parentView: View, val context: Context) {
 
     var location: GeoIpLocation? = null
         set(value) {
+            field = value
+
             country.text = value?.country ?: ""
             city.text = value?.city ?: ""
             hostname.text = value?.hostname ?: ""

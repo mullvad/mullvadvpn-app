@@ -1,10 +1,9 @@
 package net.mullvad.mullvadvpn.util
 
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class SmartDeferred<T>(private val deferred: Deferred<T>) {
     private val jobTracker = JobTracker()

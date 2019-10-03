@@ -1,19 +1,18 @@
 package net.mullvad.mullvadvpn.dataproxy
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.MullvadDaemon
+import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
-import net.mullvad.mullvadvpn.relaylist.Relay
 
 class LocationInfoCache(
     val daemon: Deferred<MullvadDaemon>,

@@ -1,10 +1,5 @@
 package net.mullvad.mullvadvpn
 
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -18,16 +13,20 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-
+import java.util.TimeZone
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
-import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.KeygenEvent
+import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.SmartDeferred
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
 
 val RFC3339_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSSSSSSSSS z")
 val KEY_AGE_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm")
@@ -82,7 +81,8 @@ class WireguardKeyFragment : Fragment() {
 
         visitWebsiteView.visibility = View.VISIBLE
         visitWebsiteView.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(parentActivity.getString(R.string.account_url)))
+            val intent = Intent(Intent.ACTION_VIEW,
+                                Uri.parse(parentActivity.getString(R.string.account_url)))
             startActivity(intent)
         }
 
@@ -133,7 +133,7 @@ class WireguardKeyFragment : Fragment() {
 
     private fun setStatusMessage(message: Int, color: Int) {
         statusMessage.setText(message)
-        statusMessage.setTextColor(parentActivity.getColor(color))
+        statusMessage.setTextColor(resources.getColor(color))
         statusMessage.visibility = View.VISIBLE
     }
 
@@ -249,7 +249,9 @@ class WireguardKeyFragment : Fragment() {
             when (val state = keyStatusListener.keyStatus) {
                 is KeygenEvent.NewKey -> {
                     if (state.verified == null) {
-                        Toast.makeText(parentActivity, R.string.wireguard_key_verification_failure, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(parentActivity,
+                            R.string.wireguard_key_verification_failure,
+                            Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -294,6 +296,10 @@ class WireguardKeyFragment : Fragment() {
     }
 
     private fun formatKeyDateCreated(rfc3339: String): String {
-        return parentActivity.getString(R.string.wireguard_key_age) + " " + KEY_AGE_FORMAT.print(DateTime.parse(rfc3339, RFC3339_FORMAT))
+        val dateCreated = DateTime.parse(rfc3339, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
+        val localTimezone = DateTimeZone.forTimeZone(TimeZone.getDefault())
+        return parentActivity.getString(R.string.wireguard_key_age) +
+            " " +
+            KEY_AGE_FORMAT.print(dateCreated.withZone(localTimezone))
     }
 }

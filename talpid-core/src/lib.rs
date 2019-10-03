@@ -23,7 +23,7 @@ mod winnet;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 /// Working with IP interface devices
 pub mod network_interface;
-#[cfg(unix)]
+#[cfg(not(windows))]
 /// Abstraction over operating system routing table.
 pub mod routing;
 
@@ -60,3 +60,6 @@ mod mktemp;
 /// Misc utilities for the Linux platform.
 #[cfg(target_os = "linux")]
 mod linux;
+
+/// A pair of functions to monitor and establish connectivity with ICMP
+mod ping_monitor;

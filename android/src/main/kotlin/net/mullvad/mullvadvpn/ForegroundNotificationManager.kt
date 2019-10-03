@@ -11,7 +11,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.support.v4.app.NotificationCompat
-
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -30,6 +29,8 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
         tunnelState = state
     }
 
+    private val badgeColor = service.resources.getColor(R.color.colorPrimary)
+
     private var reconnecting = false
     private var showingReconnecting = false
 
@@ -38,9 +39,9 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             field = value
 
             reconnecting =
-                (value is TunnelState.Disconnecting
-                    && value.actionAfterDisconnect is ActionAfterDisconnect.Reconnect)
-                || (value is TunnelState.Connecting && reconnecting)
+                (value is TunnelState.Disconnecting &&
+                    value.actionAfterDisconnect is ActionAfterDisconnect.Reconnect) ||
+                (value is TunnelState.Connecting && reconnecting)
 
             updateNotification()
         }
@@ -128,6 +129,11 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
     var onConnect: (() -> Unit)? = null
     var onDisconnect: (() -> Unit)? = null
+    var loggedIn = false
+        set(value) {
+            field = value
+            updateNotification()
+        }
 
     init {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -154,7 +160,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
             unregisterReceiver(connectReceiver)
             unregisterReceiver(disconnectReceiver)
 
-            stopForeground(FOREGROUND_NOTIFICATION_ID)
+            stopForeground(true)
         }
     }
 
@@ -183,13 +189,17 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
         val pendingIntent =
             PendingIntent.getActivity(service, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        return NotificationCompat.Builder(service, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(service, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification)
-            .setColor(service.getColor(R.color.colorPrimary))
+            .setColor(badgeColor)
             .setContentTitle(service.getString(notificationText))
             .setContentIntent(pendingIntent)
-            .addAction(buildTunnelAction())
-            .build()
+
+        if (loggedIn) {
+            builder.addAction(buildTunnelAction())
+        }
+
+        return builder.build()
     }
 
     private fun buildTunnelAction(): NotificationCompat.Action {

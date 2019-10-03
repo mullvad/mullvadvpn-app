@@ -11,22 +11,34 @@
             android:layout_weight="0"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="12dp"
             >
         <ImageView
                 android:layout_width="49dp"
                 android:layout_height="50dp"
+                android:layout_weight="0"
+                android:layout_marginLeft="12dp"
+                android:layout_marginVertical="12dp"
                 android:src="@drawable/logo_icon"
                 />
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:layout_marginHorizontal="8dp"
+                android:layout_marginVertical="12dp"
                 android:textColor="@color/white60"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:text="@string/app_name"
                 android:textAllCaps="true"
+                />
+        <ImageButton android:id="@+id/settings"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:paddingHorizontal="12dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:src="@drawable/icon_settings"
                 />
     </LinearLayout>
     <LinearLayout
@@ -95,7 +107,7 @@
                 android:textSize="13sp"
                 android:text="@string/login_description"
                 />
-        <LinearLayout android:id="@+id/account_input_container"
+        <net.mullvad.mullvadvpn.AccountInputContainer android:id="@+id/account_input_container"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:orientation="horizontal"
@@ -125,7 +137,7 @@
                     android:background="@drawable/login_button_background"
                     android:src="@drawable/login_button_arrow"
                     />
-        </LinearLayout>
+        </net.mullvad.mullvadvpn.AccountInputContainer>
         <Space
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

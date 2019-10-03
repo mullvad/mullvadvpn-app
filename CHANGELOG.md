@@ -26,14 +26,30 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add ability to change the desktop GUI language from within Settings.
 
+#### macOS
+- Notarize release builds with Apple. Making them run without warning on 10.15 Catalina.
+
+#### Android
+- Add settings button in launch and login screens.
+- Add support for Android Lollipop.
+- Allow logging in without connectivity.
+
 #### Windows
 - Add CLI tools (the resource/ directory) to the system PATH.
 
 ### Removed
 - Remove support for `MULLVAD_LOCALE` environment variable.
 
+#### Android
+- Remove connect action button in notification when logged out.
+
 ### Fixed
 - Fix `mullvad relay update` to trigger a relay list download even if the existing cache is new.
+
+#### Android
+- Show WireGuard key age in local timezone instead of UTC.
+- Fix notification button icons.
+- Fix collapsing tunnel information causing tunnel out IP address information to be lost.
 
 
 ## [2019.8] - 2019-09-23

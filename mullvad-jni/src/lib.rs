@@ -51,6 +51,10 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/Constraint$Only",
     "net/mullvad/mullvadvpn/model/Endpoint",
     "net/mullvad/mullvadvpn/model/GeoIpLocation",
+    "net/mullvad/mullvadvpn/model/GetAccountDataResult$Ok",
+    "net/mullvad/mullvadvpn/model/GetAccountDataResult$InvalidAccount",
+    "net/mullvad/mullvadvpn/model/GetAccountDataResult$RpcError",
+    "net/mullvad/mullvadvpn/model/GetAccountDataResult$OtherError",
     "net/mullvad/mullvadvpn/model/InetNetwork",
     "net/mullvad/mullvadvpn/model/KeygenEvent$NewKey",
     "net/mullvad/mullvadvpn/model/KeygenEvent$Failure",
@@ -310,17 +314,16 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
     accountToken: JString,
 ) -> JObject<'env> {
     let account = String::from_java(&env, accountToken);
+    let result = DAEMON_INTERFACE.get_account_data(account);
 
-    match DAEMON_INTERFACE.get_account_data(account) {
-        Ok(data) => data.into_java(&env),
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to get account data")
-            );
-            JObject::null()
-        }
+    if let Err(ref error) = &result {
+        log::error!(
+            "{}",
+            error.display_chain_with_msg("Failed to get account data")
+        );
     }
+
+    result.into_java(&env)
 }
 
 #[no_mangle]
