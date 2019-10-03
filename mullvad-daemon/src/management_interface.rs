@@ -233,7 +233,7 @@ pub enum ManagementCommand {
     /// Verify if the currently set wireguard key is valid.
     VerifyWireguardKey(OneshotSender<bool>),
     /// Get information about the currently running and latest app versions
-    GetVersionInfo(OneshotSender<BoxFuture<version::AppVersionInfo, mullvad_rpc::Error>>),
+    GetVersionInfo(OneshotSender<version::AppVersionInfo>),
     /// Get current version of the app
     GetCurrentVersion(OneshotSender<version::AppVersion>),
     #[cfg(not(target_os = "android"))]
@@ -718,16 +718,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(ManagementCommand::GetVersionInfo(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .and_then(|version_future| {
-                version_future.map_err(|error| {
-                    log::error!(
-                        "Unable to get version data from API: {}",
-                        error.display_chain()
-                    );
-                    Self::map_rpc_error(&error)
-                })
-            });
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         Box::new(future)
     }
