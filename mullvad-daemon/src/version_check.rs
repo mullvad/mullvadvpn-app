@@ -30,7 +30,6 @@ const PLATFORM: &str = "windows";
 const PLATFORM: &str = "android";
 
 pub struct VersionUpdater<F: Fn(&AppVersionInfo) + Send + 'static> {
-    version: String,
     version_proxy: AppVersionProxy<HttpHandle>,
     cache_dir: PathBuf,
     on_version_update: F,
@@ -46,7 +45,6 @@ enum VersionUpdaterState {
 
 impl<F: Fn(&AppVersionInfo) + Send + 'static> VersionUpdater<F> {
     pub fn new(
-        version: String,
         rpc_handle: HttpHandle,
         cache_dir: PathBuf,
         on_version_update: F,
@@ -54,7 +52,6 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> VersionUpdater<F> {
     ) -> Self {
         let version_proxy = AppVersionProxy::new(rpc_handle);
         Self {
-            version,
             version_proxy,
             cache_dir,
             on_version_update,
@@ -122,7 +119,7 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> VersionUpdater<F> {
     ) -> Box<dyn Future<Item = AppVersionInfo, Error = Error> + Send + 'static> {
         let download_future = self
             .version_proxy
-            .app_version_check(&self.version, PLATFORM)
+            .app_version_check(&crate::version::PRODUCT_VERSION.to_owned(), PLATFORM)
             .map_err(Error::Download);
         let future = Timer::default().timeout(download_future, DOWNLOAD_TIMEOUT);
         Box::new(future)
