@@ -9,7 +9,6 @@
 #include <libcommon/registry/registrykey.h>
 #include <nsis/pluginapi.h>
 #include <string>
-//#include <log/log.h>
 
 // Suppress warnings caused by broken legacy code
 #pragma warning (push)
