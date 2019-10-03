@@ -462,14 +462,14 @@
 !define RemoveRelayCache '!insertmacro "RemoveRelayCache"'
 
 #
-# UpdatePath
+# AddCLIToEnvironPath
 #
 # Add "$INSTDIR\resources" to system env PATH,
 # unless it already exists.
 #
-!macro UpdatePath
+!macro AddCLIToEnvironPath
 
-	log::Log "UpdatePath()"
+	log::Log "AddCLIToEnvironPath()"
 
 	Push $0
 	Push $1
@@ -480,11 +480,11 @@
 	Pop $1
 
 	${If} $0 != ${UP_SUCCESS}
-		log::Log "UpdatePath() failed: $0 $1"
+		log::Log "AddCLIToEnvironPath() failed: $0 $1"
 		Goto UpdatePath_return
 	${EndIf}
 
-	log::Log "UpdatePath() completed successfully"
+	log::Log "AddCLIToEnvironPath() completed successfully"
 
 	UpdatePath_return:
 
@@ -493,16 +493,16 @@
 
 !macroend
 
-!define UpdatePath '!insertmacro "UpdatePath"'
+!define AddCLIToEnvironPath '!insertmacro "AddCLIToEnvironPath"'
 
 #
-# RemovePath
+# RemoveCLIFromEnvironPath
 #
 # Remove "$INSTDIR\resources" to system env PATH
 #
-!macro RemovePath
+!macro RemoveCLIFromEnvironPath
 
-	log::Log "RemovePath()"
+	log::Log "RemoveCLIFromEnvironPath()"
 
 	Push $0
 	Push $1
@@ -513,11 +513,11 @@
 	Pop $1
 
 	${If} $0 != ${UP_SUCCESS}
-		log::Log "RemovePath() failed: $0 $1"
+		log::Log "RemoveCLIFromEnvironPath() failed: $0 $1"
 		Goto RemovePath_return
 	${EndIf}
 
-	log::Log "RemovePath() completed successfully"
+	log::Log "RemoveCLIFromEnvironPath() completed successfully"
 
 	RemovePath_return:
 
@@ -526,7 +526,7 @@
 
 !macroend
 
-!define RemovePath '!insertmacro "RemovePath"'
+!define RemoveCLIFromEnvironPath '!insertmacro "RemoveCLIFromEnvironPath"'
 
 #
 # customInit
@@ -617,7 +617,7 @@
 	
 	${InstallTrayIcon}
 
-	${UpdatePath}
+	${AddCLIToEnvironPath}
 
 	Pop $R0
 
@@ -669,7 +669,7 @@
 		customRemoveFiles_after_remove_settings:
 	${EndIf}
 
-	${RemovePath}
+	${RemoveCLIFromEnvironPath}
 
 	Pop $1
 	Pop $0
