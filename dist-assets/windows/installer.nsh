@@ -41,7 +41,7 @@
 !define RRC_GENERAL_ERROR 0
 !define RRC_SUCCESS 1
 
-# Return codes from pathedit::UpdatePath
+# Return codes from pathedit::AddSysEnvPath/pathedit::RemoveSysEnvPath
 !define UP_GENERAL_ERROR 0
 !define UP_SUCCESS 1
 

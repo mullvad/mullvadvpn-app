@@ -16,63 +16,58 @@
 #include <nsis/pluginapi.h>
 #pragma warning (pop)
 
-namespace
-{
-
-	std::wstring PopString()
-	{
-		//
-		// NSIS functions popstring() and popstringn() require that you definitely size the buffer
-		// before popping the string. Let's do it ourselves instead.
-		//
-
-		if (!g_stacktop || !*g_stacktop)
-		{
-			throw std::runtime_error("NSIS variable stack is corrupted");
-		}
-
-		stack_t *th = *g_stacktop;
-
-		std::wstring copy(th->text);
-
-		*g_stacktop = th->next;
-		GlobalFree((HGLOBAL)th);
-
-		return copy;
-	}
-
-} // anonymous namespace
-
 using namespace common::registry;
 using ValueStringType = RegistryKey::ValueStringType;
 using common::string::Lower;
 
-using std::vector;
-using std::wstring;
-using std::wstring;
+static const wchar_t pathKeyName[] = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
+static const wchar_t pathValName[] = L"Path";
 
-static vector<wstring>::const_iterator FindSysPath(const vector<wstring> &pathTokens, const wstring &pathStr)
+namespace
 {
-	wstring lowerPathStr(Lower(pathStr));
+
+std::wstring PopString()
+{
+	//
+	// NSIS functions popstring() and popstringn() require that you definitely size the buffer
+	// before popping the string. Let's do it ourselves instead.
+	//
+
+	if (!g_stacktop || !*g_stacktop)
+	{
+		throw std::runtime_error("NSIS variable stack is corrupted");
+	}
+
+	stack_t *th = *g_stacktop;
+
+	std::wstring copy(th->text);
+
+	*g_stacktop = th->next;
+	GlobalFree((HGLOBAL)th);
+
+	return copy;
+}
+
+std::vector<std::wstring>::const_iterator FindSysPath(const std::vector<std::wstring> &pathTokens, const std::wstring &path)
+{
+	const std::wstring lowerPath = Lower(path);
 
 	return std::find_if(
 		pathTokens.begin(),
 		pathTokens.end(),
-		[&lowerPathStr](const wstring &elem)
-		{
-			return Lower(elem).compare(lowerPathStr) == 0;
-		}
+		[&lowerPath](const std::wstring &elem)
+	{
+		return Lower(elem).compare(lowerPath) == 0;
+	}
 	);
 }
 
-static bool SysPathExists(const wstring &allPaths, const wstring &pathToFind)
+bool SysPathExists(const std::wstring &allPaths, const std::wstring &pathToFind)
 {
 	auto pathTokens = common::string::Tokenize(allPaths, L";");
 	return FindSysPath(pathTokens, pathToFind) != pathTokens.end();
 }
-
-static const wchar_t pathKeyName[] = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
-static const wchar_t pathValName[] = L"Path";
+} // anonymous namespace
 
 //
 // AddSysEnvPath "path"
@@ -113,22 +108,22 @@ void __declspec(dllexport) NSISCALL AddSysEnvPath
 			true,
 			RegistryView::Force64
 		);
-		auto pathStr = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
+		auto path = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
 
-		if (SysPathExists(pathStr, pathToAppend))
+		if (SysPathExists(path, pathToAppend))
 		{
 			pushstring(L"");
 			pushint(UpdatePathStatus::SUCCESS);
 			return;
 		}
 
-		if (!pathStr.empty())
+		if (!path.empty())
 		{
-			pathStr.append(L";");
+			path.append(L";");
 		}
-		pathStr.append(pathToAppend);
+		path.append(pathToAppend);
 
-		pathRegKey->writeValue(pathValName, pathStr, ValueStringType::ExpandableString);
+		pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
 
 		SendMessageTimeout(
 			HWND_BROADCAST,
@@ -188,16 +183,16 @@ void __declspec(dllexport) NSISCALL RemoveSysEnvPath
 			true,
 			RegistryView::Force64
 		);
-		auto pathStr = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
+		auto path = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
 
 		// remove value if it exists in PATH
-		auto pathTokens = common::string::Tokenize(pathStr, L";");
+		auto pathTokens = common::string::Tokenize(path, L";");
 		auto match = FindSysPath(pathTokens, pathToRemove);
 		if (match != pathTokens.end())
 		{
 			pathTokens.erase(match);
-			pathStr = common::string::Join(pathTokens, L";");
-			pathRegKey->writeValue(pathValName, pathStr, ValueStringType::ExpandableString);
+			path = common::string::Join(pathTokens, L";");
+			pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
 
 			SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
 		}
