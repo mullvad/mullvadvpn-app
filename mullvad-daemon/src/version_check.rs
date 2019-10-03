@@ -14,8 +14,9 @@ const VERSION_INFO_FILENAME: &str = "version-info.json";
 
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 /// How often the updater should wake up to check the in-memory cache.
-/// This check is very cheap. The only reason to not have it very often is because if downloading
-/// constantly fails it will try very often and fill the logs etc.
+/// This exist to prevent problems around sleeping. If you set it to sleep
+/// for `UPDATE_INTERVAL` directly and the computer is suspended, that clock
+/// won't tick, and the next update will be after 24 hours of the computer being *on*.
 const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 5);
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
 
