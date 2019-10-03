@@ -25,7 +25,9 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add ability to change the desktop GUI language from within Settings.
-- Windows: Add (and remove when uninstalling) resources/ (i.e. mullvad.exe) to system PATH.
+
+#### Windows
+- Add CLI tools (the resource/ directory) to the system PATH.
 
 ### Removed
 - Remove support for `MULLVAD_LOCALE` environment variable.
