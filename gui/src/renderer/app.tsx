@@ -290,6 +290,7 @@ export default class AppRenderer {
     try {
       token = await IpcRendererEventChannel.account.getWwwAuthToken();
     } catch (e) {
+      log.error(`Failed to get the WWW auth token: ${e.message}`);
       token = '';
     }
     shell.openExternal(`${link}?token=${token}`);
