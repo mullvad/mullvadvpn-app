@@ -41,6 +41,10 @@
 !define RRC_GENERAL_ERROR 0
 !define RRC_SUCCESS 1
 
+# Return codes from pathedit::AddSysEnvPath/pathedit::RemoveSysEnvPath
+!define PE_GENERAL_ERROR 0
+!define PE_SUCCESS 1
+
 # Windows error codes
 !define ERROR_SERVICE_DEPENDENCY_DELETED 1075
 
@@ -458,6 +462,73 @@
 !define RemoveRelayCache '!insertmacro "RemoveRelayCache"'
 
 #
+# AddCLIToEnvironPath
+#
+# Add "$INSTDIR\resources" to system env PATH,
+# unless it already exists.
+#
+!macro AddCLIToEnvironPath
+
+	log::Log "AddCLIToEnvironPath()"
+
+	Push $0
+	Push $1
+
+	pathedit::AddSysEnvPath "$INSTDIR\resources"
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${PE_SUCCESS}
+		log::Log "AddCLIToEnvironPath() failed: $0 $1"
+		Goto UpdatePath_return
+	${EndIf}
+
+	log::Log "AddCLIToEnvironPath() completed successfully"
+
+	UpdatePath_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define AddCLIToEnvironPath '!insertmacro "AddCLIToEnvironPath"'
+
+#
+# RemoveCLIFromEnvironPath
+#
+# Remove "$INSTDIR\resources" to system env PATH
+#
+!macro RemoveCLIFromEnvironPath
+
+	log::Log "RemoveCLIFromEnvironPath()"
+
+	Push $0
+	Push $1
+
+	pathedit::RemoveSysEnvPath "$INSTDIR\resources"
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${PE_SUCCESS}
+		log::Log "RemoveCLIFromEnvironPath() failed: $0 $1"
+		Goto RemovePath_return
+	${EndIf}
+
+	log::Log "RemoveCLIFromEnvironPath() completed successfully"
+
+	RemovePath_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemoveCLIFromEnvironPath '!insertmacro "RemoveCLIFromEnvironPath"'
+
+#
 # customInit
 #
 # This macro is activated right when the installer first starts up.
@@ -545,7 +616,9 @@
 	${EndIf}
 	
 	${InstallTrayIcon}
-	
+
+	${AddCLIToEnvironPath}
+
 	Pop $R0
 
 !macroend
@@ -595,6 +668,8 @@
 		${RemoveSettings}
 		customRemoveFiles_after_remove_settings:
 	${EndIf}
+
+	${RemoveCLIFromEnvironPath}
 
 	Pop $1
 	Pop $0
