@@ -954,6 +954,7 @@ where
     ) {
         match self.set_account(Some(new_token.clone())) {
             Ok(_) => {
+                self.set_target_state(TargetState::Unsecured);
                 let _ = tx.send(Ok(new_token));
             }
             Err(err) => {
