@@ -28,41 +28,12 @@ const PLATFORM: &str = "windows";
 #[cfg(target_os = "android")]
 const PLATFORM: &str = "android";
 
-pub fn spawn<F: Fn(&AppVersionInfo) + Send + 'static>(
-    version: String,
-    rpc_handle: HttpHandle,
-    on_version_update: F,
-    cache_dir: &Path,
-) -> VersionUpdater<F> {
-    let version_proxy = AppVersionProxy::new(rpc_handle);
-    let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
-
-    let last_app_version_info = match load_cache(&cache_path) {
-        Ok(app_version_info) => Some(app_version_info),
-        Err(error) => {
-            log::warn!(
-                "{}",
-                error.display_chain_with_msg("Unable to load cached version info")
-            );
-            None
-        }
-    };
-
-    VersionUpdater::new(
-        version,
-        version_proxy,
-        cache_path,
-        on_version_update,
-        last_app_version_info,
-    )
-}
-
 pub struct VersionUpdater<F: Fn(&AppVersionInfo) + Send + 'static> {
     version: String,
     version_proxy: AppVersionProxy<HttpHandle>,
-    cache_path: PathBuf,
+    cache_dir: PathBuf,
     on_version_update: F,
-    last_app_version_info: Option<AppVersionInfo>,
+    last_app_version_info: AppVersionInfo,
     next_update_time: Instant,
     state: Option<VersionUpdaterState>,
 }
@@ -75,15 +46,16 @@ enum VersionUpdaterState {
 impl<F: Fn(&AppVersionInfo) + Send + 'static> VersionUpdater<F> {
     pub fn new(
         version: String,
-        version_proxy: AppVersionProxy<HttpHandle>,
-        cache_path: PathBuf,
+        rpc_handle: HttpHandle,
+        cache_dir: PathBuf,
         on_version_update: F,
-        last_app_version_info: Option<AppVersionInfo>,
+        last_app_version_info: AppVersionInfo,
     ) -> Self {
+        let version_proxy = AppVersionProxy::new(rpc_handle);
         Self {
             version,
             version_proxy,
-            cache_path,
+            cache_dir,
             on_version_update,
             last_app_version_info,
             next_update_time: Instant::now(),
@@ -123,11 +95,11 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> VersionUpdater<F> {
                 true
             }
             Ok(Async::Ready(app_version_info)) => {
-                if Some(&app_version_info) != self.last_app_version_info.as_ref() {
+                if app_version_info != self.last_app_version_info {
                     log::debug!("Got new version check: {:?}", app_version_info);
-                    write_cache(&app_version_info, &self.cache_path).unwrap();
+                    write_cache(&app_version_info, &self.cache_dir).unwrap();
                     (self.on_version_update)(&app_version_info);
-                    self.last_app_version_info = Some(app_version_info);
+                    self.last_app_version_info = app_version_info;
                 }
                 true
             }
@@ -173,13 +145,15 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> Future for VersionUpdater<F> {
     }
 }
 
-fn load_cache(path: &Path) -> Result<AppVersionInfo, Error> {
+pub fn load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
+    let path = cache_dir.join(VERSION_INFO_FILENAME);
     log::debug!("Loading version check cache from {}", path.display());
     let file = File::open(path).map_err(Error::ReadCachedRelays)?;
     serde_json::from_reader(io::BufReader::new(file)).map_err(Error::Serialize)
 }
 
-fn write_cache(app_version_info: &AppVersionInfo, path: &Path) -> Result<(), Error> {
+fn write_cache(app_version_info: &AppVersionInfo, cache_dir: &Path) -> Result<(), Error> {
+    let path = cache_dir.join(VERSION_INFO_FILENAME);
     log::debug!("Writing version check cache to {}", path.display());
     let file = File::create(path).map_err(Error::WriteRelayCache)?;
     serde_json::to_writer_pretty(io::BufWriter::new(file), app_version_info)
@@ -187,7 +161,7 @@ fn write_cache(app_version_info: &AppVersionInfo, path: &Path) -> Result<(), Err
 }
 
 #[derive(err_derive::Error, Debug)]
-enum Error {
+pub enum Error {
     #[error(display = "Failed to open app version cache file for reading")]
     ReadCachedRelays(#[error(cause)] io::Error),
 
