@@ -4,6 +4,16 @@ import android.net.VpnService
 import net.mullvad.talpid.tun_provider.TunConfig
 
 open class TalpidVpnService : VpnService() {
+    val connectivityListener = ConnectivityListener()
+
+    override fun onCreate() {
+        connectivityListener.register(this)
+    }
+
+    override fun onDestroy() {
+        connectivityListener.unregister(this)
+    }
+
     fun createTun(config: TunConfig): Int {
         val builder = Builder().apply {
             for (address in config.addresses) {

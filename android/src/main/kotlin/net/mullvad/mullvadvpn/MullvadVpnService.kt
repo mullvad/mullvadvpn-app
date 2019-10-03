@@ -23,6 +23,7 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var notificationManager: ForegroundNotificationManager
 
     override fun onCreate() {
+        super.onCreate()
         setUp()
         created.complete(Unit)
     }
@@ -47,6 +48,7 @@ class MullvadVpnService : TalpidVpnService() {
         tearDown()
         daemon.cancel()
         created.cancel()
+        super.onDestroy()
     }
 
     inner class LocalBinder : Binder() {
