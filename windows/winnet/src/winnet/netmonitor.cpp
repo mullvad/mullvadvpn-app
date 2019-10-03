@@ -117,7 +117,12 @@ void NetMonitor::AddCacheEntry(Cache &cache, const MIB_IF_ROW2 &iface)
 	{
 		e.luid = iface.InterfaceLuid.Value;
 		e.valid = true;
-		e.connected = (MediaConnectStateConnected == iface.MediaConnectState);
+		e.connected =
+		(
+			NET_IF_ADMIN_STATUS_UP == iface.AdminStatus
+			&& IfOperStatusUp == iface.OperStatus
+			&& MediaConnectStateConnected == iface.MediaConnectState
+		);
 	}
 	else
 	{
