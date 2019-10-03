@@ -32,7 +32,7 @@ use futures::{
     Future, Sink,
 };
 use log::{debug, error, info, warn};
-use mullvad_rpc::{AccountsProxy, AppVersionProxy, HttpHandle, WireguardKeyProxy};
+use mullvad_rpc::{AccountsProxy, HttpHandle, WireguardKeyProxy};
 use mullvad_types::{
     account::{AccountData, AccountToken},
     endpoint::MullvadEndpoint,
@@ -156,6 +156,8 @@ pub(crate) enum InternalDaemonEvent {
         AccountToken,
         oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>,
     ),
+    /// The background job fetching new `AppVersionInfo`s got a new info object.
+    NewAppVersionInfo(AppVersionInfo),
 }
 
 impl From<TunnelStateTransition> for InternalDaemonEvent {
@@ -257,7 +259,6 @@ pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     account_history: account_history::AccountHistory,
     wg_key_proxy: WireguardKeyProxy<HttpHandle>,
     accounts_proxy: AccountsProxy<HttpHandle>,
-    version_proxy: AppVersionProxy<HttpHandle>,
     https_handle: mullvad_rpc::rest::RequestSender,
     wireguard_key_manager: wireguard::KeyManager,
     tokio_remote: tokio_core::reactor::Remote,
@@ -265,6 +266,7 @@ pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
     version: String,
+    app_version_info: AppVersionInfo,
     shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
 }
 
@@ -391,15 +393,34 @@ where
             &cache_dir,
         );
 
-        let version_check_listener = event_listener.clone();
+        let version_check_internal_event_tx = internal_event_tx.clone();
         let on_version_check_update = move |app_version_info: &AppVersionInfo| {
-            version_check_listener.notify_app_version(app_version_info.clone());
+            let _ = version_check_internal_event_tx.send(InternalDaemonEvent::NewAppVersionInfo(
+                app_version_info.clone(),
+            ));
         };
-        let version_check_future = version_check::spawn(
+        let app_version_info = match version_check::load_cache(&cache_dir) {
+            Ok(app_version_info) => app_version_info,
+            Err(error) => {
+                log::warn!(
+                    "{}",
+                    error.display_chain_with_msg("Unable to load cached version info")
+                );
+                // If we don't have a cache, start out with sane defaults.
+                AppVersionInfo {
+                    current_is_supported: true,
+                    current_is_outdated: false,
+                    latest_stable: version.clone(),
+                    latest: version.clone(),
+                }
+            }
+        };
+        let version_check_future = version_check::VersionUpdater::new(
             version.clone(),
             rpc_handle.clone(),
+            cache_dir.clone(),
             on_version_check_update,
-            &cache_dir,
+            app_version_info.clone(),
         );
         tokio_remote.spawn(|_| version_check_future);
 
@@ -446,14 +467,14 @@ where
             account_history,
             wg_key_proxy: WireguardKeyProxy::new(rpc_handle.clone()),
             accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
-            version_proxy: AppVersionProxy::new(rpc_handle),
             https_handle,
+            wireguard_key_manager,
             tokio_remote,
             relay_selector,
             last_generated_relay: None,
             last_generated_bridge_relay: None,
             version,
-            wireguard_key_manager,
+            app_version_info,
             shutdown_callbacks: vec![],
         };
 
@@ -520,6 +541,9 @@ where
             TriggerShutdown => self.trigger_shutdown_event(),
             WgKeyEvent(key_event) => self.handle_wireguard_key_event(key_event),
             NewAccountEvent(account_token, tx) => self.handle_new_account_event(account_token, tx),
+            NewAppVersionInfo(app_version_info) => {
+                self.handle_new_app_version_info(app_version_info)
+            }
         }
         Ok(())
     }
@@ -877,6 +901,11 @@ where
         };
     }
 
+    fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
+        self.app_version_info = app_version_info.clone();
+        self.event_listener.notify_app_version(app_version_info);
+    }
+
     fn on_set_target_state(
         &mut self,
         tx: oneshot::Sender<std::result::Result<(), ()>>,
@@ -1071,23 +1100,12 @@ where
         }
     }
 
-    fn on_get_version_info(
-        &mut self,
-        tx: oneshot::Sender<BoxFuture<AppVersionInfo, mullvad_rpc::Error>>,
-    ) {
-        #[cfg(target_os = "linux")]
-        const PLATFORM: &str = "linux";
-        #[cfg(target_os = "macos")]
-        const PLATFORM: &str = "macos";
-        #[cfg(target_os = "windows")]
-        const PLATFORM: &str = "windows";
-        #[cfg(target_os = "android")]
-        const PLATFORM: &str = "android";
-
-        let fut = self
-            .version_proxy
-            .app_version_check(&self.version, PLATFORM);
-        Self::oneshot_send(tx, Box::new(fut), "get_version_info response");
+    fn on_get_version_info(&mut self, tx: oneshot::Sender<AppVersionInfo>) {
+        Self::oneshot_send(
+            tx,
+            self.app_version_info.clone(),
+            "get_version_info response",
+        );
     }
 
     fn on_get_current_version(&mut self, tx: oneshot::Sender<AppVersion>) {
