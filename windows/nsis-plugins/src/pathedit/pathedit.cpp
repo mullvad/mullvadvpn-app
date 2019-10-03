@@ -43,6 +43,9 @@ namespace
 
 } // anonymous namespace
 
+using namespace common::registry;
+using ValueStringType = RegistryKey::ValueStringType;
+
 //
 // UpdatePath "path"
 //
@@ -75,16 +78,17 @@ void __declspec(dllexport) NSISCALL UpdatePath
 	try
 	{
 		const auto pathToAppend = PopString();
-		static const wchar_t pathKeyName[] = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
+		static const wchar_t pathKeyName[] =
+			L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
 		static const wchar_t pathValName[] = L"Path";
 
-		auto pathRegKey = common::registry::Registry::OpenKey(
+		auto pathRegKey = Registry::OpenKey(
 			HKEY_LOCAL_MACHINE,
 			pathKeyName,
 			true,
-			common::registry::RegistryView::Force64
+			RegistryView::Force64
 		);
-		auto pathStr = pathRegKey->readString(pathValName, common::registry::RegistryKey::ValueStringType::ExpandableString);
+		auto pathStr = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
 
 		// ensure it's not already added
 		auto pathTokens = common::string::Tokenize(pathStr, L";");
@@ -96,19 +100,28 @@ void __declspec(dllexport) NSISCALL UpdatePath
 			return;
 		}
 
-		if (!pathStr.empty()) {
+		if (!pathStr.empty())
+		{
 			pathStr.append(L";");
 		}
 		pathStr.append(pathToAppend);
 
-		pathRegKey->writeValue(pathValName, pathStr, common::registry::RegistryKey::ValueStringType::ExpandableString);
+		pathRegKey->writeValue(pathValName, pathStr, ValueStringType::ExpandableString);
 
-		SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
+		SendMessageTimeout(
+			HWND_BROADCAST,
+			WM_SETTINGCHANGE,
+			0,
+			(LPARAM)L"Environment",
+			SMTO_ABORTIFHUNG,
+			5000,
+			NULL
+		);
 
 		pushstring(L"");
 		pushint(UpdatePathStatus::SUCCESS);
 	}
-	catch (std::exception &err)
+	catch (const std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
 		pushint(UpdatePathStatus::GENERAL_ERROR);
@@ -149,13 +162,13 @@ void __declspec(dllexport) NSISCALL RemovePath
 		static const wchar_t pathKeyName[] = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
 		static const wchar_t pathValName[] = L"Path";
 
-		auto pathRegKey = common::registry::Registry::OpenKey(
+		auto pathRegKey = Registry::OpenKey(
 			HKEY_LOCAL_MACHINE,
 			pathKeyName,
 			true,
-			common::registry::RegistryView::Force64
+			RegistryView::Force64
 		);
-		auto pathStr = pathRegKey->readString(pathValName, common::registry::RegistryKey::ValueStringType::ExpandableString);
+		auto pathStr = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
 
 		// check whether the path exists
 		auto pathTokens = common::string::Tokenize(pathStr, L";");
@@ -164,7 +177,7 @@ void __declspec(dllexport) NSISCALL RemovePath
 		{
 			pathTokens.erase(match);
 			pathStr = common::string::Join(pathTokens, L";");
-			pathRegKey->writeValue(pathValName, pathStr, common::registry::RegistryKey::ValueStringType::ExpandableString);
+			pathRegKey->writeValue(pathValName, pathStr, ValueStringType::ExpandableString);
 
 			SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
 		}
@@ -172,7 +185,7 @@ void __declspec(dllexport) NSISCALL RemovePath
 		pushstring(L"");
 		pushint(UpdatePathStatus::SUCCESS);
 	}
-	catch (std::exception &err)
+	catch (const std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
 		pushint(UpdatePathStatus::GENERAL_ERROR);
