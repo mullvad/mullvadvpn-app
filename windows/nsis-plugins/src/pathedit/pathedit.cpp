@@ -103,7 +103,7 @@ void __declspec(dllexport) NSISCALL UpdatePath
 
 		pathRegKey->writeValue(pathValName, pathStr, common::registry::RegistryKey::ValueStringType::ExpandableString);
 
-		//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
+		SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
 
 		pushstring(L"");
 		pushint(UpdatePathStatus::SUCCESS);
@@ -166,7 +166,7 @@ void __declspec(dllexport) NSISCALL RemovePath
 			pathStr = common::string::Join(pathTokens, L";");
 			pathRegKey->writeValue(pathValName, pathStr, common::registry::RegistryKey::ValueStringType::ExpandableString);
 
-			//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
+			SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
 		}
 
 		pushstring(L"");
