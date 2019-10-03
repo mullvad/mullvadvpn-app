@@ -28,6 +28,7 @@ enum Event {
     RelayList(RelayList),
     Settings(Settings),
     Tunnel(TunnelState),
+    AppVersionInfo(AppVersionInfo),
 }
 
 #[derive(Clone, Debug)]
@@ -54,6 +55,10 @@ impl EventListener for JniEventListener {
 
     fn notify_relay_list(&self, relay_list: RelayList) {
         let _ = self.0.send(Event::RelayList(relay_list));
+    }
+
+    fn notify_app_version(&self, app_version_info: version::AppVersionInfo) {
+        let _ = self.0.send(Event::AppVersionInfo(app_version_info));
     }
 }
 
@@ -157,6 +162,9 @@ impl<'env> JniEventHandler<'env> {
                 Event::RelayList(relay_list) => self.handle_relay_list_event(relay_list),
                 Event::Settings(settings) => self.handle_settings(settings),
                 Event::Tunnel(tunnel_event) => self.handle_tunnel_event(tunnel_event),
+                Event::AppVersionInfo(app_version_info) => {
+                    self.handle_app_version_info_event(app_version_info)
+                }
             }
         }
     }
@@ -231,5 +239,9 @@ impl<'env> JniEventHandler<'env> {
                 error.display_chain_with_msg("Failed to call MullvadDaemon.notifyTunnelStateEvent")
             );
         }
+    }
+
+    fn handle_app_version_info_event(&self, relay_list: RelayList) {
+        // FIXME: Unimplemented
     }
 }
