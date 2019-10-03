@@ -7,6 +7,7 @@
 #include <libcommon/registry/registry.h>
 #include <libcommon/registry/registrypath.h>
 #include <libcommon/registry/registrykey.h>
+#include <libcommon/error.h>
 #include <nsis/pluginapi.h>
 #include <string>
 
@@ -56,9 +57,9 @@ std::vector<std::wstring>::const_iterator FindSysPath(const std::vector<std::wst
 		pathTokens.begin(),
 		pathTokens.end(),
 		[&lowerPath](const std::wstring &elem)
-	{
-		return Lower(elem).compare(lowerPath) == 0;
-	}
+		{
+			return Lower(elem).compare(lowerPath) == 0;
+		}
 	);
 }
 
@@ -125,14 +126,10 @@ void __declspec(dllexport) NSISCALL AddSysEnvPath
 
 		pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
 
-		SendMessageTimeout(
-			HWND_BROADCAST,
-			WM_SETTINGCHANGE,
+		THROW_GLE_IF(
+			SendNotifyMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment"),
 			0,
-			(LPARAM)L"Environment",
-			SMTO_ABORTIFHUNG,
-			5000,
-			NULL
+			"SendNotifyMessage"
 		);
 
 		pushstring(L"");
@@ -194,7 +191,11 @@ void __declspec(dllexport) NSISCALL RemoveSysEnvPath
 			path = common::string::Join(pathTokens, L";");
 			pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
 
-			SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
+			THROW_GLE_IF(
+				SendNotifyMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment"),
+				0,
+				"SendNotifyMessage"
+			);
 		}
 
 		pushstring(L"");
