@@ -153,7 +153,7 @@ pub(crate) enum InternalDaemonEvent {
     /// New Account created
     NewAccountEvent(
         AccountToken,
-        oneshot::Sender<std::result::Result<(), mullvad_rpc::Error>>,
+        oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>,
     ),
 }
 
@@ -925,7 +925,7 @@ where
 
     fn on_create_new_account(
         &mut self,
-        tx: oneshot::Sender<std::result::Result<(), mullvad_rpc::Error>>,
+        tx: oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>,
     ) {
         let daemon_tx = self.tx.clone();
         let f = self.accounts_proxy.create_account().then(
@@ -950,11 +950,11 @@ where
     fn handle_new_account_event(
         &mut self,
         new_token: AccountToken,
-        tx: oneshot::Sender<std::result::Result<(), mullvad_rpc::Error>>,
+        tx: oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>,
     ) {
-        match self.set_account(Some(new_token)) {
+        match self.set_account(Some(new_token.clone())) {
             Ok(_) => {
-                let _ = tx.send(Ok(()));
+                let _ = tx.send(Ok(new_token));
             }
             Err(err) => {
                 log::error!("Failed to save new account - {}", err);
