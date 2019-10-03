@@ -30,7 +30,10 @@ impl Command for Account {
                 clap::SubCommand::with_name("unset")
                     .about("Removes the account number from the settings"),
             )
-            .subcommand(clap::SubCommand::with_name("create").about("Creates a new account"))
+            .subcommand(
+                clap::SubCommand::with_name("create")
+                    .about("Creates a new account and sets it as the active one"),
+            )
     }
 
     fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
