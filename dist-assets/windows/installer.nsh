@@ -42,8 +42,8 @@
 !define RRC_SUCCESS 1
 
 # Return codes from pathedit::AddSysEnvPath/pathedit::RemoveSysEnvPath
-!define UP_GENERAL_ERROR 0
-!define UP_SUCCESS 1
+!define PE_GENERAL_ERROR 0
+!define PE_SUCCESS 1
 
 # Windows error codes
 !define ERROR_SERVICE_DEPENDENCY_DELETED 1075
@@ -479,7 +479,7 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${UP_SUCCESS}
+	${If} $0 != ${PE_SUCCESS}
 		log::Log "AddCLIToEnvironPath() failed: $0 $1"
 		Goto UpdatePath_return
 	${EndIf}
@@ -512,7 +512,7 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${UP_SUCCESS}
+	${If} $0 != ${PE_SUCCESS}
 		log::Log "RemoveCLIFromEnvironPath() failed: $0 $1"
 		Goto RemovePath_return
 	${EndIf}
