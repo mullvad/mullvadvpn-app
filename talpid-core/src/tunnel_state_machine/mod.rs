@@ -77,7 +77,7 @@ where
     let (command_tx, command_rx) = mpsc::unbounded();
     let offline_monitor =
         offline::spawn_monitor(command_tx.clone()).map_err(Error::OfflineMonitorError)?;
-    let is_offline = offline::is_offline();
+    let is_offline = offline_monitor.is_offline();
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
     thread::spawn(move || {

@@ -63,14 +63,16 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHa
     Ok(MonitorHandle)
 }
 
-pub fn is_offline() -> bool {
-    check_if_offline().unwrap_or_else(|error| {
-        warn!(
-            "{}",
-            error.display_chain_with_msg("Failed to check for internet connection")
-        );
-        false
-    })
+impl MonitorHandle {
+    pub fn is_offline(&self) -> bool {
+        check_if_offline().unwrap_or_else(|error| {
+            warn!(
+                "{}",
+                error.display_chain_with_msg("Failed to check for internet connection")
+            );
+            false
+        })
+    }
 }
 
 /// Checks if there are no running links or that none of the running links have IP addresses
