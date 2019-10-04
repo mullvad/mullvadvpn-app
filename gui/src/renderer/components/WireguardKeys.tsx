@@ -48,17 +48,30 @@ export default class WireguardKeys extends Component<IProps> {
                 </HeaderTitle>
               </SettingsHeader>
 
-              <View style={styles.wgkeys__row}>{this.blockedStateLabel()}</View>
-              <View style={styles.wgkeys__row}>
-                <Text style={styles.wgkeys__row_label}>
-                  {messages.pgettext('wireguard-keys', 'Public key')}
+              {this.props.isOffline && (
+                <Text style={[styles.wgkeys__row, styles.wgkeys__invalid_key]}>
+                  {messages.pgettext(
+                    'wireguard-key-view',
+                    "Can't manage keys whilst in a blocked state",
+                  )}
                 </Text>
+              )}
+
+              <View style={styles.wgkeys__row}>
+                <View style={styles.wgkeys__validity_row}>
+                  <Text style={styles.wgkeys__row_label}>
+                    {messages.pgettext('wireguard-keys', 'Public key')}
+                  </Text>
+                  {this.keyValidityLabel()}
+                </View>
+
                 <View style={styles.wgkeys__row_value}>{this.getKeyText()}</View>
+              </View>
+              <View style={styles.wgkeys__row}>
                 <Text style={styles.wgkeys__row_label}>
                   {messages.pgettext('wireguard-keys', 'Key generated')}
                 </Text>
                 <Text style={styles.wgkeys__row_value}>{this.ageOfKeyString()}</Text>
-                <View style={styles.wgkeys__validity_row}>{this.keyValidityLabel()}</View>
               </View>
 
               <View style={styles.wgkeys__row}>{this.getGenerateButton()}</View>
@@ -249,16 +262,5 @@ export default class WireguardKeys extends Component<IProps> {
       default:
         return failure;
     }
-  }
-
-  private blockedStateLabel() {
-    if (!this.props.isOffline) {
-      return undefined;
-    }
-    return (
-      <Text style={styles.wgkeys__invalid_key}>
-        {messages.pgettext('wireguard-key-view', "Can't manage keys whilst in a blocked state")}
-      </Text>
-    );
   }
 }
