@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.util.EventNotifier
 class MullvadDaemon(val vpnService: MullvadVpnService) {
     val onSettingsChange = EventNotifier<Settings?>(null)
 
+    var onAppVersionInfoChange: ((AppVersionInfo) -> Unit)? = null
     var onKeygenEvent: ((KeygenEvent) -> Unit)? = null
     var onRelayListChange: ((RelayList) -> Unit)? = null
     var onTunnelStateChange: ((TunnelState) -> Unit)? = null
@@ -42,6 +43,10 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     external fun verifyWireguardKey(): Boolean?
 
     private external fun initialize(vpnService: MullvadVpnService)
+
+    private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo) {
+        onAppVersionInfoChange?.invoke(appVersionInfo)
+    }
 
     private fun notifyKeygenEvent(event: KeygenEvent) {
         onKeygenEvent?.invoke(event)
