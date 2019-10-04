@@ -133,10 +133,7 @@ impl DaemonInterface {
 
         self.send_command(ManagementCommand::GetVersionInfo(tx))?;
 
-        rx.wait()
-            .map_err(|_| Error::NoResponse)?
-            .wait()
-            .map_err(Error::RpcError)
+        rx.wait().map_err(|_| Error::NoResponse)
     }
 
     pub fn get_wireguard_key(&self) -> Result<Option<wireguard::PublicKey>> {
