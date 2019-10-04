@@ -51,6 +51,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix notification button icons.
 - Fix collapsing tunnel information causing tunnel out IP address information to be lost.
 
+#### Windows
+- More adjustments in online/offline detection logic.
+
 
 ## [2019.8] - 2019-09-23
 This release is identical to 2019.8-beta1
