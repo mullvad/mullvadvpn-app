@@ -6,4 +6,3 @@ EXPORTS
 	WinNet_ReleaseString
 	WinNet_ActivateConnectivityMonitor
 	WinNet_DeactivateConnectivityMonitor
-	WinNet_CheckConnectivity

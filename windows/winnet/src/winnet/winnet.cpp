@@ -209,28 +209,3 @@ WinNet_DeactivateConnectivityMonitor(
 	{
 	}
 }
-
-extern "C"
-WINNET_LINKAGE
-WINNET_CC_STATUS
-WINNET_API
-WinNet_CheckConnectivity(
-	MullvadLogSink logSink,
-	void *logSinkContext
-)
-{
-	try
-	{
-		return (NetMonitor::CheckConnectivity(std::make_shared<shared::LogSinkAdapter>(logSink, logSinkContext))
-			? WINNET_CC_STATUS_CONNECTED : WINNET_CC_STATUS_NOT_CONNECTED);
-	}
-	catch (const std::exception &err)
-	{
-		UnwindAndLog(logSink, logSinkContext, err);
-		return WINNET_CC_STATUS_CONNECTIVITY_UNKNOWN;
-	}
-	catch (...)
-	{
-		return WINNET_CC_STATUS_CONNECTIVITY_UNKNOWN;
-	}
-}
