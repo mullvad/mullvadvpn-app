@@ -158,7 +158,6 @@ mod api {
         pub fn WinNet_ActivateConnectivityMonitor(
             callback: Option<ConnectivityCallback>,
             callbackContext: *mut libc::c_void,
-            currentConnectivity: *mut bool,
             sink: Option<LogSink>,
             sink_context: *mut c_void,
         ) -> bool;
