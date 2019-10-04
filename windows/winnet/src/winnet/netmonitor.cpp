@@ -5,31 +5,6 @@
 #include <libcommon/string.h>
 #include <sstream>
 
-namespace
-{
-
-bool ValidInterfaceType(const MIB_IF_ROW2 &iface)
-{
-	switch (iface.InterfaceLuid.Info.IfType)
-	{
-		case IF_TYPE_SOFTWARE_LOOPBACK:
-		case IF_TYPE_TUNNEL:
-		{
-			return false;
-		}
-	}
-
-	if (FALSE != iface.InterfaceAndOperStatusFlags.FilterInterface
-		|| 0 == iface.PhysicalAddressLength
-		|| FALSE != iface.InterfaceAndOperStatusFlags.EndPointInterface)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-} // anonymous namespace
 
 NetMonitor::NetMonitor
 (
@@ -42,8 +17,7 @@ NetMonitor::NetMonitor
 	, m_connected(false)
 	, m_notificationHandle(nullptr)
 {
-	m_cache = CreateCache();
-	updateConnectivity();
+	UpdateConnectivity();
 
 	currentConnectivity = m_connected;
 
@@ -53,7 +27,7 @@ NetMonitor::NetMonitor
 
 	if (false == m_connected)
 	{
-		LogOfflineState(m_logSink);
+		LogOfflineState();
 	}
 }
 
@@ -62,97 +36,9 @@ NetMonitor::~NetMonitor()
 	CancelMibChangeNotify2(m_notificationHandle);
 }
 
-// static
-bool NetMonitor::CheckConnectivity(std::shared_ptr<common::logging::ILogSink> logSink)
+void NetMonitor::UpdateConnectivity()
 {
-	static bool loggedOffline = false;
-
-	const auto connected = CheckConnectivity(CreateCache());
-
-	if (connected)
-	{
-		loggedOffline = false;
-	}
-	else if (false == loggedOffline)
-	{
-		LogOfflineState(logSink);
-		loggedOffline = true;
-	}
-
-	return connected;
-}
-
-// static
-NetMonitor::Cache NetMonitor::CreateCache()
-{
-	MIB_IF_TABLE2 *table;
-
-	const auto status = GetIfTable2(&table);
-
-	THROW_UNLESS(NO_ERROR, status, "Acquire network interface table");
-
-	common::memory::ScopeDestructor sd;
-
-	sd += [table]()
-	{
-		FreeMibTable(table);
-	};
-
-	std::map<uint64_t, CacheEntry> cache;
-
-	for (ULONG i = 0; i < table->NumEntries; ++i)
-	{
-		AddCacheEntry(cache, table->Table[i]);
-	}
-
-	return cache;
-}
-
-// static
-void NetMonitor::AddCacheEntry(Cache &cache, const MIB_IF_ROW2 &iface)
-{
-	CacheEntry e;
-
-	if (ValidInterfaceType(iface))
-	{
-		e.luid = iface.InterfaceLuid.Value;
-		e.valid = true;
-		e.connected =
-		(
-			NET_IF_ADMIN_STATUS_UP == iface.AdminStatus
-			&& IfOperStatusUp == iface.OperStatus
-			&& MediaConnectStateConnected == iface.MediaConnectState
-		);
-	}
-	else
-	{
-		e.luid = iface.InterfaceLuid.Value;
-		e.valid = false;
-		e.connected = false;
-	}
-
-	cache.insert(std::make_pair(e.luid, e));
-}
-
-// static
-bool NetMonitor::CheckConnectivity(const Cache &cache)
-{
-	for (const auto cacheEntryIter : cache)
-	{
-		const auto entry = cacheEntryIter.second;
-
-		if (entry.valid && entry.connected)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-void NetMonitor::updateConnectivity()
-{
-	m_connected = NetMonitor::CheckConnectivity(m_cache);
+	m_connected = m_netInterfaces.anyConnected();
 }
 
 //static
@@ -182,81 +68,24 @@ void NetMonitor::callback(MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updat
 	{
 		case MibAddInstance:
 		{
-			MIB_IF_ROW2 iface = { 0 };
-			iface.InterfaceLuid = hint->InterfaceLuid;
-
-			const auto status = GetIfEntry2(&iface);
-
-			if (NO_ERROR != status)
-			{
-				std::stringstream ss;
-
-				ss << "GetIfEntry2() failed for LUID 0x" << std::hex << iface.InterfaceLuid.Value
-					<< " during processing of MibAddInstance, error: 0x" << status;
-
-				throw std::runtime_error(ss.str());
-			}
-
-			//
-			// The reason for removing an existing entry is that enabling
-			// an interface on the adapter might change the overall properties in the
-			// "row" which is merely an abstraction over all interfaces.
-			//
-
-			m_cache.erase(iface.InterfaceLuid.Value);
-			AddCacheEntry(m_cache, iface);
-
+			m_netInterfaces.add(hint->InterfaceLuid);
 			break;
 		}
 		case MibDeleteInstance:
 		{
-			m_cache.erase(hint->InterfaceLuid.Value);
-
-			MIB_IF_ROW2 iface = { 0 };
-			iface.InterfaceLuid = hint->InterfaceLuid;
-
-			const auto status = GetIfEntry2(&iface);
-
-			if (NO_ERROR == status)
-			{
-				AddCacheEntry(m_cache, iface);
-			}
-
+			m_netInterfaces.remove(hint->InterfaceLuid);
 			break;
 		}
 		case MibParameterNotification:
 		{
-			MIB_IF_ROW2 iface = { 0 };
-			iface.InterfaceLuid = hint->InterfaceLuid;
-
-			const auto status = GetIfEntry2(&iface);
-
-			if (NO_ERROR != status)
-			{
-				//
-				// Only update the cache if we can look up the interface details.
-				// This way, if the interface was connected and continues to be so, we don't
-				// mistakenly switch the status to "offline".
-				//
-
-				std::stringstream ss;
-
-				ss << "GetIfEntry2() failed for LUID 0x" << std::hex << iface.InterfaceLuid.Value
-					<< " during processing of MibParameterNotification, error: 0x" << status;
-
-				throw std::runtime_error(ss.str());
-			}
-
-			m_cache.erase(iface.InterfaceLuid.Value);
-			AddCacheEntry(m_cache, iface);
-
+			m_netInterfaces.update(hint->InterfaceLuid);
 			break;
 		}
 	}
 
 	const auto previousConnectivity = m_connected;
 
-	updateConnectivity();
+	UpdateConnectivity();
 
 	if (previousConnectivity != m_connected)
 	{
@@ -264,13 +93,12 @@ void NetMonitor::callback(MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updat
 
 		if (false == m_connected)
 		{
-			LogOfflineState(m_logSink);
+			LogOfflineState();
 		}
 	}
 }
 
-//static
-void NetMonitor::LogOfflineState(std::shared_ptr<common::logging::ILogSink> logSink)
+void NetMonitor::LogOfflineState()
 {
 	//
 	// There is a race condition here because logging is not done using the
@@ -279,7 +107,7 @@ void NetMonitor::LogOfflineState(std::shared_ptr<common::logging::ILogSink> logS
 	// Not much of a problem really, this is temporary logging.
 	//
 
-	logSink->info("Machine is offline");
+	m_logSink->info("Machine is offline");
 
 	MIB_IF_TABLE2 *table;
 
@@ -287,7 +115,7 @@ void NetMonitor::LogOfflineState(std::shared_ptr<common::logging::ILogSink> logS
 
 	if (NO_ERROR != status)
 	{
-		logSink->error("Failed to acquire list of network interfaces. Aborting detailed logging");
+		m_logSink->error("Failed to acquire list of network interfaces. Aborting detailed logging");
 		return;
 	}
 
@@ -298,7 +126,7 @@ void NetMonitor::LogOfflineState(std::shared_ptr<common::logging::ILogSink> logS
 		FreeMibTable(table);
 	};
 
-	logSink->info("Begin detailed listing of network interfaces");
+	m_logSink->info("Begin detailed listing of network interfaces");
 
 	for (ULONG i = 0; i < table->NumEntries; ++i)
 	{
@@ -380,8 +208,8 @@ void NetMonitor::LogOfflineState(std::shared_ptr<common::logging::ILogSink> logS
 		ss << "  ReceiveLinkSpeed: " << iface.ReceiveLinkSpeed << std::endl;
 		ss << "  InUcastPkts:" << iface.InUcastPkts;
 
-		logSink->info(ss.str().c_str());
+		m_logSink->info(ss.str().c_str());
 	}
 
-	logSink->info("End detailed listing of network interfaces");
+	m_logSink->info("End detailed listing of network interfaces");
 }
