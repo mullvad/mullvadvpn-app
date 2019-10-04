@@ -119,19 +119,6 @@ pub fn get_tap_interface_alias() -> Result<OsString, Error> {
     Ok(alias.to_os_string())
 }
 
-/// Returns true if current host is not connected to any network
-pub fn is_offline() -> Result<bool, Error> {
-    match unsafe { WinNet_CheckConnectivity(Some(log_sink), ptr::null_mut()) } {
-        // Not connected
-        0 => Ok(true),
-        // Connected
-        1 => Ok(false),
-        // 2 means that connectivity can't be determined, but any other return value is unexpected
-        // and as such, is considered to be an error.
-        _ => Err(Error::ConnectivityUnkown),
-    }
-}
-
 #[allow(non_snake_case)]
 mod api {
     use super::LogSeverity;
@@ -178,8 +165,5 @@ mod api {
 
         #[link_name = "WinNet_DeactivateConnectivityMonitor"]
         pub fn WinNet_DeactivateConnectivityMonitor() -> bool;
-
-        #[link_name = "WinNet_CheckConnectivity"]
-        pub fn WinNet_CheckConnectivity(sink: Option<LogSink>, sink_context: *mut c_void) -> u32;
     }
 }
