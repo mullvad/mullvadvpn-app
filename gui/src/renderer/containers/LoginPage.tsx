@@ -3,8 +3,8 @@ import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Login from '../components/Login';
+import withAppContext, { IAppContext } from '../context';
 import accountActions from '../redux/account/actions';
-import withAppContext, { IAppReduxContext } from '../redux/context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => {
@@ -16,7 +16,7 @@ const mapStateToProps = (state: IReduxState) => {
     loginState: status,
   };
 };
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppReduxContext) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ push }, dispatch);
   const { resetLoginError, updateAccountToken } = bindActionCreators(accountActions, dispatch);
   return {

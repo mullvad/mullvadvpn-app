@@ -6,8 +6,8 @@ import { bindActionCreators } from 'redux';
 import { sprintf } from 'sprintf-js';
 import { messages } from '../../shared/gettext';
 import Connect from '../components/Connect';
+import withAppContext, { IAppContext } from '../context';
 import AccountExpiry from '../lib/account-expiry';
-import withAppContext, { IAppReduxContext } from '../redux/context';
 import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
@@ -76,7 +76,7 @@ const mapStateToProps = (state: IReduxState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppReduxContext) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ push }, dispatch);
 
   return {

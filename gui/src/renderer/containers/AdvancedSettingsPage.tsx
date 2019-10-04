@@ -6,7 +6,7 @@ import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import AdvancedSettings from '../components/AdvancedSettings';
 
-import withAppContext, { IAppReduxContext } from '../redux/context';
+import withAppContext, { IAppContext } from '../context';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
@@ -51,7 +51,7 @@ const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) =>
   }
 };
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppReduxContext) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ push, goBack }, dispatch);
   return {
     onClose: () => {

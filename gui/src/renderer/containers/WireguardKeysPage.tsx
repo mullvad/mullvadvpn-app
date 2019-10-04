@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { links } from '../../config.json';
 import WireguardKeys from '../components/WireguardKeys';
-import withAppContext, { IAppReduxContext } from '../redux/context';
+import withAppContext, { IAppContext } from '../context';
 import { IWgKey } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
@@ -13,7 +13,7 @@ const mapStateToProps = (state: IReduxState) => ({
   isOffline: state.connection.isBlocked,
   locale: state.userInterface.locale,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppReduxContext) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ push, goBack }, dispatch);
   return {
     onClose: () => history.goBack(),

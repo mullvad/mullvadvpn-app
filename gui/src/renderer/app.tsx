@@ -11,7 +11,7 @@ import { Provider } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import ErrorBoundary from './components/ErrorBoundary';
-import { AppReduxContext } from './redux/context';
+import { AppContext } from './context';
 import AppRoutes from './routes';
 
 import accountActions from './redux/account/actions';
@@ -213,7 +213,7 @@ export default class AppRenderer {
 
   public renderView() {
     return (
-      <AppReduxContext.Provider value={{ app: this }}>
+      <AppContext.Provider value={{ app: this }}>
         <Provider store={this.reduxStore}>
           <ConnectedRouter history={this.memoryHistory}>
             <ErrorBoundary>
@@ -221,7 +221,7 @@ export default class AppRenderer {
             </ErrorBoundary>
           </ConnectedRouter>
         </Provider>
-      </AppReduxContext.Provider>
+      </AppContext.Provider>
     );
   }
 

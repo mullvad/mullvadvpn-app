@@ -3,7 +3,7 @@ import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Preferences from '../components/Preferences';
-import withAppContext, { IAppReduxContext } from '../redux/context';
+import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => ({
@@ -15,7 +15,7 @@ const mapStateToProps = (state: IReduxState) => ({
   startMinimized: state.settings.guiSettings.startMinimized,
 });
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppReduxContext) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ goBack }, dispatch);
   return {
     onClose: () => {

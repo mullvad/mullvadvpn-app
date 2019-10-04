@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { links } from '../../config.json';
 import Account from '../components/Account';
 
-import withAppContext, { IAppReduxContext } from '../redux/context';
+import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => ({
@@ -14,7 +14,7 @@ const mapStateToProps = (state: IReduxState) => ({
   expiryLocale: state.userInterface.locale,
   isOffline: state.connection.isBlocked,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppReduxContext) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ goBack }, dispatch);
   return {
     onLogout: () => {

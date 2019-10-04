@@ -1,32 +1,32 @@
 import * as React from 'react';
-import App from '../app';
+import App from './app';
 
-export interface IAppReduxContext {
+export interface IAppContext {
   app: App;
 }
 
-export const AppReduxContext = React.createContext<IAppReduxContext | undefined>(undefined);
-AppReduxContext.displayName = 'AppReduxContext';
+export const AppContext = React.createContext<IAppContext | undefined>(undefined);
+AppContext.displayName = 'AppContext';
 
 export default function withAppContext<Props>(BaseComponent: React.ComponentClass<Props>) {
-  // Exclude the IAppReduxContext from props since those are injected props
-  const wrappedComponent = (props: Omit<Props, keyof IAppReduxContext>) => {
+  // Exclude the IAppContext from props since those are injected props
+  const wrappedComponent = (props: Omit<Props, keyof IAppContext>) => {
     return (
-      <AppReduxContext.Consumer>
+      <AppContext.Consumer>
         {(context) => {
           if (context) {
             // Enforce type because Typescript does not recognize that
-            // (Props ~ IAppReduxContext & IAppReduxContext) is identical to Props.
+            // (Props ~ IAppContext & IAppContext) is identical to Props.
             const mergedProps = ({ ...props, ...context } as unknown) as Props;
 
             return <BaseComponent {...mergedProps} />;
           } else {
             throw new Error(
-              'The context value is empty. Make sure to wrap the component in AppReduxContext.Provider or use withAppContext',
+              'The context value is empty. Make sure to wrap the component in AppContext.Provider or use withAppContext',
             );
           }
         }}
-      </AppReduxContext.Consumer>
+      </AppContext.Consumer>
     );
   };
 

@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import { shell } from 'electron';
 import { links } from '../../config.json';
 import NotificationArea from '../components/NotificationArea';
+import withAppContext, { IAppContext } from '../context';
 import AccountExpiry from '../lib/account-expiry';
-import withAppContext, { IAppReduxContext } from '../redux/context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
-const mapStateToProps = (state: IReduxState, _props: IAppReduxContext) => ({
+const mapStateToProps = (state: IReduxState, _props: IAppContext) => ({
   accountExpiry: state.account.expiry
     ? new AccountExpiry(state.account.expiry, state.userInterface.locale)
     : undefined,
@@ -16,7 +16,7 @@ const mapStateToProps = (state: IReduxState, _props: IAppReduxContext) => ({
   blockWhenDisconnected: state.settings.blockWhenDisconnected,
 });
 
-const mapDispatchToProps = (_dispatch: ReduxDispatch, _props: IAppReduxContext) => {
+const mapDispatchToProps = (_dispatch: ReduxDispatch, _props: IAppContext) => {
   return {
     onOpenDownloadLink() {
       shell.openExternal(links.download);
