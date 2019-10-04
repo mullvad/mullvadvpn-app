@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="networkadaptermonitor.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="InterfacePair.cpp" />
     <ClCompile Include="interfaceutils.cpp" />
@@ -28,6 +29,7 @@
     <ClCompile Include="winnet.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="networkadaptermonitor.h" />
     <ClInclude Include="InterfacePair.h" />
     <ClInclude Include="interfaceutils.h" />
     <ClInclude Include="netmonitor.h" />
