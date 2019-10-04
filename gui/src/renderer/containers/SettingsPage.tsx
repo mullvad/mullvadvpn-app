@@ -3,11 +3,9 @@ import { remote, shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Settings from '../components/Settings';
-
 import { IReduxState, ReduxDispatch } from '../redux/store';
-import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: IReduxState, _props: ISharedRouteProps) => ({
+const mapStateToProps = (state: IReduxState) => ({
   preferredLocaleDisplayName: state.userInterface.preferredLocaleName,
   loginState: state.account.status,
   accountExpiry: state.account.expiry,
@@ -17,7 +15,7 @@ const mapStateToProps = (state: IReduxState, _props: ISharedRouteProps) => ({
   upToDateVersion: !state.version.currentIsOutdated,
   isOffline: state.connection.isBlocked,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch, _props: ISharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch) => {
   const history = bindActionCreators({ push, goBack }, dispatch);
   return {
     onQuit: () => remote.app.quit(),

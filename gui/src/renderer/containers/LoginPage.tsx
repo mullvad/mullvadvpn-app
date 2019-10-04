@@ -4,9 +4,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Login from '../components/Login';
 import accountActions from '../redux/account/actions';
-
+import withAppContext, { IAppReduxContext } from '../redux/context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
-import { ISharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: IReduxState) => {
   const { accountToken, accountHistory, error, status } = state.account;
@@ -17,7 +16,7 @@ const mapStateToProps = (state: IReduxState) => {
     loginState: status,
   };
 };
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppReduxContext) => {
   const history = bindActionCreators({ push }, dispatch);
   const { resetLoginError, updateAccountToken } = bindActionCreators(accountActions, dispatch);
   return {
@@ -36,7 +35,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Login);
+export default withAppContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Login),
+);

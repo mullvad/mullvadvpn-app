@@ -7,9 +7,9 @@ import { sprintf } from 'sprintf-js';
 import { messages } from '../../shared/gettext';
 import Connect from '../components/Connect';
 import AccountExpiry from '../lib/account-expiry';
+import withAppContext, { IAppReduxContext } from '../redux/context';
 import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
-import { ISharedRouteProps } from '../routes';
 
 function getRelayName(
   relaySettings: RelaySettingsRedux,
@@ -64,7 +64,7 @@ function getRelayName(
   }
 }
 
-const mapStateToProps = (state: IReduxState, _props: ISharedRouteProps) => {
+const mapStateToProps = (state: IReduxState) => {
   return {
     accountExpiry: state.account.expiry
       ? new AccountExpiry(state.account.expiry, state.userInterface.locale)
@@ -76,7 +76,7 @@ const mapStateToProps = (state: IReduxState, _props: ISharedRouteProps) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppReduxContext) => {
   const history = bindActionCreators({ push }, dispatch);
 
   return {
@@ -104,7 +104,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Connect);
+export default withAppContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Connect),
+);
