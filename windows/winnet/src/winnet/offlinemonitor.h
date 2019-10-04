@@ -1,0 +1,31 @@
+#pragma once
+
+#include <libcommon/logging/ilogsink.h>
+#include <map>
+#include <mutex>
+#include "networkadaptermonitor.h"
+
+class OfflineMonitor
+{
+public:
+
+	//
+	// Connectivity changed.
+	// true = connected, false = disconnected.
+	//
+	using Notifier = std::function<void(bool)>;
+
+	OfflineMonitor(std::shared_ptr<common::logging::ILogSink> logSink, Notifier notifier, bool &currentConnectivity);
+
+private:
+
+	std::shared_ptr<common::logging::ILogSink> m_logSink;
+	Notifier m_notifier;
+
+	bool m_connected;
+	NetworkAdapterMonitor m_netInterfaces;
+
+	void callback(const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, NetworkAdapterMonitor::UpdateType type);
+
+	void LogOfflineState();
+};
