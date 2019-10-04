@@ -2,7 +2,6 @@ import moment from 'moment';
 import * as React from 'react';
 import { Component, Types } from 'reactxp';
 import { sprintf } from 'sprintf-js';
-import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import {
   NotificationActions,
@@ -24,8 +23,9 @@ interface IProps {
   accountExpiry?: AccountExpiry;
   tunnelState: TunnelState;
   version: IVersionReduxState;
-  openExternalLink: (url: string) => void;
   blockWhenDisconnected: boolean;
+  onOpenDownloadLink: () => void;
+  onOpenBuyMoreLink: () => void;
 }
 
 type NotificationAreaPresentation =
@@ -277,7 +277,7 @@ export default class NotificationArea extends Component<IProps, State> {
               </NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>
-              <NotificationOpenLinkAction onPress={this.handleOpenDownloadLink} />
+              <NotificationOpenLinkAction onPress={this.props.onOpenDownloadLink} />
             </NotificationActions>
           </React.Fragment>
         )}
@@ -303,7 +303,7 @@ export default class NotificationArea extends Component<IProps, State> {
               </NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>
-              <NotificationOpenLinkAction onPress={this.handleOpenDownloadLink} />
+              <NotificationOpenLinkAction onPress={this.props.onOpenDownloadLink} />
             </NotificationActions>
           </React.Fragment>
         )}
@@ -318,19 +318,11 @@ export default class NotificationArea extends Component<IProps, State> {
               <NotificationSubtitle>{this.state.timeLeft}</NotificationSubtitle>
             </NotificationContent>
             <NotificationActions>
-              <NotificationOpenLinkAction onPress={this.handleOpenBuyMoreLink} />
+              <NotificationOpenLinkAction onPress={this.props.onOpenBuyMoreLink} />
             </NotificationActions>
           </React.Fragment>
         )}
       </NotificationBanner>
     );
   }
-
-  private handleOpenDownloadLink = () => {
-    this.props.openExternalLink(links.download);
-  };
-
-  private handleOpenBuyMoreLink = () => {
-    this.props.openExternalLink(links.purchase);
-  };
 }
