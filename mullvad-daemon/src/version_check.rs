@@ -18,7 +18,10 @@ const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 /// for `UPDATE_INTERVAL` directly and the computer is suspended, that clock
 /// won't tick, and the next update will be after 24 hours of the computer being *on*.
 const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 5);
+/// Wait this long until next check after a successful check
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
+/// Wait this long until next try if an update failed
+const UPDATE_INTERVAL_ERROR: Duration = Duration::from_secs(60 * 60 * 6);
 
 #[cfg(target_os = "linux")]
 const PLATFORM: &str = "linux";
@@ -31,11 +34,11 @@ const PLATFORM: &str = "android";
 
 pub struct VersionUpdater<F: Fn(&AppVersionInfo) + Send + 'static> {
     version_proxy: AppVersionProxy<HttpHandle>,
-    cache_dir: PathBuf,
+    cache_path: PathBuf,
     on_version_update: F,
     last_app_version_info: AppVersionInfo,
     next_update_time: Instant,
-    state: Option<VersionUpdaterState>,
+    state: VersionUpdaterState,
 }
 
 enum VersionUpdaterState {
@@ -51,62 +54,14 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> VersionUpdater<F> {
         last_app_version_info: AppVersionInfo,
     ) -> Self {
         let version_proxy = AppVersionProxy::new(rpc_handle);
+        let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         Self {
             version_proxy,
-            cache_dir,
+            cache_path,
             on_version_update,
             last_app_version_info,
             next_update_time: Instant::now(),
-            state: Some(VersionUpdaterState::Sleeping(Self::create_sleep_future())),
-        }
-    }
-
-    fn poll_sleep(&mut self, timer: &mut tokio_timer::Sleep) -> Option<VersionUpdaterState> {
-        let should_progress = match timer.poll() {
-            Err(e) => {
-                log::error!("Version check sleep error: {}", e);
-                true
-            }
-            Ok(Async::Ready(())) => true,
-            Ok(Async::NotReady) => false,
-        };
-        if should_progress {
-            let now = Instant::now();
-            Some(if now > self.next_update_time {
-                self.next_update_time = now + UPDATE_INTERVAL;
-                VersionUpdaterState::Updating(self.create_update_future())
-            } else {
-                VersionUpdaterState::Sleeping(Self::create_sleep_future())
-            })
-        } else {
-            None
-        }
-    }
-
-    fn poll_updater(
-        &mut self,
-        future: &mut Box<dyn Future<Item = AppVersionInfo, Error = Error> + Send + 'static>,
-    ) -> Option<VersionUpdaterState> {
-        let should_progress = match future.poll() {
-            Err(error) => {
-                log::error!("{}", error.display_chain_with_msg("Version check failed"));
-                true
-            }
-            Ok(Async::Ready(app_version_info)) => {
-                if app_version_info != self.last_app_version_info {
-                    log::debug!("Got new version check: {:?}", app_version_info);
-                    write_cache(&app_version_info, &self.cache_dir).unwrap();
-                    (self.on_version_update)(&app_version_info);
-                    self.last_app_version_info = app_version_info;
-                }
-                true
-            }
-            Ok(Async::NotReady) => false,
-        };
-        if should_progress {
-            Some(VersionUpdaterState::Sleeping(Self::create_sleep_future()))
-        } else {
-            None
+            state: VersionUpdaterState::Sleeping(Self::create_sleep_future()),
         }
     }
 
@@ -124,6 +79,16 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> VersionUpdater<F> {
         let future = Timer::default().timeout(download_future, DOWNLOAD_TIMEOUT);
         Box::new(future)
     }
+
+    fn write_cache(&self) -> Result<(), Error> {
+        log::debug!(
+            "Writing version check cache to {}",
+            self.cache_path.display()
+        );
+        let file = File::create(&self.cache_path).map_err(Error::WriteRelayCache)?;
+        serde_json::to_writer_pretty(io::BufWriter::new(file), &self.last_app_version_info)
+            .map_err(Error::Serialize)
+    }
 }
 
 impl<F: Fn(&AppVersionInfo) + Send + 'static> Future for VersionUpdater<F> {
@@ -131,14 +96,45 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> Future for VersionUpdater<F> {
     type Error = ();
 
     fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
-        let mut state = self.state.take().expect("No state in VersionUpdater");
-        while let Some(new_state) = match &mut state {
-            VersionUpdaterState::Sleeping(sleep) => self.poll_sleep(sleep),
-            VersionUpdaterState::Updating(future) => self.poll_updater(future),
+        while let Some(new_state) = match &mut self.state {
+            VersionUpdaterState::Sleeping(timer) => match timer.poll() {
+                Err(e) => {
+                    log::error!("Version check sleep error: {}", e);
+                    return Err(());
+                }
+                Ok(Async::NotReady) => None,
+                Ok(Async::Ready(())) => Some(if Instant::now() > self.next_update_time {
+                    VersionUpdaterState::Updating(self.create_update_future())
+                } else {
+                    VersionUpdaterState::Sleeping(Self::create_sleep_future())
+                }),
+            },
+            VersionUpdaterState::Updating(future) => match future.poll() {
+                Err(error) => {
+                    log::error!("{}", error.display_chain_with_msg("Version check failed"));
+                    self.next_update_time = Instant::now() + UPDATE_INTERVAL_ERROR;
+                    Some(VersionUpdaterState::Sleeping(Self::create_sleep_future()))
+                }
+                Ok(Async::Ready(app_version_info)) => {
+                    if app_version_info != self.last_app_version_info {
+                        self.next_update_time = Instant::now() + UPDATE_INTERVAL;
+                        log::debug!("Got new version check: {:?}", app_version_info);
+                        (self.on_version_update)(&app_version_info);
+                        self.last_app_version_info = app_version_info;
+                        if let Err(e) = self.write_cache() {
+                            log::error!(
+                                "{}",
+                                e.display_chain_with_msg("Unable to cache version check response")
+                            );
+                        }
+                    }
+                    Some(VersionUpdaterState::Sleeping(Self::create_sleep_future()))
+                }
+                Ok(Async::NotReady) => None,
+            },
         } {
-            state = new_state;
+            self.state = new_state;
         }
-        self.state = Some(state);
         Ok(Async::NotReady)
     }
 }
@@ -148,14 +144,6 @@ pub fn load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
     log::debug!("Loading version check cache from {}", path.display());
     let file = File::open(path).map_err(Error::ReadCachedRelays)?;
     serde_json::from_reader(io::BufReader::new(file)).map_err(Error::Serialize)
-}
-
-fn write_cache(app_version_info: &AppVersionInfo, cache_dir: &Path) -> Result<(), Error> {
-    let path = cache_dir.join(VERSION_INFO_FILENAME);
-    log::debug!("Writing version check cache to {}", path.display());
-    let file = File::create(path).map_err(Error::WriteRelayCache)?;
-    serde_json::to_writer_pretty(io::BufWriter::new(file), app_version_info)
-        .map_err(Error::Serialize)
 }
 
 #[derive(err_derive::Error, Debug)]
