@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import * as React from 'react';
 import { Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
 import { colors } from '../../config.json';
@@ -160,6 +161,54 @@ class BaseButton extends Component<IProps, IState> {
   private onLayout = async (containerLayout: Types.ViewOnLayoutEvent) => {
     this.updateTextAdjustment(containerLayout);
   };
+}
+
+interface IBlockingState {
+  isBlocked: boolean;
+}
+
+interface IBlockingProps {
+  children?: React.ReactNode;
+  onPress: () => Promise<void>;
+  disabled: boolean;
+}
+
+export class BlockingButton extends Component<IBlockingProps, IBlockingState> {
+  public state = {
+    isBlocked: false,
+  };
+
+  public render() {
+    // const childProps = this.props.children ? this.props.children.props : {};
+    return React.Children.map(this.props.children, (child) => {
+      if (child) {
+        const props = typeof child === 'object' && 'props' in child ? child.props : {};
+        return React.cloneElement(child as React.ReactElement<any>, {
+          ...props,
+          disabled: this.state.isBlocked || this.props.disabled,
+          onPress: this.onPress(),
+        });
+      } else {
+        log.error(`child is not actually truthy`);
+        return '';
+      }
+    });
+  }
+
+  private onPress() {
+    const asyncFunc = async () => {
+      this.setState({ isBlocked: true });
+      try {
+        await this.props.onPress();
+      } catch (error) {
+        log.error(`onPress() failed - ${error}`);
+      }
+      this.setState({ isBlocked: false });
+    };
+    return () => {
+      asyncFunc();
+    };
+  }
 }
 
 export class RedButton extends BaseButton {
