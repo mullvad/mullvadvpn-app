@@ -86,19 +86,3 @@ void
 WINNET_API
 WinNet_DeactivateConnectivityMonitor(
 );
-
-enum WINNET_CC_STATUS
-{
-	WINNET_CC_STATUS_NOT_CONNECTED = 0,
-	WINNET_CC_STATUS_CONNECTED = 1,
-	WINNET_CC_STATUS_CONNECTIVITY_UNKNOWN = 2,
-};
-
-extern "C"
-WINNET_LINKAGE
-WINNET_CC_STATUS
-WINNET_API
-WinNet_CheckConnectivity(
-	MullvadLogSink logSink,
-	void *logSinkContext
-);
