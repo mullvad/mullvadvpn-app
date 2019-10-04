@@ -49,6 +49,9 @@ const styles = {
       letterSpacing: -0.2,
       color: colors.white80,
     }),
+    boldText: Styles.createTextStyle({
+      fontWeight: '900',
+    }),
   },
   label: {
     container: Styles.createViewStyle({
@@ -386,9 +389,21 @@ export const UntintedIcon = function CellIcon(props: ImageView['props']) {
 };
 
 export const Footer = function CellFooter({ children }: IContainerProps) {
+  return <View style={styles.footer.container}>{children}</View>;
+};
+
+export const FooterText = function CellFooterText(props: Text['props']) {
   return (
-    <View style={styles.footer.container}>
-      <Text style={styles.footer.text}>{children}</Text>
-    </View>
+    <Text {...props} style={[styles.footer.text, props.style]}>
+      {props.children}
+    </Text>
+  );
+};
+
+export const FooterBoldText = function CellFooterText(props: Text['props']) {
+  return (
+    <Text {...props} style={[styles.footer.text, styles.footer.boldText, props.style]}>
+      {props.children}
+    </Text>
   );
 };

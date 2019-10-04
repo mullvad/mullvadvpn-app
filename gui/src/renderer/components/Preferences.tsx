@@ -79,10 +79,12 @@ export default class Preferences extends Component<IProps> {
                       />
                     </Cell.Container>
                     <Cell.Footer>
-                      {messages.pgettext(
-                        'preferences-view',
-                        'Automatically connect to a server when the app launches.',
-                      )}
+                      <Cell.FooterText>
+                        {messages.pgettext(
+                          'preferences-view',
+                          'Automatically connect to a server when the app launches.',
+                        )}
+                      </Cell.FooterText>
                     </Cell.Footer>
 
                     <Cell.Container>
@@ -92,10 +94,12 @@ export default class Preferences extends Component<IProps> {
                       <Cell.Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
                     </Cell.Container>
                     <Cell.Footer>
-                      {messages.pgettext(
-                        'preferences-view',
-                        'Allows access to other devices on the same network for sharing, printing etc.',
-                      )}
+                      <Cell.FooterText>
+                        {messages.pgettext(
+                          'preferences-view',
+                          'Allows access to other devices on the same network for sharing, printing etc.',
+                        )}
+                      </Cell.FooterText>
                     </Cell.Footer>
 
                     <Cell.Container>
@@ -108,10 +112,12 @@ export default class Preferences extends Component<IProps> {
                       />
                     </Cell.Container>
                     <Cell.Footer>
-                      {messages.pgettext(
-                        'preferences-view',
-                        'Enable or disable system notifications. The critical notifications will always be displayed.',
-                      )}
+                      <Cell.FooterText>
+                        {messages.pgettext(
+                          'preferences-view',
+                          'Enable or disable system notifications. The critical notifications will always be displayed.',
+                        )}
+                      </Cell.FooterText>
                     </Cell.Footer>
 
                     {this.props.enableMonochromaticIconToggle ? (
@@ -126,10 +132,12 @@ export default class Preferences extends Component<IProps> {
                           />
                         </Cell.Container>
                         <Cell.Footer>
-                          {messages.pgettext(
-                            'preferences-view',
-                            'Use a monochromatic tray icon instead of a colored one.',
-                          )}
+                          <Cell.FooterText>
+                            {messages.pgettext(
+                              'preferences-view',
+                              'Use a monochromatic tray icon instead of a colored one.',
+                            )}
+                          </Cell.FooterText>
                         </Cell.Footer>
                       </React.Fragment>
                     ) : (
@@ -148,10 +156,12 @@ export default class Preferences extends Component<IProps> {
                           />
                         </Cell.Container>
                         <Cell.Footer>
-                          {messages.pgettext(
-                            'preferences-view',
-                            'Show only the tray icon when the app starts.',
-                          )}
+                          <Cell.FooterText>
+                            {messages.pgettext(
+                              'preferences-view',
+                              'Show only the tray icon when the app starts.',
+                            )}
+                          </Cell.FooterText>
                         </Cell.Footer>
                       </React.Fragment>
                     ) : (

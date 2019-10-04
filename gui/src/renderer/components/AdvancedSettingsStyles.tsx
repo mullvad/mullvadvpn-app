@@ -40,6 +40,9 @@ export default {
     color: colors.white,
     flex: 0,
   }),
+  advanced_settings__cell_footer_internet_warning_label: Styles.createTextStyle({
+    marginTop: 4,
+  }),
   advanced_settings__mssfix_input: Styles.createTextInputStyle({
     minWidth: 80,
   }),
