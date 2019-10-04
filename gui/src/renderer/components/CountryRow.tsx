@@ -80,7 +80,8 @@ export default class CountryRow extends Component<IProps> {
         <Cell.CellButton
           style={styles.base}
           onPress={this.handlePress}
-          disabled={!this.props.hasActiveRelays}>
+          disabled={!this.props.hasActiveRelays}
+          selected={this.props.selected}>
           <RelayStatusIndicator
             active={this.props.hasActiveRelays}
             selected={this.props.selected}
