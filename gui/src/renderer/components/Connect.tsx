@@ -10,7 +10,7 @@ import { Brand, HeaderBarStyle, SettingsBarButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
-import NotificationArea from './NotificationArea';
+import NotificationAreaContainer from '../containers/NotificationAreaContainer';
 import TunnelControl from './TunnelControl';
 
 interface IProps {
@@ -166,14 +166,7 @@ export default class Connect extends Component<IProps, IState> {
             onSelectLocation={this.props.onSelectLocation}
           />
 
-          <NotificationArea
-            style={styles.notificationArea}
-            tunnelState={this.props.connection.status}
-            version={this.props.version}
-            accountExpiry={this.props.accountExpiry}
-            openExternalLink={this.props.onExternalLink}
-            blockWhenDisconnected={this.props.blockWhenDisconnected}
-          />
+          <NotificationAreaContainer style={styles.notificationArea} />
         </View>
       </View>
     );
