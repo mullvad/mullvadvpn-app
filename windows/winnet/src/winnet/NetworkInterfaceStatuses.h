@@ -35,8 +35,6 @@ public:
 
 	NetworkInterfaceStatuses();
 
-	Entry* Find(NET_LUID luid);
-
 	void Add(NET_LUID luid);
 	void Remove(NET_LUID luid);
 	void Update(NET_LUID luid);

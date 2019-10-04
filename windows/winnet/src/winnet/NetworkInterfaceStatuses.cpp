@@ -153,15 +153,3 @@ void NetworkInterfaceStatuses::Update(NET_LUID luid)
 	m_cache.erase(newIface.InterfaceLuid.Value);
 	AddInternal(newIface);
 }
-
-NetworkInterfaceStatuses::Entry* NetworkInterfaceStatuses::Find(
-	NET_LUID luid
-)
-{
-	const auto entryIter = m_cache.find(luid.Value);
-	if (m_cache.end() != entryIter)
-	{
-		return &entryIter->second;
-	}
-	return nullptr;
-}
