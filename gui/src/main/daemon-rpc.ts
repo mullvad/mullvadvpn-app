@@ -368,6 +368,9 @@ const daemonEventSchema = oneOf(
   object({
     wireguard_key: keygenEventSchema,
   }),
+  object({
+    app_version_info: appVersionInfoSchema,
+  }),
 );
 
 export class ResponseParseError extends Error {

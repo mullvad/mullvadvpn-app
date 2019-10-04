@@ -540,6 +540,8 @@ class ApplicationMain {
           );
         } else if ('wireguardKey' in daemonEvent) {
           this.handleWireguardKeygenEvent(daemonEvent.wireguardKey);
+        } else if ('appVersionInfo' in daemonEvent) {
+          this.setAppVersionInfo(daemonEvent.appVersionInfo);
         }
       },
       (error: Error) => {
@@ -584,6 +586,10 @@ class ApplicationMain {
     if (this.windowController) {
       IpcMainEventChannel.wireguardKeys.notifyKeygenEvent(this.windowController.webContents, event);
     }
+  }
+
+  private setAppVersionInfo(appVersionInfo: IAppVersionInfo) {
+    log.error(`Does not handle new AppVersionInfo yet: ${appVersionInfo}`);
   }
 
   private setTunnelState(newState: TunnelState) {
