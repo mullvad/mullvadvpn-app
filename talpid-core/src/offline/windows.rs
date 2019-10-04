@@ -19,7 +19,6 @@ use std::{
     thread,
     time::Duration,
 };
-use talpid_types::ErrorExt;
 use winapi::{
     shared::{
         basetsd::LONG_PTR,
@@ -215,6 +214,11 @@ impl BroadcastListener {
         let mut state = state_lock.lock();
         state.apply_change(StateChange::NetworkConnectivity(connectivity));
     }
+
+    pub fn is_offline(&self) -> bool {
+        let state = self._system_state.lock();
+        state.is_offline_currently()
+    }
 }
 
 impl Drop for BroadcastListener {
@@ -280,17 +284,4 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHa
 fn apply_system_state_change(state: Arc<Mutex<SystemState>>, change: StateChange) {
     let mut state = state.lock();
     state.apply_change(change);
-}
-
-pub fn is_offline() -> bool {
-    match winnet::is_offline() {
-        Ok(state) => state,
-        Err(e) => {
-            log::error!(
-                "{}",
-                e.display_chain_with_msg("Failed to get current connectivity")
-            );
-            false
-        }
-    }
 }

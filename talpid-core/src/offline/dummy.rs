@@ -7,10 +7,12 @@ pub struct Error;
 
 pub struct MonitorHandle;
 
-pub fn spawn_monitor(_sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle, Error> {
-    Ok(MonitorHandle)
+impl MonitorHandle {
+    pub fn is_offline(&self) -> bool {
+        false
+    }
 }
 
-pub fn is_offline() -> bool {
-    false
+pub fn spawn_monitor(_sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle, Error> {
+    Ok(MonitorHandle)
 }

@@ -36,10 +36,12 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHa
     result_rx.recv().unwrap().map(|_| MonitorHandle)
 }
 
-pub fn is_offline() -> bool {
-    let store = SCDynamicStoreBuilder::new("talpid-primary-interface").build();
-    let is_offline = store.get(CFString::new(PRIMARY_INTERFACE_KEY)).is_none();
-    is_offline
+impl MonitorHandle {
+    pub fn is_offline(&self) -> bool {
+        let store = SCDynamicStoreBuilder::new("talpid-primary-interface").build();
+        let is_offline = store.get(CFString::new(PRIMARY_INTERFACE_KEY)).is_none();
+        is_offline
+    }
 }
 
 fn create_dynamic_store(sender: UnboundedSender<TunnelCommand>) -> Result<SCDynamicStore, Error> {
