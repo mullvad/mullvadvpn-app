@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add ability to change the desktop GUI language from within Settings.
+- Add ability to create new accounts form the CLI
 
 #### Windows
 - Add CLI tools (the resource/ directory) to the system PATH.
