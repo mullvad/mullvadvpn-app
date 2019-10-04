@@ -1,12 +1,13 @@
-import { shell } from 'electron';
 import { connect } from 'react-redux';
-import NotificationArea from '../components/NotificationArea';
-import { links } from '../../config.json';
-import { IReduxState, ReduxDispatch } from '../redux/store';
-import { ISharedRouteProps } from '../routes';
-import AccountExpiry from '../lib/account-expiry';
 
-const mapStateToProps = (state: IReduxState) => ({
+import { shell } from 'electron';
+import { links } from '../../config.json';
+import NotificationArea from '../components/NotificationArea';
+import withAppContext, { IAppContext } from '../context';
+import AccountExpiry from '../lib/account-expiry';
+import { IReduxState, ReduxDispatch } from '../redux/store';
+
+const mapStateToProps = (state: IReduxState, _props: IAppContext) => ({
   accountExpiry: state.account.expiry
     ? new AccountExpiry(state.account.expiry, state.userInterface.locale)
     : undefined,
@@ -15,7 +16,7 @@ const mapStateToProps = (state: IReduxState) => ({
   blockWhenDisconnected: state.settings.blockWhenDisconnected,
 });
 
-const mapDispatchToProps = (_dispatch: ReduxDispatch, _props: ISharedRouteProps) => {
+const mapDispatchToProps = (_dispatch: ReduxDispatch, _props: IAppContext) => {
   return {
     onOpenDownloadLink() {
       shell.openExternal(links.download);
@@ -26,7 +27,9 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, _props: ISharedRouteProps)
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(NotificationArea);
+export default withAppContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(NotificationArea),
+);

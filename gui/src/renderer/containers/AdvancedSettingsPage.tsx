@@ -6,9 +6,9 @@ import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import AdvancedSettings from '../components/AdvancedSettings';
 
+import withAppContext, { IAppContext } from '../context';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
-import { ISharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: IReduxState) => {
   const protocolAndPort = mapRelaySettingsToProtocolAndPort(state.settings.relaySettings);
@@ -51,7 +51,7 @@ const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) =>
   }
 };
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ push, goBack }, dispatch);
   return {
     onClose: () => {
@@ -150,7 +150,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(AdvancedSettings);
+export default withAppContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(AdvancedSettings),
+);

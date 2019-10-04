@@ -4,16 +4,16 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { links } from '../../config.json';
 import WireguardKeys from '../components/WireguardKeys';
+import withAppContext, { IAppContext } from '../context';
 import { IWgKey } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
-import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: IReduxState, _props: ISharedRouteProps) => ({
+const mapStateToProps = (state: IReduxState) => ({
   keyState: state.settings.wireguardKeyState,
   isOffline: state.connection.isBlocked,
   locale: state.userInterface.locale,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ push, goBack }, dispatch);
   return {
     onClose: () => history.goBack(),
@@ -24,7 +24,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(WireguardKeys);
+export default withAppContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(WireguardKeys),
+);

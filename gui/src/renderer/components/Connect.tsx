@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Component, Styles, View } from 'reactxp';
 import { links } from '../../config.json';
+import NotificationAreaContainer from '../containers/NotificationAreaContainer';
 import AccountExpiry from '../lib/account-expiry';
 import { AuthFailureKind, parseAuthFailure } from '../lib/auth-failure';
 import { IConnectionReduxState } from '../redux/connection/reducers';
@@ -10,7 +11,6 @@ import { Brand, HeaderBarStyle, SettingsBarButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
-import NotificationAreaContainer from '../containers/NotificationAreaContainer';
 import TunnelControl from './TunnelControl';
 
 interface IProps {

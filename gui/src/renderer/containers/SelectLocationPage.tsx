@@ -6,10 +6,10 @@ import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import SelectLocation from '../components/SelectLocation';
+import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import userInterfaceActions from '../redux/userinterface/actions';
 import { LocationScope } from '../redux/userinterface/reducers';
-import { ISharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: IReduxState) => {
   let selectedExitLocation: RelayLocation | undefined;
@@ -40,7 +40,7 @@ const mapStateToProps = (state: IReduxState) => {
     allowBridgeSelection,
   };
 };
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ goBack }, dispatch);
   const userInterface = bindActionCreators(userInterfaceActions, dispatch);
 
@@ -89,7 +89,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(SelectLocation);
+export default withAppContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(SelectLocation),
+);

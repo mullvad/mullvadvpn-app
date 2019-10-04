@@ -11,6 +11,7 @@ import { Provider } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import ErrorBoundary from './components/ErrorBoundary';
+import { AppContext } from './context';
 import AppRoutes from './routes';
 
 import accountActions from './redux/account/actions';
@@ -212,13 +213,15 @@ export default class AppRenderer {
 
   public renderView() {
     return (
-      <Provider store={this.reduxStore}>
-        <ConnectedRouter history={this.memoryHistory}>
-          <ErrorBoundary>
-            <AppRoutes sharedProps={{ app: this }} />
-          </ErrorBoundary>
-        </ConnectedRouter>
-      </Provider>
+      <AppContext.Provider value={{ app: this }}>
+        <Provider store={this.reduxStore}>
+          <ConnectedRouter history={this.memoryHistory}>
+            <ErrorBoundary>
+              <AppRoutes />
+            </ErrorBoundary>
+          </ConnectedRouter>
+        </Provider>
+      </AppContext.Provider>
     );
   }
 

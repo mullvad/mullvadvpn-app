@@ -5,16 +5,16 @@ import { bindActionCreators } from 'redux';
 import { links } from '../../config.json';
 import Account from '../components/Account';
 
+import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
-import { ISharedRouteProps } from '../routes';
 
-const mapStateToProps = (state: IReduxState, _props: ISharedRouteProps) => ({
+const mapStateToProps = (state: IReduxState) => ({
   accountToken: state.account.accountToken,
   accountExpiry: state.account.expiry,
   expiryLocale: state.userInterface.locale,
   isOffline: state.connection.isBlocked,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ goBack }, dispatch);
   return {
     onLogout: () => {
@@ -27,7 +27,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Account);
+export default withAppContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Account),
+);
