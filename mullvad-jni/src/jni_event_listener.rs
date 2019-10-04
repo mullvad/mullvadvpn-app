@@ -66,6 +66,7 @@ impl EventListener for JniEventListener {
 struct JniEventHandler<'env> {
     env: AttachGuard<'env>,
     mullvad_ipc_client: JObject<'env>,
+    notify_app_version_info_event: JMethodID<'env>,
     notify_keygen_event: JMethodID<'env>,
     notify_relay_list_event: JMethodID<'env>,
     notify_settings_event: JMethodID<'env>,
@@ -110,6 +111,12 @@ impl<'env> JniEventHandler<'env> {
         events: mpsc::Receiver<Event>,
     ) -> Result<Self, Error> {
         let class = get_class("net/mullvad/mullvadvpn/MullvadDaemon");
+        let notify_app_version_info_event = Self::get_method_id(
+            &env,
+            &class,
+            "notifyAppVersionInfoEvent",
+            "(Lnet/mullvad/mullvadvpn/model/AppVersionInfo;)V",
+        )?;
         let notify_keygen_event = Self::get_method_id(
             &env,
             &class,
@@ -138,6 +145,7 @@ impl<'env> JniEventHandler<'env> {
         Ok(JniEventHandler {
             env,
             mullvad_ipc_client,
+            notify_app_version_info_event,
             notify_keygen_event,
             notify_relay_list_event,
             notify_settings_event,
@@ -243,6 +251,22 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_app_version_info_event(&self, app_version_info: AppVersionInfo) {
-        // FIXME: Unimplemented
+        let java_app_version_info = self.env.auto_local(app_version_info.into_java(&self.env));
+
+        let result = self.env.call_method_unchecked(
+            self.mullvad_ipc_client,
+            self.notify_app_version_info_event,
+            JavaType::Primitive(Primitive::Void),
+            &[JValue::Object(java_app_version_info.as_obj())],
+        );
+
+        if let Err(error) = result {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg(
+                    "Failed to call MullvadDaemon.notifyAppVersionInfoEvent"
+                )
+            );
+        }
     }
 }
