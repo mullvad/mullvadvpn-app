@@ -110,13 +110,8 @@ fn create_daemon(log_dir: Option<PathBuf>) -> Result<Daemon, String> {
     let cache_dir = mullvad_paths::cache_dir()
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
-    Daemon::start(
-        log_dir,
-        resource_dir,
-        cache_dir,
-        version::PRODUCT_VERSION.to_owned(),
-    )
-    .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
+    Daemon::start(log_dir, resource_dir, cache_dir)
+        .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
 }
 
 #[cfg(unix)]

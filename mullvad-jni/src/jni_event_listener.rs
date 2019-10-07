@@ -6,7 +6,8 @@ use jni::{
 };
 use mullvad_daemon::EventListener;
 use mullvad_types::{
-    relay_list::RelayList, settings::Settings, states::TunnelState, wireguard::KeygenEvent,
+    relay_list::RelayList, settings::Settings, states::TunnelState, version::AppVersionInfo,
+    wireguard::KeygenEvent,
 };
 use std::{sync::mpsc, thread};
 use talpid_types::ErrorExt;
@@ -28,6 +29,7 @@ enum Event {
     RelayList(RelayList),
     Settings(Settings),
     Tunnel(TunnelState),
+    AppVersionInfo(AppVersionInfo),
 }
 
 #[derive(Clone, Debug)]
@@ -55,11 +57,16 @@ impl EventListener for JniEventListener {
     fn notify_relay_list(&self, relay_list: RelayList) {
         let _ = self.0.send(Event::RelayList(relay_list));
     }
+
+    fn notify_app_version(&self, app_version_info: AppVersionInfo) {
+        let _ = self.0.send(Event::AppVersionInfo(app_version_info));
+    }
 }
 
 struct JniEventHandler<'env> {
     env: AttachGuard<'env>,
     mullvad_ipc_client: JObject<'env>,
+    notify_app_version_info_event: JMethodID<'env>,
     notify_keygen_event: JMethodID<'env>,
     notify_relay_list_event: JMethodID<'env>,
     notify_settings_event: JMethodID<'env>,
@@ -104,6 +111,12 @@ impl<'env> JniEventHandler<'env> {
         events: mpsc::Receiver<Event>,
     ) -> Result<Self, Error> {
         let class = get_class("net/mullvad/mullvadvpn/MullvadDaemon");
+        let notify_app_version_info_event = Self::get_method_id(
+            &env,
+            &class,
+            "notifyAppVersionInfoEvent",
+            "(Lnet/mullvad/mullvadvpn/model/AppVersionInfo;)V",
+        )?;
         let notify_keygen_event = Self::get_method_id(
             &env,
             &class,
@@ -132,6 +145,7 @@ impl<'env> JniEventHandler<'env> {
         Ok(JniEventHandler {
             env,
             mullvad_ipc_client,
+            notify_app_version_info_event,
             notify_keygen_event,
             notify_relay_list_event,
             notify_settings_event,
@@ -157,6 +171,9 @@ impl<'env> JniEventHandler<'env> {
                 Event::RelayList(relay_list) => self.handle_relay_list_event(relay_list),
                 Event::Settings(settings) => self.handle_settings(settings),
                 Event::Tunnel(tunnel_event) => self.handle_tunnel_event(tunnel_event),
+                Event::AppVersionInfo(app_version_info) => {
+                    self.handle_app_version_info_event(app_version_info)
+                }
             }
         }
     }
@@ -229,6 +246,26 @@ impl<'env> JniEventHandler<'env> {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to call MullvadDaemon.notifyTunnelStateEvent")
+            );
+        }
+    }
+
+    fn handle_app_version_info_event(&self, app_version_info: AppVersionInfo) {
+        let java_app_version_info = self.env.auto_local(app_version_info.into_java(&self.env));
+
+        let result = self.env.call_method_unchecked(
+            self.mullvad_ipc_client,
+            self.notify_app_version_info_event,
+            JavaType::Primitive(Primitive::Void),
+            &[JValue::Object(java_app_version_info.as_obj())],
+        );
+
+        if let Err(error) = result {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg(
+                    "Failed to call MullvadDaemon.notifyAppVersionInfoEvent"
+                )
             );
         }
     }

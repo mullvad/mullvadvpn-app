@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoFetcher
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.model.TunConfig
 
@@ -23,7 +22,6 @@ class MullvadVpnService : VpnService() {
     private lateinit var daemon: Deferred<MullvadDaemon>
     private lateinit var connectionProxy: ConnectionProxy
     private lateinit var notificationManager: ForegroundNotificationManager
-    private lateinit var versionInfoFetcher: AppVersionInfoFetcher
 
     override fun onCreate() {
         setUp()
@@ -95,7 +93,6 @@ class MullvadVpnService : VpnService() {
         daemon = startDaemon()
         connectionProxy = ConnectionProxy(this, daemon)
         notificationManager = startNotificationManager()
-        versionInfoFetcher = AppVersionInfoFetcher(daemon, this)
     }
 
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
@@ -130,6 +127,5 @@ class MullvadVpnService : VpnService() {
     private fun tearDown() {
         connectionProxy.onDestroy()
         notificationManager.onDestroy()
-        versionInfoFetcher.stop()
     }
 }

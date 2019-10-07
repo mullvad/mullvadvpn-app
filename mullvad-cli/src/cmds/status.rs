@@ -70,6 +70,11 @@ impl Command for Status {
                             println!("New relay list: {:#?}", relay_list);
                         }
                     }
+                    DaemonEvent::AppVersionInfo(app_version_info) => {
+                        if verbose {
+                            println!("New app version info: {:#?}", app_version_info);
+                        }
+                    }
                     DaemonEvent::WireguardKey(key_event) => {
                         if verbose {
                             println!("{}", key_event);

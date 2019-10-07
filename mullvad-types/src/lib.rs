@@ -35,6 +35,9 @@ pub enum DaemonEvent {
     /// The daemon got an updated relay list.
     RelayList(relay_list::RelayList),
 
+    /// The daemon got update version info.
+    AppVersionInfo(version::AppVersionInfo),
+
     /// Key event
     WireguardKey(wireguard::KeygenEvent),
 }

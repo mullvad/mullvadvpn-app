@@ -48,8 +48,6 @@ import ReconnectionBackoff from './reconnection-backoff';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController from './window-controller';
 
-const VERSION_UPDATE_INTERVAL = 24 * 60 * 60 * 1000;
-
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
 
@@ -141,7 +139,6 @@ class ApplicationMain {
     latest: '',
     nextUpgrade: undefined,
   };
-  private latestVersionInterval?: NodeJS.Timeout;
 
   // The UI locale which is set once from onReady handler
   private locale = 'en';
@@ -446,9 +443,6 @@ class ApplicationMain {
     // fetch the latest version info in background
     this.fetchLatestVersion();
 
-    // start periodic updates
-    this.startLatestVersionPeriodicUpdates();
-
     // notify user about inconsistent version
     if (
       process.env.NODE_ENV !== 'development' &&
@@ -477,9 +471,6 @@ class ApplicationMain {
 
     if (wasConnected) {
       this.connectedToDaemon = false;
-
-      // stop periodic updates
-      this.stopLatestVersionPeriodicUpdates();
 
       // update the tray icon to indicate that the computer is not secure anymore
       this.updateTrayIcon({ state: 'disconnected' }, false);
@@ -540,6 +531,8 @@ class ApplicationMain {
           );
         } else if ('wireguardKey' in daemonEvent) {
           this.handleWireguardKeygenEvent(daemonEvent.wireguardKey);
+        } else if ('appVersionInfo' in daemonEvent) {
+          this.setLatestVersion(daemonEvent.appVersionInfo);
         }
       },
       (error: Error) => {
@@ -792,21 +785,6 @@ class ApplicationMain {
       this.setLatestVersion(await this.daemonRpc.getVersionInfo());
     } catch (error) {
       log.error(`Failed to request the version info: ${error.message}`);
-    }
-  }
-
-  private startLatestVersionPeriodicUpdates() {
-    const handler = () => {
-      this.fetchLatestVersion();
-    };
-    this.latestVersionInterval = global.setInterval(handler, VERSION_UPDATE_INTERVAL);
-  }
-
-  private stopLatestVersionPeriodicUpdates() {
-    if (this.latestVersionInterval) {
-      clearInterval(this.latestVersionInterval);
-
-      this.latestVersionInterval = undefined;
     }
   }
 
