@@ -32,6 +32,32 @@ const PLATFORM: &str = "windows";
 #[cfg(target_os = "android")]
 const PLATFORM: &str = "android";
 
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Failed to open app version cache file for reading")]
+    ReadCachedRelays(#[error(cause)] io::Error),
+
+    #[error(display = "Failed to open app version cache file for writing")]
+    WriteRelayCache(#[error(cause)] io::Error),
+
+    #[error(display = "Failure in serialization of the version info")]
+    Serialize(#[error(cause)] serde_json::Error),
+
+    #[error(display = "Timed out when trying to check the latest app version")]
+    DownloadTimeout,
+
+    #[error(display = "Failed to check the latest app version")]
+    Download(#[error(cause)] mullvad_rpc::Error),
+}
+
+impl<F> From<TimeoutError<F>> for Error {
+    fn from(_: TimeoutError<F>) -> Error {
+        Error::DownloadTimeout
+    }
+}
+
+
 pub struct VersionUpdater<F: Fn(&AppVersionInfo) + Send + 'static> {
     version_proxy: AppVersionProxy<HttpHandle>,
     cache_path: PathBuf,
@@ -148,28 +174,4 @@ pub fn load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
     log::debug!("Loading version check cache from {}", path.display());
     let file = File::open(path).map_err(Error::ReadCachedRelays)?;
     serde_json::from_reader(io::BufReader::new(file)).map_err(Error::Serialize)
-}
-
-#[derive(err_derive::Error, Debug)]
-pub enum Error {
-    #[error(display = "Failed to open app version cache file for reading")]
-    ReadCachedRelays(#[error(cause)] io::Error),
-
-    #[error(display = "Failed to open app version cache file for writing")]
-    WriteRelayCache(#[error(cause)] io::Error),
-
-    #[error(display = "Failure in serialization of the version info")]
-    Serialize(#[error(cause)] serde_json::Error),
-
-    #[error(display = "Timed out when trying to check the latest app version")]
-    DownloadTimeout,
-
-    #[error(display = "Failed to check the latest app version")]
-    Download(#[error(cause)] mullvad_rpc::Error),
-}
-
-impl<F> From<TimeoutError<F>> for Error {
-    fn from(_: TimeoutError<F>) -> Error {
-        Error::DownloadTimeout
-    }
 }
