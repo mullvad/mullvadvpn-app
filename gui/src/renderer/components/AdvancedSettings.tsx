@@ -190,10 +190,12 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     <Cell.Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
                   </Cell.Container>
                   <Cell.Footer>
-                    {messages.pgettext(
-                      'advanced-settings-view',
-                      'Enable IPv6 communication through the tunnel.',
-                    )}
+                    <Cell.FooterText>
+                      {messages.pgettext(
+                        'advanced-settings-view',
+                        'Enable IPv6 communication through the tunnel.',
+                      )}
+                    </Cell.FooterText>
                   </Cell.Footer>
 
                   <Cell.Container>
@@ -206,21 +208,23 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     />
                   </Cell.Container>
                   <Cell.Footer>
-                    {messages.pgettext(
-                      'advanced-settings-view',
-                      "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app.",
-                    )}
-                  </Cell.Footer>
-                  {this.props.blockWhenDisconnected ? (
-                    <Cell.Footer>
+                    <Cell.FooterText>
                       {messages.pgettext(
                         'advanced-settings-view',
-                        "Warning: Your internet won't work without a VPN connection, even when you've quit the app.",
+                        "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app.",
                       )}
-                    </Cell.Footer>
-                  ) : (
-                    undefined
-                  )}
+                    </Cell.FooterText>
+
+                    {this.props.blockWhenDisconnected && (
+                      <Cell.FooterBoldText
+                        style={styles.advanced_settings__cell_footer_internet_warning_label}>
+                        {messages.pgettext(
+                          'advanced-settings-view',
+                          "Warning: Your internet won't work without a VPN connection, even when you've quit the app.",
+                        )}
+                      </Cell.FooterBoldText>
+                    )}
+                  </Cell.Footer>
 
                   {process.platform !== 'win32' ? (
                     <View style={styles.advanced_settings__content}>
@@ -315,20 +319,22 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     </Cell.InputFrame>
                   </Cell.Container>
                   <Cell.Footer>
-                    {sprintf(
-                      // TRANSLATORS: The hint displayed below the Mssfix input field.
-                      // TRANSLATORS: Available placeholders:
-                      // TRANSLATORS: %(max)d - the maximum possible mssfix value
-                      // TRANSLATORS: %(min)d - the minimum possible mssfix value
-                      messages.pgettext(
-                        'advanced-settings-view',
-                        'Set OpenVPN MSS value. Valid range: %(min)d - %(max)d.',
-                      ),
-                      {
-                        min: MIN_MSSFIX_VALUE,
-                        max: MAX_MSSFIX_VALUE,
-                      },
-                    )}
+                    <Cell.FooterText>
+                      {sprintf(
+                        // TRANSLATORS: The hint displayed below the Mssfix input field.
+                        // TRANSLATORS: Available placeholders:
+                        // TRANSLATORS: %(max)d - the maximum possible mssfix value
+                        // TRANSLATORS: %(min)d - the minimum possible mssfix value
+                        messages.pgettext(
+                          'advanced-settings-view',
+                          'Set OpenVPN MSS value. Valid range: %(min)d - %(max)d.',
+                        ),
+                        {
+                          min: MIN_MSSFIX_VALUE,
+                          max: MAX_MSSFIX_VALUE,
+                        },
+                      )}
+                    </Cell.FooterText>
                   </Cell.Footer>
                   {this.wireguardKeysButton()}
                 </NavigationScrollbars>

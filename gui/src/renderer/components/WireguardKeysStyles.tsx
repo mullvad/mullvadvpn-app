@@ -18,15 +18,17 @@ export default {
     marginBottom: 24,
   }),
   wgkeys__row_label: Styles.createTextStyle({
+    flex: 1,
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '600',
     lineHeight: 20,
     letterSpacing: -0.2,
     color: colors.white60,
+    marginBottom: 9,
   }),
   wgkeys__validity_row: Styles.createViewStyle({
-    paddingTop: 5,
+    flexDirection: 'row',
   }),
   wgkeys__row_value: Styles.createTextStyle({
     fontFamily: 'Open Sans',
@@ -37,13 +39,14 @@ export default {
   }),
   wgkeys__invalid_key: Styles.createTextStyle({
     fontFamily: 'Open Sans',
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '800',
+    lineHeight: 20,
     color: colors.red,
   }),
   wgkeys__valid_key: Styles.createTextStyle({
     fontFamily: 'Open Sans',
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '600',
     lineHeight: 20,
     color: colors.green,
