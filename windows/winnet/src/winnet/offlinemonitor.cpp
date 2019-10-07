@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "netmonitor.h"
+#include "offlinemonitor.h"
 #include <libcommon/error.h>
 #include <libcommon/memory.h>
 #include <libcommon/string.h>
@@ -47,10 +47,10 @@ bool ValidInterfaceType(const MIB_IF_ROW2 &iface)
 } // anonymous namespace
 
 
-NetMonitor::NetMonitor
+OfflineMonitor::OfflineMonitor
 (
 	std::shared_ptr<common::logging::ILogSink> logSink,
-	NetMonitor::Notifier notifier,
+	OfflineMonitor::Notifier notifier,
 	bool &currentConnectivity
 )
 	: m_logSink(logSink)
@@ -67,12 +67,12 @@ NetMonitor::NetMonitor
 	}
 }
 
-void NetMonitor::UpdateConnectivity()
+void OfflineMonitor::UpdateConnectivity()
 {
 	m_connected = m_netInterfaces.numAdapters() > 0;
 }
 
-void NetMonitor::callback(const MIB_IF_ROW2 &adapter, NetworkAdapterMonitor::UpdateType type)
+void OfflineMonitor::callback(const MIB_IF_ROW2 &adapter, NetworkAdapterMonitor::UpdateType type)
 {
 	const auto previousConnectivity = m_connected;
 
@@ -89,7 +89,7 @@ void NetMonitor::callback(const MIB_IF_ROW2 &adapter, NetworkAdapterMonitor::Upd
 	}
 }
 
-void NetMonitor::LogOfflineState()
+void OfflineMonitor::LogOfflineState()
 {
 	//
 	// There is a race condition here because logging is not done using the
