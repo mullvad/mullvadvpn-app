@@ -24,7 +24,7 @@ export default function withAppContext<Props>(BaseComponent: React.ComponentClas
             return <BaseComponent {...mergedProps} />;
           } else {
             throw new Error(
-              'The context value is empty. Make sure to wrap the component in AppContext.Provider or use withAppContext',
+              'The context value is empty. Make sure to wrap the component in AppContext.Provider.',
             );
           }
         }}
