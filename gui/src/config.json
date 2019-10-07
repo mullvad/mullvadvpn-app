@@ -1,9 +1,9 @@
 {
   "links": {
     "createAccount": "https://mullvad.net/account/create/",
-    "purchase": "https://mullvad.net/account/login/",
-    "manageKeys": "https://mullvad.net/account/login/",
-    "faq": "https://mullvad.net/help/tag/mullvad-app/",
+    "purchase": "https://mullvad.net/account/",
+    "manageKeys": "https://mullvad.net/account/ports/",
+    "faq": "https://mullvad.net/faq/",
     "download": "https://mullvad.net/download/",
     "supportEmail": "support@mullvad.net"
   },
