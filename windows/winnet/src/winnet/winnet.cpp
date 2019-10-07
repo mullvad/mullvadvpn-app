@@ -2,7 +2,7 @@
 #include "winnet.h"
 #include "NetworkInterfaces.h"
 #include "interfaceutils.h"
-#include "netmonitor.h"
+#include "offlinemonitor.h"
 #include "../../shared/logsinkadapter.h"
 #include <libcommon/error.h>
 #include <cstdint>
@@ -12,7 +12,7 @@
 namespace
 {
 
-NetMonitor *g_NetMonitor = nullptr;
+OfflineMonitor *g_OfflineMonitor = nullptr;
 
 void UnwindAndLog(MullvadLogSink logSink, void *logSinkContext, const std::exception &err)
 {
@@ -159,7 +159,7 @@ WinNet_ActivateConnectivityMonitor(
 {
 	try
 	{
-		if (nullptr != g_NetMonitor)
+		if (nullptr != g_OfflineMonitor)
 		{
 			throw std::runtime_error("Cannot activate connectivity monitor twice");
 		}
@@ -173,7 +173,7 @@ WinNet_ActivateConnectivityMonitor(
 
 		auto logger = std::make_shared<shared::LogSinkAdapter>(logSink, logSinkContext);
 
-		g_NetMonitor = new NetMonitor(logger, forwarder, connected);
+		g_OfflineMonitor = new OfflineMonitor(logger, forwarder, connected);
 
 		if (nullptr != currentConnectivity)
 		{
@@ -202,8 +202,8 @@ WinNet_DeactivateConnectivityMonitor(
 {
 	try
 	{
-		delete g_NetMonitor;
-		g_NetMonitor = nullptr;
+		delete g_OfflineMonitor;
+		g_OfflineMonitor = nullptr;
 	}
 	catch (...)
 	{

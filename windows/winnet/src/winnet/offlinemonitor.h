@@ -5,7 +5,7 @@
 #include <mutex>
 #include "networkadaptermonitor.h"
 
-class NetMonitor
+class OfflineMonitor
 {
 public:
 
@@ -15,7 +15,7 @@ public:
 	//
 	using Notifier = std::function<void(bool)>;
 
-	NetMonitor(std::shared_ptr<common::logging::ILogSink> logSink, Notifier notifier, bool &currentConnectivity);
+	OfflineMonitor(std::shared_ptr<common::logging::ILogSink> logSink, Notifier notifier, bool &currentConnectivity);
 
 private:
 
