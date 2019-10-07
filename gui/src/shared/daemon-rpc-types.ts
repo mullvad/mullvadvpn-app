@@ -86,7 +86,8 @@ export type DaemonEvent =
   | { tunnelState: TunnelState }
   | { settings: ISettings }
   | { relayList: IRelayList }
-  | { wireguardKey: KeygenEvent };
+  | { wireguardKey: KeygenEvent }
+  | { appVersionInfo: IAppVersionInfo };
 
 export interface ITunnelStateRelayInfo {
   endpoint: ITunnelEndpoint;
