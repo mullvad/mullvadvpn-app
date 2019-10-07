@@ -3,9 +3,8 @@ import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Preferences from '../components/Preferences';
-
+import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
-import { ISharedRouteProps } from '../routes';
 
 const mapStateToProps = (state: IReduxState) => ({
   autoStart: state.settings.autoStart,
@@ -16,7 +15,7 @@ const mapStateToProps = (state: IReduxState) => ({
   startMinimized: state.settings.guiSettings.startMinimized,
 });
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ goBack }, dispatch);
   return {
     onClose: () => {
@@ -49,7 +48,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: ISharedRouteProps) =
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Preferences);
+export default withAppContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Preferences),
+);

@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { Route, RouteComponentProps, RouteProps, Switch, withRouter } from 'react-router';
-import App from './app';
+import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
 import TransitionContainer, { TransitionView } from './components/TransitionContainer';
 import AccountPage from './containers/AccountPage';
 import AdvancedSettingsPage from './containers/AdvancedSettingsPage';
@@ -16,27 +15,15 @@ import SupportPage from './containers/SupportPage';
 import WireguardKeysPage from './containers/WireguardKeysPage';
 import { getTransitionProps } from './transitions';
 
-export interface ISharedRouteProps {
-  app: App;
-}
-
-type CustomRouteProps = {
-  component: React.ComponentClass<ISharedRouteProps>;
-} & RouteProps;
-
-interface IAppRoutesProps extends RouteComponentProps {
-  sharedProps: ISharedRouteProps;
-}
-
 interface IAppRoutesState {
-  previousLocation?: IAppRoutesProps['location'];
-  currentLocation: IAppRoutesProps['location'];
+  previousLocation?: RouteComponentProps['location'];
+  currentLocation: RouteComponentProps['location'];
 }
 
-class AppRoutes extends React.Component<IAppRoutesProps, IAppRoutesState> {
+class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
   private unobserveHistory?: () => void;
 
-  constructor(props: IAppRoutesProps) {
+  constructor(props: RouteComponentProps) {
     super(props);
 
     this.state = {
@@ -68,37 +55,26 @@ class AppRoutes extends React.Component<IAppRoutesProps, IAppRoutesState> {
       location.pathname,
     );
 
-    // Renders a route extended with shared props
-    const CustomRoute = ({ component: ComponentClass, ...routeProps }: CustomRouteProps) => {
-      const renderOverride = () => <ComponentClass {...this.props.sharedProps} />;
-
-      return <Route {...routeProps} render={renderOverride} />;
-    };
-
     return (
       <PlatformWindowContainer>
         <TransitionContainer {...transitionProps}>
           <TransitionView viewId={location.key || ''}>
             <Switch key={location.key} location={location}>
-              <CustomRoute exact={true} path="/" component={LaunchPage} />
-              <CustomRoute exact={true} path="/login" component={LoginPage} />
-              <CustomRoute exact={true} path="/connect" component={ConnectPage} />
-              <CustomRoute exact={true} path="/settings" component={SettingsPage} />
-              <CustomRoute exact={true} path="/settings/language" component={SelectLanguagePage} />
-              <CustomRoute exact={true} path="/settings/account" component={AccountPage} />
-              <CustomRoute exact={true} path="/settings/preferences" component={PreferencesPage} />
-              <CustomRoute
-                exact={true}
-                path="/settings/advanced"
-                component={AdvancedSettingsPage}
-              />
-              <CustomRoute
+              <Route exact={true} path="/" component={LaunchPage} />
+              <Route exact={true} path="/login" component={LoginPage} />
+              <Route exact={true} path="/connect" component={ConnectPage} />
+              <Route exact={true} path="/settings" component={SettingsPage} />
+              <Route exact={true} path="/settings/language" component={SelectLanguagePage} />
+              <Route exact={true} path="/settings/account" component={AccountPage} />
+              <Route exact={true} path="/settings/preferences" component={PreferencesPage} />
+              <Route exact={true} path="/settings/advanced" component={AdvancedSettingsPage} />
+              <Route
                 exact={true}
                 path="/settings/advanced/wireguard-keys"
                 component={WireguardKeysPage}
               />
-              <CustomRoute exact={true} path="/settings/support" component={SupportPage} />
-              <CustomRoute exact={true} path="/select-location" component={SelectLocationPage} />
+              <Route exact={true} path="/settings/support" component={SupportPage} />
+              <Route exact={true} path="/select-location" component={SelectLocationPage} />
             </Switch>
           </TransitionView>
         </TransitionContainer>
