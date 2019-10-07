@@ -101,6 +101,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
       }
     },
     onExternalLink: (url: string) => shell.openExternal(url),
+    onExternalLinkWithAuth: (url: string) => props.app.openLinkWithAuth(url),
   };
 };
 

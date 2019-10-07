@@ -16,13 +16,13 @@ const mapStateToProps = (state: IReduxState, _props: IAppContext) => ({
   blockWhenDisconnected: state.settings.blockWhenDisconnected,
 });
 
-const mapDispatchToProps = (_dispatch: ReduxDispatch, _props: IAppContext) => {
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IAppContext) => {
   return {
-    onOpenDownloadLink() {
-      shell.openExternal(links.download);
+    onOpenDownloadLink(): Promise<void> {
+      return shell.openExternal(links.download);
     },
-    onOpenBuyMoreLink() {
-      shell.openExternal(links.purchase);
+    onOpenBuyMoreLink(): Promise<void> {
+      return props.app.openLinkWithAuth(links.purchase);
     },
   };
 };

@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import * as React from 'react';
 import { Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
 import { colors } from '../../config.json';
@@ -159,6 +160,47 @@ class BaseButton extends Component<IProps, IState> {
 
   private onLayout = async (containerLayout: Types.ViewOnLayoutEvent) => {
     this.updateTextAdjustment(containerLayout);
+  };
+}
+
+interface IBlockingState {
+  isBlocked: boolean;
+}
+
+interface IBlockingProps {
+  children?: React.ReactNode;
+  onPress: () => Promise<void>;
+  disabled?: boolean;
+}
+
+export class BlockingButton extends Component<IBlockingProps, IBlockingState> {
+  public state = {
+    isBlocked: false,
+  };
+
+  public render() {
+    return React.Children.map(this.props.children, (child) => {
+      if (React.isValidElement(child)) {
+        return React.cloneElement(child as React.ReactElement<any>, {
+          ...child.props,
+          disabled: this.state.isBlocked || this.props.disabled,
+          onPress: this.onPress,
+        });
+      } else {
+        return child;
+      }
+    });
+  }
+
+  private onPress = () => {
+    this.setState({ isBlocked: true }, async () => {
+      try {
+        await this.props.onPress();
+      } catch (error) {
+        log.error(`onPress() failed - ${error}`);
+      }
+      this.setState({ isBlocked: false });
+    });
   };
 }
 

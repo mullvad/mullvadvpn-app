@@ -33,7 +33,8 @@ describe('components/NotificationArea', () => {
           }}
           version={defaultVersion}
           accountExpiry={defaultExpiry}
-          openExternalLink={() => {}}
+          onOpenDownloadLink={async () => {}}
+          onOpenBuyMoreLink={async () => {}}
           blockWhenDisconnected={false}
         />,
       );
@@ -50,7 +51,8 @@ describe('components/NotificationArea', () => {
         }}
         version={defaultVersion}
         accountExpiry={defaultExpiry}
-        openExternalLink={() => {}}
+        onOpenDownloadLink={async () => {}}
+        onOpenBuyMoreLink={async () => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -78,7 +80,8 @@ describe('components/NotificationArea', () => {
         }}
         version={defaultVersion}
         accountExpiry={defaultExpiry}
-        openExternalLink={() => {}}
+        onOpenDownloadLink={async () => {}}
+        onOpenBuyMoreLink={async () => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -94,7 +97,8 @@ describe('components/NotificationArea', () => {
         }}
         version={defaultVersion}
         accountExpiry={defaultExpiry}
-        openExternalLink={() => {}}
+        onOpenDownloadLink={async () => {}}
+        onOpenBuyMoreLink={async () => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -110,7 +114,8 @@ describe('components/NotificationArea', () => {
         }}
         version={defaultVersion}
         accountExpiry={defaultExpiry}
-        openExternalLink={() => {}}
+        onOpenDownloadLink={async () => {}}
+        onOpenBuyMoreLink={async () => {}}
         blockWhenDisconnected={true}
       />,
     );
@@ -126,7 +131,8 @@ describe('components/NotificationArea', () => {
         }}
         version={defaultVersion}
         accountExpiry={defaultExpiry}
-        openExternalLink={() => {}}
+        onOpenDownloadLink={async () => {}}
+        onOpenBuyMoreLink={async () => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -147,7 +153,8 @@ describe('components/NotificationArea', () => {
         }}
         version={defaultVersion}
         accountExpiry={defaultExpiry}
-        openExternalLink={() => {}}
+        onOpenDownloadLink={async () => {}}
+        onOpenBuyMoreLink={async () => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -167,7 +174,8 @@ describe('components/NotificationArea', () => {
           consistent: false,
         }}
         accountExpiry={defaultExpiry}
-        openExternalLink={() => {}}
+        onOpenDownloadLink={async () => {}}
+        onOpenBuyMoreLink={async () => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -190,7 +198,8 @@ describe('components/NotificationArea', () => {
           nextUpgrade: '2018.2',
         }}
         accountExpiry={defaultExpiry}
-        openExternalLink={() => {}}
+        onOpenDownloadLink={async () => {}}
+        onOpenBuyMoreLink={async () => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -214,7 +223,8 @@ describe('components/NotificationArea', () => {
           nextUpgrade: '2018.3',
         }}
         accountExpiry={defaultExpiry}
-        openExternalLink={() => {}}
+        onOpenDownloadLink={async () => {}}
+        onOpenBuyMoreLink={async () => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -239,7 +249,8 @@ describe('components/NotificationArea', () => {
           nextUpgrade: '2018.4-beta3',
         }}
         accountExpiry={defaultExpiry}
-        openExternalLink={() => {}}
+        onOpenDownloadLink={async () => {}}
+        onOpenBuyMoreLink={async () => {}}
         blockWhenDisconnected={false}
       />,
     );
@@ -263,7 +274,8 @@ describe('components/NotificationArea', () => {
         }}
         version={defaultVersion}
         accountExpiry={expiry}
-        openExternalLink={() => {}}
+        onOpenDownloadLink={async () => {}}
+        onOpenBuyMoreLink={async () => {}}
         blockWhenDisconnected={false}
       />,
     );

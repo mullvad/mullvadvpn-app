@@ -102,11 +102,13 @@ interface IGuiSettingsHandlers extends ISender<IGuiSettingsState> {
 interface IAccountHandlers extends ISender<IAccountData | undefined> {
   handleLogin(fn: (token: AccountToken) => Promise<void>): void;
   handleLogout(fn: () => Promise<void>): void;
+  handleWwwAuthToken(fn: () => Promise<string>): void;
 }
 
 interface IAccountMethods extends IReceiver<IAccountData | undefined> {
   login(token: AccountToken): Promise<void>;
   logout(): Promise<void>;
+  getWwwAuthToken(): Promise<string>;
 }
 
 interface IAccountHistoryHandlers extends ISender<AccountToken[]> {
@@ -177,6 +179,7 @@ const REMOVE_ACCOUNT_HISTORY_ITEM = 'remove-account-history-item';
 
 const DO_LOGIN = 'do-login';
 const DO_LOGOUT = 'do-logout';
+const DO_GET_WWW_AUTH_TOKEN = 'do-get-www-auth-token';
 const ACCOUNT_DATA_CHANGED = 'account-data-changed';
 
 const AUTO_START_CHANGED = 'auto-start-changed';
@@ -267,6 +270,7 @@ export class IpcRendererEventChannel {
     listen: listen(ACCOUNT_DATA_CHANGED),
     login: requestSender(DO_LOGIN),
     logout: requestSender(DO_LOGOUT),
+    getWwwAuthToken: requestSender(DO_GET_WWW_AUTH_TOKEN),
   };
 
   public static accountHistory: IAccountHistoryMethods = {
@@ -358,6 +362,7 @@ export class IpcMainEventChannel {
     notify: sender<IAccountData | undefined>(ACCOUNT_DATA_CHANGED),
     handleLogin: requestHandler(DO_LOGIN),
     handleLogout: requestHandler(DO_LOGOUT),
+    handleWwwAuthToken: requestHandler(DO_GET_WWW_AUTH_TOKEN),
   };
 
   public static accountHistory: IAccountHistoryHandlers = {

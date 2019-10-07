@@ -1,5 +1,4 @@
 import { goBack } from 'connected-react-router';
-import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { links } from '../../config.json';
@@ -23,7 +22,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
     onClose: () => {
       history.goBack();
     },
-    onBuyMore: () => shell.openExternal(links.purchase),
+    onBuyMore: () => props.app.openLinkWithAuth(links.purchase),
   };
 };
 
