@@ -79,6 +79,8 @@ void __stdcall NetworkAdapterMonitor::Callback(void *context, MIB_IPINTERFACE_RO
 
 void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType)
 {
+	std::scoped_lock<std::mutex> processingLock(m_processingMutex);
+
 	switch (updateType)
 	{
 		case MibAddInstance:
