@@ -24,9 +24,12 @@ if [ "${RUST_TOOLCHAIN_CHANNEL}" != "nightly" ]; then
 fi
 
 if [ "${RUST_TOOLCHAIN_CHANNEL}" = "nightly" ]; then
-  rustup component add rustfmt-preview;
-  rustfmt --version;
-  cargo fmt -- --check --unstable-features;
+  if rustup component add rustfmt-preview; then
+    rustfmt --version;
+    cargo fmt -- --check --unstable-features;
+  else
+    echo "There seems to not be any rustfmt for the current nighly. Skipping formatting check!"
+  fi
 fi
 
 if ! git diff-index --quiet HEAD; then
