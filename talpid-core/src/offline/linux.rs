@@ -63,15 +63,19 @@ pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHa
     Ok(MonitorHandle)
 }
 
+fn is_offline() -> bool {
+    check_if_offline().unwrap_or_else(|error| {
+        warn!(
+            "{}",
+            error.display_chain_with_msg("Failed to check for internet connection")
+        );
+        false
+    })
+}
+
 impl MonitorHandle {
     pub fn is_offline(&self) -> bool {
-        check_if_offline().unwrap_or_else(|error| {
-            warn!(
-                "{}",
-                error.display_chain_with_msg("Failed to check for internet connection")
-            );
-            false
-        })
+        is_offline()
     }
 }
 
