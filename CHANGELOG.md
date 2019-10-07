@@ -58,6 +58,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - More adjustments in online/offline detection logic.
+- Be quicker to notice network disconnects.
 
 
 ## [2019.8] - 2019-09-23
