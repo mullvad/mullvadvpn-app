@@ -96,46 +96,50 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> Future for VersionUpdater<F> {
     type Error = ();
 
     fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
-        while let Some(new_state) = match &mut self.state {
-            VersionUpdaterState::Sleeping(timer) => match timer.poll() {
-                Err(e) => {
-                    log::error!("Version check sleep error: {}", e);
-                    return Err(());
-                }
-                Ok(Async::NotReady) => None,
-                Ok(Async::Ready(())) => Some(if Instant::now() > self.next_update_time {
-                    VersionUpdaterState::Updating(self.create_update_future())
-                } else {
-                    VersionUpdaterState::Sleeping(Self::create_sleep_future())
-                }),
-            },
-            VersionUpdaterState::Updating(future) => match future.poll() {
-                Err(error) => {
-                    log::error!("{}", error.display_chain_with_msg("Version check failed"));
-                    self.next_update_time = Instant::now() + UPDATE_INTERVAL_ERROR;
-                    Some(VersionUpdaterState::Sleeping(Self::create_sleep_future()))
-                }
-                Ok(Async::Ready(app_version_info)) => {
-                    if app_version_info != self.last_app_version_info {
-                        self.next_update_time = Instant::now() + UPDATE_INTERVAL;
-                        log::debug!("Got new version check: {:?}", app_version_info);
-                        (self.on_version_update)(&app_version_info);
-                        self.last_app_version_info = app_version_info;
-                        if let Err(e) = self.write_cache() {
-                            log::error!(
-                                "{}",
-                                e.display_chain_with_msg("Unable to cache version check response")
-                            );
+        loop {
+            let next_state = match &mut self.state {
+                VersionUpdaterState::Sleeping(timer) => match timer.poll() {
+                    Ok(Async::NotReady) => return Ok(Async::NotReady),
+                    Err(e) => {
+                        log::error!("Version check sleep error: {}", e);
+                        return Err(());
+                    }
+                    Ok(Async::Ready(())) => {
+                        if Instant::now() > self.next_update_time {
+                            VersionUpdaterState::Updating(self.create_update_future())
+                        } else {
+                            VersionUpdaterState::Sleeping(Self::create_sleep_future())
                         }
                     }
-                    Some(VersionUpdaterState::Sleeping(Self::create_sleep_future()))
-                }
-                Ok(Async::NotReady) => None,
-            },
-        } {
-            self.state = new_state;
+                },
+                VersionUpdaterState::Updating(future) => match future.poll() {
+                    Ok(Async::NotReady) => return Ok(Async::NotReady),
+                    Err(error) => {
+                        log::error!("{}", error.display_chain_with_msg("Version check failed"));
+                        self.next_update_time = Instant::now() + UPDATE_INTERVAL_ERROR;
+                        VersionUpdaterState::Sleeping(Self::create_sleep_future())
+                    }
+                    Ok(Async::Ready(app_version_info)) => {
+                        if app_version_info != self.last_app_version_info {
+                            self.next_update_time = Instant::now() + UPDATE_INTERVAL;
+                            log::debug!("Got new version check: {:?}", app_version_info);
+                            (self.on_version_update)(&app_version_info);
+                            self.last_app_version_info = app_version_info;
+                            if let Err(e) = self.write_cache() {
+                                log::error!(
+                                    "{}",
+                                    e.display_chain_with_msg(
+                                        "Unable to cache version check response"
+                                    )
+                                );
+                            }
+                        }
+                        VersionUpdaterState::Sleeping(Self::create_sleep_future())
+                    }
+                },
+            };
+            self.state = next_state;
         }
-        Ok(Async::NotReady)
     }
 }
 
