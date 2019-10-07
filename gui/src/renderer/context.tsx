@@ -6,7 +6,9 @@ export interface IAppContext {
 }
 
 export const AppContext = React.createContext<IAppContext | undefined>(undefined);
-AppContext.displayName = 'AppContext';
+if (process.env.NODE_ENV === 'development') {
+  AppContext.displayName = 'AppContext';
+}
 
 export default function withAppContext<Props>(BaseComponent: React.ComponentClass<Props>) {
   // Exclude the IAppContext from props since those are injected props
