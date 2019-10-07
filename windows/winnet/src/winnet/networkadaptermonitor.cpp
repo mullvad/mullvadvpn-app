@@ -137,18 +137,7 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 
 void NetworkAdapterMonitor::addInternal(const MIB_IF_ROW2 &iface)
 {
-	//
-	// The reason for removing an existing entry is that enabling
-	// an interface on the adapter might change the overall properties in the
-	// "row" which is merely an abstraction over all interfaces.
-	//
-
-	m_adapters.erase(iface.InterfaceLuid.Value);
-
-	m_adapters.insert(std::make_pair(
-		iface.InterfaceLuid.Value,
-		iface
-	));
+	m_adapters[iface.InterfaceLuid.Value] = iface;
 }
 
 void NetworkAdapterMonitor::add(NET_LUID luid)
