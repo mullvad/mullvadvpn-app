@@ -219,6 +219,21 @@
 	InstallDriver_install_driver:
 
 	#
+	# Silently approve the certificate before installing the driver
+	#
+	log::Log "Adding OpenVPN certificate to the certificate store"
+
+	nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\driver\driver.cer"'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != 0
+		StrCpy $R0 "Failed to add trusted publisher certificate: error $0"
+		log::LogWithDetails $R0 $1
+	${EndIf}
+
+	#
 	# Install driver and create a virtual adapter.
 	# If the driver is already installed, this just creates another virtual adapter.
 	#
