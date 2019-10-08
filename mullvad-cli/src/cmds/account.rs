@@ -1,6 +1,6 @@
 use crate::{new_rpc_client, Command, Result};
 use clap::value_t_or_exit;
-use mullvad_types::account::AccountToken;
+use mullvad_types::account::{AccountToken, VoucherError};
 
 pub struct Account;
 
@@ -34,6 +34,15 @@ impl Command for Account {
                 clap::SubCommand::with_name("create")
                     .about("Creates a new account and sets it as the active one"),
             )
+            .subcommand(
+                clap::SubCommand::with_name("redeem")
+                    .about("Redeems a voucher")
+                    .arg(
+                        clap::Arg::with_name("voucher")
+                            .help("The Mullvad voucher code to be submitted")
+                            .required(true),
+                    ),
+            )
     }
 
     fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
@@ -46,6 +55,9 @@ impl Command for Account {
             self.get()
         } else if let Some(_matches) = matches.subcommand_matches("create") {
             self.create()
+        } else if let Some(matches) = matches.subcommand_matches("redeem") {
+            let voucher = value_t_or_exit!(matches.value_of("voucher"), String);
+            self.redeem_voucher(voucher)
         } else {
             unreachable!("No account command given");
         }
@@ -82,5 +94,48 @@ impl Account {
         rpc.create_new_account()?;
         println!("New account created!");
         self.get()
+    }
+
+    fn redeem_voucher(&self, mut voucher: String) -> Result<()> {
+        let mut rpc = new_rpc_client()?;
+        voucher.retain(|c| c.is_alphanumeric());
+
+        match rpc.submit_voucher(voucher) {
+            Ok(submission) => {
+                println!(
+                    "Added {} to the account",
+                    Self::format_duration(submission.time_added)
+                );
+                println!("New expiry date: {}", submission.new_expiry);
+                Ok(())
+            }
+            Err(err) => {
+                eprintln!(
+                    "Failed to submit voucher.\n{}",
+                    VoucherError::from_rpc_error_code(Self::get_redeem_rpc_error_code(&err))
+                );
+                Err(err.into())
+            }
+        }
+    }
+
+    fn format_duration(seconds: u64) -> String {
+        let dur = chrono::Duration::seconds(seconds as i64);
+        if dur.num_days() > 0 {
+            format!("{} days", dur.num_days())
+        } else if dur.num_hours() > 0 {
+            format!("{} hours", dur.num_hours())
+        } else if dur.num_minutes() > 0 {
+            format!("{} minutes", dur.num_minutes())
+        } else {
+            format!("{} seconds", dur.num_seconds())
+        }
+    }
+
+    fn get_redeem_rpc_error_code(error: &mullvad_ipc_client::Error) -> i64 {
+        match error.kind() {
+            mullvad_ipc_client::ErrorKind::JsonRpcError(ref rpc_error) => rpc_error.code.code(),
+            _ => 0,
+        }
     }
 }

@@ -23,9 +23,13 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add ability to submit vouchers from the CLI.
+
 ### Fixed
 - Fix Norwegian (Bokmal) language detection.
 - Fix missing localizations when formatting date and time in Norwegian (Bokmal).
+
 
 ## [2019.9-beta1] - 2019-10-08
 ### Added
