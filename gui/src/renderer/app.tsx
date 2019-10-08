@@ -674,7 +674,7 @@ export default class AppRenderer {
 
   private propagateRelayListPairToRedux() {
     const relays = this.convertRelayListToLocationList(this.relayListPair.relays);
-    const bridges = this.convertRelayListToLocationList(this.relayListPair.relays);
+    const bridges = this.convertRelayListToLocationList(this.relayListPair.bridges);
 
     this.reduxActions.settings.updateRelayLocations(relays);
     this.reduxActions.settings.updateBridgeLocations(bridges);
