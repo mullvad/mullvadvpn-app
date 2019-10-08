@@ -22,21 +22,38 @@ public:
 		Update
 	};
 
+	struct AdapterElement
+	{
+		AdapterElement() :
+			refcount(1)
+		{
+		}
+
+		MIB_IF_ROW2 adapter;
+
+	private:
+
+		size_t refcount;
+
+		friend class NetworkAdapterMonitor;
+	};
+
+	using Filter = std::function<bool(const MIB_IF_ROW2 &adapter)>;
+	using UpdateSink = std::function<void(const MIB_IF_ROW2 &adapter, UpdateType updateType)>;
+
 	NetworkAdapterMonitor(
-		std::shared_ptr<common::logging::ILogSink> logSink,
-		std::function<void(const MIB_IF_ROW2 &adapter, UpdateType type)> updateSink,
-		std::function<bool(const MIB_IF_ROW2 &adapter)> filter
-	);
-	NetworkAdapterMonitor(
-		std::shared_ptr<common::logging::ILogSink> logSink,
-		std::function<void(const MIB_IF_ROW2 &adapter, UpdateType updateType)> updateSink
+		std::shared_ptr<common::logging::ILogSink> logSink
+		, UpdateSink updateSink
+		, Filter filter
 	);
 	~NetworkAdapterMonitor();
 
-	NetworkAdapterMonitor(NetworkAdapterMonitor &o) = delete;
+	NetworkAdapterMonitor(const NetworkAdapterMonitor &o) = delete;
 	NetworkAdapterMonitor& operator=(const NetworkAdapterMonitor &o) = delete;
+	NetworkAdapterMonitor(NetworkAdapterMonitor &&o) = delete;
+	NetworkAdapterMonitor& operator=(NetworkAdapterMonitor &&o) = delete;
 
-	size_t numAdapters() const;
+	const std::map<ULONG64, AdapterElement>& getAdapters() const;
 
 private:
 
@@ -51,7 +68,7 @@ private:
 	void remove(NET_LUID luid);
 	void update(NET_LUID luid);
 
-	std::map<ULONG64, MIB_IF_ROW2> m_adapters;
+	std::map<ULONG64, AdapterElement> m_adapters;
 
 	std::mutex m_processingMutex;
 	HANDLE m_notificationHandle;

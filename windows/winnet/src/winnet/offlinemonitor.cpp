@@ -11,7 +11,7 @@ using namespace std::placeholders; // for _1, _2 etc.
 namespace
 {
 
-bool ValidInterfaceType(const MIB_IF_ROW2 &iface)
+bool IsConnectedAdapter(const MIB_IF_ROW2 &iface)
 {
 	switch (iface.InterfaceLuid.Info.IfType)
 	{
@@ -56,7 +56,7 @@ OfflineMonitor::OfflineMonitor
 	: m_logSink(logSink)
 	, m_notifier(notifier)
 	, m_connected(false)
-	, m_netInterfaces(logSink, [this](const MIB_IF_ROW2 &adapter, NetworkAdapterMonitor::UpdateType type) { this->callback(adapter, type); }, ValidInterfaceType)
+	, m_netInterfaces(logSink, [this](const MIB_IF_ROW2 &adapter, NetworkAdapterMonitor::UpdateType type) { this->callback(adapter, type); }, IsConnectedAdapter)
 {
 	UpdateConnectivity();
 	currentConnectivity = m_connected;
@@ -69,7 +69,7 @@ OfflineMonitor::OfflineMonitor
 
 void OfflineMonitor::UpdateConnectivity()
 {
-	m_connected = m_netInterfaces.numAdapters() > 0;
+	m_connected = !m_netInterfaces.getAdapters().empty();
 }
 
 void OfflineMonitor::callback(const MIB_IF_ROW2 &adapter, NetworkAdapterMonitor::UpdateType type)

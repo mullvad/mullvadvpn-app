@@ -8,18 +8,10 @@
 
 NetworkAdapterMonitor::NetworkAdapterMonitor(
 	std::shared_ptr<common::logging::ILogSink> logSink,
-	std::function<void(const MIB_IF_ROW2 &adapter, UpdateType updateType)> updateSink
-) :
-	NetworkAdapterMonitor(logSink, updateSink, [](const MIB_IF_ROW2 &) -> bool { return true; })
-{
-}
-
-NetworkAdapterMonitor::NetworkAdapterMonitor(
-	std::shared_ptr<common::logging::ILogSink> logSink,
-	std::function<void(const MIB_IF_ROW2 &adapter, UpdateType updateType)> updateSink,
-	std::function<bool(const MIB_IF_ROW2 &adapter)> filter
-) :
-	m_logSink(m_logSink)
+	UpdateSink updateSink,
+	Filter filter
+)
+	: m_logSink(m_logSink)
 	, m_updateSink(updateSink)
 	, m_filter(filter)
 {
@@ -53,27 +45,27 @@ NetworkAdapterMonitor::~NetworkAdapterMonitor()
 	CancelMibChangeNotify2(m_notificationHandle);
 }
 
-size_t NetworkAdapterMonitor::numAdapters() const
+const std::map<ULONG64, NetworkAdapterMonitor::AdapterElement>& NetworkAdapterMonitor::getAdapters() const
 {
-	return m_adapters.size();
+	return m_adapters;
 }
 
 //static
 void __stdcall NetworkAdapterMonitor::Callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType)
 {
-	auto nis = reinterpret_cast<NetworkAdapterMonitor *>(context);
+	auto nam = reinterpret_cast<NetworkAdapterMonitor *>(context);
 
 	try
 	{
-		nis->callback(hint, updateType);
+		nam->callback(hint, updateType);
 	}
 	catch (const std::exception &err)
 	{
-		nis->m_logSink->error(err.what());
+		nam->m_logSink->error(err.what());
 	}
 	catch (...)
 	{
-		nis->m_logSink->error("Unspecified error in NetworkAdapterMonitor::Callback()");
+		nam->m_logSink->error("Unspecified error in NetworkAdapterMonitor::Callback()");
 	}
 }
 
@@ -88,10 +80,10 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 			add(hint->InterfaceLuid);
 
 			const auto adapterIt = m_adapters.find(hint->InterfaceLuid.Value);
-			if (m_filter(adapterIt->second))
+			if (m_filter(adapterIt->second.adapter))
 			{
 				m_updateSink(
-					adapterIt->second,
+					adapterIt->second.adapter,
 					UpdateType::Add
 				);
 			}
@@ -103,10 +95,10 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 			update(hint->InterfaceLuid);
 
 			const auto adapterIt = m_adapters.find(hint->InterfaceLuid.Value);
-			if (m_filter(adapterIt->second))
+			if (m_filter(adapterIt->second.adapter))
 			{
 				m_updateSink(
-					adapterIt->second,
+					adapterIt->second.adapter,
 					UpdateType::Update
 				);
 			}
@@ -119,10 +111,10 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 
 			if (m_adapters.end() != adapterIt)
 			{
-				if (m_filter(adapterIt->second))
+				if (m_filter(adapterIt->second.adapter))
 				{
 					m_updateSink(
-						adapterIt->second,
+						adapterIt->second.adapter,
 						UpdateType::Delete
 					);
 				}
@@ -137,7 +129,17 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 
 void NetworkAdapterMonitor::addInternal(const MIB_IF_ROW2 &iface)
 {
-	m_adapters[iface.InterfaceLuid.Value] = iface;
+	const auto elemIt = m_adapters.find(iface.InterfaceLuid.Value);
+	if (elemIt != m_adapters.end())
+	{
+		elemIt->second.refcount++;
+	}
+	else
+	{
+		AdapterElement elem;
+		elem.adapter = iface;
+		m_adapters[iface.InterfaceLuid.Value] = elem;
+	}
 }
 
 void NetworkAdapterMonitor::add(NET_LUID luid)
@@ -151,7 +153,7 @@ void NetworkAdapterMonitor::add(NET_LUID luid)
 		std::stringstream ss;
 
 		ss << "GetIfEntry2() failed for LUID 0x" << std::hex << newIface.InterfaceLuid.Value
-			<< " during processing of MibAddInstance, error: 0x" << status;
+			<< " in NetworkAdapterMonitor::add(), error: 0x" << status;
 
 		throw std::runtime_error(ss.str());
 	}
@@ -161,7 +163,16 @@ void NetworkAdapterMonitor::add(NET_LUID luid)
 
 void NetworkAdapterMonitor::remove(NET_LUID luid)
 {
-	m_adapters.erase(luid.Value);
+	const auto elemIt = m_adapters.find(luid.Value);
+	if (elemIt != m_adapters.end())
+	{
+		elemIt->second.refcount--;
+
+		if (elemIt->second.refcount == 0)
+		{
+			m_adapters.erase(luid.Value);
+		}
+	}
 }
 
 void NetworkAdapterMonitor::update(NET_LUID luid)
@@ -173,19 +184,15 @@ void NetworkAdapterMonitor::update(NET_LUID luid)
 
 	if (NO_ERROR != status)
 	{
-		//
-		// Only update the cache if we can look up the interface details.
-		// This way, if the interface was connected and continues to be so, we don't
-		// mistakenly switch the status to "offline".
-		//
-
 		std::stringstream ss;
 
 		ss << "GetIfEntry2() failed for LUID 0x" << std::hex << newIface.InterfaceLuid.Value
-			<< " during processing of MibParameterNotification, error: 0x" << status;
+			<< " in NetworkAdapterMonitor::update(), error: 0x" << status;
 
 		throw std::runtime_error(ss.str());
 	}
 
-	addInternal(newIface);
+	// update row
+	const auto elemIt = m_adapters.find(newIface.InterfaceLuid.Value);
+	elemIt->second.adapter = newIface;
 }
