@@ -151,6 +151,20 @@
 !define ForceRenameAdapter '!insertmacro "ForceRenameAdapter"'
 
 #
+# RemoveTap
+#
+# Remove Mullvad TAP adapter
+#
+!macro RemoveTap
+	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${TAP_HARDWARE_ID}'
+
+	Pop $0
+	Pop $1
+!macroend
+
+!define RemoveTap '!insertmacro "RemoveTap"'
+
+#
 # InstallDriver
 #
 # Install tunnel driver or update it if already present on the system
@@ -682,6 +696,10 @@
 		MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
 		${RemoveSettings}
 		customRemoveFiles_after_remove_settings:
+
+		# Remove the TAP adapter
+		${ExtractDriver}
+		${RemoveTap}
 	${EndIf}
 
 	${RemoveCLIFromEnvironPath}
