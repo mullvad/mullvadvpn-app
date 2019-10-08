@@ -14,6 +14,9 @@ msgstr ""
 msgid "SECURE CONNECTION"
 msgstr ""
 
+msgid "System default"
+msgstr ""
+
 msgid "UNSECURED CONNECTION"
 msgstr ""
 
@@ -490,6 +493,16 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr ""
 
+#. Title label in navigation bar
+msgctxt "select-language-nav"
+msgid "Select language"
+msgstr ""
+
+#. Back button in navigation bar
+msgctxt "select-language-nav"
+msgid "Settings"
+msgstr ""
+
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr ""
@@ -533,6 +546,10 @@ msgstr ""
 
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
+msgstr ""
+
+msgctxt "settings-view"
+msgid "Language"
 msgstr ""
 
 msgctxt "settings-view"
