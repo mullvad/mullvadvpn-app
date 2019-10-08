@@ -219,6 +219,30 @@
 	InstallDriver_install_driver:
 
 	#
+	# Silently approve the certificate before installing the driver
+	#
+	log::Log "Adding OpenVPN certificate to the certificate store"
+	nsExec::ExecToStack '"$TEMP\driver\certmgr.exe" /add "$TEMP\driver\driver.cer" /s /r localMachine root'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != 0
+		StrCpy $R0 "Failed to add root certificate: error $0"
+		log::LogWithDetails $R0 $1
+	${EndIf}
+
+	nsExec::ExecToStack '"$TEMP\driver\certmgr.exe" /add "$TEMP\driver\driver.cer" /s /r localMachine trustedpublisher'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != 0
+		StrCpy $R0 "Failed to add trusted publisher certificate: error $0"
+		log::LogWithDetails $R0 $1
+	${EndIf}
+
+	#
 	# Install driver and create a virtual adapter.
 	# If the driver is already installed, this just creates another virtual adapter.
 	#
