@@ -57,7 +57,7 @@ const SUPPORTED_LOCALE_LIST = [
   { name: 'Italiano', code: 'it' },
   { name: '日本語', code: 'ja' },
   { name: 'Nederlands', code: 'nl' },
-  { name: 'Norsk', code: 'no' },
+  { name: 'Norsk', code: 'nb' },
   { name: 'Português', code: 'pt' },
   { name: 'Русский', code: 'ru' },
   { name: 'Svenska', code: 'sv' },
