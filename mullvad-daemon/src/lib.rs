@@ -34,7 +34,7 @@ use futures::{
 use log::{debug, error, info, warn};
 use mullvad_rpc::{AccountsProxy, HttpHandle, WireguardKeyProxy};
 use mullvad_types::{
-    account::{AccountData, AccountToken},
+    account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{
@@ -781,6 +781,7 @@ where
             CreateNewAccount(tx) => self.on_create_new_account(tx),
             GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token),
             GetWwwAuthToken(tx) => self.on_get_www_auth_token(tx),
+            SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher),
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations(),
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token),
@@ -1022,6 +1023,16 @@ where
         }
     }
 
+    fn on_submit_voucher(
+        &mut self,
+        tx: oneshot::Sender<BoxFuture<VoucherSubmission, mullvad_rpc::Error>>,
+        voucher: String,
+    ) {
+        if let Some(account_token) = self.settings.get_account_token() {
+            let rpc_call = self.accounts_proxy.submit_voucher(account_token, voucher);
+            Self::oneshot_send(tx, Box::new(rpc_call), "submit_voucher response");
+        }
+    }
 
     fn on_get_relay_locations(&mut self, tx: oneshot::Sender<RelayList>) {
         Self::oneshot_send(tx, self.relay_selector.get_locations(), "relay locations");
