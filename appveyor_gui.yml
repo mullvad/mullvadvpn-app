@@ -2,7 +2,7 @@ install:
   - npm --version
   - node --version
   - cd gui
-  - npm install
+  - npm ci
 
 # This is the "test phase", tweak it as you see fit
 test_script:

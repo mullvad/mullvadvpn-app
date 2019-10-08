@@ -161,7 +161,7 @@ echo $JSONRPC_RESPONSE | node -e "$JSONRPC_CODE" >  dist-assets/relays.json
 pushd "$SCRIPT_DIR/gui"
 
 echo "Installing JavaScript dependencies..."
-npm install
+npm ci
 
 ################################################################################
 # Package release.

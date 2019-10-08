@@ -30,7 +30,7 @@ echo "Syncing Cargo.lock with new version numbers"
 source env.sh ""
 cargo +stable build
 
-(cd gui/ && npm install) || exit 1
+(cd gui/ && npm ci) || exit 1
 
 echo "Commiting metadata changes to git..."
 git commit -S -m "Updating version in package files" \

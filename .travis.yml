@@ -16,7 +16,7 @@ matrix:
         - xvfb
       install:
         - cd gui
-        - npm install
+        - npm ci
       script:
         - npm run check-format
         - npm run lint
