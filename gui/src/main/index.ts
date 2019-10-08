@@ -1006,8 +1006,8 @@ class ApplicationMain {
           if (error) {
             log.error(
               `Failed to collect a problem report.
-             Stdout: ${stdout.toString()}
-             Stderr: ${stderr.toString()}`,
+              Stdout: ${stdout.toString()}
+              Stderr: ${stderr.toString()}`,
             );
 
             event.sender.send('collect-logs-reply', requestId, {
@@ -1041,9 +1041,9 @@ class ApplicationMain {
         execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
           if (error) {
             log.error(
-              `Failed to send a problem report: ${error.message}
-           Stdout: ${stdout.toString()}
-           Stderr: ${stderr.toString()}`,
+              `Failed to send a problem report.
+              Stdout: ${stdout.toString()}
+              Stderr: ${stderr.toString()}`,
             );
 
             event.sender.send('send-problem-report-reply', requestId, {
