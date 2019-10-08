@@ -13,7 +13,7 @@ use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use mullvad_paths;
 use mullvad_rpc;
 use mullvad_types::{
-    account::{AccountData, AccountToken},
+    account::{AccountData, AccountToken, VoucherSubmission},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     relay_list::RelayList,
@@ -51,6 +51,10 @@ build_rpc_trait! {
 
         #[rpc(meta, name = "get_www_auth_token")]
         fn get_www_auth_token(&self, Self::Metadata) -> BoxFuture<String, Error>;
+
+        /// Submit voucher to add time to account
+        #[rpc(meta, name = "submit_voucher")]
+        fn submit_voucher(&self, Self::Metadata, String) -> BoxFuture<VoucherSubmission, Error>;
 
         /// Returns available countries.
         #[rpc(meta, name = "get_relay_locations")]
@@ -195,6 +199,11 @@ pub enum ManagementCommand {
     ),
     /// Request www auth token for an account
     GetWwwAuthToken(OneshotSender<BoxFuture<String, mullvad_rpc::Error>>),
+    /// Submit voucher to add time to the current account. Returns time added in seconds
+    SubmitVoucher(
+        OneshotSender<BoxFuture<VoucherSubmission, mullvad_rpc::Error>>,
+        String,
+    ),
     /// Request account history
     GetAccountHistory(OneshotSender<Vec<AccountToken>>),
     /// Request account history
@@ -438,6 +447,20 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
                     Self::map_rpc_error(&error)
                 })
             });
+        Box::new(future)
+    }
+
+    fn submit_voucher(
+        &self,
+        _: Self::Metadata,
+        voucher: String,
+    ) -> BoxFuture<VoucherSubmission, Error> {
+        log::debug!("submit_voucher");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(ManagementCommand::SubmitVoucher(tx, voucher))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()))
+            .and_then(|f| f.map_err(|e| Self::map_rpc_error(&e)));
         Box::new(future)
     }
 

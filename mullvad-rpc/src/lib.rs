@@ -11,7 +11,11 @@
 use chrono::{offset::Utc, DateTime};
 use jsonrpc_client_core::{expand_params, jsonrpc_client};
 use jsonrpc_client_http::{header::Host, HttpTransport, HttpTransportBuilder};
-use mullvad_types::{account::AccountToken, relay_list::RelayList, version};
+use mullvad_types::{
+    account::{AccountToken, VoucherSubmission},
+    relay_list::RelayList,
+    version,
+};
 use std::{
     collections::BTreeMap,
     net::{IpAddr, Ipv4Addr},
@@ -107,7 +111,7 @@ jsonrpc_client!(pub struct AccountsProxy {
     pub fn create_account(&mut self) -> RpcRequest<AccountToken>;
     pub fn get_expiry(&mut self, account_token: AccountToken) -> RpcRequest<DateTime<Utc>>;
     pub fn get_www_auth_token(&mut self, account_token: AccountToken) -> RpcRequest<String>;
-    pub fn submit_voucher(&mut self, account_token: AccountToken) -> RpcRequest<String>;
+    pub fn submit_voucher(&mut self, account_token: AccountToken, voucher: String) -> RpcRequest<VoucherSubmission>;
 });
 
 jsonrpc_client!(pub struct ProblemReportProxy {
