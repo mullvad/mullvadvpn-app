@@ -1041,7 +1041,7 @@ class ApplicationMain {
         execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
           if (error) {
             log.error(
-              `Failed to send a problem report: ${error.message}
+              `Failed to send a problem report.
            Stdout: ${stdout.toString()}
            Stderr: ${stderr.toString()}`,
             );
