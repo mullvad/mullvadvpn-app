@@ -50,6 +50,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix `mullvad relay update` to trigger a relay list download even if the existing cache is new.
+- Don't include problem-report arguments in error logging. Stops user email from ending up in the
+  log file on error.
 
 #### Android
 - Show WireGuard key age in local timezone instead of UTC.
