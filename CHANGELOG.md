@@ -23,9 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.9-beta1] - 2019-10-08
 ### Added
 - Add ability to change the desktop GUI language from within Settings.
-- Add ability to create new accounts form the CLI
+- Add ability to create new accounts from the CLI.
 
 #### Windows
 - Add CLI tools (the resource/ directory) to the system PATH.
@@ -34,13 +37,13 @@ Line wrap the file at 100 chars.                                              Th
 - Notarize release builds with Apple. Making them run without warning on 10.15 Catalina.
 
 #### Android
-- Add settings button in launch and login screens.
-- Add support for Android Lollipop.
+- Add settings button in launch and login screens. Making it possible to reach the problem report.
+- Add support for Android 5.x Lollipop.
 - Allow logging in without connectivity.
 
 ### Changed
 - Account and WireGuard keys links in the App will now log the user in automatically.
-- Update FAQ URL to `https://mullvad.net/help/tag/mullvad-app/`
+- Update FAQ URL to `https://mullvad.net/help/tag/mullvad-app/`.
 
 ### Removed
 - Remove support for `MULLVAD_LOCALE` environment variable.
@@ -52,15 +55,17 @@ Line wrap the file at 100 chars.                                              Th
 - Fix `mullvad relay update` to trigger a relay list download even if the existing cache is new.
 - Don't include problem-report arguments in error logging. Stops user email from ending up in the
   log file on error.
+- Fix handling of tunnel file descriptor for WireGuard. Duplicating and closing it correctly.
 
 #### Android
 - Show WireGuard key age in local timezone instead of UTC.
-- Fix notification button icons.
+- Android 6 and older: Fix notification button icons.
 - Fix collapsing tunnel information causing tunnel out IP address information to be lost.
+- Various stability fixes.
 
 #### Windows
-- More adjustments in online/offline detection logic.
-- Be quicker to notice network disconnects.
+- More adjustments in online/offline detection logic. Should prevent more users from being stuck
+  in the offline state. Should also make the app notice network disconnects faster.
 
 
 ## [2019.8] - 2019-09-23
