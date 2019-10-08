@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add ability to submit vouchers from the CLI
 
 
 ## [2019.9-beta1] - 2019-10-08
