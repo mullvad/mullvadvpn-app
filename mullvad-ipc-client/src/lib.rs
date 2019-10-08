@@ -4,7 +4,7 @@ use futures::sync::oneshot;
 use jsonrpc_client_core::{Client, ClientHandle, Future};
 use jsonrpc_client_ipc::IpcTransport;
 use mullvad_types::{
-    account::{AccountData, AccountToken},
+    account::{AccountData, AccountToken, VoucherSubmission},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, RelaySettings, RelaySettingsUpdate},
     relay_list::RelayList,
@@ -19,7 +19,7 @@ use std::{io, path::Path, thread};
 static NO_ARGS: [u8; 0] = [];
 
 pub type Result<T> = std::result::Result<T, jsonrpc_client_core::Error>;
-pub use jsonrpc_client_core::Error;
+pub use jsonrpc_client_core::{Error, ErrorKind};
 pub use jsonrpc_client_pubsub::Error as PubSubError;
 
 pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> io::Result<DaemonRpcClient> {
@@ -109,6 +109,10 @@ impl DaemonRpcClient {
 
     pub fn get_account_data(&mut self, account: AccountToken) -> Result<AccountData> {
         self.call("get_account_data", &[account])
+    }
+
+    pub fn submit_voucher(&mut self, voucher: String) -> Result<VoucherSubmission> {
+        self.call("submit_voucher", &[voucher])
     }
 
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<()> {
