@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-daemon"
-version = "2019.8.0"
+version = "2019.9.0-beta1"
 authors = [
     "Mullvad VPN <admin@mullvad.net>",
     "Andrej Mihajlov <and@mullvad.net>",
