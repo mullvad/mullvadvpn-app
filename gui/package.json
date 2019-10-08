@@ -35,7 +35,7 @@
     "validated": "^2.0.1"
   },
   "optionalDependencies": {
-    "nseventmonitor": "https://github.com/mullvad/NSEventMonitor.git#0.0.16"
+    "nseventmonitor": "^0.0.16"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
