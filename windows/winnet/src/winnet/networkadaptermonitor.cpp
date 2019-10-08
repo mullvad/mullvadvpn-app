@@ -30,8 +30,6 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 
 	for (ULONG i = 0; i < table->NumEntries; ++i)
 	{
-		//addInternal(table->Table[i], false, false);
-
 		const auto pair = m_adapters.emplace(
 			table->Table[i].InterfaceLuid.Value,
 			AdapterElement(
@@ -41,10 +39,15 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 			)
 		);
 
-		m_updateSink(
-			pair.first->second.adapter,
-			UpdateType::Add
-		);
+		if (m_filter(pair.first->second.adapter))
+		{
+			//addFilteredIfUnique(pair.first->second.adapter);
+			m_filteredAdapters.push_back(pair.first->second.adapter);
+			m_updateSink(
+				pair.first->second.adapter,
+				UpdateType::Add
+			);
+		}
 	}
 
 	const auto statusCb = NotifyIpInterfaceChange(AF_UNSPEC, Callback, this, FALSE, &m_notificationHandle);
