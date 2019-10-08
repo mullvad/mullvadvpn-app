@@ -69,7 +69,7 @@ OfflineMonitor::OfflineMonitor
 
 void OfflineMonitor::UpdateConnectivity()
 {
-	m_connected = !m_netInterfaces.getAdapters().empty();
+	m_connected = !m_netInterfaces.getFilteredAdapters().empty();
 }
 
 void OfflineMonitor::callback(const MIB_IF_ROW2 &adapter, NetworkAdapterMonitor::UpdateType type)

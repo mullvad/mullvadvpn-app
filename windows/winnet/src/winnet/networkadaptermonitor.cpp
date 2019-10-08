@@ -8,8 +8,8 @@
 
 NetworkAdapterMonitor::NetworkAdapterMonitor(
 	std::shared_ptr<common::logging::ILogSink> logSink,
-	UpdateSink updateSink,
-	Filter filter
+	UpdateSinkType updateSink,
+	FilterType filter
 )
 	: m_logSink(m_logSink)
 	, m_updateSink(updateSink)
@@ -30,10 +30,21 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 
 	for (ULONG i = 0; i < table->NumEntries; ++i)
 	{
-		if (m_filter(table->Table[i]))
-		{
-			addInternal(table->Table[i]);
-		}
+		//addInternal(table->Table[i], false, false);
+
+		const auto pair = m_adapters.emplace(
+			table->Table[i].InterfaceLuid.Value,
+			AdapterElement(
+				table->Table[i],
+				false,
+				false
+			)
+		);
+
+		m_updateSink(
+			pair.first->second.adapter,
+			UpdateType::Add
+		);
 	}
 
 	const auto statusCb = NotifyIpInterfaceChange(AF_UNSPEC, Callback, this, FALSE, &m_notificationHandle);
@@ -45,9 +56,9 @@ NetworkAdapterMonitor::~NetworkAdapterMonitor()
 	CancelMibChangeNotify2(m_notificationHandle);
 }
 
-const std::map<ULONG64, NetworkAdapterMonitor::AdapterElement>& NetworkAdapterMonitor::getAdapters() const
+const std::vector<MIB_IF_ROW2>& NetworkAdapterMonitor::getFilteredAdapters() const
 {
-	return m_adapters;
+	return m_filteredAdapters;
 }
 
 //static
@@ -69,38 +80,123 @@ void __stdcall NetworkAdapterMonitor::Callback(void *context, MIB_IPINTERFACE_RO
 	}
 }
 
+void NetworkAdapterMonitor::addFilteredIfUnique(const MIB_IF_ROW2 &adapter)
+{
+	auto filteredIt = std::find_if(m_filteredAdapters.begin(), m_filteredAdapters.end(), [&adapter](const MIB_IF_ROW2 &elem)
+	{
+		return elem.InterfaceLuid.Value == adapter.InterfaceLuid.Value;
+	});
+
+	if (m_filteredAdapters.end() == filteredIt)
+	{
+		m_filteredAdapters.push_back(adapter);
+	}
+}
+
+void NetworkAdapterMonitor::addInternal(
+	const MIB_IF_ROW2 &newIface,
+	bool isIPv4,
+	bool isIPv6
+)
+{
+	const auto pair = m_adapters.emplace(
+		newIface.InterfaceLuid.Value,
+		AdapterElement(
+			newIface,
+			isIPv4,
+			isIPv6
+		)
+	);
+
+	if (m_filter(pair.first->second.adapter))
+	{
+		addFilteredIfUnique(pair.first->second.adapter);
+
+		m_updateSink(
+			pair.first->second.adapter,
+			UpdateType::Add
+		);
+	}
+}
+
 void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType)
 {
 	std::scoped_lock<std::mutex> processingLock(m_processingMutex);
+
+	MIB_IF_ROW2 newIface = { 0 };
+	newIface.InterfaceLuid = hint->InterfaceLuid;
+	const auto status = GetIfEntry2(&newIface);
+
+	if (NO_ERROR != status)
+	{
+		std::stringstream ss;
+
+		ss << "GetIfEntry2() failed for LUID 0x" << std::hex << newIface.InterfaceLuid.Value
+			<< " in NetworkAdapterMonitor::callback(), error: 0x" << status;
+
+		throw std::runtime_error(ss.str());
+	}
+
+	bool isIPv4 = hint->Family == AF_INET;
+	bool isIPv6 = hint->Family == AF_INET6;
+
+	if (!isIPv4 && !isIPv6)
+	{
+		std::stringstream ss;
+
+		ss << "Expected either AF_INET or AF_INET6 for LUID 0x"
+			<< std::hex << newIface.InterfaceLuid.Value;
+
+		throw std::runtime_error(ss.str());
+	}
 
 	switch (updateType)
 	{
 		case MibAddInstance:
 		{
-			add(hint->InterfaceLuid);
-
 			const auto adapterIt = m_adapters.find(hint->InterfaceLuid.Value);
-			if (m_filter(adapterIt->second.adapter))
+
+			if (m_adapters.end() != adapterIt)
 			{
-				m_updateSink(
-					adapterIt->second.adapter,
-					UpdateType::Add
-				);
+				if (isIPv4)
+				{
+					adapterIt->second.IPv4 = true;
+				}
+				else
+				{
+					adapterIt->second.IPv6 = true;
+				}
+			}
+			else
+			{
+				addInternal(newIface, isIPv4, isIPv6);
 			}
 
 			break;
 		}
 		case MibParameterNotification:
 		{
-			update(hint->InterfaceLuid);
-
 			const auto adapterIt = m_adapters.find(hint->InterfaceLuid.Value);
-			if (m_filter(adapterIt->second.adapter))
+
+			if (m_adapters.end() != adapterIt)
 			{
-				m_updateSink(
-					adapterIt->second.adapter,
-					UpdateType::Update
-				);
+				// update row
+				MIB_IF_ROW2 &iface = adapterIt->second.adapter;
+				iface = newIface;
+
+				if (m_filter(iface))
+				{
+					//
+					// "Update" is reported even if "Add" was not.
+					//
+
+					addFilteredIfUnique(iface);
+
+					m_updateSink(
+						iface,
+						UpdateType::Update
+					);
+				}
 			}
 
 			break;
@@ -111,88 +207,47 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 
 			if (m_adapters.end() != adapterIt)
 			{
-				if (m_filter(adapterIt->second.adapter))
+				if (isIPv4)
 				{
-					m_updateSink(
-						adapterIt->second.adapter,
-						UpdateType::Delete
-					);
+					adapterIt->second.IPv4 = false;
+				}
+				else
+				{
+					adapterIt->second.IPv6 = false;
 				}
 
-				remove(hint->InterfaceLuid);
+				if (!adapterIt->second.IPv4 &&
+					!adapterIt->second.IPv6)
+				{
+					m_adapters.erase(adapterIt);
+
+					MIB_IF_ROW2 &iface = adapterIt->second.adapter;
+
+					auto filteredIt = std::find_if(m_filteredAdapters.begin(), m_filteredAdapters.end(), [hint](const MIB_IF_ROW2 &elem)
+					{
+						return elem.InterfaceLuid.Value == hint->InterfaceLuid.Value;
+					});
+
+					//
+					// Delete it here so that Add is reported if filter() returns false
+					// here and true later.
+					//
+					// "Delete" is reported even if "Add" was not.
+					//
+					m_filteredAdapters.erase(filteredIt);
+
+					if (m_filter(iface))
+					{
+						//m_filteredAdapters.erase(filteredIt);
+						m_updateSink(
+							iface,
+							UpdateType::Delete
+						);
+					}
+				}
 			}
 
 			break;
 		}
 	}
-}
-
-void NetworkAdapterMonitor::addInternal(const MIB_IF_ROW2 &iface)
-{
-	const auto elemIt = m_adapters.find(iface.InterfaceLuid.Value);
-	if (elemIt != m_adapters.end())
-	{
-		elemIt->second.refcount++;
-	}
-	else
-	{
-		AdapterElement elem;
-		elem.adapter = iface;
-		m_adapters[iface.InterfaceLuid.Value] = elem;
-	}
-}
-
-void NetworkAdapterMonitor::add(NET_LUID luid)
-{
-	MIB_IF_ROW2 newIface = { 0 };
-	newIface.InterfaceLuid = luid;
-	const auto status = GetIfEntry2(&newIface);
-
-	if (NO_ERROR != status)
-	{
-		std::stringstream ss;
-
-		ss << "GetIfEntry2() failed for LUID 0x" << std::hex << newIface.InterfaceLuid.Value
-			<< " in NetworkAdapterMonitor::add(), error: 0x" << status;
-
-		throw std::runtime_error(ss.str());
-	}
-
-	addInternal(newIface);
-}
-
-void NetworkAdapterMonitor::remove(NET_LUID luid)
-{
-	const auto elemIt = m_adapters.find(luid.Value);
-	if (elemIt != m_adapters.end())
-	{
-		elemIt->second.refcount--;
-
-		if (elemIt->second.refcount == 0)
-		{
-			m_adapters.erase(luid.Value);
-		}
-	}
-}
-
-void NetworkAdapterMonitor::update(NET_LUID luid)
-{
-	MIB_IF_ROW2 newIface = { 0 };
-	newIface.InterfaceLuid = luid;
-
-	const auto status = GetIfEntry2(&newIface);
-
-	if (NO_ERROR != status)
-	{
-		std::stringstream ss;
-
-		ss << "GetIfEntry2() failed for LUID 0x" << std::hex << newIface.InterfaceLuid.Value
-			<< " in NetworkAdapterMonitor::update(), error: 0x" << status;
-
-		throw std::runtime_error(ss.str());
-	}
-
-	// update row
-	const auto elemIt = m_adapters.find(newIface.InterfaceLuid.Value);
-	elemIt->second.adapter = newIface;
 }

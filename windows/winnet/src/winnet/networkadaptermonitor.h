@@ -8,7 +8,7 @@
 #include <windows.h>
 #include <functional>
 #include <mutex>
-#include <set>
+#include <vector>
 
 
 class NetworkAdapterMonitor
@@ -22,29 +22,13 @@ public:
 		Update
 	};
 
-	struct AdapterElement
-	{
-		AdapterElement() :
-			refcount(1)
-		{
-		}
-
-		MIB_IF_ROW2 adapter;
-
-	private:
-
-		size_t refcount;
-
-		friend class NetworkAdapterMonitor;
-	};
-
-	using Filter = std::function<bool(const MIB_IF_ROW2 &adapter)>;
-	using UpdateSink = std::function<void(const MIB_IF_ROW2 &adapter, UpdateType updateType)>;
+	using FilterType = std::function<bool(const MIB_IF_ROW2 &adapter)>;
+	using UpdateSinkType = std::function<void(const MIB_IF_ROW2 &adapter, UpdateType updateType)>;
 
 	NetworkAdapterMonitor(
 		std::shared_ptr<common::logging::ILogSink> logSink
-		, UpdateSink updateSink
-		, Filter filter
+		, UpdateSinkType updateSink
+		, FilterType filter
 	);
 	~NetworkAdapterMonitor();
 
@@ -53,22 +37,42 @@ public:
 	NetworkAdapterMonitor(NetworkAdapterMonitor &&o) = delete;
 	NetworkAdapterMonitor& operator=(NetworkAdapterMonitor &&o) = delete;
 
-	const std::map<ULONG64, AdapterElement>& getAdapters() const;
+	const std::vector<MIB_IF_ROW2>& getFilteredAdapters() const;
 
 private:
 
 	std::shared_ptr<common::logging::ILogSink> m_logSink;
 
-	std::function<void(const MIB_IF_ROW2 &adapter, UpdateType updateType)> m_updateSink;
-	std::function<bool(const MIB_IF_ROW2 &adapter)> m_filter;
+	UpdateSinkType m_updateSink;
+	FilterType m_filter;
 
-	void addInternal(const MIB_IF_ROW2 &iface);
+	void addInternal(
+		const MIB_IF_ROW2 &newIface,
+		bool IPv4,
+		bool IPv6
+	);
+	void addFilteredIfUnique(const MIB_IF_ROW2 &adapter);
 
-	void add(NET_LUID luid);
-	void remove(NET_LUID luid);
-	void update(NET_LUID luid);
+	struct AdapterElement
+	{
+		AdapterElement(
+			const MIB_IF_ROW2 &adapter,
+			bool ipv4Enabled,
+			bool ipv6Enabled
+		)
+			: adapter(adapter)
+			, IPv4(ipv4Enabled)
+			, IPv6(ipv6Enabled)
+		{
+		}
+
+		bool IPv4;
+		bool IPv6;
+		MIB_IF_ROW2 adapter;
+	};
 
 	std::map<ULONG64, AdapterElement> m_adapters;
+	std::vector<MIB_IF_ROW2> m_filteredAdapters;
 
 	std::mutex m_processingMutex;
 	HANDLE m_notificationHandle;
