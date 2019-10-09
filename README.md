@@ -275,11 +275,6 @@ sections.
     npm install
     ```
 
-    Alternatively use `npm ci` on macOS and `npm ci --no-optional` on other platforms, since
-    `npm install` installs the newest dependencies as opposed to using the versions of
-    dependencies specified in `package-lock.json`.
-
-
 1. Start the GUI in development mode by running:
     ```bash
     npm run develop
