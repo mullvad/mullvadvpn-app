@@ -32,10 +32,10 @@ public:
 	);
 	~NetworkAdapterMonitor();
 
-	NetworkAdapterMonitor(const NetworkAdapterMonitor &o) = delete;
-	NetworkAdapterMonitor& operator=(const NetworkAdapterMonitor &o) = delete;
-	NetworkAdapterMonitor(NetworkAdapterMonitor &&o) = delete;
-	NetworkAdapterMonitor& operator=(NetworkAdapterMonitor &&o) = delete;
+	NetworkAdapterMonitor(const NetworkAdapterMonitor &) = delete;
+	NetworkAdapterMonitor& operator=(const NetworkAdapterMonitor &) = delete;
+	NetworkAdapterMonitor(NetworkAdapterMonitor &&) = delete;
+	NetworkAdapterMonitor& operator=(NetworkAdapterMonitor &&) = delete;
 
 	const std::vector<MIB_IF_ROW2>& getFilteredAdapters() const;
 
@@ -46,12 +46,9 @@ private:
 	UpdateSinkType m_updateSink;
 	FilterType m_filter;
 
-	void addInternal(
-		const MIB_IF_ROW2 &newIface,
-		bool IPv4,
-		bool IPv6
-	);
-	void addFilteredIfUnique(const MIB_IF_ROW2 &adapter);
+	std::vector<MIB_IF_ROW2>::iterator findFilteredAdapter(const MIB_IF_ROW2 &adapter);
+
+	void getIfEntry(MIB_IF_ROW2 &rowOut, NET_LUID luid);
 
 	struct AdapterElement
 	{

@@ -72,7 +72,7 @@ void OfflineMonitor::UpdateConnectivity()
 	m_connected = !m_netInterfaces.getFilteredAdapters().empty();
 }
 
-void OfflineMonitor::callback(const MIB_IF_ROW2 &adapter, NetworkAdapterMonitor::UpdateType type)
+void OfflineMonitor::callback(const MIB_IF_ROW2 &, NetworkAdapterMonitor::UpdateType)
 {
 	const auto previousConnectivity = m_connected;
 
