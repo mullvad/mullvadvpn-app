@@ -996,7 +996,7 @@ class ApplicationMain {
       'collect-logs',
       (event: Electron.IpcMainEvent, requestId: string, toRedact: string[]) => {
         const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
-        const executable = resolveBin('problem-report');
+        const executable = resolveBin('mullvad-problem-report');
         const args = ['collect', '--output', reportPath];
         if (toRedact.length > 0) {
           args.push('--redact', ...toRedact);
@@ -1035,7 +1035,7 @@ class ApplicationMain {
         message: string,
         savedReport: string,
       ) => {
-        const executable = resolveBin('problem-report');
+        const executable = resolveBin('mullvad-problem-report');
         const args = ['send', '--email', email, '--message', message, '--report', savedReport];
 
         execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {

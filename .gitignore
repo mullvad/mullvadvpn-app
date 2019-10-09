@@ -14,8 +14,8 @@
 /dist-assets/mullvad.exe
 /dist-assets/mullvad-daemon
 /dist-assets/mullvad-daemon.exe
-/dist-assets/problem-report
-/dist-assets/problem-report.exe
+/dist-assets/mullvad-problem-report
+/dist-assets/mullvad-problem-report.exe
 /dist-assets/libtalpid_openvpn_plugin.dylib
 /dist-assets/libtalpid_openvpn_plugin.so
 /dist-assets/talpid_openvpn_plugin.dll

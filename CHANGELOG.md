@@ -26,10 +26,20 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add ability to submit vouchers from the CLI.
 
+#### Linux
+- Add a symlink for `mullvad-problem-report` directly in `/usr/bin`. So the tool is available.
+
+### Changed
+#### Windows
+- Rename the `problem-report` tool to `mullvad-problem-report`.
+
 ### Fixed
 - Fix Norwegian (Bokmal) language detection.
 - Fix missing localizations when formatting date and time in Norwegian (Bokmal).
 - Use authenticated URL to go to account page from expired account view.
+
+#### macOS
+- Remove `mullvad` and `mullvad-problem-report` symlinks from `/usr/local/bin` on uninstall.
 
 
 ## [2019.9-beta1] - 2019-10-08
