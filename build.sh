@@ -73,14 +73,12 @@ function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
     echo "Restoring version metadata files..."
     ./version_metadata.sh restore-backup
-    mv gui/package-lock.json.bak gui/package-lock.json || true
     mv Cargo.lock.bak Cargo.lock || true
     popd
 }
 trap 'restore_metadata_backups' EXIT
 
 echo "Updating version in metadata files..."
-cp gui/package-lock.json gui/package-lock.json.bak
 cp Cargo.lock Cargo.lock.bak
 ./version_metadata.sh inject $PRODUCT_VERSION
 
