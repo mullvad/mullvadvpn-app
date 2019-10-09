@@ -161,7 +161,15 @@ echo $JSONRPC_RESPONSE | node -e "$JSONRPC_CODE" >  dist-assets/relays.json
 pushd "$SCRIPT_DIR/gui"
 
 echo "Installing JavaScript dependencies..."
-npm install
+
+# Add `--no-optional` flag when running on non-macOS environments because `npm ci` attempts to
+# install optional dependencies that aren't even available on other platforms.
+NPM_CI_ARGS=""
+if [ $platform != "Darwin" ]; then
+    NPM_CI_ARGS+="--no-optional"
+fi
+
+npm ci $NPM_CI_ARGS
 
 ################################################################################
 # Package release.
