@@ -62,9 +62,11 @@ if [[ "$BUILD_MODE" == "dev" || $(git describe) != "$PRODUCT_VERSION" ]]; then
 
     echo "Disabling Apple notarization (macOs only) of installer in this dev build"
     NPM_PACK_ARGS+=" --no-apple-notarization"
+    CARGO_ARGS=""
 else
     echo "Removing old Rust build artifacts"
     cargo +stable clean
+    CARGO_ARGS="--locked"
 fi
 
 echo "Building Mullvad VPN $PRODUCT_VERSION"
@@ -92,7 +94,7 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
 fi
 
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
-MULLVAD_ADD_MANIFEST="1" cargo +stable build --locked --release
+MULLVAD_ADD_MANIFEST="1" cargo +stable build $CARGO_ARGS --release
 
 ################################################################################
 # Other work to prepare the release.

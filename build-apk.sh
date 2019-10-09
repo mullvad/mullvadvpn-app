@@ -11,12 +11,12 @@ if [[ "${1:-""}" == "--dev-build" ]]; then
     BUILD_TYPE="debug"
     GRADLE_TASK="assembleDebug"
     APK_SUFFIX="-debug"
-    CARGO_FLAGS=""
+    CARGO_ARGS=""
 else
     BUILD_TYPE="release"
     GRADLE_TASK="assembleRelease"
     APK_SUFFIX=""
-    CARGO_FLAGS="--release"
+    CARGO_ARGS="--release"
 
     if [ ! -f "$SCRIPT_DIR/android/keystore.properties" ]; then
         echo "ERROR: No keystore.properties file found" >&2
@@ -29,6 +29,10 @@ if [[ "$BUILD_TYPE" == "debug" || "$(git describe)" != "$PRODUCT_VERSION" ]]; th
     GIT_COMMIT="$(git rev-parse HEAD | head -c 6)"
     PRODUCT_VERSION="${PRODUCT_VERSION}-dev-${GIT_COMMIT}"
     echo "Modifying product version to $PRODUCT_VERSION"
+else
+    echo "Removing old Rust build artifacts"
+    cargo +stable clean
+    CARGO_ARGS+=" --locked"
 fi
 
 pushd "$SCRIPT_DIR/android"
@@ -70,7 +74,7 @@ for ARCHITECTURE in $ARCHITECTURES; do
 
     echo "Building mullvad-daemon for $TARGET"
     source env.sh "$TARGET"
-    cargo +stable build --locked $CARGO_FLAGS --target "$TARGET" --package mullvad-jni
+    cargo +stable build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
 
     cp -a "$SCRIPT_DIR/dist-assets/binaries/$TARGET" "$SCRIPT_DIR/android/build/extraJni/$ABI"
     cp "$SCRIPT_DIR/target/$TARGET/$BUILD_TYPE/libmullvad_jni.so" "$SCRIPT_DIR/android/build/extraJni/$ABI/"
