@@ -153,7 +153,7 @@ def extract_countries_po():
 
     if os.path.isdir(locale_dir):
       with fiona.open(input_path) as source:
-        po = POFile(encoding='UTF-8')
+        po = POFile(encoding='utf-8')
         po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
         output_path = path.join(locale_out_dir, "countries.po")
 
@@ -225,7 +225,7 @@ def extract_cities_po():
     locale_out_dir = path.join(LOCALE_OUT_DIR, locale)
 
     if os.path.isdir(locale_dir):
-      po = POFile(encoding='UTF-8')
+      po = POFile(encoding='utf-8')
       po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
       output_path = path.join(locale_out_dir, "cities.po")
       hits = 0
@@ -291,7 +291,7 @@ def extract_relay_translations():
 
 
 def extract_relay_locations_pot(countries):
-  pot = POFile(encoding='UTF-8')
+  pot = POFile(encoding='utf-8')
   pot.metadata = {"Content-Type": "text/plain; charset=utf-8"}
   output_path = path.join(LOCALE_OUT_DIR, "relay-locations.pot")
 
@@ -356,7 +356,7 @@ def translate_relay_locations_pot(countries):
 
 
 def translate_relay_locations(place_translator, countries, locale):
-  po = POFile(encoding='UTF-8')
+  po = POFile(encoding='utf-8')
   po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
   locale_out_dir = path.join(LOCALE_OUT_DIR, locale)
   output_path = path.join(locale_out_dir, "relay-locations.po")
