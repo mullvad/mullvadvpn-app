@@ -15,7 +15,7 @@ matrix:
       services:
         - xvfb
       before_install:
-        - npm install -g npm@6.12
+        - npm install -g npm
       install:
         - cd gui
         - npm ci --no-optional

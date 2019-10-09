@@ -1,6 +1,6 @@
 install:
   - ps: Install-Product node 12
-  - npm install -g npm@6.12
+  - npm install -g npm
   - npm --version
   - node --version
   - cd gui
