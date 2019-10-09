@@ -27,12 +27,7 @@ int main()
 	//	}
 	//};
 
-	bool currentConnectivity = 0;
-
-	const auto status = WinNet_ActivateConnectivityMonitor(ConnectivityChanged, nullptr, &currentConnectivity, nullptr, nullptr);
-
-	std::wcout << L"Current connectivity: "
-		<< (currentConnectivity ? L"Connected" : L"NOT connected") << std::endl;
+	const auto status = WinNet_ActivateConnectivityMonitor(ConnectivityChanged, nullptr, nullptr, nullptr);
 
 	_getwch();
 

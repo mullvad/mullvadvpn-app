@@ -15,7 +15,7 @@ public:
 	//
 	using Notifier = std::function<void(bool)>;
 
-	OfflineMonitor(std::shared_ptr<common::logging::ILogSink> logSink, Notifier notifier, bool &currentConnectivity);
+	OfflineMonitor(std::shared_ptr<common::logging::ILogSink> logSink, Notifier notifier);
 
 private:
 
