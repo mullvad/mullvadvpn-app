@@ -6,6 +6,50 @@
 #include <sstream>
 
 
+namespace
+{
+
+bool HasIPv4Interface(NET_LUID luid)
+{
+	MIB_IPINTERFACE_ROW iprow = { 0 };
+	iprow.InterfaceLuid = luid;
+	iprow.Family = AF_INET;
+
+	const auto status = GetIpInterfaceEntry(&iprow);
+
+	if (NO_ERROR == status)
+	{
+		return true;
+	}
+	else if (ERROR_NOT_FOUND != status)
+	{
+		common::error::Throw("Resolve IPv4 interface", status);
+	}
+	return false;
+}
+
+bool HasIPv6Interface(NET_LUID luid)
+{
+	MIB_IPINTERFACE_ROW iprow = { 0 };
+	iprow.InterfaceLuid = luid;
+	iprow.Family = AF_INET6;
+
+	const auto status = GetIpInterfaceEntry(&iprow);
+
+	if (NO_ERROR == status)
+	{
+		return true;
+	}
+	else if (ERROR_NOT_FOUND != status)
+	{
+		common::error::Throw("Resolve IPv6 interface", status);
+	}
+	return false;
+}
+
+}
+
+
 NetworkAdapterMonitor::NetworkAdapterMonitor(
 	std::shared_ptr<common::logging::ILogSink> logSink,
 	UpdateSinkType updateSink,
@@ -30,13 +74,20 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 
 	for (ULONG i = 0; i < table->NumEntries; ++i)
 	{
-		// FIXME: check AF_INET and AF_INET6
+		bool ipv4 = HasIPv4Interface(table->Table[i].InterfaceLuid);
+		bool ipv6 = HasIPv6Interface(table->Table[i].InterfaceLuid);
+
+		if (!ipv4 && !ipv6)
+		{
+			continue;
+		}
+
 		const auto pair = m_adapters.emplace(
 			table->Table[i].InterfaceLuid.Value,
 			AdapterElement(
 				table->Table[i],
-				false,
-				false
+				ipv4,
+				ipv6
 			)
 		);
 
