@@ -73,14 +73,12 @@ function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
     echo "Restoring version metadata files..."
     ./version_metadata.sh restore-backup
-    mv gui/package-lock.json.bak gui/package-lock.json || true
     mv Cargo.lock.bak Cargo.lock || true
     popd
 }
 trap 'restore_metadata_backups' EXIT
 
 echo "Updating version in metadata files..."
-cp gui/package-lock.json gui/package-lock.json.bak
 cp Cargo.lock Cargo.lock.bak
 ./version_metadata.sh inject $PRODUCT_VERSION
 
@@ -161,7 +159,15 @@ echo $JSONRPC_RESPONSE | node -e "$JSONRPC_CODE" >  dist-assets/relays.json
 pushd "$SCRIPT_DIR/gui"
 
 echo "Installing JavaScript dependencies..."
-npm install
+
+# Add `--no-optional` flag when running on non-macOS environments because `npm ci` attempts to
+# install optional dependencies that aren't even available on other platforms.
+NPM_CI_ARGS=""
+if [ "$(uname -s)" != "Darwin" ]; then
+    NPM_CI_ARGS+="--no-optional"
+fi
+
+npm ci $NPM_CI_ARGS
 
 ################################################################################
 # Package release.

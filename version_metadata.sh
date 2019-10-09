@@ -30,8 +30,9 @@ case "$1" in
         SEMVER_PATCH="0"
 
         # Electron GUI
-        sed -i.bak -Ee "s/\"version\": \"[^\"]+\",/\"version\": \"$SEMVER_VERSION\",/g" \
-            gui/package.json
+        cp gui/package.json gui/package.json.bak
+        cp gui/package-lock.json gui/package-lock.json.bak
+        (cd gui/ && npm version $SEMVER_VERSION --no-git-tag-version)
 
         # Rust crates
         sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
@@ -61,6 +62,7 @@ EOF
     "restore-backup")
         # Electron GUI
         mv gui/package.json.bak gui/package.json || true
+        mv gui/package-lock.json.bak gui/package-lock.json || true
         # Rust crates
         mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
         mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
@@ -76,6 +78,7 @@ EOF
     "delete-backup")
         # Electron GUI
         rm gui/package.json.bak || true
+        rm gui/package-lock.json.bak || true
         # Rust crates
         rm mullvad-daemon/Cargo.toml.bak || true
         rm mullvad-cli/Cargo.toml.bak || true
