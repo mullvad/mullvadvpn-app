@@ -50,21 +50,13 @@ bool IsConnectedAdapter(const MIB_IF_ROW2 &iface)
 OfflineMonitor::OfflineMonitor
 (
 	std::shared_ptr<common::logging::ILogSink> logSink,
-	OfflineMonitor::Notifier notifier,
-	bool &currentConnectivity
+	OfflineMonitor::Notifier notifier
 )
 	: m_logSink(logSink)
 	, m_notifier(notifier)
 	, m_connected(false)
 	, m_netInterfaces(logSink, [this](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, NetworkAdapterMonitor::UpdateType type) { this->callback(adapters, adapter, type); }, IsConnectedAdapter)
 {
-	// FIXME: remove this? the callback should be received
-	currentConnectivity = m_connected;
-
-	if (false == m_connected)
-	{
-		LogOfflineState();
-	}
 }
 
 void OfflineMonitor::callback(const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, NetworkAdapterMonitor::UpdateType)

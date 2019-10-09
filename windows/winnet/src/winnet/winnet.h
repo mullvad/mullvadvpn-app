@@ -75,7 +75,6 @@ WINNET_API
 WinNet_ActivateConnectivityMonitor(
 	WinNetConnectivityMonitorCallback callback,
 	void *callbackContext,
-	bool *currentConnectivity,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );

@@ -152,7 +152,6 @@ WINNET_API
 WinNet_ActivateConnectivityMonitor(
 	WinNetConnectivityMonitorCallback callback,
 	void *callbackContext,
-	bool *currentConnectivity,
 	MullvadLogSink logSink,
 	void *logSinkContext
 )
@@ -169,16 +168,9 @@ WinNet_ActivateConnectivityMonitor(
 			callback(connected, callbackContext);
 		};
 
-		bool connected = false;
-
 		auto logger = std::make_shared<shared::LogSinkAdapter>(logSink, logSinkContext);
 
-		g_OfflineMonitor = new OfflineMonitor(logger, forwarder, connected);
-
-		if (nullptr != currentConnectivity)
-		{
-			*currentConnectivity = connected;
-		}
+		g_OfflineMonitor = new OfflineMonitor(logger, forwarder);
 
 		return true;
 	}
