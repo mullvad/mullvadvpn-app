@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix Norwegian (Bokmal) language detection.
 - Fix missing localizations when formatting date and time in Norwegian (Bokmal).
+- Use authenticated URL to go to account page from expired account view.
 
 
 ## [2019.9-beta1] - 2019-10-08

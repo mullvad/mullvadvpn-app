@@ -23,7 +23,6 @@ interface IProps {
   onSelectLocation: () => void;
   onConnect: () => void;
   onDisconnect: () => void;
-  onExternalLink: (url: string) => Promise<void>;
   onExternalLinkWithAuth: (url: string) => Promise<void>;
 }
 
@@ -173,19 +172,19 @@ export default class Connect extends Component<IProps, IState> {
     );
   }
 
-  private handleExpiredAccountRecovery = async (recoveryAction: RecoveryAction) => {
+  private handleExpiredAccountRecovery = async (recoveryAction: RecoveryAction): Promise<void> => {
     switch (recoveryAction) {
       case RecoveryAction.disableBlockedWhenDisconnected:
         break;
 
       case RecoveryAction.openBrowser:
-        this.props.onExternalLink(links.purchase);
+        await this.props.onExternalLinkWithAuth(links.purchase);
         break;
 
       case RecoveryAction.disconnectAndOpenBrowser:
         try {
           await this.props.onDisconnect();
-          this.props.onExternalLink(links.purchase);
+          await this.props.onExternalLinkWithAuth(links.purchase);
         } catch (error) {
           // no-op
         }

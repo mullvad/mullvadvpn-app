@@ -14,7 +14,7 @@ export enum RecoveryAction {
 interface IProps {
   isBlocked: boolean;
   blockWhenDisconnected: boolean;
-  action: (recoveryAction: RecoveryAction) => void;
+  action: (recoveryAction: RecoveryAction) => Promise<void>;
 }
 
 interface IState {
@@ -93,12 +93,14 @@ export default class ExpiredAccountErrorView extends Component<IProps, IState> {
     }
   }
 
-  private handleAction = () => {
-    this.props.action(this.state.recoveryAction);
+  private handleAction = (): Promise<void> => {
+    return this.props.action(this.state.recoveryAction);
   };
 }
 
-class DisconnectAndOpenBrowserContentView extends Component<{ actionHandler: () => void }> {
+class DisconnectAndOpenBrowserContentView extends Component<{
+  actionHandler: () => Promise<void>;
+}> {
   public render() {
     return (
       <View>
@@ -109,19 +111,21 @@ class DisconnectAndOpenBrowserContentView extends Component<{ actionHandler: () 
           )}
         </View>
         <View>
-          <AppButton.RedButton onPress={this.props.actionHandler}>
-            <AppButton.Label>
-              {messages.pgettext('connect-view', 'Disconnect and buy more credit')}
-            </AppButton.Label>
-            <AppButton.Icon source="icon-extLink" height={16} width={16} />
-          </AppButton.RedButton>
+          <AppButton.BlockingButton onPress={this.props.actionHandler}>
+            <AppButton.RedButton>
+              <AppButton.Label>
+                {messages.pgettext('connect-view', 'Disconnect and buy more credit')}
+              </AppButton.Label>
+              <AppButton.Icon source="icon-extLink" height={16} width={16} />
+            </AppButton.RedButton>
+          </AppButton.BlockingButton>
         </View>
       </View>
     );
   }
 }
 
-class OpenBrowserContentView extends Component<{ actionHandler: () => void }> {
+class OpenBrowserContentView extends Component<{ actionHandler: () => Promise<void> }> {
   public render() {
     return (
       <View>
@@ -132,12 +136,14 @@ class OpenBrowserContentView extends Component<{ actionHandler: () => void }> {
           )}
         </View>
         <View>
-          <AppButton.GreenButton onPress={this.props.actionHandler}>
-            <AppButton.Label>
-              {messages.pgettext('connect-view', 'Buy more credit')}
-            </AppButton.Label>
-            <AppButton.Icon source="icon-extLink" height={16} width={16} />
-          </AppButton.GreenButton>
+          <AppButton.BlockingButton onPress={this.props.actionHandler}>
+            <AppButton.GreenButton>
+              <AppButton.Label>
+                {messages.pgettext('connect-view', 'Buy more credit')}
+              </AppButton.Label>
+              <AppButton.Icon source="icon-extLink" height={16} width={16} />
+            </AppButton.GreenButton>
+          </AppButton.BlockingButton>
         </View>
       </View>
     );

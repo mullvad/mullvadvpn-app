@@ -1,5 +1,4 @@
 import { push } from 'connected-react-router';
-import { shell } from 'electron';
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -100,7 +99,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
         log.error(`Failed to disconnect the tunnel: ${error.message}`);
       }
     },
-    onExternalLink: (url: string) => shell.openExternal(url),
     onExternalLinkWithAuth: (url: string) => props.app.openLinkWithAuth(url),
   };
 };
