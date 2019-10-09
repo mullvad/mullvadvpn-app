@@ -181,15 +181,14 @@ storePassword = keystore-password
 
 1. Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
-1. Get the latest version 8 LTS release of Node.js and the latest version of npm.
+1. Get the latest version 12 release of Node.js and the latest version of npm.
    #### macOS
    ```bash
-   brew install node@8
-   export PATH="/usr/local/opt/node@8/bin:$PATH"
+   brew install node
    ```
 
    #### Linux
-   Just download and unpack the `node-v8.xxxx.tar.xz` tarball and add its `bin` directory to your
+   Just download and unpack the `node-v12.xxxx.tar.xz` tarball and add its `bin` directory to your
    `PATH`.
 
    #### Windows
