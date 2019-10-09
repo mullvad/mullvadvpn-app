@@ -23,7 +23,12 @@ public:
 	};
 
 	using FilterType = std::function<bool(const MIB_IF_ROW2 &adapter)>;
-	using UpdateSinkType = std::function<void(const MIB_IF_ROW2 &adapter, UpdateType updateType)>;
+
+	//
+	// An event may apply to a specific adapter, or it may apply to all adapters.
+	// In the latter case, 'adapter' will be set to nullptr.
+	//
+	using UpdateSinkType = std::function<void(const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType)>;
 
 	NetworkAdapterMonitor(
 		std::shared_ptr<common::logging::ILogSink> logSink
@@ -36,8 +41,6 @@ public:
 	NetworkAdapterMonitor& operator=(const NetworkAdapterMonitor &) = delete;
 	NetworkAdapterMonitor(NetworkAdapterMonitor &&) = delete;
 	NetworkAdapterMonitor& operator=(NetworkAdapterMonitor &&) = delete;
-
-	const std::vector<MIB_IF_ROW2>& getFilteredAdapters() const;
 
 private:
 

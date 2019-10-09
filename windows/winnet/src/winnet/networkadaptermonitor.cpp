@@ -30,6 +30,7 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 
 	for (ULONG i = 0; i < table->NumEntries; ++i)
 	{
+		// FIXME: check AF_INET and AF_INET6
 		const auto pair = m_adapters.emplace(
 			table->Table[i].InterfaceLuid.Value,
 			AdapterElement(
@@ -42,11 +43,12 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 		if (m_filter(pair.first->second.adapter))
 		{
 			m_filteredAdapters.push_back(pair.first->second.adapter);
-			m_updateSink(
-				pair.first->second.adapter,
-				UpdateType::Add
-			);
 		}
+	}
+
+	if (!m_filteredAdapters.empty())
+	{
+		m_updateSink(m_filteredAdapters, nullptr, UpdateType::Add);
 	}
 
 	const auto statusCb = NotifyIpInterfaceChange(AF_UNSPEC, Callback, this, FALSE, &m_notificationHandle);
@@ -56,11 +58,6 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 NetworkAdapterMonitor::~NetworkAdapterMonitor()
 {
 	CancelMibChangeNotify2(m_notificationHandle);
-}
-
-const std::vector<MIB_IF_ROW2>& NetworkAdapterMonitor::getFilteredAdapters() const
-{
-	return m_filteredAdapters;
 }
 
 //static
@@ -167,7 +164,7 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 				if (m_filteredAdapters.end() == findFilteredAdapter(*row))
 				{
 					m_filteredAdapters.push_back(*row);
-					m_updateSink(*row, UpdateType::Add);
+					m_updateSink(m_filteredAdapters, row, UpdateType::Add);
 				}
 			}
 			else
@@ -180,7 +177,7 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 				if (m_filteredAdapters.end() != it)
 				{
 					m_filteredAdapters.erase(it);
-					m_updateSink(*row, UpdateType::Delete);
+					m_updateSink(m_filteredAdapters, row, UpdateType::Delete);
 				}
 			}
 
@@ -208,14 +205,16 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 						// Report Add if we hadn't seen this adapter before.
 						//
 						m_updateSink(
-							iface,
+							m_filteredAdapters,
+							&iface,
 							UpdateType::Add
 						);
 					}
 					else
 					{
 						m_updateSink(
-							iface,
+							m_filteredAdapters,
+							&iface,
 							UpdateType::Update
 						);
 					}
@@ -232,7 +231,8 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 						m_filteredAdapters.erase(it);
 
 						m_updateSink(
-							iface,
+							m_filteredAdapters,
+							&iface,
 							UpdateType::Delete
 						);
 					}
@@ -282,7 +282,8 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 						if (m_filter(iface))
 						{
 							m_updateSink(
-								iface,
+								m_filteredAdapters,
+								&iface,
 								UpdateType::Delete
 							);
 						}

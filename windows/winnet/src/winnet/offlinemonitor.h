@@ -24,9 +24,8 @@ private:
 
 	bool m_connected;
 	NetworkAdapterMonitor m_netInterfaces;
-	void UpdateConnectivity();
 
-	void callback(const MIB_IF_ROW2 &adapter, NetworkAdapterMonitor::UpdateType type);
+	void callback(const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, NetworkAdapterMonitor::UpdateType type);
 
 	void LogOfflineState();
 };

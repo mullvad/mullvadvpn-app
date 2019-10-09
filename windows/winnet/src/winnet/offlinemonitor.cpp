@@ -56,9 +56,9 @@ OfflineMonitor::OfflineMonitor
 	: m_logSink(logSink)
 	, m_notifier(notifier)
 	, m_connected(false)
-	, m_netInterfaces(logSink, [this](const MIB_IF_ROW2 &adapter, NetworkAdapterMonitor::UpdateType type) { this->callback(adapter, type); }, IsConnectedAdapter)
+	, m_netInterfaces(logSink, [this](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, NetworkAdapterMonitor::UpdateType type) { this->callback(adapters, adapter, type); }, IsConnectedAdapter)
 {
-	UpdateConnectivity();
+	// FIXME: remove this? the callback should be received
 	currentConnectivity = m_connected;
 
 	if (false == m_connected)
@@ -67,16 +67,10 @@ OfflineMonitor::OfflineMonitor
 	}
 }
 
-void OfflineMonitor::UpdateConnectivity()
-{
-	m_connected = !m_netInterfaces.getFilteredAdapters().empty();
-}
-
-void OfflineMonitor::callback(const MIB_IF_ROW2 &, NetworkAdapterMonitor::UpdateType)
+void OfflineMonitor::callback(const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, NetworkAdapterMonitor::UpdateType)
 {
 	const auto previousConnectivity = m_connected;
-
-	UpdateConnectivity();
+	m_connected = !adapters.empty();
 
 	if (previousConnectivity != m_connected)
 	{
