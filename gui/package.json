@@ -98,5 +98,9 @@
     "pack:win": "gulp pack-win",
     "pack:linux": "gulp pack-linux",
     "private:format": "prettier \"**/*.{js,css,ts,tsx}\""
+  },
+  "engines": {
+    "node": ">=12",
+    "npm": ">=6.12"
   }
 }
