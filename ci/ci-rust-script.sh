@@ -19,7 +19,7 @@ esac
 # FIXME: Becaues of our old jsonrpc dependency our Rust code won't build
 # on latest nightly.
 if [ "${RUST_TOOLCHAIN_CHANNEL}" != "nightly" ]; then
-  cargo build --verbose
+  cargo build --frozen --verbose
   cargo test --verbose
 fi
 
