@@ -188,6 +188,7 @@ export default class Connect extends Component<IProps, IState> {
         } catch (error) {
           // no-op
         }
+        break;
     }
   };
 
