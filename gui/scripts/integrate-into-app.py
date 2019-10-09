@@ -14,6 +14,8 @@ GEO_ASSETS_DEST_DIR = path.realpath(path.join(SCRIPT_DIR, "../assets/geo"))
 TRANSLATIONS_SOURCE_DIR = path.join(SOURCE_DIR, "locales")
 TRANSLATIONS_DEST_DIR = path.realpath(path.join(SCRIPT_DIR, "../locales"))
 
+RELAY_LOCATIONS_POT_FILENAME = "relay-locations.pot"
+
 GEO_ASSETS_TO_COPY = [
   "cities.rbush.json",
   "countries.rbush.json",
@@ -36,10 +38,10 @@ def remove_common_prefix(source, destination):
   prefix_len = len(path.commonprefix((source, destination)))
   return (source[prefix_len:], destination[prefix_len:])
 
-def run_program(args):
+def run_program(*args):
   p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
-  print "Run: {}".format(' '.join(args))
+  print u"Run: {}".format(' '.join(args))
 
   errors = p.communicate()[1]
   return (p.returncode, errors)
@@ -49,7 +51,7 @@ def copy_geo_assets():
     src = path.join(SOURCE_DIR, f)
     dst = path.join(GEO_ASSETS_DEST_DIR, f)
 
-    print "Copying {} to {}".format(*remove_common_prefix(src, dst))
+    print u"Copying {} to {}".format(*remove_common_prefix(src, dst))
 
     shutil.copyfile(src, dst)
 
@@ -61,7 +63,7 @@ def copy_and_merge_translations():
     if path.isdir(src):
       merge_single_locale_folder(src, dst)
     else:
-      print "Copying {} to {}".format(*remove_common_prefix(src, dst))
+      print u"Copying {} to {}".format(*remove_common_prefix(src, dst))
       shutil.copyfile(src, dst)
 
 def merge_single_locale_folder(src, dst):
@@ -70,36 +72,66 @@ def merge_single_locale_folder(src, dst):
     dst_po = path.join(dst, f)
 
     if f in TRANSLATIONS_TO_COPY:
-      print "Copying {} to {}".format(*remove_common_prefix(src_po, dst_po))
+      print u"Copying {} to {}".format(*remove_common_prefix(src_po, dst_po))
       shutil.copyfile(src_po, dst_po)
     elif f in TRANSLATIONS_TO_MERGE:
       if path.exists(dst_po):
-        pot_basename = path.basename(path.splitext(dst_po)[0])
-        pot_path = path.join(TRANSLATIONS_DEST_DIR, pot_basename + ".pot")
+        # merge ../locales/*/file.po with ./out/locales/*/file.po
+        # existing translations applied on top of the generated ones
+        (exit_code, errors) = run_msgcat(dst_po, src_po, dst_po)
 
-        (msgmerge_code, msgmerge_errors) = run_program([
-          "msgmerge", "--update", "--no-fuzzy-matching", dst_po, pot_path])
-
-        if msgmerge_code == 0:
-          (msgcat_code, msgcat_errors) = run_program([
-            "msgcat", src_po, dst_po, "--output-file", dst_po])
-
-          if msgcat_code == 0:
-            print c.green("Merged and concatenated the catalogues.")
-          else:
-            print c.red("msgcat exited with {}: {}".format(
-              msgcat_code, msgcat_errors.decode('utf-8').strip()))
+        if exit_code == 0:
+            print c.green(u"Merged {} into {}.".format(*remove_common_prefix(src_po, dst_po)))
         else:
-          print c.red("msgmerge exited with {}: {}".format(
-            msgmerge_code, msgmerge_errors.decode('utf-8').strip()))
+          print c.red(u"msgcat exited with {}: {}".format(
+            exit_code, errors.decode('utf-8').strip()))
       else:
+        print c.orange(u"Nothing to merge. Copying {} to {}"
+          .format(*remove_common_prefix(src_po, dst_po)))
         shutil.copy(src_po, dst_po)
     else:
-      print c.orange("Unexpected file: {}".format(src_po))
+      print c.orange(u"Unexpected file: {}".format(src_po))
 
+def merge_relay_locations_pot():
+  existing_pot_file = path.join(TRANSLATIONS_DEST_DIR, RELAY_LOCATIONS_POT_FILENAME)
+  generated_pot_file = path.join(TRANSLATIONS_SOURCE_DIR, RELAY_LOCATIONS_POT_FILENAME)
+
+  if path.exists(existing_pot_file):
+    print u"Found the existing {}. Merging.".format(RELAY_LOCATIONS_POT_FILENAME)
+
+    # merge the existing and generated relay-locations.pot
+    (exit_code, errors) = run_msgcat(existing_pot_file, generated_pot_file, existing_pot_file)
+
+    if exit_code == 0:
+      print c.green(u"Merged {} into {}."
+        .format(*remove_common_prefix(generated_pot_file, existing_pot_file)))
+    else:
+      print c.red(u"msgcat exited with {}: {}".format(exit_code, errors.decode('utf-8').strip()))
+  else:
+    print c.orange(u"Nothing to merge. Copying {} to {}"
+      .format(*remove_common_prefix(generated_pot_file, existing_pot_file)))
+    shutil.copy(generated_pot_file, existing_pot_file)
+
+
+def run_msgcat(first_file, second_file, output_file):
+  args = (
+    first_file, second_file,
+    "--output-file", output_file,
+
+    # ensure that the first occurence takes precedence in merge conflict
+    "--use-first",
+
+    # sort by msgid
+    "--sort-output",
+
+    # disable wrapping long strings because crowdin does not do that
+    "--no-wrap"
+  )
+  return run_program("msgcat", *args)
 
 if not path.exists(GEO_ASSETS_DEST_DIR):
   os.makedirs(GEO_ASSETS_DEST_DIR)
 
 copy_geo_assets()
+merge_relay_locations_pot()
 copy_and_merge_translations()
