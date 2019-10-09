@@ -14,6 +14,8 @@ matrix:
       cache: npm
       services:
         - xvfb
+      before_install:
+        - npm install -g npm@6.12
       install:
         - cd gui
         - npm ci --no-optional

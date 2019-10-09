@@ -1,7 +1,6 @@
-environment:
-  nodejs_version: "12"
-
 install:
+  - ps: Install-Product node 12
+  - npm install -g npm@6.12
   - npm --version
   - node --version
   - cd gui
