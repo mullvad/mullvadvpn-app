@@ -70,7 +70,7 @@ for ARCHITECTURE in $ARCHITECTURES; do
 
     echo "Building mullvad-daemon for $TARGET"
     source env.sh "$TARGET"
-    cargo build $CARGO_FLAGS --target "$TARGET" --package mullvad-jni
+    cargo +stable build --locked $CARGO_FLAGS --target "$TARGET" --package mullvad-jni
 
     cp -a "$SCRIPT_DIR/dist-assets/binaries/$TARGET" "$SCRIPT_DIR/android/build/extraJni/$ABI"
     cp "$SCRIPT_DIR/target/$TARGET/$BUILD_TYPE/libmullvad_jni.so" "$SCRIPT_DIR/android/build/extraJni/$ABI/"
