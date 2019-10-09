@@ -75,7 +75,6 @@
     "gulp": "^4.0.2",
     "gulp-inject-string": "^1.1.2",
     "gulp-typescript": "^5.0.1",
-    "npm-run-all": "^4.0.1",
     "prettier": "1.16.4",
     "rimraf": "^2.7.1",
     "sinon": "^7.1.1",
