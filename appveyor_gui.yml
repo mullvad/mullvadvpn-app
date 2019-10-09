@@ -1,8 +1,13 @@
+environment:
+  nodejs_version: "12"
+
 install:
+  - ps: Install-Product node 12
+  - npm install -g npm
   - npm --version
   - node --version
   - cd gui
-  - npm install
+  - npm ci --no-optional
 
 # This is the "test phase", tweak it as you see fit
 test_script:

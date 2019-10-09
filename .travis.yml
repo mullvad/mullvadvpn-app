@@ -10,13 +10,15 @@ matrix:
   include:
     # GUI - Electron
     - language: node_js
-      node_js: '8'
+      node_js: '12'
       cache: npm
       services:
         - xvfb
+      before_install:
+        - npm install -g npm
       install:
         - cd gui
-        - npm install
+        - npm ci --no-optional
       script:
         - npm run check-format
         - npm run lint
