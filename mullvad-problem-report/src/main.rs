@@ -8,7 +8,7 @@
 
 #![deny(rust_2018_idioms)]
 
-use clap::crate_authors;
+use clap::{crate_authors, crate_name};
 use mullvad_problem_report::{collect_report, metadata, send_problem_report, Error};
 use std::{env, path::Path, process};
 use talpid_types::ErrorExt;
@@ -26,7 +26,7 @@ fn main() {
 
 fn run() -> Result<(), Error> {
     env_logger::init();
-    let app = clap::App::new("problem-report")
+    let app = clap::App::new(crate_name!())
         .version(metadata::PRODUCT_VERSION)
         .author(crate_authors!())
         .about("Mullvad VPN problem report tool. Collects logs and sends them to Mullvad support.")

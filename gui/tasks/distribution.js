@@ -46,7 +46,7 @@ const config = {
     },
     extraResources: [
       { from: distAssets('mullvad'), to: '.' },
-      { from: distAssets('problem-report'), to: '.' },
+      { from: distAssets('mullvad-problem-report'), to: '.' },
       { from: distAssets('mullvad-daemon'), to: '.' },
       { from: distAssets('libtalpid_openvpn_plugin.dylib'), to: '.' },
       { from: distAssets('binaries/x86_64-apple-darwin/openvpn'), to: '.' },
@@ -84,7 +84,7 @@ const config = {
     signDlls: true,
     extraResources: [
       { from: distAssets('mullvad.exe'), to: '.' },
-      { from: distAssets('problem-report.exe'), to: '.' },
+      { from: distAssets('mullvad-problem-report.exe'), to: '.' },
       { from: distAssets('mullvad-daemon.exe'), to: '.' },
       { from: distAssets('talpid_openvpn_plugin.dll'), to: '.' },
       { from: root('windows/winfw/bin/x64-Release/winfw.dll'), to: '.' },
@@ -102,7 +102,7 @@ const config = {
     category: 'Network',
     extraFiles: [{ from: distAssets('linux/mullvad-gui-launcher.sh'), to: '.' }],
     extraResources: [
-      { from: distAssets('problem-report'), to: '.' },
+      { from: distAssets('mullvad-problem-report'), to: '.' },
       { from: distAssets('mullvad-daemon'), to: '.' },
       { from: distAssets('libtalpid_openvpn_plugin.so'), to: '.' },
       { from: distAssets('binaries/x86_64-unknown-linux-gnu/openvpn'), to: '.' },

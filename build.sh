@@ -104,21 +104,21 @@ if [[ ("$(uname -s)" == "Darwin") ]]; then
     binaries=(
         mullvad-daemon
         mullvad
-        problem-report
+        mullvad-problem-report
         libtalpid_openvpn_plugin.dylib
     )
 elif [[ ("$(uname -s)" == "Linux") ]]; then
     binaries=(
         mullvad-daemon
         mullvad
-        problem-report
+        mullvad-problem-report
         libtalpid_openvpn_plugin.so
     )
 elif [[ ("$(uname -s)" == "MINGW"*) ]]; then
     binaries=(
         mullvad-daemon.exe
         mullvad.exe
-        problem-report.exe
+        mullvad-problem-report.exe
         talpid_openvpn_plugin.dll
     )
 fi

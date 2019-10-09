@@ -13,10 +13,6 @@ description = "Collect Mullvad VPN logs into a report and send it to support"
 license = "GPL-3.0"
 edition = "2018"
 
-[[bin]]
-name = "problem-report"
-path = "src/main.rs"
-
 [dependencies]
 clap = "2.25"
 dirs = "2.0"
@@ -50,4 +46,4 @@ ProductName = "Mullvad VPN"
 CompanyName = "Amagicom AB"
 LegalCopyright = "(c) 2018 Amagicom AB"
 InternalName = "mullvad-problem-report"
-OriginalFilename = "problem-report.exe"
+OriginalFilename = "mullvad-problem-report.exe"
