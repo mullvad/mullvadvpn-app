@@ -22,6 +22,9 @@ echo "Removing app from /Applications ..."
 sudo rm -rf /Applications/Mullvad\ VPN.app
 sudo pkgutil --forget net.mullvad.vpn || true
 
+echo "Removing CLI symlinks from /usr/local/bin/ ..."
+sudo rm -f /usr/local/bin/mullvad /usr/local/bin/mullvad-problem-report
+
 read -p "Do you want to delete the log and cache files the app has created? (y/n) "
 if [[ "$REPLY" =~ [Yy]$ ]]; then
     sudo rm -rf /var/log/mullvad-vpn /var/root/Library/Caches/mullvad-vpn
