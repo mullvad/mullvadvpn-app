@@ -136,6 +136,7 @@
     </string>
 
     <string name="account_url">https://mullvad.net/en/account</string>
+    <string name="wg_key_url">https://mullvad.net/account/ports</string>
     <string name="create_account_url">https://mullvad.net/en/account/create</string>
     <string name="download_url">https://mullvad.net/en/download</string>
 </resources>
