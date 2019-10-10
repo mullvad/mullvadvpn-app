@@ -12,12 +12,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcommon", "..\windows-lib
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug Static|x64 = Debug Static|x64
+		Debug Static|x86 = Debug Static|x86
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}.Debug Static|x64.ActiveCfg = Debug Static|x64
+		{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}.Debug Static|x64.Build.0 = Debug Static|x64
+		{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}.Debug Static|x86.ActiveCfg = Debug Static|Win32
+		{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}.Debug Static|x86.Build.0 = Debug Static|Win32
 		{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}.Debug|x64.ActiveCfg = Debug|x64
 		{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}.Debug|x64.Build.0 = Debug|x64
 		{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}.Debug|x86.ActiveCfg = Debug|Win32
@@ -26,6 +32,10 @@ Global
 		{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}.Release|x64.Build.0 = Release|x64
 		{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}.Release|x86.ActiveCfg = Release|Win32
 		{89C5CDE8-04DB-4D9C-A8D8-7F786DAFB6D4}.Release|x86.Build.0 = Release|Win32
+		{B52E2D10-A94A-4605-914A-2DCEF6A757EF}.Debug Static|x64.ActiveCfg = Debug|x64
+		{B52E2D10-A94A-4605-914A-2DCEF6A757EF}.Debug Static|x64.Build.0 = Debug|x64
+		{B52E2D10-A94A-4605-914A-2DCEF6A757EF}.Debug Static|x86.ActiveCfg = Debug|Win32
+		{B52E2D10-A94A-4605-914A-2DCEF6A757EF}.Debug Static|x86.Build.0 = Debug|Win32
 		{B52E2D10-A94A-4605-914A-2DCEF6A757EF}.Debug|x64.ActiveCfg = Debug|x64
 		{B52E2D10-A94A-4605-914A-2DCEF6A757EF}.Debug|x64.Build.0 = Debug|x64
 		{B52E2D10-A94A-4605-914A-2DCEF6A757EF}.Debug|x86.ActiveCfg = Debug|Win32
