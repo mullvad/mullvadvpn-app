@@ -146,9 +146,9 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> Future for VersionUpdater<F> {
                         VersionUpdaterState::Sleeping(Self::create_sleep_future())
                     }
                     Ok(Async::Ready(app_version_info)) => {
+                        log::debug!("Got new version check: {:?}", app_version_info);
+                        self.next_update_time = Instant::now() + UPDATE_INTERVAL;
                         if app_version_info != self.last_app_version_info {
-                            self.next_update_time = Instant::now() + UPDATE_INTERVAL;
-                            log::debug!("Got new version check: {:?}", app_version_info);
                             (self.on_version_update)(&app_version_info);
                             self.last_app_version_info = app_version_info;
                             if let Err(e) = self.write_cache() {
