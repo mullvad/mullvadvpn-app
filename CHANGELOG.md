@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add ability to submit vouchers from the CLI.
 
+#### Android
+- Use authenticated URLs to go to wireguard key page on webiste
+
 #### Linux
 - Add a symlink for `mullvad-problem-report` directly in `/usr/bin`. So the tool is available.
 
