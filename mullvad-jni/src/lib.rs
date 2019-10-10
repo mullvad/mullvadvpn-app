@@ -328,6 +328,26 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWwwAuthToken<'env, 'this>(
+    env: JNIEnv<'env>,
+    _: JObject<'this>,
+) -> JString<'env> {
+    match DAEMON_INTERFACE.get_www_auth_token() {
+        Ok(token) => {
+            token.into_java(&env)
+        },
+        Err(err) => {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to get WWW auth token")
+            );
+            String::new().into_java(&env)
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentLocation<'env, 'this>(
     env: JNIEnv<'env>,
     _: JObject<'this>,
