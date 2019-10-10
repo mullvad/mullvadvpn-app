@@ -9,8 +9,6 @@ if [[ "$1" =~ $is_number_re ]] && [ $1 -gt 0 ]; then
     exit 0;
 fi
 
-rm -f /usr/bin/mullvad-problem-report
-
 if which systemctl &> /dev/null; then
     # the user might've disabled or stopped the service themselves already
     systemctl stop mullvad-daemon.service || true
