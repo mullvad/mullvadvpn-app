@@ -82,7 +82,7 @@ def merge_single_locale_folder(src, dst):
       else:
         print c.orange(u"Nothing to merge. Copying {} to {}"
           .format(*remove_common_prefix(src_po, dst_po)))
-        shutil.copy(src_po, dst_po)
+        shutil.copyfile(src_po, dst_po)
     else:
       print c.orange(u"Unexpected file: {}".format(src_po))
 
@@ -98,7 +98,7 @@ def merge_relay_locations_pot():
   else:
     print c.orange(u"Nothing to merge. Copying {} to {}"
       .format(*remove_common_prefix(generated_pot_file, existing_pot_file)))
-    shutil.copy(generated_pot_file, existing_pot_file)
+    shutil.copyfile(generated_pot_file, existing_pot_file)
 
 
 def run_msgcat(first_file, second_file, output_file):
