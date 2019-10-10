@@ -88,6 +88,17 @@ impl DaemonInterface {
             .map_err(Error::RpcError)
     }
 
+    pub fn get_www_auth_token(&self) -> Result<String> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::GetWwwAuthToken(tx))?;
+
+        rx.wait()
+            .map_err(|_| Error::NoResponse)?
+            .wait()
+            .map_err(Error::RpcError)
+    }
+
     pub fn get_current_location(&self) -> Result<Option<GeoIpLocation>> {
         let (tx, rx) = oneshot::channel();
 
