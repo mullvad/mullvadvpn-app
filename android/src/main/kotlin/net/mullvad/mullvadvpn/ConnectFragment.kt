@@ -75,7 +75,10 @@ class ConnectFragment : Fragment() {
         }
 
         headerBar = HeaderBar(view, resources)
-        notificationBanner = NotificationBanner(view, context!!, versionInfoCache)
+        notificationBanner = NotificationBanner(view,
+                                                context!!,
+                                                versionInfoCache,
+                                                parentActivity.wwwAuthTokenRetriever)
         status = ConnectionStatus(view, resources)
 
         locationInfo = LocationInfo(view, context!!)

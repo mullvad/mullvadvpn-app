@@ -7,7 +7,12 @@ import android.net.Uri
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
+import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.BlockReason
 import net.mullvad.mullvadvpn.model.KeygenEvent
@@ -18,11 +23,14 @@ import net.mullvad.mullvadvpn.model.TunnelState
 class NotificationBanner(
     val parentView: View,
     val context: Context,
-    val versionInfoCache: AppVersionInfoCache
+    val versionInfoCache: AppVersionInfoCache,
+    val authTokenRetriever: WwwAuthTokenRetriever
 ) {
+    enum class ExternalLink { Download, KeyManagement }
+
     private val resources = context.resources
 
-    private val accountUrl = Uri.parse(context.getString(R.string.account_url))
+    private val keyManagementUrl = context.getString(R.string.wg_key_url)
     private val downloadUrl = Uri.parse(context.getString(R.string.download_url))
 
     private val errorImage = resources.getDrawable(R.drawable.icon_notification_error, null)
@@ -34,8 +42,30 @@ class NotificationBanner(
     private val message: TextView = parentView.findViewById(R.id.notification_message)
     private val icon: View = parentView.findViewById(R.id.notification_icon)
 
-    private var externalLink: Uri? = null
+    private var externalLink: ExternalLink? = null
     private var visible = false
+
+    private val keyManagementController = BlockingController(
+        object : BlockableView {
+            override fun setEnabled(enabled: Boolean) {
+                if (enabled) {
+                    banner.setAlpha(1f)
+                    banner.setClickable(true)
+                } else {
+                    banner.setAlpha(0.5f)
+                    banner.setClickable(false)
+                }
+            }
+
+            override fun onClick(): Job {
+                return GlobalScope.launch(Dispatchers.Main) {
+                    val token = authTokenRetriever.getAuthToken()
+                    val url = Uri.parse(keyManagementUrl + "?token=" + token)
+                    context.startActivity(Intent(Intent.ACTION_VIEW, url))
+                }
+            }
+        }
+    )
 
     var keyState: KeygenEvent? = null
         set(value) {
@@ -59,6 +89,7 @@ class NotificationBanner(
 
     fun onPause() {
         versionInfoCache.onUpdate = null
+        keyManagementController.onPause()
     }
 
     private fun update() {
@@ -74,7 +105,7 @@ class NotificationBanner(
             is KeygenEvent.Failure -> {
                 when (keyState.failure) {
                     is KeygenFailure.TooManyKeys -> {
-                        externalLink = accountUrl
+                        externalLink = ExternalLink.KeyManagement
                         showError(R.string.wireguard_error, R.string.too_many_keys)
                     }
                     is KeygenFailure.GenerationFailure -> {
@@ -128,7 +159,7 @@ class NotificationBanner(
             val parameter = versionInfoCache.upgradeVersion
             val description = context.getString(template, parameter)
 
-            externalLink = downloadUrl
+            externalLink = ExternalLink.Download
 
             show(statusImage, title, description)
         }
@@ -209,8 +240,13 @@ class NotificationBanner(
     private fun onClick() {
         val externalLink = this.externalLink
 
-        if (externalLink != null) {
-            context.startActivity(Intent(Intent.ACTION_VIEW, externalLink))
+        when (externalLink) {
+            ExternalLink.Download -> {
+                context.startActivity(Intent(Intent.ACTION_VIEW, this.downloadUrl))
+            }
+            ExternalLink.KeyManagement -> {
+                this.keyManagementController.action()
+            }
         }
     }
 }
