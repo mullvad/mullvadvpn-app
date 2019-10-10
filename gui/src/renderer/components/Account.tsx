@@ -31,7 +31,7 @@ export default class Account extends Component<IProps> {
               <NavigationItems>
                 <BackBarItem action={this.props.onClose}>
                   {// TRANSLATORS: Back button in navigation bar
-                  messages.pgettext('account-nav', 'Settings')}
+                  messages.pgettext('navigation-bar', 'Settings')}
                 </BackBarItem>
               </NavigationItems>
             </NavigationBar>
