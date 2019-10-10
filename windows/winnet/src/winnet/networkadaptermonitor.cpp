@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include "networkadaptermonitor.h"
-#include <libcommon/error.h>
 #include <libcommon/memory.h>
 #include <sstream>
 
@@ -102,13 +101,7 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 		m_updateSink(m_filteredAdapters, nullptr, UpdateType::Add);
 	}
 
-	const auto statusCb = NotifyIpInterfaceChange(AF_UNSPEC, Callback, this, FALSE, &m_notificationHandle);
-	THROW_UNLESS(NO_ERROR, statusCb, "Register interface change notification");
-}
-
-NetworkAdapterMonitor::~NetworkAdapterMonitor()
-{
-	CancelMibChangeNotify2(m_notificationHandle);
+	m_winNotifier = std::make_shared<DefaultWinNotifier>(*this);
 }
 
 //static
@@ -143,15 +136,15 @@ void NetworkAdapterMonitor::getIfEntry(MIB_IF_ROW2 &rowOut, NET_LUID luid)
 	rowOut.InterfaceLuid = luid;
 	const auto status = GetIfEntry2(&rowOut);
 
-	if (NO_ERROR != status)
-	{
-		std::stringstream ss;
+	if (NO_ERROR == status)
+		return;
 
-		ss << "GetIfEntry2() failed for LUID 0x" << std::hex << rowOut.InterfaceLuid.Value
-			<< " in NetworkAdapterMonitor::getIfEntry(), error: 0x" << status;
+	std::stringstream ss;
 
-		throw std::runtime_error(ss.str());
-	}
+	ss << "GetIfEntry2() failed for LUID 0x" << std::hex << rowOut.InterfaceLuid.Value
+		<< " in NetworkAdapterMonitor::getIfEntry(), error: 0x" << status;
+
+	throw std::runtime_error(ss.str());
 }
 
 void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType)
@@ -345,4 +338,21 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 			break;
 		}
 	}
+}
+
+NetworkAdapterMonitor::DefaultWinNotifier::DefaultWinNotifier(const NetworkAdapterMonitor &nam)
+{
+	const auto statusCb = NotifyIpInterfaceChange(
+		AF_UNSPEC,
+		Callback,
+		const_cast<NetworkAdapterMonitor*>(&nam),
+		FALSE,
+		&m_notificationHandle
+	);
+	THROW_UNLESS(NO_ERROR, statusCb, "Register interface change notification");
+}
+
+NetworkAdapterMonitor::DefaultWinNotifier::~DefaultWinNotifier()
+{
+	CancelMibChangeNotify2(m_notificationHandle);
 }

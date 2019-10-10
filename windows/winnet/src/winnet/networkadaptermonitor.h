@@ -1,6 +1,7 @@
 #pragma once
 
 #include <libcommon/logging/ilogsink.h>
+#include <libcommon/error.h>
 #include <map>
 #include <winsock2.h>
 #include <ws2ipdef.h>
@@ -9,6 +10,15 @@
 #include <functional>
 #include <mutex>
 #include <vector>
+
+
+class WinNotifier
+{
+public:
+	virtual ~WinNotifier() = 0
+	{
+	}
+};
 
 
 class NetworkAdapterMonitor
@@ -35,23 +45,22 @@ public:
 		, UpdateSinkType updateSink
 		, FilterType filter
 	);
-	~NetworkAdapterMonitor();
+	virtual ~NetworkAdapterMonitor() = default;
 
 	NetworkAdapterMonitor(const NetworkAdapterMonitor &) = delete;
 	NetworkAdapterMonitor& operator=(const NetworkAdapterMonitor &) = delete;
 	NetworkAdapterMonitor(NetworkAdapterMonitor &&) = delete;
 	NetworkAdapterMonitor& operator=(NetworkAdapterMonitor &&) = delete;
 
+	std::shared_ptr<WinNotifier> m_winNotifier;
+
+	const std::vector<MIB_IF_ROW2>& getAdapters() {
+		return m_filteredAdapters;
+	}
+
 private:
 
-	std::shared_ptr<common::logging::ILogSink> m_logSink;
-
-	UpdateSinkType m_updateSink;
-	FilterType m_filter;
-
 	std::vector<MIB_IF_ROW2>::iterator findFilteredAdapter(const MIB_IF_ROW2 &adapter);
-
-	void getIfEntry(MIB_IF_ROW2 &rowOut, NET_LUID luid);
 
 	struct AdapterElement
 	{
@@ -75,7 +84,32 @@ private:
 	std::vector<MIB_IF_ROW2> m_filteredAdapters;
 
 	std::mutex m_processingMutex;
-	HANDLE m_notificationHandle;
-	void callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType);
 	static void __stdcall Callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType);
+
+protected:
+
+	NetworkAdapterMonitor() = default;
+
+	std::shared_ptr<common::logging::ILogSink> m_logSink;
+	UpdateSinkType m_updateSink;
+	FilterType m_filter;
+
+	class DefaultWinNotifier : public WinNotifier
+	{
+		HANDLE m_notificationHandle;
+
+	public:
+
+		DefaultWinNotifier(const NetworkAdapterMonitor &nam);
+		virtual ~DefaultWinNotifier();
+
+		DefaultWinNotifier(const DefaultWinNotifier&) = delete;
+		DefaultWinNotifier(DefaultWinNotifier&&) = delete;
+		DefaultWinNotifier& operator=(const DefaultWinNotifier&) = delete;
+		DefaultWinNotifier& operator=(const DefaultWinNotifier&&) = delete;
+	};
+
+	virtual void callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType);
+
+	virtual void getIfEntry(MIB_IF_ROW2 &rowOut, NET_LUID luid);
 };
