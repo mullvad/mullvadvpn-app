@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.dataproxy
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.KeygenEvent
