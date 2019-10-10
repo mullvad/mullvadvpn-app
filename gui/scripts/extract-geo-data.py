@@ -363,7 +363,7 @@ def print_stats_table(title, data):
 
 def translate_relay_locations_pot(countries):
   country_translator = CountryTranslator()
-  city_translator = PlaceTranslator()
+  city_translator = CityTranslator()
   stats = []
 
   for locale in os.listdir(LOCALE_DIR):
@@ -522,13 +522,13 @@ class CountryTranslator(object):
     return dataset
 
 
-class PlaceTranslator(object):
+class CityTranslator(object):
   """
   This class provides facilities for translating places from English.
   """
 
   def __init__(self):
-    super(PlaceTranslator, self).__init__()
+    super(CityTranslator, self).__init__()
 
     self.dataset = self.__build_index()
 
