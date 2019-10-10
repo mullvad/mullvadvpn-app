@@ -34,9 +34,9 @@ TRANSLATIONS_TO_MERGE = [
   "relay-locations.po"
 ]
 
-def remove_common_prefix(source, destination):
-  prefix_len = len(path.commonprefix((source, destination)))
-  return (source[prefix_len:], destination[prefix_len:])
+def remove_common_prefix(*args):
+  prefix_len = len(path.commonprefix(args))
+  return map(lambda str: str[prefix_len:], args)
 
 def run_program(*args):
   p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -78,13 +78,7 @@ def merge_single_locale_folder(src, dst):
       if path.exists(dst_po):
         # merge ../locales/*/file.po with ./out/locales/*/file.po
         # existing translations applied on top of the generated ones
-        (exit_code, errors) = run_msgcat(dst_po, src_po, dst_po)
-
-        if exit_code == 0:
-            print c.green(u"Merged {} into {}.".format(*remove_common_prefix(src_po, dst_po)))
-        else:
-          print c.red(u"msgcat exited with {}: {}".format(
-            exit_code, errors.decode('utf-8').strip()))
+        run_msgcat(dst_po, src_po, dst_po)
       else:
         print c.orange(u"Nothing to merge. Copying {} to {}"
           .format(*remove_common_prefix(src_po, dst_po)))
@@ -100,13 +94,7 @@ def merge_relay_locations_pot():
     print u"Found the existing {}. Merging.".format(RELAY_LOCATIONS_POT_FILENAME)
 
     # merge the existing and generated relay-locations.pot
-    (exit_code, errors) = run_msgcat(existing_pot_file, generated_pot_file, existing_pot_file)
-
-    if exit_code == 0:
-      print c.green(u"Merged {} into {}."
-        .format(*remove_common_prefix(generated_pot_file, existing_pot_file)))
-    else:
-      print c.red(u"msgcat exited with {}: {}".format(exit_code, errors.decode('utf-8').strip()))
+    run_msgcat(existing_pot_file, generated_pot_file, existing_pot_file)
   else:
     print c.orange(u"Nothing to merge. Copying {} to {}"
       .format(*remove_common_prefix(generated_pot_file, existing_pot_file)))
@@ -127,7 +115,14 @@ def run_msgcat(first_file, second_file, output_file):
     # disable wrapping long strings because crowdin does not do that
     "--no-wrap"
   )
-  return run_program("msgcat", *args)
+
+  (exit_code, errors) = run_program("msgcat", *args)
+
+  if exit_code == 0:
+    print c.green(u"Merged {} and {} into {}."
+      .format(*remove_common_prefix(first_file, second_file, output_file)))
+  else:
+    print c.red(u"msgcat exited with {}: {}".format(exit_code, errors.decode('utf-8').strip()))
 
 if not path.exists(GEO_ASSETS_DEST_DIR):
   os.makedirs(GEO_ASSETS_DEST_DIR)
