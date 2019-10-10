@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.dataproxy.SettingsListener
+import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.util.SmartDeferred
 
 class MainActivity : FragmentActivity() {
@@ -40,6 +41,7 @@ class MainActivity : FragmentActivity() {
     var relayListListener = RelayListListener(this)
     val locationInfoCache = LocationInfoCache(daemon, relayListListener)
     val accountCache = AccountCache(settingsListener, daemon)
+    val wwwAuthTokenRetriever = WwwAuthTokenRetriever(daemon)
 
     private var quitJob: Job? = null
     private var serviceToStop: MullvadVpnService.LocalBinder? = null
