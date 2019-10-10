@@ -212,6 +212,7 @@ def extract_countries_po():
             )
             po.append(entry)
 
+        sort_pofile_entries(po)
         po.save(output_path)
         print c.green("Extracted {} countries for {} to {}".format(len(po), locale, output_path))
 
@@ -263,12 +264,17 @@ def extract_cities_po():
             )
             po.append(entry)
 
+      sort_pofile_entries(po)
       po.save(output_path)
       print c.green("Extracted {} cities to {}".format(len(po), output_path))
 
       stats.append((locale, hits, misses))
 
   print_stats_table("Cities translations", stats)
+
+
+def sort_pofile_entries(pofile):
+  pofile.sort(key=lambda o: o.msgid_with_context.encode('utf-8'))
 
 
 def extract_relay_translations():
