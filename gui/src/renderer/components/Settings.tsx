@@ -52,7 +52,7 @@ export default class Settings extends Component<IProps> {
                   <CloseBarItem action={this.props.onClose} />
                   <TitleBarItem>
                     {// TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('settings-view-nav', 'Settings')}
+                    messages.pgettext('navigation-bar', 'Settings')}
                   </TitleBarItem>
                 </NavigationItems>
               </NavigationBar>
@@ -62,7 +62,7 @@ export default class Settings extends Component<IProps> {
                   <View style={styles.content}>
                     {showLargeTitle && (
                       <SettingsHeader>
-                        <HeaderTitle>{messages.pgettext('settings-view', 'Settings')}</HeaderTitle>
+                        <HeaderTitle>{messages.pgettext('navigation-bar', 'Settings')}</HeaderTitle>
                       </SettingsHeader>
                     )}
                     <View>
