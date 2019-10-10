@@ -23,11 +23,18 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.9] - 2019-10-11
 ### Added
 - Add ability to submit vouchers from the CLI.
 
 #### Linux
 - Add a symlink for `mullvad-problem-report` directly in `/usr/bin`. So the tool is available.
+
+#### Windows
+- Install the OpenVPN certificate to avoid the TAP adapter driver installation warning on
+  Windows 8 and newer.
 
 ### Changed
 #### Windows
