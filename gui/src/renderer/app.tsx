@@ -639,7 +639,7 @@ export default class AppRenderer {
     if (location.country) {
       const country = location.country;
 
-      location.country = countries.gettext(country) || country;
+      location.country = relayLocations.gettext(country) || countries.gettext(country) || country;
     }
 
     return location;
@@ -648,12 +648,12 @@ export default class AppRenderer {
   private convertRelayListToLocationList(relayList: IRelayList): IRelayLocationRedux[] {
     return relayList.countries
       .map((country) => ({
-        name: countries.gettext(country.name) || country.name,
+        name: relayLocations.gettext(country.name) || country.name,
         code: country.code,
         hasActiveRelays: country.cities.some((city) => city.relays.some((relay) => relay.active)),
         cities: country.cities
           .map((city) => ({
-            name: relayLocations.gettext(city.name) || cities.gettext(city.name) || city.name,
+            name: relayLocations.gettext(city.name) || city.name,
             code: city.code,
             latitude: city.latitude,
             longitude: city.longitude,
