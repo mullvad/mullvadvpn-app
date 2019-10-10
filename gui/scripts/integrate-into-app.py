@@ -76,28 +76,12 @@ def merge_single_locale_folder(src, dst):
       shutil.copyfile(src_po, dst_po)
     elif f in TRANSLATIONS_TO_MERGE:
       if path.exists(dst_po):
-        msgcat_args = (
-          # merge locales/*/file.po with out/locales/*/file.po
-          # existing translations applied on top of the generated ones
-          dst_po, src_po,
+        # merge ../locales/*/file.po with ./out/locales/*/file.po
+        # existing translations applied on top of the generated ones
+        (exit_code, errors) = run_msgcat(dst_po, src_po, dst_po)
 
-          # ensure that the existing translations take precedence and replace the generated ones
-          "--use-first",
-
-          # sort by msgid
-          "--sort-output",
-
-          # disable wrapping long strings because crowdin does not do that
-          "--no-wrap",
-
-          # output into locales/*/file.po
-          "--output-file", dst_po
-        )
-
-        (exit_code, errors) = run_program("msgcat", *msgcat_args)
         if exit_code == 0:
-            print c.green(u"Merged {} and {} into the latter."
-              .format(*remove_common_prefix(src_po, dst_po)))
+            print c.green(u"Merged {} into {}.".format(*remove_common_prefix(src_po, dst_po)))
         else:
           print c.red(u"msgcat exited with {}: {}".format(
             exit_code, errors.decode('utf-8').strip()))
@@ -115,23 +99,11 @@ def merge_relay_locations_pot():
   if path.exists(existing_pot_file):
     print u"Found the existing {}. Merging.".format(RELAY_LOCATIONS_POT_FILENAME)
 
-    msgcat_args = (
-      # merge the existing and generated relay-locations.pot
-      existing_pot_file, generated_pot_file,
+    # merge the existing and generated relay-locations.pot
+    (exit_code, errors) = run_msgcat(existing_pot_file, generated_pot_file, existing_pot_file)
 
-      # sort output by msgid
-      "--sort-output",
-
-      # disable wrapping long strings because crowdin does not do that
-      "--no-wrap",
-
-      # save output into locales/relay-locations.pot
-      "--output-file", existing_pot_file,
-    )
-
-    (exit_code, errors) = run_program("msgcat", *msgcat_args)
     if exit_code == 0:
-      print c.green(u"Merged {} and {} files into the latter."
+      print c.green(u"Merged {} into {}."
         .format(*remove_common_prefix(generated_pot_file, existing_pot_file)))
     else:
       print c.red(u"msgcat exited with {}: {}".format(exit_code, errors.decode('utf-8').strip()))
@@ -140,6 +112,22 @@ def merge_relay_locations_pot():
       .format(*remove_common_prefix(generated_pot_file, existing_pot_file)))
     shutil.copy(generated_pot_file, existing_pot_file)
 
+
+def run_msgcat(first_file, second_file, output_file):
+  args = (
+    first_file, second_file,
+    "--output-file", output_file,
+
+    # ensure that the first occurence takes precedence in merge conflict
+    "--use-first",
+
+    # sort by msgid
+    "--sort-output",
+
+    # disable wrapping long strings because crowdin does not do that
+    "--no-wrap"
+  )
+  return run_program("msgcat", *args)
 
 if not path.exists(GEO_ASSETS_DEST_DIR):
   os.makedirs(GEO_ASSETS_DEST_DIR)
