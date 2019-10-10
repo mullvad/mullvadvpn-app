@@ -310,9 +310,9 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 				if (!adapterIt->second.IPv4 &&
 					!adapterIt->second.IPv6)
 				{
-					m_adapters.erase(adapterIt);
-
 					MIB_IF_ROW2 &iface = adapterIt->second.adapter;
+					
+					m_adapters.erase(adapterIt);
 
 					auto filteredIt = std::find_if(m_filteredAdapters.begin(), m_filteredAdapters.end(), [hint](const MIB_IF_ROW2 &elem)
 					{
