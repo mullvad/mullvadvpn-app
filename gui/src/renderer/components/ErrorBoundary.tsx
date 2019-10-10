@@ -78,7 +78,7 @@ export default class ErrorBoundary extends Component<IProps, IState> {
               <View style={styles.container}>
                 <ImageView height={120} width={120} source="logo-icon" style={styles.logo} />
                 <Text style={styles.title}>
-                  {messages.pgettext('error-boundary-view', 'MULLVAD VPN')}
+                  {messages.pgettext('generic', 'MULLVAD VPN')}
                 </Text>
                 <Text style={styles.subtitle}>{reachBackMessage}</Text>
               </View>
