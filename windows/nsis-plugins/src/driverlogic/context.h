@@ -2,6 +2,7 @@
 
 #include <set>
 #include <string>
+#include <optional>
 
 class Context
 {
@@ -46,7 +47,17 @@ public:
 	//
 	NetworkAdapter getNewAdapter();
 
+	enum class DeletionResult
+	{
+		NO_REMAINING_TAP_ADAPTERS,
+		SOME_REMAINING_TAP_ADAPTERS
+	};
+
+	static DeletionResult DeleteMullvadAdapter();
+
 private:
+
+	static std::optional<NetworkAdapter> FindMullvadAdapter(const std::set<NetworkAdapter> &tapAdapters);
 
 	std::set<NetworkAdapter> m_baseline;
 	std::set<NetworkAdapter> m_currentState;

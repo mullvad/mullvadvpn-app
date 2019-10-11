@@ -5,4 +5,5 @@ EXPORTS
 Initialize
 EstablishBaseline
 IdentifyNewAdapter
+RemoveMullvadTap
 Deinitialize
