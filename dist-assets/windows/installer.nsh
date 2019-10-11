@@ -175,6 +175,7 @@
 
 	Var /GLOBAL InstallDriver_BaselineStatus
 	Var /GLOBAL InstallDriver_TapName
+	Var /GLOBAL InstallDriver_TapGuid
 
 	log::Log "InstallDriver()"
 	
@@ -267,6 +268,7 @@
 	driverlogic::IdentifyNewAdapter
 	
 	Pop $0
+	Pop $2
 	Pop $1
 
 	${If} $0 != ${INA_SUCCESS}
@@ -276,6 +278,7 @@
 	${EndIf}
 
 	StrCpy $InstallDriver_TapName $1
+	StrCpy $InstallDriver_TapGuid $2
 	
 	log::Log "New virtual adapter is named $\"$1$\""
 	log::Log "Renaming adapter to $\"Mullvad$\""
@@ -302,6 +305,12 @@
 	
 	Push 0
 	Pop $R0
+
+	registry::WriteString "HKLM\SOFTWARE\Mullvad VPN" "AdapterGuid" "$InstallDriver_TapGuid"
+
+	# Discard return value
+	Pop $0
+	Pop $1
 	
 	InstallDriver_return:
 
@@ -309,7 +318,7 @@
 	
 	Pop $0
 	Pop $1
-	
+
 	${If} $0 != ${DRIVERLOGIC_SUCCESS}
 		# Do not update $R0
 		log::Log "Failed to deinitialize plugin 'driverlogic': $1"
