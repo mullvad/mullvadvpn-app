@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2019-09-23 09:18\n"
+"PO-Revision-Date: 2019-10-11 11:36\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ENGELLENEN BAĞLANTI"
@@ -23,6 +23,9 @@ msgstr "Geçersiz hesap numarası"
 
 msgid "SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI"
+
+msgid "System default"
+msgstr "Sistem varsayılanı"
 
 msgid "UNSECURED CONNECTION"
 msgstr "GÜVENLİ OLMAYAN BAĞLANTI"
@@ -500,6 +503,16 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Renkli yerine monokrom bir sistem çubuğu simgesi kullan."
 
+#. Title label in navigation bar
+msgctxt "select-language-nav"
+msgid "Select language"
+msgstr "Dili seçin"
+
+#. Back button in navigation bar
+msgctxt "select-language-nav"
+msgid "Settings"
+msgstr "Ayarlar"
+
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr "Giriş"
@@ -544,6 +557,10 @@ msgstr "SSS ve Kılavuzlar"
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr "Tutarsız iç sürüm bilgisi, lütfen uygulamayı yeniden başlatın."
+
+msgctxt "settings-view"
+msgid "Language"
+msgstr "Dil"
 
 msgctxt "settings-view"
 msgid "OUT OF TIME"

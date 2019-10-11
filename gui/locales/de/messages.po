@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2019-09-23 09:17\n"
+"PO-Revision-Date: 2019-10-11 11:36\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "GESPERRTE VERBINDUNG"
@@ -23,6 +23,9 @@ msgstr "Ungültige Kontonummer"
 
 msgid "SECURE CONNECTION"
 msgstr "SICHERE VERBINDUNG"
+
+msgid "System default"
+msgstr "Systemstandard"
 
 msgid "UNSECURED CONNECTION"
 msgstr "UNGESICHERTE VERBINDUNG"
@@ -500,6 +503,16 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Monochromatisches Leistensymbol statt Farbsymbol nutzen."
 
+#. Title label in navigation bar
+msgctxt "select-language-nav"
+msgid "Select language"
+msgstr "Sprache auswählen"
+
+#. Back button in navigation bar
+msgctxt "select-language-nav"
+msgid "Settings"
+msgstr "Einstellungen"
+
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr "Eingang"
@@ -544,6 +557,10 @@ msgstr "Häufig gestellte Fragen & Anleitungen"
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr "Nicht übereinstimmende interne Versionsinformationen, bitte starten Sie die App neu."
+
+msgctxt "settings-view"
+msgid "Language"
+msgstr "Sprache"
 
 msgctxt "settings-view"
 msgid "OUT OF TIME"

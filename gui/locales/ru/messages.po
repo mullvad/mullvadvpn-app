@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2019-09-23 09:18\n"
+"PO-Revision-Date: 2019-10-11 11:36\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ПОДКЛЮЧЕНИЕ ЗАБЛОКИРОВАНО"
@@ -23,6 +23,9 @@ msgstr "Недействительный номер учетной записи"
 
 msgid "SECURE CONNECTION"
 msgstr "ЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ"
+
+msgid "System default"
+msgstr "Системные настройки по умолчанию"
 
 msgid "UNSECURED CONNECTION"
 msgstr "НЕЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ"
@@ -500,6 +503,16 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Использовать в области уведомлений черно-белый значок вместо цветного."
 
+#. Title label in navigation bar
+msgctxt "select-language-nav"
+msgid "Select language"
+msgstr "Выбрать язык"
+
+#. Back button in navigation bar
+msgctxt "select-language-nav"
+msgid "Settings"
+msgstr "Настройки"
+
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr "Вход"
@@ -544,6 +557,10 @@ msgstr "Ответы на вопросы и руководства"
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr "Несоответствие внутренних данных о версии — перезапустите приложение."
+
+msgctxt "settings-view"
+msgid "Language"
+msgstr "Язык"
 
 msgctxt "settings-view"
 msgid "OUT OF TIME"

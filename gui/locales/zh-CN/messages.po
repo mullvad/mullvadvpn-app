@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2019-09-23 09:18\n"
+"PO-Revision-Date: 2019-10-11 11:36\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "已屏蔽连接"
@@ -23,6 +23,9 @@ msgstr "帐号无效"
 
 msgid "SECURE CONNECTION"
 msgstr "安全连接"
+
+msgid "System default"
+msgstr "系统默认值"
 
 msgid "UNSECURED CONNECTION"
 msgstr "未受保护的连接"
@@ -500,6 +503,16 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "使用单色托盘图标而不是彩色图标。"
 
+#. Title label in navigation bar
+msgctxt "select-language-nav"
+msgid "Select language"
+msgstr "选择语言"
+
+#. Back button in navigation bar
+msgctxt "select-language-nav"
+msgid "Settings"
+msgstr "设置"
+
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr "入口"
@@ -544,6 +557,10 @@ msgstr "常见问题解答与指南"
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr "内部版本信息不一致，请重启应用。"
+
+msgctxt "settings-view"
+msgid "Language"
+msgstr "语言"
 
 msgctxt "settings-view"
 msgid "OUT OF TIME"

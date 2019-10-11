@@ -10,10 +10,10 @@ msgstr ""
 "Last-Translator: adminmullvad\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2019-09-23 09:18\n"
+"PO-Revision-Date: 2019-10-11 11:36\n"
 
 msgid "BLOCKED CONNECTION"
-msgstr "GEBLOKKEERDE VERBINDING"
+msgstr "VERBINDING GEBLOKKEERD"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "BEVEILIGDE VERBINDING AANMAKEN"
@@ -23,6 +23,9 @@ msgstr "Ongeldig accountnummer"
 
 msgid "SECURE CONNECTION"
 msgstr "BEVEILIGDE VERBINDING"
+
+msgid "System default"
+msgstr "Systeemstandaard"
 
 msgid "UNSECURED CONNECTION"
 msgstr "NIET-BEVEILIGDE VERBINDING"
@@ -500,6 +503,16 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Gebruik een monochroom pictogram op de taakbalk in plaats van een gekleurd."
 
+#. Title label in navigation bar
+msgctxt "select-language-nav"
+msgid "Select language"
+msgstr "Selecteer taal"
+
+#. Back button in navigation bar
+msgctxt "select-language-nav"
+msgid "Settings"
+msgstr "Instellingen"
+
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr "Ingang"
@@ -544,6 +557,10 @@ msgstr "Veelgestelde vragen en gidsen"
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr "Inconsistente interne versie-informatie, start de app opnieuw."
+
+msgctxt "settings-view"
+msgid "Language"
+msgstr "Taal"
 
 msgctxt "settings-view"
 msgid "OUT OF TIME"
