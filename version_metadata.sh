@@ -32,7 +32,7 @@ case "$1" in
         # Electron GUI
         cp gui/package.json gui/package.json.bak
         cp gui/package-lock.json gui/package-lock.json.bak
-        (cd gui/ && npm version $SEMVER_VERSION --no-git-tag-version)
+        (cd gui/ && npm version $SEMVER_VERSION --no-git-tag-version --allow-same-version)
 
         # Rust crates
         sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
