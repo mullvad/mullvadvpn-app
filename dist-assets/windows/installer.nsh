@@ -29,6 +29,11 @@
 !define INA_GENERAL_ERROR 0
 !define INA_SUCCESS 1
 
+# Return codes from driverlogic::RemoveMullvadTap
+!define RMT_GENERAL_ERROR 0
+!define RMT_NO_REMAINING_ADAPTERS 1
+!define RMT_SOME_REMAINING_ADAPTERS 2
+
 # Return codes from driverlogic::Initialize/Deinitialize
 !define DRIVERLOGIC_GENERAL_ERROR 0
 !define DRIVERLOGIC_SUCCESS 1
@@ -153,13 +158,51 @@
 #
 # RemoveTap
 #
-# Remove Mullvad TAP adapter
+# Try to remove the Mullvad TAP adapter
+# and driver if there are no other TAPs available.
 #
 !macro RemoveTap
-	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${TAP_HARDWARE_ID}'
+	Push $0
+	Push $1
+
+	driverlogic::Initialize
 
 	Pop $0
 	Pop $1
+
+	${If} $0 != ${DRIVERLOGIC_SUCCESS}
+		Goto RemoveTap_return_only
+	${EndIf}
+
+	driverlogic::RemoveMullvadTap
+
+	Pop $0
+	Pop $1
+
+	${If} $0 == ${RMT_GENERAL_ERROR}
+		Goto RemoveTap_return
+	${EndIf}
+
+	${If} $0 == ${RMT_NO_REMAINING_ADAPTERS}
+		# Remove the driver altogether
+		nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${TAP_HARDWARE_ID}'
+
+		Pop $0
+		Pop $1
+	${EndIf}
+	
+	RemoveTap_return:
+
+	driverlogic::Deinitialize
+	
+	Pop $0
+	Pop $1
+
+	RemoveTap_return_only:
+
+	Pop $1
+	Pop $0
+
 !macroend
 
 !define RemoveTap '!insertmacro "RemoveTap"'
@@ -227,6 +270,7 @@
 
 	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_ADAPTER_PRESENT}
 		log::Log "Virtual adapter with custom name already present on system"
+
 		Goto InstallDriver_return_success
 	${EndIf}
 
@@ -316,7 +360,7 @@
 	${EndIf}
 
 	InstallDriver_return_only:
-	
+
 	Pop $1
 	Pop $0
 	
@@ -692,14 +736,14 @@
 
 	# If not ran silently
 	${If} ${Errors}
+		# Remove the TAP adapter
+		${ExtractDriver}
+		${RemoveTap}
+
 		${RemoveLogsAndCache}
 		MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
 		${RemoveSettings}
 		customRemoveFiles_after_remove_settings:
-
-		# Remove the TAP adapter
-		${ExtractDriver}
-		${RemoveTap}
 	${EndIf}
 
 	${RemoveCLIFromEnvironPath}
