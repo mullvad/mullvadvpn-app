@@ -161,6 +161,9 @@
 # and driver if there are no other TAPs available.
 #
 !macro RemoveTAP
+	Push $0
+	Push $1
+
 	driverlogic::Initialize
 
 	Pop $0
@@ -175,15 +178,18 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 == 1
+	${If} $0 != ${TAC_SUCCESS}
+		Goto RemoveTAP_return
+	${EndIf}
+
+	${If} $1 == 1
 		# Remove the driver altogether
 		nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${TAP_HARDWARE_ID}'
 
 		Pop $0
 		Pop $1
-	${ElseIf} $0 > 1
-		# TODO: read from registry
-		# TODO: Remove only the Mullvad TAP
+	${ElseIf} $1 > 1
+		driverlogic::RemoveMullvadTap
 
 		Pop $0
 		Pop $1
@@ -197,6 +203,9 @@
 	Pop $1
 
 	RemoveTAP_return_only:
+
+	Pop $1
+	Pop $0
 
 !macroend
 
@@ -219,6 +228,7 @@
 	
 	Push $0
 	Push $1
+	Push $2
 
 	driverlogic::Initialize
 	
@@ -363,7 +373,8 @@
 	${EndIf}
 
 	InstallDriver_return_only:
-	
+
+	Pop $2
 	Pop $1
 	Pop $0
 	
@@ -730,6 +741,12 @@
 
 	Sleep 1000
 
+	# Remove the TAP adapter
+	SetShellVarContext current
+	${RemoveRelayCache}
+	${ExtractDriver}
+	${RemoveTAP}
+
 	# Original removal functionality provided by Electron-builder
     RMDir /r $INSTDIR
 
@@ -743,10 +760,6 @@
 		MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
 		${RemoveSettings}
 		customRemoveFiles_after_remove_settings:
-
-		# Remove the TAP adapter
-		${ExtractDriver}
-		${RemoveTAP}
 	${EndIf}
 
 	${RemoveCLIFromEnvironPath}
