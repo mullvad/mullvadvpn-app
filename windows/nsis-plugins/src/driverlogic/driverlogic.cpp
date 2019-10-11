@@ -157,6 +157,57 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 }
 
 //
+// TapAdapterCount
+//
+// Return the number of TAP adapters present.
+//
+enum class TapAdapterCountStatus
+{
+	GENERAL_ERROR = 0,
+	SUCCESS
+};
+
+void __declspec(dllexport) NSISCALL TapAdapterCount
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	if (nullptr == g_context)
+	{
+		pushstring(L"Initialize() function was not called or was not successful");
+		pushint(EstablishBaselineStatus::GENERAL_ERROR);
+	}
+
+	try
+	{
+		g_context->recordCurrentState();
+
+		auto adapters = g_context->getTapAdapters();
+
+		pushint(adapters.size());
+		pushint(TapAdapterCountStatus::SUCCESS);
+	}
+	catch (std::exception &err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(TapAdapterCountStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(TapAdapterCountStatus::GENERAL_ERROR);
+	}
+}
+
+
+//
 // IdentifyNewAdapter
 //
 // Call this function after installing a TAP adapter.

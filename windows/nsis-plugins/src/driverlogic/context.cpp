@@ -91,6 +91,11 @@ void LogAdapters(const std::wstring &description, const std::set<Context::Networ
 
 } // anonymous namespace
 
+std::set<Context::NetworkAdapter> Context::getTapAdapters()
+{
+	return GetTapAdapters(m_currentState);
+}
+
 Context::BaselineStatus Context::establishBaseline()
 {
 	m_baseline = GetAllAdapters();
