@@ -4,13 +4,13 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
-"X-Crowdin-Language: no\n"
+"X-Crowdin-Language: nb\n"
 "X-Crowdin-File: messages.pot\n"
 "Project-Id-Version: mullvad-app\n"
 "Last-Translator: adminmullvad\n"
-"Language-Team: Norwegian\n"
-"Language: no_NO\n"
-"PO-Revision-Date: 2019-09-23 09:18\n"
+"Language-Team: Norwegian Bokmal\n"
+"Language: nb_NO\n"
+"PO-Revision-Date: 2019-10-11 11:36\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "TILKOBLING BLOKKERT"
@@ -23,6 +23,9 @@ msgstr "Ugyldig kontonummer"
 
 msgid "SECURE CONNECTION"
 msgstr "SIKKER TILKOBLING"
+
+msgid "System default"
+msgstr "Systemstandard"
 
 msgid "UNSECURED CONNECTION"
 msgstr "USIKKER TILKOBLING"
@@ -500,6 +503,16 @@ msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Bruk ensfarget skuffeikon i stedet for flerfarget."
 
+#. Title label in navigation bar
+msgctxt "select-language-nav"
+msgid "Select language"
+msgstr "Velg språk"
+
+#. Back button in navigation bar
+msgctxt "select-language-nav"
+msgid "Settings"
+msgstr "Innstillinger"
+
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr "Inngang"
@@ -544,6 +557,10 @@ msgstr "Ofte stilte spørsmål og veiledninger"
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr "Inkonsekvent intern informasjon om versjonen. Start appen på nytt."
+
+msgctxt "settings-view"
+msgid "Language"
+msgstr "Språk"
 
 msgctxt "settings-view"
 msgid "OUT OF TIME"
