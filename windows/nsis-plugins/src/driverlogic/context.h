@@ -46,6 +46,7 @@ public:
 	//
 	NetworkAdapter getNewAdapter();
 
+	std::set<NetworkAdapter> getTapAdapters();
 private:
 
 	std::set<NetworkAdapter> m_baseline;
