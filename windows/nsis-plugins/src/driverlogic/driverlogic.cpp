@@ -157,6 +157,49 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 }
 
 //
+// RemoveMullvadTAP
+//
+// Deletes the Mullvad TAP adapter.
+//
+//
+enum class RemoveMullvadTAPStatus
+{
+	GENERAL_ERROR = 0,
+	SUCCESS
+};
+
+void __declspec(dllexport) NSISCALL RemoveMullvadTAP
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	try
+	{
+		Context::DeleteMullvadAdapter();
+
+		pushstring(L"");
+		pushint(RemoveMullvadTAPStatus::SUCCESS);
+	}
+	catch (std::exception &err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(RemoveMullvadTAPStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(RemoveMullvadTAPStatus::GENERAL_ERROR);
+	}
+}
+
+//
 // TAPAdapterCount
 //
 // Return the number of TAP adapters present.

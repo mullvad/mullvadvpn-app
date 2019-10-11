@@ -12,6 +12,13 @@
 #include <stdexcept>
 #include <sstream>
 #include <algorithm>
+#include <iostream>
+#include <SetupAPI.h>
+#include <devguid.h>
+#include <combaseapi.h>
+#include <initguid.h>
+#include <devpkey.h>
+#include <libcommon/registry/registry.h>
 
 namespace
 {
@@ -87,6 +94,45 @@ void LogAdapters(const std::wstring &description, const std::set<Context::Networ
 	}
 
 	PluginLogWithDetails(description, details);
+}
+
+std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData)
+{
+	std::vector<wchar_t> instanceId(MAX_PATH + sizeof(L'\0'));
+	DWORD strSize;
+	HKEY hNet = SetupDiOpenDevRegKey(
+		devInfo,
+		const_cast<SP_DEVINFO_DATA *>(&devInfoData),
+		DICS_FLAG_GLOBAL,
+		0,
+		DIREG_DRV,
+		KEY_READ
+	);
+
+	if (hNet == INVALID_HANDLE_VALUE)
+	{
+		throw std::runtime_error("SetupDiOpenDevRegKey Failed");
+	}
+
+	if (RegGetValue(
+		hNet,
+		nullptr,
+		L"NetCfgInstanceId",
+		RRF_RT_REG_SZ,
+		nullptr,
+		instanceId.data(),
+		&strSize
+	) != ERROR_SUCCESS)
+	{
+		RegCloseKey(hNet);
+		throw std::runtime_error("RegGetValue for NetCfgInstanceId failed");
+	}
+
+	instanceId[strSize] = L'\0';
+
+	RegCloseKey(hNet);
+
+	return instanceId.data();
 }
 
 } // anonymous namespace
@@ -194,4 +240,82 @@ Context::NetworkAdapter Context::getNewAdapter()
 	}
 
 	return *added.begin();
+}
+
+//static
+void Context::DeleteMullvadAdapter()
+{
+	const auto regkey = common::registry::Registry::OpenKey(
+		HKEY_LOCAL_MACHINE,
+		L"SOFTWARE\\Mullvad VPN",
+		false,
+		common::registry::RegistryView::Force64
+	);
+	const auto mullvadGuid = regkey->readString(L"AdapterGuid");
+
+	HDEVINFO devInfo = SetupDiGetClassDevs(
+		&GUID_DEVCLASS_NET,
+		nullptr,
+		nullptr,
+		DIGCF_PRESENT
+	);
+
+	THROW_GLE_IF(INVALID_HANDLE_VALUE, devInfo, "SetupDiGetClassDevs() failed");
+
+	SP_DEVINFO_DATA devInfoData;
+	devInfoData.cbSize = sizeof(devInfoData);
+
+	wchar_t buffer[512];
+	DWORD nameLen;
+	DWORD type;
+
+	static const wchar_t hardwareId[] = L"tap0901";
+
+	for (int memberIndex = 0; ; memberIndex++)
+	{
+		if (FALSE == SetupDiEnumDeviceInfo(devInfo, memberIndex, &devInfoData))
+		{
+			if (GetLastError() == ERROR_NO_MORE_ITEMS)
+			{
+				/* done */
+				break;
+			}
+			else
+			{
+				THROW_GLE("Error enumerating network adapters");
+			}
+		}
+
+		SetupDiGetDeviceRegistryProperty(
+			devInfo,
+			&devInfoData,
+			SPDRP_HARDWAREID,
+			&type, // receives type
+			(PBYTE)buffer,
+			sizeof(buffer),
+			&nameLen // receives size
+		);
+
+		if (wcscmp(hardwareId, buffer) == 0)
+		{
+			std::wstring netCfgInstanceId = GetNetCfgInstanceId(devInfo, devInfoData);
+			if (netCfgInstanceId.compare(mullvadGuid) != 0)
+			{
+				continue;
+			}
+
+			if (FALSE == SetupDiRemoveDevice(
+				devInfo,
+				&devInfoData
+			))
+			{
+				THROW_GLE("Error removing Mullvad TAP device");
+			}
+		}
+	}
+
+	if (FALSE == SetupDiDestroyDeviceInfoList(devInfo))
+	{
+		THROW_GLE("Error destroying devices list");
+	}
 }

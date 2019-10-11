@@ -52,6 +52,8 @@ public:
 
 	std::set<NetworkAdapter> getTapAdapters();
 
+	static void DeleteMullvadAdapter();
+
 private:
 
 	std::set<NetworkAdapter> m_baseline;
