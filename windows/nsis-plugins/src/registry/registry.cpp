@@ -35,6 +35,64 @@ std::wstring PopString()
 } // anonymous namespace
 
 //
+// WriteString "source" "value" "string"
+//
+// Writes a string to a registry value.
+//
+// Example usage:
+//
+// WriteString "HKLM\Software\A" "value" "string"
+//
+enum class WriteStringStatus
+{
+	GENERAL_ERROR = 0,
+	SUCCESS
+};
+
+void __declspec(dllexport) NSISCALL WriteString
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	try
+	{
+		const auto path = PopString();
+		const auto keyName = PopString();
+		const auto strToWrite = PopString();
+
+		const auto typedSource = common::registry::RegistryPath(path);
+
+		auto key = common::registry::Registry::CreateKey(
+			typedSource.key(),
+			typedSource.subkey(),
+			common::registry::RegistryView::Force64
+		);
+
+		key->writeValue(keyName, strToWrite);
+
+		pushstring(L"");
+		pushint(WriteStringStatus::SUCCESS);
+	}
+	catch (std::exception &err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(WriteStringStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(WriteStringStatus::GENERAL_ERROR);
+	}
+}
+
+//
 // MoveKey "source" "destination"
 //
 // Moves a registry key.
