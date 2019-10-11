@@ -1,3 +1,4 @@
+use libc::{c_char, c_void};
 use std::{net::IpAddr, ptr};
 
 use self::winfw::*;
@@ -45,6 +46,15 @@ const WINFW_TIMEOUT_SECONDS: u32 = 2;
 /// The Windows implementation for the firewall and DNS.
 pub struct Firewall(());
 
+extern "system" fn error_sink(msg: *const c_char, _ctx: *mut c_void) {
+    use std::ffi::CStr;
+    if msg.is_null() {
+        log::error!("Log message from FFI boundary is NULL");
+    } else {
+        log::error!("{}", unsafe { CStr::from_ptr(msg).to_string_lossy() });
+    }
+}
+
 impl FirewallT for Firewall {
     type Error = Error;
 
@@ -55,19 +65,15 @@ impl FirewallT for Firewall {
                 WinFw_InitializeBlocked(
                     WINFW_TIMEOUT_SECONDS,
                     &cfg,
-                    Some(winnet::log_sink),
+                    Some(error_sink),
                     ptr::null_mut(),
                 )
                 .into_result()?
             };
         } else {
             unsafe {
-                WinFw_Initialize(
-                    WINFW_TIMEOUT_SECONDS,
-                    Some(winnet::log_sink),
-                    ptr::null_mut(),
-                )
-                .into_result()?
+                WinFw_Initialize(WINFW_TIMEOUT_SECONDS, Some(error_sink), ptr::null_mut())
+                    .into_result()?
             };
         }
 
@@ -200,9 +206,11 @@ impl Firewall {
 #[allow(non_snake_case)]
 mod winfw {
     use super::Error;
-    use crate::winnet;
     use libc;
     use talpid_types::net::TransportProtocol;
+
+    /// logging callback type for use with `winfw.dll`.
+    pub type ErrorSink = extern "system" fn(msg: *const libc::c_char, ctx: *mut libc::c_void);
 
     #[repr(C)]
     pub struct WinFwRelay {
@@ -253,7 +261,7 @@ mod winfw {
         #[link_name = "WinFw_Initialize"]
         pub fn WinFw_Initialize(
             timeout: libc::c_uint,
-            sink: Option<winnet::LogSink>,
+            sink: Option<ErrorSink>,
             sink_context: *mut libc::c_void,
         ) -> InitializationResult;
 
@@ -261,7 +269,7 @@ mod winfw {
         pub fn WinFw_InitializeBlocked(
             timeout: libc::c_uint,
             settings: &WinFwSettings,
-            sink: Option<winnet::LogSink>,
+            sink: Option<ErrorSink>,
             sink_context: *mut libc::c_void,
         ) -> InitializationResult;
 
