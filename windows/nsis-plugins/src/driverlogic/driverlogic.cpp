@@ -195,16 +195,19 @@ void __declspec(dllexport) NSISCALL IdentifyNewAdapter
 		auto adapter = g_context->getNewAdapter();
 
 		pushstring(adapter.alias.c_str());
+		pushstring(adapter.guid.c_str());
 		pushint(IdentifyNewAdapterStatus::SUCCESS);
 	}
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
+		pushstring(L"");
 		pushint(IdentifyNewAdapterStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
+		pushstring(L"");
 		pushint(IdentifyNewAdapterStatus::GENERAL_ERROR);
 	}
 }
