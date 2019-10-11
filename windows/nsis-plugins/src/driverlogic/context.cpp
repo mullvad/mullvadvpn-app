@@ -91,6 +91,16 @@ void LogAdapters(const std::wstring &description, const std::set<Context::Networ
 
 } // anonymous namespace
 
+const Context::NetworkAdapter& Context::getMullvadAdapter()
+{
+	if (BaselineStatus::MULLVAD_ADAPTER_PRESENT != m_status)
+	{
+		throw std::runtime_error("No Mullvad TAP adapter available");
+	}
+	
+	return m_mullvadAdapter;
+}
+
 Context::BaselineStatus Context::establishBaseline()
 {
 	m_baseline = GetAllAdapters();
@@ -113,14 +123,17 @@ Context::BaselineStatus Context::establishBaseline()
 			return 0 == _wcsicmp(candidate.alias.c_str(), alias.c_str());
 		});
 
-		return it != adapters.end();
+		return it;
 	};
 
 	static const wchar_t baseAlias[] = L"Mullvad";
 
-	if (findByAlias(tapAdapters, baseAlias))
+	const auto it = findByAlias(tapAdapters, baseAlias);
+	if (tapAdapters.end() != it)
 	{
-		return BaselineStatus::MULLVAD_ADAPTER_PRESENT;
+		m_mullvadAdapter = *it;
+		m_status = BaselineStatus::MULLVAD_ADAPTER_PRESENT;
+		return m_status;
 	}
 
 	//
@@ -134,14 +147,18 @@ Context::BaselineStatus Context::establishBaseline()
 		ss << baseAlias << L"-" << i;
 
 		const auto alias = ss.str();
+		const auto it = findByAlias(tapAdapters, alias);
 
-		if (findByAlias(tapAdapters, alias))
+		if (tapAdapters.end() != it)
 		{
-			return BaselineStatus::MULLVAD_ADAPTER_PRESENT;
+			m_mullvadAdapter = *it;
+			m_status = BaselineStatus::MULLVAD_ADAPTER_PRESENT;
+			return m_status;
 		}
 	}
 
-	return BaselineStatus::SOME_TAP_ADAPTERS_PRESENT;
+	m_status = BaselineStatus::SOME_TAP_ADAPTERS_PRESENT;
+	return m_status;
 }
 
 void Context::recordCurrentState()

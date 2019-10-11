@@ -24,6 +24,8 @@ public:
 		{
 		}
 
+		NetworkAdapter() = default;
+
 		bool operator<(const NetworkAdapter &rhs) const
 		{
 			return _wcsicmp(guid.c_str(), rhs.guid.c_str()) < 0;
@@ -46,8 +48,13 @@ public:
 	//
 	NetworkAdapter getNewAdapter();
 
+	const Context::NetworkAdapter& getMullvadAdapter();
+
 private:
 
 	std::set<NetworkAdapter> m_baseline;
 	std::set<NetworkAdapter> m_currentState;
+
+	BaselineStatus m_status = BaselineStatus::NO_TAP_ADAPTERS_PRESENT;
+	NetworkAdapter m_mullvadAdapter;
 };
