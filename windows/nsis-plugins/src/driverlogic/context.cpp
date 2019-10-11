@@ -101,6 +101,11 @@ const Context::NetworkAdapter& Context::getMullvadAdapter()
 	return m_mullvadAdapter;
 }
 
+std::set<Context::NetworkAdapter> Context::getTapAdapters()
+{
+	return GetTapAdapters(m_currentState);
+}
+
 Context::BaselineStatus Context::establishBaseline()
 {
 	m_baseline = GetAllAdapters();

@@ -50,6 +50,8 @@ public:
 
 	const Context::NetworkAdapter& getMullvadAdapter();
 
+	std::set<NetworkAdapter> getTapAdapters();
+
 private:
 
 	std::set<NetworkAdapter> m_baseline;
