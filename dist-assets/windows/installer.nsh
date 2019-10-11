@@ -29,6 +29,10 @@
 !define INA_GENERAL_ERROR 0
 !define INA_SUCCESS 1
 
+# Return codes from driverlogic::TAPAdapterCount
+!define TAC_GENERAL_ERROR 0
+!define TAC_SUCCESS 1
+
 # Return codes from driverlogic::Initialize/Deinitialize
 !define DRIVERLOGIC_GENERAL_ERROR 0
 !define DRIVERLOGIC_SUCCESS 1
@@ -153,13 +157,47 @@
 #
 # RemoveTAP
 #
-# Remove Mullvad TAP adapter
+# Try to remove the Mullvad TAP adapter
+# and driver if there are no other TAPs available.
 #
 !macro RemoveTAP
-	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${TAP_HARDWARE_ID}'
+	driverlogic::Initialize
 
 	Pop $0
 	Pop $1
+
+	${If} $0 != ${DRIVERLOGIC_SUCCESS}
+		Goto RemoveTAP_return_only
+	${EndIf}
+
+	driverlogic::TAPAdapterCount
+
+	Pop $0
+	Pop $1
+
+	${If} $0 == 1
+		# Remove the driver altogether
+		nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${TAP_HARDWARE_ID}'
+
+		Pop $0
+		Pop $1
+	${ElseIf} $0 > 1
+		# TODO: read from registry
+		# TODO: Remove only the Mullvad TAP
+
+		Pop $0
+		Pop $1
+	${EndIf}
+	
+	RemoveTAP_return:
+
+	driverlogic::Deinitialize
+	
+	Pop $0
+	Pop $1
+
+	RemoveTAP_return_only:
+
 !macroend
 
 !define RemoveTAP '!insertmacro "RemoveTAP"'
