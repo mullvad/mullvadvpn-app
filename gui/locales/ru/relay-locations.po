@@ -12,213 +12,81 @@ msgstr ""
 "Language: ru_RU\n"
 "PO-Revision-Date: 2019-08-12 08:53\n"
 
-#. AL TIA
-msgid "Tirana"
-msgstr "Тирана"
-
 #. AU ADL
 msgid "Adelaide"
 msgstr "Аделаида"
 
-#. AU BNE
-msgid "Brisbane"
-msgstr "Брисбен"
-
-#. AU CBR
-msgid "Canberra"
-msgstr "Канберра"
-
-#. AU MEL
-msgid "Melbourne"
-msgstr "Мельбурн"
-
-#. AU PER
-msgid "Perth"
-msgstr "Перт"
-
-#. AU SYD
-msgid "Sydney"
-msgstr "Сидней"
-
-#. AT VIE
-msgid "Wien"
-msgstr "Вена"
-
-#. BE BRU
-msgid "Brussels"
-msgstr "Брюссель"
-
-#. BR SAO
-msgid "Sao Paulo"
-msgstr "Сан-Паулу"
-
-#. BG SOF
-msgid "Sofia"
-msgstr "София"
-
-#. CA MTR
-msgid "Montreal"
-msgstr "Монреаль"
-
-#. CA TOR
-msgid "Toronto"
-msgstr "Торонто"
-
-#. CA VAN
-msgid "Vancouver"
-msgstr "Ванкувер"
-
-#. CZ PRG
-msgid "Prague"
-msgstr "Прага"
-
-#. DK CPH
-msgid "Copenhagen"
-msgstr "Копенгаген"
-
-#. FI HEL
-msgid "Helsinki"
-msgstr "Хельсинки"
-
-#. FR MRS
-msgid "Marseille"
-msgstr "Марсель"
-
-#. FR PAR
-msgid "Paris"
-msgstr "Париж"
-
-#. DE FRA
-msgid "Frankfurt"
-msgstr "Франкфурт-на-Майне"
-
-#. GR ATH
-msgid "Athens"
-msgstr "Афины"
-
-#. HK HKG
-msgid "Hong Kong"
-msgstr "Гонконг"
-
-#. HU BUD
-msgid "Budapest"
-msgstr "Будапешт"
-
-#. IN PNQ
-msgid "Pune"
-msgstr "Пуна"
-
-#. IL TLV
-msgid "Tel Aviv"
-msgstr "Тель-Авив"
-
-#. IT MIL
-msgid "Milan"
-msgstr "Милан"
-
-#. JP TYO
-msgid "Tokyo"
-msgstr "Токио"
-
-#. LV RIX
-msgid "Riga"
-msgstr "Рига"
-
-#. LU LUX
-msgid "Luxembourg"
-msgstr "Люксембург"
-
-#. MD KIV
-msgid "Chisinau"
-msgstr "Кишинёв"
+#. AL
+msgid "Albania"
+msgstr "Албания"
 
 #. NL AMS
 msgid "Amsterdam"
 msgstr "Амстердам"
 
-#. NZ AKL
-msgid "Auckland"
-msgstr "Окленд"
-
-#. NO OSL
-msgid "Oslo"
-msgstr "Осло"
-
-#. PL WAW
-msgid "Warsaw"
-msgstr "Варшава"
-
-#. PT LIS
-msgid "Lisbon"
-msgstr "Лиссабон"
-
-#. RO BUH
-msgid "Bucharest"
-msgstr "Бухарест"
-
-#. RS BEG
-msgid "Belgrade"
-msgstr "Белград"
-
-#. RS INI
-msgid "Nis"
-msgstr "Ниш"
-
-#. SG SIN
-msgid "Singapore"
-msgstr "Сингапур"
-
-#. ZA JNB
-msgid "Johannesburg"
-msgstr "Йоханнесбург"
-
-#. ES MAD
-msgid "Madrid"
-msgstr "Мадрид"
-
-#. SE GOT
-msgid "Gothenburg"
-msgstr "Гётеборг"
-
-#. SE HEL
-msgid "Helsingborg"
-msgstr "Хельсингборг"
-
-#. SE MMA
-msgid "Malmö"
-msgstr "Мальмё"
-
-#. SE STO
-msgid "Stockholm"
-msgstr "Стокгольм"
-
-#. CH ZRH
-msgid "Zurich"
-msgstr "Цюрих"
-
-#. GB LON
-msgid "London"
-msgstr "Лондон"
-
-#. GB MNC
-msgid "Manchester"
-msgstr "Манчестер"
-
-#. UA IEV
-msgid "Kiev"
-msgstr "Киев"
-
-#. AE DXB
-msgid "Dubai"
-msgstr "Дубай"
+#. GR ATH
+msgid "Athens"
+msgstr "Афины"
 
 #. US ATL
 msgid "Atlanta, GA"
 msgstr "Атланта, GA"
 
+#. NZ AKL
+msgid "Auckland"
+msgstr "Окленд"
+
+#. AU
+msgid "Australia"
+msgstr "Австралия"
+
+#. AT
+msgid "Austria"
+msgstr "Австрия"
+
+#. BE
+msgid "Belgium"
+msgstr "Бельгия"
+
+#. RS BEG
+msgid "Belgrade"
+msgstr "Белград"
+
 #. US BOS
 msgid "Boston, MA"
 msgstr "Бостон, MA"
+
+#. BR
+msgid "Brazil"
+msgstr "Бразилия"
+
+#. AU BNE
+msgid "Brisbane"
+msgstr "Брисбен"
+
+#. BE BRU
+msgid "Brussels"
+msgstr "Брюссель"
+
+#. RO BUH
+msgid "Bucharest"
+msgstr "Бухарест"
+
+#. HU BUD
+msgid "Budapest"
+msgstr "Будапешт"
+
+#. BG
+msgid "Bulgaria"
+msgstr "Болгария"
+
+#. CA
+msgid "Canada"
+msgstr "Канада"
+
+#. AU CBR
+msgid "Canberra"
+msgstr "Канберра"
 
 #. US CLT
 msgid "Charlotte, NC"
@@ -228,25 +96,129 @@ msgstr "Шарлотт, NC"
 msgid "Chicago, IL"
 msgstr "Чикаго, IL"
 
+#. MD KIV
+msgid "Chisinau"
+msgstr "Кишинёв"
+
 #. US CLE
 msgid "Cleveland, OH"
 msgstr "Кливленд, OH"
+
+#. DK CPH
+msgid "Copenhagen"
+msgstr "Копенгаген"
+
+#. CZ
+msgid "Czech Republic"
+msgstr "Чехия"
 
 #. US DAL
 msgid "Dallas, TX"
 msgstr "Даллас, TX"
 
+#. DK
+msgid "Denmark"
+msgstr "Дания"
+
 #. US DEN
 msgid "Denver, CO"
 msgstr "Денвер, CO"
+
+#. AE DXB
+msgid "Dubai"
+msgstr "Дубай"
+
+#. IE DUB
+msgid "Dublin"
+msgstr "Дублин"
+
+#. FI
+msgid "Finland"
+msgstr "Финляндия"
+
+#. FR
+msgid "France"
+msgstr ""
+
+#. DE FRA
+msgid "Frankfurt"
+msgstr "Франкфурт-на-Майне"
+
+#. DE
+msgid "Germany"
+msgstr "Германия"
+
+#. SE GOT
+msgid "Gothenburg"
+msgstr "Гётеборг"
+
+#. GR
+msgid "Greece"
+msgstr "Греция"
+
+#. SE HEL
+msgid "Helsingborg"
+msgstr "Хельсингборг"
+
+#. FI HEL
+msgid "Helsinki"
+msgstr "Хельсинки"
+
+#. HK HKG
+msgid "Hong Kong"
+msgstr "Гонконг"
 
 #. US HNL
 msgid "Honolulu, HI"
 msgstr "Гонолулу, HI"
 
+#. HU
+msgid "Hungary"
+msgstr "Венгрия"
+
+#. IN
+msgid "India"
+msgstr "Индия"
+
+#. IE
+msgid "Ireland"
+msgstr "Ирландия"
+
+#. IL
+msgid "Israel"
+msgstr "Израиль"
+
+#. IT
+msgid "Italy"
+msgstr "Италия"
+
 #. US JAN
 msgid "Jackson, MS"
 msgstr "Джексон, MS"
+
+#. JP
+msgid "Japan"
+msgstr "Япония"
+
+#. ZA JNB
+msgid "Johannesburg"
+msgstr "Йоханнесбург"
+
+#. UA IEV
+msgid "Kiev"
+msgstr "Киев"
+
+#. LV
+msgid "Latvia"
+msgstr "Латвия"
+
+#. PT LIS
+msgid "Lisbon"
+msgstr "Лиссабон"
+
+#. GB LON
+msgid "London"
+msgstr "Лондон"
 
 #. US LAX
 msgid "Los Angeles, CA"
@@ -256,9 +228,37 @@ msgstr "Лос-Анджелес, CA"
 msgid "Louisville, KY"
 msgstr "Луисвилл, KY"
 
+#. LU LUX
+msgid "Luxembourg"
+msgstr "Люксембург"
+
+#. ES MAD
+msgid "Madrid"
+msgstr "Мадрид"
+
+#. SE MMA
+msgid "Malmö"
+msgstr "Мальмё"
+
+#. GB MNC
+msgid "Manchester"
+msgstr "Манчестер"
+
+#. FR MRS
+msgid "Marseille"
+msgstr "Марсель"
+
+#. AU MEL
+msgid "Melbourne"
+msgstr "Мельбурн"
+
 #. US MIA
 msgid "Miami, FL"
 msgstr "Майами, FL"
+
+#. IT MIL
+msgid "Milan"
+msgstr "Милан"
 
 #. US MKE
 msgid "Milwaukee, WI"
@@ -268,13 +268,53 @@ msgstr "Милуоки, WI"
 msgid "Minneapolis/St. Paul Apt, MN"
 msgstr "Аэропорт Миннеаполис/Сент-Пол, MN"
 
+#. MD
+msgid "Moldova"
+msgstr "Молдавия"
+
+#. CA MTR
+msgid "Montreal"
+msgstr "Монреаль"
+
+#. NL
+msgid "Netherlands"
+msgstr "Нидерланды"
+
 #. US NYC
 msgid "New York, NY"
 msgstr "Нью-Йорк, NY"
 
+#. NZ
+msgid "New Zealand"
+msgstr "Новая Зеландия"
+
+#. RS INI
+msgid "Nis"
+msgstr "Ниш"
+
+#. NO
+msgid "Norway"
+msgstr ""
+
 #. US OKC
 msgid "Oklahoma City, OK"
 msgstr "Оклахома-Сити, OK"
+
+#. NO OSL
+msgid "Oslo"
+msgstr "Осло"
+
+#. FR PAR
+msgid "Paris"
+msgstr "Париж"
+
+#. AU PER
+msgid "Perth"
+msgstr "Перт"
+
+#. IL PET
+msgid "Petach-Tikva"
+msgstr "Петах-Тиква"
 
 #. US PHL
 msgid "Philadelphia, PA"
@@ -288,13 +328,37 @@ msgstr "Финикс, AZ"
 msgid "Piscataway, NJ"
 msgstr "Пискатауэй, NJ"
 
+#. PL
+msgid "Poland"
+msgstr "Польша"
+
 #. US PDX
 msgid "Portland, OR"
 msgstr "Портленд, OR"
 
+#. PT
+msgid "Portugal"
+msgstr "Португалия"
+
+#. CZ PRG
+msgid "Prague"
+msgstr "Прага"
+
+#. IN PNQ
+msgid "Pune"
+msgstr "Пуна"
+
 #. US RIC
 msgid "Richmond, VA"
 msgstr "Ричмонд, VA"
+
+#. LV RIX
+msgid "Riga"
+msgstr "Рига"
+
+#. RO
+msgid "Romania"
+msgstr "Румыния"
 
 #. US SLC
 msgid "Salt Lake City, UT"
@@ -308,6 +372,10 @@ msgstr "Сан-Франциско, CA"
 msgid "San Jose, CA"
 msgstr "Сан-Хосе, CA"
 
+#. BR SAO
+msgid "Sao Paulo"
+msgstr "Сан-Паулу"
+
 #. US SEA
 msgid "Seattle, WA"
 msgstr "Сиэтл, WA"
@@ -316,22 +384,102 @@ msgstr "Сиэтл, WA"
 msgid "Secaucus, NJ"
 msgstr "Секаукус, NJ"
 
+#. RS
+msgid "Serbia"
+msgstr "Сербия"
+
+#. SG SIN
+msgid "Singapore"
+msgstr "Сингапур"
+
 #. US FSD
 msgid "Sioux Falls, SD"
 msgstr "Су-Фолс, SD"
 
-#. US XLX
-msgid "Stamford, CT"
-msgstr "Стамфорд, CT"
+#. BG SOF
+msgid "Sofia"
+msgstr "София"
+
+#. ZA
+msgid "South Africa"
+msgstr "Южно-Африканская Республика"
+
+#. ES
+msgid "Spain"
+msgstr "Испания"
 
 #. US STL
 msgid "St. Louis, MO"
 msgstr "Сент-Луис, MO"
 
+#. US XLX
+msgid "Stamford, CT"
+msgstr "Стамфорд, CT"
+
+#. SE STO
+msgid "Stockholm"
+msgstr "Стокгольм"
+
+#. SE
+msgid "Sweden"
+msgstr "Швеция"
+
+#. CH
+msgid "Switzerland"
+msgstr "Швейцария"
+
+#. AU SYD
+msgid "Sydney"
+msgstr "Сидней"
+
+#. IL TLV
+msgid "Tel Aviv"
+msgstr "Тель-Авив"
+
+#. AL TIA
+msgid "Tirana"
+msgstr "Тирана"
+
+#. JP TYO
+msgid "Tokyo"
+msgstr "Токио"
+
+#. CA TOR
+msgid "Toronto"
+msgstr "Торонто"
+
+#. GB
+msgid "UK"
+msgstr "Великобритания"
+
+#. US
+msgid "USA"
+msgstr "Соединённые Штаты Америки"
+
+#. UA
+msgid "Ukraine"
+msgstr "Украина"
+
+#. AE
+msgid "United Arab Emirates"
+msgstr "Объединённые Арабские Эмираты"
+
+#. CA VAN
+msgid "Vancouver"
+msgstr "Ванкувер"
+
+#. PL WAW
+msgid "Warsaw"
+msgstr "Варшава"
+
 #. US WAS
 msgid "Washington DC"
 msgstr "Вашингтон, округ Колумбия"
 
-#. IL PET
-msgid "Petach-Tikva"
-msgstr "Петах-Тиква"
+#. AT VIE
+msgid "Wien"
+msgstr "Вена"
+
+#. CH ZRH
+msgid "Zurich"
+msgstr "Цюрих"
