@@ -157,18 +157,18 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 }
 
 //
-// RemoveMullvadTAP
+// RemoveMullvadTap
 //
 // Deletes the Mullvad TAP adapter.
 //
 //
-enum class RemoveMullvadTAPStatus
+enum class RemoveMullvadTapStatus
 {
 	GENERAL_ERROR = 0,
 	SUCCESS
 };
 
-void __declspec(dllexport) NSISCALL RemoveMullvadTAP
+void __declspec(dllexport) NSISCALL RemoveMullvadTap
 (
 	HWND hwndParent,
 	int string_size,
@@ -185,32 +185,32 @@ void __declspec(dllexport) NSISCALL RemoveMullvadTAP
 		Context::DeleteMullvadAdapter();
 
 		pushstring(L"");
-		pushint(RemoveMullvadTAPStatus::SUCCESS);
+		pushint(RemoveMullvadTapStatus::SUCCESS);
 	}
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(RemoveMullvadTAPStatus::GENERAL_ERROR);
+		pushint(RemoveMullvadTapStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(RemoveMullvadTAPStatus::GENERAL_ERROR);
+		pushint(RemoveMullvadTapStatus::GENERAL_ERROR);
 	}
 }
 
 //
-// TAPAdapterCount
+// TapAdapterCount
 //
 // Return the number of TAP adapters present.
 //
-enum class TAPAdapterCountStatus
+enum class TapAdapterCountStatus
 {
 	GENERAL_ERROR = 0,
 	SUCCESS
 };
 
-void __declspec(dllexport) NSISCALL TAPAdapterCount
+void __declspec(dllexport) NSISCALL TapAdapterCount
 (
 	HWND hwndParent,
 	int string_size,
@@ -235,17 +235,17 @@ void __declspec(dllexport) NSISCALL TAPAdapterCount
 		auto adapters = g_context->getTapAdapters();
 
 		pushint(adapters.size());
-		pushint(TAPAdapterCountStatus::SUCCESS);
+		pushint(TapAdapterCountStatus::SUCCESS);
 	}
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(TAPAdapterCountStatus::GENERAL_ERROR);
+		pushint(TapAdapterCountStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(TAPAdapterCountStatus::GENERAL_ERROR);
+		pushint(TapAdapterCountStatus::GENERAL_ERROR);
 	}
 }
 

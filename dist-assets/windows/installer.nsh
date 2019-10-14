@@ -29,7 +29,7 @@
 !define INA_GENERAL_ERROR 0
 !define INA_SUCCESS 1
 
-# Return codes from driverlogic::TAPAdapterCount
+# Return codes from driverlogic::TapAdapterCount
 !define TAC_GENERAL_ERROR 0
 !define TAC_SUCCESS 1
 
@@ -173,7 +173,7 @@
 		Goto RemoveTAP_return_only
 	${EndIf}
 
-	driverlogic::TAPAdapterCount
+	driverlogic::TapAdapterCount
 
 	Pop $0
 	Pop $1
@@ -189,7 +189,7 @@
 		Pop $0
 		Pop $1
 	${ElseIf} $1 > 1
-		driverlogic::RemoveMullvadTAP
+		driverlogic::RemoveMullvadTap
 
 		Pop $0
 		Pop $1

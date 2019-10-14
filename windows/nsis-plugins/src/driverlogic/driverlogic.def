@@ -5,6 +5,6 @@ EXPORTS
 Initialize
 EstablishBaseline
 IdentifyNewAdapter
-TAPAdapterCount
-RemoveMullvadTAP
+TapAdapterCount
+RemoveMullvadTap
 Deinitialize
