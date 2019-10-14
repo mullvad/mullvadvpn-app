@@ -16,16 +16,37 @@ from shapely.geometry import shape, mapping
 import fiona
 
 SCRIPT_DIR = path.dirname(path.realpath(__file__))
+
+# The directory with the existing localizations content
 LOCALE_DIR = path.normpath(path.join(SCRIPT_DIR, "../locales"))
+
+# The output directory for the generated content
 OUT_DIR = path.join(SCRIPT_DIR, "out")
+
+# the directory with the generated localizations content
 LOCALE_OUT_DIR = path.join(OUT_DIR, "locales")
 
+# Relay locations gettext catalogue template filename (.pot)
+RELAY_LOCATIONS_POT_FILENAME = "relay-locations.pot"
+
+# Relay locations gettext catalogue filename (.po)
+RELAY_LOCATIONS_PO_FILENAME = "relay-locations.po"
+
+# Countries gettext catalogue filename (.po)
+COUNTRIES_PO_FILENAME = "countries.po"
+
+# Cities gettext catalogue filename (.po)
+CITIES_PO_FILENAME = "cities.po"
+
+# The minimum population cap used to narrow down the cities dataset
 POPULATION_MAX_FILTER = 50000
 
+# Custom locale mapping between the identifiers in the app and Natural Earth datasets
 LOCALE_MAPPING = {
   # "zh" in Natural Earth Data referes to simplified chinese
   "zh-CN": "zh"
 }
+
 
 def extract_cities():
   input_path = get_shape_path("ne_50m_populated_places")
@@ -155,12 +176,12 @@ def extract_countries_po():
       with fiona.open(input_path) as source:
         po = POFile(encoding='utf-8', check_for_duplicates=True)
         po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
-        output_path = path.join(locale_out_dir, "countries.po")
+        output_path = path.join(locale_out_dir, COUNTRIES_PO_FILENAME)
 
         if not path.exists(locale_out_dir):
           os.makedirs(locale_out_dir)
 
-        print "Generating {}/countries.po".format(locale)
+        print "Generating {}".format(output_path)
 
         for feat in source:
           props = lower_dict_keys(feat["properties"])
@@ -175,7 +196,7 @@ def extract_countries_po():
             translated_name = props.get(name_key)
           elif props.get(name_fallback) is not None:
             translated_name = props.get(name_fallback)
-            print c.orange(u" Missing translation for {}".format(translated_name))
+            print c.orange(u"Missing translation for {}".format(translated_name))
           else:
             raise ValueError(
               "Cannot find the translation for {}. Probe keys: {}"
@@ -228,14 +249,14 @@ def extract_cities_po():
     if os.path.isdir(locale_dir):
       po = POFile(encoding='utf-8', check_for_duplicates=True)
       po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
-      output_path = path.join(locale_out_dir, "cities.po")
+      output_path = path.join(locale_out_dir, CITIES_PO_FILENAME)
       hits = 0
       misses = 0
 
       if not path.exists(locale_out_dir):
         os.makedirs(locale_out_dir)
 
-      print "Generating {}/cities.po".format(locale)
+      print "Generating {}".format(output_path)
 
       with fiona.open(input_path) as source:
         for feat in source:
@@ -250,7 +271,7 @@ def extract_cities_po():
               hits += 1
             elif props.get(name_fallback) is not None:
               translated_name = props.get(name_fallback)
-              print c.orange(u"  Missing translation for {}".format(translated_name))
+              print c.orange(u"Missing translation for {}".format(translated_name))
               misses += 1
             else:
               raise ValueError(
@@ -297,17 +318,27 @@ def extract_relay_translations():
     raise Exception("Missing the result field.")
 
   extract_relay_locations_pot(countries)
-  translate_relay_locations_pot(countries)
+  translate_relay_locations(countries)
 
 
 def extract_relay_locations_pot(countries):
   pot = POFile(encoding='utf-8', check_for_duplicates=True)
   pot.metadata = {"Content-Type": "text/plain; charset=utf-8"}
-  output_path = path.join(LOCALE_OUT_DIR, "relay-locations.pot")
+  output_path = path.join(LOCALE_OUT_DIR, RELAY_LOCATIONS_POT_FILENAME)
 
-  print "Generating relay-locations.pot"
+  print "Generating {}".format(output_path)
 
   for country in countries:
+    country_name = country.get("name")
+    if country_name is not None:
+      entry = POEntry(
+        msgid=country_name,
+        msgstr=u"",
+        comment=country.get("code").upper()
+      )
+      pot.append(entry)
+      print u"{} ({})".format(country_name, country.get("code")).encode('utf-8')
+
     cities = country.get("cities")
     if cities is not None:
       for city in cities:
@@ -318,8 +349,13 @@ def extract_relay_locations_pot(countries):
             msgstr=u"",
             comment=u"{} {}".format(country.get("code").upper(), city.get("code").upper())
           )
-          pot.append(entry)
-          print u"  {} ({})".format(city["name"], city["code"]).encode('utf-8')
+
+          try:
+            pot.append(entry)
+          except ValueError as err:
+            print c.orange(u"Cannot add an entry: {}".format(err))
+
+          print u"{} ({})".format(city_name, city.get("code")).encode('utf-8')
 
   pot.save(output_path)
 
@@ -351,25 +387,41 @@ def print_stats_table(title, data):
   print ""
 
 
-def translate_relay_locations_pot(countries):
-  place_translator = PlaceTranslator()
+def translate_relay_locations(countries):
+  """
+  A helper function to generate the relay-locations.po with automatic translations for each
+  corresponding locale.
+
+  The `countries` argument is an array that's contained within the "countries" key of the
+  relay location list.
+  """
+
+  country_translator = CountryTranslator()
+  city_translator = CityTranslator()
   stats = []
 
   for locale in os.listdir(LOCALE_DIR):
     locale_dir = path.join(LOCALE_DIR, locale)
     if path.isdir(locale_dir):
-      print "Generating {}/relay-locations.po".format(locale)
-      (hits, misses) = translate_relay_locations(place_translator, countries, locale)
+      print "Generating {}".format(path.join(locale, RELAY_LOCATIONS_PO_FILENAME))
+      (hits, misses) = translate_single_relay_locations(country_translator, city_translator, countries, locale)
       stats.append((locale, hits, misses))
 
   print_stats_table("Relay location translations", stats)
 
 
-def translate_relay_locations(place_translator, countries, locale):
+def translate_single_relay_locations(country_translator, city_translator, countries, locale):
+  """
+  A helper function to generate the relay-locations.po for the given locale.
+
+  The `countries` argument is an array value that's contained within the "countries" key of the
+  relay location list.
+  """
+
   po = POFile(encoding='utf-8', check_for_duplicates=True)
   po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
   locale_out_dir = path.join(LOCALE_OUT_DIR, locale)
-  output_path = path.join(locale_out_dir, "relay-locations.po")
+  output_path = path.join(locale_out_dir, RELAY_LOCATIONS_PO_FILENAME)
 
   hits = 0
   misses = 0
@@ -380,8 +432,33 @@ def translate_relay_locations(place_translator, countries, locale):
   for country in countries:
     country_name = country.get("name")
     country_code = country.get("code")
-    cities = country.get("cities")
 
+    translated_country_name = country_translator.translate(locale, country_code)
+    found_country_translation = translated_country_name is not None
+    # Default to empty string if no translation was found
+    if found_country_translation:
+      hits += 1
+    else:
+      translated_country_name = ""
+      misses += 1
+
+    log_message = u"{} ({}) -> \"{}\"".format(
+      country_name, country_code, translated_country_name).encode('utf-8')
+    if found_country_translation:
+      print c.green(log_message)
+    else:
+      print c.orange(log_message)
+
+    # translate country
+    entry = POEntry(
+      msgid=country_name,
+      msgstr=translated_country_name,
+      comment=country_code.upper()
+    )
+    po.append(entry)
+
+    # translate cities
+    cities = country.get("cities")
     if cities is None:
       print c.orange(u"Skip {} ({}) because no cities were found.".format(
         country_name, country_code))
@@ -396,12 +473,12 @@ def translate_relay_locations(place_translator, countries, locale):
       # Make sure to append the US state back to the translated name of the city
       if country_code == "us":
         split = city_name.rsplit(",", 2)
-        translated_name = place_translator.translate(locale, split[0].strip())
+        translated_name = city_translator.translate(locale, split[0].strip())
 
         if translated_name is not None and len(split) > 1:
           translated_name = u"{}, {}".format(translated_name, split[1].strip())
       else:
-        translated_name = place_translator.translate(locale, city_name)
+        translated_name = city_translator.translate(locale, city_name)
 
       # Default to empty string if no translation was found
       found_translation = translated_name is not None
@@ -411,7 +488,7 @@ def translate_relay_locations(place_translator, countries, locale):
         translated_name = ""
         misses += 1
 
-      log_message = u"  {} ({}) -> \"{}\"".format(
+      log_message = u"{} ({}) -> \"{}\"".format(
         city_name, city_code, translated_name).encode('utf-8')
       if found_translation:
         print c.green(log_message)
@@ -421,9 +498,13 @@ def translate_relay_locations(place_translator, countries, locale):
       entry = POEntry(
         msgid=city_name,
         msgstr=translated_name,
-        comment=u"{} {}".format(country.get("code").upper(), city.get("code").upper())
+        comment=u"{} {}".format(country_code.upper(), city_code.upper())
       )
-      po.append(entry)
+
+      try:
+        po.append(entry)
+      except ValueError as err:
+        print c.orange(u"Cannot add an entry: {}".format(err))
 
   po.save(output_path)
 
@@ -432,17 +513,71 @@ def translate_relay_locations(place_translator, countries, locale):
 
 ### HELPERS ###
 
-class PlaceTranslator(object):
+class CountryTranslator(object):
+  """
+  This class provides facilities for translating countries
+  """
+
+  def __init__(self):
+    super(CountryTranslator, self).__init__()
+
+    self.dataset = self.__build_index()
+
+  def translate(self, locale, iso_a2):
+    """
+    Lookup the countries dataset for the country matching by ISO A2 code
+
+    When there is a match, the function looks for the translation using the given locale or using
+    the language component of it.
+
+    Returns None when either there is no match or there is no translation for the matched city.
+    """
+    props = self.dataset.get(iso_a2.upper())
+
+    if props is not None:
+      name_key = "name_" + map_locale(locale)
+      value = props.get(name_key)
+
+      if value is None:
+        print c.orange(u"Missing translation for {} ({}) under the {} key".format(
+          iso_a2, locale, name_key).encode('utf-8'))
+      else:
+        return value
+
+    return None
+
+
+  def __build_index(self):
+    """
+    Private helper to build the index for the geo dataset, that can be used to speed up the
+    translations lookup.
+    """
+    shape_path = get_shape_path("ne_50m_admin_0_countries")
+    dataset = dict()
+
+    # build a hash map of the entire datasource in memory
+    with fiona.open(shape_path, "r") as source:
+      for feat in source:
+        props = lower_dict_keys(feat["properties"])
+
+        iso_a2 = props.get("iso_a2")
+        if iso_a2 is not None:
+          dataset[iso_a2.upper()] = props
+
+    return dataset
+
+
+class CityTranslator(object):
   """
   This class provides facilities for translating places from English.
   """
 
   def __init__(self):
-    super(PlaceTranslator, self).__init__()
+    super(CityTranslator, self).__init__()
 
     self.dataset = self.__build_index()
 
-  def translate(self, locale, english_city_name):
+  def translate(self, locale, english_name):
     """
     Lookup the populated places dataset for the city matching by name, par name or
     name representation in ASCII.
@@ -452,7 +587,7 @@ class PlaceTranslator(object):
 
     Returns None when either there is no match or there is no translation for the matched city.
     """
-    props = self.dataset.get(english_city_name)
+    props = self.dataset.get(english_name)
 
     if props is not None:
       name_key = "name_" + map_locale(locale)
@@ -460,7 +595,7 @@ class PlaceTranslator(object):
 
       if value is None:
         print c.orange(u"Missing translation for {} ({}) under the {} key".format(
-          english_city_name, locale, name_key).encode('utf-8'))
+          english_name, locale, name_key).encode('utf-8'))
       else:
         return value
 

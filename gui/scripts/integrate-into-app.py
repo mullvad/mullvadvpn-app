@@ -10,19 +10,19 @@ import colorful as c
 
 SCRIPT_DIR = path.dirname(path.realpath(__file__))
 
-# the name of the relay locations gettext catalogue template file
+# The name of the relay locations gettext catalogue template file
 RELAY_LOCATIONS_POT_FILENAME = "relay-locations.pot"
 
-# the directory with the generated content
+# The directory with the generated content
 GENERATED_CONTENT_OUTPUT_PATH = path.join(SCRIPT_DIR, "out")
 
-# the directory with the generated localizations content
+# The directory with the generated localizations content
 GENERATED_TRANSLATIONS_PATH = path.join(GENERATED_CONTENT_OUTPUT_PATH, "locales")
 
-# the directory with the app's geo assets
+# The directory with the app's geo assets
 APP_GEO_ASSETS_PATH = path.realpath(path.join(SCRIPT_DIR, "../assets/geo"))
 
-# the directory with the existing app localizations
+# The directory with the existing app localizations
 APP_TRANSLATIONS_PATH = path.realpath(path.join(SCRIPT_DIR, "../locales"))
 
 # Geo assets for copying from generated content folder into the app folder
@@ -41,7 +41,7 @@ TRANSLATIONS_TO_COPY = [
   "countries.po"
 ]
 
-# the filenames of gettext catalogues that should be merged using msgcat
+# The filenames of gettext catalogues that should be merged using msgcat
 TRANSLATIONS_TO_MERGE = [
   "relay-locations.po"
 ]
@@ -52,7 +52,7 @@ def copy_geo_assets():
     src = path.join(GENERATED_CONTENT_OUTPUT_PATH, f)
     dst = path.join(APP_GEO_ASSETS_PATH, f)
 
-    print u"Copying {} to {}".format(*remove_common_prefix(src, dst))
+    print u"Copying {} to {}".format(src, dst)
 
     shutil.copyfile(src, dst)
 
@@ -79,7 +79,7 @@ def merge_single_locale_folder(src, dst):
     dst_po = path.join(dst, f)
 
     if f in TRANSLATIONS_TO_COPY:
-      print u"Copying {} to {}".format(*remove_common_prefix(src_po, dst_po))
+      print u"Copying {} to {}".format(src_po, dst_po)
       shutil.copyfile(src_po, dst_po)
     elif f in TRANSLATIONS_TO_MERGE:
       # merge ../locales/*/file.po with ./out/locales/*/file.po
@@ -109,19 +109,13 @@ def merge_gettext_catalogues(existing_catalogue_file, generated_catalogue_file):
     (exit_code, errors) = run_program("msgcat", *args)
 
     if exit_code == 0:
-      print c.green(u"Merged {} into {}."
-        .format(*remove_common_prefix(generated_catalogue_file, existing_catalogue_file)))
+      print c.green(u"Merged {} into {}.".format(generated_catalogue_file, existing_catalogue_file))
     else:
       print c.red(u"msgcat exited with {}: {}".format(exit_code, errors.decode('utf-8').strip()))
   else:
     print c.orange(u"The existing catalogue does not exist. Copying {} to {}"
-      .format(*remove_common_prefix(generated_catalogue_file, existing_catalogue_file)))
+      .format(generated_catalogue_file, existing_catalogue_file))
     shutil.copyfile(generated_catalogue_file, existing_catalogue_file)
-
-
-def remove_common_prefix(*args):
-  prefix_len = len(path.commonprefix(args))
-  return map(lambda str: str[prefix_len:], args)
 
 
 def run_program(*args):
