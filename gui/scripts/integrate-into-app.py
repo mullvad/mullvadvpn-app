@@ -57,7 +57,7 @@ def copy_geo_assets():
     shutil.copyfile(src, dst)
 
 
-def merge_relay_locations_pot():
+def merge_relay_locations_catalogue_template():
   existing_pot_file = path.join(APP_TRANSLATIONS_PATH, RELAY_LOCATIONS_POT_FILENAME)
   generated_pot_file = path.join(GENERATED_TRANSLATIONS_PATH, RELAY_LOCATIONS_POT_FILENAME)
 
@@ -71,9 +71,6 @@ def copy_and_merge_translations():
 
     if path.isdir(src):
       merge_single_locale_folder(src, dst)
-    else:
-      print u"Copying {} to {}".format(*remove_common_prefix(src, dst))
-      shutil.copyfile(src, dst)
 
 
 def merge_single_locale_folder(src, dst):
@@ -143,7 +140,7 @@ def main():
     os.makedirs(APP_GEO_ASSETS_PATH)
 
   copy_geo_assets()
-  merge_relay_locations_pot()
+  merge_relay_locations_catalogue_template()
   copy_and_merge_translations()
 
 main()
