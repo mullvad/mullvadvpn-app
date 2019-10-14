@@ -35,9 +35,9 @@ std::wstring PopString()
 } // anonymous namespace
 
 //
-// WriteKey "source" "value" "string"
+// WriteString "source" "value" "string"
 //
-// Moves a registry key.
+// Writes a string to a registry value.
 //
 // Example usage:
 //
