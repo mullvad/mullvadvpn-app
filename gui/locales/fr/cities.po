@@ -2,1061 +2,182 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
-msgid "Bombo"
-msgstr "Bombo"
+msgid "Abakan"
+msgstr "Abakan"
 
-msgid "Potenza"
-msgstr "Potenza"
+msgid "Abidjan"
+msgstr "Abidjan"
 
-msgid "Campobasso"
-msgstr "Campobasso"
+msgid "Abu Dhabi"
+msgstr "Abou Dabi"
 
-msgid "Poitier"
-msgstr "Poitiers"
+msgid "Abuja"
+msgstr "Abuja"
 
-msgid "Clermont-Ferrand"
-msgstr "Clermont-Ferrand"
+msgid "Abéché"
+msgstr "Abéché"
 
-msgid "Besançon"
-msgstr "Besançon"
+msgid "Acapulco"
+msgstr "Acapulco"
 
-msgid "Chipata"
-msgstr "Chipata"
-
-msgid "Jinja"
-msgstr "Jinja"
-
-msgid "Arua"
-msgstr "Arua"
-
-msgid "Mbale"
-msgstr "Mbale"
-
-msgid "Masaka"
-msgstr "Masaka"
-
-msgid "Mbarara"
-msgstr "Mbarara"
-
-msgid "Bologna"
-msgstr "Bologne"
-
-msgid "Cagliari"
-msgstr "Cagliari"
-
-msgid "Catanzaro"
-msgstr "Catanzaro"
-
-msgid "Bari"
-msgstr "Bari"
-
-msgid "L'Aquila"
-msgstr "L'Aquila"
-
-msgid "Ancona"
-msgstr "Ancône"
-
-msgid "Perugia"
-msgstr "Pérouse"
-
-msgid "Trieste"
-msgstr "Trieste"
-
-msgid "Trento"
-msgstr "Trente"
-
-msgid "Fort-de-France"
-msgstr "Fort-de-France"
-
-msgid "Gifu"
-msgstr "Gifu"
-
-msgid "Caen"
-msgstr "Caen"
-
-msgid "Nantes"
-msgstr "Nantes"
-
-msgid "Ajaccio"
-msgstr "Ajaccio"
-
-msgid "Montpellier"
-msgstr "Montpellier"
-
-msgid "Dijon"
-msgstr "Dijon"
-
-msgid "Orléans"
-msgstr "Orléans"
-
-msgid "Rouen"
-msgstr "Rouen"
-
-msgid "Reims"
-msgstr "Reims"
-
-msgid "Amiens"
-msgstr "Amiens"
-
-msgid "Nancy"
-msgstr "Nancy"
-
-msgid "Novi Sad"
-msgstr "Novi Sad"
-
-msgid "Banja Luka"
-msgstr "Banja Luka"
-
-msgid "Willemstad"
-msgstr "Willemstad"
-
-msgid "Oranjestad"
-msgstr "Oranjestad"
-
-msgid "Gibraltar"
-msgstr "Gibraltar"
-
-msgid "Edinburgh"
-msgstr "Édimbourg"
-
-msgid "Cardiff"
-msgstr "Cardiff"
-
-msgid "Luxembourg"
-msgstr "Luxembourg"
-
-msgid "Turin"
-msgstr "Turin"
-
-msgid "Nouméa"
-msgstr "Nouméa"
-
-msgid "Matsuyama"
-msgstr "Matsuyama"
-
-msgid "Rennes"
-msgstr "Rennes"
-
-msgid "Toulouse"
-msgstr "Toulouse"
-
-msgid "Limoges"
-msgstr "Limoges"
-
-msgid "Lille"
-msgstr "Lille"
-
-msgid "Strasbourg"
-msgstr "Strasbourg"
-
-msgid "Batumi"
-msgstr "Batoumi"
-
-msgid "Funchal"
-msgstr "Funchal"
-
-msgid "El Fasher"
-msgstr "El Fasher"
-
-msgid "Genoa"
-msgstr "Gênes"
-
-msgid "Sukhumi"
-msgstr "Soukhoumi"
-
-msgid "Agana"
-msgstr "Hagåtña"
-
-msgid "Moroni"
-msgstr "Moroni"
-
-msgid "Macau"
-msgstr "Macao"
-
-msgid "Andorra"
-msgstr "Andorre-la-Vieille"
-
-msgid "San Bernardino"
-msgstr "San Bernardino"
-
-msgid "Bridgeport"
-msgstr "Bridgeport"
-
-msgid "Rochester"
-msgstr "Rochester"
-
-msgid "Manchester"
-msgstr "Manchester"
-
-msgid "Gujranwala"
-msgstr "Gujranwala"
-
-msgid "Incheon"
-msgstr "Incheon"
-
-msgid "Benin City"
-msgstr "Benin City"
-
-msgid "Xiamen"
-msgstr "Xiamen"
-
-msgid "Nanchong"
-msgstr "Nanchong"
-
-msgid "Neijiang"
-msgstr "Neijiang"
-
-msgid "Nanyang"
-msgstr "Nanyang"
-
-msgid "Jinxi"
-msgstr "Lianshan"
-
-msgid "Yantai"
-msgstr "Yantai"
-
-msgid "Zaozhuang"
-msgstr "Zaozhuang"
-
-msgid "Suzhou"
-msgstr "Suzhou"
-
-msgid "Xuzhou"
-msgstr "Xuzhou"
-
-msgid "Wuxi"
-msgstr "Wuxi"
-
-msgid "Jilin"
-msgstr "Jilin"
-
-msgid "Chandigarh"
-msgstr "Chandigarh"
-
-msgid "Jammu"
-msgstr "Jammu"
-
-msgid "Sholapur"
-msgstr "Solapur"
-
-msgid "Aurangabad"
-msgstr "Aurangābād"
-
-msgid "Nasik"
-msgstr "Nasik"
-
-msgid "Jullundur"
-msgstr "Jalandhar"
-
-msgid "Allahabad"
-msgstr "Allāhābād"
-
-msgid "Moradabad"
-msgstr "Moradabad"
-
-msgid "Ghaziabad"
-msgstr "Ghaziabad"
-
-msgid "Agra"
-msgstr "Āgrā"
-
-msgid "Aligarh"
-msgstr "Aligarh"
-
-msgid "Meerut"
-msgstr "Meerut"
-
-msgid "Dhanbad"
-msgstr "Dhanbad"
-
-msgid "Gwalior"
-msgstr "Gwâlior"
-
-msgid "Vadodara"
-msgstr "Vadodara"
-
-msgid "Rajkot"
-msgstr "Rajkot"
-
-msgid "St. Paul"
-msgstr "Saint Paul"
-
-msgid "Billings"
-msgstr "Billings"
-
-msgid "Great Falls"
-msgstr "Great Falls"
-
-msgid "Missoula"
-msgstr "Missoula"
-
-msgid "Fargo"
-msgstr "Fargo"
-
-msgid "Hilo"
-msgstr "Hilo"
-
-msgid "Olympia"
-msgstr "Olympia"
-
-msgid "Spokane"
-msgstr "Spokane"
-
-msgid "Vancouver"
-msgstr "Vancouver"
-
-msgid "Flagstaff"
-msgstr "Flagstaff"
-
-msgid "Tucson"
-msgstr "Tucson"
-
-msgid "Santa Barbara"
-msgstr "Santa Barbara"
-
-msgid "Fresno"
-msgstr "Fresno"
-
-msgid "Colorado Springs"
-msgstr "Colorado Springs"
-
-msgid "Reno"
-msgstr "Reno"
-
-msgid "Albuquerque"
-msgstr "Albuquerque"
-
-msgid "Salem"
-msgstr "Salem"
-
-msgid "Casper"
-msgstr "Casper"
-
-msgid "Topeka"
-msgstr "Topeka"
-
-msgid "Kansas City"
-msgstr "Kansas City"
-
-msgid "Tulsa"
-msgstr "Tulsa"
-
-msgid "Sioux Falls"
-msgstr "Sioux Falls"
-
-msgid "Shreveport"
-msgstr "Shreveport"
-
-msgid "Baton Rouge"
-msgstr "Baton Rouge"
-
-msgid "Ft. Worth"
-msgstr "Fort Worth"
-
-msgid "Corpus Christi"
-msgstr "Corpus Christi"
-
-msgid "Austin"
-msgstr "Austin"
-
-msgid "Amarillo"
-msgstr "Amarillo"
-
-msgid "El Paso"
-msgstr "El Paso"
-
-msgid "Laredo"
-msgstr "Laredo"
-
-msgid "Merida"
-msgstr "Mérida"
-
-msgid "Burlington"
-msgstr "Burlington"
-
-msgid "Montgomery"
-msgstr "Montgomery"
-
-msgid "Tallahassee"
-msgstr "Tallahassee"
-
-msgid "Orlando"
-msgstr "Orlando"
-
-msgid "Jacksonville"
-msgstr "Jacksonville"
-
-msgid "Savannah"
-msgstr "Savannah"
-
-msgid "Columbia"
-msgstr "Columbia"
-
-msgid "Indianapolis"
-msgstr "Indianapolis"
-
-msgid "Wilmington"
-msgstr "Wilmington"
-
-msgid "Knoxville"
-msgstr "Knoxville"
-
-msgid "Richmond"
-msgstr "Richmond"
-
-msgid "Charleston"
-msgstr "Charleston"
-
-msgid "Baltimore"
-msgstr "Baltimore"
-
-msgid "Syracuse"
-msgstr "Syracuse"
-
-msgid "Puerto Ayacucho"
-msgstr "Puerto Ayacucho"
-
-msgid "Port-of-Spain"
-msgstr "Port-d'Espagne"
-
-msgid "Sault Ste. Marie"
-msgstr "Sault Ste. Marie"
-
-msgid "Atakpamé"
-msgstr "Atakpamé"
-
-msgid "Sousse"
-msgstr "Sousse"
-
-msgid "Taizz"
-msgstr "Ta'izz"
-
-msgid "Lvov"
-msgstr "Lviv"
-
-msgid "Odessa"
-msgstr "Odessa"
-
-msgid "Zhytomyr"
-msgstr "Jytomyr"
-
-msgid "Dnipro"
-msgstr "Dnipro"
-
-msgid "Donetsk"
-msgstr "Donetsk"
-
-msgid "Kharkiv"
-msgstr "Kharkiv"
-
-msgid "Türkmenbaşy"
-msgstr "Türkmenbaşy"
-
-msgid "Bukhara"
-msgstr "Boukhara"
-
-msgid "Nukus"
-msgstr "Noukous"
-
-msgid "Türkmenabat"
-msgstr "Türkmenabat"
-
-msgid "Mary"
-msgstr "Mary"
-
-msgid "Andijon"
-msgstr "Andijan"
-
-msgid "Haiphong"
-msgstr "Hải Phòng"
-
-msgid "Da Nang"
-msgstr "Đà Nẵng"
-
-msgid "Kabwe"
-msgstr "Kabwe"
-
-msgid "Mufulira"
-msgstr "Mufulira"
-
-msgid "Kitwe"
-msgstr "Kitwe"
-
-msgid "Livingstone"
-msgstr "Livingstone"
-
-msgid "Chitungwiza"
-msgstr "Chitungwiza"
-
-msgid "Douala"
-msgstr "Douala"
-
-msgid "Birmingham"
-msgstr "Birmingham"
-
-msgid "Belfast"
-msgstr "Belfast"
-
-msgid "İzmir"
-msgstr "Izmir"
-
-msgid "Bursa"
-msgstr "Bursa"
-
-msgid "Samsun"
-msgstr "Samsun"
-
-msgid "Konya"
-msgstr "Konya"
+msgid "Accra"
+msgstr "Accra"
 
 msgid "Adana"
 msgstr "Adana"
 
-msgid "Gulu"
-msgstr "Gulu"
+msgid "Addis Ababa"
+msgstr "Addis-Abeba"
 
-msgid "Kigali"
-msgstr "Kigali"
+msgid "Adelaide"
+msgstr "Adélaïde"
 
-msgid "Córdoba"
-msgstr "Cordoue"
+msgid "Aden"
+msgstr "Aden"
 
-msgid "Maradi"
-msgstr "Maradi"
+msgid "Agadez"
+msgstr "Agadez"
 
-msgid "Tahoua"
-msgstr "Tahoua"
+msgid "Agana"
+msgstr "Hagåtña"
 
-msgid "Constanța"
-msgstr "Constanța"
+msgid "Agra"
+msgstr "Āgrā"
 
-msgid "Sundsvall"
-msgstr "Sundsvall"
+msgid "Ahmedabad"
+msgstr "Ahmedabad"
 
-msgid "Iași"
-msgstr "Iași"
+msgid "Ahvaz"
+msgstr "Ahvaz"
 
-msgid "Surat Thani"
-msgstr "Surat Thani"
+msgid "Ajaccio"
+msgstr "Ajaccio"
 
-msgid "Chiang Mai"
-msgstr "Chiang Mai"
+msgid "Akola"
+msgstr "Akola"
 
-msgid "Nakhon Ratchasima"
-msgstr "Nakhon Ratchasima"
+msgid "Albuquerque"
+msgstr "Albuquerque"
 
-msgid "Mbabane"
-msgstr "Mbabane"
+msgid "Aleppo"
+msgstr "Alep"
 
-msgid "Piura"
-msgstr "Piura"
+msgid "Alexandria"
+msgstr "Alexandrie"
 
-msgid "Arequipa"
-msgstr "Arequipa"
+msgid "Algiers"
+msgstr "Alger"
 
-msgid "Chimbote"
-msgstr "Chimbote"
+msgid "Aligarh"
+msgstr "Aligarh"
 
-msgid "Pucallpa"
-msgstr "Pucallpa"
+msgid "Allahabad"
+msgstr "Allāhābād"
 
-msgid "Iquitos"
-msgstr "Iquitos"
+msgid "Almaty"
+msgstr "Almaty"
 
-msgid "Huancayo"
-msgstr "Huancayo"
+msgid "Altay"
+msgstr "Altay"
 
-msgid "Ciudad del Este"
-msgstr "Ciudad del Este"
-
-msgid "Ponta Delgada"
-msgstr "Ponta Delgada"
-
-msgid "Vigo"
-msgstr "Vigo"
-
-msgid "Bilbao"
-msgstr "Bilbao"
-
-msgid "Kaolack"
-msgstr "Kaolack"
-
-msgid "Geneina"
-msgstr "Al-Genaïna"
-
-msgid "Medina"
-msgstr "Médine"
-
-msgid "Tabuk"
-msgstr "Tabuk"
-
-msgid "Juba"
-msgstr "Djouba"
-
-msgid "Malakal"
-msgstr "Malakal"
-
-msgid "Omdurman"
-msgstr "Omdourman"
-
-msgid "El Obeid"
-msgstr "El Obeid"
-
-msgid "The Hague"
-msgstr "La Haye"
-
-msgid "Kristiansand"
-msgstr "Kristiansand"
-
-msgid "Ljubljana"
-msgstr "Ljubljana"
-
-msgid "Bratislava"
-msgstr "Bratislava"
-
-msgid "Doha"
-msgstr "Doha"
-
-msgid "Quetta"
-msgstr "Quetta"
-
-msgid "Larkana"
-msgstr "Larkana"
-
-msgid "Upington"
-msgstr "Upington"
-
-msgid "Worcester"
-msgstr "Worcester"
-
-msgid "George"
-msgstr "George"
-
-msgid "Tete"
-msgstr "Tete"
-
-msgid "Pemba"
-msgstr "Pemba"
-
-msgid "Nampula"
-msgstr "Nampula"
-
-msgid "Welkom"
-msgstr "Welkom"
-
-msgid "Xai-Xai"
-msgstr "Xai-Xai"
-
-msgid "Mt. Hagen"
-msgstr "Mount Hagen"
-
-msgid "Lae"
-msgstr "Lae"
-
-msgid "David"
-msgstr "David"
-
-msgid "Oujda"
-msgstr "Oujda"
-
-msgid "Safi"
-msgstr "Safi"
-
-msgid "Podgorica"
-msgstr "Podgorica"
-
-msgid "Quelimane"
-msgstr "Quelimane"
-
-msgid "East London"
-msgstr "East London"
-
-msgid "Naltchik"
-msgstr "Naltchik"
-
-msgid "Stavropol"
-msgstr "Stavropol"
-
-msgid "Kaliningrad"
-msgstr "Kaliningrad"
-
-msgid "Pskov"
-msgstr "Pskov"
-
-msgid "Bryansk"
-msgstr "Briansk"
-
-msgid "Smolensk"
-msgstr "Smolensk"
-
-msgid "Petrozavodsk"
-msgstr "Petrozavodsk"
-
-msgid "Tver"
-msgstr "Tver"
-
-msgid "Vologda"
-msgstr "Vologda"
-
-msgid "Yaroslavl"
-msgstr "Iaroslavl"
-
-msgid "Rostov"
-msgstr "Rostov-sur-le-Don"
-
-msgid "Sochi"
-msgstr "Sotchi"
-
-msgid "Krasnodar"
-msgstr "Krasnodar"
-
-msgid "Penza"
-msgstr "Penza"
-
-msgid "Ryazan"
-msgstr "Riazan"
-
-msgid "Voronezh"
-msgstr "Voronej"
-
-msgid "Magnitogorsk"
-msgstr "Magnitogorsk"
-
-msgid "Chelyabinsk"
-msgstr "Tcheliabinsk"
-
-msgid "Vorkuta"
-msgstr "Vorkouta"
-
-msgid "Kirov"
-msgstr "Kirov"
-
-msgid "Nizhny Tagil"
-msgstr "Nijni Taguil"
-
-msgid "Astrakhan"
-msgstr "Astrakhan"
-
-msgid "Orenburg"
-msgstr "Orenbourg"
-
-msgid "Saratov"
-msgstr "Saratov"
-
-msgid "Ulyanovsk"
-msgstr "Oulianovsk"
-
-msgid "Omsk"
-msgstr "Omsk"
-
-msgid "Tyumen"
-msgstr "Tioumen"
-
-msgid "Novokuznetsk"
-msgstr "Novokouznetsk"
-
-msgid "Kemerovo"
-msgstr "Kemerovo"
-
-msgid "Groznyy"
-msgstr "Grozny"
-
-msgid "Kandy"
-msgstr "Kandy"
-
-msgid "Sri Jawewardenepura Kotte"
-msgstr "Sri Jayawardenapura"
-
-msgid "Daejeon"
-msgstr "Daejeon"
-
-msgid "Gwangju"
-msgstr "Gwangju"
-
-msgid "Busan"
-msgstr "Busan"
-
-msgid "Zamboanga"
-msgstr "Zamboanga"
-
-msgid "Laoag"
-msgstr "Laoag"
-
-msgid "Baguio City"
-msgstr "Baguio"
-
-msgid "General Santos"
-msgstr "General Santos"
-
-msgid "Ust-Ulimsk"
-msgstr "Oust-Ilimsk"
-
-msgid "Angarsk"
-msgstr "Angarsk"
-
-msgid "Abakan"
-msgstr "Abakan"
-
-msgid "Norilsk"
-msgstr "Norilsk"
-
-msgid "Kyzyl"
-msgstr "Kyzyl"
-
-msgid "Ulan Ude"
-msgstr "Oulan-Oude"
-
-msgid "Blagoveshchensk"
-msgstr "Blagovechtchensk"
-
-msgid "Khabarovsk"
-msgstr "Khabarovsk"
-
-msgid "Yuzhno Sakhalinsk"
-msgstr "Ioujno-Sakhalinsk"
-
-msgid "Mexicali"
-msgstr "Mexicali"
-
-msgid "La Paz"
-msgstr "La Paz"
-
-msgid "Torreón"
-msgstr "Torreón"
-
-msgid "Culiacán"
-msgstr "Culiacán"
-
-msgid "Nogales"
-msgstr "Nogales"
-
-msgid "Hermosillo"
-msgstr "Hermosillo"
-
-msgid "Guaymas"
-msgstr "Guaymas"
-
-msgid "San Luis Potosí"
-msgstr "San Luis Potosí"
-
-msgid "Matamoros"
-msgstr "Matamoros"
-
-msgid "Nuevo Laredo"
-msgstr "Nuevo Laredo"
-
-msgid "Colima"
-msgstr "Colima"
-
-msgid "Campeche"
-msgstr "Campeche"
-
-msgid "Oaxaca"
-msgstr "Oaxaca de Juárez"
-
-msgid "León"
-msgstr "León"
-
-msgid "Maiduguri"
-msgstr "Maiduguri"
-
-msgid "Port Harcourt"
-msgstr "Port Harcourt"
-
-msgid "Makurdi"
-msgstr "Makurdi"
-
-msgid "Ibadan"
-msgstr "Ibadan"
-
-msgid "Ogbomosho"
-msgstr "Ogbomoso"
-
-msgid "Warri"
-msgstr "Warri"
-
-msgid "Kaduna"
-msgstr "Kaduna"
-
-msgid "Gdańsk"
-msgstr "Gdańsk"
-
-msgid "Kraków"
-msgstr "Cracovie"
-
-msgid "Wonsan"
-msgstr "Wonsan"
-
-msgid "Sinuiju"
-msgstr "Sinuiju"
-
-msgid "Walvis Bay"
-msgstr "Walvis Bay"
-
-msgid "Mwanza"
-msgstr "Mwanza"
-
-msgid "Morogoro"
-msgstr "Morogoro"
-
-msgid "Dodoma"
-msgstr "Dodoma"
-
-msgid "Arusha"
-msgstr "Arusha"
-
-msgid "Bern"
-msgstr "Berne"
-
-msgid "Malmö"
-msgstr "Malmö"
-
-msgid "Laayoune"
-msgstr "Laâyoune"
-
-msgid "Ternate"
-msgstr "Kota Ternate"
+msgid "Amarillo"
+msgstr "Amarillo"
 
 msgid "Ambon"
 msgstr "Ambon"
 
-msgid "Raba"
-msgstr "Raba"
+msgid "Amiens"
+msgstr "Amiens"
 
-msgid "Jayapura"
-msgstr "Jayapura"
+msgid "Amman"
+msgstr "Amman"
 
-msgid "Florence"
-msgstr "Florence"
+msgid "Amritsar"
+msgstr "Amritsar"
 
-msgid "Catania"
-msgstr "Catane"
+msgid "Amsterdam"
+msgstr "Amsterdam"
 
-msgid "Pristina"
-msgstr "Pristina"
+msgid "An Najaf"
+msgstr "Nadjaf"
 
-msgid "Eldoret"
-msgstr "Eldoret"
+msgid "Anchorage"
+msgstr "Anchorage"
 
-msgid "Banda Aceh"
-msgstr "Banda Aceh"
+msgid "Ancona"
+msgstr "Ancône"
 
-msgid "George Town"
-msgstr "George Town"
+msgid "Andijon"
+msgstr "Andijan"
 
-msgid "Zhangye"
-msgstr "Zhangye"
+msgid "Andorra"
+msgstr "Andorre-la-Vieille"
 
-msgid "Wuwei"
-msgstr "Wuwei"
+msgid "Angarsk"
+msgstr "Angarsk"
 
-msgid "Dunhuang"
-msgstr "Dunhuang"
+msgid "Ankang"
+msgstr "Ankang"
 
-msgid "Tianshui"
-msgstr "Tianshui"
+msgid "Ankara"
+msgstr "Ankara"
 
-msgid "Golmud"
-msgstr "Golmud"
+msgid "Annaba"
+msgstr "Annaba"
 
-msgid "Yulin"
-msgstr "Yulin"
+msgid "Anshan"
+msgstr "Anshan"
 
-msgid "Bose"
-msgstr "Baicheng"
+msgid "Antananarivo"
+msgstr "Antananarivo"
 
-msgid "Wuzhou"
-msgstr "Wuzhou"
-
-msgid "Lupanshui"
-msgstr "Liupanshui"
-
-msgid "Quanzhou"
-msgstr "Quanzhou"
-
-msgid "Hefei"
-msgstr "Hefei"
-
-msgid "Suzhou"
-msgstr "Suzhou"
-
-msgid "Zhanjiang"
-msgstr "Zhanjiang"
-
-msgid "Shaoguan"
-msgstr "Shaoguan"
-
-msgid "Balikpapan"
-msgstr "Balikpapan"
-
-msgid "Kuching"
-msgstr "Kuching"
+msgid "Antofagasta"
+msgstr "Antofagasta"
 
 msgid "Antsiranana"
 msgstr "Antsiranana"
 
-msgid "Fianarantsoa"
-msgstr "Fianarantsoa"
+msgid "Apia"
+msgstr "Apia"
 
-msgid "Mahajanga"
-msgstr "Mahajanga"
+msgid "Aqtobe"
+msgstr "Aktioubé"
 
-msgid "Toliara"
-msgstr "Toliara"
+msgid "Archangel"
+msgstr "Arkhangelsk"
 
-msgid "Surakarta"
-msgstr "Surakarta"
+msgid "Arequipa"
+msgstr "Arequipa"
 
-msgid "Bandar Lampung"
-msgstr "Bandar Lampung"
+msgid "Arica"
+msgstr "Arica"
 
-msgid "Tanjungpandan"
-msgstr "Tanjung Pandan"
+msgid "Arua"
+msgstr "Arua"
 
-msgid "Malang"
-msgstr "Malang"
+msgid "Arusha"
+msgstr "Arusha"
 
-msgid "Kupang"
-msgstr "Kupang"
+msgid "Asansol"
+msgstr "Asansol"
 
-msgid "Parepare"
-msgstr "Pare-Pare"
+msgid "Ashgabat"
+msgstr "Achgabat"
 
-msgid "Cuenca"
-msgstr "Cuenca"
+msgid "Asmara"
+msgstr "Asmara"
 
-msgid "Puerto Limon"
-msgstr "Puerto Limón"
+msgid "Assab"
+msgstr "Assab"
 
-msgid "Santiago de Cuba"
-msgstr "Santiago de Cuba"
+msgid "Astana"
+msgstr "Astana"
 
-msgid "Santiago"
-msgstr "Santiago de los Caballeros"
+msgid "Astrakhan"
+msgstr "Astrakhan"
 
-msgid "Manizales"
-msgstr "Manizales"
-
-msgid "Pasto"
-msgstr "San Juan de Pasto"
-
-msgid "Barranquilla"
-msgstr "Barranquilla"
-
-msgid "Mbandaka"
-msgstr "Mbandaka"
-
-msgid "Moundou"
-msgstr "Moundou"
-
-msgid "Suez"
-msgstr "Suez"
-
-msgid "Bur Said"
-msgstr "Port-Saïd"
-
-msgid "El Faiyum"
-msgstr "Médinet el-Fayoum"
+msgid "Asunción"
+msgstr "Asunción"
 
 msgid "Aswan"
 msgstr "Assouan"
@@ -1064,1247 +185,176 @@ msgstr "Assouan"
 msgid "Asyut"
 msgstr "Assiout"
 
-msgid "Kisangani"
-msgstr "Kisangani"
+msgid "Atakpamé"
+msgstr "Atakpamé"
 
-msgid "Assab"
-msgstr "Assab"
+msgid "Athens"
+msgstr "Athènes"
 
-msgid "Djibouti"
-msgstr "Djibouti"
-
-msgid "Dresden"
-msgstr "Dresde"
-
-msgid "Xigaze"
-msgstr "Shigatsé"
-
-msgid "Shache"
-msgstr "Xian de Yarkand"
-
-msgid "Yining"
-msgstr "Yining"
-
-msgid "Altay"
-msgstr "Altay"
-
-msgid "Putrajaya"
-msgstr "Putrajaya"
-
-msgid "Shizuishan"
-msgstr "Shizuishan"
-
-msgid "Yulin"
-msgstr "Yulin"
-
-msgid "Ankang"
-msgstr "Ankang"
-
-msgid "Houma"
-msgstr "Houma"
-
-msgid "Yueyang"
-msgstr "Yueyang"
-
-msgid "Hengyang"
-msgstr "Hengyang"
-
-msgid "Mianyang"
-msgstr "Mianyang"
-
-msgid "Xichang"
-msgstr "Xichang"
-
-msgid "Baoshan"
-msgstr "Baoshan"
-
-msgid "Gejiu"
-msgstr "Gejiu"
-
-msgid "Shijianzhuang"
-msgstr "Shijiazhuang"
-
-msgid "Handan"
-msgstr "Handan"
-
-msgid "Anshan"
-msgstr "Anshan"
-
-msgid "Dalian"
-msgstr "Dalian"
-
-msgid "Qingdao"
-msgstr "Qingdao"
-
-msgid "Linyi"
-msgstr "Linyi"
-
-msgid "Huaiyin"
-msgstr "Huai'an"
-
-msgid "Wenzhou"
-msgstr "Wenzhou"
-
-msgid "Ningbo"
-msgstr "Ningbo"
-
-msgid "Fukuoka"
-msgstr "Fukuoka"
-
-msgid "Miyazaki"
-msgstr "Miyazaki"
-
-msgid "Naha"
-msgstr "Naha"
-
-msgid "Kōchi"
-msgstr "Kōchi"
-
-msgid "Gorontalo"
-msgstr "Gorontalo"
-
-msgid "Tongliao"
-msgstr "Tongliao"
-
-msgid "Hohhot"
-msgstr "Hohhot"
-
-msgid "Chifeng"
-msgstr "Chifeng"
-
-msgid "Ulanhot"
-msgstr "Ulan Hot"
-
-msgid "Hailar"
-msgstr "Hailar"
-
-msgid "Jiamusi"
-msgstr "Jiamusi"
-
-msgid "Beian"
-msgstr "Bei'an"
-
-msgid "Daqing"
-msgstr "Daqing"
-
-msgid "Jixi"
-msgstr "Jixi"
-
-msgid "Nagoya"
-msgstr "Nagoya"
-
-msgid "Nagano"
-msgstr "Nagano"
-
-msgid "Kushiro"
-msgstr "Kushiro"
-
-msgid "Hakodate"
-msgstr "Hakodate"
-
-msgid "Kyoto"
-msgstr "Kyoto"
-
-msgid "Sendai"
-msgstr "Sendai"
-
-msgid "Sakata"
-msgstr "Sakata"
-
-msgid "Bandundu"
-msgstr "Bandundu"
-
-msgid "Kananga"
-msgstr "Kananga"
-
-msgid "Kasongo"
-msgstr "Kasongo"
-
-msgid "Mbuji-Mayi"
-msgstr "Mbujimayi"
-
-msgid "Kalemie"
-msgstr "Kalemie"
-
-msgid "Butembo"
-msgstr "Butembo"
-
-msgid "Goma"
-msgstr "Goma"
-
-msgid "Mzuzu"
-msgstr "Mzuzu"
-
-msgid "Blantyre"
-msgstr "Blantyre"
-
-msgid "Quetzaltenango"
-msgstr "Quetzaltenango"
-
-msgid "Faridabad"
-msgstr "Faridabad"
-
-msgid "Srinagar"
-msgstr "Srinagar"
-
-msgid "Vijayawada"
-msgstr "Vijayawada"
-
-msgid "Thiruvananthapuram"
-msgstr "Thiruvananthapuram"
-
-msgid "Kochi"
-msgstr "Kochi"
-
-msgid "Cuttack"
-msgstr "Cuttack"
-
-msgid "Hubli"
-msgstr "Hubli-Dharwad"
-
-msgid "Mangalore"
-msgstr "Mangalore"
-
-msgid "Mysore"
-msgstr "Mysore"
-
-msgid "Gulbarga"
-msgstr "Gulbarga"
-
-msgid "Kolhapur"
-msgstr "Kolhapur"
-
-msgid "Nanded"
-msgstr "Nanded"
-
-msgid "Akola"
-msgstr "Akola"
-
-msgid "Guwahati"
-msgstr "Guwahati"
-
-msgid "Kayes"
-msgstr "Kayes"
-
-msgid "Bordeaux"
-msgstr "Bordeaux"
-
-msgid "Marseille"
-msgstr "Marseille"
-
-msgid "Le Havre"
-msgstr "Le Havre"
-
-msgid "Gao"
-msgstr "Gao"
-
-msgid "Arica"
-msgstr "Arica"
-
-msgid "Copiapó"
-msgstr "Copiapó"
-
-msgid "La Serena"
-msgstr "La Serena"
-
-msgid "Los Angeles"
-msgstr "Los Ángeles"
-
-msgid "Nouadhibou"
-msgstr "Nouadhibou"
-
-msgid "Kayes"
-msgstr "Kayes"
-
-msgid "Ségou"
-msgstr "Ségou"
-
-msgid "Skopje"
-msgstr "Skopje"
-
-msgid "Misratah"
-msgstr "Misrata"
-
-msgid "Zuwarah"
-msgstr "Zouara"
-
-msgid "Kirkuk"
-msgstr "Kirkouk"
-
-msgid "Mosul"
-msgstr "Mossoul"
-
-msgid "An Najaf"
-msgstr "Nadjaf"
-
-msgid "Bahir Dar"
-msgstr "Baher Dar"
-
-msgid "Mekele"
-msgstr "Mekele"
-
-msgid "Dire Dawa"
-msgstr "Dire Dawa"
-
-msgid "Vaasa"
-msgstr "Vaasa"
-
-msgid "Tampere"
-msgstr "Tampere"
-
-msgid "Aqtobe"
-msgstr "Aktioubé"
-
-msgid "Rudny"
-msgstr "Roudny"
-
-msgid "Qyzylorda"
-msgstr "Kyzylorda"
+msgid "Atlanta"
+msgstr "Atlanta"
 
 msgid "Atyrau"
 msgstr "Atyraou"
 
-msgid "Ekibastuz"
-msgstr "Ekibastouz"
+msgid "Auckland"
+msgstr "Auckland"
 
-msgid "Pavlodar"
-msgstr "Pavlodar"
+msgid "Aurangabad"
+msgstr "Aurangābād"
 
-msgid "Semey"
-msgstr "Semeï"
+msgid "Austin"
+msgstr "Austin"
 
-msgid "Oskemen"
-msgstr "Öskemen"
+msgid "Baghdad"
+msgstr "Bagdad"
 
-msgid "Yazd"
-msgstr "Yazd"
+msgid "Baguio City"
+msgstr "Baguio"
 
-msgid "Ahvaz"
-msgstr "Ahvaz"
+msgid "Bahir Dar"
+msgstr "Baher Dar"
 
-msgid "Basra"
-msgstr "Bassora"
+msgid "Bahía Blanca"
+msgstr "Bahía Blanca"
 
-msgid "Bandar-e-Abbas"
-msgstr "Bandar Abbas"
+msgid "Baku"
+msgstr "Bakou"
 
-msgid "Hamadan"
-msgstr "Hamadan"
+msgid "Balikpapan"
+msgstr "Balikpapan"
 
-msgid "Tabriz"
-msgstr "Tabriz"
-
-msgid "Ludhiana"
-msgstr "Ludhiana"
-
-msgid "Kota"
-msgstr "Kota"
-
-msgid "Jodhpur"
-msgstr "Jodhpur"
-
-msgid "Shymkent"
-msgstr "Chimkent"
-
-msgid "Taraz"
-msgstr "Taraz"
-
-msgid "Lucknow"
-msgstr "Lucknow"
-
-msgid "Saharanpur"
-msgstr "Saharanpur"
-
-msgid "Ranchi"
-msgstr "Ranchi"
-
-msgid "Bhagalpur"
-msgstr "Bhagalpur"
-
-msgid "Raipur"
-msgstr "Raipur"
-
-msgid "Jabalpur"
-msgstr "Jabalpur"
-
-msgid "Indore"
-msgstr "Indore"
-
-msgid "Pondicherry"
-msgstr "Pondichéry"
-
-msgid "Salem"
-msgstr "Salem"
-
-msgid "Tiruchirappalli"
-msgstr "Tiruchirappalli"
-
-msgid "Pointe-Noire"
-msgstr "Pointe-Noire"
-
-msgid "Kankan"
-msgstr "Kankan"
-
-msgid "Nzérékoré"
-msgstr "Nzérékoré"
-
-msgid "Bouaké"
-msgstr "Bouaké"
-
-msgid "St.-Denis"
-msgstr "Saint-Denis"
-
-msgid "Rio Branco"
-msgstr "Rio Branco"
-
-msgid "São Luís"
-msgstr "São Luís"
-
-msgid "Porto Velho"
-msgstr "Porto Velho"
-
-msgid "Corumbá"
-msgstr "Corumbá"
-
-msgid "Belo Horizonte"
-msgstr "Belo Horizonte"
-
-msgid "Montes Claros"
-msgstr "Montes Claros"
-
-msgid "Uberlândia"
-msgstr "Uberlândia"
-
-msgid "Cuiabá"
-msgstr "Cuiabá"
-
-msgid "Pelotas"
-msgstr "Pelotas"
-
-msgid "Caxias do Sul"
-msgstr "Caxias do Sul"
-
-msgid "Ponta Grossa"
-msgstr "Ponta Grossa"
-
-msgid "Teresina"
-msgstr "Teresina"
-
-msgid "Maceió"
-msgstr "Maceió"
-
-msgid "Vitória da Conquista"
-msgstr "Vitória da Conquista"
-
-msgid "Barreiras"
-msgstr "Barreiras"
-
-msgid "Vila Velha"
-msgstr "Vila Velha"
-
-msgid "Natal"
-msgstr "Natal"
-
-msgid "North Bay"
-msgstr "North Bay"
-
-msgid "Ebolowa"
-msgstr "Ebolowa"
-
-msgid "Bambari"
-msgstr "Bambari"
-
-msgid "Venice"
-msgstr "Venise"
-
-msgid "San Juan"
-msgstr "San Juan"
-
-msgid "Neuquén"
-msgstr "Neuquén"
-
-msgid "Trinidad"
-msgstr "Trinidad"
-
-msgid "Santa Rosa"
-msgstr "Santa Rosa"
-
-msgid "San Carlos de Bariloche"
-msgstr "San Carlos de Bariloche"
-
-msgid "Salta"
-msgstr "Salta"
-
-msgid "Tucumán"
-msgstr "San Miguel de Tucumán"
-
-msgid "Formosa"
-msgstr "Formosa"
-
-msgid "Santa Fe"
-msgstr "Santa Fe"
-
-msgid "Rosario"
-msgstr "Rosario"
-
-msgid "Campinas"
-msgstr "Campinas"
-
-msgid "Sorocaba"
-msgstr "Sorocaba"
-
-msgid "Ribeirão Preto"
-msgstr "Ribeirão Preto"
-
-msgid "Petrolina"
-msgstr "Petrolina"
-
-msgid "Bamenda"
-msgstr "Bamenda"
-
-msgid "Garoua"
-msgstr "Garoua"
-
-msgid "Herat"
-msgstr "Hérat"
-
-msgid "Mazar-e Sharif"
-msgstr "Mazâr-e Charîf"
-
-msgid "Battambang"
-msgstr "Battambang"
-
-msgid "Siem Reap"
-msgstr "Siem Reap"
-
-msgid "Malanje"
-msgstr "Malanje"
-
-msgid "Benguela"
-msgstr "Benguela"
-
-msgid "Lubango"
-msgstr "Lubango"
-
-msgid "Namibe"
-msgstr "Namibe"
-
-msgid "Tarija"
-msgstr "Tarija"
-
-msgid "Bridgetown"
-msgstr "Bridgetown"
-
-msgid "Annaba"
-msgstr "Annaba"
-
-msgid "Parakou"
-msgstr "Parakou"
-
-msgid "Porto-Novo"
-msgstr "Porto-Novo"
-
-msgid "Constantine"
-msgstr "Constantine"
-
-msgid "Brest"
-msgstr "Brest"
-
-msgid "Khulna"
-msgstr "Khulnâ"
-
-msgid "Francistown"
-msgstr "Francistown"
-
-msgid "Mahalapye"
-msgstr "Mahalapye"
-
-msgid "Mandurah"
-msgstr "Mandurah"
-
-msgid "Bendigo"
-msgstr "Bendigo"
-
-msgid "Rockhampton"
-msgstr "Rockhampton"
-
-msgid "Cairns"
-msgstr "Cairns"
-
-msgid "Gold Coast"
-msgstr "Gold Coast"
-
-msgid "Bobo Dioulasso"
-msgstr "Bobo-Dioulasso"
-
-msgid "Rajshahi"
-msgstr "Râjshâhî"
-
-msgid "Mandalay"
-msgstr "Mandalay"
-
-msgid "Sittwe"
-msgstr "Sittwe"
-
-msgid "Bujumbura"
-msgstr "Bujumbura"
-
-msgid "Las Palmas"
-msgstr "Las Palmas de Gran Canaria"
-
-msgid "Berbera"
-msgstr "Berbera"
-
-msgid "Port Louis"
-msgstr "Port-Louis"
-
-msgid "Gaza"
-msgstr "Gaza"
-
-msgid "Papeete"
-msgstr "Papeete"
-
-msgid "Manama"
-msgstr "Manama"
-
-msgid "Taichung"
-msgstr "Taichung"
-
-msgid "Napier"
-msgstr "Napier"
-
-msgid "Manukau"
-msgstr "Manukau City"
-
-msgid "Hamilton"
-msgstr "Hamilton"
-
-msgid "Dunedin"
-msgstr "Dunedin"
-
-msgid "Kozhikode"
-msgstr "Kozhikode"
-
-msgid "Bhubaneshwar"
-msgstr "Bhubaneswar"
-
-msgid "Jamshedpur"
-msgstr "Jamshedpur"
-
-msgid "Montevideo"
-msgstr "Montevideo"
-
-msgid "Bismarck"
-msgstr "Bismarck"
-
-msgid "Boise"
-msgstr "Boise"
-
-msgid "San Jose"
-msgstr "San José"
-
-msgid "Sacramento"
-msgstr "Sacramento"
-
-msgid "Las Vegas"
-msgstr "Las Vegas"
-
-msgid "Santa Fe"
-msgstr "Santa Fe"
-
-msgid "Portland"
-msgstr "Portland"
-
-msgid "Salt Lake City"
-msgstr "Salt Lake City"
-
-msgid "Cheyenne"
-msgstr "Cheyenne"
-
-msgid "Des Moines"
-msgstr "Des Moines"
-
-msgid "Omaha"
-msgstr "Omaha"
-
-msgid "Oklahoma City"
-msgstr "Oklahoma City"
-
-msgid "San Antonio"
-msgstr "San Antonio"
-
-msgid "San Cristóbal"
-msgstr "San Cristóbal"
-
-msgid "Valencia"
-msgstr "Valencia"
-
-msgid "Jackson"
-msgstr "Jackson"
-
-msgid "Raleigh"
-msgstr "Raleigh"
-
-msgid "Cleveland"
-msgstr "Cleveland"
-
-msgid "Cincinnati"
-msgstr "Cincinnati"
-
-msgid "Nashville"
-msgstr "Nashville"
-
-msgid "Memphis"
-msgstr "Memphis"
-
-msgid "Norfolk"
-msgstr "Norfolk"
-
-msgid "Milwaukee"
-msgstr "Milwaukee"
-
-msgid "Buffalo"
-msgstr "Buffalo"
-
-msgid "Pittsburgh"
-msgstr "Pittsburgh"
-
-msgid "Ciudad Guayana"
-msgstr "Ciudad Guayana"
-
-msgid "Lomé"
-msgstr "Lomé"
-
-msgid "Tunis"
-msgstr "Tunis"
-
-msgid "Fairbanks"
-msgstr "Fairbanks"
-
-msgid "Sevastapol"
-msgstr "Sébastopol"
-
-msgid "Abu Dhabi"
-msgstr "Abou Dabi"
-
-msgid "Ashgabat"
-msgstr "Achgabat"
-
-msgid "Samarqand"
-msgstr "Samarcande"
-
-msgid "Lusaka"
-msgstr "Lusaka"
-
-msgid "Harare"
-msgstr "Harare"
-
-msgid "Bulawayo"
-msgstr "Bulawayo"
-
-msgid "Dili"
-msgstr "Dili"
-
-msgid "Tegucigalpa"
-msgstr "Tegucigalpa"
-
-msgid "Georgetown"
-msgstr "Georgetown"
-
-msgid "Reykjavík"
-msgstr "Reykjavik"
-
-msgid "Port-au-Prince"
-msgstr "Port-au-Prince"
-
-msgid "Glasgow"
-msgstr "Glasgow"
-
-msgid "Kampala"
-msgstr "Kampala"
-
-msgid "Aden"
-msgstr "Aden"
-
-msgid "Paramaribo"
-msgstr "Paramaribo"
-
-msgid "Seville"
-msgstr "Séville"
-
-msgid "Zinder"
-msgstr "Zinder"
-
-msgid "Niamey"
-msgstr "Niamey"
-
-msgid "Port Sudan"
-msgstr "Port-Soudan"
-
-msgid "Dushanbe"
-msgstr "Douchanbé"
-
-msgid "Cusco"
-msgstr "Cuzco"
-
-msgid "Tacna"
-msgstr "Tacna"
-
-msgid "Trujillo"
-msgstr "Trujillo"
-
-msgid "Ica"
-msgstr "Ica"
-
-msgid "Asunción"
-msgstr "Asunción"
-
-msgid "Managua"
-msgstr "Managua"
-
-msgid "Freetown"
-msgstr "Freetown"
-
-msgid "Agadez"
-msgstr "Agadez"
-
-msgid "Niyala"
-msgstr "Nyala"
-
-msgid "Wau"
-msgstr "Wau"
-
-msgid "Kassala"
-msgstr "Kassala"
-
-msgid "Tromsø"
-msgstr "Tromsø"
-
-msgid "Trondheim"
-msgstr "Trondheim"
-
-msgid "Bergen"
-msgstr "Bergen"
-
-msgid "Islamabad"
-msgstr "Islamabad"
-
-msgid "Multan"
-msgstr "Multan"
-
-msgid "Hyderabad"
-msgstr "Hyderâbâd"
-
-msgid "Peshawar"
-msgstr "Peshawar"
-
-msgid "Kathmandu"
-msgstr "Katmandou"
-
-msgid "Nacala"
-msgstr "Nacala"
-
-msgid "Bloemfontein"
-msgstr "Bloemfontein"
-
-msgid "Pretoria"
-msgstr "Pretoria"
-
-msgid "Port Moresby"
-msgstr "Port Moresby"
-
-msgid "Honiara"
-msgstr "Honiara"
-
-msgid "Panama City"
-msgstr "Panama"
-
-msgid "Fez"
-msgstr "Fès"
-
-msgid "Rabat"
-msgstr "Rabat"
-
-msgid "Marrakesh"
-msgstr "Marrakech"
-
-msgid "Chișinău"
-msgstr "Chișinău"
-
-msgid "Beira"
-msgstr "Beira"
-
-msgid "Port Elizabeth"
-msgstr "Port Elizabeth"
-
-msgid "Maputo"
-msgstr "Maputo"
-
-msgid "Tomsk"
-msgstr "Tomsk"
-
-msgid "Murmansk"
-msgstr "Mourmansk"
-
-msgid "Archangel"
-msgstr "Arkhangelsk"
-
-msgid "Nizhny Novgorod"
-msgstr "Nijni Novgorod"
-
-msgid "Volgograd"
-msgstr "Volgograd"
-
-msgid "Ufa"
-msgstr "Oufa"
-
-msgid "Yekaterinburg"
-msgstr "Iekaterinbourg"
-
-msgid "Samara"
-msgstr "Samara"
-
-msgid "Kazan"
-msgstr "Kazan"
-
-msgid "Surgut"
-msgstr "Sourgout"
-
-msgid "Barnaul"
-msgstr "Barnaoul"
-
-msgid "Novosibirsk"
-msgstr "Novossibirsk"
-
-msgid "Mogadishu"
-msgstr "Mogadiscio"
-
-msgid "Muscat"
-msgstr "Mascate"
-
-msgid "Colombo"
-msgstr "Colombo"
-
-msgid "Cebu"
-msgstr "Cebu"
-
-msgid "Iloilo"
-msgstr "Iloilo"
-
-msgid "Davao"
-msgstr "Davao"
-
-msgid "Bratsk"
-msgstr "Bratsk"
-
-msgid "Irkutsk"
-msgstr "Irkoutsk"
-
-msgid "Krasnoyarsk"
-msgstr "Krasnoïarsk"
-
-msgid "Chita"
-msgstr "Tchita"
-
-msgid "Vladivostok"
-msgstr "Vladivostok"
-
-msgid "Yakutsk"
-msgstr "Iakoutsk"
-
-msgid "Magadan"
-msgstr "Magadan"
-
-msgid "Tijuana"
-msgstr "Tijuana"
-
-msgid "Chihuahua"
-msgstr "Chihuahua"
-
-msgid "Mazatlán"
-msgstr "Mazatlán"
-
-msgid "Tampico"
-msgstr "Tampico"
-
-msgid "Acapulco"
-msgstr "Acapulco"
-
-msgid "Veracruz"
-msgstr "Veracruz"
-
-msgid "Tuxtla Gutiérrez"
-msgstr "Tuxtla Gutiérrez"
-
-msgid "Cancún"
-msgstr "Cancún"
-
-msgid "Mérida"
-msgstr "Mérida"
-
-msgid "Enugu"
-msgstr "Enugu"
-
-msgid "Sokoto"
-msgstr "Sokoto"
-
-msgid "Perm"
-msgstr "Perm"
-
-msgid "Erdenet"
-msgstr "Erdenet"
-
-msgid "Ulaanbaatar"
-msgstr "Oulan-Bator"
-
-msgid "Mbeya"
-msgstr "Mbeya"
-
-msgid "Windhoek"
-msgstr "Windhoek"
-
-msgid "Zanzibar"
-msgstr "Zanzibar"
-
-msgid "Valencia"
-msgstr "Valence"
-
-msgid "Petropavlovsk Kamchatskiy"
-msgstr "Petropavlovsk-Kamtchatski"
-
-msgid "Abuja"
-msgstr "Abuja"
-
-msgid "Padang"
-msgstr "Padang"
-
-msgid "Bissau"
-msgstr "Bissau"
-
-msgid "Palermo"
-msgstr "Palerme"
-
-msgid "Amman"
-msgstr "Amman"
-
-msgid "Vilnius"
-msgstr "Vilnius"
-
-msgid "Riga"
-msgstr "Riga"
-
-msgid "Bishkek"
-msgstr "Bichkek"
-
-msgid "Jiayuguan"
-msgstr "Jiayuguan"
-
-msgid "Xining"
-msgstr "Xining"
-
-msgid "Guilin"
-msgstr "Guilin"
-
-msgid "Huainan"
-msgstr "Huainan"
-
-msgid "Shantou"
-msgstr "Shantou"
-
-msgid "Tarakan"
-msgstr "Tarakan"
-
-msgid "Mombasa"
-msgstr "Mombasa"
-
-msgid "Maseru"
-msgstr "Maseru"
-
-msgid "Antananarivo"
-msgstr "Antananarivo"
-
-msgid "Semarang"
-msgstr "Semarang"
-
-msgid "Palembang"
-msgstr "Palembang"
-
-msgid "Bandjarmasin"
-msgstr "Banjarmasin"
-
-msgid "Ujungpandang"
-msgstr "Makassar"
-
-msgid "Lyon"
-msgstr "Lyon"
-
-msgid "Quito"
-msgstr "Quito"
-
-msgid "San José"
-msgstr "San José"
-
-msgid "San Salvador"
-msgstr "San Salvador"
-
-msgid "Kingston"
-msgstr "Kingston"
-
-msgid "Cartagena"
-msgstr "Carthagène des Indes"
-
-msgid "Bumba"
-msgstr "Bumba"
-
-msgid "Ndjamena"
-msgstr "N'Djamena"
-
-msgid "Abéché"
-msgstr "Abéché"
-
-msgid "Malabo"
-msgstr "Malabo"
-
-msgid "Luxor"
-msgstr "Louxor"
-
-msgid "Asmara"
-msgstr "Asmara"
-
-msgid "Zagreb"
-msgstr "Zagreb"
-
-msgid "Tallinn"
-msgstr "Tallinn"
-
-msgid "Lhasa"
-msgstr "Lhassa"
-
-msgid "Hami"
-msgstr "District de Yizhou"
-
-msgid "Hotan"
-msgstr "Hotan"
-
-msgid "Kashgar"
-msgstr "Kachgar"
-
-msgid "Yinchuan"
-msgstr "Yinchuan"
-
-msgid "Pingxiang"
-msgstr "Pingxiang"
-
-msgid "Nagasaki"
-msgstr "Nagasaki"
-
-msgid "Qiqihar"
-msgstr "Qiqihar"
-
-msgid "Kikwit"
-msgstr "Kikwit"
-
-msgid "Matadi"
-msgstr "Matadi"
-
-msgid "Kolwezi"
-msgstr "Kolwezi"
-
-msgid "Lubumbashi"
-msgstr "Lubumbashi"
-
-msgid "Lilongwe"
-msgstr "Lilongwe"
-
-msgid "Guatemala"
-msgstr "Guatemala"
-
-msgid "Cayenne"
-msgstr "Cayenne"
-
-msgid "Libreville"
-msgstr "Libreville"
-
-msgid "Vishakhapatnam"
-msgstr "Visakhapatnam"
-
-msgid "Suva"
-msgstr "Suva"
-
-msgid "Port-Gentil"
-msgstr "Port-Gentil"
-
-msgid "Timbuktu"
-msgstr "Tombouctou"
-
-msgid "Punta Arenas"
-msgstr "Punta Arenas"
-
-msgid "Iquique"
-msgstr "Iquique"
-
-msgid "Antofagasta"
-msgstr "Antofagasta"
-
-msgid "Valparaíso"
-msgstr "Valparaíso"
-
-msgid "Valdivia"
-msgstr "Valdivia"
-
-msgid "Concepción"
-msgstr "Concepción"
-
-msgid "Puerto Montt"
-msgstr "Puerto Montt"
-
-msgid "Nouakchott"
-msgstr "Nouakchott"
+msgid "Baltimore"
+msgstr "Baltimore"
 
 msgid "Bamako"
 msgstr "Bamako"
 
-msgid "Sabha"
-msgstr "Sebha"
+msgid "Bambari"
+msgstr "Bambari"
+
+msgid "Bamenda"
+msgstr "Bamenda"
+
+msgid "Banda Aceh"
+msgstr "Banda Aceh"
+
+msgid "Bandar Lampung"
+msgstr "Bandar Lampung"
+
+msgid "Bandar Seri Begawan"
+msgstr "Bandar Seri Begawan"
+
+msgid "Bandar-e-Abbas"
+msgstr "Bandar Abbas"
+
+msgid "Bandjarmasin"
+msgstr "Banjarmasin"
+
+msgid "Bandundu"
+msgstr "Bandundu"
+
+msgid "Bandung"
+msgstr "Bandung"
+
+msgid "Bangalore"
+msgstr "Bangalore"
 
 msgid "Banghazi"
 msgstr "Benghazi"
 
-msgid "Thessaloniki"
-msgstr "Thessalonique"
+msgid "Bangkok"
+msgstr "Bangkok"
+
+msgid "Bangui"
+msgstr "Bangui"
+
+msgid "Banja Luka"
+msgstr "Banja Luka"
+
+msgid "Baoshan"
+msgstr "Baoshan"
+
+msgid "Baotou"
+msgstr "Baotou"
+
+msgid "Barcelona"
+msgstr "Barcelone"
+
+msgid "Bari"
+msgstr "Bari"
+
+msgid "Barnaul"
+msgstr "Barnaoul"
+
+msgid "Barranquilla"
+msgstr "Barranquilla"
+
+msgid "Barreiras"
+msgstr "Barreiras"
+
+msgid "Basra"
+msgstr "Bassora"
+
+msgid "Baton Rouge"
+msgstr "Baton Rouge"
+
+msgid "Battambang"
+msgstr "Battambang"
+
+msgid "Batumi"
+msgstr "Batoumi"
+
+msgid "Beian"
+msgstr "Bei'an"
+
+msgid "Beijing"
+msgstr "Pékin"
+
+msgid "Beira"
+msgstr "Beira"
 
 msgid "Beirut"
 msgstr "Beyrouth"
 
-msgid "Tbilisi"
-msgstr "Tbilissi"
+msgid "Belfast"
+msgstr "Belfast"
 
-msgid "Gondar"
-msgstr "Gondar"
+msgid "Belgrade"
+msgstr "Belgrade"
 
-msgid "Astana"
-msgstr "Astana"
+msgid "Belo Horizonte"
+msgstr "Belo Horizonte"
 
-msgid "Qaraghandy"
-msgstr "Karaganda"
+msgid "Belém"
+msgstr "Belém"
 
-msgid "Almaty"
-msgstr "Almaty"
+msgid "Bendigo"
+msgstr "Bendigo"
 
-msgid "Isfahan"
-msgstr "Ispahan"
+msgid "Benguela"
+msgstr "Benguela"
 
-msgid "Shiraz"
-msgstr "Chiraz"
+msgid "Benin City"
+msgstr "Benin City"
 
-msgid "Amritsar"
-msgstr "Amritsar"
+msgid "Berbera"
+msgstr "Berbera"
 
-msgid "Varanasi"
-msgstr "Varanasi"
+msgid "Bergen"
+msgstr "Bergen"
 
-msgid "Asansol"
-msgstr "Asansol"
+msgid "Berlin"
+msgstr "Berlin"
+
+msgid "Bern"
+msgstr "Berne"
+
+msgid "Besançon"
+msgstr "Besançon"
+
+msgid "Bhagalpur"
+msgstr "Bhagalpur"
 
 msgid "Bhilai"
 msgstr "Bhilai"
@@ -2312,809 +362,2717 @@ msgstr "Bhilai"
 msgid "Bhopal"
 msgstr "Bhopal"
 
-msgid "Madurai"
-msgstr "Madurai"
+msgid "Bhubaneshwar"
+msgstr "Bhubaneswar"
 
-msgid "Coimbatore"
-msgstr "Coimbatore"
+msgid "Bilbao"
+msgstr "Bilbao"
 
-msgid "Vientiane"
-msgstr "Vientiane"
+msgid "Billings"
+msgstr "Billings"
 
-msgid "Brazzaville"
-msgstr "Brazzaville"
+msgid "Birmingham"
+msgstr "Birmingham"
 
-msgid "Conakry"
-msgstr "Conakry"
+msgid "Bishkek"
+msgstr "Bichkek"
 
-msgid "Yamoussoukro"
-msgstr "Yamoussoukro"
+msgid "Bismarck"
+msgstr "Bismarck"
 
-msgid "Cruzeiro do Sul"
-msgstr "Cruzeiro do Sul"
+msgid "Bissau"
+msgstr "Bissau"
 
-msgid "Leticia"
-msgstr "Leticia"
+msgid "Blagoveshchensk"
+msgstr "Blagovechtchensk"
 
-msgid "Manaus"
-msgstr "Manaus"
+msgid "Blantyre"
+msgstr "Blantyre"
 
-msgid "Caxias"
-msgstr "Caxias"
-
-msgid "Santarém"
-msgstr "Santarém"
-
-msgid "Marabá"
-msgstr "Marabá"
-
-msgid "Vilhena"
-msgstr "Vilhena"
-
-msgid "Ji-Paraná"
-msgstr "Ji-Paraná"
-
-msgid "Campo Grande"
-msgstr "Campo Grande"
-
-msgid "Florianópolis"
-msgstr "Florianópolis"
-
-msgid "Feira de Santana"
-msgstr "Feira de Santana"
-
-msgid "Winnipeg"
-msgstr "Winnipeg"
-
-msgid "Regina"
-msgstr "Regina"
-
-msgid "Saskatoon"
-msgstr "Saskatoon"
-
-msgid "Calgary"
-msgstr "Calgary"
-
-msgid "Victoria"
-msgstr "Victoria"
+msgid "Bloemfontein"
+msgstr "Bloemfontein"
 
 msgid "Boa Vista"
 msgstr "Boa Vista"
 
-msgid "Macapá"
-msgstr "Macapá"
-
-msgid "Ottawa"
-msgstr "Ottawa"
-
-msgid "Thunder Bay"
-msgstr "Thunder Bay"
-
-msgid "Québec"
-msgstr "Québec"
-
-msgid "Halifax"
-msgstr "Halifax"
-
-msgid "St. John's"
-msgstr "Saint-Jean de Terre-Neuve"
-
-msgid "Belgrade"
-msgstr "Belgrade"
-
-msgid "Bandar Seri Begawan"
-msgstr "Bandar Seri Begawan"
-
-msgid "Río Gallegos"
-msgstr "Río Gallegos"
-
-msgid "Comodoro Rivadavia"
-msgstr "Comodoro Rivadavia"
-
-msgid "Mendoza"
-msgstr "Mendoza"
-
-msgid "Sucre"
-msgstr "Sucre"
-
-msgid "Riberalta"
-msgstr "Riberalta"
-
-msgid "Bahía Blanca"
-msgstr "Bahía Blanca"
-
-msgid "Mar del Plata"
-msgstr "Mar del Plata"
-
-msgid "Córdoba"
-msgstr "Córdoba"
-
-msgid "Posadas"
-msgstr "Posadas"
-
-msgid "Bangui"
-msgstr "Bangui"
-
-msgid "Maroua"
-msgstr "Maroua"
-
-msgid "Yaounde"
-msgstr "Yaoundé"
-
-msgid "Tirana"
-msgstr "Tirana"
-
-msgid "Yerevan"
-msgstr "Erevan"
-
-msgid "Baku"
-msgstr "Bakou"
-
-msgid "Kandahar"
-msgstr "Kandahar"
-
-msgid "Phnom Penh"
-msgstr "Phnom Penh"
-
-msgid "Huambo"
-msgstr "Huambo"
-
-msgid "La Paz"
-msgstr "La Paz"
-
-msgid "Santa Cruz"
-msgstr "Santa Cruz de la Sierra"
-
-msgid "Oran"
-msgstr "Oran"
-
-msgid "Cotonou"
-msgstr "Cotonou"
-
-msgid "Tamanrasset"
-msgstr "Tamanrasset"
-
-msgid "Ghardaia"
-msgstr "Ghardaïa"
-
-msgid "Sofia"
-msgstr "Sofia"
-
-msgid "Minsk"
-msgstr "Minsk"
-
-msgid "Thimphu"
-msgstr "Thimphou"
-
-msgid "Gaborone"
-msgstr "Gaborone"
-
-msgid "Darwin"
-msgstr "Darwin"
-
-msgid "Canberra"
-msgstr "Canberra"
-
-msgid "Newcastle"
-msgstr "Newcastle"
-
-msgid "Adelaide"
-msgstr "Adélaïde"
-
-msgid "Townsville"
-msgstr "Townsville"
-
-msgid "Brisbane"
-msgstr "Brisbane"
-
-msgid "Hobart"
-msgstr "Hobart"
-
-msgid "Ouagadougou"
-msgstr "Ouagadougou"
-
-msgid "Sarajevo"
-msgstr "Sarajevo"
-
-msgid "Naypyidaw"
-msgstr "Naypyidaw"
-
-msgid "San Juan"
-msgstr "San Juan"
-
-msgid "Hamilton"
-msgstr "Hamilton"
-
-msgid "Hargeysa"
-msgstr "Hargeisa"
-
-msgid "São Tomé"
-msgstr "São Tomé"
-
-msgid "Apia"
-msgstr "Apia"
-
-msgid "Valletta"
-msgstr "La Valette"
-
-msgid "Malé"
-msgstr "Malé"
-
-msgid "Jerusalem"
-msgstr "Jérusalem"
-
-msgid "Praia"
-msgstr "Praia"
-
-msgid "Nassau"
-msgstr "Nassau"
-
-msgid "Nicosia"
-msgstr "Nicosie"
-
-msgid "Kaohsiung"
-msgstr "Kaohsiung"
-
-msgid "Wellington"
-msgstr "Wellington"
-
-msgid "Christchurch"
-msgstr "Christchurch"
-
-msgid "Shenzhen"
-msgstr "Shenzhen"
-
-msgid "Zibo"
-msgstr "Zibo"
-
-msgid "Minneapolis"
-msgstr "Minneapolis"
-
-msgid "Honolulu"
-msgstr "Honolulu"
-
-msgid "Seattle"
-msgstr "Seattle"
-
-msgid "Phoenix"
-msgstr "Phoenix"
-
-msgid "San Diego"
-msgstr "San Diego"
-
-msgid "St. Louis"
-msgstr "Saint-Louis"
-
-msgid "New Orleans"
-msgstr "La Nouvelle-Orléans"
-
-msgid "Dallas"
-msgstr "Dallas"
-
-msgid "Maracaibo"
-msgstr "Maracaibo"
-
-msgid "Boston"
-msgstr "Boston"
-
-msgid "Tampa"
-msgstr "Tampa"
-
-msgid "Philadelphia"
-msgstr "Philadelphie"
-
-msgid "Detroit"
-msgstr "Détroit"
-
-msgid "Anchorage"
-msgstr "Anchorage"
-
-msgid "Hanoi"
-msgstr "Hanoï"
-
-msgid "Ho Chi Minh City"
-msgstr "Hô-Chi-Minh-Ville"
-
-msgid "Ankara"
-msgstr "Ankara"
-
-msgid "Budapest"
-msgstr "Budapest"
-
-msgid "Sanaa"
-msgstr "Sanaa"
-
-msgid "Barcelona"
-msgstr "Barcelone"
-
-msgid "Bucharest"
-msgstr "Bucarest"
-
-msgid "Aleppo"
-msgstr "Alep"
-
-msgid "Damascus"
-msgstr "Damas"
-
-msgid "Zürich"
-msgstr "Zurich"
-
-msgid "Lisbon"
-msgstr "Lisbonne"
-
-msgid "Khartoum"
-msgstr "Khartoum"
-
-msgid "Jeddah"
-msgstr "Djeddah"
-
-msgid "Makkah"
-msgstr "La Mecque"
-
-msgid "Oslo"
-msgstr "Oslo"
-
-msgid "Lahore"
-msgstr "Lahore"
-
-msgid "Karachi"
-msgstr "Karachi"
-
-msgid "Durban"
-msgstr "Durban"
-
-msgid "St. Petersburg"
-msgstr "Saint-Pétersbourg"
-
-msgid "Guadalajara"
-msgstr "Guadalajara"
-
-msgid "Puebla"
-msgstr "Puebla"
-
-msgid "Kano"
-msgstr "Kano"
-
-msgid "Warsaw"
-msgstr "Varsovie"
-
-msgid "Pyongyang"
-msgstr "Pyongyang"
-
-msgid "Dar es Salaam"
-msgstr "Dar es Salam"
-
-msgid "Medan"
-msgstr "Medan"
-
-msgid "Dublin"
-msgstr "Dublin"
-
-msgid "Monrovia"
-msgstr "Monrovia"
-
-msgid "Naples"
-msgstr "Naples"
-
-msgid "Milan"
-msgstr "Milan"
-
-msgid "Kuala Lumpur"
-msgstr "Kuala Lumpur"
-
-msgid "Lanzhou"
-msgstr "Lanzhou"
-
-msgid "Nanning"
-msgstr "Nanning"
-
-msgid "Guiyang"
-msgstr "Guiyang"
-
-msgid "Chongqing"
-msgstr "Chongqing"
-
-msgid "Fuzhou"
-msgstr "Fuzhou"
-
-msgid "Guangzhou"
-msgstr "Canton"
-
-msgid "Dongguan"
-msgstr "Dongguan"
-
-msgid "Bandung"
-msgstr "Bandung"
-
-msgid "Surabaya"
-msgstr "Surabaya"
-
-msgid "Guayaquil"
-msgstr "Guayaquil"
-
-msgid "Medellín"
-msgstr "Medellín"
-
-msgid "Cali"
-msgstr "Cali"
-
-msgid "Havana"
-msgstr "La Havane"
-
-msgid "Alexandria"
-msgstr "Alexandrie"
-
-msgid "Frankfurt"
-msgstr "Francfort-sur-le-Main"
-
-msgid "Hamburg"
-msgstr "Hambourg"
-
-msgid "Munich"
-msgstr "Munich"
-
-msgid "Prague"
-msgstr "Prague"
-
-msgid "Kuwait"
-msgstr "Koweït"
-
-msgid "Xian"
-msgstr "Xi'an"
-
-msgid "Taiyuan"
-msgstr "Taiyuan"
-
-msgid "Wuhan"
-msgstr "Wuhan"
-
-msgid "Changsha"
-msgstr "Changsha"
-
-msgid "Kunming"
-msgstr "Kunming"
-
-msgid "Zhengzhou"
-msgstr "Zhengzhou"
-
-msgid "Shenyeng"
-msgstr "Shenyang"
-
-msgid "Jinan"
-msgstr "Jinan"
-
-msgid "Tianjin"
-msgstr "Tianjin"
-
-msgid "Nanchang"
-msgstr "Nanchang"
-
-msgid "Nanjing"
-msgstr "Nankin"
-
-msgid "Hangzhou"
-msgstr "Hangzhou"
-
-msgid "Hiroshima"
-msgstr "Hiroshima"
-
-msgid "Changchun"
-msgstr "Changchun"
-
-msgid "Baotou"
-msgstr "Baotou"
-
-msgid "Harbin"
-msgstr "Harbin"
-
-msgid "Sapporo"
-msgstr "Sapporo"
-
-msgid "Santo Domingo"
-msgstr "Saint-Domingue"
-
-msgid "Accra"
-msgstr "Accra"
-
-msgid "Delhi"
-msgstr "Delhi"
-
-msgid "Hyderabad"
-msgstr "Hyderabad"
-
-msgid "Pune"
-msgstr "Pune"
-
-msgid "Nagpur"
-msgstr "Nagpur"
-
-msgid "Tripoli"
-msgstr "Tripoli"
-
-msgid "Tel Aviv-Yafo"
-msgstr "Tel Aviv-Jaffa"
-
-msgid "Helsinki"
-msgstr "Helsinki"
-
-msgid "Mashhad"
-msgstr "Mashhad"
-
-msgid "Jaipur"
-msgstr "Jaipur"
-
-msgid "Kanpur"
-msgstr "Kanpur"
-
-msgid "Patna"
-msgstr "Patna"
-
-msgid "Chennai"
-msgstr "Chennai"
-
-msgid "Ahmedabad"
-msgstr "Ahmedabad"
-
-msgid "Surat"
-msgstr "Surate"
-
-msgid "København"
-msgstr "Copenhague"
-
-msgid "Abidjan"
-msgstr "Abidjan"
-
-msgid "Belém"
-msgstr "Belém"
-
-msgid "Brasília"
-msgstr "Brasilia"
-
-msgid "Porto Alegre"
-msgstr "Porto Alegre"
-
-msgid "Curitiba"
-msgstr "Curitiba"
-
-msgid "Fortaleza"
-msgstr "Fortaleza"
-
-msgid "Salvador"
-msgstr "Salvador"
-
-msgid "Edmonton"
-msgstr "Edmonton"
-
-msgid "Montréal"
-msgstr "Montréal"
-
-msgid "Goiânia"
-msgstr "Goiânia"
-
-msgid "Recife"
-msgstr "Recife"
-
-msgid "Brussels"
-msgstr "Bruxelles"
-
-msgid "Dhaka"
-msgstr "Dacca"
-
-msgid "Luanda"
-msgstr "Luanda"
-
-msgid "Algiers"
-msgstr "Alger"
-
-msgid "Chittagong"
-msgstr "Chittagong"
-
-msgid "Perth"
-msgstr "Perth"
-
-msgid "Rangoon"
-msgstr "Rangoun"
-
-msgid "San Francisco"
-msgstr "San Francisco"
-
-msgid "Denver"
-msgstr "Denver"
-
-msgid "Houston"
-msgstr "Houston"
-
-msgid "Miami"
-msgstr "Miami"
-
-msgid "Atlanta"
-msgstr "Atlanta"
-
-msgid "Chicago"
-msgstr "Chicago"
-
-msgid "Caracas"
-msgstr "Caracas"
-
-msgid "Kiev"
-msgstr "Kiev"
-
-msgid "Dubai"
-msgstr "Dubaï"
-
-msgid "Tashkent"
-msgstr "Tachkent"
-
-msgid "Madrid"
-msgstr "Madrid"
-
-msgid "Geneva"
-msgstr "Genève"
-
-msgid "Stockholm"
-msgstr "Stockholm"
-
-msgid "Bangkok"
-msgstr "Bangkok"
-
-msgid "Lima"
-msgstr "Lima"
-
-msgid "Dakar"
-msgstr "Dakar"
-
-msgid "Johannesburg"
-msgstr "Johannesbourg"
-
-msgid "Amsterdam"
-msgstr "Amsterdam"
-
-msgid "Casablanca"
-msgstr "Casablanca"
-
-msgid "Seoul"
-msgstr "Séoul"
-
-msgid "Manila"
-msgstr "Manille"
-
-msgid "Monterrey"
-msgstr "Monterrey"
-
-msgid "Berlin"
-msgstr "Berlin"
-
-msgid "Ürümqi"
-msgstr "Ürümqi"
-
-msgid "Chengdu"
-msgstr "Chengdu"
-
-msgid "Ōsaka"
-msgstr "Osaka"
-
-msgid "Kinshasa"
-msgstr "Kinshasa"
-
-msgid "New Delhi"
-msgstr "New Delhi"
-
-msgid "Bangalore"
-msgstr "Bangalore"
-
-msgid "Athens"
-msgstr "Athènes"
-
-msgid "Baghdad"
-msgstr "Bagdad"
-
-msgid "Addis Ababa"
-msgstr "Addis-Abeba"
-
-msgid "Tehran"
-msgstr "Téhéran"
-
-msgid "Vancouver"
-msgstr "Vancouver"
-
-msgid "Toronto"
-msgstr "Toronto"
-
-msgid "Buenos Aires"
-msgstr "Buenos Aires"
-
-msgid "Kabul"
-msgstr "Kaboul"
-
-msgid "Vienna"
-msgstr "Vienne"
-
-msgid "Melbourne"
-msgstr "Melbourne"
-
-msgid "Taipei"
-msgstr "Taipei"
-
-msgid "Auckland"
-msgstr "Auckland"
-
-msgid "Los Angeles"
-msgstr "Los Angeles"
-
-msgid "Washington, D.C."
-msgstr "Washington"
-
-msgid "New York"
-msgstr "New York"
-
-msgid "London"
-msgstr "Londres"
-
-msgid "Istanbul"
-msgstr "Istanbul"
-
-msgid "Riyadh"
-msgstr "Riyad"
-
-msgid "Cape Town"
-msgstr "Le Cap"
-
-msgid "Moscow"
-msgstr "Moscou"
-
-msgid "Mexico City"
-msgstr "Mexico"
-
-msgid "Lagos"
-msgstr "Lagos"
-
-msgid "Rome"
-msgstr "Rome"
-
-msgid "Beijing"
-msgstr "Pékin"
-
-msgid "Nairobi"
-msgstr "Nairobi"
-
-msgid "Jakarta"
-msgstr "Jakarta"
+msgid "Bobo Dioulasso"
+msgstr "Bobo-Dioulasso"
 
 msgid "Bogota"
 msgstr "Bogota"
 
+msgid "Boise"
+msgstr "Boise"
+
+msgid "Bologna"
+msgstr "Bologne"
+
+msgid "Bombo"
+msgstr "Bombo"
+
+msgid "Bordeaux"
+msgstr "Bordeaux"
+
+msgid "Bose"
+msgstr "Baicheng"
+
+msgid "Boston"
+msgstr "Boston"
+
+msgid "Bouaké"
+msgstr "Bouaké"
+
+msgid "Brasília"
+msgstr "Brasilia"
+
+msgid "Bratislava"
+msgstr "Bratislava"
+
+msgid "Bratsk"
+msgstr "Bratsk"
+
+msgid "Brazzaville"
+msgstr "Brazzaville"
+
+msgid "Brest"
+msgstr "Brest"
+
+msgid "Bridgeport"
+msgstr "Bridgeport"
+
+msgid "Bridgetown"
+msgstr "Bridgetown"
+
+msgid "Brisbane"
+msgstr "Brisbane"
+
+msgid "Brussels"
+msgstr "Bruxelles"
+
+msgid "Bryansk"
+msgstr "Briansk"
+
+msgid "Bucharest"
+msgstr "Bucarest"
+
+msgid "Budapest"
+msgstr "Budapest"
+
+msgid "Buenos Aires"
+msgstr "Buenos Aires"
+
+msgid "Buffalo"
+msgstr "Buffalo"
+
+msgid "Bujumbura"
+msgstr "Bujumbura"
+
+msgid "Bukhara"
+msgstr "Boukhara"
+
+msgid "Bulawayo"
+msgstr "Bulawayo"
+
+msgid "Bumba"
+msgstr "Bumba"
+
+msgid "Bur Said"
+msgstr "Port-Saïd"
+
+msgid "Burlington"
+msgstr "Burlington"
+
+msgid "Bursa"
+msgstr "Bursa"
+
+msgid "Busan"
+msgstr "Busan"
+
+msgid "Butembo"
+msgstr "Butembo"
+
+msgid "Caen"
+msgstr "Caen"
+
+msgid "Cagliari"
+msgstr "Cagliari"
+
+msgid "Cairns"
+msgstr "Cairns"
+
 msgid "Cairo"
 msgstr "Le Caire"
 
-msgid "Shanghai"
-msgstr "Shanghai"
+msgid "Calgary"
+msgstr "Calgary"
 
-msgid "Tokyo"
-msgstr "Tokyo"
+msgid "Cali"
+msgstr "Cali"
 
-msgid "Mumbai"
-msgstr "Bombay"
+msgid "Campeche"
+msgstr "Campeche"
 
-msgid "Paris"
-msgstr "Paris"
+msgid "Campinas"
+msgstr "Campinas"
 
-msgid "Santiago"
-msgstr "Santiago"
+msgid "Campo Grande"
+msgstr "Campo Grande"
+
+msgid "Campobasso"
+msgstr "Campobasso"
+
+msgid "Canberra"
+msgstr "Canberra"
+
+msgid "Cancún"
+msgstr "Cancún"
+
+msgid "Cape Town"
+msgstr "Le Cap"
+
+msgid "Caracas"
+msgstr "Caracas"
+
+msgid "Cardiff"
+msgstr "Cardiff"
+
+msgid "Cartagena"
+msgstr "Carthagène des Indes"
+
+msgid "Casablanca"
+msgstr "Casablanca"
+
+msgid "Casper"
+msgstr "Casper"
+
+msgid "Catania"
+msgstr "Catane"
+
+msgid "Catanzaro"
+msgstr "Catanzaro"
+
+msgid "Caxias"
+msgstr "Caxias"
+
+msgid "Caxias do Sul"
+msgstr "Caxias do Sul"
+
+msgid "Cayenne"
+msgstr "Cayenne"
+
+msgid "Cebu"
+msgstr "Cebu"
+
+msgid "Chandigarh"
+msgstr "Chandigarh"
+
+msgid "Changchun"
+msgstr "Changchun"
+
+msgid "Changsha"
+msgstr "Changsha"
+
+msgid "Charleston"
+msgstr "Charleston"
+
+msgid "Chelyabinsk"
+msgstr "Tcheliabinsk"
+
+msgid "Chengdu"
+msgstr "Chengdu"
+
+msgid "Chennai"
+msgstr "Chennai"
+
+msgid "Cheyenne"
+msgstr "Cheyenne"
+
+msgid "Chiang Mai"
+msgstr "Chiang Mai"
+
+msgid "Chicago"
+msgstr "Chicago"
+
+msgid "Chifeng"
+msgstr "Chifeng"
+
+msgid "Chihuahua"
+msgstr "Chihuahua"
+
+msgid "Chimbote"
+msgstr "Chimbote"
+
+msgid "Chipata"
+msgstr "Chipata"
+
+msgid "Chita"
+msgstr "Tchita"
+
+msgid "Chittagong"
+msgstr "Chittagong"
+
+msgid "Chitungwiza"
+msgstr "Chitungwiza"
+
+msgid "Chișinău"
+msgstr "Chișinău"
+
+msgid "Chongqing"
+msgstr "Chongqing"
+
+msgid "Christchurch"
+msgstr "Christchurch"
+
+msgid "Cincinnati"
+msgstr "Cincinnati"
+
+msgid "Ciudad Guayana"
+msgstr "Ciudad Guayana"
+
+msgid "Ciudad del Este"
+msgstr "Ciudad del Este"
+
+msgid "Clermont-Ferrand"
+msgstr "Clermont-Ferrand"
+
+msgid "Cleveland"
+msgstr "Cleveland"
+
+msgid "Coimbatore"
+msgstr "Coimbatore"
+
+msgid "Colima"
+msgstr "Colima"
+
+msgid "Colombo"
+msgstr "Colombo"
+
+msgid "Colorado Springs"
+msgstr "Colorado Springs"
+
+msgid "Columbia"
+msgstr "Columbia"
+
+msgid "Comodoro Rivadavia"
+msgstr "Comodoro Rivadavia"
+
+msgid "Conakry"
+msgstr "Conakry"
+
+msgid "Concepción"
+msgstr "Concepción"
+
+msgid "Constantine"
+msgstr "Constantine"
+
+msgid "Constanța"
+msgstr "Constanța"
+
+msgid "Copiapó"
+msgstr "Copiapó"
+
+msgid "Corpus Christi"
+msgstr "Corpus Christi"
+
+msgid "Corumbá"
+msgstr "Corumbá"
+
+msgid "Cotonou"
+msgstr "Cotonou"
+
+msgid "Cruzeiro do Sul"
+msgstr "Cruzeiro do Sul"
+
+msgid "Cuenca"
+msgstr "Cuenca"
+
+msgid "Cuiabá"
+msgstr "Cuiabá"
+
+msgid "Culiacán"
+msgstr "Culiacán"
+
+msgid "Curitiba"
+msgstr "Curitiba"
+
+msgid "Cusco"
+msgstr "Cuzco"
+
+msgid "Cuttack"
+msgstr "Cuttack"
+
+msgid "Córdoba"
+msgstr "Cordoue"
+
+msgid "Da Nang"
+msgstr "Đà Nẵng"
+
+msgid "Daejeon"
+msgstr "Daejeon"
+
+msgid "Dakar"
+msgstr "Dakar"
+
+msgid "Dalian"
+msgstr "Dalian"
+
+msgid "Dallas"
+msgstr "Dallas"
+
+msgid "Damascus"
+msgstr "Damas"
+
+msgid "Daqing"
+msgstr "Daqing"
+
+msgid "Dar es Salaam"
+msgstr "Dar es Salam"
+
+msgid "Darwin"
+msgstr "Darwin"
+
+msgid "Davao"
+msgstr "Davao"
+
+msgid "David"
+msgstr "David"
+
+msgid "Delhi"
+msgstr "Delhi"
+
+msgid "Denver"
+msgstr "Denver"
+
+msgid "Des Moines"
+msgstr "Des Moines"
+
+msgid "Detroit"
+msgstr "Détroit"
+
+msgid "Dhaka"
+msgstr "Dacca"
+
+msgid "Dhanbad"
+msgstr "Dhanbad"
+
+msgid "Dijon"
+msgstr "Dijon"
+
+msgid "Dili"
+msgstr "Dili"
+
+msgid "Dire Dawa"
+msgstr "Dire Dawa"
+
+msgid "Djibouti"
+msgstr "Djibouti"
+
+msgid "Dnipro"
+msgstr "Dnipro"
+
+msgid "Dodoma"
+msgstr "Dodoma"
+
+msgid "Doha"
+msgstr "Doha"
+
+msgid "Donetsk"
+msgstr "Donetsk"
+
+msgid "Dongguan"
+msgstr "Dongguan"
+
+msgid "Douala"
+msgstr "Douala"
+
+msgid "Dresden"
+msgstr "Dresde"
+
+msgid "Dubai"
+msgstr "Dubaï"
+
+msgid "Dublin"
+msgstr "Dublin"
+
+msgid "Dunedin"
+msgstr "Dunedin"
+
+msgid "Dunhuang"
+msgstr "Dunhuang"
+
+msgid "Durban"
+msgstr "Durban"
+
+msgid "Dushanbe"
+msgstr "Douchanbé"
+
+msgid "East London"
+msgstr "East London"
+
+msgid "Ebolowa"
+msgstr "Ebolowa"
+
+msgid "Edinburgh"
+msgstr "Édimbourg"
+
+msgid "Edmonton"
+msgstr "Edmonton"
+
+msgid "Ekibastuz"
+msgstr "Ekibastouz"
+
+msgid "El Faiyum"
+msgstr "Médinet el-Fayoum"
+
+msgid "El Fasher"
+msgstr "El Fasher"
+
+msgid "El Obeid"
+msgstr "El Obeid"
+
+msgid "El Paso"
+msgstr "El Paso"
+
+msgid "Eldoret"
+msgstr "Eldoret"
+
+msgid "Enugu"
+msgstr "Enugu"
+
+msgid "Erdenet"
+msgstr "Erdenet"
+
+msgid "Fairbanks"
+msgstr "Fairbanks"
+
+msgid "Fargo"
+msgstr "Fargo"
+
+msgid "Faridabad"
+msgstr "Faridabad"
+
+msgid "Feira de Santana"
+msgstr "Feira de Santana"
+
+msgid "Fez"
+msgstr "Fès"
+
+msgid "Fianarantsoa"
+msgstr "Fianarantsoa"
+
+msgid "Flagstaff"
+msgstr "Flagstaff"
+
+msgid "Florence"
+msgstr "Florence"
+
+msgid "Florianópolis"
+msgstr "Florianópolis"
+
+msgid "Formosa"
+msgstr "Formosa"
+
+msgid "Fort-de-France"
+msgstr "Fort-de-France"
+
+msgid "Fortaleza"
+msgstr "Fortaleza"
+
+msgid "Francistown"
+msgstr "Francistown"
+
+msgid "Frankfurt"
+msgstr "Francfort-sur-le-Main"
+
+msgid "Freetown"
+msgstr "Freetown"
+
+msgid "Fresno"
+msgstr "Fresno"
+
+msgid "Ft. Worth"
+msgstr "Fort Worth"
+
+msgid "Fukuoka"
+msgstr "Fukuoka"
+
+msgid "Funchal"
+msgstr "Funchal"
+
+msgid "Fuzhou"
+msgstr "Fuzhou"
+
+msgid "Gaborone"
+msgstr "Gaborone"
+
+msgid "Gao"
+msgstr "Gao"
+
+msgid "Garoua"
+msgstr "Garoua"
+
+msgid "Gaza"
+msgstr "Gaza"
+
+msgid "Gdańsk"
+msgstr "Gdańsk"
+
+msgid "Gejiu"
+msgstr "Gejiu"
+
+msgid "Geneina"
+msgstr "Al-Genaïna"
+
+msgid "General Santos"
+msgstr "General Santos"
+
+msgid "Geneva"
+msgstr "Genève"
+
+msgid "Genoa"
+msgstr "Gênes"
+
+msgid "George"
+msgstr "George"
+
+msgid "George Town"
+msgstr "George Town"
+
+msgid "Georgetown"
+msgstr "Georgetown"
+
+msgid "Ghardaia"
+msgstr "Ghardaïa"
+
+msgid "Ghaziabad"
+msgstr "Ghaziabad"
+
+msgid "Gibraltar"
+msgstr "Gibraltar"
+
+msgid "Gifu"
+msgstr "Gifu"
+
+msgid "Glasgow"
+msgstr "Glasgow"
+
+msgid "Goiânia"
+msgstr "Goiânia"
+
+msgid "Gold Coast"
+msgstr "Gold Coast"
+
+msgid "Golmud"
+msgstr "Golmud"
+
+msgid "Goma"
+msgstr "Goma"
+
+msgid "Gondar"
+msgstr "Gondar"
+
+msgid "Gorontalo"
+msgstr "Gorontalo"
+
+msgid "Great Falls"
+msgstr "Great Falls"
+
+msgid "Groznyy"
+msgstr "Grozny"
+
+msgid "Guadalajara"
+msgstr "Guadalajara"
+
+msgid "Guangzhou"
+msgstr "Canton"
+
+msgid "Guatemala"
+msgstr "Guatemala"
+
+msgid "Guayaquil"
+msgstr "Guayaquil"
+
+msgid "Guaymas"
+msgstr "Guaymas"
+
+msgid "Guilin"
+msgstr "Guilin"
+
+msgid "Guiyang"
+msgstr "Guiyang"
+
+msgid "Gujranwala"
+msgstr "Gujranwala"
+
+msgid "Gulbarga"
+msgstr "Gulbarga"
+
+msgid "Gulu"
+msgstr "Gulu"
+
+msgid "Guwahati"
+msgstr "Guwahati"
+
+msgid "Gwalior"
+msgstr "Gwâlior"
+
+msgid "Gwangju"
+msgstr "Gwangju"
+
+msgid "Hailar"
+msgstr "Hailar"
+
+msgid "Haiphong"
+msgstr "Hải Phòng"
+
+msgid "Hakodate"
+msgstr "Hakodate"
+
+msgid "Halifax"
+msgstr "Halifax"
+
+msgid "Hamadan"
+msgstr "Hamadan"
+
+msgid "Hamburg"
+msgstr "Hambourg"
+
+msgid "Hami"
+msgstr "District de Yizhou"
+
+msgid "Hamilton"
+msgstr "Hamilton"
+
+msgid "Handan"
+msgstr "Handan"
+
+msgid "Hangzhou"
+msgstr "Hangzhou"
+
+msgid "Hanoi"
+msgstr "Hanoï"
+
+msgid "Harare"
+msgstr "Harare"
+
+msgid "Harbin"
+msgstr "Harbin"
+
+msgid "Hargeysa"
+msgstr "Hargeisa"
+
+msgid "Havana"
+msgstr "La Havane"
+
+msgid "Hefei"
+msgstr "Hefei"
+
+msgid "Helsinki"
+msgstr "Helsinki"
+
+msgid "Hengyang"
+msgstr "Hengyang"
+
+msgid "Herat"
+msgstr "Hérat"
+
+msgid "Hermosillo"
+msgstr "Hermosillo"
+
+msgid "Hilo"
+msgstr "Hilo"
+
+msgid "Hiroshima"
+msgstr "Hiroshima"
+
+msgid "Ho Chi Minh City"
+msgstr "Hô-Chi-Minh-Ville"
+
+msgid "Hobart"
+msgstr "Hobart"
+
+msgid "Hohhot"
+msgstr "Hohhot"
+
+msgid "Hong Kong"
+msgstr "Hong Kong"
+
+msgid "Honiara"
+msgstr "Honiara"
+
+msgid "Honolulu"
+msgstr "Honolulu"
+
+msgid "Hotan"
+msgstr "Hotan"
+
+msgid "Houma"
+msgstr "Houma"
+
+msgid "Houston"
+msgstr "Houston"
+
+msgid "Huainan"
+msgstr "Huainan"
+
+msgid "Huaiyin"
+msgstr "Huai'an"
+
+msgid "Huambo"
+msgstr "Huambo"
+
+msgid "Huancayo"
+msgstr "Huancayo"
+
+msgid "Hubli"
+msgstr "Hubli-Dharwad"
+
+msgid "Hyderabad"
+msgstr "Hyderâbâd"
+
+msgid "Iași"
+msgstr "Iași"
+
+msgid "Ibadan"
+msgstr "Ibadan"
+
+msgid "Ica"
+msgstr "Ica"
+
+msgid "Iloilo"
+msgstr "Iloilo"
+
+msgid "Incheon"
+msgstr "Incheon"
+
+msgid "Indianapolis"
+msgstr "Indianapolis"
+
+msgid "Indore"
+msgstr "Indore"
+
+msgid "Iquique"
+msgstr "Iquique"
+
+msgid "Iquitos"
+msgstr "Iquitos"
+
+msgid "Irkutsk"
+msgstr "Irkoutsk"
+
+msgid "Isfahan"
+msgstr "Ispahan"
+
+msgid "Islamabad"
+msgstr "Islamabad"
+
+msgid "Istanbul"
+msgstr "Istanbul"
+
+msgid "Jabalpur"
+msgstr "Jabalpur"
+
+msgid "Jackson"
+msgstr "Jackson"
+
+msgid "Jacksonville"
+msgstr "Jacksonville"
+
+msgid "Jaipur"
+msgstr "Jaipur"
+
+msgid "Jakarta"
+msgstr "Jakarta"
+
+msgid "Jammu"
+msgstr "Jammu"
+
+msgid "Jamshedpur"
+msgstr "Jamshedpur"
+
+msgid "Jayapura"
+msgstr "Jayapura"
+
+msgid "Jeddah"
+msgstr "Djeddah"
+
+msgid "Jerusalem"
+msgstr "Jérusalem"
+
+msgid "Ji-Paraná"
+msgstr "Ji-Paraná"
+
+msgid "Jiamusi"
+msgstr "Jiamusi"
+
+msgid "Jiayuguan"
+msgstr "Jiayuguan"
+
+msgid "Jilin"
+msgstr "Jilin"
+
+msgid "Jinan"
+msgstr "Jinan"
+
+msgid "Jinja"
+msgstr "Jinja"
+
+msgid "Jinxi"
+msgstr "Lianshan"
+
+msgid "Jixi"
+msgstr "Jixi"
+
+msgid "Jodhpur"
+msgstr "Jodhpur"
+
+msgid "Johannesburg"
+msgstr "Johannesbourg"
+
+msgid "Juba"
+msgstr "Djouba"
+
+msgid "Jullundur"
+msgstr "Jalandhar"
+
+msgid "Kabul"
+msgstr "Kaboul"
+
+msgid "Kabwe"
+msgstr "Kabwe"
+
+msgid "Kaduna"
+msgstr "Kaduna"
+
+msgid "Kalemie"
+msgstr "Kalemie"
+
+msgid "Kaliningrad"
+msgstr "Kaliningrad"
+
+msgid "Kampala"
+msgstr "Kampala"
+
+msgid "Kananga"
+msgstr "Kananga"
+
+msgid "Kandahar"
+msgstr "Kandahar"
+
+msgid "Kandy"
+msgstr "Kandy"
+
+msgid "Kankan"
+msgstr "Kankan"
+
+msgid "Kano"
+msgstr "Kano"
+
+msgid "Kanpur"
+msgstr "Kanpur"
+
+msgid "Kansas City"
+msgstr "Kansas City"
+
+msgid "Kaohsiung"
+msgstr "Kaohsiung"
+
+msgid "Kaolack"
+msgstr "Kaolack"
+
+msgid "Karachi"
+msgstr "Karachi"
+
+msgid "Kashgar"
+msgstr "Kachgar"
+
+msgid "Kasongo"
+msgstr "Kasongo"
+
+msgid "Kassala"
+msgstr "Kassala"
+
+msgid "Kathmandu"
+msgstr "Katmandou"
+
+msgid "Kayes"
+msgstr "Kayes"
+
+msgid "Kazan"
+msgstr "Kazan"
+
+msgid "Kemerovo"
+msgstr "Kemerovo"
+
+msgid "Khabarovsk"
+msgstr "Khabarovsk"
+
+msgid "Kharkiv"
+msgstr "Kharkiv"
+
+msgid "Khartoum"
+msgstr "Khartoum"
+
+msgid "Khulna"
+msgstr "Khulnâ"
+
+msgid "Kiev"
+msgstr "Kiev"
+
+msgid "Kigali"
+msgstr "Kigali"
+
+msgid "Kikwit"
+msgstr "Kikwit"
+
+msgid "Kingston"
+msgstr "Kingston"
+
+msgid "Kinshasa"
+msgstr "Kinshasa"
+
+msgid "Kirkuk"
+msgstr "Kirkouk"
+
+msgid "Kirov"
+msgstr "Kirov"
+
+msgid "Kisangani"
+msgstr "Kisangani"
+
+msgid "Kitwe"
+msgstr "Kitwe"
+
+msgid "Knoxville"
+msgstr "Knoxville"
+
+msgid "Kochi"
+msgstr "Kochi"
+
+msgid "Kolhapur"
+msgstr "Kolhapur"
 
 msgid "Kolkata"
 msgstr "Calcutta"
 
+msgid "Kolwezi"
+msgstr "Kolwezi"
+
+msgid "Konya"
+msgstr "Konya"
+
+msgid "Kota"
+msgstr "Kota"
+
+msgid "Kozhikode"
+msgstr "Kozhikode"
+
+msgid "Kraków"
+msgstr "Cracovie"
+
+msgid "Krasnodar"
+msgstr "Krasnodar"
+
+msgid "Krasnoyarsk"
+msgstr "Krasnoïarsk"
+
+msgid "Kristiansand"
+msgstr "Kristiansand"
+
+msgid "Kuala Lumpur"
+msgstr "Kuala Lumpur"
+
+msgid "Kuching"
+msgstr "Kuching"
+
+msgid "Kunming"
+msgstr "Kunming"
+
+msgid "Kupang"
+msgstr "Kupang"
+
+msgid "Kushiro"
+msgstr "Kushiro"
+
+msgid "Kuwait"
+msgstr "Koweït"
+
+msgid "Kyoto"
+msgstr "Kyoto"
+
+msgid "Kyzyl"
+msgstr "Kyzyl"
+
+msgid "København"
+msgstr "Copenhague"
+
+msgid "Kōchi"
+msgstr "Kōchi"
+
+msgid "L'Aquila"
+msgstr "L'Aquila"
+
+msgid "La Paz"
+msgstr "La Paz"
+
+msgid "La Serena"
+msgstr "La Serena"
+
+msgid "Laayoune"
+msgstr "Laâyoune"
+
+msgid "Lae"
+msgstr "Lae"
+
+msgid "Lagos"
+msgstr "Lagos"
+
+msgid "Lahore"
+msgstr "Lahore"
+
+msgid "Lanzhou"
+msgstr "Lanzhou"
+
+msgid "Laoag"
+msgstr "Laoag"
+
+msgid "Laredo"
+msgstr "Laredo"
+
+msgid "Larkana"
+msgstr "Larkana"
+
+msgid "Las Palmas"
+msgstr "Las Palmas de Gran Canaria"
+
+msgid "Las Vegas"
+msgstr "Las Vegas"
+
+msgid "Le Havre"
+msgstr "Le Havre"
+
+msgid "Leticia"
+msgstr "Leticia"
+
+msgid "León"
+msgstr "León"
+
+msgid "Lhasa"
+msgstr "Lhassa"
+
+msgid "Libreville"
+msgstr "Libreville"
+
+msgid "Lille"
+msgstr "Lille"
+
+msgid "Lilongwe"
+msgstr "Lilongwe"
+
+msgid "Lima"
+msgstr "Lima"
+
+msgid "Limoges"
+msgstr "Limoges"
+
+msgid "Linyi"
+msgstr "Linyi"
+
+msgid "Lisbon"
+msgstr "Lisbonne"
+
+msgid "Livingstone"
+msgstr "Livingstone"
+
+msgid "Ljubljana"
+msgstr "Ljubljana"
+
+msgid "Lomé"
+msgstr "Lomé"
+
+msgid "London"
+msgstr "Londres"
+
+msgid "Los Angeles"
+msgstr "Los Ángeles"
+
+msgid "Luanda"
+msgstr "Luanda"
+
+msgid "Lubango"
+msgstr "Lubango"
+
+msgid "Lubumbashi"
+msgstr "Lubumbashi"
+
+msgid "Lucknow"
+msgstr "Lucknow"
+
+msgid "Ludhiana"
+msgstr "Ludhiana"
+
+msgid "Lupanshui"
+msgstr "Liupanshui"
+
+msgid "Lusaka"
+msgstr "Lusaka"
+
+msgid "Luxembourg"
+msgstr "Luxembourg"
+
+msgid "Luxor"
+msgstr "Louxor"
+
+msgid "Lvov"
+msgstr "Lviv"
+
+msgid "Lyon"
+msgstr "Lyon"
+
+msgid "Macapá"
+msgstr "Macapá"
+
+msgid "Macau"
+msgstr "Macao"
+
+msgid "Maceió"
+msgstr "Maceió"
+
+msgid "Madrid"
+msgstr "Madrid"
+
+msgid "Madurai"
+msgstr "Madurai"
+
+msgid "Magadan"
+msgstr "Magadan"
+
+msgid "Magnitogorsk"
+msgstr "Magnitogorsk"
+
+msgid "Mahajanga"
+msgstr "Mahajanga"
+
+msgid "Mahalapye"
+msgstr "Mahalapye"
+
+msgid "Maiduguri"
+msgstr "Maiduguri"
+
+msgid "Makkah"
+msgstr "La Mecque"
+
+msgid "Makurdi"
+msgstr "Makurdi"
+
+msgid "Malabo"
+msgstr "Malabo"
+
+msgid "Malakal"
+msgstr "Malakal"
+
+msgid "Malang"
+msgstr "Malang"
+
+msgid "Malanje"
+msgstr "Malanje"
+
+msgid "Malmö"
+msgstr "Malmö"
+
+msgid "Malé"
+msgstr "Malé"
+
+msgid "Managua"
+msgstr "Managua"
+
+msgid "Manama"
+msgstr "Manama"
+
+msgid "Manaus"
+msgstr "Manaus"
+
+msgid "Manchester"
+msgstr "Manchester"
+
+msgid "Mandalay"
+msgstr "Mandalay"
+
+msgid "Mandurah"
+msgstr "Mandurah"
+
+msgid "Mangalore"
+msgstr "Mangalore"
+
+msgid "Manila"
+msgstr "Manille"
+
+msgid "Manizales"
+msgstr "Manizales"
+
+msgid "Manukau"
+msgstr "Manukau City"
+
+msgid "Maputo"
+msgstr "Maputo"
+
+msgid "Mar del Plata"
+msgstr "Mar del Plata"
+
+msgid "Marabá"
+msgstr "Marabá"
+
+msgid "Maracaibo"
+msgstr "Maracaibo"
+
+msgid "Maradi"
+msgstr "Maradi"
+
+msgid "Maroua"
+msgstr "Maroua"
+
+msgid "Marrakesh"
+msgstr "Marrakech"
+
+msgid "Marseille"
+msgstr "Marseille"
+
+msgid "Mary"
+msgstr "Mary"
+
+msgid "Masaka"
+msgstr "Masaka"
+
+msgid "Maseru"
+msgstr "Maseru"
+
+msgid "Mashhad"
+msgstr "Mashhad"
+
+msgid "Matadi"
+msgstr "Matadi"
+
+msgid "Matamoros"
+msgstr "Matamoros"
+
+msgid "Matsuyama"
+msgstr "Matsuyama"
+
+msgid "Mazar-e Sharif"
+msgstr "Mazâr-e Charîf"
+
+msgid "Mazatlán"
+msgstr "Mazatlán"
+
+msgid "Mbabane"
+msgstr "Mbabane"
+
+msgid "Mbale"
+msgstr "Mbale"
+
+msgid "Mbandaka"
+msgstr "Mbandaka"
+
+msgid "Mbarara"
+msgstr "Mbarara"
+
+msgid "Mbeya"
+msgstr "Mbeya"
+
+msgid "Mbuji-Mayi"
+msgstr "Mbujimayi"
+
+msgid "Medan"
+msgstr "Medan"
+
+msgid "Medellín"
+msgstr "Medellín"
+
+msgid "Medina"
+msgstr "Médine"
+
+msgid "Meerut"
+msgstr "Meerut"
+
+msgid "Mekele"
+msgstr "Mekele"
+
+msgid "Melbourne"
+msgstr "Melbourne"
+
+msgid "Memphis"
+msgstr "Memphis"
+
+msgid "Mendoza"
+msgstr "Mendoza"
+
+msgid "Merida"
+msgstr "Mérida"
+
+msgid "Mexicali"
+msgstr "Mexicali"
+
+msgid "Mexico City"
+msgstr "Mexico"
+
+msgid "Miami"
+msgstr "Miami"
+
+msgid "Mianyang"
+msgstr "Mianyang"
+
+msgid "Milan"
+msgstr "Milan"
+
+msgid "Milwaukee"
+msgstr "Milwaukee"
+
+msgid "Minneapolis"
+msgstr "Minneapolis"
+
+msgid "Minsk"
+msgstr "Minsk"
+
+msgid "Misratah"
+msgstr "Misrata"
+
+msgid "Missoula"
+msgstr "Missoula"
+
+msgid "Miyazaki"
+msgstr "Miyazaki"
+
+msgid "Mogadishu"
+msgstr "Mogadiscio"
+
+msgid "Mombasa"
+msgstr "Mombasa"
+
+msgid "Monrovia"
+msgstr "Monrovia"
+
+msgid "Monterrey"
+msgstr "Monterrey"
+
+msgid "Montes Claros"
+msgstr "Montes Claros"
+
+msgid "Montevideo"
+msgstr "Montevideo"
+
+msgid "Montgomery"
+msgstr "Montgomery"
+
+msgid "Montpellier"
+msgstr "Montpellier"
+
+msgid "Montréal"
+msgstr "Montréal"
+
+msgid "Moradabad"
+msgstr "Moradabad"
+
+msgid "Morogoro"
+msgstr "Morogoro"
+
+msgid "Moroni"
+msgstr "Moroni"
+
+msgid "Moscow"
+msgstr "Moscou"
+
+msgid "Mosul"
+msgstr "Mossoul"
+
+msgid "Moundou"
+msgstr "Moundou"
+
+msgid "Mt. Hagen"
+msgstr "Mount Hagen"
+
+msgid "Mufulira"
+msgstr "Mufulira"
+
+msgid "Multan"
+msgstr "Multan"
+
+msgid "Mumbai"
+msgstr "Bombay"
+
+msgid "Munich"
+msgstr "Munich"
+
+msgid "Murmansk"
+msgstr "Mourmansk"
+
+msgid "Muscat"
+msgstr "Mascate"
+
+msgid "Mwanza"
+msgstr "Mwanza"
+
+msgid "Mysore"
+msgstr "Mysore"
+
+msgid "Mzuzu"
+msgstr "Mzuzu"
+
+msgid "Mérida"
+msgstr "Mérida"
+
+msgid "Nacala"
+msgstr "Nacala"
+
+msgid "Nagano"
+msgstr "Nagano"
+
+msgid "Nagasaki"
+msgstr "Nagasaki"
+
+msgid "Nagoya"
+msgstr "Nagoya"
+
+msgid "Nagpur"
+msgstr "Nagpur"
+
+msgid "Naha"
+msgstr "Naha"
+
+msgid "Nairobi"
+msgstr "Nairobi"
+
+msgid "Nakhon Ratchasima"
+msgstr "Nakhon Ratchasima"
+
+msgid "Naltchik"
+msgstr "Naltchik"
+
+msgid "Namibe"
+msgstr "Namibe"
+
+msgid "Nampula"
+msgstr "Nampula"
+
+msgid "Nanchang"
+msgstr "Nanchang"
+
+msgid "Nanchong"
+msgstr "Nanchong"
+
+msgid "Nancy"
+msgstr "Nancy"
+
+msgid "Nanded"
+msgstr "Nanded"
+
+msgid "Nanjing"
+msgstr "Nankin"
+
+msgid "Nanning"
+msgstr "Nanning"
+
+msgid "Nantes"
+msgstr "Nantes"
+
+msgid "Nanyang"
+msgstr "Nanyang"
+
+msgid "Napier"
+msgstr "Napier"
+
+msgid "Naples"
+msgstr "Naples"
+
+msgid "Nashville"
+msgstr "Nashville"
+
+msgid "Nasik"
+msgstr "Nasik"
+
+msgid "Nassau"
+msgstr "Nassau"
+
+msgid "Natal"
+msgstr "Natal"
+
+msgid "Naypyidaw"
+msgstr "Naypyidaw"
+
+msgid "Ndjamena"
+msgstr "N'Djamena"
+
+msgid "Neijiang"
+msgstr "Neijiang"
+
+msgid "Neuquén"
+msgstr "Neuquén"
+
+msgid "New Delhi"
+msgstr "New Delhi"
+
+msgid "New Orleans"
+msgstr "La Nouvelle-Orléans"
+
+msgid "New York"
+msgstr "New York"
+
+msgid "Newcastle"
+msgstr "Newcastle"
+
+msgid "Niamey"
+msgstr "Niamey"
+
+msgid "Nicosia"
+msgstr "Nicosie"
+
+msgid "Ningbo"
+msgstr "Ningbo"
+
+msgid "Niyala"
+msgstr "Nyala"
+
+msgid "Nizhny Novgorod"
+msgstr "Nijni Novgorod"
+
+msgid "Nizhny Tagil"
+msgstr "Nijni Taguil"
+
+msgid "Nogales"
+msgstr "Nogales"
+
+msgid "Norfolk"
+msgstr "Norfolk"
+
+msgid "Norilsk"
+msgstr "Norilsk"
+
+msgid "North Bay"
+msgstr "North Bay"
+
+msgid "Nouadhibou"
+msgstr "Nouadhibou"
+
+msgid "Nouakchott"
+msgstr "Nouakchott"
+
+msgid "Nouméa"
+msgstr "Nouméa"
+
+msgid "Novi Sad"
+msgstr "Novi Sad"
+
+msgid "Novokuznetsk"
+msgstr "Novokouznetsk"
+
+msgid "Novosibirsk"
+msgstr "Novossibirsk"
+
+msgid "Nuevo Laredo"
+msgstr "Nuevo Laredo"
+
+msgid "Nukus"
+msgstr "Noukous"
+
+msgid "Nzérékoré"
+msgstr "Nzérékoré"
+
+msgid "Oaxaca"
+msgstr "Oaxaca de Juárez"
+
+msgid "Odessa"
+msgstr "Odessa"
+
+msgid "Ogbomosho"
+msgstr "Ogbomoso"
+
+msgid "Oklahoma City"
+msgstr "Oklahoma City"
+
+msgid "Olympia"
+msgstr "Olympia"
+
+msgid "Omaha"
+msgstr "Omaha"
+
+msgid "Omdurman"
+msgstr "Omdourman"
+
+msgid "Omsk"
+msgstr "Omsk"
+
+msgid "Oran"
+msgstr "Oran"
+
+msgid "Oranjestad"
+msgstr "Oranjestad"
+
+msgid "Orenburg"
+msgstr "Orenbourg"
+
+msgid "Orlando"
+msgstr "Orlando"
+
+msgid "Orléans"
+msgstr "Orléans"
+
+msgid "Oskemen"
+msgstr "Öskemen"
+
+msgid "Oslo"
+msgstr "Oslo"
+
+msgid "Ottawa"
+msgstr "Ottawa"
+
+msgid "Ouagadougou"
+msgstr "Ouagadougou"
+
+msgid "Oujda"
+msgstr "Oujda"
+
+msgid "Padang"
+msgstr "Padang"
+
+msgid "Palembang"
+msgstr "Palembang"
+
+msgid "Palermo"
+msgstr "Palerme"
+
+msgid "Panama City"
+msgstr "Panama"
+
+msgid "Papeete"
+msgstr "Papeete"
+
+msgid "Parakou"
+msgstr "Parakou"
+
+msgid "Paramaribo"
+msgstr "Paramaribo"
+
+msgid "Parepare"
+msgstr "Pare-Pare"
+
+msgid "Paris"
+msgstr "Paris"
+
+msgid "Pasto"
+msgstr "San Juan de Pasto"
+
+msgid "Patna"
+msgstr "Patna"
+
+msgid "Pavlodar"
+msgstr "Pavlodar"
+
+msgid "Pelotas"
+msgstr "Pelotas"
+
+msgid "Pemba"
+msgstr "Pemba"
+
+msgid "Penza"
+msgstr "Penza"
+
+msgid "Perm"
+msgstr "Perm"
+
+msgid "Perth"
+msgstr "Perth"
+
+msgid "Perugia"
+msgstr "Pérouse"
+
+msgid "Peshawar"
+msgstr "Peshawar"
+
+msgid "Petrolina"
+msgstr "Petrolina"
+
+msgid "Petropavlovsk Kamchatskiy"
+msgstr "Petropavlovsk-Kamtchatski"
+
+msgid "Petrozavodsk"
+msgstr "Petrozavodsk"
+
+msgid "Philadelphia"
+msgstr "Philadelphie"
+
+msgid "Phnom Penh"
+msgstr "Phnom Penh"
+
+msgid "Phoenix"
+msgstr "Phoenix"
+
+msgid "Pingxiang"
+msgstr "Pingxiang"
+
+msgid "Pittsburgh"
+msgstr "Pittsburgh"
+
+msgid "Piura"
+msgstr "Piura"
+
+msgid "Podgorica"
+msgstr "Podgorica"
+
+msgid "Pointe-Noire"
+msgstr "Pointe-Noire"
+
+msgid "Poitier"
+msgstr "Poitiers"
+
+msgid "Pondicherry"
+msgstr "Pondichéry"
+
+msgid "Ponta Delgada"
+msgstr "Ponta Delgada"
+
+msgid "Ponta Grossa"
+msgstr "Ponta Grossa"
+
+msgid "Port Elizabeth"
+msgstr "Port Elizabeth"
+
+msgid "Port Harcourt"
+msgstr "Port Harcourt"
+
+msgid "Port Louis"
+msgstr "Port-Louis"
+
+msgid "Port Moresby"
+msgstr "Port Moresby"
+
+msgid "Port Sudan"
+msgstr "Port-Soudan"
+
+msgid "Port-Gentil"
+msgstr "Port-Gentil"
+
+msgid "Port-au-Prince"
+msgstr "Port-au-Prince"
+
+msgid "Port-of-Spain"
+msgstr "Port-d'Espagne"
+
+msgid "Portland"
+msgstr "Portland"
+
+msgid "Porto Alegre"
+msgstr "Porto Alegre"
+
+msgid "Porto Velho"
+msgstr "Porto Velho"
+
+msgid "Porto-Novo"
+msgstr "Porto-Novo"
+
+msgid "Posadas"
+msgstr "Posadas"
+
+msgid "Potenza"
+msgstr "Potenza"
+
+msgid "Prague"
+msgstr "Prague"
+
+msgid "Praia"
+msgstr "Praia"
+
+msgid "Pretoria"
+msgstr "Pretoria"
+
+msgid "Pristina"
+msgstr "Pristina"
+
+msgid "Pskov"
+msgstr "Pskov"
+
+msgid "Pucallpa"
+msgstr "Pucallpa"
+
+msgid "Puebla"
+msgstr "Puebla"
+
+msgid "Puerto Ayacucho"
+msgstr "Puerto Ayacucho"
+
+msgid "Puerto Limon"
+msgstr "Puerto Limón"
+
+msgid "Puerto Montt"
+msgstr "Puerto Montt"
+
+msgid "Pune"
+msgstr "Pune"
+
+msgid "Punta Arenas"
+msgstr "Punta Arenas"
+
+msgid "Putrajaya"
+msgstr "Putrajaya"
+
+msgid "Pyongyang"
+msgstr "Pyongyang"
+
+msgid "Qaraghandy"
+msgstr "Karaganda"
+
+msgid "Qingdao"
+msgstr "Qingdao"
+
+msgid "Qiqihar"
+msgstr "Qiqihar"
+
+msgid "Quanzhou"
+msgstr "Quanzhou"
+
+msgid "Quelimane"
+msgstr "Quelimane"
+
+msgid "Quetta"
+msgstr "Quetta"
+
+msgid "Quetzaltenango"
+msgstr "Quetzaltenango"
+
+msgid "Quito"
+msgstr "Quito"
+
+msgid "Québec"
+msgstr "Québec"
+
+msgid "Qyzylorda"
+msgstr "Kyzylorda"
+
+msgid "Raba"
+msgstr "Raba"
+
+msgid "Rabat"
+msgstr "Rabat"
+
+msgid "Raipur"
+msgstr "Raipur"
+
+msgid "Rajkot"
+msgstr "Rajkot"
+
+msgid "Rajshahi"
+msgstr "Râjshâhî"
+
+msgid "Raleigh"
+msgstr "Raleigh"
+
+msgid "Ranchi"
+msgstr "Ranchi"
+
+msgid "Rangoon"
+msgstr "Rangoun"
+
+msgid "Recife"
+msgstr "Recife"
+
+msgid "Regina"
+msgstr "Regina"
+
+msgid "Reims"
+msgstr "Reims"
+
+msgid "Rennes"
+msgstr "Rennes"
+
+msgid "Reno"
+msgstr "Reno"
+
+msgid "Reykjavík"
+msgstr "Reykjavik"
+
+msgid "Ribeirão Preto"
+msgstr "Ribeirão Preto"
+
+msgid "Riberalta"
+msgstr "Riberalta"
+
+msgid "Richmond"
+msgstr "Richmond"
+
+msgid "Riga"
+msgstr "Riga"
+
+msgid "Rio Branco"
+msgstr "Rio Branco"
+
 msgid "Rio de Janeiro"
 msgstr "Rio de Janeiro"
 
-msgid "São Paulo"
-msgstr "São Paulo"
+msgid "Riyadh"
+msgstr "Riyad"
 
-msgid "Sydney"
-msgstr "Sydney"
+msgid "Rochester"
+msgstr "Rochester"
+
+msgid "Rockhampton"
+msgstr "Rockhampton"
+
+msgid "Rome"
+msgstr "Rome"
+
+msgid "Rosario"
+msgstr "Rosario"
+
+msgid "Rostov"
+msgstr "Rostov-sur-le-Don"
+
+msgid "Rouen"
+msgstr "Rouen"
+
+msgid "Rudny"
+msgstr "Roudny"
+
+msgid "Ryazan"
+msgstr "Riazan"
+
+msgid "Río Gallegos"
+msgstr "Río Gallegos"
+
+msgid "Sabha"
+msgstr "Sebha"
+
+msgid "Sacramento"
+msgstr "Sacramento"
+
+msgid "Safi"
+msgstr "Safi"
+
+msgid "Saharanpur"
+msgstr "Saharanpur"
+
+msgid "Sakata"
+msgstr "Sakata"
+
+msgid "Salem"
+msgstr "Salem"
+
+msgid "Salt Lake City"
+msgstr "Salt Lake City"
+
+msgid "Salta"
+msgstr "Salta"
+
+msgid "Salvador"
+msgstr "Salvador"
+
+msgid "Samara"
+msgstr "Samara"
+
+msgid "Samarqand"
+msgstr "Samarcande"
+
+msgid "Samsun"
+msgstr "Samsun"
+
+msgid "San Antonio"
+msgstr "San Antonio"
+
+msgid "San Bernardino"
+msgstr "San Bernardino"
+
+msgid "San Carlos de Bariloche"
+msgstr "San Carlos de Bariloche"
+
+msgid "San Cristóbal"
+msgstr "San Cristóbal"
+
+msgid "San Diego"
+msgstr "San Diego"
+
+msgid "San Francisco"
+msgstr "San Francisco"
+
+msgid "San Jose"
+msgstr "San José"
+
+msgid "San José"
+msgstr "San José"
+
+msgid "San Juan"
+msgstr "San Juan"
+
+msgid "San Luis Potosí"
+msgstr "San Luis Potosí"
+
+msgid "San Salvador"
+msgstr "San Salvador"
+
+msgid "Sanaa"
+msgstr "Sanaa"
+
+msgid "Santa Barbara"
+msgstr "Santa Barbara"
+
+msgid "Santa Cruz"
+msgstr "Santa Cruz de la Sierra"
+
+msgid "Santa Fe"
+msgstr "Santa Fe"
+
+msgid "Santa Rosa"
+msgstr "Santa Rosa"
+
+msgid "Santarém"
+msgstr "Santarém"
+
+msgid "Santiago"
+msgstr "Santiago de los Caballeros"
+
+msgid "Santiago de Cuba"
+msgstr "Santiago de Cuba"
+
+msgid "Santo Domingo"
+msgstr "Saint-Domingue"
+
+msgid "Sapporo"
+msgstr "Sapporo"
+
+msgid "Sarajevo"
+msgstr "Sarajevo"
+
+msgid "Saratov"
+msgstr "Saratov"
+
+msgid "Saskatoon"
+msgstr "Saskatoon"
+
+msgid "Sault Ste. Marie"
+msgstr "Sault Ste. Marie"
+
+msgid "Savannah"
+msgstr "Savannah"
+
+msgid "Seattle"
+msgstr "Seattle"
+
+msgid "Semarang"
+msgstr "Semarang"
+
+msgid "Semey"
+msgstr "Semeï"
+
+msgid "Sendai"
+msgstr "Sendai"
+
+msgid "Seoul"
+msgstr "Séoul"
+
+msgid "Sevastapol"
+msgstr "Sébastopol"
+
+msgid "Seville"
+msgstr "Séville"
+
+msgid "Shache"
+msgstr "Xian de Yarkand"
+
+msgid "Shanghai"
+msgstr "Shanghai"
+
+msgid "Shantou"
+msgstr "Shantou"
+
+msgid "Shaoguan"
+msgstr "Shaoguan"
+
+msgid "Shenyeng"
+msgstr "Shenyang"
+
+msgid "Shenzhen"
+msgstr "Shenzhen"
+
+msgid "Shijianzhuang"
+msgstr "Shijiazhuang"
+
+msgid "Shiraz"
+msgstr "Chiraz"
+
+msgid "Shizuishan"
+msgstr "Shizuishan"
+
+msgid "Sholapur"
+msgstr "Solapur"
+
+msgid "Shreveport"
+msgstr "Shreveport"
+
+msgid "Shymkent"
+msgstr "Chimkent"
+
+msgid "Siem Reap"
+msgstr "Siem Reap"
 
 msgid "Singapore"
 msgstr "Singapour"
 
-msgid "Hong Kong"
-msgstr "Hong Kong"
+msgid "Sinuiju"
+msgstr "Sinuiju"
+
+msgid "Sioux Falls"
+msgstr "Sioux Falls"
+
+msgid "Sittwe"
+msgstr "Sittwe"
+
+msgid "Skopje"
+msgstr "Skopje"
+
+msgid "Smolensk"
+msgstr "Smolensk"
+
+msgid "Sochi"
+msgstr "Sotchi"
+
+msgid "Sofia"
+msgstr "Sofia"
+
+msgid "Sokoto"
+msgstr "Sokoto"
+
+msgid "Sorocaba"
+msgstr "Sorocaba"
+
+msgid "Sousse"
+msgstr "Sousse"
+
+msgid "Spokane"
+msgstr "Spokane"
+
+msgid "Sri Jawewardenepura Kotte"
+msgstr "Sri Jayawardenapura"
+
+msgid "Srinagar"
+msgstr "Srinagar"
+
+msgid "St. John's"
+msgstr "Saint-Jean de Terre-Neuve"
+
+msgid "St. Louis"
+msgstr "Saint-Louis"
+
+msgid "St. Paul"
+msgstr "Saint Paul"
+
+msgid "St. Petersburg"
+msgstr "Saint-Pétersbourg"
+
+msgid "St.-Denis"
+msgstr "Saint-Denis"
+
+msgid "Stavropol"
+msgstr "Stavropol"
+
+msgid "Stockholm"
+msgstr "Stockholm"
+
+msgid "Strasbourg"
+msgstr "Strasbourg"
+
+msgid "Sucre"
+msgstr "Sucre"
+
+msgid "Suez"
+msgstr "Suez"
+
+msgid "Sukhumi"
+msgstr "Soukhoumi"
+
+msgid "Sundsvall"
+msgstr "Sundsvall"
+
+msgid "Surabaya"
+msgstr "Surabaya"
+
+msgid "Surakarta"
+msgstr "Surakarta"
+
+msgid "Surat"
+msgstr "Surate"
+
+msgid "Surat Thani"
+msgstr "Surat Thani"
+
+msgid "Surgut"
+msgstr "Sourgout"
+
+msgid "Suva"
+msgstr "Suva"
+
+msgid "Suzhou"
+msgstr "Suzhou"
+
+msgid "Sydney"
+msgstr "Sydney"
+
+msgid "Syracuse"
+msgstr "Syracuse"
+
+msgid "São Luís"
+msgstr "São Luís"
+
+msgid "São Paulo"
+msgstr "São Paulo"
+
+msgid "São Tomé"
+msgstr "São Tomé"
+
+msgid "Ségou"
+msgstr "Ségou"
+
+msgid "Tabriz"
+msgstr "Tabriz"
+
+msgid "Tabuk"
+msgstr "Tabuk"
+
+msgid "Tacna"
+msgstr "Tacna"
+
+msgid "Tahoua"
+msgstr "Tahoua"
+
+msgid "Taichung"
+msgstr "Taichung"
+
+msgid "Taipei"
+msgstr "Taipei"
+
+msgid "Taiyuan"
+msgstr "Taiyuan"
+
+msgid "Taizz"
+msgstr "Ta'izz"
+
+msgid "Tallahassee"
+msgstr "Tallahassee"
+
+msgid "Tallinn"
+msgstr "Tallinn"
+
+msgid "Tamanrasset"
+msgstr "Tamanrasset"
+
+msgid "Tampa"
+msgstr "Tampa"
+
+msgid "Tampere"
+msgstr "Tampere"
+
+msgid "Tampico"
+msgstr "Tampico"
+
+msgid "Tanjungpandan"
+msgstr "Tanjung Pandan"
+
+msgid "Tarakan"
+msgstr "Tarakan"
+
+msgid "Taraz"
+msgstr "Taraz"
+
+msgid "Tarija"
+msgstr "Tarija"
+
+msgid "Tashkent"
+msgstr "Tachkent"
+
+msgid "Tbilisi"
+msgstr "Tbilissi"
+
+msgid "Tegucigalpa"
+msgstr "Tegucigalpa"
+
+msgid "Tehran"
+msgstr "Téhéran"
+
+msgid "Tel Aviv-Yafo"
+msgstr "Tel Aviv-Jaffa"
+
+msgid "Teresina"
+msgstr "Teresina"
+
+msgid "Ternate"
+msgstr "Kota Ternate"
+
+msgid "Tete"
+msgstr "Tete"
+
+msgid "The Hague"
+msgstr "La Haye"
+
+msgid "Thessaloniki"
+msgstr "Thessalonique"
+
+msgid "Thimphu"
+msgstr "Thimphou"
+
+msgid "Thiruvananthapuram"
+msgstr "Thiruvananthapuram"
+
+msgid "Thunder Bay"
+msgstr "Thunder Bay"
+
+msgid "Tianjin"
+msgstr "Tianjin"
+
+msgid "Tianshui"
+msgstr "Tianshui"
+
+msgid "Tijuana"
+msgstr "Tijuana"
+
+msgid "Timbuktu"
+msgstr "Tombouctou"
+
+msgid "Tirana"
+msgstr "Tirana"
+
+msgid "Tiruchirappalli"
+msgstr "Tiruchirappalli"
+
+msgid "Tokyo"
+msgstr "Tokyo"
+
+msgid "Toliara"
+msgstr "Toliara"
+
+msgid "Tomsk"
+msgstr "Tomsk"
+
+msgid "Tongliao"
+msgstr "Tongliao"
+
+msgid "Topeka"
+msgstr "Topeka"
+
+msgid "Toronto"
+msgstr "Toronto"
+
+msgid "Torreón"
+msgstr "Torreón"
+
+msgid "Toulouse"
+msgstr "Toulouse"
+
+msgid "Townsville"
+msgstr "Townsville"
+
+msgid "Trento"
+msgstr "Trente"
+
+msgid "Trieste"
+msgstr "Trieste"
+
+msgid "Trinidad"
+msgstr "Trinidad"
+
+msgid "Tripoli"
+msgstr "Tripoli"
+
+msgid "Tromsø"
+msgstr "Tromsø"
+
+msgid "Trondheim"
+msgstr "Trondheim"
+
+msgid "Trujillo"
+msgstr "Trujillo"
+
+msgid "Tucson"
+msgstr "Tucson"
+
+msgid "Tucumán"
+msgstr "San Miguel de Tucumán"
+
+msgid "Tulsa"
+msgstr "Tulsa"
+
+msgid "Tunis"
+msgstr "Tunis"
+
+msgid "Turin"
+msgstr "Turin"
+
+msgid "Tuxtla Gutiérrez"
+msgstr "Tuxtla Gutiérrez"
+
+msgid "Tver"
+msgstr "Tver"
+
+msgid "Tyumen"
+msgstr "Tioumen"
+
+msgid "Türkmenabat"
+msgstr "Türkmenabat"
+
+msgid "Türkmenbaşy"
+msgstr "Türkmenbaşy"
+
+msgid "Uberlândia"
+msgstr "Uberlândia"
+
+msgid "Ufa"
+msgstr "Oufa"
+
+msgid "Ujungpandang"
+msgstr "Makassar"
+
+msgid "Ulaanbaatar"
+msgstr "Oulan-Bator"
+
+msgid "Ulan Ude"
+msgstr "Oulan-Oude"
+
+msgid "Ulanhot"
+msgstr "Ulan Hot"
+
+msgid "Ulyanovsk"
+msgstr "Oulianovsk"
+
+msgid "Upington"
+msgstr "Upington"
+
+msgid "Ust-Ulimsk"
+msgstr "Oust-Ilimsk"
+
+msgid "Vaasa"
+msgstr "Vaasa"
+
+msgid "Vadodara"
+msgstr "Vadodara"
+
+msgid "Valdivia"
+msgstr "Valdivia"
+
+msgid "Valencia"
+msgstr "Valencia"
+
+msgid "Valletta"
+msgstr "La Valette"
+
+msgid "Valparaíso"
+msgstr "Valparaíso"
+
+msgid "Vancouver"
+msgstr "Vancouver"
+
+msgid "Varanasi"
+msgstr "Varanasi"
+
+msgid "Venice"
+msgstr "Venise"
+
+msgid "Veracruz"
+msgstr "Veracruz"
+
+msgid "Victoria"
+msgstr "Victoria"
+
+msgid "Vienna"
+msgstr "Vienne"
+
+msgid "Vientiane"
+msgstr "Vientiane"
+
+msgid "Vigo"
+msgstr "Vigo"
+
+msgid "Vijayawada"
+msgstr "Vijayawada"
+
+msgid "Vila Velha"
+msgstr "Vila Velha"
+
+msgid "Vilhena"
+msgstr "Vilhena"
+
+msgid "Vilnius"
+msgstr "Vilnius"
+
+msgid "Vishakhapatnam"
+msgstr "Visakhapatnam"
+
+msgid "Vitória da Conquista"
+msgstr "Vitória da Conquista"
+
+msgid "Vladivostok"
+msgstr "Vladivostok"
+
+msgid "Volgograd"
+msgstr "Volgograd"
+
+msgid "Vologda"
+msgstr "Vologda"
+
+msgid "Vorkuta"
+msgstr "Vorkouta"
+
+msgid "Voronezh"
+msgstr "Voronej"
+
+msgid "Walvis Bay"
+msgstr "Walvis Bay"
+
+msgid "Warri"
+msgstr "Warri"
+
+msgid "Warsaw"
+msgstr "Varsovie"
+
+msgid "Washington, D.C."
+msgstr "Washington"
+
+msgid "Wau"
+msgstr "Wau"
+
+msgid "Welkom"
+msgstr "Welkom"
+
+msgid "Wellington"
+msgstr "Wellington"
+
+msgid "Wenzhou"
+msgstr "Wenzhou"
+
+msgid "Willemstad"
+msgstr "Willemstad"
+
+msgid "Wilmington"
+msgstr "Wilmington"
+
+msgid "Windhoek"
+msgstr "Windhoek"
+
+msgid "Winnipeg"
+msgstr "Winnipeg"
+
+msgid "Wonsan"
+msgstr "Wonsan"
+
+msgid "Worcester"
+msgstr "Worcester"
+
+msgid "Wuhan"
+msgstr "Wuhan"
+
+msgid "Wuwei"
+msgstr "Wuwei"
+
+msgid "Wuxi"
+msgstr "Wuxi"
+
+msgid "Wuzhou"
+msgstr "Wuzhou"
+
+msgid "Xai-Xai"
+msgstr "Xai-Xai"
+
+msgid "Xiamen"
+msgstr "Xiamen"
+
+msgid "Xian"
+msgstr "Xi'an"
+
+msgid "Xichang"
+msgstr "Xichang"
+
+msgid "Xigaze"
+msgstr "Shigatsé"
+
+msgid "Xining"
+msgstr "Xining"
+
+msgid "Xuzhou"
+msgstr "Xuzhou"
+
+msgid "Yakutsk"
+msgstr "Iakoutsk"
+
+msgid "Yamoussoukro"
+msgstr "Yamoussoukro"
+
+msgid "Yantai"
+msgstr "Yantai"
+
+msgid "Yaounde"
+msgstr "Yaoundé"
+
+msgid "Yaroslavl"
+msgstr "Iaroslavl"
+
+msgid "Yazd"
+msgstr "Yazd"
+
+msgid "Yekaterinburg"
+msgstr "Iekaterinbourg"
+
+msgid "Yerevan"
+msgstr "Erevan"
+
+msgid "Yinchuan"
+msgstr "Yinchuan"
+
+msgid "Yining"
+msgstr "Yining"
+
+msgid "Yueyang"
+msgstr "Yueyang"
+
+msgid "Yulin"
+msgstr "Yulin"
+
+msgid "Yuzhno Sakhalinsk"
+msgstr "Ioujno-Sakhalinsk"
+
+msgid "Zagreb"
+msgstr "Zagreb"
+
+msgid "Zamboanga"
+msgstr "Zamboanga"
+
+msgid "Zanzibar"
+msgstr "Zanzibar"
+
+msgid "Zaozhuang"
+msgstr "Zaozhuang"
+
+msgid "Zhangye"
+msgstr "Zhangye"
+
+msgid "Zhanjiang"
+msgstr "Zhanjiang"
+
+msgid "Zhengzhou"
+msgstr "Zhengzhou"
+
+msgid "Zhytomyr"
+msgstr "Jytomyr"
+
+msgid "Zibo"
+msgstr "Zibo"
+
+msgid "Zinder"
+msgstr "Zinder"
+
+msgid "Zuwarah"
+msgstr "Zouara"
+
+msgid "Zürich"
+msgstr "Zurich"
+
+msgid "Ürümqi"
+msgstr "Ürümqi"
+
+msgid "İzmir"
+msgstr "Izmir"
+
+msgid "Ōsaka"
+msgstr "Osaka"
