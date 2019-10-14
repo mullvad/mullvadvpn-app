@@ -2,6 +2,7 @@
 #include "context.h"
 #include <libcommon/string.h>
 #include <libcommon/error.h>
+#include <libcommon/memory.h>
 #include <log/log.h>
 #include <winsock2.h>
 #include <ws2ipdef.h>
@@ -22,6 +23,8 @@
 
 namespace
 {
+
+const wchar_t TAP_HARDWARE_ID[] = L"tap0901";
 
 std::set<Context::NetworkAdapter> GetAllAdapters()
 {
@@ -246,13 +249,17 @@ void Context::DeleteMullvadAdapter()
 
 	THROW_GLE_IF(INVALID_HANDLE_VALUE, devInfo, "SetupDiGetClassDevs() failed");
 
+	common::memory::ScopeDestructor cleanupDevList;
+	cleanupDevList += [&devInfo]()
+	{
+		SetupDiDestroyDeviceInfoList(devInfo);
+	};
+
 	SP_DEVINFO_DATA devInfoData;
 	devInfoData.cbSize = sizeof(devInfoData);
 
 	std::vector<wchar_t> buffer;
 	DWORD nameLen;
-
-	static const wchar_t hardwareId[] = L"tap0901";
 
 	for (int memberIndex = 0; ; memberIndex++)
 	{
@@ -297,7 +304,7 @@ void Context::DeleteMullvadAdapter()
 			THROW_GLE("Error obtaining network adapter hardware ID");
 		}
 
-		if (wcscmp(hardwareId, buffer.data()) == 0)
+		if (wcscmp(TAP_HARDWARE_ID, buffer.data()) == 0)
 		{
 			std::wstring netCfgInstanceId = GetNetCfgInstanceId(devInfo, devInfoData);
 			if (netCfgInstanceId.compare(mullvadGuid) != 0)
@@ -314,6 +321,4 @@ void Context::DeleteMullvadAdapter()
 			}
 		}
 	}
-
-	SetupDiDestroyDeviceInfoList(devInfo);
 }
