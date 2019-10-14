@@ -297,8 +297,5 @@ void Context::DeleteMullvadAdapter()
 		}
 	}
 
-	if (FALSE == SetupDiDestroyDeviceInfoList(devInfo))
-	{
-		THROW_GLE("Error destroying devices list");
-	}
+	SetupDiDestroyDeviceInfoList(devInfo);
 }
