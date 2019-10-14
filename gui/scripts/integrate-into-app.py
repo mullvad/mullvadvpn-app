@@ -9,11 +9,23 @@ import shutil
 import colorful as c
 
 SCRIPT_DIR = path.dirname(path.realpath(__file__))
-SOURCE_DIR = path.join(SCRIPT_DIR, "out")
-GEO_ASSETS_DEST_DIR = path.realpath(path.join(SCRIPT_DIR, "../assets/geo"))
-TRANSLATIONS_SOURCE_DIR = path.join(SOURCE_DIR, "locales")
-TRANSLATIONS_DEST_DIR = path.realpath(path.join(SCRIPT_DIR, "../locales"))
 
+# the name of the relay locations gettext catalogue template file
+RELAY_LOCATIONS_POT_FILENAME = "relay-locations.pot"
+
+# the directory with the generated content
+GENERATED_CONTENT_OUTPUT_PATH = path.join(SCRIPT_DIR, "out")
+
+# the directory with the generated localizations content
+GENERATED_TRANSLATIONS_PATH = path.join(GENERATED_CONTENT_OUTPUT_PATH, "locales")
+
+# the directory with the app's geo assets
+APP_GEO_ASSETS_PATH = path.realpath(path.join(SCRIPT_DIR, "../assets/geo"))
+
+# the directory with the existing app localizations
+APP_TRANSLATIONS_PATH = path.realpath(path.join(SCRIPT_DIR, "../locales"))
+
+# Geo assets for copying from generated content folder into the app folder
 GEO_ASSETS_TO_COPY = [
   "cities.rbush.json",
   "countries.rbush.json",
@@ -23,46 +35,43 @@ GEO_ASSETS_TO_COPY = [
   "states-provinces-lines.rbush.json",
 ]
 
+# The filenames of gettext catalogues that should be copied as is
 TRANSLATIONS_TO_COPY = [
   "cities.po",
   "countries.po"
 ]
 
+# the filenames of gettext catalogues that should be merged using msgcat
 TRANSLATIONS_TO_MERGE = [
   "relay-locations.po"
 ]
 
-def remove_common_prefix(source, destination):
-  prefix_len = len(path.commonprefix((source, destination)))
-  return (source[prefix_len:], destination[prefix_len:])
-
-def run_program(args):
-  p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-
-  print "Run: {}".format(' '.join(args))
-
-  errors = p.communicate()[1]
-  return (p.returncode, errors)
 
 def copy_geo_assets():
   for f in GEO_ASSETS_TO_COPY:
-    src = path.join(SOURCE_DIR, f)
-    dst = path.join(GEO_ASSETS_DEST_DIR, f)
+    src = path.join(GENERATED_CONTENT_OUTPUT_PATH, f)
+    dst = path.join(APP_GEO_ASSETS_PATH, f)
 
-    print "Copying {} to {}".format(*remove_common_prefix(src, dst))
+    print u"Copying {} to {}".format(*remove_common_prefix(src, dst))
 
     shutil.copyfile(src, dst)
 
+
+def merge_relay_locations_catalogue_template():
+  existing_pot_file = path.join(APP_TRANSLATIONS_PATH, RELAY_LOCATIONS_POT_FILENAME)
+  generated_pot_file = path.join(GENERATED_TRANSLATIONS_PATH, RELAY_LOCATIONS_POT_FILENAME)
+
+  merge_gettext_catalogues(existing_pot_file, generated_pot_file)
+
+
 def copy_and_merge_translations():
-  for f in os.listdir(TRANSLATIONS_SOURCE_DIR):
-    src = path.join(TRANSLATIONS_SOURCE_DIR, f)
-    dst = path.join(TRANSLATIONS_DEST_DIR, f)
+  for f in os.listdir(GENERATED_TRANSLATIONS_PATH):
+    src = path.join(GENERATED_TRANSLATIONS_PATH, f)
+    dst = path.join(APP_TRANSLATIONS_PATH, f)
 
     if path.isdir(src):
       merge_single_locale_folder(src, dst)
-    else:
-      print "Copying {} to {}".format(*remove_common_prefix(src, dst))
-      shutil.copyfile(src, dst)
+
 
 def merge_single_locale_folder(src, dst):
   for f in os.listdir(src):
@@ -70,36 +79,68 @@ def merge_single_locale_folder(src, dst):
     dst_po = path.join(dst, f)
 
     if f in TRANSLATIONS_TO_COPY:
-      print "Copying {} to {}".format(*remove_common_prefix(src_po, dst_po))
+      print u"Copying {} to {}".format(*remove_common_prefix(src_po, dst_po))
       shutil.copyfile(src_po, dst_po)
     elif f in TRANSLATIONS_TO_MERGE:
-      if path.exists(dst_po):
-        pot_basename = path.basename(path.splitext(dst_po)[0])
-        pot_path = path.join(TRANSLATIONS_DEST_DIR, pot_basename + ".pot")
-
-        (msgmerge_code, msgmerge_errors) = run_program([
-          "msgmerge", "--update", "--no-fuzzy-matching", dst_po, pot_path])
-
-        if msgmerge_code == 0:
-          (msgcat_code, msgcat_errors) = run_program([
-            "msgcat", src_po, dst_po, "--output-file", dst_po])
-
-          if msgcat_code == 0:
-            print c.green("Merged and concatenated the catalogues.")
-          else:
-            print c.red("msgcat exited with {}: {}".format(
-              msgcat_code, msgcat_errors.decode('utf-8').strip()))
-        else:
-          print c.red("msgmerge exited with {}: {}".format(
-            msgmerge_code, msgmerge_errors.decode('utf-8').strip()))
-      else:
-        shutil.copy(src_po, dst_po)
+      # merge ../locales/*/file.po with ./out/locales/*/file.po
+      # use existing translation to resolve conflicts
+      merge_gettext_catalogues(dst_po, src_po)
     else:
-      print c.orange("Unexpected file: {}".format(src_po))
+      print c.orange(u"Unexpected file: {}".format(src_po))
 
 
-if not path.exists(GEO_ASSETS_DEST_DIR):
-  os.makedirs(GEO_ASSETS_DEST_DIR)
+def merge_gettext_catalogues(existing_catalogue_file, generated_catalogue_file):
+  if path.exists(existing_catalogue_file):
+    args = (
+      existing_catalogue_file, generated_catalogue_file,
 
-copy_geo_assets()
-copy_and_merge_translations()
+      "--output-file", existing_catalogue_file,
+
+      # ensure that the first occurence takes precedence in merge conflict
+      "--use-first",
+
+      # sort by msgid
+      "--sort-output",
+
+      # disable wrapping long strings because crowdin does not do that
+      "--no-wrap"
+    )
+
+    (exit_code, errors) = run_program("msgcat", *args)
+
+    if exit_code == 0:
+      print c.green(u"Merged {} into {}."
+        .format(*remove_common_prefix(generated_catalogue_file, existing_catalogue_file)))
+    else:
+      print c.red(u"msgcat exited with {}: {}".format(exit_code, errors.decode('utf-8').strip()))
+  else:
+    print c.orange(u"The existing catalogue does not exist. Copying {} to {}"
+      .format(*remove_common_prefix(generated_catalogue_file, existing_catalogue_file)))
+    shutil.copyfile(generated_catalogue_file, existing_catalogue_file)
+
+
+def remove_common_prefix(*args):
+  prefix_len = len(path.commonprefix(args))
+  return map(lambda str: str[prefix_len:], args)
+
+
+def run_program(*args):
+  p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+
+  print u"Run: {}".format(' '.join(args))
+
+  errors = p.communicate()[1]
+  return (p.returncode, errors)
+
+
+# Program main()
+
+def main():
+  if not path.exists(APP_GEO_ASSETS_PATH):
+    os.makedirs(APP_GEO_ASSETS_PATH)
+
+  copy_geo_assets()
+  merge_relay_locations_catalogue_template()
+  copy_and_merge_translations()
+
+main()
