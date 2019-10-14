@@ -114,7 +114,7 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 		throw std::runtime_error("SetupDiOpenDevRegKey Failed");
 	}
 
-	if (RegGetValue(
+	const auto status = RegGetValueW(
 		hNet,
 		nullptr,
 		L"NetCfgInstanceId",
@@ -122,15 +122,16 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 		nullptr,
 		instanceId.data(),
 		&strSize
-	) != ERROR_SUCCESS)
+	);
+
+	RegCloseKey(hNet);
+
+	if (ERROR_SUCCESS != status)
 	{
-		RegCloseKey(hNet);
 		throw std::runtime_error("RegGetValue for NetCfgInstanceId failed");
 	}
 
-	instanceId[strSize] = L'\0';
-
-	RegCloseKey(hNet);
+	instanceId[strSize / sizeof(wchar_t)] = L'\0';
 
 	return instanceId.data();
 }
@@ -265,9 +266,8 @@ void Context::DeleteMullvadAdapter()
 	SP_DEVINFO_DATA devInfoData;
 	devInfoData.cbSize = sizeof(devInfoData);
 
-	wchar_t buffer[512];
+	std::vector<wchar_t> buffer;
 	DWORD nameLen;
-	DWORD type;
 
 	static const wchar_t hardwareId[] = L"tap0901";
 
@@ -286,17 +286,35 @@ void Context::DeleteMullvadAdapter()
 			}
 		}
 
-		SetupDiGetDeviceRegistryProperty(
+		if (FALSE == SetupDiGetDeviceRegistryProperty(
 			devInfo,
 			&devInfoData,
 			SPDRP_HARDWAREID,
-			&type, // receives type
-			(PBYTE)buffer,
-			sizeof(buffer),
-			&nameLen // receives size
-		);
+			nullptr,
+			nullptr,
+			0,
+			&nameLen
+		))
+		{
+			THROW_GLE("Error obtaining network adapter hardware ID");
+		}
 
-		if (wcscmp(hardwareId, buffer) == 0)
+		buffer.resize(nameLen);
+
+		if (FALSE == SetupDiGetDeviceRegistryProperty(
+			devInfo,
+			&devInfoData,
+			SPDRP_HARDWAREID,
+			nullptr,
+			reinterpret_cast<PBYTE>(buffer.data()),
+			buffer.size(),
+			nullptr
+		))
+		{
+			THROW_GLE("Error obtaining network adapter hardware ID");
+		}
+
+		if (wcscmp(hardwareId, buffer.data()) == 0)
 		{
 			std::wstring netCfgInstanceId = GetNetCfgInstanceId(devInfo, devInfoData);
 			if (netCfgInstanceId.compare(mullvadGuid) != 0)
