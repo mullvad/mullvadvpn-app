@@ -8,6 +8,9 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 
+namespace
+{
+	
 void logFunc(common::logging::Severity severity, const char *msg)
 {
 	using common::logging::Severity;
@@ -29,6 +32,8 @@ void logFunc(common::logging::Severity severity, const char *msg)
 	}
 
 	std::cout << msg << std::endl;
+}
+
 }
 
 TEST_CLASS(NetworkAdapterMonitorTests)

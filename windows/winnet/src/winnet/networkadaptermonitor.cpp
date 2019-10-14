@@ -48,6 +48,42 @@ bool HasIPv6Interface(NET_LUID luid)
 	return false;
 }
 
+void initAdaptersDefault(std::map<ULONG64, NetworkAdapterMonitor::AdapterElement> &adaptersOut)
+{
+	MIB_IF_TABLE2 *table;
+
+	const auto status = GetIfTable2(&table);
+
+	THROW_UNLESS(NO_ERROR, status, "Acquire network interface table");
+
+	common::memory::ScopeDestructor sd;
+
+	sd += [table]()
+	{
+		FreeMibTable(table);
+	};
+
+	for (ULONG i = 0; i < table->NumEntries; ++i)
+	{
+		bool ipv4 = HasIPv4Interface(table->Table[i].InterfaceLuid);
+		bool ipv6 = HasIPv6Interface(table->Table[i].InterfaceLuid);
+
+		if (!ipv4 && !ipv6)
+		{
+			continue;
+		}
+
+		const auto pair = adaptersOut.emplace(
+			table->Table[i].InterfaceLuid.Value,
+			NetworkAdapterMonitor::AdapterElement(
+				table->Table[i],
+				ipv4,
+				ipv6
+			)
+		);
+	}
+}
+
 }
 
 
@@ -55,9 +91,39 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 	std::shared_ptr<common::logging::ILogSink> logSink,
 	UpdateSinkType updateSink,
 	FilterType filter,
+	std::shared_ptr<WinNotifier> notifier,
+	std::function<void(std::map<ULONG64, AdapterElement> &adaptersOut)> initAdapters
+)
+	: m_logSink(logSink)
+	, m_updateSink(updateSink)
+	, m_filter(filter)
+	, m_winNotifier(notifier)
+{
+	initAdapters(m_adapters);
+
+	for (auto it = m_adapters.begin(); it != m_adapters.end(); ++it)
+	{
+		if (filter(it->second.adapter))
+		{
+			m_filteredAdapters.push_back(it->second.adapter);
+		}
+	}
+
+	if (!m_filteredAdapters.empty())
+	{
+		m_updateSink(m_filteredAdapters, nullptr, UpdateType::Add);
+	}
+
+	m_winNotifier->attach(m_logSink, std::bind(&NetworkAdapterMonitor::callback, this, _1, _2));
+}
+
+NetworkAdapterMonitor::NetworkAdapterMonitor(
+	std::shared_ptr<common::logging::ILogSink> logSink,
+	UpdateSinkType updateSink,
+	FilterType filter,
 	std::shared_ptr<WinNotifier> notifier
 )
-	: m_logSink(m_logSink)
+	: m_logSink(logSink)
 	, m_updateSink(updateSink)
 	, m_filter(filter)
 	, m_winNotifier(notifier)
