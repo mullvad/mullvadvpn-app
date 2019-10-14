@@ -272,7 +272,7 @@ void Context::DeleteMullvadAdapter()
 		SetupDiDestroyDeviceInfoList(devInfo);
 	};
 
-	SP_DEVINFO_DATA devInfoData;
+	SP_DEVINFO_DATA devInfoData = { 0 };
 	devInfoData.cbSize = sizeof(devInfoData);
 
 	std::vector<wchar_t> buffer;
