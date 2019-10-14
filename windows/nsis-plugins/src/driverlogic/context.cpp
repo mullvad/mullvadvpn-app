@@ -102,7 +102,7 @@ void LogAdapters(const std::wstring &description, const std::set<Context::Networ
 std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData)
 {
 	std::vector<wchar_t> instanceId(MAX_PATH + sizeof(L'\0'));
-	DWORD strSize;
+	DWORD strSize = instanceId.size();
 	HKEY hNet = SetupDiOpenDevRegKey(
 		devInfo,
 		const_cast<SP_DEVINFO_DATA *>(&devInfoData),
