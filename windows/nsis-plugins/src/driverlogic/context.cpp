@@ -14,7 +14,7 @@
 #include <sstream>
 #include <algorithm>
 #include <iostream>
-#include <SetupAPI.h>
+#include <setupapi.h>
 #include <devguid.h>
 #include <combaseapi.h>
 #include <initguid.h>
