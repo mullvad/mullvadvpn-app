@@ -16,16 +16,37 @@ from shapely.geometry import shape, mapping
 import fiona
 
 SCRIPT_DIR = path.dirname(path.realpath(__file__))
+
+# The directory with the existing localizations content
 LOCALE_DIR = path.normpath(path.join(SCRIPT_DIR, "../locales"))
+
+# The output directory for the generated content
 OUT_DIR = path.join(SCRIPT_DIR, "out")
+
+# the directory with the generated localizations content
 LOCALE_OUT_DIR = path.join(OUT_DIR, "locales")
 
+# Relay locations gettext catalogue template filename (.pot)
+RELAY_LOCATIONS_POT_FILENAME = "relay-locations.pot"
+
+# Relay locations gettext catalogue filename (.po)
+RELAY_LOCATIONS_PO_FILENAME = "relay-locations.po"
+
+# Countries gettext catalogue filename (.po)
+COUNTRIES_PO_FILENAME = "countries.po"
+
+# Cities gettext catalogue filename (.po)
+CITIES_PO_FILENAME = "cities.po"
+
+# The minimum population cap used to narrow down the cities dataset
 POPULATION_MAX_FILTER = 50000
 
+# Custom locale mapping between the identifiers in the app and Natural Earth datasets
 LOCALE_MAPPING = {
   # "zh" in Natural Earth Data referes to simplified chinese
   "zh-CN": "zh"
 }
+
 
 def extract_cities():
   input_path = get_shape_path("ne_50m_populated_places")
@@ -155,12 +176,12 @@ def extract_countries_po():
       with fiona.open(input_path) as source:
         po = POFile(encoding='utf-8', check_for_duplicates=True)
         po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
-        output_path = path.join(locale_out_dir, "countries.po")
+        output_path = path.join(locale_out_dir, COUNTRIES_PO_FILENAME)
 
         if not path.exists(locale_out_dir):
           os.makedirs(locale_out_dir)
 
-        print "Generating {}/countries.po".format(locale)
+        print "Generating {}".format(output_path)
 
         for feat in source:
           props = lower_dict_keys(feat["properties"])
@@ -175,7 +196,7 @@ def extract_countries_po():
             translated_name = props.get(name_key)
           elif props.get(name_fallback) is not None:
             translated_name = props.get(name_fallback)
-            print c.orange(u" Missing translation for {}".format(translated_name))
+            print c.orange(u"Missing translation for {}".format(translated_name))
           else:
             raise ValueError(
               "Cannot find the translation for {}. Probe keys: {}"
@@ -228,14 +249,14 @@ def extract_cities_po():
     if os.path.isdir(locale_dir):
       po = POFile(encoding='utf-8', check_for_duplicates=True)
       po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
-      output_path = path.join(locale_out_dir, "cities.po")
+      output_path = path.join(locale_out_dir, CITIES_PO_FILENAME)
       hits = 0
       misses = 0
 
       if not path.exists(locale_out_dir):
         os.makedirs(locale_out_dir)
 
-      print "Generating {}/cities.po".format(locale)
+      print "Generating {}".format(output_path)
 
       with fiona.open(input_path) as source:
         for feat in source:
@@ -250,7 +271,7 @@ def extract_cities_po():
               hits += 1
             elif props.get(name_fallback) is not None:
               translated_name = props.get(name_fallback)
-              print c.orange(u"  Missing translation for {}".format(translated_name))
+              print c.orange(u"Missing translation for {}".format(translated_name))
               misses += 1
             else:
               raise ValueError(
@@ -297,15 +318,15 @@ def extract_relay_translations():
     raise Exception("Missing the result field.")
 
   extract_relay_locations_pot(countries)
-  translate_relay_locations_pot(countries)
+  translate_relay_locations(countries)
 
 
 def extract_relay_locations_pot(countries):
   pot = POFile(encoding='utf-8', check_for_duplicates=True)
   pot.metadata = {"Content-Type": "text/plain; charset=utf-8"}
-  output_path = path.join(LOCALE_OUT_DIR, "relay-locations.pot")
+  output_path = path.join(LOCALE_OUT_DIR, RELAY_LOCATIONS_POT_FILENAME)
 
-  print "Generating relay-locations.pot"
+  print "Generating {}".format(output_path)
 
   for country in countries:
     country_name = country.get("name")
@@ -334,7 +355,7 @@ def extract_relay_locations_pot(countries):
           except ValueError as err:
             print c.orange(u"Cannot add an entry: {}".format(err))
 
-          print u"  {} ({})".format(city_name, city.get("code")).encode('utf-8')
+          print u"{} ({})".format(city_name, city.get("code")).encode('utf-8')
 
   pot.save(output_path)
 
@@ -366,7 +387,15 @@ def print_stats_table(title, data):
   print ""
 
 
-def translate_relay_locations_pot(countries):
+def translate_relay_locations(countries):
+  """
+  A helper function to generate the relay-locations.po with automatic translations for each
+  corresponding locale.
+
+  The `countries` argument is an array that's contained within the "countries" key of the
+  relay location list.
+  """
+
   country_translator = CountryTranslator()
   city_translator = CityTranslator()
   stats = []
@@ -374,18 +403,25 @@ def translate_relay_locations_pot(countries):
   for locale in os.listdir(LOCALE_DIR):
     locale_dir = path.join(LOCALE_DIR, locale)
     if path.isdir(locale_dir):
-      print "Generating {}/relay-locations.po".format(locale)
-      (hits, misses) = translate_relay_locations(country_translator, city_translator, countries, locale)
+      print "Generating {}".format(path.join(locale, RELAY_LOCATIONS_PO_FILENAME))
+      (hits, misses) = translate_single_relay_locations(country_translator, city_translator, countries, locale)
       stats.append((locale, hits, misses))
 
   print_stats_table("Relay location translations", stats)
 
 
-def translate_relay_locations(country_translator, city_translator, countries, locale):
+def translate_single_relay_locations(country_translator, city_translator, countries, locale):
+  """
+  A helper function to generate the relay-locations.po for the given locale.
+
+  The `countries` argument is an array value that's contained within the "countries" key of the
+  relay location list.
+  """
+
   po = POFile(encoding='utf-8', check_for_duplicates=True)
   po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
   locale_out_dir = path.join(LOCALE_OUT_DIR, locale)
-  output_path = path.join(locale_out_dir, "relay-locations.po")
+  output_path = path.join(locale_out_dir, RELAY_LOCATIONS_PO_FILENAME)
 
   hits = 0
   misses = 0
@@ -452,7 +488,7 @@ def translate_relay_locations(country_translator, city_translator, countries, lo
         translated_name = ""
         misses += 1
 
-      log_message = u"  {} ({}) -> \"{}\"".format(
+      log_message = u"{} ({}) -> \"{}\"".format(
         city_name, city_code, translated_name).encode('utf-8')
       if found_translation:
         print c.green(log_message)
