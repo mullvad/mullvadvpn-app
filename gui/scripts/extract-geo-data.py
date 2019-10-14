@@ -328,7 +328,12 @@ def extract_relay_locations_pot(countries):
             msgstr=u"",
             comment=u"{} {}".format(country.get("code").upper(), city.get("code").upper())
           )
-          pot.append(entry)
+
+          try:
+            pot.append(entry)
+          except ValueError as err:
+            print c.orange(u"Cannot add an entry: {}".format(err))
+
           print u"  {} ({})".format(city_name, city.get("code")).encode('utf-8')
 
   pot.save(output_path)
@@ -459,7 +464,11 @@ def translate_relay_locations(country_translator, city_translator, countries, lo
         msgstr=translated_name,
         comment=u"{} {}".format(country_code.upper(), city_code.upper())
       )
-      po.append(entry)
+
+      try:
+        po.append(entry)
+      except ValueError as err:
+        print c.orange(u"Cannot add an entry: {}".format(err))
 
   po.save(output_path)
 
