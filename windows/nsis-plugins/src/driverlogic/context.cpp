@@ -101,8 +101,6 @@ void LogAdapters(const std::wstring &description, const std::set<Context::Networ
 
 std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData)
 {
-	std::vector<wchar_t> instanceId(MAX_PATH + sizeof(L'\0'));
-	DWORD strSize = instanceId.size() * sizeof(wchar_t);
 	HKEY hNet = SetupDiOpenDevRegKey(
 		devInfo,
 		const_cast<SP_DEVINFO_DATA *>(&devInfoData),
@@ -116,6 +114,9 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 	{
 		throw std::runtime_error("SetupDiOpenDevRegKey Failed");
 	}
+
+	std::vector<wchar_t> instanceId(MAX_PATH + sizeof(L'\0'));
+	DWORD strSize = instanceId.size() * sizeof(wchar_t);
 
 	const auto status = RegGetValueW(
 		hNet,
