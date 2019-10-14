@@ -238,7 +238,7 @@ void Context::DeleteMullvadAdapter()
 		false,
 		common::registry::RegistryView::Force64
 	);
-	const auto mullvadGuid = regkey->readString(L"AdapterGuid");
+	const auto mullvadGuid = regkey->readString(L"TapAdapterGuid");
 
 	HDEVINFO devInfo = SetupDiGetClassDevs(
 		&GUID_DEVCLASS_NET,

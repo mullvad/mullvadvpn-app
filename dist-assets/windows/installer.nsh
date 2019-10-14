@@ -347,7 +347,7 @@
 		${EndIf}
 	${EndIf}
 
-	registry::WriteString "HKLM\SOFTWARE\Mullvad VPN" "AdapterGuid" "$InstallDriver_TapGuid"
+	registry::WriteString "HKLM\SOFTWARE\Mullvad VPN" "TapAdapterGuid" "$InstallDriver_TapGuid"
 
 	InstallDriver_return_success:
 
