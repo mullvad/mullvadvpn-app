@@ -112,7 +112,7 @@ def merge_gettext_catalogues(existing_catalogue_file, generated_catalogue_file):
     (exit_code, errors) = run_program("msgcat", *args)
 
     if exit_code == 0:
-      print c.green(u"Merged {} and {} into {}."
+      print c.green(u"Merged {} into {}."
         .format(*remove_common_prefix(generated_catalogue_file, existing_catalogue_file)))
     else:
       print c.red(u"msgcat exited with {}: {}".format(exit_code, errors.decode('utf-8').strip()))
