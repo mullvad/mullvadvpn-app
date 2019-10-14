@@ -83,7 +83,7 @@ def merge_single_locale_folder(src, dst):
       shutil.copyfile(src_po, dst_po)
     elif f in TRANSLATIONS_TO_MERGE:
       # merge ../locales/*/file.po with ./out/locales/*/file.po
-      # existing translations applied on top of the generated ones
+      # use existing translation to resolve conflicts
       merge_gettext_catalogues(dst_po, src_po)
     else:
       print c.orange(u"Unexpected file: {}".format(src_po))
