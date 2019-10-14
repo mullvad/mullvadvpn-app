@@ -353,7 +353,7 @@
 	Push 0
 	Pop $R0
 
-	registry::WriteString "HKLM\SOFTWARE\Mullvad VPN" "AdapterGuid" "$InstallDriver_TapGuid"
+	registry::WriteString "HKLM\SOFTWARE\Mullvad VPN" "TapAdapterGuid" "$InstallDriver_TapGuid"
 
 	# Discard return value
 	Pop $0
