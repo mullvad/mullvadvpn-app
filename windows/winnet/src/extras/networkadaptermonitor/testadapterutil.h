@@ -34,7 +34,7 @@ public:
 		std::shared_ptr<common::logging::ILogSink> logSink
 		, FilterType filter
 		, std::shared_ptr<WinNotifier> notifier
-	) : NetworkAdapterMonitor(logSink, [](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void {}, filter, notifier, [](std::map<ULONG64, AdapterElement> &adaptersOut) {})
+	) : NetworkAdapterMonitor(logSink, [](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void {}, filter, notifier, [](std::map<ULONG64, MIB_IF_ROW2> &adaptersOut) {})
 	{
 	}
 	virtual ~NetworkAdapterMonitorTester() = default;

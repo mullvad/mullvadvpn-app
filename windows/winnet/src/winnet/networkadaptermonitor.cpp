@@ -3,6 +3,7 @@
 #include "networkadaptermonitor.h"
 #include <libcommon/memory.h>
 #include <sstream>
+#include <cstring>
 
 using namespace std::placeholders;
 
@@ -10,45 +11,7 @@ using namespace std::placeholders;
 namespace
 {
 
-bool HasIPv4Interface(NET_LUID luid)
-{
-	MIB_IPINTERFACE_ROW iprow = { 0 };
-	iprow.InterfaceLuid = luid;
-	iprow.Family = AF_INET;
-
-	const auto status = GetIpInterfaceEntry(&iprow);
-
-	if (NO_ERROR == status)
-	{
-		return true;
-	}
-	else if (ERROR_NOT_FOUND != status)
-	{
-		common::error::Throw("Resolve IPv4 interface", status);
-	}
-	return false;
-}
-
-bool HasIPv6Interface(NET_LUID luid)
-{
-	MIB_IPINTERFACE_ROW iprow = { 0 };
-	iprow.InterfaceLuid = luid;
-	iprow.Family = AF_INET6;
-
-	const auto status = GetIpInterfaceEntry(&iprow);
-
-	if (NO_ERROR == status)
-	{
-		return true;
-	}
-	else if (ERROR_NOT_FOUND != status)
-	{
-		common::error::Throw("Resolve IPv6 interface", status);
-	}
-	return false;
-}
-
-void initAdaptersDefault(std::map<ULONG64, NetworkAdapterMonitor::AdapterElement> &adaptersOut)
+void initAdaptersDefault(std::map<ULONG64, MIB_IF_ROW2> &adaptersOut)
 {
 	MIB_IF_TABLE2 *table;
 
@@ -65,21 +28,9 @@ void initAdaptersDefault(std::map<ULONG64, NetworkAdapterMonitor::AdapterElement
 
 	for (ULONG i = 0; i < table->NumEntries; ++i)
 	{
-		bool ipv4 = HasIPv4Interface(table->Table[i].InterfaceLuid);
-		bool ipv6 = HasIPv6Interface(table->Table[i].InterfaceLuid);
-
-		if (!ipv4 && !ipv6)
-		{
-			continue;
-		}
-
 		const auto pair = adaptersOut.emplace(
 			table->Table[i].InterfaceLuid.Value,
-			NetworkAdapterMonitor::AdapterElement(
-				table->Table[i],
-				ipv4,
-				ipv6
-			)
+			table->Table[i]
 		);
 	}
 }
@@ -92,7 +43,7 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 	UpdateSinkType updateSink,
 	FilterType filter,
 	std::shared_ptr<WinNotifier> notifier,
-	std::function<void(std::map<ULONG64, AdapterElement> &adaptersOut)> initAdapters
+	std::function<void(std::map<ULONG64, MIB_IF_ROW2> &adaptersOut)> initAdapters
 )
 	: m_logSink(logSink)
 	, m_updateSink(updateSink)
@@ -103,9 +54,9 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 
 	for (auto it = m_adapters.begin(); it != m_adapters.end(); ++it)
 	{
-		if (filter(it->second.adapter))
+		if (filter(it->second))
 		{
-			m_filteredAdapters.push_back(it->second.adapter);
+			m_filteredAdapters.push_back(it->second);
 		}
 	}
 
@@ -122,56 +73,8 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 	UpdateSinkType updateSink,
 	FilterType filter,
 	std::shared_ptr<WinNotifier> notifier
-)
-	: m_logSink(logSink)
-	, m_updateSink(updateSink)
-	, m_filter(filter)
-	, m_winNotifier(notifier)
+) : NetworkAdapterMonitor(logSink, updateSink, filter, notifier, initAdaptersDefault)
 {
-	MIB_IF_TABLE2 *table;
-
-	const auto status = GetIfTable2(&table);
-
-	THROW_UNLESS(NO_ERROR, status, "Acquire network interface table");
-
-	common::memory::ScopeDestructor sd;
-
-	sd += [table]()
-	{
-		FreeMibTable(table);
-	};
-
-	for (ULONG i = 0; i < table->NumEntries; ++i)
-	{
-		bool ipv4 = HasIPv4Interface(table->Table[i].InterfaceLuid);
-		bool ipv6 = HasIPv6Interface(table->Table[i].InterfaceLuid);
-
-		if (!ipv4 && !ipv6)
-		{
-			continue;
-		}
-
-		const auto pair = m_adapters.emplace(
-			table->Table[i].InterfaceLuid.Value,
-			AdapterElement(
-				table->Table[i],
-				ipv4,
-				ipv6
-			)
-		);
-
-		if (m_filter(pair.first->second.adapter))
-		{
-			m_filteredAdapters.push_back(pair.first->second.adapter);
-		}
-	}
-
-	if (!m_filteredAdapters.empty())
-	{
-		m_updateSink(m_filteredAdapters, nullptr, UpdateType::Add);
-	}
-
-	m_winNotifier->attach(m_logSink, std::bind(&NetworkAdapterMonitor::callback, this, _1, _2));
 }
 
 NetworkAdapterMonitor::~NetworkAdapterMonitor()
@@ -203,195 +106,118 @@ void NetworkAdapterMonitor::getIfEntry(MIB_IF_ROW2 &rowOut, NET_LUID luid)
 	throw std::runtime_error(ss.str());
 }
 
-void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType)
+void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE)
 {
 	std::scoped_lock<std::mutex> processingLock(m_processingMutex);
 
-	bool isIPv4 = hint->Family == AF_INET;
-	bool isIPv6 = hint->Family == AF_INET6;
+	MIB_IF_ROW2 iface;
+	getIfEntry(iface, hint->InterfaceLuid);
 
-	if (!isIPv4 && !isIPv6)
+	const bool adapterAvailable = !(iface.OperStatus != IfOperStatusUp ||
+		iface.MediaConnectState != MediaConnectStateConnected ||
+		iface.AdminStatus != NET_IF_ADMIN_STATUS_UP);
+
+	const auto adapterIt = m_adapters.find(hint->InterfaceLuid.Value);
+
+	if (adapterAvailable)
 	{
-		std::stringstream ss;
+		//
+		// Check if the adapter has been added or updated
+		//
 
-		ss << "Expected either AF_INET or AF_INET6 for LUID 0x"
-			<< std::hex << hint->InterfaceLuid.Value;
-
-		throw std::runtime_error(ss.str());
-	}
-
-	switch (updateType)
-	{
-		case MibAddInstance:
+		bool fieldsChanged;
+		
+		if (m_adapters.end() == adapterIt)
 		{
-			const auto adapterIt = m_adapters.find(hint->InterfaceLuid.Value);
-			MIB_IF_ROW2 *row = nullptr;
+			const auto pair = m_adapters.emplace(
+				iface.InterfaceLuid.Value,
+				iface
+			);
+			fieldsChanged = true;
+		}
+		else
+		{
+			//
+			// Only send an Update event if the fields have changed
+			//
+			fieldsChanged = std::memcmp(
+				&adapterIt->second,
+				&iface,
+				sizeof(MIB_IF_ROW2)
+			) != 0;
 
-			if (m_adapters.end() != adapterIt)
+			// update stored adapter
+			adapterIt->second = iface;
+		}
+
+		if (m_filter(iface))
+		{
+			//
+			// Report Add event if this is new
+			//
+			if (m_filteredAdapters.end() == findFilteredAdapter(iface))
 			{
-				if (isIPv4)
-				{
-					adapterIt->second.IPv4 = true;
-				}
-				else
-				{
-					adapterIt->second.IPv6 = true;
-				}
-				row = &adapterIt->second.adapter;
+				m_filteredAdapters.push_back(iface);
+				m_updateSink(m_filteredAdapters, &iface, UpdateType::Add);
 			}
-			else
+			else if (fieldsChanged)
 			{
-				MIB_IF_ROW2 entry;
-				getIfEntry(entry, hint->InterfaceLuid);
+				m_updateSink(m_filteredAdapters, &iface, UpdateType::Update);
+			}
+		}
+		else
+		{
+			//
+			// Synthesize a Delete event if we're no longer interested
+			// in this adapter
+			//
+			auto filteredIt = std::find_if(m_filteredAdapters.begin(), m_filteredAdapters.end(), [&iface](const MIB_IF_ROW2 &elem)
+			{
+				return elem.InterfaceLuid.Value == iface.InterfaceLuid.Value;
+			});
 
-				const auto pair = m_adapters.emplace(
-					entry.InterfaceLuid.Value,
-					AdapterElement(
-						entry,
-						isIPv4,
-						isIPv6
-					)
+			if (m_filteredAdapters.end() != filteredIt)
+			{
+				m_filteredAdapters.erase(filteredIt);
+				m_updateSink(
+					m_filteredAdapters,
+					&iface,
+					UpdateType::Delete
 				);
-
-				row = &pair.first->second.adapter;
 			}
-
-			if (m_filter(*row))
-			{
-				//
-				// Report Add event if this is new
-				//
-				if (m_filteredAdapters.end() == findFilteredAdapter(*row))
-				{
-					m_filteredAdapters.push_back(*row);
-					m_updateSink(m_filteredAdapters, row, UpdateType::Add);
-				}
-			}
-			else
-			{
-				//
-				// Synthesize a Delete event if we're not
-				// interested in this adapter anymore.
-				//
-				const auto it = findFilteredAdapter(*row);
-				if (m_filteredAdapters.end() != it)
-				{
-					m_filteredAdapters.erase(it);
-					m_updateSink(m_filteredAdapters, row, UpdateType::Delete);
-				}
-			}
-
-			break;
 		}
-		case MibParameterNotification:
+	}
+	else
+	{
+		if (m_adapters.end() == adapterIt)
 		{
-			const auto adapterIt = m_adapters.find(hint->InterfaceLuid.Value);
-
-			if (m_adapters.end() != adapterIt)
-			{
-				//
-				// Update row content
-				//
-				MIB_IF_ROW2 &iface = adapterIt->second.adapter;
-				getIfEntry(iface, hint->InterfaceLuid);
-
-				if (m_filter(iface))
-				{
-					if (m_filteredAdapters.end() == findFilteredAdapter(iface))
-					{
-						m_filteredAdapters.push_back(iface);
-
-						//
-						// Report Add if we hadn't seen this adapter before.
-						//
-						m_updateSink(
-							m_filteredAdapters,
-							&iface,
-							UpdateType::Add
-						);
-					}
-					else
-					{
-						m_updateSink(
-							m_filteredAdapters,
-							&iface,
-							UpdateType::Update
-						);
-					}
-				}
-				else
-				{
-					//
-					// No longer interested in this adapter.
-					// Synthesize a Delete event.
-					//
-					const auto it = findFilteredAdapter(iface);
-					if (m_filteredAdapters.end() != it)
-					{
-						m_filteredAdapters.erase(it);
-
-						m_updateSink(
-							m_filteredAdapters,
-							&iface,
-							UpdateType::Delete
-						);
-					}
-				}
-			}
-
-			break;
+			return;
 		}
-		case MibDeleteInstance:
+		
+		//
+		// Remove the adapter
+		//
+
+		m_adapters.erase(adapterIt);
+
+		auto filteredIt = std::find_if(m_filteredAdapters.begin(), m_filteredAdapters.end(), [&iface](const MIB_IF_ROW2 &elem)
 		{
-			const auto adapterIt = m_adapters.find(hint->InterfaceLuid.Value);
+			return elem.InterfaceLuid.Value == iface.InterfaceLuid.Value;
+		});
 
-			if (m_adapters.end() != adapterIt)
-			{
-				if (isIPv4)
-				{
-					adapterIt->second.IPv4 = false;
-				}
-				else
-				{
-					adapterIt->second.IPv6 = false;
-				}
+		if (m_filteredAdapters.end() != filteredIt)
+		{
+			m_filteredAdapters.erase(filteredIt);
 
-				if (!adapterIt->second.IPv4 &&
-					!adapterIt->second.IPv6)
-				{
-					MIB_IF_ROW2 iface = adapterIt->second.adapter;
-					
-					m_adapters.erase(adapterIt);
-
-					auto filteredIt = std::find_if(m_filteredAdapters.begin(), m_filteredAdapters.end(), [hint](const MIB_IF_ROW2 &elem)
-					{
-						return elem.InterfaceLuid.Value == hint->InterfaceLuid.Value;
-					});
-
-					if (m_filteredAdapters.end() != filteredIt)
-					{
-						//
-						// Delete it here so that Add is reported if filter() returns false
-						// here and true later.
-						//
-						m_filteredAdapters.erase(filteredIt);
-
-						//
-						// "Delete" will be reported only if "Add" was reported first.
-						//
-						if (m_filter(iface))
-						{
-							m_updateSink(
-								m_filteredAdapters,
-								&iface,
-								UpdateType::Delete
-							);
-						}
-					}
-				}
-			}
-
-			break;
+			//
+			// "Delete" will be reported whenever "Add" has been reported first.
+			// m_filter() should not be called.
+			//
+			m_updateSink(
+				m_filteredAdapters,
+				&iface,
+				UpdateType::Delete
+			);
 		}
 	}
 }

@@ -64,7 +64,7 @@ public:
 			logSink,
 			statusNotifier,
 			testNotifier,
-			[](std::map<ULONG64, NetworkAdapterMonitor::AdapterElement> &adaptersOut)
+			[](std::map<ULONG64, MIB_IF_ROW2> &adaptersOut)
 			{
 			}
 		);

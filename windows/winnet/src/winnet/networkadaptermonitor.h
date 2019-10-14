@@ -67,30 +67,12 @@ public:
 		void detach() override;
 	};
 
-	struct AdapterElement
-	{
-		AdapterElement(
-			const MIB_IF_ROW2 &adapter,
-			bool ipv4Enabled,
-			bool ipv6Enabled
-		)
-			: adapter(adapter)
-			, IPv4(ipv4Enabled)
-			, IPv6(ipv6Enabled)
-		{
-		}
-
-		bool IPv4;
-		bool IPv6;
-		MIB_IF_ROW2 adapter;
-	};
-
 	NetworkAdapterMonitor(
 		std::shared_ptr<common::logging::ILogSink> logSink
 		, UpdateSinkType updateSink
 		, FilterType filter
 		, std::shared_ptr<WinNotifier> notifier
-		, std::function<void(std::map<ULONG64, AdapterElement> &adaptersOut)> initAdapters
+		, std::function<void(std::map<ULONG64, MIB_IF_ROW2> &adaptersOut)> initAdapters
 	);
 	NetworkAdapterMonitor(
 		std::shared_ptr<common::logging::ILogSink> logSink
@@ -122,7 +104,7 @@ private:
 
 	std::vector<MIB_IF_ROW2>::iterator findFilteredAdapter(const MIB_IF_ROW2 &adapter);
 
-	std::map<ULONG64, AdapterElement> m_adapters;
+	std::map<ULONG64, MIB_IF_ROW2> m_adapters;
 	std::vector<MIB_IF_ROW2> m_filteredAdapters;
 
 	std::mutex m_processingMutex;

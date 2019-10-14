@@ -19,7 +19,7 @@ public:
 		std::shared_ptr<common::logging::ILogSink> logSink,
 		Notifier notifier,
 		std::shared_ptr<NetworkAdapterMonitor::WinNotifier> winNotifier,
-		std::function<void(std::map<ULONG64, NetworkAdapterMonitor::AdapterElement> &adaptersOut)> initAdapters
+		std::function<void(std::map<ULONG64, MIB_IF_ROW2> &adaptersOut)> initAdapters
 	);
 	OfflineMonitor(std::shared_ptr<common::logging::ILogSink> logSink, Notifier notifier, std::shared_ptr<NetworkAdapterMonitor::WinNotifier> winNotifier);
 	OfflineMonitor(std::shared_ptr<common::logging::ILogSink> logSink, Notifier notifier);
