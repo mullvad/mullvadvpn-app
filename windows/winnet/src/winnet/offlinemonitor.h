@@ -15,6 +15,7 @@ public:
 	//
 	using Notifier = std::function<void(bool)>;
 
+	OfflineMonitor(std::shared_ptr<common::logging::ILogSink> logSink, Notifier notifier, NetworkAdapterMonitor::UpdateSinkType updateSink);
 	OfflineMonitor(std::shared_ptr<common::logging::ILogSink> logSink, Notifier notifier);
 
 private:
@@ -25,7 +26,9 @@ private:
 	bool m_connected;
 	NetworkAdapterMonitor m_netInterfaces;
 
-	void callback(const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, NetworkAdapterMonitor::UpdateType type);
-
 	void LogOfflineState();
+
+protected:
+
+	void callback(const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, NetworkAdapterMonitor::UpdateType type);
 };
