@@ -276,6 +276,20 @@
 
 	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_ADAPTER_PRESENT}
 		log::Log "Virtual adapter with custom name already present on system"
+
+		driverlogic::FindMullvadTapGuid
+
+		Pop $0
+		Pop $1
+
+		${If} $0 != 1
+			StrCpy $R0 "Failed to identify TAP adapter: error $0"
+			log::LogWithDetails $R0 $1
+			Goto InstallDriver_return
+		${EndIf}
+
+		StrCpy $InstallDriver_TapGuid $1
+
 		Goto InstallDriver_return_success
 	${EndIf}
 
@@ -347,9 +361,12 @@
 		${EndIf}
 	${EndIf}
 
+	InstallDriver_return_success:
+
 	registry::WriteString "HKLM\SOFTWARE\Mullvad VPN" "TapAdapterGuid" "$InstallDriver_TapGuid"
 
-	InstallDriver_return_success:
+	Pop $0
+	Pop $1
 
 	log::Log "InstallDriver() completed successfully"
 	
