@@ -157,6 +157,56 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 }
 
 //
+// FindMullvadTapGuid
+//
+// Tries to identify an existing TAP adapter using its name,
+// first using the registry. If that fails, network adapters
+// are enumerated.
+//
+//
+enum class FindMullvadTapGuidStatus
+{
+	GENERAL_ERROR = 0,
+	SUCCESS
+};
+
+void __declspec(dllexport) NSISCALL FindMullvadTapGuid
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	if (nullptr == g_context)
+	{
+		pushstring(L"Initialize() function was not called or was not successful");
+		pushint(EstablishBaselineStatus::GENERAL_ERROR);
+	}
+
+	try
+	{
+		const auto guid = g_context->findMullvadGuid();
+		pushstring(guid.c_str());
+		pushint(FindMullvadTapGuidStatus::SUCCESS);
+	}
+	catch (std::exception &err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(FindMullvadTapGuidStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(FindMullvadTapGuidStatus::GENERAL_ERROR);
+	}
+}
+
+//
 // RemoveMullvadTap
 //
 // Deletes the Mullvad TAP adapter.

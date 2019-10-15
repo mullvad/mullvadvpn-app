@@ -25,6 +25,7 @@ namespace
 {
 
 const wchar_t TAP_HARDWARE_ID[] = L"tap0901";
+const wchar_t TAP_REGISTRY_VALUE_NAME[] = L"TapAdapterGuid";
 
 std::set<Context::NetworkAdapter> GetAllAdapters()
 {
@@ -142,6 +143,80 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 
 } // anonymous namespace
 
+std::wstring Context::findMullvadGuid() const
+{
+	try
+	{
+		const auto regKey = common::registry::Registry::OpenKey(
+			HKEY_LOCAL_MACHINE,
+			L"SOFTWARE\\Mullvad VPN",
+			false,
+			common::registry::RegistryView::Force64
+		);
+		return regKey->readString(TAP_REGISTRY_VALUE_NAME);
+	}
+	catch (const std::exception&)
+	{
+	}
+
+	//
+	// If reading from the registry fails (eg because value does not exist),
+	// check all network adapters.
+	//
+	
+	auto tapAdapters = GetTapAdapters(GetAllAdapters());
+
+	if (tapAdapters.empty())
+	{
+		throw std::runtime_error("No TAP adapters found");
+	}
+
+	//
+	// Look for TAP adapter with alias "Mullvad".
+	//
+
+	auto findByAlias = [](const std::set<NetworkAdapter> &adapters, const std::wstring &alias)
+	{
+		const auto it = std::find_if(adapters.begin(), adapters.end(), [&alias](const NetworkAdapter &candidate)
+		{
+			return 0 == _wcsicmp(candidate.alias.c_str(), alias.c_str());
+		});
+
+		return it;
+	};
+
+	static const wchar_t baseAlias[] = L"Mullvad";
+
+	const auto mullvadAdapter = findByAlias(tapAdapters, baseAlias);
+	
+	if (tapAdapters.end() != mullvadAdapter)
+	{
+		return mullvadAdapter->guid;
+	}
+
+	//
+	// Look for TAP adapter with alias "Mullvad-1", "Mullvad-2", etc.
+	//
+
+	for (auto i = 0; i < 10; ++i)
+	{
+		std::wstringstream ss;
+
+		ss << baseAlias << L"-" << i;
+
+		const auto alias = ss.str();
+
+		const auto mullvadAdapter = findByAlias(tapAdapters, alias);
+
+		if (tapAdapters.end() != mullvadAdapter)
+		{
+			return mullvadAdapter->guid;
+		}
+	}
+
+	throw std::runtime_error("Mullvad TAP not found");
+}
+
 std::set<Context::NetworkAdapter> Context::getTapAdapters()
 {
 	return GetTapAdapters(m_currentState);
@@ -239,7 +314,7 @@ void Context::DeleteMullvadAdapter()
 		false,
 		common::registry::RegistryView::Force64
 	);
-	const auto mullvadGuid = regkey->readString(L"TapAdapterGuid");
+	const auto mullvadGuid = regkey->readString(TAP_REGISTRY_VALUE_NAME);
 
 	HDEVINFO devInfo = SetupDiGetClassDevs(
 		&GUID_DEVCLASS_NET,

@@ -48,6 +48,7 @@ public:
 
 	std::set<NetworkAdapter> getTapAdapters();
 
+	std::wstring findMullvadGuid() const;
 	static void DeleteMullvadAdapter();
 private:
 
