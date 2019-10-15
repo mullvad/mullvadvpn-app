@@ -7,8 +7,14 @@ RUSTFLAGS="--deny unused_imports --deny dead_code"
 
 source env.sh ""
 
-rustup update $RUST_TOOLCHAIN_CHANNEL
-rustup default $RUST_TOOLCHAIN_CHANNEL
+RUST_EXTRA_COMPONENTS=""
+if [ "${RUST_TOOLCHAIN_CHANNEL}" = "nightly" ]; then
+  RUST_EXTRA_COMPONENTS+=" -c rustfmt-preview"
+fi
+
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
+  sh -s -- -y --default-toolchain $RUST_TOOLCHAIN_CHANNEL --profile minimal $RUST_EXTRA_COMPONENTS
+source $HOME/.cargo/env
 
 case "$(uname -s)" in
   MINGW*|MSYS_NT*)
@@ -24,12 +30,8 @@ if [ "${RUST_TOOLCHAIN_CHANNEL}" != "nightly" ]; then
 fi
 
 if [ "${RUST_TOOLCHAIN_CHANNEL}" = "nightly" ]; then
-  if rustup component add rustfmt-preview; then
-    rustfmt --version;
-    cargo fmt -- --check --unstable-features;
-  else
-    echo "There seems to not be any rustfmt for the current nighly. Skipping formatting check!"
-  fi
+  rustfmt --version;
+  cargo fmt -- --check --unstable-features;
 fi
 
 if ! git diff-index --quiet HEAD; then
