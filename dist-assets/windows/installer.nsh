@@ -222,7 +222,6 @@
 
 	Var /GLOBAL InstallDriver_BaselineStatus
 	Var /GLOBAL InstallDriver_TapName
-	Var /GLOBAL InstallDriver_TapGuid
 
 	log::Log "InstallDriver()"
 	
@@ -277,19 +276,6 @@
 	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_ADAPTER_PRESENT}
 		log::Log "Virtual adapter with custom name already present on system"
 
-		driverlogic::FindMullvadTapGuid
-
-		Pop $0
-		Pop $1
-
-		${If} $0 != 1
-			StrCpy $R0 "Failed to identify TAP adapter: error $0"
-			log::LogWithDetails $R0 $1
-			Goto InstallDriver_return
-		${EndIf}
-
-		StrCpy $InstallDriver_TapGuid $1
-
 		Goto InstallDriver_return_success
 	${EndIf}
 
@@ -340,7 +326,6 @@
 	${EndIf}
 
 	StrCpy $InstallDriver_TapName $1
-	StrCpy $InstallDriver_TapGuid $2
 	
 	log::Log "New virtual adapter is named $\"$1$\""
 	log::Log "Renaming adapter to $\"Mullvad$\""
@@ -362,8 +347,6 @@
 	${EndIf}
 
 	InstallDriver_return_success:
-
-	registry::WriteString "HKLM\SOFTWARE\Mullvad VPN" "TapAdapterGuid" "$InstallDriver_TapGuid"
 
 	Pop $0
 	Pop $1

@@ -145,20 +145,6 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 
 std::wstring Context::findMullvadGuid() const
 {
-	try
-	{
-		const auto regKey = common::registry::Registry::OpenKey(
-			HKEY_LOCAL_MACHINE,
-			L"SOFTWARE\\Mullvad VPN",
-			false,
-			common::registry::RegistryView::Force64
-		);
-		return regKey->readString(TAP_REGISTRY_VALUE_NAME);
-	}
-	catch (const std::exception&)
-	{
-	}
-
 	//
 	// If reading from the registry fails (eg because value does not exist),
 	// check all network adapters.
@@ -305,16 +291,9 @@ Context::NetworkAdapter Context::getNewAdapter()
 	return *added.begin();
 }
 
-//static
-void Context::DeleteMullvadAdapter()
+void Context::deleteMullvadAdapter() const
 {
-	const auto regkey = common::registry::Registry::OpenKey(
-		HKEY_LOCAL_MACHINE,
-		L"SOFTWARE\\Mullvad VPN",
-		false,
-		common::registry::RegistryView::Force64
-	);
-	const auto mullvadGuid = regkey->readString(TAP_REGISTRY_VALUE_NAME);
+	const auto mullvadGuid = findMullvadGuid();
 
 	HDEVINFO devInfo = SetupDiGetClassDevs(
 		&GUID_DEVCLASS_NET,
