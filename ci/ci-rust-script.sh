@@ -21,7 +21,7 @@ fi
 
 case "$(uname -s)" in
   MINGW*|MSYS_NT*)
-    ./build_windows_modules.sh --dev-build
+    time ./build_windows_modules.sh --dev-build
     ;;
 esac
 
