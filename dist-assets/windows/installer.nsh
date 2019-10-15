@@ -155,12 +155,12 @@
 !define ForceRenameAdapter '!insertmacro "ForceRenameAdapter"'
 
 #
-# RemoveTAP
+# RemoveTap
 #
 # Try to remove the Mullvad TAP adapter
 # and driver if there are no other TAPs available.
 #
-!macro RemoveTAP
+!macro RemoveTap
 	Push $0
 	Push $1
 
@@ -170,7 +170,7 @@
 	Pop $1
 
 	${If} $0 != ${DRIVERLOGIC_SUCCESS}
-		Goto RemoveTAP_return_only
+		Goto RemoveTap_return_only
 	${EndIf}
 
 	driverlogic::TAPAdapterCount
@@ -179,7 +179,7 @@
 	Pop $1
 
 	${If} $0 != ${TAC_SUCCESS}
-		Goto RemoveTAP_return
+		Goto RemoveTap_return
 	${EndIf}
 
 	${If} $1 == 1
@@ -195,21 +195,21 @@
 		Pop $1
 	${EndIf}
 	
-	RemoveTAP_return:
+	RemoveTap_return:
 
 	driverlogic::Deinitialize
 	
 	Pop $0
 	Pop $1
 
-	RemoveTAP_return_only:
+	RemoveTap_return_only:
 
 	Pop $1
 	Pop $0
 
 !macroend
 
-!define RemoveTAP '!insertmacro "RemoveTAP"'
+!define RemoveTap '!insertmacro "RemoveTap"'
 
 #
 # InstallDriver
@@ -755,7 +755,7 @@
 	${If} ${Errors}
 		# Remove the TAP adapter
 		${ExtractDriver}
-		${RemoveTAP}
+		${RemoveTap}
 
 		${RemoveLogsAndCache}
 		MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
