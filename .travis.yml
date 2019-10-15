@@ -33,7 +33,7 @@ matrix:
           - android-28
           - build-tools-28.0.3
       install:
-        - curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y
+        - curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable --profile minimal -y
         - source $HOME/.cargo/env
         - rustup target add aarch64-linux-android
         - curl -sf -L -o /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip
