@@ -7,8 +7,17 @@ RUSTFLAGS="--deny unused_imports --deny dead_code"
 
 source env.sh ""
 
-rustup update $RUST_TOOLCHAIN_CHANNEL
-rustup default $RUST_TOOLCHAIN_CHANNEL
+RUST_EXTRA_COMPONENTS=""
+if [ "${RUST_TOOLCHAIN_CHANNEL}" = "nightly" ]; then
+  RUST_EXTRA_COMPONENTS+=" -c rustfmt-preview"
+fi
+
+# Install Rust if on Linux or macOS
+if [[ "$(uname -s)" == "Linux" || "$(uname -s)" == "Darwin" ]]; then
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
+    -y --default-toolchain $RUST_TOOLCHAIN_CHANNEL --profile minimal $RUST_EXTRA_COMPONENTS
+  source $HOME/.cargo/env
+fi
 
 case "$(uname -s)" in
   MINGW*|MSYS_NT*)
@@ -23,13 +32,9 @@ if [ "${RUST_TOOLCHAIN_CHANNEL}" != "nightly" ]; then
   cargo test --locked --verbose
 fi
 
-if [ "${RUST_TOOLCHAIN_CHANNEL}" = "nightly" ]; then
-  if rustup component add rustfmt-preview; then
-    rustfmt --version;
-    cargo fmt -- --check --unstable-features;
-  else
-    echo "There seems to not be any rustfmt for the current nighly. Skipping formatting check!"
-  fi
+if [[ "${RUST_TOOLCHAIN_CHANNEL}" == "nightly" && "$(uname -s)" == "Linux" ]]; then
+  rustfmt --version;
+  cargo fmt -- --check --unstable-features;
 fi
 
 if ! git diff-index --quiet HEAD; then
