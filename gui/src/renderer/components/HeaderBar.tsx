@@ -94,7 +94,7 @@ export class Brand extends Component {
     return (
       <View style={brandStyles.container}>
         <ImageView width={50} height={50} source="logo-icon" />
-        <Text style={brandStyles.title}>{messages.pgettext('headerbar', 'MULLVAD VPN')}</Text>
+        <Text style={brandStyles.title}>{messages.pgettext('generic', 'MULLVAD VPN')}</Text>
       </View>
     );
   }
