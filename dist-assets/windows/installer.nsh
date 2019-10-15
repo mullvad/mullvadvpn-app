@@ -741,12 +741,6 @@
 
 	Sleep 1000
 
-	# Remove the TAP adapter
-	SetShellVarContext current
-	${RemoveRelayCache}
-	${ExtractDriver}
-	${RemoveTAP}
-
 	# Original removal functionality provided by Electron-builder
     RMDir /r $INSTDIR
 
@@ -756,6 +750,12 @@
 
 	# If not ran silently
 	${If} ${Errors}
+		# Remove the TAP adapter
+		SetShellVarContext current
+		${RemoveRelayCache}
+		${ExtractDriver}
+		${RemoveTAP}
+
 		${RemoveLogsAndCache}
 		MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
 		${RemoveSettings}
