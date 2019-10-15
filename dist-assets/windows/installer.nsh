@@ -741,6 +741,9 @@
 
 	Sleep 1000
 
+	SetShellVarContext current
+	${RemoveRelayCache}
+
 	# Original removal functionality provided by Electron-builder
     RMDir /r $INSTDIR
 
@@ -751,8 +754,6 @@
 	# If not ran silently
 	${If} ${Errors}
 		# Remove the TAP adapter
-		SetShellVarContext current
-		${RemoveRelayCache}
 		${ExtractDriver}
 		${RemoveTAP}
 
