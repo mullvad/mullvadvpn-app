@@ -1,10 +1,10 @@
-This is a folder with the supporting scripts written in python 2, node, bash.
+This is a folder with the supporting scripts written in Python 3, node, bash.
 
 
 ## Dependency installation notes
 
 1. Run the following command in terminal to install python dependencies:
-   `pip install -r requirements.txt`
+   `pip3 install -r requirements.txt`
 
 2. Run `npm install -g topojson-server` to install `geo2topo` tool which is
    used by python scripts to convert GeoJSON to TopoJSON
@@ -53,7 +53,7 @@ unzip ne_50m_populated_places.zip -d ne_50m_populated_places/
 Run the following script to produce a TopoJSON data used by the app:
 
 ```
-python extract-geo-data.py
+python3 extract-geo-data.py
 ```
 
 and finally generate the R-Tree cache:
@@ -70,5 +70,22 @@ Once you've extracted all the geo data, run the integration script that will
 copy all files ignoring intermediate ones into the `gui/assets/geo` folder:
 
 ```
-python integrate-into-app.py
+python3 integrate-into-app.py
+```
+
+## Locking Python dependencies
+
+1. Freeze dependencies:
+
+```
+pip3 freeze -r requirements.txt
+```
+
+and save the output into `requirements.txt`.
+
+
+2. Hash them with `hashin` tool:
+
+```
+hashin --python 3.7 --verbose --update-all
 ```

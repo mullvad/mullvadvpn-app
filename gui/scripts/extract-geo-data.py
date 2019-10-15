@@ -5,7 +5,7 @@ This module forms a geo json of highly populated cities in the world
 import os
 from os import path
 import json
-import urllib2
+import urllib.request
 from subprocess import Popen, PIPE
 from polib import POFile, POEntry
 import colorful as c
@@ -74,7 +74,7 @@ def extract_cities():
   with open(output_path, "w") as f:
     f.write(json.dumps(my_layer))
 
-  print c.green("Extracted data to {}".format(output_path))
+  print(c.green("Extracted data to {}".format(output_path)))
 
 
 def extract_countries():
@@ -106,7 +106,7 @@ def extract_countries():
   with open(output_path, "w") as f:
     f.write(json.dumps(my_layer))
 
-  print c.green("Extracted data to {}".format(output_path))
+  print(c.green("Extracted data to {}".format(output_path)))
 
 
 def extract_geometry():
@@ -130,11 +130,11 @@ def extract_geometry():
     ['geo2topo', '-q', '1e5', 'geometry=-', '-o', output_path],
     stdin=PIPE, stdout=PIPE, stderr=PIPE
   )
-  errors = p.communicate(input=json.dumps(my_layer))[1]
+  errors = p.communicate(input=json.dumps(my_layer).encode())[1]
   if p.returncode == 0:
-    print c.green("Extracted data to {}".format(output_path))
+    print(c.green("Extracted data to {}".format(output_path)))
   else:
-    print c.red("geo2topo exited with {}. {}".format(p.returncode, errors.decode('utf-8').strip()))
+    print(c.red("geo2topo exited with {}. {}".format(p.returncode, errors.decode().strip())))
 
 
 def extract_provinces_and_states_lines():
@@ -158,11 +158,11 @@ def extract_provinces_and_states_lines():
     ['geo2topo', '-q', '1e5', 'geometry=-', '-o', output_path],
     stdin=PIPE, stdout=PIPE, stderr=PIPE
   )
-  errors = p.communicate(input=json.dumps(my_layer))[1]
+  errors = p.communicate(input=json.dumps(my_layer).encode())[1]
   if p.returncode == 0:
-    print c.green("Extracted data to {}".format(output_path))
+    print(c.green("Extracted data to {}".format(output_path)))
   else:
-    print c.red("geo2topo exited with {}. {}".format(p.returncode, errors.decode('utf-8').strip()))
+    print(c.red("geo2topo exited with {}. {}".format(p.returncode, errors.decode().strip())))
 
 
 def extract_countries_po():
@@ -181,7 +181,7 @@ def extract_countries_po():
         if not path.exists(locale_out_dir):
           os.makedirs(locale_out_dir)
 
-        print "Generating {}".format(output_path)
+        print("Generating {}".format(output_path))
 
         for feat in source:
           props = lower_dict_keys(feat["properties"])
@@ -196,11 +196,11 @@ def extract_countries_po():
             translated_name = props.get(name_key)
           elif props.get(name_fallback) is not None:
             translated_name = props.get(name_fallback)
-            print c.orange(u"Missing translation for {}".format(translated_name))
+            print(c.orange("Missing translation for {}".format(translated_name)))
           else:
             raise ValueError(
               "Cannot find the translation for {}. Probe keys: {}"
-              .format(locale, (name_key, name_fallback))
+                .format(locale, (name_key, name_fallback))
               )
 
           entry = POEntry(
@@ -235,7 +235,7 @@ def extract_countries_po():
 
         sort_pofile_entries(po)
         po.save(output_path)
-        print c.green("Extracted {} countries for {} to {}".format(len(po), locale, output_path))
+        print(c.green("Extracted {} countries for {} to {}".format(len(po), locale, output_path)))
 
 
 def extract_cities_po():
@@ -256,7 +256,7 @@ def extract_cities_po():
       if not path.exists(locale_out_dir):
         os.makedirs(locale_out_dir)
 
-      print "Generating {}".format(output_path)
+      print("Generating {}".format(output_path))
 
       with fiona.open(input_path) as source:
         for feat in source:
@@ -271,12 +271,12 @@ def extract_cities_po():
               hits += 1
             elif props.get(name_fallback) is not None:
               translated_name = props.get(name_fallback)
-              print c.orange(u"Missing translation for {}".format(translated_name))
+              print(c.orange("Missing translation for {}".format(translated_name)))
               misses += 1
             else:
               raise ValueError(
                 "Cannot find the translation for {}. Probe keys: {}"
-                .format(locale, (name_key, name_fallback))
+                  .format(locale, (name_key, name_fallback))
                 )
 
             entry = POEntry(
@@ -287,11 +287,11 @@ def extract_cities_po():
             try:
               po.append(entry)
             except ValueError as err:
-              print c.orange(u"Cannot add an entry: {}".format(err))
+              print(c.orange("Cannot add an entry: {}".format(err)))
 
       sort_pofile_entries(po)
       po.save(output_path)
-      print c.green("Extracted {} cities to {}".format(len(po), output_path))
+      print(c.green("Extracted {} cities to {}".format(len(po), output_path)))
 
       stats.append((locale, hits, misses))
 
@@ -299,14 +299,14 @@ def extract_cities_po():
 
 
 def sort_pofile_entries(pofile):
-  pofile.sort(key=lambda o: o.msgid_with_context.encode('utf-8'))
+  pofile.sort(key=lambda o: o.msgid_with_context)
 
 
 def extract_relay_translations():
   try:
     response = request_relays()
   except Exception as e:
-    print c.red("Failed to fetch the relays list: {}".format(e))
+    print(c.red("Failed to fetch the relays list: {}".format(e)))
     raise
 
   result = response.get("result")
@@ -326,18 +326,18 @@ def extract_relay_locations_pot(countries):
   pot.metadata = {"Content-Type": "text/plain; charset=utf-8"}
   output_path = path.join(LOCALE_OUT_DIR, RELAY_LOCATIONS_POT_FILENAME)
 
-  print "Generating {}".format(output_path)
+  print("Generating {}".format(output_path))
 
   for country in countries:
     country_name = country.get("name")
     if country_name is not None:
       entry = POEntry(
         msgid=country_name,
-        msgstr=u"",
+        msgstr="",
         comment=country.get("code").upper()
       )
       pot.append(entry)
-      print u"{} ({})".format(country_name, country.get("code")).encode('utf-8')
+      print("{} ({})".format(country_name, country.get("code")))
 
     cities = country.get("cities")
     if cities is not None:
@@ -346,16 +346,16 @@ def extract_relay_locations_pot(countries):
         if city_name is not None:
           entry = POEntry(
             msgid=city_name,
-            msgstr=u"",
-            comment=u"{} {}".format(country.get("code").upper(), city.get("code").upper())
+            msgstr="",
+            comment="{} {}".format(country.get("code").upper(), city.get("code").upper())
           )
 
           try:
             pot.append(entry)
           except ValueError as err:
-            print c.orange(u"Cannot add an entry: {}".format(err))
+            print(c.orange("Cannot add an entry: {}".format(err)))
 
-          print u"{} ({})".format(city_name, city.get("code")).encode('utf-8')
+          print("{} ({})".format(city_name, city.get("code")))
 
   pot.save(output_path)
 
@@ -374,7 +374,7 @@ def prepare_stats_table_column(item):
 
 def print_stats_table(title, data):
   header = ("Locale", "Hits", "Misses", "% translated", "Total")
-  color_data = map(prepare_stats_table_column, data)
+  color_data = list(map(prepare_stats_table_column, data))
 
   table = AsciiTable([header] + color_data)
   table.title = title
@@ -382,9 +382,9 @@ def print_stats_table(title, data):
   for i in range(1, 5):
     table.justify_columns[i] = 'center'
 
-  print ""
-  print table.table
-  print ""
+  print("")
+  print(table.table)
+  print("")
 
 
 def translate_relay_locations(countries):
@@ -403,7 +403,7 @@ def translate_relay_locations(countries):
   for locale in os.listdir(LOCALE_DIR):
     locale_dir = path.join(LOCALE_DIR, locale)
     if path.isdir(locale_dir):
-      print "Generating {}".format(path.join(locale, RELAY_LOCATIONS_PO_FILENAME))
+      print("Generating {}".format(path.join(locale, RELAY_LOCATIONS_PO_FILENAME)))
       (hits, misses) = translate_single_relay_locations(country_translator, city_translator, countries, locale)
       stats.append((locale, hits, misses))
 
@@ -442,12 +442,11 @@ def translate_single_relay_locations(country_translator, city_translator, countr
       translated_country_name = ""
       misses += 1
 
-    log_message = u"{} ({}) -> \"{}\"".format(
-      country_name, country_code, translated_country_name).encode('utf-8')
+    log_message = "{} ({}) -> \"{}\"".format(country_name, country_code, translated_country_name)
     if found_country_translation:
-      print c.green(log_message)
+      print(c.green(log_message))
     else:
-      print c.orange(log_message)
+      print(c.orange(log_message))
 
     # translate country
     entry = POEntry(
@@ -460,8 +459,8 @@ def translate_single_relay_locations(country_translator, city_translator, countr
     # translate cities
     cities = country.get("cities")
     if cities is None:
-      print c.orange(u"Skip {} ({}) because no cities were found.".format(
-        country_name, country_code))
+      print(c.orange("Skip {} ({}) because no cities were found."
+        .format(country_name, country_code)))
       continue
 
     for city in cities:
@@ -476,7 +475,7 @@ def translate_single_relay_locations(country_translator, city_translator, countr
         translated_name = city_translator.translate(locale, split[0].strip())
 
         if translated_name is not None and len(split) > 1:
-          translated_name = u"{}, {}".format(translated_name, split[1].strip())
+          translated_name = "{}, {}".format(translated_name, split[1].strip())
       else:
         translated_name = city_translator.translate(locale, city_name)
 
@@ -488,23 +487,22 @@ def translate_single_relay_locations(country_translator, city_translator, countr
         translated_name = ""
         misses += 1
 
-      log_message = u"{} ({}) -> \"{}\"".format(
-        city_name, city_code, translated_name).encode('utf-8')
+      log_message = "{} ({}) -> \"{}\"".format(city_name, city_code, translated_name)
       if found_translation:
-        print c.green(log_message)
+        print(c.green(log_message))
       else:
-        print c.orange(log_message)
+        print(c.orange(log_message))
 
       entry = POEntry(
         msgid=city_name,
         msgstr=translated_name,
-        comment=u"{} {}".format(country_code.upper(), city_code.upper())
+        comment="{} {}".format(country_code.upper(), city_code.upper())
       )
 
       try:
         po.append(entry)
       except ValueError as err:
-        print c.orange(u"Cannot add an entry: {}".format(err))
+        print(c.orange("Cannot add an entry: {}".format(err)))
 
   po.save(output_path)
 
@@ -513,14 +511,12 @@ def translate_single_relay_locations(country_translator, city_translator, countr
 
 ### HELPERS ###
 
-class CountryTranslator(object):
+class CountryTranslator:
   """
   This class provides facilities for translating countries
   """
 
   def __init__(self):
-    super(CountryTranslator, self).__init__()
-
     self.dataset = self.__build_index()
 
   def translate(self, locale, iso_a2):
@@ -539,8 +535,8 @@ class CountryTranslator(object):
       value = props.get(name_key)
 
       if value is None:
-        print c.orange(u"Missing translation for {} ({}) under the {} key".format(
-          iso_a2, locale, name_key).encode('utf-8'))
+        print(c.orange("Missing translation for {} ({}) under the {} key"
+          .format(iso_a2, locale, name_key)))
       else:
         return value
 
@@ -567,14 +563,12 @@ class CountryTranslator(object):
     return dataset
 
 
-class CityTranslator(object):
+class CityTranslator:
   """
   This class provides facilities for translating places from English.
   """
 
   def __init__(self):
-    super(CityTranslator, self).__init__()
-
     self.dataset = self.__build_index()
 
   def translate(self, locale, english_name):
@@ -594,8 +588,8 @@ class CityTranslator(object):
       value = props.get(name_key)
 
       if value is None:
-        print c.orange(u"Missing translation for {} ({}) under the {} key".format(
-          english_name, locale, name_key).encode('utf-8'))
+        print(c.orange("Missing translation for {} ({}) under the {} key"
+          .format(english_name, locale, name_key)))
       else:
         return value
 
@@ -639,7 +633,7 @@ def get_shape_path(dataset_name):
 
 
 def lower_dict_keys(input_dict):
-  return dict((k.lower(), v) for k, v in input_dict.iteritems())
+  return dict((k.lower(), v) for k, v in input_dict.items())
 
 
 def convert_locale_ident(locale_ident):
@@ -664,10 +658,10 @@ def map_locale(locale_ident):
 
 
 def request_relays():
-  data = json.dumps({"jsonrpc": "2.0", "id": "0", "method": "relay_list_v3"})
-  headers = {"Content-Type": "application/json"}
-  request = urllib2.Request("https://api.mullvad.net/rpc/", data, headers)
-  return json.load(urllib2.urlopen(request))
+  data = json.dumps({"jsonrpc": "2.0", "id": "0", "method": "relay_list_v3"}).encode()
+  request = urllib.request.Request("https://api.mullvad.net/rpc/", data=data)
+  request.add_header("Content-Type", "application/json")
+  return json.load(urllib.request.urlopen(request))
 
 
 # Program main()
