@@ -48,8 +48,8 @@ public:
 
 	std::set<NetworkAdapter> getTapAdapters();
 
-	std::wstring findMullvadGuid() const;
-	void deleteMullvadAdapter() const;
+	static std::wstring FindMullvadGuid();
+	static void DeleteMullvadAdapter();
 private:
 
 	std::set<NetworkAdapter> m_baseline;

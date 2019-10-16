@@ -142,7 +142,8 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 
 } // anonymous namespace
 
-std::wstring Context::findMullvadGuid() const
+//static
+std::wstring Context::FindMullvadGuid()
 {
 	//
 	// If reading from the registry fails (eg because value does not exist),
@@ -290,9 +291,10 @@ Context::NetworkAdapter Context::getNewAdapter()
 	return *added.begin();
 }
 
-void Context::deleteMullvadAdapter() const
+//static
+void Context::DeleteMullvadAdapter()
 {
-	const auto mullvadGuid = findMullvadGuid();
+	const auto mullvadGuid = FindMullvadGuid();
 
 	HDEVINFO devInfo = SetupDiGetClassDevs(
 		&GUID_DEVCLASS_NET,
