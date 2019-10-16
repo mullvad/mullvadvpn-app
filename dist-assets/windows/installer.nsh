@@ -315,6 +315,7 @@
 	driverlogic::IdentifyNewAdapter
 	
 	Pop $0
+	Pop $2
 	Pop $1
 
 	${If} $0 != ${INA_SUCCESS}
