@@ -14,6 +14,13 @@ struct ILogSink
 	virtual void log(const std::wstring &message) = 0;
 };
 
+class VoidLogSink : public ILogSink
+{
+public:
+
+	void log(const std::wstring &message) override {}
+};
+
 class AnsiFileLogSink : public ILogSink
 {
 public:

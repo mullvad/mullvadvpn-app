@@ -50,6 +50,10 @@
 !define PE_GENERAL_ERROR 0
 !define PE_SUCCESS 1
 
+# Log targets
+!define LOG_FILE 0
+!define LOG_VOID 1
+
 # Windows error codes
 !define ERROR_SERVICE_DEPENDENCY_DELETED 1075
 
@@ -654,7 +658,7 @@
 
 	Push $R0
 
-	log::Initialize
+	log::Initialize LOG_FILE
 
 	log::Log "Running installer for ${PRODUCT_NAME} ${VERSION}"
 	log::LogWindowsVersion
@@ -727,16 +731,26 @@
 
 	Sleep 1000
 
-	log::Initialize
+	# Check command line arguments
+	Var /GLOBAL FullUninstall
+
+	${GetParameters} $0
+	${GetOptions} $0 "/S" $1
+	${If} ${Errors}
+		Push 1
+		log::Initialize LOG_VOID
+	${Else}
+		Push 0
+		log::Initialize LOG_FILE
+	${EndIf}
+	Pop $FullUninstall
+
+	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
 
 	${RemoveCLIFromEnvironPath}
 
-	# Check command line arguments
-	${GetParameters} $0
-	${GetOptions} $0 "/S" $1
-
 	# If not ran silently
-	${If} ${Errors}
+	${If} $FullUninstall == 1
 		# Remove the TAP adapter
 		${ExtractDriver}
 		${RemoveTap}
