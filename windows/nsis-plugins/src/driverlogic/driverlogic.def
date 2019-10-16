@@ -6,5 +6,6 @@ Initialize
 EstablishBaseline
 IdentifyNewAdapter
 TapAdapterCount
+FindMullvadTapGuid
 RemoveMullvadTap
 Deinitialize
