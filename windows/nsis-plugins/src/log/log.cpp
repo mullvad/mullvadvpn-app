@@ -168,6 +168,25 @@ std::wstring GetWindowsVersion()
 } // anonymous namespace
 
 //
+// Pin
+//
+// Loads the DLL.
+//
+void __declspec(dllexport) NSISCALL Pin
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+	PinDll();
+}
+
+//
 // Initialize
 //
 // Opens and maintains an open handle to the log file.
