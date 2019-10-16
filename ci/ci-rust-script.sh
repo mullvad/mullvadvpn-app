@@ -21,15 +21,15 @@ fi
 
 case "$(uname -s)" in
   MINGW*|MSYS_NT*)
-    ./build_windows_modules.sh --dev-build
+    time ./build_windows_modules.sh --dev-build
     ;;
 esac
 
 # FIXME: Becaues of our old jsonrpc dependency our Rust code won't build
 # on latest nightly.
 if [ "${RUST_TOOLCHAIN_CHANNEL}" != "nightly" ]; then
-  cargo build --locked --verbose
-  cargo test --locked --verbose
+  time cargo build --locked --verbose
+  time cargo test --locked --verbose
 fi
 
 if [[ "${RUST_TOOLCHAIN_CHANNEL}" == "nightly" && "$(uname -s)" == "Linux" ]]; then

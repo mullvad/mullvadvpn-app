@@ -11,22 +11,38 @@ matrix:
     # GUI - Electron
     - language: node_js
       node_js: '12'
+      name: Desktop Frontend, Linux
       cache: npm
       services:
         - xvfb
       before_install:
         - npm install -g npm
-      install:
+      install: &node_install
+        - npm --version
+        - node --version
         - cd gui
         - npm ci --no-optional
-      script:
+      script: &node_script
         - npm run check-format
         - npm run lint
         - npm run build
         - npm test
 
+    - os: windows
+      language: node_js
+      node_js: '12'
+      name: Desktop Frontend, Windows
+      cache: npm
+      before_install:
+        # npm fails to upgrade itself if just doing `npm install -g npm`. See this issue:
+        # https://travis-ci.community/t/command-npm-i-g-npm-latest-fails/431/5
+        - node `npm prefix -g`/node_modules/npm/bin/npm-cli.js i -g npm@latest
+      install: *node_install
+      script: *node_script
+
     # Android
     - language: android
+      name: Android
       sudo: true
       android:
         components:
@@ -65,6 +81,7 @@ matrix:
     # Daemon - macOS
     - language: rust
       rust: stable
+      name: Daemon, macOS - stable Rust
       os: osx
       before_script:
         - env
@@ -73,7 +90,7 @@ matrix:
 
     # Daemon - Linux
     - os: linux
-      name: Daemon - nigtly Rust
+      name: Daemon, Linux - nigtly Rust
       language: minimal
       dist: xenial
       services: docker
@@ -84,7 +101,7 @@ matrix:
         - docker exec -t mvd-build bash ci/ci-rust-script.sh nightly
 
     - os: linux
-      name: Daemon - beta Rust
+      name: Daemon, Linux - beta Rust
       language: minimal
       dist: xenial
       services: docker
@@ -93,13 +110,33 @@ matrix:
         - docker exec -t mvd-build bash ci/ci-rust-script.sh beta
 
     - os: linux
-      name: Daemon - stable Rust
+      name: Daemon, Linux - stable Rust
       language: minimal
       dist: xenial
       services: docker
       before_script: *rust_before_script
       script:
         - docker exec -t mvd-build bash ci/ci-rust-script.sh stable
+
+    # Daemon - Windows
+    - os: windows
+      name: Daemon, Windows - stable Rust
+      env: RUST_VERSION=stable
+      language: bash
+      install: &rust_windows_install
+        - curl -sSf -o rustup-init.exe https://win.rustup.rs/
+        - ./rustup-init.exe -y --default-host x86_64-pc-windows-msvc --default-toolchain $RUST_VERSION --profile minimal
+        - export PATH="$HOME/.cargo/bin/:$PATH"
+        - export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/amd64/:$PATH"
+      script: &rust_windows_script
+        - ./ci/ci-rust-script.sh $RUST_VERSION
+
+    - os: windows
+      name: Daemon, Windows - beta Rust
+      env: RUST_VERSION=beta
+      language: bash
+      install: *rust_windows_install
+      script: *rust_windows_script
 
 
 notifications:
