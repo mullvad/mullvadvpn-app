@@ -25,7 +25,6 @@ namespace
 {
 
 const wchar_t TAP_HARDWARE_ID[] = L"tap0901";
-const wchar_t TAP_REGISTRY_VALUE_NAME[] = L"TapAdapterGuid";
 
 std::set<Context::NetworkAdapter> GetAllAdapters()
 {
