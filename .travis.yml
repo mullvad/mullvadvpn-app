@@ -106,15 +106,7 @@ matrix:
       name: Daemon - stable Rust
       env: RUST_VERSION=stable
       language: bash
-      cache:  &rust_windows_cache
-        directories:
-          - windows/nsis-plugins/bin
-          - windows/windns/bin
-          - windows/winfw/bin
-          - windows/winnet/bin
-          - windows/winutil/bin
       install: &rust_windows_install
-        - du -sh windows/
         - curl -sSf -o rustup-init.exe https://win.rustup.rs/
         - ./rustup-init.exe -y --default-host x86_64-pc-windows-msvc --default-toolchain $RUST_VERSION --profile minimal
         - export PATH="$HOME/.cargo/bin/:$PATH"
@@ -126,7 +118,6 @@ matrix:
       name: Daemon - beta Rust
       env: RUST_VERSION=beta
       language: bash
-      cache: *rust_windows_cache
       install: *rust_windows_install
       script: *rust_windows_script
 
