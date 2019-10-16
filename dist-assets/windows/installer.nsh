@@ -727,8 +727,9 @@
 
 	Sleep 1000
 
-	# Original removal functionality provided by Electron-builder
-    RMDir /r $INSTDIR
+	log::Initialize
+
+	${RemoveCLIFromEnvironPath}
 
 	# Check command line arguments
 	${GetParameters} $0
@@ -746,7 +747,8 @@
 		customRemoveFiles_after_remove_settings:
 	${EndIf}
 
-	${RemoveCLIFromEnvironPath}
+	# Original removal functionality provided by Electron-builder
+	RMDir /r $INSTDIR
 
 	Pop $1
 	Pop $0
