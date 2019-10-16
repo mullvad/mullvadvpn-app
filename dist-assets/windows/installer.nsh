@@ -170,6 +170,8 @@
 	Pop $1
 
 	${If} $0 != ${DRIVERLOGIC_SUCCESS}
+		StrCpy $R0 "Failed to initialize plugin 'driverlogic': $1"
+		MessageBox MB_OK $R0
 		Goto RemoveTap_return_only
 	${EndIf}
 
@@ -179,6 +181,7 @@
 	Pop $1
 
 	${If} $0 != ${TAC_SUCCESS}
+		MessageBox MB_OK $1
 		Goto RemoveTap_return
 	${EndIf}
 
