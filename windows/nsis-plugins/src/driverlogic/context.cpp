@@ -25,7 +25,6 @@ namespace
 {
 
 const wchar_t TAP_HARDWARE_ID[] = L"tap0901";
-const wchar_t TAP_REGISTRY_VALUE_NAME[] = L"TapAdapterGuid";
 
 std::set<Context::NetworkAdapter> GetAllAdapters()
 {
@@ -146,25 +145,6 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 //static
 std::wstring Context::FindMullvadGuid()
 {
-	try
-	{
-		const auto regKey = common::registry::Registry::OpenKey(
-			HKEY_LOCAL_MACHINE,
-			L"SOFTWARE\\Mullvad VPN",
-			false,
-			common::registry::RegistryView::Force64
-		);
-		return regKey->readString(TAP_REGISTRY_VALUE_NAME);
-	}
-	catch (const std::exception&)
-	{
-	}
-
-	//
-	// If reading from the registry fails (eg because value does not exist),
-	// check all network adapters.
-	//
-	
 	auto tapAdapters = GetTapAdapters(GetAllAdapters());
 
 	if (tapAdapters.empty())
@@ -309,13 +289,7 @@ Context::NetworkAdapter Context::getNewAdapter()
 //static
 void Context::DeleteMullvadAdapter()
 {
-	const auto regkey = common::registry::Registry::OpenKey(
-		HKEY_LOCAL_MACHINE,
-		L"SOFTWARE\\Mullvad VPN",
-		false,
-		common::registry::RegistryView::Force64
-	);
-	const auto mullvadGuid = regkey->readString(TAP_REGISTRY_VALUE_NAME);
+	const auto mullvadGuid = FindMullvadGuid();
 
 	HDEVINFO devInfo = SetupDiGetClassDevs(
 		&GUID_DEVCLASS_NET,
