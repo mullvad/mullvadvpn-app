@@ -172,6 +172,13 @@ std::wstring GetWindowsVersion()
 //
 // Opens and maintains an open handle to the log file.
 //
+enum class LogTarget
+{
+	LOG_FILE = 0,
+	LOG_VOID,
+	LOG_LAST
+};
+
 void __declspec(dllexport) NSISCALL Initialize
 (
 	HWND hwndParent,
@@ -188,29 +195,52 @@ void __declspec(dllexport) NSISCALL Initialize
 	{
 		PinDll();
 
-		auto logpath = std::experimental::filesystem::path(common::fs::GetKnownFolderPath(
-			FOLDERID_ProgramData, 0, nullptr));
-
-		logpath.append(L"Mullvad VPN");
-
-		if (FALSE == CreateDirectoryW(logpath.c_str(), nullptr))
+		int target = popint();
+		if (target < 0 || target >= static_cast<int>(LogTarget::LOG_LAST))
 		{
-			if (ERROR_ALREADY_EXISTS != GetLastError())
-			{
-				std::wstringstream ss;
-
-				ss << L"Cannot create folder: "
-					<< L"\""
-					<< logpath
-					<< L"\"";
-
-				throw std::runtime_error(common::string::ToAnsi(ss.str()));
-			}
+			throw std::runtime_error("Invalid log target");
 		}
 
-		const auto logfile = decltype(logpath)(logpath).append(L"install.log");
+		switch (static_cast<LogTarget>(target))
+		{
+			case LogTarget::LOG_FILE:
+			{
+				auto logpath = std::experimental::filesystem::path(common::fs::GetKnownFolderPath(
+					FOLDERID_ProgramData, 0, nullptr));
 
-		g_logger = new Logger(std::make_unique<AnsiFileLogSink>(logfile));
+				logpath.append(L"Mullvad VPN");
+
+				if (FALSE == CreateDirectoryW(logpath.c_str(), nullptr))
+				{
+					if (ERROR_ALREADY_EXISTS != GetLastError())
+					{
+						std::wstringstream ss;
+
+						ss << L"Cannot create folder: "
+							<< L"\""
+							<< logpath
+							<< L"\"";
+
+						throw std::runtime_error(common::string::ToAnsi(ss.str()));
+					}
+				}
+
+				const auto logfile = decltype(logpath)(logpath).append(L"install.log");
+
+				g_logger = new Logger(std::make_unique<AnsiFileLogSink>(logfile));
+
+				break;
+
+			}
+
+			case LogTarget::LOG_VOID:
+			{
+				g_logger = new Logger(std::make_unique<VoidLogSink>());
+
+				break;
+
+			}
+		}
 	}
 	catch (std::exception &err)
 	{
