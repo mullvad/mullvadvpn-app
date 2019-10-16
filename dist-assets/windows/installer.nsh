@@ -737,8 +737,9 @@
 
 	Sleep 1000
 
-	# Original removal functionality provided by Electron-builder
-    RMDir /r $INSTDIR
+	log::Initialize
+
+	${RemoveCLIFromEnvironPath}
 
 	# Check command line arguments
 	${GetParameters} $0
@@ -750,13 +751,17 @@
 		${ExtractDriver}
 		${RemoveTap}
 
+		# Original removal functionality provided by Electron-builder
+		RMDir /r $INSTDIR
+
 		${RemoveLogsAndCache}
 		MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
 		${RemoveSettings}
 		customRemoveFiles_after_remove_settings:
+	${Else}
+		# Original removal functionality provided by Electron-builder
+		RMDir /r $INSTDIR
 	${EndIf}
-
-	${RemoveCLIFromEnvironPath}
 
 	Pop $1
 	Pop $0
