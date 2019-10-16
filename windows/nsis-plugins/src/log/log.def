@@ -2,6 +2,7 @@ LIBRARY log
 
 EXPORTS
 
+Pin
 Initialize
 Log
 LogWithDetails
