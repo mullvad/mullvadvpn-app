@@ -16,14 +16,27 @@ matrix:
         - xvfb
       before_install:
         - npm install -g npm
-      install:
+      install: &node_install
+        - npm --version
+        - node --version
         - cd gui
         - npm ci --no-optional
-      script:
+      script: &node_script
         - npm run check-format
         - npm run lint
         - npm run build
         - npm test
+
+    - os: windows
+      language: node_js
+      node_js: '12'
+      cache: npm
+      before_install:
+        # npm fails to upgrade itself if just doing `npm install -g npm`. See this issue:
+        # https://travis-ci.community/t/command-npm-i-g-npm-latest-fails/431/5
+        - node `npm prefix -g`/node_modules/npm/bin/npm-cli.js i -g npm@latest
+      install: *node_install
+      script: *node_script
 
     # Android
     - language: android
