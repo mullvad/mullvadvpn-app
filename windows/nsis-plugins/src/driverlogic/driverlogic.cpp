@@ -181,15 +181,9 @@ void __declspec(dllexport) NSISCALL FindMullvadTapGuid
 {
 	EXDLL_INIT();
 
-	if (nullptr == g_context)
-	{
-		pushstring(L"Initialize() function was not called or was not successful");
-		pushint(EstablishBaselineStatus::GENERAL_ERROR);
-	}
-
 	try
 	{
-		const auto guid = g_context->findMullvadGuid();
+		const auto guid = Context::FindMullvadGuid();
 		pushstring(guid.c_str());
 		pushint(FindMullvadTapGuidStatus::SUCCESS);
 	}

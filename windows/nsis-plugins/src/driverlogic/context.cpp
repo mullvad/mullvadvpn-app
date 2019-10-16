@@ -142,7 +142,8 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 
 } // anonymous namespace
 
-std::wstring Context::findMullvadGuid() const
+//static
+std::wstring Context::FindMullvadGuid()
 {
 	auto tapAdapters = GetTapAdapters(GetAllAdapters());
 
@@ -288,7 +289,7 @@ Context::NetworkAdapter Context::getNewAdapter()
 //static
 void Context::DeleteMullvadAdapter()
 {
-	const auto mullvadGuid = findMullvadGuid();
+	const auto mullvadGuid = FindMullvadGuid();
 
 	HDEVINFO devInfo = SetupDiGetClassDevs(
 		&GUID_DEVCLASS_NET,
