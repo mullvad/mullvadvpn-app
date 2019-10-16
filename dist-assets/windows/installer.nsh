@@ -589,8 +589,6 @@
 #
 !macro RemoveCLIFromEnvironPath
 
-	log::Log "RemoveCLIFromEnvironPath()"
-
 	Push $0
 	Push $1
 
@@ -600,11 +598,8 @@
 	Pop $1
 
 	${If} $0 != ${PE_SUCCESS}
-		log::Log "RemoveCLIFromEnvironPath() failed: $0 $1"
 		Goto RemovePath_return
 	${EndIf}
-
-	log::Log "RemoveCLIFromEnvironPath() completed successfully"
 
 	RemovePath_return:
 
