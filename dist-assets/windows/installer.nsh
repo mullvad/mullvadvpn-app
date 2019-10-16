@@ -592,8 +592,6 @@
 #
 !macro RemoveCLIFromEnvironPath
 
-	log::Log "RemoveCLIFromEnvironPath()"
-
 	Push $0
 	Push $1
 
@@ -603,11 +601,9 @@
 	Pop $1
 
 	${If} $0 != ${PE_SUCCESS}
-		log::Log "RemoveCLIFromEnvironPath() failed: $0 $1"
+		MessageBox MB_OK "Error removing app from PATH: $1"
 		Goto RemovePath_return
 	${EndIf}
-
-	log::Log "RemoveCLIFromEnvironPath() completed successfully"
 
 	RemovePath_return:
 
@@ -744,11 +740,9 @@
 
 	Sleep 1000
 
-	SetShellVarContext current
-	${RemoveRelayCache}
+	log::Pin
 
-	# Original removal functionality provided by Electron-builder
-    RMDir /r $INSTDIR
+	${RemoveCLIFromEnvironPath}
 
 	# Check command line arguments
 	${GetParameters} $0
@@ -760,13 +754,17 @@
 		${ExtractDriver}
 		${RemoveTap}
 
+		# Original removal functionality provided by Electron-builder
+		RMDir /r $INSTDIR
+
 		${RemoveLogsAndCache}
 		MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
 		${RemoveSettings}
 		customRemoveFiles_after_remove_settings:
+	${Else}
+		# Original removal functionality provided by Electron-builder
+		RMDir /r $INSTDIR
 	${EndIf}
-
-	${RemoveCLIFromEnvironPath}
 
 	Pop $1
 	Pop $0
