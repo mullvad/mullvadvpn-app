@@ -145,11 +145,6 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 //static
 std::wstring Context::FindMullvadGuid()
 {
-	//
-	// If reading from the registry fails (eg because value does not exist),
-	// check all network adapters.
-	//
-	
 	auto tapAdapters = GetTapAdapters(GetAllAdapters());
 
 	if (tapAdapters.empty())
