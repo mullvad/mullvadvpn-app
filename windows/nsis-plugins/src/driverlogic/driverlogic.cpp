@@ -159,9 +159,8 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 //
 // FindMullvadTapGuid
 //
-// Tries to identify an existing TAP adapter using its name,
-// first using the registry. If that fails, network adapters
-// are enumerated.
+// Tries to identify an the Mullvad TAP adapter GUID
+// using its name.
 //
 //
 enum class FindMullvadTapGuidStatus
@@ -233,7 +232,6 @@ void __declspec(dllexport) NSISCALL RemoveMullvadTap
 	try
 	{
 		Context::DeleteMullvadAdapter();
-
 		pushstring(L"");
 		pushint(RemoveMullvadTapStatus::SUCCESS);
 	}
