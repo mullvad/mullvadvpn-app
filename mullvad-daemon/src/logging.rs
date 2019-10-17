@@ -13,15 +13,15 @@ pub enum Error {
     #[error(display = "Unable to open log file for writing: {}", path)]
     WriteFile {
         path: String,
-        #[error(cause)]
+        #[error(source)]
         source: io::Error,
     },
 
     #[error(display = "Unable to rotate daemon log file")]
-    RotateLog(#[error(cause)] talpid_core::logging::RotateLogError),
+    RotateLog(#[error(source)] talpid_core::logging::RotateLogError),
 
     #[error(display = "Unable to set logger")]
-    SetLoggerError(#[error(cause)] log::SetLoggerError),
+    SetLoggerError(#[error(source)] log::SetLoggerError),
 }
 
 pub const SILENCED_CRATES: &[&str] = &[

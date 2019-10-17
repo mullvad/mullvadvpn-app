@@ -59,22 +59,22 @@ pub enum Error {
     #[error(display = "Failed to write the problem report to {}", path)]
     WriteReportError {
         path: String,
-        #[error(cause)]
+        #[error(source)]
         source: io::Error,
     },
 
     #[error(display = "Failed to read the problem report at {}", path)]
     ReadProblemReportError {
         path: String,
-        #[error(cause)]
+        #[error(source)]
         source: io::Error,
     },
 
     #[error(display = "Unable to create JSON-RPC 2.0 client")]
-    CreateRpcClientError(#[error(cause)] mullvad_rpc::HttpError),
+    CreateRpcClientError(#[error(source)] mullvad_rpc::HttpError),
 
     #[error(display = "Error during RPC call")]
-    SendRpcError(#[error(cause)] mullvad_rpc::Error),
+    SendRpcError(#[error(source)] mullvad_rpc::Error),
 }
 
 /// These are errors that can happen during problem report collection.
@@ -88,7 +88,7 @@ pub enum LogError {
     #[error(display = "Failed to list the files in the log directory: {}", path)]
     ListLogDir {
         path: String,
-        #[error(cause)]
+        #[error(source)]
         source: io::Error,
     },
 

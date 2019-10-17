@@ -34,21 +34,22 @@ const PLATFORM: &str = "android";
 
 
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to open app version cache file for reading")]
-    ReadCachedRelays(#[error(cause)] io::Error),
+    ReadCachedRelays(#[error(source)] io::Error),
 
     #[error(display = "Failed to open app version cache file for writing")]
-    WriteRelayCache(#[error(cause)] io::Error),
+    WriteRelayCache(#[error(source)] io::Error),
 
     #[error(display = "Failure in serialization of the version info")]
-    Serialize(#[error(cause)] serde_json::Error),
+    Serialize(#[error(source)] serde_json::Error),
 
     #[error(display = "Timed out when trying to check the latest app version")]
     DownloadTimeout,
 
     #[error(display = "Failed to check the latest app version")]
-    Download(#[error(cause)] mullvad_rpc::Error),
+    Download(#[error(source)] mullvad_rpc::Error),
 }
 
 impl<F> From<TimeoutError<F>> for Error {

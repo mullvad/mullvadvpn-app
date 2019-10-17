@@ -13,15 +13,16 @@ use std::{sync::mpsc, thread};
 use talpid_types::ErrorExt;
 
 #[derive(Debug, err_derive::Error)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to create global reference to MullvadDaemon Java object")]
-    CreateGlobalReference(#[error(cause)] jni::errors::Error),
+    CreateGlobalReference(#[error(source)] jni::errors::Error),
 
     #[error(display = "Failed to find {} method", _0)]
-    FindMethod(&'static str, #[error(cause)] jni::errors::Error),
+    FindMethod(&'static str, #[error(source)] jni::errors::Error),
 
     #[error(display = "Failed to retrieve Java VM instance")]
-    GetJvmInstance(#[error(cause)] jni::errors::Error),
+    GetJvmInstance(#[error(source)] jni::errors::Error),
 }
 
 enum Event {

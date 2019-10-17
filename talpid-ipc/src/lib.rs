@@ -21,18 +21,19 @@ use std::fmt;
 pub type IpcServerId = String;
 
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Unable to start IPC server")]
-    StartServerError(#[error(cause)] io::Error),
+    StartServerError(#[error(source)] io::Error),
 
     #[error(display = "IPC server thread panicked and never returned a start result")]
     ServerThreadPanicError,
 
     #[error(display = "Error in IPC server")]
-    IpcServerError(#[error(cause)] io::Error),
+    IpcServerError(#[error(source)] io::Error),
 
     #[error(display = "Unable to set permissions for IPC endpoint")]
-    PermissionsError(#[error(cause)] io::Error),
+    PermissionsError(#[error(source)] io::Error),
 }
 
 

@@ -28,7 +28,7 @@ pub enum Error {
 
     /// Error while running "ip route".
     #[error(display = "Error while running \"ip route\"")]
-    FailedToRunIp(#[error(cause)] io::Error),
+    FailedToRunIp(#[error(source)] io::Error),
 
     /// Invocation of `ip route` ended with a non-zero exit code
     #[error(display = "ip returend a non-zero exit code")]
@@ -44,7 +44,7 @@ pub enum Error {
 
     /// Route table change stream failed.
     #[error(display = "Route change listener failed")]
-    ChangeListenerError(#[error(cause)] RouteChangeListenerError),
+    ChangeListenerError(#[error(source)] RouteChangeListenerError),
 
     /// Route table change stream failed.
     #[error(display = "Route change listener closed unexpectedly")]

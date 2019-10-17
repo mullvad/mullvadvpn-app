@@ -18,7 +18,7 @@ pub enum Error {
     ResolvconfUsesResolved,
 
     #[error(display = "Failed to execute 'resolvconf' program")]
-    RunResolvconf(#[error(cause)] io::Error),
+    RunResolvconf(#[error(source)] io::Error),
 
     #[error(display = "Using 'resolvconf' to add a record failed: {}", stderr)]
     AddRecordError { stderr: String },

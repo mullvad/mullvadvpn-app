@@ -30,7 +30,7 @@ const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can occur in the [`TunnelMonitor`].
-#[derive(err_derive::Error, Debug, derive_more::From)]
+#[derive(err_derive::Error, Debug)]
 pub enum Error {
     /// Tunnel can't have IPv6 enabled because the system has disabled IPv6 support.
     #[error(display = "Can't enable IPv6 on tunnel interface because IPv6 is disabled")]
@@ -42,22 +42,22 @@ pub enum Error {
 
     /// Failed to rotate tunnel log file
     #[error(display = "Failed to rotate tunnel log file")]
-    RotateLogError(#[error(cause)] crate::logging::RotateLogError),
+    RotateLogError(#[error(source)] crate::logging::RotateLogError),
 
     /// Failure to build Wireguard configuration.
     #[cfg(any(target_os = "android", target_os = "linux", target_os = "macos"))]
     #[error(display = "Failed to configure Wireguard with the given parameters")]
-    WireguardConfigError(#[error(cause)] self::wireguard::config::Error),
+    WireguardConfigError(#[error(source)] self::wireguard::config::Error),
 
     /// There was an error listening for events from the OpenVPN tunnel
     #[cfg(not(target_os = "android"))]
     #[error(display = "Failed while listening for events from the OpenVPN tunnel")]
-    OpenVpnTunnelMonitoringError(#[error(cause)] openvpn::Error),
+    OpenVpnTunnelMonitoringError(#[error(source)] openvpn::Error),
 
     /// There was an error listening for events from the Wireguard tunnel
     #[cfg(any(target_os = "android", target_os = "linux", target_os = "macos"))]
     #[error(display = "Failed while listening for events from the Wireguard tunnel")]
-    WireguardTunnelMonitoringError(#[error(cause)] wireguard::Error),
+    WireguardTunnelMonitoringError(#[error(source)] wireguard::Error),
 }
 
 

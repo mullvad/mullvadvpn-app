@@ -21,7 +21,7 @@ pub fn iface_index(name: &str) -> Result<libc::c_uint, IfaceIndexLookupError> {
 #[derive(Debug, err_derive::Error)]
 pub enum IfaceIndexLookupError {
     #[error(display = "Invalid network interface name: {}", _0)]
-    InvalidInterfaceName(String, #[error(cause)] ffi::NulError),
+    InvalidInterfaceName(String, #[error(source)] ffi::NulError),
     #[error(display = "Failed to get index for interface {}", _0)]
-    InterfaceLookupError(String, #[error(cause)] io::Error),
+    InterfaceLookupError(String, #[error(source)] io::Error),
 }

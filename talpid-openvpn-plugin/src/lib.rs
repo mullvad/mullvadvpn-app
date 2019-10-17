@@ -17,27 +17,28 @@ use crate::processing::EventProcessor;
 
 
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "No core server id given as first argument")]
     MissingCoreServerId,
 
     #[error(display = "Failed to send an event to daemon over the IPC channel")]
-    SendEvent(#[error(cause)] jsonrpc_client_core::Error),
+    SendEvent(#[error(source)] jsonrpc_client_core::Error),
 
     #[error(display = "Connection is shut down")]
     Shutdown,
 
     #[error(display = "Unable to start Tokio runtime")]
-    CreateRuntime(#[error(cause)] io::Error),
+    CreateRuntime(#[error(source)] io::Error),
 
     #[error(display = "Unable to create IPC transport")]
-    CreateTransport(#[error(cause)] io::Error),
+    CreateTransport(#[error(source)] io::Error),
 
     #[error(display = "Unable to parse environment variables from OpenVPN")]
-    ParseEnvFailed(#[error(cause)] std::str::Utf8Error),
+    ParseEnvFailed(#[error(source)] std::str::Utf8Error),
 
     #[error(display = "Unable to parse arguments from OpenVPN")]
-    ParseArgsFailed(#[error(cause)] std::str::Utf8Error),
+    ParseArgsFailed(#[error(source)] std::str::Utf8Error),
 }
 
 

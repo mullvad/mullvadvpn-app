@@ -15,7 +15,7 @@ pub enum Error {
 
     /// Supplied interface alias is invalid.
     #[error(display = "Supplied interface alias is invalid")]
-    InvalidInterfaceAlias(#[error(cause)] widestring::NulError<u16>),
+    InvalidInterfaceAlias(#[error(source)] widestring::NulError<u16>),
 
     /// Failed to read IPv6 status on the TAP network interface.
     #[error(display = "Failed to read IPv6 status on the TAP network interface")]

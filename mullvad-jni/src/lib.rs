@@ -101,24 +101,25 @@ lazy_static! {
 static LOAD_CLASSES: Once = Once::new();
 
 #[derive(Debug, err_derive::Error)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to create VpnService tunnel provider")]
-    CreateVpnServiceTunProvider(#[error(cause)] vpn_service_tun_provider::Error),
+    CreateVpnServiceTunProvider(#[error(source)] vpn_service_tun_provider::Error),
 
     #[error(display = "Failed to get cache directory path")]
-    GetCacheDir(#[error(cause)] mullvad_paths::Error),
+    GetCacheDir(#[error(source)] mullvad_paths::Error),
 
     #[error(display = "Failed to get log directory path")]
-    GetLogDir(#[error(cause)] mullvad_paths::Error),
+    GetLogDir(#[error(source)] mullvad_paths::Error),
 
     #[error(display = "Failed to initialize the mullvad daemon")]
-    InitializeDaemon(#[error(cause)] mullvad_daemon::Error),
+    InitializeDaemon(#[error(source)] mullvad_daemon::Error),
 
     #[error(display = "Failed to spawn the JNI event listener")]
-    SpawnJniEventListener(#[error(cause)] jni_event_listener::Error),
+    SpawnJniEventListener(#[error(source)] jni_event_listener::Error),
 
     #[error(display = "Failed to start logger")]
-    StartLogging(#[error(cause)] logging::Error),
+    StartLogging(#[error(source)] logging::Error),
 }
 
 #[no_mangle]

@@ -8,26 +8,27 @@ use tun::{platform, Configuration, Device};
 
 /// Errors that can happen when working with *nix tunnel interfaces.
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     /// Failed to set IP address
     #[error(display = "Failed to set IPv4 address")]
-    SetIpv4Error(#[error(cause)] tun::Error),
+    SetIpv4Error(#[error(source)] tun::Error),
 
     /// Failed to set IP address
     #[error(display = "Failed to set IPv6 address")]
-    SetIpv6Error(#[error(cause)] io::Error),
+    SetIpv6Error(#[error(source)] io::Error),
 
     /// Unable to open a tunnel device
     #[error(display = "Unable to open a tunnel device")]
-    CreateDeviceError(#[error(cause)] tun::Error),
+    CreateDeviceError(#[error(source)] tun::Error),
 
     /// Failed to apply async flags to tunnel device
     #[error(display = "Failed to apply async flags to tunnel device")]
-    SetDeviceAsyncError(#[error(cause)] nix::Error),
+    SetDeviceAsyncError(#[error(source)] nix::Error),
 
     /// Failed to enable/disable link device
     #[error(display = "Failed to enable/disable link device")]
-    ToggleDeviceError(#[error(cause)] tun::Error),
+    ToggleDeviceError(#[error(source)] tun::Error),
 }
 
 /// A trait for managing link devices

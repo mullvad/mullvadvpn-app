@@ -40,19 +40,19 @@ use tokio_core::reactor::Core;
 pub enum Error {
     /// Unable to spawn offline state monitor
     #[error(display = "Unable to spawn offline state monitor")]
-    OfflineMonitorError(#[error(cause)] crate::offline::Error),
+    OfflineMonitorError(#[error(source)] crate::offline::Error),
 
     /// Failed to initialize the system firewall integration.
     #[error(display = "Failed to initialize the system firewall integration")]
-    InitFirewallError(#[error(cause)] crate::firewall::Error),
+    InitFirewallError(#[error(source)] crate::firewall::Error),
 
     /// Failed to initialize the system DNS manager and monitor.
     #[error(display = "Failed to initialize the system DNS manager and monitor")]
-    InitDnsMonitorError(#[error(cause)] crate::dns::Error),
+    InitDnsMonitorError(#[error(source)] crate::dns::Error),
 
     /// Failed to initialize tunnel state machine event loop executor
     #[error(display = "Failed to initialize tunnel state machine event loop executor")]
-    ReactorError(#[error(cause)] io::Error),
+    ReactorError(#[error(source)] io::Error),
 
     /// Failed to send state change event to listener
     #[error(display = "Failed to send state change event to listener")]

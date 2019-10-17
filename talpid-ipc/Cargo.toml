@@ -7,7 +7,7 @@ license = "GPL-3.0"
 edition = "2018"
 
 [dependencies]
-err-derive = "0.1.5"
+err-derive = "0.2.1"
 serde = "1.0"
 serde_json = "1.0"
 log = "0.4"

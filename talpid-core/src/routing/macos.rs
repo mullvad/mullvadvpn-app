@@ -16,22 +16,23 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen in the macOS routing integration.
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     /// Failed to add route.
     #[error(display = "Failed to add route")]
-    FailedToAddRoute(#[error(cause)] io::Error),
+    FailedToAddRoute(#[error(source)] io::Error),
 
     /// Failed to remove route.
     #[error(display = "Failed to remove route")]
-    FailedToRemoveRoute(#[error(cause)] io::Error),
+    FailedToRemoveRoute(#[error(source)] io::Error),
 
     /// Error while running "ip route".
     #[error(display = "Error while running \"route get\"")]
-    FailedToRunRoute(#[error(cause)] io::Error),
+    FailedToRunRoute(#[error(source)] io::Error),
 
     /// Error while monitoring routes with `route -nv monitor`
     #[error(display = "Error while running \"route -nv monitor\"")]
-    FailedToMonitorRoutes(#[error(cause)] io::Error),
+    FailedToMonitorRoutes(#[error(source)] io::Error),
 
     /// No default route in "ip route" output.
     #[error(display = "No default route in \"ip route\" output")]

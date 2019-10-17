@@ -14,18 +14,19 @@ use std::{
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "NetworkManager not detected")]
-    NetworkManagerNotDetected(#[error(cause)] dbus::Error),
+    NetworkManagerNotDetected(#[error(source)] dbus::Error),
 
     #[error(display = "NetworkManager is too old")]
-    TooOldNetworkManager(#[error(cause)] dbus::Error),
+    TooOldNetworkManager(#[error(source)] dbus::Error),
 
     #[error(display = "NetworkManager is not managing DNS")]
     NetworkManagerNotManagingDns,
 
     #[error(display = "Error while communicating over Dbus")]
-    Dbus(#[error(cause)] dbus::Error),
+    Dbus(#[error(source)] dbus::Error),
 
     #[error(display = "DNS is managed by systemd-resolved - NM can't enforce DNS globally")]
     SystemdResolved,

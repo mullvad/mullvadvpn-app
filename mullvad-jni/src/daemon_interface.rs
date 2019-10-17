@@ -15,7 +15,7 @@ use parking_lot::Mutex;
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
     #[error(display = "Can't send command to daemon because it is not running")]
-    NoDaemon(#[error(cause)] mullvad_daemon::Error),
+    NoDaemon(#[error(source)] mullvad_daemon::Error),
 
     #[error(display = "No response received from daemon")]
     NoResponse,
@@ -24,7 +24,7 @@ pub enum Error {
     NoSender,
 
     #[error(display = "Error performing RPC with the remote API")]
-    RpcError(#[error(cause)] jsonrpc_client_core::Error),
+    RpcError(#[error(source)] jsonrpc_client_core::Error),
 }
 
 type Result<T> = std::result::Result<T, Error>;

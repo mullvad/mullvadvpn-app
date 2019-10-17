@@ -17,27 +17,28 @@ use talpid_types::BoxedError;
 /// Errors that occur while setting up VpnService tunnel.
 #[derive(Debug, err_derive::Error)]
 #[error(display = "Failed to set up the VpnService")]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to attach Java VM to tunnel thread")]
-    AttachJvmToThread(#[error(cause)] jni::errors::Error),
+    AttachJvmToThread(#[error(source)] jni::errors::Error),
 
     #[error(display = "Failed to allow socket to bypass tunnel")]
     Bypass,
 
     #[error(display = "Failed to call Java method MullvadVpnService.{}", _0)]
-    CallMethod(&'static str, #[error(cause)] jni::errors::Error),
+    CallMethod(&'static str, #[error(source)] jni::errors::Error),
 
     #[error(display = "Failed to create Java VM handle clone")]
-    CloneJavaVm(#[error(cause)] jni::errors::Error),
+    CloneJavaVm(#[error(source)] jni::errors::Error),
 
     #[error(display = "Failed to create global reference to MullvadVpnService instance")]
-    CreateGlobalReference(#[error(cause)] jni::errors::Error),
+    CreateGlobalReference(#[error(source)] jni::errors::Error),
 
     #[error(display = "Failed to find MullvadVpnService.{} method", _0)]
-    FindMethod(&'static str, #[error(cause)] jni::errors::Error),
+    FindMethod(&'static str, #[error(source)] jni::errors::Error),
 
     #[error(display = "Failed to get Java VM instance")]
-    GetJvmInstance(#[error(cause)] jni::errors::Error),
+    GetJvmInstance(#[error(source)] jni::errors::Error),
 
     #[error(
         display = "Received an invalid result from MullvadVpnService.{}: {}",

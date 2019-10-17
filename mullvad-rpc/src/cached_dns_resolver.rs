@@ -21,7 +21,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// DNS resolution for a host took too long
     #[error(display = "DNS resolution for \"{}\" timed out", _0)]
-    DnsTimeout(String, #[error(cause)] mpsc::RecvTimeoutError),
+    DnsTimeout(String, #[error(source)] mpsc::RecvTimeoutError),
 
     /// DNS resolution for a host didn't return any IP addresses
     #[error(display = "DNS resolution for \"{}\" did not return any IPs", _0)]
@@ -29,15 +29,15 @@ pub enum Error {
 
     /// Failed to resolve IP address for host
     #[error(display = "Failed to resolve IP address for \"{}\"", _0)]
-    ResolveFailure(String, #[error(cause)] io::Error),
+    ResolveFailure(String, #[error(source)] io::Error),
 
     /// Unable to read IP cache file
     #[error(display = "Failed to read DNS IP cache file")]
-    ReadCacheError(#[error(cause)] io::Error),
+    ReadCacheError(#[error(source)] io::Error),
 
     /// Address loaded from file is invalid
     #[error(display = "Address loaded from file is invalid")]
-    ParseCacheError(#[error(cause)] std::net::AddrParseError),
+    ParseCacheError(#[error(source)] std::net::AddrParseError),
 }
 
 

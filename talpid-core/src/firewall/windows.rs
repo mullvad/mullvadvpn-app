@@ -38,7 +38,7 @@ pub enum Error {
 
     /// Failure to set TAP adapter metric
     #[error(display = "Unable to set TAP adapter metric")]
-    SetTapMetric(#[error(cause)] crate::winnet::Error),
+    SetTapMetric(#[error(source)] crate::winnet::Error),
 }
 
 const WINFW_TIMEOUT_SECONDS: u32 = 2;

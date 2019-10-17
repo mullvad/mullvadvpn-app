@@ -19,18 +19,19 @@ use std::{
 };
 
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     /// Failed to open raw socket
     #[error(display = "Failed to open raw socket")]
-    OpenError(#[error(cause)] io::Error),
+    OpenError(#[error(source)] io::Error),
 
     /// Failed to read from raw socket
     #[error(display = "Failed to read from socket")]
-    ReadError(#[error(cause)] io::Error),
+    ReadError(#[error(source)] io::Error),
 
     /// Failed to write to raw socket
     #[error(display = "Failed to write to socket")]
-    WriteError(#[error(cause)] io::Error),
+    WriteError(#[error(source)] io::Error),
 
     #[error(display = "Timed out")]
     TimeoutError,

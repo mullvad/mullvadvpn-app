@@ -7,7 +7,7 @@ license = "GPL-3.0"
 edition = "2018"
 
 [dependencies]
-err-derive = "0.1.5"
+err-derive = "0.2.1"
 log = "0.4"
 
 [target.'cfg(any(windows, target_os = "macos"))'.dependencies]

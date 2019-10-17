@@ -23,23 +23,17 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to connect to daemon")]
-    DaemonNotRunning(#[error(cause)] io::Error),
+    DaemonNotRunning(#[error(source)] io::Error),
 
     #[error(display = "Can't subscribe to daemon states")]
-    CantSubscribe(#[error(cause)] mullvad_ipc_client::PubSubError),
+    CantSubscribe(#[error(source)] mullvad_ipc_client::PubSubError),
 
     #[error(display = "Failed to communicate with mullvad-daemon over RPC")]
-    RpcClientError(#[error(cause)] mullvad_ipc_client::Error),
+    RpcClientError(#[error(source)] mullvad_ipc_client::Error),
 
     /// The given command is not correct in some way
     #[error(display = "Invalid command: {}", _0)]
     InvalidCommand(&'static str),
-}
-
-impl From<mullvad_ipc_client::Error> for Error {
-    fn from(e: mullvad_ipc_client::Error) -> Self {
-        Error::RpcClientError(e)
-    }
 }
 
 pub fn new_rpc_client() -> Result<DaemonRpcClient> {
