@@ -22,7 +22,7 @@ jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev
 
 [dev-dependencies]
 assert_matches = "1.0"
-env_logger = "0.6"
+env_logger = "0.7"
 jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 uuid = { version = "0.7", features = ["v4"] }
 futures = "0.1.23"

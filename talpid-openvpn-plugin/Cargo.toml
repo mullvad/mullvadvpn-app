@@ -19,7 +19,7 @@ crate-type = ["cdylib"]
 [dependencies]
 err-derive = "0.1.5"
 log = "0.4"
-env_logger = "0.6"
+env_logger = "0.7"
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
 jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
 tokio-reactor = "0.1"
