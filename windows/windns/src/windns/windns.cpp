@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <libcommon/string.h>
+#include <libcommon/network/adapters.h>
 #include "windns.h"
 #include "confineoperation.h"
 #include "netsh.h"
@@ -7,7 +8,21 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include <iphlpapi.h>
+#include <sstream>
+#include <ws2tcpip.h>
+#include <ws2ipdef.h>
+#include <winsock2.h>	// magic order :-(
+#include <iphlpapi.h>	// if we don't do this then most of iphlpapi is not actually defined
+
+bool operator==(const IN_ADDR &lhs, const IN_ADDR &rhs)
+{
+	return 0 == memcmp(&lhs, &rhs, sizeof(IN_ADDR));
+}
+
+bool operator==(const IN6_ADDR &lhs, const IN6_ADDR &rhs)
+{
+	return 0 == memcmp(&lhs, &rhs, sizeof(IN6_ADDR));
+}
 
 namespace
 {
@@ -60,6 +75,101 @@ uint32_t ConvertInterfaceAliasToIndex(const std::wstring &interfaceAlias)
 	}
 
 	return static_cast<uint32_t>(index);
+}
+
+struct AdapterDnsAddresses
+{
+	std::vector<IN_ADDR> ipv4;
+	std::vector<IN6_ADDR> ipv6;
+};
+
+//
+// Use name when finding the adapter to be more resilient over time.
+// The adapter structure that is returned has two fields for interface index.
+// If IPv4 is enabled, 'IfIndex' will be set. Otherwise set to 0.
+// If IPv6 is enabled, 'Ipv6IfIndex' will be set. Otherwise set to 0.
+// If both IPv4 and IPv6 is enabled, then both fields will be set, and have the same value.
+//
+AdapterDnsAddresses GetAdapterDnsAddresses(const std::wstring &adapterAlias)
+{
+	common::network::Adapters adapters(AF_UNSPEC, GAA_FLAG_SKIP_UNICAST | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST);
+
+	const IP_ADAPTER_ADDRESSES *adapter;
+
+	while (nullptr != (adapter = adapters.next()))
+	{
+		if (0 != _wcsicmp(adapter->FriendlyName, adapterAlias.c_str()))
+		{
+			continue;
+		}
+
+		AdapterDnsAddresses out;
+
+		for (auto server = adapter->FirstDnsServerAddress; nullptr != server; server = server->Next)
+		{
+			if (AF_INET == server->Address.lpSockaddr->sa_family)
+			{
+				out.ipv4.push_back(((const SOCKADDR_IN*)server->Address.lpSockaddr)->sin_addr);
+			}
+			else if (AF_INET6 == server->Address.lpSockaddr->sa_family)
+			{
+				out.ipv6.push_back(((const SOCKADDR_IN6_LH*)server->Address.lpSockaddr)->sin6_addr);
+			}
+		}
+
+		return out;
+	}
+
+	throw std::runtime_error(std::string("Could not find interface: ")
+		.append(common::string::ToAnsi(adapterAlias)).c_str());
+}
+
+AdapterDnsAddresses ConvertAddresses(
+	const wchar_t **ipv4Servers,
+	uint32_t numIpv4Servers,
+	const wchar_t **ipv6Servers,
+	uint32_t numIpv6Servers
+)
+{
+	AdapterDnsAddresses out;
+
+	if (nullptr != ipv4Servers && 0 != numIpv4Servers)
+	{
+		for (uint32_t i = 0; i < numIpv4Servers; ++i)
+		{
+			IN_ADDR converted;
+
+			if (1 != InetPtonW(AF_INET, ipv4Servers[i], &converted))
+			{
+				throw std::runtime_error("Failed to convert IPv4 address");
+			}
+
+			out.ipv4.push_back(converted);
+		}
+	}
+
+	if (nullptr != ipv6Servers && 0 != numIpv6Servers)
+	{
+		for (uint32_t i = 0; i < numIpv6Servers; ++i)
+		{
+			IN6_ADDR converted;
+
+			if (1 != InetPtonW(AF_INET6, ipv6Servers[i], &converted))
+			{
+				throw std::runtime_error("Failed to convert IPv6 address");
+			}
+
+			out.ipv6.push_back(converted);
+		}
+	}
+
+	return out;
+}
+
+bool Equal(const AdapterDnsAddresses &lhs, const AdapterDnsAddresses &rhs)
+{
+	return lhs.ipv4 == rhs.ipv4
+		&& lhs.ipv6 == rhs.ipv6;
 }
 
 } // anonymous namespace
@@ -118,16 +228,71 @@ WinDns_Set(
 {
 	return ConfineOperation("Apply DNS settings", ForwardError, [&]()
 	{
+		//
+		// Check the settings on the adapter.
+		// If it already has the exact same settings we need, we're done.
+		//
+
+		try
+		{
+			const auto activeSettings = GetAdapterDnsAddresses(interfaceAlias);
+			const auto wantedSetting = ConvertAddresses(ipv4Servers, numIpv4Servers, ipv6Servers, numIpv6Servers);
+
+			if (Equal(activeSettings, wantedSetting))
+			{
+				std::stringstream ss;
+
+				ss << "DNS settings on adapter with alias \"" << common::string::ToAnsi(interfaceAlias)
+					<< "\" are up-to-date";
+
+				g_LogSink->info(ss.str().c_str(), nullptr, 0);
+
+				return;
+			}
+		}
+		catch (const std::exception &ex)
+		{
+			std::stringstream ss;
+
+			ss << "Failed to evaluate DNS settings on adapter with alias \""
+				<< common::string::ToAnsi(interfaceAlias) << "\": " << ex.what();
+
+			g_LogSink->info(ss.str().c_str(), nullptr, 0);
+		}
+		catch (...)
+		{
+			std::stringstream ss;
+
+			ss << "Failed to evaluate DNS settings on adapter with alias \""
+				<< common::string::ToAnsi(interfaceAlias) << "\": Unspecified failure";
+
+			g_LogSink->info(ss.str().c_str(), nullptr, 0);
+		}
+
+		//
+		// Onwards
+		//
+
 		const auto interfaceIndex = ConvertInterfaceAliasToIndex(interfaceAlias);
 
 		if (nullptr != ipv4Servers && 0 != numIpv4Servers)
 		{
 			g_NetSh->setIpv4StaticDns(interfaceIndex, MakeStringArray(ipv4Servers, numIpv4Servers));
 		}
+		else
+		{
+			// This is required to clear any current settings.
+			g_NetSh->setIpv4DhcpDns(interfaceIndex);
+		}
 
 		if (nullptr != ipv6Servers && 0 != numIpv6Servers)
 		{
 			g_NetSh->setIpv6StaticDns(interfaceIndex, MakeStringArray(ipv6Servers, numIpv6Servers));
+		}
+		else
+		{
+			// This is required to clear any current settings.
+			g_NetSh->setIpv6DhcpDns(interfaceIndex);
 		}
 	});
 }
