@@ -1,17 +1,16 @@
-import { app, nativeImage, NativeImage, Notification, shell } from 'electron';
+import { nativeImage, NativeImage, Notification, shell } from 'electron';
+import os from 'os';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
 import config from '../config.json';
 import { TunnelState } from '../shared/daemon-rpc-types';
 import { messages } from '../shared/gettext';
-import os from 'os';
 
 export default class NotificationController {
   private lastTunnelStateAnnouncement?: { body: string; notification: Notification };
   private reconnecting = false;
   private presentedNotifications: { [key: string]: boolean } = {};
   private pendingNotifications: Notification[] = [];
-  private notificationTitle = process.platform !== 'android' ? app.getName() : '';
   private notificationIcon?: NativeImage;
 
   constructor() {
@@ -36,27 +35,68 @@ export default class NotificationController {
     switch (tunnelState.state) {
       case 'connecting':
         if (!this.reconnecting) {
-          this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting'));
+          const details = tunnelState.details;
+          if (details && details.location && details.location.hostname) {
+            const msg = sprintf(
+              // TRANSLATORS: The message showed when a server is being connected to.
+              // TRANSLATORS: Available placeholder:
+              // TRANSLATORS: %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+              messages.pgettext('notifications', 'Connecting to %(location)s'),
+              {
+                location: details.location.hostname,
+              },
+            );
+            this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting'), msg);
+          } else {
+            this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting'), '');
+          }
         }
         break;
       case 'connected':
-        this.showTunnelStateNotification(messages.pgettext('notifications', 'Secured'));
+        {
+          const details = tunnelState.details;
+          if (details.location && details.location.hostname) {
+            const msg = sprintf(
+              // TRANSLATORS: The message showed when a server has been connected to.
+              // TRANSLATORS: Available placeholder:
+              // TRANSLATORS: %(location) - name of the server location we're connected to (e.g. "se-got-003")
+              messages.pgettext('notifications', 'Connected to %(location)s'),
+              {
+                location: details.location.hostname,
+              },
+            );
+            this.showTunnelStateNotification(messages.pgettext('notifications', 'Secured'), msg);
+          } else {
+            this.showTunnelStateNotification(messages.pgettext('notifications', 'Secured'), '');
+          }
+        }
         break;
       case 'disconnected':
-        this.showTunnelStateNotification(messages.pgettext('notifications', 'Unsecured'));
+        this.showTunnelStateNotification(messages.pgettext('notifications', 'Unsecured'), '');
         break;
       case 'blocked':
-        switch (tunnelState.details.reason) {
-          case 'set_firewall_policy_error':
-            this.showTunnelStateNotification(
-              messages.pgettext('notifications', 'Critical failure - Unsecured'),
-            );
-            break;
-          default:
-            this.showTunnelStateNotification(
-              messages.pgettext('notifications', 'Blocked all connections'),
-            );
-            break;
+        {
+          switch (tunnelState.details.reason) {
+            case 'is_offline':
+              this.showTunnelStateNotification(
+                // TRANSLATORS: The notification title showed when the computer is offline.
+                messages.pgettext('notifications', 'Computer appears to be offline'),
+                // TRANSLATORS: The notification message body showed when the computer is offline.
+                messages.pgettext(
+                  'notifications',
+                  'Connections are blocked due to connectivity issues',
+                ),
+              );
+              break;
+            default:
+              this.showTunnelStateNotification(
+                // TRANSLATORS: The notification title showed when the connection is lost due to an error or block.
+                messages.pgettext('notifications', 'Critical failure'),
+                // TRANSLATORS: The notification message body showed when the connection is lost due to an error or block.
+                messages.pgettext('notifications', 'Blocked all connections'),
+              );
+              break;
+          }
         }
         break;
       case 'disconnecting':
@@ -66,7 +106,10 @@ export default class NotificationController {
             // no-op
             break;
           case 'reconnect':
-            this.showTunnelStateNotification(messages.pgettext('notifications', 'Reconnecting'));
+            this.showTunnelStateNotification(
+              messages.pgettext('notifications', 'Reconnecting'),
+              '',
+            );
             this.reconnecting = true;
             return;
         }
@@ -79,11 +122,10 @@ export default class NotificationController {
   public notifyInconsistentVersion() {
     this.presentNotificationOnce('inconsistent-version', () => {
       const notification = new Notification({
-        title: this.notificationTitle,
-        body: messages.pgettext(
-          'notifications',
-          'Inconsistent internal version information, please restart the app',
-        ),
+        // TRANSLATORS: The system notification title displayed when the version information is inconsistent.
+        title: messages.pgettext('notifications', 'Inconsistent internal version information'),
+        // TRANSLATORS: The system notification message body displayed when the version information is inconsistent.
+        body: messages.pgettext('notifications', 'Please restart the app'),
         silent: true,
         icon: this.notificationIcon,
       });
@@ -94,14 +136,15 @@ export default class NotificationController {
   public notifyUnsupportedVersion(upgradeVersion: string) {
     this.presentNotificationOnce('unsupported-version', () => {
       const notification = new Notification({
-        title: this.notificationTitle,
+        // TRANSLATORS: The system notification title displayed to the user when the running app becomes unsupported.
+        title: messages.pgettext('notifications', 'Unsupported app version'),
         body: sprintf(
-          // TRANSLATORS: The system notification displayed to the user when the running app becomes unsupported.
+          // TRANSLATORS: The system notification message body displayed to the user when the running app becomes unsupported.
           // TRANSLATORS: Available placeholder:
           // TRANSLATORS: %(version) - the newest available version of the app
           messages.pgettext(
             'notifications',
-            'You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security',
+            'Please upgrade to %(version)s now to ensure your security',
           ),
           {
             version: upgradeVersion,
@@ -121,7 +164,7 @@ export default class NotificationController {
 
   public notifyKeyGenerationFailed() {
     const notification = new Notification({
-      title: this.notificationTitle,
+      title: '',
       body: messages.pgettext('notifications', 'Wireguard key generation failed'),
       silent: true,
       icon: this.notificationIcon,
@@ -139,7 +182,7 @@ export default class NotificationController {
     this.lastTunnelStateAnnouncement = undefined;
   }
 
-  private showTunnelStateNotification(message: string) {
+  private showTunnelStateNotification(title: string, message: string) {
     const lastAnnouncement = this.lastTunnelStateAnnouncement;
     const sameAsLastNotification = lastAnnouncement && lastAnnouncement.body === message;
 
@@ -148,7 +191,7 @@ export default class NotificationController {
     }
 
     const newNotification = new Notification({
-      title: this.notificationTitle,
+      title,
       body: message,
       silent: true,
       icon: this.notificationIcon,
