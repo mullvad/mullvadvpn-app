@@ -157,6 +157,68 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 }
 
 //
+// RemoveMullvadTap
+//
+// Deletes the Mullvad TAP adapter.
+//
+//
+enum class RemoveMullvadTapStatus
+{
+	GENERAL_ERROR = 0,
+	SUCCESS_NO_REMAINING_TAP_ADAPTERS,
+	SUCCESS_SOME_REMAINING_TAP_ADAPTERS
+};
+
+void __declspec(dllexport) NSISCALL RemoveMullvadTap
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	try
+	{
+		pushstring(L"");
+		
+		switch (Context::DeleteMullvadAdapter())
+		{
+			case Context::DeletionResult::NO_REMAINING_TAP_ADAPTERS:
+			{
+				pushint(RemoveMullvadTapStatus::SUCCESS_NO_REMAINING_TAP_ADAPTERS);
+				break;
+			}
+
+			case Context::DeletionResult::SOME_REMAINING_TAP_ADAPTERS:
+			{
+				pushint(RemoveMullvadTapStatus::SUCCESS_SOME_REMAINING_TAP_ADAPTERS);
+				break;
+			}
+
+			default:
+			{
+				throw std::runtime_error("Unexpected case");
+			}
+		}
+	}
+	catch (std::exception &err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(RemoveMullvadTapStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(RemoveMullvadTapStatus::GENERAL_ERROR);
+	}
+}
+
+
+//
 // IdentifyNewAdapter
 //
 // Call this function after installing a TAP adapter.

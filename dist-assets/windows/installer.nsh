@@ -29,6 +29,11 @@
 !define INA_GENERAL_ERROR 0
 !define INA_SUCCESS 1
 
+# Return codes from driverlogic::RemoveMullvadTap
+!define RMT_GENERAL_ERROR 0
+!define RMT_NO_REMAINING_ADAPTERS 1
+!define RMT_SOME_REMAINING_ADAPTERS 2
+
 # Return codes from driverlogic::Initialize/Deinitialize
 !define DRIVERLOGIC_GENERAL_ERROR 0
 !define DRIVERLOGIC_SUCCESS 1
@@ -44,6 +49,10 @@
 # Return codes from pathedit::AddSysEnvPath/pathedit::RemoveSysEnvPath
 !define PE_GENERAL_ERROR 0
 !define PE_SUCCESS 1
+
+# Log targets
+!define LOG_FILE 0
+!define LOG_VOID 1
 
 # Windows error codes
 !define ERROR_SERVICE_DEPENDENCY_DELETED 1075
@@ -151,6 +160,58 @@
 !define ForceRenameAdapter '!insertmacro "ForceRenameAdapter"'
 
 #
+# RemoveTap
+#
+# Try to remove the Mullvad TAP adapter
+# and driver if there are no other TAPs available.
+#
+!macro RemoveTap
+	Push $0
+	Push $1
+
+	driverlogic::Initialize
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${DRIVERLOGIC_SUCCESS}
+		Goto RemoveTap_return_only
+	${EndIf}
+
+	driverlogic::RemoveMullvadTap
+
+	Pop $0
+	Pop $1
+
+	${If} $0 == ${RMT_GENERAL_ERROR}
+		Goto RemoveTap_return
+	${EndIf}
+
+	${If} $0 == ${RMT_NO_REMAINING_ADAPTERS}
+		# Remove the driver altogether
+		nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${TAP_HARDWARE_ID}'
+
+		Pop $0
+		Pop $1
+	${EndIf}
+	
+	RemoveTap_return:
+
+	driverlogic::Deinitialize
+	
+	Pop $0
+	Pop $1
+
+	RemoveTap_return_only:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemoveTap '!insertmacro "RemoveTap"'
+
+#
 # InstallDriver
 #
 # Install tunnel driver or update it if already present on the system
@@ -213,6 +274,7 @@
 
 	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_ADAPTER_PRESENT}
 		log::Log "Virtual adapter with custom name already present on system"
+
 		Goto InstallDriver_return_success
 	${EndIf}
 
@@ -302,7 +364,7 @@
 	${EndIf}
 
 	InstallDriver_return_only:
-	
+
 	Pop $1
 	Pop $0
 	
@@ -596,7 +658,7 @@
 
 	Push $R0
 
-	log::Initialize
+	log::Initialize LOG_FILE
 
 	log::Log "Running installer for ${PRODUCT_NAME} ${VERSION}"
 	log::LogWindowsVersion
@@ -669,22 +731,38 @@
 
 	Sleep 1000
 
-	# Original removal functionality provided by Electron-builder
-    RMDir /r $INSTDIR
-
 	# Check command line arguments
+	Var /GLOBAL FullUninstall
+
 	${GetParameters} $0
 	${GetOptions} $0 "/S" $1
+	${If} ${Errors}
+		Push 1
+		log::Initialize LOG_VOID
+	${Else}
+		Push 0
+		log::Initialize LOG_FILE
+	${EndIf}
+	Pop $FullUninstall
+
+	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
+
+	${RemoveCLIFromEnvironPath}
 
 	# If not ran silently
-	${If} ${Errors}
+	${If} $FullUninstall == 1
+		# Remove the TAP adapter
+		${ExtractDriver}
+		${RemoveTap}
+
 		${RemoveLogsAndCache}
 		MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
 		${RemoveSettings}
 		customRemoveFiles_after_remove_settings:
 	${EndIf}
 
-	${RemoveCLIFromEnvironPath}
+	# Original removal functionality provided by Electron-builder
+	RMDir /r $INSTDIR
 
 	Pop $1
 	Pop $0
