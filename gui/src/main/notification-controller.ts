@@ -4,17 +4,27 @@ import { sprintf } from 'sprintf-js';
 import config from '../config.json';
 import { TunnelState } from '../shared/daemon-rpc-types';
 import { messages } from '../shared/gettext';
+import os from 'os';
 
 export default class NotificationController {
   private lastTunnelStateAnnouncement?: { body: string; notification: Notification };
   private reconnecting = false;
   private presentedNotifications: { [key: string]: boolean } = {};
   private pendingNotifications: Notification[] = [];
-  private notificationTitle = process.platform === 'linux' ? app.getName() : '';
+  private notificationTitle = process.platform !== 'android' ? app.getName() : '';
   private notificationIcon?: NativeImage;
 
   constructor() {
+    let usePngIcon;
     if (process.platform === 'linux') {
+      usePngIcon = true;
+    } else if (process.platform === 'win32') {
+      usePngIcon = parseInt(os.release().split('.')[0], 10) >= 10;
+    } else {
+      usePngIcon = false;
+    }
+
+    if (usePngIcon) {
       const basePath = path.resolve(path.join(__dirname, '../../assets/images'));
       this.notificationIcon = nativeImage.createFromPath(
         path.join(basePath, 'icon-notification.png'),
