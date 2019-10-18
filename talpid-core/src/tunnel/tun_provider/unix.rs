@@ -5,6 +5,7 @@ use talpid_types::BoxedError;
 
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, err_derive::Error)]
+#[error(no_from)]
 pub enum Error {
     /// Failure to create a tunnel device.
     #[error(display = "Failed to create a tunnel device")]

@@ -19,11 +19,11 @@ pub enum Error {
 
     /// Error in the HTTP client when requesting GeoIP
     #[error(display = "Failed to request GeoIP")]
-    Transport(#[error(cause)] mullvad_rpc::rest::Error),
+    Transport(#[error(source)] mullvad_rpc::rest::Error),
 
     /// Failed to deserialize GeoIP response
     #[error(display = "Failed to deserialize GeoIP response")]
-    Deserialize(#[error(cause)] serde_json::error::Error),
+    Deserialize(#[error(source)] serde_json::error::Error),
 }
 
 

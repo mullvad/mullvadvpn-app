@@ -15,18 +15,19 @@ use talpid_types::ErrorExt;
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to get list of IP links")]
-    GetLinksError(#[error(cause)] failure::Compat<rtnetlink::Error>),
+    GetLinksError(#[error(source)] failure::Compat<rtnetlink::Error>),
 
     #[error(display = "Failed to connect to netlink socket")]
-    NetlinkConnectionError(#[error(cause)] io::Error),
+    NetlinkConnectionError(#[error(source)] io::Error),
 
     #[error(display = "Failed to start listening on netlink socket")]
-    NetlinkBindError(#[error(cause)] io::Error),
+    NetlinkBindError(#[error(source)] io::Error),
 
     #[error(display = "Error while communicating on the netlink socket")]
-    NetlinkError(#[error(cause)] netlink_proto::Error),
+    NetlinkError(#[error(source)] netlink_proto::Error),
 
     #[error(display = "Error while processing netlink messages")]
     MonitorNetlinkError,

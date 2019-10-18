@@ -20,22 +20,23 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen when interacting with Linux netfilter.
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     /// Unable to open netlink socket to netfilter.
     #[error(display = "Unable to open netlink socket to netfilter")]
-    NetlinkOpenError(#[error(cause)] io::Error),
+    NetlinkOpenError(#[error(source)] io::Error),
 
     /// Unable to send netlink command to netfilter.
     #[error(display = "Unable to send netlink command to netfilter")]
-    NetlinkSendError(#[error(cause)] io::Error),
+    NetlinkSendError(#[error(source)] io::Error),
 
     /// Error while reading from netlink socket.
     #[error(display = "Error while reading from netlink socket")]
-    NetlinkRecvError(#[error(cause)] io::Error),
+    NetlinkRecvError(#[error(source)] io::Error),
 
     /// Error while processing an incoming netlink message.
     #[error(display = "Error while processing an incoming netlink message")]
-    ProcessNetlinkError(#[error(cause)] io::Error),
+    ProcessNetlinkError(#[error(source)] io::Error),
 
     /// Failed to verify that our tables are set. Probably means that
     /// it's the host that does not support nftables properly.
@@ -47,7 +48,7 @@ pub enum Error {
         display = "Unable to translate network interface name \"{}\" into index",
         _0
     )]
-    LookupIfaceIndexError(String, #[error(cause)] crate::linux::IfaceIndexLookupError),
+    LookupIfaceIndexError(String, #[error(source)] crate::linux::IfaceIndexLookupError),
 }
 
 lazy_static! {

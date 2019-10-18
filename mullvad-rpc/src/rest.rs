@@ -12,7 +12,7 @@ use tokio_core::reactor::Handle;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(derive_more::From, err_derive::Error, Debug)]
+#[derive(err_derive::Error, Debug)]
 pub enum Error {
     /// When the http status code of the response is not 200 OK.
     #[error(display = "Http error. Status code {}", _0)]
@@ -20,15 +20,15 @@ pub enum Error {
 
     /// An error occured in Hyper.
     #[error(display = "Error in HTTP client")]
-    Hyper(#[error(cause)] hyper::Error),
+    Hyper(#[error(source)] hyper::Error),
 
     /// The string given was not a valid URI.
     #[error(display = "Not a valid URI")]
-    Uri(#[error(cause)] hyper::error::UriError),
+    Uri(#[error(source)] hyper::error::UriError),
 
     /// Error in OpenSSL
     #[error(display = "Error in OpenSSL")]
-    OpenSsl(#[error(cause)] ErrorStack),
+    OpenSsl(#[error(source)] ErrorStack),
 }
 
 

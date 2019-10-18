@@ -10,7 +10,7 @@ edition = "2018"
 crate_type = ["cdylib"]
 
 [dependencies]
-err-derive = "0.1.5"
+err-derive = "0.2.1"
 futures = "0.1"
 ipnetwork = "0.15"
 jni = "0.13"

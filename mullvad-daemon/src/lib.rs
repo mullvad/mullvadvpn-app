@@ -67,6 +67,7 @@ mod wireguard;
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Another instance of the daemon is already running")]
     DaemonIsAlreadyRunning,
@@ -75,20 +76,20 @@ pub enum Error {
     DaemonUnavailable,
 
     #[error(display = "Unable to initialize network event loop")]
-    InitIoEventLoop(#[error(cause)] io::Error),
+    InitIoEventLoop(#[error(source)] io::Error),
 
     #[error(display = "Unable to create RPC client")]
-    InitRpcClient(#[error(cause)] mullvad_rpc::HttpError),
+    InitRpcClient(#[error(source)] mullvad_rpc::HttpError),
 
     #[error(display = "Unable to create am.i.mullvad client")]
-    InitHttpsClient(#[error(cause)] mullvad_rpc::rest::Error),
+    InitHttpsClient(#[error(source)] mullvad_rpc::rest::Error),
 
     #[error(display = "Unable to load account history with wireguard key cache")]
-    LoadAccountHistory(#[error(cause)] account_history::Error),
+    LoadAccountHistory(#[error(source)] account_history::Error),
 
     /// Error in the management interface
     #[error(display = "Unable to start management interface server")]
-    StartManagementInterface(#[error(cause)] talpid_ipc::Error),
+    StartManagementInterface(#[error(source)] talpid_ipc::Error),
 
     #[error(display = "Management interface server exited unexpectedly")]
     ManagementInterfaceExited,
@@ -100,31 +101,31 @@ pub enum Error {
     NoBridgeAvailable,
 
     #[error(display = "Account history problems")]
-    AccountHistory(#[error(cause)] account_history::Error),
+    AccountHistory(#[error(source)] account_history::Error),
 
     #[error(display = "Tunnel state machine error")]
-    TunnelError(#[error(cause)] tunnel_state_machine::Error),
+    TunnelError(#[error(source)] tunnel_state_machine::Error),
 
     #[error(display = "Failed to remove directory {}", _0)]
-    RemoveDirError(String, #[error(cause)] io::Error),
+    RemoveDirError(String, #[error(source)] io::Error),
 
     #[error(display = "Failed to create directory {}", _0)]
-    CreateDirError(String, #[error(cause)] io::Error),
+    CreateDirError(String, #[error(source)] io::Error),
 
     #[error(display = "Failed to get path")]
-    PathError(#[error(cause)] mullvad_paths::Error),
+    PathError(#[error(source)] mullvad_paths::Error),
 
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to get file type info")]
-    FileTypeError(#[error(cause)] io::Error),
+    FileTypeError(#[error(source)] io::Error),
 
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to get dir entry")]
-    FileEntryError(#[error(cause)] io::Error),
+    FileEntryError(#[error(source)] io::Error),
 
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to read dir entries")]
-    ReadDirError(#[error(cause)] io::Error),
+    ReadDirError(#[error(source)] io::Error),
 }
 
 type SyncUnboundedSender<T> = ::futures::sink::Wait<UnboundedSender<T>>;

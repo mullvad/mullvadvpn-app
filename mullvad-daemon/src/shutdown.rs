@@ -16,7 +16,7 @@ mod platform {
 mod platform {
     #[derive(err_derive::Error, Debug)]
     #[error(display = "Unable to attach ctrl-c handler")]
-    pub struct Error(#[error(cause)] ctrlc::Error);
+    pub struct Error(#[error(source)] ctrlc::Error);
 
     pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), Error> {
         ctrlc::set_handler(move || {

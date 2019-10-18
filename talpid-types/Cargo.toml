@@ -12,4 +12,4 @@ ipnetwork = "0.15"
 base64 = "0.10"
 x25519-dalek = { version = "0.5", features = [ "std", "u64_backend" ], default-features = false }
 rand = "0.7"
-err-derive = "0.1.5"
+err-derive = "0.2.1"

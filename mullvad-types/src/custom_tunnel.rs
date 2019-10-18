@@ -10,7 +10,7 @@ use talpid_types::net::{openvpn, wireguard, Endpoint, TunnelParameters};
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Invalid host/domain: {}", _0)]
-    InvalidHost(String, #[error(cause)] io::Error),
+    InvalidHost(String, #[error(source)] io::Error),
 
     #[error(display = "Host has no IPv4 address: {}", _0)]
     HostHasNoIpv4(String),

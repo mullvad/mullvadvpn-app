@@ -47,7 +47,7 @@ const REQUEST_THREAD_SHUTDOWN: UINT = WM_USER + 1;
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Unable to create listener thread")]
-    ThreadCreationError(#[error(cause)] io::Error),
+    ThreadCreationError(#[error(source)] io::Error),
     #[error(display = "Failed to start connectivity monitor")]
     ConnectivityMonitorError,
 }

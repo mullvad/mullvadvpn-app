@@ -18,10 +18,11 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen in the Wireguard tunnel monitor.
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     /// Failed to setup a tunnel device.
     #[error(display = "Failed to create tunnel device")]
-    SetupTunnelDeviceError(#[error(cause)] BoxedError),
+    SetupTunnelDeviceError(#[error(source)] BoxedError),
 
     /// A recoverable error occurred while starting the wireguard tunnel
     ///
@@ -44,25 +45,25 @@ pub enum Error {
 
     /// Failed to set up routing.
     #[error(display = "Failed to setup routing")]
-    SetupRoutingError(#[error(cause)] crate::routing::Error),
+    SetupRoutingError(#[error(source)] crate::routing::Error),
 
     /// Failed to move or craete a log file.
     #[error(display = "Failed to setup a logging file")]
-    PrepareLogFileError(#[error(cause)] io::Error),
+    PrepareLogFileError(#[error(source)] io::Error),
 
     /// Invalid tunnel interface name.
     #[error(display = "Invalid tunnel interface name")]
-    InterfaceNameError(#[error(cause)] std::ffi::NulError),
+    InterfaceNameError(#[error(source)] std::ffi::NulError),
 
     /// Failed to configure Wireguard sockets to bypass the tunnel.
     #[cfg(target_os = "android")]
     #[error(display = "Failed to configure Wireguard sockets to bypass the tunnel")]
-    BypassError(#[error(cause)] BoxedError),
+    BypassError(#[error(source)] BoxedError),
 
     /// Failed to duplicate tunnel file descriptor for wireguard-go
     #[cfg(any(target_os = "linux", target_os = "macos", target_os = "android"))]
     #[error(display = "Failed to duplicate tunnel file descriptor for wireguard-go")]
-    FdDuplicationError(#[error(cause)] nix::Error),
+    FdDuplicationError(#[error(source)] nix::Error),
 
     /// Pinging timed out.
     #[error(display = "Ping timed out")]

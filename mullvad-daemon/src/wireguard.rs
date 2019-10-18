@@ -21,11 +21,11 @@ const TOO_MANY_KEYS_ERROR_CODE: i64 = -703;
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to generate private key")]
-    GenerationError(#[error(cause)] rand::Error),
+    GenerationError(#[error(source)] rand::Error),
     #[error(display = "Failed to spawn future")]
     ExectuionError,
     #[error(display = "Unexpected RPC error")]
-    RpcError(#[error(cause)] jsonrpc_client_core::Error),
+    RpcError(#[error(source)] jsonrpc_client_core::Error),
     #[error(display = "Account already has maximum number of keys")]
     TooManyKeys,
 }

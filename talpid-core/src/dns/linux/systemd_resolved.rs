@@ -16,9 +16,10 @@ use talpid_types::ErrorExt as _;
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to initialize a connection to D-Bus")]
-    ConnectDBus(#[error(cause)] dbus::Error),
+    ConnectDBus(#[error(source)] dbus::Error),
 
     #[error(display = "/etc/resolv.conf is not a symlink to Systemd resolved")]
     NotSymlinkedToResolvConf,
@@ -27,31 +28,31 @@ pub enum Error {
     NoDnsPointsToResolved,
 
     #[error(display = "Systemd resolved not detected")]
-    NoSystemdResolved(#[error(cause)] dbus::Error),
+    NoSystemdResolved(#[error(source)] dbus::Error),
 
     #[error(display = "Failed to read Systemd resolved's resolv.conf")]
-    ReadResolvConfFailed(#[error(cause)] io::Error),
+    ReadResolvConfFailed(#[error(source)] io::Error),
 
     #[error(display = "Failed to parse Systemd resolved's resolv.conf")]
-    ParseResolvConfFailed(#[error(cause)] resolv_conf::ParseError),
+    ParseResolvConfFailed(#[error(source)] resolv_conf::ParseError),
 
     #[error(display = "Invalid network interface name")]
-    InvalidInterfaceName(#[error(cause)] crate::linux::IfaceIndexLookupError),
+    InvalidInterfaceName(#[error(source)] crate::linux::IfaceIndexLookupError),
 
     #[error(display = "Failed to find link interface in resolved manager")]
-    GetLinkError(#[error(cause)] Box<Error>),
+    GetLinkError(#[error(source)] Box<Error>),
 
     #[error(display = "Failed to configure DNS domains")]
-    SetDomainsError(#[error(cause)] dbus::Error),
+    SetDomainsError(#[error(source)] dbus::Error),
 
     #[error(display = "Failed to revert DNS settings of interface: {}", _0)]
-    RevertDnsError(String, #[error(cause)] dbus::Error),
+    RevertDnsError(String, #[error(source)] dbus::Error),
 
     #[error(display = "Failed to perform RPC call on D-Bus")]
-    DBusRpcError(#[error(cause)] dbus::Error),
+    DBusRpcError(#[error(source)] dbus::Error),
 
     #[error(display = "Failed to match the returned D-Bus object with expected type")]
-    MatchDBusTypeError(#[error(cause)] dbus::arg::TypeMismatchError),
+    MatchDBusTypeError(#[error(source)] dbus::arg::TypeMismatchError),
 }
 
 lazy_static! {

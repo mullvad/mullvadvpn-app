@@ -11,7 +11,7 @@ use std::{
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to run ping command")]
-    PingError(#[error(cause)] io::Error),
+    PingError(#[error(source)] io::Error),
 
     #[error(display = "Ping timed out")]
     TimeoutError,

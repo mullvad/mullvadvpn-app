@@ -7,10 +7,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to create directory {}", _0)]
-    CreateDirFailed(String, #[error(cause)] io::Error),
+    CreateDirFailed(String, #[error(source)] io::Error),
 
     #[error(display = "Failed to set directory permissions on {}", _0)]
-    SetDirPermissionFailed(String, #[error(cause)] io::Error),
+    SetDirPermissionFailed(String, #[error(source)] io::Error),
 
     #[cfg(any(windows, target_os = "macos"))]
     #[error(display = "Not able to find requested directory")]

@@ -20,24 +20,25 @@ mod migrations;
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Unable to create settings directory")]
-    DirectoryError(#[error(cause)] mullvad_paths::Error),
+    DirectoryError(#[error(source)] mullvad_paths::Error),
 
     #[error(display = "Unable to read settings from {}", _0)]
-    ReadError(String, #[error(cause)] io::Error),
+    ReadError(String, #[error(source)] io::Error),
 
     #[error(display = "Unable to remove settings file {}", _0)]
-    DeleteError(String, #[error(cause)] io::Error),
+    DeleteError(String, #[error(source)] io::Error),
 
     #[error(display = "Malformed settings")]
-    ParseError(#[error(cause)] serde_json::Error),
+    ParseError(#[error(source)] serde_json::Error),
 
     #[error(display = "Unable to serialize settings to JSON")]
-    SerializeError(#[error(cause)] serde_json::Error),
+    SerializeError(#[error(source)] serde_json::Error),
 
     #[error(display = "Unable to write settings to {}", _0)]
-    WriteError(String, #[error(cause)] io::Error),
+    WriteError(String, #[error(source)] io::Error),
 
     #[error(display = "Invalid OpenVPN proxy configuration: {}", _0)]
     InvalidProxyData(String),

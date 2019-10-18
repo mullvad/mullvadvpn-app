@@ -10,15 +10,16 @@ use talpid_types::ErrorExt;
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Unable to read account history file")]
-    Read(#[error(cause)] io::Error),
+    Read(#[error(source)] io::Error),
 
     #[error(display = "Failed to serialize account history")]
-    Serialize(#[error(cause)] serde_json::Error),
+    Serialize(#[error(source)] serde_json::Error),
 
     #[error(display = "Unable to write account history file")]
-    Write(#[error(cause)] io::Error),
+    Write(#[error(source)] io::Error),
 }
 
 static ACCOUNT_HISTORY_FILE: &str = "account-history.json";

@@ -14,23 +14,24 @@ use rtnetlink::constants::{
 };
 
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Netlink connection failed")]
-    NetlinkError(#[error(cause)] failure::Compat<rtnetlink::Error>),
+    NetlinkError(#[error(source)] failure::Compat<rtnetlink::Error>),
     #[error(display = "Netlink protocol error")]
-    NetlinkProtocolError(#[error(cause)] failure::Compat<netlink_proto::Error>),
+    NetlinkProtocolError(#[error(source)] failure::Compat<netlink_proto::Error>),
     #[error(display = "Failed to open a netlink connection")]
-    ConnectError(#[error(cause)] io::Error),
+    ConnectError(#[error(source)] io::Error),
     #[error(display = "Route without a valid node")]
     InvalidRoute,
     #[error(display = "Invalid length of byte buffer for IP address")]
     InvalidIpBytes,
     #[error(display = "Invalid network prefix")]
-    InvalidNetworkPrefix(#[error(cause)] ipnetwork::IpNetworkError),
+    InvalidNetworkPrefix(#[error(source)] ipnetwork::IpNetworkError),
     #[error(display = "Unknown device index - {}", _0)]
     UnknownDeviceIndex(u32),
     #[error(display = "Failed to bind netlink socket")]
-    BindError(#[error(cause)] io::Error),
+    BindError(#[error(source)] io::Error),
     #[error(display = "Netlink connection stopped sending messages")]
     NetlinkConnectionClosed,
 }

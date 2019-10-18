@@ -33,14 +33,15 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen when using the OpenVPN tunnel.
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     /// Unable to start, wait for or kill the OpenVPN process.
     #[error(display = "Error in OpenVPN process management: {}", _0)]
-    ChildProcessError(&'static str, #[error(cause)] io::Error),
+    ChildProcessError(&'static str, #[error(source)] io::Error),
 
     /// Unable to start or manage the IPC server listening for events from OpenVPN.
     #[error(display = "Unable to start or manage the event dispatcher IPC server")]
-    EventDispatcherError(#[error(cause)] talpid_ipc::Error),
+    EventDispatcherError(#[error(source)] talpid_ipc::Error),
 
     /// The OpenVPN event dispatcher exited unexpectedly
     #[error(display = "The OpenVPN event dispatcher exited unexpectedly")]
@@ -63,7 +64,7 @@ pub enum Error {
     /// The IP routing program was not found.
     #[cfg(target_os = "linux")]
     #[error(display = "The IP routing program `ip` was not found")]
-    IpRouteNotFound(#[error(cause)] failure::Compat<which::Error>),
+    IpRouteNotFound(#[error(source)] failure::Compat<which::Error>),
 
     /// The OpenVPN binary was not found.
     #[error(display = "No OpenVPN binary found at {}", _0)]
@@ -75,15 +76,15 @@ pub enum Error {
 
     /// Error while writing credentials to temporary file.
     #[error(display = "Error while writing credentials to temporary file")]
-    CredentialsWriteError(#[error(cause)] io::Error),
+    CredentialsWriteError(#[error(source)] io::Error),
 
     /// Failures related to the proxy service.
     #[error(display = "Unable to start the proxy service")]
-    StartProxyError(#[error(cause)] io::Error),
+    StartProxyError(#[error(source)] io::Error),
 
     /// Error while monitoring proxy service
     #[error(display = "Error while monitoring proxy service")]
-    MonitorProxyError(#[error(cause)] io::Error),
+    MonitorProxyError(#[error(source)] io::Error),
 
     /// The proxy exited unexpectedly
     #[error(
@@ -95,7 +96,7 @@ pub enum Error {
     /// Failure in Windows syscall.
     #[cfg(windows)]
     #[error(display = "Failure in Windows syscall")]
-    WinnetError(#[error(cause)] crate::winnet::Error),
+    WinnetError(#[error(source)] crate::winnet::Error),
 }
 
 

@@ -18,19 +18,19 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to watch /etc/resolv.conf for changes")]
-    WatchResolvConf(#[error(cause)] notify::Error),
+    WatchResolvConf(#[error(source)] notify::Error),
 
     #[error(display = "Failed to write to {}", _0)]
-    WriteResolvConf(&'static str, #[error(cause)] io::Error),
+    WriteResolvConf(&'static str, #[error(source)] io::Error),
 
     #[error(display = "Failed to read from {}", _0)]
-    ReadResolvConf(&'static str, #[error(cause)] io::Error),
+    ReadResolvConf(&'static str, #[error(source)] io::Error),
 
     #[error(display = "resolv.conf at {} could not be parsed", _0)]
-    ParseError(&'static str, #[error(cause)] resolv_conf::ParseError),
+    ParseError(&'static str, #[error(source)] resolv_conf::ParseError),
 
     #[error(display = "Failed to remove stale resolv.conf backup at {}", _0)]
-    RemoveBackup(&'static str, #[error(cause)] io::Error),
+    RemoveBackup(&'static str, #[error(source)] io::Error),
 }
 
 pub struct StaticResolvConf {

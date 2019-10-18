@@ -24,7 +24,7 @@ pub use imp::Error as PlatformError;
 pub enum Error {
     /// Platform sepcific error occured
     #[error(display = "Failed to create route manager")]
-    FailedToInitializeManager(#[error(cause)] imp::Error),
+    FailedToInitializeManager(#[error(source)] imp::Error),
     /// Failed to spawn route manager future
     #[error(display = "Failed to spawn route manager on the provided executor")]
     FailedToSpawnManager,

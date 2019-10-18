@@ -3,7 +3,7 @@ use std::{fs, io, path::Path};
 /// Unable to create new log file
 #[derive(err_derive::Error, Debug)]
 #[error(display = "Unable to create new log file")]
-pub struct RotateLogError(#[error(cause)] io::Error);
+pub struct RotateLogError(#[error(source)] io::Error);
 
 /// Create a new log file while backing up a previous version of it.
 ///

@@ -15,23 +15,23 @@ const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen in the Linux DNS monitor
-#[derive(err_derive::Error, derive_more::From, Debug)]
+#[derive(err_derive::Error, Debug)]
 pub enum Error {
     /// Error in systemd-resolved DNS monitor
     #[error(display = "Error in systemd-resolved DNS monitor")]
-    SystemdResolved(#[error(cause)] systemd_resolved::Error),
+    SystemdResolved(#[error(source)] systemd_resolved::Error),
 
     /// Error in NetworkManager DNS monitor
     #[error(display = "Error in NetworkManager DNS monitor")]
-    NetworkManager(#[error(cause)] network_manager::Error),
+    NetworkManager(#[error(source)] network_manager::Error),
 
     /// Error in resolvconf DNS monitor
     #[error(display = "Error in resolvconf DNS monitor")]
-    Resolvconf(#[error(cause)] resolvconf::Error),
+    Resolvconf(#[error(source)] resolvconf::Error),
 
     /// Error in static /etc/resolv.conf DNS monitor
     #[error(display = "Error in static /etc/resolv.conf DNS monitor")]
-    StaticResolvConf(#[error(cause)] static_resolv_conf::Error),
+    StaticResolvConf(#[error(source)] static_resolv_conf::Error),
 
     /// No suitable DNS monitor implementation detected
     #[error(display = "No suitable DNS monitor implementation detected")]
