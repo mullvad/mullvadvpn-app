@@ -11,7 +11,7 @@ export default class NotificationController {
   private reconnecting = false;
   private presentedNotifications: { [key: string]: boolean } = {};
   private pendingNotifications: Notification[] = [];
-  private notificationTitle = process.platform !== 'android' ? app.getName() : '';
+  private notificationTitle = app.getName();
   private notificationIcon?: NativeImage;
 
   constructor() {
@@ -36,11 +36,22 @@ export default class NotificationController {
     switch (tunnelState.state) {
       case 'connecting':
         if (!this.reconnecting) {
-          this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting'));
+          if (tunnelState.details === undefined ||
+              tunnelState.details.location === undefined ||
+              tunnelState.details.location.hostname === undefined) {
+            this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting'));
+          } else {
+            this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting to') + ` ${tunnelState.details.location.hostname}`);
+          }
         }
         break;
       case 'connected':
-        this.showTunnelStateNotification(messages.pgettext('notifications', 'Secured'));
+        if (tunnelState.details.location === undefined ||
+            tunnelState.details.location.hostname === undefined) {
+          this.showTunnelStateNotification(messages.pgettext('notifications', 'Secured'));
+        } else {
+          this.showTunnelStateNotification(messages.pgettext('notifications', 'Established secure connection to') + ` ${tunnelState.details.location.hostname}`);
+        }
         break;
       case 'disconnected':
         this.showTunnelStateNotification(messages.pgettext('notifications', 'Unsecured'));
