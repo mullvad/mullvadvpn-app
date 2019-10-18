@@ -1,4 +1,5 @@
 import { app, nativeImage, NativeImage, Notification, shell } from 'electron';
+import os from 'os';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
 import config from '../config.json';
@@ -14,7 +15,16 @@ export default class NotificationController {
   private notificationIcon?: NativeImage;
 
   constructor() {
+    let usePngIcon;
     if (process.platform === 'linux') {
+      usePngIcon = true;
+    } else if (process.platform === 'win32') {
+      usePngIcon = parseInt(os.release().split('.')[0], 10) >= 10;
+    } else {
+      usePngIcon = false;
+    }
+
+    if (usePngIcon) {
       const basePath = path.resolve(path.join(__dirname, '../../assets/images'));
       this.notificationIcon = nativeImage.createFromPath(
         path.join(basePath, 'icon-notification.png'),
