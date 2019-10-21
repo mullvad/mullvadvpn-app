@@ -36,21 +36,27 @@ export default class NotificationController {
     switch (tunnelState.state) {
       case 'connecting':
         if (!this.reconnecting) {
-          if (tunnelState.details === undefined ||
-              tunnelState.details.location === undefined ||
-              tunnelState.details.location.hostname === undefined) {
-            this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting'));
+          const details = tunnelState.details;
+          if (details && details.location && details.location.hostname) {
+            this.showTunnelStateNotification(
+              messages.pgettext('notifications', 'Connecting to') + ` ${details.location.hostname}`,
+            );
           } else {
-            this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting to') + ` ${tunnelState.details.location.hostname}`);
+            this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting'));
           }
         }
         break;
       case 'connected':
-        if (tunnelState.details.location === undefined ||
-            tunnelState.details.location.hostname === undefined) {
-          this.showTunnelStateNotification(messages.pgettext('notifications', 'Secured'));
-        } else {
-          this.showTunnelStateNotification(messages.pgettext('notifications', 'Established secure connection to') + ` ${tunnelState.details.location.hostname}`);
+        {
+          const details = tunnelState.details;
+          if (details.location && details.location.hostname) {
+            this.showTunnelStateNotification(
+              messages.pgettext('notifications', 'Established secure connection to') +
+                ` ${details.location.hostname}`,
+            );
+          } else {
+            this.showTunnelStateNotification(messages.pgettext('notifications', 'Secured'));
+          }
         }
         break;
       case 'disconnected':
