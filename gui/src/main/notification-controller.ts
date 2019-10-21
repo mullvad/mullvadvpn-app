@@ -1,10 +1,10 @@
 import { app, nativeImage, NativeImage, Notification, shell } from 'electron';
+import os from 'os';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
 import config from '../config.json';
 import { TunnelState } from '../shared/daemon-rpc-types';
 import { messages } from '../shared/gettext';
-import os from 'os';
 
 export default class NotificationController {
   private lastTunnelStateAnnouncement?: { body: string; notification: Notification };
