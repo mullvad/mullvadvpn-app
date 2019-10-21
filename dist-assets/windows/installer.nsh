@@ -387,6 +387,35 @@
 !define InstallDriver '!insertmacro "InstallDriver"'
 
 #
+# RemoveWintun
+#
+# Try to remove Wintun
+#
+!macro RemoveWintun
+	Push $0
+
+	log::Log "RemoveWintun()"
+
+	${DisableX64FSRedirection}
+	ExecWait '"$SYSDIR\msiexec.exe" /x "$TEMP\mullvad-wintun-amd64.msi" /qn /norestart' $0
+	${EnableX64FSRedirection}
+
+	${If} $0 != 0
+		log::Log "Failed to remove Wintun: error $0"
+		Goto RemoveWintun_return_only
+	${EndIf}
+
+	log::Log "RemoveWintun() completed successfully"
+
+	RemoveWintun_return_only:
+
+	Pop $0
+
+!macroend
+
+!define RemoveWintun '!insertmacro "RemoveWintun"'
+
+#
 # InstallWintun
 #
 # Install Wintun driver
@@ -404,8 +433,7 @@
 	${EnableX64FSRedirection}
 
 	${If} $0 != 0
-		StrCpy $R0 "Failed to install Wintun: error $0"
-		log::LogWithDetails $R0 $1
+		log::Log "Failed to install Wintun: error $0"
 		Goto InstallWintun_return
 	${EndIf}
 
@@ -810,6 +838,10 @@
 
 	# If not ran silently
 	${If} $FullUninstall == 1
+		# Remove Wintun
+		${ExtractWintun}
+		${RemoveWintun}
+
 		# Remove the TAP adapter
 		${ExtractDriver}
 		${RemoveTap}
