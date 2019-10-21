@@ -100,6 +100,20 @@
 !define ExtractDriver '!insertmacro "ExtractDriver"'
 
 #
+# ExtractWintun
+#
+# Extract Wintun installer into $TEMP
+#
+!macro ExtractWintun
+
+	SetOutPath "$TEMP"
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wintun\mullvad-wintun-amd64.msi"
+
+!macroend
+
+!define ExtractWintun '!insertmacro "ExtractWintun"'
+
+#
 # ForceRenameAdapter
 #
 # For when there's a broken TAP adapter present, such that the adapter name
@@ -371,6 +385,47 @@
 !macroend
 
 !define InstallDriver '!insertmacro "InstallDriver"'
+
+#
+# InstallWintun
+#
+# Install Wintun driver
+#
+# Returns: 0 in $R0 on success, otherwise an error message in $R0
+#
+!macro InstallWintun
+
+	log::Log "InstallWintun()"
+
+	Push $0
+	Push $1
+
+	${DisableX64FSRedirection}
+	nsExec::ExecToStack '"$SYSDIR\msiexec.exe" /i "$TEMP\mullvad-wintun-amd64.msi" /qn /norestart'
+	${EnableX64FSRedirection}
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != 0
+		StrCpy $R0 "Failed to install Wintun: error $0"
+		log::LogWithDetails $R0 $1
+		Goto InstallWintun_return
+	${EndIf}
+
+	log::Log "InstallWintun() completed successfully"
+
+	Push 0
+	Pop $R0
+
+	InstallWintun_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define InstallWintun '!insertmacro "InstallWintun"'
 
 #
 # InstallService
@@ -680,6 +735,15 @@
 
 	${If} $R0 != 0
 		MessageBox MB_OK "Fatal error during driver installation: $R0"
+		${BreakInstallation}
+		Abort
+	${EndIf}
+
+	${ExtractWintun}
+	${InstallWintun}
+
+	${If} $R0 != 0
+		MessageBox MB_OK "Fatal error during Wintun installation: $R0"
 		${BreakInstallation}
 		Abort
 	${EndIf}
