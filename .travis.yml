@@ -127,11 +127,6 @@ matrix:
       name: Daemon, Windows - stable Rust
       env: RUST_VERSION=stable
       language: bash
-      install: &rust_windows_install
-        - curl -sSf -o rustup-init.exe https://win.rustup.rs/
-        - ./rustup-init.exe -y --default-host x86_64-pc-windows-msvc --default-toolchain $RUST_VERSION --profile minimal
-        - export PATH="$HOME/.cargo/bin/:$PATH"
-        - export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/amd64/:$PATH"
       script: &rust_windows_script
         - ./ci/ci-rust-script.sh $RUST_VERSION
 
@@ -139,7 +134,6 @@ matrix:
       name: Daemon, Windows - beta Rust
       env: RUST_VERSION=beta
       language: bash
-      install: *rust_windows_install
       script: *rust_windows_script
 
 
