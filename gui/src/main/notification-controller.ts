@@ -36,11 +36,41 @@ export default class NotificationController {
     switch (tunnelState.state) {
       case 'connecting':
         if (!this.reconnecting) {
-          this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting'));
+          const details = tunnelState.details;
+          if (details && details.location && details.location.hostname) {
+            const msg = sprintf(
+              // TRANSLATORS: The message showed when a server is being connected to.
+              // TRANSLATORS: Available placeholder:
+              // TRANSLATORS: %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+              messages.pgettext('notifications', 'Connecting to %(location)s'),
+              {
+                location: details.location.hostname,
+              },
+            );
+            this.showTunnelStateNotification(msg);
+          } else {
+            this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting'));
+          }
         }
         break;
       case 'connected':
-        this.showTunnelStateNotification(messages.pgettext('notifications', 'Secured'));
+        {
+          const details = tunnelState.details;
+          if (details.location && details.location.hostname) {
+            const msg = sprintf(
+              // TRANSLATORS: The message showed when a server has been connected to.
+              // TRANSLATORS: Available placeholder:
+              // TRANSLATORS: %(location) - name of the server location we're connected to (e.g. "se-got-003")
+              messages.pgettext('notifications', 'Connected to %(location)s'),
+              {
+                location: details.location.hostname,
+              },
+            );
+            this.showTunnelStateNotification(msg);
+          } else {
+            this.showTunnelStateNotification(messages.pgettext('notifications', 'Secured'));
+          }
+        }
         break;
       case 'disconnected':
         this.showTunnelStateNotification(messages.pgettext('notifications', 'Unsecured'));
