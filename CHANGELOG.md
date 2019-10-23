@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Notifications shown when connecting to a server include its location.
+
+#### Windows
+- Use a larger icon in notifications on Windows 10.
 
 
 ## [2019.9] - 2019-10-11
