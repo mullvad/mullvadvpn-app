@@ -138,6 +138,9 @@ matrix:
       install: *rust_windows_install
       script: *rust_windows_script
 
+jobs:
+  allow_failures:
+    - name: Daemon, Linux - nigtly Rust
 
 notifications:
   email:
