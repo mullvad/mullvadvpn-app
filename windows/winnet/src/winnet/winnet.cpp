@@ -520,6 +520,111 @@ WinNet_DeleteRoute(
 
 extern "C"
 WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_RegisterDefaultRouteChangedCallback(
+	WinNetDefaultRouteChangedCallback callback,
+	void *context,
+	void **registrationHandle
+)
+{
+	if (nullptr == g_RouteManager)
+	{
+		return false;
+	}
+
+	try
+	{
+		auto forwarder = [callback, context]
+			(RouteManager::DefaultRouteChangedEvent eventType, ADDRESS_FAMILY addressFamily, NET_LUID iface)
+		{
+			WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE translatedType;
+
+			switch (eventType)
+			{
+				case RouteManager::DefaultRouteChangedEvent::Updated:
+				{
+					translatedType = WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_UPDATED;
+					break;
+				}
+				case RouteManager::DefaultRouteChangedEvent::Removed:
+				{
+					translatedType = WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_REMOVED;
+					break;
+				}
+				default:
+				{
+					throw std::runtime_error("Unexpected default-route-changed event type");
+				}
+			}
+
+			WINNET_IP_FAMILY translatedFamily;
+
+			switch (addressFamily)
+			{
+				case AF_INET:
+				{
+					translatedFamily = WINNET_IP_FAMILY_V4;
+					break;
+				}
+				case AF_INET6:
+				{
+					translatedFamily = WINNET_IP_FAMILY_V6;
+					break;
+				}
+				default:
+				{
+					throw std::runtime_error("Unexpected default-route-changed address family");
+				}
+			}
+
+			callback(translatedType, translatedFamily, iface.Value, context);
+		};
+
+		*registrationHandle = g_RouteManager->registerDefaultRouteChangedCallback(forwarder);
+
+		return true;
+	}
+	catch (const std::exception &err)
+	{
+		common::error::UnwindException(err, g_RouteManagerLogSink);
+		return false;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
+void
+WINNET_API
+WinNet_UnregisterDefaultRouteChangedCallback(
+	void *registrationHandle
+)
+{
+	if (nullptr == g_RouteManager)
+	{
+		return;
+	}
+
+	try
+	{
+		g_RouteManager->unregisterDefaultRouteChangedCallback(registrationHandle);
+	}
+	catch (const std::exception &err)
+	{
+		g_RouteManagerLogSink->error("Failed to unregister default-route-changed callback");
+		common::error::UnwindException(err, g_RouteManagerLogSink);
+	}
+	catch (...)
+	{
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
 void
 WINNET_API
 WinNet_DeactivateRouteManager(

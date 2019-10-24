@@ -169,6 +169,52 @@ WinNet_DeleteRoute(
 	const WINNET_ROUTE *route
 );
 
+enum WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE
+{
+	// Best default route changed.
+	WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_UPDATED = 0,
+
+	// No default routes exist.
+	WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_REMOVED = 1,
+};
+
+enum WINNET_IP_FAMILY
+{
+	WINNET_IP_FAMILY_V4 = 0,
+	WINNET_IP_FAMILY_V6 = 1,
+};
+
+typedef void (WINNET_API *WinNetDefaultRouteChangedCallback)
+(
+	WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE eventType,
+
+	// Signals which IP family the event relates to.
+	WINNET_IP_FAMILY family,
+
+	// For update events, signals the interface associated with the new best default route.
+	uint64_t interfaceLuid,
+
+	void *context
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_RegisterDefaultRouteChangedCallback(
+	WinNetDefaultRouteChangedCallback callback,
+	void *context,
+	void **registrationHandle
+);
+
+extern "C"
+WINNET_LINKAGE
+void
+WINNET_API
+WinNet_UnregisterDefaultRouteChangedCallback(
+	void *registrationHandle
+);
+
 extern "C"
 WINNET_LINKAGE
 void

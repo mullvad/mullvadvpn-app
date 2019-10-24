@@ -625,6 +625,31 @@ void RouteManager::deleteRoute(const Route &route)
 	m_routes.erase(record);
 }
 
+RouteManager::CallbackHandle RouteManager::registerDefaultRouteChangedCallback(DefaultRouteChangedCallback callback)
+{
+	LockType lock(m_defaultRouteCallbacksLock);
+
+	m_defaultRouteCallbacks.emplace_back(callback);
+
+	// Return raw address of record in list.
+	return &m_defaultRouteCallbacks.back();
+}
+
+void RouteManager::unregisterDefaultRouteChangedCallback(CallbackHandle handle)
+{
+	LockType lock(m_defaultRouteCallbacksLock);
+
+	for (auto it = m_defaultRouteCallbacks.begin(); it != m_defaultRouteCallbacks.end(); ++it)
+	{
+		// Match on raw address of record.
+		if (&*it == handle)
+		{
+			m_defaultRouteCallbacks.erase(it);
+			return;
+		}
+	}
+}
+
 std::list<RouteManager::RouteRecord>::iterator RouteManager::findRouteRecord(const Network &network)
 {
 	return std::find_if(m_routes.begin(), m_routes.end(), [&network](const auto &candidate)
@@ -928,6 +953,26 @@ std::wstring RouteManager::FormatRegisteredRoute(const RegisteredRoute &route)
 	}
 
 	return ss.str();
+}
+
+void RouteManager::notifyNewBestDefaultRoute(ADDRESS_FAMILY addressFamily, NET_LUID iface)
+{
+	LockType lock(m_defaultRouteCallbacksLock);
+
+	for (const auto &callback : m_defaultRouteCallbacks)
+	{
+		callback(DefaultRouteChangedEvent::Updated, addressFamily, iface);
+	}
+}
+
+void RouteManager::notifyNoDefaultRoutesExist(ADDRESS_FAMILY addressFamily)
+{
+	LockType lock(m_defaultRouteCallbacksLock);
+
+	for (const auto &callback : m_defaultRouteCallbacks)
+	{
+		callback(DefaultRouteChangedEvent::Removed, addressFamily, NET_LUID{ 0 });
+	}
 }
 
 }
