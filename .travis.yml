@@ -95,7 +95,11 @@ matrix:
       dist: xenial
       services: docker
       before_script: &rust_before_script
-        - docker run -d --name mvd-build -v $(pwd):/travis -w /travis  mullvadvpn/mullvadvpn-app-build:latest tail -f /dev/null
+        - docker --version
+        # --privileged is required because nightly cargo uses statx instead of stat, and that
+        # syscall is so new that it's not on the docker whitelist yet.
+        # https://github.com/rust-lang/rust/issues/65662
+        - docker run -d --privileged --name mvd-build -v $(pwd):/travis -w /travis  mullvadvpn/mullvadvpn-app-build:latest tail -f /dev/null
         - docker ps
       script:
         - docker exec -t mvd-build bash ci/ci-rust-script.sh nightly
@@ -138,9 +142,6 @@ matrix:
       install: *rust_windows_install
       script: *rust_windows_script
 
-jobs:
-  allow_failures:
-    - name: Daemon, Linux - nigtly Rust
 
 notifications:
   email:
