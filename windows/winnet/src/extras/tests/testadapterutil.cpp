@@ -157,18 +157,18 @@ DWORD TestDataProvider::getIpInterfaceEntry(PMIB_IPINTERFACE_ROW Row)
 
 	bool foundMatchingLuid = false;
 
-	for (auto it = m_ipInterfaces.begin(); m_ipInterfaces.end() != it; ++it)
+	for (const auto &candidate : m_ipInterfaces)
 	{
-		if (it->InterfaceLuid.Value != Row->InterfaceLuid.Value)
+		if (candidate.InterfaceLuid.Value != Row->InterfaceLuid.Value)
 		{
 			continue;
 		}
 
 		foundMatchingLuid = true;
 
-		if (Row->Family == it->Family)
+		if (Row->Family == candidate.Family)
 		{
-			*Row = *it;
+			*Row = candidate;
 			return NO_ERROR;
 		}
 	}
