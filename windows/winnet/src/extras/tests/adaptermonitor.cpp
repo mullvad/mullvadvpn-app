@@ -632,4 +632,138 @@ public:
 			L"Expected no adapter (0 IP interfaces)"
 		);
 	}
+
+	TEST_METHOD(filter)
+	{
+		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+
+		const auto testProvider = std::make_shared<TestDataProvider>();
+
+		//
+		// Exclude adapters not connected to the internet,
+		// loopback devices, and software adapters
+		//
+
+		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		{
+			switch (row.InterfaceLuid.Info.IfType)
+			{
+				case IF_TYPE_SOFTWARE_LOOPBACK:
+				{
+					return false;
+				}
+			}
+
+			if (FALSE == row.InterfaceAndOperStatusFlags.HardwareInterface)
+			{
+				return false;
+			}
+			return IfOperStatusUp == row.OperStatus
+				&& MediaConnectStateConnected == row.MediaConnectState;
+		};
+
+		size_t adapterCount = 0;
+		bool receivedEvent = false;
+
+		NetworkAdapterMonitor inst(
+			logSink,
+			[&adapterCount, &receivedEvent](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			{
+				adapterCount = adapters.size();
+				receivedEvent = true;
+			},
+			filter,
+			testProvider
+		);
+
+		//
+		// Our filter should ignore loopback devices
+		//
+
+		constexpr size_t loopbackLuid = 1;
+		
+		MIB_IF_ROW2 adapter = { 0 };
+		adapter.AdminStatus = NET_IF_ADMIN_STATUS_UP;
+		adapter.InterfaceLuid.Value = loopbackLuid;
+		adapter.InterfaceLuid.Info.IfType = IF_TYPE_SOFTWARE_LOOPBACK;
+		adapter.MediaConnectState = MediaConnectStateConnected;
+		adapter.InterfaceAndOperStatusFlags.HardwareInterface = TRUE;
+		adapter.OperStatus = IfOperStatusUp;
+
+		MIB_IPINTERFACE_ROW iface4 = { 0 };
+		iface4.InterfaceLuid.Value = loopbackLuid;
+		iface4.Family = AF_INET;
+		testProvider->addIpInterface(adapter, iface4);
+		testProvider->sendEvent(&iface4, MibAddInstance);
+
+		Assert::IsFalse(receivedEvent, L"Unexpectedly received event for loopback adapter");
+
+		Assert::AreEqual(
+			0ULL,
+			adapterCount,
+			L"Loopback adapter was not filtered correctly"
+		);
+
+		testProvider->removeIpInterface(iface4);
+		testProvider->sendEvent(&iface4, MibDeleteInstance);
+		testProvider->removeAdapter(adapter);
+
+		Assert::IsFalse(receivedEvent, L"Unexpectedly received event for loopback adapter");
+
+		//
+		// Our filter should ignore devices not connected to the internet
+		//
+
+		constexpr size_t disconnectedLuid = 2;
+
+		adapter = { 0 };
+		adapter.AdminStatus = NET_IF_ADMIN_STATUS_UP;
+		adapter.InterfaceLuid.Value = disconnectedLuid;
+		adapter.MediaConnectState = MediaConnectStateDisconnected;
+		adapter.InterfaceAndOperStatusFlags.HardwareInterface = TRUE;
+		adapter.OperStatus = IfOperStatusUp;
+
+		iface4 = { 0 };
+		iface4.InterfaceLuid.Value = disconnectedLuid;
+		iface4.Family = AF_INET;
+		testProvider->addIpInterface(adapter, iface4);
+		testProvider->sendEvent(&iface4, MibAddInstance);
+
+		Assert::IsFalse(receivedEvent, L"Unexpectedly received event for disconnected adapter");
+
+		testProvider->removeIpInterface(iface4);
+		testProvider->sendEvent(&iface4, MibDeleteInstance);
+		testProvider->removeAdapter(adapter);
+
+		Assert::IsFalse(receivedEvent, L"Unexpectedly received event for disconnected adapter");
+
+		//
+		// Report events for hardware devices
+		//
+
+		constexpr size_t onlineHardwareLuid = 3;
+
+		adapter = { 0 };
+		adapter.AdminStatus = NET_IF_ADMIN_STATUS_UP;
+		adapter.InterfaceLuid.Value = onlineHardwareLuid;
+		adapter.MediaConnectState = MediaConnectStateConnected;
+		adapter.InterfaceAndOperStatusFlags.HardwareInterface = TRUE;
+		adapter.OperStatus = IfOperStatusUp;
+
+		iface4 = { 0 };
+		iface4.InterfaceLuid.Value = onlineHardwareLuid;
+		iface4.Family = AF_INET;
+		testProvider->addIpInterface(adapter, iface4);
+		testProvider->sendEvent(&iface4, MibAddInstance);
+
+		Assert::IsTrue(receivedEvent, L"Expected Add event for connected adapter was not received");
+
+		receivedEvent = false;
+		
+		testProvider->removeIpInterface(iface4);
+		testProvider->sendEvent(&iface4, MibDeleteInstance);
+		testProvider->removeAdapter(adapter);
+
+		Assert::IsTrue(receivedEvent, L"Expected Delete event for connected adapter was not received");
+	}
 };

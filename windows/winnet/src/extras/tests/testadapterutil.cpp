@@ -117,7 +117,7 @@ DWORD TestDataProvider::getIfEntry2(PMIB_IF_ROW2 Row)
 	// TODO: accept InterfaceIndex as well
 	// FIXME: should ERROR_INVALID_PARAMETER be returned if LUID = 0?
 
-	if (Row == nullptr)
+	if (nullptr == Row)
 	{
 		return ERROR_INVALID_PARAMETER;
 	}
@@ -146,29 +146,29 @@ DWORD TestDataProvider::getIpInterfaceEntry(PMIB_IPINTERFACE_ROW Row)
 	// TODO: accept InterfaceIndex as well
 	// FIXME: should ERROR_INVALID_PARAMETER be returned if LUID = 0?
 	
-	if (Row == nullptr)
+	if (nullptr == Row)
 	{
 		return ERROR_INVALID_PARAMETER;
 	}
-	if (Row->Family != AF_INET && Row->Family != AF_INET6)
+	if (AF_INET != Row->Family && AF_INET6 != Row->Family)
 	{
 		return ERROR_INVALID_PARAMETER;
 	}
 
 	bool foundMatchingLuid = false;
 
-	for (auto it = m_ipInterfaces.begin(); m_ipInterfaces.end() != it; ++it)
+	for (const auto &candidate : m_ipInterfaces)
 	{
-		if (it->InterfaceLuid.Value != Row->InterfaceLuid.Value)
+		if (candidate.InterfaceLuid.Value != Row->InterfaceLuid.Value)
 		{
 			continue;
 		}
 
 		foundMatchingLuid = true;
 
-		if (Row->Family == it->Family)
+		if (Row->Family == candidate.Family)
 		{
-			*Row = *it;
+			*Row = candidate;
 			return NO_ERROR;
 		}
 	}
