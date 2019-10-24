@@ -253,7 +253,7 @@ impl ConnectingState {
             )),
             Ok(_) => SameState(self),
             Err(_) => {
-                debug!("The OpenVPN tunnel event plugin disconnected");
+                debug!("The tunnel disconnected unexpectedly");
                 NewState(DisconnectingState::enter(
                     shared_values,
                     (
