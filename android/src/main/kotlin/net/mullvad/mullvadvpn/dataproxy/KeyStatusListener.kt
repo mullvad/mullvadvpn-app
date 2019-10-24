@@ -3,14 +3,12 @@ package net.mullvad.mullvadvpn.dataproxy
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.KeygenEvent
 
 class KeyStatusListener(val asyncDaemon: Deferred<MullvadDaemon>) {
     private var daemon: MullvadDaemon? = null
-    private var retryJob: Job? = null
 
     private val setUpJob = setUp()
 
@@ -71,7 +69,6 @@ class KeyStatusListener(val asyncDaemon: Deferred<MullvadDaemon>) {
 
     fun onDestroy() {
         setUpJob.cancel()
-        retryJob?.cancel()
         daemon?.onKeygenEvent = null
     }
 

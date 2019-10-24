@@ -20,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
+import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -37,9 +38,11 @@ class WireguardKeyFragment : Fragment() {
     private var tunnelStateListener: Int? = null
     private var tunnelStateSubscriptionJob: Long? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
-    private lateinit var parentActivity: MainActivity
     private lateinit var connectionProxy: SmartDeferred<ConnectionProxy>
     private lateinit var keyStatusListener: KeyStatusListener
+    private lateinit var parentActivity: MainActivity
+    private lateinit var wwwTokenRetriever: WwwAuthTokenRetriever
+    private lateinit var urlController: BlockingController
     private var generatingKey = false
     private var validatingKey = false
 
@@ -57,6 +60,7 @@ class WireguardKeyFragment : Fragment() {
         parentActivity = context as MainActivity
         keyStatusListener = parentActivity.keyStatusListener
         connectionProxy = parentActivity.connectionProxy
+        wwwTokenRetriever = parentActivity.wwwAuthTokenRetriever
     }
 
     override fun onCreateView(
@@ -80,10 +84,32 @@ class WireguardKeyFragment : Fragment() {
         publicKeyAge = view.findViewById<TextView>(R.id.wireguard_key_age)
 
         visitWebsiteView.visibility = View.VISIBLE
+        val keyUrl = parentActivity.getString(R.string.wg_key_url)
+
+        urlController = BlockingController(
+            object : BlockableView {
+                override fun setEnabled(enabled: Boolean) {
+                    if (!enabled || tunnelState is TunnelState.Blocked) {
+                        visitWebsiteView.setClickable(false)
+                        visitWebsiteView.setAlpha(0.5f)
+                    } else {
+                        visitWebsiteView.setClickable(true)
+                        visitWebsiteView.setAlpha(1f)
+                    }
+                }
+
+                override fun onClick(): Job {
+                    return GlobalScope.launch(Dispatchers.Default) {
+                        val token = wwwTokenRetriever.getAuthToken()
+                        val intent = Intent(Intent.ACTION_VIEW,
+                                            Uri.parse(keyUrl + "?token=" + token))
+                        startActivity(intent)
+                    }
+                }
+            }
+        )
         visitWebsiteView.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW,
-                                Uri.parse(parentActivity.getString(R.string.account_url)))
-            startActivity(intent)
+            urlController.action()
         }
 
         updateViews()
@@ -275,6 +301,7 @@ class WireguardKeyFragment : Fragment() {
         updateViewsJob?.cancel()
         validatingKey = false
         generatingKey = false
+        urlController.onPause()
         super.onPause()
     }
 
