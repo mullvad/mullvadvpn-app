@@ -34,6 +34,36 @@ void logFunc(common::logging::Severity severity, const char *msg)
 	std::cout << msg << std::endl;
 }
 
+enum class LastEvent
+{
+	NoEvent,
+	Add,
+	Delete,
+	Update
+};
+
+}
+
+namespace Microsoft::VisualStudio::CppUnitTestFramework
+{
+
+template<>
+static std::wstring ToString<LastEvent>(const enum class LastEvent& t)
+{
+	switch (t)
+	{
+		case LastEvent::NoEvent:
+			return L"LastEvent::NoEvent";
+		case LastEvent::Add:
+			return L"LastEvent::Add";
+		case LastEvent::Delete:
+			return L"LastEvent::Delete";
+		case LastEvent::Update:
+			return L"LastEvent::Update";
+	}
+	return L"LastEvent::<Unknown value>";
+}
+
 }
 
 TEST_CLASS(NetworkAdapterMonitorTests)
@@ -631,5 +661,156 @@ public:
 			adapterCount,
 			L"Expected no adapter (0 IP interfaces)"
 		);
+	}
+
+	TEST_METHOD(filter)
+	{
+		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+
+		const auto testProvider = std::make_shared<TestDataProvider>();
+
+		//
+		// Exclude adapters not connected to the internet,
+		// loopback devices, and software adapters
+		//
+
+		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		{
+			switch (row.InterfaceLuid.Info.IfType)
+			{
+				case IF_TYPE_SOFTWARE_LOOPBACK:
+				{
+					return false;
+				}
+			}
+
+			if (FALSE == row.InterfaceAndOperStatusFlags.HardwareInterface)
+			{
+				return false;
+			}
+			return IfOperStatusUp == row.OperStatus
+				&& MediaConnectStateConnected == row.MediaConnectState;
+		};
+
+		size_t adapterCount = 0;
+		LastEvent lastEvent = LastEvent::NoEvent;
+
+		NetworkAdapterMonitor inst(
+			logSink,
+			[&adapterCount, &lastEvent](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			{
+				switch (updateType)
+				{
+					case UpdateType::Add:
+						lastEvent = LastEvent::Add;
+						break;
+					case UpdateType::Delete:
+						lastEvent = LastEvent::Delete;
+						break;
+					case UpdateType::Update:
+						lastEvent = LastEvent::Update;
+						break;
+					default:
+						Assert::Fail(L"Unhandled update type");
+				}
+			
+				adapterCount = adapters.size();
+			},
+			filter,
+			testProvider
+		);
+
+		//
+		// Our filter should ignore loopback devices
+		//
+
+		constexpr size_t loopbackLuid = 1;
+		
+		MIB_IF_ROW2 adapter = { 0 };
+		adapter.AdminStatus = NET_IF_ADMIN_STATUS_UP;
+		adapter.InterfaceLuid.Value = loopbackLuid;
+		adapter.InterfaceLuid.Info.IfType = IF_TYPE_SOFTWARE_LOOPBACK;
+		adapter.MediaConnectState = MediaConnectStateConnected;
+		adapter.InterfaceAndOperStatusFlags.HardwareInterface = TRUE;
+		adapter.OperStatus = IfOperStatusUp;
+
+		MIB_IPINTERFACE_ROW iface4 = { 0 };
+		iface4.InterfaceLuid.Value = loopbackLuid;
+		iface4.Family = AF_INET;
+
+		lastEvent = LastEvent::NoEvent;
+		
+		testProvider->addIpInterface(adapter, iface4);
+		testProvider->sendEvent(&iface4, MibAddInstance);
+
+		Assert::AreEqual(LastEvent::NoEvent, lastEvent, L"Unexpectedly received event for loopback adapter");
+
+		Assert::AreEqual(
+			0ULL,
+			adapterCount,
+			L"Loopback adapter was not filtered correctly"
+		);
+
+		testProvider->removeIpInterface(iface4);
+		testProvider->sendEvent(&iface4, MibDeleteInstance);
+		testProvider->removeAdapter(adapter);
+
+		Assert::AreEqual(LastEvent::NoEvent, lastEvent, L"Unexpectedly received event for loopback adapter");
+
+		//
+		// Our filter should ignore devices not connected to the internet
+		//
+
+		constexpr size_t disconnectedLuid = 2;
+
+		adapter = { 0 };
+		adapter.AdminStatus = NET_IF_ADMIN_STATUS_UP;
+		adapter.InterfaceLuid.Value = disconnectedLuid;
+		adapter.MediaConnectState = MediaConnectStateDisconnected;
+		adapter.InterfaceAndOperStatusFlags.HardwareInterface = TRUE;
+		adapter.OperStatus = IfOperStatusUp;
+
+		iface4 = { 0 };
+		iface4.InterfaceLuid.Value = disconnectedLuid;
+		iface4.Family = AF_INET;
+		testProvider->addIpInterface(adapter, iface4);
+		testProvider->sendEvent(&iface4, MibAddInstance);
+
+		Assert::AreEqual(LastEvent::NoEvent, lastEvent, L"Unexpectedly received event for disconnected adapter");
+
+		testProvider->removeIpInterface(iface4);
+		testProvider->sendEvent(&iface4, MibDeleteInstance);
+		testProvider->removeAdapter(adapter);
+
+		Assert::AreEqual(LastEvent::NoEvent, lastEvent, L"Unexpectedly received event for disconnected adapter");
+
+		//
+		// Report events for hardware devices
+		//
+
+		constexpr size_t onlineHardwareLuid = 3;
+
+		adapter = { 0 };
+		adapter.AdminStatus = NET_IF_ADMIN_STATUS_UP;
+		adapter.InterfaceLuid.Value = onlineHardwareLuid;
+		adapter.MediaConnectState = MediaConnectStateConnected;
+		adapter.InterfaceAndOperStatusFlags.HardwareInterface = TRUE;
+		adapter.OperStatus = IfOperStatusUp;
+
+		iface4 = { 0 };
+		iface4.InterfaceLuid.Value = onlineHardwareLuid;
+		iface4.Family = AF_INET;
+		testProvider->addIpInterface(adapter, iface4);
+		testProvider->sendEvent(&iface4, MibAddInstance);
+
+		Assert::AreEqual(LastEvent::Add, lastEvent, L"Expected event for connected adapter was not received");
+
+		lastEvent = LastEvent::NoEvent;
+		
+		testProvider->removeIpInterface(iface4);
+		testProvider->sendEvent(&iface4, MibDeleteInstance);
+		testProvider->removeAdapter(adapter);
+
+		Assert::AreEqual(LastEvent::Delete, lastEvent, L"Expected event for connected adapter was not received");
 	}
 };
