@@ -34,6 +34,42 @@ void logFunc(common::logging::Severity severity, const char *msg)
 	std::cout << msg << std::endl;
 }
 
+enum class LastEvent
+{
+	NoEvent,
+	Add,
+	Delete,
+	Update
+};
+
+}
+
+namespace Microsoft
+{
+namespace VisualStudio
+{
+namespace CppUnitTestFramework
+{
+
+template<>
+static std::wstring ToString<LastEvent>(const enum class LastEvent& t)
+{
+	switch (t)
+	{
+		case LastEvent::NoEvent:
+			return L"LastEvent::NoEvent";
+		case LastEvent::Add:
+			return L"LastEvent::Add";
+		case LastEvent::Delete:
+			return L"LastEvent::Delete";
+		case LastEvent::Update:
+			return L"LastEvent::Update";
+	}
+	return L"LastEvent::<Unknown value>";
+}
+
+}
+}
 }
 
 TEST_CLASS(NetworkAdapterMonitorTests)
@@ -704,14 +740,28 @@ public:
 		};
 
 		size_t adapterCount = 0;
-		bool receivedEvent = false;
+		LastEvent lastEvent = LastEvent::NoEvent;
 
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount, &receivedEvent](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount, &lastEvent](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
 			{
+				switch (updateType)
+				{
+					case UpdateType::Add:
+						lastEvent = LastEvent::Add;
+						break;
+					case UpdateType::Delete:
+						lastEvent = LastEvent::Delete;
+						break;
+					case UpdateType::Update:
+						lastEvent = LastEvent::Update;
+						break;
+					default:
+						Assert::Fail(L"Unhandled update type");
+				}
+			
 				adapterCount = adapters.size();
-				receivedEvent = true;
 			},
 			filter,
 			testProvider
@@ -737,7 +787,7 @@ public:
 		testProvider->addIpInterface(adapter, iface4);
 		testProvider->sendEvent(&iface4, MibAddInstance);
 
-		Assert::IsFalse(receivedEvent, L"Unexpectedly received event for loopback adapter");
+		Assert::AreEqual(LastEvent::NoEvent, lastEvent, L"Unexpectedly received event for loopback adapter");
 
 		Assert::AreEqual(
 			0ULL,
@@ -749,7 +799,7 @@ public:
 		testProvider->sendEvent(&iface4, MibDeleteInstance);
 		testProvider->removeAdapter(adapter);
 
-		Assert::IsFalse(receivedEvent, L"Unexpectedly received event for loopback adapter");
+		Assert::AreEqual(LastEvent::NoEvent, lastEvent, L"Unexpectedly received event for loopback adapter");
 
 		//
 		// Our filter should ignore devices not connected to the internet
@@ -770,13 +820,13 @@ public:
 		testProvider->addIpInterface(adapter, iface4);
 		testProvider->sendEvent(&iface4, MibAddInstance);
 
-		Assert::IsFalse(receivedEvent, L"Unexpectedly received event for disconnected adapter");
+		Assert::AreEqual(LastEvent::NoEvent, lastEvent, L"Unexpectedly received event for disconnected adapter");
 
 		testProvider->removeIpInterface(iface4);
 		testProvider->sendEvent(&iface4, MibDeleteInstance);
 		testProvider->removeAdapter(adapter);
 
-		Assert::IsFalse(receivedEvent, L"Unexpectedly received event for disconnected adapter");
+		Assert::AreEqual(LastEvent::NoEvent, lastEvent, L"Unexpectedly received event for disconnected adapter");
 
 		//
 		// Report events for hardware devices
@@ -797,14 +847,14 @@ public:
 		testProvider->addIpInterface(adapter, iface4);
 		testProvider->sendEvent(&iface4, MibAddInstance);
 
-		Assert::IsTrue(receivedEvent, L"Expected Add event for connected adapter was not received");
+		Assert::AreEqual(LastEvent::Add, lastEvent, L"Expected event for connected adapter was not received");
 
-		receivedEvent = false;
+		lastEvent = LastEvent::NoEvent;
 		
 		testProvider->removeIpInterface(iface4);
 		testProvider->sendEvent(&iface4, MibDeleteInstance);
 		testProvider->removeAdapter(adapter);
 
-		Assert::IsTrue(receivedEvent, L"Expected Delete event for connected adapter was not received");
+		Assert::AreEqual(LastEvent::Delete, lastEvent, L"Expected event for connected adapter was not received");
 	}
 };
