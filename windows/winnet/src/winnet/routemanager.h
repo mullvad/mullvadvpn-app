@@ -13,6 +13,7 @@
 #include <ws2ipdef.h>
 #include <iphlpapi.h>
 #include <netioapi.h>
+#include <functional>
 
 // Custom header files below here.
 // So broken networking headers don't get confused and break the compilation.
@@ -149,6 +150,31 @@ public:
 	void deleteRoutes(const std::vector<Route> &routes);
 	void deleteRoute(const Route &route);
 
+	enum class DefaultRouteChangedEvent
+	{
+		// The best default route changed.
+		Updated,
+
+		// No default routes exist.
+		Removed,
+	};
+
+	using DefaultRouteChangedCallback = std::function<void
+	(
+		DefaultRouteChangedEvent eventType,
+
+		// Signals which IP family the event relates to.
+		ADDRESS_FAMILY addressFamily,
+
+		// For update events, signals the interface associated with the new best default route.
+		NET_LUID iface
+	)>;
+
+	using CallbackHandle = void*;
+
+	CallbackHandle registerDefaultRouteChangedCallback(DefaultRouteChangedCallback callback);
+	void unregisterDefaultRouteChangedCallback(CallbackHandle handle);
+
 private:
 
 	std::shared_ptr<common::logging::ILogSink> m_logSink;
@@ -169,8 +195,10 @@ private:
 	};
 
 	std::list<RouteRecord> m_routes;
-
 	std::recursive_mutex m_routesLock;
+
+	std::list<DefaultRouteChangedCallback> m_defaultRouteCallbacks;
+	std::recursive_mutex m_defaultRouteCallbacksLock;
 
 	// Find record based on destination and mask.
 	std::list<RouteRecord>::iterator findRouteRecord(const Network &network);
@@ -202,6 +230,9 @@ private:
 	void routeChangeCallback(MIB_IPFORWARD_ROW2 *row, MIB_NOTIFICATION_TYPE notificationType);
 
 	static std::wstring FormatRegisteredRoute(const RegisteredRoute &route);
+
+	void notifyNewBestDefaultRoute(ADDRESS_FAMILY addressFamily, NET_LUID iface);
+	void notifyNoDefaultRoutesExist(ADDRESS_FAMILY addressFamily);
 };
 
 }
