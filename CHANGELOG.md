@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Install the OpenVPN certificate to avoid the TAP adapter driver installation warning on
   Windows 8 and newer.
 - Remove Mullvad TAP adapter on uninstall. Also remove the TAP driver if there are no other TAP adapters in the system.
+- Install Wintun driver that provides the WireGuard TUN adapter.
 
 ### Changed
 #### Windows
