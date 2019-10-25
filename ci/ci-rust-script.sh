@@ -7,7 +7,6 @@ RUSTFLAGS="--deny unused_imports --deny dead_code"
 
 source env.sh ""
 
-RUST_TARGET_ARG=""
 case "$(uname -s)" in
   Linux*|Darwin*)
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
@@ -16,14 +15,15 @@ case "$(uname -s)" in
   MINGW*|MSYS_NT*)
     curl -sSf -o rustup-init.exe https://win.rustup.rs/
     ./rustup-init.exe -y --default-toolchain none --profile minimal --default-host x86_64-pc-windows-msvc
-    RUST_TARGET_ARG="--target x86_64-pc-windows-msvc"
+    # See https://github.com/rust-lang/rustup.rs/issues/2082
+    RUST_TOOLCHAIN_CHANNEL="$RUST_TOOLCHAIN_CHANNEL-x86_64-pc-windows-msvc"
     ;;
 esac
 export PATH="$HOME/.cargo/bin/:$PATH"
 
 # Install the toolchain together with rustfmt. Here -c backtracks to last version where
 # the component was available.
-time rustup toolchain install $RUST_TOOLCHAIN_CHANNEL --no-self-update -c rustfmt $RUST_TARGET_ARG
+time rustup toolchain install $RUST_TOOLCHAIN_CHANNEL --no-self-update -c rustfmt
 
 case "$(uname -s)" in
   MINGW*|MSYS_NT*)
@@ -35,8 +35,8 @@ esac
 # FIXME: Becaues of our old jsonrpc dependency our Rust code won't build
 # on latest nightly.
 if [ "${RUST_TOOLCHAIN_CHANNEL}" != "nightly" ]; then
-  time cargo build --locked --verbose $RUST_TARGET_ARG
-  time cargo test --locked --verbose $RUST_TARGET_ARG
+  time cargo build --locked --verbose
+  time cargo test --locked --verbose
 fi
 
 if [[ "${RUST_TOOLCHAIN_CHANNEL}" == "nightly" && "$(uname -s)" == "Linux" ]]; then
