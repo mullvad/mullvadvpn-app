@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Use a larger icon in notifications on Windows 10.
+- Detect removal of the OpenVPN TAP adapter or driver after the daemon has started.
 
 
 ## [2019.9] - 2019-10-11
