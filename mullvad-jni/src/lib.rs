@@ -333,9 +333,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWwwAuthToken
     _: JObject<'this>,
 ) -> JString<'env> {
     match DAEMON_INTERFACE.get_www_auth_token() {
-        Ok(token) => {
-            token.into_java(&env)
-        },
+        Ok(token) => token.into_java(&env),
         Err(err) => {
             log::error!(
                 "{}",

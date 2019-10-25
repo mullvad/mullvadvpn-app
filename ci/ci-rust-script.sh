@@ -1,26 +1,33 @@
 #!/usr/bin/env bash
 
-set -eu
+set -eux
 
 RUST_TOOLCHAIN_CHANNEL=$1
 RUSTFLAGS="--deny unused_imports --deny dead_code"
 
 source env.sh ""
 
-RUST_EXTRA_COMPONENTS=""
-if [ "${RUST_TOOLCHAIN_CHANNEL}" = "nightly" ]; then
-  RUST_EXTRA_COMPONENTS+=" -c rustfmt-preview"
-fi
+case "$(uname -s)" in
+  Linux*|Darwin*)
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
+      -y --default-toolchain none --profile minimal
+    ;;
+  MINGW*|MSYS_NT*)
+    curl -sSf -o rustup-init.exe https://win.rustup.rs/
+    ./rustup-init.exe -y --default-toolchain none --profile minimal --default-host x86_64-pc-windows-msvc
+    # See https://github.com/rust-lang/rustup.rs/issues/2082
+    RUST_TOOLCHAIN_CHANNEL="$RUST_TOOLCHAIN_CHANNEL-x86_64-pc-windows-msvc"
+    ;;
+esac
+export PATH="$HOME/.cargo/bin/:$PATH"
 
-# Install Rust if on Linux or macOS
-if [[ "$(uname -s)" == "Linux" || "$(uname -s)" == "Darwin" ]]; then
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
-    -y --default-toolchain $RUST_TOOLCHAIN_CHANNEL --profile minimal $RUST_EXTRA_COMPONENTS
-  source $HOME/.cargo/env
-fi
+# Install the toolchain together with rustfmt. Here -c backtracks to last version where
+# the component was available.
+time rustup toolchain install $RUST_TOOLCHAIN_CHANNEL --no-self-update -c rustfmt
 
 case "$(uname -s)" in
   MINGW*|MSYS_NT*)
+    export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/amd64/:$PATH"
     time ./build_windows_modules.sh --dev-build
     ;;
 esac
