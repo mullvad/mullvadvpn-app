@@ -11,9 +11,6 @@
 #include <windows.h>
 
 //static
-std::wstring InterfaceUtils::m_alias;
-
-//static
 std::mutex InterfaceUtils::m_mutex;
 
 //static
@@ -77,11 +74,6 @@ std::wstring InterfaceUtils::GetTapInterfaceAlias()
 {
 	common::sync::ScopeLock<> cacheLock(m_mutex);
 
-	if (false == m_alias.empty())
-	{
-		return m_alias;
-	}
-
 	//
 	// Look for TAP adapter with alias "Mullvad".
 	//
@@ -102,7 +94,7 @@ std::wstring InterfaceUtils::GetTapInterfaceAlias()
 
 	if (findByAlias(adapters, baseAlias))
 	{
-		return m_alias = baseAlias;
+		return baseAlias;
 	}
 
 	//
@@ -119,7 +111,7 @@ std::wstring InterfaceUtils::GetTapInterfaceAlias()
 
 		if (findByAlias(adapters, alias))
 		{
-			return m_alias = alias;
+			return alias;
 		}
 	}
 

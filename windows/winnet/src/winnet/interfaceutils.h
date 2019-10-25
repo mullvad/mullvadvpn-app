@@ -8,7 +8,6 @@ class InterfaceUtils
 {
 	InterfaceUtils() = delete;
 
-	static std::wstring m_alias;
 	static std::mutex m_mutex;
 
 public:
