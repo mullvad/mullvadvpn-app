@@ -4,13 +4,25 @@ The system service/daemon, GUI and CLI for the Mullvad VPN app.
 
 ## Releases
 
-There are built and signed releases for macOS, Windows and Linux available on
+There are built and signed releases for macOS, Windows, Linux and Android available on
 [our website](https://mullvad.net/download/) and on
 [Github](https://github.com/mullvad/mullvadvpn-app/releases/).
-Support for Android and iOS is in the making.
+Support for iOS is in the making.
 
 You can find our code signing keys as well as instructions for how to cryptographically verify
 your download on [Mullvad's Open Source page].
+
+## Features
+
+Here is a table containing the features of the app accross platforms. This reflects the current
+state of latest master, not necessarily any existing release.
+
+|                               | Windows | Linux | macOS | Android |
+|-------------------------------|:-------:|:-----:|:-----:|:-------:|
+| OpenVPN                       |    ✓    |   ✓   |   ✓   |         |
+| WireGuard                     |         |   ✓   |   ✓   |    ✓    |
+| OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |
+| Optional local network access |    ✓    |   ✓   |   ✓   |         |
 
 ## Checking out the code
 
