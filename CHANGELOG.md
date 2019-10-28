@@ -38,6 +38,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Use a larger icon in notifications on Windows 10.
 
+### Fixed
+#### Windows
+- Detect removal of the OpenVPN TAP adapter on reconnection attempts.
+
 
 ## [2019.9] - 2019-10-11
 ### Added
