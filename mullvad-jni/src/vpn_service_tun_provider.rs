@@ -1,10 +1,11 @@
-use crate::{get_class, into_java::IntoJava};
 use ipnetwork::IpNetwork;
-use jni::{
+use jnix::jni::{
+    self,
     objects::{GlobalRef, JObject, JValue},
     signature::{JavaType, Primitive},
-    JNIEnv, JavaVM,
+    JavaVM,
 };
+use jnix::{IntoJava, JnixEnv};
 use std::{
     fs::File,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
@@ -59,9 +60,9 @@ pub struct VpnServiceTunProvider {
 
 impl VpnServiceTunProvider {
     /// Create a new VpnServiceTunProvider interfacing with Android's VpnService.
-    pub fn new(env: &JNIEnv, mullvad_vpn_service: &JObject) -> Result<Self, Error> {
+    pub fn new(env: &JnixEnv, mullvad_vpn_service: &JObject) -> Result<Self, Error> {
         let jvm = env.get_java_vm().map_err(Error::GetJvmInstance)?;
-        let class = get_class("net/mullvad/mullvadvpn/MullvadVpnService");
+        let class = env.get_class("net/mullvad/mullvadvpn/MullvadVpnService");
         let object = env
             .new_global_ref(*mullvad_vpn_service)
             .map_err(Error::CreateGlobalReference)?;
@@ -92,10 +93,11 @@ impl VpnServiceTunProvider {
 
     fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
         if self.active_tun.is_none() || self.last_tun_config != config {
-            let env = self
-                .jvm
-                .attach_current_thread_as_daemon()
-                .map_err(Error::AttachJvmToThread)?;
+            let env = JnixEnv::from(
+                self.jvm
+                    .attach_current_thread_as_daemon()
+                    .map_err(Error::AttachJvmToThread)?,
+            );
             let create_tun_method = env
                 .get_method_id(
                     &self.class,
@@ -104,7 +106,7 @@ impl VpnServiceTunProvider {
                 )
                 .map_err(|cause| Error::FindMethod("createTun", cause))?;
 
-            let java_config = env.auto_local(config.clone().into_java(&env));
+            let java_config = config.clone().into_java(&env);
             let result = env
                 .call_method_unchecked(
                     self.object.as_obj(),

@@ -11,9 +11,6 @@ sealed class BlockReason {
     class TapAdapterProblem : BlockReason()
 }
 
-sealed class ParameterGenerationError {
-    class NoMatchingRelay : ParameterGenerationError()
-    class NoMatchingBridgeRelay : ParameterGenerationError()
-    class NoWireguardKey : ParameterGenerationError()
-    class CustomTunnelHostResultionError : ParameterGenerationError()
+enum class ParameterGenerationError {
+    NoMatchingRelay, NoMatchingBridgeRelay, NoWireguardKey, CustomTunnelHostResultionError
 }

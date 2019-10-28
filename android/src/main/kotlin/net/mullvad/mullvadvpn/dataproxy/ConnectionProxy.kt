@@ -105,7 +105,7 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
                 return false
             } else {
                 scheduleToResetAnticipatedState()
-                uiState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing())
+                uiState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing)
                 return true
             }
         }

@@ -1,4 +1,6 @@
 use crate::settings::TunnelOptions;
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -18,6 +20,12 @@ pub enum Error {
 
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.CustomTunnelEndpoint"),
+    jnix(skip_all)
+)]
 pub struct CustomTunnelEndpoint {
     host: String,
     config: ConnectionConfig,

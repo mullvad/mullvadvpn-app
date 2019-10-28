@@ -3,6 +3,8 @@ use crate::{
     relay_list::{OpenVpnEndpointData, WireguardEndpointData},
     CustomTunnelEndpoint,
 };
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use talpid_types::net::{openvpn::ProxySettings, TransportProtocol};
@@ -14,6 +16,11 @@ pub trait Match<T> {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.Constraint")
+)]
 pub enum Constraint<T: fmt::Debug + Clone + Eq + PartialEq> {
     Any,
     Only(T),
@@ -61,6 +68,11 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Match<T> for Constraint<T> {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.RelaySettings")
+)]
 pub enum RelaySettings {
     CustomTunnelEndpoint(CustomTunnelEndpoint),
     Normal(RelayConstraints),
@@ -120,10 +132,18 @@ impl RelaySettings {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(not(target_os = "android"), derive(Default))]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.RelayConstraints")
+)]
 pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_protocol: Constraint<TunnelProtocol>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub wireguard_constraints: WireguardConstraints,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub openvpn_constraints: OpenVpnConstraints,
 }
 
@@ -187,6 +207,11 @@ impl fmt::Display for RelayConstraints {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.LocationConstraint")
+)]
 pub enum LocationConstraint {
     /// A country is represented by its two letter country code.
     Country(CountryCode),

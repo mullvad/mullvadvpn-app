@@ -1,5 +1,7 @@
 use cfg_if::cfg_if;
 use ipnetwork::IpNetwork;
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use std::net::IpAddr;
 #[cfg(unix)]
 use std::os::unix::io::AsRawFd;
@@ -63,6 +65,11 @@ pub trait TunProvider: Send + 'static {
 
 /// Configuration for creating a tunnel device.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.TunConfig")
+)]
 pub struct TunConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
@@ -71,8 +78,45 @@ pub struct TunConfig {
     pub dns_servers: Vec<IpAddr>,
 
     /// Routes to configure for the tunnel.
+    #[cfg_attr(
+        target_os = "android",
+        jnix(map = "|routes| convert_ip_networks(routes)")
+    )]
     pub routes: Vec<IpNetwork>,
 
     /// Maximum Transmission Unit in the tunnel.
+    #[cfg_attr(target_os = "android", jnix(map = "|mtu| mtu as i32"))]
     pub mtu: u16,
 }
+
+#[cfg(target_os = "android")]
+mod convertible_ip_network {
+    use ipnetwork::IpNetwork;
+    use jnix::IntoJava;
+    use std::net::IpAddr;
+
+    pub fn convert_ip_networks(networks: Vec<IpNetwork>) -> Vec<ConvertibleIpNetwork> {
+        networks
+            .into_iter()
+            .map(ConvertibleIpNetwork::from)
+            .collect()
+    }
+
+    #[derive(IntoJava)]
+    #[jnix(class_name = "net.mullvad.mullvadvpn.model.InetNetwork")]
+    pub struct ConvertibleIpNetwork {
+        ip_addr: IpAddr,
+        prefix: i16,
+    }
+
+    impl From<IpNetwork> for ConvertibleIpNetwork {
+        fn from(network: IpNetwork) -> Self {
+            ConvertibleIpNetwork {
+                ip_addr: network.ip(),
+                prefix: network.prefix() as i16,
+            }
+        }
+    }
+}
+#[cfg(target_os = "android")]
+use self::convertible_ip_network::convert_ip_networks;

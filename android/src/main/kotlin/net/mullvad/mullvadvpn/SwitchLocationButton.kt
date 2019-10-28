@@ -57,9 +57,9 @@ class SwitchLocationButton(val parentView: View, val resources: Resources) {
                 is TunnelState.Disconnected -> showLocation()
                 is TunnelState.Disconnecting -> {
                     when (state.actionAfterDisconnect) {
-                        is ActionAfterDisconnect.Nothing -> showLocation()
-                        is ActionAfterDisconnect.Block -> showLocation()
-                        is ActionAfterDisconnect.Reconnect -> showLabel()
+                        ActionAfterDisconnect.Nothing -> showLocation()
+                        ActionAfterDisconnect.Block -> showLocation()
+                        ActionAfterDisconnect.Reconnect -> showLabel()
                     }
                 }
                 is TunnelState.Connecting -> showLabel()

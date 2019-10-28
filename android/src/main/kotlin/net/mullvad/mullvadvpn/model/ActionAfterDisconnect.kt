@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.model
 
-sealed class ActionAfterDisconnect {
-    class Nothing : ActionAfterDisconnect()
-    class Block : ActionAfterDisconnect()
-    class Reconnect : ActionAfterDisconnect()
+enum class ActionAfterDisconnect {
+    Nothing, Block, Reconnect
 }

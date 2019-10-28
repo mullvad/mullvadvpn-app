@@ -2,7 +2,8 @@ use crate::{
     endpoint::MullvadEndpoint,
     location::{CityCode, CountryCode, Location},
 };
-
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
@@ -15,6 +16,11 @@ use talpid_types::net::{
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.RelayList")
+)]
 pub struct RelayList {
     pub countries: Vec<RelayListCountry>,
 }
@@ -28,6 +34,11 @@ impl RelayList {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.RelayListCountry")
+)]
 pub struct RelayListCountry {
     pub name: String,
     pub code: CountryCode,
@@ -35,32 +46,55 @@ pub struct RelayListCountry {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.RelayListCity")
+)]
 pub struct RelayListCity {
     pub name: String,
     pub code: CityCode,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub latitude: f64,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub longitude: f64,
     pub relays: Vec<Relay>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.Relay")
+)]
 pub struct Relay {
     pub hostname: String,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub ipv4_addr_in: Ipv4Addr,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub include_in_country: bool,
     pub active: bool,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub weight: u64,
     #[serde(skip_serializing_if = "RelayTunnels::is_empty", default)]
     pub tunnels: RelayTunnels,
     #[serde(skip_serializing_if = "RelayBridges::is_empty", default)]
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridges: RelayBridges,
     #[serde(skip)]
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub location: Option<Location>,
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 #[serde(default)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.RelayTunnels")
+)]
 pub struct RelayTunnels {
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub openvpn: Vec<OpenVpnEndpointData>,
     pub wireguard: Vec<WireguardEndpointData>,
 }
@@ -95,6 +129,12 @@ impl fmt::Display for OpenVpnEndpointData {
 }
 
 #[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Debug)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.WireguardEndpointData"),
+    jnix(skip_all)
+)]
 pub struct WireguardEndpointData {
     /// Port to connect to
     pub port_ranges: Vec<(u16, u16)>,

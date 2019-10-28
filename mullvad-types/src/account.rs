@@ -1,10 +1,18 @@
 use chrono::{offset::Utc, DateTime};
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 
 pub type AccountToken = String;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.AccountData")
+)]
 pub struct AccountData {
+    #[cfg_attr(target_os = "android", jnix(map = "|expiry| expiry.to_string()"))]
     pub expiry: DateTime<Utc>,
 }
 

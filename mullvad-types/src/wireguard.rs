@@ -1,4 +1,6 @@
 use chrono::{offset::Utc, DateTime};
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use talpid_types::net::wireguard;
@@ -24,8 +26,15 @@ impl WireguardData {
 
 /// Represents a published public key
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.PublicKey")
+)]
 pub struct PublicKey {
+    #[cfg_attr(target_os = "android", jnix(map = "|key| *key.as_bytes()"))]
     pub key: wireguard::PublicKey,
+    #[cfg_attr(target_os = "android", jnix(map = "|date_time| date_time.to_string()"))]
     pub created: DateTime<Utc>,
 }
 
@@ -37,9 +46,14 @@ pub struct AssociatedAddresses {
     pub ipv6_address: ipnetwork::Ipv6Network,
 }
 
+/// Event that is emitted when the daemon has finished generating a key.
 #[serde(rename_all = "snake_case")]
 #[derive(Clone, Debug, Deserialize, Serialize)]
-/// Event that is emitted when the daemon has finished generating a key.
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.KeygenEvent")
+)]
 pub enum KeygenEvent {
     NewKey(PublicKey),
     TooManyKeys,

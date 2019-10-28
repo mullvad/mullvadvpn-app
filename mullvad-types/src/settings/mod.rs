@@ -2,6 +2,8 @@ use crate::relay_constraints::{
     BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
     RelayConstraints, RelaySettings, RelaySettingsUpdate,
 };
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -47,28 +49,40 @@ pub enum Error {
     NoMatchingVersion,
 }
 
-static SETTINGS_FILE: &str = "settings.json";
 
+static SETTINGS_FILE: &str = "settings.json";
 
 /// Mullvad daemon settings.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.Settings")
+)]
 pub struct Settings {
     account_token: Option<String>,
     relay_settings: RelaySettings,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     bridge_settings: BridgeSettings,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     bridge_state: BridgeState,
     /// If the daemon should allow communication with private (LAN) networks.
+    #[cfg_attr(target_os = "android", jnix(skip))]
     allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
     /// the firewall to not allow any traffic in or out.
+    #[cfg_attr(target_os = "android", jnix(skip))]
     block_when_disconnected: bool,
     /// If the daemon should connect the VPN tunnel directly on start or not.
+    #[cfg_attr(target_os = "android", jnix(skip))]
     auto_connect: bool,
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
+    #[cfg_attr(target_os = "android", jnix(skip))]
     tunnel_options: TunnelOptions,
     /// Specifies settings schema version
+    #[cfg_attr(target_os = "android", jnix(skip))]
     settings_version: migrations::SettingsVersion,
 }
 

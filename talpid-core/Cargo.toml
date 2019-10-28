@@ -37,6 +37,10 @@ tokio-executor = "0.1"
 tokio-io = "0.1"
 
 
+[target.'cfg(target_os = "android")'.dependencies]
+jnix = { git = "https://github.com/jvff/jnix", features = ["derive"] }
+
+
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = "0.6"
 failure = "0.1"

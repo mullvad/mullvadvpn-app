@@ -1,8 +1,15 @@
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 
 /// AppVersionInfo represents the current stable and the current latest release versions of the
 /// Mullvad VPN app.
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.AppVersionInfo")
+)]
 pub struct AppVersionInfo {
     /// False if Mullvad has stopped supporting the currently running version. This could mean
     /// a number of things. For example:
