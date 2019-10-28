@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Use authenticated URLs to go to wireguard key page on website.
+- WireGuard key fragment has been made more similar to it's desktop counterpart.
 
 ### Changed
 - Notifications shown when connecting to a server include its location.
