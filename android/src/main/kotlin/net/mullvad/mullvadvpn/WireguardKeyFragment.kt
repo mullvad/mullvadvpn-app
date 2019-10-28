@@ -138,7 +138,7 @@ class WireguardKeyFragment : Fragment() {
                 val key = keyState.publicKey
                 val publicKeyString = Base64.encodeToString(key.key, Base64.NO_WRAP)
                 publicKey.visibility = View.VISIBLE
-                publicKey.setText(publicKeyString)
+                publicKey.setText(publicKeyString.substring(0, 20) + "...")
 
                 publicKey.setOnClickListener {
                     val label = parentActivity.getString(R.string.wireguard_key_copied_to_clibpoard)
