@@ -1,4 +1,4 @@
-use log::{debug, trace, warn};
+use log::{debug, info, trace, warn};
 use std::{
     io, thread,
     time::{Duration, Instant},
@@ -28,11 +28,12 @@ where
         self.stop();
         if wait_timeout(self, timeout)? {
             debug!("Child process terminated gracefully");
-            Ok(())
         } else {
             warn!("Child process did not terminate gracefully within timeout, forcing termination");
-            self.kill()
+            self.kill()?;
+            info!("Child process killed");
         }
+        Ok(())
     }
 }
 /// Wait for a process to die for a maximum of `timeout`. Returns true if the process died within
