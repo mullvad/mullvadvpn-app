@@ -2,13 +2,10 @@
 
 #include <string>
 #include <set>
-#include <mutex>
 
 class InterfaceUtils
 {
 	InterfaceUtils() = delete;
-
-	static std::mutex m_mutex;
 
 public:
 

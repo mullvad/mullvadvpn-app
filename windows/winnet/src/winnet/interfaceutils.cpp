@@ -2,7 +2,6 @@
 #include "interfaceutils.h"
 #include "libcommon/error.h"
 #include "libcommon/string.h"
-#include "libcommon/synchronization.h"
 #include <vector>
 #include <cstdint>
 #include <algorithm>
@@ -10,8 +9,6 @@
 #include <iphlpapi.h>
 #include <windows.h>
 
-//static
-std::mutex InterfaceUtils::m_mutex;
 
 //static
 std::set<InterfaceUtils::NetworkAdapter> InterfaceUtils::GetAllAdapters()
@@ -72,8 +69,6 @@ InterfaceUtils::GetTapAdapters(const std::set<InterfaceUtils::NetworkAdapter> &a
 //static
 std::wstring InterfaceUtils::GetTapInterfaceAlias()
 {
-	common::sync::ScopeLock<> cacheLock(m_mutex);
-
 	//
 	// Look for TAP adapter with alias "Mullvad".
 	//
