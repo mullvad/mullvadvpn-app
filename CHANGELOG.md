@@ -23,6 +23,15 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Windows
+- Install Wintun driver that provides the WireGuard TUN adapter.
+- Remove Mullvad TAP adapter on uninstall. Also remove the TAP driver if there are no other TAP
+  adapters in the system.
+
+#### Android
+- Use authenticated URLs to go to wireguard key page on website.
+
 ### Changed
 - Notifications shown when connecting to a server include its location.
 
@@ -34,17 +43,12 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add ability to submit vouchers from the CLI.
 
-#### Android
-- Use authenticated URLs to go to wireguard key page on website.
-
 #### Linux
 - Add a symlink for `mullvad-problem-report` directly in `/usr/bin`. So the tool is available.
 
 #### Windows
 - Install the OpenVPN certificate to avoid the TAP adapter driver installation warning on
   Windows 8 and newer.
-- Remove Mullvad TAP adapter on uninstall. Also remove the TAP driver if there are no other TAP adapters in the system.
-- Install Wintun driver that provides the WireGuard TUN adapter.
 
 ### Changed
 #### Windows
