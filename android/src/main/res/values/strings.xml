@@ -113,6 +113,7 @@
         selected region
     </string>
     <string name="wireguard_key">WireGuard key</string>
+    <string name="wireguard_key_copied_to_clibpoard">Key copied to clipboard</string>
     <string name="wireguard_public_key">Public key</string>
     <string name="wireguard_verify_key">Verify key</string>
     <string name="wireguard_generate_key">Generate key</string>
