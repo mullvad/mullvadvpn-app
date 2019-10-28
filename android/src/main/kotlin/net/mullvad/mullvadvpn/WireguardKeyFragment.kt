@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -137,6 +139,17 @@ class WireguardKeyFragment : Fragment() {
                 val publicKeyString = Base64.encodeToString(key.key, Base64.NO_WRAP)
                 publicKey.visibility = View.VISIBLE
                 publicKey.setText(publicKeyString)
+
+                publicKey.setOnClickListener {
+                    val label = parentActivity.getString(R.string.wireguard_key_copied_to_clibpoard)
+                    val clipboard = parentActivity
+                        .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    clipboard.setPrimaryClip(ClipData.newPlainText(label, publicKeyString))
+
+                    Toast.makeText(parentActivity, label, Toast.LENGTH_SHORT)
+                        .show()
+                }
+
                 publicKeyAge.setText(formatKeyDateCreated(key.dateCreated))
 
                 if (keyState.verified != null) {
