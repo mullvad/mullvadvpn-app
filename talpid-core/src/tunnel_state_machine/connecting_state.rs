@@ -99,6 +99,10 @@ impl ConnectingState {
             let start = Instant::now();
 
             let block_reason = Self::wait_for_tunnel_monitor(tunnel_monitor);
+            debug!(
+                "Tunnel monitor exited with block reason: {:?}",
+                block_reason
+            );
 
             if block_reason.is_none() {
                 if let Some(remaining_time) = MIN_TUNNEL_ALIVE_TIME.checked_sub(start.elapsed()) {
