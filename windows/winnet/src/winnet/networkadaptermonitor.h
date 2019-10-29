@@ -8,7 +8,6 @@
 #include <iphlpapi.h>
 #include <windows.h>
 #include <functional>
-#include <mutex>
 #include <vector>
 
 
@@ -49,12 +48,10 @@ public:
 
 	NetworkAdapterMonitor(const NetworkAdapterMonitor &) = delete;
 	NetworkAdapterMonitor& operator=(const NetworkAdapterMonitor &) = delete;
-	NetworkAdapterMonitor(NetworkAdapterMonitor &&) = delete;
-	NetworkAdapterMonitor& operator=(NetworkAdapterMonitor &&) = delete;
+	NetworkAdapterMonitor(NetworkAdapterMonitor &&) = default;
+	NetworkAdapterMonitor& operator=(NetworkAdapterMonitor &&) = default;
 
 private:
-
-	std::mutex m_processingMutex;
 
 	std::shared_ptr<common::logging::ILogSink> m_logSink;
 	UpdateSinkType m_updateSink;

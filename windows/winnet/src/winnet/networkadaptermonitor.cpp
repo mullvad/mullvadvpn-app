@@ -150,8 +150,6 @@ MIB_IF_ROW2 NetworkAdapterMonitor::getIfEntry(NET_LUID luid) const
 
 void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE)
 {
-	std::scoped_lock<std::mutex> processingLock(m_processingMutex);
-
 	MIB_IF_ROW2 iface = getIfEntry(hint->InterfaceLuid);
 	
 	bool adapterEnabled = NET_IF_ADMIN_STATUS_UP == iface.AdminStatus
