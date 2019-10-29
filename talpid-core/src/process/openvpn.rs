@@ -388,7 +388,9 @@ impl StoppableProcess for OpenVpnProcHandle {
     fn stop(&self) {
         // Dropping our stdin handle so that it is closed once. Closing the handle should
         // gracefully stop our openvpn child process.
-        let _ = self.stdin.lock().take();
+        if self.stdin.lock().take().is_none() {
+            log::warn!("Tried to close OpenVPN stdin handle twice, this is a bug");
+        }
     }
 
     fn kill(&self) -> io::Result<()> {
