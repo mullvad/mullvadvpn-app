@@ -374,7 +374,7 @@ impl OpenVpnProcHandle {
         }
 
         let (reader, writer) = pipe()?;
-        let proc_handle = cmd.stdin_handle(reader).start()?;
+        let proc_handle = cmd.stdin_file(reader).start()?;
 
         Ok(Self {
             inner: proc_handle,
@@ -388,11 +388,16 @@ impl StoppableProcess for OpenVpnProcHandle {
     fn stop(&self) {
         // Dropping our stdin handle so that it is closed once. Closing the handle should
         // gracefully stop our openvpn child process.
-        let _ = self.stdin.lock().take();
+        if self.stdin.lock().take().is_none() {
+            log::warn!("Tried to close OpenVPN stdin handle twice, this is a bug");
+        }
     }
 
     fn kill(&self) -> io::Result<()> {
-        self.inner.kill()
+        log::warn!("Killing OpenVPN process");
+        self.inner.kill()?;
+        log::debug!("OpenVPN forcefully killed");
+        Ok(())
     }
 
     fn has_stopped(&self) -> io::Result<bool> {

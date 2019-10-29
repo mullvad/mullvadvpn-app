@@ -240,7 +240,7 @@ fn write_logcat_to_file() -> Result<PathBuf, io::Error> {
 
     duct::cmd!("logcat", "-d")
         .stderr_to_stdout()
-        .stdout(&logcat_path)
+        .stdout_path(&logcat_path)
         .run()
         .map(|_| logcat_path)
 }
