@@ -151,7 +151,7 @@ impl ShadowsocksProxyMonitor {
         logging::rotate_log(&logfile)
             .map_err(|_| Error::new(ErrorKind::Other, "Failed to rotate log file"))?;
 
-        cmd = cmd.stdin_null().stderr_to_stdout().stdout(&logfile);
+        cmd = cmd.stdin_null().stderr_to_stdout().stdout_path(&logfile);
 
         let subproc = cmd.start()?;
 

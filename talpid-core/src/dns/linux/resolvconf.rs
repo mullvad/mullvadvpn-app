@@ -63,7 +63,7 @@ impl Resolvconf {
         }
 
         let output = duct::cmd!(&self.resolvconf, "-a", &record_name)
-            .input(record_contents)
+            .stdin_bytes(record_contents)
             .stderr_capture()
             .unchecked()
             .run()

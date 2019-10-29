@@ -374,7 +374,7 @@ impl OpenVpnProcHandle {
         }
 
         let (reader, writer) = pipe()?;
-        let proc_handle = cmd.stdin_handle(reader).start()?;
+        let proc_handle = cmd.stdin_file(reader).start()?;
 
         Ok(Self {
             inner: proc_handle,
