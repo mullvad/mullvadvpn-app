@@ -55,7 +55,7 @@ OfflineMonitor::OfflineMonitor
 	: m_logSink(logSink)
 	, m_notifier(notifier)
 	, m_connected(false)
-	, m_netAdapterMonitor(logSink, [this](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, NetworkAdapterMonitor::UpdateType type) { this->callback(adapters, adapter, type); }, IsConnectedAdapter, dataProvider)
+	, m_netAdapterMonitor(createNetworkAdapterMonitor(dataProvider))
 {
 }
 
@@ -67,6 +67,22 @@ OfflineMonitor::OfflineMonitor
 ) : OfflineMonitor(logSink, notifier, std::make_shared<NetworkAdapterMonitor::SystemDataProvider>())
 {
 }
+
+NetworkAdapterMonitor OfflineMonitor::createNetworkAdapterMonitor(
+	std::shared_ptr<NetworkAdapterMonitor::IDataProvider> dataProvider
+)
+{
+	return NetworkAdapterMonitor(
+		m_logSink,
+		[this](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, NetworkAdapterMonitor::UpdateType type)
+		{
+			callback(adapters, adapter, type);
+		},
+		IsConnectedAdapter,
+		dataProvider
+	);
+}
+
 
 void OfflineMonitor::callback(const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, NetworkAdapterMonitor::UpdateType)
 {

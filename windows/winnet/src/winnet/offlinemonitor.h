@@ -23,6 +23,8 @@ public:
 
 private:
 
+	NetworkAdapterMonitor createNetworkAdapterMonitor(std::shared_ptr<NetworkAdapterMonitor::IDataProvider> dataProvider);
+
 	std::shared_ptr<common::logging::ILogSink> m_logSink;
 	Notifier m_notifier;
 
