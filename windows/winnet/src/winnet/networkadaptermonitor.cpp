@@ -15,6 +15,7 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 	std::shared_ptr<IDataProvider> dataProvider
 )
 	: m_logSink(logSink)
+	, m_notificationHandle(nullptr)
 	, m_updateSink(updateSink)
 	, m_filter(filter)
 	, m_dataProvider(dataProvider)
@@ -59,10 +60,10 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 	// Listen to adapter events
 	//
 
-	const auto statusCb = dataProvider->notifyIpInterfaceChange(
+	const auto statusCb = m_dataProvider->notifyIpInterfaceChange(
 		AF_UNSPEC,
 		Callback,
-		static_cast<void*>(this),
+		this,
 		FALSE,
 		&m_notificationHandle
 	);
@@ -80,7 +81,11 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 
 NetworkAdapterMonitor::~NetworkAdapterMonitor()
 {
-	m_dataProvider->cancelMibChangeNotify2(m_notificationHandle);
+	if (nullptr != m_notificationHandle)
+	{
+		m_dataProvider->cancelMibChangeNotify2(m_notificationHandle);
+		m_notificationHandle = nullptr;
+	}
 }
 
 bool NetworkAdapterMonitor::hasIPv4Interface(NET_LUID luid) const
@@ -150,8 +155,6 @@ MIB_IF_ROW2 NetworkAdapterMonitor::getIfEntry(NET_LUID luid) const
 
 void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE)
 {
-	std::scoped_lock<std::mutex> processingLock(m_processingMutex);
-
 	MIB_IF_ROW2 iface = getIfEntry(hint->InterfaceLuid);
 	
 	bool adapterEnabled = NET_IF_ADMIN_STATUS_UP == iface.AdminStatus
