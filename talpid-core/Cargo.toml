@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 atty = "0.2"
 cfg-if = "0.1"
-duct = "0.12"
+duct = "0.13"
 err-derive = "0.2.1"
 futures = "0.1"
 ipnetwork = "0.15"
