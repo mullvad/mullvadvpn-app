@@ -281,27 +281,24 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             let _ = rx.recv();
 
             match result {
-                Stopped::Tunnel(tunnel_result) => {
-                    return tunnel_result;
-                }
+                Stopped::Tunnel(tunnel_result) => tunnel_result,
                 Stopped::Proxy(proxy_result) => {
                     // The proxy should never exit before openvpn.
                     match proxy_result {
                         Ok(proxy::WaitResult::ProperShutdown) => {
-                            return Err(Error::ProxyExited("No details".to_owned()));
+                            Err(Error::ProxyExited("No details".to_owned()))
                         }
                         Ok(proxy::WaitResult::UnexpectedExit(details)) => {
-                            return Err(Error::ProxyExited(details));
+                            Err(Error::ProxyExited(details))
                         }
-                        Err(err) => {
-                            return Err(err).map_err(Error::MonitorProxyError);
-                        }
+                        Err(err) => Err(err).map_err(Error::MonitorProxyError),
                     }
                 }
             }
+        } else {
+            // No proxy active, wait only for the tunnel.
+            self.wait_tunnel()
         }
-        // No proxy active, wait only for the tunnel.
-        self.wait_tunnel()
     }
 
     /// Supplement `inner_wait_tunnel()` with logging and error handling.
