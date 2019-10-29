@@ -394,7 +394,10 @@ impl StoppableProcess for OpenVpnProcHandle {
     }
 
     fn kill(&self) -> io::Result<()> {
-        self.inner.kill()
+        log::warn!("Killing OpenVPN process");
+        self.inner.kill()?;
+        log::debug!("OpenVPN forcefully killed");
+        Ok(())
     }
 
     fn has_stopped(&self) -> io::Result<bool> {

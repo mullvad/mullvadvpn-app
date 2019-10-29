@@ -1,4 +1,3 @@
-use log::{debug, info, trace, warn};
 use std::{
     io, thread,
     time::{Duration, Instant},
@@ -24,14 +23,15 @@ where
     /// Attempts to stop a process gracefully in the given time period, otherwise kills the
     /// process.
     fn nice_kill(&self, timeout: Duration) -> io::Result<()> {
-        trace!("Trying to stop child process gracefully");
+        log::debug!("Trying to stop child process gracefully");
         self.stop();
         if wait_timeout(self, timeout)? {
-            debug!("Child process terminated gracefully");
+            log::debug!("Child process terminated gracefully");
         } else {
-            warn!("Child process did not terminate gracefully within timeout, forcing termination");
+            log::warn!(
+                "Child process did not terminate gracefully within timeout, forcing termination"
+            );
             self.kill()?;
-            info!("Child process killed");
         }
         Ok(())
     }
