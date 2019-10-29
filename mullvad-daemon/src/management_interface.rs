@@ -308,7 +308,6 @@ pub struct ManagementInterfaceEventBroadcaster {
 impl EventListener for ManagementInterfaceEventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
     fn notify_new_state(&self, new_state: TunnelState) {
-        log::debug!("Broadcasting new state: {:?}", new_state);
         self.notify(DaemonEvent::TunnelState(new_state));
     }
 
