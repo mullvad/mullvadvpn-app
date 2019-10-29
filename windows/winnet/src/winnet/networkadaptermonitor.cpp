@@ -51,7 +51,11 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 	// Send initial notification
 	//
 
-	if (!m_filteredAdapters.empty())
+	if (m_filteredAdapters.empty())
+	{
+		m_updateSink(m_filteredAdapters, nullptr, UpdateType::Update);
+	}
+	else
 	{
 		m_updateSink(m_filteredAdapters, nullptr, UpdateType::Add);
 	}
