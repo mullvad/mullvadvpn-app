@@ -251,14 +251,15 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 		{
 			m_filteredAdapters.erase(filteredIt);
 
-			if (m_filter(iface))
-			{
-				m_updateSink(
-					m_filteredAdapters,
-					&iface,
-					UpdateType::Delete
-				);
-			}
+			//
+			// We report 'Delete' for any adapter that was
+			// approved by the filter when reported.
+			//
+			m_updateSink(
+				m_filteredAdapters,
+				&iface,
+				UpdateType::Delete
+			);
 		}
 	}
 }
