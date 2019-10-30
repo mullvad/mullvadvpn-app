@@ -59,7 +59,7 @@ private:
 
 	std::shared_ptr<IDataProvider> m_dataProvider;
 
-	MIB_IF_ROW2 getIfEntry(NET_LUID luid) const;
+	MIB_IF_ROW2 getAdapter(NET_LUID luid) const;
 
 	bool hasIPv4Interface(NET_LUID luid) const;
 	bool hasIPv6Interface(NET_LUID luid) const;

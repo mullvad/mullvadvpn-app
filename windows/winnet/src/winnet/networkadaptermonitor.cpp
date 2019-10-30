@@ -138,7 +138,7 @@ std::vector<MIB_IF_ROW2>::iterator NetworkAdapterMonitor::findFilteredAdapter(co
 	});
 }
 
-MIB_IF_ROW2 NetworkAdapterMonitor::getIfEntry(NET_LUID luid) const
+MIB_IF_ROW2 NetworkAdapterMonitor::getAdapter(NET_LUID luid) const
 {
 	MIB_IF_ROW2 rowOut;
 	rowOut.InterfaceLuid = luid;
@@ -152,14 +152,14 @@ MIB_IF_ROW2 NetworkAdapterMonitor::getIfEntry(NET_LUID luid) const
 	std::stringstream ss;
 
 	ss << "GetIfEntry2() failed for LUID 0x" << std::hex << rowOut.InterfaceLuid.Value
-		<< " in NetworkAdapterMonitor::getIfEntry(), error: 0x" << status;
+		<< " in NetworkAdapterMonitor::getAdapter(), error: 0x" << status;
 
 	throw std::runtime_error(ss.str());
 }
 
 void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE)
 {
-	MIB_IF_ROW2 iface = getIfEntry(hint->InterfaceLuid);
+	MIB_IF_ROW2 iface = getAdapter(hint->InterfaceLuid);
 	
 	bool adapterEnabled = NET_IF_ADMIN_STATUS_UP == iface.AdminStatus
 		&& (hasIPv4Interface(iface.InterfaceLuid)
