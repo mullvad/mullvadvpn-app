@@ -194,18 +194,14 @@ impl BroadcastListener {
         system_state: &Mutex<SystemState>,
     ) -> Result<(), Error> {
         let callback_context = system_state as *const _ as *mut libc::c_void;
-        let mut state = system_state.lock();
-        let mut current_connectivity = true;
         if !winnet::WinNet_ActivateConnectivityMonitor(
             Some(Self::connectivity_callback),
             callback_context,
-            &mut current_connectivity as *mut _,
             Some(winnet::log_sink),
             ptr::null_mut(),
         ) {
             return Err(Error::ConnectivityMonitorError);
         }
-        state.network_connectivity = current_connectivity;
         Ok(())
     }
 

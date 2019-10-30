@@ -3,10 +3,14 @@
 #include "../../shared/logsink.h"
 #include <stdbool.h>
 
+#ifndef WINNET_STATIC
 #ifdef WINNET_EXPORTS
 #define WINNET_LINKAGE __declspec(dllexport)
 #else
 #define WINNET_LINKAGE __declspec(dllimport)
+#endif
+#else
+#define WINNET_LINKAGE
 #endif
 
 #define WINNET_API __stdcall
@@ -75,7 +79,6 @@ WINNET_API
 WinNet_ActivateConnectivityMonitor(
 	WinNetConnectivityMonitorCallback callback,
 	void *callbackContext,
-	bool *currentConnectivity,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );
