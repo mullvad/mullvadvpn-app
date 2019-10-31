@@ -3,16 +3,16 @@
 #include "NetworkInterfaces.h"
 #include "interfaceutils.h"
 #include "offlinemonitor.h"
+#include "routing/routemanager.h"
 #include "../../shared/logsinkadapter.h"
 #include <libcommon/error.h>
 #include <libcommon/network.h>
-#include "routemanager.h"
 #include <cstdint>
 #include <stdexcept>
 #include <memory>
 #include <optional>
 
-using namespace routemanager;
+using namespace winnet::routing;
 
 namespace
 {
@@ -518,6 +518,26 @@ WinNet_DeleteRoute(
 	}
 }
 
+//
+// TODO: Move to libcommon.
+//
+struct ValueMapper
+{
+	template<typename T, typename U, std::size_t S>
+	static U map(T t, const std::pair<T, U> (&dictionary)[S])
+	{
+		for (const auto &entry : dictionary)
+		{
+			if (t == entry.first)
+			{
+				return entry.second;
+			}
+		}
+
+		throw std::runtime_error("Could not map between values");
+	}
+};
+
 extern "C"
 WINNET_LINKAGE
 bool
@@ -535,50 +555,52 @@ WinNet_RegisterDefaultRouteChangedCallback(
 
 	try
 	{
-		auto forwarder = [callback, context]
-			(RouteManager::DefaultRouteChangedEvent eventType, ADDRESS_FAMILY addressFamily, NET_LUID iface)
+		auto forwarder = [callback, context](RouteManager::DefaultRouteChangedEventType eventType,
+			ADDRESS_FAMILY family, const std::optional<InterfaceAndGateway> &route)
 		{
-			WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE translatedType;
+			//
+			// Translate the event type.
+			//
 
-			switch (eventType)
+			using from_t = RouteManager::DefaultRouteChangedEventType;
+			using to_t = WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE;
+
+			static const std::pair<from_t, to_t> eventTypeMap[] =
 			{
-				case RouteManager::DefaultRouteChangedEvent::Updated:
-				{
-					translatedType = WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_UPDATED;
-					break;
-				}
-				case RouteManager::DefaultRouteChangedEvent::Removed:
-				{
-					translatedType = WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_REMOVED;
-					break;
-				}
-				default:
-				{
-					throw std::runtime_error("Unexpected default-route-changed event type");
-				}
+				{ from_t::Updated, WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_UPDATED },
+				{ from_t::Removed, WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_REMOVED }
+			};
+
+			const auto translatedEventType = ValueMapper::map<>(eventType, eventTypeMap);
+
+			//
+			// Translate the family type.
+			//
+
+			static const std::pair<ADDRESS_FAMILY, WINNET_IP_FAMILY> familyMap[] =
+			{
+				{ static_cast<ADDRESS_FAMILY>(AF_INET), WINNET_IP_FAMILY_V4 },
+				{ static_cast<ADDRESS_FAMILY>(AF_INET6), WINNET_IP_FAMILY_V6 }
+			};
+
+			const auto translatedFamily = ValueMapper::map<>(family, familyMap);
+
+			//
+			// Determine which LUID to forward.
+			//
+
+			uint64_t translatedLuid = 0;
+
+			if (RouteManager::DefaultRouteChangedEventType::Updated == eventType)
+			{
+				translatedLuid = route.value().iface.Value;
 			}
 
-			WINNET_IP_FAMILY translatedFamily;
+			//
+			// Forward to client.
+			//
 
-			switch (addressFamily)
-			{
-				case AF_INET:
-				{
-					translatedFamily = WINNET_IP_FAMILY_V4;
-					break;
-				}
-				case AF_INET6:
-				{
-					translatedFamily = WINNET_IP_FAMILY_V6;
-					break;
-				}
-				default:
-				{
-					throw std::runtime_error("Unexpected default-route-changed address family");
-				}
-			}
-
-			callback(translatedType, translatedFamily, iface.Value, context);
+			callback(translatedEventType, translatedFamily, translatedLuid, context);
 		};
 
 		*registrationHandle = g_RouteManager->registerDefaultRouteChangedCallback(forwarder);
