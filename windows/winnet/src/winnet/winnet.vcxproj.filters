@@ -9,8 +9,18 @@
     <ClCompile Include="interfaceutils.cpp" />
     <ClCompile Include="networkadaptermonitor.cpp" />
     <ClCompile Include="offlinemonitor.cpp" />
-    <ClCompile Include="routemanager.cpp" />
-    <ClCompile Include="adapters.cpp" />
+    <ClCompile Include="routing\types.cpp">
+      <Filter>routing</Filter>
+    </ClCompile>
+    <ClCompile Include="routing\helpers.cpp">
+      <Filter>routing</Filter>
+    </ClCompile>
+    <ClCompile Include="routing\defaultroutemonitor.cpp">
+      <Filter>routing</Filter>
+    </ClCompile>
+    <ClCompile Include="routing\routemanager.cpp">
+      <Filter>routing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -21,13 +31,28 @@
     <ClInclude Include="interfaceutils.h" />
     <ClInclude Include="networkadaptermonitor.h" />
     <ClInclude Include="offlinemonitor.h" />
-    <ClInclude Include="routemanager.h" />
-    <ClInclude Include="adapters.h" />
+    <ClInclude Include="routing\types.h">
+      <Filter>routing</Filter>
+    </ClInclude>
+    <ClInclude Include="routing\helpers.h">
+      <Filter>routing</Filter>
+    </ClInclude>
+    <ClInclude Include="routing\defaultroutemonitor.h">
+      <Filter>routing</Filter>
+    </ClInclude>
+    <ClInclude Include="routing\routemanager.h">
+      <Filter>routing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="winnet.def" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="winnet.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="routing">
+      <UniqueIdentifier>{8df22cc6-597f-4342-bc57-7647393084be}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
