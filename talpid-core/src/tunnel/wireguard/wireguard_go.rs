@@ -1,13 +1,7 @@
 use super::{Config, Error, Result, Tunnel};
 use crate::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
 use ipnetwork::IpNetwork;
-use std::{
-    ffi::CString,
-    fs,
-    net::IpAddr,
-    os::unix::io::{AsRawFd, RawFd},
-    path::Path,
-};
+use std::{ffi::CString, net::IpAddr, os::unix::io::RawFd, path::Path, ptr};
 #[cfg(target_os = "android")]
 use talpid_types::BoxedError;
 
@@ -19,7 +13,6 @@ pub struct WgGoTunnel {
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
     _tunnel_device: Box<dyn Tun>,
-    _log_file: fs::File,
 }
 
 impl WgGoTunnel {
@@ -32,12 +25,16 @@ impl WgGoTunnel {
         #[cfg_attr(not(target_os = "android"), allow(unused_mut))]
         let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
         let interface_name: String = tunnel_device.interface_name().to_string();
-        let log_file = prepare_log_file(log_path)?;
 
         let wg_config_str = config.to_userspace_format();
         let iface_name =
             CString::new(interface_name.as_bytes()).map_err(Error::InterfaceNameError)?;
 
+        let log_path = log_path.and_then(|path| CString::new(path.to_string_lossy().as_ref()).ok());
+        let log_path_ptr = log_path
+            .as_ref()
+            .map(|path| path.as_ptr())
+            .unwrap_or_else(|| ptr::null());
 
         let handle = unsafe {
             wgTurnOnWithFd(
@@ -45,7 +42,7 @@ impl WgGoTunnel {
                 config.mtu as isize,
                 wg_config_str.as_ptr() as *const i8,
                 tunnel_fd,
-                log_file.as_raw_fd(),
+                log_path_ptr as *const i8,
                 WG_GO_LOG_DEBUG,
             )
         };
@@ -66,7 +63,6 @@ impl WgGoTunnel {
             interface_name,
             handle: Some(handle),
             _tunnel_device: tunnel_device,
-            _log_file: log_file,
         })
     }
 
@@ -142,10 +138,6 @@ impl Drop for WgGoTunnel {
     }
 }
 
-fn prepare_log_file(log_path: Option<&Path>) -> Result<fs::File> {
-    fs::File::create(log_path.unwrap_or("/dev/null".as_ref())).map_err(Error::PrepareLogFileError)
-}
-
 impl Tunnel for WgGoTunnel {
     fn get_interface_name(&self) -> &str {
         &self.interface_name
@@ -180,7 +172,7 @@ extern "C" {
         mtu: isize,
         settings: *const i8,
         fd: Fd,
-        log_fd: Fd,
+        log_path: *const i8,
         logLevel: WgLogLevel,
     ) -> i32;
 

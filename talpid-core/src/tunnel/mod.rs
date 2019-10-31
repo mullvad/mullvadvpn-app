@@ -221,13 +221,14 @@ impl TunnelMonitor {
         log_dir: &Option<PathBuf>,
     ) -> Result<Option<PathBuf>> {
         if let Some(ref log_dir) = log_dir {
-            let filename = match parameters {
-                TunnelParameters::OpenVpn(_) => OPENVPN_LOG_FILENAME,
-                TunnelParameters::Wireguard(_) => WIREGUARD_LOG_FILENAME,
-            };
-            let tunnel_log = log_dir.join(filename);
-            logging::rotate_log(&tunnel_log)?;
-            Ok(Some(tunnel_log))
+            match parameters {
+                TunnelParameters::OpenVpn(_) => {
+                    let tunnel_log = log_dir.join(OPENVPN_LOG_FILENAME);
+                    logging::rotate_log(&tunnel_log)?;
+                    Ok(Some(tunnel_log))
+                }
+                TunnelParameters::Wireguard(_) => Ok(Some(log_dir.join(WIREGUARD_LOG_FILENAME))),
+            }
         } else {
             Ok(None)
         }
