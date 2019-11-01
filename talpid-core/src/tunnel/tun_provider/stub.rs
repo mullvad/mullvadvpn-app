@@ -16,6 +16,11 @@ impl TunProvider for StubTunProvider {
     }
 
     #[cfg(target_os = "android")]
+    fn create_tun(&mut self) -> Result<(), BoxedError> {
+        unimplemented!();
+    }
+
+    #[cfg(target_os = "android")]
     fn create_tun_if_closed(&mut self) -> Result<(), BoxedError> {
         unimplemented!();
     }
