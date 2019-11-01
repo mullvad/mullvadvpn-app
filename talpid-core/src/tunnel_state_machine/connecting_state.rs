@@ -28,6 +28,7 @@ use talpid_types::{
 };
 
 
+const MAX_ATTEMPTS_WITH_SAME_TUN: u32 = 5;
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 
 /// The tunnel has been started, but it is not established/functional.
@@ -350,11 +351,26 @@ impl TunnelState for ConnectingState {
                     );
                     BlockedState::enter(shared_values, BlockReason::StartTunnelError)
                 } else {
+                    let tun_provider: &mut dyn TunProvider =
+                        shared_values.tun_provider.borrow_mut();
+
+                    #[cfg(target_os = "android")]
+                    {
+                        if retry_attempt > 0 && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0 {
+                            if let Err(error) = tun_provider.create_tun() {
+                                error!(
+                                    "{}",
+                                    error.display_chain_with_msg("Failed to recreate tun device")
+                                );
+                            }
+                        }
+                    }
+
                     match Self::start_tunnel(
                         tunnel_parameters,
                         &shared_values.log_dir,
                         &shared_values.resource_dir,
-                        shared_values.tun_provider.borrow_mut(),
+                        tun_provider,
                         retry_attempt,
                     ) {
                         Ok(connecting_state) => {
