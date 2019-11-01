@@ -92,42 +92,7 @@ impl VpnServiceTunProvider {
 
     fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
         if self.active_tun.is_none() || self.last_tun_config != config {
-            let env = self
-                .jvm
-                .attach_current_thread_as_daemon()
-                .map_err(Error::AttachJvmToThread)?;
-            let create_tun_method = env
-                .get_method_id(
-                    &self.class,
-                    "createTun",
-                    "(Lnet/mullvad/mullvadvpn/model/TunConfig;)I",
-                )
-                .map_err(|cause| Error::FindMethod("createTun", cause))?;
-
-            let java_config = env.auto_local(config.clone().into_java(&env));
-            let result = env
-                .call_method_unchecked(
-                    self.object.as_obj(),
-                    create_tun_method,
-                    JavaType::Primitive(Primitive::Int),
-                    &[JValue::Object(java_config.as_obj())],
-                )
-                .map_err(|cause| Error::CallMethod("createTun", cause))?;
-
-            match result {
-                JValue::Int(fd) => {
-                    let tun = unsafe { File::from_raw_fd(fd) };
-
-                    self.active_tun = Some(tun);
-                    self.last_tun_config = config;
-                }
-                value => {
-                    return Err(Error::InvalidMethodResult(
-                        "createTun",
-                        format!("{:?}", value),
-                    ))
-                }
-            }
+            self.open_tun(config)?;
         }
 
         Ok(self
@@ -135,6 +100,45 @@ impl VpnServiceTunProvider {
             .as_ref()
             .expect("Tunnel should be configured")
             .as_raw_fd())
+    }
+
+    fn open_tun(&mut self, config: TunConfig) -> Result<(), Error> {
+        let env = self
+            .jvm
+            .attach_current_thread_as_daemon()
+            .map_err(Error::AttachJvmToThread)?;
+        let create_tun_method = env
+            .get_method_id(
+                &self.class,
+                "createTun",
+                "(Lnet/mullvad/mullvadvpn/model/TunConfig;)I",
+            )
+            .map_err(|cause| Error::FindMethod("createTun", cause))?;
+
+        let java_config = env.auto_local(config.clone().into_java(&env));
+        let result = env
+            .call_method_unchecked(
+                self.object.as_obj(),
+                create_tun_method,
+                JavaType::Primitive(Primitive::Int),
+                &[JValue::Object(java_config.as_obj())],
+            )
+            .map_err(|cause| Error::CallMethod("createTun", cause))?;
+
+        match result {
+            JValue::Int(fd) => {
+                let tun = unsafe { File::from_raw_fd(fd) };
+
+                self.active_tun = Some(tun);
+                self.last_tun_config = config;
+
+                Ok(())
+            }
+            value => Err(Error::InvalidMethodResult(
+                "createTun",
+                format!("{:?}", value),
+            )),
+        }
     }
 }
 
@@ -153,10 +157,14 @@ impl TunProvider for VpnServiceTunProvider {
         }))
     }
 
+    fn create_tun(&mut self) -> Result<(), BoxedError> {
+        self.open_tun(self.last_tun_config.clone())
+            .map_err(BoxedError::new)
+    }
+
     fn create_tun_if_closed(&mut self) -> Result<(), BoxedError> {
         if self.active_tun.is_none() {
-            self.get_tun_fd(self.last_tun_config.clone())
-                .map_err(BoxedError::new)?;
+            self.create_tun()?;
         }
 
         Ok(())
