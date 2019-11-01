@@ -39,6 +39,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Use a larger icon in notifications on Windows 10.
 
+#### Android
+- Recreate tun device after a fixed number of connection attempts on the same tun device.
+
 ### Fixed
 #### Windows
 - Detect removal of the OpenVPN TAP adapter on reconnection attempts.
