@@ -196,7 +196,7 @@ impl Settings {
                 self.bridge_state = BridgeState::Auto;
             }
             debug!(
-                "changing relay settings from {} to {}",
+                "Changing relay settings:\n\tfrom: {}\n\tto: {}",
                 self.relay_settings, new_settings
             );
 
