@@ -7,8 +7,6 @@ use crate::{
     },
     proxy::{self, ProxyMonitor, ProxyResourceData},
 };
-#[cfg(target_os = "linux")]
-use failure::ResultExt as FailureResultExt;
 use std::{
     collections::HashMap,
     fs,
@@ -64,7 +62,7 @@ pub enum Error {
     /// The IP routing program was not found.
     #[cfg(target_os = "linux")]
     #[error(display = "The IP routing program `ip` was not found")]
-    IpRouteNotFound(#[error(source)] failure::Compat<which::Error>),
+    IpRouteNotFound(#[error(source)] which::Error),
 
     /// The OpenVPN binary was not found.
     #[error(display = "No OpenVPN binary found at {}", _0)]
@@ -447,11 +445,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             cmd.config(config);
         }
         #[cfg(target_os = "linux")]
-        cmd.iproute_bin(
-            which::which("ip")
-                .compat()
-                .map_err(Error::IpRouteNotFound)?,
-        );
+        cmd.iproute_bin(which::which("ip").map_err(Error::IpRouteNotFound)?);
         cmd.remote(params.config.endpoint)
             .user_pass(user_pass_file)
             .tunnel_options(&params.options)
