@@ -48,7 +48,7 @@ netlink-packet = { git = "https://github.com/mullvad/netlink", rev = "f768adfcc8
 netlink-sys = { git = "https://github.com/mullvad/netlink", rev = "f768adfcc8c6b064ef7ae3c792c4c21d0d96d0b5" }
 nftnl = { version = "0.2.1", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
-which = "3.0"
+which = { version = "3.1", default-features = false }
 tun = "0.4.3"
 
 
