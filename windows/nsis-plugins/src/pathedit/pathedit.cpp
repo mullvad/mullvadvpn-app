@@ -68,6 +68,21 @@ bool SysPathExists(const std::wstring &allPaths, const std::wstring &pathToFind)
 	auto pathTokens = common::string::Tokenize(allPaths, L";");
 	return FindSysPath(pathTokens, pathToFind) != pathTokens.end();
 }
+
+std::wstring ReadPathValue(const RegistryKey &pathKey)
+{
+	// Some applications will replace the PATH value with a regular string;
+	// use this type as a fallback.
+	try
+	{
+		return pathKey.readString(pathValName, ValueStringType::ExpandableString);
+	}
+	catch (const std::exception &)
+	{
+		return pathKey.readString(pathValName, ValueStringType::RegularString);
+	}
+}
+
 } // anonymous namespace
 
 //
@@ -109,7 +124,7 @@ void __declspec(dllexport) NSISCALL AddSysEnvPath
 			true,
 			RegistryView::Force64
 		);
-		auto path = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
+		std::wstring path = ReadPathValue(*pathRegKey);
 
 		if (SysPathExists(path, pathToAppend))
 		{
@@ -180,7 +195,7 @@ void __declspec(dllexport) NSISCALL RemoveSysEnvPath
 			true,
 			RegistryView::Force64
 		);
-		auto path = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
+		std::wstring path = ReadPathValue(*pathRegKey);
 
 		// remove value if it exists in PATH
 		auto pathTokens = common::string::Tokenize(path, L";");
