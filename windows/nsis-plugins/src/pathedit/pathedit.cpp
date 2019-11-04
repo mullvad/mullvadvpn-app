@@ -109,7 +109,18 @@ void __declspec(dllexport) NSISCALL AddSysEnvPath
 			true,
 			RegistryView::Force64
 		);
-		auto path = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
+
+		std::wstring path;
+		try
+		{
+			path = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
+		}
+		catch (const std::exception &)
+		{
+			// Some applications will replace this value with a regular string;
+			// try reading it as a regular string.
+			path = pathRegKey->readString(pathValName, ValueStringType::RegularString);
+		}
 
 		if (SysPathExists(path, pathToAppend))
 		{
@@ -180,7 +191,18 @@ void __declspec(dllexport) NSISCALL RemoveSysEnvPath
 			true,
 			RegistryView::Force64
 		);
-		auto path = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
+
+		std::wstring path;
+		try
+		{
+			path = pathRegKey->readString(pathValName, ValueStringType::ExpandableString);
+		}
+		catch (const std::exception &)
+		{
+			// Some applications will replace this value with a regular string;
+			// try reading it as a regular string.
+			path = pathRegKey->readString(pathValName, ValueStringType::RegularString);
+		}
 
 		// remove value if it exists in PATH
 		auto pathTokens = common::string::Tokenize(path, L";");
