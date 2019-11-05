@@ -5,7 +5,7 @@
 #include <libcommon/guid.h>
 #include <sstream>
 #include <stdexcept>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <iphlpapi.h>
 
 namespace
@@ -64,7 +64,7 @@ NetSh::NetSh(std::shared_ptr<ILogSink> logSink)
 	: m_logSink(logSink)
 {
 	const auto system32 = common::fs::GetKnownFolderPath(FOLDERID_System, 0, nullptr);
-	m_netShPath = std::experimental::filesystem::path(system32).append(L"netsh.exe");
+	m_netShPath = std::filesystem::path(system32).append(L"netsh.exe");
 }
 
 void NetSh::setIpv4StaticDns(uint32_t interfaceIndex,
