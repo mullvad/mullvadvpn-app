@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "migration.h"
 #include <libcommon/filesystem.h>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <stdexcept>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 namespace migration {
 
@@ -33,7 +33,7 @@ MigrationStatus MigrateAfterWindowsUpdate()
 	//
 
 	const auto backupRoot = mullvadAppData.root_path().append(L"windows.old");
-	const auto backupMullvadAppData = fs::path(backupRoot).append(mullvadAppData.relative_path());
+	std::filesystem::path backupMullvadAppData = fs::path(backupRoot) / mullvadAppData.relative_path();
 
 	if (false == fs::exists(backupMullvadAppData))
 	{
