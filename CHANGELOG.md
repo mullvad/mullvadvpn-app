@@ -29,28 +29,35 @@ Line wrap the file at 100 chars.                                              Th
 - Remove Mullvad TAP adapter on uninstall. Also remove the TAP driver if there are no other TAP
   adapters in the system.
 
-#### Android
-- Use authenticated URLs to go to wireguard key page on website.
-- WireGuard key fragment has been made more similar to it's desktop counterpart.
-
 ### Changed
 - Notifications shown when connecting to a server include its location.
 
 #### Windows
 - Use a larger icon in notifications on Windows 10.
 
+### Fixed
+#### Windows
+- Detect removal of the OpenVPN TAP adapter on reconnection attempts.
+- Improve robustness in path environment variable logic in Windows installer. Handle the case
+  where the registry value type is incorrectly set to be a regular string rather than an expandable
+  string.
+
+
+## [2019.10-beta1] - 2019-11-06
+This release is for Android only.
+
+### Added
+#### Android
+- Use authenticated URLs to go to wireguard key page on website.
+- WireGuard key fragment has been made more similar to its desktop counterpart.
+
+### Changed
 #### Android
 - Recreate tun device after a fixed number of connection attempts on the same tun device.
 
 ### Fixed
 - Fix bad file descriptor errors caused by sending a file descriptor between the daemon and the
   `wireguard-go` library.
-
-#### Windows
-- Detect removal of the OpenVPN TAP adapter on reconnection attempts.
-- Improve robustness in path environment variable logic in Windows installer. Handle the case
-  where the registry value type is incorrectly set to be a regular string rather than an expandable
-  string.
 
 
 ## [2019.9] - 2019-10-11
