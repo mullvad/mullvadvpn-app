@@ -87,12 +87,15 @@
 !macro ExtractDriver
 
 	SetOutPath "$TEMP\driver"
-	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\*"
 
-	${If} ${IsWin7}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis5\*"
-	${Else}
+	${If} ${AtLeastWin10}
 		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis6\*"
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis6\win10\*"
+	${ElseIf} ${AtLeastWin8}
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis6\*"
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis6\win8\*"
+	${Else}
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis5\*"
 	${EndIf}
 	
 !macroend
@@ -294,19 +297,20 @@
 
 	InstallDriver_install_driver:
 
-	#
-	# Silently approve the certificate before installing the driver
-	#
-	log::Log "Adding OpenVPN certificate to the certificate store"
+	${IfNot} ${AtLeastWin10}
+		#
+		# Silently approve the certificate before installing the driver
+		#
+		log::Log "Adding OpenVPN certificate to the certificate store"
 
-	nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\driver\driver.cer"'
+		nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\driver\driver.cer"'
+		Pop $0
+		Pop $1
 
-	Pop $0
-	Pop $1
-
-	${If} $0 != 0
-		StrCpy $R0 "Failed to add trusted publisher certificate: error $0"
-		log::LogWithDetails $R0 $1
+		${If} $0 != 0
+			StrCpy $R0 "Failed to add trusted publisher certificate: error $0"
+			log::LogWithDetails $R0 $1
+		${EndIf}
 	${EndIf}
 
 	#
