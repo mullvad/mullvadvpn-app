@@ -12,7 +12,7 @@
 #include <memory>
 #include <sstream>
 #include <iomanip>
-#include <experimental/filesystem>
+#include <filesystem>
 
 Logger *g_logger = nullptr;
 
@@ -94,7 +94,7 @@ std::wstring GetWindowsVersion()
 	common::fs::ScopedNativeFileSystem nativeFileSystem;
 
 	const auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System, 0, nullptr);
-	const auto systemModule = std::experimental::filesystem::path(systemDir).append(L"ntoskrnl.exe");
+	const auto systemModule = std::filesystem::path(systemDir).append(L"ntoskrnl.exe");
 
 	DWORD dummy;
 
@@ -199,7 +199,7 @@ void __declspec(dllexport) NSISCALL Initialize
 		{
 			case static_cast<int>(LogTarget::LOG_FILE):
 			{
-				auto logpath = std::experimental::filesystem::path(common::fs::GetKnownFolderPath(
+				auto logpath = std::filesystem::path(common::fs::GetKnownFolderPath(
 					FOLDERID_ProgramData, 0, nullptr));
 
 				logpath.append(L"Mullvad VPN");
