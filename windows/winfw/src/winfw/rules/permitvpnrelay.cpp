@@ -6,6 +6,7 @@
 #include "libwfp/conditions/conditionprotocol.h"
 #include "libwfp/conditions/conditionip.h"
 #include "libwfp/conditions/conditionport.h"
+#include <stdexcept>
 
 using namespace wfp::conditions;
 
