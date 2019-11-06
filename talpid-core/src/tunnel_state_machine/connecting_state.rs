@@ -27,7 +27,7 @@ use talpid_types::{
     ErrorExt,
 };
 
-
+#[cfg(target_os = "android")]
 const MAX_ATTEMPTS_WITH_SAME_TUN: u32 = 5;
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 
