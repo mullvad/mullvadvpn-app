@@ -290,9 +290,22 @@
 	${EndIf}
 
 	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_ADAPTER_PRESENT}
-		log::Log "Virtual adapter with custom name already present on system"
+		#
+		# The TAP adapter may be renamed on update.
+		# Check if we need to rename it.
+		#
+		log::Log "Identifying TAP adapter"
+		driverlogic::IdentifyNewAdapter
 
-		Goto InstallDriver_return_success
+		Pop $0
+		Pop $1
+
+		${If} $0 != ${INA_SUCCESS}
+			log::Log "Virtual adapter with custom name already present on system"
+			Goto InstallDriver_return_success
+		${EndIf}
+
+		Goto InstallDriver_rename_adapter
 	${EndIf}
 
 	InstallDriver_install_driver:
@@ -340,6 +353,8 @@
 		log::Log $R0
 		Goto InstallDriver_return
 	${EndIf}
+
+	InstallDriver_rename_adapter:
 
 	StrCpy $InstallDriver_TapName $1
 	
