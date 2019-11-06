@@ -1,6 +1,6 @@
 [package]
 name = "talpid-openvpn-plugin"
-version = "2019.9.0"
+version = "2019.10.0-beta1"
 authors = [
     "Mullvad VPN <admin@mullvad.net>",
     "Andrej Mihajlov <and@mullvad.net>",
