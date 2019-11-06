@@ -51,13 +51,11 @@ This release is for Android only.
 - Use authenticated URLs to go to wireguard key page on website.
 - WireGuard key fragment has been made more similar to its desktop counterpart.
 
-### Changed
-#### Android
-- Recreate tun device after a fixed number of connection attempts on the same tun device.
-
 ### Fixed
 - Fix bad file descriptor errors caused by sending a file descriptor between the daemon and the
   `wireguard-go` library.
+- Recreate tun device after a fixed number of connection attempts on the same tun device. Breaks
+  infinite reconnection loops on broken tun devices.
 
 
 ## [2019.9] - 2019-10-11
