@@ -8,4 +8,4 @@ EXPORTS
 	WinNet_DeactivateConnectivityMonitor
 	WinNet_ActivateRouteManager
 	WinNet_DeactivateRouteManager
-
+	WinNet_AddDeviceIpAddresses
