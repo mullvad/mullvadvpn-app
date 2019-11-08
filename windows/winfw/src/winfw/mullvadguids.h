@@ -67,4 +67,7 @@ public:
 	static const GUID &FilterPermitNdp_Outbound_Router_Solicitation();
 	static const GUID &FilterPermitNdp_Inbound_Router_Advertisement();
 	static const GUID &FilterPermitNdp_Inbound_Redirect();
+
+	static const GUID &FilterPermitPing_Outbound_Icmpv4();
+	static const GUID &FilterPermitPing_Outbound_Icmpv6();
 };

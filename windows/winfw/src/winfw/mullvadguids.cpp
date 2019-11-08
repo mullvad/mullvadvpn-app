@@ -59,6 +59,8 @@ DetailedWfpObjectRegistry MullvadGuids::BuildDetailedRegistry()
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitNdp_Outbound_Router_Solicitation()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitNdp_Inbound_Router_Advertisement()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitNdp_Inbound_Redirect()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitPing_Outbound_Icmpv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitPing_Outbound_Icmpv6()));
 
 	return registry;
 }
@@ -563,6 +565,34 @@ const GUID &MullvadGuids::FilterPermitNdp_Inbound_Redirect()
 		0x4fdd,
 		0x4a96,
 		{ 0xae, 0xba, 0x33, 0xd2, 0xa7, 0xf, 0x85, 0x22 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::FilterPermitPing_Outbound_Icmpv4()
+{
+	static const GUID g =
+	{
+		0x2ecf7ff7,
+		0xc951,
+		0x4056,
+		{ 0xb0, 0xf7, 0x40, 0xa4, 0x5c, 0x7e, 0xb4, 0xc2 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::FilterPermitPing_Outbound_Icmpv6()
+{
+	static const GUID g =
+	{
+		0x3deb8cab,
+		0x1edb,
+		0x4aa1,
+		{ 0xb2, 0x73, 0xec, 0x61, 0x4f, 0x50, 0xdc, 0x13 }
 	};
 
 	return g;

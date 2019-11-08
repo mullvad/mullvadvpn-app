@@ -3,9 +3,11 @@
 #include "winfw.h"
 #include "sessioncontroller.h"
 #include "rules/ifirewallrule.h"
+#include "libwfp/ipaddress.h"
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <optional>
 
 class FwContext
 {
@@ -16,7 +18,19 @@ public:
 	// This ctor applies the "blocked" policy.
 	FwContext(uint32_t timeout, const WinFwSettings &settings);
 
-	bool applyPolicyConnecting(const WinFwSettings &settings, const WinFwRelay &relay);
+	struct PingableHosts
+	{
+		std::optional<std::wstring> tunnelInterfaceAlias;
+		std::vector<wfp::IpAddress> hosts;
+	};
+
+	bool applyPolicyConnecting
+	(
+		const WinFwSettings &settings,
+		const WinFwRelay &relay,
+		const std::optional<PingableHosts> &pingableHosts
+	);
+
 	bool applyPolicyConnected
 	(
 		const WinFwSettings &settings,
