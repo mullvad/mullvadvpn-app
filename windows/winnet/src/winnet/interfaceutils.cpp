@@ -2,13 +2,8 @@
 #include "interfaceutils.h"
 #include "libcommon/error.h"
 #include "libcommon/string.h"
-#include <vector>
 #include <cstdint>
 #include <algorithm>
-#include <winsock2.h>
-#include <iphlpapi.h>
-#include <windows.h>
-
 
 //static
 std::set<InterfaceUtils::NetworkAdapter> InterfaceUtils::GetAllAdapters()
@@ -111,4 +106,19 @@ std::wstring InterfaceUtils::GetTapInterfaceAlias()
 	}
 
 	throw std::runtime_error("Unable to find TAP adapter");
+}
+
+//static
+void InterfaceUtils::AddDeviceIpAddresses(NET_LUID device, const std::vector<SOCKADDR_INET> &addresses)
+{
+	for (const auto &address : addresses)
+	{
+		MIB_UNICASTIPADDRESS_ROW row;
+		InitializeUnicastIpAddressEntry(&row);
+
+		row.InterfaceLuid = device;
+		row.Address = address;
+
+		THROW_UNLESS(NO_ERROR, CreateUnicastIpAddressEntry(&row), "Assign IP address on network interface");
+	}
 }

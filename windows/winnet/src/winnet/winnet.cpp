@@ -141,6 +141,49 @@ void UnwindAndLog(MullvadLogSink logSink, void *logSinkContext, const std::excep
 	common::error::UnwindException(err, logger);
 }
 
+std::vector<SOCKADDR_INET> ConvertAddresses(const WINNET_IP *addresses, uint32_t numAddresses)
+{
+	//
+	// This duplicates the same logic we have above.
+	// TODO: Fix when time permits.
+	//
+
+	std::vector<SOCKADDR_INET> out;
+	out.reserve(numAddresses);
+
+	for (uint32_t i = 0; i < numAddresses; ++i)
+	{
+		const WINNET_IP &from = addresses[i];
+		SOCKADDR_INET to{ 0 };
+
+		switch (from.type)
+		{
+			case WINNET_IP_TYPE_IPV4:
+			{
+				to.si_family = AF_INET;
+				to.Ipv4.sin_addr.s_addr = *reinterpret_cast<const uint32_t *>(from.bytes);
+
+				break;
+			}
+			case WINNET_IP_TYPE_IPV6:
+			{
+				to.si_family = AF_INET6;
+				memcpy(&to.Ipv6.sin6_addr.u.Byte, from.bytes, 16);
+
+				break;
+			}
+			default:
+			{
+				throw std::logic_error("Invalid address family in 'WINNET_IP' definition");
+			}
+		 }
+
+		 out.push_back(to);
+	}
+
+	return out;
+}
+
 } //anonymous namespace
 
 extern "C"
@@ -492,3 +535,41 @@ WinNet_DeactivateRouteManager(
 	}
 }
 
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_AddDeviceIpAddresses(
+	const wchar_t *deviceAlias,
+	const WINNET_IP *addresses,
+	uint32_t numAddresses,
+	MullvadLogSink logSink,
+	void *logSinkContext
+)
+{
+	try
+	{
+		NET_LUID luid;
+
+		if (0 != ConvertInterfaceAliasToLuid(deviceAlias, &luid))
+		{
+			const auto ansiName = common::string::ToAnsi(deviceAlias);
+			const auto err = std::string("Unable to derive interface LUID from interface alias: ").append(ansiName);
+
+			throw std::runtime_error(err);
+		}
+
+		InterfaceUtils::AddDeviceIpAddresses(luid, ConvertAddresses(addresses, numAddresses));
+
+		return true;
+	}
+	catch (const std::exception &err)
+	{
+		UnwindAndLog(logSink, logSinkContext, err);
+		return false;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}

@@ -2,6 +2,17 @@
 
 #include <string>
 #include <set>
+#include <vector>
+
+// Secret include order to get most common networking structs/apis
+// And avoiding compilation errors
+#include <winsock2.h>
+#include <windows.h>
+#include <ws2def.h>
+#include <ws2ipdef.h>
+#include <iphlpapi.h>
+#include <netioapi.h>
+// end
 
 class InterfaceUtils
 {
@@ -35,4 +46,6 @@ public:
 	// Determines alias of primary TAP adapter.
 	//
 	static std::wstring GetTapInterfaceAlias();
+
+	static void AddDeviceIpAddresses(NET_LUID device, const std::vector<SOCKADDR_INET> &addresses);
 };
