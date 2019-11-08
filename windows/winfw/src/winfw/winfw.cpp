@@ -4,6 +4,7 @@
 #include "objectpurger.h"
 #include <windows.h>
 #include <stdexcept>
+#include <optional>
 
 namespace
 {
@@ -14,6 +15,34 @@ WinFwErrorSink g_errorSink = nullptr;
 void * g_errorContext = nullptr;
 
 FwContext *g_fwContext = nullptr;
+
+std::optional<FwContext::PingableHosts> ConvertPingableHosts(const PingableHosts *pingableHosts)
+{
+	if (nullptr == pingableHosts)
+	{
+		return {};
+	}
+
+	if (nullptr == pingableHosts->hosts
+		|| 0 == pingableHosts->numHosts)
+	{
+		throw std::runtime_error("Invalid PingableHosts structure");
+	}
+
+	FwContext::PingableHosts converted;
+
+	if (nullptr != pingableHosts->tunnelInterfaceAlias)
+	{
+		converted.tunnelInterfaceAlias = pingableHosts->tunnelInterfaceAlias;
+	}
+
+	for (size_t i = 0; i < pingableHosts->numHosts; ++i)
+	{
+		converted.hosts.emplace_back(wfp::IpAddress(pingableHosts->hosts[i]));
+	}
+
+	return converted;
+}
 
 } // anonymous namespace
 
@@ -130,7 +159,8 @@ bool
 WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings &settings,
-	const WinFwRelay &relay
+	const WinFwRelay &relay,
+	const PingableHosts *pingableHosts
 )
 {
 	if (nullptr == g_fwContext)
@@ -140,7 +170,7 @@ WinFw_ApplyPolicyConnecting(
 
 	try
 	{
-		return g_fwContext->applyPolicyConnecting(settings, relay);
+		return g_fwContext->applyPolicyConnecting(settings, relay, ConvertPingableHosts(pingableHosts));
 	}
 	catch (std::exception &err)
 	{

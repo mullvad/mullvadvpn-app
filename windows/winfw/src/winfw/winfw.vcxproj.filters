@@ -43,6 +43,9 @@
     <ClCompile Include="rules\permitndp.cpp">
       <Filter>rules</Filter>
     </ClCompile>
+    <ClCompile Include="rules\permitping.cpp">
+      <Filter>rules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -91,6 +94,9 @@
       <Filter>rules</Filter>
     </ClInclude>
     <ClInclude Include="rules\permitndp.h">
+      <Filter>rules</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\permitping.h">
       <Filter>rules</Filter>
     </ClInclude>
   </ItemGroup>
