@@ -36,6 +36,9 @@ Line wrap the file at 100 chars.                                              Th
 - Use a larger icon in notifications on Windows 10.
 
 ### Fixed
+#### Linux
+- Improved stability on Linux by using the routing netlink socket in it's own thread.
+
 #### Windows
 - Detect removal of the OpenVPN TAP adapter on reconnection attempts.
 - Improve robustness in path environment variable logic in Windows installer. Handle the case

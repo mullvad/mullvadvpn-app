@@ -97,11 +97,8 @@ impl WireguardMonitor {
             Self::get_tunnel_routes(config),
         )?);
         let iface_name = tunnel.get_interface_name();
-        let route_handle = routing::RouteManager::new(
-            Self::get_routes(iface_name, &config),
-            &mut tokio_executor::DefaultExecutor::current(),
-        )
-        .map_err(Error::SetupRoutingError)?;
+        let route_handle = routing::RouteManager::new(Self::get_routes(iface_name, &config))
+            .map_err(Error::SetupRoutingError)?;
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
         let (pinger_tx, pinger_rx) = mpsc::channel();
