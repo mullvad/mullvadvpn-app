@@ -3,7 +3,6 @@
 use futures::{sync::oneshot, Future};
 use ipnetwork::IpNetwork;
 use std::{collections::HashMap, net::IpAddr};
-use tokio_executor::Executor;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -22,6 +21,9 @@ pub use imp::Error as PlatformError;
 /// Errors that can be encountered whilst initializing RouteManager
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
+    /// Routing manager thread panicked before starting routing manager
+    #[error(display = "Routing manager thread panicked before starting routing manager")]
+    RoutingManagerThreadPanic,
     /// Platform sepcific error occured
     #[error(display = "Failed to create route manager")]
     FailedToInitializeManager(#[error(source)] imp::Error),
@@ -41,21 +43,28 @@ impl RouteManager {
     /// Constructs a RouteManager and applies the required routes.
     /// Takes a map of network destinations and network nodes as an argument, and applies said
     /// routes.
-    pub fn new(
-        required_routes: HashMap<IpNetwork, NetNode>,
-        exec: &mut impl Executor,
-    ) -> Result<Self, Error> {
+    pub fn new(required_routes: HashMap<IpNetwork, NetNode>) -> Result<Self, Error> {
         let (tx, rx) = oneshot::channel();
+        let (start_tx, start_rx) = oneshot::channel();
 
-
-        let route_manager = imp::RouteManagerImpl::new(required_routes, rx)
-            .map_err(Error::FailedToInitializeManager)?;
-        exec.spawn(Box::new(
-            route_manager.map_err(|e| log::error!("Routing manager failed - {}", e)),
-        ))
-        .map_err(|_| Error::FailedToSpawnManager)?;
-
-        Ok(Self { tx: Some(tx) })
+        std::thread::spawn(
+            move || match imp::RouteManagerImpl::new(required_routes, rx) {
+                Ok(route_manager) => {
+                    let _ = start_tx.send(Ok(()));
+                    if let Err(e) = route_manager.wait() {
+                        log::error!("Route manager failed - {}", e);
+                    }
+                }
+                Err(e) => {
+                    let _ = start_tx.send(Err(Error::FailedToInitializeManager(e)));
+                }
+            },
+        );
+        match start_rx.wait() {
+            Ok(Ok(())) => Ok(Self { tx: Some(tx) }),
+            Ok(Err(e)) => Err(e),
+            Err(_) => Err(Error::RoutingManagerThreadPanic),
+        }
     }
 
     /// Stops RouteManager and removes all of the applied routes.
