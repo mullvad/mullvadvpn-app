@@ -32,6 +32,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tray", "src\tray\tray.vcxpr
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pathedit", "src\pathedit\pathedit.vcxproj", "{EF53BD9F-6D69-42BB-8635-958531776283}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B52E2D10-A94A-4605-914A-2DCEF6A757EF} = {B52E2D10-A94A-4605-914A-2DCEF6A757EF}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
