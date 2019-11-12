@@ -207,6 +207,7 @@ impl TunnelMonitor {
         }
     }
 
+    #[cfg(not(target_os = "windows"))]
     fn prepare_tunnel_log_file(
         parameters: &TunnelParameters,
         log_dir: &Option<PathBuf>,
@@ -225,6 +226,23 @@ impl TunnelMonitor {
         }
     }
 
+    #[cfg(target_os = "windows")]
+    fn prepare_tunnel_log_file(
+        parameters: &TunnelParameters,
+        log_dir: &Option<PathBuf>,
+    ) -> Result<Option<PathBuf>> {
+        if let Some(ref log_dir) = log_dir {
+            let filename = match parameters {
+                TunnelParameters::OpenVpn(_) => OPENVPN_LOG_FILENAME,
+                TunnelParameters::Wireguard(_) => WIREGUARD_LOG_FILENAME,
+            };
+            let tunnel_log = log_dir.join(filename);
+            logging::rotate_log(&tunnel_log)?;
+            Ok(Some(tunnel_log))
+        } else {
+            Ok(None)
+        }
+    }
 
     /// Creates a handle to this monitor, allowing the tunnel to be closed while some other
     /// thread
