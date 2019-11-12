@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 #### Windows
+- Full WireGuard support, GUI and CLI.
 - Install Wintun driver that provides the WireGuard TUN adapter.
 - Remove Mullvad TAP adapter on uninstall. Also remove the TAP driver if there are no other TAP
   adapters in the system.
