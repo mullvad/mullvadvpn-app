@@ -16,7 +16,7 @@ use std::net::IpAddr;
 use std::os::unix::io::{AsRawFd, RawFd};
 
 #[cfg(target_os = "windows")]
-use std::os::windows::io::AsRawHandle;
+use chrono;
 
 #[cfg(target_os = "windows")]
 use crate::tunnel::tun_provider::windows::WinTun;
@@ -30,13 +30,30 @@ const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 #[cfg(target_os = "windows")]
 use crate::winnet::{self, add_device_ip_addresses};
 
+#[cfg(target_os = "windows")]
+use parking_lot::Mutex;
+#[cfg(target_os = "windows")]
+use std::collections::HashMap;
+
+#[cfg(target_os = "windows")]
+use std::io::Write;
+
 pub struct WgGoTunnel {
     interface_name: String,
     handle: Option<i32>,
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
     _tunnel_device: Box<dyn Tun>,
+    // ordinal that maps to fs::File instance, used with logging callback
+    #[cfg(target_os = "windows")]
+    log_context_ordinal: u32,
 }
+
+lazy_static! {
+    static ref LOG_MUTEX: Mutex<HashMap<u32, fs::File>> = Mutex::new(HashMap::new());
+}
+
+static mut LOG_CONTEXT_NEXT_ORDINAL: u32 = 0;
 
 impl WgGoTunnel {
     #[cfg(not(target_os = "windows"))]
@@ -98,6 +115,15 @@ impl WgGoTunnel {
         _routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
         let log_file = prepare_log_file(log_path)?;
+
+        let log_context_ordinal = unsafe {
+            let mut map = LOG_MUTEX.lock();
+            let ordinal = LOG_CONTEXT_NEXT_ORDINAL;
+            LOG_CONTEXT_NEXT_ORDINAL += 1;
+            map.insert(ordinal, log_file);
+            ordinal
+        };
+
         let wg_config_str = config.to_userspace_format();
         let iface_name: String = "wg-mullvad".to_string();
         let cstr_iface_name =
@@ -108,17 +134,19 @@ impl WgGoTunnel {
                 cstr_iface_name.as_ptr(),
                 config.mtu as i64,
                 wg_config_str.as_ptr(),
-                log_file.as_raw_handle(),
-                WG_GO_LOG_DEBUG,
+                Some(Self::logging_callback),
+                log_context_ordinal as *mut libc::c_void,
             )
         };
 
         if handle < 0 {
+            clean_up_log_file(log_context_ordinal);
             return Err(Error::FatalStartWireguardError);
         }
 
         if !add_device_ip_addresses(&iface_name, &config.tunnel.addresses) {
             // Todo: what kind of clean-up is required?
+            clean_up_log_file(log_context_ordinal);
             return Err(Error::SetIpAddressesError);
         }
 
@@ -128,7 +156,7 @@ impl WgGoTunnel {
             _tunnel_device: Box::new(WinTun {
                 interface_name: iface_name.clone(),
             }),
-            //_log_file: log_file,
+            log_context_ordinal,
         })
     }
 
@@ -166,6 +194,40 @@ impl WgGoTunnel {
         wgRebindTunnelSocket(address_family.to_windows_proto_enum(), iface_idx);
     }
 
+    // Callback that receives messages from WireGuard
+    #[cfg(target_os = "windows")]
+    pub unsafe extern "system" fn logging_callback(
+        level: WgLogLevel,
+        msg: *const libc::c_char,
+        context: *mut libc::c_void,
+    ) {
+        let map = LOG_MUTEX.lock();
+        if let Some(mut logfile) = map.get(&(context as u32)) {
+            let managed_msg = if !msg.is_null() {
+                std::ffi::CStr::from_ptr(msg)
+                    .to_string_lossy()
+                    .to_string()
+                    .replace("\n", "\r\n")
+            } else {
+                "Logging message from WireGuard is NULL".to_string()
+            };
+
+            let level_str = match level {
+                WG_GO_LOG_DEBUG => "DEBUG",
+                WG_GO_LOG_INFO => "INFO",
+                WG_GO_LOG_ERROR | _ => "ERROR",
+            };
+
+            let _ = write!(
+                logfile,
+                "{}[{}][{}] {}",
+                chrono::Local::now().format("[%Y-%m-%d %H:%M:%S%.3f]"),
+                "wireguard-go",
+                level_str,
+                managed_msg
+            );
+        }
+    }
 
     #[cfg(not(target_os = "windows"))]
     fn create_tunnel_config(config: &Config, routes: impl Iterator<Item = IpNetwork>) -> TunConfig {
@@ -233,11 +295,18 @@ impl WgGoTunnel {
     }
 }
 
+fn clean_up_log_file(ordinal: u32) {
+    let mut map = LOG_MUTEX.lock();
+    map.remove(&ordinal);
+}
+
 impl Drop for WgGoTunnel {
     fn drop(&mut self) {
         if let Err(e) = self.stop_tunnel() {
             log::error!("Failed to stop tunnel - {}", e);
         }
+        #[cfg(target_os = "windows")]
+        clean_up_log_file(self.log_context_ordinal);
     }
 }
 
@@ -264,9 +333,19 @@ pub type Fd = std::os::unix::io::RawFd;
 #[cfg(windows)]
 pub type Fd = std::os::windows::io::RawHandle;
 
-type WgLogLevel = i32;
+type WgLogLevel = u32;
 // wireguard-go supports log levels 0 through 3 with 3 being the most verbose
+// const WG_GO_LOG_SILENT: WgLogLevel = 0;
+const WG_GO_LOG_ERROR: WgLogLevel = 1;
+const WG_GO_LOG_INFO: WgLogLevel = 2;
 const WG_GO_LOG_DEBUG: WgLogLevel = 3;
+
+#[cfg(windows)]
+pub type LoggingCallback = unsafe extern "system" fn(
+    level: WgLogLevel,
+    msg: *const libc::c_char,
+    context: *mut libc::c_void,
+);
 
 extern "C" {
     // Creates a new wireguard tunnel, uses the specific interface name, MTU and file descriptors
@@ -291,8 +370,8 @@ extern "C" {
         iface_name: *const i8,
         mtu: i64,
         settings: *const i8,
-        log_fd: Fd,
-        logLevel: WgLogLevel,
+        logging_callback: Option<LoggingCallback>,
+        logging_context: *mut libc::c_void,
     ) -> i32;
 
     // Pass a handle that was created by wgTurnOnWithFd to stop a wireguard tunnel.
