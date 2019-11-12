@@ -59,6 +59,8 @@ tun = "0.4.3"
 
 
 [target.'cfg(windows)'.dependencies]
+chrono = "0.4"
+lazy_static = "1.0"
 widestring = "0.4"
 winreg = "0.6"
 winapi = { version = "0.3.6", features = ["handleapi", "ifdef", "libloaderapi", "netioapi", "synchapi", "winbase", "winuser"] }
