@@ -62,7 +62,3 @@ mod linux;
 
 /// A pair of functions to monitor and establish connectivity with ICMP
 mod ping_monitor;
-
-#[cfg(target_os = "windows")]
-#[macro_use]
-extern crate lazy_static;
