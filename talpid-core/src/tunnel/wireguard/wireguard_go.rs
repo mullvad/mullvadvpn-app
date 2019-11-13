@@ -1,25 +1,17 @@
 use super::{Config, Error, Result, Tunnel};
 use crate::tunnel::tun_provider::{Tun, TunProvider};
 use ipnetwork::IpNetwork;
-use std::{ffi::CString, fs, path::Path};
+use std::{ffi::CString, path::Path};
 
 #[cfg(not(target_os = "windows"))]
-use std::ptr;
+use {
+    crate::tunnel::tun_provider::TunConfig,
+    std::{ptr,  net::IpAddr, os::unix::io::{RawFd}},
+};
 
-#[cfg(not(target_os = "windows"))]
-use crate::tunnel::tun_provider::TunConfig;
-
-#[cfg(not(target_os = "windows"))]
-use std::net::IpAddr;
-
-#[cfg(not(target_os = "windows"))]
-use std::os::unix::io::{AsRawFd, RawFd};
 
 #[cfg(target_os = "windows")]
-use chrono;
-
-#[cfg(target_os = "windows")]
-use crate::tunnel::tun_provider::windows::WinTun;
+use crate::{tunnel::tun_provider::windows::WinTun, winnet::{self, add_device_ip_addresses}};
 
 #[cfg(target_os = "android")]
 use talpid_types::BoxedError;
@@ -28,15 +20,12 @@ use talpid_types::BoxedError;
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 #[cfg(target_os = "windows")]
-use crate::winnet::{self, add_device_ip_addresses};
+use {
+    parking_lot::Mutex,
+    std::{collections::HashMap, io::Write, fs},
+    chrono,
+};
 
-#[cfg(target_os = "windows")]
-use parking_lot::Mutex;
-#[cfg(target_os = "windows")]
-use std::collections::HashMap;
-
-#[cfg(target_os = "windows")]
-use std::io::Write;
 
 pub struct WgGoTunnel {
     interface_name: String,
@@ -49,10 +38,12 @@ pub struct WgGoTunnel {
     log_context_ordinal: u32,
 }
 
-lazy_static! {
+#[cfg(target_os = "windows")]
+lazy_static::lazy_static! {
     static ref LOG_MUTEX: Mutex<HashMap<u32, fs::File>> = Mutex::new(HashMap::new());
 }
 
+#[cfg(target_os = "windows")]
 static mut LOG_CONTEXT_NEXT_ORDINAL: u32 = 0;
 
 impl WgGoTunnel {
@@ -295,6 +286,7 @@ impl WgGoTunnel {
     }
 }
 
+#[cfg(target_os = "windows")]
 fn clean_up_log_file(ordinal: u32) {
     let mut map = LOG_MUTEX.lock();
     map.remove(&ordinal);
@@ -313,6 +305,7 @@ impl Drop for WgGoTunnel {
 #[cfg(target_os = "windows")]
 static NULL_DEVICE: &str = "NUL";
 
+#[cfg(target_os = "windows")]
 fn prepare_log_file(log_path: Option<&Path>) -> Result<fs::File> {
     fs::File::create(log_path.unwrap_or(NULL_DEVICE.as_ref())).map_err(Error::PrepareLogFileError)
 }
@@ -336,11 +329,13 @@ pub type Fd = std::os::windows::io::RawHandle;
 type WgLogLevel = u32;
 // wireguard-go supports log levels 0 through 3 with 3 being the most verbose
 // const WG_GO_LOG_SILENT: WgLogLevel = 0;
+#[cfg(target_os = "windows")]
 const WG_GO_LOG_ERROR: WgLogLevel = 1;
+#[cfg(target_os = "windows")]
 const WG_GO_LOG_INFO: WgLogLevel = 2;
 const WG_GO_LOG_DEBUG: WgLogLevel = 3;
 
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub type LoggingCallback = unsafe extern "system" fn(
     level: WgLogLevel,
     msg: *const libc::c_char,
