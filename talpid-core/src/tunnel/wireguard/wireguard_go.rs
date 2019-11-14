@@ -6,12 +6,15 @@ use std::{ffi::CString, path::Path};
 #[cfg(not(target_os = "windows"))]
 use {
     crate::tunnel::tun_provider::TunConfig,
-    std::{ptr,  net::IpAddr, os::unix::io::{RawFd}},
+    std::{net::IpAddr, os::unix::io::RawFd, ptr},
 };
 
 
 #[cfg(target_os = "windows")]
-use crate::{tunnel::tun_provider::windows::WinTun, winnet::{self, add_device_ip_addresses}};
+use crate::{
+    tunnel::tun_provider::windows::WinTun,
+    winnet::{self, add_device_ip_addresses},
+};
 
 #[cfg(target_os = "android")]
 use talpid_types::BoxedError;
@@ -21,9 +24,9 @@ const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 #[cfg(target_os = "windows")]
 use {
-    parking_lot::Mutex,
-    std::{collections::HashMap, io::Write, fs},
     chrono,
+    parking_lot::Mutex,
+    std::{collections::HashMap, fs, io::Write},
 };
 
 

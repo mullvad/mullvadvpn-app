@@ -70,6 +70,8 @@ pub struct Pinger {
     seq: u16,
 }
 
+const NUM_PINGS_TO_SEND: usize = 3;
+
 impl Pinger {
     pub fn new(addr: Ipv4Addr, _interface_name: &str) -> Result<Self> {
         let sock = Socket::new(Domain::ipv4(), Type::raw(), Some(Protocol::icmpv4()))
@@ -88,9 +90,14 @@ impl Pinger {
     /// Sends an ICMP echo request
     pub fn send_ping(&mut self, timeout: Duration) -> Result<()> {
         let dest = SocketAddr::new(IpAddr::from(self.addr), 0);
-        let request = self.next_ping_request();
-        self.send_ping_request(&request, dest.into())?;
-        self.wait_for_response(Instant::now() + timeout, &request)
+        let requests = (0..NUM_PINGS_TO_SEND)
+            .map(|_| {
+                let request = self.next_ping_request();
+                self.send_ping_request(&request, dest)?;
+                Ok(request)
+            })
+            .collect::<Result<Vec<_>>>()?;
+        self.wait_for_response(Instant::now() + timeout, &requests)
     }
 
     fn send_ping_request(
@@ -120,10 +127,12 @@ impl Pinger {
 
     /// returns the next ping packet
     fn next_ping_request(&mut self) -> EchoRequestPacket<'static> {
+        use rand::Rng;
         const ICMP_HEADER_LENGTH: usize = 8;
-        const ICMP_PAYLOAD_LENGTH: usize = 24;
+        const ICMP_PAYLOAD_LENGTH: usize = 150;
         const ICMP_PACKET_LENGTH: usize = ICMP_HEADER_LENGTH + ICMP_PAYLOAD_LENGTH;
-        let payload: [u8; ICMP_PAYLOAD_LENGTH] = rand::random();
+        let mut payload = [0u8; ICMP_PAYLOAD_LENGTH];
+        rand::thread_rng().fill(&mut payload[..]);
         let mut packet = MutableEchoRequestPacket::owned(vec![0u8; ICMP_PACKET_LENGTH])
             .expect("Failed to construct an empty packet");
         packet.set_icmp_type(IcmpType::new(8));
@@ -142,24 +151,39 @@ impl Pinger {
     }
 
 
-    fn wait_for_response(&mut self, deadline: Instant, req: &EchoRequestPacket<'_>) -> Result<()> {
+    fn wait_for_response(
+        &mut self,
+        deadline: Instant,
+        requests: &[EchoRequestPacket<'_>],
+    ) -> Result<()> {
         let mut recv_buffer = [0u8; 4096];
-        while Instant::now() < deadline {
+        let mut bytes_received = 0;
+        let mut success = false;
+        let mut requests = requests.iter().map(|req| (false, req)).collect::<Vec<_>>();
+        'outer: while Instant::now() < deadline {
             match self.sock.recv(&mut recv_buffer) {
                 Ok(recv_len) => {
+                    bytes_received += recv_len;
                     if recv_len > 20 {
                         // have to slice off first 20 bytes for the IP header.
                         if let Some(reply) = Self::parse_response(&recv_buffer[20..recv_len]) {
-                            if reply.get_identifier() == req.get_identifier()
-                                && reply.get_sequence_number() == req.get_sequence_number()
-                                && req.payload() == reply.payload()
-                            {
-                                return Ok(());
+                            for (used, req) in requests.iter_mut() {
+                                if *used {
+                                    continue;
+                                }
+                                if Self::request_and_response_match(req, &reply) {
+                                    *used = true;
+                                    success = true;
+                                    continue 'outer;
+                                }
                             }
                         }
                     }
                 }
                 Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
+                    if success {
+                        return Ok(());
+                    }
                     std::thread::sleep(Duration::from_millis(100));
                     continue;
                 }
@@ -168,7 +192,42 @@ impl Pinger {
                 }
             }
         }
+        log::debug!(
+            "Timing out whilst waiting for ICMP response after receiving {} bytes",
+            bytes_received
+        );
         Err(Error::TimeoutError)
+    }
+
+    fn request_and_response_match(req: &EchoRequestPacket<'_>, resp: &EchoReplyPacket<'_>) -> bool {
+        if req.get_identifier() != resp.get_identifier() {
+            log::debug!(
+                "Expected idnetifier {} - got {}",
+                req.get_identifier(),
+                resp.get_identifier()
+            );
+            return false;
+        }
+
+        if req.get_sequence_number() != resp.get_sequence_number() {
+            log::debug!(
+                "Expected sequence number {} - got {}",
+                req.get_sequence_number(),
+                resp.get_sequence_number()
+            );
+            return false;
+        }
+
+        if req.payload() != resp.payload() {
+            log::debug!(
+                "Expected payload {:?} - got {:?}",
+                req.payload(),
+                resp.payload()
+            );
+            return false;
+        }
+
+        return true;
     }
 
     fn parse_response<'a>(buffer: &'a [u8]) -> Option<EchoReplyPacket<'a>> {
