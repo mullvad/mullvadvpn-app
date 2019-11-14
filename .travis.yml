@@ -126,14 +126,20 @@ matrix:
     - os: windows
       name: Daemon, Windows - stable Rust
       env: RUST_VERSION=stable
-      language: bash
+      language: shell
+      before_install: &rust_windows_before_install
+        - curl -s https://download.visualstudio.microsoft.com/download/pr/57d28351-e762-4ee1-aca4-16b6d3faaa33/34fa4c9bb790f310c908ff59071949289dc3ed503bcb44723c2e0b360c51ebab/vs_BuildTools.exe --output vs_BuildTools.exe
+        - echo "34fa4c9bb790f310c908ff59071949289dc3ed503bcb44723c2e0b360c51ebab vs_BuildTools.exe" | sha256sum -c
+        - ./vs_BuildTools.exe --wait -q --norestart --add Microsoft.VisualStudio.Workload.VCTools\;includeRecommended --add Microsoft.Component.MSBuild --add Microsoft.VisualStudio.Component.VC.ATL
+        - git submodule update --init
       script: &rust_windows_script
         - ./ci/ci-rust-script.sh $RUST_VERSION
 
     - os: windows
       name: Daemon, Windows - beta Rust
       env: RUST_VERSION=beta
-      language: bash
+      language: shell
+      before_install: *rust_windows_before_install
       script: *rust_windows_script
 
 

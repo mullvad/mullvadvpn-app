@@ -27,7 +27,7 @@ time rustup toolchain install $RUST_TOOLCHAIN_CHANNEL --no-self-update -c rustfm
 
 case "$(uname -s)" in
   MINGW*|MSYS_NT*)
-    export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/amd64/:$PATH"
+    export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/MSBuild/Current/Bin/amd64/:$PATH"
     time ./build_windows_modules.sh --dev-build
     ;;
 esac
