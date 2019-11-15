@@ -90,7 +90,7 @@ matrix:
 
     # Daemon - Linux
     - os: linux
-      name: Daemon, Linux - nigtly Rust
+      name: Daemon, Linux - nightly Rust
       language: minimal
       dist: xenial
       services: docker
