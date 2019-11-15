@@ -270,6 +270,22 @@
 
 	Push $0
 	Pop $InstallDriver_BaselineStatus
+
+	${IfNot} ${AtLeastWin10}
+		#
+		# Silently approve the certificate before installing the driver
+		#
+		log::Log "Adding OpenVPN certificate to the certificate store"
+
+		nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\driver\driver.cer"'
+		Pop $0
+		Pop $1
+
+		${If} $0 != 0
+			StrCpy $R0 "Failed to add trusted publisher certificate: error $0"
+			log::LogWithDetails $R0 $1
+		${EndIf}
+	${EndIf}
 	
 	IntCmp $0 ${EB_NO_TAP_ADAPTERS_PRESENT} InstallDriver_install_driver
 
@@ -309,22 +325,6 @@
 	${EndIf}
 
 	InstallDriver_install_driver:
-
-	${IfNot} ${AtLeastWin10}
-		#
-		# Silently approve the certificate before installing the driver
-		#
-		log::Log "Adding OpenVPN certificate to the certificate store"
-
-		nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\driver\driver.cer"'
-		Pop $0
-		Pop $1
-
-		${If} $0 != 0
-			StrCpy $R0 "Failed to add trusted publisher certificate: error $0"
-			log::LogWithDetails $R0 $1
-		${EndIf}
-	${EndIf}
 
 	#
 	# Install driver and create a virtual adapter.
