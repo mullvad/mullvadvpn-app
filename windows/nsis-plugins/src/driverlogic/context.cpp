@@ -172,7 +172,7 @@ std::optional<Context::NetworkAdapter> Context::FindMullvadAdapter(const std::se
 
 	if (tapAdapters.end() != mullvadAdapter)
 	{
-		return std::optional{ *mullvadAdapter };
+		return { *mullvadAdapter };
 	}
 
 	//
@@ -191,7 +191,7 @@ std::optional<Context::NetworkAdapter> Context::FindMullvadAdapter(const std::se
 
 		if (tapAdapters.end() != mullvadAdapter)
 		{
-			return std::optional{ *mullvadAdapter };
+			return { *mullvadAdapter };
 		}
 	}
 
