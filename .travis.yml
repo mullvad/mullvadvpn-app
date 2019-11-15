@@ -1,5 +1,3 @@
-sudo: false
-
 git:
   submodules: false
 
@@ -43,7 +41,6 @@ matrix:
     # Android
     - language: android
       name: Android
-      sudo: true
       android:
         components:
           - android-28
