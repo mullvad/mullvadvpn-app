@@ -39,6 +39,19 @@ git submodule update --init
 We sign every commit on the master branch as well as our release tags. If you would like to verify
 your checkout, you can find our developer keys on [Mullvad's Open Source page].
 
+### Binaries submodule
+
+This repository has a git submodule at `dist-assets/binaries`. This submodule contains binaries and
+build scripts for third party code we need to bundle with the app. Such as OpenVPN, Shadowsocks
+etc.
+
+This submodule conforms to the same integrity/security standards as this repository. Every merge
+commit should be signed. And this main repository should only ever point to a signed merge commit
+of the binaries submodule.
+
+See the [binaries submodule's](https://github.com/mullvad/mullvadvpn-app-binaries) README for more
+details about that repository.
+
 ## Install toolchains and dependencies
 
 Follow the instructions for your platform, and then the [All platforms](#all-platforms)
