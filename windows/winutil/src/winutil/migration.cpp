@@ -4,8 +4,6 @@
 #include <filesystem>
 #include <stdexcept>
 
-namespace fs = std::filesystem;
-
 namespace migration {
 
 //
@@ -14,16 +12,16 @@ namespace migration {
 MigrationStatus MigrateAfterWindowsUpdate()
 {
 	const auto localAppData = common::fs::GetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr);
-	const auto mullvadAppData = fs::path(localAppData).append(L"Mullvad VPN");
+	const auto mullvadAppData = std::filesystem::path(localAppData).append(L"Mullvad VPN");
 
 	//
 	// The main settings file is 'settings.json'
 	// If this file is present inside 'mullvadAppData' we should abort the migration
 	//
 
-	const auto settingsFile = fs::path(mullvadAppData).append(L"settings.json");
+	const auto settingsFile = std::filesystem::path(mullvadAppData).append(L"settings.json");
 
-	if (fs::exists(settingsFile))
+	if (std::filesystem::exists(settingsFile))
 	{
 		return MigrationStatus::Aborted;
 	}
@@ -33,9 +31,9 @@ MigrationStatus MigrateAfterWindowsUpdate()
 	//
 
 	const auto backupRoot = mullvadAppData.root_path().append(L"windows.old");
-	std::filesystem::path backupMullvadAppData = fs::path(backupRoot) / mullvadAppData.relative_path();
+	const auto backupMullvadAppData = backupRoot / mullvadAppData.relative_path();
 
-	if (false == fs::exists(backupMullvadAppData))
+	if (false == std::filesystem::exists(backupMullvadAppData))
 	{
 		return MigrationStatus::NothingToMigrate;
 	}
@@ -78,8 +76,8 @@ MigrationStatus MigrateAfterWindowsUpdate()
 	// Ensure destination directory exists
 	//
 
-	if (false == fs::exists(mullvadAppData)
-		&& false == fs::create_directory(mullvadAppData))
+	if (false == std::filesystem::exists(mullvadAppData)
+		&& false == std::filesystem::create_directory(mullvadAppData))
 	{
 		throw std::runtime_error("Could not create destination directory during migration");
 	}
@@ -107,14 +105,14 @@ MigrationStatus MigrateAfterWindowsUpdate()
 
 	for (const auto file : filesToMigrate)
 	{
-		const auto from = fs::path(backupMullvadAppData).append(file.filename);
-		const auto to = fs::path(mullvadAppData).append(file.filename);
+		const auto from = std::filesystem::path(backupMullvadAppData).append(file.filename);
+		const auto to = std::filesystem::path(mullvadAppData).append(file.filename);
 
 		std::error_code error;
 
-		if (fs::copy_file(from, to, fs::copy_options::overwrite_existing | fs::copy_options::skip_symlinks, error))
+		if (std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::skip_symlinks, error))
 		{
-			fs::remove(from, error);
+			std::filesystem::remove(from, error);
 		}
 		else if (file.required)
 		{
