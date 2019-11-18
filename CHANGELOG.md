@@ -34,6 +34,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Use a larger icon in notifications on Windows 10.
+- Adjust service recovery actions to prevent replaying a non-successful execution path in the
+  daemon service ad infinitum.
 
 ### Fixed
 #### Windows
