@@ -31,6 +31,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Notifications shown when connecting to a server include its location.
+- Only update DNS settings if updating would change the effective settings. This is a work-around
+  to avoid invoking `netsh` unnecessarily and getting stuck in associated hangs.
 
 #### Windows
 - Use a larger icon in notifications on Windows 10.
