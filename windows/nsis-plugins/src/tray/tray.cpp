@@ -12,7 +12,7 @@
 #include <libcommon/security.h>
 #include <nsis/pluginapi.h>
 #include <stdexcept>
-#include <experimental/filesystem>
+#include <filesystem>
 
 namespace
 {
@@ -47,7 +47,7 @@ void UpdateRegistry(common::registry::RegistryKey &regkey, const std::wstring &v
 	//
 
 	const auto windir = common::fs::GetKnownFolderPath(FOLDERID_Windows, 0, nullptr);
-	const auto explorer = std::experimental::filesystem::path(windir).append(L"explorer.exe");
+	const auto explorer = std::filesystem::path(windir).append(L"explorer.exe");
 
 	//
 	// Determine process id of active instance(s).

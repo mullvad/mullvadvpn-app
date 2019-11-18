@@ -6,7 +6,7 @@
 #include <libcommon/memory.h>
 #include <libcommon/security.h>
 #include <libcommon/process.h>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <utility>
 #include <functional>
 #include <processthreadsapi.h>
@@ -49,7 +49,7 @@ mirrored_range
 std::wstring ConstructLocalAppDataPath(const std::wstring &base, const std::wstring &user,
 	const std::pair<std::vector<std::wstring>::iterator, std::vector<std::wstring>::iterator> &tokens)
 {
-	auto path = std::experimental::filesystem::path(base);
+	auto path = std::filesystem::path(base);
 
 	path.append(user);
 
@@ -73,7 +73,7 @@ std::wstring GetSystemUserLocalAppData()
 	};
 
 	auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System, KF_FLAG_DEFAULT, NULL);
-	auto lsassPath = std::experimental::filesystem::path(systemDir).append(L"lsass.exe");
+	auto lsassPath = std::filesystem::path(systemDir).append(L"lsass.exe");
 	auto lsassPid = common::process::GetProcessIdFromName(lsassPath);
 
 	auto processHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, lsassPid);
@@ -110,9 +110,9 @@ namespace cleaningops
 void RemoveLogsCacheCurrentUser()
 {
 	const auto localAppData = common::fs::GetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr);
-	const auto appdir = std::experimental::filesystem::path(localAppData).append(L"Mullvad VPN");
+	const auto appdir = std::filesystem::path(localAppData).append(L"Mullvad VPN");
 
-	std::experimental::filesystem::remove_all(appdir);
+	std::filesystem::remove_all(appdir);
 }
 
 void RemoveLogsCacheOtherUsers()
@@ -181,25 +181,25 @@ void RemoveLogsCacheOtherUsers()
 	while (files.next(file))
 	{
 		const auto userLocalAppData = ConstructLocalAppDataPath(files.getDirectory(), file.cFileName, relativeLocalAppData);
-		const auto target = std::experimental::filesystem::path(userLocalAppData).append(L"Mullvad VPN");
+		const auto target = std::filesystem::path(userLocalAppData).append(L"Mullvad VPN");
 
 		std::error_code dummy;
-		std::experimental::filesystem::remove_all(target, dummy);
+		std::filesystem::remove_all(target, dummy);
 	}
 }
 
 void RemoveLogsServiceUser()
 {
 	const auto programData = common::fs::GetKnownFolderPath(FOLDERID_ProgramData, KF_FLAG_DEFAULT, nullptr);
-	const auto appdir = std::experimental::filesystem::path(programData).append(L"Mullvad VPN");
+	const auto appdir = std::filesystem::path(programData).append(L"Mullvad VPN");
 
-	std::experimental::filesystem::remove_all(appdir);
+	std::filesystem::remove_all(appdir);
 }
 
 void RemoveCacheServiceUser()
 {
 	const auto localAppData = GetSystemUserLocalAppData();
-	const auto mullvadAppData = std::experimental::filesystem::path(localAppData).append(L"Mullvad VPN");
+	const auto mullvadAppData = std::filesystem::path(localAppData).append(L"Mullvad VPN");
 
 	common::fs::ScopedNativeFileSystem nativeFileSystem;
 
@@ -220,10 +220,10 @@ void RemoveCacheServiceUser()
 
 		while (files.next(file))
 		{
-			const auto target = std::experimental::filesystem::path(files.getDirectory()).append(file.cFileName);
+			const auto target = std::filesystem::path(files.getDirectory()).append(file.cFileName);
 
 			std::error_code dummy;
-			std::experimental::filesystem::remove(target, dummy);
+			std::filesystem::remove(target, dummy);
 		}
 	}
 
@@ -237,7 +237,7 @@ void RemoveCacheServiceUser()
 void RemoveSettingsServiceUser()
 {
 	const auto localAppData = GetSystemUserLocalAppData();
-	const auto mullvadAppData = std::experimental::filesystem::path(localAppData).append(L"Mullvad VPN");
+	const auto mullvadAppData = std::filesystem::path(localAppData).append(L"Mullvad VPN");
 
 	common::fs::ScopedNativeFileSystem nativeFileSystem;
 
@@ -258,10 +258,10 @@ void RemoveSettingsServiceUser()
 
 		while (files.next(file))
 		{
-			const auto target = std::experimental::filesystem::path(files.getDirectory()).append(file.cFileName);
+			const auto target = std::filesystem::path(files.getDirectory()).append(file.cFileName);
 
 			std::error_code dummy;
-			std::experimental::filesystem::remove(target, dummy);
+			std::filesystem::remove(target, dummy);
 		}
 	}
 
@@ -275,15 +275,15 @@ void RemoveSettingsServiceUser()
 void RemoveRelayCacheServiceUser()
 {
 	const auto localAppData = GetSystemUserLocalAppData();
-	const auto mullvadAppData = std::experimental::filesystem::path(localAppData).append(L"Mullvad VPN");
+	const auto mullvadAppData = std::filesystem::path(localAppData).append(L"Mullvad VPN");
 
 	common::fs::ScopedNativeFileSystem nativeFileSystem;
 
 	common::security::AddAdminToObjectDacl(mullvadAppData, SE_FILE_OBJECT);
 
-	const auto cacheFile = std::experimental::filesystem::path(mullvadAppData).append(L"relays.json");
+	const auto cacheFile = std::filesystem::path(mullvadAppData).append(L"relays.json");
 
-	std::experimental::filesystem::remove(cacheFile);
+	std::filesystem::remove(cacheFile);
 }
 
 }
