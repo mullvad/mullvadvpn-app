@@ -47,7 +47,6 @@ impl RouteManager {
         let (tx, rx) = oneshot::channel();
         let (start_tx, start_rx) = oneshot::channel();
 
-
         std::thread::spawn(
             move || match imp::RouteManagerImpl::new(required_routes, rx) {
                 Ok(route_manager) => {
