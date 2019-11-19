@@ -56,7 +56,7 @@ simple-signal = "1.1"
 [target.'cfg(windows)'.dependencies]
 ctrlc = "3.0"
 windows-service = { git = "https://github.com/mullvad/windows-service-rs.git", rev = "48d755b0afbf259ba547d4defc3e9340d1436cf6" }
-winapi = "0.3"
+winapi = { version = "0.3", features = ["errhandlingapi", "handleapi", "libloaderapi", "synchapi", "tlhelp32", "winbase", "winerror", "winuser"] }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"

@@ -9,6 +9,8 @@
 #![deny(rust_2018_idioms)]
 
 use log::{debug, error, info, warn};
+#[cfg(windows)]
+use mullvad_daemon::windows_exception_logging;
 use mullvad_daemon::{logging, version, Daemon};
 use std::{path::PathBuf, thread, time::Duration};
 use talpid_types::ErrorExt;
@@ -48,6 +50,8 @@ fn init_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
     )
     .map_err(|e| e.display_chain_with_msg("Unable to initialize logger"))?;
     log_panics::init();
+    #[cfg(windows)]
+    windows_exception_logging::enable();
     version::log_version();
     if let Some(ref log_dir) = log_dir {
         info!("Logging to {}", log_dir.display());

@@ -21,6 +21,8 @@ mod rpc_uniqueness_check;
 mod settings;
 pub mod version;
 mod version_check;
+#[cfg(windows)]
+pub mod windows_exception_logging;
 
 pub use crate::management_interface::ManagementCommand;
 use crate::management_interface::{
