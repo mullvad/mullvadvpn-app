@@ -31,6 +31,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Notifications shown when connecting to a server include its location.
+- Upgrade OpenVPN from 2.4.7 to 2.4.8.
+- Upgrade OpenSSL from 1.1.1c to 1.1.1d.
 
 #### Windows
 - Use a larger icon in notifications on Windows 10.
@@ -38,6 +40,8 @@ Line wrap the file at 100 chars.                                              Th
   to avoid invoking `netsh` unnecessarily and getting stuck in associated hangs.
 - Don't restart the service immediately if it aborts several times in a row. Leave a window of ten
   minutes to allow for addressing the issue.
+- Upgrade libsodium from 1.0.17 to 1.0.18.
+- Upgrade NDIS 6 TAP driver from 9.21.2 to 9.24.2.
 
 ### Fixed
 #### Linux
@@ -48,6 +52,7 @@ Line wrap the file at 100 chars.                                              Th
 - Improve robustness in path environment variable logic in Windows installer. Handle the case
   where the registry value type is incorrectly set to be a regular string rather than an expandable
   string.
+- Fix suspend and resume issues with OpenVPN by upgrading the TAP driver.
 
 
 ## [2019.10-beta1] - 2019-11-06
