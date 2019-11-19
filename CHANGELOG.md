@@ -45,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
 - Improve robustness in path environment variable logic in Windows installer. Handle the case
   where the registry value type is incorrectly set to be a regular string rather than an expandable
   string.
+- Fix resume/suspend issues with OpenVPN.
 
 
 ## [2019.10-beta1] - 2019-11-06
