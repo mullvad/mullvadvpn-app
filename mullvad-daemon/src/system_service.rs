@@ -277,7 +277,9 @@ pub fn install_service() -> Result<(), InstallError> {
     const FIFTEEN_MINUTES_AS_SECS: u64 = 60 * 15;
 
     let failure_actions = ServiceFailureActions {
-        reset_period: ServiceFailureResetPeriod::After(Duration::from_secs(FIFTEEN_MINUTES_AS_SECS)),
+        reset_period: ServiceFailureResetPeriod::After(Duration::from_secs(
+            FIFTEEN_MINUTES_AS_SECS,
+        )),
         reboot_msg: None,
         command: None,
         actions: Some(recovery_actions),
