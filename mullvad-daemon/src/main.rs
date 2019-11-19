@@ -7,6 +7,7 @@
 //! the License, or (at your option) any later version.
 
 #![deny(rust_2018_idioms)]
+#![cfg_attr(target_os = "android", allow(unused))]
 
 use log::{debug, error, info, warn};
 use mullvad_daemon::{logging, version, Daemon};
@@ -86,11 +87,20 @@ fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), St
     }
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "android")]
+fn run_platform(_: &cli::Config, _: Option<PathBuf>) -> Result<(), String> {
+    unimplemented!(concat!(
+        "Android requires usage of the VpnService API, which the daemon can't use without a JNI ",
+        "interface"
+    ));
+}
+
+#[cfg(not(any(windows, target_os = "android")))]
 fn run_platform(_config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
     run_standalone(log_dir)
 }
 
+#[cfg(not(target_os = "android"))]
 fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     if !running_as_admin() {
         warn!("Running daemon as a non-administrator user, clients might refuse to connect");
@@ -109,6 +119,7 @@ fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     Ok(())
 }
 
+#[cfg(not(target_os = "android"))]
 fn create_daemon(log_dir: Option<PathBuf>) -> Result<Daemon, String> {
     let resource_dir = mullvad_paths::get_resource_dir();
     let cache_dir = mullvad_paths::cache_dir()
