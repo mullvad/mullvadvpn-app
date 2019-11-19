@@ -4,8 +4,8 @@ use talpid_types::BoxedError;
 /// Factory stub of tunnel devices.
 pub struct StubTunProvider;
 
-impl Default for StubTunProvider {
-    fn default() -> Self {
+impl StubTunProvider {
+    fn new() -> Self {
         StubTunProvider
     }
 }
