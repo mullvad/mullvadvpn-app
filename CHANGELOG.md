@@ -36,6 +36,8 @@ Line wrap the file at 100 chars.                                              Th
 - Use a larger icon in notifications on Windows 10.
 - Only update DNS settings if updating would change the effective settings. This is a work-around
   to avoid invoking `netsh` unnecessarily and getting stuck in associated hangs.
+- Don't restart the service immediately if it aborts several times in a row. Leave a window of ten
+  minutes to allow for addressing the issue.
 
 ### Fixed
 #### Windows
