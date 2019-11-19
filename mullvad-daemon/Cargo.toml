@@ -55,7 +55,7 @@ simple-signal = "1.1"
 
 [target.'cfg(windows)'.dependencies]
 ctrlc = "3.0"
-windows-service = { git = "https://github.com/mullvad/windows-service-rs.git", rev = "a5eb1dcbbcee4ec2c6479256305c64b25640c799" }
+windows-service = { git = "https://github.com/mullvad/windows-service-rs.git", rev = "f518cd53a842985eea08c236a6ebd072ee5d88ac" }
 winapi = "0.3"
 
 [target.'cfg(windows)'.build-dependencies]
