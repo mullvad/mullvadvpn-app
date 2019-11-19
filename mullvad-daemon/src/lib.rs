@@ -434,7 +434,7 @@ where
             account_history::AccountHistory::new(&cache_dir).map_err(Error::LoadAccountHistory)?;
 
         #[cfg(not(target_os = "android"))]
-        let tun_provider = PlatformTunProvider::default();
+        let tun_provider = PlatformTunProvider::new();
 
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
