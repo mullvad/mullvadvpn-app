@@ -286,8 +286,8 @@
 			log::LogWithDetails $R0 $1
 		${EndIf}
 	${EndIf}
-	
-	IntCmp $0 ${EB_NO_TAP_ADAPTERS_PRESENT} InstallDriver_install_driver
+
+	IntCmp $InstallDriver_BaselineStatus ${EB_NO_TAP_ADAPTERS_PRESENT} InstallDriver_install_driver
 
 	#
 	# Driver is already installed and there are one or several virtual adapters present.
