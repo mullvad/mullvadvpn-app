@@ -189,12 +189,12 @@ fn create_daemon(
     let resource_dir = mullvad_paths::get_resource_dir();
     let cache_dir = mullvad_paths::cache_dir().map_err(Error::GetCacheDir)?;
 
-    let daemon = Daemon::start_with_event_listener_and_tun_provider(
+    let daemon = Daemon::start_with_event_listener(
         listener,
-        tun_provider,
         Some(log_dir),
         resource_dir,
         cache_dir,
+        tun_provider,
     )
     .map_err(Error::InitializeDaemon)?;
 
