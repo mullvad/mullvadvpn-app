@@ -72,6 +72,9 @@ Line wrap the file at 100 chars.                                              Th
   The Mullvad servers have never allowed any insecure ciphers, so this was not really a problem.
   Just one extra safety precaution.
 
+#### Android
+- Don't try to fetch location when the app knows that it has no connectivity. This should reduce
+  wake-ups (improving battery life) and also fix very large log files consuming storage space.
 
 ## [2019.10-beta1] - 2019-11-06
 This release is for Android only.
