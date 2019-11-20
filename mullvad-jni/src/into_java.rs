@@ -35,6 +35,22 @@ pub trait IntoJava<'borrow, 'env: 'borrow> {
     fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType;
 }
 
+macro_rules! wrap_jnix_into_java {
+    ( $type:ty $( where $param:ident : $( $constraints:tt )* )* ) => {
+        impl<'borrow, 'env, $( $param ),* > IntoJava<'borrow, 'env> for $type
+        where
+            'env: 'borrow,
+            $( $param: $( $constraints )* ),*
+        {
+            type JavaType = <$type as jnix::IntoJava<'borrow, 'env>>::JavaType;
+
+            fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
+                jnix::IntoJava::into_java(self, env)
+            }
+        }
+    };
+}
+
 impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Option<T>
 where
     'env: 'borrow,
