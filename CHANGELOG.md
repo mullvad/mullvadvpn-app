@@ -43,6 +43,9 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade libsodium from 1.0.17 to 1.0.18.
 - Upgrade NDIS 6 TAP driver from 9.21.2 to 9.24.2.
 
+#### Linux
+- Add extra verification steps when managing DNS with `resolvconf` on Linux.
+
 ### Fixed
 #### Linux
 - Improved stability on Linux by using the routing netlink socket in it's own thread.
