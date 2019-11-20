@@ -27,6 +27,9 @@ static SERVICE_NAME: &'static str = "MullvadVPN";
 static SERVICE_DISPLAY_NAME: &'static str = "Mullvad VPN Service";
 static SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
+const SERVICE_RECOVERY_LAST_RESTART_DELAY: Duration = Duration::from_secs(60 * 10);
+const SERVICE_FAILURE_RESET_PERIOD: Duration = Duration::from_secs(60 * 15);
+
 pub fn run() -> Result<(), String> {
     // Start the service dispatcher.
     // This will block current thread until the service stopped and spawn `service_main` on a
@@ -257,8 +260,6 @@ pub fn install_service() -> Result<(), InstallError> {
         .or(service_manager.open_service(SERVICE_NAME, service_access))
         .map_err(InstallError::CreateService)?;
 
-    const TEN_MINUTES_AS_SECS: u64 = 60 * 10;
-
     let recovery_actions = vec![
         ServiceAction {
             action_type: ServiceActionType::Restart,
@@ -270,16 +271,12 @@ pub fn install_service() -> Result<(), InstallError> {
         },
         ServiceAction {
             action_type: ServiceActionType::Restart,
-            delay: Duration::from_secs(TEN_MINUTES_AS_SECS),
+            delay: SERVICE_RECOVERY_LAST_RESTART_DELAY,
         },
     ];
 
-    const FIFTEEN_MINUTES_AS_SECS: u64 = 60 * 15;
-
     let failure_actions = ServiceFailureActions {
-        reset_period: ServiceFailureResetPeriod::After(Duration::from_secs(
-            FIFTEEN_MINUTES_AS_SECS,
-        )),
+        reset_period: ServiceFailureResetPeriod::After(SERVICE_FAILURE_RESET_PERIOD),
         reboot_msg: None,
         command: None,
         actions: Some(recovery_actions),
