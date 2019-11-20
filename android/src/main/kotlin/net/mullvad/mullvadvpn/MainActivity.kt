@@ -42,7 +42,7 @@ class MainActivity : FragmentActivity() {
     val problemReport = MullvadProblemReport()
     var settingsListener = SettingsListener(this)
     var relayListListener = RelayListListener(this)
-    val locationInfoCache = LocationInfoCache(daemon, relayListListener)
+    val locationInfoCache = LocationInfoCache(daemon, connectivityListener, relayListListener)
     val accountCache = AccountCache(settingsListener, daemon)
     val wwwAuthTokenRetriever = WwwAuthTokenRetriever(daemon)
 
