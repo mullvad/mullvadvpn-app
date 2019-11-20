@@ -14,7 +14,16 @@ mod imp;
 #[path = "linux.rs"]
 mod imp;
 
-#[cfg(not(any(windows, target_os = "linux", target_os = "macos")))]
+#[cfg(target_os = "android")]
+#[path = "android.rs"]
+mod imp;
+
+#[cfg(not(any(
+    windows,
+    target_os = "android",
+    target_os = "linux",
+    target_os = "macos"
+)))]
 #[path = "dummy.rs"]
 mod imp;
 
