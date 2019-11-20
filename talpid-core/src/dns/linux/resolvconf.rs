@@ -5,6 +5,7 @@ use std::{
     net::IpAddr,
     path::{Path, PathBuf},
 };
+
 use which::which;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -25,6 +26,9 @@ pub enum Error {
 
     #[error(display = "Using 'resolvconf' to delete a record failed")]
     DeleteRecordError,
+
+    #[error(display = "Detected dnsmasq is runing and misconfigured")]
+    DnsmasqMisconfigurationError,
 }
 
 pub struct Resolvconf {
@@ -38,6 +42,11 @@ impl Resolvconf {
         if Self::resolvconf_is_resolved_symlink(&resolvconf_path) {
             return Err(Error::ResolvconfUsesResolved);
         }
+
+        if Self::is_dnsmasq_running() && Self::is_dnsmasq_configured_wrong() {
+            return Err(Error::DnsmasqMisconfigurationError);
+        }
+
         Ok(Resolvconf {
             record_names: HashSet::new(),
             resolvconf: resolvconf_path,
@@ -100,5 +109,41 @@ impl Resolvconf {
         }
 
         result
+    }
+
+    fn is_dnsmasq_running() -> bool {
+        let pid = match fs::read_to_string("/var/run/dnsmasq/dnsmasq.pid") {
+            Ok(pid) => pid,
+            Err(_err) => {
+                return false;
+            }
+        };
+
+        PathBuf::from(format!("/proc/{}/", &pid)).exists()
+    }
+
+    // Have to check whether dnsmasq has been configured to ignore
+    // DNS server lists from external sources
+    // Verify if dnsmasq is configured to ignore any external servers
+    // by checking for the `no-resolv` config option.
+    fn is_dnsmasq_configured_wrong() -> bool {
+        let mut config_paths = fs::read_dir("/etc/dnsmasq.d/")
+            .map(|entries| {
+                entries
+                    .into_iter()
+                    .filter_map(|entry| entry.ok().map(|e| e.path()))
+                    .collect()
+            })
+            .unwrap_or(vec![]);
+
+        config_paths.push(PathBuf::from("/etc/dnsmasq.conf"));
+        config_paths
+            .iter()
+            .filter_map(|file_path| fs::read(file_path).ok())
+            .any(|contents| {
+                String::from_utf8_lossy(contents.as_slice())
+                    .lines()
+                    .any(|line| line.trim().starts_with("no-resolv"))
+            })
     }
 }
