@@ -56,6 +56,8 @@ class MullvadVpnService : TalpidVpnService() {
             get() = this@MullvadVpnService.daemon
         val connectionProxy
             get() = this@MullvadVpnService.connectionProxy
+        val connectivityListener
+            get() = this@MullvadVpnService.connectivityListener
         val resetComplete
             get() = this@MullvadVpnService.resetComplete
 
