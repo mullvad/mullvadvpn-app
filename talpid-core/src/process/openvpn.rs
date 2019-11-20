@@ -14,6 +14,7 @@ use talpid_types::net;
 
 static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--client"],
+    &["--tls-client"],
     &["--nobind"],
     #[cfg(not(windows))]
     &["--dev", "tun"],
@@ -29,6 +30,7 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--sndbuf", "1048576"],
     &["--fast-io"],
     &["--cipher", "AES-256-CBC"],
+    &["--tls-version-min", "1.2"],
     &["--verb", "3"],
     #[cfg(windows)]
     &[
@@ -42,10 +44,12 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     ],
 ];
 
-static ALLOWED_TLS_CIPHERS: &[&str] = &[
+static ALLOWED_TLS1_2_CIPHERS: &[&str] = &[
     "TLS-DHE-RSA-WITH-AES-256-GCM-SHA384",
     "TLS-DHE-RSA-WITH-AES-256-CBC-SHA",
 ];
+static ALLOWED_TLS1_3_CIPHERS: &[&str] =
+    &["TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256"];
 
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
 /// binary accepts.
@@ -242,7 +246,7 @@ impl OpenVpnCommand {
             args.push(tunnel_device.clone());
         }
 
-        args.extend(Self::security_arguments().iter().map(OsString::from));
+        args.extend(Self::tls_cipher_arguments().iter().map(OsString::from));
         args.extend(self.proxy_arguments().iter().map(OsString::from));
 
         args
@@ -258,10 +262,12 @@ impl OpenVpnCommand {
         args
     }
 
-    fn security_arguments() -> Vec<String> {
+    fn tls_cipher_arguments() -> Vec<String> {
         let mut args = vec![];
         args.push("--tls-cipher".to_owned());
-        args.push(ALLOWED_TLS_CIPHERS.join(":"));
+        args.push(ALLOWED_TLS1_2_CIPHERS.join(":"));
+        args.push("--tls-ciphersuites".to_owned());
+        args.push(ALLOWED_TLS1_3_CIPHERS.join(":"));
         args
     }
 

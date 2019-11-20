@@ -54,6 +54,11 @@ Line wrap the file at 100 chars.                                              Th
   string.
 - Fix suspend and resume issues with OpenVPN by upgrading the TAP driver.
 
+### Security
+- Force OpenVPN to use TLS 1.2 or newer. And limit the TLS 1.3 ciphers to only the strongest ones.
+  The Mullvad servers have never allowed any insecure ciphers, so this was not really a problem.
+  Just one extra safety precaution.
+
 
 ## [2019.10-beta1] - 2019-11-06
 This release is for Android only.
