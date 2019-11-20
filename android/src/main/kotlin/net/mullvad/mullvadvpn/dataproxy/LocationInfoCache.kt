@@ -23,6 +23,14 @@ class LocationInfoCache(
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var activeFetch: Job? = null
 
+    private val connectivityListenerId = GlobalScope.async(Dispatchers.Default) {
+        connectivityListener.await().connectivityNotifier.subscribe { isConnected ->
+            if (isConnected) {
+                fetchLocation()
+            }
+        }
+    }
+
     var onNewLocation: ((GeoIpLocation?) -> Unit)? = null
         set(value) {
             field = value
