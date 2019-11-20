@@ -1,5 +1,4 @@
-use std::{ffi::CStr, mem, os::raw::c_char};
-
+use std::{ffi::CStr, fmt::Write, mem, os::raw::c_char};
 use winapi::{
     ctypes::c_void,
     shared::{
@@ -12,7 +11,10 @@ use winapi::{
         tlhelp32::{
             CreateToolhelp32Snapshot, Module32First, Module32Next, MODULEENTRY32, TH32CS_SNAPMODULE,
         },
-        winnt::{EXCEPTION_POINTERS, EXCEPTION_RECORD, HANDLE, LONG},
+        winnt::{
+            CONTEXT, CONTEXT_CONTROL, CONTEXT_DEBUG_REGISTERS, CONTEXT_FLOATING_POINT,
+            CONTEXT_INTEGER, CONTEXT_SEGMENTS, EXCEPTION_POINTERS, EXCEPTION_RECORD, HANDLE, LONG,
+        },
     },
     vc::excpt::EXCEPTION_EXECUTE_HANDLER,
 };
@@ -28,21 +30,93 @@ extern "system" fn logging_exception_filter(info: *mut EXCEPTION_POINTERS) -> LO
     let info: &EXCEPTION_POINTERS = unsafe { &*info };
     let record: &EXCEPTION_RECORD = unsafe { &*info.ExceptionRecord };
 
+    let context_info = get_context_info(unsafe { &*info.ContextRecord });
+
     match find_address_module(record.ExceptionAddress) {
         Some(mod_info) => log::error!(
-            "Unhandled exception at {:#x?} in {}: {:#x?}",
+            "Unhandled exception at {:#x?} in {}: {:#x?}\n{}",
             record.ExceptionAddress as usize - mod_info.base_address as usize,
             mod_info.name,
             record.ExceptionCode,
+            context_info
         ),
         None => log::error!(
-            "Unhandled exception at {:#x?}: {:#x?}",
+            "Unhandled exception at {:#x?}: {:#x?}\n{}",
             record.ExceptionAddress,
-            record.ExceptionCode
+            record.ExceptionCode,
+            context_info
         ),
     }
 
     EXCEPTION_EXECUTE_HANDLER
+}
+
+fn get_context_info(context: &CONTEXT) -> String {
+    let mut context_str = "Context:\n".to_string();
+
+    if context.ContextFlags & CONTEXT_CONTROL != 0 {
+        writeln!(
+            &mut context_str,
+            "\n\tSegSs: {:#x?}\n \
+             \tRsp: {:#x?}\n \
+             \tSegCs: {:#x?}\n \
+             \tRip: {:#x?}\n \
+             \tEFlags: {:#x?}",
+            context.SegSs, context.Rsp, context.SegCs, context.Rip, context.EFlags
+        )
+        .unwrap();
+    }
+
+    if context.ContextFlags & CONTEXT_INTEGER != 0 {
+        writeln!(
+            &mut context_str,
+            "\n\tRax: {:#x?}\n \
+             \tRcx: {:#x?}\n \
+             \tRdx: {:#x?}\n \
+             \tRbx: {:#x?}\n \
+             \tRbp: {:#x?}\n \
+             \tRsi: {:#x?}\n \
+             \tRdi: {:#x?}\n \
+             \tR8: {:#x?}\n \
+             \tR9: {:#x?}\n \
+             \tR10: {:#x?}\n \
+             \tR11 {:#x?}\n \
+             \tR12: {:#x?}\n \
+             \tR13: {:#x?}\n \
+             \tR14: {:#x?}\n \
+             \tR15: {:#x?}",
+            context.Rax,
+            context.Rcx,
+            context.Rdx,
+            context.Rbx,
+            context.Rbp,
+            context.Rsi,
+            context.Rdi,
+            context.R8,
+            context.R9,
+            context.R10,
+            context.R11,
+            context.R12,
+            context.R13,
+            context.R14,
+            context.R15
+        )
+        .unwrap();
+    }
+
+    if context.ContextFlags & CONTEXT_SEGMENTS != 0 {
+        writeln!(
+            &mut context_str,
+            "\n\tSegDs: {:#x?}\n \
+             \tSegEs: {:#x?}\n \
+             \tSegFs: {:#x?}\n \
+             \tSegGs: {:#x?}",
+            context.SegDs, context.SegEs, context.SegFs, context.SegGs
+        )
+        .unwrap();
+    }
+
+    context_str
 }
 
 /// Return module info for the current process and given memory address.
