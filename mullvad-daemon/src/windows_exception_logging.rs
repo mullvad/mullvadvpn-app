@@ -1,4 +1,9 @@
-use std::{ffi::CStr, fmt::Write, mem, os::raw::c_char};
+use std::{
+    ffi::CStr,
+    fmt::Write,
+    mem,
+    os::raw::c_char,
+};
 use winapi::{
     ctypes::c_void,
     shared::{
@@ -12,8 +17,8 @@ use winapi::{
             CreateToolhelp32Snapshot, Module32First, Module32Next, MODULEENTRY32, TH32CS_SNAPMODULE,
         },
         winnt::{
-            CONTEXT, CONTEXT_CONTROL, CONTEXT_DEBUG_REGISTERS, CONTEXT_FLOATING_POINT,
-            CONTEXT_INTEGER, CONTEXT_SEGMENTS, EXCEPTION_POINTERS, EXCEPTION_RECORD, HANDLE, LONG,
+            CONTEXT, CONTEXT_CONTROL, CONTEXT_INTEGER, CONTEXT_SEGMENTS, EXCEPTION_POINTERS,
+            EXCEPTION_RECORD, HANDLE, LONG,
         },
     },
     vc::excpt::EXCEPTION_EXECUTE_HANDLER,
@@ -24,26 +29,74 @@ pub fn enable() {
     unsafe { SetUnhandledExceptionFilter(Some(logging_exception_filter)) };
 }
 
+fn exception_error_to_string(value: u32) -> Option<&'static str> {
+    match value {
+        winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION => Some("EXCEPTION_ACCESS_VIOLATION"),
+        winapi::um::minwinbase::EXCEPTION_ARRAY_BOUNDS_EXCEEDED => {
+            Some("EXCEPTION_ARRAY_BOUNDS_EXCEEDED")
+        }
+        winapi::um::minwinbase::EXCEPTION_DATATYPE_MISALIGNMENT => {
+            Some("EXCEPTION_DATATYPE_MISALIGNMENT")
+        }
+        winapi::um::minwinbase::EXCEPTION_FLT_DENORMAL_OPERAND => {
+            Some("EXCEPTION_FLT_DENORMAL_OPERAND")
+        }
+        winapi::um::minwinbase::EXCEPTION_FLT_DIVIDE_BY_ZERO => {
+            Some("EXCEPTION_FLT_DIVIDE_BY_ZERO")
+        }
+        winapi::um::minwinbase::EXCEPTION_FLT_INEXACT_RESULT => {
+            Some("EXCEPTION_FLT_INEXACT_RESULT")
+        }
+        winapi::um::minwinbase::EXCEPTION_FLT_INVALID_OPERATION => {
+            Some("EXCEPTION_FLT_INVALID_OPERATION")
+        }
+        winapi::um::minwinbase::EXCEPTION_FLT_STACK_CHECK => Some("EXCEPTION_FLT_STACK_CHECK"),
+        winapi::um::minwinbase::EXCEPTION_FLT_UNDERFLOW => Some("EXCEPTION_FLT_UNDERFLOW"),
+        winapi::um::minwinbase::EXCEPTION_ILLEGAL_INSTRUCTION => {
+            Some("EXCEPTION_ILLEGAL_INSTRUCTION")
+        }
+        winapi::um::minwinbase::EXCEPTION_IN_PAGE_ERROR => Some("EXCEPTION_IN_PAGE_ERROR"),
+        winapi::um::minwinbase::EXCEPTION_INT_DIVIDE_BY_ZERO => {
+            Some("EXCEPTION_INT_DIVIDE_BY_ZERO")
+        }
+        winapi::um::minwinbase::EXCEPTION_INT_OVERFLOW => Some("EXCEPTION_INT_OVERFLOW"),
+        winapi::um::minwinbase::EXCEPTION_INVALID_DISPOSITION => {
+            Some("EXCEPTION_INVALID_DISPOSITION")
+        }
+        winapi::um::minwinbase::EXCEPTION_NONCONTINUABLE_EXCEPTION => {
+            Some("EXCEPTION_NONCONTINUABLE_EXCEPTION")
+        }
+        winapi::um::minwinbase::EXCEPTION_PRIV_INSTRUCTION => Some("EXCEPTION_PRIV_INSTRUCTION"),
+        winapi::um::minwinbase::EXCEPTION_SINGLE_STEP => Some("EXCEPTION_SINGLE_STEP"),
+        winapi::um::minwinbase::EXCEPTION_STACK_OVERFLOW => Some("EXCEPTION_STACK_OVERFLOW"),
+        _ => None,
+    }
+}
+
 extern "system" fn logging_exception_filter(info: *mut EXCEPTION_POINTERS) -> LONG {
-    // TODO: output the error constant's name instead of its numeric value
     // SAFETY: Windows gives us valid pointers
     let info: &EXCEPTION_POINTERS = unsafe { &*info };
     let record: &EXCEPTION_RECORD = unsafe { &*info.ExceptionRecord };
 
     let context_info = get_context_info(unsafe { &*info.ContextRecord });
 
+    let error_str = match exception_error_to_string(record.ExceptionCode) {
+        Some(name) => name.to_string(),
+        None => format!("{:#x?}", record.ExceptionCode),
+    };
+
     match find_address_module(record.ExceptionAddress) {
         Some(mod_info) => log::error!(
-            "Unhandled exception at {:#x?} in {}: {:#x?}\n{}",
+            "Unhandled exception at {:#x?} in {}: {}\n{}",
             record.ExceptionAddress as usize - mod_info.base_address as usize,
             mod_info.name,
-            record.ExceptionCode,
+            error_str,
             context_info
         ),
         None => log::error!(
-            "Unhandled exception at {:#x?}: {:#x?}\n{}",
+            "Unhandled exception at {:#x?}: {}\n{}",
             record.ExceptionAddress,
-            record.ExceptionCode,
+            error_str,
             context_info
         ),
     }
