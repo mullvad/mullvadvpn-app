@@ -87,7 +87,7 @@ extern "system" fn logging_exception_filter(info: *mut EXCEPTION_POINTERS) -> LO
 
     match find_address_module(record.ExceptionAddress) {
         Some(mod_info) => log::error!(
-            "Unhandled exception at {:#x?} in {}: {}\n{}",
+            "Unhandled exception at RVA {:#x?} in {}: {}\n{}",
             record.ExceptionAddress as usize - mod_info.base_address as usize,
             mod_info.name,
             error_str,
