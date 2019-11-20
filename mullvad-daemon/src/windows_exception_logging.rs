@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     ffi::CStr,
     fmt::Write,
     mem,
@@ -29,46 +30,58 @@ pub fn enable() {
     unsafe { SetUnhandledExceptionFilter(Some(logging_exception_filter)) };
 }
 
-fn exception_error_to_string(value: u32) -> Option<&'static str> {
-    match value {
-        winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION => Some("EXCEPTION_ACCESS_VIOLATION"),
+fn exception_code_to_string(value: &EXCEPTION_RECORD) -> Option<Cow<'_, str>> {
+    match value.ExceptionCode {
+        winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION | winapi::um::minwinbase::EXCEPTION_IN_PAGE_ERROR => {
+            let operation_type = match value.ExceptionInformation[0] {
+                0 => "read from inaccessible address",
+                1 => "wrote to inaccessible address",
+                8 => "user-mode data execution prevention (DEP) violation",
+                _ => "unknown error",
+            };
+            let name = if let winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION = value.ExceptionCode {
+                "EXCEPTION_ACCESS_VIOLATION"
+            } else {
+                "EXCEPTION_IN_PAGE_ERROR"
+            };
+            Some(Cow::Owned(format!("{} ({}, VA {:#x?})", name, operation_type, value.ExceptionInformation[1])))
+        }
         winapi::um::minwinbase::EXCEPTION_ARRAY_BOUNDS_EXCEEDED => {
-            Some("EXCEPTION_ARRAY_BOUNDS_EXCEEDED")
+            Some(Cow::Borrowed("EXCEPTION_ARRAY_BOUNDS_EXCEEDED"))
         }
         winapi::um::minwinbase::EXCEPTION_DATATYPE_MISALIGNMENT => {
-            Some("EXCEPTION_DATATYPE_MISALIGNMENT")
+            Some(Cow::Borrowed("EXCEPTION_DATATYPE_MISALIGNMENT"))
         }
         winapi::um::minwinbase::EXCEPTION_FLT_DENORMAL_OPERAND => {
-            Some("EXCEPTION_FLT_DENORMAL_OPERAND")
+            Some(Cow::Borrowed("EXCEPTION_FLT_DENORMAL_OPERAND"))
         }
         winapi::um::minwinbase::EXCEPTION_FLT_DIVIDE_BY_ZERO => {
-            Some("EXCEPTION_FLT_DIVIDE_BY_ZERO")
+            Some(Cow::Borrowed("EXCEPTION_FLT_DIVIDE_BY_ZERO"))
         }
         winapi::um::minwinbase::EXCEPTION_FLT_INEXACT_RESULT => {
-            Some("EXCEPTION_FLT_INEXACT_RESULT")
+            Some(Cow::Borrowed("EXCEPTION_FLT_INEXACT_RESULT"))
         }
         winapi::um::minwinbase::EXCEPTION_FLT_INVALID_OPERATION => {
-            Some("EXCEPTION_FLT_INVALID_OPERATION")
+            Some(Cow::Borrowed("EXCEPTION_FLT_INVALID_OPERATION"))
         }
-        winapi::um::minwinbase::EXCEPTION_FLT_STACK_CHECK => Some("EXCEPTION_FLT_STACK_CHECK"),
-        winapi::um::minwinbase::EXCEPTION_FLT_UNDERFLOW => Some("EXCEPTION_FLT_UNDERFLOW"),
+        winapi::um::minwinbase::EXCEPTION_FLT_STACK_CHECK => Some(Cow::Borrowed("EXCEPTION_FLT_STACK_CHECK")),
+        winapi::um::minwinbase::EXCEPTION_FLT_UNDERFLOW => Some(Cow::Borrowed("EXCEPTION_FLT_UNDERFLOW")),
         winapi::um::minwinbase::EXCEPTION_ILLEGAL_INSTRUCTION => {
-            Some("EXCEPTION_ILLEGAL_INSTRUCTION")
+            Some(Cow::Borrowed("EXCEPTION_ILLEGAL_INSTRUCTION"))
         }
-        winapi::um::minwinbase::EXCEPTION_IN_PAGE_ERROR => Some("EXCEPTION_IN_PAGE_ERROR"),
         winapi::um::minwinbase::EXCEPTION_INT_DIVIDE_BY_ZERO => {
-            Some("EXCEPTION_INT_DIVIDE_BY_ZERO")
+            Some(Cow::Borrowed("EXCEPTION_INT_DIVIDE_BY_ZERO"))
         }
-        winapi::um::minwinbase::EXCEPTION_INT_OVERFLOW => Some("EXCEPTION_INT_OVERFLOW"),
+        winapi::um::minwinbase::EXCEPTION_INT_OVERFLOW => Some(Cow::Borrowed("EXCEPTION_INT_OVERFLOW")),
         winapi::um::minwinbase::EXCEPTION_INVALID_DISPOSITION => {
-            Some("EXCEPTION_INVALID_DISPOSITION")
+            Some(Cow::Borrowed("EXCEPTION_INVALID_DISPOSITION"))
         }
         winapi::um::minwinbase::EXCEPTION_NONCONTINUABLE_EXCEPTION => {
-            Some("EXCEPTION_NONCONTINUABLE_EXCEPTION")
+            Some(Cow::Borrowed("EXCEPTION_NONCONTINUABLE_EXCEPTION"))
         }
-        winapi::um::minwinbase::EXCEPTION_PRIV_INSTRUCTION => Some("EXCEPTION_PRIV_INSTRUCTION"),
-        winapi::um::minwinbase::EXCEPTION_SINGLE_STEP => Some("EXCEPTION_SINGLE_STEP"),
-        winapi::um::minwinbase::EXCEPTION_STACK_OVERFLOW => Some("EXCEPTION_STACK_OVERFLOW"),
+        winapi::um::minwinbase::EXCEPTION_PRIV_INSTRUCTION => Some(Cow::Borrowed("EXCEPTION_PRIV_INSTRUCTION")),
+        winapi::um::minwinbase::EXCEPTION_SINGLE_STEP => Some(Cow::Borrowed("EXCEPTION_SINGLE_STEP")),
+        winapi::um::minwinbase::EXCEPTION_STACK_OVERFLOW => Some(Cow::Borrowed("EXCEPTION_STACK_OVERFLOW")),
         _ => None,
     }
 }
@@ -80,9 +93,9 @@ extern "system" fn logging_exception_filter(info: *mut EXCEPTION_POINTERS) -> LO
 
     let context_info = get_context_info(unsafe { &*info.ContextRecord });
 
-    let error_str = match exception_error_to_string(record.ExceptionCode) {
-        Some(name) => name.to_string(),
-        None => format!("{:#x?}", record.ExceptionCode),
+    let error_str = match exception_code_to_string(record) {
+        Some(errstr) => errstr,
+        None => Cow::Owned(format!("{:#x?}", record.ExceptionCode)),
     };
 
     match find_address_module(record.ExceptionAddress) {
@@ -100,6 +113,8 @@ extern "system" fn logging_exception_filter(info: *mut EXCEPTION_POINTERS) -> LO
             context_info
         ),
     }
+
+    // TODO: check nested exception?
 
     EXCEPTION_EXECUTE_HANDLER
 }
