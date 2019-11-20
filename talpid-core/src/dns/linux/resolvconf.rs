@@ -1,10 +1,14 @@
 use std::{
-    collections::HashSet,
+    collections::{BTreeMap, BTreeSet, HashSet},
     ffi::OsStr,
     fs, io,
     net::IpAddr,
     path::{Path, PathBuf},
+    process::{Command, Stdio},
+    str::FromStr,
 };
+
+use regex::Regex;
 use which::which;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -76,6 +80,10 @@ impl Resolvconf {
 
         self.record_names.insert(record_name);
 
+        if !Self::verify_systemd_resolved_output(interface, servers) {
+            log::error!("Couldn't verify DNS servers with systemd-resolve");
+        }
+
         Ok(())
     }
 
@@ -100,5 +108,239 @@ impl Resolvconf {
         }
 
         result
+    }
+
+    // Whilst systemd-resolved has a DBus interface, it is not being used here since
+    // if the DBus interface was usable, Resolvconf wouldn't be used. As such,
+    // this function tries to determine whether the invocation of resolvconf resulted
+    // in systemd-resolved applying our DNS config by running `systemd-resolved --status`
+    // and parsing it's output
+    fn verify_systemd_resolved_output(interface: &str, servers: &[IpAddr]) -> bool {
+        let systemd_resolved_path = match which::which("systemd-resolved") {
+            Ok(path) => path,
+            Err(e) => {
+                log::trace!("Failed to get path for systemd-resolved binary: {}", e);
+                return false;
+            }
+        };
+        let resolved_status = match Command::new(systemd_resolved_path)
+            .arg("--status")
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .spawn()
+        {
+            Ok(child_process) => child_process,
+            Err(e) => {
+                log::error!("Failed to spawn systemd-resolevd child process: {}", e);
+                return false;
+            }
+        };
+        match resolved_status.wait_with_output() {
+            Ok(output) => {
+                let output = String::from_utf8_lossy(&output.stdout);
+                let link_map = Self::parse_systemd_resolved_status_output(&output);
+                link_map
+                    .get(interface)
+                    .map(|set_dns_servers| {
+                        servers
+                            .iter()
+                            .all(|server| set_dns_servers.contains(server))
+                    })
+                    .unwrap_or(false)
+            }
+
+            Err(e) => {
+                log::error!("Executing systemd-resolved failed - {}", e);
+                false
+            }
+        }
+    }
+
+    // The output of the systemd-resolved --status command:
+    //>Global
+    //>   DNSSEC NTA: 10.in-addr.arpa
+    //>               16.172.in-addr.arpa
+    //> Link 2 (enp1s0)
+    //>      Current Scopes: DNS
+    //>       LLMNR setting: yes
+    //> MulticastDNS setting: no
+    //>      DNSSEC setting: no
+    //>    DNSSEC supported: no
+    //>         DNS Servers: 192.168.122.1
+    //>                      192.168.1.1
+    //>                      8.8.8.8
+    //>          DNS Domain: ~.
+    //
+    fn parse_systemd_resolved_status_output<'a>(
+        output: &'a str,
+    ) -> BTreeMap<&'a str, BTreeSet<IpAddr>> {
+        let mut link = None;
+        let mut link_map = BTreeMap::new();
+        let mut line_iter = output.lines().peekable();
+        while let Some(line) = line_iter.next() {
+            // extract current link from line like 'Link 2 (enp1s0)'
+            if line.starts_with("Link ") {
+                let re = Regex::new(r"Link \d* \((.*)\)").unwrap();
+                link = Self::get_first_match(line, &re);
+            };
+            // extract first DNS server from line like '         DNS Servers: 192.168.122.1'
+            if link.is_some() && line.trim_start().starts_with("DNS Servers") {
+                let link = link.unwrap();
+
+                let re = Regex::new(r". DNS Servers: (.*)").unwrap();
+                match Self::get_first_match(line, &re) {
+                    Some(ip_str) => match IpAddr::from_str(ip_str) {
+                        Ok(ip_addr) => {
+                            let entry = link_map.entry(link).or_insert(BTreeSet::new());
+                            entry.insert(ip_addr);
+                        }
+                        Err(err) => {
+                            log::error!("Failed to parse IP address from line '{}', {}", line, err);
+                            continue;
+                        }
+                    },
+                    None => continue,
+                };
+                'inner: while let Some(line) = line_iter.peek() {
+                    match IpAddr::from_str(line.trim()) {
+                        Ok(ip_addr) => {
+                            link_map
+                                .entry(link)
+                                .or_insert(BTreeSet::new())
+                                .insert(ip_addr);
+                            // on success, move the iterator forward
+                            line_iter.next();
+                        }
+                        // when the next line no longer has IP addresses,
+                        Err(_) => {
+                            break 'inner;
+                        }
+                    }
+                }
+            }
+        }
+
+        link_map
+    }
+
+    fn get_first_match<'a>(line: &'a str, re: &Regex) -> Option<&'a str> {
+        re.captures(line)
+            .and_then(|cap| cap.get(1))
+            .map(|cap_match| cap_match.as_str())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::iter::FromIterator;
+
+    #[test]
+    fn test_systemd_resolved_output_parsing() {
+        let output_str = r#"Global
+          DNSSEC NTA: 10.in-addr.arpa
+                      16.172.in-addr.arpa
+                      168.192.in-addr.arpa
+                      17.172.in-addr.arpa
+                      18.172.in-addr.arpa
+                      19.172.in-addr.arpa
+                      20.172.in-addr.arpa
+                      21.172.in-addr.arpa
+                      22.172.in-addr.arpa
+                      23.172.in-addr.arpa
+                      24.172.in-addr.arpa
+                      25.172.in-addr.arpa
+                      26.172.in-addr.arpa
+                      27.172.in-addr.arpa
+                      28.172.in-addr.arpa
+                      29.172.in-addr.arpa
+                      30.172.in-addr.arpa
+                      31.172.in-addr.arpa
+                      corp
+                      d.f.ip6.arpa
+                      home
+                      internal
+                      intranet
+                      lan
+                      local
+                      private
+                      test
+
+Link 9170 (tun0)
+      Current Scopes: DNS
+       LLMNR setting: yes
+MulticastDNS setting: no
+      DNSSEC setting: no
+    DNSSEC supported: no
+         DNS Servers: 10.64.0.1
+                      10.64.0.2
+          DNS Domain: ~.
+
+Link 2 (enp1s0)
+      Current Scopes: DNS
+       LLMNR setting: yes
+MulticastDNS setting: no
+      DNSSEC setting: no
+    DNSSEC supported: no
+         DNS Servers: 192.168.122.1
+                      192.168.1.1
+                      8.8.8.8
+"#;
+        let expected_map = BTreeMap::from_iter(
+            vec![
+                (
+                    "enp1s0",
+                    BTreeSet::from_iter(
+                        vec![
+                            "192.168.122.1".parse().unwrap(),
+                            "192.168.1.1".parse().unwrap(),
+                            "8.8.8.8".parse().unwrap(),
+                        ]
+                        .into_iter(),
+                    ),
+                ),
+                (
+                    "tun0",
+                    BTreeSet::from_iter(
+                        vec!["10.64.0.1".parse().unwrap(), "10.64.0.2".parse().unwrap()]
+                            .into_iter(),
+                    ),
+                ),
+            ]
+            .into_iter(),
+        );
+
+        let map = Resolvconf::parse_systemd_resolved_status_output(output_str);
+        assert_eq!(expected_map, map);
+    }
+
+    #[test]
+    fn test_systemd_resolved_output_parsing_empty_output() {
+        let output_str = r#"Global
+          DNSSEC NTA: 10.in-addr.arpa
+                      16.172.in-addr.arpa
+                      168.192.in-addr.arpa
+                      17.172.in-addr.arpa
+
+"#;
+        let expected_map = BTreeMap::new();
+        let map = Resolvconf::parse_systemd_resolved_status_output(output_str);
+        assert_eq!(expected_map, map);
+    }
+
+    #[test]
+    fn test_systemd_resolved_output_parsing_invalid_output() {
+        let output_str = r#"Global
+          DNSSEC NTA: 10.in-addr.arpa
+                      16.172.in-addr.arpa
+                      168.192.in-addr.arpa
+                      17.172.in-addr.arpa
+
+         DNS Servers: 10.64.0.1
+                      10.64.0.2
+"#;
+        let expected_map = BTreeMap::new();
+        let map = Resolvconf::parse_systemd_resolved_status_output(output_str);
+        assert_eq!(expected_map, map);
     }
 }
