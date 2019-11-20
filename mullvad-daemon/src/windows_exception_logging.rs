@@ -99,18 +99,25 @@ extern "system" fn logging_exception_filter(info: *mut EXCEPTION_POINTERS) -> LO
     };
 
     match find_address_module(record.ExceptionAddress) {
-        Some(mod_info) => log::error!(
+        Ok(Some(mod_info)) => log::error!(
             "Unhandled exception at RVA {:#x?} in {}: {}\n{}",
             record.ExceptionAddress as usize - mod_info.base_address as usize,
             mod_info.name,
             error_str,
             context_info
         ),
-        None => log::error!(
+        Ok(None) => log::error!(
             "Unhandled exception at {:#x?}: {}\n{}",
             record.ExceptionAddress,
             error_str,
             context_info
+        ),
+        Err(code) => log::error!(
+            "Unhandled exception at {:#x?}: {}\n{}\nError during module iteration: {}",
+            record.ExceptionAddress,
+            error_str,
+            context_info,
+            code
         ),
     }
 
@@ -188,20 +195,21 @@ fn get_context_info(context: &CONTEXT) -> String {
 }
 
 /// Return module info for the current process and given memory address.
-fn find_address_module(address: *mut c_void) -> Option<ModuleInfo> {
+fn find_address_module(address: *mut c_void) -> std::io::Result<Option<ModuleInfo>> {
     let snap =
-        ProcessSnapshot::new(TH32CS_SNAPMODULE, 0).expect("could not create process snapshot");
+        ProcessSnapshot::new(TH32CS_SNAPMODULE, 0)?;
 
     for module in snap.modules() {
+        let module = module?;
         let module_end_address = unsafe { module.base_address.offset(module.size as isize) };
         if (address as *const BYTE) >= module.base_address
             && (address as *const BYTE) < module_end_address
         {
-            return Some(module);
+            return Ok(Some(module));
         }
     }
 
-    None
+    Ok(None)
 }
 
 struct ModuleInfo {
@@ -256,9 +264,9 @@ struct ProcessSnapshotModules<'a> {
 }
 
 impl Iterator for ProcessSnapshotModules<'_> {
-    type Item = ModuleInfo;
+    type Item = std::io::Result<ModuleInfo>;
 
-    fn next(&mut self) -> Option<ModuleInfo> {
+    fn next(&mut self) -> Option<std::io::Result<ModuleInfo>> {
         if self.iter_started {
             if unsafe { Module32Next(self.snapshot.handle(), &mut self.temp_entry) } == FALSE {
                 let last_error = std::io::Error::last_os_error();
@@ -266,28 +274,21 @@ impl Iterator for ProcessSnapshotModules<'_> {
                 return if last_error.raw_os_error().unwrap() as u32 == ERROR_NO_MORE_FILES {
                     None
                 } else {
-                    panic!(
-                        "Windows error during ProcessSnapshot iteration: {}",
-                        last_error
-                    )
+                    Some(Err(last_error))
                 };
             }
         } else {
             if unsafe { Module32First(self.snapshot.handle(), &mut self.temp_entry) } == FALSE {
-                let last_error = std::io::Error::last_os_error();
-                panic!(
-                    "Windows error during ProcessSnapshot iteration: {}",
-                    last_error
-                );
+                return Some(Err(std::io::Error::last_os_error()));
             }
             self.iter_started = true;
         }
 
         let cstr = unsafe { CStr::from_ptr(&self.temp_entry.szModule[0] as *const c_char) };
-        Some(ModuleInfo {
+        Some(Ok(ModuleInfo {
             name: cstr.to_string_lossy().into_owned(),
             base_address: self.temp_entry.modBaseAddr,
             size: self.temp_entry.modBaseSize as usize,
-        })
+        }))
     }
 }
