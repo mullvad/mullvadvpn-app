@@ -1,10 +1,4 @@
-use std::{
-    borrow::Cow,
-    ffi::CStr,
-    fmt::Write,
-    mem,
-    os::raw::c_char,
-};
+use std::{borrow::Cow, ffi::CStr, fmt::Write, io, mem, os::raw::c_char};
 use winapi::{
     ctypes::c_void,
     shared::{
@@ -32,19 +26,24 @@ pub fn enable() {
 
 fn exception_code_to_string(value: &EXCEPTION_RECORD) -> Option<Cow<'_, str>> {
     match value.ExceptionCode {
-        winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION | winapi::um::minwinbase::EXCEPTION_IN_PAGE_ERROR => {
+        winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION
+        | winapi::um::minwinbase::EXCEPTION_IN_PAGE_ERROR => {
             let operation_type = match value.ExceptionInformation[0] {
                 0 => "read from inaccessible address",
                 1 => "wrote to inaccessible address",
                 8 => "user-mode data execution prevention (DEP) violation",
                 _ => "unknown error",
             };
-            let name = if let winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION = value.ExceptionCode {
-                "EXCEPTION_ACCESS_VIOLATION"
-            } else {
-                "EXCEPTION_IN_PAGE_ERROR"
-            };
-            Some(Cow::Owned(format!("{} ({}, VA {:#x?})", name, operation_type, value.ExceptionInformation[1])))
+            let name =
+                if let winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION = value.ExceptionCode {
+                    "EXCEPTION_ACCESS_VIOLATION"
+                } else {
+                    "EXCEPTION_IN_PAGE_ERROR"
+                };
+            Some(Cow::Owned(format!(
+                "{} ({}, VA {:#x?})",
+                name, operation_type, value.ExceptionInformation[1]
+            )))
         }
         winapi::um::minwinbase::EXCEPTION_ARRAY_BOUNDS_EXCEEDED => {
             Some(Cow::Borrowed("EXCEPTION_ARRAY_BOUNDS_EXCEEDED"))
@@ -64,24 +63,36 @@ fn exception_code_to_string(value: &EXCEPTION_RECORD) -> Option<Cow<'_, str>> {
         winapi::um::minwinbase::EXCEPTION_FLT_INVALID_OPERATION => {
             Some(Cow::Borrowed("EXCEPTION_FLT_INVALID_OPERATION"))
         }
-        winapi::um::minwinbase::EXCEPTION_FLT_STACK_CHECK => Some(Cow::Borrowed("EXCEPTION_FLT_STACK_CHECK")),
-        winapi::um::minwinbase::EXCEPTION_FLT_UNDERFLOW => Some(Cow::Borrowed("EXCEPTION_FLT_UNDERFLOW")),
+        winapi::um::minwinbase::EXCEPTION_FLT_STACK_CHECK => {
+            Some(Cow::Borrowed("EXCEPTION_FLT_STACK_CHECK"))
+        }
+        winapi::um::minwinbase::EXCEPTION_FLT_UNDERFLOW => {
+            Some(Cow::Borrowed("EXCEPTION_FLT_UNDERFLOW"))
+        }
         winapi::um::minwinbase::EXCEPTION_ILLEGAL_INSTRUCTION => {
             Some(Cow::Borrowed("EXCEPTION_ILLEGAL_INSTRUCTION"))
         }
         winapi::um::minwinbase::EXCEPTION_INT_DIVIDE_BY_ZERO => {
             Some(Cow::Borrowed("EXCEPTION_INT_DIVIDE_BY_ZERO"))
         }
-        winapi::um::minwinbase::EXCEPTION_INT_OVERFLOW => Some(Cow::Borrowed("EXCEPTION_INT_OVERFLOW")),
+        winapi::um::minwinbase::EXCEPTION_INT_OVERFLOW => {
+            Some(Cow::Borrowed("EXCEPTION_INT_OVERFLOW"))
+        }
         winapi::um::minwinbase::EXCEPTION_INVALID_DISPOSITION => {
             Some(Cow::Borrowed("EXCEPTION_INVALID_DISPOSITION"))
         }
         winapi::um::minwinbase::EXCEPTION_NONCONTINUABLE_EXCEPTION => {
             Some(Cow::Borrowed("EXCEPTION_NONCONTINUABLE_EXCEPTION"))
         }
-        winapi::um::minwinbase::EXCEPTION_PRIV_INSTRUCTION => Some(Cow::Borrowed("EXCEPTION_PRIV_INSTRUCTION")),
-        winapi::um::minwinbase::EXCEPTION_SINGLE_STEP => Some(Cow::Borrowed("EXCEPTION_SINGLE_STEP")),
-        winapi::um::minwinbase::EXCEPTION_STACK_OVERFLOW => Some(Cow::Borrowed("EXCEPTION_STACK_OVERFLOW")),
+        winapi::um::minwinbase::EXCEPTION_PRIV_INSTRUCTION => {
+            Some(Cow::Borrowed("EXCEPTION_PRIV_INSTRUCTION"))
+        }
+        winapi::um::minwinbase::EXCEPTION_SINGLE_STEP => {
+            Some(Cow::Borrowed("EXCEPTION_SINGLE_STEP"))
+        }
+        winapi::um::minwinbase::EXCEPTION_STACK_OVERFLOW => {
+            Some(Cow::Borrowed("EXCEPTION_STACK_OVERFLOW"))
+        }
         _ => None,
     }
 }
@@ -195,9 +206,8 @@ fn get_context_info(context: &CONTEXT) -> String {
 }
 
 /// Return module info for the current process and given memory address.
-fn find_address_module(address: *mut c_void) -> std::io::Result<Option<ModuleInfo>> {
-    let snap =
-        ProcessSnapshot::new(TH32CS_SNAPMODULE, 0)?;
+fn find_address_module(address: *mut c_void) -> io::Result<Option<ModuleInfo>> {
+    let snap = ProcessSnapshot::new(TH32CS_SNAPMODULE, 0)?;
 
     for module in snap.modules() {
         let module = module?;
@@ -223,11 +233,11 @@ struct ProcessSnapshot {
 }
 
 impl ProcessSnapshot {
-    fn new(flags: DWORD, process_id: DWORD) -> std::io::Result<ProcessSnapshot> {
+    fn new(flags: DWORD, process_id: DWORD) -> io::Result<ProcessSnapshot> {
         let snap = unsafe { CreateToolhelp32Snapshot(flags, process_id) };
 
         if snap == INVALID_HANDLE_VALUE {
-            Err(std::io::Error::last_os_error())
+            Err(io::Error::last_os_error())
         } else {
             Ok(ProcessSnapshot { handle: snap })
         }
@@ -264,12 +274,12 @@ struct ProcessSnapshotModules<'a> {
 }
 
 impl Iterator for ProcessSnapshotModules<'_> {
-    type Item = std::io::Result<ModuleInfo>;
+    type Item = io::Result<ModuleInfo>;
 
-    fn next(&mut self) -> Option<std::io::Result<ModuleInfo>> {
+    fn next(&mut self) -> Option<io::Result<ModuleInfo>> {
         if self.iter_started {
             if unsafe { Module32Next(self.snapshot.handle(), &mut self.temp_entry) } == FALSE {
-                let last_error = std::io::Error::last_os_error();
+                let last_error = io::Error::last_os_error();
 
                 return if last_error.raw_os_error().unwrap() as u32 == ERROR_NO_MORE_FILES {
                     None
@@ -279,7 +289,7 @@ impl Iterator for ProcessSnapshotModules<'_> {
             }
         } else {
             if unsafe { Module32First(self.snapshot.handle(), &mut self.temp_entry) } == FALSE {
-                return Some(Err(std::io::Error::last_os_error()));
+                return Some(Err(io::Error::last_os_error()));
             }
             self.iter_started = true;
         }
