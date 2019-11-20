@@ -1,9 +1,4 @@
-use std::{
-    ffi::CStr,
-    fmt::Write,
-    mem,
-    os::raw::c_char,
-};
+use std::{ffi::CStr, fmt::Write, mem, os::raw::c_char};
 use winapi::{
     ctypes::c_void,
     shared::{
@@ -31,19 +26,24 @@ pub fn enable() {
 
 fn exception_code_to_string(value: &EXCEPTION_RECORD) -> Option<String> {
     match value.ExceptionCode {
-        winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION | winapi::um::minwinbase::EXCEPTION_IN_PAGE_ERROR => {
+        winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION
+        | winapi::um::minwinbase::EXCEPTION_IN_PAGE_ERROR => {
             let operation_type = match value.ExceptionInformation[0] {
                 0 => "read from inaccessible address",
                 1 => "wrote to inaccessible address",
                 8 => "user-mode data execution prevention (DEP) violation",
                 _ => "unknown error",
             };
-            let name = if let winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION = value.ExceptionCode {
-                "EXCEPTION_ACCESS_VIOLATION"
-            } else {
-                "EXCEPTION_IN_PAGE_ERROR"
-            };
-            Some(format!("{} ({}, VA {:#x?})", name, operation_type, value.ExceptionInformation[1]))
+            let name =
+                if let winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION = value.ExceptionCode {
+                    "EXCEPTION_ACCESS_VIOLATION"
+                } else {
+                    "EXCEPTION_IN_PAGE_ERROR"
+                };
+            Some(format!(
+                "{} ({}, VA {:#x?})",
+                name, operation_type, value.ExceptionInformation[1]
+            ))
         }
         winapi::um::minwinbase::EXCEPTION_ARRAY_BOUNDS_EXCEEDED => {
             Some("EXCEPTION_ARRAY_BOUNDS_EXCEEDED".to_string())
@@ -63,24 +63,34 @@ fn exception_code_to_string(value: &EXCEPTION_RECORD) -> Option<String> {
         winapi::um::minwinbase::EXCEPTION_FLT_INVALID_OPERATION => {
             Some("EXCEPTION_FLT_INVALID_OPERATION".to_string())
         }
-        winapi::um::minwinbase::EXCEPTION_FLT_STACK_CHECK => Some("EXCEPTION_FLT_STACK_CHECK".to_string()),
-        winapi::um::minwinbase::EXCEPTION_FLT_UNDERFLOW => Some("EXCEPTION_FLT_UNDERFLOW".to_string()),
+        winapi::um::minwinbase::EXCEPTION_FLT_STACK_CHECK => {
+            Some("EXCEPTION_FLT_STACK_CHECK".to_string())
+        }
+        winapi::um::minwinbase::EXCEPTION_FLT_UNDERFLOW => {
+            Some("EXCEPTION_FLT_UNDERFLOW".to_string())
+        }
         winapi::um::minwinbase::EXCEPTION_ILLEGAL_INSTRUCTION => {
             Some("EXCEPTION_ILLEGAL_INSTRUCTION".to_string())
         }
         winapi::um::minwinbase::EXCEPTION_INT_DIVIDE_BY_ZERO => {
             Some("EXCEPTION_INT_DIVIDE_BY_ZERO".to_string())
         }
-        winapi::um::minwinbase::EXCEPTION_INT_OVERFLOW => Some("EXCEPTION_INT_OVERFLOW".to_string()),
+        winapi::um::minwinbase::EXCEPTION_INT_OVERFLOW => {
+            Some("EXCEPTION_INT_OVERFLOW".to_string())
+        }
         winapi::um::minwinbase::EXCEPTION_INVALID_DISPOSITION => {
             Some("EXCEPTION_INVALID_DISPOSITION".to_string())
         }
         winapi::um::minwinbase::EXCEPTION_NONCONTINUABLE_EXCEPTION => {
             Some("EXCEPTION_NONCONTINUABLE_EXCEPTION".to_string())
         }
-        winapi::um::minwinbase::EXCEPTION_PRIV_INSTRUCTION => Some("EXCEPTION_PRIV_INSTRUCTION".to_string()),
+        winapi::um::minwinbase::EXCEPTION_PRIV_INSTRUCTION => {
+            Some("EXCEPTION_PRIV_INSTRUCTION".to_string())
+        }
         winapi::um::minwinbase::EXCEPTION_SINGLE_STEP => Some("EXCEPTION_SINGLE_STEP".to_string()),
-        winapi::um::minwinbase::EXCEPTION_STACK_OVERFLOW => Some("EXCEPTION_STACK_OVERFLOW".to_string()),
+        winapi::um::minwinbase::EXCEPTION_STACK_OVERFLOW => {
+            Some("EXCEPTION_STACK_OVERFLOW".to_string())
+        }
         _ => None,
     }
 }
@@ -194,7 +204,9 @@ fn get_context_info(context: &CONTEXT) -> String {
 }
 
 /// Return module info for the current process and given memory address.
-extern "system" fn find_address_module(address: *mut c_void) -> std::io::Result<Option<ModuleInfo>> {
+extern "system" fn find_address_module(
+    address: *mut c_void,
+) -> std::io::Result<Option<ModuleInfo>> {
     let snap =
         ProcessSnapshot::new(TH32CS_SNAPMODULE, 0).expect("could not create process snapshot");
 
