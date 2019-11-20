@@ -8,10 +8,20 @@ use std::{
     str::FromStr,
 };
 
+use super::RESOLV_CONF_PATH;
 use regex::Regex;
 use which::which;
 
 pub type Result<T> = std::result::Result<T, Error>;
+
+lazy_static::lazy_static! {
+    static ref RESOLVCONF_NAMESERVER_REGEX: Regex =
+        Regex::new(r"nameserver (.*)").expect("Failed to initialize resolvconf regex");
+    static ref SYSTEMD_RESOLVED_STATUS_LINK_LINE: Regex =
+        Regex::new(r"Link \d* \((.*)\)").expect("Failed to initialize resolvconf regex");
+    static ref SYSTEMD_RESOLVED_STATUS_DNS_SERVER_LINE: Regex =
+        Regex::new(r". DNS Servers: (.*)").expect("Failed to initialize resolvconf regex");
+}
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -29,6 +39,9 @@ pub enum Error {
 
     #[error(display = "Using 'resolvconf' to delete a record failed")]
     DeleteRecordError,
+
+    #[error(display = "Failed to verify if 'resolvconf' actually set ")]
+    VerificationError,
 }
 
 pub struct Resolvconf {
@@ -80,8 +93,12 @@ impl Resolvconf {
 
         self.record_names.insert(record_name);
 
-        if !Self::verify_systemd_resolved_output(interface, servers) {
+        if !(Self::verify_systemd_resolved_output(interface, servers)
+            || Self::verify_resolvconf(servers)
+            || self.verify_output_of_resolvconf(servers))
+        {
             log::error!("Couldn't verify DNS servers with systemd-resolve");
+            return Err(Error::VerificationError);
         }
 
         Ok(())
@@ -179,16 +196,16 @@ impl Resolvconf {
         let mut line_iter = output.lines().peekable();
         while let Some(line) = line_iter.next() {
             // extract current link from line like 'Link 2 (enp1s0)'
-            if line.starts_with("Link ") {
-                let re = Regex::new(r"Link \d* \((.*)\)").unwrap();
-                link = Self::get_first_match(line, &re);
-            };
+            let new_link = Self::get_first_match(line, &SYSTEMD_RESOLVED_STATUS_LINK_LINE);
+            if new_link.is_some() {
+                link = new_link;
+            }
+
             // extract first DNS server from line like '         DNS Servers: 192.168.122.1'
             if link.is_some() && line.trim_start().starts_with("DNS Servers") {
                 let link = link.unwrap();
 
-                let re = Regex::new(r". DNS Servers: (.*)").unwrap();
-                match Self::get_first_match(line, &re) {
+                match Self::get_first_match(line, &SYSTEMD_RESOLVED_STATUS_DNS_SERVER_LINE) {
                     Some(ip_str) => match IpAddr::from_str(ip_str) {
                         Ok(ip_addr) => {
                             let entry = link_map.entry(link).or_insert(BTreeSet::new());
@@ -227,6 +244,58 @@ impl Resolvconf {
         re.captures(line)
             .and_then(|cap| cap.get(1))
             .map(|cap_match| cap_match.as_str())
+    }
+
+    fn verify_output_of_resolvconf(&self, expected_dns_servers: &[IpAddr]) -> bool {
+        let resolvconf_proc = match Command::new(&self.resolvconf)
+            .arg("-l")
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .spawn()
+        {
+            Ok(child_process) => child_process,
+            Err(e) => {
+                log::error!("Failed to spawn systemd-resolevd child process: {}", e);
+                return false;
+            }
+        };
+
+        match resolvconf_proc.wait_with_output() {
+            Ok(output) => {
+                let stdout = String::from_utf8_lossy(&output.stdout);
+                let set_dns_servers = Self::parse_resolvconf(&stdout);
+                expected_dns_servers
+                    .iter()
+                    .all(|server| set_dns_servers.contains(server))
+            }
+            Err(e) => {
+                log::error!("'resolvconf -l' return a non-zero exit code: {}", e);
+                false
+            }
+        }
+    }
+
+    fn verify_resolvconf(expected_dns_servers: &[IpAddr]) -> bool {
+        let buf = match fs::read(RESOLV_CONF_PATH) {
+            Ok(f) => f,
+            Err(e) => {
+                log::error!("Failed to read {} - {}", RESOLV_CONF_PATH, e);
+                return false;
+            }
+        };
+        let resolvconf_contents = String::from_utf8_lossy(&buf);
+        let set_dns_servers = Self::parse_resolvconf(&resolvconf_contents);
+        expected_dns_servers
+            .iter()
+            .all(|server| set_dns_servers.contains(server))
+    }
+
+    fn parse_resolvconf(output: &str) -> BTreeSet<IpAddr> {
+        output
+            .lines()
+            .filter_map(|line| Self::get_first_match(line, &RESOLVCONF_NAMESERVER_REGEX))
+            .filter_map(|ip_str| IpAddr::from_str(ip_str).ok())
+            .collect()
     }
 }
 
