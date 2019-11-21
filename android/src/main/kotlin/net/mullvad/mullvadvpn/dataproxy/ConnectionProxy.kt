@@ -12,9 +12,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.MainActivity
 import net.mullvad.mullvadvpn.MullvadDaemon
-import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.EventNotifier
+import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 

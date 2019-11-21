@@ -2,8 +2,8 @@ package net.mullvad.mullvadvpn
 
 import android.view.View
 import android.widget.Button
-import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class ConnectActionButton(val parentView: View) {
     private val button: Button = parentView.findViewById(R.id.action_button)

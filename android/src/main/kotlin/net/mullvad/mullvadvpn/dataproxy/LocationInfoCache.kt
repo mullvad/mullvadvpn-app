@@ -7,12 +7,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.MullvadDaemon
-import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
+import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class LocationInfoCache(
     val daemon: Deferred<MullvadDaemon>,

@@ -10,9 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class SwitchLocationButton(val parentView: View, val resources: Resources) {
     private val button: Button = parentView.findViewById(R.id.switch_location)

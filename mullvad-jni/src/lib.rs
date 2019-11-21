@@ -35,9 +35,6 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "java/net/InetSocketAddress",
     "java/util/ArrayList",
     "net/mullvad/mullvadvpn/model/AccountData",
-    "net/mullvad/mullvadvpn/model/ActionAfterDisconnect$Block",
-    "net/mullvad/mullvadvpn/model/ActionAfterDisconnect$Nothing",
-    "net/mullvad/mullvadvpn/model/ActionAfterDisconnect$Reconnect",
     "net/mullvad/mullvadvpn/model/BlockReason$AuthFailed",
     "net/mullvad/mullvadvpn/model/BlockReason$Ipv6Unavailable",
     "net/mullvad/mullvadvpn/model/BlockReason$SetFirewallPolicyError",
@@ -88,6 +85,9 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/TunnelState$Disconnecting",
     "net/mullvad/mullvadvpn/MullvadDaemon",
     "net/mullvad/mullvadvpn/MullvadVpnService",
+    "net/mullvad/talpid/tunnel/ActionAfterDisconnect$Block",
+    "net/mullvad/talpid/tunnel/ActionAfterDisconnect$Nothing",
+    "net/mullvad/talpid/tunnel/ActionAfterDisconnect$Reconnect",
 ];
 
 lazy_static! {

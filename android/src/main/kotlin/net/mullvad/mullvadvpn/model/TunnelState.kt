@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.model
 
+import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+
 sealed class TunnelState() {
     class Disconnected() : TunnelState()
     class Connecting(val endpoint: TunnelEndpoint?, val location: GeoIpLocation?) : TunnelState()

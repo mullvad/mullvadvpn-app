@@ -644,7 +644,7 @@ impl<'env> IntoJava<'env> for ActionAfterDisconnect {
             ActionAfterDisconnect::Reconnect => "Reconnect",
         };
         let class_name = format!(
-            "net/mullvad/mullvadvpn/model/ActionAfterDisconnect${}",
+            "net/mullvad/talpid/tunnel/ActionAfterDisconnect${}",
             variant
         );
         let class = get_class(&class_name);
@@ -758,7 +758,7 @@ impl<'env> IntoJava<'env> for TunnelState {
                 let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Disconnecting");
                 let after_disconnect = env.auto_local(action_after_disconnect.into_java(env));
                 let parameters = [JValue::Object(after_disconnect.as_obj())];
-                let signature = "(Lnet/mullvad/mullvadvpn/model/ActionAfterDisconnect;)V";
+                let signature = "(Lnet/mullvad/talpid/tunnel/ActionAfterDisconnect;)V";
 
                 env.new_object(&class, signature, &parameters)
             }

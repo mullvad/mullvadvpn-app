@@ -3,8 +3,8 @@ package net.mullvad.mullvadvpn
 import android.content.res.Resources
 import android.view.View
 import android.widget.TextView
-import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class ConnectionStatus(val parentView: View, val resources: Resources) {
     private val spinner: View = parentView.findViewById(R.id.connecting_spinner)
