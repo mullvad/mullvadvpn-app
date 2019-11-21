@@ -165,26 +165,7 @@ where
 
 wrap_jnix_into_java!(AccountData);
 wrap_jnix_into_java!(TunConfig);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for TransportProtocol
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class_name = match self {
-            TransportProtocol::Tcp => "net/mullvad/talpid/net/TransportProtocol$Tcp",
-            TransportProtocol::Udp => "net/mullvad/talpid/net/TransportProtocol$Udp",
-        };
-        let class = env.get_class(class_name);
-
-        env.auto_local(
-            env.new_object(&class, "()V", &[])
-                .expect("Failed to create TransportProtocol sub-class variant Java object"),
-        )
-    }
-}
+wrap_jnix_into_java!(TransportProtocol);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for Endpoint
 where
