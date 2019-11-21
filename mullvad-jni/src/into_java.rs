@@ -29,20 +29,21 @@ use talpid_types::{
     tunnel::{ActionAfterDisconnect, BlockReason, ParameterGenerationError},
 };
 
-pub trait IntoJava<'env> {
+pub trait IntoJava<'borrow, 'env: 'borrow> {
     type JavaType;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType;
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType;
 }
 
-impl<'env, T> IntoJava<'env> for Option<T>
+impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Option<T>
 where
-    T: IntoJava<'env>,
+    'env: 'borrow,
+    T: IntoJava<'borrow, 'env>,
     T::JavaType: From<JObject<'env>>,
 {
     type JavaType = T::JavaType;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         match self {
             Some(data) => data.into_java(env),
             None => T::JavaType::from(JObject::null()),
@@ -50,22 +51,26 @@ where
     }
 }
 
-impl<'env> IntoJava<'env> for String {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for String
+where
+    'env: 'borrow,
+{
     type JavaType = JString<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         env.new_string(&self).expect("Failed to create Java String")
     }
 }
 
-impl<'env, T> IntoJava<'env> for Vec<T>
+impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Vec<T>
 where
-    T: IntoJava<'env>,
+    'env: 'borrow,
+    T: IntoJava<'borrow, 'env>,
     JObject<'env>: From<T::JavaType>,
 {
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("java/util/ArrayList");
         let initial_capacity = self.len();
         let parameters = [JValue::Int(initial_capacity as jint)];
@@ -88,10 +93,13 @@ where
     }
 }
 
-impl<'array, 'env> IntoJava<'env> for &'array [u8] {
+impl<'array, 'borrow, 'env> IntoJava<'borrow, 'env> for &'array [u8]
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let size = self.len();
         let array = env
             .new_byte_array(size as jsize)
@@ -146,26 +154,35 @@ fn ipvx_addr_into_java<'env>(original_octets: &[u8], env: &JnixEnv<'env>) -> JOb
     }
 }
 
-impl<'env> IntoJava<'env> for Ipv4Addr {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for Ipv4Addr
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         ipvx_addr_into_java(self.octets().as_ref(), env)
     }
 }
 
-impl<'env> IntoJava<'env> for Ipv6Addr {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for Ipv6Addr
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         ipvx_addr_into_java(self.octets().as_ref(), env)
     }
 }
 
-impl<'env> IntoJava<'env> for IpAddr {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for IpAddr
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         match self {
             IpAddr::V4(address) => address.into_java(env),
             IpAddr::V6(address) => address.into_java(env),
@@ -173,10 +190,13 @@ impl<'env> IntoJava<'env> for IpAddr {
     }
 }
 
-impl<'env> IntoJava<'env> for SocketAddr {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for SocketAddr
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("java/net/InetSocketAddress");
         let ip_address = env.auto_local(self.ip().into_java(env));
         let port = self.port() as jint;
@@ -187,10 +207,13 @@ impl<'env> IntoJava<'env> for SocketAddr {
     }
 }
 
-impl<'env> IntoJava<'env> for IpNetwork {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for IpNetwork
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/talpid/tun_provider/InetNetwork");
         let address = env.auto_local(self.ip().into_java(env));
         let prefix_length = self.prefix() as jshort;
@@ -204,10 +227,13 @@ impl<'env> IntoJava<'env> for IpNetwork {
     }
 }
 
-impl<'env> IntoJava<'env> for PublicKey {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for PublicKey
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/mullvadvpn/model/PublicKey");
         let key = env.auto_local(self.key.as_bytes().into_java(env));
         let date_created = env.auto_local(*self.created.to_string().into_java(env));
@@ -221,10 +247,13 @@ impl<'env> IntoJava<'env> for PublicKey {
     }
 }
 
-impl<'env> IntoJava<'env> for AppVersionInfo {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for AppVersionInfo
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/mullvadvpn/model/AppVersionInfo");
         let current_is_supported = self.current_is_supported as jboolean;
         let current_is_outdated = self.current_is_outdated as jboolean;
@@ -246,10 +275,13 @@ impl<'env> IntoJava<'env> for AppVersionInfo {
     }
 }
 
-impl<'env> IntoJava<'env> for AccountData {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for AccountData
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/mullvadvpn/model/AccountData");
         let account_expiry = env.auto_local(JObject::from(self.expiry.to_string().into_java(env)));
         let parameters = [JValue::Object(account_expiry.as_obj())];
@@ -259,10 +291,13 @@ impl<'env> IntoJava<'env> for AccountData {
     }
 }
 
-impl<'env> IntoJava<'env> for TunConfig {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for TunConfig
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/talpid/tun_provider/TunConfig");
         let addresses = env.auto_local(self.addresses.into_java(env));
         let dns_servers = env.auto_local(self.dns_servers.into_java(env));
@@ -284,10 +319,13 @@ impl<'env> IntoJava<'env> for TunConfig {
     }
 }
 
-impl<'env> IntoJava<'env> for TransportProtocol {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for TransportProtocol
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class_name = match self {
             TransportProtocol::Tcp => "net/mullvad/talpid/net/TransportProtocol$Tcp",
             TransportProtocol::Udp => "net/mullvad/talpid/net/TransportProtocol$Udp",
@@ -299,10 +337,13 @@ impl<'env> IntoJava<'env> for TransportProtocol {
     }
 }
 
-impl<'env> IntoJava<'env> for Endpoint {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for Endpoint
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/talpid/net/Endpoint");
         let address = env.auto_local(self.address.into_java(env));
         let protocol = env.auto_local(self.protocol.into_java(env));
@@ -320,10 +361,13 @@ impl<'env> IntoJava<'env> for Endpoint {
     }
 }
 
-impl<'env> IntoJava<'env> for TunnelEndpoint {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for TunnelEndpoint
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/talpid/net/TunnelEndpoint");
         let endpoint = env.auto_local(self.endpoint.into_java(env));
         let parameters = [JValue::Object(endpoint.as_obj())];
@@ -333,10 +377,13 @@ impl<'env> IntoJava<'env> for TunnelEndpoint {
     }
 }
 
-impl<'env> IntoJava<'env> for GeoIpLocation {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for GeoIpLocation
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/mullvadvpn/model/GeoIpLocation");
         let ipv4 = env.auto_local(self.ipv4.into_java(env));
         let ipv6 = env.auto_local(self.ipv6.into_java(env));
@@ -360,10 +407,13 @@ impl<'env> IntoJava<'env> for GeoIpLocation {
     }
 }
 
-impl<'env> IntoJava<'env> for RelayList {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelayList
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/mullvadvpn/model/RelayList");
         let relay_countries = env.auto_local(self.countries.into_java(env));
         let parameters = [JValue::Object(relay_countries.as_obj())];
@@ -373,10 +423,13 @@ impl<'env> IntoJava<'env> for RelayList {
     }
 }
 
-impl<'env> IntoJava<'env> for RelayListCountry {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelayListCountry
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/mullvadvpn/model/RelayListCountry");
         let name = env.auto_local(JObject::from(self.name.into_java(env)));
         let code = env.auto_local(JObject::from(self.code.into_java(env)));
@@ -396,10 +449,13 @@ impl<'env> IntoJava<'env> for RelayListCountry {
     }
 }
 
-impl<'env> IntoJava<'env> for RelayListCity {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelayListCity
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/mullvadvpn/model/RelayListCity");
         let name = env.auto_local(JObject::from(self.name.into_java(env)));
         let code = env.auto_local(JObject::from(self.code.into_java(env)));
@@ -419,10 +475,13 @@ impl<'env> IntoJava<'env> for RelayListCity {
     }
 }
 
-impl<'env> IntoJava<'env> for Relay {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for Relay
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/mullvadvpn/model/Relay");
         let hostname = env.auto_local(JObject::from(self.hostname.into_java(env)));
         let has_wireguard_tunnels = (!self.tunnels.wireguard.is_empty()) as jboolean;
@@ -437,14 +496,15 @@ impl<'env> IntoJava<'env> for Relay {
     }
 }
 
-impl<'env, T> IntoJava<'env> for Constraint<T>
+impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Constraint<T>
 where
-    T: Clone + Eq + Debug + IntoJava<'env>,
+    'env: 'borrow,
+    T: Clone + Eq + Debug + IntoJava<'borrow, 'env>,
     JObject<'env>: From<T::JavaType>,
 {
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         match self {
             Constraint::Any => {
                 let class = env.get_class("net/mullvad/mullvadvpn/model/Constraint$Any");
@@ -464,10 +524,13 @@ where
     }
 }
 
-impl<'env> IntoJava<'env> for LocationConstraint {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for LocationConstraint
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         match self {
             LocationConstraint::Country(country_code) => {
                 let class =
@@ -517,10 +580,13 @@ impl<'env> IntoJava<'env> for LocationConstraint {
     }
 }
 
-impl<'env> IntoJava<'env> for RelaySettings {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelaySettings
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         match self {
             RelaySettings::CustomTunnelEndpoint(endpoint) => endpoint.into_java(env),
             RelaySettings::Normal(relay_constraints) => relay_constraints.into_java(env),
@@ -528,10 +594,13 @@ impl<'env> IntoJava<'env> for RelaySettings {
     }
 }
 
-impl<'env> IntoJava<'env> for CustomTunnelEndpoint {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for CustomTunnelEndpoint
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class =
             env.get_class("net/mullvad/mullvadvpn/model/RelaySettings$CustomTunnelEndpoint");
 
@@ -540,10 +609,13 @@ impl<'env> IntoJava<'env> for CustomTunnelEndpoint {
     }
 }
 
-impl<'env> IntoJava<'env> for KeygenEvent {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for KeygenEvent
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         match self {
             KeygenEvent::NewKey(public_key) => {
                 let class = env.get_class("net/mullvad/mullvadvpn/model/KeygenEvent$NewKey");
@@ -597,10 +669,13 @@ impl<'env> IntoJava<'env> for KeygenEvent {
     }
 }
 
-impl<'env> IntoJava<'env> for RelayConstraints {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelayConstraints
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/mullvadvpn/model/RelaySettings$RelayConstraints");
         let location = env.auto_local(self.location.into_java(env));
         let parameters = [JValue::Object(location.as_obj())];
@@ -614,10 +689,13 @@ impl<'env> IntoJava<'env> for RelayConstraints {
     }
 }
 
-impl<'env> IntoJava<'env> for Settings {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for Settings
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class = env.get_class("net/mullvad/mullvadvpn/model/Settings");
         let account_token = env.auto_local(JObject::from(self.get_account_token().into_java(env)));
         let relay_settings = env.auto_local(self.get_relay_settings().into_java(env));
@@ -635,10 +713,13 @@ impl<'env> IntoJava<'env> for Settings {
     }
 }
 
-impl<'env> IntoJava<'env> for ActionAfterDisconnect {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for ActionAfterDisconnect
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let variant = match self {
             ActionAfterDisconnect::Nothing => "Nothing",
             ActionAfterDisconnect::Block => "Block",
@@ -655,10 +736,13 @@ impl<'env> IntoJava<'env> for ActionAfterDisconnect {
     }
 }
 
-impl<'env> IntoJava<'env> for BlockReason {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for BlockReason
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let variant = match self {
             BlockReason::AuthFailed(reason) => {
                 let class = env.get_class("net/mullvad/talpid/tunnel/BlockReason$AuthFailed");
@@ -697,10 +781,13 @@ impl<'env> IntoJava<'env> for BlockReason {
     }
 }
 
-impl<'env> IntoJava<'env> for ParameterGenerationError {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for ParameterGenerationError
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         let class_variant = match self {
             ParameterGenerationError::NoMatchingRelay => "NoMatchingRelay",
             ParameterGenerationError::NoMatchingBridgeRelay => "NoMatchingBridgeRelay ",
@@ -719,10 +806,13 @@ impl<'env> IntoJava<'env> for ParameterGenerationError {
     }
 }
 
-impl<'env> IntoJava<'env> for TunnelState {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for TunnelState
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         match self {
             TunnelState::Disconnected => {
                 let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Disconnected");
@@ -776,10 +866,13 @@ impl<'env> IntoJava<'env> for TunnelState {
     }
 }
 
-impl<'env> IntoJava<'env> for Result<AccountData, daemon_interface::Error> {
+impl<'borrow, 'env> IntoJava<'borrow, 'env> for Result<AccountData, daemon_interface::Error>
+where
+    'env: 'borrow,
+{
     type JavaType = JObject<'env>;
 
-    fn into_java(self, env: &JnixEnv<'env>) -> Self::JavaType {
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
         match self {
             Ok(data) => {
                 let class = env.get_class("net/mullvad/mullvadvpn/model/GetAccountDataResult$Ok");
