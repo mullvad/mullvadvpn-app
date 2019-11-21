@@ -3,9 +3,9 @@ package net.mullvad.mullvadvpn
 import android.content.Context
 import android.view.View
 import android.widget.TextView
-import net.mullvad.mullvadvpn.model.Endpoint
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.talpid.net.Endpoint
 import net.mullvad.talpid.net.TransportProtocol
 
 class LocationInfo(val parentView: View, val context: Context) {

@@ -301,7 +301,7 @@ impl<'env> IntoJava<'env> for Endpoint {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let class = get_class("net/mullvad/mullvadvpn/model/Endpoint");
+        let class = get_class("net/mullvad/talpid/net/Endpoint");
         let address = env.auto_local(self.address.into_java(env));
         let protocol = env.auto_local(self.protocol.into_java(env));
         let parameters = [
@@ -326,12 +326,8 @@ impl<'env> IntoJava<'env> for TunnelEndpoint {
         let endpoint = env.auto_local(self.endpoint.into_java(env));
         let parameters = [JValue::Object(endpoint.as_obj())];
 
-        env.new_object(
-            &class,
-            "(Lnet/mullvad/mullvadvpn/model/Endpoint;)V",
-            &parameters,
-        )
-        .expect("Failed to create TunnelEndpoint sub-class variant Java object")
+        env.new_object(&class, "(Lnet/mullvad/talpid/net/Endpoint;)V", &parameters)
+            .expect("Failed to create TunnelEndpoint sub-class variant Java object")
     }
 }
 

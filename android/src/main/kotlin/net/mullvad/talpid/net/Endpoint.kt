@@ -1,6 +1,5 @@
-package net.mullvad.mullvadvpn.model
+package net.mullvad.talpid.net
 
 import java.net.InetSocketAddress
-import net.mullvad.talpid.net.TransportProtocol
 
 data class Endpoint(val address: InetSocketAddress, val protocol: TransportProtocol)
