@@ -29,6 +29,8 @@ impl RelayList {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayListCountry {
     pub name: String,
     pub code: CountryCode,
