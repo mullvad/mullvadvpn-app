@@ -12,10 +12,13 @@ use crate::{
     daemon_interface::DaemonInterface, from_java::FromJava, into_java::IntoJava,
     jni_event_listener::JniEventListener, vpn_service_tun_provider::VpnServiceTunProvider,
 };
-use jnix::jni::{
-    objects::{GlobalRef, JObject, JString, JValue},
-    sys::{jboolean, JNI_FALSE, JNI_TRUE},
-    JNIEnv,
+use jnix::{
+    jni::{
+        objects::{GlobalRef, JObject, JString, JValue},
+        sys::{jboolean, JNI_FALSE, JNI_TRUE},
+        JNIEnv,
+    },
+    JnixEnv,
 };
 use lazy_static::lazy_static;
 use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
@@ -69,6 +72,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
     this: JObject,
     vpnService: JObject,
 ) {
+    let env = JnixEnv::from(env);
+
     match *LOG_INIT_RESULT {
         Ok(ref log_dir) => {
             LOAD_CLASSES.call_once(|| load_classes(&env));
@@ -95,7 +100,7 @@ fn start_logging() -> Result<PathBuf, Error> {
     Ok(log_dir)
 }
 
-fn load_classes(env: &JNIEnv) {
+fn load_classes(env: &JnixEnv) {
     let mut classes = CLASSES.write();
 
     for class in classes::CLASSES {
@@ -103,7 +108,7 @@ fn load_classes(env: &JNIEnv) {
     }
 }
 
-fn load_class_reference(env: &JNIEnv, name: &str) -> GlobalRef {
+fn load_class_reference(env: &JnixEnv, name: &str) -> GlobalRef {
     let class = match env.find_class(name) {
         Ok(class) => class,
         Err(_) => panic!("Failed to find {} Java class", name),
@@ -114,7 +119,7 @@ fn load_class_reference(env: &JNIEnv, name: &str) -> GlobalRef {
 }
 
 fn initialize(
-    env: &JNIEnv,
+    env: &JnixEnv,
     this: &JObject,
     vpn_service: &JObject,
     log_dir: PathBuf,
@@ -129,7 +134,7 @@ fn initialize(
 }
 
 fn spawn_daemon(
-    env: &JNIEnv,
+    env: &JnixEnv,
     this: &JObject,
     tun_provider: VpnServiceTunProvider,
     log_dir: PathBuf,
@@ -210,6 +215,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWiregua
     env: JNIEnv<'env>,
     _: JObject,
 ) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
     match DAEMON_INTERFACE.generate_wireguard_key() {
         Ok(keygen_event) => keygen_event.into_java(&env),
         Err(error) => {
@@ -253,6 +260,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
     _: JObject<'this>,
     accountToken: JString,
 ) -> JObject<'env> {
+    let env = JnixEnv::from(env);
     let account = String::from_java(&env, accountToken);
     let result = DAEMON_INTERFACE.get_account_data(account);
 
@@ -272,6 +280,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWwwAuthToken
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JString<'env> {
+    let env = JnixEnv::from(env);
+
     match DAEMON_INTERFACE.get_www_auth_token() {
         Ok(token) => token.into_java(&env),
         Err(err) => {
@@ -290,6 +300,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentLocat
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
     match DAEMON_INTERFACE.get_current_location() {
         Ok(location) => location.into_java(&env),
         Err(error) => {
@@ -308,6 +320,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentVersi
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JString<'env> {
+    let env = JnixEnv::from(env);
+
     match DAEMON_INTERFACE.get_current_version() {
         Ok(location) => location.into_java(&env),
         Err(error) => {
@@ -326,6 +340,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getRelayLocatio
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
     match DAEMON_INTERFACE.get_relay_locations() {
         Ok(relay_list) => relay_list.into_java(&env),
         Err(error) => {
@@ -344,6 +360,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getSettings<'en
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
     match DAEMON_INTERFACE.get_settings() {
         Ok(settings) => settings.into_java(&env),
         Err(error) => {
@@ -359,6 +377,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getState<'env, 
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
     match DAEMON_INTERFACE.get_state() {
         Ok(state) => state.into_java(&env),
         Err(error) => {
@@ -374,6 +394,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getVersionInfo<
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
     match DAEMON_INTERFACE.get_version_info() {
         Ok(version_info) => version_info.into_java(&env),
         Err(error) => {
@@ -392,6 +414,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
     match DAEMON_INTERFACE.get_wireguard_key() {
         Ok(key) => key.into_java(&env),
         Err(error) => {
@@ -411,6 +435,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
     _: JObject,
     accountToken: JString,
 ) {
+    let env = JnixEnv::from(env);
     let account = <Option<String> as FromJava>::from_java(&env, accountToken);
 
     if let Err(error) = DAEMON_INTERFACE.set_account(account) {
@@ -436,6 +461,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_updateRelaySett
     _: JObject,
     relaySettingsUpdate: JObject,
 ) {
+    let env = JnixEnv::from(env);
     let update = FromJava::from_java(&env, relaySettingsUpdate);
 
     if let Err(error) = DAEMON_INTERFACE.update_relay_settings(update) {
@@ -453,6 +479,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     _: JObject,
     outputPath: JString,
 ) -> jboolean {
+    let env = JnixEnv::from(env);
     let output_path_string = String::from_java(&env, outputPath);
     let output_path = Path::new(&output_path_string);
 
@@ -477,6 +504,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     userMessage: JString,
     outputPath: JString,
 ) -> jboolean {
+    let env = JnixEnv::from(env);
     let user_email = String::from_java(&env, userEmail);
     let user_message = String::from_java(&env, userMessage);
     let output_path_string = String::from_java(&env, outputPath);
