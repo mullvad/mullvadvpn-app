@@ -88,6 +88,7 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/talpid/tunnel/ParameterGenerationError$NoMatchingBridgeRelay",
     "net/mullvad/talpid/tunnel/ParameterGenerationError$NoWireguardKey",
     "net/mullvad/talpid/tunnel/ParameterGenerationError$CustomTunnelHostResultionError",
+    "net/mullvad/talpid/TalpidVpnService",
 ];
 
 lazy_static! {

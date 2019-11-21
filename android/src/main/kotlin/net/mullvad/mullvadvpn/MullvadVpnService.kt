@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn
 
 import android.content.Intent
-import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
 import kotlinx.coroutines.CompletableDeferred
@@ -11,9 +10,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
-import net.mullvad.talpid.tun_provider.TunConfig
+import net.mullvad.talpid.TalpidVpnService
 
-class MullvadVpnService : VpnService() {
+class MullvadVpnService : TalpidVpnService() {
     private val binder = LocalBinder()
     private val created = CompletableDeferred<Unit>()
 
@@ -48,32 +47,6 @@ class MullvadVpnService : VpnService() {
         tearDown()
         daemon.cancel()
         created.cancel()
-    }
-
-    fun createTun(config: TunConfig): Int {
-        val builder = Builder().apply {
-            for (address in config.addresses) {
-                addAddress(address, 32)
-            }
-
-            for (dnsServer in config.dnsServers) {
-                addDnsServer(dnsServer)
-            }
-
-            for (route in config.routes) {
-                addRoute(route.address, route.prefixLength.toInt())
-            }
-
-            setMtu(config.mtu)
-        }
-
-        val vpnInterface = builder.establish()
-
-        return vpnInterface.detachFd()
-    }
-
-    fun bypass(socket: Int): Boolean {
-        return protect(socket)
     }
 
     inner class LocalBinder : Binder() {
