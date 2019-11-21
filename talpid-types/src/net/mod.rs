@@ -106,6 +106,8 @@ impl fmt::Display for TunnelEndpoint {
 
 /// Represents a network layer IP address together with the transport layer protocol and port.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub struct Endpoint {
     /// The socket address for the endpoint
     pub address: SocketAddr,
