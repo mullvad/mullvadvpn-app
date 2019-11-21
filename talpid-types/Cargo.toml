@@ -13,3 +13,6 @@ base64 = "0.10"
 x25519-dalek = { version = "0.5", features = [ "std", "u64_backend" ], default-features = false }
 rand = "0.7"
 err-derive = "0.2.1"
+
+[target.'cfg(target_os = "android")'.dependencies]
+jnix = { version = "0.1", features = ["derive"] }
