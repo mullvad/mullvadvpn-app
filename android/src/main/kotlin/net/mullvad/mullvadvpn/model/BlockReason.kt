@@ -10,10 +10,3 @@ sealed class BlockReason {
     class IsOffline : BlockReason()
     class TapAdapterProblem : BlockReason()
 }
-
-sealed class ParameterGenerationError {
-    class NoMatchingRelay : ParameterGenerationError()
-    class NoMatchingBridgeRelay : ParameterGenerationError()
-    class NoWireguardKey : ParameterGenerationError()
-    class CustomTunnelHostResultionError : ParameterGenerationError()
-}
