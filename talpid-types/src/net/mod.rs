@@ -81,11 +81,15 @@ impl fmt::Display for TunnelType {
 /// A tunnel endpoint is broadcast during the connecting and connected states of the tunnel state
 /// machine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub struct TunnelEndpoint {
     #[serde(flatten)]
     pub endpoint: Endpoint,
     /// Type of the tunnel
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_type: TunnelType,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub proxy: Option<proxy::ProxyEndpoint>,
 }
 
