@@ -55,8 +55,8 @@ private:
 
 	std::shared_ptr<common::logging::ILogSink> m_logSink;
 
-	DefaultRouteMonitor m_routeMonitorV4;
-	DefaultRouteMonitor m_routeMonitorV6;
+	std::unique_ptr<DefaultRouteMonitor> m_routeMonitorV4;
+	std::unique_ptr<DefaultRouteMonitor> m_routeMonitorV6;
 
 	// These are the exact details derived from the route specification (`Route`).
 	// They are used when registering and deleting a route in the system.

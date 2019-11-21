@@ -198,23 +198,32 @@ std::wstring FormatNetwork(const Network &network)
 
 RouteManager::RouteManager(std::shared_ptr<common::logging::ILogSink> logSink)
 	: m_logSink(logSink)
-	, m_routeMonitorV4
-	(
-		AF_INET,
+	, m_routeMonitorV4(std::make_unique<DefaultRouteMonitor>(
+		static_cast<ADDRESS_FAMILY>(AF_INET),
 		std::bind(&RouteManager::defaultRouteChanged, this, static_cast<ADDRESS_FAMILY>(AF_INET), _1, _2),
 		logSink
-	)
-	, m_routeMonitorV6
-	(
-		AF_INET6,
+	))
+	, m_routeMonitorV6(std::make_unique<DefaultRouteMonitor>(
+		static_cast<ADDRESS_FAMILY>(AF_INET6),
 		std::bind(&RouteManager::defaultRouteChanged, this, static_cast<ADDRESS_FAMILY>(AF_INET6), _1, _2),
 		logSink
-	)
+	))
 {
 }
 
 RouteManager::~RouteManager()
 {
+	//
+	// Stop callbacks that are triggered by events in Windows from coming in.
+	//
+
+	m_routeMonitorV4.reset();
+	m_routeMonitorV6.reset();
+
+	//
+	// Delete all routes owned by us.
+	//
+
 	for (const auto &record : m_routes)
 	{
 		try
