@@ -48,7 +48,9 @@ private:
 	Callback m_callback;
 	std::shared_ptr<common::logging::ILogSink> m_logSink;
 
-	common::BurstGuard m_evaluateRoutesGuard;
+	// This can't be a plain member variable.
+	// We need to be able to delete it explicitly in order to have a controlled tear down.
+	std::unique_ptr<common::BurstGuard> m_evaluateRoutesGuard;
 
 	std::optional<InterfaceAndGateway> m_bestRoute;
 

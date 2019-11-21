@@ -23,8 +23,11 @@ DefaultRouteMonitor::DefaultRouteMonitor
 	: m_family(family)
 	, m_callback(callback)
 	, m_logSink(logSink)
-	, m_evaluateRoutesGuard(std::bind(&DefaultRouteMonitor::evaluateRoutes, this),
-		POINT_TWO_SECOND_BURST, TWO_SECOND_INTERFERENCE)
+	, m_evaluateRoutesGuard(std::make_unique<common::BurstGuard>(
+		std::bind(&DefaultRouteMonitor::evaluateRoutes, this),
+		POINT_TWO_SECOND_BURST,
+		TWO_SECOND_INTERFERENCE
+	))
 {
 	try
 	{
@@ -54,8 +57,19 @@ DefaultRouteMonitor::DefaultRouteMonitor
 
 DefaultRouteMonitor::~DefaultRouteMonitor()
 {
+	//
+	// Cancel notifications to stop triggering the BurstGuard.
+	//
+
 	CancelMibChangeNotify2(m_interfaceNotificationHandle);
 	CancelMibChangeNotify2(m_routeNotificationHandle);
+
+	//
+	// Controlled destruction of BurstGuard to prevent it from calling here
+	// after other member variables have been destructed.
+	//
+
+	m_evaluateRoutesGuard.reset();
 }
 
 //static
@@ -76,7 +90,7 @@ void NETIOAPI_API_ DefaultRouteMonitor::RouteChangeCallback
 		return;
 	}
 
-	reinterpret_cast<DefaultRouteMonitor *>(context)->m_evaluateRoutesGuard.trigger();
+	reinterpret_cast<DefaultRouteMonitor *>(context)->m_evaluateRoutesGuard->trigger();
 }
 
 //static
@@ -87,7 +101,7 @@ void NETIOAPI_API_ DefaultRouteMonitor::InterfaceChangeCallback
 	MIB_NOTIFICATION_TYPE
 )
 {
-	reinterpret_cast<DefaultRouteMonitor *>(context)->m_evaluateRoutesGuard.trigger();
+	reinterpret_cast<DefaultRouteMonitor *>(context)->m_evaluateRoutesGuard->trigger();
 }
 
 void DefaultRouteMonitor::evaluateRoutes()
