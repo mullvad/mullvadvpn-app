@@ -2,7 +2,7 @@ use crate::daemon_interface;
 use jnix::{
     jni::{
         objects::{AutoLocal, JList, JObject, JValue},
-        sys::{jboolean, jint},
+        sys::jint,
     },
     JnixEnv,
 };
@@ -185,28 +185,7 @@ where
     }
 }
 
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for Relay
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/mullvadvpn/model/Relay");
-        let hostname = self.hostname.into_java(env);
-        let has_wireguard_tunnels = (!self.tunnels.wireguard.is_empty()) as jboolean;
-        let parameters = [
-            JValue::Object(hostname.as_obj()),
-            JValue::Bool(has_wireguard_tunnels),
-            JValue::Bool(self.active as jboolean),
-        ];
-
-        env.auto_local(
-            env.new_object(&class, "(Ljava/lang/String;ZZ)V", &parameters)
-                .expect("Failed to create Relay Java object"),
-        )
-    }
-}
+wrap_jnix_into_java!(Relay);
 
 impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Constraint<T>
 where
