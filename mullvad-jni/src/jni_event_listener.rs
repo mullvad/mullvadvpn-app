@@ -186,7 +186,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_keygen_event(&self, event: KeygenEvent) {
-        let java_keygen_event = self.env.auto_local(event.into_java(&self.env));
+        let java_keygen_event = event.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
@@ -204,7 +204,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_relay_list_event(&self, relay_list: RelayList) {
-        let java_relay_list = self.env.auto_local(relay_list.into_java(&self.env));
+        let java_relay_list = relay_list.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
@@ -222,7 +222,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_settings(&self, settings: Settings) {
-        let java_settings = self.env.auto_local(settings.into_java(&self.env));
+        let java_settings = settings.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
@@ -240,7 +240,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_tunnel_event(&self, event: TunnelState) {
-        let java_tunnel_state = self.env.auto_local(event.into_java(&self.env));
+        let java_tunnel_state = event.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
@@ -258,7 +258,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_app_version_info_event(&self, app_version_info: AppVersionInfo) {
-        let java_app_version_info = self.env.auto_local(app_version_info.into_java(&self.env));
+        let java_app_version_info = app_version_info.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
