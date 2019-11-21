@@ -45,17 +45,24 @@ pub struct RelayListCity {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct Relay {
     pub hostname: String,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub ipv4_addr_in: Ipv4Addr,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub include_in_country: bool,
     pub active: bool,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub weight: u64,
     #[serde(skip_serializing_if = "RelayTunnels::is_empty", default)]
     pub tunnels: RelayTunnels,
     #[serde(skip_serializing_if = "RelayBridges::is_empty", default)]
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridges: RelayBridges,
     #[serde(skip)]
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub location: Option<Location>,
 }
 
