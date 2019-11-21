@@ -105,37 +105,7 @@ where
 }
 
 wrap_jnix_into_java!(PublicKey);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for AppVersionInfo
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/mullvadvpn/model/AppVersionInfo");
-        let current_is_supported = self.current_is_supported as jboolean;
-        let current_is_outdated = self.current_is_outdated as jboolean;
-        let latest_stable = self.latest_stable.into_java(env);
-        let latest = self.latest.into_java(env);
-        let parameters = [
-            JValue::Bool(current_is_supported),
-            JValue::Bool(current_is_outdated),
-            JValue::Object(latest_stable.as_obj()),
-            JValue::Object(latest.as_obj()),
-        ];
-
-        env.auto_local(
-            env.new_object(
-                &class,
-                "(ZZLjava/lang/String;Ljava/lang/String;)V",
-                &parameters,
-            )
-            .expect("Failed to create AppVersionInfo Java object"),
-        )
-    }
-}
-
+wrap_jnix_into_java!(AppVersionInfo);
 wrap_jnix_into_java!(AccountData);
 wrap_jnix_into_java!(TunConfig);
 wrap_jnix_into_java!(TunnelEndpoint);
