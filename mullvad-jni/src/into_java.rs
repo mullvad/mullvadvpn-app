@@ -19,11 +19,11 @@ use mullvad_types::{
 };
 use std::{
     fmt::Debug,
-    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
+    net::{Ipv4Addr, Ipv6Addr},
 };
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
-    net::{Endpoint, TransportProtocol, TunnelEndpoint},
+    net::{Endpoint, TunnelEndpoint},
     tunnel::{ActionAfterDisconnect, BlockReason, ParameterGenerationError},
 };
 
@@ -109,7 +109,6 @@ where
 
 wrap_jnix_into_java!(Ipv4Addr);
 wrap_jnix_into_java!(Ipv6Addr);
-wrap_jnix_into_java!(SocketAddr);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for PublicKey
 where
@@ -165,33 +164,7 @@ where
 
 wrap_jnix_into_java!(AccountData);
 wrap_jnix_into_java!(TunConfig);
-wrap_jnix_into_java!(TransportProtocol);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for Endpoint
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/talpid/net/Endpoint");
-        let address = self.address.into_java(env);
-        let protocol = self.protocol.into_java(env);
-        let parameters = [
-            JValue::Object(address.as_obj()),
-            JValue::Object(protocol.as_obj()),
-        ];
-
-        env.auto_local(
-            env.new_object(
-                &class,
-                "(Ljava/net/InetSocketAddress;Lnet/mullvad/talpid/net/TransportProtocol;)V",
-                &parameters,
-            )
-            .expect("Failed to create Endpoint sub-class variant Java object"),
-        )
-    }
-}
+wrap_jnix_into_java!(Endpoint);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for TunnelEndpoint
 where
