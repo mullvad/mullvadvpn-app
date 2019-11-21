@@ -660,7 +660,7 @@ impl<'env> IntoJava<'env> for BlockReason {
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let variant = match self {
             BlockReason::AuthFailed(reason) => {
-                let class = get_class("net/mullvad/mullvadvpn/model/BlockReason$AuthFailed");
+                let class = get_class("net/mullvad/talpid/tunnel/BlockReason$AuthFailed");
                 let reason = env.auto_local(JObject::from(reason.into_java(env)));
                 let parameters = [JValue::Object(reason.as_obj())];
 
@@ -673,8 +673,7 @@ impl<'env> IntoJava<'env> for BlockReason {
             BlockReason::SetDnsError => "SetDnsError",
             BlockReason::StartTunnelError => "StartTunnelError",
             BlockReason::TunnelParameterError(reason) => {
-                let class =
-                    get_class("net/mullvad/mullvadvpn/model/BlockReason$ParameterGeneration");
+                let class = get_class("net/mullvad/talpid/tunnel/BlockReason$ParameterGeneration");
                 let reason = env.auto_local(JObject::from(reason.into_java(env)));
                 let parameters = [JValue::Object(reason.as_obj())];
                 return env
@@ -688,7 +687,7 @@ impl<'env> IntoJava<'env> for BlockReason {
             BlockReason::IsOffline => "IsOffline",
             BlockReason::TapAdapterProblem => "TapAdapterProblem",
         };
-        let class_name = format!("net/mullvad/mullvadvpn/model/BlockReason${}", variant);
+        let class_name = format!("net/mullvad/talpid/tunnel/BlockReason${}", variant);
         let class = get_class(&class_name);
 
         env.new_object(&class, "()V", &[])
@@ -766,7 +765,7 @@ impl<'env> IntoJava<'env> for TunnelState {
                 let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Blocked");
                 let reason = env.auto_local(block_reason.into_java(env));
                 let parameters = [JValue::Object(reason.as_obj())];
-                let signature = "(Lnet/mullvad/mullvadvpn/model/BlockReason;)V";
+                let signature = "(Lnet/mullvad/talpid/tunnel/BlockReason;)V";
 
                 env.new_object(&class, signature, &parameters)
             }

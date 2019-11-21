@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.model
 
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import net.mullvad.talpid.tunnel.BlockReason
 
 sealed class TunnelState() {
     class Disconnected() : TunnelState()

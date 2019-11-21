@@ -1,6 +1,4 @@
-package net.mullvad.mullvadvpn.model
-
-import net.mullvad.talpid.tunnel.ParameterGenerationError
+package net.mullvad.talpid.tunnel
 
 sealed class BlockReason {
     class AuthFailed(val reason: String?) : BlockReason()
