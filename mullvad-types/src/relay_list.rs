@@ -61,7 +61,10 @@ pub struct Relay {
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 #[serde(default)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayTunnels {
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub openvpn: Vec<OpenVpnEndpointData>,
     pub wireguard: Vec<WireguardEndpointData>,
 }
