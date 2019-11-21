@@ -36,10 +36,14 @@ pub struct RelayListCountry {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayListCity {
     pub name: String,
     pub code: CityCode,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub latitude: f64,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub longitude: f64,
     pub relays: Vec<Relay>,
 }
