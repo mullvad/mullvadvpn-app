@@ -70,6 +70,7 @@ fn main() {
         .join("../dist-assets/binaries")
         .join(target_triplet);
 
+    println!("cargo:rerun-if-changed={}", lib_dir.display());
     println!("cargo:rustc-link-search={}", lib_dir.display());
     println!("cargo:rustc-link-lib{}=wg", link_type);
 }
