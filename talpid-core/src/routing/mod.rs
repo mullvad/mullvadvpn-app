@@ -72,7 +72,7 @@ impl RouteManager {
         match start_rx.wait() {
             Ok(Ok(())) => Ok(Self {
                 tx: Some(tx),
-   	            #[cfg(target_os = "windows")]
+                #[cfg(target_os = "windows")]
                 callback_handles: vec![],
             }),
             Ok(Err(e)) => Err(e),
