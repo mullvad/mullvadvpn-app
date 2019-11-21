@@ -1,9 +1,8 @@
 use crate::daemon_interface;
-use ipnetwork::IpNetwork;
 use jnix::{
     jni::{
         objects::{AutoLocal, JList, JObject, JValue},
-        sys::{jboolean, jint, jshort},
+        sys::{jboolean, jint},
     },
     JnixEnv,
 };
@@ -20,7 +19,7 @@ use mullvad_types::{
 };
 use std::{
     fmt::Debug,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
@@ -108,32 +107,9 @@ where
     }
 }
 
-wrap_jnix_into_java!(IpAddr);
 wrap_jnix_into_java!(Ipv4Addr);
 wrap_jnix_into_java!(Ipv6Addr);
 wrap_jnix_into_java!(SocketAddr);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for IpNetwork
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/talpid/tun_provider/InetNetwork");
-        let address = self.ip().into_java(env);
-        let prefix_length = self.prefix() as jshort;
-        let parameters = [
-            JValue::Object(address.as_obj()),
-            JValue::Short(prefix_length),
-        ];
-
-        env.auto_local(
-            env.new_object(&class, "(Ljava/net/InetAddress;S)V", &parameters)
-                .expect("Failed to create InetNetwork Java object"),
-        )
-    }
-}
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for PublicKey
 where
