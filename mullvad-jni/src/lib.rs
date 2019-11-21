@@ -1,5 +1,6 @@
 #![cfg(target_os = "android")]
 
+mod classes;
 mod daemon_interface;
 mod from_java;
 mod into_java;
@@ -29,74 +30,12 @@ use talpid_types::ErrorExt;
 
 const LOG_FILENAME: &str = "daemon.log";
 
-const CLASSES_TO_LOAD: &[&str] = &[
-    "java/lang/Boolean",
-    "java/net/InetAddress",
-    "java/net/InetSocketAddress",
-    "java/util/ArrayList",
-    "net/mullvad/mullvadvpn/model/AccountData",
-    "net/mullvad/mullvadvpn/model/AppVersionInfo",
-    "net/mullvad/mullvadvpn/model/Constraint$Any",
-    "net/mullvad/mullvadvpn/model/Constraint$Only",
-    "net/mullvad/mullvadvpn/model/GeoIpLocation",
-    "net/mullvad/mullvadvpn/model/GetAccountDataResult$Ok",
-    "net/mullvad/mullvadvpn/model/GetAccountDataResult$InvalidAccount",
-    "net/mullvad/mullvadvpn/model/GetAccountDataResult$RpcError",
-    "net/mullvad/mullvadvpn/model/GetAccountDataResult$OtherError",
-    "net/mullvad/mullvadvpn/model/KeygenEvent$NewKey",
-    "net/mullvad/mullvadvpn/model/KeygenEvent$Failure",
-    "net/mullvad/mullvadvpn/model/KeygenFailure$TooManyKeys",
-    "net/mullvad/mullvadvpn/model/KeygenFailure$GenerationFailure",
-    "net/mullvad/mullvadvpn/model/LocationConstraint$City",
-    "net/mullvad/mullvadvpn/model/LocationConstraint$Country",
-    "net/mullvad/mullvadvpn/model/LocationConstraint$Hostname",
-    "net/mullvad/mullvadvpn/model/PublicKey",
-    "net/mullvad/mullvadvpn/model/Relay",
-    "net/mullvad/mullvadvpn/model/RelayList",
-    "net/mullvad/mullvadvpn/model/RelayListCity",
-    "net/mullvad/mullvadvpn/model/RelayListCountry",
-    "net/mullvad/mullvadvpn/model/RelaySettings$CustomTunnelEndpoint",
-    "net/mullvad/mullvadvpn/model/RelaySettings$RelayConstraints",
-    "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$CustomTunnelEndpoint",
-    "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$RelayConstraintsUpdate",
-    "net/mullvad/mullvadvpn/model/Settings",
-    "net/mullvad/mullvadvpn/model/TunnelState$Blocked",
-    "net/mullvad/mullvadvpn/model/TunnelState$Connected",
-    "net/mullvad/mullvadvpn/model/TunnelState$Connecting",
-    "net/mullvad/mullvadvpn/model/TunnelState$Disconnected",
-    "net/mullvad/mullvadvpn/model/TunnelState$Disconnecting",
-    "net/mullvad/mullvadvpn/MullvadDaemon",
-    "net/mullvad/mullvadvpn/MullvadVpnService",
-    "net/mullvad/talpid/net/Endpoint",
-    "net/mullvad/talpid/net/TransportProtocol$Tcp",
-    "net/mullvad/talpid/net/TransportProtocol$Udp",
-    "net/mullvad/talpid/net/TunnelEndpoint",
-    "net/mullvad/talpid/tun_provider/InetNetwork",
-    "net/mullvad/talpid/tun_provider/TunConfig",
-    "net/mullvad/talpid/tunnel/ActionAfterDisconnect$Block",
-    "net/mullvad/talpid/tunnel/ActionAfterDisconnect$Nothing",
-    "net/mullvad/talpid/tunnel/ActionAfterDisconnect$Reconnect",
-    "net/mullvad/talpid/tunnel/BlockReason$AuthFailed",
-    "net/mullvad/talpid/tunnel/BlockReason$Ipv6Unavailable",
-    "net/mullvad/talpid/tunnel/BlockReason$SetFirewallPolicyError",
-    "net/mullvad/talpid/tunnel/BlockReason$SetDnsError",
-    "net/mullvad/talpid/tunnel/BlockReason$StartTunnelError",
-    "net/mullvad/talpid/tunnel/BlockReason$ParameterGeneration",
-    "net/mullvad/talpid/tunnel/BlockReason$IsOffline",
-    "net/mullvad/talpid/tunnel/BlockReason$TapAdapterProblem",
-    "net/mullvad/talpid/tunnel/ParameterGenerationError$NoMatchingRelay",
-    "net/mullvad/talpid/tunnel/ParameterGenerationError$NoMatchingBridgeRelay",
-    "net/mullvad/talpid/tunnel/ParameterGenerationError$NoWireguardKey",
-    "net/mullvad/talpid/tunnel/ParameterGenerationError$CustomTunnelHostResultionError",
-    "net/mullvad/talpid/TalpidVpnService",
-];
-
 lazy_static! {
     static ref LOG_INIT_RESULT: Result<PathBuf, String> =
         start_logging().map_err(|error| error.display_chain());
     static ref DAEMON_INTERFACE: DaemonInterface = DaemonInterface::new();
     static ref CLASSES: RwLock<HashMap<&'static str, GlobalRef>> =
-        RwLock::new(HashMap::with_capacity(CLASSES_TO_LOAD.len()));
+        RwLock::new(HashMap::with_capacity(classes::CLASSES.len()));
 }
 
 static LOAD_CLASSES: Once = Once::new();
@@ -159,7 +98,7 @@ fn start_logging() -> Result<PathBuf, Error> {
 fn load_classes(env: &JNIEnv) {
     let mut classes = CLASSES.write();
 
-    for class in CLASSES_TO_LOAD {
+    for class in classes::CLASSES {
         classes.insert(class, load_class_reference(env, class));
     }
 }
