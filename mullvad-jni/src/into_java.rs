@@ -23,7 +23,7 @@ use std::{
 };
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
-    net::{Endpoint, TunnelEndpoint},
+    net::TunnelEndpoint,
     tunnel::{ActionAfterDisconnect, BlockReason, ParameterGenerationError},
 };
 
@@ -164,29 +164,7 @@ where
 
 wrap_jnix_into_java!(AccountData);
 wrap_jnix_into_java!(TunConfig);
-wrap_jnix_into_java!(Endpoint);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for TunnelEndpoint
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/talpid/net/TunnelEndpoint");
-        let endpoint = self.endpoint.into_java(env);
-        let parameters = [JValue::Object(endpoint.as_obj())];
-
-        env.auto_local(
-            env.new_object(
-                &class,
-                "(Lnet/mullvad/mullvadvpn/model/Endpoint;)V",
-                &parameters,
-            )
-            .expect("Failed to create TunnelEndpoint sub-class variant Java object"),
-        )
-    }
-}
+wrap_jnix_into_java!(TunnelEndpoint);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for GeoIpLocation
 where
