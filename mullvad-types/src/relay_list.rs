@@ -2,7 +2,8 @@ use crate::{
     endpoint::MullvadEndpoint,
     location::{CityCode, CountryCode, Location},
 };
-
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
@@ -95,6 +96,9 @@ impl fmt::Display for OpenVpnEndpointData {
 }
 
 #[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Debug)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+#[cfg_attr(target_os = "android", jnix(skip_all))]
 pub struct WireguardEndpointData {
     /// Port to connect to
     pub port_ranges: Vec<(u16, u16)>,
