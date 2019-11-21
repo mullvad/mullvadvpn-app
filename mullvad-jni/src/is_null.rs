@@ -1,4 +1,4 @@
-use jni::objects::{JObject, JString};
+use jnix::jni::objects::{JObject, JString};
 use std::ops::Deref;
 
 pub trait IsNull {

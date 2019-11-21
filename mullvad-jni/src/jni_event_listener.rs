@@ -1,5 +1,5 @@
 use crate::{get_class, into_java::IntoJava};
-use jni::{
+use jnix::jni::{
     objects::{GlobalRef, JMethodID, JObject, JValue},
     signature::{JavaType, Primitive},
     AttachGuard, JNIEnv,
@@ -16,13 +16,13 @@ use talpid_types::ErrorExt;
 #[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to create global reference to MullvadDaemon Java object")]
-    CreateGlobalReference(#[error(source)] jni::errors::Error),
+    CreateGlobalReference(#[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to find {} method", _0)]
-    FindMethod(&'static str, #[error(source)] jni::errors::Error),
+    FindMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to retrieve Java VM instance")]
-    GetJvmInstance(#[error(source)] jni::errors::Error),
+    GetJvmInstance(#[error(source)] jnix::jni::errors::Error),
 }
 
 enum Event {

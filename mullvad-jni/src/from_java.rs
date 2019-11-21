@@ -1,5 +1,5 @@
 use crate::{get_class, is_null::IsNull};
-use jni::{
+use jnix::jni::{
     objects::{JObject, JString},
     JNIEnv,
 };

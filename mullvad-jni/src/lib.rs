@@ -12,7 +12,7 @@ use crate::{
     daemon_interface::DaemonInterface, from_java::FromJava, into_java::IntoJava,
     jni_event_listener::JniEventListener, vpn_service_tun_provider::VpnServiceTunProvider,
 };
-use jni::{
+use jnix::jni::{
     objects::{GlobalRef, JObject, JString, JValue},
     sys::{jboolean, JNI_FALSE, JNI_TRUE},
     JNIEnv,
