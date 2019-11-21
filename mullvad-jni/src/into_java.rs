@@ -287,8 +287,8 @@ impl<'env> IntoJava<'env> for TransportProtocol {
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let class_name = match self {
-            TransportProtocol::Tcp => "net/mullvad/mullvadvpn/model/TransportProtocol$Tcp",
-            TransportProtocol::Udp => "net/mullvad/mullvadvpn/model/TransportProtocol$Udp",
+            TransportProtocol::Tcp => "net/mullvad/talpid/net/TransportProtocol$Tcp",
+            TransportProtocol::Udp => "net/mullvad/talpid/net/TransportProtocol$Udp",
         };
         let class = get_class(class_name);
 
@@ -311,7 +311,7 @@ impl<'env> IntoJava<'env> for Endpoint {
 
         env.new_object(
             &class,
-            "(Ljava/net/InetSocketAddress;Lnet/mullvad/mullvadvpn/model/TransportProtocol;)V",
+            "(Ljava/net/InetSocketAddress;Lnet/mullvad/talpid/net/TransportProtocol;)V",
             &parameters,
         )
         .expect("Failed to create Endpoint sub-class variant Java object")

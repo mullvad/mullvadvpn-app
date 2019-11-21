@@ -5,8 +5,8 @@ import android.view.View
 import android.widget.TextView
 import net.mullvad.mullvadvpn.model.Endpoint
 import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.TransportProtocol
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.talpid.net.TransportProtocol
 
 class LocationInfo(val parentView: View, val context: Context) {
     private val country: TextView = parentView.findViewById(R.id.country)
