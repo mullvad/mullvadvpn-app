@@ -163,24 +163,7 @@ where
     }
 }
 
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for AccountData
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/mullvadvpn/model/AccountData");
-        let account_expiry = self.expiry.to_string().into_java(env);
-        let parameters = [JValue::Object(account_expiry.as_obj())];
-
-        env.auto_local(
-            env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
-                .expect("Failed to create AccountData Java object"),
-        )
-    }
-}
-
+wrap_jnix_into_java!(AccountData);
 wrap_jnix_into_java!(TunConfig);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for TransportProtocol

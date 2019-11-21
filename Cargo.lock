@@ -1411,6 +1411,7 @@ dependencies = [
  "chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "err-derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jnix 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "mullvad-paths 0.1.0",
