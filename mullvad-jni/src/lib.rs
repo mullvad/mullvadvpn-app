@@ -189,7 +189,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWiregua
     let env = JnixEnv::from(env);
 
     match DAEMON_INTERFACE.generate_wireguard_key() {
-        Ok(keygen_event) => keygen_event.into_java(&env),
+        Ok(keygen_event) => keygen_event.into_java(&env).forget(),
         Err(error) => {
             log::error!(
                 "{}",
@@ -244,7 +244,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
         );
     }
 
-    result.into_java(&env)
+    result.into_java(&env).forget()
 }
 
 #[no_mangle]
@@ -252,17 +252,17 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWwwAuthToken<'env, 'this>(
     env: JNIEnv<'env>,
     _: JObject<'this>,
-) -> JString<'env> {
+) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
     match DAEMON_INTERFACE.get_www_auth_token() {
-        Ok(token) => token.into_java(&env),
+        Ok(token) => token.into_java(&env).forget(),
         Err(err) => {
             log::error!(
                 "{}",
                 err.display_chain_with_msg("Failed to get WWW auth token")
             );
-            String::new().into_java(&env)
+            String::new().into_java(&env).forget()
         }
     }
 }
@@ -276,7 +276,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentLocat
     let env = JnixEnv::from(env);
 
     match DAEMON_INTERFACE.get_current_location() {
-        Ok(location) => location.into_java(&env),
+        Ok(location) => location.into_java(&env).forget(),
         Err(error) => {
             log::error!(
                 "{}",
@@ -292,17 +292,17 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentLocat
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentVersion<'env, 'this>(
     env: JNIEnv<'env>,
     _: JObject<'this>,
-) -> JString<'env> {
+) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
     match DAEMON_INTERFACE.get_current_version() {
-        Ok(location) => location.into_java(&env),
+        Ok(location) => location.into_java(&env).forget(),
         Err(error) => {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to get current version")
             );
-            String::new().into_java(&env)
+            String::new().into_java(&env).forget()
         }
     }
 }
@@ -316,7 +316,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getRelayLocatio
     let env = JnixEnv::from(env);
 
     match DAEMON_INTERFACE.get_relay_locations() {
-        Ok(relay_list) => relay_list.into_java(&env),
+        Ok(relay_list) => relay_list.into_java(&env).forget(),
         Err(error) => {
             log::error!(
                 "{}",
@@ -336,7 +336,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getSettings<'en
     let env = JnixEnv::from(env);
 
     match DAEMON_INTERFACE.get_settings() {
-        Ok(settings) => settings.into_java(&env),
+        Ok(settings) => settings.into_java(&env).forget(),
         Err(error) => {
             log::error!("{}", error.display_chain_with_msg("Failed to get settings"));
             JObject::null()
@@ -353,7 +353,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getState<'env, 
     let env = JnixEnv::from(env);
 
     match DAEMON_INTERFACE.get_state() {
-        Ok(state) => state.into_java(&env),
+        Ok(state) => state.into_java(&env).forget(),
         Err(error) => {
             log::error!("{}", error.display_chain_with_msg("Failed to get state"));
             JObject::null()
@@ -370,7 +370,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getVersionInfo<
     let env = JnixEnv::from(env);
 
     match DAEMON_INTERFACE.get_version_info() {
-        Ok(version_info) => version_info.into_java(&env),
+        Ok(version_info) => version_info.into_java(&env).forget(),
         Err(error) => {
             log::error!(
                 "{}",
@@ -390,7 +390,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey
     let env = JnixEnv::from(env);
 
     match DAEMON_INTERFACE.get_wireguard_key() {
-        Ok(key) => key.into_java(&env),
+        Ok(key) => key.into_java(&env).forget(),
         Err(error) => {
             log::error!(
                 "{}",
