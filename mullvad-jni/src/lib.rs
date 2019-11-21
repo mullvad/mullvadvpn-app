@@ -14,7 +14,7 @@ use crate::{
 };
 use jnix::{
     jni::{
-        objects::{GlobalRef, JObject, JString, JValue},
+        objects::{JObject, JString, JValue},
         sys::{jboolean, JNI_FALSE, JNI_TRUE},
         JNIEnv,
     },
@@ -22,9 +22,7 @@ use jnix::{
 };
 use lazy_static::lazy_static;
 use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
-use parking_lot::RwLock;
 use std::{
-    collections::HashMap,
     path::{Path, PathBuf},
     sync::{mpsc, Once},
     thread,
@@ -37,8 +35,6 @@ lazy_static! {
     static ref LOG_INIT_RESULT: Result<PathBuf, String> =
         start_logging().map_err(|error| error.display_chain());
     static ref DAEMON_INTERFACE: DaemonInterface = DaemonInterface::new();
-    static ref CLASSES: RwLock<HashMap<&'static str, GlobalRef>> =
-        RwLock::new(HashMap::with_capacity(classes::CLASSES.len()));
 }
 
 static LOAD_CLASSES: Once = Once::new();
@@ -76,7 +72,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
 
     match *LOG_INIT_RESULT {
         Ok(ref log_dir) => {
-            LOAD_CLASSES.call_once(|| load_classes(&env));
+            LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
 
             if let Err(error) = initialize(&env, &this, &vpnService, log_dir.clone()) {
                 log::error!("{}", error.display_chain());
@@ -98,24 +94,6 @@ fn start_logging() -> Result<PathBuf, Error> {
     version::log_version();
 
     Ok(log_dir)
-}
-
-fn load_classes(env: &JnixEnv) {
-    let mut classes = CLASSES.write();
-
-    for class in classes::CLASSES {
-        classes.insert(class, load_class_reference(env, class));
-    }
-}
-
-fn load_class_reference(env: &JnixEnv, name: &str) -> GlobalRef {
-    let class = match env.find_class(name) {
-        Ok(class) => class,
-        Err(_) => panic!("Failed to find {} Java class", name),
-    };
-
-    env.new_global_ref(JObject::from(class))
-        .expect("Failed to convert local reference to Java class into a global reference")
 }
 
 fn initialize(
@@ -180,13 +158,6 @@ fn create_daemon(
     Ok(daemon)
 }
 
-fn get_class(name: &str) -> GlobalRef {
-    match CLASSES.read().get(name) {
-        Some(class) => class.clone(),
-        None => panic!("Class not loaded: {}", name),
-    }
-}
-
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_connect(_: JNIEnv, _: JObject) {
@@ -235,10 +206,12 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_verifyWireguard
     env: JNIEnv<'env>,
     _: JObject<'this>,
 ) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
     match DAEMON_INTERFACE.verify_wireguard_key() {
         Ok(key_is_valid) => env
             .new_object(
-                &get_class("java/lang/Boolean"),
+                &env.get_class("java/lang/Boolean"),
                 "(Z)V",
                 &[JValue::Bool(key_is_valid as jboolean)],
             )

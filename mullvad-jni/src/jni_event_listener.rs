@@ -1,4 +1,4 @@
-use crate::{get_class, into_java::IntoJava};
+use crate::into_java::IntoJava;
 use jnix::{
     jni::{
         objects::{GlobalRef, JMethodID, JObject, JValue},
@@ -117,7 +117,7 @@ impl<'env> JniEventHandler<'env> {
         mullvad_ipc_client: JObject<'env>,
         events: mpsc::Receiver<Event>,
     ) -> Result<Self, Error> {
-        let class = get_class("net/mullvad/mullvadvpn/MullvadDaemon");
+        let class = env.get_class("net/mullvad/mullvadvpn/MullvadDaemon");
         let notify_app_version_info_event = Self::get_method_id(
             &env,
             &class,

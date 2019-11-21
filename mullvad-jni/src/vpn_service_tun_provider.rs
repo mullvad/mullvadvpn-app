@@ -1,4 +1,4 @@
-use crate::{get_class, into_java::IntoJava};
+use crate::into_java::IntoJava;
 use ipnetwork::IpNetwork;
 use jnix::{
     jni::{
@@ -64,7 +64,7 @@ impl VpnServiceTunProvider {
     /// Create a new VpnServiceTunProvider interfacing with Android's VpnService.
     pub fn new(env: &JnixEnv, mullvad_vpn_service: &JObject) -> Result<Self, Error> {
         let jvm = env.get_java_vm().map_err(Error::GetJvmInstance)?;
-        let class = get_class("net/mullvad/talpid/TalpidVpnService");
+        let class = env.get_class("net/mullvad/talpid/TalpidVpnService");
         let object = env
             .new_global_ref(*mullvad_vpn_service)
             .map_err(Error::CreateGlobalReference)?;

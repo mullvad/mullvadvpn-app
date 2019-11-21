@@ -1,4 +1,4 @@
-use crate::{get_class, is_null::IsNull};
+use crate::is_null::IsNull;
 use jnix::{
     jni::objects::{JObject, JString},
     JnixEnv,
@@ -141,7 +141,7 @@ fn is_instance_of<'env>(
     object: JObject<'env>,
     class_name: &'static str,
 ) -> bool {
-    let class = get_class(class_name);
+    let class = env.get_class(class_name);
 
     env.is_instance_of(object, &class)
         .expect("Failed to check if an object is an instance of a specified class")
