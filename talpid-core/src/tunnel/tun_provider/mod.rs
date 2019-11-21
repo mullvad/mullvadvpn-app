@@ -73,6 +73,11 @@ pub trait TunProvider: Send + 'static {
 
 /// Configuration for creating a tunnel device.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(package = "net.mullvad.talpid.tun_provider")
+)]
 pub struct TunConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
@@ -81,9 +86,14 @@ pub struct TunConfig {
     pub dns_servers: Vec<IpAddr>,
 
     /// Routes to configure for the tunnel.
+    #[cfg_attr(
+        target_os = "android",
+        jnix(map = "|networks| networks.into_iter().map(InetNetwork::from).collect::<Vec<_>>()")
+    )]
     pub routes: Vec<IpNetwork>,
 
     /// Maximum Transmission Unit in the tunnel.
+    #[cfg_attr(target_os = "android", jnix(map = "|mtu| mtu as i32"))]
     pub mtu: u16,
 }
 
