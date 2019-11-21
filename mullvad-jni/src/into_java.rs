@@ -121,25 +121,7 @@ where
 wrap_jnix_into_java!(IpAddr);
 wrap_jnix_into_java!(Ipv4Addr);
 wrap_jnix_into_java!(Ipv6Addr);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for SocketAddr
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("java/net/InetSocketAddress");
-        let ip_address = self.ip().into_java(env);
-        let port = self.port() as jint;
-        let parameters = [JValue::Object(ip_address.as_obj()), JValue::Int(port)];
-
-        env.auto_local(
-            env.new_object(&class, "(Ljava/net/InetAddress;I)V", &parameters)
-                .expect("Failed to create InetSocketAddress Java object"),
-        )
-    }
-}
+wrap_jnix_into_java!(SocketAddr);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for IpNetwork
 where
