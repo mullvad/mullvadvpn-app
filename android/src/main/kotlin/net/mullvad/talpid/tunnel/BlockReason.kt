@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.model
+package net.mullvad.talpid.tunnel
 
 sealed class BlockReason {
     class AuthFailed(val reason: String?) : BlockReason()
@@ -9,11 +9,4 @@ sealed class BlockReason {
     class ParameterGeneration(val error: ParameterGenerationError) : BlockReason()
     class IsOffline : BlockReason()
     class TapAdapterProblem : BlockReason()
-}
-
-sealed class ParameterGenerationError {
-    class NoMatchingRelay : ParameterGenerationError()
-    class NoMatchingBridgeRelay : ParameterGenerationError()
-    class NoWireguardKey : ParameterGenerationError()
-    class CustomTunnelHostResultionError : ParameterGenerationError()
 }

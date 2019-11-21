@@ -25,23 +25,23 @@ pub enum Error {
     #[error(display = "Failed to allow socket to bypass tunnel")]
     Bypass,
 
-    #[error(display = "Failed to call Java method MullvadVpnService.{}", _0)]
+    #[error(display = "Failed to call Java method TalpidVpnService.{}", _0)]
     CallMethod(&'static str, #[error(source)] jni::errors::Error),
 
     #[error(display = "Failed to create Java VM handle clone")]
     CloneJavaVm(#[error(source)] jni::errors::Error),
 
-    #[error(display = "Failed to create global reference to MullvadVpnService instance")]
+    #[error(display = "Failed to create global reference to TalpidVpnService instance")]
     CreateGlobalReference(#[error(source)] jni::errors::Error),
 
-    #[error(display = "Failed to find MullvadVpnService.{} method", _0)]
+    #[error(display = "Failed to find TalpidVpnService.{} method", _0)]
     FindMethod(&'static str, #[error(source)] jni::errors::Error),
 
     #[error(display = "Failed to get Java VM instance")]
     GetJvmInstance(#[error(source)] jni::errors::Error),
 
     #[error(
-        display = "Received an invalid result from MullvadVpnService.{}: {}",
+        display = "Received an invalid result from TalpidVpnService.{}: {}",
         _0,
         _1
     )]
@@ -61,7 +61,7 @@ impl VpnServiceTunProvider {
     /// Create a new VpnServiceTunProvider interfacing with Android's VpnService.
     pub fn new(env: &JNIEnv, mullvad_vpn_service: &JObject) -> Result<Self, Error> {
         let jvm = env.get_java_vm().map_err(Error::GetJvmInstance)?;
-        let class = get_class("net/mullvad/mullvadvpn/MullvadVpnService");
+        let class = get_class("net/mullvad/talpid/TalpidVpnService");
         let object = env
             .new_global_ref(*mullvad_vpn_service)
             .map_err(Error::CreateGlobalReference)?;
@@ -111,7 +111,7 @@ impl VpnServiceTunProvider {
             .get_method_id(
                 &self.class,
                 "createTun",
-                "(Lnet/mullvad/mullvadvpn/model/TunConfig;)I",
+                "(Lnet/mullvad/talpid/tun_provider/TunConfig;)I",
             )
             .map_err(|cause| Error::FindMethod("createTun", cause))?;
 

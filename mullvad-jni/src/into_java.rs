@@ -189,7 +189,7 @@ impl<'env> IntoJava<'env> for IpNetwork {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let class = get_class("net/mullvad/mullvadvpn/model/InetNetwork");
+        let class = get_class("net/mullvad/talpid/tun_provider/InetNetwork");
         let address = env.auto_local(self.ip().into_java(env));
         let prefix_length = self.prefix() as jshort;
         let parameters = [
@@ -261,7 +261,7 @@ impl<'env> IntoJava<'env> for TunConfig {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let class = get_class("net/mullvad/mullvadvpn/model/TunConfig");
+        let class = get_class("net/mullvad/talpid/tun_provider/TunConfig");
         let addresses = env.auto_local(self.addresses.into_java(env));
         let dns_servers = env.auto_local(self.dns_servers.into_java(env));
         let routes = env.auto_local(self.routes.into_java(env));
@@ -287,8 +287,8 @@ impl<'env> IntoJava<'env> for TransportProtocol {
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let class_name = match self {
-            TransportProtocol::Tcp => "net/mullvad/mullvadvpn/model/TransportProtocol$Tcp",
-            TransportProtocol::Udp => "net/mullvad/mullvadvpn/model/TransportProtocol$Udp",
+            TransportProtocol::Tcp => "net/mullvad/talpid/net/TransportProtocol$Tcp",
+            TransportProtocol::Udp => "net/mullvad/talpid/net/TransportProtocol$Udp",
         };
         let class = get_class(class_name);
 
@@ -301,7 +301,7 @@ impl<'env> IntoJava<'env> for Endpoint {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let class = get_class("net/mullvad/mullvadvpn/model/Endpoint");
+        let class = get_class("net/mullvad/talpid/net/Endpoint");
         let address = env.auto_local(self.address.into_java(env));
         let protocol = env.auto_local(self.protocol.into_java(env));
         let parameters = [
@@ -311,7 +311,7 @@ impl<'env> IntoJava<'env> for Endpoint {
 
         env.new_object(
             &class,
-            "(Ljava/net/InetSocketAddress;Lnet/mullvad/mullvadvpn/model/TransportProtocol;)V",
+            "(Ljava/net/InetSocketAddress;Lnet/mullvad/talpid/net/TransportProtocol;)V",
             &parameters,
         )
         .expect("Failed to create Endpoint sub-class variant Java object")
@@ -322,16 +322,12 @@ impl<'env> IntoJava<'env> for TunnelEndpoint {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let class = get_class("net/mullvad/mullvadvpn/model/TunnelEndpoint");
+        let class = get_class("net/mullvad/talpid/net/TunnelEndpoint");
         let endpoint = env.auto_local(self.endpoint.into_java(env));
         let parameters = [JValue::Object(endpoint.as_obj())];
 
-        env.new_object(
-            &class,
-            "(Lnet/mullvad/mullvadvpn/model/Endpoint;)V",
-            &parameters,
-        )
-        .expect("Failed to create TunnelEndpoint sub-class variant Java object")
+        env.new_object(&class, "(Lnet/mullvad/talpid/net/Endpoint;)V", &parameters)
+            .expect("Failed to create TunnelEndpoint sub-class variant Java object")
     }
 }
 
@@ -644,7 +640,7 @@ impl<'env> IntoJava<'env> for ActionAfterDisconnect {
             ActionAfterDisconnect::Reconnect => "Reconnect",
         };
         let class_name = format!(
-            "net/mullvad/mullvadvpn/model/ActionAfterDisconnect${}",
+            "net/mullvad/talpid/tunnel/ActionAfterDisconnect${}",
             variant
         );
         let class = get_class(&class_name);
@@ -660,7 +656,7 @@ impl<'env> IntoJava<'env> for BlockReason {
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
         let variant = match self {
             BlockReason::AuthFailed(reason) => {
-                let class = get_class("net/mullvad/mullvadvpn/model/BlockReason$AuthFailed");
+                let class = get_class("net/mullvad/talpid/tunnel/BlockReason$AuthFailed");
                 let reason = env.auto_local(JObject::from(reason.into_java(env)));
                 let parameters = [JValue::Object(reason.as_obj())];
 
@@ -673,14 +669,13 @@ impl<'env> IntoJava<'env> for BlockReason {
             BlockReason::SetDnsError => "SetDnsError",
             BlockReason::StartTunnelError => "StartTunnelError",
             BlockReason::TunnelParameterError(reason) => {
-                let class =
-                    get_class("net/mullvad/mullvadvpn/model/BlockReason$ParameterGeneration");
+                let class = get_class("net/mullvad/talpid/tunnel/BlockReason$ParameterGeneration");
                 let reason = env.auto_local(JObject::from(reason.into_java(env)));
                 let parameters = [JValue::Object(reason.as_obj())];
                 return env
                     .new_object(
                         &class,
-                        "(Lnet/mullvad/mullvadvpn/model/ParameterGenerationError;)V",
+                        "(Lnet/mullvad/talpid/tunnel/ParameterGenerationError;)V",
                         &parameters,
                     )
                     .expect("Failed to create BlockReason.ParameterGeneration Java object");
@@ -688,7 +683,7 @@ impl<'env> IntoJava<'env> for BlockReason {
             BlockReason::IsOffline => "IsOffline",
             BlockReason::TapAdapterProblem => "TapAdapterProblem",
         };
-        let class_name = format!("net/mullvad/mullvadvpn/model/BlockReason${}", variant);
+        let class_name = format!("net/mullvad/talpid/tunnel/BlockReason${}", variant);
         let class = get_class(&class_name);
 
         env.new_object(&class, "()V", &[])
@@ -709,7 +704,7 @@ impl<'env> IntoJava<'env> for ParameterGenerationError {
             }
         };
         let class_name = format!(
-            "net/mullvad/mullvadvpn/model/ParameterGenerationError${}",
+            "net/mullvad/talpid/tunnel/ParameterGenerationError${}",
             class_variant
         );
         let class = get_class(&class_name);
@@ -737,7 +732,7 @@ impl<'env> IntoJava<'env> for TunnelState {
                     JValue::Object(location.as_obj()),
                 ];
                 let signature =
-                    "(Lnet/mullvad/mullvadvpn/model/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
+                    "(Lnet/mullvad/talpid/net/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
 
                 env.new_object(&class, signature, &parameters)
             }
@@ -750,7 +745,7 @@ impl<'env> IntoJava<'env> for TunnelState {
                     JValue::Object(location.as_obj()),
                 ];
                 let signature =
-                    "(Lnet/mullvad/mullvadvpn/model/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
+                    "(Lnet/mullvad/talpid/net/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
 
                 env.new_object(&class, signature, &parameters)
             }
@@ -758,7 +753,7 @@ impl<'env> IntoJava<'env> for TunnelState {
                 let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Disconnecting");
                 let after_disconnect = env.auto_local(action_after_disconnect.into_java(env));
                 let parameters = [JValue::Object(after_disconnect.as_obj())];
-                let signature = "(Lnet/mullvad/mullvadvpn/model/ActionAfterDisconnect;)V";
+                let signature = "(Lnet/mullvad/talpid/tunnel/ActionAfterDisconnect;)V";
 
                 env.new_object(&class, signature, &parameters)
             }
@@ -766,7 +761,7 @@ impl<'env> IntoJava<'env> for TunnelState {
                 let class = get_class("net/mullvad/mullvadvpn/model/TunnelState$Blocked");
                 let reason = env.auto_local(block_reason.into_java(env));
                 let parameters = [JValue::Object(reason.as_obj())];
-                let signature = "(Lnet/mullvad/mullvadvpn/model/BlockReason;)V";
+                let signature = "(Lnet/mullvad/talpid/tunnel/BlockReason;)V";
 
                 env.new_object(&class, signature, &parameters)
             }

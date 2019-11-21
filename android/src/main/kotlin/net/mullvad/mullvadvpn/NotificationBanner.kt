@@ -13,12 +13,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
-import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
-import net.mullvad.mullvadvpn.model.BlockReason
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.KeygenFailure
-import net.mullvad.mullvadvpn.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import net.mullvad.talpid.tunnel.BlockReason
+import net.mullvad.talpid.tunnel.ParameterGenerationError
 
 class NotificationBanner(
     val parentView: View,
