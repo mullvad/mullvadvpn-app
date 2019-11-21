@@ -43,9 +43,12 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade libsodium from 1.0.17 to 1.0.18.
 - Upgrade NDIS 6 TAP driver from 9.21.2 to 9.24.2.
 
+
 ### Fixed
 #### Linux
 - Improved stability on Linux by using the routing netlink socket in it's own thread.
+- When trying to use `resolvconf` for managing DNS, the daemon will check if
+ `dnsmasq` is running and misconfigured.
 
 #### Windows
 - Detect removal of the OpenVPN TAP adapter on reconnection attempts.
