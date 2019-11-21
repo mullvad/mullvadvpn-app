@@ -16,9 +16,9 @@ import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.model.BlockReason
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.KeygenFailure
-import net.mullvad.mullvadvpn.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import net.mullvad.talpid.tunnel.ParameterGenerationError
 
 class NotificationBanner(
     val parentView: View,

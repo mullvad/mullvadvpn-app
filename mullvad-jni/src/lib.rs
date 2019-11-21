@@ -60,10 +60,6 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/mullvadvpn/model/LocationConstraint$City",
     "net/mullvad/mullvadvpn/model/LocationConstraint$Country",
     "net/mullvad/mullvadvpn/model/LocationConstraint$Hostname",
-    "net/mullvad/mullvadvpn/model/ParameterGenerationError$NoMatchingRelay",
-    "net/mullvad/mullvadvpn/model/ParameterGenerationError$NoMatchingBridgeRelay",
-    "net/mullvad/mullvadvpn/model/ParameterGenerationError$NoWireguardKey",
-    "net/mullvad/mullvadvpn/model/ParameterGenerationError$CustomTunnelHostResultionError",
     "net/mullvad/mullvadvpn/model/PublicKey",
     "net/mullvad/mullvadvpn/model/Relay",
     "net/mullvad/mullvadvpn/model/RelayList",
@@ -88,6 +84,10 @@ const CLASSES_TO_LOAD: &[&str] = &[
     "net/mullvad/talpid/tunnel/ActionAfterDisconnect$Block",
     "net/mullvad/talpid/tunnel/ActionAfterDisconnect$Nothing",
     "net/mullvad/talpid/tunnel/ActionAfterDisconnect$Reconnect",
+    "net/mullvad/talpid/tunnel/ParameterGenerationError$NoMatchingRelay",
+    "net/mullvad/talpid/tunnel/ParameterGenerationError$NoMatchingBridgeRelay",
+    "net/mullvad/talpid/tunnel/ParameterGenerationError$NoWireguardKey",
+    "net/mullvad/talpid/tunnel/ParameterGenerationError$CustomTunnelHostResultionError",
 ];
 
 lazy_static! {

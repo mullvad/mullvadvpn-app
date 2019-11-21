@@ -680,7 +680,7 @@ impl<'env> IntoJava<'env> for BlockReason {
                 return env
                     .new_object(
                         &class,
-                        "(Lnet/mullvad/mullvadvpn/model/ParameterGenerationError;)V",
+                        "(Lnet/mullvad/talpid/tunnel/ParameterGenerationError;)V",
                         &parameters,
                     )
                     .expect("Failed to create BlockReason.ParameterGeneration Java object");
@@ -709,7 +709,7 @@ impl<'env> IntoJava<'env> for ParameterGenerationError {
             }
         };
         let class_name = format!(
-            "net/mullvad/mullvadvpn/model/ParameterGenerationError${}",
+            "net/mullvad/talpid/tunnel/ParameterGenerationError${}",
             class_variant
         );
         let class = get_class(&class_name);

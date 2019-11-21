@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.model
+package net.mullvad.talpid.tunnel
 
 sealed class ParameterGenerationError {
     class NoMatchingRelay : ParameterGenerationError()
