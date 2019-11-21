@@ -10,7 +10,7 @@ use mullvad_types::{
     account::AccountData,
     location::GeoIpLocation,
     relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
-    relay_list::{Relay, RelayList, RelayListCity, RelayListCountry},
+    relay_list::{RelayList, RelayListCity, RelayListCountry},
     settings::Settings,
     states::TunnelState,
     version::AppVersionInfo,
@@ -157,35 +157,7 @@ where
     }
 }
 
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelayListCity
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/mullvadvpn/model/RelayListCity");
-        let name = self.name.into_java(env);
-        let code = self.code.into_java(env);
-        let relays = self.relays.into_java(env);
-        let parameters = [
-            JValue::Object(name.as_obj()),
-            JValue::Object(code.as_obj()),
-            JValue::Object(relays.as_obj()),
-        ];
-
-        env.auto_local(
-            env.new_object(
-                &class,
-                "(Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V",
-                &parameters,
-            )
-            .expect("Failed to create RelayListCity Java object"),
-        )
-    }
-}
-
-wrap_jnix_into_java!(Relay);
+wrap_jnix_into_java!(RelayListCity);
 
 impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Constraint<T>
 where
