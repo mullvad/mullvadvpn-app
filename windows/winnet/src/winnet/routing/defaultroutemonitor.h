@@ -5,6 +5,7 @@
 #include <functional>
 #include <optional>
 #include <memory>
+#include <mutex>
 #include <libcommon/logging/ilogsink.h>
 #include <libcommon/burstguard.h>
 #include "types.h"
@@ -52,11 +53,11 @@ private:
 	std::optional<InterfaceAndGateway> m_bestRoute;
 
 	HANDLE m_routeNotificationHandle;
-
-	static void NETIOAPI_API_ RouteChangeCallback(void *context, MIB_IPFORWARD_ROW2 *row, MIB_NOTIFICATION_TYPE notificationType);
-
 	HANDLE m_interfaceNotificationHandle;
 
+	std::mutex m_evaluationLock;
+
+	static void NETIOAPI_API_ RouteChangeCallback(void *context, MIB_IPFORWARD_ROW2 *row, MIB_NOTIFICATION_TYPE notificationType);
 	static void NETIOAPI_API_ InterfaceChangeCallback(void *context, MIB_IPINTERFACE_ROW *row, MIB_NOTIFICATION_TYPE notificationType);
 
 	void evaluateRoutes();

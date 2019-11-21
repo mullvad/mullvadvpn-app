@@ -92,6 +92,8 @@ void NETIOAPI_API_ DefaultRouteMonitor::InterfaceChangeCallback
 
 void DefaultRouteMonitor::evaluateRoutes()
 {
+	std::scoped_lock<std::mutex> lock(m_evaluationLock);
+
 	try
 	{
 		evaluateRoutesInner();
