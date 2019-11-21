@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.model
 
+import net.mullvad.talpid.net.TunnelEndpoint
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.BlockReason
 

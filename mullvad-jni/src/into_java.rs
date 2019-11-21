@@ -322,7 +322,7 @@ impl<'env> IntoJava<'env> for TunnelEndpoint {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let class = get_class("net/mullvad/mullvadvpn/model/TunnelEndpoint");
+        let class = get_class("net/mullvad/talpid/net/TunnelEndpoint");
         let endpoint = env.auto_local(self.endpoint.into_java(env));
         let parameters = [JValue::Object(endpoint.as_obj())];
 
@@ -732,7 +732,7 @@ impl<'env> IntoJava<'env> for TunnelState {
                     JValue::Object(location.as_obj()),
                 ];
                 let signature =
-                    "(Lnet/mullvad/mullvadvpn/model/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
+                    "(Lnet/mullvad/talpid/net/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
 
                 env.new_object(&class, signature, &parameters)
             }
@@ -745,7 +745,7 @@ impl<'env> IntoJava<'env> for TunnelState {
                     JValue::Object(location.as_obj()),
                 ];
                 let signature =
-                    "(Lnet/mullvad/mullvadvpn/model/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
+                    "(Lnet/mullvad/talpid/net/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
 
                 env.new_object(&class, signature, &parameters)
             }
