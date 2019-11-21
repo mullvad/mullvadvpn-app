@@ -17,10 +17,7 @@ use mullvad_types::{
     wireguard::{KeygenEvent, PublicKey},
     CustomTunnelEndpoint,
 };
-use std::{
-    fmt::Debug,
-    net::{Ipv4Addr, Ipv6Addr},
-};
+use std::fmt::Debug;
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
     net::TunnelEndpoint,
@@ -107,8 +104,6 @@ where
     }
 }
 
-wrap_jnix_into_java!(Ipv4Addr);
-wrap_jnix_into_java!(Ipv6Addr);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for PublicKey
 where
@@ -165,36 +160,7 @@ where
 wrap_jnix_into_java!(AccountData);
 wrap_jnix_into_java!(TunConfig);
 wrap_jnix_into_java!(TunnelEndpoint);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for GeoIpLocation
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/mullvadvpn/model/GeoIpLocation");
-        let ipv4 = self.ipv4.into_java(env);
-        let ipv6 = self.ipv6.into_java(env);
-        let country = self.country.into_java(env);
-        let city = self.city.into_java(env);
-        let hostname = self.hostname.into_java(env);
-        let parameters = [
-            JValue::Object(ipv4.as_obj()),
-            JValue::Object(ipv6.as_obj()),
-            JValue::Object(country.as_obj()),
-            JValue::Object(city.as_obj()),
-            JValue::Object(hostname.as_obj()),
-        ];
-
-        env.auto_local(env.new_object(
-            &class,
-            "(Ljava/net/InetAddress;Ljava/net/InetAddress;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
-            &parameters,
-        )
-        .expect("Failed to create GeoIpLocation Java object"))
-    }
-}
+wrap_jnix_into_java!(GeoIpLocation);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelayList
 where
