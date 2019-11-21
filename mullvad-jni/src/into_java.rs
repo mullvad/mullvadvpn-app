@@ -1,9 +1,6 @@
 use crate::daemon_interface;
 use jnix::{
-    jni::{
-        objects::{AutoLocal, JList, JObject, JValue},
-        sys::jint,
-    },
+    jni::objects::{AutoLocal, JObject, JValue},
     JnixEnv,
 };
 use mullvad_types::{
@@ -51,35 +48,9 @@ wrap_jnix_into_java!(
 
 wrap_jnix_into_java!(String);
 
-impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Vec<T>
-where
-    'env: 'borrow,
-    T: IntoJava<'borrow, 'env, JavaType = AutoLocal<'env, 'borrow>>,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("java/util/ArrayList");
-        let initial_capacity = self.len();
-        let parameters = [JValue::Int(initial_capacity as jint)];
-
-        let list_object = env
-            .new_object(&class, "(I)V", &parameters)
-            .expect("Failed to create ArrayList object");
-
-        let list =
-            JList::from_env(env, list_object).expect("Failed to create JList from ArrayList");
-
-        for element in self {
-            let java_element = element.into_java(env);
-
-            list.add(java_element.as_obj())
-                .expect("Failed to add element to ArrayList");
-        }
-
-        env.auto_local(list_object)
-    }
-}
+wrap_jnix_into_java!(
+    Vec<T> where T: jnix::IntoJava<'borrow, 'env, JavaType = AutoLocal<'env, 'borrow>>
+);
 
 impl<'array, 'borrow, 'env> IntoJava<'borrow, 'env> for &'array [u8]
 where
