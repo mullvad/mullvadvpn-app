@@ -66,16 +66,7 @@ where
     }
 }
 
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for String
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        env.auto_local(*env.new_string(&self).expect("Failed to create Java String"))
-    }
-}
+wrap_jnix_into_java!(String);
 
 impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Vec<T>
 where
