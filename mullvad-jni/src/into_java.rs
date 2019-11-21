@@ -8,7 +8,6 @@ use jnix::{
 };
 use mullvad_types::{
     account::AccountData,
-    location::GeoIpLocation,
     relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
     relay_list::RelayList,
     settings::Settings,
@@ -46,20 +45,9 @@ macro_rules! wrap_jnix_into_java {
     };
 }
 
-impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Option<T>
-where
-    'env: 'borrow,
-    T: IntoJava<'borrow, 'env, JavaType = AutoLocal<'env, 'borrow>>,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        match self {
-            Some(data) => data.into_java(env),
-            None => env.auto_local(JObject::null()),
-        }
-    }
-}
+wrap_jnix_into_java!(
+    Option<T> where T: jnix::IntoJava<'borrow, 'env, JavaType = AutoLocal<'env, 'borrow>>
+);
 
 wrap_jnix_into_java!(String);
 
@@ -109,7 +97,6 @@ wrap_jnix_into_java!(AppVersionInfo);
 wrap_jnix_into_java!(AccountData);
 wrap_jnix_into_java!(TunConfig);
 wrap_jnix_into_java!(TunnelEndpoint);
-wrap_jnix_into_java!(GeoIpLocation);
 wrap_jnix_into_java!(RelayList);
 
 impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Constraint<T>
