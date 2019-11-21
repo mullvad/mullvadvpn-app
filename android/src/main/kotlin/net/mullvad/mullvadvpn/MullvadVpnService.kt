@@ -11,7 +11,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
-import net.mullvad.mullvadvpn.model.TunConfig
+import net.mullvad.talpid.tun_provider.TunConfig
 
 class MullvadVpnService : VpnService() {
     private val binder = LocalBinder()

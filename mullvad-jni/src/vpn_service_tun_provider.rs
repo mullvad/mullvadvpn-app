@@ -111,7 +111,7 @@ impl VpnServiceTunProvider {
             .get_method_id(
                 &self.class,
                 "createTun",
-                "(Lnet/mullvad/mullvadvpn/model/TunConfig;)I",
+                "(Lnet/mullvad/talpid/tun_provider/TunConfig;)I",
             )
             .map_err(|cause| Error::FindMethod("createTun", cause))?;
 

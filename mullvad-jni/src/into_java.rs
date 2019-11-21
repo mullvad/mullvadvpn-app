@@ -261,7 +261,7 @@ impl<'env> IntoJava<'env> for TunConfig {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let class = get_class("net/mullvad/mullvadvpn/model/TunConfig");
+        let class = get_class("net/mullvad/talpid/tun_provider/TunConfig");
         let addresses = env.auto_local(self.addresses.into_java(env));
         let dns_servers = env.auto_local(self.dns_servers.into_java(env));
         let routes = env.auto_local(self.routes.into_java(env));
