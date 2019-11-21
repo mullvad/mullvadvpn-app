@@ -1,6 +1,6 @@
 use crate::{daemon_interface, get_class};
 use ipnetwork::IpNetwork;
-use jni::{
+use jnix::jni::{
     objects::{JList, JObject, JString, JValue},
     signature::JavaType,
     sys::{jboolean, jint, jshort, jsize},

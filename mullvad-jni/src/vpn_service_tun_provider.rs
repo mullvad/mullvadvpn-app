@@ -1,6 +1,6 @@
 use crate::{get_class, into_java::IntoJava};
 use ipnetwork::IpNetwork;
-use jni::{
+use jnix::jni::{
     objects::{GlobalRef, JObject, JValue},
     signature::{JavaType, Primitive},
     JNIEnv, JavaVM,
@@ -20,25 +20,25 @@ use talpid_types::BoxedError;
 #[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to attach Java VM to tunnel thread")]
-    AttachJvmToThread(#[error(source)] jni::errors::Error),
+    AttachJvmToThread(#[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to allow socket to bypass tunnel")]
     Bypass,
 
     #[error(display = "Failed to call Java method TalpidVpnService.{}", _0)]
-    CallMethod(&'static str, #[error(source)] jni::errors::Error),
+    CallMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to create Java VM handle clone")]
-    CloneJavaVm(#[error(source)] jni::errors::Error),
+    CloneJavaVm(#[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to create global reference to TalpidVpnService instance")]
-    CreateGlobalReference(#[error(source)] jni::errors::Error),
+    CreateGlobalReference(#[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to find TalpidVpnService.{} method", _0)]
-    FindMethod(&'static str, #[error(source)] jni::errors::Error),
+    FindMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to get Java VM instance")]
-    GetJvmInstance(#[error(source)] jni::errors::Error),
+    GetJvmInstance(#[error(source)] jnix::jni::errors::Error),
 
     #[error(
         display = "Received an invalid result from TalpidVpnService.{}: {}",
