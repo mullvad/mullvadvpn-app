@@ -1,8 +1,10 @@
 use crate::{get_class, into_java::IntoJava};
-use jnix::jni::{
-    objects::{GlobalRef, JMethodID, JObject, JValue},
-    signature::{JavaType, Primitive},
-    AttachGuard, JNIEnv,
+use jnix::{
+    jni::{
+        objects::{GlobalRef, JMethodID, JObject, JValue},
+        signature::{JavaType, Primitive},
+    },
+    JnixEnv,
 };
 use mullvad_daemon::EventListener;
 use mullvad_types::{
@@ -37,7 +39,7 @@ enum Event {
 pub struct JniEventListener(mpsc::Sender<Event>);
 
 impl JniEventListener {
-    pub fn spawn(env: &JNIEnv, mullvad_daemon: &JObject) -> Result<Self, Error> {
+    pub fn spawn(env: &JnixEnv, mullvad_daemon: &JObject) -> Result<Self, Error> {
         JniEventHandler::spawn(env, mullvad_daemon)
     }
 }
@@ -65,7 +67,7 @@ impl EventListener for JniEventListener {
 }
 
 struct JniEventHandler<'env> {
-    env: AttachGuard<'env>,
+    env: JnixEnv<'env>,
     mullvad_ipc_client: JObject<'env>,
     notify_app_version_info_event: JMethodID<'env>,
     notify_keygen_event: JMethodID<'env>,
@@ -77,7 +79,7 @@ struct JniEventHandler<'env> {
 
 impl JniEventHandler<'_> {
     pub fn spawn(
-        old_env: &JNIEnv,
+        old_env: &JnixEnv,
         old_mullvad_ipc_client: &JObject,
     ) -> Result<JniEventListener, Error> {
         let (tx, rx) = mpsc::channel();
@@ -87,10 +89,14 @@ impl JniEventHandler<'_> {
             .map_err(Error::CreateGlobalReference)?;
 
         thread::spawn(move || match jvm.attach_current_thread() {
-            Ok(env) => match JniEventHandler::new(env, mullvad_ipc_client.as_obj(), rx) {
-                Ok(mut listener) => listener.run(),
-                Err(error) => log::error!("{}", error.display_chain()),
-            },
+            Ok(attach_guard) => {
+                let env = JnixEnv::from(attach_guard.clone());
+
+                match JniEventHandler::new(env, mullvad_ipc_client.as_obj(), rx) {
+                    Ok(mut listener) => listener.run(),
+                    Err(error) => log::error!("{}", error.display_chain()),
+                }
+            }
             Err(error) => {
                 log::error!(
                     "{}",
@@ -107,7 +113,7 @@ impl JniEventHandler<'_> {
 
 impl<'env> JniEventHandler<'env> {
     fn new(
-        env: AttachGuard<'env>,
+        env: JnixEnv<'env>,
         mullvad_ipc_client: JObject<'env>,
         events: mpsc::Receiver<Event>,
     ) -> Result<Self, Error> {
@@ -156,7 +162,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn get_method_id(
-        env: &AttachGuard<'env>,
+        env: &JnixEnv<'env>,
         class: &GlobalRef,
         method: &'static str,
         signature: &str,
