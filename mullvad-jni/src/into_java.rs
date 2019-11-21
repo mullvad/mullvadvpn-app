@@ -205,35 +205,7 @@ where
     }
 }
 
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for TunConfig
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/talpid/tun_provider/TunConfig");
-        let addresses = self.addresses.into_java(env);
-        let dns_servers = self.dns_servers.into_java(env);
-        let routes = self.routes.into_java(env);
-        let mtu = self.mtu as jint;
-        let parameters = [
-            JValue::Object(addresses.as_obj()),
-            JValue::Object(dns_servers.as_obj()),
-            JValue::Object(routes.as_obj()),
-            JValue::Int(mtu),
-        ];
-
-        env.auto_local(
-            env.new_object(
-                &class,
-                "(Ljava/util/List;Ljava/util/List;Ljava/util/List;I)V",
-                &parameters,
-            )
-            .expect("Failed to create TunConfig Java object"),
-        )
-    }
-}
+wrap_jnix_into_java!(TunConfig);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for TransportProtocol
 where
