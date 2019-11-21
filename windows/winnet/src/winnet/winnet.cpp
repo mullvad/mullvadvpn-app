@@ -11,14 +11,17 @@
 #include <stdexcept>
 #include <memory>
 #include <optional>
+#include <mutex>
 
 using namespace winnet::routing;
+using AutoLockType = std::scoped_lock<std::mutex>;
 
 namespace
 {
 
 OfflineMonitor *g_OfflineMonitor = nullptr;
 
+std::mutex g_RouteManagerLock;
 RouteManager *g_RouteManager = nullptr;
 std::shared_ptr<shared::LogSinkAdapter> g_RouteManagerLogSink;
 
@@ -369,6 +372,8 @@ WinNet_ActivateRouteManager(
 	void *logSinkContext
 )
 {
+	AutoLockType lock(g_RouteManagerLock);
+
 	try
 	{
 		if (nullptr != g_RouteManager)
@@ -401,6 +406,8 @@ WinNet_AddRoutes(
 	uint32_t numRoutes
 )
 {
+	AutoLockType lock(g_RouteManagerLock);
+
 	if (nullptr == g_RouteManager)
 	{
 		return false;
@@ -430,6 +437,8 @@ WinNet_AddRoute(
 	const WINNET_ROUTE *route
 )
 {
+	AutoLockType lock(g_RouteManagerLock);
+
 	if (nullptr == g_RouteManager)
 	{
 		return false;
@@ -464,6 +473,8 @@ WinNet_DeleteRoutes(
 	uint32_t numRoutes
 )
 {
+	AutoLockType lock(g_RouteManagerLock);
+
 	if (nullptr == g_RouteManager)
 	{
 		return false;
@@ -493,6 +504,8 @@ WinNet_DeleteRoute(
 	const WINNET_ROUTE *route
 )
 {
+	AutoLockType lock(g_RouteManagerLock);
+
 	if (nullptr == g_RouteManager)
 	{
 		return false;
@@ -548,6 +561,8 @@ WinNet_RegisterDefaultRouteChangedCallback(
 	void **registrationHandle
 )
 {
+	AutoLockType lock(g_RouteManagerLock);
+
 	if (nullptr == g_RouteManager)
 	{
 		return false;
@@ -626,6 +641,8 @@ WinNet_UnregisterDefaultRouteChangedCallback(
 	void *registrationHandle
 )
 {
+	AutoLockType lock(g_RouteManagerLock);
+
 	if (nullptr == g_RouteManager)
 	{
 		return;
@@ -652,6 +669,8 @@ WINNET_API
 WinNet_DeactivateRouteManager(
 )
 {
+	AutoLockType lock(g_RouteManagerLock);
+
 	try
 	{
 		delete g_RouteManager;
