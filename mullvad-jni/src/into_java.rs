@@ -3,7 +3,7 @@ use ipnetwork::IpNetwork;
 use jnix::{
     jni::{
         objects::{AutoLocal, JList, JObject, JValue},
-        sys::{jboolean, jint, jshort, jsize},
+        sys::{jboolean, jint, jshort},
     },
     JnixEnv,
 };
@@ -104,17 +104,7 @@ where
     type JavaType = AutoLocal<'env, 'borrow>;
 
     fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let size = self.len();
-        let array = env
-            .new_byte_array(size as jsize)
-            .expect("Failed to create a Java array of bytes");
-
-        let data = unsafe { std::slice::from_raw_parts(self.as_ptr() as *const i8, size) };
-
-        env.set_byte_array_region(array, 0, data)
-            .expect("Failed to copy bytes to Java array");
-
-        env.auto_local(JObject::from(array))
+        jnix::IntoJava::into_java(self, env)
     }
 }
 
