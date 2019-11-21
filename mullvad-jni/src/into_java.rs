@@ -189,7 +189,7 @@ impl<'env> IntoJava<'env> for IpNetwork {
     type JavaType = JObject<'env>;
 
     fn into_java(self, env: &JNIEnv<'env>) -> Self::JavaType {
-        let class = get_class("net/mullvad/mullvadvpn/model/InetNetwork");
+        let class = get_class("net/mullvad/talpid/tun_provider/InetNetwork");
         let address = env.auto_local(self.ip().into_java(env));
         let prefix_length = self.prefix() as jshort;
         let parameters = [
