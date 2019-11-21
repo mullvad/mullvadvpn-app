@@ -1,3 +1,5 @@
 package net.mullvad.mullvadvpn.model
 
-data class RelayList(val countries: List<RelayListCountry>)
+import java.util.ArrayList
+
+data class RelayList(val countries: ArrayList<RelayListCountry>)

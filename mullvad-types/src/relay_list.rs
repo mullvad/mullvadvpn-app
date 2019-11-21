@@ -16,6 +16,8 @@ use talpid_types::net::{
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayList {
     pub countries: Vec<RelayListCountry>,
 }

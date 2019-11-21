@@ -10,7 +10,7 @@ use mullvad_types::{
     account::AccountData,
     location::GeoIpLocation,
     relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
-    relay_list::{RelayList, RelayListCountry},
+    relay_list::RelayList,
     settings::Settings,
     states::TunnelState,
     version::AppVersionInfo,
@@ -110,26 +110,7 @@ wrap_jnix_into_java!(AccountData);
 wrap_jnix_into_java!(TunConfig);
 wrap_jnix_into_java!(TunnelEndpoint);
 wrap_jnix_into_java!(GeoIpLocation);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelayList
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/mullvadvpn/model/RelayList");
-        let relay_countries = self.countries.into_java(env);
-        let parameters = [JValue::Object(relay_countries.as_obj())];
-
-        env.auto_local(
-            env.new_object(&class, "(Ljava/util/List;)V", &parameters)
-                .expect("Failed to create RelayList Java object"),
-        )
-    }
-}
-
-wrap_jnix_into_java!(RelayListCountry);
+wrap_jnix_into_java!(RelayList);
 
 impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Constraint<T>
 where
