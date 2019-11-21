@@ -3,7 +3,6 @@ use ipnetwork::IpNetwork;
 use jnix::{
     jni::{
         objects::{AutoLocal, JList, JObject, JValue},
-        signature::JavaType,
         sys::{jboolean, jint, jshort, jsize},
     },
     JnixEnv,
@@ -119,87 +118,9 @@ where
     }
 }
 
-fn ipvx_addr_into_java<'env, 'borrow>(
-    original_octets: &[u8],
-    env: &'borrow JnixEnv<'env>,
-) -> AutoLocal<'env, 'borrow>
-where
-    'env: 'borrow,
-{
-    let class = env.get_class("java/net/InetAddress");
-
-    let constructor = env
-        .get_static_method_id(&class, "getByAddress", "([B)Ljava/net/InetAddress;")
-        .expect("Failed to get InetAddress.getByAddress method ID");
-
-    let octets_array = env
-        .new_byte_array(original_octets.len() as i32)
-        .expect("Failed to create byte array to store IP address");
-
-    let octet_data: Vec<i8> = original_octets
-        .into_iter()
-        .map(|octet| *octet as i8)
-        .collect();
-
-    env.set_byte_array_region(octets_array, 0, &octet_data)
-        .expect("Failed to copy IP address octets to byte array");
-
-    let octets = env.auto_local(JObject::from(octets_array));
-    let result = env
-        .call_static_method_unchecked(
-            &class,
-            constructor,
-            JavaType::Object("java/net/InetAddress".to_owned()),
-            &[JValue::Object(octets.as_obj())],
-        )
-        .expect("Failed to create InetAddress Java object");
-
-    match result {
-        JValue::Object(object) => env.auto_local(JObject::from(object.into_inner())),
-        value => {
-            panic!(
-                "InetAddress.getByAddress returned an invalid value: {:?}",
-                value
-            );
-        }
-    }
-}
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for Ipv4Addr
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        ipvx_addr_into_java(self.octets().as_ref(), env)
-    }
-}
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for Ipv6Addr
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        ipvx_addr_into_java(self.octets().as_ref(), env)
-    }
-}
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for IpAddr
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        match self {
-            IpAddr::V4(address) => address.into_java(env),
-            IpAddr::V6(address) => address.into_java(env),
-        }
-    }
-}
+wrap_jnix_into_java!(IpAddr);
+wrap_jnix_into_java!(Ipv4Addr);
+wrap_jnix_into_java!(Ipv6Addr);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for SocketAddr
 where
