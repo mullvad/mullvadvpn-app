@@ -1,5 +1,7 @@
 use cfg_if::cfg_if;
 use ipnetwork::IpNetwork;
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use std::net::IpAddr;
 #[cfg(unix)]
 use std::os::unix::io::AsRawFd;
@@ -83,4 +85,22 @@ pub struct TunConfig {
 
     /// Maximum Transmission Unit in the tunnel.
     pub mtu: u16,
+}
+
+#[cfg(target_os = "android")]
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.talpid.tun_provider")]
+struct InetNetwork {
+    address: IpAddr,
+    prefix: i16,
+}
+
+#[cfg(target_os = "android")]
+impl From<IpNetwork> for InetNetwork {
+    fn from(ip_network: IpNetwork) -> Self {
+        InetNetwork {
+            address: ip_network.ip(),
+            prefix: ip_network.prefix() as i16,
+        }
+    }
 }

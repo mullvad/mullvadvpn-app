@@ -2429,6 +2429,7 @@ dependencies = [
  "futures 0.1.29 (registry+https://github.com/rust-lang/crates.io-index)",
  "hex 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jnix 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=mullvad-fork)",
  "jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=mullvad-fork)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
