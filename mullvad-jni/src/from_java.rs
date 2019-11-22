@@ -1,7 +1,7 @@
-use crate::{get_class, is_null::IsNull};
-use jni::{
-    objects::{JObject, JString},
-    JNIEnv,
+use crate::is_null::IsNull;
+use jnix::{
+    jni::objects::{JObject, JString},
+    JnixEnv,
 };
 use mullvad_types::relay_constraints::{
     Constraint, LocationConstraint, RelayConstraintsUpdate, RelaySettingsUpdate,
@@ -11,7 +11,7 @@ use std::fmt::Debug;
 pub trait FromJava<'env> {
     type JavaType: 'env;
 
-    fn from_java(env: &JNIEnv<'env>, source: Self::JavaType) -> Self;
+    fn from_java(env: &JnixEnv<'env>, source: Self::JavaType) -> Self;
 }
 
 impl<'env, T> FromJava<'env> for Option<T>
@@ -21,7 +21,7 @@ where
 {
     type JavaType = T::JavaType;
 
-    fn from_java(env: &JNIEnv<'env>, source: Self::JavaType) -> Self {
+    fn from_java(env: &JnixEnv<'env>, source: Self::JavaType) -> Self {
         if source.is_null() {
             None
         } else {
@@ -33,7 +33,7 @@ where
 impl<'env> FromJava<'env> for String {
     type JavaType = JString<'env>;
 
-    fn from_java(env: &JNIEnv<'env>, source: Self::JavaType) -> Self {
+    fn from_java(env: &JnixEnv<'env>, source: Self::JavaType) -> Self {
         String::from(
             env.get_string(source)
                 .expect("Failed to convert from Java String"),
@@ -48,7 +48,7 @@ where
 {
     type JavaType = JObject<'env>;
 
-    fn from_java(env: &JNIEnv<'env>, source: Self::JavaType) -> Self {
+    fn from_java(env: &JnixEnv<'env>, source: Self::JavaType) -> Self {
         if is_instance_of(env, source, "net/mullvad/mullvadvpn/model/Constraint$Any") {
             Constraint::Any
         } else if is_instance_of(env, source, "net/mullvad/mullvadvpn/model/Constraint$Only") {
@@ -64,7 +64,7 @@ where
 impl<'env> FromJava<'env> for LocationConstraint {
     type JavaType = JObject<'env>;
 
-    fn from_java(env: &JNIEnv<'env>, source: Self::JavaType) -> Self {
+    fn from_java(env: &JnixEnv<'env>, source: Self::JavaType) -> Self {
         let country_class = "net/mullvad/mullvadvpn/model/LocationConstraint$Country";
         let city_class = "net/mullvad/mullvadvpn/model/LocationConstraint$City";
         let hostname_class = "net/mullvad/mullvadvpn/model/LocationConstraint$Hostname";
@@ -100,7 +100,7 @@ impl<'env> FromJava<'env> for LocationConstraint {
 impl<'env> FromJava<'env> for RelayConstraintsUpdate {
     type JavaType = JObject<'env>;
 
-    fn from_java(env: &JNIEnv<'env>, source: Self::JavaType) -> Self {
+    fn from_java(env: &JnixEnv<'env>, source: Self::JavaType) -> Self {
         let location = get_object_field(
             env,
             source,
@@ -120,7 +120,7 @@ impl<'env> FromJava<'env> for RelayConstraintsUpdate {
 impl<'env> FromJava<'env> for RelaySettingsUpdate {
     type JavaType = JObject<'env>;
 
-    fn from_java(env: &JNIEnv<'env>, source: Self::JavaType) -> Self {
+    fn from_java(env: &JnixEnv<'env>, source: Self::JavaType) -> Self {
         let custom_tunnel_endpoint_class =
             "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$CustomTunnelEndpoint";
         let relay_constraints_update_class =
@@ -137,18 +137,18 @@ impl<'env> FromJava<'env> for RelaySettingsUpdate {
 }
 
 fn is_instance_of<'env>(
-    env: &JNIEnv<'env>,
+    env: &JnixEnv<'env>,
     object: JObject<'env>,
     class_name: &'static str,
 ) -> bool {
-    let class = get_class(class_name);
+    let class = env.get_class(class_name);
 
     env.is_instance_of(object, &class)
         .expect("Failed to check if an object is an instance of a specified class")
 }
 
 fn get_string_field<'env>(
-    env: &JNIEnv<'env>,
+    env: &JnixEnv<'env>,
     object: JObject<'env>,
     field_name: &str,
 ) -> JString<'env> {
@@ -161,7 +161,7 @@ fn get_string_field<'env>(
 }
 
 fn get_object_field<'env>(
-    env: &JNIEnv<'env>,
+    env: &JnixEnv<'env>,
     object: JObject<'env>,
     field_name: &str,
     field_type: &str,

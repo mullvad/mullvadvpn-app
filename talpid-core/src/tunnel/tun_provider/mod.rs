@@ -1,5 +1,7 @@
 use cfg_if::cfg_if;
 use ipnetwork::IpNetwork;
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use std::net::IpAddr;
 #[cfg(unix)]
 use std::os::unix::io::AsRawFd;
@@ -71,6 +73,11 @@ pub trait TunProvider: Send + 'static {
 
 /// Configuration for creating a tunnel device.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(package = "net.mullvad.talpid.tun_provider")
+)]
 pub struct TunConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
@@ -79,8 +86,31 @@ pub struct TunConfig {
     pub dns_servers: Vec<IpAddr>,
 
     /// Routes to configure for the tunnel.
+    #[cfg_attr(
+        target_os = "android",
+        jnix(map = "|networks| networks.into_iter().map(InetNetwork::from).collect::<Vec<_>>()")
+    )]
     pub routes: Vec<IpNetwork>,
 
     /// Maximum Transmission Unit in the tunnel.
+    #[cfg_attr(target_os = "android", jnix(map = "|mtu| mtu as i32"))]
     pub mtu: u16,
+}
+
+#[cfg(target_os = "android")]
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.talpid.tun_provider")]
+struct InetNetwork {
+    address: IpAddr,
+    prefix: i16,
+}
+
+#[cfg(target_os = "android")]
+impl From<IpNetwork> for InetNetwork {
+    fn from(ip_network: IpNetwork) -> Self {
+        InetNetwork {
+            address: ip_network.ip(),
+            prefix: ip_network.prefix() as i16,
+        }
+    }
 }

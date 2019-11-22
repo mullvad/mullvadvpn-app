@@ -99,8 +99,8 @@ class LocationInfo(val parentView: View, val context: Context) {
     private fun showInAddress(endpoint: Endpoint?) {
         if (endpoint != null) {
             val transportProtocol = when (endpoint.protocol) {
-                is TransportProtocol.Tcp -> context.getString(R.string.tcp)
-                is TransportProtocol.Udp -> context.getString(R.string.udp)
+                TransportProtocol.Tcp -> context.getString(R.string.tcp)
+                TransportProtocol.Udp -> context.getString(R.string.udp)
             }
 
             inAddress.text = context.getString(

@@ -1,9 +1,11 @@
-use crate::{get_class, into_java::IntoJava};
 use ipnetwork::IpNetwork;
-use jni::{
-    objects::{GlobalRef, JObject, JValue},
-    signature::{JavaType, Primitive},
-    JNIEnv, JavaVM,
+use jnix::{
+    jni::{
+        objects::{GlobalRef, JObject, JValue},
+        signature::{JavaType, Primitive},
+        JavaVM,
+    },
+    IntoJava, JnixEnv,
 };
 use std::{
     fs::File,
@@ -20,25 +22,25 @@ use talpid_types::BoxedError;
 #[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to attach Java VM to tunnel thread")]
-    AttachJvmToThread(#[error(source)] jni::errors::Error),
+    AttachJvmToThread(#[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to allow socket to bypass tunnel")]
     Bypass,
 
     #[error(display = "Failed to call Java method TalpidVpnService.{}", _0)]
-    CallMethod(&'static str, #[error(source)] jni::errors::Error),
+    CallMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to create Java VM handle clone")]
-    CloneJavaVm(#[error(source)] jni::errors::Error),
+    CloneJavaVm(#[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to create global reference to TalpidVpnService instance")]
-    CreateGlobalReference(#[error(source)] jni::errors::Error),
+    CreateGlobalReference(#[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to find TalpidVpnService.{} method", _0)]
-    FindMethod(&'static str, #[error(source)] jni::errors::Error),
+    FindMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to get Java VM instance")]
-    GetJvmInstance(#[error(source)] jni::errors::Error),
+    GetJvmInstance(#[error(source)] jnix::jni::errors::Error),
 
     #[error(
         display = "Received an invalid result from TalpidVpnService.{}: {}",
@@ -59,9 +61,9 @@ pub struct VpnServiceTunProvider {
 
 impl VpnServiceTunProvider {
     /// Create a new VpnServiceTunProvider interfacing with Android's VpnService.
-    pub fn new(env: &JNIEnv, mullvad_vpn_service: &JObject) -> Result<Self, Error> {
+    pub fn new(env: &JnixEnv, mullvad_vpn_service: &JObject) -> Result<Self, Error> {
         let jvm = env.get_java_vm().map_err(Error::GetJvmInstance)?;
-        let class = get_class("net/mullvad/talpid/TalpidVpnService");
+        let class = env.get_class("net/mullvad/talpid/TalpidVpnService");
         let object = env
             .new_global_ref(*mullvad_vpn_service)
             .map_err(Error::CreateGlobalReference)?;
@@ -103,10 +105,11 @@ impl VpnServiceTunProvider {
     }
 
     fn open_tun(&mut self, config: TunConfig) -> Result<(), Error> {
-        let env = self
-            .jvm
-            .attach_current_thread_as_daemon()
-            .map_err(Error::AttachJvmToThread)?;
+        let env = JnixEnv::from(
+            self.jvm
+                .attach_current_thread_as_daemon()
+                .map_err(Error::AttachJvmToThread)?,
+        );
         let create_tun_method = env
             .get_method_id(
                 &self.class,
@@ -115,7 +118,7 @@ impl VpnServiceTunProvider {
             )
             .map_err(|cause| Error::FindMethod("createTun", cause))?;
 
-        let java_config = env.auto_local(config.clone().into_java(&env));
+        let java_config = config.clone().into_java(&env);
         let result = env
             .call_method_unchecked(
                 self.object.as_obj(),
@@ -194,10 +197,11 @@ impl Tun for VpnServiceTun {
     }
 
     fn bypass(&mut self, socket: RawFd) -> Result<(), BoxedError> {
-        let env = self
-            .jvm
-            .attach_current_thread_as_daemon()
-            .map_err(|cause| BoxedError::new(Error::AttachJvmToThread(cause)))?;
+        let env = JnixEnv::from(
+            self.jvm
+                .attach_current_thread_as_daemon()
+                .map_err(|cause| BoxedError::new(Error::AttachJvmToThread(cause)))?,
+        );
         let create_tun_method = env
             .get_method_id(&self.class, "bypass", "(I)Z")
             .map_err(|cause| BoxedError::new(Error::FindMethod("bypass", cause)))?;

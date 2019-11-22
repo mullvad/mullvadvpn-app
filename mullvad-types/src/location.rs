@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
@@ -64,15 +66,21 @@ pub struct AmIMullvad {
 
 /// GeoIP information exposed from the daemon to frontends.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct GeoIpLocation {
     pub ipv4: Option<Ipv4Addr>,
     pub ipv6: Option<Ipv6Addr>,
     pub country: String,
     pub city: Option<String>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub latitude: f64,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub longitude: f64,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub mullvad_exit_ip: bool,
     pub hostname: Option<String>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_hostname: Option<String>,
 }
 

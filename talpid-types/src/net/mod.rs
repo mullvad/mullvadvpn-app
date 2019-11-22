@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::{
     error::Error,
@@ -79,11 +81,15 @@ impl fmt::Display for TunnelType {
 /// A tunnel endpoint is broadcast during the connecting and connected states of the tunnel state
 /// machine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub struct TunnelEndpoint {
     #[serde(flatten)]
     pub endpoint: Endpoint,
     /// Type of the tunnel
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_type: TunnelType,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub proxy: Option<proxy::ProxyEndpoint>,
 }
 
@@ -104,6 +110,8 @@ impl fmt::Display for TunnelEndpoint {
 
 /// Represents a network layer IP address together with the transport layer protocol and port.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub struct Endpoint {
     /// The socket address for the endpoint
     pub address: SocketAddr,
@@ -130,6 +138,8 @@ impl fmt::Display for Endpoint {
 /// Representation of a transport protocol, either UDP or TCP.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub enum TransportProtocol {
     /// Represents the UDP transport protocol.
     Udp,

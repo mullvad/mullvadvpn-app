@@ -820,7 +820,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "jni"
-version = "0.13.1"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "cesu8 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -835,6 +835,27 @@ dependencies = [
 name = "jni-sys"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "jnix"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "jni 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jnix-macros 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "once_cell 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parking_lot 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "jnix-macros"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "proc-macro2 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quote 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "syn 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "jsonrpc-client-core"
@@ -1294,7 +1315,7 @@ dependencies = [
  "err-derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.29 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "jni 0.13.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jnix 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-client-core 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 8.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1390,6 +1411,7 @@ dependencies = [
  "chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "err-derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jnix 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "mullvad-paths 0.1.0",
@@ -2408,6 +2430,7 @@ dependencies = [
  "futures 0.1.29 (registry+https://github.com/rust-lang/crates.io-index)",
  "hex 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jnix 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 8.0.2 (git+https://github.com/mullvad/jsonrpc?branch=mullvad-fork)",
  "jsonrpc-macros 8.0.1 (git+https://github.com/mullvad/jsonrpc?branch=mullvad-fork)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2494,6 +2517,7 @@ dependencies = [
  "base64 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "err-derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jnix 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.101 (registry+https://github.com/rust-lang/crates.io-index)",
  "x25519-dalek 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3211,8 +3235,10 @@ dependencies = [
 "checksum iovec 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "b2b3ea6ff95e175473f8ffe6a7eb7c00d054240321b84c57051175fe3c1e075e"
 "checksum ipnetwork 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)" = "bf7762e2b430ad80cbef992a1d4f15a15d9d4068bdd8e57acb0a3d21d0cf7f40"
 "checksum itoa 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "501266b7edd0174f8530248f87f99c88fbe60ca4ef3dd486835b8d8d53136f7f"
-"checksum jni 0.13.1 (registry+https://github.com/rust-lang/crates.io-index)" = "7e00f1fd30a82a801f8bf38bcb0895088a0013cde111acb713c0824edc372aa4"
+"checksum jni 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)" = "1981310da491a4f0f815238097d0d43d8072732b5ae5f8bd0d8eadf5bf245402"
 "checksum jni-sys 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8eaf4bc02d17cbdd7ff4c7438cafcdf7fb9a4613313ad11b4f8fefe7d3fa0130"
+"checksum jnix 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "14b5a1a12dc744e2a28311fec971a88ed9ff44cc882fe8ed0824609e32b0d36a"
+"checksum jnix-macros 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f6381b00e7628f4d3971b9851ffff686dffdde91d15c5ab16621fcee7a52a946"
 "checksum jsonrpc-client-core 0.5.0 (git+https://github.com/mullvad/jsonrpc-client-rs?rev=68aac55b)" = "<none>"
 "checksum jsonrpc-client-core 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f29cb249837420fb0cee7fb0fbf1d22679e121b160e71bb5e0d90b9df241c23e"
 "checksum jsonrpc-client-http 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "2e642eb74423b9dfcb4512fda167148746b76f788a823cd712fadf409f31d302"

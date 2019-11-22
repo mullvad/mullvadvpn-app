@@ -1,8 +1,9 @@
-use crate::{get_class, into_java::IntoJava};
-use jni::{
-    objects::{GlobalRef, JMethodID, JObject, JValue},
-    signature::{JavaType, Primitive},
-    AttachGuard, JNIEnv,
+use jnix::{
+    jni::{
+        objects::{GlobalRef, JMethodID, JObject, JValue},
+        signature::{JavaType, Primitive},
+    },
+    IntoJava, JnixEnv,
 };
 use mullvad_daemon::EventListener;
 use mullvad_types::{
@@ -16,13 +17,13 @@ use talpid_types::ErrorExt;
 #[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to create global reference to MullvadDaemon Java object")]
-    CreateGlobalReference(#[error(source)] jni::errors::Error),
+    CreateGlobalReference(#[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to find {} method", _0)]
-    FindMethod(&'static str, #[error(source)] jni::errors::Error),
+    FindMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to retrieve Java VM instance")]
-    GetJvmInstance(#[error(source)] jni::errors::Error),
+    GetJvmInstance(#[error(source)] jnix::jni::errors::Error),
 }
 
 enum Event {
@@ -37,7 +38,7 @@ enum Event {
 pub struct JniEventListener(mpsc::Sender<Event>);
 
 impl JniEventListener {
-    pub fn spawn(env: &JNIEnv, mullvad_daemon: &JObject) -> Result<Self, Error> {
+    pub fn spawn(env: &JnixEnv, mullvad_daemon: &JObject) -> Result<Self, Error> {
         JniEventHandler::spawn(env, mullvad_daemon)
     }
 }
@@ -65,7 +66,7 @@ impl EventListener for JniEventListener {
 }
 
 struct JniEventHandler<'env> {
-    env: AttachGuard<'env>,
+    env: JnixEnv<'env>,
     mullvad_ipc_client: JObject<'env>,
     notify_app_version_info_event: JMethodID<'env>,
     notify_keygen_event: JMethodID<'env>,
@@ -77,7 +78,7 @@ struct JniEventHandler<'env> {
 
 impl JniEventHandler<'_> {
     pub fn spawn(
-        old_env: &JNIEnv,
+        old_env: &JnixEnv,
         old_mullvad_ipc_client: &JObject,
     ) -> Result<JniEventListener, Error> {
         let (tx, rx) = mpsc::channel();
@@ -87,10 +88,14 @@ impl JniEventHandler<'_> {
             .map_err(Error::CreateGlobalReference)?;
 
         thread::spawn(move || match jvm.attach_current_thread() {
-            Ok(env) => match JniEventHandler::new(env, mullvad_ipc_client.as_obj(), rx) {
-                Ok(mut listener) => listener.run(),
-                Err(error) => log::error!("{}", error.display_chain()),
-            },
+            Ok(attach_guard) => {
+                let env = JnixEnv::from(attach_guard.clone());
+
+                match JniEventHandler::new(env, mullvad_ipc_client.as_obj(), rx) {
+                    Ok(mut listener) => listener.run(),
+                    Err(error) => log::error!("{}", error.display_chain()),
+                }
+            }
             Err(error) => {
                 log::error!(
                     "{}",
@@ -107,11 +112,11 @@ impl JniEventHandler<'_> {
 
 impl<'env> JniEventHandler<'env> {
     fn new(
-        env: AttachGuard<'env>,
+        env: JnixEnv<'env>,
         mullvad_ipc_client: JObject<'env>,
         events: mpsc::Receiver<Event>,
     ) -> Result<Self, Error> {
-        let class = get_class("net/mullvad/mullvadvpn/MullvadDaemon");
+        let class = env.get_class("net/mullvad/mullvadvpn/MullvadDaemon");
         let notify_app_version_info_event = Self::get_method_id(
             &env,
             &class,
@@ -156,7 +161,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn get_method_id(
-        env: &AttachGuard<'env>,
+        env: &JnixEnv<'env>,
         class: &GlobalRef,
         method: &'static str,
         signature: &str,
@@ -180,7 +185,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_keygen_event(&self, event: KeygenEvent) {
-        let java_keygen_event = self.env.auto_local(event.into_java(&self.env));
+        let java_keygen_event = event.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
@@ -198,7 +203,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_relay_list_event(&self, relay_list: RelayList) {
-        let java_relay_list = self.env.auto_local(relay_list.into_java(&self.env));
+        let java_relay_list = relay_list.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
@@ -216,7 +221,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_settings(&self, settings: Settings) {
-        let java_settings = self.env.auto_local(settings.into_java(&self.env));
+        let java_settings = settings.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
@@ -234,7 +239,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_tunnel_event(&self, event: TunnelState) {
-        let java_tunnel_state = self.env.auto_local(event.into_java(&self.env));
+        let java_tunnel_state = event.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,
@@ -252,7 +257,7 @@ impl<'env> JniEventHandler<'env> {
     }
 
     fn handle_app_version_info_event(&self, app_version_info: AppVersionInfo) {
-        let java_app_version_info = self.env.auto_local(app_version_info.into_java(&self.env));
+        let java_app_version_info = app_version_info.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(
             self.mullvad_ipc_client,

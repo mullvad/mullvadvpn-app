@@ -49,9 +49,9 @@ class LocationInfoCache(
                 }
                 is TunnelState.Disconnecting -> {
                     when (value.actionAfterDisconnect) {
-                        is ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
-                        is ActionAfterDisconnect.Block -> location = null
-                        is ActionAfterDisconnect.Reconnect -> location = locationFromSelectedRelay()
+                        ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
+                        ActionAfterDisconnect.Block -> location = null
+                        ActionAfterDisconnect.Reconnect -> location = locationFromSelectedRelay()
                     }
                 }
                 is TunnelState.Blocked -> location = null

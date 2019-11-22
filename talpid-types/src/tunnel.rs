@@ -1,4 +1,6 @@
 use crate::net::TunnelEndpoint;
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -22,6 +24,8 @@ pub enum TunnelStateTransition {
 /// Action that will be taken after disconnection is complete.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub enum ActionAfterDisconnect {
     Nothing,
     Block,
@@ -41,6 +45,8 @@ impl TunnelStateTransition {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "reason", content = "details")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub enum BlockReason {
     /// Authentication with remote server failed.
     AuthFailed(Option<String>),
@@ -63,6 +69,8 @@ pub enum BlockReason {
 /// Errors that can occur when generating tunnel parameters.
 #[derive(err_derive::Error, Debug, Serialize, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub enum ParameterGenerationError {
     /// Failure to select a matching tunnel relay
     #[error(display = "Failure to select a matching tunnel relay")]
