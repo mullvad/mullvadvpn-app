@@ -53,9 +53,6 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/talpid/tunnel/BlockReason$ParameterGeneration",
     "net/mullvad/talpid/tunnel/BlockReason$IsOffline",
     "net/mullvad/talpid/tunnel/BlockReason$TapAdapterProblem",
-    "net/mullvad/talpid/tunnel/ParameterGenerationError$NoMatchingRelay",
-    "net/mullvad/talpid/tunnel/ParameterGenerationError$NoMatchingBridgeRelay",
-    "net/mullvad/talpid/tunnel/ParameterGenerationError$NoWireguardKey",
-    "net/mullvad/talpid/tunnel/ParameterGenerationError$CustomTunnelHostResultionError",
+    "net/mullvad/talpid/tunnel/ParameterGenerationError",
     "net/mullvad/talpid/TalpidVpnService",
 ];

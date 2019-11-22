@@ -121,32 +121,7 @@ where
     }
 }
 
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for ParameterGenerationError
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class_variant = match self {
-            ParameterGenerationError::NoMatchingRelay => "NoMatchingRelay",
-            ParameterGenerationError::NoMatchingBridgeRelay => "NoMatchingBridgeRelay ",
-            ParameterGenerationError::NoWireguardKey => "NoWireguardKey",
-            ParameterGenerationError::CustomTunnelHostResultionError => {
-                "CustomTunnelHostResultionError"
-            }
-        };
-        let class_name = format!(
-            "net/mullvad/talpid/tunnel/ParameterGenerationError${}",
-            class_variant
-        );
-        let class = env.get_class(&class_name);
-        env.auto_local(
-            env.new_object(&class, "()V", &[])
-                .expect("Failed to create ParameterGenerationError sub-class variant Java object"),
-        )
-    }
-}
+wrap_jnix_into_java!(ParameterGenerationError);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for TunnelState
 where
