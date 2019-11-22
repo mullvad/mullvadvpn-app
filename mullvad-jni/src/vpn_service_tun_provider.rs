@@ -1,4 +1,3 @@
-use crate::into_java::IntoJava;
 use ipnetwork::IpNetwork;
 use jnix::{
     jni::{
@@ -6,7 +5,7 @@ use jnix::{
         signature::{JavaType, Primitive},
         JavaVM,
     },
-    JnixEnv,
+    IntoJava, JnixEnv,
 };
 use std::{
     fs::File,

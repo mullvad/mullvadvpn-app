@@ -1,10 +1,9 @@
-use crate::into_java::IntoJava;
 use jnix::{
     jni::{
         objects::{GlobalRef, JMethodID, JObject, JValue},
         signature::{JavaType, Primitive},
     },
-    JnixEnv,
+    IntoJava, JnixEnv,
 };
 use mullvad_daemon::EventListener;
 use mullvad_types::{
