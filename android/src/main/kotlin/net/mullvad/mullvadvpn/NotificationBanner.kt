@@ -179,12 +179,12 @@ class NotificationBanner(
             is BlockReason.TapAdapterProblem -> R.string.tap_adapter_problem
             is BlockReason.ParameterGeneration -> {
                 when (reason.error) {
-                    is ParameterGenerationError.NoMatchingRelay -> R.string.no_matching_relay
-                    is ParameterGenerationError.NoMatchingBridgeRelay -> {
+                    ParameterGenerationError.NoMatchingRelay -> R.string.no_matching_relay
+                    ParameterGenerationError.NoMatchingBridgeRelay -> {
                         R.string.no_matching_bridge_relay
                     }
-                    is ParameterGenerationError.NoWireguardKey -> R.string.no_wireguard_key
-                    is ParameterGenerationError.CustomTunnelHostResultionError -> {
+                    ParameterGenerationError.NoWireguardKey -> R.string.no_wireguard_key
+                    ParameterGenerationError.CustomTunnelHostResultionError -> {
                         R.string.custom_tunnel_host_resolution_error
                     }
                 }
