@@ -40,7 +40,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
             reconnecting =
                 (value is TunnelState.Disconnecting &&
-                    value.actionAfterDisconnect is ActionAfterDisconnect.Reconnect) ||
+                    value.actionAfterDisconnect == ActionAfterDisconnect.Reconnect) ||
                 (value is TunnelState.Connecting && reconnecting)
 
             updateNotification()
@@ -62,7 +62,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
                 is TunnelState.Connected -> R.string.secured
                 is TunnelState.Disconnecting -> {
                     when (state.actionAfterDisconnect) {
-                        is ActionAfterDisconnect.Reconnect -> R.string.reconnecting
+                        ActionAfterDisconnect.Reconnect -> R.string.reconnecting
                         else -> R.string.disconnecting
                     }
                 }
@@ -80,7 +80,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
                 is TunnelState.Connected -> R.string.disconnect
                 is TunnelState.Disconnecting -> {
                     when (state.actionAfterDisconnect) {
-                        is ActionAfterDisconnect.Reconnect -> R.string.cancel
+                        ActionAfterDisconnect.Reconnect -> R.string.cancel
                         else -> R.string.connect
                     }
                 }
@@ -98,7 +98,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
                 is TunnelState.Connected -> KEY_DISCONNECT_ACTION
                 is TunnelState.Disconnecting -> {
                     when (state.actionAfterDisconnect) {
-                        is ActionAfterDisconnect.Reconnect -> KEY_DISCONNECT_ACTION
+                        ActionAfterDisconnect.Reconnect -> KEY_DISCONNECT_ACTION
                         else -> KEY_CONNECT_ACTION
                     }
                 }

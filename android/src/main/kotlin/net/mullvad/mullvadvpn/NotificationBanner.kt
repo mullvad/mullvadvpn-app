@@ -124,9 +124,9 @@ class NotificationBanner(
         when (state) {
             is TunnelState.Disconnecting -> {
                 when (state.actionAfterDisconnect) {
-                    is ActionAfterDisconnect.Nothing -> return false
-                    is ActionAfterDisconnect.Block -> showBlocking(null)
-                    is ActionAfterDisconnect.Reconnect -> showBlocking(null)
+                    ActionAfterDisconnect.Nothing -> return false
+                    ActionAfterDisconnect.Block -> showBlocking(null)
+                    ActionAfterDisconnect.Reconnect -> showBlocking(null)
                 }
             }
             is TunnelState.Disconnected -> return false

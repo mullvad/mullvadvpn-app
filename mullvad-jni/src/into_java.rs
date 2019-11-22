@@ -70,31 +70,7 @@ wrap_jnix_into_java!(Constraint<T>
 
 wrap_jnix_into_java!(KeygenEvent);
 wrap_jnix_into_java!(Settings);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for ActionAfterDisconnect
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let variant = match self {
-            ActionAfterDisconnect::Nothing => "Nothing",
-            ActionAfterDisconnect::Block => "Block",
-            ActionAfterDisconnect::Reconnect => "Reconnect",
-        };
-        let class_name = format!(
-            "net/mullvad/talpid/tunnel/ActionAfterDisconnect${}",
-            variant
-        );
-        let class = env.get_class(&class_name);
-
-        env.auto_local(
-            env.new_object(&class, "()V", &[])
-                .expect("Failed to create ActionAfterDisconnect sub-class variant Java object"),
-        )
-    }
-}
+wrap_jnix_into_java!(ActionAfterDisconnect);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for BlockReason
 where
