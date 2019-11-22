@@ -97,61 +97,7 @@ where
     }
 }
 
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for LocationConstraint
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        env.auto_local(match self {
-            LocationConstraint::Country(country_code) => {
-                let class =
-                    env.get_class("net/mullvad/mullvadvpn/model/LocationConstraint$Country");
-                let country = country_code.into_java(env);
-                let parameters = [JValue::Object(country.as_obj())];
-
-                env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
-                    .expect("Failed to create LocationConstraint.Country Java object")
-            }
-            LocationConstraint::City(country_code, city_code) => {
-                let class = env.get_class("net/mullvad/mullvadvpn/model/LocationConstraint$City");
-                let country = country_code.into_java(env);
-                let city = city_code.into_java(env);
-                let parameters = [
-                    JValue::Object(country.as_obj()),
-                    JValue::Object(city.as_obj()),
-                ];
-
-                env.new_object(
-                    &class,
-                    "(Ljava/lang/String;Ljava/lang/String;)V",
-                    &parameters,
-                )
-                .expect("Failed to create LocationConstraint.City Java object")
-            }
-            LocationConstraint::Hostname(country_code, city_code, hostname) => {
-                let class =
-                    env.get_class("net/mullvad/mullvadvpn/model/LocationConstraint$Hostname");
-                let country = country_code.into_java(env);
-                let city = city_code.into_java(env);
-                let hostname = hostname.into_java(env);
-                let parameters = [
-                    JValue::Object(country.as_obj()),
-                    JValue::Object(city.as_obj()),
-                    JValue::Object(hostname.as_obj()),
-                ];
-
-                env.new_object(
-                    &class,
-                    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
-                    &parameters,
-                )
-                .expect("Failed to create LocationConstraint.Hostname Java object")
-            }
-        })
-    }
-}
+wrap_jnix_into_java!(LocationConstraint);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelaySettings
 where
