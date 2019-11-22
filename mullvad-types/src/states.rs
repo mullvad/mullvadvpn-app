@@ -1,4 +1,6 @@
 use crate::location::GeoIpLocation;
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use talpid_types::{
     net::TunnelEndpoint,
@@ -19,6 +21,8 @@ pub enum TargetState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "state", content = "details")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum TunnelState {
     Disconnected,
     Connecting {

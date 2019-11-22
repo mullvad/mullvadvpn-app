@@ -9,10 +9,6 @@ use mullvad_types::{
 };
 use std::fmt::Debug;
 use talpid_core::tunnel::tun_provider::TunConfig;
-use talpid_types::{
-    net::TunnelEndpoint,
-    tunnel::{ActionAfterDisconnect, BlockReason},
-};
 
 pub trait IntoJava<'borrow, 'env: 'borrow> {
     type JavaType;
@@ -60,7 +56,6 @@ where
 wrap_jnix_into_java!(AppVersionInfo);
 wrap_jnix_into_java!(AccountData);
 wrap_jnix_into_java!(TunConfig);
-wrap_jnix_into_java!(TunnelEndpoint);
 wrap_jnix_into_java!(RelayList);
 
 wrap_jnix_into_java!(Constraint<T>
@@ -70,68 +65,7 @@ wrap_jnix_into_java!(Constraint<T>
 
 wrap_jnix_into_java!(KeygenEvent);
 wrap_jnix_into_java!(Settings);
-wrap_jnix_into_java!(ActionAfterDisconnect);
-wrap_jnix_into_java!(BlockReason);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for TunnelState
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        env.auto_local(match self {
-            TunnelState::Disconnected => {
-                let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Disconnected");
-
-                env.new_object(&class, "()V", &[])
-            }
-            TunnelState::Connecting { endpoint, location } => {
-                let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Connecting");
-                let endpoint = endpoint.into_java(env);
-                let location = location.into_java(env);
-                let parameters = [
-                    JValue::Object(endpoint.as_obj()),
-                    JValue::Object(location.as_obj()),
-                ];
-                let signature =
-                    "(Lnet/mullvad/talpid/net/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
-
-                env.new_object(&class, signature, &parameters)
-            }
-            TunnelState::Connected { endpoint, location } => {
-                let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Connected");
-                let endpoint = endpoint.into_java(env);
-                let location = location.into_java(env);
-                let parameters = [
-                    JValue::Object(endpoint.as_obj()),
-                    JValue::Object(location.as_obj()),
-                ];
-                let signature =
-                    "(Lnet/mullvad/talpid/net/TunnelEndpoint;Lnet/mullvad/mullvadvpn/model/GeoIpLocation;)V";
-
-                env.new_object(&class, signature, &parameters)
-            }
-            TunnelState::Disconnecting(action_after_disconnect) => {
-                let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Disconnecting");
-                let after_disconnect = action_after_disconnect.into_java(env);
-                let parameters = [JValue::Object(after_disconnect.as_obj())];
-                let signature = "(Lnet/mullvad/talpid/tunnel/ActionAfterDisconnect;)V";
-
-                env.new_object(&class, signature, &parameters)
-            }
-            TunnelState::Blocked(block_reason) => {
-                let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Blocked");
-                let reason = block_reason.into_java(env);
-                let parameters = [JValue::Object(reason.as_obj())];
-                let signature = "(Lnet/mullvad/talpid/tunnel/BlockReason;)V";
-
-                env.new_object(&class, signature, &parameters)
-            }
-        }
-        .expect("Failed to create TunnelState sub-class variant Java object"))
-    }
-}
+wrap_jnix_into_java!(TunnelState);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for Result<AccountData, daemon_interface::Error>
 where
