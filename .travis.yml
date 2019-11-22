@@ -69,7 +69,7 @@ matrix:
         - source env.sh aarch64-linux-android
         - env
       script:
-        - cargo build --target aarch64-linux-android --verbose
+        - cargo build --target aarch64-linux-android --verbose --package mullvad-jni
         - cd android
         - ./gradlew --console plain assembleDebug
         # Run ktlint with extra andorid rules
