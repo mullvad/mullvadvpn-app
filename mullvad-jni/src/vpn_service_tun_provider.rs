@@ -1,7 +1,7 @@
 use ipnetwork::IpNetwork;
 use jnix::{
     jni::{
-        objects::{GlobalRef, JObject, JValue},
+        objects::{GlobalRef, JValue},
         signature::{JavaType, Primitive},
         JavaVM,
     },
@@ -13,7 +13,7 @@ use std::{
     os::unix::io::{AsRawFd, FromRawFd, RawFd},
 };
 use talpid_core::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
-use talpid_types::BoxedError;
+use talpid_types::{android::AndroidContext, BoxedError};
 
 
 /// Errors that occur while setting up VpnService tunnel.
@@ -33,14 +33,8 @@ pub enum Error {
     #[error(display = "Failed to create Java VM handle clone")]
     CloneJavaVm(#[error(source)] jnix::jni::errors::Error),
 
-    #[error(display = "Failed to create global reference to TalpidVpnService instance")]
-    CreateGlobalReference(#[error(source)] jnix::jni::errors::Error),
-
     #[error(display = "Failed to find TalpidVpnService.{} method", _0)]
     FindMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
-
-    #[error(display = "Failed to get Java VM instance")]
-    GetJvmInstance(#[error(source)] jnix::jni::errors::Error),
 
     #[error(
         display = "Received an invalid result from TalpidVpnService.{}: {}",
@@ -61,13 +55,7 @@ pub struct VpnServiceTunProvider {
 
 impl VpnServiceTunProvider {
     /// Create a new VpnServiceTunProvider interfacing with Android's VpnService.
-    pub fn new(env: &JnixEnv, mullvad_vpn_service: &JObject) -> Result<Self, Error> {
-        let jvm = env.get_java_vm().map_err(Error::GetJvmInstance)?;
-        let class = env.get_class("net/mullvad/talpid/TalpidVpnService");
-        let object = env
-            .new_global_ref(*mullvad_vpn_service)
-            .map_err(Error::CreateGlobalReference)?;
-
+    pub fn new(context: AndroidContext) -> Self {
         // Initial configuration simply intercepts all packets. The only field that matters is
         // `routes`, because it determines what must enter the tunnel. All other fields contain
         // stub values.
@@ -83,13 +71,21 @@ impl VpnServiceTunProvider {
             mtu: 1380,
         };
 
-        Ok(VpnServiceTunProvider {
-            jvm,
-            class,
-            object,
+        let env = JnixEnv::from(
+            context
+                .jvm
+                .attach_current_thread_as_daemon()
+                .expect("Failed to attach thread to Java VM"),
+        );
+        let talpid_vpn_service_class = env.get_class("net/mullvad/talpid/TalpidVpnService");
+
+        VpnServiceTunProvider {
+            jvm: context.jvm,
+            class: talpid_vpn_service_class,
+            object: context.vpn_service,
             active_tun: None,
             last_tun_config: initial_tun_config,
-        })
+        }
     }
 
     fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
