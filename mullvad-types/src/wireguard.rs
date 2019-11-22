@@ -1,4 +1,6 @@
 use chrono::{offset::Utc, DateTime};
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use talpid_types::net::wireguard;
@@ -24,8 +26,12 @@ impl WireguardData {
 
 /// Represents a published public key
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct PublicKey {
+    #[cfg_attr(target_os = "android", jnix(map = "|key| *key.as_bytes()"))]
     pub key: wireguard::PublicKey,
+    #[cfg_attr(target_os = "android", jnix(map = "|date_time| date_time.to_string()"))]
     pub created: DateTime<Utc>,
 }
 

@@ -104,28 +104,7 @@ where
     }
 }
 
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for PublicKey
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/mullvadvpn/model/PublicKey");
-        let key = self.key.as_bytes().into_java(env);
-        let date_created = self.created.to_string().into_java(env);
-        let parameters = [
-            JValue::Object(key.as_obj()),
-            JValue::Object(date_created.as_obj()),
-        ];
-
-        env.auto_local(
-            env.new_object(&class, "([BLjava/lang/String;)V", &parameters)
-                .expect("Failed to create PublicKey Java object"),
-        )
-    }
-}
+wrap_jnix_into_java!(PublicKey);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for AppVersionInfo
 where
