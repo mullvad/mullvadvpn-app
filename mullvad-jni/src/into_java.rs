@@ -1,6 +1,6 @@
 use crate::daemon_interface;
 use jnix::{
-    jni::objects::{AutoLocal, JObject, JValue},
+    jni::objects::{AutoLocal, JValue},
     JnixEnv,
 };
 use mullvad_types::{
@@ -10,7 +10,7 @@ use mullvad_types::{
     settings::Settings,
     states::TunnelState,
     version::AppVersionInfo,
-    wireguard::{KeygenEvent, PublicKey},
+    wireguard::KeygenEvent,
 };
 use std::fmt::Debug;
 use talpid_core::tunnel::tun_provider::TunConfig;
@@ -62,7 +62,6 @@ where
     }
 }
 
-wrap_jnix_into_java!(PublicKey);
 wrap_jnix_into_java!(AppVersionInfo);
 wrap_jnix_into_java!(AccountData);
 wrap_jnix_into_java!(TunConfig);
@@ -75,66 +74,7 @@ wrap_jnix_into_java!(Constraint<T>
 );
 
 wrap_jnix_into_java!(RelaySettings);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for KeygenEvent
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        env.auto_local(match self {
-            KeygenEvent::NewKey(public_key) => {
-                let class = env.get_class("net/mullvad/mullvadvpn/model/KeygenEvent$NewKey");
-                let java_public_key = public_key.into_java(env);
-
-                let parameters = [
-                    JValue::Object(java_public_key.as_obj()),
-                    JValue::Object(JObject::null()),
-                    JValue::Object(JObject::null()),
-                ];
-
-                env.new_object(
-                    &class,
-                    "(Lnet/mullvad/mullvadvpn/model/PublicKey;Ljava/lang/Boolean;Lnet/mullvad/mullvadvpn/model/KeygenFailure;)V",
-                    &parameters,
-                )
-                .expect("Failed to create KeygenEvent.NewKey Java object")
-            }
-            KeygenEvent::TooManyKeys => {
-                let failure_class =
-                    env.get_class("net/mullvad/mullvadvpn/model/KeygenFailure$TooManyKeys");
-
-                let failure = env
-                    .new_object(&failure_class, "()V", &[])
-                    .expect("Failed to create KeygenFailure.TooManyKeys Java object");
-
-                let class = env.get_class("net/mullvad/mullvadvpn/model/KeygenEvent$Failure");
-                env.new_object(
-                    &class,
-                    "(Lnet/mullvad/mullvadvpn/model/KeygenFailure;)V",
-                    &[JValue::Object(failure)],
-                )
-                .expect("Failed to create KeygenEvent.Failure Java object")
-            }
-            KeygenEvent::GenerationFailure => {
-                let failure_class =
-                    env.get_class("net/mullvad/mullvadvpn/model/KeygenFailure$GenerationFailure");
-                let failure = env
-                    .new_object(&failure_class, "()V", &[])
-                    .expect("Failed to create KeygenFailure.GenerationFailure Java object");
-
-                let class = env.get_class("net/mullvad/mullvadvpn/model/KeygenEvent$Failure");
-                env.new_object(
-                    &class,
-                    "(Lnet/mullvad/mullvadvpn/model/KeygenFailure;)V",
-                    &[JValue::Object(failure)],
-                )
-                .expect("Failed to create KeygenEvent.GenerationFailure Java object")
-            }
-        })
-    }
-}
+wrap_jnix_into_java!(KeygenEvent);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelayConstraints
 where
