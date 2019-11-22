@@ -3,6 +3,8 @@ use crate::{
     relay_list::{OpenVpnEndpointData, WireguardEndpointData},
     CustomTunnelEndpoint,
 };
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use talpid_types::net::{openvpn::ProxySettings, TransportProtocol};
@@ -187,6 +189,8 @@ impl fmt::Display for RelayConstraints {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum LocationConstraint {
     /// A country is represented by its two letter country code.
     Country(CountryCode),
