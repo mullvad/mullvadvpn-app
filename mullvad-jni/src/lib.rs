@@ -27,7 +27,7 @@ use std::{
     sync::{mpsc, Once},
     thread,
 };
-use talpid_types::ErrorExt;
+use talpid_types::{android::AndroidContext, ErrorExt};
 
 const LOG_FILENAME: &str = "daemon.log";
 
@@ -42,11 +42,17 @@ static LOAD_CLASSES: Once = Once::new();
 #[derive(Debug, err_derive::Error)]
 #[error(no_from)]
 pub enum Error {
+    #[error(display = "Failed to create global reference to Java object")]
+    CreateGlobalReference(#[error(cause)] jnix::jni::errors::Error),
+
     #[error(display = "Failed to create VpnService tunnel provider")]
     CreateVpnServiceTunProvider(#[error(source)] vpn_service_tun_provider::Error),
 
     #[error(display = "Failed to get cache directory path")]
     GetCacheDir(#[error(source)] mullvad_paths::Error),
+
+    #[error(display = "Failed to get Java VM instance")]
+    GetJvmInstance(#[error(cause)] jnix::jni::errors::Error),
 
     #[error(display = "Failed to get log directory path")]
     GetLogDir(#[error(source)] mullvad_paths::Error),
@@ -130,6 +136,7 @@ fn initialize(
     vpn_service: &JObject,
     log_dir: PathBuf,
 ) -> Result<(), Error> {
+    let android_context = create_android_context(env, *vpn_service)?;
     let tun_provider =
         VpnServiceTunProvider::new(env, vpn_service).map_err(Error::CreateVpnServiceTunProvider)?;
     let daemon_command_sender = spawn_daemon(env, this, tun_provider, log_dir)?;
@@ -137,6 +144,15 @@ fn initialize(
     DAEMON_INTERFACE.set_command_sender(daemon_command_sender);
 
     Ok(())
+}
+
+fn create_android_context(env: &JnixEnv, vpn_service: JObject) -> Result<AndroidContext, Error> {
+    Ok(AndroidContext {
+        jvm: env.get_java_vm().map_err(Error::GetJvmInstance)?,
+        vpn_service: env
+            .new_global_ref(vpn_service)
+            .map_err(Error::CreateGlobalReference)?,
+    })
 }
 
 fn spawn_daemon(
