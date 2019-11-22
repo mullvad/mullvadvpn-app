@@ -16,6 +16,8 @@ pub trait Match<T> {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum Constraint<T: fmt::Debug + Clone + Eq + PartialEq> {
     Any,
     Only(T),
