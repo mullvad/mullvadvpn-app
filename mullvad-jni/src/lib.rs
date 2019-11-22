@@ -61,6 +61,41 @@ pub enum Error {
     StartLogging(#[error(source)] logging::Error),
 }
 
+mod get_account_data_result {
+    use crate::daemon_interface;
+    use jnix::IntoJava;
+    use mullvad_types::account::AccountData;
+
+    #[derive(IntoJava)]
+    #[jnix(package = "net.mullvad.mullvadvpn.model")]
+    pub enum GetAccountDataResult {
+        Ok(AccountData),
+        InvalidAccount,
+        RpcError,
+        OtherError,
+    }
+
+    impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult {
+        fn from(result: Result<AccountData, daemon_interface::Error>) -> Self {
+            match result {
+                Ok(account_data) => GetAccountDataResult::Ok(account_data),
+                Err(error) => match error {
+                    daemon_interface::Error::RpcError(jsonrpc_client_core::Error(
+                        jsonrpc_client_core::ErrorKind::JsonRpcError(jsonrpc_core::Error {
+                            code: jsonrpc_core::ErrorCode::ServerError(-200),
+                            ..
+                        }),
+                        _,
+                    )) => GetAccountDataResult::InvalidAccount,
+                    daemon_interface::Error::RpcError(_) => GetAccountDataResult::RpcError,
+                    _ => GetAccountDataResult::OtherError,
+                },
+            }
+        }
+    }
+}
+use get_account_data_result::GetAccountDataResult;
+
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
@@ -244,7 +279,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
         );
     }
 
-    result.into_java(&env).forget()
+    jnix::IntoJava::into_java(GetAccountDataResult::from(result), &env).forget()
 }
 
 #[no_mangle]
