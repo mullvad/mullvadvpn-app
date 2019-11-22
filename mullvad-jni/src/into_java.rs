@@ -11,7 +11,6 @@ use mullvad_types::{
     states::TunnelState,
     version::AppVersionInfo,
     wireguard::{KeygenEvent, PublicKey},
-    CustomTunnelEndpoint,
 };
 use std::fmt::Debug;
 use talpid_core::tunnel::tun_provider::TunConfig;
@@ -75,37 +74,7 @@ wrap_jnix_into_java!(Constraint<T>
         T: Clone + Eq + Debug + jnix::IntoJava<'borrow, 'env, JavaType = AutoLocal<'env, 'borrow>>
 );
 
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelaySettings
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        match self {
-            RelaySettings::CustomTunnelEndpoint(endpoint) => endpoint.into_java(env),
-            RelaySettings::Normal(relay_constraints) => relay_constraints.into_java(env),
-        }
-    }
-}
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for CustomTunnelEndpoint
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class =
-            env.get_class("net/mullvad/mullvadvpn/model/RelaySettings$CustomTunnelEndpoint");
-
-        env.auto_local(
-            env.new_object(&class, "()V", &[])
-                .expect("Failed to create CustomTunnelEndpoint Java object"),
-        )
-    }
-}
+wrap_jnix_into_java!(RelaySettings);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for KeygenEvent
 where
