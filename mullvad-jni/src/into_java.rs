@@ -5,7 +5,7 @@ use jnix::{
 };
 use mullvad_types::{
     account::AccountData,
-    relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
+    relay_constraints::{Constraint, RelayConstraints, RelaySettings},
     relay_list::RelayList,
     settings::Settings,
     states::TunnelState,
@@ -70,34 +70,11 @@ wrap_jnix_into_java!(TunConfig);
 wrap_jnix_into_java!(TunnelEndpoint);
 wrap_jnix_into_java!(RelayList);
 
-impl<'borrow, 'env, T> IntoJava<'borrow, 'env> for Constraint<T>
-where
-    'env: 'borrow,
-    T: Clone + Eq + Debug + IntoJava<'borrow, 'env, JavaType = AutoLocal<'env, 'borrow>>,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
+wrap_jnix_into_java!(Constraint<T>
+    where
+        T: Clone + Eq + Debug + jnix::IntoJava<'borrow, 'env, JavaType = AutoLocal<'env, 'borrow>>
+);
 
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        env.auto_local(match self {
-            Constraint::Any => {
-                let class = env.get_class("net/mullvad/mullvadvpn/model/Constraint$Any");
-
-                env.new_object(&class, "()V", &[])
-                    .expect("Failed to create Constraint.Any Java object")
-            }
-            Constraint::Only(constraint) => {
-                let class = env.get_class("net/mullvad/mullvadvpn/model/Constraint$Only");
-                let value = constraint.into_java(env);
-                let parameters = [JValue::Object(value.as_obj())];
-
-                env.new_object(&class, "(Ljava/lang/Object;)V", &parameters)
-                    .expect("Failed to create Constraint.Only Java object")
-            }
-        })
-    }
-}
-
-wrap_jnix_into_java!(LocationConstraint);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelaySettings
 where
