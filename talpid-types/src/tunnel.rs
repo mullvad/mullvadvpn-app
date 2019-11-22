@@ -45,6 +45,8 @@ impl TunnelStateTransition {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "reason", content = "details")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub enum BlockReason {
     /// Authentication with remote server failed.
     AuthFailed(Option<String>),
