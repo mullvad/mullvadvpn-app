@@ -4,13 +4,8 @@ use jnix::{
     JnixEnv,
 };
 use mullvad_types::{
-    account::AccountData,
-    relay_constraints::{Constraint, RelaySettings},
-    relay_list::RelayList,
-    settings::Settings,
-    states::TunnelState,
-    version::AppVersionInfo,
-    wireguard::KeygenEvent,
+    account::AccountData, relay_constraints::Constraint, relay_list::RelayList, settings::Settings,
+    states::TunnelState, version::AppVersionInfo, wireguard::KeygenEvent,
 };
 use std::fmt::Debug;
 use talpid_core::tunnel::tun_provider::TunConfig;
@@ -73,34 +68,8 @@ wrap_jnix_into_java!(Constraint<T>
         T: Clone + Eq + Debug + jnix::IntoJava<'borrow, 'env, JavaType = AutoLocal<'env, 'borrow>>
 );
 
-wrap_jnix_into_java!(RelaySettings);
 wrap_jnix_into_java!(KeygenEvent);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for Settings
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/mullvadvpn/model/Settings");
-        let account_token = self.get_account_token().into_java(env);
-        let relay_settings = self.get_relay_settings().into_java(env);
-        let parameters = [
-            JValue::Object(account_token.as_obj()),
-            JValue::Object(relay_settings.as_obj()),
-        ];
-
-        env.auto_local(
-            env.new_object(
-                &class,
-                "(Ljava/lang/String;Lnet/mullvad/mullvadvpn/model/RelaySettings;)V",
-                &parameters,
-            )
-            .expect("Failed to create Settings Java object"),
-        )
-    }
-}
+wrap_jnix_into_java!(Settings);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for ActionAfterDisconnect
 where
