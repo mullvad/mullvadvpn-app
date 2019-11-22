@@ -2,5 +2,5 @@ package net.mullvad.mullvadvpn.model
 
 sealed class RelaySettings {
     class CustomTunnelEndpoint() : RelaySettings()
-    class RelayConstraints(var location: Constraint<LocationConstraint>) : RelaySettings()
+    class Normal(var relayConstraints: RelayConstraints) : RelaySettings()
 }

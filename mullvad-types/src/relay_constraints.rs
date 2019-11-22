@@ -65,6 +65,8 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Match<T> for Constraint<T> {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum RelaySettings {
     CustomTunnelEndpoint(CustomTunnelEndpoint),
     Normal(RelayConstraints),
