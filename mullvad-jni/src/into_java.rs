@@ -11,7 +11,7 @@ use std::fmt::Debug;
 use talpid_core::tunnel::tun_provider::TunConfig;
 use talpid_types::{
     net::TunnelEndpoint,
-    tunnel::{ActionAfterDisconnect, BlockReason, ParameterGenerationError},
+    tunnel::{ActionAfterDisconnect, BlockReason},
 };
 
 pub trait IntoJava<'borrow, 'env: 'borrow> {
@@ -71,57 +71,7 @@ wrap_jnix_into_java!(Constraint<T>
 wrap_jnix_into_java!(KeygenEvent);
 wrap_jnix_into_java!(Settings);
 wrap_jnix_into_java!(ActionAfterDisconnect);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for BlockReason
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let variant = match self {
-            BlockReason::AuthFailed(reason) => {
-                let class = env.get_class("net/mullvad/talpid/tunnel/BlockReason$AuthFailed");
-                let reason = reason.into_java(env);
-                let parameters = [JValue::Object(reason.as_obj())];
-
-                return env.auto_local(
-                    env.new_object(&class, "(Ljava/lang/String;)V", &parameters)
-                        .expect("Failed to create BlockReason.AuthFailed Java object"),
-                );
-            }
-            BlockReason::Ipv6Unavailable => "Ipv6Unavailable",
-            BlockReason::SetFirewallPolicyError => "SetFirewallPolicyError",
-            BlockReason::SetDnsError => "SetDnsError",
-            BlockReason::StartTunnelError => "StartTunnelError",
-            BlockReason::TunnelParameterError(reason) => {
-                let class =
-                    env.get_class("net/mullvad/talpid/tunnel/BlockReason$ParameterGeneration");
-                let reason = reason.into_java(env);
-                let parameters = [JValue::Object(reason.as_obj())];
-                return env.auto_local(
-                    env.new_object(
-                        &class,
-                        "(Lnet/mullvad/talpid/tunnel/ParameterGenerationError;)V",
-                        &parameters,
-                    )
-                    .expect("Failed to create BlockReason.ParameterGeneration Java object"),
-                );
-            }
-            BlockReason::IsOffline => "IsOffline",
-            BlockReason::TapAdapterProblem => "TapAdapterProblem",
-        };
-        let class_name = format!("net/mullvad/talpid/tunnel/BlockReason${}", variant);
-        let class = env.get_class(&class_name);
-
-        env.auto_local(
-            env.new_object(&class, "()V", &[])
-                .expect("Failed to create BlockReason sub-class variant Java object"),
-        )
-    }
-}
-
-wrap_jnix_into_java!(ParameterGenerationError);
+wrap_jnix_into_java!(BlockReason);
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for TunnelState
 where
