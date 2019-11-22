@@ -3,14 +3,13 @@
 mod classes;
 mod daemon_interface;
 mod from_java;
-mod into_java;
 mod is_null;
 mod jni_event_listener;
 mod vpn_service_tun_provider;
 
 use crate::{
-    daemon_interface::DaemonInterface, from_java::FromJava, into_java::IntoJava,
-    jni_event_listener::JniEventListener, vpn_service_tun_provider::VpnServiceTunProvider,
+    daemon_interface::DaemonInterface, from_java::FromJava, jni_event_listener::JniEventListener,
+    vpn_service_tun_provider::VpnServiceTunProvider,
 };
 use jnix::{
     jni::{
@@ -18,10 +17,11 @@ use jnix::{
         sys::{jboolean, JNI_FALSE, JNI_TRUE},
         JNIEnv,
     },
-    JnixEnv,
+    IntoJava, JnixEnv,
 };
 use lazy_static::lazy_static;
 use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
+use mullvad_types::account::AccountData;
 use std::{
     path::{Path, PathBuf},
     sync::{mpsc, Once},
@@ -61,40 +61,33 @@ pub enum Error {
     StartLogging(#[error(source)] logging::Error),
 }
 
-mod get_account_data_result {
-    use crate::daemon_interface;
-    use jnix::IntoJava;
-    use mullvad_types::account::AccountData;
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum GetAccountDataResult {
+    Ok(AccountData),
+    InvalidAccount,
+    RpcError,
+    OtherError,
+}
 
-    #[derive(IntoJava)]
-    #[jnix(package = "net.mullvad.mullvadvpn.model")]
-    pub enum GetAccountDataResult {
-        Ok(AccountData),
-        InvalidAccount,
-        RpcError,
-        OtherError,
-    }
-
-    impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult {
-        fn from(result: Result<AccountData, daemon_interface::Error>) -> Self {
-            match result {
-                Ok(account_data) => GetAccountDataResult::Ok(account_data),
-                Err(error) => match error {
-                    daemon_interface::Error::RpcError(jsonrpc_client_core::Error(
-                        jsonrpc_client_core::ErrorKind::JsonRpcError(jsonrpc_core::Error {
-                            code: jsonrpc_core::ErrorCode::ServerError(-200),
-                            ..
-                        }),
-                        _,
-                    )) => GetAccountDataResult::InvalidAccount,
-                    daemon_interface::Error::RpcError(_) => GetAccountDataResult::RpcError,
-                    _ => GetAccountDataResult::OtherError,
-                },
-            }
+impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult {
+    fn from(result: Result<AccountData, daemon_interface::Error>) -> Self {
+        match result {
+            Ok(account_data) => GetAccountDataResult::Ok(account_data),
+            Err(error) => match error {
+                daemon_interface::Error::RpcError(jsonrpc_client_core::Error(
+                    jsonrpc_client_core::ErrorKind::JsonRpcError(jsonrpc_core::Error {
+                        code: jsonrpc_core::ErrorCode::ServerError(-200),
+                        ..
+                    }),
+                    _,
+                )) => GetAccountDataResult::InvalidAccount,
+                daemon_interface::Error::RpcError(_) => GetAccountDataResult::RpcError,
+                _ => GetAccountDataResult::OtherError,
+            },
         }
     }
 }
-use get_account_data_result::GetAccountDataResult;
 
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -279,7 +272,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
         );
     }
 
-    jnix::IntoJava::into_java(GetAccountDataResult::from(result), &env).forget()
+    GetAccountDataResult::from(result).into_java(&env).forget()
 }
 
 #[no_mangle]
