@@ -5,7 +5,7 @@ use jnix::{
 };
 use mullvad_types::{
     account::AccountData,
-    relay_constraints::{Constraint, RelayConstraints, RelaySettings},
+    relay_constraints::{Constraint, RelaySettings},
     relay_list::RelayList,
     settings::Settings,
     states::TunnelState,
@@ -75,28 +75,6 @@ wrap_jnix_into_java!(Constraint<T>
 
 wrap_jnix_into_java!(RelaySettings);
 wrap_jnix_into_java!(KeygenEvent);
-
-impl<'borrow, 'env> IntoJava<'borrow, 'env> for RelayConstraints
-where
-    'env: 'borrow,
-{
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let class = env.get_class("net/mullvad/mullvadvpn/model/RelaySettings$RelayConstraints");
-        let location = self.location.into_java(env);
-        let parameters = [JValue::Object(location.as_obj())];
-
-        env.auto_local(
-            env.new_object(
-                &class,
-                "(Lnet/mullvad/mullvadvpn/model/Constraint;)V",
-                &parameters,
-            )
-            .expect("Failed to create RelaySettings.RelayConstraints Java object"),
-        )
-    }
-}
 
 impl<'borrow, 'env> IntoJava<'borrow, 'env> for Settings
 where
