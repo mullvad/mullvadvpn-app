@@ -137,8 +137,7 @@ fn initialize(
     log_dir: PathBuf,
 ) -> Result<(), Error> {
     let android_context = create_android_context(env, *vpn_service)?;
-    let tun_provider =
-        VpnServiceTunProvider::new(env, vpn_service).map_err(Error::CreateVpnServiceTunProvider)?;
+    let tun_provider = VpnServiceTunProvider::new(android_context);
     let daemon_command_sender = spawn_daemon(env, this, tun_provider, log_dir)?;
 
     DAEMON_INTERFACE.set_command_sender(daemon_command_sender);
