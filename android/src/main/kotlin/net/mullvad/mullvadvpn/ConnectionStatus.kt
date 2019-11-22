@@ -18,9 +18,9 @@ class ConnectionStatus(val parentView: View, val resources: Resources) {
         when (state) {
             is TunnelState.Disconnecting -> {
                 when (state.actionAfterDisconnect) {
-                    is ActionAfterDisconnect.Nothing -> disconnected()
-                    is ActionAfterDisconnect.Block -> connected()
-                    is ActionAfterDisconnect.Reconnect -> connecting()
+                    ActionAfterDisconnect.Nothing -> disconnected()
+                    ActionAfterDisconnect.Block -> connected()
+                    ActionAfterDisconnect.Reconnect -> connecting()
                 }
             }
             is TunnelState.Disconnected -> disconnected()
