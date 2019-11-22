@@ -19,9 +19,9 @@ class ConnectActionButton(val parentView: View) {
                 is TunnelState.Disconnected -> disconnected()
                 is TunnelState.Disconnecting -> {
                     when (value.actionAfterDisconnect) {
-                        is ActionAfterDisconnect.Nothing -> disconnected()
-                        is ActionAfterDisconnect.Block -> connected()
-                        is ActionAfterDisconnect.Reconnect -> connecting()
+                        ActionAfterDisconnect.Nothing -> disconnected()
+                        ActionAfterDisconnect.Block -> connected()
+                        ActionAfterDisconnect.Reconnect -> connecting()
                     }
                 }
                 is TunnelState.Connecting -> connecting()

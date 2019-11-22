@@ -1,4 +1,6 @@
 use crate::net::TunnelEndpoint;
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -22,6 +24,8 @@ pub enum TunnelStateTransition {
 /// Action that will be taken after disconnection is complete.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub enum ActionAfterDisconnect {
     Nothing,
     Block,
