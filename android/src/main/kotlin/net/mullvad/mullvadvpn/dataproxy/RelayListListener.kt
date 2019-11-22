@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.MainActivity
 import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
@@ -78,7 +79,8 @@ class RelayListListener(val parentActivity: MainActivity) {
         synchronized(this) {
             val relayList = this.relayList
 
-            relaySettings = newRelaySettings ?: RelaySettings.RelayConstraints(Constraint.Any())
+            relaySettings = newRelaySettings
+                ?: RelaySettings.Normal(RelayConstraints(Constraint.Any()))
 
             if (relayList != null) {
                 relayListChanged(relayList)
@@ -100,8 +102,8 @@ class RelayListListener(val parentActivity: MainActivity) {
 
         when (relaySettings) {
             is RelaySettings.CustomTunnelEndpoint -> return null
-            is RelaySettings.RelayConstraints -> {
-                val location = relaySettings.location
+            is RelaySettings.Normal -> {
+                val location = relaySettings.relayConstraints.location
 
                 return relayList?.findItemForLocation(location, true)
             }
