@@ -5,11 +5,9 @@ mod daemon_interface;
 mod from_java;
 mod is_null;
 mod jni_event_listener;
-mod vpn_service_tun_provider;
 
 use crate::{
     daemon_interface::DaemonInterface, from_java::FromJava, jni_event_listener::JniEventListener,
-    vpn_service_tun_provider::VpnServiceTunProvider,
 };
 use jnix::{
     jni::{
@@ -44,9 +42,6 @@ static LOAD_CLASSES: Once = Once::new();
 pub enum Error {
     #[error(display = "Failed to create global reference to Java object")]
     CreateGlobalReference(#[error(cause)] jnix::jni::errors::Error),
-
-    #[error(display = "Failed to create VpnService tunnel provider")]
-    CreateVpnServiceTunProvider(#[error(source)] vpn_service_tun_provider::Error),
 
     #[error(display = "Failed to get cache directory path")]
     GetCacheDir(#[error(source)] mullvad_paths::Error),
@@ -137,8 +132,7 @@ fn initialize(
     log_dir: PathBuf,
 ) -> Result<(), Error> {
     let android_context = create_android_context(env, *vpn_service)?;
-    let tun_provider = VpnServiceTunProvider::new(android_context);
-    let daemon_command_sender = spawn_daemon(env, this, tun_provider, log_dir)?;
+    let daemon_command_sender = spawn_daemon(env, this, log_dir, android_context)?;
 
     DAEMON_INTERFACE.set_command_sender(daemon_command_sender);
 
@@ -157,14 +151,14 @@ fn create_android_context(env: &JnixEnv, vpn_service: JObject) -> Result<Android
 fn spawn_daemon(
     env: &JnixEnv,
     this: &JObject,
-    tun_provider: VpnServiceTunProvider,
     log_dir: PathBuf,
+    android_context: AndroidContext,
 ) -> Result<DaemonCommandSender, Error> {
     let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
     let (tx, rx) = mpsc::channel();
 
     thread::spawn(
-        move || match create_daemon(listener, tun_provider, log_dir) {
+        move || match create_daemon(listener, log_dir, android_context) {
             Ok(daemon) => {
                 let _ = tx.send(Ok(daemon.command_sender()));
                 match daemon.run() {
@@ -183,8 +177,8 @@ fn spawn_daemon(
 
 fn create_daemon(
     listener: JniEventListener,
-    tun_provider: VpnServiceTunProvider,
     log_dir: PathBuf,
+    android_context: AndroidContext,
 ) -> Result<Daemon<JniEventListener>, Error> {
     let resource_dir = mullvad_paths::get_resource_dir();
     let cache_dir = mullvad_paths::cache_dir().map_err(Error::GetCacheDir)?;
@@ -194,7 +188,7 @@ fn create_daemon(
         Some(log_dir),
         resource_dir,
         cache_dir,
-        tun_provider,
+        android_context,
     )
     .map_err(Error::InitializeDaemon)?;
 

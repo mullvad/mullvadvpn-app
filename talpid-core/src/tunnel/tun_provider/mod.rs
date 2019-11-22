@@ -10,7 +10,14 @@ use std::os::unix::io::RawFd;
 use talpid_types::BoxedError;
 
 cfg_if! {
-    if #[cfg(all(unix, not(target_os = "android")))] {
+    if #[cfg(target_os = "android")] {
+        #[path = "android.rs"]
+        mod imp;
+        use self::imp::AndroidTunProvider;
+
+        /// Default implementation of `TunProvider` for Android.
+        pub type PlatformTunProvider = AndroidTunProvider;
+    } else if #[cfg(all(unix, not(target_os = "android")))] {
         #[path = "unix.rs"]
         mod imp;
         use self::imp::UnixTunProvider;
@@ -24,7 +31,7 @@ cfg_if! {
         mod stub;
         use self::stub::StubTunProvider;
 
-        /// Default stub implementation of `TunProvider` for Android and Windows.
+        /// Default stub implementation of `TunProvider` and Windows.
         pub type PlatformTunProvider = StubTunProvider;
     }
 }
