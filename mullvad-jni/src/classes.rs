@@ -21,6 +21,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/mullvadvpn/model/LocationConstraint$Hostname",
     "net/mullvad/mullvadvpn/model/PublicKey",
     "net/mullvad/mullvadvpn/model/Relay",
+    "net/mullvad/mullvadvpn/model/RelayConstraints",
     "net/mullvad/mullvadvpn/model/RelayList",
     "net/mullvad/mullvadvpn/model/RelayListCity",
     "net/mullvad/mullvadvpn/model/RelayListCountry",
