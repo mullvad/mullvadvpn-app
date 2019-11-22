@@ -25,75 +25,44 @@ pub fn enable() {
 }
 
 fn exception_code_to_string(value: &EXCEPTION_RECORD) -> Option<Cow<'_, str>> {
-    match value.ExceptionCode {
-        winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION
-        | winapi::um::minwinbase::EXCEPTION_IN_PAGE_ERROR => {
-            let operation_type = match value.ExceptionInformation[0] {
-                0 => "read from inaccessible address",
-                1 => "wrote to inaccessible address",
-                8 => "user-mode data execution prevention (DEP) violation",
-                _ => "unknown error",
-            };
-            let name =
-                if let winapi::um::minwinbase::EXCEPTION_ACCESS_VIOLATION = value.ExceptionCode {
-                    "EXCEPTION_ACCESS_VIOLATION"
-                } else {
-                    "EXCEPTION_IN_PAGE_ERROR"
-                };
-            Some(Cow::Owned(format!(
-                "{} ({}, VA {:#x?})",
-                name, operation_type, value.ExceptionInformation[1]
-            )))
-        }
-        winapi::um::minwinbase::EXCEPTION_ARRAY_BOUNDS_EXCEEDED => {
-            Some(Cow::Borrowed("EXCEPTION_ARRAY_BOUNDS_EXCEEDED"))
-        }
-        winapi::um::minwinbase::EXCEPTION_DATATYPE_MISALIGNMENT => {
-            Some(Cow::Borrowed("EXCEPTION_DATATYPE_MISALIGNMENT"))
-        }
-        winapi::um::minwinbase::EXCEPTION_FLT_DENORMAL_OPERAND => {
-            Some(Cow::Borrowed("EXCEPTION_FLT_DENORMAL_OPERAND"))
-        }
-        winapi::um::minwinbase::EXCEPTION_FLT_DIVIDE_BY_ZERO => {
-            Some(Cow::Borrowed("EXCEPTION_FLT_DIVIDE_BY_ZERO"))
-        }
-        winapi::um::minwinbase::EXCEPTION_FLT_INEXACT_RESULT => {
-            Some(Cow::Borrowed("EXCEPTION_FLT_INEXACT_RESULT"))
-        }
-        winapi::um::minwinbase::EXCEPTION_FLT_INVALID_OPERATION => {
-            Some(Cow::Borrowed("EXCEPTION_FLT_INVALID_OPERATION"))
-        }
-        winapi::um::minwinbase::EXCEPTION_FLT_STACK_CHECK => {
-            Some(Cow::Borrowed("EXCEPTION_FLT_STACK_CHECK"))
-        }
-        winapi::um::minwinbase::EXCEPTION_FLT_UNDERFLOW => {
-            Some(Cow::Borrowed("EXCEPTION_FLT_UNDERFLOW"))
-        }
-        winapi::um::minwinbase::EXCEPTION_ILLEGAL_INSTRUCTION => {
-            Some(Cow::Borrowed("EXCEPTION_ILLEGAL_INSTRUCTION"))
-        }
-        winapi::um::minwinbase::EXCEPTION_INT_DIVIDE_BY_ZERO => {
-            Some(Cow::Borrowed("EXCEPTION_INT_DIVIDE_BY_ZERO"))
-        }
-        winapi::um::minwinbase::EXCEPTION_INT_OVERFLOW => {
-            Some(Cow::Borrowed("EXCEPTION_INT_OVERFLOW"))
-        }
-        winapi::um::minwinbase::EXCEPTION_INVALID_DISPOSITION => {
-            Some(Cow::Borrowed("EXCEPTION_INVALID_DISPOSITION"))
-        }
-        winapi::um::minwinbase::EXCEPTION_NONCONTINUABLE_EXCEPTION => {
-            Some(Cow::Borrowed("EXCEPTION_NONCONTINUABLE_EXCEPTION"))
-        }
-        winapi::um::minwinbase::EXCEPTION_PRIV_INSTRUCTION => {
-            Some(Cow::Borrowed("EXCEPTION_PRIV_INSTRUCTION"))
-        }
-        winapi::um::minwinbase::EXCEPTION_SINGLE_STEP => {
-            Some(Cow::Borrowed("EXCEPTION_SINGLE_STEP"))
-        }
-        winapi::um::minwinbase::EXCEPTION_STACK_OVERFLOW => {
-            Some(Cow::Borrowed("EXCEPTION_STACK_OVERFLOW"))
-        }
-        _ => None,
+    use winapi::um::minwinbase::*;
+    let name = match value.ExceptionCode {
+        EXCEPTION_ACCESS_VIOLATION => "EXCEPTION_ACCESS_VIOLATION",
+        EXCEPTION_IN_PAGE_ERROR => "EXCEPTION_IN_PAGE_ERROR",
+        EXCEPTION_ARRAY_BOUNDS_EXCEEDED => "EXCEPTION_ARRAY_BOUNDS_EXCEEDED",
+        EXCEPTION_DATATYPE_MISALIGNMENT => "EXCEPTION_DATATYPE_MISALIGNMENT",
+        EXCEPTION_FLT_DENORMAL_OPERAND => "EXCEPTION_FLT_DENORMAL_OPERAND",
+        EXCEPTION_FLT_DIVIDE_BY_ZERO => "EXCEPTION_FLT_DIVIDE_BY_ZERO",
+        EXCEPTION_FLT_INEXACT_RESULT => "EXCEPTION_FLT_INEXACT_RESULT",
+        EXCEPTION_FLT_INVALID_OPERATION => "EXCEPTION_FLT_INVALID_OPERATION",
+        EXCEPTION_FLT_STACK_CHECK => "EXCEPTION_FLT_STACK_CHECK",
+        EXCEPTION_FLT_UNDERFLOW => "EXCEPTION_FLT_UNDERFLOW",
+        EXCEPTION_ILLEGAL_INSTRUCTION => "EXCEPTION_ILLEGAL_INSTRUCTION",
+        EXCEPTION_INT_DIVIDE_BY_ZERO => "EXCEPTION_INT_DIVIDE_BY_ZERO",
+        EXCEPTION_INT_OVERFLOW => "EXCEPTION_INT_OVERFLOW",
+        EXCEPTION_INVALID_DISPOSITION => "EXCEPTION_INVALID_DISPOSITION",
+        EXCEPTION_NONCONTINUABLE_EXCEPTION => "EXCEPTION_NONCONTINUABLE_EXCEPTION",
+        EXCEPTION_PRIV_INSTRUCTION => "EXCEPTION_PRIV_INSTRUCTION",
+        EXCEPTION_SINGLE_STEP => "EXCEPTION_SINGLE_STEP",
+        EXCEPTION_STACK_OVERFLOW => "EXCEPTION_STACK_OVERFLOW",
+        _ => return None,
+    };
+
+    if value.ExceptionCode == EXCEPTION_ACCESS_VIOLATION
+        || value.ExceptionCode == EXCEPTION_IN_PAGE_ERROR
+    {
+        let operation_type = match value.ExceptionInformation[0] {
+            0 => "read from inaccessible address",
+            1 => "wrote to inaccessible address",
+            8 => "user-mode data execution prevention (DEP) violation",
+            _ => "unknown error",
+        };
+        Some(Cow::Owned(format!(
+            "{} ({}, VA {:#x?})",
+            name, operation_type, value.ExceptionInformation[1]
+        )))
+    } else {
+        Some(Cow::Borrowed(name))
     }
 }
 
