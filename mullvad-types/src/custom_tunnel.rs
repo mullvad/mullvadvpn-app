@@ -1,4 +1,6 @@
 use crate::settings::TunnelOptions;
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -18,6 +20,10 @@ pub enum Error {
 
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+// TODO: Remove this Java conversion once `jnix` supports skipping fields in enum tuple variants.
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+#[cfg_attr(target_os = "android", jnix(skip_all))]
 pub struct CustomTunnelEndpoint {
     host: String,
     config: ConnectionConfig,
