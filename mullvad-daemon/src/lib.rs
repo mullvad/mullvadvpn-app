@@ -1332,7 +1332,7 @@ where
                 .map(|entry| entry.map(|e| e.wireguard.is_none()).unwrap_or(true))
                 .unwrap_or(true)
             {
-                log::info!("Autoamtically generating new wireguard key for account");
+                log::info!("Automatically generating new wireguard key for account");
                 if let Err(e) = self
                     .wireguard_key_manager
                     .generate_key_async(account.to_owned())
