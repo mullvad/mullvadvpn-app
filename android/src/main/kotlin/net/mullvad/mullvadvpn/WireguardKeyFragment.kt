@@ -152,16 +152,15 @@ class WireguardKeyFragment : Fragment() {
 
                 publicKeyAge.setText(formatKeyDateCreated(key.dateCreated))
 
-                if (keyState.verified != null) {
-                    if (keyState.verified) {
+                keyState.verified?.let { verified ->
+                    if (verified) {
                         setStatusMessage(R.string.wireguard_key_valid, R.color.green)
                     } else {
                         setStatusMessage(R.string.wireguard_key_invalid, R.color.red)
                     }
                 }
-                if (keyState.replacementFailure != null) {
-                    showKeygenFailure(keyState.replacementFailure)
-                }
+
+                keyState.replacementFailure?.let { error -> showKeygenFailure(error) }
             }
             is KeygenEvent.Failure -> {
                 showKeygenFailure(keyState.failure)
