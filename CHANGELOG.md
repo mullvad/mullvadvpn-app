@@ -56,6 +56,8 @@ Line wrap the file at 100 chars.                                              Th
   where the registry value type is incorrectly set to be a regular string rather than an expandable
   string.
 - Fix suspend and resume issues with OpenVPN by upgrading the TAP driver.
+- Minor adjustment in online/offline detection logic. This change addresses misbehaving drivers
+  that report the adapter flags incorrectly.
 
 ### Security
 - Force OpenVPN to use TLS 1.2 or newer. And limit the TLS 1.3 ciphers to only the strongest ones.
