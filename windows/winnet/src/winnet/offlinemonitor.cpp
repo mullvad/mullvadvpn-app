@@ -24,23 +24,39 @@ bool IsConnectedAdapter(const MIB_IF_ROW2 &iface)
 
 	//
 	// (Windows 10, and possibly others.)
+	//
 	// The BT adapter is erronously not marked as representing hardware.
 	// By filtering on this we currently do not support BT tethering.
 	//
+	// Specifically, the following settings are problematic:
+	//
+	// InterfaceAndOperStatusFlags.HardwareInterface: 0
+	// InterfaceAndOperStatusFlags.ConnectorPresent: 0
+	//
 
 	if (FALSE == iface.InterfaceAndOperStatusFlags.HardwareInterface
-		|| FALSE != iface.InterfaceAndOperStatusFlags.FilterInterface
+		&& FALSE == iface.InterfaceAndOperStatusFlags.ConnectorPresent)
+	{
+		return false;
+	}
+
+	//
+	// Maybe checking iface.InterfaceAndOperStatusFlags.NotMediaConnected here
+	// would be a good thing?
+	//
+
+	if (FALSE != iface.InterfaceAndOperStatusFlags.FilterInterface
 		|| 0 == iface.PhysicalAddressLength
 		|| FALSE != iface.InterfaceAndOperStatusFlags.EndPointInterface)
 	{
 		return false;
 	}
 
-	bool connected = (
+	return
+	(
 		IfOperStatusUp == iface.OperStatus
 		&& MediaConnectStateConnected == iface.MediaConnectState
 	);
-	return connected;
 }
 
 } // anonymous namespace
