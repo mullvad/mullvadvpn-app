@@ -63,7 +63,7 @@ matrix:
             ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
             linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
       before_script:
-        - export RUSTFLAGS="--deny unused_imports --deny dead_code"
+        - export RUSTFLAGS="--deny unused_imports --deny dead_code --deny unused_mut"
         - export AR_aarch64_linux_android=/opt/android/toolchains/android21-aarch64/bin/aarch64-linux-android-ar
         - export CC_aarch64_linux_android=/opt/android/toolchains/android21-aarch64/bin/aarch64-linux-android21-clang
         - source env.sh aarch64-linux-android
