@@ -451,7 +451,7 @@ mod api {
         pub fn WinNet_UnregisterDefaultRouteChangedCallback(registrationHandle: *mut libc::c_void);
 
         #[link_name = "WinNet_DeactivateConnectivityMonitor"]
-        pub fn WinNet_DeactivateConnectivityMonitor() -> bool;
+        pub fn WinNet_DeactivateConnectivityMonitor() -> libc::c_void;
 
         #[link_name = "WinNet_AddDeviceIpAddresses"]
         pub fn WinNet_AddDeviceIpAddresses(
