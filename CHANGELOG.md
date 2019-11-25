@@ -43,6 +43,8 @@ Line wrap the file at 100 chars.                                              Th
   minutes to allow for addressing the issue.
 - Upgrade libsodium from 1.0.17 to 1.0.18.
 - Upgrade NDIS 6 TAP driver from 9.21.2 to 9.24.2.
+- Minor adjustment in online/offline detection logic. This change addresses misbehaving drivers
+  that report the adapter flags incorrectly.
 
 ### Fixed
 #### Linux
