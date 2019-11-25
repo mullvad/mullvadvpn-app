@@ -262,14 +262,14 @@
 	Pop $0
 	Pop $1
 
+	Push $0
+	Pop $InstallDriver_BaselineStatus
+
 	${If} $0 == ${EB_GENERAL_ERROR}
 		StrCpy $R0 "Failed to enumerate network adapters: $1"
 		log::Log $R0
 		Goto InstallDriver_return
 	${EndIf}
-
-	Push $0
-	Pop $InstallDriver_BaselineStatus
 
 	${IfNot} ${AtLeastWin10}
 		#
@@ -300,6 +300,7 @@
 	Pop $1
 
 	${If} $0 != 0
+	${AndIf} $0 != 1
 		StrCpy $R0 "Failed to update TAP driver: error $0"
 		log::LogWithDetails $R0 $1
 		Goto InstallDriver_return
@@ -337,6 +338,7 @@
 	Pop $1
 
 	${If} $0 != 0
+	${AndIf} $0 != 1
 		StrCpy $R0 "Failed to create virtual adapter: error $0"
 		log::LogWithDetails $R0 $1
 		Goto InstallDriver_return
