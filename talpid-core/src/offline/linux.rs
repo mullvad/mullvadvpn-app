@@ -9,7 +9,7 @@ use rtnetlink::{
     constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV6_IFADDR, RTMGRP_LINK, RTMGRP_NOTIFY},
     Connection, Handle,
 };
-use std::{collections::BTreeSet, io, thread};
+use std::{collections::BTreeSet, io, sync::Weak, thread};
 use talpid_types::ErrorExt;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -38,7 +38,7 @@ pub enum Error {
 
 pub struct MonitorHandle;
 
-pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle> {
+pub fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<MonitorHandle> {
     let socket = SocketAddr::new(
         0,
         RTMGRP_NOTIFY | RTMGRP_LINK | RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR,
@@ -209,11 +209,11 @@ fn monitor_event_loop(
 
 struct LinkMonitor {
     is_offline: bool,
-    sender: UnboundedSender<TunnelCommand>,
+    sender: Weak<UnboundedSender<TunnelCommand>>,
 }
 
 impl LinkMonitor {
-    pub fn new(sender: UnboundedSender<TunnelCommand>) -> Self {
+    pub fn new(sender: Weak<UnboundedSender<TunnelCommand>>) -> Self {
         let is_offline = is_offline();
 
         LinkMonitor { is_offline, sender }
@@ -226,14 +226,16 @@ impl LinkMonitor {
     fn set_is_offline(&mut self, is_offline: bool) {
         if self.is_offline != is_offline {
             self.is_offline = is_offline;
-            let _ = self
-                .sender
-                .unbounded_send(TunnelCommand::IsOffline(is_offline));
+            if let Some(sender) = self.sender.upgrade() {
+                let _ = sender.unbounded_send(TunnelCommand::IsOffline(is_offline));
+            }
         }
     }
 
     /// Allow the offline check to fail open.
     fn reset(&mut self) {
-        let _ = self.sender.unbounded_send(TunnelCommand::IsOffline(false));
+        if let Some(sender) = self.sender.upgrade() {
+            let _ = sender.unbounded_send(TunnelCommand::IsOffline(false));
+        }
     }
 }
