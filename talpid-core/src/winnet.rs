@@ -338,19 +338,18 @@ pub type DefaultRouteChangedCallback = unsafe extern "system" fn(
 #[error(display = "Failed to set callback for default route")]
 pub struct DefaultRouteCallbackError;
 
-pub fn set_default_route_change_callback<T: 'static>(
+pub fn add_default_route_change_callback<T: 'static>(
     callback: Option<DefaultRouteChangedCallback>,
     context: T,
 ) -> std::result::Result<WinNetCallbackHandle, DefaultRouteCallbackError> {
     let mut handle_ptr = ptr::null_mut();
     let mut context = Box::new(context);
-    let ctx_ptr = &mut *context as *mut T as *mut libc::c_void;
+    let ctx_ptr = *context as *mut _ as *mut libc::c_void;
     unsafe {
         if !WinNet_RegisterDefaultRouteChangedCallback(callback, ctx_ptr, &mut handle_ptr as *mut _)
         {
             return Err(DefaultRouteCallbackError);
         }
-
 
         Ok(WinNetCallbackHandle {
             handle: handle_ptr,

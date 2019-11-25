@@ -82,12 +82,12 @@ impl RouteManager {
 
     /// Sets a callback that is called whenever the default route changes.
     #[cfg(target_os = "windows")]
-    pub fn set_default_route_callback<T: 'static>(
+    pub fn add_default_route_callback<T: 'static>(
         &mut self,
         callback: Option<winnet::DefaultRouteChangedCallback>,
         context: T,
     ) {
-        match winnet::set_default_route_change_callback(callback, context) {
+        match winnet::add_default_route_change_callback(callback, context) {
             Err(_e) => {
                 // not sure if this should panic
                 log::error!("Failed to add callback!");
