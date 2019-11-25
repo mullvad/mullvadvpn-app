@@ -1,5 +1,6 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use futures::sync::mpsc::UnboundedSender;
+use std::sync::Weak;
 
 #[derive(err_derive::Error, Debug)]
 #[error(display = "Dummy offline check error")]
@@ -13,6 +14,8 @@ impl MonitorHandle {
     }
 }
 
-pub fn spawn_monitor(_sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle, Error> {
+pub fn spawn_monitor(
+    _sender: Weak<UnboundedSender<TunnelCommand>>,
+) -> Result<MonitorHandle, Error> {
     Ok(MonitorHandle)
 }

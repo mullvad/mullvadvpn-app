@@ -1,7 +1,10 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use futures::sync::mpsc::UnboundedSender;
 use log::{debug, trace};
-use std::{sync::mpsc, thread};
+use std::{
+    sync::{mpsc, Weak},
+    thread,
+};
 use system_configuration::{
     core_foundation::{
         array::CFArray,
@@ -23,7 +26,7 @@ pub enum Error {
 
 pub struct MonitorHandle;
 
-pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle, Error> {
+pub fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<MonitorHandle, Error> {
     let (result_tx, result_rx) = mpsc::channel();
     thread::spawn(move || match create_dynamic_store(sender) {
         Ok(store) => {
@@ -44,7 +47,9 @@ impl MonitorHandle {
     }
 }
 
-fn create_dynamic_store(sender: UnboundedSender<TunnelCommand>) -> Result<SCDynamicStore, Error> {
+fn create_dynamic_store(
+    sender: Weak<UnboundedSender<TunnelCommand>>,
+) -> Result<SCDynamicStore, Error> {
     let callback_context = SCDynamicStoreCallBackContext {
         callout: primary_interface_change_callback,
         info: sender,
@@ -76,12 +81,14 @@ fn run_dynamic_store_runloop(store: SCDynamicStore) {
 fn primary_interface_change_callback(
     store: SCDynamicStore,
     _changed_keys: CFArray<CFString>,
-    state: &mut UnboundedSender<TunnelCommand>,
+    state: &mut Weak<UnboundedSender<TunnelCommand>>,
 ) {
     let is_offline = store.get(CFString::new(PRIMARY_INTERFACE_KEY)).is_none();
     debug!(
         "Computer went {}",
         if is_offline { "offline" } else { "online" }
     );
-    let _ = state.unbounded_send(TunnelCommand::IsOffline(is_offline));
+    if let Some(state) = state.upgrade() {
+        let _ = state.unbounded_send(TunnelCommand::IsOffline(is_offline));
+    }
 }
