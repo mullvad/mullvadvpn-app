@@ -81,7 +81,8 @@ std::set<Context::NetworkAdapter> GetTapAdapters(const std::set<Context::Network
 	return tapAdapters;
 }
 
-void LogAdapters(const std::wstring &description, const std::set<Context::NetworkAdapter> &adapters)
+template<typename T>
+void LogAdapters(const std::wstring &description, const T &adapters)
 {
 	//
 	// Flatten the information so we can log it more easily.
@@ -239,6 +240,8 @@ Context::NetworkAdapter Context::getNewAdapter()
 	if (added.size() == 0)
 	{
 		LogAdapters(L"Enumerable network adapters", m_currentState);
+		LogAdapters(L"Baseline TAP adapters", baselineTaps);
+		LogAdapters(L"Enumerable TAP adapters", currentTaps);
 
 		throw std::runtime_error("Unable to identify recently added TAP adapter");
 	}
