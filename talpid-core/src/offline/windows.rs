@@ -223,9 +223,7 @@ impl Drop for BroadcastListener {
             PostThreadMessageW(self.thread_id, REQUEST_THREAD_SHUTDOWN, 0, 0);
             WaitForSingleObject(self.thread_handle, INFINITE);
             CloseHandle(self.thread_handle);
-            if !winnet::WinNet_DeactivateConnectivityMonitor() {
-                log::error!("Failed to deactivate connectivity monitor");
-            }
+            winnet::WinNet_DeactivateConnectivityMonitor();
         }
     }
 }
