@@ -338,7 +338,7 @@ pub type DefaultRouteChangedCallback = unsafe extern "system" fn(
 #[error(display = "Failed to set callback for default route")]
 pub struct DefaultRouteCallbackError;
 
-pub fn set_default_route_change_callback<T: 'static>(
+pub fn add_default_route_change_callback<T: 'static>(
     callback: Option<DefaultRouteChangedCallback>,
     context: T,
 ) -> std::result::Result<WinNetCallbackHandle, DefaultRouteCallbackError> {
@@ -350,7 +350,6 @@ pub fn set_default_route_change_callback<T: 'static>(
         {
             return Err(DefaultRouteCallbackError);
         }
-
 
         Ok(WinNetCallbackHandle {
             handle: handle_ptr,

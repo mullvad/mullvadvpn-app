@@ -102,12 +102,13 @@ impl WireguardMonitor {
             Self::get_tunnel_routes(config),
         )?);
         let iface_name = tunnel.get_interface_name();
+        #[cfg_attr(not(windows), allow(unused_mut))]
         let mut route_handle = routing::RouteManager::new(Self::get_routes(iface_name, &config))
             .map_err(Error::SetupRoutingError)?;
 
         #[cfg(target_os = "windows")]
         route_handle
-            .set_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ());
+            .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ());
 
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
