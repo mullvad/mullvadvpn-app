@@ -25,7 +25,7 @@ use futures::{sync::mpsc, Async, Future, Poll, Stream};
 use std::{
     io,
     path::{Path, PathBuf},
-    sync::mpsc as sync_mpsc,
+    sync::{mpsc as sync_mpsc, Arc},
     thread,
 };
 use talpid_types::{
@@ -69,14 +69,15 @@ pub fn spawn<P, T>(
     resource_dir: PathBuf,
     cache_dir: P,
     state_change_listener: IntoSender<TunnelStateTransition, T>,
-) -> Result<mpsc::UnboundedSender<TunnelCommand>, Error>
+) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error>
 where
     P: AsRef<Path> + Send + 'static,
     T: From<TunnelStateTransition> + Send + 'static,
 {
     let (command_tx, command_rx) = mpsc::unbounded();
+    let command_tx = Arc::new(command_tx);
     let offline_monitor =
-        offline::spawn_monitor(command_tx.clone()).map_err(Error::OfflineMonitorError)?;
+        offline::spawn_monitor(Arc::downgrade(&command_tx)).map_err(Error::OfflineMonitorError)?;
     let is_offline = offline_monitor.is_offline();
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
@@ -116,8 +117,8 @@ where
 
     startup_result_rx
         .recv()
-        .expect("Failed to start tunnel state machine thread")
-        .map(|_| command_tx)
+        .expect("Failed to start tunnel state machine thread")?;
+    Ok(command_tx)
 }
 
 fn create_event_loop<T>(

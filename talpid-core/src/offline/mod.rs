@@ -1,5 +1,6 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use futures::sync::mpsc::UnboundedSender;
+use std::sync::Weak;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -27,6 +28,6 @@ impl MonitorHandle {
     }
 }
 
-pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle, Error> {
+pub fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<MonitorHandle, Error> {
     Ok(MonitorHandle(imp::spawn_monitor(sender)?))
 }
