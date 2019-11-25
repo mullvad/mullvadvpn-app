@@ -102,6 +102,7 @@ impl WireguardMonitor {
             Self::get_tunnel_routes(config),
         )?);
         let iface_name = tunnel.get_interface_name();
+        #[cfg_attr(not(windows), allow(unused_mut))]
         let mut route_handle = routing::RouteManager::new(Self::get_routes(iface_name, &config))
             .map_err(Error::SetupRoutingError)?;
 
