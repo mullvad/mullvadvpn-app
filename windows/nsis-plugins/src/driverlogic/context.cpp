@@ -236,7 +236,7 @@ Context::NetworkAdapter Context::getNewAdapter()
 		}
 	}
 
-	if (added.size() != 1)
+	if (added.size() == 0)
 	{
 		LogAdapters(L"Enumerable network adapters", m_currentState);
 
