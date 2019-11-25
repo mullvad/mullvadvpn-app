@@ -33,6 +33,10 @@
     <ClCompile Include="interfaceutils.cpp" />
     <ClCompile Include="offlinemonitor.cpp" />
     <ClCompile Include="NetworkInterfaces.cpp" />
+    <ClCompile Include="routing\defaultroutemonitor.cpp" />
+    <ClCompile Include="routing\helpers.cpp" />
+    <ClCompile Include="routing\routemanager.cpp" />
+    <ClCompile Include="routing\types.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="winnet.cpp" />
   </ItemGroup>
@@ -42,6 +46,10 @@
     <ClInclude Include="interfaceutils.h" />
     <ClInclude Include="offlinemonitor.h" />
     <ClInclude Include="NetworkInterfaces.h" />
+    <ClInclude Include="routing\defaultroutemonitor.h" />
+    <ClInclude Include="routing\helpers.h" />
+    <ClInclude Include="routing\routemanager.h" />
+    <ClInclude Include="routing\types.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="winnet.h" />
@@ -208,7 +216,7 @@
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\windows-libraries\src\%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -278,7 +286,7 @@
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\windows-libraries\src\%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../shared/logsink.h"
+#include <stdint.h>
 #include <stdbool.h>
 
 #ifndef WINNET_STATIC
@@ -89,3 +90,147 @@ void
 WINNET_API
 WinNet_DeactivateConnectivityMonitor(
 );
+
+enum WINNET_IP_TYPE
+{
+	WINNET_IP_TYPE_IPV4 = 0,
+	WINNET_IP_TYPE_IPV6 = 1,
+};
+
+typedef struct tag_WINNET_IPNETWORK
+{
+	WINNET_IP_TYPE type;
+	uint8_t bytes[16];	// Network byte order.
+	uint8_t prefix;
+}
+WINNET_IPNETWORK;
+
+typedef struct tag_WINNET_IP
+{
+	WINNET_IP_TYPE type;
+	uint8_t bytes[16];	// Network byte order.
+}
+WINNET_IP;
+
+typedef struct tag_WINNET_NODE
+{
+	const WINNET_IP *gateway;
+	const wchar_t *deviceName;
+}
+WINNET_NODE;
+
+typedef struct tag_WINNET_ROUTE
+{
+	WINNET_IPNETWORK network;
+	const WINNET_NODE *node;
+}
+WINNET_ROUTE;
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_ActivateRouteManager(
+	MullvadLogSink logSink,
+	void *logSinkContext
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_AddRoutes(
+	const WINNET_ROUTE *routes,
+	uint32_t numRoutes
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_AddRoute(
+	const WINNET_ROUTE *route
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_DeleteRoutes(
+	const WINNET_ROUTE *routes,
+	uint32_t numRoutes
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_DeleteRoute(
+	const WINNET_ROUTE *route
+);
+
+enum WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE
+{
+	// Best default route changed.
+	WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_UPDATED = 0,
+
+	// No default routes exist.
+	WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_REMOVED = 1,
+};
+
+enum WINNET_IP_FAMILY
+{
+	WINNET_IP_FAMILY_V4 = 0,
+	WINNET_IP_FAMILY_V6 = 1,
+};
+
+typedef void (WINNET_API *WinNetDefaultRouteChangedCallback)
+(
+	WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE eventType,
+
+	// Signals which IP family the event relates to.
+	WINNET_IP_FAMILY family,
+
+	// For update events, signals the interface associated with the new best default route.
+	uint64_t interfaceLuid,
+
+	void *context
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_RegisterDefaultRouteChangedCallback(
+	WinNetDefaultRouteChangedCallback callback,
+	void *context,
+	void **registrationHandle
+);
+
+extern "C"
+WINNET_LINKAGE
+void
+WINNET_API
+WinNet_UnregisterDefaultRouteChangedCallback(
+	void *registrationHandle
+);
+
+extern "C"
+WINNET_LINKAGE
+void
+WINNET_API
+WinNet_DeactivateRouteManager(
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_AddDeviceIpAddresses(
+	const wchar_t *deviceAlias,
+	const WINNET_IP *addresses,
+	uint32_t numAddresses,
+	MullvadLogSink logSink,
+	void *logSinkContext
+);
+

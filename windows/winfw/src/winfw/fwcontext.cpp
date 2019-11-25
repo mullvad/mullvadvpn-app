@@ -13,10 +13,10 @@
 #include "rules/permitvpnrelay.h"
 #include "rules/permitvpntunnel.h"
 #include "rules/permitvpntunnelservice.h"
+#include "rules/permitping.h"
 #include "rules/restrictdns.h"
 #include "libwfp/transaction.h"
 #include "libwfp/filterengine.h"
-#include "libwfp/ipaddress.h"
 #include <functional>
 #include <stdexcept>
 #include <utility>
@@ -99,7 +99,12 @@ FwContext::FwContext(uint32_t timeout, const WinFwSettings &settings)
 	m_baseline = checkpoint;
 }
 
-bool FwContext::applyPolicyConnecting(const WinFwSettings &settings, const WinFwRelay &relay)
+bool FwContext::applyPolicyConnecting
+(
+	const WinFwSettings &settings,
+	const WinFwRelay &relay,
+	const std::optional<PingableHosts> &pingableHosts
+)
 {
 	Ruleset ruleset;
 
@@ -111,6 +116,22 @@ bool FwContext::applyPolicyConnecting(const WinFwSettings &settings, const WinFw
 		relay.port,
 		TranslateProtocol(relay.protocol)
 	));
+
+	//
+	// Permit pinging the gateway inside the tunnel.
+	//
+	if (pingableHosts.has_value())
+	{
+		const auto &ph = pingableHosts.value();
+
+		for (const auto &host : ph.hosts)
+		{
+			ruleset.emplace_back(std::make_unique<rules::PermitPing>(
+				ph.tunnelInterfaceAlias,
+				host
+			));
+		}
+	}
 
 	return applyRuleset(ruleset);
 }

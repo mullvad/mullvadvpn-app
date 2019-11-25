@@ -12,9 +12,11 @@ cfg-if = "0.1"
 duct = "0.13"
 err-derive = "0.2.1"
 futures = "0.1"
+hex = "0.4"
 ipnetwork = "0.15"
 jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
+lazy_static = "1.0"
 libc = "0.2.20"
 log = "0.4"
 openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde"] }
@@ -25,15 +27,13 @@ shell-escape = "0.1"
 talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 tokio-core = "0.1"
+tokio-executor = "0.1"
 uuid = { version = "0.7", features = ["v4"] }
 
 
 [target.'cfg(unix)'.dependencies]
-hex = "0.4"
-lazy_static = "1.0"
 nix = "0.15"
 tokio-process = "0.2"
-tokio-executor = "0.1"
 tokio-io = "0.1"
 
 
@@ -63,9 +63,10 @@ tun = "0.4.3"
 
 
 [target.'cfg(windows)'.dependencies]
+chrono = "0.4"
 widestring = "0.4"
 winreg = "0.6"
-winapi = { version = "0.3.6", features = ["handleapi", "libloaderapi", "synchapi", "winbase", "winuser"] }
+winapi = { version = "0.3.6", features = ["handleapi", "ifdef", "libloaderapi", "netioapi", "synchapi", "winbase", "winuser"] }
 socket2 = "0.3"
 rand = "0.7"
 pnet_packet = "0.22"

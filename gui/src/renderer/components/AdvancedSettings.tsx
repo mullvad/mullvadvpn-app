@@ -43,7 +43,6 @@ interface IProps {
   wireguard: { port?: number };
   mssfix?: number;
   bridgeState: BridgeState;
-  enableWireguardKeysPage: boolean;
   setBridgeState: (value: BridgeState) => void;
   setEnableIpv6: (value: boolean) => void;
   setBlockWhenDisconnected: (value: boolean) => void;
@@ -226,18 +225,14 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     )}
                   </Cell.Footer>
 
-                  {process.platform !== 'win32' ? (
-                    <View style={styles.advanced_settings__content}>
-                      <Selector
-                        title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
-                        values={this.tunnelProtocolItems}
-                        value={this.props.tunnelProtocol}
-                        onSelect={this.onSelectTunnelProtocol}
-                      />
-                    </View>
-                  ) : (
-                    undefined
-                  )}
+                  <View style={styles.advanced_settings__content}>
+                    <Selector
+                      title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
+                      values={this.tunnelProtocolItems}
+                      value={this.props.tunnelProtocol}
+                      onSelect={this.onSelectTunnelProtocol}
+                    />
+                  </View>
 
                   {this.props.tunnelProtocol !== 'wireguard' ? (
                     <View style={styles.advanced_settings__content}>
@@ -277,7 +272,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     undefined
                   )}
 
-                  {this.props.tunnelProtocol === 'wireguard' && process.platform !== 'win32' ? (
+                  {this.props.tunnelProtocol === 'wireguard' ? (
                     <View style={styles.advanced_settings__content}>
                       <Selector
                         // TRANSLATORS: The title for the shadowsocks bridge selector section.
@@ -336,7 +331,14 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                       )}
                     </Cell.FooterText>
                   </Cell.Footer>
-                  {this.wireguardKeysButton()}
+                  <View style={styles.advanced_settings__wgkeys_cell}>
+                    <Cell.CellButton onPress={this.props.onViewWireguardKeys}>
+                      <Cell.Label>
+                        {messages.pgettext('advanced-settings-view', 'WireGuard key')}
+                      </Cell.Label>
+                      <Cell.Icon height={12} width={7} source="icon-chevron" />
+                    </Cell.CellButton>
+                  </View>
                 </NavigationScrollbars>
               </View>
             </NavigationContainer>
@@ -344,21 +346,6 @@ export default class AdvancedSettings extends Component<IProps, IState> {
         </Container>
       </Layout>
     );
-  }
-
-  private wireguardKeysButton() {
-    if (this.props.enableWireguardKeysPage) {
-      return (
-        <View style={styles.advanced_settings__wgkeys_cell}>
-          <Cell.CellButton onPress={this.props.onViewWireguardKeys}>
-            <Cell.Label>{messages.pgettext('advanced-settings-view', 'WireGuard key')}</Cell.Label>
-            <Cell.Icon height={12} width={7} source="icon-chevron" />
-          </Cell.CellButton>
-        </View>
-      );
-    } else {
-      return null;
-    }
   }
 
   private onSelectTunnelProtocol = (protocol?: TunnelProtocol) => {
