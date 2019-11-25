@@ -47,9 +47,7 @@ impl RouteManagerImpl {
 
 impl Drop for RouteManagerImpl {
     fn drop(&mut self) {
-        if !winnet::deactivate_routing_manager() {
-            log::error!("Failed to deactivate routing manager");
-        }
+        winnet::deactivate_routing_manager()
     }
 }
 
