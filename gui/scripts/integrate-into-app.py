@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 A helper script to integrate the generated geo data into the app.
 """
