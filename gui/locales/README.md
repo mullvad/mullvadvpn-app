@@ -2,23 +2,36 @@ This is a folder with gettext translations for Mullvad VPN app.
 
 ## Adding new translations
 
-Create a new sub-folder under `gui/locales`, use the locale identifier for the
-folder name.
+1. Create a new sub-folder under `gui/locales`, use the locale identifier for the folder name.
+   
+   The complete list of supported locale identifiers can be found at:
+   
+   https://electronjs.org/docs/api/locales
 
-The complete list of supported locale identifiers can be found at:
+1. Add a new language on Crowdin under Project Settings -> Translations menu. Make sure that the
+   added language has the same identifier as the one expected by Electron.
+   
+   If the identifier for the same language does not match the one listed in Electron documentation,
+   then remap it using the "Language mapping" on Crowdin (Located under general settings - tumblers
+   icon on the left hand side from "Translations" menu).
 
-https://electronjs.org/docs/api/locales
+1. Run the `extract-geo-data.py` script as described in `gui/scripts/README.md`. This will
+   create the automatic translations for the new language if possible (`relay-locations.po`).
 
-In order to initialize the translations catalogue for the new locale, simple follow the update
-procedure, described in the section below.
-
+1. Upload automatically translated `gui/scripts/out/locales/$NEW_LOCALE/relay-locations.po` to 
+   Crowdin via web interface: Settings -> Translations -> Upload translations, where the 
+   `$NEW_LOCALE` is the identifier of the newly added language.
+   
+   Crowdin accepts ZIP archives with the same layout as the `gui/locales` folder.
+   So make sure to ZIP the folder with the new locale, i.e the ZIP file should have the following
+   file structure: `$NEW_LOCALE/relay-locations.po`.
 
 ## Updating translations template
 
 ### messages.pot
 
 Run `npm run update-translations` to extract the new translations from the source
-code and update all of the existing catalogues.
+code. Use `crowdin.sh upload` to submit them to Crowdin.
 
 ### relay-locations.pot
 
