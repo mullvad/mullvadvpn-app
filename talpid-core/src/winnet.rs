@@ -1,12 +1,13 @@
 use self::api::*;
 pub use self::api::{
-    LogSink, WinNet_ActivateConnectivityMonitor, WinNet_DeactivateConnectivityMonitor,
+    WinNet_ActivateConnectivityMonitor, WinNet_DeactivateConnectivityMonitor,
 };
+use crate::logging::windows::log_sink;
 use crate::routing::Node;
 use ipnetwork::IpNetwork;
-use libc::{c_char, c_void, wchar_t};
+use libc::{c_void, wchar_t};
 use std::{
-    ffi::{CStr, OsString},
+    ffi::{OsString},
     net::IpAddr,
     ptr,
 };
@@ -36,28 +37,8 @@ pub enum Error {
     ConnectivityUnkown,
 }
 
-#[allow(dead_code)]
-#[repr(u8)]
-pub enum LogSeverity {
-    Error = 0,
-    Warning,
-    Info,
-    Trace,
-}
-
-/// Logging callback used with `winnet.dll`.
-pub extern "system" fn log_sink(severity: LogSeverity, msg: *const c_char, _ctx: *mut c_void) {
-    if msg.is_null() {
-        log::error!("Log message from FFI boundary is NULL");
-    } else {
-        let managed_msg = unsafe { CStr::from_ptr(msg).to_string_lossy() };
-        match severity {
-            LogSeverity::Warning => log::warn!("{}", managed_msg),
-            LogSeverity::Info => log::info!("{}", managed_msg),
-            LogSeverity::Trace => log::trace!("{}", managed_msg),
-            _ => log::error!("{}", managed_msg),
-        }
-    }
+fn logging_context() -> *mut libc::c_void {
+    "WinNet" as *const _ as *mut libc::c_void
 }
 
 /// Returns true if metrics were changed, false otherwise
@@ -66,7 +47,7 @@ pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool, Er
         WideCString::from_str(interface_alias).map_err(Error::InvalidInterfaceAlias)?;
 
     let metric_result = unsafe {
-        WinNet_EnsureTopMetric(interface_alias_ws.as_ptr(), Some(log_sink), ptr::null_mut())
+        WinNet_EnsureTopMetric(interface_alias_ws.as_ptr(), Some(log_sink), logging_context())
     };
 
     match metric_result {
@@ -87,7 +68,7 @@ pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool, Er
 /// Checks if IPv6 is enabled for the TAP interface
 pub fn get_tap_interface_ipv6_status() -> Result<bool, Error> {
     let tap_ipv6_status =
-        unsafe { WinNet_GetTapInterfaceIpv6Status(Some(log_sink), ptr::null_mut()) };
+        unsafe { WinNet_GetTapInterfaceIpv6Status(Some(log_sink), logging_context()) };
 
     match tap_ipv6_status {
         // Enabled
@@ -111,7 +92,7 @@ pub fn get_tap_interface_ipv6_status() -> Result<bool, Error> {
 pub fn get_tap_interface_alias() -> Result<OsString, Error> {
     let mut alias_ptr: *mut wchar_t = ptr::null_mut();
     let status = unsafe {
-        WinNet_GetTapInterfaceAlias(&mut alias_ptr as *mut _, Some(log_sink), ptr::null_mut())
+        WinNet_GetTapInterfaceAlias(&mut alias_ptr as *mut _, Some(log_sink), logging_context())
     };
 
     if !status {
@@ -286,7 +267,7 @@ impl Drop for WinNetRoute {
 }
 
 pub fn activate_routing_manager(routes: &[WinNetRoute]) -> bool {
-    unsafe { WinNet_ActivateRouteManager(Some(log_sink), ptr::null_mut()) };
+    unsafe { WinNet_ActivateRouteManager(Some(log_sink), logging_context()) };
     routing_manager_add_routes(routes)
 }
 
@@ -375,17 +356,14 @@ pub fn add_device_ip_addresses(iface: &String, addresses: &Vec<IpAddr>) -> bool 
     let converted_addresses: Vec<_> = addresses.iter().map(|addr| WinNetIp::from(*addr)).collect();
     let ptr = converted_addresses.as_ptr();
     let length: u32 = converted_addresses.len() as u32;
-    unsafe { WinNet_AddDeviceIpAddresses(raw_iface, ptr, length, Some(log_sink), ptr::null_mut()) }
+    unsafe { WinNet_AddDeviceIpAddresses(raw_iface, ptr, length, Some(log_sink), logging_context()) }
 }
 
 #[allow(non_snake_case)]
 mod api {
-    use super::{DefaultRouteChangedCallback, LogSeverity};
-    use libc::{c_char, c_void, wchar_t};
-
-    /// logging callback type for use with `winnet.dll`.
-    pub type LogSink =
-        extern "system" fn(severity: LogSeverity, msg: *const c_char, ctx: *mut c_void);
+    use super::{DefaultRouteChangedCallback};
+    use libc::{c_void, wchar_t};
+    use crate::logging::windows::LogSink;
 
     pub type ConnectivityCallback = unsafe extern "system" fn(is_connected: bool, ctx: *mut c_void);
 

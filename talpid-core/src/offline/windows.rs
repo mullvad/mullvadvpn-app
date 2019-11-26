@@ -6,7 +6,7 @@
 //! GNU General Public License as published by the Free Software Foundation, either version 3 of
 //! the License, or (at your option) any later version.
 
-use crate::{tunnel_state_machine::TunnelCommand, winnet};
+use crate::{logging::windows::log_sink, tunnel_state_machine::TunnelCommand, winnet};
 use futures::sync::mpsc::UnboundedSender;
 use parking_lot::Mutex;
 use std::{
@@ -194,11 +194,12 @@ impl BroadcastListener {
         system_state: &Mutex<SystemState>,
     ) -> Result<(), Error> {
         let callback_context = system_state as *const _ as *mut libc::c_void;
+        let logging_context = "Connectivity monitor" as *const _ as *mut libc::c_void;
         if !winnet::WinNet_ActivateConnectivityMonitor(
             Some(Self::connectivity_callback),
             callback_context,
-            Some(winnet::log_sink),
-            ptr::null_mut(),
+            Some(log_sink),
+            logging_context,
         ) {
             return Err(Error::ConnectivityMonitorError);
         }
