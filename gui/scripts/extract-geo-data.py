@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 This module forms a geo json of highly populated cities in the world
 """
