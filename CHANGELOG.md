@@ -49,6 +49,7 @@ Line wrap the file at 100 chars.                                              Th
 - Improve stability on Linux by using the routing netlink socket in its own thread.
 - When trying to use `resolvconf` for managing DNS, the daemon will check if
   `dnsmasq` is running and misconfigured.
+- Improve stability on Linux by simplifying route management code.
 
 #### Windows
 - Detect removal of the OpenVPN TAP adapter on reconnection attempts.
