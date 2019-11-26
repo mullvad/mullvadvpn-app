@@ -12,10 +12,7 @@ pub use mullvad_types::settings::*;
 use std::io::ErrorKind;
 
 #[cfg(windows)]
-use std::{
-    os::raw::{c_char, c_void},
-    ptr,
-};
+use talpid_core::logging::windows::log_sink;
 
 pub fn load() -> Settings {
     match Settings::load() {
@@ -50,7 +47,9 @@ pub fn load() -> Settings {
 
 #[cfg(windows)]
 fn migrate_after_windows_update() -> bool {
-    match unsafe { ffi::WinUtil_MigrateAfterWindowsUpdate(Some(log_sink), ptr::null_mut()) } {
+    match unsafe {
+        ffi::WinUtil_MigrateAfterWindowsUpdate(Some(log_sink), b"Settings migrator\0".as_ptr())
+    } {
         ffi::WinUtilMigrationStatus::Success => {
             info!("Migration completed successfully");
             true
@@ -71,18 +70,8 @@ fn migrate_after_windows_update() -> bool {
 }
 
 #[cfg(windows)]
-extern "system" fn log_sink(msg: *const c_char, _ctx: *mut c_void) {
-    use std::ffi::CStr;
-    if msg.is_null() {
-        error!("Log message from FFI boundary is NULL");
-    } else {
-        error!("{}", unsafe { CStr::from_ptr(msg).to_string_lossy() });
-    }
-}
-
-#[cfg(windows)]
 mod ffi {
-    use super::*;
+    use talpid_core::logging::windows::LogSink;
 
     #[allow(dead_code)]
     #[repr(u32)]
@@ -94,14 +83,12 @@ mod ffi {
         Dummy = 9001,
     }
 
-    type ErrorSink = extern "system" fn(msg: *const c_char, ctx: *mut c_void);
-
     #[allow(non_snake_case)]
     extern "system" {
         #[link_name = "WinUtil_MigrateAfterWindowsUpdate"]
         pub fn WinUtil_MigrateAfterWindowsUpdate(
-            sink: Option<ErrorSink>,
-            sink_context: *mut c_void,
+            sink: Option<LogSink>,
+            sink_context: *const u8,
         ) -> WinUtilMigrationStatus;
     }
 }
