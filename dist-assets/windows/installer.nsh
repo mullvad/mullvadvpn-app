@@ -50,6 +50,12 @@
 !define PE_GENERAL_ERROR 0
 !define PE_SUCCESS 1
 
+# Return codes from tapinstall
+!define DEVCON_EXIT_OK 0
+!define DEVCON_EXIT_REBOOT 1
+!define DEVCON_EXIT_FAIL 2
+!define DEVCON_EXIT_USAGE 3
+
 # Log targets
 !define LOG_FILE 0
 !define LOG_VOID 1
@@ -262,14 +268,14 @@
 	Pop $0
 	Pop $1
 
+	Push $0
+	Pop $InstallDriver_BaselineStatus
+
 	${If} $0 == ${EB_GENERAL_ERROR}
 		StrCpy $R0 "Failed to enumerate network adapters: $1"
 		log::Log $R0
 		Goto InstallDriver_return
 	${EndIf}
-
-	Push $0
-	Pop $InstallDriver_BaselineStatus
 
 	${IfNot} ${AtLeastWin10}
 		#
@@ -299,7 +305,8 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 != 0
+	${If} $0 != ${DEVCON_EXIT_OK}
+	${AndIf} $0 != ${DEVCON_EXIT_REBOOT}
 		StrCpy $R0 "Failed to update TAP driver: error $0"
 		log::LogWithDetails $R0 $1
 		Goto InstallDriver_return
@@ -336,7 +343,8 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 != 0
+	${If} $0 != ${DEVCON_EXIT_OK}
+	${AndIf} $0 != ${DEVCON_EXIT_REBOOT}
 		StrCpy $R0 "Failed to create virtual adapter: error $0"
 		log::LogWithDetails $R0 $1
 		Goto InstallDriver_return
