@@ -364,7 +364,7 @@ pub fn routing_manager_add_routes(routes: &[WinNetRoute]) -> bool {
     unsafe { WinNet_AddRoutes(ptr, length) }
 }
 
-pub fn deactivate_routing_manager() -> bool {
+pub fn deactivate_routing_manager() {
     unsafe { WinNet_DeactivateRouteManager() }
 }
 
@@ -406,7 +406,7 @@ mod api {
         // pub fn WinNet_DeleteRoute(route: *const super::WinNetRoute) -> bool;
 
         #[link_name = "WinNet_DeactivateRouteManager"]
-        pub fn WinNet_DeactivateRouteManager() -> bool;
+        pub fn WinNet_DeactivateRouteManager();
 
         #[link_name = "WinNet_EnsureTopMetric"]
         pub fn WinNet_EnsureTopMetric(
@@ -429,7 +429,7 @@ mod api {
         ) -> bool;
 
         #[link_name = "WinNet_ReleaseString"]
-        pub fn WinNet_ReleaseString(string: *mut wchar_t) -> u32;
+        pub fn WinNet_ReleaseString(string: *mut wchar_t);
 
         #[link_name = "WinNet_ActivateConnectivityMonitor"]
         pub fn WinNet_ActivateConnectivityMonitor(
@@ -450,7 +450,7 @@ mod api {
         pub fn WinNet_UnregisterDefaultRouteChangedCallback(registrationHandle: *mut libc::c_void);
 
         #[link_name = "WinNet_DeactivateConnectivityMonitor"]
-        pub fn WinNet_DeactivateConnectivityMonitor() -> bool;
+        pub fn WinNet_DeactivateConnectivityMonitor();
 
         #[link_name = "WinNet_AddDeviceIpAddresses"]
         pub fn WinNet_AddDeviceIpAddresses(

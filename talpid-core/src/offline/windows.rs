@@ -15,7 +15,7 @@ use std::{
     mem::zeroed,
     os::windows::io::{IntoRawHandle, RawHandle},
     ptr,
-    sync::Arc,
+    sync::{Arc, Weak},
     thread,
     time::Duration,
 };
@@ -62,7 +62,7 @@ pub struct BroadcastListener {
 unsafe impl Send for BroadcastListener {}
 
 impl BroadcastListener {
-    pub fn start(sender: UnboundedSender<TunnelCommand>) -> Result<Self, Error> {
+    pub fn start(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<Self, Error> {
         let mut system_state = Arc::new(Mutex::new(SystemState {
             network_connectivity: false,
             suspended: false,
@@ -223,9 +223,7 @@ impl Drop for BroadcastListener {
             PostThreadMessageW(self.thread_id, REQUEST_THREAD_SHUTDOWN, 0, 0);
             WaitForSingleObject(self.thread_handle, INFINITE);
             CloseHandle(self.thread_handle);
-            if !winnet::WinNet_DeactivateConnectivityMonitor() {
-                log::error!("Failed to deactivate connectivity monitor");
-            }
+            winnet::WinNet_DeactivateConnectivityMonitor();
         }
     }
 }
@@ -239,7 +237,7 @@ enum StateChange {
 struct SystemState {
     network_connectivity: bool,
     suspended: bool,
-    daemon_channel: UnboundedSender<TunnelCommand>,
+    daemon_channel: Weak<UnboundedSender<TunnelCommand>>,
 }
 
 impl SystemState {
@@ -257,11 +255,10 @@ impl SystemState {
 
         let new_state = self.is_offline_currently();
         if old_state != new_state {
-            if let Err(e) = self
-                .daemon_channel
-                .unbounded_send(TunnelCommand::IsOffline(new_state))
-            {
-                log::error!("Failed to send new offline state to daemon: {}", e);
+            if let Some(daemon_channel) = self.daemon_channel.upgrade() {
+                if let Err(e) = daemon_channel.unbounded_send(TunnelCommand::IsOffline(new_state)) {
+                    log::error!("Failed to send new offline state to daemon: {}", e);
+                }
             }
         }
     }
@@ -273,7 +270,7 @@ impl SystemState {
 
 pub type MonitorHandle = BroadcastListener;
 
-pub fn spawn_monitor(sender: UnboundedSender<TunnelCommand>) -> Result<MonitorHandle, Error> {
+pub fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<MonitorHandle, Error> {
     BroadcastListener::start(sender)
 }
 

@@ -27,9 +27,10 @@ use crate::management_interface::{
     BoxFuture, ManagementInterfaceEventBroadcaster, ManagementInterfaceServer,
 };
 use futures::{
+    executor,
     future::{self, Executor},
     sync::{mpsc::UnboundedSender, oneshot},
-    Future, Sink,
+    Future,
 };
 use log::{debug, error, info, warn};
 use mullvad_rpc::{AccountsProxy, HttpHandle, WireguardKeyProxy};
@@ -49,7 +50,13 @@ use mullvad_types::{
 use settings::Settings;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
-use std::{io, mem, path::PathBuf, sync::mpsc, thread, time::Duration};
+use std::{
+    io, mem,
+    path::PathBuf,
+    sync::{mpsc, Arc},
+    thread,
+    time::Duration,
+};
 use talpid_core::{
     mpsc::IntoSender,
     tunnel::tun_provider::{PlatformTunProvider, TunProvider},
@@ -127,8 +134,6 @@ pub enum Error {
     #[error(display = "Failed to read dir entries")]
     ReadDirError(#[error(source)] io::Error),
 }
-
-type SyncUnboundedSender<T> = ::futures::sink::Wait<UnboundedSender<T>>;
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
 pub(crate) enum InternalDaemonEvent {
@@ -248,7 +253,7 @@ pub trait EventListener {
 }
 
 pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
-    tunnel_command_tx: SyncUnboundedSender<TunnelCommand>,
+    tunnel_command_tx: Arc<UnboundedSender<TunnelCommand>>,
     tunnel_state: TunnelState,
     target_state: TargetState,
     state: DaemonExecutionState,
@@ -449,7 +454,7 @@ where
         relay_selector.update();
 
         let mut daemon = Daemon {
-            tunnel_command_tx: Sink::wait(tunnel_command_tx),
+            tunnel_command_tx,
             tunnel_state: TunnelState::Disconnected,
             target_state: TargetState::Unsecured,
             state: DaemonExecutionState::Running,
@@ -1491,8 +1496,8 @@ where
     }
 
     fn send_tunnel_command(&mut self, command: TunnelCommand) {
-        self.tunnel_command_tx
-            .send(command)
+        let mut sink = executor::spawn(Arc::make_mut(&mut self.tunnel_command_tx));
+        sink.wait_send(command)
             .expect("Tunnel state machine has stopped");
     }
 
