@@ -20,7 +20,7 @@ state of latest master, not necessarily any existing release.
 |                               | Windows | Linux | macOS | Android |
 |-------------------------------|:-------:|:-----:|:-----:|:-------:|
 | OpenVPN                       |    ✓    |   ✓   |   ✓   |         |
-| WireGuard                     |         |   ✓   |   ✓   |    ✓    |
+| WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |
 | Optional local network access |    ✓    |   ✓   |   ✓   |         |
 
