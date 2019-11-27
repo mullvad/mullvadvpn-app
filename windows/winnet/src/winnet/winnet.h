@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../shared/logsink.h"
+#include <shared/logsink.h>
 #include <stdint.h>
 #include <stdbool.h>
 
