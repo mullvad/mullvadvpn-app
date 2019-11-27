@@ -1,36 +1,11 @@
 #include "stdafx.h"
-#include "../../winnet/winnet.h"
+#include <winnet/winnet.h>
+#include <shared/stdoutlogger.h>
 #include <iostream>
 
 void __stdcall ConnectivityChanged(bool connected, void *)
 {
 	std::wcout << (0 != connected? L"Connected" : L"NOT connected") << std::endl;
-}
-
-namespace
-{
-
-void __stdcall log(MULLVAD_LOG_SINK_SEVERITY severity, const char *msg, void *)
-{
-	switch (severity)
-	{
-	case MULLVAD_LOG_SINK_SEVERITY_ERROR:
-		std::cout << "Error: ";
-		break;
-	case MULLVAD_LOG_SINK_SEVERITY_WARNING:
-		std::cout << "Warning: ";
-		break;
-	case MULLVAD_LOG_SINK_SEVERITY_INFO:
-		std::cout << "Info: ";
-		break;
-	case MULLVAD_LOG_SINK_SEVERITY_TRACE:
-		std::cout << "Trace: ";
-		break;
-	}
-
-	std::cout << msg << std::endl;
-}
-
 }
 
 int main()
@@ -56,7 +31,7 @@ int main()
 	const auto status = WinNet_ActivateConnectivityMonitor(
 		ConnectivityChanged,
 		nullptr,
-		log,
+		shared::StdoutLogger,
 		nullptr
 	);
 
