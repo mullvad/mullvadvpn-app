@@ -3,7 +3,7 @@
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
 use futures::{sync::oneshot, Future};
 use ipnetwork::IpNetwork;
-use std::{collections::HashMap, net::IpAddr};
+use std::{collections::HashMap, fmt, net::IpAddr};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -144,6 +144,16 @@ impl Route {
     }
 }
 
+impl fmt::Display for Route {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} via {}", self.prefix, self.node)?;
+        if let Some(metric) = &self.metric {
+            write!(f, " metric {}", *metric)?;
+        }
+        Ok(())
+    }
+}
+
 /// A network route that should be applied by the RouteManager.
 /// It can either be routed through a specific network node or it can be routed through the current
 /// default route.
@@ -222,5 +232,18 @@ impl Node {
     /// Retrieve a node's network interface name
     pub fn get_device(&self) -> Option<&str> {
         self.device.as_ref().map(|s| s.as_ref())
+    }
+}
+
+impl fmt::Display for Node {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(ip) = &self.ip {
+            write!(f, "{}", ip)?;
+        }
+        if let Some(device) = &self.device {
+            let extra_space = if self.ip.is_some() { " " } else { "" };
+            write!(f, "{}dev {}", extra_space, device)?;
+        }
+        Ok(())
     }
 }
