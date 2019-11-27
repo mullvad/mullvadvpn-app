@@ -116,7 +116,7 @@ impl Command for Relay {
                     )
                     .subcommand(
                         clap::SubCommand::with_name("tunnel")
-                            .about("Set tunnel constraints")
+                            .about("Set inidividual tunnel constraints")
                             .arg(
                                 clap::Arg::with_name("vpn protocol")
                                     .required(true)
@@ -132,7 +132,16 @@ impl Command for Relay {
                                     .possible_values(&["any", "udp", "tcp"]),
                             ),
 
-                    ),
+                    )
+                    .subcommand(clap::SubCommand::with_name("tunnel-protocol")
+                                .about("Set tunnel protocol")
+                                .arg(
+                                    clap::Arg::with_name("tunnel protocol")
+                                    .required(true)
+                                    .index(1)
+                                    .possible_values(&["any", "wireguard", "openvpn", ]),
+                                    )
+                                ),
             )
             .subcommand(clap::SubCommand::with_name("get"))
             .subcommand(
@@ -174,6 +183,8 @@ impl Relay {
             self.set_location(location_matches)
         } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel") {
             self.set_tunnel(tunnel_matches)
+        } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel-protocol") {
+            self.set_tunnel_protocol(tunnel_matches)
         } else {
             unreachable!("No set relay command given");
         }
@@ -288,7 +299,7 @@ impl Relay {
                 }
                 self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
                     location: None,
-                    tunnel_protocol: Some(Constraint::Only(TunnelProtocol::Wireguard)),
+                    tunnel_protocol: None,
                     wireguard_constraints: Some(WireguardConstraints { port }),
                     ..Default::default()
                 }))
@@ -296,13 +307,26 @@ impl Relay {
             "openvpn" => {
                 self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
                     location: None,
-                    tunnel_protocol: Some(Constraint::Any),
+                    tunnel_protocol: None,
                     openvpn_constraints: Some(OpenVpnConstraints { port, protocol }),
                     ..Default::default()
                 }))
             }
             _ => unreachable!(),
         }
+    }
+
+    fn set_tunnel_protocol(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+        let tunnel_protocol = match matches.value_of("tunnel protocol").unwrap() {
+            "wireguard" => Constraint::Only(TunnelProtocol::Wireguard),
+            "openvpn" => Constraint::Only(TunnelProtocol::OpenVpn),
+            "any" => Constraint::Any,
+            _ => unreachable!(),
+        };
+        self.update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+            tunnel_protocol: Some(tunnel_protocol),
+            ..Default::default()
+        }))
     }
 
     fn get(&self) -> Result<()> {
