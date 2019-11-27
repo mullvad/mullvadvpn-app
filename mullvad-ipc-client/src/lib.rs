@@ -99,6 +99,10 @@ impl DaemonRpcClient {
         self.call("disconnect", &NO_ARGS)
     }
 
+    pub fn reconnect(&mut self) -> Result<()> {
+        self.call("reconnect", &NO_ARGS)
+    }
+
     pub fn create_new_account(&mut self) -> Result<()> {
         self.call("create_new_account", &NO_ARGS)
     }

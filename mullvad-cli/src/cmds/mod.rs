@@ -7,11 +7,11 @@ pub use self::account::Account;
 mod auto_connect;
 pub use self::auto_connect::AutoConnect;
 
+mod block_when_disconnected;
+pub use self::block_when_disconnected::BlockWhenDisconnected;
+
 mod bridge;
 pub use self::bridge::Bridge;
-
-mod status;
-pub use self::status::Status;
 
 mod connect;
 pub use self::connect::Connect;
@@ -19,17 +19,20 @@ pub use self::connect::Connect;
 mod disconnect;
 pub use self::disconnect::Disconnect;
 
-mod block_when_disconnected;
-pub use self::block_when_disconnected::BlockWhenDisconnected;
+mod lan;
+pub use self::lan::Lan;
+
+mod reconnect;
+pub use self::reconnect::Reconnect;
 
 mod relay;
 pub use self::relay::Relay;
 
-mod lan;
-pub use self::lan::Lan;
-
 mod reset;
 pub use self::reset::Reset;
+
+mod status;
+pub use self::status::Status;
 
 mod tunnel;
 pub use self::tunnel::Tunnel;
@@ -46,6 +49,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(Bridge),
         Box::new(Connect),
         Box::new(Disconnect),
+        Box::new(Reconnect),
         Box::new(Lan),
         Box::new(Relay),
         Box::new(Reset),
