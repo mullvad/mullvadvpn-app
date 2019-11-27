@@ -3,8 +3,9 @@
 #include "NetworkInterfaces.h"
 #include "offlinemonitor.h"
 #include "routing/routemanager.h"
-#include <shared/logsinkadapter.h>
-#include <shared/network/interfaceutils.h>
+#include <libshared/logging/logsinkadapter.h>
+#include <libshared/logging/unwind.h>
+#include <libshared/network/interfaceutils.h>
 #include <libcommon/error.h>
 #include <libcommon/network.h>
 #include <cstdint>
@@ -25,7 +26,7 @@ OfflineMonitor *g_OfflineMonitor = nullptr;
 
 std::mutex g_RouteManagerLock;
 RouteManager *g_RouteManager = nullptr;
-std::shared_ptr<shared::LogSinkAdapter> g_RouteManagerLogSink;
+std::shared_ptr<shared::logging::LogSinkAdapter> g_RouteManagerLogSink;
 
 Network ConvertNetwork(const WINNET_IPNETWORK &in)
 {
@@ -134,18 +135,6 @@ std::vector<Route> ConvertRoutes(const WINNET_ROUTE *routes, uint32_t numRoutes)
 	return out;
 }
 
-void UnwindAndLog(MullvadLogSink logSink, void *logSinkContext, const std::exception &err)
-{
-	if (nullptr == logSink)
-	{
-		return;
-	}
-
-	auto logger = std::make_shared<shared::LogSinkAdapter>(logSink, logSinkContext);
-
-	common::error::UnwindException(err, logger);
-}
-
 std::vector<SOCKADDR_INET> ConvertAddresses(const WINNET_IP *addresses, uint32_t numAddresses)
 {
 	//
@@ -209,7 +198,7 @@ WinNet_EnsureTopMetric(
 	}
 	catch (const std::exception &err)
 	{
-		UnwindAndLog(logSink, logSinkContext, err);
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
 		return WINNET_ETM_STATUS_FAILURE;
 	}
 	catch (...)
@@ -250,7 +239,7 @@ WinNet_GetTapInterfaceIpv6Status(
 	}
 	catch (const std::exception &err)
 	{
-		UnwindAndLog(logSink, logSinkContext, err);
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
 		return WINNET_GTII_STATUS_FAILURE;
 	}
 	catch (...)
@@ -282,7 +271,7 @@ WinNet_GetTapInterfaceAlias(
 	}
 	catch (const std::exception &err)
 	{
-		UnwindAndLog(logSink, logSinkContext, err);
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
 		return false;
 	}
 	catch (...)
@@ -331,7 +320,7 @@ WinNet_ActivateConnectivityMonitor(
 			callback(connected, callbackContext);
 		};
 
-		auto logger = std::make_shared<shared::LogSinkAdapter>(logSink, logSinkContext);
+		auto logger = std::make_shared<shared::logging::LogSinkAdapter>(logSink, logSinkContext);
 
 		g_OfflineMonitor = new OfflineMonitor(logger, forwarder);
 
@@ -339,7 +328,7 @@ WinNet_ActivateConnectivityMonitor(
 	}
 	catch (const std::exception &err)
 	{
-		UnwindAndLog(logSink, logSinkContext, err);
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
 		return false;
 	}
 	catch (...)
@@ -383,14 +372,14 @@ WinNet_ActivateRouteManager(
 			throw std::runtime_error("Cannot activate route manager twice");
 		}
 
-		g_RouteManagerLogSink =   std::make_shared<shared::LogSinkAdapter>(logSink, logSinkContext);
+		g_RouteManagerLogSink = std::make_shared<shared::logging::LogSinkAdapter>(logSink, logSinkContext);
 		g_RouteManager = new RouteManager(g_RouteManagerLogSink);
 
 		return true;
 	}
 	catch (const std::exception &err)
 	{
-		UnwindAndLog(logSink, logSinkContext, err);
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
 		return false;
 	}
 	catch (...)
@@ -713,7 +702,7 @@ WinNet_AddDeviceIpAddresses(
 	}
 	catch (const std::exception &err)
 	{
-		UnwindAndLog(logSink, logSinkContext, err);
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
 		return false;
 	}
 	catch (...)
