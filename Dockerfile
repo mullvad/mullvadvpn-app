@@ -8,7 +8,6 @@ RUN apt install build-essential \
 	gcc \
 	libdbus-1-dev \
 	rpm \
-	gconf2 \
 	go2 \
 	binutils \
 	curl \
