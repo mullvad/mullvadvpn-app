@@ -69,6 +69,13 @@ impl DaemonInterface {
         Ok(())
     }
 
+    // TODO: Implement this all the way on Android. This method is currently unused.
+    #[allow(dead_code)]
+    pub fn reconnect(&self) -> Result<()> {
+        self.send_command(ManagementCommand::Reconnect)?;
+        Ok(())
+    }
+
     pub fn generate_wireguard_key(&self) -> Result<KeygenEvent> {
         let (tx, rx) = oneshot::channel();
 
