@@ -34,8 +34,8 @@ pub enum Error {
     #[error(display = "Error while running \"route -nv monitor\"")]
     FailedToMonitorRoutes(#[error(source)] io::Error),
 
-    /// No default route in "ip route" output.
-    #[error(display = "No default route in \"ip route\" output")]
+    /// No default route in "route -n get default" output.
+    #[error(display = "No default route in \"route -n get default\" output")]
     NoDefaultRoute,
 
     /// Unexpected output from netstat
