@@ -62,7 +62,7 @@ and finally generate the R-Tree cache:
 npx ts-node prepare-rtree.ts
 ```
 
-At this point all of the data should be saved in `gui/geo-data/out` folder.
+At this point all of the data should be saved in `gui/scripts/out` folder.
 
 ## App integration notes
 
