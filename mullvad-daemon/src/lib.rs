@@ -782,6 +782,7 @@ where
         }
         match event {
             SetTargetState(tx, state) => self.on_set_target_state(tx, state),
+            Reconnect => self.on_reconnect(),
             GetState(tx) => self.on_get_state(tx),
             GetCurrentLocation(tx) => self.on_get_current_location(tx),
             CreateNewAccount(tx) => self.on_create_new_account(tx),
@@ -916,6 +917,14 @@ where
             warn!("Ignoring target state change request due to shutdown");
         }
         Self::oneshot_send(tx, Ok(()), "target state");
+    }
+
+    fn on_reconnect(&mut self) {
+        if self.target_state == TargetState::Secured || self.tunnel_state.is_blocked() {
+            self.connect_tunnel();
+        } else {
+            debug!("Ignoring reconnect command. Currently not in secured state");
+        }
     }
 
     fn on_get_state(&self, tx: oneshot::Sender<TunnelState>) {
