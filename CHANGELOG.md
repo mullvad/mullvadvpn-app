@@ -24,6 +24,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add `mullvad relay set tunnel-protocol` subcommand to the CLI to specify what tunnel protocol to
+  use
+
 #### Windows
 - Full WireGuard support, GUI and CLI.
 - Install Wintun driver that provides the WireGuard TUN adapter.
