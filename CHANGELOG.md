@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add `mullvad relay set tunnel-protocol` subcommand to the CLI to specify what tunnel protocol to
   use
+- Add `mullvad reconnect` subcommand to the CLI to make the app pick a new server and reconnect.
 
 #### Windows
 - Full WireGuard support, GUI and CLI.
