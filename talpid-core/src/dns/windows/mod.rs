@@ -1,11 +1,7 @@
-use log::{error, info, trace};
-use std::{
-    borrow::Borrow,
-    net::IpAddr,
-    os::raw::{c_char, c_void},
-    path::Path,
-    ptr, slice,
-};
+use crate::logging::windows::{log_sink, LogSink};
+
+use log::{error, trace};
+use std::{net::IpAddr, path::Path};
 use widestring::WideCString;
 
 mod system_state;
@@ -36,7 +32,7 @@ impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
     fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
-        unsafe { WinDns_Initialize(Some(log_sink), ptr::null_mut()).into_result()? };
+        unsafe { WinDns_Initialize(Some(log_sink), b"WinDns\0".as_ptr()).into_result()? };
 
         let backup_writer = SystemStateWriter::new(
             cache_dir
@@ -93,45 +89,6 @@ fn ip_to_widestring(ip: &IpAddr) -> WideCString {
     WideCString::new(ip.to_string().encode_utf16().collect::<Vec<_>>()).unwrap()
 }
 
-// typedef void (WINDNS_API *WinDnsErrorSink)(const char *errorMessage, const char **details,
-// uint32_t numDetails, void *context);
-extern "system" fn log_sink(
-    log_level: u8,
-    msg: *const c_char,
-    detail_ptr: *const *const c_char,
-    n_details: u32,
-    _ctx: *mut c_void,
-) {
-    use std::ffi::CStr;
-    if msg.is_null() {
-        error!("Log message from FFI boundary is NULL");
-    } else {
-        if detail_ptr.is_null() || n_details == 0 {
-            error!("{}", unsafe { CStr::from_ptr(msg).to_string_lossy() });
-        } else {
-            let raw_details = unsafe { slice::from_raw_parts(detail_ptr, n_details as usize) };
-            let mut appendix = String::new();
-            for detail_ptr in raw_details {
-                appendix
-                    .push_str(unsafe { CStr::from_ptr(*detail_ptr).to_string_lossy().borrow() });
-                appendix.push_str("\n");
-            }
-
-            let message = format!(
-                "{}: {}",
-                unsafe { CStr::from_ptr(msg).to_string_lossy() },
-                appendix
-            );
-
-            match log_level {
-                0x01 => error!("{}", message),
-                0x02 => info!("{}", message),
-                _ => error!("Unknwon log level - {}", message),
-            }
-        }
-    }
-}
-
 impl Drop for DnsMonitor {
     fn drop(&mut self) {
         if unsafe { WinDns_Deinitialize().into_result().is_ok() } {
@@ -148,23 +105,13 @@ ffi_error!(DeinitializationResult, Error::Deinitialization);
 ffi_error!(SettingResult, Error::Setting);
 
 
-// This callback can be called from multiple threads concurrently, thus if there ever is a real
-// context object passed around, it should probably implement Sync.
-type ErrorSink = extern "system" fn(
-    log_level: u8,
-    msg: *const c_char,
-    details: *const *const c_char,
-    num_details: u32,
-    ctx: *mut c_void,
-);
-
 #[allow(non_snake_case)]
 extern "stdcall" {
 
     #[link_name = "WinDns_Initialize"]
     pub fn WinDns_Initialize(
-        sink: Option<ErrorSink>,
-        sink_context: *mut c_void,
+        sink: Option<LogSink>,
+        sink_context: *const u8,
     ) -> InitializationResult;
 
     // WinDns_Deinitialize:
