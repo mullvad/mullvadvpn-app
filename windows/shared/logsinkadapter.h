@@ -1,3 +1,5 @@
+#pragma once
+
 #include "logsink.h"
 #include <libcommon/logging/logsink.h>
 
@@ -21,30 +23,37 @@ private:
 
 	static common::logging::LogTarget MakeAdapter(MullvadLogSink target, void *context)
 	{
-		return [target, context](common::logging::Severity s, const char *msg)
+		return [target, context](common::logging::LogLevel level, const char *msg)
 		{
 			if (nullptr == target)
 			{
 				return;
 			}
 
-			const MULLVAD_LOG_SINK_SEVERITY severity = [s]()
+			//
+			// TODO: Replace manual mapping with ValueMapper once the updated
+			// ValueMapper reaches libcommon.
+			//
+
+			const MULLVAD_LOG_LEVEL translatedLevel = [level]()
 			{
-				switch (s)
+				switch (level)
 				{
-					case common::logging::Severity::Warning:
-						return MULLVAD_LOG_SINK_SEVERITY_WARNING;
-					case common::logging::Severity::Info:
-						return MULLVAD_LOG_SINK_SEVERITY_INFO;
-					case common::logging::Severity::Trace:
-						return MULLVAD_LOG_SINK_SEVERITY_TRACE;
-					case common::logging::Severity::Error:
+					case common::logging::LogLevel::Warning:
+						return MULLVAD_LOG_LEVEL_WARNING;
+					case common::logging::LogLevel::Info:
+						return MULLVAD_LOG_LEVEL_INFO;
+					case common::logging::LogLevel::Trace:
+						return MULLVAD_LOG_LEVEL_TRACE;
+					case common::logging::LogLevel::Debug:
+						return MULLVAD_LOG_LEVEL_DEBUG;
+					case common::logging::LogLevel::Error:
 					default:
-						return MULLVAD_LOG_SINK_SEVERITY_ERROR;
+						return MULLVAD_LOG_LEVEL_ERROR;
 				}
 			}();
 
-			target(severity, msg, context);
+			target(translatedLevel, msg, context);
 		};
 	}
 };
