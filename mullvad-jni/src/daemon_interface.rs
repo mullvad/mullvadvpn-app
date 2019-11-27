@@ -69,6 +69,11 @@ impl DaemonInterface {
         Ok(())
     }
 
+    pub fn reconnect(&self) -> Result<()> {
+        self.send_command(ManagementCommand::Reconnect)?;
+        Ok(())
+    }
+
     pub fn generate_wireguard_key(&self) -> Result<KeygenEvent> {
         let (tx, rx) = oneshot::channel();
 
