@@ -96,6 +96,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "disconnect")]
         fn disconnect(&self, Self::Metadata) -> BoxFuture<(), Error>;
 
+        /// Reconnect if connecting/connected, or do nothing if disconnected.
+        #[rpc(meta, name = "reconnect")]
+        fn reconnect(&self, Self::Metadata) -> BoxFuture<(), Error>;
+
         /// Returns the current state of the Mullvad client. Changes to this state will
         /// be announced to subscribers of `new_state`.
         #[rpc(meta, name = "get_state")]
@@ -185,8 +189,10 @@ build_rpc_trait! {
 
 /// Enum representing commands coming in on the management interface.
 pub enum ManagementCommand {
-    /// Change target state.
+    /// Set target state. Does nothing if the daemon already has the state that is being set.
     SetTargetState(OneshotSender<Result<(), ()>>, TargetState),
+    /// Reconnect the tunnel, if one is connecting/connected.
+    Reconnect,
     /// Request the current state.
     GetState(OneshotSender<TunnelState>),
     /// Get the current geographical location.
@@ -245,8 +251,8 @@ pub enum ManagementCommand {
     GetVersionInfo(OneshotSender<version::AppVersionInfo>),
     /// Get current version of the app
     GetCurrentVersion(OneshotSender<version::AppVersion>),
-    #[cfg(not(target_os = "android"))]
     /// Remove settings and clear the cache
+    #[cfg(not(target_os = "android"))]
     FactoryReset(OneshotSender<()>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
@@ -565,6 +571,12 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
                 TargetState::Unsecured,
             ))
             .then(|_| future::ok(()));
+        Box::new(future)
+    }
+
+    fn reconnect(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
+        log::debug!("reconnect");
+        let future = self.send_command_to_daemon(ManagementCommand::Reconnect);
         Box::new(future)
     }
 
