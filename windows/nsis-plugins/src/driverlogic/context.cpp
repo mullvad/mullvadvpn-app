@@ -412,12 +412,18 @@ Context::NetworkAdapter Context::getNewAdapter()
 		}
 	}
 
-	if (added.size() != 1)
+	if (added.size() == 0)
+	{
+		LogAdapters(L"Enumerable network TAP adapters", m_currentState);
+
+		throw std::runtime_error("Unable to identify recently added TAP adapter");
+	}
+	else if (added.size() > 1)
 	{
 		LogAdapters(L"Enumerable network TAP adapters", m_currentState);
 		LogAdapters(L"New TAP adapters:", added);
 
-		throw std::runtime_error("Unable to identify recently added TAP adapter");
+		throw std::runtime_error("Identified more TAP adapters than expected");
 	}
 
 	return *added.begin();
