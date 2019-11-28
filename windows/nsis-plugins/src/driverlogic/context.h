@@ -29,7 +29,7 @@ public:
 
 		bool operator<(const NetworkAdapter &rhs) const
 		{
-			return _wcsicmp(guid.c_str(), rhs.guid.c_str()) < 0;
+			return _wcsicmp(deviceInstanceId.c_str(), rhs.deviceInstanceId.c_str()) < 0;
 		}
 	};
 
@@ -43,6 +43,11 @@ public:
 	BaselineStatus establishBaseline();
 
 	void recordCurrentState();
+
+	//
+	// Restore TAP aliases to baseline state
+	//
+	void rollbackTapAliases();
 
 	//
 	// Identify a single new TAP adapter

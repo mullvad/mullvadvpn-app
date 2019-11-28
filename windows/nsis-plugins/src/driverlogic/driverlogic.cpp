@@ -272,6 +272,56 @@ void __declspec(dllexport) NSISCALL IdentifyNewAdapter
 }
 
 //
+// RollbackTapAliases
+//
+// Updating the TAP driver may replace GUIDs and aliases.
+// Use this to restore the aliases to their baseline state.
+//
+enum class RollbackTapAliasesStatus
+{
+	GENERAL_ERROR = 0,
+	SUCCESS
+};
+
+void __declspec(dllexport) NSISCALL RollbackTapAliases
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t** stacktop,
+	extra_parameters* extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	if (nullptr == g_context)
+	{
+		pushstring(L"Initialize() function was not called or was not successful");
+		pushint(EstablishBaselineStatus::GENERAL_ERROR);
+	}
+
+	try
+	{
+		g_context->recordCurrentState();
+		g_context->rollbackTapAliases();
+
+		pushstring(L"");
+		pushint(RollbackTapAliasesStatus::SUCCESS);
+	}
+	catch (std::exception & err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(RollbackTapAliasesStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(RollbackTapAliasesStatus::GENERAL_ERROR);
+	}
+}
+
+//
 // Deinitialize
 //
 // Call this function once during shutdown.
