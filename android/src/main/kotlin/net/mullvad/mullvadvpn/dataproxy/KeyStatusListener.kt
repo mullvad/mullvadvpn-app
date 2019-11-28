@@ -45,10 +45,11 @@ class KeyStatusListener(val asyncDaemon: Deferred<MullvadDaemon>) {
             setUpJob.join()
             val oldStatus = keyStatus
             val newStatus = daemon?.generateWireguardKey()
-            if (oldStatus is KeygenEvent.NewKey && newStatus is KeygenEvent.Failure) {
+            val newFailure = newStatus?.failure()
+            if (oldStatus is KeygenEvent.NewKey && newStatus != null) {
                 keyStatus = KeygenEvent.NewKey(oldStatus.publicKey,
                                 oldStatus.verified,
-                                newStatus.failure)
+                                newFailure)
             } else {
                 keyStatus = newStatus
             }
