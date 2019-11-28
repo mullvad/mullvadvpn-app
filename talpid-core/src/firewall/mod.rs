@@ -73,38 +73,8 @@ const DHCPV6_CLIENT_PORT: u16 = 546;
 ///
 /// # Firewall block/allow specification.
 ///
-/// Except what's described as allowed below, all network packets should be blocked.
-///
-/// ## In all policies the firewall should always allow the following traffic
-///
-/// 1. All traffic on loopback adapters
-/// 2. DHCPv4 and DHCPv6 requests to go out and responses to come in:
-///    * Outgoing from *:DHCPV4_CLIENT_PORT to 255.255.255.255:DHCPV4_SERVER_PORT
-///    * Incoming *:DHCPV4_SERVER_PORT to *:DHCPV4_CLIENT_PORT
-///    * Outgoing from IPV6_LINK_LOCAL:DHCPV6_CLIENT_PORT to DHCPV6_SERVER_ADDRS:DHCPV6_SERVER_PORT
-///    * Incoming from IPV6_LINK_LOCAL:DHCPV6_SERVER_PORT to IPV6_LINK_LOCAL:DHCPV6_CLIENT_PORT
-/// 3. Router solicitation, advertisement and redirects (subset of NDP):
-///    * Outgoing to ROUTER_SOLICITATION_OUT_DST_ADDR, but only ICMPv6 with type 133 and code 0.
-///    * Incoming from IPV6_LINK_LOCAL, but only ICMPv6 type 134 or 137 and code 0.
-/// 4. If `allow_lan` is enabled, all policies should allow the following traffic:
-///    * Outgoing to, and incoming from, any IP in the networks listed in ALLOWED_LAN_NETS
-///    * Outgoing to any IP in the networks listed in ALLOWED_LAN_MULTICAST_NETS
-///    * Incoming DHCPv4 requests and outgoing responses (be a DHCPv4 server):
-///      * Incoming from *:DHCPV4_CLIENT_PORT to 255.255.255.255:DHCPV4_SERVER_PORT
-///      * Outgoing from *:DHCPV4_SERVER_PORT to *:DHCPV4_CLIENT_PORT
-///
-/// ## Policy specific rules
-///
-/// 1. In the `Connecting` and `Connected` policies traffic should be allowed to and from the IP and
-///    port in `peer_endpoint`
-/// 2. In the `Connecting` policy, ICMP packets should be allowed to and from all IPs in
-///    `pingable_hosts`.
-/// 3. In the `Connected` policy, DNS requests (destination port 53 on both UDP and TCP) should be
-///    allowed over the tunnel interface in `tunnel.interface` and to the IPs `tunnel.ipv4_gateway`
-///    and `tunnel.ipv6_gateway`. But blocked to all other destinations and over all other
-///    interfaces.
-/// 4. In the `Connected` policy, all traffic should be allowed over the tunnel interface in
-///    `tunnel.interface`, minus the DNS packets described above.
+/// See the [security](../../../docs/security.md) document for the specification on how to
+/// implement these policies and what should and should not be allowed to flow.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum FirewallPolicy {
     /// Allow traffic only to server
