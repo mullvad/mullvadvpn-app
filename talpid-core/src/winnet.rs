@@ -286,8 +286,8 @@ impl Drop for WinNetRoute {
 }
 
 pub fn activate_routing_manager(routes: &[WinNetRoute]) -> bool {
-    unsafe { WinNet_ActivateRouteManager(Some(log_sink), ptr::null_mut()) };
-    routing_manager_add_routes(routes)
+    return unsafe { WinNet_ActivateRouteManager(Some(log_sink), ptr::null_mut()) }
+        && routing_manager_add_routes(routes);
 }
 
 pub struct WinNetCallbackHandle {
@@ -391,7 +391,10 @@ mod api {
 
     extern "system" {
         #[link_name = "WinNet_ActivateRouteManager"]
-        pub fn WinNet_ActivateRouteManager(sink: Option<LogSink>, sink_context: *mut c_void);
+        pub fn WinNet_ActivateRouteManager(
+            sink: Option<LogSink>,
+            sink_context: *mut c_void,
+        ) -> bool;
 
         #[link_name = "WinNet_AddRoutes"]
         pub fn WinNet_AddRoutes(routes: *const super::WinNetRoute, num_routes: u32) -> bool;
