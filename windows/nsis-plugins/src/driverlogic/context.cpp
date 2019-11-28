@@ -380,6 +380,26 @@ void Context::recordCurrentState()
 	m_currentState = GetTapAdapters();
 }
 
+void Context::rollbackTapAliases()
+{
+	NciContext nci;
+
+	for (const auto &adapter : m_currentState)
+	{
+		const auto oldInfo = m_baseline.find(adapter);
+		if (m_baseline.end() != oldInfo)
+		{
+			IID guidObj = { 0 };
+			if (S_OK != IIDFromString(&adapter.guid[0], &guidObj))
+			{
+				throw std::runtime_error("IIDFromString() failed");
+			}
+
+			nci.setConnectionName(guidObj, oldInfo->alias.c_str());
+		}
+	}
+}
+
 Context::NetworkAdapter Context::getNewAdapter()
 {
 	std::list<NetworkAdapter> added;

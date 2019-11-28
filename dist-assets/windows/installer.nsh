@@ -38,6 +38,10 @@
 !define DRIVERLOGIC_GENERAL_ERROR 0
 !define DRIVERLOGIC_SUCCESS 1
 
+# Return codes from driverlogic::RollbackTapAliases
+!define RTA_GENERAL_ERROR 0
+!define RTA_SUCCESS 1
+
 # Return codes from tray::PromoteTrayIcon
 !define PTI_GENERAL_ERROR 0
 !define PTI_SUCCESS 1
@@ -312,23 +316,26 @@
 		Goto InstallDriver_return
 	${EndIf}
 
+	#
+	# Driver updates will replace the GUIDs and names
+	# of our adapters, so let's restore them.
+	#
+	log::Log "Restoring any changed TAP adapter aliases"
+	driverlogic::RollbackTapAliases
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${RTA_SUCCESS}
+		StrCpy $R0 "Failed to roll back TAP adapter aliases: error $0"
+		log::LogWithDetails $R0 $1
+		Goto InstallDriver_return
+	${EndIf}
+
 	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_ADAPTER_PRESENT}
-		#
-		# The TAP adapter may be renamed on update.
-		# Check if we need to rename it.
-		#
-		log::Log "Identifying TAP adapter"
-		driverlogic::IdentifyNewAdapter
+		log::Log "Virtual adapter with custom name already present on system"
 
-		Pop $0
-		Pop $1
-
-		${If} $0 != ${INA_SUCCESS}
-			log::Log "Virtual adapter with custom name already present on system"
-			Goto InstallDriver_return_success
-		${EndIf}
-
-		Goto InstallDriver_rename_adapter
+		Goto InstallDriver_return_success
 	${EndIf}
 
 	InstallDriver_install_driver:
@@ -361,8 +368,6 @@
 		log::Log $R0
 		Goto InstallDriver_return
 	${EndIf}
-
-	InstallDriver_rename_adapter:
 
 	StrCpy $InstallDriver_TapName $1
 	
