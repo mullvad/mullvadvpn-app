@@ -162,8 +162,8 @@ class WireguardKeyFragment : Fragment() {
 
                 keyState.replacementFailure?.let { error -> showKeygenFailure(error) }
             }
-            is KeygenEvent.Failure -> {
-                showKeygenFailure(keyState.failure)
+            else -> {
+                showKeygenFailure(keyState.failure())
             }
         }
         drawNoConnectionState()
@@ -179,7 +179,7 @@ class WireguardKeyFragment : Fragment() {
         statusMessage.visibility = View.GONE
     }
 
-    private fun showKeygenFailure(failure: KeygenFailure) {
+    private fun showKeygenFailure(failure: KeygenFailure?) {
         when (failure) {
             is KeygenFailure.TooManyKeys -> {
                 setStatusMessage(R.string.too_many_keys, R.color.red)
@@ -220,7 +220,7 @@ class WireguardKeyFragment : Fragment() {
         verifyButton.setClickable(true)
         verifyButton.setAlpha(1f)
         val keyState = keyStatusListener.keyStatus
-        if (generatingKey || keyState is KeygenEvent.Failure) {
+        if (generatingKey || keyState?.failure() != null) {
             verifyButton.setClickable(false)
             verifyButton.setAlpha(0.5f)
             return

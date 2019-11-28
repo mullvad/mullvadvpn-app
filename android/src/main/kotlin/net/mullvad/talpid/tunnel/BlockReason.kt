@@ -6,7 +6,7 @@ sealed class BlockReason {
     class SetFirewallPolicyError : BlockReason()
     class SetDnsError : BlockReason()
     class StartTunnelError : BlockReason()
-    class ParameterGeneration(val error: ParameterGenerationError) : BlockReason()
+    class TunnelParameterError(val error: ParameterGenerationError) : BlockReason()
     class IsOffline : BlockReason()
     class TapAdapterProblem : BlockReason()
 }

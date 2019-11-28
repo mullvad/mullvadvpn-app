@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.model.KeygenEvent
-import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.BlockReason
@@ -102,16 +101,12 @@ class NotificationBanner(
         when (keyState) {
             null -> return false
             is KeygenEvent.NewKey -> return false
-            is KeygenEvent.Failure -> {
-                when (keyState.failure) {
-                    is KeygenFailure.TooManyKeys -> {
+            is KeygenEvent.TooManyKeys -> {
                         externalLink = ExternalLink.KeyManagement
                         showError(R.string.wireguard_error, R.string.too_many_keys)
-                    }
-                    is KeygenFailure.GenerationFailure -> {
+            }
+            is KeygenEvent.GenerationFailure -> {
                         showError(R.string.wireguard_error, R.string.failed_to_generate_key)
-                    }
-                }
             }
         }
 
@@ -177,7 +172,7 @@ class NotificationBanner(
             is BlockReason.StartTunnelError -> R.string.start_tunnel_error
             is BlockReason.IsOffline -> R.string.is_offline
             is BlockReason.TapAdapterProblem -> R.string.tap_adapter_problem
-            is BlockReason.ParameterGeneration -> {
+            is BlockReason.TunnelParameterError -> {
                 when (reason.error) {
                     ParameterGenerationError.NoMatchingRelay -> R.string.no_matching_relay
                     ParameterGenerationError.NoMatchingBridgeRelay -> {
