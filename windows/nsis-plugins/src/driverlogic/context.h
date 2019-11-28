@@ -17,11 +17,13 @@ public:
 		std::wstring guid;
 		std::wstring name;
 		std::wstring alias;
+		std::wstring deviceInstanceId;
 
-		NetworkAdapter(std::wstring _guid, std::wstring _name, std::wstring _alias)
-			: guid(_guid)
-			, name(_name)
-			, alias(_alias)
+		NetworkAdapter(std::wstring guid, std::wstring name, std::wstring alias, std::wstring deviceInstanceId)
+			: guid(guid)
+			, name(name)
+			, alias(alias)
+			, deviceInstanceId(deviceInstanceId)
 		{
 		}
 
