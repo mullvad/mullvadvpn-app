@@ -172,7 +172,7 @@ class NotificationBanner(
             is BlockReason.StartTunnelError -> R.string.start_tunnel_error
             is BlockReason.IsOffline -> R.string.is_offline
             is BlockReason.TapAdapterProblem -> R.string.tap_adapter_problem
-            is BlockReason.ParameterGeneration -> {
+            is BlockReason.TunnelParameterError -> {
                 when (reason.error) {
                     ParameterGenerationError.NoMatchingRelay -> R.string.no_matching_relay
                     ParameterGenerationError.NoMatchingBridgeRelay -> {

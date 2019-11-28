@@ -49,7 +49,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/talpid/tunnel/BlockReason$SetFirewallPolicyError",
     "net/mullvad/talpid/tunnel/BlockReason$SetDnsError",
     "net/mullvad/talpid/tunnel/BlockReason$StartTunnelError",
-    "net/mullvad/talpid/tunnel/BlockReason$ParameterGeneration",
+    "net/mullvad/talpid/tunnel/BlockReason$TunnelParameterError",
     "net/mullvad/talpid/tunnel/BlockReason$IsOffline",
     "net/mullvad/talpid/tunnel/BlockReason$TapAdapterProblem",
     "net/mullvad/talpid/tunnel/ParameterGenerationError",
