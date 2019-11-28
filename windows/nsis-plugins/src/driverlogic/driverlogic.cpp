@@ -126,6 +126,7 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 	{
 		pushstring(L"Initialize() function was not called or was not successful");
 		pushint(EstablishBaselineStatus::GENERAL_ERROR);
+		return;
 	}
 
 	try
@@ -248,6 +249,7 @@ void __declspec(dllexport) NSISCALL IdentifyNewAdapter
 	{
 		pushstring(L"Initialize() function was not called or was not successful");
 		pushint(EstablishBaselineStatus::GENERAL_ERROR);
+		return;
 	}
 
 	try
@@ -299,6 +301,7 @@ void __declspec(dllexport) NSISCALL RollbackTapAliases
 	{
 		pushstring(L"Initialize() function was not called or was not successful");
 		pushint(EstablishBaselineStatus::GENERAL_ERROR);
+		return;
 	}
 
 	try
