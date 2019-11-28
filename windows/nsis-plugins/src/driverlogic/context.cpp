@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "context.h"
+#include "ncicontext.h"
 
 #include <libcommon/string.h>
 #include <libcommon/error.h>
@@ -27,59 +28,6 @@ namespace
 {
 
 const wchar_t TAP_HARDWARE_ID[] = L"tap0901";
-
-std::set<Context::NetworkAdapter> GetAllAdapters()
-{
-	ULONG bufferSize = 0;
-
-	const ULONG flags = GAA_FLAG_SKIP_UNICAST | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER;
-
-	auto status = GetAdaptersAddresses(AF_INET, flags, nullptr, nullptr, &bufferSize);
-
-	THROW_UNLESS(ERROR_BUFFER_OVERFLOW, status, "Probe for adapter listing buffer size");
-
-	// Memory is cheap, this avoids a looping construct.
-	bufferSize *= 2;
-
-	std::vector<uint8_t> buffer(bufferSize);
-
-	status = GetAdaptersAddresses(AF_INET, flags, nullptr,
-		reinterpret_cast<PIP_ADAPTER_ADDRESSES>(&buffer[0]), &bufferSize);
-
-	THROW_UNLESS(ERROR_SUCCESS, status, "Retrieve adapter listing");
-
-	std::set<Context::NetworkAdapter> adapters;
-
-	for (auto it = (PIP_ADAPTER_ADDRESSES)&buffer[0]; nullptr != it; it = it->Next)
-	{
-		adapters.emplace(Context::NetworkAdapter(common::string::ToWide(it->AdapterName),
-			it->Description, it->FriendlyName));
-	}
-
-	return adapters;
-}
-
-std::set<Context::NetworkAdapter> GetTapAdapters(const std::set<Context::NetworkAdapter> &adapters)
-{
-	std::set<Context::NetworkAdapter> tapAdapters;
-
-	for (const auto &adapter : adapters)
-	{
-		static const wchar_t name[] = L"TAP-Windows Adapter V9";
-
-		//
-		// Compare partial name, because once you start having more TAP adapters
-		// they're named "TAP-Windows Adapter V9 #2" and so on.
-		//
-
-		if (0 == adapter.name.compare(0, _countof(name) - 1, name))
-		{
-			tapAdapters.insert(adapter);
-		}
-	}
-
-	return tapAdapters;
-}
 
 template<typename T>
 void LogAdapters(const std::wstring &description, const T &adapters)
@@ -143,6 +91,182 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 	return instanceId.data();
 }
 
+std::set<Context::NetworkAdapter> GetTapAdapters()
+{
+	std::set<Context::NetworkAdapter> adapters;
+
+	HDEVINFO devInfo = SetupDiGetClassDevs(
+		&GUID_DEVCLASS_NET,
+		nullptr,
+		nullptr,
+		DIGCF_PRESENT
+	);
+
+	if (INVALID_HANDLE_VALUE == devInfo)
+	{
+		throw std::runtime_error("SetupDiGetClassDevs() failed");
+	}
+
+	common::memory::ScopeDestructor scopeDest;
+	scopeDest += [devInfo]()
+	{
+		SetupDiDestroyDeviceInfoList(devInfo);
+	};
+
+	SP_DEVINFO_DATA devInfoData;
+	devInfoData.cbSize = sizeof(devInfoData);
+
+	std::wstring hardwareId;
+	DWORD hardwareIdReqSize;
+	DWORD type;
+
+	NciContext nci;
+
+	for (int memberIndex = 0; ; memberIndex++)
+	{
+		devInfoData = { 0 };
+		devInfoData.cbSize = sizeof(devInfoData);
+
+		if (FALSE == SetupDiEnumDeviceInfo(devInfo, memberIndex, &devInfoData))
+		{
+			if (GetLastError() == ERROR_NO_MORE_ITEMS)
+			{
+				/* done */
+				break;
+			}
+			THROW_GLE("SetupDiEnumDeviceInfo() failed while enumerating network adapters");
+		}
+
+		//
+		// Check whether this is a TAP adapter
+		//
+
+READ_HARDWARE_ID:
+
+		const auto status = SetupDiGetDeviceRegistryPropertyW(
+			devInfo,
+			&devInfoData,
+			SPDRP_HARDWAREID,
+			&type,
+			reinterpret_cast<PBYTE>(&hardwareId[0]),
+			hardwareId.capacity() * sizeof(wchar_t),
+			&hardwareIdReqSize
+		);
+
+		if (ERROR_INVALID_DATA == status)
+		{
+			// property does not exist
+			continue;
+		}
+
+		if (FALSE == status)
+		{
+			if (ERROR_INSUFFICIENT_BUFFER == GetLastError())
+			{
+				hardwareId.resize(hardwareIdReqSize / sizeof(wchar_t));
+				goto READ_HARDWARE_ID;
+			}
+			else
+			{
+				throw std::runtime_error("Failed to read adapter hardware ID");
+			}
+		}
+
+		hardwareId.resize(hardwareIdReqSize / sizeof(wchar_t));
+
+		if (wcscmp(hardwareId.c_str(), TAP_HARDWARE_ID) != 0)
+		{
+			continue;
+		}
+
+		//
+		// Obtain GUID
+		//
+
+		std::wstring guid = GetNetCfgInstanceId(devInfo, devInfoData);
+
+		//
+		// Obtain device instance ID
+		//
+
+		DWORD requiredSize = 0;
+
+		SetupDiGetDeviceInstanceIdW(
+			devInfo,
+			&devInfoData,
+			nullptr,
+			0,
+			&requiredSize
+		);
+
+		std::wstring deviceInstanceId;
+		deviceInstanceId.resize(requiredSize);
+
+		const auto deviceInstIdStatus = SetupDiGetDeviceInstanceIdW(
+			devInfo,
+			&devInfoData,
+			&deviceInstanceId[0],
+			deviceInstanceId.size(),
+			nullptr
+		);
+		THROW_GLE_IF(FALSE, deviceInstIdStatus, "SetupDiGetDeviceInstanceIdW() failed");
+
+		//
+		// Obtain alias
+		//
+
+		IID guidObj = { 0 };
+		if (S_OK != IIDFromString(&guid[0], &guidObj))
+		{
+			throw std::runtime_error("IIDFromString() failed");
+		}
+
+		std::wstring alias = nci.getConnectionName(guidObj);
+
+		//
+		// Obtain description
+		//
+
+		DEVPROPTYPE descType;
+		DWORD descSize;
+
+		SetupDiGetDevicePropertyW(
+			devInfo,
+			&devInfoData,
+			&DEVPKEY_Device_DriverDesc,
+			&descType,
+			nullptr,
+			0,
+			&descSize,
+			0
+		);
+
+		std::wstring name;
+		name.resize(descSize / sizeof(wchar_t));
+
+		const auto descStatus = SetupDiGetDevicePropertyW(
+			devInfo,
+			&devInfoData,
+			&DEVPKEY_Device_DriverDesc,
+			&descType,
+			reinterpret_cast<PBYTE>(&name[0]),
+			name.size() * sizeof(wchar_t),
+			nullptr,
+			0
+		);
+		THROW_GLE_IF(FALSE, descStatus, "SetupDiGetDevicePropertyW() failed");
+
+		adapters.emplace(Context::NetworkAdapter(
+			guid,
+			name,
+			alias,
+			deviceInstanceId
+		));
+	}
+
+	return adapters;
+}
+
 } // anonymous namespace
 
 //static
@@ -201,15 +325,14 @@ std::optional<Context::NetworkAdapter> Context::FindMullvadAdapter(const std::se
 
 Context::BaselineStatus Context::establishBaseline()
 {
-	m_baseline = GetAllAdapters();
-	const auto tapAdapters = GetTapAdapters(m_baseline);
+	m_baseline = GetTapAdapters();
 
-	if (tapAdapters.empty())
+	if (m_baseline.empty())
 	{
 		return BaselineStatus::NO_TAP_ADAPTERS_PRESENT;
 	}
 	
-	if (FindMullvadAdapter(tapAdapters).has_value())
+	if (FindMullvadAdapter(m_baseline).has_value())
 	{
 		return BaselineStatus::MULLVAD_ADAPTER_PRESENT;
 	}
@@ -219,19 +342,16 @@ Context::BaselineStatus Context::establishBaseline()
 
 void Context::recordCurrentState()
 {
-	m_currentState = GetAllAdapters();
+	m_currentState = GetTapAdapters();
 }
 
 Context::NetworkAdapter Context::getNewAdapter()
 {
 	std::list<NetworkAdapter> added;
 
-	const auto baselineTaps = GetTapAdapters(m_baseline);
-	const auto currentTaps = GetTapAdapters(m_currentState);
-
-	for (const auto &adapter : currentTaps)
+	for (const auto &adapter : m_currentState)
 	{
-		if (baselineTaps.end() == baselineTaps.find(adapter))
+		if (m_baseline.end() == m_baseline.find(adapter))
 		{
 			added.push_back(adapter);
 		}
@@ -239,8 +359,8 @@ Context::NetworkAdapter Context::getNewAdapter()
 
 	if (added.size() != 1)
 	{
-		LogAdapters(L"Enumerable network adapters", m_currentState);
-		LogAdapters(L"Added TAP adapters", added);
+		LogAdapters(L"Enumerable network TAP adapters", m_currentState);
+		LogAdapters(L"New TAP adapters:", added);
 
 		throw std::runtime_error("Unable to identify recently added TAP adapter");
 	}
@@ -251,7 +371,7 @@ Context::NetworkAdapter Context::getNewAdapter()
 //static
 Context::DeletionResult Context::DeleteMullvadAdapter()
 {
-	auto tapAdapters = GetTapAdapters(GetAllAdapters());
+	auto tapAdapters = GetTapAdapters();
 	std::optional<NetworkAdapter> mullvadAdapter = FindMullvadAdapter(tapAdapters);
 
 	if (!mullvadAdapter.has_value())
