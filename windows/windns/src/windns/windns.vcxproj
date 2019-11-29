@@ -178,7 +178,6 @@
     <ClInclude Include="confineoperation.h" />
     <ClInclude Include="logsink.h" />
     <ClInclude Include="ilogsink.h" />
-    <ClInclude Include="ncicontext.h" />
     <ClInclude Include="netsh.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -188,7 +187,6 @@
     <ClCompile Include="confineoperation.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="logsink.cpp" />
-    <ClCompile Include="ncicontext.cpp" />
     <ClCompile Include="netsh.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

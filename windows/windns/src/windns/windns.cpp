@@ -1,10 +1,11 @@
 #include "stdafx.h"
+#include <libcommon/guid.h>
 #include <libcommon/string.h>
 #include <libcommon/network/adapters.h>
+#include <libcommon/network/ncicontext.h>
 #include "windns.h"
 #include "confineoperation.h"
 #include "netsh.h"
-#include "ncicontext.h"
 #include "logsink.h"
 #include <memory>
 #include <vector>
@@ -97,20 +98,13 @@ AdapterDnsAddresses GetAdapterDnsAddresses(const std::wstring &adapterAlias)
 
 	const IP_ADAPTER_ADDRESSES *adapter;
 
-	NciContext nci;
+	common::network::NciContext nci;
 
 	while (nullptr != (adapter = adapters.next()))
 	{
 		std::wstring name;
-		IID guidObj = { 0 };
-
-		auto guid = std::string(adapter->AdapterName);
-		auto wguid = std::wstring(guid.begin(), guid.end());
-
-		if (S_OK != IIDFromString(&wguid[0], &guidObj))
-		{
-			throw std::runtime_error("IIDFromString() failed");
-		}
+		const auto guidObj =
+			common::Guid::FromString(common::string::ToWide(adapter->AdapterName));
 
 		try
 		{

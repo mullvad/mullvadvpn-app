@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "winnet.h"
 #include "NetworkInterfaces.h"
-#include "interfaceutils.h"
 #include "offlinemonitor.h"
 #include "routing/routemanager.h"
 #include "../../shared/logsinkadapter.h"
+#include <libcommon/network/interfaceutils.h>
 #include <libcommon/error.h>
 #include <libcommon/network.h>
 #include <cstdint>
@@ -14,6 +14,7 @@
 #include <mutex>
 
 using namespace winnet::routing;
+using namespace common::network;
 using AutoLockType = std::scoped_lock<std::mutex>;
 
 namespace
@@ -187,6 +188,57 @@ std::vector<SOCKADDR_INET> ConvertAddresses(const WINNET_IP *addresses, uint32_t
 	return out;
 }
 
+//
+// Determines alias of primary TAP adapter.
+//
+std::wstring GetTapInterfaceAlias()
+{
+	//
+	// Look for TAP adapter with alias "Mullvad".
+	//
+
+	using NetworkAdapter = InterfaceUtils::NetworkAdapter;
+
+	auto adapters = InterfaceUtils::GetTapAdapters(InterfaceUtils::GetAllAdapters());
+
+	auto findByAlias = [](const std::set<NetworkAdapter>& adapters, const std::wstring& alias)
+	{
+		const auto it = std::find_if(adapters.begin(), adapters.end(), [&alias](const NetworkAdapter& candidate)
+			{
+				return 0 == _wcsicmp(candidate.alias.c_str(), alias.c_str());
+			});
+
+		return it != adapters.end();
+	};
+
+	static const wchar_t baseAlias[] = L"Mullvad";
+
+	if (findByAlias(adapters, baseAlias))
+	{
+		return baseAlias;
+	}
+
+	//
+	// Look for TAP adapter with alias "Mullvad-1", "Mullvad-2", etc.
+	//
+
+	for (auto i = 0; i < 10; ++i)
+	{
+		std::wstringstream ss;
+
+		ss << baseAlias << L"-" << i;
+
+		const auto alias = ss.str();
+
+		if (findByAlias(adapters, alias))
+		{
+			return alias;
+		}
+	}
+
+	throw std::runtime_error("Unable to find TAP adapter");
+}
+
 } //anonymous namespace
 
 extern "C"
@@ -229,7 +281,7 @@ WinNet_GetTapInterfaceIpv6Status(
 	{
 		MIB_IPINTERFACE_ROW iface = { 0 };
 
-		iface.InterfaceLuid = NetworkInterfaces::GetInterfaceLuid(InterfaceUtils::GetTapInterfaceAlias());
+		iface.InterfaceLuid = NetworkInterfaces::GetInterfaceLuid(GetTapInterfaceAlias());
 		iface.Family = AF_INET6;
 
 		const auto status = GetIpInterfaceEntry(&iface);
@@ -269,7 +321,7 @@ WinNet_GetTapInterfaceAlias(
 {
 	try
 	{
-		const auto currentAlias = InterfaceUtils::GetTapInterfaceAlias();
+		const auto currentAlias = GetTapInterfaceAlias();
 
 		auto stringBuffer = new wchar_t[currentAlias.size() + 1];
 		wcscpy(stringBuffer, currentAlias.c_str());

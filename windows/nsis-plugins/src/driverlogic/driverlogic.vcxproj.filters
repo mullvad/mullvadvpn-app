@@ -4,14 +4,12 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="context.h" />
-    <ClInclude Include="ncicontext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="driverlogic.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="context.cpp" />
-    <ClCompile Include="ncicontext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="driverlogic.def" />

@@ -27,11 +27,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ncicontext.cpp" />
     <ClCompile Include="networkadaptermonitor.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="InterfacePair.cpp" />
-    <ClCompile Include="interfaceutils.cpp" />
     <ClCompile Include="offlinemonitor.cpp" />
     <ClCompile Include="NetworkInterfaces.cpp" />
     <ClCompile Include="routing\defaultroutemonitor.cpp" />
@@ -42,10 +40,8 @@
     <ClCompile Include="winnet.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ncicontext.h" />
     <ClInclude Include="networkadaptermonitor.h" />
     <ClInclude Include="InterfacePair.h" />
-    <ClInclude Include="interfaceutils.h" />
     <ClInclude Include="offlinemonitor.h" />
     <ClInclude Include="NetworkInterfaces.h" />
     <ClInclude Include="routing\defaultroutemonitor.h" />
