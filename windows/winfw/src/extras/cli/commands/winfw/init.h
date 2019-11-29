@@ -22,7 +22,7 @@ private:
 
 	MessageSink m_messageSink;
 
-	static void WINFW_API ErrorForwarder(const char *errorMessage, void *context);
+	static void WINFW_API ErrorForwarder(MULLVAD_LOG_LEVEL level, const char *errorMessage, void *context);
 };
 
 }
