@@ -157,10 +157,11 @@ that the VPN client pushes when it detects a problem. This in turn gives the imp
 might be a time window of insecurity between when the problem occurs and the app manages to "push"
 this virtual red button. Maybe that is how the clients who coined the term implemented it,
 but this app is much more proactive about stopping leaks.
-This app applies strict firewall rules directly when it leaves the [disconnected] state and
-keeps those rules active and enforced until the app comes back to the [disconnected] state via
-an explicit user request again. Said strict firewall rules unsure that packets can only leave
-or enter the computer in a few predefined ways, most notably to the selected VPN server of course.
+This app applies [strict firewall rules](#app-states) directly when it leaves the [disconnected]
+state and keeps those rules active and enforced until the app comes back to the [disconnected]
+state via an explicit user request again. Said strict firewall rules unsure that packets can only
+leave or enter the computer in a few predefined ways, most notably to the
+selected VPN server of course.
 If the tunnel were to come down and your operating system tries to route
 packets out via the normal network rather than through the VPN,
 these rules would block them from leaving. So rather than failing open, meaning if the tunnel
