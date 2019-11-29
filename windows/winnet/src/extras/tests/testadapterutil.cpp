@@ -1,13 +1,11 @@
 #include "stdafx.h"
-
 #include "testadapterutil.h"
-
 #include <CppUnitTest.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 #include <libcommon/logging/logsink.h>
-#include "../../winnet/networkadaptermonitor.h"
+#include <winnet/networkadaptermonitor.h>
 
 using FilterType = NetworkAdapterMonitor::FilterType;
 using UpdateSinkType = NetworkAdapterMonitor::UpdateSinkType;
@@ -63,11 +61,11 @@ void MibIfTable::remove(const MIB_IF_ROW2 &row)
 //
 
 DWORD TestDataProvider::notifyIpInterfaceChange(
-	ADDRESS_FAMILY Family,
+	ADDRESS_FAMILY,
 	PIPINTERFACE_CHANGE_CALLBACK Callback,
 	PVOID CallerContext,
-	BOOLEAN InitialNotification,
-	HANDLE *NotificationHandle
+	BOOLEAN,
+	HANDLE *
 )
 {
 	// TODO: assert: m_callback == nullptr
@@ -78,7 +76,7 @@ DWORD TestDataProvider::notifyIpInterfaceChange(
 	return NO_ERROR;
 }
 
-DWORD TestDataProvider::cancelMibChangeNotify2(HANDLE NotificationHandle)
+DWORD TestDataProvider::cancelMibChangeNotify2(HANDLE)
 {
 	// TODO: assert: m_callback != nullptr
 	// TODO: multiple callbacks?
