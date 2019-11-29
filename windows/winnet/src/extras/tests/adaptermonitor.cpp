@@ -1,39 +1,21 @@
 #include "stdafx.h"
 #include "testadapterutil.h"
+#include <libshared/logging/stdoutlogger.h>
+#include <libshared/logging/logsinkadapter.h>
 #include <iostream>
-
 #include <CppUnitTest.h>
-#include <libcommon/trace/trace.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 
 namespace
 {
-	
-void logFunc(common::logging::Severity severity, const char *msg)
+
+auto MakeStdoutLogger()
 {
-	using common::logging::Severity;
-	
-	switch (severity)
-	{
-	case Severity::Error:
-		std::cout << "Error: ";
-		break;
-	case Severity::Warning:
-		std::cout << "Warning: ";
-		break;
-	case Severity::Info:
-		std::cout << "Info: ";
-		break;
-	case Severity::Trace:
-		std::cout << "Trace: ";
-		break;
-	}
-
-	std::cout << msg << std::endl;
+	return std::make_shared<shared::logging::LogSinkAdapter>(shared::logging::StdoutLogger, nullptr);
 }
-
+	
 enum class LastEvent
 {
 	NoEvent,
@@ -48,7 +30,7 @@ namespace Microsoft::VisualStudio::CppUnitTestFramework
 {
 
 template<>
-static std::wstring ToString<LastEvent>(const enum class LastEvent& t)
+std::wstring ToString<LastEvent>(const enum class LastEvent& t)
 {
 	switch (t)
 	{
@@ -72,9 +54,9 @@ public:
 		
 	TEST_METHOD(addAdapter)
 	{
-		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+		auto logSink = MakeStdoutLogger();
 
-		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		const auto filter = [](const MIB_IF_ROW2 &) -> bool
 		{
 			return true;
 		};
@@ -84,7 +66,7 @@ public:
 		
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, UpdateType) -> void
 			{
 				adapterCount = adapters.size();
 			},
@@ -93,7 +75,7 @@ public:
 		);
 
 		Assert::AreEqual(
-			0ULL,
+			size_t(0),
 			adapterCount,
 			L"Expected 0 adapters initially"
 		);
@@ -117,7 +99,7 @@ public:
 		testProvider->sendEvent(&iface, MibAddInstance);
 
 		Assert::AreEqual(
-			1ULL,
+			size_t(1),
 			adapterCount,
 			L"Expected new adapter"
 		);
@@ -125,9 +107,9 @@ public:
 
 	TEST_METHOD(addAdapter_Duplicate)
 	{
-		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+		auto logSink = MakeStdoutLogger();
 
-		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		const auto filter = [](const MIB_IF_ROW2 &) -> bool
 		{
 			return true;
 		};
@@ -137,7 +119,7 @@ public:
 
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, UpdateType) -> void
 			{
 				adapterCount = adapters.size();
 			},
@@ -162,7 +144,7 @@ public:
 		testProvider->sendEvent(&iface, MibAddInstance);
 
 		Assert::AreEqual(
-			1ULL,
+			size_t(1),
 			adapterCount,
 			L"Expected new adapter"
 		);
@@ -173,7 +155,7 @@ public:
 		testProvider->sendEvent(&iface, MibAddInstance);
 
 		Assert::AreEqual(
-			1ULL,
+			size_t(1),
 			adapterCount,
 			L"Expected ignored duplicate interface event"
 		);
@@ -181,9 +163,9 @@ public:
 
 	TEST_METHOD(removeAdapter_AdminStatus)
 	{
-		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+		auto logSink = MakeStdoutLogger();
 
-		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		const auto filter = [](const MIB_IF_ROW2 &) -> bool
 		{
 			return true;
 		};
@@ -193,7 +175,7 @@ public:
 
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, UpdateType) -> void
 			{
 				adapterCount = adapters.size();
 			},
@@ -235,7 +217,7 @@ public:
 		testProvider->removeAdapter(adapter);
 
 		Assert::AreEqual(
-			0ULL,
+			size_t(0),
 			adapterCount,
 			L"Expected removed adapter"
 		);
@@ -243,9 +225,9 @@ public:
 
 	TEST_METHOD(removeAdapter_NoInterfaces)
 	{
-		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+		auto logSink = MakeStdoutLogger();
 
-		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		const auto filter = [](const MIB_IF_ROW2 &) -> bool
 		{
 			return true;
 		};
@@ -255,7 +237,7 @@ public:
 
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, UpdateType) -> void
 			{
 				adapterCount = adapters.size();
 			},
@@ -299,7 +281,7 @@ public:
 		testProvider->removeAdapter(adapter);
 
 		Assert::AreEqual(
-			0ULL,
+			size_t(0),
 			adapterCount,
 			L"Expected removed adapter"
 		);
@@ -307,9 +289,9 @@ public:
 
 	TEST_METHOD(removeAdapter_Duplicate)
 	{
-		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+		auto logSink = MakeStdoutLogger();
 
-		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		const auto filter = [](const MIB_IF_ROW2 &) -> bool
 		{
 			return true;
 		};
@@ -319,7 +301,7 @@ public:
 
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, UpdateType) -> void
 			{
 				adapterCount = adapters.size();
 			},
@@ -343,7 +325,7 @@ public:
 		testProvider->sendEvent(&iface, MibAddInstance);
 
 		Assert::AreEqual(
-			1ULL,
+			size_t(1),
 			adapterCount,
 			L"Expected new adapter"
 		);
@@ -363,7 +345,7 @@ public:
 		testProvider->sendEvent(&iface, MibDeleteInstance);
 
 		Assert::AreEqual(
-			0ULL,
+			size_t(0),
 			adapterCount,
 			L"State inconsistent after duplicate Delete event"
 		);
@@ -371,9 +353,9 @@ public:
 
 	TEST_METHOD(addIPv6Interface)
 	{
-		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+		auto logSink = MakeStdoutLogger();
 
-		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		const auto filter = [](const MIB_IF_ROW2 &) -> bool
 		{
 			return true;
 		};
@@ -383,7 +365,7 @@ public:
 
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, UpdateType) -> void
 			{
 				adapterCount = adapters.size();
 			},
@@ -410,7 +392,7 @@ public:
 		testProvider->sendEvent(&iface, MibAddInstance);
 
 		Assert::AreEqual(
-			1ULL,
+			size_t(1),
 			adapterCount,
 			L"Expected new adapter"
 		);
@@ -418,9 +400,9 @@ public:
 
 	TEST_METHOD(addIPv4And6Interface)
 	{
-		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+		auto logSink = MakeStdoutLogger();
 
-		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		const auto filter = [](const MIB_IF_ROW2 &) -> bool
 		{
 			return true;
 		};
@@ -430,7 +412,7 @@ public:
 
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, UpdateType) -> void
 			{
 				adapterCount = adapters.size();
 			},
@@ -474,9 +456,9 @@ public:
 
 	TEST_METHOD(addIPv4And6Interface_RemoveIPv4)
 	{
-		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+		auto logSink = MakeStdoutLogger();
 
-		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		const auto filter = [](const MIB_IF_ROW2 &) -> bool
 		{
 			return true;
 		};
@@ -486,7 +468,7 @@ public:
 
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, UpdateType) -> void
 			{
 				adapterCount = adapters.size();
 			},
@@ -537,9 +519,9 @@ public:
 
 	TEST_METHOD(addIPv4And6Interface_RemoveIPv6)
 	{
-		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+		auto logSink = MakeStdoutLogger();
 
-		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		const auto filter = [](const MIB_IF_ROW2 &) -> bool
 		{
 			return true;
 		};
@@ -549,7 +531,7 @@ public:
 
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, UpdateType) -> void
 			{
 				adapterCount = adapters.size();
 			},
@@ -600,9 +582,9 @@ public:
 
 	TEST_METHOD(addIPv4And6Interface_RemoveBoth)
 	{
-		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+		auto logSink = MakeStdoutLogger();
 
-		const auto filter = [](const MIB_IF_ROW2 &row) -> bool
+		const auto filter = [](const MIB_IF_ROW2 &) -> bool
 		{
 			return true;
 		};
@@ -612,7 +594,7 @@ public:
 
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, UpdateType) -> void
 			{
 				adapterCount = adapters.size();
 			},
@@ -665,7 +647,7 @@ public:
 
 	TEST_METHOD(filter)
 	{
-		auto logSink = std::make_shared<common::logging::LogSink>(logFunc);
+		auto logSink = MakeStdoutLogger();
 
 		const auto testProvider = std::make_shared<TestDataProvider>();
 
@@ -697,7 +679,7 @@ public:
 
 		NetworkAdapterMonitor inst(
 			logSink,
-			[&adapterCount, &lastEvent](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, UpdateType updateType) -> void
+			[&adapterCount, &lastEvent](const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, UpdateType updateType) -> void
 			{
 				switch (updateType)
 				{
@@ -746,7 +728,7 @@ public:
 		Assert::AreEqual(LastEvent::NoEvent, lastEvent, L"Unexpectedly received event for loopback adapter");
 
 		Assert::AreEqual(
-			0ULL,
+			size_t(0),
 			adapterCount,
 			L"Loopback adapter was not filtered correctly"
 		);
