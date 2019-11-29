@@ -1,5 +1,7 @@
 #pragma once
-#include <cstdint>
+
+#include <libshared/logging/logsink.h>
+#include <stdint.h>
 
 //
 // WINDNS public API
@@ -17,15 +19,6 @@
 // Functions
 ///////////////////////////////////////////////////////////////////////////////
 
-enum WinDnsLogCategory
-{
-	WINDNS_LOG_CATEGORY_ERROR	= 0x01,
-	WINDNS_LOG_CATEGORY_INFO	= 0x02
-};
-
-typedef void (WINDNS_API *WinDnsLogSink)(WinDnsLogCategory category, const char *message,
-	const char **details, uint32_t numDetails, void *context);
-
 //
 // WinDns_Initialize:
 //
@@ -37,8 +30,8 @@ WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Initialize(
-	WinDnsLogSink logSink,
-	void *logContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 );
 
 //
