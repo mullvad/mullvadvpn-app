@@ -44,7 +44,7 @@ void Init::handleRequest(const std::vector<std::wstring> &arguments)
 }
 
 //static
-void WINFW_API Init::ErrorForwarder(const char *errorMessage, void *context)
+void WINFW_API Init::ErrorForwarder(MULLVAD_LOG_LEVEL, const char *errorMessage, void *context)
 {
 	auto thiz = reinterpret_cast<Init *>(context);
 
