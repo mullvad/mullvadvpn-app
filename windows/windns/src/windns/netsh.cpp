@@ -11,34 +11,9 @@
 namespace
 {
 
-std::vector<std::string> BlockToRows(const std::string &textBlock)
-{
-	//
-	// TODO: Formalize and move to libcommon.
-	// There is a recurring need to split a text block into lines, ignoring blank lines.
-	//
-	// Also, changing the encoding back and forth is terribly wasteful.
-	// Should look into replacing all of this with Boost some day.
-	//
-
-	const auto wideTextBlock = common::string::ToWide(textBlock);
-	const auto wideRows = common::string::Tokenize(wideTextBlock, L"\r\n");
-
-	std::vector<std::string> result;
-
-	result.reserve(wideRows.size());
-
-	std::transform(wideRows.begin(), wideRows.end(), std::back_inserter(result), [](const std::wstring &str)
-	{
-		return common::string::ToAnsi(str);
-	});
-
-	return result;
-}
-
 __declspec(noreturn) void ThrowWithDetails(std::string &&error, common::ApplicationRunner &netsh)
 {
-	std::vector<std::string> details { "Failed to capture output from 'netsh'" };
+	std::string details("Failed to capture output from 'netsh'");
 
 	std::string output;
 
@@ -47,20 +22,17 @@ __declspec(noreturn) void ThrowWithDetails(std::string &&error, common::Applicat
 
 	if (netsh.read(output, MAX_CHARS, TIMEOUT_MILLISECONDS))
 	{
-		auto outputRows = BlockToRows(output);
-
-		if (false == outputRows.empty())
-		{
-			details = std::move(outputRows);
-		}
+		details = std::move(output);
 	}
 
-	throw NetShError(std::move(error), std::move(details));
+	const auto msg = std::string(error).append(": ").append(details);
+
+	throw std::runtime_error(msg.c_str());
 }
 
 } // anonymous namespace
 
-NetSh::NetSh(std::shared_ptr<ILogSink> logSink)
+NetSh::NetSh(std::shared_ptr<common::logging::ILogSink> logSink)
 	: m_logSink(logSink)
 {
 	const auto system32 = common::fs::GetKnownFolderPath(FOLDERID_System, 0, nullptr);
@@ -243,6 +215,6 @@ void NetSh::validateShellOut(common::ApplicationRunner &netsh, uint32_t timeout)
 			<< elapsed << " ms of "
 			<< actualTimeout << " ms max permitted execution time";
 
-		m_logSink->info(ss.str().c_str(), nullptr, 0);
+		m_logSink->info(ss.str().c_str());
 	}
 }
