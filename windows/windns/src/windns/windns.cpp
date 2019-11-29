@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include <libcommon/guid.h>
 #include <libcommon/string.h>
-#include <libcommon/network/adapters.h>
-#include <libcommon/network/ncicontext.h>
+#include <shared/network/interfaceutils.h>
 #include "windns.h"
 #include "confineoperation.h"
 #include "netsh.h"
@@ -94,35 +93,25 @@ struct AdapterDnsAddresses
 //
 AdapterDnsAddresses GetAdapterDnsAddresses(const std::wstring &adapterAlias)
 {
-	common::network::Adapters adapters(AF_UNSPEC, GAA_FLAG_SKIP_UNICAST | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST);
+	using shared::network::InterfaceUtils;
 
-	const IP_ADAPTER_ADDRESSES *adapter;
+	const auto adapters = InterfaceUtils::GetAllAdapters(
+		AF_UNSPEC,
+		GAA_FLAG_SKIP_UNICAST | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST
+	);
 
-	common::network::NciContext nci;
-
-	while (nullptr != (adapter = adapters.next()))
+	for (const auto adapter : adapters)
 	{
-		std::wstring name;
-		const auto guidObj =
-			common::Guid::FromString(common::string::ToWide(adapter->AdapterName));
+		const auto guidObj = common::Guid::FromString(adapter.guid());
 
-		try
-		{
-			name = nci.getConnectionName(guidObj);
-		}
-		catch (...)
-		{
-			continue;
-		}
-
-		if (0 != _wcsicmp(adapter->FriendlyName, adapterAlias.c_str()))
+		if (0 != _wcsicmp(adapter.alias().c_str(), adapterAlias.c_str()))
 		{
 			continue;
 		}
 
 		AdapterDnsAddresses out;
 
-		for (auto server = adapter->FirstDnsServerAddress; nullptr != server; server = server->Next)
+		for (auto server = adapter.raw().FirstDnsServerAddress; nullptr != server; server = server->Next)
 		{
 			if (AF_INET == server->Address.lpSockaddr->sa_family)
 			{
