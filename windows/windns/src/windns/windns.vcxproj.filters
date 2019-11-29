@@ -8,6 +8,7 @@
     <ClInclude Include="confineoperation.h" />
     <ClInclude Include="ilogsink.h" />
     <ClInclude Include="logsink.h" />
+    <ClInclude Include="ncicontext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -16,6 +17,7 @@
     <ClCompile Include="netsh.cpp" />
     <ClCompile Include="confineoperation.cpp" />
     <ClCompile Include="logsink.cpp" />
+    <ClCompile Include="ncicontext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="windns.rc" />

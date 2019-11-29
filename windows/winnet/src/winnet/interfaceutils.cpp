@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "interfaceutils.h"
+#include "ncicontext.h"
 #include "libcommon/error.h"
 #include "libcommon/string.h"
 #include <cstdint>
@@ -28,10 +29,29 @@ std::set<InterfaceUtils::NetworkAdapter> InterfaceUtils::GetAllAdapters()
 
 	std::set<NetworkAdapter> adapters;
 
+	NciContext nci;
+
 	for (auto it = (PIP_ADAPTER_ADDRESSES)&buffer[0]; nullptr != it; it = it->Next)
 	{
-		adapters.emplace(NetworkAdapter(common::string::ToWide(it->AdapterName),
-			it->Description, it->FriendlyName));
+		auto guid = std::string(it->AdapterName);
+		auto wguid = std::wstring(guid.begin(), guid.end());
+
+		IID guidObj = { 0 };
+		if (S_OK != IIDFromString(&wguid[0], &guidObj))
+		{
+			throw std::runtime_error("IIDFromString() failed");
+		}
+
+		try
+		{
+			std::wstring name = nci.getConnectionName(guidObj);
+
+			adapters.emplace(NetworkAdapter(common::string::ToWide(it->AdapterName),
+				it->Description, /*it->FriendlyName*/ name));
+		}
+		catch (...)
+		{
+		}
 	}
 
 	return adapters;

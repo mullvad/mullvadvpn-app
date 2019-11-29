@@ -4,6 +4,7 @@
 #include "windns.h"
 #include "confineoperation.h"
 #include "netsh.h"
+#include "ncicontext.h"
 #include "logsink.h"
 #include <memory>
 #include <vector>
@@ -96,8 +97,30 @@ AdapterDnsAddresses GetAdapterDnsAddresses(const std::wstring &adapterAlias)
 
 	const IP_ADAPTER_ADDRESSES *adapter;
 
+	NciContext nci;
+
 	while (nullptr != (adapter = adapters.next()))
 	{
+		std::wstring name;
+		IID guidObj = { 0 };
+
+		auto guid = std::string(adapter->AdapterName);
+		auto wguid = std::wstring(guid.begin(), guid.end());
+
+		if (S_OK != IIDFromString(&wguid[0], &guidObj))
+		{
+			throw std::runtime_error("IIDFromString() failed");
+		}
+
+		try
+		{
+			name = nci.getConnectionName(guidObj);
+		}
+		catch (...)
+		{
+			continue;
+		}
+
 		if (0 != _wcsicmp(adapter->FriendlyName, adapterAlias.c_str()))
 		{
 			continue;
