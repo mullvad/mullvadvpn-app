@@ -24,6 +24,7 @@
 /dist-assets/sslocal
 /dist-assets/sslocal.exe
 /windows/**/bin/
+/windows/**/*.user
 /android/keystore.properties
 /android/local.properties
 **/.vs/
