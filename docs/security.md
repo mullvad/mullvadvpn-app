@@ -79,7 +79,7 @@ This is the default state that the `mullvad-daemon` starts in when the device bo
 
 The disconnected state behaves very differently depending on the value of the
 "block when disconnected" setting. If this setting is enabled, the disconnected state behaves
-like, and has the same security properties as, the [blocked] state. If the setting is
+like and has the same security properties as, the [blocked] state. If the setting is
 disabled (the default), then it is the only state where the app does not enforce any firewall
 rules. It then behaves the same as if the `mullvad-daemon` was not even running. It lets
 network traffic flow in and out of the computer freely.
