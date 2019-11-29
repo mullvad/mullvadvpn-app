@@ -111,7 +111,8 @@ void Policy::processConnecting(const KeyValuePairs &arguments)
 	auto success = WinFw_ApplyPolicyConnecting
 	(
 		settings,
-		relay
+		relay,
+		nullptr
 	);
 
 	m_messageSink((success
@@ -141,7 +142,8 @@ void Policy::processConnected(const KeyValuePairs &arguments)
 		settings,
 		relay,
 		GetArgumentValue(arguments, L"tunnel").c_str(),
-		GetArgumentValue(arguments, L"dns").c_str()
+		GetArgumentValue(arguments, L"dns").c_str(),
+		nullptr
 	);
 
 	m_messageSink((success
