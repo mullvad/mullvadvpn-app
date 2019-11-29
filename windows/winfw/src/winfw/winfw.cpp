@@ -11,8 +11,8 @@ namespace
 
 uint32_t g_timeout = 0;
 
-WinFwErrorSink g_errorSink = nullptr;
-void * g_errorContext = nullptr;
+MullvadLogSink g_logSink = nullptr;
+void *g_logSinkContext = nullptr;
 
 FwContext *g_fwContext = nullptr;
 
@@ -51,8 +51,8 @@ bool
 WINFW_API
 WinFw_Initialize(
 	uint32_t timeout,
-	WinFwErrorSink errorSink,
-	void *errorContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 )
 {
 	if (nullptr != g_fwContext)
@@ -67,8 +67,8 @@ WinFw_Initialize(
 	// Convert seconds to milliseconds.
 	g_timeout = timeout * 1000;
 
-	g_errorSink = errorSink;
-	g_errorContext = errorContext;
+	g_logSink = logSink;
+	g_logSinkContext = logSinkContext;
 
 	try
 	{
@@ -76,9 +76,9 @@ WinFw_Initialize(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_errorSink)
+		if (nullptr != g_logSink)
 		{
-			g_errorSink(err.what(), g_errorContext);
+			g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
 		}
 
 		return false;
@@ -98,8 +98,8 @@ WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
 	const WinFwSettings &settings,
-	WinFwErrorSink errorSink,
-	void *errorContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 )
 {
 	if (nullptr != g_fwContext)
@@ -114,8 +114,8 @@ WinFw_InitializeBlocked(
 	// Convert seconds to milliseconds.
 	g_timeout = timeout * 1000;
 
-	g_errorSink = errorSink;
-	g_errorContext = errorContext;
+	g_logSink = logSink;
+	g_logSinkContext = logSinkContext;
 
 	try
 	{
@@ -123,9 +123,9 @@ WinFw_InitializeBlocked(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_errorSink)
+		if (nullptr != g_logSink)
 		{
-			g_errorSink(err.what(), g_errorContext);
+			g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
 		}
 
 		return false;
@@ -174,9 +174,9 @@ WinFw_ApplyPolicyConnecting(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_errorSink)
+		if (nullptr != g_logSink)
 		{
-			g_errorSink(err.what(), g_errorContext);
+			g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
 		}
 
 		return false;
@@ -209,9 +209,9 @@ WinFw_ApplyPolicyConnected(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_errorSink)
+		if (nullptr != g_logSink)
 		{
-			g_errorSink(err.what(), g_errorContext);
+			g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
 		}
 
 		return false;
@@ -240,9 +240,9 @@ WinFw_ApplyPolicyBlocked(
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_errorSink)
+		if (nullptr != g_logSink)
 		{
-			g_errorSink(err.what(), g_errorContext);
+			g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
 		}
 
 		return false;
@@ -269,9 +269,9 @@ WinFw_Reset()
 	}
 	catch (std::exception &err)
 	{
-		if (nullptr != g_errorSink)
+		if (nullptr != g_logSink)
 		{
-			g_errorSink(err.what(), g_errorContext);
+			g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
 		}
 
 		return false;
