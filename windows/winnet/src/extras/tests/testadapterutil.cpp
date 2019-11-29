@@ -63,11 +63,11 @@ void MibIfTable::remove(const MIB_IF_ROW2 &row)
 //
 
 DWORD TestDataProvider::notifyIpInterfaceChange(
-	ADDRESS_FAMILY Family,
+	ADDRESS_FAMILY,
 	PIPINTERFACE_CHANGE_CALLBACK Callback,
 	PVOID CallerContext,
-	BOOLEAN InitialNotification,
-	HANDLE *NotificationHandle
+	BOOLEAN,
+	HANDLE *
 )
 {
 	// TODO: assert: m_callback == nullptr
@@ -78,7 +78,7 @@ DWORD TestDataProvider::notifyIpInterfaceChange(
 	return NO_ERROR;
 }
 
-DWORD TestDataProvider::cancelMibChangeNotify2(HANDLE NotificationHandle)
+DWORD TestDataProvider::cancelMibChangeNotify2(HANDLE)
 {
 	// TODO: assert: m_callback != nullptr
 	// TODO: multiple callbacks?
