@@ -67,9 +67,10 @@ MigrationStatus MigrateAfterWindowsUpdate()
 		throw std::runtime_error("Could not determine owner of backup directory");
 	}
 
-	if (FALSE == IsWellKnownSid(sid, WinLocalSystemSid))
+	if (FALSE == IsWellKnownSid(sid, WinLocalSystemSid)
+		&& FALSE == IsWellKnownSid(sid, WinBuiltinAdministratorsSid))
 	{
-		throw std::runtime_error("Backup directory is not owned by SYSTEM");
+		throw std::runtime_error("Backup directory is not owned by SYSTEM or Built-in Administrators");
 	}
 
 	//
