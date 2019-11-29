@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 #include "propertylist.h"
-#include "libwfp/filterengine.h"
-#include "libcommon/string.h"
+#include <libwfp/filterengine.h>
+#include <libcommon/string.h>
 
 typedef std::function<void(const std::wstring &)> MessageSink;
 
