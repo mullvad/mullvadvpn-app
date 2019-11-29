@@ -1,13 +1,34 @@
 # Mullvad VPN app security
 
 This document describes the security properties of the Mullvad VPN app. It describes it for all
-platforms and their differences.
+platforms and their differences. Individual platforms might have slightly different properties and
+allow or block network traffic a bit differently, but all such deviations are described here.
 
-This document does not describe *how* we reach and uphold these properties, just what they are.
-See the [architecture](architecture.md) document for details on how this security is implemented.
+This document does not describe in detail *how* we reach and uphold these properties, just what
+they are. See the [architecture](architecture.md) document for details on how the firewall
+integration is implemented.
 
 The main purpose of the app is to allow the user to make all network/internet traffic to and
 from the device travel via an encrypted VPN tunnel.
+
+## Desktop vs mobile
+
+For desktop operating systems, the security is ensured via tight integration with the default
+system firewall. This means WFP on Windows, PF on macOS and nftables on Linux. All changes to
+the rules are applied as atomic transactions. Meaning there is no time window of inconsistent or
+invalid rules during changes.
+
+On mobile, Android and iOS, it is not possible for apps to filter network traffic by manipulating
+firewall rules. There we employ various other techniques to try to reach similar security
+properties as on desktop.
+
+### Android
+
+TODO
+
+### iOS
+
+TODO
 
 ## App states
 
@@ -15,9 +36,9 @@ At the core of the app is a state machine called the "tunnel state machine". The
 sub-sections will describe each state and what security properties hold and what network activity
 will be blocked and allowed during them.
 
-Except what's described as allowed in this document, all network packets should be blocked.
+Except what is described as allowed in this document, all network packets should be blocked.
 
-The following network traffic is always allowed to flow. It's never blocked, regardless of state:
+The following network traffic is always allowed to flow. It is never blocked, regardless of state:
 
 1. All traffic on loopback adapters
 
@@ -51,48 +72,50 @@ The following network traffic is always allowed to flow. It's never blocked, reg
 ### Disconnected
 
 This is the default state that the `mullvad-daemon` starts in when the device boots, unless
-"Launch app on start-up" and "Auto-connect" are both active. Then the app will proceed to the
-[connecting](#connecting) state immediately.
+"Launch app on start-up" and "Auto-connect" are **both** active. Then the app will proceed to the
+[connecting] state immediately.
 
 The disconnected state behaves very differently depending on the value of the
-"block when disconnected" setting. If this setting is enabled the disconnected state behaves
-like, and has the same security properties as, the [blocked](#blocked) state. If the setting is
-disabled (the default), then it is the only state where the app does not enforce any firewall.
-rules. This state behaves the same as if the `mullvad-daemon` was not even running. It lets
+"block when disconnected" setting. If this setting is enabled, the disconnected state behaves
+like, and has the same security properties as, the [blocked] state. If the setting is
+disabled (the default), then it is the only state where the app does not enforce any firewall
+rules. It then behaves the same as if the `mullvad-daemon` was not even running. It lets
 network traffic flow in and out of the computer freely.
 
 The disconnected state is not active while the app changes server or if the VPN tunnel goes down
-unexpectedly. See the [connecting](#connecting) state and [kill switch](#kill-switch)
-documentation for these unexpected network issues. The only time this state is active is
-initially when the daemon starts and later
-when the user explicitly clicks the disconnect/cancel button to intentionally disable the VPN.
+unexpectedly. See the [connecting] state and [kill switch](#kill-switch) documentation for these
+unexpected network issues. The only time this state is active is initially when the daemon
+starts and later when the user explicitly clicks the disconnect/cancel button to intentionally
+disable the VPN.
 
 ### Connecting
 
 This state is active from when the app decides to create a VPN tunnel, until said tunnel has
-been established and verified to work. Then it transitions to the [connected](#connected) state.
+been established and verified to work. Then it transitions to the [connected] state.
 
-In this state network traffic to and from the IP and port that the VPN tunnel is established
-towards. Meaning the IP of the VPN relay server and the selected OpenVPN or WireGuard port.
-In the case where a bridge/proxy is used this IP/port combo becomes the IP of the bridge
-and the port of the used proxying service.
+In this state, network traffic to and from the IP and port that the VPN tunnel is established
+towards is allowed. Meaning the IP of the VPN relay server and the selected OpenVPN or WireGuard
+port. In the case where a bridge/proxy is used this IP/port combo becomes the IP of the bridge
+and the port of the used proxying service on said bridge.
 
 If connecting via WireGuard, this state allows ICMP packets to and from the in-tunnel IPs
 (both v4 and v6) of the relay server the app is currently connecting to. That means the private
-network IPs where the relay will respond inside the tunnel.
+network IPs where the relay will respond inside the tunnel. It allows this on all interfaces,
+since with the current architecture we don't know which network interface is the tunnel interface
+at this point.
 
 ### Connected
 
-This state becomes active when [connecting](#connecting) has fully established a VPN tunnel. It
+This state becomes active when [connecting] has fully established a VPN tunnel. It
 stays active until the user requests a disconnect, quit, server change, change of other setting
 that affects the tunnel or until the tunnel goes down unexpectedly.
 
-In this state, all traffic in both directions over the tunnel interface should be allowed. Minus
-the DNS requests (TCP and UDP port 53) not to a gateway IP for that interface. Meaning we can
+In this state, all traffic in both directions over the tunnel interface is allowed. Minus DNS
+requests (TCP and UDP destination port 53) not to a gateway IP for that interface. Meaning we can
 *only* request DNS from the relay server itself.
 
-This state allows traffic to and from the IP and port combo that the tunnel runs over. See the
-[connecting](#connecting) state for details.
+This state allows traffic on all interfaces to and from the IP and port combo that the tunnel
+runs over. See the [connecting] state for details.
 
 ### Disconnecting
 
@@ -100,23 +123,23 @@ This state becomes active if there is a VPN tunnel active but the app decides to
 tunnel. This state is active until the tunnel has been properly closed.
 
 This state does not apply its own security policy on the firewall. It just keeps what was already
-active. Usually all states transitioning into this state, and all states this state later
-transitions into, have their own security policies. This state is just a short transition between
+active. All states transitioning into this state, and all states this state later
+transitions to, have their own security policies. This state is just a short transition between
 those, while the app waits for a running tunnel to come down and clean up after itself.
 
 ### Blocked
 
 This state is only active when there is a problem/error. As described in other sections, the app
 will never unlock the firewall and allow network traffic outside the tunnel unless a
-disconnect/quit is explicitly requested by a user. At the same time there might be situations
+disconnect/quit is explicitly requested by the user. At the same time there might be situations
 when the app can't establish a tunnel for the device. This includes, but is not limited to:
-* Account runs out of time,
-* The computer is offline,
-* the TAP adapter driver has an error or the adapter can't be found,
+* Account runs out of time
+* The computer is offline
+* the TAP adapter driver has an error or the adapter can't be found (Windows)
 * Some internal error parsing or modifying system routing table, DNS settings etc.
 
 In the above cases the app gives up trying to create a tunnel, but it can't go to the
-[disconnecte](#disconnected) state, since it can't unlock the firewall. Then it enters this state.
+[disconnected] state, since it should not unlock the firewall. Then it enters this state.
 This state locks the firewall so no traffic can flow (except the always active exceptions) and
 informs the user what the problem is. The user must then explicitly click disconnect in order
 to unlock the firewall and get access to the internet again.
@@ -128,22 +151,28 @@ This means that whenever the app changes server or temporarily loses tunnel conn
 ensure no network traffic leaks out unencrypted.
 
 We usually don't like the term "kill switch". Because it makes it sound like a big red button
-that the VPN client pushes when it detects a problem. Maybe that's how the clients who coined
-the term implemented it, but this app is much more proactive about it. This app applies
-strict firewall rules directly when it leaves the [disconnected](#disconnected) state
-and keeps those rules active and enforced until the app comes back to the disconnected state.
-Said rules unsure that packets can only leave or enter the computer in a few predefined ways,
-most notably to the selected VPN server IP and port. If the tunnel were to come down and your
-operating system tries to route packets out via the normal network rather than through the VPN,
+that the VPN client pushes when it detects a problem. This in turn gives the impression there
+might be a time window of insecurity between when the problem occurs and the app manages to "push"
+this virtual red button. Maybe that is how the clients who coined the term implemented it,
+but this app is much more proactive about stopping leaks.
+This app applies strict firewall rules directly when it leaves the [disconnected] state and
+keeps those rules active and enforced until the app comes back to the [disconnected] state via
+an explicit user request again. Said strict firewall rules unsure that packets can only leave
+or enter the computer in a few predefined ways, most notably to the selected VPN server of course.
+If the tunnel were to come down and your operating system tries to route
+packets out via the normal network rather than through the VPN,
 these rules would block them from leaving. So rather than failing open, meaning if the tunnel
 fails your traffic leaves in other ways, we fail closed, meaning if the packets don't leave
 encrypted in the way the app intends, then they can't leave at all.
 
+Essentially, one can say that the app's "kill switch" is the fact that the [connecting],
+[disconnecting] and [blocked] states prevent leaks via firewall rules.
+
 ### Block when disconnected
 
-The "block when disconnected" setting in the app is regularly misunderstood as our kill switch.
+The "block when disconnected" setting in the app is regularly misunderstood as the kill switch.
 This is not the case. The "block when disconnected" setting only changes whether or not the
-[disconnected](#disconnected) state should allow traffic to flow freely or to block it. The
+[disconnected] state should allow traffic to flow freely or to block it. The
 disconnected state is not active during intermittent network issues or server changes, when
 a kill switch would normally be operating.
 
@@ -151,13 +180,29 @@ The intended use case for this setting is when the user want to only switch betw
 connectivity at all and using VPN. With this setting active, the device can never communicate
 with the internet outside of a VPN tunnel.
 
-## Firewall
-
-The states above should probably explain what can and can't be reached in the different states.
-But we might need/want this section in case there is something that does not fit above.
-
-
-
 ## DNS
 
-Where are DNS requests sent?
+DNS is treated a bit differently from other protocols. Since a user's DNS history can give a
+detailed view of what they are doing, it is important to not leak it. And since invalid or no DNS
+responses prevent the user from going where they want to go, it is important that it works and
+gives correct replies, from an anti-censorship point of view. Poisoned DNS replies is a very
+common way of censoring the network in many places.
+
+With the above as background, the app makes sure that every DNS request from the device goes
+inside the VPN tunnel and to exactly one place, the VPN relay server the device is currently
+connected to. That ensures the request reaches the Mullvad infrastructure and does so safely
+(encrypted). From there the Mullvad servers are responsible for delivering a correct and
+uncensored reply.
+
+The above holds during the [connected] state. In the [disconnected]
+state the app does nothing with DNS, meaning the default one is used, probably from the ISP.
+In the other states DNS is simply blocked.
+
+## Android
+
+
+[disconnected]: #disconnected
+[connecting]: #connecting
+[connected]: #connected
+[disconnecting]: #disconnecting
+[blocked]: #blocked
