@@ -10,7 +10,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "windns", "src\windns\windns
 		{EE69EA4A-CF71-4B88-866B-957F60C4CE0D} = {EE69EA4A-CF71-4B88-866B-957F60C4CE0D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shared", "..\shared\src\shared\shared.vcxproj", "{EE69EA4A-CF71-4B88-866B-957F60C4CE0D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libshared", "..\libshared\src\libshared\libshared.vcxproj", "{EE69EA4A-CF71-4B88-866B-957F60C4CE0D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B52E2D10-A94A-4605-914A-2DCEF6A757EF} = {B52E2D10-A94A-4605-914A-2DCEF6A757EF}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
