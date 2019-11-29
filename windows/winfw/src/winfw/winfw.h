@@ -1,5 +1,7 @@
 #pragma once
-#include <cstdint>
+
+#include <libshared/logging/logsink.h>
+#include <stdint.h>
 
 //
 // WINFW public API
@@ -58,9 +60,6 @@ WinFwRelay;
 // transaction lock to become available. Specify 0 to use a default timeout
 // determined by Windows.
 //
-// Optionally provide a callback if you are interested in logging exceptions.
-//
-typedef void (WINFW_API *WinFwErrorSink)(const char *errorMessage, void *context);
 
 extern "C"
 WINFW_LINKAGE
@@ -68,8 +67,8 @@ bool
 WINFW_API
 WinFw_Initialize(
 	uint32_t timeout,
-	WinFwErrorSink errorSink,
-	void *errorContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 );
 
 //
@@ -89,8 +88,8 @@ WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
 	const WinFwSettings &settings,
-	WinFwErrorSink errorSink,
-	void *errorContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 );
 
 //
