@@ -1,15 +1,9 @@
 use self::api::*;
-pub use self::api::{
-    LogSink, WinNet_ActivateConnectivityMonitor, WinNet_DeactivateConnectivityMonitor,
-};
-use crate::routing::Node;
+pub use self::api::{WinNet_ActivateConnectivityMonitor, WinNet_DeactivateConnectivityMonitor};
+use crate::{logging::windows::log_sink, routing::Node};
 use ipnetwork::IpNetwork;
-use libc::{c_char, c_void, wchar_t};
-use std::{
-    ffi::{CStr, OsString},
-    net::IpAddr,
-    ptr,
-};
+use libc::{c_void, wchar_t};
+use std::{ffi::OsString, net::IpAddr, ptr};
 use widestring::WideCString;
 
 /// Errors that this module may produce.
@@ -36,28 +30,8 @@ pub enum Error {
     ConnectivityUnkown,
 }
 
-#[allow(dead_code)]
-#[repr(u8)]
-pub enum LogSeverity {
-    Error = 0,
-    Warning,
-    Info,
-    Trace,
-}
-
-/// Logging callback used with `winnet.dll`.
-pub extern "system" fn log_sink(severity: LogSeverity, msg: *const c_char, _ctx: *mut c_void) {
-    if msg.is_null() {
-        log::error!("Log message from FFI boundary is NULL");
-    } else {
-        let managed_msg = unsafe { CStr::from_ptr(msg).to_string_lossy() };
-        match severity {
-            LogSeverity::Warning => log::warn!("{}", managed_msg),
-            LogSeverity::Info => log::info!("{}", managed_msg),
-            LogSeverity::Trace => log::trace!("{}", managed_msg),
-            _ => log::error!("{}", managed_msg),
-        }
-    }
+fn logging_context() -> *const u8 {
+    b"WinNet\0".as_ptr()
 }
 
 /// Returns true if metrics were changed, false otherwise
@@ -66,7 +40,11 @@ pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool, Er
         WideCString::from_str(interface_alias).map_err(Error::InvalidInterfaceAlias)?;
 
     let metric_result = unsafe {
-        WinNet_EnsureTopMetric(interface_alias_ws.as_ptr(), Some(log_sink), ptr::null_mut())
+        WinNet_EnsureTopMetric(
+            interface_alias_ws.as_ptr(),
+            Some(log_sink),
+            logging_context(),
+        )
     };
 
     match metric_result {
@@ -87,7 +65,7 @@ pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool, Er
 /// Checks if IPv6 is enabled for the TAP interface
 pub fn get_tap_interface_ipv6_status() -> Result<bool, Error> {
     let tap_ipv6_status =
-        unsafe { WinNet_GetTapInterfaceIpv6Status(Some(log_sink), ptr::null_mut()) };
+        unsafe { WinNet_GetTapInterfaceIpv6Status(Some(log_sink), logging_context()) };
 
     match tap_ipv6_status {
         // Enabled
@@ -111,7 +89,7 @@ pub fn get_tap_interface_ipv6_status() -> Result<bool, Error> {
 pub fn get_tap_interface_alias() -> Result<OsString, Error> {
     let mut alias_ptr: *mut wchar_t = ptr::null_mut();
     let status = unsafe {
-        WinNet_GetTapInterfaceAlias(&mut alias_ptr as *mut _, Some(log_sink), ptr::null_mut())
+        WinNet_GetTapInterfaceAlias(&mut alias_ptr as *mut _, Some(log_sink), logging_context())
     };
 
     if !status {
@@ -286,7 +264,7 @@ impl Drop for WinNetRoute {
 }
 
 pub fn activate_routing_manager(routes: &[WinNetRoute]) -> bool {
-    return unsafe { WinNet_ActivateRouteManager(Some(log_sink), ptr::null_mut()) }
+    return unsafe { WinNet_ActivateRouteManager(Some(log_sink), logging_context()) }
         && routing_manager_add_routes(routes);
 }
 
@@ -375,26 +353,22 @@ pub fn add_device_ip_addresses(iface: &String, addresses: &Vec<IpAddr>) -> bool 
     let converted_addresses: Vec<_> = addresses.iter().map(|addr| WinNetIp::from(*addr)).collect();
     let ptr = converted_addresses.as_ptr();
     let length: u32 = converted_addresses.len() as u32;
-    unsafe { WinNet_AddDeviceIpAddresses(raw_iface, ptr, length, Some(log_sink), ptr::null_mut()) }
+    unsafe {
+        WinNet_AddDeviceIpAddresses(raw_iface, ptr, length, Some(log_sink), logging_context())
+    }
 }
 
 #[allow(non_snake_case)]
 mod api {
-    use super::{DefaultRouteChangedCallback, LogSeverity};
-    use libc::{c_char, c_void, wchar_t};
-
-    /// logging callback type for use with `winnet.dll`.
-    pub type LogSink =
-        extern "system" fn(severity: LogSeverity, msg: *const c_char, ctx: *mut c_void);
+    use super::DefaultRouteChangedCallback;
+    use crate::logging::windows::LogSink;
+    use libc::{c_void, wchar_t};
 
     pub type ConnectivityCallback = unsafe extern "system" fn(is_connected: bool, ctx: *mut c_void);
 
     extern "system" {
         #[link_name = "WinNet_ActivateRouteManager"]
-        pub fn WinNet_ActivateRouteManager(
-            sink: Option<LogSink>,
-            sink_context: *mut c_void,
-        ) -> bool;
+        pub fn WinNet_ActivateRouteManager(sink: Option<LogSink>, sink_context: *const u8) -> bool;
 
         #[link_name = "WinNet_AddRoutes"]
         pub fn WinNet_AddRoutes(routes: *const super::WinNetRoute, num_routes: u32) -> bool;
@@ -415,20 +389,20 @@ mod api {
         pub fn WinNet_EnsureTopMetric(
             tunnel_interface_alias: *const wchar_t,
             sink: Option<LogSink>,
-            sink_context: *mut c_void,
+            sink_context: *const u8,
         ) -> u32;
 
         #[link_name = "WinNet_GetTapInterfaceIpv6Status"]
         pub fn WinNet_GetTapInterfaceIpv6Status(
             sink: Option<LogSink>,
-            sink_context: *mut c_void,
+            sink_context: *const u8,
         ) -> u32;
 
         #[link_name = "WinNet_GetTapInterfaceAlias"]
         pub fn WinNet_GetTapInterfaceAlias(
             tunnel_interface_alias: *mut *mut wchar_t,
             sink: Option<LogSink>,
-            sink_context: *mut c_void,
+            sink_context: *const u8,
         ) -> bool;
 
         #[link_name = "WinNet_ReleaseString"]
@@ -439,7 +413,7 @@ mod api {
             callback: Option<ConnectivityCallback>,
             callbackContext: *mut libc::c_void,
             sink: Option<LogSink>,
-            sink_context: *mut c_void,
+            sink_context: *const u8,
         ) -> bool;
 
         #[link_name = "WinNet_RegisterDefaultRouteChangedCallback"]
@@ -461,7 +435,7 @@ mod api {
             addresses: *const super::WinNetIp,
             num_addresses: u32,
             sink: Option<LogSink>,
-            sink_context: *mut c_void,
+            sink_context: *const u8,
         ) -> bool;
     }
 }
