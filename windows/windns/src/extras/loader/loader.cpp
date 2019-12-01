@@ -1,37 +1,18 @@
 #include "stdafx.h"
 #include "windns/windns.h"
-#include "libcommon/trace/trace.h"
-#include "libcommon/trace/consoletracesink.h"
+#include <libshared/logging/stdoutlogger.h>
+#include <libcommon/trace/trace.h>
+#include <libcommon/trace/consoletracesink.h>
 #include <iostream>
 #include <conio.h>
 #include <vector>
 #include <windows.h>
 
-void WINDNS_API LogSink(WinDnsLogCategory category, const char *message, const char **details,
-	uint32_t numDetails, void *context)
-{
-	if (WINDNS_LOG_CATEGORY_ERROR == category)
-	{
-		std::cout << "WINDNS Error: ";
-	}
-	else
-	{
-		std::cout << "WINDNS Info: ";
-	}
-
-	std::cout << message << std::endl;
-
-	for (uint32_t i = 0; i < numDetails; ++i)
-	{
-		std::cout << "    " << details[i] << std::endl;
-	}
-}
-
 int main()
 {
 	common::trace::Trace::RegisterSink(new common::trace::ConsoleTraceSink);
 
-	std::wcout << L"WinDns_Initialize: " << std::boolalpha << WinDns_Initialize(LogSink, nullptr) << std::endl;
+	std::wcout << L"WinDns_Initialize: " << std::boolalpha << WinDns_Initialize(shared::logging::StdoutLogger, nullptr) << std::endl;
 
 	const wchar_t *servers[] =
 	{
