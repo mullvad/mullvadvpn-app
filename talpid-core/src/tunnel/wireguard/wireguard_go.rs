@@ -9,25 +9,31 @@ use {
     std::{net::IpAddr, os::unix::io::RawFd, ptr},
 };
 
-
-#[cfg(target_os = "windows")]
-use crate::{
-    tunnel::tun_provider::windows::WinTun,
-    winnet::{self, add_device_ip_addresses},
-};
-
 #[cfg(target_os = "android")]
 use talpid_types::BoxedError;
 
-#[cfg(not(target_os = "windows"))]
-const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
-
 #[cfg(target_os = "windows")]
 use {
+    crate::{
+        tunnel::tun_provider::windows::WinTun,
+        winnet::{self, add_device_ip_addresses},
+    },
     chrono,
     parking_lot::Mutex,
     std::{collections::HashMap, fs, io::Write},
 };
+
+
+#[cfg(target_os = "windows")]
+lazy_static::lazy_static! {
+    static ref LOG_MUTEX: Mutex<HashMap<u32, fs::File>> = Mutex::new(HashMap::new());
+}
+
+#[cfg(target_os = "windows")]
+static mut LOG_CONTEXT_NEXT_ORDINAL: u32 = 0;
+
+#[cfg(not(target_os = "windows"))]
+const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 
 pub struct WgGoTunnel {
@@ -40,14 +46,6 @@ pub struct WgGoTunnel {
     #[cfg(target_os = "windows")]
     log_context_ordinal: u32,
 }
-
-#[cfg(target_os = "windows")]
-lazy_static::lazy_static! {
-    static ref LOG_MUTEX: Mutex<HashMap<u32, fs::File>> = Mutex::new(HashMap::new());
-}
-
-#[cfg(target_os = "windows")]
-static mut LOG_CONTEXT_NEXT_ORDINAL: u32 = 0;
 
 impl WgGoTunnel {
     #[cfg(not(target_os = "windows"))]
