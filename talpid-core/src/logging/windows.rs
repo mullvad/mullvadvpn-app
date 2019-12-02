@@ -19,6 +19,12 @@ pub extern "system" fn log_sink(level: log::Level, msg: *const c_char, context: 
 
         let managed_msg = unsafe { CStr::from_ptr(msg).to_string_lossy() };
 
-        log::log!(rust_log_level, "{}{}", target, managed_msg);
+        log::logger().log(
+            &log::Record::builder()
+                .level(rust_log_level)
+                .target(&target)
+                .args(format_args!("{}", managed_msg))
+                .build(),
+        );
     }
 }
