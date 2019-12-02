@@ -24,7 +24,16 @@ properties as on desktop.
 
 ### Android
 
-TODO
+On Android, the only way an app can filter network traffic is essentially via the VPN service API.
+This API allows all traffic to and from the phone to flow though a third party app. This API is of
+course what the app uses for the tunnel itself as well, but apart from that it is also what the
+leak protection is built on.
+
+An app with permission to act as a VPN service can request to open a VPN tunnel on the device and
+provide a set of IP networks it would like to have routed via itself. Doing so and specifying
+the routes `0/0` and `::0/0` forces all traffic to go via the app. That is what this app does both
+when it has a VPN tunnel up, but also when in a state where it would like to block all network
+traffic. Such as the [connecting], [disconnecting] and [blocked] states.
 
 ### iOS
 
