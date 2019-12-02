@@ -57,13 +57,12 @@ use std::{
     thread,
     time::Duration,
 };
-#[cfg(not(target_os = "android"))]
-use talpid_core::tunnel::tun_provider::PlatformTunProvider;
 use talpid_core::{
     mpsc::IntoSender,
-    tunnel::tun_provider::TunProvider,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
+#[cfg(target_os = "android")]
+use talpid_types::android::AndroidContext;
 use talpid_types::{
     net::{openvpn, TransportProtocol, TunnelParameters},
     tunnel::{BlockReason, ParameterGenerationError, TunnelStateTransition},
@@ -282,7 +281,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
-        #[cfg(target_os = "android")] tun_provider: impl TunProvider,
+        #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self> {
         if rpc_uniqueness_check::is_another_instance_running() {
             return Err(Error::DaemonIsAlreadyRunning);
@@ -298,7 +297,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
             resource_dir,
             cache_dir,
             #[cfg(target_os = "android")]
-            tun_provider,
+            android_context,
         )
     }
 
@@ -345,7 +344,7 @@ where
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
-        #[cfg(target_os = "android")] tun_provider: impl TunProvider,
+        #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self> {
         let (tx, rx) = mpsc::channel();
 
@@ -357,7 +356,7 @@ where
             resource_dir,
             cache_dir,
             #[cfg(target_os = "android")]
-            tun_provider,
+            android_context,
         )
     }
 
@@ -368,7 +367,7 @@ where
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
-        #[cfg(target_os = "android")] tun_provider: impl TunProvider,
+        #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self> {
         let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
 
@@ -433,9 +432,6 @@ where
         let account_history =
             account_history::AccountHistory::new(&cache_dir).map_err(Error::LoadAccountHistory)?;
 
-        #[cfg(not(target_os = "android"))]
-        let tun_provider = PlatformTunProvider::new();
-
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
         };
@@ -443,11 +439,12 @@ where
             settings.get_allow_lan(),
             settings.get_block_when_disconnected(),
             tunnel_parameters_generator,
-            tun_provider,
             log_dir,
             resource_dir,
             cache_dir.clone(),
             IntoSender::from(internal_event_tx.clone()),
+            #[cfg(target_os = "android")]
+            android_context,
         )
         .map_err(Error::TunnelError)?;
 

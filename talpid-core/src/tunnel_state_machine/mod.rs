@@ -19,7 +19,7 @@ use crate::{
     firewall::{Firewall, FirewallArguments},
     mpsc::IntoSender,
     offline,
-    tunnel::tun_provider::TunProvider,
+    tunnel::tun_provider::{PlatformTunProvider, TunProvider},
 };
 use futures::{sync::mpsc, Async, Future, Poll, Stream};
 use std::{
@@ -28,6 +28,8 @@ use std::{
     sync::{mpsc as sync_mpsc, Arc},
     thread,
 };
+#[cfg(target_os = "android")]
+use talpid_types::android::AndroidContext;
 use talpid_types::{
     net::TunnelParameters,
     tunnel::{BlockReason, ParameterGenerationError, TunnelStateTransition},
@@ -64,11 +66,11 @@ pub fn spawn<P, T>(
     allow_lan: bool,
     block_when_disconnected: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
-    tun_provider: impl TunProvider,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     cache_dir: P,
     state_change_listener: IntoSender<TunnelStateTransition, T>,
+    #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error>
 where
     P: AsRef<Path> + Send + 'static,
@@ -79,6 +81,11 @@ where
     let offline_monitor =
         offline::spawn_monitor(Arc::downgrade(&command_tx)).map_err(Error::OfflineMonitorError)?;
     let is_offline = offline_monitor.is_offline();
+
+    let tun_provider = PlatformTunProvider::new(
+        #[cfg(target_os = "android")]
+        android_context,
+    );
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
     thread::spawn(move || {
