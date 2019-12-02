@@ -18,7 +18,7 @@ pub enum TunnelStateTransition {
     /// Disconnecting tunnel.
     Disconnecting(ActionAfterDisconnect),
     /// Tunnel is disconnected but secured by blocking all connections.
-    Blocked(BlockReason),
+    Error(ErrorState),
 }
 
 /// Action that will be taken after disconnection is complete.
@@ -32,14 +32,35 @@ pub enum ActionAfterDisconnect {
     Reconnect,
 }
 
-impl TunnelStateTransition {
-    pub fn is_blocked(&self) -> bool {
-        match self {
-            TunnelStateTransition::Blocked(_) => true,
-            _ => false,
-        }
+/// Error state
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
+pub struct ErrorState {
+    /// Reason why the tunnel state machine ended up in the error state
+    cause: ErrorStateCause,
+    /// Indicates whether the daemon is currently blocking all traffic. This _should_ always be
+    /// true - in the case it is not, the user should be notified that no traffic is being blocked.
+    /// A false value means there was a serious error and the intended security properties are not
+    /// being upheld.
+    is_blocking: bool,
+}
+
+impl ErrorState {
+    pub fn new(cause: ErrorStateCause, is_blocking: bool) -> Self {
+        Self { cause, is_blocking }
+    }
+
+    pub fn is_blocking(&self) -> bool {
+        self.is_blocking
+    }
+
+    pub fn cause(&self) -> &ErrorStateCause {
+        &self.cause
     }
 }
+
 
 /// Reason for entering the blocked state.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -47,7 +68,7 @@ impl TunnelStateTransition {
 #[serde(tag = "reason", content = "details")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
-pub enum BlockReason {
+pub enum ErrorStateCause {
     /// Authentication with remote server failed.
     AuthFailed(Option<String>),
     /// Failed to configure IPv6 because it's disabled in the platform.
@@ -86,9 +107,9 @@ pub enum ParameterGenerationError {
     CustomTunnelHostResultionError,
 }
 
-impl fmt::Display for BlockReason {
+impl fmt::Display for ErrorStateCause {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use self::BlockReason::*;
+        use self::ErrorStateCause::*;
         let description = match *self {
             AuthFailed(ref reason) => {
                 return write!(

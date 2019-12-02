@@ -1,5 +1,5 @@
 use super::{
-    AfterDisconnect, BlockedState, ConnectingState, DisconnectingState, EventConsequence,
+    AfterDisconnect, ConnectingState, DisconnectingState, ErrorState, EventConsequence,
     SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::{
@@ -12,7 +12,7 @@ use futures::{
 };
 use talpid_types::{
     net::{Endpoint, TunnelParameters},
-    tunnel::BlockReason,
+    tunnel::ErrorStateCause,
     ErrorExt,
 };
 
@@ -20,7 +20,7 @@ pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,
     pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     pub tunnel_parameters: TunnelParameters,
-    pub tunnel_close_event: Option<oneshot::Receiver<Option<BlockReason>>>,
+    pub tunnel_close_event: Option<oneshot::Receiver<Option<ErrorStateCause>>>,
     pub close_handle: Option<CloseHandle>,
 }
 
@@ -29,7 +29,7 @@ pub struct ConnectedState {
     metadata: TunnelMetadata,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_parameters: TunnelParameters,
-    tunnel_close_event: Option<oneshot::Receiver<Option<BlockReason>>>,
+    tunnel_close_event: Option<oneshot::Receiver<Option<ErrorStateCause>>>,
     close_handle: Option<CloseHandle>,
 }
 
@@ -123,7 +123,7 @@ impl ConnectedState {
                         );
                         self.disconnect(
                             shared_values,
-                            AfterDisconnect::Block(BlockReason::SetFirewallPolicyError),
+                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError),
                         )
                     }
                 }
@@ -137,7 +137,7 @@ impl ConnectedState {
                 if is_offline {
                     self.disconnect(
                         shared_values,
-                        AfterDisconnect::Block(BlockReason::IsOffline),
+                        AfterDisconnect::Block(ErrorStateCause::IsOffline),
                     )
                 } else {
                     SameState(self)
@@ -183,7 +183,7 @@ impl ConnectedState {
         match poll_result {
             Ok(Async::Ready(block_reason)) => {
                 if let Some(reason) = block_reason {
-                    return NewState(BlockedState::enter(shared_values, reason));
+                    return NewState(ErrorState::enter(shared_values, reason));
                 }
             }
             Ok(Async::NotReady) => return NoEvents(self),
@@ -217,7 +217,7 @@ impl TunnelState for ConnectedState {
                 (
                     connected_state.close_handle,
                     connected_state.tunnel_close_event,
-                    AfterDisconnect::Block(BlockReason::SetFirewallPolicyError),
+                    AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError),
                 ),
             )
         } else if let Err(error) = connected_state.set_dns(shared_values) {
@@ -230,7 +230,7 @@ impl TunnelState for ConnectedState {
                 (
                     connected_state.close_handle,
                     connected_state.tunnel_close_event,
-                    AfterDisconnect::Block(BlockReason::SetDnsError),
+                    AfterDisconnect::Block(ErrorStateCause::SetDnsError),
                 ),
             )
         } else {

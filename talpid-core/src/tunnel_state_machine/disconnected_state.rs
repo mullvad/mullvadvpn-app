@@ -1,5 +1,5 @@
 use super::{
-    BlockedState, ConnectingState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
+    ConnectingState, ErrorState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::firewall::FirewallPolicy;
@@ -76,9 +76,7 @@ impl TunnelState for DisconnectedState {
                 SameState(self)
             }
             Ok(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
-            Ok(TunnelCommand::Block(reason)) => {
-                NewState(BlockedState::enter(shared_values, reason))
-            }
+            Ok(TunnelCommand::Block(reason)) => NewState(ErrorState::enter(shared_values, reason)),
             Ok(_) => SameState(self),
             Err(_) => Finished,
         }
