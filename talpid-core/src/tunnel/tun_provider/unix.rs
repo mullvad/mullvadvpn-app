@@ -1,7 +1,6 @@
-use super::{Tun, TunConfig, TunProvider};
+use super::TunConfig;
 use crate::network_interface::{self, NetworkInterface, TunnelDevice};
-use std::net::IpAddr;
-use talpid_types::BoxedError;
+use std::{net::IpAddr, ops::Deref};
 
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, err_derive::Error)]
@@ -24,32 +23,41 @@ pub enum Error {
 pub struct UnixTunProvider;
 
 impl UnixTunProvider {
-    fn new() -> Self {
+    pub fn new() -> Self {
         UnixTunProvider
     }
-}
 
-impl TunProvider for UnixTunProvider {
-    fn get_tun(&mut self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
-        let mut tunnel_device = TunnelDevice::new()
-            .map_err(|cause| BoxedError::new(Error::CreateTunnelDevice(cause)))?;
+    pub fn get_tun(&mut self, config: TunConfig) -> Result<UnixTun, Error> {
+        let mut tunnel_device = TunnelDevice::new().map_err(Error::CreateTunnelDevice)?;
 
         for ip in config.addresses.iter() {
             tunnel_device
                 .set_ip(*ip)
-                .map_err(|cause| BoxedError::new(Error::SetIpAddr(*ip, cause)))?;
+                .map_err(|cause| Error::SetIpAddr(*ip, cause))?;
         }
 
-        tunnel_device
-            .set_up(true)
-            .map_err(|cause| BoxedError::new(Error::SetUp(cause)))?;
+        tunnel_device.set_up(true).map_err(Error::SetUp)?;
 
-        Ok(Box::new(tunnel_device))
+        Ok(UnixTun(tunnel_device))
     }
 }
 
-impl Tun for TunnelDevice {
-    fn interface_name(&self) -> &str {
+/// Generic tunnel device.
+///
+/// Contains the file descriptor representing the device.
+pub struct UnixTun(TunnelDevice);
+
+impl UnixTun {
+    /// Retrieve the tunnel interface name.
+    pub fn interface_name(&self) -> &str {
         self.get_name()
+    }
+}
+
+impl Deref for UnixTun {
+    type Target = TunnelDevice;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
