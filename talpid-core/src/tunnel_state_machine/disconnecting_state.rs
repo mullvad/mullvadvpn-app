@@ -1,5 +1,5 @@
 use super::{
-    BlockedState, ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues,
+    ConnectingState, DisconnectedState, ErrorState, EventConsequence, SharedTunnelStateValues,
     TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::tunnel::CloseHandle;
@@ -9,14 +9,14 @@ use futures::{
 };
 use std::thread;
 use talpid_types::{
-    tunnel::{ActionAfterDisconnect, BlockReason},
+    tunnel::{ActionAfterDisconnect, ErrorStateCause},
     ErrorExt,
 };
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.
 pub struct DisconnectingState {
-    exited: Option<oneshot::Receiver<Option<BlockReason>>>,
+    exited: Option<oneshot::Receiver<Option<ErrorStateCause>>>,
     after_disconnect: AfterDisconnect,
 }
 
@@ -58,7 +58,7 @@ impl DisconnectingState {
                 }
                 Ok(TunnelCommand::IsOffline(is_offline)) => {
                     shared_values.is_offline = is_offline;
-                    if !is_offline && reason == BlockReason::IsOffline {
+                    if !is_offline && reason == ErrorStateCause::IsOffline {
                         AfterDisconnect::Reconnect(0)
                     } else {
                         AfterDisconnect::Block(reason)
@@ -81,7 +81,7 @@ impl DisconnectingState {
                 Ok(TunnelCommand::IsOffline(is_offline)) => {
                     shared_values.is_offline = is_offline;
                     if is_offline {
-                        AfterDisconnect::Block(BlockReason::IsOffline)
+                        AfterDisconnect::Block(ErrorStateCause::IsOffline)
                     } else {
                         AfterDisconnect::Reconnect(retry_attempt)
                     }
@@ -117,16 +117,16 @@ impl DisconnectingState {
 
     fn after_disconnect(
         self,
-        block_reason: Option<BlockReason>,
+        block_reason: Option<ErrorStateCause>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         if let Some(reason) = block_reason {
-            return BlockedState::enter(shared_values, reason);
+            return ErrorState::enter(shared_values, reason);
         }
 
         match self.after_disconnect {
             AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
-            AfterDisconnect::Block(reason) => BlockedState::enter(shared_values, reason),
+            AfterDisconnect::Block(cause) => ErrorState::enter(shared_values, cause),
             AfterDisconnect::Reconnect(retry_attempt) => {
                 ConnectingState::enter(shared_values, retry_attempt)
             }
@@ -137,7 +137,7 @@ impl DisconnectingState {
 impl TunnelState for DisconnectingState {
     type Bootstrap = (
         Option<CloseHandle>,
-        Option<oneshot::Receiver<Option<BlockReason>>>,
+        Option<oneshot::Receiver<Option<ErrorStateCause>>>,
         AfterDisconnect,
     );
 
@@ -180,7 +180,7 @@ impl TunnelState for DisconnectingState {
 /// Which state should be transitioned to after disconnection is complete.
 pub enum AfterDisconnect {
     Nothing,
-    Block(BlockReason),
+    Block(ErrorStateCause),
     Reconnect(u32),
 }
 

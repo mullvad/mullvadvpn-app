@@ -1,18 +1,18 @@
 #[macro_use]
 mod macros;
 
-mod blocked_state;
 mod connected_state;
 mod connecting_state;
 mod disconnected_state;
 mod disconnecting_state;
+mod error_state;
 
 use self::{
-    blocked_state::BlockedState,
     connected_state::{ConnectedState, ConnectedStateBootstrap},
     connecting_state::ConnectingState,
     disconnected_state::DisconnectedState,
     disconnecting_state::{AfterDisconnect, DisconnectingState},
+    error_state::ErrorState,
 };
 use crate::{
     dns::DnsMonitor,
@@ -32,7 +32,7 @@ use std::{
 use talpid_types::android::AndroidContext;
 use talpid_types::{
     net::TunnelParameters,
-    tunnel::{BlockReason, ParameterGenerationError, TunnelStateTransition},
+    tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
 use tokio_core::reactor::Core;
@@ -182,7 +182,7 @@ pub enum TunnelCommand {
     /// Close tunnel connection.
     Disconnect,
     /// Disconnect any open tunnel and block all network access
-    Block(BlockReason),
+    Block(ErrorStateCause),
 }
 
 /// Asynchronous handling of the tunnel state machine.
@@ -297,7 +297,7 @@ impl<T: TunnelState> From<EventConsequence<T>> for TunnelStateMachineAction {
 pub trait TunnelParametersGenerator: Send + 'static {
     /// Given the number of consecutive failed retry attempts, it should yield a `TunnelParameters`
     /// to establish a tunnel with.
-    /// If this returns `None` then the state machine goes into the `Blocked` state.
+    /// If this returns `None` then the state machine goes into the `Error` state.
     fn generate(
         &mut self,
         retry_attempt: u32,
@@ -427,6 +427,6 @@ state_wrapper! {
         Connecting(ConnectingState),
         Connected(ConnectedState),
         Disconnecting(DisconnectingState),
-        Blocked(BlockedState),
+        Error(ErrorState),
     }
 }
