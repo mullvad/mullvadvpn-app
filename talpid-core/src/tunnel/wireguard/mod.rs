@@ -1,10 +1,13 @@
 #![allow(missing_docs)]
 
 use self::config::Config;
-use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
+use super::{
+    tun_provider::{self, TunProvider},
+    TunnelEvent, TunnelMetadata,
+};
 use crate::{ping_monitor, routing};
 use std::{collections::HashMap, io, path::Path, sync::mpsc};
-use talpid_types::{BoxedError, ErrorExt};
+use talpid_types::ErrorExt;
 
 pub mod config;
 pub mod wireguard_go;
@@ -22,7 +25,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// Failed to setup a tunnel device.
     #[error(display = "Failed to create tunnel device")]
-    SetupTunnelDeviceError(#[error(source)] BoxedError),
+    SetupTunnelDeviceError(#[error(source)] tun_provider::Error),
 
     /// A recoverable error occurred while starting the wireguard tunnel
     ///
@@ -63,7 +66,7 @@ pub enum Error {
     /// Failed to configure Wireguard sockets to bypass the tunnel.
     #[cfg(target_os = "android")]
     #[error(display = "Failed to configure Wireguard sockets to bypass the tunnel")]
-    BypassError(#[error(source)] BoxedError),
+    BypassError(#[error(source)] tun_provider::Error),
 
     /// Failed to duplicate tunnel file descriptor for wireguard-go
     #[cfg(any(target_os = "linux", target_os = "macos", target_os = "android"))]
@@ -93,7 +96,7 @@ impl WireguardMonitor {
         config: &Config,
         log_path: Option<&Path>,
         on_event: F,
-        tun_provider: &mut dyn TunProvider,
+        tun_provider: &mut TunProvider,
     ) -> Result<WireguardMonitor> {
         let tunnel = Box::new(WgGoTunnel::start_tunnel(
             &config,

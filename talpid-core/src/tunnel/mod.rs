@@ -18,7 +18,7 @@ pub mod openvpn;
 pub mod wireguard;
 
 /// A module for low level platform specific tunnel device management.
-pub mod tun_provider;
+pub(crate) mod tun_provider;
 
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
@@ -140,7 +140,7 @@ impl TunnelMonitor {
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
-        tun_provider: &mut dyn TunProvider,
+        tun_provider: &mut TunProvider,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Clone + Sync + 'static,
@@ -166,7 +166,7 @@ impl TunnelMonitor {
         params: &wireguard_types::TunnelParameters,
         log: Option<PathBuf>,
         on_event: L,
-        tun_provider: &mut dyn TunProvider,
+        tun_provider: &mut TunProvider,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + Clone + 'static,
