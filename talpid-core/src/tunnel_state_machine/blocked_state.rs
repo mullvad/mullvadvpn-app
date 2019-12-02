@@ -4,7 +4,10 @@ use super::{
 };
 use crate::firewall::FirewallPolicy;
 use futures::{sync::mpsc, Stream};
-use talpid_types::{tunnel::BlockReason, ErrorExt};
+use talpid_types::{
+    tunnel::{BlockReason, ErrorState},
+    ErrorExt,
+};
 
 /// No tunnel is running and all network connections are blocked.
 pub struct BlockedState {
@@ -12,13 +15,14 @@ pub struct BlockedState {
 }
 
 impl BlockedState {
-    fn set_firewall_policy(shared_values: &mut SharedTunnelStateValues) -> Option<BlockReason> {
+    // Returns true if firewall policy was applied successfulyl
+    fn set_firewall_policy(shared_values: &mut SharedTunnelStateValues) -> bool {
         let policy = FirewallPolicy::Blocked {
             allow_lan: shared_values.allow_lan,
         };
 
         match shared_values.firewall.apply_policy(policy) {
-            Ok(()) => None,
+            Ok(()) => true,
             Err(error) => {
                 log::error!(
                     "{}",
@@ -26,15 +30,15 @@ impl BlockedState {
                         "Failed to apply firewall policy for blocked state"
                     )
                 );
-                Some(BlockReason::SetFirewallPolicyError)
+                false
             }
         }
     }
 
     #[cfg(target_os = "android")]
-    fn create_blocking_tun(shared_values: &mut SharedTunnelStateValues) -> Option<BlockReason> {
+    fn create_blocking_tun(shared_values: &mut SharedTunnelStateValues) -> bool {
         match shared_values.tun_provider.create_tun_if_closed() {
-            Ok(()) => None,
+            Ok(()) => true,
             Err(error) => {
                 log::error!(
                     "{}",
@@ -42,7 +46,7 @@ impl BlockedState {
                         "Failed to open tunnel adapter to drop packets for blocked state"
                     )
                 );
-                Some(BlockReason::SetFirewallPolicyError)
+                false
             }
         }
     }
@@ -55,15 +59,15 @@ impl TunnelState for BlockedState {
         shared_values: &mut SharedTunnelStateValues,
         block_reason: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        let block_reason = Self::set_firewall_policy(shared_values).unwrap_or_else(|| block_reason);
+        #[cfg(not(target_os = "android"))]
+        let is_blocking = Self::set_firewall_policy(shared_values);
         #[cfg(target_os = "android")]
-        let block_reason = Self::create_blocking_tun(shared_values).unwrap_or_else(|| block_reason);
-
+        let is_blocking = Self::create_blocking_tun(shared_values);
         (
             TunnelStateWrapper::from(BlockedState {
                 block_reason: block_reason.clone(),
             }),
-            TunnelStateTransition::Blocked(block_reason),
+            TunnelStateTransition::Error(ErrorState::new(block_reason, is_blocking)),
         )
     }
 
