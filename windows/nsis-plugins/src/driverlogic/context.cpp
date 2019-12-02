@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "context.h"
-#include "ncicontext.h"
 
+#include <libcommon/guid.h>
 #include <libcommon/string.h>
 #include <libcommon/error.h>
 #include <libcommon/memory.h>
+#include <libcommon/network/nci.h>
 #include <log/log.h>
 
 #include <winsock2.h>
@@ -251,7 +252,7 @@ std::set<Context::NetworkAdapter> GetTapAdapters()
 		SetupDiDestroyDeviceInfoList(devInfo);
 	};
 
-	NciContext nci;
+	common::network::Nci nci;
 
 	for (int memberIndex = 0; ; memberIndex++)
 	{
@@ -284,12 +285,7 @@ std::set<Context::NetworkAdapter> GetTapAdapters()
 		//
 
 		const std::wstring guid = GetNetCfgInstanceId(devInfo, devInfoData);
-
-		IID guidObj = { 0 };
-		if (S_OK != IIDFromString(&guid[0], &guidObj))
-		{
-			throw std::runtime_error("IIDFromString() failed");
-		}
+		GUID guidObj = common::Guid::FromString(guid);
 
 		adapters.emplace(Context::NetworkAdapter(
 			guid,
@@ -382,18 +378,14 @@ void Context::recordCurrentState()
 
 void Context::rollbackTapAliases()
 {
-	NciContext nci;
+	common::network::Nci nci;
 
 	for (const auto &adapter : m_currentState)
 	{
 		const auto oldInfo = m_baseline.find(adapter);
 		if (m_baseline.end() != oldInfo)
 		{
-			IID guidObj = { 0 };
-			if (S_OK != IIDFromString(&adapter.guid[0], &guidObj))
-			{
-				throw std::runtime_error("IIDFromString() failed");
-			}
+			GUID guidObj = common::Guid::FromString(&adapter.guid[0]);
 
 			nci.setConnectionName(guidObj, oldInfo->alias.c_str());
 		}
