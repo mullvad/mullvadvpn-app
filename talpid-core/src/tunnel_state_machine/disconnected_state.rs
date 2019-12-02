@@ -2,7 +2,7 @@ use super::{
     BlockedState, ConnectingState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use crate::{firewall::FirewallPolicy, tunnel::tun_provider::TunProvider};
+use crate::firewall::FirewallPolicy;
 use futures::{sync::mpsc, Stream};
 use talpid_types::ErrorExt;
 
