@@ -1,3 +1,4 @@
+use super::{Tun, TunConfig, TunProvider};
 use ipnetwork::IpNetwork;
 use jnix::{
     jni::{
@@ -12,13 +13,11 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::unix::io::{AsRawFd, FromRawFd, RawFd},
 };
-use talpid_core::tunnel::tun_provider::{Tun, TunConfig, TunProvider};
 use talpid_types::{android::AndroidContext, BoxedError};
 
 
 /// Errors that occur while setting up VpnService tunnel.
 #[derive(Debug, err_derive::Error)]
-#[error(display = "Failed to set up the VpnService")]
 #[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to attach Java VM to tunnel thread")]
@@ -45,7 +44,7 @@ pub enum Error {
 }
 
 /// Factory of tunnel devices on Android.
-pub struct VpnServiceTunProvider {
+pub struct AndroidTunProvider {
     jvm: JavaVM,
     class: GlobalRef,
     object: GlobalRef,
@@ -53,8 +52,8 @@ pub struct VpnServiceTunProvider {
     last_tun_config: TunConfig,
 }
 
-impl VpnServiceTunProvider {
-    /// Create a new VpnServiceTunProvider interfacing with Android's VpnService.
+impl AndroidTunProvider {
+    /// Create a new AndroidTunProvider interfacing with Android's VpnService.
     pub fn new(context: AndroidContext) -> Self {
         // Initial configuration simply intercepts all packets. The only field that matters is
         // `routes`, because it determines what must enter the tunnel. All other fields contain
@@ -79,7 +78,7 @@ impl VpnServiceTunProvider {
         );
         let talpid_vpn_service_class = env.get_class("net/mullvad/talpid/TalpidVpnService");
 
-        VpnServiceTunProvider {
+        AndroidTunProvider {
             jvm: context.jvm,
             class: talpid_vpn_service_class,
             object: context.vpn_service,
@@ -141,7 +140,7 @@ impl VpnServiceTunProvider {
     }
 }
 
-impl TunProvider for VpnServiceTunProvider {
+impl TunProvider for AndroidTunProvider {
     fn get_tun(&mut self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
         let tun_fd = self.get_tun_fd(config).map_err(BoxedError::new)?;
 
