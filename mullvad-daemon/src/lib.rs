@@ -281,6 +281,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
+        // TODO: Remove this once `ManagementInterface` is less coupled to the constructor.
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self> {
         if rpc_uniqueness_check::is_another_instance_running() {
