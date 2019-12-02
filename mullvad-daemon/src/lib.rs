@@ -57,9 +57,11 @@ use std::{
     thread,
     time::Duration,
 };
+#[cfg(not(target_os = "android"))]
+use talpid_core::tunnel::tun_provider::PlatformTunProvider;
 use talpid_core::{
     mpsc::IntoSender,
-    tunnel::tun_provider::{PlatformTunProvider, TunProvider},
+    tunnel::tun_provider::TunProvider,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 use talpid_types::{
@@ -280,6 +282,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
+        #[cfg(target_os = "android")] tun_provider: impl TunProvider,
     ) -> Result<Self> {
         if rpc_uniqueness_check::is_another_instance_running() {
             return Err(Error::DaemonIsAlreadyRunning);
@@ -291,10 +294,11 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
             tx,
             rx,
             management_interface_broadcaster,
-            PlatformTunProvider::default(),
             log_dir,
             resource_dir,
             cache_dir,
+            #[cfg(target_os = "android")]
+            tun_provider,
         )
     }
 
@@ -336,12 +340,12 @@ impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
 {
-    pub fn start_with_event_listener_and_tun_provider(
+    pub fn start_with_event_listener(
         event_listener: L,
-        tun_provider: impl TunProvider,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
+        #[cfg(target_os = "android")] tun_provider: impl TunProvider,
     ) -> Result<Self> {
         let (tx, rx) = mpsc::channel();
 
@@ -349,10 +353,11 @@ where
             tx,
             rx,
             event_listener,
-            tun_provider,
             log_dir,
             resource_dir,
             cache_dir,
+            #[cfg(target_os = "android")]
+            tun_provider,
         )
     }
 
@@ -360,10 +365,10 @@ where
         internal_event_tx: mpsc::Sender<InternalDaemonEvent>,
         internal_event_rx: mpsc::Receiver<InternalDaemonEvent>,
         event_listener: L,
-        tun_provider: impl TunProvider,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
+        #[cfg(target_os = "android")] tun_provider: impl TunProvider,
     ) -> Result<Self> {
         let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
 
@@ -427,6 +432,9 @@ where
 
         let account_history =
             account_history::AccountHistory::new(&cache_dir).map_err(Error::LoadAccountHistory)?;
+
+        #[cfg(not(target_os = "android"))]
+        let tun_provider = PlatformTunProvider::default();
 
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
