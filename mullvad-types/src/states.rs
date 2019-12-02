@@ -4,7 +4,7 @@ use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use talpid_types::{
     net::TunnelEndpoint,
-    tunnel::{ActionAfterDisconnect, BlockReason},
+    tunnel::{ActionAfterDisconnect, ErrorState},
 };
 
 /// Represents the state the client strives towards.
@@ -34,14 +34,14 @@ pub enum TunnelState {
         location: Option<GeoIpLocation>,
     },
     Disconnecting(ActionAfterDisconnect),
-    Blocked(BlockReason),
+    Error(ErrorState),
 }
 
 impl TunnelState {
-    /// Returns true if the tunnel state is the blocked state.
-    pub fn is_blocked(&self) -> bool {
+    /// Returns true if the tunnel state is in the error state.
+    pub fn is_in_error_state(&self) -> bool {
         match self {
-            TunnelState::Blocked(_) => true,
+            TunnelState::Error(_) => true,
             _ => false,
         }
     }

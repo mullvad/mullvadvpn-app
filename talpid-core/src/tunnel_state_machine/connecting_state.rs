@@ -1,5 +1,5 @@
 use super::{
-    AfterDisconnect, BlockedState, ConnectedState, ConnectedStateBootstrap, DisconnectingState,
+    AfterDisconnect, ConnectedState, ConnectedStateBootstrap, DisconnectingState, ErrorState,
     EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition,
     TunnelStateWrapper,
 };
@@ -282,7 +282,7 @@ impl ConnectingState {
         match poll_result {
             Ok(Async::Ready(block_reason)) => {
                 if let Some(reason) = block_reason {
-                    return EventConsequence::NewState(BlockedState::enter(shared_values, reason));
+                    return EventConsequence::NewState(ErrorState::enter(shared_values, reason));
                 }
             }
             Ok(Async::NotReady) => return EventConsequence::NoEvents(self),
@@ -333,13 +333,13 @@ impl TunnelState for ConnectingState {
         retry_attempt: u32,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         if shared_values.is_offline {
-            return BlockedState::enter(shared_values, BlockReason::IsOffline);
+            return ErrorState::enter(shared_values, BlockReason::IsOffline);
         }
         match shared_values
             .tunnel_parameters_generator
             .generate(retry_attempt)
         {
-            Err(err) => BlockedState::enter(shared_values, BlockReason::TunnelParameterError(err)),
+            Err(err) => ErrorState::enter(shared_values, BlockReason::TunnelParameterError(err)),
             Ok(tunnel_parameters) => {
                 if let Err(error) = Self::set_firewall_policy(shared_values, &tunnel_parameters) {
                     error!(
@@ -348,7 +348,7 @@ impl TunnelState for ConnectingState {
                             "Failed to apply firewall policy for connecting state"
                         )
                     );
-                    BlockedState::enter(shared_values, BlockReason::StartTunnelError)
+                    ErrorState::enter(shared_values, BlockReason::StartTunnelError)
                 } else {
                     #[cfg(target_os = "android")]
                     {
@@ -397,7 +397,7 @@ impl TunnelState for ConnectingState {
                                     tunnel::Error::EnableIpv6Error => BlockReason::Ipv6Unavailable,
                                     _ => BlockReason::StartTunnelError,
                                 };
-                                BlockedState::enter(shared_values, block_reason)
+                                ErrorState::enter(shared_values, block_reason)
                             }
                         }
                     }
