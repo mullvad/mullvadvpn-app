@@ -19,7 +19,7 @@ use crate::{
     firewall::{Firewall, FirewallArguments},
     mpsc::IntoSender,
     offline,
-    tunnel::tun_provider::{PlatformTunProvider, TunProvider},
+    tunnel::tun_provider::PlatformTunProvider,
 };
 use futures::{sync::mpsc, Async, Future, Poll, Stream};
 use std::{
@@ -133,7 +133,7 @@ fn create_event_loop<T>(
     block_when_disconnected: bool,
     is_offline: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
-    tun_provider: impl TunProvider,
+    tun_provider: PlatformTunProvider,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     cache_dir: impl AsRef<Path>,
@@ -199,7 +199,7 @@ impl TunnelStateMachine {
         block_when_disconnected: bool,
         is_offline: bool,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
-        tun_provider: impl TunProvider,
+        tun_provider: PlatformTunProvider,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
@@ -225,7 +225,7 @@ impl TunnelStateMachine {
             block_when_disconnected,
             is_offline,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
-            tun_provider: Box::new(tun_provider),
+            tun_provider,
             log_dir,
             resource_dir,
         };
@@ -313,7 +313,7 @@ struct SharedTunnelStateValues {
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
     /// The provider of tunnel devices.
-    tun_provider: Box<dyn TunProvider>,
+    tun_provider: PlatformTunProvider,
     /// Directory to store tunnel log file.
     log_dir: Option<PathBuf>,
     /// Resource directory path.
