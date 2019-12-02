@@ -4,7 +4,7 @@
 #include "interfaceutils.h"
 #include "offlinemonitor.h"
 #include "routing/routemanager.h"
-#include "../../shared/logsinkadapter.h"
+#include <shared/logsinkadapter.h>
 #include <libcommon/error.h>
 #include <libcommon/network.h>
 #include <cstdint>
