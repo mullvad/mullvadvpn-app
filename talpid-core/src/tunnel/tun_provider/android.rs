@@ -1,4 +1,4 @@
-use super::{Tun, TunConfig, TunProvider};
+use super::TunConfig;
 use ipnetwork::IpNetwork;
 use jnix::{
     jni::{
@@ -13,7 +13,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::unix::io::{AsRawFd, FromRawFd, RawFd},
 };
-use talpid_types::{android::AndroidContext, BoxedError};
+use talpid_types::android::AndroidContext;
 
 
 /// Errors that occur while setting up VpnService tunnel.
@@ -87,6 +87,44 @@ impl AndroidTunProvider {
         }
     }
 
+    /// Retrieve a tunnel device with the provided configuration.
+    pub fn get_tun(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
+        let tun_fd = self.get_tun_fd(config)?;
+
+        let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
+            .map_err(Error::CloneJavaVm)?;
+
+        Ok(VpnServiceTun {
+            tunnel: tun_fd,
+            jvm,
+            class: self.class.clone(),
+            object: self.object.clone(),
+        })
+    }
+
+    /// Open a tunnel device using the previous or the default configuration.
+    ///
+    /// Will open a new tunnel if there is already an active tunnel. The previous tunnel will be
+    /// closed.
+    pub fn create_tun(&mut self) -> Result<(), Error> {
+        self.open_tun(self.last_tun_config.clone())
+    }
+
+    /// Open a tunnel device using the previous or the default configuration if there is no
+    /// currently active tunnel.
+    pub fn create_tun_if_closed(&mut self) -> Result<(), Error> {
+        if self.active_tun.is_none() {
+            self.create_tun()?;
+        }
+
+        Ok(())
+    }
+
+    /// Close currently active tunnel device.
+    pub fn close_tun(&mut self) {
+        self.active_tun = None;
+    }
+
     fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
         if self.active_tun.is_none() || self.last_tun_config != config {
             self.open_tun(config)?;
@@ -140,66 +178,30 @@ impl AndroidTunProvider {
     }
 }
 
-impl TunProvider for AndroidTunProvider {
-    fn get_tun(&mut self, config: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
-        let tun_fd = self.get_tun_fd(config).map_err(BoxedError::new)?;
-
-        let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
-            .map_err(|cause| BoxedError::new(Error::CloneJavaVm(cause)))?;
-
-        Ok(Box::new(VpnServiceTun {
-            tunnel: tun_fd,
-            jvm,
-            class: self.class.clone(),
-            object: self.object.clone(),
-        }))
-    }
-
-    fn create_tun(&mut self) -> Result<(), BoxedError> {
-        self.open_tun(self.last_tun_config.clone())
-            .map_err(BoxedError::new)
-    }
-
-    fn create_tun_if_closed(&mut self) -> Result<(), BoxedError> {
-        if self.active_tun.is_none() {
-            self.create_tun()?;
-        }
-
-        Ok(())
-    }
-
-    fn close_tun(&mut self) {
-        self.active_tun = None;
-    }
-}
-
-struct VpnServiceTun {
+/// Handle to a tunnel device on Android.
+pub struct VpnServiceTun {
     tunnel: RawFd,
     jvm: JavaVM,
     class: GlobalRef,
     object: GlobalRef,
 }
 
-impl AsRawFd for VpnServiceTun {
-    fn as_raw_fd(&self) -> RawFd {
-        self.tunnel
-    }
-}
-
-impl Tun for VpnServiceTun {
-    fn interface_name(&self) -> &str {
+impl VpnServiceTun {
+    /// Retrieve the tunnel interface name.
+    pub fn interface_name(&self) -> &str {
         "tun"
     }
 
-    fn bypass(&mut self, socket: RawFd) -> Result<(), BoxedError> {
+    /// Allow a socket to bypass the tunnel.
+    pub fn bypass(&mut self, socket: RawFd) -> Result<(), Error> {
         let env = JnixEnv::from(
             self.jvm
                 .attach_current_thread_as_daemon()
-                .map_err(|cause| BoxedError::new(Error::AttachJvmToThread(cause)))?,
+                .map_err(|cause| Error::AttachJvmToThread(cause))?,
         );
         let create_tun_method = env
             .get_method_id(&self.class, "bypass", "(I)Z")
-            .map_err(|cause| BoxedError::new(Error::FindMethod("bypass", cause)))?;
+            .map_err(|cause| Error::FindMethod("bypass", cause))?;
 
         let result = env
             .call_method_unchecked(
@@ -208,15 +210,18 @@ impl Tun for VpnServiceTun {
                 JavaType::Primitive(Primitive::Boolean),
                 &[JValue::Int(socket)],
             )
-            .map_err(|cause| BoxedError::new(Error::CallMethod("bypass", cause)))?;
+            .map_err(|cause| Error::CallMethod("bypass", cause))?;
 
         match result {
-            JValue::Bool(0) => Err(BoxedError::new(Error::Bypass)),
+            JValue::Bool(0) => Err(Error::Bypass),
             JValue::Bool(_) => Ok(()),
-            value => Err(BoxedError::new(Error::InvalidMethodResult(
-                "bypass",
-                format!("{:?}", value),
-            ))),
+            value => Err(Error::InvalidMethodResult("bypass", format!("{:?}", value))),
         }
+    }
+}
+
+impl AsRawFd for VpnServiceTun {
+    fn as_raw_fd(&self) -> RawFd {
+        self.tunnel
     }
 }

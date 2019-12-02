@@ -19,7 +19,7 @@ use crate::{
     firewall::{Firewall, FirewallArguments},
     mpsc::IntoSender,
     offline,
-    tunnel::tun_provider::PlatformTunProvider,
+    tunnel::tun_provider::TunProvider,
 };
 use futures::{sync::mpsc, Async, Future, Poll, Stream};
 use std::{
@@ -82,7 +82,7 @@ where
         offline::spawn_monitor(Arc::downgrade(&command_tx)).map_err(Error::OfflineMonitorError)?;
     let is_offline = offline_monitor.is_offline();
 
-    let tun_provider = PlatformTunProvider::new(
+    let tun_provider = TunProvider::new(
         #[cfg(target_os = "android")]
         android_context,
     );
@@ -133,7 +133,7 @@ fn create_event_loop<T>(
     block_when_disconnected: bool,
     is_offline: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
-    tun_provider: PlatformTunProvider,
+    tun_provider: TunProvider,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     cache_dir: impl AsRef<Path>,
@@ -199,7 +199,7 @@ impl TunnelStateMachine {
         block_when_disconnected: bool,
         is_offline: bool,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
-        tun_provider: PlatformTunProvider,
+        tun_provider: TunProvider,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
@@ -313,7 +313,7 @@ struct SharedTunnelStateValues {
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
     /// The provider of tunnel devices.
-    tun_provider: PlatformTunProvider,
+    tun_provider: TunProvider,
     /// Directory to store tunnel log file.
     log_dir: Option<PathBuf>,
     /// Resource directory path.

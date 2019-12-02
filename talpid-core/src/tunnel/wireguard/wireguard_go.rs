@@ -1,23 +1,24 @@
 use super::{Config, Error, Result, Tunnel};
-use crate::tunnel::tun_provider::{Tun, TunProvider};
+use crate::tunnel::tun_provider::TunProvider;
 use ipnetwork::IpNetwork;
 use std::{ffi::CString, path::Path};
 
+#[cfg(target_os = "android")]
+use crate::tunnel::tun_provider;
+
 #[cfg(not(target_os = "windows"))]
 use {
-    crate::tunnel::tun_provider::TunConfig,
-    std::{net::IpAddr, os::unix::io::RawFd, ptr},
+    crate::tunnel::tun_provider::{Tun, TunConfig},
+    std::{
+        net::IpAddr,
+        os::unix::io::{AsRawFd, RawFd},
+        ptr,
+    },
 };
-
-#[cfg(target_os = "android")]
-use talpid_types::BoxedError;
 
 #[cfg(target_os = "windows")]
 use {
-    crate::{
-        tunnel::tun_provider::windows::WinTun,
-        winnet::{self, add_device_ip_addresses},
-    },
+    crate::winnet::{self, add_device_ip_addresses},
     chrono,
     parking_lot::Mutex,
     std::{collections::HashMap, fs, io::Write},
@@ -41,7 +42,8 @@ pub struct WgGoTunnel {
     handle: Option<i32>,
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
-    _tunnel_device: Box<dyn Tun>,
+    #[cfg(not(target_os = "windows"))]
+    _tunnel_device: Tun,
     // ordinal that maps to fs::File instance, used with logging callback
     #[cfg(target_os = "windows")]
     log_context_ordinal: u32,
@@ -52,7 +54,7 @@ impl WgGoTunnel {
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        tun_provider: &mut dyn TunProvider,
+        tun_provider: &mut TunProvider,
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
         #[cfg_attr(not(target_os = "android"), allow(unused_mut))]
@@ -103,7 +105,7 @@ impl WgGoTunnel {
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        _tun_provider: &dyn TunProvider,
+        _tun_provider: &mut TunProvider,
         _routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
         let log_file = prepare_log_file(log_path)?;
@@ -145,9 +147,6 @@ impl WgGoTunnel {
         Ok(WgGoTunnel {
             interface_name: iface_name.clone(),
             handle: Some(handle),
-            _tunnel_device: Box::new(WinTun {
-                interface_name: iface_name.clone(),
-            }),
             log_context_ordinal,
         })
     }
@@ -236,9 +235,9 @@ impl WgGoTunnel {
 
     #[cfg(target_os = "android")]
     fn bypass_tunnel_sockets(
-        tunnel_device: &mut Box<dyn Tun>,
+        tunnel_device: &mut Tun,
         handle: i32,
-    ) -> std::result::Result<(), BoxedError> {
+    ) -> std::result::Result<(), tun_provider::Error> {
         let socket_v4 = unsafe { wgGetSocketV4(handle) };
         let socket_v6 = unsafe { wgGetSocketV6(handle) };
 
@@ -260,10 +259,10 @@ impl WgGoTunnel {
 
     #[cfg(not(target_os = "windows"))]
     fn get_tunnel(
-        tun_provider: &mut dyn TunProvider,
+        tun_provider: &mut TunProvider,
         config: &Config,
         routes: impl Iterator<Item = IpNetwork>,
-    ) -> Result<(Box<dyn Tun>, RawFd)> {
+    ) -> Result<(Tun, RawFd)> {
         let mut last_error = None;
         let tunnel_config = Self::create_tunnel_config(config, routes);
 
