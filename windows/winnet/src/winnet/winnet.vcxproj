@@ -27,11 +27,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ncicontext.cpp" />
     <ClCompile Include="networkadaptermonitor.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="InterfacePair.cpp" />
-    <ClCompile Include="interfaceutils.cpp" />
     <ClCompile Include="offlinemonitor.cpp" />
     <ClCompile Include="NetworkInterfaces.cpp" />
     <ClCompile Include="routing\defaultroutemonitor.cpp" />
@@ -42,10 +40,8 @@
     <ClCompile Include="winnet.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ncicontext.h" />
     <ClInclude Include="networkadaptermonitor.h" />
     <ClInclude Include="InterfacePair.h" />
-    <ClInclude Include="interfaceutils.h" />
     <ClInclude Include="offlinemonitor.h" />
     <ClInclude Include="NetworkInterfaces.h" />
     <ClInclude Include="routing\defaultroutemonitor.h" />
@@ -181,7 +177,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>winnet.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shared.lib;libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|Win32'">
@@ -205,7 +201,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcommon.lib;Iphlpapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>shared.lib;libcommon.lib;Iphlpapi.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -223,7 +219,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shared.lib;libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>winnet.def</ModuleDefinitionFile>
     </Link>
@@ -248,7 +244,7 @@
       <ModuleDefinitionFile>winnet.def</ModuleDefinitionFile>
     </Link>
     <Lib>
-      <AdditionalDependencies>libcommon.lib;Iphlpapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>shared.lib;libcommon.lib;Iphlpapi.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-Debug</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
@@ -273,7 +269,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>winnet.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shared.lib;libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -297,7 +293,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>winnet.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shared.lib;libcommon.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

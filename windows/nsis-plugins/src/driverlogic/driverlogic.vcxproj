@@ -103,7 +103,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="context.h" />
-    <ClInclude Include="ncicontext.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -111,7 +110,6 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="driverlogic.cpp" />
     <ClCompile Include="context.cpp" />
-    <ClCompile Include="ncicontext.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
