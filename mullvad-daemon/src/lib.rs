@@ -565,7 +565,7 @@ where
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
             }
-            TunnelStateTransition::Blocked(reason) => TunnelState::Blocked(reason.clone()),
+            TunnelStateTransition::Error(error_state) => TunnelState::Error(error_state.clone()),
         };
 
         self.unschedule_reconnect();
@@ -573,10 +573,20 @@ where
         debug!("New tunnel state: {:?}", tunnel_state);
         match tunnel_state {
             TunnelState::Disconnected => self.state.disconnected(),
-            TunnelState::Blocked(ref reason) => {
-                info!("Blocking all network connections, reason: {}", reason);
+            TunnelState::Error(ref error_state) => {
+                if error_state.is_blocking() {
+                    info!(
+                        "Blocking all network connections, reason: {}",
+                        error_state.reason()
+                    );
+                } else {
+                    error!(
+                        "FAILED TO BLOCK NETWORK CONNECTIONS, ENTERED ERROR STATE BECAUSE: {}",
+                        error_state.reason()
+                    );
+                }
 
-                if let BlockReason::AuthFailed(_) = reason {
+                if let BlockReason::AuthFailed(_) = error_state.reason() {
                     self.schedule_reconnect(Duration::from_secs(60))
                 }
             }
@@ -955,7 +965,7 @@ where
                             .map(Some),
                     )
                 }
-                Blocked(..) => {
+                Error(..) => {
                     // We are not online at all at this stage so no location data is available.
                     Box::new(future::result(Ok(None)))
                 }
