@@ -60,7 +60,7 @@ The following network traffic is always allowed to flow. It is never blocked, re
    * Incoming from `[fe80::]/10:547` to `[fe80::]/10:546` (server to client)
 
 1. Router solicitation, advertisement and redirects (subset of NDP):
-   * Outgoing to `ff02::2``, but only ICMPv6 with type 133 and code 0.
+   * Outgoing to `ff02::2`, but only ICMPv6 with type 133 and code 0.
    * Incoming from `[fe80::]/10`, but only ICMPv6 type 134 or 137 and code 0.
 
 1. If the "Allow LAN" setting is enabled, the following is also allowed:
@@ -123,7 +123,7 @@ that affects the tunnel or until the tunnel goes down unexpectedly.
 
 In this state, all traffic in both directions over the tunnel interface is allowed. Minus DNS
 requests (TCP and UDP destination port 53) not to a gateway IP for that interface. Meaning we can
-*only* request DNS from the relay server itself.
+*only* request DNS inside the tunnel and *only* from the relay server itself.
 
 This state allows traffic on all interfaces to and from the IP and port combo that the tunnel
 runs over. See the [connecting] state for details.
