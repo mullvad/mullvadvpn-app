@@ -1,4 +1,4 @@
-From 74523c5a12d37fa792e77a252bcc569484c3d41a Mon Sep 17 00:00:00 2001
+From 04f5695b83cd221e99e9fa6171b57e45177d5ad3 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Wed, 27 Feb 2019 05:33:01 +0100
 Subject: [PATCH] runtime: use libc_mach_continuous_time in nanotime on Darwin
@@ -18,10 +18,10 @@ Fixes #24595
  5 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/src/runtime/sys_darwin.go b/src/runtime/sys_darwin.go
-index f34ac88352..416fcb673f 100644
+index 376f76dbc5..a0677a83f6 100644
 --- a/src/runtime/sys_darwin.go
 +++ b/src/runtime/sys_darwin.go
-@@ -403,7 +403,7 @@ func closeonexec(fd int32) {
+@@ -431,7 +431,7 @@ func setNonblock(fd int32) {
  //go:cgo_import_dynamic libc_usleep usleep "/usr/lib/libSystem.B.dylib"
  
  //go:cgo_import_dynamic libc_mach_timebase_info mach_timebase_info "/usr/lib/libSystem.B.dylib"
@@ -31,10 +31,10 @@ index f34ac88352..416fcb673f 100644
  //go:cgo_import_dynamic libc_sigaction sigaction "/usr/lib/libSystem.B.dylib"
  //go:cgo_import_dynamic libc_pthread_sigmask pthread_sigmask "/usr/lib/libSystem.B.dylib"
 diff --git a/src/runtime/sys_darwin_386.s b/src/runtime/sys_darwin_386.s
-index 1bc1a63c28..34a3561350 100644
+index e653c54f61..5a43fcbdc1 100644
 --- a/src/runtime/sys_darwin_386.s
 +++ b/src/runtime/sys_darwin_386.s
-@@ -184,7 +184,7 @@ TEXT runtime·nanotime_trampoline(SB),NOSPLIT,$0
+@@ -199,7 +199,7 @@ TEXT runtime·nanotime_trampoline(SB),NOSPLIT,$0
  	PUSHL	BP
  	MOVL	SP, BP
  	SUBL	$8+(machTimebaseInfo__size+15)/16*16, SP
@@ -44,10 +44,10 @@ index 1bc1a63c28..34a3561350 100644
  	MOVL	AX, 0(CX)
  	MOVL	DX, 4(CX)
 diff --git a/src/runtime/sys_darwin_amd64.s b/src/runtime/sys_darwin_amd64.s
-index f99cb00ab8..8b99316983 100644
+index 87c8db8c82..f962f24339 100644
 --- a/src/runtime/sys_darwin_amd64.s
 +++ b/src/runtime/sys_darwin_amd64.s
-@@ -86,7 +86,7 @@ TEXT runtime·nanotime_trampoline(SB),NOSPLIT,$0
+@@ -97,7 +97,7 @@ TEXT runtime·nanotime_trampoline(SB),NOSPLIT,$0
  	PUSHQ	BP
  	MOVQ	SP, BP
  	MOVQ	DI, BX
@@ -57,10 +57,10 @@ index f99cb00ab8..8b99316983 100644
  	MOVL	timebase<>+machTimebaseInfo_numer(SB), SI
  	MOVL	timebase<>+machTimebaseInfo_denom(SB), DI // atomic read
 diff --git a/src/runtime/sys_darwin_arm.s b/src/runtime/sys_darwin_arm.s
-index 54c7afbf34..a4f06fdb85 100644
+index 996f8028a3..5bd34b51be 100644
 --- a/src/runtime/sys_darwin_arm.s
 +++ b/src/runtime/sys_darwin_arm.s
-@@ -118,7 +118,7 @@ GLOBL timebase<>(SB),NOPTR,$(machTimebaseInfo__size)
+@@ -126,7 +126,7 @@ GLOBL timebase<>(SB),NOPTR,$(machTimebaseInfo__size)
  
  TEXT runtime·nanotime_trampoline(SB),NOSPLIT,$0
  	MOVW	R0, R8
@@ -70,10 +70,10 @@ index 54c7afbf34..a4f06fdb85 100644
  	MOVW	R1, 4(R8)
  	MOVW	timebase<>+machTimebaseInfo_numer(SB), R6
 diff --git a/src/runtime/sys_darwin_arm64.s b/src/runtime/sys_darwin_arm64.s
-index 29951d8ad7..cdaf0a630e 100644
+index ac3ca74f63..5e91540f94 100644
 --- a/src/runtime/sys_darwin_arm64.s
 +++ b/src/runtime/sys_darwin_arm64.s
-@@ -113,7 +113,7 @@ GLOBL timebase<>(SB),NOPTR,$(machTimebaseInfo__size)
+@@ -121,7 +121,7 @@ GLOBL timebase<>(SB),NOPTR,$(machTimebaseInfo__size)
  
  TEXT runtime·nanotime_trampoline(SB),NOSPLIT,$40
  	MOVD	R0, R19
@@ -83,5 +83,5 @@ index 29951d8ad7..cdaf0a630e 100644
  	MOVW	timebase<>+machTimebaseInfo_numer(SB), R20
  	MOVD	$timebase<>+machTimebaseInfo_denom(SB), R21
 -- 
-2.20.1
+2.23.0
 
