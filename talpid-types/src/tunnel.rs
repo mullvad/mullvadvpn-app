@@ -18,7 +18,7 @@ pub enum TunnelStateTransition {
     /// Disconnecting tunnel.
     Disconnecting(ActionAfterDisconnect),
     /// Tunnel is disconnected but secured by blocking all connections.
-    Blocked(BlockReason),
+    Error(ErrorState),
 }
 
 /// Action that will be taken after disconnection is complete.
@@ -35,11 +35,39 @@ pub enum ActionAfterDisconnect {
 impl TunnelStateTransition {
     pub fn is_blocked(&self) -> bool {
         match self {
-            TunnelStateTransition::Blocked(_) => true,
+            TunnelStateTransition::Error(_) => true,
             _ => false,
         }
     }
 }
+
+/// Error state
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
+pub struct ErrorState {
+    /// Reason why the tunnel state machine ended up in the error state
+    cause: BlockReason,
+    /// Indicates whether the daemon is currently blocking all traffic. This _should_ always be
+    /// true, and indicated failure of which the user should be notified.
+    is_blocking: bool,
+}
+
+impl ErrorState {
+    pub fn new(cause: BlockReason, is_blocking: bool) -> Self {
+        Self { cause, is_blocking }
+    }
+
+    pub fn is_blocking(&self) -> bool {
+        self.is_blocking
+    }
+
+    pub fn reason(&self) -> &BlockReason {
+        &self.cause
+    }
+}
+
 
 /// Reason for entering the blocked state.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
