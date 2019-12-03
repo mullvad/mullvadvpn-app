@@ -12,37 +12,69 @@ import Network
 
 struct RelayList: Codable {
     struct Country: Codable {
-        let name: String
-        let code: String
-        let cities: [City]
+        var name: String
+        var code: String
+        var cities: [City]
     }
 
     struct City: Codable {
-        let name: String
-        let code: String
-        let latitude: Double
-        let longitude: Double
-        let relays: [Hostname]
+        var name: String
+        var code: String
+        var latitude: Double
+        var longitude: Double
+        var relays: [Hostname]
     }
 
     struct Hostname: Codable {
-        let hostname: String
-        let ipv4AddrIn: IPv4Address
-        let includeInCountry: Bool
-        let weight: Int32
-        let tunnels: Tunnels?
+        var hostname: String
+        var ipv4AddrIn: IPv4Address
+        var includeInCountry: Bool
+        var active: Bool
+        var weight: Int32
+        var tunnels: Tunnels?
     }
 
     struct Tunnels: Codable {
-        let wireguard: [WireguardTunnel]?
+        var wireguard: [WireguardTunnel]?
     }
 
     struct WireguardTunnel: Codable {
-        let ipv4Gateway: IPv4Address
-        let ipv6Gateway: IPv6Address
-        let publicKey: Data
-        let portRanges: [ClosedRange<UInt16>]
+        var ipv4Gateway: IPv4Address
+        var ipv6Gateway: IPv6Address
+        var publicKey: Data
+        var portRanges: [ClosedRange<UInt16>]
     }
 
-    let countries: [Country]
+    var countries: [Country]
+}
+
+extension RelayList {
+
+    /// Returns an alphabetically sorted `RelayList`
+    func sorted() -> Self {
+        let lexicalComparator = { (a: String, b: String) -> Bool in
+            return a.localizedCaseInsensitiveCompare(b) == .orderedAscending
+        }
+
+        let fileComparator = { (a: String, b: String) -> Bool in
+            return a.localizedStandardCompare(b) == .orderedAscending
+        }
+
+        let sortedCountries = countries
+            .sorted { lexicalComparator($0.name, $1.name) }
+            .map { (country) -> RelayList.Country in
+                var sortedCountry = country
+                sortedCountry.cities = country.cities.sorted { lexicalComparator($0.name, $1.name) }
+                    .map({ (city) -> RelayList.City in
+                        var sortedCity = city
+                        sortedCity.relays = city.relays
+                            .sorted { fileComparator($0.hostname, $1.hostname) }
+                        return sortedCity
+                    })
+                return sortedCountry
+        }
+
+        return RelayList(countries: sortedCountries)
+    }
+
 }
