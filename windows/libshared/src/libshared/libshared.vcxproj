@@ -22,9 +22,9 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{EE69EA4A-CF71-4B88-866B-957F60C4CE0D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>shared</RootNamespace>
+    <RootNamespace>libshared</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>shared</ProjectName>
+    <ProjectName>libshared</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -176,14 +176,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="logsink.h" />
-    <ClInclude Include="ilogsink.h" />
     <ClInclude Include="network\interfaceutils.h" />
+    <ClInclude Include="logging\logsink.h" />
+    <ClInclude Include="logging\logsinkadapter.h" />
+    <ClInclude Include="logging\stdoutlogger.h" />
+    <ClInclude Include="logging\unwind.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="network\interfaceutils.cpp" />
+    <ClCompile Include="logging\logsinkadapter.cpp" />
+    <ClCompile Include="logging\stdoutlogger.cpp" />
+    <ClCompile Include="logging\unwind.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
