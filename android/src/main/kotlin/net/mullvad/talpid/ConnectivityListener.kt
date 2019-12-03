@@ -12,6 +12,8 @@ class ConnectivityListener : BroadcastReceiver() {
     var isConnected = true
         private set
 
+    var senderAddress = 0L
+
     fun register(context: Context) {
         val intentFilter = IntentFilter()
 
@@ -49,4 +51,11 @@ class ConnectivityListener : BroadcastReceiver() {
                     networkInfo.detailedState == DetailedState.CONNECTED
             })
     }
+
+    private fun finalize() {
+        destroySender(senderAddress)
+        senderAddress = 0L
+    }
+
+    private external fun destroySender(senderAddress: Long)
 }
