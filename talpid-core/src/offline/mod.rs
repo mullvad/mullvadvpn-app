@@ -1,6 +1,8 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use futures::sync::mpsc::UnboundedSender;
 use std::sync::Weak;
+#[cfg(target_os = "android")]
+use talpid_types::android::AndroidContext;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -28,6 +30,13 @@ impl MonitorHandle {
     }
 }
 
-pub fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<MonitorHandle, Error> {
-    Ok(MonitorHandle(imp::spawn_monitor(sender)?))
+pub fn spawn_monitor(
+    sender: Weak<UnboundedSender<TunnelCommand>>,
+    #[cfg(target_os = "android")] android_context: AndroidContext,
+) -> Result<MonitorHandle, Error> {
+    Ok(MonitorHandle(imp::spawn_monitor(
+        sender,
+        #[cfg(target_os = "android")]
+        android_context,
+    )?))
 }
