@@ -1,32 +1,17 @@
-use super::{Tun, TunConfig, TunProvider};
-use talpid_types::BoxedError;
+use super::TunConfig;
+
+/// Error stub.
+pub enum Error {}
 
 /// Factory stub of tunnel devices.
 pub struct StubTunProvider;
 
-impl Default for StubTunProvider {
-    fn default() -> Self {
+impl StubTunProvider {
+    pub fn new() -> Self {
         StubTunProvider
     }
-}
 
-impl TunProvider for StubTunProvider {
-    fn get_tun(&mut self, _: TunConfig) -> Result<Box<dyn Tun>, BoxedError> {
-        unimplemented!();
-    }
-
-    #[cfg(target_os = "android")]
-    fn create_tun(&mut self) -> Result<(), BoxedError> {
-        unimplemented!();
-    }
-
-    #[cfg(target_os = "android")]
-    fn create_tun_if_closed(&mut self) -> Result<(), BoxedError> {
-        unimplemented!();
-    }
-
-    #[cfg(target_os = "android")]
-    fn close_tun(&mut self) {
+    pub fn get_tun(&mut self, _: TunConfig) -> Result<(), Error> {
         unimplemented!();
     }
 }

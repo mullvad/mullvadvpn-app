@@ -59,9 +59,10 @@ use std::{
 };
 use talpid_core::{
     mpsc::IntoSender,
-    tunnel::tun_provider::{PlatformTunProvider, TunProvider},
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
+#[cfg(target_os = "android")]
+use talpid_types::android::AndroidContext;
 use talpid_types::{
     net::{openvpn, TransportProtocol, TunnelParameters},
     tunnel::{BlockReason, ParameterGenerationError, TunnelStateTransition},
@@ -280,6 +281,8 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
+        // TODO: Remove this once `ManagementInterface` is less coupled to the constructor.
+        #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self> {
         if rpc_uniqueness_check::is_another_instance_running() {
             return Err(Error::DaemonIsAlreadyRunning);
@@ -291,10 +294,11 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
             tx,
             rx,
             management_interface_broadcaster,
-            PlatformTunProvider::default(),
             log_dir,
             resource_dir,
             cache_dir,
+            #[cfg(target_os = "android")]
+            android_context,
         )
     }
 
@@ -336,12 +340,12 @@ impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
 {
-    pub fn start_with_event_listener_and_tun_provider(
+    pub fn start_with_event_listener(
         event_listener: L,
-        tun_provider: impl TunProvider,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
+        #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self> {
         let (tx, rx) = mpsc::channel();
 
@@ -349,10 +353,11 @@ where
             tx,
             rx,
             event_listener,
-            tun_provider,
             log_dir,
             resource_dir,
             cache_dir,
+            #[cfg(target_os = "android")]
+            android_context,
         )
     }
 
@@ -360,10 +365,10 @@ where
         internal_event_tx: mpsc::Sender<InternalDaemonEvent>,
         internal_event_rx: mpsc::Receiver<InternalDaemonEvent>,
         event_listener: L,
-        tun_provider: impl TunProvider,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
+        #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self> {
         let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
 
@@ -435,11 +440,12 @@ where
             settings.get_allow_lan(),
             settings.get_block_when_disconnected(),
             tunnel_parameters_generator,
-            tun_provider,
             log_dir,
             resource_dir,
             cache_dir.clone(),
             IntoSender::from(internal_event_tx.clone()),
+            #[cfg(target_os = "android")]
+            android_context,
         )
         .map_err(Error::TunnelError)?;
 

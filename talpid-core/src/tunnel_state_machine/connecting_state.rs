@@ -15,7 +15,6 @@ use futures::{
 };
 use log::{debug, error, info, trace, warn};
 use std::{
-    borrow::BorrowMut,
     net::IpAddr,
     path::{Path, PathBuf},
     thread,
@@ -65,7 +64,7 @@ impl ConnectingState {
         parameters: TunnelParameters,
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
-        tun_provider: &mut dyn TunProvider,
+        tun_provider: &mut TunProvider,
         retry_attempt: u32,
     ) -> crate::tunnel::Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
@@ -351,13 +350,10 @@ impl TunnelState for ConnectingState {
                     );
                     BlockedState::enter(shared_values, BlockReason::StartTunnelError)
                 } else {
-                    let tun_provider: &mut dyn TunProvider =
-                        shared_values.tun_provider.borrow_mut();
-
                     #[cfg(target_os = "android")]
                     {
                         if retry_attempt > 0 && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0 {
-                            if let Err(error) = tun_provider.create_tun() {
+                            if let Err(error) = shared_values.tun_provider.create_tun() {
                                 error!(
                                     "{}",
                                     error.display_chain_with_msg("Failed to recreate tun device")
@@ -370,7 +366,7 @@ impl TunnelState for ConnectingState {
                         tunnel_parameters,
                         &shared_values.log_dir,
                         &shared_values.resource_dir,
-                        tun_provider,
+                        &mut shared_values.tun_provider,
                         retry_attempt,
                     ) {
                         Ok(connecting_state) => {
