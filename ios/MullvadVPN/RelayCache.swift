@@ -7,26 +7,40 @@
 //
 
 import Foundation
-import ProcedureKit
+import Combine
 import os
 
+/// Error emitted by read and write functions
+enum RelayCacheError: Error {
+    case defaultLocationNotFound
+    case io(Error)
+    case coding(Error)
+    case network(MullvadAPIError)
+    case server(JsonRpcResponseError)
+}
+
+/// A enum describing the source of the relay list
+enum RelayListSource {
+    /// The relay list was received from network
+    case network
+
+    /// The relay list was read from cache
+    case cache
+}
+
 class RelayCache {
-    /// Internal procedure queue
-    private let queue: ProcedureQueue = {
-        let queue = ProcedureQueue()
-        queue.qualityOfService = .utility
-        return queue
-    }()
+
+    /// Mullvad API client
+    private let apiClient: MullvadAPI
 
     /// The cache location used by the class instance
     private let cacheFileURL: URL
 
-    /// Error emitted by read and write functions
-    enum Error: Swift.Error {
-        case defaultLocationNotFound
-        case io(Swift.Error)
-        case coding(Swift.Error)
-    }
+    /// A queue used for running cache requests that require mutual exclusivity
+    private let exclusivityQueue = DispatchQueue(label: "net.mullvad.vpn.relay-cache.exclusivity-queue")
+
+    /// A queue used for execution
+    private let executionQueue = DispatchQueue(label: "net.mullvad.vpn.relay-cache.execution-queue")
 
     /// The default cache file location
     static var defaultCacheFileURL: URL? {
@@ -36,127 +50,142 @@ class RelayCache {
         return containerURL.flatMap { URL(fileURLWithPath: "relays.json", relativeTo: $0) }
     }
 
-    init(cacheFileURL: URL) {
+    init(cacheFileURL: URL, networkSession: URLSession = URLSession.shared) {
+        apiClient = MullvadAPI(session: networkSession)
         self.cacheFileURL = cacheFileURL
     }
 
-    class func withDefaultLocation() throws -> RelayCache {
-        guard let cacheFileURL = defaultCacheFileURL else {
-            throw Error.defaultLocationNotFound
+    class func withDefaultLocation() -> Result<RelayCache, RelayCacheError> {
+        if let cacheFileURL = defaultCacheFileURL {
+            return .success(RelayCache(cacheFileURL: cacheFileURL))
+        } else {
+            return .failure(.defaultLocationNotFound)
         }
-        return RelayCache(cacheFileURL: cacheFileURL)
     }
 
     /// Read the relay cache and update it from remote if needed.
-    /// The completion handler is called on a background queue
-    func read(completion: @escaping (Result<CachedRelayList, Swift.Error>) -> Void) {
-        let cacheRequestProcedure = BlockProcedure { (blockProcedure) in
-            self.readAndUpdateRelaysIfNeeded(completion: { (result) in
-                completion(result)
-                blockProcedure.finish()
-            })
-        }
-
-        cacheRequestProcedure.addCondition(MutuallyExclusive<RelayCache>())
-
-        queue.addOperation(cacheRequestProcedure)
+    func read() -> AnyPublisher<CachedRelayList, RelayCacheError> {
+        MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) {
+            self.makeReaderPublisher()
+        }.eraseToAnyPublisher()
     }
 
-    private func readAndUpdateRelaysIfNeeded(completion: @escaping (Result<CachedRelayList, Swift.Error>) -> Void) {
-        let updateRelays = { (cachedRelaysFromDisk: CachedRelayList?,
-            finish: @escaping (Result<CachedRelayList, Swift.Error>) -> Void) in
-            self.downloadRelays(completion: { (result) in
-                switch result {
-                case .success:
-                    finish(result)
+    private func makeReaderPublisher() -> AnyPublisher<CachedRelayList, RelayCacheError> {
+        // Create a deferred publisher that will execute once the subscriber is assigned
+        let downloadAndSaveRelaysPublisher = Deferred {
+            return self.downloadRelays()
+                .map(self.filterRelayList)
+                .flatMap(self.saveRelayListToCache)
+                .mapError { (error) -> RelayCacheError in
+                    os_log(.error, "Failed to update the relay cache: %{public}s", error.localizedDescription)
 
-                case .failure(let error):
-                    os_log(.error, "Failed to update the relay cache: %s", error.localizedDescription)
-
-                    // Return the on-disk cache in the event of networking error
-                    if let cachedRelaysFromDisk = cachedRelaysFromDisk {
-                        finish(.success(cachedRelaysFromDisk))
-                    } else {
-                        finish(result)
-                    }
-                }
-            })
+                    return error
+            }
         }
 
-        RelayCache.read(cacheFileURL: cacheFileURL) { (result) in
-            switch result {
-            case .success(let cachedRelays):
-                if cachedRelays.needsUpdate() {
-                    updateRelays(cachedRelays, completion)
+        return Self.read(cacheFileURL: cacheFileURL).publisher
+            .map { (RelayListSource.cache, $0) }
+            .catch({ (readError) -> AnyPublisher<(RelayListSource, CachedRelayList), RelayCacheError> in
+                switch readError {
+                // Download relay list when unable to read the cache file
+                case .io(let error as CocoaError) where error.code == .fileReadNoSuchFile:
+                    os_log(.error, "Relay cache file does not exist. Initiating the download.")
+
+                    return downloadAndSaveRelaysPublisher.map { (RelayListSource.network, $0) }
+                        .eraseToAnyPublisher()
+
+                case .coding(let decodingError):
+                    os_log(.error, "Failed to decode the relay cache: %{public}s", decodingError.localizedDescription)
+
+                    return downloadAndSaveRelaysPublisher.map { (RelayListSource.network, $0) }
+                        .eraseToAnyPublisher()
+
+                default:
+                    os_log(.error, "Failed to read the relay cache: %{public}s", readError.localizedDescription)
+
+                    return Fail(error: readError).eraseToAnyPublisher()
+                }
+            })
+            .flatMap { (source, cachedRelays) -> AnyPublisher<CachedRelayList, RelayCacheError> in
+                let cachedRelayPublisher = Result<CachedRelayList, RelayCacheError>.Publisher(cachedRelays)
+
+                if source == .cache && cachedRelays.needsUpdate() {
+                    return downloadAndSaveRelaysPublisher
+                        .catch { (error) -> Result<CachedRelayList, RelayCacheError>.Publisher in
+                            // Return the on-disk cache in the event of networking error
+                            return cachedRelayPublisher
+                    }.eraseToAnyPublisher()
                 } else {
-                     completion(.success(cachedRelays))
+                    return cachedRelayPublisher
+                        .eraseToAnyPublisher()
                 }
-
-            case .failure(let error):
-                os_log(.error, "Failed to read the relay cache: %s", error.localizedDescription)
-                updateRelays(nil,  completion)
-            }
-        }
+        }.eraseToAnyPublisher()
     }
 
-    private func downloadRelays(completion: @escaping (Result<CachedRelayList, Swift.Error>) -> Void) {
-        // Download relays
-        let downloadRelays = MullvadAPI.getRelayList()
+    /// Filters the given `RelayList` removing empty leaf nodes, relays without Wireguard tunnels or
+    /// Wireguard tunnels without any available ports.
+    private func filterRelayList(_ relayList: RelayList) -> RelayList {
+        let filteredCountries = relayList.countries
+            .map { (country) -> RelayList.Country in
+                var filteredCountry = country
 
-        // Turn RelayList into CachedRelayList
-        let transform = TransformProcedure { (response) -> CachedRelayList in
-            let relayList = try response.result.get()
+                filteredCountry.cities = country.cities.map { (city) -> RelayList.City in
+                    var filteredCity = city
 
-            return CachedRelayList(relayList: relayList, updatedAt: Date())
-            }.injectResult(from: downloadRelays)
+                    filteredCity.relays = city.relays
+                        .map { (relay) -> RelayList.Hostname in
+                            var filteredRelay = relay
 
-        // Write cache on disk
-        let writeCache = AsyncTransformProcedure<CachedRelayList, CachedRelayList> { (input, finish) in
-            RelayCache.write(cacheFileURL: self.cacheFileURL, record: input, completion: { (result) in
-                switch result {
-                case .success:
-                    finish(.success(input))
+                            // filter out tunnels without ports
+                            filteredRelay.tunnels?.wireguard = relay.tunnels?.wireguard?
+                                .filter { !$0.portRanges.isEmpty }
 
-                case .failure(let error):
-                    finish(.failure(error))
-                }
+                            return filteredRelay
+                    }.filter { $0.tunnels?.wireguard.flatMap { !$0.isEmpty } ?? false }
+
+                    return filteredCity
+                }.filter { !$0.relays.isEmpty }
+
+                return filteredCountry
+        }.filter { !$0.cities.isEmpty }
+
+        return RelayList(countries: filteredCountries)
+    }
+
+    private func downloadRelays() -> AnyPublisher<RelayList, RelayCacheError> {
+        apiClient.getRelayList()
+            .mapError({ (networkError) -> RelayCacheError in
+                return .network(networkError)
             })
-            }.injectResult(from: transform)
+            .flatMap({ (response) in
+                return response.result.publisher
+                    .mapError { RelayCacheError.server($0) }
+            }).eraseToAnyPublisher()
+    }
 
-        writeCache.addDidFinishBlockObserver { (procedure, error) in
-            if let result = procedure.output.value?.into() {
-                completion(result)
-            } else if let error = error {
-                completion(.failure(error))
-            }
-        }
-
-        queue.addOperation(GroupProcedure(operations: [downloadRelays, transform, writeCache]))
+    private func saveRelayListToCache(relayList: RelayList) -> AnyPublisher<CachedRelayList, RelayCacheError> {
+        Result.Publisher(relayList)
+            .map({ CachedRelayList(relayList: $0, updatedAt: Date()) })
+            .flatMap({ (cachedRelayList) in
+                return Self.write(cacheFileURL: self.cacheFileURL, record: cachedRelayList)
+                    .map { cachedRelayList }
+                    .publisher
+            }).eraseToAnyPublisher()
     }
 
     /// Safely read the cache file from disk using file coordinator
-    private class func read(cacheFileURL: URL, completion: @escaping (Result<CachedRelayList, Error>) -> Void) {
+    private class func read(cacheFileURL: URL) -> Result<CachedRelayList, RelayCacheError> {
+        var result: Result<CachedRelayList, RelayCacheError>?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
         let accessor = { (fileURLForReading: URL) -> Void in
-            var data: Data
-
-            // Read data from disk
-            do {
-                data = try Data(contentsOf: fileURLForReading)
-            } catch {
-                completion(.failure(.io(error)))
-                return
-            }
-
-            // Decode data into RelayListCacheFile
-            do {
-                let decoded = try JSONDecoder().decode(CachedRelayList.self, from: data)
-
-                completion(.success(decoded))
-            } catch {
-                completion(.failure(.coding(error)))
-            }
+            // Decode data from disk
+            result = Result { try Data(contentsOf: fileURLForReading) }
+                .mapError { RelayCacheError.io($0) }
+                .flatMap { (data) in
+                    Result { try JSONDecoder().decode(CachedRelayList.self, from: data) }
+                        .mapError { RelayCacheError.coding($0) }
+                }
         }
 
         var error: NSError?
@@ -166,33 +195,24 @@ class RelayCache {
                                    byAccessor: accessor)
 
         if let error = error {
-            completion(.failure(.io(error)))
+            result = .failure(.io(error))
         }
+
+        return result!
     }
 
     /// Safely write the cache file on disk using file coordinator
-    private class func write(cacheFileURL: URL, record: CachedRelayList, completion: @escaping (Result<Void, Error>) -> Void) {
+    private class func write(cacheFileURL: URL, record: CachedRelayList) -> Result<(), RelayCacheError> {
+        var result: Result<(), RelayCacheError>?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
         let accessor = { (fileURLForWriting: URL) -> Void in
-            var data: Data
-
-            // Encode data
-            do {
-                data = try JSONEncoder().encode(record)
-            } catch {
-                completion(.failure(.coding(error)))
-                return
-            }
-
-            // Write data
-            do {
-                try data.write(to: fileURLForWriting)
-
-                completion(.success(()))
-            } catch {
-                completion(.failure(.io(error)))
-            }
+            result = Result { try JSONEncoder().encode(record) }
+                .mapError { RelayCacheError.coding($0) }
+                .flatMap { (data) in
+                    Result { try data.write(to: fileURLForWriting) }
+                        .mapError { RelayCacheError.io($0) }
+                }
         }
 
         var error: NSError?
@@ -202,8 +222,10 @@ class RelayCache {
                                    byAccessor: accessor)
 
         if let error = error {
-            completion(.failure(.io(error)))
+            result = .failure(.io(error))
         }
+
+        return result!
     }
 }
 
