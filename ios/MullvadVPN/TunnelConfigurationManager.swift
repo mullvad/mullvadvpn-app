@@ -76,7 +76,11 @@ private enum Keychain {}
 
 private extension Keychain {
 
-    static func listAccounts() -> Result<[String], KeychainError> {
+    /// A Keychain Result type
+    typealias Result<T> = Swift.Result<T, KeychainError>
+
+    /// List all of the account tokens in Keychain
+    static func listAccounts() -> Result<[String]> {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: kServiceName,
@@ -84,20 +88,19 @@ private extension Keychain {
             kSecMatchLimit: kSecMatchLimitAll,
         ]
 
-        var ref: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &ref)
+        return executeSecCopyMatching(query: query)
+            .map { (result) in
+                let attrs = result as! [[CFString: Any]]
+                let accountTokens = attrs.compactMap { (dict) in
+                    dict[kSecAttrAccount] as? String
+                }
 
-        if status == errSecSuccess {
-            let attrs = ref as! [[CFString: Any]]
-            let accountTokens = attrs.compactMap { dict in dict[kSecAttrAccount] as? String }
-
-            return .success(accountTokens)
-        } else {
-            return .failure(KeychainError(code: status))
+                return accountTokens
         }
     }
 
-    static func getPersistentRef(account: String) -> Result<Data, KeychainError> {
+    /// Get a persistent reference to the Keychain item for the given account token
+    static func getPersistentRef(account: String) -> Result<Data> {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: account,
@@ -105,34 +108,24 @@ private extension Keychain {
             kSecReturnPersistentRef: true
         ]
 
-        var ref: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &ref)
-
-        if status == errSecSuccess {
-            return .success(ref as! Data)
-        } else {
-            return .failure(KeychainError(code: status))
-        }
+        return executeSecCopyMatching(query: query)
+            .map { $0 as! Data }
     }
 
-    static func getItemData(persistentKeychainRef: Data) -> Result<Data, KeychainError> {
+    /// Get data associated with the given persistent Keychain reference
+    static func getItemData(persistentKeychainRef: Data) -> Result<Data> {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecValuePersistentRef: persistentKeychainRef,
             kSecReturnData: true
         ]
 
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        if status == errSecSuccess {
-            return .success(result as! Data)
-        } else {
-            return .failure(KeychainError(code: status))
-        }
+        return executeSecCopyMatching(query: query)
+            .map { $0 as! Data }
     }
 
-    static func getItemData(account: String) -> Result<Data, KeychainError> {
+    /// Get data associated with the given account token
+    static func getItemData(account: String) -> Result<Data> {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: account,
@@ -140,17 +133,12 @@ private extension Keychain {
             kSecReturnData: true
         ]
 
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        if status == errSecSuccess {
-            return .success(result as! Data)
-        } else {
-            return .failure(KeychainError(code: status))
-        }
+        return executeSecCopyMatching(query: query)
+            .map { $0 as! Data }
     }
 
-    static func addItem(account: String, data: Data) -> Result<(), KeychainError> {
+    /// Store data in the Keychain and associate it with the given account token
+    static func addItem(account: String, data: Data) -> Result<()> {
         let attributes: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: account,
@@ -158,21 +146,19 @@ private extension Keychain {
             kSecValueData: data,
             kSecReturnData: false,
 
-            // Share the key with the application group
+            // Share the item with the application group
             kSecAttrAccessGroup: ApplicationConfiguration.securityGroupIdentifier,
         ]
 
-        var ref: CFTypeRef?
-        let status = SecItemAdd(attributes as CFDictionary, &ref)
+        let status = SecItemAdd(attributes as CFDictionary, nil)
 
-        if status == errSecSuccess {
-            return .success(())
-        } else {
-            return .failure(KeychainError(code: status))
+        return mapSecResult(status: status) {
+            ()
         }
     }
 
-    static func updateItem(account: String, data: Data) -> Result<(), KeychainError> {
+    /// Replace the data associated with the given account token.
+    static func updateItem(account: String, data: Data) -> Result<()> {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: account,
@@ -185,14 +171,13 @@ private extension Keychain {
 
         let status = SecItemUpdate(query as CFDictionary, update as CFDictionary)
 
-        if status == errSecSuccess {
-            return .success(())
-        } else {
-            return .failure(KeychainError(code: status))
+        return mapSecResult(status: status) {
+            ()
         }
     }
 
-    static func removeItem(account: String) -> Result<(), KeychainError> {
+    /// Remove the data associated with the given account token
+    static func removeItem(account: String) -> Result<()> {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: account,
@@ -201,10 +186,28 @@ private extension Keychain {
 
         let status = SecItemDelete(query as CFDictionary)
 
+        return mapSecResult(status: status) {
+            ()
+        }
+    }
+
+    /// A private helper that verifies the given `status` and executes `body` on success
+    static private func mapSecResult<T>(status: OSStatus, body: () -> T) -> Result<T> {
         if status == errSecSuccess {
-            return .success(())
+            return .success(body())
         } else {
             return .failure(KeychainError(code: status))
+        }
+    }
+
+    /// A private helper to execute the given query using `SecCopyMatching` and map the result to
+    /// the `Result<CFTypeRef?>` type.
+    static private func executeSecCopyMatching(query: [CFString: Any]) -> Result<CFTypeRef?> {
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+
+        return mapSecResult(status: status) {
+            result
         }
     }
 
