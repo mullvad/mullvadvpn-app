@@ -72,7 +72,7 @@ The host has to have the following installed:
 - `msbuild.exe` available in `%PATH%`. If you installed Visual Studio Community edition, the
   binary can be found under:
   ```
-  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\<VERSION>\Bin\amd64
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\amd64
   ```
 
 - `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
