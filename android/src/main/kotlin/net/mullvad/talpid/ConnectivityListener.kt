@@ -10,7 +10,13 @@ import android.net.NetworkInfo.DetailedState
 
 class ConnectivityListener : BroadcastReceiver() {
     var isConnected = true
-        private set
+        private set(value) {
+            field = value
+
+            if (senderAddress != 0L) {
+                notifyConnectivityChange(value, senderAddress)
+            }
+        }
 
     var senderAddress = 0L
 
@@ -57,5 +63,6 @@ class ConnectivityListener : BroadcastReceiver() {
         senderAddress = 0L
     }
 
+    private external fun notifyConnectivityChange(isConnected: Boolean, senderAddress: Long)
     private external fun destroySender(senderAddress: Long)
 }
