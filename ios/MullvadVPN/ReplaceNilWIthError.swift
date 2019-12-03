@@ -1,5 +1,5 @@
 //
-//  ReplaceNilWIthError.swift
+//  ReplaceNilWithError.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 19/11/2019.
