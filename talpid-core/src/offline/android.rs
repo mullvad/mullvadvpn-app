@@ -6,6 +6,7 @@ use jnix::jni::{
     JNIEnv,
 };
 use std::sync::Weak;
+use talpid_types::android::AndroidContext;
 
 #[derive(err_derive::Error, Debug)]
 #[error(display = "Unknown offline monitor error")]
@@ -55,6 +56,7 @@ unsafe fn get_sender_from_address(address: jlong) -> Box<Weak<UnboundedSender<Tu
 
 pub fn spawn_monitor(
     _sender: Weak<UnboundedSender<TunnelCommand>>,
+    _android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
     Ok(MonitorHandle)
 }
