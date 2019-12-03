@@ -1,22 +1,173 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use futures::sync::mpsc::UnboundedSender;
-use jnix::jni::{
-    objects::JObject,
-    sys::{jboolean, jlong, JNI_FALSE},
-    JNIEnv,
+use jnix::{
+    jni::{
+        self,
+        objects::{GlobalRef, JObject, JValue},
+        signature::{JavaType, Primitive},
+        sys::{jboolean, jlong, JNI_FALSE},
+        JNIEnv, JavaVM,
+    },
+    JnixEnv,
 };
 use std::sync::Weak;
-use talpid_types::android::AndroidContext;
+use talpid_types::{android::AndroidContext, ErrorExt};
 
 #[derive(err_derive::Error, Debug)]
-#[error(display = "Unknown offline monitor error")]
-pub struct Error;
+#[error(no_from)]
+pub enum Error {
+    #[error(display = "Failed to attach Java VM to tunnel thread")]
+    AttachJvmToThread(#[error(source)] jni::errors::Error),
 
-pub struct MonitorHandle;
+    #[error(display = "Failed to call Java method {}.{}", _0, _1)]
+    CallMethod(
+        &'static str,
+        &'static str,
+        #[error(source)] jni::errors::Error,
+    ),
+
+    #[error(display = "Failed to create global reference to Java object")]
+    CreateGlobalRef(#[error(source)] jni::errors::Error),
+
+    #[error(display = "Failed to find {}.{} method", _0, _1)]
+    FindMethod(
+        &'static str,
+        &'static str,
+        #[error(source)] jni::errors::Error,
+    ),
+
+    #[error(display = "Received an invalid result from {}.{}: {}", _0, _1, _2)]
+    InvalidMethodResult(&'static str, &'static str, String),
+}
+
+pub struct MonitorHandle {
+    jvm: JavaVM,
+    class: GlobalRef,
+    object: GlobalRef,
+}
 
 impl MonitorHandle {
+    pub fn new(android_context: AndroidContext) -> Result<Self, Error> {
+        let env = JnixEnv::from(
+            android_context
+                .jvm
+                .attach_current_thread_as_daemon()
+                .map_err(Error::AttachJvmToThread)?,
+        );
+
+        let get_connectivity_listener_method = env
+            .get_method_id(
+                &env.get_class("net/mullvad/talpid/TalpidVpnService"),
+                "getConnectivityListener",
+                "()Lnet/mullvad/talpid/ConnectivityListener;",
+            )
+            .map_err(|cause| {
+                Error::FindMethod("MullvadVpnService", "getConnectivityListener", cause)
+            })?;
+
+        let result = env
+            .call_method_unchecked(
+                android_context.vpn_service.as_obj(),
+                get_connectivity_listener_method,
+                JavaType::Object("Lnet/mullvad/talpid/ConnectivityListener;".to_owned()),
+                &[],
+            )
+            .map_err(|cause| {
+                Error::CallMethod("MullvadVpnService", "getConnectivityListener", cause)
+            })?;
+
+        let object = match result {
+            JValue::Object(object) => env.new_global_ref(object).map_err(Error::CreateGlobalRef)?,
+            value => {
+                return Err(Error::InvalidMethodResult(
+                    "MullvadVpnService",
+                    "getConnectivityListener",
+                    format!("{:?}", value),
+                ))
+            }
+        };
+
+        let class = env.get_class("net/mullvad/talpid/ConnectivityListener");
+
+        Ok(MonitorHandle {
+            jvm: android_context.jvm,
+            class,
+            object,
+        })
+    }
+
     pub fn is_offline(&self) -> bool {
-        false
+        match self.get_is_connected() {
+            Ok(is_connected) => !is_connected,
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to check connectivity status")
+                );
+                false
+            }
+        }
+    }
+
+    fn get_is_connected(&self) -> Result<bool, Error> {
+        let result = self.call_method(
+            "isConnected",
+            "()Z",
+            &[],
+            JavaType::Primitive(Primitive::Boolean),
+        )?;
+
+        match result {
+            JValue::Bool(JNI_FALSE) => Ok(false),
+            JValue::Bool(_) => Ok(true),
+            value => Err(Error::InvalidMethodResult(
+                "ConnectivityListener",
+                "isConnected",
+                format!("{:?}", value),
+            )),
+        }
+    }
+
+    fn set_sender(&self, sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<(), Error> {
+        let sender_ptr = Box::new(sender);
+        let sender_address = Box::into_raw(sender_ptr) as jlong;
+
+        let result = self.call_method(
+            "setSenderAddress",
+            "(J)V",
+            &[JValue::Long(sender_address)],
+            JavaType::Primitive(Primitive::Void),
+        )?;
+
+        match result {
+            JValue::Void => Ok(()),
+            value => Err(Error::InvalidMethodResult(
+                "ConnectivityListener",
+                "setSenderAddress",
+                format!("{:?}", value),
+            )),
+        }
+    }
+
+    fn call_method(
+        &self,
+        method: &'static str,
+        signature: &str,
+        parameters: &[JValue<'_>],
+        return_type: JavaType,
+    ) -> Result<JValue<'_>, Error> {
+        let env = JnixEnv::from(
+            self.jvm
+                .attach_current_thread_as_daemon()
+                .map_err(Error::AttachJvmToThread)?,
+        );
+
+        let method_id = env
+            .get_method_id(&self.class, method, signature)
+            .map_err(|cause| Error::FindMethod("ConnectivityListener", method, cause))?;
+
+        env.call_method_unchecked(self.object.as_obj(), method_id, return_type, parameters)
+            .map_err(|cause| Error::CallMethod("ConnectivityListener", method, cause))
     }
 }
 
@@ -55,8 +206,12 @@ unsafe fn get_sender_from_address(address: jlong) -> Box<Weak<UnboundedSender<Tu
 }
 
 pub fn spawn_monitor(
-    _sender: Weak<UnboundedSender<TunnelCommand>>,
-    _android_context: AndroidContext,
+    sender: Weak<UnboundedSender<TunnelCommand>>,
+    android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
-    Ok(MonitorHandle)
+    let monitor_handle = MonitorHandle::new(android_context)?;
+
+    monitor_handle.set_sender(sender)?;
+
+    Ok(monitor_handle)
 }
