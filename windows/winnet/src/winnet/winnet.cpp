@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "winnet.h"
 #include "NetworkInterfaces.h"
-#include "interfaceutils.h"
 #include "offlinemonitor.h"
 #include "routing/routemanager.h"
 #include <shared/logsinkadapter.h>
+#include <shared/network/interfaceutils.h>
 #include <libcommon/error.h>
 #include <libcommon/network.h>
 #include <cstdint>
@@ -14,7 +14,9 @@
 #include <mutex>
 
 using namespace winnet::routing;
+using namespace common::network;
 using AutoLockType = std::scoped_lock<std::mutex>;
+using namespace shared::network;
 
 namespace
 {
