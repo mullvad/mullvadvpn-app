@@ -547,7 +547,7 @@ class TunnelManager {
         }.eraseToAnyPublisher()
     }
 
-    /// Retrieve the existing TunnelConfiguration or create the new one without saving it to the Keychain
+    /// Retrieve the existing TunnelConfiguration or create a new one
     private func makeTunnelConfiguration(accountToken: String) -> Result<TunnelConfiguration, TunnelConfigurationManagerError> {
         TunnelConfigurationManager.load(account: accountToken)
             .flatMapError { (error) -> Result<TunnelConfiguration, TunnelConfigurationManagerError> in
