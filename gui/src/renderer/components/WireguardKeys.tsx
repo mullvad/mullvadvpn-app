@@ -52,7 +52,7 @@ export default class WireguardKeys extends Component<IProps> {
                 <Text style={[styles.wgkeys__row, styles.wgkeys__invalid_key]}>
                   {messages.pgettext(
                     'wireguard-key-view',
-                    "Can't manage keys whilst in a blocked state",
+                    'Unable to manage keys while in a blocked state',
                   )}
                 </Text>
               )}
