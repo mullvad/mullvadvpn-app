@@ -62,10 +62,13 @@ export default function(
         status: { state: 'disconnecting', details: action.afterDisconnect },
       };
 
-    case 'BLOCKED':
+    case 'TUNNEL_ERROR':
       return {
         ...state,
-        status: { state: 'blocked', details: action.reason },
+        status: {
+          state: 'error',
+          details: action.errorState,
+        },
       };
 
     default:
