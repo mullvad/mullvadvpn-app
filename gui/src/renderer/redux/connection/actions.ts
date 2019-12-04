@@ -1,6 +1,6 @@
 import {
   AfterDisconnect,
-  BlockReason,
+  IErrorState,
   ILocation,
   ITunnelStateRelayInfo,
 } from '../../../shared/daemon-rpc-types';
@@ -25,8 +25,8 @@ interface IDisconnectingAction {
 }
 
 interface IBlockedAction {
-  type: 'BLOCKED';
-  reason: BlockReason;
+  type: 'TUNNEL_ERROR';
+  errorState: IErrorState;
 }
 
 interface INewLocationAction {
@@ -75,10 +75,10 @@ function disconnecting(afterDisconnect: AfterDisconnect): IDisconnectingAction {
   };
 }
 
-function blocked(reason: BlockReason): IBlockedAction {
+function blocked(errorState: IErrorState): IBlockedAction {
   return {
-    type: 'BLOCKED',
-    reason,
+    type: 'TUNNEL_ERROR',
+    errorState,
   };
 }
 
