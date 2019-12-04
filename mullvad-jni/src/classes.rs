@@ -53,5 +53,6 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/talpid/tunnel/BlockReason$IsOffline",
     "net/mullvad/talpid/tunnel/BlockReason$TapAdapterProblem",
     "net/mullvad/talpid/tunnel/ParameterGenerationError",
+    "net/mullvad/talpid/ConnectivityListener",
     "net/mullvad/talpid/TalpidVpnService",
 ];

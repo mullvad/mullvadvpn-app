@@ -34,6 +34,9 @@ Line wrap the file at 100 chars.                                              Th
 - Remove Mullvad TAP adapter on uninstall. Also remove the TAP driver if there are no other TAP
   adapters in the system.
 
+#### Android
+- Add connectivity status check.
+
 ### Changed
 - Notifications shown when connecting to a server include its location.
 - Upgrade OpenVPN from 2.4.7 to 2.4.8.

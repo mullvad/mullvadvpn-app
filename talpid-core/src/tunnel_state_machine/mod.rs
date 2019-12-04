@@ -78,8 +78,12 @@ where
 {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
-    let offline_monitor =
-        offline::spawn_monitor(Arc::downgrade(&command_tx)).map_err(Error::OfflineMonitorError)?;
+    let offline_monitor = offline::spawn_monitor(
+        Arc::downgrade(&command_tx),
+        #[cfg(target_os = "android")]
+        android_context.clone(),
+    )
+    .map_err(Error::OfflineMonitorError)?;
     let is_offline = offline_monitor.is_offline();
 
     let tun_provider = TunProvider::new(
