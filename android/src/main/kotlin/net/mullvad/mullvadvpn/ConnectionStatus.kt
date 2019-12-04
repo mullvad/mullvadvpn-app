@@ -26,7 +26,7 @@ class ConnectionStatus(val parentView: View, val resources: Resources) {
             is TunnelState.Disconnected -> disconnected()
             is TunnelState.Connecting -> connecting()
             is TunnelState.Connected -> connected()
-            is TunnelState.Blocked -> blocked()
+            is TunnelState.Error -> errorState(state.errorState.isBlocking)
         }
     }
 
@@ -51,10 +51,16 @@ class ConnectionStatus(val parentView: View, val resources: Resources) {
         text.setText(R.string.secure_connection)
     }
 
-    private fun blocked() {
+    private fun errorState(isBlocking: Boolean) {
         spinner.visibility = View.GONE
 
+        // TODO: revise how to best inform the user about us not blocking
+        // traffic
         text.setTextColor(securedTextColor)
-        text.setText(R.string.blocked_connection)
+        if (isBlocking) {
+            text.setText(R.string.blocked_connection)
+        } else {
+            text.setText(R.string.blocked_connection)
+        }
     }
 }

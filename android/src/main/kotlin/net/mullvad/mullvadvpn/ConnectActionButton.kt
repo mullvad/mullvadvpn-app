@@ -26,7 +26,7 @@ class ConnectActionButton(val parentView: View) {
                 }
                 is TunnelState.Connecting -> connecting()
                 is TunnelState.Connected -> connected()
-                is TunnelState.Blocked -> connected()
+                is TunnelState.Error -> connected()
             }
 
             field = value
@@ -46,7 +46,7 @@ class ConnectActionButton(val parentView: View) {
             is TunnelState.Disconnecting -> onConnect?.invoke()
             is TunnelState.Connecting -> onCancel?.invoke()
             is TunnelState.Connected -> onDisconnect?.invoke()
-            is TunnelState.Blocked -> onDisconnect?.invoke()
+            is TunnelState.Error -> onDisconnect?.invoke()
         }
     }
 
