@@ -99,7 +99,12 @@ export type TunnelState =
   | { state: 'connecting'; details?: ITunnelStateRelayInfo }
   | { state: 'connected'; details: ITunnelStateRelayInfo }
   | { state: 'disconnecting'; details: AfterDisconnect }
-  | { state: 'blocked'; details: BlockReason };
+  | { state: 'error'; details: IErrorState };
+
+export interface IErrorState {
+  isBlocking: boolean;
+  cause: BlockReason;
+}
 
 export type RelayLocation =
   | { hostname: [string, string, string] }

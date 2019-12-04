@@ -264,7 +264,7 @@ export default class AppRenderer {
     const state = this.tunnelState.state;
 
     // connect only if tunnel is disconnected or blocked.
-    if (state === 'disconnecting' || state === 'disconnected' || state === 'blocked') {
+    if (state === 'disconnecting' || state === 'disconnected' || state === 'error') {
       // switch to the connecting state ahead of time to make the app look more responsive
       this.reduxActions.connection.connecting();
 
@@ -549,7 +549,7 @@ export default class AppRenderer {
         actions.connection.disconnected();
         break;
 
-      case 'blocked':
+      case 'error':
         actions.connection.blocked(tunnelState.details);
         break;
     }
@@ -597,8 +597,8 @@ export default class AppRenderer {
         actions.updateBlockState(true);
         break;
 
-      case 'blocked':
-        actions.updateBlockState(tunnelState.details.reason !== 'set_firewall_policy_error');
+      case 'error':
+        actions.updateBlockState(tunnelState.details.isBlocking);
         break;
     }
   }

@@ -145,10 +145,13 @@ describe('components/NotificationArea', () => {
     const component = shallow(
       <NotificationArea
         tunnelState={{
-          state: 'blocked',
+          state: 'error',
           details: {
-            reason: 'tunnel_parameter_error',
-            details: 'no_matching_relay',
+            isBlocking: true,
+            cause: {
+              reason: 'tunnel_parameter_error',
+              details: 'no_matching_relay',
+            },
           },
         }}
         version={defaultVersion}

@@ -124,20 +124,19 @@ export default class NotificationArea extends Component<IProps, State> {
           reason: '',
         };
 
-      case 'blocked':
-        switch (tunnelState.details.reason) {
-          case 'set_firewall_policy_error':
-            return {
-              visible: true,
-              type: 'failure-unsecured',
-              reason: getBlockReasonMessage(tunnelState.details),
-            };
-          default:
-            return {
-              visible: true,
-              type: 'blocking',
-              reason: getBlockReasonMessage(tunnelState.details),
-            };
+      case 'error':
+        if (tunnelState.details.isBlocking) {
+          return {
+            visible: true,
+            type: 'blocking',
+            reason: getBlockReasonMessage(tunnelState.details.cause),
+          };
+        } else {
+          return {
+            visible: true,
+            type: 'failure-unsecured',
+            reason: getBlockReasonMessage(tunnelState.details.cause),
+          };
         }
 
       case 'disconnecting':
