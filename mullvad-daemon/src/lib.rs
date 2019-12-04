@@ -1511,7 +1511,7 @@ where
     }
 
     fn send_tunnel_command(&mut self, command: TunnelCommand) {
-        let mut sink = executor::spawn(Arc::make_mut(&mut self.tunnel_command_tx));
+        let mut sink = executor::spawn(UnboundedSender::clone(&self.tunnel_command_tx));
         sink.wait_send(command)
             .expect("Tunnel state machine has stopped");
     }
