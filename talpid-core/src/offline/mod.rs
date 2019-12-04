@@ -18,15 +18,6 @@ mod imp;
 #[path = "android.rs"]
 mod imp;
 
-#[cfg(not(any(
-    windows,
-    target_os = "android",
-    target_os = "linux",
-    target_os = "macos"
-)))]
-#[path = "dummy.rs"]
-mod imp;
-
 pub use self::imp::Error;
 
 pub struct MonitorHandle(imp::MonitorHandle);
