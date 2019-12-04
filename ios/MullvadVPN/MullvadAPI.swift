@@ -98,7 +98,10 @@ class MullvadAPI {
     }
 
     func pushWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<JsonRpcResponse<WireguardAssociatedAddresses>, MullvadAPIError> {
-        let request = JsonRpcRequest(method: "push_wg_key", params: [AnyEncodable(accountToken), AnyEncodable(publicKey)])
+        let request = JsonRpcRequest(method: "push_wg_key", params: [
+            AnyEncodable(accountToken),
+            AnyEncodable(publicKey)
+        ])
 
         return MullvadAPI.makeDataTaskPublisher(request: request)
     }
