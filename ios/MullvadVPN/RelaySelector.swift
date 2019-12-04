@@ -49,10 +49,10 @@ struct RelaySelector {
                     switch constraint {
                     case .country:
                         return true
-                    case .city(let countryCode, let cityCode):
-                        return countryCode == country.code && cityCode == city.code
-                    case .hostname(let countryCode, let cityCode, _):
-                        return countryCode == country.code && cityCode == city.code
+                    case .city(_, let cityCode):
+                        return cityCode == city.code
+                    case .hostname(_, let cityCode, _):
+                        return cityCode == city.code
                     }
                 }
             }.map { (city) -> RelayList.City in
@@ -65,9 +65,8 @@ struct RelaySelector {
                         switch constraint {
                         case .country, .city:
                             return true
-                        case .hostname(let countryCode, let cityCode, let hostname):
-                            return countryCode == country.code && cityCode == city.code &&
-                                hostname == relay.hostname
+                        case .hostname(_, _, let hostname):
+                            return hostname == relay.hostname
                         }
                     }
                 }
