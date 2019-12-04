@@ -251,32 +251,35 @@ const tunnelStateSchema = oneOf(
     }),
   }),
   object({
-    state: enumeration('blocked'),
-    details: oneOf(
-      object({
-        reason: enumeration(
-          'ipv6_unavailable',
-          'set_firewall_policy_error',
-          'set_dns_error',
-          'start_tunnel_error',
-          'is_offline',
-          'tap_adapter_problem',
-        ),
-      }),
-      object({
-        reason: enumeration('auth_failed'),
-        details: maybe(string),
-      }),
-      object({
-        reason: enumeration('tunnel_parameter_error'),
-        details: enumeration(
-          'no_matching_relay',
-          'no_matching_bridge_relay',
-          'no_wireguard_key',
-          'custom_tunnel_host_resultion_error',
-        ),
-      }),
-    ),
+    state: enumeration('error'),
+    details: object({
+      is_blocking: boolean,
+      cause: oneOf(
+        object({
+          reason: enumeration(
+            'ipv6_unavailable',
+            'set_firewall_policy_error',
+            'set_dns_error',
+            'start_tunnel_error',
+            'is_offline',
+            'tap_adapter_problem',
+          ),
+        }),
+        object({
+          reason: enumeration('auth_failed'),
+          details: maybe(string),
+        }),
+        object({
+          reason: enumeration('tunnel_parameter_error'),
+          details: enumeration(
+            'no_matching_relay',
+            'no_matching_bridge_relay',
+            'no_wireguard_key',
+            'custom_tunnel_host_resultion_error',
+          ),
+        }),
+      ),
+    }),
   }),
   object({
     state: enumeration('connected', 'connecting', 'disconnected'),

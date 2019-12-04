@@ -75,18 +75,15 @@ export default class NotificationController {
       case 'disconnected':
         this.showTunnelStateNotification(messages.pgettext('notifications', 'Unsecured'));
         break;
-      case 'blocked':
-        switch (tunnelState.details.reason) {
-          case 'set_firewall_policy_error':
-            this.showTunnelStateNotification(
-              messages.pgettext('notifications', 'Critical failure - Unsecured'),
-            );
-            break;
-          default:
-            this.showTunnelStateNotification(
-              messages.pgettext('notifications', 'Blocked all connections'),
-            );
-            break;
+      case 'error':
+        if (tunnelState.details.isBlocking) {
+          this.showTunnelStateNotification(
+            messages.pgettext('notifications', 'Blocked all connections'),
+          );
+        } else {
+          this.showTunnelStateNotification(
+            messages.pgettext('notifications', 'Critical failure - Unsecured'),
+          );
         }
         break;
       case 'disconnecting':

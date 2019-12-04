@@ -851,14 +851,12 @@ class ApplicationMain {
       case 'connecting':
         return 'securing';
 
-      case 'blocked':
-        switch (tunnelState.details.reason) {
-          case 'set_firewall_policy_error':
-            return 'unsecured';
-          default:
-            return 'securing';
+      case 'error':
+        if (tunnelState.details.isBlocking) {
+          return 'securing';
+        } else {
+          return 'unsecured';
         }
-
       case 'disconnecting':
         return 'securing';
 

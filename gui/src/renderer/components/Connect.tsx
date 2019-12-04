@@ -117,9 +117,9 @@ export default class Connect extends Component<IProps, IState> {
 
     // Blocked with auth failure / expired account
     if (
-      tunnelState.state === 'blocked' &&
-      tunnelState.details.reason === 'auth_failed' &&
-      parseAuthFailure(tunnelState.details.details).kind === AuthFailureKind.expiredAccount
+      tunnelState.state === 'error' &&
+      tunnelState.details.cause.reason === 'auth_failed' &&
+      parseAuthFailure(tunnelState.details.cause.reason).kind === AuthFailureKind.expiredAccount
     ) {
       return true;
     }
@@ -200,8 +200,8 @@ export default class Connect extends Component<IProps, IState> {
       case 'connecting':
       case 'connected':
         return HeaderBarStyle.success;
-      case 'blocked':
-        switch (status.details.reason) {
+      case 'error':
+        switch (status.details.cause.reason) {
           case 'set_firewall_policy_error':
             return HeaderBarStyle.error;
           default:
@@ -259,8 +259,8 @@ export default class Connect extends Component<IProps, IState> {
       case 'connecting':
       case 'connected':
         return MarkerStyle.secure;
-      case 'blocked':
-        switch (status.details.reason) {
+      case 'error':
+        switch (status.details.cause.reason) {
           case 'set_firewall_policy_error':
             return MarkerStyle.unsecure;
           default:
