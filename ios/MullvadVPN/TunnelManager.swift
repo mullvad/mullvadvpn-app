@@ -388,6 +388,9 @@ class TunnelManager {
                     self.tunnelStatusSubscriber?.cancel()
                     self.tunnelStatusSubscriber = nil
 
+                    self.mapTunnelStateSubscriber?.cancel()
+                    self.mapTunnelStateSubscriber = nil
+
                     self.tunnelState = .disconnected
                 }
             })
