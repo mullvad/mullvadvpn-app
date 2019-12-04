@@ -52,19 +52,23 @@ extension RelayList {
 
     /// Returns an alphabetically sorted `RelayList`
     func sorted() -> Self {
-        let comparator = { (a: String, b: String) -> Bool in
+        let lexicalComparator = { (a: String, b: String) -> Bool in
             return a.localizedCaseInsensitiveCompare(b) == .orderedAscending
         }
 
+        let fileComparator = { (a: String, b: String) -> Bool in
+            return a.localizedStandardCompare(b) == .orderedAscending
+        }
+
         let sortedCountries = countries
-            .sorted { comparator($0.name, $1.name) }
+            .sorted { lexicalComparator($0.name, $1.name) }
             .map { (country) -> RelayList.Country in
                 var sortedCountry = country
-                sortedCountry.cities = country.cities.sorted { comparator($0.name, $1.name) }
+                sortedCountry.cities = country.cities.sorted { lexicalComparator($0.name, $1.name) }
                     .map({ (city) -> RelayList.City in
                         var sortedCity = city
                         sortedCity.relays = city.relays
-                            .sorted { comparator($0.hostname, $1.hostname) }
+                            .sorted { fileComparator($0.hostname, $1.hostname) }
                         return sortedCity
                     })
                 return sortedCountry
