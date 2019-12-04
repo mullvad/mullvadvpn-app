@@ -114,7 +114,6 @@ struct RelaySelector {
 
         let networkPort = NWEndpoint.Port(integerLiteral: randomPort)
         let ipv4Endpoint = NWEndpoint.hostPort(host: .ipv4(randomRelay.ipv4AddrIn), port: networkPort)
-        // let ipv6Endpoint = NWEndpoint.hostPort(host: .ipv6(randomRelay.ipv6AddrIn), port: randomPort)
 
         let endpoint = MullvadEndpoint(
             ipv4Relay: ipv4Endpoint,
