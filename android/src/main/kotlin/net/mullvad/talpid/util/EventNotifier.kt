@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.util
+package net.mullvad.talpid.util
 
 class EventNotifier<T>(private val initialValue: T) {
     private val listeners = HashMap<Int, (T) -> Unit>()

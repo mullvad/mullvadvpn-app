@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.util.EventNotifier
+import net.mullvad.talpid.util.EventNotifier
 
 class MullvadDaemon(val vpnService: MullvadVpnService) {
     val onSettingsChange = EventNotifier<Settings?>(null)
