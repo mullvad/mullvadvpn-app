@@ -27,7 +27,6 @@ use crate::management_interface::{
     BoxFuture, ManagementInterfaceEventBroadcaster, ManagementInterfaceServer,
 };
 use futures::{
-    executor,
     future::{self, Executor},
     sync::{mpsc::UnboundedSender, oneshot},
     Future,
@@ -1511,8 +1510,8 @@ where
     }
 
     fn send_tunnel_command(&mut self, command: TunnelCommand) {
-        let mut sink = executor::spawn(UnboundedSender::clone(&self.tunnel_command_tx));
-        sink.wait_send(command)
+        self.tunnel_command_tx
+            .unbounded_send(command)
             .expect("Tunnel state machine has stopped");
     }
 
