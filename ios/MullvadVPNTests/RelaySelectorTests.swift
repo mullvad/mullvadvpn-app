@@ -48,19 +48,19 @@ private let sampleRelayList = RelayList(countries: [
               longitude: -3.69222,
               relays: [
                 .init(
-                hostname: "es1-wireguard",
-                ipv4AddrIn: .loopback,
-                includeInCountry: true,
-                active: true,
-                weight: 0,
-                tunnels: .init(wireguard: [
-                    .init(
-                        ipv4Gateway: .loopback,
-                        ipv6Gateway: .loopback,
-                        publicKey: .init(),
-                        portRanges: [(7000...7100)
-                    ])
-                ]))
+                    hostname: "es1-wireguard",
+                    ipv4AddrIn: .loopback,
+                    includeInCountry: true,
+                    active: true,
+                    weight: 0,
+                    tunnels: .init(wireguard: [
+                        .init(
+                            ipv4Gateway: .loopback,
+                            ipv6Gateway: .loopback,
+                            publicKey: .init(),
+                            portRanges: [(7000...7100)]
+                        )
+                    ]))
         ])
     ]),
     .init(name: "Sweden", code: "se", cities: [
@@ -80,8 +80,8 @@ private let sampleRelayList = RelayList(countries: [
                             ipv4Gateway: .loopback,
                             ipv6Gateway: .loopback,
                             publicKey: .init(),
-                            portRanges: [(7000...7100)
-                        ])
+                            portRanges: [(7000...7100)]
+                        )
                     ]))
         ]),
         .init(name: "Stockholm",
@@ -100,8 +100,8 @@ private let sampleRelayList = RelayList(countries: [
                             ipv4Gateway: .loopback,
                             ipv6Gateway: .loopback,
                             publicKey: .init(),
-                            portRanges: [(8000...8100)
-                        ])
+                            portRanges: [(8000...8100)]
+                        )
                     ])),
                 .init(
                     hostname: "se6-wireguard",
@@ -114,8 +114,8 @@ private let sampleRelayList = RelayList(countries: [
                             ipv4Gateway: .loopback,
                             ipv6Gateway: .loopback,
                             publicKey: .init(),
-                            portRanges: [(8000...9000)
-                        ])
+                            portRanges: [(8000...9000)]
+                        )
                     ]))
         ])
     ])
