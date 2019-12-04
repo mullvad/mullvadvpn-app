@@ -16,7 +16,7 @@ private let kMullvadAPIURL = URL(string: "https://api.mullvad.net/rpc/")!
 /// Network request timeout in seconds
 private let kNetworkTimeout: TimeInterval = 10
 
-/// An error type that primarily used
+/// An error type emitted by `MullvadAPI`
 enum MullvadAPIError: Error {
     /// A network communication error
     case network(URLError)
