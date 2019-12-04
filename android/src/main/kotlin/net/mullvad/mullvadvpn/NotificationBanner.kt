@@ -41,6 +41,8 @@ class NotificationBanner(
     private val message: TextView = parentView.findViewById(R.id.notification_message)
     private val icon: View = parentView.findViewById(R.id.notification_icon)
 
+    private var updateJob: Job? = null
+
     private var externalLink: ExternalLink? = null
     private var visible = false
 
@@ -83,11 +85,14 @@ class NotificationBanner(
     }
 
     fun onResume() {
-        versionInfoCache.onUpdate = { update() }
+        versionInfoCache.onUpdate = {
+            updateJob = GlobalScope.launch(Dispatchers.Main) { update() }
+        }
     }
 
     fun onPause() {
         versionInfoCache.onUpdate = null
+        updateJob?.cancel()
         keyManagementController.onPause()
     }
 
