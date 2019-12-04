@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.BlockReason
+import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ParameterGenerationError
 
 class NotificationBanner(
@@ -132,7 +133,7 @@ class NotificationBanner(
             is TunnelState.Disconnected -> return false
             is TunnelState.Connecting -> showBlocking(null)
             is TunnelState.Connected -> return false
-            is TunnelState.Blocked -> showBlocking(state.reason)
+            is TunnelState.Error -> showBlocking(state.errorState)
         }
 
         return true
@@ -167,8 +168,10 @@ class NotificationBanner(
         return true
     }
 
-    private fun showBlocking(reason: BlockReason?) {
-        val messageText = when (reason) {
+    private fun showBlocking(errorState: ErrorState?) {
+        val cause = errorState?.cause
+
+        val messageText = when (cause) {
             null -> null
             is BlockReason.AuthFailed -> R.string.auth_failed
             is BlockReason.Ipv6Unavailable -> R.string.ipv6_unavailable
@@ -178,7 +181,7 @@ class NotificationBanner(
             is BlockReason.IsOffline -> R.string.is_offline
             is BlockReason.TapAdapterProblem -> R.string.tap_adapter_problem
             is BlockReason.TunnelParameterError -> {
-                when (reason.error) {
+                when (cause.error) {
                     ParameterGenerationError.NoMatchingRelay -> R.string.no_matching_relay
                     ParameterGenerationError.NoMatchingBridgeRelay -> {
                         R.string.no_matching_bridge_relay
@@ -190,7 +193,15 @@ class NotificationBanner(
                 }
             }
         }
-        showError(R.string.blocking_internet, messageText)
+
+        // if the error state is null, we can assume that we are secure
+        val blockMessage = if (errorState?.isBlocking ?: true) {
+                R.string.blocking_internet
+            } else {
+                R.string.not_blocking_internet
+            }
+
+        showError(blockMessage, messageText)
     }
 
     private fun showError(titleText: Int, messageText: Int?) {
