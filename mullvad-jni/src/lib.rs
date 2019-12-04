@@ -22,7 +22,7 @@ use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
 use mullvad_types::account::AccountData;
 use std::{
     path::{Path, PathBuf},
-    sync::{mpsc, Once},
+    sync::{mpsc, Arc, Once},
     thread,
 };
 use talpid_types::{android::AndroidContext, ErrorExt};
@@ -141,7 +141,7 @@ fn initialize(
 
 fn create_android_context(env: &JnixEnv, vpn_service: JObject) -> Result<AndroidContext, Error> {
     Ok(AndroidContext {
-        jvm: env.get_java_vm().map_err(Error::GetJvmInstance)?,
+        jvm: Arc::new(env.get_java_vm().map_err(Error::GetJvmInstance)?),
         vpn_service: env
             .new_global_ref(vpn_service)
             .map_err(Error::CreateGlobalReference)?,

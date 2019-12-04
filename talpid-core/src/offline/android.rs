@@ -10,7 +10,7 @@ use jnix::{
     },
     JnixEnv,
 };
-use std::sync::Weak;
+use std::sync::{Arc, Weak};
 use talpid_types::{android::AndroidContext, ErrorExt};
 
 #[derive(err_derive::Error, Debug)]
@@ -41,7 +41,7 @@ pub enum Error {
 }
 
 pub struct MonitorHandle {
-    jvm: JavaVM,
+    jvm: Arc<JavaVM>,
     class: GlobalRef,
     object: GlobalRef,
 }

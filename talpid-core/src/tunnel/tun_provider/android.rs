@@ -12,6 +12,7 @@ use std::{
     fs::File,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::unix::io::{AsRawFd, FromRawFd, RawFd},
+    sync::Arc,
 };
 use talpid_types::android::AndroidContext;
 
@@ -45,7 +46,7 @@ pub enum Error {
 
 /// Factory of tunnel devices on Android.
 pub struct AndroidTunProvider {
-    jvm: JavaVM,
+    jvm: Arc<JavaVM>,
     class: GlobalRef,
     object: GlobalRef,
     active_tun: Option<File>,
