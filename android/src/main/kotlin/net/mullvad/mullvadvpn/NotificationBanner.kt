@@ -16,7 +16,8 @@ import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
-import net.mullvad.talpid.tunnel.BlockReason
+import net.mullvad.talpid.tunnel.ErrorState
+import net.mullvad.talpid.tunnel.ErrorStateCause
 import net.mullvad.talpid.tunnel.ParameterGenerationError
 
 class NotificationBanner(
@@ -132,7 +133,7 @@ class NotificationBanner(
             is TunnelState.Disconnected -> return false
             is TunnelState.Connecting -> showBlocking(null)
             is TunnelState.Connected -> return false
-            is TunnelState.Blocked -> showBlocking(state.reason)
+            is TunnelState.Error -> showBlocking(state.errorState)
         }
 
         return true
@@ -167,18 +168,20 @@ class NotificationBanner(
         return true
     }
 
-    private fun showBlocking(reason: BlockReason?) {
-        val messageText = when (reason) {
+    private fun showBlocking(errorState: ErrorState?) {
+        val cause = errorState?.cause
+
+        val messageText = when (cause) {
             null -> null
-            is BlockReason.AuthFailed -> R.string.auth_failed
-            is BlockReason.Ipv6Unavailable -> R.string.ipv6_unavailable
-            is BlockReason.SetFirewallPolicyError -> R.string.set_firewall_policy_error
-            is BlockReason.SetDnsError -> R.string.set_dns_error
-            is BlockReason.StartTunnelError -> R.string.start_tunnel_error
-            is BlockReason.IsOffline -> R.string.is_offline
-            is BlockReason.TapAdapterProblem -> R.string.tap_adapter_problem
-            is BlockReason.TunnelParameterError -> {
-                when (reason.error) {
+            is ErrorStateCause.AuthFailed -> R.string.auth_failed
+            is ErrorStateCause.Ipv6Unavailable -> R.string.ipv6_unavailable
+            is ErrorStateCause.SetFirewallPolicyError -> R.string.set_firewall_policy_error
+            is ErrorStateCause.SetDnsError -> R.string.set_dns_error
+            is ErrorStateCause.StartTunnelError -> R.string.start_tunnel_error
+            is ErrorStateCause.IsOffline -> R.string.is_offline
+            is ErrorStateCause.TapAdapterProblem -> R.string.tap_adapter_problem
+            is ErrorStateCause.TunnelParameterError -> {
+                when (cause.error) {
                     ParameterGenerationError.NoMatchingRelay -> R.string.no_matching_relay
                     ParameterGenerationError.NoMatchingBridgeRelay -> {
                         R.string.no_matching_bridge_relay
@@ -190,7 +193,15 @@ class NotificationBanner(
                 }
             }
         }
-        showError(R.string.blocking_internet, messageText)
+
+        // if the error state is null, we can assume that we are secure
+        val blockMessage = if (errorState?.isBlocking ?: true) {
+                R.string.blocking_internet
+            } else {
+                R.string.not_blocking_internet
+            }
+
+        showError(blockMessage, messageText)
     }
 
     private fun showError(titleText: Int, messageText: Int?) {
