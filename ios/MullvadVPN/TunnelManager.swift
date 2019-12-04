@@ -574,36 +574,36 @@ class TunnelManager {
                 // Return the first available tunnel or make a new one
                 return tunnels?.first ?? NETunnelProviderManager()
         }
-        .flatMap({ (tunnelProvider) in
+        .flatMap { (tunnelProvider) in
             TunnelConfigurationManager.getPersistentKeychainRef(account: accountToken)
                 .mapError { SetupTunnelError.obtainKeychainRef($0) }
                 .map { (tunnelProvider, $0) }
                 .publisher
-        })
-            .flatMap { (tunnelProvider, passwordReference) -> AnyPublisher<NETunnelProviderManager, SetupTunnelError> in
-                tunnelProvider.isEnabled = true
-                tunnelProvider.protocolConfiguration = self.makeProtocolConfiguration(
-                    accountToken: accountToken,
-                    passwordReference: passwordReference
-                )
+        }
+        .flatMap { (tunnelProvider, passwordReference) -> AnyPublisher<NETunnelProviderManager, SetupTunnelError> in
+            tunnelProvider.isEnabled = true
+            tunnelProvider.protocolConfiguration = self.makeProtocolConfiguration(
+                accountToken: accountToken,
+                passwordReference: passwordReference
+            )
 
-                return tunnelProvider.saveToPreferences()
-                    .mapError { SetupTunnelError.saveTunnel($0) }
-                    .flatMap {
-                        // Refresh connection status after saving the tunnel preferences.
-                        // Basically it's only necessary to do for new instances of
-                        // `NETunnelProviderManager`, but we do that for the existing ones too for
-                        // simplicity as it has no side effects.
-                        tunnelProvider.loadFromPreferences()
-                            .mapError { SetupTunnelError.reloadTunnel($0) }
+            return tunnelProvider.saveToPreferences()
+                .mapError { SetupTunnelError.saveTunnel($0) }
+                .flatMap {
+                    // Refresh connection status after saving the tunnel preferences.
+                    // Basically it's only necessary to do for new instances of
+                    // `NETunnelProviderManager`, but we do that for the existing ones too for
+                    // simplicity as it has no side effects.
+                    tunnelProvider.loadFromPreferences()
+                        .mapError { SetupTunnelError.reloadTunnel($0) }
+            }
+            .map { tunnelProvider }
+            .receive(on: self.executionQueue)
+            .handleEvents(receiveCompletion: { (completion) in
+                if case .finished = completion {
+                    self.setTunnelProvider(tunnelProvider: tunnelProvider)
                 }
-                .map { tunnelProvider }
-                .receive(on: self.executionQueue)
-                .handleEvents(receiveCompletion: { (completion) in
-                    if case .finished = completion {
-                        self.setTunnelProvider(tunnelProvider: tunnelProvider)
-                    }
-                }).eraseToAnyPublisher()
+            }).eraseToAnyPublisher()
         }.eraseToAnyPublisher()
     }
 
