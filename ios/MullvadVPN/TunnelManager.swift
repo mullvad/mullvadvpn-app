@@ -331,9 +331,11 @@ class TunnelManager {
                                 return .pushWireguardKey(.server(serverError))
                         }
                     }.flatMap { (addresses) in
-                        return self.updateAssociatedAddresses(accountToken: accountToken, addresses: addresses).publisher.mapError { (updateConfigError) -> SetAccountError in
-                            return .updateTunnelConfiguration(updateConfigError)
-                        }
+                        return self.updateAssociatedAddresses(
+                            accountToken: accountToken,
+                            addresses: addresses
+                        ).mapError { SetAccountError.updateTunnelConfiguration($0) }
+                            .publisher
                     }.flatMap { setupTunnelPublisher }.eraseToAnyPublisher()
             }.mapError { TunnelManagerError.setAccount($0) }
         }.eraseToAnyPublisher()
