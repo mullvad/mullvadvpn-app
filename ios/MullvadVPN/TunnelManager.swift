@@ -322,13 +322,14 @@ class TunnelManager {
                     // Send wireguard key to the server
                     let publicKey = tunnelConfig.interface.privateKey.publicKeyRawRepresentation
 
-                    return self.apiClient.pushWireguardKey(accountToken: accountToken, publicKey: publicKey).mapError { (networkError) -> SetAccountError in
-                        return .pushWireguardKey(.network(networkError))
+                    return self.apiClient.pushWireguardKey(accountToken: accountToken, publicKey: publicKey)
+                        .mapError { (networkError) -> SetAccountError in
+                            return .pushWireguardKey(.network(networkError))
                     }.flatMap { (response: JsonRpcResponse<WireguardAssociatedAddresses>) in
-                            return response.result.publisher
-                                .mapError { (serverError) -> SetAccountError in
-                                    return .pushWireguardKey(.server(serverError))
-                            }
+                        return response.result.publisher
+                            .mapError { (serverError) -> SetAccountError in
+                                return .pushWireguardKey(.server(serverError))
+                        }
                     }.flatMap { (addresses) in
                         return self.updateAssociatedAddresses(accountToken: accountToken, addresses: addresses).publisher.mapError { (updateConfigError) -> SetAccountError in
                             return .updateTunnelConfiguration(updateConfigError)
