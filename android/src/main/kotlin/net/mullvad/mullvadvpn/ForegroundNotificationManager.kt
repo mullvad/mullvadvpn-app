@@ -66,7 +66,13 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
                         else -> R.string.disconnecting
                     }
                 }
-                is TunnelState.Blocked -> R.string.blocking_all_connections
+                is TunnelState.Error -> {
+                    if (state.errorState.isBlocking) {
+                        R.string.blocking_all_connections
+                    } else {
+                        R.string.unsecured
+                    }
+                }
             }
         }
 
@@ -84,7 +90,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
                         else -> R.string.connect
                     }
                 }
-                is TunnelState.Blocked -> R.string.disconnect
+                is TunnelState.Error -> R.string.disconnect
             }
         }
 
@@ -102,7 +108,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
                         else -> KEY_CONNECT_ACTION
                     }
                 }
-                is TunnelState.Blocked -> KEY_DISCONNECT_ACTION
+                is TunnelState.Error -> KEY_DISCONNECT_ACTION
             }
         }
 

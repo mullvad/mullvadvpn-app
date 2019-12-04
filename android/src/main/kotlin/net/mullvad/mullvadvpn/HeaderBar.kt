@@ -16,7 +16,13 @@ class HeaderBar(val parentView: View, val resources: Resources) {
             is TunnelState.Connecting -> secured()
             is TunnelState.Connected -> secured()
             is TunnelState.Disconnecting -> secured()
-            is TunnelState.Blocked -> secured()
+            is TunnelState.Error -> {
+                if (state.errorState.isBlocking) {
+                    secured()
+                } else {
+                    unsecured()
+                }
+            }
         }
     }
 
