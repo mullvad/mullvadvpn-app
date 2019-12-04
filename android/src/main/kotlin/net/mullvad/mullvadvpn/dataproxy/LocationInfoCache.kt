@@ -64,7 +64,7 @@ class LocationInfoCache(
                         ActionAfterDisconnect.Reconnect -> location = locationFromSelectedRelay()
                     }
                 }
-                is TunnelState.Blocked -> location = null
+                is TunnelState.Error -> location = null
             }
         }
 

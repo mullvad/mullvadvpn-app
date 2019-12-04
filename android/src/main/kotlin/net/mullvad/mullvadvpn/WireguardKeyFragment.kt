@@ -91,7 +91,7 @@ class WireguardKeyFragment : Fragment() {
         urlController = BlockingController(
             object : BlockableView {
                 override fun setEnabled(enabled: Boolean) {
-                    if (!enabled || tunnelState is TunnelState.Blocked) {
+                    if (!enabled || tunnelState is TunnelState.Error) {
                         visitWebsiteView.setClickable(false)
                         visitWebsiteView.setAlpha(0.5f)
                     } else {
@@ -251,7 +251,7 @@ class WireguardKeyFragment : Fragment() {
                 verifyButton.visibility = View.GONE
                 verifySpinner.visibility = View.VISIBLE
             }
-            is TunnelState.Blocked -> {
+            is TunnelState.Error -> {
                 statusMessage.setText(R.string.wireguard_key_blocked_state_message)
                 statusMessage.visibility = View.VISIBLE
                 generateButton.setClickable(false)
