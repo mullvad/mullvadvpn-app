@@ -12,14 +12,24 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
+import net.mullvad.talpid.ConnectivityListener
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class LocationInfoCache(
     val daemon: Deferred<MullvadDaemon>,
+    val connectivityListener: Deferred<ConnectivityListener>,
     val relayListListener: RelayListListener
 ) {
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var activeFetch: Job? = null
+
+    private val connectivityListenerId = GlobalScope.async(Dispatchers.Default) {
+        connectivityListener.await().connectivityNotifier.subscribe { isConnected ->
+            if (isConnected) {
+                fetchLocation()
+            }
+        }
+    }
 
     var onNewLocation: ((GeoIpLocation?) -> Unit)? = null
         set(value) {
@@ -112,10 +122,10 @@ class LocationInfoCache(
         daemon.await().getCurrentLocation()
     }
 
-    private fun shouldRetryFetch(): Boolean {
+    private suspend fun shouldRetryFetch(): Boolean {
         val state = this.state
 
-        return state is TunnelState.Disconnected ||
-            state is TunnelState.Connected
+        return connectivityListener.await().isConnected &&
+            (state is TunnelState.Disconnected || state is TunnelState.Connected)
     }
 }

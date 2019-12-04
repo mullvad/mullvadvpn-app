@@ -22,12 +22,15 @@ import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.dataproxy.SettingsListener
 import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.util.SmartDeferred
+import net.mullvad.talpid.ConnectivityListener
 
 class MainActivity : FragmentActivity() {
     companion object {
         val KEY_SHOULD_CONNECT = "should_connect"
     }
 
+    var connectivityListener = CompletableDeferred<ConnectivityListener>()
+        private set
     var daemon = CompletableDeferred<MullvadDaemon>()
         private set
     var service = CompletableDeferred<MullvadVpnService.LocalBinder>()
@@ -39,7 +42,7 @@ class MainActivity : FragmentActivity() {
     val problemReport = MullvadProblemReport()
     var settingsListener = SettingsListener(this)
     var relayListListener = RelayListListener(this)
-    val locationInfoCache = LocationInfoCache(daemon, relayListListener)
+    val locationInfoCache = LocationInfoCache(daemon, connectivityListener, relayListListener)
     val accountCache = AccountCache(settingsListener, daemon)
     val wwwAuthTokenRetriever = WwwAuthTokenRetriever(daemon)
 
@@ -55,6 +58,7 @@ class MainActivity : FragmentActivity() {
                 localBinder.resetComplete?.await()
                 service.complete(localBinder)
                 daemon.complete(localBinder.daemon.await())
+                connectivityListener.complete(localBinder.connectivityListener)
             }
         }
 
@@ -67,6 +71,7 @@ class MainActivity : FragmentActivity() {
 
             service = CompletableDeferred<MullvadVpnService.LocalBinder>()
             daemon = CompletableDeferred<MullvadDaemon>()
+            connectivityListener = CompletableDeferred<ConnectivityListener>()
         }
     }
 

@@ -7,8 +7,11 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.NetworkInfo.DetailedState
+import net.mullvad.talpid.util.EventNotifier
 
 class ConnectivityListener : BroadcastReceiver() {
+    val connectivityNotifier = EventNotifier(true)
+
     var isConnected = true
         private set(value) {
             field = value
@@ -16,6 +19,8 @@ class ConnectivityListener : BroadcastReceiver() {
             if (senderAddress != 0L) {
                 notifyConnectivityChange(value, senderAddress)
             }
+
+            connectivityNotifier.notify(value)
         }
 
     var senderAddress = 0L
