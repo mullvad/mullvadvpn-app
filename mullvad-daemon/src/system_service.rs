@@ -311,6 +311,9 @@ fn get_service_info() -> ServiceInfo {
         dependencies: vec![
             // Base Filter Engine
             ServiceDependency::Service(OsString::from("BFE")),
+            // Network Store Interface Service
+            // This service delivers network notifications (e.g. interface addition/deleting etc).
+            ServiceDependency::Service(OsString::from("NSI")),
         ],
         account_name: None, // run as System
         account_password: None,
