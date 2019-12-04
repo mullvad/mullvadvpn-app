@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstdint>
+#include <libshared/logging/logsink.h>
+#include <stdint.h>
 
 #ifdef WINUTIL_EXPORTS
 #define WINUTIL_LINKAGE __declspec(dllexport)
@@ -10,19 +11,17 @@
 
 #define WINUTIL_API __stdcall
 
-typedef void (WINUTIL_API *WinUtilErrorSink)(const char *errorMessage, void *context);
-
-enum class WINUTIL_MIGRATION_STATUS : uint32_t
+enum WINUTIL_MIGRATION_STATUS
 {
-	SUCCESS = 0,
+	WINUTIL_MIGRATION_STATUS_SUCCESS = 0,
 
 	// Destination already exists
-	ABORTED,
+	WINUTIL_MIGRATION_STATUS_ABORTED,
 
 	// There's no backup
-	NOTHING_TO_MIGRATE,
+	WINUTIL_MIGRATION_STATUS_NOTHING_TO_MIGRATE,
 
-	FAILED,
+	WINUTIL_MIGRATION_STATUS_FAILED,
 };
 
 extern "C"
@@ -30,6 +29,6 @@ WINUTIL_LINKAGE
 WINUTIL_MIGRATION_STATUS
 WINUTIL_API
 WinUtil_MigrateAfterWindowsUpdate(
-	WinUtilErrorSink errorSink,
-	void *errorSinkContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 );

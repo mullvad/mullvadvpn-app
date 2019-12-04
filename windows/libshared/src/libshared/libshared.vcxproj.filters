@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="logging\logsink.h">
+      <Filter>logging</Filter>
+    </ClInclude>
+    <ClInclude Include="logging\logsinkadapter.h">
+      <Filter>logging</Filter>
+    </ClInclude>
+    <ClInclude Include="logging\stdoutlogger.h">
+      <Filter>logging</Filter>
+    </ClInclude>
+    <ClInclude Include="logging\unwind.h">
+      <Filter>logging</Filter>
+    </ClInclude>
+    <ClInclude Include="network\interfaceutils.h">
+      <Filter>network</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="logging\logsinkadapter.cpp">
+      <Filter>logging</Filter>
+    </ClCompile>
+    <ClCompile Include="logging\stdoutlogger.cpp">
+      <Filter>logging</Filter>
+    </ClCompile>
+    <ClCompile Include="logging\unwind.cpp">
+      <Filter>logging</Filter>
+    </ClCompile>
+    <ClCompile Include="network\interfaceutils.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="logging">
+      <UniqueIdentifier>{8d3be7e9-117c-44d3-a799-0bc6e2712776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="network">
+      <UniqueIdentifier>{c36884fc-7afc-42a8-b852-c0aafcfcc1c2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

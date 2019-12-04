@@ -1,11 +1,8 @@
 #pragma once
 
 #include <functional>
-
-#include <WinSock2.h>
-
-#include <libcommon/logging/logsink.h>
-#include "../../winnet/networkadaptermonitor.h"
+#include <winSock2.h>
+#include <winnet/networkadaptermonitor.h>
 
 using FilterType = NetworkAdapterMonitor::FilterType;
 using UpdateSinkType = NetworkAdapterMonitor::UpdateSinkType;

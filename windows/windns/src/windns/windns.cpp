@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include <libcommon/guid.h>
 #include <libcommon/string.h>
-#include <shared/network/interfaceutils.h>
+#include <libshared/network/interfaceutils.h>
+#include <libcommon/logging/ilogsink.h>
+#include <libshared/logging/logsinkadapter.h>
 #include "windns.h"
 #include "confineoperation.h"
 #include "netsh.h"
-#include "logsink.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -28,7 +29,7 @@ bool operator==(const IN6_ADDR &lhs, const IN6_ADDR &rhs)
 namespace
 {
 
-std::shared_ptr<LogSink> g_LogSink;
+std::shared_ptr<common::logging::ILogSink> g_LogSink;
 std::shared_ptr<NetSh> g_NetSh;
 
 std::vector<std::wstring> MakeStringArray(const wchar_t **strings, uint32_t numStrings)
@@ -41,14 +42,6 @@ std::vector<std::wstring> MakeStringArray(const wchar_t **strings, uint32_t numS
 	}
 
 	return v;
-}
-
-void ForwardError(const char *message, const char **details, uint32_t numDetails)
-{
-	if (nullptr != g_LogSink)
-	{
-		g_LogSink->error(message, details, numDetails);
-	}
 }
 
 uint32_t ConvertInterfaceAliasToIndex(const std::wstring &interfaceAlias)
@@ -184,8 +177,8 @@ WINDNS_LINKAGE
 bool
 WINDNS_API
 WinDns_Initialize(
-	WinDnsLogSink logSink,
-	void *logContext
+	MullvadLogSink logSink,
+	void *logSinkContext
 )
 {
 	if (g_LogSink)
@@ -193,9 +186,9 @@ WinDns_Initialize(
 		return false;
 	}
 
-	return ConfineOperation("Initialize", ForwardError, [&]()
+	try
 	{
-		g_LogSink = std::make_shared<LogSink>(LogSinkInfo{ logSink, logContext });
+		g_LogSink = std::make_shared<shared::logging::LogSinkAdapter>(logSink, logSinkContext);
 
 		try
 		{
@@ -206,7 +199,29 @@ WinDns_Initialize(
 			g_LogSink.reset();
 			throw;
 		}
-	});
+
+		return true;
+	}
+	catch (const std::exception &err)
+	{
+		if (nullptr != logSink)
+		{
+			const auto msg = std::string("Failed to initialize WinDns: ").append(err.what());
+			logSink(MULLVAD_LOG_LEVEL_ERROR, msg.c_str(), logSinkContext);
+		}
+
+		return false;
+	}
+	catch (...)
+	{
+		if (nullptr != logSink)
+		{
+			const std::string msg("Failed to initialize WinDns: Unspecified error");
+			logSink(MULLVAD_LOG_LEVEL_ERROR, msg.c_str(), logSinkContext);
+		}
+
+		return false;
+	}
 }
 
 WINDNS_LINKAGE
@@ -232,53 +247,61 @@ WinDns_Set(
 	uint32_t numIpv6Servers
 )
 {
-	return ConfineOperation("Apply DNS settings", ForwardError, [&]()
+	if (nullptr == g_LogSink)
 	{
-		//
-		// Check the settings on the adapter.
-		// If it already has the exact same settings we need, we're done.
-		//
+		return false;
+	}
 
-		try
-		{
-			const auto activeSettings = GetAdapterDnsAddresses(interfaceAlias);
-			const auto wantedSetting = ConvertAddresses(ipv4Servers, numIpv4Servers, ipv6Servers, numIpv6Servers);
+	//
+	// Check the settings on the adapter.
+	// If it already has the exact same settings we need, we're done.
+	//
 
-			if (Equal(activeSettings, wantedSetting))
-			{
-				std::stringstream ss;
+	try
+	{
+		const auto activeSettings = GetAdapterDnsAddresses(interfaceAlias);
+		const auto wantedSetting = ConvertAddresses(ipv4Servers, numIpv4Servers, ipv6Servers, numIpv6Servers);
 
-				ss << "DNS settings on adapter with alias \"" << common::string::ToAnsi(interfaceAlias)
-					<< "\" are up-to-date";
-
-				g_LogSink->info(ss.str().c_str(), nullptr, 0);
-
-				return;
-			}
-		}
-		catch (const std::exception &ex)
+		if (Equal(activeSettings, wantedSetting))
 		{
 			std::stringstream ss;
 
-			ss << "Failed to evaluate DNS settings on adapter with alias \""
-				<< common::string::ToAnsi(interfaceAlias) << "\": " << ex.what();
+			ss << "DNS settings on adapter with alias \"" << common::string::ToAnsi(interfaceAlias)
+				<< "\" are up-to-date";
 
-			g_LogSink->info(ss.str().c_str(), nullptr, 0);
+			g_LogSink->info(ss.str().c_str());
+
+			return true;
 		}
-		catch (...)
-		{
-			std::stringstream ss;
+	}
+	catch (const std::exception & ex)
+	{
+		std::stringstream ss;
 
-			ss << "Failed to evaluate DNS settings on adapter with alias \""
-				<< common::string::ToAnsi(interfaceAlias) << "\": Unspecified failure";
+		ss << "Failed to evaluate DNS settings on adapter with alias \""
+			<< common::string::ToAnsi(interfaceAlias) << "\": " << ex.what();
 
-			g_LogSink->info(ss.str().c_str(), nullptr, 0);
-		}
+		g_LogSink->info(ss.str().c_str());
+	}
+	catch (...)
+	{
+		std::stringstream ss;
 
-		//
-		// Onwards
-		//
+		ss << "Failed to evaluate DNS settings on adapter with alias \""
+			<< common::string::ToAnsi(interfaceAlias) << "\": Unspecified failure";
 
+		g_LogSink->info(ss.str().c_str());
+	}
+
+	//
+	// Apply specified settings.
+	//
+
+	const auto operation = std::string("Apply DNS settings on adapter with alias \"")
+		.append(common::string::ToAnsi(interfaceAlias)).append("\"");
+
+	return ConfineOperation(operation.c_str(), g_LogSink, [&]()
+	{
 		const auto interfaceIndex = ConvertInterfaceAliasToIndex(interfaceAlias);
 
 		if (nullptr != ipv4Servers && 0 != numIpv4Servers)

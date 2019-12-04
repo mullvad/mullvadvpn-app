@@ -1,34 +1,30 @@
 #include "stdafx.h"
 #include <iostream>
-#include "../../winutil/winutil.h"
-
-void WINUTIL_API ErrorSink(const char *errorMessage, void *)
-{
-	std::cout << "Error: " << errorMessage << std::endl;
-}
+#include <libshared/logging/stdoutlogger.h>
+#include <winutil/winutil.h>
 
 int main()
 {
-	const auto status = WinUtil_MigrateAfterWindowsUpdate(ErrorSink, nullptr);
+	const auto status = WinUtil_MigrateAfterWindowsUpdate(shared::logging::StdoutLogger, nullptr);
 
 	switch (status)
 	{
-		case WINUTIL_MIGRATION_STATUS::SUCCESS:
+		case WINUTIL_MIGRATION_STATUS_SUCCESS:
 		{
 			std::wcout << L"Success" << std::endl;
 			break;
 		}
-		case WINUTIL_MIGRATION_STATUS::ABORTED:
+		case WINUTIL_MIGRATION_STATUS_ABORTED:
 		{
 			std::wcout << L"Aborted" << std::endl;
 			break;
 		}
-		case WINUTIL_MIGRATION_STATUS::NOTHING_TO_MIGRATE:
+		case WINUTIL_MIGRATION_STATUS_NOTHING_TO_MIGRATE:
 		{
 			std::wcout << L"Nothing to migrate" << std::endl;
 			break;
 		}
-		case WINUTIL_MIGRATION_STATUS::FAILED:
+		case WINUTIL_MIGRATION_STATUS_FAILED:
 		{
 			std::wcout << L"Failed" << std::endl;
 			break;
@@ -37,4 +33,3 @@ int main()
 
     return 0;
 }
-

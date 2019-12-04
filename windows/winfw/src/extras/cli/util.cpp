@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "util.h"
 #include "inlineformatter.h"
-#include "libcommon/string.h"
+#include <libcommon/string.h>
 #include <string>
 
 void PrettyPrintProperties(MessageSink messageSink, PrettyPrintOptions options, const PropertyList &properties)

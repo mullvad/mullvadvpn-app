@@ -5,12 +5,13 @@
 // It should always be C-compatible.
 //
 
-enum MULLVAD_LOG_SINK_SEVERITY
+enum MULLVAD_LOG_LEVEL
 {
-	MULLVAD_LOG_SINK_SEVERITY_ERROR = 0,
-	MULLVAD_LOG_SINK_SEVERITY_WARNING,
-	MULLVAD_LOG_SINK_SEVERITY_INFO,
-	MULLVAD_LOG_SINK_SEVERITY_TRACE
+	MULLVAD_LOG_LEVEL_ERROR = 1,
+	MULLVAD_LOG_LEVEL_WARNING,
+	MULLVAD_LOG_LEVEL_INFO,
+	MULLVAD_LOG_LEVEL_DEBUG,
+	MULLVAD_LOG_LEVEL_TRACE
 };
 
 //
@@ -19,8 +20,8 @@ enum MULLVAD_LOG_SINK_SEVERITY
 //
 // The parameters are:
 //
-// `MULLVAD_LOG_SINK_SEVERITY` - Severity of the message.
+// `MULLVAD_LOG_LEVEL` - Severity of the message.
 // `const char *` - The message itself.
 // `void *` - The sink context that was registered along with the sink.
 //
-typedef void (__stdcall *MullvadLogSink)(MULLVAD_LOG_SINK_SEVERITY, const char *, void *);
+typedef void (__stdcall *MullvadLogSink)(MULLVAD_LOG_LEVEL, const char *, void *);
