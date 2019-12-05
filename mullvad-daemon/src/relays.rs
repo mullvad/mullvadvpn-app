@@ -288,10 +288,7 @@ impl RelaySelector {
                 // This ensures that if after the first 2 failed attempts the daemon does not
                 // conenct, then afterwards 2 of each 4 successive attempts will try to connect on
                 // port 53.
-                if retry_attempt > 2
-                    && retry_attempt % 4 < 2
-                    && relay_constraints.wireguard_constraints.port.is_any()
-                {
+                if retry_attempt % 4 > 1 && relay_constraints.wireguard_constraints.port.is_any() {
                     relay_constraints.wireguard_constraints.port = Constraint::Only(53);
                 }
             }
