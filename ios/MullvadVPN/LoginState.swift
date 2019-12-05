@@ -11,6 +11,6 @@ import Foundation
 enum LoginState {
     case `default`
     case authenticating
-    case failure(Error)
+    case failure(AccountError)
     case success
 }

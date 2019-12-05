@@ -6,9 +6,9 @@
 //  Copyright © 2019 Amagicom AB. All rights reserved.
 //
 
+import Combine
 import UIKit
-import ProcedureKit
-import os.log
+import os
 
 private let kMinimumAccountTokenLength = 10
 private let kValidAccountTokenCharacterSet = CharacterSet(charactersIn: "01234567890")
@@ -26,7 +26,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
     @IBOutlet var statusImageView: UIImageView!
 
-    private let procedureQueue = ProcedureQueue()
+    private var loginSubscriber: AnyCancellable?
+
     private var loginState = LoginState.default {
         didSet {
             loginStateDidChange()
@@ -144,17 +145,16 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
 
         beginLogin()
 
-        verifyAccount(accountToken: accountToken) { [weak self] (result) in
-            guard let self = self else { return }
-
-            switch result {
-            case .success:
-                self.endLogin(.success)
-
-            case .failure(let error):
-                self.endLogin(.failure(error))
-            }
-        }
+        loginSubscriber = Account.shared.login(with: accountToken)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { (completionResult) in
+                switch completionResult {
+                case .finished:
+                    self.endLogin(.success)
+                case .failure(let error):
+                    self.endLogin(.failure(error))
+                }
+            }, receiveValue: { _ in })
     }
 
     @IBAction func openCreateAccount() {
@@ -162,18 +162,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     }
 
     // MARK: - Private
-
-    private func verifyAccount(accountToken: String, completion: @escaping (Result<(), Error>) -> Void) {
-        let delayProcedure = DelayProcedure(by: 1)
-        let loginProcedure = Account.login(with: accountToken)
-
-        loginProcedure.addDependency(delayProcedure)
-        loginProcedure.addDidFinishBlockObserver(synchronizedWith: DispatchQueue.main) { (_, error) in
-            completion(error.flatMap({ .failure($0) }) ?? .success(()))
-        }
-
-        procedureQueue.addOperations([delayProcedure, loginProcedure])
-    }
 
     private func loginStateDidChange() {
         accountInputGroup.loginState = loginState
@@ -293,7 +281,7 @@ private extension LoginState {
             return NSLocalizedString("Checking account number", tableName: "Login", comment: "")
 
         case .failure(let error):
-            if case .invalidAccount? = error as? Account.Error {
+            if case .login(.invalidAccount) = error {
                 return NSLocalizedString("Invalid account number", tableName: "Login", comment: "")
             } else {
                 return NSLocalizedString("Internal error", tableName: "Login", comment: "")
