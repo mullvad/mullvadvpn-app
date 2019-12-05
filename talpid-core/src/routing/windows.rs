@@ -16,6 +16,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 pub struct RouteManagerImpl {
     shutdown_rx: oneshot::Receiver<oneshot::Sender<()>>,
+    is_manager_shut_down: bool,
 }
 
 impl RouteManagerImpl {
@@ -41,16 +42,25 @@ impl RouteManagerImpl {
         }
 
 
-        Ok(Self { shutdown_rx })
+        Ok(Self {
+            shutdown_rx,
+            is_manager_shut_down: false,
+        })
+    }
+
+    fn shutdown(&mut self) {
+        if !self.is_manager_shut_down {
+            winnet::deactivate_routing_manager();
+            self.is_manager_shut_down = true;
+        }
     }
 }
 
 impl Drop for RouteManagerImpl {
     fn drop(&mut self) {
-        winnet::deactivate_routing_manager()
+        self.shutdown();
     }
 }
-
 
 impl Future for RouteManagerImpl {
     type Item = ();
@@ -58,6 +68,7 @@ impl Future for RouteManagerImpl {
     fn poll(&mut self) -> Result<Async<()>> {
         match self.shutdown_rx.poll() {
             Ok(Async::Ready(result_tx)) => {
+                self.shutdown();
                 if let Err(_e) = result_tx.send(()) {
                     log::error!("Receiver already down");
                 }
