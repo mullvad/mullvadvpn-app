@@ -23,9 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2019.10-beta2] - 2019-12-05
 ### Added
-- Add `mullvad relay set tunnel-protocol` subcommand to the CLI to specify what tunnel protocol to
-  use
+- Add `mullvad relay set tunnel-protocol` subcommand to the CLI to specify what tunnel protocol
+  to use.
 - Add `mullvad reconnect` subcommand to the CLI to make the app pick a new server and reconnect.
 
 #### Windows
@@ -35,7 +38,8 @@ Line wrap the file at 100 chars.                                              Th
   adapters in the system.
 
 #### Android
-- Add connectivity status check.
+- Add connectivity status check. Stopping the app from sitting in a reconnect loop while the
+  device is offline.
 
 ### Changed
 - Notifications shown when connecting to a server include its location.
@@ -75,9 +79,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix crash when a new version event is received while the app is in the main screen.
 
 ### Security
-- Force OpenVPN to use TLS 1.2 or newer. And limit the TLS 1.3 ciphers to only the strongest ones.
+- Force OpenVPN to use TLS 1.2 or newer, and limit the TLS 1.3 ciphers to only the strongest ones.
   The Mullvad servers have never allowed any insecure ciphers, so this was not really a problem.
   Just one extra safety precaution.
+
 
 ## [2019.10-beta1] - 2019-11-06
 This release is for Android only.
