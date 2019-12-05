@@ -67,6 +67,9 @@ Line wrap the file at 100 chars.                                              Th
 - Minor adjustment in online/offline detection logic. This change addresses misbehaving drivers
   that report the adapter flags incorrectly.
 
+#### Android
+- Fix crash when a new version event is received while the app is in the main screen.
+
 ### Security
 - Force OpenVPN to use TLS 1.2 or newer. And limit the TLS 1.3 ciphers to only the strongest ones.
   The Mullvad servers have never allowed any insecure ciphers, so this was not really a problem.
