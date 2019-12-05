@@ -41,6 +41,8 @@ Line wrap the file at 100 chars.                                              Th
 - Notifications shown when connecting to a server include its location.
 - Upgrade OpenVPN from 2.4.7 to 2.4.8.
 - Upgrade OpenSSL from 1.1.1c to 1.1.1d.
+- When using WireGuard without specifying a specific relay port, port 53 will be used after 2
+  failed connection attempts for 2 out of 4 each successive connection attempts
 
 #### Windows
 - Use a larger icon in notifications on Windows 10.
