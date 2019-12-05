@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+- Fix improved WireGuard port selection
 
 
 ## [2019.10-beta2] - 2019-12-05
