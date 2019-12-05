@@ -4,11 +4,12 @@ use futures::{future::Executor, sync::oneshot, Async, Future, Poll};
 use jsonrpc_client_core::Error as JsonRpcError;
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;
-use std::{sync::mpsc, time::Duration};
+use std::{sync::mpsc, time::{Duration, Instant}};
 pub use talpid_types::net::wireguard::{
     ConnectionConfig, PrivateKey, TunnelConfig, TunnelParameters,
 };
 use talpid_types::ErrorExt;
+use tokio::timer::Delay;
 use tokio_core::reactor::Remote;
 use tokio_retry::{
     strategy::{jitter, ExponentialBackoff},
@@ -28,15 +29,92 @@ pub enum Error {
     RpcError(#[error(source)] jsonrpc_client_core::Error),
     #[error(display = "Account already has maximum number of keys")]
     TooManyKeys,
+    #[error(display = "Failed to create Delay object")]
+    Delay,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
+
+use crate::ManagementCommand;
+use talpid_core::tunnel_state_machine::TunnelCommand;
+
+pub struct KeyRotationScheduler {
+    daemon_tx: mpsc::Sender<InternalDaemonEvent>,
+    delay: Option<Box<dyn Future<Item = (), Error = ()> + Send>>,
+}
+
+impl Future for KeyRotationScheduler {
+    type Item = ();
+    type Error = Error;
+
+    fn poll(&mut self) -> Poll<(), Error> {
+        log::debug!("Poll key rotation future");
+
+        if let Some(delay) = &mut self.delay {
+            match delay.poll() {
+                Ok(Async::NotReady) => return Ok(Async::NotReady),
+                Err(_) => return Err(Error::Delay),
+                _ => (),
+            }
+        }
+
+        let (wg_tx, wg_rx) = oneshot::channel();
+
+        let _ = self.daemon_tx.send(InternalDaemonEvent::ManagementInterfaceEvent(
+            ManagementCommand::GenerateWireguardKey(wg_tx)
+        )).map_err(|_| Error::Delay)?;
+
+        let somedelay = Instant::now() + Duration::from_secs(30);
+        self.delay = Some(Box::new(Delay::new(somedelay)
+            .map_err(|_| ())
+        ));
+        return self.delay
+            .as_mut()
+            .unwrap()
+            .poll()
+            .map_err(|_| Error::Delay);
+    }
+}
+
+impl KeyRotationScheduler {
+    pub(crate) fn new(
+        tokio_remote: Remote,
+        daemon_tx: mpsc::Sender<InternalDaemonEvent>,
+        initial_delay: Option<Duration>,
+    ) -> Result<oneshot::Sender<()>> {
+        let (
+            terminate_auto_rotation_tx,
+            terminate_auto_rotation_rx
+        ) = oneshot::channel();
+
+        let delay: Option<Box<dyn Future<Item = (), Error = ()> + Send>> =
+            if let Some(delay) = initial_delay {
+                Some( Box::new(Delay::new(Instant::now() + delay).map_err(|_| ())) )
+            } else {
+                None
+            };
+
+        let fut = Self {
+            daemon_tx: daemon_tx.clone(),
+            delay,
+        };
+
+        tokio_remote.execute(
+            fut.map_err(|_| {
+                log::error!("Failed to run key rotation scheduler")
+            }) // FIXME: err
+        ); // FIXME: select terminate rx
+
+        Ok(terminate_auto_rotation_tx)
+    }
+}
 
 pub struct KeyManager {
     daemon_tx: mpsc::Sender<InternalDaemonEvent>,
     http_handle: mullvad_rpc::HttpHandle,
     tokio_remote: Remote,
     current_job: Option<CancelHandle>,
+    abort_scheduler_tx: Option<oneshot::Sender<()>>,
 }
 
 impl KeyManager {
@@ -45,11 +123,19 @@ impl KeyManager {
         http_handle: mullvad_rpc::HttpHandle,
         tokio_remote: Remote,
     ) -> Self {
+        let remote_clone = tokio_remote.clone();
+        let daemon_tx_clone = daemon_tx.clone();
+
         Self {
             daemon_tx,
             http_handle,
             tokio_remote,
             current_job: None,
+            abort_scheduler_tx: KeyRotationScheduler::new(
+                remote_clone,
+                daemon_tx_clone,
+                Some(Duration::from_secs(30)),
+            ).ok()
         }
     }
 
