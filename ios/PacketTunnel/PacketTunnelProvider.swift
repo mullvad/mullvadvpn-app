@@ -355,9 +355,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             guard let handle = self.handle else { return }
 
             os_log(.default, log: tunnelProviderLog,
-                   "Network change detected with %{public}s route and interface order %{public}s",
+                   "Network change detected with %{public}s route and interface order: %{public}s",
                    "\(path.status)",
-                   "\(path.availableInterfaces.debugDescription)")
+                "\(path.availableInterfaces.map { $0.name }.joined(separator: ", "))"
+            )
 
             _ = self.packetTunnelSettingsGenerator?
                 .updateEndpointUapiConfiguration()
