@@ -6,6 +6,7 @@
 //  Copyright © 2019 Amagicom AB. All rights reserved.
 //
 
+import Combine
 import UIKit
 
 class AccountViewController: UIViewController {
@@ -13,13 +14,12 @@ class AccountViewController: UIViewController {
     @IBOutlet var accountLabel: UILabel!
     @IBOutlet var expiryLabel: UILabel!
 
-    private var accountExpiryObserver: AccountExpiryRefresh.Observer?
+    private var logoutSubscriber: AnyCancellable?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         updateView()
-        startAccountExpiryUpdates()
     }
 
     // MARK: - Actions
@@ -29,17 +29,19 @@ class AccountViewController: UIViewController {
     }
 
     @IBAction func doLogout() {
-        Account.logout()
-
-        performSegue(withIdentifier: SegueIdentifier.Account.logout.rawValue, sender: self)
+        logoutSubscriber = Account.shared.logout()
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { (_) in
+                self.performSegue(withIdentifier: SegueIdentifier.Account.logout.rawValue, sender: self)
+            })
     }
 
     // MARK: - Private
 
     private func updateView() {
-        accountLabel.text = Account.token
+        accountLabel.text = Account.shared.token
 
-        if let expiryDate = Account.expiry {
+        if let expiryDate = Account.shared.expiry {
             let accountExpiry = AccountExpiry(date: expiryDate)
 
             if accountExpiry.isExpired {
@@ -50,12 +52,5 @@ class AccountViewController: UIViewController {
                 expiryLabel.textColor = .white
             }
         }
-    }
-
-    private func startAccountExpiryUpdates() {
-        accountExpiryObserver = AccountExpiryRefresh.shared
-            .startMonitoringUpdates(with: { [weak self] (expiryDate) in
-                self?.updateView()
-            })
     }
 }
