@@ -18,14 +18,12 @@ class SettingsViewController: UITableViewController {
         case appVersion = "AppVersion"
     }
 
-    private var accountExpiryObserver: AccountExpiryRefresh.Observer?
     private weak var accountRow: StaticTableViewRow?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupDataSource()
-        startAccountExpiryUpdates()
     }
 
     // MARK: - IBActions
@@ -36,22 +34,13 @@ class SettingsViewController: UITableViewController {
 
     // MARK: - Private
 
-    private func startAccountExpiryUpdates() {
-        accountExpiryObserver = AccountExpiryRefresh.shared
-            .startMonitoringUpdates(with: { [weak self] (expiryDate) in
-                guard let self = self, let accountRow = self.accountRow else { return }
-
-                self.staticDataSource.reloadRows([accountRow], with: .automatic)
-            })
-    }
-
     private func setupDataSource() {
-        if Account.isLoggedIn {
+        if Account.shared.isLoggedIn {
             let topSection = StaticTableViewSection()
             let accountRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.account.rawValue) { (_, cell) in
                 let cell = cell as! SettingsAccountCell
 
-                cell.accountExpiryDate = Account.expiry
+                cell.accountExpiryDate = Account.shared.expiry
             }
 
             self.accountRow = accountRow
