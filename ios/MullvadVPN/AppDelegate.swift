@@ -6,6 +6,7 @@
 //  Copyright © 2019 Amagicom AB. All rights reserved.
 //
 
+import Combine
 import UIKit
 
 @UIApplicationMain
@@ -15,20 +16,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
 
+    private var loadTunnelSubscriber: AnyCancellable?
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        let rootViewController = window?.rootViewController as! RootContainerViewController
-        let loginViewController = mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.login.rawValue)
+        let accountToken = Account.shared.token
 
-        var viewControllers = [UIViewController]()
-        viewControllers.append(loginViewController)
+        loadTunnelSubscriber = TunnelManager.shared.loadTunnel(accountToken: accountToken)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { (completion) in
+                if case .failure(let error) = completion {
+                    fatalError("Failed to restore the account: \(error.localizedDescription)")
+                }
 
-        if Account.isLoggedIn {
-            let mainViewController = mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.main.rawValue)
+                let rootViewController = self.mainStoryboard.instantiateViewController(identifier: ViewControllerIdentifier.root.rawValue) as! RootContainerViewController
 
-            viewControllers.append(mainViewController)
-        }
+                let loginViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.login.rawValue)
 
-        rootViewController.setViewControllers(viewControllers, animated: false)
+                var viewControllers = [loginViewController]
+
+                if accountToken != nil {
+                    let mainViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.main.rawValue)
+
+                    viewControllers.append(mainViewController)
+                }
+
+                rootViewController.setViewControllers(viewControllers, animated: false)
+
+                self.window?.rootViewController = rootViewController
+            })
 
         return true
     }
