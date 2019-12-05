@@ -15,8 +15,8 @@ use windows_service::{
     service::{
         Service, ServiceAccess, ServiceAction, ServiceActionType, ServiceControl, ServiceControlAccept,
         ServiceDependency, ServiceErrorControl, ServiceExitCode, ServiceFailureActions,
-        ServiceFailureResetPeriod, ServiceInfo, ServiceStartType, ServiceState, ServiceStatus,
-        ServiceType,
+        ServiceFailureResetPeriod, ServiceInfo, ServiceSidType, ServiceStartType, ServiceState,
+        ServiceStatus, ServiceType,
     },
     service_control_handler::{self, ServiceControlHandlerResult, ServiceStatusHandle},
     service_dispatcher,
@@ -290,7 +290,15 @@ pub fn install_service() -> Result<(), InstallError> {
         .map_err(InstallError::CreateService)?;
     service
         .set_failure_actions_on_non_crash_failures(true)
-        .map_err(InstallError::CreateService)
+        .map_err(InstallError::CreateService)?;
+
+    // Change how the service SID is added to the service process token.
+    // WireGuard needs this.
+    service
+        .set_config_service_sid_info(ServiceSidType::Unrestricted)
+        .map_err(InstallError::CreateService)?;
+
+    Ok(())
 }
 
 fn open_update_service(service_manager: &ServiceManager) -> Result<Service, windows_service::Error> {
