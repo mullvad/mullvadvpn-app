@@ -68,16 +68,14 @@ Line wrap the file at 100 chars.                                              Th
   that report the adapter flags incorrectly.
 
 #### Android
+- Don't try to fetch location when the app knows that it has no connectivity. This should reduce
+  wake-ups (improving battery life) and also fix very large log files consuming storage space.
 - Fix crash when a new version event is received while the app is in the main screen.
 
 ### Security
 - Force OpenVPN to use TLS 1.2 or newer. And limit the TLS 1.3 ciphers to only the strongest ones.
   The Mullvad servers have never allowed any insecure ciphers, so this was not really a problem.
   Just one extra safety precaution.
-
-#### Android
-- Don't try to fetch location when the app knows that it has no connectivity. This should reduce
-  wake-ups (improving battery life) and also fix very large log files consuming storage space.
 
 ## [2019.10-beta1] - 2019-11-06
 This release is for Android only.
