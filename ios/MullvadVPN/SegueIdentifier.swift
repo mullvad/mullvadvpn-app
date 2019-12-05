@@ -9,7 +9,9 @@
 import UIKit
 
 // A phantom struct holding the storyboard segue identifiers for each view controller
-struct SegueIdentifier {
+enum SegueIdentifier {}
+
+extension SegueIdentifier {
 
     enum Root: String, SegueConvertible {
         case showSettings = "ShowSettings"
@@ -26,8 +28,6 @@ struct SegueIdentifier {
     enum Account: String, SegueConvertible {
         case logout = "Logout"
     }
-
-    private init() {}
 }
 
 protocol SegueConvertible: RawRepresentable {
