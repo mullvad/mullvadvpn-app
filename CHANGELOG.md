@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 - Notifications shown when connecting to a server include its location.
 - Upgrade OpenVPN from 2.4.7 to 2.4.8.
 - Upgrade OpenSSL from 1.1.1c to 1.1.1d.
+- Improve WireGuard relay selection when no port is specified
 
 #### Windows
 - Use a larger icon in notifications on Windows 10.
