@@ -25,8 +25,8 @@ enum TunnelManagerError: Error {
     /// A failure to set the account
     case setAccount(SetAccountError)
 
-    /// A failure to reset the account
-    case resetAccount(ResetAccountError)
+    /// A failure to unset the account
+    case unsetAccount(UnsetAccountError)
 
     /// A failure to set the relay constraints
     case setRelayConstraints(UpdateTunnelConfigurationError)
@@ -67,7 +67,7 @@ enum SetAccountError: Error {
     case setup(SetupTunnelError)
 }
 
-enum ResetAccountError: Error {
+enum UnsetAccountError: Error {
     /// A failure to remove the system tunnel
     case removeTunnel(Error)
 
@@ -340,7 +340,7 @@ class TunnelManager {
     }
 
     /// Remove the account token and remove the active tunnel
-    func resetAccount() -> AnyPublisher<(), TunnelManagerError> {
+    func unsetAccount() -> AnyPublisher<(), TunnelManagerError> {
         MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) {
             Just(self.accountToken)
                 .setFailureType(to: TunnelManagerError.self)
@@ -350,15 +350,15 @@ class TunnelManager {
 
                     let removeKeychainConfigPublisher = Deferred {
                         TunnelConfigurationManager.remove(account: accountToken)
-                            .mapError { ResetAccountError.removeTunnelConfiguration($0) }
+                            .mapError { UnsetAccountError.removeTunnelConfiguration($0) }
                             .publisher
                     }
 
                     let removeTunnelPublisher = Deferred {
-                        () -> AnyPublisher<(), ResetAccountError> in
+                        () -> AnyPublisher<(), UnsetAccountError> in
                         if let tunnelProvider = tunnelProvider {
                             return tunnelProvider.removeFromPreferences()
-                                .catch { (error) -> Result<(), ResetAccountError>.Publisher in
+                                .catch { (error) -> Result<(), UnsetAccountError>.Publisher in
                                     // Ignore error if the tunnel was already removed by user
                                     if case NEVPNError.configurationInvalid = error {
                                         return .init(())
@@ -375,7 +375,7 @@ class TunnelManager {
                     return removeTunnelPublisher
                         .receive(on: self.executionQueue)
                         .flatMap { removeKeychainConfigPublisher }
-                        .mapError { TunnelManagerError.resetAccount($0) }
+                        .mapError { TunnelManagerError.unsetAccount($0) }
                         .eraseToAnyPublisher()
             }
             .receive(on: self.executionQueue)
