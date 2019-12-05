@@ -3,7 +3,7 @@
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
 use futures::{sync::oneshot, Future};
 use ipnetwork::IpNetwork;
-use std::{collections::HashMap, fmt, net::IpAddr};
+use std::{collections::HashMap, fmt, net::IpAddr, thread};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -43,7 +43,8 @@ pub enum Error {
 /// If a destination has to be routed through the default node,
 /// the route will be adjusted dynamically when the default route changes.
 pub struct RouteManager {
-    tx: Option<oneshot::Sender<oneshot::Sender<()>>>,
+    shutdown_tx: Option<oneshot::Sender<oneshot::Sender<()>>>,
+    route_thread: Option<thread::JoinHandle<()>>,
     #[cfg(target_os = "windows")]
     callback_handles: Vec<winnet::WinNetCallbackHandle>,
 }
@@ -53,25 +54,27 @@ impl RouteManager {
     /// Takes a map of network destinations and network nodes as an argument, and applies said
     /// routes.
     pub fn new(required_routes: HashMap<IpNetwork, NetNode>) -> Result<Self, Error> {
-        let (tx, rx) = oneshot::channel();
+        let (shutdown_tx, shutdown_rx) = oneshot::channel();
         let (start_tx, start_rx) = oneshot::channel();
 
-        std::thread::spawn(
-            move || match imp::RouteManagerImpl::new(required_routes, rx) {
-                Ok(route_manager) => {
-                    let _ = start_tx.send(Ok(()));
-                    if let Err(e) = route_manager.wait() {
-                        log::error!("Route manager failed - {}", e);
+        let route_thread =
+            thread::spawn(
+                move || match imp::RouteManagerImpl::new(required_routes, shutdown_rx) {
+                    Ok(route_manager) => {
+                        let _ = start_tx.send(Ok(()));
+                        if let Err(e) = route_manager.wait() {
+                            log::error!("Route manager failed - {}", e);
+                        }
                     }
-                }
-                Err(e) => {
-                    let _ = start_tx.send(Err(Error::FailedToInitializeManager(e)));
-                }
-            },
-        );
+                    Err(e) => {
+                        let _ = start_tx.send(Err(Error::FailedToInitializeManager(e)));
+                    }
+                },
+            );
         match start_rx.wait() {
             Ok(Ok(())) => Ok(Self {
-                tx: Some(tx),
+                shutdown_tx: Some(shutdown_tx),
+                route_thread: Some(route_thread),
                 #[cfg(target_os = "windows")]
                 callback_handles: vec![],
             }),
@@ -100,16 +103,18 @@ impl RouteManager {
 
     /// Stops RouteManager and removes all of the applied routes.
     pub fn stop(&mut self) {
-        if let Some(tx) = self.tx.take() {
+        if let Some(shutdown_tx) = self.shutdown_tx.take() {
             let (wait_tx, wait_rx) = oneshot::channel();
-            if tx.send(wait_tx).is_err() {
+            if shutdown_tx.send(wait_tx).is_err() {
                 log::error!("RouteManager already down!");
-                return;
+            } else {
+                if wait_rx.wait().is_err() {
+                    log::error!("RouteManager paniced while shutting down");
+                }
             }
-
-            if wait_rx.wait().is_err() {
-                log::error!("RouteManager paniced while shutting down");
-            }
+        }
+        if let Some(route_thread) = self.route_thread.take() {
+            let _ = route_thread.join();
         }
     }
 }
