@@ -1,5 +1,5 @@
 use super::{
-    BlockedState, ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues,
+    ConnectingState, DisconnectedState, ErrorState, EventConsequence, SharedTunnelStateValues,
     TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::tunnel::CloseHandle;
@@ -121,12 +121,12 @@ impl DisconnectingState {
         shared_values: &mut SharedTunnelStateValues,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         if let Some(reason) = block_reason {
-            return BlockedState::enter(shared_values, reason);
+            return ErrorState::enter(shared_values, reason);
         }
 
         match self.after_disconnect {
             AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
-            AfterDisconnect::Block(reason) => BlockedState::enter(shared_values, reason),
+            AfterDisconnect::Block(reason) => ErrorState::enter(shared_values, reason),
             AfterDisconnect::Reconnect(retry_attempt) => {
                 ConnectingState::enter(shared_values, retry_attempt)
             }

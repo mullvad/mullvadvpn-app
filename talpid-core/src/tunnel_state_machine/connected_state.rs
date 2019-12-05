@@ -1,5 +1,5 @@
 use super::{
-    AfterDisconnect, BlockedState, ConnectingState, DisconnectingState, EventConsequence,
+    AfterDisconnect, ConnectingState, DisconnectingState, ErrorState, EventConsequence,
     SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::{
@@ -183,7 +183,7 @@ impl ConnectedState {
         match poll_result {
             Ok(Async::Ready(block_reason)) => {
                 if let Some(reason) = block_reason {
-                    return NewState(BlockedState::enter(shared_values, reason));
+                    return NewState(ErrorState::enter(shared_values, reason));
                 }
             }
             Ok(Async::NotReady) => return NoEvents(self),

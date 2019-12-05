@@ -5,17 +5,17 @@ use super::{
 use crate::firewall::FirewallPolicy;
 use futures::{sync::mpsc, Stream};
 use talpid_types::{
-    tunnel::{BlockReason, ErrorState},
+    tunnel::{self as talpid_tunnel, BlockReason},
     ErrorExt,
 };
 
 /// No tunnel is running and all network connections are blocked.
-pub struct BlockedState {
+pub struct ErrorState {
     block_reason: BlockReason,
 }
 
-impl BlockedState {
-    // Returns true if firewall policy was applied successfulyl
+impl ErrorState {
+    /// Returns true if firewall policy was applied successfulyl
     fn set_firewall_policy(shared_values: &mut SharedTunnelStateValues) -> bool {
         let policy = FirewallPolicy::Blocked {
             allow_lan: shared_values.allow_lan,
@@ -35,6 +35,7 @@ impl BlockedState {
         }
     }
 
+    /// Returns true if a new tunnel device was successfully created. This is
     #[cfg(target_os = "android")]
     fn create_blocking_tun(shared_values: &mut SharedTunnelStateValues) -> bool {
         match shared_values.tun_provider.create_tun_if_closed() {
@@ -52,7 +53,7 @@ impl BlockedState {
     }
 }
 
-impl TunnelState for BlockedState {
+impl TunnelState for ErrorState {
     type Bootstrap = BlockReason;
 
     fn enter(
@@ -64,10 +65,10 @@ impl TunnelState for BlockedState {
         #[cfg(target_os = "android")]
         let is_blocking = Self::create_blocking_tun(shared_values);
         (
-            TunnelStateWrapper::from(BlockedState {
+            TunnelStateWrapper::from(ErrorState {
                 block_reason: block_reason.clone(),
             }),
-            TunnelStateTransition::Error(ErrorState::new(block_reason, is_blocking)),
+            TunnelStateTransition::Error(talpid_tunnel::ErrorState::new(block_reason, is_blocking)),
         )
     }
 
@@ -100,9 +101,7 @@ impl TunnelState for BlockedState {
             Ok(TunnelCommand::Disconnect) | Err(_) => {
                 NewState(DisconnectedState::enter(shared_values, ()))
             }
-            Ok(TunnelCommand::Block(reason)) => {
-                NewState(BlockedState::enter(shared_values, reason))
-            }
+            Ok(TunnelCommand::Block(reason)) => NewState(ErrorState::enter(shared_values, reason)),
         }
     }
 }

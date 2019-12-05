@@ -8,7 +8,7 @@ mod disconnected_state;
 mod disconnecting_state;
 
 use self::{
-    blocked_state::BlockedState,
+    blocked_state::ErrorState,
     connected_state::{ConnectedState, ConnectedStateBootstrap},
     connecting_state::ConnectingState,
     disconnected_state::DisconnectedState,
@@ -297,7 +297,7 @@ impl<T: TunnelState> From<EventConsequence<T>> for TunnelStateMachineAction {
 pub trait TunnelParametersGenerator: Send + 'static {
     /// Given the number of consecutive failed retry attempts, it should yield a `TunnelParameters`
     /// to establish a tunnel with.
-    /// If this returns `None` then the state machine goes into the `Blocked` state.
+    /// If this returns `None` then the state machine goes into the `Error` state.
     fn generate(
         &mut self,
         retry_attempt: u32,
@@ -427,6 +427,6 @@ state_wrapper! {
         Connecting(ConnectingState),
         Connected(ConnectedState),
         Disconnecting(DisconnectingState),
-        Blocked(BlockedState),
+        Error(ErrorState),
     }
 }
