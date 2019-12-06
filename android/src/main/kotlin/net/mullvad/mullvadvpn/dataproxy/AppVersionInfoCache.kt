@@ -65,8 +65,6 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
         version = currentVersion
         isStable = !currentVersion.contains("-")
 
-        updateUpgradeVersion()
-
         daemon.onAppVersionInfoChange = { newAppVersionInfo ->
             appVersionInfo = newAppVersionInfo
         }
