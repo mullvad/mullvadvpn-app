@@ -20,11 +20,19 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
             synchronized(this) {
                 upgradeVersion = if (isStable) value?.latestStable else value?.latest
 
-                if (upgradeVersion == version) {
+                if (value != null && upgradeVersion == version) {
                     upgradeVersion = null
+
+                    field = AppVersionInfo(
+                        value.currentIsSupported,
+                        /* currentIsOutdated = */ false,
+                        value.latestStable,
+                        value.latest
+                    )
+                } else {
+                    field = value
                 }
 
-                field = value
                 onUpdate?.invoke()
             }
         }
