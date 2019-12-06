@@ -18,8 +18,14 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
     private var appVersionInfo: AppVersionInfo? = null
         set(value) {
             synchronized(this) {
+                upgradeVersion = if (isStable) value?.latestStable else value?.latest
+
+                if (upgradeVersion == version) {
+                    upgradeVersion = null
+                }
+
                 field = value
-                updateUpgradeVersion()
+                onUpdate?.invoke()
             }
         }
 
@@ -80,17 +86,5 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
 
     private fun tearDown() = GlobalScope.launch(Dispatchers.Default) {
         daemon.await().onAppVersionInfoChange = null
-    }
-
-    private fun updateUpgradeVersion() {
-        val target = if (isStable) latestStable else latest
-
-        if (target == version || target == null) {
-            upgradeVersion = null
-        } else {
-            upgradeVersion = target
-        }
-
-        onUpdate?.invoke()
     }
 }
