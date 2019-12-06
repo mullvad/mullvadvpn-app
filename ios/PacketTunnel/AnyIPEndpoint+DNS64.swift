@@ -1,5 +1,5 @@
 //
-//  DNSResolver.swift
+//  AnyIPEndpoint+DNS64.swift
 //  PacketTunnel
 //
 //  Created by pronebird on 24/06/2019.
@@ -10,21 +10,10 @@ import Foundation
 import Network
 import os
 
-extension NWEndpoint {
+extension AnyIPEndpoint {
 
-    func withReresolvedIP() throws -> NWEndpoint {
-        var resolvedAddress = self
-
-        let hostname: String
-        let port: NWEndpoint.Port
-
-        if case .hostPort(let host, let hostPort) = self {
-            hostname = "\(host)"
-            port = hostPort
-        } else {
-            return resolvedAddress
-        }
-
+    /// Returns new `AnyIPEndpoint` resolved using DNS64
+    func withReresolvedIP() -> Result<AnyIPEndpoint, Error> {
         var resultPointer = UnsafeMutablePointer<addrinfo>(OpaquePointer(bitPattern: 0))
         var hints = addrinfo(
             ai_flags: 0, // We set this to zero so that we actually resolve this using DNS64
@@ -36,39 +25,38 @@ extension NWEndpoint {
             ai_addr: nil,
             ai_next: nil)
 
-        let err = getaddrinfo(hostname, "\(port)", &hints, &resultPointer)
+        let err = getaddrinfo("\(self.ip)", "\(self.port)", &hints, &resultPointer)
         if err != 0 || resultPointer == nil {
-            throw NSError(
+            return .failure(NSError(
                 domain: NSPOSIXErrorDomain,
                 code: Int(err),
                 userInfo: [
                     NSLocalizedDescriptionKey: String(cString: gai_strerror(err))
-                ])
+            ]))
         }
 
+        var resolvedAddress = self
         let result = resultPointer!.pointee
         if result.ai_family == AF_INET && result.ai_addrlen == MemoryLayout<sockaddr_in>.size {
             var sa4 = UnsafeRawPointer(result.ai_addr)!.assumingMemoryBound(to: sockaddr_in.self).pointee
             let addr = IPv4Address(Data(bytes: &sa4.sin_addr, count: MemoryLayout<in_addr>.size))
 
-            resolvedAddress = NWEndpoint.hostPort(host: .ipv4(addr!), port: port)
+            resolvedAddress = .ipv4(IPv4Endpoint(ip: addr!, port: self.port))
         } else if result.ai_family == AF_INET6 && result.ai_addrlen == MemoryLayout<sockaddr_in6>.size {
             var sa6 = UnsafeRawPointer(result.ai_addr)!.assumingMemoryBound(to: sockaddr_in6.self).pointee
             let addr = IPv6Address(Data(bytes: &sa6.sin6_addr, count: MemoryLayout<in6_addr>.size))
 
-            resolvedAddress = NWEndpoint.hostPort(host: .ipv6(addr!), port: port)
+            resolvedAddress = .ipv6(IPv6Endpoint(ip: addr!, port: self.port))
         }
 
         freeaddrinfo(resultPointer)
 
-        if case .hostPort(let resolvedHost, _) = resolvedAddress {
-            if "\(resolvedHost)" == hostname {
-                os_log(.debug, "DNS64: mapped %{public}s to itself", "\(resolvedHost)")
-            } else {
-                os_log(.debug, "DNS64: mapped %{public}s to %{public}s", "\(resolvedHost)", "\(resolvedAddress)")
-            }
+        if "\(resolvedAddress.ip)" == "\(self.ip)" {
+            os_log(.debug, "DNS64: mapped %{public}s to itself", "\(resolvedAddress.ip)")
+        } else {
+            os_log(.debug, "DNS64: mapped %{public}s to %{public}s", "\(self.ip)", "\(resolvedAddress.ip)")
         }
 
-        return resolvedAddress
+        return .success(resolvedAddress)
     }
 }

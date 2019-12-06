@@ -13,7 +13,7 @@ class WireguardConfigurationBuilder {
     private var privateKey: WireguardPrivateKey?
     private var listenPort: UInt16?
     private var replacePeers: Bool?
-    private var peers = [(NWEndpoint, Data)]()
+    private var peers = [(AnyIPEndpoint, Data)]()
     private var replaceAllowedIPs: Bool?
     private var allowedIPs = [IPAddressRange]()
 
@@ -27,7 +27,7 @@ class WireguardConfigurationBuilder {
         return self
     }
 
-    @discardableResult func peer(_ endpoint: NWEndpoint, publicKey: Data) -> Self {
+    @discardableResult func peer(_ endpoint: AnyIPEndpoint, publicKey: Data) -> Self {
         self.peers.append((endpoint, publicKey))
         return self
     }

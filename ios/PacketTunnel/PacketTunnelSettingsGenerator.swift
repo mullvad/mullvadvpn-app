@@ -16,15 +16,7 @@ struct PacketTunnelSettingsGenerator {
     let tunnelConfiguration: TunnelConfiguration
 
     func networkSettings() -> NEPacketTunnelNetworkSettings {
-        let tunnelRemoteAddress: String
-
-        switch mullvadEndpoint.ipv4Relay {
-        case .hostPort(let host, _):
-            tunnelRemoteAddress = "\(host)"
-        default:
-            fatalError("Unsupported address: \(mullvadEndpoint.ipv4Relay)")
-        }
-
+        let tunnelRemoteAddress = "\(mullvadEndpoint.ipv4Relay.ip)"
         let networkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: tunnelRemoteAddress)
 
         networkSettings.mtu = 1280
@@ -68,15 +60,22 @@ struct PacketTunnelSettingsGenerator {
     }
 
     private func addPeersConfiguration(into builder: WireguardConfigurationBuilder) {
-        let peers = [mullvadEndpoint.ipv4Relay, mullvadEndpoint.ipv6Relay]
-            .compactMap { $0 }
+        var peers: [AnyIPEndpoint] = [.ipv4(mullvadEndpoint.ipv4Relay)]
+
+        if let ipv6Relay = mullvadEndpoint.ipv6Relay {
+            peers.append(.ipv6(ipv6Relay))
+        }
 
         for peer in peers {
-            do {
+            switch peer.withReresolvedIP() {
+            case .success(let resolvedPeer):
                 // TODO: this is not reliable. We should attempt to re-resolve the IPs in case of failure?
-                builder.peer(try peer.withReresolvedIP(), publicKey: mullvadEndpoint.publicKey)
-            } catch {
-                os_log(.error, "Failed to re-resolve the endpoint: %s", "\(peer)")
+                builder.peer(resolvedPeer, publicKey: mullvadEndpoint.publicKey)
+
+            case .failure(let error):
+                os_log(.error,
+                       "Failed to resolve the endpoint: %s. Cause: %{public}s",
+                       "\(peer.ip)", error.localizedDescription)
             }
         }
     }
@@ -109,15 +108,13 @@ struct PacketTunnelSettingsGenerator {
             NEIPv4Route.default() // 0.0.0.0/0
         ]
 
-        if case .hostPort(.ipv4(let relayAddress), _) = mullvadEndpoint.ipv4Relay {
-            let relayAddressRange = IPAddressRange(address: relayAddress, networkPrefixLength: 32)
+        let relayAddressRange = IPAddressRange(address: mullvadEndpoint.ipv4Relay.ip, networkPrefixLength: 32)
 
-            ipv4Settings.excludedRoutes = [
-                NEIPv4Route(
-                    destinationAddress: "\(relayAddressRange.address)",
-                    subnetMask: ipv4SubnetMaskString(of: relayAddressRange))
-            ]
-        }
+        ipv4Settings.excludedRoutes = [
+            NEIPv4Route(
+                destinationAddress: "\(relayAddressRange.address)",
+                subnetMask: ipv4SubnetMaskString(of: relayAddressRange))
+        ]
 
         return ipv4Settings
     }
@@ -135,11 +132,9 @@ struct PacketTunnelSettingsGenerator {
             NEIPv6Route.default() // ::0
         ]
 
-        if case .hostPort(.ipv6(let relayAddress), _)? = mullvadEndpoint.ipv6Relay {
+        if let ipv6Relay = mullvadEndpoint.ipv6Relay {
             ipv6Settings.excludedRoutes = [
-                NEIPv6Route(
-                    destinationAddress: "\(relayAddress)",
-                    networkPrefixLength: 128)
+                NEIPv6Route(destinationAddress: "\(ipv6Relay.ip)", networkPrefixLength: 128)
             ]
         }
 

@@ -264,8 +264,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                         os_log(.default, log: tunnelProviderLog, "Selected relay: %{public}s", result.relay.hostname)
 
                         self.connectionInfo = TunnelConnectionInfo(
-                            ipv4Relay: "\(result.endpoint.ipv4Relay)",
-                            ipv6Relay: result.endpoint.ipv6Relay.flatMap { "\($0)" },
+                            ipv4Relay: result.endpoint.ipv4Relay,
+                            ipv6Relay: result.endpoint.ipv6Relay,
                             hostname: result.relay.hostname)
 
                         return result.endpoint
