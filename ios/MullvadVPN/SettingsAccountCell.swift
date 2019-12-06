@@ -19,13 +19,6 @@ class SettingsAccountCell: SettingsCell {
         }
     }
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-
-        // Remove the right margin since the accessory view adds it automatically
-        contentView.layoutMargins.right = 0
-    }
-
     private func didUpdateAccountExpiry() {
         if let accountExpiryDate = accountExpiryDate {
             let accountExpiry = AccountExpiry(date: accountExpiryDate)
