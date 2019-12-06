@@ -59,6 +59,7 @@ class ConnectivityListener : BroadcastReceiver() {
 
         isConnected = connectivityManager.allNetworks
             .map({ network -> connectivityManager.getNetworkInfo(network) })
+            .filterNotNull()
             .any({ networkInfo ->
                 networkInfo.type != ConnectivityManager.TYPE_VPN &&
                     networkInfo.detailedState == DetailedState.CONNECTED
