@@ -30,6 +30,10 @@ Line wrap the file at 100 chars.                                              Th
 - Register 'NSI' service as a dependency of the daemon service.
 - Set daemon service SID type as 'unrestricted'.
 
+#### Android
+- Fix notification message to update to `null` version when version check cache is stale right
+  after an update.
+
 ### Security
 #### Linux
 - Stop [CVE-2019-14899](https://seclists.org/oss-sec/2019/q4/122) by dropping all packets destined
