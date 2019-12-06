@@ -26,6 +26,11 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix improved WireGuard port selection
 
+### Security
+#### Linux
+- Stop [CVE-2019-14899](https://seclists.org/oss-sec/2019/q4/122) by dropping all packets destined
+  for the tunnel IP coming in on some other interface than the tunnel.
+
 
 ## [2019.10-beta2] - 2019-12-05
 ### Added
