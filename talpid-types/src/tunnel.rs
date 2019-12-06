@@ -32,15 +32,6 @@ pub enum ActionAfterDisconnect {
     Reconnect,
 }
 
-impl TunnelStateTransition {
-    pub fn is_error(&self) -> bool {
-        match self {
-            TunnelStateTransition::Error(_) => false,
-            _ => false,
-        }
-    }
-}
-
 /// Error state
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
