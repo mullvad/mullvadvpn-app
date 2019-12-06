@@ -26,6 +26,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix improved WireGuard port selection
 
+#### Windows
+- Register 'NSI' service as a dependency of the daemon service.
+- Set daemon service SID type as 'unrestricted'.
+
 ### Security
 #### Linux
 - Stop [CVE-2019-14899](https://seclists.org/oss-sec/2019/q4/122) by dropping all packets destined
