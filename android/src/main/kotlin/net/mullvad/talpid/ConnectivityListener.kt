@@ -42,7 +42,9 @@ class ConnectivityListener : BroadcastReceiver() {
         val networkInfo =
             intent.getParcelableExtra<NetworkInfo>(ConnectivityManager.EXTRA_NETWORK_INFO)
 
-        if (networkInfo.type != ConnectivityManager.TYPE_VPN) {
+        if (networkInfo == null) {
+            checkConnectionState(context)
+        } else if (networkInfo.type != ConnectivityManager.TYPE_VPN) {
             if (networkInfo.detailedState == DetailedState.DISCONNECTED) {
                 checkConnectionState(context)
             } else if (networkInfo.detailedState == DetailedState.CONNECTED) {
