@@ -236,7 +236,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                         os_log(.default, log: tunnelProviderLog, "Replace Wireguard endpoints")
 
                         _ = self.packetTunnelSettingsGenerator?
-                            .replaceEndpointUapiConfiguration()
+                            .wireguardConfigurationForChangingRelays()
                             .withGoString { wgSetConfig(handle, $0) }
 
                     case .failure(let error):
@@ -325,7 +325,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         os_log(.default, log: tunnelProviderLog, "Tunnel interface is %{public}s", self.tunnelInterfaceName ?? "unknown")
 
-        let handle = tunnelSettingsGenerator.uapiConfiguration()
+        let handle = tunnelSettingsGenerator.entireWireguardConfiguration()
             .withGoString { wgTurnOn($0, fileDescriptor) }
 
         if handle < 0 {
@@ -361,7 +361,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             )
 
             _ = self.packetTunnelSettingsGenerator?
-                .updateEndpointUapiConfiguration()
+                .wireguardConfigurationWithReresolvedEndpoints()
                 .withGoString { wgSetConfig(handle, $0) }
 
             wgBumpSockets(handle)

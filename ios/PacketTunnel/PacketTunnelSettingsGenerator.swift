@@ -35,7 +35,7 @@ struct PacketTunnelSettingsGenerator {
         return networkSettings
     }
 
-    func uapiConfiguration() -> String {
+    func entireWireguardConfiguration() -> String {
         let builder = WireguardConfigurationBuilder()
             .privateKey(tunnelConfiguration.interface.privateKey)
             .listenPort(0)
@@ -49,7 +49,7 @@ struct PacketTunnelSettingsGenerator {
         return builder.build()
     }
 
-    func updateEndpointUapiConfiguration() -> String {
+    func wireguardConfigurationWithReresolvedEndpoints() -> String {
         let builder = WireguardConfigurationBuilder()
 
         addPeersConfiguration(into: builder)
@@ -57,7 +57,7 @@ struct PacketTunnelSettingsGenerator {
         return builder.build()
     }
 
-    func replaceEndpointUapiConfiguration() -> String {
+    func wireguardConfigurationForChangingRelays() -> String {
         let builder = WireguardConfigurationBuilder()
             .replacePeers(true)
 
