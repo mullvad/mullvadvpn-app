@@ -362,6 +362,9 @@ impl<'a> PolicyBatch<'a> {
                 self.add_dns_rule(tunnel, TransportProtocol::Udp)?;
                 self.add_dns_rule(tunnel, TransportProtocol::Tcp)?;
                 self.add_allow_tunnel_rules(tunnel)?;
+                if *allow_lan {
+                    self.add_block_cve_2019_14899(tunnel);
+                }
                 *allow_lan
             }
             FirewallPolicy::Blocked { allow_lan } => *allow_lan,
@@ -468,6 +471,20 @@ impl<'a> PolicyBatch<'a> {
             nftnl::MsgType::Add,
         );
         Ok(())
+    }
+
+    /// Adds rules for stopping [CVE-2019-14899](https://seclists.org/oss-sec/2019/q4/122).
+    /// An attacker on the same local network as the VPN connected device could figure out
+    /// the tunnel IP the device used if the device was set to not filter reverse path (rp_filter.)
+    /// These rules stops all packets coming in to the tunnel IP. As such, these rules must come
+    /// after the rule allowing the tunnel, otherwise even the tunnel can't talk to that IP.
+    fn add_block_cve_2019_14899(&mut self, tunnel: &tunnel::TunnelMetadata) {
+        for tunnel_ip in &tunnel.ips {
+            let mut rule = Rule::new(&self.in_chain);
+            check_ip(&mut rule, End::Dst, *tunnel_ip);
+            add_verdict(&mut rule, &Verdict::Drop);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
     }
 
     fn add_allow_lan_rules(&mut self) {
