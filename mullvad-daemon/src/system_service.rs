@@ -13,7 +13,7 @@ use std::{
 use talpid_types::ErrorExt;
 use windows_service::{
     service::{
-        ServiceAccess, ServiceAction, ServiceActionType, ServiceControl, ServiceControlAccept,
+        Service, ServiceAccess, ServiceAction, ServiceActionType, ServiceControl, ServiceControlAccept,
         ServiceDependency, ServiceErrorControl, ServiceExitCode, ServiceFailureActions,
         ServiceFailureResetPeriod, ServiceInfo, ServiceStartType, ServiceState, ServiceStatus,
         ServiceType,
@@ -29,6 +29,13 @@ static SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
 const SERVICE_RECOVERY_LAST_RESTART_DELAY: Duration = Duration::from_secs(60 * 10);
 const SERVICE_FAILURE_RESET_PERIOD: Duration = Duration::from_secs(60 * 15);
+
+lazy_static::lazy_static! {
+    static ref SERVICE_ACCESS: ServiceAccess = ServiceAccess::QUERY_CONFIG
+    | ServiceAccess::CHANGE_CONFIG
+    | ServiceAccess::START
+    | ServiceAccess::DELETE;
+}
 
 pub fn run() -> Result<(), String> {
     // Start the service dispatcher.
@@ -250,14 +257,10 @@ pub fn install_service() -> Result<(), InstallError> {
     let manager_access = ServiceManagerAccess::CONNECT | ServiceManagerAccess::CREATE_SERVICE;
     let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
         .map_err(InstallError::ConnectServiceManager)?;
-    let service_access = ServiceAccess::QUERY_CONFIG
-        | ServiceAccess::CHANGE_CONFIG
-        | ServiceAccess::START
-        | ServiceAccess::DELETE;
 
     let service = service_manager
-        .create_service(get_service_info(), service_access)
-        .or(service_manager.open_service(SERVICE_NAME, service_access))
+        .create_service(&get_service_info(), *SERVICE_ACCESS)
+        .or(open_update_service(&service_manager))
         .map_err(InstallError::CreateService)?;
 
     let recovery_actions = vec![
@@ -288,6 +291,12 @@ pub fn install_service() -> Result<(), InstallError> {
     service
         .set_failure_actions_on_non_crash_failures(true)
         .map_err(InstallError::CreateService)
+}
+
+fn open_update_service(service_manager: &ServiceManager) -> Result<Service, windows_service::Error> {
+    let service = service_manager.open_service(SERVICE_NAME, *SERVICE_ACCESS)?;
+    service.change_config(&get_service_info())?;
+    Ok(service)
 }
 
 fn get_service_info() -> ServiceInfo {
