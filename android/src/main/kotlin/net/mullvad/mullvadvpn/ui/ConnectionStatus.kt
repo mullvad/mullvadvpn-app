@@ -1,9 +1,10 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import android.content.res.Resources
 import android.view.View
 import android.widget.TextView
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.R
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class ConnectionStatus(val parentView: View, val resources: Resources) {

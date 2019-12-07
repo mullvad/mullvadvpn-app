@@ -1,10 +1,11 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
 import android.view.View
 import android.widget.TextView
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.R
 import net.mullvad.talpid.net.Endpoint
 import net.mullvad.talpid.net.TransportProtocol
 
