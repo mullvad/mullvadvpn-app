@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import android.content.res.Resources
 import android.text.Editable
@@ -8,7 +8,8 @@ import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.widget.EditText
 import android.widget.ImageButton
-import net.mullvad.mullvadvpn.AccountInputContainer.BorderState
+import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.AccountInputContainer.BorderState
 
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 

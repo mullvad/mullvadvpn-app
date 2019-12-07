@@ -1,7 +1,8 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import android.content.res.Resources
 import android.view.View
+import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 
 class HeaderBar(val parentView: View, val resources: Resources) {

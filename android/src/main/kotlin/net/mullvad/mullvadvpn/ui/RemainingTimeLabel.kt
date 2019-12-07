@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import android.view.View
 import android.widget.TextView
@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.R
 import org.joda.time.DateTime
 import org.joda.time.Duration
 import org.joda.time.PeriodType

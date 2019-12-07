@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import android.app.Activity
 import android.content.ComponentName
@@ -13,6 +13,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.MullvadDaemon
+import net.mullvad.mullvadvpn.MullvadVpnService
+import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
