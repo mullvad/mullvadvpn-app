@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix notification message to update to `null` version when version check cache is stale right
   after an update.
+- Fix `null` pointer exception when connectivity event intent has no network info.
 
 ### Security
 #### Linux
