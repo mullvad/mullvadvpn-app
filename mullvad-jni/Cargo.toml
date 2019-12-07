@@ -19,7 +19,6 @@ jsonrpc-core = "8"
 lazy_static = "1"
 log = "0.4"
 log-panics = "2"
-parking_lot = "0.9"
 
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }

@@ -10,7 +10,6 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard::{self, KeygenEvent},
 };
-use parking_lot::Mutex;
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
@@ -30,20 +29,12 @@ pub enum Error {
 type Result<T> = std::result::Result<T, Error>;
 
 pub struct DaemonInterface {
-    command_sender: Mutex<Option<DaemonCommandSender>>,
+    command_sender: DaemonCommandSender,
 }
 
 impl DaemonInterface {
-    pub fn new() -> Self {
-        DaemonInterface {
-            command_sender: Mutex::new(None),
-        }
-    }
-
-    pub fn set_command_sender(&self, sender: DaemonCommandSender) {
-        let mut command_sender = self.command_sender.lock();
-
-        *command_sender = Some(sender);
+    pub fn new(command_sender: DaemonCommandSender) -> Self {
+        DaemonInterface { command_sender }
     }
 
     pub fn connect(&self) -> Result<()> {
@@ -190,9 +181,6 @@ impl DaemonInterface {
     }
 
     fn send_command(&self, command: ManagementCommand) -> Result<()> {
-        let locked_sender = self.command_sender.lock();
-        let sender = locked_sender.as_ref().ok_or(Error::NoSender)?;
-
-        sender.send(command).map_err(Error::NoDaemon)
+        self.command_sender.send(command).map_err(Error::NoDaemon)
     }
 }
