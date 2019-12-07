@@ -87,7 +87,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun stop() {
-        this@MullvadVpnService.resetComplete = CompletableDeferred()
+        resetComplete = CompletableDeferred()
 
         if (daemon.isCompleted) {
             runBlocking { daemon.await().shutdown() }
