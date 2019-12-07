@@ -134,9 +134,7 @@ fn initialize(
 ) -> Result<(), Error> {
     let android_context = create_android_context(env, *vpn_service)?;
     let daemon_command_sender = spawn_daemon(env, this, log_dir, android_context)?;
-    let daemon_interface = Box::new(DaemonInterface::new());
-
-    daemon_interface.set_command_sender(daemon_command_sender);
+    let daemon_interface = Box::new(DaemonInterface::new(daemon_command_sender));
 
     set_daemon_interface_address(env, this, Box::into_raw(daemon_interface) as jlong);
 
