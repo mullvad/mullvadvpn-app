@@ -22,8 +22,8 @@ import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.dataproxy.SettingsListener
 import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.MullvadDaemon
-import net.mullvad.mullvadvpn.MullvadVpnService
+import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.mullvadvpn.util.SmartDeferred
 import net.mullvad.talpid.ConnectivityListener
 

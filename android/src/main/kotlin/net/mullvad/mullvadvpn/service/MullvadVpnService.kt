@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.service
 
 import android.content.Intent
 import android.os.Binder
