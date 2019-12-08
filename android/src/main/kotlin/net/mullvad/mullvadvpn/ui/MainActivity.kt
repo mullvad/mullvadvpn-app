@@ -43,7 +43,7 @@ class MainActivity : FragmentActivity() {
     val connectionProxy = SmartDeferred(configureConnectionProxy())
     val keyStatusListener = KeyStatusListener(daemon)
     val problemReport = MullvadProblemReport()
-    var settingsListener = SettingsListener(this)
+    var settingsListener = SettingsListener(daemon)
     var relayListListener = RelayListListener(this)
     val locationInfoCache = LocationInfoCache(daemon, connectivityListener, relayListListener)
     val accountCache = AccountCache(settingsListener, daemon)
