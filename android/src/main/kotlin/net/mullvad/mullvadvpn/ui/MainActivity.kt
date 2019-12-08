@@ -44,7 +44,7 @@ class MainActivity : FragmentActivity() {
     val keyStatusListener = KeyStatusListener(daemon)
     val problemReport = MullvadProblemReport()
     var settingsListener = SettingsListener(daemon)
-    var relayListListener = RelayListListener(this)
+    var relayListListener = RelayListListener(daemon, settingsListener)
     val locationInfoCache = LocationInfoCache(daemon, connectivityListener, relayListListener)
     val accountCache = AccountCache(settingsListener, daemon)
     val wwwAuthTokenRetriever = WwwAuthTokenRetriever(daemon)
