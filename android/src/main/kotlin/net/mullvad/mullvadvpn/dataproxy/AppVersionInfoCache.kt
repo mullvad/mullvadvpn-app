@@ -1,18 +1,18 @@
 package net.mullvad.mullvadvpn.dataproxy
 
 import android.content.Context
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.AppVersionInfo
-import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.service.MullvadDaemon
 
-class AppVersionInfoCache(val parentActivity: MainActivity) {
+class AppVersionInfoCache(val context: Context, val daemon: Deferred<MullvadDaemon>) {
     companion object {
         val LEGACY_SHARED_PREFERENCES = "app_version_info_cache"
     }
 
-    private val daemon = parentActivity.daemon
     private val setUpJob = setUp()
 
     private var appVersionInfo: AppVersionInfo? = null
@@ -61,7 +61,7 @@ class AppVersionInfoCache(val parentActivity: MainActivity) {
         private set
 
     fun onCreate() {
-        parentActivity.getSharedPreferences(LEGACY_SHARED_PREFERENCES, Context.MODE_PRIVATE)
+        context.getSharedPreferences(LEGACY_SHARED_PREFERENCES, Context.MODE_PRIVATE)
             .edit()
             .clear()
             .commit()

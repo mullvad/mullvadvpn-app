@@ -39,7 +39,7 @@ class MainActivity : FragmentActivity() {
     var service = CompletableDeferred<MullvadVpnService.LocalBinder>()
         private set
 
-    var appVersionInfoCache = AppVersionInfoCache(this)
+    var appVersionInfoCache = AppVersionInfoCache(this, daemon)
     val connectionProxy = SmartDeferred(configureConnectionProxy())
     val keyStatusListener = KeyStatusListener(daemon)
     val problemReport = MullvadProblemReport()
