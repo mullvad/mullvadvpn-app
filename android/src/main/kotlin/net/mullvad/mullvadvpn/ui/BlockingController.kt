@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
