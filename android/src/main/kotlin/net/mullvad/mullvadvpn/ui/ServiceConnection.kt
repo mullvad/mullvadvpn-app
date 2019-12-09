@@ -32,7 +32,20 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     init {
         asyncDaemon.complete(daemon)
         asyncConnectivityListener.complete(connectivityListener)
+        appVersionInfoCache.onCreate()
 
         connectionProxy.mainActivity = mainActivity
+    }
+
+    fun onDestroy() {
+        asyncDaemon.cancel()
+        asyncConnectivityListener.cancel()
+
+        accountCache.onDestroy()
+        appVersionInfoCache.onDestroy()
+        keyStatusListener.onDestroy()
+        locationInfoCache.onDestroy()
+        relayListListener.onDestroy()
+        settingsListener.onDestroy()
     }
 }
