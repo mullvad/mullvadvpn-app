@@ -1,7 +1,6 @@
-use super::{
-    super::{Node, Route},
-    RouteChange,
-};
+use crate::routing::{Node, Route};
+
+use super::RouteChange;
 use futures::{future::Either, sync::mpsc, Async, Future, Stream};
 use std::{collections::BTreeMap, io, net::IpAddr};
 
