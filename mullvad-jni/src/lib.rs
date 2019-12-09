@@ -12,7 +12,8 @@ use crate::{
 use jnix::{
     jni::{
         objects::{JObject, JString, JValue},
-        sys::{jboolean, JNI_FALSE, JNI_TRUE},
+        signature::{JavaType, Primitive},
+        sys::{jboolean, jlong, JNI_FALSE, JNI_TRUE},
         JNIEnv,
     },
     IntoJava, JnixEnv,
@@ -22,6 +23,7 @@ use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
 use mullvad_types::account::AccountData;
 use std::{
     path::{Path, PathBuf},
+    ptr,
     sync::{mpsc, Arc, Once},
     thread,
 };
@@ -32,7 +34,6 @@ const LOG_FILENAME: &str = "daemon.log";
 lazy_static! {
     static ref LOG_INIT_RESULT: Result<PathBuf, String> =
         start_logging().map_err(|error| error.display_chain());
-    static ref DAEMON_INTERFACE: DaemonInterface = DaemonInterface::new();
 }
 
 static LOAD_CLASSES: Once = Once::new();
@@ -133,8 +134,9 @@ fn initialize(
 ) -> Result<(), Error> {
     let android_context = create_android_context(env, *vpn_service)?;
     let daemon_command_sender = spawn_daemon(env, this, log_dir, android_context)?;
+    let daemon_interface = Box::new(DaemonInterface::new(daemon_command_sender));
 
-    DAEMON_INTERFACE.set_command_sender(daemon_command_sender);
+    set_daemon_interface_address(env, this, Box::into_raw(daemon_interface) as jlong);
 
     Ok(())
 }
@@ -195,25 +197,108 @@ fn create_daemon(
     Ok(daemon)
 }
 
-#[no_mangle]
-#[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_connect(_: JNIEnv, _: JObject) {
-    if let Err(error) = DAEMON_INTERFACE.connect() {
-        log::error!(
+fn set_daemon_interface_address(env: &JnixEnv, this: &JObject, address: jlong) {
+    let class = env.get_class("net/mullvad/mullvadvpn/MullvadDaemon");
+    let method_id = env
+        .get_method_id(&class, "setDaemonInterfaceAddress", "(J)V")
+        .expect("Failed to get method ID for MullvadDaemon.setDaemonInterfaceAddress");
+    let return_type = JavaType::Primitive(Primitive::Void);
+
+    let result = env.call_method_unchecked(*this, method_id, return_type, &[JValue::Long(address)]);
+
+    match result {
+        Ok(JValue::Void) => {}
+        Ok(value) => panic!(
+            "Unexpected return value from MullvadDaemon.setDaemonInterfaceAddress: {:?}",
+            value
+        ),
+        Err(error) => panic!(
             "{}",
-            error.display_chain_with_msg("Failed to request daemon to connect")
-        );
+            error.display_chain_with_msg("Failed to call MullvadDaemon.setDaemonInterfaceAddress")
+        ),
+    }
+}
+
+fn get_daemon_interface_address(env: &JnixEnv, this: &JObject) -> *mut DaemonInterface {
+    let class = env.get_class("net/mullvad/mullvadvpn/MullvadDaemon");
+    let method_id = env
+        .get_method_id(&class, "getDaemonInterfaceAddress", "()J")
+        .expect("Failed to get method ID for MullvadDaemon.getDaemonInterfaceAddress");
+    let return_type = JavaType::Primitive(Primitive::Long);
+
+    let result = env.call_method_unchecked(*this, method_id, return_type, &[]);
+
+    match result {
+        Ok(JValue::Long(address)) => address as *mut DaemonInterface,
+        Ok(value) => panic!(
+            "Invalid return value from MullvadDaemon.getDaemonInterfaceAddress: {:?}",
+            value
+        ),
+        Err(error) => panic!(
+            "{}",
+            error.display_chain_with_msg("Failed to call MullvadDaemon.getDaemonInterfaceAddress")
+        ),
     }
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_disconnect(_: JNIEnv, _: JObject) {
-    if let Err(error) = DAEMON_INTERFACE.disconnect() {
-        log::error!(
-            "{}",
-            error.display_chain_with_msg("Failed to request daemon to disconnect")
-        );
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_deinitialize(
+    env: JNIEnv,
+    this: JObject,
+) {
+    let env = JnixEnv::from(env);
+    let daemon_interface_address = get_daemon_interface_address(&env, &this);
+
+    set_daemon_interface_address(&env, &this, 0);
+
+    if daemon_interface_address != ptr::null_mut() {
+        let _ = unsafe { Box::from_raw(daemon_interface_address) };
+    }
+}
+
+fn get_daemon_interface<'a>(address: jlong) -> Option<&'a mut DaemonInterface> {
+    let pointer = address as *mut DaemonInterface;
+
+    if pointer != ptr::null_mut() {
+        Some(Box::leak(unsafe { Box::from_raw(pointer) }))
+    } else {
+        log::error!("Attempt to get daemon interface while it is null");
+        None
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_connect(
+    _: JNIEnv,
+    _: JObject,
+    daemon_interface_address: jlong,
+) {
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        if let Err(error) = daemon_interface.connect() {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to request daemon to connect")
+            );
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_disconnect(
+    _: JNIEnv,
+    _: JObject,
+    daemon_interface_address: jlong,
+) {
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        if let Err(error) = daemon_interface.disconnect() {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to request daemon to disconnect")
+            );
+        }
     }
 }
 
@@ -222,219 +307,275 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_disconnect(_: J
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWireguardKey<'env>(
     env: JNIEnv<'env>,
     _: JObject,
+    daemon_interface_address: jlong,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    match DAEMON_INTERFACE.generate_wireguard_key() {
-        Ok(keygen_event) => keygen_event.into_java(&env).forget(),
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to request to generate wireguard key")
-            );
-            JObject::null()
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.generate_wireguard_key() {
+            Ok(keygen_event) => keygen_event.into_java(&env).forget(),
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to request to generate wireguard key")
+                );
+                JObject::null()
+            }
         }
+    } else {
+        JObject::null()
     }
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_verifyWireguardKey<'env, 'this>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_verifyWireguardKey<'env>(
     env: JNIEnv<'env>,
-    _: JObject<'this>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    match DAEMON_INTERFACE.verify_wireguard_key() {
-        Ok(key_is_valid) => env
-            .new_object(
-                &env.get_class("java/lang/Boolean"),
-                "(Z)V",
-                &[JValue::Bool(key_is_valid as jboolean)],
-            )
-            .expect("Failed to create Boolean Java object"),
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to verify wireguard key")
-            );
-            JObject::null()
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.verify_wireguard_key() {
+            Ok(key_is_valid) => env
+                .new_object(
+                    &env.get_class("java/lang/Boolean"),
+                    "(Z)V",
+                    &[JValue::Bool(key_is_valid as jboolean)],
+                )
+                .expect("Failed to create Boolean Java object"),
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to verify wireguard key")
+                );
+                JObject::null()
+            }
         }
+    } else {
+        JObject::null()
     }
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<'env, 'this>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<'env>(
     env: JNIEnv<'env>,
-    _: JObject<'this>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
     accountToken: JString,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
-    let account = String::from_java(&env, accountToken);
-    let result = DAEMON_INTERFACE.get_account_data(account);
 
-    if let Err(ref error) = &result {
-        log::error!(
-            "{}",
-            error.display_chain_with_msg("Failed to get account data")
-        );
-    }
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let account = String::from_java(&env, accountToken);
+        let result = daemon_interface.get_account_data(account);
 
-    GetAccountDataResult::from(result).into_java(&env).forget()
-}
-
-#[no_mangle]
-#[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWwwAuthToken<'env, 'this>(
-    env: JNIEnv<'env>,
-    _: JObject<'this>,
-) -> JObject<'env> {
-    let env = JnixEnv::from(env);
-
-    match DAEMON_INTERFACE.get_www_auth_token() {
-        Ok(token) => token.into_java(&env).forget(),
-        Err(err) => {
+        if let Err(ref error) = &result {
             log::error!(
                 "{}",
-                err.display_chain_with_msg("Failed to get WWW auth token")
+                error.display_chain_with_msg("Failed to get account data")
             );
-            String::new().into_java(&env).forget()
         }
+
+        GetAccountDataResult::from(result).into_java(&env).forget()
+    } else {
+        JObject::null()
     }
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentLocation<'env, 'this>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWwwAuthToken<'env>(
     env: JNIEnv<'env>,
-    _: JObject<'this>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    match DAEMON_INTERFACE.get_current_location() {
-        Ok(location) => location.into_java(&env).forget(),
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to get current location")
-            );
-            JObject::null()
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.get_www_auth_token() {
+            Ok(token) => token.into_java(&env).forget(),
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to get WWW auth token")
+                );
+                String::new().into_java(&env).forget()
+            }
         }
+    } else {
+        JObject::null()
     }
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentVersion<'env, 'this>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentLocation<'env>(
     env: JNIEnv<'env>,
-    _: JObject<'this>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    match DAEMON_INTERFACE.get_current_version() {
-        Ok(location) => location.into_java(&env).forget(),
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to get current version")
-            );
-            String::new().into_java(&env).forget()
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.get_current_location() {
+            Ok(location) => location.into_java(&env).forget(),
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to get current location")
+                );
+                JObject::null()
+            }
         }
+    } else {
+        JObject::null()
     }
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getRelayLocations<'env, 'this>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentVersion<'env>(
     env: JNIEnv<'env>,
-    _: JObject<'this>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    match DAEMON_INTERFACE.get_relay_locations() {
-        Ok(relay_list) => relay_list.into_java(&env).forget(),
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to get relay locations")
-            );
-            JObject::null()
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.get_current_version() {
+            Ok(location) => location.into_java(&env).forget(),
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to get current version")
+                );
+                String::new().into_java(&env).forget()
+            }
         }
+    } else {
+        JObject::null()
     }
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getSettings<'env, 'this>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getRelayLocations<'env>(
     env: JNIEnv<'env>,
-    _: JObject<'this>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    match DAEMON_INTERFACE.get_settings() {
-        Ok(settings) => settings.into_java(&env).forget(),
-        Err(error) => {
-            log::error!("{}", error.display_chain_with_msg("Failed to get settings"));
-            JObject::null()
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.get_relay_locations() {
+            Ok(relay_list) => relay_list.into_java(&env).forget(),
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to get relay locations")
+                );
+                JObject::null()
+            }
         }
+    } else {
+        JObject::null()
     }
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getState<'env, 'this>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getSettings<'env>(
     env: JNIEnv<'env>,
-    _: JObject<'this>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    match DAEMON_INTERFACE.get_state() {
-        Ok(state) => state.into_java(&env).forget(),
-        Err(error) => {
-            log::error!("{}", error.display_chain_with_msg("Failed to get state"));
-            JObject::null()
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.get_settings() {
+            Ok(settings) => settings.into_java(&env).forget(),
+            Err(error) => {
+                log::error!("{}", error.display_chain_with_msg("Failed to get settings"));
+                JObject::null()
+            }
         }
+    } else {
+        JObject::null()
     }
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getVersionInfo<'env, 'this>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getState<'env>(
     env: JNIEnv<'env>,
-    _: JObject<'this>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    match DAEMON_INTERFACE.get_version_info() {
-        Ok(version_info) => version_info.into_java(&env).forget(),
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to get version information")
-            );
-            JObject::null()
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.get_state() {
+            Ok(state) => state.into_java(&env).forget(),
+            Err(error) => {
+                log::error!("{}", error.display_chain_with_msg("Failed to get state"));
+                JObject::null()
+            }
         }
+    } else {
+        JObject::null()
     }
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey<'env, 'this>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getVersionInfo<'env>(
     env: JNIEnv<'env>,
-    _: JObject<'this>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    match DAEMON_INTERFACE.get_wireguard_key() {
-        Ok(key) => key.into_java(&env).forget(),
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to get wireguard key")
-            );
-            JObject::null()
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.get_version_info() {
+            Ok(version_info) => version_info.into_java(&env).forget(),
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to get version information")
+                );
+                JObject::null()
+            }
         }
+    } else {
+        JObject::null()
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.get_wireguard_key() {
+            Ok(key) => key.into_java(&env).forget(),
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to get wireguard key")
+                );
+                JObject::null()
+            }
+        }
+    } else {
+        JObject::null()
     }
 }
 
@@ -443,24 +584,34 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
     env: JNIEnv,
     _: JObject,
+    daemon_interface_address: jlong,
     accountToken: JString,
 ) {
     let env = JnixEnv::from(env);
-    let account = <Option<String> as FromJava>::from_java(&env, accountToken);
 
-    if let Err(error) = DAEMON_INTERFACE.set_account(account) {
-        log::error!("{}", error.display_chain_with_msg("Failed to set account"));
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let account = <Option<String> as FromJava>::from_java(&env, accountToken);
+
+        if let Err(error) = daemon_interface.set_account(account) {
+            log::error!("{}", error.display_chain_with_msg("Failed to set account"));
+        }
     }
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_shutdown(_: JNIEnv, _: JObject) {
-    if let Err(error) = DAEMON_INTERFACE.shutdown() {
-        log::error!(
-            "{}",
-            error.display_chain_with_msg("Failed to shutdown daemon thread")
-        );
+pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_shutdown(
+    _: JNIEnv,
+    _: JObject,
+    daemon_interface_address: jlong,
+) {
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        if let Err(error) = daemon_interface.shutdown() {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to shutdown daemon thread")
+            );
+        }
     }
 }
 
@@ -469,16 +620,20 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_shutdown(_: JNI
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_updateRelaySettings(
     env: JNIEnv,
     _: JObject,
+    daemon_interface_address: jlong,
     relaySettingsUpdate: JObject,
 ) {
     let env = JnixEnv::from(env);
-    let update = FromJava::from_java(&env, relaySettingsUpdate);
 
-    if let Err(error) = DAEMON_INTERFACE.update_relay_settings(update) {
-        log::error!(
-            "{}",
-            error.display_chain_with_msg("Failed to update relay settings")
-        );
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let update = FromJava::from_java(&env, relaySettingsUpdate);
+
+        if let Err(error) = daemon_interface.update_relay_settings(update) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to update relay settings")
+            );
+        }
     }
 }
 

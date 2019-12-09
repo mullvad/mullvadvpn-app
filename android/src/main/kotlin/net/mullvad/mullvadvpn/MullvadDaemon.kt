@@ -12,6 +12,8 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.util.EventNotifier
 
 class MullvadDaemon(val vpnService: MullvadVpnService) {
+    protected var daemonInterfaceAddress = 0L
+
     val onSettingsChange = EventNotifier<Settings?>(null)
 
     var onAppVersionInfoChange: ((AppVersionInfo) -> Unit)? = null
@@ -26,24 +28,95 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         onSettingsChange.notify(getSettings())
     }
 
-    external fun connect()
-    external fun disconnect()
-    external fun generateWireguardKey(): KeygenEvent?
-    external fun getAccountData(accountToken: String): GetAccountDataResult
-    external fun getWwwAuthToken(): String
-    external fun getCurrentLocation(): GeoIpLocation?
-    external fun getCurrentVersion(): String
-    external fun getRelayLocations(): RelayList
-    external fun getSettings(): Settings
-    external fun getState(): TunnelState
-    external fun getVersionInfo(): AppVersionInfo?
-    external fun getWireguardKey(): PublicKey?
-    external fun setAccount(accountToken: String?)
-    external fun shutdown()
-    external fun updateRelaySettings(update: RelaySettingsUpdate)
-    external fun verifyWireguardKey(): Boolean?
+    fun connect() {
+        connect(daemonInterfaceAddress)
+    }
+
+    fun disconnect() {
+        disconnect(daemonInterfaceAddress)
+    }
+
+    fun generateWireguardKey(): KeygenEvent? {
+        return generateWireguardKey(daemonInterfaceAddress)
+    }
+
+    fun getAccountData(accountToken: String): GetAccountDataResult {
+        return getAccountData(daemonInterfaceAddress, accountToken)
+    }
+
+    fun getWwwAuthToken(): String {
+        return getWwwAuthToken(daemonInterfaceAddress)
+    }
+
+    fun getCurrentLocation(): GeoIpLocation? {
+        return getCurrentLocation(daemonInterfaceAddress)
+    }
+
+    fun getCurrentVersion(): String {
+        return getCurrentVersion(daemonInterfaceAddress)
+    }
+
+    fun getRelayLocations(): RelayList {
+        return getRelayLocations(daemonInterfaceAddress)
+    }
+
+    fun getSettings(): Settings {
+        return getSettings(daemonInterfaceAddress)
+    }
+
+    fun getState(): TunnelState {
+        return getState(daemonInterfaceAddress)
+    }
+
+    fun getVersionInfo(): AppVersionInfo? {
+        return getVersionInfo(daemonInterfaceAddress)
+    }
+
+    fun getWireguardKey(): PublicKey? {
+        return getWireguardKey(daemonInterfaceAddress)
+    }
+
+    fun setAccount(accountToken: String?) {
+        setAccount(daemonInterfaceAddress, accountToken)
+    }
+
+    fun shutdown() {
+        shutdown(daemonInterfaceAddress)
+    }
+
+    fun updateRelaySettings(update: RelaySettingsUpdate) {
+        updateRelaySettings(daemonInterfaceAddress, update)
+    }
+
+    fun verifyWireguardKey(): Boolean? {
+        return verifyWireguardKey(daemonInterfaceAddress)
+    }
 
     private external fun initialize(vpnService: MullvadVpnService)
+    private external fun deinitialize()
+
+    private external fun connect(daemonInterfaceAddress: Long)
+    private external fun disconnect(daemonInterfaceAddress: Long)
+    private external fun generateWireguardKey(daemonInterfaceAddress: Long): KeygenEvent?
+    private external fun getAccountData(
+        daemonInterfaceAddress: Long,
+        accountToken: String
+    ): GetAccountDataResult
+    private external fun getWwwAuthToken(daemonInterfaceAddress: Long): String
+    private external fun getCurrentLocation(daemonInterfaceAddress: Long): GeoIpLocation?
+    private external fun getCurrentVersion(daemonInterfaceAddress: Long): String
+    private external fun getRelayLocations(daemonInterfaceAddress: Long): RelayList
+    private external fun getSettings(daemonInterfaceAddress: Long): Settings
+    private external fun getState(daemonInterfaceAddress: Long): TunnelState
+    private external fun getVersionInfo(daemonInterfaceAddress: Long): AppVersionInfo?
+    private external fun getWireguardKey(daemonInterfaceAddress: Long): PublicKey?
+    private external fun setAccount(daemonInterfaceAddress: Long, accountToken: String?)
+    private external fun shutdown(daemonInterfaceAddress: Long)
+    private external fun updateRelaySettings(
+        daemonInterfaceAddress: Long,
+        update: RelaySettingsUpdate
+    )
+    private external fun verifyWireguardKey(daemonInterfaceAddress: Long): Boolean?
 
     private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo) {
         onAppVersionInfoChange?.invoke(appVersionInfo)
@@ -63,5 +136,9 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
 
     private fun notifyTunnelStateEvent(event: TunnelState) {
         onTunnelStateChange?.invoke(event)
+    }
+
+    private fun finalize() {
+        deinitialize()
     }
 }
