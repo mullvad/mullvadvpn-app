@@ -81,6 +81,11 @@ The following network traffic is always allowed to flow. It is never blocked, re
      * Incoming UDP from `*:68` to `255.255.255.255:67`
      * Outgoing UDP from `*:67` to `*:68`
 
+#### macOS deviations
+
+* The app does not look at ICMPv6 type and code headers. So all ICMPv6 is allowed between the
+  specified IP networks
+
 ### Disconnected
 
 This is the default state that the `mullvad-daemon` starts in when the device boots, unless
