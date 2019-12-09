@@ -1,4 +1,4 @@
-use super::{NetNode, Node, Route};
+use crate::routing::{NetNode, Node, Route};
 
 use ipnetwork::IpNetwork;
 use std::{
@@ -401,12 +401,12 @@ fn parse_ip_route_show_line(line: &str, ip_version: IpVersion) -> Option<Route> 
     if node_ip.is_none() && device.is_none() {
         None
     } else {
-        let node = super::Node {
+        let node = Node {
             ip: node_ip,
             device,
         };
 
-        Some(super::Route {
+        Some(Route {
             node,
             prefix,
             metric,
