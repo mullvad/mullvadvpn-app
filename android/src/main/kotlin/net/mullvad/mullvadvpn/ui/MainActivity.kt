@@ -30,7 +30,7 @@ class MainActivity : FragmentActivity() {
         val KEY_SHOULD_CONNECT = "should_connect"
     }
 
-    var serviceConnection: ServiceConnection? = null
+    private var serviceConnection: ServiceConnection? = null
     private var serviceConnectionSubscription: Int? = null
 
     var daemon = CompletableDeferred<MullvadDaemon>()
