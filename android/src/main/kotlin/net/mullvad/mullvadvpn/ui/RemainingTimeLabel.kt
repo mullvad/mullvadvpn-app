@@ -27,7 +27,7 @@ class RemainingTimeLabel(val parentActivity: MainActivity, val view: View) {
         parentActivity.accountCache.apply {
             refetch()
 
-            onAccountDataChange = { accountNumber, accountExpiry ->
+            onAccountDataChange = { _, accountExpiry ->
                 updateJob?.cancel()
                 updateJob = updateLabel(accountExpiry)
             }
