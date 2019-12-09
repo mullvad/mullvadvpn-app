@@ -13,10 +13,10 @@ use std::{
 use talpid_types::ErrorExt;
 use windows_service::{
     service::{
-        Service, ServiceAccess, ServiceAction, ServiceActionType, ServiceControl, ServiceControlAccept,
-        ServiceDependency, ServiceErrorControl, ServiceExitCode, ServiceFailureActions,
-        ServiceFailureResetPeriod, ServiceInfo, ServiceSidType, ServiceStartType, ServiceState,
-        ServiceStatus, ServiceType,
+        Service, ServiceAccess, ServiceAction, ServiceActionType, ServiceControl,
+        ServiceControlAccept, ServiceDependency, ServiceErrorControl, ServiceExitCode,
+        ServiceFailureActions, ServiceFailureResetPeriod, ServiceInfo, ServiceSidType,
+        ServiceStartType, ServiceState, ServiceStatus, ServiceType,
     },
     service_control_handler::{self, ServiceControlHandlerResult, ServiceStatusHandle},
     service_dispatcher,
@@ -301,7 +301,9 @@ pub fn install_service() -> Result<(), InstallError> {
     Ok(())
 }
 
-fn open_update_service(service_manager: &ServiceManager) -> Result<Service, windows_service::Error> {
+fn open_update_service(
+    service_manager: &ServiceManager,
+) -> Result<Service, windows_service::Error> {
     let service = service_manager.open_service(SERVICE_NAME, *SERVICE_ACCESS)?;
     service.change_config(&get_service_info())?;
     Ok(service)
