@@ -140,16 +140,22 @@ impl KeyManager {
         let remote_clone = tokio_remote.clone();
         let daemon_tx_clone = daemon_tx.clone();
 
+        let abort_scheduler_tx = match automatic_key_rotation {
+            // Interval=0 disables automatic key rotation
+            Some(0) => None,
+            _ => KeyRotationScheduler::new(
+                remote_clone,
+                daemon_tx_clone,
+                automatic_key_rotation,
+            ).ok(),
+        };
+
         Self {
             daemon_tx,
             http_handle,
             tokio_remote,
             current_job: None,
-            abort_scheduler_tx: KeyRotationScheduler::new(
-                remote_clone,
-                daemon_tx_clone,
-                automatic_key_rotation,
-            ).ok()
+            abort_scheduler_tx,
         }
     }
 
