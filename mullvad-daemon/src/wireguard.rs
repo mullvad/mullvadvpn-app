@@ -31,6 +31,10 @@ pub enum Error {
     TooManyKeys,
     #[error(display = "Failed to create Delay object")]
     Delay,
+    #[error(display = "Failed to create key rotation scheduler")]
+    CreateAutomaticKeyRotationScheduler,
+    #[error(display = "Failed to run automatic key rotation")]
+    RunAutomaticKeyRotation,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -62,12 +66,14 @@ impl Future for KeyRotationScheduler {
 
         let _ = self.daemon_tx.send(InternalDaemonEvent::ManagementInterfaceEvent(
             ManagementCommand::GenerateWireguardKey(wg_tx)
-        )).map_err(|_| Error::Delay)?;
+        ))
+        .map_err(|_| Error::RunAutomaticKeyRotation)?;
 
+        log::info!("!!! Sending message DONE");
+
+        // TODO: replace with configurable interval
         let somedelay = Instant::now() + Duration::from_secs(30);
-        self.delay = Some(Box::new(Delay::new(somedelay)
-            .map_err(|_| ())
-        ));
+        self.delay = Some(Box::new(Delay::new(somedelay).map_err(|_| ())));
         return self.delay
             .as_mut()
             .unwrap()
@@ -100,10 +106,16 @@ impl KeyRotationScheduler {
         };
 
         tokio_remote.execute(
-            fut.map_err(|_| {
-                log::error!("Failed to run key rotation scheduler")
-            }) // FIXME: err
-        ); // FIXME: select terminate rx
+            fut.map_err(|e| {
+                log::error!("Failed to run key rotation scheduler: {}", e)
+            })
+            .select(terminate_auto_rotation_rx.map_err(|_| ()))
+            .map_err(|_| ())
+            .map(|_| ())
+        ).map_err(|e| {
+            log::error!("Failed to run key rotation scheduler: {:?}", e);
+            Error::CreateAutomaticKeyRotationScheduler
+        })?;
 
         Ok(terminate_auto_rotation_tx)
     }
