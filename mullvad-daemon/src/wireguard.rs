@@ -137,26 +137,40 @@ impl KeyManager {
         tokio_remote: Remote,
         automatic_key_rotation: Option<u32>,
     ) -> Self {
-        let remote_clone = tokio_remote.clone();
-        let daemon_tx_clone = daemon_tx.clone();
-
-        let abort_scheduler_tx = match automatic_key_rotation {
-            // Interval=0 disables automatic key rotation
-            Some(0) => None,
-            _ => KeyRotationScheduler::new(
-                remote_clone,
-                daemon_tx_clone,
-                automatic_key_rotation,
-            ).ok(),
-        };
-
-        Self {
+        let mut manager = Self {
             daemon_tx,
             http_handle,
             tokio_remote,
             current_job: None,
-            abort_scheduler_tx,
+            abort_scheduler_tx: None,
+        };
+        manager.update_rotation_interval(automatic_key_rotation);
+
+        manager
+    }
+
+    /// Update automatic key rotation interval (given in hours)
+    /// Passing `None` will use the default value.
+    /// A value of `0` disables automatic key rotation.
+    pub fn update_rotation_interval(
+        &mut self,
+        automatic_key_rotation: Option<u32>,
+    ) {
+        log::debug!("update_rotation_interval");
+        if self.abort_scheduler_tx.is_some() {
+            // Stop existing scheduler, if one exists
+            let tx = self.abort_scheduler_tx.take().unwrap();
+            tx.send(());
         }
+        self.abort_scheduler_tx = match automatic_key_rotation {
+            // Interval=0 disables automatic key rotation
+            Some(0) => None,
+            _ => KeyRotationScheduler::new(
+                self.tokio_remote.clone(),
+                self.daemon_tx.clone(),
+                automatic_key_rotation,
+            ).ok(),
+        };
     }
 
     /// Stop current key generation
