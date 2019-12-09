@@ -19,7 +19,7 @@ extension IPEndpont: Codable where T: Codable {}
 
 extension IPEndpont: Equatable {
     static func == (lhs: IPEndpont<T>, rhs: IPEndpont<T>) -> Bool {
-        "\(lhs.ip)" == "\(rhs.ip)" && lhs.port == rhs.port
+        lhs.ip.rawValue == rhs.ip.rawValue && lhs.port == rhs.port
     }
 }
 
