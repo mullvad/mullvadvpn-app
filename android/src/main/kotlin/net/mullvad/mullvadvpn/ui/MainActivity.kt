@@ -88,7 +88,7 @@ class MainActivity : FragmentActivity() {
 
         appVersionInfoCache.onCreate()
 
-        if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false) ?: false) {
+        if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false)) {
             connectionProxy.awaitThen { connect() }
         }
     }
