@@ -114,6 +114,9 @@ class RootContainerViewController: UIViewController {
     // MARK: - Storyboard segue handling
 
     override func unwind(for unwindSegue: UIStoryboardSegue, towards subsequentVC: UIViewController) {
+        // Make sure there is no attempt to unwind to the top view controller
+        guard subsequentVC != topViewController else { return }
+
         let index = viewControllers.firstIndex(of: subsequentVC)!
         let newViewControllers = Array(viewControllers.prefix(through: index))
 
