@@ -17,6 +17,8 @@ use tokio_retry::{
 };
 
 const TOO_MANY_KEYS_ERROR_CODE: i64 = -703;
+/// Default automatic key rotation (in hours)
+const DEFAULT_AUTOMATIC_KEY_ROTATION: u32 = 7 * 24;
 
 
 #[derive(err_derive::Error, Debug)]
@@ -44,7 +46,7 @@ use talpid_core::tunnel_state_machine::TunnelCommand;
 
 pub struct KeyRotationScheduler {
     daemon_tx: mpsc::Sender<InternalDaemonEvent>,
-    delay: Option<Box<dyn Future<Item = (), Error = ()> + Send>>,
+    delay: Box<dyn Future<Item = (), Error = ()> + Send>,
 }
 
 impl Future for KeyRotationScheduler {
@@ -54,12 +56,10 @@ impl Future for KeyRotationScheduler {
     fn poll(&mut self) -> Poll<(), Error> {
         log::debug!("Poll key rotation future");
 
-        if let Some(delay) = &mut self.delay {
-            match delay.poll() {
-                Ok(Async::NotReady) => return Ok(Async::NotReady),
-                Err(_) => return Err(Error::Delay),
-                _ => (),
-            }
+        match self.delay.poll() {
+            Ok(Async::NotReady) => return Ok(Async::NotReady),
+            Err(_) => return Err(Error::Delay),
+            _ => (),
         }
 
         let (wg_tx, wg_rx) = oneshot::channel();
@@ -73,10 +73,8 @@ impl Future for KeyRotationScheduler {
 
         // TODO: replace with configurable interval
         let somedelay = Instant::now() + Duration::from_secs(30);
-        self.delay = Some(Box::new(Delay::new(somedelay).map_err(|_| ())));
+        self.delay = Box::new(Delay::new(somedelay).map_err(|_| ()));
         return self.delay
-            .as_mut()
-            .unwrap()
             .poll()
             .map_err(|_| Error::Delay);
     }
@@ -86,19 +84,22 @@ impl KeyRotationScheduler {
     pub(crate) fn new(
         tokio_remote: Remote,
         daemon_tx: mpsc::Sender<InternalDaemonEvent>,
-        initial_delay: Option<Duration>,
+        automatic_key_rotation: Option<u32>,
     ) -> Result<oneshot::Sender<()>> {
         let (
             terminate_auto_rotation_tx,
             terminate_auto_rotation_rx
         ) = oneshot::channel();
 
-        let delay: Option<Box<dyn Future<Item = (), Error = ()> + Send>> =
-            if let Some(delay) = initial_delay {
-                Some( Box::new(Delay::new(Instant::now() + delay).map_err(|_| ())) )
-            } else {
-                None
-            };
+        // TODO: calculate next interval. compare to 'automatic_key_rotation'
+
+        let automatic_key_rotation =
+            automatic_key_rotation.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
+        let automatic_key_rotation =
+            Duration::from_secs((60 * automatic_key_rotation).into());
+
+        let delay: Box<dyn Future<Item = (), Error = ()> + Send> =
+            Box::new(Delay::new(Instant::now() + automatic_key_rotation).map_err(|_| ()));
 
         let fut = Self {
             daemon_tx: daemon_tx.clone(),
@@ -134,6 +135,7 @@ impl KeyManager {
         daemon_tx: mpsc::Sender<InternalDaemonEvent>,
         http_handle: mullvad_rpc::HttpHandle,
         tokio_remote: Remote,
+        automatic_key_rotation: Option<u32>,
     ) -> Self {
         let remote_clone = tokio_remote.clone();
         let daemon_tx_clone = daemon_tx.clone();
@@ -146,7 +148,7 @@ impl KeyManager {
             abort_scheduler_tx: KeyRotationScheduler::new(
                 remote_clone,
                 daemon_tx_clone,
-                Some(Duration::from_secs(30)),
+                automatic_key_rotation,
             ).ok()
         }
     }
