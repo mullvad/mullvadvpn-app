@@ -54,10 +54,11 @@ The following network traffic is always allowed to flow. It is never blocked, re
 1. All traffic on loopback adapters
 
 1. DHCPv4 and DHCPv6 requests to go out and responses to come in:
-   * Outgoing from `*:68` to `255.255.255.255:67` (client to server)
-   * Incoming `*:67` to `*:68` (server to client)
-   * Outgoing from `[fe80::]/10:546` to `[ff02::1:2]:547` and `[ff05::1:3]:547` (client to server)
-   * Incoming from `[fe80::]/10:547` to `[fe80::]/10:546` (server to client)
+   * Outgoing UDP from `*:68` to `255.255.255.255:67` (client to server)
+   * Incoming UDP `*:67` to `*:68` (server to client)
+   * Outgoing UDP from `[fe80::]/10:546` to `[ff02::1:2]:547` and `[ff05::1:3]:547` (client to
+     server)
+   * Incoming UDP from `[fe80::]/10:547` to `[fe80::]/10:546` (server to client)
 
 1. Router solicitation, advertisement and redirects (subset of NDP):
    * Outgoing to `ff02::2`, but only ICMPv6 with type 133 and code 0.
@@ -77,8 +78,8 @@ The following network traffic is always allowed to flow. It is never blocked, re
      * `ff02::/16` (Link-local IPv6 multicast. IPv6 equivalent of `224.0.0.0/24`)
      * `ff05::/16` (Site-local IPv6 multicast. Is routable, but should never leave the "site")
    * Incoming DHCPv4 requests and outgoing responses (be a DHCPv4 server):
-     * Incoming from `*:68` to `255.255.255.255:67`
-     * Outgoing from `*:67` to `*:68`
+     * Incoming UDP from `*:68` to `255.255.255.255:67`
+     * Outgoing UDP from `*:67` to `*:68`
 
 ### Disconnected
 
