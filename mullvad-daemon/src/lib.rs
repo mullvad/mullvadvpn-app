@@ -1357,6 +1357,7 @@ where
                 Self::oneshot_send(tx, (), "set_wireguard_automatic_rotation response");
                 if settings_changed {
                     self.event_listener.notify_settings(self.settings.clone());
+                    self.wireguard_key_manager.update_rotation_interval(interval);
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
