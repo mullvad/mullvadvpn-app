@@ -21,7 +21,7 @@ export type TunnelParameterError =
   | 'no_wireguard_key'
   | 'custom_tunnel_host_resultion_error';
 
-export type BlockReason =
+export type ErrorStateCause =
   | {
       reason:
         | 'ipv6_unavailable'
@@ -99,7 +99,12 @@ export type TunnelState =
   | { state: 'connecting'; details?: ITunnelStateRelayInfo }
   | { state: 'connected'; details: ITunnelStateRelayInfo }
   | { state: 'disconnecting'; details: AfterDisconnect }
-  | { state: 'blocked'; details: BlockReason };
+  | { state: 'error'; details: IErrorState };
+
+export interface IErrorState {
+  isBlocking: boolean;
+  cause: ErrorStateCause;
+}
 
 export type RelayLocation =
   | { hostname: [string, string, string] }

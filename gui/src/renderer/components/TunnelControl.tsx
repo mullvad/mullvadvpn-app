@@ -115,21 +115,14 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
     let state = this.props.tunnelState.state;
 
     switch (this.props.tunnelState.state) {
-      case 'blocked':
-        switch (this.props.tunnelState.details.reason) {
-          case 'set_firewall_policy_error':
-            state = 'disconnected';
-            break;
-          default:
-            state = 'blocked';
-            break;
-        }
+      case 'error':
+        state = this.props.tunnelState.details.isBlocking ? 'error' : 'disconnected';
         break;
 
       case 'disconnecting':
         switch (this.props.tunnelState.details) {
           case 'block':
-            state = 'blocked';
+            state = 'error';
             break;
           case 'reconnect':
             state = 'connecting';
@@ -177,7 +170,7 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
           </Wrapper>
         );
 
-      case 'blocked':
+      case 'error':
         return (
           <Wrapper>
             <Body>

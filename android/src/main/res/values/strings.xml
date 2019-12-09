@@ -70,6 +70,7 @@
     <string name="creating_secure_connection">Creating secure connection</string>
     <string name="secure_connection">Secure connection</string>
     <string name="blocked_connection">Blocked connection</string>
+    <string name="error_state">Failed to secure connection</string>
     <string name="connect">Secure my connection</string>
     <string name="cancel">Cancel</string>
     <string name="disconnect">Disconnect</string>
@@ -81,6 +82,7 @@
     <string name="out_address">Out  %1$s</string>
 
     <string name="blocking_internet">Blocking internet</string>
+    <string name="not_blocking_internet">Failed to block internet</string>
     <string name="auth_failed">Account authentication failed.</string>
     <string name="ipv6_unavailable">Could not configure IPv6</string>
     <string name="set_firewall_policy_error">

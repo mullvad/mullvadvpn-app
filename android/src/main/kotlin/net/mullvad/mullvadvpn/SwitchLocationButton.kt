@@ -64,7 +64,7 @@ class SwitchLocationButton(val parentView: View, val resources: Resources) {
                 }
                 is TunnelState.Connecting -> showLabel()
                 is TunnelState.Connected -> showLabel()
-                is TunnelState.Blocked -> showLocation()
+                is TunnelState.Error -> showLocation()
             }
         }
     }

@@ -64,7 +64,7 @@ use talpid_core::{
 use talpid_types::android::AndroidContext;
 use talpid_types::{
     net::{openvpn, TransportProtocol, TunnelParameters},
-    tunnel::{BlockReason, ParameterGenerationError, TunnelStateTransition},
+    tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
 
@@ -565,7 +565,7 @@ where
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
             }
-            TunnelStateTransition::Blocked(reason) => TunnelState::Blocked(reason.clone()),
+            TunnelStateTransition::Error(error_state) => TunnelState::Error(error_state.clone()),
         };
 
         self.unschedule_reconnect();
@@ -573,10 +573,20 @@ where
         debug!("New tunnel state: {:?}", tunnel_state);
         match tunnel_state {
             TunnelState::Disconnected => self.state.disconnected(),
-            TunnelState::Blocked(ref reason) => {
-                info!("Blocking all network connections, reason: {}", reason);
+            TunnelState::Error(ref error_state) => {
+                if error_state.is_blocking() {
+                    info!(
+                        "Blocking all network connections, reason: {}",
+                        error_state.cause()
+                    );
+                } else {
+                    error!(
+                        "FAILED TO BLOCK NETWORK CONNECTIONS, ENTERED ERROR STATE BECAUSE: {}",
+                        error_state.cause()
+                    );
+                }
 
-                if let BlockReason::AuthFailed(_) = reason {
+                if let ErrorStateCause::AuthFailed(_) = error_state.cause() {
                     self.schedule_reconnect(Duration::from_secs(60))
                 }
             }
@@ -925,7 +935,7 @@ where
     }
 
     fn on_reconnect(&mut self) {
-        if self.target_state == TargetState::Secured || self.tunnel_state.is_blocked() {
+        if self.target_state == TargetState::Secured || self.tunnel_state.is_in_error_state() {
             self.connect_tunnel();
         } else {
             debug!("Ignoring reconnect command. Currently not in secured state");
@@ -955,7 +965,7 @@ where
                             .map(Some),
                     )
                 }
-                Blocked(..) => {
+                Error(..) => {
                     // We are not online at all at this stage so no location data is available.
                     Box::new(future::result(Ok(None)))
                 }
@@ -1485,7 +1495,7 @@ where
     /// progress towards that state.
     /// Returns an error if trying to set secured state, but no account token is present.
     fn set_target_state(&mut self, new_state: TargetState) {
-        if new_state != self.target_state || self.tunnel_state.is_blocked() {
+        if new_state != self.target_state || self.tunnel_state.is_in_error_state() {
             debug!("Target state {:?} => {:?}", self.target_state, new_state);
             self.target_state = new_state;
             match self.target_state {

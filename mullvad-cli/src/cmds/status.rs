@@ -2,7 +2,7 @@ use crate::{new_rpc_client, Command, Error, Result};
 use futures::{Future, Stream};
 use mullvad_ipc_client::DaemonRpcClient;
 use mullvad_types::{auth_failed::AuthFailed, states::TunnelState, DaemonEvent};
-use talpid_types::tunnel::BlockReason;
+use talpid_types::tunnel::{ErrorState, ErrorStateCause};
 
 pub struct Status;
 
@@ -91,7 +91,7 @@ fn print_state(state: &TunnelState) {
     use self::TunnelState::*;
     print!("Tunnel status: ");
     match state {
-        Blocked(reason) => print_blocked_reason(reason),
+        Error(reason) => print_error_state(reason),
         Connected { endpoint, .. } => {
             println!("Connected to {}", endpoint);
         }
@@ -101,9 +101,18 @@ fn print_state(state: &TunnelState) {
     }
 }
 
-fn print_blocked_reason(reason: &BlockReason) {
+fn print_error_state(error_state: &ErrorState) {
+    if !error_state.is_blocking() {
+        eprintln!("Mullvad daemon failed to setup firewall rules!");
+        eprintln!("Deamon cannot block traffic from flowing, non-local traffic will leak");
+    }
+
+    print_blocked_reason(error_state.cause());
+}
+
+fn print_blocked_reason(reason: &ErrorStateCause) {
     match reason {
-        BlockReason::AuthFailed(ref auth_failure) => {
+        ErrorStateCause::AuthFailed(ref auth_failure) => {
             let auth_failure_str = auth_failure
                 .as_ref()
                 .map(|s| s.as_str())
@@ -111,8 +120,8 @@ fn print_blocked_reason(reason: &BlockReason) {
             println!("Blocked: {}", AuthFailed::from(auth_failure_str));
         }
         #[cfg(target_os = "linux")]
-        BlockReason::SetFirewallPolicyError => {
-            println!("Blocked: {}", BlockReason::SetFirewallPolicyError);
+        ErrorStateCause::SetFirewallPolicyError => {
+            println!("Blocked: {}", ErrorStateCause::SetFirewallPolicyError);
             println!("Your kernel might be terribly out of date or missing nftables");
         }
         other => println!("Blocked: {}", other),

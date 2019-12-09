@@ -1,5 +1,5 @@
 use super::{
-    AfterDisconnect, BlockedState, ConnectedState, ConnectedStateBootstrap, DisconnectingState,
+    AfterDisconnect, ConnectedState, ConnectedStateBootstrap, DisconnectingState, ErrorState,
     EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition,
     TunnelStateWrapper,
 };
@@ -22,7 +22,7 @@ use std::{
 };
 use talpid_types::{
     net::{openvpn, TunnelParameters},
-    tunnel::BlockReason,
+    tunnel::ErrorStateCause,
     ErrorExt,
 };
 
@@ -34,7 +34,7 @@ const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 pub struct ConnectingState {
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_parameters: TunnelParameters,
-    tunnel_close_event: Option<oneshot::Receiver<Option<BlockReason>>>,
+    tunnel_close_event: Option<oneshot::Receiver<Option<ErrorStateCause>>>,
     close_handle: Option<CloseHandle>,
     retry_attempt: u32,
 }
@@ -92,7 +92,7 @@ impl ConnectingState {
 
     fn spawn_tunnel_monitor_wait_thread(
         tunnel_monitor: TunnelMonitor,
-    ) -> Option<oneshot::Receiver<Option<BlockReason>>> {
+    ) -> Option<oneshot::Receiver<Option<ErrorStateCause>>> {
         let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
 
         thread::spawn(move || {
@@ -120,7 +120,7 @@ impl ConnectingState {
         Some(tunnel_close_event_rx)
     }
 
-    fn wait_for_tunnel_monitor(tunnel_monitor: TunnelMonitor) -> Option<BlockReason> {
+    fn wait_for_tunnel_monitor(tunnel_monitor: TunnelMonitor) -> Option<ErrorStateCause> {
         match tunnel_monitor.wait() {
             Ok(_) => None,
             Err(error) => match error {
@@ -135,7 +135,7 @@ impl ConnectingState {
                         "{}",
                         error.display_chain_with_msg("TAP adapter problem detected")
                     );
-                    Some(BlockReason::TapAdapterProblem)
+                    Some(ErrorStateCause::TapAdapterProblem)
                 }
                 error => {
                     warn!(
@@ -183,7 +183,7 @@ impl ConnectingState {
                             (
                                 self.close_handle,
                                 self.tunnel_close_event,
-                                AfterDisconnect::Block(BlockReason::SetFirewallPolicyError),
+                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError),
                             ),
                         ))
                     }
@@ -201,7 +201,7 @@ impl ConnectingState {
                         (
                             self.close_handle,
                             self.tunnel_close_event,
-                            AfterDisconnect::Block(BlockReason::IsOffline),
+                            AfterDisconnect::Block(ErrorStateCause::IsOffline),
                         ),
                     ))
                 } else {
@@ -248,7 +248,7 @@ impl ConnectingState {
                 (
                     self.close_handle,
                     self.tunnel_close_event,
-                    AfterDisconnect::Block(BlockReason::AuthFailed(reason)),
+                    AfterDisconnect::Block(ErrorStateCause::AuthFailed(reason)),
                 ),
             )),
             Ok(TunnelEvent::Up(metadata)) => NewState(ConnectedState::enter(
@@ -282,7 +282,7 @@ impl ConnectingState {
         match poll_result {
             Ok(Async::Ready(block_reason)) => {
                 if let Some(reason) = block_reason {
-                    return EventConsequence::NewState(BlockedState::enter(shared_values, reason));
+                    return EventConsequence::NewState(ErrorState::enter(shared_values, reason));
                 }
             }
             Ok(Async::NotReady) => return EventConsequence::NoEvents(self),
@@ -333,13 +333,15 @@ impl TunnelState for ConnectingState {
         retry_attempt: u32,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         if shared_values.is_offline {
-            return BlockedState::enter(shared_values, BlockReason::IsOffline);
+            return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
         }
         match shared_values
             .tunnel_parameters_generator
             .generate(retry_attempt)
         {
-            Err(err) => BlockedState::enter(shared_values, BlockReason::TunnelParameterError(err)),
+            Err(err) => {
+                ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
+            }
             Ok(tunnel_parameters) => {
                 if let Err(error) = Self::set_firewall_policy(shared_values, &tunnel_parameters) {
                     error!(
@@ -348,7 +350,7 @@ impl TunnelState for ConnectingState {
                             "Failed to apply firewall policy for connecting state"
                         )
                     );
-                    BlockedState::enter(shared_values, BlockReason::StartTunnelError)
+                    ErrorState::enter(shared_values, ErrorStateCause::StartTunnelError)
                 } else {
                     #[cfg(target_os = "android")]
                     {
@@ -394,10 +396,12 @@ impl TunnelState for ConnectingState {
                                     error.display_chain_with_msg("Failed to start tunnel")
                                 );
                                 let block_reason = match error {
-                                    tunnel::Error::EnableIpv6Error => BlockReason::Ipv6Unavailable,
-                                    _ => BlockReason::StartTunnelError,
+                                    tunnel::Error::EnableIpv6Error => {
+                                        ErrorStateCause::Ipv6Unavailable
+                                    }
+                                    _ => ErrorStateCause::StartTunnelError,
                                 };
-                                BlockedState::enter(shared_values, block_reason)
+                                ErrorState::enter(shared_values, block_reason)
                             }
                         }
                     }
