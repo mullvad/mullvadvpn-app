@@ -53,7 +53,7 @@ class MainActivity : FragmentActivity() {
     private var serviceToStop: MullvadVpnService.LocalBinder? = null
     private var waitForDaemonJob: Job? = null
 
-    private val serviceConnection = object : ServiceConnection {
+    private val serviceConnectionManager = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             val localBinder = binder as MullvadVpnService.LocalBinder
 
@@ -99,7 +99,7 @@ class MainActivity : FragmentActivity() {
         val intent = Intent(this, MullvadVpnService::class.java)
 
         startService(intent)
-        bindService(intent, serviceConnection, 0)
+        bindService(intent, serviceConnectionManager, 0)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
@@ -110,7 +110,7 @@ class MainActivity : FragmentActivity() {
         quitJob?.cancel()
 
         serviceToStop?.apply { stop() }
-        unbindService(serviceConnection)
+        unbindService(serviceConnectionManager)
 
         super.onStop()
     }
