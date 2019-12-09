@@ -74,8 +74,10 @@ impl Future for RouteManagerImpl {
                 }
                 Ok(Async::Ready(()))
             }
+            Err(_) => {
+                self.shutdown();
+            }
             Ok(Async::NotReady) => Ok(Async::NotReady),
-            Err(_) => Ok(Async::Ready(())),
         }
     }
 }
