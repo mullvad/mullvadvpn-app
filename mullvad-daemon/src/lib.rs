@@ -825,6 +825,7 @@ where
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
+            SetWireguardAutomaticRotation(tx, interval) => self.on_set_wireguard_automatic_rotation(tx, interval),
             GetSettings(tx) => self.on_get_settings(tx),
             GenerateWireguardKey(tx) => self.on_generate_wireguard_key(tx),
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx),
@@ -1343,6 +1344,19 @@ where
                     self.event_listener.notify_settings(self.settings.clone());
                     info!("Initiating tunnel restart because the WireGuard MTU setting changed");
                     self.reconnect_tunnel();
+                }
+            }
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+        }
+    }
+
+    fn on_set_wireguard_automatic_rotation(&mut self, tx: oneshot::Sender<()>, interval: Option<u32>) {
+        let save_result = self.settings.set_wireguard_automatic_rotation(interval);
+        match save_result {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, (), "set_wireguard_automatic_rotation response");
+                if settings_changed {
+                    self.event_listener.notify_settings(self.settings.clone());
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
