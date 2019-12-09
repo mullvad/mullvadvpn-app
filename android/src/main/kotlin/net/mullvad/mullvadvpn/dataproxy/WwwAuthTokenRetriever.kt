@@ -4,7 +4,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.MullvadDaemon
+import net.mullvad.mullvadvpn.service.MullvadDaemon
 
 class WwwAuthTokenRetriever(val asyncDaemon: Deferred<MullvadDaemon>) {
     private var daemon: MullvadDaemon? = null
