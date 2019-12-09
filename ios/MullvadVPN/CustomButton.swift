@@ -43,7 +43,9 @@ import UIKit
 
         contentEdgeInsets = contentInsets
         titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
-        titleLabel?.textColor = UIColor.white
+
+        setTitleColor(UIColor.white, for: .normal)
+        setTitleColor(UIColor.lightGray, for: .highlighted)
     }
 
     override func imageRect(forContentRect contentRect: CGRect) -> CGRect {
