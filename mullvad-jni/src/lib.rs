@@ -1,4 +1,5 @@
 #![cfg(target_os = "android")]
+#![deny(rust_2018_idioms)]
 
 mod classes;
 mod daemon_interface;
@@ -94,9 +95,9 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
-    env: JNIEnv,
-    this: JObject,
-    vpnService: JObject,
+    env: JNIEnv<'_>,
+    this: JObject<'_>,
+    vpnService: JObject<'_>,
 ) {
     let env = JnixEnv::from(env);
 
@@ -127,9 +128,9 @@ fn start_logging() -> Result<PathBuf, Error> {
 }
 
 fn initialize(
-    env: &JnixEnv,
-    this: &JObject,
-    vpn_service: &JObject,
+    env: &JnixEnv<'_>,
+    this: &JObject<'_>,
+    vpn_service: &JObject<'_>,
     log_dir: PathBuf,
 ) -> Result<(), Error> {
     let android_context = create_android_context(env, *vpn_service)?;
@@ -141,7 +142,10 @@ fn initialize(
     Ok(())
 }
 
-fn create_android_context(env: &JnixEnv, vpn_service: JObject) -> Result<AndroidContext, Error> {
+fn create_android_context(
+    env: &JnixEnv<'_>,
+    vpn_service: JObject<'_>,
+) -> Result<AndroidContext, Error> {
     Ok(AndroidContext {
         jvm: Arc::new(env.get_java_vm().map_err(Error::GetJvmInstance)?),
         vpn_service: env
@@ -151,8 +155,8 @@ fn create_android_context(env: &JnixEnv, vpn_service: JObject) -> Result<Android
 }
 
 fn spawn_daemon(
-    env: &JnixEnv,
-    this: &JObject,
+    env: &JnixEnv<'_>,
+    this: &JObject<'_>,
     log_dir: PathBuf,
     android_context: AndroidContext,
 ) -> Result<DaemonCommandSender, Error> {
@@ -197,7 +201,7 @@ fn create_daemon(
     Ok(daemon)
 }
 
-fn set_daemon_interface_address(env: &JnixEnv, this: &JObject, address: jlong) {
+fn set_daemon_interface_address(env: &JnixEnv<'_>, this: &JObject<'_>, address: jlong) {
     let class = env.get_class("net/mullvad/mullvadvpn/MullvadDaemon");
     let method_id = env
         .get_method_id(&class, "setDaemonInterfaceAddress", "(J)V")
@@ -219,7 +223,7 @@ fn set_daemon_interface_address(env: &JnixEnv, this: &JObject, address: jlong) {
     }
 }
 
-fn get_daemon_interface_address(env: &JnixEnv, this: &JObject) -> *mut DaemonInterface {
+fn get_daemon_interface_address(env: &JnixEnv<'_>, this: &JObject<'_>) -> *mut DaemonInterface {
     let class = env.get_class("net/mullvad/mullvadvpn/MullvadDaemon");
     let method_id = env
         .get_method_id(&class, "getDaemonInterfaceAddress", "()J")
@@ -244,8 +248,8 @@ fn get_daemon_interface_address(env: &JnixEnv, this: &JObject) -> *mut DaemonInt
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_deinitialize(
-    env: JNIEnv,
-    this: JObject,
+    env: JNIEnv<'_>,
+    this: JObject<'_>,
 ) {
     let env = JnixEnv::from(env);
     let daemon_interface_address = get_daemon_interface_address(&env, &this);
@@ -271,8 +275,8 @@ fn get_daemon_interface<'a>(address: jlong) -> Option<&'a mut DaemonInterface> {
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_connect(
-    _: JNIEnv,
-    _: JObject,
+    _: JNIEnv<'_>,
+    _: JObject<'_>,
     daemon_interface_address: jlong,
 ) {
     if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
@@ -288,8 +292,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_connect(
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_disconnect(
-    _: JNIEnv,
-    _: JObject,
+    _: JNIEnv<'_>,
+    _: JObject<'_>,
     daemon_interface_address: jlong,
 ) {
     if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
@@ -306,7 +310,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_disconnect(
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWireguardKey<'env>(
     env: JNIEnv<'env>,
-    _: JObject,
+    _: JObject<'_>,
     daemon_interface_address: jlong,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
@@ -364,7 +368,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
-    accountToken: JString,
+    accountToken: JString<'_>,
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
@@ -582,10 +586,10 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
-    env: JNIEnv,
-    _: JObject,
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
     daemon_interface_address: jlong,
-    accountToken: JString,
+    accountToken: JString<'_>,
 ) {
     let env = JnixEnv::from(env);
 
@@ -601,8 +605,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_shutdown(
-    _: JNIEnv,
-    _: JObject,
+    _: JNIEnv<'_>,
+    _: JObject<'_>,
     daemon_interface_address: jlong,
 ) {
     if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
@@ -618,10 +622,10 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_shutdown(
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_updateRelaySettings(
-    env: JNIEnv,
-    _: JObject,
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
     daemon_interface_address: jlong,
-    relaySettingsUpdate: JObject,
+    relaySettingsUpdate: JObject<'_>,
 ) {
     let env = JnixEnv::from(env);
 
@@ -640,9 +644,9 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_updateRelaySett
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemReport_collectReport(
-    env: JNIEnv,
-    _: JObject,
-    outputPath: JString,
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    outputPath: JString<'_>,
 ) -> jboolean {
     let env = JnixEnv::from(env);
     let output_path_string = String::from_java(&env, outputPath);
@@ -663,11 +667,11 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemReport_sendProblemReport(
-    env: JNIEnv,
-    _: JObject,
-    userEmail: JString,
-    userMessage: JString,
-    outputPath: JString,
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    userEmail: JString<'_>,
+    userMessage: JString<'_>,
+    outputPath: JString<'_>,
 ) -> jboolean {
     let env = JnixEnv::from(env);
     let user_email = String::from_java(&env, userEmail);

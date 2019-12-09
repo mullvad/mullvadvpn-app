@@ -38,7 +38,7 @@ enum Event {
 pub struct JniEventListener(mpsc::Sender<Event>);
 
 impl JniEventListener {
-    pub fn spawn(env: &JnixEnv, mullvad_daemon: &JObject) -> Result<Self, Error> {
+    pub fn spawn(env: &JnixEnv<'_>, mullvad_daemon: &JObject<'_>) -> Result<Self, Error> {
         JniEventHandler::spawn(env, mullvad_daemon)
     }
 }
@@ -78,8 +78,8 @@ struct JniEventHandler<'env> {
 
 impl JniEventHandler<'_> {
     pub fn spawn(
-        old_env: &JnixEnv,
-        old_mullvad_ipc_client: &JObject,
+        old_env: &JnixEnv<'_>,
+        old_mullvad_ipc_client: &JObject<'_>,
     ) -> Result<JniEventListener, Error> {
         let (tx, rx) = mpsc::channel();
         let jvm = old_env.get_java_vm().map_err(Error::GetJvmInstance)?;
