@@ -8,11 +8,14 @@ use jnix::{
     },
     IntoJava, JnixEnv,
 };
+use rand::{seq::SliceRandom, thread_rng, Rng};
 use std::{
     fs::File,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    io,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, UdpSocket},
     os::unix::io::{AsRawFd, FromRawFd, RawFd},
     sync::Arc,
+    time::{Duration, Instant},
 };
 use talpid_types::android::AndroidContext;
 
@@ -42,6 +45,18 @@ pub enum Error {
         _1
     )]
     InvalidMethodResult(&'static str, String),
+
+    #[error(display = "Failed to bind an UDP socket")]
+    BindUdpSocket(#[error(source)] io::Error),
+
+    #[error(display = "Failed to send random data through UDP socket")]
+    SendToUdpSocket(#[error(source)] io::Error),
+
+    #[error(display = "Failed to select() on tunnel device")]
+    Select(#[error(source)] nix::Error),
+
+    #[error(display = "Timed out while waiting for tunnel device to receive data")]
+    TunnelDeviceTimeout,
 }
 
 /// Factory of tunnel devices on Android.
@@ -101,6 +116,100 @@ impl AndroidTunProvider {
             class: self.class.clone(),
             object: self.object.clone(),
         })
+    }
+
+    fn wait_for_tunnel_up(tun_fd: RawFd, tun_config: &TunConfig) -> Result<(), Error> {
+        use nix::sys::{
+            select::{pselect, FdSet},
+            time::{TimeSpec, TimeValLike},
+        };
+        let mut fd_set = FdSet::new();
+        fd_set.insert(tun_fd);
+        let timeout = TimeSpec::microseconds(300);
+        const TIMEOUT: Duration = Duration::from_secs(60);
+        let start = Instant::now();
+        while start.elapsed() < TIMEOUT {
+            // if tunnel device is ready to be read from, traffic is being routed through it
+            if pselect(None, Some(&mut fd_set), None, None, Some(&timeout), None)
+                .map_err(Error::Select)?
+                > 0
+            {
+                let elapsed = start.elapsed();
+                return Ok(());
+            }
+            // have to add tun_fd back into the bitset
+            fd_set.insert(tun_fd);
+            Self::try_sending_random_udp(tun_config)?;
+        }
+
+        Err(Error::TunnelDeviceTimeout)
+    }
+
+    fn try_sending_random_udp(tun_config: &TunConfig) -> Result<(), Error> {
+        let mut tried_ipv6 = false;
+        const TIMEOUT: Duration = Duration::from_millis(300);
+        let start = Instant::now();
+
+        while start.elapsed() < TIMEOUT {
+            // pick any random route to select between Ipv4 and Ipv6
+            // TODO: if we are to allow LAN on Android by changing the routes that are stuffed in
+            // TunConfig, then this should be revisited to be fair between IPv4 and IPv6
+            let should_generate_ipv4 = tun_config
+                .routes
+                .choose(&mut thread_rng())
+                .map(|route| route.is_ipv4())
+                .unwrap_or(true)
+                || tried_ipv6;
+
+            let rand_port = thread_rng().gen();
+            let (local_addr, rand_dest_addr) = if should_generate_ipv4 || tried_ipv6 {
+                let mut ipv4_bytes = [0u8; 4];
+                thread_rng().fill(&mut ipv4_bytes);
+                (
+                    SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0),
+                    SocketAddr::new(IpAddr::from(ipv4_bytes).into(), rand_port),
+                )
+            } else {
+                let mut ipv6_bytes = [0u8; 16];
+                tried_ipv6 = true;
+                thread_rng().fill(&mut ipv6_bytes);
+                (
+                    SocketAddr::new(Ipv6Addr::UNSPECIFIED.into(), 0),
+                    SocketAddr::new(IpAddr::from(ipv6_bytes).into(), rand_port),
+                )
+            };
+
+            // TODO: once https://github.com/rust-lang/rust/issues/27709 is resolved, please use
+            // `is_global()` to check if a new address should be attempted.
+            if !is_public_ip(rand_dest_addr.ip()) {
+                continue;
+            }
+
+            let socket = UdpSocket::bind(local_addr).map_err(Error::BindUdpSocket)?;
+
+            let mut buf = vec![0u8; thread_rng().gen_range(17, 214)];
+            // fill buff with random data
+            thread_rng().fill(buf.as_mut_slice());
+            match socket.send_to(&buf, rand_dest_addr) {
+                Ok(_) => return Ok(()),
+                Err(err) => {
+                    if tried_ipv6 {
+                        continue;
+                    }
+                    match err.raw_os_error() {
+                        // Error code 101 - specified network is unreachable
+                        // Error code 22 - specified address is not usable
+                        Some(101) | Some(22) => {
+                            // if we failed whilst trying to send to IPv6, we should not try
+                            // IPv6 again.
+                            continue;
+                        }
+                        _ => return Err(Error::SendToUdpSocket(err)),
+                    }
+                }
+            };
+        }
+        Ok(())
     }
 
     /// Open a tunnel device using the previous or the default configuration.
@@ -164,6 +273,7 @@ impl AndroidTunProvider {
 
         match result {
             JValue::Int(fd) => {
+                Self::wait_for_tunnel_up(fd, &config)?;
                 let tun = unsafe { File::from_raw_fd(fd) };
 
                 self.active_tun = Some(tun);
@@ -177,6 +287,43 @@ impl AndroidTunProvider {
             )),
         }
     }
+}
+
+fn is_public_ip(addr: IpAddr) -> bool {
+    match addr {
+        IpAddr::V4(ipv4) => {
+            // 0.x.x.x is not a publicly routable address
+            if ipv4.octets()[0] == 0u8 {
+                return false;
+            }
+        }
+        IpAddr::V6(ipv6) => {
+            if ipv6.segments()[0] == 0u16 {
+                return false;
+            }
+        }
+    }
+    // A non-exhaustive list of non-public subnets
+    let publicly_unroutable_subnets: Vec<IpNetwork> = vec![
+        // IPv4 local networks
+        "10.0.0.0/8".parse().unwrap(),
+        "172.16.0.0/12".parse().unwrap(),
+        "192.168.0.0/16".parse().unwrap(),
+        // IPv4 non-forwardable network
+        "169.254.0.0/16".parse().unwrap(),
+        "192.0.0.0/8".parse().unwrap(),
+        // Documentation networks
+        "192.0.2.0/24".parse().unwrap(),
+        "198.51.100.0/24".parse().unwrap(),
+        "203.0.113.0/24".parse().unwrap(),
+        // IPv6 publicly unroutable networks
+        "fc00::/7".parse().unwrap(),
+        "fe80::/10".parse().unwrap(),
+    ];
+
+    !publicly_unroutable_subnets
+        .iter()
+        .any(|net| net.contains(addr))
 }
 
 /// Handle to a tunnel device on Android.

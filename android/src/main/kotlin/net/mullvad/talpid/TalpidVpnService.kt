@@ -29,6 +29,7 @@ open class TalpidVpnService : VpnService() {
             }
 
             setMtu(config.mtu)
+            setBlocking(false)
         }
 
         val vpnInterface = builder.establish()
