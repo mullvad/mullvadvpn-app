@@ -1,130 +1,18 @@
 #![cfg_attr(target_os = "android", allow(dead_code))]
 #![cfg_attr(target_os = "windows", allow(dead_code))]
-// TODO: remove the allow(dead_code) for android once it's up to scratch.
-use futures::{sync::oneshot, Future};
+
 use ipnetwork::IpNetwork;
-use std::{collections::HashMap, fmt, net::IpAddr};
-
-#[cfg(target_os = "macos")]
-#[path = "macos.rs"]
-mod imp;
-
-#[cfg(target_os = "linux")]
-#[path = "linux/mod.rs"]
-mod imp;
-
-#[cfg(target_os = "android")]
-#[path = "android.rs"]
-mod imp;
+use std::{fmt, net::IpAddr};
 
 #[cfg(target_os = "windows")]
 #[path = "windows.rs"]
 mod imp;
-#[cfg(target_os = "windows")]
-use crate::winnet;
 
-pub use imp::Error as PlatformError;
+#[cfg(not(target_os = "windows"))]
+#[path = "unix.rs"]
+mod imp;
 
-/// Errors that can be encountered whilst initializing RouteManager
-#[derive(err_derive::Error, Debug)]
-pub enum Error {
-    /// Routing manager thread panicked before starting routing manager
-    #[error(display = "Routing manager thread panicked before starting routing manager")]
-    RoutingManagerThreadPanic,
-    /// Platform sepcific error occured
-    #[error(display = "Failed to create route manager")]
-    FailedToInitializeManager(#[error(source)] imp::Error),
-    /// Failed to spawn route manager future
-    #[error(display = "Failed to spawn route manager on the provided executor")]
-    FailedToSpawnManager,
-}
-
-/// RouteManager applies a set of routes to the route table.
-/// If a destination has to be routed through the default node,
-/// the route will be adjusted dynamically when the default route changes.
-pub struct RouteManager {
-    tx: Option<oneshot::Sender<oneshot::Sender<()>>>,
-    #[cfg(target_os = "windows")]
-    callback_handles: Vec<winnet::WinNetCallbackHandle>,
-}
-
-impl RouteManager {
-    /// Constructs a RouteManager and applies the required routes.
-    /// Takes a map of network destinations and network nodes as an argument, and applies said
-    /// routes.
-    pub fn new(required_routes: HashMap<IpNetwork, NetNode>) -> Result<Self, Error> {
-        let (tx, rx) = oneshot::channel();
-        let (start_tx, start_rx) = oneshot::channel();
-
-        std::thread::spawn(
-            move || match imp::RouteManagerImpl::new(required_routes, rx) {
-                Ok(route_manager) => {
-                    let _ = start_tx.send(Ok(()));
-                    if let Err(e) = route_manager.wait() {
-                        log::error!("Route manager failed - {}", e);
-                    }
-                }
-                Err(e) => {
-                    let _ = start_tx.send(Err(Error::FailedToInitializeManager(e)));
-                }
-            },
-        );
-        match start_rx.wait() {
-            Ok(Ok(())) => Ok(Self {
-                tx: Some(tx),
-                #[cfg(target_os = "windows")]
-                callback_handles: vec![],
-            }),
-            Ok(Err(e)) => Err(e),
-            Err(_) => Err(Error::RoutingManagerThreadPanic),
-        }
-    }
-
-    /// Sets a callback that is called whenever the default route changes.
-    #[cfg(target_os = "windows")]
-    pub fn add_default_route_callback<T: 'static>(
-        &mut self,
-        callback: Option<winnet::DefaultRouteChangedCallback>,
-        context: T,
-    ) {
-        match winnet::add_default_route_change_callback(callback, context) {
-            Err(_e) => {
-                // not sure if this should panic
-                log::error!("Failed to add callback!");
-            }
-            Ok(handle) => {
-                self.callback_handles.push(handle);
-            }
-        }
-    }
-
-    /// Stops RouteManager and removes all of the applied routes.
-    pub fn stop(&mut self) {
-        if let Some(tx) = self.tx.take() {
-            let (wait_tx, wait_rx) = oneshot::channel();
-            if tx.send(wait_tx).is_err() {
-                log::error!("RouteManager already down!");
-                return;
-            }
-
-            if wait_rx.wait().is_err() {
-                log::error!("RouteManager paniced while shutting down");
-            }
-        }
-    }
-}
-
-impl Drop for RouteManager {
-    fn drop(&mut self) {
-        // Ensuring callbacks are removed before the route manager is stopped
-        #[cfg(target_os = "windows")]
-        {
-            self.callback_handles.clear();
-        }
-        self.stop();
-    }
-}
-
+pub use imp::{Error, RouteManager};
 
 /// A netowrk route with a specific network node, destinaiton and an optional metric.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]

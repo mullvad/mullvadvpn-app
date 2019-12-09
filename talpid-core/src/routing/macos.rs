@@ -1,4 +1,4 @@
-use super::{NetNode, Node, Route};
+use crate::routing::{NetNode, Node, Route};
 
 use ipnetwork::IpNetwork;
 use std::{
