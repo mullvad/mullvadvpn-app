@@ -49,8 +49,8 @@ enum PacketTunnelIpcError: Error {
 
 /// A struct that holds the basic information regarding the tunnel connection
 struct TunnelConnectionInfo: Codable, Equatable {
-    let ipv4Relay: String
-    let ipv6Relay: String?
+    let ipv4Relay: IPv4Endpoint
+    let ipv6Relay: IPv6Endpoint?
     let hostname: String
 }
 
