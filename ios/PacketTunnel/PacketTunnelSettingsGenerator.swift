@@ -28,60 +28,61 @@ struct PacketTunnelSettingsGenerator {
     }
 
     func entireWireguardConfiguration() -> String {
-        let builder = WireguardConfigurationBuilder()
-            .privateKey(tunnelConfiguration.interface.privateKey)
-            .listenPort(0)
-            .replacePeers(true)
+        var commands: [WireguardCommand] = [
+            .privateKey(tunnelConfiguration.interface.privateKey),
+            .listenPort(0),
+            .replacePeers
+        ]
 
-        addPeersConfiguration(into: builder)
+        commands.append(contentsOf: makePeersConfiguration())
+        commands.append(makeAllowedIPsConfiguration())
 
-        builder.replaceAllowedIPs(true)
-        addAllowedIp(into: builder)
-
-        return builder.build()
+        return commands.toWireguardConfig()
     }
 
     func wireguardConfigurationWithReresolvedEndpoints() -> String {
-        let builder = WireguardConfigurationBuilder()
-
-        addPeersConfiguration(into: builder)
-
-        return builder.build()
+        return makePeersConfiguration().toWireguardConfig()
     }
 
     func wireguardConfigurationForChangingRelays() -> String {
-        let builder = WireguardConfigurationBuilder()
-            .replacePeers(true)
+        var commands = [WireguardCommand.replacePeers]
 
-        addPeersConfiguration(into: builder)
-        addAllowedIp(into: builder)
+        commands.append(contentsOf: makePeersConfiguration())
+        commands.append(makeAllowedIPsConfiguration())
 
-        return builder.build()
+        return commands.toWireguardConfig()
     }
 
-    private func addPeersConfiguration(into builder: WireguardConfigurationBuilder) {
+    private func makePeersConfiguration() -> [WireguardCommand] {
         var peers: [AnyIPEndpoint] = [.ipv4(mullvadEndpoint.ipv4Relay)]
 
         if let ipv6Relay = mullvadEndpoint.ipv6Relay {
             peers.append(.ipv6(ipv6Relay))
         }
 
-        for peer in peers {
+        return peers.compactMap { (peer) in
             switch peer.withReresolvedIP() {
             case .success(let resolvedPeer):
-                // TODO: this is not reliable. We should attempt to re-resolve the IPs in case of failure?
-                builder.peer(resolvedPeer, publicKey: mullvadEndpoint.publicKey)
+                // TODO: this is not reliable. We should attempt to re-resolve the IPs in case of
+                // failure?
+                return .peer(
+                    WireguardPeer(
+                        endpoint: resolvedPeer,
+                        publicKey: mullvadEndpoint.publicKey
+                    )
+                )
 
             case .failure(let error):
                 os_log(.error,
                        "Failed to resolve the endpoint: %s. Cause: %{public}s",
                        "\(peer.ip)", error.localizedDescription)
+                return nil
             }
         }
     }
 
-    private func addAllowedIp(into builder: WireguardConfigurationBuilder) {
-        builder.allowedIp(IPAddressRange(from: "0.0.0.0/0")!)
+    private func makeAllowedIPsConfiguration() -> WireguardCommand {
+        return .allowedIP(IPAddressRange(from: "0.0.0.0/0")!)
     }
 
     private func dnsSettings() -> NEDNSSettings {
