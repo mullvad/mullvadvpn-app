@@ -453,6 +453,7 @@ where
             internal_event_tx.clone(),
             rpc_handle.clone(),
             tokio_remote.clone(),
+            settings.get_tunnel_options().wireguard.automatic_rotation,
         );
 
         // Attempt to download a fresh relay list
