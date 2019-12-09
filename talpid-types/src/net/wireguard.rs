@@ -51,6 +51,8 @@ pub struct TunnelConfig {
 pub struct TunnelOptions {
     /// MTU for the wireguard tunnel
     pub mtu: Option<u16>,
+    /// Interval used for automatic key rotation, in hours
+    pub automatic_rotation: Option<u32>,
 }
 
 /// Wireguard x25519 private key
