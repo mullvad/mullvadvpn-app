@@ -39,6 +39,8 @@ tokio-io = "0.1"
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.1", features = ["derive"] }
+pnet_packet = "0.22"
+rand = "0.7"
 
 
 [target.'cfg(target_os = "linux")'.dependencies]
