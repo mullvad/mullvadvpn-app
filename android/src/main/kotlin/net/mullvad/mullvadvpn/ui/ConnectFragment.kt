@@ -116,7 +116,7 @@ class ConnectFragment : Fragment() {
             locationInfo.location = location
         }
 
-        relayListListener.onRelayListChange = { relayList, selectedRelayItem ->
+        relayListListener.onRelayListChange = { _, selectedRelayItem ->
             switchLocationButton.location = selectedRelayItem
         }
 
