@@ -107,7 +107,7 @@
                 android:textSize="13sp"
                 android:text="@string/login_description"
                 />
-        <net.mullvad.mullvadvpn.AccountInputContainer android:id="@+id/account_input_container"
+        <net.mullvad.mullvadvpn.ui.AccountInputContainer android:id="@+id/account_input_container"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:orientation="horizontal"
@@ -137,7 +137,7 @@
                     android:background="@drawable/login_button_background"
                     android:src="@drawable/login_button_arrow"
                     />
-        </net.mullvad.mullvadvpn.AccountInputContainer>
+        </net.mullvad.mullvadvpn.ui.AccountInputContainer>
         <Space
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
