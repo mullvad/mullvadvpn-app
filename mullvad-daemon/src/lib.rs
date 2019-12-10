@@ -429,7 +429,7 @@ where
 
         let settings = settings::load();
 
-        let account_history =
+        let mut account_history =
             account_history::AccountHistory::new(&cache_dir).map_err(Error::LoadAccountHistory)?;
 
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
@@ -448,12 +448,19 @@ where
         )
         .map_err(Error::TunnelError)?;
 
+        let public_key = settings
+            .get_account_token()
+            .and_then(|account| account_history.get(&account).ok()?)
+            .and_then(|account_entry| account_entry.wireguard.map(|wg| wg.get_public_key()));
 
         let wireguard_key_manager = wireguard::KeyManager::new(
             internal_event_tx.clone(),
             rpc_handle.clone(),
             tokio_remote.clone(),
-            settings.get_tunnel_options().wireguard.automatic_rotation,
+            wireguard::KeyRotationParameters {
+                public_key,
+                interval: settings.get_tunnel_options().wireguard.automatic_rotation,
+            },
         );
 
         // Attempt to download a fresh relay list
@@ -1357,7 +1364,17 @@ where
                 Self::oneshot_send(tx, (), "set_wireguard_automatic_rotation response");
                 if settings_changed {
                     self.event_listener.notify_settings(self.settings.clone());
-                    self.wireguard_key_manager.update_rotation_interval(interval);
+
+                    let public_key = self.settings.get_account_token().and_then(|token|
+                        self.account_history.get(&token)
+                            .unwrap_or(None)
+                            .and_then(|entry| entry.wireguard.map(|wg| wg.get_public_key()))
+                    );
+
+                    self.wireguard_key_manager.update_rotation_interval(wireguard::KeyRotationParameters {
+                        public_key,
+                        interval,
+                    });
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
