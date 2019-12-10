@@ -174,8 +174,4 @@ class MainActivity : FragmentActivity() {
             vpnPermission.complete(allow)
         }
     }
-
-    private fun fetchSettings() = GlobalScope.async(Dispatchers.Default) {
-        daemon.await().getSettings()
-    }
 }
