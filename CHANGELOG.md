@@ -23,8 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+#### Android
+- Wait for traffic to be routed through the tunnel device before advertising blocked state.
+
 ### Fixed
-- Fix improved WireGuard port selection
+- Fix improved WireGuard port selection.
 
 #### Windows
 - Register 'NSI' service as a dependency of the daemon service.
