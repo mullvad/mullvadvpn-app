@@ -73,7 +73,7 @@ class SettingsFragment : ServiceAwareFragment() {
         appVersionWarning = view.findViewById(R.id.app_version_warning)
         appVersionLabel = view.findViewById<TextView>(R.id.app_version_label)
         appVersionFooter = view.findViewById(R.id.app_version_footer)
-        remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
+        remainingTimeLabel = RemainingTimeLabel(parentActivity, accountCache, view)
 
         return view
     }

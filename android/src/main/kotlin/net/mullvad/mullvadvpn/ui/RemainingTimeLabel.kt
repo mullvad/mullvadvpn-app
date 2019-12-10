@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.ui
 
+import android.content.Context
 import android.view.View
 import android.widget.TextView
 import kotlinx.coroutines.Dispatchers
@@ -7,14 +8,13 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import org.joda.time.DateTime
 import org.joda.time.Duration
 import org.joda.time.PeriodType
 
-class RemainingTimeLabel(val parentActivity: MainActivity, val view: View) {
-    private val accountCache = parentActivity.accountCache
-
-    private val resources = parentActivity.resources
+class RemainingTimeLabel(val context: Context, val accountCache: AccountCache, val view: View) {
+    private val resources = context.resources
 
     private val expiredColor = resources.getColor(R.color.red)
     private val normalColor = resources.getColor(R.color.white60)
@@ -24,7 +24,7 @@ class RemainingTimeLabel(val parentActivity: MainActivity, val view: View) {
     private var updateJob: Job? = null
 
     fun onResume() {
-        parentActivity.accountCache.apply {
+        accountCache.apply {
             refetch()
 
             onAccountDataChange = { _, accountExpiry ->
@@ -35,7 +35,7 @@ class RemainingTimeLabel(val parentActivity: MainActivity, val view: View) {
     }
 
     fun onPause() {
-        parentActivity.accountCache.onAccountDataChange = null
+        accountCache.onAccountDataChange = null
         updateJob?.cancel()
     }
 
