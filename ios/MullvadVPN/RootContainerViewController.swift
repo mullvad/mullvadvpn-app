@@ -114,6 +114,9 @@ class RootContainerViewController: UIViewController {
     // MARK: - Storyboard segue handling
 
     override func unwind(for unwindSegue: UIStoryboardSegue, towards subsequentVC: UIViewController) {
+        // Make sure there is no attempt to unwind to the top view controller
+        guard subsequentVC != topViewController else { return }
+
         let index = viewControllers.firstIndex(of: subsequentVC)!
         let newViewControllers = Array(viewControllers.prefix(through: index))
 
@@ -246,7 +249,7 @@ class RootContainerViewController: UIViewController {
     }
 
     /// Request the root container to query the top controller for the new header bar style
-    func setNeedsHeaderBarStyleAppearance() {
+    func updateHeaderBarAppearance() {
         updateHeaderBarStyleFromChildPreferences(animated: UIView.areAnimationsEnabled)
     }
 
@@ -324,20 +327,21 @@ class RootContainerPushSegue: UIStoryboardSegue {
     }
 }
 
+/// A UIViewController extension that gives view controllers an access to root container
 extension UIViewController {
 
     var rootContainerController: RootContainerViewController? {
-        var viewController: UIViewController? = parent
-
-        while viewController != nil {
-            if let container = viewController as? RootContainerViewController {
-                return container
-            }
-
-            viewController = viewController?.parent
+        var current: UIViewController? = self
+        let iterator = AnyIterator { () -> UIViewController? in
+            current = current?.parent
+            return current
         }
 
-        return nil
+        return iterator.first { $0 is RootContainerViewController } as? RootContainerViewController
+    }
+
+    func setNeedsHeaderBarStyleAppearanceUpdate() {
+        rootContainerController?.updateHeaderBarAppearance()
     }
 
 }
