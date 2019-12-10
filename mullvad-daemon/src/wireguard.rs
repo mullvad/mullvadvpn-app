@@ -19,6 +19,8 @@ use tokio_retry::{
 const TOO_MANY_KEYS_ERROR_CODE: i64 = -703;
 /// Default automatic key rotation (in hours)
 const DEFAULT_AUTOMATIC_KEY_ROTATION: u32 = 7 * 24;
+/// How long to wait before reattempting to rotate keys on failure (secs)
+const AUTOMATIC_ROTATION_RETRY_DELAY: u64 = 5;
 
 
 #[derive(err_derive::Error, Debug)]
@@ -44,11 +46,14 @@ pub type Result<T> = std::result::Result<T, Error>;
 use crate::ManagementCommand;
 use talpid_core::tunnel_state_machine::TunnelCommand;
 
+use mullvad_types::wireguard;
+
 struct KeyRotationScheduler {
     daemon_tx: mpsc::Sender<InternalDaemonEvent>,
     delay: Box<dyn Future<Item = (), Error = ()> + Send>,
     last_update: Option<DateTime<Utc>>,
     interval: u32,
+    key_request_rx: Option<oneshot::Receiver<wireguard::KeygenEvent>>,
 }
 
 impl Future for KeyRotationScheduler {
@@ -58,6 +63,27 @@ impl Future for KeyRotationScheduler {
     fn poll(&mut self) -> Poll<(), Error> {
         log::debug!("Poll key rotation future");
 
+        if let Some(key_request_rx) = &mut self.key_request_rx {
+            let poll_result = key_request_rx.poll();
+
+            match poll_result {
+                Ok(Async::Ready(KeygenEvent::NewKey(_))) => {
+                    log::debug!("Completed automatic rotation");
+                    self.key_request_rx = None;
+                    self.last_update = Some(Utc::now());
+                    self.delay = Self::next_delay(self.interval, None);
+                }
+                Ok(Async::NotReady) => return Ok(Async::NotReady),
+                _ => {
+                    log::error!("Automatic key rotation failed; retrying");
+                    self.key_request_rx = None;
+                    self.delay = Box::new(Delay::new(
+                        Instant::now() + Duration::from_secs(AUTOMATIC_ROTATION_RETRY_DELAY)
+                    ).map_err(|_| ()));
+                }
+            }
+        }
+
         match self.delay.poll() {
             Ok(Async::NotReady) => return Ok(Async::NotReady),
             Err(_) => return Err(Error::Delay),
@@ -65,21 +91,16 @@ impl Future for KeyRotationScheduler {
         }
 
         let (wg_tx, wg_rx) = oneshot::channel();
-
         let _ = self.daemon_tx.send(InternalDaemonEvent::ManagementInterfaceEvent(
             ManagementCommand::GenerateWireguardKey(wg_tx)
         ))
         .map_err(|_| Error::RunAutomaticKeyRotation)?;
 
-        self.last_update = Some(Utc::now());
-
         log::debug!("Sent key replacement request");
 
-        self.delay = Self::next_delay(self.interval, None);
-
-        self.delay
-            .poll()
-            .map_err(|_| Error::Delay)
+        self.key_request_rx = Some(wg_rx);
+        futures::task::current().notify();
+        Ok(Async::NotReady)
     }
 }
 
@@ -103,6 +124,7 @@ impl KeyRotationScheduler {
             delay: Self::next_delay(interval, last_update),
             last_update,
             interval,
+            key_request_rx: None,
         };
 
         tokio_remote.execute(
