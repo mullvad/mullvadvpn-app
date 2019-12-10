@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Register 'NSI' service as a dependency of the daemon service.
 - Set daemon service SID type as 'unrestricted'.
+- Properly tear down routes after disconnecting from WireGuard relays
 
 #### Android
 - Fix notification message to update to `null` version when version check cache is stale right
