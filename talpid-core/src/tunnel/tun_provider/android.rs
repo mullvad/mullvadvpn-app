@@ -156,44 +156,46 @@ impl AndroidTunProvider {
     fn random_udp_socket_and_destination(
         tun_config: &TunConfig,
     ) -> Result<(UdpSocket, SocketAddr), Error> {
-        // pick any random route to select between Ipv4 and Ipv6
-        // TODO: if we are to allow LAN on Android by changing the routes that are stuffed in
-        // TunConfig, then this should be revisited to be fair between IPv4 and IPv6
-        let is_ipv4 = tun_config
-            .routes
-            .choose(&mut thread_rng())
-            .map(|route| route.is_ipv4())
-            .unwrap_or(true);
+        loop {
+            // pick any random route to select between Ipv4 and Ipv6
+            // TODO: if we are to allow LAN on Android by changing the routes that are stuffed in
+            // TunConfig, then this should be revisited to be fair between IPv4 and IPv6
+            let is_ipv4 = tun_config
+                .routes
+                .choose(&mut thread_rng())
+                .map(|route| route.is_ipv4())
+                .unwrap_or(true);
 
-        let rand_port = thread_rng().gen();
-        let (local_addr, rand_dest_addr) = if is_ipv4 {
-            let mut ipv4_bytes = [0u8; 4];
-            thread_rng().fill(&mut ipv4_bytes);
-            (
-                SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0),
-                SocketAddr::new(IpAddr::from(ipv4_bytes).into(), rand_port),
-            )
-        } else {
-            let mut ipv6_bytes = [0u8; 16];
-            thread_rng().fill(&mut ipv6_bytes);
-            (
-                SocketAddr::new(Ipv6Addr::UNSPECIFIED.into(), 0),
-                SocketAddr::new(IpAddr::from(ipv6_bytes).into(), rand_port),
-            )
-        };
-        // TODO: once https://github.com/rust-lang/rust/issues/27709 is resolved, please use
-        // `is_global()` to check if a new address should be attempted.
-        // if !rand_dest_addr.is_global() {
-        //     continue
-        // }
+            let rand_port = thread_rng().gen();
+            let (local_addr, rand_dest_addr) = if is_ipv4 {
+                let mut ipv4_bytes = [0u8; 4];
+                thread_rng().fill(&mut ipv4_bytes);
+                (
+                    SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0),
+                    SocketAddr::new(IpAddr::from(ipv4_bytes).into(), rand_port),
+                )
+            } else {
+                let mut ipv6_bytes = [0u8; 16];
+                thread_rng().fill(&mut ipv6_bytes);
+                (
+                    SocketAddr::new(Ipv6Addr::UNSPECIFIED.into(), 0),
+                    SocketAddr::new(IpAddr::from(ipv6_bytes).into(), rand_port),
+                )
+            };
+            // TODO: once https://github.com/rust-lang/rust/issues/27709 is resolved, please use
+            // `is_global()` to check if a new address should be attempted.
+            if !is_public_ip(rand_dest_addr.ip()) {
+                continue;
+            }
 
 
-        let socket = UdpSocket::bind(local_addr).map_err(Error::BindUdpSocket)?;
-        // Handling WOULD_BLOCK is too much of a pain here.
-        // socket
-        //     .set_nonblocking(true)
-        //     .map_err(Error::SetNonblockingSocket)?;
-        Ok((socket, rand_dest_addr))
+            let socket = UdpSocket::bind(local_addr).map_err(Error::BindUdpSocket)?;
+            // Maybe handling WOULD_BLOCK is too much of a pain here.
+            // socket
+            //     .set_nonblocking(true)
+            //     .map_err(Error::SetNonblockingSocket)?;
+            return Ok((socket, rand_dest_addr));
+        }
     }
 
     /// Open a tunnel device using the previous or the default configuration.
@@ -271,6 +273,30 @@ impl AndroidTunProvider {
             )),
         }
     }
+}
+
+fn is_public_ip(addr: IpAddr) -> bool {
+    // A non-exhaustive list of non-public subnets
+    let publicly_unroutable_subnets: Vec<IpNetwork> = vec![
+        // IPv4 local networks
+        "10.0.0.0/8".parse().unwrap(),
+        "172.16.0.0/12".parse().unwrap(),
+        "192.168.0.0/16".parse().unwrap(),
+        // IPv4 non-forwardable network
+        "169.254.0.0/16".parse().unwrap(),
+        "192.0.0.0/8".parse().unwrap(),
+        // Documentation networks
+        "192.0.2.0/24".parse().unwrap(),
+        "198.51.100.0/24".parse().unwrap(),
+        "203.0.113.0/24".parse().unwrap(),
+        // IPv6 publicly unroutable networks
+        "fc00::/7".parse().unwrap(),
+        "fe80::/10".parse().unwrap(),
+    ];
+
+    !publicly_unroutable_subnets
+        .iter()
+        .any(|net| net.contains(addr))
 }
 
 /// Handle to a tunnel device on Android.
