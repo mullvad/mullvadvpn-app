@@ -82,7 +82,7 @@ The following network traffic is always allowed to flow. It is never blocked, re
 #### macOS deviations
 
 * The app does not look at ICMPv6 type and code headers. So all ICMPv6 is allowed between the
-  specified IP networks
+  specified IP networks.
 
 ### Disconnected
 
