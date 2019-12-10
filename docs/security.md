@@ -47,8 +47,6 @@ will be blocked and allowed during them.
 
 Except what is described as allowed in this document, all network packets should be blocked.
 
-### Always allowed traffic
-
 The following network traffic is always allowed to flow. It is never blocked, regardless of state:
 
 1. All traffic on loopback adapters
