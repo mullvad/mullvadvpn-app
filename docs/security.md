@@ -47,18 +47,18 @@ will be blocked and allowed during them.
 
 Except what is described as allowed in this document, all network packets should be blocked.
 
-The following network traffic is always allowed to flow. It is never blocked, regardless of state:
+The following network traffic is allowed or blocked independent of state:
 
-1. All traffic on loopback adapters
+1. All traffic on loopback adapters is always allowed.
 
-1. DHCPv4 and DHCPv6 requests to go out and responses to come in:
+1. DHCPv4 and DHCPv6 requests are always allowed to go out and responses to come in:
    * Outgoing UDP from `*:68` to `255.255.255.255:67` (client to server)
    * Incoming UDP `*:67` to `*:68` (server to client)
    * Outgoing UDP from `[fe80::]/10:546` to `[ff02::1:2]:547` and `[ff05::1:3]:547` (client to
      server)
    * Incoming UDP from `[fe80::]/10:547` to `[fe80::]/10:546` (server to client)
 
-1. Router solicitation, advertisement and redirects (subset of NDP):
+1. Router solicitation, advertisement and redirects (subset of NDP) is always allowed:
    * Outgoing to `ff02::2`, but only ICMPv6 with type 133 and code 0.
    * Incoming from `[fe80::]/10`, but only ICMPv6 type 134 or 137 and code 0.
 
