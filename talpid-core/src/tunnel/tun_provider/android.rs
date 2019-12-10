@@ -126,8 +126,7 @@ impl AndroidTunProvider {
         let mut fd_set = FdSet::new();
         fd_set.insert(tun_fd);
         let timeout = TimeSpec::microseconds(300);
-        // should there be a deadline here? I guess Instant::now() + PingTimeout
-        const TIMEOUT: Duration = Duration::from_secs(7);
+        const TIMEOUT: Duration = Duration::from_secs(2);
         let start = Instant::now();
         while start.elapsed() < TIMEOUT {
             // if tunnel device is ready to be read from, traffic is being routed through it
