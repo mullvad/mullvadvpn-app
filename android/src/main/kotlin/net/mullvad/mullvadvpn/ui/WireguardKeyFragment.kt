@@ -27,7 +27,6 @@ import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.util.SmartDeferred
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -39,9 +38,8 @@ class WireguardKeyFragment : Fragment() {
     private var currentJob: Job? = null
     private var updateViewsJob: Job? = null
     private var tunnelStateListener: Int? = null
-    private var tunnelStateSubscriptionJob: Long? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
-    private lateinit var connectionProxy: SmartDeferred<ConnectionProxy>
+    private lateinit var connectionProxy: ConnectionProxy
     private lateinit var keyStatusListener: KeyStatusListener
     private lateinit var parentActivity: MainActivity
     private lateinit var wwwTokenRetriever: WwwAuthTokenRetriever
@@ -299,14 +297,8 @@ class WireguardKeyFragment : Fragment() {
     }
 
     override fun onPause() {
-        tunnelStateSubscriptionJob?.let { jobId ->
-            connectionProxy.cancelJob(jobId)
-        }
-
         tunnelStateListener?.let { listener ->
-            connectionProxy.awaitThen {
-                onUiStateChange.unsubscribe(listener)
-            }
+            connectionProxy.onUiStateChange.unsubscribe(listener)
         }
 
         keyStatusListener.onKeyStatusChange = null
@@ -321,12 +313,10 @@ class WireguardKeyFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        tunnelStateSubscriptionJob = connectionProxy.awaitThen {
-            tunnelStateListener = onUiStateChange.subscribe { uiState ->
-                tunnelState = uiState
-                updateViewsJob?.cancel()
-                updateViewsJob = updateViewJob()
-            }
+        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
+            tunnelState = uiState
+            updateViewsJob?.cancel()
+            updateViewsJob = updateViewJob()
         }
 
         keyStatusListener.onKeyStatusChange = { _ ->

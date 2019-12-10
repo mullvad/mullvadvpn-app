@@ -19,7 +19,6 @@ import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.util.SmartDeferred
 
 val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
 
@@ -32,7 +31,7 @@ class ConnectFragment : Fragment() {
     private lateinit var locationInfo: LocationInfo
 
     private lateinit var parentActivity: MainActivity
-    private lateinit var connectionProxy: SmartDeferred<ConnectionProxy>
+    private lateinit var connectionProxy: ConnectionProxy
     private lateinit var keyStatusListener: KeyStatusListener
     private lateinit var locationInfoCache: LocationInfoCache
     private lateinit var relayListListener: RelayListListener
@@ -40,7 +39,6 @@ class ConnectFragment : Fragment() {
 
     private lateinit var updateKeyStatusJob: Job
     private var updateTunnelStateJob: Job? = null
-    private var tunnelStateSubscriptionJob: Long? = null
 
     private var isTunnelInfoExpanded = false
     private var tunnelStateListener: Int? = null
@@ -87,9 +85,9 @@ class ConnectFragment : Fragment() {
 
         actionButton = ConnectActionButton(view)
         actionButton.apply {
-            onConnect = { connectionProxy.awaitThen { connect() } }
-            onCancel = { connectionProxy.awaitThen { disconnect() } }
-            onDisconnect = { connectionProxy.awaitThen { disconnect() } }
+            onConnect = { connectionProxy.connect() }
+            onCancel = { connectionProxy.disconnect() }
+            onDisconnect = { connectionProxy.disconnect() }
         }
 
         switchLocationButton = SwitchLocationButton(view, resources)
@@ -120,11 +118,9 @@ class ConnectFragment : Fragment() {
             switchLocationButton.location = selectedRelayItem
         }
 
-        tunnelStateSubscriptionJob = connectionProxy.awaitThen {
-            tunnelStateListener = onUiStateChange.subscribe { uiState ->
-                updateTunnelStateJob?.cancel()
-                updateTunnelStateJob = updateTunnelState(uiState, state)
-            }
+        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
+            updateTunnelStateJob?.cancel()
+            updateTunnelStateJob = updateTunnelState(uiState, connectionProxy.state)
         }
     }
 
@@ -133,14 +129,8 @@ class ConnectFragment : Fragment() {
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
 
-        tunnelStateSubscriptionJob?.let { jobId ->
-            connectionProxy.cancelJob(jobId)
-        }
-
         tunnelStateListener?.let { listener ->
-            connectionProxy.awaitThen {
-                onUiStateChange.unsubscribe(listener)
-            }
+            connectionProxy.onUiStateChange.unsubscribe(listener)
         }
 
         updateTunnelStateJob?.cancel()

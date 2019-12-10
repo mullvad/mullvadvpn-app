@@ -10,12 +10,12 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
+import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
@@ -23,7 +23,6 @@ import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.MullvadVpnService
-import net.mullvad.mullvadvpn.util.SmartDeferred
 
 class MainActivity : FragmentActivity() {
     companion object {
@@ -37,13 +36,13 @@ class MainActivity : FragmentActivity() {
         private set
     var service = CompletableDeferred<MullvadVpnService.LocalBinder>()
         private set
-    private var serviceConnected = CompletableDeferred<Unit>()
 
     val problemReport = MullvadProblemReport()
 
     val appVersionInfoCache: AppVersionInfoCache
         get() = serviceConnection!!.appVersionInfoCache
-    val connectionProxy = SmartDeferred(configureConnectionProxy())
+    val connectionProxy: ConnectionProxy
+        get() = serviceConnection!!.connectionProxy
     val keyStatusListener: KeyStatusListener
         get() = serviceConnection!!.keyStatusListener
     val relayListListener: RelayListListener
@@ -69,8 +68,6 @@ class MainActivity : FragmentActivity() {
                 serviceConnection = service?.let { service ->
                     ServiceConnection(service, this@MainActivity)
                 }
-
-                serviceConnected.complete(Unit)
             }
 
             waitForDaemonJob = GlobalScope.launch(Dispatchers.Default) {
@@ -96,7 +93,6 @@ class MainActivity : FragmentActivity() {
 
             service = CompletableDeferred<MullvadVpnService.LocalBinder>()
             daemon = CompletableDeferred<MullvadDaemon>()
-            serviceConnected = CompletableDeferred<Unit>()
         }
     }
 
@@ -109,7 +105,7 @@ class MainActivity : FragmentActivity() {
         }
 
         if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false)) {
-            connectionProxy.awaitThen { connect() }
+            connectionProxy.connect()
         }
     }
 
@@ -136,8 +132,6 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onDestroy() {
-        connectionProxy.cancel()
-
         serviceConnection?.onDestroy()
 
         waitForDaemonJob?.cancel()
@@ -179,14 +173,7 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun configureConnectionProxy() = GlobalScope.async(Dispatchers.Default) {
-        serviceConnected.await()
-        serviceConnection!!.connectionProxy
-    }
-
     private fun setVpnPermission(allow: Boolean) = GlobalScope.launch(Dispatchers.Default) {
-        connectionProxy.awaitThen {
-            vpnPermission.complete(allow)
-        }
+        connectionProxy.vpnPermission.complete(allow)
     }
 }
