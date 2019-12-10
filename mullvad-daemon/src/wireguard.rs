@@ -1,10 +1,10 @@
 use crate::InternalDaemonEvent;
-use chrono::offset::Utc;
+use chrono::{DateTime, offset::Utc};
 use futures::{future::Executor, sync::oneshot, Async, Future, Poll};
 use jsonrpc_client_core::Error as JsonRpcError;
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;
-use std::{sync::mpsc, time::{Duration, Instant}};
+use std::{cmp, sync::mpsc, time::{Duration, Instant}};
 pub use talpid_types::net::wireguard::{
     ConnectionConfig, PrivateKey, TunnelConfig, TunnelParameters,
 };
@@ -44,9 +44,11 @@ pub type Result<T> = std::result::Result<T, Error>;
 use crate::ManagementCommand;
 use talpid_core::tunnel_state_machine::TunnelCommand;
 
-pub struct KeyRotationScheduler {
+struct KeyRotationScheduler {
     daemon_tx: mpsc::Sender<InternalDaemonEvent>,
     delay: Box<dyn Future<Item = (), Error = ()> + Send>,
+    last_update: Option<DateTime<Utc>>,
+    interval: u32,
 }
 
 impl Future for KeyRotationScheduler {
@@ -69,14 +71,15 @@ impl Future for KeyRotationScheduler {
         ))
         .map_err(|_| Error::RunAutomaticKeyRotation)?;
 
-        log::info!("!!! Sending message DONE");
+        self.last_update = Some(Utc::now());
 
-        // TODO: replace with configurable interval
-        let somedelay = Instant::now() + Duration::from_secs(30);
-        self.delay = Box::new(Delay::new(somedelay).map_err(|_| ()));
-        return self.delay
+        log::debug!("Sent key replacement request");
+
+        self.delay = Self::next_delay(self.interval, None);
+
+        self.delay
             .poll()
-            .map_err(|_| Error::Delay);
+            .map_err(|_| Error::Delay)
     }
 }
 
@@ -84,26 +87,22 @@ impl KeyRotationScheduler {
     pub(crate) fn new(
         tokio_remote: Remote,
         daemon_tx: mpsc::Sender<InternalDaemonEvent>,
-        automatic_key_rotation: Option<u32>,
+        public_key: Option<PublicKey>,
+        interval: Option<u32>,
     ) -> Result<oneshot::Sender<()>> {
         let (
             terminate_auto_rotation_tx,
             terminate_auto_rotation_rx
         ) = oneshot::channel();
 
-        // TODO: calculate next interval. compare to 'automatic_key_rotation'
-
-        let automatic_key_rotation =
-            automatic_key_rotation.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
-        let automatic_key_rotation =
-            Duration::from_secs((60 * automatic_key_rotation).into());
-
-        let delay: Box<dyn Future<Item = (), Error = ()> + Send> =
-            Box::new(Delay::new(Instant::now() + automatic_key_rotation).map_err(|_| ()));
+        let interval = interval.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
+        let last_update = public_key.map(|key| key.created.clone());
 
         let fut = Self {
             daemon_tx: daemon_tx.clone(),
-            delay,
+            delay: Self::next_delay(interval, last_update),
+            last_update,
+            interval,
         };
 
         tokio_remote.execute(
@@ -120,6 +119,30 @@ impl KeyRotationScheduler {
 
         Ok(terminate_auto_rotation_tx)
     }
+
+    fn next_delay(interval_mins: u32, last_update: Option<DateTime<Utc>>) ->
+        Box<dyn Future<Item = (), Error = ()> + Send>
+    {
+        let mut delay = Duration::from_secs(60u64 * interval_mins as u64);
+
+        log::debug!(
+            "KeyRotationScheduler::next_delay(last_update.is_none() == {})",
+            last_update.is_none(),
+        );
+
+        if let Some(last_update) = last_update {
+            // Check when the key should expire
+            let key_age = Duration::from_secs(
+                (Utc::now().signed_duration_since(last_update)).num_seconds() as u64
+            );
+            let remaining_time = delay.checked_sub(key_age).unwrap_or(
+                Duration::from_secs(0)
+            );
+            delay = cmp::max(Duration::from_secs(0), cmp::min(remaining_time, delay));
+        }
+
+        Box::new(Delay::new(Instant::now() + delay).map_err(|_| ()))
+    }
 }
 
 pub struct KeyManager {
@@ -130,12 +153,17 @@ pub struct KeyManager {
     abort_scheduler_tx: Option<oneshot::Sender<()>>,
 }
 
+pub struct KeyRotationParameters {
+    pub public_key: Option<PublicKey>,
+    pub interval: Option<u32>,
+}
+
 impl KeyManager {
     pub(crate) fn new(
         daemon_tx: mpsc::Sender<InternalDaemonEvent>,
         http_handle: mullvad_rpc::HttpHandle,
         tokio_remote: Remote,
-        automatic_key_rotation: Option<u32>,
+        automatic_key_rotation: KeyRotationParameters,
     ) -> Self {
         let mut manager = Self {
             daemon_tx,
@@ -150,25 +178,26 @@ impl KeyManager {
     }
 
     /// Update automatic key rotation interval (given in hours)
-    /// Passing `None` will use the default value.
+    /// Passing `None` for the interval will use the default value.
     /// A value of `0` disables automatic key rotation.
     pub fn update_rotation_interval(
         &mut self,
-        automatic_key_rotation: Option<u32>,
+        automatic_key_rotation: KeyRotationParameters,
     ) {
         log::debug!("update_rotation_interval");
         if self.abort_scheduler_tx.is_some() {
             // Stop existing scheduler, if one exists
             let tx = self.abort_scheduler_tx.take().unwrap();
-            tx.send(());
+            let _ = tx.send(());
         }
-        self.abort_scheduler_tx = match automatic_key_rotation {
+        self.abort_scheduler_tx = match automatic_key_rotation.interval {
             // Interval=0 disables automatic key rotation
             Some(0) => None,
             _ => KeyRotationScheduler::new(
                 self.tokio_remote.clone(),
                 self.daemon_tx.clone(),
-                automatic_key_rotation,
+                automatic_key_rotation.public_key,
+                automatic_key_rotation.interval,
             ).ok(),
         };
     }
