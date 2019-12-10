@@ -19,6 +19,13 @@ class SelectLocationCell: BasicTableViewCell {
     private let chevronDown = UIImage(imageLiteralResourceName: "IconChevronDown")
     private let chevronUp = UIImage(imageLiteralResourceName: "IconChevronUp")
 
+    var isDisabled = false {
+        didSet {
+            updateDisabled()
+            updateBackgroundColor()
+        }
+    }
+
     var isExpanded = false {
         didSet {
             updateCollapseImage()
@@ -45,10 +52,13 @@ class SelectLocationCell: BasicTableViewCell {
         super.awakeFromNib()
 
         indentationWidth = 16
+        statusIndicator.tintColor = .white
 
         collapseButton.addTarget(self, action: #selector(handleCollapseButton(_ :)), for: .touchUpInside)
 
         updateCollapseImage()
+        updateDisabled()
+        updateBackgroundColor()
 
         contentView.layoutMargins = preferredMargins
     }
@@ -77,18 +87,42 @@ class SelectLocationCell: BasicTableViewCell {
         tickImageView?.isHidden = !isSelected
     }
 
-    private func updateBackgroundColor() {
-        backgroundView?.backgroundColor = colorForIdentationLevel()
+    private func updateDisabled() {
+        contentView.alpha = isDisabled ? 0.5 : 1
     }
 
-    private func colorForIdentationLevel() -> UIColor {
-        switch indentationLevel {
-        case 1:
-            return UIColor.Cell.subCellBackgroundColor
-        case 2:
-            return UIColor.Cell.subSubCellBackgroundColor
-        default:
-            return UIColor.Cell.backgroundColor
+    private func updateBackgroundColor() {
+        backgroundView?.backgroundColor = backgroundColorForIdentationLevel()
+        selectedBackgroundView?.backgroundColor = selectedBackgroundColorForIndentationLevel()
+    }
+
+    private func backgroundColorForIdentationLevel() -> UIColor {
+        if isDisabled {
+            switch indentationLevel {
+            case 1:
+                return UIColor.SubCell.disabledBackgroundColor
+            case 2:
+                return UIColor.SubSubCell.disabledBackgroundColor
+            default:
+                return UIColor.Cell.disabledBackgroundColor
+            }
+        } else {
+            switch indentationLevel {
+            case 1:
+                return UIColor.SubCell.backgroundColor
+            case 2:
+                return UIColor.SubSubCell.backgroundColor
+            default:
+                return UIColor.Cell.backgroundColor
+            }
+        }
+    }
+
+    private func selectedBackgroundColorForIndentationLevel() -> UIColor {
+        if isDisabled {
+            return UIColor.Cell.disabledSelectedBackgroundColor
+        } else {
+            return UIColor.Cell.selectedBackgroundColor
         }
     }
 

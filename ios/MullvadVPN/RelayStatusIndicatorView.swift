@@ -22,6 +22,12 @@ import UIKit
         }
     }
 
+    override var isHighlighted: Bool {
+        didSet {
+            updateCircleLayerColor()
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -34,29 +40,10 @@ import UIKit
         setup()
     }
 
-    private func setup() {
-        backgroundColor = UIColor.clear
+    override func tintColorDidChange() {
+        super.tintColorDidChange()
 
-        layer.addSublayer(circleLayer)
         updateCircleLayerColor()
-    }
-
-    override var isHighlighted: Bool {
-        didSet {
-            updateCircleLayerColor()
-        }
-    }
-
-    private func updateCircleLayerColor() {
-        let baseColor = isActive
-            ? UIColor.RelayStatusIndicator.activeColor
-            : UIColor.RelayStatusIndicator.inactiveColor
-
-        let circleColor = isHighlighted
-            ? baseColor.darkened(by: 0.2) ?? baseColor
-            : baseColor
-
-        circleLayer.fillColor = circleColor.cgColor
     }
 
     override func layoutSublayers(of layer: CALayer) {
@@ -75,5 +62,22 @@ import UIKit
 
         circleLayer.frame = CGRect(origin: circleOrigin, size: circleSize)
         circleLayer.path = bezierPath.cgPath
+    }
+
+    private func setup() {
+        backgroundColor = UIColor.clear
+
+        layer.addSublayer(circleLayer)
+        updateCircleLayerColor()
+    }
+
+    private func updateCircleLayerColor() {
+        let baseColor = isActive
+            ? UIColor.RelayStatusIndicator.activeColor
+            : UIColor.RelayStatusIndicator.inactiveColor
+
+        let circleColor: UIColor = isHighlighted ? tintColor : baseColor
+
+        circleLayer.fillColor = circleColor.cgColor
     }
 }
