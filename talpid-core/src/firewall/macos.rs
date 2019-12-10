@@ -281,6 +281,7 @@ impl Firewall {
             .quick(true)
             .direction(pfctl::Direction::Out)
             .af(pfctl::AddrFamily::Ipv4)
+            .proto(pfctl::Proto::Udp)
             .from(pfctl::Port::from(super::DHCPV4_SERVER_PORT))
             .to(pfctl::Port::from(super::DHCPV4_CLIENT_PORT))
             .build()?;
@@ -288,6 +289,7 @@ impl Firewall {
             .create_rule_builder(FilterRuleAction::Pass)
             .quick(true)
             .direction(pfctl::Direction::In)
+            .proto(pfctl::Proto::Udp)
             .from(pfctl::Port::from(super::DHCPV4_CLIENT_PORT))
             .to(pfctl::Endpoint::new(
                 Ipv4Addr::BROADCAST,

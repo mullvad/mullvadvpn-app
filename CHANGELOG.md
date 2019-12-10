@@ -40,6 +40,10 @@ Line wrap the file at 100 chars.                                              Th
 - Stop [CVE-2019-14899](https://seclists.org/oss-sec/2019/q4/122) by dropping all packets destined
   for the tunnel IP coming in on some other interface than the tunnel.
 
+#### macOS
+- Limit macOS firewall rules to only allow UDP packets in the rules meant to enable being a DHCPv4
+  *server* when local network sharing is enabled.
+
 
 ## [2019.10-beta2] - 2019-12-05
 ### Added
