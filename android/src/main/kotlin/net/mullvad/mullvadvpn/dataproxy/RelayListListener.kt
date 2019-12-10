@@ -4,13 +4,13 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.MainActivity
-import net.mullvad.mullvadvpn.MullvadDaemon
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
+import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.mullvadvpn.ui.MainActivity
 
 class RelayListListener(val parentActivity: MainActivity) {
     private val daemon = CompletableDeferred<MullvadDaemon>()

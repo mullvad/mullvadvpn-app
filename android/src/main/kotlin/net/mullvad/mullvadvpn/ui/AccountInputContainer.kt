@@ -1,8 +1,9 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.LinearLayout
+import net.mullvad.mullvadvpn.R
 
 class AccountInputContainer : LinearLayout {
     enum class BorderState {

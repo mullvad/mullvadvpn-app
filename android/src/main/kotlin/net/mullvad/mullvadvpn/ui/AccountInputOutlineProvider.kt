@@ -1,9 +1,10 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
 import android.graphics.Outline
 import android.view.View
 import android.view.ViewOutlineProvider
+import net.mullvad.mullvadvpn.R
 
 class AccountInputOutlineProvider(private val context: Context) : ViewOutlineProvider() {
     private val cornerRadius = context.resources.getDimension(R.dimen.account_input_corner_radius)

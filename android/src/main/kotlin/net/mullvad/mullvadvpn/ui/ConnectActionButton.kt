@@ -1,7 +1,8 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import android.view.View
 import android.widget.Button
+import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 

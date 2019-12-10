@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
 import android.content.Intent
@@ -17,6 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 
 class LoginFragment : Fragment() {

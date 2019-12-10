@@ -4,8 +4,8 @@ import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.MainActivity
 import net.mullvad.mullvadvpn.model.AppVersionInfo
+import net.mullvad.mullvadvpn.ui.MainActivity
 
 class AppVersionInfoCache(val parentActivity: MainActivity) {
     companion object {

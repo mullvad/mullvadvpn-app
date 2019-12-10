@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn
+package net.mullvad.mullvadvpn.ui
 
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
