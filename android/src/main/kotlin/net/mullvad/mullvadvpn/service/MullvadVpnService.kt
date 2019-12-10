@@ -14,7 +14,6 @@ import net.mullvad.talpid.TalpidVpnService
 
 class MullvadVpnService : TalpidVpnService() {
     private val binder = LocalBinder()
-    private val created = CompletableDeferred<Unit>()
 
     private var resetComplete: CompletableDeferred<Unit>? = null
 
@@ -25,7 +24,6 @@ class MullvadVpnService : TalpidVpnService() {
     override fun onCreate() {
         super.onCreate()
         setUp()
-        created.complete(Unit)
     }
 
     override fun onBind(intent: Intent): IBinder {
@@ -47,7 +45,6 @@ class MullvadVpnService : TalpidVpnService() {
     override fun onDestroy() {
         tearDown()
         daemon.cancel()
-        created.cancel()
         super.onDestroy()
     }
 
@@ -73,8 +70,8 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
-        created.await()
         ApiRootCaFile().extract(application)
+
         MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
                 notificationManager.loggedIn = settings?.accountToken != null
@@ -90,7 +87,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun stop() {
-        this@MullvadVpnService.resetComplete = CompletableDeferred()
+        resetComplete = CompletableDeferred()
 
         if (daemon.isCompleted) {
             runBlocking { daemon.await().shutdown() }

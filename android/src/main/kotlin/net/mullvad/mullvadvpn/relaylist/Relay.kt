@@ -18,5 +18,5 @@ data class Relay(
 
     override var expanded
         get() = false
-        set(value) {}
+        set(_) {}
 }

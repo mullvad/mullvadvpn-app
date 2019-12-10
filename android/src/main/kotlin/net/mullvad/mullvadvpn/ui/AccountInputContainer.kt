@@ -22,6 +22,7 @@ class AccountInputContainer : LinearLayout {
             overlay.clear()
 
             when (value) {
+                BorderState.UNFOCUSED -> {}
                 BorderState.FOCUSED -> overlay.add(focusedBorder)
                 BorderState.ERROR -> overlay.add(errorBorder)
             }

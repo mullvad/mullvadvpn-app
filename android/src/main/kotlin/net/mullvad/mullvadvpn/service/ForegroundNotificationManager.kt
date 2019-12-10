@@ -161,9 +161,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
     }
 
     fun onDestroy() {
-        listenerId?.let { listener ->
-            connectionProxy.onStateChange.unsubscribe(listener)
-        }
+        connectionProxy.onStateChange.unsubscribe(listenerId)
 
         service.apply {
             unregisterReceiver(connectReceiver)

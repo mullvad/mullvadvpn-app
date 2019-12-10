@@ -47,7 +47,7 @@ class ConfirmNoEmailDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
 
-        dialog.window.setBackgroundDrawable(ColorDrawable(android.R.color.transparent))
+        dialog.window?.apply { setBackgroundDrawable(ColorDrawable(android.R.color.transparent)) }
 
         return dialog
     }

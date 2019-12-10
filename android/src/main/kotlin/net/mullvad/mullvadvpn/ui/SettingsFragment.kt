@@ -89,7 +89,7 @@ class SettingsFragment : Fragment() {
 
         remainingTimeLabel.onResume()
 
-        accountCache.onAccountDataChange = { account, _expiry ->
+        accountCache.onAccountDataChange = { account, _ ->
             updateLoggedInStatusJob?.cancel()
             updateLoggedInStatusJob = updateLoggedInStatus(account != null)
         }
