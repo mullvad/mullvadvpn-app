@@ -128,8 +128,8 @@ stays active until the user requests a disconnect, quit, server change, change o
 that affects the tunnel or until the tunnel goes down unexpectedly.
 
 In this state, all traffic in both directions over the tunnel interface is allowed. Minus DNS
-requests (TCP and UDP destination port 53) not to a gateway IP for that interface. Meaning we can
-*only* request DNS inside the tunnel and *only* from the relay server itself.
+requests (TCP and UDP destination port 53) not to a gateway IP on the tunnel interface.
+Meaning we can *only* request DNS inside the tunnel and *only* from the relay server itself.
 
 This state allows traffic on all interfaces to and from the IP and port combo that the tunnel
 runs over. See the [connecting] state for details.
