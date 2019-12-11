@@ -59,8 +59,9 @@ The following network traffic is allowed or blocked independent of state:
    * Incoming UDP from `[fe80::]/10:547` to `[fe80::]/10:546` (server to client)
 
 1. Router solicitation, advertisement and redirects (subset of NDP) is always allowed:
-   * Outgoing to `ff02::2`, but only ICMPv6 with type 133 and code 0.
-   * Incoming from `[fe80::]/10`, but only ICMPv6 type 134 or 137 and code 0.
+   * Outgoing to `ff02::2`, but only ICMPv6 with type 133 and code 0 (Router solicitation)
+   * Incoming from `[fe80::]/10`, but only ICMPv6 type 134 and code 0 (Router advertisement)
+   * Incoming from `[fe80::]/10`, but only ICMPv6 type 137 and code 0 (Redirect)
 
 1. If the "Allow LAN" setting is enabled, the following is also allowed:
    * Outgoing to, and incoming from, any IP in an unroutable network, that means:
