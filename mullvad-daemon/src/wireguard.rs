@@ -197,7 +197,7 @@ impl KeyManager {
             current_job: None,
             abort_scheduler_tx: None,
         };
-        manager.update_rotation_interval(automatic_key_rotation);
+        manager.update_rotation_interval(Some(automatic_key_rotation));
 
         manager
     }
@@ -205,24 +205,27 @@ impl KeyManager {
     /// Update automatic key rotation interval (given in hours)
     /// Passing `None` for the interval will use the default value.
     /// A value of `0` disables automatic key rotation.
-    pub fn update_rotation_interval(&mut self, automatic_key_rotation: KeyRotationParameters) {
+    pub fn update_rotation_interval(&mut self, automatic_key_rotation: Option<KeyRotationParameters>) {
         log::debug!("update_rotation_interval");
         if self.abort_scheduler_tx.is_some() {
             // Stop existing scheduler, if one exists
             let tx = self.abort_scheduler_tx.take().unwrap();
             let _ = tx.send(());
         }
-        self.abort_scheduler_tx = match automatic_key_rotation.interval {
-            // Interval=0 disables automatic key rotation
-            Some(0) => None,
-            _ => KeyRotationScheduler::new(
-                self.tokio_remote.clone(),
-                self.daemon_tx.clone(),
-                automatic_key_rotation.public_key,
-                automatic_key_rotation.interval,
-            )
-            .ok(),
-        };
+
+        if let Some(automatic_key_rotation) = automatic_key_rotation {
+            self.abort_scheduler_tx = match automatic_key_rotation.interval {
+                // Interval=0 disables automatic key rotation
+                Some(0) => None,
+                _ => KeyRotationScheduler::new(
+                    self.tokio_remote.clone(),
+                    self.daemon_tx.clone(),
+                    automatic_key_rotation.public_key,
+                    automatic_key_rotation.interval,
+                )
+                .ok(),
+            };
+        }
     }
 
     /// Stop current key generation
