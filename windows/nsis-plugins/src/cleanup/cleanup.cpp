@@ -1,16 +1,11 @@
 #include <stdafx.h>
+#include "../error.h"
 #include "cleaningops.h"
 #include <libcommon/string.h>
 #include <windows.h>
 #include <nsis/pluginapi.h>
 #include <functional>
 #include <vector>
-
-enum class RemoveLogsAndCacheStatus
-{
-	GENERAL_ERROR = 0,
-	SUCCESS
-};
 
 void __declspec(dllexport) NSISCALL RemoveLogsAndCache
 (
@@ -49,14 +44,8 @@ void __declspec(dllexport) NSISCALL RemoveLogsAndCache
 		}
 	}
 
-	pushint(success ? RemoveLogsAndCacheStatus::SUCCESS : RemoveLogsAndCacheStatus::GENERAL_ERROR);
+	pushint(success ? NsisStatus::SUCCESS : NsisStatus::GENERAL_ERROR);
 }
-
-enum class RemoveSettingsStatus
-{
-	GENERAL_ERROR = 0,
-	SUCCESS
-};
 
 void __declspec(dllexport) NSISCALL RemoveSettings
 (
@@ -73,19 +62,13 @@ void __declspec(dllexport) NSISCALL RemoveSettings
 	try
 	{
 		cleaningops::RemoveSettingsServiceUser();
-		pushint(RemoveSettingsStatus::SUCCESS);
+		pushint(NsisStatus::SUCCESS);
 	}
 	catch (...)
 	{
-		pushint(RemoveSettingsStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 }
-
-enum class RemoveRelayCacheStatus
-{
-	GENERAL_ERROR = 0,
-	SUCCESS
-};
 
 void __declspec(dllexport) NSISCALL RemoveRelayCache
 (
@@ -104,16 +87,16 @@ void __declspec(dllexport) NSISCALL RemoveRelayCache
 		cleaningops::RemoveRelayCacheServiceUser();
 
 		pushstring(L"");
-		pushint(RemoveRelayCacheStatus::SUCCESS);
+		pushint(NsisStatus::SUCCESS);
 	}
 	catch (const std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(RemoveRelayCacheStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(RemoveRelayCacheStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 }

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "../error.h"
 #include <windows.h>
 #include <libcommon/string.h>
 #include <libcommon/registry/registry.h>
@@ -43,11 +44,6 @@ std::wstring PopString()
 //
 // MoveKey "HKLM\Software\A" "HKLM\Software\B"
 //
-enum class MoveKeyStatus
-{
-	GENERAL_ERROR = 0,
-	SUCCESS
-};
 
 void __declspec(dllexport) NSISCALL MoveKey
 (
@@ -73,16 +69,16 @@ void __declspec(dllexport) NSISCALL MoveKey
 			typedDestination.subkey(), common::registry::RegistryView::Force64);
 
 		pushstring(L"");
-		pushint(MoveKeyStatus::SUCCESS);
+		pushint(NsisStatus::SUCCESS);
 	}
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(MoveKeyStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(MoveKeyStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 }

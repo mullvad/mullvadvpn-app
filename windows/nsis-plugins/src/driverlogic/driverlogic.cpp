@@ -1,4 +1,5 @@
 #include <stdafx.h>
+#include "../error.h"
 #include "context.h"
 #include <libcommon/string.h>
 #include <libcommon/valuemapper.h>
@@ -52,11 +53,6 @@ void PinDll()
 //
 // Call this function once during startup.
 //
-enum class InitializeStatus
-{
-	GENERAL_ERROR = 0,
-	SUCCESS,
-};
 
 void __declspec(dllexport) NSISCALL Initialize
 (
@@ -80,17 +76,17 @@ void __declspec(dllexport) NSISCALL Initialize
 		}
 
 		pushstring(L"");
-		pushint(InitializeStatus::SUCCESS);
+		pushint(NsisStatus::SUCCESS);
 	}
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(InitializeStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(InitializeStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 }
 
@@ -227,11 +223,6 @@ void __declspec(dllexport) NSISCALL RemoveMullvadTap
 // By comparing with the previously captured baseline we're able to
 // identify the new adapter.
 //
-enum class IdentifyNewAdapterStatus
-{
-	GENERAL_ERROR = 0,
-	SUCCESS
-};
 
 void __declspec(dllexport) NSISCALL IdentifyNewAdapter
 (
@@ -248,7 +239,7 @@ void __declspec(dllexport) NSISCALL IdentifyNewAdapter
 	if (nullptr == g_context)
 	{
 		pushstring(L"Initialize() function was not called or was not successful");
-		pushint(IdentifyNewAdapterStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 		return;
 	}
 
@@ -259,17 +250,17 @@ void __declspec(dllexport) NSISCALL IdentifyNewAdapter
 		auto adapter = g_context->getNewAdapter();
 
 		pushstring(adapter.alias.c_str());
-		pushint(IdentifyNewAdapterStatus::SUCCESS);
+		pushint(NsisStatus::SUCCESS);
 	}
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(IdentifyNewAdapterStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(IdentifyNewAdapterStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 }
 
@@ -279,11 +270,6 @@ void __declspec(dllexport) NSISCALL IdentifyNewAdapter
 // Updating the TAP driver may replace GUIDs and aliases.
 // Use this to restore the aliases to their baseline state.
 //
-enum class RollbackTapAliasesStatus
-{
-	GENERAL_ERROR = 0,
-	SUCCESS
-};
 
 void __declspec(dllexport) NSISCALL RollbackTapAliases
 (
@@ -300,7 +286,7 @@ void __declspec(dllexport) NSISCALL RollbackTapAliases
 	if (nullptr == g_context)
 	{
 		pushstring(L"Initialize() function was not called or was not successful");
-		pushint(RollbackTapAliasesStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 		return;
 	}
 
@@ -310,17 +296,17 @@ void __declspec(dllexport) NSISCALL RollbackTapAliases
 		g_context->rollbackTapAliases();
 
 		pushstring(L"");
-		pushint(RollbackTapAliasesStatus::SUCCESS);
+		pushint(NsisStatus::SUCCESS);
 	}
 	catch (std::exception & err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(RollbackTapAliasesStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(RollbackTapAliasesStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 }
 
@@ -329,11 +315,6 @@ void __declspec(dllexport) NSISCALL RollbackTapAliases
 //
 // Call this function once during shutdown.
 //
-enum class DeinitializeStatus
-{
-	GENERAL_ERROR = 0,
-	SUCCESS,
-};
 
 void __declspec(dllexport) NSISCALL Deinitialize
 (
@@ -352,17 +333,17 @@ void __declspec(dllexport) NSISCALL Deinitialize
 		delete g_context;
 
 		pushstring(L"");
-		pushint(InitializeStatus::SUCCESS);
+		pushint(NsisStatus::SUCCESS);
 	}
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(DeinitializeStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(DeinitializeStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 
 	g_context = nullptr;
