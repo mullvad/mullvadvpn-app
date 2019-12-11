@@ -702,11 +702,17 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     /// Set automatic key rotation interval for wireguard tunnels
-    fn set_wireguard_automatic_rotation(&self, _: Self::Metadata, interval: Option<u32>) -> BoxFuture<(), Error> {
+    fn set_wireguard_automatic_rotation(
+        &self,
+        _: Self::Metadata,
+        interval: Option<u32>,
+    ) -> BoxFuture<(), Error> {
         log::debug!("set_wireguard_automatic_rotation({:?})", interval);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetWireguardAutomaticRotation(tx, interval))
+            .send_command_to_daemon(ManagementCommand::SetWireguardAutomaticRotation(
+                tx, interval,
+            ))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
