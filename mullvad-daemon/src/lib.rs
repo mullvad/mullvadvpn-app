@@ -1088,13 +1088,26 @@ where
             Ok(account_changed) => {
                 if account_changed {
                     match account_token {
-                        Some(_) => {
+                        Some(account_token) => {
                             info!("Initiating tunnel restart because the account token changed");
+
+                            let public_key = self.account_history
+                                .get(&account_token)
+                                .unwrap_or(None)
+                                .and_then(|entry| entry.wireguard.map(|wg| wg.get_public_key()));
+                            self.wireguard_key_manager.update_rotation_interval(Some(
+                                wireguard::KeyRotationParameters {
+                                    public_key,
+                                    interval: self.settings.get_tunnel_options().wireguard.automatic_rotation,
+                                },
+                            ));
+
                             self.reconnect_tunnel();
                         }
                         None => {
                             info!("Disconnecting because account token was cleared");
                             self.set_target_state(TargetState::Unsecured);
+                            self.wireguard_key_manager.update_rotation_interval(None);
                         }
                     };
                 }
@@ -1378,12 +1391,12 @@ where
                             .and_then(|entry| entry.wireguard.map(|wg| wg.get_public_key()))
                     });
 
-                    self.wireguard_key_manager.update_rotation_interval(
+                    self.wireguard_key_manager.update_rotation_interval(Some(
                         wireguard::KeyRotationParameters {
                             public_key,
                             interval,
                         },
-                    );
+                    ));
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
