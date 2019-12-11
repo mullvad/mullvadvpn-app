@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
+import org.joda.time.DateTime
 
 class SettingsFragment : ServiceAwareFragment() {
     private lateinit var accountCache: AccountCache
@@ -29,7 +30,7 @@ class SettingsFragment : ServiceAwareFragment() {
     private lateinit var remainingTimeLabel: RemainingTimeLabel
     private lateinit var wireguardKeysMenu: View
 
-    private var updateLoggedInStatusJob: Job? = null
+    private var updateAccountInfoJob: Job? = null
     private var updateVersionInfoJob: Job? = null
 
     override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
@@ -73,7 +74,7 @@ class SettingsFragment : ServiceAwareFragment() {
         appVersionWarning = view.findViewById(R.id.app_version_warning)
         appVersionLabel = view.findViewById<TextView>(R.id.app_version_label)
         appVersionFooter = view.findViewById(R.id.app_version_footer)
-        remainingTimeLabel = RemainingTimeLabel(parentActivity, accountCache, view)
+        remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
 
         return view
     }
@@ -81,11 +82,9 @@ class SettingsFragment : ServiceAwareFragment() {
     override fun onResume() {
         super.onResume()
 
-        remainingTimeLabel.onResume()
-
-        accountCache.onAccountDataChange = { account, _ ->
-            updateLoggedInStatusJob?.cancel()
-            updateLoggedInStatusJob = updateLoggedInStatus(account != null)
+        accountCache.onAccountDataChange = { account, expiry ->
+            updateAccountInfoJob?.cancel()
+            updateAccountInfoJob = updateAccountInfo(account != null, expiry)
         }
 
         versionInfoCache.onUpdate = {
@@ -97,12 +96,11 @@ class SettingsFragment : ServiceAwareFragment() {
     override fun onPause() {
         versionInfoCache.onUpdate = null
         accountCache.onAccountDataChange = null
-        remainingTimeLabel.onPause()
         super.onPause()
     }
 
     override fun onDestroyView() {
-        updateLoggedInStatusJob?.cancel()
+        updateAccountInfoJob?.cancel()
         updateVersionInfoJob?.cancel()
         super.onDestroyView()
     }
@@ -127,7 +125,13 @@ class SettingsFragment : ServiceAwareFragment() {
         startActivity(intent)
     }
 
-    private fun updateLoggedInStatus(loggedIn: Boolean) = GlobalScope.launch(Dispatchers.Main) {
+    private fun updateAccountInfo(loggedIn: Boolean, expiry: DateTime?)
+            = GlobalScope.launch(Dispatchers.Main) {
+        updateLoggedInStatus(loggedIn)
+        remainingTimeLabel.accountExpiry = expiry
+    }
+
+    private fun updateLoggedInStatus(loggedIn: Boolean) {
         val visibility = if (loggedIn) {
             View.VISIBLE
         } else {
