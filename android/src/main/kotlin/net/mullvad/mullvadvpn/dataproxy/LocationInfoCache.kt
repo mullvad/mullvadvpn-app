@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -14,6 +15,10 @@ import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.talpid.ConnectivityListener
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+
+const val DELAY_SCALE: Long = 50
+const val MAX_DELAY: Long = 30 * 60 * 1000
+const val MAX_RETRIES: Int = 15 // log2(MAX_DELAY / DELAY_SCALE)
 
 class LocationInfoCache(
     val daemon: Deferred<MullvadDaemon>,
@@ -98,10 +103,14 @@ class LocationInfoCache(
 
         activeFetch = GlobalScope.launch(Dispatchers.Main) {
             var newLocation: GeoIpLocation? = null
+            var retry = 0
 
             previousFetch?.join()
 
             while (newLocation == null && shouldRetryFetch() && state == initialState) {
+                delayFetch(retry)
+                retry += 1
+
                 newLocation = executeFetch().await()
             }
 
@@ -120,6 +129,20 @@ class LocationInfoCache(
 
     private fun executeFetch() = GlobalScope.async(Dispatchers.Default) {
         daemon.await().getCurrentLocation()
+    }
+
+    private suspend fun delayFetch(retryAttempt: Int) {
+        var duration = 0L
+
+        // Make sure the first attempt has no delay
+        if (retryAttempt >= 1) {
+            val exponent = retryAttempt - 1
+            duration = (1L shl exponent) * DELAY_SCALE
+        } else if (retryAttempt >= MAX_RETRIES) {
+            duration = MAX_DELAY
+        }
+
+        delay(duration)
     }
 
     private suspend fun shouldRetryFetch(): Boolean {
