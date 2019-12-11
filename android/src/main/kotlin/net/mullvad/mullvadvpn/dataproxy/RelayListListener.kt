@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.dataproxy
 
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -11,10 +10,7 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
-class RelayListListener(
-    val daemon: Deferred<MullvadDaemon>,
-    val settingsListener: SettingsListener
-) {
+class RelayListListener(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
     private val setUpJob = setUp()
 
     private var relayList: RelayList? = null
@@ -45,12 +41,7 @@ class RelayListListener(
     fun onDestroy() {
         setUpJob.cancel()
         settingsListener.onRelaySettingsChange = null
-
-        if (daemon.isActive) {
-            daemon.cancel()
-        } else {
-            daemon.getCompleted().onRelayListChange = null
-        }
+        daemon.onRelayListChange = null
     }
 
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
@@ -58,14 +49,14 @@ class RelayListListener(
         fetchInitialRelayList()
     }
 
-    private suspend fun setUpListener() {
-        daemon.await().onRelayListChange = { relayLocations ->
+    private fun setUpListener() {
+        daemon.onRelayListChange = { relayLocations ->
             relayListChanged(RelayList(relayLocations))
         }
     }
 
-    private suspend fun fetchInitialRelayList() {
-        val relayLocations = daemon.await().getRelayLocations()
+    private fun fetchInitialRelayList() {
+        val relayLocations = daemon.getRelayLocations()
 
         synchronized(this) {
             if (relayList == null) {
