@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.ui
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
@@ -10,7 +13,11 @@ import net.mullvad.mullvadvpn.dataproxy.SettingsListener
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.talpid.ConnectivityListener
 
-open class ServiceDependentFragment : ServiceAwareFragment() {
+open class ServiceDependentFragment(val onNoService: OnNoService) : ServiceAwareFragment() {
+    enum class OnNoService {
+        GoBack, GoToLaunchScreen
+    }
+
     lateinit var accountCache: AccountCache
         private set
 
@@ -48,5 +55,14 @@ open class ServiceDependentFragment : ServiceAwareFragment() {
         locationInfoCache = serviceConnection.locationInfoCache
         relayListListener = serviceConnection.relayListListener
         settingsListener = serviceConnection.settingsListener
+    }
+
+    override fun onNoServiceConnection() {
+        GlobalScope.launch(Dispatchers.Main) {
+            when (onNoService) {
+                OnNoService.GoBack -> parentActivity.onBackPressed()
+                OnNoService.GoToLaunchScreen -> parentActivity.returnToLaunchScreen()
+            }
+        }
     }
 }

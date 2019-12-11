@@ -30,7 +30,7 @@ import org.joda.time.format.DateTimeFormat
 val RFC3339_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSSSSSSSSS z")
 val KEY_AGE_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm")
 
-class WireguardKeyFragment : ServiceDependentFragment() {
+class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private var currentJob: Job? = null
     private var updateViewsJob: Job? = null
     private var tunnelStateListener: Int? = null

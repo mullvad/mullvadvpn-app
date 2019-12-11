@@ -122,6 +122,13 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    fun returnToLaunchScreen() {
+        supportFragmentManager?.beginTransaction()?.apply {
+            replace(R.id.main_fragment, LaunchFragment())
+            commit()
+        }
+    }
+
     fun requestVpnPermission(intent: Intent) {
         startActivityForResult(intent, 0)
     }

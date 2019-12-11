@@ -15,7 +15,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 
 val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
 
-class ConnectFragment : ServiceDependentFragment() {
+class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var actionButton: ConnectActionButton
     private lateinit var switchLocationButton: SwitchLocationButton
     private lateinit var headerBar: HeaderBar
