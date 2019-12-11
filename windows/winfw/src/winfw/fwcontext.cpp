@@ -167,7 +167,8 @@ bool FwContext::applyPolicyConnected
 	ruleset.emplace_back(std::make_unique<rules::RestrictDns>(
 		tunnelInterfaceAlias,
 		wfp::IpAddress(v4DnsHost),
-		(v6DnsHost != nullptr) ? std::make_unique<wfp::IpAddress>(v6DnsHost) : nullptr
+		(v6DnsHost != nullptr) ? std::make_unique<wfp::IpAddress>(v6DnsHost) : nullptr,
+		(relay.port == 53) ? std::make_unique<wfp::IpAddress>(relay.ip) : nullptr
 	));
 
 	return applyRuleset(ruleset);
