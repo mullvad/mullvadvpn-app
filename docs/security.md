@@ -180,13 +180,15 @@ but this app is much more proactive about stopping leaks.
 This app applies [strict firewall rules](#app-states) directly when it leaves the [disconnected]
 state and keeps those rules active and enforced until the app comes back to the [disconnected]
 state via an explicit user request again. Said strict firewall rules unsure that packets can only
-leave or enter the computer in a few predefined ways, most notably to the
-selected VPN server of course.
-If the tunnel were to come down and your operating system tries to route
-packets out via the normal network rather than through the VPN,
-these rules would block them from leaving. So rather than failing open, meaning if the tunnel
-fails your traffic leaves in other ways, we fail closed, meaning if the packets don't leave
-encrypted in the way the app intends, then they can't leave at all.
+leave or enter the computer in a few predefined ways, most notably to the selected VPN server of
+course. Changes to the firewall are done in atomic transactions. Meaning there is no time window
+where no or invalid rules are active on the device.
+
+If the tunnel were to come down and your operating system tries to route packets out via the
+normal network rather than through the VPN, these rules would block them from leaving.
+So rather than failing open, meaning if the tunnel fails your traffic leaves in other ways,
+we fail closed, meaning if the packets don't leave encrypted in the way the app intends,
+then they can't leave at all.
 
 Essentially, one can say that the app's "kill switch" is the fact that the [connecting],
 [disconnecting] and [blocked] states prevent leaks via firewall rules.
