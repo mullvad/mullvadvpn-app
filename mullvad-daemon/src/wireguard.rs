@@ -7,18 +7,18 @@ pub use mullvad_types::wireguard::*;
 use std::{
     cmp,
     sync::mpsc,
-    time::{Duration, Instant},
+    time::Duration,
 };
 pub use talpid_types::net::wireguard::{
     ConnectionConfig, PrivateKey, TunnelConfig, TunnelParameters,
 };
 use talpid_types::ErrorExt;
-use tokio::timer::Delay;
 use tokio_core::reactor::Remote;
 use tokio_retry::{
     strategy::{jitter, ExponentialBackoff},
     RetryIf,
 };
+use tokio_timer;
 
 const TOO_MANY_KEYS_ERROR_CODE: i64 = -703;
 /// Default automatic key rotation (in hours)
@@ -37,7 +37,7 @@ pub enum Error {
     RpcError(#[error(source)] jsonrpc_client_core::Error),
     #[error(display = "Account already has maximum number of keys")]
     TooManyKeys,
-    #[error(display = "Failed to create Delay object")]
+    #[error(display = "Failed to create timer object")]
     Delay,
     #[error(display = "Failed to create key rotation scheduler")]
     CreateAutomaticKeyRotationScheduler,
@@ -78,12 +78,10 @@ impl Future for KeyRotationScheduler {
                 _ => {
                     log::error!("Automatic key rotation failed; retrying");
                     self.key_request_rx = None;
-                    self.delay = Box::new(
-                        Delay::new(
-                            Instant::now() + Duration::from_secs(AUTOMATIC_ROTATION_RETRY_DELAY),
-                        )
-                        .map_err(|_| ()),
-                    );
+
+                    self.delay = Box::new(tokio_timer::wheel().build().sleep(
+                        Duration::from_secs(AUTOMATIC_ROTATION_RETRY_DELAY)
+                    ).map_err(|_| ()));
                 }
             }
         }
@@ -165,7 +163,10 @@ impl KeyRotationScheduler {
             delay = cmp::max(Duration::from_secs(0), cmp::min(remaining_time, delay));
         }
 
-        Box::new(Delay::new(Instant::now() + delay).map_err(|_| ()))
+        Box::new(
+            tokio_timer::wheel().build().sleep(delay)
+            .map_err(|_| ())
+        )
     }
 }
 
