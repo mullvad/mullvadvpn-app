@@ -832,7 +832,9 @@ where
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
-            SetWireguardAutomaticRotation(tx, interval) => self.on_set_wireguard_automatic_rotation(tx, interval),
+            SetWireguardAutomaticRotation(tx, interval) => {
+                self.on_set_wireguard_automatic_rotation(tx, interval)
+            }
             GetSettings(tx) => self.on_get_settings(tx),
             GenerateWireguardKey(tx) => self.on_generate_wireguard_key(tx),
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx),
@@ -1357,7 +1359,11 @@ where
         }
     }
 
-    fn on_set_wireguard_automatic_rotation(&mut self, tx: oneshot::Sender<()>, interval: Option<u32>) {
+    fn on_set_wireguard_automatic_rotation(
+        &mut self,
+        tx: oneshot::Sender<()>,
+        interval: Option<u32>,
+    ) {
         let save_result = self.settings.set_wireguard_automatic_rotation(interval);
         match save_result {
             Ok(settings_changed) => {
@@ -1365,16 +1371,19 @@ where
                 if settings_changed {
                     self.event_listener.notify_settings(self.settings.clone());
 
-                    let public_key = self.settings.get_account_token().and_then(|token|
-                        self.account_history.get(&token)
+                    let public_key = self.settings.get_account_token().and_then(|token| {
+                        self.account_history
+                            .get(&token)
                             .unwrap_or(None)
                             .and_then(|entry| entry.wireguard.map(|wg| wg.get_public_key()))
-                    );
-
-                    self.wireguard_key_manager.update_rotation_interval(wireguard::KeyRotationParameters {
-                        public_key,
-                        interval,
                     });
+
+                    self.wireguard_key_manager.update_rotation_interval(
+                        wireguard::KeyRotationParameters {
+                            public_key,
+                            interval,
+                        },
+                    );
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
