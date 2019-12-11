@@ -37,6 +37,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix `null` pointer exception when connectivity event intent has no network info.
 
 ### Security
+- Add automatic key rotation for WireGuard (every 7 days by default). This limits the potential
+  for an attacker to correlate traffic with a public key and identity, and reduces the harm of
+  software that might leak the private tunnel IP (since it is no longer static).
+
 #### Linux
 - Stop [CVE-2019-14899](https://seclists.org/oss-sec/2019/q4/122) by dropping all packets destined
   for the tunnel IP coming in on some other interface than the tunnel.
