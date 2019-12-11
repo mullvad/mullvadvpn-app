@@ -208,10 +208,10 @@ with the internet outside of a VPN tunnel.
 ## DNS
 
 DNS is treated a bit differently from other protocols. Since a user's DNS history can give a
-detailed view of what they are doing, it is important to not leak it. And since invalid or no DNS
-responses prevent the user from going where they want to go, it is important that it works and
-gives correct replies, from an anti-censorship point of view. Poisoned DNS replies is a very
-common way of censoring the network in many places.
+detailed view of what they are doing, it is important to not leak it.
+Since an invalid or missing DNS response prevents the user from going where they want to go,
+it is important that it works and gives correct replies, from an anti-censorship point of view.
+Poisoned DNS replies is a very common way of censoring the network in many places.
 
 With the above as background, the app makes sure that every DNS request from the device goes
 inside the VPN tunnel and to exactly one place, the VPN relay server the device is currently
