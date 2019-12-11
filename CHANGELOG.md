@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix notification message to update to `null` version when version check cache is stale right
   after an update.
 - Fix `null` pointer exception when connectivity event intent has no network info.
+- Fix fast loop trying to fetch location and preventing the device from sleeping. This should
+  improve battery life in some cases.
 
 ### Security
 #### Linux
