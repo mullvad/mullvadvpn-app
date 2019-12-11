@@ -94,7 +94,7 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_initialize(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initialize(
     env: JNIEnv<'_>,
     this: JObject<'_>,
     vpnService: JObject<'_>,
@@ -202,7 +202,7 @@ fn create_daemon(
 }
 
 fn set_daemon_interface_address(env: &JnixEnv<'_>, this: &JObject<'_>, address: jlong) {
-    let class = env.get_class("net/mullvad/mullvadvpn/MullvadDaemon");
+    let class = env.get_class("net/mullvad/mullvadvpn/service/MullvadDaemon");
     let method_id = env
         .get_method_id(&class, "setDaemonInterfaceAddress", "(J)V")
         .expect("Failed to get method ID for MullvadDaemon.setDaemonInterfaceAddress");
@@ -224,7 +224,7 @@ fn set_daemon_interface_address(env: &JnixEnv<'_>, this: &JObject<'_>, address: 
 }
 
 fn get_daemon_interface_address(env: &JnixEnv<'_>, this: &JObject<'_>) -> *mut DaemonInterface {
-    let class = env.get_class("net/mullvad/mullvadvpn/MullvadDaemon");
+    let class = env.get_class("net/mullvad/mullvadvpn/service/MullvadDaemon");
     let method_id = env
         .get_method_id(&class, "getDaemonInterfaceAddress", "()J")
         .expect("Failed to get method ID for MullvadDaemon.getDaemonInterfaceAddress");
@@ -274,7 +274,7 @@ fn get_daemon_interface<'a>(address: jlong) -> Option<&'a mut DaemonInterface> {
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_connect(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_connect(
     _: JNIEnv<'_>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -291,7 +291,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_connect(
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_disconnect(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_disconnect(
     _: JNIEnv<'_>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -308,7 +308,9 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_disconnect(
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWireguardKey<'env>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_generateWireguardKey<
+    'env,
+>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -333,7 +335,9 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_generateWiregua
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_verifyWireguardKey<'env>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_verifyWireguardKey<
+    'env,
+>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -364,7 +368,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_verifyWireguard
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<'env>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAccountData<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -391,7 +395,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getAccountData<
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWwwAuthToken<'env>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getWwwAuthToken<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -416,7 +420,9 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWwwAuthToken
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentLocation<'env>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getCurrentLocation<
+    'env,
+>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -441,7 +447,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentLocat
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentVersion<'env>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getCurrentVersion<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -466,7 +472,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getCurrentVersi
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getRelayLocations<'env>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getRelayLocations<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -491,7 +497,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getRelayLocatio
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getSettings<'env>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getSettings<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -513,7 +519,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getSettings<'en
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getState<'env>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getState<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -535,7 +541,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getState<'env>(
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getVersionInfo<'env>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getVersionInfo<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -560,7 +566,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getVersionInfo<
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey<'env>(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getWireguardKey<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -585,7 +591,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_getWireguardKey
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAccount(
     env: JNIEnv<'_>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -604,7 +610,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_setAccount(
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_shutdown(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdown(
     _: JNIEnv<'_>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
@@ -621,7 +627,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_shutdown(
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_MullvadDaemon_updateRelaySettings(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateRelaySettings(
     env: JNIEnv<'_>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
