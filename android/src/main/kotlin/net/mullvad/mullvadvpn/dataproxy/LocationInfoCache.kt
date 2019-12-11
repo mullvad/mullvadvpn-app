@@ -21,7 +21,7 @@ const val MAX_DELAY: Long = 30 * 60 * 1000
 const val MAX_RETRIES: Int = 17 // ceil(log2(MAX_DELAY / DELAY_SCALE) + 1)
 
 class LocationInfoCache(
-    val daemon: Deferred<MullvadDaemon>,
+    val daemon: MullvadDaemon,
     val connectivityListener: Deferred<ConnectivityListener>,
     val relayListListener: RelayListListener
 ) {
@@ -132,7 +132,7 @@ class LocationInfoCache(
     }
 
     private fun executeFetch() = GlobalScope.async(Dispatchers.Default) {
-        daemon.await().getCurrentLocation()
+        daemon.getCurrentLocation()
     }
 
     private suspend fun delayFetch(retryAttempt: Int) {
