@@ -109,10 +109,16 @@ disable the VPN.
 This state is active from when the app decides to create a VPN tunnel, until said tunnel has
 been established and verified to work. Then it transitions to the [connected] state.
 
-In this state, network traffic to and from the IP and port that the VPN tunnel is established
-towards is allowed. Meaning the IP of the VPN relay server and the selected OpenVPN or WireGuard
-port. In the case where a bridge/proxy is used this IP/port combo becomes the IP of the bridge
-and the port of the used proxying service on said bridge.
+In this state, network traffic to the IP+port+protocol combination used for the first hop of the
+VPN tunnel is allowed on all interfaces, together with responses to this outgoing traffic.
+First hop means the bridge server if one is used, otherwise the VPN server directly.
+Examples:
+1. No bridge is used and the tunnel protocol is OpenVPN trying to connect with UDP to a VPN
+  server at IP `a.b.c.d` port `1301` - Allow traffic to `a.b.c.d:1301/UDP` and incoming matching
+  traffic.
+1. Connecting to the same VPN server, but via a bridge. The bridge is at IP `e.f.g.h` and the
+  proxy service listens on TCP port `443` - Allow traffic to `e.f.g.h:443/TCP` and incoming matching
+  traffic. Do not allow any direct communication with the VPN server.
 
 If connecting via WireGuard, this state allows ICMP packets to and from the in-tunnel IPs
 (both v4 and v6) of the relay server the app is currently connecting to. That means the private
@@ -130,8 +136,8 @@ In this state, all traffic in both directions over the tunnel interface is allow
 requests (TCP and UDP destination port 53) not to a gateway IP on the tunnel interface.
 Meaning we can *only* request DNS inside the tunnel and *only* from the relay server itself.
 
-This state allows traffic on all interfaces to and from the IP and port combo that the tunnel
-runs over. See the [connecting] state for details.
+This state allows traffic on all interfaces to and from the IP+port+protocol combination that
+the tunnel runs over. See the [connecting] state for details on this rule.
 
 ### Disconnecting
 
