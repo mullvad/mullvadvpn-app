@@ -1,19 +1,14 @@
 package net.mullvad.mullvadvpn.dataproxy
 
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
-class SettingsListener(val asyncDaemon: Deferred<MullvadDaemon>) {
-    private lateinit var daemon: MullvadDaemon
+class SettingsListener(val daemon: MullvadDaemon) {
+    private val listenerId = daemon.onSettingsChange.subscribe { maybeSettings ->
+        maybeSettings?.let { settings -> handleNewSettings(settings) }
+    }
 
-    private val setUpJob = setUp()
-
-    private var listenerId = -1
     private var settings: Settings? = null
 
     var onAccountNumberChange: ((String?) -> Unit)? = null
@@ -33,18 +28,8 @@ class SettingsListener(val asyncDaemon: Deferred<MullvadDaemon>) {
         }
 
     fun onDestroy() {
-        setUpJob.cancel()
-
         if (listenerId != -1) {
             daemon.onSettingsChange.unsubscribe(listenerId)
-        }
-    }
-
-    private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
-        daemon = asyncDaemon.await()
-
-        listenerId = daemon.onSettingsChange.subscribe { maybeSettings ->
-            maybeSettings?.let { settings -> handleNewSettings(settings) }
         }
     }
 
