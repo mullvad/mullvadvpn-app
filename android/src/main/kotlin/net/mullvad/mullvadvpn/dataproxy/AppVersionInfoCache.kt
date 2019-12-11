@@ -1,14 +1,13 @@
 package net.mullvad.mullvadvpn.dataproxy
 
 import android.content.Context
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
-class AppVersionInfoCache(val context: Context, val daemon: Deferred<MullvadDaemon>) {
+class AppVersionInfoCache(val context: Context, val daemon: MullvadDaemon) {
     companion object {
         val LEGACY_SHARED_PREFERENCES = "app_version_info_cache"
     }
@@ -69,11 +68,10 @@ class AppVersionInfoCache(val context: Context, val daemon: Deferred<MullvadDaem
 
     fun onDestroy() {
         setUpJob.cancel()
-        tearDown()
+        daemon.onAppVersionInfoChange = null
     }
 
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
-        val daemon = this@AppVersionInfoCache.daemon.await()
         val currentVersion = daemon.getCurrentVersion()
 
         version = currentVersion
@@ -90,9 +88,5 @@ class AppVersionInfoCache(val context: Context, val daemon: Deferred<MullvadDaem
                 appVersionInfo = initialVersionInfo
             }
         }
-    }
-
-    private fun tearDown() = GlobalScope.launch(Dispatchers.Default) {
-        daemon.await().onAppVersionInfoChange = null
     }
 }
