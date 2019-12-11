@@ -19,40 +19,20 @@
 !define SERVICE_STARTED 0
 !define SERVICE_START_PENDING 2
 
+# Generic return codes for Mullvad nsis plugins
+!define MULLVAD_GENERAL_ERROR 0
+!define MULLVAD_SUCCESS 1
+
 # Return codes from driverlogic::EstablishBaseline
 !define EB_GENERAL_ERROR 0
 !define EB_NO_TAP_ADAPTERS_PRESENT 1
 !define EB_SOME_TAP_ADAPTERS_PRESENT 2
 !define EB_MULLVAD_ADAPTER_PRESENT 3
 
-# Return codes from driverlogic::IdentifyNewAdapter
-!define INA_GENERAL_ERROR 0
-!define INA_SUCCESS 1
-
 # Return codes from driverlogic::RemoveMullvadTap
 !define RMT_GENERAL_ERROR 0
 !define RMT_NO_REMAINING_ADAPTERS 1
 !define RMT_SOME_REMAINING_ADAPTERS 2
-
-# Return codes from driverlogic::Initialize/Deinitialize
-!define DRIVERLOGIC_GENERAL_ERROR 0
-!define DRIVERLOGIC_SUCCESS 1
-
-# Return codes from driverlogic::RollbackTapAliases
-!define RTA_GENERAL_ERROR 0
-!define RTA_SUCCESS 1
-
-# Return codes from tray::PromoteTrayIcon
-!define PTI_GENERAL_ERROR 0
-!define PTI_SUCCESS 1
-
-# Return codes from cleanup::RemoveRelayCache
-!define RRC_GENERAL_ERROR 0
-!define RRC_SUCCESS 1
-
-# Return codes from pathedit::AddSysEnvPath/pathedit::RemoveSysEnvPath
-!define PE_GENERAL_ERROR 0
-!define PE_SUCCESS 1
 
 # Return codes from tapinstall
 !define DEVCON_EXIT_OK 0
@@ -201,7 +181,7 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${DRIVERLOGIC_SUCCESS}
+	${If} $0 != ${MULLVAD_SUCCESS}
 		Goto RemoveTap_return_only
 	${EndIf}
 
@@ -260,7 +240,7 @@
 	Pop $0
 	Pop $1
 	
-	${If} $0 != ${DRIVERLOGIC_SUCCESS}
+	${If} $0 != ${MULLVAD_SUCCESS}
 		StrCpy $R0 "Failed to initialize plugin 'driverlogic': $1"
 		log::Log $R0
 		Goto InstallDriver_return_only
@@ -326,7 +306,7 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${RTA_SUCCESS}
+	${If} $0 != ${MULLVAD_SUCCESS}
 		StrCpy $R0 "Failed to roll back TAP adapter aliases: error $0"
 		log::LogWithDetails $R0 $1
 		Goto InstallDriver_return
@@ -363,7 +343,7 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${INA_SUCCESS}
+	${If} $0 != ${MULLVAD_SUCCESS}
 		StrCpy $R0 "Failed to identify new adapter: $1"
 		log::Log $R0
 		Goto InstallDriver_return
@@ -404,7 +384,7 @@
 	Pop $0
 	Pop $1
 	
-	${If} $0 != ${DRIVERLOGIC_SUCCESS}
+	${If} $0 != ${MULLVAD_SUCCESS}
 		# Do not update $R0
 		log::Log "Failed to deinitialize plugin 'driverlogic': $1"
 	${EndIf}
@@ -557,7 +537,7 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${PTI_SUCCESS}
+	${If} $0 != ${MULLVAD_SUCCESS}
 		log::LogWithDetails "Failed to install Mullvad tray icon" $1
 		Goto InstallTrayIcon_return
 	${EndIf}
@@ -633,7 +613,7 @@
 	Pop $0
 	Pop $1
 	
-	${If} $0 != ${RRC_SUCCESS}
+	${If} $0 != ${MULLVAD_SUCCESS}
 		log::Log "Failed to remove relay cache: $1"
 		Goto RemoveRelayCache_return
 	${EndIf}
@@ -667,7 +647,7 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${PE_SUCCESS}
+	${If} $0 != ${MULLVAD_SUCCESS}
 		log::Log "AddCLIToEnvironPath() failed: $0 $1"
 		Goto UpdatePath_return
 	${EndIf}
@@ -700,7 +680,7 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${PE_SUCCESS}
+	${If} $0 != ${MULLVAD_SUCCESS}
 		log::Log "RemoveCLIFromEnvironPath() failed: $0 $1"
 		Goto RemovePath_return
 	${EndIf}

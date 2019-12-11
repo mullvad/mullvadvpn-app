@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "../error.h"
 #include <windows.h>
 #include <libcommon/string.h>
 #include <libcommon/registry/registry.h>
@@ -96,12 +97,6 @@ std::wstring ReadPathValue(const RegistryKey &pathKey)
 // AddSysEnvPath "C:\path\to\directory"
 //
 
-enum class EnvPathStatus
-{
-	GENERAL_ERROR = 0,
-	SUCCESS
-};
-
 void __declspec(dllexport) NSISCALL AddSysEnvPath
 (
 	HWND hwndParent,
@@ -129,7 +124,7 @@ void __declspec(dllexport) NSISCALL AddSysEnvPath
 		if (SysPathExists(path, pathToAppend))
 		{
 			pushstring(L"");
-			pushint(EnvPathStatus::SUCCESS);
+			pushint(NsisStatus::SUCCESS);
 			return;
 		}
 
@@ -148,17 +143,17 @@ void __declspec(dllexport) NSISCALL AddSysEnvPath
 		);
 
 		pushstring(L"");
-		pushint(EnvPathStatus::SUCCESS);
+		pushint(NsisStatus::SUCCESS);
 	}
 	catch (const std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(EnvPathStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(EnvPathStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 }
 
@@ -214,16 +209,16 @@ void __declspec(dllexport) NSISCALL RemoveSysEnvPath
 		}
 
 		pushstring(L"");
-		pushint(EnvPathStatus::SUCCESS);
+		pushint(NsisStatus::SUCCESS);
 	}
 	catch (const std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(EnvPathStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(EnvPathStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 }
