@@ -64,8 +64,6 @@ impl Future for KeyRotationScheduler {
     type Error = Error;
 
     fn poll(&mut self) -> Poll<(), Error> {
-        log::debug!("Poll key rotation future");
-
         if let Some(key_request_rx) = &mut self.key_request_rx {
             let poll_result = key_request_rx.poll();
 
@@ -96,6 +94,8 @@ impl Future for KeyRotationScheduler {
             _ => (),
         }
 
+        log::debug!("Running automatic key rotation");
+
         let (wg_tx, wg_rx) = oneshot::channel();
         let _ = self
             .daemon_tx
@@ -103,8 +103,6 @@ impl Future for KeyRotationScheduler {
                 ManagementCommand::GenerateWireguardKey(wg_tx),
             ))
             .map_err(|_| Error::RunAutomaticKeyRotation)?;
-
-        log::debug!("Sent key replacement request");
 
         self.key_request_rx = Some(wg_rx);
         futures::task::current().notify();
