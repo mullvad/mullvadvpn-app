@@ -3,20 +3,12 @@ package net.mullvad.mullvadvpn.dataproxy
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
-class WwwAuthTokenRetriever(val asyncDaemon: Deferred<MullvadDaemon>) {
-    private var daemon: MullvadDaemon? = null
-    private val setUpJob = setUp()
-
-    private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
-        daemon = asyncDaemon.await()
-    }
-
-    suspend fun getAuthToken(): String {
-        setUpJob.join()
+class WwwAuthTokenRetriever(val daemon: Deferred<MullvadDaemon>) {
+    suspend fun getAuthToken() = GlobalScope.async(Dispatchers.Default) {
         // returning an empty string is valid in case of any failures
-        return daemon?.getWwwAuthToken() ?: ""
+        daemon.await().getWwwAuthToken()
     }
 }

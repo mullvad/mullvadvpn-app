@@ -85,7 +85,7 @@ class WireguardKeyFragment : ServiceDependentFragment() {
 
                 override fun onClick(): Job {
                     return GlobalScope.launch(Dispatchers.Default) {
-                        val token = wwwAuthTokenRetriever.getAuthToken()
+                        val token = wwwAuthTokenRetriever.getAuthToken().await()
                         val intent = Intent(Intent.ACTION_VIEW,
                                             Uri.parse(keyUrl + "?token=" + token))
                         startActivity(intent)

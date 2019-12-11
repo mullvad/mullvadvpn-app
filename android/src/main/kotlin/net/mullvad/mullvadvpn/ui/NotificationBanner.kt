@@ -62,7 +62,7 @@ class NotificationBanner(
 
             override fun onClick(): Job {
                 return GlobalScope.launch(Dispatchers.Main) {
-                    val token = authTokenRetriever.getAuthToken()
+                    val token = authTokenRetriever.getAuthToken().await()
                     val url = Uri.parse(keyManagementUrl + "?token=" + token)
                     context.startActivity(Intent(Intent.ACTION_VIEW, url))
                 }
