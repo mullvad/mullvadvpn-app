@@ -134,7 +134,9 @@ impl Tunnel {
                 ("generate", _) => Self::process_wireguard_key_generate(),
                 ("automatic-rotation", Some(matches)) => match matches.subcommand() {
                     ("get", _) => Self::process_wireguard_automatic_rotation_get(),
-                    ("set", Some(matches)) => Self::process_wireguard_automatic_rotation_set(matches),
+                    ("set", Some(matches)) => {
+                        Self::process_wireguard_automatic_rotation_set(matches)
+                    }
                     ("unset", _) => Self::process_wireguard_automatic_rotation_unset(),
                     _ => unreachable!("unhandled command"),
                 },
@@ -217,7 +219,8 @@ impl Tunnel {
     }
 
     fn process_wireguard_automatic_rotation_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let rotate_interval = value_t!(matches.value_of("interval"), u32).unwrap_or_else(|e| e.exit());
+        let rotate_interval =
+            value_t!(matches.value_of("interval"), u32).unwrap_or_else(|e| e.exit());
         let mut rpc = new_rpc_client()?;
         rpc.set_wireguard_automatic_rotation(Some(rotate_interval))?;
         println!("Wireguard automatic key rotation has been updated");

@@ -1,10 +1,14 @@
 use crate::InternalDaemonEvent;
-use chrono::{DateTime, offset::Utc};
+use chrono::{offset::Utc, DateTime};
 use futures::{future::Executor, sync::oneshot, Async, Future, Poll};
 use jsonrpc_client_core::Error as JsonRpcError;
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;
-use std::{cmp, sync::mpsc, time::{Duration, Instant}};
+use std::{
+    cmp,
+    sync::mpsc,
+    time::{Duration, Instant},
+};
 pub use talpid_types::net::wireguard::{
     ConnectionConfig, PrivateKey, TunnelConfig, TunnelParameters,
 };
@@ -44,7 +48,6 @@ pub enum Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 use crate::ManagementCommand;
-use talpid_core::tunnel_state_machine::TunnelCommand;
 
 use mullvad_types::wireguard;
 
@@ -77,9 +80,12 @@ impl Future for KeyRotationScheduler {
                 _ => {
                     log::error!("Automatic key rotation failed; retrying");
                     self.key_request_rx = None;
-                    self.delay = Box::new(Delay::new(
-                        Instant::now() + Duration::from_secs(AUTOMATIC_ROTATION_RETRY_DELAY)
-                    ).map_err(|_| ()));
+                    self.delay = Box::new(
+                        Delay::new(
+                            Instant::now() + Duration::from_secs(AUTOMATIC_ROTATION_RETRY_DELAY),
+                        )
+                        .map_err(|_| ()),
+                    );
                 }
             }
         }
@@ -91,10 +97,12 @@ impl Future for KeyRotationScheduler {
         }
 
         let (wg_tx, wg_rx) = oneshot::channel();
-        let _ = self.daemon_tx.send(InternalDaemonEvent::ManagementInterfaceEvent(
-            ManagementCommand::GenerateWireguardKey(wg_tx)
-        ))
-        .map_err(|_| Error::RunAutomaticKeyRotation)?;
+        let _ = self
+            .daemon_tx
+            .send(InternalDaemonEvent::ManagementInterfaceEvent(
+                ManagementCommand::GenerateWireguardKey(wg_tx),
+            ))
+            .map_err(|_| Error::RunAutomaticKeyRotation)?;
 
         log::debug!("Sent key replacement request");
 
@@ -111,10 +119,7 @@ impl KeyRotationScheduler {
         public_key: Option<PublicKey>,
         interval: Option<u32>,
     ) -> Result<oneshot::Sender<()>> {
-        let (
-            terminate_auto_rotation_tx,
-            terminate_auto_rotation_rx
-        ) = oneshot::channel();
+        let (terminate_auto_rotation_tx, terminate_auto_rotation_rx) = oneshot::channel();
 
         let interval = interval.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
         let last_update = public_key.map(|key| key.created.clone());
@@ -127,24 +132,25 @@ impl KeyRotationScheduler {
             key_request_rx: None,
         };
 
-        tokio_remote.execute(
-            fut.map_err(|e| {
-                log::error!("Failed to run key rotation scheduler: {}", e)
-            })
-            .select(terminate_auto_rotation_rx.map_err(|_| ()))
-            .map_err(|_| ())
-            .map(|_| ())
-        ).map_err(|e| {
-            log::error!("Failed to run key rotation scheduler: {:?}", e);
-            Error::CreateAutomaticKeyRotationScheduler
-        })?;
+        tokio_remote
+            .execute(
+                fut.map_err(|e| log::error!("Failed to run key rotation scheduler: {}", e))
+                    .select(terminate_auto_rotation_rx.map_err(|_| ()))
+                    .map_err(|_| ())
+                    .map(|_| ()),
+            )
+            .map_err(|e| {
+                log::error!("Failed to run key rotation scheduler: {:?}", e);
+                Error::CreateAutomaticKeyRotationScheduler
+            })?;
 
         Ok(terminate_auto_rotation_tx)
     }
 
-    fn next_delay(interval_mins: u32, last_update: Option<DateTime<Utc>>) ->
-        Box<dyn Future<Item = (), Error = ()> + Send>
-    {
+    fn next_delay(
+        interval_mins: u32,
+        last_update: Option<DateTime<Utc>>,
+    ) -> Box<dyn Future<Item = (), Error = ()> + Send> {
         let mut delay = Duration::from_secs(60u64 * interval_mins as u64);
 
         log::debug!(
@@ -155,11 +161,9 @@ impl KeyRotationScheduler {
         if let Some(last_update) = last_update {
             // Check when the key should expire
             let key_age = Duration::from_secs(
-                (Utc::now().signed_duration_since(last_update)).num_seconds() as u64
+                (Utc::now().signed_duration_since(last_update)).num_seconds() as u64,
             );
-            let remaining_time = delay.checked_sub(key_age).unwrap_or(
-                Duration::from_secs(0)
-            );
+            let remaining_time = delay.checked_sub(key_age).unwrap_or(Duration::from_secs(0));
             delay = cmp::max(Duration::from_secs(0), cmp::min(remaining_time, delay));
         }
 
@@ -202,10 +206,7 @@ impl KeyManager {
     /// Update automatic key rotation interval (given in hours)
     /// Passing `None` for the interval will use the default value.
     /// A value of `0` disables automatic key rotation.
-    pub fn update_rotation_interval(
-        &mut self,
-        automatic_key_rotation: KeyRotationParameters,
-    ) {
+    pub fn update_rotation_interval(&mut self, automatic_key_rotation: KeyRotationParameters) {
         log::debug!("update_rotation_interval");
         if self.abort_scheduler_tx.is_some() {
             // Stop existing scheduler, if one exists
@@ -220,7 +221,8 @@ impl KeyManager {
                 self.daemon_tx.clone(),
                 automatic_key_rotation.public_key,
                 automatic_key_rotation.interval,
-            ).ok(),
+            )
+            .ok(),
         };
     }
 

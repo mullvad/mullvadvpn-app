@@ -199,7 +199,10 @@ impl DaemonRpcClient {
         self.call("set_wireguard_mtu", &[mtu])
     }
 
-    pub fn set_wireguard_automatic_rotation(&mut self, automatic_rotation: Option<u32>) -> Result<()> {
+    pub fn set_wireguard_automatic_rotation(
+        &mut self,
+        automatic_rotation: Option<u32>,
+    ) -> Result<()> {
         self.call("set_wireguard_automatic_rotation", &[automatic_rotation])
     }
 
