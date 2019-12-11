@@ -20,9 +20,6 @@ import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import org.joda.time.DateTime
 
 class SettingsFragment : ServiceAwareFragment() {
-    private lateinit var accountCache: AccountCache
-    private lateinit var versionInfoCache: AppVersionInfoCache
-
     private lateinit var accountMenu: View
     private lateinit var appVersionWarning: View
     private lateinit var appVersionLabel: TextView
@@ -30,12 +27,25 @@ class SettingsFragment : ServiceAwareFragment() {
     private lateinit var remainingTimeLabel: RemainingTimeLabel
     private lateinit var wireguardKeysMenu: View
 
+    private var active = false
+
+    private var accountCache: AccountCache? = null
+    private var versionInfoCache: AppVersionInfoCache? = null
     private var updateAccountInfoJob: Job? = null
     private var updateVersionInfoJob: Job? = null
 
     override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
         accountCache = serviceConnection.accountCache
         versionInfoCache = serviceConnection.appVersionInfoCache
+
+        if (active) {
+            configureListeners()
+        }
+    }
+
+    override fun onNoServiceConnection() {
+        accountCache = null
+        versionInfoCache = null
     }
 
     override fun onCreateView(
@@ -82,20 +92,15 @@ class SettingsFragment : ServiceAwareFragment() {
     override fun onResume() {
         super.onResume()
 
-        accountCache.onAccountDataChange = { account, expiry ->
-            updateAccountInfoJob?.cancel()
-            updateAccountInfoJob = updateAccountInfo(account != null, expiry)
-        }
-
-        versionInfoCache.onUpdate = {
-            updateVersionInfoJob?.cancel()
-            updateVersionInfoJob = updateVersionInfo()
-        }
+        configureListeners()
+        active = true
     }
 
     override fun onPause() {
-        versionInfoCache.onUpdate = null
-        accountCache.onAccountDataChange = null
+        active = false
+        versionInfoCache?.onUpdate = null
+        accountCache?.onAccountDataChange = null
+
         super.onPause()
     }
 
@@ -103,6 +108,24 @@ class SettingsFragment : ServiceAwareFragment() {
         updateAccountInfoJob?.cancel()
         updateVersionInfoJob?.cancel()
         super.onDestroyView()
+    }
+
+    private fun configureListeners() {
+        accountCache?.apply {
+            refetch()
+
+            onAccountDataChange = { account, expiry ->
+                updateAccountInfoJob?.cancel()
+                updateAccountInfoJob = updateAccountInfo(account != null, expiry)
+            }
+        }
+
+        versionInfoCache?.apply {
+            onUpdate = {
+                updateVersionInfoJob?.cancel()
+                updateVersionInfoJob = updateVersionInfo()
+            }
+        }
     }
 
     private fun openSubFragment(fragment: Fragment) {
@@ -125,8 +148,10 @@ class SettingsFragment : ServiceAwareFragment() {
         startActivity(intent)
     }
 
-    private fun updateAccountInfo(loggedIn: Boolean, expiry: DateTime?)
-            = GlobalScope.launch(Dispatchers.Main) {
+    private fun updateAccountInfo(
+        loggedIn: Boolean,
+        expiry: DateTime?
+    ) = GlobalScope.launch(Dispatchers.Main) {
         updateLoggedInStatus(loggedIn)
         remainingTimeLabel.accountExpiry = expiry
     }
@@ -143,9 +168,12 @@ class SettingsFragment : ServiceAwareFragment() {
     }
 
     private fun updateVersionInfo() = GlobalScope.launch(Dispatchers.Main) {
-        appVersionLabel.setText(versionInfoCache.version ?: "")
+        val isOutdated = versionInfoCache?.isOutdated ?: false
+        val isSupported = versionInfoCache?.isSupported ?: true
 
-        if (!versionInfoCache.isOutdated && versionInfoCache.isSupported) {
+        appVersionLabel.setText(versionInfoCache?.version ?: "")
+
+        if (!isOutdated && isSupported) {
             appVersionWarning.visibility = View.GONE
             appVersionFooter.visibility = View.GONE
         } else {
