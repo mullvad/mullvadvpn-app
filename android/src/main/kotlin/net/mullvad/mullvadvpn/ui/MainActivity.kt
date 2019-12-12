@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.ui
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.FragmentActivity
@@ -13,6 +12,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
@@ -20,48 +20,63 @@ import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
-import net.mullvad.mullvadvpn.dataproxy.SettingsListener
 import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.mullvadvpn.util.SmartDeferred
-import net.mullvad.talpid.ConnectivityListener
 
 class MainActivity : FragmentActivity() {
     companion object {
         val KEY_SHOULD_CONNECT = "should_connect"
     }
 
-    var connectivityListener = CompletableDeferred<ConnectivityListener>()
-        private set
+    var serviceConnection: ServiceConnection? = null
+    private var serviceConnectionSubscription: Int? = null
+
     var daemon = CompletableDeferred<MullvadDaemon>()
         private set
     var service = CompletableDeferred<MullvadVpnService.LocalBinder>()
         private set
+    private var serviceConnected = CompletableDeferred<Unit>()
 
-    var appVersionInfoCache = AppVersionInfoCache(this, daemon)
-    val connectionProxy = SmartDeferred(configureConnectionProxy())
-    val keyStatusListener = KeyStatusListener(daemon)
     val problemReport = MullvadProblemReport()
-    var settingsListener = SettingsListener(daemon)
-    var relayListListener = RelayListListener(daemon, settingsListener)
-    val locationInfoCache = LocationInfoCache(daemon, connectivityListener, relayListListener)
-    val accountCache = AccountCache(settingsListener, daemon)
-    val wwwAuthTokenRetriever = WwwAuthTokenRetriever(daemon)
+
+    val appVersionInfoCache: AppVersionInfoCache
+        get() = serviceConnection!!.appVersionInfoCache
+    val connectionProxy = SmartDeferred(configureConnectionProxy())
+    val keyStatusListener: KeyStatusListener
+        get() = serviceConnection!!.keyStatusListener
+    val relayListListener: RelayListListener
+        get() = serviceConnection!!.relayListListener
+    val locationInfoCache: LocationInfoCache
+        get() = serviceConnection!!.locationInfoCache
+    val accountCache: AccountCache
+        get() = serviceConnection!!.accountCache
+    val wwwAuthTokenRetriever: WwwAuthTokenRetriever
+        get() = serviceConnection!!.wwwAuthTokenRetriever
 
     private var quitJob: Job? = null
     private var serviceToStop: MullvadVpnService.LocalBinder? = null
     private var waitForDaemonJob: Job? = null
 
-    private val serviceConnectionManager = object : ServiceConnection {
+    private val serviceConnectionManager = object : android.content.ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             val localBinder = binder as MullvadVpnService.LocalBinder
+
+            serviceConnectionSubscription = localBinder.serviceNotifier.subscribe { service ->
+                serviceConnection?.onDestroy()
+
+                serviceConnection = service?.let { service ->
+                    ServiceConnection(service, this@MainActivity)
+                }
+
+                serviceConnected.complete(Unit)
+            }
 
             waitForDaemonJob = GlobalScope.launch(Dispatchers.Default) {
                 localBinder.resetComplete?.await()
                 service.complete(localBinder)
                 daemon.complete(localBinder.daemon.await())
-                connectivityListener.complete(localBinder.connectivityListener)
             }
         }
 
@@ -69,12 +84,19 @@ class MainActivity : FragmentActivity() {
             waitForDaemonJob?.cancel()
             waitForDaemonJob = null
 
+            serviceConnectionSubscription?.let { subscription ->
+                runBlocking {
+                    service.await().serviceNotifier.unsubscribe(subscription)
+                }
+                serviceConnection = null
+            }
+
             service.cancel()
             daemon.cancel()
 
             service = CompletableDeferred<MullvadVpnService.LocalBinder>()
             daemon = CompletableDeferred<MullvadDaemon>()
-            connectivityListener = CompletableDeferred<ConnectivityListener>()
+            serviceConnected = CompletableDeferred<Unit>()
         }
     }
 
@@ -85,8 +107,6 @@ class MainActivity : FragmentActivity() {
         if (savedInstanceState == null) {
             addInitialFragment()
         }
-
-        appVersionInfoCache.onCreate()
 
         if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false)) {
             connectionProxy.awaitThen { connect() }
@@ -118,12 +138,7 @@ class MainActivity : FragmentActivity() {
     override fun onDestroy() {
         connectionProxy.cancel()
 
-        accountCache.onDestroy()
-        appVersionInfoCache.onDestroy()
-        keyStatusListener.onDestroy()
-        locationInfoCache.onDestroy()
-        relayListListener.onDestroy()
-        settingsListener.onDestroy()
+        serviceConnection?.onDestroy()
 
         waitForDaemonJob?.cancel()
         daemon.cancel()
@@ -165,9 +180,8 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun configureConnectionProxy() = GlobalScope.async(Dispatchers.Default) {
-        service.await().connectionProxy.apply {
-            mainActivity = this@MainActivity
-        }
+        serviceConnected.await()
+        serviceConnection!!.connectionProxy
     }
 
     private fun setVpnPermission(allow: Boolean) = GlobalScope.launch(Dispatchers.Default) {
