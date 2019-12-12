@@ -121,6 +121,7 @@ class MainActivity : FragmentActivity() {
         accountCache.onDestroy()
         appVersionInfoCache.onDestroy()
         keyStatusListener.onDestroy()
+        locationInfoCache.onDestroy()
         relayListListener.onDestroy()
         settingsListener.onDestroy()
 
