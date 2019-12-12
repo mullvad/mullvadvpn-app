@@ -12,10 +12,10 @@ use crate::{
 };
 use jnix::{
     jni::{
-        objects::{JObject, JString, JValue},
+        objects::{GlobalRef, JObject, JString, JValue},
         signature::{JavaType, Primitive},
         sys::{jboolean, jlong, JNI_FALSE, JNI_TRUE},
-        JNIEnv,
+        JNIEnv, JavaVM,
     },
     IntoJava, JnixEnv,
 };
@@ -161,10 +161,15 @@ fn spawn_daemon(
     android_context: AndroidContext,
 ) -> Result<DaemonCommandSender, Error> {
     let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
+    let daemon_object = env
+        .new_global_ref(*this)
+        .map_err(Error::CreateGlobalReference)?;
     let (tx, rx) = mpsc::channel();
 
-    thread::spawn(
-        move || match create_daemon(listener, log_dir, android_context) {
+    thread::spawn(move || {
+        let jvm = android_context.jvm.clone();
+
+        match create_daemon(listener, log_dir, android_context) {
             Ok(daemon) => {
                 let _ = tx.send(Ok(daemon.command_sender()));
                 match daemon.run() {
@@ -175,8 +180,10 @@ fn spawn_daemon(
             Err(error) => {
                 let _ = tx.send(Err(error));
             }
-        },
-    );
+        }
+
+        notify_daemon_stopped(jvm, daemon_object);
+    });
 
     rx.recv().unwrap()
 }
@@ -199,6 +206,39 @@ fn create_daemon(
     .map_err(Error::InitializeDaemon)?;
 
     Ok(daemon)
+}
+
+fn notify_daemon_stopped(jvm: Arc<JavaVM>, daemon_object: GlobalRef) {
+    match jvm.attach_current_thread_as_daemon() {
+        Ok(env) => {
+            let env = JnixEnv::from(env);
+            let class = env.get_class("net/mullvad/mullvadvpn/service/MullvadDaemon");
+            let object = daemon_object.as_obj();
+            let method_id = env
+                .get_method_id(&class, "notifyDaemonStopped", "()V")
+                .expect("Failed to get method ID for MullvadDaemon.notifyDaemonStopped");
+            let return_type = JavaType::Primitive(Primitive::Void);
+
+            let result = env.call_method_unchecked(object, method_id, return_type, &[]);
+
+            match result {
+                Ok(JValue::Void) => {}
+                Ok(value) => panic!(
+                    "Unexpected return value from MullvadDaemon.notifyDaemonStopped: {:?}",
+                    value
+                ),
+                Err(error) => panic!(
+                    "{}",
+                    error
+                        .display_chain_with_msg("Failed to call MullvadDaemon.notifyDaemonStopped")
+                ),
+            }
+        }
+        Err(error) => log::error!(
+            "{}",
+            error.display_chain_with_msg("Failed to notify that the daemon stopped")
+        ),
+    }
 }
 
 fn set_daemon_interface_address(env: &JnixEnv<'_>, this: &JObject<'_>, address: jlong) {

@@ -20,6 +20,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     var onKeygenEvent: ((KeygenEvent) -> Unit)? = null
     var onRelayListChange: ((RelayList) -> Unit)? = null
     var onTunnelStateChange: ((TunnelState) -> Unit)? = null
+    var onDaemonStopped: (() -> Unit)? = null
 
     init {
         System.loadLibrary("mullvad_jni")
@@ -136,6 +137,10 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
 
     private fun notifyTunnelStateEvent(event: TunnelState) {
         onTunnelStateChange?.invoke(event)
+    }
+
+    private fun notifyDaemonStopped() {
+        onDaemonStopped?.invoke()
     }
 
     private fun finalize() {
