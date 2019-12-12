@@ -2,15 +2,13 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Language: ja\n"
 "X-Crowdin-File: relay-locations.pot\n"
 "Project-Id-Version: mullvad-app\n"
-"Last-Translator: adminmullvad\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-12-16 09:41\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -138,7 +136,7 @@ msgstr "フィンランド"
 
 #. FR
 msgid "France"
-msgstr ""
+msgstr "フランス"
 
 #. DE FRA
 msgid "Frankfurt"
@@ -294,7 +292,7 @@ msgstr "ニシュ"
 
 #. NO
 msgid "Norway"
-msgstr ""
+msgstr "ノルウェー"
 
 #. US OKC
 msgid "Oklahoma City, OK"
@@ -398,7 +396,7 @@ msgstr "ソフィア"
 
 #. ZA
 msgid "South Africa"
-msgstr "南アフリカ共和国"
+msgstr "南アフリカ"
 
 #. ES
 msgid "Spain"
@@ -480,5 +478,3 @@ msgstr "ウィーン"
 msgid "Zurich"
 msgstr "チューリッヒ"
 
-#~ msgid "Petach-Tikva"
-#~ msgstr "ペタフ・ティクヴァ"

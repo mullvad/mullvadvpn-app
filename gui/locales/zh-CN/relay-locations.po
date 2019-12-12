@@ -2,15 +2,13 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Language: zh-CN\n"
 "X-Crowdin-File: relay-locations.pot\n"
 "Project-Id-Version: mullvad-app\n"
-"Last-Translator: adminmullvad\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-12-16 09:41\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -138,7 +136,7 @@ msgstr "芬兰"
 
 #. FR
 msgid "France"
-msgstr ""
+msgstr "法国"
 
 #. DE FRA
 msgid "Frankfurt"
@@ -182,7 +180,7 @@ msgstr "印度"
 
 #. IE
 msgid "Ireland"
-msgstr "爱尔兰共和国"
+msgstr "爱尔兰"
 
 #. IL
 msgid "Israel"
@@ -210,7 +208,7 @@ msgstr "基辅"
 
 #. LV
 msgid "Latvia"
-msgstr "拉脫維亞"
+msgstr "拉脱维亚"
 
 #. PT LIS
 msgid "Lisbon"
@@ -278,7 +276,7 @@ msgstr "蒙特利尔"
 
 #. NL
 msgid "Netherlands"
-msgstr "荷蘭"
+msgstr "荷兰"
 
 #. US NYC
 msgid "New York, NY"
@@ -294,7 +292,7 @@ msgstr "尼斯"
 
 #. NO
 msgid "Norway"
-msgstr ""
+msgstr "挪威"
 
 #. US OKC
 msgid "Oklahoma City, OK"
@@ -311,10 +309,6 @@ msgstr "巴黎"
 #. AU PER
 msgid "Perth"
 msgstr "珀斯"
-
-#. IL PET
-msgid "Petach-Tikva"
-msgstr "佩塔提克瓦"
 
 #. US PHL
 msgid "Philadelphia, PA"
@@ -358,7 +352,7 @@ msgstr "里加"
 
 #. RO
 msgid "Romania"
-msgstr "羅馬尼亞"
+msgstr "罗马尼亚"
 
 #. US SLC
 msgid "Salt Lake City, UT"
@@ -483,3 +477,4 @@ msgstr "维也纳"
 #. CH ZRH
 msgid "Zurich"
 msgstr "苏黎世"
+

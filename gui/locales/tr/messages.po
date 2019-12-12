@@ -2,15 +2,13 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Language: tr\n"
 "X-Crowdin-File: messages.pot\n"
 "Project-Id-Version: mullvad-app\n"
-"Last-Translator: adminmullvad\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2019-10-11 11:36\n"
+"PO-Revision-Date: 2019-12-16 09:41\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ENGELLENEN BAĞLANTI"
@@ -36,11 +34,6 @@ msgstr "GÜVENLİ OLMAYAN BAĞLANTI"
 msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr "%(duration)s kaldı"
-
-#. Back button in navigation bar
-msgctxt "account-nav"
-msgid "Settings"
-msgstr "Ayarlar"
 
 msgctxt "account-view"
 msgid "Account"
@@ -82,11 +75,6 @@ msgstr "Şu tarihe kadar ödendi:"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "Gelişmiş"
-
-#. Back button in navigation bar
-msgctxt "advanced-settings-nav"
-msgid "Settings"
-msgstr "Ayarlar"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -257,10 +245,6 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr "Çıkış"
 
-msgctxt "error-boundary-view"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -268,7 +252,7 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Bir sorun oluştu. Lütfen bizimle %(email)s adresinden iletişime geçin"
 
-msgctxt "headerbar"
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -362,10 +346,6 @@ msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad sistem hizmetlerine bağlanılıyor..."
 
-msgctxt "launch-view"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
-
 msgctxt "login-view"
 msgid "Checking account number"
 msgstr "Hesap numarası kontrol ediliyor"
@@ -406,13 +386,33 @@ msgctxt "login-view"
 msgid "Unknown error"
 msgstr "Bilinmeyen hata"
 
+#. Back button in navigation bar
+#. Title label in navigation bar
+msgctxt "navigation-bar"
+msgid "Settings"
+msgstr "Ayarlar"
+
 msgctxt "notifications"
 msgid "Blocked all connections"
 msgstr "Tüm bağlantılar engellendi"
 
+#. The message showed when a server has been connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connected to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connected to %(location)s"
+msgstr "%(location)s konumuna bağlanıldı"
+
 msgctxt "notifications"
 msgid "Connecting"
 msgstr "Bağlanılıyor"
+
+#. The message showed when a server is being connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connecting to %(location)s"
+msgstr "%(location)s konumuna bağlanılıyor"
 
 msgctxt "notifications"
 msgid "Critical failure - Unsecured"
@@ -449,11 +449,6 @@ msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi 
 msgctxt "preferences-nav"
 msgid "Preferences"
 msgstr "Tercihler"
-
-#. Back button in navigation bar
-msgctxt "preferences-nav"
-msgid "Settings"
-msgstr "Ayarlar"
 
 msgctxt "preferences-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
@@ -508,11 +503,6 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "Dili seçin"
 
-#. Back button in navigation bar
-msgctxt "select-language-nav"
-msgid "Settings"
-msgstr "Ayarlar"
-
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr "Giriş"
@@ -538,10 +528,12 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "Bağlıyken, İnternet trafiğiniz giriş noktası (bir köprü sunucusu) ve çıkış noktası (bir VPN sunucusu) olmak üzere iki güvenli konum boyunca yönlendirilir."
 
+#. Navigation button to the 'Account' view
 msgctxt "settings-view"
 msgid "Account"
 msgstr "Hesap"
 
+#. Navigation button to the 'Advanced' settings view
 msgctxt "settings-view"
 msgid "Advanced"
 msgstr "Gelişmiş"
@@ -550,6 +542,7 @@ msgctxt "settings-view"
 msgid "App version"
 msgstr "Uygulama sürümü"
 
+#. Link to the webpage
 msgctxt "settings-view"
 msgid "FAQs & Guides"
 msgstr "SSS ve Kılavuzlar"
@@ -558,6 +551,7 @@ msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr "Tutarsız iç sürüm bilgisi, lütfen uygulamayı yeniden başlatın."
 
+#. Navigation button to the 'Language' settings view
 msgctxt "settings-view"
 msgid "Language"
 msgstr "Dil"
@@ -566,6 +560,7 @@ msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "SÜRE DOLDU"
 
+#. Navigation button to the 'Preferences' view
 msgctxt "settings-view"
 msgid "Preferences"
 msgstr "Tercihler"
@@ -574,27 +569,14 @@ msgctxt "settings-view"
 msgid "Quit app"
 msgstr "Uygulamadan çık"
 
+#. Navigation button to the 'Report a problem' help view
 msgctxt "settings-view"
 msgid "Report a problem"
 msgstr "Bir sorun bildir"
 
 msgctxt "settings-view"
-msgid "Settings"
-msgstr "Ayarlar"
-
-msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Güncelleme mevcut, güvende olmak için indirin."
-
-#. Title label in navigation bar
-msgctxt "settings-view-nav"
-msgid "Settings"
-msgstr "Ayarlar"
-
-#. Back button in navigation bar
-msgctxt "support-nav"
-msgid "Settings"
-msgstr "Ayarlar"
 
 msgctxt "support-view"
 msgid "Back"
@@ -688,10 +670,6 @@ msgid "Account has too many keys already"
 msgstr "Hesap zaten çok fazla anahtara sahip"
 
 msgctxt "wireguard-key-view"
-msgid "Can't manage keys whilst in a blocked state"
-msgstr "Anahtarlar engellenmiş durumdayken yönetilemez"
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
 msgstr "Anahtar oluşturulamadı"
 
@@ -726,6 +704,10 @@ msgstr "Anahtar seti yok"
 msgctxt "wireguard-key-view"
 msgid "Regenerate key"
 msgstr "Yeniden anahtar oluştur"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to manage keys while in a blocked state"
+msgstr "Kilitli durumdayken anahtarları yönetemezsiniz"
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"
