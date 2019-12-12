@@ -2,15 +2,13 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Language: nl\n"
 "X-Crowdin-File: messages.pot\n"
 "Project-Id-Version: mullvad-app\n"
-"Last-Translator: adminmullvad\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2019-10-11 11:36\n"
+"PO-Revision-Date: 2019-12-12 13:11\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "VERBINDING GEBLOKKEERD"
@@ -36,11 +34,6 @@ msgstr "NIET-BEVEILIGDE VERBINDING"
 msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr "%(duration)s resterend"
-
-#. Back button in navigation bar
-msgctxt "account-nav"
-msgid "Settings"
-msgstr "Instellingen"
 
 msgctxt "account-view"
 msgid "Account"
@@ -82,11 +75,6 @@ msgstr "Betaald tot"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "Geavanceerd"
-
-#. Back button in navigation bar
-msgctxt "advanced-settings-nav"
-msgid "Settings"
-msgstr "Instellingen"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -257,10 +245,6 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr "Uit"
 
-msgctxt "error-boundary-view"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -268,7 +252,7 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Er is iets misgelopen. Neem contact met ons op via %(email)s"
 
-msgctxt "headerbar"
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -362,10 +346,6 @@ msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Verbinden met Mullvad-systeemdienst..."
 
-msgctxt "launch-view"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
-
 msgctxt "login-view"
 msgid "Checking account number"
 msgstr "Accountnummer wordt gecontroleerd"
@@ -406,13 +386,33 @@ msgctxt "login-view"
 msgid "Unknown error"
 msgstr "Onbekende fout"
 
+#. Back button in navigation bar
+#. Title label in navigation bar
+msgctxt "navigation-bar"
+msgid "Settings"
+msgstr "Instellingen"
+
 msgctxt "notifications"
 msgid "Blocked all connections"
 msgstr "Alle verbindingen geblokkeerd"
 
+#. The message showed when a server has been connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connected to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connected to %(location)s"
+msgstr "Verbonden met %(location)s"
+
 msgctxt "notifications"
 msgid "Connecting"
 msgstr "Verbinden"
+
+#. The message showed when a server is being connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connecting to %(location)s"
+msgstr "Verbinden met %(location)s"
 
 msgctxt "notifications"
 msgid "Critical failure - Unsecured"
@@ -449,11 +449,6 @@ msgstr "U gebruikt een niet-ondersteunde versie van de app. Upgrade nu naar %(ve
 msgctxt "preferences-nav"
 msgid "Preferences"
 msgstr "Voorkeuren"
-
-#. Back button in navigation bar
-msgctxt "preferences-nav"
-msgid "Settings"
-msgstr "Instellingen"
 
 msgctxt "preferences-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
@@ -506,12 +501,7 @@ msgstr "Gebruik een monochroom pictogram op de taakbalk in plaats van een gekleu
 #. Title label in navigation bar
 msgctxt "select-language-nav"
 msgid "Select language"
-msgstr "Selecteer taal"
-
-#. Back button in navigation bar
-msgctxt "select-language-nav"
-msgid "Settings"
-msgstr "Instellingen"
+msgstr "Taal selecteren"
 
 msgctxt "select-location-nav"
 msgid "Entry"
@@ -538,10 +528,12 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "Wanneer u verbonden bent, wordt uw verkeer omgeleid via twee veilige locaties, het ingangspunt (een bridge server) en het uitgangspunt (een VPN-server)."
 
+#. Navigation button to the 'Account' view
 msgctxt "settings-view"
 msgid "Account"
 msgstr "Account"
 
+#. Navigation button to the 'Advanced' settings view
 msgctxt "settings-view"
 msgid "Advanced"
 msgstr "Geavanceerd"
@@ -550,6 +542,7 @@ msgctxt "settings-view"
 msgid "App version"
 msgstr "Appversie"
 
+#. Link to the webpage
 msgctxt "settings-view"
 msgid "FAQs & Guides"
 msgstr "Veelgestelde vragen en gidsen"
@@ -558,6 +551,7 @@ msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr "Inconsistente interne versie-informatie, start de app opnieuw."
 
+#. Navigation button to the 'Language' settings view
 msgctxt "settings-view"
 msgid "Language"
 msgstr "Taal"
@@ -566,6 +560,7 @@ msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "GEEN TIJD MEER"
 
+#. Navigation button to the 'Preferences' view
 msgctxt "settings-view"
 msgid "Preferences"
 msgstr "Voorkeuren"
@@ -574,27 +569,14 @@ msgctxt "settings-view"
 msgid "Quit app"
 msgstr "App afsluiten"
 
+#. Navigation button to the 'Report a problem' help view
 msgctxt "settings-view"
 msgid "Report a problem"
 msgstr "Een probleem rapporteren"
 
 msgctxt "settings-view"
-msgid "Settings"
-msgstr "Instellingen"
-
-msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Update beschikbaar, download deze voor optimale beveiliging."
-
-#. Title label in navigation bar
-msgctxt "settings-view-nav"
-msgid "Settings"
-msgstr "Instellingen"
-
-#. Back button in navigation bar
-msgctxt "support-nav"
-msgid "Settings"
-msgstr "Instellingen"
 
 msgctxt "support-view"
 msgid "Back"
@@ -688,10 +670,6 @@ msgid "Account has too many keys already"
 msgstr "Account heeft al te veel sleutels"
 
 msgctxt "wireguard-key-view"
-msgid "Can't manage keys whilst in a blocked state"
-msgstr "Kan sleutels niet beheren in geblokkeerde staat"
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
 msgstr "Sleutel genereren mislukt"
 
@@ -726,6 +704,10 @@ msgstr "Geen sleutel ingesteld"
 msgctxt "wireguard-key-view"
 msgid "Regenerate key"
 msgstr "Sleutel opnieuw genereren"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to manage keys while in a blocked state"
+msgstr "Kan sleutels niet beheren in geblokkeerde staat"
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"
