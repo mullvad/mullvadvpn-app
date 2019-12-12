@@ -58,6 +58,7 @@ public:
 
 	static const GUID &FilterRestrictDns_Outbound_Ipv4();
 	static const GUID &FilterRestrictDns_Outbound_Tunnel_Ipv4();
+	static const GUID &FilterRestrictDns_HACK_TO_ALLOW_RELAY_ON_PORT_53();
 	static const GUID &FilterRestrictDns_Outbound_Ipv6();
 	static const GUID &FilterRestrictDns_Outbound_Tunnel_Ipv6();
 
