@@ -41,18 +41,14 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 
 		filterBuilder
 			.key(MullvadGuids::FilterRestrictDns_Outbound_Ipv4())
-			.name(L"Block DNS requests outside the VPN tunnel (IPv4)")
+			.name(L"Permit relay connection over port 53 (IPv4)")
+			.key(MullvadGuids::FilterRestrictDns_HACK_TO_ALLOW_RELAY_ON_PORT_53())
 			.description(L"This filter is part of a rule that restricts DNS traffic")
 			.provider(MullvadGuids::Provider())
 			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
 			.sublayer(MullvadGuids::SublayerBlacklist())
 			.weight(wfp::FilterBuilder::WeightClass::Max)
 			.permit();
-
-		filterBuilder
-			.name(L"Permit relay connection over port 53 (IPv4)")
-			.key(MullvadGuids::FilterRestrictDns_HACK_TO_ALLOW_RELAY_ON_PORT_53())
-			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 
