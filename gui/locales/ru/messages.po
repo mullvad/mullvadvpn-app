@@ -2,15 +2,13 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Language: ru\n"
 "X-Crowdin-File: messages.pot\n"
 "Project-Id-Version: mullvad-app\n"
-"Last-Translator: adminmullvad\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2019-10-11 11:36\n"
+"PO-Revision-Date: 2019-12-12 13:11\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ПОДКЛЮЧЕНИЕ ЗАБЛОКИРОВАНО"
@@ -36,11 +34,6 @@ msgstr "НЕЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ"
 msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr "Осталось: %(duration)s"
-
-#. Back button in navigation bar
-msgctxt "account-nav"
-msgid "Settings"
-msgstr "Настройки"
 
 msgctxt "account-view"
 msgid "Account"
@@ -82,11 +75,6 @@ msgstr "Оплачено до"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "Дополнительные"
-
-#. Back button in navigation bar
-msgctxt "advanced-settings-nav"
-msgid "Settings"
-msgstr "Настройки"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -257,10 +245,6 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr "Выход"
 
-msgctxt "error-boundary-view"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -268,7 +252,7 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Ошибка. Свяжитесь с нами по адресу %(email)s"
 
-msgctxt "headerbar"
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -362,10 +346,6 @@ msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Подключение к системному сервису Mullvad..."
 
-msgctxt "launch-view"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
-
 msgctxt "login-view"
 msgid "Checking account number"
 msgstr "Проверка номера учетной записи"
@@ -406,13 +386,33 @@ msgctxt "login-view"
 msgid "Unknown error"
 msgstr "Неизвестная ошибка"
 
+#. Back button in navigation bar
+#. Title label in navigation bar
+msgctxt "navigation-bar"
+msgid "Settings"
+msgstr "Настройки"
+
 msgctxt "notifications"
 msgid "Blocked all connections"
 msgstr "Все подключения заблокированы"
 
+#. The message showed when a server has been connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connected to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connected to %(location)s"
+msgstr "Подключено: %(location)s"
+
 msgctxt "notifications"
 msgid "Connecting"
 msgstr "Идет подключение"
+
+#. The message showed when a server is being connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connecting to %(location)s"
+msgstr "Подключение: %(location)s"
 
 msgctxt "notifications"
 msgid "Critical failure - Unsecured"
@@ -449,11 +449,6 @@ msgstr "Вы используете неподдерживаемую верси�
 msgctxt "preferences-nav"
 msgid "Preferences"
 msgstr "Параметры"
-
-#. Back button in navigation bar
-msgctxt "preferences-nav"
-msgid "Settings"
-msgstr "Настройки"
 
 msgctxt "preferences-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
@@ -508,11 +503,6 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "Выбрать язык"
 
-#. Back button in navigation bar
-msgctxt "select-language-nav"
-msgid "Settings"
-msgstr "Настройки"
-
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr "Вход"
@@ -538,10 +528,12 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "При подключении трафик будет направляться через два безопасных местоположения: точку входа (сервер-мост) и точку выхода (VPN-сервер)."
 
+#. Navigation button to the 'Account' view
 msgctxt "settings-view"
 msgid "Account"
 msgstr "Учетная запись"
 
+#. Navigation button to the 'Advanced' settings view
 msgctxt "settings-view"
 msgid "Advanced"
 msgstr "Дополнительные"
@@ -550,6 +542,7 @@ msgctxt "settings-view"
 msgid "App version"
 msgstr "Версия приложения"
 
+#. Link to the webpage
 msgctxt "settings-view"
 msgid "FAQs & Guides"
 msgstr "Ответы на вопросы и руководства"
@@ -558,6 +551,7 @@ msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr "Несоответствие внутренних данных о версии — перезапустите приложение."
 
+#. Navigation button to the 'Language' settings view
 msgctxt "settings-view"
 msgid "Language"
 msgstr "Язык"
@@ -566,6 +560,7 @@ msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "ЗАКОНЧИЛОСЬ ВРЕМЯ"
 
+#. Navigation button to the 'Preferences' view
 msgctxt "settings-view"
 msgid "Preferences"
 msgstr "Параметры"
@@ -574,27 +569,14 @@ msgctxt "settings-view"
 msgid "Quit app"
 msgstr "Выйти из приложения"
 
+#. Navigation button to the 'Report a problem' help view
 msgctxt "settings-view"
 msgid "Report a problem"
 msgstr "Сообщить о проблеме"
 
 msgctxt "settings-view"
-msgid "Settings"
-msgstr "Настройки"
-
-msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Есть обновление. Чтобы оставаться в безопасности, обновитесь."
-
-#. Title label in navigation bar
-msgctxt "settings-view-nav"
-msgid "Settings"
-msgstr "Настройки"
-
-#. Back button in navigation bar
-msgctxt "support-nav"
-msgid "Settings"
-msgstr "Настройки"
 
 msgctxt "support-view"
 msgid "Back"
@@ -688,10 +670,6 @@ msgid "Account has too many keys already"
 msgstr "В учетной записи уже слишком много ключей"
 
 msgctxt "wireguard-key-view"
-msgid "Can't manage keys whilst in a blocked state"
-msgstr "Управлять ключами в заблокированном состоянии нельзя"
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
 msgstr "Не удалось сгенерировать ключ"
 
@@ -726,6 +704,10 @@ msgstr "Ключ не задан"
 msgctxt "wireguard-key-view"
 msgid "Regenerate key"
 msgstr "Повторно сгенерировать ключ"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to manage keys while in a blocked state"
+msgstr "Управлять ключами в заблокированном состоянии нельзя"
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"

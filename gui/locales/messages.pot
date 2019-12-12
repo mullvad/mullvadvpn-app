@@ -27,11 +27,6 @@ msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr ""
 
-#. Back button in navigation bar
-msgctxt "account-nav"
-msgid "Settings"
-msgstr ""
-
 msgctxt "account-view"
 msgid "Account"
 msgstr ""
@@ -71,11 +66,6 @@ msgstr ""
 #. Title label in navigation bar
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
-msgstr ""
-
-#. Back button in navigation bar
-msgctxt "advanced-settings-nav"
-msgid "Settings"
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -247,10 +237,6 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr ""
 
-msgctxt "error-boundary-view"
-msgid "MULLVAD VPN"
-msgstr ""
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -258,7 +244,7 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr ""
 
-msgctxt "headerbar"
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr ""
 
@@ -352,10 +338,6 @@ msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr ""
 
-msgctxt "launch-view"
-msgid "MULLVAD VPN"
-msgstr ""
-
 msgctxt "login-view"
 msgid "Checking account number"
 msgstr ""
@@ -396,12 +378,32 @@ msgctxt "login-view"
 msgid "Unknown error"
 msgstr ""
 
+#. Back button in navigation bar
+#. Title label in navigation bar
+msgctxt "navigation-bar"
+msgid "Settings"
+msgstr ""
+
 msgctxt "notifications"
 msgid "Blocked all connections"
 msgstr ""
 
+#. The message showed when a server has been connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connected to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connected to %(location)s"
+msgstr ""
+
 msgctxt "notifications"
 msgid "Connecting"
+msgstr ""
+
+#. The message showed when a server is being connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connecting to %(location)s"
 msgstr ""
 
 msgctxt "notifications"
@@ -438,11 +440,6 @@ msgstr ""
 #. Title label in navigation bar
 msgctxt "preferences-nav"
 msgid "Preferences"
-msgstr ""
-
-#. Back button in navigation bar
-msgctxt "preferences-nav"
-msgid "Settings"
 msgstr ""
 
 msgctxt "preferences-view"
@@ -498,11 +495,6 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr ""
 
-#. Back button in navigation bar
-msgctxt "select-language-nav"
-msgid "Settings"
-msgstr ""
-
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr ""
@@ -528,10 +520,12 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr ""
 
+#. Navigation button to the 'Account' view
 msgctxt "settings-view"
 msgid "Account"
 msgstr ""
 
+#. Navigation button to the 'Advanced' settings view
 msgctxt "settings-view"
 msgid "Advanced"
 msgstr ""
@@ -540,6 +534,7 @@ msgctxt "settings-view"
 msgid "App version"
 msgstr ""
 
+#. Link to the webpage
 msgctxt "settings-view"
 msgid "FAQs & Guides"
 msgstr ""
@@ -548,6 +543,7 @@ msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr ""
 
+#. Navigation button to the 'Language' settings view
 msgctxt "settings-view"
 msgid "Language"
 msgstr ""
@@ -556,6 +552,7 @@ msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr ""
 
+#. Navigation button to the 'Preferences' view
 msgctxt "settings-view"
 msgid "Preferences"
 msgstr ""
@@ -564,26 +561,13 @@ msgctxt "settings-view"
 msgid "Quit app"
 msgstr ""
 
+#. Navigation button to the 'Report a problem' help view
 msgctxt "settings-view"
 msgid "Report a problem"
 msgstr ""
 
 msgctxt "settings-view"
-msgid "Settings"
-msgstr ""
-
-msgctxt "settings-view"
 msgid "Update available, download to remain safe."
-msgstr ""
-
-#. Title label in navigation bar
-msgctxt "settings-view-nav"
-msgid "Settings"
-msgstr ""
-
-#. Back button in navigation bar
-msgctxt "support-nav"
-msgid "Settings"
 msgstr ""
 
 msgctxt "support-view"
@@ -678,10 +662,6 @@ msgid "Account has too many keys already"
 msgstr ""
 
 msgctxt "wireguard-key-view"
-msgid "Can't manage keys whilst in a blocked state"
-msgstr ""
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
 msgstr ""
 
@@ -715,6 +695,10 @@ msgstr ""
 
 msgctxt "wireguard-key-view"
 msgid "Regenerate key"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Unable to manage keys while in a blocked state"
 msgstr ""
 
 msgctxt "wireguard-key-view"

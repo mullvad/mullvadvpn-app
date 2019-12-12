@@ -2,15 +2,13 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Language: sv-SE\n"
 "X-Crowdin-File: messages.pot\n"
 "Project-Id-Version: mullvad-app\n"
-"Last-Translator: adminmullvad\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2019-10-11 11:36\n"
+"PO-Revision-Date: 2019-12-12 13:11\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ANSLUTNINGEN BLOCKERAD"
@@ -36,11 +34,6 @@ msgstr "OSÄKER ANSLUTNING"
 msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr "%(duration)s kvar"
-
-#. Back button in navigation bar
-msgctxt "account-nav"
-msgid "Settings"
-msgstr "Inställningar"
 
 msgctxt "account-view"
 msgid "Account"
@@ -82,11 +75,6 @@ msgstr "Betalat till"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "Avancerat"
-
-#. Back button in navigation bar
-msgctxt "advanced-settings-nav"
-msgid "Settings"
-msgstr "Inställningar"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -257,10 +245,6 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr "Ut"
 
-msgctxt "error-boundary-view"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -268,7 +252,7 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Ett fel har inträffat. Kontakta oss på %(email)s"
 
-msgctxt "headerbar"
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -362,10 +346,6 @@ msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Ansluter till Mullvads systemtjänst..."
 
-msgctxt "launch-view"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
-
 msgctxt "login-view"
 msgid "Checking account number"
 msgstr "Kontrollerar kontonummer"
@@ -406,13 +386,33 @@ msgctxt "login-view"
 msgid "Unknown error"
 msgstr "Okänt fel"
 
+#. Back button in navigation bar
+#. Title label in navigation bar
+msgctxt "navigation-bar"
+msgid "Settings"
+msgstr "Inställningar"
+
 msgctxt "notifications"
 msgid "Blocked all connections"
 msgstr "Blockera alla anslutningar"
 
+#. The message showed when a server has been connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connected to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connected to %(location)s"
+msgstr "Ansluten till %(location)s"
+
 msgctxt "notifications"
 msgid "Connecting"
 msgstr "Ansluter"
+
+#. The message showed when a server is being connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connecting to %(location)s"
+msgstr "Ansluter till %(location)s"
 
 msgctxt "notifications"
 msgid "Critical failure - Unsecured"
@@ -448,11 +448,6 @@ msgstr "Du kör en appversion utan stöd. Uppgradera till %(version)s nu för at
 #. Title label in navigation bar
 msgctxt "preferences-nav"
 msgid "Preferences"
-msgstr "Inställningar"
-
-#. Back button in navigation bar
-msgctxt "preferences-nav"
-msgid "Settings"
 msgstr "Inställningar"
 
 msgctxt "preferences-view"
@@ -508,11 +503,6 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "Välj språk"
 
-#. Back button in navigation bar
-msgctxt "select-language-nav"
-msgid "Settings"
-msgstr "Inställningar"
-
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr "Ingång"
@@ -538,10 +528,12 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "Medan du är ansluten kommer din trafik att dirigeras genom två säkra platser: startpunkten (en broserver) och slutpunkten (en VPN-server)."
 
+#. Navigation button to the 'Account' view
 msgctxt "settings-view"
 msgid "Account"
 msgstr "Konto"
 
+#. Navigation button to the 'Advanced' settings view
 msgctxt "settings-view"
 msgid "Advanced"
 msgstr "Avancerat"
@@ -550,6 +542,7 @@ msgctxt "settings-view"
 msgid "App version"
 msgstr "Appversion"
 
+#. Link to the webpage
 msgctxt "settings-view"
 msgid "FAQs & Guides"
 msgstr "Vanliga frågor och guider"
@@ -558,6 +551,7 @@ msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr "Inkonsekvent intern versionsinformation, starta om appen."
 
+#. Navigation button to the 'Language' settings view
 msgctxt "settings-view"
 msgid "Language"
 msgstr "Språk"
@@ -566,6 +560,7 @@ msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "INGEN TID KVAR"
 
+#. Navigation button to the 'Preferences' view
 msgctxt "settings-view"
 msgid "Preferences"
 msgstr "Inställningar"
@@ -574,27 +569,14 @@ msgctxt "settings-view"
 msgid "Quit app"
 msgstr "Avsluta appen"
 
+#. Navigation button to the 'Report a problem' help view
 msgctxt "settings-view"
 msgid "Report a problem"
 msgstr "Rapportera ett problem"
 
 msgctxt "settings-view"
-msgid "Settings"
-msgstr "Inställningar"
-
-msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Uppdatering tillgänglig. Ladda ned för att vara säker."
-
-#. Title label in navigation bar
-msgctxt "settings-view-nav"
-msgid "Settings"
-msgstr "Inställningar"
-
-#. Back button in navigation bar
-msgctxt "support-nav"
-msgid "Settings"
-msgstr "Inställningar"
 
 msgctxt "support-view"
 msgid "Back"
@@ -688,10 +670,6 @@ msgid "Account has too many keys already"
 msgstr "Kontot har redan för många nycklar"
 
 msgctxt "wireguard-key-view"
-msgid "Can't manage keys whilst in a blocked state"
-msgstr "Det går inte att hantera nycklar i blockerat tillstånd"
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
 msgstr "Det gick inte att generera en nyckel"
 
@@ -726,6 +704,10 @@ msgstr "Ingen nyckel har angetts"
 msgctxt "wireguard-key-view"
 msgid "Regenerate key"
 msgstr "Generera om nyckel"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to manage keys while in a blocked state"
+msgstr "Det går inte att hantera nycklar i blockerat tillstånd"
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"

@@ -2,15 +2,13 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Language: ja\n"
 "X-Crowdin-File: messages.pot\n"
 "Project-Id-Version: mullvad-app\n"
-"Last-Translator: adminmullvad\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2019-10-11 11:36\n"
+"PO-Revision-Date: 2019-12-12 13:11\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ブロックされた接続"
@@ -36,11 +34,6 @@ msgstr "セキュリティ保護されていない接続"
 msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr "残り%(duration)s"
-
-#. Back button in navigation bar
-msgctxt "account-nav"
-msgid "Settings"
-msgstr "設定"
 
 msgctxt "account-view"
 msgid "Account"
@@ -82,11 +75,6 @@ msgstr "次の日時まで支払い済み"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "詳細"
-
-#. Back button in navigation bar
-msgctxt "advanced-settings-nav"
-msgid "Settings"
-msgstr "設定"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -257,10 +245,6 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr "外側"
 
-msgctxt "error-boundary-view"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -268,7 +252,7 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "何か問題が生じたようです。 %(email)s までご連絡ください。"
 
-msgctxt "headerbar"
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -362,10 +346,6 @@ msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad システムサービスに接続中..."
 
-msgctxt "launch-view"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
-
 msgctxt "login-view"
 msgid "Checking account number"
 msgstr "アカウント番号を確認中"
@@ -406,13 +386,33 @@ msgctxt "login-view"
 msgid "Unknown error"
 msgstr "不明なエラー"
 
+#. Back button in navigation bar
+#. Title label in navigation bar
+msgctxt "navigation-bar"
+msgid "Settings"
+msgstr "設定"
+
 msgctxt "notifications"
 msgid "Blocked all connections"
 msgstr "すべての接続をブロックしました"
 
+#. The message showed when a server has been connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connected to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connected to %(location)s"
+msgstr "%(location)sに接続しました"
+
 msgctxt "notifications"
 msgid "Connecting"
 msgstr "接続中"
+
+#. The message showed when a server is being connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connecting to %(location)s"
+msgstr "%(location)sに接続中"
 
 msgctxt "notifications"
 msgid "Critical failure - Unsecured"
@@ -449,11 +449,6 @@ msgstr "未対応のアプリバージョンを実行中です。今すぐ %(ver
 msgctxt "preferences-nav"
 msgid "Preferences"
 msgstr "環境設定"
-
-#. Back button in navigation bar
-msgctxt "preferences-nav"
-msgid "Settings"
-msgstr "設定"
 
 msgctxt "preferences-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
@@ -508,11 +503,6 @@ msgctxt "select-language-nav"
 msgid "Select language"
 msgstr "言語を選択"
 
-#. Back button in navigation bar
-msgctxt "select-language-nav"
-msgid "Settings"
-msgstr "設定"
-
 msgctxt "select-location-nav"
 msgid "Entry"
 msgstr "入口"
@@ -538,10 +528,12 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
 msgstr "接続中、あなたのトラフィックはセキュリティで保護された2つの場所、入口（ブリッジサーバー）および出口（VPNサーバー）経由で転送されます。"
 
+#. Navigation button to the 'Account' view
 msgctxt "settings-view"
 msgid "Account"
 msgstr "アカウント"
 
+#. Navigation button to the 'Advanced' settings view
 msgctxt "settings-view"
 msgid "Advanced"
 msgstr "詳細"
@@ -550,6 +542,7 @@ msgctxt "settings-view"
 msgid "App version"
 msgstr "アプリのバージョン"
 
+#. Link to the webpage
 msgctxt "settings-view"
 msgid "FAQs & Guides"
 msgstr "よくある質問とガイド"
@@ -558,6 +551,7 @@ msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
 msgstr "内部バージョン情報が一致しません。アプリを再起動してください。"
 
+#. Navigation button to the 'Language' settings view
 msgctxt "settings-view"
 msgid "Language"
 msgstr "言語"
@@ -566,6 +560,7 @@ msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "時間切れ"
 
+#. Navigation button to the 'Preferences' view
 msgctxt "settings-view"
 msgid "Preferences"
 msgstr "環境設定"
@@ -574,27 +569,14 @@ msgctxt "settings-view"
 msgid "Quit app"
 msgstr "アプリを終了する"
 
+#. Navigation button to the 'Report a problem' help view
 msgctxt "settings-view"
 msgid "Report a problem"
 msgstr "問題を報告する"
 
 msgctxt "settings-view"
-msgid "Settings"
-msgstr "設定"
-
-msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "アップデートできます。ダウンロードしてセキュリティを維持してください。"
-
-#. Title label in navigation bar
-msgctxt "settings-view-nav"
-msgid "Settings"
-msgstr "設定"
-
-#. Back button in navigation bar
-msgctxt "support-nav"
-msgid "Settings"
-msgstr "設定"
 
 msgctxt "support-view"
 msgid "Back"
@@ -688,10 +670,6 @@ msgid "Account has too many keys already"
 msgstr "アカウントがすでに所有している鍵が多すぎます"
 
 msgctxt "wireguard-key-view"
-msgid "Can't manage keys whilst in a blocked state"
-msgstr "ブロックされた状態では鍵を管理できません"
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
 msgstr "鍵の生成に失敗しました"
 
@@ -726,6 +704,10 @@ msgstr "鍵が設定されていません"
 msgctxt "wireguard-key-view"
 msgid "Regenerate key"
 msgstr "鍵を生成"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to manage keys while in a blocked state"
+msgstr "ブロックされた状態では鍵を管理できません"
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"
