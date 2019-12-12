@@ -73,6 +73,10 @@ class LocationInfoCache(
             }
         }
 
+    fun onDestroy() {
+        activeFetch?.cancel()
+    }
+
     private fun locationFromSelectedRelay(): GeoIpLocation? {
         val relayItem = relayListListener.selectedRelayItem
 
