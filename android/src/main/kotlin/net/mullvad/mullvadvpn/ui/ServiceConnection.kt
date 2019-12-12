@@ -25,12 +25,11 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val settingsListener = SettingsListener(asyncDaemon)
     val accountCache = AccountCache(settingsListener, daemon)
     var relayListListener = RelayListListener(asyncDaemon, settingsListener)
-    val locationInfoCache = LocationInfoCache(daemon, asyncConnectivityListener, relayListListener)
+    val locationInfoCache = LocationInfoCache(daemon, connectivityListener, relayListListener)
     val wwwAuthTokenRetriever = WwwAuthTokenRetriever(asyncDaemon)
 
     init {
         asyncDaemon.complete(daemon)
-        asyncConnectivityListener.complete(connectivityListener)
         appVersionInfoCache.onCreate()
 
         connectionProxy.mainActivity = mainActivity
@@ -38,7 +37,6 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
 
     fun onDestroy() {
         asyncDaemon.cancel()
-        asyncConnectivityListener.cancel()
 
         accountCache.onDestroy()
         appVersionInfoCache.onDestroy()
