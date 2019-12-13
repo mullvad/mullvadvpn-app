@@ -11,6 +11,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.talpid.TalpidVpnService
+import net.mullvad.talpid.util.EventNotifier
 
 class MullvadVpnService : TalpidVpnService() {
     private val binder = LocalBinder()
@@ -20,6 +21,8 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var daemon: Deferred<MullvadDaemon>
     private lateinit var connectionProxy: ConnectionProxy
     private lateinit var notificationManager: ForegroundNotificationManager
+
+    private var serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
     override fun onCreate() {
         super.onCreate()
@@ -51,6 +54,8 @@ class MullvadVpnService : TalpidVpnService() {
     inner class LocalBinder : Binder() {
         val daemon
             get() = this@MullvadVpnService.daemon
+        val serviceNotifier
+            get() = this@MullvadVpnService.serviceNotifier
         val connectionProxy
             get() = this@MullvadVpnService.connectionProxy
         val connectivityListener
@@ -72,11 +77,15 @@ class MullvadVpnService : TalpidVpnService() {
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
         ApiRootCaFile().extract(application)
 
-        MullvadDaemon(this@MullvadVpnService).apply {
+        val daemon = MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
                 notificationManager.loggedIn = settings?.accountToken != null
             }
         }
+
+        serviceNotifier.notify(ServiceInstance(daemon, connectionProxy, connectivityListener))
+
+        daemon
     }
 
     private fun startNotificationManager(): ForegroundNotificationManager {
@@ -88,6 +97,8 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun stop() {
         resetComplete = CompletableDeferred()
+
+        serviceNotifier.notify(null)
 
         if (daemon.isCompleted) {
             runBlocking { daemon.await().shutdown() }

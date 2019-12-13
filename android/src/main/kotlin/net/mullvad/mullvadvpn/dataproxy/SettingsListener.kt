@@ -1,14 +1,14 @@
 package net.mullvad.mullvadvpn.dataproxy
 
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.ui.MainActivity
 
-class SettingsListener(val parentActivity: MainActivity) {
+class SettingsListener(val asyncDaemon: Deferred<MullvadDaemon>) {
     private lateinit var daemon: MullvadDaemon
 
     private val setUpJob = setUp()
@@ -41,7 +41,7 @@ class SettingsListener(val parentActivity: MainActivity) {
     }
 
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
-        daemon = parentActivity.daemon.await()
+        daemon = asyncDaemon.await()
 
         listenerId = daemon.onSettingsChange.subscribe { maybeSettings ->
             maybeSettings?.let { settings -> handleNewSettings(settings) }
