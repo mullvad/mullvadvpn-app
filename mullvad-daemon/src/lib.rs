@@ -429,7 +429,7 @@ where
 
         let settings = settings::load();
 
-        let mut account_history =
+        let account_history =
             account_history::AccountHistory::new(&cache_dir).map_err(Error::LoadAccountHistory)?;
 
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
@@ -448,19 +448,11 @@ where
         )
         .map_err(Error::TunnelError)?;
 
-        let public_key = settings
-            .get_account_token()
-            .and_then(|account| account_history.get(&account).ok()?)
-            .and_then(|account_entry| account_entry.wireguard.map(|wg| wg.get_public_key()));
-
         let wireguard_key_manager = wireguard::KeyManager::new(
             internal_event_tx.clone(),
             rpc_handle.clone(),
             tokio_remote.clone(),
-            wireguard::KeyRotationParameters {
-                public_key,
-                interval: settings.get_tunnel_options().wireguard.automatic_rotation,
-            },
+            settings.get_account_token(),
         );
 
         // Attempt to download a fresh relay list
@@ -490,6 +482,16 @@ where
         };
 
         daemon.ensure_wireguard_keys_for_current_account();
+
+        daemon.wireguard_key_manager.set_rotation_interval(
+            &mut daemon.account_history,
+            daemon
+                .settings
+                .get_tunnel_options()
+                .wireguard
+                .automatic_rotation
+                .map(|hours| 60 * hours),
+        );
 
         Ok(daemon)
     }
@@ -1088,26 +1090,13 @@ where
             Ok(account_changed) => {
                 if account_changed {
                     match account_token {
-                        Some(account_token) => {
+                        Some(_) => {
                             info!("Initiating tunnel restart because the account token changed");
-
-                            let public_key = self.account_history
-                                .get(&account_token)
-                                .unwrap_or(None)
-                                .and_then(|entry| entry.wireguard.map(|wg| wg.get_public_key()));
-                            self.wireguard_key_manager.update_rotation_interval(Some(
-                                wireguard::KeyRotationParameters {
-                                    public_key,
-                                    interval: self.settings.get_tunnel_options().wireguard.automatic_rotation,
-                                },
-                            ));
-
                             self.reconnect_tunnel();
                         }
                         None => {
                             info!("Disconnecting because account token was cleared");
                             self.set_target_state(TargetState::Unsecured);
-                            self.wireguard_key_manager.update_rotation_interval(None);
                         }
                     };
                 }
@@ -1128,13 +1117,16 @@ where
             self.event_listener.notify_settings(self.settings.clone());
 
             // Bump account history if a token was set
-            if let Some(token) = account_token {
+            if let Some(token) = account_token.clone() {
                 if let Err(e) = self.account_history.bump_history(&token) {
                     log::error!("Failed to bump account history: {}", e);
                 }
             }
 
             self.ensure_wireguard_keys_for_current_account();
+
+            self.wireguard_key_manager
+                .set_account_token(&mut self.account_history, account_token);
         }
         Ok(account_changed)
     }
@@ -1384,19 +1376,10 @@ where
                 if settings_changed {
                     self.event_listener.notify_settings(self.settings.clone());
 
-                    let public_key = self.settings.get_account_token().and_then(|token| {
-                        self.account_history
-                            .get(&token)
-                            .unwrap_or(None)
-                            .and_then(|entry| entry.wireguard.map(|wg| wg.get_public_key()))
-                    });
-
-                    self.wireguard_key_manager.update_rotation_interval(Some(
-                        wireguard::KeyRotationParameters {
-                            public_key,
-                            interval,
-                        },
-                    ));
+                    self.wireguard_key_manager.set_rotation_interval(
+                        &mut self.account_history,
+                        interval.map(|mins| 60 * mins),
+                    );
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
@@ -1466,6 +1449,17 @@ where
                     })?;
                     let keygen_event = KeygenEvent::NewKey(public_key);
                     self.event_listener.notify_key_event(keygen_event.clone());
+
+                    // reset automatic rotation
+                    self.wireguard_key_manager.set_rotation_interval(
+                        &mut self.account_history,
+                        self.settings
+                            .get_tunnel_options()
+                            .wireguard
+                            .automatic_rotation
+                            .map(|hours| 60 * hours),
+                    );
+
                     Ok(keygen_event)
                 }
                 Err(wireguard::Error::TooManyKeys) => Ok(KeygenEvent::TooManyKeys),
