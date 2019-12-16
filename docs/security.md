@@ -226,6 +226,17 @@ In the other states DNS is simply blocked.
 ## Android
 
 
+## Desktop Electron GUI
+
+The graphical frontend for the app on desktop is an Electron app. This app only ever loads
+local resources in the form of html, CSS and Javascript directly from the installation
+directory of the app, and never from remote sources.
+
+The GUI only communicates with the system service, it makes no other network connections.
+The system service is reached via UNIX domain sockets (UDS) on Linux and macOS and
+named pipes on Windows.
+
+
 [disconnected]: #disconnected
 [connecting]: #connecting
 [connected]: #connected
