@@ -223,11 +223,35 @@ The above holds during the [connected] state. In the [disconnected]
 state the app does nothing with DNS, meaning the default one is used, probably from the ISP.
 In the other states DNS is simply blocked.
 
+## Desktop system service
+
+On all desktop platforms the VPN tunnel and the device security is handled by a system
+service called `mullvad-daemon`. This service is installed as the administrator/root user
+during app install and is then always running in the background, even when the user
+quits the GUI and when no tunnels are running.
+
+This system service can be controlled via a management interface, exposed locally
+via unix domain sockets (UDS) on Linux and macOS and via named pipes on Windows.
+This management interface can be reached by any process running on the device.
+Locally running malicious programs are outside of the app's threat model.
+
+## Desktop Electron GUI
+
+The graphical frontend for the app on desktop is an Electron app. This app only ever loads
+local resources in the form of html, CSS and Javascript directly from the installation
+directory of the app, and never from remote sources.
+
+The GUI only communicates with the system service (`mullvad-daemon`), it makes no other
+network connections. Except when it sends a problem report, then it spawn the
+`mullvad-problem-report` tool, which in turn communicate over TLS with our API.
+
 ## Android
 
+<TODO>
 
 [disconnected]: #disconnected
 [connecting]: #connecting
 [connected]: #connected
 [disconnecting]: #disconnecting
 [blocked]: #blocked
+[GUI]: #desktop-electron-gui
