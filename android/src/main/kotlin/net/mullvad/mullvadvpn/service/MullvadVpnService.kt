@@ -52,14 +52,9 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     inner class LocalBinder : Binder() {
-        val daemon
-            get() = this@MullvadVpnService.daemon
         val serviceNotifier
             get() = this@MullvadVpnService.serviceNotifier
-        val connectionProxy
-            get() = this@MullvadVpnService.connectionProxy
-        val connectivityListener
-            get() = this@MullvadVpnService.connectivityListener
+
         val resetComplete
             get() = this@MullvadVpnService.resetComplete
 
