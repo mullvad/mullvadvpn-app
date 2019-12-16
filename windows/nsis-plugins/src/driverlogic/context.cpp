@@ -64,7 +64,7 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 
 	if (hNet == INVALID_HANDLE_VALUE)
 	{
-		throw std::runtime_error("SetupDiOpenDevRegKey Failed");
+		THROW_GLE("SetupDiOpenDevRegKey");
 	}
 
 	std::vector<wchar_t> instanceId(MAX_PATH + sizeof(L'\0'));
@@ -82,10 +82,7 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 
 	RegCloseKey(hNet);
 
-	if (ERROR_SUCCESS != status)
-	{
-		throw std::runtime_error("RegGetValue for NetCfgInstanceId failed");
-	}
+	THROW_UNLESS(ERROR_SUCCESS, status, "RegGetValueW");
 
 	instanceId[strSize / sizeof(wchar_t)] = L'\0';
 
@@ -146,13 +143,9 @@ std::wstring GetDeviceStringProperty(
 		0
 	);
 
-	const DWORD lastError = GetLastError();
-	if (FALSE == sizeStatus && ERROR_INSUFFICIENT_BUFFER != lastError)
+	if (FALSE == sizeStatus)
 	{
-		common::error::Throw(
-			"Error obtaining device property length",
-			lastError
-		);
+		THROW_UNLESS(ERROR_INSUFFICIENT_BUFFER, GetLastError(), "SetupDiGetDevicePropertyW");
 	}
 
 	std::vector<wchar_t> buffer;
@@ -203,13 +196,10 @@ std::optional<std::wstring> GetDeviceRegistryStringProperty(
 	const DWORD lastError = GetLastError();
 	if (FALSE == sizeStatus && ERROR_INSUFFICIENT_BUFFER != lastError)
 	{
-		if (ERROR_INVALID_DATA == lastError)
-		{
-			// ERROR_INVALID_DATA may mean that the property does not exist
-			// TODO: Check if there may be other causes.
-			return std::nullopt;
-		}
-		THROW_GLE("Error obtaining device property length");
+		// ERROR_INVALID_DATA may mean that the property does not exist
+		// TODO: Check if there may be other causes.
+		THROW_UNLESS(ERROR_INVALID_DATA, lastError, "SetupDiGetDeviceRegistryPropertyW");
+		return std::nullopt;
 	}
 
 	//
