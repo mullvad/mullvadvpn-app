@@ -46,7 +46,6 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onDestroy() {
         tearDown()
-        daemon.cancel()
         super.onDestroy()
     }
 
@@ -88,19 +87,22 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun stop() {
         isStopping = true
+        stopDaemon()
+        stopSelf()
+    }
 
-        serviceNotifier.notify(null)
-
+    private fun stopDaemon() {
         if (daemon.isCompleted) {
             runBlocking { daemon.await().shutdown() }
         } else {
             daemon.cancel()
         }
-
-        stopSelf()
     }
 
     private fun tearDown() {
+        serviceNotifier.notify(null)
+        stopDaemon()
+
         connectionProxy.onDestroy()
         notificationManager.onDestroy()
     }
