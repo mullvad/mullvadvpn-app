@@ -52,9 +52,9 @@ DetailedWfpObjectRegistry MullvadGuids::BuildDetailedRegistry()
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnel_Outbound_Ipv6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Tunnel_Ipv4()));
-	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_HACK_TO_ALLOW_RELAY_ON_PORT_53()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Ipv6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Tunnel_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_AllowRelay()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnelService_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnelService_Ipv6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitNdp_Outbound_Router_Solicitation()));
@@ -474,7 +474,7 @@ const GUID &MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv4()
 }
 
 //static
-const GUID& MullvadGuids::FilterRestrictDns_HACK_TO_ALLOW_RELAY_ON_PORT_53()
+const GUID& MullvadGuids::FilterRestrictDns_AllowRelay()
 {
 	static const GUID g =
 	{
