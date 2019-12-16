@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add translations for Finnish and Danish.
+
 ### Changed
 #### Android
 - Wait for traffic to be routed through the tunnel device before advertising blocked state.
