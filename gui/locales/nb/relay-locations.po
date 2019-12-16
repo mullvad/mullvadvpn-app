@@ -2,15 +2,13 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Language: nb\n"
 "X-Crowdin-File: relay-locations.pot\n"
 "Project-Id-Version: mullvad-app\n"
-"Last-Translator: adminmullvad\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2019-10-11 11:36\n"
+"PO-Revision-Date: 2019-12-16 09:41\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -18,7 +16,7 @@ msgstr "Adelaide"
 
 #. AL
 msgid "Albania"
-msgstr ""
+msgstr "Albania"
 
 #. NL AMS
 msgid "Amsterdam"
@@ -38,15 +36,15 @@ msgstr "Auckland"
 
 #. AU
 msgid "Australia"
-msgstr ""
+msgstr "Australia"
 
 #. AT
 msgid "Austria"
-msgstr ""
+msgstr "Østerrike"
 
 #. BE
 msgid "Belgium"
-msgstr ""
+msgstr "Belgia"
 
 #. RS BEG
 msgid "Belgrade"
@@ -58,7 +56,7 @@ msgstr "Boston, MA"
 
 #. BR
 msgid "Brazil"
-msgstr ""
+msgstr "Brasil"
 
 #. AU BNE
 msgid "Brisbane"
@@ -78,11 +76,11 @@ msgstr "Budapest"
 
 #. BG
 msgid "Bulgaria"
-msgstr ""
+msgstr "Bulgaria"
 
 #. CA
 msgid "Canada"
-msgstr ""
+msgstr "Canada"
 
 #. AU CBR
 msgid "Canberra"
@@ -110,7 +108,7 @@ msgstr "København"
 
 #. CZ
 msgid "Czech Republic"
-msgstr ""
+msgstr "Tsjekkia"
 
 #. US DAL
 msgid "Dallas, TX"
@@ -118,7 +116,7 @@ msgstr "Dallas, TX"
 
 #. DK
 msgid "Denmark"
-msgstr ""
+msgstr "Danmark"
 
 #. US DEN
 msgid "Denver, CO"
@@ -130,15 +128,15 @@ msgstr "Dubai"
 
 #. IE DUB
 msgid "Dublin"
-msgstr ""
+msgstr "Dublin"
 
 #. FI
 msgid "Finland"
-msgstr ""
+msgstr "Finland"
 
 #. FR
 msgid "France"
-msgstr ""
+msgstr "Frankrike"
 
 #. DE FRA
 msgid "Frankfurt"
@@ -146,7 +144,7 @@ msgstr "Frankfurt"
 
 #. DE
 msgid "Germany"
-msgstr ""
+msgstr "Tyskland"
 
 #. SE GOT
 msgid "Gothenburg"
@@ -154,7 +152,7 @@ msgstr "Göteborg"
 
 #. GR
 msgid "Greece"
-msgstr ""
+msgstr "Hellas"
 
 #. SE HEL
 msgid "Helsingborg"
@@ -174,23 +172,23 @@ msgstr "Honolulu, HI"
 
 #. HU
 msgid "Hungary"
-msgstr ""
+msgstr "Ungarn"
 
 #. IN
 msgid "India"
-msgstr ""
+msgstr "India"
 
 #. IE
 msgid "Ireland"
-msgstr ""
+msgstr "Irland"
 
 #. IL
 msgid "Israel"
-msgstr ""
+msgstr "Israel"
 
 #. IT
 msgid "Italy"
-msgstr ""
+msgstr "Italia"
 
 #. US JAN
 msgid "Jackson, MS"
@@ -198,7 +196,7 @@ msgstr "Jackson, MS"
 
 #. JP
 msgid "Japan"
-msgstr ""
+msgstr "Japan"
 
 #. ZA JNB
 msgid "Johannesburg"
@@ -210,7 +208,7 @@ msgstr "Kiev"
 
 #. LV
 msgid "Latvia"
-msgstr ""
+msgstr "Latvia"
 
 #. PT LIS
 msgid "Lisbon"
@@ -270,7 +268,7 @@ msgstr "Minneapolis/St. Paul Apt, MN"
 
 #. MD
 msgid "Moldova"
-msgstr ""
+msgstr "Moldova"
 
 #. CA MTR
 msgid "Montreal"
@@ -278,7 +276,7 @@ msgstr "Montreal"
 
 #. NL
 msgid "Netherlands"
-msgstr ""
+msgstr "Nederland"
 
 #. US NYC
 msgid "New York, NY"
@@ -286,7 +284,7 @@ msgstr "New York, NY"
 
 #. NZ
 msgid "New Zealand"
-msgstr ""
+msgstr "New Zealand"
 
 #. RS INI
 msgid "Nis"
@@ -294,7 +292,7 @@ msgstr "Niš"
 
 #. NO
 msgid "Norway"
-msgstr ""
+msgstr "Norge"
 
 #. US OKC
 msgid "Oklahoma City, OK"
@@ -312,10 +310,6 @@ msgstr "Paris"
 msgid "Perth"
 msgstr "Perth"
 
-#. IL PET
-msgid "Petach-Tikva"
-msgstr "Petah-Tikva"
-
 #. US PHL
 msgid "Philadelphia, PA"
 msgstr "Philadelphia, PA"
@@ -330,7 +324,7 @@ msgstr "Piscataway, NJ"
 
 #. PL
 msgid "Poland"
-msgstr ""
+msgstr "Polen"
 
 #. US PDX
 msgid "Portland, OR"
@@ -338,7 +332,7 @@ msgstr "Portland, OR"
 
 #. PT
 msgid "Portugal"
-msgstr ""
+msgstr "Portugal"
 
 #. CZ PRG
 msgid "Prague"
@@ -358,7 +352,7 @@ msgstr "Riga"
 
 #. RO
 msgid "Romania"
-msgstr ""
+msgstr "Romania"
 
 #. US SLC
 msgid "Salt Lake City, UT"
@@ -386,7 +380,7 @@ msgstr "Secaucus, NJ"
 
 #. RS
 msgid "Serbia"
-msgstr ""
+msgstr "Serbia"
 
 #. SG SIN
 msgid "Singapore"
@@ -402,11 +396,11 @@ msgstr "Sofia"
 
 #. ZA
 msgid "South Africa"
-msgstr ""
+msgstr "Sør-Afrika"
 
 #. ES
 msgid "Spain"
-msgstr ""
+msgstr "Spania"
 
 #. US STL
 msgid "St. Louis, MO"
@@ -422,11 +416,11 @@ msgstr "Stockholm"
 
 #. SE
 msgid "Sweden"
-msgstr ""
+msgstr "Sverige"
 
 #. CH
 msgid "Switzerland"
-msgstr ""
+msgstr "Sveits"
 
 #. AU SYD
 msgid "Sydney"
@@ -450,19 +444,19 @@ msgstr "Toronto"
 
 #. GB
 msgid "UK"
-msgstr ""
+msgstr "Storbritannia"
 
 #. US
 msgid "USA"
-msgstr ""
+msgstr "USA"
 
 #. UA
 msgid "Ukraine"
-msgstr ""
+msgstr "Ukraina"
 
 #. AE
 msgid "United Arab Emirates"
-msgstr ""
+msgstr "De forente arabiske emirater"
 
 #. CA VAN
 msgid "Vancouver"
@@ -483,3 +477,4 @@ msgstr "Wien"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürich"
+

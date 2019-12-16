@@ -2,15 +2,13 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
-"X-Generator: crowdin.com\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Language: ru\n"
 "X-Crowdin-File: relay-locations.pot\n"
 "Project-Id-Version: mullvad-app\n"
-"Last-Translator: adminmullvad\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2019-08-12 08:53\n"
+"PO-Revision-Date: 2019-12-16 09:41\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -138,7 +136,7 @@ msgstr "Финляндия"
 
 #. FR
 msgid "France"
-msgstr ""
+msgstr "Франция"
 
 #. DE FRA
 msgid "Frankfurt"
@@ -270,7 +268,7 @@ msgstr "Аэропорт Миннеаполис/Сент-Пол, MN"
 
 #. MD
 msgid "Moldova"
-msgstr "Молдавия"
+msgstr "Молдова"
 
 #. CA MTR
 msgid "Montreal"
@@ -294,7 +292,7 @@ msgstr "Ниш"
 
 #. NO
 msgid "Norway"
-msgstr ""
+msgstr "Норвегия"
 
 #. US OKC
 msgid "Oklahoma City, OK"
@@ -311,10 +309,6 @@ msgstr "Париж"
 #. AU PER
 msgid "Perth"
 msgstr "Перт"
-
-#. IL PET
-msgid "Petach-Tikva"
-msgstr "Петах-Тиква"
 
 #. US PHL
 msgid "Philadelphia, PA"
@@ -483,3 +477,4 @@ msgstr "Вена"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Цюрих"
+
