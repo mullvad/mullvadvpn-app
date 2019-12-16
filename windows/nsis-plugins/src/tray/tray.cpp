@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "../error.h"
 #include "trayparser.h"
 #include "trayjuggler.h"
 #include "resource.h"
@@ -116,11 +117,6 @@ void UpdateRegistry(common::registry::RegistryKey &regkey, const std::wstring &v
 // Ensure the GUI's tray icon is placed in the visible part of the notification area.
 // This is accomplished by updating a binary blob in the registry.
 //
-enum class PromoteTrayIconStatus
-{
-	GENERAL_ERROR = 0,
-	SUCCESS
-};
 
 void __declspec(dllexport) NSISCALL PromoteTrayIcon
 (
@@ -173,16 +169,16 @@ void __declspec(dllexport) NSISCALL PromoteTrayIcon
 		}
 
 		pushstring(L"");
-		pushint(PromoteTrayIconStatus::SUCCESS);
+		pushint(NsisStatus::SUCCESS);
 	}
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(PromoteTrayIconStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(PromoteTrayIconStatus::GENERAL_ERROR);
+		pushint(NsisStatus::GENERAL_ERROR);
 	}
 }
