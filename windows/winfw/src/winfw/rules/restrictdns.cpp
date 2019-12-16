@@ -12,14 +12,16 @@ using namespace wfp::conditions;
 namespace rules
 {
 
-RestrictDns::RestrictDns(const std::wstring& tunnelInterfaceAlias,
+RestrictDns::RestrictDns(const std::wstring &tunnelInterfaceAlias,
 	const wfp::IpAddress v4DnsHost,
-	std::unique_ptr<wfp::IpAddress> v6DnsHost,
-	std::unique_ptr<wfp::IpAddress> relay)
+	std::optional<wfp::IpAddress> v6DnsHost,
+	wfp::IpAddress relay,
+	uint16_t relayPort)
 	: m_tunnelInterfaceAlias(tunnelInterfaceAlias)
 	, m_v4DnsHost(v4DnsHost)
-	, m_v6DnsHost(std::move(v6DnsHost))
-	, m_relayHost(std::move(relay))
+	, m_v6DnsHost(v6DnsHost)
+	, m_relayHost(relay)
+	, m_relayPort(relayPort)
 
 {
 }
@@ -37,23 +39,21 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 	// TODO: Have each rule specify requirements?
 	//
 
-	if (nullptr != m_relayHost) {
+	filterBuilder
+		.provider(MullvadGuids::Provider())
+		.description(L"This filter is part of a rule that restricts DNS traffic")
+		.sublayer(MullvadGuids::SublayerBlacklist())
+		.key(MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv4())
+		.name(L"Restrict DNS requests inside the VPN tunnel (IPv4)")
+		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
+		.weight(MAXUINT16)
+		.permit();
 
-		filterBuilder
-			.key(MullvadGuids::FilterRestrictDns_Outbound_Ipv4())
-			.name(L"Permit relay connection over port 53 (IPv4)")
-			.key(MullvadGuids::FilterRestrictDns_HACK_TO_ALLOW_RELAY_ON_PORT_53())
-			.description(L"This filter is part of a rule that restricts DNS traffic")
-			.provider(MullvadGuids::Provider())
-			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-			.sublayer(MullvadGuids::SublayerBlacklist())
-			.weight(wfp::FilterBuilder::WeightClass::Max)
-			.permit();
-
+	{
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 
-		conditionBuilder.add_condition(ConditionPort::Remote(53));
-		conditionBuilder.add_condition(ConditionIp::Remote(*m_relayHost, CompareEq()));
+		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias, CompareEq()));
+		conditionBuilder.add_condition(ConditionIp::Remote(m_v4DnsHost, CompareEq()));
 
 		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 		{
@@ -64,35 +64,21 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 	filterBuilder
 		.key(MullvadGuids::FilterRestrictDns_Outbound_Ipv4())
 		.name(L"Block DNS requests outside the VPN tunnel (IPv4)")
-		.description(L"This filter is part of a rule that restricts DNS traffic")
-		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-		.sublayer(MullvadGuids::SublayerBlacklist())
-		.weight(wfp::FilterBuilder::WeightClass::Max)
+		.weight(MAXUINT16 - 1)
 		.block();
 
 	{
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
-
 		conditionBuilder.add_condition(ConditionPort::Remote(53));
-		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias, CompareNeq()));
 
-		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+		if (53 == m_relayPort)
 		{
-			return false;
+			//
+			// Allow relay traffic over port 53
+			//
+			conditionBuilder.add_condition(ConditionIp::Remote(m_relayHost, CompareNeq()));
 		}
-	}
-
-	filterBuilder
-		.name(L"Restrict DNS requests inside the VPN tunnel (IPv4)")
-		.key(MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv4())
-		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
-
-	{
-		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
-
-		conditionBuilder.add_condition(ConditionPort::Remote(53));
-		conditionBuilder.add_condition(ConditionIp::Remote(m_v4DnsHost, CompareNeq()));
 
 		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 		{
@@ -104,38 +90,38 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 	// IPv6 also
 	//
 
-	filterBuilder
-		.key(MullvadGuids::FilterRestrictDns_Outbound_Ipv6())
-		.name(L"Block DNS requests outside the VPN tunnel (IPv6)")
-		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
-
+	if (m_v6DnsHost.has_value())
 	{
-		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+		filterBuilder
+			.key(MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv6())
+			.name(L"Restrict DNS requests inside the VPN tunnel (IPv6)")
+			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
+			.weight(MAXUINT16)
+			.permit();
 
-		conditionBuilder.add_condition(ConditionPort::Remote(53));
-		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias, CompareNeq()));
-
-		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 		{
-			return false;
+			wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+
+			conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias, CompareEq()));
+			conditionBuilder.add_condition(ConditionIp::Remote(m_v6DnsHost.value(), CompareEq()));
+
+			if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+			{
+				return false;
+			}
 		}
 	}
 
 	filterBuilder
-		.key(MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv6())
-		.name(L"Restrict DNS requests inside the VPN tunnel (IPv6)")
-		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+		.key(MullvadGuids::FilterRestrictDns_Outbound_Ipv6())
+		.name(L"Block DNS requests outside the VPN tunnel (IPv6)")
+		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
+		.weight(MAXUINT16 - 1)
+		.block();
 
 	{
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
-
 		conditionBuilder.add_condition(ConditionPort::Remote(53));
-
-		if (m_v6DnsHost != nullptr)
-		{
-			conditionBuilder.add_condition(ConditionIp::Remote(*m_v6DnsHost, CompareNeq()));
-		}
-
 		return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 	}
 }
