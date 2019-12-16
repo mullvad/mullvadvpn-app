@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -16,7 +15,7 @@ import net.mullvad.talpid.util.EventNotifier
 class MullvadVpnService : TalpidVpnService() {
     private val binder = LocalBinder()
 
-    private var resetComplete: CompletableDeferred<Unit>? = null
+    private var isStopping = false
 
     private lateinit var daemon: Deferred<MullvadDaemon>
     private lateinit var connectionProxy: ConnectionProxy
@@ -34,10 +33,10 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     override fun onRebind(intent: Intent) {
-        resetComplete?.let { reset ->
+        if (isStopping) {
             tearDown()
             setUp()
-            reset.complete(Unit)
+            isStopping = false
         }
     }
 
@@ -88,7 +87,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun stop() {
-        resetComplete = CompletableDeferred()
+        isStopping = true
 
         serviceNotifier.notify(null)
 
