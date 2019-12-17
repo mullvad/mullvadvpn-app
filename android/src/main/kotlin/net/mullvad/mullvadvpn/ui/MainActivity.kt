@@ -6,12 +6,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.FragmentActivity
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.service.MullvadVpnService
@@ -22,23 +19,20 @@ class MainActivity : FragmentActivity() {
         val KEY_SHOULD_CONNECT = "should_connect"
     }
 
-    private var serviceConnection: ServiceConnection? = null
-    private var serviceConnectionSubscription: Int? = null
-
-    var service = CompletableDeferred<MullvadVpnService.LocalBinder>()
-        private set
-
     val problemReport = MullvadProblemReport()
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
-    private var quitJob: Job? = null
-    private var serviceToStop: MullvadVpnService.LocalBinder? = null
+    private var service: MullvadVpnService.LocalBinder? = null
+    private var serviceConnection: ServiceConnection? = null
+    private var serviceConnectionSubscription: Int? = null
     private var shouldConnect = false
-    private var waitForDaemonJob: Job? = null
+    private var shouldStopService = false
 
     private val serviceConnectionManager = object : android.content.ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             val localBinder = binder as MullvadVpnService.LocalBinder
+
+            service = localBinder
 
             serviceConnectionSubscription = localBinder.serviceNotifier.subscribe { service ->
                 serviceConnection?.onDestroy()
@@ -54,27 +48,17 @@ class MainActivity : FragmentActivity() {
                     tryToConnect()
                 }
             }
-
-            waitForDaemonJob = GlobalScope.launch(Dispatchers.Default) {
-                localBinder.resetComplete?.await()
-                service.complete(localBinder)
-            }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
-            waitForDaemonJob?.cancel()
-            waitForDaemonJob = null
-
-            serviceConnectionSubscription?.let { subscription ->
-                runBlocking {
-                    service.await().serviceNotifier.unsubscribe(subscription)
+            serviceConnectionSubscription?.let { subscriptionId ->
+                service?.apply {
+                    serviceNotifier.unsubscribe(subscriptionId)
                 }
-                serviceConnection = null
             }
 
-            service.cancel()
-            service = CompletableDeferred<MullvadVpnService.LocalBinder>()
-
+            serviceConnection = null
+            serviceConnectionSubscription = null
             serviceNotifier.notify(null)
         }
     }
@@ -107,11 +91,12 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onStop() {
-        quitJob?.cancel()
-
         serviceNotifier.unsubscribeAll()
 
-        serviceToStop?.apply { stop() }
+        if (shouldStopService) {
+            service?.apply { stop() }
+        }
+
         unbindService(serviceConnectionManager)
 
         super.onStop()
@@ -119,8 +104,6 @@ class MainActivity : FragmentActivity() {
 
     override fun onDestroy() {
         serviceConnection?.onDestroy()
-
-        waitForDaemonJob?.cancel()
 
         super.onDestroy()
     }
@@ -144,11 +127,8 @@ class MainActivity : FragmentActivity() {
     }
 
     fun quit() {
-        quitJob?.cancel()
-        quitJob = GlobalScope.launch(Dispatchers.Main) {
-            serviceToStop = service.await()
-            finishAndRemoveTask()
-        }
+        shouldStopService = true
+        finishAndRemoveTask()
     }
 
     private fun tryToConnect() {

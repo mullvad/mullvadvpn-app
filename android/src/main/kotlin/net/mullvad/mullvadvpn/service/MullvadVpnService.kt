@@ -55,9 +55,6 @@ class MullvadVpnService : TalpidVpnService() {
         val serviceNotifier
             get() = this@MullvadVpnService.serviceNotifier
 
-        val resetComplete
-            get() = this@MullvadVpnService.resetComplete
-
         fun stop() {
             this@MullvadVpnService.stop()
         }
