@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.view.LayoutInflater
 import android.view.View
@@ -19,21 +18,13 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import org.joda.time.DateTime
 
-class AccountFragment : Fragment() {
-    private lateinit var parentActivity: MainActivity
-
+class AccountFragment : ServiceDependentFragment() {
     private lateinit var accountExpiryContainer: View
     private lateinit var accountExpiryDisplay: TextView
     private lateinit var accountNumberContainer: View
     private lateinit var accountNumberDisplay: TextView
 
     private var updateViewJob: Job? = null
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        parentActivity = context as MainActivity
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,13 +53,13 @@ class AccountFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        parentActivity.accountCache.onAccountDataChange = { accountNumber, accountExpiry ->
+        accountCache.onAccountDataChange = { accountNumber, accountExpiry ->
             updateViewJob = updateView(accountNumber, accountExpiry)
         }
     }
 
     override fun onPause() {
-        parentActivity.accountCache.onAccountDataChange = null
+        accountCache.onAccountDataChange = null
 
         super.onPause()
     }
@@ -116,8 +107,6 @@ class AccountFragment : Fragment() {
     }
 
     private fun clearAccountNumber() = GlobalScope.launch(Dispatchers.Default) {
-        val daemon = parentActivity.daemon.await()
-
         daemon.setAccount(null)
     }
 

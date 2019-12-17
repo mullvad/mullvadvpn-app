@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
@@ -21,9 +20,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
-import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
-import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -34,15 +30,11 @@ import org.joda.time.format.DateTimeFormat
 val RFC3339_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSSSSSSSSS z")
 val KEY_AGE_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm")
 
-class WireguardKeyFragment : Fragment() {
+class WireguardKeyFragment : ServiceDependentFragment() {
     private var currentJob: Job? = null
     private var updateViewsJob: Job? = null
     private var tunnelStateListener: Int? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
-    private lateinit var connectionProxy: ConnectionProxy
-    private lateinit var keyStatusListener: KeyStatusListener
-    private lateinit var parentActivity: MainActivity
-    private lateinit var wwwTokenRetriever: WwwAuthTokenRetriever
     private lateinit var urlController: BlockingController
     private var generatingKey = false
     private var validatingKey = false
@@ -55,14 +47,6 @@ class WireguardKeyFragment : Fragment() {
     private lateinit var generateSpinner: ProgressBar
     private lateinit var verifyButton: Button
     private lateinit var verifySpinner: ProgressBar
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        parentActivity = context as MainActivity
-        keyStatusListener = parentActivity.keyStatusListener
-        connectionProxy = parentActivity.connectionProxy
-        wwwTokenRetriever = parentActivity.wwwAuthTokenRetriever
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -101,7 +85,7 @@ class WireguardKeyFragment : Fragment() {
 
                 override fun onClick(): Job {
                     return GlobalScope.launch(Dispatchers.Default) {
-                        val token = wwwTokenRetriever.getAuthToken()
+                        val token = wwwAuthTokenRetriever.getAuthToken()
                         val intent = Intent(Intent.ACTION_VIEW,
                                             Uri.parse(keyUrl + "?token=" + token))
                         startActivity(intent)

@@ -1,10 +1,8 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,9 +18,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 
-class LoginFragment : Fragment() {
-    private lateinit var parentActivity: MainActivity
-
+class LoginFragment : ServiceDependentFragment() {
     private lateinit var title: TextView
     private lateinit var subtitle: TextView
     private lateinit var loggingInStatus: View
@@ -34,12 +30,6 @@ class LoginFragment : Fragment() {
 
     private var loginJob: Deferred<Boolean>? = null
     private var advanceToNextScreenJob: Job? = null
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        parentActivity = context as MainActivity
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -100,7 +90,6 @@ class LoginFragment : Fragment() {
     private fun performLogin(accountToken: String) = GlobalScope.launch(Dispatchers.Main) {
         loginJob?.cancel()
         loginJob = GlobalScope.async(Dispatchers.Default) {
-            val daemon = parentActivity.daemon.await()
             val accountDataResult = daemon.getAccountData(accountToken)
 
             when (accountDataResult) {

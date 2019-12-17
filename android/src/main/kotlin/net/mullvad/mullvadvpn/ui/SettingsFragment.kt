@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -19,9 +18,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 
-class SettingsFragment : Fragment() {
-    private lateinit var parentActivity: MainActivity
-
+class SettingsFragment : ServiceAwareFragment() {
     private lateinit var accountCache: AccountCache
     private lateinit var versionInfoCache: AppVersionInfoCache
 
@@ -35,12 +32,9 @@ class SettingsFragment : Fragment() {
     private var updateLoggedInStatusJob: Job? = null
     private var updateVersionInfoJob: Job? = null
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        parentActivity = context as MainActivity
-        accountCache = parentActivity.accountCache
-        versionInfoCache = parentActivity.appVersionInfoCache
+    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
+        accountCache = serviceConnection.accountCache
+        versionInfoCache = serviceConnection.appVersionInfoCache
     }
 
     override fun onCreateView(
@@ -79,7 +73,7 @@ class SettingsFragment : Fragment() {
         appVersionWarning = view.findViewById(R.id.app_version_warning)
         appVersionLabel = view.findViewById<TextView>(R.id.app_version_label)
         appVersionFooter = view.findViewById(R.id.app_version_footer)
-        remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
+        remainingTimeLabel = RemainingTimeLabel(parentActivity, accountCache, view)
 
         return view
     }

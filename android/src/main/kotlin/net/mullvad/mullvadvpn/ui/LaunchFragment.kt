@@ -1,28 +1,30 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.service.MullvadDaemon
 
-class LaunchFragment : Fragment() {
-    private lateinit var accountTokenCheckJob: Deferred<Boolean>
+class LaunchFragment : ServiceAwareFragment() {
+    private val hasAccountToken = CompletableDeferred<Boolean>()
+
+    private var accountTokenCheckJob: Job? = null
     private lateinit var advanceToNextScreenJob: Job
-    private lateinit var parentActivity: MainActivity
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        parentActivity = context as MainActivity
-        accountTokenCheckJob = checkForAccountToken()
+    override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
+        accountTokenCheckJob = checkForAccountToken(serviceConnection.daemon)
+    }
+
+    override fun onNoServiceConnection() {
+        accountTokenCheckJob?.cancel()
     }
 
     override fun onCreateView(
@@ -50,21 +52,19 @@ class LaunchFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        accountTokenCheckJob.cancel()
+        accountTokenCheckJob?.cancel()
         super.onDestroy()
     }
 
-    private fun checkForAccountToken() = GlobalScope.async(Dispatchers.Default) {
-        val daemon = parentActivity.daemon.await()
+    private fun checkForAccountToken(daemon: MullvadDaemon) =
+            GlobalScope.async(Dispatchers.Default) {
         val settings = daemon.getSettings()
 
-        settings.accountToken != null
+        hasAccountToken.complete(settings.accountToken != null)
     }
 
     private fun advanceToNextScreen() = GlobalScope.launch(Dispatchers.Main) {
-        val accountTokenIsSet = accountTokenCheckJob.await()
-
-        if (accountTokenIsSet) {
+        if (hasAccountToken.await()) {
             advanceToConnectScreen()
         } else {
             advanceToLoginScreen()

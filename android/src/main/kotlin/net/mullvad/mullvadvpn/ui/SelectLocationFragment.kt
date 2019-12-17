@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -15,8 +14,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
-import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LocationConstraint
@@ -26,23 +23,14 @@ import net.mullvad.mullvadvpn.relaylist.RelayItemDividerDecoration
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
 
-class SelectLocationFragment : Fragment() {
-    private lateinit var parentActivity: MainActivity
-    private lateinit var connectionProxy: ConnectionProxy
-    private lateinit var relayListListener: RelayListListener
-
-    private lateinit var relayListContainer: ViewSwitcher
-
+class SelectLocationFragment : ServiceDependentFragment() {
     private lateinit var relayListAdapter: RelayListAdapter
+    private lateinit var relayListContainer: ViewSwitcher
 
     private var updateRelayListJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-
-        parentActivity = context as MainActivity
-        connectionProxy = parentActivity.connectionProxy
-        relayListListener = parentActivity.relayListListener
 
         relayListAdapter = RelayListAdapter(context.resources).apply {
             onSelect = { relayItem ->
@@ -108,9 +96,7 @@ class SelectLocationFragment : Fragment() {
         val constraint: Constraint<LocationConstraint> =
             relayItem?.run { Constraint.Only(location) } ?: Constraint.Any()
 
-        parentActivity.daemon.await().updateRelaySettings(
-            RelaySettingsUpdate.RelayConstraintsUpdate(constraint)
-        )
+        daemon.updateRelaySettings(RelaySettingsUpdate.RelayConstraintsUpdate(constraint))
     }
 
     private fun updateRelayList(relayList: RelayList, selectedItem: RelayItem?) =
@@ -125,7 +111,7 @@ class SelectLocationFragment : Fragment() {
     }
 
     private fun maybeConnect() {
-        val keyStatus = parentActivity.keyStatusListener.keyStatus
+        val keyStatus = keyStatusListener.keyStatus
 
         if (keyStatus == null || keyStatus is KeygenEvent.NewKey) {
             connectionProxy.connect()
