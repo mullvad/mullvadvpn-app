@@ -34,8 +34,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onRebind(intent: Intent) {
         if (isStopping) {
-            tearDown()
-            setUp()
+            restart()
             isStopping = false
         }
     }
@@ -71,6 +70,12 @@ class MullvadVpnService : TalpidVpnService() {
             onSettingsChange.subscribe { settings ->
                 notificationManager.loggedIn = settings?.accountToken != null
             }
+
+            onDaemonStopped = {
+                if (!isStopping) {
+                    restart()
+                }
+            }
         }
 
         serviceNotifier.notify(ServiceInstance(daemon, connectionProxy, connectivityListener))
@@ -105,5 +110,10 @@ class MullvadVpnService : TalpidVpnService() {
 
         connectionProxy.onDestroy()
         notificationManager.onDestroy()
+    }
+
+    private fun restart() {
+        tearDown()
+        setUp()
     }
 }
