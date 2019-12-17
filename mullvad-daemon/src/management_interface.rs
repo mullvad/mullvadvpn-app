@@ -143,8 +143,8 @@ build_rpc_trait! {
         fn set_wireguard_mtu(&self, Self::Metadata, Option<u16>) -> BoxFuture<(), Error>;
 
         /// Set automatic key rotation interval for wireguard tunnels
-        #[rpc(meta, name = "set_wireguard_automatic_rotation")]
-        fn set_wireguard_automatic_rotation(&self, Self::Metadata, Option<u32>) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "set_wireguard_rotation_interval")]
+        fn set_wireguard_rotation_interval(&self, Self::Metadata, Option<u32>) -> BoxFuture<(), Error>;
 
         /// Returns the current daemon settings
         #[rpc(meta, name = "get_settings")]
@@ -244,7 +244,7 @@ pub enum ManagementCommand {
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(OneshotSender<()>, Option<u16>),
     /// Set automatic key rotation interval for wireguard tunnels
-    SetWireguardAutomaticRotation(OneshotSender<()>, Option<u32>),
+    SetWireguardRotationInterval(OneshotSender<()>, Option<u32>),
     /// Get the daemon settings
     GetSettings(OneshotSender<Settings>),
     /// Generate new wireguard key
@@ -702,15 +702,15 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
     }
 
     /// Set automatic key rotation interval for wireguard tunnels
-    fn set_wireguard_automatic_rotation(
+    fn set_wireguard_rotation_interval(
         &self,
         _: Self::Metadata,
         interval: Option<u32>,
     ) -> BoxFuture<(), Error> {
-        log::debug!("set_wireguard_automatic_rotation({:?})", interval);
+        log::debug!("set_wireguard_rotation_interval({:?})", interval);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetWireguardAutomaticRotation(
+            .send_command_to_daemon(ManagementCommand::SetWireguardRotationInterval(
                 tx, interval,
             ))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
