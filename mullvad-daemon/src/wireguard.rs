@@ -53,8 +53,6 @@ pub struct KeyManager {
     current_job: Option<CancelHandle>,
 
     abort_scheduler_tx: Option<CancelHandle>,
-    account_token: Option<AccountToken>,
-    public_key: Option<PublicKey>,
     // unit: minutes
     auto_rotation_interval: u32,
 }
@@ -64,7 +62,6 @@ impl KeyManager {
         daemon_tx: mpsc::Sender<InternalDaemonEvent>,
         http_handle: mullvad_rpc::HttpHandle,
         tokio_remote: Remote,
-        account_token: Option<AccountToken>,
     ) -> Self {
         Self {
             daemon_tx,
@@ -72,32 +69,30 @@ impl KeyManager {
             tokio_remote,
             current_job: None,
             abort_scheduler_tx: None,
-
-            account_token,
-            public_key: None,
             auto_rotation_interval: 0,
         }
     }
 
-    fn update_public_key(&mut self, account_history: &mut AccountHistory) {
-        log::debug!("update_public_key");
-        let _ = self.public_key.take();
+    /// Update automatic key rotation interval (given in minutes)
+    /// Passing `None` for the interval will use the default value.
+    /// A value of `0` disables automatic key rotation.
+    pub fn reset_rotation(
+        &mut self,
+        account_history: &mut AccountHistory,
+        account_token: AccountToken,
+    ) {
+        log::debug!("reset_rotation");
 
-        let token = if let Some(token) = &self.account_token {
-            token
-        } else {
-            log::warn!("Cannot update public key; no account token is set");
-            return ();
-        };
-
-        self.public_key = match account_history.get(&token) {
-            Ok(v) => v
-                .map(|entry| entry.wireguard.map(|wg| wg.get_public_key()))
-                .unwrap(),
-            Err(e) => {
-                log::error!("KeyManager failed to obtain public key. {}", e);
-                None
+        match account_history
+            .get(&account_token)
+            .map(|entry| entry.map(|entry| entry.wireguard.map(|wg| wg.get_public_key())))
+        {
+            Ok(Some(Some(public_key))) => self.run_automatic_rotation(account_token, public_key),
+            Ok(Some(None)) => {
+                log::error!("reset_rotation: failed to obtain public key for account entry.")
             }
+            Ok(None) => log::error!("reset_rotation: account entry not found."),
+            Err(e) => log::error!("reset_rotation: failed to obtain account entry. {}", e),
         };
     }
 
@@ -107,6 +102,7 @@ impl KeyManager {
     pub fn set_rotation_interval(
         &mut self,
         account_history: &mut AccountHistory,
+        account_token: AccountToken,
         auto_rotation_interval_mins: Option<u32>,
     ) {
         log::debug!("set_rotation_interval");
@@ -114,9 +110,7 @@ impl KeyManager {
         self.auto_rotation_interval =
             auto_rotation_interval_mins.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
 
-        self.stop_automatic_rotation();
-        self.update_public_key(account_history);
-        self.run_automatic_rotation();
+        self.reset_rotation(account_history, account_token);
     }
 
     /// Stop current key generation
@@ -288,18 +282,6 @@ impl KeyManager {
             _ => Error::RpcError(err),
         }
     }
-
-    pub fn set_account_token(
-        &mut self,
-        account_history: &mut AccountHistory,
-        account_token: Option<AccountToken>,
-    ) {
-        log::debug!("set_account_token");
-        self.account_token = account_token;
-
-        self.set_rotation_interval(account_history, Some(self.auto_rotation_interval));
-    }
-
     fn create_key_expiration_timer(
         public_key: PublicKey,
         rotation_interval_secs: u64,
@@ -436,31 +418,13 @@ impl KeyManager {
         Box::new(fut.then(create_repeat_future).map(|_| ()))
     }
 
-    fn run_automatic_rotation(&mut self) {
+    fn run_automatic_rotation(&mut self, account_token: AccountToken, public_key: PublicKey) {
         self.stop_automatic_rotation();
 
         if let 0 = self.auto_rotation_interval {
             // disabled
             return;
         }
-
-        if let None = self.account_token {
-            log::warn!(
-                "Not running automatic rotation since no \
-                 account token is set"
-            );
-            return;
-        }
-        let account_token = self.account_token.as_ref().unwrap().to_string();
-
-        if let None = self.public_key {
-            log::warn!(
-                "Not running automatic rotation since no \
-                 public key is set"
-            );
-            return;
-        }
-        let public_key = self.public_key.as_ref().unwrap().clone();
 
         // Schedule cancellable series of repeating rotation tasks
         let fut = Self::create_automatic_rotation(

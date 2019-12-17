@@ -452,7 +452,6 @@ where
             internal_event_tx.clone(),
             rpc_handle.clone(),
             tokio_remote.clone(),
-            settings.get_account_token(),
         );
 
         // Attempt to download a fresh relay list
@@ -483,15 +482,18 @@ where
 
         daemon.ensure_wireguard_keys_for_current_account();
 
-        daemon.wireguard_key_manager.set_rotation_interval(
-            &mut daemon.account_history,
-            daemon
-                .settings
-                .get_tunnel_options()
-                .wireguard
-                .automatic_rotation
-                .map(|hours| 60 * hours),
-        );
+        if let Some(token) = daemon.settings.get_account_token() {
+            daemon.wireguard_key_manager.set_rotation_interval(
+                &mut daemon.account_history,
+                token,
+                daemon
+                    .settings
+                    .get_tunnel_options()
+                    .wireguard
+                    .automatic_rotation
+                    .map(|hours| 60 * hours),
+            );
+        }
 
         Ok(daemon)
     }
@@ -1125,8 +1127,11 @@ where
 
             self.ensure_wireguard_keys_for_current_account();
 
-            self.wireguard_key_manager
-                .set_account_token(&mut self.account_history, account_token);
+            if let Some(token) = account_token {
+                // update automatic rotation
+                self.wireguard_key_manager
+                    .reset_rotation(&mut self.account_history, token);
+            }
         }
         Ok(account_changed)
     }
@@ -1374,12 +1379,17 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_wireguard_automatic_rotation response");
                 if settings_changed {
-                    self.event_listener.notify_settings(self.settings.clone());
+                    let account_token = self.settings.get_account_token();
 
-                    self.wireguard_key_manager.set_rotation_interval(
-                        &mut self.account_history,
-                        interval.map(|mins| 60 * mins),
-                    );
+                    if let Some(token) = account_token {
+                        self.wireguard_key_manager.set_rotation_interval(
+                            &mut self.account_history,
+                            token,
+                            interval.map(|hours| 60 * hours),
+                        );
+                    }
+
+                    self.event_listener.notify_settings(self.settings.clone());
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
@@ -1450,9 +1460,10 @@ where
                     let keygen_event = KeygenEvent::NewKey(public_key);
                     self.event_listener.notify_key_event(keygen_event.clone());
 
-                    // reset automatic rotation
+                    // update automatic rotation
                     self.wireguard_key_manager.set_rotation_interval(
                         &mut self.account_history,
+                        account_token.clone(),
                         self.settings
                             .get_tunnel_options()
                             .wireguard
