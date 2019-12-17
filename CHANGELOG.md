@@ -49,6 +49,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Fix crash when starting the app right after quitting it.
+- Restart background service if it stops responding.
 
 ### Security
 #### Windows
