@@ -1279,7 +1279,6 @@ dependencies = [
  "talpid-core 0.1.0",
  "talpid-ipc 0.1.0",
  "talpid-types 0.1.0",
- "tokio 0.1.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-retry 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-timer 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
