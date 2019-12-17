@@ -836,8 +836,8 @@ where
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
-            SetWireguardAutomaticRotation(tx, interval) => {
-                self.on_set_wireguard_automatic_rotation(tx, interval)
+            SetWireguardRotationInterval(tx, interval) => {
+                self.on_set_wireguard_rotation_interval(tx, interval)
             }
             GetSettings(tx) => self.on_get_settings(tx),
             GenerateWireguardKey(tx) => self.on_generate_wireguard_key(tx),
@@ -1369,15 +1369,15 @@ where
         }
     }
 
-    fn on_set_wireguard_automatic_rotation(
+    fn on_set_wireguard_rotation_interval(
         &mut self,
         tx: oneshot::Sender<()>,
         interval: Option<u32>,
     ) {
-        let save_result = self.settings.set_wireguard_automatic_rotation(interval);
+        let save_result = self.settings.set_wireguard_rotation_interval(interval);
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_wireguard_automatic_rotation response");
+                Self::oneshot_send(tx, (), "set_wireguard_rotation_interval response");
                 if settings_changed {
                     let account_token = self.settings.get_account_token();
 
