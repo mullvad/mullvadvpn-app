@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.MullvadVpnService
+import net.mullvad.talpid.util.EventNotifier
 
 class MainActivity : FragmentActivity() {
     companion object {
@@ -38,6 +39,7 @@ class MainActivity : FragmentActivity() {
         private set
 
     val problemReport = MullvadProblemReport()
+    val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
     val appVersionInfoCache: AppVersionInfoCache
         get() = serviceConnection!!.appVersionInfoCache
@@ -65,9 +67,12 @@ class MainActivity : FragmentActivity() {
             serviceConnectionSubscription = localBinder.serviceNotifier.subscribe { service ->
                 serviceConnection?.onDestroy()
 
-                serviceConnection = service?.let { service ->
+                val newConnection = service?.let { service ->
                     ServiceConnection(service, this@MainActivity)
                 }
+
+                serviceConnection = newConnection
+                serviceNotifier.notify(newConnection)
             }
 
             waitForDaemonJob = GlobalScope.launch(Dispatchers.Default) {
@@ -93,6 +98,8 @@ class MainActivity : FragmentActivity() {
 
             service = CompletableDeferred<MullvadVpnService.LocalBinder>()
             daemon = CompletableDeferred<MullvadDaemon>()
+
+            serviceNotifier.notify(null)
         }
     }
 
@@ -124,6 +131,8 @@ class MainActivity : FragmentActivity() {
 
     override fun onStop() {
         quitJob?.cancel()
+
+        serviceNotifier.unsubscribeAll()
 
         serviceToStop?.apply { stop() }
         unbindService(serviceConnectionManager)
