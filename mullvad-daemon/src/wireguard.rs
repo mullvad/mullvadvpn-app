@@ -1,10 +1,14 @@
-use crate::InternalDaemonEvent;
+use crate::{account_history::AccountHistory, InternalDaemonEvent};
 use chrono::offset::Utc;
-use futures::{future::Executor, sync::oneshot, Async, Future, Poll};
+use futures::{
+    future::{Executor, IntoFuture},
+    sync::oneshot,
+    Async, Future, Poll,
+};
 use jsonrpc_client_core::Error as JsonRpcError;
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;
-use std::{sync::mpsc, time::Duration};
+use std::{cmp, sync::mpsc, time::Duration};
 pub use talpid_types::net::wireguard::{
     ConnectionConfig, PrivateKey, TunnelConfig, TunnelParameters,
 };
@@ -14,8 +18,16 @@ use tokio_retry::{
     strategy::{jitter, ExponentialBackoff},
     RetryIf,
 };
+use tokio_timer;
 
 const TOO_MANY_KEYS_ERROR_CODE: i64 = -703;
+
+/// Default automatic key rotation (in minutes)
+const DEFAULT_AUTOMATIC_KEY_ROTATION: u32 = 7 * 24 * 60;
+/// How long to wait before reattempting to rotate keys on failure (secs)
+const AUTOMATIC_ROTATION_RETRY_DELAY: u64 = 5;
+/// Minimum interval used by automatic rotation (secs)
+const MINIMUM_ROTATION_INTERVAL: u64 = 5;
 
 
 #[derive(err_derive::Error, Debug)]
@@ -28,6 +40,8 @@ pub enum Error {
     RpcError(#[error(source)] jsonrpc_client_core::Error),
     #[error(display = "Account already has maximum number of keys")]
     TooManyKeys,
+    #[error(display = "Failed to create rotation timer")]
+    RotationScheduleError(#[error(source)] tokio_timer::TimerError),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -37,6 +51,10 @@ pub struct KeyManager {
     http_handle: mullvad_rpc::HttpHandle,
     tokio_remote: Remote,
     current_job: Option<CancelHandle>,
+
+    abort_scheduler_tx: Option<CancelHandle>,
+    // unit: minutes
+    auto_rotation_interval: u32,
 }
 
 impl KeyManager {
@@ -50,7 +68,49 @@ impl KeyManager {
             http_handle,
             tokio_remote,
             current_job: None,
+            abort_scheduler_tx: None,
+            auto_rotation_interval: 0,
         }
+    }
+
+    /// Update automatic key rotation interval (given in minutes)
+    /// Passing `None` for the interval will use the default value.
+    /// A value of `0` disables automatic key rotation.
+    pub fn reset_rotation(
+        &mut self,
+        account_history: &mut AccountHistory,
+        account_token: AccountToken,
+    ) {
+        log::debug!("reset_rotation");
+
+        match account_history
+            .get(&account_token)
+            .map(|entry| entry.map(|entry| entry.wireguard.map(|wg| wg.get_public_key())))
+        {
+            Ok(Some(Some(public_key))) => self.run_automatic_rotation(account_token, public_key),
+            Ok(Some(None)) => {
+                log::error!("reset_rotation: failed to obtain public key for account entry.")
+            }
+            Ok(None) => log::error!("reset_rotation: account entry not found."),
+            Err(e) => log::error!("reset_rotation: failed to obtain account entry. {}", e),
+        };
+    }
+
+    /// Update automatic key rotation interval (given in minutes)
+    /// Passing `None` for the interval will use the default value.
+    /// A value of `0` disables automatic key rotation.
+    pub fn set_rotation_interval(
+        &mut self,
+        account_history: &mut AccountHistory,
+        account_token: AccountToken,
+        auto_rotation_interval_mins: Option<u32>,
+    ) {
+        log::debug!("set_rotation_interval");
+
+        self.auto_rotation_interval =
+            auto_rotation_interval_mins.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
+
+        self.reset_rotation(account_history, account_token);
     }
 
     /// Stop current key generation
@@ -90,8 +150,13 @@ impl KeyManager {
     ) -> Result<WireguardData> {
         self.reset();
         let new_key = PrivateKey::new_from_random().map_err(Error::GenerationError)?;
-        self.run_future_sync(self.replace_key_rpc(account, old_key, new_key))
-            .map_err(Self::map_rpc_error)
+        self.run_future_sync(Self::replace_key_rpc(
+            self.http_handle.clone(),
+            account,
+            old_key,
+            new_key,
+        ))
+        .map_err(Self::map_rpc_error)
     }
 
 
@@ -193,12 +258,12 @@ impl KeyManager {
     }
 
     fn replace_key_rpc(
-        &self,
+        http_handle: mullvad_rpc::HttpHandle,
         account: AccountToken,
         old_key: PublicKey,
         new_key: PrivateKey,
     ) -> impl Future<Item = WireguardData, Error = JsonRpcError> + Send {
-        let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
+        let mut rpc = mullvad_rpc::WireguardKeyProxy::new(http_handle.clone());
         let new_public_key = new_key.public_key();
         rpc.replace_wg_key(account.clone(), old_key.key, new_public_key)
             .map(move |addresses| WireguardData {
@@ -215,6 +280,172 @@ impl KeyManager {
                 Error::TooManyKeys
             }
             _ => Error::RpcError(err),
+        }
+    }
+    fn create_key_expiration_timer(
+        public_key: PublicKey,
+        rotation_interval_secs: u64,
+    ) -> impl Future<Item = (), Error = Error> + Send {
+        let last_update = public_key.created.clone();
+        let key_age = Duration::from_secs(
+            (Utc::now().signed_duration_since(last_update)).num_seconds() as u64,
+        );
+
+        let interval_duration = Duration::from_secs(rotation_interval_secs);
+        let remaining_time = interval_duration
+            .checked_sub(key_age)
+            .unwrap_or(Duration::from_secs(0));
+        let key_expiry = cmp::max(
+            Duration::from_secs(MINIMUM_ROTATION_INTERVAL),
+            remaining_time,
+        );
+
+        log::info!("Next key rotation (time left): {:?}", key_expiry);
+
+        tokio_timer::wheel()
+            .max_timeout(Duration::new(std::u64::MAX, 0))
+            .build()
+            .sleep(key_expiry)
+            .map_err(|e| Error::RotationScheduleError(e))
+    }
+
+    fn next_automatic_rotation(
+        daemon_tx: mpsc::Sender<InternalDaemonEvent>,
+        http_handle: mullvad_rpc::HttpHandle,
+        public_key: PublicKey,
+        rotation_interval_secs: u64,
+        account_token: AccountToken,
+    ) -> impl Future<Item = WireguardData, Error = Error> + Send {
+        let expiration_timer =
+            Self::create_key_expiration_timer(public_key.clone(), rotation_interval_secs);
+
+        let account_token_copy = account_token.clone();
+
+        expiration_timer
+            .and_then(move |_| {
+                log::info!("Replacing WireGuard key");
+
+                let private_key = PrivateKey::new_from_random()
+                    .map_err(Error::GenerationError)
+                    .into_future();
+                private_key.and_then(move |private_key| {
+                    Self::replace_key_rpc(
+                        http_handle.clone(),
+                        account_token.clone(),
+                        public_key.clone(),
+                        private_key,
+                    )
+                    .map_err(|err| Error::RpcError(err))
+                })
+            })
+            .map(move |wireguard_data| {
+                // Update account data
+                let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
+                    account_token_copy,
+                    Ok(wireguard_data.clone()),
+                )));
+
+                wireguard_data
+            })
+    }
+
+    fn create_automatic_rotation(
+        daemon_tx: mpsc::Sender<InternalDaemonEvent>,
+        http_handle: mullvad_rpc::HttpHandle,
+        public_key: PublicKey,
+        rotation_interval_secs: u64,
+        account_token: AccountToken,
+    ) -> Box<dyn Future<Item = (), Error = Error> + Send> {
+        log::debug!("create_automatic_rotation");
+
+        let fut = Self::next_automatic_rotation(
+            daemon_tx.clone(),
+            http_handle.clone(),
+            public_key.clone(),
+            rotation_interval_secs,
+            account_token.clone(),
+        );
+
+        let create_repeat_future = move |result: Result<WireguardData>| {
+            let next_public_key;
+            let next_interval: u64;
+
+            match result {
+                Ok(wg_data) => {
+                    next_interval = rotation_interval_secs;
+                    next_public_key = wg_data.get_public_key();
+
+                    Self::create_automatic_rotation(
+                        daemon_tx.clone(),
+                        http_handle.clone(),
+                        next_public_key,
+                        next_interval,
+                        account_token.clone(),
+                    )
+                }
+                Err(e) => {
+                    log::error!(
+                        "Key rotation failed: {}. Retrying in {} seconds",
+                        e,
+                        AUTOMATIC_ROTATION_RETRY_DELAY,
+                    );
+
+                    next_interval = rotation_interval_secs;
+                    next_public_key = public_key.clone();
+
+                    let daemon_tx = daemon_tx.clone();
+                    let http_handle = http_handle.clone();
+                    let account_token = account_token.clone();
+
+                    Box::new(
+                        tokio_timer::wheel()
+                            .build()
+                            .sleep(Duration::from_secs(AUTOMATIC_ROTATION_RETRY_DELAY))
+                            .then(move |_| {
+                                Self::create_automatic_rotation(
+                                    daemon_tx,
+                                    http_handle,
+                                    next_public_key,
+                                    next_interval,
+                                    account_token,
+                                )
+                            }),
+                    )
+                }
+            }
+        };
+
+        Box::new(fut.then(create_repeat_future).map(|_| ()))
+    }
+
+    fn run_automatic_rotation(&mut self, account_token: AccountToken, public_key: PublicKey) {
+        self.stop_automatic_rotation();
+
+        if let 0 = self.auto_rotation_interval {
+            // disabled
+            return;
+        }
+
+        // Schedule cancellable series of repeating rotation tasks
+        let fut = Self::create_automatic_rotation(
+            self.daemon_tx.clone(),
+            self.http_handle.clone(),
+            public_key,
+            60u64 * (self.auto_rotation_interval as u64),
+            account_token,
+        );
+        let (fut, cancel_handle) = Cancellable::new(fut);
+
+        if let Err(e) = self.tokio_remote.execute(fut.map_err(|_| ())) {
+            log::error!("Failed to execute auto key rotation: {:?}", e.kind());
+        }
+        self.abort_scheduler_tx = Some(cancel_handle);
+    }
+
+    fn stop_automatic_rotation(&mut self) {
+        if let Some(cancel_handle) = self.abort_scheduler_tx.take() {
+            log::info!("Stopping automatic key rotation");
+            cancel_handle.cancel();
         }
     }
 }

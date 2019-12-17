@@ -284,6 +284,18 @@ impl Settings {
         }
     }
 
+    pub fn set_wireguard_rotation_interval(
+        &mut self,
+        automatic_rotation: Option<u32>,
+    ) -> Result<bool> {
+        if self.tunnel_options.wireguard.automatic_rotation != automatic_rotation {
+            self.tunnel_options.wireguard.automatic_rotation = automatic_rotation;
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
+    }
+
     pub fn get_tunnel_options(&self) -> &TunnelOptions {
         &self.tunnel_options
     }
@@ -334,7 +346,10 @@ impl Default for TunnelOptions {
     fn default() -> Self {
         TunnelOptions {
             openvpn: openvpn::TunnelOptions::default(),
-            wireguard: wireguard::TunnelOptions { mtu: None },
+            wireguard: wireguard::TunnelOptions {
+                mtu: None,
+                automatic_rotation: None,
+            },
             generic: GenericTunnelOptions { enable_ipv6: false },
         }
     }

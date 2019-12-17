@@ -56,6 +56,18 @@ fn create_wireguard_keys_subcommand() -> clap::App<'static, 'static> {
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
         .subcommand(clap::SubCommand::with_name("check"))
         .subcommand(clap::SubCommand::with_name("generate"))
+        .subcommand(create_wireguard_keys_rotation_interval_subcommand())
+}
+
+fn create_wireguard_keys_rotation_interval_subcommand() -> clap::App<'static, 'static> {
+    clap::SubCommand::with_name("rotation-interval")
+        .about("Manage automatic key rotation (specified in hours; 0 = disabled)")
+        .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+        .subcommand(clap::SubCommand::with_name("get"))
+        .subcommand(clap::SubCommand::with_name("reset").about("Use the default rotation interval"))
+        .subcommand(
+            clap::SubCommand::with_name("set").arg(clap::Arg::with_name("interval").required(true)),
+        )
 }
 
 
@@ -120,8 +132,17 @@ impl Tunnel {
             ("key", Some(matches)) => match matches.subcommand() {
                 ("check", _) => Self::process_wireguard_key_check(),
                 ("generate", _) => Self::process_wireguard_key_generate(),
+                ("rotation-interval", Some(matches)) => match matches.subcommand() {
+                    ("get", _) => Self::process_wireguard_rotation_interval_get(),
+                    ("set", Some(matches)) => {
+                        Self::process_wireguard_rotation_interval_set(matches)
+                    }
+                    ("reset", _) => Self::process_wireguard_rotation_interval_reset(),
+                    _ => unreachable!("unhandled command"),
+                },
                 _ => unreachable!("unhandled command"),
             },
+
             _ => unreachable!("unhandled command"),
         }
     }
@@ -181,6 +202,35 @@ impl Tunnel {
             .generate_wireguard_key()
             .map_err(|e| crate::Error::RpcClientError(e))?;
         println!("{}", result);
+        Ok(())
+    }
+
+    fn process_wireguard_rotation_interval_get() -> Result<()> {
+        let tunnel_options = Self::get_tunnel_options()?;
+        println!(
+            "Rotation interval: {} hour(s)",
+            tunnel_options
+                .wireguard
+                .automatic_rotation
+                .map(|interval| interval.to_string())
+                .unwrap_or_else(|| "default".to_owned())
+        );
+        Ok(())
+    }
+
+    fn process_wireguard_rotation_interval_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
+        let rotate_interval =
+            value_t!(matches.value_of("interval"), u32).unwrap_or_else(|e| e.exit());
+        let mut rpc = new_rpc_client()?;
+        rpc.set_wireguard_rotation_interval(Some(rotate_interval))?;
+        println!("Set key rotation interval: {} hour(s)", rotate_interval);
+        Ok(())
+    }
+
+    fn process_wireguard_rotation_interval_reset() -> Result<()> {
+        let mut rpc = new_rpc_client()?;
+        rpc.set_wireguard_rotation_interval(None)?;
+        println!("Set key rotation interval: default");
         Ok(())
     }
 

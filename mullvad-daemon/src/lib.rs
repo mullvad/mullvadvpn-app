@@ -448,7 +448,6 @@ where
         )
         .map_err(Error::TunnelError)?;
 
-
         let wireguard_key_manager = wireguard::KeyManager::new(
             internal_event_tx.clone(),
             rpc_handle.clone(),
@@ -482,6 +481,19 @@ where
         };
 
         daemon.ensure_wireguard_keys_for_current_account();
+
+        if let Some(token) = daemon.settings.get_account_token() {
+            daemon.wireguard_key_manager.set_rotation_interval(
+                &mut daemon.account_history,
+                token,
+                daemon
+                    .settings
+                    .get_tunnel_options()
+                    .wireguard
+                    .automatic_rotation
+                    .map(|hours| 60 * hours),
+            );
+        }
 
         Ok(daemon)
     }
@@ -824,6 +836,9 @@ where
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
+            SetWireguardRotationInterval(tx, interval) => {
+                self.on_set_wireguard_rotation_interval(tx, interval)
+            }
             GetSettings(tx) => self.on_get_settings(tx),
             GenerateWireguardKey(tx) => self.on_generate_wireguard_key(tx),
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx),
@@ -1104,13 +1119,19 @@ where
             self.event_listener.notify_settings(self.settings.clone());
 
             // Bump account history if a token was set
-            if let Some(token) = account_token {
+            if let Some(token) = account_token.clone() {
                 if let Err(e) = self.account_history.bump_history(&token) {
                     log::error!("Failed to bump account history: {}", e);
                 }
             }
 
             self.ensure_wireguard_keys_for_current_account();
+
+            if let Some(token) = account_token {
+                // update automatic rotation
+                self.wireguard_key_manager
+                    .reset_rotation(&mut self.account_history, token);
+            }
         }
         Ok(account_changed)
     }
@@ -1348,6 +1369,33 @@ where
         }
     }
 
+    fn on_set_wireguard_rotation_interval(
+        &mut self,
+        tx: oneshot::Sender<()>,
+        interval: Option<u32>,
+    ) {
+        let save_result = self.settings.set_wireguard_rotation_interval(interval);
+        match save_result {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, (), "set_wireguard_rotation_interval response");
+                if settings_changed {
+                    let account_token = self.settings.get_account_token();
+
+                    if let Some(token) = account_token {
+                        self.wireguard_key_manager.set_rotation_interval(
+                            &mut self.account_history,
+                            token,
+                            interval.map(|hours| 60 * hours),
+                        );
+                    }
+
+                    self.event_listener.notify_settings(self.settings.clone());
+                }
+            }
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+        }
+    }
+
     fn ensure_wireguard_keys_for_current_account(&mut self) {
         if let Some(account) = self.settings.get_account_token() {
             if self
@@ -1411,6 +1459,18 @@ where
                     })?;
                     let keygen_event = KeygenEvent::NewKey(public_key);
                     self.event_listener.notify_key_event(keygen_event.clone());
+
+                    // update automatic rotation
+                    self.wireguard_key_manager.set_rotation_interval(
+                        &mut self.account_history,
+                        account_token.clone(),
+                        self.settings
+                            .get_tunnel_options()
+                            .wireguard
+                            .automatic_rotation
+                            .map(|hours| 60 * hours),
+                    );
+
                     Ok(keygen_event)
                 }
                 Err(wireguard::Error::TooManyKeys) => Ok(KeygenEvent::TooManyKeys),
