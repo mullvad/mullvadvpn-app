@@ -55,7 +55,7 @@ fn create_wireguard_keys_subcommand() -> clap::App<'static, 'static> {
         .about("Manage your wireguard key")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
         .subcommand(clap::SubCommand::with_name("check"))
-        .subcommand(clap::SubCommand::with_name("generate"))
+        .subcommand(clap::SubCommand::with_name("regenerate"))
         .subcommand(create_wireguard_keys_rotation_interval_subcommand())
 }
 
@@ -131,7 +131,7 @@ impl Tunnel {
 
             ("key", Some(matches)) => match matches.subcommand() {
                 ("check", _) => Self::process_wireguard_key_check(),
-                ("generate", _) => Self::process_wireguard_key_generate(),
+                ("regenerate", _) => Self::process_wireguard_key_generate(),
                 ("rotation-interval", Some(matches)) => match matches.subcommand() {
                     ("get", _) => Self::process_wireguard_rotation_interval_get(),
                     ("set", Some(matches)) => {
