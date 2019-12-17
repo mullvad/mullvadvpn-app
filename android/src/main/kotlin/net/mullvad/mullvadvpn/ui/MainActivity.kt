@@ -13,7 +13,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.talpid.util.EventNotifier
@@ -32,11 +31,9 @@ class MainActivity : FragmentActivity() {
     val problemReport = MullvadProblemReport()
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
-    val connectionProxy: ConnectionProxy
-        get() = serviceConnection!!.connectionProxy
-
     private var quitJob: Job? = null
     private var serviceToStop: MullvadVpnService.LocalBinder? = null
+    private var shouldConnect = false
     private var waitForDaemonJob: Job? = null
 
     private val serviceConnectionManager = object : android.content.ServiceConnection {
@@ -52,6 +49,10 @@ class MainActivity : FragmentActivity() {
 
                 serviceConnection = newConnection
                 serviceNotifier.notify(newConnection)
+
+                if (shouldConnect) {
+                    tryToConnect()
+                }
             }
 
             waitForDaemonJob = GlobalScope.launch(Dispatchers.Default) {
@@ -87,7 +88,8 @@ class MainActivity : FragmentActivity() {
         }
 
         if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false)) {
-            connectionProxy.connect()
+            shouldConnect = true
+            tryToConnect()
         }
     }
 
@@ -149,6 +151,13 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    private fun tryToConnect() {
+        serviceConnection?.apply {
+            connectionProxy.connect()
+            shouldConnect = false
+        }
+    }
+
     private fun addInitialFragment() {
         supportFragmentManager?.beginTransaction()?.apply {
             add(R.id.main_fragment, LaunchFragment())
@@ -157,6 +166,6 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun setVpnPermission(allow: Boolean) = GlobalScope.launch(Dispatchers.Default) {
-        connectionProxy.vpnPermission.complete(allow)
+        serviceConnection?.connectionProxy?.vpnPermission?.complete(allow)
     }
 }
