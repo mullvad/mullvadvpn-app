@@ -284,7 +284,7 @@ impl Settings {
         }
     }
 
-    pub fn set_wireguard_automatic_rotation(
+    pub fn set_wireguard_rotation_interval(
         &mut self,
         automatic_rotation: Option<u32>,
     ) -> Result<bool> {

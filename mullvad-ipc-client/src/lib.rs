@@ -199,11 +199,8 @@ impl DaemonRpcClient {
         self.call("set_wireguard_mtu", &[mtu])
     }
 
-    pub fn set_wireguard_automatic_rotation(
-        &mut self,
-        automatic_rotation: Option<u32>,
-    ) -> Result<()> {
-        self.call("set_wireguard_automatic_rotation", &[automatic_rotation])
+    pub fn set_wireguard_rotation_interval(&mut self, interval: Option<u32>) -> Result<()> {
+        self.call("set_wireguard_rotation_interval", &[interval])
     }
 
     pub fn set_openvpn_mssfix(&mut self, mssfix: Option<u16>) -> Result<()> {
