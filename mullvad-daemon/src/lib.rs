@@ -28,8 +28,12 @@ use crate::management_interface::{
 };
 use futures::{
     future::{self, Executor},
-    sync::{mpsc::UnboundedSender, oneshot},
-    Future,
+    stream::Wait,
+    sync::{
+        mpsc::{UnboundedReceiver, UnboundedSender},
+        oneshot,
+    },
+    Future, Stream,
 };
 use log::{debug, error, info, warn};
 use mullvad_rpc::{AccountsProxy, HttpHandle, WireguardKeyProxy};
@@ -230,7 +234,7 @@ impl DaemonExecutionState {
 pub struct DaemonCommandSender(IntoSender<ManagementCommand, InternalDaemonEvent>);
 
 impl DaemonCommandSender {
-    pub(crate) fn new(internal_event_sender: mpsc::Sender<InternalDaemonEvent>) -> Self {
+    pub(crate) fn new(internal_event_sender: UnboundedSender<InternalDaemonEvent>) -> Self {
         DaemonCommandSender(IntoSender::from(internal_event_sender))
     }
 
@@ -263,8 +267,8 @@ pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     tunnel_state: TunnelState,
     target_state: TargetState,
     state: DaemonExecutionState,
-    rx: mpsc::Receiver<InternalDaemonEvent>,
-    tx: mpsc::Sender<InternalDaemonEvent>,
+    rx: Wait<UnboundedReceiver<InternalDaemonEvent>>,
+    tx: UnboundedSender<InternalDaemonEvent>,
     reconnection_loop_tx: Option<mpsc::Sender<()>>,
     event_listener: L,
     settings: Settings,
@@ -292,7 +296,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
         if rpc_uniqueness_check::is_another_instance_running() {
             return Err(Error::DaemonIsAlreadyRunning);
         }
-        let (tx, rx) = mpsc::channel();
+        let (tx, rx) = futures::sync::mpsc::unbounded();
         let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
 
         Self::start_internal(
@@ -310,7 +314,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
     // Starts the management interface and spawns a thread that will process it.
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(
-        event_tx: mpsc::Sender<InternalDaemonEvent>,
+        event_tx: UnboundedSender<InternalDaemonEvent>,
     ) -> Result<ManagementInterfaceEventBroadcaster> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
         let server = Self::start_management_interface_server(multiplex_event_tx)?;
@@ -331,12 +335,12 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
 
     fn spawn_management_interface_wait_thread(
         server: ManagementInterfaceServer,
-        exit_tx: mpsc::Sender<InternalDaemonEvent>,
+        exit_tx: UnboundedSender<InternalDaemonEvent>,
     ) {
         thread::spawn(move || {
             server.wait();
             info!("Management interface shut down");
-            let _ = exit_tx.send(InternalDaemonEvent::ManagementInterfaceExited);
+            let _ = exit_tx.unbounded_send(InternalDaemonEvent::ManagementInterfaceExited);
         });
     }
 }
@@ -352,7 +356,7 @@ where
         cache_dir: PathBuf,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self> {
-        let (tx, rx) = mpsc::channel();
+        let (tx, rx) = futures::sync::mpsc::unbounded();
 
         Self::start_internal(
             tx,
@@ -367,8 +371,8 @@ where
     }
 
     fn start_internal(
-        internal_event_tx: mpsc::Sender<InternalDaemonEvent>,
-        internal_event_rx: mpsc::Receiver<InternalDaemonEvent>,
+        internal_event_tx: UnboundedSender<InternalDaemonEvent>,
+        internal_event_rx: UnboundedReceiver<InternalDaemonEvent>,
         event_listener: L,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
@@ -462,7 +466,7 @@ where
             tunnel_state: TunnelState::Disconnected,
             target_state: TargetState::Unsecured,
             state: DaemonExecutionState::Running,
-            rx: internal_event_rx,
+            rx: internal_event_rx.wait(),
             tx: internal_event_tx,
             reconnection_loop_tx: None,
             event_listener,
@@ -511,7 +515,7 @@ where
             info!("Automatically connecting since auto-connect is turned on");
             self.set_target_state(TargetState::Secured);
         }
-        while let Ok(event) = self.rx.recv() {
+        while let Some(Ok(event)) = self.rx.next() {
             self.handle_event(event)?;
             if self.state == DaemonExecutionState::Finished {
                 break;
@@ -788,9 +792,11 @@ where
 
             if let Err(mpsc::RecvTimeoutError::Timeout) = rx.recv_timeout(delay) {
                 debug!("Attempting to reconnect");
-                let _ = tunnel_command_tx.send(InternalDaemonEvent::ManagementInterfaceEvent(
-                    ManagementCommand::SetTargetState(result_tx, TargetState::Secured),
-                ));
+                let _ = tunnel_command_tx.unbounded_send(
+                    InternalDaemonEvent::ManagementInterfaceEvent(
+                        ManagementCommand::SetTargetState(result_tx, TargetState::Secured),
+                    ),
+                );
             }
         });
     }
@@ -1030,8 +1036,10 @@ where
             move |result| -> std::result::Result<(), ()> {
                 match result {
                     Ok(account_token) => {
-                        let _ =
-                            daemon_tx.send(InternalDaemonEvent::NewAccountEvent(account_token, tx));
+                        let _ = daemon_tx.unbounded_send(InternalDaemonEvent::NewAccountEvent(
+                            account_token,
+                            tx,
+                        ));
                     }
                     Err(err) => {
                         let _ = tx.send(Err(err));
@@ -1642,17 +1650,17 @@ where
 }
 
 pub struct DaemonShutdownHandle {
-    tx: mpsc::Sender<InternalDaemonEvent>,
+    tx: UnboundedSender<InternalDaemonEvent>,
 }
 
 impl DaemonShutdownHandle {
     pub fn shutdown(&self) {
-        let _ = self.tx.send(InternalDaemonEvent::TriggerShutdown);
+        let _ = self.tx.unbounded_send(InternalDaemonEvent::TriggerShutdown);
     }
 }
 
 struct MullvadTunnelParametersGenerator {
-    tx: mpsc::Sender<InternalDaemonEvent>,
+    tx: UnboundedSender<InternalDaemonEvent>,
 }
 
 impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
@@ -1661,10 +1669,13 @@ impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
         retry_attempt: u32,
     ) -> std::result::Result<TunnelParameters, ParameterGenerationError> {
         let (response_tx, response_rx) = mpsc::channel();
-        if let Err(_) = self.tx.send(InternalDaemonEvent::GenerateTunnelParameters(
-            response_tx,
-            retry_attempt,
-        )) {
+        if let Err(_) = self
+            .tx
+            .unbounded_send(InternalDaemonEvent::GenerateTunnelParameters(
+                response_tx,
+                retry_attempt,
+            ))
+        {
             log::error!("Failed to send daemon command to generate tunnel parameters!");
             return Err(ParameterGenerationError::NoMatchingRelay);
         }
