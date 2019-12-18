@@ -164,10 +164,17 @@ bool FwContext::applyPolicyConnected
 		tunnelInterfaceAlias
 	));
 
+	std::vector<wfp::IpAddress> dnsHosts;
+	dnsHosts.push_back(wfp::IpAddress(v4DnsHost));
+
+	if (nullptr != v6DnsHost)
+	{
+		dnsHosts.push_back(wfp::IpAddress(v6DnsHost));
+	}
+
 	ruleset.emplace_back(std::make_unique<rules::PermitTunnelDns>(
 		tunnelInterfaceAlias,
-		wfp::IpAddress(v4DnsHost),
-		nullptr != v6DnsHost ? std::optional(wfp::IpAddress(v6DnsHost)) : std::nullopt
+		dnsHosts
 	));
 
 	return applyRuleset(ruleset);
