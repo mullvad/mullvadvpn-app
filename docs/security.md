@@ -168,16 +168,13 @@ to unlock the firewall and get access to the internet again.
 
 ## Kill switch
 
-The app has an always on kill switch that can't be disabled. There is no setting for it.
+The app has an always on "kill switch" that can't be disabled. There is no setting for it.
 This means that whenever the app changes server or temporarily loses tunnel connectivity it will
 ensure no network traffic leaks out unencrypted.
 
-We usually don't like the term "kill switch". Because it makes it sound like a big red button
-that the VPN client pushes when it detects a problem. This in turn gives the impression there
-might be a time window of insecurity between when the problem occurs and the app manages to "push"
-this virtual red button. Maybe that is how the clients who coined the term implemented it,
-but this app is much more proactive about stopping leaks.
-This app applies [strict firewall rules](#app-states) directly when it leaves the [disconnected]
+The app avoids the term "kill switch". Because it sounds like a red button
+That has to be *engaged when a problem arises*. This app is much more proactive and applies
+[strict firewall rules](#app-states) directly when it leaves the [disconnected]
 state and keeps those rules active and enforced until the app comes back to the [disconnected]
 state via an explicit user request again. Said strict firewall rules unsure that packets can only
 leave or enter the computer in a few predefined ways, most notably to the selected VPN server of
