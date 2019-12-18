@@ -1,23 +1,137 @@
-use std::{borrow::Cow, ffi::CStr, fmt::Write, io, mem, os::raw::c_char};
+use mullvad_paths::log_dir;
+use std::{
+    borrow::Cow,
+    ffi::{CStr, OsStr},
+    fmt::Write,
+    io, mem,
+    os::raw::c_char,
+    path::PathBuf,
+    ptr,
+};
 use winapi::{
     ctypes::c_void,
     shared::{
-        minwindef::{BYTE, DWORD, FALSE},
+        minwindef::{BOOL, BYTE, DWORD, FALSE, TRUE},
         winerror::ERROR_NO_MORE_FILES,
     },
     um::{
         errhandlingapi::SetUnhandledExceptionFilter,
+        fileapi::{CreateFileW, CREATE_ALWAYS},
         handleapi::{CloseHandle, INVALID_HANDLE_VALUE},
+        processthreadsapi::{GetCurrentProcess, GetCurrentProcessId, GetCurrentThreadId},
         tlhelp32::{
             CreateToolhelp32Snapshot, Module32First, Module32Next, MODULEENTRY32, TH32CS_SNAPMODULE,
         },
         winnt::{
             CONTEXT, CONTEXT_CONTROL, CONTEXT_INTEGER, CONTEXT_SEGMENTS, EXCEPTION_POINTERS,
-            EXCEPTION_RECORD, HANDLE, LONG,
+            EXCEPTION_RECORD, FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ, GENERIC_WRITE, HANDLE, LONG,
         },
     },
     vc::excpt::EXCEPTION_EXECUTE_HANDLER,
 };
+
+/// Minidump file name
+const MINIDUMP_FILENAME: &'static str = "DAEMON.DMP";
+
+#[repr(C)]
+#[allow(dead_code)]
+pub enum MINIDUMP_TYPE {
+    MiniDumpNormal,
+    // Add missing values as needed
+}
+
+#[repr(C, packed)]
+#[derive(Clone, Copy, Debug)]
+#[allow(non_snake_case)]
+pub struct MINIDUMP_EXCEPTION_INFORMATION {
+    ThreadId: DWORD,
+    ExceptionPointers: *const EXCEPTION_POINTERS,
+    ClientPointers: BOOL,
+}
+
+#[link(name = "dbghelp")]
+extern "system" {
+    /// Store exception information, stack trace, etc. in a file.
+    pub fn MiniDumpWriteDump(
+        hProcess: HANDLE,
+        ProcessId: DWORD,
+        hFile: HANDLE,
+        DumpType: MINIDUMP_TYPE,
+        ExceptionParam: *const MINIDUMP_EXCEPTION_INFORMATION,
+
+        // Add types as needed:
+        UserStreamParam: *const c_void,
+        CallbackParam: *const c_void,
+    ) -> BOOL;
+}
+
+use widestring::{self, WideCString};
+
+#[derive(err_derive::Error, Debug)]
+#[error(no_from)]
+enum MinidumpError {
+    #[error(display = "Couldn't convert string to UTF-16")]
+    Utf16Error(#[error(source)] widestring::NulError<u16>),
+    #[error(display = "Failed to open file")]
+    FileError(#[error(source)] io::Error),
+    #[error(display = "Failed to write dump")]
+    WriteError(#[error(source)] io::Error),
+}
+
+fn generate_minidump(
+    dump_file: &OsStr,
+    exception_pointers: &EXCEPTION_POINTERS,
+) -> Result<(), MinidumpError> {
+    // Open/create dump file
+    let dump_file =
+        WideCString::from_os_str(dump_file).map_err(|e| MinidumpError::Utf16Error(e))?;
+
+    let handle = unsafe {
+        CreateFileW(
+            dump_file.as_ptr(),
+            GENERIC_WRITE,
+            FILE_SHARE_READ,
+            ptr::null_mut(),
+            CREATE_ALWAYS,
+            FILE_ATTRIBUTE_NORMAL,
+            ptr::null_mut(),
+        )
+    };
+
+    if handle == INVALID_HANDLE_VALUE {
+        return Err(MinidumpError::FileError(io::Error::last_os_error()));
+    }
+
+    // Generate minidump
+    let process = unsafe { GetCurrentProcess() };
+    let process_id = unsafe { GetCurrentProcessId() };
+    let thread_id = unsafe { GetCurrentThreadId() };
+
+    let exception_parameters = MINIDUMP_EXCEPTION_INFORMATION {
+        ThreadId: thread_id,
+        ExceptionPointers: exception_pointers,
+        ClientPointers: TRUE, // FIXME: Is this assumption safe (memory belongs to process)?
+    };
+
+    if unsafe {
+        MiniDumpWriteDump(
+            process,
+            process_id,
+            handle,
+            MINIDUMP_TYPE::MiniDumpNormal,
+            &exception_parameters,
+            ptr::null(),
+            ptr::null(),
+        )
+    } == FALSE
+    {
+        return Err(MinidumpError::WriteError(io::Error::last_os_error()));
+    }
+
+    let _ = unsafe { CloseHandle(handle) };
+
+    Ok(())
+}
 
 /// Enable logging of unhandled SEH exceptions.
 pub fn enable() {
@@ -71,6 +185,35 @@ extern "system" fn logging_exception_filter(info: *mut EXCEPTION_POINTERS) -> LO
     let info: &EXCEPTION_POINTERS = unsafe { &*info };
     let record: &EXCEPTION_RECORD = unsafe { &*info.ExceptionRecord };
 
+    // Generate minidump
+    let dump_path = match log_dir() {
+        Ok(dir) => dir.join(MINIDUMP_FILENAME).into_os_string(),
+        _ => {
+            log::warn!(
+                "Failed to obtain log path. \
+                 Using working directory."
+            );
+            let mut buf = PathBuf::new();
+            buf.push(MINIDUMP_FILENAME);
+            buf.into_os_string()
+        }
+    };
+
+    match generate_minidump(&dump_path, &info) {
+        Ok(()) => log::info!("Wrote Minidump to {}.", dump_path.to_string_lossy()),
+        Err(e) => {
+            log::error!("Failed to generate Minidump: {}", e);
+
+            match e {
+                MinidumpError::FileError(e) | MinidumpError::WriteError(e) => {
+                    log::error!("Caused by: {}", e);
+                }
+                _ => (),
+            }
+        }
+    }
+
+    // Log exception information
     let context_info = get_context_info(unsafe { &*info.ContextRecord });
 
     let error_str = match exception_code_to_string(record) {
