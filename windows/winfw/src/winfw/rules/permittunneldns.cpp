@@ -22,20 +22,17 @@ namespace rules
 
 PermitTunnelDns::PermitTunnelDns(
 	const std::wstring &tunnelInterfaceAlias,
-	const wfp::IpAddress v4DnsHost,
-	const std::optional<wfp::IpAddress> v6DnsHost
+	const std::vector<wfp::IpAddress> &dnsHosts
 )
 	: m_tunnelInterfaceAlias(tunnelInterfaceAlias)
-	, m_v4DnsHost(v4DnsHost)
-	, m_v6DnsHost(v6DnsHost)
+	, m_dnsHosts(dnsHosts)
 {
-
 }
 
 bool PermitTunnelDns::apply(IObjectInstaller &objectInstaller)
 {
 	//
-	// Permit outbound DNS traffic to a specific DNS server (IPv4)
+	// Permit outbound DNS traffic to specific servers (IPv4)
 	//
 
 	wfp::FilterBuilder filterBuilder;
@@ -43,7 +40,7 @@ bool PermitTunnelDns::apply(IObjectInstaller &objectInstaller)
 	filterBuilder
 		.provider(MullvadGuids::Provider())
 		.key(MullvadGuids::FilterPermitTunnelDns_Ipv4())
-		.name(L"Permit outbound DNS traffic on tunnel interface (IPv4)")
+		.name(L"Permit some outbound DNS traffic on tunnel interface (IPv4)")
 		.description(L"This filter is part of a rule that permits DNS traffic inside the VPN tunnel")
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
 		.sublayer(MullvadGuids::SublayerWhitelist())
@@ -53,7 +50,16 @@ bool PermitTunnelDns::apply(IObjectInstaller &objectInstaller)
 	{
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
-		conditionBuilder.add_condition(ConditionIp::Remote(m_v4DnsHost));
+
+		for (const auto &host : m_dnsHosts)
+		{
+			// Multiple conditions of same type are OR'ed
+			if (wfp::IpAddress::Ipv4 == host.type())
+			{
+				conditionBuilder.add_condition(ConditionIp::Remote(host));
+			}
+		}
+
 		conditionBuilder.add_condition(ConditionPort::Remote(DNS_PORT));
 
 		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
@@ -63,27 +69,32 @@ bool PermitTunnelDns::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// Permit outbound DNS traffic to a specific DNS server (IPv6)
+	// Permit outbound DNS traffic to specific servers (IPv6)
 	//
 
-	if (m_v6DnsHost.has_value())
+	filterBuilder
+		.key(MullvadGuids::FilterPermitTunnelDns_Ipv6())
+		.name(L"Permit some outbound DNS traffic on tunnel interface (IPv6)")
+		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+
 	{
-		filterBuilder
-			.key(MullvadGuids::FilterPermitTunnelDns_Ipv6())
-			.name(L"Permit outbound DNS traffic on tunnel interface (IPv6)")
-			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
 
+		for (const auto &host : m_dnsHosts)
 		{
-			wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
-
-			conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
-			conditionBuilder.add_condition(ConditionIp::Remote(m_v6DnsHost.value()));
-			conditionBuilder.add_condition(ConditionPort::Remote(DNS_PORT));
-
-			if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+			// Multiple conditions of same type are OR'ed
+			if (wfp::IpAddress::Ipv6 == host.type())
 			{
-				return false;
+				conditionBuilder.add_condition(ConditionIp::Remote(host));
 			}
+		}
+
+		conditionBuilder.add_condition(ConditionPort::Remote(DNS_PORT));
+
+		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+		{
+			return false;
 		}
 	}
 
