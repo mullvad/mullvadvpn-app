@@ -274,15 +274,28 @@ std::set<Context::NetworkAdapter> GetTapAdapters()
 		// Construct NetworkAdapter
 		//
 
-		const std::wstring guid = GetNetCfgInstanceId(devInfo, devInfoData);
-		GUID guidObj = common::Guid::FromString(guid);
+		try
+		{
+			const std::wstring guid = GetNetCfgInstanceId(devInfo, devInfoData);
+			GUID guidObj = common::Guid::FromString(guid);
 
-		adapters.emplace(Context::NetworkAdapter(
-			guid,
-			GetDeviceStringProperty(devInfo, &devInfoData, &DEVPKEY_Device_DriverDesc),
-			nci.getConnectionName(guidObj),
-			GetDeviceInstanceId(devInfo, &devInfoData)
-		));
+			adapters.emplace(Context::NetworkAdapter(
+				guid,
+				GetDeviceStringProperty(devInfo, &devInfoData, &DEVPKEY_Device_DriverDesc),
+				nci.getConnectionName(guidObj),
+				GetDeviceInstanceId(devInfo, &devInfoData)
+			));
+		}
+		catch (const std::exception &e)
+		{
+			//
+			// Log exception and skip this adapter
+			//
+
+			std::wstringstream ss;
+			ss << L"Skipping TAP adapter due to exception caught while iterating: " << e.what();
+			PluginLog(ss.str());
+		}
 	}
 
 	return adapters;
