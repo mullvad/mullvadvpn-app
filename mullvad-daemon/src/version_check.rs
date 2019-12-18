@@ -151,7 +151,13 @@ impl<T: From<AppVersionInfo>> Future for VersionUpdater<T> {
                         log::debug!("Got new version check: {:?}", app_version_info);
                         self.next_update_time = Instant::now() + UPDATE_INTERVAL;
                         if app_version_info != self.last_app_version_info {
-                            self.update_sender.send(app_version_info.clone().into());
+                            if let Err(_) = self.update_sender.send(app_version_info.clone().into())
+                            {
+                                log::warn!(
+                                    "Version update receiver is closed, stopping version updater"
+                                );
+                                return Ok(Async::Ready(()));
+                            }
                             self.last_app_version_info = app_version_info;
                             if let Err(e) = self.write_cache() {
                                 log::error!(
