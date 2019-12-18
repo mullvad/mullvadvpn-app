@@ -1,6 +1,14 @@
 # Mullvad VPN desktop and mobile app
 
-The system service/daemon, GUI and CLI for the Mullvad VPN app.
+Welcome to the Mullvad VPN client app. This repository contains all the source code for the
+desktop and mobile versions of the app. For desktop this includes the system service/daemon
+([`mullvad-daemon`](mullvad-daemon/)), a graphical user interface ([GUI](gui/)) and a
+command line interface ([CLI](mullvad-cli/)).
+
+The Android app uses the same backing system service for the tunnel and security but has
+a dedicated frontend in [android/](android/).
+
+iOS consists of a completely standalone implementation that resides in [ios/](ios/)
 
 ## Releases
 
@@ -23,6 +31,15 @@ state of latest master, not necessarily any existing release.
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |
 | Optional local network access |    ✓    |   ✓   |   ✓   |         |
+
+## Security and anonymity
+
+This app is a privacy preserving VPN client. As such it goes to great lengths to stop traffic
+leaks. And basically all settings default to the more secure/private option. The user has to
+explicitly allow more loose rules if desired. See the [dedicated security document] for details
+on what the app blocks and allows and how it does it.
+
+[dedicated security document]: docs/security.md
 
 ## Checking out the code
 
