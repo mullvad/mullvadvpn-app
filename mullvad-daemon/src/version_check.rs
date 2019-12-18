@@ -5,6 +5,7 @@ use std::{
     fs::File,
     io,
     path::{Path, PathBuf},
+    sync::mpsc,
     time::{Duration, Instant},
 };
 use talpid_types::ErrorExt;
@@ -52,17 +53,17 @@ pub enum Error {
     Download(#[error(source)] mullvad_rpc::Error),
 }
 
-impl<F> From<TimeoutError<F>> for Error {
-    fn from(_: TimeoutError<F>) -> Error {
+impl<T> From<TimeoutError<T>> for Error {
+    fn from(_: TimeoutError<T>) -> Error {
         Error::DownloadTimeout
     }
 }
 
 
-pub struct VersionUpdater<F: Fn(&AppVersionInfo) + Send + 'static> {
+pub struct VersionUpdater<T: From<AppVersionInfo>> {
     version_proxy: AppVersionProxy<HttpHandle>,
     cache_path: PathBuf,
-    on_version_update: F,
+    update_sender: mpsc::Sender<T>,
     last_app_version_info: AppVersionInfo,
     next_update_time: Instant,
     state: VersionUpdaterState,
@@ -73,11 +74,11 @@ enum VersionUpdaterState {
     Updating(Box<dyn Future<Item = AppVersionInfo, Error = Error> + Send + 'static>),
 }
 
-impl<F: Fn(&AppVersionInfo) + Send + 'static> VersionUpdater<F> {
+impl<T: From<AppVersionInfo>> VersionUpdater<T> {
     pub fn new(
         rpc_handle: HttpHandle,
         cache_dir: PathBuf,
-        on_version_update: F,
+        update_sender: mpsc::Sender<T>,
         last_app_version_info: AppVersionInfo,
     ) -> Self {
         let version_proxy = AppVersionProxy::new(rpc_handle);
@@ -85,7 +86,7 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> VersionUpdater<F> {
         Self {
             version_proxy,
             cache_path,
-            on_version_update,
+            update_sender,
             last_app_version_info,
             next_update_time: Instant::now(),
             state: VersionUpdaterState::Sleeping(Self::create_sleep_future()),
@@ -118,7 +119,7 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> VersionUpdater<F> {
     }
 }
 
-impl<F: Fn(&AppVersionInfo) + Send + 'static> Future for VersionUpdater<F> {
+impl<T: From<AppVersionInfo>> Future for VersionUpdater<T> {
     type Item = ();
     type Error = ();
 
@@ -150,7 +151,7 @@ impl<F: Fn(&AppVersionInfo) + Send + 'static> Future for VersionUpdater<F> {
                         log::debug!("Got new version check: {:?}", app_version_info);
                         self.next_update_time = Instant::now() + UPDATE_INTERVAL;
                         if app_version_info != self.last_app_version_info {
-                            (self.on_version_update)(&app_version_info);
+                            self.update_sender.send(app_version_info.clone().into());
                             self.last_app_version_info = app_version_info;
                             if let Err(e) = self.write_cache() {
                                 log::error!(

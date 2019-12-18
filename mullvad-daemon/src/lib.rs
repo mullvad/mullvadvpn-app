@@ -178,6 +178,12 @@ impl From<ManagementCommand> for InternalDaemonEvent {
     }
 }
 
+impl From<AppVersionInfo> for InternalDaemonEvent {
+    fn from(command: AppVersionInfo) -> Self {
+        InternalDaemonEvent::NewAppVersionInfo(command)
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 enum DaemonExecutionState {
     Running,
@@ -397,12 +403,6 @@ where
             &cache_dir,
         );
 
-        let version_check_internal_event_tx = internal_event_tx.clone();
-        let on_version_check_update = move |app_version_info: &AppVersionInfo| {
-            let _ = version_check_internal_event_tx.send(InternalDaemonEvent::NewAppVersionInfo(
-                app_version_info.clone(),
-            ));
-        };
         let app_version_info = match version_check::load_cache(&cache_dir) {
             Ok(app_version_info) => app_version_info,
             Err(error) => {
@@ -422,7 +422,7 @@ where
         let version_check_future = version_check::VersionUpdater::new(
             rpc_handle.clone(),
             cache_dir.clone(),
-            on_version_check_update,
+            internal_event_tx.clone(),
             app_version_info.clone(),
         );
         tokio_remote.spawn(|_| version_check_future);
