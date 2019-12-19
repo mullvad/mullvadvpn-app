@@ -400,7 +400,7 @@ impl TunnelState for ConnectingState {
                                     error.display_chain_with_msg("Failed to start tunnel")
                                 );
                                 let block_reason = match error {
-                                    tunnel::Error::EnableIpv6Error => {
+                                    tunnel::Error::EnableIpv6Disabled => {
                                         ErrorStateCause::Ipv6Unavailable
                                     }
                                     _ => ErrorStateCause::StartTunnelError,

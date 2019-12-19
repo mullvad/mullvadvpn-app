@@ -31,6 +31,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// Tunnel can't have IPv6 enabled because the system has disabled IPv6 support.
     #[error(display = "Can't enable IPv6 on tunnel interface because IPv6 is disabled")]
+    EnableIpv6Disabled,
+
+    /// Tunnel can't have IPv6 enabled because of an underlying error.
+    #[error(display = "Can't obtain IPv6 status on tunnel interface")]
     EnableIpv6Error,
 
     /// Running on an operating system which is not supported yet.
@@ -200,8 +204,12 @@ impl TunnelMonitor {
     }
 
     fn ensure_ipv6_can_be_used_if_enabled(tunnel_options: &GenericTunnelOptions) -> Result<()> {
-        if tunnel_options.enable_ipv6 && !is_ipv6_enabled_in_os() {
-            Err(Error::EnableIpv6Error)
+        if tunnel_options.enable_ipv6 {
+            match is_ipv6_enabled_in_os() {
+                Ok(true) => Ok(()),
+                Ok(false) => Err(Error::EnableIpv6Disabled),
+                Err(e) => Err(e),
+            }
         } else {
             Ok(())
         }
@@ -308,7 +316,7 @@ impl InternalTunnelMonitor {
 }
 
 
-fn is_ipv6_enabled_in_os() -> bool {
+fn is_ipv6_enabled_in_os() -> Result<bool> {
     #[cfg(windows)]
     {
         use winreg::{enums::*, RegKey};
@@ -324,7 +332,8 @@ fn is_ipv6_enabled_in_os() -> bool {
                 (ipv6_disabled_bits & IPV6_DISABLED_ON_TUNNELS_MASK) == 0
             })
             .unwrap_or(true);
-        let enabled_on_tap = crate::winnet::get_tap_interface_ipv6_status().unwrap_or(false);
+        let enabled_on_tap =
+            crate::winnet::get_tap_interface_ipv6_status().map_err(|_| Error::EnableIpv6Error)?;
 
         if !globally_enabled {
             log::debug!("IPv6 disabled in tunnel interfaces");
@@ -333,7 +342,7 @@ fn is_ipv6_enabled_in_os() -> bool {
             log::debug!("IPv6 disabled in TAP adapter");
         }
 
-        globally_enabled && enabled_on_tap
+        Ok(globally_enabled && enabled_on_tap)
     }
     #[cfg(target_os = "linux")]
     {
@@ -343,6 +352,6 @@ fn is_ipv6_enabled_in_os() -> bool {
     }
     #[cfg(any(target_os = "macos", target_os = "android"))]
     {
-        true
+        Ok(true)
     }
 }
