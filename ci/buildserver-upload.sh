@@ -26,4 +26,17 @@ while true; do
     scp -pB "$f.asc" build.mullvad.net:app/$version/ || true
     yes | rm "$f" "$f_checksum" "$f.asc"
   done
+  for f_checksum in pdb-*.sha256; do
+    sleep 1
+    f="${f_checksum/.sha256/}"
+    if ! sha256sum --quiet -c "$f_checksum"; then
+      echo "Failed to verify checksum for $f"
+      continue
+    fi
+
+    ssh build.mullvad.net mkdir -p app/pdb || continue
+    scp -pB "$f" build.mullvad.net:app/pdb/ || continue
+
+    yes | rm "$f" "$f_checksum"
+  done
 done

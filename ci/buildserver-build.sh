@@ -20,6 +20,7 @@ shopt -s nullglob
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
+PDB_DIR="$SCRIPT_DIR/pdb"
 UPLOAD_DIR="/home/upload/upload"
 
 BRANCHES_TO_BUILD=("origin/master")
@@ -65,7 +66,6 @@ sign_win() {
 }
 
 upload() {
-  current_hash=$1
   for f in MullvadVPN-*.{deb,rpm,exe,pkg,apk}; do
     sha256sum "$f" > "$f.sha256"
     case "$(uname -s)" in
@@ -80,6 +80,15 @@ upload() {
         ;;
     esac
   done
+}
+
+upload_pdb() {
+  current_hash=$1
+  f="pdb-$current_hash.tar.xz"
+
+  sha256sum "$f" > "$f.sha256"
+  upload_sftp "$f" || return 1
+  upload_sftp "$f.sha256" || return 1
 }
 
 build_ref() {
@@ -123,7 +132,11 @@ build_ref() {
     MINGW*|MSYS_NT*)
       sign_win || return 0
       echo "Packaging all PDB files..."
-      find ./windows/ ./target/release/mullvad-daemon.pdb ./target/release/mullvad.pdb ./target/release/mullvad-problem-report.pdb -iname "*.pdb" | tar -cJf $SCRIPT_DIR/pdb/$current_hash.tar.xz -T -
+      find ./windows/ \
+        ./target/release/mullvad-daemon.pdb \
+        ./target/release/mullvad.pdb \
+        ./target/release/mullvad-problem-report.pdb \
+        -iname "*.pdb" | tar -cJf $PDB_DIR/pdb-$current_hash.tar.xz -T -
       ;;
     Linux*)
       echo "Building Android APK"
@@ -131,7 +144,12 @@ build_ref() {
       ;;
   esac
 
-  (cd dist/ && upload $current_hash) || return 0
+  (cd dist/ && upload) || return 0
+  case "$(uname -s)" in
+    MINGW*|MSYS_NT*)
+      (cd "$PDB_DIR" && upload_pdb $current_hash) || return 0
+    ;;
+  esac
   touch "$LAST_BUILT_DIR/$current_hash"
   echo "Successfully finished build at $(date)"
 }
