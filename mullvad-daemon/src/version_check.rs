@@ -124,6 +124,10 @@ impl<T: From<AppVersionInfo>> Future for VersionUpdater<T> {
 
     fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
         loop {
+            if self.update_sender.is_closed() {
+                log::warn!("Version update receiver is closed, stopping version updater");
+                return Ok(Async::Ready(()));
+            }
             let next_state = match &mut self.state {
                 VersionUpdaterState::Sleeping(timer) => match timer.poll() {
                     Ok(Async::NotReady) => return Ok(Async::NotReady),
