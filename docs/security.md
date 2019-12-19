@@ -18,9 +18,9 @@ system firewall. This means WFP on Windows, PF on macOS and nftables on Linux. A
 the rules are applied as atomic transactions. Meaning there is no time window of inconsistent or
 invalid rules during changes.
 
-On mobile, Android and iOS, it is not possible for apps to filter network traffic by manipulating
-firewall rules. There we employ various other techniques to try to reach similar security
-properties as on desktop.
+On mobile, Android and iOS, it is not possible for apps to directly access and manipulate the
+firewall, routing table or DNS settings. There we employ other techniques to keep the system as
+secure as possible with the limitations of the OS APIs.
 
 ### Android
 
@@ -37,7 +37,12 @@ traffic. Such as the [connecting], [disconnecting] and [blocked] states.
 
 ### iOS
 
-TODO
+On iOS a designated packet tunnel process handles the network packet flow. iOS implementation
+delegates the traffic handling to wireguard-go, which works directly with the tun interface.
+The network configuration set up by the packet tunnel extension, specifies the routing rules,
+that all traffic should flow through the tunnel, same way it works on Android.
+
+The iOS app currently does not support blocking in the apps blocked state.
 
 ## App states
 
@@ -242,9 +247,6 @@ The GUI only communicates with the system service (`mullvad-daemon`), it makes n
 network connections. Except when it sends a problem report, then it spawn the
 `mullvad-problem-report` tool, which in turn communicate over TLS with our API.
 
-## Android
-
-<TODO>
 
 [disconnected]: #disconnected
 [connecting]: #connecting
