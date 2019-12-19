@@ -84,27 +84,23 @@ upload() {
 
 build_ref() {
   ref=$1
-  tag_or_branch=$2
 
-  ref_filename="${ref/\//_}"
-  last_built_hash="$(cat $LAST_BUILT_DIR/$ref_filename || echo "N/A")"
-  current_hash="$(git rev-parse $ref)"
-
-  if [ "$last_built_hash" == "$current_hash" ]; then
-    # Same commit as last time this ref was built, not building
+  current_hash="$(git rev-parse $ref^{commit})"
+  if [ -f "$LAST_BUILT_DIR/$current_hash" ]; then
+    # This commit has already been built
     return 0
   fi
 
   echo ""
-  echo "[#] $ref: $last_built_hash->$current_hash, building new packages."
+  echo "[#] $ref: $current_hash, building new packages."
 
-  if [ "$tag_or_branch" == "tag" ] && ! git verify-tag $ref; then
+  if [[ $ref == "refs/tags/"* ]] && ! git verify-tag $ref; then
     echo "!!!"
     echo "[#] $ref is a tag, but it failed GPG verification!"
     echo "!!!"
     sleep 60
     return 0
-  elif [ "$tag_or_branch" == "branch" ] && ! git verify-commit $current_hash; then
+  elif [[ $ref == "refs/remotes/"* ]] && ! git verify-commit $current_hash; then
     echo "!!!"
     echo "[#] $ref is a branch, but it failed GPG verification!"
     echo "!!!"
@@ -136,7 +132,7 @@ build_ref() {
   esac
 
   (cd dist/ && upload $current_hash) || return 0
-  echo "$current_hash" > "$LAST_BUILT_DIR/$ref_filename"
+  touch "$LAST_BUILT_DIR/$current_hash"
   echo "Successfully finished build at $(date)"
 }
 
@@ -150,11 +146,11 @@ while true; do
   tags=( $(git tag) )
 
   for tag in "${tags[@]}"; do
-    build_ref $tag tag
+    build_ref "refs/tags/$tag"
   done
 
   for branch in "${BRANCHES_TO_BUILD[@]}"; do
-    build_ref $branch branch
+    build_ref "refs/remotes/$branch"
   done
 
   sleep 240
