@@ -6,22 +6,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.FragmentActivity
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.dataproxy.AccountCache
-import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
-import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
-import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
-import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.dataproxy.RelayListListener
-import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.talpid.util.EventNotifier
 
@@ -30,39 +19,20 @@ class MainActivity : FragmentActivity() {
         val KEY_SHOULD_CONNECT = "should_connect"
     }
 
-    private var serviceConnection: ServiceConnection? = null
-    private var serviceConnectionSubscription: Int? = null
-
-    var daemon = CompletableDeferred<MullvadDaemon>()
-        private set
-    var service = CompletableDeferred<MullvadVpnService.LocalBinder>()
-        private set
-
     val problemReport = MullvadProblemReport()
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
-    val appVersionInfoCache: AppVersionInfoCache
-        get() = serviceConnection!!.appVersionInfoCache
-    val connectionProxy: ConnectionProxy
-        get() = serviceConnection!!.connectionProxy
-    val keyStatusListener: KeyStatusListener
-        get() = serviceConnection!!.keyStatusListener
-    val relayListListener: RelayListListener
-        get() = serviceConnection!!.relayListListener
-    val locationInfoCache: LocationInfoCache
-        get() = serviceConnection!!.locationInfoCache
-    val accountCache: AccountCache
-        get() = serviceConnection!!.accountCache
-    val wwwAuthTokenRetriever: WwwAuthTokenRetriever
-        get() = serviceConnection!!.wwwAuthTokenRetriever
-
-    private var quitJob: Job? = null
-    private var serviceToStop: MullvadVpnService.LocalBinder? = null
-    private var waitForDaemonJob: Job? = null
+    private var service: MullvadVpnService.LocalBinder? = null
+    private var serviceConnection: ServiceConnection? = null
+    private var serviceConnectionSubscription: Int? = null
+    private var shouldConnect = false
+    private var shouldStopService = false
 
     private val serviceConnectionManager = object : android.content.ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             val localBinder = binder as MullvadVpnService.LocalBinder
+
+            service = localBinder
 
             serviceConnectionSubscription = localBinder.serviceNotifier.subscribe { service ->
                 serviceConnection?.onDestroy()
@@ -73,32 +43,22 @@ class MainActivity : FragmentActivity() {
 
                 serviceConnection = newConnection
                 serviceNotifier.notify(newConnection)
-            }
 
-            waitForDaemonJob = GlobalScope.launch(Dispatchers.Default) {
-                localBinder.resetComplete?.await()
-                service.complete(localBinder)
-                daemon.complete(localBinder.daemon.await())
+                if (shouldConnect) {
+                    tryToConnect()
+                }
             }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
-            waitForDaemonJob?.cancel()
-            waitForDaemonJob = null
-
-            serviceConnectionSubscription?.let { subscription ->
-                runBlocking {
-                    service.await().serviceNotifier.unsubscribe(subscription)
+            serviceConnectionSubscription?.let { subscriptionId ->
+                service?.apply {
+                    serviceNotifier.unsubscribe(subscriptionId)
                 }
-                serviceConnection = null
             }
 
-            service.cancel()
-            daemon.cancel()
-
-            service = CompletableDeferred<MullvadVpnService.LocalBinder>()
-            daemon = CompletableDeferred<MullvadDaemon>()
-
+            serviceConnection = null
+            serviceConnectionSubscription = null
             serviceNotifier.notify(null)
         }
     }
@@ -112,7 +72,8 @@ class MainActivity : FragmentActivity() {
         }
 
         if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false)) {
-            connectionProxy.connect()
+            shouldConnect = true
+            tryToConnect()
         }
     }
 
@@ -130,11 +91,12 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onStop() {
-        quitJob?.cancel()
-
         serviceNotifier.unsubscribeAll()
 
-        serviceToStop?.apply { stop() }
+        if (shouldStopService) {
+            service?.apply { stop() }
+        }
+
         unbindService(serviceConnectionManager)
 
         super.onStop()
@@ -142,9 +104,6 @@ class MainActivity : FragmentActivity() {
 
     override fun onDestroy() {
         serviceConnection?.onDestroy()
-
-        waitForDaemonJob?.cancel()
-        daemon.cancel()
 
         super.onDestroy()
     }
@@ -168,10 +127,14 @@ class MainActivity : FragmentActivity() {
     }
 
     fun quit() {
-        quitJob?.cancel()
-        quitJob = GlobalScope.launch(Dispatchers.Main) {
-            serviceToStop = service.await()
-            finishAndRemoveTask()
+        shouldStopService = true
+        finishAndRemoveTask()
+    }
+
+    private fun tryToConnect() {
+        serviceConnection?.apply {
+            connectionProxy.connect()
+            shouldConnect = false
         }
     }
 
@@ -183,6 +146,6 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun setVpnPermission(allow: Boolean) = GlobalScope.launch(Dispatchers.Default) {
-        connectionProxy.vpnPermission.complete(allow)
+        serviceConnection?.connectionProxy?.vpnPermission?.complete(allow)
     }
 }
