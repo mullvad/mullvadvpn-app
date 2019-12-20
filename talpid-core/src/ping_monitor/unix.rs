@@ -1,12 +1,4 @@
-#[allow(dead_code)]
-// TODO: remove the lint exemption above when ping monitor is used
-use std::{
-    io,
-    net::Ipv4Addr,
-    sync::mpsc,
-    thread,
-    time::{Duration, Instant},
-};
+use std::{io, net::Ipv4Addr};
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -17,51 +9,55 @@ pub enum Error {
     TimeoutError,
 }
 
-pub fn monitor_ping(
-    ip: Ipv4Addr,
-    timeout_secs: u16,
-    interface: &str,
-    close_receiver: mpsc::Receiver<()>,
-) -> Result<(), Error> {
-    while let Err(mpsc::TryRecvError::Empty) = close_receiver.try_recv() {
-        let start = Instant::now();
-        internal_ping(ip, timeout_secs, &interface, false)?;
-        if let Some(remaining) =
-            Duration::from_secs(timeout_secs.into()).checked_sub(start.elapsed())
-        {
-            thread::sleep(remaining);
+/// A pinger that sends ICMP requests without waiting for responses
+pub struct Pinger {
+    addr: Ipv4Addr,
+    interface_name: String,
+    processes: Vec<duct::Handle>,
+}
+
+impl Pinger {
+    pub fn new(addr: Ipv4Addr, interface_name: String) -> Result<Self, Error> {
+        Ok(Self {
+            processes: vec![],
+            addr,
+            interface_name,
+        })
+    }
+
+    // Send an ICMP packet without waiting for a reply
+    pub fn send_icmp(&mut self) -> Result<(), Error> {
+        self.try_deplete_process_list();
+
+        let cmd = ping_cmd(self.addr, 1, &self.interface_name);
+        let handle = cmd.start().map_err(Error::PingError)?;
+        self.processes.push(handle);
+        Ok(())
+    }
+
+    fn try_deplete_process_list(&mut self) {
+        self.processes.retain(|child| {
+            match child.try_wait() {
+                // child has terminated, doesn't have to be retained
+                Ok(Some(_)) => false,
+                _ => true,
+            }
+        });
+    }
+}
+
+impl Drop for Pinger {
+    fn drop(&mut self) {
+        for child in self.processes.iter_mut() {
+            if let Err(e) = child.kill() {
+                log::error!("Failed to kill ping process - {}", e);
+            }
         }
     }
-
-    Ok(())
 }
 
-pub fn ping(ip: Ipv4Addr, timeout_secs: u16, interface: &str) -> Result<(), Error> {
-    internal_ping(ip, timeout_secs, interface, true)
-}
 
-fn internal_ping(
-    ip: Ipv4Addr,
-    timeout_secs: u16,
-    interface: &str,
-    exit_on_first_reply: bool,
-) -> Result<(), Error> {
-    let output = ping_cmd(ip, timeout_secs, interface, exit_on_first_reply)
-        .run()
-        .map_err(Error::PingError)?;
-    if output.status.success() {
-        Ok(())
-    } else {
-        Err(Error::TimeoutError)
-    }
-}
-
-fn ping_cmd(
-    ip: Ipv4Addr,
-    timeout_secs: u16,
-    interface: &str,
-    exit_on_first_reply: bool,
-) -> duct::Expression {
+fn ping_cmd(ip: Ipv4Addr, timeout_secs: u16, interface: &str) -> duct::Expression {
     let mut args = vec!["-n", "-i", "1"];
 
     let timeout_flag = if cfg!(target_os = "linux") || cfg!(target_os = "android") {
@@ -83,14 +79,6 @@ fn ping_cmd(
 
     if let Some(interface_flag) = interface_flag {
         args.extend_from_slice(&[interface_flag, interface]);
-    }
-
-    if exit_on_first_reply {
-        if cfg!(target_os = "macos") {
-            args.push("-o");
-        } else {
-            args.extend_from_slice(&["-c", "1"])
-        }
     }
 
     let ip = ip.to_string();
