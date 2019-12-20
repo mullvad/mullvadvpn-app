@@ -26,7 +26,6 @@ class MainActivity : FragmentActivity() {
     private var serviceConnection: ServiceConnection? = null
     private var serviceConnectionSubscription: Int? = null
     private var shouldConnect = false
-    private var shouldStopService = false
 
     private val serviceConnectionManager = object : android.content.ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
@@ -93,10 +92,6 @@ class MainActivity : FragmentActivity() {
     override fun onStop() {
         serviceNotifier.unsubscribeAll()
 
-        if (shouldStopService) {
-            service?.apply { stop() }
-        }
-
         unbindService(serviceConnectionManager)
 
         super.onStop()
@@ -134,7 +129,7 @@ class MainActivity : FragmentActivity() {
     }
 
     fun quit() {
-        shouldStopService = true
+        service?.stop()
         finishAndRemoveTask()
     }
 
