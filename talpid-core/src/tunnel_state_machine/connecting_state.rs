@@ -403,6 +403,12 @@ impl TunnelState for ConnectingState {
                                     tunnel::Error::EnableIpv6Error => {
                                         ErrorStateCause::Ipv6Unavailable
                                     }
+                                    #[cfg(windows)]
+                                    tunnel::Error::OpenVpnTunnelMonitoringError(
+                                        tunnel::openvpn::Error::WinnetError(
+                                            crate::winnet::Error::GetTapAlias,
+                                        ),
+                                    ) => ErrorStateCause::TapAdapterProblem,
                                     _ => ErrorStateCause::StartTunnelError,
                                 };
                                 ErrorState::enter(shared_values, block_reason)
