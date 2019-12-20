@@ -5,16 +5,23 @@ use self::config::Config;
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::{ping_monitor, routing};
-use std::{collections::HashMap, io, path::Path, sync::mpsc};
-use talpid_types::ErrorExt;
+use std::{
+    collections::HashMap,
+    io,
+    path::Path,
+    sync::{mpsc, Arc, Mutex},
+    time::Duration,
+};
 
 pub mod config;
+mod connectivity_check;
+mod stats;
 pub mod wireguard_go;
 
 pub use self::wireguard_go::WgGoTunnel;
 
 // amount of seconds to run `ping` until it returns.
-const PING_TIMEOUT: u16 = 15;
+const PING_TIMEOUT: Duration = Duration::from_secs(15);
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -46,6 +53,10 @@ pub enum Error {
     #[error(display = "Failed to stop wireguard tunnel - {}", status)]
     StopWireguardError { status: i32 },
 
+    /// Failed to get tunnel config
+    #[error(display = "Failed to obtain tunnel config")]
+    GetConfigError,
+
     /// Failed to set ip addresses on tunnel interface.
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to set IP addresses on WireGuard interface")]
@@ -73,15 +84,28 @@ pub enum Error {
     #[error(display = "Failed to duplicate tunnel file descriptor for wireguard-go")]
     FdDuplicationError(#[error(source)] nix::Error),
 
+    /// Error whilst trying to read stats
+    #[error(display = "Reading tunnel stats failed")]
+    StatsError(#[error(source)] stats::Error),
+
+    /// Tunnel handle is invalid
+    #[error(display = "Tunnel handle is invalid")]
+    InvalidTunnelHandle,
+
     /// Pinging timed out.
     #[error(display = "Ping timed out")]
-    PingTimeoutError,
+    PingError(#[error(source)] ping_monitor::Error),
+
+    /// Tunnel timed out
+    #[error(display = "Tunnel timed out")]
+    TimeoutError,
 }
+
 
 /// Spawns and monitors a wireguard tunnel
 pub struct WireguardMonitor {
     /// Tunnel implementation
-    tunnel: Box<dyn Tunnel>,
+    tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
     /// Route manager
     route_handle: routing::RouteManager,
     /// Callback to signal tunnel events
@@ -104,20 +128,21 @@ impl WireguardMonitor {
             tun_provider,
             Self::get_tunnel_routes(config),
         )?);
-        let iface_name = tunnel.get_interface_name();
+        let iface_name = tunnel.get_interface_name().to_string();
         #[cfg_attr(not(windows), allow(unused_mut))]
-        let mut route_handle = routing::RouteManager::new(Self::get_routes(iface_name, &config))
+        let mut route_handle = routing::RouteManager::new(Self::get_routes(&iface_name, &config))
             .map_err(Error::SetupRoutingError)?;
 
         #[cfg(target_os = "windows")]
         route_handle
             .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ());
 
+
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
         let (pinger_tx, pinger_rx) = mpsc::channel();
         let monitor = WireguardMonitor {
-            tunnel,
+            tunnel: Arc::new(Mutex::new(Some(tunnel))),
             route_handle,
             event_callback,
             close_msg_sender,
@@ -125,28 +150,27 @@ impl WireguardMonitor {
             pinger_stop_sender: pinger_tx,
         };
 
-        let metadata = monitor.tunnel_metadata(&config);
-        let iface_name = monitor.tunnel.get_interface_name().to_string();
-        let gateway = config.ipv4_gateway.into();
+        let metadata = Self::tunnel_metadata(&iface_name, &config);
+        let gateway = config.ipv4_gateway;
         let close_sender = monitor.close_msg_sender.clone();
+        let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
+            gateway,
+            iface_name,
+            Arc::downgrade(&monitor.tunnel),
+            pinger_rx,
+        )?;
 
         std::thread::spawn(move || {
-            match ping_monitor::ping(gateway, PING_TIMEOUT, &iface_name) {
-                Ok(()) => {
-                    (on_event)(TunnelEvent::Up(metadata));
-
-                    if let Err(error) =
-                        ping_monitor::monitor_ping(gateway, PING_TIMEOUT, &iface_name, pinger_rx)
-                    {
-                        log::trace!("{}", error.display_chain_with_msg("Ping monitor failed"));
-                    }
+            match connectivity_monitor.establish_connectivity(PING_TIMEOUT) {
+                Ok(true) => (on_event)(TunnelEvent::Up(metadata)),
+                Ok(false) => (on_event)(TunnelEvent::Down),
+                Err(err) => {
+                    log::error!("ConnectivityMonitor failed: {}", err);
+                    (on_event)(TunnelEvent::Down);
                 }
-                Err(error) => {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("First ping to gateway failed")
-                    );
-                }
+            }
+            if let Err(err) = connectivity_monitor.wait() {
+                log::error!("Connectivity monitor failed - {}", err);
             }
 
             let _ = close_sender.send(CloseMsg::PingErr);
@@ -163,7 +187,7 @@ impl WireguardMonitor {
 
     pub fn wait(mut self) -> Result<()> {
         let wait_result = match self.close_msg_receiver.recv() {
-            Ok(CloseMsg::PingErr) => Err(Error::PingTimeoutError),
+            Ok(CloseMsg::PingErr) => Err(Error::TimeoutError),
             Ok(CloseMsg::Stop) => Ok(()),
             Err(_) => Ok(()),
         };
@@ -175,11 +199,23 @@ impl WireguardMonitor {
         // routes that were set.
         self.route_handle.stop();
 
-        if let Err(e) = self.tunnel.stop() {
-            log::error!("Failed to stop tunnel - {}", e);
-        }
+        self.stop_tunnel();
+
         (self.event_callback)(TunnelEvent::Down);
         wait_result
+    }
+
+    fn stop_tunnel(&mut self) {
+        match self.tunnel.lock().expect("Tunnel lock poisoned").take() {
+            Some(tunnel) => {
+                if let Err(e) = tunnel.stop() {
+                    log::error!("Failed to stop tunnel - {}", e);
+                }
+            }
+            None => {
+                log::debug!("Tunnel already stopped");
+            }
+        }
     }
 
     fn get_tunnel_routes(config: &Config) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
@@ -218,8 +254,7 @@ impl WireguardMonitor {
         routes
     }
 
-    fn tunnel_metadata(&self, config: &Config) -> TunnelMetadata {
-        let interface_name = self.tunnel.get_interface_name();
+    fn tunnel_metadata(interface_name: &str, config: &Config) -> TunnelMetadata {
         TunnelMetadata {
             interface: interface_name.to_string(),
             ips: config.tunnel.addresses.clone(),
@@ -250,4 +285,5 @@ impl CloseHandle {
 pub trait Tunnel: Send {
     fn get_interface_name(&self) -> &str;
     fn stop(self: Box<Self>) -> Result<()>;
+    fn get_config(&self) -> Result<stats::Stats>;
 }
