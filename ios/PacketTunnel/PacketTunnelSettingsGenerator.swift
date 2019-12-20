@@ -27,64 +27,6 @@ struct PacketTunnelSettingsGenerator {
         return networkSettings
     }
 
-    func entireWireguardConfiguration() -> String {
-        var commands: [WireguardCommand] = [
-            .privateKey(tunnelConfiguration.interface.privateKey),
-            .listenPort(0),
-            .replacePeers
-        ]
-
-        commands.append(contentsOf: makePeersConfiguration())
-        commands.append(makeAllowedIPsConfiguration())
-
-        return commands.toWireguardConfig()
-    }
-
-    func wireguardConfigurationWithReresolvedEndpoints() -> String {
-        return makePeersConfiguration().toWireguardConfig()
-    }
-
-    func wireguardConfigurationForChangingRelays() -> String {
-        var commands = [WireguardCommand.replacePeers]
-
-        commands.append(contentsOf: makePeersConfiguration())
-        commands.append(makeAllowedIPsConfiguration())
-
-        return commands.toWireguardConfig()
-    }
-
-    private func makePeersConfiguration() -> [WireguardCommand] {
-        var peers: [AnyIPEndpoint] = [.ipv4(mullvadEndpoint.ipv4Relay)]
-
-        if let ipv6Relay = mullvadEndpoint.ipv6Relay {
-            peers.append(.ipv6(ipv6Relay))
-        }
-
-        return peers.compactMap { (peer) in
-            switch peer.withReresolvedIP() {
-            case .success(let resolvedPeer):
-                // TODO: this is not reliable. We should attempt to re-resolve the IPs in case of
-                // failure?
-                return .peer(
-                    WireguardPeer(
-                        endpoint: resolvedPeer,
-                        publicKey: mullvadEndpoint.publicKey
-                    )
-                )
-
-            case .failure(let error):
-                os_log(.error,
-                       "Failed to resolve the endpoint: %s. Cause: %{public}s",
-                       "\(peer.ip)", error.localizedDescription)
-                return nil
-            }
-        }
-    }
-
-    private func makeAllowedIPsConfiguration() -> WireguardCommand {
-        return .allowedIP(IPAddressRange(from: "0.0.0.0/0")!)
-    }
-
     private func dnsSettings() -> NEDNSSettings {
         let serverAddresses = [mullvadEndpoint.ipv4Gateway, mullvadEndpoint.ipv6Gateway]
             .map { String(reflecting: $0) }
