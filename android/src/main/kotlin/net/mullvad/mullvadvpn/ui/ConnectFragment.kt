@@ -36,7 +36,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             savedInstanceState?.getBoolean(KEY_IS_TUNNEL_INFO_EXPANDED, false) ?: false
     }
 
-    override fun onCreateView(
+    override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -70,9 +70,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
-
+    override fun onSafelyResume() {
         locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
 
         notificationBanner.onResume()
@@ -96,7 +94,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
     }
 
-    override fun onPause() {
+    override fun onSafelyPause() {
         keyStatusListener.onKeyStatusChange = null
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
@@ -109,17 +107,13 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         notificationBanner.onPause()
 
         isTunnelInfoExpanded = locationInfo.isTunnelInfoExpanded
-
-        super.onPause()
     }
 
-    override fun onDestroyView() {
+    override fun onSafelyDestroyView() {
         switchLocationButton.onDestroy()
-
-        super.onDestroyView()
     }
 
-    override fun onSaveInstanceState(state: Bundle) {
+    override fun onSafelySaveInstanceState(state: Bundle) {
         isTunnelInfoExpanded = locationInfo.isTunnelInfoExpanded
         state.putBoolean(KEY_IS_TUNNEL_INFO_EXPANDED, isTunnelInfoExpanded)
     }

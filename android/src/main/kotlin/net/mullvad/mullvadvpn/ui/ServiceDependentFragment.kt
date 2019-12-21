@@ -1,8 +1,13 @@
 package net.mullvad.mullvadvpn.ui
 
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
@@ -13,10 +18,18 @@ import net.mullvad.mullvadvpn.dataproxy.SettingsListener
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.talpid.ConnectivityListener
 
-open class ServiceDependentFragment(val onNoService: OnNoService) : ServiceAwareFragment() {
+abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceAwareFragment() {
     enum class OnNoService {
         GoBack, GoToLaunchScreen
     }
+
+    enum class State {
+        Uninitialized,
+        Initialized,
+        MissingConnection,
+    }
+
+    private var state = State.Uninitialized
 
     lateinit var accountCache: AccountCache
         private set
@@ -55,6 +68,12 @@ open class ServiceDependentFragment(val onNoService: OnNoService) : ServiceAware
         locationInfoCache = serviceConnection.locationInfoCache
         relayListListener = serviceConnection.relayListListener
         settingsListener = serviceConnection.settingsListener
+
+        synchronized(this) {
+            if (state == State.Uninitialized) {
+                state = State.Initialized
+            }
+        }
     }
 
     override fun onNoServiceConnection() {
@@ -64,5 +83,81 @@ open class ServiceDependentFragment(val onNoService: OnNoService) : ServiceAware
                 OnNoService.GoToLaunchScreen -> parentActivity.returnToLaunchScreen()
             }
         }
+
+        synchronized(this) {
+            if (state == State.Uninitialized) {
+                state = State.MissingConnection
+            }
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        synchronized(this) {
+            if (state == State.Initialized) {
+                return onSafelyCreateView(inflater, container, savedInstanceState)
+            } else {
+                return inflater.inflate(R.layout.missing_service, container, false)
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        synchronized(this) {
+            if (state == State.Initialized) {
+                onSafelyResume()
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(instanceState: Bundle) {
+        synchronized(this) {
+            if (state == State.Initialized) {
+                onSafelySaveInstanceState(instanceState)
+            }
+        }
+    }
+
+    override fun onPause() {
+        synchronized(this) {
+            if (state == State.Initialized) {
+                onSafelyPause()
+            }
+        }
+
+        super.onPause()
+    }
+
+    override fun onDestroyView() {
+        synchronized(this) {
+            if (state == State.Initialized) {
+                onSafelyDestroyView()
+            }
+        }
+
+        super.onDestroyView()
+    }
+
+    abstract fun onSafelyCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View
+
+    open fun onSafelyResume() {
+    }
+
+    open fun onSafelySaveInstanceState(state: Bundle) {
+    }
+
+    open fun onSafelyPause() {
+    }
+
+    open fun onSafelyDestroyView() {
     }
 }

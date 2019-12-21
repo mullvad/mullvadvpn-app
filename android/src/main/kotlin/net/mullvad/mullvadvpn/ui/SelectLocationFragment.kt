@@ -41,7 +41,7 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         }
     }
 
-    override fun onCreateView(
+    override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -58,24 +58,18 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
-
+    override fun onSafelyResume() {
         relayListListener.onRelayListChange = { relayList, selectedItem ->
             updateRelayListJob = updateRelayList(relayList, selectedItem)
         }
     }
 
-    override fun onPause() {
+    override fun onSafelyPause() {
         relayListListener.onRelayListChange = null
-
-        super.onPause()
     }
 
-    override fun onDestroyView() {
+    override fun onSafelyDestroyView() {
         updateRelayListJob?.cancel()
-
-        super.onDestroyView()
     }
 
     fun close() {
