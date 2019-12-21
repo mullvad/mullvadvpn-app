@@ -31,7 +31,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private var loginJob: Deferred<Boolean>? = null
     private var advanceToNextScreenJob: Job? = null
 
-    override fun onCreateView(
+    override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -54,17 +54,15 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onSafelyResume() {
         advanceToNextScreenJob = GlobalScope.launch(Dispatchers.Main) {
             loggedIn.join()
             openConnectScreen()
         }
     }
 
-    override fun onPause() {
+    override fun onSafelyPause() {
         advanceToNextScreenJob?.cancel()
-        super.onPause()
     }
 
     private fun createAccount() {
