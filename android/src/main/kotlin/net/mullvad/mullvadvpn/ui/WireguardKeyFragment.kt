@@ -48,7 +48,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private lateinit var verifyButton: Button
     private lateinit var verifySpinner: ProgressBar
 
-    override fun onCreateView(
+    override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -280,7 +280,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
     }
 
-    override fun onPause() {
+    override fun onSafelyPause() {
         tunnelStateListener?.let { listener ->
             connectionProxy.onUiStateChange.unsubscribe(listener)
         }
@@ -291,12 +291,9 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         validatingKey = false
         generatingKey = false
         urlController.onPause()
-        super.onPause()
     }
 
-    override fun onResume() {
-        super.onResume()
-
+    override fun onSafelyResume() {
         tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
             tunnelState = uiState
             updateViewsJob?.cancel()
