@@ -72,6 +72,8 @@ class MullvadVpnService : TalpidVpnService() {
             }
 
             onDaemonStopped = {
+                serviceNotifier.notify(null)
+
                 if (!isStopping) {
                     restart()
                 }
@@ -105,7 +107,6 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun tearDown() {
-        serviceNotifier.notify(null)
         stopDaemon()
 
         connectionProxy.onDestroy()
