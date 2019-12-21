@@ -6,7 +6,6 @@ import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
 import net.mullvad.mullvadvpn.dataproxy.LocationInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.dataproxy.SettingsListener
-import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.service.ServiceInstance
 
 class ServiceConnection(private val service: ServiceInstance, val mainActivity: MainActivity) {
@@ -20,7 +19,6 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val accountCache = AccountCache(settingsListener, daemon)
     var relayListListener = RelayListListener(daemon, settingsListener)
     val locationInfoCache = LocationInfoCache(daemon, connectivityListener, relayListListener)
-    val wwwAuthTokenRetriever = WwwAuthTokenRetriever(daemon)
 
     init {
         appVersionInfoCache.onCreate()

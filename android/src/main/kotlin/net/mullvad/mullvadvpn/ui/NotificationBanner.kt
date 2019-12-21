@@ -13,9 +13,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
-import net.mullvad.mullvadvpn.dataproxy.WwwAuthTokenRetriever
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
@@ -25,7 +25,7 @@ class NotificationBanner(
     val parentView: View,
     val context: Context,
     val versionInfoCache: AppVersionInfoCache,
-    val authTokenRetriever: WwwAuthTokenRetriever
+    val daemon: MullvadDaemon
 ) {
     enum class ExternalLink { Download, KeyManagement }
 
@@ -61,8 +61,8 @@ class NotificationBanner(
             }
 
             override fun onClick(): Job {
-                return GlobalScope.launch(Dispatchers.Main) {
-                    val token = authTokenRetriever.getAuthToken().await()
+                return GlobalScope.launch(Dispatchers.Default) {
+                    val token = daemon.getWwwAuthToken()
                     val url = Uri.parse(keyManagementUrl + "?token=" + token)
                     context.startActivity(Intent(Intent.ACTION_VIEW, url))
                 }
