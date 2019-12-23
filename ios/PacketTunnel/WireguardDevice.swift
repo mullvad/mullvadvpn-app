@@ -238,11 +238,8 @@ class WireguardDevice {
         // Ignore empty payloads
         guard !commands.isEmpty else { return }
 
-        let rawConfig = commands.toRawWireguardConfigString()
-
-        os_log(.info, log: wireguardDeviceLog, "wgSetConfig:\n%{public}s", rawConfig)
-
-        _ = rawConfig.withGoString { wgSetConfig(handle, $0) }
+        _ = commands.toRawWireguardConfigString()
+            .withGoString { wgSetConfig(handle, $0) }
     }
 
     // MARK: - Network monitoring
