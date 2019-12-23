@@ -320,7 +320,7 @@ class TunnelManager {
                     }
 
                     // Send wireguard key to the server
-                    let publicKey = tunnelConfig.interface.privateKey.publicKeyRawRepresentation
+                    let publicKey = tunnelConfig.interface.privateKey.publicKey.rawRepresentation
 
                     return self.apiClient.pushWireguardKey(accountToken: accountToken, publicKey: publicKey)
                         .mapError { (networkError) -> SetAccountError in
