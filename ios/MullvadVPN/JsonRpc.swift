@@ -38,8 +38,10 @@ struct JsonRpcRequest: Encodable {
     }
 }
 
-class JsonRpcResponseError: Error, Decodable {
-    let code: Int
+class JsonRpcResponseError<ResponseCode>: Error, Decodable
+    where ResponseCode: Decodable
+{
+    let code: ResponseCode
     let message: String
 
     var localizedDescription: String? {
@@ -53,15 +55,18 @@ class JsonRpcResponseError: Error, Decodable {
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        code = try container.decode(Int.self, forKey: .code)
+        code = try container.decode(ResponseCode.self, forKey: .code)
         message = try container.decode(String.self, forKey: .message)
     }
 }
 
-struct JsonRpcResponse<T: Decodable>: Decodable {
+struct JsonRpcResponse<T, ResponseCode>: Decodable
+    where
+    T: Decodable, ResponseCode: Decodable
+{
     let version: String
     let id: String
-    let result: Result<T, JsonRpcResponseError>
+    let result: Result<T, JsonRpcResponseError<ResponseCode>>
 
     private enum CodingKeys: String, CodingKey {
         case version = "jsonrpc", id, result, error
@@ -76,7 +81,7 @@ struct JsonRpcResponse<T: Decodable>: Decodable {
         if container.contains(.result) {
             self.result = .success(try container.decode(T.self, forKey: .result))
         } else {
-            self.result = .failure(try container.decode(JsonRpcResponseError.self, forKey: .error))
+            self.result = .failure(try container.decode(JsonRpcResponseError<ResponseCode>.self, forKey: .error))
         }
     }
 }
