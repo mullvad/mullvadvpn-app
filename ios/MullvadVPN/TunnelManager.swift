@@ -69,7 +69,7 @@ enum SetAccountError: Error {
     /// A failure to push the wireguard key
     case pushWireguardKey(PushWireguardKeyError)
 
-    /// A failure to set up the tunnel
+    /// A failure to set up a tunnel
     case setup(SetupTunnelError)
 }
 
