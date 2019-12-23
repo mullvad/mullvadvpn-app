@@ -76,8 +76,8 @@ enum UnsetAccountError: Error {
 }
 
 enum PushWireguardKeyError: Error {
-    case network(MullvadAPIError)
-    case server(JsonRpcResponseError)
+    case transport(MullvadAPI.Error)
+    case server(MullvadAPI.ResponseError)
 }
 
 enum UpdateTunnelConfigurationError: Error {
@@ -324,8 +324,8 @@ class TunnelManager {
 
                     return self.apiClient.pushWireguardKey(accountToken: accountToken, publicKey: publicKey)
                         .mapError { (networkError) -> SetAccountError in
-                            return .pushWireguardKey(.network(networkError))
-                    }.flatMap { (response: JsonRpcResponse<WireguardAssociatedAddresses>) in
+                            return .pushWireguardKey(.transport(networkError))
+                    }.flatMap { (response: MullvadAPI.Response<WireguardAssociatedAddresses>) in
                         return response.result.publisher
                             .mapError { (serverError) -> SetAccountError in
                                 return .pushWireguardKey(.server(serverError))
