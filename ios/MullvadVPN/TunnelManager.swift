@@ -33,6 +33,12 @@ enum TunnelManagerError: Error {
 
     /// A failure to get the relay constraints
     case getRelayConstraints(TunnelConfigurationManagerError)
+
+    /// A failure to get a public key used for Wireguard
+    case getWireguardPublicKey(TunnelConfigurationManagerError)
+
+    /// A failure to re-generate a private key used for Wireguard
+    case regenerateWireguardPrivateKey(RegenerateWireguardPrivateKeyError)
 }
 
 enum TunnelIpcRequestError: Error {
@@ -73,6 +79,20 @@ enum UnsetAccountError: Error {
 
     /// A failure to remove a tunnel configuration from Keychain
     case removeTunnelConfiguration(TunnelConfigurationManagerError)
+}
+
+enum RegenerateWireguardPrivateKeyError: Error {
+    /// A failure to read the public Wireguard key from Keychain
+    case readPublicWireguardKey(TunnelConfigurationManagerError)
+
+    /// A failure to replace the public Wireguard key
+    case replaceWireguardKey(PushWireguardKeyError)
+
+    /// A failure to update tunnel configuration
+    case updateTunnelConfiguration(UpdateTunnelConfigurationError)
+
+    /// A failure to set up a tunnel
+    case setupTunnel(SetupTunnelError)
 }
 
 enum PushWireguardKeyError: Error {
@@ -399,6 +419,67 @@ class TunnelManager {
         }.eraseToAnyPublisher()
     }
 
+    func regeneratePrivateKey() -> AnyPublisher<(), TunnelManagerError> {
+        MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) {
+            Just(self.accountToken)
+                .setFailureType(to: TunnelManagerError.self)
+                .replaceNil(with: .missingAccount)
+                .flatMap { (accountToken) -> AnyPublisher<(), TunnelManagerError> in
+                    let newPrivateKey = WireguardPrivateKey()
+
+                    return TunnelConfigurationManager.load(account: accountToken)
+                        .map { $0.interface.privateKey.publicKey }
+                        .mapError { RegenerateWireguardPrivateKeyError.readPublicWireguardKey($0) }
+                        .publisher
+                        .flatMap { (oldPublicKey) in
+                            self.apiClient.replaceWireguardKey(
+                                accountToken: accountToken,
+                                oldPublicKey: oldPublicKey.rawRepresentation,
+                                newPublicKey: newPrivateKey.publicKey.rawRepresentation)
+                                .mapError { (networkError) -> RegenerateWireguardPrivateKeyError in
+                                    return .replaceWireguardKey(.transport(networkError))
+                            }.receive(on: self.executionQueue)
+                                .flatMap { (response: MullvadAPI.Response<WireguardAssociatedAddresses>) in
+                                    return response.result.publisher
+                                        .mapError { (serverError) -> RegenerateWireguardPrivateKeyError in
+                                            return .replaceWireguardKey(.server(serverError))
+                                    }
+                            }
+                            .flatMap { (addresses) in
+                                self.updateTunnelConfiguration(accountToken: accountToken) {
+                                    (tunnelConfiguration) in
+                                    tunnelConfiguration.interface.privateKey = newPrivateKey
+                                    tunnelConfiguration.interface.addresses = [
+                                        addresses.ipv4Address,
+                                        addresses.ipv6Address
+                                    ]
+                                }
+                                .mapError { .updateTunnelConfiguration($0) }
+                                .publisher
+                            }
+                            .flatMap {
+                                self.setupTunnel(accountToken: accountToken)
+                                    .map { _ in () }
+                                    .mapError { RegenerateWireguardPrivateKeyError.setupTunnel($0) }
+                            }.receive(on: self.executionQueue)
+                                .flatMap { _ in
+                                    // Ignore Packet Tunnel IPC errors but log them
+                                    self.reloadPacketTunnelConfiguration()
+                                        .replaceError(with: ())
+                                        .setFailureType(to: RegenerateWireguardPrivateKeyError.self)
+                                        .handleEvents(receiveCompletion: { (completion) in
+                                            if case .failure(let error) = completion {
+                                                os_log(.error, "Failed to tell the tunnel to reload configuration: %{public}s", error.localizedDescription)
+                                            }
+                                        })
+                            }
+                    }
+                    .mapError { TunnelManagerError.regenerateWireguardPrivateKey($0) }
+                    .eraseToAnyPublisher()
+            }
+        }.eraseToAnyPublisher()
+    }
+
     func setRelayConstraints(_ constraints: RelayConstraints) -> AnyPublisher<(), TunnelManagerError> {
         MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) {
             Just(self.accountToken)
@@ -440,6 +521,19 @@ class TunnelManager {
                                 return .failure(error)
                             }
                     }.mapError { TunnelManagerError.getRelayConstraints($0) }.publisher
+            }
+        }.eraseToAnyPublisher()
+    }
+
+    func getWireguardPublicKey() -> AnyPublisher<WireguardPublicKey, TunnelManagerError> {
+        MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) {
+            Just(self.accountToken)
+                .setFailureType(to: TunnelManagerError.self)
+                .replaceNil(with: .missingAccount)
+                .flatMap { (accountToken) in
+                    TunnelConfigurationManager.load(account: accountToken)
+                        .map { $0.interface.privateKey.publicKey }
+                        .mapError { TunnelManagerError.getWireguardPublicKey($0) }.publisher
             }
         }.eraseToAnyPublisher()
     }
