@@ -33,6 +33,11 @@ pub enum Error {
     #[error(display = "Can't enable IPv6 on tunnel interface because IPv6 is disabled")]
     EnableIpv6Error,
 
+    /// Failure in Windows syscall.
+    #[cfg(windows)]
+    #[error(display = "Failure in Windows syscall")]
+    WinnetError(#[error(source)] crate::winnet::Error),
+
     /// Running on an operating system which is not supported yet.
     #[error(display = "Tunnel type not supported on this operating system")]
     UnsupportedPlatform,
@@ -200,8 +205,13 @@ impl TunnelMonitor {
     }
 
     fn ensure_ipv6_can_be_used_if_enabled(tunnel_options: &GenericTunnelOptions) -> Result<()> {
-        if tunnel_options.enable_ipv6 && !is_ipv6_enabled_in_os() {
-            Err(Error::EnableIpv6Error)
+        if tunnel_options.enable_ipv6 {
+            let enabled = is_ipv6_enabled_in_os()?;
+            if enabled {
+                Ok(())
+            } else {
+                Err(Error::EnableIpv6Error)
+            }
         } else {
             Ok(())
         }
@@ -308,7 +318,7 @@ impl InternalTunnelMonitor {
 }
 
 
-fn is_ipv6_enabled_in_os() -> bool {
+fn is_ipv6_enabled_in_os() -> Result<bool> {
     #[cfg(windows)]
     {
         use winreg::{enums::*, RegKey};
@@ -324,7 +334,8 @@ fn is_ipv6_enabled_in_os() -> bool {
                 (ipv6_disabled_bits & IPV6_DISABLED_ON_TUNNELS_MASK) == 0
             })
             .unwrap_or(true);
-        let enabled_on_tap = crate::winnet::get_tap_interface_ipv6_status().unwrap_or(false);
+        let enabled_on_tap =
+            crate::winnet::get_tap_interface_ipv6_status().map_err(Error::WinnetError)?;
 
         if !globally_enabled {
             log::debug!("IPv6 disabled in tunnel interfaces");
@@ -333,16 +344,18 @@ fn is_ipv6_enabled_in_os() -> bool {
             log::debug!("IPv6 disabled in TAP adapter");
         }
 
-        globally_enabled && enabled_on_tap
+        Ok(globally_enabled && enabled_on_tap)
     }
     #[cfg(target_os = "linux")]
     {
-        std::fs::read_to_string("/proc/sys/net/ipv6/conf/all/disable_ipv6")
-            .map(|disable_ipv6| disable_ipv6.trim() == "0")
-            .unwrap_or(false)
+        Ok(
+            std::fs::read_to_string("/proc/sys/net/ipv6/conf/all/disable_ipv6")
+                .map(|disable_ipv6| disable_ipv6.trim() == "0")
+                .unwrap_or(false),
+        )
     }
     #[cfg(any(target_os = "macos", target_os = "android"))]
     {
-        true
+        Ok(true)
     }
 }

@@ -408,6 +408,9 @@ impl TunnelState for ConnectingState {
                                         tunnel::openvpn::Error::WinnetError(
                                             crate::winnet::Error::GetTapAlias,
                                         ),
+                                    )
+                                    | tunnel::Error::WinnetError(
+                                        crate::winnet::Error::GetTapAlias,
                                     ) => ErrorStateCause::TapAdapterProblem,
                                     _ => ErrorStateCause::StartTunnelError,
                                 };
