@@ -64,6 +64,9 @@ pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool, Er
 
 /// Checks if IPv6 is enabled for the TAP interface
 pub fn get_tap_interface_ipv6_status() -> Result<bool, Error> {
+    // WinNet_GetTapInterfaceIpv6Status() will fail if the alias cannot be retrieved.
+    // Try to retrieve it first so that we may return a more specific error.
+    let _ = get_tap_interface_alias()?;
     let tap_ipv6_status =
         unsafe { WinNet_GetTapInterfaceIpv6Status(Some(log_sink), logging_context()) };
 
