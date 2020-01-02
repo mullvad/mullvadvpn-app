@@ -127,7 +127,7 @@ build_ref() {
     MINGW*|MSYS_NT*)
       sign_win || return 0
       echo "Packaging all PDB files..."
-      find ./windows/ -iname "*.pdb" | tar -cJf $SCRIPT_DIR/pdb/$current_hash.tar.xz -T -
+      find ./windows/ ./target/release/mullvad-daemon.pdb ./target/release/mullvad.pdb ./target/release/mullvad-problem-report.pdb -iname "*.pdb" | tar -cJf $SCRIPT_DIR/pdb/$current_hash.tar.xz -T -
       ;;
     Linux*)
       echo "Building Android APK"
