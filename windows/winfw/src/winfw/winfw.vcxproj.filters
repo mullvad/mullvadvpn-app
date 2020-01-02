@@ -30,9 +30,6 @@
       <Filter>rules</Filter>
     </ClCompile>
     <ClCompile Include="sessionrecord.cpp" />
-    <ClCompile Include="rules\restrictdns.cpp">
-      <Filter>rules</Filter>
-    </ClCompile>
     <ClCompile Include="rules\permitvpntunnelservice.cpp">
       <Filter>rules</Filter>
     </ClCompile>
@@ -44,6 +41,9 @@
       <Filter>rules</Filter>
     </ClCompile>
     <ClCompile Include="rules\permitping.cpp">
+      <Filter>rules</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\permittunneldns.cpp">
       <Filter>rules</Filter>
     </ClCompile>
   </ItemGroup>
@@ -81,9 +81,6 @@
       <Filter>rules</Filter>
     </ClInclude>
     <ClInclude Include="sessionrecord.h" />
-    <ClInclude Include="rules\restrictdns.h">
-      <Filter>rules</Filter>
-    </ClInclude>
     <ClInclude Include="rules\permitvpntunnelservice.h">
       <Filter>rules</Filter>
     </ClInclude>
@@ -97,6 +94,9 @@
       <Filter>rules</Filter>
     </ClInclude>
     <ClInclude Include="rules\permitping.h">
+      <Filter>rules</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\permittunneldns.h">
       <Filter>rules</Filter>
     </ClInclude>
   </ItemGroup>
