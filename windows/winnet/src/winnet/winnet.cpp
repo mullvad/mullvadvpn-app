@@ -262,7 +262,7 @@ WinNet_GetTapInterfaceAlias(
 	{
 		const auto currentAlias = InterfaceUtils::GetTapInterfaceAlias();
 
-		auto stringBuffer = new wchar_t[currentAlias.size() + 1];
+		auto stringBuffer = new wchar_t[currentAlias.size() + sizeof(L'\0')];
 		wcscpy(stringBuffer, currentAlias.c_str());
 
 		*alias = stringBuffer;
