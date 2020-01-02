@@ -30,6 +30,11 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Wait for traffic to be routed through the tunnel device before advertising blocked state.
 
+### Fixed
+#### Windows
+- Fix regression due to which a TAP adapter issue was not given as the specific block reason when
+  the tunnel could not be started.
+
 
 ## [2019.10] - 2019-12-12
 ### Fixed
