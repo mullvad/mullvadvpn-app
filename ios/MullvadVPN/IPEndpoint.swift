@@ -10,7 +10,7 @@ import Foundation
 import Network
 
 /// An abstract struct describing IP address based endpoint
-struct IPEndpont<T> where T: IPAddress {
+struct IPEndpont<T>: Hashable where T: IPAddress & Hashable {
     let ip: T
     let port: UInt16
 }
@@ -36,9 +36,22 @@ typealias IPv4Endpoint = IPEndpont<IPv4Address>
 typealias IPv6Endpoint = IPEndpont<IPv6Address>
 
 /// A enum describing any IP endpoint
-enum AnyIPEndpoint {
+enum AnyIPEndpoint: Hashable {
     case ipv4(IPv4Endpoint)
     case ipv6(IPv6Endpoint)
+}
+
+extension AnyIPEndpoint: Equatable {
+    static func == (lhs: AnyIPEndpoint, rhs: AnyIPEndpoint) -> Bool {
+        switch (lhs, rhs) {
+        case (.ipv4(let a), .ipv4(let b)):
+            return a == b
+        case (.ipv6(let a), .ipv6(let b)):
+            return a == b
+        case (.ipv6, .ipv4), (.ipv4, .ipv6):
+            return false
+        }
+    }
 }
 
 /// Convenience methods for accessing endpoint fields
