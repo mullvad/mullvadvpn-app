@@ -13,7 +13,7 @@ extension UIColor {
     enum AccountTextField {
         enum NormalState {
             static let borderColor = UIColor(red: 0.10, green: 0.18, blue: 0.27, alpha: 1.0)
-            static let textColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.0)
+            static let textColor = primaryColor
             static let backgroundColor = UIColor.white
         }
 
@@ -38,7 +38,7 @@ extension UIColor {
 
     // Cells
     enum Cell {
-        static let backgroundColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.0)
+        static let backgroundColor = primaryColor
         static let disabledBackgroundColor = backgroundColor.darkened(by: 0.3)!
 
         static let selectedBackgroundColor = successColor
@@ -48,22 +48,31 @@ extension UIColor {
     }
 
     enum SubCell {
-        static let backgroundColor = UIColor(red: 0.15, green: 0.23, blue: 0.33, alpha: 1.0)
+        static let backgroundColor = namedColor("SubCell")
         static let disabledBackgroundColor = backgroundColor.darkened(by: 0.3)!
     }
 
     enum SubSubCell {
-        static let backgroundColor = UIColor(red: 0.13, green: 0.20, blue: 0.30, alpha: 1.0)
+        static let backgroundColor = namedColor("SubSubCell")
         static let disabledBackgroundColor = backgroundColor.darkened(by: 0.3)!
     }
 
     enum HeaderBar {
-        static let defaultBackgroundColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.0)
+        static let defaultBackgroundColor = primaryColor
         static let unsecuredBackgroundColor = dangerColor
         static let securedBackgroundColor = successColor
     }
 
     // Common colors
-    static let dangerColor = UIColor(red: 0.89, green: 0.25, blue: 0.22, alpha: 1.0)
-    static let successColor = UIColor(red: 0.27, green: 0.68, blue: 0.30, alpha: 1.0)
+    static let primaryColor = namedColor("Primary")
+    static let secondaryColor = namedColor("Secondary")
+    static let dangerColor = namedColor("Danger")
+    static let successColor = namedColor("Success")
+}
+
+/// This is a helper function to access named colors from the main bundle and circumvent storyboard
+/// crash.
+/// See: https://openradar.appspot.com/47113341
+private func namedColor(_ name: StringLiteralType) -> UIColor {
+    UIColor(named: name, in: Bundle(for: AppDelegate.self), compatibleWith: nil)!
 }
