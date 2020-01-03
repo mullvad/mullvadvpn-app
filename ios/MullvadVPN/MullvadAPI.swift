@@ -16,18 +16,6 @@ private let kMullvadAPIURL = URL(string: "https://api.mullvad.net/rpc/")!
 /// Network request timeout in seconds
 private let kNetworkTimeout: TimeInterval = 10
 
-/// An error type emitted by `MullvadAPI`
-enum MullvadAPIError: Error {
-    /// A network communication error
-    case network(URLError)
-
-    /// An error occured when decoding the JSON response
-    case decoding(Error)
-
-    /// An error occured when encoding the JSON request
-    case encoding(Error)
-}
-
 /// A type that describes the account verification result
 enum AccountVerification {
     /// The app should attempt to verify the account token at some point later because the network
@@ -44,29 +32,79 @@ enum AccountVerification {
 /// An error type that describes why the account verification was deferred
 enum DeferReasonError: Error {
     /// Mullvad API communication error
-    case communication(MullvadAPIError)
+    case communication(MullvadAPI.Error)
 
     /// Mullvad API responded with an error
-    case server(JsonRpcResponseError)
+    case server(MullvadAPI.ResponseError)
 }
-
-/// The error code returned by the API when it cannot find the given account token
-private let kAccountDoesNotExistErrorCode = -200
 
 class MullvadAPI {
     private let session: URLSession
+
+    /// A enum mapping the integer codes returned by Mullvad API with the corresponding enum
+    /// variants
+    private enum RawResponseCode: Int {
+        case accountDoesNotExist = -200
+        case tooManyWireguardKeys = -703
+    }
+
+    /// A enum describing the Mullvad API response code
+    enum ResponseCode: RawRepresentable, Codable {
+        var rawValue: Int {
+            switch self {
+            case .accountDoesNotExist:
+                return RawResponseCode.accountDoesNotExist.rawValue
+
+            case .tooManyWireguardKeys:
+                return RawResponseCode.tooManyWireguardKeys.rawValue
+
+            case .other(let value):
+                return value
+            }
+        }
+
+        init?(rawValue: Int) {
+            switch RawResponseCode(rawValue: rawValue) {
+            case .accountDoesNotExist:
+                self = .accountDoesNotExist
+            case .tooManyWireguardKeys:
+                self = .tooManyWireguardKeys
+            case .none:
+                self = ResponseCode.other(rawValue)
+            }
+        }
+
+        case accountDoesNotExist
+        case tooManyWireguardKeys
+        case other(Int)
+    }
+
+    /// An error type emitted by `MullvadAPI`
+    enum Error: Swift.Error {
+        /// A network communication error
+        case network(URLError)
+
+        /// An error occured when decoding the JSON response
+        case decoding(Swift.Error)
+
+        /// An error occured when encoding the JSON request
+        case encoding(Swift.Error)
+    }
+
+    typealias ResponseError = JsonRpcResponseError<ResponseCode>
+    typealias Response<T: Decodable> = JsonRpcResponse<T, ResponseCode>
 
     init(session: URLSession = URLSession.shared) {
         self.session = session
     }
 
-    func getRelayList() -> AnyPublisher<JsonRpcResponse<RelayList>, MullvadAPIError> {
+    func getRelayList() -> AnyPublisher<Response<RelayList>, MullvadAPI.Error> {
         let request = JsonRpcRequest(method: "relay_list_v3", params: [])
 
         return MullvadAPI.makeDataTaskPublisher(request: request)
     }
 
-    func getAccountExpiry(accountToken: String) -> AnyPublisher<JsonRpcResponse<Date>, MullvadAPIError> {
+    func getAccountExpiry(accountToken: String) -> AnyPublisher<Response<Date>, MullvadAPI.Error> {
         let request = JsonRpcRequest(method: "get_expiry", params: [AnyEncodable(accountToken)])
 
         return MullvadAPI.makeDataTaskPublisher(request: request)
@@ -81,7 +119,7 @@ class MullvadAPI {
                     return .verified(expiry)
 
                 case .failure(let serverError):
-                    if serverError.code == kAccountDoesNotExistErrorCode {
+                    if case .accountDoesNotExist = serverError.code {
                         // Report .invalid account if the server responds with the special code
                         return .invalid
                     } else {
@@ -91,13 +129,13 @@ class MullvadAPI {
                 }
             })
             .catch({ (networkError) in
-                // Treat all network errors as .deferred verification
+                // Treat all communication errors as .deferred verification
                 return Just(.deferred(.communication(networkError)))
             })
             .eraseToAnyPublisher()
     }
 
-    func pushWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<JsonRpcResponse<WireguardAssociatedAddresses>, MullvadAPIError> {
+    func pushWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<Response<WireguardAssociatedAddresses>, MullvadAPI.Error> {
         let request = JsonRpcRequest(method: "push_wg_key", params: [
             AnyEncodable(accountToken),
             AnyEncodable(publicKey)
@@ -106,7 +144,17 @@ class MullvadAPI {
         return MullvadAPI.makeDataTaskPublisher(request: request)
     }
 
-    func checkWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<JsonRpcResponse<WireguardAssociatedAddresses>, MullvadAPIError> {
+    func replaceWireguardKey(accountToken: String, oldPublicKey: Data, newPublicKey: Data) -> AnyPublisher<Response<WireguardAssociatedAddresses>, MullvadAPI.Error> {
+        let request = JsonRpcRequest(method: "replace_wg_key", params: [
+            AnyEncodable(accountToken),
+            AnyEncodable(oldPublicKey),
+            AnyEncodable(newPublicKey)
+        ])
+
+        return MullvadAPI.makeDataTaskPublisher(request: request)
+    }
+
+    func checkWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<Response<Bool>, MullvadAPI.Error> {
         let request = JsonRpcRequest(method: "check_wg_key", params: [
             AnyEncodable(accountToken),
             AnyEncodable(publicKey)
@@ -115,17 +163,19 @@ class MullvadAPI {
         return MullvadAPI.makeDataTaskPublisher(request: request)
     }
 
-    private static func makeDataTaskPublisher<T: Decodable>(request: JsonRpcRequest) -> AnyPublisher<JsonRpcResponse<T>, MullvadAPIError> {
+    private static func makeDataTaskPublisher<T: Decodable>(request: JsonRpcRequest) -> AnyPublisher<Response<T>, MullvadAPI.Error> {
         return Just(request)
             .encode(encoder: makeJSONEncoder())
-            .mapError { MullvadAPIError.encoding($0) }
+            .mapError { MullvadAPI.Error.encoding($0) }
             .map { self.makeURLRequest(httpBody: $0) }
             .flatMap {
                 URLSession.shared.dataTaskPublisher(for: $0)
-                    .mapError { MullvadAPIError.network($0) }
-                    .map { $0.data }
-                    .decode(type: JsonRpcResponse<T>.self, decoder: makeJSONDecoder())
-                    .mapError { MullvadAPIError.decoding($0) }
+                    .mapError { MullvadAPI.Error.network($0) }
+                    .flatMap { (data, response) in
+                        Just(data)
+                            .decode(type: Response<T>.self, decoder: makeJSONDecoder())
+                            .mapError { MullvadAPI.Error.decoding($0) }
+                }
         }.eraseToAnyPublisher()
     }
 

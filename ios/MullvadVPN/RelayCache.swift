@@ -15,8 +15,8 @@ enum RelayCacheError: Error {
     case defaultLocationNotFound
     case io(Error)
     case coding(Error)
-    case network(MullvadAPIError)
-    case server(JsonRpcResponseError)
+    case network(MullvadAPI.Error)
+    case server(JsonRpcResponseError<MullvadAPI.ResponseCode>)
 }
 
 /// A enum describing the source of the relay list
