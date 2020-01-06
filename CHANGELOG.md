@@ -27,6 +27,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add translations for Finnish and Danish.
 
 ### Changed
+#### Linux
+- DNS management with static `/etc/resolv.conf` will now work even when no
+  `/etc/resolv.conf` exists.
+
 #### Android
 - Wait for traffic to be routed through the tunnel device before advertising blocked state.
 
