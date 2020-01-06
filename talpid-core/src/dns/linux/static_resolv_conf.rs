@@ -172,6 +172,10 @@ impl DnsWatcher {
 }
 
 fn read_config() -> Result<Config> {
+    if !std::path::Path::new(RESOLV_CONF_PATH).exists() {
+        return Ok(Config::new());
+    }
+
     let contents = fs::read_to_string(RESOLV_CONF_PATH)
         .map_err(|e| Error::ReadResolvConf(RESOLV_CONF_PATH, e))?;
     let config = Config::parse(&contents).map_err(|e| Error::ParseError(RESOLV_CONF_PATH, e))?;
