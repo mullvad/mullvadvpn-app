@@ -2,7 +2,6 @@
 use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::{
-    error::Error,
     fmt,
     net::{IpAddr, SocketAddr},
     str::FromStr,
@@ -173,13 +172,7 @@ pub struct TransportProtocolParseError;
 
 impl fmt::Display for TransportProtocolParseError {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt.write_str(self.description())
-    }
-}
-
-impl Error for TransportProtocolParseError {
-    fn description(&self) -> &str {
-        "Not a valid transport protocol"
+        fmt.write_str("Not a valid transport protocol")
     }
 }
 
