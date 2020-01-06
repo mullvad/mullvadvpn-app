@@ -315,9 +315,10 @@ impl KeyManager {
         public_key: PublicKey,
         rotation_interval_secs: u64,
         account_token: AccountToken,
-    ) -> impl Future<Item = WireguardData, Error = Error> + Send {
+    ) -> impl Future<Item = PublicKey, Error = Error> + Send {
         let expiration_timer =
             Self::create_key_expiration_timer(public_key.clone(), rotation_interval_secs);
+
 
         let account_token_copy = account_token.clone();
 
@@ -335,17 +336,28 @@ impl KeyManager {
                         public_key.clone(),
                         private_key,
                     )
-                    .map_err(|err| Error::RpcError(err))
+                    .map_err(Self::map_rpc_error)
                 })
             })
-            .map(move |wireguard_data| {
-                // Update account data
-                let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
-                    account_token_copy,
-                    Ok(wireguard_data.clone()),
-                )));
-
-                wireguard_data
+            .then(move |rpc_result| {
+                match rpc_result {
+                    Ok(data) => {
+                        // Update account data
+                        let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
+                            account_token_copy,
+                            Ok(data.clone()),
+                        )));
+                        Ok(data.get_public_key())
+                    }
+                    Err(Error::TooManyKeys) => {
+                        let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
+                            account_token_copy,
+                            Err(Error::TooManyKeys),
+                        )));
+                        Err(Error::TooManyKeys)
+                    }
+                    Err(unknown_err) => Err(unknown_err),
+                }
             })
     }
 
@@ -366,23 +378,17 @@ impl KeyManager {
             account_token.clone(),
         );
 
-        let create_repeat_future = move |result: Result<WireguardData>| {
-            let next_public_key;
-            let next_interval: u64;
+        let create_repeat_future = move |result: Result<PublicKey>| {
 
             match result {
-                Ok(wg_data) => {
-                    next_interval = rotation_interval_secs;
-                    next_public_key = wg_data.get_public_key();
-
-                    Self::create_automatic_rotation(
-                        daemon_tx.clone(),
-                        http_handle.clone(),
-                        next_public_key,
-                        next_interval,
-                        account_token.clone(),
-                    )
-                }
+                Ok(next_public_key) => Self::create_automatic_rotation(
+                    daemon_tx.clone(),
+                    http_handle.clone(),
+                    next_public_key,
+                    rotation_interval_secs,
+                    account_token.clone(),
+                ),
+                Err(Error::TooManyKeys) => Box::new(futures::future::ok(())),
                 Err(e) => {
                     log::error!(
                         "Key rotation failed: {}. Retrying in {} seconds",
@@ -390,8 +396,7 @@ impl KeyManager {
                         AUTOMATIC_ROTATION_RETRY_DELAY,
                     );
 
-                    next_interval = rotation_interval_secs;
-                    next_public_key = public_key.clone();
+                    let next_public_key = public_key.clone();
 
                     let daemon_tx = daemon_tx.clone();
                     let http_handle = http_handle.clone();
@@ -406,7 +411,7 @@ impl KeyManager {
                                     daemon_tx,
                                     http_handle,
                                     next_public_key,
-                                    next_interval,
+                                    rotation_interval_secs,
                                     account_token,
                                 )
                             }),
