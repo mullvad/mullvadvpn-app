@@ -30,6 +30,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Wait for traffic to be routed through the tunnel device before advertising blocked state.
 
+### Fixed
+- Don't try to replace wireguard key if account has too many keys already.
 
 ## [2019.10] - 2019-12-12
 ### Fixed
