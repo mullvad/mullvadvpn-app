@@ -31,8 +31,14 @@ class AccountViewController: UIViewController {
     @IBAction func doLogout() {
         logoutSubscriber = Account.shared.logout()
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { (_) in
-                self.performSegue(withIdentifier: SegueIdentifier.Account.logout.rawValue, sender: self)
+            .sink(receiveCompletion: { (completion) in
+                switch completion {
+                case .failure(let error):
+                    self.presentError(error, preferredStyle: .alert)
+
+                case .finished:
+                    self.performSegue(withIdentifier: SegueIdentifier.Account.logout.rawValue, sender: self)
+                }
             })
     }
 

@@ -96,7 +96,10 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { (completion) in
                 if case .failure(let error) = completion {
-                    os_log(.error, "Failed to start the tunnel: %{public}s", error.localizedDescription)
+                    os_log(.error, "Failed to start the tunnel: %{public}s",
+                           error.localizedDescription)
+
+                    self.presentError(error, preferredStyle: .alert)
                 }
             })
     }
@@ -104,7 +107,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
     private func disconnectTunnel() {
         startStopTunnelSubscriber = TunnelManager.shared.stopTunnel()
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { (_) in
+            .sink(receiveCompletion: { (completion) in
                 // no-op
             })
     }
