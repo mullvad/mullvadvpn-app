@@ -41,6 +41,66 @@ enum TunnelManagerError: Error {
     case regenerateWireguardPrivateKey(RegenerateWireguardPrivateKeyError)
 }
 
+extension TunnelManagerError: LocalizedError {
+
+    var errorDescription: String? {
+        switch self {
+        case .regenerateWireguardPrivateKey:
+            return NSLocalizedString("Cannot regenerate the private key", comment: "")
+
+        case .setAccount:
+            return NSLocalizedString("Cannot set up the tunnel", comment: "")
+
+        case .getWireguardPublicKey:
+            return NSLocalizedString("Cannot retrieve the public key", comment: "")
+
+        case .startTunnel:
+            return NSLocalizedString("Cannot start the tunnel", comment: "")
+
+        default:
+            return nil
+        }
+    }
+
+    var failureReason: String? {
+        switch self {
+
+        case .setAccount(.pushWireguardKey(let pushError)),
+             .regenerateWireguardPrivateKey(.replaceWireguardKey(let pushError)):
+            switch pushError {
+            case .transport(.network(let urlError)):
+                return urlError.localizedDescription
+
+            case .server(let serverError):
+                return serverError.errorDescription
+
+            default:
+                return NSLocalizedString("Internal error", comment: "")
+            }
+
+        default:
+            return nil
+        }
+    }
+
+    var recoverySuggestion: String? {
+        switch self {
+        case .regenerateWireguardPrivateKey(.replaceWireguardKey(let pushError)):
+            switch pushError {
+            case .server(let serverError) where serverError.code == .tooManyWireguardKeys:
+                return NSLocalizedString("Remove unused WireGuard keys and try again.", comment: "")
+
+            default:
+                return nil
+            }
+
+        default:
+            return nil
+        }
+    }
+
+}
+
 enum TunnelIpcRequestError: Error {
     /// IPC is not set yet
     case missingIpc
