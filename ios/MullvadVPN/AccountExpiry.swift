@@ -28,8 +28,8 @@ class AccountExpiry {
         return date < Date()
     }
 
-    var formattedRemainingTime: String {
-        return relativeFormatter.string(from: Date(), to: date)!
+    var formattedRemainingTime: String? {
+        return relativeFormatter.string(from: Date(), to: date)
     }
 
     var formattedDate: String {
