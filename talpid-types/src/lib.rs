@@ -56,10 +56,6 @@ impl fmt::Display for BoxedError {
 }
 
 impl Error for BoxedError {
-    fn description(&self) -> &str {
-        self.0.description()
-    }
-
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         self.0.source()
     }
