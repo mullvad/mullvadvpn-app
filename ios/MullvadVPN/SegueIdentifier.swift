@@ -21,6 +21,10 @@ extension SegueIdentifier {
         case showConnect = "ShowConnect"
     }
 
+    enum Settings: String, SegueConvertible {
+        case showWireguardKeys = "ShowWireguardKeys"
+    }
+
     enum Connect: String, SegueConvertible {
         case embedTunnelControls = "EmbedTunnelControls"
         case showRelaySelector = "ShowRelaySelector"
