@@ -171,7 +171,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
         // controller.
         switch loginState {
         case .authenticating:
-            activityIndicator.isAnimating = true
+            activityIndicator.startAnimating()
 
             // Fallthrough to make sure that the settings button is disabled
             // in .authenticating and .success cases.
@@ -182,7 +182,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
 
         case .default, .failure:
             rootContainerController?.headerBarSettingsButton.isEnabled = true
-            activityIndicator.isAnimating = false
+            activityIndicator.stopAnimating()
         }
 
         updateDisplayedMessage()
