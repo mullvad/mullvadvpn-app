@@ -151,13 +151,13 @@ private extension TunnelState {
     func textForSecureLabel() -> String {
         switch self {
         case .connecting, .reconnecting:
-            return NSLocalizedString("Creating secure connection", tableName: "Connect", comment: "")
+            return NSLocalizedString("Creating secure connection", comment: "")
 
         case .connected:
-            return NSLocalizedString("Secure connection", tableName: "Connect", comment: "")
+            return NSLocalizedString("Secure connection", comment: "")
 
         case .disconnecting, .disconnected:
-            return NSLocalizedString("Unsecured connection", tableName: "Connect", comment: "")
+            return NSLocalizedString("Unsecured connection", comment: "")
         }
     }
 
