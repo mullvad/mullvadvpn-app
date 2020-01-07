@@ -15,8 +15,8 @@ from the device travel via an encrypted VPN tunnel.
 
 For desktop operating systems, the security is ensured via tight integration with the default
 system firewall. This means WFP on Windows, PF on macOS and nftables on Linux. All changes to
-the rules are applied as atomic transactions. Meaning there is no time window of inconsistent or
-invalid rules during changes.
+the rules are applied as atomic transactions. This means that there is no time window of
+inconsistent or invalid rules during changes.
 
 On mobile, Android and iOS, it is not possible for apps to directly access and manipulate the
 firewall, routing table or DNS settings. There we employ other techniques to keep the system as
@@ -33,22 +33,23 @@ An app with permission to act as a VPN service can request to open a VPN tunnel 
 provide a set of IP networks it would like to have routed via itself. Doing so and specifying
 the routes `0/0` and `::0/0` forces all traffic to go via the app. That is what this app does both
 when it has a VPN tunnel up, but also when in a state where it would like to block all network
-traffic. Such as the [connecting], [disconnecting] and [blocked] states.
+traffic. Such as the [connecting], [disconnecting] and [blocked] states. In these states, all
+packets are simply dropped.
 
 ### iOS
 
 On iOS a designated packet tunnel process handles the network packet flow. iOS implementation
 delegates the traffic handling to wireguard-go, which works directly with the tun interface.
-The network configuration set up by the packet tunnel extension, specifies the routing rules,
-that all traffic should flow through the tunnel, same way it works on Android.
+The network configuration set up by the packet tunnel extension specifies the routing rules
+that all traffic should flow through the tunnel, the same way it works on Android.
 
-The iOS app currently does not support blocking in the apps blocked state.
+The iOS app currently does not support blocking in the app's blocked state.
 
 ## App states
 
 At the core of the app is a state machine called the "tunnel state machine". The following
 sub-sections will describe each state and what security properties hold and what network activity
-will be blocked and allowed during them.
+will be blocked and allowed in each state.
 
 Except what is described as allowed in this document, all network packets should be blocked.
 
@@ -178,7 +179,7 @@ This means that whenever the app changes server or temporarily loses tunnel conn
 ensure no network traffic leaks out unencrypted.
 
 The app avoids the term "kill switch". Because it sounds like a red button
-That has to be *engaged when a problem arises*. This app is much more proactive and applies
+that has to be *engaged when a problem arises*. This app is much more proactive and applies
 [strict firewall rules](#app-states) directly when it leaves the [disconnected]
 state and keeps those rules active and enforced until the app comes back to the [disconnected]
 state via an explicit user request again. Said strict firewall rules unsure that packets can only
