@@ -45,7 +45,7 @@ class AccountViewController: UIViewController {
             let accountExpiry = AccountExpiry(date: expiryDate)
 
             if accountExpiry.isExpired {
-                expiryLabel.text = NSLocalizedString("OUT OF TIME", tableName: "Settings", comment: "")
+                expiryLabel.text = NSLocalizedString("OUT OF TIME", comment: "")
                 expiryLabel.textColor = .dangerColor
             } else {
                 expiryLabel.text = accountExpiry.formattedDate

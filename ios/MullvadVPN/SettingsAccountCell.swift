@@ -24,7 +24,7 @@ class SettingsAccountCell: SettingsCell {
             let accountExpiry = AccountExpiry(date: accountExpiryDate)
 
             if accountExpiry.isExpired {
-                expiryLabel.text = NSLocalizedString("OUT OF TIME", tableName: "Settings", comment: "")
+                expiryLabel.text = NSLocalizedString("OUT OF TIME", comment: "")
                 expiryLabel.textColor = .dangerColor
             } else {
                 let remainingTime = accountExpiry.formattedRemainingTime
