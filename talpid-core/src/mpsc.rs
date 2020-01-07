@@ -1,9 +1,10 @@
-use std::{marker::PhantomData, sync::mpsc};
+use futures::sync::mpsc::{SendError, UnboundedSender};
+use std::marker::PhantomData;
 
 /// Abstraction over an `mpsc::Sender` that first converts the value to another type before sending.
 #[derive(Debug, Clone)]
 pub struct IntoSender<T, U> {
-    sender: mpsc::Sender<U>,
+    sender: UnboundedSender<U>,
     _marker: PhantomData<T>,
 }
 
@@ -12,16 +13,16 @@ where
     T: Into<U>,
 {
     /// Converts the `T` into a `U` and sends it on the channel.
-    pub fn send(&self, t: T) -> Result<(), mpsc::SendError<U>> {
-        self.sender.send(t.into())
+    pub fn send(&self, t: T) -> Result<(), SendError<U>> {
+        self.sender.unbounded_send(t.into())
     }
 }
 
-impl<T, U> From<mpsc::Sender<U>> for IntoSender<T, U>
+impl<T, U> From<UnboundedSender<U>> for IntoSender<T, U>
 where
     T: Into<U>,
 {
-    fn from(sender: mpsc::Sender<U>) -> Self {
+    fn from(sender: UnboundedSender<U>) -> Self {
         IntoSender {
             sender,
             _marker: PhantomData,
@@ -32,7 +33,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{sync::mpsc, thread};
+    use futures::{sync::mpsc, Stream};
+    use std::thread;
 
     #[derive(Debug, Eq, PartialEq)]
     enum Inner {
@@ -54,25 +56,29 @@ mod tests {
 
     #[test]
     fn sender() {
-        let (tx, rx) = mpsc::channel::<Outer>();
+        let (tx, rx) = mpsc::unbounded();
         let inner_tx: IntoSender<Inner, Outer> = tx.clone().into();
 
-        tx.send(Outer::Other).unwrap();
+        tx.unbounded_send(Outer::Other).unwrap();
         inner_tx.send(Inner::Two).unwrap();
 
-        assert_eq!(Outer::Other, rx.recv().unwrap());
-        assert_eq!(Outer::Inner(Inner::Two), rx.recv().unwrap());
+        let mut sync_rx = rx.wait();
+
+        assert_eq!(Outer::Other, sync_rx.next().unwrap().unwrap());
+        assert_eq!(Outer::Inner(Inner::Two), sync_rx.next().unwrap().unwrap());
     }
 
     #[test]
     fn send_between_thread() {
-        let (tx, rx) = mpsc::channel::<Outer>();
+        let (tx, rx) = mpsc::unbounded();
         let inner_tx: IntoSender<Inner, Outer> = tx.clone().into();
 
         thread::spawn(move || {
             inner_tx.send(Inner::One).unwrap();
         });
 
-        assert_eq!(Outer::Inner(Inner::One), rx.recv().unwrap());
+        let mut sync_rx = rx.wait();
+
+        assert_eq!(Outer::Inner(Inner::One), sync_rx.next().unwrap().unwrap());
     }
 }
