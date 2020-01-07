@@ -3,17 +3,12 @@ package net.mullvad.mullvadvpn.ui
 import android.content.Context
 import android.view.View
 import android.widget.TextView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import org.joda.time.DateTime
 import org.joda.time.Duration
 import org.joda.time.PeriodType
 
-class RemainingTimeLabel(val context: Context, val accountCache: AccountCache, val view: View) {
+class RemainingTimeLabel(val context: Context, val view: View) {
     private val resources = context.resources
 
     private val expiredColor = resources.getColor(R.color.red)
@@ -21,25 +16,15 @@ class RemainingTimeLabel(val context: Context, val accountCache: AccountCache, v
 
     private val label = view.findViewById<TextView>(R.id.remaining_time)
 
-    private var updateJob: Job? = null
-
-    fun onResume() {
-        accountCache.apply {
-            refetch()
-
-            onAccountDataChange = { _, accountExpiry ->
-                updateJob?.cancel()
-                updateJob = updateLabel(accountExpiry)
-            }
+    var accountExpiry: DateTime? = null
+        set(value) {
+            field = value
+            updateLabel()
         }
-    }
 
-    fun onPause() {
-        accountCache.onAccountDataChange = null
-        updateJob?.cancel()
-    }
+    private fun updateLabel() {
+        val expiry = accountExpiry
 
-    private fun updateLabel(expiry: DateTime?) = GlobalScope.launch(Dispatchers.Main) {
         if (expiry != null) {
             val remainingTime = Duration(DateTime.now(), expiry)
 

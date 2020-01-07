@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.relaylist.RelayItemDividerDecoration
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
 
-class SelectLocationFragment : ServiceDependentFragment() {
+class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var relayListAdapter: RelayListAdapter
     private lateinit var relayListContainer: ViewSwitcher
 

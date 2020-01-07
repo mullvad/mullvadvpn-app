@@ -39,6 +39,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix regression due to which a TAP adapter issue was not given as the specific block reason when
   the tunnel could not be started.
 
+#### Android
+- Fix crash when starting the app right after quitting it.
+
 
 ## [2019.10] - 2019-12-12
 ### Fixed

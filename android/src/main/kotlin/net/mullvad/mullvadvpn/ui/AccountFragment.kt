@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import org.joda.time.DateTime
 
-class AccountFragment : ServiceDependentFragment() {
+class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var accountExpiryContainer: View
     private lateinit var accountExpiryDisplay: TextView
     private lateinit var accountNumberContainer: View

@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 
-class LoginFragment : ServiceDependentFragment() {
+class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var title: TextView
     private lateinit var subtitle: TextView
     private lateinit var loggingInStatus: View
