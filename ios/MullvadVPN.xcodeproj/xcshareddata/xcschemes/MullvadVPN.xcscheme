@@ -32,7 +32,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "584B26DF237433ED0073B10E"
+               BlueprintIdentifier = "58B0A29F238EE67E00BC001D"
                BuildableName = "MullvadVPNTests.xctest"
                BlueprintName = "MullvadVPNTests"
                ReferencedContainer = "container:MullvadVPN.xcodeproj">
