@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.dataproxy
 
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -12,7 +11,7 @@ import org.joda.time.format.DateTimeFormat
 
 val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
 
-class AccountCache(val settingsListener: SettingsListener, val daemon: Deferred<MullvadDaemon>) {
+class AccountCache(val settingsListener: SettingsListener, val daemon: MullvadDaemon) {
     private var fetchJob: Job? = null
     private var accountNumber: String? = null
     private var accountExpiry: DateTime? = null
@@ -55,7 +54,7 @@ class AccountCache(val settingsListener: SettingsListener, val daemon: Deferred<
     private fun fetchAccountExpiry() = GlobalScope.launch(Dispatchers.Default) {
         val accountNumber = this@AccountCache.accountNumber
         val accountData = accountNumber?.let { account ->
-            val result = daemon.await().getAccountData(account)
+            val result = daemon.getAccountData(account)
 
             when (result) {
                 is GetAccountDataResult.Ok -> result.accountData

@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.dataproxy
 
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -21,20 +20,19 @@ const val MAX_DELAY: Long = 30 * 60 * 1000
 const val MAX_RETRIES: Int = 17 // ceil(log2(MAX_DELAY / DELAY_SCALE) + 1)
 
 class LocationInfoCache(
-    val daemon: Deferred<MullvadDaemon>,
-    val connectivityListener: Deferred<ConnectivityListener>,
+    val daemon: MullvadDaemon,
+    val connectivityListener: ConnectivityListener,
     val relayListListener: RelayListListener
 ) {
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var activeFetch: Job? = null
 
-    private val connectivityListenerId = GlobalScope.async(Dispatchers.Default) {
-        connectivityListener.await().connectivityNotifier.subscribe { isConnected ->
+    private val connectivityListenerId =
+        connectivityListener.connectivityNotifier.subscribe { isConnected ->
             if (isConnected) {
                 fetchLocation()
             }
         }
-    }
 
     var onNewLocation: ((GeoIpLocation?) -> Unit)? = null
         set(value) {
@@ -132,7 +130,7 @@ class LocationInfoCache(
     }
 
     private fun executeFetch() = GlobalScope.async(Dispatchers.Default) {
-        daemon.await().getCurrentLocation()
+        daemon.getCurrentLocation()
     }
 
     private suspend fun delayFetch(retryAttempt: Int) {
@@ -149,10 +147,10 @@ class LocationInfoCache(
         delay(duration)
     }
 
-    private suspend fun shouldRetryFetch(): Boolean {
+    private fun shouldRetryFetch(): Boolean {
         val state = this.state
 
-        return connectivityListener.await().isConnected &&
+        return connectivityListener.isConnected &&
             (state is TunnelState.Disconnected || state is TunnelState.Connected)
     }
 }

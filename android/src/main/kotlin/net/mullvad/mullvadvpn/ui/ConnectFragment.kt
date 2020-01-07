@@ -49,8 +49,7 @@ class ConnectFragment : ServiceDependentFragment() {
         }
 
         headerBar = HeaderBar(view, resources)
-        notificationBanner =
-            NotificationBanner(view, parentActivity, appVersionInfoCache, wwwAuthTokenRetriever)
+        notificationBanner = NotificationBanner(view, parentActivity, appVersionInfoCache, daemon)
         status = ConnectionStatus(view, resources)
 
         locationInfo = LocationInfo(view, context!!)
