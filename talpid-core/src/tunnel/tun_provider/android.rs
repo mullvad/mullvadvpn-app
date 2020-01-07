@@ -134,7 +134,6 @@ impl AndroidTunProvider {
                 .map_err(Error::Select)?
                 > 0
             {
-                let elapsed = start.elapsed();
                 return Ok(());
             }
             // have to add tun_fd back into the bitset
