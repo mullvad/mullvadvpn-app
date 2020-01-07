@@ -10,7 +10,7 @@ import Combine
 import UIKit
 import os
 
-private let cellIdentifier = "Cell"
+private let kCellIdentifier = "Cell"
 
 enum SelectLocationControllerError: Error {
     case loadRelayList(RelayCacheError)
@@ -23,18 +23,39 @@ class SelectLocationController: UITableViewController {
     private var relayList: RelayList?
     private var relayConstraints: RelayConstraints?
     private var expandedItems = [RelayLocation]()
-    private var dataSource = [RelayListDataSourceItem]()
-
+    private var dataSource: DataSource?
     private var loadDataSubscriber: AnyCancellable?
 
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
 
-    var selectedItem: RelayListDataSourceItem?
+    var selectedLocation: RelayLocation?
 
     // MARK: - View lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        dataSource = DataSource(
+            tableView: self.tableView,
+            cellProvider: { [weak self] (tableView, indexPath, item) -> UITableViewCell? in
+                guard let self = self else { return nil }
+
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: kCellIdentifier, for: indexPath) as! SelectLocationCell
+
+                cell.isDisabled = !item.hasActiveRelays()
+                cell.locationLabel.text = item.displayName()
+                cell.statusIndicator.isActive = item.hasActiveRelays()
+                cell.showsCollapseControl = item.isCollapsibleLevel()
+                cell.isExpanded = self.expandedItems.contains(item.relayLocation)
+                cell.didCollapseHandler = { [weak self] (cell) in
+                    self?.collapseCell(cell)
+                }
+
+                return cell
+        })
+
+        tableView.dataSource = dataSource
 
         addActivityIndicatorView()
         loadData()
@@ -46,51 +67,24 @@ class SelectLocationController: UITableViewController {
         updateTableHeaderViewSizeIfNeeded()
     }
 
-    // MARK: - UITableViewDataSource
-
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return dataSource.count
-    }
-
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: cellIdentifier, for: indexPath) as! SelectLocationCell
-
-        let item = dataSource[indexPath.row]
-
-        cell.isDisabled = !item.hasActiveRelays()
-        cell.locationLabel.text = item.displayName()
-        cell.statusIndicator.isActive = item.hasActiveRelays()
-        cell.showsCollapseControl = item.isCollapsibleLevel()
-        cell.isExpanded = expandedItems.contains(item.relayLocation)
-        cell.didCollapseHandler = { [weak self] (cell) in
-            self?.collapseCell(cell)
-        }
-
-        return cell
-    }
+    // MARK: - UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        let item = dataSource[indexPath.row]
-
-        return item.hasActiveRelays()
+        return dataSource?.itemIdentifier(for: indexPath)?.hasActiveRelays() ?? false
     }
 
     override func tableView(_ tableView: UITableView, indentationLevelForRowAt indexPath: IndexPath) -> Int {
-        let item = dataSource[indexPath.row]
-
-        return item.indentationLevel()
+        return dataSource?.itemIdentifier(for: indexPath)?.indentationLevel() ?? 0
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        selectedItem = dataSource[indexPath.row]
+        guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
+
+        selectedLocation = item.relayLocation
 
         // Return back to the main view after selecting the relay
         tableView.isUserInteractionEnabled = false
+
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(250)) {
             self.performSegue(withIdentifier:
                 SegueIdentifier.SelectLocation.returnToConnectWithNewRelay.rawValue, sender: self)
@@ -134,15 +128,16 @@ class SelectLocationController: UITableViewController {
         let relayLocation = relayConstraints.location.value
         expandedItems = relayLocation?.ascendants ?? []
 
-        updateDataSource()
+        updateDataSource(animateDifferences: false)
         tableView.reloadData()
 
         updateTableViewSelection(scroll: true, animated: false)
     }
 
     private func computeIndexPathForSelectedLocation(relayLocation: RelayLocation) -> IndexPath? {
-        guard let row = dataSource.firstIndex(where: { $0.relayLocation == relayLocation })
-            else {
+        guard let row = dataSource?.snapshot()
+            .itemIdentifiers
+            .firstIndex(where: { $0.relayLocation == relayLocation }) else {
                 return nil
         }
 
@@ -160,20 +155,29 @@ class SelectLocationController: UITableViewController {
         tableView.selectRow(at: indexPath, animated: animated, scrollPosition: scrollPosition)
     }
 
-    private func updateDataSource() {
-        dataSource = relayList?.intoRelayDataSourceItemList(filter: { (item) -> Bool in
+    private func updateDataSource(animateDifferences: Bool, completion: (() -> Void)? = nil) {
+        let items = relayList?.intoRelayDataSourceItemList(using: { (item) -> Bool in
             return expandedItems.contains(item.relayLocation)
         }) ?? []
+
+        var snapshot = DataSourceSnapshot()
+        snapshot.appendSections([.locations])
+        snapshot.appendItems(items, toSection: .locations)
+
+        dataSource?.apply(
+            snapshot,
+            animatingDifferences: animateDifferences,
+            completion: completion
+        )
     }
 
     private func collapseCell(_ cell: SelectLocationCell) {
-        guard let cellIndexPath = tableView.indexPath(for: cell) else {
-            return
+        guard let cellIndexPath = tableView.indexPath(for: cell),
+            let item = dataSource?.itemIdentifier(for: cellIndexPath) else {
+                return
         }
 
-        let item = dataSource[cellIndexPath.row]
         let itemLocation = item.relayLocation
-        let numberOfItemsBefore = dataSource.count
 
         if let index = expandedItems.firstIndex(of: itemLocation) {
             expandedItems.remove(at: index)
@@ -183,21 +187,9 @@ class SelectLocationController: UITableViewController {
             cell.isExpanded = true
         }
 
-        updateDataSource()
-
-        let numberOfItemsAfter = dataSource.count - numberOfItemsBefore
-        let indexPathsOfAffectedItems = cellIndexPath.subsequentIndexPaths(count: abs(numberOfItemsAfter))
-
-        tableView.performBatchUpdates({
-            if numberOfItemsAfter > 0 {
-                tableView.insertRows(at: indexPathsOfAffectedItems, with: .automatic)
-            } else {
-                tableView.deleteRows(at: indexPathsOfAffectedItems, with: .automatic)
-            }
-        }) { _ in
+        updateDataSource(animateDifferences: true) {
             self.updateTableViewSelection(scroll: false, animated: true)
         }
-
     }
 
     // MARK: - UITableView header
@@ -238,16 +230,19 @@ class SelectLocationController: UITableViewController {
     }
 }
 
-/// Private extension to convert a RelayList into a flat list of RelayListDataSourceItems
 private extension RelayList {
 
-    typealias FilterFunc = (RelayListDataSourceItem) -> Bool
+    typealias EvaluatorFn = (DataSourceItem) -> Bool
 
-    func intoRelayDataSourceItemList(filter: FilterFunc) -> [RelayListDataSourceItem] {
-        var items = [RelayListDataSourceItem]()
+    /// Turn `RelayList` into a flat list of `DataSourceItem`s.
+    ///
+    /// - Parameters evaluator: A closure that determines if the sub-tree should be rendered when it
+    ///                         returns `true`, or dropped when it returns `false`
+    func intoRelayDataSourceItemList(using evaluator: EvaluatorFn) -> [DataSourceItem] {
+        var items = [DataSourceItem]()
 
         for country in countries {
-            let wrappedCountry = RelayListDataSourceItem.Country(
+            let wrappedCountry = DataSourceItem.Country(
                 countryCode: country.code,
                 name: country.name,
                 hasActiveRelays: country.cities.contains(where: { (city) -> Bool in
@@ -256,33 +251,32 @@ private extension RelayList {
                     }
                 })
             )
-            let countryItem = RelayListDataSourceItem.country(wrappedCountry)
 
+            let countryItem = DataSourceItem.country(wrappedCountry)
             items.append(countryItem)
 
-            guard country.cities.contains(where: { !$0.relays.isEmpty }) &&
-                filter(countryItem) else { continue }
-
-            for city in country.cities {
-                let wrappedCity = RelayListDataSourceItem.City(
-                    countryCode: country.code,
-                    cityCode: city.code,
-                    name: city.name,
-                    hasActiveRelays: city.relays.contains(where: { $0.active })
-                )
-                let cityItem = RelayListDataSourceItem.city(wrappedCity)
-
-                items.append(cityItem)
-
-                guard !city.relays.isEmpty && filter(cityItem) else { continue }
-
-                for host in city.relays {
-                    let wrappedHost = RelayListDataSourceItem.Hostname(
+            if evaluator(countryItem) {
+                for city in country.cities {
+                    let wrappedCity = DataSourceItem.City(
                         countryCode: country.code,
                         cityCode: city.code,
-                        hostname: host.hostname,
-                        active: host.active)
-                    items.append(.hostname(wrappedHost))
+                        name: city.name,
+                        hasActiveRelays: city.relays.contains(where: { $0.active })
+                    )
+
+                    let cityItem = DataSourceItem.city(wrappedCity)
+                    items.append(cityItem)
+
+                    if evaluator(cityItem) {
+                        for host in city.relays {
+                            let wrappedHost = DataSourceItem.Hostname(
+                                countryCode: country.code,
+                                cityCode: city.code,
+                                hostname: host.hostname,
+                                active: host.active)
+                            items.append(.hostname(wrappedHost))
+                        }
+                    }
                 }
             }
         }
@@ -292,8 +286,37 @@ private extension RelayList {
 
 }
 
+private extension RelayLocation {
+
+    /// A list of `RelayLocation` items preceding the given one in the relay tree
+    var ascendants: [RelayLocation] {
+        switch self {
+        case .hostname(let country, let city, _):
+            return [.country(country), .city(country, city)]
+
+        case .city(let country, _):
+            return [.country(country)]
+
+        case .country:
+            return []
+        }
+    }
+
+}
+
+/// Enum describing the table view sections
+private enum DataSourceSection {
+    case locations
+}
+
+/// Data source type
+private typealias DataSource = UITableViewDiffableDataSource<DataSourceSection, DataSourceItem>
+
+/// Data source snapshot type
+private typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<DataSourceSection, DataSourceItem>
+
 /// A wrapper type for RelayList to be able to represent it as a flat list
-enum RelayListDataSourceItem {
+private enum DataSourceItem: Hashable {
 
     struct Country {
         let countryCode: String
@@ -318,9 +341,6 @@ enum RelayListDataSourceItem {
     case country(Country)
     case city(City)
     case hostname(Hostname)
-}
-
-extension RelayListDataSourceItem {
 
     var relayLocation: RelayLocation {
         switch self {
@@ -333,9 +353,13 @@ extension RelayListDataSourceItem {
         }
     }
 
-}
+    static func == (lhs: DataSourceItem, rhs: DataSourceItem) -> Bool {
+        lhs.relayLocation == rhs.relayLocation
+    }
 
-private extension RelayListDataSourceItem {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(relayLocation)
+    }
 
     func indentationLevel() -> Int {
         switch self {
@@ -379,28 +403,4 @@ private extension RelayListDataSourceItem {
         }
     }
 
-}
-
-private extension RelayLocation {
-
-    /// A list of `RelayLocation` items preceding the given one in the relay tree
-    var ascendants: [RelayLocation] {
-        switch self {
-        case .hostname(let country, let city, _):
-            return [.country(country), .city(country, city)]
-
-        case .city(let country, _):
-            return [.country(country)]
-
-        case .country:
-            return []
-        }
-    }
-
-}
-
-private extension IndexPath {
-    func subsequentIndexPaths(count: Int) -> [IndexPath] {
-        return (1...count).map({ IndexPath(row: self.row + $0, section: self.section) })
-    }
 }
