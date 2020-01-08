@@ -27,7 +27,7 @@ class SelectLocationController: UITableViewController {
     private var loadDataSubscriber: AnyCancellable?
 
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
-    
+
     var selectedLocation: RelayLocation?
 
     // MARK: - View lifecycle
