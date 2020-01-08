@@ -52,7 +52,7 @@ extension AccountError: LocalizedError {
 
             case .setup(.saveTunnel(let systemError as NEVPNError))
                 where systemError.code == .configurationReadWriteFailed:
-                return NSLocalizedString("Permission denied", comment: "")
+                return NSLocalizedString("Permission denied to add a VPN profile", comment: "")
 
             default:
                 return NSLocalizedString("Internal error", comment: "")
