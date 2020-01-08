@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add translations for Finnish and Danish.
 
 ### Changed
+- Increase OpenVPN ping timeout from 20 to 25 seconds. Might make working tunnels disconnect
+  a bit less frequently.
+
 #### Linux
 - DNS management with static `/etc/resolv.conf` will now work even when no
   `/etc/resolv.conf` exists.
