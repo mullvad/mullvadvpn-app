@@ -116,9 +116,9 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
 
     @IBAction func unwindFromSelectLocation(segue: UIStoryboardSegue) {
         guard let selectLocationController = segue.source as? SelectLocationController else { return }
-        guard let selectedItem = selectLocationController.selectedItem else { return }
+        guard let selectedLocation = selectLocationController.selectedLocation else { return }
 
-        let relayConstraints = RelayConstraints(location: .only(selectedItem.relayLocation))
+        let relayConstraints = RelayConstraints(location: .only(selectedLocation))
 
         setRelaysSubscriber = TunnelManager.shared.setRelayConstraints(relayConstraints)
             .receive(on: DispatchQueue.main)
