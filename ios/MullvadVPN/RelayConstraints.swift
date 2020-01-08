@@ -64,7 +64,7 @@ extension RelayConstraint: CustomDebugStringConvertible {
     }
 }
 
-enum RelayLocation: Codable, Equatable {
+enum RelayLocation: Codable, Hashable {
     case country(String)
     case city(String, String)
     case hostname(String, String, String)
