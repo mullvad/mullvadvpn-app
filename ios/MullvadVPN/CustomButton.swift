@@ -46,6 +46,7 @@ import UIKit
 
         setTitleColor(UIColor.white, for: .normal)
         setTitleColor(UIColor.lightGray, for: .highlighted)
+        setTitleColor(UIColor.lightGray, for: .disabled)
     }
 
     override func imageRect(forContentRect contentRect: CGRect) -> CGRect {

@@ -16,6 +16,7 @@ class SettingsViewController: UITableViewController {
     private enum CellIdentifier: String {
         case account = "Account"
         case appVersion = "AppVersion"
+        case basicDisclosure = "BasicDisclosure"
     }
 
     private weak var accountRow: StaticTableViewRow?
@@ -43,9 +44,21 @@ class SettingsViewController: UITableViewController {
                 cell.accountExpiryDate = Account.shared.expiry
             }
 
+            let wireguardKeyRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicDisclosure.rawValue) { (_, cell) in
+                let cell = cell as! SettingsBasicCell
+
+                cell.titleLabel.text = NSLocalizedString("WireGuard key", comment: "")
+            }
+
+            wireguardKeyRow.actionBlock = { [weak self] (indexPath) in
+                self?.performSegue(
+                    withIdentifier: SegueIdentifier.Settings.showWireguardKeys.rawValue,
+                    sender: nil)
+            }
+
             self.accountRow = accountRow
 
-            topSection.addRows([accountRow])
+            topSection.addRows([accountRow, wireguardKeyRow])
             staticDataSource.addSections([topSection])
         }
 

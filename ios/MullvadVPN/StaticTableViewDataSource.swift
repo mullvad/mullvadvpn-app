@@ -103,6 +103,12 @@ class StaticTableViewDataSource: NSObject, UITableViewDataSource, UITableViewDel
         return cell
     }
 
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let row = self.row(for: indexPath)
+
+        row.actionBlock?(indexPath)
+    }
+
     // MARK: - Private
 
     private func row(for indexPath: IndexPath) -> StaticTableViewRow {

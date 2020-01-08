@@ -110,11 +110,11 @@ class SelectLocationController: UITableViewController {
             })
             .receive(on: DispatchQueue.main)
             .handleEvents(receiveSubscription: { _ in
-                self.activityIndicator.isAnimating = true
+                self.activityIndicator.startAnimating()
             }, receiveCompletion: { _ in
-                self.activityIndicator.isAnimating = false
+                self.activityIndicator.stopAnimating()
             }, receiveCancel: {
-                self.activityIndicator.isAnimating = false
+                self.activityIndicator.stopAnimating()
             })
             .sink(receiveCompletion: { (completion) in
                 if case .failure(let error) = completion {

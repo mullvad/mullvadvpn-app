@@ -39,7 +39,10 @@
 		586BD68322B7BBD800BB7F9F /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 586BD68222B7BBD800BB7F9F /* NetworkExtension.framework */; };
 		586BD68422B7BBE400BB7F9F /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 586BD68222B7BBD800BB7F9F /* NetworkExtension.framework */; };
 		58723E7522A54CB2009837F5 /* libwg-go.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58723E7422A54C63009837F5 /* libwg-go.a */; };
+		5873884D239E6D7E00E96C4E /* EmbeddedViewContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5873884C239E6D7E00E96C4E /* EmbeddedViewContainerView.swift */; };
 		587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587425C02299833500CA2045 /* RootContainerViewController.swift */; };
+		5877152E23981C5B001F8237 /* SettingsBasicCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5877152D23981C5B001F8237 /* SettingsBasicCell.swift */; };
+		5877153023981F7B001F8237 /* WireguardKeysViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5877152F23981F7B001F8237 /* WireguardKeysViewController.swift */; };
 		58781CC922AE7CA8009B9D8E /* RelayConstraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */; };
 		58781CCE22AE8918009B9D8E /* RelayConstraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */; };
 		58781CD522AFBA39009B9D8E /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58781CD422AFBA39009B9D8E /* RelaySelector.swift */; };
@@ -167,7 +170,10 @@
 		5867A51B2248F26A005513C0 /* SegueIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegueIdentifier.swift; sourceTree = "<group>"; };
 		586BD68222B7BBD800BB7F9F /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 		58723E7422A54C63009837F5 /* libwg-go.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libwg-go.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5873884C239E6D7E00E96C4E /* EmbeddedViewContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddedViewContainerView.swift; sourceTree = "<group>"; };
 		587425C02299833500CA2045 /* RootContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootContainerViewController.swift; sourceTree = "<group>"; };
+		5877152D23981C5B001F8237 /* SettingsBasicCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsBasicCell.swift; sourceTree = "<group>"; };
+		5877152F23981F7B001F8237 /* WireguardKeysViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardKeysViewController.swift; sourceTree = "<group>"; };
 		58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConstraints.swift; sourceTree = "<group>"; };
 		58781CD422AFBA39009B9D8E /* RelaySelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelector.swift; sourceTree = "<group>"; };
 		587AD7C523421D7000E93A53 /* TunnelConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelConfiguration.swift; sourceTree = "<group>"; };
@@ -310,6 +316,7 @@
 				5894FC482296A8090017471D /* CustomButton.swift */,
 				582BB1B0229569620055B6EF /* CustomNavigationBar.swift */,
 				58C6B35D22BBBFE3003C19AD /* Data+HexCoding.swift */,
+				5873884C239E6D7E00E96C4E /* EmbeddedViewContainerView.swift */,
 				58CE5E6F224146210008646E /* Info.plist */,
 				5840250022B1124600E4CFEC /* IpAddress+Codable.swift */,
 				58C6B34E22BB7AC0003C19AD /* IPAddressRange.swift */,
@@ -340,6 +347,7 @@
 				5888AD86227B17950051EB06 /* SelectLocationController.swift */,
 				582BB1B2229574F40055B6EF /* SettingsAccountCell.swift */,
 				581CBCEB2298041B00727D7F /* SettingsAppVersionCell.swift */,
+				5877152D23981C5B001F8237 /* SettingsBasicCell.swift */,
 				582BB1AE229566420055B6EF /* SettingsCell.swift */,
 				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
@@ -356,6 +364,7 @@
 				581CBCE52296B97300727D7F /* ViewControllerIdentifier.swift */,
 				587B08E1229460C1000E6F17 /* WebLinks.swift */,
 				58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */,
+				5877152F23981F7B001F8237 /* WireguardKeysViewController.swift */,
 				58C6B35322BB87C4003C19AD /* WireguardPrivateKey.swift */,
 			);
 			path = MullvadVPN;
@@ -610,6 +619,7 @@
 				581CBCE62296B97300727D7F /* ViewControllerIdentifier.swift in Sources */,
 				58BFA5C622A7C97F00A6173D /* RelayCache.swift in Sources */,
 				582BB1B1229569620055B6EF /* CustomNavigationBar.swift in Sources */,
+				5877153023981F7B001F8237 /* WireguardKeysViewController.swift in Sources */,
 				58C6B35422BB87C4003C19AD /* WireguardPrivateKey.swift in Sources */,
 				5888AD87227B17950051EB06 /* SelectLocationController.swift in Sources */,
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
@@ -629,10 +639,12 @@
 				587B08E0229433EB000E6F17 /* LoginState.swift in Sources */,
 				58C6B34F22BB7AC0003C19AD /* IPAddressRange.swift in Sources */,
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
+				5873884D239E6D7E00E96C4E /* EmbeddedViewContainerView.swift in Sources */,
 				582650862384116F00FA7A86 /* ReplaceNilWithError.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
+				5877152E23981C5B001F8237 /* SettingsBasicCell.swift in Sources */,
 				5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */,
 				58ADDB3C227B1BD200FAFEA7 /* JsonRpc.swift in Sources */,
 				581CBCEE229826FD00727D7F /* StaticTableViewDataSource.swift in Sources */,
@@ -895,7 +907,7 @@
 				CODE_SIGN_ENTITLEMENTS = MullvadVPN/MullvadVPN.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = G7CDBEG477;
 				INFOPLIST_FILE = MullvadVPN/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -903,7 +915,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2019.10;
+				MARKETING_VERSION = 2020.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -923,7 +935,7 @@
 				CODE_SIGN_ENTITLEMENTS = MullvadVPN/MullvadVPN.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = G7CDBEG477;
 				INFOPLIST_FILE = MullvadVPN/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -931,7 +943,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2019.10;
+				MARKETING_VERSION = 2020.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -947,7 +959,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = G7CDBEG477;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
@@ -956,7 +968,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2019.10;
+				MARKETING_VERSION = 2020.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -973,7 +985,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = G7CDBEG477;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
@@ -982,7 +994,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2019.10;
+				MARKETING_VERSION = 2020.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

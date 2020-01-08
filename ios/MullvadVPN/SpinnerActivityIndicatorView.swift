@@ -14,7 +14,7 @@ private let kAnimationDuration = 0.6
 @IBDesignable class SpinnerActivityIndicatorView: UIView {
 
     /// Thickness of the front and back circles
-    var thickness: CGFloat = 6 {
+    @IBInspectable var thickness: CGFloat = 6 {
         didSet {
             setLayersThickness()
         }
@@ -34,17 +34,7 @@ private let kAnimationDuration = 0.6
         }
     }
 
-    @IBInspectable var isAnimating: Bool = false {
-        didSet {
-            guard oldValue != isAnimating else { return }
-
-            if isAnimating {
-                startAnimating()
-            } else {
-                stopAnimating()
-            }
-        }
-    }
+    private(set) var isAnimating = false
 
     fileprivate let frontCircle = CAShapeLayer()
     fileprivate let backCircle = CAShapeLayer()
@@ -88,17 +78,23 @@ private let kAnimationDuration = 0.6
         setFrontCircleLayerColor()
     }
 
-    // MARK: - Private
+    func startAnimating() {
+        guard !isAnimating else { return }
+        isAnimating = true
 
-    private func startAnimating() {
         isHidden = false
         addAnimation()
     }
 
-    private func stopAnimating() {
+    func stopAnimating() {
+        guard isAnimating else { return }
+        isAnimating = false
+
         isHidden = true
         removeAnimation()
     }
+
+    // MARK: - Private
 
     private func commonInit() {
         registerForAppStateNotifications()
