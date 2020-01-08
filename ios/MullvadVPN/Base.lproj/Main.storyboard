@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ZwP-1v-DUg">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ZwP-1v-DUg">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -708,16 +708,16 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rkG-Xa-pEO" userLabel="Container">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="295"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="307.5"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nkx-Eb-7le" userLabel="Content">
-                                                <rect key="frame" x="24" y="24" width="327" height="247"/>
+                                                <rect key="frame" x="24" y="24" width="327" height="259.5"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HzF-8Z-UBs" userLabel="Account number">
-                                                        <rect key="frame" x="0.0" y="0.0" width="327" height="45.5"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="327" height="58"/>
                                                         <subviews>
                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="5ux-jY-AC5">
-                                                                <rect key="frame" x="0.0" y="0.0" width="327" height="45.5"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="327" height="58"/>
                                                                 <subviews>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Account number" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0L8-AT-A51">
                                                                         <rect key="frame" x="0.0" y="0.0" width="327" height="17"/>
@@ -725,12 +725,17 @@
                                                                         <color key="textColor" white="1" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
-                                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="123456789" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jvc-8m-jM5">
-                                                                        <rect key="frame" x="0.0" y="25" width="327" height="20.5"/>
+                                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XNH-JJ-9gR">
+                                                                        <rect key="frame" x="0.0" y="25" width="327" height="21"/>
                                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
-                                                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                                        <nil key="highlightedColor"/>
-                                                                    </label>
+                                                                        <inset key="contentEdgeInsets" minX="0.01" minY="0.0" maxX="1" maxY="0.0"/>
+                                                                        <state key="normal" title="123456789">
+                                                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                        </state>
+                                                                        <connections>
+                                                                            <action selector="copyAccountToken" destination="ruh-Q2-P39" eventType="touchUpInside" id="jox-eA-A3D"/>
+                                                                        </connections>
+                                                                    </button>
                                                                 </subviews>
                                                             </stackView>
                                                         </subviews>
@@ -742,7 +747,7 @@
                                                         </constraints>
                                                     </view>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="459-0n-9V2" userLabel="Expiry">
-                                                        <rect key="frame" x="0.0" y="69.5" width="327" height="45.5"/>
+                                                        <rect key="frame" x="0.0" y="82" width="327" height="45.5"/>
                                                         <subviews>
                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="NMg-f0-BTW">
                                                                 <rect key="frame" x="0.0" y="0.0" width="327" height="45.5"/>
@@ -770,7 +775,7 @@
                                                         </constraints>
                                                     </view>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Acd-vw-Pu7" userLabel="Buttons">
-                                                        <rect key="frame" x="0.0" y="139" width="327" height="108"/>
+                                                        <rect key="frame" x="0.0" y="151.5" width="327" height="108"/>
                                                         <subviews>
                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="wNk-FP-mVD">
                                                                 <rect key="frame" x="0.0" y="0.0" width="327" height="108"/>
@@ -851,7 +856,7 @@
                     </view>
                     <navigationItem key="navigationItem" title="Account" id="rL3-Y8-3g8"/>
                     <connections>
-                        <outlet property="accountLabel" destination="jvc-8m-jM5" id="HnU-i4-BRj"/>
+                        <outlet property="accountTokenButton" destination="XNH-JJ-9gR" id="yCU-t3-ayW"/>
                         <outlet property="expiryLabel" destination="8Vg-dd-ZpW" id="3n5-2Z-J8y"/>
                         <segue destination="P2i-eG-jQx" kind="unwind" identifier="Logout" unwindAction="unwindFromAccountWithSegue:" id="5li-wk-yRM"/>
                     </connections>
