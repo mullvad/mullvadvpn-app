@@ -281,11 +281,7 @@ private extension LoginState {
             return NSLocalizedString("Checking account number", comment: "")
 
         case .failure(let error):
-            if case .login(.invalidAccount) = error {
-                return NSLocalizedString("Invalid account number", tableName: "Login", comment: "")
-            } else {
-                return NSLocalizedString("Internal error", tableName: "Login", comment: "")
-            }
+            return error.failureReason ?? ""
 
         case .success:
             return NSLocalizedString("Correct account number", comment: "")
