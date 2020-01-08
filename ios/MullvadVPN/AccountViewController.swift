@@ -11,15 +11,28 @@ import UIKit
 
 class AccountViewController: UIViewController {
 
-    @IBOutlet var accountLabel: UILabel!
+    @IBOutlet var accountTokenButton: UIButton!
     @IBOutlet var expiryLabel: UILabel!
 
     private var logoutSubscriber: AnyCancellable?
+    private var copyToPasteboardSubscriber: AnyCancellable?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        updateView()
+        accountTokenButton.setTitle(Account.shared.token, for: .normal)
+
+        if let expiryDate = Account.shared.expiry {
+            let accountExpiry = AccountExpiry(date: expiryDate)
+
+            if accountExpiry.isExpired {
+                expiryLabel.text = NSLocalizedString("OUT OF TIME", comment: "")
+                expiryLabel.textColor = .dangerColor
+            } else {
+                expiryLabel.text = accountExpiry.formattedDate
+                expiryLabel.textColor = .white
+            }
+        }
     }
 
     // MARK: - Actions
@@ -42,21 +55,18 @@ class AccountViewController: UIViewController {
             })
     }
 
-    // MARK: - Private
+    @IBAction func copyAccountToken() {
+        UIPasteboard.general.string = Account.shared.token
 
-    private func updateView() {
-        accountLabel.text = Account.shared.token
+        accountTokenButton.setTitle(
+            NSLocalizedString("COPIED TO PASTEBOARD!", comment: ""),
+            for: .normal)
 
-        if let expiryDate = Account.shared.expiry {
-            let accountExpiry = AccountExpiry(date: expiryDate)
-
-            if accountExpiry.isExpired {
-                expiryLabel.text = NSLocalizedString("OUT OF TIME", comment: "")
-                expiryLabel.textColor = .dangerColor
-            } else {
-                expiryLabel.text = accountExpiry.formattedDate
-                expiryLabel.textColor = .white
-            }
-        }
+        copyToPasteboardSubscriber =
+            Just(()).delay(for: .seconds(3), scheduler: DispatchQueue.main)
+                .sink(receiveValue: { _ in
+                    self.accountTokenButton.setTitle(Account.shared.token, for: .normal)
+                })
     }
+
 }
