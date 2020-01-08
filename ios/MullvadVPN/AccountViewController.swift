@@ -31,8 +31,14 @@ class AccountViewController: UIViewController {
     @IBAction func doLogout() {
         logoutSubscriber = Account.shared.logout()
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { (_) in
-                self.performSegue(withIdentifier: SegueIdentifier.Account.logout.rawValue, sender: self)
+            .sink(receiveCompletion: { (completion) in
+                switch completion {
+                case .failure(let error):
+                    self.presentError(error, preferredStyle: .alert)
+
+                case .finished:
+                    self.performSegue(withIdentifier: SegueIdentifier.Account.logout.rawValue, sender: self)
+                }
             })
     }
 
@@ -45,7 +51,7 @@ class AccountViewController: UIViewController {
             let accountExpiry = AccountExpiry(date: expiryDate)
 
             if accountExpiry.isExpired {
-                expiryLabel.text = NSLocalizedString("OUT OF TIME", tableName: "Settings", comment: "")
+                expiryLabel.text = NSLocalizedString("OUT OF TIME", comment: "")
                 expiryLabel.textColor = .dangerColor
             } else {
                 expiryLabel.text = accountExpiry.formattedDate

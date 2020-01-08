@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import NetworkExtension
 import os
 
 /// A enum describing the errors emitted by `Account`
@@ -23,6 +24,47 @@ enum AccountError: Error {
 enum AccountLoginError: Error {
     case invalidAccount
     case tunnelConfiguration(TunnelManagerError)
+}
+
+extension AccountError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .login:
+            return NSLocalizedString("Log in error", comment: "")
+
+        case .logout:
+            return NSLocalizedString("Log out error", comment: "")
+        }
+    }
+
+    var failureReason: String? {
+        switch self {
+        case .login(.invalidAccount):
+            return NSLocalizedString("Invalid account", comment: "")
+
+        case .login(.tunnelConfiguration(.setAccount(let setAccountError))):
+            switch setAccountError {
+            case .pushWireguardKey(.transport(.network)):
+                return NSLocalizedString("Network error", comment: "")
+
+            case .pushWireguardKey(.server(let serverError)):
+                return serverError.errorDescription ?? serverError.message
+
+            case .setup(.saveTunnel(let systemError as NEVPNError))
+                where systemError.code == .configurationReadWriteFailed:
+                return NSLocalizedString("Permission denied to add a VPN profile", comment: "")
+
+            default:
+                return NSLocalizedString("Internal error", comment: "")
+            }
+
+        case .logout:
+            return NSLocalizedString("Internal error", comment: "")
+
+        default:
+            return nil
+        }
+    }
 }
 
 /// A enum holding the `UserDefaults` string keys

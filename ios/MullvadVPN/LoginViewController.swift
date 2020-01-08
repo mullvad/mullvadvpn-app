@@ -259,36 +259,32 @@ private extension LoginState {
     var localizedTitle: String {
         switch self {
         case .default:
-            return NSLocalizedString("Login", tableName: "Login", comment: "")
+            return NSLocalizedString("Login", comment: "")
 
         case .authenticating:
-            return NSLocalizedString("Logging in...", tableName: "Login", comment: "")
+            return NSLocalizedString("Logging in...", comment: "")
 
         case .failure:
-            return NSLocalizedString("Login failed", tableName: "Login", comment: "")
+            return NSLocalizedString("Login failed", comment: "")
 
         case .success:
-            return NSLocalizedString("Logged in", tableName: "Login", comment: "")
+            return NSLocalizedString("Logged in", comment: "")
         }
     }
 
     var localizedMessage: String {
         switch self {
         case .default:
-            return NSLocalizedString("Enter your account number", tableName: "Login", comment: "")
+            return NSLocalizedString("Enter your account number", comment: "")
 
         case .authenticating:
-            return NSLocalizedString("Checking account number", tableName: "Login", comment: "")
+            return NSLocalizedString("Checking account number", comment: "")
 
         case .failure(let error):
-            if case .login(.invalidAccount) = error {
-                return NSLocalizedString("Invalid account number", tableName: "Login", comment: "")
-            } else {
-                return NSLocalizedString("Internal error", tableName: "Login", comment: "")
-            }
+            return error.failureReason ?? ""
 
         case .success:
-            return NSLocalizedString("Correct account number", tableName: "Login", comment: "")
+            return NSLocalizedString("Correct account number", comment: "")
         }
     }
 }

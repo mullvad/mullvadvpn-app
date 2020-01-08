@@ -5,6 +5,22 @@
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "58B0A29F238EE67E00BC001D"
+               BuildableName = "MullvadVPNTests.xctest"
+               BlueprintName = "MullvadVPNTests"
+               ReferencedContainer = "container:MullvadVPN.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
@@ -16,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "584B26F0237434D00073B10E"
-               BuildableName = "RelaySelectorTests.xctest"
-               BlueprintName = "RelaySelectorTests"
+               BlueprintIdentifier = "58B0A29F238EE67E00BC001D"
+               BuildableName = "MullvadVPNTests.xctest"
+               BlueprintName = "MullvadVPNTests"
                ReferencedContainer = "container:MullvadVPN.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -41,6 +57,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "58B0A29F238EE67E00BC001D"
+            BuildableName = "MullvadVPNTests.xctest"
+            BlueprintName = "MullvadVPNTests"
+            ReferencedContainer = "container:MullvadVPN.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

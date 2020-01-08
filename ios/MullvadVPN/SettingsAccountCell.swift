@@ -24,14 +24,17 @@ class SettingsAccountCell: SettingsCell {
             let accountExpiry = AccountExpiry(date: accountExpiryDate)
 
             if accountExpiry.isExpired {
-                expiryLabel.text = NSLocalizedString("OUT OF TIME", tableName: "Settings", comment: "")
+                expiryLabel.text = NSLocalizedString("OUT OF TIME", comment: "")
                 expiryLabel.textColor = .dangerColor
             } else {
-                let remainingTime = accountExpiry.formattedRemainingTime
-                let localizedString = NSLocalizedString("%@ left", tableName: "Settings", comment: "")
-                let formattedString = String(format: localizedString, remainingTime)
+                if let remainingTime = accountExpiry.formattedRemainingTime {
+                    let localizedString = NSLocalizedString("%@ left", comment: "")
+                    let formattedString = String(format: localizedString, remainingTime)
 
-                expiryLabel.text = formattedString.uppercased()
+                    expiryLabel.text = formattedString.uppercased()
+                } else {
+                    expiryLabel.text = ""
+                }
                 expiryLabel.textColor = .white
             }
         } else {

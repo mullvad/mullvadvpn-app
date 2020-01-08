@@ -204,3 +204,32 @@ class MullvadAPI {
         return decoder
     }
 }
+
+
+extension JsonRpcResponseError: LocalizedError
+    where
+    ResponseCode == MullvadAPI.ResponseCode
+{
+    var errorDescription: String? {
+        switch code {
+        case .accountDoesNotExist:
+            return NSLocalizedString("Invalid account", comment: "")
+
+        case .tooManyWireguardKeys:
+            return NSLocalizedString("Too many public WireGuard keys", comment: "")
+
+        case .other:
+            return nil
+        }
+    }
+
+    var recoverySuggestion: String? {
+        switch code {
+        case .tooManyWireguardKeys:
+            return NSLocalizedString("Remove unused WireGuard keys", comment: "")
+
+        default:
+            return nil
+        }
+    }
+}
