@@ -4,7 +4,7 @@ use crate::{
     CustomTunnelEndpoint,
 };
 #[cfg(target_os = "android")]
-use jnix::IntoJava;
+use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use talpid_types::net::{openvpn::ProxySettings, TransportProtocol};
@@ -16,7 +16,7 @@ pub trait Match<T> {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum Constraint<T: fmt::Debug + Clone + Eq + PartialEq> {
     Any,
