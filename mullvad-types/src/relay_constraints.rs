@@ -385,8 +385,11 @@ pub struct InternalBridgeConstraints {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(FromJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "snake_case")]
 pub enum RelaySettingsUpdate {
+    #[cfg_attr(target_os = "android", jnix(deny))]
     CustomTunnelEndpoint(CustomTunnelEndpoint),
     Normal(RelayConstraintsUpdate),
 }
