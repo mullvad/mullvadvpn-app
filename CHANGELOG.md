@@ -50,6 +50,13 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix crash when starting the app right after quitting it.
 
+### Security
+#### Windows
+- Stop OpenVPN from loading `C:\etc\ssl\openssl.cnf` on start. This file was being loaded when an
+  OpenVPN tunnel was being created. Any user could create the file, and the process loading it runs
+  as the SYSTEM user. Since the config file allows loading arbitrary code, it was an attack vector
+  allowing local unprivileged users to run code as SYSTEM.
+
 
 ## [2019.10] - 2019-12-12
 ### Fixed
