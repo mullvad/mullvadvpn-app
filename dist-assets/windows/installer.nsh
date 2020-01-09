@@ -45,6 +45,7 @@
 !define LOG_VOID 1
 
 # Windows error codes
+!define ERROR_SERVICE_MARKED_FOR_DELETE 1072
 !define ERROR_SERVICE_DEPENDENCY_DELETED 1075
 
 # Override electron-builder generated application settings key.
@@ -476,6 +477,13 @@
 
 	Push $0
 	Push $1
+	Push $2
+
+	Var /GLOBAL InstallService_Counter
+	Push 0
+	Pop $InstallService_Counter
+
+	InstallService_RegisterService:
 
 	log::Log "Running $\"mullvad-daemon$\" for it to self-register as a service"
 	nsExec::ExecToStack '"$INSTDIR\resources\mullvad-daemon.exe" --register-service'
@@ -486,6 +494,51 @@
 	${If} $0 != 0
 		StrCpy $R0 "Failed to install Mullvad service: error $0"
 		log::LogWithDetails $R0 $1
+
+		#
+		# Parse service error
+		#
+		string::Find $1 "(os error " 0
+		Pop $0
+
+		${If} $0 == -1
+			log::Log "Failed to parse service error"
+			Goto InstallService_return
+		${EndIf}
+
+		IntOp $0 $0 + 10
+
+		string::Find $1 ")" $0
+		Pop $2
+
+		IntOp $2 $2 - $0
+
+		${If} $2 < 1
+			log::Log "Failed to parse service error"
+			Goto InstallService_return
+		${EndIf}
+
+		StrCpy $0 $1 $2 $0
+
+		StrCpy $R0 "Service error code: $0"
+		log::Log $R0
+
+		#
+		# Forcibly kill old process if stuck
+		#
+		${If} $0 == ${ERROR_SERVICE_MARKED_FOR_DELETE}
+			log::Log "Attempt to forcibly kill stuck process"
+			nsExec::ExecToStack '"$SYSDIR\taskkill.exe" /f /fi "SERVICES eq mullvadvpn"'
+			Pop $0
+			Pop $1
+
+			# Retry service installation
+			IntOp $InstallService_Counter $InstallService_Counter + 1
+			${If} $InstallService_Counter < 2
+				Goto InstallService_RegisterService
+			${EndIf}
+		${EndIf}
+
 		Goto InstallService_return
 	${EndIf}
 
@@ -513,6 +566,7 @@
 	
 	InstallService_return:
 
+	Pop $2
 	Pop $1
 	Pop $0
 
