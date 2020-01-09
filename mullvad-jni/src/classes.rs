@@ -28,6 +28,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/mullvadvpn/model/RelaySettings$Normal",
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$CustomTunnelEndpoint",
     "net/mullvad/mullvadvpn/model/RelaySettingsUpdate$RelayConstraintsUpdate",
+    "net/mullvad/mullvadvpn/model/RelayConstraintsUpdate",
     "net/mullvad/mullvadvpn/model/RelayTunnels",
     "net/mullvad/mullvadvpn/model/Settings",
     "net/mullvad/mullvadvpn/model/TunnelState$Error",
