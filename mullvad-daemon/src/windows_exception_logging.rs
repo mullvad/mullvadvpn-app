@@ -1,13 +1,24 @@
-use std::{borrow::Cow, ffi::CStr, fmt::Write, io, mem, os::raw::c_char};
+use mullvad_paths::log_dir;
+use std::{
+    borrow::Cow,
+    ffi::CStr,
+    fmt::Write,
+    fs, io, mem,
+    os::{raw::c_char, windows::io::AsRawHandle},
+    path::{Path, PathBuf},
+    ptr,
+};
+use talpid_types::ErrorExt;
 use winapi::{
     ctypes::c_void,
     shared::{
-        minwindef::{BYTE, DWORD, FALSE},
+        minwindef::{BOOL, BYTE, DWORD, FALSE},
         winerror::ERROR_NO_MORE_FILES,
     },
     um::{
         errhandlingapi::SetUnhandledExceptionFilter,
         handleapi::{CloseHandle, INVALID_HANDLE_VALUE},
+        processthreadsapi::{GetCurrentProcess, GetCurrentProcessId, GetCurrentThreadId},
         tlhelp32::{
             CreateToolhelp32Snapshot, Module32First, Module32Next, MODULEENTRY32, TH32CS_SNAPMODULE,
         },
@@ -18,6 +29,92 @@ use winapi::{
     },
     vc::excpt::EXCEPTION_EXECUTE_HANDLER,
 };
+
+/// Minidump file name
+const MINIDUMP_FILENAME: &'static str = "DAEMON.DMP";
+
+#[repr(C)]
+#[allow(dead_code)]
+enum MINIDUMP_TYPE {
+    MiniDumpNormal = 0,
+    // Add missing values as needed
+}
+
+#[repr(C, packed)]
+#[derive(Clone, Copy, Debug)]
+#[allow(non_snake_case)]
+struct MINIDUMP_EXCEPTION_INFORMATION {
+    ThreadId: DWORD,
+    ExceptionPointers: *const EXCEPTION_POINTERS,
+    ClientPointers: BOOL,
+}
+
+#[link(name = "dbghelp")]
+extern "system" {
+    /// Store exception information, stack trace, etc. in a file.
+    fn MiniDumpWriteDump(
+        hProcess: HANDLE,
+        ProcessId: DWORD,
+        hFile: HANDLE,
+        DumpType: MINIDUMP_TYPE,
+        ExceptionParam: *const MINIDUMP_EXCEPTION_INFORMATION,
+
+        // Add types as needed:
+        UserStreamParam: *const c_void,
+        CallbackParam: *const c_void,
+    ) -> BOOL;
+}
+
+#[derive(err_derive::Error, Debug)]
+#[error(no_from)]
+enum MinidumpError {
+    #[error(display = "Failed to create mini dump file")]
+    CreateFileError(#[error(source)] io::Error),
+    #[error(display = "Failed to produce mini dump and write it to disk")]
+    GenerateError(#[error(source)] io::Error),
+}
+
+fn generate_minidump(
+    dump_file: &Path,
+    exception_pointers: &EXCEPTION_POINTERS,
+) -> Result<(), MinidumpError> {
+    // Open/create dump file
+    let handle_rs = fs::OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .open(dump_file)
+        .map_err(MinidumpError::CreateFileError)?;
+    let handle = handle_rs.as_raw_handle();
+
+    // Generate minidump
+    let process = unsafe { GetCurrentProcess() };
+    let process_id = unsafe { GetCurrentProcessId() };
+    let thread_id = unsafe { GetCurrentThreadId() };
+
+    let exception_parameters = MINIDUMP_EXCEPTION_INFORMATION {
+        ThreadId: thread_id,
+        ExceptionPointers: exception_pointers,
+        ClientPointers: FALSE,
+    };
+
+    if unsafe {
+        MiniDumpWriteDump(
+            process,
+            process_id,
+            handle,
+            MINIDUMP_TYPE::MiniDumpNormal,
+            &exception_parameters,
+            ptr::null(),
+            ptr::null(),
+        )
+    } == FALSE
+    {
+        return Err(MinidumpError::GenerateError(io::Error::last_os_error()));
+    }
+
+    Ok(())
+}
 
 /// Enable logging of unhandled SEH exceptions.
 pub fn enable() {
@@ -71,6 +168,28 @@ extern "system" fn logging_exception_filter(info: *mut EXCEPTION_POINTERS) -> LO
     let info: &EXCEPTION_POINTERS = unsafe { &*info };
     let record: &EXCEPTION_RECORD = unsafe { &*info.ExceptionRecord };
 
+    // Generate minidump
+    let dump_path = match log_dir() {
+        Ok(dir) => dir.join(MINIDUMP_FILENAME),
+        _ => {
+            log::warn!("Failed to obtain log path. Using working directory.");
+            let mut buf = PathBuf::new();
+            buf.push(MINIDUMP_FILENAME);
+            buf
+        }
+    };
+
+    match generate_minidump(&dump_path, &info) {
+        Ok(()) => log::info!("Wrote Minidump to {}.", dump_path.to_string_lossy()),
+        Err(e) => {
+            log::error!(
+                "{}",
+                e.display_chain_with_msg("Failed to generate minidump")
+            );
+        }
+    }
+
+    // Log exception information
     let context_info = get_context_info(unsafe { &*info.ContextRecord });
 
     let error_str = match exception_code_to_string(record) {
