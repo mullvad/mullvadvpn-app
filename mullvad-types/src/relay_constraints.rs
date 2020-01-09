@@ -417,10 +417,15 @@ impl RelaySettingsUpdate {
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(FromJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(default)]
 pub struct RelayConstraintsUpdate {
     pub location: Option<Constraint<LocationConstraint>>,
+    #[cfg_attr(target_os = "android", jnix(default))]
     pub tunnel_protocol: Option<Constraint<TunnelProtocol>>,
+    #[cfg_attr(target_os = "android", jnix(default))]
     pub wireguard_constraints: Option<WireguardConstraints>,
+    #[cfg_attr(target_os = "android", jnix(default))]
     pub openvpn_constraints: Option<OpenVpnConstraints>,
 }
