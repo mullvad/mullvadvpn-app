@@ -43,6 +43,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix regression due to which a TAP adapter issue was not given as the specific block reason when
   the tunnel could not be started.
+- Fix occasional failure to shut down the daemon during installation.
 
 #### Android
 - Fix crash when starting the app right after quitting it.
