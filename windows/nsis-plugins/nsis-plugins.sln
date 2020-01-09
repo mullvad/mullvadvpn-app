@@ -41,6 +41,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\error.h = src\error.h
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "string", "src\string\string.vcxproj", "{645B4CB5-623A-41CC-8B05-2268A5AE6C47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -75,6 +77,10 @@ Global
 		{EF53BD9F-6D69-42BB-8635-958531776283}.Debug|x86.Build.0 = Debug|Win32
 		{EF53BD9F-6D69-42BB-8635-958531776283}.Release|x86.ActiveCfg = Release|Win32
 		{EF53BD9F-6D69-42BB-8635-958531776283}.Release|x86.Build.0 = Release|Win32
+		{645B4CB5-623A-41CC-8B05-2268A5AE6C47}.Debug|x86.ActiveCfg = Debug|Win32
+		{645B4CB5-623A-41CC-8B05-2268A5AE6C47}.Debug|x86.Build.0 = Debug|Win32
+		{645B4CB5-623A-41CC-8B05-2268A5AE6C47}.Release|x86.ActiveCfg = Release|Win32
+		{645B4CB5-623A-41CC-8B05-2268A5AE6C47}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
