@@ -76,4 +76,5 @@ if [ -d "$OLD_CACHE_DIR" ]; then
     rm -rf "$OLD_CACHE_DIR"
 fi
 
+rm -f "$NEW_CACHE_DIR/version-info.json" || true
 rm -f "$NEW_CACHE_DIR/relays.json" || true

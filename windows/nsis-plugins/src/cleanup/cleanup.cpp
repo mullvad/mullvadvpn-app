@@ -70,6 +70,37 @@ void __declspec(dllexport) NSISCALL RemoveSettings
 	}
 }
 
+void __declspec(dllexport) NSISCALL RemoveVersionCheckCache
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	try
+	{
+		cleaningops::RemoveVersionCacheServiceUser();
+
+		pushstring(L"");
+		pushint(NsisStatus::SUCCESS);
+	}
+	catch (const std::exception & err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(NsisStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(NsisStatus::GENERAL_ERROR);
+	}
+}
+
 void __declspec(dllexport) NSISCALL RemoveRelayCache
 (
 	HWND hwndParent,

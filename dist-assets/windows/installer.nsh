@@ -819,6 +819,7 @@
 	RMDir /r "$APPDATA\${PRODUCT_NAME}"
 
 	${RemoveRelayCache}
+	${RemoveVersionCheckCache}
 	
 	${ExtractDriver}
 	${InstallDriver}

@@ -12,5 +12,7 @@ void RemoveSettingsServiceUser();
 // Remove only the relay cache, leaving other cache files untouched.
 // This is useful when updating the app.
 void RemoveRelayCacheServiceUser();
+// Remove only the version check cache.
+void RemoveVersionCacheServiceUser();
 
 }

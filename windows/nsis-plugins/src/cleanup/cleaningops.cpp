@@ -286,4 +286,18 @@ void RemoveRelayCacheServiceUser()
 	std::filesystem::remove(cacheFile);
 }
 
+void RemoveVersionCacheServiceUser()
+{
+	const auto localAppData = GetSystemUserLocalAppData();
+	const auto mullvadAppData = std::filesystem::path(localAppData).append(L"Mullvad VPN");
+
+	common::fs::ScopedNativeFileSystem nativeFileSystem;
+
+	common::security::AddAdminToObjectDacl(mullvadAppData, SE_FILE_OBJECT);
+
+	const auto cacheFile = std::filesystem::path(mullvadAppData).append(L"version-info.json");
+
+	std::filesystem::remove(cacheFile);
+}
+
 }

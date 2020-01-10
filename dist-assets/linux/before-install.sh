@@ -8,4 +8,5 @@ if which systemctl &> /dev/null; then
     fi
 fi
 
+rm -f /var/cache/mullvad-vpn/version-info.json || true
 rm -f /var/cache/mullvad-vpn/relays.json || true
