@@ -986,7 +986,6 @@
                             </tableViewCell>
                         </prototypes>
                         <connections>
-                            <outlet property="dataSource" destination="FxZ-7F-3yi" id="M4F-Hz-EiT"/>
                             <outlet property="delegate" destination="FxZ-7F-3yi" id="yWE-Dc-Wl5"/>
                         </connections>
                     </tableView>
