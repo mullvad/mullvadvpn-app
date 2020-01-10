@@ -39,6 +39,10 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
+    override fun onRevoke() {
+        stop()
+    }
+
     override fun onUnbind(intent: Intent): Boolean {
         return true
     }
