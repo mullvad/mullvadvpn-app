@@ -1,8 +1,10 @@
+use crate::version::PRODUCT_VERSION;
 use futures::{sync::mpsc::UnboundedSender, Async, Future, Poll};
 use mullvad_rpc::{AppVersionProxy, HttpHandle};
 use mullvad_types::version::AppVersionInfo;
+use serde::{Deserialize, Serialize};
 use std::{
-    fs::File,
+    fs::{remove_file, File},
     io,
     path::{Path, PathBuf},
     time::{Duration, Instant},
@@ -33,6 +35,23 @@ const PLATFORM: &str = "windows";
 const PLATFORM: &str = "android";
 
 
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
+pub struct CachedAppVersionInfo {
+    #[serde(flatten)]
+    pub version_info: AppVersionInfo,
+    #[serde(default)] // for compatibility with older versions
+    pub cached_from_version: String,
+}
+
+impl From<AppVersionInfo> for CachedAppVersionInfo {
+    fn from(version_info: AppVersionInfo) -> CachedAppVersionInfo {
+        CachedAppVersionInfo {
+            version_info,
+            cached_from_version: PRODUCT_VERSION.to_owned(),
+        }
+    }
+}
+
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -50,6 +69,9 @@ pub enum Error {
 
     #[error(display = "Failed to check the latest app version")]
     Download(#[error(source)] mullvad_rpc::Error),
+
+    #[error(display = "Failed to clear version cache")]
+    ClearCache(#[error(source)] io::Error),
 }
 
 impl<T> From<TimeoutError<T>> for Error {
@@ -101,7 +123,7 @@ impl<T: From<AppVersionInfo>> VersionUpdater<T> {
     ) -> Box<dyn Future<Item = AppVersionInfo, Error = Error> + Send + 'static> {
         let download_future = self
             .version_proxy
-            .app_version_check(&crate::version::PRODUCT_VERSION.to_owned(), PLATFORM)
+            .app_version_check(&PRODUCT_VERSION.to_owned(), PLATFORM)
             .map_err(Error::Download);
         let future = Timer::default().timeout(download_future, DOWNLOAD_TIMEOUT);
         Box::new(future)
@@ -113,7 +135,8 @@ impl<T: From<AppVersionInfo>> VersionUpdater<T> {
             self.cache_path.display()
         );
         let file = File::create(&self.cache_path).map_err(Error::WriteRelayCache)?;
-        serde_json::to_writer_pretty(io::BufWriter::new(file), &self.last_app_version_info)
+        let cached_app_version: CachedAppVersionInfo = self.last_app_version_info.clone().into();
+        serde_json::to_writer_pretty(io::BufWriter::new(file), &cached_app_version)
             .map_err(Error::Serialize)
     }
 }
@@ -182,9 +205,15 @@ impl<T: From<AppVersionInfo>> Future for VersionUpdater<T> {
     }
 }
 
-pub fn load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
+pub fn load_cache(cache_dir: &Path) -> Result<CachedAppVersionInfo, Error> {
     let path = cache_dir.join(VERSION_INFO_FILENAME);
     log::debug!("Loading version check cache from {}", path.display());
     let file = File::open(path).map_err(Error::ReadCachedRelays)?;
     serde_json::from_reader(io::BufReader::new(file)).map_err(Error::Serialize)
+}
+
+pub fn clear_cache(cache_dir: &Path) -> Result<(), Error> {
+    let path = cache_dir.join(VERSION_INFO_FILENAME);
+    log::debug!("Removing version check cache in {}", path.display());
+    remove_file(path).map_err(Error::ClearCache)
 }

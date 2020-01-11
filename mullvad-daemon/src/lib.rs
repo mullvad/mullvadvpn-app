@@ -407,6 +407,16 @@ where
             &cache_dir,
         );
 
+        let create_default_version_info = || {
+            // If we don't have a cache, start out with sane defaults.
+            AppVersionInfo {
+                current_is_supported: true,
+                current_is_outdated: false,
+                latest_stable: version::PRODUCT_VERSION.to_owned(),
+                latest: version::PRODUCT_VERSION.to_owned(),
+            }
+        };
+
         let app_version_info = match version_check::load_cache(&cache_dir) {
             Ok(app_version_info) => app_version_info,
             Err(error) => {
@@ -414,15 +424,18 @@ where
                     "{}",
                     error.display_chain_with_msg("Unable to load cached version info")
                 );
-                // If we don't have a cache, start out with sane defaults.
-                AppVersionInfo {
-                    current_is_supported: true,
-                    current_is_outdated: false,
-                    latest_stable: version::PRODUCT_VERSION.to_owned(),
-                    latest: version::PRODUCT_VERSION.to_owned(),
-                }
+                create_default_version_info().into()
             }
         };
+
+        let app_version_info = if app_version_info.cached_from_version == version::PRODUCT_VERSION {
+            app_version_info.version_info
+        } else {
+            log::info!("Clearing version check cache due to a version mismatch");
+            let _ = version_check::clear_cache(&cache_dir);
+            create_default_version_info().into()
+        };
+
         let version_check_future = version_check::VersionUpdater::new(
             rpc_handle.clone(),
             cache_dir.clone(),
