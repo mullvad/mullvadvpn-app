@@ -26,7 +26,10 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
     enum class State {
         Uninitialized,
         Initialized,
-        MissingConnection,
+        Active,
+        Paused,
+        LostConnection,
+        WaitingForReconnection,
     }
 
     private var state = State.Uninitialized
@@ -70,23 +73,26 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         settingsListener = serviceConnection.settingsListener
 
         synchronized(this) {
-            if (state == State.Uninitialized) {
-                state = State.Initialized
+            when (state) {
+                State.Uninitialized -> state = State.Initialized
+                State.WaitingForReconnection -> state = State.Paused
             }
         }
     }
 
     override fun onNoServiceConnection() {
-        GlobalScope.launch(Dispatchers.Main) {
-            when (onNoService) {
-                OnNoService.GoBack -> parentActivity.onBackPressed()
-                OnNoService.GoToLaunchScreen -> parentActivity.returnToLaunchScreen()
-            }
-        }
-
         synchronized(this) {
-            if (state == State.Uninitialized) {
-                state = State.MissingConnection
+            when (state) {
+                State.Uninitialized -> {
+                    state = State.LostConnection
+                    leaveFragment()
+                }
+                State.Active -> {
+                    state = State.LostConnection
+                    leaveFragment()
+                }
+                State.Paused -> state = State.WaitingForReconnection
+                else -> {}
             }
         }
     }
@@ -97,10 +103,13 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         savedInstanceState: Bundle?
     ): View {
         synchronized(this) {
-            if (state == State.Initialized) {
-                return onSafelyCreateView(inflater, container, savedInstanceState)
-            } else {
-                return inflater.inflate(R.layout.missing_service, container, false)
+            when (state) {
+                State.Initialized, State.Active, State.Paused -> {
+                    return onSafelyCreateView(inflater, container, savedInstanceState)
+                }
+                State.Uninitialized, State.LostConnection, State.WaitingForReconnection -> {
+                    return inflater.inflate(R.layout.missing_service, container, false)
+                }
             }
         }
     }
@@ -109,24 +118,39 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         super.onResume()
 
         synchronized(this) {
-            if (state == State.Initialized) {
-                onSafelyResume()
+            when (state) {
+                State.Initialized, State.Paused -> {
+                    state = State.Active
+                    onSafelyResume()
+                }
+                State.WaitingForReconnection -> {
+                    state = State.LostConnection
+                    leaveFragment()
+                }
+                else -> {}
             }
         }
     }
 
     override fun onSaveInstanceState(instanceState: Bundle) {
         synchronized(this) {
-            if (state == State.Initialized) {
-                onSafelySaveInstanceState(instanceState)
+            when (state) {
+                State.Initialized, State.Paused, State.Active -> {
+                    onSafelySaveInstanceState(instanceState)
+                }
+                else -> {}
             }
         }
     }
 
     override fun onPause() {
         synchronized(this) {
-            if (state == State.Initialized) {
-                onSafelyPause()
+            when (state) {
+                State.Initialized, State.Active -> {
+                    onSafelyPause()
+                    state = State.Paused
+                }
+                else -> {}
             }
         }
 
@@ -135,8 +159,9 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
 
     override fun onDestroyView() {
         synchronized(this) {
-            if (state == State.Initialized) {
-                onSafelyDestroyView()
+            when (state) {
+                State.Initialized, State.Paused, State.Active -> onSafelyDestroyView()
+                else -> {}
             }
         }
 
@@ -159,5 +184,14 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
     }
 
     open fun onSafelyDestroyView() {
+    }
+
+    private fun leaveFragment() {
+        GlobalScope.launch(Dispatchers.Main) {
+            when (onNoService) {
+                OnNoService.GoBack -> parentActivity.onBackPressed()
+                OnNoService.GoToLaunchScreen -> parentActivity.returnToLaunchScreen()
+            }
+        }
     }
 }
