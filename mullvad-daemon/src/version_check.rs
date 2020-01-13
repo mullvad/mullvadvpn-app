@@ -4,7 +4,7 @@ use mullvad_rpc::{AppVersionProxy, HttpHandle};
 use mullvad_types::version::AppVersionInfo;
 use serde::{Deserialize, Serialize};
 use std::{
-    fs::{self, File},
+    fs::File,
     io,
     path::{Path, PathBuf},
     time::{Duration, Instant},
@@ -39,7 +39,6 @@ const PLATFORM: &str = "android";
 struct CachedAppVersionInfo {
     #[serde(flatten)]
     pub version_info: AppVersionInfo,
-    #[serde(default)] // for compatibility with older versions
     pub cached_from_version: String,
 }
 
@@ -70,8 +69,8 @@ pub enum Error {
     #[error(display = "Failed to check the latest app version")]
     Download(#[error(source)] mullvad_rpc::Error),
 
-    #[error(display = "Failed to clear version cache")]
-    ClearCache(#[error(source)] io::Error),
+    #[error(display = "Clearing version check cache due to a version mismatch")]
+    CacheVersionMismatch,
 }
 
 impl<T> From<TimeoutError<T>> for Error {
@@ -205,27 +204,35 @@ impl<T: From<AppVersionInfo>> Future for VersionUpdater<T> {
     }
 }
 
-pub fn load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
+fn try_load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
     let path = cache_dir.join(VERSION_INFO_FILENAME);
     log::debug!("Loading version check cache from {}", path.display());
-    let file = File::open(path).map_err(Error::ReadCachedRelays)?;
+    let file = File::open(&path).map_err(Error::ReadCachedRelays)?;
     let version_info: CachedAppVersionInfo =
         serde_json::from_reader(io::BufReader::new(file)).map_err(Error::Serialize)?;
 
     if version_info.cached_from_version == PRODUCT_VERSION {
         Ok(version_info.version_info)
     } else {
-        log::info!("Clearing version check cache due to a version mismatch");
+        Err(Error::CacheVersionMismatch)
+    }
+}
 
-        let path = cache_dir.join(VERSION_INFO_FILENAME);
-        log::debug!("Removing version check cache in {}", path.display());
-        let _ = fs::remove_file(path).map_err(Error::ClearCache)?;
-
-        Ok(AppVersionInfo {
-            current_is_supported: true,
-            current_is_outdated: false,
-            latest_stable: PRODUCT_VERSION.to_owned(),
-            latest: PRODUCT_VERSION.to_owned(),
-        })
+pub fn load_cache(cache_dir: &Path) -> AppVersionInfo {
+    match try_load_cache(cache_dir) {
+        Ok(app_version_info) => app_version_info,
+        Err(error) => {
+            log::warn!(
+                "{}",
+                error.display_chain_with_msg("Unable to load cached version info")
+            );
+            // If we don't have a cache, start out with sane defaults.
+            AppVersionInfo {
+                current_is_supported: true,
+                current_is_outdated: false,
+                latest_stable: PRODUCT_VERSION.to_owned(),
+                latest: PRODUCT_VERSION.to_owned(),
+            }
+        }
     }
 }
