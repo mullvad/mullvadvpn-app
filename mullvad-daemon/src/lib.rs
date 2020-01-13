@@ -407,22 +407,7 @@ where
             &cache_dir,
         );
 
-        let app_version_info = match version_check::load_cache(&cache_dir) {
-            Ok(app_version_info) => app_version_info,
-            Err(error) => {
-                log::warn!(
-                    "{}",
-                    error.display_chain_with_msg("Unable to load cached version info")
-                );
-                // If we don't have a cache, start out with sane defaults.
-                AppVersionInfo {
-                    current_is_supported: true,
-                    current_is_outdated: false,
-                    latest_stable: version::PRODUCT_VERSION.to_owned(),
-                    latest: version::PRODUCT_VERSION.to_owned(),
-                }
-            }
-        };
+        let app_version_info = version_check::load_cache(&cache_dir);
         let version_check_future = version_check::VersionUpdater::new(
             rpc_handle.clone(),
             cache_dir.clone(),
