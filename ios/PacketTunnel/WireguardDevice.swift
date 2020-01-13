@@ -101,14 +101,14 @@ class WireguardDevice {
     class func setLogger(with handler: @escaping WireguardLogHandler) {
         WireguardDevice.loggingQueue.async {
             WireguardDevice.wireguardLogHandler = handler
+        }
 
-            wgSetLogger { (level, messagePtr) in
-                guard let message = messagePtr.map({ String(cString: $0) }) else { return }
-                let logType = WireguardLogLevel(rawValue: level) ?? .debug
+        wgSetLogger { (level, messagePtr) in
+            guard let message = messagePtr.map({ String(cString: $0) }) else { return }
+            let logType = WireguardLogLevel(rawValue: level) ?? .debug
 
-                WireguardDevice.loggingQueue.async {
-                    WireguardDevice.wireguardLogHandler?(logType, message)
-                }
+            WireguardDevice.loggingQueue.async {
+                WireguardDevice.wireguardLogHandler?(logType, message)
             }
         }
     }
