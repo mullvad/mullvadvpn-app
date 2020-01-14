@@ -26,7 +26,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     private var updateViewJob: Job? = null
 
-    override fun onCreateView(
+    override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -50,18 +50,14 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
-
+    override fun onSafelyResume() {
         accountCache.onAccountDataChange = { accountNumber, accountExpiry ->
             updateViewJob = updateView(accountNumber, accountExpiry)
         }
     }
 
-    override fun onPause() {
+    override fun onSafelyPause() {
         accountCache.onAccountDataChange = null
-
-        super.onPause()
     }
 
     private fun updateView(accountNumber: String?, accountExpiry: DateTime?) =
