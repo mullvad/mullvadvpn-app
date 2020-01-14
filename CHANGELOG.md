@@ -47,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
   the tunnel could not be started.
 - Fix occasional failure to shut down the old daemon process during installation by killing it if
   necessary.
+- Make WireGuard work with IPv6 enabled even if there is no functioning TAP adapter for OpenVPN.
 
 #### Android
 - Fix crash when starting the app right after quitting it.

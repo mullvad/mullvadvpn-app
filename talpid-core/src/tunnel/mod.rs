@@ -9,7 +9,7 @@ use std::{
 };
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
-use talpid_types::net::{wireguard as wireguard_types, GenericTunnelOptions, TunnelParameters};
+use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
 
 /// A module for all OpenVPN related tunnel management.
 #[cfg(not(target_os = "android"))]
@@ -150,7 +150,7 @@ impl TunnelMonitor {
     where
         L: Fn(TunnelEvent) + Send + Clone + Sync + 'static,
     {
-        Self::ensure_ipv6_can_be_used_if_enabled(&tunnel_parameters.get_generic_options())?;
+        Self::ensure_ipv6_can_be_used_if_enabled(&tunnel_parameters)?;
         let log_file = Self::prepare_tunnel_log_file(&tunnel_parameters, log_dir)?;
 
         match tunnel_parameters {
@@ -204,8 +204,15 @@ impl TunnelMonitor {
         })
     }
 
-    fn ensure_ipv6_can_be_used_if_enabled(tunnel_options: &GenericTunnelOptions) -> Result<()> {
-        if tunnel_options.enable_ipv6 {
+    fn ensure_ipv6_can_be_used_if_enabled(tunnel_parameters: &TunnelParameters) -> Result<()> {
+        let options = tunnel_parameters.get_generic_options();
+        if options.enable_ipv6 {
+            #[cfg(target_os = "windows")]
+            let enabled = match tunnel_parameters {
+                TunnelParameters::OpenVpn(_) => is_ipv6_enabled_in_os(true),
+                _ => is_ipv6_enabled_in_os(false),
+            }?;
+            #[cfg(not(target_os = "windows"))]
             let enabled = is_ipv6_enabled_in_os()?;
             if enabled {
                 Ok(())
@@ -318,34 +325,35 @@ impl InternalTunnelMonitor {
 }
 
 
-fn is_ipv6_enabled_in_os() -> Result<bool> {
-    #[cfg(windows)]
-    {
-        use winreg::{enums::*, RegKey};
+#[cfg(target_os = "windows")]
+fn is_ipv6_enabled_in_os(check_tap: bool) -> Result<bool> {
+    use winreg::{enums::*, RegKey};
 
-        const IPV6_DISABLED_ON_TUNNELS_MASK: u32 = 0x01;
+    const IPV6_DISABLED_ON_TUNNELS_MASK: u32 = 0x01;
 
-        // Check registry if IPv6 is disabled on tunnel interfaces, as documented in
-        // https://support.microsoft.com/en-us/help/929852/guidance-for-configuring-ipv6-in-windows-for-advanced-users
-        let globally_enabled = RegKey::predef(HKEY_LOCAL_MACHINE)
-            .open_subkey(r#"SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters"#)
-            .and_then(|ipv6_config| ipv6_config.get_value("DisabledComponents"))
-            .map(|ipv6_disabled_bits: u32| {
-                (ipv6_disabled_bits & IPV6_DISABLED_ON_TUNNELS_MASK) == 0
-            })
-            .unwrap_or(true);
+    // Check registry if IPv6 is disabled on tunnel interfaces, as documented in
+    // https://support.microsoft.com/en-us/help/929852/guidance-for-configuring-ipv6-in-windows-for-advanced-users
+    let globally_enabled = RegKey::predef(HKEY_LOCAL_MACHINE)
+        .open_subkey(r#"SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters"#)
+        .and_then(|ipv6_config| ipv6_config.get_value("DisabledComponents"))
+        .map(|ipv6_disabled_bits: u32| (ipv6_disabled_bits & IPV6_DISABLED_ON_TUNNELS_MASK) == 0)
+        .unwrap_or(true);
+
+    if !globally_enabled {
+        log::debug!("IPv6 disabled in tunnel interfaces");
+    }
+
+    if check_tap {
         let enabled_on_tap =
             crate::winnet::get_tap_interface_ipv6_status().map_err(Error::WinnetError)?;
-
-        if !globally_enabled {
-            log::debug!("IPv6 disabled in tunnel interfaces");
-        }
-        if !enabled_on_tap {
-            log::debug!("IPv6 disabled in TAP adapter");
-        }
-
         Ok(globally_enabled && enabled_on_tap)
+    } else {
+        Ok(globally_enabled)
     }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn is_ipv6_enabled_in_os() -> Result<bool> {
     #[cfg(target_os = "linux")]
     {
         Ok(
