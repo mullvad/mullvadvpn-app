@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>app-store</string>
+    <key>teamID</key>
+    <string>G7CDBEG477</string>
+    <key>teamName</key>
+    <string>Amagicom AB</string>
+    <key>signingStyle</key>
+    <string>manual</string>
+    <key>uploadSymbols</key>
+    <true/>
+    <key>signingCertificate</key>
+    <string>Apple Distribution: Amagicom AB</string>
+    <key>provisioningProfiles</key>
+    <dict>
+      <key>net.mullvad.MullvadVPN</key>
+      <string>Mullvad VPN Release</string>
+      <key>net.mullvad.MullvadVPN.PacketTunnel</key>
+      <string>Packet Tunnel Release</string>
+    </dict>
+</dict>
+</plist>
