@@ -62,6 +62,8 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         private set
 
     override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
+        // This method is always either called first or after an `onNoServiceConnection`, so the
+        // initialization of the fields doesn't have to be synchronized
         accountCache = serviceConnection.accountCache
         appVersionInfoCache = serviceConnection.appVersionInfoCache
         connectionProxy = serviceConnection.connectionProxy
