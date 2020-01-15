@@ -50,15 +50,16 @@ impl ConnectivityMonitor {
             close_receiver,
         })
     }
+
     // checks if the tunnel has ever worked. Intended to check if a connection to a tunnel is
     // successfull at the start of a connection.
-    pub fn establish_connectivity(&mut self, timeout: Duration) -> Result<bool, Error> {
+    pub fn establish_connectivity(&mut self) -> Result<bool, Error> {
         if self.last_stats.rx_bytes > 0 {
             return Ok(true);
         }
 
         let start = Instant::now();
-        while start.elapsed() < timeout {
+        while start.elapsed() < PING_TIMEOUT {
             if self.check_connectivity()? {
                 return Ok(true);
             }
