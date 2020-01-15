@@ -1,7 +1,7 @@
 [package]
 name = "talpid-core"
 version = "0.1.0"
-authors = ["Mullvad VPN <admin@mullvad.net>"]
+authors = ["Mullvad VPN"]
 description = "Privacy preserving and secure VPN client library"
 license = "GPL-3.0"
 edition = "2018"

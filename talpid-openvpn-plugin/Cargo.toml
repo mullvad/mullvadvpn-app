@@ -2,7 +2,7 @@
 name = "talpid-openvpn-plugin"
 version = "2019.10.0"
 authors = [
-    "Mullvad VPN <admin@mullvad.net>",
+    "Mullvad VPN",
     "Andrej Mihajlov <and@mullvad.net>",
     "Emīls Piņķis <emils@mullvad.net>",
     "Erik Larkö <erik@mullvad.net>",
