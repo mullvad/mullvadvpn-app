@@ -20,9 +20,6 @@ pub mod wireguard_go;
 
 pub use self::wireguard_go::WgGoTunnel;
 
-// amount of seconds to run `ping` until it returns.
-const PING_TIMEOUT: Duration = Duration::from_secs(15);
-
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen in the Wireguard tunnel monitor.
@@ -161,7 +158,7 @@ impl WireguardMonitor {
         )?;
 
         std::thread::spawn(move || {
-            match connectivity_monitor.establish_connectivity(PING_TIMEOUT) {
+            match connectivity_monitor.establish_connectivity() {
                 Ok(true) => (on_event)(TunnelEvent::Up(metadata)),
                 Ok(false) => (on_event)(TunnelEvent::Down),
                 Err(err) => {
