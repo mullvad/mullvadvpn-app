@@ -53,6 +53,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix crash when starting the app right after quitting it.
 - Restart background service if it stops responding.
 - Fix crash when VPN permission is revoked, either manually or by starting another VPN app.
+- Fix crash caused by local JNI reference table overflow after running for a long time.
 
 ### Security
 #### Windows
