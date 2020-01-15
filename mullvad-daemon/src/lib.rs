@@ -1450,6 +1450,7 @@ where
                     self.account_history.insert(account_entry).map_err(|e| {
                         format!("Failed to add new wireguard key to account data: {}", e)
                     })?;
+                    self.reconnect_tunnel();
                     let keygen_event = KeygenEvent::NewKey(public_key);
                     self.event_listener.notify_key_event(keygen_event.clone());
 
