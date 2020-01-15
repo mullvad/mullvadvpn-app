@@ -344,14 +344,14 @@ impl KeyManager {
                 match rpc_result {
                     Ok(data) => {
                         // Update account data
-                        let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
+                        let _ = daemon_tx.unbounded_send(InternalDaemonEvent::WgKeyEvent((
                             account_token_copy,
                             Ok(data.clone()),
                         )));
                         Ok(data.get_public_key())
                     }
                     Err(Error::TooManyKeys) => {
-                        let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
+                        let _ = daemon_tx.unbounded_send(InternalDaemonEvent::WgKeyEvent((
                             account_token_copy,
                             Err(Error::TooManyKeys),
                         )));
