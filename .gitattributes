@@ -6,3 +6,6 @@
 
 # Use LF for Rust because rustfmt works best like that
 *.rs text eol=lf
+
+wireguard-go-windows/go.mod text eol=lf
+wireguard-go-windows/go.sum text eol=lf

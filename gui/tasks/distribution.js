@@ -93,7 +93,7 @@ const config = {
       { from: root('windows/winutil/bin/x64-Release/winutil.dll'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/sslocal.exe'), to: '.' },
-      { from: distAssets('binaries/x86_64-pc-windows-msvc/wireguard/libwg.dll'), to: '.' },
+      { from: root('build/lib/x86_64-pc-windows-msvc/libwg.dll'), to: '.' },
     ],
   },
 
