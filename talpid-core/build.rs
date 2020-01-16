@@ -53,7 +53,7 @@ fn main() {
     declare_library(WINFW_DIR_VAR, WINFW_BUILD_DIR, "winfw");
     declare_library(WINDNS_DIR_VAR, WINDNS_BUILD_DIR, "windns");
     declare_library(WINNET_DIR_VAR, WINNET_BUILD_DIR, "winnet");
-    let lib_dir = manifest_dir().join("../dist-assets/binaries/x86_64-pc-windows-msvc/wireguard");
+    let lib_dir = manifest_dir().join("../build/lib/x86_64-pc-windows-msvc");
     println!("cargo:rustc-link-search={}", &lib_dir.display());
     println!("cargo:rustc-link-lib=dylib=libwg");
 }
@@ -61,7 +61,9 @@ fn main() {
 #[cfg(not(windows))]
 fn main() {
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
-    let target_triplet = env::var("TARGET").expect("TARGET is not set");
+
+    declare_libs_dir("../dist-assets/binaries");
+    declare_libs_dir("../build/lib");
 
     let link_type = match target_os.as_str() {
         "android" => "",
@@ -69,12 +71,6 @@ fn main() {
         _ => panic!("Unsupported platform: {}", target_os),
     };
 
-    let lib_dir = manifest_dir()
-        .join("../dist-assets/binaries")
-        .join(target_triplet);
-
-    println!("cargo:rerun-if-changed={}", lib_dir.display());
-    println!("cargo:rustc-link-search={}", lib_dir.display());
     println!("cargo:rustc-link-lib{}=wg", link_type);
 }
 
@@ -82,4 +78,12 @@ fn manifest_dir() -> PathBuf {
     env::var("CARGO_MANIFEST_DIR")
         .map(PathBuf::from)
         .expect("CARGO_MANIFEST_DIR env var not set")
+}
+
+#[cfg(not(windows))]
+fn declare_libs_dir(base: &str) {
+    let target_triplet = env::var("TARGET").expect("TARGET is not set");
+    let lib_dir = manifest_dir().join(base).join(target_triplet);
+    println!("cargo:rerun-if-changed={}", lib_dir.display());
+    println!("cargo:rustc-link-search={}", lib_dir.display());
 }

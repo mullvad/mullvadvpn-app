@@ -128,6 +128,11 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
     CPP_BUILD_MODES="Release" ./build_windows_modules.sh $@
 fi
 
+################################################################################
+# Compile wireguard-go
+################################################################################
+./wireguard/build-wireguard-go.sh
+
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
 MULLVAD_ADD_MANIFEST="1" cargo +stable build $CARGO_ARGS --release
 
