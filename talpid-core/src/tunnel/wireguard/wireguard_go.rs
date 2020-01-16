@@ -332,7 +332,12 @@ impl Tunnel for WgGoTunnel {
         let result =
             Stats::parse_config_str(config_str.to_str().expect("Go strings are always UTF-8"))
                 .map_err(Error::StatsError);
+        let len = config_str.to_bytes().len();
         unsafe {
+            // Zerioing out config string to not leave private key in memory.
+            for byte in std::slice::from_raw_parts_mut(ptr, len).iter_mut() {
+                *byte = 0i8;
+            }
             wgFreePtr(ptr as *mut c_void);
         }
 
