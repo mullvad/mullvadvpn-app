@@ -29,7 +29,7 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
         exit 1
     fi
 
-    if [[ ("$(uname -s)" == "Darwin") ]]; then
+    if [[ ("$(uname -s)" == "Darwin") || "$(uname -s)" == "MINGW"* ]]; then
         echo "Configuring environment for signing of binaries"
         if [[ -z ${CSC_LINK-} ]]; then
             echo "The variable CSC_LINK is not set. It needs to point to a file containing the"
@@ -43,6 +43,13 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
         fi
         # MacOs: This needs to be set to 'true' to activate signing, even when CSC_LINK is set.
         export CSC_IDENTITY_AUTO_DISCOVERY=true
+
+        if [[ "$(uname -s)" == "MINGW"* ]]; then
+            CERT_FILE=$CSC_LINK
+            CERT_PASSPHRASE=$CSC_KEY_PASSWORD
+            unset CSC_LINK CSC_KEY_PASSWORD
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+        fi
     else
         unset CSC_LINK CSC_KEY_PASSWORD
         export CSC_IDENTITY_AUTO_DISCOVERY=false
@@ -68,6 +75,34 @@ else
     cargo +stable clean
     CARGO_ARGS="--locked"
 fi
+
+sign_win() {
+    NUM_RETRIES=3
+
+    for binary in "$@"; do
+        # Try multiple times in case the timestamp server cannot
+        # be contacted.
+        for i in $(seq 0 ${NUM_RETRIES}); do
+            signtool sign \
+            -tr http://timestamp.digicert.com -td sha256 \
+            -fd sha256 -d "Mullvad VPN" \
+            -du "https://github.com/mullvad/mullvadvpn-app#readme" \
+            -f "$CERT_FILE" \
+            -p "$CERT_PASSPHRASE" "$binary"
+
+            if [ "$?" -eq "0" ]; then
+                break
+            fi
+
+            if [ "$i" -eq "${NUM_RETRIES}" ]; then
+                return 1
+            fi
+
+            sleep 1
+        done
+    done
+    return 0
+}
 
 echo "Building Mullvad VPN $PRODUCT_VERSION"
 
@@ -125,6 +160,11 @@ fi
 for binary in ${binaries[*]}; do
     SRC="$CARGO_TARGET_DIR/release/$binary"
     DST="$SCRIPT_DIR/dist-assets/$binary"
+
+    if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
+        sign_win "$SRC"
+    fi
+
     if [[ "$(uname -s)" == "MINGW"* || "$binary" == *.dylib ]]; then
         echo "Copying $SRC => $DST"
         cp "$SRC" "$DST"
@@ -133,6 +173,16 @@ for binary in ${binaries[*]}; do
         strip "$SRC" -o "$DST"
     fi
 done
+
+if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
+    signdlls=(
+        windows/winfw/bin/x64-Release/winfw.dll
+        windows/windns/bin/x64-Release/windns.dll
+        windows/winnet/bin/x64-Release/winnet.dll
+        windows/winutil/bin/x64-Release/winutil.dll
+    )
+    sign_win "${signdlls[@]}"
+fi
 
 
 echo "Updating relay list..."
@@ -190,6 +240,12 @@ for semver_path in dist/*$SEMVER_VERSION*; do
     product_path=$(echo $semver_path | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
     echo "Moving $semver_path -> $product_path"
     mv $semver_path $product_path
+
+    if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* && "$product_path" == *.exe ]]
+    then
+        # sign installer
+        sign_win "$product_path"
+    fi
 done
 
 echo "**********************************"
