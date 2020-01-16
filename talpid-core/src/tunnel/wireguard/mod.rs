@@ -10,7 +10,6 @@ use std::{
     io,
     path::Path,
     sync::{mpsc, Arc, Mutex},
-    time::Duration,
 };
 
 pub mod config;
