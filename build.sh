@@ -43,6 +43,15 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
         fi
         # MacOs: This needs to be set to 'true' to activate signing, even when CSC_LINK is set.
         export CSC_IDENTITY_AUTO_DISCOVERY=true
+    elif [[ "$(uname -s)" == "MINGW"* ]]; then
+        echo "Configuring environment for signing of binaries"
+        if [[ -z ${CERT_PASSPHRASE-} ]]; then
+            read -sp "CERT_PASSPHRASE = " CERT_PASSPHRASE
+            echo ""
+            export CERT_PASSPHRASE
+        fi
+        unset CSC_LINK CSC_KEY_PASSWORD
+        export CSC_IDENTITY_AUTO_DISCOVERY=false
     else
         unset CSC_LINK CSC_KEY_PASSWORD
         export CSC_IDENTITY_AUTO_DISCOVERY=false
@@ -68,6 +77,34 @@ else
     cargo +stable clean
     CARGO_ARGS="--locked"
 fi
+
+sign_win() {
+    for binary in "$@"; do
+        # Try multiple times in case the timestamp server cannot
+        # be contacted.
+        for i in {0..3}; do
+            signtool sign \
+            -tr http://timestamp.digicert.com -td sha256 \
+            -fd sha256 -d "Mullvad VPN" \
+            -du "https://github.com/mullvad/mullvadvpn-app#readme" \
+            -f "$SCRIPT_DIR/ci/comodo.pfx" \
+            -p "$CERT_PASSPHRASE" "$binary"
+
+            LAST_SIGN_RESULT="$?"
+
+            if [ "$?" -eq "0" ]; then
+                break
+            fi
+
+            if [ "$i" -eq "3" ]; then
+                return 1
+            fi
+
+            sleep 1
+        done
+    done
+    return 0
+}
 
 echo "Building Mullvad VPN $PRODUCT_VERSION"
 
@@ -134,6 +171,15 @@ for binary in ${binaries[*]}; do
     fi
 done
 
+if [[ "$(uname -s)" == "MINGW"* && ! -z "$CERT_PASSPHRASE" ]]; then
+    # Electron builder signs too much, so sign select binaries here
+    signbinaries=("${binaries[@]}")
+    for binary in "${signbinaries[@]}"; do
+        DST="$SCRIPT_DIR/dist-assets/$binary"
+        sign_win "$DST"
+    done
+fi
+
 
 echo "Updating relay list..."
 set +e
@@ -190,6 +236,11 @@ for semver_path in dist/*$SEMVER_VERSION*; do
     product_path=$(echo $semver_path | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
     echo "Moving $semver_path -> $product_path"
     mv $semver_path $product_path
+
+    if [[ "$(uname -s)" == "MINGW"* && "$product_path" == *.exe ]]; then
+        # sign installer
+        sign_win "$product_path"
+    fi
 done
 
 echo "**********************************"
