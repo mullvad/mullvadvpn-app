@@ -410,11 +410,14 @@
 	log::Log "RemoveWintun()"
 
 	${DisableX64FSRedirection}
-	ExecWait '"$SYSDIR\msiexec.exe" /x "$TEMP\mullvad-wintun-amd64.msi" /qn /norestart' $0
+	msiutil::SilentUninstall "$TEMP\mullvad-wintun-amd64.msi"
+	Pop $0
+	Pop $1
 	${EnableX64FSRedirection}
 
-	${If} $0 != 0
-		log::Log "Failed to remove Wintun: error $0"
+	${If} $0 != ${MULLVAD_SUCCESS}
+		StrCpy $R0 "Failed to remove Wintun: error $0"
+		log::LogWithDetails $R0 $1
 		Goto RemoveWintun_return_only
 	${EndIf}
 
@@ -442,12 +445,14 @@
 	Push $0
 
 	${DisableX64FSRedirection}
-	ExecWait '"$SYSDIR\msiexec.exe" /i "$TEMP\mullvad-wintun-amd64.msi" /qn /norestart' $0
+	msiutil::SilentInstall "$TEMP\mullvad-wintun-amd64.msi"
+	Pop $0
+	Pop $1
 	${EnableX64FSRedirection}
 
-	${If} $0 != 0
+	${If} $0 != ${MULLVAD_SUCCESS}
 		StrCpy $R0 "Failed to install Wintun: error $0"
-		log::Log $R0
+		log::LogWithDetails $R0 $1
 		Goto InstallWintun_return
 	${EndIf}
 
