@@ -336,7 +336,7 @@ impl Tunnel for WgGoTunnel {
         unsafe {
             // Zerioing out config string to not leave private key in memory.
             for byte in std::slice::from_raw_parts_mut(ptr, len).iter_mut() {
-                *byte = 0i8;
+                *byte = 0;
             }
             wgFreePtr(ptr as *mut c_void);
         }
