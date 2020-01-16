@@ -13,7 +13,7 @@
 #
 
 # TAP device hardware ID
-!define TAP_HARDWARE_ID "tap0901"
+!define TAP_HARDWARE_ID "tapmullvad0901"
 
 # "sc" exit code
 !define SERVICE_STARTED 0

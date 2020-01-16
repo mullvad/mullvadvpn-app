@@ -27,7 +27,7 @@
 namespace
 {
 
-const wchar_t TAP_HARDWARE_ID[] = L"tap0901";
+const wchar_t TAP_HARDWARE_ID[] = L"tapmullvad0901";
 
 template<typename T>
 void LogAdapters(const std::wstring &description, const T &adapters)
