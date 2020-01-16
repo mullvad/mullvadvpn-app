@@ -29,7 +29,7 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
         exit 1
     fi
 
-    if [[ ("$(uname -s)" == "Darwin") ]]; then
+    if [[ ("$(uname -s)" == "Darwin") || "$(uname -s)" == "MINGW"* ]]; then
         echo "Configuring environment for signing of binaries"
         if [[ -z ${CSC_LINK-} ]]; then
             echo "The variable CSC_LINK is not set. It needs to point to a file containing the"
@@ -133,6 +133,22 @@ for binary in ${binaries[*]}; do
         strip "$SRC" -o "$DST"
     fi
 done
+
+if [[ "$(uname -s)" == "MINGW"* && ! -z "$CSC_LINK" && ! -z "$CSC_KEY_PASSWORD" ]]; then
+    # Electron builder signs too much, so sign select binaries here
+    cd gui
+    for binary in ${binaries[*]}; do
+        DST="$SCRIPT_DIR/dist-assets/$binary"
+        signtool sign \
+        -tr http://timestamp.digicert.com -td sha256 \
+        -fd sha256 -d "Mullvad VPN" \
+        -du "https://github.com/mullvad/mullvadvpn-app#readme" \
+        -f "$CSC_LINK" \
+        -p "$CSC_KEY_PASSWORD" "$DST"
+    done
+    cd ..
+    unset CSC_LINK CSC_KEY_PASSWORD
+fi
 
 
 echo "Updating relay list..."
