@@ -11,8 +11,6 @@
 #
 # * Add signtool.exe to your PATH: C:\Program Files (x86)\Windows Kits\10\bin\10.0.16299.0\x64
 # * Put the comodo.pfx certificate in the same folder as this script
-# * Create sign.bat in the same folder as this script, with the content:
-#     signtool sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /d "Mullvad VPN" /du https://github.com/mullvad/mullvadvpn-app#readme /f comodo.pfx /p <PASSWORD TO comodo.pfx> "%1"
 
 set -eu
 shopt -s nullglob
@@ -50,19 +48,6 @@ cd upload
 put $1
 bye
 EOF
-}
-
-# Sign the Windows app. We try multiple times because it can randomly fail to
-# contact the timestamp server.
-# signtool must be called via a bat file, I cant make it work any other way :(
-sign_win() {
-  echo "Signing Windows Mullvad VPN installer"
-  echo 'signtool sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /d "Mullvad VPN" /du https://github.com/mullvad/mullvadvpn-app#readme /f "%1" /p "%2" "%3"' > "$SCRIPT_DIR/sign.bat"
-  for _ in {0..3}; do
-    sleep 1
-    $SCRIPT_DIR/sign.bat $SCRIPT_DIR/comodo.pfx "$CERT_PASSPHRASE" dist/MullvadVPN-*.exe && return 0
-  done
-  return 1
 }
 
 upload() {
@@ -130,7 +115,6 @@ build_ref() {
   ./build.sh || return 0
   case "$(uname -s)" in
     MINGW*|MSYS_NT*)
-      sign_win || return 0
       echo "Packaging all PDB files..."
       find ./windows/ \
         ./target/release/mullvad-daemon.pdb \
