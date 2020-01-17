@@ -111,35 +111,37 @@ void __declspec(dllexport) NSISCALL AddSysEnvPath
 
 	try
 	{
-		const auto pathToAppend = PopString();
-
-		auto pathRegKey = Registry::OpenKey(
-			HKEY_LOCAL_MACHINE,
-			pathKeyName,
-			true,
-			RegistryView::Force64
-		);
-		std::wstring path = ReadPathValue(*pathRegKey);
-
-		if (SysPathExists(path, pathToAppend))
 		{
-			pushstring(L"");
-			pushint(NsisStatus::SUCCESS);
-			return;
-		}
+			const auto pathToAppend = PopString();
+			auto pathRegKey = Registry::OpenKey(
+				HKEY_LOCAL_MACHINE,
+				pathKeyName,
+				true,
+				RegistryView::Force64
+			);
+			std::wstring path = ReadPathValue(*pathRegKey);
 
-		if (!path.empty())
-		{
-			path.append(L";");
-		}
-		path.append(pathToAppend);
+			if (SysPathExists(path, pathToAppend))
+			{
+				pushstring(L"");
+				pushint(NsisStatus::SUCCESS);
+				return;
+			}
 
-		pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
+			if (!path.empty())
+			{
+				path.append(L";");
+			}
+			path.append(pathToAppend);
+
+			pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
+			pathRegKey->flush();
+		}
 
 		THROW_GLE_IF(
-			SendNotifyMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment"),
+			SendNotifyMessageW(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment"),
 			0,
-			"SendNotifyMessage"
+			"SendNotifyMessageW"
 		);
 
 		pushstring(L"");
@@ -184,27 +186,35 @@ void __declspec(dllexport) NSISCALL RemoveSysEnvPath
 	{
 		const auto pathToRemove = PopString();
 
-		auto pathRegKey = Registry::OpenKey(
-			HKEY_LOCAL_MACHINE,
-			pathKeyName,
-			true,
-			RegistryView::Force64
-		);
-		std::wstring path = ReadPathValue(*pathRegKey);
+		bool updatedPath = false;
 
-		// remove value if it exists in PATH
-		auto pathTokens = common::string::Tokenize(path, L";");
-		auto match = FindSysPath(pathTokens, pathToRemove);
-		if (match != pathTokens.end())
 		{
-			pathTokens.erase(match);
-			path = common::string::Join(pathTokens, L";");
-			pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
+			auto pathRegKey = Registry::OpenKey(
+				HKEY_LOCAL_MACHINE,
+				pathKeyName,
+				true,
+				RegistryView::Force64
+			);
+			std::wstring path = ReadPathValue(*pathRegKey);
 
+			// remove value if it exists in PATH
+			auto pathTokens = common::string::Tokenize(path, L";");
+			auto match = FindSysPath(pathTokens, pathToRemove);
+			if (match != pathTokens.end())
+			{
+				pathTokens.erase(match);
+				path = common::string::Join(pathTokens, L";");
+				pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
+				updatedPath = true;
+			}
+		}
+
+		if (updatedPath)
+		{
 			THROW_GLE_IF(
-				SendNotifyMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment"),
+				SendNotifyMessageW(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment"),
 				0,
-				"SendNotifyMessage"
+				"SendNotifyMessageW"
 			);
 		}
 
