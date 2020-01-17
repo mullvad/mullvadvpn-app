@@ -44,7 +44,6 @@ pub struct Pinger {
     seq: u16,
 }
 
-const NUM_PINGS_TO_SEND: usize = 3;
 
 impl Pinger {
     pub fn new(addr: Ipv4Addr, _interface_name: String) -> Result<Self> {
@@ -63,11 +62,8 @@ impl Pinger {
 
     pub fn send_icmp(&mut self) -> Result<()> {
         let dest = SocketAddr::new(IpAddr::from(self.addr), 0);
-        for _ in 0..NUM_PINGS_TO_SEND {
-            let request = self.next_ping_request();
-            self.send_ping_request(&request, dest)?;
-        }
-        Ok(())
+        let request = self.next_ping_request();
+        self.send_ping_request(&request, dest)?
     }
 
 
