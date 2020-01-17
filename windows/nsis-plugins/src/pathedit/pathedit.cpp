@@ -22,8 +22,9 @@ using namespace common::registry;
 using ValueStringType = RegistryKey::ValueStringType;
 using common::string::Lower;
 
-static const wchar_t pathKeyName[] = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
-static const wchar_t pathValName[] = L"Path";
+static constexpr wchar_t pathKeyName[] = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
+static constexpr wchar_t pathValName[] = L"Path";
+static constexpr size_t messageTimeoutInterval = 5;
 
 namespace
 {
@@ -138,10 +139,32 @@ void __declspec(dllexport) NSISCALL AddSysEnvPath
 			pathRegKey->flush();
 		}
 
+		DWORD result;
 		THROW_GLE_IF(
-			SendNotifyMessageW(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment"),
+			SendMessageTimeoutA(
+				HWND_BROADCAST,
+				WM_SETTINGCHANGE,
+				0,
+				(LPARAM)"Environment",
+				SMTO_ABORTIFHUNG,
+				messageTimeoutInterval,
+				&result
+			),
 			0,
-			"SendNotifyMessageW"
+			"SendMessageTimeoutA"
+		);
+		THROW_GLE_IF(
+			SendMessageTimeoutW(
+				HWND_BROADCAST,
+				WM_SETTINGCHANGE,
+				0,
+				(LPARAM)L"Environment",
+				SMTO_ABORTIFHUNG,
+				messageTimeoutInterval,
+				&result
+			),
+			0,
+			"SendMessageTimeoutW"
 		);
 
 		pushstring(L"");
@@ -211,10 +234,32 @@ void __declspec(dllexport) NSISCALL RemoveSysEnvPath
 
 		if (updatedPath)
 		{
+			DWORD result;
 			THROW_GLE_IF(
-				SendNotifyMessageW(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment"),
+				SendMessageTimeoutA(
+					HWND_BROADCAST,
+					WM_SETTINGCHANGE,
+					0,
+					(LPARAM)"Environment",
+					SMTO_ABORTIFHUNG,
+					messageTimeoutInterval,
+					&result
+				),
 				0,
-				"SendNotifyMessageW"
+				"SendMessageTimeoutA"
+			);
+			THROW_GLE_IF(
+				SendMessageTimeoutW(
+					HWND_BROADCAST,
+					WM_SETTINGCHANGE,
+					0,
+					(LPARAM)L"Environment",
+					SMTO_ABORTIFHUNG,
+					messageTimeoutInterval,
+					&result
+				),
+				0,
+				"SendMessageTimeoutW"
 			);
 		}
 

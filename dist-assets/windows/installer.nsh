@@ -850,10 +850,9 @@
 		${BreakInstallation}
 		Abort
 	${EndIf}
-	
-	${InstallTrayIcon}
 
 	${AddCLIToEnvironPath}
+	${InstallTrayIcon}
 
 	Pop $R0
 
