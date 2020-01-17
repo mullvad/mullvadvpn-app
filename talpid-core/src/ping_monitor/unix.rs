@@ -29,7 +29,7 @@ impl Pinger {
     pub fn send_icmp(&mut self) -> Result<(), Error> {
         self.try_deplete_process_list();
 
-        let cmd = ping_cmd(self.addr, 1, &self.interface_name, true);
+        let cmd = ping_cmd(self.addr, 1, &self.interface_name);
         let handle = cmd.start().map_err(Error::PingError)?;
         self.processes.push(handle);
         Ok(())
@@ -61,7 +61,6 @@ fn ping_cmd(
     ip: Ipv4Addr,
     timeout_secs: u16,
     interface: &str,
-    exit_on_first_reply: bool,
 ) -> duct::Expression {
     let mut args = vec!["-n", "-i", "1"];
 
@@ -84,14 +83,6 @@ fn ping_cmd(
 
     if let Some(interface_flag) = interface_flag {
         args.extend_from_slice(&[interface_flag, interface]);
-    }
-
-    if exit_on_first_reply {
-        if cfg!(target_os = "macos") {
-            args.push("-o");
-        } else {
-            args.extend_from_slice(&["-c", "1"])
-        }
     }
 
     let ip = ip.to_string();
