@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Increase OpenVPN ping timeout from 20 to 25 seconds. Might make working tunnels disconnect
   a bit less frequently.
 - Increase WireGuard ping timeout from 7 to 15 seconds.
+- Updated `wireguard-go` to `v0.0.20191012`
 
 #### Linux
 - DNS management with static `/etc/resolv.conf` will now work even when no
