@@ -36,12 +36,11 @@ impl ConnectivityMonitor {
     ) -> Result<Self, Error> {
         let pinger = Pinger::new(addr, interface).map_err(Error::PingError)?;
 
-        let first_stats = Stats::empty();
         let now = Instant::now();
 
         Ok(Self {
             tunnel_handle,
-            last_stats: first_stats,
+            last_stats:  Default::default(),
             tx_timestamp: now,
             rx_timestamp: now,
             ping_sent: None,

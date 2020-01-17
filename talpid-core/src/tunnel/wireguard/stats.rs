@@ -9,20 +9,13 @@ pub enum Error {
 }
 
 /// Contains bytes sent and received through a tunnel
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Default, Debug, PartialEq, Clone, Copy)]
 pub struct Stats {
     pub tx_bytes: u64,
     pub rx_bytes: u64,
 }
 
 impl Stats {
-    pub fn empty() -> Self {
-        Self {
-            tx_bytes: 0,
-            rx_bytes: 0,
-        }
-    }
-
     pub fn parse_config_str(config: &str) -> Result<Self, Error> {
         let mut tx_bytes = None;
         let mut rx_bytes = None;
