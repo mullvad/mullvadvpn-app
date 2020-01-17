@@ -5,6 +5,8 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+bash build-wireguard-go.sh --android
+
 PRODUCT_VERSION="$(node -p "require('$SCRIPT_DIR/gui/package.json').version" | sed -Ee 's/\.0//g')"
 
 if [[ "${1:-""}" == "--dev-build" ]]; then
