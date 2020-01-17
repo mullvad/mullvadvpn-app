@@ -334,7 +334,7 @@ impl Tunnel for WgGoTunnel {
                 .map_err(Error::StatsError);
         let len = config_str.to_bytes().len();
         unsafe {
-            // Zerioing out config string to not leave private key in memory.
+            // Zeroing out config string to not leave private key in memory.
             for byte in std::slice::from_raw_parts_mut(ptr, len).iter_mut() {
                 *byte = 0;
             }
