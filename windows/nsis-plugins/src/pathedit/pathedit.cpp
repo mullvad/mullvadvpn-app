@@ -22,8 +22,9 @@ using namespace common::registry;
 using ValueStringType = RegistryKey::ValueStringType;
 using common::string::Lower;
 
-static const wchar_t pathKeyName[] = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
-static const wchar_t pathValName[] = L"Path";
+static constexpr wchar_t pathKeyName[] = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
+static constexpr wchar_t pathValName[] = L"Path";
+static constexpr size_t messageTimeoutInterval = 5;
 
 namespace
 {
@@ -111,35 +112,59 @@ void __declspec(dllexport) NSISCALL AddSysEnvPath
 
 	try
 	{
-		const auto pathToAppend = PopString();
-
-		auto pathRegKey = Registry::OpenKey(
-			HKEY_LOCAL_MACHINE,
-			pathKeyName,
-			true,
-			RegistryView::Force64
-		);
-		std::wstring path = ReadPathValue(*pathRegKey);
-
-		if (SysPathExists(path, pathToAppend))
 		{
-			pushstring(L"");
-			pushint(NsisStatus::SUCCESS);
-			return;
+			const auto pathToAppend = PopString();
+			auto pathRegKey = Registry::OpenKey(
+				HKEY_LOCAL_MACHINE,
+				pathKeyName,
+				true,
+				RegistryView::Force64
+			);
+			std::wstring path = ReadPathValue(*pathRegKey);
+
+			if (SysPathExists(path, pathToAppend))
+			{
+				pushstring(L"");
+				pushint(NsisStatus::SUCCESS);
+				return;
+			}
+
+			if (!path.empty())
+			{
+				path.append(L";");
+			}
+			path.append(pathToAppend);
+
+			pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
+			pathRegKey->flush();
 		}
 
-		if (!path.empty())
-		{
-			path.append(L";");
-		}
-		path.append(pathToAppend);
-
-		pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
-
+		DWORD result;
 		THROW_GLE_IF(
-			SendNotifyMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment"),
+			SendMessageTimeoutA(
+				HWND_BROADCAST,
+				WM_SETTINGCHANGE,
+				0,
+				(LPARAM)"Environment",
+				SMTO_ABORTIFHUNG,
+				messageTimeoutInterval,
+				&result
+			),
 			0,
-			"SendNotifyMessage"
+			"SendMessageTimeoutA"
+		);
+		THROW_GLE_IF(
+			SendMessageTimeoutW(
+				HWND_BROADCAST,
+				WM_SETTINGCHANGE,
+				0,
+				(LPARAM)L"Environment",
+				SMTO_ABORTIFHUNG,
+				messageTimeoutInterval,
+				&result
+			),
+			0,
+			"SendMessageTimeoutW"
 		);
 
 		pushstring(L"");
@@ -184,27 +209,57 @@ void __declspec(dllexport) NSISCALL RemoveSysEnvPath
 	{
 		const auto pathToRemove = PopString();
 
-		auto pathRegKey = Registry::OpenKey(
-			HKEY_LOCAL_MACHINE,
-			pathKeyName,
-			true,
-			RegistryView::Force64
-		);
-		std::wstring path = ReadPathValue(*pathRegKey);
+		bool updatedPath = false;
 
-		// remove value if it exists in PATH
-		auto pathTokens = common::string::Tokenize(path, L";");
-		auto match = FindSysPath(pathTokens, pathToRemove);
-		if (match != pathTokens.end())
 		{
-			pathTokens.erase(match);
-			path = common::string::Join(pathTokens, L";");
-			pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
+			auto pathRegKey = Registry::OpenKey(
+				HKEY_LOCAL_MACHINE,
+				pathKeyName,
+				true,
+				RegistryView::Force64
+			);
+			std::wstring path = ReadPathValue(*pathRegKey);
 
+			// remove value if it exists in PATH
+			auto pathTokens = common::string::Tokenize(path, L";");
+			auto match = FindSysPath(pathTokens, pathToRemove);
+			if (match != pathTokens.end())
+			{
+				pathTokens.erase(match);
+				path = common::string::Join(pathTokens, L";");
+				pathRegKey->writeValue(pathValName, path, ValueStringType::ExpandableString);
+				updatedPath = true;
+			}
+		}
+
+		if (updatedPath)
+		{
+			DWORD result;
 			THROW_GLE_IF(
-				SendNotifyMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment"),
+				SendMessageTimeoutA(
+					HWND_BROADCAST,
+					WM_SETTINGCHANGE,
+					0,
+					(LPARAM)"Environment",
+					SMTO_ABORTIFHUNG,
+					messageTimeoutInterval,
+					&result
+				),
 				0,
-				"SendNotifyMessage"
+				"SendMessageTimeoutA"
+			);
+			THROW_GLE_IF(
+				SendMessageTimeoutW(
+					HWND_BROADCAST,
+					WM_SETTINGCHANGE,
+					0,
+					(LPARAM)L"Environment",
+					SMTO_ABORTIFHUNG,
+					messageTimeoutInterval,
+					&result
+				),
+				0,
+				"SendMessageTimeoutW"
 			);
 		}
 
