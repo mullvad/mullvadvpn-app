@@ -164,6 +164,3 @@ impl WgConfigBuffer {
         self.buf
     }
 }
-
-/// A config that is currently set
-pub struct TunnelConfig {}
