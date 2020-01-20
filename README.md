@@ -390,6 +390,10 @@ the version of the app you are going to release. For example `2018.3-beta1` or `
      2. Run `security add-generic-password -a "<apple_id>" -w <app_specific_password> -s "something_something"`
      3. Set `NOTARIZE_APPLE_ID_PASSWORD="@keychain:something_something"`.
 
+1. When building on Windows, the certificate file `comodo.pfx` should be present in `./ci/`.
+   To specify the password, set the environment variable `CERT_PASSPHRASE`. If it's not set,
+   `build.sh` will prompt you for it.
+
 1. Run `./build.sh` on each computer/platform where you want to create a release artifact. This will
     do the following for you:
     1. Update `relays.json` with the latest relays
