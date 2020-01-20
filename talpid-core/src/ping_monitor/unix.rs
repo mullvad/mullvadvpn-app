@@ -38,7 +38,7 @@ impl Pinger {
     fn try_deplete_process_list(&mut self) {
         self.processes.retain(|child| {
             match child.try_wait() {
-                // child has terminated, doesn't have to be contained
+                // child has terminated, doesn't have to be retained
                 Ok(Some(_)) => false,
                 _ => true,
             }
