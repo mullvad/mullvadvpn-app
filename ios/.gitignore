@@ -42,6 +42,3 @@ Pods/
 # Package.pins
 # Package.resolved
 .build/
-
-# Build server
-iOS Provisioning Profiles/
