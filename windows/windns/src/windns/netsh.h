@@ -1,7 +1,7 @@
 #pragma once
 
 #include <libcommon/logging/ilogsink.h>
-#include <libcommon/applicationrunner.h>
+#include <libcommon/process/applicationrunner.h>
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -29,5 +29,5 @@ private:
 	std::shared_ptr<common::logging::ILogSink> m_logSink;
 	std::wstring m_netShPath;
 
-	void validateShellOut(common::ApplicationRunner &netsh, uint32_t timeout);
+	void validateShellOut(common::process::ApplicationRunner &netsh, uint32_t timeout);
 };

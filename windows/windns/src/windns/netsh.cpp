@@ -11,7 +11,7 @@
 namespace
 {
 
-__declspec(noreturn) void ThrowWithDetails(std::string &&error, common::ApplicationRunner &netsh)
+__declspec(noreturn) void ThrowWithDetails(std::string &&error, common::process::ApplicationRunner &netsh)
 {
 	std::string details("Failed to capture output from 'netsh'");
 
@@ -65,7 +65,7 @@ void NetSh::setIpv4StaticDns(uint32_t interfaceIndex,
 			<< nameServers[0]
 			<< L" validate=no";
 
-		auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
+		auto netsh = common::process::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
 		validateShellOut(*netsh, timeout);
 	}
@@ -86,7 +86,7 @@ void NetSh::setIpv4StaticDns(uint32_t interfaceIndex,
 			<< i + 1
 			<< L" validate=no";
 
-		auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
+		auto netsh = common::process::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
 		validateShellOut(*netsh, timeout);
 	}
@@ -106,7 +106,7 @@ void NetSh::setIpv4DhcpDns(uint32_t interfaceIndex, uint32_t timeout)
 		<< interfaceIndex
 		<< L" source=dhcp";
 
-	auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
+	auto netsh = common::process::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
 	validateShellOut(*netsh, timeout);
 }
@@ -137,7 +137,7 @@ void NetSh::setIpv6StaticDns(uint32_t interfaceIndex,
 			<< nameServers[0]
 			<< L" validate=no";
 
-		auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
+		auto netsh = common::process::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
 		validateShellOut(*netsh, timeout);
 	}
@@ -158,7 +158,7 @@ void NetSh::setIpv6StaticDns(uint32_t interfaceIndex,
 			<< i + 1
 			<< L" validate=no";
 
-		auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
+		auto netsh = common::process::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
 		validateShellOut(*netsh, timeout);
 	}
@@ -178,12 +178,12 @@ void NetSh::setIpv6DhcpDns(uint32_t interfaceIndex, uint32_t timeout)
 		<< interfaceIndex
 		<< L" source=dhcp";
 
-	auto netsh = common::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
+	auto netsh = common::process::ApplicationRunner::StartWithoutConsole(m_netShPath, ss.str());
 
 	validateShellOut(*netsh, timeout);
 }
 
-void NetSh::validateShellOut(common::ApplicationRunner &netsh, uint32_t timeout)
+void NetSh::validateShellOut(common::process::ApplicationRunner &netsh, uint32_t timeout)
 {
 	const uint32_t actualTimeout = (0 == timeout ? 10000 : timeout);
 

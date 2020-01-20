@@ -9,7 +9,7 @@
 #include <libcommon/registry/registry.h>
 #include <libcommon/resourcedata.h>
 #include <libcommon/filesystem.h>
-#include <libcommon/process.h>
+#include <libcommon/process/process.h>
 #include <libcommon/security.h>
 #include <nsis/pluginapi.h>
 #include <stdexcept>
