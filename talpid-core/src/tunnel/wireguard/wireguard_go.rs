@@ -319,14 +319,14 @@ impl Tunnel for WgGoTunnel {
     }
 
     fn get_config(&self) -> Result<Stats> {
-        let (config_str, ptr) = unsafe {
+        let config_str = unsafe {
             let ptr = wgGetConfig(self.handle.unwrap());
             if ptr.is_null() {
                 log::error!("Failed to get config !");
                 return Err(Error::GetConfigError);
             }
 
-            (CStr::from_ptr(ptr), ptr)
+            CStr::from_ptr(ptr)
         };
 
         let result =
@@ -334,6 +334,7 @@ impl Tunnel for WgGoTunnel {
                 .map_err(Error::StatsError);
         let len = config_str.to_bytes().len();
         unsafe {
+            let ptr = config_str.as_ptr() as *mut _;
             // Zeroing out config string to not leave private key in memory.
             for byte in std::slice::from_raw_parts_mut(ptr, len).iter_mut() {
                 *byte = 0;
