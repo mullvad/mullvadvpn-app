@@ -40,7 +40,7 @@ impl ConnectivityMonitor {
 
         Ok(Self {
             tunnel_handle,
-            last_stats:  Default::default(),
+            last_stats: Default::default(),
             tx_timestamp: now,
             rx_timestamp: now,
             ping_sent: None,
