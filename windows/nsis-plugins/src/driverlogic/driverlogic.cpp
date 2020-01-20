@@ -127,16 +127,11 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 
 	try
 	{
-		using value_type = common::ValueMapper<Context::BaselineStatus, EstablishBaselineStatus>::value_type;
-
-		const common::ValueMapper<Context::BaselineStatus, EstablishBaselineStatus> mapper =
-		{
-			value_type(Context::BaselineStatus::NO_TAP_ADAPTERS_PRESENT, EstablishBaselineStatus::NO_TAP_ADAPTERS_PRESENT),
-			value_type(Context::BaselineStatus::SOME_TAP_ADAPTERS_PRESENT, EstablishBaselineStatus::SOME_TAP_ADAPTERS_PRESENT),
-			value_type(Context::BaselineStatus::MULLVAD_ADAPTER_PRESENT, EstablishBaselineStatus::MULLVAD_ADAPTER_PRESENT)
-		};
-
-		const auto status = mapper.map(g_context->establishBaseline());
+		const auto status = common::ValueMapper::Map(g_context->establishBaseline(), {
+			std::make_pair(Context::BaselineStatus::NO_TAP_ADAPTERS_PRESENT, EstablishBaselineStatus::NO_TAP_ADAPTERS_PRESENT),
+			std::make_pair(Context::BaselineStatus::SOME_TAP_ADAPTERS_PRESENT, EstablishBaselineStatus::SOME_TAP_ADAPTERS_PRESENT),
+			std::make_pair(Context::BaselineStatus::MULLVAD_ADAPTER_PRESENT, EstablishBaselineStatus::MULLVAD_ADAPTER_PRESENT)
+		});
 
 		pushstring(L"");
 		pushint(status);
