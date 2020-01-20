@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <libcommon/valuemapper.h>
 #include "logsinkadapter.h"
 
 namespace shared::logging
@@ -19,30 +20,15 @@ common::logging::LogTarget LogSinkAdapter::MakeAdapter(MullvadLogSink target, vo
 			return;
 		}
 
-		//
-		// TODO: Replace manual mapping with ValueMapper once the updated
-		// ValueMapper reaches libcommon.
-		//
+		const std::optional<MULLVAD_LOG_LEVEL> translatedLevel = common::ValueMapper::TryMap<>(level, {
+			std::make_pair(common::logging::LogLevel::Warning, MULLVAD_LOG_LEVEL_WARNING),
+			std::make_pair(common::logging::LogLevel::Info, MULLVAD_LOG_LEVEL_INFO),
+			std::make_pair(common::logging::LogLevel::Trace, MULLVAD_LOG_LEVEL_TRACE),
+			std::make_pair(common::logging::LogLevel::Debug, MULLVAD_LOG_LEVEL_DEBUG),
+			std::make_pair(common::logging::LogLevel::Error, MULLVAD_LOG_LEVEL_ERROR),
+		});
 
-		const MULLVAD_LOG_LEVEL translatedLevel = [level]()
-		{
-			switch (level)
-			{
-				case common::logging::LogLevel::Warning:
-					return MULLVAD_LOG_LEVEL_WARNING;
-				case common::logging::LogLevel::Info:
-					return MULLVAD_LOG_LEVEL_INFO;
-				case common::logging::LogLevel::Trace:
-					return MULLVAD_LOG_LEVEL_TRACE;
-				case common::logging::LogLevel::Debug:
-					return MULLVAD_LOG_LEVEL_DEBUG;
-				case common::logging::LogLevel::Error:
-				default:
-					return MULLVAD_LOG_LEVEL_ERROR;
-			}
-		}();
-
-		target(translatedLevel, msg, context);
+		target(translatedLevel.value_or(MULLVAD_LOG_LEVEL_ERROR), msg, context);
 	};
 }
 

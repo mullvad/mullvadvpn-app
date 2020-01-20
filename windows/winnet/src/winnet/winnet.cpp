@@ -7,6 +7,7 @@
 #include <libshared/logging/unwind.h>
 #include <libshared/network/interfaceutils.h>
 #include <libcommon/error.h>
+#include <libcommon/valuemapper.h>
 #include <libcommon/network.h>
 #include <cstdint>
 #include <stdexcept>
@@ -522,26 +523,6 @@ WinNet_DeleteRoute(
 	}
 }
 
-//
-// TODO: Move to libcommon.
-//
-struct ValueMapper
-{
-	template<typename T, typename U, std::size_t S>
-	static U map(T t, const std::pair<T, U> (&dictionary)[S])
-	{
-		for (const auto &entry : dictionary)
-		{
-			if (t == entry.first)
-			{
-				return entry.second;
-			}
-		}
-
-		throw std::runtime_error("Could not map between values");
-	}
-};
-
 extern "C"
 WINNET_LINKAGE
 bool
@@ -577,7 +558,7 @@ WinNet_RegisterDefaultRouteChangedCallback(
 				{ from_t::Removed, WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE_REMOVED }
 			};
 
-			const auto translatedEventType = ValueMapper::map<>(eventType, eventTypeMap);
+			const auto translatedEventType = common::ValueMapper::Map<>(eventType, eventTypeMap);
 
 			//
 			// Translate the family type.
@@ -589,7 +570,7 @@ WinNet_RegisterDefaultRouteChangedCallback(
 				{ static_cast<ADDRESS_FAMILY>(AF_INET6), WINNET_IP_FAMILY_V6 }
 			};
 
-			const auto translatedFamily = ValueMapper::map<>(family, familyMap);
+			const auto translatedFamily = common::ValueMapper::Map<>(family, familyMap);
 
 			//
 			// Determine which LUID to forward.
