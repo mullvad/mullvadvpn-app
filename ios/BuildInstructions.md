@@ -116,7 +116,10 @@ Follow these steps to add each of provisioning profiles:
 1. Choose the distribution certificate that you had created (i.e `Amagicom AB (Distribution)`)
 1. Type in the profile name (see the table above) and hit "Generate"
 1. Download the certificate in `ios/iOS Provisioning Profiles` directory. Create the directory if it 
-   does not exist.
+   does not exist. 
+   
+   If you wish to customize the provisioning profiles location, provide the absolute path via 
+   `IOS_PROVISIONING_PROFILES_DIR` environment variable.
 
 # Setup AppStore credentials
 

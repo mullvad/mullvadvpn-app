@@ -21,6 +21,16 @@ if [[ -z ${IOS_APPLE_ID_PASSWORD-} ]]; then
     export IOS_APPLE_ID_PASSWORD
 fi
 
+# Provisioning profiles directory
+if [[ -z ${IOS_PROVISIONING_PROFILES_DIR-} ]]; then
+    IOS_PROVISIONING_PROFILES_DIR="$SCRIPT_DIR/iOS Provisioning Profiles"
+
+    echo "The variable IOS_PROVISIONING_PROFILES_DIR is not set."
+    echo "Default: $IOS_PROVISIONING_PROFILES_DIR"
+
+    export IOS_PROVISIONING_PROFILES_DIR
+fi
+
 ###########################################
 # Build configuration
 ###########################################
@@ -47,9 +57,6 @@ IPA_FILE="$BUILD_OUTPUT/$PROJECT_NAME.ipa"
 # Xcodebuild intermediate files directory
 DERIVED_FILE_DIR="$BUILD_OUTPUT/DerivedData"
 
-# Provisioning profiles directory
-PROVISIONING_PROFILES_DIR="$SCRIPT_DIR/iOS Provisioning Profiles"
-
 # System provisioning profiles directory
 SYSTEM_PROVISIONING_PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
 
@@ -63,7 +70,7 @@ get_mobile_provisioning_uuid() {
 }
 
 install_mobile_provisioning() {
-    for filename in "$PROVISIONING_PROFILES_DIR"/*.mobileprovision; do
+    for filename in "$IOS_PROVISIONING_PROFILES_DIR"/*.mobileprovision; do
         [ -f "$filename" ] || continue
         local profile_uuid=$(get_mobile_provisioning_uuid "$filename")
         local target="$SYSTEM_PROVISIONING_PROFILES_DIR/$profile_uuid.mobileprovision"
