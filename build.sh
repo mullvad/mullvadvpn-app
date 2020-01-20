@@ -174,10 +174,20 @@ done
 if [[ "$(uname -s)" == "MINGW"* && ! -z "$CERT_PASSPHRASE" ]]; then
     # Electron builder signs too much, so sign select binaries here
     signbinaries=("${binaries[@]}")
-    for binary in "${signbinaries[@]}"; do
-        DST="$SCRIPT_DIR/dist-assets/$binary"
-        sign_win "$DST"
+
+    numelems=${#signbinaries[@]}
+    for ((i=0; i<numelems; i++)); do
+        signbinaries[i]="$SCRIPT_DIR/dist-assets/${signbinaries[i]}"
     done
+
+    signbinaries+=(
+        windows/winfw/bin/x64-Release/winfw.dll
+        windows/windns/bin/x64-Release/windns.dll
+        windows/winnet/bin/x64-Release/winnet.dll
+        windows/winutil/bin/x64-Release/winutil.dll
+    )
+
+    sign_win "${signbinaries[@]}"
 fi
 
 
