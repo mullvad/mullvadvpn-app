@@ -3,8 +3,10 @@ use crate::tunnel::tun_provider::TunProvider;
 use ipnetwork::IpNetwork;
 use std::{
     ffi::{c_void, CStr, CString},
+    os::raw::c_char,
     path::Path,
 };
+use zeroize::Zeroize;
 
 #[cfg(target_os = "android")]
 use crate::tunnel::tun_provider;
@@ -332,14 +334,15 @@ impl Tunnel for WgGoTunnel {
         let result =
             Stats::parse_config_str(config_str.to_str().expect("Go strings are always UTF-8"))
                 .map_err(Error::StatsError);
-        let len = config_str.to_bytes().len();
         unsafe {
-            let ptr = config_str.as_ptr() as *mut _;
             // Zeroing out config string to not leave private key in memory.
-            for byte in std::slice::from_raw_parts_mut(ptr, len).iter_mut() {
-                *byte = 0;
-            }
-            wgFreePtr(ptr as *mut c_void);
+            let slice = std::slice::from_raw_parts_mut(
+                config_str.as_ptr() as *mut c_char,
+                config_str.to_bytes().len(),
+            );
+            slice.zeroize();
+
+            wgFreePtr(config_str.as_ptr() as *mut c_void);
         }
 
         result

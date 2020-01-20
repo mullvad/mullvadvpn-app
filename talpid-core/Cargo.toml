@@ -30,6 +30,7 @@ talpid-types = { path = "../talpid-types" }
 tokio-core = "0.1"
 tokio-executor = "0.1"
 uuid = { version = "0.7", features = ["v4"] }
+zeroize = "1"
 
 
 [target.'cfg(unix)'.dependencies]
