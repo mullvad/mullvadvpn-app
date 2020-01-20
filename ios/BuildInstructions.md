@@ -155,3 +155,18 @@ agvtool bump
 1. Run `./ios/build.sh` to build and export the app for upload to AppStore.
 1. Run `./ios/build.sh --deploy` - same as above but also uploads the app to AppStore and 
                                    makes it available over TestFlight.
+
+# Keychain quirks
+
+It's possible that `codesign` will keep throwing the password prompts for Keychain, in that case try
+the following commands __after__ importing the credentials into Keychain:
+
+```
+security unlock-keychain <KEYCHAIN>
+security set-key-partition-list -S apple-tool:,apple: -s <KEYCHAIN>
+```
+
+where `<KEYCHAIN>` is the name of the target Keychain where the signing credentials are stored. 
+This guide does not use a separate Keychain store, so use then use `login.keychain-db` then.
+
+Reference: https://docs.travis-ci.com/user/common-build-problems/#mac-macos-sierra-1012-code-signing-errors
