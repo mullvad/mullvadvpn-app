@@ -55,7 +55,7 @@ EXPORT_OPTIONS_FILE="$SCRIPT_DIR/ExportOptions.plist"
 IPA_FILE="$BUILD_OUTPUT/$PROJECT_NAME.ipa"
 
 # Xcodebuild intermediate files directory
-DERIVED_FILE_DIR="$BUILD_OUTPUT/DerivedData"
+DERIVED_DATA_DIR="$BUILD_OUTPUT/DerivedData"
 
 # System provisioning profiles directory
 SYSTEM_PROVISIONING_PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
@@ -94,7 +94,7 @@ release_build() {
     -scheme "$PROJECT_NAME" \
     -sdk iphoneos \
     -configuration Release \
-    -derivedDataPath "$DERIVED_FILE_DIR" \
+    -derivedDataPath "$DERIVED_DATA_DIR" \
     $@
 }
 
