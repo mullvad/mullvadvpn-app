@@ -34,7 +34,7 @@ esac
 
 # Build wireguard-go
 # On Windows, it relies on having msbuild.exe in your path.
-bash build-wireguard-go.sh
+./build-wireguard-go.sh
 
 # FIXME: Becaues of our old jsonrpc dependency our Rust code won't build
 # on latest nightly.
