@@ -2,9 +2,5 @@ LIBRARY driverlogic
 
 EXPORTS
 
-Initialize
-EstablishBaseline
 IdentifyNewAdapter
-RemoveOldMullvadTap
-RollbackTapAliases
-Deinitialize
+RemoveVanillaMullvadTap

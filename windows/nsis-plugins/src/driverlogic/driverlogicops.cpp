@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "context.h"
+#include "driverlogicops.h"
 
 #include <libcommon/guid.h>
 #include <libcommon/string.h>
@@ -8,9 +8,6 @@
 #include <libcommon/network/nci.h>
 #include <log/log.h>
 
-#include <winsock2.h>
-#include <ws2ipdef.h>
-#include <iphlpapi.h>
 #include <windows.h>
 
 #include <vector>
@@ -50,6 +47,11 @@ void LogAdapters(const std::wstring &description, const T &adapters)
 
 	PluginLogWithDetails(description, details);
 }
+
+} // anonymous namespace
+
+namespace driverlogic
+{
 
 std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData)
 {
@@ -246,9 +248,9 @@ std::optional<std::wstring> GetDeviceRegistryStringProperty(
 	return { buffer.data() };
 }
 
-std::set<Context::NetworkAdapter> GetTapAdapters(const std::wstring &tapHardwareId)
+std::set<NetworkAdapter> GetTapAdapters(const std::wstring &tapHardwareId)
 {
-	std::set<Context::NetworkAdapter> adapters;
+	std::set<NetworkAdapter> adapters;
 
 	HDEVINFO devInfo = SetupDiGetClassDevs(
 		&GUID_DEVCLASS_NET,
@@ -308,7 +310,7 @@ std::set<Context::NetworkAdapter> GetTapAdapters(const std::wstring &tapHardware
 			const std::wstring guid = GetNetCfgInstanceId(devInfo, devInfoData);
 			GUID guidObj = common::Guid::FromString(guid);
 
-			adapters.emplace(Context::NetworkAdapter(
+			adapters.emplace(NetworkAdapter(
 				guid,
 				GetDeviceStringProperty(devInfo, &devInfoData, &DEVPKEY_Device_DriverDesc),
 				nci.getConnectionName(guidObj),
@@ -321,19 +323,16 @@ std::set<Context::NetworkAdapter> GetTapAdapters(const std::wstring &tapHardware
 			// Log exception and skip this adapter
 			//
 
-			std::string msg = "Skipping TAP adapter due to exception caught while iterating: ";
-			msg.append(e.what());
-			PluginLog(std::wstring(msg.begin(), msg.end()));
+			const auto msg =
+				std::string("Skipping TAP adapter due to exception caught while iterating: ").append(e.what());
+			PluginLog(common::string::ToWide(msg));
 		}
 	}
 
 	return adapters;
 }
 
-} // anonymous namespace
-
-//static
-std::optional<Context::NetworkAdapter> Context::FindMullvadAdapter(const std::set<Context::NetworkAdapter> &tapAdapters)
+std::optional<NetworkAdapter> FindMullvadAdapter(const std::set<NetworkAdapter> &tapAdapters)
 {
 	if (tapAdapters.empty())
 	{
@@ -386,66 +385,17 @@ std::optional<Context::NetworkAdapter> Context::FindMullvadAdapter(const std::se
 	return std::nullopt;
 }
 
-Context::BaselineStatus Context::establishBaseline()
+NetworkAdapter GetAdapter()
 {
-	m_baseline = GetTapAdapters(TAP_HARDWARE_ID);
+	std::set<NetworkAdapter> added = GetTapAdapters(TAP_HARDWARE_ID);
 
-	if (m_baseline.empty())
+	if (added.empty())
 	{
-		return BaselineStatus::NO_TAP_ADAPTERS_PRESENT;
-	}
-	
-	if (FindMullvadAdapter(m_baseline).has_value())
-	{
-		return BaselineStatus::MULLVAD_ADAPTER_PRESENT;
-	}
-
-	return BaselineStatus::SOME_TAP_ADAPTERS_PRESENT;
-}
-
-void Context::recordCurrentState()
-{
-	m_currentState = GetTapAdapters(TAP_HARDWARE_ID);
-}
-
-void Context::rollbackTapAliases()
-{
-	common::network::Nci nci;
-
-	for (const auto &adapter : m_currentState)
-	{
-		const auto oldInfo = m_baseline.find(adapter);
-		if (m_baseline.end() != oldInfo)
-		{
-			GUID guidObj = common::Guid::FromString(&adapter.guid[0]);
-
-			nci.setConnectionName(guidObj, oldInfo->alias.c_str());
-		}
-	}
-}
-
-Context::NetworkAdapter Context::getNewAdapter()
-{
-	std::list<NetworkAdapter> added;
-
-	for (const auto &adapter : m_currentState)
-	{
-		if (m_baseline.end() == m_baseline.find(adapter))
-		{
-			added.push_back(adapter);
-		}
-	}
-
-	if (added.size() == 0)
-	{
-		LogAdapters(L"Enumerable network TAP adapters", m_currentState);
-
-		THROW_ERROR("Unable to identify recently added TAP adapter");
+		THROW_ERROR("Could not identify TAP");
 	}
 	else if (added.size() > 1)
 	{
-		LogAdapters(L"Enumerable network TAP adapters", m_currentState);
-		LogAdapters(L"New TAP adapters:", added);
+		LogAdapters(L"Enumerable network TAP adapters", added);
 
 		THROW_ERROR("Identified more TAP adapters than expected");
 	}
@@ -453,8 +403,7 @@ Context::NetworkAdapter Context::getNewAdapter()
 	return *added.begin();
 }
 
-//static
-Context::DeletionResult Context::DeleteOldMullvadAdapter()
+DeletionResult DeleteOldMullvadAdapter()
 {
 	auto tapAdapters = GetTapAdapters(DEPRECATED_TAP_HARDWARE_ID);
 	std::optional<NetworkAdapter> mullvadAdapter = FindMullvadAdapter(tapAdapters);
@@ -527,4 +476,6 @@ Context::DeletionResult Context::DeleteOldMullvadAdapter()
 	return (numRemainingAdapters > 0)
 		? DeletionResult::SOME_REMAINING_TAP_ADAPTERS
 		: DeletionResult::NO_REMAINING_TAP_ADAPTERS;
+}
+
 }

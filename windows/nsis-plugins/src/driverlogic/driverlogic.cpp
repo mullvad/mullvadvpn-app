@@ -1,6 +1,6 @@
-#include <stdafx.h>
+#include "stdafx.h"
 #include "../error.h"
-#include "context.h"
+#include "driverlogicops.h"
 #include <libcommon/string.h>
 #include <libcommon/error.h>
 #include <libcommon/valuemapper.h>
@@ -12,157 +12,20 @@
 #include <nsis/pluginapi.h>
 #pragma warning (pop)
 
-Context *g_context = nullptr;
-
-namespace
-{
-
-EXTERN_C IMAGE_DOS_HEADER __ImageBase;
-
-void PinDll()
-{
-	//
-	// Apparently NSIS loads and unloads the plugin module for EVERY call it makes to the plugin.
-	// This makes it kind of difficult to maintain state.
-	//
-	// We can work around this by incrementing the module reference count.
-	// When NSIS calls FreeLibrary() the reference count decrements and becomes one.
-	//
-
-	wchar_t self[MAX_PATH];
-
-	if (0 == GetModuleFileNameW((HINSTANCE)&__ImageBase, self, _countof(self)))
-	{
-		THROW_ERROR("Failed to pin plugin module");
-	}
-
-	//
-	// NSIS sometimes frees a plugin module more times than it loads it.
-	// This hasn't been observed for this particular plugin but let's up the
-	// reference count a bit extra anyway.
-	//
-	for (int i = 0; i < 100; ++i)
-	{
-		LoadLibraryW(self);
-	}
-}
-
-} // anonymous namespace
-
 //
-// Initialize
-//
-// Call this function once during startup.
-//
-
-void __declspec(dllexport) NSISCALL Initialize
-(
-	HWND hwndParent,
-	int string_size,
-	LPTSTR variables,
-	stack_t **stacktop,
-	extra_parameters *extra,
-	...
-)
-{
-	EXDLL_INIT();
-
-	try
-	{
-		if (nullptr == g_context)
-		{
-			g_context = new Context;
-
-			PinDll();
-		}
-
-		pushstring(L"");
-		pushint(NsisStatus::SUCCESS);
-	}
-	catch (std::exception &err)
-	{
-		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(NsisStatus::GENERAL_ERROR);
-	}
-	catch (...)
-	{
-		pushstring(L"Unspecified error");
-		pushint(NsisStatus::GENERAL_ERROR);
-	}
-}
-
-//
-// EstablishBaseline
-//
-// Call this function to establish a baseline W.R.T network adapters
-// present in the system.
-//
-// The return value reflects the status of TAP presence in the system.
-//
-enum class EstablishBaselineStatus
-{
-	GENERAL_ERROR = 0,
-	NO_TAP_ADAPTERS_PRESENT,
-	SOME_TAP_ADAPTERS_PRESENT,
-	MULLVAD_ADAPTER_PRESENT
-};
-
-void __declspec(dllexport) NSISCALL EstablishBaseline
-(
-	HWND hwndParent,
-	int string_size,
-	LPTSTR variables,
-	stack_t **stacktop,
-	extra_parameters *extra,
-	...
-)
-{
-	EXDLL_INIT();
-
-	if (nullptr == g_context)
-	{
-		pushstring(L"Initialize() function was not called or was not successful");
-		pushint(EstablishBaselineStatus::GENERAL_ERROR);
-		return;
-	}
-
-	try
-	{
-		const auto status = common::ValueMapper::Map(g_context->establishBaseline(), {
-			std::make_pair(Context::BaselineStatus::NO_TAP_ADAPTERS_PRESENT, EstablishBaselineStatus::NO_TAP_ADAPTERS_PRESENT),
-			std::make_pair(Context::BaselineStatus::SOME_TAP_ADAPTERS_PRESENT, EstablishBaselineStatus::SOME_TAP_ADAPTERS_PRESENT),
-			std::make_pair(Context::BaselineStatus::MULLVAD_ADAPTER_PRESENT, EstablishBaselineStatus::MULLVAD_ADAPTER_PRESENT)
-		});
-
-		pushstring(L"");
-		pushint(status);
-	}
-	catch (std::exception &err)
-	{
-		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(EstablishBaselineStatus::GENERAL_ERROR);
-	}
-	catch (...)
-	{
-		pushstring(L"Unspecified error");
-		pushint(EstablishBaselineStatus::GENERAL_ERROR);
-	}
-}
-
-//
-// RemoveOldMullvadTap
+// RemoveVanillaMullvadTap
 //
 // Deletes the old Mullvad TAP adapter with ID tap0901.
 //
 //
-enum class RemoveOldMullvadTapStatus
+enum class RemoveVanillaMullvadTapStatus
 {
 	GENERAL_ERROR = 0,
 	SUCCESS_NO_REMAINING_TAP_ADAPTERS,
 	SUCCESS_SOME_REMAINING_TAP_ADAPTERS
 };
 
-void __declspec(dllexport) NSISCALL RemoveOldMullvadTap
+void __declspec(dllexport) NSISCALL RemoveVanillaMullvadTap
 (
 	HWND hwndParent,
 	int string_size,
@@ -178,17 +41,17 @@ void __declspec(dllexport) NSISCALL RemoveOldMullvadTap
 	{
 		pushstring(L"");
 		
-		switch (Context::DeleteOldMullvadAdapter())
+		switch (driverlogic::DeleteOldMullvadAdapter())
 		{
-			case Context::DeletionResult::NO_REMAINING_TAP_ADAPTERS:
+			case driverlogic::DeletionResult::NO_REMAINING_TAP_ADAPTERS:
 			{
-				pushint(RemoveOldMullvadTapStatus::SUCCESS_NO_REMAINING_TAP_ADAPTERS);
+				pushint(RemoveVanillaMullvadTapStatus::SUCCESS_NO_REMAINING_TAP_ADAPTERS);
 				break;
 			}
 
-			case Context::DeletionResult::SOME_REMAINING_TAP_ADAPTERS:
+			case driverlogic::DeletionResult::SOME_REMAINING_TAP_ADAPTERS:
 			{
-				pushint(RemoveOldMullvadTapStatus::SUCCESS_SOME_REMAINING_TAP_ADAPTERS);
+				pushint(RemoveVanillaMullvadTapStatus::SUCCESS_SOME_REMAINING_TAP_ADAPTERS);
 				break;
 			}
 
@@ -201,12 +64,12 @@ void __declspec(dllexport) NSISCALL RemoveOldMullvadTap
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(RemoveOldMullvadTapStatus::GENERAL_ERROR);
+		pushint(RemoveVanillaMullvadTapStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(RemoveOldMullvadTapStatus::GENERAL_ERROR);
+		pushint(RemoveVanillaMullvadTapStatus::GENERAL_ERROR);
 	}
 }
 
@@ -232,18 +95,9 @@ void __declspec(dllexport) NSISCALL IdentifyNewAdapter
 {
 	EXDLL_INIT();
 
-	if (nullptr == g_context)
-	{
-		pushstring(L"Initialize() function was not called or was not successful");
-		pushint(NsisStatus::GENERAL_ERROR);
-		return;
-	}
-
 	try
 	{
-		g_context->recordCurrentState();
-
-		auto adapter = g_context->getNewAdapter();
+		auto adapter = driverlogic::GetAdapter();
 
 		pushstring(adapter.alias.c_str());
 		pushint(NsisStatus::SUCCESS);
@@ -258,89 +112,4 @@ void __declspec(dllexport) NSISCALL IdentifyNewAdapter
 		pushstring(L"Unspecified error");
 		pushint(NsisStatus::GENERAL_ERROR);
 	}
-}
-
-//
-// RollbackTapAliases
-//
-// Updating the TAP driver may replace GUIDs and aliases.
-// Use this to restore the aliases to their baseline state.
-//
-
-void __declspec(dllexport) NSISCALL RollbackTapAliases
-(
-	HWND hwndParent,
-	int string_size,
-	LPTSTR variables,
-	stack_t** stacktop,
-	extra_parameters* extra,
-	...
-)
-{
-	EXDLL_INIT();
-
-	if (nullptr == g_context)
-	{
-		pushstring(L"Initialize() function was not called or was not successful");
-		pushint(NsisStatus::GENERAL_ERROR);
-		return;
-	}
-
-	try
-	{
-		g_context->recordCurrentState();
-		g_context->rollbackTapAliases();
-
-		pushstring(L"");
-		pushint(NsisStatus::SUCCESS);
-	}
-	catch (std::exception & err)
-	{
-		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(NsisStatus::GENERAL_ERROR);
-	}
-	catch (...)
-	{
-		pushstring(L"Unspecified error");
-		pushint(NsisStatus::GENERAL_ERROR);
-	}
-}
-
-//
-// Deinitialize
-//
-// Call this function once during shutdown.
-//
-
-void __declspec(dllexport) NSISCALL Deinitialize
-(
-	HWND hwndParent,
-	int string_size,
-	LPTSTR variables,
-	stack_t **stacktop,
-	extra_parameters *extra,
-	...
-)
-{
-	EXDLL_INIT();
-
-	try
-	{
-		delete g_context;
-
-		pushstring(L"");
-		pushint(NsisStatus::SUCCESS);
-	}
-	catch (std::exception &err)
-	{
-		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(NsisStatus::GENERAL_ERROR);
-	}
-	catch (...)
-	{
-		pushstring(L"Unspecified error");
-		pushint(NsisStatus::GENERAL_ERROR);
-	}
-
-	g_context = nullptr;
 }
