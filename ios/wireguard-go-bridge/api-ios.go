@@ -165,6 +165,7 @@ func wgGetConfig(tunnelHandle int32) *C.char {
 	writer.Flush()
 	return C.CString(settings.String())
 }
+
 //export wgBumpSockets
 func wgBumpSockets(tunnelHandle int32) {
 	device, ok := tunnelHandles[tunnelHandle]
