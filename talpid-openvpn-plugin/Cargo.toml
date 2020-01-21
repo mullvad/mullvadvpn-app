@@ -5,6 +5,7 @@ authors = ["Mullvad VPN"]
 description = "OpenVPN shared library plugin for relaying OpenVPN events to talpid_core"
 license = "GPL-3.0"
 edition = "2018"
+publish = false
 
 [lib]
 crate-type = ["cdylib"]

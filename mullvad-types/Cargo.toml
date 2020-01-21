@@ -5,6 +5,7 @@ authors = ["Mullvad VPN"]
 description = "Common base data structures for Mullvad VPN client"
 license = "GPL-3.0"
 edition = "2018"
+publish = false
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
