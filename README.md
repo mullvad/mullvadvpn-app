@@ -234,6 +234,13 @@ storePassword = keystore-password
    #### Windows
    Download the Node.js installer from the official website.
 
+
+1. Install Go (ideally version `1.13.6`) by following the [official
+   instructions](https://golang.org/doc/install).  Newer versions of Go may be used. Earlier
+   versions may be used, but versions older than `1.12` are known to not work, newer versions may
+   too.
+
+
 ## Building and packaging the app
 
 The simplest way to build the entire app and generate an installer is to just run the build script.
