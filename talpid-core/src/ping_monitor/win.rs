@@ -63,7 +63,7 @@ impl Pinger {
     pub fn send_icmp(&mut self) -> Result<()> {
         let dest = SocketAddr::new(IpAddr::from(self.addr), 0);
         let request = self.next_ping_request();
-        self.send_ping_request(&request, dest)?
+        self.send_ping_request(&request, dest)
     }
 
 
