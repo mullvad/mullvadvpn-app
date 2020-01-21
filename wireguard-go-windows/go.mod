@@ -1,4 +1,4 @@
-module github.com/mullvad/mullvadvpn-app-binaries/wireguard-go-windows
+module github.com/mullvad/mullvadvpn-app/wireguard-go-windows
 
 go 1.12
 
