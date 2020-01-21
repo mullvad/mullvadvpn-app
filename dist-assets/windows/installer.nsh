@@ -161,11 +161,11 @@
 !define ForceRenameAdapter '!insertmacro "ForceRenameAdapter"'
 
 #
-# RemoveTap
+# RemoveBrandedTap
 #
 # Try to remove the Mullvad TAP adapter driver
 #
-!macro RemoveTap
+!macro RemoveBrandedTap
 	Push $0
 	Push $1
 
@@ -178,43 +178,62 @@
 
 !macroend
 
-!define RemoveTap '!insertmacro "RemoveTap"'
+!define RemoveBrandedTap '!insertmacro "RemoveBrandedTap"'
 
 #
-# RemoveOldIdTap
+# RemoveVanillaTap
 #
 # Try to remove the old Mullvad TAP adapter (with a non-unique hardware ID),
 # and uninstall the driver if it's not in use.
 #
-!macro RemoveOldIdTap
+!macro RemoveVanillaTap
 	Push $0
 	Push $1
 
-	driverlogic::RemoveOldMullvadTap
+	log::Log "RemoveVanillaTap()"
+
+	driverlogic::RemoveVanillaMullvadTap
 
 	Pop $0
 	Pop $1
 
 	${If} $0 == ${RMT_GENERAL_ERROR}
-		Goto RemoveOldIdTap_return
+		StrCpy $R0 "Failed to remove vanilla TAP adapter: $1"
+		log::Log $R0
+
+		Goto RemoveVanillaTap_return
 	${EndIf}
 
 	${If} $0 == ${RMT_NO_REMAINING_ADAPTERS}
-		# Remove the driver altogether
+		log::Log "Removing vanilla TAP adapter driver since it is no longer in use"
+
 		nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${DEPRECATED_TAP_HARDWARE_ID}'
 
 		Pop $0
 		Pop $1
+
+		${If} $0 != ${DEVCON_EXIT_OK}
+		${AndIf} $0 != ${DEVCON_EXIT_REBOOT}
+			StrCpy $R0 "Failed to remove driver: $1"
+			log::Log $R0
+
+			Goto RemoveVanillaTap_return
+		${EndIf}
 	${EndIf}
-	
-	RemoveOldIdTap_return:
+
+	log::Log "RemoveVanillaTap() completed successfully"
+
+	RemoveVanillaTap_return:
+
+	Push 0
+	Pop $R0
 
 	Pop $1
 	Pop $0
 
 !macroend
 
-!define RemoveOldIdTap '!insertmacro "RemoveOldIdTap"'
+!define RemoveVanillaTap '!insertmacro "RemoveVanillaTap"'
 
 #
 # InstallDriver
@@ -232,21 +251,10 @@
 	Push $0
 	Push $1
 
-	driverlogic::Initialize
-	
-	Pop $0
-	Pop $1
-	
-	${If} $0 != ${MULLVAD_SUCCESS}
-		StrCpy $R0 "Failed to initialize plugin 'driverlogic': $1"
-		log::Log $R0
-		Goto InstallDriver_return_only
-	${EndIf}
-
 	#
 	# Remove the old-ID Mullvad TAP, if it exists
 	#
-	${RemoveOldIdTap}
+	${RemoveVanillaTap}
 
 	#
 	# Silently approve the certificate before installing the driver
@@ -316,18 +324,6 @@
 	Pop $R0
 	
 	InstallDriver_return:
-
-	driverlogic::Deinitialize
-	
-	Pop $0
-	Pop $1
-	
-	${If} $0 != ${MULLVAD_SUCCESS}
-		# Do not update $R0
-		log::Log "Failed to deinitialize plugin 'driverlogic': $1"
-	${EndIf}
-
-	InstallDriver_return_only:
 
 	Pop $1
 	Pop $0
@@ -849,7 +845,7 @@
 
 	# Remove the TAP adapter
 	${ExtractDriver}
-	${RemoveTap}
+	${RemoveBrandedTap}
 
 	# If not ran silently
 	${If} $FullUninstall == 1
