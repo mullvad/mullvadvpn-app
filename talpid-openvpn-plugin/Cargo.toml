@@ -1,14 +1,7 @@
 [package]
 name = "talpid-openvpn-plugin"
 version = "2019.10.0"
-authors = [
-    "Mullvad VPN",
-    "Andrej Mihajlov <and@mullvad.net>",
-    "Emīls Piņķis <emils@mullvad.net>",
-    "Erik Larkö <erik@mullvad.net>",
-    "Janito Vaqueiro Ferreira Filho <janito@mullvad.net>",
-    "Linus Färnstrand <linus@mullvad.net>",
-]
+authors = ["Mullvad VPN"]
 description = "OpenVPN shared library plugin for relaying OpenVPN events to talpid_core"
 license = "GPL-3.0"
 edition = "2018"

@@ -1,14 +1,7 @@
 [package]
 name = "mullvad-cli"
 version = "2019.10.0"
-authors = [
-    "Mullvad VPN",
-    "Andrej Mihajlov <and@mullvad.net>",
-    "Emīls Piņķis <emils@mullvad.net>",
-    "Erik Larkö <erik@mullvad.net>",
-    "Janito Vaqueiro Ferreira Filho <janito@mullvad.net>",
-    "Linus Färnstrand <linus@mullvad.net>",
-]
+authors = ["Mullvad VPN"]
 description = "Manage the Mullvad VPN daemon via a convenient CLI"
 license = "GPL-3.0"
 edition = "2018"
