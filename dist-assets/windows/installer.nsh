@@ -79,14 +79,12 @@
 
 	SetOutPath "$TEMP\driver"
 
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\*"
+
 	${If} ${AtLeastWin10}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis6\*"
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis6\win10\*"
-	${ElseIf} ${AtLeastWin8}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis6\*"
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis6\win8\*"
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\win10\*"
 	${Else}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\ndis5\*"
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\win8\*"
 	${EndIf}
 	
 !macroend
