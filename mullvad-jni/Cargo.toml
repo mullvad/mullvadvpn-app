@@ -5,6 +5,7 @@ authors = ["Mullvad VPN"]
 description = "JNI interface for the Mullvad daemon"
 license = "GPL-3.0"
 edition = "2018"
+publish = false
 
 [lib]
 crate_type = ["cdylib"]

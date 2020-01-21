@@ -5,6 +5,7 @@ authors = ["Mullvad VPN"]
 description = "Privacy preserving and secure VPN client library"
 license = "GPL-3.0"
 edition = "2018"
+publish = false
 
 [dependencies]
 atty = "0.2"

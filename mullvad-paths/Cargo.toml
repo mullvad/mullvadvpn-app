@@ -5,6 +5,7 @@ authors = ["Mullvad VPN"]
 description = "Mullvad VPN application paths and directories"
 license = "GPL-3.0"
 edition = "2018"
+publish = false
 
 [dependencies]
 err-derive = "0.2.1"
