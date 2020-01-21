@@ -24,12 +24,6 @@
 !define MULLVAD_GENERAL_ERROR 0
 !define MULLVAD_SUCCESS 1
 
-# Return codes from driverlogic::EstablishBaseline
-!define EB_GENERAL_ERROR 0
-!define EB_NO_TAP_ADAPTERS_PRESENT 1
-!define EB_SOME_TAP_ADAPTERS_PRESENT 2
-!define EB_MULLVAD_ADAPTER_PRESENT 3
-
 # Return codes from driverlogic::RemoveMullvadTap
 !define RMT_GENERAL_ERROR 0
 !define RMT_NO_REMAINING_ADAPTERS 1
@@ -231,7 +225,6 @@
 #
 !macro InstallDriver
 
-	Var /GLOBAL InstallDriver_BaselineStatus
 	Var /GLOBAL InstallDriver_TapName
 
 	log::Log "InstallDriver()"
@@ -256,27 +249,9 @@
 	${RemoveOldIdTap}
 
 	#
-	# Reinstall the TAP driver if it is already installed. Updating may cause issues.
+	# Silently approve the certificate before installing the driver
 	#
-	log::Log "Calling on plugin to enumerate network adapters"
-	driverlogic::EstablishBaseline
-
-	Pop $0
-	Pop $1
-
-	Push $0
-	Pop $InstallDriver_BaselineStatus
-
-	${If} $0 == ${EB_GENERAL_ERROR}
-		StrCpy $R0 "Failed to enumerate network adapters: $1"
-		log::Log $R0
-		Goto InstallDriver_return
-	${EndIf}
-
 	${IfNot} ${AtLeastWin10}
-		#
-		# Silently approve the certificate before installing the driver
-		#
 		log::Log "Adding OpenVPN certificate to the certificate store"
 
 		nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\driver\driver.cer"'
@@ -289,18 +264,7 @@
 		${EndIf}
 	${EndIf}
 
-	IntCmp $InstallDriver_BaselineStatus ${EB_NO_TAP_ADAPTERS_PRESENT} InstallDriver_install_driver
-
-	log::Log "Removing existing TAP driver"
-	${RemoveTap}
-
-	InstallDriver_install_driver:
-
-	#
-	# Install driver and create a virtual adapter.
-	# If the driver is already installed, this just creates another virtual adapter.
-	#
-	log::Log "Creating new virtual adapter (this also installs the TAP driver, as necessary)"
+	log::Log "Creating new virtual adapter"
 	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" install "$TEMP\driver\OemVista.inf" ${TAP_HARDWARE_ID}'
 	
 	Pop $0
@@ -345,8 +309,6 @@
 			Goto InstallDriver_return
 		${EndIf}
 	${EndIf}
-
-	InstallDriver_return_success:
 
 	log::Log "InstallDriver() completed successfully"
 	
@@ -885,15 +847,15 @@
 
 	${RemoveCLIFromEnvironPath}
 
+	# Remove the TAP adapter
+	${ExtractDriver}
+	${RemoveTap}
+
 	# If not ran silently
 	${If} $FullUninstall == 1
 		# Remove Wintun
 		${ExtractWintun}
 		${RemoveWintun}
-
-		# Remove the TAP adapter
-		${ExtractDriver}
-		${RemoveTap}
 
 		${RemoveLogsAndCache}
 		MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
