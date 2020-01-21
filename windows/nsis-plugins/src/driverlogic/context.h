@@ -60,7 +60,7 @@ public:
 		SOME_REMAINING_TAP_ADAPTERS
 	};
 
-	static DeletionResult DeleteMullvadAdapter();
+	static DeletionResult DeleteOldMullvadAdapter();
 
 private:
 

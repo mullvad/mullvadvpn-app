@@ -13,6 +13,7 @@
 #
 
 # TAP device hardware ID
+!define DEPRECATED_TAP_HARDWARE_ID "tap0901"
 !define TAP_HARDWARE_ID "tapmullvad0901"
 
 # "sc" exit code
@@ -168,47 +169,15 @@
 #
 # RemoveTap
 #
-# Try to remove the Mullvad TAP adapter
-# and driver if there are no other TAPs available.
+# Try to remove the Mullvad TAP adapter driver
 #
 !macro RemoveTap
 	Push $0
 	Push $1
 
-	driverlogic::Initialize
-
+	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${TAP_HARDWARE_ID}'
 	Pop $0
 	Pop $1
-
-	${If} $0 != ${MULLVAD_SUCCESS}
-		Goto RemoveTap_return_only
-	${EndIf}
-
-	driverlogic::RemoveMullvadTap
-
-	Pop $0
-	Pop $1
-
-	${If} $0 == ${RMT_GENERAL_ERROR}
-		Goto RemoveTap_return
-	${EndIf}
-
-	${If} $0 == ${RMT_NO_REMAINING_ADAPTERS}
-		# Remove the driver altogether
-		nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${TAP_HARDWARE_ID}'
-
-		Pop $0
-		Pop $1
-	${EndIf}
-	
-	RemoveTap_return:
-
-	driverlogic::Deinitialize
-	
-	Pop $0
-	Pop $1
-
-	RemoveTap_return_only:
 
 	Pop $1
 	Pop $0
@@ -216,6 +185,42 @@
 !macroend
 
 !define RemoveTap '!insertmacro "RemoveTap"'
+
+#
+# RemoveOldIdTap
+#
+# Try to remove the old Mullvad TAP adapter (with a non-unique hardware ID),
+# and uninstall the driver if it's not in use.
+#
+!macro RemoveOldIdTap
+	Push $0
+	Push $1
+
+	driverlogic::RemoveOldMullvadTap
+
+	Pop $0
+	Pop $1
+
+	${If} $0 == ${RMT_GENERAL_ERROR}
+		Goto RemoveOldIdTap_return
+	${EndIf}
+
+	${If} $0 == ${RMT_NO_REMAINING_ADAPTERS}
+		# Remove the driver altogether
+		nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${DEPRECATED_TAP_HARDWARE_ID}'
+
+		Pop $0
+		Pop $1
+	${EndIf}
+	
+	RemoveOldIdTap_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemoveOldIdTap '!insertmacro "RemoveOldIdTap"'
 
 #
 # InstallDriver
@@ -244,7 +249,15 @@
 		log::Log $R0
 		Goto InstallDriver_return_only
 	${EndIf}
-	
+
+	#
+	# Remove the old-ID Mullvad TAP, if it exists
+	#
+	${RemoveOldIdTap}
+
+	#
+	# Reinstall the TAP driver if it is already installed. Updating may cause issues.
+	#
 	log::Log "Calling on plugin to enumerate network adapters"
 	driverlogic::EstablishBaseline
 
@@ -278,44 +291,8 @@
 
 	IntCmp $InstallDriver_BaselineStatus ${EB_NO_TAP_ADAPTERS_PRESENT} InstallDriver_install_driver
 
-	#
-	# Driver is already installed and there are one or several virtual adapters present.
-	# Update driver.
-	#
-	log::Log "TAP driver is already installed - Updating to latest version"
-	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" update "$TEMP\driver\OemVista.inf" ${TAP_HARDWARE_ID}'
-
-	Pop $0
-	Pop $1
-
-	${If} $0 != ${DEVCON_EXIT_OK}
-	${AndIf} $0 != ${DEVCON_EXIT_REBOOT}
-		StrCpy $R0 "Failed to update TAP driver: error $0"
-		log::LogWithDetails $R0 $1
-		Goto InstallDriver_return
-	${EndIf}
-
-	#
-	# Driver updates will replace the GUIDs and names
-	# of our adapters, so let's restore them.
-	#
-	log::Log "Restoring any changed TAP adapter aliases"
-	driverlogic::RollbackTapAliases
-
-	Pop $0
-	Pop $1
-
-	${If} $0 != ${MULLVAD_SUCCESS}
-		StrCpy $R0 "Failed to roll back TAP adapter aliases: error $0"
-		log::LogWithDetails $R0 $1
-		Goto InstallDriver_return
-	${EndIf}
-
-	${If} $InstallDriver_BaselineStatus == ${EB_MULLVAD_ADAPTER_PRESENT}
-		log::Log "Virtual adapter with custom name already present on system"
-
-		Goto InstallDriver_return_success
-	${EndIf}
+	log::Log "Removing existing TAP driver"
+	${RemoveTap}
 
 	InstallDriver_install_driver:
 

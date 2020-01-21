@@ -5,6 +5,6 @@ EXPORTS
 Initialize
 EstablishBaseline
 IdentifyNewAdapter
-RemoveMullvadTap
+RemoveOldMullvadTap
 RollbackTapAliases
 Deinitialize

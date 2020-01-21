@@ -150,19 +150,19 @@ void __declspec(dllexport) NSISCALL EstablishBaseline
 }
 
 //
-// RemoveMullvadTap
+// RemoveOldMullvadTap
 //
-// Deletes the Mullvad TAP adapter.
+// Deletes the old Mullvad TAP adapter with ID tap0901.
 //
 //
-enum class RemoveMullvadTapStatus
+enum class RemoveOldMullvadTapStatus
 {
 	GENERAL_ERROR = 0,
 	SUCCESS_NO_REMAINING_TAP_ADAPTERS,
 	SUCCESS_SOME_REMAINING_TAP_ADAPTERS
 };
 
-void __declspec(dllexport) NSISCALL RemoveMullvadTap
+void __declspec(dllexport) NSISCALL RemoveOldMullvadTap
 (
 	HWND hwndParent,
 	int string_size,
@@ -178,17 +178,17 @@ void __declspec(dllexport) NSISCALL RemoveMullvadTap
 	{
 		pushstring(L"");
 		
-		switch (Context::DeleteMullvadAdapter())
+		switch (Context::DeleteOldMullvadAdapter())
 		{
 			case Context::DeletionResult::NO_REMAINING_TAP_ADAPTERS:
 			{
-				pushint(RemoveMullvadTapStatus::SUCCESS_NO_REMAINING_TAP_ADAPTERS);
+				pushint(RemoveOldMullvadTapStatus::SUCCESS_NO_REMAINING_TAP_ADAPTERS);
 				break;
 			}
 
 			case Context::DeletionResult::SOME_REMAINING_TAP_ADAPTERS:
 			{
-				pushint(RemoveMullvadTapStatus::SUCCESS_SOME_REMAINING_TAP_ADAPTERS);
+				pushint(RemoveOldMullvadTapStatus::SUCCESS_SOME_REMAINING_TAP_ADAPTERS);
 				break;
 			}
 
@@ -201,12 +201,12 @@ void __declspec(dllexport) NSISCALL RemoveMullvadTap
 	catch (std::exception &err)
 	{
 		pushstring(common::string::ToWide(err.what()).c_str());
-		pushint(RemoveMullvadTapStatus::GENERAL_ERROR);
+		pushint(RemoveOldMullvadTapStatus::GENERAL_ERROR);
 	}
 	catch (...)
 	{
 		pushstring(L"Unspecified error");
-		pushint(RemoveMullvadTapStatus::GENERAL_ERROR);
+		pushint(RemoveOldMullvadTapStatus::GENERAL_ERROR);
 	}
 }
 
