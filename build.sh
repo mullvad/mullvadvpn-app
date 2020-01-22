@@ -131,7 +131,7 @@ fi
 ################################################################################
 # Compile wireguard-go
 ################################################################################
-./build-wireguard-go.sh
+./wireguard/build-wireguard-go.sh
 
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
 MULLVAD_ADD_MANIFEST="1" cargo +stable build $CARGO_ARGS --release
