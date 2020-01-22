@@ -480,7 +480,7 @@ where
                     .get_tunnel_options()
                     .wireguard
                     .automatic_rotation
-                    .map(|hours| 60 * hours),
+                    .map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64)),
             );
         }
 
@@ -1378,7 +1378,7 @@ where
                         self.wireguard_key_manager.set_rotation_interval(
                             &mut self.account_history,
                             token,
-                            interval.map(|hours| 60 * hours),
+                            interval.map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64)),
                         );
                     }
 
@@ -1462,7 +1462,7 @@ where
                             .get_tunnel_options()
                             .wireguard
                             .automatic_rotation
-                            .map(|hours| 60 * hours),
+                            .map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64)),
                     );
 
                     Ok(keygen_event)

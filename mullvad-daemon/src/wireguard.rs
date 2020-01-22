@@ -22,13 +22,13 @@ use tokio_timer;
 
 const TOO_MANY_KEYS_ERROR_CODE: i64 = -703;
 
-/// Default automatic key rotation (in minutes)
-const DEFAULT_AUTOMATIC_KEY_ROTATION: u32 = 7 * 24 * 60;
-/// How long to wait before reattempting to rotate keys on failure (secs)
-const AUTOMATIC_ROTATION_RETRY_DELAY: u64 = 5;
-/// How often to check whether the key has expired (in seconds).
+/// Default automatic key rotation
+const DEFAULT_AUTOMATIC_KEY_ROTATION: Duration = Duration::from_secs(7 * 24 * 60 * 60);
+/// How long to wait before reattempting to rotate keys on failure
+const AUTOMATIC_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(5);
+/// How often to check whether the key has expired.
 /// A short interval is used in case the computer is ever suspended.
-const KEY_CHECK_INTERVAL: u64 = 60;
+const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
 
 
 #[derive(err_derive::Error, Debug)]
@@ -54,8 +54,7 @@ pub struct KeyManager {
     current_job: Option<CancelHandle>,
 
     abort_scheduler_tx: Option<CancelHandle>,
-    // unit: minutes
-    auto_rotation_interval: u32,
+    auto_rotation_interval: Duration,
 }
 
 impl KeyManager {
@@ -70,7 +69,7 @@ impl KeyManager {
             tokio_remote,
             current_job: None,
             abort_scheduler_tx: None,
-            auto_rotation_interval: 0,
+            auto_rotation_interval: Duration::new(0, 0),
         }
     }
 
@@ -97,19 +96,19 @@ impl KeyManager {
         };
     }
 
-    /// Update automatic key rotation interval (given in minutes)
+    /// Update automatic key rotation interval
     /// Passing `None` for the interval will use the default value.
-    /// A value of `0` disables automatic key rotation.
+    /// A duration of `0` disables automatic key rotation.
     pub fn set_rotation_interval(
         &mut self,
         account_history: &mut AccountHistory,
         account_token: AccountToken,
-        auto_rotation_interval_mins: Option<u32>,
+        auto_rotation_interval: Option<Duration>,
     ) {
         log::debug!("set_rotation_interval");
 
         self.auto_rotation_interval =
-            auto_rotation_interval_mins.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
+            auto_rotation_interval.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
 
         self.reset_rotation(account_history, account_token);
     }
@@ -292,17 +291,12 @@ impl KeyManager {
         Box::new(
             tokio_timer::wheel()
                 .build()
-                .sleep(Duration::from_secs(KEY_CHECK_INTERVAL))
+                .sleep(KEY_CHECK_INTERVAL)
                 .map_err(|e| Error::RotationScheduleError(e))
                 .and_then(move |_| {
-                    let key_age = Duration::from_secs(
-                        (Utc::now().signed_duration_since(key.created)).num_seconds() as u64,
-                    );
-                    let remaining_time = Duration::from_secs(rotation_interval_secs)
-                        .checked_sub(key_age)
-                        .unwrap_or(Duration::from_secs(0));
-
-                    if remaining_time == Duration::from_secs(0) {
+                    let key_age =
+                        (Utc::now().signed_duration_since(key.created)).num_seconds() as u64;
+                    if key_age >= rotation_interval_secs {
                         Box::new(futures::future::ok(()))
                     } else {
                         Self::create_rotation_check(key, rotation_interval_secs)
@@ -377,35 +371,29 @@ impl KeyManager {
 
         let create_repeat_future = move |result: Result<PublicKey>| match result {
             Ok(next_public_key) => Self::create_automatic_rotation(
-                daemon_tx.clone(),
-                http_handle.clone(),
+                daemon_tx,
+                http_handle,
                 next_public_key,
                 rotation_interval_secs,
-                account_token.clone(),
+                account_token,
             ),
             Err(Error::TooManyKeys) => Box::new(futures::future::ok(())),
             Err(e) => {
                 log::error!(
                     "Key rotation failed: {}. Retrying in {} seconds",
                     e,
-                    AUTOMATIC_ROTATION_RETRY_DELAY,
+                    AUTOMATIC_ROTATION_RETRY_DELAY.as_secs(),
                 );
-
-                let next_public_key = public_key.clone();
-
-                let daemon_tx = daemon_tx.clone();
-                let http_handle = http_handle.clone();
-                let account_token = account_token.clone();
 
                 Box::new(
                     tokio_timer::wheel()
                         .build()
-                        .sleep(Duration::from_secs(AUTOMATIC_ROTATION_RETRY_DELAY))
+                        .sleep(AUTOMATIC_ROTATION_RETRY_DELAY)
                         .then(move |_| {
                             Self::create_automatic_rotation(
                                 daemon_tx,
                                 http_handle,
-                                next_public_key,
+                                public_key,
                                 rotation_interval_secs,
                                 account_token,
                             )
@@ -420,7 +408,7 @@ impl KeyManager {
     fn run_automatic_rotation(&mut self, account_token: AccountToken, public_key: PublicKey) {
         self.stop_automatic_rotation();
 
-        if let 0 = self.auto_rotation_interval {
+        if self.auto_rotation_interval == Duration::new(0, 0) {
             // disabled
             return;
         }
@@ -430,7 +418,7 @@ impl KeyManager {
             self.daemon_tx.clone(),
             self.http_handle.clone(),
             public_key,
-            60u64 * (self.auto_rotation_interval as u64),
+            self.auto_rotation_interval.as_secs(),
             account_token,
         );
         let (fut, cancel_handle) = Cancellable::new(fut);
