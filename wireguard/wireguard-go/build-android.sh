@@ -55,4 +55,7 @@ for arch in arm arm64 x86_64 x86; do
     chmod 777 ../../android/build/extraJni/*
     mkdir -p ../../build/lib/$RUST_TARGET_TRIPLE
     cp ../../android/build/extraJni/$ANDROID_ABI/libwg.so ../../build/lib/$RUST_TARGET_TRIPLE
+    chmod 666 ../../build/lib/$RUST_TARGET_TRIPLE/liwg.so
+    echo $(ls -lh ../build/lib)
+    echo $(ls -alh ../build/lib/*/*)
 done
