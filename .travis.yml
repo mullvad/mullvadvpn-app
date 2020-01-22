@@ -69,7 +69,7 @@ matrix:
         - source env.sh aarch64-linux-android
         - env
       script:
-        - bash build-wireguard-go.sh --android
+        - ./wireguard/build-wireguard-go.sh --android
         - cargo build --target aarch64-linux-android --verbose --package mullvad-jni
         - cd android
         - ./gradlew --console plain assembleDebug
