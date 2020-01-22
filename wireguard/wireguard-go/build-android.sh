@@ -50,9 +50,9 @@ for arch in arm arm64 x86_64 x86; do
 
     make -f Android.mk
     # Copy build artifacts to `build/libs/$RUST_TARGET_TRIPLE` to be able to build `mullvad-jni`
-    chmod 777 ../android/build/
-    chmod 777 ../android/build/extraJni
-    chmod 777 ../android/build/extraJni/*
-    mkdir -p ../build/lib/$RUST_TARGET_TRIPLE
-    cp ../android/build/extraJni/$ANDROID_ABI/libwg.so ../build/lib/$RUST_TARGET_TRIPLE
+    chmod 777 ../../android/build/
+    chmod 777 ../../android/build/extraJni
+    chmod 777 ../../android/build/extraJni/*
+    mkdir -p ../../build/lib/$RUST_TARGET_TRIPLE
+    cp ../../android/build/extraJni/$ANDROID_ABI/libwg.so ../../build/lib/$RUST_TARGET_TRIPLE
 done
