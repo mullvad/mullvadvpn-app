@@ -85,7 +85,6 @@ matrix:
         - env
         # installing Go
         - curl -s https://dl.google.com/go/go1.13.6.darwin-amd64.pkg --output go-installer.pkg
-        - echo "8e12e0f4859ab8b41c6d712c09f9e925c849d2599a2a752e506cea78c3ee668f go-installer.pkg" | sha256sum -c
         - sudo installer -pkg ./go-installer.pkg -target /
         - export PATH="/usr/local/go/bin:$PATH"
       script:
@@ -137,7 +136,6 @@ matrix:
         - git submodule update --init
         # Installing Go
         - curl -s https://dl.google.com/go/go1.13.6.windows-amd64.msi --output go-installer.msi
-        - echo "d984e25667e4816978c3d0ad349f621cf2e32cde812bee33c002a461f6e9b194  go-installer.msi" | sha256sum -c
         - cmd.exe '/c msiexec /i go-installer.msi /quiet /qn'
         - export PATH="/c/Go/bin/:$PATH"
       script: &rust_windows_script
