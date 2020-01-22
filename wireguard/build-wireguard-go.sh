@@ -46,7 +46,7 @@ function win_create_lib_file {
 
 function build_windows {
     echo "Building wireguard-go for Windows"
-    pushd wireguard/wireguard-go-windows
+    pushd wireguard-go-windows
         go build -v -o libwg.dll -buildmode c-shared
         win_create_lib_file
 
@@ -71,7 +71,7 @@ function unix_target_triple {
 
 function build_unix {
     echo "Building wireguard-go for $1"
-    pushd wireguard/wireguard-go
+    pushd wireguard-go
         go build -v -o libwg.a -buildmode c-archive
         target_triple_dir="../../build/lib/$(unix_target_triple)"
         mkdir -p $target_triple_dir
@@ -84,7 +84,7 @@ function build_android {
     local docker_image_hash="d73fdea1108cd75d7eb09f8894fe6892dc502a2d62c39b4f75072e777398f477"
 
     docker run --rm \
-        -v $(pwd):/workspace \
+        -v $(pwd):/../workspace \
         --entrypoint "/workspace/wireguard/wireguard-go/build-android.sh" \
         mullvadvpn/mullvad-android-app-build@sha256:$docker_image_hash
 }
@@ -102,4 +102,7 @@ function build_wireguard_go {
     esac
 }
 
+# Esnure we are in the correct directory for the execution of this script
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $script_dir
 build_wireguard_go $@
