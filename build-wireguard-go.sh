@@ -5,7 +5,6 @@
 set -eu
 
 function is_android_build {
-
     for arg in "$@"
     do
         case "$arg" in
@@ -19,8 +18,8 @@ function is_android_build {
 
 function win_deduce_lib_executable_path {
     msbuild_path="$(which msbuild.exe)"
-    msbuild_dir_path=$(dirname "$msbuild_path")
-    find "$msbuild_dir_path/../../../../" -name "lib.exe" | \
+    msbuild_dir=$(dirname "$msbuild_path")
+    find "$msbuild_dir/../../../../" -name "lib.exe" | \
         grep -i "hostx64/x64" | \
         head -n1
 }
@@ -33,12 +32,12 @@ function win_create_lib_file {
     echo "LIBRARY libwg" > exports.def
     echo "EXPORTS" >> exports.def
 
-    for symbol in $(win_gather_export_symbols)
-    do
-        printf "\t$symbol\n" >> exports.def
+    for symbol in $(win_gather_export_symbols); do
+        printf "\t%s\n" "$symobl" >> exports.def
     done
 
-    "$(win_deduce_lib_executable_path)" \
+    lib_path="$(win_deduce_lib_executable_path)"
+    "$lib_path" \
         "/def:exports.def" \
         "/out:libwg.lib" \
         "/machine:X64"
@@ -47,7 +46,7 @@ function win_create_lib_file {
 
 function build_windows {
     echo "Building wireguard-go for Windows"
-    pushd wireguard-go-windows;
+    pushd wireguard-go-windows
         go build -v -o libwg.dll -buildmode c-shared
         win_create_lib_file
 
@@ -57,7 +56,7 @@ function build_windows {
     popd
 }
 
-function unix_target_dir {
+function unix_target_triple {
     local platform="$(uname -s)"
     if [[ ("${platform}" == "Linux") ]]; then
         echo "x86_64-unknown-linux-gnu"
@@ -72,23 +71,23 @@ function unix_target_dir {
 
 function build_unix {
     echo "Building wireguard-go for $1"
-    pushd wireguard-go;
+    pushd wireguard-go
         go build -v -o libwg.a -buildmode c-archive
-        target_dir="../build/lib/$(unix_target_dir)"
-        mkdir -p $target_dir
-        cp libwg.a $target_dir
+        target_triple_dir="../build/lib/$(unix_target_triple)"
+        mkdir -p $target_triple_dir
+        cp libwg.a $target_triple_dir
     popd
 }
 
 function build_android {
-        echo Building for android
-        local docker_image_hash="d73fdea1108cd75d7eb09f8894fe6892dc502a2d62c39b4f75072e777398f477"
+    echo "Building for android"
+    local docker_image_hash="d73fdea1108cd75d7eb09f8894fe6892dc502a2d62c39b4f75072e777398f477"
 
-        docker run --rm \
-            -v $(pwd):/workspace \
-            -w /workspace/wireguard-go \
-            --entrypoint "/workspace/wireguard-go/build-android.sh" \
-            mullvadvpn/mullvad-android-app-build@sha256:$docker_image_hash
+    docker run --rm \
+        -v $(pwd):/workspace \
+        -w /workspace/wireguard-go \
+        --entrypoint "/workspace/wireguard-go/build-android.sh" \
+        mullvadvpn/mullvad-android-app-build@sha256:$docker_image_hash
 }
 
 function build_wireguard_go {
