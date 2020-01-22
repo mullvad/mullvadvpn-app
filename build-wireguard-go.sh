@@ -33,7 +33,7 @@ function win_create_lib_file {
     echo "EXPORTS" >> exports.def
 
     for symbol in $(win_gather_export_symbols); do
-        printf "\t%s\n" "$symobl" >> exports.def
+        printf "\t%s\n" "$symbol" >> exports.def
     done
 
     lib_path="$(win_deduce_lib_executable_path)"
