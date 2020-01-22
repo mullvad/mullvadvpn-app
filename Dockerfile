@@ -19,7 +19,7 @@ ENV GOLANG_VERSION 1.13.5
 # Found on https://golang.org/dl/
 ENV GOLANG_HASH 512103d7ad296467814a6e3f635631bd35574cab3369a97a323c9a585ccaa569
 RUN curl -Lo go.tgz https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
-  echo $(sha256sum go.tgz) && \
+	echo $(sha256sum go.tgz) && \
 	echo "${GOLANG_HASH} go.tgz" | sha256sum -c - && \
 	tar -C /usr/local -xzf go.tgz && \
 	rm go.tgz && \
