@@ -377,11 +377,11 @@ impl KeyManager {
 
         let create_repeat_future = move |result: Result<PublicKey>| match result {
             Ok(next_public_key) => Self::create_automatic_rotation(
-                daemon_tx.clone(),
-                http_handle.clone(),
+                daemon_tx,
+                http_handle,
                 next_public_key,
                 rotation_interval_secs,
-                account_token.clone(),
+                account_token,
             ),
             Err(Error::TooManyKeys) => Box::new(futures::future::ok(())),
             Err(e) => {
@@ -391,12 +391,6 @@ impl KeyManager {
                     AUTOMATIC_ROTATION_RETRY_DELAY,
                 );
 
-                let next_public_key = public_key.clone();
-
-                let daemon_tx = daemon_tx.clone();
-                let http_handle = http_handle.clone();
-                let account_token = account_token.clone();
-
                 Box::new(
                     tokio_timer::wheel()
                         .build()
@@ -405,7 +399,7 @@ impl KeyManager {
                             Self::create_automatic_rotation(
                                 daemon_tx,
                                 http_handle,
-                                next_public_key,
+                                public_key,
                                 rotation_interval_secs,
                                 account_token,
                             )
