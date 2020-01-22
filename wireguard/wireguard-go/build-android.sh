@@ -2,6 +2,11 @@
 
 set -e
 
+# Esnure we are in the correct directory for the execution of this script
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $script_dir
+
+
 for arch in arm arm64 x86_64 x86; do
     case "$arch" in
         "arm64")
