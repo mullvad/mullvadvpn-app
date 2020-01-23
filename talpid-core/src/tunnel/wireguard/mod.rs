@@ -165,7 +165,7 @@ impl WireguardMonitor {
                     return;
                 }
             }
-            if let Err(err) = connectivity_monitor.wait() {
+            if let Err(err) = connectivity_monitor.run() {
                 log::error!("Connectivity monitor failed - {}", err);
             }
 

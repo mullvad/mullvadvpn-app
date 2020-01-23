@@ -84,7 +84,7 @@ impl ConnectivityMonitor {
         Ok(false)
     }
 
-    pub fn wait(&mut self) -> Result<(), Error> {
+    pub fn run(&mut self) -> Result<(), Error> {
         self.wait_loop(REGULAR_LOOP_SLEEP)
     }
 
