@@ -2,7 +2,7 @@
 
 set -e
 
-# Esnure we are in the correct directory for the execution of this script
+# Ensure we are in the correct directory for the execution of this script
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $script_dir
 
