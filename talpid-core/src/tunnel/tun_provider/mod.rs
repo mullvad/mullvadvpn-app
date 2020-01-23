@@ -6,7 +6,7 @@ use std::net::IpAddr;
 
 cfg_if! {
     if #[cfg(target_os = "android")] {
-        #[path = "android.rs"]
+        #[path = "android/mod.rs"]
         mod imp;
         use self::imp::{AndroidTunProvider, VpnServiceTun};
         pub use self::imp::Error;
