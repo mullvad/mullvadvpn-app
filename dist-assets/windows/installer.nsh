@@ -406,14 +406,13 @@
 #
 !macro RemoveWintun
 	Push $0
+	Push $1
 
 	log::Log "RemoveWintun()"
 
-	${DisableX64FSRedirection}
 	msiutil::SilentUninstall "$TEMP\mullvad-wintun-amd64.msi"
 	Pop $0
 	Pop $1
-	${EnableX64FSRedirection}
 
 	${If} $0 != ${MULLVAD_SUCCESS}
 		StrCpy $R0 "Failed to remove Wintun: error $0"
@@ -423,8 +422,12 @@
 
 	log::Log "RemoveWintun() completed successfully"
 
+	Push 0
+	Pop $R0
+
 	RemoveWintun_return_only:
 
+	Pop $1
 	Pop $0
 
 !macroend
@@ -443,12 +446,11 @@
 	log::Log "InstallWintun()"
 
 	Push $0
+	Push $1
 
-	${DisableX64FSRedirection}
 	msiutil::SilentInstall "$TEMP\mullvad-wintun-amd64.msi"
 	Pop $0
 	Pop $1
-	${EnableX64FSRedirection}
 
 	${If} $0 != ${MULLVAD_SUCCESS}
 		StrCpy $R0 "Failed to install Wintun: error $0"
@@ -463,6 +465,7 @@
 
 	InstallWintun_return:
 
+	Pop $1
 	Pop $0
 
 !macroend
