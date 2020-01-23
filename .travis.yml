@@ -69,6 +69,7 @@ matrix:
         - source env.sh aarch64-linux-android
         - env
       script:
+        - ./wireguard/build-wireguard-go.sh --android
         - cargo build --target aarch64-linux-android --verbose --package mullvad-jni
         - cd android
         - ./gradlew --console plain assembleDebug
@@ -82,6 +83,10 @@ matrix:
       os: osx
       before_script:
         - env
+        # installing Go
+        - curl -s https://dl.google.com/go/go1.13.6.darwin-amd64.pkg --output go-installer.pkg
+        - sudo installer -pkg ./go-installer.pkg -target /
+        - export PATH="/usr/local/go/bin:$PATH"
       script:
         - ./ci/ci-rust-script.sh stable
 
@@ -129,6 +134,10 @@ matrix:
         - echo "34fa4c9bb790f310c908ff59071949289dc3ed503bcb44723c2e0b360c51ebab vs_BuildTools.exe" | sha256sum -c
         - ./vs_BuildTools.exe --wait -q --norestart --add Microsoft.VisualStudio.Workload.VCTools\;includeRecommended --add Microsoft.Component.MSBuild --add Microsoft.VisualStudio.Component.VC.ATL
         - git submodule update --init
+        # Installing Go
+        - curl -s https://dl.google.com/go/go1.13.6.windows-amd64.msi --output go-installer.msi
+        - cmd.exe '/c msiexec /i go-installer.msi /quiet /qn'
+        - export PATH="/c/Go/bin/:$PATH"
       script: &rust_windows_script
         - ./ci/ci-rust-script.sh $RUST_VERSION
 
