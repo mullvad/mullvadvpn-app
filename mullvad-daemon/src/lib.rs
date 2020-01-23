@@ -1635,6 +1635,7 @@ where
     }
 }
 
+#[derive(Clone)]
 pub struct DaemonShutdownHandle {
     tx: UnboundedSender<InternalDaemonEvent>,
 }

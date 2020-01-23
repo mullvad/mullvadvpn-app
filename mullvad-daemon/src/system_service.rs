@@ -15,7 +15,7 @@ use talpid_types::ErrorExt;
 use winapi::{
     ctypes::c_void,
     shared::{
-        minwindef::{UINT, ULONG},
+        minwindef::ULONG,
         ntdef::{LUID, PVOID},
         ntstatus::STATUS_SUCCESS,
     },
@@ -24,7 +24,6 @@ use winapi::{
             LsaEnumerateLogonSessions, LsaFreeReturnBuffer, LsaGetLogonSessionData,
             SECURITY_LOGON_SESSION_DATA,
         },
-        processthreadsapi::ExitProcess,
     },
 };
 use windows_service::{
@@ -118,7 +117,6 @@ fn run_service() -> Result<(), String> {
         daemon.run().map_err(|e| e.display_chain())
     });
 
-
     let exit_code = match result {
         Ok(()) => {
             // check if shutdown signal was sent from the system
@@ -146,7 +144,7 @@ fn start_event_monitor(
     clean_shutdown: Arc<AtomicBool>,
 ) -> thread::JoinHandle<()> {
     thread::spawn(move || {
-        let mut hibernation_detector = HibernationDetector::default();
+        let mut hibernation_detector = HibernationDetector::new(shutdown_handle.clone());
         for event in event_rx {
             match event {
                 ServiceControl::Stop | ServiceControl::Preshutdown => {
@@ -372,16 +370,23 @@ fn get_service_info() -> ServiceInfo {
 /// Used to track events that taken together would mean the machine is heading towards being
 /// hibernated. Typically, the user's session if first terminated. Moments later we should receive a
 /// suspension event corresponding to the hibernation of session 0 (kernel and services).
-#[derive(Default)]
 struct HibernationDetector {
+    shutdown_handle: DaemonShutdownHandle,
     logoff_time: Option<Instant>,
     should_restart: bool,
 }
 
 const SECURITY_LOGON_TYPE_INTERACTIVE: u32 = 2;
-const EXIT_CODE_REFRESH_AFTER_HIBERNATION: UINT = 0x9000;
 
 impl HibernationDetector {
+    fn new(shutdown_handle: DaemonShutdownHandle) -> Self {
+        HibernationDetector {
+            shutdown_handle,
+            logoff_time: None,
+            should_restart: false,
+        }
+    }
+
     /// Register a session logoff.
     /// The logoff event is discarded unless the session was/is interactive.
     fn register_logoff(&mut self, session_id: u32) {
@@ -436,7 +441,7 @@ impl HibernationDetector {
         if self.should_restart {
             self.should_restart = false;
             log::info!("System is being restored from hibernation. Refreshing daemon service");
-            unsafe { ExitProcess(EXIT_CODE_REFRESH_AFTER_HIBERNATION) };
+            self.shutdown_handle.shutdown();
         }
     }
 }
