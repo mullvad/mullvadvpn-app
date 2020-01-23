@@ -9,20 +9,18 @@ use super::{Error, Tunnel};
 
 /// Sleep time used when initially establishing connectivity
 const DELAY_ON_INITIAL_SETUP: Duration = Duration::from_millis(50);
-/// Sleep time used when initially establishing connectivity
+/// Sleep time used when checking if an established connection is still working.
 const REGULAR_LOOP_SLEEP: Duration = Duration::from_secs(1);
 
-
-/// Timeout for waiting on receiving traffic after sending traffic
-/// Once this timeout is hit, a ping will be sent every `SECONDS_PER_PING` until `PING_TIMEOUT`
-/// is reached.
+/// Timeout for waiting on receiving traffic after sending outgoing traffic.  Once this timeout is
+/// hit, a ping will be sent every `SECONDS_PER_PING` until `PING_TIMEOUT` is reached, or traffic
+/// is received.
 const BYTES_RX_TIMEOUT: Duration = Duration::from_secs(5);
-/// Timeout for waiting on receiving any traffic.
-/// Once this timeout is hit, a ping will be sent every `SECONDS_PER_PING` until `PING_TIMEOUT`
-/// is reached.
+/// Timeout for waiting on receiving or sending any traffic.  Once this timeout is hit, a ping will
+/// be sent every `SECONDS_PER_PING` until `PING_TIMEOUT` is reached or traffic is received.
 const TRAFFIC_TIMEOUT: Duration = Duration::from_secs(120);
-/// Timeout for waiting on receiving traffic after sending the first ICMP packet
-/// Once this timeout is reached, it is assumed that the connection is lost.
+/// Timeout for waiting on receiving traffic after sending the first ICMP packet.  Once this
+/// timeout is reached, it is assumed that the connection is lost.
 const PING_TIMEOUT: Duration = Duration::from_secs(15);
 /// Number of seconds to wait between sending ICMP packets
 const SECONDS_PER_PING: Duration = Duration::from_secs(3);
