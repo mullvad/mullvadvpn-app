@@ -159,10 +159,10 @@ impl WireguardMonitor {
         std::thread::spawn(move || {
             match connectivity_monitor.establish_connectivity() {
                 Ok(true) => (on_event)(TunnelEvent::Up(metadata)),
-                Ok(false) => (on_event)(TunnelEvent::Down),
+                Ok(false) => return,
                 Err(err) => {
                     log::error!("ConnectivityMonitor failed: {}", err);
-                    (on_event)(TunnelEvent::Down);
+                    return;
                 }
             }
             if let Err(err) = connectivity_monitor.wait() {
