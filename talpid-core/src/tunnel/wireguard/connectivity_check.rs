@@ -12,6 +12,7 @@ const DELAY_ON_INITIAL_SETUP: Duration = Duration::from_millis(50);
 /// Sleep time used when checking if an established connection is still working.
 const REGULAR_LOOP_SLEEP: Duration = Duration::from_secs(1);
 
+
 /// Timeout for waiting on receiving traffic after sending outgoing traffic.  Once this timeout is
 /// hit, a ping will be sent every `SECONDS_PER_PING` until `PING_TIMEOUT` is reached, or traffic
 /// is received.
@@ -29,6 +30,25 @@ const SECONDS_PER_PING: Duration = Duration::from_secs(3);
 /// Verifies if a connection to a tunnel is working.
 /// The connectivity monitor is biased to receiving traffic - it is expected that all outgoing
 /// traffic will be answered with a response.
+///
+/// The connectivity monitor tries to opportunistically use information about how much data has
+/// been sent through the tunnel to infer connectivity. This is done by reading the traffic data
+/// from the tunnel and recording the time of the reading - the connectivity monitor only stores
+/// the timestamp of when was the last time an increase in either incoming or outgoing traffic was
+/// observed. The connectivity monitor tries to read the data at a set interval, and the connection
+/// is considered to be working if the incoming traffic timestamp has been incremented in a given
+/// timeout. A connection is considered to be established the first time an increase in incoming
+/// traffic is observed.
+///
+/// The connectivity monitor will start sending pings and start the countdown to `PING_TIMEOUT` in
+/// the following cases:
+/// - In case that we have observed a bump in the outgoing traffic but no coressponding incoming
+/// traffic for longer than `BYTES_RX_TIMEOUT`, then the monitor will start pinging.
+/// - In case that no increase in outgoing or incoming traffic has been observed for longer than
+/// `TRAFFIC_TIMEOUT`, then the monitor will start pinging as well.
+///
+/// Once a connection established, a connection is only considered broken once the connectivity
+/// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
 pub struct ConnectivityMonitor {
     tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
     last_stats: Stats,
