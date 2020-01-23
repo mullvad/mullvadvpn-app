@@ -1,6 +1,7 @@
 use ipnetwork::{Ipv4Network, Ipv6Network};
 use std::{
     fmt::Debug,
+    iter,
     marker::PhantomData,
     ops::{Add, BitAnd, BitXor, Not, Shl, Sub},
 };
@@ -134,5 +135,21 @@ where
                 }
             }
         }
+    }
+}
+
+pub trait IpNetworkSub: Copy + Sized + 'static {
+    type Output: Iterator<Item = Self>;
+
+    fn sub(self, other: Self) -> Self::Output;
+
+    fn sub_all(self, others: impl IntoIterator<Item = Self>) -> Box<dyn Iterator<Item = Self>> {
+        let mut result: Box<dyn Iterator<Item = Self>> = Box::new(iter::once(self));
+
+        for other in others {
+            result = Box::new(result.flat_map(move |network| network.sub(other)));
+        }
+
+        result
     }
 }
