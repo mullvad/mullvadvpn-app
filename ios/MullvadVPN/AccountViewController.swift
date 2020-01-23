@@ -42,17 +42,29 @@ class AccountViewController: UIViewController {
     }
 
     @IBAction func doLogout() {
-        logoutSubscriber = Account.shared.logout()
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { (completion) in
-                switch completion {
-                case .failure(let error):
-                    self.presentError(error, preferredStyle: .alert)
+        let message = NSLocalizedString("Logging out. Please wait...",
+                                        comment: "A modal message displayed during log out")
 
-                case .finished:
-                    self.performSegue(withIdentifier: SegueIdentifier.Account.logout.rawValue, sender: self)
-                }
-            })
+        let alertController = UIAlertController(
+            title: nil,
+            message: message,
+            preferredStyle: .alert)
+
+        present(alertController, animated: true) {
+            self.logoutSubscriber = Account.shared.logout()
+                .delay(for: .seconds(1), scheduler: DispatchQueue.main)
+                .sink(receiveCompletion: { (completion) in
+                    switch completion {
+                    case .failure(let error):
+                        alertController.dismiss(animated: true) {
+                            self.presentError(error, preferredStyle: .alert)
+                        }
+
+                    case .finished:
+                        self.performSegue(withIdentifier: SegueIdentifier.Account.logout.rawValue, sender: self)
+                    }
+                })
+        }
     }
 
     @IBAction func copyAccountToken() {

@@ -431,9 +431,55 @@ class TunnelManager {
                 .flatMap { (accountToken, tunnelProvider) -> AnyPublisher<(), TunnelManagerError> in
 
                     let removeKeychainConfigPublisher = Deferred {
-                        TunnelConfigurationManager.remove(account: accountToken)
-                            .mapError { UnsetAccountError.removeTunnelConfiguration($0) }
-                            .publisher
+                        () -> AnyPublisher<(), UnsetAccountError> in
+                        // Load existing configuration
+                        switch TunnelConfigurationManager.load(account: accountToken) {
+                        case .success(let tunnelConfig):
+                            let publicKey = tunnelConfig.interface
+                                .privateKey
+                                .publicKey
+                                .rawRepresentation
+
+                            // Remove configuration from Keychain
+                            return TunnelConfigurationManager.remove(account: accountToken)
+                                .mapError { UnsetAccountError.removeTunnelConfiguration($0) }
+                                .publisher
+                                .flatMap {
+                                    // Remove WireGuard key from master
+                                    self.apiClient.removeWireguardKey(
+                                        accountToken: accountToken,
+                                        publicKey: publicKey
+                                    )
+                                        .retry(1)
+                                        .map({ (response) -> () in
+                                            switch response.result {
+                                            case .success(let isRemoved):
+                                                os_log(.debug, "Removed the WireGuard key from server: %{public}s", "\(isRemoved)")
+
+                                            case .failure(let error):
+                                                os_log(.error, "Failed to remove the WireGuard key from server. Server error: %{public}s", error.localizedDescription)
+                                            }
+
+                                            // Suppress server errors
+                                            return ()
+                                        }).catch({ (error) -> Result<(), UnsetAccountError>.Publisher in
+                                            os_log(.error, "Failed to remove the Wireguard key from server. Network error: %{public}s", error.localizedDescription)
+
+                                            // Suppress network errors
+                                            return Result.Publisher(())
+                                        })
+                            }.eraseToAnyPublisher()
+
+                        case .failure(let error):
+                            // Ignore Keychain errors because that normally means that the Keychain
+                            // configuration was already removed and we shouldn't be blocking the
+                            // user from logging out
+                            os_log(.error, "Failed to read the tunnel configuration from Keychain: %{public}s", error.localizedDescription)
+
+                            return Just(())
+                                .setFailureType(to: UnsetAccountError.self)
+                                .eraseToAnyPublisher()
+                        }
                     }
 
                     let removeTunnelPublisher = Deferred {
