@@ -1,3 +1,5 @@
+mod ipnetwork_sub;
+
 use super::TunConfig;
 use ipnetwork::IpNetwork;
 use jnix::{
