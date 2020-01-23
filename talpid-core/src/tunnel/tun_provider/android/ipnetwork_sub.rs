@@ -153,3 +153,36 @@ pub trait IpNetworkSub: Copy + Sized + 'static {
         result
     }
 }
+
+impl<T> IpNetworkSub for T
+where
+    T: AbstractIpNetwork,
+{
+    type Output = IpNetworks<T>;
+
+    fn sub(self, other: Self) -> Self::Output {
+        let subtrahend = self.network();
+        let minuend = other.network();
+        let mask = self.mask();
+
+        if minuend & mask == subtrahend {
+            let max_bit_position = T::MAX_PREFIX - self.prefix();
+            let bit_position = T::MAX_PREFIX - other.prefix();
+
+            IpNetworks::MultipleNetworks(IpNetworkRange {
+                network: minuend,
+                bit_position,
+                max_bit_position,
+                _network_type: PhantomData,
+            })
+        } else {
+            let other_mask = other.mask();
+
+            if subtrahend & other_mask == minuend {
+                IpNetworks::Empty
+            } else {
+                IpNetworks::SingleNetwork(self)
+            }
+        }
+    }
+}
