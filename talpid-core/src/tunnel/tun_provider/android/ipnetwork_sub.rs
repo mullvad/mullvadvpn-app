@@ -104,3 +104,35 @@ where
         }
     }
 }
+
+#[derive(Clone, Copy, Debug)]
+pub enum IpNetworks<T: AbstractIpNetwork> {
+    Empty,
+    SingleNetwork(T),
+    MultipleNetworks(IpNetworkRange<T>),
+}
+
+impl<T> Iterator for IpNetworks<T>
+where
+    T: AbstractIpNetwork,
+{
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            IpNetworks::Empty => None,
+            &mut IpNetworks::SingleNetwork(network) => {
+                *self = IpNetworks::Empty;
+                Some(network)
+            }
+            IpNetworks::MultipleNetworks(range) => {
+                if let Some(item) = range.next() {
+                    Some(item)
+                } else {
+                    *self = IpNetworks::Empty;
+                    None
+                }
+            }
+        }
+    }
+}
