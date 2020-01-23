@@ -1,4 +1,4 @@
-use ipnetwork::{Ipv4Network, Ipv6Network};
+use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use std::{
     fmt::Debug,
     iter,
@@ -182,6 +182,44 @@ where
                 IpNetworks::Empty
             } else {
                 IpNetworks::SingleNetwork(self)
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum IpNetworkIterator {
+    V4(IpNetworks<Ipv4Network>),
+    V6(IpNetworks<Ipv6Network>),
+}
+
+impl Iterator for IpNetworkIterator {
+    type Item = IpNetwork;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            IpNetworkIterator::V4(iterator) => iterator.next().map(IpNetwork::V4),
+            IpNetworkIterator::V6(iterator) => iterator.next().map(IpNetwork::V6),
+        }
+    }
+}
+
+impl IpNetworkSub for IpNetwork {
+    type Output = IpNetworkIterator;
+
+    fn sub(self, other: Self) -> Self::Output {
+        match (self, other) {
+            (IpNetwork::V4(self_v4), IpNetwork::V4(other_v4)) => {
+                IpNetworkIterator::V4(self_v4.sub(other_v4))
+            }
+            (IpNetwork::V6(self_v6), IpNetwork::V6(other_v6)) => {
+                IpNetworkIterator::V6(self_v6.sub(other_v6))
+            }
+            (IpNetwork::V4(_), IpNetwork::V6(_)) => {
+                panic!("Can't remove IPv6 network from IPv4 network")
+            }
+            (IpNetwork::V6(_), IpNetwork::V4(_)) => {
+                panic!("Can't remove IPv4 network from IPv6 network")
             }
         }
     }
