@@ -7,22 +7,37 @@ use std::{
 
 use super::{Error, Tunnel};
 
+/// Sleep time used when initially establishing connectivity
 const DELAY_ON_INITIAL_SETUP: Duration = Duration::from_millis(50);
+/// Sleep time used when initially establishing connectivity
 const REGULAR_LOOP_SLEEP: Duration = Duration::from_secs(1);
+
+
+/// Timeout for waiting on receiving traffic after sending traffic
+/// Once this timeout is hit, a ping will be sent every `SECONDS_PER_PING` until `PING_TIMEOUT`
+/// is reached.
 const BYTES_RX_TIMEOUT: Duration = Duration::from_secs(5);
+/// Timeout for waiting on receiving any traffic.
+/// Once this timeout is hit, a ping will be sent every `SECONDS_PER_PING` until `PING_TIMEOUT`
+/// is reached.
 const TRAFFIC_TIMEOUT: Duration = Duration::from_secs(120);
+/// Timeout for waiting on receiving traffic after sending the first ICMP packet
+/// Once this timeout is reached, it is assumed that the connection is lost.
 const PING_TIMEOUT: Duration = Duration::from_secs(15);
-const SECONDS_PER_PING: u64 = 3;
+/// Number of seconds to wait between sending ICMP packets
+const SECONDS_PER_PING: Duration = Duration::from_secs(3);
 
 
-/// Verifies if a connection to a tunnel is working
+/// Verifies if a connection to a tunnel is working.
+/// The connectivity monitor is biased to receiving traffic - it is expected that all outgoing
+/// traffic will be answered with a response.
 pub struct ConnectivityMonitor {
     tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
     last_stats: Stats,
     tx_timestamp: Instant,
     rx_timestamp: Instant,
-    ping_sent: Option<Instant>,
-    num_pings_sent: u64,
+    initial_ping_timestamp: Option<Instant>,
+    num_pings_sent: u32,
     pinger: Pinger,
     close_receiver: mpsc::Receiver<()>,
 }
@@ -43,7 +58,7 @@ impl ConnectivityMonitor {
             last_stats: Default::default(),
             tx_timestamp: now,
             rx_timestamp: now,
-            ping_sent: None,
+            initial_ping_timestamp: None,
             num_pings_sent: 0,
             pinger,
             close_receiver,
@@ -103,7 +118,7 @@ impl ConnectivityMonitor {
                 if new_stats.rx_bytes > last_stats.rx_bytes {
                     self.rx_timestamp = now;
                     // resetting ping
-                    self.ping_sent = None;
+                    self.initial_ping_timestamp = None;
                     self.num_pings_sent = 0;
                     return Ok(true);
                 }
@@ -131,15 +146,15 @@ impl ConnectivityMonitor {
         // 3 seconds.
         if (self.rx_timed_out() || self.traffic_timed_out())
             && self
-                .ping_sent
-                .map(|ping_sent| {
-                    ping_sent.elapsed().as_secs() / self.num_pings_sent < SECONDS_PER_PING
+                .initial_ping_timestamp
+                .map(|initial_ping_timestamp| {
+                    initial_ping_timestamp.elapsed() / self.num_pings_sent < SECONDS_PER_PING
                 })
                 .unwrap_or(true)
         {
             self.pinger.send_icmp().map_err(Error::PingError)?;
-            if self.ping_sent.is_none() {
-                self.ping_sent = Some(Instant::now());
+            if self.initial_ping_timestamp.is_none() {
+                self.initial_ping_timestamp = Some(Instant::now());
             }
             self.num_pings_sent += 1;
         }
@@ -156,13 +171,13 @@ impl ConnectivityMonitor {
 
     // check if no bytes have been sent or received in a while
     fn traffic_timed_out(&self) -> bool {
-        self.tx_timestamp.elapsed() >= TRAFFIC_TIMEOUT
+        self.rx_timestamp.elapsed() >= TRAFFIC_TIMEOUT
             || self.tx_timestamp.elapsed() >= TRAFFIC_TIMEOUT
     }
 
     fn ping_timed_out(&self) -> bool {
-        self.ping_sent
-            .map(|ping_sent| ping_sent.elapsed() > PING_TIMEOUT)
+        self.initial_ping_timestamp
+            .map(|initial_ping_timestamp| initial_ping_timestamp.elapsed() > PING_TIMEOUT)
             .unwrap_or(false)
     }
 }
