@@ -1,6 +1,7 @@
 use ipnetwork::{Ipv4Network, Ipv6Network};
 use std::{
     fmt::Debug,
+    marker::PhantomData,
     ops::{Add, BitAnd, BitXor, Not, Shl, Sub},
 };
 
@@ -71,5 +72,35 @@ impl AbstractIpNetwork for Ipv6Network {
 
     fn prefix(self) -> u8 {
         Ipv6Network::prefix(&self)
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct IpNetworkRange<T: AbstractIpNetwork> {
+    network: T::Representation,
+    bit_position: u8,
+    max_bit_position: u8,
+    _network_type: PhantomData<T>,
+}
+
+impl<T> Iterator for IpNetworkRange<T>
+where
+    T: AbstractIpNetwork,
+{
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.bit_position < self.max_bit_position {
+            let bit_mask = T::ONE << self.bit_position;
+            let prefix_mask = !(bit_mask - T::ONE);
+            let address = (self.network ^ bit_mask) & prefix_mask;
+            let prefix = T::MAX_PREFIX - self.bit_position;
+
+            self.bit_position += 1;
+
+            Some(T::new(address, prefix))
+        } else {
+            None
+        }
     }
 }
