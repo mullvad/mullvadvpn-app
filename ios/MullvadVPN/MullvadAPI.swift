@@ -163,6 +163,15 @@ class MullvadAPI {
         return MullvadAPI.makeDataTaskPublisher(request: request)
     }
 
+    func removeWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<Response<Bool>, MullvadAPI.Error> {
+        let request = JsonRpcRequest(method: "remove_wg_key", params: [
+            AnyEncodable(accountToken),
+            AnyEncodable(publicKey)
+        ])
+
+        return MullvadAPI.makeDataTaskPublisher(request: request)
+    }
+
     private static func makeDataTaskPublisher<T: Decodable>(request: JsonRpcRequest) -> AnyPublisher<Response<T>, MullvadAPI.Error> {
         return Just(request)
             .encode(encoder: makeJSONEncoder())
