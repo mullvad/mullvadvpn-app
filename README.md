@@ -94,6 +94,7 @@ The host has to have the following installed:
 
 - `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
   The environment coming with [Git for Windows] works fine.
+- `gcc` for CGo.
 
 [Git for Windows]: https://git-scm.com/download/win
 
@@ -238,7 +239,9 @@ storePassword = keystore-password
 1. Install Go (ideally version `1.13.6`) by following the [official
    instructions](https://golang.org/doc/install).  Newer versions of Go may be used. Earlier
    versions may be used, but versions older than `1.12` are known to not work, newer versions may
-   too.
+   too. Since `cgo` is being used, make sure to have a C compiler in your path. [*On
+   Windows*](https://github.com/golang/go/wiki/cgo#windows) `mingw`'s `gcc` compiler should work.
+   `gcc` on most Linux distributions should work, and `clang` for MacOS.
 
 
 ## Building and packaging the app
