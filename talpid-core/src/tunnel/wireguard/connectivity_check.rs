@@ -184,7 +184,7 @@ impl ConnectivityMonitor {
         // if last sent bytes were sent after last received bytes
         self.tx_timestamp > self.rx_timestamp
             // and the response hasn't been seen for BYTES_RX_TIMEOUT
-            && self.tx_timestamp.elapsed() >= BYTES_RX_TIMEOUT
+            && self.rx_timestamp.elapsed() >= BYTES_RX_TIMEOUT
     }
 
     // check if no bytes have been sent or received in a while
