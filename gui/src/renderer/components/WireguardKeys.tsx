@@ -48,22 +48,10 @@ export default class WireguardKeys extends Component<IProps> {
                 </HeaderTitle>
               </SettingsHeader>
 
-              {this.props.isOffline && (
-                <Text style={[styles.wgkeys__row, styles.wgkeys__invalid_key]}>
-                  {messages.pgettext(
-                    'wireguard-key-view',
-                    'Unable to manage keys while in a blocked state',
-                  )}
-                </Text>
-              )}
-
               <View style={styles.wgkeys__row}>
-                <View style={styles.wgkeys__validity_row}>
-                  <Text style={styles.wgkeys__row_label}>
-                    {messages.pgettext('wireguard-keys', 'Public key')}
-                  </Text>
-                  {this.keyValidityLabel()}
-                </View>
+                <Text style={styles.wgkeys__row_label}>
+                  {messages.pgettext('wireguard-keys', 'Public key')}
+                </Text>
 
                 <View style={styles.wgkeys__row_value}>{this.getKeyText()}</View>
               </View>
@@ -72,6 +60,19 @@ export default class WireguardKeys extends Component<IProps> {
                   {messages.pgettext('wireguard-keys', 'Key generated')}
                 </Text>
                 <Text style={styles.wgkeys__row_value}>{this.ageOfKeyString()}</Text>
+              </View>
+
+              <View style={styles.wgkeys__messages}>
+                {this.props.isOffline ? (
+                  <Text style={[styles.wgkeys__row, styles.wgkeys__invalid_key]}>
+                    {messages.pgettext(
+                      'wireguard-key-view',
+                      'Unable to manage keys while in a blocked state',
+                    )}
+                  </Text>
+                ) : (
+                  <View style={styles.wgkeys__row}>{this.keyValidityLabel()}</View>
+                )}
               </View>
 
               <View style={styles.wgkeys__row}>{this.getGenerateButton()}</View>
@@ -234,10 +235,7 @@ export default class WireguardKeys extends Component<IProps> {
         }
 
       default:
-        return (
-          // Placeholder to take up the same amount of space as the validity text/spinner
-          <View style={{ marginBottom: 20 }} />
-        );
+        return null;
     }
   }
 
