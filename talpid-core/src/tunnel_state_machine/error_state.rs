@@ -81,9 +81,12 @@ impl TunnelState for ErrorState {
 
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                shared_values.allow_lan = allow_lan;
-                Self::set_firewall_policy(shared_values);
-                SameState(self)
+                if let Err(error_state_cause) = shared_values.set_allow_lan(allow_lan) {
+                    NewState(Self::enter(shared_values, error_state_cause))
+                } else {
+                    Self::set_firewall_policy(shared_values);
+                    SameState(self)
+                }
             }
             Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;

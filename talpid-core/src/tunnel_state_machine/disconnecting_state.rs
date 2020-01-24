@@ -32,7 +32,7 @@ impl DisconnectingState {
         self.after_disconnect = match after_disconnect {
             AfterDisconnect::Nothing => match event {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                    shared_values.allow_lan = allow_lan;
+                    let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Nothing
                 }
                 Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
@@ -49,7 +49,7 @@ impl DisconnectingState {
             },
             AfterDisconnect::Block(reason) => match event {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                    shared_values.allow_lan = allow_lan;
+                    let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Block(reason)
                 }
                 Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
@@ -71,7 +71,7 @@ impl DisconnectingState {
             },
             AfterDisconnect::Reconnect(retry_attempt) => match event {
                 Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                    shared_values.allow_lan = allow_lan;
+                    let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {

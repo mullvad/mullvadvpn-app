@@ -182,21 +182,24 @@ impl ConnectingState {
 
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                shared_values.allow_lan = allow_lan;
-                match Self::set_firewall_policy(shared_values, &self.tunnel_parameters) {
-                    Ok(()) => SameState(self),
-                    Err(error) => {
-                        error!(
-                            "{}",
-                            error.display_chain_with_msg(
-                                "Failed to apply firewall policy for connecting state"
-                            )
-                        );
+                if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
+                    self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
+                } else {
+                    match Self::set_firewall_policy(shared_values, &self.tunnel_parameters) {
+                        Ok(()) => SameState(self),
+                        Err(error) => {
+                            error!(
+                                "{}",
+                                error.display_chain_with_msg(
+                                    "Failed to apply firewall policy for connecting state"
+                                )
+                            );
 
-                        self.disconnect(
-                            shared_values,
-                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError),
-                        )
+                            self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError),
+                            )
+                        }
                     }
                 }
             }
