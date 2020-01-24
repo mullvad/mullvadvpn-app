@@ -42,6 +42,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Don't try to replace WireGuard key if account has too many keys already.
 - Fix bogus update notification caused by an outdated cache.
+- Fix layout issues when showing messages in WireGuard key view.
 
 #### Windows
 - Fix regression due to which a TAP adapter issue was not given as the specific block reason when

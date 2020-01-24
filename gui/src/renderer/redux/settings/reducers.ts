@@ -261,7 +261,7 @@ export default function(
     case 'VERIFY_WIREGUARD_KEY':
       return {
         ...state,
-        wireguardKeyState: { type: 'being-verified', key: action.key },
+        wireguardKeyState: { type: 'being-verified', key: resetWireguardKeyErrors(action.key) },
       };
 
     case 'GENERATE_WIREGUARD_KEY':
@@ -273,7 +273,10 @@ export default function(
     case 'REPLACE_WIREGUARD_KEY':
       return {
         ...state,
-        wireguardKeyState: { type: 'being-replaced', oldKey: action.oldKey },
+        wireguardKeyState: {
+          type: 'being-replaced',
+          oldKey: resetWireguardKeyErrors(action.oldKey),
+        },
       };
 
     default:
@@ -292,6 +295,13 @@ function setWireguardKey(key?: IWgKey): WgKeyState {
       type: 'key-not-set',
     };
   }
+}
+
+function resetWireguardKeyErrors(key: IWgKey): IWgKey {
+  return {
+    publicKey: key.publicKey,
+    created: key.created,
+  };
 }
 
 function setWireguardKeygenEvent(state: ISettingsReduxState, keygenEvent: KeygenEvent): WgKeyState {
