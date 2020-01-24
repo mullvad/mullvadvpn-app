@@ -59,7 +59,12 @@ impl TunnelState for DisconnectedState {
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
                 if shared_values.allow_lan != allow_lan {
-                    shared_values.allow_lan = allow_lan;
+                    // The only platform that can fail is Android, but Android doesn't support the
+                    // "block when disconnected" option, so the following call never fails.
+                    shared_values
+                        .set_allow_lan(allow_lan)
+                        .expect("Failed to set allow LAN parameter");
+
                     Self::set_firewall_policy(shared_values);
                 }
                 SameState(self)
