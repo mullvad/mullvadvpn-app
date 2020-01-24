@@ -207,7 +207,7 @@ class ApplicationMain {
       const appDataDir = process.env.LOCALAPPDATA;
       if (appDataDir) {
         app.setPath('appData', appDataDir);
-        app.setPath('userData', path.join(appDataDir, app.getName()));
+        app.setPath('userData', path.join(appDataDir, app.name));
       } else {
         throw new Error('Missing %LOCALAPPDATA% environment variable');
       }
@@ -291,7 +291,7 @@ class ApplicationMain {
     // quitting the app.
     // Github issue: https://github.com/electron/electron/issues/15008
     if (process.platform === 'darwin' && this.windowController) {
-      this.windowController.window.setClosable(true);
+      this.windowController.window.closable = true;
     }
   }
 
@@ -1345,11 +1345,6 @@ class ApplicationMain {
 
     // disable double click on tray icon since it causes weird delay
     tray.setIgnoreDoubleClickEvents(true);
-
-    // disable icon highlight on macOS
-    if (process.platform === 'darwin') {
-      tray.setHighlightMode('never');
-    }
 
     return tray;
   }

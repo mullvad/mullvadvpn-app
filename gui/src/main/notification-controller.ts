@@ -11,7 +11,7 @@ export default class NotificationController {
   private reconnecting = false;
   private presentedNotifications: { [key: string]: boolean } = {};
   private pendingNotifications: Notification[] = [];
-  private notificationTitle = process.platform === 'linux' ? app.getName() : '';
+  private notificationTitle = process.platform === 'linux' ? app.name : '';
   private notificationIcon?: NativeImage;
 
   constructor() {
