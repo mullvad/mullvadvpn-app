@@ -70,7 +70,11 @@ class SettingsFragment : ServiceAwareFragment() {
             }
         }
 
-        preferencesMenu = view.findViewById<View>(R.id.preferences)
+        preferencesMenu = view.findViewById<View>(R.id.preferences).apply {
+            setOnClickListener {
+                openSubFragment(PreferencesFragment())
+            }
+        }
 
         wireguardKeysMenu = view.findViewById<View>(R.id.wireguard_keys).apply {
             setOnClickListener {
