@@ -234,8 +234,22 @@ impl WgGoTunnel {
             addresses: config.tunnel.addresses.clone(),
             dns_servers,
             routes: routes.collect(),
+            #[cfg(target_os = "android")]
+            required_routes: Self::create_required_routes(config),
             mtu: config.mtu,
         }
+    }
+
+    #[cfg(target_os = "android")]
+    fn create_required_routes(config: &Config) -> Vec<IpNetwork> {
+        let mut required_routes = vec![IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32)
+            .expect("Invalid IPv4 network prefix")];
+
+        required_routes.extend(config.ipv6_gateway.map(|address| {
+            IpNetwork::new(IpAddr::V6(address), 128).expect("Invalid IPv6 network prefix")
+        }));
+
+        required_routes
     }
 
     #[cfg(target_os = "android")]

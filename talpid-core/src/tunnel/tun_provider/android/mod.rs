@@ -85,6 +85,7 @@ impl AndroidTunProvider {
                 IpNetwork::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 0)
                     .expect("Invalid IP network prefix for IPv6 address"),
             ],
+            required_routes: vec![],
             mtu: 1380,
         };
 
