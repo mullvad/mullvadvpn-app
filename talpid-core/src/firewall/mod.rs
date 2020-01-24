@@ -31,7 +31,7 @@ pub use self::imp::Error;
 #[cfg(unix)]
 lazy_static! {
     /// When "allow local network" is enabled the app will allow traffic to and from these networks.
-    static ref ALLOWED_LAN_NETS: [IpNetwork; 5] = [
+    pub(crate) static ref ALLOWED_LAN_NETS: [IpNetwork; 5] = [
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap()),
@@ -39,7 +39,7 @@ lazy_static! {
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap()),
     ];
     /// When "allow local network" is enabled the app will allow traffic to these networks.
-    static ref ALLOWED_LAN_MULTICAST_NETS: [IpNetwork; 5] = [
+    pub(crate) static ref ALLOWED_LAN_MULTICAST_NETS: [IpNetwork; 5] = [
         // Local subnetwork multicast. Not routable
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap()),
         // Simple Service Discovery Protocol (SSDP) address
