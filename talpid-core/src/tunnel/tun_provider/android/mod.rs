@@ -68,11 +68,12 @@ pub struct AndroidTunProvider {
     object: GlobalRef,
     active_tun: Option<File>,
     last_tun_config: TunConfig,
+    allow_lan: bool,
 }
 
 impl AndroidTunProvider {
     /// Create a new AndroidTunProvider interfacing with Android's VpnService.
-    pub fn new(context: AndroidContext) -> Self {
+    pub fn new(context: AndroidContext, allow_lan: bool) -> Self {
         // Initial configuration simply intercepts all packets. The only field that matters is
         // `routes`, because it determines what must enter the tunnel. All other fields contain
         // stub values.
@@ -103,6 +104,7 @@ impl AndroidTunProvider {
             object: context.vpn_service,
             active_tun: None,
             last_tun_config: initial_tun_config,
+            allow_lan,
         }
     }
 

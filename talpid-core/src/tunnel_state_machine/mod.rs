@@ -89,6 +89,8 @@ where
     let tun_provider = TunProvider::new(
         #[cfg(target_os = "android")]
         android_context,
+        #[cfg(target_os = "android")]
+        allow_lan,
     );
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
