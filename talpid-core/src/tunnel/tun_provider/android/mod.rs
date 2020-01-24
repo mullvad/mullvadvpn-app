@@ -108,6 +108,18 @@ impl AndroidTunProvider {
         }
     }
 
+    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<(), Error> {
+        if self.allow_lan != allow_lan {
+            self.allow_lan = allow_lan;
+
+            if self.active_tun.is_some() {
+                self.create_tun()?;
+            }
+        }
+
+        Ok(())
+    }
+
     /// Retrieve a tunnel device with the provided configuration.
     pub fn get_tun(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
         let tun_fd = self.get_tun_fd(config)?;
