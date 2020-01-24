@@ -51,6 +51,11 @@ pub struct TunConfig {
     )]
     pub routes: Vec<IpNetwork>,
 
+    /// Routes that are required to be configured for the tunnel.
+    #[cfg(target_os = "android")]
+    #[jnix(skip)]
+    pub required_routes: Vec<IpNetwork>,
+
     /// Maximum Transmission Unit in the tunnel.
     #[cfg_attr(target_os = "android", jnix(map = "|mtu| mtu as i32"))]
     pub mtu: u16,

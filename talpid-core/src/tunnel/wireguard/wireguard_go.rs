@@ -225,10 +225,20 @@ impl WgGoTunnel {
         let mut dns_servers = vec![IpAddr::V4(config.ipv4_gateway)];
         dns_servers.extend(config.ipv6_gateway.map(IpAddr::V6));
 
+        #[cfg(target_os = "android")]
+        let mut required_routes = vec![IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32)
+            .expect("Invalid IPv4 network prefix")];
+        #[cfg(target_os = "android")]
+        required_routes.extend(config.ipv6_gateway.map(|address| {
+            IpNetwork::new(IpAddr::V6(address), 128).expect("Invalid IPv6 network prefix")
+        }));
+
         TunConfig {
             addresses: config.tunnel.addresses.clone(),
             dns_servers,
             routes: routes.collect(),
+            #[cfg(target_os = "android")]
+            required_routes,
             mtu: config.mtu,
         }
     }
