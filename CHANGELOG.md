@@ -40,6 +40,9 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Wait for traffic to be routed through the tunnel device before advertising blocked state.
+- Connect automatically if `MullvadVpnService` is started with an intent which
+  has the `android.net.VpnService` action. Effectively, this should enable
+  _Always On_ behavior on Android versions where it's supported.
 
 ### Fixed
 - Don't try to replace WireGuard key if account has too many keys already.
