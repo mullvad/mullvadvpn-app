@@ -10,11 +10,12 @@ export default {
     flexDirection: 'column',
     flex: 1,
   }),
+  wgkeys__messages: Styles.createViewStyle({
+    flex: 1,
+  }),
   wgkeys__row: Styles.createViewStyle({
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingLeft: 24,
-    paddingRight: 24,
+    paddingVertical: 0,
+    paddingHorizontal: 24,
     marginBottom: 24,
   }),
   wgkeys__row_label: Styles.createTextStyle({
@@ -26,9 +27,6 @@ export default {
     letterSpacing: -0.2,
     color: colors.white60,
     marginBottom: 9,
-  }),
-  wgkeys__validity_row: Styles.createViewStyle({
-    flexDirection: 'row',
   }),
   wgkeys__row_value: Styles.createTextStyle({
     fontFamily: 'Open Sans',
