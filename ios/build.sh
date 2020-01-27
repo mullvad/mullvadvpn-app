@@ -82,7 +82,7 @@ install_mobile_provisioning() {
         local profile_uuid=$(get_mobile_provisioning_uuid "$mobile_provisioning_path")
         local target_path="$SYSTEM_PROVISIONING_PROFILES_DIR/$profile_uuid.mobileprovision"
 
-        if [[ -f $target_path ]]; then
+        if [[ -f "$target_path" ]]; then
             echo "Skip installing $mobile_provisioning_path"
         else
             echo "Install $mobile_provisioning_path -> $target_path"
