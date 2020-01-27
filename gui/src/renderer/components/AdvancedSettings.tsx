@@ -3,6 +3,7 @@ import { Component, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
 import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { WgKeyState } from '../redux/settings/reducers';
 import styles from './AdvancedSettingsStyles';
 import * as Cell from './Cell';
 import { Container, Layout } from './Layout';
@@ -40,6 +41,7 @@ interface IProps {
     protocol?: RelayProtocol;
     port?: number;
   };
+  wireguardKeyState: WgKeyState;
   wireguard: { port?: number };
   mssfix?: number;
   bridgeState: BridgeState;
@@ -64,7 +66,6 @@ export default class AdvancedSettings extends Component<IProps, IState> {
   private portItems: { [key in RelayProtocol]: Array<ISelectorItem<OptionalPort>> };
   private protocolItems: Array<ISelectorItem<OptionalRelayProtocol>>;
   private bridgeStateItems: Array<ISelectorItem<BridgeState>>;
-  private tunnelProtocolItems: Array<ISelectorItem<OptionalTunnelProtocol>>;
   private wireguardPortItems: Array<ISelectorItem<OptionalPort>>;
 
   constructor(props: IProps) {
@@ -96,21 +97,6 @@ export default class AdvancedSettings extends Component<IProps, IState> {
       {
         label: messages.pgettext('advanced-settings-view', 'UDP'),
         value: 'udp',
-      },
-    ];
-
-    this.tunnelProtocolItems = [
-      {
-        label: messages.pgettext('advanced-settings-view', 'Automatic'),
-        value: undefined,
-      },
-      {
-        label: messages.pgettext('advanced-settings-view', 'OpenVPN'),
-        value: 'openvpn',
-      },
-      {
-        label: messages.pgettext('advanced-settings-view', 'WireGuard'),
-        value: 'wireguard',
       },
     ];
 
@@ -155,6 +141,8 @@ export default class AdvancedSettings extends Component<IProps, IState> {
       ? styles.advanced_settings__mssfix_valid_value
       : styles.advanced_settings__mssfix_invalid_value;
     const mssfixValue = this.state.editedMssfix;
+
+    const hasWireguardKey = this.props.wireguardKeyState.type === 'key-set';
 
     return (
       <Layout>
@@ -228,7 +216,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   <View style={styles.advanced_settings__content}>
                     <Selector
                       title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
-                      values={this.tunnelProtocolItems}
+                      values={this.tunnelProtocolItems(hasWireguardKey)}
                       value={this.props.tunnelProtocol}
                       onSelect={this.onSelectTunnelProtocol}
                     />
@@ -347,6 +335,26 @@ export default class AdvancedSettings extends Component<IProps, IState> {
       </Layout>
     );
   }
+
+  private tunnelProtocolItems = (
+    hasWireguardKey: boolean,
+  ): Array<ISelectorItem<OptionalTunnelProtocol>> => {
+    return [
+      {
+        label: messages.pgettext('advanced-settings-view', 'Automatic'),
+        value: undefined,
+      },
+      {
+        label: messages.pgettext('advanced-settings-view', 'OpenVPN'),
+        value: 'openvpn',
+      },
+      {
+        label: messages.pgettext('advanced-settings-view', 'WireGuard'),
+        value: 'wireguard',
+        disabled: !hasWireguardKey,
+      },
+    ];
+  };
 
   private onSelectTunnelProtocol = (protocol?: TunnelProtocol) => {
     this.props.setTunnelProtocol(protocol);
