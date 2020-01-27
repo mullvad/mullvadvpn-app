@@ -6,8 +6,6 @@
     <string>app-store</string>
     <key>teamID</key>
     <string>G7CDBEG477</string>
-    <key>teamName</key>
-    <string>Amagicom AB</string>
     <key>signingStyle</key>
     <string>manual</string>
     <key>uploadSymbols</key>
