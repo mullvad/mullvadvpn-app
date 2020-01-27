@@ -134,7 +134,8 @@ environment variables:
 `IOS_APPLE_ID_PASSWORD` accepts a keychain reference in form of `@keychain:<KEYCHAIN_ITEM_NAME>`.
 
 Use app specific password instead of the actual account password and save it to Keychain. The app 
-specific password can be created via AppStore Connect.
+specific password can be created via AppStore Connect, and added to Keychain using the following
+commands (note that `altool` will be authorized to access the saved password):
 
 ```
 ALTOOL_BIN=$(xcrun -find altool)
@@ -145,6 +146,7 @@ security add-generic-password \
   -s <KEYCHAIN_ITEM_NAME> \
   -T "$ALTOOL_BIN"
 ```
+
 # Automated build and deployment
 
 Build script does not bump the build number, so make sure to do that manually and commit to repo:
