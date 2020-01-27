@@ -2,6 +2,7 @@
 
 # This script is used to build and ship the iOS app
 set -eu
+shopt -s nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -40,7 +41,7 @@ fi
 PROJECT_NAME="MullvadVPN"
 
 # Xcode project directory
-XCODE_PROJECT_DIR="$PROJECT_NAME.xcodeproj"
+XCODE_PROJECT_DIR="$SCRIPT_DIR/$PROJECT_NAME.xcodeproj"
 
 # Build output directory without trailing slash
 BUILD_OUTPUT_DIR="$SCRIPT_DIR/Build"
@@ -70,14 +71,24 @@ get_mobile_provisioning_uuid() {
 }
 
 install_mobile_provisioning() {
-    for filename in "$IOS_PROVISIONING_PROFILES_DIR"/*.mobileprovision; do
-        [ -f "$filename" ] || continue
-        local profile_uuid=$(get_mobile_provisioning_uuid "$filename")
-        local target="$SYSTEM_PROVISIONING_PROFILES_DIR/$profile_uuid.mobileprovision"
+    echo "Install system provisioning profiles into $SYSTEM_PROVISIONING_PROFILES_DIR"
 
-        echo "Install $filename -> $target"
+    if [[ ! -d "$SYSTEM_PROVISIONING_PROFILES_DIR" ]]; then
+        echo "Missing system provisioning profiles directory. Creating one."
+        mkdir -p "$SYSTEM_PROVISIONING_PROFILES_DIR"
+    fi
 
-        cp "$filename" "$target"
+    for mobile_provisioning_path in "$IOS_PROVISIONING_PROFILES_DIR"/*.mobileprovision; do
+        local profile_uuid=$(get_mobile_provisioning_uuid "$mobile_provisioning_path")
+        local target_path="$SYSTEM_PROVISIONING_PROFILES_DIR/$profile_uuid.mobileprovision"
+
+        if [[ -f $target_path ]]; then
+            echo "Skip installing $mobile_provisioning_path"
+        else
+            echo "Install $mobile_provisioning_path -> $target_path"
+
+            cp "$mobile_provisioning_path" "$target_path"
+        fi
     done
 }
 
