@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, View } from 'reactxp';
+import { Component, Text, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
 import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
@@ -213,13 +213,26 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     )}
                   </Cell.Footer>
 
-                  <View style={styles.advanced_settings__content}>
+                  <View
+                    style={[
+                      styles.advanced_settings__content,
+                      styles.advanced_settings__tunnel_protocol,
+                    ]}>
                     <Selector
                       title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
                       values={this.tunnelProtocolItems(hasWireguardKey)}
                       value={this.props.tunnelProtocol}
                       onSelect={this.onSelectTunnelProtocol}
+                      style={styles.advanced_settings__tunnel_protocol_selector}
                     />
+                    {!hasWireguardKey && (
+                      <Text style={styles.advanced_settings__wg_no_key}>
+                        {messages.pgettext(
+                          'advanced-settings-view',
+                          'To enable WireGuard, generate a key under the "WireGuard key" setting below.',
+                        )}
+                      </Text>
+                    )}
                   </View>
 
                   {this.props.tunnelProtocol !== 'wireguard' ? (
@@ -349,7 +362,12 @@ export default class AdvancedSettings extends Component<IProps, IState> {
         value: 'openvpn',
       },
       {
-        label: messages.pgettext('advanced-settings-view', 'WireGuard'),
+        label: hasWireguardKey
+          ? messages.pgettext('advanced-settings-view', 'WireGuard')
+          : sprintf('%(label)s (%(error)s)', {
+              label: messages.pgettext('advanced-settings-view', 'WireGuard'),
+              error: messages.pgettext('advanced-settings-view-wireguard', 'missing key'),
+            }),
         value: 'wireguard',
         disabled: !hasWireguardKey,
       },
