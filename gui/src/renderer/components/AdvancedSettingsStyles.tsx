@@ -16,11 +16,23 @@ export default {
   advanced_settings__content: Styles.createViewStyle({
     flex: 0,
   }),
-  advanced_settings__selector_section: Styles.createViewStyle({
+  advanced_settings__tunnel_protocol: Styles.createViewStyle({
     marginBottom: 24,
+  }),
+  advanced_settings__tunnel_protocol_selector: Styles.createViewStyle({
+    marginBottom: 0,
   }),
   advanced_settings__wgkeys_cell: Styles.createViewStyle({
     marginBottom: 24,
+  }),
+  advanced_settings__wg_no_key: Styles.createTextStyle({
+    fontFamily: 'Open Sans',
+    fontSize: 13,
+    fontWeight: '800',
+    lineHeight: 20,
+    color: colors.red,
+    marginTop: 12,
+    paddingHorizontal: 24,
   }),
   advanced_settings__cell_hover: Styles.createButtonStyle({
     backgroundColor: colors.blue80,
