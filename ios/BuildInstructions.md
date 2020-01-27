@@ -84,7 +84,8 @@ although you still have to unlock Keychain for that to have any effect. This ins
 equivalent to choosing "Always allow" in the password prompt GUI on the first run of `codesign` 
 tool.
 
-Note: providing the export passphrase using the `-P` flag is considered unsafe, however the default password prompt happens via GUI.
+Note: providing the export passphrase using the `-P` flag is considered unsafe. 
+Leave the `-P <EXPORT_PASSPHRASE>` out to enter the passphrase via GUI.
 
 Technically after that you can clean up all created keys and certificates since all of them are 
 securely stored in Keychain now.
