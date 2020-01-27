@@ -120,7 +120,8 @@ Follow these steps to add each of provisioning profiles:
    does not exist. 
    
    If you wish to customize the provisioning profiles location, provide the absolute path via 
-   `IOS_PROVISIONING_PROFILES_DIR` environment variable.
+   `IOS_PROVISIONING_PROFILES_DIR` environment variable before running `build.sh`. (more on that 
+   later)
 
 # Setup AppStore credentials
 
