@@ -10,7 +10,7 @@ openssl req -new -newkey rsa:2048 \
   -outform pem -keyform pem \
   -keyout private_key.pem \
   -out cert_signing_request \
-  -subj "/C=SE/O=Amagicom AB/emailAddress=<YOUR_EMAIL>"
+  -subj "/C=SE/O=Mullvad VPN AB/emailAddress=<YOUR_EMAIL>"
 ```
 
 ## [Alternative] Create CSR using the existing private key
@@ -20,7 +20,7 @@ openssl req -new \
   -outform pem -keyform pem \
   -key private_key.pem \
   -out cert_signing_request \
-  -subj "/C=SE/O=Amagicom AB/emailAddress=<YOUR_EMAIL>"
+  -subj "/C=SE/O=Mullvad VPN AB/emailAddress=<YOUR_EMAIL>"
 ```
 
 # Upload Certificate Signing Request (CSR) to Apple
@@ -68,7 +68,7 @@ openssl pkcs12 -export \
   -in distribution.pem \
   -certfile AppleWWDRCA.pem \
   -out apple_code_signing.p12 \
-  -name "Apple Distribution: Build Server (Amagicom AB)"
+  -name "Apple Distribution: Build Server (Mullvad VPN AB)"
 ```
 
 # Import private key and certificates into Keychain
@@ -101,7 +101,7 @@ rm distribution.{pem,cer} \
 
 Create the provisioning profiles listed below, using Distribution > AppStore configuration.
 When presented with the list of certificates, make sure to assign the provisioning profile to the 
-same certificate (i.e `Amagicom AB (Apple Distribution)`) you received after uploading CSR.
+same certificate (i.e `Mullvad VPN AB (Apple Distribution)`) you received after uploading CSR.
 
 | App ID                              | Provisioning Profile Name |
 |-------------------------------------|---------------------------|
@@ -113,7 +113,7 @@ Follow these steps to add each of provisioning profiles:
 1. Go to https://developer.apple.com/account/resources/profiles/add
 1. Choose "App Store" under "Distribution", then hit "Continue"
 1. Choose the App ID (see the table above) and hit "Continue"
-1. Choose the distribution certificate that you had created (i.e `Amagicom AB (Distribution)`)
+1. Choose the distribution certificate that you had created (i.e `Mullvad VPN AB (Distribution)`)
 1. Type in the profile name (see the table above) and hit "Generate"
 1. Download the certificate in `ios/iOS Provisioning Profiles` directory. Create the directory if it 
    does not exist. 
