@@ -98,7 +98,7 @@ rm distribution.{pem,cer} \
   private_key.pem
 ```
 
-# Create iOS provisioning certificates
+# Create iOS provisioning profiles
 
 Create the provisioning profiles listed below, using Distribution > AppStore configuration.
 When presented with the list of certificates, make sure to assign the provisioning profile to the 
