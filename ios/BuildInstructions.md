@@ -119,9 +119,9 @@ Follow these steps to add each of provisioning profiles:
 1. Download the certificate in `ios/iOS Provisioning Profiles` directory. Create the directory if it 
    does not exist. 
    
-   If you wish to customize the provisioning profiles location, provide the absolute path via 
-   `IOS_PROVISIONING_PROFILES_DIR` environment variable before running `build.sh`. (more on that 
-   later)
+   Note: you can use different directory for storing provisioning profiles, however in that case,
+   make sure to provide the path to the custom location via `IOS_PROVISIONING_PROFILES_DIR` 
+   environment variable when running `build.sh` (more on that later).
 
 # Setup AppStore credentials
 
