@@ -15,7 +15,7 @@ export function getLogsDirectory() {
   switch (process.platform) {
     case 'darwin':
       // macOS: ~/Library/Logs/{appname}
-      return path.join(theApp.getPath('home'), 'Library/Logs', theApp.getName());
+      return path.join(theApp.getPath('home'), 'Library/Logs', theApp.name);
     default:
       // Windows: %LOCALAPPDATA%\{appname}\logs
       // Linux: ~/.config/{appname}/logs
