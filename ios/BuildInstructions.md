@@ -35,7 +35,7 @@ openssl req -new \
 WWDR certificate is used to verify the development and distribution certificates issued by Apple.
 
 ```
-curl https://developer.apple.com/certificationauthority/AppleWWDRCA.cer > AppleWWDRCA.cer
+curl https://developer.apple.com/certificationauthority/AppleWWDRCA.cer -O
 ```
 
 # Convert certificates to PEM format
