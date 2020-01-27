@@ -39,23 +39,23 @@ fi
 # The folder with all sources is expected to hold the same name
 PROJECT_NAME="MullvadVPN"
 
-# Xcode project file
-XCODE_PROJECT="$PROJECT_NAME.xcodeproj"
+# Xcode project directory
+XCODE_PROJECT_DIR="$PROJECT_NAME.xcodeproj"
 
 # Build output directory without trailing slash
-BUILD_OUTPUT="$SCRIPT_DIR/Build"
+BUILD_OUTPUT_DIR="$SCRIPT_DIR/Build"
 
 # Xcode archive output
-XCODE_ARCHIVE="$BUILD_OUTPUT/$PROJECT_NAME.xcarchive"
+XCODE_ARCHIVE_DIR="$BUILD_OUTPUT_DIR/$PROJECT_NAME.xcarchive"
 
 # Export options file used for producing .xcarchive
-EXPORT_OPTIONS_FILE="$SCRIPT_DIR/ExportOptions.plist"
+EXPORT_OPTIONS_PATH="$SCRIPT_DIR/ExportOptions.plist"
 
 # Path to generated IPA file produced after .xcarchive export
-IPA_FILE="$BUILD_OUTPUT/$PROJECT_NAME.ipa"
+IPA_PATH="$BUILD_OUTPUT_DIR/$PROJECT_NAME.ipa"
 
 # Xcodebuild intermediate files directory
-DERIVED_DATA_DIR="$BUILD_OUTPUT/DerivedData"
+DERIVED_DATA_DIR="$BUILD_OUTPUT_DIR/DerivedData"
 
 # System provisioning profiles directory
 SYSTEM_PROVISIONING_PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
@@ -90,7 +90,7 @@ install_mobile_provisioning
 
 release_build() {
   xcodebuild \
-    -project "$XCODE_PROJECT" \
+    -project "$XCODE_PROJECT_DIR" \
     -scheme "$PROJECT_NAME" \
     -sdk iphoneos \
     -configuration Release \
@@ -102,14 +102,14 @@ release_build() {
 release_build clean
 
 # Archive project
-release_build archive -archivePath "$XCODE_ARCHIVE"
+release_build archive -archivePath "$XCODE_ARCHIVE_DIR"
 
 # Export IPA for distribution
 xcodebuild \
     -exportArchive \
-    -archivePath "$XCODE_ARCHIVE" \
-    -exportOptionsPlist "$EXPORT_OPTIONS_FILE" \
-    -exportPath "$BUILD_OUTPUT"
+    -archivePath "$XCODE_ARCHIVE_DIR" \
+    -exportOptionsPlist "$EXPORT_OPTIONS_PATH" \
+    -exportPath "$BUILD_OUTPUT_DIR"
 
 
 ###########################################
@@ -120,7 +120,7 @@ if [[ "${1:-""}" == "--deploy" ]]; then
     xcrun altool \
         --upload-app --verbose \
         --type ios \
-        --file "$IPA_FILE" \
+        --file "$IPA_PATH" \
         --username "$IOS_APPLE_ID" \
         --password "$IOS_APPLE_ID_PASSWORD"
 else
