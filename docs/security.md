@@ -33,7 +33,7 @@ An app with permission to act as a VPN service can request to open a VPN tunnel 
 provide a set of IP networks it would like to have routed via itself. Doing so and specifying
 the routes `0/0` and `::0/0` forces all traffic to go via the app. That is what this app does both
 when it has a VPN tunnel up, but also when in a state where it would like to block all network
-traffic. Such as the [connecting], [disconnecting] and [blocked] states. In these states, all
+traffic. Such as the [connecting], [disconnecting] and [error] states. In these states, all
 packets are simply dropped.
 
 ### iOS
@@ -99,7 +99,7 @@ This is the default state that the `mullvad-daemon` starts in when the device bo
 
 The disconnected state behaves very differently depending on the value of the
 "block when disconnected" setting. If this setting is enabled, the disconnected state behaves
-like and has the same security properties as, the [blocked] state. If the setting is
+like and has the same security properties as, the [error] state. If the setting is
 disabled (the default), then it is the only state where the app does not enforce any firewall
 rules. It then behaves the same as if the `mullvad-daemon` was not even running. It lets
 network traffic flow in and out of the computer freely.
@@ -155,7 +155,7 @@ active. All states transitioning into this state, and all states this state late
 transitions to, have their own security policies. This state is just a short transition between
 those, while the app waits for a running tunnel to come down and clean up after itself.
 
-### Blocked
+### Error
 
 This state is only active when there is a problem/error. As described in other sections, the app
 will never unlock the firewall and allow network traffic outside the tunnel unless a
@@ -171,6 +171,10 @@ In the above cases the app gives up trying to create a tunnel, but it can't go t
 This state locks the firewall so no traffic can flow (except the always active exceptions) and
 informs the user what the problem is. The user must then explicitly click disconnect in order
 to unlock the firewall and get access to the internet again.
+
+If the firewall integration fails, so this state fails to block traffic. Then it is not much
+left the app can do to prevent leaks. It then informs the user of the seriousness of the
+situation.
 
 ## Kill switch
 
@@ -194,7 +198,7 @@ we fail closed, meaning if the packets don't leave encrypted in the way the app 
 then they can't leave at all.
 
 Essentially, one can say that the app's "kill switch" is the fact that the [connecting],
-[disconnecting] and [blocked] states prevent leaks via firewall rules.
+[disconnecting] and [error] states prevent leaks via firewall rules.
 
 ### Block when disconnected
 
@@ -253,5 +257,5 @@ network connections. Except when the user sends a problem report, then it spawn 
 [connecting]: #connecting
 [connected]: #connected
 [disconnecting]: #disconnecting
-[blocked]: #blocked
+[error]: #error
 [GUI]: #desktop-electron-gui
