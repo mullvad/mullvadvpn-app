@@ -1,7 +1,12 @@
-use super::{Config, Error, Result, Tunnel};
+use super::{stats::Stats, Config, Error, Result, Tunnel};
 use crate::tunnel::tun_provider::TunProvider;
 use ipnetwork::IpNetwork;
-use std::{ffi::CString, path::Path};
+use std::{
+    ffi::{c_void, CStr, CString},
+    os::raw::c_char,
+    path::Path,
+};
+use zeroize::Zeroize;
 
 #[cfg(target_os = "android")]
 use crate::tunnel::tun_provider;
@@ -315,6 +320,34 @@ impl Tunnel for WgGoTunnel {
         &self.interface_name
     }
 
+    fn get_config(&self) -> Result<Stats> {
+        let config_str = unsafe {
+            let ptr = wgGetConfig(self.handle.unwrap());
+            if ptr.is_null() {
+                log::error!("Failed to get config !");
+                return Err(Error::GetConfigError);
+            }
+
+            CStr::from_ptr(ptr)
+        };
+
+        let result =
+            Stats::parse_config_str(config_str.to_str().expect("Go strings are always UTF-8"))
+                .map_err(Error::StatsError);
+        unsafe {
+            // Zeroing out config string to not leave private key in memory.
+            let slice = std::slice::from_raw_parts_mut(
+                config_str.as_ptr() as *mut c_char,
+                config_str.to_bytes().len(),
+            );
+            slice.zeroize();
+
+            wgFreePtr(config_str.as_ptr() as *mut c_void);
+        }
+
+        result
+    }
+
     fn stop(mut self: Box<Self>) -> Result<()> {
         self.stop_tunnel()
     }
@@ -371,6 +404,12 @@ extern "C" {
 
     // Pass a handle that was created by wgTurnOnWithFd to stop a wireguard tunnel.
     fn wgTurnOff(handle: i32) -> i32;
+
+    // Returns the file descriptor of the tunnel IPv4 socket.
+    fn wgGetConfig(handle: i32) -> *mut std::os::raw::c_char;
+
+    // Frees a pointer allocated by the go runtime - useful to free return value of wgGetConfig
+    fn wgFreePtr(ptr: *mut c_void);
 
     // Returns the file descriptor of the tunnel IPv4 socket.
     #[cfg(target_os = "android")]
