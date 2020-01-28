@@ -51,6 +51,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix occasional failure to shut down the old daemon process during installation by killing it if
   necessary.
 - Make WireGuard work with IPv6 enabled even if there is no functioning TAP adapter for OpenVPN.
+- Restart daemon when coming back from system hibernation with terminated user session, since
+  it's perceived as a cold boot from the user's perspective, so the app should act accordingly.
 
 #### Android
 - Fix crash when starting the app right after quitting it.
