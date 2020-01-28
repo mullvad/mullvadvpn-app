@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Increase WireGuard ping timeout from 7 to 15 seconds.
 - Updated `wireguard-go` to `v0.0.20200121`
 - Use traffic data from WireGuard to infer connectivity to improve stability of the connection.
+- Remove WireGuard keys from accounts when they are removed from the local account history.
 
 #### Linux
 - DNS management with static `/etc/resolv.conf` will now work even when no
