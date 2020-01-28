@@ -462,13 +462,14 @@ impl HibernationDetector {
         // Returned count is including null terminator.
         let chars_required = GetSystemDirectoryW(ptr::null_mut(), 0);
         if chars_required != 0 {
-            let mut buffer: Vec::<WCHAR> = Vec::with_capacity(chars_required as usize);
+            let mut buffer: Vec<WCHAR> = Vec::with_capacity(chars_required as usize);
             // Returned count is excluding null terminator.
             let chars_written = GetSystemDirectoryW(buffer.as_mut_ptr(), chars_required);
             if chars_written == (chars_required - 1) {
                 buffer.set_len(chars_written as usize);
-                let mut path = String::from_utf16(&buffer)
-                    .map_err(|e| e.display_chain_with_msg("Failed to convert system directory path string"))?;
+                let mut path = String::from_utf16(&buffer).map_err(|e| {
+                    e.display_chain_with_msg("Failed to convert system directory path string")
+                })?;
                 if !path.ends_with("\\") {
                     path.push('\\');
                 }
