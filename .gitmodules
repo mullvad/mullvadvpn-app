@@ -7,6 +7,3 @@
 [submodule "windows/windows-libraries"]
 	path = windows/windows-libraries
 	url = https://github.com/mullvad/windows-libraries
-[submodule "windows/googletest"]
-	path = windows/googletest
-	url = https://github.com/mullvad/googletest
