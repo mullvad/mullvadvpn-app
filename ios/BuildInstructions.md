@@ -68,7 +68,7 @@ openssl pkcs12 -export \
   -in distribution.pem \
   -certfile AppleWWDRCA.pem \
   -out apple_code_signing.p12 \
-  -name "Apple Distribution (Mullvad VPN AB)"
+  -name "<FRIENDLY_KEYCHAIN_NAME>"
 ```
 
 # Import private key and certificates into Keychain
