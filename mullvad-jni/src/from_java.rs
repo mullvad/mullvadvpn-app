@@ -1,6 +1,9 @@
 use crate::is_null::IsNull;
 use jnix::{
-    jni::objects::{JObject, JString},
+    jni::{
+        objects::{JObject, JString},
+        sys::{jboolean, JNI_FALSE},
+    },
     JnixEnv,
 };
 use mullvad_types::relay_constraints::{
@@ -12,6 +15,14 @@ pub trait FromJava<'env> {
     type JavaType: 'env;
 
     fn from_java(env: &JnixEnv<'env>, source: Self::JavaType) -> Self;
+}
+
+impl<'env> FromJava<'env> for bool {
+    type JavaType = jboolean;
+
+    fn from_java(_: &JnixEnv<'env>, source: Self::JavaType) -> Self {
+        source != JNI_FALSE
+    }
 }
 
 impl<'env, T> FromJava<'env> for Option<T>
