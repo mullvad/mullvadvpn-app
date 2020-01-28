@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "module.h"
 #include "cli/util.h"
-#include "libcommon/string.h"
+#include <libcommon/string.h>
+#include <libcommon/error.h>
 #include <sstream>
 #include <utility>
 
@@ -37,7 +38,7 @@ void Module::handleRequest(const std::vector<std::wstring> &request)
 
 		ss << L"Command missing. Try 'help " << m_name << "'.";
 
-		throw std::runtime_error(common::string::ToAnsi(ss.str()));
+		THROW_ERROR(common::string::ToAnsi(ss.str()).c_str());
 	}
 
 	auto wanted = common::string::Lower(request[0]);
@@ -49,7 +50,7 @@ void Module::handleRequest(const std::vector<std::wstring> &request)
 
 		ss << L"Module '" << m_name << "' doesn't support the command '" << request[0] << "'.";
 
-		throw std::runtime_error(common::string::ToAnsi(ss.str()));
+		THROW_ERROR(common::string::ToAnsi(ss.str()).c_str());
 	}
 
 	auto args = request;

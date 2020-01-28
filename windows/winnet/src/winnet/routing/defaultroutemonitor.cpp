@@ -37,21 +37,20 @@ DefaultRouteMonitor::DefaultRouteMonitor
 	{
 	}
 
-	const auto status = NotifyRouteChange2(AF_UNSPEC, RouteChangeCallback, this, FALSE, &m_routeNotificationHandle);
+	auto status = NotifyRouteChange2(AF_UNSPEC, RouteChangeCallback, this, FALSE, &m_routeNotificationHandle);
 
-	THROW_UNLESS(NO_ERROR, status, "Register for route table change notifications");
-
-	try
+	if (NO_ERROR != status)
 	{
-		const auto s2 = NotifyIpInterfaceChange(AF_UNSPEC, InterfaceChangeCallback, this,
-			FALSE, &m_interfaceNotificationHandle);
-
-		THROW_UNLESS(NO_ERROR, status, "Register for network interface change notifications");
+		THROW_WINDOWS_ERROR(status, "Register for route table change notifications");
 	}
-	catch (...)
+
+	status = NotifyIpInterfaceChange(AF_UNSPEC, InterfaceChangeCallback, this,
+		FALSE, &m_interfaceNotificationHandle);
+
+	if (NO_ERROR != status)
 	{
 		CancelMibChangeNotify2(m_routeNotificationHandle);
-		throw;
+		THROW_WINDOWS_ERROR(status, "Register for network interface change notifications");
 	}
 }
 

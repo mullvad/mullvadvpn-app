@@ -6,13 +6,13 @@
 #include <windows.h>
 #include <log/log.h>
 #include <libcommon/string.h>
+#include <libcommon/error.h>
 #include <libcommon/registry/registry.h>
 #include <libcommon/resourcedata.h>
 #include <libcommon/filesystem.h>
 #include <libcommon/process/process.h>
 #include <libcommon/security.h>
 #include <nsis/pluginapi.h>
-#include <stdexcept>
 #include <filesystem>
 
 namespace
@@ -33,7 +33,7 @@ void InjectMullvadRecord(TrayJuggler &juggler)
 
 	if (resource.size != sizeof(ICON_STREAMS_RECORD))
 	{
-		throw std::runtime_error("Invalid tray template, size mismatch");
+		THROW_ERROR("Invalid tray template, size mismatch");
 	}
 
 	ICON_STREAMS_RECORD newRecord(*reinterpret_cast<const ICON_STREAMS_RECORD *>(resource.data));
@@ -59,7 +59,7 @@ void UpdateRegistry(common::registry::RegistryKey &regkey, const std::wstring &v
 
 	if (pids.empty())
 	{
-		throw std::runtime_error("Could not determine PID of explorer.exe");
+		THROW_ERROR("Could not determine PID of explorer.exe");
 	}
 
 	//
@@ -92,7 +92,7 @@ void UpdateRegistry(common::registry::RegistryKey &regkey, const std::wstring &v
 
 	if (0 == terminated)
 	{
-		throw std::runtime_error("Could not terminate explorer.exe");
+		THROW_ERROR("Could not terminate explorer.exe");
 	}
 
 	//

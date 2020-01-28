@@ -13,7 +13,10 @@ AnsiFileLogSink::AnsiFileLogSink(const std::wstring &file, bool append, bool flu
 	m_logfile = CreateFileW(file.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, nullptr,
 		creationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr);
 
-	THROW_GLE_IF(INVALID_HANDLE_VALUE, m_logfile, "Open/create log file");
+	if (INVALID_HANDLE_VALUE == m_logfile)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "Open/create log file");
+	}
 
 	if (append && ERROR_ALREADY_EXISTS == GetLastError())
 	{
@@ -21,7 +24,10 @@ AnsiFileLogSink::AnsiFileLogSink(const std::wstring &file, bool append, bool flu
 
 		const auto seekStatus = SetFilePointerEx(m_logfile, offset, nullptr, FILE_END);
 
-		THROW_GLE_IF(FALSE, seekStatus, "Seek to end offset in existing log file");
+		if (FALSE == seekStatus)
+		{
+			THROW_WINDOWS_ERROR(GetLastError(), "Seek to end offset in existing log file");
+		}
 	}
 }
 

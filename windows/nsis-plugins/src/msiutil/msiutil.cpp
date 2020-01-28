@@ -5,7 +5,7 @@
 #include "../error.h"
 #include <log/log.h>
 #include <libcommon/string.h>
-#include <stdexcept>
+#include <libcommon/error.h>
 
 namespace
 {
@@ -19,7 +19,7 @@ std::wstring PopString()
 
 	if (!g_stacktop || !*g_stacktop)
 	{
-		throw std::runtime_error("NSIS variable stack is corrupted");
+		THROW_ERROR("NSIS variable stack is corrupted");
 	}
 
 	stack_t *th = *g_stacktop;
@@ -48,7 +48,7 @@ void PinDll()
 
 	if (0 == GetModuleFileNameW((HINSTANCE)&__ImageBase, self, _countof(self)))
 	{
-		throw std::runtime_error("Failed to pin plugin module");
+		THROW_ERROR("Failed to pin plugin module");
 	}
 
 	//

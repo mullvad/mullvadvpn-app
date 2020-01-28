@@ -2,6 +2,7 @@
 #include "util.h"
 #include "inlineformatter.h"
 #include <libcommon/string.h>
+#include <libcommon/error.h>
 #include <string>
 
 void PrettyPrintProperties(MessageSink messageSink, PrettyPrintOptions options, const PropertyList &properties)
@@ -55,7 +56,7 @@ std::wstring GetArgumentValue(const common::string::KeyValuePairs &arguments, co
 
 		ss << L"Missing argument: '" << key << L"'";
 
-		throw std::runtime_error(common::string::ToAnsi(ss.str()));
+		throw std::runtime_error(common::string::ToAnsi(ss.str()).c_str());
 	}
 
 	return arg->second;

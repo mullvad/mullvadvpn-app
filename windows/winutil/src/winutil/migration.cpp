@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "migration.h"
 #include <libcommon/filesystem.h>
+#include <libcommon/error.h>
 #include <filesystem>
-#include <stdexcept>
 
 namespace migration {
 
@@ -52,7 +52,7 @@ MigrationStatus MigrateAfterWindowsUpdate()
 				continue;
 			}
 
-			throw std::runtime_error("Could not acquire security descriptor of backup directory");
+			THROW_ERROR("Could not acquire security descriptor of backup directory");
 		}
 
 		break;
@@ -64,13 +64,13 @@ MigrationStatus MigrateAfterWindowsUpdate()
 	if (FALSE == GetSecurityDescriptorOwner(reinterpret_cast<SECURITY_DESCRIPTOR *>(&buffer[0]),
 		reinterpret_cast<PSID *>(&sid), &ownerDefaulted))
 	{
-		throw std::runtime_error("Could not determine owner of backup directory");
+		THROW_ERROR("Could not determine owner of backup directory");
 	}
 
 	if (FALSE == IsWellKnownSid(sid, WinLocalSystemSid)
 		&& FALSE == IsWellKnownSid(sid, WinBuiltinAdministratorsSid))
 	{
-		throw std::runtime_error("Backup directory is not owned by SYSTEM or Built-in Administrators");
+		THROW_ERROR("Backup directory is not owned by SYSTEM or Built-in Administrators");
 	}
 
 	//
@@ -80,7 +80,7 @@ MigrationStatus MigrateAfterWindowsUpdate()
 	if (false == std::filesystem::exists(mullvadAppData)
 		&& false == std::filesystem::create_directory(mullvadAppData))
 	{
-		throw std::runtime_error("Could not create destination directory during migration");
+		THROW_ERROR("Could not create destination directory during migration");
 	}
 
 	//
@@ -123,7 +123,7 @@ MigrationStatus MigrateAfterWindowsUpdate()
 
 	if (false == copyStatus)
 	{
-		throw std::runtime_error("Failed to copy files during migration");
+		THROW_ERROR("Failed to copy files during migration");
 	}
 
 	return MigrationStatus::Success;

@@ -10,7 +10,6 @@
 #include <libcommon/valuemapper.h>
 #include <libcommon/network.h>
 #include <cstdint>
-#include <stdexcept>
 #include <memory>
 #include <optional>
 #include <mutex>
@@ -59,7 +58,7 @@ Network ConvertNetwork(const WINNET_IPNETWORK &in)
 		}
 		default:
 		{
-			throw std::runtime_error("Missing case handler in switch clause");
+			THROW_ERROR("Missing case handler in switch clause");
 		}
 	}
 
@@ -75,7 +74,7 @@ std::optional<Node> ConvertNode(const WINNET_NODE *in)
 
 	if (nullptr == in->deviceName && nullptr == in->gateway)
 	{
-		throw std::runtime_error("Invalid 'WINNET_NODE' definition");
+		THROW_ERROR("Invalid 'WINNET_NODE' definition");
 	}
 
 	std::optional<std::wstring> deviceName;
@@ -108,7 +107,7 @@ std::optional<Node> ConvertNode(const WINNET_NODE *in)
 			}
 			default:
 			{
-				throw std::logic_error("Invalid gateway type specifier in 'WINNET_NODE' definition");
+				THROW_ERROR("Invalid gateway type specifier in 'WINNET_NODE' definition");
 			}
 		}
 
@@ -169,7 +168,7 @@ std::vector<SOCKADDR_INET> ConvertAddresses(const WINNET_IP *addresses, uint32_t
 			}
 			default:
 			{
-				throw std::logic_error("Invalid address family in 'WINNET_IP' definition");
+				THROW_ERROR("Invalid address family in 'WINNET_IP' definition");
 			}
 		 }
 
@@ -236,7 +235,7 @@ WinNet_GetTapInterfaceIpv6Status(
 			return WINNET_GTII_STATUS_DISABLED;
 		}
 
-		common::error::Throw("Resolve TAP IPv6 interface", status);
+		THROW_WINDOWS_ERROR(status, "Resolve TAP IPv6 interface");
 	}
 	catch (const std::exception &err)
 	{
@@ -313,7 +312,7 @@ WinNet_ActivateConnectivityMonitor(
 	{
 		if (nullptr != g_OfflineMonitor)
 		{
-			throw std::runtime_error("Cannot activate connectivity monitor twice");
+			THROW_ERROR("Cannot activate connectivity monitor twice");
 		}
 
 		auto forwarder = [callback, callbackContext](bool connected)
@@ -370,7 +369,7 @@ WinNet_ActivateRouteManager(
 	{
 		if (nullptr != g_RouteManager)
 		{
-			throw std::runtime_error("Cannot activate route manager twice");
+			THROW_ERROR("Cannot activate route manager twice");
 		}
 
 		g_RouteManagerLogSink = std::make_shared<shared::logging::LogSinkAdapter>(logSink, logSinkContext);
@@ -671,10 +670,10 @@ WinNet_AddDeviceIpAddresses(
 
 		if (0 != ConvertInterfaceAliasToLuid(deviceAlias, &luid))
 		{
-			const auto ansiName = common::string::ToAnsi(deviceAlias);
-			const auto err = std::string("Unable to derive interface LUID from interface alias: ").append(ansiName);
+			const auto msg = std::string("Unable to derive interface LUID from interface alias: ")
+				.append(common::string::ToAnsi(deviceAlias));
 
-			throw std::runtime_error(err);
+			THROW_ERROR(msg.c_str());
 		}
 
 		InterfaceUtils::AddDeviceIpAddresses(luid, ConvertAddresses(addresses, numAddresses));

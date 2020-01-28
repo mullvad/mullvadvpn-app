@@ -15,10 +15,10 @@
 #include "rules/permitvpntunnel.h"
 #include "rules/permitvpntunnelservice.h"
 #include "rules/permitping.h"
-#include "libwfp/transaction.h"
-#include "libwfp/filterengine.h"
+#include <libwfp/transaction.h>
+#include <libwfp/filterengine.h>
+#include <libcommon/error.h>
 #include <functional>
-#include <stdexcept>
 #include <utility>
 
 namespace
@@ -32,7 +32,7 @@ rules::PermitVpnRelay::Protocol TranslateProtocol(WinFwProtocol protocol)
 		case Udp: return rules::PermitVpnRelay::Protocol::Udp;
 		default:
 		{
-			throw std::logic_error("Missing case handler in switch clause");
+			THROW_ERROR("Missing case handler in switch clause");
 		}
 	};
 }
@@ -73,7 +73,7 @@ FwContext::FwContext(uint32_t timeout)
 
 	if (false == applyBaseConfiguration())
 	{
-		throw std::runtime_error("Failed to apply base configuration in BFE.");
+		THROW_ERROR("Failed to apply base configuration in BFE");
 	}
 
 	m_baseline = m_sessionController->checkpoint();
@@ -93,7 +93,7 @@ FwContext::FwContext(uint32_t timeout, const WinFwSettings &settings)
 
 	if (false == applyBlockedBaseConfiguration(settings, checkpoint))
 	{
-		throw std::runtime_error("Failed to apply base configuration in BFE.");
+		THROW_ERROR("Failed to apply base configuration in BFE");
 	}
 
 	m_baseline = checkpoint;

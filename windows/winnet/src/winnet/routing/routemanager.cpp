@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <numeric>
 #include <sstream>
-#include <stdexcept>
 
 using AutoLockType = std::scoped_lock<std::mutex>;
 using AutoRecursiveLockType = std::scoped_lock<std::recursive_mutex>;
@@ -53,7 +52,7 @@ NET_LUID InterfaceLuidFromGateway(const NodeAddress &gateway)
 
 	if (matches.empty())
 	{
-		throw std::runtime_error("Unable to find network adapter with specified gateway");
+		THROW_ERROR("Unable to find network adapter with specified gateway");
 	}
 
 	//
@@ -104,10 +103,10 @@ bool ParseStringEncodedLuid(const std::wstring &encodedLuid, NET_LUID &luid)
 	}
 	catch (...)
 	{
-		const auto ansi = common::string::ToAnsi(encodedLuid);
-		const auto err = std::string("Failed to parse string encoded LUID: ").append(ansi);
+		const auto msg = std::string("Failed to parse string encoded LUID: ")
+			.append(common::string::ToAnsi(encodedLuid));
 
-		std::throw_with_nested(std::runtime_error(err));
+		THROW_ERROR(msg.c_str());
 	}
 
 	return true;
@@ -139,10 +138,10 @@ InterfaceAndGateway ResolveNode(ADDRESS_FAMILY family, const std::optional<Node>
 		if (false == ParseStringEncodedLuid(deviceName, luid)
 			&& 0 != ConvertInterfaceAliasToLuid(deviceName.c_str(), &luid))
 		{
-			const auto ansiName = common::string::ToAnsi(deviceName);
-			const auto err = std::string("Unable to derive interface LUID from interface alias: ").append(ansiName);
+			const auto msg = std::string("Unable to derive interface LUID from interface alias: ")
+				.append(common::string::ToAnsi(deviceName));
 
-			throw std::runtime_error(err);
+			THROW_ERROR(msg.c_str());
 		}
 
 		auto onLinkProvider = [&family]()
@@ -271,7 +270,7 @@ void RouteManager::addRoutes(const std::vector<Route> &routes)
 		{
 			undoEvents(eventLog);
 
-			std::throw_with_nested(std::runtime_error("Failed during batch insertion of routes"));
+			THROW_ERROR("Failed during batch insertion of routes");
 		}
 	}
 }
@@ -292,7 +291,7 @@ void RouteManager::addRoute(const Route &route)
 		}
 		catch (...)
 		{
-			std::throw_with_nested(std::runtime_error("Failed to evict old route when adding new route"));
+			THROW_ERROR("Failed to evict old route when adding new route");
 		}
 
 		deletedRecord = *record;
@@ -366,7 +365,7 @@ void RouteManager::deleteRoutes(const std::vector<Route> &routes)
 		{
 			undoEvents(eventLog);
 
-			std::throw_with_nested(std::runtime_error("Failed during batch removal of routes"));
+			THROW_ERROR("Failed during batch removal of routes");
 		}
 	}
 }
@@ -449,7 +448,12 @@ RouteManager::RegisteredRoute RouteManager::addIntoRoutingTable(const Route &rou
 	// Because it may not take route metric into consideration.
 	//
 
-	THROW_UNLESS(NO_ERROR, CreateIpForwardEntry2(&spec), "Register route in routing table");
+	const auto status = CreateIpForwardEntry2(&spec);
+
+	if (NO_ERROR != status)
+	{
+		THROW_WINDOWS_ERROR(status, "Register route in routing table");
+	}
 
 	return RegisteredRoute { route.network(), node.iface, node.gateway };
 }
@@ -467,7 +471,12 @@ void RouteManager::restoreIntoRoutingTable(const RegisteredRoute &route)
 	spec.Protocol = MIB_IPPROTO_NETMGMT;
 	spec.Origin = NlroManual;
 
-	THROW_UNLESS(NO_ERROR, CreateIpForwardEntry2(&spec), "Register route in routing table");
+	const auto status = CreateIpForwardEntry2(&spec);
+
+	if (NO_ERROR != status)
+	{
+		THROW_WINDOWS_ERROR(status, "Register route in routing table");
+	}
 }
 
 void RouteManager::deleteFromRoutingTable(const RegisteredRoute &route)
@@ -490,7 +499,10 @@ void RouteManager::deleteFromRoutingTable(const RegisteredRoute &route)
 		m_logSink->warning(common::string::ToAnsi(err).c_str());
 	}
 
-	THROW_UNLESS(NO_ERROR, status, "Delete route in routing table");
+	if (NO_ERROR != status)
+	{
+		THROW_WINDOWS_ERROR(status, "Delete route in routing table");
+	}
 }
 
 void RouteManager::undoEvents(const std::vector<EventEntry> &eventLog)
@@ -511,7 +523,7 @@ void RouteManager::undoEvents(const std::vector<EventEntry> &eventLog)
 
 					if (m_routes.end() == record)
 					{
-						throw std::runtime_error("Internal state inconsistency in route manager");
+						THROW_ERROR("Internal state inconsistency in route manager");
 					}
 
 					deleteFromRoutingTable(record->registeredRoute);
@@ -528,7 +540,7 @@ void RouteManager::undoEvents(const std::vector<EventEntry> &eventLog)
 				}
 				default:
 				{
-					throw std::logic_error("Missing case handler in switch clause");
+					THROW_ERROR("Missing case handler in switch clause");
 				}
 			}
 		}

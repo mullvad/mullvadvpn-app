@@ -38,7 +38,7 @@ std::wstring PopString()
 
 	if (!g_stacktop || !*g_stacktop)
 	{
-		throw std::runtime_error("NSIS variable stack is corrupted");
+		THROW_ERROR("NSIS variable stack is corrupted");
 	}
 
 	stack_t *th = *g_stacktop;
@@ -140,32 +140,22 @@ void __declspec(dllexport) NSISCALL AddSysEnvPath
 		}
 
 		DWORD result;
-		THROW_GLE_IF(
-			SendMessageTimeoutA(
-				HWND_BROADCAST,
-				WM_SETTINGCHANGE,
-				0,
-				(LPARAM)"Environment",
-				SMTO_ABORTIFHUNG,
-				messageTimeoutInterval,
-				&result
-			),
-			0,
-			"SendMessageTimeoutA"
-		);
-		THROW_GLE_IF(
-			SendMessageTimeoutW(
-				HWND_BROADCAST,
-				WM_SETTINGCHANGE,
-				0,
-				(LPARAM)L"Environment",
-				SMTO_ABORTIFHUNG,
-				messageTimeoutInterval,
-				&result
-			),
-			0,
-			"SendMessageTimeoutW"
-		);
+
+		auto status = SendMessageTimeoutA(HWND_BROADCAST, WM_SETTINGCHANGE,	0,
+			(LPARAM)"Environment", SMTO_ABORTIFHUNG, messageTimeoutInterval, &result);
+
+		if (0 == status)
+		{
+			THROW_WINDOWS_ERROR(GetLastError(), "SendMessageTimeoutA");
+		}
+
+		status = SendMessageTimeoutW(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
+			(LPARAM)L"Environment", SMTO_ABORTIFHUNG, messageTimeoutInterval, &result);
+
+		if (0 == status)
+		{
+			THROW_WINDOWS_ERROR(GetLastError(), "SendMessageTimeoutW");
+		}
 
 		pushstring(L"");
 		pushint(NsisStatus::SUCCESS);
@@ -235,32 +225,22 @@ void __declspec(dllexport) NSISCALL RemoveSysEnvPath
 		if (updatedPath)
 		{
 			DWORD result;
-			THROW_GLE_IF(
-				SendMessageTimeoutA(
-					HWND_BROADCAST,
-					WM_SETTINGCHANGE,
-					0,
-					(LPARAM)"Environment",
-					SMTO_ABORTIFHUNG,
-					messageTimeoutInterval,
-					&result
-				),
-				0,
-				"SendMessageTimeoutA"
-			);
-			THROW_GLE_IF(
-				SendMessageTimeoutW(
-					HWND_BROADCAST,
-					WM_SETTINGCHANGE,
-					0,
-					(LPARAM)L"Environment",
-					SMTO_ABORTIFHUNG,
-					messageTimeoutInterval,
-					&result
-				),
-				0,
-				"SendMessageTimeoutW"
-			);
+
+			auto status = SendMessageTimeoutA(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
+				(LPARAM)"Environment", SMTO_ABORTIFHUNG, messageTimeoutInterval, &result);
+
+			if (0 == status)
+			{
+				THROW_WINDOWS_ERROR(GetLastError(), "SendMessageTimeoutA");
+			}
+
+			status = SendMessageTimeoutW(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
+				(LPARAM)L"Environment", SMTO_ABORTIFHUNG, messageTimeoutInterval, &result);
+
+			if (0 == status)
+			{
+				THROW_WINDOWS_ERROR(GetLastError(), "SendMessageTimeoutW");
+			}
 		}
 
 		pushstring(L"");

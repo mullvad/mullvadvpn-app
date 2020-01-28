@@ -28,7 +28,10 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 
 	const auto status = m_dataProvider->getIfTable2(&table);
 
-	THROW_UNLESS(NO_ERROR, status, "Acquire network interface table");
+	if (NO_ERROR != status)
+	{
+		THROW_WINDOWS_ERROR(status, "Acquire network interface table");
+	}
 
 	common::memory::ScopeDestructor sd;
 
@@ -72,7 +75,10 @@ NetworkAdapterMonitor::NetworkAdapterMonitor(
 		&m_notificationHandle
 	);
 
-	THROW_UNLESS(NO_ERROR, statusCb, "Register interface change notification");
+	if (NO_ERROR != statusCb)
+	{
+		THROW_WINDOWS_ERROR(statusCb, "Register interface change notification");
+	}
 }
 
 NetworkAdapterMonitor::NetworkAdapterMonitor(
@@ -106,8 +112,9 @@ bool NetworkAdapterMonitor::hasIPv4Interface(NET_LUID luid) const
 	}
 	else if (ERROR_NOT_FOUND != status)
 	{
-		common::error::Throw("Resolve IPv4 interface", status);
+		THROW_WINDOWS_ERROR(status, "Resolve IPv4 interface");
 	}
+
 	return false;
 }
 
@@ -125,8 +132,9 @@ bool NetworkAdapterMonitor::hasIPv6Interface(NET_LUID luid) const
 	}
 	else if (ERROR_NOT_FOUND != status)
 	{
-		common::error::Throw("Resolve IPv6 interface", status);
+		THROW_WINDOWS_ERROR(status, "Resolve IPv6 interface");
 	}
+
 	return false;
 }
 
@@ -151,10 +159,9 @@ MIB_IF_ROW2 NetworkAdapterMonitor::getAdapter(NET_LUID luid) const
 
 	std::stringstream ss;
 
-	ss << "GetIfEntry2() failed for LUID 0x" << std::hex << rowOut.InterfaceLuid.Value
-		<< " in NetworkAdapterMonitor::getAdapter(), error: 0x" << status;
+	ss << "GetIfEntry2() failed for LUID 0x" << std::hex << rowOut.InterfaceLuid.Value;
 
-	throw std::runtime_error(ss.str());
+	THROW_WINDOWS_ERROR(status, ss.str().c_str());
 }
 
 void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE)

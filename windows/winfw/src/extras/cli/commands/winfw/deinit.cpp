@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "deinit.h"
 #include "winfw/winfw.h"
+#include <libcommon/error.h>
 
 namespace commands::winfw
 {
@@ -24,7 +25,7 @@ void Deinit::handleRequest(const std::vector<std::wstring> &arguments)
 {
 	if (false == arguments.empty())
 	{
-		throw std::runtime_error("Invalid argument(s). Cannot complete request.");
+		THROW_ERROR("Invalid argument(s). Cannot complete request.");
 	}
 
 	m_messageSink((WinFw_Deinitialize()

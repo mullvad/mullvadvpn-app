@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "helpers.h"
-#include <stdexcept>
 #include <ws2def.h>
 #include <in6addr.h>
 #include <numeric>
@@ -40,7 +39,7 @@ bool EqualAddress(const NodeAddress &lhs, const NodeAddress &rhs)
 		}
 		default:
 		{
-			throw std::runtime_error("Invalid address family for network address");
+			THROW_ERROR("Invalid address family for network address");
 		}
 	}
 }
@@ -66,7 +65,7 @@ bool EqualAddress(const SOCKADDR_INET *lhs, const SOCKET_ADDRESS *rhs)
 		}
 		default:
 		{
-			throw std::runtime_error("Missing case handler in switch clause");
+			THROW_ERROR("Missing case handler in switch clause");
 		}
 	}
 }
@@ -132,7 +131,10 @@ InterfaceAndGateway GetBestDefaultRoute(ADDRESS_FAMILY family)
 
 	auto status = GetIpForwardTable2(family, &table);
 
-	THROW_UNLESS(NO_ERROR, status, "Acquire route table");
+	if (NO_ERROR != status)
+	{
+		THROW_WINDOWS_ERROR(status, "Acquire route table");
+	}
 
 	common::memory::ScopeDestructor sd;
 
@@ -163,7 +165,7 @@ InterfaceAndGateway GetBestDefaultRoute(ADDRESS_FAMILY family)
 
 	if (annotated.empty())
 	{
-		throw std::runtime_error("Unable to determine details of default route");
+		THROW_ERROR("Unable to determine details of default route");
 	}
 
 	//
@@ -186,7 +188,7 @@ InterfaceAndGateway GetBestDefaultRoute(ADDRESS_FAMILY family)
 
 	if (false == annotated[0].active)
 	{
-		throw std::runtime_error("Unable to identify active default route");
+		THROW_ERROR("Unable to identify active default route");
 	}
 
 	return InterfaceAndGateway { annotated[0].route->InterfaceLuid, annotated[0].route->NextHop };
@@ -206,7 +208,7 @@ bool AdapterInterfaceEnabled(const IP_ADAPTER_ADDRESSES *adapter, ADDRESS_FAMILY
 		}
 		default:
 		{
-			throw std::runtime_error("Missing case handler in switch clause");
+			THROW_ERROR("Missing case handler in switch clause");
 		}
 	}
 }
@@ -242,34 +244,5 @@ bool AddressPresent(const std::vector<const SOCKET_ADDRESS *> &hay, const SOCKAD
 
 	return false;
 }
-
-//NodeAddress ConvertSocketAddress(const SOCKET_ADDRESS *sa)
-//{
-//	NodeAddress out = { 0 };
-//
-//	switch (sa->lpSockaddr->sa_family)
-//	{
-//		case AF_INET:
-//		{
-//			out.si_family = AF_INET;
-//			out.Ipv4 = *reinterpret_cast<SOCKADDR_IN *>(sa->lpSockaddr);
-//
-//			break;
-//		}
-//		case AF_INET6:
-//		{
-//			out.si_family = AF_INET6;
-//			out.Ipv6 = *reinterpret_cast<SOCKADDR_IN6 *>(sa->lpSockaddr);
-//
-//			break;
-//		}
-//		default:
-//		{
-//			throw std::runtime_error("Missing case handler in switch clause");
-//		}
-//	};
-//
-//	return out;
-//}
 
 }

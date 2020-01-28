@@ -3,6 +3,7 @@
 #include "cli/objectproperties.h"
 #include "cli/filterengineprovider.h"
 #include "libwfp/objectenumerator.h"
+#include <libcommon/error.h>
 
 namespace commands::list
 {
@@ -27,7 +28,7 @@ void Sessions::handleRequest(const std::vector<std::wstring> &arguments)
 {
 	if (false == arguments.empty())
 	{
-		throw std::runtime_error("Unsupported argument(s). Cannot complete request.");
+		THROW_ERROR("Unsupported argument(s). Cannot complete request.");
 	}
 
 	PrettyPrintOptions options;

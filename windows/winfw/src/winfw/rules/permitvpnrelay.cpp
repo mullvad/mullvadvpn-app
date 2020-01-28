@@ -6,7 +6,7 @@
 #include "libwfp/conditions/conditionprotocol.h"
 #include "libwfp/conditions/conditionip.h"
 #include "libwfp/conditions/conditionport.h"
-#include <stdexcept>
+#include <libcommon/error.h>
 
 using namespace wfp::conditions;
 
@@ -24,7 +24,7 @@ const GUID &LayerFromIp(const wfp::IpAddress &ip)
 		case wfp::IpAddress::Type::Ipv6: return FWPM_LAYER_ALE_AUTH_CONNECT_V6;
 		default:
 		{
-			throw std::logic_error("Missing case handler in switch clause");
+			THROW_ERROR("Missing case handler in switch clause");
 		}
 	};
 }
@@ -37,7 +37,7 @@ std::unique_ptr<ConditionProtocol> CreateProtocolCondition(PermitVpnRelay::Proto
 		case PermitVpnRelay::Protocol::Udp: return ConditionProtocol::Udp();
 		default:
 		{
-			throw std::logic_error("Missing case handler in switch clause");
+			THROW_ERROR("Missing case handler in switch clause");
 		}
 	};
 }

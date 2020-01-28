@@ -1,17 +1,11 @@
 #include "stdafx.h"
-
 #include "NetworkInterfaces.h"
 #include "InterfacePair.h"
-
+#include <libcommon/string.h>
+#include <libcommon/error.h>
 #include <memory>
 #include <sstream>
-#include <stdexcept>
 #include <cstdint>
-
-#include <libcommon/string.h>
-
-
-
 
 bool NetworkInterfaces::HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface)
 {
@@ -26,14 +20,12 @@ bool NetworkInterfaces::HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface)
 	return true;
 }
 
-
 void NetworkInterfaces::EnsureIfaceMetricIsHighest(NET_LUID interfaceLuid)
 {
-	PMIB_IPINTERFACE_ROW iface;
-	DWORD success = 0;
-	for (int i = 0; i < (int)mInterfaces->NumEntries; ++i)
+	for (ULONG i = 0; i < mInterfaces->NumEntries; ++i)
 	{
-		iface = &mInterfaces->Table[i];
+		PMIB_IPINTERFACE_ROW iface = &mInterfaces->Table[i];
+
 		// Ignoring the target interface.
 		if (iface->InterfaceLuid.Value == interfaceLuid.Value || iface->UseAutomaticMetric || iface->Metric > MAX_METRIC)
 		{
@@ -41,34 +33,35 @@ void NetworkInterfaces::EnsureIfaceMetricIsHighest(NET_LUID interfaceLuid)
 		}
 
 		iface->Metric++;
-		if (iface->Family == AF_INET) {
+
+		if (AF_INET == iface->Family)
+		{
 			iface->SitePrefixLength = 0;
 		}
-		success = SetIpInterfaceEntry(iface);
-		if (success != NO_ERROR)
+
+		const auto status = SetIpInterfaceEntry(iface);
+
+		if (NO_ERROR != status)
 		{
 			std::stringstream ss;
-			ss << "Failed to increment metric for interface with LUID "
-				<< &iface->InterfaceLuid.Value
-				<< ": "
-				<< success;
-			throw std::runtime_error(ss.str());
-		}
 
+			ss << "Failed to increment metric for interface with LUID 0x"
+				<< std::hex << iface->InterfaceLuid.Value;
+
+			THROW_WINDOWS_ERROR(status, ss.str().c_str());
+		}
 	}
 }
 
 NetworkInterfaces::NetworkInterfaces()
 {
 	mInterfaces = nullptr;
-	DWORD success = 0;
 
-	success = GetIpInterfaceTable(AF_UNSPEC, &mInterfaces);
-	if (success != NO_ERROR)
+	const auto status = GetIpInterfaceTable(AF_UNSPEC, &mInterfaces);
+
+	if (NO_ERROR != status)
 	{
-		std::stringstream ss;
-		ss << "Failed to enumerate network interfaces: " << success;
-		throw std::runtime_error(ss.str());
+		THROW_WINDOWS_ERROR(status, "Failed to enumerate network interfaces");
 	}
 }
 
@@ -103,16 +96,12 @@ NET_LUID NetworkInterfaces::GetInterfaceLuid(const std::wstring &interfaceAlias)
 
 	const auto status = ConvertInterfaceAliasToLuid(interfaceAlias.c_str(), &interfaceLuid);
 
-	if (status != NO_ERROR)
+	if (NO_ERROR != status)
 	{
-		std::wstringstream ss;
+		const auto msg = std::wstring(L"Failed to resolve LUID from interface alias \"")
+			.append(interfaceAlias).append(L"\"");
 
-		ss << L"Failed to convert interface alias '"
-			<< interfaceAlias
-			<< "' into LUID. Error: "
-			<< status;
-
-		throw std::runtime_error(common::string::ToAnsi(ss.str()));
+		THROW_WINDOWS_ERROR(status, common::string::ToAnsi(msg).c_str());
 	}
 
 	return interfaceLuid;
