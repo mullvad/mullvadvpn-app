@@ -149,4 +149,9 @@ jsonrpc_client!(pub struct WireguardKeyProxy {
         account_token: AccountToken,
         public_key: wireguard::PublicKey
     ) -> RpcRequest<bool>;
+    pub fn remove_wg_key(
+        &mut self,
+        account_token: AccountToken,
+        public_key: wireguard::PublicKey
+    ) -> RpcRequest<bool>;
 });
