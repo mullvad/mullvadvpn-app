@@ -60,7 +60,7 @@
                 android:textStyle="bold"
                 android:text="@string/local_network_sharing"
                 />
-        <net.mullvad.mullvadvpn.ui.CellSwitch
+        <net.mullvad.mullvadvpn.ui.CellSwitch android:id="@+id/allow_lan_toggle"
                 android:layout_width="52dp"
                 android:layout_height="32dp"
                 android:layout_weight="0"
