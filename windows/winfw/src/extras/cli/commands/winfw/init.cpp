@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "init.h"
-#include "libcommon/string.h"
+#include <libcommon/string.h>
+#include <libcommon/error.h>
 
 namespace commands::winfw
 {
@@ -30,7 +31,7 @@ void Init::handleRequest(const std::vector<std::wstring> &arguments)
 
 		if (keyvalue.empty() || 0 != keyvalue.begin()->first.compare(L"timeout"))
 		{
-			throw std::runtime_error("Invalid argument. Cannot complete request.");
+			THROW_ERROR("Invalid argument. Cannot complete request.");
 		}
 
 		timeout = wcstoul(keyvalue.begin()->second.c_str(), nullptr, 10);

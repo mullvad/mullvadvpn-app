@@ -3,6 +3,7 @@
 #include <libcommon/filesystem.h>
 #include <libcommon/fileenumerator.h>
 #include <libcommon/string.h>
+#include <libcommon/error.h>
 #include <libcommon/memory.h>
 #include <libcommon/security.h>
 #include <libcommon/process/process.h>
@@ -80,7 +81,7 @@ std::wstring GetSystemUserLocalAppData()
 
 	if (nullptr == processHandle)
 	{
-		throw std::runtime_error("Failed to access the \"LSASS\" process");
+		THROW_ERROR("Failed to access the \"LSASS\" process");
 	}
 
 	HANDLE processToken;
@@ -91,7 +92,7 @@ std::wstring GetSystemUserLocalAppData()
 
 	if (FALSE == status)
 	{
-		throw std::runtime_error("Failed to acquire process token for the \"LSASS\" process");
+		THROW_ERROR("Failed to acquire process token for the \"LSASS\" process");
 	}
 
 	sd += [&]()

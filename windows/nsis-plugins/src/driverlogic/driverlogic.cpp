@@ -2,6 +2,7 @@
 #include "../error.h"
 #include "context.h"
 #include <libcommon/string.h>
+#include <libcommon/error.h>
 #include <libcommon/valuemapper.h>
 #include <windows.h>
 
@@ -32,7 +33,7 @@ void PinDll()
 
 	if (0 == GetModuleFileNameW((HINSTANCE)&__ImageBase, self, _countof(self)))
 	{
-		throw std::runtime_error("Failed to pin plugin module");
+		THROW_ERROR("Failed to pin plugin module");
 	}
 
 	//
@@ -193,7 +194,7 @@ void __declspec(dllexport) NSISCALL RemoveMullvadTap
 
 			default:
 			{
-				throw std::runtime_error("Unexpected case");
+				THROW_ERROR("Unexpected case");
 			}
 		}
 	}

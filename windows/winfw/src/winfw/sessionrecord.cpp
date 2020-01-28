@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "sessionrecord.h"
 #include "libwfp/objectdeleter.h"
+#include <libcommon/error.h>
 #include <atomic>
 #include <cstdint>
-#include <stdexcept>
 
 namespace
 {
@@ -47,7 +47,7 @@ void SessionRecord::purge(wfp::FilterEngine &engine)
 		}
 		default:
 		{
-			throw std::logic_error("Missing case handler in switch clause");
+			THROW_ERROR("Missing case handler in switch clause");
 		}
 	};
 }

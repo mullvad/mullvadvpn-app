@@ -7,7 +7,7 @@
 #include "libwfp/conditions/conditionprotocol.h"
 #include "libwfp/conditions/conditionport.h"
 #include "libwfp/conditions/conditionip.h"
-#include <stdexcept>
+#include <libcommon/error.h>
 
 using namespace wfp::conditions;
 
@@ -27,7 +27,7 @@ std::unique_ptr<PermitDhcpServer> PermitDhcpServer::WithExtent(Extent extent)
 {
 	if (extent != Extent::IPv4Only)
 	{
-		throw std::runtime_error("The only supported mode is IPv4Only");
+		THROW_ERROR("The only supported mode is IPv4Only");
 	}
 
 	return std::unique_ptr<PermitDhcpServer>(new PermitDhcpServer);

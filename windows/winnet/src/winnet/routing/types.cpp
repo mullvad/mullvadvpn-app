@@ -2,6 +2,7 @@
 #include "types.h"
 #include "helpers.h"
 #include <libcommon/string.h>
+#include <libcommon/error.h>
 
 namespace winnet::routing
 {
@@ -12,16 +13,16 @@ Node::Node(const std::optional<std::wstring> &deviceName, const std::optional<No
 {
 	if (false == m_deviceName.has_value() && false == m_gateway.has_value())
 	{
-		throw std::runtime_error("Invalid node definition");
+		THROW_ERROR("Invalid node definition");
 	}
 
 	if (m_deviceName.has_value())
 	{
-		const auto trimmed = common::string::Trim<>(m_deviceName.value());
+		auto trimmed = common::string::Trim<>(m_deviceName.value());
 
 		if (trimmed.empty())
 		{
-			throw std::runtime_error("Invalid device name in node definition");
+			THROW_ERROR("Invalid device name in node definition");
 		}
 
 		m_deviceName = std::move(trimmed);

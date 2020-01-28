@@ -15,7 +15,6 @@
 
 #include <vector>
 #include <list>
-#include <stdexcept>
 #include <sstream>
 #include <algorithm>
 
@@ -64,7 +63,7 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 
 	if (hNet == INVALID_HANDLE_VALUE)
 	{
-		THROW_GLE("SetupDiOpenDevRegKey");
+		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiOpenDevRegKey");
 	}
 
 	std::vector<wchar_t> instanceId(MAX_PATH + sizeof(L'\0'));
@@ -82,7 +81,10 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 
 	RegCloseKey(hNet);
 
-	THROW_UNLESS(ERROR_SUCCESS, status, "RegGetValueW");
+	if (ERROR_SUCCESS != status)
+	{
+		THROW_WINDOWS_ERROR(status, "RegGetValueW");
+	}
 
 	instanceId[strSize / sizeof(wchar_t)] = L'\0';
 
@@ -114,7 +116,11 @@ std::wstring GetDeviceInstanceId(
 		deviceInstanceId.size(),
 		nullptr
 	);
-	THROW_GLE_IF(FALSE, status, "SetupDiGetDeviceInstanceIdW() failed");
+
+	if (FALSE == status)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiGetDeviceInstanceIdW() failed");
+	}
 
 	return deviceInstanceId.data();
 }
@@ -145,7 +151,12 @@ std::wstring GetDeviceStringProperty(
 
 	if (FALSE == sizeStatus)
 	{
-		THROW_UNLESS(ERROR_INSUFFICIENT_BUFFER, GetLastError(), "SetupDiGetDevicePropertyW");
+		const auto lastError = GetLastError();
+
+		if (ERROR_INSUFFICIENT_BUFFER != lastError)
+		{
+			THROW_WINDOWS_ERROR(lastError, "SetupDiGetDevicePropertyW");
+		}
 	}
 
 	std::vector<wchar_t> buffer;
@@ -166,7 +177,10 @@ std::wstring GetDeviceStringProperty(
 		0
 	);
 
-	THROW_GLE_IF(FALSE, status, "Failed to read device property");
+	if (FALSE == status)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "Failed to read device property");
+	}
 
 	return buffer.data();
 }
@@ -198,7 +212,11 @@ std::optional<std::wstring> GetDeviceRegistryStringProperty(
 	{
 		// ERROR_INVALID_DATA may mean that the property does not exist
 		// TODO: Check if there may be other causes.
-		THROW_UNLESS(ERROR_INVALID_DATA, lastError, "SetupDiGetDeviceRegistryPropertyW");
+		if (ERROR_INVALID_DATA != lastError)
+		{
+			THROW_WINDOWS_ERROR(lastError, "SetupDiGetDeviceRegistryPropertyW");
+		}
+
 		return std::nullopt;
 	}
 
@@ -219,7 +237,10 @@ std::optional<std::wstring> GetDeviceRegistryStringProperty(
 		nullptr
 	);
 
-	THROW_GLE_IF(FALSE, status, "Failed to read device property");
+	if (FALSE == status)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "Failed to read device property");
+	}
 
 	return { buffer.data() };
 }
@@ -234,7 +255,11 @@ std::set<Context::NetworkAdapter> GetTapAdapters()
 		nullptr,
 		DIGCF_PRESENT
 	);
-	THROW_GLE_IF(INVALID_HANDLE_VALUE, devInfo, "SetupDiGetClassDevs() failed");
+
+	if (INVALID_HANDLE_VALUE == devInfo)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiGetClassDevs() failed");
+	}
 
 	common::memory::ScopeDestructor scopeDestructor;
 	scopeDestructor += [devInfo]()
@@ -251,12 +276,15 @@ std::set<Context::NetworkAdapter> GetTapAdapters()
 
 		if (FALSE == SetupDiEnumDeviceInfo(devInfo, memberIndex, &devInfoData))
 		{
-			if (ERROR_NO_MORE_ITEMS == GetLastError())
+			const auto lastError = GetLastError();
+
+			if (ERROR_NO_MORE_ITEMS == lastError)
 			{
 				// Done
 				break;
 			}
-			THROW_GLE("SetupDiEnumDeviceInfo() failed while enumerating network adapters");
+
+			THROW_WINDOWS_ERROR(lastError, "SetupDiEnumDeviceInfo() failed while enumerating network adapters");
 		}
 
 		//
@@ -411,14 +439,14 @@ Context::NetworkAdapter Context::getNewAdapter()
 	{
 		LogAdapters(L"Enumerable network TAP adapters", m_currentState);
 
-		throw std::runtime_error("Unable to identify recently added TAP adapter");
+		THROW_ERROR("Unable to identify recently added TAP adapter");
 	}
 	else if (added.size() > 1)
 	{
 		LogAdapters(L"Enumerable network TAP adapters", m_currentState);
 		LogAdapters(L"New TAP adapters:", added);
 
-		throw std::runtime_error("Identified more TAP adapters than expected");
+		THROW_ERROR("Identified more TAP adapters than expected");
 	}
 
 	return *added.begin();
@@ -432,7 +460,7 @@ Context::DeletionResult Context::DeleteMullvadAdapter()
 
 	if (!mullvadAdapter.has_value())
 	{
-		throw std::runtime_error("Mullvad TAP adapter not found");
+		THROW_ERROR("Mullvad TAP adapter not found");
 	}
 
 	const auto mullvadGuid = mullvadAdapter.value().guid;
@@ -444,7 +472,10 @@ Context::DeletionResult Context::DeleteMullvadAdapter()
 		DIGCF_PRESENT
 	);
 
-	THROW_GLE_IF(INVALID_HANDLE_VALUE, devInfo, "SetupDiGetClassDevs() failed");
+	if (INVALID_HANDLE_VALUE == devInfo)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiGetClassDevs() failed");
+	}
 
 	common::memory::ScopeDestructor cleanupDevList;
 	cleanupDevList += [&devInfo]()
@@ -461,11 +492,14 @@ Context::DeletionResult Context::DeleteMullvadAdapter()
 		
 		if (FALSE == SetupDiEnumDeviceInfo(devInfo, memberIndex, &devInfoData))
 		{
-			if (ERROR_NO_MORE_ITEMS == GetLastError())
+			const auto lastError = GetLastError();
+
+			if (ERROR_NO_MORE_ITEMS == lastError)
 			{
 				break;
 			}
-			THROW_GLE("Error enumerating network adapters");
+
+			THROW_WINDOWS_ERROR(lastError, "Error enumerating network adapters");
 		}
 
 		const auto hardwareId = GetDeviceRegistryStringProperty(devInfo, &devInfoData, SPDRP_HARDWAREID);
@@ -484,7 +518,7 @@ Context::DeletionResult Context::DeleteMullvadAdapter()
 				&devInfoData
 			))
 			{
-				THROW_GLE("Error removing Mullvad TAP device");
+				THROW_WINDOWS_ERROR(GetLastError(), "Error removing Mullvad TAP device");
 			}
 		}
 	}
