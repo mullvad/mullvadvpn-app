@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add reconnect button to the desktop app
 - Add monochrome option for the tray icon on Windows and Linux.
 
+#### Android
+- Add option to enable or disable local network sharing.
+
 ### Changed
 - Change project copyright and company name from Amagicom AB to Mullvad VPN AB
 - Only reconnect when settings change if a relevant tunnel protocol is used.
