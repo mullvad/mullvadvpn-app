@@ -34,6 +34,13 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
                     forcefullySetState(CellSwitch.State.OFF)
                 }
             }
+
+            listener = { state ->
+                when (state) {
+                    CellSwitch.State.ON -> daemon.setAllowLan(true)
+                    CellSwitch.State.OFF -> daemon.setAllowLan(false)
+                }
+            }
         }
 
         settingsListener.onAllowLanChange = { allowLan ->
