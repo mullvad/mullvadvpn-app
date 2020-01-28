@@ -4,6 +4,7 @@
 #include "cli/propertydecorator.h"
 #include "cli/filterengineprovider.h"
 #include "libwfp/objectmonitor.h"
+#include <libcommon/error.h>
 #include <conio.h>
 
 namespace commands::monitor
@@ -29,7 +30,7 @@ void Events::handleRequest(const std::vector<std::wstring> &arguments)
 {
 	if (false == arguments.empty())
 	{
-		throw std::runtime_error("Unsupported argument(s). Cannot complete request.");
+		THROW_ERROR("Unsupported argument(s). Cannot complete request.");
 	}
 
 	wfp::ObjectMonitor objectMonitor(FilterEngineProvider::Instance().get());

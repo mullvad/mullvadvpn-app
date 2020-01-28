@@ -6,8 +6,8 @@
 #include "libwfp/objectdeleter.h"
 #include "libwfp/transaction.h"
 #include "libcommon/memory.h"
+#include <libcommon/error.h>
 #include <utility>
-#include <stdexcept>
 
 namespace
 {
@@ -63,7 +63,7 @@ void ValidateObject(const wfp::IIdentifiable &object)
 
 	if (registry.end() == registry.find(object.id()))
 	{
-		throw std::runtime_error("Attempting to install non-registered WFP object");
+		THROW_ERROR("Attempting to install non-registered WFP object");
 	}
 }
 
@@ -100,7 +100,7 @@ bool SessionController::addProvider(wfp::ProviderBuilder &providerBuilder)
 {
 	if (false == m_activeTransaction)
 	{
-		throw std::runtime_error("Cannot add provider outside transaction");
+		THROW_ERROR("Cannot add provider outside transaction");
 	}
 
 	ValidateObject(providerBuilder);
@@ -121,7 +121,7 @@ bool SessionController::addSublayer(wfp::SublayerBuilder &sublayerBuilder)
 {
 	if (false == m_activeTransaction)
 	{
-		throw std::runtime_error("Cannot add sublayer outside transaction");
+		THROW_ERROR("Cannot add sublayer outside transaction");
 	}
 
 	ValidateObject(sublayerBuilder);
@@ -142,7 +142,7 @@ bool SessionController::addFilter(wfp::FilterBuilder &filterBuilder, const wfp::
 {
 	if (false == m_activeTransaction)
 	{
-		throw std::runtime_error("Cannot add filter outside transaction");
+		THROW_ERROR("Cannot add filter outside transaction");
 	}
 
 	ValidateObject(filterBuilder);
@@ -163,7 +163,7 @@ bool SessionController::executeTransaction(TransactionFunctor operation)
 {
 	if (m_activeTransaction.exchange(true))
 	{
-		throw std::runtime_error("Recursive/concurrent transactions are not supported");
+		THROW_ERROR("Recursive/concurrent transactions are not supported");
 	}
 
 	common::memory::ScopeDestructor scopeDestructor;
@@ -194,7 +194,7 @@ bool SessionController::executeReadOnlyTransaction(TransactionFunctor operation)
 {
 	if (m_activeTransaction.exchange(true))
 	{
-		throw std::runtime_error("Recursive/concurrent transactions are not supported");
+		THROW_ERROR("Recursive/concurrent transactions are not supported");
 	}
 
 	common::memory::ScopeDestructor scopeDestructor;
@@ -216,7 +216,7 @@ uint32_t SessionController::checkpoint()
 {
 	if (m_activeTransaction)
 	{
-		throw std::runtime_error("Cannot read checkpoint key while in transaction");
+		THROW_ERROR("Cannot read checkpoint key while in transaction");
 	}
 
 	if (m_records.empty())
@@ -241,14 +241,14 @@ void SessionController::revert(uint32_t key)
 {
 	if (false == m_activeTransaction)
 	{
-		throw std::runtime_error("Cannot revert session state outside transaction");
+		THROW_ERROR("Cannot revert session state outside transaction");
 	}
 
 	size_t elementIndex = 0;
 
 	if (false == CheckpointKeyToIndex(m_transactionRecords, key, elementIndex))
 	{
-		throw std::runtime_error("Invalid checkpoint key (checkpoint may have been overwritten?)");
+		THROW_ERROR("Invalid checkpoint key (checkpoint may have been overwritten?)");
 	}
 
 	const size_t numRemove = m_transactionRecords.size() - (elementIndex + 1);
@@ -260,7 +260,7 @@ void SessionController::reset()
 {
 	if (false == m_activeTransaction)
 	{
-		throw std::runtime_error("Cannot reset session state outside transaction");
+		THROW_ERROR("Cannot reset session state outside transaction");
 	}
 
 	rewindState(m_transactionRecords.size());

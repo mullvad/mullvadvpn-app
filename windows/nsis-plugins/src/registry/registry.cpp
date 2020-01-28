@@ -2,11 +2,11 @@
 #include "../error.h"
 #include <windows.h>
 #include <libcommon/string.h>
+#include <libcommon/error.h>
 #include <libcommon/registry/registry.h>
 #include <libcommon/registry/registrypath.h>
 #include <nsis/pluginapi.h>
 #include <string>
-#include <stdexcept>
 
 namespace
 {
@@ -20,7 +20,7 @@ std::wstring PopString()
 
 	if (!g_stacktop || !*g_stacktop)
 	{
-		throw std::runtime_error("NSIS variable stack is corrupted");
+		THROW_ERROR("NSIS variable stack is corrupted");
 	}
 
 	stack_t *th = *g_stacktop;

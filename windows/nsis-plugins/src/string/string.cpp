@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include <nsis/pluginapi.h>
-#include <stdexcept>
+#include <libcommon/error.h>
 #include <string>
 
 // Suppress warnings caused by broken legacy code
@@ -21,7 +21,7 @@ std::wstring PopString()
 
 	if (!g_stacktop || !*g_stacktop)
 	{
-		throw std::runtime_error("NSIS variable stack is corrupted");
+		THROW_ERROR("NSIS variable stack is corrupted");
 	}
 
 	stack_t *th = *g_stacktop;

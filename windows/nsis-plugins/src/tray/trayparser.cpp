@@ -1,20 +1,20 @@
 #include "stdafx.h"
 #include "trayparser.h"
-#include <stdexcept>
+#include <libcommon/error.h>
 #include <algorithm>
 
 TrayParser::TrayParser(const std::vector<uint8_t> &blob)
 {
 	if (blob.size() < sizeof(ICON_STREAMS_HEADER))
 	{
-		throw std::runtime_error("Invalid icon streams header - truncated");
+		THROW_ERROR("Invalid icon streams header - truncated");
 	}
 
 	auto header = reinterpret_cast<const ICON_STREAMS_HEADER *>(&blob[0]);
 
 	if (header->HeaderSize != sizeof(ICON_STREAMS_HEADER))
 	{
-		throw std::runtime_error("Invalid icon streams header - size mismatch");
+		THROW_ERROR("Invalid icon streams header - size mismatch");
 	}
 
 	memcpy(&m_header, header, sizeof(ICON_STREAMS_HEADER));
@@ -30,7 +30,7 @@ TrayParser::TrayParser(const std::vector<uint8_t> &blob)
 
 	if (blob.size() < sizeof(ICON_STREAMS_HEADER) + sizeof(ICON_STREAMS_RECORD))
 	{
-		throw std::runtime_error("Invalid icon streams - truncated");
+		THROW_ERROR("Invalid icon streams - truncated");
 	}
 
 	const auto lastValidRecordOffset = blob.size() - sizeof(ICON_STREAMS_RECORD);
@@ -38,7 +38,7 @@ TrayParser::TrayParser(const std::vector<uint8_t> &blob)
 	if (header->OffsetFirstRecord < header->HeaderSize
 		|| header->OffsetFirstRecord > lastValidRecordOffset)
 	{
-		throw std::runtime_error("Invalid icon streams header - record offset");
+		THROW_ERROR("Invalid icon streams header - record offset");
 	}
 
 	const auto estimatedSize = header->HeaderSize
@@ -47,7 +47,7 @@ TrayParser::TrayParser(const std::vector<uint8_t> &blob)
 
 	if (blob.size() != estimatedSize)
 	{
-		throw std::runtime_error("Invalid icon streams - size mismatch");
+		THROW_ERROR("Invalid icon streams - size mismatch");
 	}
 
 	//

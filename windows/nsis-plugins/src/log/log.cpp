@@ -28,7 +28,7 @@ std::wstring PopString()
 
 	if (!g_stacktop || !*g_stacktop)
 	{
-		throw std::runtime_error("NSIS variable stack is corrupted");
+		THROW_ERROR("NSIS variable stack is corrupted");
 	}
 
 	stack_t *th = *g_stacktop;
@@ -57,7 +57,7 @@ void PinDll()
 
 	if (0 == GetModuleFileNameW((HINSTANCE)&__ImageBase, self, _countof(self)))
 	{
-		throw std::runtime_error("Failed to pin plugin module");
+		THROW_ERROR("Failed to pin plugin module");
 	}
 
 	//
@@ -99,12 +99,20 @@ std::wstring GetWindowsVersion()
 	DWORD dummy;
 
 	const auto versionSize = GetFileVersionInfoSizeW(systemModule.c_str(), &dummy);
-	THROW_GLE_IF(0, versionSize, "GetFileVersionInfoSizeW");
+
+	if (0 == versionSize)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "GetFileVersionInfoSizeW");
+	}
 
 	std::vector<uint8_t> buf(versionSize);
 
 	auto status = GetFileVersionInfoW(systemModule.c_str(), 0, static_cast<DWORD>(buf.size()), &buf[0]);
-	THROW_GLE_IF(FALSE, status, "GetFileVersionInfoW");
+
+	if (FALSE == status)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "GetFileVersionInfoW");
+	}
 
 	//
 	// Get the translation table.
@@ -121,11 +129,15 @@ std::wstring GetWindowsVersion()
 	UINT translationsSize = 0;
 
 	status = VerQueryValueW(&buf[0], L"\\VarFileInfo\\Translation", reinterpret_cast<LPVOID *>(&translations), &translationsSize);
-	THROW_GLE_IF(FALSE, status, "VerQueryValueW");
+
+	if (FALSE == status)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "VerQueryValueW");
+	}
 
 	if (translationsSize < sizeof(LANGANDCODEPAGE))
 	{
-		throw std::runtime_error("Invalid VERSION_INFO translation table");
+		THROW_ERROR("Invalid VERSION_INFO translation table");
 	}
 
 	//
@@ -147,7 +159,11 @@ std::wstring GetWindowsVersion()
 	UINT productVersionSize = 0;
 
 	status = VerQueryValueW(&buf[0], productVersionName.c_str(), &productVersion, &productVersionSize);
-	THROW_GLE_IF(FALSE, status, "VerQueryValueW");
+
+	if (FALSE == status)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "VerQueryValueW");
+	}
 
 	// Size returned is the length in characters.
 	std::wstring version(reinterpret_cast<const wchar_t *>(productVersion), productVersionSize);
@@ -160,7 +176,7 @@ std::wstring GetWindowsVersion()
 
 	if (version.empty())
 	{
-		throw std::runtime_error("Invalid version information");
+		THROW_ERROR("Invalid version information");
 	}
 
 	return version;
@@ -215,7 +231,7 @@ void __declspec(dllexport) NSISCALL Initialize
 							<< logpath
 							<< L"\"";
 
-						throw std::runtime_error(common::string::ToAnsi(ss.str()));
+						THROW_ERROR(common::string::ToAnsi(ss.str()).c_str());
 					}
 				}
 
@@ -226,7 +242,6 @@ void __declspec(dllexport) NSISCALL Initialize
 				break;
 
 			}
-
 			case static_cast<int>(LogTarget::LOG_VOID):
 			{
 				g_logger = new Logger(std::make_unique<VoidLogSink>());
@@ -234,10 +249,9 @@ void __declspec(dllexport) NSISCALL Initialize
 				break;
 
 			}
-
 			default:
 			{
-				throw std::runtime_error("Invalid log target");
+				THROW_ERROR("Invalid log target");
 			}
 		}
 	}

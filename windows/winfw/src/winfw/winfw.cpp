@@ -3,7 +3,7 @@
 #include "fwcontext.h"
 #include "objectpurger.h"
 #include <windows.h>
-#include <stdexcept>
+#include <libcommon/error.h>
 #include <optional>
 
 namespace
@@ -26,7 +26,7 @@ std::optional<FwContext::PingableHosts> ConvertPingableHosts(const PingableHosts
 	if (nullptr == pingableHosts->hosts
 		|| 0 == pingableHosts->numHosts)
 	{
-		throw std::runtime_error("Invalid PingableHosts structure");
+		THROW_ERROR("Invalid PingableHosts structure");
 	}
 
 	FwContext::PingableHosts converted;

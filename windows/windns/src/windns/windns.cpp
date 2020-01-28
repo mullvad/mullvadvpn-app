@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <libcommon/guid.h>
 #include <libcommon/string.h>
+#include <libcommon/error.h>
 #include <libshared/network/interfaceutils.h>
 #include <libcommon/logging/ilogsink.h>
 #include <libshared/logging/logsinkadapter.h>
@@ -53,7 +54,7 @@ uint32_t ConvertInterfaceAliasToIndex(const std::wstring &interfaceAlias)
 		const auto err = std::wstring(L"Could not resolve LUID of interface: \"")
 			.append(interfaceAlias).append(L"\"");
 
-		throw std::runtime_error(common::string::ToAnsi(err).c_str());
+		THROW_ERROR(common::string::ToAnsi(err).c_str());
 	}
 
 	NET_IFINDEX index;
@@ -65,7 +66,7 @@ uint32_t ConvertInterfaceAliasToIndex(const std::wstring &interfaceAlias)
 		ss << L"Could not resolve index of interface: \"" << interfaceAlias << L"\""
 			<< L"with LUID: 0x" << std::hex << luid.Value;
 
-		throw std::runtime_error(common::string::ToAnsi(ss.str()).c_str());
+		THROW_ERROR(common::string::ToAnsi(ss.str()).c_str());
 	}
 
 	return static_cast<uint32_t>(index);
@@ -119,8 +120,10 @@ AdapterDnsAddresses GetAdapterDnsAddresses(const std::wstring &adapterAlias)
 		return out;
 	}
 
-	throw std::runtime_error(std::string("Could not find interface: ")
-		.append(common::string::ToAnsi(adapterAlias)).c_str());
+	const auto msg = std::string("Could not find interface with alias: ")
+		.append(common::string::ToAnsi(adapterAlias));
+
+	THROW_ERROR(msg.c_str());
 }
 
 AdapterDnsAddresses ConvertAddresses(
@@ -140,7 +143,7 @@ AdapterDnsAddresses ConvertAddresses(
 
 			if (1 != InetPtonW(AF_INET, ipv4Servers[i], &converted))
 			{
-				throw std::runtime_error("Failed to convert IPv4 address");
+				THROW_ERROR("Failed to convert IPv4 address");
 			}
 
 			out.ipv4.push_back(converted);
@@ -155,7 +158,7 @@ AdapterDnsAddresses ConvertAddresses(
 
 			if (1 != InetPtonW(AF_INET6, ipv6Servers[i], &converted))
 			{
-				throw std::runtime_error("Failed to convert IPv6 address");
+				THROW_ERROR("Failed to convert IPv6 address");
 			}
 
 			out.ipv6.push_back(converted);

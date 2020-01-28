@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "policy.h"
-#include "libcommon/string.h"
+#include <libcommon/string.h>
+#include <libcommon/error.h>
 #include "winfw/winfw.h"
 #include <functional>
 
@@ -80,7 +81,7 @@ void Policy::handleRequest(const std::vector<std::wstring> &arguments)
 {
 	if (arguments.empty())
 	{
-		throw std::runtime_error("Missing subcommand. Cannot complete request.");
+		THROW_ERROR("Missing subcommand. Cannot complete request.");
 	}
 
 	auto subcommand = arguments[0];

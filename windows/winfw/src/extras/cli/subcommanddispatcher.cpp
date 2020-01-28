@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "subcommanddispatcher.h"
-#include "libcommon/string.h"
+#include <libcommon/string.h>
+#include <libcommon/error.h>
 #include <sstream>
-#include <stdexcept>
 #include <utility>
 
 void SubcommandDispatcher::addSubcommand(const std::wstring &command, Handler handler)
@@ -20,7 +20,7 @@ void SubcommandDispatcher::dispatch(const std::wstring &command, const std::vect
 
 		ss << L"Unsupported subcommand '" << command << "'. Cannot complete request.";
 
-		throw std::runtime_error(common::string::ToAnsi(ss.str()).c_str());
+		THROW_ERROR(common::string::ToAnsi(ss.str()).c_str());
 	}
 
 	selectedCommand->second(common::string::SplitKeyValuePairs(arguments));

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "netsh.h"
 #include <libcommon/string.h>
+#include <libcommon/error.h>
 #include <libcommon/filesystem.h>
 #include <libcommon/guid.h>
 #include <sstream>
@@ -27,7 +28,7 @@ __declspec(noreturn) void ThrowWithDetails(std::string &&error, common::process:
 
 	const auto msg = std::string(error).append(": ").append(details);
 
-	throw std::runtime_error(msg.c_str());
+	THROW_ERROR(msg.c_str());
 }
 
 } // anonymous namespace
@@ -53,7 +54,7 @@ void NetSh::setIpv4StaticDns(uint32_t interfaceIndex,
 
 	if (nameServers.empty())
 	{
-		throw std::runtime_error("Invalid list of name servers (zero length list)");
+		THROW_ERROR("Invalid list of name servers (zero length list)");
 	}
 
 	{
@@ -125,7 +126,7 @@ void NetSh::setIpv6StaticDns(uint32_t interfaceIndex,
 
 	if (nameServers.empty())
 	{
-		throw std::runtime_error("Invalid list of name servers (zero length list)");
+		THROW_ERROR("Invalid list of name servers (zero length list)");
 	}
 
 	{

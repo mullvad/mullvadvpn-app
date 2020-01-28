@@ -39,7 +39,7 @@ InterfaceUtils::NetworkAdapter::NetworkAdapter(
 		IID guidObj = { 0 };
 		if (S_OK != IIDFromString(&m_guid[0], &guidObj))
 		{
-			throw std::runtime_error("IIDFromString() failed");
+			THROW_ERROR("IIDFromString() failed");
 		}
 
 		m_alias = nci.getConnectionName(guidObj);
@@ -59,7 +59,10 @@ std::set<InterfaceUtils::NetworkAdapter> InterfaceUtils::GetAllAdapters(ULONG fa
 
 	auto status = GetAdaptersAddresses(family, flags, nullptr, nullptr, &bufferSize);
 
-	THROW_UNLESS(ERROR_BUFFER_OVERFLOW, status, "Probe for adapter listing buffer size");
+	if (ERROR_BUFFER_OVERFLOW != status)
+	{
+		THROW_WINDOWS_ERROR(status, "Probe for adapter listing buffer size");
+	}
 
 	// Memory is cheap, this avoids a looping construct.
 	bufferSize *= 2;
@@ -69,7 +72,10 @@ std::set<InterfaceUtils::NetworkAdapter> InterfaceUtils::GetAllAdapters(ULONG fa
 
 	status = GetAdaptersAddresses(family, flags, nullptr, addresses, &bufferSize);
 
-	THROW_UNLESS(ERROR_SUCCESS, status, "Retrieve adapter listing");
+	if (ERROR_SUCCESS != status)
+	{
+		THROW_WINDOWS_ERROR(status, "Retrieve adapter listing");
+	}
 
 	std::set<NetworkAdapter> adapters;
 
@@ -94,7 +100,12 @@ void InterfaceUtils::AddDeviceIpAddresses(NET_LUID device, const std::vector<SOC
 		row.InterfaceLuid = device;
 		row.Address = address;
 
-		THROW_UNLESS(NO_ERROR, CreateUnicastIpAddressEntry(&row), "Assign IP address on network interface");
+		const auto status = CreateUnicastIpAddressEntry(&row);
+
+		if (NO_ERROR != status)
+		{
+			THROW_WINDOWS_ERROR(status, "Assign IP address on network interface");
+		}
 	}
 }
 
@@ -171,7 +182,7 @@ std::wstring InterfaceUtils::GetTapInterfaceAlias()
 		}
 	}
 
-	throw std::runtime_error("Unable to find TAP adapter");
+	THROW_ERROR("Unable to find TAP adapter");
 }
 
 }

@@ -4,6 +4,7 @@
 #include "cli/filterengineprovider.h"
 #include "cli/propertydecorator.h"
 #include "libwfp/objectenumerator.h"
+#include <libcommon/error.h>
 
 namespace commands::list
 {
@@ -28,7 +29,7 @@ void Layers::handleRequest(const std::vector<std::wstring> &arguments)
 {
 	if (false == arguments.empty())
 	{
-		throw std::runtime_error("Unsupported argument(s). Cannot complete request.");
+		THROW_ERROR("Unsupported argument(s). Cannot complete request.");
 	}
 
 	PrettyPrintOptions options;
