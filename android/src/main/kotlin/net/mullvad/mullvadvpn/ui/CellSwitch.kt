@@ -25,8 +25,11 @@ class CellSwitch : LinearLayout {
             if (field != value) {
                 field = value
                 animateToState()
+                listener?.invoke(value)
             }
         }
+
+    var listener: ((State) -> Unit)? = null
 
     private val onColor = resources.getColor(R.color.green)
     private val offColor = resources.getColor(R.color.red)
