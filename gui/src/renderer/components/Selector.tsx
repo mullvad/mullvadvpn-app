@@ -6,6 +6,7 @@ import * as Cell from './Cell';
 export interface ISelectorItem<T> {
   label: string;
   value: T;
+  disabled?: boolean;
 }
 
 interface ISelectorProps<T> {
@@ -36,6 +37,7 @@ export default class Selector<T> extends Component<ISelectorProps<T>> {
           key={i}
           value={item.value}
           selected={selected}
+          disabled={item.disabled}
           ref={selected ? this.props.selectedCellRef : undefined}
           onSelect={this.props.onSelect}>
           {item.label}
@@ -59,6 +61,7 @@ export default class Selector<T> extends Component<ISelectorProps<T>> {
 interface ISelectorCellProps<T> {
   value: T;
   selected: boolean;
+  disabled?: boolean;
   onSelect: (value: T) => void;
   children?: React.ReactText;
 }
@@ -66,7 +69,10 @@ interface ISelectorCellProps<T> {
 export class SelectorCell<T> extends Component<ISelectorCellProps<T>> {
   public render() {
     return (
-      <Cell.CellButton onPress={this.onPress} selected={this.props.selected}>
+      <Cell.CellButton
+        onPress={this.onPress}
+        selected={this.props.selected}
+        disabled={this.props.disabled}>
         <Cell.Icon
           style={this.props.selected ? undefined : styles.invisibleIcon}
           source="icon-tick"
