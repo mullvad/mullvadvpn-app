@@ -10,7 +10,7 @@ openssl req -new -newkey rsa:4096 \
   -outform pem -keyform pem \
   -keyout private_key.pem \
   -out cert_signing_request \
-  -subj "/C=SE/O=Mullvad VPN AB/emailAddress=<YOUR_EMAIL>"
+  -subj "/C=SE/O=<ORGANIZATION_NAME>/emailAddress=<YOUR_EMAIL>"
 ```
 
 ## [Alternative] Create CSR using an existing private key
@@ -20,7 +20,7 @@ openssl req -new \
   -outform pem -keyform pem \
   -key private_key.pem \
   -out cert_signing_request \
-  -subj "/C=SE/O=Mullvad VPN AB/emailAddress=<YOUR_EMAIL>"
+  -subj "/C=SE/O=<ORGANIZATION_NAME>/emailAddress=<YOUR_EMAIL>"
 ```
 
 # Upload Certificate Signing Request (CSR) to Apple
@@ -113,7 +113,7 @@ Follow these steps to add each of provisioning profiles:
 1. Choose "App Store" under "Distribution", then hit "Continue"
 1. Choose the App ID (see the table above) and hit "Continue"
 1. Choose the distribution certificate that you had created after uploading the CSR 
-   (i.e `Mullvad VPN AB (Distribution)`)
+   (i.e `<ORGANIZATION_NAME> (Distribution)`)
 1. Type in the profile name (see the table above) and hit "Generate"
 1. Download the certificate in `ios/iOS Provisioning Profiles` directory. Create the directory if it 
    does not exist. 
