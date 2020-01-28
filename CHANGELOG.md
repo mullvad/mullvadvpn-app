@@ -41,6 +41,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Sign all binaries in the app instead of just the installer.
 
+#### Android
+- Add option to enable or disable local network sharing.
+
 ### Changed
 - Increase OpenVPN ping timeout from 20 to 25 seconds. Might make working tunnels disconnect
   a bit less frequently.
