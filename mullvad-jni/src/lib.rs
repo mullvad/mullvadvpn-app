@@ -650,6 +650,28 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAcco
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAllowLan(
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    allow_lan: jboolean,
+) {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let allow_lan = bool::from_java(&env, allow_lan);
+
+        if let Err(error) = daemon_interface.set_allow_lan(allow_lan) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set allow LAN")
+            );
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdown(
     _: JNIEnv<'_>,
     _: JObject<'_>,
