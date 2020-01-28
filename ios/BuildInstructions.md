@@ -162,7 +162,7 @@ agvtool bump
 # Keychain quirks
 
 It's possible that `codesign` will keep throwing the password prompts for Keychain, in that case try
-the following commands __after__ importing the credentials into Keychain:
+running the following commands __after__ importing the credentials into Keychain:
 
 ```
 security unlock-keychain <KEYCHAIN>
