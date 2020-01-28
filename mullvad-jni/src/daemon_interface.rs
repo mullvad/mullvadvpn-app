@@ -168,6 +168,14 @@ impl DaemonInterface {
         rx.wait().map_err(|_| Error::NoResponse)
     }
 
+    pub fn set_allow_lan(&self, allow_lan: bool) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::SetAllowLan(tx, allow_lan))?;
+
+        rx.wait().map_err(|_| Error::NoResponse)
+    }
+
     pub fn shutdown(&self) -> Result<()> {
         self.send_command(ManagementCommand::Shutdown)
     }
