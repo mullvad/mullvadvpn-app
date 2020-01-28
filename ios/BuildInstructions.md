@@ -100,9 +100,7 @@ rm distribution.{pem,cer} \
 
 # Create iOS provisioning profiles
 
-Create the provisioning profiles listed below, using Distribution > AppStore configuration.
-When presented with the list of certificates, make sure to assign the provisioning profile to the 
-same certificate (i.e `Mullvad VPN AB (Apple Distribution)`) you received after uploading CSR.
+We will now create the provisioning profiles listed below using the Apple developer console.
 
 | App ID                              | Provisioning Profile Name |
 |-------------------------------------|---------------------------|
