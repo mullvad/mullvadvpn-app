@@ -13,7 +13,7 @@ openssl req -new -newkey rsa:4096 \
   -subj "/C=SE/O=Mullvad VPN AB/emailAddress=<YOUR_EMAIL>"
 ```
 
-## [Alternative] Create CSR using the existing private key
+## [Alternative] Create CSR using an existing private key
 
 ```
 openssl req -new \
