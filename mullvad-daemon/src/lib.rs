@@ -418,8 +418,12 @@ where
 
         let settings = settings::load();
 
-        let account_history =
-            account_history::AccountHistory::new(&cache_dir).map_err(Error::LoadAccountHistory)?;
+        let account_history = account_history::AccountHistory::new(
+            &cache_dir,
+            rpc_handle.clone(),
+            tokio_remote.clone(),
+        )
+        .map_err(Error::LoadAccountHistory)?;
 
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
