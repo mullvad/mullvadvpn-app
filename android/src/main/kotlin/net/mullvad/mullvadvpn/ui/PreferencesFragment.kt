@@ -26,7 +26,15 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
-        allowLanToggle = view.findViewById(R.id.allow_lan_toggle)
+        allowLanToggle = view.findViewById<CellSwitch>(R.id.allow_lan_toggle).apply {
+            settingsListener.settings?.let { settings ->
+                if (settings.allowLan) {
+                    forcefullySetState(CellSwitch.State.ON)
+                } else {
+                    forcefullySetState(CellSwitch.State.OFF)
+                }
+            }
+        }
 
         settingsListener.onAllowLanChange = { allowLan ->
             updateUiJob?.cancel()
