@@ -288,3 +288,105 @@ impl ConnState {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::{ConnState, Stats, BYTES_RX_TIMEOUT, TRAFFIC_TIMEOUT};
+    use std::time::{Duration, Instant};
+
+    /// Test if a newly created ConnState won't have timed out or consider itself connected
+    #[test]
+    fn test_conn_state_no_timeout_on_start() {
+        let now = Instant::now();
+        let conn_state = ConnState::new(now, Default::default());
+
+        assert!(!conn_state.connected());
+        assert!(!conn_state.rx_timed_out());
+        assert!(!conn_state.traffic_timed_out());
+    }
+
+    /// Test if ConnState::Connecting will timeout after not receiving any traffic after
+    /// BYTES_RX_TIMEOUT
+    #[test]
+    fn test_conn_state_timeout_after_rx_timeout() {
+        let now = Instant::now().checked_sub(BYTES_RX_TIMEOUT).unwrap();
+        let conn_state = ConnState::new(now, Default::default());
+
+        assert!(!conn_state.connected());
+        assert!(conn_state.rx_timed_out());
+        assert!(conn_state.traffic_timed_out());
+    }
+
+    /// Test if ConnState::Connecting correctly transitions into ConnState::Connected if traffic is
+    /// received
+    #[test]
+    fn test_conn_state_connects() {
+        let start = Instant::now().checked_sub(Duration::from_secs(2)).unwrap();
+        let mut conn_state = ConnState::new(start, Default::default());
+        conn_state.update(
+            Instant::now(),
+            Stats {
+                rx_bytes: 1,
+                tx_bytes: 0,
+            },
+        );
+
+        assert!(conn_state.connected());
+        assert!(!conn_state.rx_timed_out());
+        assert!(!conn_state.traffic_timed_out());
+    }
+
+    /// Test if ConnState::Connected correctly times out after TRAFFIC_TIMEOUT when no traffic is
+    /// observed
+    #[test]
+    fn test_conn_state_traffic_times_out_after_connecting() {
+        let start = Instant::now()
+            .checked_sub(TRAFFIC_TIMEOUT + Duration::from_secs(1))
+            .unwrap();
+        let mut conn_state = ConnState::new(start, Default::default());
+
+        let connect_time = Instant::now().checked_sub(TRAFFIC_TIMEOUT).unwrap();
+        conn_state.update(
+            connect_time,
+            Stats {
+                rx_bytes: 1,
+                tx_bytes: 0,
+            },
+        );
+
+        assert!(conn_state.connected());
+        assert!(!conn_state.rx_timed_out());
+        assert!(conn_state.traffic_timed_out());
+    }
+
+    /// Test if ConnState::Connected correctly times out after BYTES_RX_TIMEOUT when no incoming
+    /// traffic is observed
+    #[test]
+    fn test_conn_state_rx_times_out_after_connecting() {
+        let start = Instant::now()
+            .checked_sub(BYTES_RX_TIMEOUT + Duration::from_secs(1))
+            .unwrap();
+        let mut conn_state = ConnState::new(start, Default::default());
+
+        conn_state.update(
+            start,
+            Stats {
+                rx_bytes: 1,
+                tx_bytes: 0,
+            },
+        );
+
+        let update_time = Instant::now().checked_sub(BYTES_RX_TIMEOUT).unwrap();
+        conn_state.update(
+            update_time,
+            Stats {
+                rx_bytes: 1,
+                tx_bytes: 1,
+            },
+        );
+
+        assert!(conn_state.connected());
+        assert!(conn_state.rx_timed_out());
+        assert!(!conn_state.traffic_timed_out());
+    }
+}
