@@ -90,14 +90,13 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onStop() {
-        serviceNotifier.unsubscribeAll()
-
         unbindService(serviceConnectionManager)
 
         super.onStop()
     }
 
     override fun onDestroy() {
+        serviceNotifier.unsubscribeAll()
         serviceConnection?.onDestroy()
 
         super.onDestroy()
