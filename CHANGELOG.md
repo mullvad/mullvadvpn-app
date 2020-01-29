@@ -45,6 +45,10 @@ Line wrap the file at 100 chars.                                              Th
   has the `android.net.VpnService` action. Effectively, this should enable
   _Always On_ behavior on Android versions where it's supported.
 
+#### Windows
+- Use a branded TAP driver for OpenVPN to prevent conflicts with other software and solve issues
+  related to driver upgrades. Also use the NDIS 6 driver on Windows 7.
+
 ### Fixed
 - Don't try to replace WireGuard key if account has too many keys already.
 - Fix bogus update notification caused by an outdated cache.
