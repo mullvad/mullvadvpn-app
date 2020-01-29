@@ -35,7 +35,7 @@ for arch in arm arm64 x86_64 x86; do
             export ANDROID_LIB_TRIPLE="i686-linux-android"
             export RUST_TARGET_TRIPLE="i686-linux-android"
             export RUST_LLVM_ARCH="i686"
-            export ANDROID_ABI="i686"
+            export ANDROID_ABI="x86"
             ;;
     esac
 
