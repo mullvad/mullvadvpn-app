@@ -183,6 +183,21 @@ class CellSwitch : LinearLayout {
         return super.onTouchEvent(event)
     }
 
+    fun forcefullySetState(newState: State) {
+        when (newState) {
+            State.ON -> {
+                knobView.translationX = knobMaxTranslation
+                knobImage.paint.color = onColor
+            }
+            State.OFF -> {
+                knobView.translationX = 0f
+                knobImage.paint.color = offColor
+            }
+        }
+
+        state = newState
+    }
+
     private fun animateToState() {
         var playTime = (knobPosition * knobAnimationDuration).toLong()
 
