@@ -9,7 +9,8 @@ class SettingsListener(val daemon: MullvadDaemon) {
         maybeSettings?.let { settings -> handleNewSettings(settings) }
     }
 
-    private var settings: Settings? = null
+    var settings: Settings? = null
+        private set
 
     var onAccountNumberChange: ((String?) -> Unit)? = null
         set(value) {
