@@ -41,6 +41,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Wait for traffic to be routed through the tunnel device before advertising blocked state.
 
+#### Windows
+- Use a branded TAP driver for OpenVPN to prevent conflicts with other software and solve issues
+  related to driver upgrades. Also use the NDIS 6 driver on Windows 7.
+
 ### Fixed
 - Don't try to replace WireGuard key if account has too many keys already.
 - Fix bogus update notification caused by an outdated cache.
