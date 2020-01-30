@@ -30,10 +30,7 @@ public:
 	RouteManager &operator=(RouteManager &&) = delete;
 	
 	void addRoutes(const std::vector<Route> &routes);
-	void addRoute(const Route &route);
-
 	void deleteRoutes(const std::vector<Route> &routes);
-	void deleteRoute(const Route &route);
 
 	using DefaultRouteChangedEventType = DefaultRouteMonitor::EventType;
 
