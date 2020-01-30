@@ -33,6 +33,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
     private val badgeColor = service.resources.getColor(R.color.colorPrimary)
 
+    private var onForeground = false
     private var reconnecting = false
     private var showingReconnecting = false
 
@@ -47,6 +48,9 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
             updateNotification()
         }
+
+    private val shouldBeOnForeground
+        get() = !(tunnelState is TunnelState.Disconnected)
 
     private val notificationText: Int
         get() {
@@ -155,9 +159,9 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
             registerReceiver(connectReceiver, connectFilter, PERMISSION_TUNNEL_ACTION, null)
             registerReceiver(disconnectReceiver, disconnectFilter, PERMISSION_TUNNEL_ACTION, null)
-
-            startForeground(FOREGROUND_NOTIFICATION_ID, buildNotification())
         }
+
+        updateNotification()
     }
 
     fun onDestroy() {
@@ -166,8 +170,6 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
         service.apply {
             unregisterReceiver(connectReceiver)
             unregisterReceiver(disconnectReceiver)
-
-            stopForeground(true)
         }
 
         notificationManager.cancel(FOREGROUND_NOTIFICATION_ID)
@@ -187,6 +189,20 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
     private fun updateNotification() {
         if (!reconnecting || !showingReconnecting) {
             notificationManager.notify(FOREGROUND_NOTIFICATION_ID, buildNotification())
+        }
+
+        updateNotificationForegroundStatus()
+    }
+
+    private fun updateNotificationForegroundStatus() {
+        if (shouldBeOnForeground != onForeground) {
+            if (shouldBeOnForeground) {
+                service.startForeground(FOREGROUND_NOTIFICATION_ID, buildNotification())
+                onForeground = true
+            } else if (!shouldBeOnForeground) {
+                service.stopForeground(Service.STOP_FOREGROUND_DETACH)
+                onForeground = false
+            }
         }
     }
 
