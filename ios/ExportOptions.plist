@@ -11,7 +11,7 @@
     <key>uploadSymbols</key>
     <true/>
     <key>signingCertificate</key>
-    <string>Apple Distribution: Mullvad VPN AB</string>
+    <string>Apple Distribution: Amagicom AB</string>
     <key>provisioningProfiles</key>
     <dict>
       <key>net.mullvad.MullvadVPN</key>
