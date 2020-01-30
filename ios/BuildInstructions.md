@@ -6,7 +6,7 @@ OpenSSL will ask you the password for the private key, make sure to memorize it,
 later.
 
 ```
-openssl req -new -newkey rsa:4096 \
+openssl req -new -newkey rsa:2048 \
   -outform pem -keyform pem \
   -keyout private_key.pem \
   -out cert_signing_request \
