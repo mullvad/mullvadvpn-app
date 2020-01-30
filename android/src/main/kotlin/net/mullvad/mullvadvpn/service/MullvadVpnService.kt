@@ -31,6 +31,13 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
     private var isBound = false
+        set(value) {
+            field = value
+
+            if (this::notificationManager.isInitialized) {
+                notificationManager.lockedToForeground = value
+            }
+        }
 
     override fun onCreate() {
         super.onCreate()
@@ -116,6 +123,7 @@ class MullvadVpnService : TalpidVpnService() {
         return ForegroundNotificationManager(this, connectionProxy).apply {
             onConnect = { connectionProxy.connect() }
             onDisconnect = { connectionProxy.disconnect() }
+            lockedToForeground = isBound
         }
     }
 
