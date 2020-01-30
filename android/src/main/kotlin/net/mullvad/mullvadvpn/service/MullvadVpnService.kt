@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.service
 
 import android.content.Intent
+import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
 import kotlinx.coroutines.Deferred
@@ -59,6 +60,14 @@ class MullvadVpnService : TalpidVpnService() {
         fun stop() {
             this@MullvadVpnService.stop()
         }
+    }
+
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        val startResult = super.onStartCommand(intent, flags, startId)
+        if (intent.getAction() == VpnService.SERVICE_INTERFACE) {
+            runBlocking { daemon.await().connect() }
+        }
+        return startResult
     }
 
     private fun setUp() {
