@@ -169,6 +169,8 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
             stopForeground(true)
         }
+
+        notificationManager.cancel(FOREGROUND_NOTIFICATION_ID)
     }
 
     private fun initChannel() {
