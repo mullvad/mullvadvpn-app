@@ -428,31 +428,7 @@ WinNet_AddRoute(
 	const WINNET_ROUTE *route
 )
 {
-	AutoLockType lock(g_RouteManagerLock);
-
-	if (nullptr == g_RouteManager)
-	{
-		return false;
-	}
-
-	try
-	{
-		g_RouteManager->addRoute
-		(
-			Route{ ConvertNetwork(route->network), ConvertNode(route->node) }
-		);
-
-		return true;
-	}
-	catch (const std::exception &err)
-	{
-		common::error::UnwindException(err, g_RouteManagerLogSink);
-		return false;
-	}
-	catch (...)
-	{
-		return false;
-	}
+	return WinNet_AddRoutes(route, 1);
 }
 
 extern "C"
@@ -495,31 +471,7 @@ WinNet_DeleteRoute(
 	const WINNET_ROUTE *route
 )
 {
-	AutoLockType lock(g_RouteManagerLock);
-
-	if (nullptr == g_RouteManager)
-	{
-		return false;
-	}
-
-	try
-	{
-		g_RouteManager->deleteRoute
-		(
-			Route{ ConvertNetwork(route->network), ConvertNode(route->node) }
-		);
-
-		return true;
-	}
-	catch (const std::exception &err)
-	{
-		common::error::UnwindException(err, g_RouteManagerLogSink);
-		return false;
-	}
-	catch (...)
-	{
-		return false;
-	}
+	return WinNet_DeleteRoutes(route, 1);
 }
 
 extern "C"

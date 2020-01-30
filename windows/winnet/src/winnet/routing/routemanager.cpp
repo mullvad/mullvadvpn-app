@@ -275,66 +275,6 @@ void RouteManager::addRoutes(const std::vector<Route> &routes)
 	}
 }
 
-void RouteManager::addRoute(const Route &route)
-{
-	AutoLockType lock(m_routesLock);
-
-	std::optional<RouteRecord> deletedRecord;
-
-	auto record = findRouteRecord(route);
-
-	if (record != m_routes.end())
-	{
-		try
-		{
-			deleteFromRoutingTable(record->registeredRoute);
-		}
-		catch (...)
-		{
-			THROW_ERROR("Failed to evict old route when adding new route");
-		}
-
-		deletedRecord = *record;
-		m_routes.erase(record);
-	}
-
-	try
-	{
-		m_routes.emplace_back
-		(
-			RouteRecord{ route, addIntoRoutingTable(route) }
-		);
-	}
-	catch (...)
-	{
-		//
-		// Restore deleted record.
-		//
-
-		if (deletedRecord.has_value())
-		{
-			auto &r = deletedRecord.value();
-
-			try
-			{
-				restoreIntoRoutingTable(r.registeredRoute);
-				m_routes.emplace_back(r);
-			}
-			catch (const std::exception &ex)
-			{
-				const auto err = std::string("Failed to restore evicted route during rollback: ").append(ex.what());
-				m_logSink->error(err.c_str());
-			}
-		}
-
-		//
-		// Just rethrow because the error is from addIntoRoutingTable().
-		//
-
-		throw;
-	}
-}
-
 void RouteManager::deleteRoutes(const std::vector<Route> &routes)
 {
 	AutoLockType lock(m_routesLock);
@@ -368,26 +308,6 @@ void RouteManager::deleteRoutes(const std::vector<Route> &routes)
 			THROW_ERROR("Failed during batch removal of routes");
 		}
 	}
-}
-
-void RouteManager::deleteRoute(const Route &route)
-{
-	AutoLockType lock(m_routesLock);
-
-	auto record = findRouteRecord(route);
-
-	if (m_routes.end() == record)
-	{
-		const auto err = std::wstring(L"Request to delete previously unregistered route: ")
-			.append(FormatNetwork(route.network()));
-
-		m_logSink->warning(common::string::ToAnsi(err).c_str());
-
-		return;
-	}
-
-	deleteFromRoutingTable(record->registeredRoute);
-	m_routes.erase(record);
 }
 
 RouteManager::CallbackHandle RouteManager::registerDefaultRouteChangedCallback(DefaultRouteChangedCallback callback)
