@@ -3,6 +3,7 @@ import { Clipboard, Component, Text, Types } from 'reactxp';
 
 interface IProps {
   value: string;
+  displayValue?: string;
   delay: number;
   message: string;
   style?: Types.TextStyleRuleSet;
@@ -31,9 +32,10 @@ export default class ClipboardLabel extends Component<IProps, IState> {
   }
 
   public render() {
+    const displayValue = this.props.displayValue || this.props.value;
     return (
       <Text style={this.props.style} onPress={this.handlePress}>
-        {this.state.showsMessage ? this.props.message : this.props.value}
+        {this.state.showsMessage ? this.props.message : displayValue}
       </Text>
     );
   }
