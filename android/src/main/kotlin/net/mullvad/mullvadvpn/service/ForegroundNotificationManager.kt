@@ -50,7 +50,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
         }
 
     private val shouldBeOnForeground
-        get() = !(tunnelState is TunnelState.Disconnected)
+        get() = lockedToForeground || !(tunnelState is TunnelState.Disconnected)
 
     private val notificationText: Int
         get() {
@@ -142,10 +142,17 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
     var onConnect: (() -> Unit)? = null
     var onDisconnect: (() -> Unit)? = null
+
     var loggedIn = false
         set(value) {
             field = value
             updateNotification()
+        }
+
+    var lockedToForeground = false
+        set(value) {
+            field = value
+            updateNotificationForegroundStatus()
         }
 
     init {
