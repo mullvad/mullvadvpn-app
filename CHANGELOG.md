@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Connect automatically if `MullvadVpnService` is started with an intent which
   has the `android.net.VpnService` action. Effectively, this should enable
   _Always On_ behavior on Android versions where it's supported.
+- Allow notification to be dismissed when the UI is not shown and the tunnel is disconnected.
 
 ### Fixed
 - Don't try to replace WireGuard key if account has too many keys already.
