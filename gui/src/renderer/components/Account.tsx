@@ -50,7 +50,6 @@ export default class Account extends Component<IProps> {
                     <ClipboardLabel
                       style={styles.account__row_value}
                       value={this.props.accountToken || ''}
-                      message={messages.pgettext('account-view', 'COPIED TO CLIPBOARD!')}
                     />
                   </View>
 

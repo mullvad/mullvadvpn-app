@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Clipboard, Component, Text, Types } from 'reactxp';
+import { messages } from '../../shared/gettext';
 
 interface IProps {
   value: string;
@@ -16,7 +17,7 @@ interface IState {
 export default class ClipboardLabel extends Component<IProps, IState> {
   public static defaultProps: Partial<IProps> = {
     delay: 3000,
-    message: 'Copied!',
+    message: messages.gettext('COPIED TO CLIPBOARD!'),
   };
 
   public state: IState = {

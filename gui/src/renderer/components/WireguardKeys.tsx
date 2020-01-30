@@ -171,11 +171,7 @@ export default class WireguardKeys extends Component<IProps> {
         return (
           <View title={this.props.keyState.key.publicKey}>
             <Text style={styles.wgkeys__row_value}>
-              <ClipboardLabel
-                value={publicKey}
-                displayValue={publicKey.substring(0, 20) + '...'}
-                message={messages.pgettext('account-view', 'COPIED TO CLIPBOARD!')}
-              />
+              <ClipboardLabel value={publicKey} displayValue={publicKey.substring(0, 20) + '...'} />
             </Text>
           </View>
         );
