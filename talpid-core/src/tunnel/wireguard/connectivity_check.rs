@@ -51,14 +51,13 @@ const SECONDS_PER_PING: Duration = Duration::from_secs(3);
 /// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
 pub struct ConnectivityMonitor {
     tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
-    last_stats: Stats,
-    tx_timestamp: Instant,
-    rx_timestamp: Instant,
+    conn_state: ConnState,
     initial_ping_timestamp: Option<Instant>,
     num_pings_sent: u32,
     pinger: Pinger,
     close_receiver: mpsc::Receiver<()>,
 }
+
 
 impl ConnectivityMonitor {
     pub fn new(
@@ -73,9 +72,7 @@ impl ConnectivityMonitor {
 
         Ok(Self {
             tunnel_handle,
-            last_stats: Default::default(),
-            tx_timestamp: now,
-            rx_timestamp: now,
+            conn_state: ConnState::new(now, Default::default()),
             initial_ping_timestamp: None,
             num_pings_sent: 0,
             pinger,
@@ -86,7 +83,7 @@ impl ConnectivityMonitor {
     // checks if the tunnel has ever worked. Intended to check if a connection to a tunnel is
     // successfull at the start of a connection.
     pub fn establish_connectivity(&mut self) -> Result<bool, Error> {
-        if self.last_stats.rx_bytes > 0 {
+        if self.conn_state.connected() {
             return Ok(true);
         }
 
@@ -126,23 +123,15 @@ impl ConnectivityMonitor {
             None => Ok(false),
             Some(new_stats) => {
                 let new_stats = new_stats?;
-                let last_stats = self.last_stats;
-                self.last_stats = new_stats;
 
-                if new_stats.tx_bytes > last_stats.tx_bytes {
-                    self.tx_timestamp = now;
-                }
-
-                if new_stats.rx_bytes > last_stats.rx_bytes {
-                    self.rx_timestamp = now;
-                    // resetting ping
+                if self.conn_state.update(now, new_stats) {
                     self.initial_ping_timestamp = None;
                     self.num_pings_sent = 0;
                     return Ok(true);
                 }
 
                 self.maybe_send_ping()?;
-                Ok(!self.ping_timed_out() && self.last_stats.rx_bytes > 0)
+                Ok(!self.ping_timed_out() && self.conn_state.connected())
             }
         }
     }
@@ -162,7 +151,7 @@ impl ConnectivityMonitor {
         // Only send out a ping if we haven't received a byte in a while or no traffic has flowed
         // in the last 2 minutes, but if a ping already has been sent out, only send one out every
         // 3 seconds.
-        if (self.rx_timed_out() || self.traffic_timed_out())
+        if (self.conn_state.rx_timed_out() || self.conn_state.traffic_timed_out())
             && self
                 .initial_ping_timestamp
                 .map(|initial_ping_timestamp| {
@@ -179,23 +168,225 @@ impl ConnectivityMonitor {
         Ok(())
     }
 
-    // check if last time data was received is too long ago
-    fn rx_timed_out(&self) -> bool {
-        // if last sent bytes were sent after last received bytes
-        self.tx_timestamp > self.rx_timestamp
-            // and the response hasn't been seen for BYTES_RX_TIMEOUT
-            && self.rx_timestamp.elapsed() >= BYTES_RX_TIMEOUT
-    }
-
-    // check if no bytes have been sent or received in a while
-    fn traffic_timed_out(&self) -> bool {
-        self.rx_timestamp.elapsed() >= TRAFFIC_TIMEOUT
-            || self.tx_timestamp.elapsed() >= TRAFFIC_TIMEOUT
-    }
-
     fn ping_timed_out(&self) -> bool {
         self.initial_ping_timestamp
             .map(|initial_ping_timestamp| initial_ping_timestamp.elapsed() > PING_TIMEOUT)
             .unwrap_or(false)
+    }
+}
+
+enum ConnState {
+    Connecting {
+        start: Instant,
+        stats: Stats,
+        tx_timestamp: Option<Instant>,
+    },
+    Connected {
+        rx_timestamp: Instant,
+        tx_timestamp: Instant,
+        stats: Stats,
+    },
+}
+
+impl ConnState {
+    pub fn new(start: Instant, stats: Stats) -> Self {
+        ConnState::Connecting {
+            start,
+            stats,
+            tx_timestamp: None,
+        }
+    }
+
+    /// Returns true if incoming traffic counters incremented
+    pub fn update(&mut self, now: Instant, new_stats: Stats) -> bool {
+        match self {
+            ConnState::Connecting {
+                start,
+                stats,
+                tx_timestamp,
+            } => {
+                if new_stats.rx_bytes > 0 {
+                    let tx_timestamp = tx_timestamp.unwrap_or(*start);
+                    let connected_state = ConnState::Connected {
+                        rx_timestamp: now,
+                        tx_timestamp,
+                        stats: new_stats,
+                    };
+                    *self = connected_state;
+                    return true;
+                }
+                if stats.tx_bytes < new_stats.tx_bytes {
+                    let start = *start;
+                    let stats = new_stats;
+                    *self = ConnState::Connecting {
+                        start,
+                        tx_timestamp: Some(now),
+                        stats,
+                    };
+                    return false;
+                }
+                false
+            }
+            ConnState::Connected {
+                rx_timestamp,
+                tx_timestamp,
+                stats,
+            } => {
+                let rx_incremented = stats.rx_bytes < new_stats.rx_bytes;
+                let rx_timestamp = if rx_incremented { now } else { *rx_timestamp };
+                let tx_timestamp = if stats.tx_bytes < new_stats.tx_bytes {
+                    now
+                } else {
+                    *tx_timestamp
+                };
+                *self = ConnState::Connected {
+                    rx_timestamp,
+                    tx_timestamp,
+                    stats: new_stats,
+                };
+
+                rx_incremented
+            }
+        }
+    }
+    // check if last time data was received is too long ago
+    pub fn rx_timed_out(&self) -> bool {
+        match self {
+            ConnState::Connecting { start, .. } => start.elapsed() >= BYTES_RX_TIMEOUT,
+            ConnState::Connected {
+                rx_timestamp,
+                tx_timestamp,
+                ..
+            } => {
+                // if last sent bytes were sent after or at the same time as last received bytes
+                tx_timestamp >= rx_timestamp &&
+                    // and the response hasn't been seen for BYTES_RX_TIMEOUT
+                    rx_timestamp.elapsed() >= BYTES_RX_TIMEOUT
+            }
+        }
+    }
+
+    // check if no bytes have been sent or received in a while
+    pub fn traffic_timed_out(&self) -> bool {
+        match self {
+            ConnState::Connecting { .. } => self.rx_timed_out(),
+            ConnState::Connected {
+                rx_timestamp,
+                tx_timestamp,
+                ..
+            } => {
+                rx_timestamp.elapsed() >= TRAFFIC_TIMEOUT
+                    || tx_timestamp.elapsed() >= TRAFFIC_TIMEOUT
+            }
+        }
+    }
+
+    pub fn connected(&self) -> bool {
+        match self {
+            ConnState::Connected { .. } => true,
+            _ => false,
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::{ConnState, Stats, BYTES_RX_TIMEOUT, TRAFFIC_TIMEOUT};
+    use std::time::{Duration, Instant};
+
+    /// Test if a newly created ConnState won't have timed out or consider itself connected
+    #[test]
+    fn test_conn_state_no_timeout_on_start() {
+        let now = Instant::now();
+        let conn_state = ConnState::new(now, Default::default());
+
+        assert!(!conn_state.connected());
+        assert!(!conn_state.rx_timed_out());
+        assert!(!conn_state.traffic_timed_out());
+    }
+
+    /// Test if ConnState::Connecting will timeout after not receiving any traffic after
+    /// BYTES_RX_TIMEOUT
+    #[test]
+    fn test_conn_state_timeout_after_rx_timeout() {
+        let now = Instant::now().checked_sub(BYTES_RX_TIMEOUT).unwrap();
+        let conn_state = ConnState::new(now, Default::default());
+
+        assert!(!conn_state.connected());
+        assert!(conn_state.rx_timed_out());
+        assert!(conn_state.traffic_timed_out());
+    }
+
+    /// Test if ConnState::Connecting correctly transitions into ConnState::Connected if traffic is
+    /// received
+    #[test]
+    fn test_conn_state_connects() {
+        let start = Instant::now().checked_sub(Duration::from_secs(2)).unwrap();
+        let mut conn_state = ConnState::new(start, Default::default());
+        conn_state.update(
+            Instant::now(),
+            Stats {
+                rx_bytes: 1,
+                tx_bytes: 0,
+            },
+        );
+
+        assert!(conn_state.connected());
+        assert!(!conn_state.rx_timed_out());
+        assert!(!conn_state.traffic_timed_out());
+    }
+
+    /// Test if ConnState::Connected correctly times out after TRAFFIC_TIMEOUT when no traffic is
+    /// observed
+    #[test]
+    fn test_conn_state_traffic_times_out_after_connecting() {
+        let start = Instant::now()
+            .checked_sub(TRAFFIC_TIMEOUT + Duration::from_secs(1))
+            .unwrap();
+        let mut conn_state = ConnState::new(start, Default::default());
+
+        let connect_time = Instant::now().checked_sub(TRAFFIC_TIMEOUT).unwrap();
+        conn_state.update(
+            connect_time,
+            Stats {
+                rx_bytes: 1,
+                tx_bytes: 0,
+            },
+        );
+
+        assert!(conn_state.connected());
+        assert!(!conn_state.rx_timed_out());
+        assert!(conn_state.traffic_timed_out());
+    }
+
+    /// Test if ConnState::Connected correctly times out after BYTES_RX_TIMEOUT when no incoming
+    /// traffic is observed
+    #[test]
+    fn test_conn_state_rx_times_out_after_connecting() {
+        let start = Instant::now()
+            .checked_sub(BYTES_RX_TIMEOUT + Duration::from_secs(1))
+            .unwrap();
+        let mut conn_state = ConnState::new(start, Default::default());
+
+        conn_state.update(
+            start,
+            Stats {
+                rx_bytes: 1,
+                tx_bytes: 0,
+            },
+        );
+
+        let update_time = Instant::now().checked_sub(BYTES_RX_TIMEOUT).unwrap();
+        conn_state.update(
+            update_time,
+            Stats {
+                rx_bytes: 1,
+                tx_bytes: 1,
+            },
+        );
+
+        assert!(conn_state.connected());
+        assert!(conn_state.rx_timed_out());
+        assert!(!conn_state.traffic_timed_out());
     }
 }
