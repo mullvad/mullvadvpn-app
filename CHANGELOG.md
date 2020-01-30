@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add translations for Finnish and Danish.
+- Copy WireGuard key when clicking on it.
 
 ### Changed
 - Increase OpenVPN ping timeout from 20 to 25 seconds. Might make working tunnels disconnect

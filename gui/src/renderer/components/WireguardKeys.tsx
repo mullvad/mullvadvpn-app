@@ -11,6 +11,7 @@ import { Container, Layout } from './Layout';
 import { BackBarItem, NavigationBar, NavigationContainer, NavigationItems } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import styles from './WireguardKeysStyles';
+import ClipboardLabel from './ClipboardLabel';
 
 export interface IProps {
   keyState: WgKeyState;
@@ -166,10 +167,15 @@ export default class WireguardKeys extends Component<IProps> {
       case 'being-verified':
       case 'key-set':
         // mimicking the truncating of the key from website
+        const publicKey = this.props.keyState.key.publicKey;
         return (
           <View title={this.props.keyState.key.publicKey}>
             <Text style={styles.wgkeys__row_value}>
-              {this.props.keyState.key.publicKey.substring(0, 20) + '...'}
+              <ClipboardLabel
+                value={publicKey}
+                displayValue={publicKey.substring(0, 20) + '...'}
+                message={messages.pgettext('account-view', 'COPIED TO CLIPBOARD!')}
+              />
             </Text>
           </View>
         );
