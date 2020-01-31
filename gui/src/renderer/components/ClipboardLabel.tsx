@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { Clipboard, Component, Text, Types } from 'reactxp';
+import { messages } from '../../shared/gettext';
 
 interface IProps {
   value: string;
+  displayValue?: string;
   delay: number;
   message: string;
   style?: Types.TextStyleRuleSet;
@@ -15,7 +17,7 @@ interface IState {
 export default class ClipboardLabel extends Component<IProps, IState> {
   public static defaultProps: Partial<IProps> = {
     delay: 3000,
-    message: 'Copied!',
+    message: messages.gettext('COPIED TO CLIPBOARD!'),
   };
 
   public state: IState = {
@@ -31,9 +33,10 @@ export default class ClipboardLabel extends Component<IProps, IState> {
   }
 
   public render() {
+    const displayValue = this.props.displayValue || this.props.value;
     return (
       <Text style={this.props.style} onPress={this.handlePress}>
-        {this.state.showsMessage ? this.props.message : this.props.value}
+        {this.state.showsMessage ? this.props.message : displayValue}
       </Text>
     );
   }
