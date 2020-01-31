@@ -2,12 +2,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "driverlogic", "src\driverlogic\driverlogic.vcxproj", "{AABA9AB7-A7D0-4BB5-A1FA-92F566023E0D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B52E2D10-A94A-4605-914A-2DCEF6A757EF} = {B52E2D10-A94A-4605-914A-2DCEF6A757EF}
-		{1344152F-2BAD-4198-8E51-31AAC32BFBB2} = {1344152F-2BAD-4198-8E51-31AAC32BFBB2}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cleanup", "src\cleanup\cleanup.vcxproj", "{47B5C1C1-67D7-4544-9037-8E7F44C1E5BD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B52E2D10-A94A-4605-914A-2DCEF6A757EF} = {B52E2D10-A94A-4605-914A-2DCEF6A757EF}
@@ -55,10 +49,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AABA9AB7-A7D0-4BB5-A1FA-92F566023E0D}.Debug|x86.ActiveCfg = Debug|Win32
-		{AABA9AB7-A7D0-4BB5-A1FA-92F566023E0D}.Debug|x86.Build.0 = Debug|Win32
-		{AABA9AB7-A7D0-4BB5-A1FA-92F566023E0D}.Release|x86.ActiveCfg = Release|Win32
-		{AABA9AB7-A7D0-4BB5-A1FA-92F566023E0D}.Release|x86.Build.0 = Release|Win32
 		{47B5C1C1-67D7-4544-9037-8E7F44C1E5BD}.Debug|x86.ActiveCfg = Debug|Win32
 		{47B5C1C1-67D7-4544-9037-8E7F44C1E5BD}.Debug|x86.Build.0 = Debug|Win32
 		{47B5C1C1-67D7-4544-9037-8E7F44C1E5BD}.Release|x86.ActiveCfg = Release|Win32
