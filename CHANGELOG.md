@@ -50,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix bogus update notification caused by an outdated cache.
 - Fix layout issues when showing messages in WireGuard key view.
 - Disable WireGuard protocol option if there's no WireGuard key.
+- Fix translation of "System default" after selecting "System default" in language settings.
 
 #### Windows
 - Fix regression due to which a TAP adapter issue was not given as the specific block reason when

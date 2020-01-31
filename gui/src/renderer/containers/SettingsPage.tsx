@@ -3,10 +3,13 @@ import { remote, shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Settings from '../components/Settings';
+import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
-const mapStateToProps = (state: IReduxState) => ({
-  preferredLocaleDisplayName: state.userInterface.preferredLocaleName,
+const mapStateToProps = (state: IReduxState, props: IAppContext) => ({
+  preferredLocaleDisplayName: props.app.getPreferredLocaleDisplayName(
+    state.settings.guiSettings.preferredLocale,
+  ),
   loginState: state.account.status,
   accountExpiry: state.account.expiry,
   expiryLocale: state.userInterface.locale,
@@ -29,7 +32,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Settings);
+export default withAppContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Settings),
+);

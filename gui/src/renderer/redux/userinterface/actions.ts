@@ -5,11 +5,6 @@ export interface IUpdateLocaleAction {
   locale: string;
 }
 
-export interface IUpdatePreferredLocaleNameAction {
-  type: 'UPDATE_PREFERRED_LOCALE_NAME';
-  name: string;
-}
-
 export interface IUpdateWindowArrowPositionAction {
   type: 'UPDATE_WINDOW_ARROW_POSITION';
   arrowPosition: number;
@@ -26,7 +21,6 @@ export interface ISetLocationScopeAction {
 
 export type UserInterfaceAction =
   | IUpdateLocaleAction
-  | IUpdatePreferredLocaleNameAction
   | IUpdateWindowArrowPositionAction
   | IUpdateConnectionInfoOpenAction
   | ISetLocationScopeAction;
@@ -35,13 +29,6 @@ function updateLocale(locale: string): IUpdateLocaleAction {
   return {
     type: 'UPDATE_LOCALE',
     locale,
-  };
-}
-
-function updatePreferredLocaleName(name: string): IUpdatePreferredLocaleNameAction {
-  return {
-    type: 'UPDATE_PREFERRED_LOCALE_NAME',
-    name,
   };
 }
 
@@ -67,7 +54,6 @@ function setLocationScope(scope: LocationScope): ISetLocationScopeAction {
 
 export default {
   updateLocale,
-  updatePreferredLocaleName,
   updateWindowArrowPosition,
   toggleConnectionPanel,
   setLocationScope,
