@@ -39,6 +39,10 @@ bool Node::operator==(const Node &rhs) const
 			return false;
 		}
 	}
+	else if (rhs.m_deviceName.has_value())
+	{
+		return false;
+	}
 
 	if (m_gateway.has_value())
 	{
@@ -47,6 +51,10 @@ bool Node::operator==(const Node &rhs) const
 		{
 			return false;
 		}
+	}
+	else if (rhs.m_gateway.has_value())
+	{
+		return false;
 	}
 
 	return true;
