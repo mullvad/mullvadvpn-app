@@ -162,29 +162,19 @@ InterfaceAndGateway ResolveNode(ADDRESS_FAMILY family, const std::optional<Node>
 	return InterfaceAndGateway{ InterfaceLuidFromGateway(node.gateway().value()), node.gateway().value() };
 }
 
-// TODO: Move to libcommon
-uint32_t ByteSwap(uint32_t val)
-{
-	return
-	(
-		((val & 0xFF) << 24) |
-		((val & 0xFF00) << 8) |
-		((val & 0xFF0000) >> 8) |
-		((val & 0xFF000000) >> 24)
-	);
-}
-
 std::wstring FormatNetwork(const Network &network)
 {
+	using namespace common::string;
+
 	switch (network.Prefix.si_family)
 	{
 		case AF_INET:
 		{
-			return common::string::FormatIpv4(ByteSwap(network.Prefix.Ipv4.sin_addr.s_addr), network.PrefixLength);
+			return FormatIpv4<AddressOrder::NetworkByteOrder>(network.Prefix.Ipv4.sin_addr.s_addr, network.PrefixLength);
 		}
 		case AF_INET6:
 		{
-			return common::string::FormatIpv6(network.Prefix.Ipv6.sin6_addr.u.Byte, network.PrefixLength);
+			return FormatIpv6(network.Prefix.Ipv6.sin6_addr.u.Byte, network.PrefixLength);
 		}
 		default:
 		{
@@ -491,10 +481,7 @@ void RouteManager::undoEvents(const std::vector<EventEntry> &eventLog)
 // static
 std::wstring RouteManager::FormatRegisteredRoute(const RegisteredRoute &route)
 {
-	//
-	// TODO: Fix broken IP formatting
-	// Update FormatIpv4 function with an additional argument to specify network/host byte order.
-	//
+	using namespace common::string;
 
 	std::wstringstream ss;
 
@@ -504,10 +491,10 @@ std::wstring RouteManager::FormatRegisteredRoute(const RegisteredRoute &route)
 
 		if (0 != route.nextHop.Ipv4.sin_addr.s_addr)
 		{
-			gateway = common::string::FormatIpv4(ByteSwap(route.nextHop.Ipv4.sin_addr.s_addr));
+			gateway = FormatIpv4<AddressOrder::NetworkByteOrder>(route.nextHop.Ipv4.sin_addr.s_addr);
 		}
 
-		ss << common::string::FormatIpv4(ByteSwap(route.network.Prefix.Ipv4.sin_addr.s_addr), route.network.PrefixLength)
+		ss << FormatIpv4<AddressOrder::NetworkByteOrder>(route.network.Prefix.Ipv4.sin_addr.s_addr, route.network.PrefixLength)
 			<< L" with gateway " << gateway
 			<< L" on interface with LUID 0x" << std::hex << route.luid.Value;
 	}
@@ -520,10 +507,10 @@ std::wstring RouteManager::FormatRegisteredRoute(const RegisteredRoute &route)
 
 		if (0 != std::accumulate(begin, end, 0))
 		{
-			gateway = common::string::FormatIpv6(route.nextHop.Ipv6.sin6_addr.u.Byte);
+			gateway = FormatIpv6(route.nextHop.Ipv6.sin6_addr.u.Byte);
 		}
 
-		ss << common::string::FormatIpv6(route.network.Prefix.Ipv6.sin6_addr.u.Byte, route.network.PrefixLength)
+		ss << FormatIpv6(route.network.Prefix.Ipv6.sin6_addr.u.Byte, route.network.PrefixLength)
 			<< L" with gateway " << gateway
 			<< L" on interface with LUID 0x" << std::hex << route.luid.Value;
 	}
