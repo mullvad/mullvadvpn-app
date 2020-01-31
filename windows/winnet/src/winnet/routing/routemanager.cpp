@@ -604,6 +604,11 @@ void RouteManager::defaultRouteChanged(ADDRESS_FAMILY family, DefaultRouteMonito
 
 	for (auto &it : affectedRoutes)
 	{
+		//
+		// We can't update the existing route because defining characteristics are being changed.
+		// So removing and adding again is the only option.
+		//
+
 		try
 		{
 			deleteFromRoutingTable(it->registeredRoute);
