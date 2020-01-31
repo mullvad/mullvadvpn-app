@@ -24,10 +24,11 @@
 !define MULLVAD_GENERAL_ERROR 0
 !define MULLVAD_SUCCESS 1
 
-# Return codes from driverlogic::RemoveMullvadTap
-!define RMT_GENERAL_ERROR 0
-!define RMT_NO_REMAINING_ADAPTERS 1
-!define RMT_SOME_REMAINING_ADAPTERS 2
+# Return codes from driverlogic
+!define DL_GENERAL_ERROR 0
+!define DL_GENERAL_SUCCESS 1
+!define DL_DELETE_NO_ADAPTERS_REMAIN 2
+!define DL_DELETE_SOME_ADAPTERS_REMAIN 3
 
 # Return codes from tapinstall
 !define DEVCON_EXIT_OK 0
@@ -74,6 +75,7 @@
 
 	SetOutPath "$TEMP\driver"
 
+	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
 	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\*"
 
 	${If} ${AtLeastWin10}
@@ -192,19 +194,19 @@
 
 	log::Log "RemoveVanillaTap()"
 
-	driverlogic::RemoveVanillaMullvadTap
+	nsExec::ExecToStack '"$TEMP\driver\driverlogic.exe" remove-vanilla-tap'
 
 	Pop $0
 	Pop $1
 
-	${If} $0 == ${RMT_GENERAL_ERROR}
+	${If} $0 == ${DL_GENERAL_ERROR}
 		StrCpy $R0 "Failed to remove vanilla TAP adapter: $1"
 		log::Log $R0
 
 		Goto RemoveVanillaTap_return
 	${EndIf}
 
-	${If} $0 == ${RMT_NO_REMAINING_ADAPTERS}
+	${If} $0 == ${DL_DELETE_NO_ADAPTERS_REMAIN}
 		log::Log "Removing vanilla TAP adapter driver since it is no longer in use"
 
 		nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${DEPRECATED_TAP_HARDWARE_ID}'
@@ -273,8 +275,8 @@
 	${EndIf}
 
 	log::Log "Creating new virtual adapter"
-	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" install "$TEMP\driver\OemVista.inf" ${TAP_HARDWARE_ID}'
-	
+	nsExec::ExecToStack '"$TEMP\driver\driverlogic.exe" install "$TEMP\driver\OemVista.inf"'
+
 	Pop $0
 	Pop $1
 
@@ -285,13 +287,13 @@
 		Goto InstallDriver_return
 	${EndIf}
 
-	log::Log "Calling on plugin to identify recently added adapter"
-	driverlogic::IdentifyNewAdapter
-	
+	log::Log "Identifying recently added adapter"
+	nsExec::ExecToStack '"$TEMP\driver\driverlogic.exe" find-tap'
+
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${MULLVAD_SUCCESS}
+	${If} $0 != ${DL_GENERAL_SUCCESS}
 		StrCpy $R0 "Failed to identify new adapter: $1"
 		log::Log $R0
 		Goto InstallDriver_return
