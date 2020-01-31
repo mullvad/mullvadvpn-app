@@ -49,6 +49,7 @@ const styles = {
   caption: Styles.createTextStyle({
     fontFamily: 'Open Sans',
     fontSize: 13,
+    lineHeight: 15,
     fontWeight: '600',
     color: 'rgb(255, 255, 255)',
     flex: 0,
@@ -57,6 +58,7 @@ const styles = {
   value: Styles.createTextStyle({
     fontFamily: 'Open Sans',
     fontSize: 13,
+    lineHeight: 15,
     fontWeight: '600',
     color: 'rgb(255, 255, 255)',
     letterSpacing: -0.2,
