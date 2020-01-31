@@ -57,6 +57,9 @@ bool PermitLan::applyIpv4(IObjectInstaller &objectInstaller) const
 
 	conditionBuilder.reset();
 
+	// Local network broadcast.
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 255, 255, 255, 255 }), 32)));
+
 	// Local subnet multicast.
 	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 224, 0, 0, 0 }), 24)));
 

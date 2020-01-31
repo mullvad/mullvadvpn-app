@@ -40,7 +40,9 @@ lazy_static! {
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfd00, 0, 0, 0, 0, 0, 0, 0), 8).unwrap()),
     ];
     /// When "allow local network" is enabled the app will allow traffic to these networks.
-    pub(crate) static ref ALLOWED_LAN_MULTICAST_NETS: [IpNetwork; 5] = [
+    pub(crate) static ref ALLOWED_LAN_MULTICAST_NETS: [IpNetwork; 6] = [
+        // Local network broadcast. Not routable
+        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(255, 255, 255, 255), 32).unwrap()),
         // Local subnetwork multicast. Not routable
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(224, 0, 0, 0), 24).unwrap()),
         // Simple Service Discovery Protocol (SSDP) address
