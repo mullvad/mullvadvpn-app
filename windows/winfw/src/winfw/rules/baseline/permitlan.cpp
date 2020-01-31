@@ -63,11 +63,8 @@ bool PermitLan::applyIpv4(IObjectInstaller &objectInstaller) const
 	// Local subnet multicast.
 	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 224, 0, 0, 0 }), 24)));
 
-	// Simple Service Discovery Protocol (SSDP) address.
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 239, 255, 255, 250 }), 32)));
-
-	// mDNS Service Discovery address.
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 239, 255, 255, 251 }), 32)));
+	// Local scope (SSDP and mDNS)
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 239, 255, 0, 0 }), 16)));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
