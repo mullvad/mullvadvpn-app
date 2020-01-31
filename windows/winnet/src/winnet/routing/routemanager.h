@@ -13,6 +13,7 @@
 #include <libcommon/string.h>
 #include <libcommon/logging/ilogsink.h>
 #include "defaultroutemonitor.h"
+#include "helpers.h"
 
 namespace winnet::routing
 {
@@ -62,6 +63,13 @@ private:
 		Network network;
 		NET_LUID luid;
 		NodeAddress nextHop;
+
+		bool operator==(const RegisteredRoute &rhs) const
+		{
+			return luid.Value == rhs.luid.Value
+				&& EqualAddress(nextHop, rhs.nextHop)
+				&& EqualAddress(network, rhs.network);
+		}
 	};
 
 	struct RouteRecord
@@ -76,11 +84,24 @@ private:
 	std::list<DefaultRouteChangedCallback> m_defaultRouteCallbacks;
 	std::recursive_mutex m_defaultRouteCallbacksLock;
 
-	// Find record based on destination and mask.
-	std::list<RouteRecord>::iterator findRouteRecord(const Network &network);
+	//
+	// Find record based on route registration data.
+	//
+	// Note: Searching the records and matching on route specification is
+	// unreliable because of the node attribute on the route. Different node
+	// specifications can resolve to the same physical node.
+	//
+	// (node = exit node = interface)
+	//
+	std::list<RouteRecord>::iterator findRouteRecord(const RegisteredRoute &route);
 
-	// Note: Same as above!
-	std::list<RouteRecord>::iterator findRouteRecord(const Route &route);
+	//
+	// Find record based on route specification.
+	//
+	// Note: Only ever use this to find the registration data for a route
+	// that was successfully registered previously.
+	//
+	std::list<RouteRecord>::iterator findRouteRecordFromSpec(const Route &route);
 
 	RegisteredRoute addIntoRoutingTable(const Route &route);
 	void restoreIntoRoutingTable(const RegisteredRoute &route);

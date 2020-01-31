@@ -252,19 +252,20 @@ void RouteManager::addRoutes(const std::vector<Route> &routes)
 	{
 		try
 		{
-			auto record = findRouteRecord(route);
-
-			if (record != m_routes.end())
-			{
-				deleteFromRoutingTable(record->registeredRoute);
-				eventLog.emplace_back(EventEntry{ EventType::DELETE_ROUTE, *record });
-				m_routes.erase(record);
-			}
-
-			const RouteRecord newRecord { route, addIntoRoutingTable(route) };
+			RouteRecord newRecord{ route, addIntoRoutingTable(route) };
 
 			eventLog.emplace_back(EventEntry{ EventType::ADD_ROUTE, newRecord });
-			m_routes.emplace_back(std::move(newRecord));
+
+			auto existingRecord = findRouteRecord(newRecord.registeredRoute);
+
+			if (m_routes.end() == existingRecord)
+			{
+				m_routes.emplace_back(std::move(newRecord));
+			}
+			else
+			{
+				*existingRecord = std::move(newRecord);
+			}
 		}
 		catch (...)
 		{
@@ -285,11 +286,11 @@ void RouteManager::deleteRoutes(const std::vector<Route> &routes)
 	{
 		try
 		{
-			auto record = findRouteRecord(route);
+			const auto record = findRouteRecordFromSpec(route);
 
 			if (m_routes.end() == record)
 			{
-				const auto err = std::wstring(L"Request to delete previously unregistered route: ")
+				const auto err = std::wstring(L"Request to delete unknown route: ")
 					.append(FormatNetwork(route.network()));
 
 				m_logSink->warning(common::string::ToAnsi(err).c_str());
@@ -298,6 +299,7 @@ void RouteManager::deleteRoutes(const std::vector<Route> &routes)
 			}
 
 			deleteFromRoutingTable(record->registeredRoute);
+
 			eventLog.emplace_back(EventEntry{ EventType::DELETE_ROUTE, *record });
 			m_routes.erase(record);
 		}
@@ -335,17 +337,20 @@ void RouteManager::unregisterDefaultRouteChangedCallback(CallbackHandle handle)
 	}
 }
 
-std::list<RouteManager::RouteRecord>::iterator RouteManager::findRouteRecord(const Network &network)
+std::list<RouteManager::RouteRecord>::iterator RouteManager::findRouteRecord(const RegisteredRoute &route)
 {
-	return std::find_if(m_routes.begin(), m_routes.end(), [&network](const auto &candidate)
+	return std::find_if(m_routes.begin(), m_routes.end(), [&route](const auto &record)
 	{
-		return EqualAddress(network, candidate.route.network());
+		return route == record.registeredRoute;
 	});
 }
 
-std::list<RouteManager::RouteRecord>::iterator RouteManager::findRouteRecord(const Route &route)
+std::list<RouteManager::RouteRecord>::iterator RouteManager::findRouteRecordFromSpec(const Route &route)
 {
-	return findRouteRecord(route.network());
+	return std::find_if(m_routes.begin(), m_routes.end(), [&route](const auto &record)
+	{
+		return route == record.route;
+	});
 }
 
 RouteManager::RegisteredRoute RouteManager::addIntoRoutingTable(const Route &route)
@@ -363,12 +368,23 @@ RouteManager::RegisteredRoute RouteManager::addIntoRoutingTable(const Route &rou
 	spec.Protocol = MIB_IPPROTO_NETMGMT;
 	spec.Origin = NlroManual;
 
+	auto status = CreateIpForwardEntry2(&spec);
+
 	//
-	// Do not treat ERROR_OBJECT_ALREADY_EXISTS as being successful.
-	// Because it may not take route metric into consideration.
+	// The return code ERROR_OBJECT_ALREADY_EXISTS means there is already an existing route
+	// on the same interface, with the same DestinationPrefix and NextHop.
+	//
+	// However, all the other properties of the route may be different. And the properties may
+	// not have the exact same values as when the route was registered, because windows
+	// will adjust route properties at time of route insertion as well as later.
+	//
+	// The simplest thing in this case is to just overwrite the route.
 	//
 
-	const auto status = CreateIpForwardEntry2(&spec);
+	if (status == ERROR_OBJECT_ALREADY_EXISTS)
+	{
+		status = SetIpForwardEntry2(&spec);
+	}
 
 	if (NO_ERROR != status)
 	{
@@ -439,7 +455,7 @@ void RouteManager::undoEvents(const std::vector<EventEntry> &eventLog)
 			{
 				case EventType::ADD_ROUTE:
 				{
-					auto record = findRouteRecord(it->record.route);
+					const auto record = findRouteRecord(it->record.registeredRoute);
 
 					if (m_routes.end() == record)
 					{
