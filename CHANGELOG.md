@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Connect automatically if `MullvadVpnService` is started with an intent which
   has the `android.net.VpnService` action. Effectively, this should enable
   _Always On_ behavior on Android versions where it's supported.
+- Allow notification to be dismissed when the UI is not shown and the tunnel is disconnected.
 
 #### Windows
 - Use a branded TAP driver for OpenVPN to prevent conflicts with other software and solve issues

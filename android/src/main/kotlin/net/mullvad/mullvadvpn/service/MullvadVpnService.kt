@@ -24,16 +24,35 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
+    private var bindCount = 0
+        set(value) {
+            field = value
+            isBound = bindCount != 0
+        }
+
+    private var isBound = false
+        set(value) {
+            field = value
+
+            if (this::notificationManager.isInitialized) {
+                notificationManager.lockedToForeground = value
+            }
+        }
+
     override fun onCreate() {
         super.onCreate()
         setUp()
     }
 
     override fun onBind(intent: Intent): IBinder {
+        bindCount += 1
+
         return super.onBind(intent) ?: binder
     }
 
     override fun onRebind(intent: Intent) {
+        bindCount += 1
+
         if (isStopping) {
             restart()
             isStopping = false
@@ -45,6 +64,8 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     override fun onUnbind(intent: Intent): Boolean {
+        bindCount -= 1
+
         return true
     }
 
@@ -102,6 +123,7 @@ class MullvadVpnService : TalpidVpnService() {
         return ForegroundNotificationManager(this, connectionProxy).apply {
             onConnect = { connectionProxy.connect() }
             onDisconnect = { connectionProxy.disconnect() }
+            lockedToForeground = isBound
         }
     }
 
