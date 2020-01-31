@@ -74,13 +74,17 @@ The following network traffic is allowed or blocked independent of state:
      * `10.0.0.0/8`
      * `172.16.0.0/12`
      * `192.168.0.0/16`
-     * `169.254.0.0/16`
-     * `fe80::/10`
+     * `169.254.0.0/16` (Link-local IPv4 range)
+     * `fe80::/10` (Link-local IPv6 range)
+     * `fd00::/8` (Unique-local range)
    * Outgoing to any IP in a local, unroutable, multicast network, meaning these:
-     * `224.0.0.0/24` (local subnet IPv4 multicast)
-     * `239.255.255.250/32` (SSDP)
-     * `239.255.255.251/32` (mDNS)
+     * `224.0.0.0/24` (Local subnet IPv4 multicast)
+     * `239.255.0.0/16` (IPv4 local scope. eg. SSDP and mDNS)
+     * `255.255.255.255/32` (Broadcasts to the local network)
+     * `ff01::/16` (Interface-local multicast. Local to a single interface on a node.)
      * `ff02::/16` (Link-local IPv6 multicast. IPv6 equivalent of `224.0.0.0/24`)
+     * `ff03::/16` (Realm-local IPv6 multicast)
+     * `ff04::/16` (Admin-local IPv6 multicast)
      * `ff05::/16` (Site-local IPv6 multicast. Is routable, but should never leave the "site")
    * Incoming DHCPv4 requests and outgoing responses (be a DHCPv4 server):
      * Incoming UDP from `*:68` to `255.255.255.255:67`
