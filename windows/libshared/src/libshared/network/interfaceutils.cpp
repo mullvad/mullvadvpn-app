@@ -117,11 +117,11 @@ InterfaceUtils::GetTapAdapters(const std::set<NetworkAdapter>& adapters)
 
 	for (const auto& adapter : adapters)
 	{
-		static const wchar_t name[] = L"TAP-Windows Adapter V9";
+		static constexpr wchar_t name[] = L"Mullvad VPN TAP Adapter";
 
 		//
 		// Compare partial name, because once you start having more TAP adapters
-		// they're named "TAP-Windows Adapter V9 #2" and so on.
+		// they're named "Mullvad VPN TAP Adapter #2" and so on.
 		//
 
 		if (0 == adapter.name().compare(0, _countof(name) - 1, name))
