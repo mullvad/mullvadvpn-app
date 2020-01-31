@@ -50,6 +50,7 @@ const styles = {
     fontFamily: 'Open Sans',
     fontSize: 13,
     fontWeight: '600',
+    height: 14,
     color: 'rgb(255, 255, 255)',
     flex: 0,
     marginRight: 8,
@@ -57,6 +58,7 @@ const styles = {
   value: Styles.createTextStyle({
     fontFamily: 'Open Sans',
     fontSize: 13,
+    height: 14,
     fontWeight: '600',
     color: 'rgb(255, 255, 255)',
     letterSpacing: -0.2,
