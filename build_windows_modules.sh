@@ -176,6 +176,9 @@ function main
   copy_outputs $winnet_root_path "winnet.dll"
   copy_outputs $winutil_root_path "winutil.dll"
 
+  local driverlogic_root_path=${CPP_ROOT_PATH:-"./windows/driverlogic"}
+  build_solution "$driverlogic_root_path" "driverlogic.sln"
+
   build_nsis_plugins
 }
 
