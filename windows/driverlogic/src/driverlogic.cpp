@@ -62,7 +62,7 @@ void LogAdapters(const std::wstring &description, const std::set<NetworkAdapter>
 			<< L"        Guid: " << adapter.guid << L'\n'
 			<< L"        Name: " << adapter.name << L'\n'
 			<< L"        Alias: " << adapter.alias << L'\n'
-			<< L"        Alias: " << adapter.deviceInstanceId
+			<< L"        Device instance ID: " << adapter.deviceInstanceId
 			<< std::endl;
 	}
 }
@@ -333,7 +333,7 @@ std::set<NetworkAdapter> GetTapAdapters(const std::wstring &tapHardwareId)
 			//
 
 			std::cerr << "Skipping TAP adapter due to exception caught while iterating: "
-				<< e.what();
+				<< e.what() << std::endl;
 		}
 	}
 
@@ -442,7 +442,7 @@ ATTEMPT_UPDATE:
 	//
 
 	std::wcout << L"TAP driver update complete. Reboot required: "
-		<< rebootRequired << std::endl;
+		<< rebootRequired;
 }
 
 std::optional<NetworkAdapter> FindMullvadAdapter(const std::set<NetworkAdapter> &tapAdapters)
@@ -680,12 +680,12 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cerr << e.what();
 		return GENERAL_ERROR;
 	}
 	catch (...)
 	{
-		std::wcerr << L"Unhandled exception." << std::endl;
+		std::wcerr << L"Unhandled exception.";
 		return GENERAL_ERROR;
 	}
 	return GENERAL_SUCCESS;
