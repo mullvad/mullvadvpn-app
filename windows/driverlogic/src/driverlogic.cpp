@@ -587,12 +587,26 @@ DeletionResult DeleteVanillaMullvadAdapter()
 				continue;
 			}
 
-			if (FALSE == SetupDiRemoveDevice(
-				devInfo,
-				&devInfoData
-			))
+			//
+			// Delete existing device
+			//
+
+			SP_REMOVEDEVICE_PARAMS rmdParams;
+			rmdParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
+			rmdParams.ClassInstallHeader.InstallFunction = DIF_REMOVE;
+			rmdParams.Scope = DI_REMOVEDEVICE_GLOBAL;
+			rmdParams.HwProfile = 0;
+
+			auto status = SetupDiSetClassInstallParamsW(devInfo, &devInfoData, &rmdParams.ClassInstallHeader, sizeof(rmdParams));
+			if (FALSE == status)
 			{
-				THROW_WINDOWS_ERROR(GetLastError(), "Error removing Mullvad TAP device");
+				THROW_WINDOWS_ERROR(GetLastError(), "SetupDiSetClassInstallParamsW");
+			}
+
+			status = SetupDiCallClassInstaller(DIF_REMOVE, devInfo, &devInfoData);
+			if (FALSE == status)
+			{
+				THROW_WINDOWS_ERROR(GetLastError(), "SetupDiCallClassInstaller");
 			}
 		}
 		catch (const std::exception & e)
