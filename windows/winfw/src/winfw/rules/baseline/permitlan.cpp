@@ -90,8 +90,10 @@ bool PermitLan::applyIpv6(IObjectInstaller &objectInstaller) const
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 	const wfp::IpNetwork linkLocal(wfp::IpAddress::Literal6({ 0xFE80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 10);
+	const wfp::IpNetwork uniqueLocal(wfp::IpAddress::Literal6({ 0xFD00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 8);
 
 	conditionBuilder.add_condition(ConditionIp::Remote(linkLocal));
+	conditionBuilder.add_condition(ConditionIp::Remote(uniqueLocal));
 
 	if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 	{
