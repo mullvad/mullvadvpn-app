@@ -110,10 +110,16 @@ bool PermitLan::applyIpv6(IObjectInstaller &objectInstaller) const
 
 	conditionBuilder.reset();
 
+	const wfp::IpNetwork interfaceLocalMulticast(wfp::IpAddress::Literal6({ 0xFF01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
 	const wfp::IpNetwork linkLocalMulticast(wfp::IpAddress::Literal6({ 0xFF02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
+	const wfp::IpNetwork realmLocalMulticast(wfp::IpAddress::Literal6({ 0xFF03, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
+	const wfp::IpNetwork adminLocalMulticast(wfp::IpAddress::Literal6({ 0xFF04, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
 	const wfp::IpNetwork siteLocalMulticast(wfp::IpAddress::Literal6({ 0xFF05, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
 
+	conditionBuilder.add_condition(ConditionIp::Remote(interfaceLocalMulticast));
 	conditionBuilder.add_condition(ConditionIp::Remote(linkLocalMulticast));
+	conditionBuilder.add_condition(ConditionIp::Remote(realmLocalMulticast));
+	conditionBuilder.add_condition(ConditionIp::Remote(adminLocalMulticast));
 	conditionBuilder.add_condition(ConditionIp::Remote(siteLocalMulticast));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
