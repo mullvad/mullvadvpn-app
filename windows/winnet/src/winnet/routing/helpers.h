@@ -41,6 +41,5 @@ std::vector<const SOCKET_ADDRESS *> IsolateGatewayAddresses
 
 bool AddressPresent(const std::vector<const SOCKET_ADDRESS *> &hay, const SOCKADDR_INET *needle);
 
-//NodeAddress ConvertSocketAddress(const SOCKET_ADDRESS *sa);
 
 }
