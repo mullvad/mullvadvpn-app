@@ -51,7 +51,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Use a branded TAP driver for OpenVPN to prevent conflicts with other software and solve issues
   related to driver upgrades. Also use the NDIS 6 driver on Windows 7.
-
+- Be more aggressive when installing routes, in effect taking ownership of existing duplicate route
+  entries. This allows the daemon to initialize properly even if a previous instance did not have a
+  clean shutdown.
+  
 ### Fixed
 - Don't try to replace WireGuard key if account has too many keys already.
 - Fix bogus update notification caused by an outdated cache.
