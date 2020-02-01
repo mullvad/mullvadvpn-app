@@ -20,6 +20,7 @@
     <ClCompile Include="routing\routemanager.cpp">
       <Filter>routing</Filter>
     </ClCompile>
+    <ClCompile Include="converters.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -41,6 +42,7 @@
     <ClInclude Include="routing\routemanager.h">
       <Filter>routing</Filter>
     </ClInclude>
+    <ClInclude Include="converters.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="winnet.def" />
