@@ -91,26 +91,25 @@ WINNET_API
 WinNet_DeactivateConnectivityMonitor(
 );
 
-enum WINNET_IP_TYPE
+enum WINNET_ADDR_FAMILY
 {
-	WINNET_IP_TYPE_IPV4 = 0,
-	WINNET_IP_TYPE_IPV6 = 1,
+	WINNET_ADDR_FAMILY_IPV4 = 0,
+	WINNET_ADDR_FAMILY_IPV6 = 1,
 };
-
-typedef struct tag_WINNET_IPNETWORK
-{
-	WINNET_IP_TYPE type;
-	uint8_t bytes[16];	// Network byte order.
-	uint8_t prefix;
-}
-WINNET_IPNETWORK;
 
 typedef struct tag_WINNET_IP
 {
-	WINNET_IP_TYPE type;
+	WINNET_ADDR_FAMILY family;
 	uint8_t bytes[16];	// Network byte order.
 }
 WINNET_IP;
+
+typedef struct tag_WINNET_IP_NETWORK
+{
+	uint8_t prefix;
+	WINNET_IP addr;
+}
+WINNET_IP_NETWORK;
 
 typedef struct tag_WINNET_NODE
 {
@@ -121,7 +120,7 @@ WINNET_NODE;
 
 typedef struct tag_WINNET_ROUTE
 {
-	WINNET_IPNETWORK network;
+	WINNET_IP_NETWORK network;
 	const WINNET_NODE *node;
 }
 WINNET_ROUTE;

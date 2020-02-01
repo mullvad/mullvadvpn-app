@@ -3,6 +3,7 @@
 #include "NetworkInterfaces.h"
 #include "offlinemonitor.h"
 #include "routing/routemanager.h"
+#include "converters.h"
 #include <libshared/logging/logsinkadapter.h>
 #include <libshared/logging/unwind.h>
 #include <libshared/network/interfaceutils.h>
@@ -27,156 +28,6 @@ OfflineMonitor *g_OfflineMonitor = nullptr;
 std::mutex g_RouteManagerLock;
 RouteManager *g_RouteManager = nullptr;
 std::shared_ptr<shared::logging::LogSinkAdapter> g_RouteManagerLogSink;
-
-Network ConvertNetwork(const WINNET_IPNETWORK &in)
-{
-	//
-	// Convert WINNET_IPNETWORK into Network aka IP_ADDRESS_PREFIX
-	//
-
-	Network out{ 0 };
-
-	out.PrefixLength = in.prefix;
-
-	switch (in.type)
-	{
-		case WINNET_IP_TYPE_IPV4:
-		{
-			out.Prefix.si_family = AF_INET;
-			out.Prefix.Ipv4.sin_family = AF_INET;
-			out.Prefix.Ipv4.sin_addr.s_addr = *reinterpret_cast<const uint32_t *>(in.bytes);
-
-			break;
-		}
-		case WINNET_IP_TYPE_IPV6:
-		{
-			out.Prefix.si_family = AF_INET6;
-			out.Prefix.Ipv6.sin6_family = AF_INET6;
-			memcpy(out.Prefix.Ipv6.sin6_addr.u.Byte, in.bytes, 16);
-
-			break;
-		}
-		default:
-		{
-			THROW_ERROR("Missing case handler in switch clause");
-		}
-	}
-
-	return out;
-}
-
-std::optional<Node> ConvertNode(const WINNET_NODE *in)
-{
-	if (nullptr == in)
-	{
-		return {};
-	}
-
-	if (nullptr == in->deviceName && nullptr == in->gateway)
-	{
-		THROW_ERROR("Invalid 'WINNET_NODE' definition");
-	}
-
-	std::optional<std::wstring> deviceName;
-	std::optional<NodeAddress> gateway;
-
-	if (nullptr != in->deviceName)
-	{
-		deviceName = in->deviceName;
-	}
-
-	if (nullptr != in->gateway)
-	{
-		NodeAddress gw { 0 };
-
-		switch (in->gateway->type)
-		{
-			case WINNET_IP_TYPE_IPV4:
-			{
-				gw.si_family = AF_INET;
-				gw.Ipv4.sin_addr.s_addr = *reinterpret_cast<const uint32_t *>(in->gateway->bytes);
-
-				break;
-			}
-			case WINNET_IP_TYPE_IPV6:
-			{
-				gw.si_family = AF_INET6;
-				memcpy(&gw.Ipv6.sin6_addr.u.Byte, in->gateway->bytes, 16);
-
-				break;
-			}
-			default:
-			{
-				THROW_ERROR("Invalid gateway type specifier in 'WINNET_NODE' definition");
-			}
-		}
-
-		gateway = gw;
-	}
-
-	return Node(deviceName, gateway);
-}
-
-std::vector<Route> ConvertRoutes(const WINNET_ROUTE *routes, uint32_t numRoutes)
-{
-	std::vector<Route> out;
-
-	out.reserve(numRoutes);
-
-	for (size_t i = 0; i < numRoutes; ++i)
-	{
-		out.emplace_back(Route
-		{
-			ConvertNetwork(routes[i].network),
-			ConvertNode(routes[i].node)
-		});
-	}
-
-	return out;
-}
-
-std::vector<SOCKADDR_INET> ConvertAddresses(const WINNET_IP *addresses, uint32_t numAddresses)
-{
-	//
-	// This duplicates the same logic we have above.
-	// TODO: Fix when time permits.
-	//
-
-	std::vector<SOCKADDR_INET> out;
-	out.reserve(numAddresses);
-
-	for (uint32_t i = 0; i < numAddresses; ++i)
-	{
-		const WINNET_IP &from = addresses[i];
-		SOCKADDR_INET to{ 0 };
-
-		switch (from.type)
-		{
-			case WINNET_IP_TYPE_IPV4:
-			{
-				to.si_family = AF_INET;
-				to.Ipv4.sin_addr.s_addr = *reinterpret_cast<const uint32_t *>(from.bytes);
-
-				break;
-			}
-			case WINNET_IP_TYPE_IPV6:
-			{
-				to.si_family = AF_INET6;
-				memcpy(&to.Ipv6.sin6_addr.u.Byte, from.bytes, 16);
-
-				break;
-			}
-			default:
-			{
-				THROW_ERROR("Invalid address family in 'WINNET_IP' definition");
-			}
-		 }
-
-		 out.push_back(to);
-	}
-
-	return out;
-}
 
 } //anonymous namespace
 
@@ -406,7 +257,7 @@ WinNet_AddRoutes(
 
 	try
 	{
-		g_RouteManager->addRoutes(ConvertRoutes(routes, numRoutes));
+		g_RouteManager->addRoutes(winnet::ConvertRoutes(routes, numRoutes));
 		return true;
 	}
 	catch (const std::exception &err)
@@ -449,7 +300,7 @@ WinNet_DeleteRoutes(
 
 	try
 	{
-		g_RouteManager->deleteRoutes(ConvertRoutes(routes, numRoutes));
+		g_RouteManager->deleteRoutes(winnet::ConvertRoutes(routes, numRoutes));
 		return true;
 	}
 	catch (const std::exception &err)
@@ -628,7 +479,7 @@ WinNet_AddDeviceIpAddresses(
 			THROW_ERROR(msg.c_str());
 		}
 
-		InterfaceUtils::AddDeviceIpAddresses(luid, ConvertAddresses(addresses, numAddresses));
+		InterfaceUtils::AddDeviceIpAddresses(luid, winnet::ConvertAddresses(addresses, numAddresses));
 
 		return true;
 	}
