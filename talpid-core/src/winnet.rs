@@ -105,45 +105,25 @@ pub fn get_tap_interface_alias() -> Result<OsString, Error> {
     Ok(alias.to_os_string())
 }
 
-#[repr(C)]
-struct WinNetIpType(u32);
-
-const WINNET_IPV4: u32 = 0;
-const WINNET_IPV6: u32 = 1;
-
-impl WinNetIpType {
-    pub fn v4() -> Self {
-        WinNetIpType(WINNET_IPV4)
-    }
-
-    pub fn v6() -> Self {
-        WinNetIpType(WINNET_IPV6)
-    }
+#[allow(dead_code)]
+#[repr(u32)]
+pub enum WinNetAddrFamily {
+    IPV4 = 0,
+    IPV6 = 1,
 }
 
-
-#[repr(C)]
-pub struct WinNetIpNetwork {
-    ip_type: WinNetIpType,
-    ip_bytes: [u8; 16],
-    prefix: u8,
-}
-
-impl From<IpNetwork> for WinNetIpNetwork {
-    fn from(network: IpNetwork) -> WinNetIpNetwork {
-        let WinNetIp { ip_type, ip_bytes } = WinNetIp::from(network.ip());
-        let prefix = network.prefix();
-        WinNetIpNetwork {
-            ip_type,
-            ip_bytes,
-            prefix,
+impl WinNetAddrFamily {
+    pub fn to_windows_proto_enum(&self) -> u16 {
+        match self {
+            Self::IPV4 => 2,
+            Self::IPV6 => 23,
         }
     }
 }
 
 #[repr(C)]
 pub struct WinNetIp {
-    ip_type: WinNetIpType,
+    addr_family: WinNetAddrFamily,
     ip_bytes: [u8; 16],
 }
 
@@ -154,7 +134,7 @@ impl From<IpAddr> for WinNetIp {
             IpAddr::V4(v4_addr) => {
                 bytes[..4].copy_from_slice(&v4_addr.octets());
                 WinNetIp {
-                    ip_type: WinNetIpType::v4(),
+                    addr_family: WinNetAddrFamily::IPV4,
                     ip_bytes: bytes,
                 }
             }
@@ -162,10 +142,25 @@ impl From<IpAddr> for WinNetIp {
                 bytes.copy_from_slice(&v6_addr.octets());
 
                 WinNetIp {
-                    ip_type: WinNetIpType::v6(),
+                    addr_family: WinNetAddrFamily::IPV6,
                     ip_bytes: bytes,
                 }
             }
+        }
+    }
+}
+
+#[repr(C)]
+pub struct WinNetIpNetwork {
+    prefix: u8,
+    ip: WinNetIp,
+}
+
+impl From<IpNetwork> for WinNetIpNetwork {
+    fn from(network: IpNetwork) -> WinNetIpNetwork {
+        WinNetIpNetwork {
+            prefix: network.prefix(),
+            ip: WinNetIp::from(network.ip()),
         }
     }
 }
@@ -195,7 +190,6 @@ impl WinNetNode {
             device_name: ptr::null_mut(),
         }
     }
-
 
     fn from_device(name: &str) -> Self {
         let device_name = WideCString::from_str(name)
@@ -234,7 +228,6 @@ impl Drop for WinNetNode {
     }
 }
 
-
 #[repr(C)]
 pub struct WinNetRoute {
     gateway: WinNetIpNetwork,
@@ -251,7 +244,7 @@ impl WinNetRoute {
 
     pub fn new(node: WinNetNode, gateway: WinNetIpNetwork) -> Self {
         let node = Box::into_raw(Box::new(node));
-        WinNetRoute { gateway, node }
+        Self { gateway, node }
     }
 }
 
@@ -273,7 +266,7 @@ pub fn activate_routing_manager(routes: &[WinNetRoute]) -> bool {
 
 pub struct WinNetCallbackHandle {
     handle: *mut libc::c_void,
-    // allows us to keep the context pointer allive.
+    // Allows us to keep the context pointer alive.
     _context: Box<dyn std::any::Any>,
 }
 
@@ -292,25 +285,9 @@ pub enum WinNetDefaultRouteChangeEventType {
     DefaultRouteRemoved = 1,
 }
 
-#[allow(dead_code)]
-#[repr(u16)]
-pub enum WinNetIpFamily {
-    V4 = 0,
-    V6 = 1,
-}
-
-impl WinNetIpFamily {
-    pub fn to_windows_proto_enum(&self) -> u16 {
-        match self {
-            Self::V4 => 2,
-            Self::V6 => 23,
-        }
-    }
-}
-
 pub type DefaultRouteChangedCallback = unsafe extern "system" fn(
     event_type: WinNetDefaultRouteChangeEventType,
-    ip_family: WinNetIpFamily,
+    addr_family: WinNetAddrFamily,
     interface_luid: u64,
     ctx: *mut c_void,
 );
