@@ -366,10 +366,10 @@ WinNet_RegisterDefaultRouteChangedCallback(
 			// Translate the family type.
 			//
 
-			static const std::pair<ADDRESS_FAMILY, WINNET_IP_FAMILY> familyMap[] =
+			static const std::pair<ADDRESS_FAMILY, WINNET_ADDR_FAMILY> familyMap[] =
 			{
-				{ static_cast<ADDRESS_FAMILY>(AF_INET), WINNET_IP_FAMILY_V4 },
-				{ static_cast<ADDRESS_FAMILY>(AF_INET6), WINNET_IP_FAMILY_V6 }
+				{ static_cast<ADDRESS_FAMILY>(AF_INET), WINNET_ADDR_FAMILY_IPV4 },
+				{ static_cast<ADDRESS_FAMILY>(AF_INET6), WINNET_ADDR_FAMILY_IPV6 }
 			};
 
 			const auto translatedFamily = common::ValueMapper::Map<>(family, familyMap);
