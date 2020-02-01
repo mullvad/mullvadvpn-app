@@ -7,9 +7,6 @@
 #include <ws2def.h>
 #include <ws2ipdef.h>
 #include <iphlpapi.h>
-//#include <netioapi.h>
-//#include <functional>
-
 
 namespace winnet::routing
 {

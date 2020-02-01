@@ -3,7 +3,6 @@
 #include <ws2def.h>
 #include <in6addr.h>
 #include <numeric>
-//#include <netioapi.h>
 #include <libcommon/error.h>
 #include <libcommon/memory.h>
 
