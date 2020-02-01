@@ -160,7 +160,7 @@ impl WgGoTunnel {
     #[cfg(target_os = "windows")]
     pub unsafe extern "system" fn default_route_changed_callback(
         event_type: winnet::WinNetDefaultRouteChangeEventType,
-        address_family: winnet::WinNetIpFamily,
+        address_family: winnet::WinNetAddrFamily,
         interface_luid: u64,
         _ctx: *mut libc::c_void,
     ) {
