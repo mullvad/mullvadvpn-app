@@ -14,3 +14,6 @@ members = [
     "talpid-ipc",
 ]
 exclude = ["dist-assets/binaries/shadowsocks-rust"]
+
+[profile.release]
+opt-level = "s"
