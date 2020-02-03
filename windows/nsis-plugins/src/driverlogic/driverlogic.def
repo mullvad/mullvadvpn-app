@@ -1,6 +1,0 @@
-LIBRARY driverlogic
-
-EXPORTS
-
-IdentifyNewAdapter
-RemoveVanillaMullvadTap
