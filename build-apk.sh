@@ -5,7 +5,6 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-./wireguard/build-wireguard-go.sh --android
 
 PRODUCT_VERSION="$(node -p "require('$SCRIPT_DIR/gui/package.json').version" | sed -Ee 's/\.0//g')"
 
@@ -81,6 +80,8 @@ for ARCHITECTURE in $ARCHITECTURES; do
     cp -a "$SCRIPT_DIR/dist-assets/binaries/$TARGET" "$SCRIPT_DIR/android/build/extraJni/$ABI"
     cp "$SCRIPT_DIR/target/$TARGET/$BUILD_TYPE/libmullvad_jni.so" "$SCRIPT_DIR/android/build/extraJni/$ABI/"
 done
+
+./wireguard/build-wireguard-go.sh --android
 
 cd "$SCRIPT_DIR/android"
 ./gradlew --console plain "$GRADLE_TASK"
