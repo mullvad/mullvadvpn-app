@@ -34,6 +34,8 @@ Line wrap the file at 100 chars.                                              Th
 - Updated `wireguard-go` to `v0.0.20200121`
 - Use traffic data from WireGuard to infer connectivity to improve stability of the connection.
 - Remove WireGuard keys from accounts when they are removed from the local account history.
+- Change the optimization level for releases from the default value to `s`, as a fix for issues on
+  Windows.
 
 #### Linux
 - DNS management with static `/etc/resolv.conf` will now work even when no
