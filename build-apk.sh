@@ -5,7 +5,6 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-./wireguard/build-wireguard-go.sh --android
 
 PRODUCT_VERSION="$(node -p "require('$SCRIPT_DIR/gui/package.json').version" | sed -Ee 's/\.0//g')"
 
@@ -52,6 +51,9 @@ trap 'restore_metadata_backups' EXIT
 
 cp Cargo.lock Cargo.lock.bak
 ./version_metadata.sh inject $PRODUCT_VERSION
+
+./wireguard/build-wireguard-go.sh --android
+
 
 ARCHITECTURES="aarch64 armv7 x86_64 i686"
 for ARCHITECTURE in $ARCHITECTURES; do
