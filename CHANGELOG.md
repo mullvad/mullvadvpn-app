@@ -27,19 +27,18 @@ Line wrap the file at 100 chars.                                              Th
 - Add translations for Finnish and Danish.
 - Copy WireGuard key when clicking on it.
 
+#### Windows
+- Sign all binaries in the app instead of just the installer.
+
 ### Changed
 - Increase OpenVPN ping timeout from 20 to 25 seconds. Might make working tunnels disconnect
   a bit less frequently.
-- Increase WireGuard ping timeout from 7 to 15 seconds.
-- Updated `wireguard-go` to `v0.0.20200121`
-- Use traffic data from WireGuard to infer connectivity to improve stability of the connection.
+- Use traffic data from WireGuard to infer connectivity, instead of continuously pinging.
+  Should improve stability of the connection and reduce power use.
+- Update `wireguard-go` to `v0.0.20200121`
 - Remove WireGuard keys from accounts when they are removed from the local account history.
-- Change the optimization level for releases from the default value to `s`, as a temporary fix for
-  the system service crashing on Windows for newer CPU models.
-
-#### Linux
-- DNS management with static `/etc/resolv.conf` will now work even when no
-  `/etc/resolv.conf` exists.
+- Upgrade from Electron 6 to Electron 7.
+- Disable WireGuard protocol option if there's no WireGuard key.
 
 #### Android
 - Wait for traffic to be routed through the tunnel device before advertising blocked state.
@@ -59,7 +58,6 @@ Line wrap the file at 100 chars.                                              Th
 - Don't try to replace WireGuard key if account has too many keys already.
 - Fix bogus update notification caused by an outdated cache.
 - Fix layout issues when showing messages in WireGuard key view.
-- Disable WireGuard protocol option if there's no WireGuard key.
 - Fix translation of "System default" after selecting "System default" in language settings.
 
 #### Windows
@@ -70,6 +68,8 @@ Line wrap the file at 100 chars.                                              Th
 - Make WireGuard work with IPv6 enabled even if there is no functioning TAP adapter for OpenVPN.
 - Restart daemon when coming back from system hibernation with terminated user session, since
   it's perceived as a cold boot from the user's perspective, so the app should act accordingly.
+- Change the optimization level for releases from the default value to `s`, as a temporary fix for
+  the system service crashing on Windows for newer CPU models.
 
 #### Android
 - Fix crash when starting the app right after quitting it.
@@ -77,6 +77,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix crash when VPN permission is revoked, either manually or by starting another VPN app.
 - Fix crash caused by local JNI reference table overflow after running for a long time.
 - Dismiss notification after service has stopped.
+
+#### Linux
+- DNS management with static `/etc/resolv.conf` will now work even when no
+  `/etc/resolv.conf` exists.
 
 ### Security
 #### Windows
