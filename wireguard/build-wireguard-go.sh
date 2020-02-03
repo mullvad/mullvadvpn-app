@@ -72,16 +72,15 @@ function unix_target_triple {
 function build_unix {
     echo "Building wireguard-go for $1"
     pushd wireguard-go
-        go build -v -o libwg.a -buildmode c-archive
         target_triple_dir="../../build/lib/$(unix_target_triple)"
         mkdir -p $target_triple_dir
-        mv libwg.a $target_triple_dir
+        go build -v -o $target_triple_dir/libwg.a -buildmode c-archive
     popd
 }
 
 function build_android {
     echo "Building for android"
-    local docker_image_hash="d73fdea1108cd75d7eb09f8894fe6892dc502a2d62c39b4f75072e777398f477"
+    local docker_image_hash="f432cb779611284ce69aca59a90a8a601171d4c29728561ae32bd228b1699198"
 
     docker run --rm \
         -v "$(pwd)/../":/workspace \
