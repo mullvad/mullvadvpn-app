@@ -79,6 +79,7 @@ Line wrap the file at 100 chars.                                              Th
 - Dismiss notification after service has stopped.
 - Don't show missing connectivity error message in WireGuard key management screen if a
   reconnection is expected to happen.
+- Fix showing new key as invalid immediately after regeneration.
 
 #### Linux
 - DNS management with static `/etc/resolv.conf` will now work even when no
