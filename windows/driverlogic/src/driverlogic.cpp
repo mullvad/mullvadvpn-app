@@ -14,6 +14,7 @@
 #include <devguid.h>
 #include <devpkey.h>
 #include <newdev.h>
+#include <cfgmgr32.h>
 
 
 namespace
@@ -26,9 +27,7 @@ constexpr wchar_t TAP_BASE_ALIAS[] = L"Mullvad";
 enum ReturnCodes
 {
 	GENERAL_ERROR,
-	GENERAL_SUCCESS,
-	DELETE_NO_ADAPTERS_REMAIN,
-	DELETE_SOME_ADAPTERS_REMAIN
+	GENERAL_SUCCESS
 };
 
 struct NetworkAdapter
@@ -69,7 +68,7 @@ void LogAdapters(const std::wstring &description, const std::set<NetworkAdapter>
 
 std::optional<std::wstring> GetDeviceRegistryStringProperty(
 	HDEVINFO devInfo,
-	SP_DEVINFO_DATA *devInfoData,
+	const SP_DEVINFO_DATA &devInfoData,
 	DWORD property
 )
 {
@@ -81,7 +80,7 @@ std::optional<std::wstring> GetDeviceRegistryStringProperty(
 
 	const auto sizeStatus = SetupDiGetDeviceRegistryPropertyW(
 		devInfo,
-		devInfoData,
+		const_cast<SP_DEVINFO_DATA*>(&devInfoData),
 		property,
 		nullptr,
 		nullptr,
@@ -110,7 +109,7 @@ std::optional<std::wstring> GetDeviceRegistryStringProperty(
 
 	const auto status = SetupDiGetDeviceRegistryPropertyW(
 		devInfo,
-		devInfoData,
+		const_cast<SP_DEVINFO_DATA*>(&devInfoData),
 		property,
 		nullptr,
 		reinterpret_cast<PBYTE>(&buffer[0]),
@@ -128,7 +127,7 @@ std::optional<std::wstring> GetDeviceRegistryStringProperty(
 
 std::wstring GetDeviceStringProperty(
 	HDEVINFO devInfo,
-	SP_DEVINFO_DATA *devInfoData,
+	const SP_DEVINFO_DATA &devInfoData,
 	const DEVPROPKEY *property
 )
 {
@@ -141,7 +140,7 @@ std::wstring GetDeviceStringProperty(
 
 	const auto sizeStatus = SetupDiGetDevicePropertyW(
 		devInfo,
-		devInfoData,
+		const_cast<SP_DEVINFO_DATA*>(&devInfoData),
 		property,
 		&type,
 		nullptr,
@@ -168,7 +167,7 @@ std::wstring GetDeviceStringProperty(
 
 	const auto status = SetupDiGetDevicePropertyW(
 		devInfo,
-		devInfoData,
+		const_cast<SP_DEVINFO_DATA*>(&devInfoData),
 		property,
 		&type,
 		reinterpret_cast<PBYTE>(&buffer[0]),
@@ -187,14 +186,14 @@ std::wstring GetDeviceStringProperty(
 
 std::wstring GetDeviceInstanceId(
 	HDEVINFO devInfo,
-	SP_DEVINFO_DATA *devInfoData
+	const SP_DEVINFO_DATA &devInfoData
 )
 {
 	DWORD requiredSize = 0;
 
 	SetupDiGetDeviceInstanceIdW(
 		devInfo,
-		devInfoData,
+		const_cast<SP_DEVINFO_DATA*>(&devInfoData),
 		nullptr,
 		0,
 		&requiredSize
@@ -204,7 +203,7 @@ std::wstring GetDeviceInstanceId(
 
 	const auto status = SetupDiGetDeviceInstanceIdW(
 		devInfo,
-		devInfoData,
+		const_cast<SP_DEVINFO_DATA *>(&devInfoData),
 		&deviceInstanceId[0],
 		requiredSize,
 		nullptr
@@ -257,11 +256,41 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 	return instanceId.data();
 }
 
-std::set<NetworkAdapter> GetTapAdapters(const std::wstring &tapHardwareId)
+bool DeleteDevice(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData)
 {
-	std::set<NetworkAdapter> adapters;
+	const auto data = const_cast<SP_DEVINFO_DATA *>(&devInfoData);
 
-	HDEVINFO devInfo = SetupDiGetClassDevs(
+	wchar_t devId[MAX_DEVICE_ID_LEN];
+	if (CR_SUCCESS != CM_Get_Device_IDW(data->DevInst, devId, sizeof(devId) / sizeof(devId[0]), 0))
+	{
+		// skip
+		return false;
+	}
+
+	SP_REMOVEDEVICE_PARAMS rmdParams = { 0 };
+	rmdParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
+	rmdParams.ClassInstallHeader.InstallFunction = DIF_REMOVE;
+	rmdParams.Scope = DI_REMOVEDEVICE_GLOBAL;
+	rmdParams.HwProfile = 0;
+
+	auto status = SetupDiSetClassInstallParamsW(devInfo, data, &rmdParams.ClassInstallHeader, sizeof(rmdParams));
+	if (FALSE == status)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiSetClassInstallParamsW");
+	}
+
+	status = SetupDiCallClassInstaller(DIF_REMOVE, devInfo, data);
+	if (FALSE == status)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiCallClassInstaller");
+	}
+
+	return true;
+}
+
+void ForEachDevice(const std::wstring &tapHardwareId, std::function<void(HDEVINFO, const SP_DEVINFO_DATA &)> func)
+{
+	HDEVINFO devInfo = SetupDiGetClassDevsW(
 		&GUID_DEVCLASS_NET,
 		nullptr,
 		nullptr,
@@ -270,16 +299,14 @@ std::set<NetworkAdapter> GetTapAdapters(const std::wstring &tapHardwareId)
 
 	if (INVALID_HANDLE_VALUE == devInfo)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiGetClassDevs() failed");
+		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiGetClassDevsW");
 	}
 
-	common::memory::ScopeDestructor scopeDestructor;
-	scopeDestructor += [devInfo]()
+	common::memory::ScopeDestructor cleanupDevList;
+	cleanupDevList += [&devInfo]()
 	{
 		SetupDiDestroyDeviceInfoList(devInfo);
 	};
-
-	common::network::Nci nci;
 
 	for (int memberIndex = 0; ; memberIndex++)
 	{
@@ -292,26 +319,45 @@ std::set<NetworkAdapter> GetTapAdapters(const std::wstring &tapHardwareId)
 
 			if (ERROR_NO_MORE_ITEMS == lastError)
 			{
-				// Done
 				break;
 			}
 
-			THROW_WINDOWS_ERROR(lastError, "SetupDiEnumDeviceInfo() failed while enumerating network adapters");
+			THROW_WINDOWS_ERROR(lastError, "Enumerating network adapters");
 		}
 
 		try
 		{
-			//
-			// Check whether this is a TAP adapter
-			//
+			const auto hardwareId = GetDeviceRegistryStringProperty(devInfo, devInfoData, SPDRP_HARDWAREID);
 
-			const auto hardwareId = GetDeviceRegistryStringProperty(devInfo, &devInfoData, SPDRP_HARDWAREID);
-			if (!hardwareId.has_value()
-				|| wcscmp(hardwareId.value().c_str(), tapHardwareId.c_str()) != 0)
+			if (!hardwareId.has_value() ||
+				0 != tapHardwareId.compare(hardwareId.value()))
 			{
 				continue;
 			}
+		}
+		catch (const std::exception & e)
+		{
+			//
+			// Skip this adapter
+			//
 
+			std::cerr << "Skipping TAP adapter due to exception caught while iterating: "
+				<< e.what() << std::endl;
+			continue;
+		}
+
+		func(devInfo, devInfoData);
+	}
+}
+
+std::set<NetworkAdapter> GetTapAdapters(const std::wstring &tapHardwareId)
+{
+	std::set<NetworkAdapter> adapters;
+	common::network::Nci nci;
+
+	ForEachDevice(tapHardwareId, [&](HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData) {
+		try
+		{
 			//
 			// Construct NetworkAdapter
 			//
@@ -321,21 +367,21 @@ std::set<NetworkAdapter> GetTapAdapters(const std::wstring &tapHardwareId)
 
 			adapters.emplace(NetworkAdapter(
 				guid,
-				GetDeviceStringProperty(devInfo, &devInfoData, &DEVPKEY_Device_DriverDesc),
+				GetDeviceStringProperty(devInfo, devInfoData, &DEVPKEY_Device_DriverDesc),
 				nci.getConnectionName(guidObj),
-				GetDeviceInstanceId(devInfo, &devInfoData)
+				GetDeviceInstanceId(devInfo, devInfoData)
 			));
 		}
 		catch (const std::exception & e)
 		{
 			//
-			// Log exception and skip this adapter
+			// Skip this adapter
 			//
 
 			std::cerr << "Skipping TAP adapter due to exception caught while iterating: "
 				<< e.what() << std::endl;
 		}
-	}
+	});
 
 	return adapters;
 }
@@ -459,9 +505,9 @@ std::optional<NetworkAdapter> FindMullvadAdapter(const std::set<NetworkAdapter> 
 	auto findByAlias = [](const std::set<NetworkAdapter> &adapters, const std::wstring &alias)
 	{
 		const auto it = std::find_if(adapters.begin(), adapters.end(), [&alias](const NetworkAdapter &candidate)
-			{
-				return 0 == _wcsicmp(candidate.alias.c_str(), alias.c_str());
-			});
+		{
+			return 0 == _wcsicmp(candidate.alias.c_str(), alias.c_str());
+		});
 
 		return it;
 	};
@@ -514,13 +560,26 @@ NetworkAdapter FindBrandedTap()
 	return *added.begin();
 }
 
-enum class DeletionResult
+void RemoveTapDriver(const std::wstring &tapHardwareId)
 {
-	NO_REMAINING_TAP_ADAPTERS,
-	SOME_REMAINING_TAP_ADAPTERS
-};
+	ForEachDevice(tapHardwareId, [](HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData) {
+		try
+		{
+			DeleteDevice(devInfo, devInfoData);
+		}
+		catch (const std::exception & e)
+		{
+			//
+			// Skip this adapter
+			//
 
-DeletionResult DeleteVanillaMullvadAdapter()
+			std::cerr << "Skipping TAP adapter due to exception caught while iterating: "
+				<< e.what() << std::endl;
+		}
+	});
+}
+
+void DeleteVanillaMullvadAdapter()
 {
 	auto tapAdapters = GetTapAdapters(DEPRECATED_TAP_HARDWARE_ID);
 	std::optional<NetworkAdapter> mullvadAdapter = FindMullvadAdapter(tapAdapters);
@@ -531,98 +590,32 @@ DeletionResult DeleteVanillaMullvadAdapter()
 	}
 
 	const auto mullvadGuid = mullvadAdapter.value().guid;
+	bool deletedAdapter = false;
 
-	HDEVINFO devInfo = SetupDiGetClassDevsW(
-		&GUID_DEVCLASS_NET,
-		nullptr,
-		nullptr,
-		DIGCF_PRESENT
-	);
-
-	if (INVALID_HANDLE_VALUE == devInfo)
-	{
-		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiGetClassDevsW() failed");
-	}
-
-	common::memory::ScopeDestructor cleanupDevList;
-	cleanupDevList += [&devInfo]()
-	{
-		SetupDiDestroyDeviceInfoList(devInfo);
-	};
-
-	int numRemainingAdapters = 0;
-
-	for (int memberIndex = 0; ; memberIndex++)
-	{
-		SP_DEVINFO_DATA devInfoData = { 0 };
-		devInfoData.cbSize = sizeof(devInfoData);
-
-		if (FALSE == SetupDiEnumDeviceInfo(devInfo, memberIndex, &devInfoData))
-		{
-			const auto lastError = GetLastError();
-
-			if (ERROR_NO_MORE_ITEMS == lastError)
-			{
-				break;
-			}
-
-			THROW_WINDOWS_ERROR(lastError, "Error enumerating network adapters");
-		}
-
+	ForEachDevice(DEPRECATED_TAP_HARDWARE_ID, [&](HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData) {
 		try
 		{
-			const auto hardwareId = GetDeviceRegistryStringProperty(devInfo, &devInfoData, SPDRP_HARDWAREID);
-
-			if (!hardwareId.has_value())
+			if (0 == GetNetCfgInstanceId(devInfo, devInfoData).compare(mullvadGuid))
 			{
-				continue;
-			}
-			if (0 != wcscmp(DEPRECATED_TAP_HARDWARE_ID, hardwareId.value().data()))
-			{
-				continue;
-			}
-			if (0 != GetNetCfgInstanceId(devInfo, devInfoData).compare(mullvadGuid))
-			{
-				numRemainingAdapters++;
-				continue;
-			}
-
-			//
-			// Delete existing device
-			//
-
-			SP_REMOVEDEVICE_PARAMS rmdParams;
-			rmdParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
-			rmdParams.ClassInstallHeader.InstallFunction = DIF_REMOVE;
-			rmdParams.Scope = DI_REMOVEDEVICE_GLOBAL;
-			rmdParams.HwProfile = 0;
-
-			auto status = SetupDiSetClassInstallParamsW(devInfo, &devInfoData, &rmdParams.ClassInstallHeader, sizeof(rmdParams));
-			if (FALSE == status)
-			{
-				THROW_WINDOWS_ERROR(GetLastError(), "SetupDiSetClassInstallParamsW");
-			}
-
-			status = SetupDiCallClassInstaller(DIF_REMOVE, devInfo, &devInfoData);
-			if (FALSE == status)
-			{
-				THROW_WINDOWS_ERROR(GetLastError(), "SetupDiCallClassInstaller");
+				deletedAdapter = DeleteDevice(devInfo, devInfoData) || deletedAdapter;
 			}
 		}
 		catch (const std::exception & e)
 		{
 			//
-			// Log exception and skip this adapter
+			// Skip this adapter
 			//
 
 			std::cerr << "Skipping TAP adapter due to exception caught while iterating: "
-				<< e.what();
+				<< e.what() << std::endl;
+			return;
 		}
-	}
+	});
 
-	return (numRemainingAdapters > 0)
-		? DeletionResult::SOME_REMAINING_TAP_ADAPTERS
-		: DeletionResult::NO_REMAINING_TAP_ADAPTERS;
+	if (!deletedAdapter)
+	{
+		THROW_ERROR("TAP adapter was not removed");
+	}
 }
 
 } // anonymous namespace
@@ -655,18 +648,18 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 
 			UpdateTapDriver(argv[2]);
 		}
+		else if (0 == _wcsicmp(argv[1], L"remove"))
+		{
+			if (3 != argc)
+			{
+				goto INVALID_ARGUMENTS;
+			}
+
+			RemoveTapDriver(argv[2]);
+		}
 		else if (0 == _wcsicmp(argv[1], L"remove-vanilla-tap"))
 		{
-			switch (DeleteVanillaMullvadAdapter())
-			{
-				case DeletionResult::NO_REMAINING_TAP_ADAPTERS:
-					std::wcout << L"Removed vanilla Mullvad TAP.";
-					return DELETE_NO_ADAPTERS_REMAIN;
-
-				case DeletionResult::SOME_REMAINING_TAP_ADAPTERS:
-					std::wcout << L"Removed vanilla Mullvad TAP.";
-					return DELETE_SOME_ADAPTERS_REMAIN;
-			}
+			DeleteVanillaMullvadAdapter();
 		}
 		else if (0 == _wcsicmp(argv[1], L"find-tap"))
 		{

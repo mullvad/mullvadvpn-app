@@ -27,14 +27,6 @@
 # Return codes from driverlogic
 !define DL_GENERAL_ERROR 0
 !define DL_GENERAL_SUCCESS 1
-!define DL_DELETE_NO_ADAPTERS_REMAIN 2
-!define DL_DELETE_SOME_ADAPTERS_REMAIN 3
-
-# Return codes from tapinstall
-!define DEVCON_EXIT_OK 0
-!define DEVCON_EXIT_REBOOT 1
-!define DEVCON_EXIT_FAIL 2
-!define DEVCON_EXIT_USAGE 3
 
 # Log targets
 !define LOG_FILE 0
@@ -66,27 +58,27 @@
 !define BreakInstallation '!insertmacro "BreakInstallation"'
 
 #
-# ExtractDriver
+# ExtractTapDriver
 #
 # Extract the correct driver for the current platform
-# placing it into $TEMP\driver
+# placing it into $TEMP\tap-driver
 #
-!macro ExtractDriver
+!macro ExtractTapDriver
 
-	SetOutPath "$TEMP\driver"
+	SetOutPath "$TEMP\tap-driver"
 
 	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
-	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\*"
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\tap-driver\*"
 
 	${If} ${AtLeastWin10}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\win10\*"
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\tap-driver\win10\*"
 	${Else}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\driver\win8\*"
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\tap-driver\win8\*"
 	${EndIf}
 	
 !macroend
 
-!define ExtractDriver '!insertmacro "ExtractDriver"'
+!define ExtractTapDriver '!insertmacro "ExtractTapDriver"'
 
 #
 # ExtractWintun
@@ -171,7 +163,7 @@
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${TAP_HARDWARE_ID}'
+	nsExec::ExecToStack '"$TEMP\tap-driver\driverlogic.exe" remove ${TAP_HARDWARE_ID}'
 	Pop $0
 	Pop $1
 
@@ -194,7 +186,7 @@
 
 	log::Log "RemoveVanillaTap()"
 
-	nsExec::ExecToStack '"$TEMP\driver\driverlogic.exe" remove-vanilla-tap'
+	nsExec::ExecToStack '"$TEMP\tap-driver\driverlogic.exe" remove-vanilla-tap'
 
 	Pop $0
 	Pop $1
@@ -204,23 +196,6 @@
 		log::Log $R0
 
 		Goto RemoveVanillaTap_return
-	${EndIf}
-
-	${If} $0 == ${DL_DELETE_NO_ADAPTERS_REMAIN}
-		log::Log "Removing vanilla TAP adapter driver since it is no longer in use"
-
-		nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${DEPRECATED_TAP_HARDWARE_ID}'
-
-		Pop $0
-		Pop $1
-
-		${If} $0 != ${DEVCON_EXIT_OK}
-		${AndIf} $0 != ${DEVCON_EXIT_REBOOT}
-			StrCpy $R0 "Failed to remove driver: $1"
-			log::Log $R0
-
-			Goto RemoveVanillaTap_return
-		${EndIf}
 	${EndIf}
 
 	log::Log "RemoveVanillaTap() completed successfully"
@@ -238,17 +213,17 @@
 !define RemoveVanillaTap '!insertmacro "RemoveVanillaTap"'
 
 #
-# InstallDriver
+# InstallTapDriver
 #
-# Install tunnel driver or update it if already present on the system
+# Install OpenVPN TAP adapter driver
 #
 # Returns: 0 in $R0 on success, otherwise an error message in $R0
 #
-!macro InstallDriver
+!macro InstallTapDriver
 
-	Var /GLOBAL InstallDriver_TapName
+	Var /GLOBAL InstallTapDriver_TapName
 
-	log::Log "InstallDriver()"
+	log::Log "InstallTapDriver()"
 	
 	Push $0
 	Push $1
@@ -264,7 +239,7 @@
 	${IfNot} ${AtLeastWin10}
 		log::Log "Adding OpenVPN certificate to the certificate store"
 
-		nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\driver\driver.cer"'
+		nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\tap-driver\driver.cer"'
 		Pop $0
 		Pop $1
 
@@ -275,20 +250,19 @@
 	${EndIf}
 
 	log::Log "Creating new virtual adapter"
-	nsExec::ExecToStack '"$TEMP\driver\driverlogic.exe" install "$TEMP\driver\OemVista.inf"'
+	nsExec::ExecToStack '"$TEMP\tap-driver\driverlogic.exe" install "$TEMP\tap-driver\OemVista.inf"'
 
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${DEVCON_EXIT_OK}
-	${AndIf} $0 != ${DEVCON_EXIT_REBOOT}
+	${If} $0 != ${DL_GENERAL_SUCCESS}
 		StrCpy $R0 "Failed to create virtual adapter: error $0"
 		log::LogWithDetails $R0 $1
-		Goto InstallDriver_return
+		Goto InstallTapDriver_return
 	${EndIf}
 
 	log::Log "Identifying recently added adapter"
-	nsExec::ExecToStack '"$TEMP\driver\driverlogic.exe" find-tap'
+	nsExec::ExecToStack '"$TEMP\tap-driver\driverlogic.exe" find-tap'
 
 	Pop $0
 	Pop $1
@@ -296,10 +270,10 @@
 	${If} $0 != ${DL_GENERAL_SUCCESS}
 		StrCpy $R0 "Failed to identify new adapter: $1"
 		log::Log $R0
-		Goto InstallDriver_return
+		Goto InstallTapDriver_return
 	${EndIf}
 
-	StrCpy $InstallDriver_TapName $1
+	StrCpy $InstallTapDriver_TapName $1
 	
 	log::Log "New virtual adapter is named $\"$1$\""
 	log::Log "Renaming adapter to $\"Mullvad$\""
@@ -313,26 +287,26 @@
 		StrCpy $R0 "Failed to rename virtual adapter: error $0"
 		log::LogWithDetails $R0 $1
 
-		${ForceRenameAdapter} $InstallDriver_TapName "Mullvad"
+		${ForceRenameAdapter} $InstallTapDriver_TapName "Mullvad"
 
 		${If} $R0 != 0
-			Goto InstallDriver_return
+			Goto InstallTapDriver_return
 		${EndIf}
 	${EndIf}
 
-	log::Log "InstallDriver() completed successfully"
+	log::Log "InstallTapDriver() completed successfully"
 	
 	Push 0
 	Pop $R0
 	
-	InstallDriver_return:
+	InstallTapDriver_return:
 
 	Pop $1
 	Pop $0
 	
 !macroend
 
-!define InstallDriver '!insertmacro "InstallDriver"'
+!define InstallTapDriver '!insertmacro "InstallTapDriver"'
 
 #
 # RemoveWintun
@@ -763,8 +737,8 @@
 
 	${RemoveRelayCache}
 	
-	${ExtractDriver}
-	${InstallDriver}
+	${ExtractTapDriver}
+	${InstallTapDriver}
 
 	${If} $R0 != 0
 		MessageBox MB_OK "Fatal error during driver installation: $R0"
@@ -846,7 +820,7 @@
 	${RemoveCLIFromEnvironPath}
 
 	# Remove the TAP adapter
-	${ExtractDriver}
+	${ExtractTapDriver}
 	${RemoveBrandedTap}
 
 	# If not ran silently
