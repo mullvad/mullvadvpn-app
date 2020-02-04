@@ -58,23 +58,19 @@ export default class TrayIconController {
   }
 
   private loadImages() {
-    const basePath = path.resolve(path.join(__dirname, '../../assets/images/menubar icons'));
     const frames = Array.from({ length: 10 }, (_, i) => i + 1);
-
-    const suffix = this.imageSuffix();
-    const extension = process.platform === 'win32' ? 'ico' : 'png';
-
-    this.iconImages = frames.map((frame) =>
-      nativeImage.createFromPath(path.join(basePath, `lock-${frame}${suffix}.${extension}`)),
-    );
+    this.iconImages = frames.map((frame) => nativeImage.createFromPath(this.getImagePath(frame)));
   }
 
-  private imageSuffix() {
-    if (this.useMonochromaticIconValue && process.platform === 'darwin') {
-      return 'Template';
-    } else {
-      return '';
+  private getImagePath(frame: number) {
+    const basePath = path.resolve(path.join(__dirname, '../../assets/images/menubar icons'));
+    const extension = process.platform === 'win32' ? 'ico' : 'png';
+    let suffix = '';
+    if (this.useMonochromaticIconValue) {
+      suffix = process.platform === 'darwin' ? 'Template' : '_white';
     }
+
+    return path.join(basePath, process.platform, `lock-${frame}${suffix}.${extension}`);
   }
 
   private targetFrame(): number {
