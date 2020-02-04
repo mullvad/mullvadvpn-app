@@ -14,6 +14,7 @@
 #include <devguid.h>
 #include <devpkey.h>
 #include <newdev.h>
+#include <cfgmgr32.h>
 
 
 namespace
@@ -259,6 +260,13 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 
 void DeleteDevice(HDEVINFO devInfo, SP_DEVINFO_DATA * devInfoData)
 {
+	wchar_t devId[MAX_DEVICE_ID_LEN];
+	if (CR_SUCCESS != CM_Get_Device_IDW(devInfoData->DevInst, devId, sizeof(devId) / sizeof(devId[0]), 0))
+	{
+		// skip
+		return;
+	}
+
 	SP_REMOVEDEVICE_PARAMS rmdParams = { 0 };
 	rmdParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
 	rmdParams.ClassInstallHeader.InstallFunction = DIF_REMOVE;
