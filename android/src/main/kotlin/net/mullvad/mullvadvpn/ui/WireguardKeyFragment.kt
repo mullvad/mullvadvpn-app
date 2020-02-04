@@ -227,16 +227,14 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
         when (tunnelState) {
             is TunnelState.Connecting, is TunnelState.Disconnecting -> {
-                statusMessage.setText(R.string.wireguard_key_connectivity)
-                statusMessage.visibility = View.VISIBLE
+                setStatusMessage(R.string.wireguard_key_connectivity, R.color.red)
                 generateButton.visibility = View.GONE
                 generateSpinner.visibility = View.VISIBLE
                 verifyButton.visibility = View.GONE
                 verifySpinner.visibility = View.VISIBLE
             }
             is TunnelState.Error -> {
-                statusMessage.setText(R.string.wireguard_key_blocked_state_message)
-                statusMessage.visibility = View.VISIBLE
+                setStatusMessage(R.string.wireguard_key_blocked_state_message, R.color.red)
                 generateButton.setClickable(false)
                 generateButton.setAlpha(0.5f)
                 verifyButton.setClickable(false)
