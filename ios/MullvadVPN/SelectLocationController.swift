@@ -103,12 +103,12 @@ class SelectLocationController: UITableViewController {
                     .map { (filteredRelayList, $0) }
             })
             .receive(on: DispatchQueue.main)
-            .handleEvents(receiveSubscription: { _ in
-                self.activityIndicator.startAnimating()
-            }, receiveCompletion: { _ in
-                self.activityIndicator.stopAnimating()
-            }, receiveCancel: {
-                self.activityIndicator.stopAnimating()
+            .handleEvents(receiveSubscription: { [weak self] _ in
+                self?.activityIndicator.startAnimating()
+            }, receiveCompletion: { [weak self] _ in
+                self?.activityIndicator.stopAnimating()
+            }, receiveCancel: { [weak self] () in
+                self?.activityIndicator.stopAnimating()
             })
             .sink(receiveCompletion: { (completion) in
                 if case .failure(let error) = completion {
