@@ -27,8 +27,6 @@
 # Return codes from driverlogic
 !define DL_GENERAL_ERROR 0
 !define DL_GENERAL_SUCCESS 1
-!define DL_DELETE_NO_ADAPTERS_REMAIN 2
-!define DL_DELETE_SOME_ADAPTERS_REMAIN 3
 
 # Log targets
 !define LOG_FILE 0
@@ -198,22 +196,6 @@
 		log::Log $R0
 
 		Goto RemoveVanillaTap_return
-	${EndIf}
-
-	${If} $0 == ${DL_DELETE_NO_ADAPTERS_REMAIN}
-		log::Log "Removing vanilla TAP adapter driver since it is no longer in use"
-
-		nsExec::ExecToStack '"$TEMP\tap-driver\driverlogic.exe" remove ${DEPRECATED_TAP_HARDWARE_ID}'
-
-		Pop $0
-		Pop $1
-
-		${If} $0 != ${DL_GENERAL_SUCCESS}
-			StrCpy $R0 "Failed to remove TAP driver: $1"
-			log::Log $R0
-
-			Goto RemoveVanillaTap_return
-		${EndIf}
 	${EndIf}
 
 	log::Log "RemoveVanillaTap() completed successfully"
