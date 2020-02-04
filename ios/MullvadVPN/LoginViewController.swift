@@ -46,6 +46,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
         super.viewDidLoad()
 
         accountTextField.inputAccessoryView = keyboardToolbar
+        accountTextField.attributedPlaceholder = NSAttributedString(
+            string: "0000 0000 0000 0000",
+            attributes: [.foregroundColor: UIColor.lightGray])
 
         updateDisplayedMessage()
         updateStatusIcon()
