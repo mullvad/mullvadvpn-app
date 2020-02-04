@@ -558,6 +558,25 @@ NetworkAdapter FindBrandedTap()
 	return *added.begin();
 }
 
+void RemoveTapDriver(const std::wstring &tapHardwareId)
+{
+	ForEachDevice(tapHardwareId, [&](HDEVINFO devInfo, PSP_DEVINFO_DATA devInfoData) {
+		try
+		{
+			DeleteDevice(devInfo, devInfoData);
+		}
+		catch (const std::exception & e)
+		{
+			//
+			// Skip this adapter
+			//
+
+			std::cerr << "Skipping TAP adapter due to exception caught while iterating: "
+				<< e.what() << std::endl;
+		}
+	});
+}
+
 enum class DeletionResult
 {
 	NO_REMAINING_TAP_ADAPTERS,
@@ -634,6 +653,15 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 			}
 
 			UpdateTapDriver(argv[2]);
+		}
+		else if (0 == _wcsicmp(argv[1], L"remove"))
+		{
+			if (3 != argc)
+			{
+				goto INVALID_ARGUMENTS;
+			}
+
+			RemoveTapDriver(argv[2]);
 		}
 		else if (0 == _wcsicmp(argv[1], L"remove-vanilla-tap"))
 		{
