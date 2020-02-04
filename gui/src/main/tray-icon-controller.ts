@@ -7,7 +7,6 @@ export type TrayIconType = 'unsecured' | 'securing' | 'secured';
 export default class TrayIconController {
   private animation?: KeyframeAnimation;
   private iconImages: NativeImage[] = [];
-  private monochromaticIconImages: NativeImage[] = [];
 
   constructor(
     tray: Tray,
@@ -19,7 +18,7 @@ export default class TrayIconController {
     const initialFrame = this.targetFrame();
     const animation = new KeyframeAnimation();
     animation.speed = 100;
-    animation.onFrame = (frameNumber) => tray.setImage(this.imageForFrame(frameNumber));
+    animation.onFrame = (frameNumber) => tray.setImage(this.iconImages[frameNumber]);
     animation.play({ start: initialFrame, end: initialFrame });
 
     this.animation = animation;
@@ -38,6 +37,7 @@ export default class TrayIconController {
 
   set useMonochromaticIcon(useMonochromaticIcon: boolean) {
     this.useMonochromaticIconValue = useMonochromaticIcon;
+    this.loadImages();
 
     if (this.animation && !this.animation.isRunning) {
       this.animation.play({ end: this.targetFrame() });
@@ -61,13 +61,20 @@ export default class TrayIconController {
     const basePath = path.resolve(path.join(__dirname, '../../assets/images/menubar icons'));
     const frames = Array.from({ length: 10 }, (_, i) => i + 1);
 
-    this.iconImages = frames.map((frame) =>
-      nativeImage.createFromPath(path.join(basePath, `lock-${frame}.png`)),
-    );
+    const suffix = this.imageSuffix();
+    const extension = process.platform === 'win32' ? 'ico' : 'png';
 
-    this.monochromaticIconImages = frames.map((frame) =>
-      nativeImage.createFromPath(path.join(basePath, `lock-${frame}Template.png`)),
+    this.iconImages = frames.map((frame) =>
+      nativeImage.createFromPath(path.join(basePath, `lock-${frame}${suffix}.${extension}`)),
     );
+  }
+
+  private imageSuffix() {
+    if (this.useMonochromaticIconValue && process.platform === 'darwin') {
+      return 'Template';
+    } else {
+      return '';
+    }
   }
 
   private targetFrame(): number {
@@ -79,11 +86,5 @@ export default class TrayIconController {
       case 'secured':
         return 8;
     }
-  }
-
-  private imageForFrame(frame: number): NativeImage {
-    return this.useMonochromaticIconValue
-      ? this.monochromaticIconImages[frame]
-      : this.iconImages[frame];
   }
 }
