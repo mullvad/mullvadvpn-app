@@ -12,7 +12,7 @@ extension UIColor {
 
     enum AccountTextField {
         enum NormalState {
-            static let borderColor = UIColor(red: 0.10, green: 0.18, blue: 0.27, alpha: 1.0)
+            static let borderColor = secondaryColor
             static let textColor = primaryColor
             static let backgroundColor = UIColor.white
         }
