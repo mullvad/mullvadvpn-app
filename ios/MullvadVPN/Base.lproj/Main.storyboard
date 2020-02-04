@@ -40,17 +40,18 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="93"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoIcon" translatesAutoresizingMaskIntoConstraints="NO" id="cKg-hE-JsS">
-                                        <rect key="frame" x="12" y="6.5" width="98" height="100"/>
+                                        <rect key="frame" x="12" y="31.5" width="49.000000000000014" height="50"/>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uXv-Tf-PET">
-                                        <rect key="frame" x="311" y="32.5" width="48" height="48"/>
+                                        <rect key="frame" x="335" y="44.5" width="24" height="24"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="SettingsButton"/>
                                         <state key="normal" image="IconSettings"/>
                                         <connections>
                                             <segue destination="Kqv-qu-mfF" kind="presentation" identifier="ShowSettings" id="cxu-NC-VeP"/>
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MULLVAD VPN" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dqy-A0-TdV">
-                                        <rect key="frame" x="118" y="42" width="168" height="29"/>
+                                        <rect key="frame" x="69" y="42" width="168" height="29"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
                                         <color key="textColor" white="1" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
@@ -112,7 +113,7 @@
                                         </constraints>
                                     </view>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="IconSuccess" translatesAutoresizingMaskIntoConstraints="NO" id="7ux-Tb-Fzq">
-                                        <rect key="frame" x="127.5" y="137" width="120" height="120"/>
+                                        <rect key="frame" x="157.5" y="167" width="60" height="60"/>
                                     </imageView>
                                     <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="V3j-Lb-fSQ" userLabel="Form">
                                         <rect key="frame" x="0.0" y="251" width="375" height="125.5"/>
@@ -134,6 +135,7 @@
                                                 <subviews>
                                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="0000 0000 0000 0000" textAlignment="natural" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="XOB-ct-yLU" userLabel="Account Text Field" customClass="AccountTextField" customModule="MullvadVPN" customModuleProvider="target">
                                                         <rect key="frame" x="0.0" y="0.0" width="327" height="48"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="LoginTextField"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                                         <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="numberPad" enablesReturnKeyAutomatically="YES" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no" textContentType="username"/>
                                                         <connections>
@@ -253,6 +255,9 @@
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="Llz-4U-rOT"/>
                         <barButtonItem title="Log in" style="done" id="0VH-wf-oEs">
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="LoginBarButtonItem"/>
+                            </userDefinedRuntimeAttributes>
                             <connections>
                                 <action selector="doLogin" destination="BYZ-38-t0r" id="8Mv-Di-I6Y"/>
                             </connections>
@@ -275,6 +280,7 @@
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SECURE CONNECTION" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HNy-mU-nui">
                                         <rect key="frame" x="0.0" y="0.0" width="327" height="26.5"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="SecureConnectionLabel"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                         <color key="textColor" name="Success"/>
                                         <nil key="highlightedColor"/>
@@ -361,6 +367,7 @@
                                     </constraints>
                                 </tableViewCellContentView>
                                 <color key="backgroundColor" name="Primary"/>
+                                <accessibility key="accessibilityConfiguration" identifier="AccountCell"/>
                                 <connections>
                                     <outlet property="expiryLabel" destination="QeD-EQ-Ruo" id="sr0-cQ-JV1"/>
                                     <outlet property="titleLabel" destination="Lve-Kd-qTr" id="psd-kM-u1u"/>
@@ -708,16 +715,16 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rkG-Xa-pEO" userLabel="Container">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="307.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="295.5"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nkx-Eb-7le" userLabel="Content">
-                                                <rect key="frame" x="24" y="24" width="327" height="259.5"/>
+                                                <rect key="frame" x="24" y="24" width="327" height="247.5"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HzF-8Z-UBs" userLabel="Account number">
-                                                        <rect key="frame" x="0.0" y="0.0" width="327" height="58"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="327" height="46"/>
                                                         <subviews>
                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="5ux-jY-AC5">
-                                                                <rect key="frame" x="0.0" y="0.0" width="327" height="58"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="327" height="46"/>
                                                                 <subviews>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Account number" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0L8-AT-A51">
                                                                         <rect key="frame" x="0.0" y="0.0" width="327" height="17"/>
@@ -747,7 +754,7 @@
                                                         </constraints>
                                                     </view>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="459-0n-9V2" userLabel="Expiry">
-                                                        <rect key="frame" x="0.0" y="82" width="327" height="45.5"/>
+                                                        <rect key="frame" x="0.0" y="70" width="327" height="45.5"/>
                                                         <subviews>
                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="NMg-f0-BTW">
                                                                 <rect key="frame" x="0.0" y="0.0" width="327" height="45.5"/>
@@ -775,7 +782,7 @@
                                                         </constraints>
                                                     </view>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Acd-vw-Pu7" userLabel="Buttons">
-                                                        <rect key="frame" x="0.0" y="151.5" width="327" height="108"/>
+                                                        <rect key="frame" x="0.0" y="139.5" width="327" height="108"/>
                                                         <subviews>
                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="wNk-FP-mVD">
                                                                 <rect key="frame" x="0.0" y="0.0" width="327" height="108"/>
@@ -793,6 +800,7 @@
                                                                     </button>
                                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QHr-Lz-v6t" customClass="CustomButton" customModule="MullvadVPN" customModuleProvider="target">
                                                                         <rect key="frame" x="0.0" y="66" width="327" height="42"/>
+                                                                        <accessibility key="accessibilityConfiguration" identifier="LogoutButton"/>
                                                                         <constraints>
                                                                             <constraint firstAttribute="height" constant="42" placeholder="YES" id="VYx-GQ-CIz"/>
                                                                         </constraints>
@@ -935,31 +943,31 @@
                         </view>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" id="aFz-H5-sPu" customClass="SelectLocationCell" customModule="MullvadVPN" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="173" width="375" height="48.5"/>
+                                <rect key="frame" x="0.0" y="173" width="375" height="43"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="aFz-H5-sPu" id="6nQ-gT-vzf">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="48.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5ag-N4-pUg" customClass="RelayStatusIndicatorView" customModule="MullvadVPN" customModuleProvider="target">
-                                            <rect key="frame" x="16" y="16.5" width="16" height="16"/>
+                                            <rect key="frame" x="16" y="13.5" width="16" height="16"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="16" id="QWj-hh-I3P"/>
                                                 <constraint firstAttribute="width" constant="16" id="TFV-yi-LXG"/>
                                             </constraints>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y7o-0b-MUV">
-                                            <rect key="frame" x="44" y="11" width="42" height="26.5"/>
+                                            <rect key="frame" x="44" y="11" width="42" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="IconTick" translatesAutoresizingMaskIntoConstraints="NO" id="e1o-Bl-zd5">
-                                            <rect key="frame" x="0.0" y="0.5" width="48" height="48"/>
+                                            <rect key="frame" x="12" y="9.5" width="24" height="24"/>
                                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </imageView>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KaW-bN-I51">
-                                            <rect key="frame" x="311" y="0.0" width="64" height="48.5"/>
+                                            <rect key="frame" x="311" y="0.0" width="64" height="43"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="64" id="UU3-Di-65E"/>
                                             </constraints>
@@ -1070,6 +1078,7 @@
                                 </visualEffectView>
                                 <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vxU-Mt-fMo" customClass="CustomButton" customModule="MullvadVPN" customModuleProvider="target">
                                     <rect key="frame" x="0.0" y="68.5" width="261" height="52.5"/>
+                                    <accessibility key="accessibilityConfiguration" identifier="ConnectButton"/>
                                     <state key="normal" title="Secure my connection" backgroundImage="SuccessButton">
                                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </state>
@@ -1206,6 +1215,7 @@
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="d5t-ia-qxF" customClass="CustomButton" customModule="MullvadVPN" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="DisconnectButton"/>
                                                 <state key="normal" title="Disconnect" backgroundImage="TranslucentDangerButton">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>

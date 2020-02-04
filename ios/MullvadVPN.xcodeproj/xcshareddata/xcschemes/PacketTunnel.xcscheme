@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1120"
+   LastUpgradeVersion = "1130"
    wasCreatedForAppExtension = "YES"
    version = "2.0">
    <BuildAction
@@ -43,6 +43,16 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "58D0C79223F1CE7000FE9BA7"
+               BuildableName = "MullvadVPNScreenshots.xctest"
+               BlueprintName = "MullvadVPNScreenshots"
+               ReferencedContainer = "container:MullvadVPN.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

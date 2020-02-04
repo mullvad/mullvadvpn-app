@@ -11,6 +11,86 @@ import Foundation
 import NetworkExtension
 import os
 
+#if targetEnvironment(simulator)
+typealias SystemTunnelType = SimulatorTunnelProviderManager
+typealias SystemTunnelProviderConnectionType = SimulatorVPNConnection
+typealias SystemTunnelProviderSessionType = SimulatorTunnelProviderSession
+#else
+typealias SystemTunnelType = NETunnelProviderManager
+typealias SystemTunnelProviderConnectionType = NEVPNConnection
+typealias SystemTunnelProviderSessionType = NETunnelProviderSession
+#endif
+
+class TunnelProviderManager: Equatable {
+
+    var systemTunnelProvider: SystemTunnelType
+    var connection: SystemTunnelProviderConnectionType {
+        return systemTunnelProvider.connection
+    }
+
+    var protocolConfiguration: NEVPNProtocol? {
+        get {
+            return systemTunnelProvider.protocolConfiguration
+        }
+        set {
+            systemTunnelProvider.protocolConfiguration = newValue
+        }
+    }
+
+    var localizedDescription: String? {
+        get {
+            return systemTunnelProvider.localizedDescription
+        }
+        set {
+            systemTunnelProvider.localizedDescription = newValue
+        }
+    }
+
+    var isEnabled: Bool {
+        get {
+            return systemTunnelProvider.isEnabled
+        }
+        set {
+            systemTunnelProvider.isEnabled = newValue
+        }
+    }
+
+    init(systemTunnelProvider: SystemTunnelType = SystemTunnelType()) {
+        self.systemTunnelProvider = systemTunnelProvider
+    }
+
+    func startVPNTunnel() throws {
+        try systemTunnelProvider.connection.startVPNTunnel()
+    }
+
+    func stopVPNTunnel() {
+        systemTunnelProvider.connection.stopVPNTunnel()
+    }
+
+    static func loadAllFromPreferences(completionHandler: @escaping ([TunnelProviderManager]?, Error?) -> Void) {
+        SystemTunnelType.loadAllFromPreferences { (tunnels, error) in
+            completionHandler(tunnels?.map { TunnelProviderManager(systemTunnelProvider: $0) }, error)
+        }
+    }
+
+    func loadFromPreferences(completionHandler: @escaping (Error?) -> Void) {
+        systemTunnelProvider.loadFromPreferences(completionHandler: completionHandler)
+    }
+
+    func saveToPreferences(completionHandler: @escaping (Error?) -> Void) {
+        systemTunnelProvider.saveToPreferences(completionHandler: completionHandler)
+    }
+
+    func removeFromPreferences(completionHandler: @escaping (Error?) -> Void) {
+        systemTunnelProvider.removeFromPreferences(completionHandler: completionHandler)
+    }
+
+    static func == (lhs: TunnelProviderManager, rhs: TunnelProviderManager) -> Bool {
+        lhs.systemTunnelProvider == rhs.systemTunnelProvider
+    }
+
+}
+
 /// An error emitted by all public methods of TunnelManager
 enum TunnelManagerError: Error {
     /// Account token is not set
@@ -294,7 +374,7 @@ class TunnelManager {
     private let executionQueue = DispatchQueue(label: "net.mullvad.vpn.tunnel-manager.execution-queue")
 
     private let apiClient = MullvadAPI()
-    private var tunnelProvider: NETunnelProviderManager?
+    private var tunnelProvider: TunnelProviderManager?
     private var tunnelIpc: PacketTunnelIpc?
 
     /// A subscriber used for tunnel connection status changes
@@ -318,7 +398,7 @@ class TunnelManager {
     /// account. The system tunnel is removed in case of inconsistency.
     func loadTunnel(accountToken: String?) -> AnyPublisher<(), TunnelManagerError> {
         MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) {
-            NETunnelProviderManager.loadAllFromPreferences()
+            TunnelProviderManager.loadAllFromPreferences()
                 .mapError { LoadTunnelError.loadTunnels($0) }
                 .receive(on: self.executionQueue)
                 .flatMap { (tunnels) -> AnyPublisher<(), LoadTunnelError> in
@@ -363,7 +443,7 @@ class TunnelManager {
                         .mapError { StartTunnelError.setup($0) }
                         .flatMap({ (tunnelProvider) -> Result<(), StartTunnelError>.Publisher in
                             Just(tunnelProvider)
-                                .tryMap { try $0.connection.startVPNTunnel() }
+                                .tryMap { try $0.startVPNTunnel() }
                                 .mapError { StartTunnelError.system($0) }
                         }).mapError { TunnelManagerError.startTunnel($0) }
             }
@@ -372,7 +452,7 @@ class TunnelManager {
 
     func stopTunnel() -> AnyPublisher<(), Never> {
         MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) { () -> Just<()> in
-            self.tunnelProvider?.connection.stopVPNTunnel()
+            self.tunnelProvider?.stopVPNTunnel()
             return Just(())
         }.eraseToAnyPublisher()
     }
@@ -668,7 +748,7 @@ class TunnelManager {
     }
 
     /// Set the instance of the active tunnel and add the tunnel status observer
-    private func setTunnelProvider(tunnelProvider: NETunnelProviderManager) {
+    private func setTunnelProvider(tunnelProvider: TunnelProviderManager) {
         guard self.tunnelProvider != tunnelProvider else { return }
 
         let connection = tunnelProvider.connection
@@ -677,7 +757,7 @@ class TunnelManager {
         self.tunnelProvider = tunnelProvider
 
         // Set up tunnel IPC
-        if let session = connection as? NETunnelProviderSession {
+        if let session = connection as? SystemTunnelProviderSessionType {
             self.tunnelIpc = PacketTunnelIpc(session: session)
         }
 
@@ -685,7 +765,7 @@ class TunnelManager {
         tunnelStatusSubscriber = NotificationCenter.default.publisher(for: .NEVPNStatusDidChange, object: connection)
             .receive(on: executionQueue)
             .sink { [weak self] (notification) in
-                guard let connection = notification.object as? NEVPNConnection else { return }
+                guard let connection = notification.object as? SystemTunnelProviderConnectionType else { return }
 
                 self?.updateTunnelState(connectionStatus: connection.status)
         }
@@ -768,13 +848,13 @@ class TunnelManager {
         }
     }
 
-    private func setupTunnel(accountToken: String) -> AnyPublisher<NETunnelProviderManager, SetupTunnelError> {
-        NETunnelProviderManager.loadAllFromPreferences()
+    private func setupTunnel(accountToken: String) -> AnyPublisher<TunnelProviderManager, SetupTunnelError> {
+        TunnelProviderManager.loadAllFromPreferences()
             .receive(on: executionQueue)
             .mapError { SetupTunnelError.loadTunnels($0) }
             .map { (tunnels) in
                 // Return the first available tunnel or make a new one
-                return tunnels?.first ?? NETunnelProviderManager()
+                return tunnels?.first ?? TunnelProviderManager()
         }
         .flatMap { (tunnelProvider) in
             TunnelConfigurationManager.getPersistentKeychainRef(account: accountToken)
@@ -782,8 +862,9 @@ class TunnelManager {
                 .map { (tunnelProvider, $0) }
                 .publisher
         }
-        .flatMap { (tunnelProvider, passwordReference) -> AnyPublisher<NETunnelProviderManager, SetupTunnelError> in
+        .flatMap { (tunnelProvider, passwordReference) -> AnyPublisher<TunnelProviderManager, SetupTunnelError> in
             tunnelProvider.isEnabled = true
+            tunnelProvider.localizedDescription = "WireGuard"
             tunnelProvider.protocolConfiguration = self.makeProtocolConfiguration(
                 accountToken: accountToken,
                 passwordReference: passwordReference
@@ -845,10 +926,10 @@ class TunnelManager {
 }
 
 /// Convenience methods to provide `Future` based alternatives for working with
-/// `NETunnelProviderManager`
-private extension NETunnelProviderManager {
+/// `TunnelProviderManager`
+private extension TunnelProviderManager {
 
-    class func loadAllFromPreferences() -> Future<[NETunnelProviderManager]?, Error> {
+    static func loadAllFromPreferences() -> Future<[TunnelProviderManager]?, Error> {
         Future { (fulfill) in
             self.loadAllFromPreferences { (tunnels, error) in
                 fulfill(error.flatMap { .failure($0) } ?? .success(tunnels))

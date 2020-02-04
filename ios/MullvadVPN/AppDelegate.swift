@@ -16,9 +16,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
 
+    #if targetEnvironment(simulator)
+    let simulatorTunnelProvider = SimulatorTunnelProviderHost()
+    #endif
+
+
     private var loadTunnelSubscriber: AnyCancellable?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        #if targetEnvironment(simulator)
+        SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
+        #endif
+
         let accountToken = Account.shared.token
 
         loadTunnelSubscriber = TunnelManager.shared.loadTunnel(accountToken: accountToken)
@@ -71,4 +80,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 }
-

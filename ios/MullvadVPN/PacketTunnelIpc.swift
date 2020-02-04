@@ -95,9 +95,16 @@ extension PacketTunnelIpcHandler {
 }
 
 class PacketTunnelIpc {
-    let session: NETunnelProviderSession
 
-    init(session: NETunnelProviderSession) {
+    #if targetEnvironment(simulator)
+    typealias TunnelProviderSessionType = SimulatorTunnelProviderSession
+    #else
+    typealias TunnelProviderSessionType = NETunnelProviderSession
+    #endif
+
+    let session: TunnelProviderSessionType
+
+    init(session: TunnelProviderSessionType) {
         self.session = session
     }
 

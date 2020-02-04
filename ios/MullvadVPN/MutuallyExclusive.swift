@@ -122,13 +122,4 @@ private extension Publishers.MutuallyExclusive {
 
 }
 
-private extension NSLock {
-    func withCriticalBlock<T>(_ body: () -> T) -> T {
-        lock()
-        defer { unlock() }
-
-        return body()
-    }
-}
-
 typealias MutuallyExclusive = Publishers.MutuallyExclusive
