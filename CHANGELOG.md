@@ -77,6 +77,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix crash when VPN permission is revoked, either manually or by starting another VPN app.
 - Fix crash caused by local JNI reference table overflow after running for a long time.
 - Dismiss notification after service has stopped.
+- Don't show missing connectivity error message in WireGuard key management screen if a
+  reconnection is expected to happen.
 
 #### Linux
 - DNS management with static `/etc/resolv.conf` will now work even when no
