@@ -95,9 +95,10 @@ extension PacketTunnelIpcHandler {
 }
 
 class PacketTunnelIpc {
-    let session: NETunnelProviderSession
 
-    init(session: NETunnelProviderSession) {
+    let session: VPNTunnelProviderSessionProtocol
+
+    init(session: VPNTunnelProviderSessionProtocol) {
         self.session = session
     }
 
