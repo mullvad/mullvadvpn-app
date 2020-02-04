@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.model
 
 sealed class KeygenEvent {
     class NewKey(val publicKey: PublicKey) : KeygenEvent() {
-        var verified: Boolean? = false
+        var verified: Boolean? = null
             private set
         var replacementFailure: KeygenFailure? = null
             private set

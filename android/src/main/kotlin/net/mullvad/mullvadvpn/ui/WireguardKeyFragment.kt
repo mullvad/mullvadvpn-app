@@ -18,6 +18,7 @@ import java.util.TimeZone
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
@@ -39,6 +40,18 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private var generatingKey = false
     private var validatingKey = false
 
+    private var resetReconnectionExpectedJob: Job? = null
+    private var reconnectionExpected = false
+        set(value) {
+            field = value
+
+            resetReconnectionExpectedJob?.cancel()
+
+            if (value == true) {
+                resetReconnectionExpected()
+            }
+        }
+
     private lateinit var publicKey: TextView
     private lateinit var publicKeyAge: TextView
     private lateinit var statusMessage: TextView
@@ -47,6 +60,17 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private lateinit var generateSpinner: ProgressBar
     private lateinit var verifyButton: Button
     private lateinit var verifySpinner: ProgressBar
+
+    private fun resetReconnectionExpected() {
+        resetReconnectionExpectedJob = GlobalScope.launch(Dispatchers.Main) {
+            delay(20_000)
+
+            if (reconnectionExpected) {
+                reconnectionExpected = false
+                updateViews()
+            }
+        }
+    }
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -227,16 +251,16 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
         when (tunnelState) {
             is TunnelState.Connecting, is TunnelState.Disconnecting -> {
-                statusMessage.setText(R.string.wireguard_key_connectivity)
-                statusMessage.visibility = View.VISIBLE
-                generateButton.visibility = View.GONE
-                generateSpinner.visibility = View.VISIBLE
-                verifyButton.visibility = View.GONE
-                verifySpinner.visibility = View.VISIBLE
+                if (!reconnectionExpected) {
+                    setStatusMessage(R.string.wireguard_key_connectivity, R.color.red)
+                    generateButton.visibility = View.GONE
+                    generateSpinner.visibility = View.VISIBLE
+                    verifyButton.visibility = View.GONE
+                    verifySpinner.visibility = View.VISIBLE
+                }
             }
             is TunnelState.Error -> {
-                statusMessage.setText(R.string.wireguard_key_blocked_state_message)
-                statusMessage.visibility = View.VISIBLE
+                setStatusMessage(R.string.wireguard_key_blocked_state_message, R.color.red)
                 generateButton.setClickable(false)
                 generateButton.setAlpha(0.5f)
                 verifyButton.setClickable(false)
@@ -249,9 +273,15 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private fun onGenerateKeyPress() {
         currentJob?.cancel()
-        generatingKey = true
-        validatingKey = false
+
+        synchronized(this) {
+            generatingKey = true
+            validatingKey = false
+            reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
+        }
+
         updateViews()
+
         currentJob = GlobalScope.launch(Dispatchers.Main) {
             keyStatusListener.generateKey().join()
             generatingKey = false
@@ -288,6 +318,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         keyStatusListener.onKeyStatusChange = null
         currentJob?.cancel()
         updateViewsJob?.cancel()
+        resetReconnectionExpectedJob?.cancel()
         validatingKey = false
         generatingKey = false
         urlController.onPause()
@@ -295,7 +326,16 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     override fun onSafelyResume() {
         tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
-            tunnelState = uiState
+            synchronized(this@WireguardKeyFragment) {
+                tunnelState = uiState
+
+                if (generatingKey) {
+                    reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
+                } else if (tunnelState is TunnelState.Connected) {
+                    reconnectionExpected = false
+                }
+            }
+
             updateViewsJob?.cancel()
             updateViewsJob = updateViewJob()
         }
