@@ -30,12 +30,6 @@
 !define DL_DELETE_NO_ADAPTERS_REMAIN 2
 !define DL_DELETE_SOME_ADAPTERS_REMAIN 3
 
-# Return codes from tapinstall
-!define DEVCON_EXIT_OK 0
-!define DEVCON_EXIT_REBOOT 1
-!define DEVCON_EXIT_FAIL 2
-!define DEVCON_EXIT_USAGE 3
-
 # Log targets
 !define LOG_FILE 0
 !define LOG_VOID 1
@@ -171,7 +165,7 @@
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${TAP_HARDWARE_ID}'
+	nsExec::ExecToStack '"$TEMP\driver\driverlogic.exe" remove ${TAP_HARDWARE_ID}'
 	Pop $0
 	Pop $1
 
@@ -209,13 +203,12 @@
 	${If} $0 == ${DL_DELETE_NO_ADAPTERS_REMAIN}
 		log::Log "Removing vanilla TAP adapter driver since it is no longer in use"
 
-		nsExec::ExecToStack '"$TEMP\driver\tapinstall.exe" remove ${DEPRECATED_TAP_HARDWARE_ID}'
+		nsExec::ExecToStack '"$TEMP\driver\driverlogic.exe" remove ${DEPRECATED_TAP_HARDWARE_ID}'
 
 		Pop $0
 		Pop $1
 
-		${If} $0 != ${DEVCON_EXIT_OK}
-		${AndIf} $0 != ${DEVCON_EXIT_REBOOT}
+		${If} $0 != ${DL_GENERAL_SUCCESS}
 			StrCpy $R0 "Failed to remove driver: $1"
 			log::Log $R0
 
@@ -280,8 +273,7 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${DEVCON_EXIT_OK}
-	${AndIf} $0 != ${DEVCON_EXIT_REBOOT}
+	${If} $0 != ${DL_GENERAL_SUCCESS}
 		StrCpy $R0 "Failed to create virtual adapter: error $0"
 		log::LogWithDetails $R0 $1
 		Goto InstallDriver_return
