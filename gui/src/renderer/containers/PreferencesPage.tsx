@@ -44,7 +44,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
     setMonochromaticIcon: (monochromaticIcon: boolean) => {
       props.app.setMonochromaticIcon(monochromaticIcon);
     },
-    enableMonochromaticIconToggle: process.platform === 'darwin',
   };
 };
 

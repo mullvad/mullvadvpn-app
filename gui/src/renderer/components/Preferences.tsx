@@ -21,7 +21,6 @@ export interface IProps {
   enableSystemNotifications: boolean;
   monochromaticIcon: boolean;
   startMinimized: boolean;
-  enableMonochromaticIconToggle: boolean;
   enableStartMinimizedToggle: boolean;
   setAutoStart: (autoStart: boolean) => void;
   setEnableSystemNotifications: (flag: boolean) => void;
@@ -120,29 +119,23 @@ export default class Preferences extends Component<IProps> {
                       </Cell.FooterText>
                     </Cell.Footer>
 
-                    {this.props.enableMonochromaticIconToggle ? (
-                      <React.Fragment>
-                        <Cell.Container>
-                          <Cell.Label>
-                            {messages.pgettext('preferences-view', 'Monochromatic tray icon')}
-                          </Cell.Label>
-                          <Cell.Switch
-                            isOn={this.props.monochromaticIcon}
-                            onChange={this.props.setMonochromaticIcon}
-                          />
-                        </Cell.Container>
-                        <Cell.Footer>
-                          <Cell.FooterText>
-                            {messages.pgettext(
-                              'preferences-view',
-                              'Use a monochromatic tray icon instead of a colored one.',
-                            )}
-                          </Cell.FooterText>
-                        </Cell.Footer>
-                      </React.Fragment>
-                    ) : (
-                      undefined
-                    )}
+                    <Cell.Container>
+                      <Cell.Label>
+                        {messages.pgettext('preferences-view', 'Monochromatic tray icon')}
+                      </Cell.Label>
+                      <Cell.Switch
+                        isOn={this.props.monochromaticIcon}
+                        onChange={this.props.setMonochromaticIcon}
+                      />
+                    </Cell.Container>
+                    <Cell.Footer>
+                      <Cell.FooterText>
+                        {messages.pgettext(
+                          'preferences-view',
+                          'Use a monochromatic tray icon instead of a colored one.',
+                        )}
+                      </Cell.FooterText>
+                    </Cell.Footer>
 
                     {this.props.enableStartMinimizedToggle ? (
                       <React.Fragment>
