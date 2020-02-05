@@ -22,7 +22,7 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 
-## [Unreleased]
+## [2020.1-beta1] - 2020-02-05
 ### Added
 - Add translations for Finnish and Danish.
 - Copy WireGuard key when clicking on it.
@@ -53,7 +53,7 @@ Line wrap the file at 100 chars.                                              Th
 - Be more aggressive when installing routes, in effect taking ownership of existing duplicate route
   entries. This allows the daemon to initialize properly even if a previous instance did not have a
   clean shutdown.
-  
+
 ### Fixed
 - Don't try to replace WireGuard key if account has too many keys already.
 - Fix bogus update notification caused by an outdated cache.
@@ -72,6 +72,11 @@ Line wrap the file at 100 chars.                                              Th
   the system service crashing on Windows for newer CPU models.
 
 #### Android
+- Fix notification message to not show `null` version when version check cache is stale right
+  after an update.
+- Fix `null` pointer exception when connectivity event intent has no network info.
+- Fix fast loop trying to fetch location and preventing the device from sleeping. This should
+  improve battery life in some cases.
 - Fix crash when starting the app right after quitting it.
 - Restart background service if it stops responding.
 - Fix crash when VPN permission is revoked, either manually or by starting another VPN app.
@@ -86,11 +91,19 @@ Line wrap the file at 100 chars.                                              Th
   `/etc/resolv.conf` exists.
 
 ### Security
+- Add automatic key rotation for WireGuard (every 7 days by default). This limits the potential
+  for an attacker to correlate traffic with a public key and identity, and reduces the harm of
+  software that might leak the private tunnel IP (since it is no longer fixed).
+
 #### Windows
 - Stop OpenVPN from loading `C:\etc\ssl\openssl.cnf` on start. This file was being loaded when an
   OpenVPN tunnel was being created. Any user could create the file, and the process loading it runs
   as the SYSTEM user. Since the config file allows loading arbitrary code, it was an attack vector
   allowing local unprivileged users to run code as SYSTEM.
+
+#### macOS
+- Limit macOS firewall rules to only allow UDP packets in the rules meant to enable being a DHCPv4
+  *server* when local network sharing is enabled.
 
 
 ## [2019.10] - 2019-12-12
@@ -103,25 +116,10 @@ Line wrap the file at 100 chars.                                              Th
 - Properly tear down routes after disconnecting from WireGuard relays.
 - Fix bug that prohibited WireGuard from working over port 53.
 
-#### Android
-- Fix notification message to update to `null` version when version check cache is stale right
-  after an update.
-- Fix `null` pointer exception when connectivity event intent has no network info.
-- Fix fast loop trying to fetch location and preventing the device from sleeping. This should
-  improve battery life in some cases.
-
 ### Security
-- Add automatic key rotation for WireGuard (every 7 days by default). This limits the potential
-  for an attacker to correlate traffic with a public key and identity, and reduces the harm of
-  software that might leak the private tunnel IP (since it is no longer fixed).
-
 #### Linux
 - Stop [CVE-2019-14899](https://seclists.org/oss-sec/2019/q4/122) by dropping all packets destined
   for the tunnel IP coming in on some other interface than the tunnel.
-
-#### macOS
-- Limit macOS firewall rules to only allow UDP packets in the rules meant to enable being a DHCPv4
-  *server* when local network sharing is enabled.
 
 
 ## [2019.10-beta2] - 2019-12-05
