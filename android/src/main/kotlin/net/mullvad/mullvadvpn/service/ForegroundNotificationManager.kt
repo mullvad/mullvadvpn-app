@@ -207,7 +207,12 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
                 service.startForeground(FOREGROUND_NOTIFICATION_ID, buildNotification())
                 onForeground = true
             } else if (!shouldBeOnForeground) {
-                service.stopForeground(Service.STOP_FOREGROUND_DETACH)
+                if (Build.VERSION.SDK_INT >= 24) {
+                    service.stopForeground(Service.STOP_FOREGROUND_DETACH)
+                } else {
+                    service.stopForeground(false)
+                }
+
                 onForeground = false
             }
         }
