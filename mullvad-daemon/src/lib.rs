@@ -67,7 +67,7 @@ use talpid_core::{
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 use talpid_types::{
-    net::{openvpn, TransportProtocol, TunnelParameters},
+    net::{openvpn, TransportProtocol, TunnelParameters, TunnelType},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
@@ -1278,8 +1278,12 @@ where
                 Self::oneshot_send(tx, (), "set_openvpn_mssfix response");
                 if settings_changed {
                     self.event_listener.notify_settings(self.settings.clone());
-                    info!("Initiating tunnel restart because the OpenVPN mssfix setting changed");
-                    self.reconnect_tunnel();
+                    if let Some(TunnelType::OpenVpn) = self.get_connected_tunnel_type() {
+                        info!(
+                            "Initiating tunnel restart because the OpenVPN mssfix setting changed"
+                        );
+                        self.reconnect_tunnel();
+                    }
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
@@ -1358,8 +1362,12 @@ where
                 Self::oneshot_send(tx, (), "set_wireguard_mtu response");
                 if settings_changed {
                     self.event_listener.notify_settings(self.settings.clone());
-                    info!("Initiating tunnel restart because the WireGuard MTU setting changed");
-                    self.reconnect_tunnel();
+                    if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
+                        info!(
+                            "Initiating tunnel restart because the WireGuard MTU setting changed"
+                        );
+                        self.reconnect_tunnel();
+                    }
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
@@ -1454,7 +1462,9 @@ where
                     self.account_history.insert(account_entry).map_err(|e| {
                         format!("Failed to add new wireguard key to account data: {}", e)
                     })?;
-                    self.reconnect_tunnel();
+                    if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
+                        self.reconnect_tunnel();
+                    }
                     let keygen_event = KeygenEvent::NewKey(public_key);
                     self.event_listener.notify_key_event(keygen_event.clone());
 
@@ -1574,6 +1584,21 @@ where
     fn reconnect_tunnel(&mut self) {
         if self.target_state == TargetState::Secured {
             self.connect_tunnel();
+        }
+    }
+
+    fn get_connected_tunnel_type(&self) -> Option<TunnelType> {
+        use talpid_types::net::TunnelEndpoint;
+        use TunnelState::Connected;
+
+        if let Connected {
+            endpoint: TunnelEndpoint { tunnel_type, .. },
+            ..
+        } = self.tunnel_state
+        {
+            Some(tunnel_type)
+        } else {
+            None
         }
     }
 
