@@ -147,7 +147,8 @@ matrix:
       language: shell
       before_install: *rust_windows_before_install
       script: *rust_windows_script
-
+  allow_failures:
+    - name: Desktop Frontend, Windows
 
 notifications:
   email:
