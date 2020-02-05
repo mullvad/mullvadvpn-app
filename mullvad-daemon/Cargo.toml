@@ -59,7 +59,7 @@ winapi = "0.3"
 
 [package.metadata.winres]
 ProductName = "Mullvad VPN"
-CompanyName = "Amagicom AB"
-LegalCopyright = "(c) 2020 Amagicom AB"
+CompanyName = "Mullvad VPN AB"
+LegalCopyright = "(c) 2020 Mullvad VPN AB"
 InternalName = "mullvad-daemon"
 OriginalFilename = "mullvad-daemon.exe"

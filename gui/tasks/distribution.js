@@ -14,7 +14,7 @@ const noAppleNotarization = process.argv.indexOf('--no-apple-notarization') !== 
 
 const config = {
   appId: 'net.mullvad.vpn',
-  copyright: 'Amagicom AB',
+  copyright: 'Mullvad VPN AB',
   productName: 'Mullvad VPN',
   asar: true,
   compression: compression,
@@ -79,7 +79,7 @@ const config = {
       },
     ],
     artifactName: 'MullvadVPN-${version}.${ext}',
-    publisherName: 'Amagicom AB',
+    publisherName: 'Mullvad VPN AB',
     signingHashAlgorithms: ['sha256'],
     signDlls: true,
     extraResources: [
