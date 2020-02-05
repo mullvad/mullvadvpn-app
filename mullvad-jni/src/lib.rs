@@ -3,7 +3,6 @@
 
 mod classes;
 mod daemon_interface;
-mod from_java;
 mod is_null;
 mod jni_event_listener;
 
