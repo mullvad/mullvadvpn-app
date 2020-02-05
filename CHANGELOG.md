@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 - Remove WireGuard keys from accounts when they are removed from the local account history.
 - Upgrade from Electron 6 to Electron 7.
 - Disable WireGuard protocol option if there's no WireGuard key.
+- Only reconnect when settings change if a relevant tunnel protocol is used.
 
 #### Android
 - Wait for traffic to be routed through the tunnel device before advertising blocked state.
