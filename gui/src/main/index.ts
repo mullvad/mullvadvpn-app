@@ -319,7 +319,7 @@ class ApplicationMain {
     const trayIconController = new TrayIconController(
       tray,
       'unsecured',
-      process.platform === 'darwin' && this.guiSettings.monochromaticIcon,
+      this.guiSettings.monochromaticIcon,
     );
 
     this.registerWindowListener(windowController);
@@ -330,10 +330,7 @@ class ApplicationMain {
     this.trayIconController = trayIconController;
 
     this.guiSettings.onChange = (newState, oldState) => {
-      if (
-        process.platform === 'darwin' &&
-        oldState.monochromaticIcon !== newState.monochromaticIcon
-      ) {
+      if (oldState.monochromaticIcon !== newState.monochromaticIcon) {
         if (this.trayIconController) {
           this.trayIconController.useMonochromaticIcon = newState.monochromaticIcon;
         }

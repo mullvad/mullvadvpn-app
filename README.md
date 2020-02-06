@@ -564,6 +564,14 @@ The GUI has a specific settings file that is configured for each user. The path 
 | Windows | `%LOCALAPPDATA%\Mullvad VPN\gui_settings.json` |
 | Android | Present in Android's `logcat` |
 
+## Generating menubar icons
+How to modify and generate menubar icons are described
+[here](./gui/assets/images/menubar%20icons/README.md).
+
+## Locales and translations
+Instructions for how to handle locales and translations are found
+[here](./gui/locales/README.md).
+
 ## Audits, pentests and external security reviews
 
 Mullvad has used external pentesting companies to carry out security audits of this VPN app. Read
