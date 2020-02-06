@@ -943,6 +943,7 @@ class ApplicationMain {
 
     IpcMainEventChannel.tunnel.handleConnect(() => this.daemonRpc.connectTunnel());
     IpcMainEventChannel.tunnel.handleDisconnect(() => this.daemonRpc.disconnectTunnel());
+    IpcMainEventChannel.tunnel.handleReconnect(() => this.daemonRpc.reconnectTunnel());
 
     IpcMainEventChannel.guiSettings.handleEnableSystemNotifications((flag: boolean) => {
       this.guiSettings.enableSystemNotifications = flag;

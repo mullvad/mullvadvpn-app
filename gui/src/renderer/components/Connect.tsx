@@ -23,6 +23,7 @@ interface IProps {
   onSelectLocation: () => void;
   onConnect: () => void;
   onDisconnect: () => void;
+  onReconnect: () => void;
   onExternalLinkWithAuth: (url: string) => Promise<void>;
 }
 
@@ -163,6 +164,7 @@ export default class Connect extends Component<IProps, IState> {
             country={this.props.connection.country}
             onConnect={this.props.onConnect}
             onDisconnect={this.props.onDisconnect}
+            onReconnect={this.props.onReconnect}
             onSelectLocation={this.props.onSelectLocation}
           />
 
