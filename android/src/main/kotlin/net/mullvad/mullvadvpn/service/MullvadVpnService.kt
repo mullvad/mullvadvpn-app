@@ -19,6 +19,8 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var isStopping = false
 
+    private var connectionProxy: ConnectionProxy? = null
+
     private lateinit var daemon: Deferred<MullvadDaemon>
     private lateinit var notificationManager: ForegroundNotificationManager
 
@@ -101,6 +103,7 @@ class MullvadVpnService : TalpidVpnService() {
             }
 
             onDaemonStopped = {
+                connectionProxy?.onDestroy()
                 serviceNotifier.notify(null)
 
                 if (!isStopping) {
@@ -109,9 +112,11 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
-        val connectionProxy = ConnectionProxy(this@MullvadVpnService, daemon)
+        val newConnectionProxy = ConnectionProxy(this@MullvadVpnService, newDaemon)
 
-        serviceNotifier.notify(ServiceInstance(daemon, connectionProxy, connectivityListener))
+        connectionProxy = newConnectionProxy
+
+        serviceNotifier.notify(ServiceInstance(daemon, newConnectionProxy, connectivityListener))
 
         daemon
     }
