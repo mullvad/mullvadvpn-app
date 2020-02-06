@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: MIT
  *
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
- * Copyright (C) 2019 Amagicom AB. All Rights Reserved.
+ * Copyright (C) 2020 Mullvad VPN AB. All Rights Reserved.
  */
 
-package main
+package interfacewatcher
 
 import (
 	"sync"
@@ -13,21 +13,21 @@ import (
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
 
-type interfaceWatcherEvent struct {
-	luid   winipcfg.LUID
-	family winipcfg.AddressFamily
+type Event struct {
+	Luid   winipcfg.LUID
+	Family winipcfg.AddressFamily
 }
 
 type interfaceWatcher struct {
 	ready                   chan bool
 	processingMutex         sync.Mutex
 	interfaceChangeCallback *winipcfg.InterfaceChangeCallback
-	seenEvents              []interfaceWatcherEvent
-	wantedEvents			[]interfaceWatcherEvent
+	seenEvents              []Event
+	wantedEvents			[]Event
 	expired                 bool
 }
 
-func watchInterfaces() (*interfaceWatcher, error) {
+func NewWatcher() (*interfaceWatcher, error) {
 	iw := &interfaceWatcher{
 		ready: make(chan bool, 1),
 		expired: false,
@@ -45,7 +45,7 @@ func watchInterfaces() (*interfaceWatcher, error) {
 			return
 		}
 
-		iw.seenEvents = append(iw.seenEvents, interfaceWatcherEvent{iface.InterfaceLUID, iface.Family})
+		iw.seenEvents = append(iw.seenEvents, Event{iface.InterfaceLUID, iface.Family})
 
 		if len(iw.wantedEvents) != 0 {
 			iw.evaluateEvents()
@@ -79,7 +79,7 @@ func (iw *interfaceWatcher) evaluateEvents() {
 }
 
 // You can only join() once after which the watcher becomes expired.
-func (iw *interfaceWatcher) join(wantedEvents []interfaceWatcherEvent, timeoutSeconds int) bool {
+func (iw *interfaceWatcher) Join(wantedEvents []Event, timeoutSeconds int) bool {
 	{
 		iw.processingMutex.Lock()
 
@@ -115,7 +115,7 @@ func (iw *interfaceWatcher) join(wantedEvents []interfaceWatcherEvent, timeoutSe
 	return result
 }
 
-func (iw *interfaceWatcher) destroy() {
+func (iw *interfaceWatcher) Destroy() {
 	if iw.interfaceChangeCallback != nil {
 		iw.interfaceChangeCallback.Unregister()
 		iw.interfaceChangeCallback = nil
