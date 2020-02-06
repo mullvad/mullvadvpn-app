@@ -59,7 +59,7 @@ class RelayListListener(val daemon: MullvadDaemon, val settingsListener: Setting
         val relayLocations = daemon.getRelayLocations()
 
         synchronized(this) {
-            if (relayList == null) {
+            if (relayList == null && relayLocations != null) {
                 relayListChanged(RelayList(relayLocations))
             }
         }
