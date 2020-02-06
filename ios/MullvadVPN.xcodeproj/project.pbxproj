@@ -472,7 +472,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1120;
 				LastUpgradeCheck = 1000;
-				ORGANIZATIONNAME = "Amagicom AB";
+				ORGANIZATIONNAME = "Mullvad VPN AB";
 				TargetAttributes = {
 					58B0A29F238EE67E00BC001D = {
 						CreatedOnToolsVersion = 11.2.1;

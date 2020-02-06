@@ -3,7 +3,7 @@
 //  MullvadVPN
 //
 //  Created by pronebird on 19/11/2019.
-//  Copyright © 2019 Amagicom AB. All rights reserved.
+//  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
 import Combine
