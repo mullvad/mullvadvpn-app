@@ -28,14 +28,19 @@ InterfacePair::InterfacePair(NET_LUID interface_luid)
 	}
 }
 
+int InterfacePair::WorstMetric()
+{
+	return IPv6Iface.Metric >= IPv4Iface.Metric ? IPv6Iface.Metric : IPv4Iface.Metric;
+}
+
 int InterfacePair::HighestMetric()
 {
 	return IPv6Iface.Metric < IPv4Iface.Metric ? IPv4Iface.Metric : IPv6Iface.Metric;
 }
 
-void InterfacePair::SetMetric(int metric)
+void InterfacePair::SetMetric(unsigned int metric)
 {
-	if (HasIPv4())
+	if (HasIPv4() && (IPv4Iface.UseAutomaticMetric || metric != IPv4Iface.Metric))
     {
 		IPv4Iface.SitePrefixLength = 0;
 		IPv4Iface.Metric = metric;
@@ -43,7 +48,7 @@ void InterfacePair::SetMetric(int metric)
         SetInterface(&IPv4Iface);
 	}
 
-	if (HasIPv6())
+	if (HasIPv6() && (IPv6Iface.UseAutomaticMetric || metric != IPv6Iface.Metric))
     {
 		IPv6Iface.Metric = metric;
 		IPv6Iface.UseAutomaticMetric = false;
@@ -78,6 +83,7 @@ bool InterfacePair::HasIPv6()
 	return IPv6Iface.Family != AF_UNSPEC;
 }
 
+//static
 void InterfacePair::InitializeInterface(PMIB_IPINTERFACE_ROW iface)
 {
 	const auto status = GetIpInterfaceEntry(iface);

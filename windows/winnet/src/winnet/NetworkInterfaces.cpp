@@ -73,12 +73,10 @@ bool NetworkInterfaces::SetTopMetricForInterfacesByAlias(const wchar_t * deviceA
 bool NetworkInterfaces::SetTopMetricForInterfacesWithLuid(NET_LUID targetIfaceId)
 {
 	InterfacePair targetInterfaces = InterfacePair(targetIfaceId);
-
-	if (targetInterfaces.HighestMetric() == MAX_METRIC)
+	if (MAX_METRIC == targetInterfaces.WorstMetric())
 	{
 		return false;
 	}
-
 	targetInterfaces.SetMetric(MAX_METRIC);
 	return true;
 }

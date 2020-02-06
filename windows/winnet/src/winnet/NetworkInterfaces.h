@@ -29,4 +29,4 @@ public:
 	const MIB_IPINTERFACE_ROW *GetInterface(NET_LUID interfaceLuid, ADDRESS_FAMILY interfaceFamily);
 };
 
-const static uint32_t MAX_METRIC = 1;
+constexpr static uint32_t MAX_METRIC = 1;
