@@ -5,6 +5,7 @@ import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
+import ImageView from './ImageView';
 import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
 
 interface ITunnelControlProps {
@@ -59,6 +60,16 @@ const styles = {
     letterSpacing: -0.9,
     color: colors.white,
   }),
+  button_row: Styles.createViewStyle({
+    flexDirection: 'row',
+  }),
+  large_button: Styles.createViewStyle({
+    flex: 1,
+  }),
+  reconnect_button: Styles.createViewStyle({
+    marginLeft: 16,
+    paddingHorizontal: 12,
+  }),
 };
 
 export default class TunnelControl extends Component<ITunnelControlProps> {
@@ -95,15 +106,21 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
     );
 
     const Disconnect = () => (
-      <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
+      <AppButton.RedTransparentButton onPress={this.props.onDisconnect} style={styles.large_button}>
         {messages.pgettext('tunnel-control', 'Disconnect')}
       </AppButton.RedTransparentButton>
     );
 
     const Cancel = () => (
-      <AppButton.RedTransparentButton onPress={this.props.onDisconnect}>
+      <AppButton.RedTransparentButton onPress={this.props.onDisconnect} style={styles.large_button}>
         {messages.pgettext('tunnel-control', 'Cancel')}
       </AppButton.RedTransparentButton>
+    );
+
+    const Reconnect = () => (
+      <AppButton.TransparentButton onPress={this.props.onReconnect} style={styles.reconnect_button}>
+        <ImageView height={22} width={22} source="icon-reload" tintColor="white" />
+      </AppButton.TransparentButton>
     );
 
     const Secured = ({ displayStyle }: { displayStyle: SecuredDisplayStyle }) => (
@@ -149,7 +166,10 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
             </Body>
             <Footer>
               <SwitchLocation />
-              <Cancel />
+              <View style={styles.button_row}>
+                <Cancel />
+                <Reconnect />
+              </View>
             </Footer>
           </Wrapper>
         );
@@ -166,7 +186,10 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
             </Body>
             <Footer>
               <SwitchLocation />
-              <Disconnect />
+              <View style={styles.button_row}>
+                <Disconnect />
+                <Reconnect />
+              </View>
             </Footer>
           </Wrapper>
         );
@@ -179,7 +202,10 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
             </Body>
             <Footer>
               <SwitchLocation />
-              <Cancel />
+              <View style={styles.button_row}>
+                <Cancel />
+                <Reconnect />
+              </View>
             </Footer>
           </Wrapper>
         );

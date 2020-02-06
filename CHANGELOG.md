@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add reconnect button to the desktop app
+
 ### Changed
 - Change project copyright and company name from Amagicom AB to Mullvad VPN AB
 - Only reconnect when settings change if a relevant tunnel protocol is used.
