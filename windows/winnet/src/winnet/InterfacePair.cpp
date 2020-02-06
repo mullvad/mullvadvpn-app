@@ -41,36 +41,36 @@ int InterfacePair::BestMetric()
 void InterfacePair::SetMetric(unsigned int metric)
 {
 	if (HasIPv4() && (IPv4Iface.UseAutomaticMetric || metric != IPv4Iface.Metric))
-    {
+	{
 		IPv4Iface.SitePrefixLength = 0;
 		IPv4Iface.Metric = metric;
 		IPv4Iface.UseAutomaticMetric = false;
-        SetInterface(&IPv4Iface);
+		SetInterface(&IPv4Iface);
 	}
 
 	if (HasIPv6() && (IPv6Iface.UseAutomaticMetric || metric != IPv6Iface.Metric))
-    {
+	{
 		IPv6Iface.Metric = metric;
 		IPv6Iface.UseAutomaticMetric = false;
-        SetInterface(&IPv6Iface);
+		SetInterface(&IPv6Iface);
 	}
 }
 
 void InterfacePair::SetInterface(PMIB_IPINTERFACE_ROW iface) {
 
-    const auto status = SetIpInterfaceEntry(iface);
+	const auto status = SetIpInterfaceEntry(iface);
 
-    if (status != NO_ERROR) 
-    {
-        std::stringstream ss;
+	if (status != NO_ERROR)
+	{
+		std::stringstream ss;
 
-        ss << "Set metric for "
+		ss << "Set metric for "
 			<< (iface->Family == AF_INET ? "IPv4" : "IPv6")
-            << " on interface with LUID 0x"
-            << std::hex << iface->InterfaceLuid.Value;
+			<< " on interface with LUID 0x"
+			<< std::hex << iface->InterfaceLuid.Value;
 
-        THROW_WINDOWS_ERROR(status, ss.str().c_str());
-    }
+		THROW_WINDOWS_ERROR(status, ss.str().c_str());
+	}
 }
 
 bool InterfacePair::HasIPv4()
