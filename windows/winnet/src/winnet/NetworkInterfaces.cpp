@@ -20,39 +20,6 @@ bool NetworkInterfaces::HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface)
 	return true;
 }
 
-void NetworkInterfaces::EnsureIfaceMetricIsHighest(NET_LUID interfaceLuid)
-{
-	for (ULONG i = 0; i < mInterfaces->NumEntries; ++i)
-	{
-		PMIB_IPINTERFACE_ROW iface = &mInterfaces->Table[i];
-
-		// Ignoring the target interface.
-		if (iface->InterfaceLuid.Value == interfaceLuid.Value || iface->UseAutomaticMetric || iface->Metric > MAX_METRIC)
-		{
-			continue;
-		}
-
-		iface->Metric++;
-
-		if (AF_INET == iface->Family)
-		{
-			iface->SitePrefixLength = 0;
-		}
-
-		const auto status = SetIpInterfaceEntry(iface);
-
-		if (NO_ERROR != status)
-		{
-			std::stringstream ss;
-
-			ss << "Failed to increment metric for interface with LUID 0x"
-				<< std::hex << iface->InterfaceLuid.Value;
-
-			THROW_WINDOWS_ERROR(status, ss.str().c_str());
-		}
-	}
-}
-
 NetworkInterfaces::NetworkInterfaces()
 {
 	mInterfaces = nullptr;
