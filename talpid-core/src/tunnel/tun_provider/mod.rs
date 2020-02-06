@@ -6,7 +6,7 @@ use std::net::IpAddr;
 
 cfg_if! {
     if #[cfg(target_os = "android")] {
-        #[path = "android.rs"]
+        #[path = "android/mod.rs"]
         mod imp;
         use self::imp::{AndroidTunProvider, VpnServiceTun};
         pub use self::imp::Error;
@@ -50,6 +50,11 @@ pub struct TunConfig {
         jnix(map = "|networks| networks.into_iter().map(InetNetwork::from).collect::<Vec<_>>()")
     )]
     pub routes: Vec<IpNetwork>,
+
+    /// Routes that are required to be configured for the tunnel.
+    #[cfg(target_os = "android")]
+    #[jnix(skip)]
+    pub required_routes: Vec<IpNetwork>,
 
     /// Maximum Transmission Unit in the tunnel.
     #[cfg_attr(target_os = "android", jnix(map = "|mtu| mtu as i32"))]

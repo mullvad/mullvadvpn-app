@@ -110,21 +110,23 @@ impl ConnectedState {
 
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                shared_values.allow_lan = allow_lan;
-
-                match self.set_firewall_policy(shared_values) {
-                    Ok(()) => SameState(self),
-                    Err(error) => {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg(
-                                "Failed to apply firewall policy for connected state"
+                if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
+                    self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
+                } else {
+                    match self.set_firewall_policy(shared_values) {
+                        Ok(()) => SameState(self),
+                        Err(error) => {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg(
+                                    "Failed to apply firewall policy for connected state"
+                                )
+                            );
+                            self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError),
                             )
-                        );
-                        self.disconnect(
-                            shared_values,
-                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError),
-                        )
+                        }
                     }
                 }
             }

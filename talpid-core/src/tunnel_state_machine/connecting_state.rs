@@ -162,6 +162,17 @@ impl ConnectingState {
         }
     }
 
+    fn disconnect(
+        self,
+        shared_values: &mut SharedTunnelStateValues,
+        after_disconnect: AfterDisconnect,
+    ) -> EventConsequence<Self> {
+        EventConsequence::NewState(DisconnectingState::enter(
+            shared_values,
+            (self.close_handle, self.tunnel_close_event, after_disconnect),
+        ))
+    }
+
     fn handle_commands(
         self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
@@ -171,25 +182,24 @@ impl ConnectingState {
 
         match try_handle_event!(self, commands.poll()) {
             Ok(TunnelCommand::AllowLan(allow_lan)) => {
-                shared_values.allow_lan = allow_lan;
-                match Self::set_firewall_policy(shared_values, &self.tunnel_parameters) {
-                    Ok(()) => SameState(self),
-                    Err(error) => {
-                        error!(
-                            "{}",
-                            error.display_chain_with_msg(
-                                "Failed to apply firewall policy for connecting state"
-                            )
-                        );
+                if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
+                    self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
+                } else {
+                    match Self::set_firewall_policy(shared_values, &self.tunnel_parameters) {
+                        Ok(()) => SameState(self),
+                        Err(error) => {
+                            error!(
+                                "{}",
+                                error.display_chain_with_msg(
+                                    "Failed to apply firewall policy for connecting state"
+                                )
+                            );
 
-                        NewState(DisconnectingState::enter(
-                            shared_values,
-                            (
-                                self.close_handle,
-                                self.tunnel_close_event,
+                            self.disconnect(
+                                shared_values,
                                 AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError),
-                            ),
-                        ))
+                            )
+                        }
                     }
                 }
             }
@@ -200,42 +210,23 @@ impl ConnectingState {
             Ok(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
                 if is_offline {
-                    NewState(DisconnectingState::enter(
+                    self.disconnect(
                         shared_values,
-                        (
-                            self.close_handle,
-                            self.tunnel_close_event,
-                            AfterDisconnect::Block(ErrorStateCause::IsOffline),
-                        ),
-                    ))
+                        AfterDisconnect::Block(ErrorStateCause::IsOffline),
+                    )
                 } else {
                     SameState(self)
                 }
             }
-            Ok(TunnelCommand::Connect) => NewState(DisconnectingState::enter(
-                shared_values,
-                (
-                    self.close_handle,
-                    self.tunnel_close_event,
-                    AfterDisconnect::Reconnect(0),
-                ),
-            )),
-            Ok(TunnelCommand::Disconnect) | Err(_) => NewState(DisconnectingState::enter(
-                shared_values,
-                (
-                    self.close_handle,
-                    self.tunnel_close_event,
-                    AfterDisconnect::Nothing,
-                ),
-            )),
-            Ok(TunnelCommand::Block(reason)) => NewState(DisconnectingState::enter(
-                shared_values,
-                (
-                    self.close_handle,
-                    self.tunnel_close_event,
-                    AfterDisconnect::Block(reason),
-                ),
-            )),
+            Ok(TunnelCommand::Connect) => {
+                self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
+            }
+            Ok(TunnelCommand::Disconnect) | Err(_) => {
+                self.disconnect(shared_values, AfterDisconnect::Nothing)
+            }
+            Ok(TunnelCommand::Block(reason)) => {
+                self.disconnect(shared_values, AfterDisconnect::Block(reason))
+            }
         }
     }
 
@@ -247,14 +238,10 @@ impl ConnectingState {
         use self::EventConsequence::*;
 
         match try_handle_event!(self, self.tunnel_events.poll()) {
-            Ok(TunnelEvent::AuthFailed(reason)) => NewState(DisconnectingState::enter(
+            Ok(TunnelEvent::AuthFailed(reason)) => self.disconnect(
                 shared_values,
-                (
-                    self.close_handle,
-                    self.tunnel_close_event,
-                    AfterDisconnect::Block(ErrorStateCause::AuthFailed(reason)),
-                ),
-            )),
+                AfterDisconnect::Block(ErrorStateCause::AuthFailed(reason)),
+            ),
             Ok(TunnelEvent::Up(metadata)) => NewState(ConnectedState::enter(
                 shared_values,
                 self.into_connected_state_bootstrap(metadata),
@@ -262,14 +249,8 @@ impl ConnectingState {
             Ok(_) => SameState(self),
             Err(_) => {
                 debug!("The tunnel disconnected unexpectedly");
-                NewState(DisconnectingState::enter(
-                    shared_values,
-                    (
-                        self.close_handle,
-                        self.tunnel_close_event,
-                        AfterDisconnect::Reconnect(self.retry_attempt + 1),
-                    ),
-                ))
+                let retry_attempt = self.retry_attempt + 1;
+                self.disconnect(shared_values, AfterDisconnect::Reconnect(retry_attempt))
             }
         }
     }

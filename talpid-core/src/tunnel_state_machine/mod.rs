@@ -89,6 +89,8 @@ where
     let tun_provider = TunProvider::new(
         #[cfg(target_os = "android")]
         android_context,
+        #[cfg(target_os = "android")]
+        allow_lan,
     );
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
@@ -322,6 +324,30 @@ struct SharedTunnelStateValues {
     log_dir: Option<PathBuf>,
     /// Resource directory path.
     resource_dir: PathBuf,
+}
+
+impl SharedTunnelStateValues {
+    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<(), ErrorStateCause> {
+        if self.allow_lan != allow_lan {
+            self.allow_lan = allow_lan;
+
+            #[cfg(target_os = "android")]
+            {
+                if let Err(error) = self.tun_provider.set_allow_lan(allow_lan) {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(&format!(
+                            "Failed to restart tunnel after {} LAN connections",
+                            if allow_lan { "allowing" } else { "blocking" }
+                        ))
+                    );
+                    return Err(ErrorStateCause::StartTunnelError);
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
 
 /// Asynchronous result of an attempt to progress a state.

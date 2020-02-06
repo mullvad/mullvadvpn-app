@@ -1,3 +1,6 @@
+mod ipnetwork_sub;
+
+use self::ipnetwork_sub::IpNetworkSub;
 use super::TunConfig;
 use ipnetwork::IpNetwork;
 use jnix::{
@@ -66,11 +69,12 @@ pub struct AndroidTunProvider {
     object: GlobalRef,
     active_tun: Option<File>,
     last_tun_config: TunConfig,
+    allow_lan: bool,
 }
 
 impl AndroidTunProvider {
     /// Create a new AndroidTunProvider interfacing with Android's VpnService.
-    pub fn new(context: AndroidContext) -> Self {
+    pub fn new(context: AndroidContext, allow_lan: bool) -> Self {
         // Initial configuration simply intercepts all packets. The only field that matters is
         // `routes`, because it determines what must enter the tunnel. All other fields contain
         // stub values.
@@ -83,6 +87,7 @@ impl AndroidTunProvider {
                 IpNetwork::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 0)
                     .expect("Invalid IP network prefix for IPv6 address"),
             ],
+            required_routes: vec![],
             mtu: 1380,
         };
 
@@ -100,7 +105,20 @@ impl AndroidTunProvider {
             object: context.vpn_service,
             active_tun: None,
             last_tun_config: initial_tun_config,
+            allow_lan,
         }
+    }
+
+    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<(), Error> {
+        if self.allow_lan != allow_lan {
+            self.allow_lan = allow_lan;
+
+            if self.active_tun.is_some() {
+                self.create_tun()?;
+            }
+        }
+
+        Ok(())
     }
 
     /// Retrieve a tunnel device with the provided configuration.
@@ -246,7 +264,52 @@ impl AndroidTunProvider {
             .as_raw_fd())
     }
 
+    fn prepare_tun_config(&self, config: TunConfig) -> TunConfig {
+        if self.allow_lan {
+            let (required_ipv4_routes, required_ipv6_routes) = config
+                .required_routes
+                .iter()
+                .cloned()
+                .partition::<Vec<_>, _>(|route| route.is_ipv4());
+
+            let (original_lan_ipv4_networks, original_lan_ipv6_networks) =
+                crate::firewall::ALLOWED_LAN_NETS
+                    .iter()
+                    .chain(crate::firewall::ALLOWED_LAN_MULTICAST_NETS.iter())
+                    .cloned()
+                    .partition::<Vec<_>, _>(|network| network.is_ipv4());
+
+            let lan_ipv4_networks = original_lan_ipv4_networks
+                .into_iter()
+                .flat_map(|network| network.sub_all(required_ipv4_routes.iter().cloned()))
+                .collect::<Vec<_>>();
+
+            let lan_ipv6_networks = original_lan_ipv6_networks
+                .into_iter()
+                .flat_map(|network| network.sub_all(required_ipv6_routes.iter().cloned()))
+                .collect::<Vec<_>>();
+
+            let routes = config
+                .routes
+                .iter()
+                .flat_map(|&route| {
+                    if route.is_ipv4() {
+                        route.sub_all(lan_ipv4_networks.iter().cloned())
+                    } else {
+                        route.sub_all(lan_ipv6_networks.iter().cloned())
+                    }
+                })
+                .collect();
+
+            TunConfig { routes, ..config }
+        } else {
+            config
+        }
+    }
+
     fn open_tun(&mut self, config: TunConfig) -> Result<(), Error> {
+        let actual_config = self.prepare_tun_config(config.clone());
+
         let env = JnixEnv::from(
             self.jvm
                 .attach_current_thread_as_daemon()
@@ -260,7 +323,7 @@ impl AndroidTunProvider {
             )
             .map_err(|cause| Error::FindMethod("createTun", cause))?;
 
-        let java_config = config.clone().into_java(&env);
+        let java_config = actual_config.clone().into_java(&env);
         let result = env
             .call_method_unchecked(
                 self.object.as_obj(),
