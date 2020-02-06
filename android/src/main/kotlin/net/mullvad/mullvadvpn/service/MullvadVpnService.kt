@@ -15,14 +15,13 @@ import net.mullvad.talpid.util.EventNotifier
 
 class MullvadVpnService : TalpidVpnService() {
     private val binder = LocalBinder()
+    private val serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
     private var isStopping = false
 
     private lateinit var daemon: Deferred<MullvadDaemon>
     private lateinit var connectionProxy: ConnectionProxy
     private lateinit var notificationManager: ForegroundNotificationManager
-
-    private var serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
     private var bindCount = 0
         set(value) {
