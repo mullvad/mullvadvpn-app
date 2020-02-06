@@ -21,6 +21,6 @@ private:
 	static void InitializeInterface(PMIB_IPINTERFACE_ROW iface);
 	bool HasIPv4();
 	bool HasIPv6();
-    void SetInterface(PMIB_IPINTERFACE_ROW iface);
+	void SetInterface(PMIB_IPINTERFACE_ROW iface);
 
 };
