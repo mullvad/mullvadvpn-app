@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.VpnService
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -18,15 +17,13 @@ import net.mullvad.talpid.util.EventNotifier
 
 val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 
-class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>) {
+class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     var mainActivity: MainActivity? = null
 
     private var activeAction: Job? = null
     private var resetAnticipatedStateJob: Job? = null
 
-    private val attachListenerJob = attachListener()
     private val fetchInitialStateJob = fetchInitialState()
-
     private val initialState: TunnelState = TunnelState.Disconnected()
 
     var state = initialState
@@ -47,6 +44,14 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
     var onStateChange = EventNotifier(state)
     var vpnPermission = CompletableDeferred<Boolean>()
 
+    init {
+        daemon.onTunnelStateChange = { newState ->
+            synchronized(this) {
+                state = newState
+            }
+        }
+    }
+
     fun connect() {
         if (anticipateConnectingState()) {
             cancelActiveAction()
@@ -55,7 +60,7 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
 
             activeAction = GlobalScope.launch(Dispatchers.Default) {
                 if (vpnPermission.await()) {
-                    daemon.await().connect()
+                    daemon.connect()
                 }
             }
         }
@@ -65,7 +70,7 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
         if (anticipateDisconnectingState()) {
             cancelActiveAction()
             activeAction = GlobalScope.launch(Dispatchers.Default) {
-                daemon.await().disconnect()
+                daemon.disconnect()
             }
         }
     }
@@ -75,10 +80,11 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
     }
 
     fun onDestroy() {
+        daemon.onTunnelStateChange = null
+
         onUiStateChange.unsubscribeAll()
         onStateChange.unsubscribeAll()
-        attachListenerJob.cancel()
-        detachListener()
+
         fetchInitialStateJob.cancel()
         cancelActiveAction()
     }
@@ -152,24 +158,12 @@ class ConnectionProxy(val context: Context, val daemon: Deferred<MullvadDaemon>)
     }
 
     private fun fetchInitialState() = GlobalScope.launch(Dispatchers.Default) {
-        val currentState = daemon.await().getState()
+        val currentState = daemon.getState()
 
         synchronized(this) {
             if (state === initialState) {
                 state = currentState
             }
         }
-    }
-
-    private fun attachListener() = GlobalScope.launch(Dispatchers.Default) {
-        daemon.await().onTunnelStateChange = { newState ->
-            synchronized(this) {
-                state = newState
-            }
-        }
-    }
-
-    private fun detachListener() = GlobalScope.launch(Dispatchers.Default) {
-        daemon.await().onTunnelStateChange = null
     }
 }
