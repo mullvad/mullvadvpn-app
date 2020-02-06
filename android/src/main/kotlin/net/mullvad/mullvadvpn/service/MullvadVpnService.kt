@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
@@ -24,6 +23,18 @@ class MullvadVpnService : TalpidVpnService() {
     private var startDaemonJob: Job? = null
 
     private lateinit var notificationManager: ForegroundNotificationManager
+
+    var shouldConnect = false
+        set(value) {
+            field = value
+
+            if (value == true) {
+                daemon?.apply {
+                    connect()
+                    field = false
+                }
+            }
+        }
 
     private var bindCount = 0
         set(value) {
@@ -87,8 +98,7 @@ class MullvadVpnService : TalpidVpnService() {
         val startResult = super.onStartCommand(intent, flags, startId)
 
         if (intent?.getAction() == VpnService.SERVICE_INTERFACE) {
-            runBlocking { startDaemonJob?.join() }
-            connectionProxy?.connect()
+            shouldConnect = true
         }
 
         return startResult
@@ -117,7 +127,11 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
-        val newConnectionProxy = ConnectionProxy(this@MullvadVpnService, newDaemon)
+        val newConnectionProxy = ConnectionProxy(this@MullvadVpnService, newDaemon).apply {
+            if (shouldConnect) {
+                connect()
+            }
+        }
 
         daemon = newDaemon
         connectionProxy = newConnectionProxy
