@@ -7,7 +7,7 @@
 #include <sstream>
 #include <cstdint>
 
-bool NetworkInterfaces::HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface)
+bool NetworkInterfaces::HasBestMetric(PMIB_IPINTERFACE_ROW targetIface)
 {
 	for (unsigned int i = 0; i < mInterfaces->NumEntries; ++i)
 	{
@@ -32,19 +32,19 @@ NetworkInterfaces::NetworkInterfaces()
 	}
 }
 
-bool NetworkInterfaces::SetTopMetricForInterfacesByAlias(const wchar_t * deviceAlias)
+bool NetworkInterfaces::SetBestMetricForInterfacesByAlias(const wchar_t * deviceAlias)
 {
-	return SetTopMetricForInterfacesWithLuid(GetInterfaceLuid(deviceAlias));
+	return SetBestMetricForInterfacesWithLuid(GetInterfaceLuid(deviceAlias));
 }
 
-bool NetworkInterfaces::SetTopMetricForInterfacesWithLuid(NET_LUID targetIfaceId)
+bool NetworkInterfaces::SetBestMetricForInterfacesWithLuid(NET_LUID targetIfaceId)
 {
 	InterfacePair targetInterfaces = InterfacePair(targetIfaceId);
-	if (MAX_METRIC == targetInterfaces.WorstMetric())
+	if (BEST_METRIC == targetInterfaces.WorstMetric())
 	{
 		return false;
 	}
-	targetInterfaces.SetMetric(MAX_METRIC);
+	targetInterfaces.SetMetric(BEST_METRIC);
 	return true;
 }
 

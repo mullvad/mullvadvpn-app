@@ -33,9 +33,9 @@ std::shared_ptr<shared::logging::LogSinkAdapter> g_RouteManagerLogSink;
 
 extern "C"
 WINNET_LINKAGE
-WINNET_ETM_STATUS
+WINNET_EBM_STATUS
 WINNET_API
-WinNet_EnsureTopMetric(
+WinNet_EnsureBestMetric(
 	const wchar_t *deviceAlias,
 	MullvadLogSink logSink,
 	void *logSinkContext
@@ -44,17 +44,17 @@ WinNet_EnsureTopMetric(
 	try
 	{
 		NetworkInterfaces interfaces;
-		bool metrics_set = interfaces.SetTopMetricForInterfacesByAlias(deviceAlias);
-		return metrics_set ? WINNET_ETM_STATUS_METRIC_SET : WINNET_ETM_STATUS_METRIC_NO_CHANGE;
+		bool metrics_set = interfaces.SetBestMetricForInterfacesByAlias(deviceAlias);
+		return metrics_set ? WINNET_EBM_STATUS_METRIC_SET : WINNET_EBM_STATUS_METRIC_NO_CHANGE;
 	}
 	catch (const std::exception &err)
 	{
 		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
-		return WINNET_ETM_STATUS_FAILURE;
+		return WINNET_EBM_STATUS_FAILURE;
 	}
 	catch (...)
 	{
-		return WINNET_ETM_STATUS_FAILURE;
+		return WINNET_EBM_STATUS_FAILURE;
 	}
 };
 

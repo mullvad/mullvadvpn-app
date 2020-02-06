@@ -17,7 +17,7 @@ InterfacePair::InterfacePair(NET_LUID interface_luid)
 	IPv6Iface.InterfaceLuid = interface_luid;
 	InitializeInterface(&IPv6Iface);
 
-	if (!(HasIPv4() || HasIPv6()))
+	if (!HasIPv4() && !HasIPv6())
 	{
 		std::stringstream ss;
 
@@ -33,7 +33,7 @@ int InterfacePair::WorstMetric()
 	return IPv6Iface.Metric >= IPv4Iface.Metric ? IPv6Iface.Metric : IPv4Iface.Metric;
 }
 
-int InterfacePair::HighestMetric()
+int InterfacePair::BestMetric()
 {
 	return IPv6Iface.Metric < IPv4Iface.Metric ? IPv4Iface.Metric : IPv6Iface.Metric;
 }

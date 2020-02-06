@@ -9,7 +9,7 @@ class InterfacePair
 {
 public:
 	InterfacePair(NET_LUID interface_luid);
-	int HighestMetric();
+	int BestMetric();
 	int WorstMetric();
 	void SetMetric(unsigned int metric);
 
