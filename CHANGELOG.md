@@ -32,6 +32,10 @@ Line wrap the file at 100 chars.                                              Th
 - Only reconnect when settings change if a relevant tunnel protocol is used.
 - Adjust padding of tray icon on Windows and Linux to better match other icons.
 
+### Fixed
+#### Android
+- Fix crash when removing the service from foreground on Android versions below API level 24.
+
 
 ## [2020.1-beta1] - 2020-02-05
 ### Added
