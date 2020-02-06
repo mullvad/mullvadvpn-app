@@ -66,8 +66,8 @@ impl PrivateKey {
         self.0.to_bytes()
     }
 
-    pub fn new_from_random() -> Result<Self, rand::Error> {
-        Ok(PrivateKey(x25519_dalek::StaticSecret::new(&mut OsRng)))
+    pub fn new_from_random() -> Self {
+        PrivateKey(x25519_dalek::StaticSecret::new(&mut OsRng))
     }
 
     /// Generate public key from private key
