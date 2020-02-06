@@ -8,11 +8,11 @@ BLOCK "StringFileInfo"
 BEGIN
     BLOCK "040904E4"
     BEGIN
-        VALUE "CompanyName", "Amagicom AB"
+        VALUE "CompanyName", "Mullvad VPN AB"
         VALUE "FileDescription", "Mullvad VPN networking module"
         VALUE "FileVersion", PRODUCT_VERSION
         VALUE "InternalName", "winnet"
-        VALUE "LegalCopyright", "(c) 2020 Amagicom AB"
+        VALUE "LegalCopyright", "(c) 2020 Mullvad VPN AB"
         VALUE "OriginalFilename", "winnet.dll"
         VALUE "ProductName", "Mullvad VPN"
         VALUE "ProductVersion", PRODUCT_VERSION
