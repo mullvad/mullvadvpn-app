@@ -121,8 +121,6 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun startNotificationManager(): ForegroundNotificationManager {
         return ForegroundNotificationManager(this, serviceNotifier).apply {
-            onConnect = { connectionProxy.connect() }
-            onDisconnect = { connectionProxy.disconnect() }
             lockedToForeground = isBound
         }
     }

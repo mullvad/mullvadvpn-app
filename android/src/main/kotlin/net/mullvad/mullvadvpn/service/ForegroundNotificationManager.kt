@@ -39,10 +39,13 @@ class ForegroundNotificationManager(
         set(value) {
             synchronized(this) {
                 if (value != null) {
-                    connectionListenerId = value.connectionProxy.onStateChange.subscribe { state ->
-                        tunnelState = state
+                    connectionProxy = value.connectionProxy.apply {
+                        onStateChange.subscribe { state ->
+                            tunnelState = state
+                        }
                     }
                 } else {
+                    connectionProxy = null
                     connectionListenerId?.let { listenerId ->
                         field?.connectionProxy?.onStateChange?.unsubscribe(listenerId)
                     }
@@ -55,6 +58,7 @@ class ForegroundNotificationManager(
     private val badgeColor = service.resources.getColor(R.color.colorPrimary)
 
     private var connectionListenerId: Int? = null
+    private var connectionProxy: ConnectionProxy? = null
 
     private var onForeground = false
     private var reconnecting = false
@@ -153,18 +157,15 @@ class ForegroundNotificationManager(
 
     private val connectReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            onConnect?.invoke()
+            connectionProxy?.connect()
         }
     }
 
     private val disconnectReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            onDisconnect?.invoke()
+            connectionProxy?.disconnect()
         }
     }
-
-    var onConnect: (() -> Unit)? = null
-    var onDisconnect: (() -> Unit)? = null
 
     var loggedIn = false
         set(value) {
