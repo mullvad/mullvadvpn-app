@@ -4,10 +4,10 @@ import android.content.Intent
 import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.talpid.TalpidVpnService
@@ -20,8 +20,9 @@ class MullvadVpnService : TalpidVpnService() {
     private var isStopping = false
 
     private var connectionProxy: ConnectionProxy? = null
+    private var daemon: MullvadDaemon? = null
+    private var startDaemonJob: Job? = null
 
-    private lateinit var daemon: Deferred<MullvadDaemon>
     private lateinit var notificationManager: ForegroundNotificationManager
 
     private var bindCount = 0
@@ -84,20 +85,24 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val startResult = super.onStartCommand(intent, flags, startId)
+
         if (intent?.getAction() == VpnService.SERVICE_INTERFACE) {
-            runBlocking { daemon.await().connect() }
+            runBlocking { startDaemonJob?.join() }
+            connectionProxy?.connect()
         }
+
         return startResult
     }
 
     private fun setUp() {
-        daemon = startDaemon()
+        startDaemonJob?.cancel()
+        startDaemonJob = startDaemon()
     }
 
-    private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
+    private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
         ApiRootCaFile().extract(application)
 
-        val daemon = MullvadDaemon(this@MullvadVpnService).apply {
+        val newDaemon = MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
                 notificationManager.loggedIn = settings?.accountToken != null
             }
@@ -114,11 +119,10 @@ class MullvadVpnService : TalpidVpnService() {
 
         val newConnectionProxy = ConnectionProxy(this@MullvadVpnService, newDaemon)
 
+        daemon = newDaemon
         connectionProxy = newConnectionProxy
 
-        serviceNotifier.notify(ServiceInstance(daemon, newConnectionProxy, connectivityListener))
-
-        daemon
+        serviceNotifier.notify(ServiceInstance(newDaemon, newConnectionProxy, connectivityListener))
     }
 
     private fun stop() {
@@ -128,11 +132,8 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun stopDaemon() {
-        if (daemon.isCompleted) {
-            runBlocking { daemon.await().shutdown() }
-        } else {
-            daemon.cancel()
-        }
+        startDaemonJob?.cancel()
+        daemon?.shutdown()
     }
 
     private fun tearDown() {
