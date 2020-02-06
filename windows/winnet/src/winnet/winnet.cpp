@@ -44,8 +44,8 @@ WinNet_EnsureBestMetric(
 	try
 	{
 		NetworkInterfaces interfaces;
-		bool metrics_set = interfaces.SetBestMetricForInterfacesByAlias(deviceAlias);
-		return metrics_set ? WINNET_EBM_STATUS_METRIC_SET : WINNET_EBM_STATUS_METRIC_NO_CHANGE;
+		return interfaces.SetBestMetricForInterfacesByAlias(deviceAlias) ?
+			WINNET_EBM_STATUS_METRIC_SET : WINNET_EBM_STATUS_METRIC_NO_CHANGE;
 	}
 	catch (const std::exception &err)
 	{
