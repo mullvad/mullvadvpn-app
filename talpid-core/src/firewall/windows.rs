@@ -194,7 +194,7 @@ impl Firewall {
             protocol: WinFwProt::from(endpoint.protocol),
         };
 
-        let metrics_set = winnet::ensure_top_metric_for_interface(&tunnel_metadata.interface)
+        let metrics_set = winnet::ensure_best_metric_for_interface(&tunnel_metadata.interface)
             .map_err(Error::SetTapMetric)?;
 
         if metrics_set {

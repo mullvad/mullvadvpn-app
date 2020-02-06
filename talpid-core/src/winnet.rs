@@ -35,12 +35,12 @@ fn logging_context() -> *const u8 {
 }
 
 /// Returns true if metrics were changed, false otherwise
-pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool, Error> {
+pub fn ensure_best_metric_for_interface(interface_alias: &str) -> Result<bool, Error> {
     let interface_alias_ws =
         WideCString::from_str(interface_alias).map_err(Error::InvalidInterfaceAlias)?;
 
     let metric_result = unsafe {
-        WinNet_EnsureTopMetric(
+        WinNet_EnsureBestMetric(
             interface_alias_ws.as_ptr(),
             Some(log_sink),
             logging_context(),
@@ -56,7 +56,7 @@ pub fn ensure_top_metric_for_interface(interface_alias: &str) -> Result<bool, Er
         2 => Err(Error::MetricApplication),
         // Unexpected value
         i => {
-            log::error!("Unexpected return code from WinNet_EnsureTopMetric: {}", i);
+            log::error!("Unexpected return code from WinNet_EnsureBestMetric: {}", i);
             Err(Error::MetricApplication)
         }
     }
@@ -365,8 +365,8 @@ mod api {
         #[link_name = "WinNet_DeactivateRouteManager"]
         pub fn WinNet_DeactivateRouteManager();
 
-        #[link_name = "WinNet_EnsureTopMetric"]
-        pub fn WinNet_EnsureTopMetric(
+        #[link_name = "WinNet_EnsureBestMetric"]
+        pub fn WinNet_EnsureBestMetric(
             tunnel_interface_alias: *const wchar_t,
             sink: Option<LogSink>,
             sink_context: *const u8,
