@@ -237,7 +237,7 @@ export default class Connect extends Component<IProps, IState> {
         showMarker: this.showMarkerOrSpinner() === 'marker',
         markerStyle: this.getMarkerStyle(),
         // zoom in when connected
-        zoomLevel: state === 'connected' ? ZoomLevel.low : ZoomLevel.medium,
+        zoomLevel: state === 'connected' ? ZoomLevel.high : ZoomLevel.medium,
         // a magic offset to align marker with spinner
         offset: [0, 123],
       };
@@ -247,7 +247,7 @@ export default class Connect extends Component<IProps, IState> {
         showMarker: false,
         markerStyle: MarkerStyle.unsecure,
         // show the world when user location is not known
-        zoomLevel: ZoomLevel.high,
+        zoomLevel: ZoomLevel.low,
         // remove the offset since the marker is hidden
         offset: [0, 0],
       };

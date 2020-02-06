@@ -3,6 +3,7 @@ import { Component, Types, View } from 'reactxp';
 
 import SvgMap from './SvgMap';
 
+// Higher zoom level is more zoomed in
 export enum ZoomLevel {
   high,
   medium,
@@ -87,11 +88,11 @@ export default class Map extends Component<IProps, IState> {
   // TODO: Zoomlevels below 2.22 makes australia invisible
   private zoomLevel(variant: ZoomLevel) {
     switch (variant) {
-      case ZoomLevel.high:
+      case ZoomLevel.low:
         return 1;
       case ZoomLevel.medium:
         return 2.22;
-      case ZoomLevel.low:
+      case ZoomLevel.high:
         return 5;
     }
   }
