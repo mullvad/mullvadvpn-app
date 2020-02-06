@@ -1,11 +1,3 @@
-//! # License
-//!
-//! Copyright (C) 2018  Amagicom AB
-//!
-//! This program is free software: you can redistribute it and/or modify it under the terms of the
-//! GNU General Public License as published by the Free Software Foundation, either version 3 of
-//! the License, or (at your option) any later version.
-
 use crate::{logging::windows::log_sink, tunnel_state_machine::TunnelCommand, winnet};
 use futures::sync::mpsc::UnboundedSender;
 use parking_lot::Mutex;
