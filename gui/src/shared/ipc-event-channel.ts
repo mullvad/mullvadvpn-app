@@ -56,11 +56,13 @@ interface IReceiver<T> {
 interface ITunnelMethods extends IReceiver<TunnelState> {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
+  reconnect(): Promise<void>;
 }
 
 interface ITunnelHandlers extends ISender<TunnelState> {
   handleConnect(fn: () => Promise<void>): void;
   handleDisconnect(fn: () => Promise<void>): void;
+  handleReconnect(fn: () => Promise<void>): void;
 }
 
 interface ISettingsMethods extends IReceiver<ISettings> {
@@ -150,6 +152,7 @@ const DAEMON_DISCONNECTED = 'daemon-disconnected';
 const TUNNEL_STATE_CHANGED = 'tunnel-state-changed';
 const CONNECT_TUNNEL = 'connect-tunnel';
 const DISCONNECT_TUNNEL = 'disconnect-tunnel';
+const RECONNECT_TUNNEL = 'reconnect-tunnel';
 
 const SETTINGS_CHANGED = 'settings-changed';
 const SET_ALLOW_LAN = 'set-allow-lan';
@@ -223,6 +226,7 @@ export class IpcRendererEventChannel {
     listen: listen(TUNNEL_STATE_CHANGED),
     connect: requestSender(CONNECT_TUNNEL),
     disconnect: requestSender(DISCONNECT_TUNNEL),
+    reconnect: requestSender(RECONNECT_TUNNEL),
   };
 
   public static settings: ISettingsMethods = {
@@ -315,6 +319,7 @@ export class IpcMainEventChannel {
     notify: sender(TUNNEL_STATE_CHANGED),
     handleConnect: requestHandler(CONNECT_TUNNEL),
     handleDisconnect: requestHandler(DISCONNECT_TUNNEL),
+    handleReconnect: requestHandler(RECONNECT_TUNNEL),
   };
 
   public static location: ISender<ILocation> = {

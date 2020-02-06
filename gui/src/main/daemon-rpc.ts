@@ -496,6 +496,10 @@ export class DaemonRpc {
     await this.transport.send('disconnect');
   }
 
+  public async reconnectTunnel(): Promise<void> {
+    await this.transport.send('reconnect');
+  }
+
   public async getLocation(): Promise<ILocation | undefined> {
     const response = await this.transport.send('get_current_location', [], NETWORK_CALL_TIMEOUT);
     try {

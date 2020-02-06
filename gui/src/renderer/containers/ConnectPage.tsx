@@ -99,6 +99,13 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
         log.error(`Failed to disconnect the tunnel: ${error.message}`);
       }
     },
+    onReconnect: async () => {
+      try {
+        await props.app.reconnectTunnel();
+      } catch (error) {
+        log.error(`Failed to reconnect the tunnel: ${error.message}`);
+      }
+    },
     onExternalLinkWithAuth: (url: string) => props.app.openLinkWithAuth(url),
   };
 };

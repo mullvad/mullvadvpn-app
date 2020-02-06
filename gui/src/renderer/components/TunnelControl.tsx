@@ -14,6 +14,7 @@ interface ITunnelControlProps {
   country?: string;
   onConnect: () => void;
   onDisconnect: () => void;
+  onReconnect: () => void;
   onSelectLocation: () => void;
 }
 

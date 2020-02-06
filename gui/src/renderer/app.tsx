@@ -276,6 +276,10 @@ export default class AppRenderer {
     return IpcRendererEventChannel.tunnel.disconnect();
   }
 
+  public reconnectTunnel(): Promise<void> {
+    return IpcRendererEventChannel.tunnel.reconnect();
+  }
+
   public updateRelaySettings(relaySettings: RelaySettingsUpdate) {
     return IpcRendererEventChannel.settings.updateRelaySettings(relaySettings);
   }
