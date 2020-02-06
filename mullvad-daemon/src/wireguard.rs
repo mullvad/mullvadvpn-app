@@ -1,7 +1,7 @@
 use crate::{account_history::AccountHistory, InternalDaemonEvent};
 use chrono::offset::Utc;
 use futures::{
-    future::{Executor, IntoFuture},
+    future::Executor,
     sync::{mpsc::UnboundedSender, oneshot},
     Async, Future, Poll,
 };
@@ -30,11 +30,8 @@ const AUTOMATIC_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(5);
 /// A short interval is used in case the computer is ever suspended.
 const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
 
-
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to generate private key")]
-    GenerationError(#[error(source)] rand::Error),
     #[error(display = "Failed to spawn future")]
     ExectuionError,
     #[error(display = "Unexpected RPC error")]
@@ -123,7 +120,7 @@ impl KeyManager {
     /// Generate a new private key
     pub fn generate_key_sync(&mut self, account: AccountToken) -> Result<WireguardData> {
         self.reset();
-        let private_key = PrivateKey::new_from_random().map_err(Error::GenerationError)?;
+        let private_key = PrivateKey::new_from_random();
 
         self.run_future_sync(self.push_future_generator(account, private_key)())
             .map_err(Self::map_rpc_error)
@@ -149,7 +146,7 @@ impl KeyManager {
         old_key: PublicKey,
     ) -> Result<WireguardData> {
         self.reset();
-        let new_key = PrivateKey::new_from_random().map_err(Error::GenerationError)?;
+        let new_key = PrivateKey::new_from_random();
         self.run_future_sync(Self::replace_key_rpc(
             self.http_handle.clone(),
             account,
@@ -163,7 +160,7 @@ impl KeyManager {
     /// Generate a new private key asyncronously. The new keys will be sent to the daemon channel.
     pub fn generate_key_async(&mut self, account: AccountToken) -> Result<()> {
         self.reset();
-        let private_key = PrivateKey::new_from_random().map_err(Error::GenerationError)?;
+        let private_key = PrivateKey::new_from_random();
         let future_generator = self.push_future_generator(account.clone(), private_key);
 
         let retry_strategy = ExponentialBackoff::from_millis(300)
@@ -321,13 +318,9 @@ impl KeyManager {
                 .and_then(move |_| {
                     log::info!("Replacing WireGuard key");
 
-                    let private_key = PrivateKey::new_from_random()
-                        .map_err(Error::GenerationError)
-                        .into_future();
-                    private_key.and_then(move |private_key| {
-                        Self::replace_key_rpc(http_handle, account_token, public_key, private_key)
-                            .map_err(Self::map_rpc_error)
-                    })
+                    let private_key = PrivateKey::new_from_random();
+                    Self::replace_key_rpc(http_handle, account_token, public_key, private_key)
+                        .map_err(Self::map_rpc_error)
                 })
                 .then(move |rpc_result| {
                     match rpc_result {
