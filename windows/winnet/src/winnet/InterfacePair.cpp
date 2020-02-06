@@ -11,11 +11,11 @@ InterfacePair::InterfacePair(NET_LUID interface_luid)
 {
 	IPv4Iface.Family = AF_INET;
 	IPv4Iface.InterfaceLuid = interface_luid;
-	InitializeInterface(&IPv4Iface);
+	InitializeInterface(IPv4Iface);
 
 	IPv6Iface.Family = AF_INET6;
 	IPv6Iface.InterfaceLuid = interface_luid;
-	InitializeInterface(&IPv6Iface);
+	InitializeInterface(IPv6Iface);
 
 	if (!HasIPv4() && !HasIPv6())
 	{
@@ -30,44 +30,44 @@ InterfacePair::InterfacePair(NET_LUID interface_luid)
 
 int InterfacePair::WorstMetric()
 {
-	return IPv6Iface.Metric >= IPv4Iface.Metric ? IPv6Iface.Metric : IPv4Iface.Metric;
+	return max(IPv6Iface.Metric, IPv4Iface.Metric);
 }
 
 int InterfacePair::BestMetric()
 {
-	return IPv6Iface.Metric < IPv4Iface.Metric ? IPv4Iface.Metric : IPv6Iface.Metric;
+	return min(IPv4Iface.Metric, IPv6Iface.Metric);
 }
 
-void InterfacePair::SetMetric(unsigned int metric)
+void InterfacePair::SetMetric(uint32_t metric)
 {
 	if (HasIPv4() && (IPv4Iface.UseAutomaticMetric || metric != IPv4Iface.Metric))
 	{
 		IPv4Iface.SitePrefixLength = 0;
 		IPv4Iface.Metric = metric;
 		IPv4Iface.UseAutomaticMetric = false;
-		SetInterface(&IPv4Iface);
+		SetInterface(IPv4Iface);
 	}
 
 	if (HasIPv6() && (IPv6Iface.UseAutomaticMetric || metric != IPv6Iface.Metric))
 	{
 		IPv6Iface.Metric = metric;
 		IPv6Iface.UseAutomaticMetric = false;
-		SetInterface(&IPv6Iface);
+		SetInterface(IPv6Iface);
 	}
 }
 
-void InterfacePair::SetInterface(PMIB_IPINTERFACE_ROW iface) {
+void InterfacePair::SetInterface(const MIB_IPINTERFACE_ROW &iface) {
 
-	const auto status = SetIpInterfaceEntry(iface);
+	const auto status = SetIpInterfaceEntry(const_cast<MIB_IPINTERFACE_ROW*>(&iface));
 
 	if (status != NO_ERROR)
 	{
 		std::stringstream ss;
 
 		ss << "Set metric for "
-			<< (iface->Family == AF_INET ? "IPv4" : "IPv6")
+			<< (iface.Family == AF_INET ? "IPv4" : "IPv6")
 			<< " on interface with LUID 0x"
-			<< std::hex << iface->InterfaceLuid.Value;
+			<< std::hex << iface.InterfaceLuid.Value;
 
 		THROW_WINDOWS_ERROR(status, ss.str().c_str());
 	}
@@ -84,9 +84,9 @@ bool InterfacePair::HasIPv6()
 }
 
 //static
-void InterfacePair::InitializeInterface(PMIB_IPINTERFACE_ROW iface)
+void InterfacePair::InitializeInterface(MIB_IPINTERFACE_ROW &iface)
 {
-	const auto status = GetIpInterfaceEntry(iface);
+	const auto status = GetIpInterfaceEntry(&iface);
 
 	if (NO_ERROR == status)
 	{
@@ -95,14 +95,14 @@ void InterfacePair::InitializeInterface(PMIB_IPINTERFACE_ROW iface)
 
 	if (STATUS_NOT_FOUND == status || ERROR_NOT_FOUND == status)
 	{
-		iface->Family = AF_UNSPEC;
+		iface.Family = AF_UNSPEC;
 	}
 	else
 	{
 		std::stringstream ss;
 
 		ss << "Retrieve info on network interface with LUID 0x"
-			<< std::hex << iface->InterfaceLuid.Value;
+			<< std::hex << iface.InterfaceLuid.Value;
 
 		THROW_WINDOWS_ERROR(status, ss.str().c_str());
 	}
