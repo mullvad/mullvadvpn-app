@@ -25,7 +25,7 @@ function win_deduce_lib_executable_path {
 }
 
 function win_gather_export_symbols {
-   grep -Eo "\/\/export \w+" libwg.go | cut -d' ' -f2
+   grep -Eo "\/\/export \w+" libwg.go libwg_windows.go | cut -d' ' -f2
 }
 
 function win_create_lib_file {
@@ -46,7 +46,7 @@ function win_create_lib_file {
 
 function build_windows {
     echo "Building wireguard-go for Windows"
-    pushd wireguard-go-windows
+    pushd libwg
         go build -v -o libwg.dll -buildmode c-shared
         win_create_lib_file
 
@@ -71,7 +71,7 @@ function unix_target_triple {
 
 function build_unix {
     echo "Building wireguard-go for $1"
-    pushd wireguard-go
+    pushd libwg
         target_triple_dir="../../build/lib/$(unix_target_triple)"
         mkdir -p $target_triple_dir
         go build -v -o $target_triple_dir/libwg.a -buildmode c-archive
@@ -84,7 +84,7 @@ function build_android {
 
     docker run --rm \
         -v "$(pwd)/../":/workspace \
-        --entrypoint "/workspace/wireguard/wireguard-go/build-android.sh" \
+        --entrypoint "/workspace/wireguard/libwg/build-android.sh" \
         mullvadvpn/mullvad-android-app-build@sha256:$docker_image_hash
 }
 
