@@ -27,6 +27,10 @@ Line wrap the file at 100 chars.                                              Th
 - Change project copyright and company name from Amagicom AB to Mullvad VPN AB
 - Only reconnect when settings change if a relevant tunnel protocol is used.
 
+### Fixed
+#### Android
+- Fix crash that happened in certain situations when retrieving the relay list.
+
 
 ## [2020.1-beta1] - 2020-02-05
 ### Added
