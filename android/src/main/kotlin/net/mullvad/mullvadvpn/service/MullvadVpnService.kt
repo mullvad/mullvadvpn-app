@@ -32,14 +32,12 @@ class MullvadVpnService : TalpidVpnService() {
     private var isBound = false
         set(value) {
             field = value
-
-            if (this::notificationManager.isInitialized) {
-                notificationManager.lockedToForeground = value
-            }
+            notificationManager.lockedToForeground = value
         }
 
     override fun onCreate() {
         super.onCreate()
+        notificationManager = ForegroundNotificationManager(this, serviceNotifier)
         setUp()
     }
 
@@ -70,6 +68,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onDestroy() {
         tearDown()
+        notificationManager.onDestroy()
         super.onDestroy()
     }
 
@@ -93,7 +92,6 @@ class MullvadVpnService : TalpidVpnService() {
     private fun setUp() {
         daemon = startDaemon()
         connectionProxy = ConnectionProxy(this, daemon)
-        notificationManager = startNotificationManager()
     }
 
     private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
@@ -118,12 +116,6 @@ class MullvadVpnService : TalpidVpnService() {
         daemon
     }
 
-    private fun startNotificationManager(): ForegroundNotificationManager {
-        return ForegroundNotificationManager(this, serviceNotifier).apply {
-            lockedToForeground = isBound
-        }
-    }
-
     private fun stop() {
         isStopping = true
         stopDaemon()
@@ -140,9 +132,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun tearDown() {
         stopDaemon()
-
         connectionProxy.onDestroy()
-        notificationManager.onDestroy()
     }
 
     private fun restart() {
