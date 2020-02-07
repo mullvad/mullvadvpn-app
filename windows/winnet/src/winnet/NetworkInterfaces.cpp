@@ -7,7 +7,7 @@
 #include <sstream>
 #include <cstdint>
 
-bool NetworkInterfaces::HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface)
+bool NetworkInterfaces::HasBestMetric(PMIB_IPINTERFACE_ROW targetIface)
 {
 	for (unsigned int i = 0; i < mInterfaces->NumEntries; ++i)
 	{
@@ -18,39 +18,6 @@ bool NetworkInterfaces::HasHighestMetric(PMIB_IPINTERFACE_ROW targetIface)
 			return false;
 	}
 	return true;
-}
-
-void NetworkInterfaces::EnsureIfaceMetricIsHighest(NET_LUID interfaceLuid)
-{
-	for (ULONG i = 0; i < mInterfaces->NumEntries; ++i)
-	{
-		PMIB_IPINTERFACE_ROW iface = &mInterfaces->Table[i];
-
-		// Ignoring the target interface.
-		if (iface->InterfaceLuid.Value == interfaceLuid.Value || iface->UseAutomaticMetric || iface->Metric > MAX_METRIC)
-		{
-			continue;
-		}
-
-		iface->Metric++;
-
-		if (AF_INET == iface->Family)
-		{
-			iface->SitePrefixLength = 0;
-		}
-
-		const auto status = SetIpInterfaceEntry(iface);
-
-		if (NO_ERROR != status)
-		{
-			std::stringstream ss;
-
-			ss << "Failed to increment metric for interface with LUID 0x"
-				<< std::hex << iface->InterfaceLuid.Value;
-
-			THROW_WINDOWS_ERROR(status, ss.str().c_str());
-		}
-	}
 }
 
 NetworkInterfaces::NetworkInterfaces()
@@ -65,21 +32,19 @@ NetworkInterfaces::NetworkInterfaces()
 	}
 }
 
-bool NetworkInterfaces::SetTopMetricForInterfacesByAlias(const wchar_t * deviceAlias)
+bool NetworkInterfaces::SetBestMetricForInterfacesByAlias(const wchar_t * deviceAlias)
 {
-	return SetTopMetricForInterfacesWithLuid(GetInterfaceLuid(deviceAlias));
+	return SetBestMetricForInterfacesWithLuid(GetInterfaceLuid(deviceAlias));
 }
 
-bool NetworkInterfaces::SetTopMetricForInterfacesWithLuid(NET_LUID targetIfaceId)
+bool NetworkInterfaces::SetBestMetricForInterfacesWithLuid(NET_LUID targetIfaceId)
 {
 	InterfacePair targetInterfaces = InterfacePair(targetIfaceId);
-
-	if (targetInterfaces.HighestMetric() == MAX_METRIC)
+	if (BEST_METRIC == targetInterfaces.WorstMetric())
 	{
 		return false;
 	}
-
-	targetInterfaces.SetMetric(MAX_METRIC);
+	targetInterfaces.SetMetric(BEST_METRIC);
 	return true;
 }
 
