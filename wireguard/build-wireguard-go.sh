@@ -52,7 +52,7 @@ function build_windows {
 
         target_dir=../../build/lib/x86_64-pc-windows-msvc/
         mkdir -p $target_dir
-        cp libwg.dll libwg.lib $target_dir
+        mv libwg.dll libwg.lib $target_dir
     popd
 }
 
@@ -75,7 +75,7 @@ function build_unix {
         go build -v -o libwg.a -buildmode c-archive
         target_triple_dir="../../build/lib/$(unix_target_triple)"
         mkdir -p $target_triple_dir
-        cp libwg.a $target_triple_dir
+        mv libwg.a $target_triple_dir
     popd
 }
 
