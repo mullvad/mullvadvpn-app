@@ -29,18 +29,10 @@ APP_TRANSLATIONS_PATH = path.realpath(path.join(SCRIPT_DIR, "../locales"))
 
 # Geo assets for copying from generated content folder into the app folder
 GEO_ASSETS_TO_COPY = [
-  "cities.rbush.json",
-  "countries.rbush.json",
   "geometry.json",
   "geometry.rbush.json",
   "states-provinces-lines.json",
   "states-provinces-lines.rbush.json",
-]
-
-# The filenames of gettext catalogues that should be copied as is
-TRANSLATIONS_TO_COPY = [
-  "cities.po",
-  "countries.po"
 ]
 
 # The filenames of gettext catalogues that should be merged using msgcat
@@ -80,10 +72,7 @@ def merge_single_locale_folder(src, dst):
     src_po = path.join(src, f)
     dst_po = path.join(dst, f)
 
-    if f in TRANSLATIONS_TO_COPY:
-      print("Copying {} to {}".format(src_po, dst_po))
-      shutil.copyfile(src_po, dst_po)
-    elif f in TRANSLATIONS_TO_MERGE:
+    if f in TRANSLATIONS_TO_MERGE:
       # merge ../locales/*/file.po with ./out/locales/*/file.po
       # use existing translation to resolve conflicts
       merge_gettext_catalogues(dst_po, src_po)
