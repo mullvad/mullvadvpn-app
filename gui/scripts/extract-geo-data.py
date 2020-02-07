@@ -34,81 +34,11 @@ RELAY_LOCATIONS_POT_FILENAME = "relay-locations.pot"
 # Relay locations gettext catalogue filename (.po)
 RELAY_LOCATIONS_PO_FILENAME = "relay-locations.po"
 
-# Countries gettext catalogue filename (.po)
-COUNTRIES_PO_FILENAME = "countries.po"
-
-# Cities gettext catalogue filename (.po)
-CITIES_PO_FILENAME = "cities.po"
-
-# The minimum population cap used to narrow down the cities dataset
-POPULATION_MAX_FILTER = 50000
-
 # Custom locale mapping between the identifiers in the app and Natural Earth datasets
 LOCALE_MAPPING = {
   # "zh" in Natural Earth Data referes to simplified chinese
   "zh-CN": "zh"
 }
-
-
-def extract_cities():
-  input_path = get_shape_path("ne_50m_populated_places")
-  output_path = path.join(OUT_DIR, "cities.json")
-
-  props_to_keep = frozenset(["scalerank", "name", "latitude", "longitude"])
-
-  features = []
-  with fiona.collection(input_path, "r") as source:
-    for feat in source:
-      props = lower_dict_keys(feat["properties"])
-
-      if props["pop_max"] >= POPULATION_MAX_FILTER:
-        for k in frozenset(props) - props_to_keep:
-          del props[k]
-
-        feat["properties"] = props
-        features.append(feat)
-
-  my_layer = {
-    "type": "FeatureCollection",
-    "features": features
-  }
-
-  with open(output_path, "w") as f:
-    f.write(json.dumps(my_layer))
-
-  print(c.green("Extracted data to {}".format(output_path)))
-
-
-def extract_countries():
-  input_path = get_shape_path("ne_50m_admin_0_countries")
-  output_path = path.join(OUT_DIR, "countries.json")
-
-  props_to_keep = frozenset(["name"])
-
-  features = []
-  with fiona.open(input_path) as source:
-    for feat in source:
-      geometry = feat["geometry"]
-
-      # convert country polygon to point
-      geometry.update(mapping(shape(geometry).representative_point()))
-
-      props = lower_dict_keys(feat["properties"])
-      for k in frozenset(props) - props_to_keep:
-        del props[k]
-
-      feat["properties"] = props
-      features.append(feat)
-
-  my_layer = {
-    "type": "FeatureCollection",
-    "features": features
-  }
-
-  with open(output_path, "w") as f:
-    f.write(json.dumps(my_layer))
-
-  print(c.green("Extracted data to {}".format(output_path)))
 
 
 def extract_geometry():
@@ -165,139 +95,6 @@ def extract_provinces_and_states_lines():
     print(c.green("Extracted data to {}".format(output_path)))
   else:
     print(c.red("geo2topo exited with {}. {}".format(p.returncode, errors.decode().strip())))
-
-
-def extract_countries_po():
-  input_path = get_shape_path("ne_50m_admin_0_countries")
-
-  for locale in os.listdir(LOCALE_DIR):
-    locale_dir = path.join(LOCALE_DIR, locale)
-    locale_out_dir = path.join(LOCALE_OUT_DIR, locale)
-
-    if os.path.isdir(locale_dir):
-      with fiona.open(input_path) as source:
-        po = POFile(encoding='utf-8', check_for_duplicates=True)
-        po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
-        output_path = path.join(locale_out_dir, COUNTRIES_PO_FILENAME)
-
-        if not path.exists(locale_out_dir):
-          os.makedirs(locale_out_dir)
-
-        print("Generating {}".format(output_path))
-
-        for feat in source:
-          props = lower_dict_keys(feat["properties"])
-
-          name_key = "name_" + map_locale(locale)
-          name_fallback = "name"
-
-          country_name = props.get("name")
-          formal_country_name = props.get("formal_en", country_name)
-
-          if props.get(name_key) is not None:
-            translated_name = props.get(name_key)
-          elif props.get(name_fallback) is not None:
-            translated_name = props.get(name_fallback)
-            print(c.orange("Missing translation for {}".format(translated_name)))
-          else:
-            raise ValueError(
-              "Cannot find the translation for {}. Probe keys: {}"
-                .format(locale, (name_key, name_fallback))
-              )
-
-          entry = POEntry(
-            msgid=country_name,
-            msgstr=translated_name
-          )
-          po.append(entry)
-
-          # add additional record for the formal country name.
-          if country_name != formal_country_name and formal_country_name is not None:
-            entry = POEntry(
-              msgid=formal_country_name,
-              msgstr=translated_name
-            )
-            po.append(entry)
-
-          # exception for the US
-          if props.get("iso_a3") == "USA":
-            entry = POEntry(
-              msgid="USA",
-              msgstr=translated_name
-            )
-            po.append(entry)
-
-          # exception for the UK
-          if props.get("iso_a3") == "GBR":
-            entry = POEntry(
-              msgid="UK",
-              msgstr=translated_name
-            )
-            po.append(entry)
-
-        sort_pofile_entries(po)
-        po.save(output_path)
-        print(c.green("Extracted {} countries for {} to {}".format(len(po), locale, output_path)))
-
-
-def extract_cities_po():
-  input_path = get_shape_path("ne_50m_populated_places")
-  stats = []
-
-  for locale in os.listdir(LOCALE_DIR):
-    locale_dir = path.join(LOCALE_DIR, locale)
-    locale_out_dir = path.join(LOCALE_OUT_DIR, locale)
-
-    if os.path.isdir(locale_dir):
-      po = POFile(encoding='utf-8', check_for_duplicates=True)
-      po.metadata = {"Content-Type": "text/plain; charset=utf-8"}
-      output_path = path.join(locale_out_dir, CITIES_PO_FILENAME)
-      hits = 0
-      misses = 0
-
-      if not path.exists(locale_out_dir):
-        os.makedirs(locale_out_dir)
-
-      print("Generating {}".format(output_path))
-
-      with fiona.open(input_path) as source:
-        for feat in source:
-          props = lower_dict_keys(feat["properties"])
-
-          if props["pop_max"] >= POPULATION_MAX_FILTER:
-            name_key = "name_" + map_locale(locale)
-            name_fallback = "name"
-
-            if props.get(name_key) is not None:
-              translated_name = props.get(name_key)
-              hits += 1
-            elif props.get(name_fallback) is not None:
-              translated_name = props.get(name_fallback)
-              print(c.orange("Missing translation for {}".format(translated_name)))
-              misses += 1
-            else:
-              raise ValueError(
-                "Cannot find the translation for {}. Probe keys: {}"
-                  .format(locale, (name_key, name_fallback))
-                )
-
-            entry = POEntry(
-              msgid=props.get("name"),
-              msgstr=translated_name
-            )
-
-            try:
-              po.append(entry)
-            except ValueError as err:
-              print(c.orange("Cannot add an entry: {}".format(err)))
-
-      sort_pofile_entries(po)
-      po.save(output_path)
-      print(c.green("Extracted {} cities to {}".format(len(po), output_path)))
-
-      stats.append((locale, hits, misses))
-
-  print_stats_table("Cities translations", stats)
 
 
 def sort_pofile_entries(pofile):
@@ -678,14 +475,10 @@ def main():
     os.makedirs(LOCALE_OUT_DIR)
 
   # extract geo data
-  extract_cities()
-  extract_countries()
   extract_geometry()
   extract_provinces_and_states_lines()
 
   # extract translations
-  extract_countries_po()
-  extract_cities_po()
   extract_relay_translations()
 
 main()

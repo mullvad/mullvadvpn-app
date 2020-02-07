@@ -44,7 +44,6 @@
     "@types/d3-geo": "^1.11.0",
     "@types/enzyme": "^3.1.15",
     "@types/enzyme-adapter-react-16": "^1.0.3",
-    "@types/geojson": "^7946.0.7",
     "@types/mkdirp": "^0.5.2",
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.12.3",
