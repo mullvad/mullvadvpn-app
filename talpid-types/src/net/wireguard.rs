@@ -1,9 +1,10 @@
 use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol};
 use ipnetwork::IpNetwork;
-use rand::{rngs::OsRng, RngCore};
+use rand::rngs::OsRng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
-    fmt,
+    cmp, fmt,
+    hash::{Hash, Hasher},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
@@ -56,41 +57,48 @@ pub struct TunnelOptions {
 }
 
 /// Wireguard x25519 private key
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct PrivateKey([u8; 32]);
+#[derive(Clone)]
+pub struct PrivateKey(x25519_dalek::StaticSecret);
 
 impl PrivateKey {
     /// Get private key as bytes
-    pub fn as_bytes(&self) -> &[u8; 32] {
-        &self.0
+    pub fn to_bytes(&self) -> [u8; 32] {
+        self.0.to_bytes()
     }
 
-    /// Normalizing a private key as per the specification - https://cr.yp.to/ecdh.html
-    fn normalize_key(bytes: &mut [u8; 32]) {
-        bytes[0] &= 248;
-        bytes[31] &= 127;
-        bytes[31] |= 64;
-    }
-
-    pub fn new_from_random() -> Result<Self, rand::Error> {
-        let mut bytes = [0u8; 32];
-        OsRng.fill_bytes(&mut bytes);
-        Ok(Self::from(bytes))
+    pub fn new_from_random() -> Self {
+        PrivateKey(x25519_dalek::StaticSecret::new(&mut OsRng))
     }
 
     /// Generate public key from private key
     pub fn public_key(&self) -> PublicKey {
-        PublicKey::from(x25519_dalek::x25519(
-            self.0,
-            x25519_dalek::X25519_BASEPOINT_BYTES,
-        ))
+        PublicKey::from(&self.0)
     }
 }
 
 impl From<[u8; 32]> for PrivateKey {
-    fn from(mut private_key: [u8; 32]) -> PrivateKey {
-        Self::normalize_key(&mut private_key);
-        PrivateKey(private_key)
+    fn from(bytes: [u8; 32]) -> Self {
+        Self(x25519_dalek::StaticSecret::from(bytes))
+    }
+}
+
+impl cmp::PartialEq for PrivateKey {
+    fn eq(&self, other: &PrivateKey) -> bool {
+        self.0.to_bytes() == other.0.to_bytes()
+    }
+}
+
+impl cmp::Eq for PrivateKey {}
+
+impl fmt::Debug for PrivateKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", &self)
+    }
+}
+
+impl fmt::Display for PrivateKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", &base64::encode(&(self.0).to_bytes()))
     }
 }
 
@@ -99,10 +107,9 @@ impl Serialize for PrivateKey {
     where
         S: Serializer,
     {
-        serialize_key(&self.0, serializer)
+        serialize_key(&self.0.to_bytes(), serializer)
     }
 }
-
 
 impl<'de> Deserialize<'de> for PrivateKey {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -114,20 +121,26 @@ impl<'de> Deserialize<'de> for PrivateKey {
 }
 
 /// Wireguard x25519 public key
-#[derive(Clone, PartialEq, Eq, Hash)]
-pub struct PublicKey([u8; 32]);
+#[derive(Clone)]
+pub struct PublicKey(x25519_dalek::PublicKey);
 
 impl PublicKey {
     /// Get the public key as bytes
     pub fn as_bytes(&self) -> &[u8; 32] {
-        &self.0
+        self.0.as_bytes()
     }
 }
 
 
+impl<'a> From<&'a x25519_dalek::StaticSecret> for PublicKey {
+    fn from(private_key: &'a x25519_dalek::StaticSecret) -> PublicKey {
+        PublicKey(x25519_dalek::PublicKey::from(private_key))
+    }
+}
+
 impl From<[u8; 32]> for PublicKey {
     fn from(public_key: [u8; 32]) -> PublicKey {
-        PublicKey(public_key)
+        PublicKey(x25519_dalek::PublicKey::from(public_key))
     }
 }
 
@@ -136,10 +149,9 @@ impl Serialize for PublicKey {
     where
         S: Serializer,
     {
-        serialize_key(&self.0, serializer)
+        serialize_key(&self.0.as_bytes(), serializer)
     }
 }
-
 
 impl<'de> Deserialize<'de> for PublicKey {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -150,6 +162,20 @@ impl<'de> Deserialize<'de> for PublicKey {
     }
 }
 
+impl Hash for PublicKey {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.0.as_bytes().hash(state);
+    }
+}
+
+impl cmp::PartialEq for PublicKey {
+    fn eq(&self, other: &PublicKey) -> bool {
+        self.0.as_bytes() == other.0.as_bytes()
+    }
+}
+
+impl cmp::Eq for PublicKey {}
+
 impl fmt::Debug for PublicKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", &self)
@@ -158,7 +184,7 @@ impl fmt::Debug for PublicKey {
 
 impl fmt::Display for PublicKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &base64::encode(&self.0))
+        write!(f, "{}", &base64::encode(self.0.as_bytes()))
     }
 }
 

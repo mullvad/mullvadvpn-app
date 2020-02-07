@@ -95,7 +95,7 @@ impl Config {
         // the order of insertion matters, public key entry denotes a new peer entry
         let mut wg_conf = WgConfigBuffer::new();
         wg_conf
-            .add("private_key", self.tunnel.private_key.as_bytes().as_ref())
+            .add("private_key", self.tunnel.private_key.to_bytes().as_ref())
             .add("listen_port", "0");
 
         wg_conf.add("replace_peers", "true");
