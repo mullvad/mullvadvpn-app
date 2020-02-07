@@ -55,13 +55,12 @@ class ConnectionStatus(val parentView: View, val resources: Resources) {
     private fun errorState(isBlocking: Boolean) {
         spinner.visibility = View.GONE
 
-        // TODO: revise how to best inform the user about us not blocking
-        // traffic
-        text.setTextColor(securedTextColor)
         if (isBlocking) {
+            text.setTextColor(securedTextColor)
             text.setText(R.string.blocked_connection)
         } else {
-            text.setText(R.string.blocked_connection)
+            text.setTextColor(unsecuredTextColor)
+            text.setText(R.string.error_state)
         }
     }
 }
