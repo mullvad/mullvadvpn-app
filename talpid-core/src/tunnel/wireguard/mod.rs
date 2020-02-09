@@ -14,6 +14,7 @@ use std::{
 
 pub mod config;
 mod connectivity_check;
+mod logging;
 mod stats;
 pub mod wireguard_go;
 
@@ -133,7 +134,6 @@ impl WireguardMonitor {
         route_handle
             .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ());
 
-
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
         let (pinger_tx, pinger_rx) = mpsc::channel();
@@ -161,7 +161,7 @@ impl WireguardMonitor {
                 Ok(true) => (on_event)(TunnelEvent::Up(metadata)),
                 Ok(false) => return,
                 Err(err) => {
-                    log::error!("ConnectivityMonitor failed: {}", err);
+                    log::error!("Connectivity monitor failed: {}", err);
                     return;
                 }
             }
