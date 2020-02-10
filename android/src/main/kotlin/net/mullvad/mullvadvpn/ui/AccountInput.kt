@@ -4,16 +4,22 @@ import android.content.res.Resources
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.style.MetricAffectingSpan
+import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnFocusChangeListener
-import android.widget.EditText
+import android.view.View.OnTouchListener
+import android.widget.ArrayAdapter
 import android.widget.ImageButton
+import android.widget.ListView
+import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.AccountInputContainer.BorderState
 
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
-class AccountInput(val parentView: View, val resources: Resources) {
+class AccountInput(
+    val parentView: View,
+    val resources: Resources
+) {
     private val disabledBackgroundColor = resources.getColor(R.color.white20)
     private val disabledTextColor = resources.getColor(R.color.white)
     private val enabledBackgroundColor = resources.getColor(R.color.white)
@@ -24,6 +30,9 @@ class AccountInput(val parentView: View, val resources: Resources) {
         set(value) {
             field = value
             updateBorder()
+            if (value == true) {
+                shouldShowAccountHistory = true
+            }
         }
     private var usingErrorColor = false
         set(value) {
@@ -42,25 +51,49 @@ class AccountInput(val parentView: View, val resources: Resources) {
         }
 
     val container: AccountInputContainer = parentView.findViewById(R.id.account_input_container)
-    val input: EditText = parentView.findViewById(R.id.account_input)
+    val input: TextView = parentView.findViewById(R.id.account_input)
     val button: ImageButton = parentView.findViewById(R.id.login_button)
+    val accountHistoryList: ListView = parentView.findViewById(R.id.account_history_list)
+
+    var accountHistory: ArrayList<String>? = null
+        set(value) {
+            synchronized(this) {
+                field = value
+                updateAccountHistory()
+            }
+        }
+
+    private var shouldShowAccountHistory = false
+        set(value) {
+            synchronized(this) {
+                field = value
+                updateAccountHistory()
+            }
+        }
 
     var onLogin: ((String) -> Unit)? = null
 
     init {
-        button.setOnClickListener { onLogin?.invoke(input.text.toString()) }
+        button.setOnClickListener {
+            onLogin?.invoke(input.text.toString())
+        }
         setButtonEnabled(false)
 
         input.apply {
             addTextChangedListener(InputWatcher())
-            onFocusChangeListener = OnFocusChangeListener { view, hasFocus ->
-                inputHasFocus = hasFocus && view.isEnabled()
-            }
+            setOnTouchListener(OnTouchListener {
+                view, event ->
+                if (MotionEvent.ACTION_UP == event.getAction()) {
+                    shouldShowAccountHistory = true
+                }
+                false
+            })
         }
 
         container.apply {
             clipToOutline = true
             outlineProvider = AccountInputOutlineProvider(context)
+            setOnClickListener { shouldShowAccountHistory = true }
         }
     }
 
@@ -85,12 +118,14 @@ class AccountInput(val parentView: View, val resources: Resources) {
             visibility = View.VISIBLE
             clearFocus()
         }
+        accountHistoryList.visibility = View.INVISIBLE
     }
 
     private fun successState() {
         setButtonEnabled(false)
         button.visibility = View.GONE
         input.visibility = View.GONE
+        container.visibility = View.GONE
     }
 
     private fun failureState() {
@@ -113,6 +148,31 @@ class AccountInput(val parentView: View, val resources: Resources) {
                 setEnabled(enabled)
                 setClickable(enabled)
                 setFocusable(enabled)
+            }
+        }
+    }
+
+    private fun updateAccountHistory() {
+        accountHistory?.let { history ->
+            accountHistoryList.apply {
+                setAdapter(ArrayAdapter(context,
+                                    R.layout.account_history_entry,
+                                    R.id.account_history_entry_text_view,
+                                    history))
+
+                setOnItemClickListener { _, _, idx, _ ->
+                    val accountNumber = history[idx]
+
+                    input.setText(accountNumber)
+                    accountHistoryList.visibility = View.GONE
+                    onLogin?.invoke(accountNumber)
+                }
+            }
+
+            if (shouldShowAccountHistory && accountHistoryList.visibility != View.VISIBLE) {
+                accountHistoryList.visibility = View.VISIBLE
+                accountHistoryList.translationY = -accountHistoryList.height.toFloat()
+                accountHistoryList.animate().translationY(0.0F).setDuration(350).start()
             }
         }
     }

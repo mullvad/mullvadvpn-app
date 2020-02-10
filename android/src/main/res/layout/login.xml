@@ -138,6 +138,15 @@
                     android:src="@drawable/login_button_arrow"
                     />
         </net.mullvad.mullvadvpn.ui.AccountInputContainer>
+
+        <ListView android:id="@+id/account_history_list"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:divider="@drawable/account_history_list_divider"
+                android:dividerHeight="1dp"
+                android:visibility="invisible"
+                android:background="@drawable/account_history_background"
+                />
         <Space
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
