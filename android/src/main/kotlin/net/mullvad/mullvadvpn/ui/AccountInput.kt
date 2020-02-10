@@ -4,16 +4,23 @@ import android.content.res.Resources
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.style.MetricAffectingSpan
+import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnFocusChangeListener
-import android.widget.EditText
+import android.view.View.OnTouchListener
+import android.widget.ArrayAdapter
 import android.widget.ImageButton
+import android.widget.ListView
+import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.AccountInputContainer.BorderState
 
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
-class AccountInput(val parentView: View, val resources: Resources) {
+class AccountInput(
+    val parentView: View,
+    val resources: Resources,
+    val history: ArrayList<String>?
+) {
     private val disabledBackgroundColor = resources.getColor(R.color.white20)
     private val disabledTextColor = resources.getColor(R.color.white)
     private val enabledBackgroundColor = resources.getColor(R.color.white)
@@ -24,6 +31,9 @@ class AccountInput(val parentView: View, val resources: Resources) {
         set(value) {
             field = value
             updateBorder()
+            if (value == true) {
+                showAccountHistory()
+            }
         }
     private var usingErrorColor = false
         set(value) {
@@ -42,25 +52,49 @@ class AccountInput(val parentView: View, val resources: Resources) {
         }
 
     val container: AccountInputContainer = parentView.findViewById(R.id.account_input_container)
-    val input: EditText = parentView.findViewById(R.id.account_input)
+    val input: TextView = parentView.findViewById(R.id.account_input)
     val button: ImageButton = parentView.findViewById(R.id.login_button)
+    val accountHistoryList: ListView = parentView.findViewById(R.id.account_history_list)
 
     var onLogin: ((String) -> Unit)? = null
 
     init {
-        button.setOnClickListener { onLogin?.invoke(input.text.toString()) }
+        button.setOnClickListener {
+            onLogin?.invoke(input.text.toString())
+        }
         setButtonEnabled(false)
 
         input.apply {
             addTextChangedListener(InputWatcher())
-            onFocusChangeListener = OnFocusChangeListener { view, hasFocus ->
-                inputHasFocus = hasFocus && view.isEnabled()
+            setOnTouchListener(OnTouchListener {
+                view, event ->
+                if (MotionEvent.ACTION_UP == event.getAction()) {
+                    showAccountHistory()
+                }
+            })
+        }
+
+        accountHistoryList.apply {
+            if (history != null) {
+                setAdapter(ArrayAdapter(context,
+                                        R.layout.account_history_entry,
+                                        R.id.account_history_entry_text_view,
+                                        history))
+
+                setOnItemClickListener { _, _, idx, _ ->
+                    val accountNumber = history[idx]
+
+                    input.setText(accountNumber)
+                    accountHistoryList.visibility = View.GONE
+                    onLogin?.invoke(accountNumber)
+                }
             }
         }
 
         container.apply {
             clipToOutline = true
             outlineProvider = AccountInputOutlineProvider(context)
+            setOnClickListener { accountHistoryList.visibility = View.VISIBLE }
         }
     }
 
@@ -91,6 +125,7 @@ class AccountInput(val parentView: View, val resources: Resources) {
         setButtonEnabled(false)
         button.visibility = View.GONE
         input.visibility = View.GONE
+        accountHistoryList.visibility = View.GONE
     }
 
     private fun failureState() {
@@ -132,6 +167,11 @@ class AccountInput(val parentView: View, val resources: Resources) {
             input.setTextColor(enabledTextColor)
             usingErrorColor = false
         }
+    }
+
+    private fun showAccountHistory() {
+        accountHistoryList.visibility = View.VISIBLE
+        accountHistoryList.animate().translationY(0.0F).setDuration(350).start()
     }
 
     private fun removeFormattingSpans(text: Editable) {
