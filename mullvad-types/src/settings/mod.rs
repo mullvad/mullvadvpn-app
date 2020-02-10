@@ -65,7 +65,6 @@ pub struct Settings {
     #[cfg_attr(target_os = "android", jnix(skip))]
     bridge_state: BridgeState,
     /// If the daemon should allow communication with private (LAN) networks.
-    #[cfg_attr(target_os = "android", jnix(skip))]
     allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
     /// the firewall to not allow any traffic in or out.

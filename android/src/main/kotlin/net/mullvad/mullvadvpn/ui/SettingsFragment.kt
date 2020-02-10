@@ -24,6 +24,7 @@ class SettingsFragment : ServiceAwareFragment() {
     private lateinit var appVersionWarning: View
     private lateinit var appVersionLabel: TextView
     private lateinit var appVersionFooter: View
+    private lateinit var preferencesMenu: View
     private lateinit var remainingTimeLabel: RemainingTimeLabel
     private lateinit var wireguardKeysMenu: View
 
@@ -68,6 +69,13 @@ class SettingsFragment : ServiceAwareFragment() {
                 openSubFragment(AccountFragment())
             }
         }
+
+        preferencesMenu = view.findViewById<View>(R.id.preferences).apply {
+            setOnClickListener {
+                openSubFragment(PreferencesFragment())
+            }
+        }
+
         wireguardKeysMenu = view.findViewById<View>(R.id.wireguard_keys).apply {
             setOnClickListener {
                 openSubFragment(WireguardKeyFragment())
@@ -164,6 +172,7 @@ class SettingsFragment : ServiceAwareFragment() {
         }
 
         accountMenu.visibility = visibility
+        preferencesMenu.visibility = visibility
         wireguardKeysMenu.visibility = visibility
     }
 

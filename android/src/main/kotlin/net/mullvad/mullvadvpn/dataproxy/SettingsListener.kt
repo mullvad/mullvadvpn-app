@@ -9,13 +9,25 @@ class SettingsListener(val daemon: MullvadDaemon) {
         maybeSettings?.let { settings -> handleNewSettings(settings) }
     }
 
-    private var settings: Settings? = null
+    var settings: Settings? = null
+        private set
 
     var onAccountNumberChange: ((String?) -> Unit)? = null
         set(value) {
             synchronized(this) {
                 field = value
                 value?.invoke(settings?.accountToken)
+            }
+        }
+
+    var onAllowLanChange: ((Boolean) -> Unit)? = null
+        set(value) {
+            synchronized(this) {
+                field = value
+
+                settings?.let { safeSettings ->
+                    value?.invoke(safeSettings.allowLan)
+                }
             }
         }
 
@@ -41,6 +53,10 @@ class SettingsListener(val daemon: MullvadDaemon) {
 
             if (settings?.relaySettings != newSettings.relaySettings) {
                 onRelaySettingsChange?.invoke(newSettings.relaySettings)
+            }
+
+            if (settings?.allowLan != newSettings.allowLan) {
+                onAllowLanChange?.invoke(newSettings.allowLan)
             }
 
             settings = newSettings

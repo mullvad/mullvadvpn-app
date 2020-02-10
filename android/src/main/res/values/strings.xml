@@ -29,6 +29,7 @@
     <string name="settings_account">Account</string>
     <string name="less_than_a_day_left">less than a day left</string>
     <string name="out_of_time">Out of time</string>
+    <string name="settings_preferences">Preferences</string>
     <string name="app_version">App version</string>
     <string name="update_available_footer">Update available, download to remain safe.</string>
     <string name="report_a_problem">Report a problem</string>
@@ -39,6 +40,11 @@
     <string name="copied_mullvad_account_number">Copied Mullvad account number</string>
     <string name="paid_until">Paid until</string>
     <string name="log_out">Log out</string>
+
+    <string name="local_network_sharing">Local network sharing</string>
+    <string name="allow_lan_footer">
+        Allows access to other devices on the same network for sharing, printing etc.
+    </string>
 
     <string name="problem_report_description">
         To help you more effectively, your app\'s log file will be attached to this message. Your
