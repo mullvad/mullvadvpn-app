@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Add option to enable or disable local network sharing.
+- Show account history in login fragment
 
 ### Changed
 - Change project copyright and company name from Amagicom AB to Mullvad VPN AB
