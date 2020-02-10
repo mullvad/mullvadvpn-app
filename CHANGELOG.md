@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 
+## [2020.1] - 2020-02-10
+This release is identical to 2020.1-beta1
+
+
 ## [2020.1-beta1] - 2020-02-05
 ### Added
 - Add translations for Finnish and Danish.
