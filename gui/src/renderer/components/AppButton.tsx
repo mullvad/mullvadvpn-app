@@ -73,9 +73,10 @@ export class Icon extends Component<IIconProps> {
 
 interface IProps {
   children?: React.ReactNode;
-  style?: Types.ButtonStyleRuleSet;
+  style?: Types.StyleRuleSetRecursive<Types.ButtonStyleRuleSet>;
   disabled?: boolean;
   onPress?: () => void;
+  textOffset?: number;
 }
 
 interface IState {
@@ -139,6 +140,7 @@ class BaseButton extends Component<IProps, IState> {
   }
 
   private async updateTextAdjustment(containerLayout: Types.LayoutInfo) {
+    const textOffset = this.props.textOffset || 0;
     const labelView = this.textViewRef.current;
 
     if (labelView) {
@@ -149,7 +151,7 @@ class BaseButton extends Component<IProps, IState> {
       const trailingSpace = containerLayout.width - (labelLayout.x + labelLayout.width);
 
       // calculate text adjustment
-      const textAdjustment = labelLayout.x - trailingSpace;
+      const textAdjustment = labelLayout.x - trailingSpace - textOffset;
 
       // re-render the view with the new text adjustment if it changed
       if (this.state.textAdjustment !== textAdjustment) {
