@@ -10,8 +10,8 @@
   "colors": {
     "darkBlue": "rgb(25, 46, 69)",
     "blue": "rgb(41, 77, 115)",
-    "green": "rgb(68, 173, 77)",
     "darkGreen": "rgb(32, 84, 37)",
+    "green": "rgb(68, 173, 77)",
     "red": "rgb(227, 64, 57)",
     "darkYellow": "rgb(142, 78, 19)",
     "yellow": "rgb(255, 213, 36)",
