@@ -24,8 +24,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add reconnect button to the desktop app
+- Add reconnect button to the desktop app.
 - Add monochrome option for the tray icon on Windows and Linux.
+- Show OS notification when account is close to expiry on desktop platforms.
 
 #### Android
 - Add option to enable or disable local network sharing.

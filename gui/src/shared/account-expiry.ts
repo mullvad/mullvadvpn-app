@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { sprintf } from 'sprintf-js';
-import { messages } from '../../shared/gettext';
+import { messages } from './gettext';
 
 export default class AccountExpiry {
   private expiry: moment.Moment;
@@ -21,8 +21,12 @@ export default class AccountExpiry {
     return this.expiry.format('L LTS');
   }
 
+  public durationUntilExpiry(): string {
+    return this.expiry.fromNow(true);
+  }
+
   public remainingTime(): string {
-    const duration = this.expiry.fromNow(true);
+    const duration = this.durationUntilExpiry();
 
     return sprintf(
       // TRANSLATORS: The remaining time left on the account displayed across the app.
