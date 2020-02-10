@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { colors, links } from '../../config.json';
+import AccountExpiry from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
-import AccountExpiry from '../lib/account-expiry';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import { Container, Layout } from './Layout';

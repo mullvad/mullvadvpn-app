@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Component, Styles, View } from 'reactxp';
 import { links } from '../../config.json';
+import AccountExpiry from '../../shared/account-expiry';
 import NotificationAreaContainer from '../containers/NotificationAreaContainer';
-import AccountExpiry from '../lib/account-expiry';
 import { AuthFailureKind, parseAuthFailure } from '../lib/auth-failure';
 import { IConnectionReduxState } from '../redux/connection/reducers';
 import { IVersionReduxState } from '../redux/version/reducers';

@@ -3,10 +3,10 @@ import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { sprintf } from 'sprintf-js';
+import AccountExpiry from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
 import Connect from '../components/Connect';
 import withAppContext, { IAppContext } from '../context';
-import AccountExpiry from '../lib/account-expiry';
 import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
+import AccountExpiry from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
-import AccountExpiry from '../lib/account-expiry';
 import styles from './AccountStyles';
 import * as AppButton from './AppButton';
 import ClipboardLabel from './ClipboardLabel';

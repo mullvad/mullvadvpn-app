@@ -2,8 +2,10 @@ import { execFile } from 'child_process';
 import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, Tray } from 'electron';
 import log from 'electron-log';
 import mkdirp from 'mkdirp';
+import moment from 'moment';
 import * as path from 'path';
 import * as uuid from 'uuid';
+import AccountExpiry from '../shared/account-expiry';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import {
   AccountToken,
@@ -145,6 +147,8 @@ class ApplicationMain {
 
   private wireguardPublicKey?: IWireguardPublicKey;
 
+  private accountExpiryNotificationTimeout?: NodeJS.Timeout;
+
   private accountDataCache = new AccountDataCache(
     (accountToken) => {
       return this.daemonRpc.getAccountData(accountToken);
@@ -155,6 +159,8 @@ class ApplicationMain {
       if (this.windowController) {
         IpcMainEventChannel.account.notify(this.windowController.webContents, accountData);
       }
+
+      this.notifyOfAccountExpiry();
     },
   );
 
@@ -1081,6 +1087,11 @@ class ApplicationMain {
   private async logout(): Promise<void> {
     try {
       await this.daemonRpc.setAccount();
+
+      if (this.accountExpiryNotificationTimeout) {
+        global.clearTimeout(this.accountExpiryNotificationTimeout);
+        this.accountExpiryNotificationTimeout = undefined;
+      }
     } catch (error) {
       log.info(`Failed to logout: ${error.message}`);
 
@@ -1129,6 +1140,27 @@ class ApplicationMain {
     if (tunnelState.state === 'connected' && hasExpired) {
       log.info('Detected the stale account expiry.');
       this.accountDataCache.invalidate();
+    }
+  }
+
+  private notifyOfAccountExpiry() {
+    if (this.accountData) {
+      const accountExpiry = new AccountExpiry(this.accountData.expiry, this.locale);
+      if (
+        accountExpiry &&
+        !this.accountExpiryNotificationTimeout &&
+        accountExpiry.willHaveExpiredAt(
+          moment()
+            .add(3, 'days')
+            .toDate(),
+        )
+      ) {
+        this.notificationController.closeToExpiryNotification(accountExpiry);
+        this.accountExpiryNotificationTimeout = global.setTimeout(() => {
+          this.accountExpiryNotificationTimeout = undefined;
+          this.notifyOfAccountExpiry();
+        }, 12 * 60 * 60 * 1000); // Every 12 hours
+      }
     }
   }
 

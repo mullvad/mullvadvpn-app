@@ -2,8 +2,8 @@ import moment from 'moment';
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import NotificationArea from '../../src/renderer/components/NotificationArea';
+import AccountExpiry from '../../src/shared/account-expiry';
 import { AfterDisconnect } from '../../src/shared/daemon-rpc-types';
-import AccountExpiry from '../../src/renderer/lib/account-expiry';
 import { expect } from 'chai';
 
 describe('components/NotificationArea', () => {

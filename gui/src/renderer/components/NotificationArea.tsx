@@ -13,8 +13,8 @@ import {
   NotificationTitle,
 } from './NotificationBanner';
 
+import AccountExpiry from '../../shared/account-expiry';
 import { ErrorStateCause, TunnelParameterError, TunnelState } from '../../shared/daemon-rpc-types';
-import AccountExpiry from '../lib/account-expiry';
 import { parseAuthFailure } from '../lib/auth-failure';
 import { IVersionReduxState } from '../redux/version/reducers';
 
