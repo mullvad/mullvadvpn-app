@@ -408,6 +408,28 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_verifyW
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAccountHistory<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    match get_daemon_interface(daemon_interface_address) {
+        Some(daemon_interface) => daemon_interface
+            .get_account_history()
+            .map(|history| history.into_java(&env).forget())
+            .unwrap_or_else(|err| {
+                log::error!("Failed to get account history - {}", err);
+                JObject::null()
+            }),
+        None => JObject::null(),
+    }
+}
+
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAccountData<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
