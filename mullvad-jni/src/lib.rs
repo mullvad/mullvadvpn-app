@@ -3,13 +3,10 @@
 
 mod classes;
 mod daemon_interface;
-mod from_java;
 mod is_null;
 mod jni_event_listener;
 
-use crate::{
-    daemon_interface::DaemonInterface, from_java::FromJava, jni_event_listener::JniEventListener,
-};
+use crate::{daemon_interface::DaemonInterface, jni_event_listener::JniEventListener};
 use jnix::{
     jni::{
         objects::{GlobalRef, JObject, JString, JValue},
@@ -17,7 +14,7 @@ use jnix::{
         sys::{jboolean, jlong, JNI_FALSE, JNI_TRUE},
         JNIEnv, JavaVM,
     },
-    IntoJava, JnixEnv,
+    FromJava, IntoJava, JnixEnv,
 };
 use lazy_static::lazy_static;
 use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
@@ -665,7 +662,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAcco
     let env = JnixEnv::from(env);
 
     if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
-        let account = <Option<String> as FromJava>::from_java(&env, accountToken);
+        let account = Option::from_java(&env, accountToken);
 
         if let Err(error) = daemon_interface.set_account(account) {
             log::error!("{}", error.display_chain_with_msg("Failed to set account"));

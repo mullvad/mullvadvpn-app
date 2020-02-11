@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.RelayConstraintsUpdate
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayItemDividerDecoration
@@ -90,7 +91,7 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         val constraint: Constraint<LocationConstraint> =
             relayItem?.run { Constraint.Only(location) } ?: Constraint.Any()
 
-        daemon.updateRelaySettings(RelaySettingsUpdate.RelayConstraintsUpdate(constraint))
+        daemon.updateRelaySettings(RelaySettingsUpdate.Normal(RelayConstraintsUpdate(constraint)))
     }
 
     private fun updateRelayList(relayList: RelayList, selectedItem: RelayItem?) =
