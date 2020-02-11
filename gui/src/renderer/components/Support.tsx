@@ -5,7 +5,7 @@ import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
-import { ModalAlert, ModalContainer, ModalContent } from './Modal';
+import { ModalAlert, ModalAlertType, ModalContainer, ModalContent } from './Modal';
 import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import styles from './SupportStyles';
@@ -238,6 +238,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     );
     return (
       <ModalAlert
+        type={ModalAlertType.Warning}
         message={message}
         buttons={[
           <AppButton.RedButton key="proceed" onPress={this.onSend}>
@@ -264,6 +265,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     );
     return (
       <ModalAlert
+        type={ModalAlertType.Warning}
         message={message}
         buttons={[
           <AppButton.GreenButton
