@@ -1,5 +1,3 @@
-# Uncomment the lines below you want to change by removing the # in the beginning
-
 # A list of devices you want to take the screenshots from
 devices([
   "iPhone 8",
@@ -22,10 +20,10 @@ scheme("MullvadVPNScreenshots")
 # Where should the resulting screenshots be stored?
 output_directory("./Screenshots")
 
-# remove the '#' to clear all previously generated screenshots before creating new ones
+# Clear old screenshots
 clear_previous_screenshots(true)
 
-# erase simulator before running
+# Erase simulator before running
 erase_simulator(true)
 
 # Arguments to pass to the app on launch. See https://docs.fastlane.tools/actions/snapshot/#launch-arguments
