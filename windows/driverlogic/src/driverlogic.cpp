@@ -288,7 +288,7 @@ bool DeleteDevice(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData)
 	return true;
 }
 
-void ForEachDevice(const std::wstring &tapHardwareId, std::function<void(HDEVINFO, const SP_DEVINFO_DATA &)> func)
+void ForEachNetworkDevice(const std::optional<std::wstring> hwId, std::function<void(HDEVINFO, const SP_DEVINFO_DATA &)> func)
 {
 	HDEVINFO devInfo = SetupDiGetClassDevsW(
 		&GUID_DEVCLASS_NET,
@@ -325,37 +325,40 @@ void ForEachDevice(const std::wstring &tapHardwareId, std::function<void(HDEVINF
 			THROW_WINDOWS_ERROR(lastError, "Enumerating network adapters");
 		}
 
-		try
+		if (hwId.has_value())
 		{
-			const auto hardwareId = GetDeviceRegistryStringProperty(devInfo, devInfoData, SPDRP_HARDWAREID);
-
-			if (!hardwareId.has_value() ||
-				0 != tapHardwareId.compare(hardwareId.value()))
+			try
 			{
+				const auto hardwareId = GetDeviceRegistryStringProperty(devInfo, devInfoData, SPDRP_HARDWAREID);
+
+				if (!hardwareId.has_value() ||
+					0 != hwId->compare(hardwareId.value()))
+				{
+					continue;
+				}
+			}
+			catch (const std::exception & e)
+			{
+				//
+				// Skip this adapter
+				//
+
+				std::wcerr << L"Skipping TAP adapter due to exception caught while iterating: "
+					<< common::string::ToWide(e.what()) << std::endl;
 				continue;
 			}
-		}
-		catch (const std::exception & e)
-		{
-			//
-			// Skip this adapter
-			//
-
-			std::cerr << "Skipping TAP adapter due to exception caught while iterating: "
-				<< e.what() << std::endl;
-			continue;
 		}
 
 		func(devInfo, devInfoData);
 	}
 }
 
-std::set<NetworkAdapter> GetTapAdapters(const std::wstring &tapHardwareId)
+std::set<NetworkAdapter> GetNetworkAdapters(const std::optional<std::wstring> hardwareId)
 {
 	std::set<NetworkAdapter> adapters;
 	common::network::Nci nci;
 
-	ForEachDevice(tapHardwareId, [&](HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData) {
+	ForEachNetworkDevice(hardwareId, [&](HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData) {
 		try
 		{
 			//
@@ -378,8 +381,8 @@ std::set<NetworkAdapter> GetTapAdapters(const std::wstring &tapHardwareId)
 			// Skip this adapter
 			//
 
-			std::cerr << "Skipping TAP adapter due to exception caught while iterating: "
-				<< e.what() << std::endl;
+			std::wcerr << L"Skipping adapter due to exception caught while iterating: "
+				<< common::string::ToWide(e.what()) << std::endl;
 		}
 	});
 
@@ -491,6 +494,42 @@ ATTEMPT_UPDATE:
 		<< rebootRequired;
 }
 
+//
+// Broken adapters may use our "Mullvad" name, so find one that is not in use.
+// NOTE: Enumerating adapters first and picking the next free name is not sufficient,
+//       because the broken TAP may not be included.
+//
+void RenameAdapterToMullvad(const NetworkAdapter &adapter)
+{
+	common::network::Nci nci;
+
+	try
+	{
+		nci.setConnectionName(common::Guid::FromString(adapter.guid), TAP_BASE_ALIAS);
+		return;
+	}
+	catch (...)
+	{
+	}
+
+	for (int i = 1; i < 10; i++)
+	{
+		std::wstringstream ss;
+		ss << TAP_BASE_ALIAS << L"-" << i;
+
+		try
+		{
+			nci.setConnectionName(common::Guid::FromString(adapter.guid), ss.str().c_str());
+			return;
+		}
+		catch (...)
+		{
+		}
+	}
+
+	THROW_ERROR("Exhausted TAP adapter namespace");
+}
+
 std::optional<NetworkAdapter> FindMullvadAdapter(const std::set<NetworkAdapter> &tapAdapters)
 {
 	if (tapAdapters.empty())
@@ -523,7 +562,7 @@ std::optional<NetworkAdapter> FindMullvadAdapter(const std::set<NetworkAdapter> 
 	// Look for TAP adapter with alias "Mullvad-1", "Mullvad-2", etc.
 	//
 
-	for (auto i = 0; i < 10; ++i)
+	for (auto i = 1; i < 10; ++i)
 	{
 		std::wstringstream ss;
 
@@ -544,7 +583,7 @@ std::optional<NetworkAdapter> FindMullvadAdapter(const std::set<NetworkAdapter> 
 
 NetworkAdapter FindBrandedTap()
 {
-	std::set<NetworkAdapter> added = GetTapAdapters(TAP_HARDWARE_ID);
+	std::set<NetworkAdapter> added = GetNetworkAdapters(TAP_HARDWARE_ID);
 
 	if (added.empty())
 	{
@@ -562,7 +601,7 @@ NetworkAdapter FindBrandedTap()
 
 void RemoveTapDriver(const std::wstring &tapHardwareId)
 {
-	ForEachDevice(tapHardwareId, [](HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData) {
+	ForEachNetworkDevice(tapHardwareId, [](HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData) {
 		try
 		{
 			DeleteDevice(devInfo, devInfoData);
@@ -573,15 +612,15 @@ void RemoveTapDriver(const std::wstring &tapHardwareId)
 			// Skip this adapter
 			//
 
-			std::cerr << "Skipping TAP adapter due to exception caught while iterating: "
-				<< e.what() << std::endl;
+			std::wcerr << L"Skipping TAP adapter due to exception caught while iterating: "
+				<< common::string::ToWide(e.what()) << std::endl;
 		}
 	});
 }
 
 void DeleteVanillaMullvadAdapter()
 {
-	auto tapAdapters = GetTapAdapters(DEPRECATED_TAP_HARDWARE_ID);
+	auto tapAdapters = GetNetworkAdapters(DEPRECATED_TAP_HARDWARE_ID);
 	std::optional<NetworkAdapter> mullvadAdapter = FindMullvadAdapter(tapAdapters);
 
 	if (!mullvadAdapter.has_value())
@@ -592,7 +631,12 @@ void DeleteVanillaMullvadAdapter()
 	const auto mullvadGuid = mullvadAdapter.value().guid;
 	bool deletedAdapter = false;
 
-	ForEachDevice(DEPRECATED_TAP_HARDWARE_ID, [&](HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData) {
+	//
+	// Enumerate over all network devices with the hardware ID DEPRECATED_TAP_HARDWARE_ID,
+	// and delete any adapter whose GUID matches that of the "Mullvad" adapter.
+	//
+
+	ForEachNetworkDevice(DEPRECATED_TAP_HARDWARE_ID, [&](HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData) {
 		try
 		{
 			if (0 == GetNetCfgInstanceId(devInfo, devInfoData).compare(mullvadGuid))
@@ -606,8 +650,8 @@ void DeleteVanillaMullvadAdapter()
 			// Skip this adapter
 			//
 
-			std::cerr << "Skipping TAP adapter due to exception caught while iterating: "
-				<< e.what() << std::endl;
+			std::wcerr << L"Skipping TAP adapter due to exception caught while iterating: "
+				<< common::string::ToWide(e.what()) << std::endl;
 			return;
 		}
 	});
@@ -638,6 +682,7 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 
 			CreateTapDevice();
 			UpdateTapDriver(argv[2]);
+			RenameAdapterToMullvad(FindBrandedTap());
 		}
 		else if (0 == _wcsicmp(argv[1], L"update"))
 		{
@@ -661,11 +706,6 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 		{
 			DeleteVanillaMullvadAdapter();
 		}
-		else if (0 == _wcsicmp(argv[1], L"find-tap"))
-		{
-			const auto tap = FindBrandedTap();
-			std::wcout << tap.alias;
-		}
 		else
 		{
 			goto INVALID_ARGUMENTS;
@@ -673,7 +713,7 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << e.what();
+		std::wcerr << common::string::ToWide(e.what());
 		return GENERAL_ERROR;
 	}
 	catch (...)
