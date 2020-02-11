@@ -86,6 +86,14 @@ impl DaemonInterface {
             .map_err(Error::RpcError)
     }
 
+    pub fn get_account_history(&self) -> Result<Vec<String>> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::GetAccountHistory(tx))?;
+
+        rx.wait().map_err(|_| Error::NoResponse)
+    }
+
     pub fn get_www_auth_token(&self) -> Result<String> {
         let (tx, rx) = oneshot::channel();
 
