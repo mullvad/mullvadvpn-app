@@ -6,12 +6,49 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-#if targetEnvironment(simulator)
 
 import Foundation
 import NetworkExtension
 
-// MARK: - NEPacketTunnelProvider mock
+// MARK: - Formal conformances
+
+protocol VPNConnectionProtocol: NSObject {
+    var status: NEVPNStatus { get }
+
+    func startVPNTunnel() throws
+    func startVPNTunnel(options: [String: NSObject]?) throws
+    func stopVPNTunnel()
+}
+
+protocol VPNTunnelProviderSessionProtocol {
+    func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws
+}
+
+protocol VPNTunnelProviderManagerProtocol: Equatable {
+    associatedtype SelfType: VPNTunnelProviderManagerProtocol
+    associatedtype ConnectionType: VPNConnectionProtocol
+
+    var isEnabled: Bool { get set }
+    var protocolConfiguration: NEVPNProtocol? { get set }
+    var localizedDescription: String? { get set }
+    var connection: ConnectionType { get }
+
+    init()
+
+    func loadFromPreferences(completionHandler: @escaping (Error?) -> Void)
+    func saveToPreferences(completionHandler: ((Error?) -> Void)?)
+    func removeFromPreferences(completionHandler: ((Error?) -> Void)?)
+
+    static func loadAllFromPreferences(completionHandler: @escaping ([SelfType]?, Error?) -> Void)
+}
+
+extension NEVPNConnection: VPNConnectionProtocol {}
+extension NETunnelProviderSession: VPNTunnelProviderSessionProtocol {}
+extension NETunnelProviderManager: VPNTunnelProviderManagerProtocol {}
+
+#if targetEnvironment(simulator)
+
+// MARK: - NEPacketTunnelProvider stubs
 
 protocol SimulatorTunnelProviderDelegate {
     func startTunnel(options: [String: Any]?, completionHandler: @escaping (Error?) -> Void)
@@ -43,12 +80,13 @@ class SimulatorTunnelProvider {
     }
 }
 
-// MARK: - NEVPNConnection mock
+// MARK: - NEVPNConnection stubs
 
-class SimulatorVPNConnection {
+class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
 
     private let lock = NSRecursiveLock()
 
+    private var _status: NEVPNStatus = .disconnected
     private(set) var status: NEVPNStatus {
         get {
             lock.withCriticalBlock { _status }
@@ -57,14 +95,20 @@ class SimulatorVPNConnection {
             lock.withCriticalBlock {
                 if newValue != _status {
                     _status = newValue
+
+                    // Send notification while holding the lock. This should enable the receiver
+                    // to fetch the `SimulatorVPNConnection.status` before it changes.
                     postStatusDidChangeNotification()
                 }
             }
         }
     }
-    private var _status: NEVPNStatus = .disconnected
 
-    func startVPNTunnel(options: [String : Any]? = nil) throws {
+    func startVPNTunnel() throws {
+        try startVPNTunnel(options: nil)
+    }
+
+    func startVPNTunnel(options: [String: NSObject]?) throws {
         status = .connecting
 
         SimulatorTunnelProvider.shared.delegate.startTunnel(options: options) { (error) in
@@ -89,17 +133,9 @@ class SimulatorVPNConnection {
     }
 }
 
-// MARK: - NETunnelProviderSession mock
+// MARK: - NETunnelProviderSession stubs
 
-class SimulatorTunnelProviderSession: SimulatorVPNConnection {
-
-    func startTunnel(options: [String : Any]?) throws {
-        try startVPNTunnel(options: options)
-    }
-
-    func stopTunnel() {
-        stopVPNTunnel()
-    }
+class SimulatorTunnelProviderSession: SimulatorVPNConnection, VPNTunnelProviderSessionProtocol {
 
     func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {
         SimulatorTunnelProvider.shared.handleAppMessage(messageData, completionHandler: responseHandler)
@@ -107,66 +143,94 @@ class SimulatorTunnelProviderSession: SimulatorVPNConnection {
 
 }
 
-// MARK: - NETunnelProviderManager mock
+// MARK: - NETunnelProviderManager stubs
 
-struct SimulatorTunnelProviderManager: Equatable {
+/// A mock struct for tunnel configuration and connection
+private struct SimulatorTunnelInfo {
+    /// A unique identifier for the configuration
+    var identifier = UUID().uuidString
 
-    static let tunnelLock = NSLock()
-    static var tunnels = [SimulatorTunnelProviderManager]()
+    /// An associated VPN connection.
+    /// Intentionally initialized with a `SimulatorTunnelProviderSession` subclass which
+    /// implements the necessary protocol
+    var connection: SimulatorVPNConnection = SimulatorTunnelProviderSession()
+
+    /// Whether configuration is enabled
+    var isEnabled = false
+
+    /// Protocol configuration
+    var protocolConfiguration: NEVPNProtocol?
+
+    /// Tunnel description
+    var localizedDescription: String?
+}
+
+class SimulatorTunnelProviderManager: VPNTunnelProviderManagerProtocol, Equatable {
+
+    static let tunnelsLock = NSRecursiveLock()
+    fileprivate static var tunnels = [SimulatorTunnelInfo]()
 
     private let lock = NSLock()
-    private var _isEnabled = false
-    private var _protocolConfiguration: NEVPNProtocol?
-    private var _localizedDescription: String?
-
-    private let identifier = UUID().uuidString
+    private var tunnelInfo: SimulatorTunnelInfo
+    private var identifier: String {
+        lock.withCriticalBlock { tunnelInfo.identifier }
+    }
 
     var isEnabled: Bool {
         get {
-            lock.withCriticalBlock { _isEnabled }
+            lock.withCriticalBlock { tunnelInfo.isEnabled }
         }
         set {
             lock.withCriticalBlock {
-                _isEnabled = newValue
+                tunnelInfo.isEnabled = newValue
             }
         }
     }
+
     var protocolConfiguration: NEVPNProtocol? {
         get {
-            lock.withCriticalBlock { _protocolConfiguration }
+            lock.withCriticalBlock { tunnelInfo.protocolConfiguration }
         }
         set {
             lock.withCriticalBlock {
-                _protocolConfiguration = newValue
+                tunnelInfo.protocolConfiguration = newValue
             }
         }
     }
 
     var localizedDescription: String? {
         get {
-            lock.withCriticalBlock { _localizedDescription }
+            lock.withCriticalBlock { tunnelInfo.localizedDescription }
         }
         set {
             lock.withCriticalBlock {
-                _localizedDescription = newValue
+                tunnelInfo.localizedDescription = newValue
             }
         }
     }
 
-    let connection = SimulatorTunnelProviderSession()
+    var connection: SimulatorVPNConnection {
+        lock.withCriticalBlock { tunnelInfo.connection }
+    }
 
     static func loadAllFromPreferences(completionHandler: ([SimulatorTunnelProviderManager]?, Error?) -> Void) {
-        tunnelLock.withCriticalBlock {
-            completionHandler(tunnels, nil)
+        tunnelsLock.withCriticalBlock {
+            completionHandler(tunnels.map { SimulatorTunnelProviderManager(tunnelInfo: $0) }, nil)
         }
     }
 
-    mutating func loadFromPreferences(completionHandler: (Error?) -> Void) {
-        Self.tunnelLock.withCriticalBlock {
+    required init() {
+        self.tunnelInfo = SimulatorTunnelInfo()
+    }
+
+    private init(tunnelInfo: SimulatorTunnelInfo) {
+        self.tunnelInfo = tunnelInfo
+    }
+
+    func loadFromPreferences(completionHandler: (Error?) -> Void) {
+        Self.tunnelsLock.withCriticalBlock {
             if let savedTunnel = Self.tunnels.first(where: { $0.identifier == self.identifier }) {
-                self.protocolConfiguration = savedTunnel.protocolConfiguration
-                self.isEnabled = savedTunnel.isEnabled
-                self.localizedDescription = savedTunnel.localizedDescription
+                self.tunnelInfo = savedTunnel
 
                 completionHandler(nil)
             } else {
@@ -176,25 +240,25 @@ struct SimulatorTunnelProviderManager: Equatable {
         }
     }
 
-    func saveToPreferences(completionHandler: (Error?) -> Void) {
-        Self.tunnelLock.withCriticalBlock {
+    func saveToPreferences(completionHandler: ((Error?) -> Void)?) {
+        Self.tunnelsLock.withCriticalBlock {
             if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
-                Self.tunnels[index] = self
+                Self.tunnels[index] = self.tunnelInfo
             } else {
-                Self.tunnels.append(self)
+                Self.tunnels.append(self.tunnelInfo)
             }
 
-            completionHandler(nil)
+            completionHandler?(nil)
         }
     }
 
-    func removeFromPreferences(completionHandler: (Error?) -> Void) {
-        Self.tunnelLock.withCriticalBlock {
+    func removeFromPreferences(completionHandler: ((Error?) -> Void)?) {
+        Self.tunnelsLock.withCriticalBlock {
             if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
                 Self.tunnels.remove(at: index)
-                completionHandler(nil)
+                completionHandler?(nil)
             } else {
-                completionHandler(NEVPNError(.configurationReadWriteFailed))
+                completionHandler?(NEVPNError(.configurationReadWriteFailed))
             }
         }
     }
