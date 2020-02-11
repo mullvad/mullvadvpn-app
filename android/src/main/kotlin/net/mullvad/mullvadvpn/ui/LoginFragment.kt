@@ -30,6 +30,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
     private var loginJob: Deferred<Boolean>? = null
     private var advanceToNextScreenJob: Job? = null
+    private var fetchHistoryJob: Job? = null
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -46,10 +47,12 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loggedInStatus = view.findViewById(R.id.logged_in_status)
         loginFailStatus = view.findViewById(R.id.login_fail_status)
 
-        accountInput = AccountInput(view, parentActivity.resources, daemon.getAccountHistory())
+        accountInput = AccountInput(view, parentActivity.resources)
         accountInput.onLogin = { accountToken -> login(accountToken) }
 
         view.findViewById<View>(R.id.create_account).setOnClickListener { createAccount() }
+
+        fetchHistory()
 
         return view
     }
@@ -59,10 +62,12 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             loggedIn.join()
             openConnectScreen()
         }
+        fetchHistory()
     }
 
     override fun onSafelyPause() {
         advanceToNextScreenJob?.cancel()
+        fetchHistoryJob?.cancel()
     }
 
     private fun createAccount() {
@@ -83,6 +88,16 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         accountInput.state = LoginState.InProgress
 
         performLogin(accountToken)
+    }
+
+    private fun fetchHistory() {
+        fetchHistoryJob?.cancel()
+        fetchHistoryJob = GlobalScope.launch(Dispatchers.Main) {
+            val history = GlobalScope.async(Dispatchers.Default) {
+                daemon.getAccountHistory()
+            }
+            accountInput.accountHistory = history.await()
+        }
     }
 
     private fun performLogin(accountToken: String) = GlobalScope.launch(Dispatchers.Main) {

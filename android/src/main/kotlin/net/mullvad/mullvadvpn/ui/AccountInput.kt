@@ -18,8 +18,7 @@ const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
 class AccountInput(
     val parentView: View,
-    val resources: Resources,
-    val history: ArrayList<String>?
+    val resources: Resources
 ) {
     private val disabledBackgroundColor = resources.getColor(R.color.white20)
     private val disabledTextColor = resources.getColor(R.color.white)
@@ -32,7 +31,7 @@ class AccountInput(
             field = value
             updateBorder()
             if (value == true) {
-                showAccountHistory()
+                shouldShowAccountHistory = true
             }
         }
     private var usingErrorColor = false
@@ -56,6 +55,22 @@ class AccountInput(
     val button: ImageButton = parentView.findViewById(R.id.login_button)
     val accountHistoryList: ListView = parentView.findViewById(R.id.account_history_list)
 
+    var accountHistory: ArrayList<String>? = null
+        set(value) {
+            synchronized(this) {
+                field = value
+                updateAccountHistory()
+            }
+        }
+
+    private var shouldShowAccountHistory = false
+        set(value) {
+            synchronized(this) {
+                field = value
+                updateAccountHistory()
+            }
+        }
+
     var onLogin: ((String) -> Unit)? = null
 
     init {
@@ -69,26 +84,13 @@ class AccountInput(
             setOnTouchListener(OnTouchListener {
                 view, event ->
                 if (MotionEvent.ACTION_UP == event.getAction()) {
-                    showAccountHistory()
+                    shouldShowAccountHistory = true
                 }
+                false
             })
         }
 
         accountHistoryList.apply {
-            if (history != null) {
-                setAdapter(ArrayAdapter(context,
-                                        R.layout.account_history_entry,
-                                        R.id.account_history_entry_text_view,
-                                        history))
-
-                setOnItemClickListener { _, _, idx, _ ->
-                    val accountNumber = history[idx]
-
-                    input.setText(accountNumber)
-                    accountHistoryList.visibility = View.GONE
-                    onLogin?.invoke(accountNumber)
-                }
-            }
         }
 
         container.apply {
@@ -152,6 +154,31 @@ class AccountInput(
         }
     }
 
+    private fun updateAccountHistory() {
+        val history = accountHistory
+        if (history != null) {
+            accountHistoryList.apply {
+                setAdapter(ArrayAdapter(context,
+                                    R.layout.account_history_entry,
+                                    R.id.account_history_entry_text_view,
+                                    history))
+
+                setOnItemClickListener { _, _, idx, _ ->
+                    val accountNumber = history[idx]
+
+                    input.setText(accountNumber)
+                    accountHistoryList.visibility = View.GONE
+                    onLogin?.invoke(accountNumber)
+                }
+            }
+
+            if (shouldShowAccountHistory) {
+                accountHistoryList.visibility = View.VISIBLE
+                accountHistoryList.animate().translationY(0.0F).setDuration(350).start()
+            }
+        }
+    }
+
     private fun updateBorder() {
         if (usingErrorColor) {
             container.borderState = BorderState.ERROR
@@ -167,11 +194,6 @@ class AccountInput(
             input.setTextColor(enabledTextColor)
             usingErrorColor = false
         }
-    }
-
-    private fun showAccountHistory() {
-        accountHistoryList.visibility = View.VISIBLE
-        accountHistoryList.animate().translationY(0.0F).setDuration(350).start()
     }
 
     private fun removeFormattingSpans(text: Editable) {
