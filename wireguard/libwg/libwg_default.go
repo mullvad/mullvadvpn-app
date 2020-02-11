@@ -19,7 +19,7 @@ import (
 
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
-	
+
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/logging"
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/tunnelcontainer"
 )
@@ -31,11 +31,12 @@ type LogContext = unsafe.Pointer
 
 //export wgTurnOn
 func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext LogContext) int32 {
+
 	logger := logging.NewLogger(logSink, logContext)
 
 	if cSettings == nil {
 		logger.Error.Println("cSettings is null")
-		return -1
+		return ERROR_GENERAL_FAILURE
 	}
 	settings := C.GoString(cSettings)
 
@@ -44,33 +45,33 @@ func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext Lo
 	if err != nil {
 		logger.Error.Println(err)
 		if err.Error() == "bad file descriptor" {
-			return -2
+			return ERROR_INTERMITTENT_FAILURE
 		}
-		return -1
+		return ERROR_GENERAL_FAILURE
 	}
 
 	device := device.NewDevice(tunDevice, logger)
 
-	err = device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
-	if err != nil {
-		logger.Error.Println(err)
+	setErr := device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
+	if setErr != nil {
+		logger.Error.Println(setErr)
 		device.Close()
-		return -2
+		return ERROR_INTERMITTENT_FAILURE
 	}
 
 	device.Up()
-	
-	context := tunnelcontainer.Context {
+
+	context := tunnelcontainer.Context{
 		Device: device,
 		Logger: logger,
 	}
-	
+
 	handle, err := tunnels.Insert(context)
 	if err != nil {
 		logger.Error.Println(err)
 		device.Close()
-		return -1
+		return ERROR_GENERAL_FAILURE
 	}
-	
+
 	return handle
 }

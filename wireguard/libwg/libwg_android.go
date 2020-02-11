@@ -11,7 +11,7 @@ import (
 	"bufio"
 	"strings"
 	"unsafe"
-	
+
 	"golang.org/x/sys/unix"
 
 	"golang.zx2c4.com/wireguard/device"
@@ -25,11 +25,6 @@ import (
 // Taken from the contained logging package.
 type LogSink = unsafe.Pointer
 type LogContext = unsafe.Pointer
-
-const (
-	ERROR_GENERAL_FAILURE = -1
-	ERROR_INTERMITTENT_FAILURE = -2
-)
 
 //export wgTurnOn
 func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext) int32 {
@@ -53,27 +48,27 @@ func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext)
 
 	device := device.NewDevice(tunDevice, logger)
 
-	err = device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
-	if err != nil {
-		logger.Error.Println(err)
+	setErr := device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
+	if setErr != nil {
+		logger.Error.Println(setErr)
 		device.Close()
 		return ERROR_INTERMITTENT_FAILURE
 	}
 
 	device.Up()
 
-	context := tunnelcontainer.Context {
+	context := tunnelcontainer.Context{
 		Device: device,
 		Logger: logger,
 	}
-	
+
 	handle, err := tunnels.Insert(context)
 	if err != nil {
 		logger.Error.Println(err)
 		device.Close()
 		return ERROR_GENERAL_FAILURE
 	}
-	
+
 	return handle
 }
 
@@ -81,11 +76,11 @@ func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext)
 func wgGetSocketV4(tunnelHandle int32) int32 {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
-		return -1
+		return ERROR_GENERAL_FAILURE
 	}
 	fd, err := tunnel.Device.PeekLookAtSocketFd4()
 	if err != nil {
-		return -1
+		return ERROR_GENERAL_FAILURE
 	}
 	return int32(fd)
 }
@@ -94,11 +89,11 @@ func wgGetSocketV4(tunnelHandle int32) int32 {
 func wgGetSocketV6(tunnelHandle int32) int32 {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
-		return -1
+		return ERROR_GENERAL_FAILURE
 	}
 	fd, err := tunnel.Device.PeekLookAtSocketFd6()
 	if err != nil {
-		return -1
+		return ERROR_GENERAL_FAILURE
 	}
 	return int32(fd)
 }

@@ -5,11 +5,14 @@ use crate::tunnel::{
 };
 use ipnetwork::IpNetwork;
 use std::{
-    ffi::{c_void, CStr, CString},
+    ffi::{c_void, CStr},
     os::raw::c_char,
     path::Path,
 };
 use zeroize::Zeroize;
+
+#[cfg(target_os = "windows")]
+use std::ffi::CString;
 
 #[cfg(target_os = "android")]
 use crate::tunnel::tun_provider;
@@ -20,7 +23,6 @@ use {
     std::{
         net::IpAddr,
         os::unix::io::{AsRawFd, RawFd},
-        ptr,
     },
 };
 
@@ -30,6 +32,14 @@ use crate::winnet::{self, add_device_ip_addresses};
 #[cfg(not(target_os = "windows"))]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
+struct LoggingContext(u32);
+
+impl Drop for LoggingContext {
+    fn drop(&mut self) {
+        clean_up_logging(self.0);
+    }
+}
+
 pub struct WgGoTunnel {
     interface_name: String,
     handle: Option<i32>,
@@ -38,7 +48,7 @@ pub struct WgGoTunnel {
     #[cfg(not(target_os = "windows"))]
     _tunnel_device: Tun,
     // context that maps to fs::File instance, used with logging callback
-    logging_context: u32,
+    _logging_context: LoggingContext,
 }
 
 impl WgGoTunnel {
@@ -53,7 +63,7 @@ impl WgGoTunnel {
         let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
         let interface_name: String = tunnel_device.interface_name().to_string();
         let wg_config_str = config.to_userspace_format();
-        let logging_context = initialize_logging(log_path)?;
+        let logging_context = initialize_logging(log_path).map(LoggingContext)?;
 
         #[cfg(not(target_os = "android"))]
         let handle = unsafe {
@@ -62,7 +72,7 @@ impl WgGoTunnel {
                 wg_config_str.as_ptr() as *const i8,
                 tunnel_fd,
                 Some(logging_callback),
-                logging_context as *mut libc::c_void,
+                logging_context.0 as *mut libc::c_void,
             )
         };
 
@@ -72,12 +82,11 @@ impl WgGoTunnel {
                 wg_config_str.as_ptr() as *const i8,
                 tunnel_fd,
                 Some(logging_callback),
-                logging_context as *mut libc::c_void,
+                logging_context.0 as *mut libc::c_void,
             )
         };
 
         if handle < 0 {
-            clean_up_logging(logging_context);
             // Error values returned from the wireguard-go library
             return match handle {
                 -1 => Err(Error::FatalStartWireguardError),
@@ -87,16 +96,13 @@ impl WgGoTunnel {
         }
 
         #[cfg(target_os = "android")]
-        Self::bypass_tunnel_sockets(&mut tunnel_device, handle).or_else(|_| {
-            clean_up_logging(logging_context);
-            Err(Error::BypassError)
-        })?;
+        Self::bypass_tunnel_sockets(&mut tunnel_device, handle).map_err(Error::BypassError)?;
 
         Ok(WgGoTunnel {
             interface_name,
             handle: Some(handle),
             _tunnel_device: tunnel_device,
-            logging_context,
+            _logging_context: logging_context,
         })
     }
 
@@ -111,7 +117,7 @@ impl WgGoTunnel {
         let iface_name: String = "wg-mullvad".to_string();
         let cstr_iface_name =
             CString::new(iface_name.as_bytes()).map_err(Error::InterfaceNameError)?;
-        let logging_context = initialize_logging(log_path)?;
+        let logging_context = initialize_logging(log_path).map(LoggingContext)?;
 
         let handle = unsafe {
             wgTurnOn(
@@ -119,25 +125,23 @@ impl WgGoTunnel {
                 config.mtu as i64,
                 wg_config_str.as_ptr(),
                 Some(logging_callback),
-                logging_context as *mut libc::c_void,
+                logging_context.0 as *mut libc::c_void,
             )
         };
 
         if handle < 0 {
-            clean_up_logging(logging_context);
             return Err(Error::FatalStartWireguardError);
         }
 
         if !add_device_ip_addresses(&iface_name, &config.tunnel.addresses) {
             // Todo: what kind of clean-up is required?
-            clean_up_logging(logging_context);
             return Err(Error::SetIpAddressesError);
         }
 
         Ok(WgGoTunnel {
             interface_name: iface_name.clone(),
             handle: Some(handle),
-            logging_context,
+            _logging_context: logging_context,
         })
     }
 
@@ -260,7 +264,6 @@ impl Drop for WgGoTunnel {
         if let Err(e) = self.stop_tunnel() {
             log::error!("Failed to stop tunnel - {}", e);
         }
-        clean_up_logging(self.logging_context);
     }
 }
 
@@ -317,8 +320,7 @@ extern "C" {
     //
     // Positive return values are tunnel handles for this specific wireguard tunnel instance.
     // Negative return values signify errors. All error codes are opaque.
-    #[cfg(not(target_os = "android"))]
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(not(any(target_os = "android", target_os = "windows")))]
     fn wgTurnOn(
         mtu: isize,
         settings: *const i8,
