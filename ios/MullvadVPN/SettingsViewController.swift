@@ -48,7 +48,7 @@ class SettingsViewController: UITableViewController {
                 let cell = cell as! SettingsBasicCell
 
                 cell.titleLabel.text = NSLocalizedString("WireGuard key", comment: "")
-                cell.accessibilityLabel = "WireGuardKeyCell"
+                cell.accessibilityIdentifier = "WireGuardKeyCell"
             }
 
             wireguardKeyRow.actionBlock = { [weak self] (indexPath) in
