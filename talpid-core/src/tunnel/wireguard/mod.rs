@@ -11,6 +11,7 @@ use std::{
     path::Path,
     sync::{mpsc, Arc, Mutex},
 };
+use talpid_types::ErrorExt;
 
 pub mod config;
 mod connectivity_check;
@@ -158,15 +159,23 @@ impl WireguardMonitor {
 
         std::thread::spawn(move || {
             match connectivity_monitor.establish_connectivity() {
-                Ok(true) => (on_event)(TunnelEvent::Up(metadata)),
-                Ok(false) => return,
-                Err(err) => {
-                    log::error!("ConnectivityMonitor failed: {}", err);
-                    return;
+                Ok(true) => {
+                    (on_event)(TunnelEvent::Up(metadata));
+
+                    if let Err(error) = connectivity_monitor.run() {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Connectivity monitor failed")
+                        );
+                    }
                 }
-            }
-            if let Err(err) = connectivity_monitor.run() {
-                log::error!("Connectivity monitor failed - {}", err);
+                Ok(false) => log::warn!("Timeout while checking tunnel connection"),
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to check tunnel connection")
+                    );
+                }
             }
 
             let _ = close_sender.send(CloseMsg::PingErr);

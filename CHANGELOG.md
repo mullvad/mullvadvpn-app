@@ -41,6 +41,8 @@ Line wrap the file at 100 chars.                                              Th
 - Remove city/country labels on map in the desktop app.
 
 ### Fixed
+- Fix app getting stuck in connecting state.
+
 #### Android
 - Fix crash when removing the service from foreground on Android versions below API level 24.
 - Fix crash that happened in certain situations when retrieving the relay list.
