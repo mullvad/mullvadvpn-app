@@ -1,12 +1,12 @@
 # Screenshots for AppStore
 
-The process of taking AppStore screenshots is automated using a UI Testing bundle and Snapshot tool, 
+The process of taking AppStore screenshots is automated using a UI Testing bundle and Snapshot tool,
 a part of Fastlane tools.
 
 ## Configuration
 
 The screenshot script uses the real account token to log in, which is provided via Xcode build 
-configuration. 
+configuration.
 
 1. Create the build configuration using a template file:
    
