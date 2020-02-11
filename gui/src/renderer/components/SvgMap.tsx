@@ -9,43 +9,15 @@ import {
   Markers,
   ZoomableGroup,
 } from 'react-simple-maps';
-import { cities, countries } from '../../shared/gettext';
 
 import geographyData from '../../../assets/geo/geometry.json';
 import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines.json';
 
-import cityTreeData from '../../../assets/geo/cities.rbush.json';
-import countryTreeData from '../../../assets/geo/countries.rbush.json';
 import geometryTreeData from '../../../assets/geo/geometry.rbush.json';
 import statesProvincesLinesTreeData from '../../../assets/geo/states-provinces-lines.rbush.json';
 
 // Infer the GeoProjection type from the `geoTimes()` return value
 type GeoProjection = ReturnType<typeof geoTimes>;
-
-interface ICountryLeaf extends rbush.BBox {
-  id: string;
-  properties: {
-    name: string;
-  };
-  geometry: {
-    type: string;
-    coordinates: [number, number];
-  };
-}
-
-interface ICityLeaf extends rbush.BBox {
-  id: string;
-  properties: {
-    scalerank: number;
-    name: string;
-    latitude: number;
-    longitude: number;
-  };
-  geometry: {
-    type: string;
-    coordinates: [number, number];
-  };
-}
 
 interface IGeometryLeaf extends rbush.BBox {
   id: string;
@@ -55,8 +27,6 @@ interface IProvinceAndStateLineLeaf extends rbush.BBox {
   id: string;
 }
 
-const countryTree = rbush<ICountryLeaf>().fromJSON(countryTreeData);
-const cityTree = rbush<ICityLeaf>().fromJSON(cityTreeData);
 const geometryTree = rbush<IGeometryLeaf>().fromJSON(geometryTreeData);
 const provincesStatesLinesTree = rbush<IProvinceAndStateLineLeaf>().fromJSON(
   statesProvincesLinesTreeData,
@@ -77,8 +47,6 @@ export interface IProps {
 interface IState {
   zoomCenter: [number, number];
   zoomLevel: number;
-  visibleCities: ICityLeaf[];
-  visibleCountries: ICountryLeaf[];
   visibleGeometry: IGeometryLeaf[];
   visibleStatesProvincesLines: IProvinceAndStateLineLeaf[];
   viewportBbox: BBox;
@@ -91,8 +59,6 @@ export default class SvgMap extends React.Component<IProps, IState> {
   public state: IState = {
     zoomCenter: [0, 0],
     zoomLevel: 1,
-    visibleCities: [],
-    visibleCountries: [],
     visibleGeometry: [],
     visibleStatesProvincesLines: [],
     viewportBbox: [0, 0, 0, 0],
@@ -174,29 +140,6 @@ export default class SvgMap extends React.Component<IProps, IState> {
       </Marker>
     );
 
-    const countryMarkers = this.state.visibleCountries.map((item) => (
-      <Marker
-        key={`country-${item.id}`}
-        marker={{ coordinates: item.geometry.coordinates }}
-        style={markerStyle}>
-        <text fill="rgba(255,255,255,.6)" fontSize="22" textAnchor="middle">
-          {countries.gettext(item.properties.name)}
-        </text>
-      </Marker>
-    ));
-
-    const cityMarkers = this.state.visibleCities.map((item) => (
-      <Marker
-        key={`city-${item.id}`}
-        marker={{ coordinates: item.geometry.coordinates }}
-        style={markerStyle}>
-        <circle r="2" fill="rgba(255,255,255,.6)" />
-        <text x="0" y="-10" fill="rgba(255,255,255,.6)" fontSize="16" textAnchor="middle">
-          {cities.gettext(item.properties.name)}
-        </text>
-      </Marker>
-    ));
-
     return (
       <ComposableMap
         width={this.props.width}
@@ -233,7 +176,7 @@ export default class SvgMap extends React.Component<IProps, IState> {
               ));
             }}
           </Geographies>
-          <Markers>{[...countryMarkers, ...cityMarkers, userMarker]}</Markers>
+          <Markers>{[userMarker]}</Markers>
         </ZoomableGroup>
       </ComposableMap>
     );
@@ -331,13 +274,6 @@ export default class SvgMap extends React.Component<IProps, IState> {
       zoomLevel,
     );
 
-    const viewportBboxMatch = {
-      minX: viewportBbox[0],
-      minY: viewportBbox[1],
-      maxX: viewportBbox[2],
-      maxY: viewportBbox[3],
-    };
-
     // combine previous and current viewports to get the rough area of transition
     const combinedViewportBboxMatch = prevState
       ? {
@@ -353,17 +289,12 @@ export default class SvgMap extends React.Component<IProps, IState> {
           maxY: viewportBbox[3],
         };
 
-    const visibleCountries =
-      zoomLevel < 5 || zoomLevel > 20 ? [] : countryTree.search(viewportBboxMatch);
-    const visibleCities = zoomLevel >= 40 ? cityTree.search(viewportBboxMatch) : [];
     const visibleGeometry = geometryTree.search(combinedViewportBboxMatch);
     const visibleStatesProvincesLines = provincesStatesLinesTree.search(combinedViewportBboxMatch);
 
     return {
       zoomCenter,
       zoomLevel,
-      visibleCities,
-      visibleCountries,
       visibleGeometry,
       visibleStatesProvincesLines,
       viewportBbox,

@@ -23,7 +23,7 @@ import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
 
 import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main';
-import { cities, countries, loadTranslations, messages, relayLocations } from '../shared/gettext';
+import { loadTranslations, messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-channel';
 import { getRendererLogFile, setupLogging } from '../shared/logging';
@@ -403,7 +403,7 @@ export default class AppRenderer {
   }
 
   private loadTranslations(locale: string) {
-    for (const catalogue of [messages, countries, cities, relayLocations]) {
+    for (const catalogue of [messages, relayLocations]) {
       loadTranslations(locale, catalogue);
     }
   }
@@ -637,13 +637,13 @@ export default class AppRenderer {
     if (location.city) {
       const city = location.city;
 
-      location.city = relayLocations.gettext(city) || cities.gettext(city) || city;
+      location.city = relayLocations.gettext(city) || city;
     }
 
     if (location.country) {
       const country = location.country;
 
-      location.country = relayLocations.gettext(country) || countries.gettext(country) || country;
+      location.country = relayLocations.gettext(country) || country;
     }
 
     return location;
