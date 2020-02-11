@@ -9,16 +9,16 @@ The screenshot script uses the real account token to log in, which is provided v
 configuration. 
 
 1. Create the build configuration using a template file:
-  
-  ```
-  cp ios/Configurations/Screenshots.xcconfig.template ios/Configurations/Screenshots.xcconfig
-  ```
+   
+   ```
+   cp ios/Configurations/Screenshots.xcconfig.template ios/Configurations/Screenshots.xcconfig
+   ```
 
 1. Edit the configuration file and put your account token without quotes:
-  
-  ```
-  vim ios/Configurations/Screenshots.xcconfig
-  ```
+   
+   ```
+   vim ios/Configurations/Screenshots.xcconfig
+   ```
 
 ## Prerequisitives
 
