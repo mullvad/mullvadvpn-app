@@ -15,6 +15,8 @@
 #include <devpkey.h>
 #include <newdev.h>
 #include <cfgmgr32.h>
+#include <io.h>
+#include <fcntl.h>
 
 
 namespace
@@ -666,6 +668,12 @@ void DeleteVanillaMullvadAdapter()
 
 int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 {
+	if (-1 == _setmode(_fileno(stdout), _O_U16TEXT)
+		|| -1 == _setmode(_fileno(stderr), _O_U16TEXT))
+	{
+		std::wcerr << L"Failed to set translation mode" << std::endl;
+	}
+
 	if (2 > argc)
 	{
 		goto INVALID_ARGUMENTS;
