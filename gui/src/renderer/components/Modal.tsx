@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Component, Styles, Text, View } from 'reactxp';
 import { colors } from '../../config.json';
+import ImageView from './ImageView';
 
 const styles = {
   dialogBackground: Styles.createViewStyle({
@@ -13,6 +14,11 @@ const styles = {
     backgroundColor: colors.darkBlue,
     borderRadius: 11,
     padding: 16,
+  }),
+  dialogIcon: Styles.createViewStyle({
+    alignItems: 'center',
+    marginBottom: 12,
+    marginTop: 4,
   }),
   dialogWarning: Styles.createTextStyle({
     fontFamily: 'Open Sans',
@@ -51,7 +57,7 @@ export class ModalAlert extends React.Component {
     return (
       <div
         style={{
-          backgroundColor: 'rgba(0,0,0,0.5)',
+          backgroundColor: 'rgba(0,0,0,0.7)',
           position: 'absolute',
           display: 'flex',
           flexDirection: 'column',
@@ -77,7 +83,13 @@ export class ModalContainer extends React.Component<IModalContainerProps> {
   }
 }
 
+export enum DialogType {
+  Info = 1,
+  Warning,
+}
+
 interface IDialogProps {
+  type?: DialogType;
   message: string;
   buttons: React.ReactNode[];
 }
@@ -87,6 +99,9 @@ export class Dialog extends Component<IDialogProps> {
     return (
       <View style={styles.dialogBackground}>
         <View style={styles.dialog}>
+          {this.props.type && (
+            <View style={styles.dialogIcon}>{this.renderTypeIcon(this.props.type)}</View>
+          )}
           <Text style={styles.dialogWarning}>{this.props.message}</Text>
           {this.props.buttons.map((button, index) => (
             <View key={index} style={styles.dialogButtonContainer}>
@@ -96,5 +111,21 @@ export class Dialog extends Component<IDialogProps> {
         </View>
       </View>
     );
+  }
+
+  private renderTypeIcon(type: DialogType) {
+    let source = '';
+    let color = '';
+    switch (type) {
+      case DialogType.Info:
+        source = 'icon-alert';
+        color = colors.white;
+        break;
+      case DialogType.Warning:
+        source = 'icon-alert';
+        color = colors.red;
+        break;
+    }
+    return <ImageView height={44} width={44} source={source} tintColor={color} />;
   }
 }

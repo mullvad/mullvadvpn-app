@@ -5,7 +5,7 @@ import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
-import { Dialog, ModalAlert, ModalContainer, ModalContent } from './Modal';
+import { Dialog, DialogType, ModalAlert, ModalContainer, ModalContent } from './Modal';
 import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import styles from './SupportStyles';
@@ -269,6 +269,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     );
     return (
       <Dialog
+        type={DialogType.Warning}
         message={message}
         buttons={[
           <AppButton.GreenButton
