@@ -2,9 +2,9 @@ import { connect } from 'react-redux';
 
 import { shell } from 'electron';
 import { links } from '../../config.json';
+import AccountExpiry from '../../shared/account-expiry';
 import NotificationArea from '../components/NotificationArea';
 import withAppContext, { IAppContext } from '../context';
-import AccountExpiry from '../lib/account-expiry';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState, _props: IAppContext) => ({

@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
 import config from '../config.json';
+import AccountExpiry from '../shared/account-expiry';
 import { TunnelState } from '../shared/daemon-rpc-types';
 import { messages } from '../shared/gettext';
 
@@ -150,6 +151,23 @@ export default class NotificationController {
     const notification = new Notification({
       title: this.notificationTitle,
       body: messages.pgettext('notifications', 'Wireguard key generation failed'),
+      silent: true,
+      icon: this.notificationIcon,
+    });
+    this.scheduleNotification(notification);
+  }
+
+  public closeToExpiryNotification(accountExpiry: AccountExpiry) {
+    const duration = accountExpiry.durationUntilExpiry();
+    const notification = new Notification({
+      title: this.notificationTitle,
+      body: sprintf(
+        // TRANSLATORS: The system notification displayed to the user when the account credit is close to expiry.
+        // TRANSLATORS: Available placeholder:
+        // TRANSLATORS: %(duration)s - remaining time, e.g. "2 days"
+        messages.pgettext('notifications', 'Account credit expires in %(duration)s'),
+        { duration },
+      ),
       silent: true,
       icon: this.notificationIcon,
     });
