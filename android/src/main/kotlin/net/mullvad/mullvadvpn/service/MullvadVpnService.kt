@@ -4,25 +4,37 @@ import android.content.Intent
 import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
 
 class MullvadVpnService : TalpidVpnService() {
     private val binder = LocalBinder()
+    private val serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
     private var isStopping = false
 
-    private lateinit var daemon: Deferred<MullvadDaemon>
-    private lateinit var connectionProxy: ConnectionProxy
+    private var connectionProxy: ConnectionProxy? = null
+    private var daemon: MullvadDaemon? = null
+    private var startDaemonJob: Job? = null
+
     private lateinit var notificationManager: ForegroundNotificationManager
 
-    private var serviceNotifier = EventNotifier<ServiceInstance?>(null)
+    var shouldConnect = false
+        set(value) {
+            field = value
+
+            if (value == true) {
+                daemon?.apply {
+                    connect()
+                    field = false
+                }
+            }
+        }
 
     private var bindCount = 0
         set(value) {
@@ -33,14 +45,12 @@ class MullvadVpnService : TalpidVpnService() {
     private var isBound = false
         set(value) {
             field = value
-
-            if (this::notificationManager.isInitialized) {
-                notificationManager.lockedToForeground = value
-            }
+            notificationManager.lockedToForeground = value
         }
 
     override fun onCreate() {
         super.onCreate()
+        notificationManager = ForegroundNotificationManager(this, serviceNotifier)
         setUp()
     }
 
@@ -71,6 +81,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onDestroy() {
         tearDown()
+        notificationManager.onDestroy()
         super.onDestroy()
     }
 
@@ -85,27 +96,29 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val startResult = super.onStartCommand(intent, flags, startId)
+
         if (intent?.getAction() == VpnService.SERVICE_INTERFACE) {
-            runBlocking { daemon.await().connect() }
+            shouldConnect = true
         }
+
         return startResult
     }
 
     private fun setUp() {
-        daemon = startDaemon()
-        connectionProxy = ConnectionProxy(this, daemon)
-        notificationManager = startNotificationManager()
+        startDaemonJob?.cancel()
+        startDaemonJob = startDaemon()
     }
 
-    private fun startDaemon() = GlobalScope.async(Dispatchers.Default) {
+    private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
         ApiRootCaFile().extract(application)
 
-        val daemon = MullvadDaemon(this@MullvadVpnService).apply {
+        val newDaemon = MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
                 notificationManager.loggedIn = settings?.accountToken != null
             }
 
             onDaemonStopped = {
+                connectionProxy?.onDestroy()
                 serviceNotifier.notify(null)
 
                 if (!isStopping) {
@@ -114,17 +127,16 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
-        serviceNotifier.notify(ServiceInstance(daemon, connectionProxy, connectivityListener))
-
-        daemon
-    }
-
-    private fun startNotificationManager(): ForegroundNotificationManager {
-        return ForegroundNotificationManager(this, connectionProxy).apply {
-            onConnect = { connectionProxy.connect() }
-            onDisconnect = { connectionProxy.disconnect() }
-            lockedToForeground = isBound
+        val newConnectionProxy = ConnectionProxy(this@MullvadVpnService, newDaemon).apply {
+            if (shouldConnect) {
+                connect()
+            }
         }
+
+        daemon = newDaemon
+        connectionProxy = newConnectionProxy
+
+        serviceNotifier.notify(ServiceInstance(newDaemon, newConnectionProxy, connectivityListener))
     }
 
     private fun stop() {
@@ -134,18 +146,12 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun stopDaemon() {
-        if (daemon.isCompleted) {
-            runBlocking { daemon.await().shutdown() }
-        } else {
-            daemon.cancel()
-        }
+        startDaemonJob?.cancel()
+        daemon?.shutdown()
     }
 
     private fun tearDown() {
         stopDaemon()
-
-        connectionProxy.onDestroy()
-        notificationManager.onDestroy()
     }
 
     private fun restart() {

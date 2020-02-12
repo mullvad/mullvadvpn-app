@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import net.mullvad.talpid.util.EventNotifier
 
 val CHANNEL_ID = "vpn_tunnel_status"
 val FOREGROUND_NOTIFICATION_ID: Int = 1
@@ -23,15 +24,41 @@ val KEY_CONNECT_ACTION = "connect_action"
 val KEY_DISCONNECT_ACTION = "disconnect_action"
 val PERMISSION_TUNNEL_ACTION = "net.mullvad.mullvadvpn.permission.TUNNEL_ACTION"
 
-class ForegroundNotificationManager(val service: Service, val connectionProxy: ConnectionProxy) {
+class ForegroundNotificationManager(
+    val service: MullvadVpnService,
+    val serviceNotifier: EventNotifier<ServiceInstance?>
+) {
     private val notificationManager =
         service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    private val listenerId = connectionProxy.onStateChange.subscribe { state ->
-        tunnelState = state
+    private val listenerId = serviceNotifier.subscribe { newServiceInstance ->
+        serviceInstance = newServiceInstance
     }
 
+    private var serviceInstance: ServiceInstance? = null
+        set(value) {
+            synchronized(this) {
+                if (value != null) {
+                    connectionProxy = value.connectionProxy.apply {
+                        onStateChange.subscribe { state ->
+                            tunnelState = state
+                        }
+                    }
+                } else {
+                    connectionProxy = null
+                    connectionListenerId?.let { listenerId ->
+                        field?.connectionProxy?.onStateChange?.unsubscribe(listenerId)
+                    }
+                }
+
+                field = value
+            }
+        }
+
     private val badgeColor = service.resources.getColor(R.color.colorPrimary)
+
+    private var connectionListenerId: Int? = null
+    private var connectionProxy: ConnectionProxy? = null
 
     private var onForeground = false
     private var reconnecting = false
@@ -130,18 +157,15 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
 
     private val connectReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            onConnect?.invoke()
+            connectionProxy?.connect()
         }
     }
 
     private val disconnectReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            onDisconnect?.invoke()
+            connectionProxy?.disconnect()
         }
     }
-
-    var onConnect: (() -> Unit)? = null
-    var onDisconnect: (() -> Unit)? = null
 
     var loggedIn = false
         set(value) {
@@ -172,7 +196,7 @@ class ForegroundNotificationManager(val service: Service, val connectionProxy: C
     }
 
     fun onDestroy() {
-        connectionProxy.onStateChange.unsubscribe(listenerId)
+        serviceNotifier.unsubscribe(listenerId)
 
         service.apply {
             unregisterReceiver(connectReceiver)

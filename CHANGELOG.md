@@ -48,6 +48,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix crash when removing the service from foreground on Android versions below API level 24.
 - Fix crash that happened in certain situations when retrieving the relay list.
+- Fix crash caused by initialization race condition.
 
 
 ## [2020.1] - 2020-02-10
