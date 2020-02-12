@@ -45,6 +45,10 @@
     <string name="allow_lan_footer">
         Allows access to other devices on the same network for sharing, printing etc.
     </string>
+    <string name="auto_connect">Always-on</string>
+    <string name="auto_connect_footer">
+        Starts the tunnel connection as soon as the app starts.
+    </string>
 
     <string name="problem_report_description">
         To help you more effectively, your app\'s log file will be attached to this message. Your
