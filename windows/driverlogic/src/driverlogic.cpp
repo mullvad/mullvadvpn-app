@@ -627,7 +627,7 @@ void DeleteVanillaMullvadAdapter()
 
 	if (!mullvadAdapter.has_value())
 	{
-		THROW_ERROR("Mullvad TAP adapter not found");
+		return;
 	}
 
 	const auto mullvadGuid = mullvadAdapter.value().guid;
