@@ -4,16 +4,8 @@
 #include "libwfp/filterbuilder.h"
 #include "libwfp/conditionbuilder.h"
 #include "libwfp/conditions/conditioninterface.h"
-#include "libwfp/conditions/conditionport.h"
 
 using namespace wfp::conditions;
-
-namespace
-{
-
-constexpr uint16_t DNS_PORT = 53;
-
-} // anonymous namespace
 
 namespace rules
 {
@@ -29,7 +21,6 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 
 	//
 	// #1 permit locally-initiated traffic on tunnel interface, ipv4
-	//    except DNS requests
 	//
 
 	filterBuilder
@@ -46,7 +37,6 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 
 		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
-		conditionBuilder.add_condition(ConditionPort::Remote(DNS_PORT, CompareNeq()));
 
 		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 		{
@@ -56,7 +46,6 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 
 	//
 	// #2 permit locally-initiated traffic on tunnel interface, ipv6
-	//    except DNS requests
 	//
 
 	filterBuilder
@@ -67,7 +56,6 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 	conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
-	conditionBuilder.add_condition(ConditionPort::Remote(DNS_PORT, CompareNeq()));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
