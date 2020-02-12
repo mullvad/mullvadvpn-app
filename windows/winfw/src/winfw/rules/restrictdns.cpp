@@ -12,17 +12,16 @@ using namespace wfp::conditions;
 namespace rules
 {
 
-RestrictDns::RestrictDns(const std::wstring &tunnelInterfaceAlias,
+RestrictDns::RestrictDns(
+	const std::wstring &tunnelInterfaceAlias,
 	const wfp::IpAddress v4DnsHost,
 	std::optional<wfp::IpAddress> v6DnsHost,
-	wfp::IpAddress relay,
-	uint16_t relayPort)
+	std::optional<wfp::IpAddress> allowHost
+)
 	: m_tunnelInterfaceAlias(tunnelInterfaceAlias)
 	, m_v4DnsHost(v4DnsHost)
 	, m_v6DnsHost(v6DnsHost)
-	, m_relayHost(relay)
-	, m_relayPort(relayPort)
-
+	, m_allowHost(allowHost)
 {
 }
 
@@ -72,12 +71,12 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 		conditionBuilder.add_condition(ConditionPort::Remote(53));
 
-		if (53 == m_relayPort)
+		if (m_allowHost.has_value())
 		{
 			//
-			// Allow relay traffic over port 53
+			// Allow DNS traffic over select host
 			//
-			conditionBuilder.add_condition(ConditionIp::Remote(m_relayHost, CompareNeq()));
+			conditionBuilder.add_condition(ConditionIp::Remote(*m_allowHost, CompareNeq()));
 		}
 
 		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))

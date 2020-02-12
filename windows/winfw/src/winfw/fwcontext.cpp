@@ -140,9 +140,9 @@ bool FwContext::applyPolicyConnected
 (
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
-	const wchar_t *tunnelInterfaceAlias,
-	const wchar_t *v4DnsHost,
-	const wchar_t *v6DnsHost
+	const std::wstring &tunnelInterfaceAlias,
+	const wfp::IpAddress &v4DnsHost,
+	const std::optional<wfp::IpAddress> &v6DnsHost
 )
 {
 	Ruleset ruleset;
@@ -166,10 +166,9 @@ bool FwContext::applyPolicyConnected
 
 	ruleset.emplace_back(std::make_unique<rules::RestrictDns>(
 		tunnelInterfaceAlias,
-		wfp::IpAddress(std::wstring(v4DnsHost)),
-		nullptr != v6DnsHost ? std::make_optional<wfp::IpAddress>(std::wstring(v6DnsHost)) : std::nullopt,
-		std::wstring(relay.ip),
-		relay.port
+		v4DnsHost,
+		v6DnsHost,
+		53 == relay.port ? std::make_optional(wfp::IpAddress(relay.ip)) : std::nullopt
 	));
 
 	return applyRuleset(ruleset);
