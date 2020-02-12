@@ -13,16 +13,15 @@ namespace rules
 {
 
 RestrictDns::RestrictDns(
-	const std::wstring &tunnelInterfaceAlias,
-	const wfp::IpAddress v4DnsHost,
-	std::optional<wfp::IpAddress> v6DnsHost,
-	std::optional<wfp::IpAddress> allowHost
+	const std::optional<WinFwRelay> &relay,
+	const std::optional<DnsHosts> &dnsHosts
 )
-	: m_tunnelInterfaceAlias(tunnelInterfaceAlias)
-	, m_v4DnsHost(v4DnsHost)
-	, m_v6DnsHost(v6DnsHost)
-	, m_allowHost(allowHost)
+	: m_dnsHosts(dnsHosts)
 {
+	if (relay.has_value() && 53 == relay->port)
+	{
+		m_allowHost = std::make_optional(wfp::IpAddress(relay->ip));
+	}
 }
 
 bool RestrictDns::apply(IObjectInstaller &objectInstaller)
@@ -41,22 +40,27 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 	filterBuilder
 		.provider(MullvadGuids::Provider())
 		.description(L"This filter is part of a rule that restricts DNS traffic")
-		.sublayer(MullvadGuids::SublayerBlacklist())
-		.key(MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv4())
-		.name(L"Restrict DNS requests inside the VPN tunnel (IPv4)")
-		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-		.weight(MAXUINT16)
-		.permit();
+		.sublayer(MullvadGuids::SublayerBlacklist());
 
+	if (m_dnsHosts.has_value())
 	{
-		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+		filterBuilder
+			.key(MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv4())
+			.name(L"Restrict DNS requests inside the VPN tunnel (IPv4)")
+			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
+			.weight(MAXUINT16)
+			.permit();
 
-		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias, CompareEq()));
-		conditionBuilder.add_condition(ConditionIp::Remote(m_v4DnsHost, CompareEq()));
-
-		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 		{
-			return false;
+			wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+
+			conditionBuilder.add_condition(ConditionInterface::Alias(m_dnsHosts->tunnelInterfaceAlias, CompareEq()));
+			conditionBuilder.add_condition(ConditionIp::Remote(m_dnsHosts->v4DnsHost, CompareEq()));
+
+			if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+			{
+				return false;
+			}
 		}
 	}
 
@@ -71,11 +75,11 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 		conditionBuilder.add_condition(ConditionPort::Remote(53));
 
+		//
+		// Allow DNS traffic over select host
+		//
 		if (m_allowHost.has_value())
 		{
-			//
-			// Allow DNS traffic over select host
-			//
 			conditionBuilder.add_condition(ConditionIp::Remote(*m_allowHost, CompareNeq()));
 		}
 
@@ -89,7 +93,7 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 	// IPv6 also
 	//
 
-	if (m_v6DnsHost.has_value())
+	if (m_dnsHosts.has_value() && m_dnsHosts->v6DnsHost.has_value())
 	{
 		filterBuilder
 			.key(MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv6())
@@ -101,8 +105,8 @@ bool RestrictDns::apply(IObjectInstaller &objectInstaller)
 		{
 			wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
-			conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias, CompareEq()));
-			conditionBuilder.add_condition(ConditionIp::Remote(m_v6DnsHost.value(), CompareEq()));
+			conditionBuilder.add_condition(ConditionInterface::Alias(m_dnsHosts->tunnelInterfaceAlias, CompareEq()));
+			conditionBuilder.add_condition(ConditionIp::Remote(*m_dnsHosts->v6DnsHost, CompareEq()));
 
 			if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 			{

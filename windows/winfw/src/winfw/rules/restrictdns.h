@@ -2,6 +2,7 @@
 
 #include "ifirewallrule.h"
 #include "libwfp/ipaddress.h"
+#include "winfw/winfw.h"
 #include <optional>
 #include <string>
 #include <cstdint>
@@ -13,16 +14,21 @@ class RestrictDns : public IFirewallRule
 {
 public:
 
-	RestrictDns(const std::wstring &tunnelInterfaceAlias, const wfp::IpAddress v4DnsHost, std::optional<wfp::IpAddress> v6DnsHost, std::optional<wfp::IpAddress> allowHost);
+	struct DnsHosts
+	{
+		std::wstring tunnelInterfaceAlias;
+		wfp::IpAddress v4DnsHost;
+		std::optional<wfp::IpAddress> v6DnsHost;
+	};
+
+	RestrictDns(const std::optional<WinFwRelay> &relay, const std::optional<DnsHosts> &dnsHosts);
 
 	bool apply(IObjectInstaller &objectInstaller) override;
 
 private:
 
-	const std::wstring m_tunnelInterfaceAlias;
-	const wfp::IpAddress m_v4DnsHost;
-	const std::optional<wfp::IpAddress> m_v6DnsHost;
-	const std::optional<wfp::IpAddress> m_allowHost;
+	std::optional<wfp::IpAddress> m_allowHost;
+	const std::optional<DnsHosts> m_dnsHosts;
 
 };
 
