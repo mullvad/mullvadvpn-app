@@ -351,6 +351,9 @@ impl<'a> PolicyBatch<'a> {
             } => {
                 self.add_allow_icmp_pingable_hosts(&pingable_hosts);
                 self.add_allow_endpoint_rules(peer_endpoint);
+                // Important to block DNS after allow relay rule (so the relay can operate
+                // over port 53) but before allow LAN (so DNS does not leak to the LAN)
+                self.add_drop_dns_rule();
                 *allow_lan
             }
             FirewallPolicy::Connected {
@@ -359,15 +362,22 @@ impl<'a> PolicyBatch<'a> {
                 allow_lan,
             } => {
                 self.add_allow_endpoint_rules(peer_endpoint);
-                self.add_dns_rule(tunnel, TransportProtocol::Udp)?;
-                self.add_dns_rule(tunnel, TransportProtocol::Tcp)?;
+                self.add_allow_dns_rules(tunnel, TransportProtocol::Udp)?;
+                self.add_allow_dns_rules(tunnel, TransportProtocol::Tcp)?;
+                // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
+                // can't leak to the wrong IPs in the tunnel or on the LAN.
+                self.add_drop_dns_rule();
                 self.add_allow_tunnel_rules(tunnel)?;
                 if *allow_lan {
                     self.add_block_cve_2019_14899(tunnel);
                 }
                 *allow_lan
             }
-            FirewallPolicy::Blocked { allow_lan } => *allow_lan,
+            FirewallPolicy::Blocked { allow_lan } => {
+                // Important to drop DNS before allowing LAN (to stop DNS leaking to the LAN)
+                self.add_drop_dns_rule();
+                *allow_lan
+            }
         };
 
         if allow_lan {
@@ -419,21 +429,16 @@ impl<'a> PolicyBatch<'a> {
         }
     }
 
-    fn add_dns_rule(
+    fn add_allow_dns_rules(
         &mut self,
         tunnel: &tunnel::TunnelMetadata,
         protocol: TransportProtocol,
     ) -> Result<()> {
-        // allow DNS traffic to the tunnel gateway
+        // allow DNS traffic to the tunnel gateway(s)
         self.add_allow_dns_rule(&tunnel.interface, protocol, tunnel.ipv4_gateway.into())?;
         if let Some(ipv6_gateway) = tunnel.ipv6_gateway {
             self.add_allow_dns_rule(&tunnel.interface, protocol, ipv6_gateway.into())?;
         };
-        let mut block_rule = Rule::new(&self.out_chain);
-        check_port(&mut block_rule, protocol, End::Dst, 53);
-        add_verdict(&mut block_rule, &Verdict::Drop);
-        self.batch.add(&block_rule, nftnl::MsgType::Add);
-
         Ok(())
     }
 
@@ -459,6 +464,19 @@ impl<'a> PolicyBatch<'a> {
 
         self.batch.add(&allow_rule, nftnl::MsgType::Add);
         Ok(())
+    }
+
+    /// Blocks all outgoing DNS (port 53) on both TCP and UDP
+    fn add_drop_dns_rule(&mut self) {
+        let mut block_udp_rule = Rule::new(&self.out_chain);
+        check_port(&mut block_udp_rule, TransportProtocol::Udp, End::Dst, 53);
+        add_verdict(&mut block_udp_rule, &Verdict::Drop);
+        self.batch.add(&block_udp_rule, nftnl::MsgType::Add);
+
+        let mut block_tcp_rule = Rule::new(&self.out_chain);
+        check_port(&mut block_tcp_rule, TransportProtocol::Tcp, End::Dst, 53);
+        add_verdict(&mut block_tcp_rule, &Verdict::Drop);
+        self.batch.add(&block_tcp_rule, nftnl::MsgType::Add);
     }
 
     fn add_allow_tunnel_rules(&mut self, tunnel: &tunnel::TunnelMetadata) -> Result<()> {
