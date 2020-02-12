@@ -184,6 +184,14 @@ impl DaemonInterface {
         rx.wait().map_err(|_| Error::NoResponse)
     }
 
+    pub fn set_auto_connect(&self, auto_connect: bool) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(ManagementCommand::SetAutoConnect(tx, auto_connect))?;
+
+        rx.wait().map_err(|_| Error::NoResponse)
+    }
+
     pub fn shutdown(&self) -> Result<()> {
         self.send_command(ManagementCommand::Shutdown)
     }
