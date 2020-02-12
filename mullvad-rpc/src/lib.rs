@@ -36,7 +36,7 @@ const DNS_THREADS: usize = 2;
 const API_HOST: &str = "api.mullvad.net";
 const RPC_TIMEOUT: Duration = Duration::from_secs(10);
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
-const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 73));
+const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
 
 
 /// A type that helps with the creation of RPC connections.

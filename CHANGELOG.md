@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
 - Only reconnect when settings change if a relevant tunnel protocol is used.
 - Adjust padding of tray icon on Windows and Linux to better match other icons.
 - Change the zoomlevel of the map in the desktop app to make it less zoomed in.
+- Bundle new API IP with the app (Old: 193.138.218.73, new: 193.138.218.78)
 
 ### Removed
 - Remove city/country labels on map in the desktop app.
