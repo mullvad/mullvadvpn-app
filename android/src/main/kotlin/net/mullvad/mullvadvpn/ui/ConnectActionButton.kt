@@ -46,7 +46,13 @@ class ConnectActionButton(val parentView: View) {
                 }
                 is TunnelState.Connecting -> connecting()
                 is TunnelState.Connected -> connected()
-                is TunnelState.Error -> connected()
+                is TunnelState.Error -> {
+                    if (value.errorState.isBlocking) {
+                        connected()
+                    } else {
+                        blockError()
+                    }
+                }
             }
 
             field = value
@@ -74,12 +80,20 @@ class ConnectActionButton(val parentView: View) {
     }
 
     private fun action() {
-        when (tunnelState) {
+        val state = tunnelState
+
+        when (state) {
             is TunnelState.Disconnected -> onConnect?.invoke()
             is TunnelState.Disconnecting -> onConnect?.invoke()
             is TunnelState.Connecting -> onCancel?.invoke()
             is TunnelState.Connected -> onDisconnect?.invoke()
-            is TunnelState.Error -> onDisconnect?.invoke()
+            is TunnelState.Error -> {
+                if (state.errorState.isBlocking) {
+                    onDisconnect?.invoke()
+                } else {
+                    onCancel?.invoke()
+                }
+            }
         }
     }
 
@@ -95,6 +109,10 @@ class ConnectActionButton(val parentView: View) {
 
     private fun connected() {
         redButton(R.string.disconnect)
+    }
+
+    private fun blockError() {
+        redButton(R.string.dismiss)
     }
 
     private fun redButton(text: Int) {
