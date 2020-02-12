@@ -3,14 +3,20 @@ package net.mullvad.mullvadvpn.dataproxy
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.talpid.util.EventNotifier
 
 class SettingsListener(val daemon: MullvadDaemon) {
+    var settings: Settings = daemon.getSettings()
+        private set(value) {
+            settingsNotifier.notify(value)
+            field = value
+        }
+
+    private val settingsNotifier: EventNotifier<Settings> = EventNotifier(settings)
+
     private val listenerId = daemon.onSettingsChange.subscribe { maybeSettings ->
         maybeSettings?.let { settings -> handleNewSettings(settings) }
     }
-
-    var settings: Settings? = null
-        private set
 
     var onAccountNumberChange: ((String?) -> Unit)? = null
         set(value) {
@@ -43,6 +49,16 @@ class SettingsListener(val daemon: MullvadDaemon) {
         if (listenerId != -1) {
             daemon.onSettingsChange.unsubscribe(listenerId)
         }
+
+        settingsNotifier.unsubscribeAll()
+    }
+
+    fun subscribe(listener: (Settings) -> Unit): Int {
+        return settingsNotifier.subscribe(listener)
+    }
+
+    fun unsubscribe(id: Int) {
+        settingsNotifier.unsubscribe(id)
     }
 
     private fun handleNewSettings(newSettings: Settings) {
@@ -53,10 +69,6 @@ class SettingsListener(val daemon: MullvadDaemon) {
 
             if (settings?.relaySettings != newSettings.relaySettings) {
                 onRelaySettingsChange?.invoke(newSettings.relaySettings)
-            }
-
-            if (settings?.allowLan != newSettings.allowLan) {
-                onAllowLanChange?.invoke(newSettings.allowLan)
             }
 
             settings = newSettings
