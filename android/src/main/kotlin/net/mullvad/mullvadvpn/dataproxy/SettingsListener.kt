@@ -3,8 +3,11 @@ package net.mullvad.mullvadvpn.dataproxy
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.talpid.util.EventNotifier
 
 class SettingsListener(val daemon: MullvadDaemon) {
+    private val settingsNotifier: EventNotifier<Settings> = EventNotifier(daemon.getSettings())
+
     private val listenerId = daemon.onSettingsChange.subscribe { maybeSettings ->
         maybeSettings?.let { settings -> handleNewSettings(settings) }
     }
@@ -45,6 +48,14 @@ class SettingsListener(val daemon: MullvadDaemon) {
         }
     }
 
+    fun subscribe(listener: (Settings) -> Unit): Int {
+        return settingsNotifier.subscribe(listener)
+    }
+
+    fun unsubscribe(id: Int) {
+        settingsNotifier.unsubscribe(id)
+    }
+
     private fun handleNewSettings(newSettings: Settings) {
         synchronized(this) {
             if (settings?.accountToken != newSettings.accountToken) {
@@ -55,10 +66,7 @@ class SettingsListener(val daemon: MullvadDaemon) {
                 onRelaySettingsChange?.invoke(newSettings.relaySettings)
             }
 
-            if (settings?.allowLan != newSettings.allowLan) {
-                onAllowLanChange?.invoke(newSettings.allowLan)
-            }
-
+            settingsNotifier.notify(newSettings)
             settings = newSettings
         }
     }
