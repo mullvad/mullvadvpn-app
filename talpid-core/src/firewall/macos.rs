@@ -94,6 +94,9 @@ impl Firewall {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
                 rules.extend(self.get_allow_pingable_hosts(&pingable_hosts)?);
                 if allow_lan {
+                    // Important to block DNS after allow relay rule (so the relay can operate
+                    // over port 53) but before allow LAN (so DNS does not leak to the LAN)
+                    rules.append(&mut self.get_block_dns_rules()?);
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
                 Ok(rules)
@@ -144,24 +147,12 @@ impl Firewall {
                     rules.push(v6_dns_rule_udp);
                 }
 
-                let block_tcp_dns_rule = self
-                    .create_rule_builder(FilterRuleAction::Drop)
-                    .direction(pfctl::Direction::Out)
-                    .quick(true)
-                    .proto(pfctl::Proto::Tcp)
-                    .to(pfctl::Port::from(53))
-                    .build()?;
-                rules.push(block_tcp_dns_rule);
-                let block_udp_dns_rule = self
-                    .create_rule_builder(FilterRuleAction::Drop)
-                    .direction(pfctl::Direction::Out)
-                    .quick(true)
-                    .proto(pfctl::Proto::Udp)
-                    .to(pfctl::Port::from(53))
-                    .build()?;
-
-                rules.push(block_udp_dns_rule);
                 rules.push(self.get_allow_relay_rule(peer_endpoint)?);
+
+                // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
+                // can't leak to the wrong IPs in the tunnel or on the LAN.
+                rules.append(&mut self.get_block_dns_rules()?);
+
                 rules.push(self.get_allow_tunnel_rule(tunnel.interface.as_str())?);
 
                 if allow_lan {
@@ -173,6 +164,8 @@ impl Firewall {
             FirewallPolicy::Blocked { allow_lan } => {
                 let mut rules = Vec::new();
                 if allow_lan {
+                    // Important to block DNS before allow LAN (so DNS does not leak to the LAN)
+                    rules.append(&mut self.get_block_dns_rules()?);
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
                 Ok(rules)
@@ -192,6 +185,25 @@ impl Firewall {
             .tcp_flags(Self::get_tcp_flags())
             .quick(true)
             .build()?)
+    }
+
+    fn get_block_dns_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
+        let block_tcp_dns_rule = self
+            .create_rule_builder(FilterRuleAction::Drop)
+            .direction(pfctl::Direction::Out)
+            .quick(true)
+            .proto(pfctl::Proto::Tcp)
+            .to(pfctl::Port::from(53))
+            .build()?;
+        let block_udp_dns_rule = self
+            .create_rule_builder(FilterRuleAction::Drop)
+            .direction(pfctl::Direction::Out)
+            .quick(true)
+            .proto(pfctl::Proto::Udp)
+            .to(pfctl::Port::from(53))
+            .build()?;
+
+        Ok(vec![block_tcp_dns_rule, block_udp_dns_rule])
     }
 
     fn get_allow_pingable_hosts(
