@@ -33,6 +33,9 @@ open class TalpidVpnService : VpnService() {
         }
 
         val vpnInterface = builder.establish()
+        if (vpnInterface == null) {
+            return 0
+        }
 
         return vpnInterface.detachFd()
     }
