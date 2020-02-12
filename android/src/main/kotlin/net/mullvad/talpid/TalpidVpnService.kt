@@ -34,7 +34,7 @@ open class TalpidVpnService : VpnService() {
 
         val vpnInterface = builder.establish()
 
-        return vpnInterface.detachFd()
+        return vpnInterface?.detachFd() ?: 0
     }
 
     fun bypass(socket: Int): Boolean {

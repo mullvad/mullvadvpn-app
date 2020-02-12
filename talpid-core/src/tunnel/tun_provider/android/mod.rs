@@ -60,6 +60,9 @@ pub enum Error {
 
     #[error(display = "Timed out while waiting for tunnel device to receive data")]
     TunnelDeviceTimeout,
+
+    #[error(display = "Failed to create tunnel device")]
+    TunnelDeviceError,
 }
 
 /// Factory of tunnel devices on Android.
@@ -334,6 +337,7 @@ impl AndroidTunProvider {
             .map_err(|cause| Error::CallMethod("createTun", cause))?;
 
         match result {
+            JValue::Int(0) => Err(Error::TunnelDeviceError),
             JValue::Int(fd) => {
                 Self::wait_for_tunnel_up(fd, &config)?;
                 let tun = unsafe { File::from_raw_fd(fd) };
