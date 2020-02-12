@@ -71,7 +71,6 @@ pub struct Settings {
     #[cfg_attr(target_os = "android", jnix(skip))]
     block_when_disconnected: bool,
     /// If the daemon should connect the VPN tunnel directly on start or not.
-    #[cfg_attr(target_os = "android", jnix(skip))]
     auto_connect: bool,
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
