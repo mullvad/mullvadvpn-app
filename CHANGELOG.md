@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add reconnect button to the desktop app.
 - Add monochrome option for the tray icon on Windows and Linux.
 - Show OS notification when account is close to expiry on desktop platforms.
+- Warn users running old app versions when creating problem report.
 
 #### Android
 - Add option to enable or disable local network sharing.
@@ -38,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 - Adjust padding of tray icon on Windows and Linux to better match other icons.
 - Change the zoomlevel of the map in the desktop app to make it less zoomed in.
 - Bundle new API IP with the app (Old: 193.138.218.73, new: 193.138.218.78)
+- Change color of buttons in WireGuard key view.
 
 ### Removed
 - Remove city/country labels on map in the desktop app.
