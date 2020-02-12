@@ -10,11 +10,11 @@
 #include "rules/permitlan.h"
 #include "rules/permitlanservice.h"
 #include "rules/permitloopback.h"
-#include "rules/permittunneldns.h"
 #include "rules/permitvpnrelay.h"
 #include "rules/permitvpntunnel.h"
 #include "rules/permitvpntunnelservice.h"
 #include "rules/permitping.h"
+#include "rules/restrictdns.h"
 #include <libwfp/transaction.h>
 #include <libwfp/filterengine.h>
 #include <libcommon/error.h>
@@ -164,17 +164,12 @@ bool FwContext::applyPolicyConnected
 		tunnelInterfaceAlias
 	));
 
-	std::vector<wfp::IpAddress> dnsHosts;
-	dnsHosts.push_back(wfp::IpAddress(v4DnsHost));
-
-	if (nullptr != v6DnsHost)
-	{
-		dnsHosts.push_back(wfp::IpAddress(v6DnsHost));
-	}
-
-	ruleset.emplace_back(std::make_unique<rules::PermitTunnelDns>(
+	ruleset.emplace_back(std::make_unique<rules::RestrictDns>(
 		tunnelInterfaceAlias,
-		dnsHosts
+		wfp::IpAddress(std::wstring(v4DnsHost)),
+		nullptr != v6DnsHost ? std::make_optional<wfp::IpAddress>(std::wstring(v6DnsHost)) : std::nullopt,
+		std::wstring(relay.ip),
+		relay.port
 	));
 
 	return applyRuleset(ruleset);

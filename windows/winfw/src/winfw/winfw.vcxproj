@@ -23,7 +23,6 @@
     <ClCompile Include="mullvadguids.cpp" />
     <ClCompile Include="mullvadobjects.cpp" />
     <ClCompile Include="objectpurger.cpp" />
-    <ClCompile Include="rules\permittunneldns.cpp" />
     <ClCompile Include="rules\blockall.cpp" />
     <ClCompile Include="rules\permitdhcp.cpp" />
     <ClCompile Include="rules\permitdhcpserver.cpp" />
@@ -35,6 +34,7 @@
     <ClCompile Include="rules\permitvpntunnelservice.cpp" />
     <ClCompile Include="rules\permitvpnrelay.cpp" />
     <ClCompile Include="rules\permitvpntunnel.cpp" />
+    <ClCompile Include="rules\restrictdns.cpp" />
     <ClCompile Include="sessioncontroller.cpp" />
     <ClCompile Include="sessionrecord.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -52,7 +52,6 @@
     <ClInclude Include="mullvadguids.h" />
     <ClInclude Include="mullvadobjects.h" />
     <ClInclude Include="objectpurger.h" />
-    <ClInclude Include="rules\permittunneldns.h" />
     <ClInclude Include="rules\permitdhcpserver.h" />
     <ClInclude Include="rules\permitndp.h" />
     <ClInclude Include="rules\permitping.h" />
@@ -66,6 +65,7 @@
     <ClInclude Include="rules\permitvpntunnelservice.h" />
     <ClInclude Include="rules\permitvpnrelay.h" />
     <ClInclude Include="rules\permitvpntunnel.h" />
+    <ClInclude Include="rules\restrictdns.h" />
     <ClInclude Include="sessioncontroller.h" />
     <ClInclude Include="sessionrecord.h" />
     <ClInclude Include="stdafx.h" />

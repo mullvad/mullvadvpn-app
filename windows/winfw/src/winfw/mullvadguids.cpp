@@ -50,8 +50,10 @@ DetailedWfpObjectRegistry MullvadGuids::BuildDetailedRegistry()
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnRelay()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnel_Outbound_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnel_Outbound_Ipv6()));
-	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitTunnelDns_Ipv4()));
-	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitTunnelDns_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Ipv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Tunnel_Ipv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, FilterRestrictDns_Outbound_Tunnel_Ipv6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnelService_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitVpnTunnelService_Ipv6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, FilterPermitNdp_Outbound_Router_Solicitation()));
@@ -443,28 +445,56 @@ const GUID &MullvadGuids::FilterPermitVpnTunnel_Outbound_Ipv6()
 }
 
 //static
-const GUID &MullvadGuids::FilterPermitTunnelDns_Ipv4()
+const GUID &MullvadGuids::FilterRestrictDns_Outbound_Ipv4()
 {
 	static const GUID g =
 	{
-		0x60474363,
-		0x42b7,
-		0x44ad,
-		{ 0xa6, 0xdb, 0x9c, 0x4a, 0x4d, 0x3c, 0xde, 0x4a }
+		0xc0792b44,
+		0xfc3c,
+		0x42e8,
+		{ 0xa6, 0x60, 0x25, 0x4b, 0xd0, 0x4, 0xb1, 0x9d }
 	};
 
 	return g;
 }
 
 //static
-const GUID &MullvadGuids::FilterPermitTunnelDns_Ipv6()
+const GUID &MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv4()
 {
 	static const GUID g =
 	{
-		0xa832ce1d,
-		0xa250,
-		0x42be,
-		{ 0x8b, 0x97, 0x2, 0xb7, 0x9f, 0x9c, 0x5e, 0x1 }
+		0x790445dc,
+		0xb23e,
+		0x4ab4,
+		{ 0x8e, 0x2f, 0xc7, 0x6, 0x55, 0x5f, 0x94, 0xff }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::FilterRestrictDns_Outbound_Ipv6()
+{
+	static const GUID g =
+	{
+		0xcde477eb,
+		0x2d8a,
+		0x45b8,
+		{ 0x9a, 0x3e, 0x9a, 0xa3, 0xbe, 0x4d, 0xe2, 0xb4 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::FilterRestrictDns_Outbound_Tunnel_Ipv6()
+{
+	static const GUID g =
+	{
+		0xacc90d87,
+		0xab77,
+		0x4cf4,
+		{ 0x84, 0xee, 0x1d, 0x68, 0x95, 0xf0, 0x66, 0xc2 }
 	};
 
 	return g;
