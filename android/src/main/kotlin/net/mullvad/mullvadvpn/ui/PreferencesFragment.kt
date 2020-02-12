@@ -9,10 +9,13 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.Settings
 
 class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var allowLanToggle: CellSwitch
+    private lateinit var autoConnectToggle: CellSwitch
 
+    private var subscriptionId: Int? = null
     private var updateUiJob: Job? = null
 
     override fun onSafelyCreateView(
@@ -28,11 +31,7 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
         allowLanToggle = view.findViewById<CellSwitch>(R.id.allow_lan_toggle).apply {
             settingsListener.settings?.let { settings ->
-                if (settings.allowLan) {
-                    forcefullySetState(CellSwitch.State.ON)
-                } else {
-                    forcefullySetState(CellSwitch.State.OFF)
-                }
+                forcefullySetState(boolToSwitchState(settings.allowLan))
             }
 
             listener = { state ->
@@ -43,23 +42,41 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        settingsListener.onAllowLanChange = { allowLan ->
-            updateUiJob?.cancel()
-            updateUiJob = updateUi(allowLan)
+        autoConnectToggle = view.findViewById<CellSwitch>(R.id.auto_connect_toggle).apply {
+            settingsListener.settings?.let { settings ->
+                forcefullySetState(boolToSwitchState(settings.autoConnect))
+            }
+
+            listener = { state ->
+                when (state) {
+                    CellSwitch.State.ON -> daemon.setAutoConnect(true)
+                    CellSwitch.State.OFF -> daemon.setAutoConnect(false)
+                }
+            }
         }
+
+        settingsListener.subscribe({ settings -> updateUi(settings) })
 
         return view
     }
 
-    override fun onSafelyDestroyView() {
-        settingsListener.onAllowLanChange = null
+    private fun updateUi(settings: Settings) {
+        updateUiJob?.cancel()
+        updateUiJob = GlobalScope.launch(Dispatchers.Main) {
+            allowLanToggle.state = boolToSwitchState(settings.allowLan)
+            autoConnectToggle.state = boolToSwitchState(settings.autoConnect)
+        }
     }
 
-    private fun updateUi(allowLan: Boolean) = GlobalScope.launch(Dispatchers.Main) {
-        if (allowLan) {
-            allowLanToggle.state = CellSwitch.State.ON
+    override fun onSafelyDestroyView() {
+        subscriptionId?.let { id -> settingsListener.unsubscribe(id) }
+    }
+
+    private fun boolToSwitchState(pref: Boolean): CellSwitch.State {
+        if (pref) {
+            return CellSwitch.State.ON
         } else {
-            allowLanToggle.state = CellSwitch.State.OFF
+            return CellSwitch.State.OFF
         }
     }
 }
