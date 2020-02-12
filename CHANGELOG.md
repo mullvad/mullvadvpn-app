@@ -50,6 +50,12 @@ Line wrap the file at 100 chars.                                              Th
 - Fix crash that happened in certain situations when retrieving the relay list.
 - Fix crash caused by initialization race condition.
 
+### Security
+- Stop DNS leak that could happen on Linux and macOS if local network sharing was enabled
+  and the user's default DNS was on the local private network. The leak could happen during these
+  states: While connecting, when blocked due to an error happening and when disconnected if the
+  "block when disconnected" setting was enabled.
+
 
 ## [2020.1] - 2020-02-10
 This release is identical to 2020.1-beta1
