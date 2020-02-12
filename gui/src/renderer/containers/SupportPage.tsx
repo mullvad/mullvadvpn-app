@@ -12,6 +12,7 @@ const mapStateToProps = (state: IReduxState) => ({
   defaultMessage: state.support.message,
   accountHistory: state.account.accountHistory,
   isOffline: state.connection.isBlocked,
+  outdatedVersion: state.version.currentIsOutdated,
 });
 
 const mapDispatchToProps = (dispatch: ReduxDispatch) => {
@@ -29,6 +30,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch) => {
     clearReportForm,
     collectProblemReport,
     sendProblemReport,
+    onExternalLink: (url: string) => shell.openExternal(url),
   };
 };
 

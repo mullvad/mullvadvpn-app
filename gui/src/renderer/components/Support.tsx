@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Component, Text, TextInput, View } from 'reactxp';
+import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
@@ -26,6 +27,7 @@ interface ISupportState {
   savedReport?: string;
   sendState: SendState;
   disableActions: boolean;
+  showOutdatedVersionWarning: boolean;
 }
 
 interface ISupportProps {
@@ -39,6 +41,8 @@ interface ISupportProps {
   clearReportForm: () => void;
   collectProblemReport: (accountsToRedact: string[]) => Promise<string>;
   sendProblemReport: (email: string, message: string, savedReport: string) => Promise<void>;
+  outdatedVersion: boolean;
+  onExternalLink: (url: string) => void;
 }
 
 export default class Support extends Component<ISupportProps, ISupportState> {
@@ -48,6 +52,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     savedReport: undefined,
     sendState: SendState.Initial,
     disableActions: false,
+    showOutdatedVersionWarning: false,
   };
 
   private collectLogPromise?: Promise<string>;
@@ -58,6 +63,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     // seed initial data from props
     this.state.email = props.defaultEmail;
     this.state.message = props.defaultMessage;
+    this.state.showOutdatedVersionWarning = props.outdatedVersion;
   }
 
   public validate() {
@@ -110,12 +116,12 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     }
   };
 
-  public onCancelConfirmation = () => {
+  public onCancelNoEmailDialog = () => {
     this.setState({ sendState: SendState.Initial });
   };
 
   public render() {
-    const { sendState } = this.state;
+    const { sendState, showOutdatedVersionWarning } = this.state;
     const header = (
       <SettingsHeader>
         <HeaderTitle>{messages.pgettext('support-view', 'Report a problem')}</HeaderTitle>
@@ -152,11 +158,8 @@ export default class Support extends Component<ISupportProps, ISupportState> {
                 </View>
               </View>
             </ModalContent>
-            {sendState === SendState.Confirm ? (
-              <ModalAlert>{this.renderConfirm()}</ModalAlert>
-            ) : (
-              undefined
-            )}
+            {sendState === SendState.Confirm && this.renderNoEmailDialog()}
+            {showOutdatedVersionWarning && this.renderOutdateVersionWarningDialog()}
           </ModalContainer>
         </Container>
       </Layout>
@@ -228,8 +231,57 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     }
   }
 
-  private renderConfirm() {
-    return <ConfirmNoEmailDialog onConfirm={this.onSend} onDismiss={this.onCancelConfirmation} />;
+  private renderNoEmailDialog() {
+    const message = messages.pgettext(
+      'support-view',
+      'You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.',
+    );
+    return (
+      <ModalAlert
+        message={message}
+        buttons={[
+          <AppButton.RedButton key="proceed" onPress={this.onSend}>
+            {messages.pgettext('support-view', 'Send anyway')}
+          </AppButton.RedButton>,
+          <AppButton.BlueButton key="cancel" onPress={this.onCancelNoEmailDialog}>
+            {messages.pgettext('support-view', 'Back')}
+          </AppButton.BlueButton>,
+        ]}
+      />
+    );
+  }
+
+  private acknowledgeOutdateVersion = () => {
+    this.setState({ showOutdatedVersionWarning: false });
+  };
+
+  private openDownloadLink = () => this.props.onExternalLink(links.download);
+
+  private renderOutdateVersionWarningDialog() {
+    const message = messages.pgettext(
+      'support-view',
+      'You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report.',
+    );
+    return (
+      <ModalAlert
+        message={message}
+        buttons={[
+          <AppButton.GreenButton
+            key="upgrade"
+            disabled={this.props.isOffline}
+            onPress={this.openDownloadLink}>
+            <AppButton.Label>{messages.pgettext('support-view', 'Upgrade app')}</AppButton.Label>
+            <AppButton.Icon height={16} width={16} source="icon-extLink" />
+          </AppButton.GreenButton>,
+          <AppButton.RedButton key="proceed" onPress={this.acknowledgeOutdateVersion}>
+            {messages.pgettext('support-view', 'Continue anyway')}
+          </AppButton.RedButton>,
+          <AppButton.BlueButton key="cancel" onPress={this.props.onClose}>
+            {messages.pgettext('support-view', 'Cancel')}
+          </AppButton.BlueButton>,
+        ]}
+      />
+    );
   }
 
   private renderForm() {
@@ -387,40 +439,4 @@ export default class Support extends Component<ISupportProps, ISupportState> {
       this.setState({ disableActions: false });
     });
   }
-}
-
-interface IConfirmNoEmailDialogProps {
-  onConfirm: () => void;
-  onDismiss: () => void;
-}
-
-class ConfirmNoEmailDialog extends Component<IConfirmNoEmailDialogProps> {
-  public render() {
-    return (
-      <View style={styles.confirm_no_email_background}>
-        <View style={styles.confirm_no_email_dialog}>
-          <Text style={styles.confirm_no_email_warning}>
-            {messages.pgettext(
-              'support-view',
-              'You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.',
-            )}
-          </Text>
-          <AppButton.GreenButton onPress={this.confirm}>
-            {messages.pgettext('support-view', 'Send anyway')}
-          </AppButton.GreenButton>
-          <AppButton.RedButton onPress={this.dismiss} style={styles.confirm_no_email_back_button}>
-            {messages.pgettext('support-view', 'Back')}
-          </AppButton.RedButton>
-        </View>
-      </View>
-    );
-  }
-
-  private confirm = () => {
-    this.props.onConfirm();
-  };
-
-  private dismiss = () => {
-    this.props.onDismiss();
-  };
 }

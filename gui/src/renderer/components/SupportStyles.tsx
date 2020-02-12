@@ -114,26 +114,4 @@ export default {
     color: colors.white,
     marginBottom: 4,
   }),
-  confirm_no_email_background: Styles.createViewStyle({
-    flex: 1,
-    justifyContent: 'center',
-    paddingLeft: 14,
-    paddingRight: 14,
-  }),
-  confirm_no_email_dialog: Styles.createViewStyle({
-    backgroundColor: colors.darkBlue,
-    borderRadius: 11,
-    padding: 16,
-  }),
-  confirm_no_email_warning: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 16,
-    fontWeight: '500',
-    lineHeight: 20,
-    color: colors.white80,
-    marginBottom: 12,
-  }),
-  confirm_no_email_back_button: Styles.createViewStyle({
-    marginTop: 16,
-  }),
 };
