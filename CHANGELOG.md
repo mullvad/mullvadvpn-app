@@ -57,6 +57,10 @@ Line wrap the file at 100 chars.                                              Th
   states: While connecting, when blocked due to an error happening and when disconnected if the
   "block when disconnected" setting was enabled.
 
+  #### Windows
+- Prevent DNS leak that happened if "Local network sharing" was enabled and the device had a
+  default DNS on the local private network.
+
 
 ## [2020.1] - 2020-02-10
 This release is identical to 2020.1-beta1

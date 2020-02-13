@@ -56,8 +56,10 @@ public:
 	static const GUID &FilterPermitVpnTunnel_Outbound_Ipv4();
 	static const GUID &FilterPermitVpnTunnel_Outbound_Ipv6();
 
-	static const GUID &FilterPermitTunnelDns_Ipv4();
-	static const GUID &FilterPermitTunnelDns_Ipv6();
+	static const GUID &FilterRestrictDns_Outbound_Ipv4();
+	static const GUID &FilterRestrictDns_Outbound_Tunnel_Ipv4();
+	static const GUID &FilterRestrictDns_Outbound_Ipv6();
+	static const GUID &FilterRestrictDns_Outbound_Tunnel_Ipv6();
 
 	static const GUID &FilterPermitVpnTunnelService_Ipv4();
 	static const GUID &FilterPermitVpnTunnelService_Ipv6();

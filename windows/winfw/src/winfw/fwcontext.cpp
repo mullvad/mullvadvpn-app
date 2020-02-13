@@ -10,11 +10,11 @@
 #include "rules/permitlan.h"
 #include "rules/permitlanservice.h"
 #include "rules/permitloopback.h"
-#include "rules/permittunneldns.h"
 #include "rules/permitvpnrelay.h"
 #include "rules/permitvpntunnel.h"
 #include "rules/permitvpntunnelservice.h"
 #include "rules/permitping.h"
+#include "rules/restrictdns.h"
 #include <libwfp/transaction.h>
 #include <libwfp/filterengine.h>
 #include <libcommon/error.h>
@@ -53,10 +53,11 @@ void AppendSettingsRules(FwContext::Ruleset &ruleset, const WinFwSettings &setti
 	}
 }
 
-void AppendNetBlockedRules(FwContext::Ruleset &ruleset)
+void AppendNetBlockedRules(FwContext::Ruleset &ruleset, const std::optional<WinFwRelay> &relay, const std::optional<rules::RestrictDns::DnsHosts> &dnsHosts)
 {
 	ruleset.emplace_back(std::make_unique<rules::BlockAll>());
 	ruleset.emplace_back(std::make_unique<rules::PermitLoopback>());
+	ruleset.emplace_back(std::make_unique<rules::RestrictDns>(relay, dnsHosts));
 }
 
 } // anonymous namespace
@@ -108,7 +109,7 @@ bool FwContext::applyPolicyConnecting
 {
 	Ruleset ruleset;
 
-	AppendNetBlockedRules(ruleset);
+	AppendNetBlockedRules(ruleset, relay, std::nullopt);
 	AppendSettingsRules(ruleset, settings);
 
 	ruleset.emplace_back(std::make_unique<rules::PermitVpnRelay>(
@@ -140,14 +141,20 @@ bool FwContext::applyPolicyConnected
 (
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
-	const wchar_t *tunnelInterfaceAlias,
-	const wchar_t *v4DnsHost,
-	const wchar_t *v6DnsHost
+	const std::wstring &tunnelInterfaceAlias,
+	const wfp::IpAddress &v4DnsHost,
+	const std::optional<wfp::IpAddress> &v6DnsHost
 )
 {
 	Ruleset ruleset;
 
-	AppendNetBlockedRules(ruleset);
+	rules::RestrictDns::DnsHosts dnsHosts =
+	{
+		tunnelInterfaceAlias,
+		v4DnsHost,
+		v6DnsHost
+	};
+	AppendNetBlockedRules(ruleset, relay, dnsHosts);
 	AppendSettingsRules(ruleset, settings);
 
 	ruleset.emplace_back(std::make_unique<rules::PermitVpnRelay>(
@@ -162,19 +169,6 @@ bool FwContext::applyPolicyConnected
 
 	ruleset.emplace_back(std::make_unique<rules::PermitVpnTunnelService>(
 		tunnelInterfaceAlias
-	));
-
-	std::vector<wfp::IpAddress> dnsHosts;
-	dnsHosts.push_back(wfp::IpAddress(v4DnsHost));
-
-	if (nullptr != v6DnsHost)
-	{
-		dnsHosts.push_back(wfp::IpAddress(v6DnsHost));
-	}
-
-	ruleset.emplace_back(std::make_unique<rules::PermitTunnelDns>(
-		tunnelInterfaceAlias,
-		dnsHosts
 	));
 
 	return applyRuleset(ruleset);
@@ -197,7 +191,7 @@ FwContext::Ruleset FwContext::composePolicyBlocked(const WinFwSettings &settings
 {
 	Ruleset ruleset;
 
-	AppendNetBlockedRules(ruleset);
+	AppendNetBlockedRules(ruleset, std::nullopt, std::nullopt);
 	AppendSettingsRules(ruleset, settings);
 
 	return ruleset;
