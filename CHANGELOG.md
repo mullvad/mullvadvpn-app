@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2020.2] - 2020-02-13
+This release is identical to 2020.2-beta1
+
+
 ## [2020.2-beta1] - 2020-02-13
 ### Added
 - Add reconnect button to the desktop app.
