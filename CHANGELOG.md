@@ -51,6 +51,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix crash that happened in certain situations when retrieving the relay list.
 - Fix crash caused by initialization race condition.
 
+#### Windows
+- Fix "exhausted namespace" installation error on some non-English systems.
+
 ### Security
 - Stop DNS leak that could happen on Linux and macOS if local network sharing was enabled
   and the user's default DNS was on the local private network. The leak could happen during these
