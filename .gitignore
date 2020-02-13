@@ -27,6 +27,8 @@
 /windows/**/*.user
 /android/keystore.properties
 /android/local.properties
-/wireguard/wireguard-go/libwg.h
+/wireguard/libwg/libwg.h
+/wireguard/libwg/libwg.exp
+/wireguard/libwg/exports.def
 **/.vs/
 *.bak

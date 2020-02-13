@@ -31,6 +31,7 @@ tokio-core = "0.1"
 tokio-executor = "0.1"
 uuid = { version = "0.7", features = ["v4"] }
 zeroize = "1"
+chrono = "0.4"
 
 
 [target.'cfg(unix)'.dependencies]
@@ -66,7 +67,6 @@ tun = "0.4.3"
 
 
 [target.'cfg(windows)'.dependencies]
-chrono = "0.4"
 widestring = "0.4"
 winreg = "0.6"
 winapi = { version = "0.3.6", features = ["handleapi", "ifdef", "libloaderapi", "netioapi", "synchapi", "winbase", "winuser"] }
