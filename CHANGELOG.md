@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.2-beta1] - 2020-02-13
 ### Added
 - Add reconnect button to the desktop app.
 - Add monochrome option for the tray icon on Windows and Linux.
