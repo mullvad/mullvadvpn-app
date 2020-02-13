@@ -50,6 +50,7 @@ interface IPreferredLocaleDescriptor {
 }
 
 const SUPPORTED_LOCALE_LIST = [
+  { name: 'Dansk', code: 'da' },
   { name: 'Deutsch', code: 'de' },
   { name: 'English', code: 'en' },
   { name: 'Español', code: 'es' },
@@ -60,6 +61,7 @@ const SUPPORTED_LOCALE_LIST = [
   { name: 'Norsk', code: 'nb' },
   { name: 'Português', code: 'pt' },
   { name: 'Русский', code: 'ru' },
+  { name: 'Suomi', code: 'fi' },
   { name: 'Svenska', code: 'sv' },
   { name: 'Türkçe', code: 'tr' },
   { name: '简体中文', code: 'zh-CN' },
