@@ -43,6 +43,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Removed
 - Remove city/country labels on map in the desktop app.
 
+#### Android
+- Include an initial relay list in the APK so that the app can connect to the VPN even if it fails
+  to connect to the API after it is installed.
+
 ### Fixed
 - Fix app sometimes getting stuck in connecting state when using WireGuard.
 

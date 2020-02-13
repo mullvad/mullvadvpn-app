@@ -59,7 +59,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.mergeAssetsProvider.configure {
-            dependsOn copyApiRootCertificate
+            dependsOn copyExtraAssets
         }
     }
 }
@@ -108,8 +108,9 @@ task format(type: FormatTask, group: 'formatting') {
 
 lint.dependsOn lintKotlin
 
-task copyApiRootCertificate(type: Copy) {
+task copyExtraAssets(type: Copy) {
     from "$repoRootPath/dist-assets"
     include "api_root_ca.pem"
+    include "relays.json"
     into extraAssetsDirectory
 }
