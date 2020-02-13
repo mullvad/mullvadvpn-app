@@ -290,7 +290,7 @@ bool DeleteDevice(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData)
 	return true;
 }
 
-void ForEachNetworkDevice(const std::optional<std::wstring> hwId, std::function<void(HDEVINFO, const SP_DEVINFO_DATA &)> func)
+void ForEachNetworkDevice(const std::optional<std::wstring> hwId, std::function<bool(HDEVINFO, const SP_DEVINFO_DATA &)> func)
 {
 	HDEVINFO devInfo = SetupDiGetClassDevsW(
 		&GUID_DEVCLASS_NET,
@@ -351,7 +351,10 @@ void ForEachNetworkDevice(const std::optional<std::wstring> hwId, std::function<
 			}
 		}
 
-		func(devInfo, devInfoData);
+		if (!func(devInfo, devInfoData))
+		{
+			break;
+		}
 	}
 }
 
@@ -386,6 +389,7 @@ std::set<NetworkAdapter> GetNetworkAdapters(const std::optional<std::wstring> ha
 			std::wcerr << L"Skipping adapter due to exception caught while iterating: "
 				<< common::string::ToWide(e.what()) << std::endl;
 		}
+		return true;
 	});
 
 	return adapters;
@@ -617,6 +621,7 @@ void RemoveTapDriver(const std::wstring &tapHardwareId)
 			std::wcerr << L"Skipping TAP adapter due to exception caught while iterating: "
 				<< common::string::ToWide(e.what()) << std::endl;
 		}
+		return true;
 	});
 }
 
@@ -643,7 +648,8 @@ void DeleteVanillaMullvadAdapter()
 		{
 			if (0 == GetNetCfgInstanceId(devInfo, devInfoData).compare(mullvadGuid))
 			{
-				deletedAdapter = DeleteDevice(devInfo, devInfoData) || deletedAdapter;
+				deletedAdapter = DeleteDevice(devInfo, devInfoData);
+				return false;
 			}
 		}
 		catch (const std::exception & e)
@@ -654,8 +660,8 @@ void DeleteVanillaMullvadAdapter()
 
 			std::wcerr << L"Skipping TAP adapter due to exception caught while iterating: "
 				<< common::string::ToWide(e.what()) << std::endl;
-			return;
 		}
+		return true;
 	});
 
 	if (!deletedAdapter)
