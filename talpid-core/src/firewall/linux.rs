@@ -1,5 +1,5 @@
 use super::{FirewallArguments, FirewallPolicy, FirewallT};
-use crate::tunnel;
+use crate::{split, tunnel};
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use libc;
@@ -15,6 +15,10 @@ use std::{
     net::{IpAddr, Ipv4Addr},
 };
 use talpid_types::net::{Endpoint, TransportProtocol};
+
+/// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
+const MANGLE_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_MANGLE;
+const SPLIT_TUNNEL_MARK: i32 = 0xf41;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -57,6 +61,7 @@ lazy_static! {
     static ref TABLE_NAME: CString = CString::new("mullvad").unwrap();
     static ref IN_CHAIN_NAME: CString = CString::new("input").unwrap();
     static ref OUT_CHAIN_NAME: CString = CString::new("output").unwrap();
+    static ref MANGLE_CHAIN_NAME: CString = CString::new("mangle").unwrap();
 
     /// Allows controlling whether firewall rules should have packet counters or not from an env
     /// variable. Useful for debugging the rules.
@@ -187,6 +192,7 @@ struct PolicyBatch<'a> {
     batch: Batch,
     in_chain: Chain<'a>,
     out_chain: Chain<'a>,
+    mangle_chain: Chain<'a>,
 }
 
 impl<'a> PolicyBatch<'a> {
@@ -208,10 +214,17 @@ impl<'a> PolicyBatch<'a> {
         batch.add(&out_chain, nftnl::MsgType::Add);
         batch.add(&in_chain, nftnl::MsgType::Add);
 
+        let mut mangle_chain = Chain::new(&*MANGLE_CHAIN_NAME, table);
+        mangle_chain.set_hook(nftnl::Hook::Out, MANGLE_CHAIN_PRIORITY);
+        mangle_chain.set_type(nftnl::ChainType::Route);
+        mangle_chain.set_policy(nftnl::Policy::Accept);
+        batch.add(&mangle_chain, nftnl::MsgType::Add);
+
         PolicyBatch {
             batch,
             in_chain,
             out_chain,
+            mangle_chain,
         }
     }
 
@@ -219,10 +232,33 @@ impl<'a> PolicyBatch<'a> {
     /// policy.
     pub fn finalize(mut self, policy: &FirewallPolicy) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
+        self.add_split_tunneling_rules();
         self.add_dhcp_client_rules();
         self.add_policy_specific_rules(policy)?;
 
         Ok(self.batch.finalize())
+    }
+
+    fn add_split_tunneling_rules(&mut self) {
+        let mut rule = Rule::new(&self.mangle_chain);
+        rule.add_expr(&nft_expr!(meta cgroup));
+        rule.add_expr(&nft_expr!(cmp == split::NETCLS_CLASSID));
+        rule.add_expr(&nft_expr!(immediate data SPLIT_TUNNEL_MARK));
+        rule.add_expr(&nft_expr!(ct mark set));
+        rule.add_expr(&nft_expr!(meta mark set));
+        self.batch.add(&rule, nftnl::MsgType::Add);
+
+        let mut rule = Rule::new(&self.in_chain);
+        rule.add_expr(&nft_expr!(ct mark));
+        rule.add_expr(&nft_expr!(cmp == SPLIT_TUNNEL_MARK));
+        add_verdict(&mut rule, &Verdict::Accept);
+        self.batch.add(&rule, nftnl::MsgType::Add);
+
+        let mut rule = Rule::new(&self.out_chain);
+        rule.add_expr(&nft_expr!(meta mark));
+        rule.add_expr(&nft_expr!(cmp == SPLIT_TUNNEL_MARK));
+        add_verdict(&mut rule, &Verdict::Accept);
+        self.batch.add(&rule, nftnl::MsgType::Add);
     }
 
     fn add_loopback_rules(&mut self) -> Result<()> {
