@@ -24,6 +24,18 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+#### Android
+- Add option to enable auto-connecting behavior
+- Include an initial relay list in the APK so that the app can connect to the VPN even if it fails
+  to connect to the API after it is installed.
+
+
+## [2020.2] - 2020-02-13
+This release is identical to 2020.2-beta1
+
+
+## [2020.2-beta1] - 2020-02-13
+### Added
 - Add reconnect button to the desktop app.
 - Add monochrome option for the tray icon on Windows and Linux.
 - Show OS notification when account is close to expiry on desktop platforms.
@@ -32,7 +44,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Add option to enable or disable local network sharing.
 - Show account history in login fragment
-- Add option to enable auto-connecting behavior
 
 ### Changed
 - Change project copyright and company name from Amagicom AB to Mullvad VPN AB
@@ -43,10 +54,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Removed
 - Remove city/country labels on map in the desktop app.
-
-#### Android
-- Include an initial relay list in the APK so that the app can connect to the VPN even if it fails
-  to connect to the API after it is installed.
 
 ### Fixed
 - Fix app sometimes getting stuck in connecting state when using WireGuard.
