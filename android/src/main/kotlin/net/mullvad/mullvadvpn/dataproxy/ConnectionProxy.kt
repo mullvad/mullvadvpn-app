@@ -66,6 +66,15 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
         }
     }
 
+    fun reconnect() {
+        if (anticipateReconnectingState()) {
+            cancelActiveAction()
+            activeAction = GlobalScope.launch(Dispatchers.Default) {
+                daemon.reconnect()
+            }
+        }
+    }
+
     fun disconnect() {
         if (anticipateDisconnectingState()) {
             cancelActiveAction()
@@ -98,6 +107,21 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
             } else {
                 scheduleToResetAnticipatedState()
                 uiState = TunnelState.Connecting(null, null)
+                return true
+            }
+        }
+    }
+
+    private fun anticipateReconnectingState(): Boolean {
+        synchronized(this) {
+            val currentState = uiState
+
+            if (currentState is TunnelState.Disconnecting &&
+                    currentState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect) {
+                return false
+            } else {
+                scheduleToResetAnticipatedState()
+                uiState = TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect)
                 return true
             }
         }
