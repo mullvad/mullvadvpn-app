@@ -1,15 +1,15 @@
 #include "stdafx.h"
 #include "permitlanservice.h"
-#include "winfw/mullvadguids.h"
-#include "libwfp/filterbuilder.h"
-#include "libwfp/conditionbuilder.h"
-#include "libwfp/ipaddress.h"
-#include "libwfp/ipnetwork.h"
-#include "libwfp/conditions/conditionip.h"
+#include <winfw/mullvadguids.h>
+#include <libwfp/filterbuilder.h>
+#include <libwfp/conditionbuilder.h>
+#include <libwfp/ipaddress.h>
+#include <libwfp/ipnetwork.h>
+#include <libwfp/conditions/conditionip.h>
 
 using namespace wfp::conditions;
 
-namespace rules
+namespace rules::baseline
 {
 
 bool PermitLanService::apply(IObjectInstaller &objectInstaller)
@@ -22,16 +22,16 @@ bool PermitLanService::applyIpv4(IObjectInstaller &objectInstaller) const
 	wfp::FilterBuilder filterBuilder;
 
 	//
-	// #1 incoming request
+	// #1 Permit inbound connections on LAN.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitLanService_Inbound_Ipv4())
-		.name(L"Permit inbound LAN traffic (IPv4)")
+		.key(MullvadGuids::Filter_Baseline_PermitLanService_Inbound_Ipv4())
+		.name(L"Permit inbound connections on LAN (IPv4)")
 		.description(L"This filter is part of a rule that permits hosting services in a LAN environment")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)
-		.sublayer(MullvadGuids::SublayerWhitelist())
+		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
 
@@ -50,16 +50,16 @@ bool PermitLanService::applyIpv6(IObjectInstaller &objectInstaller) const
 	wfp::FilterBuilder filterBuilder;
 
 	//
-	// #1 incoming request
+	// #1 Permit inbound connections on LAN.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitLanService_Inbound_Ipv6())
-		.name(L"Permit inbound LAN traffic (IPv6)")
+		.key(MullvadGuids::Filter_Baseline_PermitLanService_Inbound_Ipv6())
+		.name(L"Permit inbound connections on LAN (IPv6)")
 		.description(L"This filter is part of a rule that permits hosting services in a LAN environment")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6)
-		.sublayer(MullvadGuids::SublayerWhitelist())
+		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
 

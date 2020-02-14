@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "blockall.h"
-#include "winfw/mullvadguids.h"
-#include "libwfp/filterbuilder.h"
-#include "libwfp/nullconditionbuilder.h"
+#include <winfw/mullvadguids.h>
+#include <libwfp/filterbuilder.h>
+#include <libwfp/nullconditionbuilder.h>
 
-namespace rules
+namespace rules::baseline
 {
 
 bool BlockAll::apply(IObjectInstaller &objectInstaller)
@@ -12,16 +12,16 @@ bool BlockAll::apply(IObjectInstaller &objectInstaller)
 	wfp::FilterBuilder filterBuilder;
 
 	//
-	// #1 block outbound connections, ipv4
+	// #1 Block outbound connections, IPv4.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterBlockAll_Outbound_Ipv4())
+		.key(MullvadGuids::Filter_Baseline_BlockAll_Outbound_Ipv4())
 		.name(L"Block all outbound connections (IPv4)")
 		.description(L"This filter is part of a rule that restricts inbound and outbound traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-		.sublayer(MullvadGuids::SublayerWhitelist())
+		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Min)
 		.block();
 
@@ -33,11 +33,11 @@ bool BlockAll::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #2 block inbound connections, ipv4
+	// #2 Block inbound connections, IPv4.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterBlockAll_Inbound_Ipv4())
+		.key(MullvadGuids::Filter_Baseline_BlockAll_Inbound_Ipv4())
 		.name(L"Block all inbound connections (IPv4)")
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
 
@@ -47,11 +47,11 @@ bool BlockAll::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #3 block outbound connections, ipv6
+	// #3 Block outbound connections, IPv6.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterBlockAll_Outbound_Ipv6())
+		.key(MullvadGuids::Filter_Baseline_BlockAll_Outbound_Ipv6())
 		.name(L"Block all outbound connections (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
@@ -61,11 +61,11 @@ bool BlockAll::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #4 block inbound connections, ipv6
+	// #4 Block inbound connections, IPv6.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterBlockAll_Inbound_Ipv6())
+		.key(MullvadGuids::Filter_Baseline_BlockAll_Inbound_Ipv6())
 		.name(L"Block all inbound connections (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 

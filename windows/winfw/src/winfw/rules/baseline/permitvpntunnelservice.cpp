@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "permitvpntunnelservice.h"
-#include "winfw/mullvadguids.h"
-#include "libwfp/filterbuilder.h"
-#include "libwfp/conditionbuilder.h"
-#include "libwfp/conditions/conditioninterface.h"
+#include <winfw/mullvadguids.h>
+#include <libwfp/filterbuilder.h>
+#include <libwfp/conditionbuilder.h>
+#include <libwfp/conditions/conditioninterface.h>
 
 using namespace wfp::conditions;
 
-namespace rules
+namespace rules::baseline
 {
 
 PermitVpnTunnelService::PermitVpnTunnelService(const std::wstring &tunnelInterfaceAlias)
@@ -20,16 +20,16 @@ bool PermitVpnTunnelService::apply(IObjectInstaller &objectInstaller)
 	wfp::FilterBuilder filterBuilder;
 
 	//
-	// #1 incoming request on Ipv4
+	// #1 Permit inbound connections, IPv4.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitVpnTunnelService_Ipv4())
-		.name(L"Permit inbound on tunnel interface (IPv4)")
+		.key(MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4())
+		.name(L"Permit inbound connections on tunnel interface (IPv4)")
 		.description(L"This filter is part of a rule that permits hosting services that listen on the tunnel interface")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)
-		.sublayer(MullvadGuids::SublayerWhitelist())
+		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
 
@@ -43,12 +43,12 @@ bool PermitVpnTunnelService::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #2 incoming request on IPv6
+	// #2 Permit inbound connections, IPv6.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitVpnTunnelService_Ipv6())
-		.name(L"Permit inbound on tunnel interface (IPv6)")
+		.key(MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6())
+		.name(L"Permit inbound connections on tunnel interface (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
 	conditionBuilder.reset(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);

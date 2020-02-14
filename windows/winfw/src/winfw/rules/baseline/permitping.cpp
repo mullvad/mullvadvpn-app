@@ -1,24 +1,23 @@
 #include "stdafx.h"
 #include "permitping.h"
-#include "winfw/mullvadguids.h"
-#include "libwfp/filterbuilder.h"
-#include "libwfp/conditionbuilder.h"
-#include "libwfp/conditions/conditionip.h"
-#include "libwfp/conditions/conditioninterface.h"
-#include "libwfp/conditions/conditionprotocol.h"
-
+#include <winfw/mullvadguids.h>
+#include <libwfp/filterbuilder.h>
+#include <libwfp/conditionbuilder.h>
+#include <libwfp/conditions/conditionip.h>
+#include <libwfp/conditions/conditioninterface.h>
+#include <libwfp/conditions/conditionprotocol.h>
 
 using namespace wfp::conditions;
 
-namespace rules
+namespace rules::baseline
 {
 
 PermitPing::PermitPing
 (
-	const std::optional<std::wstring> &interfaceAlias,
+	std::optional<std::wstring> interfaceAlias,
 	const wfp::IpAddress &host
 )
-	: m_interfaceAlias(interfaceAlias)
+	: m_interfaceAlias(std::move(interfaceAlias))
 	, m_host(host)
 {
 }
@@ -38,16 +37,16 @@ bool PermitPing::applyIcmpv4(IObjectInstaller &objectInstaller) const
 	wfp::FilterBuilder filterBuilder;
 
 	//
-	// #1 Permit outbound ICMPv4 to %host% on %interface%
+	// #1 Permit outbound ICMPv4 to %host% on %interface%.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitPing_Outbound_Icmpv4())
+		.key(MullvadGuids::Filter_Baseline_PermitPing_Outbound_Icmpv4())
 		.name(L"Permit outbound ICMP to specific host (ICMPv4)")
 		.description(L"This filter is part of a rule that permits ping")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-		.sublayer(MullvadGuids::SublayerWhitelist())
+		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
 
@@ -69,16 +68,16 @@ bool PermitPing::applyIcmpv6(IObjectInstaller &objectInstaller) const
 	wfp::FilterBuilder filterBuilder;
 
 	//
-	// #1 Permit outbound ICMPv6 to %host% on %interface%
+	// #1 Permit outbound ICMPv6 to %host% on %interface%.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitPing_Outbound_Icmpv6())
+		.key(MullvadGuids::Filter_Baseline_PermitPing_Outbound_Icmpv6())
 		.name(L"Permit outbound ICMP to specific host (ICMPv6)")
 		.description(L"This filter is part of a rule that permits ping")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
-		.sublayer(MullvadGuids::SublayerWhitelist())
+		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
 
