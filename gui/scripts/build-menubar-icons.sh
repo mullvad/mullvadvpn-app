@@ -1,62 +1,112 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+
+set -eu
 
 if ! command -v convert > /dev/null; then
-  echo >&2 "convert (imagemagick) is required to run this script"
-  exit 1
+    echo >&2 "convert (imagemagick) is required to run this script"
+    exit 1
 fi
 
-MENUBAR_PATH="assets/images/menubar icons"
+if ! command -v rsvg-convert > /dev/null; then
+    echo >&2 "rsvg-convert (librsvg) is required to run this script"
+    exit 1
+fi
 
-MACOS="$MENUBAR_PATH/darwin"
-WINDOWS="$MENUBAR_PATH/win32"
-LINUX="$MENUBAR_PATH/linux"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
 
-WINDOWS_SIZES="-define icon:auto-resize=48,32,16"
+MENUBAR_ICONS_DIR="../assets/images/menubar icons"
 
-MAKE_BLACK='s/#[0-9a-fA-f]{6}/#000000/g'
-MAKE_WHITE='s/#[0-9a-fA-f]{6}/#FFFFFF/g'
+SVG_DIR="$MENUBAR_ICONS_DIR/svg"
+MACOS_DIR="$MENUBAR_ICONS_DIR/darwin"
+WINDOWS_DIR="$MENUBAR_ICONS_DIR/win32"
+LINUX_DIR="$MENUBAR_ICONS_DIR/linux"
+TMP_DIR="$MENUBAR_ICONS_DIR/tmp"
 
 COMPRESSION_OPTIONS="-define png:compression-filter=5 -define png:compression-level=9 \
-  -define png:compression-strategy=1 -define png:exclude-chunk=all -strip"
-OPTIONS="-background transparent -density 1200 $COMPRESSION_OPTIONS"
+    -define png:compression-strategy=1 -define png:exclude-chunk=all -strip"
 
-function resize() {
-  WITHOUT_PADDING=$[$1 - ($2 * 2)]
-  echo "-resize ${WITHOUT_PADDING}x$WITHOUT_PADDING -gravity center -extent ${1}x$1"
+function generate_ico() {
+    local svg_source_path="$1"
+    local ico_target_path="$2"
+
+    local tmp_file_paths=()
+    for size in 16 32 48; do
+        local png_tmp_path="$TMP_DIR/$size.png"
+        local png8_tmp_path="$TMP_DIR/$size-8.png"
+        local png4_tmp_path="$TMP_DIR/$size-4.png"
+
+        rsvg-convert -o "$png_tmp_path" -w $size -h $size "$svg_source_path"
+        convert -background transparent "$png_tmp_path" -gravity center -extent ${size}x$size \
+            "$png_tmp_path"
+        # 4- and 8-bit versions for RDP
+        convert -colors 256 +dither "$png_tmp_path" png8:"$png8_tmp_path"
+        convert -colors 16  +dither "$png8_tmp_path" "$png4_tmp_path"
+
+        tmp_file_paths+=("$png_tmp_path" "$png8_tmp_path" "$png4_tmp_path")
+    done
+
+    convert "${tmp_file_paths[@]}" $COMPRESSION_OPTIONS "$ico_target_path"
+    rm "${tmp_file_paths[@]}"
+}
+
+function generate_png() {
+    local svg_source_path="$1"
+    local png_target_path="$2"
+    local target_size=$3
+    local target_padding=$4
+    local target_size_no_padding=$[$target_size - $target_padding * 2]
+    local png_tmp_path="$TMP_DIR/tmp.png"
+
+    rsvg-convert -o "$png_tmp_path" -w $target_size_no_padding -h $target_size_no_padding \
+        "$svg_source_path"
+    convert -background transparent "$png_tmp_path" -gravity center \
+        -extent ${target_size}x$target_size $COMPRESSION_OPTIONS "$png_target_path"
+    rm "$png_tmp_path"
 }
 
 function generate() {
-  IN="$MENUBAR_PATH/svg/$1.svg"
-  IN_MONO="$MENUBAR_PATH/svg/$2.svg"
-  OUT="$1"
+    local icon_name="$1"
+    local svg_source_path="$SVG_DIR/$icon_name.svg"
+    local monochrome_svg_source_path="$SVG_DIR/$2.svg"
 
-  # MacOS colored
-  convert $OPTIONS $(resize 22 3) "$IN" "$MACOS/$OUT.png"
-  convert $OPTIONS $(resize 44 6) "$IN" "$MACOS/$OUT@2x.png"
+    local black_svg_source_path="$TMP_DIR/black.svg"
+    local white_svg_source_path="$TMP_DIR/white.svg"
 
-  # MacOS monochrome
-  sed -E $MAKE_BLACK "$IN_MONO" | convert $OPTIONS $(resize 22 3) - "$MACOS/${OUT}Template.png"
-  sed -E $MAKE_BLACK "$IN_MONO" | convert $OPTIONS $(resize 44 6) - "$MACOS/${OUT}Template@2x.png"
+    sed -E 's/#[0-9a-fA-f]{6}/#000000/g' "$monochrome_svg_source_path" > "$black_svg_source_path"
+    sed -E 's/#[0-9a-fA-f]{6}/#FFFFFF/g' "$monochrome_svg_source_path" > "$white_svg_source_path"
 
-  # Linux colored
-  convert $OPTIONS $(resize 32 4) "$IN" "$LINUX/$OUT.png"
+    # MacOS colored
+    generate_png "$svg_source_path" "$MACOS_DIR/$icon_name.png" 22 3
+    generate_png "$svg_source_path" "$MACOS_DIR/$icon_name@2x.png" 44 6
 
-  # Linux white
-  sed -E $MAKE_WHITE "$IN_MONO" | convert $OPTIONS $(resize 32 4) - "$LINUX/${OUT}_white.png"
+    # MacOS monochrome
+    generate_png "$black_svg_source_path" "$MACOS_DIR/${icon_name}Template.png" 22 3
+    generate_png "$black_svg_source_path" "$MACOS_DIR/${icon_name}Template@2x.png" 44 6
 
-  # Windows colored
-  convert $OPTIONS $(resize 64 3) "$IN" $WINDOWS_SIZES "$WINDOWS/$OUT.ico"
+    # Linux colored
+    generate_png "$svg_source_path" "$LINUX_DIR/$icon_name.png" 48 8
 
-  # Windows white
-  sed -E $MAKE_WHITE "$IN_MONO" \
-    | convert $OPTIONS $(resize 64 2) - $WINDOWS_SIZES "$WINDOWS/${OUT}_white.ico"
+    # Linux white
+    generate_png "$white_svg_source_path" "$LINUX_DIR/${icon_name}_white.png" 48 8
+
+    # Windows colored
+    generate_ico "$svg_source_path" "$WINDOWS_DIR/$icon_name.ico"
+
+    # Windows white
+    generate_ico "$white_svg_source_path" "$WINDOWS_DIR/${icon_name}_white.ico"
+
+    rm "$black_svg_source_path" "$white_svg_source_path"
 }
 
-mkdir -p "$MENUBAR_PATH/darwin" "$MENUBAR_PATH/win32" "$MENUBAR_PATH/linux"
+mkdir -p "$MACOS_DIR" "$WINDOWS_DIR" "$LINUX_DIR" "$TMP_DIR"
 
-for i in {1..9}; do
-  generate lock-$i lock-$i
+for frame in {1..9}; do
+    generate lock-$frame lock-$frame
 done
+# The monochrome source svg differs from the colored one. The red circle is a hole in the monochrome
+# one. "lock-10_mono.svg" is the same icon but with a hole instead of a circle.
+generate lock-10 lock-10_mono
 
-generate lock-10 lock-10_2
+rmdir "$TMP_DIR"
 
