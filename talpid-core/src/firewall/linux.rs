@@ -55,8 +55,8 @@ lazy_static! {
     /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
     /// replaced by allowing the table name to be configured from the public API of this crate.
     static ref TABLE_NAME: CString = CString::new("mullvad").unwrap();
-    static ref IN_CHAIN_NAME: CString = CString::new("in").unwrap();
-    static ref OUT_CHAIN_NAME: CString = CString::new("out").unwrap();
+    static ref IN_CHAIN_NAME: CString = CString::new("input").unwrap();
+    static ref OUT_CHAIN_NAME: CString = CString::new("output").unwrap();
 
     /// Allows controlling whether firewall rules should have packet counters or not from an env
     /// variable. Useful for debugging the rules.
