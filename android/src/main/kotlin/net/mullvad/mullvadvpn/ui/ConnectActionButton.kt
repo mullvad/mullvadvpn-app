@@ -54,10 +54,12 @@ class ConnectActionButton(val parentView: View) {
 
     var onConnect: (() -> Unit)? = null
     var onCancel: (() -> Unit)? = null
+    var onReconnect: (() -> Unit)? = null
     var onDisconnect: (() -> Unit)? = null
 
     init {
         mainButton.setOnClickListener { action() }
+        reconnectButton.setOnClickListener { onReconnect?.invoke() }
 
         reconnectButton.addOnLayoutChangeListener { _, left, _, right, _, _, _, _, _ ->
             val width = right - left
