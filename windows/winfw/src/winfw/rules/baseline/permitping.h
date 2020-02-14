@@ -1,18 +1,18 @@
 #pragma once
 
-#include "ifirewallrule.h"
+#include <winfw/rules/ifirewallrule.h>
 #include <libwfp/ipaddress.h>
 #include <string>
 #include <optional>
 
-namespace rules
+namespace rules::baseline
 {
 
 class PermitPing : public IFirewallRule
 {
 public:
 
-	PermitPing(const std::optional<std::wstring> &interfaceAlias, const wfp::IpAddress &host);
+	PermitPing(std::optional<std::wstring> interfaceAlias, const wfp::IpAddress &host);
 
 	bool apply(IObjectInstaller &objectInstaller) override;
 

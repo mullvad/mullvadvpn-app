@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "permitdhcpserver.h"
-#include "winfw/mullvadguids.h"
-#include "libwfp/filterbuilder.h"
-#include "libwfp/conditionbuilder.h"
-#include "libwfp/ipaddress.h"
-#include "libwfp/conditions/conditionprotocol.h"
-#include "libwfp/conditions/conditionport.h"
-#include "libwfp/conditions/conditionip.h"
+#include <winfw/mullvadguids.h>
+#include <libwfp/filterbuilder.h>
+#include <libwfp/conditionbuilder.h>
+#include <libwfp/ipaddress.h>
+#include <libwfp/conditions/conditionprotocol.h>
+#include <libwfp/conditions/conditionport.h>
+#include <libwfp/conditions/conditionip.h>
 #include <libcommon/error.h>
 
 using namespace wfp::conditions;
 
-namespace rules
+namespace rules::baseline
 {
 
 namespace
@@ -41,18 +41,18 @@ bool PermitDhcpServer::apply(IObjectInstaller &objectInstaller)
 bool PermitDhcpServer::applyIpv4(IObjectInstaller &objectInstaller) const
 {
 	//
-	// #1 permit incoming DHCPv4 request
+	// #1 Permit inbound DHCPv4 requests.
 	//
 
 	wfp::FilterBuilder filterBuilder;
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitDhcpServer_Inbound_Request_Ipv4())
-		.name(L"Permit inbound DHCP request (IPv4)")
+		.key(MullvadGuids::Filter_Baseline_PermitDhcpServer_Inbound_Request_Ipv4())
+		.name(L"Permit inbound DHCP requests (IPv4)")
 		.description(L"This filter is part of a rule that permits DHCP server traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)
-		.sublayer(MullvadGuids::SublayerWhitelist())
+		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
 
@@ -71,12 +71,12 @@ bool PermitDhcpServer::applyIpv4(IObjectInstaller &objectInstaller) const
 	}
 
 	//
-	// #2 permit outbound DHCPv4 response
+	// #2 Permit outbound DHCPv4 responses.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitDhcpServer_Outbound_Response_Ipv4())
-		.name(L"Permit outbound DHCP response (IPv4)")
+		.key(MullvadGuids::Filter_Baseline_PermitDhcpServer_Outbound_Response_Ipv4())
+		.name(L"Permit outbound DHCP responses (IPv4)")
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
