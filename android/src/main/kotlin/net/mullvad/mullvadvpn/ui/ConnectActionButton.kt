@@ -26,6 +26,12 @@ class ConnectActionButton(val parentView: View) {
         }
 
     private var reconnectButtonSpace = 0
+        set(value) {
+            if (field != value) {
+                field = value
+                updateReconnectButton()
+            }
+        }
 
     var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
