@@ -75,16 +75,17 @@ class ConnectActionButton(val parentView: View) {
     }
 
     private fun connecting() {
-        reconnectButton.visibility = View.VISIBLE
-        mainButton.setPadding(reconnectButtonSpace, 0, 0, 0)
-        mainButton.background = leftRedBackground
-        mainButton.setText(R.string.cancel)
+        redButton(R.string.cancel)
     }
 
     private fun connected() {
+        redButton(R.string.disconnect)
+    }
+
+    private fun redButton(text: Int) {
         reconnectButton.visibility = View.VISIBLE
         mainButton.setPadding(reconnectButtonSpace, 0, 0, 0)
         mainButton.background = leftRedBackground
-        mainButton.setText(R.string.disconnect)
+        mainButton.setText(text)
     }
 }
