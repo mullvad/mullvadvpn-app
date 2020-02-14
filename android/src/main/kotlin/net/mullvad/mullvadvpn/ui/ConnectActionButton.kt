@@ -17,6 +17,14 @@ class ConnectActionButton(val parentView: View) {
     private val leftRedBackground =
         resources.getDrawable(R.drawable.transparent_red_left_half_button_background, null)
 
+    private var showReconnectButton = false
+        set(value) {
+            if (field != value) {
+                field = value
+                updateReconnectButton()
+            }
+        }
+
     private var reconnectButtonSpace = 0
 
     var tunnelState: TunnelState = TunnelState.Disconnected()
@@ -68,10 +76,9 @@ class ConnectActionButton(val parentView: View) {
     }
 
     private fun disconnected() {
-        reconnectButton.visibility = View.GONE
-        mainButton.setPadding(0, 0, 0, 0)
         mainButton.background = greenBackground
         mainButton.setText(R.string.connect)
+        showReconnectButton = false
     }
 
     private fun connecting() {
@@ -83,9 +90,18 @@ class ConnectActionButton(val parentView: View) {
     }
 
     private fun redButton(text: Int) {
-        reconnectButton.visibility = View.VISIBLE
-        mainButton.setPadding(reconnectButtonSpace, 0, 0, 0)
         mainButton.background = leftRedBackground
         mainButton.setText(text)
+        showReconnectButton = true
+    }
+
+    private fun updateReconnectButton() {
+        if (showReconnectButton) {
+            reconnectButton.visibility = View.VISIBLE
+            mainButton.setPadding(reconnectButtonSpace, 0, 0, 0)
+        } else {
+            reconnectButton.visibility = View.GONE
+            mainButton.setPadding(0, 0, 0, 0)
+        }
     }
 }
