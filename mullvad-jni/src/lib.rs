@@ -694,6 +694,28 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAllo
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAutoConnect(
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    auto_connect: jboolean,
+) {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let auto_connect = bool::from_java(&env, auto_connect);
+
+        if let Err(error) = daemon_interface.set_auto_connect(auto_connect) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set auto-connect")
+            );
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdown(
     _: JNIEnv<'_>,
     _: JObject<'_>,

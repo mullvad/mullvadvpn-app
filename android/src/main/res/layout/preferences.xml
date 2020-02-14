@@ -41,6 +41,40 @@
             android:textStyle="bold"
             android:text="@string/settings_preferences"
             />
+    <LinearLayout android:id="@+id/auto_connect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:paddingHorizontal="16dp"
+            android:background="@drawable/cell_button_background"
+            android:gravity="center"
+            >
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="17dp"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="@string/auto_connect"
+                />
+        <net.mullvad.mullvadvpn.ui.CellSwitch android:id="@+id/auto_connect_toggle"
+                android:layout_width="52dp"
+                android:layout_height="32dp"
+                android:layout_weight="0"
+                />
+    </LinearLayout>
+    <TextView android:id="@+id/auto_connect_footer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:paddingHorizontal="24dp"
+            android:textColor="@color/white60"
+            android:textSize="13sp"
+            android:text="@string/auto_connect_footer"
+            />
     <LinearLayout android:id="@+id/allow_lan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
