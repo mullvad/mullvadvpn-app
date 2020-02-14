@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
 import android.widget.ImageButton
 import net.mullvad.mullvadvpn.R
@@ -15,6 +16,17 @@ class ConnectActionButton(val parentView: View) {
     private val greenBackground = resources.getDrawable(R.drawable.green_button_background, null)
     private val leftRedBackground =
         resources.getDrawable(R.drawable.transparent_red_left_half_button_background, null)
+
+    private val reconnectButtonSpace: Int
+        get() {
+            val layoutParams = reconnectButton.layoutParams
+            val leftMargin = when (layoutParams) {
+                is MarginLayoutParams -> layoutParams.leftMargin
+                else -> 0
+            }
+
+            return reconnectButton.width + leftMargin
+        }
 
     var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
@@ -55,18 +67,21 @@ class ConnectActionButton(val parentView: View) {
 
     private fun disconnected() {
         reconnectButton.visibility = View.GONE
+        mainButton.setPadding(0, 0, 0, 0)
         mainButton.background = greenBackground
         mainButton.setText(R.string.connect)
     }
 
     private fun connecting() {
         reconnectButton.visibility = View.VISIBLE
+        mainButton.setPadding(reconnectButtonSpace, 0, 0, 0)
         mainButton.background = leftRedBackground
         mainButton.setText(R.string.cancel)
     }
 
     private fun connected() {
         reconnectButton.visibility = View.VISIBLE
+        mainButton.setPadding(reconnectButtonSpace, 0, 0, 0)
         mainButton.background = leftRedBackground
         mainButton.setText(R.string.disconnect)
     }
