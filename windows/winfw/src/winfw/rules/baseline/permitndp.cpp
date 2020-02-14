@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "permitndp.h"
-#include "winfw/mullvadguids.h"
-#include "libwfp/filterbuilder.h"
-#include "libwfp/conditionbuilder.h"
-#include "libwfp/ipaddress.h"
-#include "libwfp/ipnetwork.h"
-#include "libwfp/conditions/conditionprotocol.h"
-#include "libwfp/conditions/conditionicmp.h"
-#include "libwfp/conditions/conditionip.h"
+#include <winfw/mullvadguids.h>
+#include <libwfp/filterbuilder.h>
+#include <libwfp/conditionbuilder.h>
+#include <libwfp/ipaddress.h>
+#include <libwfp/ipnetwork.h>
+#include <libwfp/conditions/conditionprotocol.h>
+#include <libwfp/conditions/conditionicmp.h>
+#include <libwfp/conditions/conditionip.h>
 
 using namespace wfp::conditions;
 
-namespace rules
+namespace rules::baseline
 {
 
 bool PermitNdp::apply(IObjectInstaller &objectInstaller)
@@ -22,11 +22,11 @@ bool PermitNdp::apply(IObjectInstaller &objectInstaller)
 	wfp::FilterBuilder filterBuilder;
 
 	//
-	// #1 permit outbound router solicitation
+	// #1 Permit outbound router solicitation.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitNdp_Outbound_Router_Solicitation())
+		.key(MullvadGuids::Filter_Baseline_PermitNdp_Outbound_Router_Solicitation())
 		.name(L"Permit outbound NDP router solicitation")
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
@@ -45,11 +45,11 @@ bool PermitNdp::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #2 permit inbound router advertisement
+	// #2 Permit inbound router advertisement.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitNdp_Inbound_Router_Advertisement())
+		.key(MullvadGuids::Filter_Baseline_PermitNdp_Inbound_Router_Advertisement())
 		.name(L"Permit inbound NDP router advertisement")
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
@@ -68,11 +68,11 @@ bool PermitNdp::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #3 permit inbound redirect message
+	// #3 Permit inbound redirect message.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitNdp_Inbound_Redirect())
+		.key(MullvadGuids::Filter_Baseline_PermitNdp_Inbound_Redirect())
 		.name(L"Permit inbound NDP redirect")
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 

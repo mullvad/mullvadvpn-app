@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ifirewallrule.h"
+#include <winfw/rules/ifirewallrule.h>
 
-namespace rules
+namespace rules::baseline
 {
 
 class PermitDhcp : public IFirewallRule

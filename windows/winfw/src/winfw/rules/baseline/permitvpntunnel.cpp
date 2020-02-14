@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "permitvpntunnel.h"
-#include "winfw/mullvadguids.h"
-#include "libwfp/filterbuilder.h"
-#include "libwfp/conditionbuilder.h"
-#include "libwfp/conditions/conditioninterface.h"
+#include <winfw/mullvadguids.h>
+#include <libwfp/filterbuilder.h>
+#include <libwfp/conditionbuilder.h>
+#include <libwfp/conditions/conditioninterface.h>
 
 using namespace wfp::conditions;
 
-namespace rules
+namespace rules::baseline
 {
 
 PermitVpnTunnel::PermitVpnTunnel(const std::wstring &tunnelInterfaceAlias)
@@ -20,16 +20,16 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 	wfp::FilterBuilder filterBuilder;
 
 	//
-	// #1 permit locally-initiated traffic on tunnel interface, ipv4
+	// #1 Permit outbound connections, IPv4.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitVpnTunnel_Outbound_Ipv4())
-		.name(L"Permit outbound on tunnel interface (IPv4)")
+		.key(MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4())
+		.name(L"Permit outbound connections on tunnel interface (IPv4)")
 		.description(L"This filter is part of a rule that permits communications inside the VPN tunnel")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-		.sublayer(MullvadGuids::SublayerWhitelist())
+		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
 
@@ -45,12 +45,12 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #2 permit locally-initiated traffic on tunnel interface, ipv6
+	// #2 Permit outbound connections, IPv6.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitVpnTunnel_Outbound_Ipv6())
-		.name(L"Permit outbound on tunnel interface (IPv6)")
+		.key(MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6())
+		.name(L"Permit outbound connections on tunnel interface (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);

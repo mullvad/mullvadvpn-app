@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ifirewallrule.h"
+#include <winfw/rules/ifirewallrule.h>
 #include <string>
 
-namespace rules
+namespace rules::baseline
 {
 
 class PermitVpnTunnel : public IFirewallRule

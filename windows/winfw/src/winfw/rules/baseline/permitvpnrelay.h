@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ifirewallrule.h"
-#include "libwfp/ipaddress.h"
+#include <winfw/rules/ifirewallrule.h>
+#include <libwfp/ipaddress.h>
 
-namespace rules
+namespace rules::baseline
 {
 
 class PermitVpnRelay : public IFirewallRule

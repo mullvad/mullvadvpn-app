@@ -8,43 +8,43 @@
     <ClCompile Include="sessioncontroller.cpp" />
     <ClCompile Include="mullvadguids.cpp" />
     <ClCompile Include="mullvadobjects.cpp" />
-    <ClCompile Include="rules\permitlan.cpp">
-      <Filter>rules</Filter>
-    </ClCompile>
-    <ClCompile Include="rules\blockall.cpp">
-      <Filter>rules</Filter>
-    </ClCompile>
-    <ClCompile Include="rules\permitlanservice.cpp">
-      <Filter>rules</Filter>
-    </ClCompile>
-    <ClCompile Include="rules\permitloopback.cpp">
-      <Filter>rules</Filter>
-    </ClCompile>
-    <ClCompile Include="rules\permitdhcp.cpp">
-      <Filter>rules</Filter>
-    </ClCompile>
-    <ClCompile Include="rules\permitvpnrelay.cpp">
-      <Filter>rules</Filter>
-    </ClCompile>
-    <ClCompile Include="rules\permitvpntunnel.cpp">
-      <Filter>rules</Filter>
-    </ClCompile>
     <ClCompile Include="sessionrecord.cpp" />
     <ClCompile Include="rules\restrictdns.cpp">
       <Filter>rules</Filter>
     </ClCompile>
-    <ClCompile Include="rules\permitvpntunnelservice.cpp">
-      <Filter>rules</Filter>
-    </ClCompile>
     <ClCompile Include="objectpurger.cpp" />
-    <ClCompile Include="rules\permitdhcpserver.cpp">
-      <Filter>rules</Filter>
+    <ClCompile Include="rules\baseline\blockall.cpp">
+      <Filter>rules\baseline</Filter>
     </ClCompile>
-    <ClCompile Include="rules\permitndp.cpp">
-      <Filter>rules</Filter>
+    <ClCompile Include="rules\baseline\permitdhcp.cpp">
+      <Filter>rules\baseline</Filter>
     </ClCompile>
-    <ClCompile Include="rules\permitping.cpp">
-      <Filter>rules</Filter>
+    <ClCompile Include="rules\baseline\permitdhcpserver.cpp">
+      <Filter>rules\baseline</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\baseline\permitlan.cpp">
+      <Filter>rules\baseline</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\baseline\permitlanservice.cpp">
+      <Filter>rules\baseline</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\baseline\permitloopback.cpp">
+      <Filter>rules\baseline</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\baseline\permitndp.cpp">
+      <Filter>rules\baseline</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\baseline\permitping.cpp">
+      <Filter>rules\baseline</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\baseline\permitvpnrelay.cpp">
+      <Filter>rules\baseline</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\baseline\permitvpntunnel.cpp">
+      <Filter>rules\baseline</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\baseline\permitvpntunnelservice.cpp">
+      <Filter>rules\baseline</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -58,51 +58,54 @@
     <ClInclude Include="rules\ifirewallrule.h">
       <Filter>rules</Filter>
     </ClInclude>
-    <ClInclude Include="rules\permitlan.h">
-      <Filter>rules</Filter>
-    </ClInclude>
     <ClInclude Include="iobjectinstaller.h" />
-    <ClInclude Include="rules\blockall.h">
-      <Filter>rules</Filter>
-    </ClInclude>
-    <ClInclude Include="rules\permitlanservice.h">
-      <Filter>rules</Filter>
-    </ClInclude>
-    <ClInclude Include="rules\permitloopback.h">
-      <Filter>rules</Filter>
-    </ClInclude>
-    <ClInclude Include="rules\permitdhcp.h">
-      <Filter>rules</Filter>
-    </ClInclude>
-    <ClInclude Include="rules\permitvpnrelay.h">
-      <Filter>rules</Filter>
-    </ClInclude>
-    <ClInclude Include="rules\permitvpntunnel.h">
-      <Filter>rules</Filter>
-    </ClInclude>
     <ClInclude Include="sessionrecord.h" />
     <ClInclude Include="rules\restrictdns.h">
-      <Filter>rules</Filter>
-    </ClInclude>
-    <ClInclude Include="rules\permitvpntunnelservice.h">
       <Filter>rules</Filter>
     </ClInclude>
     <ClInclude Include="wfpobjecttype.h" />
     <ClInclude Include="guidhash.h" />
     <ClInclude Include="objectpurger.h" />
-    <ClInclude Include="rules\permitdhcpserver.h">
-      <Filter>rules</Filter>
+    <ClInclude Include="rules\baseline\blockall.h">
+      <Filter>rules\baseline</Filter>
     </ClInclude>
-    <ClInclude Include="rules\permitndp.h">
-      <Filter>rules</Filter>
+    <ClInclude Include="rules\baseline\permitdhcp.h">
+      <Filter>rules\baseline</Filter>
     </ClInclude>
-    <ClInclude Include="rules\permitping.h">
-      <Filter>rules</Filter>
+    <ClInclude Include="rules\baseline\permitdhcpserver.h">
+      <Filter>rules\baseline</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\baseline\permitlan.h">
+      <Filter>rules\baseline</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\baseline\permitlanservice.h">
+      <Filter>rules\baseline</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\baseline\permitloopback.h">
+      <Filter>rules\baseline</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\baseline\permitndp.h">
+      <Filter>rules\baseline</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\baseline\permitping.h">
+      <Filter>rules\baseline</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\baseline\permitvpnrelay.h">
+      <Filter>rules\baseline</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\baseline\permitvpntunnel.h">
+      <Filter>rules\baseline</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\baseline\permitvpntunnelservice.h">
+      <Filter>rules\baseline</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rules">
       <UniqueIdentifier>{3639a3ba-599e-400c-918b-8869654cdc1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rules\baseline">
+      <UniqueIdentifier>{6f15853c-ccbb-49c0-98ec-add205bc5c2f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
