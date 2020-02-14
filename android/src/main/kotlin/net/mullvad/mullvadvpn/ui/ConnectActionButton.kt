@@ -17,16 +17,7 @@ class ConnectActionButton(val parentView: View) {
     private val leftRedBackground =
         resources.getDrawable(R.drawable.transparent_red_left_half_button_background, null)
 
-    private val reconnectButtonSpace: Int
-        get() {
-            val layoutParams = reconnectButton.layoutParams
-            val leftMargin = when (layoutParams) {
-                is MarginLayoutParams -> layoutParams.leftMargin
-                else -> 0
-            }
-
-            return reconnectButton.width + leftMargin
-        }
+    private var reconnectButtonSpace = 0
 
     var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
@@ -53,6 +44,17 @@ class ConnectActionButton(val parentView: View) {
 
     init {
         mainButton.setOnClickListener { action() }
+
+        reconnectButton.addOnLayoutChangeListener { _, left, _, right, _, _, _, _, _ ->
+            val width = right - left
+            val layoutParams = reconnectButton.layoutParams
+            val leftMargin = when (layoutParams) {
+                is MarginLayoutParams -> layoutParams.leftMargin
+                else -> 0
+            }
+
+            reconnectButtonSpace = width + leftMargin
+        }
     }
 
     private fun action() {
