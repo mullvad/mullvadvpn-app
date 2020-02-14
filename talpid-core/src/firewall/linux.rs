@@ -16,6 +16,9 @@ use std::{
 };
 use talpid_types::net::{Endpoint, TransportProtocol};
 
+/// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
+const MANGLE_CHAIN_PRIORITY: u32 = -150 as u32;
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen when interacting with Linux netfilter.
@@ -57,6 +60,7 @@ lazy_static! {
     static ref TABLE_NAME: CString = CString::new("mullvad").unwrap();
     static ref IN_CHAIN_NAME: CString = CString::new("input").unwrap();
     static ref OUT_CHAIN_NAME: CString = CString::new("output").unwrap();
+    static ref MANGLE_CHAIN_NAME: CString = CString::new("mangle").unwrap();
 
     /// Allows controlling whether firewall rules should have packet counters or not from an env
     /// variable. Useful for debugging the rules.
@@ -187,6 +191,7 @@ struct PolicyBatch<'a> {
     batch: Batch,
     in_chain: Chain<'a>,
     out_chain: Chain<'a>,
+    mangle_chain: Chain<'a>,
 }
 
 impl<'a> PolicyBatch<'a> {
@@ -208,10 +213,16 @@ impl<'a> PolicyBatch<'a> {
         batch.add(&out_chain, nftnl::MsgType::Add);
         batch.add(&in_chain, nftnl::MsgType::Add);
 
+        let mut mangle_chain = Chain::new(&*MANGLE_CHAIN_NAME, table);
+        mangle_chain.set_hook(nftnl::Hook::Out, MANGLE_CHAIN_PRIORITY);
+        mangle_chain.set_policy(nftnl::Policy::Accept);
+        batch.add(&mangle_chain, nftnl::MsgType::Add);
+
         PolicyBatch {
             batch,
             in_chain,
             out_chain,
+            mangle_chain,
         }
     }
 
