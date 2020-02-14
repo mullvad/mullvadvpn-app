@@ -2,17 +2,19 @@ package net.mullvad.mullvadvpn.ui
 
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class ConnectActionButton(val parentView: View) {
     private val mainButton: Button = parentView.findViewById(R.id.action_button)
+    private val reconnectButton: ImageButton = parentView.findViewById(R.id.reconnect_button)
 
     private val resources = parentView.context.resources
     private val greenBackground = resources.getDrawable(R.drawable.green_button_background, null)
-    private val transparentRedBackground =
-        resources.getDrawable(R.drawable.transparent_red_button_background, null)
+    private val leftRedBackground =
+        resources.getDrawable(R.drawable.transparent_red_left_half_button_background, null)
 
     var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
@@ -52,17 +54,20 @@ class ConnectActionButton(val parentView: View) {
     }
 
     private fun disconnected() {
+        reconnectButton.visibility = View.GONE
         mainButton.background = greenBackground
         mainButton.setText(R.string.connect)
     }
 
     private fun connecting() {
-        mainButton.background = transparentRedBackground
+        reconnectButton.visibility = View.VISIBLE
+        mainButton.background = leftRedBackground
         mainButton.setText(R.string.cancel)
     }
 
     private fun connected() {
-        mainButton.background = transparentRedBackground
+        reconnectButton.visibility = View.VISIBLE
+        mainButton.background = leftRedBackground
         mainButton.setText(R.string.disconnect)
     }
 }
