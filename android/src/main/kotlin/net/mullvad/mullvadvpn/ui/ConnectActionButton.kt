@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class ConnectActionButton(val parentView: View) {
-    private val button: Button = parentView.findViewById(R.id.action_button)
+    private val mainButton: Button = parentView.findViewById(R.id.action_button)
 
     private val resources = parentView.context.resources
     private val greenBackground = resources.getDrawable(R.drawable.green_button_background, null)
@@ -38,7 +38,7 @@ class ConnectActionButton(val parentView: View) {
     var onDisconnect: (() -> Unit)? = null
 
     init {
-        button.setOnClickListener { action() }
+        mainButton.setOnClickListener { action() }
     }
 
     private fun action() {
@@ -52,17 +52,17 @@ class ConnectActionButton(val parentView: View) {
     }
 
     private fun disconnected() {
-        button.background = greenBackground
-        button.setText(R.string.connect)
+        mainButton.background = greenBackground
+        mainButton.setText(R.string.connect)
     }
 
     private fun connecting() {
-        button.background = transparentRedBackground
-        button.setText(R.string.cancel)
+        mainButton.background = transparentRedBackground
+        mainButton.setText(R.string.cancel)
     }
 
     private fun connected() {
-        button.background = transparentRedBackground
-        button.setText(R.string.disconnect)
+        mainButton.background = transparentRedBackground
+        mainButton.setText(R.string.disconnect)
     }
 }
