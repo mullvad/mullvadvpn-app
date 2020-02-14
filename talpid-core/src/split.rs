@@ -6,7 +6,7 @@ use std::{
 
 const NETCLS_DIR: &str = "/sys/fs/cgroup/net_cls/";
 /// Identifies packets coming from the cgroup.
-const NETCLS_CLASSID: u32 = 0x4d9f41;
+pub const NETCLS_CLASSID: u32 = 0x4d9f41;
 const CGROUP_NAME: &str = "mullvad-exclusions";
 
 /// Errors related to split tunneling.
