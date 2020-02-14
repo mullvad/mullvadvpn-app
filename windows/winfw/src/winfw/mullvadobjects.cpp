@@ -16,14 +16,14 @@ std::unique_ptr<wfp::ProviderBuilder> MullvadObjects::Provider()
 }
 
 //static
-std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerWhitelist()
+std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerBaseline()
 {
 	auto builder = std::make_unique<wfp::SublayerBuilder>();
 
 	(*builder)
-		.name(L"Mullvad VPN whitelist")
-		.description(L"Filters that permit traffic")
-		.key(MullvadGuids::SublayerWhitelist())
+		.name(L"Mullvad VPN baseline")
+		.description(L"Filters that enforce a good baseline")
+		.key(MullvadGuids::SublayerBaseline())
 		.provider(MullvadGuids::Provider())
 		.weight(MAXUINT16);
 
@@ -31,14 +31,29 @@ std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerWhitelist()
 }
 
 //static
-std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerBlacklist()
+std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerNonTunnelDns()
 {
 	auto builder = std::make_unique<wfp::SublayerBuilder>();
 
 	(*builder)
-		.name(L"Mullvad VPN blacklist")
-		.description(L"Filters that block traffic")
-		.key(MullvadGuids::SublayerBlacklist())
+		.name(L"Mullvad VPN non-tunnel DNS")
+		.description(L"Filters that restrict DNS traffic outside tunnel")
+		.key(MullvadGuids::SublayerNonTunnelDns())
+		.provider(MullvadGuids::Provider())
+		.weight(MAXUINT16 - 1);
+
+	return builder;
+}
+
+//static
+std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerTunnelDns()
+{
+	auto builder = std::make_unique<wfp::SublayerBuilder>();
+
+	(*builder)
+		.name(L"Mullvad VPN tunnel DNS")
+		.description(L"Filters that restrict DNS traffic inside tunnel")
+		.key(MullvadGuids::SublayerTunnelDns())
 		.provider(MullvadGuids::Provider())
 		.weight(MAXUINT16 - 1);
 
