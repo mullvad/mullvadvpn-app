@@ -145,7 +145,7 @@
                 android:text="@string/unsecured_connection"
                 android:textAllCaps="true"
                 />
-        <TextView android:id="@+id/country"
+        <TextView android:id="@+id/city"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="24dp"
@@ -154,7 +154,7 @@
                 android:textStyle="bold"
                 android:text=""
                 />
-        <TextView android:id="@+id/city"
+        <TextView android:id="@+id/country"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="24dp"
