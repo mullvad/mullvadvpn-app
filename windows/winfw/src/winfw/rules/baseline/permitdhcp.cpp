@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "permitdhcp.h"
 #include <winfw/mullvadguids.h>
+#include <winfw/rules/ports.h>
 #include <libwfp/filterbuilder.h>
 #include <libwfp/conditionbuilder.h>
 #include <libwfp/ipaddress.h>
@@ -13,16 +14,6 @@ using namespace wfp::conditions;
 
 namespace rules::baseline
 {
-
-namespace
-{
-
-static const uint32_t DHCPV4_CLIENT_PORT = 68;
-static const uint32_t DHCPV4_SERVER_PORT = 67;
-static const uint32_t DHCPV6_CLIENT_PORT = 546;
-static const uint32_t DHCPV6_SERVER_PORT = 547;
-
-} // anonymous namespace
 
 bool PermitDhcp::apply(IObjectInstaller &objectInstaller)
 {
