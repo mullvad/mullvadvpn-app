@@ -34,7 +34,6 @@
     <ClCompile Include="rules\baseline\permitvpnrelay.cpp" />
     <ClCompile Include="rules\baseline\permitvpntunnel.cpp" />
     <ClCompile Include="rules\baseline\permitvpntunnelservice.cpp" />
-    <ClCompile Include="rules\restrictdns.cpp" />
     <ClCompile Include="sessioncontroller.cpp" />
     <ClCompile Include="sessionrecord.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -65,7 +64,6 @@
     <ClInclude Include="rules\baseline\permitvpntunnelservice.h" />
     <ClInclude Include="wfpobjecttype.h" />
     <ClInclude Include="rules\ifirewallrule.h" />
-    <ClInclude Include="rules\restrictdns.h" />
     <ClInclude Include="sessioncontroller.h" />
     <ClInclude Include="sessionrecord.h" />
     <ClInclude Include="stdafx.h" />
