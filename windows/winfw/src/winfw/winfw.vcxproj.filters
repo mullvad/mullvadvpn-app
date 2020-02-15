@@ -9,9 +9,6 @@
     <ClCompile Include="mullvadguids.cpp" />
     <ClCompile Include="mullvadobjects.cpp" />
     <ClCompile Include="sessionrecord.cpp" />
-    <ClCompile Include="rules\restrictdns.cpp">
-      <Filter>rules</Filter>
-    </ClCompile>
     <ClCompile Include="objectpurger.cpp" />
     <ClCompile Include="rules\baseline\blockall.cpp">
       <Filter>rules\baseline</Filter>
@@ -60,9 +57,6 @@
     </ClInclude>
     <ClInclude Include="iobjectinstaller.h" />
     <ClInclude Include="sessionrecord.h" />
-    <ClInclude Include="rules\restrictdns.h">
-      <Filter>rules</Filter>
-    </ClInclude>
     <ClInclude Include="wfpobjecttype.h" />
     <ClInclude Include="guidhash.h" />
     <ClInclude Include="objectpurger.h" />
