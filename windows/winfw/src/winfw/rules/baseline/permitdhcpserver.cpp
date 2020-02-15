@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "permitdhcpserver.h"
 #include <winfw/mullvadguids.h>
+#include <winfw/rules/ports.h>
 #include <libwfp/filterbuilder.h>
 #include <libwfp/conditionbuilder.h>
 #include <libwfp/ipaddress.h>
@@ -13,14 +14,6 @@ using namespace wfp::conditions;
 
 namespace rules::baseline
 {
-
-namespace
-{
-
-static const uint32_t DHCPV4_CLIENT_PORT = 68;
-static const uint32_t DHCPV4_SERVER_PORT = 67;
-
-} // anonymous namespace
 
 //static
 std::unique_ptr<PermitDhcpServer> PermitDhcpServer::WithExtent(Extent extent)

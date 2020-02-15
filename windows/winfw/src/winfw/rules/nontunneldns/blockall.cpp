@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "blockall.h"
 #include <winfw/mullvadguids.h>
+#include <winfw/rules/ports.h>
 #include <libwfp/filterbuilder.h>
 #include <libwfp/conditionbuilder.h>
 #include <libwfp/conditions/conditionport.h>
@@ -10,13 +11,6 @@ using namespace wfp::conditions;
 
 namespace rules::nontunneldns
 {
-
-namespace
-{
-
-static const uint32_t DNS_SERVER_PORT = 53;
-
-} // anonymous namespace
 
 BlockAll::BlockAll(std::optional<std::wstring> tunnelInterfaceAlias)
 	: m_tunnelInterfaceAlias(std::move(tunnelInterfaceAlias))

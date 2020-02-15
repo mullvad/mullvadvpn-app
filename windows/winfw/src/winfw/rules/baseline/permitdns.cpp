@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "permitdns.h"
 #include <winfw/mullvadguids.h>
+#include <winfw/rules/ports.h>
 #include <libwfp/filterbuilder.h>
 #include <libwfp/conditionbuilder.h>
 #include <libwfp/conditions/conditionport.h>
@@ -9,14 +10,6 @@ using namespace wfp::conditions;
 
 namespace rules::baseline
 {
-
-namespace
-{
-
-static const uint32_t DNS_SERVER_PORT = 53;
-
-} // anonymous namespace
-
 
 bool PermitDns::apply(IObjectInstaller &objectInstaller)
 {
