@@ -14,6 +14,11 @@
 #include "rules/baseline/permitvpntunnel.h"
 #include "rules/baseline/permitvpntunnelservice.h"
 #include "rules/baseline/permitping.h"
+#include "rules/baseline/permitdns.h"
+#include "rules/nontunneldns/permitselected.h"
+#include "rules/nontunneldns/blockall.h"
+#include "rules/tunneldns/permitselected.h"
+#include "rules/tunneldns/blockall.h"
 #include <libwfp/transaction.h>
 #include <libwfp/filterengine.h>
 #include <libcommon/error.h>
@@ -24,6 +29,8 @@ using namespace rules;
 
 namespace
 {
+
+static const uint32_t DNS_SERVER_PORT = 53;
 
 baseline::PermitVpnRelay::Protocol TranslateProtocol(WinFwProtocol protocol)
 {
@@ -38,7 +45,22 @@ baseline::PermitVpnRelay::Protocol TranslateProtocol(WinFwProtocol protocol)
 	};
 }
 
-void AppendSettingsRules(FwContext::Ruleset &ruleset, const WinFwSettings &settings)
+//
+// Since the PermitLan rule doesn't specifically address DNS, it will allow DNS requests targetting
+// a local resolver to leave the machine. From the local resolver the request will either be
+// resolved from cache, or forwarded out onto the Internet.
+//
+// Therefore, whenever the PermitLan rule might be activated, we must also do proper DNS management
+// to prevent leaks.
+//
+void AppendSettingsRules
+(
+	FwContext::Ruleset &ruleset,
+	const WinFwSettings &settings,
+	std::optional<std::wstring> tunnelInterfaceAlias = std::nullopt,
+	std::optional<std::vector<wfp::IpAddress> > nonTunnelDnsServers = std::nullopt,
+	std::optional<std::vector<wfp::IpAddress> > tunnelDnsServers = std::nullopt
+)
 {
 	if (settings.permitDhcp)
 	{
@@ -52,12 +74,52 @@ void AppendSettingsRules(FwContext::Ruleset &ruleset, const WinFwSettings &setti
 		ruleset.emplace_back(std::make_unique<baseline::PermitLanService>());
 		ruleset.emplace_back(baseline::PermitDhcpServer::WithExtent(baseline::PermitDhcpServer::Extent::IPv4Only));
 	}
+
+	//
+	// DNS management
+	//
+
+	ruleset.emplace_back(std::make_unique<baseline::PermitDns>());
+
+	{
+		ruleset.emplace_back(std::make_unique<nontunneldns::BlockAll>(tunnelInterfaceAlias));
+
+		if (nonTunnelDnsServers.has_value())
+		{
+			ruleset.emplace_back(std::make_unique<nontunneldns::PermitSelected>(
+				tunnelInterfaceAlias, nonTunnelDnsServers.value()));
+		}
+	}
+
+	if (tunnelInterfaceAlias.has_value())
+	{
+		ruleset.emplace_back(std::make_unique<tunneldns::BlockAll>(tunnelInterfaceAlias.value()));
+
+		if (tunnelDnsServers.has_value())
+		{
+			ruleset.emplace_back(std::make_unique<tunneldns::PermitSelected>(
+				tunnelInterfaceAlias.value(), tunnelDnsServers.value()));
+		}
+	}
 }
 
 void AppendNetBlockedRules(FwContext::Ruleset &ruleset)
 {
 	ruleset.emplace_back(std::make_unique<baseline::BlockAll>());
 	ruleset.emplace_back(std::make_unique<baseline::PermitLoopback>());
+}
+
+std::optional<std::vector<wfp::IpAddress> >
+CreateRelayDnsExclusion(const WinFwRelay &relay)
+{
+	if (relay.port != DNS_SERVER_PORT)
+	{
+		return std::nullopt;
+	}
+
+	std::vector<wfp::IpAddress> result = { wfp::IpAddress(relay.ip) };
+
+	return std::move(result);
 }
 
 } // anonymous namespace
@@ -110,7 +172,7 @@ bool FwContext::applyPolicyConnecting
 	Ruleset ruleset;
 
 	AppendNetBlockedRules(ruleset);
-	AppendSettingsRules(ruleset, settings);
+	AppendSettingsRules(ruleset, settings, std::nullopt, CreateRelayDnsExclusion(relay));
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnRelay>(
 		wfp::IpAddress(relay.ip),
@@ -142,14 +204,21 @@ bool FwContext::applyPolicyConnected
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
 	const std::wstring &tunnelInterfaceAlias,
-	const wfp::IpAddress & /*v4DnsHost*/,
-	const std::optional<wfp::IpAddress> &/*v6DnsHost*/
+	const std::vector<wfp::IpAddress> &tunnelDnsServers
 )
 {
 	Ruleset ruleset;
 
 	AppendNetBlockedRules(ruleset);
-	AppendSettingsRules(ruleset, settings);
+
+	AppendSettingsRules
+	(
+		ruleset,
+		settings,
+		std::make_optional<>(tunnelInterfaceAlias),
+		CreateRelayDnsExclusion(relay),
+		std::make_optional<>(tunnelDnsServers)
+	);
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnRelay>(
 		wfp::IpAddress(relay.ip),
