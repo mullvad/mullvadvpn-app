@@ -3,6 +3,7 @@
 #include "mullvadobjects.h"
 #include "objectpurger.h"
 #include "rules/ifirewallrule.h"
+#include "rules/ports.h"
 #include "rules/baseline/blockall.h"
 #include "rules/baseline/permitdhcp.h"
 #include "rules/baseline/permitndp.h"
@@ -29,8 +30,6 @@ using namespace rules;
 
 namespace
 {
-
-static const uint32_t DNS_SERVER_PORT = 53;
 
 baseline::PermitVpnRelay::Protocol TranslateProtocol(WinFwProtocol protocol)
 {

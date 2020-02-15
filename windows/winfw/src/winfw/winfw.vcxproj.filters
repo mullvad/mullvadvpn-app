@@ -123,6 +123,9 @@
     <ClInclude Include="rules\tunneldns\permitselected.h">
       <Filter>rules\tunneldns</Filter>
     </ClInclude>
+    <ClInclude Include="rules\ports.h">
+      <Filter>rules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rules">

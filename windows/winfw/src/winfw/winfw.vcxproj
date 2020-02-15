@@ -70,6 +70,7 @@
     <ClInclude Include="rules\baseline\permitvpntunnelservice.h" />
     <ClInclude Include="rules\nontunneldns\blockall.h" />
     <ClInclude Include="rules\nontunneldns\permitselected.h" />
+    <ClInclude Include="rules\ports.h" />
     <ClInclude Include="rules\tunneldns\blockall.h" />
     <ClInclude Include="rules\tunneldns\permitselected.h" />
     <ClInclude Include="wfpobjecttype.h" />

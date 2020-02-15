@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "permitselected.h"
 #include <winfw/mullvadguids.h>
+#include <winfw/rules/ports.h>
 #include <libwfp/filterbuilder.h>
 #include <libwfp/conditionbuilder.h>
 #include <libwfp/conditions/conditionport.h>
@@ -12,13 +13,6 @@ using namespace wfp::conditions;
 
 namespace rules::nontunneldns
 {
-
-namespace
-{
-
-static const uint32_t DNS_SERVER_PORT = 53;
-
-} // anonymous namespace
 
 PermitSelected::PermitSelected(std::optional<std::wstring> tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts)
 	: m_tunnelInterfaceAlias(std::move(tunnelInterfaceAlias))
