@@ -29,6 +29,11 @@ Line wrap the file at 100 chars.                                              Th
 - Include an initial relay list in the APK so that the app can connect to the VPN even if it fails
   to connect to the API after it is installed.
 
+### Fixed
+#### Android
+- Make sure the settings screen is scrollable so that devices with small screens can access the quit
+  button.
+
 
 ## [2020.2] - 2020-02-13
 This release is identical to 2020.2-beta1
