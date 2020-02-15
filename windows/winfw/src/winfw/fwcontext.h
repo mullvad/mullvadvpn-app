@@ -36,9 +36,9 @@ public:
 		const WinFwSettings &settings,
 		const WinFwRelay &relay,
 		const std::wstring &tunnelInterfaceAlias,
-		const wfp::IpAddress &v4DnsHost,
-		const std::optional<wfp::IpAddress> &v6DnsHost
+		const std::vector<wfp::IpAddress> &tunnelDnsServers
 	);
+
 	bool applyPolicyBlocked(const WinFwSettings &settings);
 
 	bool reset();
