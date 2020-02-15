@@ -26,6 +26,7 @@
     <ClCompile Include="rules\baseline\blockall.cpp" />
     <ClCompile Include="rules\baseline\permitdhcp.cpp" />
     <ClCompile Include="rules\baseline\permitdhcpserver.cpp" />
+    <ClCompile Include="rules\baseline\permitdns.cpp" />
     <ClCompile Include="rules\baseline\permitlan.cpp" />
     <ClCompile Include="rules\baseline\permitlanservice.cpp" />
     <ClCompile Include="rules\baseline\permitloopback.cpp" />
@@ -34,6 +35,10 @@
     <ClCompile Include="rules\baseline\permitvpnrelay.cpp" />
     <ClCompile Include="rules\baseline\permitvpntunnel.cpp" />
     <ClCompile Include="rules\baseline\permitvpntunnelservice.cpp" />
+    <ClCompile Include="rules\nontunneldns\blockall.cpp" />
+    <ClCompile Include="rules\nontunneldns\permitselected.cpp" />
+    <ClCompile Include="rules\tunneldns\blockall.cpp" />
+    <ClCompile Include="rules\tunneldns\permitselected.cpp" />
     <ClCompile Include="sessioncontroller.cpp" />
     <ClCompile Include="sessionrecord.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -54,6 +59,7 @@
     <ClInclude Include="rules\baseline\blockall.h" />
     <ClInclude Include="rules\baseline\permitdhcp.h" />
     <ClInclude Include="rules\baseline\permitdhcpserver.h" />
+    <ClInclude Include="rules\baseline\permitdns.h" />
     <ClInclude Include="rules\baseline\permitlan.h" />
     <ClInclude Include="rules\baseline\permitlanservice.h" />
     <ClInclude Include="rules\baseline\permitloopback.h" />
@@ -62,6 +68,10 @@
     <ClInclude Include="rules\baseline\permitvpnrelay.h" />
     <ClInclude Include="rules\baseline\permitvpntunnel.h" />
     <ClInclude Include="rules\baseline\permitvpntunnelservice.h" />
+    <ClInclude Include="rules\nontunneldns\blockall.h" />
+    <ClInclude Include="rules\nontunneldns\permitselected.h" />
+    <ClInclude Include="rules\tunneldns\blockall.h" />
+    <ClInclude Include="rules\tunneldns\permitselected.h" />
     <ClInclude Include="wfpobjecttype.h" />
     <ClInclude Include="rules\ifirewallrule.h" />
     <ClInclude Include="sessioncontroller.h" />
@@ -159,6 +169,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\libshared\src\;$(ProjectDir)..\;$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir)..\..\..\libwfp\src\</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -178,6 +189,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\libshared\src\;$(ProjectDir)..\;$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir)..\..\..\libwfp\src\</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -199,6 +211,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\libshared\src\;$(ProjectDir)..\;$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir)..\..\..\libwfp\src\</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -222,6 +235,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\libshared\src\;$(ProjectDir)..\;$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir)..\..\..\libwfp\src\</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
