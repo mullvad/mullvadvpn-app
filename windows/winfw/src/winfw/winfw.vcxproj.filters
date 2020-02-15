@@ -43,6 +43,21 @@
     <ClCompile Include="rules\baseline\permitvpntunnelservice.cpp">
       <Filter>rules\baseline</Filter>
     </ClCompile>
+    <ClCompile Include="rules\baseline\permitdns.cpp">
+      <Filter>rules\baseline</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\nontunneldns\blockall.cpp">
+      <Filter>rules\nontunneldns</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\nontunneldns\permitselected.cpp">
+      <Filter>rules\nontunneldns</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\tunneldns\blockall.cpp">
+      <Filter>rules\tunneldns</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\tunneldns\permitselected.cpp">
+      <Filter>rules\tunneldns</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -93,6 +108,21 @@
     <ClInclude Include="rules\baseline\permitvpntunnelservice.h">
       <Filter>rules\baseline</Filter>
     </ClInclude>
+    <ClInclude Include="rules\baseline\permitdns.h">
+      <Filter>rules\baseline</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\nontunneldns\blockall.h">
+      <Filter>rules\nontunneldns</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\nontunneldns\permitselected.h">
+      <Filter>rules\nontunneldns</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\tunneldns\blockall.h">
+      <Filter>rules\tunneldns</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\tunneldns\permitselected.h">
+      <Filter>rules\tunneldns</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rules">
@@ -100,6 +130,12 @@
     </Filter>
     <Filter Include="rules\baseline">
       <UniqueIdentifier>{6f15853c-ccbb-49c0-98ec-add205bc5c2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rules\nontunneldns">
+      <UniqueIdentifier>{9b35e8a4-84be-4ac3-9b6f-eb21cc02e065}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rules\tunneldns">
+      <UniqueIdentifier>{c574d27d-cede-4a3f-9c71-6e02793a25f6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
