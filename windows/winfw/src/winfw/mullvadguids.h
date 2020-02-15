@@ -71,4 +71,17 @@ public:
 
 	static const GUID &Filter_Baseline_PermitPing_Outbound_Icmpv4();
 	static const GUID &Filter_Baseline_PermitPing_Outbound_Icmpv6();
+
+	static const GUID &Filter_Baseline_PermitDns_Outbound_Ipv4();
+	static const GUID &Filter_Baseline_PermitDns_Outbound_Ipv6();
+
+	static const GUID &Filter_NonTunnelDns_BlockAll_Outbound_Ipv4();
+	static const GUID &Filter_NonTunnelDns_BlockAll_Outbound_Ipv6();
+	static const GUID &Filter_NonTunnelDns_PermitSelected_Outbound_Ipv4();
+	static const GUID &Filter_NonTunnelDns_PermitSelected_Outbound_Ipv6();
+
+	static const GUID &Filter_TunnelDns_BlockAll_Outbound_Ipv4();
+	static const GUID &Filter_TunnelDns_BlockAll_Outbound_Ipv6();
+	static const GUID &Filter_TunnelDns_PermitSelected_Outbound_Ipv4();
+	static const GUID &Filter_TunnelDns_PermitSelected_Outbound_Ipv6();
 };
