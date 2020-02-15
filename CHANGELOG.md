@@ -28,6 +28,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add option to enable auto-connecting behavior
 - Include an initial relay list in the APK so that the app can connect to the VPN even if it fails
   to connect to the API after it is installed.
+- Add a reconnect button to disconnect and connect again without closing the tunnel device to avoid
+  leaking any data during the reconnection.
 
 
 ## [2020.2] - 2020-02-13
