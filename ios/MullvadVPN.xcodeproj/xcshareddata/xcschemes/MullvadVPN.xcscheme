@@ -42,16 +42,6 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "584B26F0237434D00073B10E"
-               BuildableName = "RelaySelectorTests.xctest"
-               BlueprintName = "RelaySelectorTests"
-               ReferencedContainer = "container:MullvadVPN.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "58D0C79223F1CE7000FE9BA7"
                BuildableName = "MullvadVPNScreenshots.xctest"
                BlueprintName = "MullvadVPNScreenshots"
