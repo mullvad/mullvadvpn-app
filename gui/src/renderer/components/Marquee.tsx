@@ -18,12 +18,19 @@ export default class Marquee extends Component<IMarqueeProps> {
   private textAnimation = Styles.createAnimatedTextStyle({ left: this.initialLeft });
   private textRef = React.createRef<Animated.Text>();
 
+  private animationTimeout?: number;
+  private animation?: Types.Animated.CompositeAnimation;
+
   public componentDidMount() {
     this.startAnimation();
   }
 
   public componentDidUpdate() {
     this.startAnimation();
+  }
+
+  public componentWillUnmount() {
+    this.stopAnimation();
   }
 
   public render() {
@@ -39,7 +46,9 @@ export default class Marquee extends Component<IMarqueeProps> {
   }
 
   private async startAnimation() {
-    setTimeout(async () => {
+    this.stopAnimation();
+
+    this.animationTimeout = setTimeout(async () => {
       if (this.textRef.current) {
         const textLayout = await UserInterface.measureLayoutRelativeToWindow(this.textRef.current);
         const viewLayout = await UserInterface.measureLayoutRelativeToWindow(this);
@@ -50,14 +59,25 @@ export default class Marquee extends Component<IMarqueeProps> {
 
   private startAnimationImpl(length: number, reverse: boolean) {
     if (length >= 0) {
-      Animated.timing(this.initialLeft, {
+      this.animation = Animated.timing(this.initialLeft, {
         toValue: reverse ? 0.0 : -length,
         duration: length * 80,
         delay: 2000,
         easing: Animated.Easing.Linear(),
-      }).start(() => {
-        this.startAnimationImpl(length, !reverse);
       });
+
+      this.animation.start(({ finished }) => {
+        if (finished) {
+          this.startAnimationImpl(length, !reverse);
+        }
+      });
+    }
+  }
+
+  private stopAnimation() {
+    clearTimeout(this.animationTimeout);
+    if (this.animation) {
+      this.animation.stop();
     }
   }
 }
