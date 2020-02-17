@@ -23,7 +23,14 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             self.connectionInfo = TunnelConnectionInfo(
                 ipv4Relay: IPv4Endpoint(ip: IPv4Address("1.2.3.4")!, port: 53),
                 ipv6Relay: nil,
-                hostname: "se7-wireguard")
+                hostname: "se7-wireguard",
+                geoLocation: GeoLocation(
+                    country: "Sweden",
+                    city: "Stockholm",
+                    latitude: 59.3289,
+                    longitude: 18.0649
+                )
+            )
 
             completionHandler(nil)
         }

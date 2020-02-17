@@ -15,6 +15,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
 
     @IBOutlet var secureLabel: UILabel!
     @IBOutlet var countryLabel: UILabel!
+    @IBOutlet var cityLabel: UILabel!
+    @IBOutlet var connectionPanel: ConnectionPanelView!
 
     private var setRelaysSubscriber: AnyCancellable?
     private var startStopTunnelSubscriber: AnyCancellable?
@@ -44,6 +46,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        connectionPanel.collapseButton.addTarget(self, action: #selector(handleConnectionPanelButton(_:)), for: .touchUpInside)
 
         tunnelStateSubscriber = TunnelManager.shared.$tunnelState
             .receive(on: DispatchQueue.main)
@@ -76,18 +80,37 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
     // MARK: - Private
 
     private func updateSecureLabel() {
-        secureLabel.text = tunnelState.textForSecureLabel()
+        secureLabel.text = tunnelState.textForSecureLabel().uppercased()
         secureLabel.textColor = tunnelState.textColorForSecureLabel()
+    }
+
+    private func attributedStringForLocation(string: String) -> NSAttributedString {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 0
+        paragraphStyle.lineHeightMultiple = 0.80
+        return NSAttributedString(string: string, attributes: [
+            .paragraphStyle: paragraphStyle])
     }
 
     private func updateTunnelConnectionInfo() {
         switch tunnelState {
         case .connected(let connectionInfo),
              .reconnecting(let connectionInfo):
-            countryLabel.text = "\(connectionInfo.hostname)\nIn: \(connectionInfo.ipv4Relay)"
+            cityLabel.attributedText = attributedStringForLocation(string: connectionInfo.geoLocation.city)
+            countryLabel.attributedText = attributedStringForLocation(string: connectionInfo.geoLocation.country)
+
+            connectionPanel.dataSource = ConnectionPanelData(
+                inAddress: "\(connectionInfo.ipv4Relay) UDP",
+                outAddress: nil
+            )
+            connectionPanel.isHidden = false
+            connectionPanel.collapseButton.setTitle(connectionInfo.hostname, for: .normal)
 
         case .connecting, .disconnected, .disconnecting:
-            countryLabel.text = ""
+            cityLabel.attributedText = attributedStringForLocation(string: " ")
+            countryLabel.attributedText = attributedStringForLocation(string: " ")
+            connectionPanel.dataSource = nil
+            connectionPanel.isHidden = true
         }
     }
 
@@ -113,6 +136,10 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
     }
 
     // MARK: - Actions
+
+    @objc func handleConnectionPanelButton(_ sender: Any) {
+        connectionPanel.toggleConnectionInfoVisibility()
+    }
 
     @IBAction func unwindFromSelectLocation(segue: UIStoryboardSegue) {
         guard let selectLocationController = segue.source as? SelectLocationController else { return }

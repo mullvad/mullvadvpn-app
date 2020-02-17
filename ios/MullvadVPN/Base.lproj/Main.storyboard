@@ -275,22 +275,52 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="3rI-k6-N1S">
-                                <rect key="frame" x="24" y="304" width="327" height="59"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="3rI-k6-N1S">
+                                <rect key="frame" x="24" y="245" width="327" height="212"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SECURE CONNECTION" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HNy-mU-nui">
-                                        <rect key="frame" x="0.0" y="0.0" width="327" height="26.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="327" height="24"/>
                                         <accessibility key="accessibilityConfiguration" identifier="SecureConnectionLabel"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                         <color key="textColor" name="Success"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sweden" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Yf-sl-l3q">
-                                        <rect key="frame" x="0.0" y="32.5" width="327" height="26.5"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="22"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="PBy-k6-ijS">
+                                        <rect key="frame" x="0.0" y="32" width="327" height="82"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stockholm" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mfr-Ic-PYf">
+                                                <rect key="frame" x="0.0" y="0.0" width="327" height="41"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="34"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sweden" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Yf-sl-l3q">
+                                                <rect key="frame" x="0.0" y="41" width="327" height="41"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="34"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                    </stackView>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hCl-ph-fhs">
+                                        <rect key="frame" x="0.0" y="122" width="327" height="90"/>
+                                        <subviews>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ocV-9f-WDZ" customClass="ConnectionPanelView" customModule="MullvadVPN" customModuleProvider="target">
+                                                <rect key="frame" x="0.0" y="0.0" width="327" height="90"/>
+                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="90" placeholder="YES" id="z9Q-OD-1co"/>
+                                                </constraints>
+                                            </view>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstItem="ocV-9f-WDZ" firstAttribute="top" secondItem="hCl-ph-fhs" secondAttribute="top" id="S3C-dT-RKK"/>
+                                            <constraint firstItem="ocV-9f-WDZ" firstAttribute="leading" secondItem="hCl-ph-fhs" secondAttribute="leading" id="e8V-PF-ISy"/>
+                                            <constraint firstAttribute="bottom" secondItem="ocV-9f-WDZ" secondAttribute="bottom" id="ehS-MG-cf7"/>
+                                            <constraint firstAttribute="trailing" secondItem="ocV-9f-WDZ" secondAttribute="trailing" id="jIg-r7-5mz"/>
+                                        </constraints>
+                                    </view>
                                 </subviews>
                             </stackView>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dv1-XA-XQG" userLabel="Tunnel control buttons">
@@ -306,9 +336,9 @@
                         <color key="backgroundColor" name="Primary"/>
                         <constraints>
                             <constraint firstItem="3rI-k6-N1S" firstAttribute="leading" secondItem="PNd-mm-N1B" secondAttribute="leadingMargin" id="5fs-z1-QKf"/>
-                            <constraint firstItem="3rI-k6-N1S" firstAttribute="centerY" secondItem="PNd-mm-N1B" secondAttribute="centerY" id="MU7-g1-1QL"/>
                             <constraint firstAttribute="trailingMargin" secondItem="3rI-k6-N1S" secondAttribute="trailing" id="NFr-rI-7r3"/>
                             <constraint firstItem="iBo-pG-OTz" firstAttribute="trailing" secondItem="Dv1-XA-XQG" secondAttribute="trailing" constant="24" id="OPf-p4-dPn"/>
+                            <constraint firstItem="Dv1-XA-XQG" firstAttribute="top" secondItem="3rI-k6-N1S" secondAttribute="bottom" constant="24" id="hRj-EJ-ls3"/>
                             <constraint firstItem="iBo-pG-OTz" firstAttribute="bottom" secondItem="Dv1-XA-XQG" secondAttribute="bottom" constant="24" id="sjJ-M6-O74"/>
                             <constraint firstItem="Dv1-XA-XQG" firstAttribute="leading" secondItem="iBo-pG-OTz" secondAttribute="leading" constant="24" id="ye6-tj-a0l"/>
                         </constraints>
@@ -316,7 +346,9 @@
                         <viewLayoutGuide key="safeArea" id="iBo-pG-OTz"/>
                     </view>
                     <connections>
-                        <outlet property="countryLabel" destination="9Yf-sl-l3q" id="TZY-gM-Qr8"/>
+                        <outlet property="cityLabel" destination="mfr-Ic-PYf" id="vut-Me-cdj"/>
+                        <outlet property="connectionPanel" destination="ocV-9f-WDZ" id="Uad-bl-KFU"/>
+                        <outlet property="countryLabel" destination="9Yf-sl-l3q" id="L3N-Jn-zlr"/>
                         <outlet property="secureLabel" destination="HNy-mU-nui" id="QBg-mR-Z6g"/>
                         <segue destination="hOC-Ab-N3D" kind="presentation" identifier="ShowRelaySelector" id="mui-V1-CK4"/>
                     </connections>
@@ -337,20 +369,20 @@
                         <color key="separatorColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="Account" id="ghE-jC-RWf" customClass="SettingsAccountCell" customModule="MullvadVPN" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="55.5" width="375" height="43.5"/>
+                                <rect key="frame" x="0.0" y="55.5" width="375" height="43"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ghE-jC-RWf" id="sTl-gI-g2a">
-                                    <rect key="frame" x="0.0" y="0.0" width="348" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="348" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Account" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lve-Kd-qTr">
-                                            <rect key="frame" x="16" y="11" width="63.5" height="21.5"/>
+                                            <rect key="frame" x="16" y="11" width="63.5" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="A YEAR LEFT" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QeD-EQ-Ruo">
-                                            <rect key="frame" x="259" y="11" width="81" height="21.5"/>
+                                            <rect key="frame" x="259" y="11" width="81" height="21"/>
                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
@@ -375,20 +407,20 @@
                                 </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="AppVersion" id="pbd-iC-Emm" customClass="SettingsAppVersionCell" customModule="MullvadVPN" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="99" width="375" height="43.5"/>
+                                <rect key="frame" x="0.0" y="98.5" width="375" height="43"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="pbd-iC-Emm" id="lYp-Z8-1sN">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="App version" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pYC-Zb-8N9">
-                                            <rect key="frame" x="16" y="11" width="91" height="21.5"/>
+                                            <rect key="frame" x="16" y="11" width="91" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="2018.3" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sOr-vj-cg7">
-                                            <rect key="frame" x="316.5" y="11" width="42.5" height="21.5"/>
+                                            <rect key="frame" x="316.5" y="11" width="42.5" height="21"/>
                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
@@ -410,14 +442,14 @@
                                 </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="BasicDisclosure" id="Ahs-gu-nTM" customClass="SettingsBasicCell" customModule="MullvadVPN" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="142.5" width="375" height="43.5"/>
+                                <rect key="frame" x="0.0" y="141.5" width="375" height="43"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Ahs-gu-nTM" id="Drq-vk-8F2">
-                                    <rect key="frame" x="0.0" y="0.0" width="348" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="348" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Amw-A3-ePS">
-                                            <rect key="frame" x="16" y="11" width="324" height="21.5"/>
+                                            <rect key="frame" x="16" y="11" width="324" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
@@ -1057,7 +1089,7 @@
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hVz-q0-Xpd" customClass="CustomButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="0.0" width="261" height="52.5"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
                                                 <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="10"/>
                                                 <state key="normal" title="Select location" backgroundImage="TranslucentNeutralButton">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1067,6 +1099,7 @@
                                                 </connections>
                                             </button>
                                         </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="bottom" secondItem="hVz-q0-Xpd" secondAttribute="bottom" id="4Q2-Zh-7fM"/>
                                             <constraint firstAttribute="trailing" secondItem="hVz-q0-Xpd" secondAttribute="trailing" id="AsY-cg-1fj"/>
