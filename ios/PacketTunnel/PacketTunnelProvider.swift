@@ -289,7 +289,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         self.connectionInfo = TunnelConnectionInfo(
             ipv4Relay: selectorResult.endpoint.ipv4Relay,
             ipv6Relay: selectorResult.endpoint.ipv6Relay,
-            hostname: selectorResult.relay.hostname)
+            hostname: selectorResult.relay.hostname,
+            geoLocation: selectorResult.geoLocation
+        )
 
         os_log(.default, log: tunnelProviderLog,
                "Selected relay: %{public}s",
