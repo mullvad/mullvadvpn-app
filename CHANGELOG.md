@@ -31,6 +31,11 @@ Line wrap the file at 100 chars.                                              Th
 - Add a reconnect button to disconnect and connect again without closing the tunnel device to avoid
   leaking any data during the reconnection.
 
+### Fixed
+#### Android
+- Make sure the settings screen is scrollable so that devices with small screens can access the quit
+  button.
+
 
 ## [2020.2] - 2020-02-13
 This release is identical to 2020.2-beta1
