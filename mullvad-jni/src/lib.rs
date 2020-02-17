@@ -653,6 +653,23 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getWire
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_reconnect(
+    _: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+) {
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        if let Err(error) = daemon_interface.reconnect() {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to request daemon to reconnect")
+            );
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAccount(
     env: JNIEnv<'_>,
     _: JObject<'_>,

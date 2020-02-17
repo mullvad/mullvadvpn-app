@@ -1,18 +1,37 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
+import android.widget.ImageButton
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class ConnectActionButton(val parentView: View) {
-    private val button: Button = parentView.findViewById(R.id.action_button)
+    private val mainButton: Button = parentView.findViewById(R.id.action_button)
+    private val reconnectButton: ImageButton = parentView.findViewById(R.id.reconnect_button)
 
     private val resources = parentView.context.resources
     private val greenBackground = resources.getDrawable(R.drawable.green_button_background, null)
-    private val transparentRedBackground =
-        resources.getDrawable(R.drawable.transparent_red_button_background, null)
+    private val leftRedBackground =
+        resources.getDrawable(R.drawable.transparent_red_left_half_button_background, null)
+
+    private var showReconnectButton = false
+        set(value) {
+            if (field != value) {
+                field = value
+                updateReconnectButton()
+            }
+        }
+
+    private var reconnectButtonSpace = 0
+        set(value) {
+            if (field != value) {
+                field = value
+                updateReconnectButton()
+            }
+        }
 
     var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
@@ -35,10 +54,23 @@ class ConnectActionButton(val parentView: View) {
 
     var onConnect: (() -> Unit)? = null
     var onCancel: (() -> Unit)? = null
+    var onReconnect: (() -> Unit)? = null
     var onDisconnect: (() -> Unit)? = null
 
     init {
-        button.setOnClickListener { action() }
+        mainButton.setOnClickListener { action() }
+        reconnectButton.setOnClickListener { onReconnect?.invoke() }
+
+        reconnectButton.addOnLayoutChangeListener { _, left, _, right, _, _, _, _, _ ->
+            val width = right - left
+            val layoutParams = reconnectButton.layoutParams
+            val leftMargin = when (layoutParams) {
+                is MarginLayoutParams -> layoutParams.leftMargin
+                else -> 0
+            }
+
+            reconnectButtonSpace = width + leftMargin
+        }
     }
 
     private fun action() {
@@ -52,17 +84,32 @@ class ConnectActionButton(val parentView: View) {
     }
 
     private fun disconnected() {
-        button.background = greenBackground
-        button.setText(R.string.connect)
+        mainButton.background = greenBackground
+        mainButton.setText(R.string.connect)
+        showReconnectButton = false
     }
 
     private fun connecting() {
-        button.background = transparentRedBackground
-        button.setText(R.string.cancel)
+        redButton(R.string.cancel)
     }
 
     private fun connected() {
-        button.background = transparentRedBackground
-        button.setText(R.string.disconnect)
+        redButton(R.string.disconnect)
+    }
+
+    private fun redButton(text: Int) {
+        mainButton.background = leftRedBackground
+        mainButton.setText(text)
+        showReconnectButton = true
+    }
+
+    private fun updateReconnectButton() {
+        if (showReconnectButton) {
+            reconnectButton.visibility = View.VISIBLE
+            mainButton.setPadding(reconnectButtonSpace, 0, 0, 0)
+        } else {
+            reconnectButton.visibility = View.GONE
+            mainButton.setPadding(0, 0, 0, 0)
+        }
     }
 }

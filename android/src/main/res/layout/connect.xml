@@ -237,9 +237,26 @@
                 android:paddingRight="8dp"
                 style="@style/White20Button"
                 />
-        <Button android:id="@+id/action_button"
-                android:text="@string/connect"
-                style="@style/GreenButton"
-                />
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+            <Button android:id="@+id/action_button"
+                    android:layout_weight="1"
+                    android:text="@string/connect"
+                    style="@style/GreenButton"
+                    />
+            <ImageButton android:id="@+id/reconnect_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0"
+                    android:layout_marginLeft="1dp"
+                    android:paddingHorizontal="10dp"
+                    android:background="@drawable/transparent_red_right_half_button_background"
+                    android:visibility="gone"
+                    android:src="@drawable/icon_reload"
+                    />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -59,6 +59,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         actionButton.apply {
             onConnect = { connectionProxy.connect() }
             onCancel = { connectionProxy.disconnect() }
+            onReconnect = { connectionProxy.reconnect() }
             onDisconnect = { connectionProxy.disconnect() }
         }
 
