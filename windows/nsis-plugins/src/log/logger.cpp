@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iomanip>
 
-AnsiFileLogSink::AnsiFileLogSink(const std::wstring &file, bool append, bool flush)
+Utf8FileLogSink::Utf8FileLogSink(const std::wstring &file, bool append, bool flush)
 	: m_flush(flush)
 {
 	const DWORD creationDisposition = (append ? OPEN_ALWAYS : CREATE_ALWAYS);
@@ -31,20 +31,27 @@ AnsiFileLogSink::AnsiFileLogSink(const std::wstring &file, bool append, bool flu
 	}
 }
 
-AnsiFileLogSink::~AnsiFileLogSink()
+Utf8FileLogSink::~Utf8FileLogSink()
 {
 	CloseHandle(m_logfile);
 }
 
-void AnsiFileLogSink::log(const std::wstring &message)
+void Utf8FileLogSink::log(const std::wstring &message)
 {
-	auto ansi = common::string::ToAnsi(message);
+	auto utf8String = common::string::ToUtf8(message);
+	utf8String.pop_back(); // remove the null char
 
-	ansi.append("\xd\xa");
+	if (0 == utf8String.size())
+	{
+		return;
+	}
+
+	utf8String.push_back('\xd');
+	utf8String.push_back('\xa');
 
 	DWORD bytesWritten;
 
-	WriteFile(m_logfile, ansi.c_str(), ansi.size(), &bytesWritten, nullptr);
+	WriteFile(m_logfile, utf8String.data(), utf8String.size(), &bytesWritten, nullptr);
 
 	if (m_flush)
 	{
