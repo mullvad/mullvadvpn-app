@@ -101,7 +101,6 @@ export default class AccountDataCache {
   private scheduleRetry(accountToken: AccountToken) {
     this.fetchAttempt += 1;
 
-    // tslint:disable-next-line
     const delay = Math.min(2048, 1 << (this.fetchAttempt + 2)) * 1000;
 
     log.warn(`Failed to fetch account data. Retrying in ${delay} ms`);
