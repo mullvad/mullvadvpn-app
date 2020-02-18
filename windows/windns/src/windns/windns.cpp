@@ -255,6 +255,12 @@ WinDns_Set(
 		return false;
 	}
 
+	if (nullptr == interfaceAlias)
+	{
+		g_LogSink->error("Invalid argument: interfaceAlias");
+		return false;
+	}
+
 	//
 	// Check the settings on the adapter.
 	// If it already has the exact same settings we need, we're done.
@@ -277,12 +283,12 @@ WinDns_Set(
 			return true;
 		}
 	}
-	catch (const std::exception & ex)
+	catch (const std::exception &err)
 	{
 		std::stringstream ss;
 
 		ss << "Failed to evaluate DNS settings on adapter with alias \""
-			<< common::string::ToAnsi(interfaceAlias) << "\": " << ex.what();
+			<< common::string::ToAnsi(interfaceAlias) << "\": " << err.what();
 
 		g_LogSink->info(ss.str().c_str());
 	}
