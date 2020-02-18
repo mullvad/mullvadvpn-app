@@ -124,12 +124,16 @@ interface INavigationScrollContextValue {
   showsBarSeparator: boolean;
 }
 
+interface INavigationContainerProps {
+  children?: React.ReactNode;
+}
+
 const NavigationScrollContext = React.createContext<INavigationScrollContextValue>({
   showsBarTitle: false,
   showsBarSeparator: false,
 });
 
-export class NavigationContainer extends Component {
+export class NavigationContainer extends Component<INavigationContainerProps> {
   public state = {
     navigationContainer: this,
     showsBarTitle: false,
