@@ -32,7 +32,11 @@ const styles = {
   }),
 };
 
-export const ModalContent: React.FC = ({ children }) => {
+interface IModalContentProps {
+  children?: React.ReactNode;
+}
+
+export const ModalContent: React.FC = (props: IModalContentProps) => {
   return (
     <div
       style={{
@@ -45,12 +49,16 @@ export const ModalContent: React.FC = ({ children }) => {
         right: 0,
         bottom: 0,
       }}>
-      {children}
+      {props.children}
     </div>
   );
 };
 
-const ModalBackground: React.FC = ({ children }) => {
+interface IModalBackgroundProps {
+  children?: React.ReactNode;
+}
+
+const ModalBackground: React.FC = (props: IModalBackgroundProps) => {
   return (
     <div
       style={{
@@ -64,13 +72,17 @@ const ModalBackground: React.FC = ({ children }) => {
         right: 0,
         bottom: 0,
       }}>
-      {children}
+      {props.children}
     </div>
   );
 };
 
-export const ModalContainer: React.FC = ({ children }) => {
-  return <div style={{ position: 'relative', flex: 1 }}>{children}</div>;
+interface IModalContainerProps {
+  children?: React.ReactNode;
+}
+
+export const ModalContainer: React.FC = (props: IModalContainerProps) => {
+  return <div style={{ position: 'relative', flex: 1 }}>{props.children}</div>;
 };
 
 export enum ModalAlertType {
