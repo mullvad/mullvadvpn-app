@@ -4,7 +4,7 @@
 // TypeScript Version: 3.3.3
 
 declare module 'validated/schema' {
-  export interface Context {}
+  type Context = {};
   export interface ValidateResult<T> {
     context: Context;
     value: T;
