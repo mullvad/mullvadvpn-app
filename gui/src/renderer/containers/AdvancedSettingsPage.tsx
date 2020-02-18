@@ -149,9 +149,4 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   };
 };
 
-export default withAppContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(AdvancedSettings),
-);
+export default withAppContext(connect(mapStateToProps, mapDispatchToProps)(AdvancedSettings));

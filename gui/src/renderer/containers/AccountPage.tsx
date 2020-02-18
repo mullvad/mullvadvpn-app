@@ -26,9 +26,4 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   };
 };
 
-export default withAppContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(Account),
-);
+export default withAppContext(connect(mapStateToProps, mapDispatchToProps)(Account));

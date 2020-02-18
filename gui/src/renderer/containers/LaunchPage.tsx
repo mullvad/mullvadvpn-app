@@ -14,7 +14,4 @@ const mapDispatchToProps = (dispatch: ReduxDispatch) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Launch);
+export default connect(mapStateToProps, mapDispatchToProps)(Launch);
