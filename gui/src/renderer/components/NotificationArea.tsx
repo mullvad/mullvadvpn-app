@@ -71,7 +71,7 @@ function getErrorCauseMessage(blockReason: ErrorStateCause): string {
         'in-app-notifications',
         'Could not configure IPv6, please enable it on your system or disable it in the app',
       );
-    case 'set_firewall_policy_error':
+    case 'set_firewall_policy_error': {
       let extraMessage = null;
       switch (process.platform) {
         case 'linux':
@@ -88,6 +88,7 @@ function getErrorCauseMessage(blockReason: ErrorStateCause): string {
         'in-app-notifications',
         'Failed to apply firewall rules. The device might currently be unsecured',
       )}${extraMessage ? '. ' + extraMessage : ''}`;
+    }
     case 'set_dns_error':
       return messages.pgettext('in-app-notifications', 'Failed to set system DNS server');
     case 'start_tunnel_error':
