@@ -68,6 +68,16 @@ void LogAdapters(const std::wstring &description, const std::set<NetworkAdapter>
 	}
 }
 
+void Log(const std::wstring &str)
+{
+	std::wcout << str << std::endl;
+}
+
+void LogError(const std::wstring &str)
+{
+	std::wcerr << str << std::endl;
+}
+
 std::optional<std::wstring> GetDeviceRegistryStringProperty(
 	HDEVINFO devInfo,
 	const SP_DEVINFO_DATA &devInfoData,
@@ -345,8 +355,10 @@ void ForEachNetworkDevice(const std::optional<std::wstring> hwId, std::function<
 				// Skip this adapter
 				//
 
-				std::wcerr << L"Skipping TAP adapter due to exception caught while iterating: "
-					<< common::string::ToWide(e.what()) << std::endl;
+				std::wstringstream ss;
+				ss << L"Skipping TAP adapter due to exception caught while iterating: "
+					<< common::string::ToWide(e.what());
+				LogError(ss.str());
 				continue;
 			}
 		}
@@ -386,8 +398,10 @@ std::set<NetworkAdapter> GetNetworkAdapters(const std::optional<std::wstring> ha
 			// Skip this adapter
 			//
 
-			std::wcerr << L"Skipping adapter due to exception caught while iterating: "
-				<< common::string::ToWide(e.what()) << std::endl;
+			std::wstringstream ss;
+			ss << L"Skipping adapter due to exception caught while iterating: "
+				<< common::string::ToWide(e.what());
+			LogError(ss.str());
 		}
 		return true;
 	});
@@ -456,12 +470,12 @@ void CreateTapDevice()
 		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiCallClassInstaller");
 	}
 
-	std::wcout << L"Created new TAP adapter successfully" << std::endl;
+	Log(L"Created new TAP adapter successfully");
 }
 
 void UpdateTapDriver(const std::wstring &infPath)
 {
-	std::wcout << L"Attempting to install new driver" << std::endl;
+	Log(L"Attempting to install new driver");
 
 	DWORD installFlags = 0;
 	BOOL rebootRequired = FALSE;
@@ -483,7 +497,7 @@ ATTEMPT_UPDATE:
 		if (ERROR_NO_MORE_ITEMS == lastError
 			&& (installFlags ^ INSTALLFLAG_FORCE))
 		{
-			std::wcout << L"Driver update failed. Attempting forced install." << std::endl;
+			Log(L"Driver update failed. Attempting forced install.");
 			installFlags |= INSTALLFLAG_FORCE;
 
 			goto ATTEMPT_UPDATE;
@@ -496,8 +510,10 @@ ATTEMPT_UPDATE:
 	// Driver successfully installed or updated
 	//
 
-	std::wcout << L"TAP driver update complete. Reboot required: "
+	std::wstringstream ss;
+	ss << L"TAP driver update complete. Reboot required: "
 		<< rebootRequired;
+	Log(ss.str());
 }
 
 //
@@ -618,8 +634,10 @@ void RemoveTapDriver(const std::wstring &tapHardwareId)
 			// Skip this adapter
 			//
 
-			std::wcerr << L"Skipping TAP adapter due to exception caught while iterating: "
-				<< common::string::ToWide(e.what()) << std::endl;
+			std::wstringstream ss;
+			ss << L"Skipping TAP adapter due to exception caught while iterating: "
+				<< common::string::ToWide(e.what());
+			LogError(ss.str());
 		}
 		return true;
 	});
@@ -658,8 +676,10 @@ void DeleteVanillaMullvadAdapter()
 			// Skip this adapter
 			//
 
-			std::wcerr << L"Skipping TAP adapter due to exception caught while iterating: "
-				<< common::string::ToWide(e.what()) << std::endl;
+			std::wstringstream ss;
+			ss << L"Skipping TAP adapter due to exception caught while iterating: "
+				<< common::string::ToWide(e.what());
+			LogError(ss.str());
 		}
 		return true;
 	});
@@ -677,7 +697,7 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 	if (-1 == _setmode(_fileno(stdout), _O_U16TEXT)
 		|| -1 == _setmode(_fileno(stderr), _O_U16TEXT))
 	{
-		std::wcerr << L"Failed to set translation mode" << std::endl;
+		LogError(L"Failed to set translation mode");
 	}
 
 	if (2 > argc)
@@ -727,18 +747,18 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 	}
 	catch (const std::exception &e)
 	{
-		std::wcerr << common::string::ToWide(e.what());
+		LogError(common::string::ToWide(e.what()));
 		return GENERAL_ERROR;
 	}
 	catch (...)
 	{
-		std::wcerr << L"Unhandled exception.";
+		LogError(L"Unhandled exception.");
 		return GENERAL_ERROR;
 	}
 	return GENERAL_SUCCESS;
 
 INVALID_ARGUMENTS:
 
-	std::wcerr << L"Invalid arguments.";
+	LogError(L"Invalid arguments.");
 	return GENERAL_ERROR;
 }
