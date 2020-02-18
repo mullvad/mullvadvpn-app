@@ -13,6 +13,7 @@ struct RelaySelectorResult {
     var relay: RelayList.Hostname
     var tunnel: RelayList.WireguardTunnel
     var endpoint: MullvadEndpoint
+    var geoLocation: GeoLocation
 }
 
 struct RelaySelector {
@@ -98,29 +99,47 @@ struct RelaySelector {
     func evaluate(with constraints: RelayConstraints) -> RelaySelectorResult? {
         let filteredRelayList = applyConstraints(constraints)
 
-        guard let randomRelay = filteredRelayList.countries.randomElement()?
-            .cities.randomElement()?
-            .relays.randomElement() else {
-                return nil
-        }
-
-        guard let randomTunnel = randomRelay.tunnels?.wireguard?.randomElement() else {
+        guard let country = filteredRelayList.countries.randomElement() else {
             return nil
         }
 
-        guard let randomPort = randomTunnel.portRanges.randomElement()?.randomElement() else {
+        guard let city = country.cities.randomElement() else {
+            return nil
+        }
+
+        guard let relay = city.relays.randomElement() else {
+                return nil
+        }
+
+        guard let tunnel = relay.tunnels?.wireguard?.randomElement() else {
+            return nil
+        }
+
+        guard let port = tunnel.portRanges.randomElement()?.randomElement() else {
             return nil
         }
 
         let endpoint = MullvadEndpoint(
-            ipv4Relay: IPv4Endpoint(ip: randomRelay.ipv4AddrIn, port: randomPort),
+            ipv4Relay: IPv4Endpoint(ip: relay.ipv4AddrIn, port: port),
             ipv6Relay: nil,
-            ipv4Gateway: randomTunnel.ipv4Gateway,
-            ipv6Gateway: randomTunnel.ipv6Gateway,
-            publicKey: randomTunnel.publicKey
+            ipv4Gateway: tunnel.ipv4Gateway,
+            ipv6Gateway: tunnel.ipv6Gateway,
+            publicKey: tunnel.publicKey
         )
 
-        return RelaySelectorResult(relay: randomRelay, tunnel: randomTunnel, endpoint: endpoint)
+        let geoLocation = GeoLocation(
+            country: country.name,
+            city: city.name,
+            latitude: city.latitude,
+            longitude: city.longitude
+        )
+
+        return RelaySelectorResult(
+            relay: relay,
+            tunnel: tunnel,
+            endpoint: endpoint,
+            geoLocation: geoLocation
+        )
     }
 
 }
