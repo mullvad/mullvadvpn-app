@@ -27,9 +27,4 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IAppContext) => {
   };
 };
 
-export default withAppContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(NotificationArea),
-);
+export default withAppContext(connect(mapStateToProps, mapDispatchToProps)(NotificationArea));
