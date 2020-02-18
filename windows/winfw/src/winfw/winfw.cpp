@@ -9,8 +9,6 @@
 namespace
 {
 
-uint32_t g_timeout = 0;
-
 MullvadLogSink g_logSink = nullptr;
 void *g_logSinkContext = nullptr;
 
@@ -65,14 +63,14 @@ WinFw_Initialize(
 	}
 
 	// Convert seconds to milliseconds.
-	g_timeout = timeout * 1000;
+	uint32_t timeout_ms = timeout * 1000;
 
 	g_logSink = logSink;
 	g_logSinkContext = logSinkContext;
 
 	try
 	{
-		g_fwContext = new FwContext(g_timeout);
+		g_fwContext = new FwContext(timeout_ms);
 	}
 	catch (std::exception &err)
 	{
@@ -112,14 +110,14 @@ WinFw_InitializeBlocked(
 	}
 
 	// Convert seconds to milliseconds.
-	g_timeout = timeout * 1000;
+	uint32_t timeout_ms = timeout * 1000;
 
 	g_logSink = logSink;
 	g_logSinkContext = logSinkContext;
 
 	try
 	{
-		g_fwContext = new FwContext(g_timeout, settings);
+		g_fwContext = new FwContext(timeout_ms, settings);
 	}
 	catch (std::exception &err)
 	{
