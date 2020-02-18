@@ -4,15 +4,12 @@
         android:viewportWidth="32.0"
         android:viewportHeight="32.0"
         android:tint="?attr/colorControlNormal">
-    <group
-            android:translateX="16.0"
-            android:translateY="16.0"
-            android:scaleX="1.25"
-            android:scaleY="1.25"
-            >
-        <path
-                android:fillColor="#000000"
-                android:pathData="
+    <group android:translateX="16.0"
+           android:translateY="16.0"
+           android:scaleX="1.25"
+           android:scaleY="1.25">
+        <path android:fillColor="#000000"
+              android:pathData="
                     M 0,-1
                     v -6
                     a 1,1 0 0,1 1,-1
@@ -32,7 +29,6 @@
                     v -7
                     a 1,1 0 0,1 1,-1
                     z
-                "
-                />
+                " />
     </group>
 </vector>
