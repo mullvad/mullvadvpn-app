@@ -21,15 +21,15 @@ public:
 	void log(const std::wstring &message) override {}
 };
 
-class AnsiFileLogSink : public ILogSink
+class Utf8FileLogSink : public ILogSink
 {
 public:
 
-	AnsiFileLogSink(const std::wstring &file, bool append = true, bool flush = false);
-	~AnsiFileLogSink();
+	Utf8FileLogSink(const std::wstring &file, bool append = true, bool flush = false);
+	~Utf8FileLogSink();
 
-	AnsiFileLogSink(const AnsiFileLogSink &) = delete;
-	AnsiFileLogSink &operator=(const AnsiFileLogSink &) = delete;
+	Utf8FileLogSink(const Utf8FileLogSink &) = delete;
+	Utf8FileLogSink &operator=(const Utf8FileLogSink &) = delete;
 
 	void log(const std::wstring &message) override;
 
