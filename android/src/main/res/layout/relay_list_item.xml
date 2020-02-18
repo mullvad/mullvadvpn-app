@@ -1,50 +1,42 @@
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/main_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/country_row_padding"
-        android:background="@color/blue"
-        android:orientation="horizontal"
-        android:gravity="center"
-        >
-    <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:layout_marginVertical="16dp"
-            >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/main_fragment"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:paddingLeft="@dimen/country_row_padding"
+              android:background="@color/blue"
+              android:orientation="horizontal"
+              android:gravity="center">
+    <FrameLayout android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_weight="0"
+                 android:layout_marginVertical="16dp">
         <ImageView android:id="@+id/relay_active"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:src="@drawable/icon_relay_active"
-                />
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_gravity="center"
+                   android:src="@drawable/icon_relay_active" />
         <ImageView android:id="@+id/selected"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/icon_tick"
-                android:visibility="invisible"
-                />
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:src="@drawable/icon_tick"
+                   android:visibility="invisible" />
     </FrameLayout>
     <TextView android:id="@+id/name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginVertical="16dp"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:text=""
-            />
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:layout_marginHorizontal="8dp"
+              android:layout_marginVertical="16dp"
+              android:textColor="@color/white"
+              android:textSize="20sp"
+              android:textStyle="bold"
+              android:text="" />
     <ImageButton android:id="@+id/chevron"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0"
-            android:paddingRight="24dp"
-            android:paddingLeft="24dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:src="@drawable/icon_chevron_expand"
-            />
+                 android:layout_width="wrap_content"
+                 android:layout_height="match_parent"
+                 android:layout_weight="0"
+                 android:paddingRight="24dp"
+                 android:paddingLeft="24dp"
+                 android:background="?android:attr/selectableItemBackground"
+                 android:src="@drawable/icon_chevron_expand" />
 </LinearLayout>
