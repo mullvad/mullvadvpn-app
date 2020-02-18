@@ -53,6 +53,7 @@
     "@types/react-dom": "^16.8.2",
     "@types/react-redux": "^7.0.6",
     "@types/react-router": "^4.4.3",
+    "@types/react-simple-maps": "^0.12.1",
     "@types/sinon": "^7.0.5",
     "@types/sprintf-js": "^1.1.2",
     "@types/stream-json": "^1.0.0",
