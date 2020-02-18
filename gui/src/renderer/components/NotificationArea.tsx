@@ -54,7 +54,6 @@ function getTunnelParameterMessage(err: TunnelParameterError): string {
         'in-app-notifications',
         'WireGuard key not published to our servers. You can manage your key in Advanced settings.',
       );
-      break;
     case 'custom_tunnel_host_resultion_error':
       return messages.pgettext(
         'in-app-notifications',
