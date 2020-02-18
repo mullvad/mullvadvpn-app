@@ -21,7 +21,6 @@ matrix:
         - cd gui
         - npm ci --no-optional
       script: &node_script
-        - npm run check-format
         - npm run lint
         - npm run build
         - npm test
