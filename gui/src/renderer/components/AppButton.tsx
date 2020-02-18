@@ -84,7 +84,7 @@ interface IState {
   textAdjustment: number;
 }
 
-export class BaseButton extends Component<IProps, IState> {
+class BaseButton extends Component<IProps, IState> {
   public state: IState = {
     hovered: false,
     textAdjustment: 0,

@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { Component, Styles, Text, Types, View } from 'reactxp';
+import { Component, Styles, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
+import Marquee from './Marquee';
 import { IMainButtonProps, ISideButtonProps, MultiButton } from './MultiButton';
 import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
 
@@ -46,16 +47,16 @@ const styles = {
     fontSize: 16,
     fontWeight: '800',
     lineHeight: 22,
-    marginBottom: 4,
+    marginBottom: 2,
   }),
   status_location: Styles.createTextStyle({
     flexDirection: 'column',
-    marginBottom: 4,
+    marginBottom: 2,
   }),
   status_location_text: Styles.createTextStyle({
     fontFamily: 'DINPro',
     fontSize: 34,
-    lineHeight: 36,
+    lineHeight: 38,
     fontWeight: '900',
     overflow: 'hidden',
     letterSpacing: -0.9,
@@ -68,8 +69,10 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
     const Location = ({ children }: { children?: React.ReactNode }) => (
       <View style={styles.status_location}>{children}</View>
     );
-    const City = () => <Text style={styles.status_location_text}>{this.props.city}</Text>;
-    const Country = () => <Text style={styles.status_location_text}>{this.props.country}</Text>;
+    const City = () => <Marquee style={styles.status_location_text}>{this.props.city}</Marquee>;
+    const Country = () => (
+      <Marquee style={styles.status_location_text}>{this.props.country}</Marquee>
+    );
 
     const SwitchLocation = () => {
       return (
