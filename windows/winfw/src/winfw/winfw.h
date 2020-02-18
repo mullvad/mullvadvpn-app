@@ -87,7 +87,7 @@ bool
 WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
-	const WinFwSettings &settings,
+	const WinFwSettings *settings,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );
@@ -133,8 +133,8 @@ WINFW_LINKAGE
 bool
 WINFW_API
 WinFw_ApplyPolicyConnecting(
-	const WinFwSettings &settings,
-	const WinFwRelay &relay,
+	const WinFwSettings *settings,
+	const WinFwRelay *relay,
 	const PingableHosts *pingableHosts
 );
 
@@ -159,8 +159,8 @@ WINFW_LINKAGE
 bool
 WINFW_API
 WinFw_ApplyPolicyConnected(
-	const WinFwSettings &settings,
-	const WinFwRelay &relay,
+	const WinFwSettings *settings,
+	const WinFwRelay *relay,
 	const wchar_t *tunnelInterfaceAlias,
 	const wchar_t *v4DnsHost,
 	const wchar_t *v6DnsHost
@@ -177,7 +177,7 @@ WINFW_LINKAGE
 bool
 WINFW_API
 WinFw_ApplyPolicyBlocked(
-	const WinFwSettings &settings
+	const WinFwSettings *settings
 );
 
 //
