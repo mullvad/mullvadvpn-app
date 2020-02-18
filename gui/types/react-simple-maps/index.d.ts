@@ -12,6 +12,7 @@ declare module 'react-simple-maps' {
   // TypeScript Version: 2.8
 
   import * as React from 'react';
+  // eslint-disable-next-line import/no-extraneous-dependencies
   import { GeoProjection } from 'd3-geo';
 
   export type Point = [number, number];
