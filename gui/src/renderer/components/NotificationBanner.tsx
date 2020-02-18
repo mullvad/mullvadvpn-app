@@ -70,13 +70,21 @@ const styles = {
   }),
 };
 
-export class NotificationTitle extends Component {
+interface INotificationTitleProps {
+  children?: React.ReactNode;
+}
+
+export class NotificationTitle extends Component<INotificationTitleProps> {
   public render() {
     return <Text style={styles.title}>{this.props.children}</Text>;
   }
 }
 
-export class NotificationSubtitle extends Component {
+interface INotificationSubtitleProps {
+  children?: React.ReactNode;
+}
+
+export class NotificationSubtitle extends Component<INotificationSubtitleProps> {
   public render() {
     return React.Children.count(this.props.children) > 0 ? (
       <Text style={styles.subtitle}>{this.props.children}</Text>
@@ -84,7 +92,12 @@ export class NotificationSubtitle extends Component {
   }
 }
 
-export class NotificationOpenLinkAction extends Component<{ onPress: () => Promise<void> }> {
+interface INotifcationOpenLinkActionProps {
+  onPress: () => Promise<void>;
+  children?: React.ReactNode;
+}
+
+export class NotificationOpenLinkAction extends Component<INotifcationOpenLinkActionProps> {
   public state = {
     hovered: false,
   };
@@ -116,19 +129,32 @@ export class NotificationOpenLinkAction extends Component<{ onPress: () => Promi
   };
 }
 
-export class NotificationContent extends Component {
+interface INotificationContentProps {
+  children?: React.ReactNode;
+}
+
+export class NotificationContent extends Component<INotificationContentProps> {
   public render() {
     return <View style={styles.textContainer}>{this.props.children}</View>;
   }
 }
 
-export class NotificationActions extends Component {
+interface INotificationActionsProps {
+  children?: React.ReactNode;
+}
+
+export class NotificationActions extends Component<INotificationActionsProps> {
   public render() {
     return <View style={styles.actionContainer}>{this.props.children}</View>;
   }
 }
 
-export class NotificationIndicator extends Component<{ type: 'success' | 'warning' | 'error' }> {
+interface INotificationIndicatorProps {
+  type: 'success' | 'warning' | 'error';
+  children?: React.ReactNode;
+}
+
+export class NotificationIndicator extends Component<INotificationIndicatorProps> {
   public render() {
     return <View style={[styles.indicator.base, styles.indicator[this.props.type]]} />;
   }
