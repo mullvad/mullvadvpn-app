@@ -1403,7 +1403,6 @@ class ApplicationMain {
   private installMacOsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
     const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
     const macEventMonitor = new NSEventMonitor();
-    // tslint:disable-next-line
     const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
     const window = windowController.window;
 
