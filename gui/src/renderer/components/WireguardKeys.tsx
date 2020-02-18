@@ -234,6 +234,8 @@ export default class WireguardKeys extends Component<IProps> {
               {messages.pgettext('wireguard-key-view', 'Key verification failed')}
             </Text>
           );
+        } else {
+          return null;
         }
 
       default:

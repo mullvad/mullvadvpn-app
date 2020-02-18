@@ -94,25 +94,15 @@ export default class Support extends Component<ISupportProps, ISupportState> {
   };
 
   public onSend = async (): Promise<void> => {
-    switch (this.state.sendState) {
-      case SendState.Initial:
-        if (this.state.email.length === 0) {
-          this.setState({ sendState: SendState.Confirm });
-          break;
-        } else {
-          // fallthrough
-        }
-
-      case SendState.Confirm:
-        try {
-          await this.sendReport();
-        } catch (error) {
-          // No-op
-        }
-        break;
-
-      default:
-        break;
+    const sendState = this.state.sendState;
+    if (sendState === SendState.Initial && this.state.email.length === 0) {
+      this.setState({ sendState: SendState.Confirm });
+    } else if (sendState === SendState.Initial || sendState === SendState.Confirm) {
+      try {
+        await this.sendReport();
+      } catch (error) {
+        // No-op
+      }
     }
   };
 
