@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item android:state_pressed="false">
         <shape android:shape="rectangle">
-            <corners
-                    android:topRightRadius="4dp"
-                    android:bottomRightRadius="4dp"
-                    />
-            <solid android:color="@color/red60"/>
+            <corners android:topRightRadius="4dp"
+                     android:bottomRightRadius="4dp" />
+            <solid android:color="@color/red60" />
         </shape>
     </item>
-
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <corners
-                    android:topRightRadius="4dp"
-                    android:bottomRightRadius="4dp"
-                    />
-            <solid android:color="@color/red80"/>
+            <corners android:topRightRadius="4dp"
+                     android:bottomRightRadius="4dp" />
+            <solid android:color="@color/red80" />
         </shape>
     </item>
 </selector>
