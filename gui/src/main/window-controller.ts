@@ -157,7 +157,7 @@ export default class WindowController {
     this.installWindowReadyHandlers();
   }
 
-  public show(whenReady: boolean = true) {
+  public show(whenReady = true) {
     if (whenReady) {
       this.executeWhenWindowIsReady(() => this.showImmediately());
     } else {
