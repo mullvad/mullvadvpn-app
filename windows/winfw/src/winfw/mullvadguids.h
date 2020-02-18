@@ -23,8 +23,7 @@ public:
 
 	static const GUID &Provider();
 	static const GUID &SublayerBaseline();
-	static const GUID &SublayerNonTunnelDns();
-	static const GUID &SublayerTunnelDns();
+	static const GUID &SublayerDns();
 
 	//
 	// Filter identifiers
@@ -75,13 +74,10 @@ public:
 	static const GUID &Filter_Baseline_PermitDns_Outbound_Ipv4();
 	static const GUID &Filter_Baseline_PermitDns_Outbound_Ipv6();
 
-	static const GUID &Filter_NonTunnelDns_BlockAll_Outbound_Ipv4();
-	static const GUID &Filter_NonTunnelDns_BlockAll_Outbound_Ipv6();
-	static const GUID &Filter_NonTunnelDns_PermitSelected_Outbound_Ipv4();
-	static const GUID &Filter_NonTunnelDns_PermitSelected_Outbound_Ipv6();
-
-	static const GUID &Filter_TunnelDns_BlockAll_Outbound_Ipv4();
-	static const GUID &Filter_TunnelDns_BlockAll_Outbound_Ipv6();
-	static const GUID &Filter_TunnelDns_PermitSelected_Outbound_Ipv4();
-	static const GUID &Filter_TunnelDns_PermitSelected_Outbound_Ipv6();
+	static const GUID &Filter_Dns_BlockAll_Outbound_Ipv4();
+	static const GUID &Filter_Dns_BlockAll_Outbound_Ipv6();
+	static const GUID &Filter_Dns_PermitNonTunnel_Outbound_Ipv4();
+	static const GUID &Filter_Dns_PermitNonTunnel_Outbound_Ipv6();
+	static const GUID &Filter_Dns_PermitTunnel_Outbound_Ipv4();
+	static const GUID &Filter_Dns_PermitTunnel_Outbound_Ipv6();
 };

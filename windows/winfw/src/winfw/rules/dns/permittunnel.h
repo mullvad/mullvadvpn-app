@@ -5,14 +5,14 @@
 #include <vector>
 #include <string>
 
-namespace rules::tunneldns
+namespace rules::dns
 {
 
-class PermitSelected : public IFirewallRule
+class PermitTunnel : public IFirewallRule
 {
 public:
 
-	PermitSelected(const std::wstring &tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts);
+	PermitTunnel(const std::wstring &tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts);
 	
 	bool apply(IObjectInstaller &objectInstaller) override;
 

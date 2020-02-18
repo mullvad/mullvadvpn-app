@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "permitselected.h"
+#include "permitnontunnel.h"
 #include <winfw/mullvadguids.h>
 #include <winfw/rules/ports.h>
 #include <libwfp/filterbuilder.h>
@@ -11,11 +11,11 @@
 
 using namespace wfp::conditions;
 
-namespace rules::tunneldns
+namespace rules::dns
 {
 
-PermitSelected::PermitSelected(const std::wstring &tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts)
-	: m_tunnelInterfaceAlias(tunnelInterfaceAlias)
+PermitNonTunnel::PermitNonTunnel(std::optional<std::wstring> tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts)
+	: m_tunnelInterfaceAlias(std::move(tunnelInterfaceAlias))
 {
 	if (hosts.empty())
 	{
@@ -44,7 +44,7 @@ PermitSelected::PermitSelected(const std::wstring &tunnelInterfaceAlias, const s
 	}
 }
 
-bool PermitSelected::apply(IObjectInstaller &objectInstaller)
+bool PermitNonTunnel::apply(IObjectInstaller &objectInstaller)
 {
 	wfp::FilterBuilder filterBuilder;
 
@@ -55,23 +55,27 @@ bool PermitSelected::apply(IObjectInstaller &objectInstaller)
 	if (false == m_hostsIpv4.empty())
 	{
 		filterBuilder
-			.key(MullvadGuids::Filter_TunnelDns_PermitSelected_Outbound_Ipv4())
-			.name(L"Permit outbound connections to selected DNS servers (IPv4)")
-			.description(L"This filter is part of a rule that permits outbound DNS")
+			.key(MullvadGuids::Filter_Dns_PermitNonTunnel_Outbound_Ipv4())
+			.name(L"Permit selected non-tunnel DNS traffic (IPv4)")
+			.description(L"This filter is part of a rule that permits non-tunnel DNS traffic")
 			.provider(MullvadGuids::Provider())
 			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-			.sublayer(MullvadGuids::SublayerTunnelDns())
+			.sublayer(MullvadGuids::SublayerDns())
 			.weight(wfp::FilterBuilder::WeightClass::Max)
 			.permit();
 
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 
 		conditionBuilder.add_condition(ConditionPort::Remote(DNS_SERVER_PORT));
-		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
 
 		for (const auto &host : m_hostsIpv4)
 		{
 			conditionBuilder.add_condition(ConditionIp::Remote(host));
+		}
+
+		if (m_tunnelInterfaceAlias.has_value())
+		{
+			conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias.value(), CompareNeq()));
 		}
 
 		if (false == objectInstaller.addFilter(filterBuilder, conditionBuilder))
@@ -90,23 +94,27 @@ bool PermitSelected::apply(IObjectInstaller &objectInstaller)
 	//
 
 	filterBuilder
-		.key(MullvadGuids::Filter_TunnelDns_PermitSelected_Outbound_Ipv6())
-		.name(L"Permit outbound connections to selected DNS servers (IPv6)")
-		.description(L"This filter is part of a rule that permits outbound DNS")
+		.key(MullvadGuids::Filter_Dns_PermitNonTunnel_Outbound_Ipv6())
+		.name(L"Permit selected non-tunnel DNS traffic (IPv6)")
+		.description(L"This filter is part of a rule that permits non-tunnel DNS traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
-		.sublayer(MullvadGuids::SublayerTunnelDns())
+		.sublayer(MullvadGuids::SublayerDns())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 	conditionBuilder.add_condition(ConditionPort::Remote(DNS_SERVER_PORT));
-	conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
 
 	for (const auto &host : m_hostsIpv6)
 	{
 		conditionBuilder.add_condition(ConditionIp::Remote(host));
+	}
+
+	if (m_tunnelInterfaceAlias.has_value())
+	{
+		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias.value(), CompareNeq()));
 	}
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);

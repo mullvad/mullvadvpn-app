@@ -16,10 +16,9 @@
 #include "rules/baseline/permitvpntunnelservice.h"
 #include "rules/baseline/permitping.h"
 #include "rules/baseline/permitdns.h"
-#include "rules/nontunneldns/permitselected.h"
-#include "rules/nontunneldns/blockall.h"
-#include "rules/tunneldns/permitselected.h"
-#include "rules/tunneldns/blockall.h"
+#include "rules/dns/blockall.h"
+#include "rules/dns/permitnontunnel.h"
+#include "rules/dns/permittunnel.h"
 #include <libwfp/transaction.h>
 #include <libwfp/filterengine.h>
 #include <libcommon/error.h>
@@ -79,26 +78,18 @@ void AppendSettingsRules
 	//
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitDns>());
+	ruleset.emplace_back(std::make_unique<dns::BlockAll>());
 
+	if (nonTunnelDnsServers.has_value())
 	{
-		ruleset.emplace_back(std::make_unique<nontunneldns::BlockAll>(tunnelInterfaceAlias));
-
-		if (nonTunnelDnsServers.has_value())
-		{
-			ruleset.emplace_back(std::make_unique<nontunneldns::PermitSelected>(
-				tunnelInterfaceAlias, nonTunnelDnsServers.value()));
-		}
+		ruleset.emplace_back(std::make_unique<dns::PermitNonTunnel>(
+			tunnelInterfaceAlias, nonTunnelDnsServers.value()));
 	}
 
-	if (tunnelInterfaceAlias.has_value())
+	if (tunnelInterfaceAlias.has_value() && tunnelDnsServers.has_value())
 	{
-		ruleset.emplace_back(std::make_unique<tunneldns::BlockAll>(tunnelInterfaceAlias.value()));
-
-		if (tunnelDnsServers.has_value())
-		{
-			ruleset.emplace_back(std::make_unique<tunneldns::PermitSelected>(
-				tunnelInterfaceAlias.value(), tunnelDnsServers.value()));
-		}
+		ruleset.emplace_back(std::make_unique<dns::PermitTunnel>(
+			tunnelInterfaceAlias.value(), tunnelDnsServers.value()));
 	}
 }
 
@@ -300,8 +291,7 @@ bool FwContext::applyCommonBaseConfiguration(SessionController &controller, wfp:
 	//
 	return controller.addProvider(*MullvadObjects::Provider())
 		&& controller.addSublayer(*MullvadObjects::SublayerBaseline())
-		&& controller.addSublayer(*MullvadObjects::SublayerNonTunnelDns())
-		&& controller.addSublayer(*MullvadObjects::SublayerTunnelDns());
+		&& controller.addSublayer(*MullvadObjects::SublayerDns());
 }
 
 bool FwContext::applyRuleset(const Ruleset &ruleset)

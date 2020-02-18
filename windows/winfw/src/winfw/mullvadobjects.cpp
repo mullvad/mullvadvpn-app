@@ -31,29 +31,14 @@ std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerBaseline()
 }
 
 //static
-std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerNonTunnelDns()
+std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerDns()
 {
 	auto builder = std::make_unique<wfp::SublayerBuilder>();
 
 	(*builder)
-		.name(L"Mullvad VPN non-tunnel DNS")
-		.description(L"Filters that restrict DNS traffic outside tunnel")
-		.key(MullvadGuids::SublayerNonTunnelDns())
-		.provider(MullvadGuids::Provider())
-		.weight(MAXUINT16 - 1);
-
-	return builder;
-}
-
-//static
-std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerTunnelDns()
-{
-	auto builder = std::make_unique<wfp::SublayerBuilder>();
-
-	(*builder)
-		.name(L"Mullvad VPN tunnel DNS")
-		.description(L"Filters that restrict DNS traffic inside tunnel")
-		.key(MullvadGuids::SublayerTunnelDns())
+		.name(L"Mullvad VPN DNS")
+		.description(L"Filters that restrict DNS traffic")
+		.key(MullvadGuids::SublayerDns())
 		.provider(MullvadGuids::Provider())
 		.weight(MAXUINT16 - 1);
 
