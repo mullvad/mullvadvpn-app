@@ -52,6 +52,7 @@ matrix:
         - sudo mkdir /opt/android
         - sudo unzip -q -d /opt/android/ /tmp/ndk.zip
         - sudo /opt/android/android-ndk-r20/build/tools/make-standalone-toolchain.sh --platform=android-21 --arch=arm64 --install-dir=/opt/android/toolchains/android21-aarch64
+        - sudo apt install tidy
         - |
             curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.34.2/ktlint &&
             chmod a+x ktlint &&
@@ -74,6 +75,7 @@ matrix:
         - ./gradlew --console plain assembleDebug
         # Run ktlint with extra andorid rules
         - ktlint -a
+        - source ../ci/ci-android-xml.sh && tidy-verify-xml
 
     # Daemon - macOS
     - language: rust
