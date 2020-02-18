@@ -59,7 +59,10 @@ describe('IAccountData cache', () => {
 
   it('should update when fetch succeeds on the first attempt', async () => {
     const update = new Promise((resolve, reject) => {
-      const cache = new AccountDataCache((_) => Promise.resolve(dummyAccountData), () => resolve());
+      const cache = new AccountDataCache(
+        (_) => Promise.resolve(dummyAccountData),
+        () => resolve(),
+      );
 
       cache.fetch(dummyAccountToken, {
         onFinish: spy(),
