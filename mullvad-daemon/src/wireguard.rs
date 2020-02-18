@@ -154,7 +154,6 @@ impl KeyManager {
             old_key,
             new_key,
         ))
-        .map_err(Self::map_rpc_error)
     }
 
 
@@ -219,17 +218,14 @@ impl KeyManager {
             Ok(())
         });
 
-        match self
+        let result = self
             .tokio_remote
             .execute(fut)
-            .map_err(|_| Error::ExectuionError)
-        {
-            Ok(res) => {
-                self.current_job = Some(cancel_handle);
-                Ok(res)
-            }
-            Err(e) => Err(e),
+            .map_err(|_| Error::ExectuionError);
+        if result.is_ok() {
+            self.current_job = Some(cancel_handle);
         }
+        result
     }
 
 
@@ -261,10 +257,11 @@ impl KeyManager {
         account: AccountToken,
         old_key: PublicKey,
         new_key: PrivateKey,
-    ) -> impl Future<Item = WireguardData, Error = JsonRpcError> + Send {
-        let mut rpc = mullvad_rpc::WireguardKeyProxy::new(http_handle.clone());
+    ) -> impl Future<Item = WireguardData, Error = Error> + Send {
+        let mut rpc = mullvad_rpc::WireguardKeyProxy::new(http_handle);
         let new_public_key = new_key.public_key();
-        rpc.replace_wg_key(account.clone(), old_key.key, new_public_key)
+        rpc.replace_wg_key(account, old_key.key, new_public_key)
+            .map_err(Self::map_rpc_error)
             .map(move |addresses| WireguardData {
                 private_key: new_key,
                 addresses,
@@ -316,7 +313,6 @@ impl KeyManager {
 
                 let private_key = PrivateKey::new_from_random();
                 Self::replace_key_rpc(http_handle, account_token, public_key, private_key)
-                    .map_err(Self::map_rpc_error)
             })
             .then(move |rpc_result| {
                 match rpc_result {
