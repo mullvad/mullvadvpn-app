@@ -20,6 +20,7 @@ function tidy-verify-xml {
     tidy-up-android-xml
     if (( $(git diff android/src/main/res/ | wc -l) > 0 )); then
         echo "android/src/main/res contains that were changed, XML is not formatted properly"
+        git diff android/src/main/res/
         return 1;
     else
         echo "Android XML files are correctly formatted"
