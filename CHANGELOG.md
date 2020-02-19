@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Security
+- Fix stack overflow caused by WireGuard key rotation timers.
 
 
 ## [2020.2] - 2020-02-13
