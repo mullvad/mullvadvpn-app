@@ -28,7 +28,12 @@ bool PermitNdp::apply(IObjectInstaller &objectInstaller)
 	filterBuilder
 		.key(MullvadGuids::Filter_Baseline_PermitNdp_Outbound_Router_Solicitation())
 		.name(L"Permit outbound NDP router solicitation")
-		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+		.description(L"This filter is part of a rule that permits the most central parts of NDP")
+		.provider(MullvadGuids::Provider())
+		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
+		.sublayer(MullvadGuids::SublayerBaseline())
+		.weight(wfp::FilterBuilder::WeightClass::Max)
+		.permit();
 
 	{
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
