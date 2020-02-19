@@ -32,6 +32,8 @@ Line wrap the file at 100 chars.                                              Th
   leaking any data during the reconnection.
 
 ### Fixed
+- Fix stack overflow caused by WireGuard key rotation timers.
+
 #### Android
 - Make sure the settings screen is scrollable so that devices with small screens can access the quit
   button.

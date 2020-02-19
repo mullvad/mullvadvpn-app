@@ -2,6 +2,7 @@ use crate::{account_history::AccountHistory, InternalDaemonEvent};
 use chrono::offset::Utc;
 use futures::{
     future::Executor,
+    stream::Stream,
     sync::{mpsc::UnboundedSender, oneshot},
     Async, Future, Poll,
 };
@@ -153,7 +154,6 @@ impl KeyManager {
             old_key,
             new_key,
         ))
-        .map_err(Self::map_rpc_error)
     }
 
 
@@ -218,17 +218,14 @@ impl KeyManager {
             Ok(())
         });
 
-        match self
+        let result = self
             .tokio_remote
             .execute(fut)
-            .map_err(|_| Error::ExectuionError)
-        {
-            Ok(res) => {
-                self.current_job = Some(cancel_handle);
-                Ok(res)
-            }
-            Err(e) => Err(e),
+            .map_err(|_| Error::ExectuionError);
+        if result.is_ok() {
+            self.current_job = Some(cancel_handle);
         }
+        result
     }
 
 
@@ -260,10 +257,11 @@ impl KeyManager {
         account: AccountToken,
         old_key: PublicKey,
         new_key: PrivateKey,
-    ) -> impl Future<Item = WireguardData, Error = JsonRpcError> + Send {
-        let mut rpc = mullvad_rpc::WireguardKeyProxy::new(http_handle.clone());
+    ) -> impl Future<Item = WireguardData, Error = Error> + Send {
+        let mut rpc = mullvad_rpc::WireguardKeyProxy::new(http_handle);
         let new_public_key = new_key.public_key();
-        rpc.replace_wg_key(account.clone(), old_key.key, new_public_key)
+        rpc.replace_wg_key(account, old_key.key, new_public_key)
+            .map_err(Self::map_rpc_error)
             .map(move |addresses| WireguardData {
                 private_key: new_key,
                 addresses,
@@ -284,22 +282,18 @@ impl KeyManager {
     fn create_rotation_check(
         key: PublicKey,
         rotation_interval_secs: u64,
-    ) -> Box<dyn Future<Item = (), Error = Error> + Send> {
-        Box::new(
-            tokio_timer::wheel()
-                .build()
-                .sleep(KEY_CHECK_INTERVAL)
-                .map_err(|e| Error::RotationScheduleError(e))
-                .and_then(move |_| {
-                    let key_age =
-                        (Utc::now().signed_duration_since(key.created)).num_seconds() as u64;
-                    if key_age >= rotation_interval_secs {
-                        Box::new(futures::future::ok(()))
-                    } else {
-                        Self::create_rotation_check(key, rotation_interval_secs)
-                    }
-                }),
-        )
+    ) -> impl Future<Item = (), Error = Error> + Send {
+        tokio_timer::wheel()
+            .build()
+            .interval(KEY_CHECK_INTERVAL)
+            .map_err(Error::RotationScheduleError)
+            .take_while(move |_| {
+                Ok(
+                    (Utc::now().signed_duration_since(key.created)).num_seconds() as u64
+                        <= rotation_interval_secs,
+                )
+            })
+            .for_each(|_| Ok(()))
     }
 
     fn next_automatic_rotation(
@@ -308,41 +302,38 @@ impl KeyManager {
         public_key: PublicKey,
         rotation_interval_secs: u64,
         account_token: AccountToken,
-    ) -> Box<dyn Future<Item = PublicKey, Error = Error> + Send> {
+    ) -> impl Future<Item = PublicKey, Error = Error> + Send {
         let expiration_timer =
             Self::create_rotation_check(public_key.clone(), rotation_interval_secs);
         let account_token_copy = account_token.clone();
 
-        Box::new(
-            expiration_timer
-                .and_then(move |_| {
-                    log::info!("Replacing WireGuard key");
+        expiration_timer
+            .and_then(move |_| {
+                log::info!("Replacing WireGuard key");
 
-                    let private_key = PrivateKey::new_from_random();
-                    Self::replace_key_rpc(http_handle, account_token, public_key, private_key)
-                        .map_err(Self::map_rpc_error)
-                })
-                .then(move |rpc_result| {
-                    match rpc_result {
-                        Ok(data) => {
-                            // Update account data
-                            let _ = daemon_tx.unbounded_send(InternalDaemonEvent::WgKeyEvent((
-                                account_token_copy,
-                                Ok(data.clone()),
-                            )));
-                            Ok(data.get_public_key())
-                        }
-                        Err(Error::TooManyKeys) => {
-                            let _ = daemon_tx.unbounded_send(InternalDaemonEvent::WgKeyEvent((
-                                account_token_copy,
-                                Err(Error::TooManyKeys),
-                            )));
-                            Err(Error::TooManyKeys)
-                        }
-                        Err(unknown_err) => Err(unknown_err),
+                let private_key = PrivateKey::new_from_random();
+                Self::replace_key_rpc(http_handle, account_token, public_key, private_key)
+            })
+            .then(move |rpc_result| {
+                match rpc_result {
+                    Ok(data) => {
+                        // Update account data
+                        let _ = daemon_tx.unbounded_send(InternalDaemonEvent::WgKeyEvent((
+                            account_token_copy,
+                            Ok(data.clone()),
+                        )));
+                        Ok(data.get_public_key())
                     }
-                }),
-        )
+                    Err(Error::TooManyKeys) => {
+                        let _ = daemon_tx.unbounded_send(InternalDaemonEvent::WgKeyEvent((
+                            account_token_copy,
+                            Err(Error::TooManyKeys),
+                        )));
+                        Err(Error::TooManyKeys)
+                    }
+                    Err(unknown_err) => Err(unknown_err),
+                }
+            })
     }
 
     fn create_automatic_rotation(
@@ -351,51 +342,35 @@ impl KeyManager {
         public_key: PublicKey,
         rotation_interval_secs: u64,
         account_token: AccountToken,
-    ) -> Box<dyn Future<Item = (), Error = Error> + Send> {
+    ) -> impl Future<Item = (), Error = ()> + Send {
         log::debug!("create_automatic_rotation");
 
-        let fut = Self::next_automatic_rotation(
-            daemon_tx.clone(),
-            http_handle.clone(),
-            public_key.clone(),
-            rotation_interval_secs,
-            account_token.clone(),
-        );
-
-        let create_repeat_future = move |result: Result<PublicKey>| match result {
-            Ok(next_public_key) => Self::create_automatic_rotation(
-                daemon_tx,
-                http_handle,
-                next_public_key,
-                rotation_interval_secs,
-                account_token,
-            ),
-            Err(Error::TooManyKeys) => Box::new(futures::future::ok(())),
-            Err(e) => {
-                log::error!(
-                    "Key rotation failed: {}. Retrying in {} seconds",
-                    e,
-                    AUTOMATIC_ROTATION_RETRY_DELAY.as_secs(),
+        tokio_timer::wheel()
+            .build()
+            .interval(AUTOMATIC_ROTATION_RETRY_DELAY)
+            .fold(public_key, move |old_public_key, _| {
+                let fut = Self::next_automatic_rotation(
+                    daemon_tx.clone(),
+                    http_handle.clone(),
+                    old_public_key.clone(),
+                    rotation_interval_secs,
+                    account_token.clone(),
                 );
-
-                Box::new(
-                    tokio_timer::wheel()
-                        .build()
-                        .sleep(AUTOMATIC_ROTATION_RETRY_DELAY)
-                        .then(move |_| {
-                            Self::create_automatic_rotation(
-                                daemon_tx,
-                                http_handle,
-                                public_key,
-                                rotation_interval_secs,
-                                account_token,
-                            )
-                        }),
-                )
-            }
-        };
-
-        Box::new(fut.then(create_repeat_future).map(|_| ()))
+                fut.then(|result| match result {
+                    Ok(new_public_key) => Ok(new_public_key),
+                    Err(Error::TooManyKeys) => Ok(old_public_key),
+                    Err(e) => {
+                        log::error!(
+                            "Key rotation failed: {}. Retrying in {} seconds",
+                            e,
+                            AUTOMATIC_ROTATION_RETRY_DELAY.as_secs(),
+                        );
+                        Ok(old_public_key)
+                    }
+                })
+            })
+            .map_err(|_| ())
+            .map(|_| ())
     }
 
     fn run_automatic_rotation(&mut self, account_token: AccountToken, public_key: PublicKey) {
