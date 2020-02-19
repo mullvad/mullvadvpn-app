@@ -89,6 +89,56 @@ A high-level overview of the tunnel state machine can be seen in the diagram bel
 
 [security document]: security.md
 
+#### State machine inputs
+
+There are two types of inputs that the tunnel state machine react to. The first one is commands sent
+to the state machine, and the second is external events that the state machine listens to.
+
+##### Tunnel commands
+
+Besides the two main commands `Connect` and `Disconnect`, there are a few other commands that can be
+sent to the tunnel state machine. The following list includes all the commands the tunnel state
+machine can receive.
+
+- *Connect*: establish a secure VPN connection
+- *Disconnect*: tear down the active VPN connection and return the operating system to its initial
+  configuration
+- *Allow LAN*: enable or disable local network sharing, changing the security policies for some of
+  the states
+- *Block when disconnected*: configures whether the state machine should apply the security policy
+  for blocking all connections when it's in the `Disconnected` state, effectively requesting the
+  system to never allow connections outside the tunnel
+
+##### External events
+
+Depending on the state of the machine, it will also listen for specific external events and act
+on them possibly by changing states. All of these events can be considered as tunnel events, but
+they happen on different scenarios and because of different causes.
+
+- *Tunnel is Up*: the tunnel monitor notifies that the tunnel is working correctly
+- *Tunnel is Down*: the tunnel monitor notifies that the tunnel has disconnected
+- *Tunnel monitor stopped*: communication to the tunnel monitor was lost
+- *Is offline*: notify the tunnel state machine if the operating system is connected or not to the
+  network, so that it can safely wait for connectivity to be restored without endlessly retrying to
+  establish the VPN connection
+
+#### State machine outputs
+
+Every time the state machine changes state, it will output a `TunnelStateTransition`. This is an
+`enum` type representing which state the tunnel state machine has entered and any associated
+metadata that might be useful.
+
+- *Disconnected*
+- *Connecting*: includes the information of the endpoint it is trying to connect to
+- *Connected*: includes the information of the endpoint it is connected to
+- *Disconnecting*: includes the state it will transition to once successfully disconnected, which
+  is represented as the action it will take after disconnected, listed below:
+  - *Nothing*: proceed to the `Disconnected` state
+  - *Block*: proceed to the `Error` state
+  - *Reconnect*: proceed to the `Connecting` state
+- *Error*: includes the cause of the error and the information if the operating system was
+  successfully configured to block all connections
+
 ### System DNS management
 
 ### Firewall integration
