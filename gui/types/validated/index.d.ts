@@ -4,7 +4,7 @@
 // TypeScript Version: 3.3.3
 
 declare module 'validated/schema' {
-  export interface Context {}
+  type Context = {};
   export interface ValidateResult<T> {
     context: Context;
     value: T;
@@ -26,7 +26,9 @@ declare module 'validated/schema' {
 
   type NodeDict = { [name: string]: Node<unknown> };
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   export function object<T, S extends NodeDict>(values: S, defaults?: Object): Node<S>;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   export function partialObject<T, S extends NodeDict>(values: S, defaults?: Object): Node<S>;
   export function maybe<T>(valueNode: Node<T>): Node<T | undefined | null>;
   export const string: Node<string>;

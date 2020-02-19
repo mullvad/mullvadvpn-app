@@ -34,7 +34,4 @@ const mapDispatchToProps = (dispatch: ReduxDispatch) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Support);
+export default connect(mapStateToProps, mapDispatchToProps)(Support);

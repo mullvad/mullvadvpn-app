@@ -117,10 +117,11 @@ export default class WireguardKeys extends Component<IProps> {
   private getOnVerifyKeyCb() {
     return () => {
       switch (this.props.keyState.type) {
-        case 'key-set':
+        case 'key-set': {
           const key = this.props.keyState.key;
           this.props.onVerifyKey(key);
           break;
+        }
         default:
           log.error(`onVerifyKey called from invalid state -  ${this.props.keyState.type}`);
       }
@@ -135,11 +136,12 @@ export default class WireguardKeys extends Component<IProps> {
 
     let generateKey = this.props.onGenerateKey;
     switch (this.props.keyState.type) {
-      case 'key-set':
+      case 'key-set': {
         buttonText = regenerateText;
         const key = this.props.keyState.key;
         generateKey = () => this.props.onReplaceKey(key);
         break;
+      }
       case 'being-verified':
         return this.busyButton(regenerateText);
       case 'being-replaced':
@@ -165,7 +167,7 @@ export default class WireguardKeys extends Component<IProps> {
   private getKeyText() {
     switch (this.props.keyState.type) {
       case 'being-verified':
-      case 'key-set':
+      case 'key-set': {
         // mimicking the truncating of the key from website
         const publicKey = this.props.keyState.key.publicKey;
         return (
@@ -175,6 +177,7 @@ export default class WireguardKeys extends Component<IProps> {
             </Text>
           </View>
         );
+      }
       case 'being-replaced':
       case 'being-generated':
         return <ImageView source="icon-spinner" height={19} width={19} />;
@@ -198,7 +201,7 @@ export default class WireguardKeys extends Component<IProps> {
     switch (this.props.keyState.type) {
       case 'being-verified':
         return <ImageView source="icon-spinner" height={20} width={20} />;
-      case 'key-set':
+      case 'key-set': {
         const key = this.props.keyState.key;
         if (key.valid === true) {
           return (
@@ -234,8 +237,10 @@ export default class WireguardKeys extends Component<IProps> {
               {messages.pgettext('wireguard-key-view', 'Key verification failed')}
             </Text>
           );
+        } else {
+          return null;
         }
-
+      }
       default:
         return null;
     }

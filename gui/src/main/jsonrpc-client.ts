@@ -275,7 +275,7 @@ export default class JsonRpcClient<T> extends EventEmitter {
     if (message.type === 'notification') {
       this.onNotification(message as IJsonRpcNotification);
     } else {
-      this.onReply(message as (IJsonRpcErrorResponse | IJsonRpcSuccess));
+      this.onReply(message as IJsonRpcErrorResponse | IJsonRpcSuccess);
     }
   }
 

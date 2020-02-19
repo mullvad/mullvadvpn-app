@@ -1221,6 +1221,7 @@ class ApplicationMain {
   }
 
   private async installDevTools() {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const installer = require('electron-devtools-installer');
     const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -1401,9 +1402,9 @@ class ApplicationMain {
   // setup NSEvent monitor to fix inconsistent window.blur on macOS
   // see https://github.com/electron/electron/issues/8689
   private installMacOsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
     const macEventMonitor = new NSEventMonitor();
-    // tslint:disable-next-line
     const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
     const window = windowController.window;
 

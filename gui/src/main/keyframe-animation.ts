@@ -8,16 +8,16 @@ export interface IKeyframeAnimationOptions {
 export type KeyframeAnimationRange = [number, number];
 
 export default class KeyframeAnimation {
-  private speedValue: number = 200; // ms
+  private speedValue = 200; // ms
 
   private onFrameValue?: OnFrameFn;
   private onFinishValue?: OnFinishFn;
 
-  private currentFrameValue: number = 0;
-  private targetFrame: number = 0;
+  private currentFrameValue = 0;
+  private targetFrame = 0;
 
-  private isRunningValue: boolean = false;
-  private isFinishedValue: boolean = false;
+  private isRunningValue = false;
+  private isFinishedValue = false;
 
   private timeout?: NodeJS.Timeout;
 
