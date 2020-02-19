@@ -26,6 +26,9 @@ clear_previous_screenshots(true)
 # Erase simulator before running
 erase_simulator(true)
 
+# Disable concurrent simulators to prevent too many WireGuard public keys error
+concurrent_simulators(false)
+
 # Arguments to pass to the app on launch. See https://docs.fastlane.tools/actions/snapshot/#launch-arguments
 # launch_arguments(["-favColor red"])
 
