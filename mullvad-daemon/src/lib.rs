@@ -219,8 +219,8 @@ pub(crate) enum InternalDaemonEvent {
         mpsc::Sender<Result<TunnelParameters, ParameterGenerationError>>,
         u32,
     ),
-    /// An event coming from the JSONRPC-2.0 management interface.
-    ManagementInterfaceEvent(DaemonCommand),
+    /// A command sent to the daemon.
+    Command(DaemonCommand),
     /// Triggered if the server hosting the JSONRPC-2.0 management interface dies unexpectedly.
     ManagementInterfaceExited,
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
@@ -249,7 +249,7 @@ impl From<TunnelStateTransition> for InternalDaemonEvent {
 
 impl From<DaemonCommand> for InternalDaemonEvent {
     fn from(command: DaemonCommand) -> Self {
-        InternalDaemonEvent::ManagementInterfaceEvent(command)
+        InternalDaemonEvent::Command(command)
     }
 }
 
@@ -613,7 +613,7 @@ where
             GenerateTunnelParameters(tunnel_parameters_tx, retry_attempt) => {
                 self.handle_generate_tunnel_parameters(&tunnel_parameters_tx, retry_attempt)
             }
-            ManagementInterfaceEvent(event) => self.handle_management_interface_event(event),
+            Command(event) => self.handle_management_interface_event(event),
             ManagementInterfaceExited => {
                 return Err(Error::ManagementInterfaceExited);
             }
@@ -850,12 +850,9 @@ where
 
             if let Err(mpsc::RecvTimeoutError::Timeout) = rx.recv_timeout(delay) {
                 debug!("Attempting to reconnect");
-                let _ = tunnel_command_tx.unbounded_send(
-                    InternalDaemonEvent::ManagementInterfaceEvent(DaemonCommand::SetTargetState(
-                        result_tx,
-                        TargetState::Secured,
-                    )),
-                );
+                let _ = tunnel_command_tx.unbounded_send(InternalDaemonEvent::Command(
+                    DaemonCommand::SetTargetState(result_tx, TargetState::Secured),
+                ));
             }
         });
     }
