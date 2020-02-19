@@ -160,7 +160,7 @@ class BaseButton extends Component<IProps, IState> {
     }
   }
 
-  private onLayout = async (containerLayout: Types.ViewOnLayoutEvent) => {
+  private onLayout = (containerLayout: Types.ViewOnLayoutEvent) => {
     this.updateTextAdjustment(containerLayout);
   };
 }
