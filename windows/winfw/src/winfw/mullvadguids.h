@@ -6,18 +6,27 @@
 #include <unordered_set>
 #include <map>
 
-using WfpObjectRegistry = std::unordered_set<GUID>;
-using DetailedWfpObjectRegistry = std::multimap<WfpObjectType, GUID>;
-
 class MullvadGuids
 {
-	static WfpObjectRegistry BuildRegistry();
-	static DetailedWfpObjectRegistry BuildDetailedRegistry();
+public:
+
+	using IdentityRegistry = std::unordered_set<GUID>;
+	using DetailedIdentityRegistry = std::multimap<WfpObjectType, GUID>;
+
+private:
+
+	static DetailedIdentityRegistry DeprecatedIdentities();
 
 public:
 
-	static const WfpObjectRegistry &Registry();
-	static const DetailedWfpObjectRegistry &DetailedRegistry();
+	enum class IdentityQualifier
+	{
+		IncludeDeprecated,
+		OnlyCurrent,
+	};
+
+	static IdentityRegistry Registry(IdentityQualifier qualifier);
+	static DetailedIdentityRegistry DetailedRegistry(IdentityQualifier qualifier);
 
 	MullvadGuids() = delete;
 

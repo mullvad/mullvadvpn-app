@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "sessioncontroller.h"
 #include "wfpobjecttype.h"
-#include "mullvadguids.h"
 #include "libwfp/objectinstaller.h"
 #include "libwfp/objectdeleter.h"
 #include "libwfp/transaction.h"
@@ -57,21 +56,11 @@ bool CheckpointKeyToIndex(const std::vector<SessionRecord> &container, uint32_t 
 	return false;
 }
 
-void ValidateObject(const wfp::IIdentifiable &object)
-{
-	const auto registry = MullvadGuids::Registry();
-
-	if (registry.end() == registry.find(object.id()))
-	{
-		THROW_ERROR("Attempting to install non-registered WFP object");
-	}
-}
-
-
 } // anonymous namespace
 
 SessionController::SessionController(std::unique_ptr<wfp::FilterEngine> &&engine)
 	: m_engine(std::move(engine))
+	, m_identityRegistry(MullvadGuids::Registry(MullvadGuids::IdentityQualifier::OnlyCurrent))
 	, m_activeTransaction(false)
 {
 }
@@ -103,7 +92,7 @@ bool SessionController::addProvider(wfp::ProviderBuilder &providerBuilder)
 		THROW_ERROR("Cannot add provider outside transaction");
 	}
 
-	ValidateObject(providerBuilder);
+	validateObject(providerBuilder);
 
 	GUID key;
 
@@ -124,7 +113,7 @@ bool SessionController::addSublayer(wfp::SublayerBuilder &sublayerBuilder)
 		THROW_ERROR("Cannot add sublayer outside transaction");
 	}
 
-	ValidateObject(sublayerBuilder);
+	validateObject(sublayerBuilder);
 
 	GUID key;
 
@@ -145,7 +134,7 @@ bool SessionController::addFilter(wfp::FilterBuilder &filterBuilder, const wfp::
 		THROW_ERROR("Cannot add filter outside transaction");
 	}
 
-	ValidateObject(filterBuilder);
+	validateObject(filterBuilder);
 
 	UINT64 id;
 
@@ -285,4 +274,12 @@ void SessionController::rewindState(size_t steps)
 	}
 
 	EraseBack(m_transactionRecords, steps);
+}
+
+void SessionController::validateObject(const wfp::IIdentifiable &object) const
+{
+	if (m_identityRegistry.end() == m_identityRegistry.find(object.id()))
+	{
+		THROW_ERROR("Attempting to install non-registered WFP object");
+	}
 }
