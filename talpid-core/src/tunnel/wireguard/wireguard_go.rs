@@ -1,4 +1,4 @@
-use super::{stats::Stats, Config, Error, Result, Tunnel};
+use super::{stats::Stats, Config, Tunnel, TunnelError};
 use crate::tunnel::{
     tun_provider::TunProvider,
     wireguard::logging::{clean_up_logging, initialize_logging, logging_callback, WgLogLevel},
@@ -25,6 +25,8 @@ use {
         os::unix::io::{AsRawFd, RawFd},
     },
 };
+
+type Result<T> = std::result::Result<T, TunnelError>;
 
 #[cfg(target_os = "windows")]
 use crate::winnet::{self, add_device_ip_addresses};
@@ -63,7 +65,9 @@ impl WgGoTunnel {
         let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
         let interface_name: String = tunnel_device.interface_name().to_string();
         let wg_config_str = config.to_userspace_format();
-        let logging_context = initialize_logging(log_path).map(LoggingContext)?;
+        let logging_context = initialize_logging(log_path)
+            .map(LoggingContext)
+            .map_err(TunnelError::LoggingError)?;
 
         #[cfg(not(target_os = "android"))]
         let handle = unsafe {
@@ -89,14 +93,15 @@ impl WgGoTunnel {
         if handle < 0 {
             // Error values returned from the wireguard-go library
             return match handle {
-                -1 => Err(Error::FatalStartWireguardError),
-                -2 => Err(Error::RecoverableStartWireguardError),
+                -1 => Err(TunnelError::FatalStartWireguardError),
+                -2 => Err(TunnelError::RecoverableStartWireguardError),
                 _ => unreachable!("Unknown status code returned from wireguard-go"),
             };
         }
 
         #[cfg(target_os = "android")]
-        Self::bypass_tunnel_sockets(&mut tunnel_device, handle).map_err(Error::BypassError)?;
+        Self::bypass_tunnel_sockets(&mut tunnel_device, handle)
+            .map_err(TunnelError::BypassError)?;
 
         Ok(WgGoTunnel {
             interface_name,
@@ -116,8 +121,10 @@ impl WgGoTunnel {
         let wg_config_str = config.to_userspace_format();
         let iface_name: String = "wg-mullvad".to_string();
         let cstr_iface_name =
-            CString::new(iface_name.as_bytes()).map_err(Error::InterfaceNameError)?;
-        let logging_context = initialize_logging(log_path).map(LoggingContext)?;
+            CString::new(iface_name.as_bytes()).map_err(TunnelError::InterfaceNameError)?;
+        let logging_context = initialize_logging(log_path)
+            .map(LoggingContext)
+            .map_err(TunnelError::LoggingError)?;
 
         let handle = unsafe {
             wgTurnOn(
@@ -130,12 +137,12 @@ impl WgGoTunnel {
         };
 
         if handle < 0 {
-            return Err(Error::FatalStartWireguardError);
+            return Err(TunnelError::FatalStartWireguardError);
         }
 
         if !add_device_ip_addresses(&iface_name, &config.tunnel.addresses) {
             // Todo: what kind of clean-up is required?
-            return Err(Error::SetIpAddressesError);
+            return Err(TunnelError::SetIpAddressesError);
         }
 
         Ok(WgGoTunnel {
@@ -224,7 +231,7 @@ impl WgGoTunnel {
         if let Some(handle) = self.handle.take() {
             let status = unsafe { wgTurnOff(handle) };
             if status < 0 {
-                return Err(Error::StopWireguardError { status });
+                return Err(TunnelError::StopWireguardError { status });
             }
         }
         Ok(())
@@ -242,18 +249,18 @@ impl WgGoTunnel {
         for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
             let tunnel_device = tun_provider
                 .get_tun(tunnel_config.clone())
-                .map_err(Error::SetupTunnelDeviceError)?;
+                .map_err(TunnelError::SetupTunnelDeviceError)?;
 
             match nix::unistd::dup(tunnel_device.as_raw_fd()) {
                 Ok(fd) => return Ok((tunnel_device, fd)),
                 #[cfg(not(target_os = "macos"))]
                 Err(error @ nix::Error::Sys(nix::errno::Errno::EBADFD)) => last_error = Some(error),
                 Err(error @ nix::Error::Sys(nix::errno::Errno::EBADF)) => last_error = Some(error),
-                Err(error) => return Err(Error::FdDuplicationError(error)),
+                Err(error) => return Err(TunnelError::FdDuplicationError(error)),
             }
         }
 
-        Err(Error::FdDuplicationError(
+        Err(TunnelError::FdDuplicationError(
             last_error.expect("Should be collected in loop"),
         ))
     }
@@ -272,12 +279,12 @@ impl Tunnel for WgGoTunnel {
         &self.interface_name
     }
 
-    fn get_config(&self) -> Result<Stats> {
+    fn get_tunnel_stats(&self) -> Result<Stats> {
         let config_str = unsafe {
             let ptr = wgGetConfig(self.handle.unwrap());
             if ptr.is_null() {
                 log::error!("Failed to get config !");
-                return Err(Error::GetConfigError);
+                return Err(TunnelError::GetConfigError);
             }
 
             CStr::from_ptr(ptr)
@@ -285,7 +292,7 @@ impl Tunnel for WgGoTunnel {
 
         let result =
             Stats::parse_config_str(config_str.to_str().expect("Go strings are always UTF-8"))
-                .map_err(Error::StatsError);
+                .map_err(TunnelError::StatsError);
         unsafe {
             // Zeroing out config string to not leave private key in memory.
             let slice = std::slice::from_raw_parts_mut(

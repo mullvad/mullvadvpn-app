@@ -295,16 +295,18 @@ fn get_openvpn_proxy_settings(
 }
 
 fn should_retry(error: &tunnel::Error) -> bool {
+    #[cfg(not(windows))]
+    use tunnel::wireguard::{Error, TunnelError};
     match error {
         #[cfg(not(windows))]
-        tunnel::Error::WireguardTunnelMonitoringError(
-            tunnel::wireguard::Error::RecoverableStartWireguardError,
-        ) => true,
+        tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(
+            TunnelError::RecoverableStartWireguardError,
+        )) => true,
 
         #[cfg(target_os = "android")]
-        tunnel::Error::WireguardTunnelMonitoringError(tunnel::wireguard::Error::BypassError(_)) => {
-            true
-        }
+        tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(
+            TunnelError::BypassError(_),
+        )) => true,
 
         _ => false,
     }
