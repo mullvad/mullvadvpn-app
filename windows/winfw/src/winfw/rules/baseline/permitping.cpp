@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "permitping.h"
 #include <winfw/mullvadguids.h>
+#include <winfw/rules/shared.h>
 #include <libwfp/filterbuilder.h>
 #include <libwfp/conditionbuilder.h>
 #include <libwfp/conditions/conditionip.h>
 #include <libwfp/conditions/conditioninterface.h>
 #include <libwfp/conditions/conditionprotocol.h>
+#include <libcommon/error.h>
 
 using namespace wfp::conditions;
 
@@ -15,21 +17,32 @@ namespace rules::baseline
 PermitPing::PermitPing
 (
 	std::optional<std::wstring> interfaceAlias,
-	const wfp::IpAddress &host
+	const std::vector<wfp::IpAddress> &hosts
 )
 	: m_interfaceAlias(std::move(interfaceAlias))
-	, m_host(host)
 {
+	SplitAddresses(hosts, m_hostsIpv4, m_hostsIpv6);
 }
 
 bool PermitPing::apply(IObjectInstaller &objectInstaller)
 {
-	if (wfp::IpAddress::Type::Ipv4 == m_host.type())
+	if (false == m_hostsIpv4.empty())
 	{
-		return applyIcmpv4(objectInstaller);
+		if (false == applyIcmpv4(objectInstaller))
+		{
+			return false;
+		}
 	}
 
-	return applyIcmpv6(objectInstaller);
+	if (false == m_hostsIpv6.empty())
+	{
+		if (false == applyIcmpv6(objectInstaller))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 bool PermitPing::applyIcmpv4(IObjectInstaller &objectInstaller) const
@@ -52,8 +65,12 @@ bool PermitPing::applyIcmpv4(IObjectInstaller &objectInstaller) const
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
 
-	conditionBuilder.add_condition(ConditionIp::Remote(m_host));
 	conditionBuilder.add_condition(ConditionProtocol::Icmp());
+
+	for (const auto &host : m_hostsIpv4)
+	{
+		conditionBuilder.add_condition(ConditionIp::Remote(host));
+	}
 
 	if (m_interfaceAlias.has_value())
 	{
@@ -83,8 +100,12 @@ bool PermitPing::applyIcmpv6(IObjectInstaller &objectInstaller) const
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
-	conditionBuilder.add_condition(ConditionIp::Remote(m_host));
 	conditionBuilder.add_condition(ConditionProtocol::IcmpV6());
+
+	for (const auto &host : m_hostsIpv6)
+	{
+		conditionBuilder.add_condition(ConditionIp::Remote(host));
+	}
 
 	if (m_interfaceAlias.has_value())
 	{
