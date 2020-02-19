@@ -4,9 +4,85 @@
 #include <iterator>
 
 //static
-WfpObjectRegistry MullvadGuids::BuildRegistry()
+MullvadGuids::DetailedIdentityRegistry MullvadGuids::DeprecatedIdentities()
 {
-	const auto detailedRegistry = DetailedRegistry();
+	//
+	// Collect GUIDs here that were in use in previous versions of the app.
+	//
+	// Otherwise upgrades will fail because the upgraded daemon will fail to
+	// remove sublayers etc because they contain filters that the updated code
+	// doesn't know about.
+	//
+
+	std::multimap<WfpObjectType, GUID> registry;
+
+	static const GUID sublayer_whitelist =
+	{
+		0x11d1a31a,
+		0xd7fa,
+		0x469b,
+		{ 0xbc, 0x21, 0xcc, 0xe9, 0x2e, 0x35, 0xfe, 0x90 }
+	};
+
+	registry.insert(std::make_pair(WfpObjectType::Sublayer, sublayer_whitelist));
+
+	static const GUID sublayer_blacklist =
+	{
+		0x843b74f0,
+		0xb499,
+		0x499a,
+		{ 0xac, 0xe3, 0xf9, 0xee, 0xa2, 0x4, 0x89, 0xc1 }
+	};
+
+	registry.insert(std::make_pair(WfpObjectType::Sublayer, sublayer_blacklist));
+
+	static const GUID filter_restrictdns_outbound_ipv4 =
+	{
+		0xc0792b44,
+		0xfc3c,
+		0x42e8,
+		{ 0xa6, 0x60, 0x25, 0x4b, 0xd0, 0x4, 0xb1, 0x9d }
+	};
+
+	registry.insert(std::make_pair(WfpObjectType::Filter, filter_restrictdns_outbound_ipv4));
+
+	static const GUID filter_restrictdns_outbound_tunnel_ipv4 =
+	{
+		0x790445dc,
+		0xb23e,
+		0x4ab4,
+		{ 0x8e, 0x2f, 0xc7, 0x6, 0x55, 0x5f, 0x94, 0xff }
+	};
+
+	registry.insert(std::make_pair(WfpObjectType::Filter, filter_restrictdns_outbound_tunnel_ipv4));
+
+	static const GUID filter_restrictdns_outbound_ipv6 =
+	{
+		0xcde477eb,
+		0x2d8a,
+		0x45b8,
+		{ 0x9a, 0x3e, 0x9a, 0xa3, 0xbe, 0x4d, 0xe2, 0xb4 }
+	};
+
+	registry.insert(std::make_pair(WfpObjectType::Filter, filter_restrictdns_outbound_ipv6));
+
+	static const GUID filter_restrictdns_outbound_tunnel_ipv6 =
+	{
+		0xacc90d87,
+		0xab77,
+		0x4cf4,
+		{ 0x84, 0xee, 0x1d, 0x68, 0x95, 0xf0, 0x66, 0xc2 }
+	};
+
+	registry.insert(std::make_pair(WfpObjectType::Filter, filter_restrictdns_outbound_tunnel_ipv6));
+
+	return registry;
+}
+
+//static
+MullvadGuids::IdentityRegistry MullvadGuids::Registry(IdentityQualifier qualifier)
+{
+	const auto detailedRegistry = DetailedRegistry(qualifier);
 	using ValueType = decltype(detailedRegistry)::const_reference;
 
 	std::unordered_set<GUID> registry;
@@ -20,9 +96,14 @@ WfpObjectRegistry MullvadGuids::BuildRegistry()
 }
 
 //static
-DetailedWfpObjectRegistry MullvadGuids::BuildDetailedRegistry()
+MullvadGuids::DetailedIdentityRegistry MullvadGuids::DetailedRegistry(IdentityQualifier qualifier)
 {
 	std::multimap<WfpObjectType, GUID> registry;
+
+	if (IdentityQualifier::IncludeDeprecated == qualifier)
+	{
+		registry = DeprecatedIdentities();
+	}
 
 	registry.insert(std::make_pair(WfpObjectType::Provider, Provider()));
 	registry.insert(std::make_pair(WfpObjectType::Sublayer, SublayerBaseline()));
@@ -66,20 +147,6 @@ DetailedWfpObjectRegistry MullvadGuids::BuildDetailedRegistry()
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Dns_PermitTunnel_Outbound_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Dns_PermitTunnel_Outbound_Ipv6()));
 
-	return registry;
-}
-
-//static
-const WfpObjectRegistry &MullvadGuids::Registry()
-{
-	static auto registry = BuildRegistry();	// TODO: Thread safety.
-	return registry;
-}
-
-//static
-const DetailedWfpObjectRegistry &MullvadGuids::DetailedRegistry()
-{
-	static auto registry = BuildDetailedRegistry();	// TODO: Thread safety.
 	return registry;
 }
 
