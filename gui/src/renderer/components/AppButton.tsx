@@ -93,8 +93,8 @@ class BaseButton extends Component<IProps, IState> {
   private containerRef = React.createRef<View>();
   private textViewRef = React.createRef<PrivateLabel>();
 
-  public componentDidMount() {
-    this.forceUpdateTextAdjustment();
+  public async componentDidMount() {
+    await this.forceUpdateTextAdjustment();
   }
 
   public render() {
@@ -135,7 +135,7 @@ class BaseButton extends Component<IProps, IState> {
         this,
       );
 
-      this.updateTextAdjustment(containerLayout);
+      await this.updateTextAdjustment(containerLayout);
     }
   }
 
@@ -160,8 +160,8 @@ class BaseButton extends Component<IProps, IState> {
     }
   }
 
-  private onLayout = (containerLayout: Types.ViewOnLayoutEvent) => {
-    this.updateTextAdjustment(containerLayout);
+  private onLayout = async (containerLayout: Types.ViewOnLayoutEvent) => {
+    await this.updateTextAdjustment(containerLayout);
   };
 }
 

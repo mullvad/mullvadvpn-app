@@ -213,6 +213,7 @@ export class NotificationBanner extends Component<
     if (prevProps.visible !== this.props.visible) {
       // enable drawer-like animation when changing banner's visibility
       this.setState({ contentPinnedToBottom: true }, () => {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.animateHeightChanges();
       });
     }
@@ -241,7 +242,7 @@ export class NotificationBanner extends Component<
     );
   }
 
-  private onLayout = ({ height }: Types.ViewOnLayoutEvent) => {
+  private onLayout = async ({ height }: Types.ViewOnLayoutEvent) => {
     const oldHeight = this.contentHeight;
     this.contentHeight = height;
 
@@ -249,7 +250,7 @@ export class NotificationBanner extends Component<
     // notification banner to slide down each time the component is mounted.
     if (this.didFinishFirstLayoutPass) {
       if (oldHeight !== height) {
-        this.animateHeightChanges();
+        await this.animateHeightChanges();
       }
     } else {
       this.didFinishFirstLayoutPass = true;

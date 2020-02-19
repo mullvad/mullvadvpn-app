@@ -25,7 +25,7 @@ export interface IProps {
   setAutoStart: (autoStart: boolean) => void;
   setEnableSystemNotifications: (flag: boolean) => void;
   setAutoConnect: (autoConnect: boolean) => void;
-  setAllowLan: (allowLan: boolean) => void;
+  setAllowLan: (allowLan: boolean) => Promise<void>;
   setStartMinimized: (startMinimized: boolean) => void;
   setMonochromaticIcon: (monochromaticIcon: boolean) => void;
   onClose: () => void;

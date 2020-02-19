@@ -316,7 +316,7 @@ class ApplicationMain {
     this.daemonRpc.addConnectionObserver(
       new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
     );
-    this.connectToDaemon();
+    await this.connectToDaemon();
 
     const window = this.createWindow();
     const tray = this.createTray();
@@ -335,7 +335,7 @@ class ApplicationMain {
     this.windowController = windowController;
     this.trayIconController = trayIconController;
 
-    this.guiSettings.onChange = (newState, oldState) => {
+    this.guiSettings.onChange = async (newState, oldState) => {
       if (oldState.monochromaticIcon !== newState.monochromaticIcon) {
         if (this.trayIconController) {
           this.trayIconController.useMonochromaticIcon = newState.monochromaticIcon;
@@ -343,7 +343,7 @@ class ApplicationMain {
       }
 
       if (newState.autoConnect !== oldState.autoConnect) {
-        this.updateDaemonsAutoConnect();
+        await this.updateDaemonsAutoConnect();
       }
 
       if (this.windowController) {
@@ -379,7 +379,7 @@ class ApplicationMain {
       windowController.show();
     }
 
-    window.loadFile(path.resolve(path.join(__dirname, '../renderer/index.html')));
+    await window.loadFile(path.resolve(path.join(__dirname, '../renderer/index.html')));
   };
 
   private onDaemonConnected = async () => {
@@ -405,7 +405,7 @@ class ApplicationMain {
 
     // fetch the tunnel state
     try {
-      this.setTunnelState(await this.daemonRpc.getState());
+      await this.setTunnelState(await this.daemonRpc.getState());
     } catch (error) {
       log.error(`Failed to fetch the tunnel state: ${error.message}`);
 
@@ -414,7 +414,7 @@ class ApplicationMain {
 
     // fetch settings
     try {
-      this.setSettings(await this.daemonRpc.getSettings());
+      await this.setSettings(await this.daemonRpc.getSettings());
     } catch (error) {
       log.error(`Failed to fetch settings: ${error.message}`);
 
@@ -444,7 +444,7 @@ class ApplicationMain {
     }
 
     // fetch the latest version info in background
-    this.fetchLatestVersion();
+    await this.fetchLatestVersion();
 
     // notify user about inconsistent version
     if (
@@ -501,13 +501,13 @@ class ApplicationMain {
     }
   };
 
-  private connectToDaemon() {
-    this.daemonRpc.connect({ path: DAEMON_RPC_PATH });
+  private async connectToDaemon() {
+    await this.daemonRpc.connect({ path: DAEMON_RPC_PATH });
   }
 
   private reconnectToDaemon() {
-    this.reconnectBackoff.attempt(() => {
-      this.connectToDaemon();
+    this.reconnectBackoff.attempt(async () => {
+      await this.connectToDaemon();
     });
   }
 
@@ -521,11 +521,11 @@ class ApplicationMain {
 
   private async subscribeEvents(): Promise<SubscriptionListener<DaemonEvent>> {
     const daemonEventListener = new SubscriptionListener(
-      (daemonEvent: DaemonEvent) => {
+      async (daemonEvent: DaemonEvent) => {
         if ('tunnelState' in daemonEvent) {
-          this.setTunnelState(daemonEvent.tunnelState);
+          await this.setTunnelState(daemonEvent.tunnelState);
         } else if ('settings' in daemonEvent) {
-          this.setSettings(daemonEvent.settings);
+          await this.setSettings(daemonEvent.settings);
         } else if ('relayList' in daemonEvent) {
           this.setRelays(
             daemonEvent.relayList,
@@ -582,10 +582,10 @@ class ApplicationMain {
     }
   }
 
-  private setTunnelState(newState: TunnelState) {
+  private async setTunnelState(newState: TunnelState) {
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
-    this.updateLocation();
+    await this.updateLocation();
 
     if (!this.shouldSuppressNotifications(false)) {
       this.notificationController.notifyTunnelState(newState);
@@ -600,7 +600,7 @@ class ApplicationMain {
     }
   }
 
-  private setSettings(newSettings: ISettings) {
+  private async setSettings(newSettings: ISettings) {
     const oldSettings = this.settings;
     this.settings = newSettings;
 
@@ -610,8 +610,8 @@ class ApplicationMain {
     this.updateAccountDataOnAccountChange(oldSettings.accountToken, newSettings.accountToken);
 
     if (oldSettings.accountToken !== newSettings.accountToken) {
-      this.updateAccountHistory();
-      this.fetchWireguardKey();
+      await this.updateAccountHistory();
+      await this.fetchWireguardKey();
     }
 
     if (this.windowController) {
@@ -975,7 +975,7 @@ class ApplicationMain {
 
     IpcMainEventChannel.accountHistory.handleRemoveItem(async (token: AccountToken) => {
       await this.daemonRpc.removeAccountFromHistory(token);
-      this.updateAccountHistory();
+      await this.updateAccountHistory();
     });
 
     IpcMainEventChannel.wireguardKeys.handleGenerateKey(async () => {
@@ -1180,10 +1180,10 @@ class ApplicationMain {
     }
   }
 
-  private updateDaemonsAutoConnect() {
+  private async updateDaemonsAutoConnect() {
     const daemonAutoConnect = this.guiSettings.autoConnect && getOpenAtLogin();
     if (daemonAutoConnect !== this.settings.autoConnect) {
-      this.daemonRpc.setAutoConnect(daemonAutoConnect);
+      await this.daemonRpc.setAutoConnect(daemonAutoConnect);
     }
   }
 
@@ -1195,7 +1195,7 @@ class ApplicationMain {
         IpcMainEventChannel.autoStart.notify(this.windowController.webContents, autoStart);
       }
 
-      this.updateDaemonsAutoConnect();
+      await this.updateDaemonsAutoConnect();
     } catch (error) {
       log.error(
         `Failed to update the autostart to ${autoStart.toString()}. ${error.message.toString()}`,

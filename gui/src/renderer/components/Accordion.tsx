@@ -50,17 +50,17 @@ export default class Accordion extends Component<IProps, IState> {
     }
   }
 
-  public componentDidUpdate(oldProps: IProps, oldState: IState) {
+  public async componentDidUpdate(oldProps: IProps, oldState: IState) {
     if (this.props.expanded !== oldProps.expanded) {
       // make sure the children are mounted first before expanding the accordion
       if (this.props.expanded && !this.state.mountChildren) {
         this.setState({ mountChildren: true });
       } else {
-        this.animate(this.props.expanded);
+        await this.animate(this.props.expanded);
       }
     } else if (this.state.mountChildren && !oldState.mountChildren) {
       // run animations once the children are mounted
-      this.animate(this.props.expanded);
+      await this.animate(this.props.expanded);
     }
   }
 

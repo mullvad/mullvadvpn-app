@@ -24,7 +24,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
       history.push('/settings');
     },
     login: (account: string) => {
-      props.app.login(account);
+      return props.app.login(account);
     },
     resetLoginError: () => {
       resetLoginError();

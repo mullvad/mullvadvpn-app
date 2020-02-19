@@ -16,7 +16,7 @@ interface IProps {
   accountExpiry?: string;
   expiryLocale: string;
   isOffline: boolean;
-  onLogout: () => void;
+  onLogout: () => Promise<void>;
   onClose: () => void;
   onBuyMore: () => Promise<void>;
 }

@@ -17,7 +17,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ goBack }, dispatch);
   return {
     onLogout: () => {
-      props.app.logout();
+      return props.app.logout();
     },
     onClose: () => {
       history.goBack();
