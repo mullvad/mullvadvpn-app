@@ -29,7 +29,7 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveFiltersFunctor()
 {
 	return [](wfp::FilterEngine &engine)
 	{
-		const auto registry = MullvadGuids::DetailedRegistry();
+		const auto registry = MullvadGuids::DetailedRegistry(MullvadGuids::IdentityQualifier::IncludeDeprecated);
 
 		// Resolve correct overload.
 		void (*deleter)(wfp::FilterEngine &, const GUID &) = wfp::ObjectDeleter::DeleteFilter;
@@ -43,7 +43,7 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveAllFunctor()
 {
 	return [](wfp::FilterEngine &engine)
 	{
-		const auto registry = MullvadGuids::DetailedRegistry();
+		const auto registry = MullvadGuids::DetailedRegistry(MullvadGuids::IdentityQualifier::IncludeDeprecated);
 
 		// Resolve correct overload.
 		void(*deleter)(wfp::FilterEngine &, const GUID &) = wfp::ObjectDeleter::DeleteFilter;

@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "permitloopback.h"
-#include "winfw/mullvadguids.h"
-#include "libwfp/filterbuilder.h"
-#include "libwfp/conditionbuilder.h"
-#include "libwfp/conditions/conditionloopback.h"
+#include <winfw/mullvadguids.h>
+#include <libwfp/filterbuilder.h>
+#include <libwfp/conditionbuilder.h>
+#include <libwfp/conditions/conditionloopback.h>
 
 using namespace wfp::conditions;
 
-namespace rules
+namespace rules::baseline
 {
 
 bool PermitLoopback::apply(IObjectInstaller &objectInstaller)
@@ -15,16 +15,16 @@ bool PermitLoopback::apply(IObjectInstaller &objectInstaller)
 	wfp::FilterBuilder filterBuilder;
 
 	//
-	// #1 permit outbound connections, ipv4
+	// #1 Permit outbound connections, IPv4.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitLoopback_Outbound_Ipv4())
-		.name(L"Permit outbound on loopback (IPv4)")
+		.key(MullvadGuids::Filter_Baseline_PermitLoopback_Outbound_Ipv4())
+		.name(L"Permit outbound connections on loopback (IPv4)")
 		.description(L"This filter is part of a rule that permits all loopback traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-		.sublayer(MullvadGuids::SublayerWhitelist())
+		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
 
@@ -40,12 +40,12 @@ bool PermitLoopback::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #2 permit inbound connections, ipv4
+	// #2 Permit inbound connections, IPv4.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitLoopback_Inbound_Ipv4())
-		.name(L"Permit inbound on loopback (IPv4)")
+		.key(MullvadGuids::Filter_Baseline_PermitLoopback_Inbound_Ipv4())
+		.name(L"Permit inbound connections on loopback (IPv4)")
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
 
 	{
@@ -60,12 +60,12 @@ bool PermitLoopback::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #3 permit outbound connections, ipv6
+	// #3 Permit outbound connections, IPv6.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitLoopback_Outbound_Ipv6())
-		.name(L"Permit outbound on loopback (IPv6)")
+		.key(MullvadGuids::Filter_Baseline_PermitLoopback_Outbound_Ipv6())
+		.name(L"Permit outbound connections on loopback (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 	{
@@ -80,12 +80,12 @@ bool PermitLoopback::apply(IObjectInstaller &objectInstaller)
 	}
 
 	//
-	// #4 permit inbound connections, ipv6
+	// #4 Permit inbound connections, IPv6.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitLoopback_Inbound_Ipv6())
-		.name(L"Permit inbound on loopback (IPv6)")
+		.key(MullvadGuids::Filter_Baseline_PermitLoopback_Inbound_Ipv6())
+		.name(L"Permit inbound connections on loopback (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);

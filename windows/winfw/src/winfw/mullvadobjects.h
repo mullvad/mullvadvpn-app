@@ -13,6 +13,6 @@ public:
 	MullvadObjects() = delete;
 
 	static std::unique_ptr<wfp::ProviderBuilder> Provider();
-	static std::unique_ptr<wfp::SublayerBuilder> SublayerWhitelist();
-	static std::unique_ptr<wfp::SublayerBuilder> SublayerBlacklist();
+	static std::unique_ptr<wfp::SublayerBuilder> SublayerBaseline();
+	static std::unique_ptr<wfp::SublayerBuilder> SublayerDns();
 };

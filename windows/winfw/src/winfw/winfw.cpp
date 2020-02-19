@@ -205,12 +205,18 @@ WinFw_ApplyPolicyConnected(
 
 	try
 	{
+		std::vector<wfp::IpAddress> tunnelDnsServers = { wfp::IpAddress(v4DnsHost) };
+
+		if (nullptr != v6DnsHost)
+		{
+			tunnelDnsServers.emplace_back(wfp::IpAddress(v6DnsHost));
+		}
+
 		return g_fwContext->applyPolicyConnected(
 			settings,
 			relay,
 			tunnelInterfaceAlias,
-			wfp::IpAddress(v4DnsHost),
-			nullptr != v6DnsHost ? std::make_optional(wfp::IpAddress(v6DnsHost)) : std::nullopt
+			tunnelDnsServers
 		);
 	}
 	catch (std::exception &err)

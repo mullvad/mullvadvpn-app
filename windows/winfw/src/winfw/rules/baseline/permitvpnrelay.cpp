@@ -1,16 +1,16 @@
 #include "stdafx.h"
 #include "permitvpnrelay.h"
-#include "winfw/mullvadguids.h"
-#include "libwfp/filterbuilder.h"
-#include "libwfp/conditionbuilder.h"
-#include "libwfp/conditions/conditionprotocol.h"
-#include "libwfp/conditions/conditionip.h"
-#include "libwfp/conditions/conditionport.h"
+#include <winfw/mullvadguids.h>
+#include <libwfp/filterbuilder.h>
+#include <libwfp/conditionbuilder.h>
+#include <libwfp/conditions/conditionprotocol.h>
+#include <libwfp/conditions/conditionip.h>
+#include <libwfp/conditions/conditionport.h>
 #include <libcommon/error.h>
 
 using namespace wfp::conditions;
 
-namespace rules
+namespace rules::baseline
 {
 
 namespace
@@ -56,16 +56,16 @@ bool PermitVpnRelay::apply(IObjectInstaller &objectInstaller)
 	wfp::FilterBuilder filterBuilder;
 
 	//
-	// #1 permit connecting to relay
+	// #1 Permit outbound connections to relay.
 	//
 
 	filterBuilder
-		.key(MullvadGuids::FilterPermitVpnRelay())
+		.key(MullvadGuids::Filter_Baseline_PermitVpnRelay())
 		.name(L"Permit outbound connections to VPN relay")
 		.description(L"This filter is part of a rule that permits communication with a VPN relay")
 		.provider(MullvadGuids::Provider())
 		.layer(LayerFromIp(m_relay))
-		.sublayer(MullvadGuids::SublayerWhitelist())
+		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
 

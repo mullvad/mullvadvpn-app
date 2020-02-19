@@ -2,6 +2,7 @@
 
 #include "iobjectinstaller.h"
 #include "sessionrecord.h"
+#include "mullvadguids.h"
 #include "libwfp/filterengine.h"
 #include "libwfp/iidentifiable.h"
 #include <functional>
@@ -54,8 +55,12 @@ private:
 	SessionController &operator=(const SessionController &) = delete;
 
 	void rewindState(size_t steps);
+	void validateObject(const wfp::IIdentifiable &object) const;
 
 	std::unique_ptr<wfp::FilterEngine> m_engine;
+
+	// Implement cache here since the source data doesn't change.
+	const MullvadGuids::IdentityRegistry m_identityRegistry;
 
 	std::vector<SessionRecord> m_records;
 	std::vector<SessionRecord> m_transactionRecords;

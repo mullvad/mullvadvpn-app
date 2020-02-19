@@ -2,34 +2,40 @@
 #include "fwcontext.h"
 #include "mullvadobjects.h"
 #include "objectpurger.h"
-#include "rules/blockall.h"
 #include "rules/ifirewallrule.h"
-#include "rules/permitdhcp.h"
-#include "rules/permitndp.h"
-#include "rules/permitdhcpserver.h"
-#include "rules/permitlan.h"
-#include "rules/permitlanservice.h"
-#include "rules/permitloopback.h"
-#include "rules/permitvpnrelay.h"
-#include "rules/permitvpntunnel.h"
-#include "rules/permitvpntunnelservice.h"
-#include "rules/permitping.h"
-#include "rules/restrictdns.h"
+#include "rules/ports.h"
+#include "rules/baseline/blockall.h"
+#include "rules/baseline/permitdhcp.h"
+#include "rules/baseline/permitndp.h"
+#include "rules/baseline/permitdhcpserver.h"
+#include "rules/baseline/permitlan.h"
+#include "rules/baseline/permitlanservice.h"
+#include "rules/baseline/permitloopback.h"
+#include "rules/baseline/permitvpnrelay.h"
+#include "rules/baseline/permitvpntunnel.h"
+#include "rules/baseline/permitvpntunnelservice.h"
+#include "rules/baseline/permitping.h"
+#include "rules/baseline/permitdns.h"
+#include "rules/dns/blockall.h"
+#include "rules/dns/permitnontunnel.h"
+#include "rules/dns/permittunnel.h"
 #include <libwfp/transaction.h>
 #include <libwfp/filterengine.h>
 #include <libcommon/error.h>
 #include <functional>
 #include <utility>
 
+using namespace rules;
+
 namespace
 {
 
-rules::PermitVpnRelay::Protocol TranslateProtocol(WinFwProtocol protocol)
+baseline::PermitVpnRelay::Protocol TranslateProtocol(WinFwProtocol protocol)
 {
 	switch (protocol)
 	{
-		case Tcp: return rules::PermitVpnRelay::Protocol::Tcp;
-		case Udp: return rules::PermitVpnRelay::Protocol::Udp;
+		case Tcp: return baseline::PermitVpnRelay::Protocol::Tcp;
+		case Udp: return baseline::PermitVpnRelay::Protocol::Udp;
 		default:
 		{
 			THROW_ERROR("Missing case handler in switch clause");
@@ -37,27 +43,73 @@ rules::PermitVpnRelay::Protocol TranslateProtocol(WinFwProtocol protocol)
 	};
 }
 
-void AppendSettingsRules(FwContext::Ruleset &ruleset, const WinFwSettings &settings)
+//
+// Since the PermitLan rule doesn't specifically address DNS, it will allow DNS requests targetting
+// a local resolver to leave the machine. From the local resolver the request will either be
+// resolved from cache, or forwarded out onto the Internet.
+//
+// Therefore, whenever the PermitLan rule might be activated, we must also do proper DNS management
+// to prevent leaks.
+//
+void AppendSettingsRules
+(
+	FwContext::Ruleset &ruleset,
+	const WinFwSettings &settings,
+	std::optional<std::wstring> tunnelInterfaceAlias = std::nullopt,
+	std::optional<std::vector<wfp::IpAddress> > nonTunnelDnsServers = std::nullopt,
+	std::optional<std::vector<wfp::IpAddress> > tunnelDnsServers = std::nullopt
+)
 {
 	if (settings.permitDhcp)
 	{
-		ruleset.emplace_back(std::make_unique<rules::PermitDhcp>());
-		ruleset.emplace_back(std::make_unique<rules::PermitNdp>());
+		ruleset.emplace_back(std::make_unique<baseline::PermitDhcp>());
+		ruleset.emplace_back(std::make_unique<baseline::PermitNdp>());
 	}
 
 	if (settings.permitLan)
 	{
-		ruleset.emplace_back(std::make_unique<rules::PermitLan>());
-		ruleset.emplace_back(std::make_unique<rules::PermitLanService>());
-		ruleset.emplace_back(rules::PermitDhcpServer::WithExtent(rules::PermitDhcpServer::Extent::IPv4Only));
+		ruleset.emplace_back(std::make_unique<baseline::PermitLan>());
+		ruleset.emplace_back(std::make_unique<baseline::PermitLanService>());
+		ruleset.emplace_back(baseline::PermitDhcpServer::WithExtent(baseline::PermitDhcpServer::Extent::IPv4Only));
+	}
+
+	//
+	// DNS management
+	//
+
+	ruleset.emplace_back(std::make_unique<baseline::PermitDns>());
+	ruleset.emplace_back(std::make_unique<dns::BlockAll>());
+
+	if (nonTunnelDnsServers.has_value())
+	{
+		ruleset.emplace_back(std::make_unique<dns::PermitNonTunnel>(
+			tunnelInterfaceAlias, nonTunnelDnsServers.value()));
+	}
+
+	if (tunnelInterfaceAlias.has_value() && tunnelDnsServers.has_value())
+	{
+		ruleset.emplace_back(std::make_unique<dns::PermitTunnel>(
+			tunnelInterfaceAlias.value(), tunnelDnsServers.value()));
 	}
 }
 
-void AppendNetBlockedRules(FwContext::Ruleset &ruleset, const std::optional<WinFwRelay> &relay, const std::optional<rules::RestrictDns::DnsHosts> &dnsHosts)
+void AppendNetBlockedRules(FwContext::Ruleset &ruleset)
 {
-	ruleset.emplace_back(std::make_unique<rules::BlockAll>());
-	ruleset.emplace_back(std::make_unique<rules::PermitLoopback>());
-	ruleset.emplace_back(std::make_unique<rules::RestrictDns>(relay, dnsHosts));
+	ruleset.emplace_back(std::make_unique<baseline::BlockAll>());
+	ruleset.emplace_back(std::make_unique<baseline::PermitLoopback>());
+}
+
+std::optional<std::vector<wfp::IpAddress> >
+CreateRelayDnsExclusion(const WinFwRelay &relay)
+{
+	if (relay.port != DNS_SERVER_PORT)
+	{
+		return std::nullopt;
+	}
+
+	std::vector<wfp::IpAddress> result = { wfp::IpAddress(relay.ip) };
+
+	return std::move(result);
 }
 
 } // anonymous namespace
@@ -109,10 +161,10 @@ bool FwContext::applyPolicyConnecting
 {
 	Ruleset ruleset;
 
-	AppendNetBlockedRules(ruleset, relay, std::nullopt);
-	AppendSettingsRules(ruleset, settings);
+	AppendNetBlockedRules(ruleset);
+	AppendSettingsRules(ruleset, settings, std::nullopt, CreateRelayDnsExclusion(relay));
 
-	ruleset.emplace_back(std::make_unique<rules::PermitVpnRelay>(
+	ruleset.emplace_back(std::make_unique<baseline::PermitVpnRelay>(
 		wfp::IpAddress(relay.ip),
 		relay.port,
 		TranslateProtocol(relay.protocol)
@@ -127,7 +179,7 @@ bool FwContext::applyPolicyConnecting
 
 		for (const auto &host : ph.hosts)
 		{
-			ruleset.emplace_back(std::make_unique<rules::PermitPing>(
+			ruleset.emplace_back(std::make_unique<baseline::PermitPing>(
 				ph.tunnelInterfaceAlias,
 				host
 			));
@@ -142,32 +194,33 @@ bool FwContext::applyPolicyConnected
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
 	const std::wstring &tunnelInterfaceAlias,
-	const wfp::IpAddress &v4DnsHost,
-	const std::optional<wfp::IpAddress> &v6DnsHost
+	const std::vector<wfp::IpAddress> &tunnelDnsServers
 )
 {
 	Ruleset ruleset;
 
-	rules::RestrictDns::DnsHosts dnsHosts =
-	{
-		tunnelInterfaceAlias,
-		v4DnsHost,
-		v6DnsHost
-	};
-	AppendNetBlockedRules(ruleset, relay, dnsHosts);
-	AppendSettingsRules(ruleset, settings);
+	AppendNetBlockedRules(ruleset);
 
-	ruleset.emplace_back(std::make_unique<rules::PermitVpnRelay>(
+	AppendSettingsRules
+	(
+		ruleset,
+		settings,
+		std::make_optional<>(tunnelInterfaceAlias),
+		CreateRelayDnsExclusion(relay),
+		std::make_optional<>(tunnelDnsServers)
+	);
+
+	ruleset.emplace_back(std::make_unique<baseline::PermitVpnRelay>(
 		wfp::IpAddress(relay.ip),
 		relay.port,
 		TranslateProtocol(relay.protocol)
 	));
 
-	ruleset.emplace_back(std::make_unique<rules::PermitVpnTunnel>(
+	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
 		tunnelInterfaceAlias
 	));
 
-	ruleset.emplace_back(std::make_unique<rules::PermitVpnTunnelService>(
+	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
 		tunnelInterfaceAlias
 	));
 
@@ -191,7 +244,7 @@ FwContext::Ruleset FwContext::composePolicyBlocked(const WinFwSettings &settings
 {
 	Ruleset ruleset;
 
-	AppendNetBlockedRules(ruleset, std::nullopt, std::nullopt);
+	AppendNetBlockedRules(ruleset);
 	AppendSettingsRules(ruleset, settings);
 
 	return ruleset;
@@ -237,8 +290,8 @@ bool FwContext::applyCommonBaseConfiguration(SessionController &controller, wfp:
 	// Install structural objects
 	//
 	return controller.addProvider(*MullvadObjects::Provider())
-		&& controller.addSublayer(*MullvadObjects::SublayerWhitelist())
-		&& controller.addSublayer(*MullvadObjects::SublayerBlacklist());
+		&& controller.addSublayer(*MullvadObjects::SublayerBaseline())
+		&& controller.addSublayer(*MullvadObjects::SublayerDns());
 }
 
 bool FwContext::applyRuleset(const Ruleset &ruleset)

@@ -1,16 +1,16 @@
 #pragma once
 
-#include "ifirewallrule.h"
+#include <winfw/rules/ifirewallrule.h>
 
-namespace rules
+namespace rules::baseline
 {
 
-class PermitLanService : public IFirewallRule
+class PermitLan : public IFirewallRule
 {
 public:
 
-	PermitLanService() = default;
-	~PermitLanService() = default;
+	PermitLan() = default;
+	~PermitLan() = default;
 	
 	bool apply(IObjectInstaller &objectInstaller) override;
 
