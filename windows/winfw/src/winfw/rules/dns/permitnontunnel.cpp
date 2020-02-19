@@ -2,6 +2,7 @@
 #include "permitnontunnel.h"
 #include <winfw/mullvadguids.h>
 #include <winfw/rules/ports.h>
+#include <winfw/rules/shared.h>
 #include <libwfp/filterbuilder.h>
 #include <libwfp/conditionbuilder.h>
 #include <libwfp/conditions/conditionport.h>
@@ -17,31 +18,7 @@ namespace rules::dns
 PermitNonTunnel::PermitNonTunnel(std::optional<std::wstring> tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts)
 	: m_tunnelInterfaceAlias(std::move(tunnelInterfaceAlias))
 {
-	if (hosts.empty())
-	{
-		THROW_ERROR("Invalid argument: No hosts specified");
-	}
-
-	for (const auto &host : hosts)
-	{
-		switch (host.type())
-		{
-			case wfp::IpAddress::Type::Ipv4:
-			{
-				m_hostsIpv4.push_back(host);
-				break;
-			}
-			case wfp::IpAddress::Type::Ipv6:
-			{
-				m_hostsIpv6.push_back(host);
-				break;
-			}
-			default:
-			{
-				THROW_ERROR("Missing case handler in switch clause");
-			}
-		}
-	}
+	SplitAddresses(hosts, m_hostsIpv4, m_hostsIpv6);
 }
 
 bool PermitNonTunnel::apply(IObjectInstaller &objectInstaller)
