@@ -1,5 +1,3 @@
-#![allow(missing_docs)]
-
 use self::config::Config;
 #[cfg(not(windows))]
 use super::tun_provider;
@@ -13,15 +11,16 @@ use std::{
 };
 use talpid_types::ErrorExt;
 
+/// WireGuard config data-types
 pub mod config;
 mod connectivity_check;
 mod logging;
 mod stats;
-pub mod wireguard_go;
+mod wireguard_go;
 
-pub use self::wireguard_go::WgGoTunnel;
+use self::wireguard_go::WgGoTunnel;
 
-pub type Result<T> = std::result::Result<T, Error>;
+type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen in the Wireguard tunnel monitor.
 #[derive(err_derive::Error, Debug)]
@@ -49,7 +48,10 @@ pub enum Error {
 
     /// Failed to tear down wireguard tunnel.
     #[error(display = "Failed to stop wireguard tunnel - {}", status)]
-    StopWireguardError { status: i32 },
+    StopWireguardError {
+        /// Returned error code
+        status: i32,
+    },
 
     /// Failed to get tunnel config
     #[error(display = "Failed to obtain tunnel config")]
@@ -114,6 +116,7 @@ pub struct WireguardMonitor {
 }
 
 impl WireguardMonitor {
+    /// Starts a WireGuard tunnel with the given config
     pub fn start<F: Fn(TunnelEvent) + Send + Sync + Clone + 'static>(
         config: &Config,
         log_path: Option<&Path>,
@@ -184,12 +187,14 @@ impl WireguardMonitor {
         Ok(monitor)
     }
 
+    /// Returns a close handle for the tunnel
     pub fn close_handle(&self) -> CloseHandle {
         CloseHandle {
             chan: self.close_msg_sender.clone(),
         }
     }
 
+    /// Blocks the current thread until tunnel disconnects
     pub fn wait(mut self) -> Result<()> {
         let wait_result = match self.close_msg_receiver.recv() {
             Ok(CloseMsg::PingErr) => Err(Error::TimeoutError),
@@ -274,12 +279,14 @@ enum CloseMsg {
     PingErr,
 }
 
+/// Close handle for a WireGuard tunnel.
 #[derive(Clone, Debug)]
 pub struct CloseHandle {
     chan: mpsc::Sender<CloseMsg>,
 }
 
 impl CloseHandle {
+    /// Closes a WireGuard tunnel
     pub fn close(&mut self) {
         if let Err(e) = self.chan.send(CloseMsg::Stop) {
             log::trace!("Failed to send close message to wireguard tunnel - {}", e);
@@ -287,7 +294,7 @@ impl CloseHandle {
     }
 }
 
-pub trait Tunnel: Send {
+pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> &str;
     fn stop(self: Box<Self>) -> Result<()>;
     fn get_config(&self) -> Result<stats::Stats>;

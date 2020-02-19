@@ -15,6 +15,7 @@ use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
 #[cfg(not(target_os = "android"))]
 pub mod openvpn;
 
+/// A module for all WireGuard related tunnel management.
 pub mod wireguard;
 
 /// A module for low level platform specific tunnel device management.
