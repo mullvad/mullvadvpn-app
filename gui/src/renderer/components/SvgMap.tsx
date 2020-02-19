@@ -1,4 +1,5 @@
 import { geoTimes } from 'd3-geo-projection';
+import log from 'electron-log';
 import rbush from 'rbush';
 import * as React from 'react';
 import {
@@ -71,12 +72,25 @@ export default class SvgMap extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
 
-    this.state = this.getNextState(null, props);
+    const state = this.getNextState(null, props);
+    if (state) {
+      this.state = state;
+    } else {
+      log.warn(`Failed to calculate map state ${props}`);
+    }
   }
 
   public UNSAFE_componentWillReceiveProps(nextProps: IProps) {
     if (this.shouldInvalidateState(nextProps)) {
-      this.setState((prevState) => this.getNextState(prevState, nextProps));
+      this.setState((prevState) => {
+        const nextState = this.getNextState(prevState, nextProps);
+        if (nextState) {
+          return nextState;
+        } else {
+          log.warn(`Failed to calculate map state ${nextProps}`);
+          return prevState;
+        }
+      });
     }
   }
 
@@ -224,9 +238,13 @@ export default class SvgMap extends React.Component<IProps, IState> {
     offset: [number, number],
     projection: GeoProjection,
     zoom: number,
-  ): [number, number] {
-    const pos = projection(center)!;
-    return projection.invert!([pos[0] + offset[0] / zoom, pos[1] + offset[1] / zoom])!;
+  ): [number, number] | null {
+    const pos = projection(center);
+    if (pos && projection.invert) {
+      return projection.invert([pos[0] + offset[0] / zoom, pos[1] + offset[1] / zoom]);
+    } else {
+      return null;
+    }
   }
 
   private getViewportGeoBoundingBox(
@@ -235,21 +253,28 @@ export default class SvgMap extends React.Component<IProps, IState> {
     height: number,
     projection: GeoProjection,
     zoom: number,
-  ): BBox {
-    const center = projection(centerCoordinate)!;
+  ): BBox | null {
+    const center = projection(centerCoordinate);
     const halfWidth = (width * 0.5) / zoom;
     const halfHeight = (height * 0.5) / zoom;
 
-    const northWest = projection.invert!([center[0] - halfWidth, center[1] - halfHeight])!;
-    const southEast = projection.invert!([center[0] + halfWidth, center[1] + halfHeight])!;
+    let northWest, southEast;
+    if (projection.invert && center) {
+      northWest = projection.invert([center[0] - halfWidth, center[1] - halfHeight]);
+      southEast = projection.invert([center[0] + halfWidth, center[1] + halfHeight]);
+    }
 
-    // normalize to [minX, minY, maxX, maxY]
-    return [
-      Math.min(northWest[0], southEast[0]),
-      Math.min(northWest[1], southEast[1]),
-      Math.max(northWest[0], southEast[0]),
-      Math.max(northWest[1], southEast[1]),
-    ];
+    if (northWest && southEast) {
+      // normalize to [minX, minY, maxX, maxY]
+      return [
+        Math.min(northWest[0], southEast[0]),
+        Math.min(northWest[1], southEast[1]),
+        Math.max(northWest[0], southEast[0]),
+        Math.max(northWest[1], southEast[1]),
+      ];
+    } else {
+      return null;
+    }
   }
 
   private shouldInvalidateState(nextProps: IProps) {
@@ -265,11 +290,16 @@ export default class SvgMap extends React.Component<IProps, IState> {
     );
   }
 
-  private getNextState(prevState: IState | null, nextProps: IProps): IState {
+  private getNextState(prevState: IState | null, nextProps: IProps): IState | null {
     const { width, height, center, offset, zoomLevel } = nextProps;
 
     const projection = this.getProjection(width, height, this.projectionConfig);
     const zoomCenter = this.getZoomCenter(center, offset, projection, zoomLevel);
+
+    if (!zoomCenter) {
+      return prevState;
+    }
+
     const viewportBbox = this.getViewportGeoBoundingBox(
       zoomCenter,
       width,
@@ -277,6 +307,10 @@ export default class SvgMap extends React.Component<IProps, IState> {
       projection,
       zoomLevel,
     );
+
+    if (!viewportBbox) {
+      return prevState;
+    }
 
     // combine previous and current viewports to get the rough area of transition
     const combinedViewportBboxMatch = prevState

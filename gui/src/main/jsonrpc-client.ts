@@ -426,18 +426,22 @@ export class SocketTransport implements ITransport<{ path: string }> {
 
   private cleanupConnection(shouldClose: boolean) {
     // closing socket is not synchronous, so remove all of the event handlers first
-    this.connection!.removeListener('ready', this.onSocketReady)
-      .removeListener('error', this.onSocketError)
-      .removeListener('close', this.onSocketClose);
+    if (this.connection) {
+      this.connection
+        .removeListener('ready', this.onSocketReady)
+        .removeListener('error', this.onSocketError)
+        .removeListener('close', this.onSocketClose);
+    }
 
-    this.jsonStream!.removeListener('data', this.onJsonStreamData).removeListener(
-      'error',
-      this.onJsonStreamError,
-    );
+    if (this.jsonStream) {
+      this.jsonStream
+        .removeListener('data', this.onJsonStreamData)
+        .removeListener('error', this.onJsonStreamError);
+    }
 
     if (shouldClose) {
       try {
-        this.connection!.end();
+        this.connection && this.connection.end();
       } catch (error) {
         log.error('Failed to close the socket: ', error);
       }
