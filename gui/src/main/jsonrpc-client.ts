@@ -6,6 +6,8 @@ import * as net from 'net';
 import StreamValues from 'stream-json/streamers/StreamValues';
 import * as uuid from 'uuid';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export interface IUnansweredRequest {
   resolve: (value: any) => void;
   reject: (value: any) => void;

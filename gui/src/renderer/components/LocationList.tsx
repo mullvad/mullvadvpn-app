@@ -248,10 +248,10 @@ interface IRelayLocationsProps {
   onExpand?: (location: RelayLocation, expand: boolean) => void;
 }
 
-interface ICommonCellProps {
+interface ICommonCellProps<T> {
   location: RelayLocation;
   selected: boolean;
-  ref?: React.Ref<any>;
+  ref?: React.Ref<T>;
 }
 
 export class RelayLocations extends Component<IRelayLocationsProps> {
@@ -269,7 +269,7 @@ export class RelayLocations extends Component<IRelayLocationsProps> {
               expanded={this.isExpanded(countryLocation)}
               onSelect={this.handleSelection}
               onExpand={this.handleExpand}
-              {...this.getCommonCellProps(countryLocation)}>
+              {...this.getCommonCellProps<CountryRow>(countryLocation)}>
               {relayCountry.cities.map((relayCity) => {
                 const cityLocation: RelayLocation = {
                   city: [relayCountry.code, relayCity.code],
@@ -283,7 +283,7 @@ export class RelayLocations extends Component<IRelayLocationsProps> {
                     expanded={this.isExpanded(cityLocation)}
                     onSelect={this.handleSelection}
                     onExpand={this.handleExpand}
-                    {...this.getCommonCellProps(cityLocation)}>
+                    {...this.getCommonCellProps<CityRow>(cityLocation)}>
                     {relayCity.relays.map((relay) => {
                       const relayLocation: RelayLocation = {
                         hostname: [relayCountry.code, relayCity.code, relay.hostname],
@@ -295,7 +295,7 @@ export class RelayLocations extends Component<IRelayLocationsProps> {
                           active={relay.active}
                           hostname={relay.hostname}
                           onSelect={this.handleSelection}
-                          {...this.getCommonCellProps(relayLocation)}
+                          {...this.getCommonCellProps<RelayRow>(relayLocation)}
                         />
                       );
                     })}
@@ -333,12 +333,12 @@ export class RelayLocations extends Component<IRelayLocationsProps> {
     }
   };
 
-  private getCommonCellProps(location: RelayLocation): ICommonCellProps {
+  private getCommonCellProps<T>(location: RelayLocation): ICommonCellProps<T> {
     const selected = this.isSelected(location);
     const ref =
       selected && this.props.selectedElementRef ? this.props.selectedElementRef : undefined;
 
-    return { ref, selected, location };
+    return { ref: ref as React.Ref<T>, selected, location };
   }
 }
 

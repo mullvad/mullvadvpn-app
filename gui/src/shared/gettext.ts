@@ -22,6 +22,7 @@ export function loadTranslations(currentLocale: string, catalogue: Gettext) {
   }
 
   // NOTE: domain is not publicly exposed
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const domain = (catalogue as any).domain;
 
   for (const locale of preferredLocales) {
@@ -67,6 +68,7 @@ function parseTranslation(locale: string, domain: string, catalogue: Gettext): b
 function setErrorHandler(catalogue: Gettext) {
   catalogue.on('error', (error) => {
     // NOTE: locale is not publicly exposed
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const catalogueLocale = (catalogue as any).locale;
 
     // Filter out the "no translation was found" errors for the source language.

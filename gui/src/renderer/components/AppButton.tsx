@@ -183,7 +183,7 @@ export class BlockingButton extends Component<IBlockingProps, IBlockingState> {
   public render() {
     return React.Children.map(this.props.children, (child) => {
       if (React.isValidElement(child)) {
-        return React.cloneElement(child as React.ReactElement<any>, {
+        return React.cloneElement(child as React.ReactElement, {
           ...child.props,
           disabled: this.state.isBlocked || this.props.disabled,
           onPress: this.onPress,

@@ -84,7 +84,7 @@ export default class AccountDataCache {
     }
   }
 
-  private handleFetchError(accountToken: AccountToken, error: any) {
+  private handleFetchError(accountToken: AccountToken, error: Error) {
     let shouldRetry = true;
 
     this.notifyWatchers((watcher) => {

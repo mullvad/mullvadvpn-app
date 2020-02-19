@@ -182,7 +182,11 @@ export default class SvgMap extends React.Component<IProps, IState> {
     );
   }
 
-  private mergeRsmStyle(style: { [key: string]: any }) {
+  private mergeRsmStyle(style: {
+    default?: React.CSSProperties;
+    hover?: React.CSSProperties;
+    pressed?: React.CSSProperties;
+  }) {
     const defaultStyle = style.default || {};
     return {
       default: defaultStyle,

@@ -446,7 +446,7 @@ export class DaemonRpc {
   public async getRelayLocations(): Promise<IRelayList> {
     const response = await this.transport.send('get_relay_locations');
     try {
-      return camelCaseObjectKeys(validate(relayListSchema, response)) as IRelayList;
+      return camelCaseObjectKeys(validate(relayListSchema, response));
     } catch (error) {
       throw new ResponseParseError(`Invalid response from get_relay_locations: ${error}`, error);
     }
@@ -505,7 +505,7 @@ export class DaemonRpc {
     try {
       const validatedObject = validate(locationSchema, response);
       if (validatedObject) {
-        return camelCaseObjectKeys(validatedObject) as ILocation;
+        return camelCaseObjectKeys(validatedObject);
       } else {
         return undefined;
       }
@@ -517,7 +517,7 @@ export class DaemonRpc {
   public async getState(): Promise<TunnelState> {
     const response = await this.transport.send('get_state');
     try {
-      return camelCaseObjectKeys(validate(tunnelStateSchema, response)) as TunnelState;
+      return camelCaseObjectKeys(validate(tunnelStateSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_state', error);
     }
@@ -526,7 +526,7 @@ export class DaemonRpc {
   public async getSettings(): Promise<ISettings> {
     const response = await this.transport.send('get_settings');
     try {
-      return camelCaseObjectKeys(validate(settingsSchema, response)) as ISettings;
+      return camelCaseObjectKeys(validate(settingsSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_settings', error);
     }
@@ -539,7 +539,7 @@ export class DaemonRpc {
       let daemonEvent: DaemonEvent;
 
       try {
-        daemonEvent = camelCaseObjectKeys(validate(daemonEventSchema, payload)) as DaemonEvent;
+        daemonEvent = camelCaseObjectKeys(validate(daemonEventSchema, payload));
       } catch (error) {
         listener.onError(new ResponseParseError('Invalid payload from daemon_event', error));
         return;
@@ -584,13 +584,13 @@ export class DaemonRpc {
   public async generateWireguardKey(): Promise<KeygenEvent> {
     const response = await this.transport.send('generate_wireguard_key');
     try {
-      const validatedResponse: any = validate(keygenEventSchema, response);
+      const validatedResponse = validate(keygenEventSchema, response);
       switch (validatedResponse) {
         case 'too_many_keys':
         case 'generation_failure':
           return validatedResponse;
         default:
-          return camelCaseObjectKeys(validatedResponse as object) as KeygenEvent;
+          return camelCaseObjectKeys(validatedResponse as object);
       }
     } catch (error) {
       throw new ResponseParseError(`Invalid response from generate_wireguard_key ${error}`);
@@ -618,7 +618,7 @@ export class DaemonRpc {
   public async getVersionInfo(): Promise<IAppVersionInfo> {
     const response = await this.transport.send('get_version_info', [], NETWORK_CALL_TIMEOUT);
     try {
-      return camelCaseObjectKeys(validate(appVersionInfoSchema, response)) as IAppVersionInfo;
+      return camelCaseObjectKeys(validate(appVersionInfoSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_version_info');
     }
@@ -635,16 +635,17 @@ function camelCaseToUnderscore(str: string): string {
     .toLowerCase();
 }
 
-function camelCaseObjectKeys(anObject: { [key: string]: any }) {
-  return transformObjectKeys(anObject, underscoreToCamelCase);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function camelCaseObjectKeys<T>(anObject: { [key: string]: any }): T {
+  return transformObjectKeys(anObject, underscoreToCamelCase) as T;
 }
 
-function underscoreObjectKeys(anObject: { [key: string]: any }) {
+function underscoreObjectKeys<T>(anObject: T): Record<string, unknown> {
   return transformObjectKeys(anObject, camelCaseToUnderscore);
 }
 
 function transformObjectKeys(
-  anObject: { [key: string]: any },
+  anObject: { [key: string]: any }, // eslint-disable-line @typescript-eslint/no-explicit-any
   keyTransformer: (key: string) => string,
 ) {
   for (const sourceKey of Object.keys(anObject)) {
