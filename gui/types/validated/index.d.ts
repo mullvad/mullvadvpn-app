@@ -106,6 +106,6 @@ declare module 'validated/object' {
 
   export function validate<T>(
     object: Node<T>,
-    value: any,
+    value: unknown,
   ): ExtractValidateResult<typeof object.validate>;
 }
