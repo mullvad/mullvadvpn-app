@@ -613,7 +613,7 @@ where
             GenerateTunnelParameters(tunnel_parameters_tx, retry_attempt) => {
                 self.handle_generate_tunnel_parameters(&tunnel_parameters_tx, retry_attempt)
             }
-            Command(event) => self.handle_management_interface_event(event),
+            Command(command) => self.handle_command(command),
             ManagementInterfaceExited => {
                 return Err(Error::ManagementInterfaceExited);
             }
@@ -863,13 +863,13 @@ where
         }
     }
 
-    fn handle_management_interface_event(&mut self, event: DaemonCommand) {
+    fn handle_command(&mut self, command: DaemonCommand) {
         use self::DaemonCommand::*;
         if !self.state.is_running() {
             log::trace!("Dropping daemon command because the daemon is shutting down",);
             return;
         }
-        match event {
+        match command {
             SetTargetState(tx, state) => self.on_set_target_state(tx, state),
             Reconnect => self.on_reconnect(),
             GetState(tx) => self.on_get_state(tx),
