@@ -60,7 +60,7 @@ pub struct ConnectivityMonitor {
 
 
 impl ConnectivityMonitor {
-    pub fn new(
+    pub(super) fn new(
         addr: Ipv4Addr,
         interface: String,
         tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
@@ -82,7 +82,7 @@ impl ConnectivityMonitor {
 
     // checks if the tunnel has ever worked. Intended to check if a connection to a tunnel is
     // successfull at the start of a connection.
-    pub fn establish_connectivity(&mut self) -> Result<bool, Error> {
+    pub(super) fn establish_connectivity(&mut self) -> Result<bool, Error> {
         if self.conn_state.connected() {
             return Ok(true);
         }
@@ -99,7 +99,7 @@ impl ConnectivityMonitor {
         Ok(false)
     }
 
-    pub fn run(&mut self) -> Result<(), Error> {
+    pub(super) fn run(&mut self) -> Result<(), Error> {
         self.wait_loop(REGULAR_LOOP_SLEEP)
     }
 
