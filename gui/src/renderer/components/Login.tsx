@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Animated, Component, Styles, Text, TextInput, Types, UserInterface, View } from 'reactxp';
 import { colors, links } from '../../config.json';
+import consumePromise from '../../shared/promise';
 import { messages } from '../../shared/gettext';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
@@ -72,7 +73,7 @@ export default class Login extends Component<IProps, IState> {
   }
 
   public componentDidMount() {
-    this.setFooterVisibility(this.shouldShowFooter());
+    consumePromise(this.setFooterVisibility(this.shouldShowFooter()));
   }
 
   public componentDidUpdate(prevProps: IProps, _prevState: IState) {
@@ -91,7 +92,7 @@ export default class Login extends Component<IProps, IState> {
     }
 
     this.setLoginButtonActive(this.shouldActivateLoginButton());
-    this.setFooterVisibility(this.shouldShowFooter());
+    consumePromise(this.setFooterVisibility(this.shouldShowFooter()));
   }
 
   public render() {
@@ -336,7 +337,7 @@ export default class Login extends Component<IProps, IState> {
   };
 
   private onRemoveAccountFromHistory = (accountToken: string) => {
-    this.removeAccountFromHistory(accountToken);
+    consumePromise(this.removeAccountFromHistory(accountToken));
   };
 
   private async removeAccountFromHistory(accountToken: AccountToken) {

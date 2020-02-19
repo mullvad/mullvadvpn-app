@@ -27,6 +27,7 @@ import { loadTranslations, messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-channel';
 import { getRendererLogFile, setupLogging } from '../shared/logging';
+import consumePromise from '../shared/promise';
 
 import {
   AccountToken,
@@ -121,7 +122,7 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.daemonConnected.listen(() => {
-      this.onDaemonConnected();
+      consumePromise(this.onDaemonConnected());
     });
 
     IpcRendererEventChannel.daemonDisconnected.listen((errorMessage?: string) => {
@@ -206,7 +207,7 @@ export default class AppRenderer {
     this.setWireguardPublicKey(initialState.wireguardPublicKey);
 
     if (initialState.isConnected) {
-      this.onDaemonConnected();
+      consumePromise(this.onDaemonConnected());
     }
 
     // disable pinch to zoom
@@ -270,7 +271,7 @@ export default class AppRenderer {
       // switch to the connecting state ahead of time to make the app look more responsive
       this.reduxActions.connection.connecting();
 
-      return await IpcRendererEventChannel.tunnel.connect();
+      return IpcRendererEventChannel.tunnel.connect();
     }
   }
 
@@ -301,7 +302,7 @@ export default class AppRenderer {
     } catch (e) {
       log.error(`Failed to get the WWW auth token: ${e.message}`);
     }
-    shell.openExternal(`${link}?token=${token}`);
+    consumePromise(shell.openExternal(`${link}?token=${token}`));
   }
 
   public async setAllowLan(allowLan: boolean) {

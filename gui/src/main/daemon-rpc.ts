@@ -392,8 +392,8 @@ const NETWORK_CALL_TIMEOUT = 10000;
 export class DaemonRpc {
   private transport = new JsonRpcClient(new SocketTransport());
 
-  public connect(connectionParams: { path: string }) {
-    this.transport.connect(connectionParams);
+  public connect(connectionParams: { path: string }): Promise<void> {
+    return this.transport.connect(connectionParams);
   }
 
   public disconnect() {
@@ -555,7 +555,7 @@ export class DaemonRpc {
     listener: SubscriptionListener<DaemonEvent>,
   ): Promise<void> {
     if (listener.subscriptionId) {
-      return await this.transport.unsubscribe('daemon_event', listener.subscriptionId);
+      return this.transport.unsubscribe('daemon_event', listener.subscriptionId);
     }
   }
 
