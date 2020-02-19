@@ -5,11 +5,17 @@ use std::{
 };
 use talpid_types::net::{wireguard, GenericTunnelOptions};
 
+/// Contains all the config required to set up a single WireGuard tunnel
 pub struct Config {
+    /// Contains tunnel endpoint specific config
     pub tunnel: wireguard::TunnelConfig,
+    /// List of peer config
     pub peers: Vec<wireguard::PeerConfig>,
+    /// IPv4 gateway
     pub ipv4_gateway: Ipv4Addr,
+    /// IPv6 gateway
     pub ipv6_gateway: Option<Ipv6Addr>,
+    /// MTU
     pub mtu: u16,
 }
 
@@ -17,19 +23,24 @@ pub struct Config {
 const SMALLEST_IPV6_MTU: u16 = 1380;
 const DEFAULT_MTU: u16 = SMALLEST_IPV6_MTU;
 
+/// Config errors
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
+    /// Supplied parameters don't contain a valid tunnel IP
     #[error(display = "No valid tunnel IP")]
     InvalidTunnelIpError,
 
+    /// Peer has no valid IPs
     #[error(display = "Supplied peer has no valid IPs")]
     InvalidPeerIpError,
 
+    /// Parameters don't contain any peers
     #[error(display = "No peers supplied")]
     NoPeersSuppliedError,
 }
 
 impl Config {
+    /// Constructs a Config from parameters
     pub fn from_parameters(params: &wireguard::TunnelParameters) -> Result<Config, Error> {
         let tunnel = params.connection.tunnel.clone();
         let peer = vec![params.connection.peer.clone()];
@@ -42,6 +53,7 @@ impl Config {
         )
     }
 
+    /// Constructs a new Config struct
     pub fn new(
         mut tunnel: wireguard::TunnelConfig,
         mut peers: Vec<wireguard::PeerConfig>,
@@ -90,6 +102,7 @@ impl Config {
         })
     }
 
+    /// Returns a CString with the appropriate config for WireGuard-go
     // should probably take a flag that alters between additive and overwriting conf
     pub fn to_userspace_format(&self) -> CString {
         // the order of insertion matters, public key entry denotes a new peer entry
@@ -115,7 +128,7 @@ impl Config {
     }
 }
 
-pub enum ConfValue<'a> {
+enum ConfValue<'a> {
     String(&'a str),
     Bytes(&'a [u8]),
 }
@@ -142,7 +155,7 @@ impl<'a> ConfValue<'a> {
     }
 }
 
-pub struct WgConfigBuffer {
+struct WgConfigBuffer {
     buf: Vec<u8>,
 }
 
