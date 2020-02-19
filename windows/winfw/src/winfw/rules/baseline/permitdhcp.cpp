@@ -90,7 +90,12 @@ bool PermitDhcp::applyIpv6(IObjectInstaller &objectInstaller) const
 	filterBuilder
 		.key(MullvadGuids::Filter_Baseline_PermitDhcp_Outbound_Request_Ipv6())
 		.name(L"Permit outbound DHCP requests (IPv6)")
-		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+		.description(L"This filter is part of a rule that permits DHCP client traffic")
+		.provider(MullvadGuids::Provider())
+		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
+		.sublayer(MullvadGuids::SublayerBaseline())
+		.weight(wfp::FilterBuilder::WeightClass::Max)
+		.permit();
 
 	{
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
