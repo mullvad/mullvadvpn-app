@@ -37,7 +37,7 @@ module.exports = {
       { argsIgnorePattern: '^_', ignoreRestSiblings: true },
     ],
     // TODO: Enable these
-    // 'require-await': 'error',
+    'require-await': 'error',
     // '@typescript-eslint/no-floating-promises': 'error',
 
     '@typescript-eslint/no-use-before-define': 'off',

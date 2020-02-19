@@ -142,7 +142,7 @@ export default class Login extends Component<IProps, IState> {
     this.setState({ isActive: false });
   };
 
-  private async setLoginButtonActive(isActive: boolean) {
+  private setLoginButtonActive(isActive: boolean) {
     if (this.isLoginButtonActive === isActive) {
       return;
     }

@@ -262,7 +262,7 @@ export default class AppRenderer {
     }
   }
 
-  public async connectTunnel(): Promise<void> {
+  public connectTunnel(): Promise<void> {
     const state = this.tunnelState.state;
 
     // connect only if tunnel is disconnected or blocked.
@@ -272,6 +272,8 @@ export default class AppRenderer {
 
       return IpcRendererEventChannel.tunnel.connect();
     }
+
+    return Promise.resolve();
   }
 
   public disconnectTunnel(): Promise<void> {
@@ -290,7 +292,7 @@ export default class AppRenderer {
     return IpcRendererEventChannel.settings.updateBridgeSettings(bridgeSettings);
   }
 
-  public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
+  public removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
     return IpcRendererEventChannel.accountHistory.removeItem(accountToken);
   }
 

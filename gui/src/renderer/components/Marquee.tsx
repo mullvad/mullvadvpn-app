@@ -45,7 +45,7 @@ export default class Marquee extends Component<IMarqueeProps> {
     );
   }
 
-  private async startAnimation() {
+  private startAnimation() {
     this.stopAnimation();
 
     this.animationTimeout = setTimeout(async () => {

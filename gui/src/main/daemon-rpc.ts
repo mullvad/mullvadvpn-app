@@ -551,12 +551,14 @@ export class DaemonRpc {
     listener.subscriptionId = subscriptionId;
   }
 
-  public async unsubscribeDaemonEventListener(
+  public unsubscribeDaemonEventListener(
     listener: SubscriptionListener<DaemonEvent>,
   ): Promise<void> {
     if (listener.subscriptionId) {
       return this.transport.unsubscribe('daemon_event', listener.subscriptionId);
     }
+
+    return Promise.resolve();
   }
 
   public async getAccountHistory(): Promise<AccountToken[]> {
