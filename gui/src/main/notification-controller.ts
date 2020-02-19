@@ -139,8 +139,8 @@ export default class NotificationController {
         icon: this.notificationIcon,
       });
 
-      notification.on('click', () => {
-        shell.openExternal(config.links.download);
+      notification.on('click', async () => {
+        await shell.openExternal(config.links.download);
       });
 
       this.scheduleNotification(notification);

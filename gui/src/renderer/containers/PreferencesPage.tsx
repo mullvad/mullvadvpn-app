@@ -35,7 +35,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
       props.app.setAutoConnect(autoConnect);
     },
     setAllowLan: (allowLan: boolean) => {
-      props.app.setAllowLan(allowLan);
+      return props.app.setAllowLan(allowLan);
     },
     setStartMinimized: (startMinimized: boolean) => {
       props.app.setStartMinimized(startMinimized);

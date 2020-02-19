@@ -120,8 +120,8 @@ export default class AppRenderer {
       }
     });
 
-    IpcRendererEventChannel.daemonConnected.listen(() => {
-      this.onDaemonConnected();
+    IpcRendererEventChannel.daemonConnected.listen(async () => {
+      await this.onDaemonConnected();
     });
 
     IpcRendererEventChannel.daemonDisconnected.listen((errorMessage?: string) => {
@@ -206,6 +206,7 @@ export default class AppRenderer {
     this.setWireguardPublicKey(initialState.wireguardPublicKey);
 
     if (initialState.isConnected) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.onDaemonConnected();
     }
 
@@ -303,7 +304,7 @@ export default class AppRenderer {
     } catch (e) {
       log.error(`Failed to get the WWW auth token: ${e.message}`);
     }
-    shell.openExternal(`${link}?token=${token}`);
+    await shell.openExternal(`${link}?token=${token}`);
   }
 
   public async setAllowLan(allowLan: boolean) {

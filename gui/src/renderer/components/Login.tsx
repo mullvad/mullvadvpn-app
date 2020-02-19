@@ -20,7 +20,7 @@ interface IProps {
   loginState: LoginState;
   openSettings?: () => void;
   openExternalLink: (type: string) => void;
-  login: (accountToken: AccountToken) => void;
+  login: (accountToken: AccountToken) => Promise<void>;
   resetLoginError: () => void;
   updateAccountToken: (accountToken: AccountToken) => void;
   removeAccountTokenFromHistory: (accountToken: AccountToken) => Promise<void>;
@@ -71,11 +71,11 @@ export default class Login extends Component<IProps, IState> {
     });
   }
 
-  public componentDidMount() {
-    this.setFooterVisibility(this.shouldShowFooter());
+  public async componentDidMount() {
+    await this.setFooterVisibility(this.shouldShowFooter());
   }
 
-  public componentDidUpdate(prevProps: IProps, _prevState: IState) {
+  public async componentDidUpdate(prevProps: IProps, _prevState: IState) {
     if (
       this.props.loginState !== prevProps.loginState &&
       this.props.loginState === 'failed' &&
@@ -91,7 +91,7 @@ export default class Login extends Component<IProps, IState> {
     }
 
     this.setLoginButtonActive(this.shouldActivateLoginButton());
-    this.setFooterVisibility(this.shouldShowFooter());
+    await this.setFooterVisibility(this.shouldShowFooter());
   }
 
   public render() {
@@ -190,10 +190,10 @@ export default class Login extends Component<IProps, IState> {
     this.footerAnimation = animation;
   }
 
-  private onSubmit = () => {
+  private onSubmit = async () => {
     const accountToken = this.props.accountToken;
     if (accountToken && accountToken.length >= MIN_ACCOUNT_TOKEN_LENGTH) {
-      this.props.login(accountToken);
+      await this.props.login(accountToken);
     }
   };
 
@@ -330,13 +330,13 @@ export default class Login extends Component<IProps, IState> {
     );
   }
 
-  private onSelectAccountFromHistory = (accountToken: string) => {
+  private onSelectAccountFromHistory = async (accountToken: string) => {
     this.props.updateAccountToken(accountToken);
-    this.props.login(accountToken);
+    await this.props.login(accountToken);
   };
 
   private onRemoveAccountFromHistory = (accountToken: string) => {
-    this.removeAccountFromHistory(accountToken);
+    return this.removeAccountFromHistory(accountToken);
   };
 
   private async removeAccountFromHistory(accountToken: AccountToken) {

@@ -37,6 +37,7 @@ export default class AccountDataCache {
         this.watchers.push(watcher);
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.performFetch(accountToken);
     } else if (watcher) {
       watcher.onFinish();
@@ -105,9 +106,9 @@ export default class AccountDataCache {
 
     log.warn(`Failed to fetch account data. Retrying in ${delay} ms`);
 
-    this.fetchRetryTimeout = global.setTimeout(() => {
+    this.fetchRetryTimeout = global.setTimeout(async () => {
       this.fetchRetryTimeout = undefined;
-      this.performFetch(accountToken);
+      await this.performFetch(accountToken);
     }, delay);
   }
 
