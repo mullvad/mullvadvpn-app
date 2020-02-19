@@ -1,12 +1,14 @@
 
 # Glossary
+
 - Relay - a server that provides one or multiple tunnel and bridge endpoints, and has a weight
   associated with it
-- Endpoint - a combination of a socket address and the tunnel service listening on said socket address.
+- Endpoint - a combination of a socket address and the transport protocol
 - Transport protocol - TCP or UDP
 - Tunnel protocol - WireGuard or OpenVPN
 
 # Relay selector
+
 The relay selector's main purpose is to filter Mullvad servers that can be used as tunnel endpoints
 or bridge endpoints. Relays can be filtered by their _location_ (country, city, hostname or IP
 address) and by the protocols and ports they support (transport protocol, tunnel protocol, port).
@@ -25,6 +27,7 @@ retry attempt and the tunnel protocol allow for it.
 
 
 #### Tunnel endpoint constraints
+
 Endpoints may be filtered by:
 - tunnel type (WireGuard or OpenVPN for tunnel endpoints)
 - transport protocol (UDP or TCP), not applicable if the tunnel protocol only allows a single one,
@@ -33,6 +36,7 @@ like WireGuard
 - location (country, city, hostname)
 
 ### Default constraints for tunnel endpoints
+
 - If no tunnel protocol is specified for tunnel endpoints, then by default only OpenVPN
 endpoints will be selected.
 
@@ -45,6 +49,7 @@ fourth attempts will filter for TCP endpoints on port 443. Any subsequent filter
 alternate between TCP and UDP on any port.
 
 ### Selecting tunnel endpoint between filtered relays
+
 When multiple relays are matched, the relay selector must pick a specific relay
 fairly - using roulette wheel selection algorithm.  The higher the weight is relatively to other
 relays, the higher the likelihood that a given relay will be picked. Once a relay is picked, then a
@@ -52,6 +57,7 @@ random matching endpoint from the relay is picked.
 
 
 ### Bridge endpoint constraints
+
 Currently, the only explicit constraints for bridges is the location, and the transport protocol is
 supposedly inferred by the selected bridge- but for now, the daemon only supports TCP bridges, so
 only TCP bridges are being selected. If no location constraint is specified explicitly, then the
@@ -73,3 +79,4 @@ set to _On_, the daemon will automatically set the tunnel constraints to _OpenVP
 have bridges that support UDP tunnels over TCP bridges, this behavior should be removed. Conversely,
 changing the tunnel constraints to ones that do not support bridges (WireGuard, OpenVPN over UDP)
 will indirectly change the bridge state to _Auto_ if it was previously set to _On_.
+
