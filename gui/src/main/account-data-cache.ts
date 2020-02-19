@@ -1,5 +1,6 @@
 import log from 'electron-log';
 import { AccountToken, IAccountData } from '../shared/daemon-rpc-types';
+import consumePromise from '../shared/promise';
 
 export enum AccountFetchRetryAction {
   stop,
@@ -37,7 +38,7 @@ export default class AccountDataCache {
         this.watchers.push(watcher);
       }
 
-      this.performFetch(accountToken);
+      consumePromise(this.performFetch(accountToken));
     } else if (watcher) {
       watcher.onFinish();
     }
@@ -107,7 +108,7 @@ export default class AccountDataCache {
 
     this.fetchRetryTimeout = global.setTimeout(() => {
       this.fetchRetryTimeout = undefined;
-      this.performFetch(accountToken);
+      consumePromise(this.performFetch(accountToken));
     }, delay);
   }
 

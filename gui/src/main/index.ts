@@ -34,6 +34,7 @@ import {
   getRendererLogFile,
   setupLogging,
 } from '../shared/logging';
+import consumePromise from '../shared/promise';
 import AccountDataCache, { AccountFetchRetryAction } from './account-data-cache';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
 import {
@@ -379,7 +380,11 @@ class ApplicationMain {
       windowController.show();
     }
 
-    window.loadFile(path.resolve(path.join(__dirname, '../renderer/index.html')));
+    try {
+      await window.loadFile(path.resolve(path.join(__dirname, '../renderer/index.html')));
+    } catch (error) {
+      log.error(`Failed to load index file: ${error.message}`);
+    }
   };
 
   private onDaemonConnected = async () => {
@@ -444,7 +449,7 @@ class ApplicationMain {
     }
 
     // fetch the latest version info in background
-    this.fetchLatestVersion();
+    consumePromise(this.fetchLatestVersion());
 
     // notify user about inconsistent version
     if (
@@ -502,7 +507,7 @@ class ApplicationMain {
   };
 
   private connectToDaemon() {
-    this.daemonRpc.connect({ path: DAEMON_RPC_PATH });
+    consumePromise(this.daemonRpc.connect({ path: DAEMON_RPC_PATH }));
   }
 
   private reconnectToDaemon() {
@@ -585,7 +590,7 @@ class ApplicationMain {
   private setTunnelState(newState: TunnelState) {
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
-    this.updateLocation();
+    consumePromise(this.updateLocation());
 
     if (!this.shouldSuppressNotifications(false)) {
       this.notificationController.notifyTunnelState(newState);
@@ -610,8 +615,8 @@ class ApplicationMain {
     this.updateAccountDataOnAccountChange(oldSettings.accountToken, newSettings.accountToken);
 
     if (oldSettings.accountToken !== newSettings.accountToken) {
-      this.updateAccountHistory();
-      this.fetchWireguardKey();
+      consumePromise(this.updateAccountHistory());
+      consumePromise(this.fetchWireguardKey());
     }
 
     if (this.windowController) {
@@ -975,7 +980,7 @@ class ApplicationMain {
 
     IpcMainEventChannel.accountHistory.handleRemoveItem(async (token: AccountToken) => {
       await this.daemonRpc.removeAccountFromHistory(token);
-      this.updateAccountHistory();
+      consumePromise(this.updateAccountHistory());
     });
 
     IpcMainEventChannel.wireguardKeys.handleGenerateKey(async () => {
@@ -1183,7 +1188,7 @@ class ApplicationMain {
   private updateDaemonsAutoConnect() {
     const daemonAutoConnect = this.guiSettings.autoConnect && getOpenAtLogin();
     if (daemonAutoConnect !== this.settings.autoConnect) {
-      this.daemonRpc.setAutoConnect(daemonAutoConnect);
+      consumePromise(this.daemonRpc.setAutoConnect(daemonAutoConnect));
     }
   }
 

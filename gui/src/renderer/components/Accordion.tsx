@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Animated, Component, Styles, Types, UserInterface, View } from 'reactxp';
+import consumePromise from '../../shared/promise';
 
 interface IProps {
   expanded: boolean;
@@ -56,11 +57,11 @@ export default class Accordion extends Component<IProps, IState> {
       if (this.props.expanded && !this.state.mountChildren) {
         this.setState({ mountChildren: true });
       } else {
-        this.animate(this.props.expanded);
+        consumePromise(this.animate(this.props.expanded));
       }
     } else if (this.state.mountChildren && !oldState.mountChildren) {
       // run animations once the children are mounted
-      this.animate(this.props.expanded);
+      consumePromise(this.animate(this.props.expanded));
     }
   }
 
