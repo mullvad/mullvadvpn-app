@@ -6,6 +6,7 @@ import config from '../config.json';
 import AccountExpiry from '../shared/account-expiry';
 import { TunnelState } from '../shared/daemon-rpc-types';
 import { messages } from '../shared/gettext';
+import consumePromise from '../shared/promise';
 
 export default class NotificationController {
   private lastTunnelStateAnnouncement?: { body: string; notification: Notification };
@@ -140,7 +141,7 @@ export default class NotificationController {
       });
 
       notification.on('click', () => {
-        shell.openExternal(config.links.download);
+        consumePromise(shell.openExternal(config.links.download));
       });
 
       this.scheduleNotification(notification);

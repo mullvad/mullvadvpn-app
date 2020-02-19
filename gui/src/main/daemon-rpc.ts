@@ -393,7 +393,7 @@ export class DaemonRpc {
   private transport = new JsonRpcClient(new SocketTransport());
 
   public connect(connectionParams: { path: string }) {
-    this.transport.connect(connectionParams);
+    return this.transport.connect(connectionParams);
   }
 
   public disconnect() {
