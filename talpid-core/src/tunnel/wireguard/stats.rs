@@ -1,5 +1,4 @@
 #[derive(err_derive::Error, Debug, PartialEq)]
-#[error(no_from)]
 pub enum Error {
     #[error(display = "Failed to parse integer from string \"_0\"")]
     IntParseError(String, #[error(source)] std::num::ParseIntError),
