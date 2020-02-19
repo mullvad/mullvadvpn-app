@@ -270,7 +270,7 @@ export default class AppRenderer {
       // switch to the connecting state ahead of time to make the app look more responsive
       this.reduxActions.connection.connecting();
 
-      return IpcRendererEventChannel.tunnel.connect();
+      return await IpcRendererEventChannel.tunnel.connect();
     }
   }
 
@@ -290,7 +290,7 @@ export default class AppRenderer {
     return IpcRendererEventChannel.settings.updateBridgeSettings(bridgeSettings);
   }
 
-  public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
+  public removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
     return IpcRendererEventChannel.accountHistory.removeItem(accountToken);
   }
 
