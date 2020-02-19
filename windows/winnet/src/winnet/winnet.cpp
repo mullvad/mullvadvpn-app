@@ -43,6 +43,11 @@ WinNet_EnsureBestMetric(
 {
 	try
 	{
+		if (nullptr == deviceAlias)
+		{
+			THROW_ERROR("Invalid argument: deviceAlias");
+		}
+
 		NetworkInterfaces interfaces;
 		return interfaces.SetBestMetricForInterfacesByAlias(deviceAlias) ?
 			WINNET_EBM_STATUS_METRIC_SET : WINNET_EBM_STATUS_METRIC_NO_CHANGE;
@@ -111,6 +116,11 @@ WinNet_GetTapInterfaceAlias(
 {
 	try
 	{
+		if (nullptr == alias)
+		{
+			THROW_ERROR("Invalid argument: alias");
+		}
+
 		const auto currentAlias = InterfaceUtils::GetTapInterfaceAlias();
 
 		auto stringBuffer = new wchar_t[currentAlias.size() + 1];
@@ -164,6 +174,11 @@ WinNet_ActivateConnectivityMonitor(
 		if (nullptr != g_OfflineMonitor)
 		{
 			THROW_ERROR("Cannot activate connectivity monitor twice");
+		}
+
+		if (nullptr == callback)
+		{
+			THROW_ERROR("Invalid argument: callback");
 		}
 
 		auto forwarder = [callback, callbackContext](bool connected)
@@ -257,6 +272,11 @@ WinNet_AddRoutes(
 
 	try
 	{
+		if (nullptr == routes)
+		{
+			THROW_ERROR("Invalid argument: routes");
+		}
+
 		g_RouteManager->addRoutes(winnet::ConvertRoutes(routes, numRoutes));
 		return true;
 	}
@@ -300,6 +320,11 @@ WinNet_DeleteRoutes(
 
 	try
 	{
+		if (nullptr == routes)
+		{
+			THROW_ERROR("Invalid argument: routes");
+		}
+
 		g_RouteManager->deleteRoutes(winnet::ConvertRoutes(routes, numRoutes));
 		return true;
 	}
@@ -344,6 +369,16 @@ WinNet_RegisterDefaultRouteChangedCallback(
 
 	try
 	{
+		if (nullptr == callback)
+		{
+			THROW_ERROR("Invalid argument: callback");
+		}
+
+		if (nullptr == registrationHandle)
+		{
+			THROW_ERROR("Invalid argument: registrationHandle");
+		}
+
 		auto forwarder = [callback, context](RouteManager::DefaultRouteChangedEventType eventType,
 			ADDRESS_FAMILY family, const std::optional<InterfaceAndGateway> &route)
 		{
@@ -469,6 +504,16 @@ WinNet_AddDeviceIpAddresses(
 {
 	try
 	{
+		if (nullptr == deviceAlias)
+		{
+			THROW_ERROR("Invalid argument: deviceAlias")
+		}
+
+		if (nullptr == addresses)
+		{
+			THROW_ERROR("Invalid argument: addresses")
+		}
+
 		NET_LUID luid;
 
 		if (0 != ConvertInterfaceAliasToLuid(deviceAlias, &luid))
