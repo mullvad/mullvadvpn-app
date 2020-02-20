@@ -23,8 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.3-beta1] - 2020-02-20
 ### Security
-- Fix stack overflow caused by WireGuard key rotation timers.
+- Fix stack overflow caused by WireGuard key rotation timers. When the daemon crashed it was
+  restarted automatically. But it did not connect (depending on settings), leaving a leak.
 
 
 ## [2020.2] - 2020-02-13
