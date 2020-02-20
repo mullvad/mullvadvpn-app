@@ -53,15 +53,9 @@ git tag -s $PRODUCT_VERSION -m $PRODUCT_VERSION
 
 ./version_metadata.sh delete-backup
 
-echo "==================================================="
-echo "DONE preparing for a release! Now do the following:"
-echo " 1. Push the commit and tag created by this script"
-echo "    after you have verified they are correct"
-echo "     $ git push"
-echo "     $ git push origin $PRODUCT_VERSION"
-echo " 2. On each platform where you want to create a"
-echo "    release artifact, check out the tag and build:"
-echo "     $ git fetch"
-echo "     $ git checkout $PRODUCT_VERSION"
-echo "     $ ./build.sh"
-echo "==================================================="
+echo "================================================="
+echo "| DONE preparing for a release!                 |"
+echo "|    Now push the tag created by this script    |"
+echo "|    after you have verified it is correct:     |"
+echo "|        $ git push origin $PRODUCT_VERSION     |"
+echo "================================================="
