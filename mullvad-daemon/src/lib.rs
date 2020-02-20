@@ -426,7 +426,7 @@ where
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
-            cache_dir.clone(),
+            cache_dir,
             IntoSender::from(internal_event_tx.clone()),
             #[cfg(target_os = "android")]
             android_context,
@@ -454,7 +454,7 @@ where
             settings,
             account_history,
             wg_key_proxy: WireguardKeyProxy::new(rpc_handle.clone()),
-            accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
+            accounts_proxy: AccountsProxy::new(rpc_handle),
             https_handle,
             wireguard_key_manager,
             tokio_remote,
@@ -562,7 +562,7 @@ where
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
             }
-            TunnelStateTransition::Error(error_state) => TunnelState::Error(error_state.clone()),
+            TunnelStateTransition::Error(error_state) => TunnelState::Error(error_state),
         };
 
         self.unschedule_reconnect();
@@ -870,7 +870,7 @@ where
                         account: account.clone(),
                         wireguard: None,
                     });
-                account_entry.wireguard = Some(data.clone());
+                account_entry.wireguard = Some(data);
                 match self.account_history.insert(account_entry) {
                     Ok(_) => self
                         .event_listener
@@ -1311,7 +1311,7 @@ where
         tx: oneshot::Sender<std::result::Result<(), settings::Error>>,
         bridge_state: BridgeState,
     ) {
-        let result = match self.settings.set_bridge_state(bridge_state.clone()) {
+        let result = match self.settings.set_bridge_state(bridge_state) {
             Ok(settings_changed) => {
                 if settings_changed {
                     self.event_listener.notify_settings(self.settings.clone());
@@ -1402,10 +1402,7 @@ where
                 .unwrap_or(true)
             {
                 log::info!("Automatically generating new wireguard key for account");
-                if let Err(e) = self
-                    .wireguard_key_manager
-                    .generate_key_async(account.to_owned())
-                {
+                if let Err(e) = self.wireguard_key_manager.generate_key_async(account) {
                     log::error!(
                         "{}",
                         e.display_chain_with_msg("Failed to start generating wireguard key")
@@ -1450,7 +1447,7 @@ where
             match gen_result {
                 Ok(new_data) => {
                     let public_key = new_data.get_public_key();
-                    account_entry.wireguard = Some(new_data.clone());
+                    account_entry.wireguard = Some(new_data);
                     self.account_history.insert(account_entry).map_err(|e| {
                         format!("Failed to add new wireguard key to account data: {}", e)
                     })?;
@@ -1463,7 +1460,7 @@ where
                     // update automatic rotation
                     self.wireguard_key_manager.set_rotation_interval(
                         &mut self.account_history,
-                        account_token.clone(),
+                        account_token,
                         self.settings
                             .get_tunnel_options()
                             .wireguard
@@ -1526,7 +1523,7 @@ where
 
         let fut = self
             .wg_key_proxy
-            .check_wg_key(account, public_key.clone())
+            .check_wg_key(account, public_key)
             .map(|is_valid| {
                 Self::oneshot_send(tx, is_valid, "verify_wireguard_key response");
             })

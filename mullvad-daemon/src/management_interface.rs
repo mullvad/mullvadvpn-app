@@ -497,7 +497,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("set_account");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetAccount(tx, account_token.clone()))
+            .send_command_to_daemon(ManagementCommand::SetAccount(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -656,9 +656,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|settings_result| {
                 settings_result.map_err(|error| match error {
-                    settings::Error::InvalidProxyData(reason) => {
-                        Error::invalid_params(reason.to_owned())
-                    }
+                    settings::Error::InvalidProxyData(reason) => Error::invalid_params(reason),
                     _ => Error::internal_error(),
                 })
             });
