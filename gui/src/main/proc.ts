@@ -10,7 +10,7 @@ function getBasePath(): string {
       process.env.MULLVAD_PATH || path.resolve(path.join(__dirname, '../../../../target/debug'))
     );
   } else {
-    return process.resourcesPath!;
+    return process.resourcesPath;
   }
 }
 
