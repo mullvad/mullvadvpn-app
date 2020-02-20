@@ -1,4 +1,3 @@
-use super::{Error, Result};
 use chrono;
 use parking_lot::Mutex;
 use std::{collections::HashMap, fs, io::Write, path::Path};
@@ -9,7 +8,15 @@ lazy_static::lazy_static! {
 
 static mut LOG_CONTEXT_NEXT_ORDINAL: u32 = 0;
 
-pub fn initialize_logging(log_path: Option<&Path>) -> Result<u32> {
+/// Errors encountered when initializing logging
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Failed to move or create a log file.
+    #[error(display = "Failed to setup a logging file")]
+    PrepareLogFileError(#[error(source)] std::io::Error),
+}
+
+pub fn initialize_logging(log_path: Option<&Path>) -> Result<u32, Error> {
     let log_file = create_log_file(log_path)?;
 
     let log_context_ordinal = unsafe {
@@ -29,7 +36,7 @@ static NULL_DEVICE: &str = "NUL";
 #[cfg(not(target_os = "windows"))]
 static NULL_DEVICE: &str = "/dev/null";
 
-fn create_log_file(log_path: Option<&Path>) -> Result<fs::File> {
+fn create_log_file(log_path: Option<&Path>) -> Result<fs::File, Error> {
     fs::File::create(log_path.unwrap_or(NULL_DEVICE.as_ref())).map_err(Error::PrepareLogFileError)
 }
 

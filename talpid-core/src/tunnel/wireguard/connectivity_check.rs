@@ -5,7 +5,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use super::{Error, Tunnel};
+use super::{Tunnel, TunnelError};
 
 /// Sleep time used when initially establishing connectivity
 const DELAY_ON_INITIAL_SETUP: Duration = Duration::from_millis(50);
@@ -25,6 +25,18 @@ const TRAFFIC_TIMEOUT: Duration = Duration::from_secs(120);
 const PING_TIMEOUT: Duration = Duration::from_secs(15);
 /// Number of seconds to wait between sending ICMP packets
 const SECONDS_PER_PING: Duration = Duration::from_secs(3);
+
+/// Connectivity monitor errors
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Failed to read tunnel's configuration
+    #[error(display = "Failed to read tunnel's configuration")]
+    ConfigReadError(TunnelError),
+
+    /// Failed to send ping
+    #[error(display = "Ping monitor failed")]
+    PingError(#[error(source)] crate::ping_monitor::Error),
+}
 
 
 /// Verifies if a connection to a tunnel is working.
@@ -60,7 +72,7 @@ pub struct ConnectivityMonitor {
 
 
 impl ConnectivityMonitor {
-    pub fn new(
+    pub(super) fn new(
         addr: Ipv4Addr,
         interface: String,
         tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
@@ -82,7 +94,7 @@ impl ConnectivityMonitor {
 
     // checks if the tunnel has ever worked. Intended to check if a connection to a tunnel is
     // successfull at the start of a connection.
-    pub fn establish_connectivity(&mut self) -> Result<bool, Error> {
+    pub(super) fn establish_connectivity(&mut self) -> Result<bool, Error> {
         if self.conn_state.connected() {
             return Ok(true);
         }
@@ -99,7 +111,7 @@ impl ConnectivityMonitor {
         Ok(false)
     }
 
-    pub fn run(&mut self) -> Result<(), Error> {
+    pub(super) fn run(&mut self) -> Result<(), Error> {
         self.wait_loop(REGULAR_LOOP_SLEEP)
     }
 
@@ -144,7 +156,7 @@ impl ConnectivityMonitor {
             .lock()
             .ok()?
             .as_ref()
-            .map(|tunnel| tunnel.get_config())
+            .map(|tunnel| tunnel.get_tunnel_stats().map_err(Error::ConfigReadError))
     }
 
     fn maybe_send_ping(&mut self) -> Result<(), Error> {
