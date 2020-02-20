@@ -50,7 +50,7 @@ use std::{
     time::Duration,
 };
 use talpid_core::{
-    mpsc::IntoSender,
+    mpsc::{IntoSender, Sender},
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 #[cfg(target_os = "android")]
