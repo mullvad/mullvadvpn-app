@@ -177,13 +177,10 @@ bool FwContext::applyPolicyConnecting
 	{
 		const auto &ph = pingableHosts.value();
 
-		for (const auto &host : ph.hosts)
-		{
-			ruleset.emplace_back(std::make_unique<baseline::PermitPing>(
-				ph.tunnelInterfaceAlias,
-				host
-			));
-		}
+		ruleset.emplace_back(std::make_unique<baseline::PermitPing>(
+			ph.tunnelInterfaceAlias,
+			ph.hosts
+		));
 	}
 
 	return applyRuleset(ruleset);
