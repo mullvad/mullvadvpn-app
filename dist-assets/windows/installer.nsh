@@ -132,8 +132,8 @@
 	Pop $1
 
 	${If} $0 == ${DL_GENERAL_ERROR}
-		StrCpy $R0 "Failed to remove vanilla TAP adapter: $1"
-		log::Log $R0
+		StrCpy $R0 "Failed to remove vanilla TAP adapter"
+		log::LogWithDetails $R0 $1
 
 		Goto RemoveVanillaTap_return
 	${EndIf}
@@ -194,7 +194,7 @@
 	Pop $1
 
 	${If} $0 != ${DL_GENERAL_SUCCESS}
-		StrCpy $R0 "Failed to create virtual adapter: error $0"
+		StrCpy $R0 "Failed to create virtual adapter"
 		log::LogWithDetails $R0 $1
 		Goto InstallTapDriver_return
 	${EndIf}
@@ -229,8 +229,8 @@
 	Pop $1
 
 	${If} $0 != ${MULLVAD_SUCCESS}
-		StrCpy $R0 "Failed to remove Wintun: error $0"
-		log::LogWithDetails $R0 $1
+		StrCpy $R0 "Failed to remove Wintun: $1"
+		log::Log $R0
 		Goto RemoveWintun_return_only
 	${EndIf}
 
@@ -267,8 +267,8 @@
 	Pop $1
 
 	${If} $0 != ${MULLVAD_SUCCESS}
-		StrCpy $R0 "Failed to install Wintun: error $0"
-		log::LogWithDetails $R0 $1
+		StrCpy $R0 "Failed to install Wintun: $1"
+		log::Log $R0
 		Goto InstallWintun_return
 	${EndIf}
 
@@ -314,7 +314,7 @@
 	Pop $1
 
 	${If} $0 != 0
-		StrCpy $R0 "Failed to install Mullvad service: error $0"
+		StrCpy $R0 "Failed to install Mullvad service"
 		log::LogWithDetails $R0 $1
 
 		#
@@ -524,7 +524,7 @@
 	Pop $1
 
 	${If} $0 != ${MULLVAD_SUCCESS}
-		log::Log "AddCLIToEnvironPath() failed: $0 $1"
+		log::LogWithDetails "Failed to add the CLI tools to the system PATH" $1
 		Goto UpdatePath_return
 	${EndIf}
 
@@ -557,7 +557,7 @@
 	Pop $1
 
 	${If} $0 != ${MULLVAD_SUCCESS}
-		log::Log "RemoveCLIFromEnvironPath() failed: $0 $1"
+		log::LogWithDetails "Failed to remove the CLI tools from the system PATH" $1
 		Goto RemovePath_return
 	${EndIf}
 
@@ -655,7 +655,7 @@
 	${InstallWintun}
 
 	${If} $R0 != 0
-		MessageBox MB_OK "Fatal error during Wintun installation: $R0"
+		MessageBox MB_OK "$R0"
 		${BreakInstallation}
 		Abort
 	${EndIf}
@@ -663,7 +663,7 @@
 	${InstallService}
 
 	${If} $R0 != 0
-		MessageBox MB_OK "Fatal error during service installation: $R0"
+		MessageBox MB_OK "$R0"
 		${BreakInstallation}
 		Abort
 	${EndIf}

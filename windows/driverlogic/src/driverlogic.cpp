@@ -686,7 +686,7 @@ void DeleteVanillaMullvadAdapter()
 
 	if (!deletedAdapter)
 	{
-		THROW_ERROR("TAP adapter was not removed");
+		THROW_ERROR("The TAP adapter could not be removed");
 	}
 }
 
