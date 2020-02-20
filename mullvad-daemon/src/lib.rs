@@ -43,7 +43,9 @@ use settings::Settings;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
 use std::{
-    io, mem,
+    io,
+    marker::PhantomData,
+    mem,
     path::PathBuf,
     sync::{mpsc, Arc},
     thread,
@@ -311,6 +313,62 @@ impl DaemonCommandSender {
 
     pub fn send(&self, command: DaemonCommand) -> Result<(), Error> {
         self.0.send(command).map_err(|_| Error::DaemonUnavailable)
+    }
+}
+
+pub(crate) struct DaemonEventSender<E = InternalDaemonEvent> {
+    sender: UnboundedSender<InternalDaemonEvent>,
+    _event: PhantomData<E>,
+}
+
+impl<E> Clone for DaemonEventSender<E>
+where
+    InternalDaemonEvent: From<E>,
+{
+    fn clone(&self) -> Self {
+        DaemonEventSender {
+            sender: self.sender.clone(),
+            _event: PhantomData,
+        }
+    }
+}
+
+impl DaemonEventSender {
+    pub fn new(sender: UnboundedSender<InternalDaemonEvent>) -> Self {
+        DaemonEventSender {
+            sender,
+            _event: PhantomData,
+        }
+    }
+
+    pub fn to_specialized_sender<E>(&self) -> DaemonEventSender<E>
+    where
+        InternalDaemonEvent: From<E>,
+    {
+        DaemonEventSender {
+            sender: self.sender.clone(),
+            _event: PhantomData,
+        }
+    }
+}
+
+impl<E> DaemonEventSender<E>
+where
+    InternalDaemonEvent: From<E>,
+{
+    pub fn is_closed(&self) -> bool {
+        self.sender.is_closed()
+    }
+}
+
+impl<E> Sender<E> for DaemonEventSender<E>
+where
+    InternalDaemonEvent: From<E>,
+{
+    fn send(&self, event: E) -> Result<(), ()> {
+        self.sender
+            .unbounded_send(InternalDaemonEvent::from(event))
+            .map_err(|_| ())
     }
 }
 
