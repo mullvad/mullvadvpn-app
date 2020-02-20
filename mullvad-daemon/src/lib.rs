@@ -426,10 +426,11 @@ where
         resource_dir: PathBuf,
         cache_dir: PathBuf,
         #[cfg(target_os = "android")] android_context: AndroidContext,
-    ) -> Result<Self, Error> {
+    ) -> Result<(Self, DaemonCommandSender), Error> {
         let (tx, rx) = futures::sync::mpsc::unbounded();
+        let command_sender = DaemonCommandSender::new(tx.clone());
 
-        Self::start_internal(
+        let daemon = Self::start_internal(
             tx,
             rx,
             event_listener,
@@ -438,7 +439,9 @@ where
             cache_dir,
             #[cfg(target_os = "android")]
             android_context,
-        )
+        )?;
+
+        Ok((daemon, command_sender))
     }
 
     fn start_internal(
