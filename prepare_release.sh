@@ -28,7 +28,7 @@ echo "Updating version in metadata files..."
 
 echo "Syncing Cargo.lock with new version numbers"
 source env.sh ""
-cargo +stable build
+timeout 5s cargo +stable build || true
 
 echo "Commiting metadata changes to git..."
 git commit -S -m "Updating version in package files" \
