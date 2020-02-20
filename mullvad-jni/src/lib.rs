@@ -167,8 +167,8 @@ fn spawn_daemon(
         let jvm = android_context.jvm.clone();
 
         match create_daemon(listener, log_dir, android_context) {
-            Ok(daemon) => {
-                let _ = tx.send(Ok(daemon.command_sender()));
+            Ok((daemon, command_sender)) => {
+                let _ = tx.send(Ok(command_sender));
                 match daemon.run() {
                     Ok(()) => log::info!("Mullvad daemon has stopped"),
                     Err(error) => log::error!("{}", error.display_chain()),
@@ -189,20 +189,18 @@ fn create_daemon(
     listener: JniEventListener,
     log_dir: PathBuf,
     android_context: AndroidContext,
-) -> Result<Daemon<JniEventListener>, Error> {
+) -> Result<(Daemon<JniEventListener>, DaemonCommandSender), Error> {
     let resource_dir = mullvad_paths::get_resource_dir();
     let cache_dir = mullvad_paths::cache_dir().map_err(Error::GetCacheDir)?;
 
-    let daemon = Daemon::start_with_event_listener(
+    Daemon::start_with_event_listener(
         listener,
         Some(log_dir),
         resource_dir,
         cache_dir,
         android_context,
     )
-    .map_err(Error::InitializeDaemon)?;
-
-    Ok(daemon)
+    .map_err(Error::InitializeDaemon)
 }
 
 fn notify_daemon_stopped(jvm: Arc<JavaVM>, daemon_object: GlobalRef) {
