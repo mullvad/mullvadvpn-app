@@ -67,6 +67,12 @@ int WINAPI InstallerHandler(
 	LPCWSTR message
 )
 {
+	// Do not log potentially sensitive information
+	if (0 == _wcsnicmp(message, L"Property", _countof(L"Property") - sizeof(L'\0')))
+	{
+		return 0;
+	}
+
 	PluginLog(message);
 	// return 0 to pass it on to the installer
 	return 0;
