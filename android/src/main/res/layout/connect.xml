@@ -54,7 +54,7 @@
                             android:layout_alignParentTop="true"
                             android:layout_alignParentLeft="true"
                             android:layout_alignBottom="@id/notification_title">
-                            
+
                 <ImageView android:id="@+id/notification_status"
                            android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
