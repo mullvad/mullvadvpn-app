@@ -1,7 +1,7 @@
 #![deny(rust_2018_idioms)]
 
 use log::{debug, error, info, warn};
-use mullvad_daemon::{logging, version, Daemon};
+use mullvad_daemon::{logging, version, Daemon, DaemonCommandChannel};
 use std::{path::PathBuf, thread, time::Duration};
 use talpid_types::ErrorExt;
 
@@ -106,7 +106,9 @@ fn create_daemon(log_dir: Option<PathBuf>) -> Result<Daemon, String> {
     let cache_dir = mullvad_paths::cache_dir()
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
-    Daemon::start(log_dir, resource_dir, cache_dir)
+    let command_channel = DaemonCommandChannel::new();
+
+    Daemon::start(log_dir, resource_dir, cache_dir, command_channel)
         .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
 }
 
