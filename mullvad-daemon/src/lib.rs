@@ -565,11 +565,6 @@ where
         Ok(daemon)
     }
 
-    /// Retrieve a channel for sending daemon commands.
-    pub fn command_sender(&self) -> DaemonCommandSender {
-        DaemonCommandSender::new(self.tx.clone())
-    }
-
 
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
