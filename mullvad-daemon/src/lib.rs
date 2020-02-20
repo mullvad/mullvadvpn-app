@@ -1673,12 +1673,13 @@ impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
         retry_attempt: u32,
     ) -> std::result::Result<TunnelParameters, ParameterGenerationError> {
         let (response_tx, response_rx) = mpsc::channel();
-        if let Err(_) = self
+        if self
             .tx
             .unbounded_send(InternalDaemonEvent::GenerateTunnelParameters(
                 response_tx,
                 retry_attempt,
             ))
+            .is_err()
         {
             log::error!("Failed to send daemon command to generate tunnel parameters!");
             return Err(ParameterGenerationError::NoMatchingRelay);
