@@ -121,9 +121,7 @@ void __declspec(dllexport) NSISCALL SilentInstall
 
 		if (ERROR_SUCCESS != installResult)
 		{
-			std::wstringstream ss;
-			ss << L"Install failed: " << installResult;
-			pushstring(ss.str().c_str());
+			pushstring(common::string::ToWide(common::error::FormatWindowsError(installResult)).c_str());
 			pushint(NsisStatus::GENERAL_ERROR);
 			return;
 		}
@@ -189,9 +187,7 @@ void __declspec(dllexport) NSISCALL SilentUninstall
 
 		if (ERROR_SUCCESS != installResult)
 		{
-			std::wstringstream ss;
-			ss << L"Uninstall failed: " << installResult;
-			pushstring(ss.str().c_str());
+			pushstring(common::string::ToWide(common::error::FormatWindowsError(installResult)).c_str());
 			pushint(NsisStatus::GENERAL_ERROR);
 			return;
 		}
