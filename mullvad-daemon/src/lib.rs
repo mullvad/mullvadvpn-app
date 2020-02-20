@@ -444,16 +444,15 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
+        command_channel: DaemonCommandChannel,
         // TODO: Remove this once `ManagementInterface` is less coupled to the constructor.
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         if rpc_uniqueness_check::is_another_instance_running() {
             return Err(Error::DaemonIsAlreadyRunning);
         }
-        let (tx, rx) = futures::sync::mpsc::unbounded();
-        let active_tx = Arc::new(tx);
-        let event_sender = DaemonEventSender::new(Arc::downgrade(&active_tx));
-        let command_sender = DaemonCommandSender(active_tx);
+        let command_sender = command_channel.sender();
+        let (event_sender, rx) = command_channel.destructure();
         let management_interface_broadcaster = Self::start_management_interface(command_sender)?;
 
         Self::start_internal(
