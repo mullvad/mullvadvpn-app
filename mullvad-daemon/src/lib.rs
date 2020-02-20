@@ -47,12 +47,12 @@ use std::{
     marker::PhantomData,
     mem,
     path::PathBuf,
-    sync::{mpsc, Arc},
+    sync::{mpsc, Arc, Weak},
     thread,
     time::Duration,
 };
 use talpid_core::{
-    mpsc::{IntoSender, Sender},
+    mpsc::Sender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 #[cfg(target_os = "android")]
@@ -304,20 +304,18 @@ impl DaemonExecutionState {
     }
 }
 
-pub struct DaemonCommandSender(IntoSender<DaemonCommand, InternalDaemonEvent>);
+pub struct DaemonCommandSender(Arc<UnboundedSender<InternalDaemonEvent>>);
 
 impl DaemonCommandSender {
-    pub(crate) fn new(internal_event_sender: UnboundedSender<InternalDaemonEvent>) -> Self {
-        DaemonCommandSender(IntoSender::from(internal_event_sender))
-    }
-
     pub fn send(&self, command: DaemonCommand) -> Result<(), Error> {
-        self.0.send(command).map_err(|_| Error::DaemonUnavailable)
+        self.0
+            .unbounded_send(InternalDaemonEvent::Command(command))
+            .map_err(|_| Error::DaemonUnavailable)
     }
 }
 
 pub(crate) struct DaemonEventSender<E = InternalDaemonEvent> {
-    sender: UnboundedSender<InternalDaemonEvent>,
+    sender: Weak<UnboundedSender<InternalDaemonEvent>>,
     _event: PhantomData<E>,
 }
 
@@ -334,7 +332,7 @@ where
 }
 
 impl DaemonEventSender {
-    pub fn new(sender: UnboundedSender<InternalDaemonEvent>) -> Self {
+    pub fn new(sender: Weak<UnboundedSender<InternalDaemonEvent>>) -> Self {
         DaemonEventSender {
             sender,
             _event: PhantomData,
@@ -357,7 +355,10 @@ where
     InternalDaemonEvent: From<E>,
 {
     pub fn is_closed(&self) -> bool {
-        self.sender.is_closed()
+        self.sender
+            .upgrade()
+            .map(|sender| sender.is_closed())
+            .unwrap_or(true)
     }
 }
 
@@ -366,9 +367,13 @@ where
     InternalDaemonEvent: From<E>,
 {
     fn send(&self, event: E) -> Result<(), ()> {
-        self.sender
-            .unbounded_send(InternalDaemonEvent::from(event))
-            .map_err(|_| ())
+        if let Some(sender) = self.sender.upgrade() {
+            sender
+                .unbounded_send(InternalDaemonEvent::from(event))
+                .map_err(|_| ())
+        } else {
+            Err(())
+        }
     }
 }
 
@@ -426,8 +431,9 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
             return Err(Error::DaemonIsAlreadyRunning);
         }
         let (tx, rx) = futures::sync::mpsc::unbounded();
-        let command_sender = DaemonCommandSender::new(tx.clone());
-        let event_sender = DaemonEventSender::new(tx);
+        let active_tx = Arc::new(tx);
+        let event_sender = DaemonEventSender::new(Arc::downgrade(&active_tx));
+        let command_sender = DaemonCommandSender(active_tx);
         let management_interface_broadcaster =
             Self::start_management_interface(command_sender, event_sender.clone())?;
 
@@ -489,8 +495,8 @@ where
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<(Self, DaemonCommandSender), Error> {
         let (tx, rx) = futures::sync::mpsc::unbounded();
-        let command_sender = DaemonCommandSender::new(tx.clone());
-        let event_sender = DaemonEventSender::new(tx);
+        let command_sender = Arc::new(tx);
+        let event_sender = DaemonEventSender::new(Arc::downgrade(&command_sender));
 
         let daemon = Self::start_internal(
             event_sender,
@@ -503,7 +509,7 @@ where
             android_context,
         )?;
 
-        Ok((daemon, command_sender))
+        Ok((daemon, DaemonCommandSender(command_sender)))
     }
 
     fn start_internal(
