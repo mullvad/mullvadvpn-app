@@ -71,9 +71,8 @@ impl KeyManager {
         }
     }
 
-    /// Update automatic key rotation interval (given in minutes)
-    /// Passing `None` for the interval will use the default value.
-    /// A value of `0` disables automatic key rotation.
+    /// Reset key rotation, cancelling the current one and starting a new one for the specified
+    /// account
     pub fn reset_rotation(
         &mut self,
         account_history: &mut AccountHistory,
@@ -123,6 +122,7 @@ impl KeyManager {
             .map_err(Self::map_rpc_error)
     }
 
+    /// Run a future on the given tokio remote
     pub fn run_future_sync<T: Send + 'static, E: Send + 'static>(
         &mut self,
         fut: impl Future<Item = T, Error = E> + Send + 'static,
@@ -137,6 +137,7 @@ impl KeyManager {
         rx.wait().unwrap()
     }
 
+    /// Replace a key for an account synchronously
     pub fn replace_key(
         &mut self,
         account: AccountToken,
@@ -153,7 +154,7 @@ impl KeyManager {
     }
 
 
-    /// Generate a new private key asyncronously. The new keys will be sent to the daemon channel.
+    /// Generate a new private key asynchronously. The new keys will be sent to the daemon channel.
     pub fn generate_key_async(&mut self, account: AccountToken) -> Result<()> {
         self.reset();
         let private_key = PrivateKey::new_from_random();
