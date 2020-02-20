@@ -393,11 +393,11 @@ impl RelaySelector {
                 relay.tunnels = RelayTunnels {
                     wireguard: Self::matching_wireguard_tunnels(
                         &relay.tunnels,
-                        &constraints.wireguard_constraints,
+                        constraints.wireguard_constraints,
                     ),
                     openvpn: Self::matching_openvpn_tunnels(
                         &relay.tunnels,
-                        &constraints.openvpn_constraints,
+                        constraints.openvpn_constraints,
                     ),
                 };
                 relay
@@ -407,7 +407,7 @@ impl RelaySelector {
                 relay.tunnels = RelayTunnels {
                     wireguard: Self::matching_wireguard_tunnels(
                         &relay.tunnels,
-                        &constraints.wireguard_constraints,
+                        constraints.wireguard_constraints,
                     ),
                     openvpn: vec![],
                 };
@@ -419,7 +419,7 @@ impl RelaySelector {
                 relay.tunnels = RelayTunnels {
                     openvpn: Self::matching_openvpn_tunnels(
                         &relay.tunnels,
-                        &constraints.openvpn_constraints,
+                        constraints.openvpn_constraints,
                     ),
                     wireguard: vec![],
                 };
@@ -490,7 +490,7 @@ impl RelaySelector {
 
     fn matching_openvpn_tunnels(
         tunnels: &RelayTunnels,
-        constraints: &OpenVpnConstraints,
+        constraints: OpenVpnConstraints,
     ) -> Vec<OpenVpnEndpointData> {
         tunnels
             .openvpn
@@ -502,7 +502,7 @@ impl RelaySelector {
 
     fn matching_wireguard_tunnels(
         tunnels: &RelayTunnels,
-        constraints: &WireguardConstraints,
+        constraints: WireguardConstraints,
     ) -> Vec<WireguardEndpointData> {
         tunnels
             .wireguard
@@ -582,7 +582,7 @@ impl RelaySelector {
                     self.wg_data_to_endpoint(
                         relay.ipv4_addr_in.into(),
                         wg_tunnel,
-                        &constraints.wireguard_constraints,
+                        constraints.wireguard_constraints,
                     )
                 }),
             #[cfg(target_os = "android")]
@@ -595,7 +595,7 @@ impl RelaySelector {
                     self.wg_data_to_endpoint(
                         relay.ipv4_addr_in.into(),
                         wg_tunnel,
-                        &WireguardConstraints::default(),
+                        WireguardConstraints::default(),
                     )
                 }),
             #[cfg(target_os = "android")]
@@ -607,9 +607,9 @@ impl RelaySelector {
         &mut self,
         host: IpAddr,
         data: WireguardEndpointData,
-        constraints: &WireguardConstraints,
+        constraints: WireguardConstraints,
     ) -> Option<MullvadEndpoint> {
-        let port = self.get_port_for_wireguard_relay(&data, &constraints)?;
+        let port = self.get_port_for_wireguard_relay(&data, constraints)?;
         let peer_config = wireguard::PeerConfig {
             public_key: data.public_key,
             endpoint: SocketAddr::new(host, port),
@@ -625,7 +625,7 @@ impl RelaySelector {
     fn get_port_for_wireguard_relay(
         &mut self,
         data: &WireguardEndpointData,
-        constraints: &WireguardConstraints,
+        constraints: WireguardConstraints,
     ) -> Option<u16> {
         match constraints.port {
             Constraint::Any => {
