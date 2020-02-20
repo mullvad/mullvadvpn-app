@@ -1,15 +1,11 @@
-use crate::{account_history::AccountHistory, InternalDaemonEvent};
+use crate::{account_history::AccountHistory, DaemonEventSender, InternalDaemonEvent};
 use chrono::offset::Utc;
-use futures::{
-    future::Executor,
-    stream::Stream,
-    sync::{mpsc::UnboundedSender, oneshot},
-    Async, Future, Poll,
-};
+use futures::{future::Executor, stream::Stream, sync::oneshot, Async, Future, Poll};
 use jsonrpc_client_core::Error as JsonRpcError;
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;
 use std::time::Duration;
+use talpid_core::mpsc::Sender;
 pub use talpid_types::net::wireguard::{
     ConnectionConfig, PrivateKey, TunnelConfig, TunnelParameters,
 };
@@ -46,7 +42,7 @@ pub enum Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 pub struct KeyManager {
-    daemon_tx: UnboundedSender<InternalDaemonEvent>,
+    daemon_tx: DaemonEventSender,
     http_handle: mullvad_rpc::HttpHandle,
     tokio_remote: Remote,
     current_job: Option<CancelHandle>,
@@ -57,7 +53,7 @@ pub struct KeyManager {
 
 impl KeyManager {
     pub(crate) fn new(
-        daemon_tx: UnboundedSender<InternalDaemonEvent>,
+        daemon_tx: DaemonEventSender,
         http_handle: mullvad_rpc::HttpHandle,
         tokio_remote: Remote,
     ) -> Self {
@@ -199,14 +195,13 @@ impl KeyManager {
         let fut = fut.then(move |result| {
             match result {
                 Ok(wireguard_data) => {
-                    let _ = daemon_tx.unbounded_send(InternalDaemonEvent::WgKeyEvent((
+                    let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
                         account,
                         Ok(wireguard_data),
                     )));
                 }
                 Err(CancelErr::Inner(e)) => {
-                    let _ = daemon_tx
-                        .unbounded_send(InternalDaemonEvent::WgKeyEvent((account, Err(e))));
+                    let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((account, Err(e))));
                 }
                 Err(CancelErr::Cancelled) => {
                     log::error!("Key generation cancelled");
@@ -294,7 +289,7 @@ impl KeyManager {
     }
 
     fn next_automatic_rotation(
-        daemon_tx: UnboundedSender<InternalDaemonEvent>,
+        daemon_tx: DaemonEventSender,
         http_handle: mullvad_rpc::HttpHandle,
         public_key: PublicKey,
         rotation_interval_secs: u64,
@@ -315,14 +310,14 @@ impl KeyManager {
                 match rpc_result {
                     Ok(data) => {
                         // Update account data
-                        let _ = daemon_tx.unbounded_send(InternalDaemonEvent::WgKeyEvent((
+                        let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
                             account_token_copy,
                             Ok(data.clone()),
                         )));
                         Ok(data.get_public_key())
                     }
                     Err(Error::TooManyKeys) => {
-                        let _ = daemon_tx.unbounded_send(InternalDaemonEvent::WgKeyEvent((
+                        let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
                             account_token_copy,
                             Err(Error::TooManyKeys),
                         )));
@@ -334,7 +329,7 @@ impl KeyManager {
     }
 
     fn create_automatic_rotation(
-        daemon_tx: UnboundedSender<InternalDaemonEvent>,
+        daemon_tx: DaemonEventSender,
         http_handle: mullvad_rpc::HttpHandle,
         public_key: PublicKey,
         rotation_interval_secs: u64,
