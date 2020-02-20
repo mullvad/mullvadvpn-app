@@ -62,19 +62,16 @@ pub enum Error {
 }
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
-pub fn spawn<P>(
+pub fn spawn(
     allow_lan: bool,
     block_when_disconnected: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
-    cache_dir: P,
+    cache_dir: impl AsRef<Path> + Send + 'static,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     #[cfg(target_os = "android")] android_context: AndroidContext,
-) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error>
-where
-    P: AsRef<Path> + Send + 'static,
-{
+) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
     let offline_monitor = offline::spawn_monitor(
