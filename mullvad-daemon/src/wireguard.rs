@@ -123,7 +123,7 @@ impl KeyManager {
     }
 
     /// Run a future on the given tokio remote
-    pub fn run_future_sync<T: Send + 'static, E: Send + 'static>(
+    fn run_future_sync<T: Send + 'static, E: Send + 'static>(
         &mut self,
         fut: impl Future<Item = T, Error = E> + Send + 'static,
     ) -> std::result::Result<T, E> {
