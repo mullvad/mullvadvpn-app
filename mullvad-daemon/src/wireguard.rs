@@ -79,8 +79,6 @@ impl KeyManager {
         account_history: &mut AccountHistory,
         account_token: AccountToken,
     ) {
-        log::debug!("reset_rotation");
-
         match account_history
             .get(&account_token)
             .map(|entry| entry.map(|entry| entry.wireguard.map(|wg| wg.get_public_key())))
@@ -103,8 +101,6 @@ impl KeyManager {
         account_token: AccountToken,
         auto_rotation_interval: Option<Duration>,
     ) {
-        log::debug!("set_rotation_interval");
-
         self.auto_rotation_interval =
             auto_rotation_interval.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
 
@@ -343,11 +339,10 @@ impl KeyManager {
         rotation_interval_secs: u64,
         account_token: AccountToken,
     ) -> impl Future<Item = (), Error = ()> + Send {
-        log::debug!("create_automatic_rotation");
-
         tokio_timer::wheel()
             .build()
             .interval(AUTOMATIC_ROTATION_RETRY_DELAY)
+            .map_err(Error::RotationScheduleError)
             .fold(public_key, move |old_public_key, _| {
                 let fut = Self::next_automatic_rotation(
                     daemon_tx.clone(),
@@ -358,7 +353,10 @@ impl KeyManager {
                 );
                 fut.then(|result| match result {
                     Ok(new_public_key) => Ok(new_public_key),
-                    Err(Error::TooManyKeys) => Ok(old_public_key),
+                    Err(Error::TooManyKeys) => {
+                        log::error!("Account has too many keys, stopping automatic rotation");
+                        Err(Error::TooManyKeys)
+                    }
                     Err(e) => {
                         log::error!(
                             "Key rotation failed: {}. Retrying in {} seconds",
@@ -381,6 +379,7 @@ impl KeyManager {
             return;
         }
 
+        log::debug!("Starting automatic key rotation job");
         // Schedule cancellable series of repeating rotation tasks
         let fut = Self::create_automatic_rotation(
             self.daemon_tx.clone(),
