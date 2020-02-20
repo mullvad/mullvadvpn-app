@@ -32,11 +32,19 @@ Line wrap the file at 100 chars.                                              Th
   leaking any data during the reconnection.
 
 ### Fixed
-- Fix stack overflow caused by WireGuard key rotation timers.
-
 #### Android
 - Make sure the settings screen is scrollable so that devices with small screens can access the quit
   button.
+
+
+## [2020.3] - 2020-02-20
+This release is identical to 2020.3-beta1
+
+
+## [2020.3-beta1] - 2020-02-20
+### Security
+- Fix stack overflow caused by WireGuard key rotation timers. When the daemon crashed it was
+  restarted automatically. But it did not connect (depending on settings), leaving a leak.
 
 
 ## [2020.2] - 2020-02-13
