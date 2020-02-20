@@ -13,6 +13,7 @@ function tidy-up-android-xml {
         --indent-spaces 4 \
         --literal-attributes yes \
         android/src/main/res/*/*.xml
+    find android/src/main/res/ -name '*.xml' -exec sed -i -e 's/[ \t]*$//' '{}' ';'
 }
 
 # Autoformats Android XML files and returns 0 if no files were actually changed, or 1 if files were changed
