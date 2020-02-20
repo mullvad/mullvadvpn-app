@@ -299,6 +299,31 @@ impl DaemonExecutionState {
     }
 }
 
+pub struct DaemonCommandChannel {
+    sender: DaemonCommandSender,
+    receiver: UnboundedReceiver<InternalDaemonEvent>,
+}
+
+impl DaemonCommandChannel {
+    pub fn new() -> Self {
+        let (untracked_sender, receiver) = futures::sync::mpsc::unbounded();
+        let sender = DaemonCommandSender(Arc::new(untracked_sender));
+
+        Self { sender, receiver }
+    }
+
+    pub fn sender(&self) -> DaemonCommandSender {
+        self.sender.clone()
+    }
+
+    fn destructure(self) -> (DaemonEventSender, UnboundedReceiver<InternalDaemonEvent>) {
+        let event_sender = DaemonEventSender::new(Arc::downgrade(&self.sender.0));
+
+        (event_sender, self.receiver)
+    }
+}
+
+#[derive(Clone)]
 pub struct DaemonCommandSender(Arc<UnboundedSender<InternalDaemonEvent>>);
 
 impl DaemonCommandSender {
