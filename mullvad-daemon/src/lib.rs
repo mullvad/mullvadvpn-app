@@ -96,9 +96,6 @@ pub enum Error {
     #[error(display = "Unable to start management interface server")]
     StartManagementInterface(#[error(source)] talpid_ipc::Error),
 
-    #[error(display = "Management interface server exited unexpectedly")]
-    ManagementInterfaceExited,
-
     #[error(display = "No wireguard private key available")]
     NoKeyAvailable,
 
@@ -223,8 +220,6 @@ pub(crate) enum InternalDaemonEvent {
     ),
     /// A command sent to the daemon.
     Command(DaemonCommand),
-    /// Triggered if the server hosting the JSONRPC-2.0 management interface dies unexpectedly.
-    ManagementInterfaceExited,
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
     TriggerShutdown,
     /// Wireguard key generation event
@@ -434,8 +429,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
         let active_tx = Arc::new(tx);
         let event_sender = DaemonEventSender::new(Arc::downgrade(&active_tx));
         let command_sender = DaemonCommandSender(active_tx);
-        let management_interface_broadcaster =
-            Self::start_management_interface(command_sender, event_sender.clone())?;
+        let management_interface_broadcaster = Self::start_management_interface(command_sender)?;
 
         Self::start_internal(
             event_sender,
@@ -453,11 +447,10 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(
         command_sender: DaemonCommandSender,
-        event_sender: DaemonEventSender,
     ) -> Result<ManagementInterfaceEventBroadcaster, Error> {
         let server = Self::start_management_interface_server(command_sender)?;
         let event_broadcaster = server.event_broadcaster();
-        Self::spawn_management_interface_wait_thread(server, event_sender);
+        Self::spawn_management_interface_wait_thread(server);
         Ok(event_broadcaster)
     }
 
@@ -471,14 +464,10 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
         Ok(server)
     }
 
-    fn spawn_management_interface_wait_thread(
-        server: ManagementInterfaceServer,
-        exit_tx: DaemonEventSender,
-    ) {
+    fn spawn_management_interface_wait_thread(server: ManagementInterfaceServer) {
         thread::spawn(move || {
             server.wait();
             info!("Management interface shut down");
-            let _ = exit_tx.send(InternalDaemonEvent::ManagementInterfaceExited);
         });
     }
 }
@@ -642,7 +631,7 @@ where
             self.set_target_state(TargetState::Secured);
         }
         while let Some(Ok(event)) = self.rx.next() {
-            self.handle_event(event)?;
+            self.handle_event(event);
             if self.state == DaemonExecutionState::Finished {
                 break;
             }
@@ -672,7 +661,7 @@ where
     }
 
 
-    fn handle_event(&mut self, event: InternalDaemonEvent) -> Result<(), Error> {
+    fn handle_event(&mut self, event: InternalDaemonEvent) {
         use self::InternalDaemonEvent::*;
         match event {
             TunnelStateTransition(transition) => self.handle_tunnel_state_transition(transition),
@@ -680,9 +669,6 @@ where
                 self.handle_generate_tunnel_parameters(&tunnel_parameters_tx, retry_attempt)
             }
             Command(command) => self.handle_command(command),
-            ManagementInterfaceExited => {
-                return Err(Error::ManagementInterfaceExited);
-            }
             TriggerShutdown => self.trigger_shutdown_event(),
             WgKeyEvent(key_event) => self.handle_wireguard_key_event(key_event),
             NewAccountEvent(account_token, tx) => self.handle_new_account_event(account_token, tx),
@@ -690,7 +676,6 @@ where
                 self.handle_new_app_version_info(app_version_info)
             }
         }
-        Ok(())
     }
 
     fn handle_tunnel_state_transition(&mut self, tunnel_state_transition: TunnelStateTransition) {
