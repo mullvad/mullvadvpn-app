@@ -23,8 +23,8 @@ android {
         applicationId "net.mullvad.mullvadvpn"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 20020099
-        versionName "2020.2"
+        versionCode 20030001
+        versionName "2020.3-beta1"
     }
 
     if (keystorePropertiesFile.exists()) {
