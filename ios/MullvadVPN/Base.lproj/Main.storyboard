@@ -747,10 +747,10 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rkG-Xa-pEO" userLabel="Container">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="295.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="229.5"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nkx-Eb-7le" userLabel="Content">
-                                                <rect key="frame" x="24" y="24" width="327" height="247.5"/>
+                                                <rect key="frame" x="24" y="24" width="327" height="181.5"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HzF-8Z-UBs" userLabel="Account number">
                                                         <rect key="frame" x="0.0" y="0.0" width="327" height="46"/>
@@ -813,56 +813,29 @@
                                                             <constraint firstItem="NMg-f0-BTW" firstAttribute="leading" secondItem="459-0n-9V2" secondAttribute="leading" id="vqI-Vt-8V6"/>
                                                         </constraints>
                                                     </view>
-                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Acd-vw-Pu7" userLabel="Buttons">
-                                                        <rect key="frame" x="0.0" y="139.5" width="327" height="108"/>
-                                                        <subviews>
-                                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="wNk-FP-mVD">
-                                                                <rect key="frame" x="0.0" y="0.0" width="327" height="108"/>
-                                                                <subviews>
-                                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Ia-Dz-pE6" customClass="CustomButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                                        <rect key="frame" x="0.0" y="0.0" width="327" height="42"/>
-                                                                        <constraints>
-                                                                            <constraint firstAttribute="height" constant="42" placeholder="YES" id="9Ss-ab-obH"/>
-                                                                        </constraints>
-                                                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                                        <state key="normal" title="Buy more credit" image="IconExtlink" backgroundImage="SuccessButton"/>
-                                                                        <connections>
-                                                                            <action selector="doBuyCredits" destination="ruh-Q2-P39" eventType="touchUpInside" id="BAj-cb-ENq"/>
-                                                                        </connections>
-                                                                    </button>
-                                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QHr-Lz-v6t" customClass="CustomButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                                        <rect key="frame" x="0.0" y="66" width="327" height="42"/>
-                                                                        <accessibility key="accessibilityConfiguration" identifier="LogoutButton"/>
-                                                                        <constraints>
-                                                                            <constraint firstAttribute="height" constant="42" placeholder="YES" id="VYx-GQ-CIz"/>
-                                                                        </constraints>
-                                                                        <state key="normal" title="Log out" backgroundImage="DangerButton">
-                                                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                                        </state>
-                                                                        <connections>
-                                                                            <action selector="doLogout" destination="ruh-Q2-P39" eventType="touchUpInside" id="CVm-Qx-5Et"/>
-                                                                        </connections>
-                                                                    </button>
-                                                                </subviews>
-                                                            </stackView>
-                                                        </subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QHr-Lz-v6t" customClass="CustomButton" customModule="MullvadVPN" customModuleProvider="target">
+                                                        <rect key="frame" x="0.0" y="139.5" width="327" height="42"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="LogoutButton"/>
                                                         <constraints>
-                                                            <constraint firstAttribute="bottom" secondItem="wNk-FP-mVD" secondAttribute="bottom" id="5v8-RH-7Dt"/>
-                                                            <constraint firstItem="wNk-FP-mVD" firstAttribute="top" secondItem="Acd-vw-Pu7" secondAttribute="top" id="F8Z-m4-Mdt"/>
-                                                            <constraint firstAttribute="trailing" secondItem="wNk-FP-mVD" secondAttribute="trailing" id="alb-J1-Saf"/>
-                                                            <constraint firstItem="wNk-FP-mVD" firstAttribute="leading" secondItem="Acd-vw-Pu7" secondAttribute="leading" id="yMu-Ta-4ad"/>
+                                                            <constraint firstAttribute="height" constant="42" placeholder="YES" id="VYx-GQ-CIz"/>
                                                         </constraints>
-                                                    </view>
+                                                        <state key="normal" title="Log out" backgroundImage="DangerButton">
+                                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        </state>
+                                                        <connections>
+                                                            <action selector="doLogout" destination="ruh-Q2-P39" eventType="touchUpInside" id="CVm-Qx-5Et"/>
+                                                        </connections>
+                                                    </button>
                                                 </subviews>
                                                 <constraints>
-                                                    <constraint firstAttribute="trailing" secondItem="Acd-vw-Pu7" secondAttribute="trailing" id="AzF-Vm-XaC"/>
+                                                    <constraint firstItem="QHr-Lz-v6t" firstAttribute="top" secondItem="459-0n-9V2" secondAttribute="bottom" constant="24" id="6IV-09-erh"/>
+                                                    <constraint firstItem="QHr-Lz-v6t" firstAttribute="leading" secondItem="nkx-Eb-7le" secondAttribute="leading" id="EEA-bt-bSx"/>
                                                     <constraint firstItem="459-0n-9V2" firstAttribute="leading" secondItem="nkx-Eb-7le" secondAttribute="leading" id="G86-ck-dqe"/>
                                                     <constraint firstAttribute="trailing" secondItem="459-0n-9V2" secondAttribute="trailing" id="HUb-T5-Wkk"/>
-                                                    <constraint firstAttribute="bottom" secondItem="Acd-vw-Pu7" secondAttribute="bottom" id="JwY-fr-wzM"/>
-                                                    <constraint firstItem="Acd-vw-Pu7" firstAttribute="leading" secondItem="nkx-Eb-7le" secondAttribute="leading" id="Lf9-6X-tCB"/>
-                                                    <constraint firstItem="Acd-vw-Pu7" firstAttribute="top" secondItem="459-0n-9V2" secondAttribute="bottom" constant="24" id="ShJ-z8-Scs"/>
                                                     <constraint firstItem="459-0n-9V2" firstAttribute="top" secondItem="HzF-8Z-UBs" secondAttribute="bottom" constant="24" id="Ttn-aK-Cj0"/>
                                                     <constraint firstItem="HzF-8Z-UBs" firstAttribute="leading" secondItem="nkx-Eb-7le" secondAttribute="leading" id="bCL-Z9-nk4"/>
+                                                    <constraint firstAttribute="trailing" secondItem="QHr-Lz-v6t" secondAttribute="trailing" id="eBz-Is-dHp"/>
+                                                    <constraint firstAttribute="bottom" secondItem="QHr-Lz-v6t" secondAttribute="bottom" id="fRA-bC-3eO"/>
                                                     <constraint firstAttribute="trailing" secondItem="HzF-8Z-UBs" secondAttribute="trailing" id="pVC-Ci-c98"/>
                                                     <constraint firstItem="HzF-8Z-UBs" firstAttribute="top" secondItem="nkx-Eb-7le" secondAttribute="top" id="vsH-Ee-fch"/>
                                                 </constraints>
@@ -1089,7 +1062,7 @@
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hVz-q0-Xpd" customClass="CustomButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="261" height="52.5"/>
                                                 <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="10"/>
                                                 <state key="normal" title="Select location" backgroundImage="TranslucentNeutralButton">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
