@@ -28,7 +28,13 @@ echo "Updating version in metadata files..."
 
 echo "Syncing Cargo.lock with new version numbers"
 source env.sh ""
-cargo +stable build
+# If cargo exits with a non zero exit status and it's not a timeout (exit code 124) it's an error
+set +e
+timeout 5s cargo +stable build
+if [[ $? != 0 && $? != 124 ]]; then
+    exit 1
+fi
+set -e
 
 echo "Commiting metadata changes to git..."
 git commit -S -m "Updating version in package files" \
