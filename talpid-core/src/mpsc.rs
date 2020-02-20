@@ -1,4 +1,4 @@
-use futures::sync::mpsc::{SendError, UnboundedSender};
+use futures::sync::mpsc::UnboundedSender;
 use std::marker::PhantomData;
 
 /// Abstraction over any type that can be used similarly to an `std::mpsc::Sender`.
@@ -14,13 +14,13 @@ pub struct IntoSender<T, U> {
     _marker: PhantomData<T>,
 }
 
-impl<T, U> IntoSender<T, U>
+impl<T, U> Sender<T> for IntoSender<T, U>
 where
     T: Into<U>,
 {
     /// Converts the `T` into a `U` and sends it on the channel.
-    pub fn send(&self, t: T) -> Result<(), SendError<U>> {
-        self.sender.unbounded_send(t.into())
+    fn send(&self, item: T) -> Result<(), ()> {
+        self.sender.unbounded_send(item.into()).map_err(|_| ())
     }
 }
 

@@ -17,7 +17,7 @@ use self::{
 use crate::{
     dns::DnsMonitor,
     firewall::{Firewall, FirewallArguments},
-    mpsc::IntoSender,
+    mpsc::{IntoSender, Sender},
     offline,
     tunnel::tun_provider::TunProvider,
 };
