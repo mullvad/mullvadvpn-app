@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2020.3] - 2020-02-20
+This release is identical to 2020.3-beta1
+
+
 ## [2020.3-beta1] - 2020-02-20
 ### Security
 - Fix stack overflow caused by WireGuard key rotation timers. When the daemon crashed it was
