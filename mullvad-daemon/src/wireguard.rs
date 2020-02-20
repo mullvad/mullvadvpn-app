@@ -342,6 +342,7 @@ impl KeyManager {
         tokio_timer::wheel()
             .build()
             .interval(AUTOMATIC_ROTATION_RETRY_DELAY)
+            .map_err(Error::RotationScheduleError)
             .fold(public_key, move |old_public_key, _| {
                 let fut = Self::next_automatic_rotation(
                     daemon_tx.clone(),
@@ -352,7 +353,10 @@ impl KeyManager {
                 );
                 fut.then(|result| match result {
                     Ok(new_public_key) => Ok(new_public_key),
-                    Err(Error::TooManyKeys) => Ok(old_public_key),
+                    Err(Error::TooManyKeys) => {
+                        log::error!("Account has too many keys, stopping automatic rotation");
+                        Err(Error::TooManyKeys)
+                    }
                     Err(e) => {
                         log::error!(
                             "Key rotation failed: {}. Retrying in {} seconds",
