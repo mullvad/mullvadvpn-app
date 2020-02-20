@@ -160,9 +160,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
             }, receiveValue: { _ in })
     }
 
-    @IBAction func openCreateAccount() {
-        UIApplication.shared.open(WebLinks.createAccountURL, options: [:])
-    }
+    @IBAction func openCreateAccount() {}
 
     // MARK: - Private
 

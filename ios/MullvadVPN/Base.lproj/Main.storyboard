@@ -182,7 +182,7 @@
                                     <constraint firstItem="V3j-Lb-fSQ" firstAttribute="leading" secondItem="0ZY-Kh-JiM" secondAttribute="leading" id="alr-G1-L4w"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ire-2z-eJu" userLabel="Footer">
+                            <view hidden="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ire-2z-eJu" userLabel="Footer">
                                 <rect key="frame" x="0.0" y="554.5" width="375" height="112.5"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Don't have an account number?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QcG-Tf-YdQ">
