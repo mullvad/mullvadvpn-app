@@ -1,7 +1,11 @@
 #![deny(rust_2018_idioms)]
 
 use log::{debug, error, info, warn};
-use mullvad_daemon::{logging, rpc_uniqueness_check, version, Daemon, DaemonCommandChannel};
+use mullvad_daemon::{
+    logging,
+    management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},
+    rpc_uniqueness_check, version, Daemon, DaemonCommandChannel, DaemonCommandSender,
+};
 use std::{path::PathBuf, thread, time::Duration};
 use talpid_types::ErrorExt;
 
@@ -105,15 +109,42 @@ fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     Ok(())
 }
 
-fn create_daemon(log_dir: Option<PathBuf>) -> Result<Daemon, String> {
+fn create_daemon(
+    log_dir: Option<PathBuf>,
+) -> Result<Daemon<ManagementInterfaceEventBroadcaster>, String> {
     let resource_dir = mullvad_paths::get_resource_dir();
     let cache_dir = mullvad_paths::cache_dir()
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
     let command_channel = DaemonCommandChannel::new();
+    let event_listener = spawn_management_interface(command_channel.sender())?;
 
-    Daemon::start(log_dir, resource_dir, cache_dir, command_channel)
-        .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
+    Daemon::start_with_event_listener(
+        event_listener,
+        log_dir,
+        resource_dir,
+        cache_dir,
+        command_channel,
+    )
+    .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
+}
+
+fn spawn_management_interface(
+    command_sender: DaemonCommandSender,
+) -> Result<ManagementInterfaceEventBroadcaster, String> {
+    let server = ManagementInterfaceServer::start(command_sender).map_err(|error| {
+        error.display_chain_with_msg("Unable to start management interface server")
+    })?;
+    let event_broadcaster = server.event_broadcaster();
+
+    info!("Management interface listening on {}", server.socket_path());
+
+    thread::spawn(|| {
+        server.wait();
+        info!("Management interface shut down");
+    });
+
+    Ok(event_broadcaster)
 }
 
 #[cfg(unix)]
