@@ -1,3 +1,6 @@
+//! When changing relay selection, please verify if `docs/relay-selector.md` needs to be
+//! updated as well.
+
 use chrono::{DateTime, Local};
 use futures::Future;
 use mullvad_rpc::{HttpHandle, RelayListProxy};
