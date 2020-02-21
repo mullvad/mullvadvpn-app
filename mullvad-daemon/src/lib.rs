@@ -9,7 +9,7 @@ mod geoip;
 pub mod logging;
 mod management_interface;
 mod relays;
-mod rpc_uniqueness_check;
+pub mod rpc_uniqueness_check;
 mod settings;
 pub mod version;
 mod version_check;

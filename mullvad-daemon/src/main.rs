@@ -1,7 +1,7 @@
 #![deny(rust_2018_idioms)]
 
 use log::{debug, error, info, warn};
-use mullvad_daemon::{logging, version, Daemon, DaemonCommandChannel};
+use mullvad_daemon::{logging, rpc_uniqueness_check, version, Daemon, DaemonCommandChannel};
 use std::{path::PathBuf, thread, time::Duration};
 use talpid_types::ErrorExt;
 
@@ -84,6 +84,10 @@ fn run_platform(_config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), S
 }
 
 fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
+    if rpc_uniqueness_check::is_another_instance_running() {
+        return Err("Another instance of the daemon is already running".to_owned());
+    }
+
     if !running_as_admin() {
         warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
