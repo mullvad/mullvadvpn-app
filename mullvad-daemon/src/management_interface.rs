@@ -1,4 +1,4 @@
-use crate::{BoxFuture, DaemonCommand, EventListener};
+use crate::{BoxFuture, DaemonCommand, DaemonCommandSender, EventListener};
 use jsonrpc_core::{
     futures::{future, sync, Future},
     Error, ErrorCode, MetaIoHandler, Metadata,
@@ -22,7 +22,6 @@ use std::{
     collections::{hash_map::Entry, HashMap},
     sync::Arc,
 };
-use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use talpid_types::ErrorExt;
 use uuid;
@@ -187,10 +186,7 @@ pub struct ManagementInterfaceServer {
 }
 
 impl ManagementInterfaceServer {
-    pub fn start<T>(tunnel_tx: IntoSender<DaemonCommand, T>) -> Result<Self, talpid_ipc::Error>
-    where
-        T: From<DaemonCommand> + 'static + Send,
-    {
+    pub fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, talpid_ipc::Error> {
         let rpc = ManagementInterface::new(tunnel_tx);
         let subscriptions = rpc.subscriptions.clone();
 
@@ -280,13 +276,13 @@ impl Drop for ManagementInterfaceEventBroadcaster {
     }
 }
 
-struct ManagementInterface<T: From<DaemonCommand> + 'static + Send> {
+struct ManagementInterface {
     subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
-    tx: IntoSender<DaemonCommand, T>,
+    tx: DaemonCommandSender,
 }
 
-impl<T: From<DaemonCommand> + 'static + Send> ManagementInterface<T> {
-    pub fn new(tx: IntoSender<DaemonCommand, T>) -> Self {
+impl ManagementInterface {
+    pub fn new(tx: DaemonCommandSender) -> Self {
         ManagementInterface {
             subscriptions: Default::default(),
             tx,
@@ -320,7 +316,7 @@ impl<T: From<DaemonCommand> + 'static + Send> ManagementInterface<T> {
     }
 }
 
-impl<T: From<DaemonCommand> + 'static + Send> ManagementInterfaceApi for ManagementInterface<T> {
+impl ManagementInterfaceApi for ManagementInterface {
     type Metadata = Meta;
 
     fn create_new_account(&self, _: Self::Metadata) -> BoxFuture<String, Error> {

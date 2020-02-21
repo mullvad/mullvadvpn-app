@@ -387,18 +387,18 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
     fn start_management_interface(
         event_tx: UnboundedSender<InternalDaemonEvent>,
     ) -> Result<ManagementInterfaceEventBroadcaster, Error> {
-        let multiplex_event_tx = IntoSender::from(event_tx.clone());
-        let server = Self::start_management_interface_server(multiplex_event_tx)?;
+        let command_sender = DaemonCommandSender::new(event_tx.clone());
+        let server = Self::start_management_interface_server(command_sender)?;
         let event_broadcaster = server.event_broadcaster();
         Self::spawn_management_interface_wait_thread(server, event_tx);
         Ok(event_broadcaster)
     }
 
     fn start_management_interface_server(
-        event_tx: IntoSender<DaemonCommand, InternalDaemonEvent>,
+        command_sender: DaemonCommandSender,
     ) -> Result<ManagementInterfaceServer, Error> {
-        let server =
-            ManagementInterfaceServer::start(event_tx).map_err(Error::StartManagementInterface)?;
+        let server = ManagementInterfaceServer::start(command_sender)
+            .map_err(Error::StartManagementInterface)?;
         info!("Management interface listening on {}", server.socket_path());
 
         Ok(server)
