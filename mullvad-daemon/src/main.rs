@@ -119,11 +119,11 @@ fn create_daemon(
     let command_channel = DaemonCommandChannel::new();
     let event_listener = spawn_management_interface(command_channel.sender())?;
 
-    Daemon::start_with_event_listener(
-        event_listener,
+    Daemon::start(
         log_dir,
         resource_dir,
         cache_dir,
+        event_listener,
         command_channel,
     )
     .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))

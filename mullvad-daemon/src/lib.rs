@@ -14,7 +14,6 @@ mod settings;
 pub mod version;
 mod version_check;
 
-use crate::management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer};
 use futures::{
     future::{self, Executor},
     stream::Wait,
@@ -74,9 +73,6 @@ type BoxFuture<T, E> = Box<dyn Future<Item = T, Error = E> + Send>;
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    #[error(display = "Another instance of the daemon is already running")]
-    DaemonIsAlreadyRunning,
-
     #[error(display = "Failed to send command to daemon because it is not running")]
     DaemonUnavailable,
 
@@ -91,10 +87,6 @@ pub enum Error {
 
     #[error(display = "Unable to load account history with wireguard key cache")]
     LoadAccountHistory(#[error(source)] account_history::Error),
-
-    /// Error in the management interface
-    #[error(display = "Unable to start management interface server")]
-    StartManagementInterface(#[error(source)] talpid_ipc::Error),
 
     #[error(display = "No wireguard private key available")]
     NoKeyAvailable,
@@ -130,7 +122,7 @@ pub enum Error {
     ReadDirError(#[error(source)] io::Error),
 }
 
-/// Enum representing commands coming in on the management interface.
+/// Enum representing commands that can be sent to the daemon.
 pub enum DaemonCommand {
     /// Set target state. Does nothing if the daemon already has the state that is being set.
     SetTargetState(oneshot::Sender<std::result::Result<(), ()>>, TargetState),
@@ -416,7 +408,7 @@ pub trait EventListener {
     fn notify_key_event(&self, key_event: KeygenEvent);
 }
 
-pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
+pub struct Daemon<L: EventListener> {
     tunnel_command_tx: Arc<UnboundedSender<TunnelCommand>>,
     tunnel_state: TunnelState,
     target_state: TargetState,
@@ -439,96 +431,16 @@ pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
 }
 
-impl Daemon<ManagementInterfaceEventBroadcaster> {
-    pub fn start(
-        log_dir: Option<PathBuf>,
-        resource_dir: PathBuf,
-        cache_dir: PathBuf,
-        command_channel: DaemonCommandChannel,
-        // TODO: Remove this once `ManagementInterface` is less coupled to the constructor.
-        #[cfg(target_os = "android")] android_context: AndroidContext,
-    ) -> Result<Self, Error> {
-        if rpc_uniqueness_check::is_another_instance_running() {
-            return Err(Error::DaemonIsAlreadyRunning);
-        }
-        let command_sender = command_channel.sender();
-        let (event_sender, rx) = command_channel.destructure();
-        let management_interface_broadcaster = Self::start_management_interface(command_sender)?;
-
-        Self::start_internal(
-            event_sender,
-            rx,
-            management_interface_broadcaster,
-            log_dir,
-            resource_dir,
-            cache_dir,
-            #[cfg(target_os = "android")]
-            android_context,
-        )
-    }
-
-    // Starts the management interface and spawns a thread that will process it.
-    // Returns a handle that allows notifying all subscribers on events.
-    fn start_management_interface(
-        command_sender: DaemonCommandSender,
-    ) -> Result<ManagementInterfaceEventBroadcaster, Error> {
-        let server = Self::start_management_interface_server(command_sender)?;
-        let event_broadcaster = server.event_broadcaster();
-        Self::spawn_management_interface_wait_thread(server);
-        Ok(event_broadcaster)
-    }
-
-    fn start_management_interface_server(
-        command_sender: DaemonCommandSender,
-    ) -> Result<ManagementInterfaceServer, Error> {
-        let server = ManagementInterfaceServer::start(command_sender)
-            .map_err(Error::StartManagementInterface)?;
-        info!("Management interface listening on {}", server.socket_path());
-
-        Ok(server)
-    }
-
-    fn spawn_management_interface_wait_thread(server: ManagementInterfaceServer) {
-        thread::spawn(move || {
-            server.wait();
-            info!("Management interface shut down");
-        });
-    }
-}
-
 impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
 {
-    pub fn start_with_event_listener(
-        event_listener: L,
+    pub fn start(
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
+        event_listener: L,
         command_channel: DaemonCommandChannel,
-        #[cfg(target_os = "android")] android_context: AndroidContext,
-    ) -> Result<Self, Error> {
-        let (event_sender, rx) = command_channel.destructure();
-
-        Self::start_internal(
-            event_sender,
-            rx,
-            event_listener,
-            log_dir,
-            resource_dir,
-            cache_dir,
-            #[cfg(target_os = "android")]
-            android_context,
-        )
-    }
-
-    fn start_internal(
-        internal_event_tx: DaemonEventSender,
-        internal_event_rx: UnboundedReceiver<InternalDaemonEvent>,
-        event_listener: L,
-        log_dir: Option<PathBuf>,
-        resource_dir: PathBuf,
-        cache_dir: PathBuf,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
@@ -558,6 +470,8 @@ where
             &resource_dir,
             &cache_dir,
         );
+
+        let (internal_event_tx, internal_event_rx) = command_channel.destructure();
 
         let app_version_info = version_check::load_cache(&cache_dir);
         let version_check_future = version_check::VersionUpdater::new(
@@ -670,8 +584,8 @@ where
         mem::drop(event_listener);
     }
 
-    /// Shuts down the daemon without shutting down the underlying management interface event
-    /// listener and the shutdown callbacks
+    /// Shuts down the daemon without shutting down the underlying event listener and the shutdown
+    /// callbacks
     fn shutdown(self) -> (L, Vec<Box<dyn FnOnce()>>) {
         let Daemon {
             event_listener,
@@ -1680,7 +1594,7 @@ where
 
     fn oneshot_send<T>(tx: oneshot::Sender<T>, t: T, msg: &'static str) {
         if tx.send(t).is_err() {
-            warn!("Unable to send {} to management interface client", msg);
+            warn!("Unable to send {} to the daemon command sender", msg);
         }
     }
 
