@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "error.h"
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -108,7 +109,7 @@ std::optional<std::wstring> GetDeviceRegistryStringProperty(
 		// TODO: Check if there may be other causes.
 		if (ERROR_INVALID_DATA != lastError)
 		{
-			THROW_WINDOWS_ERROR(lastError, "SetupDiGetDeviceRegistryPropertyW");
+			THROW_SETUPAPI_ERROR(lastError, "SetupDiGetDeviceRegistryPropertyW");
 		}
 
 		return std::nullopt;
@@ -132,7 +133,7 @@ std::optional<std::wstring> GetDeviceRegistryStringProperty(
 
 	if (FALSE == status)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "Failed to read device property");
+		THROW_SETUPAPI_ERROR(GetLastError(), "Failed to read device property");
 	}
 
 	return std::make_optional(buffer.data());
@@ -168,7 +169,7 @@ std::wstring GetDeviceStringProperty(
 
 		if (ERROR_INSUFFICIENT_BUFFER != lastError)
 		{
-			THROW_WINDOWS_ERROR(lastError, "SetupDiGetDevicePropertyW");
+			THROW_SETUPAPI_ERROR(lastError, "SetupDiGetDevicePropertyW");
 		}
 	}
 
@@ -191,7 +192,7 @@ std::wstring GetDeviceStringProperty(
 
 	if (FALSE == status)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "Failed to read device property");
+		THROW_SETUPAPI_ERROR(GetLastError(), "Failed to read device property");
 	}
 
 	return buffer.data();
@@ -224,7 +225,7 @@ std::wstring GetDeviceInstanceId(
 
 	if (FALSE == status)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiGetDeviceInstanceIdW");
+		THROW_SETUPAPI_ERROR(GetLastError(), "SetupDiGetDeviceInstanceIdW");
 	}
 
 	return deviceInstanceId.data();
@@ -243,7 +244,7 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 
 	if (hNet == INVALID_HANDLE_VALUE)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiOpenDevRegKey");
+		THROW_SETUPAPI_ERROR(GetLastError(), "SetupDiOpenDevRegKey");
 	}
 
 	std::vector<wchar_t> instanceId(MAX_PATH + 1);
@@ -289,13 +290,13 @@ bool DeleteDevice(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData)
 	auto status = SetupDiSetClassInstallParamsW(devInfo, data, &rmdParams.ClassInstallHeader, sizeof(rmdParams));
 	if (FALSE == status)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiSetClassInstallParamsW");
+		THROW_SETUPAPI_ERROR(GetLastError(), "SetupDiSetClassInstallParamsW");
 	}
 
 	status = SetupDiCallClassInstaller(DIF_REMOVE, devInfo, data);
 	if (FALSE == status)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiCallClassInstaller");
+		THROW_SETUPAPI_ERROR(GetLastError(), "SetupDiCallClassInstaller");
 	}
 
 	return true;
@@ -312,7 +313,7 @@ void ForEachNetworkDevice(const std::optional<std::wstring> hwId, std::function<
 
 	if (INVALID_HANDLE_VALUE == devInfo)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiGetClassDevsW");
+		THROW_SETUPAPI_ERROR(GetLastError(), "SetupDiGetClassDevsW");
 	}
 
 	common::memory::ScopeDestructor cleanupDevList;
@@ -335,7 +336,7 @@ void ForEachNetworkDevice(const std::optional<std::wstring> hwId, std::function<
 				break;
 			}
 
-			THROW_WINDOWS_ERROR(lastError, "Enumerating network adapters");
+			THROW_SETUPAPI_ERROR(lastError, "Enumerating network adapters");
 		}
 
 		if (hwId.has_value())
@@ -417,7 +418,7 @@ void CreateTapDevice()
 	const auto deviceInfoSet = SetupDiCreateDeviceInfoList(&classGuid, 0);
 	if (INVALID_HANDLE_VALUE == deviceInfoSet)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiCreateDeviceInfoList");
+		THROW_SETUPAPI_ERROR(GetLastError(), "SetupDiCreateDeviceInfoList");
 	}
 
 	common::memory::ScopeDestructor scopeDestructor;
@@ -441,7 +442,7 @@ void CreateTapDevice()
 
 	if (FALSE == status)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiCreateDeviceInfoW");
+		THROW_SETUPAPI_ERROR(GetLastError(), "SetupDiCreateDeviceInfoW");
 	}
 
 	status = SetupDiSetDeviceRegistryPropertyW(
@@ -454,7 +455,7 @@ void CreateTapDevice()
 
 	if (FALSE == status)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiSetDeviceRegistryPropertyW");
+		THROW_SETUPAPI_ERROR(GetLastError(), "SetupDiSetDeviceRegistryPropertyW");
 	}
 
 	//
@@ -468,7 +469,7 @@ void CreateTapDevice()
 
 	if (FALSE == status)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "SetupDiCallClassInstaller");
+		THROW_SETUPAPI_ERROR(GetLastError(), "SetupDiCallClassInstaller");
 	}
 
 	Log(L"Created new TAP adapter successfully");
@@ -531,7 +532,7 @@ ATTEMPT_UPDATE:
 			}
 		}
 
-		THROW_WINDOWS_ERROR(lastError, "UpdateDriverForPlugAndPlayDevicesW");
+		THROW_SETUPAPI_ERROR(lastError, "UpdateDriverForPlugAndPlayDevicesW");
 	}
 
 	//

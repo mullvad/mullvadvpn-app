@@ -9,9 +9,11 @@
   <ItemGroup>
     <ClCompile Include="src\driverlogic.cpp" />
     <ClCompile Include="src\stdafx.cpp" />
+    <ClCompile Include="src\error.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\targetver.h" />
+    <ClInclude Include="src\error.h" />
   </ItemGroup>
 </Project>
