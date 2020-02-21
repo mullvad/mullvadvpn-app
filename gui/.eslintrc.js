@@ -34,6 +34,10 @@ module.exports = {
     ],
     '@typescript-eslint/require-await': 'error',
     '@typescript-eslint/no-floating-promises': 'error',
+    'no-return-await': 'error',
+    'no-unused-expressions': 'error',
+    // TODO: rules to add: import-sort-order, react/jsx-no-bind, member-ordering,
+    // no-submodule-imports, rules corresponding to tslint-latest
 
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
@@ -44,5 +48,6 @@ module.exports = {
     '@typescript-eslint/camelcase': 'off',
     '@typescript-eslint/ban-ts-ignore': 'off',
     'react/no-find-dom-node': 'off',
+    camelcase: 'off',
   },
 };
