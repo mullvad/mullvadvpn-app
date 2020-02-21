@@ -30,8 +30,8 @@ constexpr wchar_t TAP_BASE_ALIAS[] = L"Mullvad";
 
 enum ReturnCodes
 {
-	GENERAL_ERROR,
-	GENERAL_SUCCESS
+	GENERAL_SUCCESS = 0,
+	GENERAL_ERROR = -1
 };
 
 struct NetworkAdapter
@@ -523,11 +523,12 @@ ATTEMPT_UPDATE:
 
 			if (deviceInstallDisabled)
 			{
-				THROW_ERROR(
+				throw common::error::WindowsException(
 					"Device installs must be enabled to continue. "
-					"Enable them in the Local Group Policy editor, or"
-					" update the registry value DeviceInstallDisabled in"
-					" [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\DeviceInstall\\Parameters]"
+					"Enable them in the Local Group Policy editor, or "
+					"update the registry value DeviceInstallDisabled in "
+					"[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\DeviceInstall\\Parameters]",
+					lastError
 				);
 			}
 		}
@@ -773,6 +774,11 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 		{
 			goto INVALID_ARGUMENTS;
 		}
+	}
+	catch (const common::error::WindowsException &e)
+	{
+		LogError(common::string::ToWide(e.what()));
+		return e.errorCode();
 	}
 	catch (const std::exception &e)
 	{

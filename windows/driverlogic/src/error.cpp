@@ -154,8 +154,10 @@ void ThrowSetupApiError(const char *operation, uint32_t code, const char *file, 
 	{
 		std::stringstream ss;
 		ss << operation << ": " << message
-			<< " (0x" << std::setw(8) << std::setfill('0') << std::hex << code << ")";
-		common::error::Throw(ss.str().c_str(), file, line);
+			<< " (0x" << std::setw(8) << std::setfill('0') << std::hex << code << ")"
+			<< " (" << IsolateFilename(file) << ": " << line << ")";
+
+		throw common::error::WindowsException(ss.str().c_str(), code);
 	}
 
 	// Fallback: Treat as a regular Windows error
