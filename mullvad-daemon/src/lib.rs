@@ -7,7 +7,7 @@ extern crate serde;
 mod account_history;
 mod geoip;
 pub mod logging;
-mod management_interface;
+pub mod management_interface;
 mod relays;
 pub mod rpc_uniqueness_check;
 mod settings;
