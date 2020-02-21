@@ -17,7 +17,7 @@ use jnix::{
     FromJava, IntoJava, JnixEnv,
 };
 use lazy_static::lazy_static;
-use mullvad_daemon::{logging, version, Daemon, DaemonCommandSender};
+use mullvad_daemon::{logging, version, Daemon, DaemonCommandChannel};
 use mullvad_types::account::AccountData;
 use std::{
     path::{Path, PathBuf},
@@ -131,8 +131,10 @@ fn initialize(
     log_dir: PathBuf,
 ) -> Result<(), Error> {
     let android_context = create_android_context(env, *vpn_service)?;
-    let daemon_command_sender = spawn_daemon(env, this, log_dir, android_context)?;
-    let daemon_interface = Box::new(DaemonInterface::new(daemon_command_sender));
+    let daemon_command_channel = DaemonCommandChannel::new();
+    let daemon_interface = Box::new(DaemonInterface::new(daemon_command_channel.sender()));
+
+    spawn_daemon(env, this, log_dir, daemon_command_channel, android_context)?;
 
     set_daemon_interface_address(env, this, Box::into_raw(daemon_interface) as jlong);
 
@@ -155,8 +157,9 @@ fn spawn_daemon(
     env: &JnixEnv<'_>,
     this: &JObject<'_>,
     log_dir: PathBuf,
+    command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
-) -> Result<DaemonCommandSender, Error> {
+) -> Result<(), Error> {
     let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
     let daemon_object = env
         .new_global_ref(*this)
@@ -166,9 +169,9 @@ fn spawn_daemon(
     thread::spawn(move || {
         let jvm = android_context.jvm.clone();
 
-        match create_daemon(listener, log_dir, android_context) {
-            Ok((daemon, command_sender)) => {
-                let _ = tx.send(Ok(command_sender));
+        match create_daemon(listener, log_dir, command_channel, android_context) {
+            Ok(daemon) => {
+                let _ = tx.send(Ok(()));
                 match daemon.run() {
                     Ok(()) => log::info!("Mullvad daemon has stopped"),
                     Err(error) => log::error!("{}", error.display_chain()),
@@ -188,8 +191,9 @@ fn spawn_daemon(
 fn create_daemon(
     listener: JniEventListener,
     log_dir: PathBuf,
+    command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
-) -> Result<(Daemon<JniEventListener>, DaemonCommandSender), Error> {
+) -> Result<Daemon<JniEventListener>, Error> {
     let resource_dir = mullvad_paths::get_resource_dir();
     let cache_dir = mullvad_paths::cache_dir().map_err(Error::GetCacheDir)?;
 
@@ -198,6 +202,7 @@ fn create_daemon(
         Some(log_dir),
         resource_dir,
         cache_dir,
+        command_channel,
         android_context,
     )
     .map_err(Error::InitializeDaemon)

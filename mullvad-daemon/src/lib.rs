@@ -505,13 +505,12 @@ where
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
+        command_channel: DaemonCommandChannel,
         #[cfg(target_os = "android")] android_context: AndroidContext,
-    ) -> Result<(Self, DaemonCommandSender), Error> {
-        let (tx, rx) = futures::sync::mpsc::unbounded();
-        let command_sender = Arc::new(tx);
-        let event_sender = DaemonEventSender::new(Arc::downgrade(&command_sender));
+    ) -> Result<Self, Error> {
+        let (event_sender, rx) = command_channel.destructure();
 
-        let daemon = Self::start_internal(
+        Self::start_internal(
             event_sender,
             rx,
             event_listener,
@@ -520,9 +519,7 @@ where
             cache_dir,
             #[cfg(target_os = "android")]
             android_context,
-        )?;
-
-        Ok((daemon, DaemonCommandSender(command_sender)))
+        )
     }
 
     fn start_internal(
