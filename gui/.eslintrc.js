@@ -34,12 +34,14 @@ module.exports = {
     ],
     '@typescript-eslint/require-await': 'error',
     '@typescript-eslint/no-floating-promises': 'error',
+    'no-return-await': 'error',
+    'no-unused-expressions': 'error',
 
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
-    // TODO: This should eventually be removed.
     '@typescript-eslint/interface-name-prefix': 'off',
+
     // TODO: The rules below should be enabled when move from ReactXP is completed.
     '@typescript-eslint/camelcase': 'off',
     '@typescript-eslint/ban-ts-ignore': 'off',
