@@ -197,11 +197,11 @@ fn create_daemon(
     let resource_dir = mullvad_paths::get_resource_dir();
     let cache_dir = mullvad_paths::cache_dir().map_err(Error::GetCacheDir)?;
 
-    Daemon::start_with_event_listener(
-        listener,
+    Daemon::start(
         Some(log_dir),
         resource_dir,
         cache_dir,
+        listener,
         command_channel,
         android_context,
     )
