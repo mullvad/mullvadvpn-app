@@ -132,7 +132,7 @@ pub enum Error {
 }
 
 /// Enum representing commands coming in on the management interface.
-pub enum ManagementCommand {
+pub enum DaemonCommand {
     /// Set target state. Does nothing if the daemon already has the state that is being set.
     SetTargetState(oneshot::Sender<std::result::Result<(), ()>>, TargetState),
     /// Reconnect the tunnel, if one is connecting/connected.
@@ -220,7 +220,7 @@ pub(crate) enum InternalDaemonEvent {
         u32,
     ),
     /// An event coming from the JSONRPC-2.0 management interface.
-    ManagementInterfaceEvent(ManagementCommand),
+    ManagementInterfaceEvent(DaemonCommand),
     /// Triggered if the server hosting the JSONRPC-2.0 management interface dies unexpectedly.
     ManagementInterfaceExited,
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
@@ -247,8 +247,8 @@ impl From<TunnelStateTransition> for InternalDaemonEvent {
     }
 }
 
-impl From<ManagementCommand> for InternalDaemonEvent {
-    fn from(command: ManagementCommand) -> Self {
+impl From<DaemonCommand> for InternalDaemonEvent {
+    fn from(command: DaemonCommand) -> Self {
         InternalDaemonEvent::ManagementInterfaceEvent(command)
     }
 }
@@ -302,14 +302,14 @@ impl DaemonExecutionState {
     }
 }
 
-pub struct DaemonCommandSender(IntoSender<ManagementCommand, InternalDaemonEvent>);
+pub struct DaemonCommandSender(IntoSender<DaemonCommand, InternalDaemonEvent>);
 
 impl DaemonCommandSender {
     pub(crate) fn new(internal_event_sender: UnboundedSender<InternalDaemonEvent>) -> Self {
         DaemonCommandSender(IntoSender::from(internal_event_sender))
     }
 
-    pub fn send(&self, command: ManagementCommand) -> Result<(), Error> {
+    pub fn send(&self, command: DaemonCommand) -> Result<(), Error> {
         self.0.send(command).map_err(|_| Error::DaemonUnavailable)
     }
 }
@@ -395,7 +395,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
     }
 
     fn start_management_interface_server(
-        event_tx: IntoSender<ManagementCommand, InternalDaemonEvent>,
+        event_tx: IntoSender<DaemonCommand, InternalDaemonEvent>,
     ) -> Result<ManagementInterfaceServer, Error> {
         let server =
             ManagementInterfaceServer::start(event_tx).map_err(Error::StartManagementInterface)?;
@@ -851,9 +851,10 @@ where
             if let Err(mpsc::RecvTimeoutError::Timeout) = rx.recv_timeout(delay) {
                 debug!("Attempting to reconnect");
                 let _ = tunnel_command_tx.unbounded_send(
-                    InternalDaemonEvent::ManagementInterfaceEvent(
-                        ManagementCommand::SetTargetState(result_tx, TargetState::Secured),
-                    ),
+                    InternalDaemonEvent::ManagementInterfaceEvent(DaemonCommand::SetTargetState(
+                        result_tx,
+                        TargetState::Secured,
+                    )),
                 );
             }
         });
@@ -865,8 +866,8 @@ where
         }
     }
 
-    fn handle_management_interface_event(&mut self, event: ManagementCommand) {
-        use self::ManagementCommand::*;
+    fn handle_management_interface_event(&mut self, event: DaemonCommand) {
+        use self::DaemonCommand::*;
         if !self.state.is_running() {
             log::trace!("Dropping management command because the daemon is shutting down",);
             return;
