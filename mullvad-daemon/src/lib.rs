@@ -15,9 +15,7 @@ pub mod version;
 mod version_check;
 
 pub use crate::management_interface::ManagementCommand;
-use crate::management_interface::{
-    BoxFuture, ManagementInterfaceEventBroadcaster, ManagementInterfaceServer,
-};
+use crate::management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer};
 use futures::{
     future::{self, Executor},
     stream::Wait,
@@ -66,6 +64,11 @@ use talpid_types::{
 
 #[path = "wireguard.rs"]
 mod wireguard;
+
+/// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
+/// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
+/// Remove this and use the one in jsonrpc_core when that is released.
+type BoxFuture<T, E> = Box<dyn Future<Item = T, Error = E> + Send>;
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
