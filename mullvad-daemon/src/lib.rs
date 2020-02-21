@@ -7,8 +7,10 @@ extern crate serde;
 mod account_history;
 mod geoip;
 pub mod logging;
+#[cfg(not(target_os = "android"))]
 pub mod management_interface;
 mod relays;
+#[cfg(not(target_os = "android"))]
 pub mod rpc_uniqueness_check;
 mod settings;
 pub mod version;
