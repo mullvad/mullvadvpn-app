@@ -82,17 +82,17 @@ impl ParsedRelays {
         }
     }
 
-    pub fn from_relay_list(mut relay_list: RelayList, last_updated: SystemTime) -> Self {
+    pub fn from_relay_list(relay_list: RelayList, last_updated: SystemTime) -> Self {
         let mut relays = Vec::new();
-        for country in &mut relay_list.countries {
+        for country in &relay_list.countries {
             let country_name = country.name.clone();
             let country_code = country.code.clone();
-            for city in &mut country.cities {
+            for city in &country.cities {
                 let city_name = city.name.clone();
                 let city_code = city.code.clone();
                 let latitude = city.latitude;
                 let longitude = city.longitude;
-                for relay in &mut city.relays {
+                for relay in &city.relays {
                     let mut relay_with_location = relay.clone();
                     relay_with_location.location = Some(Location {
                         country: country_name.clone(),
