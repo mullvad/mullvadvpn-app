@@ -1,40 +1,48 @@
 <resources>
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme"
+           parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:windowBackground">@color/blue</item>
     </style>
-
-    <style name="InputText" parent="Widget.AppCompat.EditText">
+    <style name="InputText"
+           parent="Widget.AppCompat.EditText">
         <item name="android:padding">14dp</item>
-        <item name="android:background">@drawable/input_text_background</item>
-        <item name="android:textCursorDrawable">@drawable/text_input_cursor</item>
+        <item name="android:background">
+        @drawable/input_text_background</item>
+        <item name="android:textCursorDrawable">
+        @drawable/text_input_cursor</item>
         <item name="android:textColorHint">@color/blue40</item>
         <item name="android:textColor">@color/blue</item>
         <item name="android:textSize">13sp</item>
     </style>
-
-    <style name="Button" parent="Widget.AppCompat.Button.Borderless">
-        <item name="android:layout_height">@dimen/normal_button_height</item>
+    <style name="Button"
+           parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_height">
+        @dimen/normal_button_height</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
     </style>
-
-    <style name="GreenButton" parent="Button">
-        <item name="android:background">@drawable/green_button_background</item>
+    <style name="GreenButton"
+           parent="Button">
+        <item name="android:background">
+        @drawable/green_button_background</item>
     </style>
-
-    <style name="RedButton" parent="Button">
-        <item name="android:background">@drawable/red_button_background</item>
+    <style name="RedButton"
+           parent="Button">
+        <item name="android:background">
+        @drawable/red_button_background</item>
     </style>
-
-    <style name="BlueButton" parent="Button">
-        <item name="android:background">@drawable/blue_button_background</item>
+    <style name="BlueButton"
+           parent="Button">
+        <item name="android:background">
+        @drawable/blue_button_background</item>
     </style>
-
-    <style name="White20Button" parent="Button">
-        <item name="android:background">@drawable/white20_button_background</item>
+    <style name="White20Button"
+           parent="Button">
+        <item name="android:background">
+        @drawable/white20_button_background</item>
     </style>
 </resources>

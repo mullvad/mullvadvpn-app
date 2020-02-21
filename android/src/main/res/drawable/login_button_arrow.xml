@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:shape="rectangle"
-        >
-    <item android:state_enabled="false" android:drawable="@drawable/icon_arrow_blue20"/>
-    <item android:state_enabled="true" android:drawable="@drawable/icon_arrow_white"/>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+          android:shape="rectangle">
+    <item android:state_enabled="false"
+          android:drawable="@drawable/icon_arrow_blue20" />
+    <item android:state_enabled="true"
+          android:drawable="@drawable/icon_arrow_white" />
 </selector>

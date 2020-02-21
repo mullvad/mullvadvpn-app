@@ -1,29 +1,23 @@
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:background="@drawable/dialog_background"
-        android:orientation="vertical"
-        android:gravity="left"
-        android:elevation="2dp"
-        >
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:layout_marginBottom="12dp"
-            android:textColor="@color/white80"
-            android:textSize="16sp"
-            android:text="@string/confirm_no_email"
-            />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:padding="16dp"
+              android:background="@drawable/dialog_background"
+              android:orientation="vertical"
+              android:gravity="left"
+              android:elevation="2dp">
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_weight="0"
+              android:layout_marginBottom="12dp"
+              android:textColor="@color/white80"
+              android:textSize="16sp"
+              android:text="@string/confirm_no_email" />
     <Button android:id="@+id/send_button"
             android:text="@string/send_anyway"
-            style="@style/GreenButton"
-            />
+            style="@style/GreenButton" />
     <Button android:id="@+id/back_button"
             android:layout_marginTop="16dp"
             android:text="@string/back"
-            style="@style/RedButton"
-            />
+            style="@style/RedButton" />
 </LinearLayout>
