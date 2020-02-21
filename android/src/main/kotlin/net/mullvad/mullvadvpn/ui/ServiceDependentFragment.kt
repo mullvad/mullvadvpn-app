@@ -78,6 +78,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
             when (state) {
                 State.Uninitialized -> state = State.Initialized
                 State.WaitingForReconnection -> state = State.Paused
+                else -> {}
             }
         }
     }
