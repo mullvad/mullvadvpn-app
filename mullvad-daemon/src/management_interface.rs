@@ -1,10 +1,6 @@
-use crate::{BoxFuture, EventListener};
+use crate::{BoxFuture, EventListener, ManagementCommand};
 use jsonrpc_core::{
-    futures::{
-        future,
-        sync::{self, oneshot::Sender as OneshotSender},
-        Future,
-    },
+    futures::{future, sync, Future},
     Error, ErrorCode, MetaIoHandler, Metadata,
 };
 use jsonrpc_ipc_server;
@@ -183,80 +179,6 @@ build_rpc_trait! {
             fn daemon_event_unsubscribe(&self, SubscriptionId) -> BoxFuture<(), Error>;
         }
     }
-}
-
-
-/// Enum representing commands coming in on the management interface.
-pub enum ManagementCommand {
-    /// Set target state. Does nothing if the daemon already has the state that is being set.
-    SetTargetState(OneshotSender<Result<(), ()>>, TargetState),
-    /// Reconnect the tunnel, if one is connecting/connected.
-    Reconnect,
-    /// Request the current state.
-    GetState(OneshotSender<TunnelState>),
-    /// Get the current geographical location.
-    GetCurrentLocation(OneshotSender<Option<GeoIpLocation>>),
-    CreateNewAccount(OneshotSender<std::result::Result<String, mullvad_rpc::Error>>),
-    /// Request the metadata for an account.
-    GetAccountData(
-        OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
-        AccountToken,
-    ),
-    /// Request www auth token for an account
-    GetWwwAuthToken(OneshotSender<BoxFuture<String, mullvad_rpc::Error>>),
-    /// Submit voucher to add time to the current account. Returns time added in seconds
-    SubmitVoucher(
-        OneshotSender<BoxFuture<VoucherSubmission, mullvad_rpc::Error>>,
-        String,
-    ),
-    /// Request account history
-    GetAccountHistory(OneshotSender<Vec<AccountToken>>),
-    /// Request account history
-    RemoveAccountFromHistory(OneshotSender<()>, AccountToken),
-    /// Get the list of countries and cities where there are relays.
-    GetRelayLocations(OneshotSender<RelayList>),
-    /// Trigger an asynchronous relay list update. This returns before the relay list is actually
-    /// updated.
-    UpdateRelayLocations,
-    /// Set which account token to use for subsequent connection attempts.
-    SetAccount(OneshotSender<()>, Option<AccountToken>),
-    /// Place constraints on the type of tunnel and relay
-    UpdateRelaySettings(OneshotSender<()>, RelaySettingsUpdate),
-    /// Set the allow LAN setting.
-    SetAllowLan(OneshotSender<()>, bool),
-    /// Set the block_when_disconnected setting.
-    SetBlockWhenDisconnected(OneshotSender<()>, bool),
-    /// Set the auto-connect setting.
-    SetAutoConnect(OneshotSender<()>, bool),
-    /// Set the mssfix argument for OpenVPN
-    SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
-    /// Set proxy details for OpenVPN
-    SetBridgeSettings(OneshotSender<Result<(), settings::Error>>, BridgeSettings),
-    /// Set proxy state
-    SetBridgeState(OneshotSender<Result<(), settings::Error>>, BridgeState),
-    /// Set if IPv6 should be enabled in the tunnel
-    SetEnableIpv6(OneshotSender<()>, bool),
-    /// Set MTU for wireguard tunnels
-    SetWireguardMtu(OneshotSender<()>, Option<u16>),
-    /// Set automatic key rotation interval for wireguard tunnels
-    SetWireguardRotationInterval(OneshotSender<()>, Option<u32>),
-    /// Get the daemon settings
-    GetSettings(OneshotSender<Settings>),
-    /// Generate new wireguard key
-    GenerateWireguardKey(OneshotSender<wireguard::KeygenEvent>),
-    /// Return a public key of the currently set wireguard private key, if there is one
-    GetWireguardKey(OneshotSender<Option<wireguard::PublicKey>>),
-    /// Verify if the currently set wireguard key is valid.
-    VerifyWireguardKey(OneshotSender<bool>),
-    /// Get information about the currently running and latest app versions
-    GetVersionInfo(OneshotSender<version::AppVersionInfo>),
-    /// Get current version of the app
-    GetCurrentVersion(OneshotSender<version::AppVersion>),
-    /// Remove settings and clear the cache
-    #[cfg(not(target_os = "android"))]
-    FactoryReset(OneshotSender<()>),
-    /// Makes the daemon exit the main loop and quit.
-    Shutdown,
 }
 
 pub struct ManagementInterfaceServer {
