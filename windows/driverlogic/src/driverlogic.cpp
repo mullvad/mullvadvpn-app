@@ -8,6 +8,7 @@
 #include <libcommon/guid.h>
 #include <libcommon/memory.h>
 #include <libcommon/network/nci.h>
+#include <libcommon/registry/registry.h>
 #include <libcommon/string.h>
 #include <setupapi.h>
 #include <initguid.h>
@@ -501,6 +502,33 @@ ATTEMPT_UPDATE:
 			installFlags |= INSTALLFLAG_FORCE;
 
 			goto ATTEMPT_UPDATE;
+		}
+
+		if (ERROR_DEVICE_INSTALLER_NOT_READY == lastError)
+		{
+			bool deviceInstallDisabled = false;
+
+			try
+			{
+				const auto key = common::registry::Registry::OpenKey(
+					HKEY_LOCAL_MACHINE,
+					L"SYSTEM\\CurrentControlSet\\Services\\DeviceInstall\\Parameters"
+				);
+				deviceInstallDisabled = (0 != key->readUint32(L"DeviceInstallDisabled"));
+			}
+			catch (...)
+			{
+			}
+
+			if (deviceInstallDisabled)
+			{
+				THROW_ERROR(
+					"Device installs must be enabled to continue. "
+					"Enable them in the Local Group Policy editor, or"
+					" update the registry value DeviceInstallDisabled in"
+					" [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\DeviceInstall\\Parameters]"
+				);
+			}
 		}
 
 		THROW_WINDOWS_ERROR(lastError, "UpdateDriverForPlugAndPlayDevicesW");
