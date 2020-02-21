@@ -67,8 +67,6 @@ use talpid_types::{
 #[path = "wireguard.rs"]
 mod wireguard;
 
-pub type Result<T> = std::result::Result<T, Error>;
-
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -137,7 +135,7 @@ pub(crate) enum InternalDaemonEvent {
     TunnelStateTransition(TunnelStateTransition),
     /// Request from the `MullvadTunnelParametersGenerator` to obtain a new relay.
     GenerateTunnelParameters(
-        mpsc::Sender<std::result::Result<TunnelParameters, ParameterGenerationError>>,
+        mpsc::Sender<Result<TunnelParameters, ParameterGenerationError>>,
         u32,
     ),
     /// An event coming from the JSONRPC-2.0 management interface.
@@ -150,13 +148,13 @@ pub(crate) enum InternalDaemonEvent {
     WgKeyEvent(
         (
             AccountToken,
-            std::result::Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
+            Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
         ),
     ),
     /// New Account created
     NewAccountEvent(
         AccountToken,
-        oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>,
+        oneshot::Sender<Result<String, mullvad_rpc::Error>>,
     ),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
@@ -230,7 +228,7 @@ impl DaemonCommandSender {
         DaemonCommandSender(IntoSender::from(internal_event_sender))
     }
 
-    pub fn send(&self, command: ManagementCommand) -> Result<()> {
+    pub fn send(&self, command: ManagementCommand) -> Result<(), Error> {
         self.0.send(command).map_err(|_| Error::DaemonUnavailable)
     }
 }
@@ -284,7 +282,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
         cache_dir: PathBuf,
         // TODO: Remove this once `ManagementInterface` is less coupled to the constructor.
         #[cfg(target_os = "android")] android_context: AndroidContext,
-    ) -> Result<Self> {
+    ) -> Result<Self, Error> {
         if rpc_uniqueness_check::is_another_instance_running() {
             return Err(Error::DaemonIsAlreadyRunning);
         }
@@ -307,7 +305,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
     // Returns a handle that allows notifying all subscribers on events.
     fn start_management_interface(
         event_tx: UnboundedSender<InternalDaemonEvent>,
-    ) -> Result<ManagementInterfaceEventBroadcaster> {
+    ) -> Result<ManagementInterfaceEventBroadcaster, Error> {
         let multiplex_event_tx = IntoSender::from(event_tx.clone());
         let server = Self::start_management_interface_server(multiplex_event_tx)?;
         let event_broadcaster = server.event_broadcaster();
@@ -317,7 +315,7 @@ impl Daemon<ManagementInterfaceEventBroadcaster> {
 
     fn start_management_interface_server(
         event_tx: IntoSender<ManagementCommand, InternalDaemonEvent>,
-    ) -> Result<ManagementInterfaceServer> {
+    ) -> Result<ManagementInterfaceServer, Error> {
         let server =
             ManagementInterfaceServer::start(event_tx).map_err(Error::StartManagementInterface)?;
         info!("Management interface listening on {}", server.socket_path());
@@ -347,7 +345,7 @@ where
         resource_dir: PathBuf,
         cache_dir: PathBuf,
         #[cfg(target_os = "android")] android_context: AndroidContext,
-    ) -> Result<Self> {
+    ) -> Result<Self, Error> {
         let (tx, rx) = futures::sync::mpsc::unbounded();
 
         Self::start_internal(
@@ -370,7 +368,7 @@ where
         resource_dir: PathBuf,
         cache_dir: PathBuf,
         #[cfg(target_os = "android")] android_context: AndroidContext,
-    ) -> Result<Self> {
+    ) -> Result<Self, Error> {
         let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
 
         let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir, &ca_path);
@@ -491,7 +489,7 @@ where
 
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
-    pub fn run(mut self) -> Result<()> {
+    pub fn run(mut self) -> Result<(), Error> {
         if self.settings.get_auto_connect() && self.settings.get_account_token().is_some() {
             info!("Automatically connecting since auto-connect is turned on");
             self.set_target_state(TargetState::Secured);
@@ -527,7 +525,7 @@ where
     }
 
 
-    fn handle_event(&mut self, event: InternalDaemonEvent) -> Result<()> {
+    fn handle_event(&mut self, event: InternalDaemonEvent) -> Result<(), Error> {
         use self::InternalDaemonEvent::*;
         match event {
             TunnelStateTransition(transition) => self.handle_tunnel_state_transition(transition),
@@ -596,9 +594,7 @@ where
 
     fn handle_generate_tunnel_parameters(
         &mut self,
-        tunnel_parameters_tx: &mpsc::Sender<
-            std::result::Result<TunnelParameters, ParameterGenerationError>,
-        >,
+        tunnel_parameters_tx: &mpsc::Sender<Result<TunnelParameters, ParameterGenerationError>>,
         retry_attempt: u32,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
@@ -663,7 +659,7 @@ where
         endpoint: MullvadEndpoint,
         account_token: String,
         retry_attempt: u32,
-    ) -> Result<TunnelParameters> {
+    ) -> Result<TunnelParameters, Error> {
         let tunnel_options = self.settings.get_tunnel_options().clone();
         let location = relay.location.as_ref().expect("Relay has no location set");
         self.last_generated_bridge_relay = None;
@@ -842,7 +838,7 @@ where
         &mut self,
         event: (
             AccountToken,
-            std::result::Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
+            Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
         ),
     ) {
         let (account, result) = event;
@@ -905,7 +901,7 @@ where
     fn handle_new_account_event(
         &mut self,
         new_token: AccountToken,
-        tx: oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>,
+        tx: oneshot::Sender<Result<String, mullvad_rpc::Error>>,
     ) {
         match self.set_account(Some(new_token.clone())) {
             Ok(_) => {
@@ -925,7 +921,7 @@ where
 
     fn on_set_target_state(
         &mut self,
-        tx: oneshot::Sender<std::result::Result<(), ()>>,
+        tx: oneshot::Sender<Result<(), ()>>,
         new_target_state: TargetState,
     ) {
         if self.state.is_running() {
@@ -1008,13 +1004,12 @@ where
         })
     }
 
-    fn on_create_new_account(
-        &mut self,
-        tx: oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>,
-    ) {
+    fn on_create_new_account(&mut self, tx: oneshot::Sender<Result<String, mullvad_rpc::Error>>) {
         let daemon_tx = self.tx.clone();
-        let future = self.accounts_proxy.create_account().then(
-            move |result| -> std::result::Result<(), ()> {
+        let future = self
+            .accounts_proxy
+            .create_account()
+            .then(move |result| -> Result<(), ()> {
                 match result {
                     Ok(account_token) => {
                         let _ = daemon_tx.unbounded_send(InternalDaemonEvent::NewAccountEvent(
@@ -1027,8 +1022,7 @@ where
                     }
                 };
                 Ok(())
-            },
-        );
+            });
 
         if self.tokio_remote.execute(future).is_err() {
             log::error!("Failed to spawn future for creating a new account");
@@ -1099,10 +1093,7 @@ where
         }
     }
 
-    fn set_account(
-        &mut self,
-        account_token: Option<String>,
-    ) -> std::result::Result<bool, settings::Error> {
+    fn set_account(&mut self, account_token: Option<String>) -> Result<bool, settings::Error> {
         let account_changed = self.settings.set_account_token(account_token.clone())?;
         if account_changed {
             self.event_listener.notify_settings(self.settings.clone());
@@ -1284,7 +1275,7 @@ where
 
     fn on_set_bridge_settings(
         &mut self,
-        tx: oneshot::Sender<std::result::Result<(), settings::Error>>,
+        tx: oneshot::Sender<Result<(), settings::Error>>,
         new_settings: BridgeSettings,
     ) {
         match self.settings.set_bridge_settings(new_settings) {
@@ -1308,7 +1299,7 @@ where
 
     fn on_set_bridge_state(
         &mut self,
-        tx: oneshot::Sender<std::result::Result<(), settings::Error>>,
+        tx: oneshot::Sender<Result<(), settings::Error>>,
         bridge_state: BridgeState,
     ) {
         let result = match self.settings.set_bridge_state(bridge_state) {
@@ -1415,7 +1406,7 @@ where
     }
 
     fn on_generate_wireguard_key(&mut self, tx: oneshot::Sender<KeygenEvent>) {
-        let mut result = || -> std::result::Result<KeygenEvent, String> {
+        let mut result = || -> Result<KeygenEvent, String> {
             let account_token = self
                 .settings
                 .get_account_token()
@@ -1598,19 +1589,19 @@ where
     }
 
     #[cfg(not(target_os = "android"))]
-    fn clear_log_directory() -> Result<()> {
+    fn clear_log_directory() -> Result<(), Error> {
         let log_dir = mullvad_paths::get_log_dir().map_err(Error::PathError)?;
         Self::clear_directory(&log_dir)
     }
 
     #[cfg(not(target_os = "android"))]
-    fn clear_cache_directory() -> Result<()> {
+    fn clear_cache_directory() -> Result<(), Error> {
         let cache_dir = mullvad_paths::cache_dir().map_err(Error::PathError)?;
         Self::clear_directory(&cache_dir)
     }
 
     #[cfg(not(target_os = "android"))]
-    fn clear_directory(path: &Path) -> Result<()> {
+    fn clear_directory(path: &Path) -> Result<(), Error> {
         use std::fs;
         #[cfg(not(target_os = "windows"))]
         {
@@ -1640,7 +1631,7 @@ where
                                 Error::RemoveDirError(entry.path().display().to_string(), e)
                             })
                         })
-                        .collect::<Result<()>>()
+                        .collect::<Result<(), Error>>()
                 })
         }
     }
@@ -1671,7 +1662,7 @@ impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
     fn generate(
         &mut self,
         retry_attempt: u32,
-    ) -> std::result::Result<TunnelParameters, ParameterGenerationError> {
+    ) -> Result<TunnelParameters, ParameterGenerationError> {
         let (response_tx, response_rx) = mpsc::channel();
         if self
             .tx
