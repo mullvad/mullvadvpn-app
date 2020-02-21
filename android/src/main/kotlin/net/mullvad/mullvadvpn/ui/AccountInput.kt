@@ -82,7 +82,7 @@ class AccountInput(
         input.apply {
             addTextChangedListener(InputWatcher())
             setOnTouchListener(OnTouchListener {
-                view, event ->
+                _, event ->
                 if (MotionEvent.ACTION_UP == event.getAction()) {
                     shouldShowAccountHistory = true
                 }
