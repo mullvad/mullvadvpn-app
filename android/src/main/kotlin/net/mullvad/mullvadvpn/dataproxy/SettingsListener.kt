@@ -22,7 +22,7 @@ class SettingsListener(val daemon: MullvadDaemon) {
         set(value) {
             synchronized(this) {
                 field = value
-                value?.invoke(settings?.accountToken)
+                value?.invoke(settings.accountToken)
             }
         }
 
@@ -31,9 +31,7 @@ class SettingsListener(val daemon: MullvadDaemon) {
             synchronized(this) {
                 field = value
 
-                settings?.let { safeSettings ->
-                    value?.invoke(safeSettings.allowLan)
-                }
+                value?.invoke(settings.allowLan)
             }
         }
 
@@ -41,7 +39,7 @@ class SettingsListener(val daemon: MullvadDaemon) {
         set(value) {
             synchronized(this) {
                 field = value
-                value?.invoke(settings?.relaySettings)
+                value?.invoke(settings.relaySettings)
             }
         }
 
@@ -63,11 +61,11 @@ class SettingsListener(val daemon: MullvadDaemon) {
 
     private fun handleNewSettings(newSettings: Settings) {
         synchronized(this) {
-            if (settings?.accountToken != newSettings.accountToken) {
+            if (settings.accountToken != newSettings.accountToken) {
                 onAccountNumberChange?.invoke(newSettings.accountToken)
             }
 
-            if (settings?.relaySettings != newSettings.relaySettings) {
+            if (settings.relaySettings != newSettings.relaySettings) {
                 onRelaySettingsChange?.invoke(newSettings.relaySettings)
             }
 
