@@ -2,6 +2,7 @@ import { goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { links } from '../../config.json';
+import consumePromise from '../../shared/promise';
 import Account from '../components/Account';
 
 import withAppContext, { IAppContext } from '../context';
@@ -17,7 +18,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ goBack }, dispatch);
   return {
     onLogout: () => {
-      props.app.logout();
+      consumePromise(props.app.logout());
     },
     onClose: () => {
       history.goBack();

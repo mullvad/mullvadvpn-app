@@ -2,6 +2,7 @@ import log from 'electron-log';
 import * as React from 'react';
 import { Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
 import { colors } from '../../config.json';
+import consumePromise from '../../shared/promise';
 import styles from './AppButtonStyles';
 import ImageView from './ImageView';
 
@@ -94,7 +95,7 @@ class BaseButton extends Component<IProps, IState> {
   private textViewRef = React.createRef<PrivateLabel>();
 
   public componentDidMount() {
-    this.forceUpdateTextAdjustment();
+    consumePromise(this.forceUpdateTextAdjustment());
   }
 
   public render() {
@@ -135,7 +136,7 @@ class BaseButton extends Component<IProps, IState> {
         this,
       );
 
-      this.updateTextAdjustment(containerLayout);
+      await this.updateTextAdjustment(containerLayout);
     }
   }
 
@@ -160,8 +161,8 @@ class BaseButton extends Component<IProps, IState> {
     }
   }
 
-  private onLayout = async (containerLayout: Types.ViewOnLayoutEvent) => {
-    this.updateTextAdjustment(containerLayout);
+  private onLayout = (containerLayout: Types.ViewOnLayoutEvent) => {
+    consumePromise(this.updateTextAdjustment(containerLayout));
   };
 }
 

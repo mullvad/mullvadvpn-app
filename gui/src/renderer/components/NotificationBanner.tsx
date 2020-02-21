@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Animated, Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
 import { colors } from '../../config.json';
+import consumePromise from '../../shared/promise';
 import { BlockingButton } from './AppButton';
 import ImageView from './ImageView';
 
@@ -213,7 +214,7 @@ export class NotificationBanner extends Component<
     if (prevProps.visible !== this.props.visible) {
       // enable drawer-like animation when changing banner's visibility
       this.setState({ contentPinnedToBottom: true }, () => {
-        this.animateHeightChanges();
+        consumePromise(this.animateHeightChanges());
       });
     }
   }
@@ -249,7 +250,7 @@ export class NotificationBanner extends Component<
     // notification banner to slide down each time the component is mounted.
     if (this.didFinishFirstLayoutPass) {
       if (oldHeight !== height) {
-        this.animateHeightChanges();
+        consumePromise(this.animateHeightChanges());
       }
     } else {
       this.didFinishFirstLayoutPass = true;

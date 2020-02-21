@@ -2,6 +2,7 @@ import { goBack } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import consumePromise from '../../shared/promise';
 import Preferences from '../components/Preferences';
 import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
@@ -35,7 +36,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
       props.app.setAutoConnect(autoConnect);
     },
     setAllowLan: (allowLan: boolean) => {
-      props.app.setAllowLan(allowLan);
+      consumePromise(props.app.setAllowLan(allowLan));
     },
     setStartMinimized: (startMinimized: boolean) => {
       props.app.setStartMinimized(startMinimized);

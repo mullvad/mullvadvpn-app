@@ -2,6 +2,7 @@ import { push } from 'connected-react-router';
 import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import consumePromise from '../../shared/promise';
 import Login from '../components/Login';
 import withAppContext, { IAppContext } from '../context';
 import accountActions from '../redux/account/actions';
@@ -24,7 +25,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
       history.push('/settings');
     },
     login: (account: string) => {
-      props.app.login(account);
+      consumePromise(props.app.login(account));
     },
     resetLoginError: () => {
       resetLoginError();

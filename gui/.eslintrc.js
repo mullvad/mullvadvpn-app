@@ -18,10 +18,6 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
-    'plugin:import/errors',
-    'plugin:import/warnings',
-    'plugin:import/typescript',
-    'plugin:promise/recommended',
   ],
   settings: {
     react: {
@@ -36,20 +32,19 @@ module.exports = {
       'error',
       { argsIgnorePattern: '^_', ignoreRestSiblings: true },
     ],
-    // TODO: Enable these
-    // 'require-await': 'error',
-    // '@typescript-eslint/no-floating-promises': 'error',
+    '@typescript-eslint/require-await': 'error',
+    '@typescript-eslint/no-floating-promises': 'error',
+    'no-return-await': 'error',
+    'no-unused-expressions': 'error',
 
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
-    // TODO: This should eventually be removed.
-    '@typescript-eslint/ban-types': 'warn',
-    '@typescript-eslint/no-non-null-assertion': 'warn',
-    '@typescript-eslint/no-explicit-any': 'warn',
-    'react/no-find-dom-node': 'warn',
+    '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/interface-name-prefix': 'off',
+
     // TODO: The rules below should be enabled when move from ReactXP is completed.
     '@typescript-eslint/camelcase': 'off',
     '@typescript-eslint/ban-ts-ignore': 'off',
+    'react/no-find-dom-node': 'off',
   },
 };
