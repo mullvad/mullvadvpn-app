@@ -30,9 +30,7 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         allowLanToggle = view.findViewById<CellSwitch>(R.id.allow_lan_toggle).apply {
-            settingsListener.settings?.let { settings ->
-                forcefullySetState(boolToSwitchState(settings.allowLan))
-            }
+            forcefullySetState(boolToSwitchState(settingsListener.settings.allowLan))
 
             listener = { state ->
                 when (state) {
@@ -43,9 +41,7 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         autoConnectToggle = view.findViewById<CellSwitch>(R.id.auto_connect_toggle).apply {
-            settingsListener.settings?.let { settings ->
-                forcefullySetState(boolToSwitchState(settings.autoConnect))
-            }
+            forcefullySetState(boolToSwitchState(settingsListener.settings.autoConnect))
 
             listener = { state ->
                 when (state) {
