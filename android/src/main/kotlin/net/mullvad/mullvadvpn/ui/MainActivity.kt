@@ -36,8 +36,8 @@ class MainActivity : FragmentActivity() {
             serviceConnectionSubscription = localBinder.serviceNotifier.subscribe { service ->
                 serviceConnection?.onDestroy()
 
-                val newConnection = service?.let { service ->
-                    ServiceConnection(service, this@MainActivity)
+                val newConnection = service?.let { safeService ->
+                    ServiceConnection(safeService, this@MainActivity)
                 }
 
                 serviceConnection = newConnection
