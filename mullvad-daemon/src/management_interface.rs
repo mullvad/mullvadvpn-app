@@ -21,7 +21,7 @@ use mullvad_types::{
     states::{TargetState, TunnelState},
     version, wireguard, DaemonEvent,
 };
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 use std::{
     collections::{hash_map::Entry, HashMap},
     sync::Arc,
@@ -365,14 +365,14 @@ impl Drop for ManagementInterfaceEventBroadcaster {
 
 struct ManagementInterface<T: From<ManagementCommand> + 'static + Send> {
     subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
-    tx: Mutex<IntoSender<ManagementCommand, T>>,
+    tx: IntoSender<ManagementCommand, T>,
 }
 
 impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
     pub fn new(tx: IntoSender<ManagementCommand, T>) -> Self {
         ManagementInterface {
             subscriptions: Default::default(),
-            tx: Mutex::new(tx),
+            tx,
         }
     }
 
@@ -381,7 +381,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
         &self,
         command: ManagementCommand,
     ) -> impl Future<Item = (), Error = Error> {
-        future::result(self.tx.lock().send(command)).map_err(|_| Error::internal_error())
+        future::result(self.tx.send(command)).map_err(|_| Error::internal_error())
     }
 
     /// Converts the given error to an error that can be given to the caller of the API.
