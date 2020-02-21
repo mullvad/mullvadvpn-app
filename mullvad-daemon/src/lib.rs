@@ -543,7 +543,7 @@ where
         let version_check_future = version_check::VersionUpdater::new(
             rpc_handle.clone(),
             cache_dir.clone(),
-            internal_event_tx.clone(),
+            DaemonEventSender::new(internal_event_tx.clone()).to_specialized_sender(),
             app_version_info.clone(),
         );
         tokio_remote.spawn(|_| version_check_future);
