@@ -1,4 +1,4 @@
-use crate::EventListener;
+use crate::{BoxFuture, EventListener};
 use jsonrpc_core::{
     futures::{
         future,
@@ -30,11 +30,6 @@ use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use talpid_types::ErrorExt;
 use uuid;
-
-/// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
-/// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
-/// Remove this and use the one in jsonrpc_core when that is released.
-pub type BoxFuture<T, E> = Box<dyn Future<Item = T, Error = E> + Send>;
 
 build_rpc_trait! {
     pub trait ManagementInterfaceApi {
