@@ -30,7 +30,7 @@ state of latest master, not necessarily any existing release.
 | OpenVPN                       |    ✓    |   ✓   |   ✓   |         |
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |
-| Optional local network access |    ✓    |   ✓   |   ✓   |         |
+| Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |
 
 ## Security and anonymity
 
