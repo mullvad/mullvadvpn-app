@@ -196,13 +196,11 @@ class NotificationBanner(
         }
 
         // if the error state is null, we can assume that we are secure
-        val blockMessage = if (errorState?.isBlocking ?: true) {
-                R.string.blocking_internet
-            } else {
-                R.string.not_blocking_internet
-            }
-
-        showError(blockMessage, messageText)
+        if (errorState?.isBlocking ?: true) {
+            showError(R.string.blocking_internet, messageText)
+        } else {
+            showError(R.string.not_blocking_internet, R.string.failed_to_block_internet)
+        }
     }
 
     private fun showError(titleText: Int, messageText: Int?) {
