@@ -1,3 +1,6 @@
+//! When changing relay selection, please verify if `docs/relay-selector.md` needs to be
+//! updated as well.
+
 use crate::{
     location::{CityCode, CountryCode, Hostname},
     relay_list::{OpenVpnEndpointData, WireguardEndpointData},

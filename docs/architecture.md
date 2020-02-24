@@ -23,6 +23,7 @@ belong to. I yet don't know if this makes sense though.
 ### Talking to api.mullvad.net
 
 ### Selecting relay and bridge servers
+See [this document](relay-selector.md).
 
 ### Problem reports
 
