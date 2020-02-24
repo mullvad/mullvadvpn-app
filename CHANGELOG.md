@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Make sure the settings screen is scrollable so that devices with small screens can access the quit
   button.
+- Show when the app failed to block all connections after an error.
 
 
 ## [2020.3] - 2020-02-20
