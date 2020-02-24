@@ -7,17 +7,15 @@ extern crate serde;
 mod account_history;
 mod geoip;
 pub mod logging;
-mod management_interface;
+#[cfg(not(target_os = "android"))]
+pub mod management_interface;
 mod relays;
-mod rpc_uniqueness_check;
+#[cfg(not(target_os = "android"))]
+pub mod rpc_uniqueness_check;
 mod settings;
 pub mod version;
 mod version_check;
 
-pub use crate::management_interface::ManagementCommand;
-use crate::management_interface::{
-    BoxFuture, ManagementInterfaceEventBroadcaster, ManagementInterfaceServer,
-};
 use futures::{
     future::{self, Executor},
     stream::Wait,
@@ -46,14 +44,16 @@ use settings::Settings;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
 use std::{
-    io, mem,
+    io,
+    marker::PhantomData,
+    mem,
     path::PathBuf,
-    sync::{mpsc, Arc},
+    sync::{mpsc, Arc, Weak},
     thread,
     time::Duration,
 };
 use talpid_core::{
-    mpsc::IntoSender,
+    mpsc::Sender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
 #[cfg(target_os = "android")]
@@ -67,14 +67,14 @@ use talpid_types::{
 #[path = "wireguard.rs"]
 mod wireguard;
 
-pub type Result<T> = std::result::Result<T, Error>;
+/// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
+/// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
+/// Remove this and use the one in jsonrpc_core when that is released.
+type BoxFuture<T, E> = Box<dyn Future<Item = T, Error = E> + Send>;
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    #[error(display = "Another instance of the daemon is already running")]
-    DaemonIsAlreadyRunning,
-
     #[error(display = "Failed to send command to daemon because it is not running")]
     DaemonUnavailable,
 
@@ -89,13 +89,6 @@ pub enum Error {
 
     #[error(display = "Unable to load account history with wireguard key cache")]
     LoadAccountHistory(#[error(source)] account_history::Error),
-
-    /// Error in the management interface
-    #[error(display = "Unable to start management interface server")]
-    StartManagementInterface(#[error(source)] talpid_ipc::Error),
-
-    #[error(display = "Management interface server exited unexpectedly")]
-    ManagementInterfaceExited,
 
     #[error(display = "No wireguard private key available")]
     NoKeyAvailable,
@@ -131,32 +124,109 @@ pub enum Error {
     ReadDirError(#[error(source)] io::Error),
 }
 
+/// Enum representing commands that can be sent to the daemon.
+pub enum DaemonCommand {
+    /// Set target state. Does nothing if the daemon already has the state that is being set.
+    SetTargetState(oneshot::Sender<std::result::Result<(), ()>>, TargetState),
+    /// Reconnect the tunnel, if one is connecting/connected.
+    Reconnect,
+    /// Request the current state.
+    GetState(oneshot::Sender<TunnelState>),
+    /// Get the current geographical location.
+    GetCurrentLocation(oneshot::Sender<Option<GeoIpLocation>>),
+    CreateNewAccount(oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>),
+    /// Request the metadata for an account.
+    GetAccountData(
+        oneshot::Sender<BoxFuture<AccountData, mullvad_rpc::Error>>,
+        AccountToken,
+    ),
+    /// Request www auth token for an account
+    GetWwwAuthToken(oneshot::Sender<BoxFuture<String, mullvad_rpc::Error>>),
+    /// Submit voucher to add time to the current account. Returns time added in seconds
+    SubmitVoucher(
+        oneshot::Sender<BoxFuture<VoucherSubmission, mullvad_rpc::Error>>,
+        String,
+    ),
+    /// Request account history
+    GetAccountHistory(oneshot::Sender<Vec<AccountToken>>),
+    /// Request account history
+    RemoveAccountFromHistory(oneshot::Sender<()>, AccountToken),
+    /// Get the list of countries and cities where there are relays.
+    GetRelayLocations(oneshot::Sender<RelayList>),
+    /// Trigger an asynchronous relay list update. This returns before the relay list is actually
+    /// updated.
+    UpdateRelayLocations,
+    /// Set which account token to use for subsequent connection attempts.
+    SetAccount(oneshot::Sender<()>, Option<AccountToken>),
+    /// Place constraints on the type of tunnel and relay
+    UpdateRelaySettings(oneshot::Sender<()>, RelaySettingsUpdate),
+    /// Set the allow LAN setting.
+    SetAllowLan(oneshot::Sender<()>, bool),
+    /// Set the block_when_disconnected setting.
+    SetBlockWhenDisconnected(oneshot::Sender<()>, bool),
+    /// Set the auto-connect setting.
+    SetAutoConnect(oneshot::Sender<()>, bool),
+    /// Set the mssfix argument for OpenVPN
+    SetOpenVpnMssfix(oneshot::Sender<()>, Option<u16>),
+    /// Set proxy details for OpenVPN
+    SetBridgeSettings(
+        oneshot::Sender<std::result::Result<(), settings::Error>>,
+        BridgeSettings,
+    ),
+    /// Set proxy state
+    SetBridgeState(
+        oneshot::Sender<std::result::Result<(), settings::Error>>,
+        BridgeState,
+    ),
+    /// Set if IPv6 should be enabled in the tunnel
+    SetEnableIpv6(oneshot::Sender<()>, bool),
+    /// Set MTU for wireguard tunnels
+    SetWireguardMtu(oneshot::Sender<()>, Option<u16>),
+    /// Set automatic key rotation interval for wireguard tunnels
+    SetWireguardRotationInterval(oneshot::Sender<()>, Option<u32>),
+    /// Get the daemon settings
+    GetSettings(oneshot::Sender<Settings>),
+    /// Generate new wireguard key
+    GenerateWireguardKey(oneshot::Sender<wireguard::KeygenEvent>),
+    /// Return a public key of the currently set wireguard private key, if there is one
+    GetWireguardKey(oneshot::Sender<Option<wireguard::PublicKey>>),
+    /// Verify if the currently set wireguard key is valid.
+    VerifyWireguardKey(oneshot::Sender<bool>),
+    /// Get information about the currently running and latest app versions
+    GetVersionInfo(oneshot::Sender<AppVersionInfo>),
+    /// Get current version of the app
+    GetCurrentVersion(oneshot::Sender<AppVersion>),
+    /// Remove settings and clear the cache
+    #[cfg(not(target_os = "android"))]
+    FactoryReset(oneshot::Sender<()>),
+    /// Makes the daemon exit the main loop and quit.
+    Shutdown,
+}
+
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
 pub(crate) enum InternalDaemonEvent {
     /// Tunnel has changed state.
     TunnelStateTransition(TunnelStateTransition),
     /// Request from the `MullvadTunnelParametersGenerator` to obtain a new relay.
     GenerateTunnelParameters(
-        mpsc::Sender<std::result::Result<TunnelParameters, ParameterGenerationError>>,
+        mpsc::Sender<Result<TunnelParameters, ParameterGenerationError>>,
         u32,
     ),
-    /// An event coming from the JSONRPC-2.0 management interface.
-    ManagementInterfaceEvent(ManagementCommand),
-    /// Triggered if the server hosting the JSONRPC-2.0 management interface dies unexpectedly.
-    ManagementInterfaceExited,
+    /// A command sent to the daemon.
+    Command(DaemonCommand),
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
     TriggerShutdown,
     /// Wireguard key generation event
     WgKeyEvent(
         (
             AccountToken,
-            std::result::Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
+            Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
         ),
     ),
     /// New Account created
     NewAccountEvent(
         AccountToken,
-        oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>,
+        oneshot::Sender<Result<String, mullvad_rpc::Error>>,
     ),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
@@ -168,9 +238,9 @@ impl From<TunnelStateTransition> for InternalDaemonEvent {
     }
 }
 
-impl From<ManagementCommand> for InternalDaemonEvent {
-    fn from(command: ManagementCommand) -> Self {
-        InternalDaemonEvent::ManagementInterfaceEvent(command)
+impl From<DaemonCommand> for InternalDaemonEvent {
+    fn from(command: DaemonCommand) -> Self {
+        InternalDaemonEvent::Command(command)
     }
 }
 
@@ -223,15 +293,101 @@ impl DaemonExecutionState {
     }
 }
 
-pub struct DaemonCommandSender(IntoSender<ManagementCommand, InternalDaemonEvent>);
+pub struct DaemonCommandChannel {
+    sender: DaemonCommandSender,
+    receiver: UnboundedReceiver<InternalDaemonEvent>,
+}
 
-impl DaemonCommandSender {
-    pub(crate) fn new(internal_event_sender: UnboundedSender<InternalDaemonEvent>) -> Self {
-        DaemonCommandSender(IntoSender::from(internal_event_sender))
+impl DaemonCommandChannel {
+    pub fn new() -> Self {
+        let (untracked_sender, receiver) = futures::sync::mpsc::unbounded();
+        let sender = DaemonCommandSender(Arc::new(untracked_sender));
+
+        Self { sender, receiver }
     }
 
-    pub fn send(&self, command: ManagementCommand) -> Result<()> {
-        self.0.send(command).map_err(|_| Error::DaemonUnavailable)
+    pub fn sender(&self) -> DaemonCommandSender {
+        self.sender.clone()
+    }
+
+    fn destructure(self) -> (DaemonEventSender, UnboundedReceiver<InternalDaemonEvent>) {
+        let event_sender = DaemonEventSender::new(Arc::downgrade(&self.sender.0));
+
+        (event_sender, self.receiver)
+    }
+}
+
+#[derive(Clone)]
+pub struct DaemonCommandSender(Arc<UnboundedSender<InternalDaemonEvent>>);
+
+impl DaemonCommandSender {
+    pub fn send(&self, command: DaemonCommand) -> Result<(), Error> {
+        self.0
+            .unbounded_send(InternalDaemonEvent::Command(command))
+            .map_err(|_| Error::DaemonUnavailable)
+    }
+}
+
+pub(crate) struct DaemonEventSender<E = InternalDaemonEvent> {
+    sender: Weak<UnboundedSender<InternalDaemonEvent>>,
+    _event: PhantomData<E>,
+}
+
+impl<E> Clone for DaemonEventSender<E>
+where
+    InternalDaemonEvent: From<E>,
+{
+    fn clone(&self) -> Self {
+        DaemonEventSender {
+            sender: self.sender.clone(),
+            _event: PhantomData,
+        }
+    }
+}
+
+impl DaemonEventSender {
+    pub fn new(sender: Weak<UnboundedSender<InternalDaemonEvent>>) -> Self {
+        DaemonEventSender {
+            sender,
+            _event: PhantomData,
+        }
+    }
+
+    pub fn to_specialized_sender<E>(&self) -> DaemonEventSender<E>
+    where
+        InternalDaemonEvent: From<E>,
+    {
+        DaemonEventSender {
+            sender: self.sender.clone(),
+            _event: PhantomData,
+        }
+    }
+}
+
+impl<E> DaemonEventSender<E>
+where
+    InternalDaemonEvent: From<E>,
+{
+    pub fn is_closed(&self) -> bool {
+        self.sender
+            .upgrade()
+            .map(|sender| sender.is_closed())
+            .unwrap_or(true)
+    }
+}
+
+impl<E> Sender<E> for DaemonEventSender<E>
+where
+    InternalDaemonEvent: From<E>,
+{
+    fn send(&self, event: E) -> Result<(), ()> {
+        if let Some(sender) = self.sender.upgrade() {
+            sender
+                .unbounded_send(InternalDaemonEvent::from(event))
+                .map_err(|_| ())
+        } else {
+            Err(())
+        }
     }
 }
 
@@ -254,13 +410,13 @@ pub trait EventListener {
     fn notify_key_event(&self, key_event: KeygenEvent);
 }
 
-pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
+pub struct Daemon<L: EventListener> {
     tunnel_command_tx: Arc<UnboundedSender<TunnelCommand>>,
     tunnel_state: TunnelState,
     target_state: TargetState,
     state: DaemonExecutionState,
     rx: Wait<UnboundedReceiver<InternalDaemonEvent>>,
-    tx: UnboundedSender<InternalDaemonEvent>,
+    tx: DaemonEventSender,
     reconnection_loop_tx: Option<mpsc::Sender<()>>,
     event_listener: L,
     settings: Settings,
@@ -277,100 +433,18 @@ pub struct Daemon<L: EventListener = ManagementInterfaceEventBroadcaster> {
     shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
 }
 
-impl Daemon<ManagementInterfaceEventBroadcaster> {
-    pub fn start(
-        log_dir: Option<PathBuf>,
-        resource_dir: PathBuf,
-        cache_dir: PathBuf,
-        // TODO: Remove this once `ManagementInterface` is less coupled to the constructor.
-        #[cfg(target_os = "android")] android_context: AndroidContext,
-    ) -> Result<Self> {
-        if rpc_uniqueness_check::is_another_instance_running() {
-            return Err(Error::DaemonIsAlreadyRunning);
-        }
-        let (tx, rx) = futures::sync::mpsc::unbounded();
-        let management_interface_broadcaster = Self::start_management_interface(tx.clone())?;
-
-        Self::start_internal(
-            tx,
-            rx,
-            management_interface_broadcaster,
-            log_dir,
-            resource_dir,
-            cache_dir,
-            #[cfg(target_os = "android")]
-            android_context,
-        )
-    }
-
-    // Starts the management interface and spawns a thread that will process it.
-    // Returns a handle that allows notifying all subscribers on events.
-    fn start_management_interface(
-        event_tx: UnboundedSender<InternalDaemonEvent>,
-    ) -> Result<ManagementInterfaceEventBroadcaster> {
-        let multiplex_event_tx = IntoSender::from(event_tx.clone());
-        let server = Self::start_management_interface_server(multiplex_event_tx)?;
-        let event_broadcaster = server.event_broadcaster();
-        Self::spawn_management_interface_wait_thread(server, event_tx);
-        Ok(event_broadcaster)
-    }
-
-    fn start_management_interface_server(
-        event_tx: IntoSender<ManagementCommand, InternalDaemonEvent>,
-    ) -> Result<ManagementInterfaceServer> {
-        let server =
-            ManagementInterfaceServer::start(event_tx).map_err(Error::StartManagementInterface)?;
-        info!("Management interface listening on {}", server.socket_path());
-
-        Ok(server)
-    }
-
-    fn spawn_management_interface_wait_thread(
-        server: ManagementInterfaceServer,
-        exit_tx: UnboundedSender<InternalDaemonEvent>,
-    ) {
-        thread::spawn(move || {
-            server.wait();
-            info!("Management interface shut down");
-            let _ = exit_tx.unbounded_send(InternalDaemonEvent::ManagementInterfaceExited);
-        });
-    }
-}
-
 impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
 {
-    pub fn start_with_event_listener(
-        event_listener: L,
+    pub fn start(
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: PathBuf,
-        #[cfg(target_os = "android")] android_context: AndroidContext,
-    ) -> Result<Self> {
-        let (tx, rx) = futures::sync::mpsc::unbounded();
-
-        Self::start_internal(
-            tx,
-            rx,
-            event_listener,
-            log_dir,
-            resource_dir,
-            cache_dir,
-            #[cfg(target_os = "android")]
-            android_context,
-        )
-    }
-
-    fn start_internal(
-        internal_event_tx: UnboundedSender<InternalDaemonEvent>,
-        internal_event_rx: UnboundedReceiver<InternalDaemonEvent>,
         event_listener: L,
-        log_dir: Option<PathBuf>,
-        resource_dir: PathBuf,
-        cache_dir: PathBuf,
+        command_channel: DaemonCommandChannel,
         #[cfg(target_os = "android")] android_context: AndroidContext,
-    ) -> Result<Self> {
+    ) -> Result<Self, Error> {
         let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
 
         let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir, &ca_path);
@@ -399,11 +473,13 @@ where
             &cache_dir,
         );
 
+        let (internal_event_tx, internal_event_rx) = command_channel.destructure();
+
         let app_version_info = version_check::load_cache(&cache_dir);
         let version_check_future = version_check::VersionUpdater::new(
             rpc_handle.clone(),
             cache_dir.clone(),
-            internal_event_tx.clone(),
+            internal_event_tx.to_specialized_sender(),
             app_version_info.clone(),
         );
         tokio_remote.spawn(|_| version_check_future);
@@ -427,7 +503,7 @@ where
             log_dir,
             resource_dir,
             cache_dir,
-            IntoSender::from(internal_event_tx.clone()),
+            internal_event_tx.to_specialized_sender(),
             #[cfg(target_os = "android")]
             android_context,
         )
@@ -483,21 +559,16 @@ where
         Ok(daemon)
     }
 
-    /// Retrieve a channel for sending daemon commands.
-    pub fn command_sender(&self) -> DaemonCommandSender {
-        DaemonCommandSender::new(self.tx.clone())
-    }
-
 
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
-    pub fn run(mut self) -> Result<()> {
+    pub fn run(mut self) -> Result<(), Error> {
         if self.settings.get_auto_connect() && self.settings.get_account_token().is_some() {
             info!("Automatically connecting since auto-connect is turned on");
             self.set_target_state(TargetState::Secured);
         }
         while let Some(Ok(event)) = self.rx.next() {
-            self.handle_event(event)?;
+            self.handle_event(event);
             if self.state == DaemonExecutionState::Finished {
                 break;
             }
@@ -515,8 +586,8 @@ where
         mem::drop(event_listener);
     }
 
-    /// Shuts down the daemon without shutting down the underlying management interface event
-    /// listener and the shutdown callbacks
+    /// Shuts down the daemon without shutting down the underlying event listener and the shutdown
+    /// callbacks
     fn shutdown(self) -> (L, Vec<Box<dyn FnOnce()>>) {
         let Daemon {
             event_listener,
@@ -527,17 +598,14 @@ where
     }
 
 
-    fn handle_event(&mut self, event: InternalDaemonEvent) -> Result<()> {
+    fn handle_event(&mut self, event: InternalDaemonEvent) {
         use self::InternalDaemonEvent::*;
         match event {
             TunnelStateTransition(transition) => self.handle_tunnel_state_transition(transition),
             GenerateTunnelParameters(tunnel_parameters_tx, retry_attempt) => {
                 self.handle_generate_tunnel_parameters(&tunnel_parameters_tx, retry_attempt)
             }
-            ManagementInterfaceEvent(event) => self.handle_management_interface_event(event),
-            ManagementInterfaceExited => {
-                return Err(Error::ManagementInterfaceExited);
-            }
+            Command(command) => self.handle_command(command),
             TriggerShutdown => self.trigger_shutdown_event(),
             WgKeyEvent(key_event) => self.handle_wireguard_key_event(key_event),
             NewAccountEvent(account_token, tx) => self.handle_new_account_event(account_token, tx),
@@ -545,7 +613,6 @@ where
                 self.handle_new_app_version_info(app_version_info)
             }
         }
-        Ok(())
     }
 
     fn handle_tunnel_state_transition(&mut self, tunnel_state_transition: TunnelStateTransition) {
@@ -596,9 +663,7 @@ where
 
     fn handle_generate_tunnel_parameters(
         &mut self,
-        tunnel_parameters_tx: &mpsc::Sender<
-            std::result::Result<TunnelParameters, ParameterGenerationError>,
-        >,
+        tunnel_parameters_tx: &mpsc::Sender<Result<TunnelParameters, ParameterGenerationError>>,
         retry_attempt: u32,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
@@ -663,7 +728,7 @@ where
         endpoint: MullvadEndpoint,
         account_token: String,
         retry_attempt: u32,
-    ) -> Result<TunnelParameters> {
+    ) -> Result<TunnelParameters, Error> {
         let tunnel_options = self.settings.get_tunnel_options().clone();
         let location = relay.location.as_ref().expect("Relay has no location set");
         self.last_generated_bridge_relay = None;
@@ -763,7 +828,7 @@ where
     }
 
     fn schedule_reconnect(&mut self, delay: Duration) {
-        let tunnel_command_tx = self.tx.clone();
+        let tunnel_command_tx = self.tx.to_specialized_sender();
         let (tx, rx) = mpsc::channel();
 
         self.reconnection_loop_tx = Some(tx);
@@ -773,11 +838,10 @@ where
 
             if let Err(mpsc::RecvTimeoutError::Timeout) = rx.recv_timeout(delay) {
                 debug!("Attempting to reconnect");
-                let _ = tunnel_command_tx.unbounded_send(
-                    InternalDaemonEvent::ManagementInterfaceEvent(
-                        ManagementCommand::SetTargetState(result_tx, TargetState::Secured),
-                    ),
-                );
+                let _ = tunnel_command_tx.send(DaemonCommand::SetTargetState(
+                    result_tx,
+                    TargetState::Secured,
+                ));
             }
         });
     }
@@ -788,13 +852,13 @@ where
         }
     }
 
-    fn handle_management_interface_event(&mut self, event: ManagementCommand) {
-        use self::ManagementCommand::*;
+    fn handle_command(&mut self, command: DaemonCommand) {
+        use self::DaemonCommand::*;
         if !self.state.is_running() {
-            log::trace!("Dropping management command because the daemon is shutting down",);
+            log::trace!("Dropping daemon command because the daemon is shutting down",);
             return;
         }
-        match event {
+        match command {
             SetTargetState(tx, state) => self.on_set_target_state(tx, state),
             Reconnect => self.on_reconnect(),
             GetState(tx) => self.on_get_state(tx),
@@ -842,7 +906,7 @@ where
         &mut self,
         event: (
             AccountToken,
-            std::result::Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
+            Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
         ),
     ) {
         let (account, result) = event;
@@ -905,7 +969,7 @@ where
     fn handle_new_account_event(
         &mut self,
         new_token: AccountToken,
-        tx: oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>,
+        tx: oneshot::Sender<Result<String, mullvad_rpc::Error>>,
     ) {
         match self.set_account(Some(new_token.clone())) {
             Ok(_) => {
@@ -925,7 +989,7 @@ where
 
     fn on_set_target_state(
         &mut self,
-        tx: oneshot::Sender<std::result::Result<(), ()>>,
+        tx: oneshot::Sender<Result<(), ()>>,
         new_target_state: TargetState,
     ) {
         if self.state.is_running() {
@@ -1008,27 +1072,23 @@ where
         })
     }
 
-    fn on_create_new_account(
-        &mut self,
-        tx: oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>,
-    ) {
+    fn on_create_new_account(&mut self, tx: oneshot::Sender<Result<String, mullvad_rpc::Error>>) {
         let daemon_tx = self.tx.clone();
-        let future = self.accounts_proxy.create_account().then(
-            move |result| -> std::result::Result<(), ()> {
+        let future = self
+            .accounts_proxy
+            .create_account()
+            .then(move |result| -> Result<(), ()> {
                 match result {
                     Ok(account_token) => {
-                        let _ = daemon_tx.unbounded_send(InternalDaemonEvent::NewAccountEvent(
-                            account_token,
-                            tx,
-                        ));
+                        let _ =
+                            daemon_tx.send(InternalDaemonEvent::NewAccountEvent(account_token, tx));
                     }
                     Err(err) => {
                         let _ = tx.send(Err(err));
                     }
                 };
                 Ok(())
-            },
-        );
+            });
 
         if self.tokio_remote.execute(future).is_err() {
             log::error!("Failed to spawn future for creating a new account");
@@ -1099,10 +1159,7 @@ where
         }
     }
 
-    fn set_account(
-        &mut self,
-        account_token: Option<String>,
-    ) -> std::result::Result<bool, settings::Error> {
+    fn set_account(&mut self, account_token: Option<String>) -> Result<bool, settings::Error> {
         let account_changed = self.settings.set_account_token(account_token.clone())?;
         if account_changed {
             self.event_listener.notify_settings(self.settings.clone());
@@ -1284,7 +1341,7 @@ where
 
     fn on_set_bridge_settings(
         &mut self,
-        tx: oneshot::Sender<std::result::Result<(), settings::Error>>,
+        tx: oneshot::Sender<Result<(), settings::Error>>,
         new_settings: BridgeSettings,
     ) {
         match self.settings.set_bridge_settings(new_settings) {
@@ -1308,7 +1365,7 @@ where
 
     fn on_set_bridge_state(
         &mut self,
-        tx: oneshot::Sender<std::result::Result<(), settings::Error>>,
+        tx: oneshot::Sender<Result<(), settings::Error>>,
         bridge_state: BridgeState,
     ) {
         let result = match self.settings.set_bridge_state(bridge_state) {
@@ -1415,7 +1472,7 @@ where
     }
 
     fn on_generate_wireguard_key(&mut self, tx: oneshot::Sender<KeygenEvent>) {
-        let mut result = || -> std::result::Result<KeygenEvent, String> {
+        let mut result = || -> Result<KeygenEvent, String> {
             let account_token = self
                 .settings
                 .get_account_token()
@@ -1539,7 +1596,7 @@ where
 
     fn oneshot_send<T>(tx: oneshot::Sender<T>, t: T, msg: &'static str) {
         if tx.send(t).is_err() {
-            warn!("Unable to send {} to management interface client", msg);
+            warn!("Unable to send {} to the daemon command sender", msg);
         }
     }
 
@@ -1598,19 +1655,19 @@ where
     }
 
     #[cfg(not(target_os = "android"))]
-    fn clear_log_directory() -> Result<()> {
+    fn clear_log_directory() -> Result<(), Error> {
         let log_dir = mullvad_paths::get_log_dir().map_err(Error::PathError)?;
         Self::clear_directory(&log_dir)
     }
 
     #[cfg(not(target_os = "android"))]
-    fn clear_cache_directory() -> Result<()> {
+    fn clear_cache_directory() -> Result<(), Error> {
         let cache_dir = mullvad_paths::cache_dir().map_err(Error::PathError)?;
         Self::clear_directory(&cache_dir)
     }
 
     #[cfg(not(target_os = "android"))]
-    fn clear_directory(path: &Path) -> Result<()> {
+    fn clear_directory(path: &Path) -> Result<(), Error> {
         use std::fs;
         #[cfg(not(target_os = "windows"))]
         {
@@ -1640,7 +1697,7 @@ where
                                 Error::RemoveDirError(entry.path().display().to_string(), e)
                             })
                         })
-                        .collect::<Result<()>>()
+                        .collect::<Result<(), Error>>()
                 })
         }
     }
@@ -1654,28 +1711,28 @@ where
 }
 
 pub struct DaemonShutdownHandle {
-    tx: UnboundedSender<InternalDaemonEvent>,
+    tx: DaemonEventSender,
 }
 
 impl DaemonShutdownHandle {
     pub fn shutdown(&self) {
-        let _ = self.tx.unbounded_send(InternalDaemonEvent::TriggerShutdown);
+        let _ = self.tx.send(InternalDaemonEvent::TriggerShutdown);
     }
 }
 
 struct MullvadTunnelParametersGenerator {
-    tx: UnboundedSender<InternalDaemonEvent>,
+    tx: DaemonEventSender,
 }
 
 impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
     fn generate(
         &mut self,
         retry_attempt: u32,
-    ) -> std::result::Result<TunnelParameters, ParameterGenerationError> {
+    ) -> Result<TunnelParameters, ParameterGenerationError> {
         let (response_tx, response_rx) = mpsc::channel();
         if self
             .tx
-            .unbounded_send(InternalDaemonEvent::GenerateTunnelParameters(
+            .send(InternalDaemonEvent::GenerateTunnelParameters(
                 response_tx,
                 retry_attempt,
             ))

@@ -17,7 +17,7 @@ use self::{
 use crate::{
     dns::DnsMonitor,
     firewall::{Firewall, FirewallArguments},
-    mpsc::IntoSender,
+    mpsc::Sender,
     offline,
     tunnel::tun_provider::TunProvider,
 };
@@ -62,20 +62,16 @@ pub enum Error {
 }
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
-pub fn spawn<P, T>(
+pub fn spawn(
     allow_lan: bool,
     block_when_disconnected: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
-    cache_dir: P,
-    state_change_listener: IntoSender<TunnelStateTransition, T>,
+    cache_dir: impl AsRef<Path> + Send + 'static,
+    state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     #[cfg(target_os = "android")] android_context: AndroidContext,
-) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error>
-where
-    P: AsRef<Path> + Send + 'static,
-    T: From<TunnelStateTransition> + Send + 'static,
-{
+) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
     let offline_monitor = offline::spawn_monitor(
@@ -134,7 +130,7 @@ where
     Ok(command_tx)
 }
 
-fn create_event_loop<T>(
+fn create_event_loop(
     allow_lan: bool,
     block_when_disconnected: bool,
     is_offline: bool,
@@ -144,11 +140,8 @@ fn create_event_loop<T>(
     resource_dir: PathBuf,
     cache_dir: impl AsRef<Path>,
     commands: mpsc::UnboundedReceiver<TunnelCommand>,
-    state_change_listener: IntoSender<TunnelStateTransition, T>,
-) -> Result<(Core, impl Future<Item = (), Error = Error>), Error>
-where
-    T: From<TunnelStateTransition> + Send + 'static,
-{
+    state_change_listener: impl Sender<TunnelStateTransition>,
+) -> Result<(Core, impl Future<Item = (), Error = Error>), Error> {
     let reactor = Core::new().map_err(Error::ReactorError)?;
     let state_machine = TunnelStateMachine::new(
         allow_lan,

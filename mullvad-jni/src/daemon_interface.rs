@@ -1,5 +1,5 @@
 use futures::{sync::oneshot, Future};
-use mullvad_daemon::{DaemonCommandSender, ManagementCommand};
+use mullvad_daemon::{DaemonCommand, DaemonCommandSender};
 use mullvad_types::{
     account::AccountData,
     location::GeoIpLocation,
@@ -40,7 +40,7 @@ impl DaemonInterface {
     pub fn connect(&self) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::SetTargetState(tx, TargetState::Secured))?;
+        self.send_command(DaemonCommand::SetTargetState(tx, TargetState::Secured))?;
 
         rx.wait().map_err(|_| Error::NoResponse)?.unwrap();
 
@@ -50,10 +50,7 @@ impl DaemonInterface {
     pub fn disconnect(&self) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::SetTargetState(
-            tx,
-            TargetState::Unsecured,
-        ))?;
+        self.send_command(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))?;
 
         rx.wait().map_err(|_| Error::NoResponse)?.unwrap();
 
@@ -63,7 +60,7 @@ impl DaemonInterface {
     pub fn generate_wireguard_key(&self) -> Result<KeygenEvent> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::GenerateWireguardKey(tx))?;
+        self.send_command(DaemonCommand::GenerateWireguardKey(tx))?;
 
         rx.wait().map_err(|_| Error::NoResponse)
     }
@@ -71,7 +68,7 @@ impl DaemonInterface {
     pub fn get_account_data(&self, account_token: String) -> Result<AccountData> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::GetAccountData(tx, account_token))?;
+        self.send_command(DaemonCommand::GetAccountData(tx, account_token))?;
 
         rx.wait()
             .map_err(|_| Error::NoResponse)?
@@ -82,7 +79,7 @@ impl DaemonInterface {
     pub fn get_account_history(&self) -> Result<Vec<String>> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::GetAccountHistory(tx))?;
+        self.send_command(DaemonCommand::GetAccountHistory(tx))?;
 
         rx.wait().map_err(|_| Error::NoResponse)
     }
@@ -90,7 +87,7 @@ impl DaemonInterface {
     pub fn get_www_auth_token(&self) -> Result<String> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::GetWwwAuthToken(tx))?;
+        self.send_command(DaemonCommand::GetWwwAuthToken(tx))?;
 
         rx.wait()
             .map_err(|_| Error::NoResponse)?
@@ -101,7 +98,7 @@ impl DaemonInterface {
     pub fn get_current_location(&self) -> Result<Option<GeoIpLocation>> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::GetCurrentLocation(tx))?;
+        self.send_command(DaemonCommand::GetCurrentLocation(tx))?;
 
         Ok(rx.wait().map_err(|_| Error::NoResponse)?)
     }
@@ -109,7 +106,7 @@ impl DaemonInterface {
     pub fn get_current_version(&self) -> Result<String> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::GetCurrentVersion(tx))?;
+        self.send_command(DaemonCommand::GetCurrentVersion(tx))?;
 
         Ok(rx.wait().map_err(|_| Error::NoResponse)?)
     }
@@ -117,7 +114,7 @@ impl DaemonInterface {
     pub fn get_relay_locations(&self) -> Result<RelayList> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::GetRelayLocations(tx))?;
+        self.send_command(DaemonCommand::GetRelayLocations(tx))?;
 
         Ok(rx.wait().map_err(|_| Error::NoResponse)?)
     }
@@ -125,7 +122,7 @@ impl DaemonInterface {
     pub fn get_settings(&self) -> Result<Settings> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::GetSettings(tx))?;
+        self.send_command(DaemonCommand::GetSettings(tx))?;
 
         Ok(rx.wait().map_err(|_| Error::NoResponse)?)
     }
@@ -133,7 +130,7 @@ impl DaemonInterface {
     pub fn get_state(&self) -> Result<TunnelState> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::GetState(tx))?;
+        self.send_command(DaemonCommand::GetState(tx))?;
 
         Ok(rx.wait().map_err(|_| Error::NoResponse)?)
     }
@@ -141,13 +138,13 @@ impl DaemonInterface {
     pub fn get_version_info(&self) -> Result<AppVersionInfo> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::GetVersionInfo(tx))?;
+        self.send_command(DaemonCommand::GetVersionInfo(tx))?;
 
         rx.wait().map_err(|_| Error::NoResponse)
     }
 
     pub fn reconnect(&self) -> Result<()> {
-        self.send_command(ManagementCommand::Reconnect)?;
+        self.send_command(DaemonCommand::Reconnect)?;
 
         Ok(())
     }
@@ -155,7 +152,7 @@ impl DaemonInterface {
     pub fn get_wireguard_key(&self) -> Result<Option<wireguard::PublicKey>> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::GetWireguardKey(tx))?;
+        self.send_command(DaemonCommand::GetWireguardKey(tx))?;
 
         rx.wait().map_err(|_| Error::NoResponse)
     }
@@ -163,14 +160,14 @@ impl DaemonInterface {
     pub fn verify_wireguard_key(&self) -> Result<bool> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::VerifyWireguardKey(tx))?;
+        self.send_command(DaemonCommand::VerifyWireguardKey(tx))?;
         rx.wait().map_err(|_| Error::NoResponse)
     }
 
     pub fn set_account(&self, account_token: Option<String>) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::SetAccount(tx, account_token))?;
+        self.send_command(DaemonCommand::SetAccount(tx, account_token))?;
 
         rx.wait().map_err(|_| Error::NoResponse)
     }
@@ -178,7 +175,7 @@ impl DaemonInterface {
     pub fn set_allow_lan(&self, allow_lan: bool) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::SetAllowLan(tx, allow_lan))?;
+        self.send_command(DaemonCommand::SetAllowLan(tx, allow_lan))?;
 
         rx.wait().map_err(|_| Error::NoResponse)
     }
@@ -186,24 +183,24 @@ impl DaemonInterface {
     pub fn set_auto_connect(&self, auto_connect: bool) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::SetAutoConnect(tx, auto_connect))?;
+        self.send_command(DaemonCommand::SetAutoConnect(tx, auto_connect))?;
 
         rx.wait().map_err(|_| Error::NoResponse)
     }
 
     pub fn shutdown(&self) -> Result<()> {
-        self.send_command(ManagementCommand::Shutdown)
+        self.send_command(DaemonCommand::Shutdown)
     }
 
     pub fn update_relay_settings(&self, update: RelaySettingsUpdate) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(ManagementCommand::UpdateRelaySettings(tx, update))?;
+        self.send_command(DaemonCommand::UpdateRelaySettings(tx, update))?;
 
         rx.wait().map_err(|_| Error::NoResponse)
     }
 
-    fn send_command(&self, command: ManagementCommand) -> Result<()> {
+    fn send_command(&self, command: DaemonCommand) -> Result<()> {
         self.command_sender.send(command).map_err(Error::NoDaemon)
     }
 }

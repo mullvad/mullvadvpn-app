@@ -1,5 +1,5 @@
-use crate::version::PRODUCT_VERSION;
-use futures::{sync::mpsc::UnboundedSender, Async, Future, Poll};
+use crate::{version::PRODUCT_VERSION, DaemonEventSender};
+use futures::{Async, Future, Poll};
 use mullvad_rpc::{AppVersionProxy, HttpHandle};
 use mullvad_types::version::AppVersionInfo;
 use serde::{Deserialize, Serialize};
@@ -9,6 +9,7 @@ use std::{
     path::{Path, PathBuf},
     time::{Duration, Instant},
 };
+use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
 use tokio_timer::{TimeoutError, Timer};
 
@@ -80,10 +81,10 @@ impl<T> From<TimeoutError<T>> for Error {
 }
 
 
-pub struct VersionUpdater<T: From<AppVersionInfo>> {
+pub(crate) struct VersionUpdater {
     version_proxy: AppVersionProxy<HttpHandle>,
     cache_path: PathBuf,
-    update_sender: UnboundedSender<T>,
+    update_sender: DaemonEventSender<AppVersionInfo>,
     last_app_version_info: AppVersionInfo,
     next_update_time: Instant,
     state: VersionUpdaterState,
@@ -94,11 +95,11 @@ enum VersionUpdaterState {
     Updating(Box<dyn Future<Item = AppVersionInfo, Error = Error> + Send + 'static>),
 }
 
-impl<T: From<AppVersionInfo>> VersionUpdater<T> {
+impl VersionUpdater {
     pub fn new(
         rpc_handle: HttpHandle,
         cache_dir: PathBuf,
-        update_sender: UnboundedSender<T>,
+        update_sender: DaemonEventSender<AppVersionInfo>,
         last_app_version_info: AppVersionInfo,
     ) -> Self {
         let version_proxy = AppVersionProxy::new(rpc_handle);
@@ -140,7 +141,7 @@ impl<T: From<AppVersionInfo>> VersionUpdater<T> {
     }
 }
 
-impl<T: From<AppVersionInfo>> Future for VersionUpdater<T> {
+impl Future for VersionUpdater {
     type Item = ();
     type Error = ();
 
@@ -176,11 +177,7 @@ impl<T: From<AppVersionInfo>> Future for VersionUpdater<T> {
                         log::debug!("Got new version check: {:?}", app_version_info);
                         self.next_update_time = Instant::now() + UPDATE_INTERVAL;
                         if app_version_info != self.last_app_version_info {
-                            if self
-                                .update_sender
-                                .unbounded_send(app_version_info.clone().into())
-                                .is_err()
-                            {
+                            if self.update_sender.send(app_version_info.clone()).is_err() {
                                 log::warn!(
                                     "Version update receiver is closed, stopping version updater"
                                 );

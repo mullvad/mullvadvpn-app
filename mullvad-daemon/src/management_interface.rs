@@ -1,10 +1,6 @@
-use crate::EventListener;
+use crate::{BoxFuture, DaemonCommand, DaemonCommandSender, EventListener};
 use jsonrpc_core::{
-    futures::{
-        future,
-        sync::{self, oneshot::Sender as OneshotSender},
-        Future,
-    },
+    futures::{future, sync, Future},
     Error, ErrorCode, MetaIoHandler, Metadata,
 };
 use jsonrpc_ipc_server;
@@ -21,20 +17,14 @@ use mullvad_types::{
     states::{TargetState, TunnelState},
     version, wireguard, DaemonEvent,
 };
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 use std::{
     collections::{hash_map::Entry, HashMap},
     sync::Arc,
 };
-use talpid_core::mpsc::IntoSender;
 use talpid_ipc;
 use talpid_types::ErrorExt;
 use uuid;
-
-/// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
-/// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
-/// Remove this and use the one in jsonrpc_core when that is released.
-pub type BoxFuture<T, E> = Box<dyn Future<Item = T, Error = E> + Send>;
 
 build_rpc_trait! {
     pub trait ManagementInterfaceApi {
@@ -190,90 +180,13 @@ build_rpc_trait! {
     }
 }
 
-
-/// Enum representing commands coming in on the management interface.
-pub enum ManagementCommand {
-    /// Set target state. Does nothing if the daemon already has the state that is being set.
-    SetTargetState(OneshotSender<Result<(), ()>>, TargetState),
-    /// Reconnect the tunnel, if one is connecting/connected.
-    Reconnect,
-    /// Request the current state.
-    GetState(OneshotSender<TunnelState>),
-    /// Get the current geographical location.
-    GetCurrentLocation(OneshotSender<Option<GeoIpLocation>>),
-    CreateNewAccount(OneshotSender<std::result::Result<String, mullvad_rpc::Error>>),
-    /// Request the metadata for an account.
-    GetAccountData(
-        OneshotSender<BoxFuture<AccountData, mullvad_rpc::Error>>,
-        AccountToken,
-    ),
-    /// Request www auth token for an account
-    GetWwwAuthToken(OneshotSender<BoxFuture<String, mullvad_rpc::Error>>),
-    /// Submit voucher to add time to the current account. Returns time added in seconds
-    SubmitVoucher(
-        OneshotSender<BoxFuture<VoucherSubmission, mullvad_rpc::Error>>,
-        String,
-    ),
-    /// Request account history
-    GetAccountHistory(OneshotSender<Vec<AccountToken>>),
-    /// Request account history
-    RemoveAccountFromHistory(OneshotSender<()>, AccountToken),
-    /// Get the list of countries and cities where there are relays.
-    GetRelayLocations(OneshotSender<RelayList>),
-    /// Trigger an asynchronous relay list update. This returns before the relay list is actually
-    /// updated.
-    UpdateRelayLocations,
-    /// Set which account token to use for subsequent connection attempts.
-    SetAccount(OneshotSender<()>, Option<AccountToken>),
-    /// Place constraints on the type of tunnel and relay
-    UpdateRelaySettings(OneshotSender<()>, RelaySettingsUpdate),
-    /// Set the allow LAN setting.
-    SetAllowLan(OneshotSender<()>, bool),
-    /// Set the block_when_disconnected setting.
-    SetBlockWhenDisconnected(OneshotSender<()>, bool),
-    /// Set the auto-connect setting.
-    SetAutoConnect(OneshotSender<()>, bool),
-    /// Set the mssfix argument for OpenVPN
-    SetOpenVpnMssfix(OneshotSender<()>, Option<u16>),
-    /// Set proxy details for OpenVPN
-    SetBridgeSettings(OneshotSender<Result<(), settings::Error>>, BridgeSettings),
-    /// Set proxy state
-    SetBridgeState(OneshotSender<Result<(), settings::Error>>, BridgeState),
-    /// Set if IPv6 should be enabled in the tunnel
-    SetEnableIpv6(OneshotSender<()>, bool),
-    /// Set MTU for wireguard tunnels
-    SetWireguardMtu(OneshotSender<()>, Option<u16>),
-    /// Set automatic key rotation interval for wireguard tunnels
-    SetWireguardRotationInterval(OneshotSender<()>, Option<u32>),
-    /// Get the daemon settings
-    GetSettings(OneshotSender<Settings>),
-    /// Generate new wireguard key
-    GenerateWireguardKey(OneshotSender<wireguard::KeygenEvent>),
-    /// Return a public key of the currently set wireguard private key, if there is one
-    GetWireguardKey(OneshotSender<Option<wireguard::PublicKey>>),
-    /// Verify if the currently set wireguard key is valid.
-    VerifyWireguardKey(OneshotSender<bool>),
-    /// Get information about the currently running and latest app versions
-    GetVersionInfo(OneshotSender<version::AppVersionInfo>),
-    /// Get current version of the app
-    GetCurrentVersion(OneshotSender<version::AppVersion>),
-    /// Remove settings and clear the cache
-    #[cfg(not(target_os = "android"))]
-    FactoryReset(OneshotSender<()>),
-    /// Makes the daemon exit the main loop and quit.
-    Shutdown,
-}
-
 pub struct ManagementInterfaceServer {
     server: talpid_ipc::IpcServer,
     subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
 }
 
 impl ManagementInterfaceServer {
-    pub fn start<T>(tunnel_tx: IntoSender<ManagementCommand, T>) -> Result<Self, talpid_ipc::Error>
-    where
-        T: From<ManagementCommand> + 'static + Send,
-    {
+    pub fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, talpid_ipc::Error> {
         let rpc = ManagementInterface::new(tunnel_tx);
         let subscriptions = rpc.subscriptions.clone();
 
@@ -363,25 +276,25 @@ impl Drop for ManagementInterfaceEventBroadcaster {
     }
 }
 
-struct ManagementInterface<T: From<ManagementCommand> + 'static + Send> {
+struct ManagementInterface {
     subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
-    tx: Mutex<IntoSender<ManagementCommand, T>>,
+    tx: DaemonCommandSender,
 }
 
-impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
-    pub fn new(tx: IntoSender<ManagementCommand, T>) -> Self {
+impl ManagementInterface {
+    pub fn new(tx: DaemonCommandSender) -> Self {
         ManagementInterface {
             subscriptions: Default::default(),
-            tx: Mutex::new(tx),
+            tx,
         }
     }
 
     /// Sends a command to the daemon and maps the error to an RPC error.
     fn send_command_to_daemon(
         &self,
-        command: ManagementCommand,
+        command: DaemonCommand,
     ) -> impl Future<Item = (), Error = Error> {
-        future::result(self.tx.lock().send(command)).map_err(|_| Error::internal_error())
+        future::result(self.tx.send(command)).map_err(|_| Error::internal_error())
     }
 
     /// Converts the given error to an error that can be given to the caller of the API.
@@ -403,15 +316,13 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterface<T> {
     }
 }
 
-impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
-    for ManagementInterface<T>
-{
+impl ManagementInterfaceApi for ManagementInterface {
     type Metadata = Meta;
 
     fn create_new_account(&self, _: Self::Metadata) -> BoxFuture<String, Error> {
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::CreateNewAccount(tx))
+            .send_command_to_daemon(DaemonCommand::CreateNewAccount(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|result| match result {
                 Ok(account_token) => Ok(account_token),
@@ -429,7 +340,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("get_account_data");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::GetAccountData(tx, account_token))
+            .send_command_to_daemon(DaemonCommand::GetAccountData(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|rpc_future| {
                 rpc_future.map_err(|error: mullvad_rpc::Error| {
@@ -447,7 +358,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("get_account_data");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::GetWwwAuthToken(tx))
+            .send_command_to_daemon(DaemonCommand::GetWwwAuthToken(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|rpc_future| {
                 rpc_future.map_err(|error: mullvad_rpc::Error| {
@@ -469,7 +380,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("submit_voucher");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SubmitVoucher(tx, voucher))
+            .send_command_to_daemon(DaemonCommand::SubmitVoucher(tx, voucher))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|f| f.map_err(|e| Self::map_rpc_error(&e)));
         Box::new(future)
@@ -479,14 +390,14 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("get_relay_locations");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::GetRelayLocations(tx))
+            .send_command_to_daemon(DaemonCommand::GetRelayLocations(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
 
     fn update_relay_locations(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
         log::debug!("update_relay_locations");
-        Box::new(self.send_command_to_daemon(ManagementCommand::UpdateRelayLocations))
+        Box::new(self.send_command_to_daemon(DaemonCommand::UpdateRelayLocations))
     }
 
     fn set_account(
@@ -497,7 +408,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("set_account");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetAccount(tx, account_token))
+            .send_command_to_daemon(DaemonCommand::SetAccount(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -510,7 +421,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("update_relay_settings");
         let (tx, rx) = sync::oneshot::channel();
 
-        let message = ManagementCommand::UpdateRelaySettings(tx, constraints_update);
+        let message = DaemonCommand::UpdateRelaySettings(tx, constraints_update);
         let future = self
             .send_command_to_daemon(message)
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
@@ -521,7 +432,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("set_allow_lan({})", allow_lan);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetAllowLan(tx, allow_lan))
+            .send_command_to_daemon(DaemonCommand::SetAllowLan(tx, allow_lan))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -534,7 +445,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("set_block_when_disconnected({})", block_when_disconnected);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetBlockWhenDisconnected(
+            .send_command_to_daemon(DaemonCommand::SetBlockWhenDisconnected(
                 tx,
                 block_when_disconnected,
             ))
@@ -546,7 +457,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("set_auto_connect({})", auto_connect);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetAutoConnect(tx, auto_connect))
+            .send_command_to_daemon(DaemonCommand::SetAutoConnect(tx, auto_connect))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -555,7 +466,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("connect");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetTargetState(tx, TargetState::Secured))
+            .send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Secured))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|result| match result {
                 Ok(()) => future::ok(()),
@@ -572,17 +483,14 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("disconnect");
         let (tx, _) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetTargetState(
-                tx,
-                TargetState::Unsecured,
-            ))
+            .send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))
             .then(|_| future::ok(()));
         Box::new(future)
     }
 
     fn reconnect(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
         log::debug!("reconnect");
-        let future = self.send_command_to_daemon(ManagementCommand::Reconnect);
+        let future = self.send_command_to_daemon(DaemonCommand::Reconnect);
         Box::new(future)
     }
 
@@ -590,7 +498,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("get_state");
         let (state_tx, state_rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::GetState(state_tx))
+            .send_command_to_daemon(DaemonCommand::GetState(state_tx))
             .and_then(|_| state_rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -599,21 +507,21 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("get_current_location");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::GetCurrentLocation(tx))
+            .send_command_to_daemon(DaemonCommand::GetCurrentLocation(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
 
     fn shutdown(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
         log::debug!("shutdown");
-        Box::new(self.send_command_to_daemon(ManagementCommand::Shutdown))
+        Box::new(self.send_command_to_daemon(DaemonCommand::Shutdown))
     }
 
     fn get_account_history(&self, _: Self::Metadata) -> BoxFuture<Vec<AccountToken>, Error> {
         log::debug!("get_account_history");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::GetAccountHistory(tx))
+            .send_command_to_daemon(DaemonCommand::GetAccountHistory(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -626,10 +534,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("remove_account_from_history");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::RemoveAccountFromHistory(
-                tx,
-                account_token,
-            ))
+            .send_command_to_daemon(DaemonCommand::RemoveAccountFromHistory(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -638,7 +543,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("set_openvpn_mssfix({:?})", mssfix);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetOpenVpnMssfix(tx, mssfix))
+            .send_command_to_daemon(DaemonCommand::SetOpenVpnMssfix(tx, mssfix))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         Box::new(future)
@@ -652,7 +557,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("set_bridge_settings({:?})", bridge_settings);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetBridgeSettings(tx, bridge_settings))
+            .send_command_to_daemon(DaemonCommand::SetBridgeSettings(tx, bridge_settings))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|settings_result| {
                 settings_result.map_err(|error| match error {
@@ -672,7 +577,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("set_bridge_state({:?})", bridge_state);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetBridgeState(tx, bridge_state))
+            .send_command_to_daemon(DaemonCommand::SetBridgeState(tx, bridge_state))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|settings_result| settings_result.map_err(|_| Error::internal_error()));
 
@@ -683,7 +588,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("set_enable_ipv6({})", enable_ipv6);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetEnableIpv6(tx, enable_ipv6))
+            .send_command_to_daemon(DaemonCommand::SetEnableIpv6(tx, enable_ipv6))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         Box::new(future)
@@ -694,7 +599,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("set_wireguard_mtu({:?})", mtu);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetWireguardMtu(tx, mtu))
+            .send_command_to_daemon(DaemonCommand::SetWireguardMtu(tx, mtu))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -708,9 +613,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("set_wireguard_rotation_interval({:?})", interval);
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::SetWireguardRotationInterval(
-                tx, interval,
-            ))
+            .send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(tx, interval))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -719,7 +622,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("get_settings");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::GetSettings(tx))
+            .send_command_to_daemon(DaemonCommand::GetSettings(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -731,7 +634,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("generate_wireguard_key");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::GenerateWireguardKey(tx))
+            .send_command_to_daemon(DaemonCommand::GenerateWireguardKey(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -743,7 +646,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("get_wireguard_key");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::GetWireguardKey(tx))
+            .send_command_to_daemon(DaemonCommand::GetWireguardKey(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -752,7 +655,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("verify_wireguard_key");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::VerifyWireguardKey(tx))
+            .send_command_to_daemon(DaemonCommand::VerifyWireguardKey(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
@@ -761,7 +664,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("get_current_version");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::GetCurrentVersion(tx))
+            .send_command_to_daemon(DaemonCommand::GetCurrentVersion(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         Box::new(future)
@@ -771,7 +674,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
         log::debug!("get_version_info");
         let (tx, rx) = sync::oneshot::channel();
         let future = self
-            .send_command_to_daemon(ManagementCommand::GetVersionInfo(tx))
+            .send_command_to_daemon(DaemonCommand::GetVersionInfo(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
         Box::new(future)
@@ -783,7 +686,7 @@ impl<T: From<ManagementCommand> + 'static + Send> ManagementInterfaceApi
             log::debug!("factory_reset");
             let (tx, rx) = sync::oneshot::channel();
             let future = self
-                .send_command_to_daemon(ManagementCommand::FactoryReset(tx))
+                .send_command_to_daemon(DaemonCommand::FactoryReset(tx))
                 .and_then(|_| rx.map_err(|_| Error::internal_error()));
 
             Box::new(future)
