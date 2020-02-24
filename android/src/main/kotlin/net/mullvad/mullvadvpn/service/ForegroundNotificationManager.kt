@@ -103,8 +103,7 @@ class ForegroundNotificationManager(
                     if (state.errorState.isBlocking) {
                         R.string.blocking_all_connections
                     } else {
-                        // TODO Revise use of message when the app fails to block traffic
-                        R.string.unsecured
+                        R.string.critical_error
                     }
                 }
             }
@@ -124,7 +123,13 @@ class ForegroundNotificationManager(
                         else -> R.string.connect
                     }
                 }
-                is TunnelState.Error -> R.string.disconnect
+                is TunnelState.Error -> {
+                    if (state.errorState.isBlocking) {
+                        R.string.disconnect
+                    } else {
+                        R.string.dismiss
+                    }
+                }
             }
         }
 
