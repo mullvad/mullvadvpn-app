@@ -6,7 +6,7 @@ use std::{
 };
 
 const NETCLS_PATH: &str = "/sys/fs/cgroup/net_cls/";
-const NETCLS_CLASSID: u32 = 0x4d9f41;
+pub const NETCLS_CLASSID: u32 = 0x4d9f41;
 const CGROUP_NAME: &str = "mullvad-exclusions";
 
 #[derive(err_derive::Error, Debug)]

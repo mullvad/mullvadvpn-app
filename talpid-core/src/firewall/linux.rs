@@ -1,5 +1,5 @@
 use super::{FirewallArguments, FirewallPolicy, FirewallT};
-use crate::tunnel;
+use crate::{split, tunnel};
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use libc;
@@ -17,7 +17,8 @@ use std::{
 use talpid_types::net::{Endpoint, TransportProtocol};
 
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
-const MANGLE_CHAIN_PRIORITY: u32 = -150 as u32;
+const MANGLE_CHAIN_PRIORITY: u32 = (-150 as i32) as u32;
+const SPLIT_TUNNEL_MARK: i32 = 0xf41;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -230,10 +231,39 @@ impl<'a> PolicyBatch<'a> {
     /// policy.
     pub fn finalize(mut self, policy: &FirewallPolicy) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
+        self.add_split_tunneling_rules();
         self.add_dhcp_client_rules();
         self.add_policy_specific_rules(policy)?;
 
         Ok(self.batch.finalize())
+    }
+
+    fn add_split_tunneling_rules(&mut self) {
+        let mut rule = Rule::new(&self.mangle_chain);
+        rule.add_expr(&nft_expr!(meta cgroup));
+        rule.add_expr(&nft_expr!(cmp == split::NETCLS_CLASSID));
+        rule.add_expr(&nft_expr!(immediate data SPLIT_TUNNEL_MARK));
+        rule.add_expr(&nft_expr!(ct mark set));
+        self.batch.add(&rule, nftnl::MsgType::Add);
+
+        let mut rule = Rule::new(&self.mangle_chain);
+        rule.add_expr(&nft_expr!(meta cgroup));
+        rule.add_expr(&nft_expr!(cmp == split::NETCLS_CLASSID));
+        rule.add_expr(&nft_expr!(immediate data SPLIT_TUNNEL_MARK));
+        rule.add_expr(&nft_expr!(meta mark set));
+        self.batch.add(&rule, nftnl::MsgType::Add);
+
+        let mut rule = Rule::new(&self.in_chain);
+        rule.add_expr(&nft_expr!(ct mark));
+        rule.add_expr(&nft_expr!(cmp == SPLIT_TUNNEL_MARK));
+        add_verdict(&mut rule, &Verdict::Accept);
+        self.batch.add(&rule, nftnl::MsgType::Add);
+
+        let mut rule = Rule::new(&self.out_chain);
+        rule.add_expr(&nft_expr!(ct mark));
+        rule.add_expr(&nft_expr!(cmp == SPLIT_TUNNEL_MARK));
+        add_verdict(&mut rule, &Verdict::Accept);
+        self.batch.add(&rule, nftnl::MsgType::Add);
     }
 
     fn add_loopback_rules(&mut self) -> Result<()> {
