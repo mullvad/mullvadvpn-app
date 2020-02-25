@@ -186,7 +186,7 @@ The app avoids the term "kill switch". Because it sounds like a red button
 that has to be *engaged when a problem arises*. This app is much more proactive and applies
 [strict firewall rules](#app-states) directly when it leaves the [disconnected]
 state and keeps those rules active and enforced until the app comes back to the [disconnected]
-state via an explicit user request again. Said strict firewall rules unsure that packets can only
+state via an explicit user request again. Said strict firewall rules ensure that packets can only
 leave or enter the computer in a few predefined ways, most notably to the selected VPN server of
 course. Changes to the firewall are done in atomic transactions. Meaning there is no time window
 where no or invalid rules are active on the device.
