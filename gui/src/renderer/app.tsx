@@ -263,6 +263,10 @@ export default class AppRenderer {
     }
   }
 
+  public async createNewAccount() {
+    await IpcRendererEventChannel.account.create();
+  }
+
   public async connectTunnel(): Promise<void> {
     const state = this.tunnelState.state;
 

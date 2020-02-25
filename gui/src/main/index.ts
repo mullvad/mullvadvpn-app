@@ -975,6 +975,7 @@ class ApplicationMain {
       this.didChangeLocale();
     });
 
+    IpcMainEventChannel.account.handleCreate(() => this.createNewAccount());
     IpcMainEventChannel.account.handleLogin((token: AccountToken) => this.login(token));
     IpcMainEventChannel.account.handleLogout(() => this.logout());
     IpcMainEventChannel.account.handleWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
@@ -1068,6 +1069,14 @@ class ApplicationMain {
         });
       },
     );
+  }
+
+  private async createNewAccount(): Promise<void> {
+    try {
+      await this.daemonRpc.createNewAccount();
+    } catch (error) {
+      log.error(`Failed to create account: ${error.message}`);
+    }
   }
 
   private async login(accountToken: AccountToken): Promise<void> {
