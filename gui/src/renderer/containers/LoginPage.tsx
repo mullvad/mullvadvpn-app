@@ -9,12 +9,13 @@ import accountActions from '../redux/account/actions';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => {
-  const { accountToken, accountHistory, error, status } = state.account;
+  const { accountToken, accountHistory, error, status, createAccountStatus } = state.account;
   return {
     accountToken,
     accountHistory,
     loginError: error,
     loginState: status,
+    createAccountState: createAccountStatus,
   };
 };
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
@@ -33,6 +34,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
     openExternalLink: (url: string) => shell.openExternal(url),
     updateAccountToken,
     removeAccountTokenFromHistory: (token: string) => props.app.removeAccountFromHistory(token),
+    createNewAccount: () => consumePromise(props.app.createNewAccount()),
   };
 };
 

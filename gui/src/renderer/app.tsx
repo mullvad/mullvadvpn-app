@@ -238,18 +238,7 @@ export default class AppRenderer {
 
     try {
       await IpcRendererEventChannel.account.login(accountToken);
-
-      // Redirect the user after some time to allow for the 'Logged in' screen to be visible
-      this.loginTimer = global.setTimeout(async () => {
-        this.memoryHistory.replace('/connect');
-
-        try {
-          log.info('Auto-connecting the tunnel');
-          await this.connectTunnel();
-        } catch (error) {
-          log.error(`Failed to auto-connect the tunnel: ${error.message}`);
-        }
-      }, 1000);
+      this.redirectToConnect(true);
     } catch (error) {
       actions.account.loginFailed(error);
     }
@@ -260,6 +249,21 @@ export default class AppRenderer {
       await IpcRendererEventChannel.account.logout();
     } catch (e) {
       log.info('Failed to logout: ', e.message);
+    }
+  }
+
+  public async createNewAccount() {
+    log.info('Creating account');
+
+    const actions = this.reduxActions;
+    actions.account.startCreateAccount();
+    this.doingLogin = true;
+
+    try {
+      await IpcRendererEventChannel.account.create();
+      this.redirectToConnect(false);
+    } catch (_error) {
+      actions.account.createAcountFailed();
     }
   }
 
@@ -415,6 +419,22 @@ export default class AppRenderer {
     const preferredLocale = this.getPreferredLocaleList().find((item) => item.code === localeCode);
 
     return preferredLocale ? preferredLocale.name : '';
+  }
+
+  private redirectToConnect(connect: boolean) {
+    // Redirect the user after some time to allow for the 'Logged in' screen to be visible
+    this.loginTimer = global.setTimeout(async () => {
+      this.memoryHistory.replace('/connect');
+
+      if (connect) {
+        try {
+          log.info('Auto-connecting the tunnel');
+          await this.connectTunnel();
+        } catch (error) {
+          log.error(`Failed to auto-connect the tunnel: ${error.message}`);
+        }
+      }
+    }, 1000);
   }
 
   private loadTranslations(locale: string) {

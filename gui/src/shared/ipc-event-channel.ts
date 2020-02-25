@@ -106,12 +106,14 @@ interface IGuiSettingsHandlers extends ISender<IGuiSettingsState> {
 }
 
 interface IAccountHandlers extends ISender<IAccountData | undefined> {
+  handleCreate(fn: () => Promise<void>): void;
   handleLogin(fn: (token: AccountToken) => Promise<void>): void;
   handleLogout(fn: () => Promise<void>): void;
   handleWwwAuthToken(fn: () => Promise<string>): void;
 }
 
 interface IAccountMethods extends IReceiver<IAccountData | undefined> {
+  create(): Promise<void>;
   login(token: AccountToken): Promise<void>;
   logout(): Promise<void>;
   getWwwAuthToken(): Promise<string>;
@@ -186,6 +188,7 @@ const GET_APP_STATE = 'get-app-state';
 const ACCOUNT_HISTORY_CHANGED = 'account-history-changed';
 const REMOVE_ACCOUNT_HISTORY_ITEM = 'remove-account-history-item';
 
+const CREATE_NEW_ACCOUNT = 'create-new-account';
 const DO_LOGIN = 'do-login';
 const DO_LOGOUT = 'do-logout';
 const DO_GET_WWW_AUTH_TOKEN = 'do-get-www-auth-token';
@@ -280,6 +283,7 @@ export class IpcRendererEventChannel {
 
   public static account: IAccountMethods = {
     listen: listen(ACCOUNT_DATA_CHANGED),
+    create: requestSender(CREATE_NEW_ACCOUNT),
     login: requestSender(DO_LOGIN),
     logout: requestSender(DO_LOGOUT),
     getWwwAuthToken: requestSender(DO_GET_WWW_AUTH_TOKEN),
@@ -375,6 +379,7 @@ export class IpcMainEventChannel {
 
   public static account: IAccountHandlers = {
     notify: sender<IAccountData | undefined>(ACCOUNT_DATA_CHANGED),
+    handleCreate: requestHandler(CREATE_NEW_ACCOUNT),
     handleLogin: requestHandler(DO_LOGIN),
     handleLogout: requestHandler(DO_LOGOUT),
     handleWwwAuthToken: requestHandler(DO_GET_WWW_AUTH_TOKEN),

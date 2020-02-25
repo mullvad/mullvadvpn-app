@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Animated, Component, Styles, Text, TextInput, Types, UserInterface, View } from 'reactxp';
-import { colors, links } from '../../config.json';
+import { colors } from '../../config.json';
 import consumePromise from '../../shared/promise';
 import { messages } from '../../shared/gettext';
 import { formatAccountToken } from '../lib/account';
@@ -13,19 +13,21 @@ import { Container, Header, Layout } from './Layout';
 import styles from './LoginStyles';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
-import { LoginState } from '../redux/account/reducers';
+import { CreateAccountStatus, LoginState } from '../redux/account/reducers';
 
 interface IProps {
   accountToken?: AccountToken;
   accountHistory: AccountToken[];
   loginError?: Error;
   loginState: LoginState;
+  createAccountState: CreateAccountStatus;
   openSettings?: () => void;
   openExternalLink: (type: string) => void;
   login: (accountToken: AccountToken) => void;
   resetLoginError: () => void;
   updateAccountToken: (accountToken: AccountToken) => void;
   removeAccountTokenFromHistory: (accountToken: AccountToken) => Promise<void>;
+  createNewAccount: () => void;
 }
 
 interface IState {
@@ -56,7 +58,7 @@ export default class Login extends Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
 
-    if (props.loginState === 'failed') {
+    if (props.loginState === 'failed' || props.createAccountState === 'failed') {
       this.shouldResetLoginError = true;
     }
 
@@ -78,11 +80,12 @@ export default class Login extends Component<IProps, IState> {
   }
 
   public componentDidUpdate(prevProps: IProps, _prevState: IState) {
-    if (
-      this.props.loginState !== prevProps.loginState &&
-      this.props.loginState === 'failed' &&
-      !this.shouldResetLoginError
-    ) {
+    const newLoginFailure =
+      this.props.loginState !== prevProps.loginState && this.props.loginState === 'failed';
+    const newCreateAccountFailure =
+      this.props.createAccountState !== prevProps.createAccountState &&
+      this.props.createAccountState === 'failed';
+    if ((newLoginFailure || newCreateAccountFailure) && !this.shouldResetLoginError) {
       this.shouldResetLoginError = true;
 
       // focus on login field when failed to log in
@@ -120,8 +123,6 @@ export default class Login extends Component<IProps, IState> {
       </Layout>
     );
   }
-
-  private onCreateAccount = () => this.props.openExternalLink(links.createAccount);
 
   private onFocus = () => {
     this.setState({ isActive: true });
@@ -212,20 +213,33 @@ export default class Login extends Component<IProps, IState> {
   };
 
   private formTitle() {
-    switch (this.props.loginState) {
-      case 'logging in':
-        return messages.pgettext('login-view', 'Logging in...');
-      case 'failed':
-        return messages.pgettext('login-view', 'Login failed');
-      case 'ok':
-        return messages.pgettext('login-view', 'Logged in');
-      default:
-        return messages.pgettext('login-view', 'Login');
+    const { loginState, createAccountState } = this.props;
+
+    if (loginState === 'logging in' || createAccountState === 'creating account') {
+      return messages.pgettext('login-view', 'Logging in...');
+    } else if (loginState === 'failed' || createAccountState === 'failed') {
+      return messages.pgettext('login-view', 'Login failed');
+    } else if (loginState === 'ok') {
+      return messages.pgettext('login-view', 'Logged in');
+    } else {
+      return messages.pgettext('login-view', 'Login');
     }
   }
 
   private formSubtitle() {
-    const { loginState, loginError } = this.props;
+    const { loginState, loginError, createAccountState } = this.props;
+
+    if (createAccountState !== 'none') {
+      switch (createAccountState) {
+        case 'failed':
+          return messages.pgettext('login-view', 'Failed to create account');
+        case 'creating account':
+          return messages.pgettext('login-view', 'Creating new account...');
+        case 'ok':
+          return messages.pgettext('login-view', 'Account created');
+      }
+    }
+
     switch (loginState) {
       case 'failed':
         return (
@@ -250,15 +264,16 @@ export default class Login extends Component<IProps, IState> {
   }
 
   private getStatusIconPath(): string | undefined {
-    switch (this.props.loginState) {
-      case 'logging in':
-        return 'icon-spinner';
-      case 'failed':
-        return 'icon-fail';
-      case 'ok':
-        return 'icon-success';
-      default:
-        return undefined;
+    const { loginState, createAccountState } = this.props;
+
+    if (loginState === 'logging in' || createAccountState === 'creating account') {
+      return 'icon-spinner';
+    } else if (loginState === 'failed' || createAccountState === 'failed') {
+      return 'icon-fail';
+    } else if (loginState === 'ok' || createAccountState === 'ok') {
+      return 'icon-success';
+    } else {
+      return undefined;
     }
   }
 
@@ -268,14 +283,10 @@ export default class Login extends Component<IProps, IState> {
       classes.push(styles.account_input_group__active);
     }
 
-    switch (this.props.loginState) {
-      case 'logging in':
-      case 'ok':
-        classes.push(styles.account_input_group__inactive);
-        break;
-      case 'failed':
-        classes.push(styles.account_input_group__error);
-        break;
+    if (this.loggingIn()) {
+      classes.push(styles.account_input_group__inactive);
+    } else if (this.props.loginState === 'failed') {
+      classes.push(styles.account_input_group__error);
     }
 
     return classes;
@@ -286,7 +297,7 @@ export default class Login extends Component<IProps, IState> {
       Types.StyleRuleSet<Types.AnimatedViewStyle> | Types.StyleRuleSet<Types.ViewStyle>
     > = [styles.input_button];
 
-    if (this.props.loginState === 'logging in' || this.props.loginState === 'ok') {
+    if (this.loggingIn()) {
       classes.push(styles.input_button__invisible);
     }
 
@@ -296,14 +307,23 @@ export default class Login extends Component<IProps, IState> {
   }
 
   private accountInputArrowStyles(): Types.ViewStyleRuleSet[] {
-    const { loginState } = this.props;
+    const { loginState, createAccountState } = this.props;
     const classes = [styles.input_arrow];
 
-    if (loginState === 'logging in') {
+    if (loginState === 'logging in' || createAccountState === 'creating account') {
       classes.push(styles.input_arrow__invisible);
     }
 
     return classes;
+  }
+
+  private loggingIn() {
+    return (
+      this.props.loginState === 'logging in' ||
+      this.props.createAccountState === 'creating account' ||
+      this.props.loginState === 'ok' ||
+      this.props.createAccountState === 'ok'
+    );
   }
 
   private shouldActivateLoginButton(): boolean {
@@ -314,15 +334,8 @@ export default class Login extends Component<IProps, IState> {
     return false;
   }
 
-  private shouldEnableAccountInput() {
-    // enable account input always except when "logging in" or "logged in"
-    return this.props.loginState !== 'logging in' && this.props.loginState !== 'ok';
-  }
-
   private shouldShowAccountHistory() {
-    return (
-      this.shouldEnableAccountInput() && this.state.isActive && this.props.accountHistory.length > 0
-    );
+    return !this.loggingIn() && this.state.isActive && this.props.accountHistory.length > 0;
   }
 
   private shouldShowFooter() {
@@ -363,7 +376,7 @@ export default class Login extends Component<IProps, IState> {
               placeholderTextColor={colors.blue40}
               value={this.props.accountToken || ''}
               autoCorrect={false}
-              editable={this.shouldEnableAccountInput()}
+              editable={!this.loggingIn()}
               onFocus={this.onFocus}
               onBlur={this.onBlur}
               onChangeText={this.onInputChange}
@@ -403,9 +416,8 @@ export default class Login extends Component<IProps, IState> {
         <Text style={styles.login_footer__prompt}>
           {messages.pgettext('login-view', "Don't have an account number?")}
         </Text>
-        <AppButton.BlueButton onPress={this.onCreateAccount}>
-          <AppButton.Label>{messages.pgettext('login-view', 'Create account')}</AppButton.Label>
-          <AppButton.Icon source="icon-extLink" height={16} width={16} />
+        <AppButton.BlueButton onPress={this.props.createNewAccount} disabled={this.loggingIn()}>
+          {messages.pgettext('login-view', 'Create account')}
         </AppButton.BlueButton>
       </View>
     );

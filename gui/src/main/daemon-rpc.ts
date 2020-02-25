@@ -452,6 +452,10 @@ export class DaemonRpc {
     }
   }
 
+  public async createNewAccount(): Promise<void> {
+    await this.transport.send('create_new_account');
+  }
+
   public async setAccount(accountToken?: AccountToken): Promise<void> {
     await this.transport.send('set_account', [accountToken]);
   }

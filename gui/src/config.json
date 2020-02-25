@@ -1,6 +1,5 @@
 {
   "links": {
-    "createAccount": "https://mullvad.net/account/create/",
     "purchase": "https://mullvad.net/account/",
     "manageKeys": "https://mullvad.net/account/ports/",
     "faq": "https://mullvad.net/help/tag/mullvad-app/",
