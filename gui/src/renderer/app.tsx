@@ -190,6 +190,7 @@ export default class AppRenderer {
     this.setLocale(initialState.locale);
 
     this.setAccountExpiry(initialState.accountData && initialState.accountData.expiry);
+    this.handleAccountChange(undefined, initialState.settings.accountToken);
     this.setAccountHistory(initialState.accountHistory);
     this.setSettings(initialState.settings);
     this.setTunnelState(initialState.tunnelState);
@@ -238,18 +239,9 @@ export default class AppRenderer {
 
     try {
       await IpcRendererEventChannel.account.login(accountToken);
-
-      // Redirect the user after some time to allow for the 'Logged in' screen to be visible
-      this.loginTimer = global.setTimeout(async () => {
-        this.memoryHistory.replace('/connect');
-
-        try {
-          log.info('Auto-connecting the tunnel');
-          await this.connectTunnel();
-        } catch (error) {
-          log.error(`Failed to auto-connect the tunnel: ${error.message}`);
-        }
-      }, 1000);
+      actions.account.updateAccountToken(accountToken);
+      actions.account.loggedIn();
+      this.redirectToConnect(true);
     } catch (error) {
       actions.account.loginFailed(error);
     }
@@ -260,6 +252,23 @@ export default class AppRenderer {
       await IpcRendererEventChannel.account.logout();
     } catch (e) {
       log.info('Failed to logout: ', e.message);
+    }
+  }
+
+  public async createNewAccount() {
+    log.info('Creating account');
+
+    const actions = this.reduxActions;
+    actions.account.startCreateAccount();
+    this.doingLogin = true;
+
+    try {
+      const accountToken = await IpcRendererEventChannel.account.create();
+      const accountExpiry = new Date().toISOString();
+      actions.account.accountCreated(accountToken, accountExpiry);
+      this.redirectToConnect(false);
+    } catch (error) {
+      actions.account.createAccountFailed(error);
     }
   }
 
@@ -415,6 +424,22 @@ export default class AppRenderer {
     const preferredLocale = this.getPreferredLocaleList().find((item) => item.code === localeCode);
 
     return preferredLocale ? preferredLocale.name : '';
+  }
+
+  private redirectToConnect(connect: boolean) {
+    // Redirect the user after some time to allow for the 'Logged in' screen to be visible
+    this.loginTimer = global.setTimeout(async () => {
+      this.memoryHistory.replace('/connect');
+
+      if (connect) {
+        try {
+          log.info('Auto-connecting the tunnel');
+          await this.connectTunnel();
+        } catch (error) {
+          log.error(`Failed to auto-connect the tunnel: ${error.message}`);
+        }
+      }
+    }, 1000);
   }
 
   private loadTranslations(locale: string) {
@@ -578,7 +603,6 @@ export default class AppRenderer {
     this.settings = newSettings;
 
     const reduxSettings = this.reduxActions.settings;
-    const reduxAccount = this.reduxActions.account;
 
     reduxSettings.updateAllowLan(newSettings.allowLan);
     reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.generic.enableIpv6);
@@ -590,13 +614,6 @@ export default class AppRenderer {
 
     this.setRelaySettings(newSettings.relaySettings);
     this.setBridgeSettings(newSettings.bridgeSettings);
-
-    if (newSettings.accountToken) {
-      reduxAccount.updateAccountToken(newSettings.accountToken);
-      reduxAccount.loggedIn();
-    } else {
-      reduxAccount.loggedOut();
-    }
   }
 
   private updateBlockedState(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
@@ -625,13 +642,20 @@ export default class AppRenderer {
   }
 
   private handleAccountChange(oldAccount?: string, newAccount?: string) {
+    const reduxAccount = this.reduxActions.account;
+
     if (oldAccount && !newAccount) {
       if (this.loginTimer) {
         clearTimeout(this.loginTimer);
       }
+      reduxAccount.loggedOut();
       this.memoryHistory.replace('/login');
-    } else if (!oldAccount && newAccount && !this.doingLogin) {
-      this.memoryHistory.replace('/connect');
+    } else if (newAccount && oldAccount !== newAccount && !this.doingLogin) {
+      reduxAccount.updateAccountToken(newAccount);
+      reduxAccount.loggedIn();
+      if (!oldAccount) {
+        this.memoryHistory.replace('/connect');
+      }
     }
 
     this.doingLogin = false;

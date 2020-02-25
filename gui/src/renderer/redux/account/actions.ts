@@ -22,6 +22,21 @@ interface IResetLoginErrorAction {
   type: 'RESET_LOGIN_ERROR';
 }
 
+interface IStartCreateAccount {
+  type: 'START_CREATE_ACCOUNT';
+}
+
+interface ICreateAccountFailed {
+  type: 'CREATE_ACCOUNT_FAILED';
+  error: Error;
+}
+
+interface IAccountCreated {
+  type: 'ACCOUNT_CREATED';
+  token: AccountToken;
+  expiry: string;
+}
+
 interface IUpdateAccountTokenAction {
   type: 'UPDATE_ACCOUNT_TOKEN';
   token: AccountToken;
@@ -43,6 +58,9 @@ export type AccountAction =
   | ILoginFailedAction
   | ILoggedOutAction
   | IResetLoginErrorAction
+  | IStartCreateAccount
+  | ICreateAccountFailed
+  | IAccountCreated
   | IUpdateAccountTokenAction
   | IUpdateAccountHistoryAction
   | IUpdateAccountExpiryAction;
@@ -79,6 +97,27 @@ function resetLoginError(): IResetLoginErrorAction {
   };
 }
 
+function startCreateAccount(): IStartCreateAccount {
+  return {
+    type: 'START_CREATE_ACCOUNT',
+  };
+}
+
+function createAccountFailed(error: Error): ICreateAccountFailed {
+  return {
+    type: 'CREATE_ACCOUNT_FAILED',
+    error,
+  };
+}
+
+function accountCreated(token: AccountToken, expiry: string): IAccountCreated {
+  return {
+    type: 'ACCOUNT_CREATED',
+    token,
+    expiry,
+  };
+}
+
 function updateAccountToken(token: AccountToken): IUpdateAccountTokenAction {
   return {
     type: 'UPDATE_ACCOUNT_TOKEN',
@@ -106,6 +145,9 @@ export default {
   loginFailed,
   loggedOut,
   resetLoginError,
+  startCreateAccount,
+  createAccountFailed,
+  accountCreated,
   updateAccountToken,
   updateAccountHistory,
   updateAccountExpiry,
