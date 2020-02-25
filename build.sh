@@ -180,13 +180,16 @@ for binary in ${binaries[*]}; do
 done
 
 if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
-    signdlls=(
+    signdep=(
         windows/winfw/bin/x64-Release/winfw.dll
         windows/windns/bin/x64-Release/windns.dll
         windows/winnet/bin/x64-Release/winnet.dll
         windows/winutil/bin/x64-Release/winutil.dll
+        windows/driverlogic/bin/x64-Release/driverlogic.exe
+        windows/nsis-plugins/bin/Win32-Release/*.dll
+        build/lib/x86_64-pc-windows-msvc/libwg.dll
     )
-    sign_win "${signdlls[@]}"
+    sign_win "${signdep[@]}"
 fi
 
 
