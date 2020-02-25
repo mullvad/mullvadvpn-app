@@ -97,9 +97,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\driverlogic.cpp" />
+    <ClCompile Include="src\error.cpp" />
     <ClCompile Include="src\stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\error.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\targetver.h" />
   </ItemGroup>

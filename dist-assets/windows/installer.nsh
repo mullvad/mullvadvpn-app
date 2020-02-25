@@ -25,8 +25,8 @@
 !define MULLVAD_SUCCESS 1
 
 # Return codes from driverlogic
-!define DL_GENERAL_ERROR 0
-!define DL_GENERAL_SUCCESS 1
+!define DL_GENERAL_ERROR -1
+!define DL_GENERAL_SUCCESS 0
 
 # Log targets
 !define LOG_FILE 0
@@ -131,8 +131,9 @@
 	Pop $0
 	Pop $1
 
-	${If} $0 == ${DL_GENERAL_ERROR}
-		StrCpy $R0 "Failed to remove vanilla TAP adapter"
+	${If} $0 != ${DL_GENERAL_SUCCESS}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to remove vanilla TAP adapter: error $0"
 		log::LogWithDetails $R0 $1
 
 		Goto RemoveVanillaTap_return
@@ -194,7 +195,8 @@
 	Pop $1
 
 	${If} $0 != ${DL_GENERAL_SUCCESS}
-		StrCpy $R0 "Failed to create virtual adapter"
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to create virtual adapter: error $0"
 		log::LogWithDetails $R0 $1
 		Goto InstallTapDriver_return
 	${EndIf}
