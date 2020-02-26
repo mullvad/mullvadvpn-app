@@ -43,6 +43,7 @@ import {
   RelaySettings,
   RelaySettingsUpdate,
   TunnelState,
+  VoucherResponse,
 } from '../shared/daemon-rpc-types';
 
 interface IPreferredLocaleDescriptor {
@@ -272,7 +273,7 @@ export default class AppRenderer {
     }
   }
 
-  public async submitVoucher(voucherCode: string) {
+  public submitVoucher(voucherCode: string): Promise<VoucherResponse> {
     return IpcRendererEventChannel.account.submitVoucher(voucherCode);
   }
 
