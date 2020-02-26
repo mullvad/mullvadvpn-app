@@ -89,6 +89,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
                                        object: accountTextField)
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        accountTextField.becomeFirstResponder()
+    }
+
     // MARK: - Keyboard notifications
 
     @objc private func keyboardWillShow(_ notification: Notification) {
