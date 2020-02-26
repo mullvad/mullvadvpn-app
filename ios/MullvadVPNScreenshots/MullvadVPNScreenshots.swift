@@ -32,6 +32,12 @@ class MullvadVPNScreenshots: XCTestCase {
 
         app.launch()
 
+        // Dismiss consent screen
+        _ = app.buttons["AgreeButton"].waitForExistence(timeout: 10)
+        app.buttons["AgreeButton"].tap()
+
+        // Wait for Login screen and keyboard
+        _ = app.keyboards.firstMatch.waitForExistence(timeout: 10)
         snapshot("Login")
 
         // Enter account token
