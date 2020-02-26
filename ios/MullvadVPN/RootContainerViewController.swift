@@ -173,13 +173,6 @@ class RootContainerViewController: UIViewController {
             self.updateHeaderBarStyleFromChildPreferences(animated: shouldAnimate)
         }
 
-        // Make sure that all new view controllers have loaded their views
-        // This is important because the unwind segue calls the unwind action which may rely on
-        // IB outlets to be set at that time.
-        for newViewController in newViewControllers {
-            newViewController.loadViewIfNeeded()
-        }
-
         // Add new child controllers. The call to addChild() automatically calls child.willMove()
         // Children have to be registered in the container for Storyboard unwind segues to function
         // properly, however the child controller views don't have to be added immediately, and
@@ -188,6 +181,13 @@ class RootContainerViewController: UIViewController {
             addChild(child)
         }
 
+        // Make sure that all new view controllers have loaded their views
+        // This is important because the unwind segue calls the unwind action which may rely on
+        // IB outlets to be set at that time.
+        for newViewController in newViewControllers {
+            newViewController.loadViewIfNeeded()
+        }
+        
         // Add the destination view into the view hierarchy
         if let targetView = targetViewController?.view {
             addChildView(targetView)
