@@ -9,6 +9,8 @@
 import SafariServices
 import UIKit
 
+let kPrivacyPolicyURL = URL(string: "https://mullvad.net/en/help/privacy-policy/?hide_nav")!
+
 class ConsentViewController: UIViewController, RootContainment, SFSafariViewControllerDelegate {
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -25,16 +27,11 @@ class ConsentViewController: UIViewController, RootContainment, SFSafariViewCont
 
     // MARK: - IBActions
 
-    @IBAction func openPrivacyPolicy(_ sender: Any) {
-        let pageURL = URL(string: "https://mullvad.net/en/help/privacy-policy/?hide_nav")!
-
-        let safariController = SFSafariViewController(url: pageURL)
+    @IBAction func handlePrivacyPolicyButton(_ sender: Any) {
+        let safariController = SFSafariViewController(url: kPrivacyPolicyURL)
         safariController.delegate = self
 
-        let navigationController = UINavigationController(rootViewController: safariController)
-        navigationController.setNavigationBarHidden(true, animated: false)
-
-        present(navigationController, animated: true)
+        present(safariController, animated: true)
     }
 
     // MARK: - SFSafariViewControllerDelegate
