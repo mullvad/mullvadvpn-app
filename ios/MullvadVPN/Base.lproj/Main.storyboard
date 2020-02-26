@@ -633,7 +633,7 @@
                                                     </view>
                                                 </subviews>
                                                 <constraints>
-                                                    <constraint firstItem="ydQ-IP-KZb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Bjs-D6-NVj" secondAttribute="bottom" constant="24" id="37w-fI-zi8"/>
+                                                    <constraint firstItem="ydQ-IP-KZb" firstAttribute="top" secondItem="Bjs-D6-NVj" secondAttribute="bottom" constant="24" id="37w-fI-zi8"/>
                                                     <constraint firstItem="Bjs-D6-NVj" firstAttribute="top" secondItem="xch-VD-kOQ" secondAttribute="bottom" constant="24" id="8F9-gx-ngL"/>
                                                     <constraint firstAttribute="trailing" secondItem="xch-VD-kOQ" secondAttribute="trailing" id="GLB-vv-DDi"/>
                                                     <constraint firstAttribute="trailing" secondItem="Bjs-D6-NVj" secondAttribute="trailing" id="Hpo-go-tU4"/>
@@ -655,10 +655,9 @@
                                     </view>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="5VO-oQ-4jM" firstAttribute="width" relation="greaterThanOrEqual" secondItem="fa2-zl-Fc4" secondAttribute="width" id="86a-VC-VLn"/>
+                                    <constraint firstItem="5VO-oQ-4jM" firstAttribute="width" secondItem="fa2-zl-Fc4" secondAttribute="width" id="86a-VC-VLn"/>
                                     <constraint firstAttribute="bottom" secondItem="5VO-oQ-4jM" secondAttribute="bottom" id="ERb-9i-nFf"/>
                                     <constraint firstItem="5VO-oQ-4jM" firstAttribute="leading" secondItem="fa2-zl-Fc4" secondAttribute="leading" id="KdL-EB-Idq"/>
-                                    <constraint firstItem="5VO-oQ-4jM" firstAttribute="height" secondItem="fa2-zl-Fc4" secondAttribute="height" multiplier="0.455951" id="Px9-A4-89S"/>
                                     <constraint firstItem="5VO-oQ-4jM" firstAttribute="top" secondItem="fa2-zl-Fc4" secondAttribute="top" id="avu-mu-m90"/>
                                     <constraint firstAttribute="trailing" secondItem="5VO-oQ-4jM" secondAttribute="trailing" id="sUD-Wq-7oa"/>
                                 </constraints>
