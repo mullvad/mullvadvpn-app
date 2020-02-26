@@ -183,7 +183,7 @@
                                 </constraints>
                             </view>
                             <view hidden="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ire-2z-eJu" userLabel="Footer">
-                                <rect key="frame" x="0.0" y="577.5" width="375" height="89.5"/>
+                                <rect key="frame" x="0.0" y="576.5" width="375" height="90.5"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Don't have an account number?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QcG-Tf-YdQ">
                                         <rect key="frame" x="24" y="16" width="327" height="20.5"/>
@@ -192,7 +192,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="osm-vd-aTb" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                                        <rect key="frame" x="24" y="44.5" width="327" height="21"/>
+                                        <rect key="frame" x="24" y="44.5" width="327" height="22"/>
                                         <state key="normal" title="Create account" backgroundImage="DefaultButton">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
@@ -591,13 +591,6 @@
                                                             <constraint firstItem="8f3-SD-t3K" firstAttribute="leading" secondItem="Bjs-D6-NVj" secondAttribute="leading" id="fvj-uI-LRp"/>
                                                         </constraints>
                                                     </view>
-                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Keg-iI-sK2">
-                                                        <rect key="frame" x="0.0" y="115" width="327" height="24"/>
-                                                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                                                        <constraints>
-                                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="24" id="Kph-MQ-fdV"/>
-                                                        </constraints>
-                                                    </view>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ydQ-IP-KZb" userLabel="Buttons">
                                                         <rect key="frame" x="0.0" y="139" width="327" height="108"/>
                                                         <subviews>
@@ -641,9 +634,6 @@
                                                 </subviews>
                                                 <constraints>
                                                     <constraint firstItem="ydQ-IP-KZb" firstAttribute="top" secondItem="Bjs-D6-NVj" secondAttribute="bottom" constant="24" id="37w-fI-zi8"/>
-                                                    <constraint firstItem="Keg-iI-sK2" firstAttribute="top" secondItem="Bjs-D6-NVj" secondAttribute="bottom" id="3Kf-Tj-Ofg"/>
-                                                    <constraint firstItem="Keg-iI-sK2" firstAttribute="bottom" secondItem="ydQ-IP-KZb" secondAttribute="top" id="59A-sp-tTb"/>
-                                                    <constraint firstItem="Keg-iI-sK2" firstAttribute="leading" secondItem="Lx5-tV-hNL" secondAttribute="leading" id="85d-cg-gGf"/>
                                                     <constraint firstItem="Bjs-D6-NVj" firstAttribute="top" secondItem="xch-VD-kOQ" secondAttribute="bottom" constant="24" id="8F9-gx-ngL"/>
                                                     <constraint firstAttribute="trailing" secondItem="xch-VD-kOQ" secondAttribute="trailing" id="GLB-vv-DDi"/>
                                                     <constraint firstAttribute="trailing" secondItem="Bjs-D6-NVj" secondAttribute="trailing" id="Hpo-go-tU4"/>
@@ -653,7 +643,6 @@
                                                     <constraint firstItem="xch-VD-kOQ" firstAttribute="leading" secondItem="Lx5-tV-hNL" secondAttribute="leading" id="Y3H-6z-JyF"/>
                                                     <constraint firstAttribute="bottom" secondItem="ydQ-IP-KZb" secondAttribute="bottom" id="aRW-Pg-yg6"/>
                                                     <constraint firstItem="xch-VD-kOQ" firstAttribute="top" secondItem="Lx5-tV-hNL" secondAttribute="top" id="i3j-2f-8vV"/>
-                                                    <constraint firstAttribute="trailing" secondItem="Keg-iI-sK2" secondAttribute="trailing" id="oRh-Gz-ieh"/>
                                                 </constraints>
                                             </view>
                                         </subviews>
@@ -951,7 +940,7 @@
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" title="Privacy Policy" image="IconExtlink"/>
                                                 <connections>
-                                                    <action selector="openPrivacyPolicy:" destination="kLI-jR-tKo" eventType="touchUpInside" id="Hm5-a0-LNm"/>
+                                                    <action selector="handlePrivacyPolicyButton:" destination="kLI-jR-tKo" eventType="touchUpInside" id="Hm5-a0-LNm"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -986,9 +975,12 @@
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ttw-7B-1MM" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
                                         <rect key="frame" x="16" y="24" width="343" height="21"/>
-                                        <state key="normal" title="Agree &amp; Continue" backgroundImage="DefaultButton">
+                                        <state key="normal" title="Agree and continue" backgroundImage="DefaultButton">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
+                                        <connections>
+                                            <segue destination="BYZ-38-t0r" kind="custom" customClass="RootContainerPushSegue" customModule="MullvadVPN" customModuleProvider="target" id="wHQ-zt-m7u"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" name="Secondary"/>
@@ -1017,7 +1009,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="87X-aX-U9x" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-311.19999999999999" y="1747.3763118440781"/>
+            <point key="canvasLocation" x="-1140" y="855"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="oT4-Ap-qrZ">
