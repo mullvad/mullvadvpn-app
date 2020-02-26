@@ -44,7 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 } else {
                     self.showTermsOfService(in: rootViewController) {
                         Account.shared.agreeToTermsOfService()
-                        
+
                         self.showMainController(in: rootViewController, animated: true)
                     }
                 }
