@@ -9,7 +9,7 @@
 import SafariServices
 import UIKit
 
-let kPrivacyPolicyURL = URL(string: "https://mullvad.net/en/help/privacy-policy/?hide_nav")!
+private let kPrivacyPolicyURL = URL(string: "https://mullvad.net/en/help/privacy-policy/?hide_nav")!
 
 class ConsentViewController: UIViewController, RootContainment, SFSafariViewControllerDelegate {
 
