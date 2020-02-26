@@ -19,10 +19,8 @@ class ConsentViewController: UIViewController, RootContainment, SFSafariViewCont
         return .transparent
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        self.rootContainerController?.headerBarSettingsButton.isHidden = true
+    var prefersHeaderBarHidden: Bool {
+        return true
     }
 
     // MARK: - IBActions

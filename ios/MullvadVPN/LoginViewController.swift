@@ -42,6 +42,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
         return .transparent
     }
 
+    var prefersHeaderBarHidden: Bool {
+        return false
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
