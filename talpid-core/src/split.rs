@@ -1,6 +1,6 @@
 use std::{
     fs,
-    io::{self, Write},
+    io::{self, BufRead, BufReader, Write},
     path::Path,
 };
 
@@ -24,6 +24,10 @@ pub enum Error {
     /// Unable to add PID to cgroup.procs.
     #[error(display = "Unable to add PID to cgroup.procs")]
     AddCGroupPid(#[error(source)] io::Error),
+
+    /// Unable to read cgroup.procs.
+    #[error(display = "Unable to obtain PIDs from cgroup.procs")]
+    ListCGroupPids(#[error(source)] io::Error),
 }
 
 /// Set up cgroup used to track PIDs for split tunneling.
@@ -50,4 +54,22 @@ pub fn add_pid(pid: i32) -> Result<(), Error> {
 
     file.write_all(pid.to_string().as_bytes())
         .map_err(Error::AddCGroupPid)
+}
+
+/// Return a list of PIDs that are excluded from the tunnel.
+pub fn list_pids() -> Result<Vec<i32>, Error> {
+    let exclusions_path = Path::new(NETCLS_DIR).join(CGROUP_NAME).join("cgroup.procs");
+
+    let file = fs::File::open(exclusions_path).map_err(Error::ListCGroupPids)?;
+
+    let result: Result<Vec<i32>, io::Error> = BufReader::new(file)
+        .lines()
+        .map(|line| {
+            line.and_then(|v| {
+                v.parse()
+                    .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
+            })
+        })
+        .collect();
+    result.map_err(Error::ListCGroupPids)
 }
