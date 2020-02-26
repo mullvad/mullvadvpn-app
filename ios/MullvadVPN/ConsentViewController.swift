@@ -13,6 +13,8 @@ let kPrivacyPolicyURL = URL(string: "https://mullvad.net/en/help/privacy-policy/
 
 class ConsentViewController: UIViewController, RootContainment, SFSafariViewControllerDelegate {
 
+    var completionHandler: (() -> Void)?
+
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
@@ -32,6 +34,10 @@ class ConsentViewController: UIViewController, RootContainment, SFSafariViewCont
         safariController.delegate = self
 
         present(safariController, animated: true)
+    }
+
+    @IBAction func handleAgreeAndContinueButton(_ sender: Any) {
+        completionHandler?()
     }
 
     // MARK: - SFSafariViewControllerDelegate
