@@ -224,7 +224,7 @@ private extension UIControl.State {
                 : contentRect.minX
 
         case (.left, .right):
-            titleRect.origin.x = contentRect.origin.x
+            titleRect.origin.x = contentRect.minX
             imageRect.origin.x = titleRect.maxX + inlineImageSpacing
 
         case (.left, .leftFixed):
@@ -247,7 +247,7 @@ private extension UIControl.State {
 
         case (.center, .left):
             titleRect.origin.x = contentRect.midX - titleRect.width * 0.5
-            imageRect.origin.x = titleRect.origin.x - inlineImageSpacing - imageRect.width
+            imageRect.origin.x = titleRect.minX - inlineImageSpacing - imageRect.width
 
         case (.center, .right):
             titleRect.origin.x = contentRect.midX - titleRect.width * 0.5
