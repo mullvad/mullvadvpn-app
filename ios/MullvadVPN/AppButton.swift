@@ -145,8 +145,28 @@ private extension UIControl.State {
 /// A custom `UIButton` subclass that implements additional layouts for the image
 @IBDesignable class CustomButton: UIButton {
 
-    var imageAlignment: ButtonImageAlignment = .leading
-    var inlineImageSpacing: CGFloat = 4
+    var imageAlignment: ButtonImageAlignment = .leading {
+        didSet {
+            invalidateIntrinsicContentSize()
+        }
+    }
+
+    var inlineImageSpacing: CGFloat = 4 {
+        didSet {
+            invalidateIntrinsicContentSize()
+        }
+    }
+
+    override var intrinsicContentSize: CGSize {
+        var intrinsicSize = super.intrinsicContentSize
+
+        // Add spacing between the image and title label in intrinsic size calculation
+        if let imageSize = currentImage?.size, imageSize.width > 0 {
+            intrinsicSize.width += inlineImageSpacing
+        }
+
+        return intrinsicSize
+    }
 
     var effectiveImageAlignment: ButtonImageAlignment {
         switch (imageAlignment, effectiveUserInterfaceLayoutDirection) {
