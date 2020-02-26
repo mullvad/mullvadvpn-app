@@ -1,7 +1,7 @@
 use talpid_types::ErrorExt;
 use std::{
     fs,
-    io::{self, Write},
+    io::{self, BufRead, BufReader, Write},
     path::PathBuf,
 };
 
@@ -23,6 +23,10 @@ pub enum Error {
     /// Unable to add PID to cgroup.procs.
     #[error(display = "Unable to add PID to cgroup.procs")]
     AddCGroupPid(#[error(source)] io::Error),
+
+    /// Unable to read cgroup.procs.
+    #[error(display = "Unable to obtain PIDs from cgroup.procs")]
+    ListCGroupPids(#[error(source)] io::Error),
 }
 
 fn create_cgroup() -> Result<(), Error> {
@@ -56,4 +60,25 @@ fn add_pid(pid: i32) -> Result<(), Error> {
         .map_err(Error::AddCGroupPid)?;
 
     Ok(())
+}
+
+fn list_pids(pid: i32) -> Result<Vec<i32>, Error> {
+    // TODO: manage child PIDs somehow?
+
+    let mut exclusions_file = PathBuf::from(NETCLS_PATH);
+    exclusions_file.push(CGROUP_NAME);
+    exclusions_file.push("cgroup.procs");
+
+    let file = fs::File::open(exclusions_file)
+        .map_err(Error::ListCGroupPids)?;
+
+    let result: Result<Vec<i32>, io::Error> = BufReader::new(file)
+        .lines()
+        .map(|line| {
+            line.and_then(|v|
+                v.parse().map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
+            )
+        })
+        .collect();
+    result.map_err(Error::ListCGroupPids)
 }
