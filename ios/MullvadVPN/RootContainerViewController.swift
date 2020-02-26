@@ -126,12 +126,44 @@ class RootContainerViewController: UIViewController {
 
         let animated = UIView.areAnimationsEnabled
 
-        setViewControllers(newViewControllers, animated: animated)
+        setViewControllersInternal(newViewControllers, isUnwinding: true, animated: animated)
     }
 
     // MARK: - Public
 
-    func setViewControllers(_ newViewControllers: [UIViewController], animated: Bool, completion: CompletionHandler? = nil) {
+    func setViewControllers(_ newViewControllers: [UIViewController],
+                            animated: Bool,
+                            completion: CompletionHandler? = nil)
+    {
+        setViewControllersInternal(
+            newViewControllers,
+            isUnwinding: false,
+            animated: animated,
+            completion: completion
+        )
+    }
+
+    func pushViewController(_ viewController: UIViewController, animated: Bool) {
+        var newViewControllers = viewControllers.filter({ $0 != viewController })
+        newViewControllers.append(viewController)
+
+        setViewControllersInternal(newViewControllers, isUnwinding: false, animated: animated)
+    }
+
+    /// Request the root container to query the top controller for the new header bar style
+    func updateHeaderBarAppearance() {
+        updateHeaderBarStyleFromChildPreferences(animated: UIView.areAnimationsEnabled)
+    }
+
+    // MARK: - Actions
+
+    @IBAction func doShowSettings() {
+        performSegue(withIdentifier: SegueIdentifier.Root.showSettings.rawValue, sender: self)
+    }
+
+    // MARK: - Private
+
+    private func setViewControllersInternal(_ newViewControllers: [UIViewController], isUnwinding: Bool, animated: Bool, completion: CompletionHandler? = nil) {
         // Dot not handle appearance events when the container itself is not visible
         let shouldHandleAppearanceEvents = view.window != nil
 
@@ -192,7 +224,7 @@ class RootContainerViewController: UIViewController {
         for newViewController in newViewControllers {
             newViewController.loadViewIfNeeded()
         }
-        
+
         // Add the destination view into the view hierarchy
         if let targetView = targetViewController?.view {
             addChildView(targetView)
@@ -231,7 +263,7 @@ class RootContainerViewController: UIViewController {
             case (.some(let lhs), .some(let rhs)):
                 transition.subtype = lhs > rhs ?  .fromLeft : .fromRight
             case (.none, .some):
-                transition.subtype = .fromLeft
+                transition.subtype = isUnwinding ? .fromLeft : .fromRight
             default:
                 transition.subtype = .fromRight
             }
@@ -245,26 +277,6 @@ class RootContainerViewController: UIViewController {
             finishTransition()
         }
     }
-
-    func pushViewController(_ viewController: UIViewController, animated: Bool) {
-        var newViewControllers = viewControllers.filter({ $0 != viewController })
-        newViewControllers.append(viewController)
-
-        setViewControllers(newViewControllers, animated: animated)
-    }
-
-    /// Request the root container to query the top controller for the new header bar style
-    func updateHeaderBarAppearance() {
-        updateHeaderBarStyleFromChildPreferences(animated: UIView.areAnimationsEnabled)
-    }
-
-    // MARK: - Actions
-
-    @IBAction func doShowSettings() {
-        performSegue(withIdentifier: SegueIdentifier.Root.showSettings.rawValue, sender: self)
-    }
-
-    // MARK: - Private
 
     private func addChildView(_ childView: UIView) {
         childView.translatesAutoresizingMaskIntoConstraints = true
