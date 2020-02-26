@@ -39,22 +39,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
                 let rootViewController = self.mainStoryboard.instantiateViewController(identifier: ViewControllerIdentifier.root.rawValue) as! RootContainerViewController
 
-                let loginViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.login.rawValue)
+                if Account.shared.isAgreedToTermsOfService {
+                    self.showMainController(in: rootViewController, animated: false)
+                } else {
+                    self.showTermsOfService(in: rootViewController) {
+                        Account.shared.agreeToTermsOfService()
 
-                var viewControllers = [loginViewController]
-
-                if accountToken != nil {
-                    let mainViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.main.rawValue)
-
-                    viewControllers.append(mainViewController)
+                        self.showMainController(in: rootViewController, animated: true)
+                    }
                 }
-
-                rootViewController.setViewControllers(viewControllers, animated: false)
 
                 self.window?.rootViewController = rootViewController
             })
 
         return true
+    }
+
+    private func showTermsOfService(in rootViewController: RootContainerViewController, completionHandler: @escaping () -> Void) {
+        let consentViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.consent.rawValue) as! ConsentViewController
+
+        consentViewController.completionHandler = completionHandler
+
+        rootViewController.setViewControllers([consentViewController], animated: false)
+    }
+
+    private func showMainController(in rootViewController: RootContainerViewController, animated: Bool) {
+        let loginViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.login.rawValue)
+
+        var viewControllers = [loginViewController]
+
+        if Account.shared.isLoggedIn {
+            let mainViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.main.rawValue)
+
+            viewControllers.append(mainViewController)
+        }
+
+        rootViewController.setViewControllers(viewControllers, animated: animated)
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

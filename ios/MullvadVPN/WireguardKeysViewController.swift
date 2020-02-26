@@ -107,10 +107,6 @@ class WireguardKeysViewController: UIViewController {
         verifyKey(accountToken: accountToken, publicKey: publicKey)
     }
 
-    @IBAction func handleManageKeys(_ sender: Any) {
-        UIApplication.shared.open(WebLinks.manageKeysURL, options: [:])
-    }
-
     // MARK: - Private
 
     private func formatKeyGenerationElapsedTime(with creationDate: Date) -> String? {

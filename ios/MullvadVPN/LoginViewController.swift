@@ -42,6 +42,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
         return .transparent
     }
 
+    var prefersHeaderBarHidden: Bool {
+        return false
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -83,6 +87,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
                                        selector: #selector(textDidChange(_:)),
                                        name: UITextField.textDidChangeNotification,
                                        object: accountTextField)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        accountTextField.becomeFirstResponder()
     }
 
     // MARK: - Keyboard notifications
@@ -160,9 +170,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
             }, receiveValue: { _ in })
     }
 
-    @IBAction func openCreateAccount() {
-        UIApplication.shared.open(WebLinks.createAccountURL, options: [:])
-    }
+    @IBAction func openCreateAccount() {}
 
     // MARK: - Private
 
