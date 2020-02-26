@@ -12,6 +12,7 @@ import {
   KeygenEvent,
   RelaySettingsUpdate,
   TunnelState,
+  VoucherResponse,
 } from '../shared/daemon-rpc-types';
 import { CommunicationError, InvalidAccountError, NoDaemonError } from './errors';
 import JsonRpcClient, {
@@ -225,6 +226,10 @@ const tunnelOptionsSchema = partialObject({
 
 const accountDataSchema = partialObject({
   expiry: string,
+});
+
+const voucherResponseSchema = partialObject({
+  new_expiry: string,
 });
 
 const tunnelStateSchema = oneOf(
@@ -441,6 +446,25 @@ export class DaemonRpc {
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_www_auth_token', error);
     }
+  }
+
+  public async submitVoucher(voucherCode: string): Promise<VoucherResponse> {
+    try {
+      const response = await this.transport.send('submit_voucher', voucherCode);
+      const new_expiry = validate(voucherResponseSchema, response).new_expiry;
+      return { type: 'success', new_expiry };
+    } catch (error) {
+      if (error instanceof JsonRpcRemoteError) {
+        switch (error.code) {
+          case -400:
+            return { type: 'invalid' };
+          case -401:
+            return { type: 'already_used' };
+        }
+      }
+    }
+
+    return { type: 'error' };
   }
 
   public async getRelayLocations(): Promise<IRelayList> {

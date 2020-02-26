@@ -320,6 +320,10 @@ export interface ISocketAddress {
   port: number;
 }
 
+export type VoucherResponse =
+  | { type: 'success'; new_expiry: string }
+  | { type: 'invalid' | 'already_used' | 'error' };
+
 export function parseSocketAddress(socketAddrStr: string): ISocketAddress {
   const re = new RegExp(/(.+):(\d+)$/);
   const matches = socketAddrStr.match(re);

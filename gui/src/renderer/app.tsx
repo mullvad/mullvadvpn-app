@@ -267,6 +267,10 @@ export default class AppRenderer {
     await IpcRendererEventChannel.account.create();
   }
 
+  public async submitVoucher(voucherCode: string) {
+    return IpcRendererEventChannel.account.submitVoucher(voucherCode);
+  }
+
   public async connectTunnel(): Promise<void> {
     const state = this.tunnelState.state;
 
