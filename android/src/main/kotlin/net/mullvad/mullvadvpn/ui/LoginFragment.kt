@@ -55,6 +55,10 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         scrollArea = view.findViewById(R.id.scroll_area)
 
+        view.findViewById<View>(R.id.contents).setOnClickListener {
+            accountLogin.clearFocus()
+        }
+
         fetchHistory()
         scrollToShow(accountLogin)
 

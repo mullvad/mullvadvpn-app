@@ -4,9 +4,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true">
-    <LinearLayout android:layout_width="match_parent"
+    <LinearLayout android:id="@+id/contents"
+                  android:layout_width="match_parent"
                   android:layout_height="match_parent"
-                  android:orientation="vertical">
+                  android:orientation="vertical"
+                  android:focusable="true"
+                  android:focusableInTouchMode="true"
+                  android:descendantFocusability="beforeDescendants">
         <net.mullvad.mullvadvpn.ui.widget.HeaderBar android:id="@+id/header_bar"
                                                     android:layout_width="match_parent"
                                                     android:layout_height="wrap_content" />
