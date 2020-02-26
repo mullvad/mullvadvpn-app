@@ -36,6 +36,10 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
         }
     }
 
+    var prefersHeaderBarHidden: Bool {
+        return false
+    }
+
     private var tunnelState: TunnelState = .disconnected {
         didSet {
             setNeedsHeaderBarStyleAppearanceUpdate()

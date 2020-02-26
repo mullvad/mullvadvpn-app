@@ -31,6 +31,9 @@ protocol RootContainment {
     /// Return the preferred header bar style
     var preferredHeaderBarStyle: HeaderBarStyle { get }
 
+    /// Return true if the view controller prefers header bar hidden
+    var prefersHeaderBarHidden: Bool { get }
+
 }
 
 /// A root container class that primarily handles the unwind storyboard segues on log out
@@ -49,6 +52,7 @@ class RootContainerViewController: UIViewController {
     @IBOutlet var transitionContainer: UIView!
 
     private(set) var headerBarStyle = HeaderBarStyle.default
+    private(set) var headerBarHidden = false
 
     override var childForStatusBarStyle: UIViewController? {
         return topViewController
@@ -171,6 +175,7 @@ class RootContainerViewController: UIViewController {
 
         let alongSideAnimations = {
             self.updateHeaderBarStyleFromChildPreferences(animated: shouldAnimate)
+            self.updateHeaderBarHiddenFromChildPreferences(animated: shouldAnimate)
         }
 
         // Add new child controllers. The call to addChild() automatically calls child.willMove()
@@ -284,11 +289,17 @@ class RootContainerViewController: UIViewController {
 
     /// Updates additional safe area insets to push the child views below the header bar
     private func updateAdditionalSafeAreaInsetsIfNeeded() {
-        var safeAreaInstes = additionalSafeAreaInsets
-        safeAreaInstes.top = headerBarView.frame.height
+        var safeAreaInsets = additionalSafeAreaInsets
 
-        if additionalSafeAreaInsets != safeAreaInstes {
-            additionalSafeAreaInsets = safeAreaInstes
+        // Reset top inset if header bar is invisible
+        if headerBarHidden {
+            safeAreaInsets.top = 0
+        } else {
+            safeAreaInsets.top = headerBarView.frame.height
+        }
+
+        if additionalSafeAreaInsets != safeAreaInsets {
+            additionalSafeAreaInsets = safeAreaInsets
         }
     }
 
@@ -306,6 +317,20 @@ class RootContainerViewController: UIViewController {
         }
     }
 
+    private func setHeaderBarHidden(_ hidden: Bool, animated: Bool) {
+        headerBarHidden = hidden
+
+        let action = {
+            self.headerBarView.alpha = hidden ? 0 : 1
+        }
+
+        if animated {
+            UIView.animate(withDuration: 0.25, animations: action)
+        } else {
+            action()
+        }
+    }
+
     private func updateHeaderBarBackground() {
         headerBarView.backgroundColor = headerBarStyle.backgroundColor()
     }
@@ -313,6 +338,12 @@ class RootContainerViewController: UIViewController {
     private func updateHeaderBarStyleFromChildPreferences(animated: Bool) {
         if let conforming = topViewController as? RootContainment {
             setHeaderBarStyle(conforming.preferredHeaderBarStyle, animated: animated)
+        }
+    }
+
+    private func updateHeaderBarHiddenFromChildPreferences(animated: Bool) {
+        if let conforming = topViewController as? RootContainment {
+            setHeaderBarHidden(conforming.prefersHeaderBarHidden, animated: animated)
         }
     }
 
