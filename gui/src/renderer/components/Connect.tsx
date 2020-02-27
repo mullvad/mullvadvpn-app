@@ -2,8 +2,10 @@ import * as React from 'react';
 import { Component, Styles, View } from 'reactxp';
 import { links } from '../../config.json';
 import AccountExpiry from '../../shared/account-expiry';
+import { AccountToken } from '../../shared/daemon-rpc-types';
 import NotificationAreaContainer from '../containers/NotificationAreaContainer';
 import { AuthFailureKind, parseAuthFailure } from '../lib/auth-failure';
+import { LoginState } from '../redux/account/reducers';
 import { IConnectionReduxState } from '../redux/connection/reducers';
 import { IVersionReduxState } from '../redux/version/reducers';
 import ExpiredAccountErrorView, { RecoveryAction } from './ExpiredAccountErrorView';
@@ -11,11 +13,15 @@ import { Brand, HeaderBarStyle, SettingsBarButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
+import { ModalContainer } from './Modal';
 import TunnelControl from './TunnelControl';
+import NewAccountView from './NewAccountView';
 
 interface IProps {
   connection: IConnectionReduxState;
   version: IVersionReduxState;
+  accountToken?: AccountToken;
+  loginState: LoginState;
   accountExpiry?: AccountExpiry;
   selectedRelayName: string;
   blockWhenDisconnected: boolean;
@@ -91,15 +97,15 @@ export default class Connect extends Component<IProps, IState> {
 
   public render() {
     return (
-      <Layout>
-        <Header barStyle={this.headerBarStyle()}>
-          <Brand />
-          <SettingsBarButton onPress={this.props.onSettings} />
-        </Header>
-        <Container>
-          {this.state.isAccountExpired ? this.renderExpiredAccountView() : this.renderMap()}
-        </Container>
-      </Layout>
+      <ModalContainer>
+        <Layout>
+          <Header barStyle={this.headerBarStyle()}>
+            <Brand />
+            <SettingsBarButton onPress={this.props.onSettings} />
+          </Header>
+          <Container>{this.renderContent()}</Container>
+        </Layout>
+      </ModalContainer>
     );
   }
 
@@ -135,14 +141,25 @@ export default class Connect extends Component<IProps, IState> {
     return prevAccountExpired;
   }
 
-  private renderExpiredAccountView() {
-    return (
-      <ExpiredAccountErrorView
-        blockWhenDisconnected={this.props.blockWhenDisconnected}
-        isBlocked={this.props.connection.isBlocked}
-        action={this.handleExpiredAccountRecovery}
-      />
-    );
+  private renderContent() {
+    if (this.props.loginState.type === 'ok' && this.props.loginState.method === 'new_account') {
+      return (
+        <NewAccountView
+          accountToken={this.props.accountToken}
+          onExternalLinkWithAuth={this.props.onExternalLinkWithAuth}
+        />
+      );
+    } else if (this.state.isAccountExpired) {
+      return (
+        <ExpiredAccountErrorView
+          blockWhenDisconnected={this.props.blockWhenDisconnected}
+          isBlocked={this.props.connection.isBlocked}
+          action={this.handleExpiredAccountRecovery}
+        />
+      );
+    } else {
+      return this.renderMap();
+    }
   }
 
   private renderMap() {
