@@ -10,11 +10,10 @@ use std::{path::PathBuf, thread, time::Duration};
 use talpid_types::ErrorExt;
 
 mod cli;
+mod exception_logging;
 mod shutdown;
 #[cfg(windows)]
 mod system_service;
-#[cfg(windows)]
-mod windows_exception_logging;
 
 const DAEMON_LOG_FILENAME: &str = "daemon.log";
 
@@ -46,8 +45,7 @@ fn init_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
     )
     .map_err(|e| e.display_chain_with_msg("Unable to initialize logger"))?;
     log_panics::init();
-    #[cfg(windows)]
-    windows_exception_logging::enable();
+    exception_logging::enable();
     version::log_version();
     if let Some(ref log_dir) = log_dir {
         info!("Logging to {}", log_dir.display());
