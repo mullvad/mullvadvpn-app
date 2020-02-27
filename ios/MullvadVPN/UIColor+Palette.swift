@@ -30,6 +30,12 @@ extension UIColor {
         }
     }
 
+    enum AppButton {
+        static let normalTitleColor = UIColor.white
+        static let highlightedTitleColor = UIColor.lightGray
+        static let disabledTitleColor = UIColor.lightGray
+    }
+
     // Relay availability indicator view
     enum RelayStatusIndicator {
         static let activeColor = successColor.withAlphaComponent(0.9)

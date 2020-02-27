@@ -69,6 +69,7 @@ extension AccountError: LocalizedError {
 
 /// A enum holding the `UserDefaults` string keys
 private enum UserDefaultsKeys: String {
+    case isAgreedToTermsOfService = "isAgreedToTermsOfService"
     case accountToken = "accountToken"
     case accountExpiry = "accountExpiry"
 }
@@ -78,6 +79,11 @@ class Account {
 
     static let shared = Account()
     private let apiClient = MullvadAPI()
+
+    /// Returns true if user agreed to terms of service, otherwise false
+    var isAgreedToTermsOfService: Bool {
+        return UserDefaults.standard.bool(forKey: UserDefaultsKeys.isAgreedToTermsOfService.rawValue)
+    }
 
     /// Returns the currently used account token
     var token: String? {
@@ -91,6 +97,11 @@ class Account {
 
     var isLoggedIn: Bool {
         return token != nil
+    }
+
+    /// Save the boolean flag in preferences indicating that the user agreed to terms of service.
+    func agreeToTermsOfService() {
+        UserDefaults.standard.set(true, forKey: UserDefaultsKeys.isAgreedToTermsOfService.rawValue)
     }
 
     /// Perform the login and save the account token along with expiry (if available) to the
