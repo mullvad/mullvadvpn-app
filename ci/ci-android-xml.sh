@@ -4,7 +4,6 @@
 
 # Autoformats Android XML files
 function tidy-up-android-xml {
-
     tidy -xml \
         -m  \
         -i  \
@@ -13,6 +12,7 @@ function tidy-up-android-xml {
         --indent-spaces 4 \
         --literal-attributes yes \
         android/src/main/AndroidManifest.xml android/src/main/res/*/*.xml
+
     # FIXME - when tidy learns to not leave whitespace around, remove the line below - https://github.com/htacg/tidy-html5/issues/864
     find android/src/main/ -name '*.xml' -exec sed -i -e 's/[ \t]*$//' '{}' ';'
 }
@@ -20,6 +20,7 @@ function tidy-up-android-xml {
 # Autoformats Android XML files and returns 0 if no files were actually changed, or 1 if files were changed
 function tidy-verify-xml {
     tidy-up-android-xml
+
     if git diff --exit-code -- android/src/main/AndroidManifest.xml android/src/main/res; then
         echo "Android XML files are correctly formatted"
         return 0
