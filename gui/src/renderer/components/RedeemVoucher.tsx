@@ -103,6 +103,9 @@ export class RedeemVoucher extends Component<IRedeemVoucherProps, IRedeemVoucher
       }
     } else {
       this.setState({ waiting: false, response });
+      if (this.props.onFailure) {
+        this.props.onFailure();
+      }
     }
   };
 }

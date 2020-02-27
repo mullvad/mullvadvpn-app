@@ -68,10 +68,12 @@ const mapStateToProps = (state: IReduxState) => {
     accountExpiry: state.account.expiry
       ? new AccountExpiry(state.account.expiry, state.userInterface.locale)
       : undefined,
+    accountToken: state.account.accountToken,
     selectedRelayName: getRelayName(state.settings.relaySettings, state.settings.relayLocations),
     connection: state.connection,
     version: state.version,
     blockWhenDisconnected: state.settings.blockWhenDisconnected,
+    showWelcomeView: state.userInterface.showWelcomeView,
   };
 };
 

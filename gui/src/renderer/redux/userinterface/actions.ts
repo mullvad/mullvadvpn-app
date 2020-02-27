@@ -19,11 +19,17 @@ export interface ISetLocationScopeAction {
   scope: LocationScope;
 }
 
+export interface ISetShowWelcomeView {
+  type: 'SET_SHOW_WELCOME_VIEW';
+  showWelcomeView: boolean;
+}
+
 export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
   | IUpdateConnectionInfoOpenAction
-  | ISetLocationScopeAction;
+  | ISetLocationScopeAction
+  | ISetShowWelcomeView;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
   return {
@@ -52,9 +58,17 @@ function setLocationScope(scope: LocationScope): ISetLocationScopeAction {
   };
 }
 
+function setShowWelcomeView(showWelcomeView: boolean): ISetShowWelcomeView {
+  return {
+    type: 'SET_SHOW_WELCOME_VIEW',
+    showWelcomeView,
+  };
+}
+
 export default {
   updateLocale,
   updateWindowArrowPosition,
   toggleConnectionPanel,
   setLocationScope,
+  setShowWelcomeView,
 };

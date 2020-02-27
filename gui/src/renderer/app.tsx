@@ -265,6 +265,7 @@ export default class AppRenderer {
 
   public async createNewAccount() {
     await IpcRendererEventChannel.account.create();
+    this.reduxActions.userInterface.setShowWelcomeView(true);
   }
 
   public async submitVoucher(voucherCode: string) {

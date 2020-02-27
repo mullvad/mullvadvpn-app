@@ -10,12 +10,14 @@ export interface IUserInterfaceReduxState {
   arrowPosition?: number;
   connectionPanelVisible: boolean;
   locationScope: LocationScope;
+  showWelcomeView: boolean;
 }
 
 const initialState: IUserInterfaceReduxState = {
   locale: 'en',
   connectionPanelVisible: false,
   locationScope: LocationScope.relay,
+  showWelcomeView: false,
 };
 
 export default function(
@@ -34,6 +36,9 @@ export default function(
 
     case 'SET_LOCATION_SCOPE':
       return { ...state, locationScope: action.scope };
+
+    case 'SET_SHOW_WELCOME_VIEW':
+      return { ...state, showWelcomeView: action.showWelcomeView };
 
     default:
       return state;

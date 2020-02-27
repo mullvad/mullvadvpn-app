@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
+import { Component, Text, Types, View } from 'reactxp';
 import AccountExpiry from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
 import styles from './AccountStyles';
@@ -47,9 +47,9 @@ export default class Account extends Component<IProps> {
                     <Text style={styles.account__row_label}>
                       {messages.pgettext('account-view', 'Account number')}
                     </Text>
-                    <ClipboardLabel
+                    <AccountTokenLabel
+                      accountToken={this.props.accountToken || ''}
                       style={styles.account__row_value}
-                      value={this.props.accountToken || ''}
                     />
                   </View>
 
@@ -86,6 +86,15 @@ export default class Account extends Component<IProps> {
       </Layout>
     );
   }
+}
+
+interface IAccountNumberLabelProps {
+  accountToken: string;
+  style?: Types.StyleRuleSetRecursive<Types.TextInputStyleRuleSet>;
+}
+
+export function AccountTokenLabel(props: IAccountNumberLabelProps) {
+  return <ClipboardLabel style={props.style} value={props.accountToken} />;
 }
 
 function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
