@@ -21,7 +21,7 @@ pub mod routing;
 mod offline;
 
 /// Split tunneling
-mod split;
+pub mod split;
 
 /// Working with processes.
 pub mod process;

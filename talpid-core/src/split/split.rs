@@ -6,9 +6,11 @@ use std::{
 };
 
 const NETCLS_PATH: &str = "/sys/fs/cgroup/net_cls/";
+/// Identifies packets coming from the cgroup.
 pub const NETCLS_CLASSID: u32 = 0x4d9f41;
 const CGROUP_NAME: &str = "mullvad-exclusions";
 
+/// Errors related to split tunneling.
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -23,6 +25,10 @@ pub enum Error {
     /// Unable to add PID to cgroup.procs.
     #[error(display = "Unable to add PID to cgroup.procs")]
     AddCGroupPid(#[error(source)] io::Error),
+
+    /// Unable to remove PID to cgroup.procs.
+    #[error(display = "Unable to remove PID from cgroup")]
+    RemoveCGroupPid(#[error(source)] io::Error),
 
     /// Unable to read cgroup.procs.
     #[error(display = "Unable to obtain PIDs from cgroup.procs")]
@@ -40,12 +46,11 @@ fn create_cgroup() -> Result<(), Error> {
     let mut classid_file = PathBuf::from(exclusions_dir);
     classid_file.push("net_cls.classid");
     fs::write(classid_file, NETCLS_CLASSID.to_string().as_bytes())
-        .map_err(Error::SetCGroupClassId)?;
-
-    Ok(())
+        .map_err(Error::SetCGroupClassId)
 }
 
-fn add_pid(pid: i32) -> Result<(), Error> {
+/// Add a PID to exclude from the tunnel.
+pub fn add_pid(pid: i32) -> Result<(), Error> {
     let mut exclusions_file = PathBuf::from(NETCLS_PATH);
     exclusions_file.push(CGROUP_NAME);
     exclusions_file.push("cgroup.procs");
@@ -57,12 +62,28 @@ fn add_pid(pid: i32) -> Result<(), Error> {
         .map_err(Error::AddCGroupPid)?;
 
     file.write_all(pid.to_string().as_bytes())
-        .map_err(Error::AddCGroupPid)?;
-
-    Ok(())
+        .map_err(Error::AddCGroupPid)
 }
 
-fn list_pids(pid: i32) -> Result<Vec<i32>, Error> {
+/// Remove a PID from processes to exclude from the tunnel.
+pub fn remove_pid(pid: i32) -> Result<(), Error> {
+    // FIXME: We remove PIDs from our cgroup here by adding
+    //        them to the parent cgroup. This seems wrong.
+    let mut exclusions_file = PathBuf::from(NETCLS_PATH);
+    exclusions_file.push("cgroup.procs");
+
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(exclusions_file)
+        .map_err(Error::RemoveCGroupPid)?;
+
+    file.write_all(pid.to_string().as_bytes())
+        .map_err(Error::RemoveCGroupPid)
+}
+
+/// Return a list of PIDs that are excluded from the tunnel.
+pub fn list_pids() -> Result<Vec<i32>, Error> {
     // TODO: manage child PIDs somehow?
 
     let mut exclusions_file = PathBuf::from(NETCLS_PATH);
