@@ -216,6 +216,7 @@ impl<'a> PolicyBatch<'a> {
 
         let mut mangle_chain = Chain::new(&*MANGLE_CHAIN_NAME, table);
         mangle_chain.set_hook(nftnl::Hook::Out, MANGLE_CHAIN_PRIORITY);
+        mangle_chain.set_type(nftnl::ChainType::Route);
         mangle_chain.set_policy(nftnl::Policy::Accept);
         batch.add(&mangle_chain, nftnl::MsgType::Add);
 
