@@ -31,6 +31,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add a reconnect button to disconnect and connect again without closing the tunnel device to avoid
   leaking any data during the reconnection.
 
+### Changed
+#### Android
+- Allow other apps to request the VPN tunnel to connect or disconnect.
+
 ### Fixed
 #### Android
 - Make sure the settings screen is scrollable so that devices with small screens can access the quit
