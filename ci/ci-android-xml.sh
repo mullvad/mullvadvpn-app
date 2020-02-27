@@ -21,7 +21,7 @@ function tidy-up-android-xml {
 function tidy-verify-xml {
     tidy-up-android-xml
     if (( $(git diff android/src/main/AndroidManifest.xml android/src/main/res/ | wc -l) > 0 )); then
-        echo "android/src/main contains that were changed, XML is not formatted properly"
+        echo "android/src/main contains files that were changed, XML is not formatted properly"
         git diff -- android/src/main/AndroidManifest.xml android/src/main/res
         return 1;
     else
