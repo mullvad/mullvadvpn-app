@@ -22,9 +22,9 @@ function tidy-verify-xml {
     tidy-up-android-xml
     if git diff --exit-code -- android/src/main/AndroidManifest.xml android/src/main/res; then
         echo "Android XML files are correctly formatted"
-        return 0;
+        return 0
     else
         echo "android/src/main contains files that were changed, XML is not formatted properly"
-        return 1;
+        return 1
     fi
 }
