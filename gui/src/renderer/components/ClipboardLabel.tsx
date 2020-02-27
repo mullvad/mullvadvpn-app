@@ -8,6 +8,7 @@ interface IProps {
   delay: number;
   message: string;
   style?: Types.StyleRuleSetRecursive<Types.TextStyleRuleSet>;
+  messageStyle?: Types.StyleRuleSetRecursive<Types.TextStyleRuleSet>;
 }
 
 interface IState {
@@ -34,8 +35,11 @@ export default class ClipboardLabel extends Component<IProps, IState> {
 
   public render() {
     const displayValue = this.props.displayValue || this.props.value;
+    const style = this.state.showsMessage
+      ? [this.props.style, this.props.messageStyle]
+      : this.props.style;
     return (
-      <Text style={this.props.style} onPress={this.handlePress}>
+      <Text style={style} onPress={this.handlePress}>
         {this.state.showsMessage ? this.props.message : displayValue}
       </Text>
     );
