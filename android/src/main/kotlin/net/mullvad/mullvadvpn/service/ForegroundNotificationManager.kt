@@ -22,7 +22,6 @@ val CHANNEL_ID = "vpn_tunnel_status"
 val FOREGROUND_NOTIFICATION_ID: Int = 1
 val KEY_CONNECT_ACTION = "connect_action"
 val KEY_DISCONNECT_ACTION = "disconnect_action"
-val PERMISSION_TUNNEL_ACTION = "net.mullvad.mullvadvpn.permission.TUNNEL_ACTION"
 
 class ForegroundNotificationManager(
     val service: MullvadVpnService,
@@ -190,11 +189,8 @@ class ForegroundNotificationManager(
         }
 
         service.apply {
-            val connectFilter = IntentFilter(KEY_CONNECT_ACTION)
-            val disconnectFilter = IntentFilter(KEY_DISCONNECT_ACTION)
-
-            registerReceiver(connectReceiver, connectFilter, PERMISSION_TUNNEL_ACTION, null)
-            registerReceiver(disconnectReceiver, disconnectFilter, PERMISSION_TUNNEL_ACTION, null)
+            registerReceiver(connectReceiver, IntentFilter(KEY_CONNECT_ACTION))
+            registerReceiver(disconnectReceiver, IntentFilter(KEY_DISCONNECT_ACTION))
         }
 
         updateNotification()
