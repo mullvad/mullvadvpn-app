@@ -173,6 +173,18 @@ build_rpc_trait! {
         #[rpc(meta, name = "factory_reset")]
         fn factory_reset(&self, Self::Metadata) -> BoxFuture<(), Error>;
 
+        /// Retrieve PIDs to exclude from the tunnel
+        #[rpc(meta, name = "get_split_tunnel_processes")]
+        fn get_split_tunnel_processes(&self, Self::Metadata) -> BoxFuture<Vec<i32>, Error>;
+
+        /// Add a process to exclude from the tunnel
+        #[rpc(meta, name = "add_split_tunnel_process")]
+        fn add_split_tunnel_process(&self, Self::Metadata, i32) -> BoxFuture<(), Error>;
+
+        /// Remove a process excluded from the tunnel
+        #[rpc(meta, name = "remove_split_tunnel_process")]
+        fn remove_split_tunnel_process(&self, Self::Metadata, i32) -> BoxFuture<(), Error>;
+
         #[pubsub(name = "daemon_event")] {
             /// Subscribes to events from the daemon.
             #[rpc(name = "daemon_event_subscribe")]
@@ -715,6 +727,54 @@ impl ManagementInterfaceApi for ManagementInterface {
             Box::new(future)
         }
         #[cfg(target_os = "android")]
+        {
+            Box::new(future::ok(()))
+        }
+    }
+
+    fn get_split_tunnel_processes(&self, _: Self::Metadata) -> BoxFuture<Vec<i32>, Error> {
+        #[cfg(unix)]
+        {
+            log::debug!("get_split_tunnel_processes");
+            let (tx, rx) = sync::oneshot::channel();
+            let future = self
+                .send_command_to_daemon(DaemonCommand::GetSplitTunnelProcesses(tx))
+                .and_then(|_| rx.map_err(|_| Error::internal_error()));
+            Box::new(future)
+        }
+        #[cfg(not(unix))]
+        {
+            Box::new(future::ok(Vec::with_capacity(0)))
+        }
+    }
+
+    fn add_split_tunnel_process(&self, _: Self::Metadata, pid: i32) -> BoxFuture<(), Error> {
+        #[cfg(unix)]
+        {
+            log::debug!("add_split_tunnel_process");
+            let (tx, rx) = sync::oneshot::channel();
+            let future = self
+                .send_command_to_daemon(DaemonCommand::AddSplitTunnelProcess(tx, pid))
+                .and_then(|_| rx.map_err(|_| Error::internal_error()));
+            Box::new(future)
+        }
+        #[cfg(not(unix))]
+        {
+            Box::new(future::ok(()))
+        }
+    }
+
+    fn remove_split_tunnel_process(&self, _: Self::Metadata, pid: i32) -> BoxFuture<(), Error> {
+        #[cfg(unix)]
+        {
+            log::debug!("remove_split_tunnel_process");
+            let (tx, rx) = sync::oneshot::channel();
+            let future = self
+                .send_command_to_daemon(DaemonCommand::RemoveSplitTunnelProcess(tx, pid))
+                .and_then(|_| rx.map_err(|_| Error::internal_error()));
+            Box::new(future)
+        }
+        #[cfg(not(unix))]
         {
             Box::new(future::ok(()))
         }

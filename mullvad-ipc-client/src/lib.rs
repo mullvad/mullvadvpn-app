@@ -235,6 +235,19 @@ impl DaemonRpcClient {
         self.call("update_relay_settings", &[update])
     }
 
+    pub fn get_split_tunnel_processes(&mut self) -> Result<Vec<i32>> {
+        self.call("get_split_tunnel_processes", &NO_ARGS)
+    }
+
+    pub fn add_split_tunnel_process(&mut self, pid: i32) -> Result<()> {
+        self.call("add_split_tunnel_process", &[pid])
+    }
+
+    pub fn remove_split_tunnel_process(&mut self, pid: i32) -> Result<()> {
+        self.call("remove_split_tunnel_process", &[pid])
+    }
+
+
     pub fn call<A, O>(&mut self, method: &'static str, args: &A) -> Result<O>
     where
         A: Serialize + Send + 'static,
