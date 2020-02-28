@@ -133,6 +133,7 @@ fn initialize(
     let android_context = create_android_context(env, *vpn_service)?;
     let daemon_command_channel = DaemonCommandChannel::new();
     let daemon_interface = Box::new(DaemonInterface::new(daemon_command_channel.sender()));
+    mullvad_daemon::exception_logging::enable();
 
     spawn_daemon(env, this, log_dir, daemon_command_channel, android_context)?;
 
