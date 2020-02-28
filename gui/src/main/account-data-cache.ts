@@ -1,4 +1,5 @@
 import log from 'electron-log';
+import moment from 'moment';
 import { AccountToken, IAccountData } from '../shared/daemon-rpc-types';
 import consumePromise from '../shared/promise';
 
@@ -77,11 +78,19 @@ export default class AccountDataCache {
 
       if (this.currentAccount === accountToken) {
         this.setValue(accountData);
+        this.checkAccountExpiry(accountToken, accountData);
       }
     } catch (error) {
       if (this.currentAccount === accountToken) {
         this.handleFetchError(accountToken, error);
       }
+    }
+  }
+
+  private checkAccountExpiry(accountToken: AccountToken, accountData: IAccountData) {
+    const hasExpired = moment(accountData.expiry).isSameOrBefore(new Date());
+    if (hasExpired) {
+      this.scheduleFetch(accountToken, 60_000);
     }
   }
 
@@ -107,6 +116,10 @@ export default class AccountDataCache {
 
     log.warn(`Failed to fetch account data. Retrying in ${delay} ms`);
 
+    this.scheduleFetch(accountToken, delay);
+  }
+
+  private scheduleFetch(accountToken: AccountToken, delay: number) {
     this.fetchRetryTimeout = global.setTimeout(() => {
       this.fetchRetryTimeout = undefined;
       consumePromise(this.performFetch(accountToken));
