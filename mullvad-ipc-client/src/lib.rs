@@ -247,6 +247,10 @@ impl DaemonRpcClient {
         self.call("remove_split_tunnel_process", &[pid])
     }
 
+    pub fn clear_split_tunnel_processes(&mut self) -> Result<()> {
+        self.call("clear_split_tunnel_processes", &NO_ARGS)
+    }
+
 
     pub fn call<A, O>(&mut self, method: &'static str, args: &A) -> Result<O>
     where

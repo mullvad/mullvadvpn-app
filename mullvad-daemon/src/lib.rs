@@ -223,6 +223,9 @@ pub enum DaemonCommand {
     /// Remove process (PID) from list of processes excluded from the tunnel
     #[cfg(unix)]
     RemoveSplitTunnelProcess(oneshot::Sender<()>, i32),
+    /// Clear list of processes excluded from the tunnel
+    #[cfg(unix)]
+    ClearSplitTunnelProcesses(oneshot::Sender<()>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
     /// Saves the target tunnel state and enters a blocking state. The state is restored
@@ -1000,6 +1003,8 @@ where
             AddSplitTunnelProcess(tx, pid) => self.on_add_split_tunnel_process(tx, pid),
             #[cfg(unix)]
             RemoveSplitTunnelProcess(tx, pid) => self.on_remove_split_tunnel_process(tx, pid),
+            #[cfg(unix)]
+            ClearSplitTunnelProcesses(tx) => self.on_clear_split_tunnel_processes(tx),
             Shutdown => self.trigger_shutdown_event(),
             PrepareRestart => self.on_prepare_restart(),
         }
@@ -1380,6 +1385,14 @@ where
         match split::remove_pid(pid) {
             Ok(()) => Self::oneshot_send(tx, (), "remove_split_tunnel_process response"),
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to remove PID")),
+        }
+    }
+
+    #[cfg(unix)]
+    fn on_clear_split_tunnel_processes(&mut self, tx: oneshot::Sender<()>) {
+        match split::clear_pids() {
+            Ok(()) => Self::oneshot_send(tx, (), "clear_split_tunnel_processes response"),
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to clear PIDs")),
         }
     }
 
