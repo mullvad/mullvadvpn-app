@@ -59,22 +59,42 @@ pub enum Error {
 /// Route PID-associated packets through the physical interface.
 pub fn route_marked_packets() -> Result<(), Error> {
     // TODO: IPv6
-    // FIXME: we have to check whether this already exists
-    let mut cmd = Command::new("ip");
-    cmd.args(&[
-        "-4",
-        "rule",
-        "add",
-        "from",
-        "all",
-        "fwmark",
-        &MARK.to_string(),
-        "lookup",
-        ROUTING_TABLE_NAME,
-    ]);
 
+    // Create the rule if it does not exist
+    let mut cmd = Command::new("ip");
+    cmd.args(&["-4", "rule", "list", "table", ROUTING_TABLE_NAME]);
     log::trace!("running cmd - {:?}", &cmd);
-    cmd.output().map_err(Error::RoutingTableSetup)?;
+    let out = cmd.output().map_err(Error::RoutingTableSetup)?;
+    let out = if !out.status.success() {
+        ""
+    } else {
+        std::str::from_utf8(&out.stdout)
+            .map_err(|_| {
+                Error::RoutingTableSetup(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "Error parsing ip output",
+                ))
+            })?
+            .trim()
+    };
+
+    if out == "" {
+        let mut cmd = Command::new("ip");
+        cmd.args(&[
+            "-4",
+            "rule",
+            "add",
+            "from",
+            "all",
+            "fwmark",
+            &MARK.to_string(),
+            "lookup",
+            ROUTING_TABLE_NAME,
+        ]);
+
+        log::trace!("running cmd - {:?}", &cmd);
+        cmd.output().map_err(Error::RoutingTableSetup)?;
+    }
 
     // Flush table
     let mut cmd = Command::new("ip");
