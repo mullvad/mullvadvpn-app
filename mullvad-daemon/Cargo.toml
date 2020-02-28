@@ -44,7 +44,9 @@ talpid-types = { path = "../talpid-types" }
 android_logger = "0.8"
 
 [target.'cfg(unix)'.dependencies]
+backtrace = "0.3"
 libc = "0.2"
+nix = "0.17"
 simple-signal = "1.1"
 
 [target.'cfg(windows)'.dependencies]
