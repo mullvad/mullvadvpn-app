@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Added signal handlers on Unix platforms to better log critical faults with the daemon.
+
 #### Android
 - Add option to enable auto-connecting behavior
 - Include an initial relay list in the APK so that the app can connect to the VPN even if it fails
