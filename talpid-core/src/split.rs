@@ -93,3 +93,15 @@ pub fn list_pids() -> Result<Vec<i32>, Error> {
         .collect();
     result.map_err(Error::ListCGroupPids)
 }
+
+/// Clear list of PIDs to exclude from the tunnel.
+pub fn clear_pids() -> Result<(), Error> {
+    // TODO: reuse file handle
+    let pids = list_pids()?;
+
+    for pid in pids {
+        remove_pid(pid)?;
+    }
+
+    Ok(())
+}
