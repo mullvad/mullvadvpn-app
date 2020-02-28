@@ -17,7 +17,7 @@ use jnix::{
     FromJava, IntoJava, JnixEnv,
 };
 use lazy_static::lazy_static;
-use mullvad_daemon::{logging, version, Daemon, DaemonCommandChannel};
+use mullvad_daemon::{exception_logging, logging, version, Daemon, DaemonCommandChannel};
 use mullvad_types::account::AccountData;
 use std::{
     path::{Path, PathBuf},
@@ -118,9 +118,9 @@ fn start_logging() -> Result<PathBuf, Error> {
 
     logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
         .map_err(Error::StartLogging)?;
+    exception_logging::enable();
     log_panics::init();
     version::log_version();
-    mullvad_daemon::exception_logging::enable();
 
     Ok(log_dir)
 }
