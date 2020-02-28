@@ -120,6 +120,7 @@ fn start_logging() -> Result<PathBuf, Error> {
         .map_err(Error::StartLogging)?;
     log_panics::init();
     version::log_version();
+    mullvad_daemon::exception_logging::enable();
 
     Ok(log_dir)
 }
