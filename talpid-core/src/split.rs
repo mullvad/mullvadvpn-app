@@ -3,11 +3,16 @@ use std::{
     fs,
     io::{self, BufRead, BufReader, Write},
     path::Path,
+    process::Command,
 };
 
 const NETCLS_DIR: &str = "/sys/fs/cgroup/net_cls/";
+
 /// Identifies packets coming from the cgroup.
 pub const NETCLS_CLASSID: u32 = 0x4d9f41;
+/// Value used to mark packets and associated connections.
+pub const MARK: i32 = 0xf41;
+
 const CGROUP_NAME: &str = "mullvad-exclusions";
 static mut ROUTING_TABLE_ID: i32 = 19;
 const ROUTING_TABLE_NAME: &str = "mullvad_exclusions";
@@ -43,8 +48,22 @@ pub enum Error {
 }
 
 fn route_marked_packets() -> Result<(), Error> {
-    // TODO: route fwmark'd packets using this table (if they aren't already)
-    Ok(())
+    // TODO: IPv6
+    let mut cmd = Command::new("ip");
+    cmd.args(&[
+        "-4",
+        "rule",
+        "add",
+        "from",
+        "all",
+        "fwmark",
+        &MARK.to_string(),
+        "lookup",
+        ROUTING_TABLE_NAME,
+    ]);
+
+    log::trace!("running cmd - {:?}", &cmd);
+    cmd.output().map(|_| ()).map_err(Error::RoutingTableSetup)
 }
 
 /// Set up policy-based routing for marked packets.
