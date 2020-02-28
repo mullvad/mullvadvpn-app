@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { links } from '../../config.json';
+import AccountExpiry from '../../shared/account-expiry';
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import styles from './NewAccountViewStyles';
@@ -9,10 +10,18 @@ import * as AppButton from './AppButton';
 
 interface INewAccountViewProps {
   accountToken?: AccountToken;
+  accountExpiry?: AccountExpiry;
+  hideWelcomeView: () => void;
   onExternalLinkWithAuth: (url: string) => Promise<void>;
 }
 
 export default class NewAccountView extends Component<INewAccountViewProps> {
+  public componentDidUpdate() {
+    if (this.props.accountExpiry && !this.props.accountExpiry.hasExpired()) {
+      this.props.hideWelcomeView();
+    }
+  }
+
   public render() {
     return (
       <View style={styles.container}>

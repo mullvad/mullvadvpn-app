@@ -901,7 +901,7 @@ class ApplicationMain {
       // cancel notifications when window appears
       this.notificationController.cancelPendingNotifications();
 
-      this.updateAccountExpiryIfNeeded();
+      this.updateAccountData();
     });
 
     windowController.window.on('hide', () => {
@@ -1159,7 +1159,7 @@ class ApplicationMain {
     }
   }
 
-  private updateAccountExpiryIfNeeded() {
+  private updateAccountData() {
     if (this.connectedToDaemon && this.settings.accountToken) {
       this.accountDataCache.fetch(this.settings.accountToken);
     }
