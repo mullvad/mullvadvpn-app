@@ -242,7 +242,10 @@ impl TunnelStateMachine {
         };
 
         #[cfg(unix)]
-        split::create_cgroup().map_err(Error::InitSplitTunneling)?;
+        {
+            split::initialize_routing_table().map_err(Error::InitSplitTunneling)?;
+            split::create_cgroup().map_err(Error::InitSplitTunneling)?;
+        }
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
