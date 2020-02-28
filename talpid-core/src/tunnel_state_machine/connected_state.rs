@@ -4,6 +4,7 @@ use super::{
 };
 use crate::{
     firewall::FirewallPolicy,
+    split,
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
 use futures::{
@@ -13,6 +14,7 @@ use futures::{
 use talpid_types::{
     net::{Endpoint, TunnelParameters},
     tunnel::ErrorStateCause,
+    BoxedError,
     ErrorExt,
 };
 
@@ -72,7 +74,7 @@ impl ConnectedState {
     fn set_dns(
         &self,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> Result<(), crate::dns::Error> {
+    ) -> Result<(), BoxedError> {
         let mut dns_ips = vec![self.metadata.ipv4_gateway.into()];
         if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
             dns_ips.push(ipv6_gateway.into());
@@ -81,9 +83,17 @@ impl ConnectedState {
         shared_values
             .dns_monitor
             .set(&self.metadata.interface, &dns_ips)
+            .map_err(BoxedError::new)?;
+
+        split::route_dns(&self.metadata.interface, &dns_ips)
+            .map_err(BoxedError::new)
     }
 
     fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
+        if let Err(error) = split::flush_dns() {
+            log::error!("{}", error.display_chain_with_msg("Unable to update split-tunnel route"));
+        }
+
         if let Err(error) = shared_values.dns_monitor.reset() {
             log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
         }
