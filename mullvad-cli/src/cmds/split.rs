@@ -33,6 +33,7 @@ fn create_pid_subcommand() -> clap::App<'static, 'static> {
         .subcommand(
             clap::SubCommand::with_name("delete").arg(clap::Arg::with_name("pid").required(true)),
         )
+        .subcommand(clap::SubCommand::with_name("clear"))
         .subcommand(clap::SubCommand::with_name("list"))
 }
 
@@ -47,6 +48,10 @@ impl Split {
             ("delete", Some(matches)) => {
                 let pid = value_t_or_exit!(matches.value_of("pid"), i32);
                 new_rpc_client()?.remove_split_tunnel_process(pid)?;
+                Ok(())
+            }
+            ("clear", Some(_)) => {
+                new_rpc_client()?.clear_split_tunnel_processes()?;
                 Ok(())
             }
             ("list", Some(_)) => {
