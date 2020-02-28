@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.service.tunnelstate
 
 import android.content.Context
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import java.net.InetSocketAddress
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.net.Endpoint
@@ -24,6 +25,21 @@ internal class Persistence(context: Context) {
         get() = loadState()
         set(value) {
             persistState(value)
+        }
+
+    var listener: OnSharedPreferenceChangeListener? = null
+        set(value) {
+            if (value != field) {
+                if (field != null) {
+                    sharedPreferences.unregisterOnSharedPreferenceChangeListener(field)
+                }
+
+                if (value != null) {
+                    sharedPreferences.registerOnSharedPreferenceChangeListener(value)
+                }
+
+                field = value
+            }
         }
 
     private fun loadState(): TunnelState {
