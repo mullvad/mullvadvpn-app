@@ -20,6 +20,7 @@ use crate::{
     mpsc::Sender,
     offline,
     routing::RouteManager,
+    split,
     tunnel::tun_provider::TunProvider,
 };
 
@@ -49,6 +50,10 @@ pub enum Error {
     /// Unable to spawn offline state monitor
     #[error(display = "Unable to spawn offline state monitor")]
     OfflineMonitorError(#[error(source)] crate::offline::Error),
+
+    /// Unable to set up split tunneling
+    #[error(display = "Failed to initialize split tunneling")]
+    InitSplitTunneling(#[error(source)] crate::split::Error),
 
     /// Failed to initialize the system firewall integration.
     #[error(display = "Failed to initialize the system firewall integration")]
@@ -235,6 +240,10 @@ impl TunnelStateMachine {
                 allow_lan: None,
             }
         };
+
+        #[cfg(unix)]
+        split::create_cgroup().map_err(Error::InitSplitTunneling)?;
+
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
         let route_manager =
