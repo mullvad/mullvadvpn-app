@@ -31,7 +31,7 @@ pub enum Error {
     FailedToRunIp(#[error(source)] io::Error),
 
     /// Invocation of `ip route` ended with a non-zero exit code
-    #[error(display = "ip returend a non-zero exit code")]
+    #[error(display = "ip returned a non-zero exit code")]
     ErrorIpFailed,
 
     /// Received unexpected output from `ip route`
