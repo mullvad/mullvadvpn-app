@@ -47,8 +47,10 @@ pub enum Error {
     ListCGroupPids(#[error(source)] io::Error),
 }
 
-fn route_marked_packets() -> Result<(), Error> {
+/// Route PID-associated packets through the physical interface.
+pub fn route_marked_packets() -> Result<(), Error> {
     // TODO: IPv6
+    // FIXME: we have to check whether this already exists
     let mut cmd = Command::new("ip");
     cmd.args(&[
         "-4",
@@ -61,6 +63,13 @@ fn route_marked_packets() -> Result<(), Error> {
         "lookup",
         ROUTING_TABLE_NAME,
     ]);
+
+    log::trace!("running cmd - {:?}", &cmd);
+    cmd.output().map_err(Error::RoutingTableSetup)?;
+
+    // Flush table
+    let mut cmd = Command::new("ip");
+    cmd.args(&["-4", "route", "flush", "table", ROUTING_TABLE_NAME]);
 
     log::trace!("running cmd - {:?}", &cmd);
     cmd.output().map(|_| ()).map_err(Error::RoutingTableSetup)
@@ -98,7 +107,7 @@ pub fn initialize_routing_table() -> Result<(), Error> {
                     unsafe { ROUTING_TABLE_ID = table_id };
                 }
 
-                return route_marked_packets();
+                return Ok(());
             }
         }
     }
@@ -109,9 +118,7 @@ pub fn initialize_routing_table() -> Result<(), Error> {
         unsafe { ROUTING_TABLE_ID },
         ROUTING_TABLE_NAME
     )
-    .map_err(Error::RoutingTableSetup)?;
-
-    route_marked_packets()
+    .map_err(Error::RoutingTableSetup)
 }
 
 /// Set up cgroup used to track PIDs for split tunneling.
