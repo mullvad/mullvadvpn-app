@@ -888,7 +888,7 @@ class ApplicationMain {
       // cancel notifications when window appears
       this.notificationController.cancelPendingNotifications();
 
-      this.updateAccountExpiryIfNeeded();
+      this.updateAccountData();
     });
 
     windowController.window.on('hide', () => {
@@ -982,6 +982,7 @@ class ApplicationMain {
     IpcMainEventChannel.account.handleSubmitVoucher((voucherCode: string) =>
       this.daemonRpc.submitVoucher(voucherCode),
     );
+    IpcMainEventChannel.account.handleUpdateAccountData(() => this.updateAccountData());
 
     IpcMainEventChannel.accountHistory.handleRemoveItem(async (token: AccountToken) => {
       await this.daemonRpc.removeAccountFromHistory(token);
@@ -1145,7 +1146,7 @@ class ApplicationMain {
     }
   }
 
-  private updateAccountExpiryIfNeeded() {
+  private updateAccountData() {
     if (this.connectedToDaemon && this.settings.accountToken) {
       this.accountDataCache.fetch(this.settings.accountToken);
     }

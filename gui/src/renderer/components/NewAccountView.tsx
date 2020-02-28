@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { links } from '../../config.json';
+import AccountExpiry from '../../shared/account-expiry';
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import RedeemVoucherContainer from '../containers/RedeemVoucherContainer';
@@ -16,6 +17,9 @@ import {
 
 interface INewAccountViewProps {
   accountToken?: AccountToken;
+  accountExpiry?: AccountExpiry;
+  updateAccountData: () => void;
+  hideWelcomeView: () => void;
   onExternalLinkWithAuth: (url: string) => Promise<void>;
 }
 
@@ -29,6 +33,22 @@ export default class NewAccountView extends Component<INewAccountViewProps, INew
     showRedeemVoucherAlert: false,
     redeemingVoucher: false,
   };
+
+  private updateAccountDataInterval?: number;
+
+  public componentDidMount() {
+    this.updateAccountDataInterval = setInterval(this.props.updateAccountData, 30 * 1000);
+  }
+
+  public componentDidUpdate() {
+    if (this.props.accountExpiry && !this.props.accountExpiry.hasExpired()) {
+      this.props.hideWelcomeView();
+    }
+  }
+
+  public componentWillUnmount() {
+    clearInterval(this.updateAccountDataInterval);
+  }
 
   public render() {
     return (
@@ -78,7 +98,10 @@ export default class NewAccountView extends Component<INewAccountViewProps, INew
 
   private renderRedeemVoucherAlert() {
     return (
-      <RedeemVoucherContainer onSubmit={this.onVoucherSubmit} onFailure={this.onVoucherResponse}>
+      <RedeemVoucherContainer
+        onSubmit={this.onVoucherSubmit}
+        onSuccess={this.props.hideWelcomeView}
+        onFailure={this.onVoucherResponse}>
         <ModalAlert
           buttons={[
             <RedeemVoucherSubmitButton key="submit" />,

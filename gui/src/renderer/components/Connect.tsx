@@ -3,6 +3,7 @@ import { Component, Styles, View } from 'reactxp';
 import { links } from '../../config.json';
 import AccountExpiry from '../../shared/account-expiry';
 import { AccountToken } from '../../shared/daemon-rpc-types';
+import NewAccountViewContainer from '../containers/NewAccountViewContainer';
 import NotificationAreaContainer from '../containers/NotificationAreaContainer';
 import { AuthFailureKind, parseAuthFailure } from '../lib/auth-failure';
 import { IConnectionReduxState } from '../redux/connection/reducers';
@@ -14,7 +15,6 @@ import { Container, Header, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
 import { ModalContainer } from './Modal';
 import TunnelControl from './TunnelControl';
-import NewAccountView from './NewAccountView';
 
 interface IProps {
   connection: IConnectionReduxState;
@@ -142,12 +142,7 @@ export default class Connect extends Component<IProps, IState> {
 
   private renderContent() {
     if (this.props.showWelcomeView) {
-      return (
-        <NewAccountView
-          accountToken={this.props.accountToken}
-          onExternalLinkWithAuth={this.props.onExternalLinkWithAuth}
-        />
-      );
+      return <NewAccountViewContainer />;
     } else if (this.state.isAccountExpired) {
       return (
         <ExpiredAccountErrorView
