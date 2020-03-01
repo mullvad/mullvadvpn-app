@@ -92,6 +92,16 @@ WinFw_InitializeBlocked(
 	void *logSinkContext
 );
 
+enum WINFW_CLEANUP_POLICY
+{
+	// Continue blocking if this happens to be the active policy
+	// otherwise reset the firewall.
+	WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING = 0,
+
+	// Remove all objects that have been registered with WFP.
+	WINFW_CLEANUP_POLICY_RESET_FIREWALL = 1,
+};
+
 //
 // Deinitialize:
 //
@@ -101,7 +111,9 @@ extern "C"
 WINFW_LINKAGE
 bool
 WINFW_API
-WinFw_Deinitialize();
+WinFw_Deinitialize(
+	WINFW_CLEANUP_POLICY cleanupPolicy
+);
 
 //
 // PingableHosts:

@@ -144,17 +144,35 @@ WinFw_InitializeBlocked(
 WINFW_LINKAGE
 bool
 WINFW_API
-WinFw_Deinitialize()
+WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 {
 	if (nullptr == g_fwContext)
 	{
 		return true;
 	}
 
+	const auto activePolicy = g_fwContext->activePolicy();
+
+	//
+	// Do not use FwContext::reset() here because it just
+	// removes the current policy but leaves sublayers etc.
+	//
+
 	delete g_fwContext;
 	g_fwContext = nullptr;
 
-	return true;
+	//
+	// Only skip clean-up if this is what the caller requested
+	// and if the current policy is "(net) blocked".
+	//
+
+	if (WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING == cleanupPolicy
+		&& FwContext::Policy::Blocked == activePolicy)
+	{
+		return true;
+	}
+
+	return WinFw_Reset();
 }
 
 WINFW_LINKAGE
