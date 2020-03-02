@@ -14,6 +14,8 @@ use self::{
     disconnecting_state::{AfterDisconnect, DisconnectingState},
     error_state::ErrorState,
 };
+#[cfg(target_os = "linux")]
+use crate::split;
 use crate::{
     dns::DnsMonitor,
     firewall::{Firewall, FirewallArguments},
@@ -52,6 +54,7 @@ pub enum Error {
     OfflineMonitorError(#[error(source)] crate::offline::Error),
 
     /// Unable to set up split tunneling
+    #[cfg(target_os = "linux")]
     #[error(display = "Failed to initialize split tunneling")]
     InitSplitTunneling(#[error(source)] crate::split::Error),
 
@@ -241,7 +244,7 @@ impl TunnelStateMachine {
             }
         };
 
-        #[cfg(unix)]
+        #[cfg(target_os = "linux")]
         let split_tunnel = split::SplitTunnel::new().map_err(Error::InitSplitTunneling)?;
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
@@ -250,7 +253,7 @@ impl TunnelStateMachine {
             RouteManager::new(HashSet::new()).map_err(Error::InitRouteManagerError)?;
         let mut shared_values = SharedTunnelStateValues {
             firewall,
-            #[cfg(unix)]
+            #[cfg(target_os = "linux")]
             split_tunnel,
             dns_monitor,
             route_manager,
@@ -336,6 +339,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
     firewall: Firewall,
+    #[cfg(target_os = "linux")]
     split_tunnel: split::SplitTunnel,
     dns_monitor: DnsMonitor,
     route_manager: RouteManager,
