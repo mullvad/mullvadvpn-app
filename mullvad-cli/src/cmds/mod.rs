@@ -34,9 +34,9 @@ pub use self::relay::Relay;
 mod reset;
 pub use self::reset::Reset;
 
-#[cfg(unix)]
+#[cfg(target_os = "linux")]
 mod split;
-#[cfg(unix)]
+#[cfg(target_os = "linux")]
 pub use self::split::Split;
 
 mod status;
@@ -62,7 +62,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(Lan),
         Box::new(Relay),
         Box::new(Reset),
-        #[cfg(unix)]
+        #[cfg(target_os = "linux")]
         Box::new(Split),
         Box::new(Status),
         Box::new(Tunnel),
