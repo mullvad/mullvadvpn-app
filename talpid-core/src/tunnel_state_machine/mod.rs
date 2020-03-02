@@ -14,11 +14,13 @@ use self::{
     disconnecting_state::{AfterDisconnect, DisconnectingState},
     error_state::ErrorState,
 };
+#[cfg(target_os = "linux")]
+use crate::split;
 use crate::{
     dns::DnsMonitor,
     firewall::{Firewall, FirewallArguments},
     mpsc::Sender,
-    offline, split,
+    offline,
     tunnel::tun_provider::TunProvider,
 };
 use futures::{
@@ -233,14 +235,14 @@ impl TunnelStateMachine {
             }
         };
 
-        #[cfg(unix)]
+        #[cfg(target_os = "linux")]
         let split_tunnel = split::SplitTunnel::new().map_err(Error::InitSplitTunneling)?;
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
         let mut shared_values = SharedTunnelStateValues {
             firewall,
-            #[cfg(unix)]
+            #[cfg(target_os = "linux")]
             split_tunnel,
             dns_monitor,
             allow_lan,
@@ -325,6 +327,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
     firewall: Firewall,
+    #[cfg(target_os = "linux")]
     split_tunnel: split::SplitTunnel,
     dns_monitor: DnsMonitor,
     /// Should LAN access be allowed outside the tunnel.
