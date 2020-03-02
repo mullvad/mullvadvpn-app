@@ -1,14 +1,10 @@
 import * as React from 'react';
 import { Component, Styles, View } from 'reactxp';
-import { links } from '../../config.json';
 import AccountExpiry from '../../shared/account-expiry';
-import { AccountToken } from '../../shared/daemon-rpc-types';
-import NewAccountViewContainer from '../containers/NewAccountViewContainer';
+import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
 import NotificationAreaContainer from '../containers/NotificationAreaContainer';
 import { AuthFailureKind, parseAuthFailure } from '../lib/auth-failure';
 import { IConnectionReduxState } from '../redux/connection/reducers';
-import { IVersionReduxState } from '../redux/version/reducers';
-import ExpiredAccountErrorView, { RecoveryAction } from './ExpiredAccountErrorView';
 import { Brand, HeaderBarStyle, SettingsBarButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
@@ -18,17 +14,13 @@ import TunnelControl from './TunnelControl';
 
 interface IProps {
   connection: IConnectionReduxState;
-  version: IVersionReduxState;
-  accountToken?: AccountToken;
   accountExpiry?: AccountExpiry;
   selectedRelayName: string;
-  blockWhenDisconnected: boolean;
   onSettings: () => void;
   onSelectLocation: () => void;
   onConnect: () => void;
   onDisconnect: () => void;
   onReconnect: () => void;
-  onExternalLinkWithAuth: (url: string) => Promise<void>;
   showWelcomeView: boolean;
 }
 
@@ -86,7 +78,7 @@ export default class Connect extends Component<IProps, IState> {
     super(props);
 
     this.state = {
-      isAccountExpired: this.checkAccountExpired(props, false),
+      isAccountExpired: this.checkAccountExpired(false),
     };
   }
 
@@ -102,14 +94,20 @@ export default class Connect extends Component<IProps, IState> {
             <Brand />
             <SettingsBarButton onPress={this.props.onSettings} />
           </Header>
-          <Container>{this.renderContent()}</Container>
+          <Container>
+            {this.state.isAccountExpired || this.props.showWelcomeView ? (
+              <ExpiredAccountErrorViewContainer />
+            ) : (
+              this.renderMap()
+            )}
+          </Container>
         </Layout>
       </ModalContainer>
     );
   }
 
   private updateAccountExpired() {
-    const nextAccountExpired = this.checkAccountExpired(this.props, this.state.isAccountExpired);
+    const nextAccountExpired = this.checkAccountExpired(this.state.isAccountExpired);
 
     if (nextAccountExpired !== this.state.isAccountExpired) {
       this.setState({
@@ -118,8 +116,8 @@ export default class Connect extends Component<IProps, IState> {
     }
   }
 
-  private checkAccountExpired(props: IProps, prevAccountExpired: boolean): boolean {
-    const tunnelState = props.connection.status;
+  private checkAccountExpired(prevAccountExpired: boolean): boolean {
+    const tunnelState = this.props.connection.status;
 
     // Blocked with auth failure / expired account
     if (
@@ -138,22 +136,6 @@ export default class Connect extends Component<IProps, IState> {
     // Do not assume that the account hasn't expired if the expiry is not available at the moment
     // instead return the last known state.
     return prevAccountExpired;
-  }
-
-  private renderContent() {
-    if (this.props.showWelcomeView) {
-      return <NewAccountViewContainer />;
-    } else if (this.state.isAccountExpired) {
-      return (
-        <ExpiredAccountErrorView
-          blockWhenDisconnected={this.props.blockWhenDisconnected}
-          isBlocked={this.props.connection.isBlocked}
-          action={this.handleExpiredAccountRecovery}
-        />
-      );
-    } else {
-      return this.renderMap();
-    }
   }
 
   private renderMap() {
@@ -184,26 +166,6 @@ export default class Connect extends Component<IProps, IState> {
       </View>
     );
   }
-
-  private handleExpiredAccountRecovery = async (recoveryAction: RecoveryAction): Promise<void> => {
-    switch (recoveryAction) {
-      case RecoveryAction.disableBlockedWhenDisconnected:
-        break;
-
-      case RecoveryAction.openBrowser:
-        await this.props.onExternalLinkWithAuth(links.purchase);
-        break;
-
-      case RecoveryAction.disconnectAndOpenBrowser:
-        try {
-          await this.props.onDisconnect();
-          await this.props.onExternalLinkWithAuth(links.purchase);
-        } catch (error) {
-          // no-op
-        }
-        break;
-    }
-  };
 
   private headerBarStyle(): HeaderBarStyle {
     const { status } = this.props.connection;
