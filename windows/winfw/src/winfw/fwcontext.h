@@ -43,6 +43,16 @@ public:
 
 	bool reset();
 
+	enum class Policy
+	{
+		Connecting,
+		Connected,
+		Blocked,
+		None,
+	};
+
+	Policy activePolicy() const;
+
 	using Ruleset = std::vector<std::unique_ptr<rules::IFirewallRule> >;
 
 private:
@@ -62,4 +72,5 @@ private:
 	std::unique_ptr<SessionController> m_sessionController;
 
 	uint32_t m_baseline;
+	Policy m_activePolicy;
 };

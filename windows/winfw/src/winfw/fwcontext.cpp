@@ -116,6 +116,7 @@ CreateRelayDnsExclusion(const WinFwRelay &relay)
 
 FwContext::FwContext(uint32_t timeout)
 	: m_baseline(0)
+	, m_activePolicy(Policy::None)
 {
 	auto engine = wfp::FilterEngine::StandardSession(timeout);
 
@@ -130,10 +131,12 @@ FwContext::FwContext(uint32_t timeout)
 	}
 
 	m_baseline = m_sessionController->checkpoint();
+	m_activePolicy = Policy::None;
 }
 
 FwContext::FwContext(uint32_t timeout, const WinFwSettings &settings)
 	: m_baseline(0)
+	, m_activePolicy(Policy::None)
 {
 	auto engine = wfp::FilterEngine::StandardSession(timeout);
 
@@ -150,6 +153,7 @@ FwContext::FwContext(uint32_t timeout, const WinFwSettings &settings)
 	}
 
 	m_baseline = checkpoint;
+	m_activePolicy = Policy::Blocked;
 }
 
 bool FwContext::applyPolicyConnecting
@@ -183,7 +187,14 @@ bool FwContext::applyPolicyConnecting
 		));
 	}
 
-	return applyRuleset(ruleset);
+	const auto status = applyRuleset(ruleset);
+
+	if (status)
+	{
+		m_activePolicy = Policy::Connecting;
+	}
+
+	return status;
 }
 
 bool FwContext::applyPolicyConnected
@@ -221,20 +232,46 @@ bool FwContext::applyPolicyConnected
 		tunnelInterfaceAlias
 	));
 
-	return applyRuleset(ruleset);
+	const auto status = applyRuleset(ruleset);
+
+	if (status)
+	{
+		m_activePolicy = Policy::Connected;
+	}
+
+	return status;
 }
 
 bool FwContext::applyPolicyBlocked(const WinFwSettings &settings)
 {
-	return applyRuleset(composePolicyBlocked(settings));
+	const auto status = applyRuleset(composePolicyBlocked(settings));
+
+	if (status)
+	{
+		m_activePolicy = Policy::Blocked;
+	}
+
+	return status;
 }
 
 bool FwContext::reset()
 {
-	return m_sessionController->executeTransaction([this](SessionController &controller, wfp::FilterEngine &)
+	const auto status = m_sessionController->executeTransaction([this](SessionController &controller, wfp::FilterEngine &)
 	{
 		return controller.revert(m_baseline), true;
 	});
+
+	if (status)
+	{
+		m_activePolicy = Policy::None;
+	}
+
+	return status;
+}
+
+FwContext::Policy FwContext::activePolicy() const
+{
+	return m_activePolicy;
 }
 
 FwContext::Ruleset FwContext::composePolicyBlocked(const WinFwSettings &settings)
