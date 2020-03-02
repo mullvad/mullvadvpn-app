@@ -63,10 +63,6 @@ pub enum Error {
     /// Unable to add setup DNS routing.
     #[error(display = "Failed to add routing table DNS rules")]
     SetDns(#[error(source)] io::Error),
-
-    /// Unable to flush routing table.
-    #[error(display = "Failed to clear routing table DNS rules")]
-    FlushDns(#[error(source)] io::Error),
 }
 
 struct DefaultRoute {
@@ -98,6 +94,34 @@ fn get_default_route() -> Result<DefaultRoute, Error> {
     }
 
     Err(Error::NoDefaultRoute)
+}
+
+fn reset_table() -> Result<(), Error> {
+    // Flush table
+    let mut cmd = Command::new("ip");
+    cmd.args(&["-4", "route", "flush", "table", ROUTING_TABLE_NAME]);
+
+    log::trace!("running cmd - {:?}", &cmd);
+    cmd.output().map_err(Error::RoutingTableSetup)?;
+
+    // Force routing through the physical interface
+    let default_route = get_default_route()?;
+    let mut cmd = Command::new("ip");
+    cmd.args(&[
+        "-4",
+        "route",
+        "add",
+        "default",
+        "via",
+        &default_route.address.to_string(),
+        "dev",
+        &default_route.interface,
+        "table",
+        ROUTING_TABLE_NAME,
+    ]);
+
+    log::trace!("running cmd - {:?}", &cmd);
+    cmd.output().map(|_| ()).map_err(Error::RoutingTableSetup)
 }
 
 /// Route PID-associated packets through the physical interface.
@@ -140,12 +164,7 @@ pub fn route_marked_packets() -> Result<(), Error> {
         cmd.output().map_err(Error::RoutingTableSetup)?;
     }
 
-    // Flush table
-    let mut cmd = Command::new("ip");
-    cmd.args(&["-4", "route", "flush", "table", ROUTING_TABLE_NAME]);
-
-    log::trace!("running cmd - {:?}", &cmd);
-    cmd.output().map(|_| ()).map_err(Error::RoutingTableSetup)
+    reset_table()
 }
 
 /// Stop routing PID-associated packets through the physical interface.
@@ -184,13 +203,7 @@ pub fn disable_routing() -> Result<(), Error> {
 
 /// Route DNS requests through the tunnel interface.
 pub fn route_dns(tunnel_alias: &str, dns_servers: &[IpAddr]) -> Result<(), Error> {
-    // TODO: IPv6
-
-    let mut cmd = Command::new("ip");
-    cmd.args(&["-4", "route", "flush", "table", ROUTING_TABLE_NAME]);
-
-    log::trace!("running cmd - {:?}", &cmd);
-    cmd.output().map_err(Error::SetDns)?;
+    reset_table()?;
 
     for server in dns_servers {
         if let IpAddr::V4(addr) = server {
@@ -221,11 +234,7 @@ pub fn route_dns(tunnel_alias: &str, dns_servers: &[IpAddr]) -> Result<(), Error
 /// Reset DNS rules.
 pub fn flush_dns() -> Result<(), Error> {
     // For now, simply flush it
-    let mut cmd = Command::new("ip");
-    cmd.args(&["-4", "route", "flush", "table", ROUTING_TABLE_NAME]);
-
-    log::trace!("running cmd - {:?}", &cmd);
-    cmd.output().map(|_| ()).map_err(Error::FlushDns)
+    reset_table()
 }
 
 /// Set up policy-based routing for marked packets.
