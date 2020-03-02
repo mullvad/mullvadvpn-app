@@ -2,7 +2,7 @@ use super::{
     ConnectingState, ErrorState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-use crate::{firewall::FirewallPolicy, split};
+use crate::firewall::FirewallPolicy;
 use futures::{sync::mpsc, Stream};
 use talpid_types::ErrorExt;
 
@@ -39,7 +39,7 @@ impl TunnelState for DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         _: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        if let Err(error) = split::disable_routing() {
+        if let Err(error) = shared_values.split_tunnel.disable_routing() {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to update routing")
