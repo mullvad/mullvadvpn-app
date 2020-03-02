@@ -35,7 +35,7 @@ chrono = "0.4"
 
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.15"
+nix = "0.17"
 tokio-process = "0.2"
 tokio-io = "0.1"
 
