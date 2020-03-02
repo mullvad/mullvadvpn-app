@@ -18,8 +18,7 @@ use crate::{
     dns::DnsMonitor,
     firewall::{Firewall, FirewallArguments},
     mpsc::Sender,
-    offline,
-    split,
+    offline, split,
     tunnel::tun_provider::TunProvider,
 };
 use futures::{

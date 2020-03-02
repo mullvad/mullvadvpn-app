@@ -341,9 +341,7 @@ impl TunnelState for ConnectingState {
                 } else if let Err(error) = shared_values.split_tunnel.enable_routing() {
                     error!(
                         "{}",
-                        error.display_chain_with_msg(
-                            "Failed to set up split tunneling"
-                        )
+                        error.display_chain_with_msg("Failed to set up split tunneling")
                     );
                     ErrorState::enter(shared_values, ErrorStateCause::StartTunnelError)
                 } else {
