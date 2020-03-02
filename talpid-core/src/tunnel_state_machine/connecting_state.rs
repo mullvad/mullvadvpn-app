@@ -5,6 +5,7 @@ use super::{
 };
 use crate::{
     firewall::FirewallPolicy,
+    split,
     tunnel::{
         self, tun_provider::TunProvider, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor,
     },
@@ -335,6 +336,14 @@ impl TunnelState for ConnectingState {
                         "{}",
                         error.display_chain_with_msg(
                             "Failed to apply firewall policy for connecting state"
+                        )
+                    );
+                    ErrorState::enter(shared_values, ErrorStateCause::StartTunnelError)
+                } else if let Err(error) = split::route_marked_packets() {
+                    error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to set up split tunneling"
                         )
                     );
                     ErrorState::enter(shared_values, ErrorStateCause::StartTunnelError)
