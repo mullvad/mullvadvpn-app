@@ -2,9 +2,10 @@ use regex::Regex;
 use std::{
     fs,
     io::{self, BufRead, BufReader, Write},
-    net::IpAddr,
+    net::{AddrParseError, IpAddr},
     path::Path,
     process::Command,
+    str::FromStr,
 };
 
 const NETCLS_DIR: &str = "/sys/fs/cgroup/net_cls/";
@@ -23,6 +24,18 @@ const RT_TABLES_PATH: &str = "/etc/iproute2/rt_tables";
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
+    /// Unable to list routing table entries.
+    #[error(display = "Failed to enumerate routes")]
+    EnumerateRoutes(#[error(source)] io::Error),
+
+    /// Unable to find the interface/ip pair used by the physical interface.
+    #[error(display = "No default route found")]
+    NoDefaultRoute,
+
+    /// Failed to parse string containing an IP address. May be invalid.
+    #[error(display = "Failed to parse IP address")]
+    ParseIpError(#[error(source)] AddrParseError),
+
     /// Unable to create routing table for tagged connections and packets.
     #[error(display = "Unable to create routing table")]
     RoutingTableSetup(#[error(source)] io::Error),
@@ -54,6 +67,37 @@ pub enum Error {
     /// Unable to flush routing table.
     #[error(display = "Failed to clear routing table DNS rules")]
     FlushDns(#[error(source)] io::Error),
+}
+
+struct DefaultRoute {
+    interface: String,
+    address: IpAddr,
+}
+
+fn get_default_route() -> Result<DefaultRoute, Error> {
+    // FIXME: use netlink
+    let mut cmd = Command::new("ip");
+    cmd.args(&["-4", "route", "list", "table", "main"]);
+    log::trace!("running cmd - {:?}", &cmd);
+    let out = cmd.output().map_err(Error::EnumerateRoutes)?;
+    let out_str = String::from_utf8_lossy(&out.stdout);
+
+    // Find "default" row
+    let expression = Regex::new(r"^default via ([0-9.]+) dev (\w+)").unwrap();
+
+    for line in out_str.lines() {
+        if let Some(captures) = expression.captures(&line) {
+            let ip_str = captures.get(1).unwrap().as_str();
+            let interface = captures.get(2).unwrap().as_str().to_string();
+
+            return Ok(DefaultRoute {
+                interface,
+                address: IpAddr::from_str(ip_str).map_err(Error::ParseIpError)?,
+            });
+        }
+    }
+
+    Err(Error::NoDefaultRoute)
 }
 
 /// Route PID-associated packets through the physical interface.
