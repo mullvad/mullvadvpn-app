@@ -4,11 +4,11 @@ import { colors } from '../../config.json';
 export default {
   container: Styles.createViewStyle({
     flex: 1,
+    paddingTop: 24,
   }),
   body: Styles.createViewStyle({
     flex: 1,
     paddingHorizontal: 24,
-    marginTop: 20,
   }),
   footer: Styles.createViewStyle({
     flex: 0,
@@ -19,8 +19,8 @@ export default {
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
     fontSize: 32,
-    lineHeight: 40,
     fontWeight: '900',
+    lineHeight: 40,
     color: colors.white,
     marginBottom: 8,
   }),
@@ -32,12 +32,11 @@ export default {
     color: colors.white,
     marginBottom: 24,
   }),
-  accountToken: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 24,
-    fontWeight: '800',
-    color: colors.white,
-    marginTop: 15,
+  statusIcon: Styles.createViewStyle({
+    alignSelf: 'center',
+    width: 60,
+    height: 60,
+    marginBottom: 18,
   }),
   fieldLabel: Styles.createTextStyle({
     fontFamily: 'Open Sans',
@@ -47,12 +46,19 @@ export default {
     color: colors.white,
     marginBottom: 9,
   }),
-  or: Styles.createTextStyle({
-    fontSize: 20,
-    lineHeight: 24,
+  accountToken: Styles.createTextStyle({
+    fontFamily: 'Open Sans',
+    lineHeight: 20,
+    fontSize: 24,
     fontWeight: '800',
-    textAlign: 'center',
     color: colors.white,
-    marginVertical: 12,
+    marginTop: 15,
+  }),
+  accountTokenCopiedMessage: Styles.createTextStyle({
+    // The copied to clipboard message does not fit on one line if font size is 24 px.
+    fontSize: 23,
+  }),
+  button: Styles.createViewStyle({
+    marginBottom: 24,
   }),
 };
