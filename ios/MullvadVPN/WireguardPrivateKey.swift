@@ -58,6 +58,18 @@ struct WireguardPublicKey {
 
     /// Raw public key representation
     let rawRepresentation: Data
+
+    /// Returns a base64 encoded string representation that can be used for displaying the key in
+    /// the user interface
+    func stringRepresentation(maxLength: Int? = nil) -> String {
+        let base64EncodedKey = rawRepresentation.base64EncodedString()
+
+        if let maxLength = maxLength, maxLength < base64EncodedKey.count {
+            return base64EncodedKey.prefix(maxLength) + "..."
+        } else {
+            return base64EncodedKey
+        }
+    }
 }
 
 extension WireguardPrivateKey: Codable {
