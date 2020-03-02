@@ -75,27 +75,33 @@ impl ConnectedState {
             dns_ips.push(ipv6_gateway.into());
         };
 
+        #[cfg(target_os = "linux")]
+        {
+            shared_values
+                .split_tunnel
+                .route_dns(&self.metadata.interface, &dns_ips)
+                .map_err(BoxedError::new)?;
+        }
+
         shared_values
             .dns_monitor
             .set(&self.metadata.interface, &dns_ips)
-            .map_err(BoxedError::new)?;
-
-        shared_values
-            .split_tunnel
-            .route_dns(&self.metadata.interface, &dns_ips)
             .map_err(BoxedError::new)
     }
 
     fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
-        if let Err(error) = shared_values.split_tunnel.flush_dns() {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Unable to update split-tunnel route")
-            );
-        }
-
         if let Err(error) = shared_values.dns_monitor.reset() {
             log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
+        }
+
+        #[cfg(target_os = "linux")]
+        {
+            if let Err(error) = shared_values.split_tunnel.flush_dns() {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Unable to update split-tunnel route")
+                );
+            }
         }
     }
 
