@@ -28,17 +28,13 @@ fn create_pid_subcommand() -> clap::App<'static, 'static> {
         .about("Manage processes to exclude from the tunnel")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
         .subcommand(
-            clap::SubCommand::with_name("add").arg(clap::Arg::with_name("pid").required(true))
+            clap::SubCommand::with_name("add").arg(clap::Arg::with_name("pid").required(true)),
         )
         .subcommand(
-            clap::SubCommand::with_name("delete").arg(clap::Arg::with_name("pid").required(true))
+            clap::SubCommand::with_name("delete").arg(clap::Arg::with_name("pid").required(true)),
         )
-        .subcommand(
-            clap::SubCommand::with_name("clear")
-        )
-        .subcommand(
-            clap::SubCommand::with_name("list")
-        )
+        .subcommand(clap::SubCommand::with_name("clear"))
+        .subcommand(clap::SubCommand::with_name("list"))
 }
 
 impl Split {
