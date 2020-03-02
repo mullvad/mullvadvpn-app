@@ -41,11 +41,17 @@ Endpoints may be filtered by:
 Whilst all user selected constraints are always honored, when the user hasn't selected any specific
 constraints, following default ones will take effect:
 
-- If no tunnel protocol is specified for tunnel endpoints, then by default only OpenVPN
-  endpoints will be selected.
+- If no tunnel protocol is specified for tunnel endpoints, then the behavior is different on Windows
+  and other platforms.
+  - On Windows, OpenVPN is used.
+  - On MacOS and Linux, first two connection attempts will use WireGuard, over a random port at
+    first and then port 53. From the third attempt onwards, OpenVPN will be used, alternating
+    between UDP on any port and TCP on port 443.
 
 - If the tunnel protocol is specified as WireGuard without any other protocol constraints, then the
   transport protocol is not applicable as only UDP endpoints exist and any port will be matched.
+  The target port alternates between a random one every two attempts, and port 53 for the next 2
+  attempts.
 
 - If no OpenVPN tunnel constraints are specified, then the first two attempts at selecting a tunnel
   will try to select UDP endpoints on any port, and the third and fourth attempts will filter for
