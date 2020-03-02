@@ -39,11 +39,14 @@ impl TunnelState for DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         _: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        if let Err(error) = shared_values.split_tunnel.disable_routing() {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to update routing")
-            );
+        #[cfg(target_os = "linux")]
+        {
+            if let Err(error) = shared_values.split_tunnel.disable_routing() {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to update routing")
+                );
+            }
         }
 
         Self::set_firewall_policy(shared_values);
