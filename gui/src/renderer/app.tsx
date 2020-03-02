@@ -256,6 +256,8 @@ export default class AppRenderer {
   }
 
   public async logout() {
+    const actions = this.reduxActions;
+    actions.userInterface.setShowWelcomeView(false);
     try {
       await IpcRendererEventChannel.account.logout();
     } catch (e) {
