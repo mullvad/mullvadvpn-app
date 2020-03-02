@@ -104,6 +104,40 @@ pub fn route_marked_packets() -> Result<(), Error> {
     cmd.output().map(|_| ()).map_err(Error::RoutingTableSetup)
 }
 
+/// Stop routing PID-associated packets through the physical interface.
+pub fn disable_routing() -> Result<(), Error> {
+    // TODO: IPv6
+
+    let mut cmd = Command::new("ip");
+    cmd.args(&[
+        "-4",
+        "rule",
+        "del",
+        "from",
+        "all",
+        "fwmark",
+        &MARK.to_string(),
+        "lookup",
+        ROUTING_TABLE_NAME,
+    ]);
+
+    log::trace!("running cmd - {:?}", &cmd);
+    let out = cmd.output();
+    if out.is_err() {
+        log::warn!("Failed to delete routing policy: {}", out.err().unwrap());
+    } else {
+        let out = out.unwrap();
+        if !out.status.success() {
+            log::warn!(
+                "Failed to delete routing policy: {}",
+                String::from_utf8_lossy(&out.stderr)
+            );
+        }
+    }
+
+    Ok(())
+}
+
 /// Route DNS requests through the tunnel interface.
 pub fn route_dns(tunnel_alias: &str, dns_servers: &[IpAddr]) -> Result<(), Error> {
     // TODO: IPv6
