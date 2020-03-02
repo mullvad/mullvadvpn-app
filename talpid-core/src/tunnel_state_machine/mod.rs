@@ -15,7 +15,7 @@ use self::{
     error_state::ErrorState,
 };
 use crate::{
-    dns::{self, DnsMonitor, DnsMonitorUpdate},
+    dns::DnsMonitor,
     firewall::{Firewall, FirewallArguments},
     mpsc::Sender,
     offline,
@@ -235,38 +235,15 @@ impl TunnelStateMachine {
         };
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
-        let mut dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
+        let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
 
         #[cfg(unix)]
-        {
-            split::initialize_routing_table().map_err(Error::InitSplitTunneling)?;
-            split::create_cgroup().map_err(Error::InitSplitTunneling)?;
-
-            dns_monitor.observe(|state| {
-                use DnsMonitorUpdate::*;
-                match state {
-                    Set { interface, servers } => split::route_dns(interface, servers).map_err(|e| {
-                        log::error!(
-                            "{}",
-                            e.display_chain_with_msg("Failed to set split tunnel DNS")
-                        );
-
-                        dns::Error::Notification
-                    }),
-                    Reset => split::flush_dns().map_err(|e| {
-                        log::error!(
-                            "{}",
-                            e.display_chain_with_msg("Failed to reset split tunnel DNS")
-                        );
-
-                        dns::Error::Notification
-                    }),
-                }
-            });
-        }
+        let split_tunnel = split::SplitTunnel::new().map_err(Error::InitSplitTunneling)?;
 
         let mut shared_values = SharedTunnelStateValues {
             firewall,
+            #[cfg(unix)]
+            split_tunnel,
             dns_monitor,
             allow_lan,
             block_when_disconnected,
@@ -350,6 +327,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
     firewall: Firewall,
+    split_tunnel: split::SplitTunnel,
     dns_monitor: DnsMonitor,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,
