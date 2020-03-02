@@ -1,4 +1,3 @@
-use talpid_types::ErrorExt;
 use regex::Regex;
 use std::{
     fs,
@@ -66,13 +65,7 @@ struct DefaultRoute {
 fn get_default_route() -> Result<DefaultRoute, Error> {
     // FIXME: use netlink
     let mut cmd = Command::new("ip");
-    cmd.args(&[
-        "-4",
-        "route",
-        "list",
-        "table",
-        "main",
-    ]);
+    cmd.args(&["-4", "route", "list", "table", "main"]);
     log::trace!("running cmd - {:?}", &cmd);
     let out = cmd.output().map_err(Error::FindDefaultRoute)?;
     let out_str = String::from_utf8_lossy(&out.stdout);
@@ -84,32 +77,35 @@ fn get_default_route() -> Result<DefaultRoute, Error> {
 
     for line in out_str.lines() {
         if let Some(captures) = expression.captures(&line) {
-            let ip_str = captures.get(1)
+            let ip_str = captures
+                .get(1)
                 .ok_or(Error::FindDefaultRoute(io::Error::new(
                     io::ErrorKind::Other,
-                    "Regex capture failed"
+                    "Regex capture failed",
                 )))?
                 .as_str();
-            let interface = captures.get(2)
+            let interface = captures
+                .get(2)
                 .ok_or(Error::FindDefaultRoute(io::Error::new(
                     io::ErrorKind::Other,
-                    "Regex capture failed"
+                    "Regex capture failed",
                 )))?
                 .as_str()
                 .to_string();
 
             return Ok(DefaultRoute {
                 interface,
-                address: IpAddr::from_str(ip_str).map_err(|e| {
-                    io::Error::new(io::ErrorKind::Other, e)
-                }).map_err(Error::FindDefaultRoute)?,
-            })
+                address: IpAddr::from_str(ip_str)
+                    .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
+                    .map_err(Error::FindDefaultRoute)?,
+            });
         }
     }
 
-    Err(Error::FindDefaultRoute(
-        io::Error::new(io::ErrorKind::Other, "Could not find the physical interface")
-    ))
+    Err(Error::FindDefaultRoute(io::Error::new(
+        io::ErrorKind::Other,
+        "Could not find the physical interface",
+    )))
 }
 
 /// Manage routing for split tunneling cgroup.
@@ -143,19 +139,21 @@ impl SplitTunnel {
         for line in buf_reader.lines() {
             let line = line.map_err(Error::RoutingTableSetup)?;
             if let Some(captures) = expression.captures(&line) {
-                let table_id = captures.get(1)
+                let table_id = captures
+                    .get(1)
                     .ok_or(Error::RoutingTableSetup(io::Error::new(
                         io::ErrorKind::Other,
-                        "Regex capture failed"
+                        "Regex capture failed",
                     )))?
                     .as_str()
                     .parse::<i32>()
                     .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
                     .map_err(Error::RoutingTableSetup)?;
-                let table_name = captures.get(2)
+                let table_name = captures
+                    .get(2)
                     .ok_or(Error::RoutingTableSetup(io::Error::new(
                         io::ErrorKind::Other,
-                        "Regex capture failed"
+                        "Regex capture failed",
                     )))?
                     .as_str();
 
@@ -181,13 +179,7 @@ impl SplitTunnel {
     /// Reset the split-tunneling routing table to its default state
     fn reset_table() -> Result<(), Error> {
         let mut cmd = Command::new("ip");
-        cmd.args(&[
-            "-4",
-            "route",
-            "flush",
-            "table",
-            ROUTING_TABLE_NAME,
-        ]);
+        cmd.args(&["-4", "route", "flush", "table", ROUTING_TABLE_NAME]);
 
         log::trace!("running cmd - {:?}", &cmd);
         cmd.output().map(|_| ()).map_err(Error::RoutingTableSetup)?;
@@ -199,8 +191,11 @@ impl SplitTunnel {
             "-4",
             "route",
             "add",
-            "default", "via", &default_route.address.to_string(),
-            "dev", &default_route.interface,
+            "default",
+            "via",
+            &default_route.address.to_string(),
+            "dev",
+            &default_route.interface,
             "table",
             ROUTING_TABLE_NAME,
         ]);
@@ -215,21 +210,20 @@ impl SplitTunnel {
 
         // Create the rule if it does not exist
         let mut cmd = Command::new("ip");
-        cmd.args(&[
-            "-4",
-            "rule",
-            "list",
-            "table",
-            ROUTING_TABLE_NAME,
-        ]);
+        cmd.args(&["-4", "rule", "list", "table", ROUTING_TABLE_NAME]);
         log::trace!("running cmd - {:?}", &cmd);
         let out = cmd.output().map_err(Error::RoutingTableSetup)?;
         let out = if !out.status.success() {
             ""
         } else {
-            std::str::from_utf8(&out.stdout).map_err(|_| Error::RoutingTableSetup(
-                io::Error::new(io::ErrorKind::InvalidData, "Error parsing ip output")
-            ))?.trim()
+            std::str::from_utf8(&out.stdout)
+                .map_err(|_| {
+                    Error::RoutingTableSetup(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "Error parsing ip output",
+                    ))
+                })?
+                .trim()
         };
 
         if out == "" {
@@ -238,7 +232,9 @@ impl SplitTunnel {
                 "-4",
                 "rule",
                 "add",
-                "from", "all", "fwmark",
+                "from",
+                "all",
+                "fwmark",
                 &MARK.to_string(),
                 "lookup",
                 ROUTING_TABLE_NAME,
@@ -260,7 +256,9 @@ impl SplitTunnel {
             "-4",
             "rule",
             "del",
-            "from", "all", "fwmark",
+            "from",
+            "all",
+            "fwmark",
             &MARK.to_string(),
             "lookup",
             ROUTING_TABLE_NAME,
@@ -273,7 +271,10 @@ impl SplitTunnel {
         } else {
             let out = out.unwrap();
             if !out.status.success() {
-                log::warn!("Failed to delete routing policy: {}", String::from_utf8_lossy(&out.stderr));
+                log::warn!(
+                    "Failed to delete routing policy: {}",
+                    String::from_utf8_lossy(&out.stderr)
+                );
             }
         }
 
@@ -357,7 +358,8 @@ impl PidManager {
         let mut writer = BufWriter::new(file);
 
         for pid in pids {
-            writer.write_all(pid.to_string().as_bytes())
+            writer
+                .write_all(pid.to_string().as_bytes())
                 .map_err(Error::AddCGroupPid)?;
         }
 
@@ -405,15 +407,15 @@ impl PidManager {
         exclusions_file.push(CGROUP_NAME);
         exclusions_file.push("cgroup.procs");
 
-        let file = fs::File::open(exclusions_file)
-            .map_err(Error::ListCGroupPids)?;
+        let file = fs::File::open(exclusions_file).map_err(Error::ListCGroupPids)?;
 
         let result: Result<Vec<i32>, io::Error> = BufReader::new(file)
             .lines()
             .map(|line| {
-                line.and_then(|v|
-                    v.parse().map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
-                )
+                line.and_then(|v| {
+                    v.parse()
+                        .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
+                })
             })
             .collect();
         result.map_err(Error::ListCGroupPids)
