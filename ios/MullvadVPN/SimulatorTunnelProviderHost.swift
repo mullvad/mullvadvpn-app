@@ -24,9 +24,11 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                 ipv4Relay: IPv4Endpoint(ip: IPv4Address("1.2.3.4")!, port: 53),
                 ipv6Relay: nil,
                 hostname: "se7-wireguard",
-                geoLocation: GeoLocation(
+                location: Location(
                     country: "Sweden",
+                    countryCode: "se",
                     city: "Stockholm",
+                    cityCode: "sto",
                     latitude: 59.3289,
                     longitude: 18.0649
                 )

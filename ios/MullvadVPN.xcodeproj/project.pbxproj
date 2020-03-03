@@ -28,6 +28,9 @@
 		5845F842236CBACD00B2D93C /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
 		5845F843236CBDAB00B2D93C /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
 		584B26FF237435A90073B10E /* RelaySelector+RelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584B26FD237435990073B10E /* RelaySelector+RelayCache.swift */; };
+		584E96BC240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
+		584E96BD240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
+		584E96BE240FD4DB00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		5860F1C223A785C600CEA666 /* WireguardDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1C123A785C600CEA666 /* WireguardDevice.swift */; };
@@ -61,8 +64,6 @@
 		588AE72F2362001F009F9F2E /* MutuallyExclusive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588AE72E2362001F009F9F2E /* MutuallyExclusive.swift */; };
 		588AE730236200E2009F9F2E /* MutuallyExclusive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588AE72E2362001F009F9F2E /* MutuallyExclusive.swift */; };
 		589AB4F7227B64450039131E /* BasicTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589AB4F6227B64450039131E /* BasicTableViewCell.swift */; };
-		58A1AA8723F43901009F7EA6 /* GeoLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* GeoLocation.swift */; };
-		58A1AA8823F43901009F7EA6 /* GeoLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* GeoLocation.swift */; };
 		58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */; };
 		58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		58A8BE8323A0F362006B74AC /* UIAlertController+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A8BE8223A0F362006B74AC /* UIAlertController+Error.swift */; };
@@ -206,7 +207,7 @@
 		588AE72E2362001F009F9F2E /* MutuallyExclusive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutuallyExclusive.swift; sourceTree = "<group>"; };
 		5894E725236B2801008A2793 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		589AB4F6227B64450039131E /* BasicTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicTableViewCell.swift; sourceTree = "<group>"; };
-		58A1AA8623F43901009F7EA6 /* GeoLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoLocation.swift; sourceTree = "<group>"; };
+		58A1AA8623F43901009F7EA6 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionPanelView.swift; sourceTree = "<group>"; };
 		58A8BE8223A0F362006B74AC /* UIAlertController+Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+Error.swift"; sourceTree = "<group>"; };
 		58A99ED2240014A0006599E9 /* ConsentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsentViewController.swift; sourceTree = "<group>"; };
@@ -356,7 +357,6 @@
 				582BB1B0229569620055B6EF /* CustomNavigationBar.swift */,
 				58C6B35D22BBBFE3003C19AD /* Data+HexCoding.swift */,
 				5873884C239E6D7E00E96C4E /* EmbeddedViewContainerView.swift */,
-				58A1AA8623F43901009F7EA6 /* GeoLocation.swift */,
 				58CE5E6F224146210008646E /* Info.plist */,
 				5840250022B1124600E4CFEC /* IpAddress+Codable.swift */,
 				58C6B34E22BB7AC0003C19AD /* IPAddressRange.swift */,
@@ -364,6 +364,7 @@
 				58ADDB3B227B1BD200FAFEA7 /* JsonRpc.swift */,
 				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
 				58CE5E6C224146210008646E /* LaunchScreen.storyboard */,
+				58A1AA8623F43901009F7EA6 /* Location.swift */,
 				58BA692D23E99EFF009DC256 /* Locking.swift */,
 				587B08DF229433EB000E6F17 /* LoginState.swift */,
 				58CE5E65224146200008646E /* LoginViewController.swift */,
@@ -688,6 +689,7 @@
 			files = (
 				58B0A2AA238EE6A900BC001D /* RelaySelector.swift in Sources */,
 				58B0A2A8238EE68200BC001D /* RelaySelectorTests.swift in Sources */,
+				584E96BE240FD4DB00D3334F /* Location.swift in Sources */,
 				58B0A2AC238EE6D500BC001D /* IpAddress+Codable.swift in Sources */,
 				58B0A2AB238EE6BF00BC001D /* RelayList.swift in Sources */,
 				58B0A2AD238EE6EC00BC001D /* MullvadEndpoint.swift in Sources */,
@@ -728,6 +730,7 @@
 				5868585524054096000B8131 /* AppButton.swift in Sources */,
 				5845F842236CBACD00B2D93C /* PacketTunnelIpc.swift in Sources */,
 				58781CC922AE7CA8009B9D8E /* RelayConstraints.swift in Sources */,
+				584E96BC240FD4DA00D3334F /* Location.swift in Sources */,
 				58ADDB3E227B1CD900FAFEA7 /* MullvadAPI.swift in Sources */,
 				58B8743222B25A7600015324 /* WireguardAssociatedAddresses.swift in Sources */,
 				587B08E0229433EB000E6F17 /* LoginState.swift in Sources */,
@@ -742,7 +745,6 @@
 				5877152E23981C5B001F8237 /* SettingsBasicCell.swift in Sources */,
 				5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */,
 				58ADDB3C227B1BD200FAFEA7 /* JsonRpc.swift in Sources */,
-				58A1AA8723F43901009F7EA6 /* GeoLocation.swift in Sources */,
 				581CBCEE229826FD00727D7F /* StaticTableViewDataSource.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				58C6B35E22BBBFE3003C19AD /* Data+HexCoding.swift in Sources */,
@@ -796,12 +798,12 @@
 				58BFA5C722A7C97F00A6173D /* RelayCache.swift in Sources */,
 				58BFA5C022A7C8A900A6173D /* MullvadAPI.swift in Sources */,
 				58AEEF692344A43A00C9BBD5 /* TunnelConfigurationCoder.swift in Sources */,
+				584E96BD240FD4DA00D3334F /* Location.swift in Sources */,
 				58C6B36122C0EC82003C19AD /* AnyIPEndpoint+DNS64.swift in Sources */,
 				58C6B36722C106FC003C19AD /* WireguardCommand.swift in Sources */,
 				58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				584B26FF237435A90073B10E /* RelaySelector+RelayCache.swift in Sources */,
 				58781CCE22AE8918009B9D8E /* RelayConstraints.swift in Sources */,
-				58A1AA8823F43901009F7EA6 /* GeoLocation.swift in Sources */,
 				58781CD522AFBA39009B9D8E /* RelaySelector.swift in Sources */,
 				5845F843236CBDAB00B2D93C /* PacketTunnelIpc.swift in Sources */,
 			);

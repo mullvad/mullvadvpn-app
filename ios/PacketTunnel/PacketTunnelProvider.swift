@@ -290,11 +290,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             ipv4Relay: selectorResult.endpoint.ipv4Relay,
             ipv6Relay: selectorResult.endpoint.ipv6Relay,
             hostname: selectorResult.relay.hostname,
-            geoLocation: selectorResult.geoLocation
+            location: selectorResult.location
         )
 
-        os_log(.default, log: tunnelProviderLog,
-               "Selected relay: %{public}s",
+        os_log(.default, log: tunnelProviderLog, "Selected relay: %{public}s",
                selectorResult.relay.hostname)
     }
 
