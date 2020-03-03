@@ -31,6 +31,7 @@
 		584E96BC240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584E96BD240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584E96BE240FD4DB00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
+		584E96BA240D791E00D3334F /* CancellableDelayPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584E96B9240D791E00D3334F /* CancellableDelayPublisher.swift */; };
 		58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		5860F1C223A785C600CEA666 /* WireguardDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1C123A785C600CEA666 /* WireguardDevice.swift */; };
@@ -179,6 +180,7 @@
 		5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelIpc.swift; sourceTree = "<group>"; };
 		584B26F3237434D00073B10E /* RelaySelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorTests.swift; sourceTree = "<group>"; };
 		584B26FD237435990073B10E /* RelaySelector+RelayCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+RelayCache.swift"; sourceTree = "<group>"; };
+		584E96B9240D791E00D3334F /* CancellableDelayPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancellableDelayPublisher.swift; sourceTree = "<group>"; };
 		58561C98239A5D1500BD6B5E /* IPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPEndpoint.swift; sourceTree = "<group>"; };
 		5860F1C123A785C600CEA666 /* WireguardDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardDevice.swift; sourceTree = "<group>"; };
 		5860F1C323A8D25F00CEA666 /* WireguardConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardConfiguration.swift; sourceTree = "<group>"; };
@@ -409,6 +411,7 @@
 				58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */,
 				5877152F23981F7B001F8237 /* WireguardKeysViewController.swift */,
 				58C6B35322BB87C4003C19AD /* WireguardPrivateKey.swift */,
+				584E96B9240D791E00D3334F /* CancellableDelayPublisher.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -718,6 +721,7 @@
 				58C6B35422BB87C4003C19AD /* WireguardPrivateKey.swift in Sources */,
 				5888AD87227B17950051EB06 /* SelectLocationController.swift in Sources */,
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
+				584E96BA240D791E00D3334F /* CancellableDelayPublisher.swift in Sources */,
 				58A99ED3240014A0006599E9 /* ConsentViewController.swift in Sources */,
 				5845F838236C466400B2D93C /* TunnelControlViewController.swift in Sources */,
 				58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */,
