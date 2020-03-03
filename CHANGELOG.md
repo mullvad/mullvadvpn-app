@@ -37,6 +37,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Prefer WireGuard when tunnel protocol is set to _auto_ on Linux and MacOS.
+- Wait for tunnel state machine to properly shut down, cleaning up the firewall properly on Windows
+  during the daemon shutdown.
 
 #### Android
 - Allow other apps to request the VPN tunnel to connect or disconnect.

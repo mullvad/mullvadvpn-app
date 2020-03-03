@@ -73,6 +73,8 @@ mod wireguard;
 /// Remove this and use the one in jsonrpc_core when that is released.
 type BoxFuture<T, E> = Box<dyn Future<Item = T, Error = E> + Send>;
 
+const TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
+
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -434,6 +436,8 @@ pub struct Daemon<L: EventListener> {
     last_generated_bridge_relay: Option<Relay>,
     app_version_info: AppVersionInfo,
     shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
+    /// oneshot channel that completes once the tunnel state machine has been shut down
+    tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
 }
 
 impl<L> Daemon<L>
@@ -449,6 +453,8 @@ where
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
+        let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
+            oneshot::channel();
 
         let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir, &ca_path);
 
@@ -511,6 +517,7 @@ where
             resource_dir,
             cache_dir,
             internal_event_tx.to_specialized_sender(),
+            tunnel_state_machine_shutdown_tx,
             #[cfg(target_os = "android")]
             android_context,
         )
@@ -546,6 +553,7 @@ where
             last_generated_bridge_relay: None,
             app_version_info,
             shutdown_callbacks: vec![],
+            tunnel_state_machine_shutdown_signal,
         };
 
         daemon.ensure_wireguard_keys_for_current_account();
@@ -586,22 +594,46 @@ where
     }
 
     fn finalize(self) {
-        let (event_listener, shutdown_callbacks) = self.shutdown();
+        let (event_listener, shutdown_callbacks, tunnel_state_machine_shutdown_signal) =
+            self.shutdown();
         for cb in shutdown_callbacks {
             cb();
+        }
+
+        let state_machine_shutdown = tokio_timer::Timer::default().timeout(
+            // the oneshot::Canceled error type does not play well with the timer error, as such,
+            // it has to be cast away.
+            tunnel_state_machine_shutdown_signal.map_err(|_| {
+                log::error!("Tunnel state machine already shut down");
+            }),
+            TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT,
+        );
+
+        match state_machine_shutdown.wait() {
+            Ok(_) => {
+                log::info!("Tunnel state machine shut down");
+            }
+            Err(_) => {
+                log::error!("Tunnel state machine did not shut down in time, shutting down anyway");
+            }
         }
         mem::drop(event_listener);
     }
 
     /// Shuts down the daemon without shutting down the underlying event listener and the shutdown
     /// callbacks
-    fn shutdown(self) -> (L, Vec<Box<dyn FnOnce()>>) {
+    fn shutdown(self) -> (L, Vec<Box<dyn FnOnce()>>, oneshot::Receiver<()>) {
         let Daemon {
             event_listener,
             shutdown_callbacks,
+            tunnel_state_machine_shutdown_signal,
             ..
         } = self;
-        (event_listener, shutdown_callbacks)
+        (
+            event_listener,
+            shutdown_callbacks,
+            tunnel_state_machine_shutdown_signal,
+        )
     }
 
 
