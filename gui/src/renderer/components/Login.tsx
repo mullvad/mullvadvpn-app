@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Animated, Component, Styles, Text, TextInput, Types, UserInterface, View } from 'reactxp';
+import { Animated, Component, Styles, Text, TextInput, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
 import consumePromise from '../../shared/promise';
 import { messages } from '../../shared/gettext';
@@ -42,12 +42,6 @@ export default class Login extends Component<IProps, IState> {
   private accountInput = React.createRef<TextInput>();
   private shouldResetLoginError = false;
 
-  private showsFooter = true;
-  private footerAnimatedValue = Animated.createValue(0);
-  private footerAnimation?: Types.Animated.CompositeAnimation;
-  private footerAnimationStyle: Types.AnimatedViewStyleRuleSet;
-  private footerRef = React.createRef<Animated.View>();
-
   private isLoginButtonActive = false;
   private loginButtonAnimatedValue = Animated.createValue(0);
   private loginButtonAnimation?: Types.Animated.CompositeAnimation;
@@ -60,10 +54,6 @@ export default class Login extends Component<IProps, IState> {
       this.shouldResetLoginError = true;
     }
 
-    this.footerAnimationStyle = Styles.createAnimatedViewStyle({
-      transform: [{ translateY: this.footerAnimatedValue }],
-    });
-
     this.loginButtonAnimationStyle = Styles.createAnimatedViewStyle({
       backgroundColor: Animated.interpolate(
         this.loginButtonAnimatedValue,
@@ -71,10 +61,6 @@ export default class Login extends Component<IProps, IState> {
         [colors.white, colors.green],
       ),
     });
-  }
-
-  public componentDidMount() {
-    consumePromise(this.setFooterVisibility(this.shouldShowFooter()));
   }
 
   public componentDidUpdate(prevProps: IProps, _prevState: IState) {
@@ -93,7 +79,6 @@ export default class Login extends Component<IProps, IState> {
     }
 
     this.setLoginButtonActive(this.shouldActivateLoginButton());
-    consumePromise(this.setFooterVisibility(this.shouldShowFooter()));
   }
 
   public render() {
@@ -111,11 +96,7 @@ export default class Login extends Component<IProps, IState> {
             {this.createLoginForm()}
           </View>
 
-          <Animated.View
-            ref={this.footerRef}
-            style={[styles.login_footer, this.footerAnimationStyle]}>
-            {this.createFooter()}
-          </Animated.View>
+          <View style={[styles.login_footer]}>{this.createFooter()}</View>
         </Container>
       </Layout>
     );
@@ -162,32 +143,6 @@ export default class Login extends Component<IProps, IState> {
 
     this.loginButtonAnimation = animation;
     this.isLoginButtonActive = isActive;
-  }
-
-  private async setFooterVisibility(show: boolean) {
-    if (this.showsFooter === show || !this.footerRef.current) {
-      return;
-    }
-
-    this.showsFooter = show;
-
-    const layout = await UserInterface.measureLayoutRelativeToWindow(this.footerRef.current);
-    const value = show ? 0 : layout.height;
-
-    const animation = Animated.timing(this.footerAnimatedValue, {
-      toValue: value,
-      easing: Animated.Easing.InOut(),
-      duration: 250,
-    });
-
-    const oldAnimation = this.footerAnimation;
-    if (oldAnimation) {
-      oldAnimation.stop();
-    }
-
-    animation.start();
-
-    this.footerAnimation = animation;
   }
 
   private onSubmit = () => {
@@ -320,13 +275,6 @@ export default class Login extends Component<IProps, IState> {
   private shouldShowAccountHistory() {
     return (
       this.shouldEnableAccountInput() && this.state.isActive && this.props.accountHistory.length > 0
-    );
-  }
-
-  private shouldShowFooter() {
-    return (
-      (this.props.loginState === 'none' || this.props.loginState === 'failed') &&
-      !this.shouldShowAccountHistory()
     );
   }
 

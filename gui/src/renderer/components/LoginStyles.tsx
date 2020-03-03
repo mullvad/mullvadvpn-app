@@ -24,7 +24,7 @@ export default {
     paddingBottom: 0,
     paddingLeft: 24,
     paddingRight: 24,
-    marginTop: 83,
+    marginTop: 20,
     marginBottom: 0,
     marginRight: 0,
     marginLeft: 0,
