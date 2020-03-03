@@ -485,7 +485,11 @@ where
         );
         tokio_remote.spawn(|_| version_check_future);
 
-        let settings = settings::load();
+        let mut settings = settings::load();
+
+        if version::is_beta_version() && settings.get_show_beta_releases().is_none() {
+            let _ = settings.set_show_beta_releases(true);
+        }
 
         let account_history = account_history::AccountHistory::new(
             &cache_dir,
