@@ -3,8 +3,8 @@
 #include "iobjectinstaller.h"
 #include "sessionrecord.h"
 #include "mullvadguids.h"
-#include "libwfp/filterengine.h"
-#include "libwfp/iidentifiable.h"
+#include <libwfp/filterengine.h>
+#include <libwfp/iidentifiable.h>
 #include <functional>
 #include <atomic>
 #include <memory>
@@ -15,7 +15,6 @@ class SessionController : public IObjectInstaller
 public:
 
 	SessionController(std::unique_ptr<wfp::FilterEngine> &&engine);
-	~SessionController();
 
 	bool addProvider(wfp::ProviderBuilder &providerBuilder) override;
 	bool addSublayer(wfp::SublayerBuilder &sublayerBuilder) override;

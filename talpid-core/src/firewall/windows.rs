@@ -113,7 +113,11 @@ impl FirewallT for Firewall {
 
 impl Drop for Firewall {
     fn drop(&mut self) {
-        if unsafe { WinFw_Deinitialize().into_result().is_ok() } {
+        if unsafe {
+            WinFw_Deinitialize(WinFwCleanupPolicy::ContinueBlocking)
+                .into_result()
+                .is_ok()
+        } {
             trace!("Successfully deinitialized windows firewall module");
         } else {
             error!("Failed to deinitialize windows firewall module");
@@ -280,6 +284,14 @@ mod winfw {
         pub num_addresses: usize,
     }
 
+    #[allow(dead_code)]
+    #[repr(u8)]
+    #[derive(Clone, Copy)]
+    pub enum WinFwCleanupPolicy {
+        ContinueBlocking = 0u8,
+        ResetFirewall = 1u8,
+    }
+
     ffi_error!(InitializationResult, Error::Initialization);
     ffi_error!(DeinitializationResult, Error::Deinitialization);
     ffi_error!(ApplyConnectingResult, Error::ApplyingConnectingPolicy);
@@ -304,7 +316,7 @@ mod winfw {
         ) -> InitializationResult;
 
         #[link_name = "WinFw_Deinitialize"]
-        pub fn WinFw_Deinitialize() -> DeinitializationResult;
+        pub fn WinFw_Deinitialize(cleanupPolicy: WinFwCleanupPolicy) -> DeinitializationResult;
 
         #[link_name = "WinFw_ApplyPolicyConnecting"]
         pub fn WinFw_ApplyPolicyConnecting(

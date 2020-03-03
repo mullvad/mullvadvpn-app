@@ -111,8 +111,8 @@ void Policy::processConnecting(const KeyValuePairs &arguments)
 
 	auto success = WinFw_ApplyPolicyConnecting
 	(
-		settings,
-		relay,
+		&settings,
+		&relay,
 		nullptr
 	);
 
@@ -140,8 +140,8 @@ void Policy::processConnected(const KeyValuePairs &arguments)
 
 	auto success = WinFw_ApplyPolicyConnected
 	(
-		settings,
-		relay,
+		&settings,
+		&relay,
 		GetArgumentValue(arguments, L"tunnel").c_str(),
 		GetArgumentValue(arguments, L"dns").c_str(),
 		nullptr
@@ -160,7 +160,7 @@ void Policy::processBlocked(const KeyValuePairs &arguments)
 		GetArgumentValue(arguments, L"lan")
 	);
 
-	auto success = WinFw_ApplyPolicyBlocked(settings);
+	auto success = WinFw_ApplyPolicyBlocked(&settings);
 
 	m_messageSink((success
 		? L"Successfully applied policy."

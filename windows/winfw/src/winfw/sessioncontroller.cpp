@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "sessioncontroller.h"
 #include "wfpobjecttype.h"
-#include "libwfp/objectinstaller.h"
-#include "libwfp/objectdeleter.h"
-#include "libwfp/transaction.h"
-#include "libcommon/memory.h"
+#include <libwfp/objectinstaller.h>
+#include <libwfp/objectdeleter.h>
+#include <libwfp/transaction.h>
+#include <libcommon/memory.h>
 #include <libcommon/error.h>
 #include <utility>
 
@@ -63,26 +63,6 @@ SessionController::SessionController(std::unique_ptr<wfp::FilterEngine> &&engine
 	, m_identityRegistry(MullvadGuids::Registry(MullvadGuids::IdentityQualifier::OnlyCurrent))
 	, m_activeTransaction(false)
 {
-}
-
-SessionController::~SessionController()
-{
-	//
-	// TODO: Review destruction of this instance and its owner.
-	//
-
-	try
-	{
-		executeTransaction([this](SessionController &, wfp::FilterEngine &)
-		{
-			reset();
-			return true;
-		});
-	}
-	catch (...)
-	{
-		return;
-	}
 }
 
 bool SessionController::addProvider(wfp::ProviderBuilder &providerBuilder)

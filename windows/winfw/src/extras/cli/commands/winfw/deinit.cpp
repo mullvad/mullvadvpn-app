@@ -28,7 +28,7 @@ void Deinit::handleRequest(const std::vector<std::wstring> &arguments)
 		THROW_ERROR("Invalid argument(s). Cannot complete request.");
 	}
 
-	m_messageSink((WinFw_Deinitialize()
+	m_messageSink((WinFw_Deinitialize(WINFW_CLEANUP_POLICY_RESET_FIREWALL)
 		? L"Deinitialization completed successfully."
 		: L"Deinitialization failed. See above for details, if any."));
 }
