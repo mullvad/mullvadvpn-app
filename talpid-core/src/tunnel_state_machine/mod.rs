@@ -21,7 +21,10 @@ use crate::{
     offline,
     tunnel::tun_provider::TunProvider,
 };
-use futures::{sync::mpsc, Async, Future, Poll, Stream};
+use futures::{
+    sync::{mpsc, oneshot},
+    Async, Future, Poll, Stream,
+};
 use std::{
     io,
     path::{Path, PathBuf},
@@ -70,6 +73,7 @@ pub fn spawn(
     resource_dir: PathBuf,
     cache_dir: impl AsRef<Path> + Send + 'static,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
+    shutdown_tx: oneshot::Sender<()>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
@@ -102,6 +106,7 @@ pub fn spawn(
             cache_dir,
             command_rx,
             state_change_listener,
+            shutdown_tx,
         ) {
             Ok((mut reactor, event_loop)) => {
                 startup_result_tx.send(Ok(())).expect(
@@ -141,6 +146,7 @@ fn create_event_loop(
     cache_dir: impl AsRef<Path>,
     commands: mpsc::UnboundedReceiver<TunnelCommand>,
     state_change_listener: impl Sender<TunnelStateTransition>,
+    shutdown_tx: oneshot::Sender<()>,
 ) -> Result<(Core, impl Future<Item = (), Error = Error>), Error> {
     let reactor = Core::new().map_err(Error::ReactorError)?;
     let state_machine = TunnelStateMachine::new(
@@ -155,11 +161,18 @@ fn create_event_loop(
         commands,
     )?;
 
-    let future = state_machine.for_each(move |state_change_event| {
-        state_change_listener
-            .send(state_change_event)
-            .map_err(|_| Error::SendStateChange)
-    });
+    let future = state_machine
+        .for_each(move |state_change_event| {
+            state_change_listener
+                .send(state_change_event)
+                .map_err(|_| Error::SendStateChange)
+        })
+        .then(move |_| {
+            if shutdown_tx.send(()).is_err() {
+                log::error!("Can't send shutdown completion to daemon");
+            }
+            Ok(())
+        });
 
     Ok((reactor, future))
 }
