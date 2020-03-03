@@ -52,7 +52,7 @@ struct TunnelConnectionInfo: Codable, Equatable {
     let ipv4Relay: IPv4Endpoint
     let ipv6Relay: IPv6Endpoint?
     let hostname: String
-    let geoLocation: GeoLocation
+    let location: Location
 }
 
 extension TunnelConnectionInfo: CustomDebugStringConvertible {
@@ -60,7 +60,7 @@ extension TunnelConnectionInfo: CustomDebugStringConvertible {
         return "{ ipv4Relay: \(String(reflecting: ipv4Relay)), " +
                "ipv6Relay: \(String(reflecting: ipv6Relay)), " +
                "hostname: \(String(reflecting: hostname))," +
-               "geoLocation: \(String(reflecting: geoLocation)) }"
+               "location: \(String(reflecting: location)) }"
     }
 }
 

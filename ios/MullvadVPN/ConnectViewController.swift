@@ -100,8 +100,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
         switch tunnelState {
         case .connected(let connectionInfo),
              .reconnecting(let connectionInfo):
-            cityLabel.attributedText = attributedStringForLocation(string: connectionInfo.geoLocation.city)
-            countryLabel.attributedText = attributedStringForLocation(string: connectionInfo.geoLocation.country)
+            cityLabel.attributedText = attributedStringForLocation(string: connectionInfo.location.city)
+            countryLabel.attributedText = attributedStringForLocation(string: connectionInfo.location.country)
 
             connectionPanel.dataSource = ConnectionPanelData(
                 inAddress: "\(connectionInfo.ipv4Relay) UDP",

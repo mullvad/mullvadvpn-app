@@ -52,7 +52,7 @@ private let sampleRelayList = RelayList(countries: [
                     ipv4AddrIn: .loopback,
                     includeInCountry: true,
                     active: true,
-                    weight: 0,
+                    weight: 500,
                     tunnels: .init(wireguard: [
                         .init(
                             ipv4Gateway: .loopback,
@@ -74,7 +74,7 @@ private let sampleRelayList = RelayList(countries: [
                     ipv4AddrIn: .loopback,
                     includeInCountry: true,
                     active: true,
-                    weight: 0,
+                    weight: 1000,
                     tunnels: .init(wireguard: [
                         .init(
                             ipv4Gateway: .loopback,
@@ -94,7 +94,7 @@ private let sampleRelayList = RelayList(countries: [
                     ipv4AddrIn: .loopback,
                     includeInCountry: true,
                     active: true,
-                    weight: 0,
+                    weight: 50,
                     tunnels: .init(wireguard: [
                         .init(
                             ipv4Gateway: .loopback,
@@ -108,7 +108,7 @@ private let sampleRelayList = RelayList(countries: [
                     ipv4AddrIn: IPv4Address.loopback,
                     includeInCountry: true,
                     active: true,
-                    weight: 0,
+                    weight: 100,
                     tunnels: .init(wireguard: [
                         .init(
                             ipv4Gateway: .loopback,
