@@ -22,10 +22,10 @@ struct RelayList: Codable {
         var code: String
         var latitude: Double
         var longitude: Double
-        var relays: [Hostname]
+        var relays: [Relay]
     }
 
-    struct Hostname: Codable {
+    struct Relay: Codable {
         var hostname: String
         var ipv4AddrIn: IPv4Address
         var includeInCountry: Bool
