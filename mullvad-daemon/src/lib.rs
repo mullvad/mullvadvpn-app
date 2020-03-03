@@ -163,6 +163,8 @@ pub enum DaemonCommand {
     UpdateRelaySettings(oneshot::Sender<()>, RelaySettingsUpdate),
     /// Set the allow LAN setting.
     SetAllowLan(oneshot::Sender<()>, bool),
+    /// Set the beta program setting.
+    SetShowBetaReleases(oneshot::Sender<()>, bool),
     /// Set the block_when_disconnected setting.
     SetBlockWhenDisconnected(oneshot::Sender<()>, bool),
     /// Set the auto-connect setting.
@@ -881,6 +883,7 @@ where
             }
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
+            SetShowBetaReleases(tx, enabled) => self.on_set_show_beta_releases(tx, enabled),
             SetBlockWhenDisconnected(tx, block_when_disconnected) => {
                 self.on_set_block_when_disconnected(tx, block_when_disconnected)
             }
@@ -1284,6 +1287,19 @@ where
                 if settings_changed {
                     self.event_listener.notify_settings(self.settings.clone());
                     self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
+                }
+            }
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+        }
+    }
+
+    fn on_set_show_beta_releases(&mut self, tx: oneshot::Sender<()>, enabled: bool) {
+        let save_result = self.settings.set_show_beta_releases(enabled);
+        match save_result {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, (), "set_show_beta_releases response");
+                if settings_changed {
+                    self.event_listener.notify_settings(self.settings.clone());
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),

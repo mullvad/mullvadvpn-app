@@ -69,6 +69,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "set_allow_lan")]
         fn set_allow_lan(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
 
+        /// Set whether to enable the beta program.
+        #[rpc(meta, name = "set_show_beta_releases")]
+        fn set_show_beta_releases(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
+
         /// Set if the client should allow network communication when in the disconnected state.
         #[rpc(meta, name = "set_block_when_disconnected")]
         fn set_block_when_disconnected(&self, Self::Metadata, bool) -> BoxFuture<(), Error>;
@@ -433,6 +437,15 @@ impl ManagementInterfaceApi for ManagementInterface {
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(DaemonCommand::SetAllowLan(tx, allow_lan))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn set_show_beta_releases(&self, _: Self::Metadata, enabled: bool) -> BoxFuture<(), Error> {
+        log::debug!("set_show_beta_releases({})", enabled);
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(DaemonCommand::SetShowBetaReleases(tx, enabled))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }
