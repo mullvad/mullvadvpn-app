@@ -40,6 +40,8 @@ Line wrap the file at 100 chars.                                              Th
 - Allow other apps to request the VPN tunnel to connect or disconnect.
 
 ### Fixed
+- Fix bug that could lead to Javascript error dialog to appear upon the desktop app termination.
+
 #### Android
 - Make sure the settings screen is scrollable so that devices with small screens can access the quit
   button.
