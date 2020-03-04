@@ -45,7 +45,7 @@ use settings::Settings;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
 use std::{
-    fs::File,
+    fs::{self, File},
     io,
     marker::PhantomData,
     mem,
@@ -128,6 +128,12 @@ pub enum Error {
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to read dir entries")]
     ReadDirError(#[error(source)] io::Error),
+
+    #[error(display = "Failed to read cached target tunnel state")]
+    ReadCachedTargetState(#[error(source)] serde_json::Error),
+
+    #[error(display = "Failed to open cached target tunnel state")]
+    OpenCachedTargetState(#[error(source)] io::Error),
 }
 
 /// Enum representing commands that can be sent to the daemon.
@@ -513,6 +519,26 @@ where
         )
         .map_err(Error::LoadAccountHistory)?;
 
+        // Restore the tunnel to a previous state
+        let target_cache = cache_dir.join(TARGET_START_STATE_FILE);
+        let cached_target_state: Option<TargetState> = match File::open(&target_cache) {
+            Ok(handle) => serde_json::from_reader(io::BufReader::new(handle))
+                .map(Some)
+                .map_err(Error::ReadCachedTargetState),
+            Err(e) => {
+                if e.kind() == io::ErrorKind::NotFound {
+                    Ok(None)
+                } else {
+                    Err(Error::OpenCachedTargetState(e))
+                }
+            }
+        }?;
+        if cached_target_state.is_some() {
+            let _ = fs::remove_file(target_cache).map_err(|e| {
+                error!("Cannot delete target tunnel state cache: {}", e);
+            });
+        }
+
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
         };
@@ -539,10 +565,23 @@ where
         // Attempt to download a fresh relay list
         relay_selector.update();
 
+        let initial_target_state = if settings.get_account_token().is_some() {
+            if settings.get_auto_connect() {
+                // Note: Auto-connect overrides the cached target state
+                info!("Automatically connecting since auto-connect is turned on");
+                TargetState::Secured
+            } else {
+                info!("Restoring cached target state");
+                cached_target_state.unwrap_or(TargetState::Unsecured)
+            }
+        } else {
+            TargetState::Unsecured
+        };
+
         let mut daemon = Daemon {
             tunnel_command_tx,
             tunnel_state: TunnelState::Disconnected,
-            target_state: TargetState::Unsecured,
+            target_state: initial_target_state,
             state: DaemonExecutionState::Running,
             rx: internal_event_rx.wait(),
             tx: internal_event_tx,
@@ -586,9 +625,8 @@ where
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
     pub fn run(mut self) -> Result<(), Error> {
-        if self.settings.get_auto_connect() && self.settings.get_account_token().is_some() {
-            info!("Automatically connecting since auto-connect is turned on");
-            self.set_target_state(TargetState::Secured);
+        if self.target_state == TargetState::Secured {
+            self.connect_tunnel();
         }
         while let Some(Ok(event)) = self.rx.next() {
             self.handle_event(event);
@@ -1755,7 +1793,6 @@ where
 
     #[cfg(not(target_os = "android"))]
     fn clear_directory(path: &Path) -> Result<(), Error> {
-        use std::fs;
         #[cfg(not(target_os = "windows"))]
         {
             fs::remove_dir_all(path)
