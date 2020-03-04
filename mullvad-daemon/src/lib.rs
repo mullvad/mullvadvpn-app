@@ -206,6 +206,9 @@ pub enum DaemonCommand {
     FactoryReset(oneshot::Sender<()>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
+    /// Saves the target tunnel state and quits in a blocking state. The state is restored
+    /// upon restart.
+    TemporaryShutdown,
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -438,6 +441,7 @@ pub struct Daemon<L: EventListener> {
     shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
     tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
+    cache_dir: PathBuf,
 }
 
 impl<L> Daemon<L>
@@ -515,7 +519,7 @@ where
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
-            cache_dir,
+            cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             tunnel_state_machine_shutdown_tx,
             #[cfg(target_os = "android")]
@@ -554,6 +558,7 @@ where
             app_version_info,
             shutdown_callbacks: vec![],
             tunnel_state_machine_shutdown_signal,
+            cache_dir,
         };
 
         daemon.ensure_wireguard_keys_for_current_account();
@@ -939,6 +944,7 @@ where
             #[cfg(not(target_os = "android"))]
             FactoryReset(tx) => self.on_factory_reset(tx),
             Shutdown => self.trigger_shutdown_event(),
+            TemporaryShutdown => self.on_temporary_shutdown(),
         }
     }
 
@@ -1656,6 +1662,15 @@ where
     fn trigger_shutdown_event(&mut self) {
         self.state.shutdown(&self.tunnel_state);
         self.disconnect_tunnel();
+    }
+
+    fn on_temporary_shutdown(&mut self) {
+        // TODO: dump the target state to a file
+
+        if self.target_state == TargetState::Secured {
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
+        }
+        self.trigger_shutdown_event();
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
