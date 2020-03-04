@@ -40,6 +40,9 @@ pub use self::tunnel::Tunnel;
 mod version;
 pub use self::version::Version;
 
+mod prepare_restart;
+pub use self::prepare_restart::PrepareRestart;
+
 /// Returns a map of all available subcommands with their name as key.
 pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
     let commands: Vec<Box<dyn Command>> = vec![
@@ -50,6 +53,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(Connect),
         Box::new(Disconnect),
         Box::new(Reconnect),
+        Box::new(PrepareRestart),
         Box::new(Lan),
         Box::new(Relay),
         Box::new(Reset),
