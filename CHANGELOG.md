@@ -34,6 +34,8 @@ Line wrap the file at 100 chars.                                              Th
   leaking any data during the reconnection.
 
 ### Changed
+- Prefer WireGuard when tunnel protocol is set to _auto_ on Linux and MacOS.
+
 #### Android
 - Allow other apps to request the VPN tunnel to connect or disconnect.
 
