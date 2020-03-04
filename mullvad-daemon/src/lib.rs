@@ -211,9 +211,9 @@ pub enum DaemonCommand {
     FactoryReset(oneshot::Sender<()>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
-    /// Saves the target tunnel state and quits in a blocking state. The state is restored
+    /// Saves the target tunnel state and enters a blocking state. The state is restored
     /// upon restart.
-    TemporaryShutdown,
+    PrepareRestart,
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -946,7 +946,7 @@ where
             #[cfg(not(target_os = "android"))]
             FactoryReset(tx) => self.on_factory_reset(tx),
             Shutdown => self.trigger_shutdown_event(),
-            TemporaryShutdown => self.on_temporary_shutdown(),
+            PrepareRestart => self.on_prepare_restart(),
         }
     }
 
@@ -1653,7 +1653,7 @@ where
         self.disconnect_tunnel();
     }
 
-    fn on_temporary_shutdown(&mut self) {
+    fn on_prepare_restart(&mut self) {
         // TODO: See if this can be made to also shut down the daemon
         //       without causing the service to be restarted.
 
