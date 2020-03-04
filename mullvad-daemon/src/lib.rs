@@ -1668,6 +1668,9 @@ where
     }
 
     fn on_temporary_shutdown(&mut self) {
+        // TODO: See if this can be made to also shut down the daemon
+        //       without causing the service to be restarted.
+
         // Cache the current target state
         let cache_file = self.cache_dir.join(TARGET_START_STATE_FILE);
         log::debug!("Saving tunnel target state to {}", cache_file.display());
@@ -1687,7 +1690,6 @@ where
         if self.target_state == TargetState::Secured {
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
         }
-        self.trigger_shutdown_event();
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
