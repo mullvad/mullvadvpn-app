@@ -45,6 +45,7 @@ use settings::Settings;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
 use std::{
+    fs::File,
     io,
     marker::PhantomData,
     mem,
@@ -67,6 +68,8 @@ use talpid_types::{
 
 #[path = "wireguard.rs"]
 mod wireguard;
+
+const TARGET_START_STATE_FILE: &str = "target-start-state.json";
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
 /// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
@@ -1665,7 +1668,21 @@ where
     }
 
     fn on_temporary_shutdown(&mut self) {
-        // TODO: dump the target state to a file
+        // Cache the current target state
+        let cache_file = self.cache_dir.join(TARGET_START_STATE_FILE);
+        log::debug!("Saving tunnel target state to {}", cache_file.display());
+        match File::create(&cache_file) {
+            Ok(handle) => {
+                if let Err(e) =
+                    serde_json::to_writer(io::BufWriter::new(handle), &self.target_state)
+                {
+                    log::error!("Failed to serialize target start state: {}", e);
+                }
+            }
+            Err(e) => {
+                log::error!("Failed to save target start state: {}", e);
+            }
+        }
 
         if self.target_state == TargetState::Secured {
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
