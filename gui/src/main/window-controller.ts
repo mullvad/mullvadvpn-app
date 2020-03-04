@@ -133,6 +133,7 @@ class AttachedToTrayWindowPositioning implements IWindowPositioning {
 export default class WindowController {
   private width: number;
   private height: number;
+  private webContentsValue: WebContents;
   private windowPositioning: IWindowPositioning;
   private isWindowReady = false;
 
@@ -141,13 +142,14 @@ export default class WindowController {
   }
 
   get webContents(): WebContents {
-    return this.windowValue.webContents;
+    return this.webContentsValue;
   }
 
   constructor(private windowValue: BrowserWindow, tray: Tray) {
     const [width, height] = windowValue.getSize();
     this.width = width;
     this.height = height;
+    this.webContentsValue = windowValue.webContents;
     this.windowPositioning =
       process.platform === 'linux'
         ? new StandaloneWindowPositioning()
@@ -184,7 +186,7 @@ export default class WindowController {
   // Electron uses the `any` type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public send(event: string, ...data: any[]): void {
-    this.windowValue.webContents.send(event, ...data);
+    this.webContentsValue.send(event, ...data);
   }
 
   private showImmediately() {
@@ -205,7 +207,7 @@ export default class WindowController {
   private notifyUpdateWindowShape() {
     const shapeParameters = this.windowPositioning.getWindowShapeParameters(this.windowValue);
 
-    IpcMainEventChannel.windowShape.notify(this.windowValue.webContents, shapeParameters);
+    IpcMainEventChannel.windowShape.notify(this.webContentsValue, shapeParameters);
   }
 
   // Installs display event handlers to update the window position on any changes in the display or
