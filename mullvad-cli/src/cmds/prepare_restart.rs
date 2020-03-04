@@ -13,7 +13,7 @@ impl Command for PrepareRestart {
 
     fn run(&self, _matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_rpc_client()?;
-        rpc.temporary_shutdown()?;
+        rpc.prepare_restart()?;
         Ok(())
     }
 }
