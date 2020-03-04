@@ -223,8 +223,8 @@ impl DaemonRpcClient {
         self.call("shutdown", &NO_ARGS)
     }
 
-    pub fn temporary_shutdown(&mut self) -> Result<()> {
-        self.call("temporary_shutdown", &NO_ARGS)
+    pub fn prepare_restart(&mut self) -> Result<()> {
+        self.call("prepare_restart", &NO_ARGS)
     }
 
     pub fn factory_reset(&mut self) -> Result<()> {

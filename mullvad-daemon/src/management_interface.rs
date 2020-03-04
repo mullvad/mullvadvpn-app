@@ -108,10 +108,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "shutdown")]
         fn shutdown(&self, Self::Metadata) -> BoxFuture<(), Error>;
 
-        /// Saves the target tunnel state and quits in a blocking state. The state is restored
+        /// Saves the target tunnel state and enters a blocking state. The state is restored
         /// upon restart.
-        #[rpc(meta, name = "temporary_shutdown")]
-        fn temporary_shutdown(&self, Self::Metadata) -> BoxFuture<(), Error>;
+        #[rpc(meta, name = "prepare_restart")]
+        fn prepare_restart(&self, Self::Metadata) -> BoxFuture<(), Error>;
 
         /// Get previously used account tokens from the account history
         #[rpc(meta, name = "get_account_history")]
@@ -535,9 +535,9 @@ impl ManagementInterfaceApi for ManagementInterface {
         Box::new(self.send_command_to_daemon(DaemonCommand::Shutdown))
     }
 
-    fn temporary_shutdown(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
-        log::debug!("temporary_shutdown");
-        Box::new(self.send_command_to_daemon(DaemonCommand::TemporaryShutdown))
+    fn prepare_restart(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
+        log::debug!("prepare_restart");
+        Box::new(self.send_command_to_daemon(DaemonCommand::PrepareRestart))
     }
 
     fn get_account_history(&self, _: Self::Metadata) -> BoxFuture<Vec<AccountToken>, Error> {
