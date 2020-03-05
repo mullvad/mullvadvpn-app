@@ -113,6 +113,8 @@ impl Firewall {
                     .quick(true)
                     .interface(&tunnel.interface)
                     .proto(pfctl::Proto::Tcp)
+                    .keep_state(pfctl::StatePolicy::Keep)
+                    .tcp_flags(Self::get_tcp_flags())
                     .to(pfctl::Endpoint::new(tunnel.ipv4_gateway, 53))
                     .build()?;
                 rules.push(allow_tcp_dns_to_relay_rule);
@@ -133,6 +135,8 @@ impl Firewall {
                         .quick(true)
                         .interface(&tunnel.interface)
                         .proto(pfctl::Proto::Tcp)
+                        .keep_state(pfctl::StatePolicy::Keep)
+                        .tcp_flags(Self::get_tcp_flags())
                         .to(pfctl::Endpoint::new(ipv6_gateway, 53))
                         .build()?;
                     rules.push(v6_dns_rule_tcp);
