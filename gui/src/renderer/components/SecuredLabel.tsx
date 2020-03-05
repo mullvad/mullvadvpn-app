@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Component, Styles, Text, Types } from 'reactxp';
+import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 
 export enum SecuredDisplayStyle {
@@ -7,6 +8,7 @@ export enum SecuredDisplayStyle {
   blocked,
   securing,
   unsecured,
+  failedToSecure,
 }
 
 interface IProps {
@@ -16,13 +18,13 @@ interface IProps {
 
 const styles = {
   securing: Styles.createTextStyle({
-    color: 'rgb(255, 255, 255)', // white
+    color: colors.white,
   }),
   secured: Styles.createTextStyle({
-    color: 'rgb(68, 173, 77)', // green
+    color: colors.green,
   }),
   unsecured: Styles.createTextStyle({
-    color: 'rgb(227, 64, 57)', // red
+    color: colors.red,
   }),
 };
 
@@ -44,6 +46,9 @@ export default class SecuredLabel extends Component<IProps> {
 
       case SecuredDisplayStyle.unsecured:
         return messages.gettext('UNSECURED CONNECTION');
+
+      case SecuredDisplayStyle.failedToSecure:
+        return messages.gettext('FAILED TO SECURE CONNECTION');
     }
   }
 
@@ -57,6 +62,7 @@ export default class SecuredLabel extends Component<IProps> {
         return styles.securing;
 
       case SecuredDisplayStyle.unsecured:
+      case SecuredDisplayStyle.failedToSecure:
         return styles.unsecured;
     }
   }

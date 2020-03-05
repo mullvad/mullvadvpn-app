@@ -111,6 +111,12 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
       </AppButton.RedTransparentButton>
     );
 
+    const Dismiss = (props: IMainButtonProps) => (
+      <AppButton.RedTransparentButton onPress={this.props.onDisconnect} {...props}>
+        {messages.pgettext('tunnel-control', 'Dismiss')}
+      </AppButton.RedTransparentButton>
+    );
+
     const Reconnect = (props: ISideButtonProps) => (
       <AppButton.RedTransparentButton onPress={this.props.onReconnect} {...props}>
         <ImageView height={22} width={22} source="icon-reload" tintColor="white" />
@@ -127,10 +133,6 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
     let state = this.props.tunnelState.state;
 
     switch (this.props.tunnelState.state) {
-      case 'error':
-        state = this.props.tunnelState.details.isBlocking ? 'error' : 'disconnected';
-        break;
-
       case 'disconnecting':
         switch (this.props.tunnelState.details) {
           case 'block':
@@ -183,17 +185,34 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
         );
 
       case 'error':
-        return (
-          <Wrapper>
-            <Body>
-              <Secured displayStyle={SecuredDisplayStyle.blocked} />
-            </Body>
-            <Footer>
-              <SwitchLocation />
-              <MultiButton mainButton={Cancel} sideButton={Reconnect} />
-            </Footer>
-          </Wrapper>
-        );
+        if (
+          this.props.tunnelState.state === 'error' &&
+          !this.props.tunnelState.details.isBlocking
+        ) {
+          return (
+            <Wrapper>
+              <Body>
+                <Secured displayStyle={SecuredDisplayStyle.failedToSecure} />
+              </Body>
+              <Footer>
+                <SwitchLocation />
+                <MultiButton mainButton={Dismiss} sideButton={Reconnect} />
+              </Footer>
+            </Wrapper>
+          );
+        } else {
+          return (
+            <Wrapper>
+              <Body>
+                <Secured displayStyle={SecuredDisplayStyle.blocked} />
+              </Body>
+              <Footer>
+                <SwitchLocation />
+                <MultiButton mainButton={Cancel} sideButton={Reconnect} />
+              </Footer>
+            </Wrapper>
+          );
+        }
 
       case 'disconnecting':
         return (
