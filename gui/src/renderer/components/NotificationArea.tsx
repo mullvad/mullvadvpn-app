@@ -219,9 +219,14 @@ export default class NotificationArea extends Component<IProps, State> {
             <NotificationIndicator type={'error'} />
             <NotificationContent>
               <NotificationTitle>
-                {messages.pgettext('in-app-notifications', 'FAILURE - UNSECURED')}
+                {messages.pgettext('in-app-notifications', 'YOU MIGHT BE LEAKING NETWORK TRAFFIC')}
               </NotificationTitle>
-              <NotificationSubtitle>{this.state.reason}</NotificationSubtitle>
+              <NotificationSubtitle>
+                {messages.pgettext(
+                  'in-app-notifications',
+                  'Failed to block all network traffic. Please troubleshoot or report the problem to us.',
+                )}
+              </NotificationSubtitle>
             </NotificationContent>
           </React.Fragment>
         )}
