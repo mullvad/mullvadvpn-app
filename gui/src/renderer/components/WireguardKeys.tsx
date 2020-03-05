@@ -216,20 +216,16 @@ export default class WireguardKeys extends Component<IProps> {
             </Text>
           );
         } else if (key.replacementFailure) {
-          let failure = '';
+          let failureMessage = '';
           switch (key.replacementFailure) {
             case 'too_many_keys':
-              failure = this.formatKeygenFailure('too-many-keys');
+              failureMessage = this.formatKeygenFailure('too-many-keys');
               break;
             case 'generation_failure':
-              failure = this.formatKeygenFailure('generation-failure');
+              failureMessage = this.formatKeygenFailure('generation-failure');
               break;
           }
 
-          const failureMessage = sprintf(
-            messages.pgettext('wireguard-key-view', 'Failed to replace key - %(failure)s'),
-            { failure },
-          );
           return <Text style={styles.wgkeys__invalid_key}>{failureMessage}</Text>;
         } else if (key.verificationFailed) {
           return (
@@ -263,7 +259,14 @@ export default class WireguardKeys extends Component<IProps> {
   private formatKeygenFailure(failure: 'too-many-keys' | 'generation-failure'): string {
     switch (failure) {
       case 'too-many-keys':
-        return messages.pgettext('wireguard-key-view', 'Account has too many keys already');
+        // TRANSLATORS: "%(manage)" is replaced with the text in the "Manage keys" button.
+        return sprintf(
+          messages.pgettext(
+            'wireguard-key-view',
+            'Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”',
+          ),
+          { manage: messages.pgettext('wireguard-key-view', 'Manage keys') },
+        );
       case 'generation-failure':
         return messages.pgettext('wireguard-key-view', 'Failed to generate a key');
       default:
