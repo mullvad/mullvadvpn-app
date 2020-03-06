@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix bug that could lead to Javascript error dialog to appear upon the desktop app termination.
+- Show when the app failed to block all connections after an error in the android and desktop apps.
 
 #### macOS
 - Fix firewall rules to properly handle DNS requests over TCP when "Local network sharing" is 
@@ -49,7 +50,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Make sure the settings screen is scrollable so that devices with small screens can access the quit
   button.
-- Show when the app failed to block all connections after an error.
 
 #### Windows
 - Fix bug where failing to initialize the route manager could cause the daemon to get stuck in a

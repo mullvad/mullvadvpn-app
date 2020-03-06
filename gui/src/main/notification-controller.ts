@@ -84,7 +84,7 @@ export default class NotificationController {
           );
         } else {
           this.showTunnelStateNotification(
-            messages.pgettext('notifications', 'Critical failure - Unsecured'),
+            messages.pgettext('notifications', 'Critical error (your attention is required)'),
           );
         }
         break;
