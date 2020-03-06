@@ -41,23 +41,6 @@
 !define INSTALL_REGISTRY_KEY "Software\${PRODUCT_NAME}"
 
 #
-# BreakInstallation
-#
-# Aborting the customization step does not undo previous steps taken
-# by the installer (copy files, create shortcut, etc)
-#
-# Therefore we have to break the installed application to
-# prevent users from running a half-installed product
-#
-!macro BreakInstallation
-
-	Delete "$INSTDIR\mullvad vpn.exe"
-
-!macroend
-
-!define BreakInstallation '!insertmacro "BreakInstallation"'
-
-#
 # ExtractTapDriver
 #
 # Extract the correct driver for the current platform
@@ -649,8 +632,7 @@
 
 	${If} $R0 != 0
 		MessageBox MB_OK "Fatal error during driver installation: $R0"
-		${BreakInstallation}
-		Abort
+		Goto customInstall_abort_installation
 	${EndIf}
 
 	${ExtractWintun}
@@ -658,20 +640,47 @@
 
 	${If} $R0 != 0
 		MessageBox MB_OK "$R0"
-		${BreakInstallation}
-		Abort
+		Goto customInstall_abort_installation
 	${EndIf}
 
 	${InstallService}
 
 	${If} $R0 != 0
 		MessageBox MB_OK "$R0"
-		${BreakInstallation}
-		Abort
+		Goto customInstall_abort_installation
 	${EndIf}
 
 	${AddCLIToEnvironPath}
 	${InstallTrayIcon}
+
+	Goto customInstall_skip_abort
+
+	customInstall_abort_installation:
+
+	# Aborting the customization step does not undo previous steps taken
+	# by the installer (copy files, create shortcut, etc)
+	#
+	# Therefore we have to break the installed application to
+	# prevent users from running a half-installed product
+	#
+	Delete "$INSTDIR\mullvad vpn.exe"
+
+	MessageBox MB_ICONEXCLAMATION|MB_YESNO "Do you wish to clear any firewall rules that may be blocking Internet access?" IDNO customInstall_abortInstallation_skip_firewall_revert
+
+	SetOutPath "$TEMP"
+	File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
+	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
+	nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" reset-firewall'
+	Pop $0
+	Pop $1
+
+	log::Log "Resetting firewall: $0 $1"
+
+	customInstall_abortInstallation_skip_firewall_revert:
+
+	Abort
+
+	customInstall_skip_abort:
 
 	Pop $R0
 
@@ -712,6 +721,7 @@
 		# Save the target tunnel state if we're upgrading
 		SetOutPath "$TEMP"
 		File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
+		File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
 		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" prepare-restart'
 		Pop $0
 		Pop $1
