@@ -2,6 +2,7 @@
 members = [
     "mullvad-daemon",
     "mullvad-cli",
+    "mullvad-setup",
     "mullvad-problem-report",
     "mullvad-ipc-client",
     "mullvad-jni",
