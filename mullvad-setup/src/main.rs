@@ -11,6 +11,9 @@ pub enum Error {
     #[error(display = "Failed to connect to daemon")]
     DaemonConnect(#[error(source)] io::Error),
 
+    #[error(display = "RPC call failed")]
+    DaemonRpcError(#[error(source)] mullvad_ipc_client::Error),
+
     #[error(display = "This command cannot be run if the daemon is active")]
     DaemonIsRunning,
 
@@ -53,7 +56,8 @@ fn main() {
 }
 
 fn prepare_restart() -> Result<(), Error> {
-    Ok(())
+    let mut rpc = new_rpc_client()?;
+    rpc.prepare_restart().map_err(Error::DaemonRpcError)
 }
 
 fn reset_firewall() -> Result<(), Error> {
