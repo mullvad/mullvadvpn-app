@@ -710,7 +710,11 @@
 
 	${If} $FullUninstall != 1
 		# Save the target tunnel state if we're upgrading
-		nsExec::ExecToStack '"$INSTDIR\resources\mullvad.exe" prepare-restart'
+		SetOutPath "$TEMP"
+		File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
+		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" prepare-restart'
+		Pop $0
+		Pop $1
 	${EndIf}
 
 	nsExec::ExecToStack '"$SYSDIR\sc.exe" stop mullvadvpn'
