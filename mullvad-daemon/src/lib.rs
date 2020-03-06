@@ -558,6 +558,7 @@ where
                 info!("Automatically connecting since auto-connect is turned on");
                 TargetState::Secured
             } else {
+                info!("Restoring cached target state");
                 cached_target_state.unwrap_or(TargetState::Unsecured)
             }
         } else {
