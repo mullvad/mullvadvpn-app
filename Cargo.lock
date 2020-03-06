@@ -1386,6 +1386,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-setup"
+version = "2020.3.0"
+dependencies = [
+ "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "env_logger 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "err-derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mullvad-ipc-client 0.1.0",
+ "mullvad-paths 0.1.0",
+ "talpid-core 0.1.0",
+ "talpid-types 0.1.0",
+ "winapi 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winres 0.1.11 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "mullvad-tests"
 version = "0.1.0"
 dependencies = [
