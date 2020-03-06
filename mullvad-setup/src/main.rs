@@ -11,6 +11,9 @@ pub enum Error {
     #[error(display = "Failed to connect to daemon")]
     DaemonConnect(#[error(source)] io::Error),
 
+    #[error(display = "This command cannot be run if the daemon is active")]
+    DaemonIsRunning,
+
     #[error(display = "Firewall error")]
     FirewallError(#[error(source)] firewall::Error),
 }
@@ -24,12 +27,16 @@ fn prepare_restart() -> Result<(), Error> {
 }
 
 fn reset_firewall() -> Result<(), Error> {
-    // TODO: ensure daemon isn't running
+    // Ensure that the daemon isn't running
+    if let Ok(_) = new_rpc_client() {
+        return Err(Error::DaemonIsRunning);
+    }
 
     let mut firewall = Firewall::new(FirewallArguments {
         initialize_blocked: false,
         allow_lan: None,
-    }).map_err(Error::FirewallError)?;
+    })
+    .map_err(Error::FirewallError)?;
 
     // FIXME: Hack. `reset_policy` is only supposed to remove rules
     //        from the current firewall instance.
