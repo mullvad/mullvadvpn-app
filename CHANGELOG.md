@@ -42,6 +42,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix bug that could lead to Javascript error dialog to appear upon the desktop app termination.
 
+#### macOS
+- Fix firewall rules to properly handle DNS requests over TCP when "Local network sharing" is 
+  disabled. Previously DNS requests over TCP would timeout.
+
 #### Android
 - Make sure the settings screen is scrollable so that devices with small screens can access the quit
   button.
