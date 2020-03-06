@@ -1,5 +1,6 @@
 use clap::{crate_authors, crate_description, crate_name, SubCommand};
-use std::process;
+use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
+use std::{io, process};
 use talpid_core::firewall::{self, Firewall, FirewallArguments};
 use talpid_types::ErrorExt;
 
@@ -7,6 +8,9 @@ pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/produc
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
+    #[error(display = "Failed to connect to daemon")]
+    DaemonConnect(#[error(source)] io::Error),
+
     #[error(display = "Firewall error")]
     FirewallError(#[error(source)] firewall::Error),
 }
@@ -58,4 +62,8 @@ fn reset_firewall() -> Result<(), Error> {
     }).map_err(Error::FirewallError)?;
 
     firewall.reset_policy().map_err(Error::FirewallError)
+}
+
+fn new_rpc_client() -> Result<DaemonRpcClient, Error> {
+    new_standalone_ipc_client(&mullvad_paths::get_rpc_socket_path()).map_err(Error::DaemonConnect)
 }
