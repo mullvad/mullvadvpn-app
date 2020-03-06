@@ -260,8 +260,16 @@ impl Drop for WinNetRoute {
 }
 
 pub fn activate_routing_manager(routes: &[WinNetRoute]) -> bool {
-    return unsafe { WinNet_ActivateRouteManager(Some(log_sink), logging_context()) }
-        && routing_manager_add_routes(routes);
+    if unsafe { WinNet_ActivateRouteManager(Some(log_sink), logging_context()) } {
+        if routing_manager_add_routes(routes) {
+            true
+        } else {
+            deactivate_routing_manager();
+            false
+        }
+    } else {
+        false
+    }
 }
 
 pub struct WinNetCallbackHandle {

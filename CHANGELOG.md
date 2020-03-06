@@ -47,6 +47,10 @@ Line wrap the file at 100 chars.                                              Th
   button.
 - Show when the app failed to block all connections after an error.
 
+#### Windows
+- Fix bug where failing to initialize the route manager could cause the daemon to get stuck in a
+  blocked state. This only affected WireGuard.
+
 ### Security
 #### Windows
 - Fix issue in daemon where the `block_when_disconnected` setting was sometimes not honored when
