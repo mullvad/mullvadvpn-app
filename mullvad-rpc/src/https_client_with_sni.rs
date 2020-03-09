@@ -1,81 +1,81 @@
-use futures::{Future, Poll};
-use hyper::{
-    client::{Client, Connect, HttpConnector},
-    Body, Uri,
-};
-use hyper_openssl::openssl::ssl::{SslConnector, SslMethod};
-use jsonrpc_client_http::ClientCreator;
+use http::uri::Scheme;
+use hyper::{client::HttpConnector, service::Service, Uri};
+use hyper_rustls::MaybeHttpsStream;
 use std::{
-    fmt, io,
-    path::{Path, PathBuf},
+    fmt,
+    fs::File,
+    future::Future,
+    io::{self, BufReader},
+    path::Path,
+    pin::Pin,
     str,
     sync::Arc,
+    task::{Context, Poll},
 };
-use tokio_core::reactor::Handle;
-use tokio_openssl::{SslConnectorExt, SslStream};
-use tokio_service::Service;
+use tokio_rustls::rustls;
+use webpki::DNSNameRef;
 
-pub use hyper_openssl::openssl::error::ErrorStack;
 
-pub struct HttpsClientWithSni {
-    sni_hostname: String,
-    ca_path: Box<Path>,
-}
+#[derive(err_derive::Error, Debug)]
+#[error(no_from)]
+pub enum Error {
+    #[error(display = "Failed to parse cert file")]
+    CertError,
 
-impl HttpsClientWithSni {
-    pub fn new<P: Into<PathBuf>>(sni_hostname: String, ca_path: P) -> Self {
-        HttpsClientWithSni {
-            sni_hostname,
-            ca_path: ca_path.into().into_boxed_path(),
-        }
-    }
-}
+    #[error(display = "Root certificate error")]
+    RootCertError(webpki::Error),
 
-impl ClientCreator for HttpsClientWithSni {
-    type Connect = HttpsConnectorWithSni<HttpConnector>;
-    type Error = ErrorStack;
+    #[error(display = "Failed to read cert file")]
+    ReadCertError(#[error(source)] io::Error),
 
-    fn create(&self, handle: &Handle) -> Result<Client<Self::Connect, Body>, Self::Error> {
-        let mut connector = HttpsConnectorWithSni::new(&self.ca_path, handle)?;
-        connector.set_sni_hostname(Some(self.sni_hostname.clone()));
-        let client = Client::configure()
-            .keep_alive(false)
-            .connector(connector)
-            .build(handle);
-        Ok(client)
-    }
+    #[error(display = "Failed to read trust anchor")]
+    ReadRootError(#[error(source)] io::Error),
 }
 
 /// A Connector for the `https` scheme.
 #[derive(Clone)]
-pub struct HttpsConnectorWithSni<T> {
+pub struct HttpsConnectorWithSni {
     sni_hostname: Option<String>,
-    http: T,
-    tls: Arc<SslConnector>,
+    http: HttpConnector,
+    tls: Arc<rustls::ClientConfig>,
 }
 
-impl HttpsConnectorWithSni<HttpConnector> {
+impl HttpsConnectorWithSni {
     /// Construct a new HttpsConnectorWithSni.
     ///
     /// Takes number of DNS worker threads.
     ///
     /// This uses hyper's default `HttpConnector`, and default `TlsConnector`.
     /// If you wish to use something besides the defaults, use `From::from`.
-    pub fn new<P: AsRef<Path>>(ca_path: P, handle: &Handle) -> Result<Self, ErrorStack> {
-        let mut http = HttpConnector::new(crate::DNS_THREADS, handle);
+    pub fn new<P: AsRef<Path>>(ca_path: P) -> Result<Self, Error> {
+        let mut http = HttpConnector::new();
         http.enforce_http(false);
-        let mut ssl_builder = SslConnector::builder(SslMethod::tls())?;
-        ssl_builder.set_ca_file(ca_path)?;
-        let ssl = ssl_builder.build();
 
-        Ok(HttpsConnectorWithSni::from((http, ssl)))
+        let mut config = rustls::ClientConfig::new();
+        config.enable_sni = true;
+        config.root_store = Self::read_cert_store(ca_path)?;
+
+        Ok(HttpsConnectorWithSni::from((http, config)))
     }
-}
 
-impl<T> HttpsConnectorWithSni<T>
-where
-    T: Connect,
-{
+    fn read_cert_store(ca_path: impl AsRef<Path>) -> Result<rustls::RootCertStore, Error> {
+        let mut cert_store = rustls::RootCertStore::empty();
+
+
+        let cert_file = File::open(ca_path.as_ref()).map_err(Error::ReadCertError)?;
+        let mut cert_reader = BufReader::new(&cert_file);
+        let (_num_certs_added, num_failures) = cert_store
+            .add_pem_file(&mut cert_reader)
+            .map_err(|_| Error::CertError)?;
+        // add_pem_file() returns an Ok(i32, i32), where the second integer represents the amount
+        // of errors encountered. Go figure.
+        if num_failures > 0 {
+            return Err(Error::CertError);
+        }
+
+        Ok(cert_store)
+    }
+
     /// Configure a hostname to use with SNI.
     ///
     /// Configures the TLS connection handshake to request a certificate for a given domain,
@@ -85,8 +85,8 @@ where
     }
 }
 
-impl<T> From<(T, SslConnector)> for HttpsConnectorWithSni<T> {
-    fn from(args: (T, SslConnector)) -> HttpsConnectorWithSni<T> {
+impl From<(HttpConnector, rustls::ClientConfig)> for HttpsConnectorWithSni {
+    fn from(args: (HttpConnector, rustls::ClientConfig)) -> HttpsConnectorWithSni {
         HttpsConnectorWithSni {
             sni_hostname: None,
             http: args.0,
@@ -95,68 +95,54 @@ impl<T> From<(T, SslConnector)> for HttpsConnectorWithSni<T> {
     }
 }
 
-impl<T> fmt::Debug for HttpsConnectorWithSni<T> {
+impl fmt::Debug for HttpsConnectorWithSni {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("HttpsConnectorWithSni").finish()
     }
 }
 
-impl<T: Connect> Service for HttpsConnectorWithSni<T> {
-    type Request = Uri;
-    type Response = SslStream<T::Output>;
+impl Service<Uri> for HttpsConnectorWithSni {
+    type Response = MaybeHttpsStream<tokio::net::TcpStream>;
     type Error = io::Error;
-    type Future = HttpsConnecting<T::Output>;
+    type Future =
+        Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
 
-    fn call(&self, uri: Uri) -> Self::Future {
-        if uri.scheme() != Some("https") {
-            return HttpsConnecting(Box::new(::futures::future::err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                "invalid url, not https",
-            ))));
-        }
-        let maybe_host = self
+    fn poll_ready(&mut self, _: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        Poll::Ready(Ok(()))
+    }
+
+    fn call(&mut self, uri: Uri) -> Self::Future {
+        let tls_connector: tokio_rustls::TlsConnector = self.tls.clone().into();
+        let mut http = self.http.clone();
+        let sni_hostname = self
             .sni_hostname
-            .as_ref()
-            .map(String::as_str)
-            .or_else(|| uri.host())
-            .map(str::to_owned);
-        let host = match maybe_host {
-            Some(host) => host,
-            None => {
-                return HttpsConnecting(Box::new(::futures::future::err(io::Error::new(
+            .clone()
+            .or_else(|| uri.host().map(str::to_owned))
+            .ok_or_else(|| {
+                io::Error::new(io::ErrorKind::InvalidInput, "invalid url, missing host")
+            });
+
+
+        let fut = async move {
+            if uri.scheme() != Some(&Scheme::HTTPS) {
+                return Err(io::Error::new(
                     io::ErrorKind::InvalidInput,
-                    "invalid url, missing host",
-                ))));
+                    "invalid url, not https",
+                ));
             }
+            let hostname = sni_hostname?;
+            let host = DNSNameRef::try_from_ascii_str(&hostname)
+                .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid hostname"))?;
+            let connection = http
+                .call(uri)
+                .await
+                .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+            let tls_connection = tls_connector.connect(host, connection).await?;
+
+            Ok(MaybeHttpsStream::Https(tls_connection))
         };
-        let connecting = self.http.connect(uri);
-        let tls = self.tls.clone();
-
-        let fut = connecting.and_then(move |tcp| {
-            tls.connect_async(&host, tcp)
-                .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
-        });
-        HttpsConnecting(Box::new(fut))
-    }
-}
-
-type BoxedFut<T> = Box<dyn Future<Item = SslStream<T>, Error = io::Error>>;
-
-/// A Future representing work to connect to a URL, and a TLS handshake.
-pub struct HttpsConnecting<T>(BoxedFut<T>);
 
 
-impl<T> Future for HttpsConnecting<T> {
-    type Item = SslStream<T>;
-    type Error = io::Error;
-
-    fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
-        self.0.poll()
-    }
-}
-
-impl<T> fmt::Debug for HttpsConnecting<T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.pad("HttpsConnecting")
+        Box::pin(fut)
     }
 }

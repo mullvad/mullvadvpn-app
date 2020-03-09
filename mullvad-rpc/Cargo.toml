@@ -10,16 +10,20 @@ publish = false
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 err-derive = "0.2.1"
-futures = "0.1.15"
-jsonrpc-client-core = "0.5"
-jsonrpc-client-http = "0.5"
-serde_json = "1.0"
-tokio-core = "0.1"
-hyper = "0.11"
-hyper-openssl = "0.5"
-tokio-service = "0.1"
-tokio-openssl = "0.2"
+futures = { version = "0.3", features = [ "default", "compat" ] }
+futures01 = { package = "futures", version = "0.1" }
+http = "0.2"
+hyper = "0.13"
+ipnetwork = "0.15"
 log = "0.4"
+serde = "1"
+serde_json = "1.0"
+hyper-rustls = "0.20"
+tokio = { version = "0.2", features = [ "time", "rt-threaded", "net", "io-std", "io-driver" ] }
+tokio-rustls = "0.13"
+tokio-service = "0.1"
+urlencoding = "1"
+webpki = { version = "0.21", features =  [] }
 
 mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
