@@ -65,7 +65,7 @@ struct RelaySelector {
         )
     }
 
-    /// Produce a list of `ParsedRelay` elements satisfying the given constraints
+    /// Produce a list of `RelayWithLocation` items satisfying the given constraints
     private static func applyConstraints(_ constraints: RelayConstraints, relays: [RelayWithLocation]) -> [RelayWithLocation] {
         return relays.filter { (relayWithLocation) -> Bool in
             switch constraints.location {
@@ -90,7 +90,7 @@ struct RelaySelector {
             var filteredRelay = relayWithLocation
             let wireguardTunnels = filteredRelay.relay.tunnels?.wireguard?
                 .filter { !$0.portRanges.isEmpty }
-            
+
             filteredRelay.relay.tunnels?.wireguard = wireguardTunnels
 
             return filteredRelay
