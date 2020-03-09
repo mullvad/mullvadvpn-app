@@ -17,6 +17,7 @@ pub struct AppVersionInfo {
     pub current_is_supported: bool,
     /// True if there is a newer version that contains any functional differences compared to the
     /// running version. User should upgrade if they want the latest features and bugfixes.
+    /// DEPRECATED
     pub current_is_outdated: bool,
     pub latest_stable: AppVersion,
     /// Equal to `latest_stable` when the newest release is a stable release. But will contain
