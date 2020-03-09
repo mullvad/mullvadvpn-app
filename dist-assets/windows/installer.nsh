@@ -694,20 +694,6 @@
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"$SYSDIR\sc.exe" stop mullvadvpn'
-
-	# Discard return value
-	Pop $0
-
-	Sleep 5000
-
-	nsExec::ExecToStack '"$SYSDIR\sc.exe" delete mullvadvpn'
-
-	# Discard return value
-	Pop $0
-
-	Sleep 1000
-
 	# Check command line arguments
 	Var /GLOBAL FullUninstall
 
@@ -721,6 +707,29 @@
 		log::Initialize LOG_FILE
 	${EndIf}
 	Pop $FullUninstall
+
+	${If} $FullUninstall != 1
+		# Save the target tunnel state if we're upgrading
+		SetOutPath "$TEMP"
+		File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
+		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" prepare-restart'
+		Pop $0
+		Pop $1
+	${EndIf}
+
+	nsExec::ExecToStack '"$SYSDIR\sc.exe" stop mullvadvpn'
+
+	# Discard return value
+	Pop $0
+
+	Sleep 5000
+
+	nsExec::ExecToStack '"$SYSDIR\sc.exe" delete mullvadvpn'
+
+	# Discard return value
+	Pop $0
+
+	Sleep 1000
 
 	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
 
