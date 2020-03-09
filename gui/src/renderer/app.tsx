@@ -335,6 +335,12 @@ export default class AppRenderer {
     await IpcRendererEventChannel.settings.setOpenVpnMssfix(mssfix);
   }
 
+  public async setWireguardMtu(mtu?: number) {
+    const actions = this.reduxActions;
+    actions.settings.updateWireguardMtu(mtu);
+    await IpcRendererEventChannel.settings.setWireguardMtu(mtu);
+  }
+
   public setAutoConnect(autoConnect: boolean) {
     IpcRendererEventChannel.guiSettings.setAutoConnect(autoConnect);
   }
@@ -572,6 +578,7 @@ export default class AppRenderer {
     reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.generic.enableIpv6);
     reduxSettings.updateBlockWhenDisconnected(newSettings.blockWhenDisconnected);
     reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
+    reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.wireguard.mtu);
     reduxSettings.updateBridgeState(newSettings.bridgeState);
 
     this.setRelaySettings(newSettings.relaySettings);
