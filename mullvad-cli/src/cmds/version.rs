@@ -18,7 +18,16 @@ impl Command for Version {
         println!("Current version: {}", current_version);
         let version_info = rpc.get_version_info()?;
         println!("\tIs supported: {}", version_info.current_is_supported);
-        println!("\tIs up to date: {}", !version_info.current_is_outdated);
+
+        let settings = rpc.get_settings()?;
+        let is_updated = if settings.get_show_beta_releases().unwrap_or(false) {
+            // TODO: replace with version_info.latest_beta
+            version_info.latest == current_version
+        } else {
+            version_info.latest_stable == current_version
+        };
+        println!("\tIs up to date: {}", is_updated);
+
         if version_info.latest_stable != version_info.latest {
             println!(
                 "Latest version: {} (latest stable: {})",
