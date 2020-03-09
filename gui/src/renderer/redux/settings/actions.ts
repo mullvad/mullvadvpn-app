@@ -52,6 +52,11 @@ export interface IUpdateOpenVpnMssfixAction {
   mssfix?: number;
 }
 
+export interface IUpdateWireguardMtuAction {
+  type: 'UPDATE_WIREGUARD_MTU';
+  mtu?: number;
+}
+
 export interface IUpdateAutoStartAction {
   type: 'UPDATE_AUTO_START';
   autoStart: boolean;
@@ -98,6 +103,7 @@ export type SettingsAction =
   | IUpdateBridgeSettingsAction
   | IUpdateBridgeStateAction
   | IUpdateOpenVpnMssfixAction
+  | IUpdateWireguardMtuAction
   | IUpdateAutoStartAction
   | IWireguardSetKey
   | IWireguardVerifyKey
@@ -180,6 +186,13 @@ function updateOpenVpnMssfix(mssfix?: number): IUpdateOpenVpnMssfixAction {
   };
 }
 
+function updateWireguardMtu(mtu?: number): IUpdateWireguardMtuAction {
+  return {
+    type: 'UPDATE_WIREGUARD_MTU',
+    mtu,
+  };
+}
+
 function updateAutoStart(autoStart: boolean): IUpdateAutoStartAction {
   return {
     type: 'UPDATE_AUTO_START',
@@ -246,6 +259,7 @@ export default {
   updateBridgeSettings,
   updateBridgeState,
   updateOpenVpnMssfix,
+  updateWireguardMtu,
   updateAutoStart,
   setWireguardKey,
   setWireguardKeygenEvent,

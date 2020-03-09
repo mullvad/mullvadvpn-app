@@ -71,6 +71,7 @@ interface ISettingsMethods extends IReceiver<ISettings> {
   setBlockWhenDisconnected(block: boolean): Promise<void>;
   setBridgeState(state: BridgeState): Promise<void>;
   setOpenVpnMssfix(mssfix?: number): Promise<void>;
+  setWireguardMtu(mtu?: number): Promise<void>;
   updateRelaySettings(update: RelaySettingsUpdate): Promise<void>;
   updateBridgeSettings(bridgeSettings: BridgeSettings): Promise<void>;
 }
@@ -81,6 +82,7 @@ interface ISettingsHandlers extends ISender<ISettings> {
   handleBlockWhenDisconnected(fn: (block: boolean) => Promise<void>): void;
   handleBridgeState(fn: (state: BridgeState) => Promise<void>): void;
   handleOpenVpnMssfix(fn: (mssfix?: number) => Promise<void>): void;
+  handleWireguardMtu(fn: (mtu?: number) => Promise<void>): void;
   handleUpdateRelaySettings(fn: (update: RelaySettingsUpdate) => Promise<void>): void;
   handleUpdateBridgeSettings(fn: (bridgeSettings: BridgeSettings) => Promise<void>): void;
 }
@@ -160,6 +162,7 @@ const SET_ENABLE_IPV6 = 'set-enable-ipv6';
 const SET_BLOCK_WHEN_DISCONNECTED = 'set-block-when-disconnected';
 const SET_BRIDGE_STATE = 'set-bridge-state';
 const SET_OPENVPN_MSSFIX = 'set-openvpn-mssfix';
+const SET_WIREGUARD_MTU = 'set-wireguard-mtu';
 const UPDATE_RELAY_SETTINGS = 'update-relay-settings';
 const UPDATE_BRIDGE_SETTINGS = 'update-bridge-location';
 
@@ -236,6 +239,7 @@ export class IpcRendererEventChannel {
     setBlockWhenDisconnected: requestSender(SET_BLOCK_WHEN_DISCONNECTED),
     setBridgeState: requestSender(SET_BRIDGE_STATE),
     setOpenVpnMssfix: requestSender(SET_OPENVPN_MSSFIX),
+    setWireguardMtu: requestSender(SET_WIREGUARD_MTU),
     updateRelaySettings: requestSender(UPDATE_RELAY_SETTINGS),
     updateBridgeSettings: requestSender(UPDATE_BRIDGE_SETTINGS),
   };
@@ -333,6 +337,7 @@ export class IpcMainEventChannel {
     handleBlockWhenDisconnected: requestHandler(SET_BLOCK_WHEN_DISCONNECTED),
     handleBridgeState: requestHandler(SET_BRIDGE_STATE),
     handleOpenVpnMssfix: requestHandler(SET_OPENVPN_MSSFIX),
+    handleWireguardMtu: requestHandler(SET_WIREGUARD_MTU),
     handleUpdateRelaySettings: requestHandler(UPDATE_RELAY_SETTINGS),
     handleUpdateBridgeSettings: requestHandler(UPDATE_BRIDGE_SETTINGS),
   };

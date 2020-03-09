@@ -129,6 +129,9 @@ export interface ISettingsReduxState {
   openVpn: {
     mssfix?: number;
   };
+  wireguard: {
+    mtu?: number;
+  };
   wireguardKeyState: WgKeyState;
 }
 
@@ -164,6 +167,7 @@ const initialState: ISettingsReduxState = {
   bridgeState: 'auto',
   blockWhenDisconnected: false,
   openVpn: {},
+  wireguard: {},
   wireguardKeyState: {
     type: 'key-not-set',
   },
@@ -222,6 +226,15 @@ export default function(
         openVpn: {
           ...state.openVpn,
           mssfix: action.mssfix,
+        },
+      };
+
+    case 'UPDATE_WIREGUARD_MTU':
+      return {
+        ...state,
+        wireguard: {
+          ...state.wireguard,
+          mtu: action.mtu,
         },
       };
 
