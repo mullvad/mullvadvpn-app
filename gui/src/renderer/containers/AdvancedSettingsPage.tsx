@@ -18,6 +18,7 @@ const mapStateToProps = (state: IReduxState) => {
     blockWhenDisconnected: state.settings.blockWhenDisconnected,
     wireguardKeyState: state.settings.wireguardKeyState,
     mssfix: state.settings.openVpn.mssfix,
+    wireguardMtu: state.settings.wireguard.mtu,
     bridgeState: state.settings.bridgeState,
     ...protocolAndPort,
   };
@@ -143,6 +144,14 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
         await props.app.setOpenVpnMssfix(mssfix);
       } catch (e) {
         log.error('Failed to update mssfix value', e.message);
+      }
+    },
+
+    setWireguardMtu: async (mtu?: number) => {
+      try {
+        await props.app.setWireguardMtu(mtu);
+      } catch (e) {
+        log.error('Failed to update mtu value', e.message);
       }
     },
     onViewWireguardKeys: () => history.push('/settings/advanced/wireguard-keys'),
