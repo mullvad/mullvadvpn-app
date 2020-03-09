@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Added signal handlers on Unix platforms to better log critical faults with the daemon.
 - Add WireGuard MTU setting to desktop app.
+- Add option to receive notifications about new beta releases.
 
 #### Android
 - Add option to enable auto-connecting behavior
