@@ -153,6 +153,7 @@ elif [[ ("$(uname -s)" == "Linux") ]]; then
         mullvad
         mullvad-problem-report
         libtalpid_openvpn_plugin.so
+        mullvad-setup
     )
 elif [[ ("$(uname -s)" == "MINGW"*) ]]; then
     binaries=(
