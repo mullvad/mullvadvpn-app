@@ -1,11 +1,14 @@
 use clap::{crate_authors, crate_description, crate_name, SubCommand};
 use std::process;
+use talpid_core::firewall::{self, Firewall, FirewallArguments};
 use talpid_types::ErrorExt;
 
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
+    #[error(display = "Firewall error")]
+    FirewallError(#[error(source)] firewall::Error),
 }
 
 fn main() {
@@ -47,5 +50,12 @@ fn prepare_restart() -> Result<(), Error> {
 }
 
 fn reset_firewall() -> Result<(), Error> {
-    Ok(())
+    // TODO: ensure daemon isn't running
+
+    let mut firewall = Firewall::new(FirewallArguments {
+        initialize_blocked: false,
+        allow_lan: None,
+    }).map_err(Error::FirewallError)?;
+
+    firewall.reset_policy().map_err(Error::FirewallError)
 }
