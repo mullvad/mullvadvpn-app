@@ -133,7 +133,7 @@ class RelayCache {
                     var filteredCity = city
 
                     filteredCity.relays = city.relays
-                        .map { (relay) -> RelayList.Hostname in
+                        .map { (relay) -> RelayList.Relay in
                             var filteredRelay = relay
 
                             // filter out tunnels without ports

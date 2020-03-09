@@ -10,10 +10,15 @@ import Foundation
 import Network
 
 struct RelaySelectorResult {
-    var relay: RelayList.Hostname
+    var relay: RelayList.Relay
     var tunnel: RelayList.WireguardTunnel
     var endpoint: MullvadEndpoint
-    var geoLocation: GeoLocation
+    var location: Location
+}
+
+private struct RelayWithLocation {
+    var relay: RelayList.Relay
+    var location: Location
 }
 
 struct RelaySelector {
@@ -24,94 +29,19 @@ struct RelaySelector {
         self.relayList = relayList
     }
 
-    /// Produce a `RelayList` satisfying the given constraints
-    private func applyConstraints(_ constraints: RelayConstraints) -> RelayList {
-        let filteredCountries = relayList.countries.filter { (country) -> Bool in
-            switch constraints.location {
-            case .any:
-                return true
-            case .only(let constraint):
-                switch constraint {
-                case .country(let countryCode):
-                    return countryCode == country.code
-                case .city(let countryCode, _):
-                    return countryCode == country.code
-                case .hostname(let countryCode, _, _):
-                    return countryCode == country.code
-                }
-            }
-        }.map { (country) -> RelayList.Country in
-            var filteredCountry = country
-            filteredCountry.cities = country.cities.filter { (city) -> Bool in
-                switch constraints.location {
-                case .any:
-                    return true
-                case .only(let constraint):
-                    switch constraint {
-                    case .country:
-                        return true
-                    case .city(_, let cityCode):
-                        return cityCode == city.code
-                    case .hostname(_, let cityCode, _):
-                        return cityCode == city.code
-                    }
-                }
-            }.map { (city) -> RelayList.City in
-                var filteredCity = city
-                filteredCity.relays = city.relays.filter { (relay) -> Bool in
-                    switch constraints.location {
-                    case .any:
-                        return true
-                    case .only(let constraint):
-                        switch constraint {
-                        case .country, .city:
-                            return true
-                        case .hostname(_, _, let hostname):
-                            return hostname == relay.hostname
-                        }
-                    }
-                }
-                .map({ (relay) -> RelayList.Hostname in
-                    var filteredRelay = relay
-                    filteredRelay.tunnels?.wireguard = relay.tunnels?.wireguard?
-                        .filter { !$0.portRanges.isEmpty }
-
-                    return filteredRelay
-                }).filter { (relay) -> Bool in
-                    guard let wireguardTunnels = relay.tunnels?.wireguard else { return false }
-
-                    return relay.active && !wireguardTunnels.isEmpty
-                }
-
-                return filteredCity
-            }.filter({ (city) -> Bool in
-                return !city.relays.isEmpty
-            })
-
-            return filteredCountry
-        }.filter { (country) -> Bool in
-            return !country.cities.isEmpty
-        }
-
-        return RelayList(countries: filteredCountries)
-    }
-
     func evaluate(with constraints: RelayConstraints) -> RelaySelectorResult? {
-        let filteredRelayList = applyConstraints(constraints)
+        let relays = Self.applyConstraints(constraints, relays: Self.parseRelayList(self.relayList))
+        let totalWeight = relays.reduce(0) { $0 + $1.relay.weight }
 
-        guard let country = filteredRelayList.countries.randomElement() else {
-            return nil
-        }
+        guard totalWeight > 0 else { return nil }
+        guard var i = (0...totalWeight).randomElement() else { return nil }
 
-        guard let city = country.cities.randomElement() else {
-            return nil
-        }
+        let relayWithLocation = relays.first { (relayWithLocation) -> Bool in
+            i -= relayWithLocation.relay.weight
+            return i <= 0
+        }.unsafelyUnwrapped
 
-        guard let relay = city.relays.randomElement() else {
-                return nil
-        }
-
-        guard let tunnel = relay.tunnels?.wireguard?.randomElement() else {
+        guard let tunnel = relayWithLocation.relay.tunnels?.wireguard?.randomElement() else {
             return nil
         }
 
@@ -120,26 +50,81 @@ struct RelaySelector {
         }
 
         let endpoint = MullvadEndpoint(
-            ipv4Relay: IPv4Endpoint(ip: relay.ipv4AddrIn, port: port),
+            ipv4Relay: IPv4Endpoint(ip: relayWithLocation.relay.ipv4AddrIn, port: port),
             ipv6Relay: nil,
             ipv4Gateway: tunnel.ipv4Gateway,
             ipv6Gateway: tunnel.ipv6Gateway,
             publicKey: tunnel.publicKey
         )
 
-        let geoLocation = GeoLocation(
-            country: country.name,
-            city: city.name,
-            latitude: city.latitude,
-            longitude: city.longitude
-        )
-
         return RelaySelectorResult(
-            relay: relay,
+            relay: relayWithLocation.relay,
             tunnel: tunnel,
             endpoint: endpoint,
-            geoLocation: geoLocation
+            location: relayWithLocation.location
         )
+    }
+
+    /// Produce a list of `RelayWithLocation` items satisfying the given constraints
+    private static func applyConstraints(_ constraints: RelayConstraints, relays: [RelayWithLocation]) -> [RelayWithLocation] {
+        return relays.filter { (relayWithLocation) -> Bool in
+            switch constraints.location {
+            case .any:
+                return true
+            case .only(let relayConstraint):
+                switch relayConstraint {
+                case .country(let countryCode):
+                    return relayWithLocation.location.countryCode == countryCode
+
+                case .city(let countryCode, let cityCode):
+                    return relayWithLocation.location.countryCode == countryCode &&
+                        relayWithLocation.location.cityCode == cityCode
+
+                case .hostname(let countryCode, let cityCode, let hostname):
+                    return relayWithLocation.location.countryCode == countryCode &&
+                        relayWithLocation.location.cityCode == cityCode &&
+                        relayWithLocation.relay.hostname == hostname
+                }
+            }
+        }.map({ (relayWithLocation) -> RelayWithLocation in
+            var filteredRelay = relayWithLocation
+            let wireguardTunnels = filteredRelay.relay.tunnels?.wireguard?
+                .filter { !$0.portRanges.isEmpty }
+
+            filteredRelay.relay.tunnels?.wireguard = wireguardTunnels
+
+            return filteredRelay
+        }).filter { (relayWithLocation) -> Bool in
+            guard let wireguardTunnels = relayWithLocation.relay.tunnels?.wireguard else { return false }
+
+            return relayWithLocation.relay.active && !wireguardTunnels.isEmpty
+        }
+    }
+
+    private static func parseRelayList(_ relayList: RelayList) -> [RelayWithLocation] {
+        var relays = [RelayWithLocation]()
+
+        for country in relayList.countries {
+            for city in country.cities {
+                for relay in city.relays {
+                    let location = Location(
+                        country: country.name,
+                        countryCode: country.code,
+                        city: city.name,
+                        cityCode: city.code,
+                        latitude: city.latitude,
+                        longitude: city.longitude
+                    )
+                    let relayWithLocation = RelayWithLocation(
+                        relay: relay,
+                        location: location
+                    )
+                    relays.append(relayWithLocation)
+                }
+            }
+        }
+
+        return relays
     }
 
 }
