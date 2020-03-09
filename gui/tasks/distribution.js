@@ -105,6 +105,7 @@ const config = {
     extraResources: [
       { from: distAssets('mullvad-problem-report'), to: '.' },
       { from: distAssets('mullvad-daemon'), to: '.' },
+      { from: distAssets('mullvad-setup'), to: '.' },
       { from: distAssets('libtalpid_openvpn_plugin.so'), to: '.' },
       { from: distAssets('binaries/x86_64-unknown-linux-gnu/openvpn'), to: '.' },
       { from: distAssets('binaries/x86_64-unknown-linux-gnu/sslocal'), to: '.' },
