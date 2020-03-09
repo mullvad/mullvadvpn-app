@@ -48,7 +48,7 @@ Line wrap the file at 100 chars.                                              Th
 - Show when the app failed to block all connections after an error in the android and desktop apps.
 
 #### macOS
-- Fix firewall rules to properly handle DNS requests over TCP when "Local network sharing" is 
+- Fix firewall rules to properly handle DNS requests over TCP when "Local network sharing" is
   disabled. Previously DNS requests over TCP would timeout.
 
 #### Android
