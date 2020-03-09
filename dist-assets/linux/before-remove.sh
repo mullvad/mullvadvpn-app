@@ -9,6 +9,11 @@ if [[ "$1" =~ $is_number_re ]] && [ $1 -gt 0 ]; then
     exit 0;
 fi
 
+if [[ "$1" == "upgrade" ]]; then
+    echo not running
+    exit 0;
+fi
+
 if which systemctl &> /dev/null; then
     # the user might've disabled or stopped the service themselves already
     systemctl stop mullvad-daemon.service || true
