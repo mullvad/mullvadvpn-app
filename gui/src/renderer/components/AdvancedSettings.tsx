@@ -20,6 +20,8 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
+const MIN_WIREGUARD_MTU_VALUE = 1280;
+const MAX_WIREGUARD_MTU_VALUE = 1420;
 const UDP_PORTS = [1194, 1195, 1196, 1197, 1300, 1301, 1302];
 const TCP_PORTS = [80, 443];
 const WIREUGARD_UDP_PORTS = [53];
@@ -44,25 +46,21 @@ interface IProps {
   wireguardKeyState: WgKeyState;
   wireguard: { port?: number };
   mssfix?: number;
+  wireguardMtu?: number;
   bridgeState: BridgeState;
   setBridgeState: (value: BridgeState) => void;
   setEnableIpv6: (value: boolean) => void;
   setBlockWhenDisconnected: (value: boolean) => void;
   setTunnelProtocol: (value: OptionalTunnelProtocol) => void;
   setOpenVpnMssfix: (value: number | undefined) => void;
+  setWireguardMtu: (value: number | undefined) => void;
   setOpenVpnRelayProtocolAndPort: (protocol?: RelayProtocol, port?: number) => void;
   setWireguardRelayPort: (port?: number) => void;
   onViewWireguardKeys: () => void;
   onClose: () => void;
 }
 
-interface IState {
-  persistedMssfix?: number;
-  editedMssfix?: number;
-  focusOnMssfix: boolean;
-}
-
-export default class AdvancedSettings extends Component<IProps, IState> {
+export default class AdvancedSettings extends Component<IProps> {
   private portItems: { [key in RelayProtocol]: Array<ISelectorItem<OptionalPort>> };
   private protocolItems: Array<ISelectorItem<OptionalRelayProtocol>>;
   private bridgeStateItems: Array<ISelectorItem<BridgeState>>;
@@ -118,30 +116,9 @@ export default class AdvancedSettings extends Component<IProps, IState> {
         value: 'off',
       },
     ];
-
-    this.state = {
-      persistedMssfix: props.mssfix,
-      editedMssfix: props.mssfix,
-      focusOnMssfix: false,
-    };
-  }
-
-  public componentDidUpdate(_prevProps: IProps, _prevState: IState) {
-    if (this.props.mssfix !== this.state.persistedMssfix) {
-      this.setState((state, props) => ({
-        ...state,
-        persistedMssfix: props.mssfix,
-        editedMssfix: state.focusOnMssfix ? state.editedMssfix : props.mssfix,
-      }));
-    }
   }
 
   public render() {
-    const mssfixStyle = this.mssfixIsValid()
-      ? styles.advanced_settings__mssfix_valid_value
-      : styles.advanced_settings__mssfix_invalid_value;
-    const mssfixValue = this.state.editedMssfix;
-
     const hasWireguardKey = this.props.wireguardKeyState.type === 'key-set';
 
     return (
@@ -298,18 +275,20 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                   />
 
                   <Cell.Container>
-                    <Cell.Label>{messages.pgettext('advanced-settings-view', 'Mssfix')}</Cell.Label>
-                    <Cell.InputFrame style={styles.advanced_settings__mssfix_frame}>
+                    <Cell.Label>
+                      {messages.pgettext('advanced-settings-view', 'OpenVPN Mssfix')}
+                    </Cell.Label>
+                    <Cell.InputFrame style={styles.advanced_settings__input_frame}>
                       <Cell.AutoSizingTextInputContainer>
                         <Cell.Input
+                          value={this.props.mssfix ? this.props.mssfix.toString() : ''}
                           keyboardType={'numeric'}
                           maxLength={4}
                           placeholder={messages.pgettext('advanced-settings-view', 'Default')}
-                          value={mssfixValue ? mssfixValue.toString() : ''}
-                          style={[styles.advanced_settings__mssfix_input, mssfixStyle]}
-                          onChangeText={this.onMssfixChange}
-                          onFocus={this.onMssfixFocus}
-                          onBlur={this.onMssfixBlur}
+                          onSubmit={this.onMssfixSubmit}
+                          validateValue={AdvancedSettings.mssfixIsValid}
+                          submitOnBlur={true}
+                          modifyValue={AdvancedSettings.removeNonNumericCharacters}
                         />
                       </Cell.AutoSizingTextInputContainer>
                     </Cell.InputFrame>
@@ -332,6 +311,45 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                       )}
                     </Cell.FooterText>
                   </Cell.Footer>
+
+                  <Cell.Container>
+                    <Cell.Label>
+                      {messages.pgettext('advanced-settings-view', 'WireGuard MTU')}
+                    </Cell.Label>
+                    <Cell.InputFrame style={styles.advanced_settings__input_frame}>
+                      <Cell.AutoSizingTextInputContainer>
+                        <Cell.Input
+                          value={this.props.wireguardMtu ? this.props.wireguardMtu.toString() : ''}
+                          keyboardType={'numeric'}
+                          maxLength={4}
+                          placeholder={messages.pgettext('advanced-settings-view', 'Default')}
+                          onSubmit={this.onWireguardMtuSubmit}
+                          validateValue={AdvancedSettings.wireguarMtuIsValid}
+                          submitOnBlur={true}
+                          modifyValue={AdvancedSettings.removeNonNumericCharacters}
+                        />
+                      </Cell.AutoSizingTextInputContainer>
+                    </Cell.InputFrame>
+                  </Cell.Container>
+                  <Cell.Footer>
+                    <Cell.FooterText>
+                      {sprintf(
+                        // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
+                        // TRANSLATORS: Available placeholders:
+                        // TRANSLATORS: %(max)d - the maximum possible wireguard mtu value
+                        // TRANSLATORS: %(min)d - the minimum possible wireguard mtu value
+                        messages.pgettext(
+                          'advanced-settings-view',
+                          'Set WireGuard MTU value. Valid range: %(min)d - %(max)d.',
+                        ),
+                        {
+                          min: MIN_WIREGUARD_MTU_VALUE,
+                          max: MAX_WIREGUARD_MTU_VALUE,
+                        },
+                      )}
+                    </Cell.FooterText>
+                  </Cell.Footer>
+
                   <View style={styles.advanced_settings__wgkeys_cell}>
                     <Cell.CellButton onPress={this.props.onViewWireguardKeys}>
                       <Cell.Label>
@@ -394,32 +412,37 @@ export default class AdvancedSettings extends Component<IProps, IState> {
     this.props.setBridgeState(bridgeState);
   };
 
-  private onMssfixChange = (mssfixString: string) => {
-    const mssfix = mssfixString.replace(/[^0-9]/g, '');
-
-    if (mssfix === '') {
-      this.setState({ editedMssfix: undefined });
-    } else {
-      this.setState({ editedMssfix: parseInt(mssfix, 10) });
+  private onMssfixSubmit = (value: string) => {
+    const parsedValue = value === '' ? undefined : parseInt(value, 10);
+    if (AdvancedSettings.mssfixIsValid(value)) {
+      this.props.setOpenVpnMssfix(parsedValue);
     }
   };
 
-  private onMssfixFocus = () => {
-    this.setState({ focusOnMssfix: true });
-  };
+  private static removeNonNumericCharacters(value: string) {
+    return value.replace(/[^0-9]/g, '');
+  }
 
-  private onMssfixBlur = () => {
-    this.setState({ focusOnMssfix: false });
+  private static mssfixIsValid(mssfix: string): boolean {
+    const parsedMssFix = mssfix ? parseInt(mssfix) : undefined;
+    return (
+      parsedMssFix === undefined ||
+      (parsedMssFix >= MIN_MSSFIX_VALUE && parsedMssFix <= MAX_MSSFIX_VALUE)
+    );
+  }
 
-    if (this.mssfixIsValid()) {
-      this.props.setOpenVpnMssfix(this.state.editedMssfix);
-      this.setState((state, _props) => ({ persistedMssfix: state.editedMssfix }));
+  private onWireguardMtuSubmit = (value: string) => {
+    const parsedValue = value === '' ? undefined : parseInt(value, 10);
+    if (AdvancedSettings.wireguarMtuIsValid(value)) {
+      this.props.setWireguardMtu(parsedValue);
     }
   };
 
-  private mssfixIsValid(): boolean {
-    const mssfix = this.state.editedMssfix;
-
-    return mssfix === undefined || (mssfix >= MIN_MSSFIX_VALUE && mssfix <= MAX_MSSFIX_VALUE);
+  private static wireguarMtuIsValid(mtu: string): boolean {
+    const parsedMtu = mtu ? parseInt(mtu) : undefined;
+    return (
+      parsedMtu === undefined ||
+      (parsedMtu >= MIN_WIREGUARD_MTU_VALUE && parsedMtu <= MAX_WIREGUARD_MTU_VALUE)
+    );
   }
 }

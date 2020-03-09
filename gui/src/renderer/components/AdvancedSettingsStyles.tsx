@@ -55,17 +55,8 @@ export default {
   advanced_settings__cell_footer_internet_warning_label: Styles.createTextStyle({
     marginTop: 4,
   }),
-  advanced_settings__mssfix_input: Styles.createTextInputStyle({
-    minWidth: 80,
-  }),
-  advanced_settings__mssfix_frame: Styles.createViewStyle({
+  advanced_settings__input_frame: Styles.createViewStyle({
     flex: 0,
-  }),
-  advanced_settings__mssfix_valid_value: Styles.createTextStyle({
-    color: colors.white,
-  }),
-  advanced_settings__mssfix_invalid_value: Styles.createTextStyle({
-    color: colors.red,
   }),
   advanced_settings__block_when_disconnected_label: Styles.createTextStyle({
     letterSpacing: -0.5,

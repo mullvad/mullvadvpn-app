@@ -1,129 +1,9 @@
 import * as React from 'react';
 import { Button, Component, Styles, Text, TextInput, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
+import styles from './CellStyles';
 import ImageView from './ImageView';
 import { default as SwitchControl } from './Switch';
-
-const styles = {
-  cellButton: {
-    base: Styles.createButtonStyle({
-      backgroundColor: colors.blue,
-      paddingVertical: 0,
-      paddingHorizontal: 16,
-      marginBottom: 1,
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      alignContent: 'center',
-      cursor: 'default',
-    }),
-    section: Styles.createButtonStyle({
-      backgroundColor: colors.blue40,
-    }),
-    hover: Styles.createButtonStyle({
-      backgroundColor: colors.blue80,
-    }),
-    selected: Styles.createViewStyle({
-      backgroundColor: colors.green,
-    }),
-  },
-  cellContainer: Styles.createViewStyle({
-    backgroundColor: colors.blue,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: 16,
-    paddingRight: 12,
-  }),
-  footer: {
-    container: Styles.createViewStyle({
-      paddingTop: 8,
-      paddingRight: 24,
-      paddingBottom: 24,
-      paddingLeft: 24,
-    }),
-    text: Styles.createTextStyle({
-      fontFamily: 'Open Sans',
-      fontSize: 13,
-      fontWeight: '600',
-      lineHeight: 20,
-      letterSpacing: -0.2,
-      color: colors.white80,
-    }),
-    boldText: Styles.createTextStyle({
-      fontWeight: '900',
-    }),
-  },
-  label: {
-    container: Styles.createViewStyle({
-      marginLeft: 8,
-      marginTop: 14,
-      marginBottom: 14,
-      flex: 1,
-    }),
-    text: Styles.createTextStyle({
-      fontFamily: 'DINPro',
-      fontSize: 20,
-      fontWeight: '900',
-      lineHeight: 26,
-      letterSpacing: -0.2,
-      color: colors.white,
-    }),
-  },
-  switch: Styles.createViewStyle({
-    flex: 0,
-  }),
-  input: {
-    frame: Styles.createViewStyle({
-      flexGrow: 0,
-      backgroundColor: 'rgba(255,255,255,0.1)',
-      borderRadius: 4,
-      padding: 4,
-    }),
-    text: Styles.createTextInputStyle({
-      color: colors.white,
-      backgroundColor: 'transparent',
-      fontFamily: 'Open Sans',
-      fontSize: 20,
-      fontWeight: '600',
-      lineHeight: 26,
-      textAlign: 'right',
-      padding: 0,
-    }),
-  },
-  autoSizingInputContainer: {
-    measuringView: Styles.createViewStyle({
-      position: 'absolute',
-      opacity: 0,
-    }),
-    measureText: Styles.createTextStyle({
-      width: undefined,
-      flexBasis: undefined,
-    }),
-  },
-  icon: Styles.createViewStyle({
-    marginLeft: 8,
-  }),
-  subtext: Styles.createTextStyle({
-    color: colors.white60,
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    fontWeight: '800',
-    flex: -1,
-    textAlign: 'right',
-    marginLeft: 8,
-  }),
-  sectionTitle: Styles.createTextStyle({
-    backgroundColor: colors.blue,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    marginBottom: 1,
-    fontFamily: 'DINPro',
-    fontSize: 20,
-    fontWeight: '900',
-    lineHeight: 26,
-    color: colors.white,
-  }),
-};
 
 interface ICellButtonProps {
   children?: React.ReactNode;
@@ -272,22 +152,100 @@ export const InputFrame = function CellInputFrame(props: IInputFrameProps) {
   return <View style={[styles.input.frame, style]}>{children}</View>;
 };
 
-export const Input = React.forwardRef(function CellInput(
-  props: Types.TextInputProps,
-  ref?: React.Ref<TextInput>,
-) {
-  const { style, ...otherProps } = props;
+interface IInputProps extends Types.TextInputProps {
+  validateValue?: (value: string) => boolean;
+  modifyValue?: (value: string) => string;
+  submitOnBlur?: boolean;
+  onSubmit?: (value: string) => void;
+}
 
-  return (
-    <TextInput
-      ref={ref}
-      placeholderTextColor={colors.white60}
-      autoCorrect={false}
-      style={[styles.input.text, style]}
-      {...otherProps}
-    />
-  );
-});
+interface IInputState {
+  value?: string;
+  focused: boolean;
+}
+
+export class Input extends Component<IInputProps, IInputState> {
+  public state = {
+    value: this.props.value || '',
+    focused: false,
+  };
+
+  public componentDidUpdate(prevProps: IInputProps, _prevState: IInputState) {
+    if (
+      !this.state.focused &&
+      prevProps.value !== this.props.value &&
+      this.props.value !== this.state.value
+    ) {
+      this.setState((_state, props) => ({
+        value: props.value,
+      }));
+    }
+  }
+
+  public render() {
+    const {
+      style,
+      value: _value,
+      onChangeText: _onChangeText,
+      onFocus: _onFocus,
+      onBlur: _onBlur,
+      onSubmitEditing: _onSubmitEditing,
+      ...otherProps
+    } = this.props;
+
+    const validityStyle =
+      this.props.validateValue && this.props.validateValue(this.state.value)
+        ? styles.input.validValue
+        : styles.input.invalidValue;
+
+    return (
+      <TextInput
+        placeholderTextColor={colors.white60}
+        autoCorrect={false}
+        style={[styles.input.text, validityStyle, style]}
+        onChangeText={this.onChangeText}
+        onFocus={this.onFocus}
+        onBlur={this.onBlur}
+        onSubmitEditing={this.onSubmitEditing}
+        value={this.state.value}
+        {...otherProps}
+      />
+    );
+  }
+
+  private onChangeText = (value: string) => {
+    this.setState({ value });
+    if (this.props.onChangeText) {
+      this.props.onChangeText(value);
+    }
+  };
+
+  private onFocus = (e: Types.FocusEvent) => {
+    this.setState({ focused: true });
+    if (this.props.onFocus) {
+      this.props.onFocus(e);
+    }
+  };
+
+  private onBlur = (e: Types.FocusEvent) => {
+    this.setState({ focused: false });
+    if (this.props.onBlur) {
+      this.props.onBlur(e);
+    }
+    if (this.props.submitOnBlur && this.props.onSubmit) {
+      this.props.onSubmit(this.state.value);
+    }
+  };
+
+  private onSubmitEditing = () => {
+    if (this.props.onSubmit) {
+      this.props.onSubmit(this.state.value);
+    }
+    if (this.props.onSubmitEditing) {
+      this.props.onSubmitEditing();
+    }
+  };
+}
 
 interface IAutoSizingTextInputContainerProps {
   style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
