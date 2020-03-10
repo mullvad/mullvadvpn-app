@@ -12,7 +12,9 @@ const mapStateToProps = (state: IReduxState) => ({
   defaultMessage: state.support.message,
   accountHistory: state.account.accountHistory,
   isOffline: state.connection.isBlocked,
-  outdatedVersion: state.version.currentIsOutdated,
+  outdatedVersion: state.settings.showBetaReleases
+    ? state.version.current !== state.version.latest
+    : state.version.current !== state.version.latestStable,
 });
 
 const mapDispatchToProps = (dispatch: ReduxDispatch) => {

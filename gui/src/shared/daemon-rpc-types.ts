@@ -279,7 +279,6 @@ export interface IShadowsocksProxySettings {
 
 export interface IAppVersionInfo {
   currentIsSupported: boolean;
-  currentIsOutdated: boolean;
   latestStable: string;
   latest: string;
 }
@@ -289,6 +288,7 @@ export interface ISettings {
   allowLan: boolean;
   autoConnect: boolean;
   blockWhenDisconnected: boolean;
+  showBetaReleases?: boolean;
   relaySettings: RelaySettings;
   tunnelOptions: ITunnelOptions;
   bridgeSettings: BridgeSettings;
