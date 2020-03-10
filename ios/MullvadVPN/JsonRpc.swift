@@ -14,7 +14,7 @@ extension Encodable {
     }
 }
 
-struct AnyEncodable : Encodable {
+struct AnyEncodable: Encodable {
     let value: Encodable
 
     init(_ value: Encodable) {
@@ -44,7 +44,7 @@ class JsonRpcResponseError<ResponseCode>: Error, Decodable
     let code: ResponseCode
     let message: String
 
-    var localizedDescription: String? {
+    var localizedDescription: String {
         return message
     }
 

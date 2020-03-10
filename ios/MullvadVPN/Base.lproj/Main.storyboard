@@ -40,10 +40,10 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="93"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoIcon" translatesAutoresizingMaskIntoConstraints="NO" id="cKg-hE-JsS">
-                                        <rect key="frame" x="12" y="31.5" width="49.000000000000014" height="50"/>
+                                        <rect key="frame" x="12" y="6.5" width="98" height="100"/>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uXv-Tf-PET">
-                                        <rect key="frame" x="335" y="44.5" width="24" height="24"/>
+                                        <rect key="frame" x="311" y="32.5" width="48" height="48"/>
                                         <accessibility key="accessibilityConfiguration" identifier="SettingsButton"/>
                                         <state key="normal" image="IconSettings"/>
                                         <connections>
@@ -51,7 +51,7 @@
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MULLVAD VPN" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dqy-A0-TdV">
-                                        <rect key="frame" x="69" y="42" width="168" height="29"/>
+                                        <rect key="frame" x="118" y="42" width="168" height="29"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
                                         <color key="textColor" white="1" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
@@ -113,7 +113,7 @@
                                         </constraints>
                                     </view>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="IconSuccess" translatesAutoresizingMaskIntoConstraints="NO" id="7ux-Tb-Fzq">
-                                        <rect key="frame" x="157.5" y="167" width="60" height="60"/>
+                                        <rect key="frame" x="127.5" y="137" width="120" height="120"/>
                                     </imageView>
                                     <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="V3j-Lb-fSQ" userLabel="Form">
                                         <rect key="frame" x="0.0" y="251" width="375" height="125.5"/>
@@ -374,13 +374,13 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Account" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lve-Kd-qTr">
-                                            <rect key="frame" x="16" y="11" width="63.5" height="21.5"/>
+                                            <rect key="frame" x="16" y="11" width="63.5" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="A YEAR LEFT" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QeD-EQ-Ruo">
-                                            <rect key="frame" x="259" y="11" width="81" height="21.5"/>
+                                            <rect key="frame" x="259" y="11" width="81" height="21"/>
                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
@@ -412,13 +412,13 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="App version" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pYC-Zb-8N9">
-                                            <rect key="frame" x="16" y="11" width="91" height="21.5"/>
+                                            <rect key="frame" x="16" y="11" width="91" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="2018.3" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sOr-vj-cg7">
-                                            <rect key="frame" x="316.5" y="11" width="42.5" height="21.5"/>
+                                            <rect key="frame" x="316.5" y="11" width="42.5" height="21"/>
                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
@@ -447,7 +447,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Amw-A3-ePS">
-                                            <rect key="frame" x="16" y="11" width="324" height="21.5"/>
+                                            <rect key="frame" x="16" y="11" width="324" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
@@ -741,10 +741,10 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rkG-Xa-pEO" userLabel="Container">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="229.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="349.5"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nkx-Eb-7le" userLabel="Content">
-                                                <rect key="frame" x="24" y="24" width="327" height="181.5"/>
+                                                <rect key="frame" x="24" y="24" width="327" height="301.5"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HzF-8Z-UBs" userLabel="Account number">
                                                         <rect key="frame" x="0.0" y="0.0" width="327" height="46"/>
@@ -785,12 +785,40 @@
                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="NMg-f0-BTW">
                                                                 <rect key="frame" x="0.0" y="0.0" width="327" height="45.5"/>
                                                                 <subviews>
-                                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Active until" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nrG-9Q-lWI">
+                                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fyk-lv-ggt">
                                                                         <rect key="frame" x="0.0" y="0.0" width="327" height="17"/>
-                                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                                        <color key="textColor" white="1" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                                        <nil key="highlightedColor"/>
-                                                                    </label>
+                                                                        <subviews>
+                                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="751" text="Paid until" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nrG-9Q-lWI">
+                                                                                <rect key="frame" x="0.0" y="0.0" width="59.5" height="17"/>
+                                                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                                                <color key="textColor" white="1" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                                <nil key="highlightedColor"/>
+                                                                            </label>
+                                                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="20K-WW-5v6" customClass="SpinnerActivityIndicatorView" customModule="MullvadVPN" customModuleProvider="target">
+                                                                                <rect key="frame" x="311" y="0.5" width="16" height="16"/>
+                                                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                                <constraints>
+                                                                                    <constraint firstAttribute="width" constant="16" id="Hym-zs-PN7"/>
+                                                                                    <constraint firstAttribute="height" constant="16" id="uys-o5-CZJ"/>
+                                                                                </constraints>
+                                                                                <userDefinedRuntimeAttributes>
+                                                                                    <userDefinedRuntimeAttribute type="number" keyPath="thickness">
+                                                                                        <real key="value" value="2"/>
+                                                                                    </userDefinedRuntimeAttribute>
+                                                                                </userDefinedRuntimeAttributes>
+                                                                            </view>
+                                                                        </subviews>
+                                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                        <constraints>
+                                                                            <constraint firstItem="20K-WW-5v6" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="nrG-9Q-lWI" secondAttribute="trailing" constant="8" symbolic="YES" id="3uR-Ln-ICn"/>
+                                                                            <constraint firstItem="nrG-9Q-lWI" firstAttribute="top" secondItem="fyk-lv-ggt" secondAttribute="top" id="a1L-QD-n7C"/>
+                                                                            <constraint firstAttribute="bottom" secondItem="nrG-9Q-lWI" secondAttribute="bottom" id="cbS-5z-9b7"/>
+                                                                            <constraint firstItem="nrG-9Q-lWI" firstAttribute="leading" secondItem="fyk-lv-ggt" secondAttribute="leading" id="ii0-xx-bNC"/>
+                                                                            <constraint firstAttribute="trailing" secondItem="20K-WW-5v6" secondAttribute="trailing" id="wwh-w9-ngZ"/>
+                                                                            <constraint firstItem="20K-WW-5v6" firstAttribute="centerY" secondItem="fyk-lv-ggt" secondAttribute="centerY" id="z8g-E3-YGZ"/>
+                                                                        </constraints>
+                                                                    </view>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="May 16, 2019" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8Vg-dd-ZpW">
                                                                         <rect key="frame" x="0.0" y="25" width="327" height="20.5"/>
                                                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
@@ -807,8 +835,39 @@
                                                             <constraint firstItem="NMg-f0-BTW" firstAttribute="leading" secondItem="459-0n-9V2" secondAttribute="leading" id="vqI-Vt-8V6"/>
                                                         </constraints>
                                                     </view>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="J7Z-sf-Cjx">
+                                                        <rect key="frame" x="0.0" y="139.5" width="327" height="96"/>
+                                                        <subviews>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ja8-Zt-rQX" customClass="InAppPurchaseButton" customModule="MullvadVPN" customModuleProvider="target">
+                                                                <rect key="frame" x="0.0" y="0.0" width="327" height="42"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="LogoutButton"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="42" placeholder="YES" id="h63-ia-ihB"/>
+                                                                </constraints>
+                                                                <state key="normal" title="Display name for in-app purchase" backgroundImage="SuccessButton">
+                                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                </state>
+                                                                <connections>
+                                                                    <action selector="doPurchase" destination="ruh-Q2-P39" eventType="touchUpInside" id="PHS-Qd-y9J"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="h5f-yH-jeE" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
+                                                                <rect key="frame" x="0.0" y="54" width="327" height="42"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="LogoutButton"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="42" placeholder="YES" id="Zuv-DV-LSL"/>
+                                                                </constraints>
+                                                                <state key="normal" title="Restore purchases" backgroundImage="DefaultButton">
+                                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                </state>
+                                                                <connections>
+                                                                    <action selector="restorePurchases" destination="ruh-Q2-P39" eventType="touchUpInside" id="ILp-fL-Ab5"/>
+                                                                </connections>
+                                                            </button>
+                                                        </subviews>
+                                                    </stackView>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QHr-Lz-v6t" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                        <rect key="frame" x="0.0" y="139.5" width="327" height="42"/>
+                                                        <rect key="frame" x="0.0" y="259.5" width="327" height="42"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="LogoutButton"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="42" placeholder="YES" id="VYx-GQ-CIz"/>
@@ -822,15 +881,18 @@
                                                     </button>
                                                 </subviews>
                                                 <constraints>
-                                                    <constraint firstItem="QHr-Lz-v6t" firstAttribute="top" secondItem="459-0n-9V2" secondAttribute="bottom" constant="24" id="6IV-09-erh"/>
                                                     <constraint firstItem="QHr-Lz-v6t" firstAttribute="leading" secondItem="nkx-Eb-7le" secondAttribute="leading" id="EEA-bt-bSx"/>
                                                     <constraint firstItem="459-0n-9V2" firstAttribute="leading" secondItem="nkx-Eb-7le" secondAttribute="leading" id="G86-ck-dqe"/>
                                                     <constraint firstAttribute="trailing" secondItem="459-0n-9V2" secondAttribute="trailing" id="HUb-T5-Wkk"/>
+                                                    <constraint firstItem="J7Z-sf-Cjx" firstAttribute="top" secondItem="459-0n-9V2" secondAttribute="bottom" constant="24" id="LFm-ye-Fog"/>
                                                     <constraint firstItem="459-0n-9V2" firstAttribute="top" secondItem="HzF-8Z-UBs" secondAttribute="bottom" constant="24" id="Ttn-aK-Cj0"/>
+                                                    <constraint firstItem="QHr-Lz-v6t" firstAttribute="top" secondItem="J7Z-sf-Cjx" secondAttribute="bottom" constant="24" id="Zfk-OU-5Ka"/>
                                                     <constraint firstItem="HzF-8Z-UBs" firstAttribute="leading" secondItem="nkx-Eb-7le" secondAttribute="leading" id="bCL-Z9-nk4"/>
                                                     <constraint firstAttribute="trailing" secondItem="QHr-Lz-v6t" secondAttribute="trailing" id="eBz-Is-dHp"/>
                                                     <constraint firstAttribute="bottom" secondItem="QHr-Lz-v6t" secondAttribute="bottom" id="fRA-bC-3eO"/>
+                                                    <constraint firstItem="J7Z-sf-Cjx" firstAttribute="leading" secondItem="nkx-Eb-7le" secondAttribute="leading" id="nNI-7C-xEi"/>
                                                     <constraint firstAttribute="trailing" secondItem="HzF-8Z-UBs" secondAttribute="trailing" id="pVC-Ci-c98"/>
+                                                    <constraint firstAttribute="trailing" secondItem="J7Z-sf-Cjx" secondAttribute="trailing" id="tgl-YH-hLZ"/>
                                                     <constraint firstItem="HzF-8Z-UBs" firstAttribute="top" secondItem="nkx-Eb-7le" secondAttribute="top" id="vsH-Ee-fch"/>
                                                 </constraints>
                                             </view>
@@ -864,14 +926,18 @@
                     <navigationItem key="navigationItem" title="Account" id="rL3-Y8-3g8"/>
                     <connections>
                         <outlet property="accountTokenButton" destination="XNH-JJ-9gR" id="yCU-t3-ayW"/>
+                        <outlet property="activityIndicator" destination="20K-WW-5v6" id="DKS-1x-8oF"/>
                         <outlet property="expiryLabel" destination="8Vg-dd-ZpW" id="3n5-2Z-J8y"/>
+                        <outlet property="logoutButton" destination="QHr-Lz-v6t" id="K7y-9z-xdj"/>
+                        <outlet property="purchaseButton" destination="Ja8-Zt-rQX" id="fbk-aY-fj5"/>
+                        <outlet property="restoreButton" destination="h5f-yH-jeE" id="jAy-mR-DEN"/>
                         <segue destination="P2i-eG-jQx" kind="unwind" identifier="Logout" unwindAction="unwindFromAccountWithSegue:" id="5li-wk-yRM"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3tt-67-nI8" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="P2i-eG-jQx" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="2578" y="-1258"/>
+            <point key="canvasLocation" x="2576.8000000000002" y="-1258.0209895052474"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="er3-W2-NkS">
@@ -903,7 +969,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="598"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="N9k-cQ-tlw" userLabel="Content view">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="558"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="568"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wnl-L9-JqG" userLabel="Logo header">
                                                 <rect key="frame" x="0.0" y="0.0" width="375" height="100"/>
@@ -939,7 +1005,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cas-Tk-gcz" customClass="LinkButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="20" y="516" width="20" height="22"/>
+                                                <rect key="frame" x="20" y="516" width="36" height="32"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" title="Privacy Policy" image="IconExtlink"/>
@@ -1067,31 +1133,31 @@
                         </view>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" id="aFz-H5-sPu" customClass="SelectLocationCell" customModule="MullvadVPN" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="173" width="375" height="43"/>
+                                <rect key="frame" x="0.0" y="173" width="375" height="48.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="aFz-H5-sPu" id="6nQ-gT-vzf">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="48.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5ag-N4-pUg" customClass="RelayStatusIndicatorView" customModule="MullvadVPN" customModuleProvider="target">
-                                            <rect key="frame" x="16" y="13.5" width="16" height="16"/>
+                                            <rect key="frame" x="16" y="16.5" width="16" height="16"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="16" id="QWj-hh-I3P"/>
                                                 <constraint firstAttribute="width" constant="16" id="TFV-yi-LXG"/>
                                             </constraints>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y7o-0b-MUV">
-                                            <rect key="frame" x="44" y="11" width="42" height="21"/>
+                                            <rect key="frame" x="44" y="11" width="42" height="26.5"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="IconTick" translatesAutoresizingMaskIntoConstraints="NO" id="e1o-Bl-zd5">
-                                            <rect key="frame" x="12" y="9.5" width="24" height="24"/>
+                                            <rect key="frame" x="0.0" y="0.5" width="48" height="48"/>
                                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </imageView>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KaW-bN-I51">
-                                            <rect key="frame" x="311" y="0.0" width="64" height="43"/>
+                                            <rect key="frame" x="311" y="0.0" width="64" height="48.5"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="64" id="UU3-Di-65E"/>
                                             </constraints>
