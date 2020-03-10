@@ -227,7 +227,6 @@ pub fn load_cache(cache_dir: &Path) -> AppVersionInfo {
             // If we don't have a cache, start out with sane defaults.
             AppVersionInfo {
                 current_is_supported: true,
-                current_is_outdated: false,
                 latest_stable: PRODUCT_VERSION.to_owned(),
                 latest: PRODUCT_VERSION.to_owned(),
             }
