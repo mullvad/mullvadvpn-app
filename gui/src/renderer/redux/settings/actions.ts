@@ -37,6 +37,11 @@ export interface IUpdateBlockWhenDisconnectedAction {
   blockWhenDisconnected: boolean;
 }
 
+export interface IUpdateShowBetaReleasesAction {
+  type: 'UPDATE_SHOW_BETA_NOTIFICATIONS';
+  showBetaReleases?: boolean;
+}
+
 export interface IUpdateBridgeSettingsAction {
   type: 'UPDATE_BRIDGE_SETTINGS';
   bridgeSettings: BridgeSettingsRedux;
@@ -100,6 +105,7 @@ export type SettingsAction =
   | IUpdateAllowLanAction
   | IUpdateEnableIpv6Action
   | IUpdateBlockWhenDisconnectedAction
+  | IUpdateShowBetaReleasesAction
   | IUpdateBridgeSettingsAction
   | IUpdateBridgeStateAction
   | IUpdateOpenVpnMssfixAction
@@ -162,6 +168,13 @@ function updateBlockWhenDisconnected(
   return {
     type: 'UPDATE_BLOCK_WHEN_DISCONNECTED',
     blockWhenDisconnected,
+  };
+}
+
+function updateShowBetaReleases(showBetaReleases?: boolean): IUpdateShowBetaReleasesAction {
+  return {
+    type: 'UPDATE_SHOW_BETA_NOTIFICATIONS',
+    showBetaReleases,
   };
 }
 
@@ -256,6 +269,7 @@ export default {
   updateAllowLan,
   updateEnableIpv6,
   updateBlockWhenDisconnected,
+  updateShowBetaReleases,
   updateBridgeSettings,
   updateBridgeState,
   updateOpenVpnMssfix,

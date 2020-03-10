@@ -577,6 +577,7 @@ export default class AppRenderer {
     reduxSettings.updateAllowLan(newSettings.allowLan);
     reduxSettings.updateEnableIpv6(newSettings.tunnelOptions.generic.enableIpv6);
     reduxSettings.updateBlockWhenDisconnected(newSettings.blockWhenDisconnected);
+    reduxSettings.updateShowBetaReleases(newSettings.showBetaReleases);
     reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
     reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.wireguard.mtu);
     reduxSettings.updateBridgeState(newSettings.bridgeState);

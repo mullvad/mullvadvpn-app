@@ -91,6 +91,7 @@ class ApplicationMain {
     allowLan: false,
     autoConnect: false,
     blockWhenDisconnected: false,
+    showBetaReleases: undefined,
     relaySettings: {
       normal: {
         location: 'any',
@@ -137,7 +138,6 @@ class ApplicationMain {
 
   private upgradeVersion: IAppUpgradeInfo = {
     currentIsSupported: true,
-    currentIsOutdated: false,
     latestStable: '',
     latest: '',
     nextUpgrade: undefined,
@@ -739,16 +739,14 @@ class ApplicationMain {
   }
 
   private setLatestVersion(latestVersionInfo: IAppVersionInfo) {
-    function isBeta(version: string) {
-      return version.includes('-');
-    }
+    const settings = this.settings;
 
     function nextUpgrade(
       current: string,
       latest: string,
       latestStable: string,
     ): string | undefined {
-      if (isBeta(current)) {
+      if (settings.showBetaReleases) {
         return current === latest ? undefined : latest;
       } else {
         return current === latestStable ? undefined : latestStable;
