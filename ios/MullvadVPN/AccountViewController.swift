@@ -64,16 +64,18 @@ class AccountViewController: UIViewController {
     }
 
     @IBAction func copyAccountToken() {
-        UIPasteboard.general.string = Account.shared.token
+        let accountToken = Account.shared.token
+
+        UIPasteboard.general.string = accountToken
 
         accountTokenButton.setTitle(
             NSLocalizedString("COPIED TO PASTEBOARD!", comment: ""),
             for: .normal)
 
         copyToPasteboardSubscriber =
-            Just(()).delay(for: .seconds(3), scheduler: DispatchQueue.main)
-                .sink(receiveValue: { _ in
-                    self.accountTokenButton.setTitle(Account.shared.token, for: .normal)
+            Just(accountToken).cancellableDelay(for: .seconds(3), scheduler: DispatchQueue.main)
+                .sink(receiveValue: { [weak self] (accountToken) in
+                    self?.accountTokenButton.setTitle(accountToken, for: .normal)
                 })
     }
 
