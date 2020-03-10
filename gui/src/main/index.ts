@@ -939,6 +939,9 @@ class ApplicationMain {
     IpcMainEventChannel.settings.handleOpenVpnMssfix((mssfix?: number) =>
       this.daemonRpc.setOpenVpnMssfix(mssfix),
     );
+    IpcMainEventChannel.settings.handleWireguardMtu((mtu?: number) =>
+      this.daemonRpc.setWireguardMtu(mtu),
+    );
     IpcMainEventChannel.settings.handleUpdateRelaySettings((update: RelaySettingsUpdate) =>
       this.daemonRpc.updateRelaySettings(update),
     );

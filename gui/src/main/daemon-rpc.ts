@@ -484,6 +484,10 @@ export class DaemonRpc {
     await this.transport.send('set_openvpn_mssfix', [mssfix]);
   }
 
+  public async setWireguardMtu(mtu?: number): Promise<void> {
+    await this.transport.send('set_wireguard_mtu', [mtu]);
+  }
+
   public async setAutoConnect(autoConnect: boolean): Promise<void> {
     await this.transport.send('set_auto_connect', [autoConnect]);
   }
