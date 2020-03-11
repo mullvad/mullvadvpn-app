@@ -7,6 +7,9 @@ pub use self::account::Account;
 mod auto_connect;
 pub use self::auto_connect::AutoConnect;
 
+mod beta_program;
+pub use self::beta_program::BetaProgram;
+
 mod block_when_disconnected;
 pub use self::block_when_disconnected::BlockWhenDisconnected;
 
@@ -45,6 +48,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
     let commands: Vec<Box<dyn Command>> = vec![
         Box::new(Account),
         Box::new(AutoConnect),
+        Box::new(BetaProgram),
         Box::new(BlockWhenDisconnected),
         Box::new(Bridge),
         Box::new(Connect),

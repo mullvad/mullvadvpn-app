@@ -76,6 +76,8 @@ pub struct Settings {
     /// might be located.
     #[cfg_attr(target_os = "android", jnix(skip))]
     tunnel_options: TunnelOptions,
+    /// Whether to notify users of beta updates.
+    show_beta_releases: Option<bool>,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     settings_version: migrations::SettingsVersion,
@@ -97,6 +99,7 @@ impl Default for Settings {
             block_when_disconnected: false,
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
+            show_beta_releases: None,
             settings_version: migrations::SettingsVersion::V2,
         }
     }
@@ -296,6 +299,19 @@ impl Settings {
 
     pub fn get_tunnel_options(&self) -> &TunnelOptions {
         &self.tunnel_options
+    }
+
+    pub fn get_show_beta_releases(&self) -> Option<bool> {
+        self.show_beta_releases.clone()
+    }
+
+    pub fn set_show_beta_releases(&mut self, enabled: bool) -> Result<bool> {
+        if Some(enabled) != self.show_beta_releases {
+            self.show_beta_releases = Some(enabled);
+            self.save().map(|_| true)
+        } else {
+            Ok(false)
+        }
     }
 
     pub fn get_bridge_settings(&self) -> &BridgeSettings {

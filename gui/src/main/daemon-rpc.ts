@@ -288,7 +288,6 @@ const tunnelStateSchema = oneOf(
 
 const appVersionInfoSchema = partialObject({
   current_is_supported: boolean,
-  current_is_outdated: boolean,
   latest_stable: string,
   latest: string,
 });
@@ -337,6 +336,7 @@ const settingsSchema = partialObject({
   allow_lan: boolean,
   auto_connect: boolean,
   block_when_disconnected: boolean,
+  show_beta_releases: maybe(boolean),
   bridge_settings: bridgeSettingsSchema,
   bridge_state: enumeration('on', 'auto', 'off'),
   relay_settings: relaySettingsSchema,
