@@ -53,15 +53,15 @@ class MullvadTileService : TileService() {
     override fun onClick() {
         super.onClick()
 
-        val tunnelActionKey = if (secured) {
-            KEY_DISCONNECT_ACTION
+        val intent = Intent(this, MullvadVpnService::class.java)
+
+        if (secured) {
+            intent.action = KEY_DISCONNECT_ACTION
         } else {
-            KEY_CONNECT_ACTION
+            intent.action = KEY_CONNECT_ACTION
         }
 
-        val intent = Intent(tunnelActionKey).setPackage("net.mullvad.mullvadvpn")
-
-        sendBroadcast(intent)
+        startService(intent)
     }
 
     override fun onStopListening() {
