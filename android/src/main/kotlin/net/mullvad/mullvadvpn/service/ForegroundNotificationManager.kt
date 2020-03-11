@@ -252,7 +252,7 @@ class ForegroundNotificationManager(
             PendingIntent.getActivity(service, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val builder = NotificationCompat.Builder(service, CHANNEL_ID)
-            .setSmallIcon(R.drawable.notification)
+            .setSmallIcon(R.drawable.small_logo_black)
             .setColor(badgeColor)
             .setContentTitle(service.getString(notificationText))
             .setContentIntent(pendingIntent)
