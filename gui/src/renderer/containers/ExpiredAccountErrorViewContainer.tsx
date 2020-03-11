@@ -30,6 +30,13 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
         log.error(`Failed to disconnect the tunnel: ${error.message}`);
       }
     },
+    setBlockWhenDisconnected: async (blockWhenDisconnected: boolean) => {
+      try {
+        await props.app.setBlockWhenDisconnected(blockWhenDisconnected);
+      } catch (e) {
+        log.error('Failed to update block when disconnected', e.message);
+      }
+    },
   };
 };
 
