@@ -8,9 +8,10 @@ import { messages } from '../../shared/gettext';
 import RedeemVoucherContainer from '../containers/RedeemVoucherContainer';
 import { AccountTokenLabel } from './Account';
 import * as AppButton from './AppButton';
+import * as Cell from './Cell';
 import styles from './ExpiredAccountErrorViewStyles';
 import ImageView from './ImageView';
-import { ModalAlert } from './Modal';
+import { ModalAlert, ModalAlertType } from './Modal';
 import {
   RedeemVoucherInput,
   RedeemVoucherResponse,
@@ -33,9 +34,11 @@ interface IExpiredAccountErrorViewProps {
   onExternalLinkWithAuth: (url: string) => Promise<void>;
   showWelcomeView: boolean;
   onDisconnect: () => Promise<void>;
+  setBlockWhenDisconnected: (value: boolean) => void;
 }
 
 interface IExpiredAccountErrorViewState {
+  showBlockWhenDisconnectedAlert: boolean;
   showRedeemVoucherAlert: boolean;
   redeemingVoucher: boolean;
 }
@@ -45,6 +48,7 @@ export default class ExpiredAccountErrorView extends Component<
   IExpiredAccountErrorViewState
 > {
   public state: IExpiredAccountErrorViewState = {
+    showBlockWhenDisconnectedAlert: false,
     showRedeemVoucherAlert: false,
     redeemingVoucher: false,
   };
@@ -82,12 +86,14 @@ export default class ExpiredAccountErrorView extends Component<
           {this.renderExternalPaymentButton()}
 
           <AppButton.GreenButton
-            disabled={this.props.isBlocked}
+            disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
             onPress={this.onOpenRedeemVoucherAlert}>
             {messages.pgettext('connect-view', 'Redeem voucher')}
           </AppButton.GreenButton>
-          {this.state.showRedeemVoucherAlert && this.renderRedeemVoucherAlert()}
         </View>
+
+        {this.state.showRedeemVoucherAlert && this.renderRedeemVoucherAlert()}
+        {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
       </View>
     );
   }
@@ -166,7 +172,7 @@ export default class ExpiredAccountErrorView extends Component<
 
     return (
       <AppButton.BlockingButton
-        disabled={this.props.isBlocked}
+        disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
         onPress={this.onOpenExternalPayment}>
         <AppButton.GreenButton style={styles.buyOnlineButton}>
           <AppButton.Label>{buttonText}</AppButton.Label>
@@ -202,8 +208,46 @@ export default class ExpiredAccountErrorView extends Component<
     );
   }
 
+  private renderBlockWhenDisconnectedAlert() {
+    return (
+      <ModalAlert
+        type={ModalAlertType.Info}
+        buttons={[
+          <AppButton.BlueButton
+            key="cancel"
+            onPress={this.onCloseBlockWhenDisconnectedInstructions}>
+            {messages.pgettext('connect-view', 'Close')}
+          </AppButton.BlueButton>,
+        ]}>
+        <Text style={styles.fieldLabel}>
+          {messages.pgettext(
+            'connect-view',
+            'You need to disable “Block when disconnected” in order to access the Internet to add time.',
+          )}
+        </Text>
+        <Text style={styles.fieldLabel}>
+          {messages.pgettext(
+            'connect-view',
+            'Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings.',
+          )}
+        </Text>
+        <Cell.Container>
+          <Cell.Label>{messages.pgettext('connect-view', 'Block when disconnected')}</Cell.Label>
+          <Cell.Switch
+            isOn={this.props.blockWhenDisconnected}
+            onChange={this.props.setBlockWhenDisconnected}
+          />
+        </Cell.Container>
+      </ModalAlert>
+    );
+  }
+
   private onOpenExternalPayment = async (): Promise<void> => {
-    await this.props.onExternalLinkWithAuth(links.purchase);
+    if (this.getRecoveryAction() === RecoveryAction.disableBlockedWhenDisconnected) {
+      this.setState({ showBlockWhenDisconnectedAlert: true });
+    } else {
+      await this.props.onExternalLinkWithAuth(links.purchase);
+    }
   };
 
   private getRecoveryAction() {
@@ -219,7 +263,11 @@ export default class ExpiredAccountErrorView extends Component<
   }
 
   private onOpenRedeemVoucherAlert = () => {
-    this.setState({ showRedeemVoucherAlert: true });
+    if (this.getRecoveryAction() === RecoveryAction.disableBlockedWhenDisconnected) {
+      this.setState({ showBlockWhenDisconnectedAlert: true });
+    } else {
+      this.setState({ showRedeemVoucherAlert: true });
+    }
   };
 
   private onCloseRedeemVoucherAlert = () => {
@@ -232,5 +280,9 @@ export default class ExpiredAccountErrorView extends Component<
 
   private onVoucherResponse = () => {
     this.setState({ redeemingVoucher: false });
+  };
+
+  private onCloseBlockWhenDisconnectedInstructions = () => {
+    this.setState({ showBlockWhenDisconnectedAlert: false });
   };
 }
