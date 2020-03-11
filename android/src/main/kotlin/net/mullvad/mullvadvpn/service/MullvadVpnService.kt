@@ -65,6 +65,16 @@ class MullvadVpnService : TalpidVpnService() {
         setUp()
     }
 
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        val startResult = super.onStartCommand(intent, flags, startId)
+
+        if (intent?.getAction() == VpnService.SERVICE_INTERFACE) {
+            shouldConnect = true
+        }
+
+        return startResult
+    }
+
     override fun onBind(intent: Intent): IBinder {
         bindCount += 1
 
@@ -103,16 +113,6 @@ class MullvadVpnService : TalpidVpnService() {
         fun stop() {
             this@MullvadVpnService.stop()
         }
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val startResult = super.onStartCommand(intent, flags, startId)
-
-        if (intent?.getAction() == VpnService.SERVICE_INTERFACE) {
-            shouldConnect = true
-        }
-
-        return startResult
     }
 
     private fun setUp() {
