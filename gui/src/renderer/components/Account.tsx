@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
+import { Component, Text, Types, View } from 'reactxp';
 import AccountExpiry from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
 import styles from './AccountStyles';
@@ -47,9 +47,9 @@ export default class Account extends Component<IProps> {
                     <Text style={styles.account__row_label}>
                       {messages.pgettext('account-view', 'Account number')}
                     </Text>
-                    <ClipboardLabel
+                    <AccountTokenLabel
                       style={styles.account__row_value}
-                      value={this.props.accountToken || ''}
+                      accountToken={this.props.accountToken || ''}
                     />
                   </View>
 
@@ -86,6 +86,30 @@ export default class Account extends Component<IProps> {
       </Layout>
     );
   }
+}
+
+interface IAccountTokenLabelProps {
+  accountToken: string;
+  style?: Types.StyleRuleSetRecursive<Types.TextStyleRuleSet>;
+}
+
+export function AccountTokenLabel(props: IAccountTokenLabelProps) {
+  return (
+    <ClipboardLabel
+      style={props.style}
+      value={props.accountToken}
+      displayValue={formatAccountToken(props.accountToken)}
+    />
+  );
+}
+
+export function formatAccountToken(accountToken: string) {
+  const parts =
+    accountToken
+      .replace(/\s+| /g, '')
+      .substring(0, 16)
+      .match(new RegExp('.{1,4}', 'g')) || [];
+  return parts.join(' ');
 }
 
 function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {

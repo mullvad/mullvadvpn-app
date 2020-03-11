@@ -7,7 +7,7 @@ interface IProps {
   displayValue?: string;
   delay: number;
   message: string;
-  style?: Types.TextStyleRuleSet;
+  style?: Types.StyleRuleSetRecursive<Types.TextStyleRuleSet>;
 }
 
 interface IState {

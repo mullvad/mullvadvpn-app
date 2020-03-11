@@ -4,6 +4,7 @@ import { colors, links } from '../../config.json';
 import consumePromise from '../../shared/promise';
 import { messages } from '../../shared/gettext';
 import Accordion from './Accordion';
+import { formatAccountToken } from './Account';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import { Brand, SettingsBarButton } from './HeaderBar';
@@ -422,15 +423,18 @@ class AccountDropdown extends Component<IAccountDropdownProps> {
     const uniqueItems = [...new Set(this.props.items)];
     return (
       <View>
-        {uniqueItems.map((token) => (
-          <AccountDropdownItem
-            key={token}
-            value={token}
-            label={token}
-            onSelect={this.props.onSelect}
-            onRemove={this.props.onRemove}
-          />
-        ))}
+        {uniqueItems.map((token) => {
+          const label = formatAccountToken(token);
+          return (
+            <AccountDropdownItem
+              key={token}
+              value={token}
+              label={label}
+              onSelect={this.props.onSelect}
+              onRemove={this.props.onRemove}
+            />
+          );
+        })}
       </View>
     );
   }
