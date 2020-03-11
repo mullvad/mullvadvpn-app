@@ -5,7 +5,7 @@ import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
-import { ModalAlert, ModalAlertType, ModalContainer, ModalContent } from './Modal';
+import { ModalAlert, ModalAlertType, ModalContainer } from './Modal';
 import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import styles from './SupportStyles';
@@ -129,30 +129,28 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     const content = this.renderContent();
 
     return (
-      <Layout>
-        <Container>
-          <ModalContainer>
-            <ModalContent>
-              <View style={styles.support}>
-                <NavigationBar>
-                  <NavigationItems>
-                    <BackBarItem action={this.props.onClose}>
-                      {// TRANSLATORS: Back button in navigation bar
-                      messages.pgettext('navigation-bar', 'Settings')}
-                    </BackBarItem>
-                  </NavigationItems>
-                </NavigationBar>
-                <View style={styles.support__container}>
-                  {header}
-                  {content}
-                </View>
+      <ModalContainer>
+        <Layout>
+          <Container>
+            <View style={styles.support}>
+              <NavigationBar>
+                <NavigationItems>
+                  <BackBarItem action={this.props.onClose}>
+                    {// TRANSLATORS: Back button in navigation bar
+                    messages.pgettext('navigation-bar', 'Settings')}
+                  </BackBarItem>
+                </NavigationItems>
+              </NavigationBar>
+              <View style={styles.support__container}>
+                {header}
+                {content}
               </View>
-            </ModalContent>
+            </View>
             {sendState === SendState.Confirm && this.renderNoEmailDialog()}
             {showOutdatedVersionWarning && this.renderOutdateVersionWarningDialog()}
-          </ModalContainer>
-        </Container>
-      </Layout>
+          </Container>
+        </Layout>
+      </ModalContainer>
     );
   }
 
