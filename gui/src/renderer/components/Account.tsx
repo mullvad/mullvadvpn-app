@@ -94,7 +94,22 @@ interface IAccountNumberLabelProps {
 }
 
 export function AccountTokenLabel(props: IAccountNumberLabelProps) {
-  return <ClipboardLabel style={props.style} value={props.accountToken} />;
+  return (
+    <ClipboardLabel
+      style={props.style}
+      value={props.accountToken}
+      displayValue={formatAccountToken(props.accountToken)}
+    />
+  );
+}
+
+export function formatAccountToken(accountToken: string) {
+  const parts =
+    accountToken
+      .replace(/\s+| /g, '')
+      .substring(0, 16)
+      .match(new RegExp('.{1,4}', 'g')) || [];
+  return parts.join(' ');
 }
 
 function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
