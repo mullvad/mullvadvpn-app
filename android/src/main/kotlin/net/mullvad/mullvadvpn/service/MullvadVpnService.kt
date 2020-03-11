@@ -75,9 +75,12 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val startResult = super.onStartCommand(intent, flags, startId)
+        val action = intent?.action
 
-        if (intent?.getAction() == VpnService.SERVICE_INTERFACE) {
-            shouldConnect = true
+        if (action == VpnService.SERVICE_INTERFACE || action == KEY_CONNECT_ACTION) {
+            pendingAction = PendingAction.Connect
+        } else if (action == KEY_DISCONNECT_ACTION) {
+            pendingAction = PendingAction.Disconnect
         }
 
         return startResult
