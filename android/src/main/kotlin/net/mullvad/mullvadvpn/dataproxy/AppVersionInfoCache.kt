@@ -30,15 +30,6 @@ class AppVersionInfoCache(
             }
         }
 
-    var onUpdate: (() -> Unit)? = null
-        set(value) {
-            field = value
-            value?.invoke()
-        }
-
-    var showBetaReleases = false
-        private set
-
     val latestStable
         get() = appVersionInfo?.latestStable
     val latest
@@ -71,6 +62,15 @@ class AppVersionInfoCache(
                 }
             }
         }
+
+    var onUpdate: (() -> Unit)? = null
+        set(value) {
+            field = value
+            value?.invoke()
+        }
+
+    var showBetaReleases = false
+        private set
 
     var version: String? = null
         private set
