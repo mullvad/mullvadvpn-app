@@ -70,7 +70,12 @@ class AppVersionInfoCache(
         }
 
     var showBetaReleases = false
-        private set
+        private set(value) {
+            if (field != value) {
+                field = value
+                onUpdate?.invoke()
+            }
+        }
 
     var version: String? = null
         private set
