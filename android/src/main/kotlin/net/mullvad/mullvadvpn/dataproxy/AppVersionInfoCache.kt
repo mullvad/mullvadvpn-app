@@ -18,6 +18,10 @@ class AppVersionInfoCache(
 
     private val setUpJob = setUp()
 
+    private val settingsListenerId = settingsListener.settingsNotifier.subscribe { settings ->
+        showBetaReleases = settings.showBetaReleases ?: false
+    }
+
     private var appVersionInfo: AppVersionInfo? = null
         set(value) {
             synchronized(this) {
@@ -45,6 +49,9 @@ class AppVersionInfoCache(
             field = value
             value?.invoke()
         }
+
+    var showBetaReleases = false
+        private set
 
     val latestStable
         get() = appVersionInfo?.latestStable
