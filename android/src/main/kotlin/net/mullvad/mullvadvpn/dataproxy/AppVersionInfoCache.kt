@@ -7,7 +7,11 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
-class AppVersionInfoCache(val context: Context, val daemon: MullvadDaemon) {
+class AppVersionInfoCache(
+    val context: Context,
+    val daemon: MullvadDaemon,
+    val settingsListener: SettingsListener
+) {
     companion object {
         val LEGACY_SHARED_PREFERENCES = "app_version_info_cache"
     }

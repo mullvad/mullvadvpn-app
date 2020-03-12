@@ -13,9 +13,9 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val connectionProxy = service.connectionProxy
     val connectivityListener = service.connectivityListener
 
-    val appVersionInfoCache = AppVersionInfoCache(mainActivity, daemon)
     val keyStatusListener = KeyStatusListener(daemon)
     val settingsListener = SettingsListener(daemon)
+    val appVersionInfoCache = AppVersionInfoCache(mainActivity, daemon, settingsListener)
     val accountCache = AccountCache(settingsListener, daemon)
     var relayListListener = RelayListListener(daemon, settingsListener)
     val locationInfoCache = LocationInfoCache(daemon, connectivityListener, relayListListener)
