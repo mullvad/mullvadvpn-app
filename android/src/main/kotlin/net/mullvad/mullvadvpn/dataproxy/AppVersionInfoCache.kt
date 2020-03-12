@@ -18,7 +18,7 @@ class AppVersionInfoCache(
 
     private val setUpJob = setUp()
 
-    private val settingsListenerId = settingsListener.settingsNotifier.subscribe { settings ->
+    private val settingsListenerId = settingsListener.subscribe { settings ->
         showBetaReleases = settings.showBetaReleases ?: false
     }
 
@@ -29,17 +29,9 @@ class AppVersionInfoCache(
 
                 if (value != null && upgradeVersion == version) {
                     upgradeVersion = null
-
-                    field = AppVersionInfo(
-                        value.currentIsSupported,
-                        /* currentIsOutdated = */ false,
-                        value.latestStable,
-                        value.latest
-                    )
-                } else {
-                    field = value
                 }
 
+                field = value
                 onUpdate?.invoke()
             }
         }
@@ -86,6 +78,7 @@ class AppVersionInfoCache(
 
     fun onDestroy() {
         setUpJob.cancel()
+        settingsListener.unsubscribe(settingsListenerId)
         daemon.onAppVersionInfoChange = null
     }
 
