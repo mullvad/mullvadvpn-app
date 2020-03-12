@@ -20,8 +20,8 @@ import net.mullvad.talpid.util.EventNotifier
 
 val CHANNEL_ID = "vpn_tunnel_status"
 val FOREGROUND_NOTIFICATION_ID: Int = 1
-val KEY_CONNECT_ACTION = "connect_action"
-val KEY_DISCONNECT_ACTION = "disconnect_action"
+val KEY_CONNECT_ACTION = "net.mullvad.mullvadvpn.connect_action"
+val KEY_DISCONNECT_ACTION = "net.mullvad.mullvadvpn.disconnect_action"
 
 class ForegroundNotificationManager(
     val service: MullvadVpnService,
