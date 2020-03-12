@@ -59,8 +59,15 @@ class AppVersionInfoCache(
         get() = appVersionInfo?.latest
     val isSupported
         get() = appVersionInfo?.currentIsSupported ?: true
-    var isOutdated = false
-        get() = appVersionInfo?.currentIsOutdated ?: false
+
+    val isOutdated: Boolean
+        get() {
+            if (showBetaReleases) {
+                return version != null && latest != null && latest != version
+            } else {
+                return version != null && latestStable != null && latestStable != version
+            }
+        }
 
     var version: String? = null
         private set
