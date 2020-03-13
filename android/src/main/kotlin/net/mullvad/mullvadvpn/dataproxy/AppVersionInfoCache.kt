@@ -7,32 +7,59 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
-class AppVersionInfoCache(val context: Context, val daemon: MullvadDaemon) {
+class AppVersionInfoCache(
+    val context: Context,
+    val daemon: MullvadDaemon,
+    val settingsListener: SettingsListener
+) {
     companion object {
         val LEGACY_SHARED_PREFERENCES = "app_version_info_cache"
     }
 
     private val setUpJob = setUp()
 
+    private val settingsListenerId = settingsListener.subscribe { settings ->
+        showBetaReleases = settings.showBetaReleases ?: false
+    }
+
     private var appVersionInfo: AppVersionInfo? = null
         set(value) {
             synchronized(this) {
-                upgradeVersion = if (isStable) value?.latestStable else value?.latest
-
-                if (value != null && upgradeVersion == version) {
-                    upgradeVersion = null
-
-                    field = AppVersionInfo(
-                        value.currentIsSupported,
-                        /* currentIsOutdated = */ false,
-                        value.latestStable,
-                        value.latest
-                    )
-                } else {
-                    field = value
-                }
-
+                field = value
                 onUpdate?.invoke()
+            }
+        }
+
+    val latestStable
+        get() = appVersionInfo?.latestStable
+    val latest
+        get() = appVersionInfo?.latest
+    val isSupported
+        get() = appVersionInfo?.currentIsSupported ?: true
+
+    val isOutdated: Boolean
+        get() {
+            if (showBetaReleases) {
+                return version != null && latest != null && latest != version
+            } else {
+                return version != null && latestStable != null && latestStable != version
+            }
+        }
+
+    val upgradeVersion: String?
+        get() {
+            if (showBetaReleases) {
+                if (version == latest) {
+                    return null
+                } else {
+                    return latest
+                }
+            } else {
+                if (version == latestStable) {
+                    return null
+                } else {
+                    return latestStable
+                }
             }
         }
 
@@ -42,21 +69,15 @@ class AppVersionInfoCache(val context: Context, val daemon: MullvadDaemon) {
             value?.invoke()
         }
 
-    val latestStable
-        get() = appVersionInfo?.latestStable
-    val latest
-        get() = appVersionInfo?.latest
-    val isSupported
-        get() = appVersionInfo?.currentIsSupported ?: true
-    var isOutdated = false
-        get() = appVersionInfo?.currentIsOutdated ?: false
+    var showBetaReleases = false
+        private set(value) {
+            if (field != value) {
+                field = value
+                onUpdate?.invoke()
+            }
+        }
 
     var version: String? = null
-        private set
-    var isStable = true
-        private set
-
-    var upgradeVersion: String? = null
         private set
 
     fun onCreate() {
@@ -68,6 +89,7 @@ class AppVersionInfoCache(val context: Context, val daemon: MullvadDaemon) {
 
     fun onDestroy() {
         setUpJob.cancel()
+        settingsListener.unsubscribe(settingsListenerId)
         daemon.onAppVersionInfoChange = null
     }
 
@@ -75,7 +97,6 @@ class AppVersionInfoCache(val context: Context, val daemon: MullvadDaemon) {
         val currentVersion = daemon.getCurrentVersion()
 
         version = currentVersion
-        isStable = !currentVersion.contains("-")
 
         daemon.onAppVersionInfoChange = { newAppVersionInfo ->
             appVersionInfo = newAppVersionInfo
