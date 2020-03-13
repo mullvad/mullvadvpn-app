@@ -79,8 +79,6 @@ class AppVersionInfoCache(
 
     var version: String? = null
         private set
-    var isStable = true
-        private set
 
     fun onCreate() {
         context.getSharedPreferences(LEGACY_SHARED_PREFERENCES, Context.MODE_PRIVATE)
@@ -99,7 +97,6 @@ class AppVersionInfoCache(
         val currentVersion = daemon.getCurrentVersion()
 
         version = currentVersion
-        isStable = !currentVersion.contains("-")
 
         daemon.onAppVersionInfoChange = { newAppVersionInfo ->
             appVersionInfo = newAppVersionInfo
