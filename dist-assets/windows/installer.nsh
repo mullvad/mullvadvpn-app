@@ -57,8 +57,10 @@
 
 	${If} ${AtLeastWin10}
 		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\tap-driver\win10\*"
-	${Else}
+	${ElseIf} ${AtLeastWin8}
 		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\tap-driver\win8\*"
+	${Else}
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\tap-driver\win7\*"
 	${EndIf}
 	
 !macroend
