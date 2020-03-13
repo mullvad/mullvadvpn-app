@@ -25,12 +25,6 @@ class AppVersionInfoCache(
     private var appVersionInfo: AppVersionInfo? = null
         set(value) {
             synchronized(this) {
-                upgradeVersion = if (isStable) value?.latestStable else value?.latest
-
-                if (value != null && upgradeVersion == version) {
-                    upgradeVersion = null
-                }
-
                 field = value
                 onUpdate?.invoke()
             }
@@ -61,12 +55,26 @@ class AppVersionInfoCache(
             }
         }
 
+    val upgradeVersion: String?
+        get() {
+            if (showBetaReleases) {
+                if (version == latest) {
+                    return null
+                } else {
+                    return latest
+                }
+            } else {
+                if (version == latestStable) {
+                    return null
+                } else {
+                    return latestStable
+                }
+            }
+        }
+
     var version: String? = null
         private set
     var isStable = true
-        private set
-
-    var upgradeVersion: String? = null
         private set
 
     fun onCreate() {
