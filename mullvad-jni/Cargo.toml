@@ -10,7 +10,7 @@ publish = false
 [lib]
 crate_type = ["cdylib"]
 
-[dependencies]
+[target.'cfg(target_os = "android")'.dependencies]
 err-derive = "0.2.1"
 futures = "0.1"
 ipnetwork = "0.15"
