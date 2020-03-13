@@ -37,6 +37,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Prefer WireGuard when tunnel protocol is set to _auto_ on Linux and MacOS.
+- Wait for tunnel state machine to properly shut down, cleaning up the firewall properly on Windows
+  during the daemon shutdown.
 
 #### Android
 - Allow other apps to request the VPN tunnel to connect or disconnect.
@@ -46,7 +48,7 @@ Line wrap the file at 100 chars.                                              Th
 - Show when the app failed to block all connections after an error in the android and desktop apps.
 
 #### macOS
-- Fix firewall rules to properly handle DNS requests over TCP when "Local network sharing" is 
+- Fix firewall rules to properly handle DNS requests over TCP when "Local network sharing" is
   disabled. Previously DNS requests over TCP would timeout.
 
 #### Android
