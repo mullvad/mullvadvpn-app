@@ -42,6 +42,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Allow other apps to request the VPN tunnel to connect or disconnect.
+- Change launcher logo icon.
 
 ### Fixed
 - Fix bug that could lead to Javascript error dialog to appear upon the desktop app termination.
