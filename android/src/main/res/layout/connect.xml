@@ -11,7 +11,7 @@
                   android:gravity="center_vertical"
                   android:background="@color/red"
                   android:elevation="0.5dp">
-        <ImageView android:layout_width="49dp"
+        <ImageView android:layout_width="50dp"
                    android:layout_height="50dp"
                    android:layout_marginLeft="12dp"
                    android:layout_marginVertical="12dp"

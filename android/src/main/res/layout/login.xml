@@ -8,7 +8,7 @@
                   android:layout_weight="0"
                   android:orientation="horizontal"
                   android:gravity="center_vertical">
-        <ImageView android:layout_width="49dp"
+        <ImageView android:layout_width="50dp"
                    android:layout_height="50dp"
                    android:layout_weight="0"
                    android:layout_marginLeft="12dp"
