@@ -27,7 +27,7 @@ use futures::{
     Future, Stream,
 };
 use log::{debug, error, info, warn};
-use mullvad_rpc::{AccountsProxy, HttpHandle, WireguardKeyProxy};
+use mullvad_rpc::AccountsProxy;
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
@@ -70,6 +70,7 @@ use talpid_types::{
 mod wireguard;
 
 const TARGET_START_STATE_FILE: &str = "target-start-state.json";
+mod event_loop;
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
 /// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
@@ -88,10 +89,7 @@ pub enum Error {
     InitIoEventLoop(#[error(source)] io::Error),
 
     #[error(display = "Unable to create RPC client")]
-    InitRpcClient(#[error(source)] mullvad_rpc::HttpError),
-
-    #[error(display = "Unable to create am.i.mullvad client")]
-    InitHttpsClient(#[error(source)] mullvad_rpc::rest::Error),
+    InitRpcFactory(#[error(source)] mullvad_rpc::Error),
 
     #[error(display = "Unable to load account history with wireguard key cache")]
     LoadAccountHistory(#[error(source)] account_history::Error),
@@ -146,17 +144,17 @@ pub enum DaemonCommand {
     GetState(oneshot::Sender<TunnelState>),
     /// Get the current geographical location.
     GetCurrentLocation(oneshot::Sender<Option<GeoIpLocation>>),
-    CreateNewAccount(oneshot::Sender<std::result::Result<String, mullvad_rpc::Error>>),
+    CreateNewAccount(oneshot::Sender<std::result::Result<String, mullvad_rpc::rest::Error>>),
     /// Request the metadata for an account.
     GetAccountData(
-        oneshot::Sender<BoxFuture<AccountData, mullvad_rpc::Error>>,
+        oneshot::Sender<BoxFuture<AccountData, mullvad_rpc::rest::Error>>,
         AccountToken,
     ),
     /// Request www auth token for an account
-    GetWwwAuthToken(oneshot::Sender<BoxFuture<String, mullvad_rpc::Error>>),
+    GetWwwAuthToken(oneshot::Sender<BoxFuture<String, mullvad_rpc::rest::Error>>),
     /// Submit voucher to add time to the current account. Returns time added in seconds
     SubmitVoucher(
-        oneshot::Sender<BoxFuture<VoucherSubmission, mullvad_rpc::Error>>,
+        oneshot::Sender<BoxFuture<VoucherSubmission, mullvad_rpc::rest::Error>>,
         String,
     ),
     /// Request account history
@@ -243,7 +241,7 @@ pub(crate) enum InternalDaemonEvent {
     /// New Account created
     NewAccountEvent(
         AccountToken,
-        oneshot::Sender<Result<String, mullvad_rpc::Error>>,
+        oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>,
     ),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
@@ -438,11 +436,10 @@ pub struct Daemon<L: EventListener> {
     event_listener: L,
     settings: Settings,
     account_history: account_history::AccountHistory,
-    wg_key_proxy: WireguardKeyProxy<HttpHandle>,
-    accounts_proxy: AccountsProxy<HttpHandle>,
-    https_handle: mullvad_rpc::rest::RequestSender,
+    accounts_proxy: AccountsProxy,
+    rpc_runtime: mullvad_rpc::MullvadRpcRuntime,
     wireguard_key_manager: wireguard::KeyManager,
-    tokio_remote: tokio_core::reactor::Remote,
+    core_handle: event_loop::CoreHandle,
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
@@ -469,20 +466,11 @@ where
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
 
-        let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::with_cache_dir(&cache_dir, &ca_path);
+        let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache_dir(&cache_dir, &ca_path)
+            .map_err(Error::InitRpcFactory)?;
+        let rpc_handle = rpc_runtime.mullvad_rest_handle();
 
-        let (rpc_handle, https_handle, tokio_remote) =
-            mullvad_rpc::event_loop::create(move |core| {
-                let handle = core.handle();
-                let rpc = rpc_manager.new_connection_on_event_loop(&handle);
-                let https_handle = mullvad_rpc::rest::create_https_client(&ca_path, &handle);
-                let remote = core.remote();
-                (rpc, https_handle, remote)
-            })
-            .map_err(Error::InitIoEventLoop)?;
-
-        let rpc_handle = rpc_handle.map_err(Error::InitRpcClient)?;
-        let https_handle = https_handle.map_err(Error::InitHttpsClient)?;
+        let core_handle = event_loop::spawn();
 
         let relay_list_listener = event_listener.clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
@@ -504,7 +492,7 @@ where
             internal_event_tx.to_specialized_sender(),
             app_version_info.clone(),
         );
-        tokio_remote.spawn(|_| version_check_future);
+        core_handle.remote.spawn(|_| version_check_future);
 
         let mut settings = settings::load();
 
@@ -515,7 +503,7 @@ where
         let account_history = account_history::AccountHistory::new(
             &cache_dir,
             rpc_handle.clone(),
-            tokio_remote.clone(),
+            core_handle.remote.clone(),
         )
         .map_err(Error::LoadAccountHistory)?;
 
@@ -559,7 +547,7 @@ where
         let wireguard_key_manager = wireguard::KeyManager::new(
             internal_event_tx.clone(),
             rpc_handle.clone(),
-            tokio_remote.clone(),
+            core_handle.remote.clone(),
         );
 
         // Attempt to download a fresh relay list
@@ -589,11 +577,10 @@ where
             event_listener,
             settings,
             account_history,
-            wg_key_proxy: WireguardKeyProxy::new(rpc_handle.clone()),
+            rpc_runtime,
             accounts_proxy: AccountsProxy::new(rpc_handle),
-            https_handle,
             wireguard_key_manager,
-            tokio_remote,
+            core_handle,
             relay_selector,
             last_generated_relay: None,
             last_generated_bridge_relay: None,
@@ -1061,7 +1048,7 @@ where
     fn handle_new_account_event(
         &mut self,
         new_token: AccountToken,
-        tx: oneshot::Sender<Result<String, mullvad_rpc::Error>>,
+        tx: oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>,
     ) {
         match self.set_account(Some(new_token.clone())) {
             Ok(_) => {
@@ -1104,7 +1091,7 @@ where
         Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
     }
 
-    fn on_get_current_location(&self, tx: oneshot::Sender<Option<GeoIpLocation>>) {
+    fn on_get_current_location(&mut self, tx: oneshot::Sender<Option<GeoIpLocation>>) {
         use self::TunnelState::*;
         let get_location: Box<dyn Future<Item = Option<GeoIpLocation>, Error = ()> + Send> =
             match &self.tunnel_state {
@@ -1129,13 +1116,13 @@ where
                 }
             };
 
-        self.tokio_remote.spawn(move |_| {
+        self.core_handle.remote.spawn(move |_| {
             get_location.map(|location| Self::oneshot_send(tx, location, "current location"))
         });
     }
 
-    fn get_geo_location(&self) -> impl Future<Item = GeoIpLocation, Error = ()> {
-        let https_handle = self.https_handle.clone();
+    fn get_geo_location(&mut self) -> impl Future<Item = GeoIpLocation, Error = ()> {
+        let https_handle = self.rpc_runtime.rest_handle();
 
         geoip::send_location_request(https_handle).map_err(|e| {
             warn!("Unable to fetch GeoIP location: {}", e.display_chain());
@@ -1164,7 +1151,10 @@ where
         })
     }
 
-    fn on_create_new_account(&mut self, tx: oneshot::Sender<Result<String, mullvad_rpc::Error>>) {
+    fn on_create_new_account(
+        &mut self,
+        tx: oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>,
+    ) {
         let daemon_tx = self.tx.clone();
         let future = self
             .accounts_proxy
@@ -1182,14 +1172,14 @@ where
                 Ok(())
             });
 
-        if self.tokio_remote.execute(future).is_err() {
+        if self.core_handle.remote.execute(future).is_err() {
             log::error!("Failed to spawn future for creating a new account");
         }
     }
 
     fn on_get_account_data(
         &mut self,
-        tx: oneshot::Sender<BoxFuture<AccountData, mullvad_rpc::Error>>,
+        tx: oneshot::Sender<BoxFuture<AccountData, mullvad_rpc::rest::Error>>,
         account_token: AccountToken,
     ) {
         let rpc_call = self
@@ -1201,7 +1191,7 @@ where
 
     fn on_get_www_auth_token(
         &mut self,
-        tx: oneshot::Sender<BoxFuture<String, mullvad_rpc::Error>>,
+        tx: oneshot::Sender<BoxFuture<String, mullvad_rpc::rest::Error>>,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
             let rpc_call = self.accounts_proxy.get_www_auth_token(account_token);
@@ -1211,7 +1201,7 @@ where
 
     fn on_submit_voucher(
         &mut self,
-        tx: oneshot::Sender<BoxFuture<VoucherSubmission, mullvad_rpc::Error>>,
+        tx: oneshot::Sender<BoxFuture<VoucherSubmission, mullvad_rpc::rest::Error>>,
         voucher: String,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
@@ -1633,7 +1623,10 @@ where
                     Ok(keygen_event)
                 }
                 Err(wireguard::Error::TooManyKeys) => Ok(KeygenEvent::TooManyKeys),
-                Err(e) => Err(format!("Failed to generate new key - {}", e)),
+                Err(e) => Err(format!(
+                    "Failed to generate new key - {}",
+                    e.display_chain_with_msg("Failed to generate new wireguard key:")
+                )),
             }
         };
 
@@ -1684,13 +1677,14 @@ where
         };
 
         let fut = self
-            .wg_key_proxy
-            .check_wg_key(account, public_key)
-            .map(|is_valid| {
+            .wireguard_key_manager
+            .verify_wireguard_key(account, public_key)
+            .and_then(|is_valid| {
                 Self::oneshot_send(tx, is_valid, "verify_wireguard_key response");
+                Ok(())
             })
-            .map_err(|e| log::error!("Failed to verify wireguard key - {}", e));
-        if let Err(e) = self.tokio_remote.execute(fut) {
+            .map_err(|e: wireguard::Error| log::error!("Failed to verify wireguard key - {}", e));
+        if let Err(e) = self.core_handle.remote.execute(fut) {
             log::error!("Failed to spawn a future to verify wireguard key: {:?}", e);
         }
     }
