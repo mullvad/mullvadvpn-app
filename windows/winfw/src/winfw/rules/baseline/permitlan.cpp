@@ -57,14 +57,14 @@ bool PermitLan::applyIpv4(IObjectInstaller &objectInstaller) const
 
 	conditionBuilder.reset();
 
+	// Local network broadcast.
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 255, 255, 255, 255 }), 32)));
+
 	// Local subnet multicast.
 	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 224, 0, 0, 0 }), 24)));
 
-	// Simple Service Discovery Protocol (SSDP) address.
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 239, 255, 255, 250 }), 32)));
-
-	// mDNS Service Discovery address.
-	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 239, 255, 255, 251 }), 32)));
+	// Local scope (SSDP and mDNS)
+	conditionBuilder.add_condition(ConditionIp::Remote(wfp::IpNetwork(wfp::IpAddress::Literal({ 239, 255, 0, 0 }), 16)));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
@@ -90,8 +90,10 @@ bool PermitLan::applyIpv6(IObjectInstaller &objectInstaller) const
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 	const wfp::IpNetwork linkLocal(wfp::IpAddress::Literal6({ 0xFE80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 10);
+	const wfp::IpNetwork uniqueLocal(wfp::IpAddress::Literal6({ 0xFD00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 8);
 
 	conditionBuilder.add_condition(ConditionIp::Remote(linkLocal));
+	conditionBuilder.add_condition(ConditionIp::Remote(uniqueLocal));
 
 	if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 	{
@@ -108,10 +110,16 @@ bool PermitLan::applyIpv6(IObjectInstaller &objectInstaller) const
 
 	conditionBuilder.reset();
 
+	const wfp::IpNetwork interfaceLocalMulticast(wfp::IpAddress::Literal6({ 0xFF01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
 	const wfp::IpNetwork linkLocalMulticast(wfp::IpAddress::Literal6({ 0xFF02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
+	const wfp::IpNetwork realmLocalMulticast(wfp::IpAddress::Literal6({ 0xFF03, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
+	const wfp::IpNetwork adminLocalMulticast(wfp::IpAddress::Literal6({ 0xFF04, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
 	const wfp::IpNetwork siteLocalMulticast(wfp::IpAddress::Literal6({ 0xFF05, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 16);
 
+	conditionBuilder.add_condition(ConditionIp::Remote(interfaceLocalMulticast));
 	conditionBuilder.add_condition(ConditionIp::Remote(linkLocalMulticast));
+	conditionBuilder.add_condition(ConditionIp::Remote(realmLocalMulticast));
+	conditionBuilder.add_condition(ConditionIp::Remote(adminLocalMulticast));
 	conditionBuilder.add_condition(ConditionIp::Remote(siteLocalMulticast));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
