@@ -7,7 +7,7 @@ use jsonrpc_ipc_server;
 use jsonrpc_macros::{build_rpc_trait, metadata, pubsub};
 use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
 use mullvad_paths;
-use mullvad_rpc;
+use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     location::GeoIpLocation,
@@ -306,18 +306,16 @@ impl ManagementInterface {
         future::result(self.tx.send(command)).map_err(|_| Error::internal_error())
     }
 
-    /// Converts the given error to an error that can be given to the caller of the API.
-    /// Will let any actual RPC error through as is, any other error is changed to an internal
-    /// error.
-    fn map_rpc_error(error: &mullvad_rpc::Error) -> Error {
-        match error.kind() {
-            mullvad_rpc::ErrorKind::JsonRpcError(ref rpc_error) => {
-                // We have to manually copy the error since we have different
-                // versions of the jsonrpc_core library at the moment.
+    /// Converts a REST API error for an account into a JSONRPC error for the JSONRPC client.
+    fn map_rest_account_error(error: RestError) -> Error {
+        match error {
+            RestError::ApiError(status, message)
+                if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
+            {
                 Error {
-                    code: ErrorCode::from(rpc_error.code.code()),
-                    message: rpc_error.message.clone(),
-                    data: rpc_error.data.clone(),
+                    code: ErrorCode::from(-200),
+                    message,
+                    data: None,
                 }
             }
             _ => Error::internal_error(),
@@ -335,7 +333,7 @@ impl ManagementInterfaceApi for ManagementInterface {
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|result| match result {
                 Ok(account_token) => Ok(account_token),
-                Err(e) => Err(Self::map_rpc_error(&e)),
+                Err(_) => Err(Error::internal_error()),
             });
 
         Box::new(future)
@@ -352,12 +350,12 @@ impl ManagementInterfaceApi for ManagementInterface {
             .send_command_to_daemon(DaemonCommand::GetAccountData(tx, account_token))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|rpc_future| {
-                rpc_future.map_err(|error: mullvad_rpc::Error| {
+                rpc_future.map_err(|error: RestError| {
                     log::error!(
                         "Unable to get account data from API: {}",
                         error.display_chain()
                     );
-                    Self::map_rpc_error(&error)
+                    Self::map_rest_account_error(error)
                 })
             });
         Box::new(future)
@@ -370,12 +368,12 @@ impl ManagementInterfaceApi for ManagementInterface {
             .send_command_to_daemon(DaemonCommand::GetWwwAuthToken(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
             .and_then(|rpc_future| {
-                rpc_future.map_err(|error: mullvad_rpc::Error| {
+                rpc_future.map_err(|error: mullvad_rpc::rest::Error| {
                     log::error!(
                         "Unable to get account data from API: {}",
                         error.display_chain()
                     );
-                    Self::map_rpc_error(&error)
+                    Self::map_rest_account_error(error)
                 })
             });
         Box::new(future)
@@ -391,7 +389,28 @@ impl ManagementInterfaceApi for ManagementInterface {
         let future = self
             .send_command_to_daemon(DaemonCommand::SubmitVoucher(tx, voucher))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .and_then(|f| f.map_err(|e| Self::map_rpc_error(&e)));
+            .and_then(|f| {
+                f.map_err(|e| match e {
+                    RestError::ApiError(StatusCode::BAD_REQUEST, message) => {
+                        match &message.as_str() {
+                            &mullvad_rpc::INVALID_VOUCHER => Error {
+                                code: ErrorCode::from(-400),
+                                message,
+                                data: None,
+                            },
+
+                            &mullvad_rpc::VOUCHER_USED => Error {
+                                code: ErrorCode::from(-401),
+                                message,
+                                data: None,
+                            },
+
+                            _ => Error::internal_error(),
+                        }
+                    }
+                    _ => Error::internal_error(),
+                })
+            });
         Box::new(future)
     }
 
