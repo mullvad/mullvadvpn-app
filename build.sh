@@ -146,6 +146,7 @@ if [[ ("$(uname -s)" == "Darwin") ]]; then
         mullvad
         mullvad-problem-report
         libtalpid_openvpn_plugin.dylib
+        mullvad-setup
     )
 elif [[ ("$(uname -s)" == "Linux") ]]; then
     binaries=(

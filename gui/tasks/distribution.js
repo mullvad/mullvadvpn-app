@@ -48,6 +48,7 @@ const config = {
       { from: distAssets('mullvad'), to: '.' },
       { from: distAssets('mullvad-problem-report'), to: '.' },
       { from: distAssets('mullvad-daemon'), to: '.' },
+      { from: distAssets('mullvad-setup'), to: '.' },
       { from: distAssets('libtalpid_openvpn_plugin.dylib'), to: '.' },
       { from: distAssets('binaries/x86_64-apple-darwin/openvpn'), to: '.' },
       { from: distAssets('binaries/x86_64-apple-darwin/sslocal'), to: '.' },
