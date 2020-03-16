@@ -39,6 +39,7 @@ case "$1" in
             mullvad-daemon/Cargo.toml \
             mullvad-cli/Cargo.toml \
             mullvad-problem-report/Cargo.toml \
+            mullvad-setup/Cargo.toml \
             talpid-openvpn-plugin/Cargo.toml
 
         # Windows C++
@@ -67,6 +68,7 @@ EOF
         mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
         mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
         mv mullvad-problem-report/Cargo.toml.bak mullvad-problem-report/Cargo.toml || true
+        mv mullvad-setup/Cargo.toml.bak mullvad-setup/Cargo.toml || true
         mv talpid-openvpn-plugin/Cargo.toml.bak talpid-openvpn-plugin/Cargo.toml || true
         # Windows C++
         mv dist-assets/windows/version.h.bak dist-assets/windows/version.h || true
@@ -83,6 +85,7 @@ EOF
         rm mullvad-daemon/Cargo.toml.bak || true
         rm mullvad-cli/Cargo.toml.bak || true
         rm mullvad-problem-report/Cargo.toml.bak || true
+        rm mullvad-setup/Cargo.toml.bak || true
         rm talpid-openvpn-plugin/Cargo.toml.bak || true
         # Windows C++
         rm dist-assets/windows/version.h.bak || true

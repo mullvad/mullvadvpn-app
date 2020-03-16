@@ -40,22 +40,7 @@
 # electron-builder uses a GUID here rather than the application name.
 !define INSTALL_REGISTRY_KEY "Software\${PRODUCT_NAME}"
 
-#
-# BreakInstallation
-#
-# Aborting the customization step does not undo previous steps taken
-# by the installer (copy files, create shortcut, etc)
-#
-# Therefore we have to break the installed application to
-# prevent users from running a half-installed product
-#
-!macro BreakInstallation
-
-	Delete "$INSTDIR\mullvad vpn.exe"
-
-!macroend
-
-!define BreakInstallation '!insertmacro "BreakInstallation"'
+!define BLOCK_OUTBOUND_IPV4_FILTER_GUID "{a81c5411-0fd0-43a9-a9be-313f299de64f}"
 
 #
 # ExtractTapDriver
@@ -649,8 +634,7 @@
 
 	${If} $R0 != 0
 		MessageBox MB_OK "Fatal error during driver installation: $R0"
-		${BreakInstallation}
-		Abort
+		Goto customInstall_abort_installation
 	${EndIf}
 
 	${ExtractWintun}
@@ -658,20 +642,53 @@
 
 	${If} $R0 != 0
 		MessageBox MB_OK "$R0"
-		${BreakInstallation}
-		Abort
+		Goto customInstall_abort_installation
 	${EndIf}
 
 	${InstallService}
 
 	${If} $R0 != 0
 		MessageBox MB_OK "$R0"
-		${BreakInstallation}
-		Abort
+		Goto customInstall_abort_installation
 	${EndIf}
 
 	${AddCLIToEnvironPath}
 	${InstallTrayIcon}
+
+	Goto customInstall_skip_abort
+
+	customInstall_abort_installation:
+
+	# Aborting the customization step does not undo previous steps taken
+	# by the installer (copy files, create shortcut, etc)
+	#
+	# Therefore we have to break the installed application to
+	# prevent users from running a half-installed product
+	#
+	Delete "$INSTDIR\mullvad vpn.exe"
+
+	nsExec::ExecToStack '"$SYSDIR\netsh.exe" wfp show security FILTER ${BLOCK_OUTBOUND_IPV4_FILTER_GUID}'
+	Pop $0
+	Pop $1
+
+	${If} $0 == 0
+		MessageBox MB_ICONEXCLAMATION|MB_YESNO "Do you wish to unblock your internet access? Doing so will leave you with an unsecure connection." IDNO customInstall_abortInstallation_skip_firewall_revert
+
+		SetOutPath "$TEMP"
+		File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
+		File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
+		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" reset-firewall'
+		Pop $0
+		Pop $1
+
+		log::Log "Resetting firewall: $0 $1"
+	${EndIf}
+
+	customInstall_abortInstallation_skip_firewall_revert:
+
+	Abort
+
+	customInstall_skip_abort:
 
 	Pop $R0
 
@@ -694,20 +711,6 @@
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"$SYSDIR\sc.exe" stop mullvadvpn'
-
-	# Discard return value
-	Pop $0
-
-	Sleep 5000
-
-	nsExec::ExecToStack '"$SYSDIR\sc.exe" delete mullvadvpn'
-
-	# Discard return value
-	Pop $0
-
-	Sleep 1000
-
 	# Check command line arguments
 	Var /GLOBAL FullUninstall
 
@@ -721,6 +724,30 @@
 		log::Initialize LOG_FILE
 	${EndIf}
 	Pop $FullUninstall
+
+	${If} $FullUninstall != 1
+		# Save the target tunnel state if we're upgrading
+		SetOutPath "$TEMP"
+		File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
+		File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
+		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" prepare-restart'
+		Pop $0
+		Pop $1
+	${EndIf}
+
+	nsExec::ExecToStack '"$SYSDIR\sc.exe" stop mullvadvpn'
+
+	# Discard return value
+	Pop $0
+
+	Sleep 5000
+
+	nsExec::ExecToStack '"$SYSDIR\sc.exe" delete mullvadvpn'
+
+	# Discard return value
+	Pop $0
+
+	Sleep 1000
 
 	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
 

@@ -160,6 +160,7 @@ elif [[ ("$(uname -s)" == "MINGW"*) ]]; then
         mullvad.exe
         mullvad-problem-report.exe
         talpid_openvpn_plugin.dll
+        mullvad-setup.exe
     )
 fi
 for binary in ${binaries[*]}; do

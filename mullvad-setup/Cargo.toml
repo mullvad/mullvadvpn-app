@@ -1,0 +1,33 @@
+[package]
+name = "mullvad-setup"
+version = "2020.3.0"
+authors = ["Mullvad VPN"]
+description = "Tool used to manage daemon setup"
+license = "GPL-3.0"
+edition = "2018"
+publish = false
+
+[[bin]]
+name = "mullvad-setup"
+path = "src/main.rs"
+
+[dependencies]
+clap = "2.32"
+env_logger = "0.7"
+err-derive = "0.2.1"
+
+mullvad-ipc-client = { path = "../mullvad-ipc-client" }
+mullvad-paths = { path = "../mullvad-paths" }
+talpid-core = { path = "../talpid-core" }
+talpid-types = { path = "../talpid-types" }
+
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1"
+winapi = "0.3"
+
+[package.metadata.winres]
+ProductName = "Mullvad VPN"
+CompanyName = "Mullvad VPN AB"
+LegalCopyright = "(c) 2020 Mullvad VPN AB"
+InternalName = "mullvad-setup"
+OriginalFilename = "mullvad-setup.exe"

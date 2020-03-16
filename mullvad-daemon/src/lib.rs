@@ -45,6 +45,7 @@ use settings::Settings;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
 use std::{
+    fs::{self, File},
     io,
     marker::PhantomData,
     mem,
@@ -67,6 +68,8 @@ use talpid_types::{
 
 #[path = "wireguard.rs"]
 mod wireguard;
+
+const TARGET_START_STATE_FILE: &str = "target-start-state.json";
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
 /// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
@@ -125,6 +128,12 @@ pub enum Error {
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to read dir entries")]
     ReadDirError(#[error(source)] io::Error),
+
+    #[error(display = "Failed to read cached target tunnel state")]
+    ReadCachedTargetState(#[error(source)] serde_json::Error),
+
+    #[error(display = "Failed to open cached target tunnel state")]
+    OpenCachedTargetState(#[error(source)] io::Error),
 }
 
 /// Enum representing commands that can be sent to the daemon.
@@ -206,6 +215,9 @@ pub enum DaemonCommand {
     FactoryReset(oneshot::Sender<()>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
+    /// Saves the target tunnel state and enters a blocking state. The state is restored
+    /// upon restart.
+    PrepareRestart,
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -438,6 +450,7 @@ pub struct Daemon<L: EventListener> {
     shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
     tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
+    cache_dir: PathBuf,
 }
 
 impl<L> Daemon<L>
@@ -506,6 +519,26 @@ where
         )
         .map_err(Error::LoadAccountHistory)?;
 
+        // Restore the tunnel to a previous state
+        let target_cache = cache_dir.join(TARGET_START_STATE_FILE);
+        let cached_target_state: Option<TargetState> = match File::open(&target_cache) {
+            Ok(handle) => serde_json::from_reader(io::BufReader::new(handle))
+                .map(Some)
+                .map_err(Error::ReadCachedTargetState),
+            Err(e) => {
+                if e.kind() == io::ErrorKind::NotFound {
+                    Ok(None)
+                } else {
+                    Err(Error::OpenCachedTargetState(e))
+                }
+            }
+        }?;
+        if cached_target_state.is_some() {
+            let _ = fs::remove_file(target_cache).map_err(|e| {
+                error!("Cannot delete target tunnel state cache: {}", e);
+            });
+        }
+
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
         };
@@ -515,7 +548,7 @@ where
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
-            cache_dir,
+            cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             tunnel_state_machine_shutdown_tx,
             #[cfg(target_os = "android")]
@@ -532,10 +565,23 @@ where
         // Attempt to download a fresh relay list
         relay_selector.update();
 
+        let initial_target_state = if settings.get_account_token().is_some() {
+            if settings.get_auto_connect() {
+                // Note: Auto-connect overrides the cached target state
+                info!("Automatically connecting since auto-connect is turned on");
+                TargetState::Secured
+            } else {
+                info!("Restoring cached target state");
+                cached_target_state.unwrap_or(TargetState::Unsecured)
+            }
+        } else {
+            TargetState::Unsecured
+        };
+
         let mut daemon = Daemon {
             tunnel_command_tx,
             tunnel_state: TunnelState::Disconnected,
-            target_state: TargetState::Unsecured,
+            target_state: initial_target_state,
             state: DaemonExecutionState::Running,
             rx: internal_event_rx.wait(),
             tx: internal_event_tx,
@@ -554,6 +600,7 @@ where
             app_version_info,
             shutdown_callbacks: vec![],
             tunnel_state_machine_shutdown_signal,
+            cache_dir,
         };
 
         daemon.ensure_wireguard_keys_for_current_account();
@@ -578,9 +625,8 @@ where
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
     pub fn run(mut self) -> Result<(), Error> {
-        if self.settings.get_auto_connect() && self.settings.get_account_token().is_some() {
-            info!("Automatically connecting since auto-connect is turned on");
-            self.set_target_state(TargetState::Secured);
+        if self.target_state == TargetState::Secured {
+            self.connect_tunnel();
         }
         while let Some(Ok(event)) = self.rx.next() {
             self.handle_event(event);
@@ -939,6 +985,7 @@ where
             #[cfg(not(target_os = "android"))]
             FactoryReset(tx) => self.on_factory_reset(tx),
             Shutdown => self.trigger_shutdown_event(),
+            PrepareRestart => self.on_prepare_restart(),
         }
     }
 
@@ -1658,6 +1705,31 @@ where
         self.disconnect_tunnel();
     }
 
+    fn on_prepare_restart(&mut self) {
+        // TODO: See if this can be made to also shut down the daemon
+        //       without causing the service to be restarted.
+
+        // Cache the current target state
+        let cache_file = self.cache_dir.join(TARGET_START_STATE_FILE);
+        log::debug!("Saving tunnel target state to {}", cache_file.display());
+        match File::create(&cache_file) {
+            Ok(handle) => {
+                if let Err(e) =
+                    serde_json::to_writer(io::BufWriter::new(handle), &self.target_state)
+                {
+                    log::error!("Failed to serialize target start state: {}", e);
+                }
+            }
+            Err(e) => {
+                log::error!("Failed to save target start state: {}", e);
+            }
+        }
+
+        if self.target_state == TargetState::Secured {
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
+        }
+    }
+
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
     /// Returns an error if trying to set secured state, but no account token is present.
@@ -1721,7 +1793,6 @@ where
 
     #[cfg(not(target_os = "android"))]
     fn clear_directory(path: &Path) -> Result<(), Error> {
-        use std::fs;
         #[cfg(not(target_os = "windows"))]
         {
             fs::remove_dir_all(path)
