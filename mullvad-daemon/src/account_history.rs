@@ -5,7 +5,7 @@ use futures::{
     future::{self, Executor, Future},
     sync::oneshot,
 };
-use mullvad_rpc::{HttpHandle, WireguardKeyProxy};
+use mullvad_rpc::{rest::MullvadRestHandle, WireguardKeyProxy};
 use mullvad_types::{account::AccountToken, wireguard::WireguardData};
 use std::{
     collections::VecDeque,
@@ -38,7 +38,7 @@ static ACCOUNT_HISTORY_LIMIT: usize = 3;
 pub struct AccountHistory {
     file: io::BufWriter<fs::File>,
     accounts: VecDeque<AccountEntry>,
-    rpc_handle: HttpHandle,
+    rpc_handle: MullvadRestHandle,
     tokio_remote: Remote,
 }
 
@@ -46,7 +46,7 @@ pub struct AccountHistory {
 impl AccountHistory {
     pub fn new(
         cache_dir: &Path,
-        rpc_handle: HttpHandle,
+        rpc_handle: MullvadRestHandle,
         tokio_remote: Remote,
     ) -> Result<AccountHistory> {
         let mut options = fs::OpenOptions::new();
@@ -152,8 +152,7 @@ impl AccountHistory {
         wg_data: &WireguardData,
     ) -> impl Future<Item = (), Error = ()> {
         let mut rpc = WireguardKeyProxy::new(self.rpc_handle.clone());
-        rpc.remove_wg_key(String::from(account), wg_data.private_key.public_key())
-            .map(|removed| log::debug!("Key existed on account: {}", removed))
+        rpc.remove_wireguard_key(String::from(account), &wg_data.private_key.public_key())
             .map_err(|e| log::error!("Failed to remove WireGuard key: {}", e))
     }
 
@@ -216,8 +215,7 @@ impl AccountHistory {
         for entry in self.accounts.iter() {
             if let Some(wg_data) = &entry.wireguard {
                 let fut = rpc
-                    .remove_wg_key(entry.account.clone(), wg_data.private_key.public_key())
-                    .map(|_| ())
+                    .remove_wireguard_key(entry.account.clone(), &wg_data.private_key.public_key())
                     .map_err(|e| log::error!("Failed to remove WireGuard key: {}", e));
                 removal_futures.push(fut);
             }
