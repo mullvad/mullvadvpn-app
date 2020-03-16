@@ -1,6 +1,6 @@
 use crate::{version::PRODUCT_VERSION, DaemonEventSender};
 use futures::{Async, Future, Poll};
-use mullvad_rpc::{AppVersionProxy, HttpHandle};
+use mullvad_rpc::{rest::MullvadRestHandle, AppVersionProxy};
 use mullvad_types::version::AppVersionInfo;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -68,7 +68,7 @@ pub enum Error {
     DownloadTimeout,
 
     #[error(display = "Failed to check the latest app version")]
-    Download(#[error(source)] mullvad_rpc::Error),
+    Download(#[error(source)] mullvad_rpc::rest::Error),
 
     #[error(display = "Clearing version check cache due to a version mismatch")]
     CacheVersionMismatch,
@@ -82,7 +82,7 @@ impl<T> From<TimeoutError<T>> for Error {
 
 
 pub(crate) struct VersionUpdater {
-    version_proxy: AppVersionProxy<HttpHandle>,
+    version_proxy: AppVersionProxy,
     cache_path: PathBuf,
     update_sender: DaemonEventSender<AppVersionInfo>,
     last_app_version_info: AppVersionInfo,
@@ -97,7 +97,7 @@ enum VersionUpdaterState {
 
 impl VersionUpdater {
     pub fn new(
-        rpc_handle: HttpHandle,
+        rpc_handle: MullvadRestHandle,
         cache_dir: PathBuf,
         update_sender: DaemonEventSender<AppVersionInfo>,
         last_app_version_info: AppVersionInfo,
@@ -123,7 +123,7 @@ impl VersionUpdater {
     ) -> Box<dyn Future<Item = AppVersionInfo, Error = Error> + Send + 'static> {
         let download_future = self
             .version_proxy
-            .app_version_check(&PRODUCT_VERSION.to_owned(), PLATFORM)
+            .version_check(PRODUCT_VERSION.to_owned(), PLATFORM)
             .map_err(Error::Download);
         let future = Timer::default().timeout(download_future, DOWNLOAD_TIMEOUT);
         Box::new(future)
@@ -226,8 +226,9 @@ pub fn load_cache(cache_dir: &Path) -> AppVersionInfo {
             );
             // If we don't have a cache, start out with sane defaults.
             AppVersionInfo {
-                current_is_supported: true,
+                supported: true,
                 latest_stable: PRODUCT_VERSION.to_owned(),
+                latest_beta: PRODUCT_VERSION.to_owned(),
                 latest: PRODUCT_VERSION.to_owned(),
             }
         }
