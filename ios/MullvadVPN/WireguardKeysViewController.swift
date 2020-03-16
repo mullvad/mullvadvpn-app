@@ -110,12 +110,14 @@ class WireguardKeysViewController: UIViewController {
             animated: true)
 
         copyToPasteboardSubscriber =
-            Just(publicKey).cancellableDelay(for: .seconds(3), scheduler: DispatchQueue.main)
-                .sink(receiveValue: { [weak self] (publicKey) in
+            Just(()).cancellableDelay(for: .seconds(3), scheduler: DispatchQueue.main)
+                .sink(receiveValue: { [weak self] () in
+                    guard let self = self, let publicKey = self.publicKey else { return }
+
                     let displayKey = publicKey
                         .stringRepresentation(maxLength: kDisplayPublicKeyMaxLength)
 
-                    self?.setPublicKeyTitle(string: displayKey, animated: true)
+                    self.setPublicKeyTitle(string: displayKey, animated: true)
                 })
     }
 
