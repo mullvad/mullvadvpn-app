@@ -14,11 +14,9 @@ cd "$SCRIPT_DIR"
 #
 # Parameters:
 #   1. Path to source SVG image
-#   2. DPI config, a string with two or three parameters separated by '-'s
+#   2. DPI config, a string with two parameters separated by a '-'
 #      a. the DPI specification, as the suffix of the output directory (e.g., mdpi, xxhdpi)
-#      b. the width of the generated PNG image
-#      c. (optional) the height of the generated PNG image, if not specified it is assumed to be the
-#         same as the width in order to output a square image
+#      b. the size of the generated PNG image
 #   3. (optional) The destination image name, if not specified it is assumed to be the same as the
 #      input image name, with any '-'s replaced with '_'s
 #   4. (optional) Destination directory type, either 'drawable' (the default) or 'mipmap'
@@ -33,9 +31,9 @@ cd "$SCRIPT_DIR"
 #
 #     convert_image /tmp/my-other-image.svg mdpi-50 other_image
 #
-# The following will generate a 50 by 25 image in android/src/main/res/mipmap-xxhdpi/my_icon.png
+# The following will generate a 50 by 50 image in android/src/main/res/mipmap-xxhdpi/my_icon.png
 #
-#     convert_image /tmp/my-final-image.svg xxhdpi-50-25 my_icon mipmap
+#     convert_image /tmp/my-final-image.svg xxhdpi-50 my_icon mipmap
 function convert_image() {
     if (( $# < 2 )); then
         echo "Too few arguments passed to 'convert_image'" >&2
@@ -58,18 +56,13 @@ function convert_image() {
     fi
 
     local dpi="$(echo "$dpi_config" | cut -f1 -d'-')"
-    local width="$(echo "$dpi_config" | cut -f2 -d'-')"
-    local height="$(echo "$dpi_config" | cut -f3 -d'-')"
-
-    if [ -z "$height" ]; then
-        local height="$width"
-    fi
+    local size="$(echo "$dpi_config" | cut -f2 -d'-')"
 
     local dpi_dir="./src/main/res/${destination_dir}-${dpi}"
 
-    echo "$source_image -> ($width x $height) ${dpi_dir}/${destination_image}.png"
+    echo "$source_image -> ($size x $size) ${dpi_dir}/${destination_image}.png"
     mkdir -p "$dpi_dir"
-    rsvg-convert "$source_image" -w "$width" -h "$height" -o "${dpi_dir}/${destination_image}.png"
+    rsvg-convert "$source_image" -w "$size" -h "$size" -o "${dpi_dir}/${destination_image}.png"
 }
 
 # Launcher icon
