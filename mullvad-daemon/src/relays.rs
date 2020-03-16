@@ -3,7 +3,7 @@
 
 use chrono::{DateTime, Local};
 use futures::Future;
-use mullvad_rpc::{HttpHandle, RelayListProxy};
+use mullvad_rpc::{rest::MullvadRestHandle, RelayListProxy};
 use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::Location,
@@ -52,7 +52,7 @@ pub enum Error {
     WriteRelayCache(#[error(source)] io::Error),
 
     #[error(display = "Failed to download the list of relays")]
-    Download(#[error(source)] mullvad_rpc::Error),
+    Download(#[error(source)] mullvad_rpc::rest::Error),
 
     #[error(display = "Timed out when trying to download the list of relays")]
     DownloadTimeout,
@@ -155,7 +155,7 @@ impl RelaySelector {
     /// Returns a new `RelaySelector` backed by relays cached on disk. Use the `update` method
     /// to refresh the relay list from the internet.
     pub fn new(
-        rpc_handle: HttpHandle,
+        rpc_handle: MullvadRestHandle,
         on_update: impl Fn(&RelayList) + Send + 'static,
         resource_dir: &Path,
         cache_dir: &Path,
@@ -783,7 +783,7 @@ impl RelaySelector {
 type RelayListUpdaterHandle = mpsc::Sender<()>;
 
 struct RelayListUpdater {
-    rpc_client: RelayListProxy<HttpHandle>,
+    rpc_client: RelayListProxy,
     cache_path: PathBuf,
     parsed_relays: Arc<Mutex<ParsedRelays>>,
     on_update: Box<dyn Fn(&RelayList)>,
@@ -792,7 +792,7 @@ struct RelayListUpdater {
 
 impl RelayListUpdater {
     pub fn spawn(
-        rpc_handle: HttpHandle,
+        rpc_handle: MullvadRestHandle,
         cache_path: PathBuf,
         parsed_relays: Arc<Mutex<ParsedRelays>>,
         on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
@@ -807,7 +807,7 @@ impl RelayListUpdater {
     }
 
     fn new(
-        rpc_handle: HttpHandle,
+        rpc_handle: MullvadRestHandle,
         cache_path: PathBuf,
         parsed_relays: Arc<Mutex<ParsedRelays>>,
         on_update: Box<dyn Fn(&RelayList)>,
