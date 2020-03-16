@@ -141,6 +141,10 @@ impl PublicKey {
     pub fn as_bytes(&self) -> &[u8; 32] {
         self.0.as_bytes()
     }
+
+    pub fn to_base64(&self) -> String {
+        base64::encode(self.as_bytes())
+    }
 }
 
 
@@ -196,7 +200,7 @@ impl fmt::Debug for PublicKey {
 
 impl fmt::Display for PublicKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &base64::encode(self.0.as_bytes()))
+        write!(f, "{}", &self.to_base64())
     }
 }
 
