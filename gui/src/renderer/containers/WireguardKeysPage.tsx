@@ -11,6 +11,7 @@ const mapStateToProps = (state: IReduxState) => ({
   keyState: state.settings.wireguardKeyState,
   isOffline: state.connection.isBlocked,
   locale: state.userInterface.locale,
+  tunnelState: state.connection.status,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ push, goBack }, dispatch);

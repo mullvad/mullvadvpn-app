@@ -3,6 +3,7 @@ import moment from 'moment';
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
+import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IWgKey, WgKeyState } from '../redux/settings/reducers';
 import * as AppButton from './AppButton';
@@ -17,6 +18,7 @@ export interface IProps {
   keyState: WgKeyState;
   isOffline: boolean;
   locale: string;
+  tunnelState: TunnelState;
 
   onClose: () => void;
   onGenerateKey: () => void;
@@ -25,7 +27,33 @@ export interface IProps {
   onVisitWebsiteKey: () => Promise<void>;
 }
 
-export default class WireguardKeys extends Component<IProps> {
+export interface IState {
+  recentlyGeneratedKey: boolean;
+}
+
+export default class WireguardKeys extends Component<IProps, IState> {
+  public state = {
+    recentlyGeneratedKey: false,
+  };
+
+  public componentDidUpdate(prevProps: IProps) {
+    const prevKey =
+      prevProps.keyState.type === 'key-set' ? prevProps.keyState.key.publicKey : undefined;
+    const key =
+      this.props.keyState.type === 'key-set' ? this.props.keyState.key.publicKey : undefined;
+    if (this.props.tunnelState.state === 'connected' && key !== undefined && key != prevKey) {
+      this.setState({ recentlyGeneratedKey: true });
+    }
+
+    if (
+      this.state.recentlyGeneratedKey &&
+      prevProps.tunnelState.state !== 'connected' &&
+      this.props.tunnelState.state === 'connected'
+    ) {
+      this.setState({ recentlyGeneratedKey: false });
+    }
+  }
+
   public render() {
     return (
       <Layout>
@@ -65,12 +93,7 @@ export default class WireguardKeys extends Component<IProps> {
 
               <View style={styles.wgkeys__messages}>
                 {this.props.isOffline ? (
-                  <Text style={[styles.wgkeys__row, styles.wgkeys__invalid_key]}>
-                    {messages.pgettext(
-                      'wireguard-key-view',
-                      'Unable to manage keys while in a blocked state',
-                    )}
-                  </Text>
+                  this.offlineLabel()
                 ) : (
                   <View style={styles.wgkeys__row}>{this.keyValidityLabel()}</View>
                 )}
@@ -102,6 +125,18 @@ export default class WireguardKeys extends Component<IProps> {
           </View>
         </Container>
       </Layout>
+    );
+  }
+
+  private offlineLabel() {
+    return this.state.recentlyGeneratedKey ? (
+      <Text style={[styles.wgkeys__row, styles.wgkeys__valid_key]}>
+        {messages.pgettext('wireguard-key-view', 'Reconnecting with new WireGuard key...')}
+      </Text>
+    ) : (
+      <Text style={[styles.wgkeys__row, styles.wgkeys__invalid_key]}>
+        {messages.pgettext('wireguard-key-view', 'Unable to manage keys while in a blocked state')}
+      </Text>
     );
   }
 
