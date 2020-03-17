@@ -79,3 +79,16 @@ done
 for dpi_size in "mdpi-120" "hdpi-180" "xhdpi-240" "xxhdpi-360" "xxxhdpi-480"; do
     convert_image "../dist-assets/icon.svg" "$dpi_size" "launch_logo"
 done
+
+# Icons used for notification and quick settings tile
+BLACK_MONO_ICON="../dist-assets/icon-mono.svg"
+WHITE_MONO_ICON="$(mktemp)"
+
+sed -e 's/\(\.st1{.*\);fill:#000000;/\1;fill:#FFFFFF;/' "$BLACK_MONO_ICON" > "$WHITE_MONO_ICON"
+
+for dpi_size in "mdpi-24" "hdpi-36" "xhdpi-48" "xxhdpi-72" "xxxhdpi-96"; do
+    convert_image "$BLACK_MONO_ICON" "$dpi_size" "small_logo_black"
+    convert_image "$WHITE_MONO_ICON" "$dpi_size" "small_logo_white"
+done
+
+rm "$WHITE_MONO_ICON"
