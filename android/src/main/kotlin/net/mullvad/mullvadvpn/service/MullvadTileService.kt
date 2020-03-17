@@ -46,6 +46,8 @@ class MullvadTileService : TileService() {
                 }
             }
         }
+
+        updateTileState()
     }
 
     override fun onClick() {
