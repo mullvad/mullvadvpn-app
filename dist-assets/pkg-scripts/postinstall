@@ -48,8 +48,11 @@ DAEMON_PLIST=$(cat <<-EOM
 EOM
 )
 
+"$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" prepare-restart || true
+
 pkill -x "Mullvad VPN" || echo "Unable to kill GUI, not running?"
 sleep 1
+
 launchctl unload -w $DAEMON_PLIST_PATH
 echo "$DAEMON_PLIST" > $DAEMON_PLIST_PATH
 launchctl load -w $DAEMON_PLIST_PATH

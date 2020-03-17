@@ -61,11 +61,12 @@ Line wrap the file at 100 chars.                                              Th
   blocked state. This only affected WireGuard.
 
 ### Security
+- When upgrading or reinstalling while connected, exit the daemon in a blocking state to prevent
+  unintended leaks. This only affects upgrades from this release.
+
 #### Windows
 - Fix issue in daemon where the `block_when_disconnected` setting was sometimes not honored when
   stopping the daemon. I.e. traffic could flow freely after the daemon was stopped.
-- When upgrading or reinstalling while connected, exit the daemon in a blocking state to prevent
-  unintended leaks. This only affects upgrades from this release.
 
 
 ## [2020.3] - 2020-02-20
