@@ -55,6 +55,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Make sure the settings screen is scrollable so that devices with small screens can access the quit
   button.
+- Fix connectivity listener leak causing possible battery usage increase.
 
 #### Windows
 - Fix bug where failing to initialize the route manager could cause the daemon to get stuck in a
