@@ -14,6 +14,9 @@ import os
 /// A UI refresh interval for the public key creation date (in seconds)
 private let kCreationDateRefreshInterval = TimeInterval(60)
 
+/// A maximum number of characters to display out of the entire public key representation
+private let kDisplayPublicKeyMaxLength = 20
+
 private enum WireguardKeysViewState {
     case `default`
     case verifyingKey
@@ -45,7 +48,7 @@ extension VerifyWireguardPublicKeyError: LocalizedError {
 
 class WireguardKeysViewController: UIViewController {
 
-    @IBOutlet var publicKeyLabel: UILabel!
+    @IBOutlet var publicKeyButton: UIButton!
     @IBOutlet var creationDateLabel: UILabel!
     @IBOutlet var regenerateKeyButton: UIButton!
     @IBOutlet var verifyKeyButton: UIButton!
@@ -54,7 +57,8 @@ class WireguardKeysViewController: UIViewController {
     private var fetchKeySubscriber: AnyCancellable?
     private var verifyKeySubscriber: AnyCancellable?
     private var regenerateKeySubscriber: AnyCancellable?
-    private var timerSubscriber: AnyCancellable?
+    private var creationDateTimerSubscriber: AnyCancellable?
+    private var copyToPasteboardSubscriber: AnyCancellable?
 
     private let apiClient = MullvadAPI()
     private var publicKey: WireguardPublicKey?
@@ -78,10 +82,10 @@ class WireguardKeysViewController: UIViewController {
         super.viewDidLoad()
 
         // Reset Storyboard placeholders
-        publicKeyLabel.text = "-"
+        setPublicKeyTitle(string: "-", animated: false)
         creationDateLabel.text = "-"
 
-        timerSubscriber = Timer.publish(every: kCreationDateRefreshInterval, on: .main, in: .common)
+        creationDateTimerSubscriber = Timer.publish(every: kCreationDateRefreshInterval, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self = self else { return }
@@ -91,10 +95,31 @@ class WireguardKeysViewController: UIViewController {
                 }
         }
 
-        loadPublicKey()
+        loadPublicKey(animated: false)
     }
 
     // MARK: - IBActions
+
+    @IBAction func copyPublicKey(_ sender: Any) {
+        guard let publicKey = self.publicKey else { return }
+
+        UIPasteboard.general.string = publicKey.stringRepresentation()
+
+        setPublicKeyTitle(
+            string: NSLocalizedString("COPIED TO PASTEBOARD!", comment: ""),
+            animated: true)
+
+        copyToPasteboardSubscriber =
+            Just(()).cancellableDelay(for: .seconds(3), scheduler: DispatchQueue.main)
+                .sink(receiveValue: { [weak self] () in
+                    guard let self = self, let publicKey = self.publicKey else { return }
+
+                    let displayKey = publicKey
+                        .stringRepresentation(maxLength: kDisplayPublicKeyMaxLength)
+
+                    self.setPublicKeyTitle(string: displayKey, animated: true)
+                })
+    }
 
     @IBAction func handleRegenerateKey(_ sender: Any) {
         regeneratePrivateKey()
@@ -129,7 +154,7 @@ class WireguardKeysViewController: UIViewController {
         creationDateLabel.text = formatKeyGenerationElapsedTime(with: creationDate) ?? "-"
     }
 
-    private func loadPublicKey() {
+    private func loadPublicKey(animated: Bool) {
         fetchKeySubscriber = TunnelManager.shared.getWireguardPublicKey()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { (completion) in
@@ -146,7 +171,10 @@ class WireguardKeysViewController: UIViewController {
             }) { [weak self] (publicKey) in
                 guard let self = self else { return }
 
-                self.publicKeyLabel.text = publicKey.rawRepresentation.base64EncodedString()
+                let displayKey = publicKey
+                    .stringRepresentation(maxLength: kDisplayPublicKeyMaxLength)
+
+                self.setPublicKeyTitle(string: displayKey, animated: animated)
                 self.updateCreationDateLabel(with: publicKey.creationDate)
 
                 self.publicKey = publicKey
@@ -219,7 +247,7 @@ class WireguardKeysViewController: UIViewController {
             .sink { (completion) in
                 switch completion {
                 case .finished:
-                    self.loadPublicKey()
+                    self.loadPublicKey(animated: true)
 
                 case .failure(let error):
                     os_log(.error, "Failed to re-generate the private key: %{public}s",
@@ -227,6 +255,21 @@ class WireguardKeysViewController: UIViewController {
 
                     self.presentError(error, preferredStyle: .alert)
                 }
+        }
+    }
+
+    private func setPublicKeyTitle(string: String, animated: Bool) {
+        let updateTitle = {
+            self.publicKeyButton.setTitle(string, for: .normal)
+        }
+
+        if animated {
+            updateTitle()
+        } else {
+            UIView.performWithoutAnimation {
+                updateTitle()
+                publicKeyButton.layoutIfNeeded()
+            }
         }
     }
 
