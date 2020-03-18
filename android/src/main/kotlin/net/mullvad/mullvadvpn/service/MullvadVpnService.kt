@@ -9,6 +9,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
+import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
 
@@ -29,6 +30,7 @@ class MullvadVpnService : TalpidVpnService() {
     private var startDaemonJob: Job? = null
 
     private lateinit var notificationManager: ForegroundNotificationManager
+    private lateinit var tunnelStateUpdater: TunnelStateUpdater
 
     var shouldConnect = false
         set(value) {
@@ -56,7 +58,10 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onCreate() {
         super.onCreate()
+
         notificationManager = ForegroundNotificationManager(this, serviceNotifier)
+        tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
+
         setUp()
     }
 
