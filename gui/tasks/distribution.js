@@ -126,6 +126,7 @@ const config = {
       '--config-files',
       '/opt/Mullvad VPN/resources/mullvad-daemon.conf',
       distAssets('mullvad') + '=/usr/bin/',
+      distAssets('mullvad-exclude') + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
       distAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
@@ -149,6 +150,7 @@ const config = {
       '--config-files',
       '/opt/Mullvad VPN/resources/mullvad-daemon.conf',
       distAssets('mullvad') + '=/usr/bin/',
+      distAssets('mullvad-exclude') + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
       distAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
