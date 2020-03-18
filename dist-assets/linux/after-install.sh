@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eu
 
+chmod u+s "/opt/Mullvad VPN/resources/mullvad-exclude"
+ln -s "/opt/Mullvad VPN/resources/mullvad-exclude" /usr/bin/
+
 if which systemctl &> /dev/null; then
     systemctl enable "/opt/Mullvad VPN/resources/mullvad-daemon.service"
     systemctl start mullvad-daemon.service

@@ -14,6 +14,8 @@ if [[ "$1" == "upgrade" ]]; then
     exit 0;
 fi
 
+rm -f /usr/bin/mullvad-exclude
+
 if which systemctl &> /dev/null; then
     # the user might've disabled or stopped the service themselves already
     systemctl stop mullvad-daemon.service || true
