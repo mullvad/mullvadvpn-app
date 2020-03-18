@@ -30,6 +30,7 @@ cd "$SCRIPT_DIR"
 DIST_ASSETS_DIR="../../dist-assets"
 SVG_SOURCE_PATH="$DIST_ASSETS_DIR/icon.svg"
 TMP_DIR=$(mktemp -d)
+TMP_ICO_DIR="$TMP_DIR/ico"
 TMP_ICONSET_DIR="$TMP_DIR/icon.iconset"
 
 COMPRESSION_OPTIONS="-define png:compression-filter=5 -define png:compression-level=9 \
@@ -47,10 +48,22 @@ iconutil --convert icns --output  $DIST_ASSETS_DIR/icon.icns $TMP_ICONSET_DIR
 rm -rf $TMP_ICONSET_DIR
 
 # Windows .ico icon
+mkdir $TMP_ICO_DIR
 for size in 16 20 24 30 32 36 40 48 60 64 72 80 96 256 512; do
-    rsvg-convert -o $TMP_DIR/$size.png -w $size -h $size $SVG_SOURCE_PATH
+    rsvg-convert -o $TMP_ICO_DIR/$size.png -w $size -h $size $SVG_SOURCE_PATH
 done
-convert $TMP_DIR/* $COMPRESSION_OPTIONS $DIST_ASSETS_DIR/icon.ico
+convert $TMP_ICO_DIR/* $COMPRESSION_OPTIONS $DIST_ASSETS_DIR/icon.ico
+rm -rf $TMP_ICO_DIR
+
+# Windows installer sidebar
+# "bmp3" specifies the Windows 3.x format which is required for the image to be displayed
+sidebar_path="$TMP_DIR/sidebar.png"
+sidebar_logo_size=234
+rsvg-convert -o $sidebar_path -w $sidebar_logo_size -h $sidebar_logo_size $SVG_SOURCE_PATH
+convert -background "#294D73" $sidebar_path \
+    -gravity center -extent ${sidebar_logo_size}x314 \
+    -gravity west -crop 164x314+10+0 bmp3:$DIST_ASSETS_DIR/windows/installersidebar.bmp
+rm $sidebar_path
 
 rm -rf $TMP_DIR
 
