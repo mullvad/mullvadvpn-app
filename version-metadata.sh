@@ -64,39 +64,43 @@ EOF
 }
 
 function restore_backup {
+    set +e
     # Electron GUI
-    mv gui/package.json.bak gui/package.json || true
-    mv gui/package-lock.json.bak gui/package-lock.json || true
+    mv gui/package.json.bak gui/package.json
+    mv gui/package-lock.json.bak gui/package-lock.json
     # Rust crates
-    mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml || true
-    mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml || true
-    mv mullvad-problem-report/Cargo.toml.bak mullvad-problem-report/Cargo.toml || true
-    mv mullvad-setup/Cargo.toml.bak mullvad-setup/Cargo.toml || true
-    mv talpid-openvpn-plugin/Cargo.toml.bak talpid-openvpn-plugin/Cargo.toml || true
+    mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml
+    mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml
+    mv mullvad-problem-report/Cargo.toml.bak mullvad-problem-report/Cargo.toml
+    mv mullvad-setup/Cargo.toml.bak mullvad-setup/Cargo.toml
+    mv talpid-openvpn-plugin/Cargo.toml.bak talpid-openvpn-plugin/Cargo.toml
     # Windows C++
-    mv dist-assets/windows/version.h.bak dist-assets/windows/version.h || true
+    mv dist-assets/windows/version.h.bak dist-assets/windows/version.h
     # Android
     if [[ ("$(uname -s)" == "Linux") ]]; then
-        mv android/build.gradle.bak android/build.gradle || true
+        mv android/build.gradle.bak android/build.gradle
     fi
+    set -e
 }
 
 function delete_backup {
+    set +e
     # Electron GUI
-    rm gui/package.json.bak || true
-    rm gui/package-lock.json.bak || true
+    rm gui/package.json.bak
+    rm gui/package-lock.json.bak
     # Rust crates
-    rm mullvad-daemon/Cargo.toml.bak || true
-    rm mullvad-cli/Cargo.toml.bak || true
-    rm mullvad-problem-report/Cargo.toml.bak || true
-    rm mullvad-setup/Cargo.toml.bak || true
-    rm talpid-openvpn-plugin/Cargo.toml.bak || true
+    rm mullvad-daemon/Cargo.toml.bak
+    rm mullvad-cli/Cargo.toml.bak
+    rm mullvad-problem-report/Cargo.toml.bak
+    rm mullvad-setup/Cargo.toml.bak
+    rm talpid-openvpn-plugin/Cargo.toml.bak
     # Windows C++
-    rm dist-assets/windows/version.h.bak || true
+    rm dist-assets/windows/version.h.bak
     # Android
     if [[ ("$(uname -s)" == "Linux") ]]; then
-        rm android/build.gradle.bak || true
+        rm android/build.gradle.bak
     fi
+    set -e
 }
 
 case "$1" in
