@@ -1,4 +1,6 @@
+#[cfg(target_os = "linux")]
 use nix::unistd::{execv, getgid, getpid, getuid, setgid, setuid};
+#[cfg(target_os = "linux")]
 use std::{
     env,
     error::Error as StdError,
@@ -9,6 +11,7 @@ use std::{
 #[cfg(target_os = "linux")]
 const CGROUP_PROCS_PATH: &str = "/sys/fs/cgroup/net_cls/mullvad-exclusions/cgroup.procs";
 
+#[cfg(target_os = "linux")]
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 enum Error {
@@ -29,6 +32,7 @@ enum Error {
 }
 
 fn main() {
+    #[cfg(target_os = "linux")]
     match run() {
         Err(Error::InvalidArguments) => {
             let mut args = env::args();
@@ -50,6 +54,7 @@ fn main() {
     }
 }
 
+#[cfg(target_os = "linux")]
 fn run() -> Result<(), Error> {
     if env::args().count() < 2 {
         return Err(Error::InvalidArguments);
