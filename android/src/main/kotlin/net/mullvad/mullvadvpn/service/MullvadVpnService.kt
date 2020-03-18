@@ -64,6 +64,12 @@ class MullvadVpnService : TalpidVpnService() {
             notificationManager.lockedToForeground = value
         }
 
+    private var loggedIn = false
+        set(value) {
+            field = value
+            notificationManager.loggedIn = value
+        }
+
     override fun onCreate() {
         super.onCreate()
 
@@ -140,7 +146,7 @@ class MullvadVpnService : TalpidVpnService() {
 
         val newDaemon = MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
-                notificationManager.loggedIn = settings?.accountToken != null
+                loggedIn = settings?.accountToken != null
             }
 
             onDaemonStopped = {
