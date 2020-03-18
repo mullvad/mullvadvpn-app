@@ -1498,19 +1498,19 @@ dependencies = [
 [[package]]
 name = "nftnl"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/mullvad/nftnl-rs?rev=ff51d6d1f7547765c6b610b8b30f48c8997ceee9#ff51d6d1f7547765c6b610b8b30f48c8997ceee9"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "err-derive 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.65 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "nftnl-sys 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nftnl-sys 0.2.0 (git+https://github.com/mullvad/nftnl-rs?rev=ff51d6d1f7547765c6b610b8b30f48c8997ceee9)",
 ]
 
 [[package]]
 name = "nftnl-sys"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/mullvad/nftnl-rs?rev=ff51d6d1f7547765c6b610b8b30f48c8997ceee9#ff51d6d1f7547765c6b610b8b30f48c8997ceee9"
 dependencies = [
  "cfg-if 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.65 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2471,7 +2471,7 @@ dependencies = [
  "netlink-packet 0.1.1 (git+https://github.com/mullvad/netlink?rev=f768adfcc8c6b064ef7ae3c792c4c21d0d96d0b5)",
  "netlink-proto 0.1.1 (git+https://github.com/mullvad/netlink?rev=f768adfcc8c6b064ef7ae3c792c4c21d0d96d0b5)",
  "netlink-sys 0.1.0 (git+https://github.com/mullvad/netlink?rev=f768adfcc8c6b064ef7ae3c792c4c21d0d96d0b5)",
- "nftnl 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nftnl 0.2.1 (git+https://github.com/mullvad/nftnl-rs?rev=ff51d6d1f7547765c6b610b8b30f48c8997ceee9)",
  "nix 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify 4.0.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn-plugin 0.3.0 (git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event)",
@@ -3338,8 +3338,8 @@ dependencies = [
 "checksum netlink-packet 0.1.1 (git+https://github.com/mullvad/netlink?rev=f768adfcc8c6b064ef7ae3c792c4c21d0d96d0b5)" = "<none>"
 "checksum netlink-proto 0.1.1 (git+https://github.com/mullvad/netlink?rev=f768adfcc8c6b064ef7ae3c792c4c21d0d96d0b5)" = "<none>"
 "checksum netlink-sys 0.1.0 (git+https://github.com/mullvad/netlink?rev=f768adfcc8c6b064ef7ae3c792c4c21d0d96d0b5)" = "<none>"
-"checksum nftnl 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "e828c02949d1ba95b3983744d39a30b9efc2a9cdeef6230715b87ad77211ade9"
-"checksum nftnl-sys 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "2d559148c09433fa20478524cb97ee3af7b6391d8edf19c709e9eb86a53f2bab"
+"checksum nftnl 0.2.1 (git+https://github.com/mullvad/nftnl-rs?rev=ff51d6d1f7547765c6b610b8b30f48c8997ceee9)" = "<none>"
+"checksum nftnl-sys 0.2.0 (git+https://github.com/mullvad/nftnl-rs?rev=ff51d6d1f7547765c6b610b8b30f48c8997ceee9)" = "<none>"
 "checksum nix 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)" = "6c722bee1037d430d0f8e687bbdbf222f27cc6e4e68d5caf630857bb2b6dbdce"
 "checksum nix 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3b2e0b4f3320ed72aaedb9a5ac838690a8047c7b275da22711fddff4f8a14229"
 "checksum nix 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)" = "50e4785f2c3b7589a0d0c1dd60285e1188adac4006e8abd6dd578e1567027363"
