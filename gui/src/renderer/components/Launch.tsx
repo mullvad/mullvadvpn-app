@@ -15,7 +15,7 @@ const styles = {
     marginTop: -150,
   }),
   logo: Styles.createViewStyle({
-    marginBottom: 4,
+    marginBottom: 5,
   }),
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
@@ -47,7 +47,7 @@ export default class Launch extends Component<IProps> {
         </Header>
         <Container>
           <View style={styles.container}>
-            <ImageView height={120} width={120} source="logo-icon" style={styles.logo} />
+            <ImageView height={106} width={106} source="logo-icon" style={styles.logo} />
             <Text style={styles.title}>{messages.pgettext('generic', 'MULLVAD VPN')}</Text>
             <Text style={styles.subtitle}>
               {messages.pgettext('launch-view', 'Connecting to Mullvad system service...')}
