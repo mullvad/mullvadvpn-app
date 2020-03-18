@@ -10,6 +10,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
+import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
 
@@ -84,7 +85,12 @@ class MullvadVpnService : TalpidVpnService() {
         val action = intent?.action
 
         if (action == VpnService.SERVICE_INTERFACE || action == KEY_CONNECT_ACTION) {
-            pendingAction = PendingAction.Connect
+            if (loggedIn) {
+                pendingAction = PendingAction.Connect
+            } else {
+                pendingAction = null
+                openUi()
+            }
         } else if (action == KEY_DISCONNECT_ACTION) {
             pendingAction = PendingAction.Disconnect
         }
@@ -193,5 +199,11 @@ class MullvadVpnService : TalpidVpnService() {
     private fun restart() {
         tearDown()
         setUp()
+    }
+
+    private fun openUi() {
+        val intent = Intent(this, MainActivity::class.java)
+
+        startActivity(intent)
     }
 }
