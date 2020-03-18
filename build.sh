@@ -155,6 +155,7 @@ elif [[ ("$(uname -s)" == "Linux") ]]; then
         mullvad-problem-report
         libtalpid_openvpn_plugin.so
         mullvad-setup
+        mullvad-exclude
     )
 elif [[ ("$(uname -s)" == "MINGW"*) ]]; then
     binaries=(
