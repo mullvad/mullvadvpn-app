@@ -65,5 +65,11 @@ convert -background "#294D73" $sidebar_path \
     -gravity west -crop 164x314+10+0 bmp3:$DIST_ASSETS_DIR/windows/installersidebar.bmp
 rm $sidebar_path
 
-rm -rf $TMP_DIR
+# GUI notification icon
+rsvg-convert -o ../assets/images/icon-notification.png -w 128 -h 128 $SVG_SOURCE_PATH
+
+# GUI in app icon
+cp ../../dist-assets/icon.svg ../assets/images/logo-icon.svg
+
+rmdir $TMP_DIR
 
