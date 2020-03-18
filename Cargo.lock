@@ -1410,6 +1410,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-exclude"
+version = "0.1.0"
+dependencies = [
+ "err-derive 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nix 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "void 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "mullvad-ipc-client"
 version = "0.1.0"
 dependencies = [
