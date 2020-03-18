@@ -5,6 +5,9 @@
 
 set -eu
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
 # Regex that only matches valid Mullvad VPN versions. It also captures
 # relevant values into capture groups, read out via BASH_REMATCH[x].
 VERSION_REGEX="^20([0-9]{2})\.([1-9][0-9]?)(-beta([1-9][0-9]?))?(-dev-[0-9a-f]+)?$"
@@ -18,24 +21,24 @@ case "$1" in
             exit 1
         fi
 
-        VERSION_YEAR=$(printf "%02d" ${BASH_REMATCH[1]})
-        VERSION_NUMBER=$(printf "%02d" ${BASH_REMATCH[2]})
-        VERSION_PATCH="00" # Not used for now.
-        VERSION_BETA=$(printf "%02d" ${BASH_REMATCH[4]:-99})
-        ANDROID_VERSION_CODE=${VERSION_YEAR}${VERSION_NUMBER}${VERSION_PATCH}${VERSION_BETA}
+        version_year=$(printf "%02d" "${BASH_REMATCH[1]}")
+        version_number=$(printf "%02d" "${BASH_REMATCH[2]}")
+        version_patch="00" # Not used for now.
+        version_beta=$(printf "%02d" "${BASH_REMATCH[4]:-99}")
+        android_version_code=${version_year}${version_number}${version_patch}${version_beta}
 
-        SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
-        SEMVER_MAJOR="20${BASH_REMATCH[1]}"
-        SEMVER_MINOR=${BASH_REMATCH[2]}
-        SEMVER_PATCH="0"
+        semver_version=$(echo "$PRODUCT_VERSION" | sed -Ee 's/($|-.*)/.0\1/g')
+        semver_major="20${BASH_REMATCH[1]}"
+        semver_minor=${BASH_REMATCH[2]}
+        semver_patch="0"
 
         # Electron GUI
         cp gui/package.json gui/package.json.bak
         cp gui/package-lock.json gui/package-lock.json.bak
-        (cd gui/ && npm version $SEMVER_VERSION --no-git-tag-version --allow-same-version)
+        (cd gui/ && npm version "$semver_version" --no-git-tag-version --allow-same-version)
 
         # Rust crates
-        sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$SEMVER_VERSION\"/g" \
+        sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$semver_version\"/g" \
             mullvad-daemon/Cargo.toml \
             mullvad-cli/Cargo.toml \
             mullvad-problem-report/Cargo.toml \
@@ -45,16 +48,16 @@ case "$1" in
         # Windows C++
         cp dist-assets/windows/version.h dist-assets/windows/version.h.bak
         cat <<EOF > dist-assets/windows/version.h
-#define MAJOR_VERSION $SEMVER_MAJOR
-#define MINOR_VERSION $SEMVER_MINOR
-#define PATCH_VERSION $SEMVER_PATCH
+#define MAJOR_VERSION $semver_major
+#define MINOR_VERSION $semver_minor
+#define PATCH_VERSION $semver_patch
 #define PRODUCT_VERSION "$PRODUCT_VERSION"
 EOF
 
         # Android
         if [[ ("$(uname -s)" == "Linux") ]]; then
             cp android/build.gradle android/build.gradle.bak
-            sed -i -Ee "s/versionCode [0-9]+/versionCode $ANDROID_VERSION_CODE/g" \
+            sed -i -Ee "s/versionCode [0-9]+/versionCode $android_version_code/g" \
                 android/build.gradle
             sed -i -Ee "s/versionName \"[^\"]+\"/versionName \"$PRODUCT_VERSION\"/g" \
                 android/build.gradle
