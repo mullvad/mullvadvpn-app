@@ -72,6 +72,7 @@ class LocationInfoCache(
         }
 
     fun onDestroy() {
+        connectivityListener.connectivityNotifier.unsubscribe(connectivityListenerId)
         activeFetch?.cancel()
     }
 
