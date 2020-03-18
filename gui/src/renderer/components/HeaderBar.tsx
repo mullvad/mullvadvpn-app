@@ -78,6 +78,9 @@ const brandStyles = {
     flexDirection: 'row',
     alignItems: 'center',
   }),
+  icon: Styles.createViewStyle({
+    marginLeft: 6,
+  }),
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
     fontSize: 24,
@@ -85,7 +88,7 @@ const brandStyles = {
     lineHeight: 30,
     letterSpacing: -0.5,
     color: colors.white80,
-    marginLeft: 8,
+    marginLeft: 9,
   }),
 };
 
@@ -93,7 +96,7 @@ export class Brand extends Component {
   public render() {
     return (
       <View style={brandStyles.container}>
-        <ImageView width={50} height={50} source="logo-icon" />
+        <ImageView width={44} height={44} source="logo-icon" style={brandStyles.icon} />
         <Text style={brandStyles.title}>{messages.pgettext('generic', 'MULLVAD VPN')}</Text>
       </View>
     );
