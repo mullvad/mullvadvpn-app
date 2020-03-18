@@ -26,15 +26,6 @@ class SettingsListener(val daemon: MullvadDaemon) {
             }
         }
 
-    var onAllowLanChange: ((Boolean) -> Unit)? = null
-        set(value) {
-            synchronized(this) {
-                field = value
-
-                value?.invoke(settings.allowLan)
-            }
-        }
-
     var onRelaySettingsChange: ((RelaySettings?) -> Unit)? = null
         set(value) {
             synchronized(this) {
