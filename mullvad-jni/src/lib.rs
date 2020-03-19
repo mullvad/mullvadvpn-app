@@ -737,6 +737,28 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAuto
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setEnableIpv6(
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    enable_ipv6: jboolean,
+) {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let enable_ipv6 = bool::from_java(&env, enable_ipv6);
+
+        if let Err(error) = daemon_interface.set_enable_ipv6(enable_ipv6) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set enable IPv6")
+            );
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdown(
     _: JNIEnv<'_>,
     _: JObject<'_>,

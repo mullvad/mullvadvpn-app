@@ -97,6 +97,10 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         setAutoConnect(daemonInterfaceAddress, autoConnect)
     }
 
+    fun setEnableIpv6(enableIpv6: Boolean) {
+        setEnableIpv6(daemonInterfaceAddress, enableIpv6)
+    }
+
     fun shutdown() {
         shutdown(daemonInterfaceAddress)
     }
@@ -132,6 +136,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     private external fun setAccount(daemonInterfaceAddress: Long, accountToken: String?)
     private external fun setAllowLan(daemonInterfaceAddress: Long, allowLan: Boolean)
     private external fun setAutoConnect(daemonInterfaceAddress: Long, alwaysOn: Boolean)
+    private external fun setEnableIpv6(daemonInterfaceAddress: Long, enableIpv6: Boolean)
     private external fun shutdown(daemonInterfaceAddress: Long)
     private external fun updateRelaySettings(
         daemonInterfaceAddress: Long,
