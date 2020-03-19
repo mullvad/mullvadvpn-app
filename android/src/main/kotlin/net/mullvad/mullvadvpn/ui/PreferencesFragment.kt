@@ -34,7 +34,11 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
             forcefullySetState(CellSwitch.State.fromBoolean(allowLan))
 
-            listener = { state -> daemon.setAllowLan(state.isOn) }
+            listener = { state ->
+                GlobalScope.launch(Dispatchers.Default) {
+                    daemon.setAllowLan(state.isOn)
+                }
+            }
         }
 
         autoConnectToggle = view.findViewById<CellSwitch>(R.id.auto_connect_toggle).apply {
@@ -42,7 +46,11 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
             forcefullySetState(CellSwitch.State.fromBoolean(autoConnect))
 
-            listener = { state -> daemon.setAutoConnect(state.isOn) }
+            listener = { state ->
+                GlobalScope.launch(Dispatchers.Default) {
+                    daemon.setAutoConnect(state.isOn)
+                }
+            }
         }
 
         settingsListener.subscribe({ settings -> updateUi(settings) })

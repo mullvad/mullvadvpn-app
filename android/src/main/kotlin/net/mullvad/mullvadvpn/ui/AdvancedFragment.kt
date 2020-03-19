@@ -33,7 +33,11 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
             forcefullySetState(CellSwitch.State.fromBoolean(enableIpv6))
 
-            listener = { state -> daemon.setEnableIpv6(state.isOn) }
+            listener = { state ->
+                GlobalScope.launch(Dispatchers.Default) {
+                    daemon.setEnableIpv6(state.isOn)
+                }
+            }
         }
 
         settingsListener.subscribe({ settings -> updateUi(settings) })
