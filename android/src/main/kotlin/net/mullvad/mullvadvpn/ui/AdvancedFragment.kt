@@ -29,6 +29,10 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         enableIpv6Toggle = view.findViewById<CellSwitch>(R.id.enable_ipv6_toggle).apply {
+            val enableIpv6 = settingsListener.settings.tunnelOptions.generic.enableIpv6
+
+            forcefullySetState(CellSwitch.State.fromBoolean(enableIpv6))
+
             listener = { state -> daemon.setEnableIpv6(state.isOn) }
         }
 
