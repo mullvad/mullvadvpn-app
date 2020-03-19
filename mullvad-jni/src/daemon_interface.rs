@@ -188,6 +188,14 @@ impl DaemonInterface {
         rx.wait().map_err(|_| Error::NoResponse)
     }
 
+    pub fn set_enable_ipv6(&self, enable_ipv6: bool) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::SetEnableIpv6(tx, enable_ipv6))?;
+
+        rx.wait().map_err(|_| Error::NoResponse)
+    }
+
     pub fn shutdown(&self) -> Result<()> {
         self.send_command(DaemonCommand::Shutdown)
     }
