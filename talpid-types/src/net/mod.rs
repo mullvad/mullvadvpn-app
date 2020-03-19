@@ -178,6 +178,8 @@ impl fmt::Display for TransportProtocolParseError {
 
 /// Holds optional settings that can apply to different kinds of tunnels
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub struct GenericTunnelOptions {
     /// Enable configuration of IPv6 on the tunnel interface, allowing IPv6 communication to be
     /// forwarded through the tunnel.
