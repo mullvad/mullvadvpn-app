@@ -17,7 +17,22 @@ import net.mullvad.mullvadvpn.R
 class CellSwitch : LinearLayout {
     enum class State {
         ON,
-        OFF
+        OFF;
+
+        val isOn
+            get() = this == State.ON
+        val isOff
+            get() = this == State.OFF
+
+        companion object {
+            fun fromBoolean(on: Boolean): State {
+                if (on) {
+                    return State.ON
+                } else {
+                    return State.OFF
+                }
+            }
+        }
     }
 
     var state = State.OFF

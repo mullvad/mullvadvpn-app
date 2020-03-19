@@ -29,12 +29,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         enableIpv6Toggle = view.findViewById<CellSwitch>(R.id.enable_ipv6_toggle).apply {
-            listener = { state ->
-                when (state) {
-                    CellSwitch.State.ON -> daemon.setEnableIpv6(true)
-                    CellSwitch.State.OFF -> daemon.setEnableIpv6(false)
-                }
-            }
+            listener = { state -> daemon.setEnableIpv6(state.isOn) }
         }
 
         settingsListener.subscribe({ settings -> updateUi(settings) })
@@ -45,11 +40,9 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private fun updateUi(settings: Settings) {
         updateUiJob?.cancel()
         updateUiJob = GlobalScope.launch(Dispatchers.Main) {
-            if (settings.tunnelOptions.generic.enableIpv6) {
-                enableIpv6Toggle.state = CellSwitch.State.ON
-            } else {
-                enableIpv6Toggle.state = CellSwitch.State.OFF
-            }
+            val enableIpv6 = settings.tunnelOptions.generic.enableIpv6
+
+            enableIpv6Toggle.state = CellSwitch.State.fromBoolean(enableIpv6)
         }
     }
 

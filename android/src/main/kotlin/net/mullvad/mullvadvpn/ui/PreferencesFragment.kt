@@ -30,25 +30,19 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         allowLanToggle = view.findViewById<CellSwitch>(R.id.allow_lan_toggle).apply {
-            forcefullySetState(boolToSwitchState(settingsListener.settings.allowLan))
+            val allowLan = settingsListener.settings.allowLan
 
-            listener = { state ->
-                when (state) {
-                    CellSwitch.State.ON -> daemon.setAllowLan(true)
-                    CellSwitch.State.OFF -> daemon.setAllowLan(false)
-                }
-            }
+            forcefullySetState(CellSwitch.State.fromBoolean(allowLan))
+
+            listener = { state -> daemon.setAllowLan(state.isOn) }
         }
 
         autoConnectToggle = view.findViewById<CellSwitch>(R.id.auto_connect_toggle).apply {
-            forcefullySetState(boolToSwitchState(settingsListener.settings.autoConnect))
+            val autoConnect = settingsListener.settings.autoConnect
 
-            listener = { state ->
-                when (state) {
-                    CellSwitch.State.ON -> daemon.setAutoConnect(true)
-                    CellSwitch.State.OFF -> daemon.setAutoConnect(false)
-                }
-            }
+            forcefullySetState(CellSwitch.State.fromBoolean(autoConnect))
+
+            listener = { state -> daemon.setAutoConnect(state.isOn) }
         }
 
         settingsListener.subscribe({ settings -> updateUi(settings) })
@@ -59,20 +53,12 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private fun updateUi(settings: Settings) {
         updateUiJob?.cancel()
         updateUiJob = GlobalScope.launch(Dispatchers.Main) {
-            allowLanToggle.state = boolToSwitchState(settings.allowLan)
-            autoConnectToggle.state = boolToSwitchState(settings.autoConnect)
+            allowLanToggle.state = CellSwitch.State.fromBoolean(settings.allowLan)
+            autoConnectToggle.state = CellSwitch.State.fromBoolean(settings.autoConnect)
         }
     }
 
     override fun onSafelyDestroyView() {
         subscriptionId?.let { id -> settingsListener.unsubscribe(id) }
-    }
-
-    private fun boolToSwitchState(pref: Boolean): CellSwitch.State {
-        if (pref) {
-            return CellSwitch.State.ON
-        } else {
-            return CellSwitch.State.OFF
-        }
     }
 }
