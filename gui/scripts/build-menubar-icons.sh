@@ -21,7 +21,7 @@ SVG_DIR="$MENUBAR_ICONS_DIR/svg"
 MACOS_DIR="$MENUBAR_ICONS_DIR/darwin"
 WINDOWS_DIR="$MENUBAR_ICONS_DIR/win32"
 LINUX_DIR="$MENUBAR_ICONS_DIR/linux"
-TMP_DIR="$MENUBAR_ICONS_DIR/tmp"
+TMP_DIR=$(mktemp -d)
 
 COMPRESSION_OPTIONS="-define png:compression-filter=5 -define png:compression-level=9 \
     -define png:compression-strategy=1 -define png:exclude-chunk=all -strip"
@@ -99,7 +99,7 @@ function generate() {
     rm "$black_svg_source_path" "$white_svg_source_path"
 }
 
-mkdir -p "$MACOS_DIR" "$WINDOWS_DIR" "$LINUX_DIR" "$TMP_DIR"
+mkdir -p "$MACOS_DIR" "$WINDOWS_DIR" "$LINUX_DIR"
 
 for frame in {1..9}; do
     generate lock-$frame lock-$frame
