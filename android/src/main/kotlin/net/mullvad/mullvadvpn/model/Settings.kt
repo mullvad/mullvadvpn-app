@@ -5,5 +5,6 @@ data class Settings(
     var relaySettings: RelaySettings,
     var allowLan: Boolean,
     var autoConnect: Boolean,
+    var tunnelOptions: TunnelOptions,
     var showBetaReleases: Boolean?
 )

@@ -74,7 +74,6 @@ pub struct Settings {
     auto_connect: bool,
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
-    #[cfg_attr(target_os = "android", jnix(skip))]
     tunnel_options: TunnelOptions,
     /// Whether to notify users of beta updates.
     show_beta_releases: Option<bool>,
