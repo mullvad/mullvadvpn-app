@@ -35,6 +35,7 @@
     left</string>
     <string name="out_of_time">Out of time</string>
     <string name="settings_preferences">Preferences</string>
+    <string name="settings_advanced">Advanced</string>
     <string name="app_version">App version</string>
     <string name="update_available_footer">Update available,
     download to remain safe.</string>
