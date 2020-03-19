@@ -24,7 +24,7 @@ const styles = {
     backgroundColor: colors.blue,
   }),
   logo: Styles.createViewStyle({
-    marginBottom: 4,
+    marginBottom: 5,
   }),
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
@@ -76,7 +76,7 @@ export default class ErrorBoundary extends Component<IProps, IState> {
           <Layout>
             <Container>
               <View style={styles.container}>
-                <ImageView height={120} width={120} source="logo-icon" style={styles.logo} />
+                <ImageView height={106} width={106} source="logo-icon" style={styles.logo} />
                 <Text style={styles.title}>{messages.pgettext('generic', 'MULLVAD VPN')}</Text>
                 <Text style={styles.subtitle}>{reachBackMessage}</Text>
               </View>

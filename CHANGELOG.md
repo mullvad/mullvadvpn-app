@@ -40,10 +40,10 @@ Line wrap the file at 100 chars.                                              Th
 - Prefer WireGuard when tunnel protocol is set to _auto_ on Linux and MacOS.
 - Wait for tunnel state machine to properly shut down, cleaning up the firewall properly on Windows
   during the daemon shutdown.
+- Switch to new logo.
 
 #### Android
 - Allow other apps to request the VPN tunnel to connect or disconnect.
-- Change launcher logo icon.
 
 ### Fixed
 - Fix bug that could lead to Javascript error dialog to appear upon the desktop app termination.
