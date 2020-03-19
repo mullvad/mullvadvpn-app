@@ -68,11 +68,15 @@ impl Config {
         let is_ipv6_enabled = mtu >= SMALLEST_IPV6_MTU && generic_options.enable_ipv6;
 
         for peer in &mut peers {
+            // On Android we still allow IPv6 allowed IPs even if IPv6 is disabled. This is because
+            // these IPs are used to establish the tunnel routes, which affect what traffic is
+            // allowed out of the tunnel. If the IPv6 allowed IPs aren't configured as routes, they
+            // might leak out of the tunnel.
             peer.allowed_ips = peer
                 .allowed_ips
                 .iter()
                 .cloned()
-                .filter(|ip| ip.is_ipv4() || is_ipv6_enabled)
+                .filter(|ip| ip.is_ipv4() || is_ipv6_enabled || cfg!(target_os = "android"))
                 .collect();
             if peer.allowed_ips.is_empty() {
                 return Err(Error::InvalidPeerIpError);
