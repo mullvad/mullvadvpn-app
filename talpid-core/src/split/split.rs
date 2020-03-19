@@ -16,7 +16,6 @@ pub const NETCLS_CLASSID: u32 = 0x4d9f41;
 pub const MARK: i32 = 0xf41;
 
 const CGROUP_NAME: &str = "mullvad-exclusions";
-static mut ROUTING_TABLE_ID: i32 = 19;
 const ROUTING_TABLE_NAME: &str = "mullvad_exclusions";
 
 /// Errors related to split tunneling.
@@ -109,20 +108,21 @@ fn get_default_route() -> Result<DefaultRoute, Error> {
 }
 
 /// Manage routing for split tunneling cgroup.
-pub struct SplitTunnel;
+pub struct SplitTunnel {
+    table_id: i32,
+}
 
 impl SplitTunnel {
     /// Object that allows specified applications to not pass through the tunnel
     pub fn new() -> Result<SplitTunnel, Error> {
-        Self::initialize_routing_table()?;
-        Ok(SplitTunnel {})
+        let mut tunnel = SplitTunnel { table_id: 0 };
+        tunnel.initialize_routing_table()?;
+        Ok(tunnel)
     }
 
     /// Set up policy-based routing for marked packets.
-    fn initialize_routing_table() -> Result<(), Error> {
+    fn initialize_routing_table(&mut self) -> Result<(), Error> {
         // TODO: use correct error types
-        // TODO: ensure the ID does not conflict with that of another table
-
         // Add routing table to /etc/iproute2/rt_tables, if it does not exist
 
         let mut file = fs::OpenOptions::new()
@@ -135,6 +135,8 @@ impl SplitTunnel {
         let expression = Regex::new(r"^\s*([0-9]+)\s+(\w+)")
             .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
             .map_err(Error::RoutingTableSetup)?;
+
+        let mut used_ids = Vec::<i32>::new();
 
         for line in buf_reader.lines() {
             let line = line.map_err(Error::RoutingTableSetup)?;
@@ -157,19 +159,27 @@ impl SplitTunnel {
                     )))?
                     .as_str();
 
-                // Already added
                 if table_name == ROUTING_TABLE_NAME {
-                    if table_id != unsafe { ROUTING_TABLE_ID } {
-                        unsafe { ROUTING_TABLE_ID = table_id };
-                    }
-
+                    // The table has already been added
+                    self.table_id = table_id;
                     return Ok(());
                 }
+
+                used_ids.push(table_id);
+            }
+        }
+
+        used_ids.sort_unstable();
+        for id in 1..256 {
+            if used_ids.binary_search(&id).is_err() {
+                // Assign a free id to the table
+                self.table_id = id;
+                break;
             }
         }
 
         let mut table_entry = String::new();
-        table_entry.push_str(&unsafe { ROUTING_TABLE_ID }.to_string());
+        table_entry.push_str(&self.table_id.to_string());
         table_entry.push_str(" ");
         table_entry.push_str(ROUTING_TABLE_NAME);
         file.write_all(table_entry.as_bytes())
