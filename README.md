@@ -564,11 +564,43 @@ The GUI has a specific settings file that is configured for each user. The path 
 | Windows | `%LOCALAPPDATA%\Mullvad VPN\gui_settings.json` |
 | Android | Present in Android's `logcat` |
 
-## Generating menubar icons
-How to modify and generate menubar icons are described
-[here](./gui/assets/images/menubar%20icons/README.md).
+## Icons
+
+Icons such as the logo and menubar icons are automatically generated. The source files are:
+| Path | Usage |
+|------|-------|
+| `dist-assets/icon.svg` | The logo icon used for e.g. application icon and in app logo |
+| `dist-assets/icon-mono.svg` | The logo icon used for the android notification icon |
+| `dist-assets/ios-icon.svg` | Logo icon used to generate the iOS application icon |
+| `gui/assets/images/*.svg` | Icons used to generate iOS icons and used in the desktop app |
+| `gui/assets/images/menubar icons/svg/*.svg` | The frames for the menubar icon |
+
+Generate desktop icon by running
+```bash
+gui/scripts/build-logo-icons.sh
+```
+
+Generate android icons
+```bash
+android/generate-pngs.sh
+```
+
+Generate iOS icon and assets
+```bash
+ios/convert-assets.rb --app-icon
+ios/convert-assets.rb --import-desktop-assets
+ios/convert-assets.rb --additional-assets
+```
+
+Generate desktop menubar icons
+```bash
+gui/scripts/build-menubar-icons.sh
+```
+
+The menubar icons are described futher [here](./gui/assets/images/menubar%20icons/README.md).
 
 ## Locales and translations
+
 Instructions for how to handle locales and translations are found
 [here](./gui/locales/README.md).
 
