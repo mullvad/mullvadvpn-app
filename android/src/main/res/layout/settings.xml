@@ -84,6 +84,30 @@
                            android:alpha="0.6"
                            android:src="@drawable/icon_chevron" />
             </LinearLayout>
+            <LinearLayout android:id="@+id/advanced"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="1dp"
+                          android:paddingHorizontal="16dp"
+                          android:background="@drawable/cell_button_background"
+                          android:clickable="true"
+                          android:gravity="center"
+                          android:visibility="gone">
+                <TextView android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_weight="1"
+                          android:paddingHorizontal="8dp"
+                          android:paddingVertical="17dp"
+                          android:textColor="@color/white"
+                          android:textSize="20sp"
+                          android:textStyle="bold"
+                          android:text="@string/settings_advanced" />
+                <ImageView android:layout_width="14dp"
+                           android:layout_height="24dp"
+                           android:layout_weight="0"
+                           android:alpha="0.6"
+                           android:src="@drawable/icon_chevron" />
+            </LinearLayout>
             <LinearLayout android:id="@+id/wireguard_keys"
                           android:layout_width="match_parent"
                           android:layout_height="wrap_content"
