@@ -55,6 +55,9 @@
     <string name="auto_connect">Auto-connect</string>
     <string name="auto_connect_footer">Automatically connect to a
     server when the app launches.</string>
+    <string name="enable_ipv6">Enable IPv6</string>
+    <string name="enable_ipv6_footer">Enable IPv6 communication
+    through the tunnel.</string>
     <string name="problem_report_description">To help you more
     effectively, your app\'s log file will be attached to this
     message. Your data will remain secure and private, as it is
