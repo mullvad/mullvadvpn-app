@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add a reconnect button to disconnect and connect again without closing the tunnel device to avoid
   leaking any data during the reconnection.
 - Add quick settings tile to control the tunnel state.
+- Allow enabling and disabling IPv6 traffic through the tunnel.
 
 ### Changed
 - Prefer WireGuard when tunnel protocol is set to _auto_ on Linux and MacOS.
