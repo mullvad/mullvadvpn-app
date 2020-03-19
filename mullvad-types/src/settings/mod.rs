@@ -347,10 +347,14 @@ impl Settings {
 /// TunnelOptions holds configuration data that applies to all kinds of tunnels.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct TunnelOptions {
     /// openvpn holds OpenVPN specific tunnel options.
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub openvpn: openvpn::TunnelOptions,
     /// Contains wireguard tunnel options.
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub wireguard: wireguard::TunnelOptions,
     /// Contains generic tunnel options that may apply to more than a single tunnel type.
     pub generic: GenericTunnelOptions,
