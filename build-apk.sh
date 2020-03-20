@@ -43,14 +43,14 @@ popd
 
 function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
-    ./version_metadata.sh restore-backup
+    ./version-metadata.sh restore-backup
     mv Cargo.lock.bak Cargo.lock || true
     popd
 }
 trap 'restore_metadata_backups' EXIT
 
 cp Cargo.lock Cargo.lock.bak
-./version_metadata.sh inject $PRODUCT_VERSION
+./version-metadata.sh inject $PRODUCT_VERSION
 
 ./wireguard/build-wireguard-go.sh --android
 
