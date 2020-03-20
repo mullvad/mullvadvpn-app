@@ -70,6 +70,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix issue in daemon where the `block_when_disconnected` setting was sometimes not honored when
   stopping the daemon. I.e. traffic could flow freely after the daemon was stopped.
 
+#### Android
+- Fix issue where IPv6 traffic could flow outside of the tunnel.
+
 
 ## [2020.3] - 2020-02-20
 This release is identical to 2020.3-beta1
