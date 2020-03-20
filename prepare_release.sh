@@ -24,7 +24,7 @@ if [[ $(grep $PRODUCT_VERSION CHANGELOG.md) == "" ]]; then
 fi
 
 echo "Updating version in metadata files..."
-./version_metadata.sh inject $PRODUCT_VERSION
+./version-metadata.sh inject $PRODUCT_VERSION
 
 echo "Syncing Cargo.lock with new version numbers"
 source env.sh ""
@@ -51,7 +51,7 @@ git commit -S -m "Updating version in package files" \
 echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
 git tag -s $PRODUCT_VERSION -m $PRODUCT_VERSION
 
-./version_metadata.sh delete-backup
+./version-metadata.sh delete-backup
 
 echo "================================================="
 echo "| DONE preparing for a release!                 |"
