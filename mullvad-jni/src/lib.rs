@@ -737,6 +737,28 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAuto
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setWireguardMtu(
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    wireguard_mtu: JObject<'_>,
+) {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let wireguard_mtu = Option::<i32>::from_java(&env, wireguard_mtu).map(|value| value as u16);
+
+        if let Err(error) = daemon_interface.set_wireguard_mtu(wireguard_mtu) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set WireGuard MTU")
+            );
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdown(
     _: JNIEnv<'_>,
     _: JObject<'_>,
