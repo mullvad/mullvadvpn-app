@@ -53,7 +53,9 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private fun updateUi(settings: Settings) {
         updateUiJob?.cancel()
         updateUiJob = GlobalScope.launch(Dispatchers.Main) {
-            wireguardMtuInput.value = settings.tunnelOptions.wireguard.mtu
+            if (!wireguardMtuInput.hasFocus) {
+                wireguardMtuInput.value = settings.tunnelOptions.wireguard.mtu
+            }
         }
     }
 
