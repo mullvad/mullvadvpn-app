@@ -55,6 +55,10 @@
     <string name="auto_connect">Auto-connect</string>
     <string name="auto_connect_footer">Automatically connect to a
     server when the app launches.</string>
+    <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">Set WireGuard MTU value. Valid range:
+    1280 - 1420.</string>
+    <string name="hint_default">Default</string>
     <string name="problem_report_description">To help you more
     effectively, your app\'s log file will be attached to this
     message. Your data will remain secure and private, as it is
