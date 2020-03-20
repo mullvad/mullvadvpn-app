@@ -66,11 +66,11 @@
                   android:textSize="20sp"
                   />
     </LinearLayout>
-    <TextView android:layout_width="match_parent"
+    <TextView android:id="@+id/wireguard_mtu_footer"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:paddingTop="8dp"
               android:paddingHorizontal="24dp"
               android:textColor="@color/white60"
-              android:textSize="13sp"
-              android:text="@string/wireguard_mtu_footer" />
+              android:textSize="13sp" />
 </LinearLayout>
