@@ -11,6 +11,12 @@ class CellInput(val input: EditText, val minValue: Int, val maxValue: Int) {
     private val validInputColor = resources.getColor(R.color.white)
     private val invalidInputColor = resources.getColor(R.color.red)
 
+    var value
+        get() = input.text.toString().trim().toIntOrNull()
+        set(value) {
+            input.setText(value?.toString() ?: "")
+        }
+
     var onSubmit: ((Int?) -> Unit)? = null
 
     init {
@@ -19,7 +25,7 @@ class CellInput(val input: EditText, val minValue: Int, val maxValue: Int) {
 
             setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
-                    onSubmit?.invoke(input.text.toString().trim().toIntOrNull())
+                    onSubmit?.invoke(value)
                 }
             }
         }
