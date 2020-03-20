@@ -6,7 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import net.mullvad.mullvadvpn.R
 
+private const val MIN_MTU_VALUE = 1280
+private const val MAX_MTU_VALUE = 1420
+
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
+    private lateinit var wireguardMtuInput: CellInput
+
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -17,6 +22,9 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         view.findViewById<View>(R.id.back).setOnClickListener {
             parentActivity.onBackPressed()
         }
+
+        wireguardMtuInput =
+            CellInput(view.findViewById(R.id.wireguard_mtu_input), MIN_MTU_VALUE, MAX_MTU_VALUE)
 
         return view
     }
