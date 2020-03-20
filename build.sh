@@ -109,7 +109,7 @@ echo "Building Mullvad VPN $PRODUCT_VERSION"
 function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
     echo "Restoring version metadata files..."
-    ./version_metadata.sh restore-backup
+    ./version-metadata.sh restore-backup
     mv Cargo.lock.bak Cargo.lock || true
     popd
 }
@@ -117,7 +117,7 @@ trap 'restore_metadata_backups' EXIT
 
 echo "Updating version in metadata files..."
 cp Cargo.lock Cargo.lock.bak
-./version_metadata.sh inject $PRODUCT_VERSION
+./version-metadata.sh inject $PRODUCT_VERSION
 
 
 ################################################################################
