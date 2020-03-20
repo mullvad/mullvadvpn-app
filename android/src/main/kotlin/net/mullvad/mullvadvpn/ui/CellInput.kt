@@ -19,15 +19,24 @@ class CellInput(val input: EditText, val minValue: Int, val maxValue: Int) {
 
     var onSubmit: ((Int?) -> Unit)? = null
 
+    var hasFocus = false
+        private set(value) {
+            if (field != value) {
+                field = value
+
+                if (value == false) {
+                    val inputValue = this@CellInput.value
+
+                    onSubmit?.invoke(inputValue)
+                }
+            }
+        }
+
     init {
         input.apply {
             addTextChangedListener(InputWatcher())
 
-            setOnFocusChangeListener { _, hasFocus ->
-                if (!hasFocus) {
-                    onSubmit?.invoke(value)
-                }
-            }
+            setOnFocusChangeListener { _, newHasFocus -> hasFocus = newHasFocus }
         }
     }
 
