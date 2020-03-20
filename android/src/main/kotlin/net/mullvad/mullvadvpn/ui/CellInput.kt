@@ -11,8 +11,18 @@ class CellInput(val input: EditText, val minValue: Int, val maxValue: Int) {
     private val validInputColor = resources.getColor(R.color.white)
     private val invalidInputColor = resources.getColor(R.color.red)
 
+    var onSubmit: ((Int?) -> Unit)? = null
+
     init {
-        input.addTextChangedListener(InputWatcher())
+        input.apply {
+            addTextChangedListener(InputWatcher())
+
+            setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    onSubmit?.invoke(input.text.toString().trim().toIntOrNull())
+                }
+            }
+        }
     }
 
     inner class InputWatcher : TextWatcher {
