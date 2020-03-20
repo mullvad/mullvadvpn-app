@@ -27,7 +27,9 @@ class CellInput(val input: EditText, val minValue: Int, val maxValue: Int) {
                 if (value == false) {
                     val inputValue = this@CellInput.value
 
-                    onSubmit?.invoke(inputValue)
+                    if (inputValue == null || (inputValue >= minValue && inputValue <= maxValue)) {
+                        onSubmit?.invoke(inputValue)
+                    }
                 }
             }
         }
