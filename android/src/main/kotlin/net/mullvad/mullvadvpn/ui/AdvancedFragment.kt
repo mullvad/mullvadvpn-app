@@ -27,6 +27,12 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         wireguardMtuInput =
             CellInput(view.findViewById(R.id.wireguard_mtu_input), MIN_MTU_VALUE, MAX_MTU_VALUE)
 
+        wireguardMtuInput.onSubmit = { mtu ->
+            GlobalScope.launch(Dispatchers.Default) {
+                daemon.setWireguardMtu(mtu)
+            }
+        }
+
         view.findViewById<TextView>(R.id.wireguard_mtu_footer).apply {
             text = context.getString(R.string.wireguard_mtu_footer, MIN_MTU_VALUE, MAX_MTU_VALUE)
         }
