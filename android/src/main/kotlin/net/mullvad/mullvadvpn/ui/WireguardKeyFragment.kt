@@ -10,7 +10,6 @@ import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -55,10 +54,10 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private lateinit var publicKey: TextView
     private lateinit var publicKeyAge: TextView
     private lateinit var statusMessage: TextView
-    private lateinit var visitWebsiteView: View
-    private lateinit var generateButton: Button
+    private lateinit var manageKeysButton: Button
+    private lateinit var generateButton: android.widget.Button
     private lateinit var generateSpinner: ProgressBar
-    private lateinit var verifyButton: Button
+    private lateinit var verifyButton: android.widget.Button
     private lateinit var verifySpinner: ProgressBar
 
     private fun resetReconnectionExpected() {
@@ -84,27 +83,20 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
 
         statusMessage = view.findViewById<TextView>(R.id.wireguard_key_status)
-        visitWebsiteView = view.findViewById<View>(R.id.wireguard_manage_keys)
+        manageKeysButton = view.findViewById(R.id.manage_keys)
         publicKey = view.findViewById<TextView>(R.id.wireguard_public_key)
-        generateButton = view.findViewById<Button>(R.id.wg_generate_key_button)
+        generateButton = view.findViewById<android.widget.Button>(R.id.wg_generate_key_button)
         generateSpinner = view.findViewById<ProgressBar>(R.id.wg_generate_key_spinner)
-        verifyButton = view.findViewById<Button>(R.id.wg_verify_key_button)
+        verifyButton = view.findViewById<android.widget.Button>(R.id.wg_verify_key_button)
         verifySpinner = view.findViewById<ProgressBar>(R.id.wg_verify_key_spinner)
         publicKeyAge = view.findViewById<TextView>(R.id.wireguard_key_age)
 
-        visitWebsiteView.visibility = View.VISIBLE
         val keyUrl = parentActivity.getString(R.string.wg_key_url)
 
         urlController = BlockingController(
             object : BlockableView {
                 override fun setEnabled(enabled: Boolean) {
-                    if (!enabled || tunnelState is TunnelState.Error) {
-                        visitWebsiteView.setClickable(false)
-                        visitWebsiteView.setAlpha(0.5f)
-                    } else {
-                        visitWebsiteView.setClickable(true)
-                        visitWebsiteView.setAlpha(1f)
-                    }
+                    manageKeysButton.setEnabled(enabled && !(tunnelState is TunnelState.Error))
                 }
 
                 override fun onClick(): Job {
@@ -117,7 +109,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 }
             }
         )
-        visitWebsiteView.setOnClickListener {
+        manageKeysButton.setOnClickListener {
             urlController.action()
         }
 
@@ -246,8 +238,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun drawNoConnectionState() {
-        visitWebsiteView.setClickable(true)
-        visitWebsiteView.setAlpha(1f)
+        manageKeysButton.setEnabled(true)
 
         when (tunnelState) {
             is TunnelState.Connecting, is TunnelState.Disconnecting -> {
@@ -265,8 +256,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 generateButton.setAlpha(0.5f)
                 verifyButton.setClickable(false)
                 verifyButton.setAlpha(0.5f)
-                visitWebsiteView.setClickable(false)
-                visitWebsiteView.setAlpha(0.5f)
+                manageKeysButton.setEnabled(false)
             }
         }
     }
