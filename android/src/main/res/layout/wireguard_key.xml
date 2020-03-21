@@ -139,26 +139,13 @@
                          android:visibility="gone" />
         </RelativeLayout>
     </LinearLayout>
-    <LinearLayout android:id="@+id/wireguard_manage_keys"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:layout_weight="0"
-                  android:layout_marginTop="24dp"
-                  android:background="@drawable/cell_button_background"
-                  android:clickable="true"
-                  android:gravity="center"
-                  android:paddingHorizontal="16dp">
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:paddingHorizontal="8dp"
-                  android:paddingVertical="17dp"
-                  android:text="@string/wireguard_manage_keys"
-                  android:textColor="@color/white"
-                  android:textSize="20sp"
-                  android:textStyle="bold" />
-        <ImageView android:layout_width="16dp"
-                   android:layout_height="16dp"
-                   android:alpha="0.6"
-                   android:src="@drawable/icon_extlink" />
-    </LinearLayout>
+    <Button android:id="@+id/manage_keys"
+            android:layout_weight="0"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="24dp"
+            android:layout_marginHorizontal="24dp"
+            android:paddingHorizontal="8dp"
+            android:text="@string/wireguard_manage_keys"
+            android:drawableRight="@drawable/icon_extlink"
+            style="@style/BlueButton" />
 </LinearLayout>
