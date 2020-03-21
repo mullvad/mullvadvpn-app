@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,7 @@ private const val MAX_MTU_VALUE = 1420
 
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var wireguardMtuInput: CellInput
+    private lateinit var wireguardKeysMenu: View
 
     private var subscriptionId: Int? = null
     private var updateUiJob: Job? = null
@@ -45,6 +47,12 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             text = context.getString(R.string.wireguard_mtu_footer, MIN_MTU_VALUE, MAX_MTU_VALUE)
         }
 
+        wireguardKeysMenu = view.findViewById<View>(R.id.wireguard_keys).apply {
+            setOnClickListener {
+                openSubFragment(WireguardKeyFragment())
+            }
+        }
+
         settingsListener.subscribe({ settings -> updateUi(settings) })
 
         return view
@@ -62,5 +70,19 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     override fun onSafelyDestroyView() {
         subscriptionId?.let { id -> settingsListener.unsubscribe(id) }
         updateUiJob?.cancel()
+    }
+
+    private fun openSubFragment(fragment: Fragment) {
+        fragmentManager?.beginTransaction()?.apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_right,
+                R.anim.fragment_half_exit_to_left,
+                R.anim.fragment_half_enter_from_left,
+                R.anim.fragment_exit_to_right
+            )
+            replace(R.id.main_fragment, fragment)
+            addToBackStack(null)
+            commit()
+        }
     }
 }

@@ -23,7 +23,7 @@
                   android:textColor="@color/white60"
                   android:textSize="13sp"
                   android:textStyle="bold"
-                  android:text="@string/settings" />
+                  android:text="@string/settings_advanced" />
     </LinearLayout>
     <TextView android:layout_width="wrap_content"
               android:layout_height="wrap_content"
