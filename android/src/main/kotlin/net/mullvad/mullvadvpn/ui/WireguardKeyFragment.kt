@@ -10,7 +10,6 @@ import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import java.util.TimeZone
@@ -55,8 +54,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private lateinit var publicKeyAge: TextView
     private lateinit var statusMessage: TextView
     private lateinit var manageKeysButton: Button
-    private lateinit var generateButton: android.widget.Button
-    private lateinit var generateSpinner: ProgressBar
+    private lateinit var generateKeyButton: android.widget.Button
     private lateinit var verifyKeyButton: Button
 
     private fun resetReconnectionExpected() {
@@ -84,9 +82,13 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         statusMessage = view.findViewById<TextView>(R.id.wireguard_key_status)
         manageKeysButton = view.findViewById(R.id.manage_keys)
         publicKey = view.findViewById<TextView>(R.id.wireguard_public_key)
-        generateButton = view.findViewById<android.widget.Button>(R.id.wg_generate_key_button)
-        generateSpinner = view.findViewById<ProgressBar>(R.id.wg_generate_key_spinner)
         publicKeyAge = view.findViewById<TextView>(R.id.wireguard_key_age)
+
+        generateKeyButton = view.findViewById<Button>(R.id.generate_key).apply {
+            setOnClickListener {
+                onGenerateKeyPress()
+            }
+        }
 
         verifyKeyButton = view.findViewById<Button>(R.id.verify_key).apply {
             setOnClickListener {
@@ -193,28 +195,12 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun setGenerateButton() {
-        generateButton.setClickable(true)
-        generateButton.setAlpha(1f)
-        if (validatingKey) {
-            generateButton.setClickable(false)
-            generateButton.setAlpha(0.5f)
-            return
-        }
-        if (generatingKey) {
-            generateButton.visibility = View.GONE
-            generateSpinner.visibility = View.VISIBLE
-            return
-        }
-        generateSpinner.visibility = View.GONE
-        generateButton.visibility = View.VISIBLE
-        if (keyStatusListener.keyStatus is KeygenEvent.NewKey) {
-            generateButton.setText(R.string.wireguard_replace_key)
-        } else {
-            generateButton.setText(R.string.wireguard_generate_key)
-        }
+        generateKeyButton.setEnabled(!generatingKey && !validatingKey)
 
-        generateButton.setOnClickListener {
-            onGenerateKeyPress()
+        if (keyStatusListener.keyStatus is KeygenEvent.NewKey) {
+            generateKeyButton.setText(R.string.wireguard_replace_key)
+        } else {
+            generateKeyButton.setText(R.string.wireguard_generate_key)
         }
     }
 
@@ -231,14 +217,12 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             is TunnelState.Connecting, is TunnelState.Disconnecting -> {
                 if (!reconnectionExpected) {
                     setStatusMessage(R.string.wireguard_key_connectivity, R.color.red)
-                    generateButton.visibility = View.GONE
-                    generateSpinner.visibility = View.VISIBLE
+                    generateKeyButton.setEnabled(false)
                 }
             }
             is TunnelState.Error -> {
                 setStatusMessage(R.string.wireguard_key_blocked_state_message, R.color.red)
-                generateButton.setClickable(false)
-                generateButton.setAlpha(0.5f)
+                generateKeyButton.setEnabled(false)
                 verifyKeyButton.setEnabled(false)
                 manageKeysButton.setEnabled(false)
             }
