@@ -57,8 +57,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private lateinit var manageKeysButton: Button
     private lateinit var generateButton: android.widget.Button
     private lateinit var generateSpinner: ProgressBar
-    private lateinit var verifyButton: android.widget.Button
-    private lateinit var verifySpinner: ProgressBar
+    private lateinit var verifyKeyButton: Button
 
     private fun resetReconnectionExpected() {
         resetReconnectionExpectedJob = GlobalScope.launch(Dispatchers.Main) {
@@ -87,9 +86,13 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         publicKey = view.findViewById<TextView>(R.id.wireguard_public_key)
         generateButton = view.findViewById<android.widget.Button>(R.id.wg_generate_key_button)
         generateSpinner = view.findViewById<ProgressBar>(R.id.wg_generate_key_spinner)
-        verifyButton = view.findViewById<android.widget.Button>(R.id.wg_verify_key_button)
-        verifySpinner = view.findViewById<ProgressBar>(R.id.wg_verify_key_spinner)
         publicKeyAge = view.findViewById<TextView>(R.id.wireguard_key_age)
+
+        verifyKeyButton = view.findViewById<Button>(R.id.verify_key).apply {
+            setOnClickListener {
+                onValidateKeyPress()
+            }
+        }
 
         val keyUrl = parentActivity.getString(R.string.wg_key_url)
 
@@ -216,25 +219,9 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun setVerifyButton() {
-        verifyButton.setClickable(true)
-        verifyButton.setAlpha(1f)
         val keyState = keyStatusListener.keyStatus
-        if (generatingKey || keyState?.failure() != null) {
-            verifyButton.setClickable(false)
-            verifyButton.setAlpha(0.5f)
-            return
-        }
-        if (validatingKey) {
-            verifyButton.visibility = View.GONE
-            verifySpinner.visibility = View.VISIBLE
-            return
-        }
-        verifySpinner.visibility = View.GONE
-        verifyButton.visibility = View.VISIBLE
-        verifyButton.setText(R.string.wireguard_verify_key)
-        verifyButton.setOnClickListener {
-            onValidateKeyPress()
-        }
+
+        verifyKeyButton.setEnabled(!generatingKey && !validatingKey && keyState?.failure() == null)
     }
 
     private fun drawNoConnectionState() {
@@ -246,16 +233,13 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                     setStatusMessage(R.string.wireguard_key_connectivity, R.color.red)
                     generateButton.visibility = View.GONE
                     generateSpinner.visibility = View.VISIBLE
-                    verifyButton.visibility = View.GONE
-                    verifySpinner.visibility = View.VISIBLE
                 }
             }
             is TunnelState.Error -> {
                 setStatusMessage(R.string.wireguard_key_blocked_state_message, R.color.red)
                 generateButton.setClickable(false)
                 generateButton.setAlpha(0.5f)
-                verifyButton.setClickable(false)
-                verifyButton.setAlpha(0.5f)
+                verifyKeyButton.setEnabled(false)
                 manageKeysButton.setEnabled(false)
             }
         }
