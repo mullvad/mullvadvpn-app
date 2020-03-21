@@ -8,6 +8,7 @@
     <LinearLayout android:id="@+id/back"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
+                  android:layout_weight="0"
                   android:padding="12dp"
                   android:orientation="horizontal"
                   android:gravity="center_vertical | left"
@@ -27,6 +28,7 @@
     </LinearLayout>
     <TextView android:layout_width="wrap_content"
               android:layout_height="wrap_content"
+              android:layout_weight="0"
               android:layout_marginLeft="24dp"
               android:layout_marginTop="4dp"
               android:layout_marginBottom="24dp"
@@ -37,6 +39,7 @@
     <LinearLayout android:id="@+id/wireguard_public_key_layout"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
+                  android:layout_weight="0"
                   android:background="@drawable/cell_button_background"
                   android:clickable="true"
                   android:gravity="center"
@@ -75,9 +78,13 @@
                   android:textStyle="bold"
                   android:visibility="gone" />
     </LinearLayout>
+    <Space android:layout_width="match_parent"
+           android:layout_height="0dp"
+           android:layout_weight="1" />
     <LinearLayout android:id="@+id/wireguard_generate_button_container"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
+                  android:layout_weight="0"
                   android:layout_marginTop="15dp"
                   android:layout_marginBottom="15dp"
                   android:background="@drawable/cell_button_background"
@@ -106,6 +113,7 @@
     <LinearLayout android:id="@+id/wireguard_verify_button_container"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
+                  android:layout_weight="0"
                   android:layout_marginTop="15dp"
                   android:layout_marginBottom="15dp"
                   android:background="@drawable/cell_button_background"
@@ -134,6 +142,7 @@
     <LinearLayout android:id="@+id/wireguard_manage_keys"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
+                  android:layout_weight="0"
                   android:layout_marginTop="24dp"
                   android:background="@drawable/cell_button_background"
                   android:clickable="true"
