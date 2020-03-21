@@ -27,7 +27,6 @@ class SettingsFragment : ServiceAwareFragment() {
     private lateinit var preferencesMenu: View
     private lateinit var advancedMenu: View
     private lateinit var remainingTimeLabel: RemainingTimeLabel
-    private lateinit var wireguardKeysMenu: View
 
     private var active = false
 
@@ -83,15 +82,10 @@ class SettingsFragment : ServiceAwareFragment() {
             }
         }
 
-        wireguardKeysMenu = view.findViewById<View>(R.id.wireguard_keys).apply {
-            setOnClickListener {
-                openSubFragment(WireguardKeyFragment())
-            }
-        }
-
         view.findViewById<View>(R.id.app_version).setOnClickListener {
             openLink(R.string.download_url)
         }
+
         view.findViewById<View>(R.id.report_a_problem).setOnClickListener {
             openSubFragment(ProblemReportFragment())
         }
@@ -181,7 +175,6 @@ class SettingsFragment : ServiceAwareFragment() {
         accountMenu.visibility = visibility
         preferencesMenu.visibility = visibility
         advancedMenu.visibility = visibility
-        wireguardKeysMenu.visibility = visibility
     }
 
     private fun updateVersionInfo() = GlobalScope.launch(Dispatchers.Main) {
