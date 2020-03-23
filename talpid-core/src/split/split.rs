@@ -8,7 +8,7 @@ use std::{
     str::FromStr,
 };
 
-const NETCLS_PATH: &str = "/sys/fs/cgroup/net_cls/";
+const NETCLS_DIR: &str = "/sys/fs/cgroup/net_cls/";
 
 /// Identifies packets coming from the cgroup.
 pub const NETCLS_CLASSID: u32 = 0x4d9f41;
@@ -340,7 +340,7 @@ impl PidManager {
 
     /// Set up cgroup used to track PIDs for split tunneling.
     fn create_cgroup() -> Result<(), Error> {
-        let mut exclusions_dir = PathBuf::from(NETCLS_PATH);
+        let mut exclusions_dir = PathBuf::from(NETCLS_DIR);
         exclusions_dir.push(CGROUP_NAME);
 
         if !exclusions_dir.exists() {
@@ -355,7 +355,7 @@ impl PidManager {
 
     /// Add PIDs to exclude from the tunnel.
     pub fn add_list(pids: Vec<i32>) -> Result<(), Error> {
-        let mut exclusions_file = PathBuf::from(NETCLS_PATH);
+        let mut exclusions_file = PathBuf::from(NETCLS_DIR);
         exclusions_file.push(CGROUP_NAME);
         exclusions_file.push("cgroup.procs");
 
@@ -378,7 +378,7 @@ impl PidManager {
 
     /// Add a PID to exclude from the tunnel.
     pub fn add(&self, pid: i32) -> Result<(), Error> {
-        let mut exclusions_file = PathBuf::from(NETCLS_PATH);
+        let mut exclusions_file = PathBuf::from(NETCLS_DIR);
         exclusions_file.push(CGROUP_NAME);
         exclusions_file.push("cgroup.procs");
 
@@ -396,7 +396,7 @@ impl PidManager {
     pub fn remove(&self, pid: i32) -> Result<(), Error> {
         // FIXME: We remove PIDs from our cgroup here by adding
         //        them to the parent cgroup. This seems wrong.
-        let mut exclusions_file = PathBuf::from(NETCLS_PATH);
+        let mut exclusions_file = PathBuf::from(NETCLS_DIR);
         exclusions_file.push("cgroup.procs");
 
         let mut file = fs::OpenOptions::new()
@@ -413,7 +413,7 @@ impl PidManager {
     pub fn list(&self) -> Result<Vec<i32>, Error> {
         // TODO: manage child PIDs somehow?
 
-        let mut exclusions_file = PathBuf::from(NETCLS_PATH);
+        let mut exclusions_file = PathBuf::from(NETCLS_DIR);
         exclusions_file.push(CGROUP_NAME);
         exclusions_file.push("cgroup.procs");
 
