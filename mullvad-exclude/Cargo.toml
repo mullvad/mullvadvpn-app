@@ -9,3 +9,4 @@ publish = false
 [target.'cfg(target_os = "linux")'.dependencies]
 nix = "0.17"
 err-derive = "0.2.1"
+void = "1.0.2"

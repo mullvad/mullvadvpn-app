@@ -50,13 +50,13 @@ fn main() {
 
             std::process::exit(1);
         }
-        _ => (),
+        _ => unreachable!("execv returned unexpectedly"),
     }
 }
 
 #[cfg(target_os = "linux")]
-fn run() -> Result<(), Error> {
-    if env::args().count() < 2 {
+fn run() -> Result<void::Void, Error> {
+    if env::args().len() < 2 {
         return Err(Error::InvalidArguments);
     }
 
@@ -74,9 +74,6 @@ fn run() -> Result<(), Error> {
     // TODO: execv vs execvp
     let args: Vec<CString> = env::args().map(|arg| CString::new(arg).unwrap()).collect();
     let args: Vec<&CStr> = args.iter().map(|arg| &**arg).collect();
-    execv(args[1], &args[2..]).map_err(Error::Exec)?;
-
-    // Does not return if successful
-
-    Ok(())
+    execv(args[1], &args[2..])
+        .map_err(Error::Exec)
 }
