@@ -159,7 +159,7 @@ impl SplitTunnel {
         cmd.args(&["-4", "route", "flush", "table", ROUTING_TABLE_NAME]);
 
         log::trace!("running cmd - {:?}", &cmd);
-        cmd.output().map(|_| ()).map_err(Error::RoutingTableSetup)?;
+        let _ = cmd.output().map_err(Error::RoutingTableSetup)?;
 
         // Force routing through the physical interface
         let default_route = get_default_route()?;
@@ -218,7 +218,7 @@ impl SplitTunnel {
             ]);
 
             log::trace!("running cmd - {:?}", &cmd);
-            cmd.output().map(|_| ()).map_err(Error::RoutingTableSetup)?;
+            let _ = cmd.output().map_err(Error::RoutingTableSetup)?;
         }
 
         Self::reset_table()
@@ -281,7 +281,7 @@ impl SplitTunnel {
                 ]);
 
                 log::trace!("running cmd - {:?}", &cmd);
-                cmd.output().map(|_| ()).map_err(Error::SetDns)?;
+                let _ = cmd.output().map_err(Error::SetDns)?;
             }
         }
 
