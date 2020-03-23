@@ -7,21 +7,10 @@ export type TrayIconType = 'unsecured' | 'securing' | 'secured';
 export default class TrayIconController {
   private animation?: KeyframeAnimation;
   private iconImages: NativeImage[] = [];
+  private iconTypeValue?: TrayIconType;
 
-  constructor(
-    tray: Tray,
-    private iconTypeValue: TrayIconType,
-    private useMonochromaticIconValue: boolean,
-  ) {
+  constructor(private tray: Tray, private useMonochromaticIconValue: boolean) {
     this.loadImages();
-
-    const initialFrame = this.targetFrame();
-    const animation = new KeyframeAnimation();
-    animation.speed = 100;
-    animation.onFrame = (frameNumber) => tray.setImage(this.iconImages[frameNumber]);
-    animation.play({ start: initialFrame, end: initialFrame });
-
-    this.animation = animation;
   }
 
   public dispose() {
@@ -31,7 +20,7 @@ export default class TrayIconController {
     }
   }
 
-  get iconType(): TrayIconType {
+  get iconType(): TrayIconType | undefined {
     return this.iconTypeValue;
   }
 
@@ -39,22 +28,35 @@ export default class TrayIconController {
     this.useMonochromaticIconValue = useMonochromaticIcon;
     this.loadImages();
 
-    if (this.animation && !this.animation.isRunning) {
-      this.animation.play({ end: this.targetFrame() });
+    const targetFrame = this.targetFrame();
+    if (this.animation && !this.animation.isRunning && targetFrame !== undefined) {
+      this.animation.play({ end: targetFrame });
     }
   }
 
   public animateToIcon(type: TrayIconType) {
-    if (this.iconTypeValue === type || !this.animation) {
+    if (this.iconTypeValue === type) {
       return;
     }
 
     this.iconTypeValue = type;
-
-    const animation = this.animation;
     const frame = this.targetFrame();
 
-    animation.play({ end: frame });
+    if (frame !== undefined) {
+      if (!this.animation) {
+        this.initAnimation(frame);
+      } else {
+        this.animation.play({ end: frame });
+      }
+    }
+  }
+
+  private initAnimation(startFrame: number) {
+    const animation = new KeyframeAnimation();
+    animation.onFrame = (frameNumber) => this.tray.setImage(this.iconImages[frameNumber]);
+    animation.speed = 100;
+    animation.currentFrame = startFrame;
+    this.animation = animation;
   }
 
   private loadImages() {
@@ -73,7 +75,7 @@ export default class TrayIconController {
     return path.join(basePath, process.platform, `lock-${frame}${suffix}.${extension}`);
   }
 
-  private targetFrame(): number {
+  private targetFrame(): number | undefined {
     switch (this.iconTypeValue) {
       case 'unsecured':
         return 0;
@@ -81,6 +83,8 @@ export default class TrayIconController {
         return 9;
       case 'secured':
         return 8;
+      default:
+        return undefined;
     }
   }
 }

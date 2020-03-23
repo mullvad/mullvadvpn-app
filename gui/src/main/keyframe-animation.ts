@@ -25,14 +25,9 @@ export default class KeyframeAnimation {
     return this.currentFrameValue;
   }
 
-  // This setter is only meant to be used when running tests
-  // @internal
   set currentFrame(newValue: number) {
-    if (process.env.NODE_ENV === 'test') {
-      this.currentFrameValue = newValue;
-    } else {
-      throw new Error('The setter for currentFrame is only available in test environment.');
-    }
+    this.currentFrameValue = newValue;
+    this.render();
   }
 
   set onFrame(newValue: OnFrameFn | undefined) {

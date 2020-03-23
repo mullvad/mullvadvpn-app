@@ -323,11 +323,7 @@ class ApplicationMain {
     const tray = this.createTray();
 
     const windowController = new WindowController(window, tray);
-    const trayIconController = new TrayIconController(
-      tray,
-      'unsecured',
-      this.guiSettings.monochromaticIcon,
-    );
+    const trayIconController = new TrayIconController(tray, this.guiSettings.monochromaticIcon);
 
     this.registerWindowListener(windowController);
     this.registerIpcListeners();
