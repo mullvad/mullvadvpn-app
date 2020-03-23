@@ -20,6 +20,11 @@ private const val RELAYS_FILE = "relays.json"
 private const val RELAYS_PATH = "/data/data/net.mullvad.mullvadvpn/relays.json"
 
 class MullvadVpnService : TalpidVpnService() {
+    private enum class PendingAction {
+        Connect,
+        Disconnect,
+    }
+
     private val binder = LocalBinder()
     private val serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
@@ -32,15 +37,18 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
 
-    var shouldConnect = false
+    private var pendingAction: PendingAction? = null
         set(value) {
             field = value
 
-            if (value == true) {
-                daemon?.apply {
-                    connect()
-                    field = false
+            connectionProxy?.let { activeConnectionProxy ->
+                when (value) {
+                    PendingAction.Connect -> activeConnectionProxy.connect()
+                    PendingAction.Disconnect -> activeConnectionProxy.disconnect()
+                    null -> {}
                 }
+
+                field = null
             }
         }
 
@@ -63,6 +71,19 @@ class MullvadVpnService : TalpidVpnService() {
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
         setUp()
+    }
+
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        val startResult = super.onStartCommand(intent, flags, startId)
+        val action = intent?.action
+
+        if (action == VpnService.SERVICE_INTERFACE || action == KEY_CONNECT_ACTION) {
+            pendingAction = PendingAction.Connect
+        } else if (action == KEY_DISCONNECT_ACTION) {
+            pendingAction = PendingAction.Disconnect
+        }
+
+        return startResult
     }
 
     override fun onBind(intent: Intent): IBinder {
@@ -105,16 +126,6 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val startResult = super.onStartCommand(intent, flags, startId)
-
-        if (intent?.getAction() == VpnService.SERVICE_INTERFACE) {
-            shouldConnect = true
-        }
-
-        return startResult
-    }
-
     private fun setUp() {
         startDaemonJob?.cancel()
         startDaemonJob = startDaemon()
@@ -143,9 +154,13 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
         val newConnectionProxy = ConnectionProxy(this@MullvadVpnService, newDaemon).apply {
-            if (shouldConnect) {
-                connect()
+            when (pendingAction) {
+                PendingAction.Connect -> connect()
+                PendingAction.Disconnect -> disconnect()
+                null -> {}
             }
+
+            pendingAction = null
         }
 
         daemon = newDaemon
