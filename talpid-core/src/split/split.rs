@@ -70,27 +70,12 @@ fn get_default_route() -> Result<DefaultRoute, Error> {
     let out_str = String::from_utf8_lossy(&out.stdout);
 
     // Find "default" row
-    let expression = Regex::new(r"^default via ([0-9.]+) dev (\w+)")
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
-        .map_err(Error::FindDefaultRoute)?;
+    let expression = Regex::new(r"^default via ([0-9.]+) dev (\w+)").unwrap();
 
     for line in out_str.lines() {
         if let Some(captures) = expression.captures(&line) {
-            let ip_str = captures
-                .get(1)
-                .ok_or(Error::FindDefaultRoute(io::Error::new(
-                    io::ErrorKind::Other,
-                    "Regex capture failed",
-                )))?
-                .as_str();
-            let interface = captures
-                .get(2)
-                .ok_or(Error::FindDefaultRoute(io::Error::new(
-                    io::ErrorKind::Other,
-                    "Regex capture failed",
-                )))?
-                .as_str()
-                .to_string();
+            let ip_str = captures.get(1).unwrap().as_str();
+            let interface = captures.get(2).unwrap().as_str().to_string();
 
             return Ok(DefaultRoute {
                 interface,
@@ -122,7 +107,6 @@ impl SplitTunnel {
 
     /// Set up policy-based routing for marked packets.
     fn initialize_routing_table(&mut self) -> Result<(), Error> {
-        // TODO: use correct error types
         // Add routing table to /etc/iproute2/rt_tables, if it does not exist
 
         let mut file = fs::OpenOptions::new()
@@ -132,32 +116,15 @@ impl SplitTunnel {
             .open("/etc/iproute2/rt_tables")
             .map_err(Error::RoutingTableSetup)?;
         let buf_reader = BufReader::new(file.try_clone().map_err(Error::RoutingTableSetup)?);
-        let expression = Regex::new(r"^\s*([0-9]+)\s+(\w+)")
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
-            .map_err(Error::RoutingTableSetup)?;
+        let expression = Regex::new(r"^\s*(\d+)\s+(\w+)").unwrap();
 
         let mut used_ids = Vec::<i32>::new();
 
         for line in buf_reader.lines() {
             let line = line.map_err(Error::RoutingTableSetup)?;
             if let Some(captures) = expression.captures(&line) {
-                let table_id = captures
-                    .get(1)
-                    .ok_or(Error::RoutingTableSetup(io::Error::new(
-                        io::ErrorKind::Other,
-                        "Regex capture failed",
-                    )))?
-                    .as_str()
-                    .parse::<i32>()
-                    .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
-                    .map_err(Error::RoutingTableSetup)?;
-                let table_name = captures
-                    .get(2)
-                    .ok_or(Error::RoutingTableSetup(io::Error::new(
-                        io::ErrorKind::Other,
-                        "Regex capture failed",
-                    )))?
-                    .as_str();
+                let table_id = captures.get(1).unwrap().as_str().parse::<i32>().unwrap();
+                let table_name = captures.get(2).unwrap().as_str();
 
                 if table_name == ROUTING_TABLE_NAME {
                     // The table has already been added
