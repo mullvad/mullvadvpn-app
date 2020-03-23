@@ -49,7 +49,8 @@ interface IState {
   zoomLevel: number;
   visibleGeometry: IGeometryLeaf[];
   visibleStatesProvincesLines: IProvinceAndStateLineLeaf[];
-  viewportBbox: BBox;
+  // combine previous and current viewports to get the rough area of transition.
+  viewportBboxes: BBox[];
 }
 
 const MOVE_SPEED = 2000;
@@ -61,12 +62,14 @@ export default class SvgMap extends React.Component<IProps, IState> {
     zoomLevel: 1,
     visibleGeometry: [],
     visibleStatesProvincesLines: [],
-    viewportBbox: [0, 0, 0, 0],
+    viewportBboxes: [],
   };
 
   private projectionConfig = {
     scale: 160,
   };
+
+  private transitionEndTimeout?: number;
 
   constructor(props: IProps) {
     super(props);
@@ -94,6 +97,19 @@ export default class SvgMap extends React.Component<IProps, IState> {
       this.state.zoomCenter !== nextState.zoomCenter ||
       this.state.zoomLevel !== nextState.zoomLevel
     );
+  }
+
+  public componentDidUpdate(_prevProps: IProps, _prevState: IState) {
+    if (this.state.viewportBboxes.length > 1) {
+      clearTimeout(this.transitionEndTimeout);
+      this.transitionEndTimeout = setTimeout(() => {
+        this.setState((state) => this.removeOldViewportBboxes(state));
+      }, MOVE_SPEED);
+    }
+  }
+
+  public componentWillUnmount() {
+    clearTimeout(this.transitionEndTimeout);
   }
 
   public render() {
@@ -267,9 +283,11 @@ export default class SvgMap extends React.Component<IProps, IState> {
 
   private getNextState(prevState: IState | null, nextProps: IProps): IState {
     const { width, height, center, offset, zoomLevel } = nextProps;
+    const viewportBboxes = prevState === null ? [] : prevState.viewportBboxes;
 
     const projection = this.getProjection(width, height, this.projectionConfig);
     const zoomCenter = this.getZoomCenter(center, offset, projection, zoomLevel);
+
     const viewportBbox = this.getViewportGeoBoundingBox(
       zoomCenter,
       width,
@@ -277,21 +295,14 @@ export default class SvgMap extends React.Component<IProps, IState> {
       projection,
       zoomLevel,
     );
+    viewportBboxes.push(viewportBbox);
 
-    // combine previous and current viewports to get the rough area of transition
-    const combinedViewportBboxMatch = prevState
-      ? {
-          minX: Math.min(viewportBbox[0], prevState.viewportBbox[0]),
-          minY: Math.min(viewportBbox[1], prevState.viewportBbox[1]),
-          maxX: Math.max(viewportBbox[2], prevState.viewportBbox[2]),
-          maxY: Math.max(viewportBbox[3], prevState.viewportBbox[3]),
-        }
-      : {
-          minX: viewportBbox[0],
-          minY: viewportBbox[1],
-          maxX: viewportBbox[2],
-          maxY: viewportBbox[3],
-        };
+    const combinedViewportBboxMatch = {
+      minX: Math.min(...viewportBboxes.map((viewportBbox) => viewportBbox[0])),
+      minY: Math.min(...viewportBboxes.map((viewportBbox) => viewportBbox[1])),
+      maxX: Math.max(...viewportBboxes.map((viewportBbox) => viewportBbox[2])),
+      maxY: Math.max(...viewportBboxes.map((viewportBbox) => viewportBbox[3])),
+    };
 
     const visibleGeometry = geometryTree.search(combinedViewportBboxMatch);
     const visibleStatesProvincesLines = provincesStatesLinesTree.search(combinedViewportBboxMatch);
@@ -301,7 +312,11 @@ export default class SvgMap extends React.Component<IProps, IState> {
       zoomLevel,
       visibleGeometry,
       visibleStatesProvincesLines,
-      viewportBbox,
+      viewportBboxes,
     };
+  }
+
+  private removeOldViewportBboxes(state: IState) {
+    return { viewportBboxes: state.viewportBboxes.slice(-1) };
   }
 }
