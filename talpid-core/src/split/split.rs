@@ -145,12 +145,7 @@ impl SplitTunnel {
             }
         }
 
-        let mut table_entry = String::new();
-        table_entry.push_str(&self.table_id.to_string());
-        table_entry.push_str(" ");
-        table_entry.push_str(ROUTING_TABLE_NAME);
-        file.write_all(table_entry.as_bytes())
-            .map_err(Error::RoutingTableSetup)
+        write!(file, "{} {}", self.table_id, ROUTING_TABLE_NAME).map_err(Error::RoutingTableSetup)
     }
 
     /// Reset the split-tunneling routing table to its default state
