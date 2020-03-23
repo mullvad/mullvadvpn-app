@@ -1,5 +1,5 @@
 #[cfg(target_os = "linux")]
-use nix::unistd::{execv, getgid, getpid, getuid, setgid, setuid};
+use nix::unistd::{execvp, getgid, getpid, getuid, setgid, setuid};
 #[cfg(target_os = "linux")]
 use std::{
     env,
@@ -71,9 +71,7 @@ fn run() -> Result<void::Void, Error> {
     setgid(real_gid).map_err(Error::SetGid)?;
 
     // Launch the process
-    // TODO: execv vs execvp
     let args: Vec<CString> = env::args().map(|arg| CString::new(arg).unwrap()).collect();
     let args: Vec<&CStr> = args.iter().map(|arg| &**arg).collect();
-    execv(args[1], &args[2..])
-        .map_err(Error::Exec)
+    execvp(args[1], &args[1..]).map_err(Error::Exec)
 }
