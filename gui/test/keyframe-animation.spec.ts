@@ -78,7 +78,7 @@ describe('lib/keyframe-animation', function() {
       seq.push(frame);
     };
     animation.onFinish = () => {
-      expect(seq).to.be.deep.equal([0, 1, 2, 3, 4]);
+      expect(seq).to.be.deep.equal([0, 0, 1, 2, 3, 4]);
       expect(animation.currentFrame).to.be.equal(4);
       done();
     };
@@ -94,7 +94,7 @@ describe('lib/keyframe-animation', function() {
       seq.push(frame);
     };
     animation.onFinish = () => {
-      expect(seq).to.be.deep.equal([4, 3, 2]);
+      expect(seq).to.be.deep.equal([4, 4, 3, 2]);
       expect(animation.currentFrame).to.be.equal(2);
       done();
     };
@@ -110,7 +110,7 @@ describe('lib/keyframe-animation', function() {
       seq.push(frame);
     };
     animation.onFinish = () => {
-      expect(seq).to.be.deep.equal([4, 3, 2, 1]);
+      expect(seq).to.be.deep.equal([4, 4, 3, 2, 1]);
       expect(animation.currentFrame).to.be.equal(1);
       done();
     };
