@@ -10,6 +10,7 @@ import { IReduxState, ReduxDispatch } from '../redux/store';
 const mapStateToProps = (state: IReduxState) => ({
   autoStart: state.settings.autoStart,
   allowLan: state.settings.allowLan,
+  showBetaReleases: state.settings.showBetaReleases,
   autoConnect: state.settings.guiSettings.autoConnect,
   enableSystemNotifications: state.settings.guiSettings.enableSystemNotifications,
   monochromaticIcon: state.settings.guiSettings.monochromaticIcon,
@@ -37,6 +38,9 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
     },
     setAllowLan: (allowLan: boolean) => {
       consumePromise(props.app.setAllowLan(allowLan));
+    },
+    setShowBetaReleases: (showBetaReleases: boolean) => {
+      consumePromise(props.app.setShowBetaReleases(showBetaReleases));
     },
     setStartMinimized: (startMinimized: boolean) => {
       props.app.setStartMinimized(startMinimized);
