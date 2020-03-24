@@ -252,7 +252,18 @@ impl RouteManagerImpl {
 
     fn run_cmd(mut cmd: Command, err: impl Fn(io::Error) -> Error) -> Result<()> {
         log::trace!("running cmd - {:?}", &cmd);
-        cmd.output().map_err(err).map(|_| ())
+        let status = cmd.status().map_err(|e| err(e))?;
+        match status.code() {
+            Some(0) => Ok(()),
+            Some(i) => Err(err(io::Error::new(
+                io::ErrorKind::Other,
+                format!("exit status {}", i),
+            ))),
+            None => Err(err(io::Error::new(
+                io::ErrorKind::Other,
+                "interrupted by signal",
+            ))),
+        }
     }
 
     fn get_default_routes_inner(ip_version: IpVersion) -> Result<Vec<Route>> {
