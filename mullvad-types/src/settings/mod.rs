@@ -364,7 +364,10 @@ impl Default for TunnelOptions {
                 mtu: None,
                 automatic_rotation: None,
             },
-            generic: GenericTunnelOptions { enable_ipv6: false },
+            generic: GenericTunnelOptions {
+                // Enable IPv6 be default on Android
+                enable_ipv6: cfg!(target_os = "android"),
+            },
         }
     }
 }

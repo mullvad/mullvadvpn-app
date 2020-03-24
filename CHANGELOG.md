@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add a reconnect button to disconnect and connect again without closing the tunnel device to avoid
   leaking any data during the reconnection.
 - Add quick settings tile to control the tunnel state.
+- Enable IPv6 traffic through the tunnel.
 
 ### Changed
 - Prefer WireGuard when tunnel protocol is set to _auto_ on Linux and MacOS.
@@ -71,6 +72,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix issue in daemon where the `block_when_disconnected` setting was sometimes not honored when
   stopping the daemon. I.e. traffic could flow freely after the daemon was stopped.
+
+#### Android
+- Fix issue where IPv6 traffic could leak outside of the tunnel.
 
 
 ## [2020.3] - 2020-02-20
