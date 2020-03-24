@@ -20,6 +20,10 @@ pub enum Error {
     /// Unable to set class ID for cgroup.
     #[error(display = "Unable to set cgroup class ID")]
     SetCGroupClassId(#[error(source)] io::Error),
+
+    /// Unable to add PID to cgroup.procs.
+    #[error(display = "Unable to add PID to cgroup.procs")]
+    AddCGroupPid(#[error(source)] io::Error),
 }
 
 /// Set up cgroup used to track PIDs for split tunneling.
@@ -32,4 +36,18 @@ pub fn create_cgroup() -> Result<(), Error> {
 
     let classid_path = exclusions_dir.join("net_cls.classid");
     fs::write(classid_path, NETCLS_CLASSID.to_string().as_bytes()).map_err(Error::SetCGroupClassId)
+}
+
+/// Add a PID to exclude from the tunnel.
+pub fn add_pid(pid: i32) -> Result<(), Error> {
+    let exclusions_path = Path::new(NETCLS_DIR).join(CGROUP_NAME).join("cgroup.procs");
+
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(exclusions_path)
+        .map_err(Error::AddCGroupPid)?;
+
+    file.write_all(pid.to_string().as_bytes())
+        .map_err(Error::AddCGroupPid)
 }
