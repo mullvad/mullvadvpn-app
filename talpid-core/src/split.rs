@@ -25,6 +25,10 @@ pub enum Error {
     #[error(display = "Unable to add PID to cgroup.procs")]
     AddCGroupPid(#[error(source)] io::Error),
 
+    /// Unable to remove PID to cgroup.procs.
+    #[error(display = "Unable to remove PID from cgroup")]
+    RemoveCGroupPid(#[error(source)] io::Error),
+
     /// Unable to read cgroup.procs.
     #[error(display = "Unable to obtain PIDs from cgroup.procs")]
     ListCGroupPids(#[error(source)] io::Error),
@@ -54,6 +58,22 @@ pub fn add_pid(pid: i32) -> Result<(), Error> {
 
     file.write_all(pid.to_string().as_bytes())
         .map_err(Error::AddCGroupPid)
+}
+
+/// Remove a PID from processes to exclude from the tunnel.
+pub fn remove_pid(pid: i32) -> Result<(), Error> {
+    // FIXME: We remove PIDs from our cgroup here by adding
+    //        them to the parent cgroup. This seems wrong.
+    let exclusions_path = Path::new(NETCLS_DIR).join("cgroup.procs");
+
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(exclusions_path)
+        .map_err(Error::RemoveCGroupPid)?;
+
+    file.write_all(pid.to_string().as_bytes())
+        .map_err(Error::RemoveCGroupPid)
 }
 
 /// Return a list of PIDs that are excluded from the tunnel.
