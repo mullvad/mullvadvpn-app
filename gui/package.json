@@ -69,7 +69,7 @@
     "electron": "^7.1.10",
     "electron-builder": "^21.2.0",
     "electron-devtools-installer": "^2.2.1",
-    "electron-mocha": "^8.1.1",
+    "electron-mocha": "^8.2.1",
     "electron-notarize": "^0.1.1",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.7.0",
