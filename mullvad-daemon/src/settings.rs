@@ -16,7 +16,12 @@ use talpid_core::logging::windows::log_sink;
 
 pub fn load() -> Settings {
     match Settings::load() {
-        Ok(settings) => settings,
+        Ok(mut settings) => {
+            if cfg!(target_os = "android") {
+                let _ = settings.set_enable_ipv6(true);
+            }
+            settings
+        }
         #[cfg(windows)]
         Err(SettingsError::ReadError(ref _path, ref e)) if e.kind() == ErrorKind::NotFound => {
             info!(
