@@ -316,16 +316,28 @@ impl PidManager {
 
     /// Add a PID to exclude from the tunnel.
     pub fn add(&self, pid: i32) -> Result<(), Error> {
+        self.add_list(&[pid])
+    }
+
+    /// Add PIDs to exclude from the tunnel.
+    pub fn add_list(&self, pids: &[i32]) -> Result<(), Error> {
         let exclusions_path = Path::new(NETCLS_DIR).join(CGROUP_NAME).join("cgroup.procs");
 
-        let mut file = fs::OpenOptions::new()
+        let file = fs::OpenOptions::new()
             .write(true)
             .create(true)
             .open(exclusions_path)
             .map_err(Error::AddCGroupPid)?;
 
-        file.write_all(pid.to_string().as_bytes())
-            .map_err(Error::AddCGroupPid)
+        let mut writer = BufWriter::new(file);
+
+        for pid in pids {
+            writer
+                .write_all(pid.to_string().as_bytes())
+                .map_err(Error::AddCGroupPid)?;
+        }
+
+        Ok(())
     }
 
     /// Remove a PID from processes to exclude from the tunnel.
