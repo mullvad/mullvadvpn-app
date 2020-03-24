@@ -4,7 +4,6 @@ use super::{
 };
 use crate::{
     firewall::FirewallPolicy,
-    split,
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
 use futures01::{
@@ -81,11 +80,14 @@ impl ConnectedState {
             .set(&self.metadata.interface, &dns_ips)
             .map_err(BoxedError::new)?;
 
-        split::route_dns(&self.metadata.interface, &dns_ips).map_err(BoxedError::new)
+        shared_values
+            .split_tunnel
+            .route_dns(&self.metadata.interface, &dns_ips)
+            .map_err(BoxedError::new)
     }
 
     fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
-        if let Err(error) = split::flush_dns() {
+        if let Err(error) = shared_values.split_tunnel.flush_dns() {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Unable to update split-tunnel route")
@@ -243,10 +245,7 @@ impl TunnelState for ConnectedState {
                 ),
             )
         } else if let Err(error) = connected_state.set_dns(shared_values) {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to set system DNS settings")
-            );
+            log::error!("{}", error.display_chain_with_msg("Failed to set DNS"));
             DisconnectingState::enter(
                 shared_values,
                 (
