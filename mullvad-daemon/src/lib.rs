@@ -96,6 +96,9 @@ pub enum Error {
     #[error(display = "Unable to load account history with wireguard key cache")]
     LoadAccountHistory(#[error(source)] account_history::Error),
 
+    #[error(display = "Unable to initialize split tunneling")]
+    InitSplitTunneling(#[error(source)] split::Error),
+
     #[error(display = "No wireguard private key available")]
     NoKeyAvailable,
 
@@ -444,6 +447,7 @@ pub struct Daemon<L: EventListener> {
     tunnel_state: TunnelState,
     target_state: TargetState,
     state: DaemonExecutionState,
+    exclude_pids: split::PidManager,
     rx: Wait<UnboundedReceiver<InternalDaemonEvent>>,
     tx: DaemonEventSender,
     reconnection_loop_tx: Option<mpsc::Sender<()>>,
@@ -587,6 +591,7 @@ where
             tunnel_state: TunnelState::Disconnected,
             target_state: initial_target_state,
             state: DaemonExecutionState::Running,
+            exclude_pids: split::PidManager::new().map_err(Error::InitSplitTunneling)?,
             rx: internal_event_rx.wait(),
             tx: internal_event_tx,
             reconnection_loop_tx: None,
@@ -1378,7 +1383,7 @@ where
 
     #[cfg(unix)]
     fn on_get_split_tunnel_processes(&mut self, tx: oneshot::Sender<Vec<i32>>) {
-        match split::list_pids() {
+        match self.exclude_pids.list() {
             Ok(pids) => Self::oneshot_send(tx, pids, "get_split_tunnel_processes response"),
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to obtain PIDs")),
         }
@@ -1386,7 +1391,7 @@ where
 
     #[cfg(unix)]
     fn on_add_split_tunnel_process(&mut self, tx: oneshot::Sender<()>, pid: i32) {
-        match split::add_pid(pid) {
+        match self.exclude_pids.add(pid) {
             Ok(()) => Self::oneshot_send(tx, (), "add_split_tunnel_process response"),
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to add PID")),
         }
@@ -1394,7 +1399,7 @@ where
 
     #[cfg(unix)]
     fn on_remove_split_tunnel_process(&mut self, tx: oneshot::Sender<()>, pid: i32) {
-        match split::remove_pid(pid) {
+        match self.exclude_pids.remove(pid) {
             Ok(()) => Self::oneshot_send(tx, (), "remove_split_tunnel_process response"),
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to remove PID")),
         }
@@ -1402,7 +1407,7 @@ where
 
     #[cfg(unix)]
     fn on_clear_split_tunnel_processes(&mut self, tx: oneshot::Sender<()>) {
-        match split::clear_pids() {
+        match self.exclude_pids.clear() {
             Ok(()) => Self::oneshot_send(tx, (), "clear_split_tunnel_processes response"),
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to clear PIDs")),
         }

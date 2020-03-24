@@ -242,10 +242,7 @@ impl TunnelStateMachine {
         };
 
         #[cfg(unix)]
-        {
-            split::initialize_routing_table().map_err(Error::InitSplitTunneling)?;
-            split::create_cgroup().map_err(Error::InitSplitTunneling)?;
-        }
+        let split_tunnel = split::SplitTunnel::new().map_err(Error::InitSplitTunneling)?;
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
@@ -253,6 +250,8 @@ impl TunnelStateMachine {
             RouteManager::new(HashSet::new()).map_err(Error::InitRouteManagerError)?;
         let mut shared_values = SharedTunnelStateValues {
             firewall,
+            #[cfg(unix)]
+            split_tunnel,
             dns_monitor,
             route_manager,
             allow_lan,
@@ -337,6 +336,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
     firewall: Firewall,
+    split_tunnel: split::SplitTunnel,
     dns_monitor: DnsMonitor,
     route_manager: RouteManager,
     /// Should LAN access be allowed outside the tunnel.
