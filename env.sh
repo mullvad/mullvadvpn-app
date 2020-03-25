@@ -39,7 +39,3 @@ case "$TARGET" in
     exit 1
     ;;
 esac
-
-export OPENSSL_STATIC="1"
-export OPENSSL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET"
-export OPENSSL_INCLUDE_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET/include"
