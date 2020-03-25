@@ -31,3 +31,6 @@ talpid-types = { path = "../talpid-types" }
 [dev-dependencies]
 filetime = "0.2"
 tempfile = "3.0"
+
+[[bin]]
+name = "relay_list"
