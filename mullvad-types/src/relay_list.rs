@@ -60,8 +60,14 @@ pub struct Relay {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub ipv4_addr_in: Ipv4Addr,
     #[cfg_attr(target_os = "android", jnix(skip))]
+    pub ipv6_addr_in: Option<Ipv6Addr>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub include_in_country: bool,
     pub active: bool,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub owned: bool,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub provider: String,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub weight: u64,
     #[serde(skip_serializing_if = "RelayTunnels::is_empty", default)]
@@ -69,7 +75,6 @@ pub struct Relay {
     #[serde(skip_serializing_if = "RelayBridges::is_empty", default)]
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridges: RelayBridges,
-    #[serde(skip)]
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub location: Option<Location>,
 }
