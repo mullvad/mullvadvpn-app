@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Added signal handlers on Unix platforms to better log critical faults with the daemon.
+- Add signal handlers on Linux, macOS and Android to better log critical faults with the daemon.
 - Add WireGuard MTU setting to desktop app.
 - Add option to receive notifications about new beta releases.
 
@@ -42,23 +42,19 @@ Line wrap the file at 100 chars.                                              Th
 - Wait for tunnel state machine to properly shut down, cleaning up the firewall properly on Windows
   during the daemon shutdown.
 - Switch to new logo.
-
-#### Android
-- Allow other apps to request the VPN tunnel to connect or disconnect.
+- Show better message when the app failed to block all connections after an error.
 
 ### Fixed
 - Fix bug that could lead to Javascript error dialog to appear upon the desktop app termination.
-- Show when the app failed to block all connections after an error in the android and desktop apps.
-- Fix notification action button not working when requesting to connect the tunnel after being
-  disconnected for a long time.
 
 #### macOS
 - Fix firewall rules to properly handle DNS requests over TCP when "Local network sharing" is
   disabled. Previously DNS requests over TCP would timeout.
 
 #### Android
-- Make sure the settings screen is scrollable so that devices with small screens can access the quit
-  button.
+- Fix notification action button not working when requesting to connect the tunnel after being
+  disconnected for a long time.
+- Make the settings screen scrollable, so that the quit button is reachable on small screens.
 - Fix connectivity listener leak causing possible battery usage increase.
 
 #### Windows
