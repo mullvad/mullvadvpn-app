@@ -210,6 +210,7 @@ fi
 
 ./update-relays.sh
 
+
 pushd "$SCRIPT_DIR/gui"
 
 echo "Installing JavaScript dependencies..."
