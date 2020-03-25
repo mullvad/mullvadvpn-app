@@ -208,7 +208,8 @@ if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
 fi
 
 
-./update-relays.sh
+# Update relay list
+cargo run -p mullvad-rpc > dist-assets/relays.json
 
 pushd "$SCRIPT_DIR/gui"
 
