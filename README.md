@@ -279,13 +279,9 @@ sections.
 
 ## Building and running mullvad-daemon on desktop
 
-1. Firstly, one should source `env.sh` to set the default environment variables.
-   One can also source the variables on Powershell with `env.ps1`,
-   however most of our scripts require bash.
+1. Firstly, on MacOS and Linux, one should source `env.sh` to set the default environment variables.
    ```bash
    source env.sh
-   # Or if you use Powershell:
-   . .\env.ps1
    ```
 
 1. If you are on Windows, then you have to build the C++ libraries before compiling the daemon:
