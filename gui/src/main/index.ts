@@ -920,6 +920,9 @@ class ApplicationMain {
     IpcMainEventChannel.settings.handleAllowLan((allowLan: boolean) =>
       this.daemonRpc.setAllowLan(allowLan),
     );
+    IpcMainEventChannel.settings.handleShowBetaReleases((showBetaReleases: boolean) =>
+      this.daemonRpc.setShowBetaReleases(showBetaReleases),
+    );
     IpcMainEventChannel.settings.handleEnableIpv6((enableIpv6: boolean) =>
       this.daemonRpc.setEnableIpv6(enableIpv6),
     );

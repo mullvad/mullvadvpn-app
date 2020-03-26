@@ -464,6 +464,10 @@ export class DaemonRpc {
     await this.transport.send('set_allow_lan', [allowLan]);
   }
 
+  public async setShowBetaReleases(showBetaReleases: boolean): Promise<void> {
+    await this.transport.send('set_show_beta_releases', [showBetaReleases]);
+  }
+
   public async setEnableIpv6(enableIpv6: boolean): Promise<void> {
     await this.transport.send('set_enable_ipv6', [enableIpv6]);
   }

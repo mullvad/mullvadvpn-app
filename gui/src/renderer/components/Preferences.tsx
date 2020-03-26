@@ -18,6 +18,7 @@ export interface IProps {
   autoStart: boolean;
   autoConnect: boolean;
   allowLan: boolean;
+  showBetaReleases?: boolean;
   enableSystemNotifications: boolean;
   monochromaticIcon: boolean;
   startMinimized: boolean;
@@ -26,6 +27,7 @@ export interface IProps {
   setEnableSystemNotifications: (flag: boolean) => void;
   setAutoConnect: (autoConnect: boolean) => void;
   setAllowLan: (allowLan: boolean) => void;
+  setShowBetaReleases: (showBetaReleases: boolean) => void;
   setStartMinimized: (startMinimized: boolean) => void;
   setMonochromaticIcon: (monochromaticIcon: boolean) => void;
   onClose: () => void;
@@ -160,6 +162,24 @@ export default class Preferences extends Component<IProps> {
                     ) : (
                       undefined
                     )}
+
+                    <Cell.Container>
+                      <Cell.Label>
+                        {messages.pgettext('preferences-view', 'Beta program')}
+                      </Cell.Label>
+                      <Cell.Switch
+                        isOn={this.props.showBetaReleases || false}
+                        onChange={this.props.setShowBetaReleases}
+                      />
+                    </Cell.Container>
+                    <Cell.Footer>
+                      <Cell.FooterText>
+                        {messages.pgettext(
+                          'preferences-view',
+                          'Enable to get notified when new beta versions of the app are released.',
+                        )}
+                      </Cell.FooterText>
+                    </Cell.Footer>
                   </View>
                 </NavigationScrollbars>
               </View>

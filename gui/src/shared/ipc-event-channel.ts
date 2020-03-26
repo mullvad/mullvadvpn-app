@@ -67,6 +67,7 @@ interface ITunnelHandlers extends ISender<TunnelState> {
 
 interface ISettingsMethods extends IReceiver<ISettings> {
   setAllowLan(allowLan: boolean): Promise<void>;
+  setShowBetaReleases(showBetaReleases: boolean): Promise<void>;
   setEnableIpv6(enableIpv6: boolean): Promise<void>;
   setBlockWhenDisconnected(block: boolean): Promise<void>;
   setBridgeState(state: BridgeState): Promise<void>;
@@ -78,6 +79,7 @@ interface ISettingsMethods extends IReceiver<ISettings> {
 
 interface ISettingsHandlers extends ISender<ISettings> {
   handleAllowLan(fn: (allowLan: boolean) => Promise<void>): void;
+  handleShowBetaReleases(fn: (showBetaReleases: boolean) => Promise<void>): void;
   handleEnableIpv6(fn: (enableIpv6: boolean) => Promise<void>): void;
   handleBlockWhenDisconnected(fn: (block: boolean) => Promise<void>): void;
   handleBridgeState(fn: (state: BridgeState) => Promise<void>): void;
@@ -158,6 +160,7 @@ const RECONNECT_TUNNEL = 'reconnect-tunnel';
 
 const SETTINGS_CHANGED = 'settings-changed';
 const SET_ALLOW_LAN = 'set-allow-lan';
+const SET_SHOW_BETA_RELEASES = 'set-show-beta-releases';
 const SET_ENABLE_IPV6 = 'set-enable-ipv6';
 const SET_BLOCK_WHEN_DISCONNECTED = 'set-block-when-disconnected';
 const SET_BRIDGE_STATE = 'set-bridge-state';
@@ -235,6 +238,7 @@ export class IpcRendererEventChannel {
   public static settings: ISettingsMethods = {
     listen: listen(SETTINGS_CHANGED),
     setAllowLan: requestSender(SET_ALLOW_LAN),
+    setShowBetaReleases: requestSender(SET_SHOW_BETA_RELEASES),
     setEnableIpv6: requestSender(SET_ENABLE_IPV6),
     setBlockWhenDisconnected: requestSender(SET_BLOCK_WHEN_DISCONNECTED),
     setBridgeState: requestSender(SET_BRIDGE_STATE),
@@ -333,6 +337,7 @@ export class IpcMainEventChannel {
   public static settings: ISettingsHandlers = {
     notify: sender(SETTINGS_CHANGED),
     handleAllowLan: requestHandler(SET_ALLOW_LAN),
+    handleShowBetaReleases: requestHandler(SET_SHOW_BETA_RELEASES),
     handleEnableIpv6: requestHandler(SET_ENABLE_IPV6),
     handleBlockWhenDisconnected: requestHandler(SET_BLOCK_WHEN_DISCONNECTED),
     handleBridgeState: requestHandler(SET_BRIDGE_STATE),
