@@ -86,6 +86,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
 
         relayListListener.onRelayListChange = { _, selectedRelayItem ->
+            locationInfoCache.selectedRelay = selectedRelayItem
             switchLocationButton.location = selectedRelayItem
         }
 
