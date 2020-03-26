@@ -8,6 +8,7 @@
 
 import Combine
 import UIKit
+import StoreKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -39,13 +40,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
                 let rootViewController = self.mainStoryboard.instantiateViewController(identifier: ViewControllerIdentifier.root.rawValue) as! RootContainerViewController
 
+                let showMainController = { (_ animated: Bool) in
+                    self.showMainController(in: rootViewController, animated: animated) {
+                        self.didPresentTheMainController()
+                    }
+                }
+
                 if Account.shared.isAgreedToTermsOfService {
-                    self.showMainController(in: rootViewController, animated: false)
+                    showMainController(false)
                 } else {
                     self.showTermsOfService(in: rootViewController) {
                         Account.shared.agreeToTermsOfService()
 
-                        self.showMainController(in: rootViewController, animated: true)
+                        showMainController(true)
                     }
                 }
 
@@ -53,6 +60,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             })
 
         return true
+    }
+
+    private func didPresentTheMainController() {
+        let paymentManager = AppStorePaymentManager.shared
+        paymentManager.delegate = self
+
+        paymentManager.startPaymentQueueMonitoring()
+        Account.shared.startPaymentMonitoring(with: paymentManager)
     }
 
     private func showTermsOfService(in rootViewController: RootContainerViewController, completionHandler: @escaping () -> Void) {
@@ -63,7 +78,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         rootViewController.setViewControllers([consentViewController], animated: false)
     }
 
-    private func showMainController(in rootViewController: RootContainerViewController, animated: Bool) {
+    private func showMainController(
+        in rootViewController: RootContainerViewController,
+        animated: Bool,
+        completionHandler: @escaping () -> Void)
+    {
         let loginViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.login.rawValue)
 
         var viewControllers = [loginViewController]
@@ -74,29 +93,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             viewControllers.append(mainViewController)
         }
 
-        rootViewController.setViewControllers(viewControllers, animated: animated)
+        rootViewController.setViewControllers(viewControllers, animated: animated, completion: completionHandler)
     }
 
-    func applicationWillResignActive(_ application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
-    }
+}
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-    }
+extension AppDelegate: AppStorePaymentManagerDelegate {
 
-    func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+    func appStorePaymentManager(_ manager: AppStorePaymentManager,
+                                didRequestAccountTokenFor payment: SKPayment) -> String?
+    {
+        // Since we do not persist the relation between the payment and account token between the
+        // app launches, we assume that all successful purchases belong to the active account token.
+        return Account.shared.token
     }
-
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    }
-
-    func applicationWillTerminate(_ application: UIApplication) {
-        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    }
-
 }
