@@ -17,7 +17,7 @@ impl Command for Version {
         let current_version = rpc.get_current_version()?;
         println!("Current version: {}", current_version);
         let version_info = rpc.get_version_info()?;
-        println!("\tIs supported: {}", version_info.current_is_supported);
+        println!("\tIs supported: {}", version_info.supported);
 
         let settings = rpc.get_settings()?;
         let is_updated = if settings.get_show_beta_releases().unwrap_or(false) {
