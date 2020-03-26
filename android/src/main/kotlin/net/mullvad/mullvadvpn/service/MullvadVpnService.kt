@@ -114,7 +114,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     override fun onRevoke() {
-        stop()
+        pendingAction = PendingAction.Disconnect
     }
 
     override fun onUnbind(intent: Intent): Boolean {
