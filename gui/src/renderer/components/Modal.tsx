@@ -1,7 +1,10 @@
 import * as React from 'react';
+import ReactDOM from 'react-dom';
 import { Component, Styles, Text, View } from 'reactxp';
 import { colors } from '../../config.json';
 import ImageView from './ImageView';
+
+const MODAL_CONTAINER_ID = 'modalContainer';
 
 const styles = {
   modalAlertBackground: Styles.createViewStyle({
@@ -82,7 +85,11 @@ interface IModalContainerProps {
 }
 
 export const ModalContainer: React.FC = (props: IModalContainerProps) => {
-  return <div style={{ position: 'relative', flex: 1 }}>{props.children}</div>;
+  return (
+    <div id={MODAL_CONTAINER_ID} style={{ position: 'relative', flex: 1 }}>
+      <ModalContent>{props.children}</ModalContent>
+    </div>
+  );
 };
 
 export enum ModalAlertType {
@@ -98,6 +105,15 @@ interface IModalAlertProps {
 
 export class ModalAlert extends Component<IModalAlertProps> {
   public render() {
+    const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
+    if (modalContainer !== null) {
+      return ReactDOM.createPortal(this.renderModal(), modalContainer);
+    } else {
+      throw Error('Modal container not found when rendering modal');
+    }
+  }
+
+  private renderModal() {
     return (
       <ModalBackground>
         <View style={styles.modalAlertBackground}>
