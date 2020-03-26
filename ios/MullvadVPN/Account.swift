@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import NetworkExtension
+import StoreKit
 import os
 
 /// A enum describing the errors emitted by `Account`
@@ -76,6 +77,12 @@ private enum UserDefaultsKeys: String {
 
 /// A class that groups the account related operations
 class Account {
+
+    /// A notification name used to broadcast the changes to account expiry
+    static let didUpdateAccountExpiryNotification = Notification.Name("didUpdateAccountExpiry")
+
+    /// A notification userInfo key that holds the `Date` with the new account expiry
+    static let newAccountExpiryUserInfoKey = "newAccountExpiry"
 
     static let shared = Account()
     private let apiClient = MullvadAPI()
@@ -163,3 +170,23 @@ class Account {
     }
 }
 
+extension Account: AppStorePaymentObserver {
+
+    func startPaymentMonitoring(with paymentManager: AppStorePaymentManager) {
+        paymentManager.addPaymentObserver(self)
+    }
+
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, didFailWithError error: AppStorePaymentManager.Error) {
+        // no-op
+    }
+
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, didFinishWithResponse response: SendAppStoreReceiptResponse) {
+        UserDefaults.standard.set(response.newExpiry,
+                                  forKey: UserDefaultsKeys.accountExpiry.rawValue)
+
+        NotificationCenter.default.post(
+            name: Self.didUpdateAccountExpiryNotification,
+            object: self, userInfo: [Self.newAccountExpiryUserInfoKey: response.newExpiry]
+        )
+    }
+}
