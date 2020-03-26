@@ -33,6 +33,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var connectionProxy: ConnectionProxy? = null
     private var daemon: MullvadDaemon? = null
+    private var locationInfoCache: LocationInfoCache? = null
     private var startDaemonJob: Job? = null
 
     private lateinit var notificationManager: ForegroundNotificationManager
@@ -156,6 +157,7 @@ class MullvadVpnService : TalpidVpnService() {
             }
 
             onDaemonStopped = {
+                locationInfoCache?.onDestroy()
                 connectionProxy?.onDestroy()
                 serviceNotifier.notify(null)
 
@@ -175,10 +177,18 @@ class MullvadVpnService : TalpidVpnService() {
             pendingAction = null
         }
 
+        val newLocationInfoCache = LocationInfoCache(newDaemon, connectivityListener)
+
         daemon = newDaemon
         connectionProxy = newConnectionProxy
+        locationInfoCache = newLocationInfoCache
 
-        serviceNotifier.notify(ServiceInstance(newDaemon, newConnectionProxy, connectivityListener))
+        serviceNotifier.notify(ServiceInstance(
+            newDaemon,
+            newConnectionProxy,
+            connectivityListener,
+            newLocationInfoCache
+        ))
     }
 
     private fun stop() {

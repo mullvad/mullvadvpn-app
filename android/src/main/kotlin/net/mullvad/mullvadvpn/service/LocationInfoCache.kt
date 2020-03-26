@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.dataproxy
+package net.mullvad.mullvadvpn.service
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.talpid.ConnectivityListener
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
