@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.service.tunnelstate
 
 import android.content.Context
-import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
+import net.mullvad.mullvadvpn.service.ConnectionProxy
 import net.mullvad.mullvadvpn.service.ServiceInstance
 import net.mullvad.talpid.util.EventNotifier
 
