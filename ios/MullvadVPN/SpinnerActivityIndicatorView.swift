@@ -13,6 +13,30 @@ private let kAnimationDuration = 0.6
 
 @IBDesignable class SpinnerActivityIndicatorView: UIView {
 
+    enum Style {
+        case small, medium, large
+
+        var intrinsicSize: CGSize {
+            switch self {
+            case .small:
+                return .init(width: 16, height: 16)
+            case .medium:
+                return .init(width: 20, height: 20)
+            case .large:
+                return .init(width: 48, height: 48)
+            }
+        }
+
+        var thickness: CGFloat {
+            switch self {
+            case .small, .medium:
+                return 2
+            case .large:
+                return 6
+            }
+        }
+    }
+
     /// Thickness of the front and back circles
     @IBInspectable var thickness: CGFloat = 6 {
         didSet {
@@ -35,6 +59,7 @@ private let kAnimationDuration = 0.6
     }
 
     private(set) var isAnimating = false
+    private(set) var style = Style.large
 
     fileprivate let frontCircle = CAShapeLayer()
     fileprivate let backCircle = CAShapeLayer()
@@ -42,7 +67,14 @@ private let kAnimationDuration = 0.6
     fileprivate var stopTime = CFTimeInterval(0)
 
     override var intrinsicContentSize: CGSize {
-        return CGSize(width: 48, height: 48)
+        return style.intrinsicSize
+    }
+
+    convenience init(style: Style) {
+        self.init(frame: .init(origin: .zero, size: style.intrinsicSize))
+        self.style = style
+        self.thickness = style.thickness
+        commonInit()
     }
 
     override init(frame: CGRect) {
