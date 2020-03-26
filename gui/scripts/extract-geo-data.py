@@ -59,7 +59,7 @@ def extract_geometry():
   }
 
   p = Popen(
-    ['geo2topo', '-q', '1e5', 'geometry=-', '-o', output_path],
+    ['geo2topo', '-q', '5e3', 'geometry=-', '-o', output_path],
     stdin=PIPE, stdout=PIPE, stderr=PIPE
   )
   errors = p.communicate(input=json.dumps(my_layer).encode())[1]
@@ -87,7 +87,7 @@ def extract_provinces_and_states_lines():
   }
 
   p = Popen(
-    ['geo2topo', '-q', '1e5', 'geometry=-', '-o', output_path],
+    ['geo2topo', '-q', '5e3', 'geometry=-', '-o', output_path],
     stdin=PIPE, stdout=PIPE, stderr=PIPE
   )
   errors = p.communicate(input=json.dumps(my_layer).encode())[1]
