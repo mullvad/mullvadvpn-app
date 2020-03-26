@@ -14,11 +14,14 @@ pub struct AppVersionInfo {
     /// * Software bundled with this version, such as OpenVPN or OpenSSL, has known security
     ///   issues, so using it is no longer recommended.
     /// The user should really upgrade when this is false.
-    pub current_is_supported: bool,
+    pub supported: bool,
+    /// Latest version
+    pub latest: AppVersion,
+    /// Latest stable version
     pub latest_stable: AppVersion,
     /// Equal to `latest_stable` when the newest release is a stable release. But will contain
     /// beta versions when those are out for testing.
-    pub latest: AppVersion,
+    pub latest_beta: AppVersion,
 }
 
 pub type AppVersion = String;
