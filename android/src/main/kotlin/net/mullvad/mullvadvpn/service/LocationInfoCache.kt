@@ -30,7 +30,7 @@ class LocationInfoCache(
 
     private val connectivityListenerId =
         connectivityListener.connectivityNotifier.subscribe { isConnected ->
-            if (isConnected) {
+            if (isConnected && state is TunnelState.Disconnected) {
                 fetchLocation()
             }
         }
