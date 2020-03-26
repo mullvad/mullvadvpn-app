@@ -124,6 +124,7 @@
 		58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */; };
 		58FD5BE724192A2C00112C88 /* AppStoreReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BE624192A2B00112C88 /* AppStoreReceipt.swift */; };
 		58FD5BE92419406000112C88 /* SKRequestPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BE82419406000112C88 /* SKRequestPublisher.swift */; };
+		58FD5BEC2420F58A00112C88 /* SKPaymentQueuePublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEB2420F58A00112C88 /* SKPaymentQueuePublisher.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -262,6 +263,7 @@
 		58FBDAAA22A52DC500EB69A3 /* MullvadVPN-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MullvadVPN-Bridging-Header.h"; sourceTree = "<group>"; };
 		58FD5BE624192A2B00112C88 /* AppStoreReceipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreReceipt.swift; sourceTree = "<group>"; };
 		58FD5BE82419406000112C88 /* SKRequestPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKRequestPublisher.swift; sourceTree = "<group>"; };
+		58FD5BEB2420F58A00112C88 /* SKPaymentQueuePublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKPaymentQueuePublisher.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -402,6 +404,7 @@
 				58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */,
 				587A01FB23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift */,
 				58FD5BE82419406000112C88 /* SKRequestPublisher.swift */,
+				58FD5BEB2420F58A00112C88 /* SKPaymentQueuePublisher.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */,
 				5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */,
@@ -737,6 +740,7 @@
 				581CBCEC2298041B00727D7F /* SettingsAppVersionCell.swift in Sources */,
 				5845F83A236C6A7200B2D93C /* AutoDisposableSink.swift in Sources */,
 				5840250422B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */,
+				58FD5BEC2420F58A00112C88 /* SKPaymentQueuePublisher.swift in Sources */,
 				58CCA01822426713004F3011 /* AccountViewController.swift in Sources */,
 				5868585524054096000B8131 /* AppButton.swift in Sources */,
 				5845F842236CBACD00B2D93C /* PacketTunnelIpc.swift in Sources */,
