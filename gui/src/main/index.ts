@@ -1154,6 +1154,7 @@ class ApplicationMain {
       const accountExpiry = new AccountExpiry(this.accountData.expiry, this.locale);
       if (
         accountExpiry &&
+        !accountExpiry.hasExpired() &&
         !this.accountExpiryNotificationTimeout &&
         accountExpiry.willHaveExpiredAt(
           moment()
