@@ -18,7 +18,7 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val appVersionInfoCache = AppVersionInfoCache(mainActivity, daemon, settingsListener)
     val accountCache = AccountCache(settingsListener, daemon)
     var relayListListener = RelayListListener(daemon, settingsListener)
-    val locationInfoCache = LocationInfoCache(daemon, connectivityListener, relayListListener)
+    val locationInfoCache = LocationInfoCache(daemon, connectivityListener)
 
     init {
         appVersionInfoCache.onCreate()

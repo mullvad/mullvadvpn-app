@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
+import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.talpid.ConnectivityListener
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
@@ -21,11 +22,11 @@ const val MAX_RETRIES: Int = 17 // ceil(log2(MAX_DELAY / DELAY_SCALE) + 1)
 
 class LocationInfoCache(
     val daemon: MullvadDaemon,
-    val connectivityListener: ConnectivityListener,
-    val relayListListener: RelayListListener
+    val connectivityListener: ConnectivityListener
 ) {
-    private var lastKnownRealLocation: GeoIpLocation? = null
     private var activeFetch: Job? = null
+    private var lastKnownRealLocation: GeoIpLocation? = null
+    private var selectedRelayLocation: GeoIpLocation? = null
 
     private val connectivityListenerId =
         connectivityListener.connectivityNotifier.subscribe { isConnected ->
@@ -64,10 +65,18 @@ class LocationInfoCache(
                     when (value.actionAfterDisconnect) {
                         ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
                         ActionAfterDisconnect.Block -> location = null
-                        ActionAfterDisconnect.Reconnect -> location = locationFromSelectedRelay()
+                        ActionAfterDisconnect.Reconnect -> location = selectedRelayLocation
                     }
                 }
                 is TunnelState.Error -> location = null
+            }
+        }
+
+    var selectedRelay: RelayItem? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                updateSelectedRelayLocation(value)
             }
         }
 
@@ -76,28 +85,25 @@ class LocationInfoCache(
         activeFetch?.cancel()
     }
 
-    private fun locationFromSelectedRelay(): GeoIpLocation? {
-        val relayItem = relayListListener.selectedRelayItem
-
-        when (relayItem) {
-            is RelayCountry -> return GeoIpLocation(null, null, relayItem.name, null, null)
-            is RelayCity -> return GeoIpLocation(
+    private fun updateSelectedRelayLocation(relayItem: RelayItem?) {
+        selectedRelayLocation = when (relayItem) {
+            is RelayCountry -> GeoIpLocation(null, null, relayItem.name, null, null)
+            is RelayCity -> GeoIpLocation(
                 null,
                 null,
                 relayItem.country.name,
                 relayItem.name,
                 null
             )
-            is Relay -> return GeoIpLocation(
+            is Relay -> GeoIpLocation(
                 null,
                 null,
                 relayItem.city.country.name,
                 relayItem.city.name,
                 relayItem.name
             )
+            else -> null
         }
-
-        return null
     }
 
     private fun fetchLocation() {
