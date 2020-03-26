@@ -123,7 +123,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) =
         GlobalScope.launch(Dispatchers.Main) {
         notificationBanner.tunnelState = realState
-        locationInfoCache.state = realState
         locationInfo.state = realState
         headerBar.setState(realState)
         status.setState(realState)

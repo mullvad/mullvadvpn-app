@@ -176,7 +176,8 @@ class MullvadVpnService : TalpidVpnService() {
             pendingAction = null
         }
 
-        val newLocationInfoCache = LocationInfoCache(newDaemon, connectivityListener)
+        val newLocationInfoCache =
+            LocationInfoCache(newDaemon, newConnectionProxy, connectivityListener)
 
         daemon = newDaemon
         connectionProxy = newConnectionProxy

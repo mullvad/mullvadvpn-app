@@ -21,6 +21,7 @@ const val MAX_RETRIES: Int = 17 // ceil(log2(MAX_DELAY / DELAY_SCALE) + 1)
 
 class LocationInfoCache(
     val daemon: MullvadDaemon,
+    val connectionProxy: ConnectionProxy,
     val connectivityListener: ConnectivityListener
 ) {
     private var activeFetch: Job? = null
@@ -33,6 +34,10 @@ class LocationInfoCache(
                 fetchLocation()
             }
         }
+
+    private val realStateListenerId = connectionProxy.onStateChange.subscribe { realState ->
+        state = realState
+    }
 
     var onNewLocation: ((GeoIpLocation?) -> Unit)? = null
         set(value) {
@@ -81,6 +86,7 @@ class LocationInfoCache(
 
     fun onDestroy() {
         connectivityListener.connectivityNotifier.unsubscribe(connectivityListenerId)
+        connectionProxy.onStateChange.unsubscribe(realStateListenerId)
         activeFetch?.cancel()
     }
 
