@@ -77,6 +77,13 @@ matrix:
         - ktlint -a
         - source ../ci/ci-android-xml.sh && tidy-verify-xml
 
+    # iOS
+    - language: swift
+      osx_image: xcode11.3
+      xcode_project: ios/MullvadVPN.xcodeproj
+      xcode_scheme: MullvadVPNTests
+      xcode_destination: platform=iOS Simulator,OS=13.3,name=iPhone 8
+
     # Daemon - macOS
     - language: rust
       rust: stable
