@@ -215,7 +215,7 @@ class AppStorePaymentManager {
         .handleEvents(receiveOutput: { (response) in
             os_log(
                 .info,
-                "AppStore Receipt was processed. Time added: %{public}.2f, New expiry: %{public}s",
+                "AppStore Receipt was processed. Time added: %{public}.2f, New expiry: %{private}s",
                 response.timeAdded, "\(response.newExpiry)")
         })
             .mapError { AppStorePaymentManager.Error.sendReceipt($0) }
