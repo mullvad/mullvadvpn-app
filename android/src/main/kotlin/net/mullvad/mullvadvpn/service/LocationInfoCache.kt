@@ -153,11 +153,13 @@ class LocationInfoCache(
                 newLocation = executeFetch().await()
             }
 
-            if (newLocation != null && fetchId == fetchIdCounter) {
-                location = newLocation
+            synchronized(this@LocationInfoCache) {
+                if (newLocation != null && fetchId == fetchIdCounter) {
+                    location = newLocation
 
-                if (isRealLocation) {
-                    lastKnownRealLocation = newLocation
+                    if (isRealLocation) {
+                        lastKnownRealLocation = newLocation
+                    }
                 }
             }
         }
