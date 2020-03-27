@@ -58,6 +58,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make the settings screen scrollable, so that the quit button is reachable on small screens.
 - Fix connectivity listener leak causing possible battery usage increase.
 - Fix crash that could sometimes happen when restarting the background service.
+- Fix incorrect location information sometimes shown in main screen.
 
 #### Windows
 - Fix bug where failing to initialize the route manager could cause the daemon to get stuck in a
