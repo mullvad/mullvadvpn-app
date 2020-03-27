@@ -80,7 +80,7 @@ class MullvadVpnService : TalpidVpnService() {
         setUp()
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val startResult = super.onStartCommand(intent, flags, startId)
         val action = intent?.action
 
