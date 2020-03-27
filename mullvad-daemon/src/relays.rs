@@ -359,9 +359,8 @@ impl RelaySelector {
             (relay.location.as_ref().unwrap().distance_from(&location) * 1000.0) as i64
         });
         matching_relays.get(0).and_then(|relay| {
-            (self
-                .pick_random_bridge(&relay)
-                .map(|bridge| (bridge, relay.clone())))
+            self.pick_random_bridge(&relay)
+                .map(|bridge| (bridge, relay.clone()))
         })
     }
 
