@@ -129,8 +129,6 @@ class LocationInfoCache(
 
     private fun cancelFetch() {
         synchronized(this) {
-            activeFetch?.cancel()
-
             if (fetchIdIsActive) {
                 fetchIdCounter += 1
                 fetchIdIsActive = false
@@ -141,8 +139,6 @@ class LocationInfoCache(
     private fun fetchLocation(isRealLocation: Boolean) {
         val fetchId = newFetchId()
         val previousFetch = activeFetch
-
-        previousFetch?.cancel()
 
         activeFetch = GlobalScope.launch(Dispatchers.Main) {
             var newLocation: GeoIpLocation? = null
