@@ -28,10 +28,13 @@ class LocationInfoCache(
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var selectedRelayLocation: GeoIpLocation? = null
 
+    private var fetchIdCounter = 0L
+    private var fetchIdIsActive = false
+
     private val connectivityListenerId =
         connectivityListener.connectivityNotifier.subscribe { isConnected ->
             if (isConnected && state is TunnelState.Disconnected) {
-                fetchLocation()
+                fetchLocation(true)
             }
         }
 
@@ -54,16 +57,17 @@ class LocationInfoCache(
     var state: TunnelState = TunnelState.Disconnected()
         set(value) {
             field = value
+            cancelFetch()
 
             when (value) {
                 is TunnelState.Disconnected -> {
                     location = lastKnownRealLocation
-                    fetchLocation()
+                    fetchLocation(true)
                 }
                 is TunnelState.Connecting -> location = value.location
                 is TunnelState.Connected -> {
                     location = value.location
-                    fetchLocation()
+                    fetchLocation(false)
                 }
                 is TunnelState.Disconnecting -> {
                     when (value.actionAfterDisconnect) {
@@ -87,7 +91,7 @@ class LocationInfoCache(
     fun onDestroy() {
         connectivityListener.connectivityNotifier.unsubscribe(connectivityListenerId)
         connectionProxy.onStateChange.unsubscribe(realStateListenerId)
-        activeFetch?.cancel()
+        cancelFetch()
     }
 
     private fun updateSelectedRelayLocation(relayItem: RelayItem?) {
@@ -111,9 +115,34 @@ class LocationInfoCache(
         }
     }
 
-    private fun fetchLocation() {
+    private fun newFetchId(): Long {
+        synchronized(this) {
+            if (fetchIdIsActive) {
+                fetchIdCounter += 1
+            } else {
+                fetchIdIsActive = true
+            }
+
+            return fetchIdCounter
+        }
+    }
+
+    private fun cancelFetch() {
+        synchronized(this) {
+            activeFetch?.cancel()
+
+            if (fetchIdIsActive) {
+                fetchIdCounter += 1
+                fetchIdIsActive = false
+            }
+        }
+    }
+
+    private fun fetchLocation(isRealLocation: Boolean) {
+        val fetchId = newFetchId()
         val previousFetch = activeFetch
-        val initialState = state
+
+        previousFetch?.cancel()
 
         activeFetch = GlobalScope.launch(Dispatchers.Main) {
             var newLocation: GeoIpLocation? = null
@@ -121,21 +150,18 @@ class LocationInfoCache(
 
             previousFetch?.join()
 
-            while (newLocation == null && shouldRetryFetch() && state == initialState) {
+            while (newLocation == null && fetchId == fetchIdCounter) {
                 delayFetch(retry)
                 retry += 1
 
                 newLocation = executeFetch().await()
             }
 
-            if (newLocation != null && state == initialState) {
-                when (state) {
-                    is TunnelState.Disconnected -> {
-                        lastKnownRealLocation = newLocation
-                        location = newLocation
-                    }
-                    is TunnelState.Connecting -> location = newLocation
-                    is TunnelState.Connected -> location = newLocation
+            if (newLocation != null && fetchId == fetchIdCounter) {
+                location = newLocation
+
+                if (isRealLocation) {
+                    lastKnownRealLocation = newLocation
                 }
             }
         }
@@ -157,12 +183,5 @@ class LocationInfoCache(
         }
 
         delay(duration)
-    }
-
-    private fun shouldRetryFetch(): Boolean {
-        val state = this.state
-
-        return connectivityListener.isConnected &&
-            (state is TunnelState.Disconnected || state is TunnelState.Connected)
     }
 }
