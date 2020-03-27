@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.dataproxy
+package net.mullvad.mullvadvpn.service
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
-import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.talpid.ConnectivityListener
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
@@ -21,18 +21,26 @@ const val MAX_RETRIES: Int = 17 // ceil(log2(MAX_DELAY / DELAY_SCALE) + 1)
 
 class LocationInfoCache(
     val daemon: MullvadDaemon,
-    val connectivityListener: ConnectivityListener,
-    val relayListListener: RelayListListener
+    val connectionProxy: ConnectionProxy,
+    val connectivityListener: ConnectivityListener
 ) {
-    private var lastKnownRealLocation: GeoIpLocation? = null
     private var activeFetch: Job? = null
+    private var lastKnownRealLocation: GeoIpLocation? = null
+    private var selectedRelayLocation: GeoIpLocation? = null
+
+    private var fetchIdCounter = 0L
+    private var fetchIdIsActive = false
 
     private val connectivityListenerId =
         connectivityListener.connectivityNotifier.subscribe { isConnected ->
-            if (isConnected) {
-                fetchLocation()
+            if (isConnected && state is TunnelState.Disconnected) {
+                fetchLocation(true)
             }
         }
+
+    private val realStateListenerId = connectionProxy.onStateChange.subscribe { realState ->
+        state = realState
+    }
 
     var onNewLocation: ((GeoIpLocation?) -> Unit)? = null
         set(value) {
@@ -49,60 +57,88 @@ class LocationInfoCache(
     var state: TunnelState = TunnelState.Disconnected()
         set(value) {
             field = value
+            cancelFetch()
 
             when (value) {
                 is TunnelState.Disconnected -> {
                     location = lastKnownRealLocation
-                    fetchLocation()
+                    fetchLocation(true)
                 }
                 is TunnelState.Connecting -> location = value.location
                 is TunnelState.Connected -> {
                     location = value.location
-                    fetchLocation()
+                    fetchLocation(false)
                 }
                 is TunnelState.Disconnecting -> {
                     when (value.actionAfterDisconnect) {
                         ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
                         ActionAfterDisconnect.Block -> location = null
-                        ActionAfterDisconnect.Reconnect -> location = locationFromSelectedRelay()
+                        ActionAfterDisconnect.Reconnect -> location = selectedRelayLocation
                     }
                 }
                 is TunnelState.Error -> location = null
             }
         }
 
+    var selectedRelay: RelayItem? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                updateSelectedRelayLocation(value)
+            }
+        }
+
     fun onDestroy() {
         connectivityListener.connectivityNotifier.unsubscribe(connectivityListenerId)
-        activeFetch?.cancel()
+        connectionProxy.onStateChange.unsubscribe(realStateListenerId)
+        cancelFetch()
     }
 
-    private fun locationFromSelectedRelay(): GeoIpLocation? {
-        val relayItem = relayListListener.selectedRelayItem
-
-        when (relayItem) {
-            is RelayCountry -> return GeoIpLocation(null, null, relayItem.name, null, null)
-            is RelayCity -> return GeoIpLocation(
+    private fun updateSelectedRelayLocation(relayItem: RelayItem?) {
+        selectedRelayLocation = when (relayItem) {
+            is RelayCountry -> GeoIpLocation(null, null, relayItem.name, null, null)
+            is RelayCity -> GeoIpLocation(
                 null,
                 null,
                 relayItem.country.name,
                 relayItem.name,
                 null
             )
-            is Relay -> return GeoIpLocation(
+            is Relay -> GeoIpLocation(
                 null,
                 null,
                 relayItem.city.country.name,
                 relayItem.city.name,
                 relayItem.name
             )
+            else -> null
         }
-
-        return null
     }
 
-    private fun fetchLocation() {
+    private fun newFetchId(): Long {
+        synchronized(this) {
+            if (fetchIdIsActive) {
+                fetchIdCounter += 1
+            } else {
+                fetchIdIsActive = true
+            }
+
+            return fetchIdCounter
+        }
+    }
+
+    private fun cancelFetch() {
+        synchronized(this) {
+            if (fetchIdIsActive) {
+                fetchIdCounter += 1
+                fetchIdIsActive = false
+            }
+        }
+    }
+
+    private fun fetchLocation(isRealLocation: Boolean) {
+        val fetchId = newFetchId()
         val previousFetch = activeFetch
-        val initialState = state
 
         activeFetch = GlobalScope.launch(Dispatchers.Main) {
             var newLocation: GeoIpLocation? = null
@@ -110,21 +146,20 @@ class LocationInfoCache(
 
             previousFetch?.join()
 
-            while (newLocation == null && shouldRetryFetch() && state == initialState) {
+            while (newLocation == null && fetchId == fetchIdCounter) {
                 delayFetch(retry)
                 retry += 1
 
                 newLocation = executeFetch().await()
             }
 
-            if (newLocation != null && state == initialState) {
-                when (state) {
-                    is TunnelState.Disconnected -> {
+            synchronized(this@LocationInfoCache) {
+                if (newLocation != null && fetchId == fetchIdCounter) {
+                    location = newLocation
+
+                    if (isRealLocation) {
                         lastKnownRealLocation = newLocation
-                        location = newLocation
                     }
-                    is TunnelState.Connecting -> location = newLocation
-                    is TunnelState.Connected -> location = newLocation
                 }
             }
         }
@@ -146,12 +181,5 @@ class LocationInfoCache(
         }
 
         delay(duration)
-    }
-
-    private fun shouldRetryFetch(): Boolean {
-        val state = this.state
-
-        return connectivityListener.isConnected &&
-            (state is TunnelState.Disconnected || state is TunnelState.Connected)
     }
 }

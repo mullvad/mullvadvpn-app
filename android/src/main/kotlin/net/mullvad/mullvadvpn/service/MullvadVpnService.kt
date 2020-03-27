@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.dataproxy.ConnectionProxy
 import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
@@ -33,6 +32,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var connectionProxy: ConnectionProxy? = null
     private var daemon: MullvadDaemon? = null
+    private var locationInfoCache: LocationInfoCache? = null
     private var startDaemonJob: Job? = null
 
     private lateinit var notificationManager: ForegroundNotificationManager
@@ -156,6 +156,7 @@ class MullvadVpnService : TalpidVpnService() {
             }
 
             onDaemonStopped = {
+                locationInfoCache?.onDestroy()
                 connectionProxy?.onDestroy()
                 serviceNotifier.notify(null)
 
@@ -175,10 +176,19 @@ class MullvadVpnService : TalpidVpnService() {
             pendingAction = null
         }
 
+        val newLocationInfoCache =
+            LocationInfoCache(newDaemon, newConnectionProxy, connectivityListener)
+
         daemon = newDaemon
         connectionProxy = newConnectionProxy
+        locationInfoCache = newLocationInfoCache
 
-        serviceNotifier.notify(ServiceInstance(newDaemon, newConnectionProxy, connectivityListener))
+        serviceNotifier.notify(ServiceInstance(
+            newDaemon,
+            newConnectionProxy,
+            connectivityListener,
+            newLocationInfoCache
+        ))
     }
 
     private fun stop() {

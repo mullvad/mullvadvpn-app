@@ -24,6 +24,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var locationInfo: LocationInfo
 
     private lateinit var updateKeyStatusJob: Job
+    private var updateLocationInfoJob: Job? = null
     private var updateTunnelStateJob: Job? = null
 
     private var isTunnelInfoExpanded = false
@@ -82,10 +83,14 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
 
         locationInfoCache.onNewLocation = { location ->
-            locationInfo.location = location
+            updateLocationInfoJob?.cancel()
+            updateLocationInfoJob = GlobalScope.launch(Dispatchers.Main) {
+                locationInfo.location = location
+            }
         }
 
         relayListListener.onRelayListChange = { _, selectedRelayItem ->
+            locationInfoCache.selectedRelay = selectedRelayItem
             switchLocationButton.location = selectedRelayItem
         }
 
@@ -104,6 +109,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             connectionProxy.onUiStateChange.unsubscribe(listener)
         }
 
+        updateLocationInfoJob?.cancel()
         updateTunnelStateJob?.cancel()
         notificationBanner.onPause()
 
@@ -122,7 +128,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) =
         GlobalScope.launch(Dispatchers.Main) {
         notificationBanner.tunnelState = realState
-        locationInfoCache.state = realState
         locationInfo.state = realState
         headerBar.setState(realState)
         status.setState(realState)

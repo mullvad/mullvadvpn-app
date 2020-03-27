@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.dataproxy
+package net.mullvad.mullvadvpn.service
 
 import android.content.Context
 import android.content.Intent
@@ -10,7 +10,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.util.EventNotifier
