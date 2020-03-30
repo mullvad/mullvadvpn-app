@@ -52,12 +52,23 @@
                   android:textColor="@color/white60"
                   android:textSize="13sp"
                   android:textStyle="bold" />
-        <TextView android:id="@+id/wireguard_public_key"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textColor="@color/white"
-                  android:textSize="16sp"
-                  android:textStyle="bold" />
+        <FrameLayout android:layout_width="wrap_content"
+                     android:layout_height="wrap_content">
+            <TextView android:id="@+id/wireguard_public_key"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:textColor="@color/white"
+                      android:textSize="16sp"
+                      android:textStyle="bold" />
+            <ProgressBar android:id="@+id/public_key_spinner"
+                         android:layout_width="20dp"
+                         android:layout_height="20dp"
+                         android:indeterminate="true"
+                         android:indeterminateOnly="true"
+                         android:indeterminateDuration="600"
+                         android:indeterminateDrawable="@drawable/icon_spinner"
+                         android:visibility="gone" />
+        </FrameLayout>
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
@@ -71,12 +82,23 @@
                   android:textSize="13sp"
                   android:textStyle="bold"
                   android:text="@string/wireguard_key_generated" />
-        <TextView android:id="@+id/time_since"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textColor="@color/white"
-                  android:textSize="16sp"
-                  android:textStyle="bold" />
+        <FrameLayout android:layout_width="wrap_content"
+                     android:layout_height="wrap_content">
+            <TextView android:id="@+id/time_since"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:textColor="@color/white"
+                      android:textSize="16sp"
+                      android:textStyle="bold" />
+            <ProgressBar android:id="@+id/time_since_spinner"
+                         android:layout_width="20dp"
+                         android:layout_height="20dp"
+                         android:indeterminate="true"
+                         android:indeterminateOnly="true"
+                         android:indeterminateDuration="600"
+                         android:indeterminateDrawable="@drawable/icon_spinner"
+                         android:visibility="gone" />
+        </FrameLayout>
     </LinearLayout>
     <FrameLayout android:layout_width="wrap_content"
                  android:layout_height="wrap_content"
