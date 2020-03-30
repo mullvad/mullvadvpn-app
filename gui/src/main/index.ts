@@ -44,6 +44,7 @@ import {
   SubscriptionListener,
 } from './daemon-rpc';
 import { InvalidAccountError } from './errors';
+import Expectation from './expectation';
 import GuiSettings from './gui-settings';
 import NotificationController from './notification-controller';
 import { resolveBin } from './proc';
@@ -127,6 +128,7 @@ class ApplicationMain {
   private guiSettings = new GuiSettings();
   private location?: ILocation;
   private lastDisconnectedLocation?: ILocation;
+  private tunnelStateExpectation?: Expectation;
 
   private relays: IRelayList = { countries: [] };
 
@@ -323,18 +325,19 @@ class ApplicationMain {
     const tray = this.createTray();
 
     const windowController = new WindowController(window, tray);
-    const trayIconController = new TrayIconController(
-      tray,
-      'unsecured',
-      this.guiSettings.monochromaticIcon,
-    );
+    this.tunnelStateExpectation = new Expectation(() => {
+      this.trayIconController = new TrayIconController(
+        tray,
+        this.trayIconType(this.tunnelState, this.settings.blockWhenDisconnected),
+        this.guiSettings.monochromaticIcon,
+      );
+    });
 
     this.registerWindowListener(windowController);
     this.registerIpcListeners();
     this.addContextMenu(window);
 
     this.windowController = windowController;
-    this.trayIconController = trayIconController;
 
     this.guiSettings.onChange = (newState, oldState) => {
       if (oldState.monochromaticIcon !== newState.monochromaticIcon) {
@@ -424,6 +427,10 @@ class ApplicationMain {
       log.error(`Failed to fetch settings: ${error.message}`);
 
       return this.recoverFromBootstrapError(error);
+    }
+
+    if (this.tunnelStateExpectation) {
+      this.tunnelStateExpectation.fulfill();
     }
 
     // fetch relays
