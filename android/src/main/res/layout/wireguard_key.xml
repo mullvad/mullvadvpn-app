@@ -78,15 +78,27 @@
                   android:textSize="16sp"
                   android:textStyle="bold" />
     </LinearLayout>
-    <TextView android:id="@+id/wireguard_key_status"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:paddingHorizontal="24dp"
-              android:paddingVertical="12dp"
-              android:textColor="@color/red"
-              android:textSize="13sp"
-              android:textStyle="bold"
-              android:visibility="gone" />
+    <FrameLayout android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:paddingHorizontal="24dp"
+                 android:paddingVertical="12dp">
+        <TextView android:id="@+id/wireguard_key_status"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textColor="@color/red"
+                  android:textSize="13sp"
+                  android:textStyle="bold"
+                  android:visibility="gone" />
+        <ProgressBar android:id="@+id/verifying_key_spinner"
+                     android:layout_width="20dp"
+                     android:layout_height="20dp"
+                     android:layout_gravity="center"
+                     android:indeterminate="true"
+                     android:indeterminateOnly="true"
+                     android:indeterminateDuration="600"
+                     android:indeterminateDrawable="@drawable/icon_spinner"
+                     android:visibility="gone" />
+    </FrameLayout>
     <Space android:layout_width="match_parent"
            android:layout_height="0dp"
            android:layout_weight="1" />

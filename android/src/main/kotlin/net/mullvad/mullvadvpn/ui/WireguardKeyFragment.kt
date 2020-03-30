@@ -51,6 +51,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private lateinit var publicKey: TextView
     private lateinit var publicKeyAge: TimeSinceLabel
     private lateinit var statusMessage: TextView
+    private lateinit var verifyingKeySpinner: View
     private lateinit var manageKeysButton: Button
     private lateinit var generateKeyButton: android.widget.Button
     private lateinit var verifyKeyButton: Button
@@ -100,6 +101,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 onValidateKeyPress()
             }
         }
+
+        verifyingKeySpinner = view.findViewById(R.id.verifying_key_spinner)
 
         val keyUrl = parentActivity.getString(R.string.wg_key_url)
 
@@ -261,8 +264,15 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         generatingKey = false
         updateViews()
         currentJob = GlobalScope.launch(Dispatchers.Main) {
+            statusMessage.visibility = View.GONE
+            verifyingKeySpinner.visibility = View.VISIBLE
+
             keyStatusListener.verifyKey().join()
+
+            verifyingKeySpinner.visibility = View.GONE
+            statusMessage.visibility = View.VISIBLE
             validatingKey = false
+
             when (val state = keyStatusListener.keyStatus) {
                 is KeygenEvent.NewKey -> {
                     if (state.verified == null) {
