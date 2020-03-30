@@ -43,6 +43,7 @@ class SelectLocationController: UITableViewController {
                 let cell = tableView.dequeueReusableCell(
                     withIdentifier: kCellIdentifier, for: indexPath) as! SelectLocationCell
 
+                cell.accessibilityIdentifier = item.relayLocation.stringRepresentation
                 cell.isDisabled = !item.hasActiveRelays()
                 cell.locationLabel.text = item.displayName()
                 cell.statusIndicator.isActive = item.hasActiveRelays()
