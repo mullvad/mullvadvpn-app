@@ -6,8 +6,9 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import UIKit
+import Combine
 import Foundation
+import UIKit
 
 class SettingsViewController: UITableViewController {
 
@@ -20,9 +21,19 @@ class SettingsViewController: UITableViewController {
     }
 
     private weak var accountRow: StaticTableViewRow?
+    private var accountExpirySubscriber: AnyCancellable?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        accountExpirySubscriber = NotificationCenter.default
+            .publisher(for: Account.didUpdateAccountExpiryNotification, object: Account.shared)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] (notification) in
+                guard let accountRow = self?.accountRow else { return }
+
+                self?.staticDataSource.reloadRows([accountRow], with: .automatic)
+        }
 
         setupDataSource()
     }
