@@ -28,10 +28,10 @@
 		5845F842236CBACD00B2D93C /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
 		5845F843236CBDAB00B2D93C /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
 		584B26FF237435A90073B10E /* RelaySelector+RelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584B26FD237435990073B10E /* RelaySelector+RelayCache.swift */; };
+		584E96BA240D791E00D3334F /* CancellableDelayPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584E96B9240D791E00D3334F /* CancellableDelayPublisher.swift */; };
 		584E96BC240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584E96BD240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584E96BE240FD4DB00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
-		584E96BA240D791E00D3334F /* CancellableDelayPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584E96B9240D791E00D3334F /* CancellableDelayPublisher.swift */; };
 		58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		5860F1C223A785C600CEA666 /* WireguardDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1C123A785C600CEA666 /* WireguardDevice.swift */; };
@@ -126,6 +126,9 @@
 		58FD5BE724192A2C00112C88 /* AppStoreReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BE624192A2B00112C88 /* AppStoreReceipt.swift */; };
 		58FD5BE92419406000112C88 /* SKRequestPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BE82419406000112C88 /* SKRequestPublisher.swift */; };
 		58FD5BEC2420F58A00112C88 /* SKPaymentQueuePublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEB2420F58A00112C88 /* SKPaymentQueuePublisher.swift */; };
+		58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
+		58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BF12424F7D700112C88 /* UserInterfaceInteractionRestriction.swift */; };
+		58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */; };
 		58FD5BF624291F1A00112C88 /* AppStorePaymentPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BF524291F1A00112C88 /* AppStorePaymentPublisher.swift */; };
 /* End PBXBuildFile section */
 
@@ -267,6 +270,9 @@
 		58FD5BE624192A2B00112C88 /* AppStoreReceipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreReceipt.swift; sourceTree = "<group>"; };
 		58FD5BE82419406000112C88 /* SKRequestPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKRequestPublisher.swift; sourceTree = "<group>"; };
 		58FD5BEB2420F58A00112C88 /* SKPaymentQueuePublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKPaymentQueuePublisher.swift; sourceTree = "<group>"; };
+		58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Formatting.swift"; sourceTree = "<group>"; };
+		58FD5BF12424F7D700112C88 /* UserInterfaceInteractionRestriction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInterfaceInteractionRestriction.swift; sourceTree = "<group>"; };
+		58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseButton.swift; sourceTree = "<group>"; };
 		58FD5BF524291F1A00112C88 /* AppStorePaymentPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorePaymentPublisher.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -359,19 +365,21 @@
 				5868585424054096000B8131 /* AppButton.swift */,
 				58CE5E63224146200008646E /* AppDelegate.swift */,
 				58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */,
-				58FD5BE624192A2B00112C88 /* AppStoreReceipt.swift */,
 				58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */,
 				58FD5BF524291F1A00112C88 /* AppStorePaymentPublisher.swift */,
+				58FD5BE624192A2B00112C88 /* AppStoreReceipt.swift */,
 				58CE5E6A224146210008646E /* Assets.xcassets */,
 				5845F839236C6A7200B2D93C /* AutoDisposableSink.swift */,
 				589AB4F6227B64450039131E /* BasicTableViewCell.swift */,
 				58EC4E6B23915325003F5C5B /* Bundle+MullvadVersion.swift */,
+				584E96B9240D791E00D3334F /* CancellableDelayPublisher.swift */,
 				58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */,
 				58CCA00F224249A1004F3011 /* ConnectViewController.swift */,
 				58A99ED2240014A0006599E9 /* ConsentViewController.swift */,
 				582BB1B0229569620055B6EF /* CustomNavigationBar.swift */,
 				58C6B35D22BBBFE3003C19AD /* Data+HexCoding.swift */,
 				5873884C239E6D7E00E96C4E /* EmbeddedViewContainerView.swift */,
+				58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */,
 				58CE5E6F224146210008646E /* Info.plist */,
 				5840250022B1124600E4CFEC /* IpAddress+Codable.swift */,
 				58C6B34E22BB7AC0003C19AD /* IPAddressRange.swift */,
@@ -409,8 +417,9 @@
 				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
 				58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */,
 				587A01FB23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift */,
-				58FD5BE82419406000112C88 /* SKRequestPublisher.swift */,
 				58FD5BEB2420F58A00112C88 /* SKPaymentQueuePublisher.swift */,
+				58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */,
+				58FD5BE82419406000112C88 /* SKRequestPublisher.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */,
 				5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */,
@@ -422,11 +431,11 @@
 				58A8BE8223A0F362006B74AC /* UIAlertController+Error.swift */,
 				587CBFE222807F530028DED3 /* UIColor+Helpers.swift */,
 				58CCA0152242560B004F3011 /* UIColor+Palette.swift */,
+				58FD5BF12424F7D700112C88 /* UserInterfaceInteractionRestriction.swift */,
 				581CBCE52296B97300727D7F /* ViewControllerIdentifier.swift */,
 				58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */,
 				5877152F23981F7B001F8237 /* WireguardKeysViewController.swift */,
 				58C6B35322BB87C4003C19AD /* WireguardPrivateKey.swift */,
-				584E96B9240D791E00D3334F /* CancellableDelayPublisher.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -773,6 +782,7 @@
 				58C6B35E22BBBFE3003C19AD /* Data+HexCoding.swift in Sources */,
 				58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
+				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
 				589AB4F7227B64450039131E /* BasicTableViewCell.swift in Sources */,
 				5888AD7F2279B6BF0051EB06 /* RelayStatusIndicatorView.swift in Sources */,
 				5867A51C2248F26A005513C0 /* SegueIdentifier.swift in Sources */,
@@ -784,7 +794,9 @@
 				588AE72F2362001F009F9F2E /* MutuallyExclusive.swift in Sources */,
 				5888AD89227B18C40051EB06 /* RelayList.swift in Sources */,
 				587AD7C623421D7000E93A53 /* TunnelConfiguration.swift in Sources */,
+				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
+				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				58AEEF682344A40800C9BBD5 /* TunnelConfigurationCoder.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
