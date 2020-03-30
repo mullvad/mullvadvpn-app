@@ -43,7 +43,7 @@ EOF
 }
 
 upload() {
-  for f in MullvadVPN-*.{deb,rpm,exe,pkg,apk}; do
+  for f in MullvadVPN-*.{deb,rpm,exe,pkg,apk,aab}; do
     sha256sum "$f" > "$f.sha256"
     case "$(uname -s)" in
       # Linux is both the build and upload server. Just move directly to target dir
@@ -116,7 +116,7 @@ build_ref() {
       ;;
     Linux*)
       echo "Building Android APK"
-      ./build-apk.sh || return 0
+      ./build-apk.sh --app-bundle || return 0
       ;;
   esac
 
