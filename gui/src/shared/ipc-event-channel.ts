@@ -435,7 +435,7 @@ function handler<T>(event: string): (handlerFn: (value: T) => void) => void {
 
 type RequestResult<T> = { type: 'success'; value: T } | { type: 'error'; message: string };
 
-// The  Elector API uses the `any` type.
+// The  Electron API uses the `any` type.
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function requestHandler<T>(event: string): (fn: (...args: any[]) => Promise<T>) => void {
   return (fn: (...args: any[]) => Promise<T>) => {
@@ -466,7 +466,7 @@ function requestHandler<T>(event: string): (fn: (...args: any[]) => Promise<T>) 
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-// The  Elector API uses the `any` type.
+// The  Electron API uses the `any` type.
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function requestSender<T>(event: string): (...args: any[]) => Promise<T> {
   return (...args: any[]): Promise<T> => {
