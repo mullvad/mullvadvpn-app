@@ -14,7 +14,7 @@
   "dependencies": {
     "connected-react-router": "^5.0.1",
     "d3-geo-projection": "^2.7.0",
-    "electron-log": "^3.0.7",
+    "electron-log": "^4.1.1",
     "gettext-parser": "^4.0.1",
     "history": "^4.6.1",
     "jsonrpc-lite": "^2.0.7",
