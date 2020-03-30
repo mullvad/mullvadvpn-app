@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
+		5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2C1243203D000F5FF30 /* StringTests.swift */; };
+		5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
 		581CBCE62296B97300727D7F /* ViewControllerIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581CBCE52296B97300727D7F /* ViewControllerIdentifier.swift */; };
 		581CBCEC2298041B00727D7F /* SettingsAppVersionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581CBCEB2298041B00727D7F /* SettingsAppVersionCell.swift */; };
@@ -171,6 +174,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5807E2BF2432038B00F5FF30 /* String+Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Split.swift"; sourceTree = "<group>"; };
+		5807E2C1243203D000F5FF30 /* StringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringTests.swift; sourceTree = "<group>"; };
 		5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEVPNStatus+Debug.swift"; sourceTree = "<group>"; };
 		581CBCE52296B97300727D7F /* ViewControllerIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerIdentifier.swift; sourceTree = "<group>"; };
 		581CBCEB2298041B00727D7F /* SettingsAppVersionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsAppVersionCell.swift; sourceTree = "<group>"; };
@@ -323,8 +328,9 @@
 		58B0A2A1238EE67E00BC001D /* MullvadVPNTests */ = {
 			isa = PBXGroup;
 			children = (
-				584B26F3237434D00073B10E /* RelaySelectorTests.swift */,
 				58B0A2A4238EE67E00BC001D /* Info.plist */,
+				584B26F3237434D00073B10E /* RelaySelectorTests.swift */,
+				5807E2C1243203D000F5FF30 /* StringTests.swift */,
 			);
 			path = MullvadVPNTests;
 			sourceTree = "<group>";
@@ -422,6 +428,7 @@
 				58FD5BE82419406000112C88 /* SKRequestPublisher.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */,
+				5807E2BF2432038B00F5FF30 /* String+Split.swift */,
 				5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */,
 				587AD7C523421D7000E93A53 /* TunnelConfiguration.swift */,
 				58AEEF672344A40800C9BBD5 /* TunnelConfigurationCoder.swift */,
@@ -715,12 +722,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				58B0A2AA238EE6A900BC001D /* RelaySelector.swift in Sources */,
+				5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */,
 				58B0A2A8238EE68200BC001D /* RelaySelectorTests.swift in Sources */,
 				584E96BE240FD4DB00D3334F /* Location.swift in Sources */,
 				58B0A2AC238EE6D500BC001D /* IpAddress+Codable.swift in Sources */,
 				58B0A2AB238EE6BF00BC001D /* RelayList.swift in Sources */,
 				58B0A2AD238EE6EC00BC001D /* MullvadEndpoint.swift in Sources */,
 				58B0A2A9238EE6A100BC001D /* RelayConstraints.swift in Sources */,
+				5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */,
 				58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -772,6 +781,7 @@
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
+				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
 				5877152E23981C5B001F8237 /* SettingsBasicCell.swift in Sources */,
 				58FD5BE724192A2C00112C88 /* AppStoreReceipt.swift in Sources */,

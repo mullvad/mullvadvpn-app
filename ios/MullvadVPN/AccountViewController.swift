@@ -66,7 +66,7 @@ class AccountViewController: UIViewController {
         purchaseButton.titleLabel?.adjustsFontSizeToFitWidth = true
         purchaseButton.titleLabel?.baselineAdjustment = .alignCenters
 
-        accountTokenButton.setTitle(Account.shared.token, for: .normal)
+        accountTokenButton.setTitle(Account.shared.formattedToken, for: .normal)
 
         if let expiryDate = Account.shared.expiry {
             updateAccountExpiry(expiryDate: expiryDate)
@@ -182,16 +182,15 @@ class AccountViewController: UIViewController {
     }
 
     @IBAction func copyAccountToken() {
-        let accountToken = Account.shared.token
-
-        UIPasteboard.general.string = accountToken
+        UIPasteboard.general.string = Account.shared.token
 
         accountTokenButton.setTitle(
             NSLocalizedString("COPIED TO PASTEBOARD!", comment: ""),
             for: .normal)
 
         copyToPasteboardSubscriber =
-            Just(accountToken).cancellableDelay(for: .seconds(3), scheduler: DispatchQueue.main)
+            Just(Account.shared.formattedToken)
+                .cancellableDelay(for: .seconds(3), scheduler: DispatchQueue.main)
                 .sink(receiveValue: { [weak self] (accountToken) in
                     self?.accountTokenButton.setTitle(accountToken, for: .normal)
                 })
