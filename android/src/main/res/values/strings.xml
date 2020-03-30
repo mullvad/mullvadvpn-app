@@ -33,6 +33,8 @@
     <string name="settings_account">Account</string>
     <string name="less_than_a_day_left">less than a day
     left</string>
+    <string name="less_than_a_minute_ago">less than a minute
+    ago</string>
     <string name="out_of_time">Out of time</string>
     <string name="settings_preferences">Preferences</string>
     <string name="settings_advanced">Advanced</string>
