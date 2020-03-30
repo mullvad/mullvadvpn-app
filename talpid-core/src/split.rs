@@ -41,6 +41,10 @@ pub enum Error {
     RoutingTableSetup(#[error(source)] io::Error),
 
     /// Unable to create cgroup.
+    #[error(display = "Unable to initialize net_cls cgroup instance")]
+    InitNetClsCGroup(#[error(source)] nix::Error),
+
+    /// Unable to create cgroup.
     #[error(display = "Unable to create cgroup for excluded processes")]
     CreateCGroup(#[error(source)] io::Error),
 
@@ -308,7 +312,22 @@ impl PidManager {
 
     /// Set up cgroup used to track PIDs for split tunneling.
     fn create_cgroup() -> Result<(), Error> {
-        let exclusions_dir = Path::new(NETCLS_DIR).join(CGROUP_NAME);
+        let netcls_dir = Path::new(NETCLS_DIR);
+        if !netcls_dir.exists() {
+            fs::create_dir(netcls_dir.clone()).map_err(Error::CreateCGroup)?;
+
+            // https://www.kernel.org/doc/Documentation/cgroup-v1/net_cls.txt
+            nix::mount::mount(
+                Some("net_cls"),
+                netcls_dir,
+                Some("cgroup"),
+                nix::mount::MsFlags::empty(),
+                Some("net_cls"),
+            )
+            .map_err(Error::InitNetClsCGroup)?;
+        }
+
+        let exclusions_dir = netcls_dir.join(CGROUP_NAME);
 
         if !exclusions_dir.exists() {
             fs::create_dir(exclusions_dir.clone()).map_err(Error::CreateCGroup)?;
