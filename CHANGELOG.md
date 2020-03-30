@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.4-beta1] - 2020-03-30
 ### Added
 - Add signal handlers on Linux, macOS and Android to better log critical faults with the daemon.
 - Add WireGuard MTU setting to desktop app.
