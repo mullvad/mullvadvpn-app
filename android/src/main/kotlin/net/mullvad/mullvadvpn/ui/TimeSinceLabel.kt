@@ -22,6 +22,12 @@ class TimeSinceLabel(val context: Context, val view: View) {
             updateLabel()
         }
 
+    var visibility
+        get() = label.visibility
+        set(value) {
+            label.visibility = value
+        }
+
     private fun updateLabel() {
         val instant = timeInstant
 

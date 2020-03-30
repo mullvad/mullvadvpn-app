@@ -50,7 +50,10 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private lateinit var publicKey: TextView
     private lateinit var publicKeyAge: TimeSinceLabel
+    private lateinit var publicKeyContainer: View
     private lateinit var statusMessage: TextView
+    private lateinit var publicKeySpinner: View
+    private lateinit var timeSinceSpinner: View
     private lateinit var verifyingKeySpinner: View
     private lateinit var manageKeysButton: Button
     private lateinit var generateKeyButton: android.widget.Button
@@ -84,7 +87,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
         publicKeyAge = TimeSinceLabel(parentActivity, view)
 
-        view.findViewById<View>(R.id.public_key_container).apply {
+        publicKeyContainer = view.findViewById<View>(R.id.public_key_container).apply {
             setOnClickListener {
                 copyPublicKeyToClipboard()
             }
@@ -102,6 +105,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             }
         }
 
+        publicKeySpinner = view.findViewById(R.id.public_key_spinner)
+        timeSinceSpinner = view.findViewById(R.id.time_since_spinner)
         verifyingKeySpinner = view.findViewById(R.id.verifying_key_spinner)
 
         val keyUrl = parentActivity.getString(R.string.wg_key_url)
@@ -252,7 +257,20 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         updateViews()
 
         currentJob = GlobalScope.launch(Dispatchers.Main) {
+            publicKeyContainer.setEnabled(false)
+            publicKey.visibility = View.INVISIBLE
+            publicKeyAge.visibility = View.INVISIBLE
+            timeSinceSpinner.visibility = View.VISIBLE
+            publicKeySpinner.visibility = View.VISIBLE
+
             keyStatusListener.generateKey().join()
+
+            publicKeySpinner.visibility = View.INVISIBLE
+            timeSinceSpinner.visibility = View.INVISIBLE
+            publicKeyAge.visibility = View.VISIBLE
+            publicKey.visibility = View.VISIBLE
+            publicKeyContainer.setEnabled(true)
+
             generatingKey = false
             updateViews()
         }
