@@ -71,7 +71,7 @@
                   android:textSize="13sp"
                   android:textStyle="bold"
                   android:text="@string/wireguard_key_generated" />
-        <TextView android:id="@+id/wireguard_key_age"
+        <TextView android:id="@+id/time_since"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:textColor="@color/white"

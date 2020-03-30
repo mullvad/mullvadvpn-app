@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import java.util.TimeZone
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -27,7 +26,6 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 
 val RFC3339_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSSSSSSSSS z")
-val KEY_AGE_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm")
 
 class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private var currentJob: Job? = null
@@ -51,7 +49,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
 
     private lateinit var publicKey: TextView
-    private lateinit var publicKeyAge: TextView
+    private lateinit var publicKeyAge: TimeSinceLabel
     private lateinit var statusMessage: TextView
     private lateinit var manageKeysButton: Button
     private lateinit var generateKeyButton: android.widget.Button
@@ -82,7 +80,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         statusMessage = view.findViewById<TextView>(R.id.wireguard_key_status)
         manageKeysButton = view.findViewById(R.id.manage_keys)
         publicKey = view.findViewById<TextView>(R.id.wireguard_public_key)
-        publicKeyAge = view.findViewById<TextView>(R.id.wireguard_key_age)
+
+        publicKeyAge = TimeSinceLabel(parentActivity, view)
 
         view.findViewById<View>(R.id.public_key_container).apply {
             setOnClickListener {
@@ -150,7 +149,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 publicKey.visibility = View.VISIBLE
                 publicKey.setText(publicKeyString.substring(0, 20) + "...")
 
-                publicKeyAge.setText(formatKeyDateCreated(key.dateCreated))
+                publicKeyAge.timeInstant =
+                    DateTime.parse(key.dateCreated, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
 
                 keyState.verified?.let { verified ->
                     if (verified) {
@@ -310,13 +310,5 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             updateViewsJob?.cancel()
             updateViewsJob = updateViewJob()
         }
-    }
-
-    private fun formatKeyDateCreated(rfc3339: String): String {
-        val dateCreated = DateTime.parse(rfc3339, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
-        val localTimezone = DateTimeZone.forTimeZone(TimeZone.getDefault())
-        return parentActivity.getString(R.string.wireguard_key_age) +
-            " " +
-            KEY_AGE_FORMAT.print(dateCreated.withZone(localTimezone))
     }
 }
