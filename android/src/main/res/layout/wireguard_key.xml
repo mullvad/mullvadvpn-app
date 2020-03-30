@@ -48,7 +48,7 @@
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_marginBottom="9dp"
-                  android:text="@string/wireguard_public_key"
+                  android:text="@string/public_key"
                   android:textColor="@color/white60"
                   android:textSize="13sp"
                   android:textStyle="bold" />

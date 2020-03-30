@@ -84,6 +84,12 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         publicKey = view.findViewById<TextView>(R.id.wireguard_public_key)
         publicKeyAge = view.findViewById<TextView>(R.id.wireguard_key_age)
 
+        view.findViewById<View>(R.id.public_key_container).apply {
+            setOnClickListener {
+                copyPublicKeyToClipboard()
+            }
+        }
+
         generateKeyButton = view.findViewById<Button>(R.id.generate_key).apply {
             setOnClickListener {
                 onGenerateKeyPress()
@@ -143,16 +149,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 val publicKeyString = Base64.encodeToString(key.key, Base64.NO_WRAP)
                 publicKey.visibility = View.VISIBLE
                 publicKey.setText(publicKeyString.substring(0, 20) + "...")
-
-                publicKey.setOnClickListener {
-                    val label = parentActivity.getString(R.string.wireguard_key_copied_to_clibpoard)
-                    val clipboard = parentActivity
-                        .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    clipboard.setPrimaryClip(ClipData.newPlainText(label, publicKeyString))
-
-                    Toast.makeText(parentActivity, label, Toast.LENGTH_SHORT)
-                        .show()
-                }
 
                 publicKeyAge.setText(formatKeyDateCreated(key.dateCreated))
 
@@ -227,6 +223,18 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 manageKeysButton.setEnabled(false)
             }
         }
+    }
+
+    private fun copyPublicKeyToClipboard() {
+        val clipboard =
+            parentActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipLabel = parentActivity.resources.getString(R.string.wireguard_public_key)
+        val clipData = ClipData.newPlainText(clipLabel, publicKey.text)
+
+        clipboard.primaryClip = clipData
+
+        Toast.makeText(parentActivity, R.string.copied_wireguard_public_key, Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun onGenerateKeyPress() {
