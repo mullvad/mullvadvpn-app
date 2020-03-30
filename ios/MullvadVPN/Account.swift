@@ -97,6 +97,10 @@ class Account {
         return UserDefaults.standard.string(forKey: UserDefaultsKeys.accountToken.rawValue)
     }
 
+    var formattedToken: String? {
+        return token?.split(every: 4).joined(separator: " ")
+    }
+
     /// Returns the account expiry for the currently used account token
     var expiry: Date? {
         return UserDefaults.standard.object(forKey: UserDefaultsKeys.accountExpiry.rawValue) as? Date
