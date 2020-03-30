@@ -12,10 +12,11 @@ extension String {
 
     /// Returns the array of the longest possible subsequences of the given length.
     func split(every length: Int) -> [Substring] {
-        guard count > 0 else { return [] }
-        guard length > 0 && length < count else { return [prefix(upTo: endIndex)] }
+        guard length > 0 else { return [prefix(upTo: endIndex)] }
 
-        return (0 ... ((count - 1) / length))
+        let resultCount = Int((Float(count) / Float(length)).rounded(.up))
+
+        return (0 ..< resultCount)
             .map { dropFirst($0 * length).prefix(length) }
     }
 }
