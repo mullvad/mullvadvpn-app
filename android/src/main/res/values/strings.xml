@@ -150,9 +150,7 @@
     your real location is masked with a private and secure location
     in the selected region</string>
     <string name="wireguard_key">WireGuard key</string>
-    <string name="wireguard_key_copied_to_clibpoard">Key copied to
-    clipboard</string>
-    <string name="wireguard_public_key">Public key</string>
+    <string name="public_key">Public key</string>
     <string name="wireguard_key_generated">Key generated</string>
     <string name="wireguard_verify_key">Verify key</string>
     <string name="wireguard_generate_key">Generate key</string>
@@ -167,6 +165,10 @@
     <string name="wireguard_key_invalid">Key is invalid</string>
     <string name="wireguard_key_verification_failure">Failed to
     validate key</string>
+    <string name="wireguard_public_key">WireGuard public key
+    </string>
+    <string name="copied_wireguard_public_key">Copied WireGuard
+    public key to clipboard</string>
     <string name="account_url">
     https://mullvad.net/en/account</string>
     <string name="wg_key_url">
