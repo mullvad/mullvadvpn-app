@@ -97,6 +97,10 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         setAutoConnect(daemonInterfaceAddress, autoConnect)
     }
 
+    fun setWireguardMtu(wireguardMtu: Int?) {
+        setWireguardMtu(daemonInterfaceAddress, wireguardMtu)
+    }
+
     fun shutdown() {
         shutdown(daemonInterfaceAddress)
     }
@@ -132,6 +136,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     private external fun setAccount(daemonInterfaceAddress: Long, accountToken: String?)
     private external fun setAllowLan(daemonInterfaceAddress: Long, allowLan: Boolean)
     private external fun setAutoConnect(daemonInterfaceAddress: Long, alwaysOn: Boolean)
+    private external fun setWireguardMtu(daemonInterfaceAddress: Long, wireguardMtu: Int?)
     private external fun shutdown(daemonInterfaceAddress: Long)
     private external fun updateRelaySettings(
         daemonInterfaceAddress: Long,

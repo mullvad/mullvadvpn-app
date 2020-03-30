@@ -1,5 +1,7 @@
 use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol};
 use ipnetwork::IpNetwork;
+#[cfg(target_os = "android")]
+use jnix::IntoJava;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
@@ -49,10 +51,20 @@ pub struct TunnelConfig {
 
 /// Wireguard tunnel options
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(package = "net.mullvad.talpid.net.wireguard")
+)]
 pub struct TunnelOptions {
     /// MTU for the wireguard tunnel
+    #[cfg_attr(
+        target_os = "android",
+        jnix(map = "|maybe_mtu| maybe_mtu.map(|mtu| mtu as i32)")
+    )]
     pub mtu: Option<u16>,
     /// Interval used for automatic key rotation, in hours
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub automatic_rotation: Option<u32>,
 }
 

@@ -74,7 +74,6 @@ pub struct Settings {
     auto_connect: bool,
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
-    #[cfg_attr(target_os = "android", jnix(skip))]
     tunnel_options: TunnelOptions,
     /// Whether to notify users of beta updates.
     show_beta_releases: Option<bool>,
@@ -347,12 +346,16 @@ impl Settings {
 /// TunnelOptions holds configuration data that applies to all kinds of tunnels.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct TunnelOptions {
     /// openvpn holds OpenVPN specific tunnel options.
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub openvpn: openvpn::TunnelOptions,
     /// Contains wireguard tunnel options.
     pub wireguard: wireguard::TunnelOptions,
     /// Contains generic tunnel options that may apply to more than a single tunnel type.
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub generic: GenericTunnelOptions,
 }
 

@@ -14,7 +14,7 @@ crate_type = ["cdylib"]
 err-derive = "0.2.1"
 futures = "0.1"
 ipnetwork = "0.15"
-jnix = { version = "0.2.1", features = ["derive"] }
+jnix = { version = "0.2.2", features = ["derive"] }
 jsonrpc-client-core = "0.5"
 jsonrpc-core = "8"
 lazy_static = "1"

@@ -188,6 +188,14 @@ impl DaemonInterface {
         rx.wait().map_err(|_| Error::NoResponse)
     }
 
+    pub fn set_wireguard_mtu(&self, wireguard_mtu: Option<u16>) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::SetWireguardMtu(tx, wireguard_mtu))?;
+
+        rx.wait().map_err(|_| Error::NoResponse)
+    }
+
     pub fn shutdown(&self) -> Result<()> {
         self.send_command(DaemonCommand::Shutdown)
     }

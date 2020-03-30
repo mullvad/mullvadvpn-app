@@ -21,4 +21,4 @@ talpid-types = { path = "../talpid-types" }
 mullvad-paths = { path = "../mullvad-paths" }
 
 [target.'cfg(target_os = "android")'.dependencies]
-jnix = { version = "0.2.0", features = ["derive"] }
+jnix = { version = "0.2.2", features = ["derive"] }

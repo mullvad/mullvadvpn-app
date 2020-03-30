@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Android
+- Add WireGuard MTU setting.
 
 
 ## [2020.4-beta1] - 2020-03-30
