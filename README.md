@@ -571,7 +571,7 @@ Icons such as the logo and menubar icons are automatically generated. The source
 |------|-------|
 | `dist-assets/icon.svg` | The logo icon used for e.g. application icon and in app logo |
 | `dist-assets/icon-mono.svg` | The logo icon used for the android notification icon |
-| `dist-assets/ios-icon.svg` | Logo icon used to generate the iOS application icon |
+| `graphics/icon-ios.svg` | Logo icon used to generate the iOS application icon |
 | `gui/assets/images/*.svg` | Icons used to generate iOS icons and used in the desktop app |
 | `gui/assets/images/menubar icons/svg/*.svg` | The frames for the menubar icon |
 
