@@ -10,6 +10,10 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+ICON_SVG_PATH="../graphics/icon.svg"
+# Icons used for notification and quick settings tile
+BLACK_MONO_ICON_PATH="../graphics/icon-mono.svg"
+
 # The following helper function converts an SVG image into a PNG image for a specific DPI
 #
 # Parameters:
@@ -67,28 +71,27 @@ function convert_image() {
 
 # Launcher icon
 for dpi_size in "mdpi-48" "hdpi-72" "xhdpi-96" "xxhdpi-144" "xxxhdpi-192"; do
-    convert_image "../dist-assets/icon.svg" "$dpi_size" "ic_launcher" "mipmap"
+    convert_image "$ICON_SVG_PATH" "$dpi_size" "ic_launcher" "mipmap"
 done
 
 # Logo used in some GUI areas
 for dpi_size in "mdpi-50" "hdpi-75" "xhdpi-100" "xxhdpi-150" "xxxhdpi-200"; do
-    convert_image "../dist-assets/icon.svg" "$dpi_size" "logo_icon"
+    convert_image "$ICON_SVG_PATH" "$dpi_size" "logo_icon"
 done
 
 # Large logo used in the launch screen
 for dpi_size in "mdpi-120" "hdpi-180" "xhdpi-240" "xxhdpi-360" "xxxhdpi-480"; do
-    convert_image "../dist-assets/icon.svg" "$dpi_size" "launch_logo"
+    convert_image "$ICON_SVG_PATH" "$dpi_size" "launch_logo"
 done
 
-# Icons used for notification and quick settings tile
-BLACK_MONO_ICON="../dist-assets/icon-mono.svg"
-WHITE_MONO_ICON="$(mktemp)"
+# The white icon is generated from the black one
+white_mono_icon_path="$(mktemp)"
 
-sed -e 's/\(\.st1{.*\);fill:#000000;/\1;fill:#FFFFFF;/' "$BLACK_MONO_ICON" > "$WHITE_MONO_ICON"
+sed -e 's/\(\.st1{.*\);fill:#000000;/\1;fill:#FFFFFF;/' "$BLACK_MONO_ICON_PATH" > "$white_mono_icon_path"
 
 for dpi_size in "mdpi-24" "hdpi-36" "xhdpi-48" "xxhdpi-72" "xxxhdpi-96"; do
-    convert_image "$BLACK_MONO_ICON" "$dpi_size" "small_logo_black"
-    convert_image "$WHITE_MONO_ICON" "$dpi_size" "small_logo_white"
+    convert_image "$BLACK_MONO_ICON_PATH" "$dpi_size" "small_logo_black"
+    convert_image "$white_mono_icon_path" "$dpi_size" "small_logo_white"
 done
 
-rm "$WHITE_MONO_ICON"
+rm "$white_mono_icon_path"

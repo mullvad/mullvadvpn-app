@@ -569,8 +569,8 @@ The GUI has a specific settings file that is configured for each user. The path 
 Icons such as the logo and menubar icons are automatically generated. The source files are:
 | Path | Usage |
 |------|-------|
-| `dist-assets/icon.svg` | The logo icon used for e.g. application icon and in app logo |
-| `dist-assets/icon-mono.svg` | The logo icon used for the android notification icon |
+| `graphics/icon.svg` | The logo icon used for e.g. application icon and in app logo |
+| `graphics/icon-mono.svg` | The logo icon used for the android notification icon |
 | `graphics/icon-ios.svg` | Logo icon used to generate the iOS application icon |
 | `gui/assets/images/*.svg` | Icons used to generate iOS icons and used in the desktop app |
 | `gui/assets/images/menubar icons/svg/*.svg` | The frames for the menubar icon |
