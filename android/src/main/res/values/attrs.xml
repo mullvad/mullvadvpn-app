@@ -1,0 +1,5 @@
+<resources>
+    <declare-styleable name="InformationView">
+        <attr name="description" format="reference|string"/>
+    </declare-styleable>
+</resources>
