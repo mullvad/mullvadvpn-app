@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add a CLI subcommand to generate shell completion scripts for the mullvad CLI.
+- Add shell completions for the mullvad CLI.
 
 ### Fixed
 #### Windows
