@@ -1,0 +1,7 @@
+<resources>
+    <declare-styleable name="CopyableInformationView">
+        <attr name="clipboardLabel" format="reference|string"/>
+        <attr name="copiedToast" format="reference|string"/>
+        <attr name="description" format="reference|string"/>
+    </declare-styleable>
+</resources>
