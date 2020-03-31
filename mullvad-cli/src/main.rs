@@ -52,6 +52,22 @@ fn run() -> Result<()> {
 
     let commands = cmds::get_commands();
     let app = build_cli(&commands);
+    let app = app.subcommand(
+        clap::SubCommand::with_name("shell-completions")
+            .about("Generates completion scripts for your shell")
+            .arg(
+                clap::Arg::with_name("SHELL")
+                    .required(true)
+                    .possible_values(&clap::Shell::variants()[..])
+                    .help("The shell to generate the script for"),
+            )
+            .arg(
+                clap::Arg::with_name("DIR")
+                    .default_value("./")
+                    .help("Output directory where the shell completions are written"),
+            )
+            .setting(clap::AppSettings::Hidden),
+    );
 
     let app_matches = app.get_matches();
     match app_matches.subcommand() {
@@ -89,22 +105,6 @@ fn build_cli(commands: &HashMap<&'static str, Box<dyn Command>>) -> clap::App<'s
             clap::AppSettings::VersionlessSubcommands,
         ])
         .subcommands(commands.values().map(|cmd| cmd.clap_subcommand()))
-        .subcommand(
-            clap::SubCommand::with_name("shell-completions")
-                .about("Generates completion scripts for your shell")
-                .arg(
-                    clap::Arg::with_name("SHELL")
-                        .required(true)
-                        .possible_values(&clap::Shell::variants()[..])
-                        .help("The shell to generate the script for"),
-                )
-                .arg(
-                    clap::Arg::with_name("DIR")
-                        .default_value("./")
-                        .help("Output directory where the shell completions are written"),
-                )
-                .setting(clap::AppSettings::Hidden),
-        )
 }
 
 pub trait Command {
