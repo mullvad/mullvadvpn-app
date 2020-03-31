@@ -102,7 +102,8 @@ fn build_cli(commands: &HashMap<&'static str, Box<dyn Command>>) -> clap::App<'s
                     clap::Arg::with_name("DIR")
                         .default_value("./")
                         .help("Output directory where the shell completions are written"),
-                ),
+                )
+                .setting(clap::AppSettings::Hidden),
         )
 }
 
