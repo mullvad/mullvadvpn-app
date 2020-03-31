@@ -27,8 +27,9 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+GRAPHICS_DIR="../../graphics"
 DIST_ASSETS_DIR="../../dist-assets"
-SVG_SOURCE_PATH="$DIST_ASSETS_DIR/icon.svg"
+SVG_SOURCE_PATH="$GRAPHICS_DIR/icon.svg"
 TMP_DIR=$(mktemp -d)
 TMP_ICO_DIR="$TMP_DIR/ico"
 TMP_ICONSET_DIR="$TMP_DIR/icon.iconset"
@@ -69,7 +70,7 @@ rm $sidebar_path
 rsvg-convert -o ../assets/images/icon-notification.png -w 128 -h 128 $SVG_SOURCE_PATH
 
 # GUI in app icon
-cp ../../dist-assets/icon.svg ../assets/images/logo-icon.svg
+cp "$SVG_SOURCE_PATH" ../assets/images/logo-icon.svg
 
 rmdir $TMP_DIR
 
