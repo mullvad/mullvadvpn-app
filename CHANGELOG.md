@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Allow `fc00::/7` instead of `fd00::/8` in the firewall when local network sharing is enabled.
   Should unblock all unique local addresses.
+- Upgrade from Electron 7 to Electron 8.
 
 #### Windows
 - Windows 7 only: Address packet loss issues with OpenVPN on some systems by reverting the TAP
