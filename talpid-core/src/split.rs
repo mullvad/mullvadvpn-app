@@ -8,6 +8,7 @@ use std::{
     process::Command,
     str::FromStr,
 };
+use talpid_types::SPLIT_TUNNEL_CGROUP_NAME;
 
 const NETCLS_DIR: &str = "/sys/fs/cgroup/net_cls/";
 
@@ -16,7 +17,6 @@ pub const NETCLS_CLASSID: u32 = 0x4d9f41;
 /// Value used to mark packets and associated connections.
 pub const MARK: i32 = 0xf41;
 
-const CGROUP_NAME: &str = "mullvad-exclusions";
 const ROUTING_TABLE_NAME: &str = "mullvad_exclusions";
 const RT_TABLES_PATH: &str = "/etc/iproute2/rt_tables";
 
@@ -327,7 +327,7 @@ impl PidManager {
             .map_err(Error::InitNetClsCGroup)?;
         }
 
-        let exclusions_dir = netcls_dir.join(CGROUP_NAME);
+        let exclusions_dir = netcls_dir.join(SPLIT_TUNNEL_CGROUP_NAME);
 
         if !exclusions_dir.exists() {
             fs::create_dir(exclusions_dir.clone()).map_err(Error::CreateCGroup)?;
@@ -345,7 +345,9 @@ impl PidManager {
 
     /// Add PIDs to exclude from the tunnel.
     pub fn add_list(&self, pids: &[i32]) -> Result<(), Error> {
-        let exclusions_path = Path::new(NETCLS_DIR).join(CGROUP_NAME).join("cgroup.procs");
+        let exclusions_path = Path::new(NETCLS_DIR)
+            .join(SPLIT_TUNNEL_CGROUP_NAME)
+            .join("cgroup.procs");
 
         let file = fs::OpenOptions::new()
             .write(true)
@@ -368,7 +370,7 @@ impl PidManager {
     pub fn remove(&self, pid: i32) -> Result<(), Error> {
         // FIXME: We remove PIDs from our cgroup here by adding
         //        them to the parent cgroup. This seems wrong.
-        let exclusions_path = Path::new(NETCLS_DIR).join(CGROUP_NAME).join("cgroup.procs");
+        let exclusions_path = Path::new(NETCLS_DIR).join("cgroup.procs");
 
         let mut file = fs::OpenOptions::new()
             .write(true)
@@ -384,7 +386,9 @@ impl PidManager {
     pub fn list(&self) -> Result<Vec<i32>, Error> {
         // TODO: manage child PIDs somehow?
 
-        let exclusions_path = Path::new(NETCLS_DIR).join(CGROUP_NAME).join("cgroup.procs");
+        let exclusions_path = Path::new(NETCLS_DIR)
+            .join(SPLIT_TUNNEL_CGROUP_NAME)
+            .join("cgroup.procs");
 
         let file = fs::File::open(exclusions_path).map_err(Error::ListCGroupPids)?;
 
