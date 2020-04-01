@@ -18,7 +18,7 @@ export default class AccountExpiry {
   }
 
   public formattedDate(): string {
-    return this.expiry.format('L LTS');
+    return this.expiry.format('lll');
   }
 
   public durationUntilExpiry(): string {
