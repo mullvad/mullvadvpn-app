@@ -153,9 +153,39 @@ class AccountViewController: UIViewController {
         present(alertController, animated: true)
     }
 
-    // MARK: - Actions
+    private func showLogoutConfirmation(completion: @escaping (Bool) -> Void, animated: Bool) {
+        let message = NSLocalizedString(
+            "Are you sure you want to log out?\n\nThis will erase the account number from this device. It is not possible for us to recover it for you. Make sure you have your account number saved somewhere, to be able to log back in.",
+            comment: "Alert message in log out confirmation")
 
-    @IBAction func doLogout() {
+        let alertController = UIAlertController(
+            title: NSLocalizedString("Log out", comment: "Alert title in log out confirmation"),
+            message: message,
+            preferredStyle: .alert
+        )
+
+        alertController.addAction(
+            UIAlertAction(
+                title: NSLocalizedString("Cancel", comment: "Log out confirmation action"),
+                style: .cancel,
+                handler: { (alertAction) in
+                    completion(false)
+            })
+        )
+
+        alertController.addAction(
+            UIAlertAction(
+                title: NSLocalizedString("Log out", comment: "Log out confirmation action"),
+                style: .destructive,
+                handler: { (alertAction) in
+                    completion(true)
+            })
+        )
+
+        present(alertController, animated: animated)
+    }
+
+    private func confirmLogout() {
         let message = NSLocalizedString("Logging out. Please wait...",
                                         comment: "A modal message displayed during log out")
 
@@ -179,6 +209,16 @@ class AccountViewController: UIViewController {
                     }
                 })
         }
+    }
+
+    // MARK: - Actions
+
+    @IBAction func doLogout() {
+        showLogoutConfirmation(completion: { (confirmed) in
+            if confirmed {
+                self.confirmLogout()
+            }
+        }, animated: true)
     }
 
     @IBAction func copyAccountToken() {
