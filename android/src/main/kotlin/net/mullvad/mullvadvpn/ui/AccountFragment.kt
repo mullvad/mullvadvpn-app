@@ -11,6 +11,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
+import net.mullvad.mullvadvpn.ui.widget.InformationView
 import org.joda.time.DateTime
 
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
