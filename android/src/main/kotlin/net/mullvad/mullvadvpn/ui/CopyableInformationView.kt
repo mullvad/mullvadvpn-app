@@ -12,6 +12,21 @@ import android.widget.Toast
 import net.mullvad.mullvadvpn.R
 
 class CopyableInformationView : LinearLayout {
+    enum class WhenMissing {
+        Nothing,
+        Hide;
+
+        companion object {
+            internal fun fromCode(code: Int): WhenMissing {
+                when (code) {
+                    0 -> return Nothing
+                    1 -> return Hide
+                    else -> throw Exception("Invalid whenMissing attribute value")
+                }
+            }
+        }
+    }
+
     private val container =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
             val inflater = service as LayoutInflater
@@ -33,10 +48,17 @@ class CopyableInformationView : LinearLayout {
 
     var copiedToast: String? = null
 
-    var information: String
-        get() = informationDisplay.text?.toString() ?: ""
+    var information: String? = null
         set(value) {
+            field = value
             informationDisplay.text = value
+            updateStatus()
+        }
+
+    var whenMissing = WhenMissing.Nothing
+        set(value) {
+            field = value
+            updateStatus()
         }
 
     constructor(context: Context) : super(context) {}
@@ -80,8 +102,24 @@ class CopyableInformationView : LinearLayout {
                 description.text = getString(R.styleable.CopyableInformationView_description) ?: ""
                 clipboardLabel = getString(R.styleable.CopyableInformationView_clipboardLabel)
                 copiedToast = getString(R.styleable.CopyableInformationView_copiedToast)
+                whenMissing = WhenMissing.fromCode(
+                    getInteger(R.styleable.CopyableInformationView_whenMissing, 0)
+                )
             } finally {
                 recycle()
+            }
+        }
+    }
+
+    private fun updateStatus() {
+        when (whenMissing) {
+            WhenMissing.Nothing -> visibility = VISIBLE
+            WhenMissing.Hide -> {
+                if (information == null) {
+                    visibility = INVISIBLE
+                } else {
+                    visibility = VISIBLE
+                }
             }
         }
     }
