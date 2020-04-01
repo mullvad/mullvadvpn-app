@@ -50,19 +50,8 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     private fun updateView(accountNumber: String?, accountExpiry: DateTime?) =
             GlobalScope.launch(Dispatchers.Main) {
-        if (accountNumber != null) {
-            accountNumberView.information = accountNumber
-            accountNumberView.visibility = View.VISIBLE
-        } else {
-            accountNumberView.visibility = View.INVISIBLE
-        }
-
-        if (accountExpiry != null) {
-            accountExpiryView.information = formatExpiry(accountExpiry)
-            accountExpiryView.visibility = View.VISIBLE
-        } else {
-            accountExpiryView.visibility = View.INVISIBLE
-        }
+        accountNumberView.information = accountNumber
+        accountExpiryView.information = accountExpiry?.let { expiry -> formatExpiry(expiry) }
     }
 
     private fun formatExpiry(expiry: DateTime): String {
