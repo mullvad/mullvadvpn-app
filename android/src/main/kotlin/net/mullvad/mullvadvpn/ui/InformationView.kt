@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import net.mullvad.mullvadvpn.R
@@ -11,13 +12,15 @@ import net.mullvad.mullvadvpn.R
 open class InformationView : LinearLayout {
     enum class WhenMissing {
         Nothing,
-        Hide;
+        Hide,
+        ShowSpinner;
 
         companion object {
             internal fun fromCode(code: Int): WhenMissing {
                 when (code) {
                     0 -> return Nothing
                     1 -> return Hide
+                    2 -> return ShowSpinner
                     else -> throw Exception("Invalid whenMissing attribute value")
                 }
             }
@@ -36,6 +39,7 @@ open class InformationView : LinearLayout {
 
     private val description: TextView = findViewById(R.id.description)
     private val informationDisplay: TextView = findViewById(R.id.information_display)
+    private val spinner: View = findViewById(R.id.spinner)
 
     var information: String? = null
         set(value) {
@@ -101,15 +105,18 @@ open class InformationView : LinearLayout {
     }
 
     private fun updateStatus() {
-        when (whenMissing) {
-            WhenMissing.Nothing -> visibility = VISIBLE
-            WhenMissing.Hide -> {
-                if (information == null) {
-                    visibility = INVISIBLE
-                } else {
-                    visibility = VISIBLE
-                }
-            }
+        if (whenMissing == WhenMissing.Hide && information == null) {
+            visibility = INVISIBLE
+        } else {
+            visibility = VISIBLE
+        }
+
+        if (whenMissing == WhenMissing.ShowSpinner && information == null) {
+            spinner.visibility = VISIBLE
+            informationDisplay.visibility = INVISIBLE
+        } else {
+            spinner.visibility = INVISIBLE
+            informationDisplay.visibility = VISIBLE
         }
 
         setEnabled(information != null)
