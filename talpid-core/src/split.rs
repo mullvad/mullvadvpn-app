@@ -13,8 +13,10 @@ use talpid_types::SPLIT_TUNNEL_CGROUP_NAME;
 const NETCLS_DIR: &str = "/sys/fs/cgroup/net_cls/";
 
 /// Identifies packets coming from the cgroup.
+/// This should be an arbitrary but unique integer.
 pub const NETCLS_CLASSID: u32 = 0x4d9f41;
 /// Value used to mark packets and associated connections.
+/// This should be an arbitrary but unique integer.
 pub const MARK: i32 = 0xf41;
 
 const ROUTING_TABLE_NAME: &str = "mullvad_exclusions";
