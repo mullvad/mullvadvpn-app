@@ -9,6 +9,21 @@ import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 
 open class InformationView : LinearLayout {
+    enum class WhenMissing {
+        Nothing,
+        Hide;
+
+        companion object {
+            internal fun fromCode(code: Int): WhenMissing {
+                when (code) {
+                    0 -> return Nothing
+                    1 -> return Hide
+                    else -> throw Exception("Invalid whenMissing attribute value")
+                }
+            }
+        }
+    }
+
     private val container =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
             val inflater = service as LayoutInflater
@@ -22,11 +37,17 @@ open class InformationView : LinearLayout {
     private val description: TextView = findViewById(R.id.description)
     private val informationDisplay: TextView = findViewById(R.id.information_display)
 
-    var information: String
-        get() = informationDisplay.text?.toString() ?: ""
+    var information: String? = null
         set(value) {
+            field = value
             informationDisplay.text = value
-            setEnabled(value != null)
+            updateStatus()
+        }
+
+    var whenMissing = WhenMissing.Nothing
+        set(value) {
+            field = value
+            updateStatus()
         }
 
     var onClick: (() -> Unit)? = null
@@ -70,9 +91,27 @@ open class InformationView : LinearLayout {
         context.theme.obtainStyledAttributes(attributes, styleableId, 0, 0).apply {
             try {
                 description.text = getString(R.styleable.InformationView_description) ?: ""
+                whenMissing = WhenMissing.fromCode(
+                    getInteger(R.styleable.InformationView_whenMissing, 0)
+                )
             } finally {
                 recycle()
             }
         }
+    }
+
+    private fun updateStatus() {
+        when (whenMissing) {
+            WhenMissing.Nothing -> visibility = VISIBLE
+            WhenMissing.Hide -> {
+                if (information == null) {
+                    visibility = INVISIBLE
+                } else {
+                    visibility = VISIBLE
+                }
+            }
+        }
+
+        setEnabled(information != null)
     }
 }
