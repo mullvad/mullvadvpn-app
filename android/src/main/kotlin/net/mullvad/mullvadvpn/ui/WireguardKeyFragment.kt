@@ -60,17 +60,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private lateinit var generateKeyButton: android.widget.Button
     private lateinit var verifyKeyButton: Button
 
-    private fun resetReconnectionExpected() {
-        resetReconnectionExpectedJob = GlobalScope.launch(Dispatchers.Main) {
-            delay(20_000)
-
-            if (reconnectionExpected) {
-                reconnectionExpected = false
-                updateViews()
-            }
-        }
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -314,6 +303,17 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 }
             }
             updateViews()
+        }
+    }
+
+    private fun resetReconnectionExpected() {
+        resetReconnectionExpectedJob = GlobalScope.launch(Dispatchers.Main) {
+            delay(20_000)
+
+            if (reconnectionExpected) {
+                reconnectionExpected = false
+                updateViews()
+            }
         }
     }
 }
