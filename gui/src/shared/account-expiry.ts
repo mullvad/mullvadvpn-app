@@ -22,7 +22,22 @@ export default class AccountExpiry {
   }
 
   public durationUntilExpiry(): string {
-    return this.expiry.fromNow(true);
+    const daysDiff = this.expiry.diff(new Date(), 'days');
+
+    // Below three months we want to show the duration in days. Moments fromNow() method starts
+    // measuring duration in months from 26 days and up.
+    // https://momentjs.com/docs/#/displaying/fromnow/
+    if (daysDiff >= 26 && daysDiff <= 90) {
+      return sprintf(
+        // TRANSLATORS: The remaining time left on the account measured in days.
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(duration)s - The remaining time measured in days.
+        messages.pgettext('account-expiry', '%(duration)s days'),
+        { duration: daysDiff },
+      );
+    } else {
+      return this.expiry.fromNow(true);
+    }
   }
 
   public remainingTime(): string {
