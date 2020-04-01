@@ -151,14 +151,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     @IBAction func doLogin() {
         let accountToken = accountTextField.text ?? ""
 
-        beginLogin()
+        beginLogin(method: .existingAccount)
 
         loginSubscriber = Account.shared.login(with: accountToken)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { (completionResult) in
                 switch completionResult {
                 case .finished:
-                    self.endLogin(.success)
+                    self.endLogin(.success(.existingAccount))
                 case .failure(let error):
                     self.endLogin(.failure(error))
                 }
@@ -166,7 +166,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     }
 
     @IBAction func createNewAccount() {
-        beginLogin()
+        beginLogin(method: .newAccount)
 
         accountTextField.text = ""
 
@@ -175,7 +175,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
             .sink(receiveCompletion: { (completionResult) in
                 switch completionResult {
                 case .finished:
-                    self.endLogin(.success)
+                    self.endLogin(.success(.newAccount))
                 case .failure(let error):
                     self.endLogin(.failure(error))
                 }
@@ -236,8 +236,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
         }
     }
 
-    private func beginLogin() {
-        loginState = .authenticating
+    private func beginLogin(method: AuthenticationMethod) {
+        loginState = .authenticating(method)
 
         view.endEditing(true)
     }
@@ -302,14 +302,24 @@ private extension LoginState {
         case .default:
             return NSLocalizedString("Enter your account number", comment: "")
 
-        case .authenticating:
-            return NSLocalizedString("Checking account number", comment: "")
+        case .authenticating(let method):
+            switch method {
+            case .existingAccount:
+                return NSLocalizedString("Checking account number", comment: "")
+            case .newAccount:
+                return NSLocalizedString("Creating new account", comment: "")
+            }
 
         case .failure(let error):
             return error.failureReason ?? ""
 
-        case .success:
-            return NSLocalizedString("Correct account number", comment: "")
+        case .success(let method):
+            switch method {
+            case .existingAccount:
+                return NSLocalizedString("Correct account number", comment: "")
+            case .newAccount:
+                return NSLocalizedString("Account created", comment: "")
+            }
         }
     }
 }

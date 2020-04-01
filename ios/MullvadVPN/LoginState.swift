@@ -8,9 +8,13 @@
 
 import Foundation
 
+enum AuthenticationMethod {
+    case existingAccount, newAccount
+}
+
 enum LoginState {
     case `default`
-    case authenticating
+    case authenticating(AuthenticationMethod)
     case failure(AccountError)
-    case success
+    case success(AuthenticationMethod)
 }
