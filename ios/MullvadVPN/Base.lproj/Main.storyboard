@@ -40,7 +40,11 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="93"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoIcon" translatesAutoresizingMaskIntoConstraints="NO" id="cKg-hE-JsS">
-                                        <rect key="frame" x="12" y="31.5" width="49.000000000000014" height="50"/>
+                                        <rect key="frame" x="12" y="34.5" width="44.000000000000057" height="44.000000000000057"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="cKg-hE-JsS" secondAttribute="height" multiplier="1:1" id="jln-Ze-Hhl"/>
+                                            <constraint firstAttribute="width" constant="44" id="u6D-kY-AyW"/>
+                                        </constraints>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uXv-Tf-PET">
                                         <rect key="frame" x="335" y="44.5" width="24" height="24"/>
@@ -51,7 +55,7 @@
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MULLVAD VPN" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dqy-A0-TdV">
-                                        <rect key="frame" x="69" y="42" width="168" height="29"/>
+                                        <rect key="frame" x="64" y="42" width="168" height="29"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
                                         <color key="textColor" white="1" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
@@ -91,7 +95,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="nyE-nN-nlq" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-430" y="27"/>
+            <point key="canvasLocation" x="-431.19999999999999" y="26.53673163418291"/>
         </scene>
         <!--Login View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -964,7 +968,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JYh-33-d0O">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="597"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="598"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="N9k-cQ-tlw" userLabel="Content view">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="558"/>
@@ -972,19 +976,19 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wnl-L9-JqG" userLabel="Logo header">
                                                 <rect key="frame" x="0.0" y="0.0" width="375" height="100"/>
                                                 <subviews>
-                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="NewLogoIcon" translatesAutoresizingMaskIntoConstraints="NO" id="WSx-4V-zIk">
-                                                        <rect key="frame" x="137.5" y="0.0" width="100" height="100"/>
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoIcon" translatesAutoresizingMaskIntoConstraints="NO" id="WSx-4V-zIk">
+                                                        <rect key="frame" x="157.5" y="20" width="60.000000000000057" height="60.000000000000057"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="WSx-4V-zIk" secondAttribute="height" multiplier="1:1" id="ZtE-hc-rs8"/>
-                                                            <constraint firstAttribute="width" constant="100" id="qGt-Am-MHR"/>
+                                                            <constraint firstAttribute="width" constant="60" id="qGt-Am-MHR"/>
                                                         </constraints>
                                                     </imageView>
                                                 </subviews>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstItem="WSx-4V-zIk" firstAttribute="centerX" secondItem="Wnl-L9-JqG" secondAttribute="centerX" id="30b-jz-Tpk"/>
-                                                    <constraint firstAttribute="bottom" secondItem="WSx-4V-zIk" secondAttribute="bottom" id="3FY-d7-yKL"/>
-                                                    <constraint firstItem="WSx-4V-zIk" firstAttribute="top" secondItem="Wnl-L9-JqG" secondAttribute="top" id="ekz-Kj-ng1"/>
+                                                    <constraint firstAttribute="bottom" secondItem="WSx-4V-zIk" secondAttribute="bottom" constant="20" id="3FY-d7-yKL"/>
+                                                    <constraint firstItem="WSx-4V-zIk" firstAttribute="top" secondItem="Wnl-L9-JqG" secondAttribute="top" constant="20" id="ekz-Kj-ng1"/>
                                                 </constraints>
                                             </view>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Do you agree to remaining anonymous?" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KiF-h3-6a4">
@@ -1003,7 +1007,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cas-Tk-gcz" customClass="LinkButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="20" y="516" width="128" height="22"/>
+                                                <rect key="frame" x="20" y="516" width="20" height="22"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" title="Privacy Policy" image="IconExtlink"/>
@@ -1039,10 +1043,10 @@
                                 </constraints>
                             </scrollView>
                             <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="16P-Q0-ZO9" userLabel="Footer">
-                                <rect key="frame" x="0.0" y="597" width="375" height="70"/>
+                                <rect key="frame" x="0.0" y="598" width="375" height="69"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ttw-7B-1MM" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                                        <rect key="frame" x="16" y="24" width="343" height="22"/>
+                                        <rect key="frame" x="16" y="24" width="343" height="21"/>
                                         <accessibility key="accessibilityConfiguration" identifier="AgreeButton"/>
                                         <state key="normal" title="Agree and continue" backgroundImage="DefaultButton">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1453,8 +1457,7 @@
         <image name="IconSettings" width="24" height="24"/>
         <image name="IconSuccess" width="60" height="60"/>
         <image name="IconTick" width="24" height="24"/>
-        <image name="LogoIcon" width="49" height="50"/>
-        <image name="NewLogoIcon" width="400" height="400"/>
+        <image name="LogoIcon" width="253" height="253"/>
         <image name="SuccessButton" width="9" height="9"/>
         <image name="TranslucentDangerButton" width="9" height="9"/>
         <image name="TranslucentNeutralButton" width="9" height="9"/>

@@ -92,13 +92,10 @@ def generate_graphical_assets()
       Dir.mkdir(output_dir)
     end
 
-    for retina_scale in (1..3) do
-      scale_suffix = retina_scale_suffix(retina_scale)
-      output_file = File.join(output_dir, "#{image_name}#{scale_suffix}.png")
+    output_file = File.join(output_dir, "#{image_name}.pdf")
 
-      puts "Convert #{svg_file} -> #{output_file}"
-      system("rsvg-convert", "--zoom=#{retina_scale}", "--format=png", svg_file, "--output", output_file)
-    end
+    puts "Convert #{svg_file} -> #{output_file}"
+    system("rsvg-convert", "--format=pdf", svg_file, "--output", output_file)
   end
 end
 
