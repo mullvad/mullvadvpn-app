@@ -47,7 +47,7 @@ class CopyableInformationView : LinearLayout {
     var clipboardLabel: String? = null
         set(value) {
             field = value
-            container.setEnabled(clipboardLabel != null)
+            updateEnabled()
         }
 
     var copiedToast: String? = null
@@ -129,6 +129,12 @@ class CopyableInformationView : LinearLayout {
             spinner.visibility = INVISIBLE
             informationDisplay.visibility = VISIBLE
         }
+
+        updateEnabled()
+    }
+
+    private fun updateEnabled() {
+        setEnabled(clipboardLabel != null && information != null)
     }
 
     private fun copyToClipboard() {
