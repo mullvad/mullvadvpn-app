@@ -7,10 +7,14 @@ use std::{
     ffi::{CStr, CString, NulError},
     fs, io,
     os::unix::ffi::OsStrExt,
+    path::Path,
 };
 
 #[cfg(target_os = "linux")]
-const CGROUP_PROCS_PATH: &str = "/sys/fs/cgroup/net_cls/mullvad-exclusions/cgroup.procs";
+use talpid_types::SPLIT_TUNNEL_CGROUP_NAME;
+
+#[cfg(target_os = "linux")]
+const NETCLS_DIR: &str = "/sys/fs/cgroup/net_cls/";
 
 #[cfg(target_os = "linux")]
 const PROGRAM_NAME: &str = "mullvad-exclude";
@@ -76,8 +80,9 @@ fn run() -> Result<void::Void, Error> {
     let args: Vec<&CStr> = args.iter().map(|arg| &**arg).collect();
 
     // Set the cgroup of this process
-    fs::write(CGROUP_PROCS_PATH, getpid().to_string().as_bytes())
-        .map_err(Error::AddProcToCGroup)?;
+    let cgroup_dir = Path::new(NETCLS_DIR).join(SPLIT_TUNNEL_CGROUP_NAME);
+    let procs_path = cgroup_dir.join("cgroup.procs");
+    fs::write(procs_path, getpid().to_string().as_bytes()).map_err(Error::AddProcToCGroup)?;
 
     // Drop root privileges
     let real_uid = getuid();

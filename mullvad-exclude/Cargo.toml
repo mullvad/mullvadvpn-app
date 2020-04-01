@@ -10,3 +10,4 @@ publish = false
 nix = "0.17"
 err-derive = "0.2.1"
 void = "1.0.2"
+talpid-types = { path = "../talpid-types" }
