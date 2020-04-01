@@ -17,6 +17,9 @@ enum AccountError: Error {
     /// A failure to perform the login
     case login(AccountLoginError)
 
+    /// A failure to login with the new account
+    case createNew(CreateAccountError)
+
     /// A failure to log out
     case logout(TunnelManagerError)
 }
@@ -24,6 +27,11 @@ enum AccountError: Error {
 /// A enum describing the error emitted during login
 enum AccountLoginError: Error {
     case invalidAccount
+    case tunnelConfiguration(TunnelManagerError)
+}
+
+enum CreateAccountError: Error {
+    case newAccountToken
     case tunnelConfiguration(TunnelManagerError)
 }
 
@@ -35,6 +43,9 @@ extension AccountError: LocalizedError {
 
         case .logout:
             return NSLocalizedString("Log out error", comment: "")
+
+        case .createNew:
+            return NSLocalizedString("Create account error", comment: "")
         }
     }
 
@@ -113,6 +124,27 @@ class Account {
     /// Save the boolean flag in preferences indicating that the user agreed to terms of service.
     func agreeToTermsOfService() {
         UserDefaults.standard.set(true, forKey: UserDefaultsKeys.isAgreedToTermsOfService.rawValue)
+    }
+
+    func loginWithNewAccount() -> AnyPublisher<String, AccountError> {
+        return apiClient.createAccount()
+            .mapError { _ in CreateAccountError.newAccountToken }
+            .flatMap { (response) -> AnyPublisher<(String, Date), CreateAccountError> in
+                response.result
+                    .mapError { _ in CreateAccountError.newAccountToken }
+                    .publisher
+                    .flatMap { (accountToken) in
+                        TunnelManager.shared.setAccount(accountToken: accountToken)
+                            .mapError { CreateAccountError.tunnelConfiguration($0) }
+                            .map { (accountToken, Date()) }
+                }.eraseToAnyPublisher()
+        }.mapError { AccountError.createNew($0) }
+            .receive(on: DispatchQueue.main)
+            .map { (accountToken, expiry) -> String in
+                self.saveAccountToPreferences(accountToken: accountToken, expiry: expiry)
+
+                return accountToken
+        }.eraseToAnyPublisher()
     }
 
     /// Perform the login and save the account token along with expiry (if available) to the

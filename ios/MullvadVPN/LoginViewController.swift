@@ -25,6 +25,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     @IBOutlet var loginFormWrapperBottomConstraint: NSLayoutConstraint!
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
     @IBOutlet var statusImageView: UIImageView!
+    @IBOutlet var createAccountButton: AppButton!
 
     private var loginSubscriber: AnyCancellable?
 
@@ -170,7 +171,24 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
             }, receiveValue: { _ in })
     }
 
-    @IBAction func openCreateAccount() {}
+    @IBAction func createNewAccount() {
+        beginLogin()
+
+        accountTextField.text = ""
+
+        loginSubscriber = Account.shared.loginWithNewAccount()
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { (completionResult) in
+                switch completionResult {
+                case .finished:
+                    self.endLogin(.success)
+                case .failure(let error):
+                    self.endLogin(.failure(error))
+                }
+            }, receiveValue: { (newAccountToken) in
+                self.accountTextField.text = newAccountToken
+            })
+    }
 
     // MARK: - Private
 
@@ -183,6 +201,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
         switch loginState {
         case .authenticating:
             activityIndicator.startAnimating()
+            createAccountButton.isEnabled = false
 
             // Fallthrough to make sure that the settings button is disabled
             // in .authenticating and .success cases.
@@ -193,6 +212,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
 
         case .default, .failure:
             rootContainerController?.headerBarSettingsButton.isEnabled = true
+            createAccountButton.isEnabled = true
             activityIndicator.stopAnimating()
         }
 

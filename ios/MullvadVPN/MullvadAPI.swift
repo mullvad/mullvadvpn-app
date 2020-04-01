@@ -114,6 +114,12 @@ class MullvadAPI {
         self.session = session
     }
 
+    func createAccount() -> AnyPublisher<Response<String>, MullvadAPI.Error> {
+        let request = JsonRpcRequest(method: "create_account", params: [])
+
+        return MullvadAPI.makeDataTaskPublisher(request: request)
+    }
+
     func getRelayList() -> AnyPublisher<Response<RelayList>, MullvadAPI.Error> {
         let request = JsonRpcRequest(method: "relay_list_v3", params: [])
 
