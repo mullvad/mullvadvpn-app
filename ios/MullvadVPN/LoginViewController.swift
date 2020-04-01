@@ -25,6 +25,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     @IBOutlet var loginFormWrapperBottomConstraint: NSLayoutConstraint!
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
     @IBOutlet var statusImageView: UIImageView!
+    @IBOutlet var createAccountButton: AppButton!
 
     private var loginSubscriber: AnyCancellable?
 
@@ -89,12 +90,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
                                        object: accountTextField)
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        accountTextField.becomeFirstResponder()
-    }
-
     // MARK: - Keyboard notifications
 
     @objc private func keyboardWillShow(_ notification: Notification) {
@@ -156,21 +151,38 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     @IBAction func doLogin() {
         let accountToken = accountTextField.text ?? ""
 
-        beginLogin()
+        beginLogin(method: .existingAccount)
 
         loginSubscriber = Account.shared.login(with: accountToken)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { (completionResult) in
                 switch completionResult {
                 case .finished:
-                    self.endLogin(.success)
+                    self.endLogin(.success(.existingAccount))
                 case .failure(let error):
                     self.endLogin(.failure(error))
                 }
             }, receiveValue: { _ in })
     }
 
-    @IBAction func openCreateAccount() {}
+    @IBAction func createNewAccount() {
+        beginLogin(method: .newAccount)
+
+        accountTextField.text = ""
+
+        loginSubscriber = Account.shared.loginWithNewAccount()
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { (completionResult) in
+                switch completionResult {
+                case .finished:
+                    self.endLogin(.success(.newAccount))
+                case .failure(let error):
+                    self.endLogin(.failure(error))
+                }
+            }, receiveValue: { (newAccountToken) in
+                self.accountTextField.text = newAccountToken
+            })
+    }
 
     // MARK: - Private
 
@@ -183,6 +195,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
         switch loginState {
         case .authenticating:
             activityIndicator.startAnimating()
+            createAccountButton.isEnabled = false
 
             // Fallthrough to make sure that the settings button is disabled
             // in .authenticating and .success cases.
@@ -193,6 +206,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
 
         case .default, .failure:
             rootContainerController?.headerBarSettingsButton.isEnabled = true
+            createAccountButton.isEnabled = true
             activityIndicator.stopAnimating()
         }
 
@@ -222,16 +236,19 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
         }
     }
 
-    private func beginLogin() {
-        loginState = .authenticating
+    private func beginLogin(method: AuthenticationMethod) {
+        loginState = .authenticating(method)
 
         view.endEditing(true)
     }
 
     private func endLogin(_ nextLoginState: LoginState) {
+        let oldLoginState = loginState
+
         loginState = nextLoginState
 
-        if case .failure = loginState {
+        if case .authenticating(.existingAccount) = oldLoginState,
+            case .failure = loginState {
             accountTextField.becomeFirstResponder()
         } else if case .success = loginState {
             // Navigate to the main view after 1s delay
@@ -288,14 +305,24 @@ private extension LoginState {
         case .default:
             return NSLocalizedString("Enter your account number", comment: "")
 
-        case .authenticating:
-            return NSLocalizedString("Checking account number", comment: "")
+        case .authenticating(let method):
+            switch method {
+            case .existingAccount:
+                return NSLocalizedString("Checking account number", comment: "")
+            case .newAccount:
+                return NSLocalizedString("Creating new account", comment: "")
+            }
 
         case .failure(let error):
             return error.failureReason ?? ""
 
-        case .success:
-            return NSLocalizedString("Correct account number", comment: "")
+        case .success(let method):
+            switch method {
+            case .existingAccount:
+                return NSLocalizedString("Correct account number", comment: "")
+            case .newAccount:
+                return NSLocalizedString("Account created", comment: "")
+            }
         }
     }
 }

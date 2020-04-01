@@ -48,6 +48,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
         }
     }
 
+    private var showedAccountView = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -56,6 +58,12 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
         tunnelStateSubscriber = TunnelManager.shared.$tunnelState
             .receive(on: DispatchQueue.main)
             .assign(to: \.tunnelState, on: self)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        showAccountViewForExpiredAccount()
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -77,7 +85,9 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
             disconnectTunnel()
 
         case .selectLocation:
-            performSegue(withIdentifier: SegueIdentifier.Connect.showRelaySelector.rawValue, sender: self)
+            performSegue(
+                withIdentifier: SegueIdentifier.Connect.showRelaySelector.rawValue,
+                sender: self)
         }
     }
 
@@ -137,6 +147,20 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
             .sink(receiveCompletion: { (completion) in
                 // no-op
             })
+    }
+
+    private func showAccountViewForExpiredAccount() {
+        guard !showedAccountView else { return }
+
+        showedAccountView = true
+
+        switch Account.shared.expiry?.compare(Date()) {
+        case .orderedAscending, .orderedSame:
+            rootContainerController?.showSettings(navigateTo: .account, animated: true)
+
+        default:
+            break
+        }
     }
 
     // MARK: - Actions
