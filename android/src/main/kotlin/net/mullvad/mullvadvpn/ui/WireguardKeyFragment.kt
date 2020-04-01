@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
+import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.TimeAgoFormatter
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -36,14 +37,30 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         Verifying;
     }
 
+    private val uiJobTracker = JobTracker()
+
     private lateinit var timeAgoFormatter: TimeAgoFormatter
 
     private var currentJob: Job? = null
     private var updateViewsJob: Job? = null
-    private var actionState = ActionState.Idle
     private var tunnelStateListener: Int? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
     private lateinit var urlController: BlockingController
+
+    private var actionState = ActionState.Idle
+        set(value) {
+            if (field != value) {
+                field = value
+                updateButtons()
+            }
+        }
+    private var hasConnectivity = true
+        set(value) {
+            if (field != value) {
+                field = value
+                updateButtons()
+            }
+        }
 
     private var resetReconnectionExpectedJob: Job? = null
     private var reconnectionExpected = false
@@ -138,6 +155,10 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 } else if (tunnelState is TunnelState.Connected) {
                     reconnectionExpected = false
                 }
+
+                hasConnectivity = uiState is TunnelState.Connected ||
+                    uiState is TunnelState.Disconnected ||
+                    (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
             }
 
             updateViewsJob?.cancel()
@@ -161,6 +182,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         resetReconnectionExpectedJob?.cancel()
         actionState = ActionState.Idle
         urlController.onPause()
+        uiJobTracker.cancelAllJobs()
     }
 
     private fun updateViewJob() = GlobalScope.launch(Dispatchers.Main) {
@@ -169,9 +191,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private fun updateViews() {
         clearErrorMessage()
-
-        setGenerateButton()
-        setVerifyButton()
 
         when (val keyState = keyStatusListener.keyStatus) {
             null -> {
@@ -204,6 +223,17 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         drawNoConnectionState()
     }
 
+    private fun updateButtons() {
+        uiJobTracker.newJob("updateButtons", GlobalScope.launch(Dispatchers.Main) {
+            val isIdle = actionState == ActionState.Idle
+            val hasKey = keyStatusListener.keyStatus is KeygenEvent.NewKey
+
+            generateKeyButton.setEnabled(isIdle && hasConnectivity)
+            verifyKeyButton.setEnabled(isIdle && hasConnectivity)
+            manageKeysButton.setEnabled(hasConnectivity && hasKey)
+        })
+    }
+
     private fun setStatusMessage(message: Int, color: Int) {
         statusMessage.setText(message)
         statusMessage.setTextColor(resources.getColor(color))
@@ -226,19 +256,11 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun setGenerateButton() {
-        generateKeyButton.setEnabled(actionState == ActionState.Idle)
-
         if (keyStatusListener.keyStatus is KeygenEvent.NewKey) {
             generateKeyButton.setText(R.string.wireguard_replace_key)
         } else {
             generateKeyButton.setText(R.string.wireguard_generate_key)
         }
-    }
-
-    private fun setVerifyButton() {
-        val keyState = keyStatusListener.keyStatus
-
-        verifyKeyButton.setEnabled(actionState == ActionState.Idle && keyState?.failure() == null)
     }
 
     private fun drawNoConnectionState() {
@@ -248,14 +270,10 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             is TunnelState.Connecting, is TunnelState.Disconnecting -> {
                 if (!reconnectionExpected) {
                     setStatusMessage(R.string.wireguard_key_connectivity, R.color.red)
-                    generateKeyButton.setEnabled(false)
                 }
             }
             is TunnelState.Error -> {
                 setStatusMessage(R.string.wireguard_key_blocked_state_message, R.color.red)
-                generateKeyButton.setEnabled(false)
-                verifyKeyButton.setEnabled(false)
-                manageKeysButton.setEnabled(false)
             }
         }
     }
