@@ -243,9 +243,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     }
 
     private func endLogin(_ nextLoginState: LoginState) {
+        let oldLoginState = loginState
+
         loginState = nextLoginState
 
-        if case .failure = loginState {
+        if case .authenticating(.existingAccount) = oldLoginState,
+            case .failure = loginState {
             accountTextField.becomeFirstResponder()
         } else if case .success = loginState {
             // Navigate to the main view after 1s delay
