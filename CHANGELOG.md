@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Add WireGuard MTU setting.
 
+### Changed
+- Upgrade from Electron 7 to Electron 8.
+
 
 ## [2020.4-beta1] - 2020-03-30
 ### Added
