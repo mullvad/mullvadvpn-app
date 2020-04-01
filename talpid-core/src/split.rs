@@ -36,6 +36,14 @@ pub enum Error {
     #[error(display = "Failed to parse IP address")]
     ParseIpError(#[error(source)] AddrParseError),
 
+    /// Failed to run the process.
+    #[error(display = "Unable to execute process")]
+    ExecFailed(#[error(source)] io::Error),
+
+    /// ip command returned an error status.
+    #[error(display = "ip command failed")]
+    IpFailed,
+
     /// Unable to create routing table for tagged connections and packets.
     #[error(display = "Unable to create routing table")]
     RoutingTableSetup(#[error(source)] io::Error),
@@ -164,16 +172,11 @@ impl SplitTunnel {
 
     /// Reset the split-tunneling routing table to its default state
     fn reset_table() -> Result<(), Error> {
-        let mut cmd = Command::new("ip");
-        cmd.args(&["-4", "route", "flush", "table", ROUTING_TABLE_NAME]);
-
-        log::trace!("running cmd - {:?}", &cmd);
-        cmd.output().map_err(Error::RoutingTableSetup)?;
+        let _ = exec_ip(&["-4", "route", "flush", "table", ROUTING_TABLE_NAME]);
 
         // Force routing through the physical interface
         let default_route = get_default_route()?;
-        let mut cmd = Command::new("ip");
-        cmd.args(&[
+        exec_ip(&[
             "-4",
             "route",
             "add",
@@ -184,10 +187,7 @@ impl SplitTunnel {
             &default_route.interface,
             "table",
             ROUTING_TABLE_NAME,
-        ]);
-
-        log::trace!("running cmd - {:?}", &cmd);
-        cmd.output().map(|_| ()).map_err(Error::RoutingTableSetup)
+        ])
     }
 
     /// Route PID-associated packets through the physical interface.
@@ -198,23 +198,12 @@ impl SplitTunnel {
         let mut cmd = Command::new("ip");
         cmd.args(&["-4", "rule", "list", "table", ROUTING_TABLE_NAME]);
         log::trace!("running cmd - {:?}", &cmd);
-        let out = cmd.output().map_err(Error::RoutingTableSetup)?;
-        let out = if !out.status.success() {
-            ""
-        } else {
-            std::str::from_utf8(&out.stdout)
-                .map_err(|_| {
-                    Error::RoutingTableSetup(io::Error::new(
-                        io::ErrorKind::InvalidData,
-                        "Error parsing ip output",
-                    ))
-                })?
-                .trim()
-        };
+        let out = cmd.output().map_err(Error::ExecFailed)?;
 
-        if out == "" {
-            let mut cmd = Command::new("ip");
-            cmd.args(&[
+        let missing_rule =
+            !out.status.success() || String::from_utf8_lossy(&out.stdout).trim().is_empty();
+        if missing_rule {
+            exec_ip(&[
                 "-4",
                 "rule",
                 "add",
@@ -224,10 +213,7 @@ impl SplitTunnel {
                 &MARK.to_string(),
                 "lookup",
                 ROUTING_TABLE_NAME,
-            ]);
-
-            log::trace!("running cmd - {:?}", &cmd);
-            cmd.output().map_err(Error::RoutingTableSetup)?;
+            ])?;
         }
 
         Self::reset_table()
@@ -237,8 +223,7 @@ impl SplitTunnel {
     pub fn disable_routing(&self) -> Result<(), Error> {
         // TODO: IPv6
 
-        let mut cmd = Command::new("ip");
-        cmd.args(&[
+        if let Err(e) = exec_ip(&[
             "-4",
             "rule",
             "del",
@@ -248,20 +233,8 @@ impl SplitTunnel {
             &MARK.to_string(),
             "lookup",
             ROUTING_TABLE_NAME,
-        ]);
-
-        log::trace!("running cmd - {:?}", &cmd);
-        let out = cmd.output();
-        if out.is_err() {
-            log::warn!("Failed to delete routing policy: {}", out.err().unwrap());
-        } else {
-            let out = out.unwrap();
-            if !out.status.success() {
-                log::warn!(
-                    "Failed to delete routing policy: {}",
-                    String::from_utf8_lossy(&out.stderr)
-                );
-            }
+        ]) {
+            log::warn!("Failed to delete routing policy: {}", e);
         }
 
         Ok(())
@@ -272,9 +245,7 @@ impl SplitTunnel {
         for server in dns_servers {
             if let IpAddr::V4(addr) = server {
                 let addr = addr.to_string();
-
-                let mut cmd = Command::new("ip");
-                cmd.args(&[
+                exec_ip(&[
                     "-4",
                     "route",
                     "replace",
@@ -283,10 +254,7 @@ impl SplitTunnel {
                     tunnel_alias,
                     "table",
                     ROUTING_TABLE_NAME,
-                ]);
-
-                log::trace!("running cmd - {:?}", &cmd);
-                cmd.output().map_err(Error::SetDns)?;
+                ])?;
             }
         }
 
@@ -414,5 +382,19 @@ impl PidManager {
         }
 
         Ok(())
+    }
+}
+
+fn exec_ip(args: &[&str]) -> Result<(), Error> {
+    let mut cmd = Command::new("ip");
+    cmd.args(args);
+
+    log::trace!("running cmd - {:?}", &cmd);
+
+    let status = cmd.status().map_err(Error::ExecFailed)?;
+    if status.success() {
+        Ok(())
+    } else {
+        Err(Error::IpFailed)
     }
 }
