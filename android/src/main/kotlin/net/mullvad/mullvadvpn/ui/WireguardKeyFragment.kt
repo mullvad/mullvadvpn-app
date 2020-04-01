@@ -131,6 +131,42 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         return view
     }
 
+    override fun onSafelyResume() {
+        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
+            synchronized(this@WireguardKeyFragment) {
+                tunnelState = uiState
+
+                if (generatingKey) {
+                    reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
+                } else if (tunnelState is TunnelState.Connected) {
+                    reconnectionExpected = false
+                }
+            }
+
+            updateViewsJob?.cancel()
+            updateViewsJob = updateViewJob()
+        }
+
+        keyStatusListener.onKeyStatusChange = { newKeyStatus ->
+            updateViewsJob?.cancel()
+            updateViewsJob = updateViewJob()
+        }
+    }
+
+    override fun onSafelyPause() {
+        tunnelStateListener?.let { listener ->
+            connectionProxy.onUiStateChange.unsubscribe(listener)
+        }
+
+        keyStatusListener.onKeyStatusChange = null
+        currentJob?.cancel()
+        updateViewsJob?.cancel()
+        resetReconnectionExpectedJob?.cancel()
+        validatingKey = false
+        generatingKey = false
+        urlController.onPause()
+    }
+
     private fun updateViewJob() = GlobalScope.launch(Dispatchers.Main) {
         updateViews()
     }
@@ -275,42 +311,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 }
             }
             updateViews()
-        }
-    }
-
-    override fun onSafelyPause() {
-        tunnelStateListener?.let { listener ->
-            connectionProxy.onUiStateChange.unsubscribe(listener)
-        }
-
-        keyStatusListener.onKeyStatusChange = null
-        currentJob?.cancel()
-        updateViewsJob?.cancel()
-        resetReconnectionExpectedJob?.cancel()
-        validatingKey = false
-        generatingKey = false
-        urlController.onPause()
-    }
-
-    override fun onSafelyResume() {
-        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
-            synchronized(this@WireguardKeyFragment) {
-                tunnelState = uiState
-
-                if (generatingKey) {
-                    reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
-                } else if (tunnelState is TunnelState.Connected) {
-                    reconnectionExpected = false
-                }
-            }
-
-            updateViewsJob?.cancel()
-            updateViewsJob = updateViewJob()
-        }
-
-        keyStatusListener.onKeyStatusChange = { _ ->
-            updateViewsJob?.cancel()
-            updateViewsJob = updateViewJob()
         }
     }
 }
