@@ -2,18 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "IconChevronDown.png",
-      "scale" : "1x"
-    },
-    {
-      "idiom" : "universal",
-      "filename" : "IconChevronDown@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "idiom" : "universal",
-      "filename" : "IconChevronDown@3x.png",
-      "scale" : "3x"
+      "filename" : "IconChevronDown.pdf"
     }
   ],
   "info" : {
@@ -21,6 +10,7 @@
     "author" : "xcode"
   },
   "properties" : {
-    "template-rendering-intent" : "template"
+    "template-rendering-intent" : "template",
+    "preserves-vector-representation" : true
   }
 }

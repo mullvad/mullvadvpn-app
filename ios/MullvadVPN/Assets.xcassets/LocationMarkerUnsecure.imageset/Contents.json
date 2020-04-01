@@ -2,22 +2,14 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "LocationMarkerUnsecure.png",
-      "scale" : "1x"
-    },
-    {
-      "idiom" : "universal",
-      "filename" : "LocationMarkerUnsecure@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "idiom" : "universal",
-      "filename" : "LocationMarkerUnsecure@3x.png",
-      "scale" : "3x"
+      "filename" : "LocationMarkerUnsecure.pdf"
     }
   ],
   "info" : {
     "version" : 1,
     "author" : "xcode"
+  },
+  "properties" : {
+    "preserves-vector-representation" : true
   }
 }
