@@ -19,6 +19,9 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.widget.Button
+import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
+import net.mullvad.mullvadvpn.ui.widget.InformationView
 import net.mullvad.mullvadvpn.util.TimeAgoFormatter
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
