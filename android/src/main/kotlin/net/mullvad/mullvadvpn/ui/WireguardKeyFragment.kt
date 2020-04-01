@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -21,6 +19,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.util.TimeAgoFormatter
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -28,6 +27,8 @@ import org.joda.time.format.DateTimeFormat
 val RFC3339_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSSSSSSSSS z")
 
 class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+    private lateinit var timeAgoFormatter: TimeAgoFormatter
+
     private var currentJob: Job? = null
     private var updateViewsJob: Job? = null
     private var tunnelStateListener: Int? = null
@@ -48,12 +49,9 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             }
         }
 
-    private lateinit var publicKey: TextView
-    private lateinit var publicKeyAge: TimeSinceLabel
-    private lateinit var publicKeyContainer: View
+    private lateinit var publicKey: CopyableInformationView
+    private lateinit var keyAge: InformationView
     private lateinit var statusMessage: TextView
-    private lateinit var publicKeySpinner: View
-    private lateinit var timeSinceSpinner: View
     private lateinit var verifyingKeySpinner: View
     private lateinit var manageKeysButton: Button
     private lateinit var generateKeyButton: android.widget.Button
@@ -70,6 +68,12 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        timeAgoFormatter = TimeAgoFormatter(context.resources)
+    }
+
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -83,15 +87,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
         statusMessage = view.findViewById<TextView>(R.id.wireguard_key_status)
         manageKeysButton = view.findViewById(R.id.manage_keys)
-        publicKey = view.findViewById<TextView>(R.id.wireguard_public_key)
-
-        publicKeyAge = TimeSinceLabel(parentActivity, view)
-
-        publicKeyContainer = view.findViewById<View>(R.id.public_key_container).apply {
-            setOnClickListener {
-                copyPublicKeyToClipboard()
-            }
-        }
+        publicKey = view.findViewById(R.id.public_key)
+        keyAge = view.findViewById(R.id.key_age)
 
         generateKeyButton = view.findViewById<Button>(R.id.generate_key).apply {
             setOnClickListener {
@@ -105,8 +102,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             }
         }
 
-        publicKeySpinner = view.findViewById(R.id.public_key_spinner)
-        timeSinceSpinner = view.findViewById(R.id.time_since_spinner)
         verifyingKeySpinner = view.findViewById(R.id.verifying_key_spinner)
 
         val keyUrl = parentActivity.getString(R.string.wg_key_url)
@@ -148,17 +143,17 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
         when (val keyState = keyStatusListener.keyStatus) {
             null -> {
-                publicKey.visibility = View.INVISIBLE
+                publicKey.information = null
             }
 
             is KeygenEvent.NewKey -> {
                 val key = keyState.publicKey
                 val publicKeyString = Base64.encodeToString(key.key, Base64.NO_WRAP)
-                publicKey.visibility = View.VISIBLE
-                publicKey.setText(publicKeyString.substring(0, 20) + "...")
-
-                publicKeyAge.timeInstant =
+                val publicKeyAge =
                     DateTime.parse(key.dateCreated, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
+
+                publicKey.information = publicKeyString.substring(0, 20) + "..."
+                keyAge.information = timeAgoFormatter.format(publicKeyAge)
 
                 keyState.verified?.let { verified ->
                     if (verified) {
@@ -233,18 +228,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
     }
 
-    private fun copyPublicKeyToClipboard() {
-        val clipboard =
-            parentActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clipLabel = parentActivity.resources.getString(R.string.wireguard_public_key)
-        val clipData = ClipData.newPlainText(clipLabel, publicKey.text)
-
-        clipboard.primaryClip = clipData
-
-        Toast.makeText(parentActivity, R.string.copied_wireguard_public_key, Toast.LENGTH_SHORT)
-            .show()
-    }
-
     private fun onGenerateKeyPress() {
         currentJob?.cancel()
 
@@ -257,19 +240,10 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         updateViews()
 
         currentJob = GlobalScope.launch(Dispatchers.Main) {
-            publicKeyContainer.setEnabled(false)
-            publicKey.visibility = View.INVISIBLE
-            publicKeyAge.visibility = View.INVISIBLE
-            timeSinceSpinner.visibility = View.VISIBLE
-            publicKeySpinner.visibility = View.VISIBLE
+            publicKey.information = null
+            keyAge.information = null
 
             keyStatusListener.generateKey().join()
-
-            publicKeySpinner.visibility = View.INVISIBLE
-            timeSinceSpinner.visibility = View.INVISIBLE
-            publicKeyAge.visibility = View.VISIBLE
-            publicKey.visibility = View.VISIBLE
-            publicKeyContainer.setEnabled(true)
 
             generatingKey = false
             updateViews()
