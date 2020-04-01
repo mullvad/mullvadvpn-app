@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 
 class JobTracker {
     private val jobs = HashMap<Long, Job>()
+    private val namedJobs = HashMap<String, Long>()
 
     private var jobIdCounter = 0L
 
@@ -25,6 +26,26 @@ class JobTracker {
             })
 
             return jobId
+        }
+    }
+
+    fun newJob(name: String, job: Job): Long {
+        synchronized(namedJobs) {
+            cancelJob(name)
+
+            val newJobId = newJob(job)
+
+            namedJobs.put(name, newJobId)
+
+            return newJobId
+        }
+    }
+
+    fun cancelJob(name: String) {
+        synchronized(namedJobs) {
+            namedJobs.remove(name)?.let { oldJobId ->
+                cancelJob(oldJobId)
+            }
         }
     }
 
