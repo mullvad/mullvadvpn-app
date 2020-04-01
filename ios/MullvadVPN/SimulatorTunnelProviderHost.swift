@@ -21,16 +21,16 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     func startTunnel(options: [String: Any]?, completionHandler: @escaping (Error?) -> Void) {
         DispatchQueue.main.async {
             self.connectionInfo = TunnelConnectionInfo(
-                ipv4Relay: IPv4Endpoint(ip: IPv4Address("1.2.3.4")!, port: 53),
+                ipv4Relay: IPv4Endpoint(ip: IPv4Address("10.0.0.1")!, port: 53),
                 ipv6Relay: nil,
-                hostname: "se7-wireguard",
+                hostname: "au4-wireguard",
                 location: Location(
-                    country: "Sweden",
-                    countryCode: "se",
-                    city: "Stockholm",
-                    cityCode: "sto",
-                    latitude: 59.3289,
-                    longitude: 18.0649
+                    country: "Australia",
+                    countryCode: "au",
+                    city: "Melbourne",
+                    cityCode: "mel",
+                    latitude: -37.815018,
+                    longitude: 144.946014
                 )
             )
 

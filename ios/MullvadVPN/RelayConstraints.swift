@@ -124,6 +124,17 @@ extension RelayLocation: CustomDebugStringConvertible {
 
         return output
     }
+
+    var stringRepresentation: String {
+        switch self {
+        case .country(let country):
+            return country
+        case .city(let country, let city):
+            return "\(country)-\(city)"
+        case .hostname(let country, let city, let host):
+            return "\(country)-\(city)-\(host)"
+        }
+    }
 }
 
 struct RelayConstraints: Codable {

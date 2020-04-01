@@ -48,14 +48,34 @@ class MullvadVPNScreenshots: XCTestCase {
         // Tap "Log in" button to log in
         app.toolbars["Toolbar"].buttons["LoginBarButtonItem"].tap()
 
-        // Connect VPN
-        _ = app.buttons["ConnectButton"].waitForExistence(timeout: 10)
-        app.buttons["ConnectButton"].tap()
+        // Select Australia, Melbourne in Select location controller
+        _ = app.buttons["SelectLocationButton"].waitForExistence(timeout: 10)
+        app.buttons["SelectLocationButton"].tap()
+
+        let countryCell = app.cells["au"]
+        let cityCell = app.cells["au-mel"]
+
+        _ = countryCell.waitForExistence(timeout: 2)
+
+        if cityCell.exists {
+            cityCell.tap()
+        } else {
+            countryCell.buttons["ExpandButton"].tap()
+            cityCell.tap()
+        }
 
         // Wait for Disconnect button to appear
         _ = app.buttons["DisconnectButton"].waitForExistence(timeout: 2)
 
         snapshot("MainSecured")
+
+        // Re-open Select location controller
+        app.buttons["SwitchLocationButton"].tap()
+        cityCell.buttons["ExpandButton"].tap()
+        snapshot("SelectLocation")
+
+        // Tap the "Done" button to dismiss the "Select location" controller
+        app.navigationBars.buttons.firstMatch.tap()
 
         // Open Settings
         app.buttons["SettingsButton"].tap()

@@ -72,8 +72,8 @@ class ConnectionPanelView: UIView {
     }
 
     private func updateConnectionInfoVisibility() {
-        stackView.isHidden = showsConnectionInfo
-        collapseButton.style = showsConnectionInfo ? .down : .up
+        stackView.isHidden = !showsConnectionInfo
+        collapseButton.style = showsConnectionInfo ? .up : .down
     }
 
     private func commonInit() {
@@ -108,6 +108,8 @@ class ConnectionPanelView: UIView {
             textLabelLayoutGuide.trailingAnchor
                 .constraint(equalTo: outAddressRow.textLabel.trailingAnchor)
         ])
+
+        updateConnectionInfoVisibility()
     }
 }
 
