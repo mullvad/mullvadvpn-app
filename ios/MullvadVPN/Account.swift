@@ -51,10 +51,14 @@ extension AccountError: LocalizedError {
 
     var failureReason: String? {
         switch self {
+        case .createNew(.newAccountToken):
+            return NSLocalizedString("Failed to create new account", comment: "")
+
         case .login(.invalidAccount):
             return NSLocalizedString("Invalid account", comment: "")
 
-        case .login(.tunnelConfiguration(.setAccount(let setAccountError))):
+        case .login(.tunnelConfiguration(.setAccount(let setAccountError))),
+             .createNew(.tunnelConfiguration(.setAccount(let setAccountError))):
             switch setAccountError {
             case .pushWireguardKey(.transport(.network)):
                 return NSLocalizedString("Network error", comment: "")

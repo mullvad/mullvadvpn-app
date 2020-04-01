@@ -205,7 +205,9 @@ class AccountViewController: UIViewController {
                         }
 
                     case .finished:
-                        self.performSegue(withIdentifier: SegueIdentifier.Account.logout.rawValue, sender: self)
+                        self.performSegue(
+                            withIdentifier: SegueIdentifier.Account.logout.rawValue,
+                            sender: self)
                     }
                 })
         }

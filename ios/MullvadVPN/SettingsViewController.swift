@@ -10,6 +10,10 @@ import Combine
 import Foundation
 import UIKit
 
+enum SettingsNavigationRoute {
+    case account
+}
+
 class SettingsViewController: UITableViewController {
 
     @IBOutlet var staticDataSource: SettingsTableViewDataSource!
@@ -42,6 +46,17 @@ class SettingsViewController: UITableViewController {
 
     @IBAction func handleDismiss() {
         dismiss(animated: true)
+    }
+
+    // MARK: - Navigation
+
+    func navigate(to route: SettingsNavigationRoute) {
+        switch route {
+        case .account:
+            self.performSegue(
+                withIdentifier: SegueIdentifier.Settings.showAccount.rawValue,
+                sender: nil)
+        }
     }
 
     // MARK: - Private

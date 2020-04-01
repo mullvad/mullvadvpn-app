@@ -155,10 +155,18 @@ class RootContainerViewController: UIViewController {
         updateHeaderBarStyleFromChildPreferences(animated: UIView.areAnimationsEnabled)
     }
 
-    // MARK: - Actions
+    /// Request to display settings controller
+    func showSettings(navigateTo route: SettingsNavigationRoute? = nil, animated: Bool) {
+        guard let navController = self.storyboard?
+            .instantiateViewController(identifier: ViewControllerIdentifier.settings.rawValue)
+            as? UINavigationController else { return }
 
-    @IBAction func doShowSettings() {
-        performSegue(withIdentifier: SegueIdentifier.Root.showSettings.rawValue, sender: self)
+        if let route = route {
+            let settingsController = navController.topViewController as? SettingsViewController
+            settingsController?.navigate(to: route)
+        }
+
+        present(navController, animated: animated)
     }
 
     // MARK: - Private
