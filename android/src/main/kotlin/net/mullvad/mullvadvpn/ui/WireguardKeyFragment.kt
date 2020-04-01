@@ -33,15 +33,20 @@ import org.joda.time.format.DateTimeFormat
 val RFC3339_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSSSSSSSSS z")
 
 class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+    enum class ActionState {
+        Idle,
+        Generating,
+        Verifying;
+    }
+
     private lateinit var timeAgoFormatter: TimeAgoFormatter
 
     private var currentJob: Job? = null
     private var updateViewsJob: Job? = null
+    private var actionState = ActionState.Idle
     private var tunnelStateListener: Int? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
     private lateinit var urlController: BlockingController
-    private var generatingKey = false
-    private var validatingKey = false
 
     private var resetReconnectionExpectedJob: Job? = null
     private var reconnectionExpected = false
@@ -131,7 +136,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             synchronized(this@WireguardKeyFragment) {
                 tunnelState = uiState
 
-                if (generatingKey) {
+                if (actionState == ActionState.Generating) {
                     reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
                 } else if (tunnelState is TunnelState.Connected) {
                     reconnectionExpected = false
@@ -157,8 +162,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         currentJob?.cancel()
         updateViewsJob?.cancel()
         resetReconnectionExpectedJob?.cancel()
-        validatingKey = false
-        generatingKey = false
+        actionState = ActionState.Idle
         urlController.onPause()
     }
 
@@ -225,7 +229,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun setGenerateButton() {
-        generateKeyButton.setEnabled(!generatingKey && !validatingKey)
+        generateKeyButton.setEnabled(actionState == ActionState.Idle)
 
         if (keyStatusListener.keyStatus is KeygenEvent.NewKey) {
             generateKeyButton.setText(R.string.wireguard_replace_key)
@@ -237,7 +241,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private fun setVerifyButton() {
         val keyState = keyStatusListener.keyStatus
 
-        verifyKeyButton.setEnabled(!generatingKey && !validatingKey && keyState?.failure() == null)
+        verifyKeyButton.setEnabled(actionState == ActionState.Idle && keyState?.failure() == null)
     }
 
     private fun drawNoConnectionState() {
@@ -263,8 +267,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         currentJob?.cancel()
 
         synchronized(this) {
-            generatingKey = true
-            validatingKey = false
+            actionState = ActionState.Generating
             reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
         }
 
@@ -276,16 +279,16 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
             keyStatusListener.generateKey().join()
 
-            generatingKey = false
+            actionState = ActionState.Idle
             updateViews()
         }
     }
 
     private fun onValidateKeyPress() {
         currentJob?.cancel()
-        validatingKey = true
-        generatingKey = false
+        actionState = ActionState.Verifying
         updateViews()
+
         currentJob = GlobalScope.launch(Dispatchers.Main) {
             statusMessage.visibility = View.GONE
             verifyingKeySpinner.visibility = View.VISIBLE
@@ -294,7 +297,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
             verifyingKeySpinner.visibility = View.GONE
             statusMessage.visibility = View.VISIBLE
-            validatingKey = false
+            actionState = ActionState.Idle
 
             when (val state = keyStatusListener.keyStatus) {
                 is KeygenEvent.NewKey -> {
