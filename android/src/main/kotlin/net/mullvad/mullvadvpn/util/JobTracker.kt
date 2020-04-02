@@ -41,6 +41,14 @@ class JobTracker {
         }
     }
 
+    fun newBackgroundJob(name: String, jobBody: suspend () -> Unit): Long {
+        return newJob(name, GlobalScope.launch(Dispatchers.Default) { jobBody() })
+    }
+
+    fun newUiJob(name: String, jobBody: suspend () -> Unit): Long {
+        return newJob(name, GlobalScope.launch(Dispatchers.Main) { jobBody() })
+    }
+
     fun cancelJob(name: String) {
         synchronized(namedJobs) {
             namedJobs.remove(name)?.let { oldJobId ->
