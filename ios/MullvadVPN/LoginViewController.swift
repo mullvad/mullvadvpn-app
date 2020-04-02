@@ -169,6 +169,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
         beginLogin(method: .newAccount)
 
         accountTextField.text = ""
+        updateKeyboardToolbar()
 
         loginSubscriber = Account.shared.loginWithNewAccount()
             .receive(on: DispatchQueue.main)
