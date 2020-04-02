@@ -40,7 +40,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         Verifying;
     }
 
-    private val uiJobTracker = JobTracker()
+    private val jobTracker = JobTracker()
 
     private lateinit var timeAgoFormatter: TimeAgoFormatter
 
@@ -190,11 +190,11 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         resetReconnectionExpectedJob?.cancel()
         actionState = ActionState.Idle
         urlController.onPause()
-        uiJobTracker.cancelAllJobs()
+        jobTracker.cancelAllJobs()
     }
 
     private fun updateKeyInformation() {
-        uiJobTracker.newUiJob("updateKeyInformation") {
+        jobTracker.newUiJob("updateKeyInformation") {
             when (val keyState = keyStatus) {
                 is KeygenEvent.NewKey -> {
                     val key = keyState.publicKey
@@ -214,7 +214,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun updateStatus() {
-        uiJobTracker.newUiJob("updateStatus") {
+        jobTracker.newUiJob("updateStatus") {
             verifyingKeySpinner.visibility = when (actionState) {
                 ActionState.Verifying -> View.VISIBLE
                 else -> View.GONE
@@ -263,7 +263,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun updateButtons() {
-        uiJobTracker.newUiJob("updateButtons") {
+        jobTracker.newUiJob("updateButtons") {
             val isIdle = actionState == ActionState.Idle
 
             generateKeyButton.setEnabled(isIdle && hasConnectivity)
