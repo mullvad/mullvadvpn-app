@@ -16,28 +16,6 @@ private let kMullvadAPIURL = URL(string: "https://api.mullvad.net/rpc/")!
 /// Network request timeout in seconds
 private let kNetworkTimeout: TimeInterval = 10
 
-/// A type that describes the account verification result
-enum AccountVerification {
-    /// The app should attempt to verify the account token at some point later because the network
-    /// may not be available at this time.
-    case deferred(DeferReasonError)
-
-    /// The app successfully verified the account token with the server
-    case verified(Date)
-
-    // Invalid token
-    case invalid
-}
-
-/// An error type that describes why the account verification was deferred
-enum DeferReasonError: Error {
-    /// Mullvad API communication error
-    case communication(MullvadAPI.Error)
-
-    /// Mullvad API responded with an error
-    case server(MullvadAPI.ResponseError)
-}
-
 /// A response received when sending the AppStore receipt to the backend
 struct SendAppStoreReceiptResponse: Codable {
     let timeAdded: TimeInterval
@@ -130,31 +108,6 @@ class MullvadAPI {
         let request = JsonRpcRequest(method: "get_expiry", params: [AnyEncodable(accountToken)])
 
         return MullvadAPI.makeDataTaskPublisher(request: request)
-    }
-
-    func verifyAccount(accountToken: String) -> AnyPublisher<AccountVerification, Never> {
-        return getAccountExpiry(accountToken: accountToken)
-            .map({ (response) -> AccountVerification in
-                switch response.result {
-                case .success(let expiry):
-                    // Report .verified when expiry is successfully received
-                    return .verified(expiry)
-
-                case .failure(let serverError):
-                    if case .accountDoesNotExist = serverError.code {
-                        // Report .invalid account if the server responds with the special code
-                        return .invalid
-                    } else {
-                        // Otherwise report .deferred and pass the server error along
-                        return .deferred(.server(serverError))
-                    }
-                }
-            })
-            .catch({ (networkError) in
-                // Treat all communication errors as .deferred verification
-                return Just(.deferred(.communication(networkError)))
-            })
-            .eraseToAnyPublisher()
     }
 
     func pushWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<Response<WireguardAssociatedAddresses>, MullvadAPI.Error> {
