@@ -191,7 +191,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun updateKeyInformation() {
-        uiJobTracker.newJob("updateKeyInformation", GlobalScope.launch(Dispatchers.Main) {
+        uiJobTracker.newUiJob("updateKeyInformation") {
             when (val keyState = keyStatus) {
                 is KeygenEvent.NewKey -> {
                     val key = keyState.publicKey
@@ -207,11 +207,11 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                     keyAge.information = null
                 }
             }
-        })
+        }
     }
 
     private fun updateStatus() {
-        uiJobTracker.newJob("updateStatus", GlobalScope.launch(Dispatchers.Main) {
+        uiJobTracker.newUiJob("updateStatus") {
             verifyingKeySpinner.visibility = when (actionState) {
                 ActionState.Verifying -> View.VISIBLE
                 else -> View.GONE
@@ -228,7 +228,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                     }
                 }
             }
-        })
+        }
     }
 
     private fun updateOfflineStatus() {
@@ -260,13 +260,13 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun updateButtons() {
-        uiJobTracker.newJob("updateButtons", GlobalScope.launch(Dispatchers.Main) {
+        uiJobTracker.newUiJob("updateButtons") {
             val isIdle = actionState == ActionState.Idle
 
             generateKeyButton.setEnabled(isIdle && hasConnectivity)
             verifyKeyButton.setEnabled(isIdle && hasConnectivity)
             manageKeysButton.setEnabled(hasConnectivity)
-        })
+        }
     }
 
     private fun setStatusMessage(message: Int, color: Int) {
