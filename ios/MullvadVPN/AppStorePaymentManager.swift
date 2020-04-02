@@ -124,6 +124,11 @@ class AppStorePaymentManager {
     /// A private hash map that maps each payment to account token
     private var paymentToAccountToken = [SKPayment: String]()
 
+    /// Returns true if the device is able to make payments
+    class var canMakePayments: Bool {
+        return SKPaymentQueue.canMakePayments()
+    }
+
     init(queue: SKPaymentQueue) {
         self.queue = queue
     }

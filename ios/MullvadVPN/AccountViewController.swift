@@ -31,7 +31,9 @@ class AccountViewController: UIViewController {
         UserInterfaceInteractionRestriction(scheduler: DispatchQueue.main) {
             [weak self] (enableUserInteraction, _) in
             // Make sure to disable the button if the product is not loaded
-            self?.purchaseButton.isEnabled = enableUserInteraction && self?.product != nil
+            self?.purchaseButton.isEnabled = enableUserInteraction &&
+                self?.product != nil &&
+                AppStorePaymentManager.canMakePayments
     }
 
     private lazy var viewControllerInteractionRestriction =
@@ -73,7 +75,12 @@ class AccountViewController: UIViewController {
             updateAccountExpiry(expiryDate: expiryDate)
         }
 
-        requestStoreProducts()
+        // Make sure to disable IAPs when payments are restricted
+        if AppStorePaymentManager.canMakePayments {
+            requestStoreProducts()
+        } else {
+            setPaymentsRestricted()
+        }
     }
 
     // MARK: - Private methods
@@ -132,6 +139,13 @@ class AccountViewController: UIViewController {
         )
 
         purchaseButton.setTitle(title, for: .normal)
+    }
+
+    private func setPaymentsRestricted() {
+        let title = NSLocalizedString("Payments restricted", comment: "")
+
+        purchaseButton.setTitle(title, for: .normal)
+        purchaseButton.isEnabled = false
     }
 
     private func setEnableUserInteraction(_ enableUserInteraction: Bool, animated: Bool) {
