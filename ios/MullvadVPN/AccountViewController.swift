@@ -93,7 +93,7 @@ class AccountViewController: UIViewController {
         purchaseButton.isLoading = true
 
         requestProductsSubscriber = AppStorePaymentManager.shared.requestProducts(with: [.thirtyDays])
-            .retry(1)
+            .retry(10)
             .receive(on: DispatchQueue.main)
             .restrictUserInterfaceInteraction(with: self.purchaseButtonInteractionRestriction, animated: true)
             .sink(receiveCompletion: { [weak self] (completion) in
