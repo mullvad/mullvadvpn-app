@@ -52,6 +52,8 @@ fn run() -> Result<()> {
 
     let commands = cmds::get_commands();
     let app = build_cli(&commands);
+
+    #[cfg(feature = "shell-completions")]
     let app = app.subcommand(
         clap::SubCommand::with_name("shell-completions")
             .about("Generates completion scripts for your shell")
@@ -65,12 +67,12 @@ fn run() -> Result<()> {
                 clap::Arg::with_name("DIR")
                     .default_value("./")
                     .help("Output directory where the shell completions are written"),
-            )
-            .setting(clap::AppSettings::Hidden),
+            ),
     );
 
     let app_matches = app.get_matches();
     match app_matches.subcommand() {
+        #[cfg(feature = "shell-completions")]
         ("shell-completions", Some(sub_matches)) => {
             let shell = sub_matches
                 .value_of("SHELL")
