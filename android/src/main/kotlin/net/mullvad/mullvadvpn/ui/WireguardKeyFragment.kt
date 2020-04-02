@@ -214,24 +214,18 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         uiJobTracker.newJob("updateStatus", GlobalScope.launch(Dispatchers.Main) {
             verifyingKeySpinner.visibility = when (actionState) {
                 ActionState.Verifying -> View.VISIBLE
-                else -> View.INVISIBLE
+                else -> View.GONE
             }
 
             when (actionState) {
+                ActionState.Generating -> statusMessage.visibility = View.GONE
+                ActionState.Verifying -> statusMessage.visibility = View.GONE
                 ActionState.Idle -> {
                     if (hasConnectivity) {
                         updateKeyStatus(keyStatus)
                     } else {
                         updateOfflineStatus()
                     }
-                }
-                ActionState.Verifying -> {
-                    statusMessage.visibility = View.INVISIBLE
-                    verifyingKeySpinner.visibility = View.VISIBLE
-                }
-                ActionState.Generating -> {
-                    statusMessage.visibility = View.INVISIBLE
-                    verifyingKeySpinner.visibility = View.INVISIBLE
                 }
             }
         })
@@ -253,7 +247,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 updateKeyIsValid(keyStatus.verified)
             }
         } else {
-            statusMessage.visibility = View.INVISIBLE
+            statusMessage.visibility = View.GONE
         }
     }
 
@@ -261,7 +255,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         when (verified) {
             true -> setStatusMessage(R.string.wireguard_key_valid, R.color.green)
             false -> setStatusMessage(R.string.wireguard_key_invalid, R.color.red)
-            null -> statusMessage.visibility = View.INVISIBLE
+            null -> statusMessage.visibility = View.GONE
         }
     }
 
