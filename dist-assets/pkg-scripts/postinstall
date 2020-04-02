@@ -60,3 +60,8 @@ launchctl load -w $DAEMON_PLIST_PATH
 mkdir -p /usr/local/bin
 ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad" /usr/local/bin/mullvad
 ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-problem-report" /usr/local/bin/mullvad-problem-report
+
+mkdir -p /usr/local/share/bash-completion/completions
+ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad.bash" /usr/local/share/bash-completion/completions/mullvad
+mkdir -p /usr/share/zsh/site-functions
+ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/_mullvad" /usr/share/zsh/site-functions/_mullvad
