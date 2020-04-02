@@ -30,7 +30,8 @@ class AccountViewController: UIViewController {
     private lazy var purchaseButtonInteractionRestriction =
         UserInterfaceInteractionRestriction(scheduler: DispatchQueue.main) {
             [weak self] (enableUserInteraction, _) in
-            self?.purchaseButton.isEnabled = enableUserInteraction
+            // Make sure to disable the button if the product is not loaded
+            self?.purchaseButton.isEnabled = enableUserInteraction && self?.product != nil
     }
 
     private lazy var viewControllerInteractionRestriction =
@@ -97,9 +98,11 @@ class AccountViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .restrictUserInterfaceInteraction(with: self.purchaseButtonInteractionRestriction, animated: true)
             .sink(receiveCompletion: { [weak self] (completion) in
-                if case .finished = completion {
-                    self?.purchaseButton.isLoading = false
+                if case .failure(let error) = completion {
+                    self?.didFailLoadingProducts(with: error)
                 }
+
+                self?.purchaseButton.isLoading = false
                 }, receiveValue: { [weak self] (response) in
                     if let product = response.products.first {
                         self?.setProduct(product, animated: true)
@@ -118,6 +121,15 @@ class AccountViewController: UIViewController {
                 comment: "The buy button title: <TITLE> (<PRICE>). The order can be changed by swapping %1 and %2."
         )
         let title = String(format: format, localizedTitle, localizedPrice)
+
+        purchaseButton.setTitle(title, for: .normal)
+    }
+
+    private func didFailLoadingProducts(with error: Error) {
+        let title = NSLocalizedString(
+            "Cannot connect to AppStore",
+            comment: "The buy button title displayed when unable to load the price of subscription"
+        )
 
         purchaseButton.setTitle(title, for: .normal)
     }
