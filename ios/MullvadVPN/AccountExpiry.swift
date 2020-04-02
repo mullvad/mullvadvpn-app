@@ -25,7 +25,7 @@ class AccountExpiry {
     }
 
     var isExpired: Bool {
-        return date < Date()
+        return date <= Date()
     }
 
     var formattedRemainingTime: String? {
