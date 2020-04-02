@@ -54,6 +54,14 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 updateButtons()
             }
         }
+
+    private var keyStatus: KeygenEvent? = null
+        set(value) {
+            if (field != value) {
+                field = value
+            }
+        }
+
     private var hasConnectivity = true
         set(value) {
             if (field != value) {
@@ -166,6 +174,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
 
         keyStatusListener.onKeyStatusChange = { newKeyStatus ->
+            keyStatus = newKeyStatus
             updateViewsJob?.cancel()
             updateViewsJob = updateViewJob()
         }
@@ -192,7 +201,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private fun updateViews() {
         clearErrorMessage()
 
-        when (val keyState = keyStatusListener.keyStatus) {
+        when (val keyState = keyStatus) {
             null -> {
                 publicKey.information = null
             }
@@ -226,7 +235,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private fun updateButtons() {
         uiJobTracker.newJob("updateButtons", GlobalScope.launch(Dispatchers.Main) {
             val isIdle = actionState == ActionState.Idle
-            val hasKey = keyStatusListener.keyStatus is KeygenEvent.NewKey
+            val hasKey = keyStatus is KeygenEvent.NewKey
 
             generateKeyButton.setEnabled(isIdle && hasConnectivity)
             verifyKeyButton.setEnabled(isIdle && hasConnectivity)
@@ -256,7 +265,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun setGenerateButton() {
-        if (keyStatusListener.keyStatus is KeygenEvent.NewKey) {
+        if (keyStatus is KeygenEvent.NewKey) {
             generateKeyButton.setText(R.string.wireguard_replace_key)
         } else {
             generateKeyButton.setText(R.string.wireguard_generate_key)
@@ -314,7 +323,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             statusMessage.visibility = View.VISIBLE
             actionState = ActionState.Idle
 
-            when (val state = keyStatusListener.keyStatus) {
+            when (val state = keyStatus) {
                 is KeygenEvent.NewKey -> {
                     if (state.verified == null) {
                         Toast.makeText(parentActivity,
