@@ -277,7 +277,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private fun updateButtons() {
         uiJobTracker.newJob("updateButtons", GlobalScope.launch(Dispatchers.Main) {
             val isIdle = actionState == ActionState.Idle
-            val hasKey = keyStatus is KeygenEvent.NewKey
 
             generateKeyButton.setEnabled(isIdle && hasConnectivity)
             verifyKeyButton.setEnabled(isIdle && hasConnectivity)
