@@ -11,12 +11,25 @@ import Foundation
 import StoreKit
 import os
 
-enum InAppPurchase: String {
-    /// Thirty days worth of credit
-    case thirtyDays = "net.mullvad.MullvadVPN.iap.30days"
+enum AppStoreSubscription: String {
+    /// Thirty days non-renewable subscription
+    case thirtyDays = "net.mullvad.MullvadVPN.subscription.30days"
+
+    var localizedTitle: String {
+        switch self {
+        case .thirtyDays:
+            return NSLocalizedString("Add 30 days time", comment: "")
+        }
+    }
 }
 
-extension Set where Element == InAppPurchase {
+extension SKProduct {
+    var customLocalizedTitle: String? {
+        return AppStoreSubscription(rawValue: productIdentifier)?.localizedTitle
+    }
+}
+
+extension Set where Element == AppStoreSubscription {
     var productIdentifiersSet: Set<String> {
         Set<String>(self.map { $0.rawValue })
     }
@@ -111,6 +124,11 @@ class AppStorePaymentManager {
     /// A private hash map that maps each payment to account token
     private var paymentToAccountToken = [SKPayment: String]()
 
+    /// Returns true if the device is able to make payments
+    class var canMakePayments: Bool {
+        return SKPaymentQueue.canMakePayments()
+    }
+
     init(queue: SKPaymentQueue) {
         self.queue = queue
     }
@@ -179,7 +197,7 @@ class AppStorePaymentManager {
 
     // MARK: - Products and payments
 
-    func requestProducts(with productIdentifiers: Set<InAppPurchase>)
+    func requestProducts(with productIdentifiers: Set<AppStoreSubscription>)
         -> SKRequestPublisher<SKProductsRequestSubscription>
     {
         let productIdentifiers = productIdentifiers.productIdentifiersSet

@@ -27,11 +27,14 @@ enum AccountError: Error {
 /// A enum describing the error emitted during login
 enum AccountLoginError: Error {
     case invalidAccount
+    case network(MullvadAPI.Error)
+    case communication(MullvadAPI.ResponseError)
     case tunnelConfiguration(TunnelManagerError)
 }
 
 enum CreateAccountError: Error {
-    case newAccountToken
+    case network(MullvadAPI.Error)
+    case communication(MullvadAPI.ResponseError)
     case tunnelConfiguration(TunnelManagerError)
 }
 
@@ -51,11 +54,14 @@ extension AccountError: LocalizedError {
 
     var failureReason: String? {
         switch self {
-        case .createNew(.newAccountToken):
+        case .createNew(.network), .createNew(.communication):
             return NSLocalizedString("Failed to create new account", comment: "")
 
         case .login(.invalidAccount):
             return NSLocalizedString("Invalid account", comment: "")
+
+        case .login(.network), .login(.communication):
+            return NSLocalizedString("Network error", comment: "")
 
         case .login(.tunnelConfiguration(.setAccount(let setAccountError))),
              .createNew(.tunnelConfiguration(.setAccount(let setAccountError))):
@@ -132,10 +138,10 @@ class Account {
 
     func loginWithNewAccount() -> AnyPublisher<String, AccountError> {
         return apiClient.createAccount()
-            .mapError { _ in CreateAccountError.newAccountToken }
+            .mapError { CreateAccountError.network($0) }
             .flatMap { (response) -> AnyPublisher<(String, Date), CreateAccountError> in
                 response.result
-                    .mapError { _ in CreateAccountError.newAccountToken }
+                    .mapError { CreateAccountError.communication($0) }
                     .publisher
                     .flatMap { (accountToken) in
                         TunnelManager.shared.setAccount(accountToken: accountToken)
@@ -154,23 +160,18 @@ class Account {
     /// Perform the login and save the account token along with expiry (if available) to the
     /// application preferences.
     func login(with accountToken: String) -> AnyPublisher<(), AccountError> {
-        return apiClient.verifyAccount(accountToken: accountToken)
-            .setFailureType(to: AccountLoginError.self)
-            .handleEvents(receiveOutput: { (accountVerification) in
-                if case .deferred(let error) = accountVerification {
-                    os_log(.error, "Failed to verify the account: %{public}s", error.localizedDescription)
-                }
-            })
-            .flatMap {
-                self.handleVerification($0).publisher
-                    .flatMap { (expiry) in
-                        TunnelManager.shared.setAccount(accountToken: accountToken)
-                            .mapError { AccountLoginError.tunnelConfiguration($0) }
-                            .map { expiry }
-                }
-        }.mapError { AccountError.login($0) }
-            .receive(on: DispatchQueue.main).map { (expiry) in
-                self.saveAccountToPreferences(accountToken: accountToken, expiry: expiry)
+        return apiClient.getAccountExpiry(accountToken: accountToken)
+            .mapError { AccountLoginError.network($0) }
+            .flatMap { (response) in
+                response.result
+                    .mapError { AccountLoginError.communication($0) }
+                    .publisher
+        }.flatMap { (expiry) in
+            TunnelManager.shared.setAccount(accountToken: accountToken)
+                .mapError { AccountLoginError.tunnelConfiguration($0) }
+                .map { expiry }
+        }.mapError { AccountError.login($0) }.receive(on: DispatchQueue.main).map { (expiry) in
+            self.saveAccountToPreferences(accountToken: accountToken, expiry: expiry)
         }.eraseToAnyPublisher()
     }
 
@@ -183,18 +184,7 @@ class Account {
             .eraseToAnyPublisher()
     }
 
-    private func handleVerification(_ verification: AccountVerification) -> Result<Date?, AccountLoginError> {
-        switch verification {
-        case .deferred:
-            return .success(nil)
-        case .verified(let expiry):
-            return .success(expiry)
-        case .invalid:
-            return .failure(.invalidAccount)
-        }
-    }
-
-    private func saveAccountToPreferences(accountToken: String, expiry: Date?) {
+    private func saveAccountToPreferences(accountToken: String, expiry: Date) {
         let preferences = UserDefaults.standard
 
         preferences.set(accountToken, forKey: UserDefaultsKeys.accountToken.rawValue)
