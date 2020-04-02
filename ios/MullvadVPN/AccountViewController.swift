@@ -110,9 +110,15 @@ class AccountViewController: UIViewController {
     private func setProduct(_ product: SKProduct, animated: Bool) {
         self.product = product
 
+        let localizedTitle = product.customLocalizedTitle ?? ""
         let localizedPrice = product.localizedPrice ?? ""
-        let title = String(format: NSLocalizedString("%@ (%@)", comment: ""),
-                           product.localizedTitle, localizedPrice)
+
+        let format = NSLocalizedString(
+                "%1$@ (%2$@)",
+                comment: "The buy button title: <TITLE> (<PRICE>). The order can be changed by swapping %1 and %2."
+        )
+        let title = String(format: format, localizedTitle, localizedPrice)
+
         purchaseButton.setTitle(title, for: .normal)
     }
 
