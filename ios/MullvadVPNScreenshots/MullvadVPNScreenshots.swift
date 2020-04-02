@@ -36,12 +36,12 @@ class MullvadVPNScreenshots: XCTestCase {
         _ = app.buttons["AgreeButton"].waitForExistence(timeout: 10)
         app.buttons["AgreeButton"].tap()
 
-        // Wait for Login screen and keyboard
-        _ = app.keyboards.firstMatch.waitForExistence(timeout: 10)
+        // Wait for Login screen
+        let textField = app.textFields["LoginTextField"]
+        _ = textField.waitForExistence(timeout: 5)
         snapshot("Login")
 
         // Enter account token
-        let textField = app.textFields["LoginTextField"]
         textField.tap()
         textField.typeText(accountToken)
 
@@ -96,6 +96,7 @@ class MullvadVPNScreenshots: XCTestCase {
         // Hit "Log out" button
         _ = app.buttons["LogoutButton"].waitForExistence(timeout: 2)
         app.buttons["LogoutButton"].tap()
+        app.alerts.buttons.allElementsBoundByIndex.last?.tap()
 
         // Wait for Login view to appear after log out
         _ = app.textFields["LoginTextField"].waitForExistence(timeout: 10)
