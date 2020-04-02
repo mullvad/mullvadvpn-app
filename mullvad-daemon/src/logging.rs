@@ -39,6 +39,7 @@ pub const SILENCED_CRATES: &[&str] = &[
     "mio",
     "hyper",
     "rtnetlink",
+    "rustls",
     "netlink_proto",
     "netlink_sys",
     "iproute2",
