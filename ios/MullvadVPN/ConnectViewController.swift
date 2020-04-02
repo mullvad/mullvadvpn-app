@@ -154,12 +154,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
 
         showedAccountView = true
 
-        switch Account.shared.expiry?.compare(Date()) {
-        case .orderedAscending, .orderedSame:
+        if let accountExpiry = Account.shared.expiry, AccountExpiry(date: accountExpiry).isExpired {
             rootContainerController?.showSettings(navigateTo: .account, animated: true)
-
-        default:
-            break
         }
     }
 
