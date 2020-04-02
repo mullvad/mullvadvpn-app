@@ -48,6 +48,8 @@ DAEMON_PLIST=$(cat <<-EOM
 EOM
 )
 
+ZSH_COMPLETIONS_DIR="/usr/local/share/zsh/site-functions/"
+
 "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" prepare-restart || true
 
 pkill -x "Mullvad VPN" || echo "Unable to kill GUI, not running?"
@@ -60,3 +62,6 @@ launchctl load -w $DAEMON_PLIST_PATH
 mkdir -p /usr/local/bin
 ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad" /usr/local/bin/mullvad
 ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-problem-report" /usr/local/bin/mullvad-problem-report
+
+mkdir -p "$ZSH_COMPLETIONS_DIR"
+ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/_mullvad" "$ZSH_COMPLETIONS_DIR/_mullvad"

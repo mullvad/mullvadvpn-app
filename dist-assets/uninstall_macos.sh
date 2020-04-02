@@ -22,6 +22,9 @@ echo "Removing app from /Applications ..."
 sudo rm -rf /Applications/Mullvad\ VPN.app
 sudo pkgutil --forget net.mullvad.vpn || true
 
+echo "Removing shell completion symlink ..."
+sudo rm -f /usr/local/share/zsh/site-functions/_mullvad
+
 echo "Removing CLI symlinks from /usr/local/bin/ ..."
 sudo rm -f /usr/local/bin/mullvad /usr/local/bin/mullvad-problem-report
 
