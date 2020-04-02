@@ -45,7 +45,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private lateinit var timeAgoFormatter: TimeAgoFormatter
 
     private var currentJob: Job? = null
-    private var updateViewsJob: Job? = null
     private var tunnelStateListener: Int? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
     private lateinit var urlController: BlockingController
@@ -54,6 +53,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         set(value) {
             if (field != value) {
                 field = value
+                updateKeyInformation()
                 updateStatus()
                 updateButtons()
             }
@@ -63,6 +63,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         set(value) {
             if (field != value) {
                 field = value
+                updateKeyInformation()
                 updateStatus()
             }
         }
@@ -154,8 +155,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             urlController.action()
         }
 
-        updateViews()
-
         return view
     }
 
@@ -174,15 +173,10 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                     || uiState is TunnelState.Disconnected
                     || (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
             }
-
-            updateViewsJob?.cancel()
-            updateViewsJob = updateViewJob()
         }
 
         keyStatusListener.onKeyStatusChange = { newKeyStatus ->
             keyStatus = newKeyStatus
-            updateViewsJob?.cancel()
-            updateViewsJob = updateViewJob()
         }
     }
 
@@ -193,33 +187,30 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
         keyStatusListener.onKeyStatusChange = null
         currentJob?.cancel()
-        updateViewsJob?.cancel()
         resetReconnectionExpectedJob?.cancel()
         actionState = ActionState.Idle
         urlController.onPause()
         uiJobTracker.cancelAllJobs()
     }
 
-    private fun updateViewJob() = GlobalScope.launch(Dispatchers.Main) {
-        updateViews()
-    }
+    private fun updateKeyInformation() {
+        uiJobTracker.newJob("updateKeyInformation", GlobalScope.launch(Dispatchers.Main) {
+            when (val keyState = keyStatus) {
+                is KeygenEvent.NewKey -> {
+                    val key = keyState.publicKey
+                    val publicKeyString = Base64.encodeToString(key.key, Base64.NO_WRAP)
+                    val publicKeyAge = 
+                        DateTime.parse(key.dateCreated, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
 
-    private fun updateViews() {
-        when (val keyState = keyStatus) {
-            null -> {
-                publicKey.information = null
+                    publicKey.information = publicKeyString.substring(0, 20) + "..."
+                    keyAge.information = timeAgoFormatter.format(publicKeyAge)
+                }
+                null -> {
+                    publicKey.information = null
+                    keyAge.information = null
+                }
             }
-
-            is KeygenEvent.NewKey -> {
-                val key = keyState.publicKey
-                val publicKeyString = Base64.encodeToString(key.key, Base64.NO_WRAP)
-                val publicKeyAge = 
-                    DateTime.parse(key.dateCreated, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
-
-                publicKey.information = publicKeyString.substring(0, 20) + "..."
-                keyAge.information = timeAgoFormatter.format(publicKeyAge)
-            }
-        }
+        })
     }
 
     private fun updateStatus() {
@@ -283,7 +274,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
             generateKeyButton.setEnabled(isIdle && hasConnectivity)
             verifyKeyButton.setEnabled(isIdle && hasConnectivity)
-            manageKeysButton.setEnabled(hasConnectivity && hasKey)
+            manageKeysButton.setEnabled(hasConnectivity)
         })
     }
 
@@ -315,28 +306,22 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private fun onGenerateKeyPress() {
         currentJob?.cancel()
 
-        synchronized(this) {
-            actionState = ActionState.Generating
-            reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
-        }
+        currentJob = GlobalScope.launch(Dispatchers.Default) {
+            synchronized(this) {
+                actionState = ActionState.Generating
+                reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
+            }
 
-        updateViews()
-
-        currentJob = GlobalScope.launch(Dispatchers.Main) {
-            publicKey.information = null
-            keyAge.information = null
-
+            keyStatus = null
             keyStatusListener.generateKey().join()
 
             actionState = ActionState.Idle
-            updateViews()
         }
     }
 
     private fun onValidateKeyPress() {
         currentJob?.cancel()
         actionState = ActionState.Verifying
-        updateViews()
 
         currentJob = GlobalScope.launch(Dispatchers.Main) {
             statusMessage.visibility = View.GONE
@@ -357,7 +342,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                     }
                 }
             }
-            updateViews()
         }
     }
 
@@ -367,7 +351,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
             if (reconnectionExpected) {
                 reconnectionExpected = false
-                updateViews()
             }
         }
     }
