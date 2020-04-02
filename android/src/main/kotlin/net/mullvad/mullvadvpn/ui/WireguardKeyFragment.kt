@@ -54,6 +54,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         set(value) {
             if (field != value) {
                 field = value
+                updateStatus()
                 updateButtons()
             }
         }
@@ -62,6 +63,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         set(value) {
             if (field != value) {
                 field = value
+                updateStatus()
             }
         }
 
@@ -69,6 +71,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         set(value) {
             if (field != value) {
                 field = value
+                updateStatus()
                 updateButtons()
             }
         }
@@ -202,8 +205,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun updateViews() {
-        clearErrorMessage()
-
         when (val keyState = keyStatus) {
             null -> {
                 publicKey.information = null
@@ -217,22 +218,63 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
                 publicKey.information = publicKeyString.substring(0, 20) + "..."
                 keyAge.information = timeAgoFormatter.format(publicKeyAge)
-
-                keyState.verified?.let { verified ->
-                    if (verified) {
-                        setStatusMessage(R.string.wireguard_key_valid, R.color.green)
-                    } else {
-                        setStatusMessage(R.string.wireguard_key_invalid, R.color.red)
-                    }
-                }
-
-                keyState.replacementFailure?.let { error -> showKeygenFailure(error) }
-            }
-            else -> {
-                showKeygenFailure(keyState.failure())
             }
         }
-        drawNoConnectionState()
+    }
+
+    private fun updateStatus() {
+        uiJobTracker.newJob("updateStatus", GlobalScope.launch(Dispatchers.Main) {
+            verifyingKeySpinner.visibility = when (actionState) {
+                ActionState.Verifying -> View.VISIBLE
+                else -> View.INVISIBLE
+            }
+
+            when (actionState) {
+                ActionState.Idle -> {
+                    if (hasConnectivity) {
+                        updateKeyStatus(keyStatus)
+                    } else {
+                        updateOfflineStatus()
+                    }
+                }
+                ActionState.Verifying -> {
+                    statusMessage.visibility = View.INVISIBLE
+                    verifyingKeySpinner.visibility =  View.VISIBLE
+                }
+                ActionState.Generating -> {
+                    statusMessage.visibility = View.INVISIBLE
+                    verifyingKeySpinner.visibility =  View.INVISIBLE
+                }
+            }
+        })
+    }
+
+    private fun updateOfflineStatus() {
+        if (reconnectionExpected) {
+            setStatusMessage(R.string.wireguard_key_reconnecting, R.color.green)
+        } else {
+            setStatusMessage(R.string.wireguard_key_blocked_state_message, R.color.red)
+        }
+    }
+
+    private fun updateKeyStatus(keyStatus: KeygenEvent?) {
+        if (keyStatus is KeygenEvent.NewKey) {
+            if (keyStatus.replacementFailure != null) {
+                showKeygenFailure(keyStatus.replacementFailure)
+            } else {
+                updateKeyIsValid(keyStatus.verified)
+            }
+        } else {
+            statusMessage.visibility = View.INVISIBLE
+        }
+    }
+
+    private fun updateKeyIsValid(verified: Boolean?) {
+        when (verified) {
+            true -> setStatusMessage(R.string.wireguard_key_valid, R.color.green)
+            false -> setStatusMessage(R.string.wireguard_key_invalid, R.color.red)
+            null -> statusMessage.visibility = View.INVISIBLE
+        }
     }
 
     private fun updateButtons() {
@@ -252,10 +294,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         statusMessage.visibility = View.VISIBLE
     }
 
-    private fun clearErrorMessage() {
-        statusMessage.visibility = View.GONE
-    }
-
     private fun showKeygenFailure(failure: KeygenFailure?) {
         when (failure) {
             is KeygenFailure.TooManyKeys -> {
@@ -272,21 +310,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             generateKeyButton.setText(R.string.wireguard_replace_key)
         } else {
             generateKeyButton.setText(R.string.wireguard_generate_key)
-        }
-    }
-
-    private fun drawNoConnectionState() {
-        manageKeysButton.setEnabled(true)
-
-        when (tunnelState) {
-            is TunnelState.Connecting, is TunnelState.Disconnecting -> {
-                if (!reconnectionExpected) {
-                    setStatusMessage(R.string.wireguard_key_connectivity, R.color.red)
-                }
-            }
-            is TunnelState.Error -> {
-                setStatusMessage(R.string.wireguard_key_blocked_state_message, R.color.red)
-            }
         }
     }
 
