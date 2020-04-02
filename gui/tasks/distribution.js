@@ -53,6 +53,7 @@ const config = {
       { from: distAssets('binaries/x86_64-apple-darwin/openvpn'), to: '.' },
       { from: distAssets('binaries/x86_64-apple-darwin/sslocal'), to: '.' },
       { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
+      { from: distAssets('shell-completions/_mullvad'), to: '.' },
     ],
   },
 
