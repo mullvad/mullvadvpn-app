@@ -34,10 +34,10 @@ import org.joda.time.format.DateTimeFormat
 val RFC3339_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSSSSSSSSS z")
 
 class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
-    enum class ActionState {
-        Idle,
-        Generating,
-        Verifying;
+    sealed class ActionState {
+        class Idle(val verified: Boolean) : ActionState()
+        class Generating() : ActionState()
+        class Verifying() : ActionState()
     }
 
     private val jobTracker = JobTracker()
@@ -49,7 +49,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private var tunnelState: TunnelState = TunnelState.Disconnected()
     private lateinit var urlController: BlockingController
 
-    private var actionState = ActionState.Idle
+    private var actionState: ActionState = ActionState.Idle(false)
         set(value) {
             if (field != value) {
                 field = value
@@ -163,7 +163,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             synchronized(this@WireguardKeyFragment) {
                 tunnelState = uiState
 
-                if (actionState == ActionState.Generating) {
+                if (actionState is ActionState.Generating) {
                     reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
                 } else if (tunnelState is TunnelState.Connected) {
                     reconnectionExpected = false
@@ -185,10 +185,13 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             connectionProxy.onUiStateChange.unsubscribe(listener)
         }
 
+        if (!(actionState is ActionState.Idle)) {
+            actionState = ActionState.Idle(false)
+        }
+
         keyStatusListener.onKeyStatusChange = null
         currentJob?.cancel()
         resetReconnectionExpectedJob?.cancel()
-        actionState = ActionState.Idle
         urlController.onPause()
         jobTracker.cancelAllJobs()
     }
@@ -216,16 +219,16 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private fun updateStatus() {
         jobTracker.newUiJob("updateStatus") {
             verifyingKeySpinner.visibility = when (actionState) {
-                ActionState.Verifying -> View.VISIBLE
+                is ActionState.Verifying -> View.VISIBLE
                 else -> View.GONE
             }
 
-            when (actionState) {
-                ActionState.Generating -> statusMessage.visibility = View.GONE
-                ActionState.Verifying -> statusMessage.visibility = View.GONE
-                ActionState.Idle -> {
+            when (val state = actionState) {
+                is ActionState.Generating -> statusMessage.visibility = View.GONE
+                is ActionState.Verifying -> statusMessage.visibility = View.GONE
+                is ActionState.Idle -> {
                     if (hasConnectivity) {
-                        updateKeyStatus(keyStatus)
+                        updateKeyStatus(state.verified, keyStatus)
                     } else {
                         updateOfflineStatus()
                     }
@@ -242,29 +245,35 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
     }
 
-    private fun updateKeyStatus(keyStatus: KeygenEvent?) {
+    private fun updateKeyStatus(verificationWasDone: Boolean, keyStatus: KeygenEvent?) {
         if (keyStatus is KeygenEvent.NewKey) {
             if (keyStatus.replacementFailure != null) {
                 showKeygenFailure(keyStatus.replacementFailure)
             } else {
-                updateKeyIsValid(keyStatus.verified)
+                updateKeyIsValid(verificationWasDone, keyStatus.verified)
             }
         } else {
             statusMessage.visibility = View.GONE
         }
     }
 
-    private fun updateKeyIsValid(verified: Boolean?) {
+    private fun updateKeyIsValid(verificationWasDone: Boolean, verified: Boolean?) {
         when (verified) {
             true -> setStatusMessage(R.string.wireguard_key_valid, R.color.green)
             false -> setStatusMessage(R.string.wireguard_key_invalid, R.color.red)
-            null -> statusMessage.visibility = View.GONE
+            null -> {
+                if (verificationWasDone) {
+                    setStatusMessage(R.string.wireguard_key_verification_failure, R.color.red)
+                } else {
+                    statusMessage.visibility = View.GONE
+                }
+            }
         }
     }
 
     private fun updateButtons() {
         jobTracker.newUiJob("updateButtons") {
-            val isIdle = actionState == ActionState.Idle
+            val isIdle = actionState is ActionState.Idle
 
             generateKeyButton.setEnabled(isIdle && hasConnectivity)
             verifyKeyButton.setEnabled(isIdle && hasConnectivity)
@@ -302,40 +311,24 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
         currentJob = GlobalScope.launch(Dispatchers.Default) {
             synchronized(this) {
-                actionState = ActionState.Generating
+                actionState = ActionState.Generating()
                 reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
             }
 
             keyStatus = null
             keyStatusListener.generateKey().join()
 
-            actionState = ActionState.Idle
+            actionState = ActionState.Idle(false)
         }
     }
 
     private fun onValidateKeyPress() {
         currentJob?.cancel()
-        actionState = ActionState.Verifying
 
-        currentJob = GlobalScope.launch(Dispatchers.Main) {
-            statusMessage.visibility = View.GONE
-            verifyingKeySpinner.visibility = View.VISIBLE
-
+        currentJob = GlobalScope.launch(Dispatchers.Default) {
+            actionState = ActionState.Verifying()
             keyStatusListener.verifyKey().join()
-
-            verifyingKeySpinner.visibility = View.GONE
-            statusMessage.visibility = View.VISIBLE
-            actionState = ActionState.Idle
-
-            when (val state = keyStatus) {
-                is KeygenEvent.NewKey -> {
-                    if (state.verified == null) {
-                        Toast.makeText(parentActivity,
-                            R.string.wireguard_key_verification_failure,
-                            Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
+            actionState = ActionState.Idle(true)
         }
     }
 
