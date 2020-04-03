@@ -2,7 +2,7 @@
 use regex::Regex;
 use std::{
     fs,
-    io::{self, BufRead, BufReader, BufWriter, Write},
+    io::{self, BufRead, BufReader, BufWriter, Read, Seek, Write},
     net::{AddrParseError, IpAddr},
     path::Path,
     process::Command,
@@ -128,13 +128,11 @@ impl SplitTunnel {
     fn initialize_routing_table(&mut self) -> Result<(), Error> {
         // Add routing table to /etc/iproute2/rt_tables, if it does not exist
 
-        let mut file = fs::OpenOptions::new()
+        let file = fs::OpenOptions::new()
             .read(true)
-            .append(true)
-            .create(true)
             .open(RT_TABLES_PATH)
             .map_err(Error::RoutingTableSetup)?;
-        let buf_reader = BufReader::new(file.try_clone().map_err(Error::RoutingTableSetup)?);
+        let buf_reader = BufReader::new(file);
         let expression = Regex::new(r"^\s*(\d+)\s+(\w+)").unwrap();
 
         let mut used_ids = Vec::<i32>::new();
@@ -169,7 +167,22 @@ impl SplitTunnel {
             }
         }
 
-        write!(file, "{} {}", self.table_id, ROUTING_TABLE_NAME).map_err(Error::RoutingTableSetup)
+        let mut file = fs::OpenOptions::new()
+            .read(true)
+            .append(true)
+            .open(RT_TABLES_PATH)
+            .map_err(Error::RoutingTableSetup)?;
+
+        if let Ok(_) = file.seek(io::SeekFrom::End(-1)) {
+            // Append newline if necessary
+            let mut buffer = [0u8];
+            let _ = file.read_exact(&mut buffer);
+            if buffer[0] != b'\n' {
+                writeln!(file).map_err(Error::RoutingTableSetup)?;
+            }
+        }
+
+        writeln!(file, "{} {}", self.table_id, ROUTING_TABLE_NAME).map_err(Error::RoutingTableSetup)
     }
 
     /// Reset the split-tunneling routing table to its default state
