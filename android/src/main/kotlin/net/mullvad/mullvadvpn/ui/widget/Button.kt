@@ -4,10 +4,11 @@ import android.content.Context
 import android.util.AttributeSet
 import net.mullvad.mullvadvpn.util.JobTracker
 
-class Button : android.widget.Button {
+open class Button : android.widget.Button {
     private var clickJobName: String? = null
-    private var jobTracker: JobTracker? = null
     private var onClickAction: (suspend () -> Unit)? = null
+
+    protected var jobTracker: JobTracker? = null
 
     constructor(context: Context) : super(context) {}
 
