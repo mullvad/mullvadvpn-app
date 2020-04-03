@@ -14,6 +14,7 @@
 /dist-assets/mullvad.exe
 /dist-assets/mullvad-daemon
 /dist-assets/mullvad-daemon.exe
+/dist-assets/mullvad-exclude
 /dist-assets/mullvad-setup
 /dist-assets/mullvad-setup.exe
 /dist-assets/mullvad-problem-report
