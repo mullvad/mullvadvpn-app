@@ -82,7 +82,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private lateinit var statusMessage: TextView
     private lateinit var verifyingKeySpinner: View
     private lateinit var manageKeysButton: UrlButton
-    private lateinit var generateKeyButton: android.widget.Button
+    private lateinit var generateKeyButton: Button
     private lateinit var verifyKeyButton: Button
 
     override fun onAttach(context: Context) {
@@ -107,13 +107,13 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         keyAge = view.findViewById(R.id.key_age)
 
         generateKeyButton = view.findViewById<Button>(R.id.generate_key).apply {
-            setOnClickListener {
+            setOnClickAction("action", jobTracker) {
                 onGenerateKeyPress()
             }
         }
 
         verifyKeyButton = view.findViewById<Button>(R.id.verify_key).apply {
-            setOnClickListener {
+            setOnClickAction("action", jobTracker) {
                 onValidateKeyPress()
             }
         }
@@ -272,26 +272,22 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
     }
 
-    private fun onGenerateKeyPress() {
-        jobTracker.newBackgroundJob("action") {
-            synchronized(this) {
-                actionState = ActionState.Generating()
-                reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
-            }
-
-            keyStatus = null
-            keyStatusListener.generateKey().join()
-
-            actionState = ActionState.Idle(false)
+    private suspend fun onGenerateKeyPress() {
+        synchronized(this) {
+            actionState = ActionState.Generating()
+            reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
         }
+
+        keyStatus = null
+        keyStatusListener.generateKey().join()
+
+        actionState = ActionState.Idle(false)
     }
 
-    private fun onValidateKeyPress() {
-        jobTracker.newBackgroundJob("action") {
-            actionState = ActionState.Verifying()
-            keyStatusListener.verifyKey().join()
-            actionState = ActionState.Idle(true)
-        }
+    private suspend fun onValidateKeyPress() {
+        actionState = ActionState.Verifying()
+        keyStatusListener.verifyKey().join()
+        actionState = ActionState.Idle(true)
     }
 
     private fun resetReconnectionExpected() {
