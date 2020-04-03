@@ -13,4 +13,11 @@
                  android:indeterminateDuration="600"
                  android:indeterminateDrawable="@drawable/icon_spinner"
                  android:visibility="gone" />
+    <ImageView android:id="@+id/image"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_marginHorizontal="9dp"
+               android:layout_gravity="right|center_vertical"
+               android:src="@android:color/transparent"
+               android:visibility="gone" />
 </merge>
