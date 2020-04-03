@@ -130,7 +130,7 @@ const config = {
     ],
     afterInstall: distAssets('linux/after-install.sh'),
     afterRemove: distAssets('linux/after-remove.sh'),
-    depends: ['iputils-ping'],
+    depends: ['iputils-ping', 'libappindicator3-1'],
   },
 
   rpm: {
