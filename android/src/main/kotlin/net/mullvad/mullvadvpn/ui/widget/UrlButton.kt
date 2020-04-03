@@ -41,6 +41,8 @@ class UrlButton : Button {
 
     init {
         super.setEnabled(false)
+        super.detailImage = context.resources.getDrawable(R.drawable.icon_extlink)
+        super.showSpinner = true
     }
 
     fun prepare(daemon: MullvadDaemon, jobTracker: JobTracker, jobName: String = "fetchUrl") {
