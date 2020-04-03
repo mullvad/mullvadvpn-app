@@ -1,19 +1,13 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.KeygenFailure
@@ -21,6 +15,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
+import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.TimeAgoFormatter
 import org.joda.time.DateTime
@@ -42,7 +37,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private var tunnelStateListener: Int? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
-    private lateinit var urlController: BlockingController
 
     private var actionState: ActionState = ActionState.Idle(false)
         set(value) {
@@ -87,7 +81,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private lateinit var keyAge: InformationView
     private lateinit var statusMessage: TextView
     private lateinit var verifyingKeySpinner: View
-    private lateinit var manageKeysButton: Button
+    private lateinit var manageKeysButton: UrlButton
     private lateinit var generateKeyButton: android.widget.Button
     private lateinit var verifyKeyButton: Button
 
@@ -109,7 +103,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
 
         statusMessage = view.findViewById<TextView>(R.id.wireguard_key_status)
-        manageKeysButton = view.findViewById(R.id.manage_keys)
         publicKey = view.findViewById(R.id.public_key)
         keyAge = view.findViewById(R.id.key_age)
 
@@ -127,26 +120,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
         verifyingKeySpinner = view.findViewById(R.id.verifying_key_spinner)
 
-        val keyUrl = parentActivity.getString(R.string.wg_key_url)
-
-        urlController = BlockingController(
-            object : BlockableView {
-                override fun setEnabled(enabled: Boolean) {
-                    manageKeysButton.setEnabled(enabled && !(tunnelState is TunnelState.Error))
-                }
-
-                override fun onClick(): Job {
-                    return GlobalScope.launch(Dispatchers.Default) {
-                        val token = daemon.getWwwAuthToken()
-                        val intent = Intent(Intent.ACTION_VIEW,
-                                            Uri.parse(keyUrl + "?token=" + token))
-                        startActivity(intent)
-                    }
-                }
-            }
-        )
-        manageKeysButton.setOnClickListener {
-            urlController.action()
+        manageKeysButton = view.findViewById<UrlButton>(R.id.manage_keys).apply {
+            prepare(daemon, jobTracker)
         }
 
         return view
@@ -184,7 +159,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
 
         keyStatusListener.onKeyStatusChange = null
-        urlController.onPause()
         jobTracker.cancelAllJobs()
     }
 
