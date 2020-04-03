@@ -11,4 +11,8 @@
             <enum name="showSpinner" value="2"/>
         </attr>
     </declare-styleable>
+    <declare-styleable name="UrlButton">
+        <attr name="url" format="reference|string"/>
+        <attr name="withToken" format="boolean"/>
+    </declare-styleable>
 </resources>
