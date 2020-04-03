@@ -27,6 +27,11 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Add WireGuard MTU setting.
 
+### Changed
+#### Windows
+- Windows 7 only: Address packet loss issues with OpenVPN on some systems by reverting the TAP
+  adapter driver to an older NDIS 5 driver.
+
 
 ## [2020.4-beta1] - 2020-03-30
 ### Added
