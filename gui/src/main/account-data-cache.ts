@@ -102,7 +102,8 @@ export default class AccountDataCache {
   private scheduleRetry(accountToken: AccountToken) {
     this.fetchAttempt += 1;
 
-    const delay = Math.min(2048, 1 << (this.fetchAttempt + 2)) * 1000;
+    // Max delay: 2^11 = 2048
+    const delay = Math.pow(2, Math.min(this.fetchAttempt + 2, 11)) * 1000;
 
     log.warn(`Failed to fetch account data. Retrying in ${delay} ms`);
 
