@@ -40,7 +40,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private lateinit var timeAgoFormatter: TimeAgoFormatter
 
-    private var currentJob: Job? = null
     private var tunnelStateListener: Int? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
     private lateinit var urlController: BlockingController
@@ -73,12 +72,11 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             }
         }
 
-    private var resetReconnectionExpectedJob: Job? = null
     private var reconnectionExpected = false
         set(value) {
             field = value
 
-            resetReconnectionExpectedJob?.cancel()
+            jobTracker.cancelJob("resetReconnectionExpected")
 
             if (value == true) {
                 resetReconnectionExpected()
@@ -186,8 +184,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
 
         keyStatusListener.onKeyStatusChange = null
-        currentJob?.cancel()
-        resetReconnectionExpectedJob?.cancel()
         urlController.onPause()
         jobTracker.cancelAllJobs()
     }
@@ -303,9 +299,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun onGenerateKeyPress() {
-        currentJob?.cancel()
-
-        currentJob = GlobalScope.launch(Dispatchers.Default) {
+        jobTracker.newBackgroundJob("action") {
             synchronized(this) {
                 actionState = ActionState.Generating()
                 reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
@@ -319,9 +313,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun onValidateKeyPress() {
-        currentJob?.cancel()
-
-        currentJob = GlobalScope.launch(Dispatchers.Default) {
+        jobTracker.newBackgroundJob("action") {
             actionState = ActionState.Verifying()
             keyStatusListener.verifyKey().join()
             actionState = ActionState.Idle(true)
@@ -329,7 +321,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun resetReconnectionExpected() {
-        resetReconnectionExpectedJob = GlobalScope.launch(Dispatchers.Main) {
+        jobTracker.newBackgroundJob("resetReconnectionExpected") {
             delay(20_000)
 
             if (reconnectionExpected) {
