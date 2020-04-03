@@ -2,20 +2,67 @@ package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.FrameLayout
+import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.util.JobTracker
 
-open class Button : android.widget.Button {
+open class Button : FrameLayout {
+    enum class ButtonColor {
+        Blue,
+        Green;
+
+        companion object {
+            internal fun fromCode(code: Int): ButtonColor {
+                when (code) {
+                    0 -> return Blue
+                    1 -> return Green
+                    else -> throw Exception("Invalid buttonColor attribute value")
+                }
+            }
+        }
+    }
+
+    private val container =
+        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
+            val inflater = service as LayoutInflater
+
+            inflater.inflate(R.layout.button, this)
+        }
+
+    private val button = container.findViewById<android.widget.Button>(R.id.button)
+    private val spinner: View = container.findViewById(R.id.spinner)
+
     private var clickJobName: String? = null
     private var onClickAction: (suspend () -> Unit)? = null
 
     protected var jobTracker: JobTracker? = null
 
+    var buttonColor: ButtonColor = ButtonColor.Blue
+        set(value) {
+            field = value
+
+            val backgroundResource = when (value) {
+                ButtonColor.Blue -> R.drawable.blue_button_background
+                ButtonColor.Green -> R.drawable.green_button_background
+            }
+
+            button.setBackgroundResource(backgroundResource)
+        }
+
+    var showSpinner = false
+
     constructor(context: Context) : super(context) {}
 
-    constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}
+    constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {
+        loadAttributes(attributes)
+    }
 
     constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {}
+        super(context, attributes, defaultStyleAttribute) {
+        loadAttributes(attributes)
+    }
 
     constructor(
         context: Context,
@@ -23,6 +70,7 @@ open class Button : android.widget.Button {
         defaultStyleAttribute: Int,
         defaultStyleResource: Int
     ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {
+        loadAttributes(attributes)
     }
 
     override fun setEnabled(enabled: Boolean) {
@@ -36,8 +84,16 @@ open class Button : android.widget.Button {
     }
 
     init {
-        setOnClickListener {
-            jobTracker?.newUiJob(clickJobName!!, onClickAction!!)
+        button.setOnClickListener {
+            jobTracker?.newUiJob(clickJobName!!) {
+                if (showSpinner) {
+                    spinner.visibility = VISIBLE
+                }
+
+                onClickAction!!.invoke()
+
+                spinner.visibility = GONE
+            }
         }
     }
 
@@ -45,5 +101,23 @@ open class Button : android.widget.Button {
         clickJobName = jobName
         jobTracker = tracker
         onClickAction = action
+    }
+
+    fun setText(textResource: Int) {
+        button.setText(textResource)
+    }
+
+    private fun loadAttributes(attributes: AttributeSet) {
+        var styleableId = R.styleable.Button
+
+        context.theme.obtainStyledAttributes(attributes, styleableId, 0, 0).apply {
+            try {
+                button.text = getString(R.styleable.Button_text) ?: ""
+                buttonColor = ButtonColor.fromCode(getInteger(R.styleable.Button_buttonColor, 0))
+                showSpinner = getBoolean(R.styleable.Button_showSpinner, false)
+            } finally {
+                recycle()
+            }
+        }
     }
 }
