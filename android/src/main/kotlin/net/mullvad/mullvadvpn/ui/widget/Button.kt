@@ -1,10 +1,12 @@
 package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.util.JobTracker
 
@@ -33,6 +35,7 @@ open class Button : FrameLayout {
 
     private val button = container.findViewById<android.widget.Button>(R.id.button)
     private val spinner: View = container.findViewById(R.id.spinner)
+    private val image: ImageView = container.findViewById(R.id.image)
 
     private var clickJobName: String? = null
     private var onClickAction: (suspend () -> Unit)? = null
@@ -49,6 +52,20 @@ open class Button : FrameLayout {
             }
 
             button.setBackgroundResource(backgroundResource)
+        }
+
+    var detailImage: Drawable? = null
+        set(value) {
+            field = value
+
+            image.apply {
+                if (value == null) {
+                    visibility = GONE
+                } else {
+                    visibility = VISIBLE
+                    setImageDrawable(value)
+                }
+            }
         }
 
     var showSpinner = false
@@ -87,12 +104,17 @@ open class Button : FrameLayout {
         button.setOnClickListener {
             jobTracker?.newUiJob(clickJobName!!) {
                 if (showSpinner) {
+                    image.visibility = GONE
                     spinner.visibility = VISIBLE
                 }
 
                 onClickAction!!.invoke()
 
                 spinner.visibility = GONE
+
+                if (detailImage != null) {
+                    image.visibility = VISIBLE
+                }
             }
         }
     }
@@ -114,6 +136,7 @@ open class Button : FrameLayout {
             try {
                 button.text = getString(R.styleable.Button_text) ?: ""
                 buttonColor = ButtonColor.fromCode(getInteger(R.styleable.Button_buttonColor, 0))
+                detailImage = getDrawable(R.styleable.Button_detailImage)
                 showSpinner = getBoolean(R.styleable.Button_showSpinner, false)
             } finally {
                 recycle()
