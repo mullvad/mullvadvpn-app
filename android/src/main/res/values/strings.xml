@@ -165,8 +165,8 @@
     manage keys while in a blocked state</string>
     <string name="wireguard_key_valid">Key is valid</string>
     <string name="wireguard_key_invalid">Key is invalid</string>
-    <string name="wireguard_key_verification_failure">Failed to
-    validate key</string>
+    <string name="wireguard_key_verification_failure">Key verification
+    failed</string>
     <string name="wireguard_public_key">WireGuard public key
     </string>
     <string name="copied_wireguard_public_key">Copied WireGuard
