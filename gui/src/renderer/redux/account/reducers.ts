@@ -1,21 +1,23 @@
 import { AccountToken } from '../../../shared/daemon-rpc-types';
 import { ReduxAction } from '../store';
 
-export type LoginState = 'none' | 'logging in' | 'failed' | 'ok';
+type LoginMethod = 'existing_account' | 'new_account';
+export type LoginState =
+  | { type: 'none' }
+  | { type: 'logging in' | 'ok'; method: LoginMethod }
+  | { type: 'failed'; method: LoginMethod; error: Error };
 export interface IAccountReduxState {
   accountToken?: AccountToken;
   accountHistory: AccountToken[];
   expiry?: string; // ISO8601
   status: LoginState;
-  error?: Error;
 }
 
 const initialState: IAccountReduxState = {
   accountToken: undefined,
   accountHistory: [],
   expiry: undefined,
-  status: 'none',
-  error: undefined,
+  status: { type: 'none' },
 };
 
 export default function(
@@ -27,44 +29,62 @@ export default function(
       return {
         ...state,
         ...{
-          status: 'logging in',
+          status: { type: 'logging in', method: 'existing_account' },
           accountToken: action.accountToken,
-          error: undefined,
         },
       };
     case 'LOGGED_IN':
       return {
         ...state,
         ...{
-          status: 'ok',
-          error: undefined,
+          status: { type: 'ok', method: 'existing_account' },
         },
       };
     case 'LOGIN_FAILED':
       return {
         ...state,
         ...{
-          status: 'failed',
+          status: { type: 'failed', method: 'existing_account', error: action.error },
           accountToken: undefined,
-          error: action.error,
         },
       };
     case 'LOGGED_OUT':
       return {
         ...state,
         ...{
-          status: 'none',
+          status: { type: 'none' },
           accountToken: undefined,
           expiry: undefined,
-          error: undefined,
         },
       };
     case 'RESET_LOGIN_ERROR':
       return {
         ...state,
         ...{
-          status: 'none',
-          error: undefined,
+          status: { type: 'none' },
+        },
+      };
+    case 'START_CREATE_ACCOUNT':
+      return {
+        ...state,
+        ...{
+          status: { type: 'logging in', method: 'new_account' },
+        },
+      };
+    case 'CREATE_ACCOUNT_FAILED':
+      return {
+        ...state,
+        ...{
+          status: { type: 'failed', method: 'new_account', error: action.error },
+        },
+      };
+    case 'ACCOUNT_CREATED':
+      return {
+        ...state,
+        ...{
+          status: { type: 'ok', method: 'new_account' },
+          accountToken: action.token,
+          expiry: action.expiry,
         },
       };
     case 'UPDATE_ACCOUNT_TOKEN':

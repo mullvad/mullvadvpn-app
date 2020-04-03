@@ -40,7 +40,7 @@ export interface IProps {
 
 export default class Settings extends Component<IProps> {
   public render() {
-    const showLargeTitle = this.props.loginState !== 'ok';
+    const showLargeTitle = this.props.loginState.type !== 'ok';
 
     return (
       <Layout>
@@ -95,7 +95,7 @@ export default class Settings extends Component<IProps> {
   }
 
   private renderTopButtons() {
-    const isLoggedIn = this.props.loginState === 'ok';
+    const isLoggedIn = this.props.loginState.type === 'ok';
     if (!isLoggedIn) {
       return null;
     }
