@@ -1,4 +1,12 @@
 <resources>
+    <declare-styleable name="Button">
+        <attr name="buttonColor" format="enum">
+            <enum name="blue" value="0"/>
+            <enum name="green" value="1"/>
+        </attr>
+        <attr name="showSpinner" format="boolean"/>
+        <attr name="text" format="reference|string"/>
+    </declare-styleable>
     <declare-styleable name="CopyableInformationView">
         <attr name="clipboardLabel" format="reference|string"/>
         <attr name="copiedToast" format="reference|string"/>
