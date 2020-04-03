@@ -25,6 +25,7 @@
 /dist-assets/openvpn.exe
 /dist-assets/sslocal
 /dist-assets/sslocal.exe
+/dist-assets/shell-completions/
 /windows/**/bin/
 /windows/**/*.user
 /android/keystore.properties
