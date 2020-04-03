@@ -76,7 +76,7 @@ The following network traffic is allowed or blocked independent of state:
      * `192.168.0.0/16`
      * `169.254.0.0/16` (Link-local IPv4 range)
      * `fe80::/10` (Link-local IPv6 range)
-     * `fd00::/8` (Unique-local range)
+     * `fc00::/7` (Unique local address (ULA) range)
    * Outgoing to any IP in a local, unroutable, multicast network, meaning these:
      * `224.0.0.0/24` (Local subnet IPv4 multicast)
      * `239.255.0.0/16` (IPv4 local scope. eg. SSDP and mDNS)

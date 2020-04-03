@@ -37,7 +37,7 @@ lazy_static! {
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(169, 254, 0, 0), 16).unwrap()),
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap()),
-        IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfd00, 0, 0, 0, 0, 0, 0, 0), 8).unwrap()),
+        IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfc00, 0, 0, 0, 0, 0, 0, 0), 7).unwrap()),
     ];
     /// When "allow local network" is enabled the app will allow traffic to these networks.
     pub(crate) static ref ALLOWED_LAN_MULTICAST_NETS: [IpNetwork; 8] = [
