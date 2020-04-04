@@ -47,17 +47,27 @@ open class InformationView : LinearLayout {
             updateEnabled()
         }
 
+    var error: String? = null
+        set(value) {
+            field = value
+            updateStatus()
+        }
+
+    var errorColor = context.resources.getColor(R.color.red)
+        set(value) {
+            field = value
+            updateStatus()
+        }
+
     var information: String? = null
         set(value) {
             field = value
-            informationDisplay.text = value
             updateStatus()
         }
 
     var informationColor = context.resources.getColor(R.color.white)
         set(value) {
             field = value
-            informationDisplay.setTextColor(value)
             updateStatus()
         }
 
@@ -109,6 +119,8 @@ open class InformationView : LinearLayout {
             try {
                 description.text = getString(R.styleable.InformationView_description) ?: ""
 
+                errorColor = getInteger(R.styleable.InformationView_errorColor, errorColor)
+
                 informationColor = getInteger(
                     R.styleable.InformationView_informationColor,
                     informationColor
@@ -124,13 +136,23 @@ open class InformationView : LinearLayout {
     }
 
     private fun updateStatus() {
-        if (whenMissing == WhenMissing.Hide && information == null) {
+        val hasText = information != null || error != null
+
+        if (error != null) {
+            informationDisplay.setTextColor(errorColor)
+            informationDisplay.text = error
+        } else if (information != null) {
+            informationDisplay.setTextColor(informationColor)
+            informationDisplay.text = information
+        }
+
+        if (whenMissing == WhenMissing.Hide && !hasText) {
             visibility = INVISIBLE
         } else {
             visibility = VISIBLE
         }
 
-        if (whenMissing == WhenMissing.ShowSpinner && information == null) {
+        if (whenMissing == WhenMissing.ShowSpinner && !hasText) {
             spinner.visibility = VISIBLE
             informationDisplay.visibility = INVISIBLE
         } else {
@@ -142,6 +164,6 @@ open class InformationView : LinearLayout {
     }
 
     private fun updateEnabled() {
-        setEnabled(shouldEnable && information != null)
+        setEnabled(shouldEnable && error == null && information != null)
     }
 }
