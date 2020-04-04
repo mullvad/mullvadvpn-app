@@ -15,6 +15,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
+import net.mullvad.mullvadvpn.ui.widget.InformationView.WhenMissing
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.TimeAgoFormatter
@@ -193,10 +194,17 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 val publicKeyAge =
                     DateTime.parse(key.dateCreated, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
 
+                publicKey.error = null
                 publicKey.information = publicKeyString.substring(0, 20) + "..."
                 keyAge.information = timeAgoFormatter.format(publicKeyAge)
             }
+            is KeygenEvent.TooManyKeys, is KeygenEvent.GenerationFailure -> {
+                publicKey.error = resources.getString(failureMessage(keyState.failure()!!))
+                publicKey.information = null
+                keyAge.information = null
+            }
             null -> {
+                publicKey.error = null
                 publicKey.information = null
                 keyAge.information = null
             }
@@ -227,8 +235,10 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private fun updateKeyStatus(verificationWasDone: Boolean, keyStatus: KeygenEvent?) {
         if (keyStatus is KeygenEvent.NewKey) {
-            if (keyStatus.replacementFailure != null) {
-                showKeygenFailure(keyStatus.replacementFailure)
+            val replacementFailure = keyStatus.replacementFailure
+
+            if (replacementFailure != null) {
+                setStatusMessage(failureMessage(replacementFailure), R.color.red)
             } else {
                 updateKeyIsValid(verificationWasDone, keyStatus.verified)
             }
@@ -283,14 +293,10 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         statusMessage.visibility = View.VISIBLE
     }
 
-    private fun showKeygenFailure(failure: KeygenFailure?) {
+    private fun failureMessage(failure: KeygenFailure): Int {
         when (failure) {
-            is KeygenFailure.TooManyKeys -> {
-                setStatusMessage(R.string.too_many_keys, R.color.red)
-            }
-            is KeygenFailure.GenerationFailure -> {
-                setStatusMessage(R.string.failed_to_generate_key, R.color.red)
-            }
+            is KeygenFailure.TooManyKeys -> return R.string.too_many_keys
+            is KeygenFailure.GenerationFailure -> return R.string.failed_to_generate_key
         }
     }
 
