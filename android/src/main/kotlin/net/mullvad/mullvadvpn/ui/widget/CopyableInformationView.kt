@@ -59,6 +59,13 @@ class CopyableInformationView : LinearLayout {
             updateStatus()
         }
 
+    var informationColor = context.resources.getColor(R.color.white)
+        set(value) {
+            field = value
+            informationDisplay.setTextColor(value)
+            updateStatus()
+        }
+
     var whenMissing = WhenMissing.Nothing
         set(value) {
             field = value
@@ -106,6 +113,12 @@ class CopyableInformationView : LinearLayout {
                 description.text = getString(R.styleable.CopyableInformationView_description) ?: ""
                 clipboardLabel = getString(R.styleable.CopyableInformationView_clipboardLabel)
                 copiedToast = getString(R.styleable.CopyableInformationView_copiedToast)
+
+                informationColor = getInteger(
+                    R.styleable.CopyableInformationView_informationColor,
+                    informationColor
+                )
+
                 whenMissing = WhenMissing.fromCode(
                     getInteger(R.styleable.CopyableInformationView_whenMissing, 0)
                 )
