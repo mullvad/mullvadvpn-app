@@ -47,7 +47,7 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
                             oldStatus.verified,
                             newFailure)
         } else {
-            keyStatus = newStatus
+            keyStatus = newStatus ?: KeygenEvent.GenerationFailure()
         }
     }
 
