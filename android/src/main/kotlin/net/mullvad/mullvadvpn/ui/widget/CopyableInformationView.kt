@@ -52,17 +52,27 @@ class CopyableInformationView : LinearLayout {
 
     var copiedToast: String? = null
 
+    var error: String? = null
+        set(value) {
+            field = value
+            updateStatus()
+        }
+
+    var errorColor = context.resources.getColor(R.color.red)
+        set(value) {
+            field = value
+            updateStatus()
+        }
+
     var information: String? = null
         set(value) {
             field = value
-            informationDisplay.text = value
             updateStatus()
         }
 
     var informationColor = context.resources.getColor(R.color.white)
         set(value) {
             field = value
-            informationDisplay.setTextColor(value)
             updateStatus()
         }
 
@@ -114,6 +124,8 @@ class CopyableInformationView : LinearLayout {
                 clipboardLabel = getString(R.styleable.CopyableInformationView_clipboardLabel)
                 copiedToast = getString(R.styleable.CopyableInformationView_copiedToast)
 
+                errorColor = getInteger(R.styleable.CopyableInformationView_errorColor, errorColor)
+
                 informationColor = getInteger(
                     R.styleable.CopyableInformationView_informationColor,
                     informationColor
@@ -129,13 +141,23 @@ class CopyableInformationView : LinearLayout {
     }
 
     private fun updateStatus() {
-        if (whenMissing == WhenMissing.Hide && information == null) {
+        val hasText = information != null || error != null
+
+        if (error != null) {
+            informationDisplay.setTextColor(errorColor)
+            informationDisplay.text = error
+        } else if (information != null) {
+            informationDisplay.setTextColor(informationColor)
+            informationDisplay.text = information
+        }
+
+        if (whenMissing == WhenMissing.Hide && !hasText) {
             visibility = INVISIBLE
         } else {
             visibility = VISIBLE
         }
 
-        if (whenMissing == WhenMissing.ShowSpinner && information == null) {
+        if (whenMissing == WhenMissing.ShowSpinner && !hasText) {
             spinner.visibility = VISIBLE
             informationDisplay.visibility = INVISIBLE
         } else {
@@ -147,7 +169,7 @@ class CopyableInformationView : LinearLayout {
     }
 
     private fun updateEnabled() {
-        setEnabled(clipboardLabel != null && information != null)
+        super.setEnabled(clipboardLabel != null && error != null && information != null)
     }
 
     private fun copyToClipboard() {
