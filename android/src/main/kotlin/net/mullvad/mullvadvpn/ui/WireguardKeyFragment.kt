@@ -66,6 +66,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 field = value
                 updateKeyInformation()
                 updateStatusMessage()
+                updateGenerateKeyButtonText()
                 updateVerifyKeyButtonState()
             }
         }
@@ -251,6 +252,14 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         generateKeyButton.setEnabled(actionState is ActionState.Idle && hasConnectivity)
     }
 
+    private fun updateGenerateKeyButtonText() {
+        if (keyStatus is KeygenEvent.NewKey) {
+            generateKeyButton.setText(R.string.wireguard_replace_key)
+        } else {
+            generateKeyButton.setText(R.string.wireguard_generate_key)
+        }
+    }
+
     private fun updateVerifyKeyButtonState() {
         val isIdle = actionState is ActionState.Idle
         val hasKey = keyStatus is KeygenEvent.NewKey
@@ -279,14 +288,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             is KeygenFailure.GenerationFailure -> {
                 setStatusMessage(R.string.failed_to_generate_key, R.color.red)
             }
-        }
-    }
-
-    private fun setGenerateButton() {
-        if (keyStatus is KeygenEvent.NewKey) {
-            generateKeyButton.setText(R.string.wireguard_replace_key)
-        } else {
-            generateKeyButton.setText(R.string.wireguard_generate_key)
         }
     }
 
