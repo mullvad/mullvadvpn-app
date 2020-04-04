@@ -54,7 +54,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 field = value
                 updateKeyInformation()
                 updateStatus()
-                updateActionButtons()
+                updateGenerateKeyButtonState()
+                updateVerifyKeyButtonState()
             }
         }
 
@@ -64,6 +65,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 field = value
                 updateKeyInformation()
                 updateStatus()
+                updateVerifyKeyButtonState()
             }
         }
 
@@ -72,7 +74,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             if (field != value) {
                 field = value
                 updateStatus()
-                updateActionButtons()
+                updateGenerateKeyButtonState()
+                updateVerifyKeyButtonState()
                 manageKeysButton.setEnabled(value)
             }
         }
@@ -248,11 +251,15 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
     }
 
-    private fun updateActionButtons() {
-        val isIdle = actionState is ActionState.Idle
+    private fun updateGenerateKeyButtonState() {
+        generateKeyButton.setEnabled(actionState is ActionState.Idle && hasConnectivity)
+    }
 
-        generateKeyButton.setEnabled(isIdle && hasConnectivity)
-        verifyKeyButton.setEnabled(isIdle && hasConnectivity)
+    private fun updateVerifyKeyButtonState() {
+        val isIdle = actionState is ActionState.Idle
+        val hasKey = keyStatus is KeygenEvent.NewKey
+
+        verifyKeyButton.setEnabled(isIdle && hasConnectivity && hasKey)
     }
 
     private fun setStatusMessage(message: Int, color: Int) {
