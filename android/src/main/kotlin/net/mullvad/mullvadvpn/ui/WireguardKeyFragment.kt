@@ -42,7 +42,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         set(value) {
             if (field != value) {
                 field = value
-                updateKeyInformation()
+                updateKeySpinners()
                 updateStatusMessage()
                 updateGenerateKeyButtonState()
                 updateVerifyKeyButtonState()
@@ -170,6 +170,19 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
         keyStatusListener.onKeyStatusChange = null
         jobTracker.cancelAllJobs()
+    }
+
+    private fun updateKeySpinners() {
+        when (actionState) {
+            is ActionState.Generating -> {
+                publicKey.whenMissing = WhenMissing.ShowSpinner
+                keyAge.whenMissing = WhenMissing.ShowSpinner
+            }
+            is ActionState.Verifying, is ActionState.Idle -> {
+                publicKey.whenMissing = WhenMissing.Nothing
+                keyAge.whenMissing = WhenMissing.Nothing
+            }
+        }
     }
 
     private fun updateKeyInformation() {
