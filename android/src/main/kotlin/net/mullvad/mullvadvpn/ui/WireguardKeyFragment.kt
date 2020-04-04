@@ -42,9 +42,10 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             if (field != value) {
                 field = value
                 updateKeyInformation()
-                updateStatus()
+                updateStatusMessage()
                 updateGenerateKeyButtonState()
                 updateVerifyKeyButtonState()
+                updateVerifyingKeySpinner()
             }
         }
 
@@ -53,7 +54,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             if (field != value) {
                 field = value
                 updateKeyInformation()
-                updateStatus()
+                updateStatusMessage()
                 updateVerifyKeyButtonState()
             }
         }
@@ -62,7 +63,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         set(value) {
             if (field != value) {
                 field = value
-                updateStatus()
+                updateStatusMessage()
                 updateGenerateKeyButtonState()
                 updateVerifyKeyButtonState()
                 manageKeysButton.setEnabled(value)
@@ -187,12 +188,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
     }
 
-    private fun updateStatus() {
-        verifyingKeySpinner.visibility = when (actionState) {
-            is ActionState.Verifying -> View.VISIBLE
-            else -> View.GONE
-        }
-
+    private fun updateStatusMessage() {
         when (val state = actionState) {
             is ActionState.Generating -> statusMessage.visibility = View.GONE
             is ActionState.Verifying -> statusMessage.visibility = View.GONE
@@ -249,6 +245,13 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         val hasKey = keyStatus is KeygenEvent.NewKey
 
         verifyKeyButton.setEnabled(isIdle && hasConnectivity && hasKey)
+    }
+
+    private fun updateVerifyingKeySpinner() {
+        verifyingKeySpinner.visibility = when (actionState) {
+            is ActionState.Verifying -> View.VISIBLE
+            else -> View.GONE
+        }
     }
 
     private fun setStatusMessage(message: Int, color: Int) {
