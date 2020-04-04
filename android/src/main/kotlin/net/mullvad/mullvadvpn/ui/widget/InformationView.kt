@@ -54,6 +54,13 @@ open class InformationView : LinearLayout {
             updateStatus()
         }
 
+    var informationColor = context.resources.getColor(R.color.white)
+        set(value) {
+            field = value
+            informationDisplay.setTextColor(value)
+            updateStatus()
+        }
+
     var whenMissing = WhenMissing.Nothing
         set(value) {
             field = value
@@ -101,6 +108,12 @@ open class InformationView : LinearLayout {
         context.theme.obtainStyledAttributes(attributes, styleableId, 0, 0).apply {
             try {
                 description.text = getString(R.styleable.InformationView_description) ?: ""
+
+                informationColor = getInteger(
+                    R.styleable.InformationView_informationColor,
+                    informationColor
+                )
+
                 whenMissing = WhenMissing.fromCode(
                     getInteger(R.styleable.InformationView_whenMissing, 0)
                 )

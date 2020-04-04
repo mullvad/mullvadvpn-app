@@ -14,6 +14,7 @@
     </declare-styleable>
     <declare-styleable name="InformationView">
         <attr name="description" format="reference|string"/>
+        <attr name="informationColor" format="reference|color"/>
         <attr name="whenMissing" format="enum">
             <enum name="nothing" value="0"/>
             <enum name="hide" value="1"/>
