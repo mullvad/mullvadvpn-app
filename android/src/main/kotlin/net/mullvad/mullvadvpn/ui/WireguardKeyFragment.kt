@@ -129,23 +129,27 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     override fun onSafelyResume() {
         tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
-            synchronized(this@WireguardKeyFragment) {
-                tunnelState = uiState
+            jobTracker.newUiJob("tunnelStateUpdate") {
+                synchronized(this@WireguardKeyFragment) {
+                    tunnelState = uiState
 
-                if (actionState is ActionState.Generating) {
-                    reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
-                } else if (tunnelState is TunnelState.Connected) {
-                    reconnectionExpected = false
+                    if (actionState is ActionState.Generating) {
+                        reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
+                    } else if (tunnelState is TunnelState.Connected) {
+                        reconnectionExpected = false
+                    }
+
+                    hasConnectivity = uiState is TunnelState.Connected ||
+                        uiState is TunnelState.Disconnected ||
+                        (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
                 }
-
-                hasConnectivity = uiState is TunnelState.Connected ||
-                    uiState is TunnelState.Disconnected ||
-                    (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
             }
         }
 
         keyStatusListener.onKeyStatusChange = { newKeyStatus ->
-            keyStatus = newKeyStatus
+            jobTracker.newUiJob("keyStatusUpdate") {
+                keyStatus = newKeyStatus
+            }
         }
     }
 
@@ -163,41 +167,37 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun updateKeyInformation() {
-        jobTracker.newUiJob("updateKeyInformation") {
-            when (val keyState = keyStatus) {
-                is KeygenEvent.NewKey -> {
-                    val key = keyState.publicKey
-                    val publicKeyString = Base64.encodeToString(key.key, Base64.NO_WRAP)
-                    val publicKeyAge =
-                        DateTime.parse(key.dateCreated, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
+        when (val keyState = keyStatus) {
+            is KeygenEvent.NewKey -> {
+                val key = keyState.publicKey
+                val publicKeyString = Base64.encodeToString(key.key, Base64.NO_WRAP)
+                val publicKeyAge =
+                    DateTime.parse(key.dateCreated, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
 
-                    publicKey.information = publicKeyString.substring(0, 20) + "..."
-                    keyAge.information = timeAgoFormatter.format(publicKeyAge)
-                }
-                null -> {
-                    publicKey.information = null
-                    keyAge.information = null
-                }
+                publicKey.information = publicKeyString.substring(0, 20) + "..."
+                keyAge.information = timeAgoFormatter.format(publicKeyAge)
+            }
+            null -> {
+                publicKey.information = null
+                keyAge.information = null
             }
         }
     }
 
     private fun updateStatus() {
-        jobTracker.newUiJob("updateStatus") {
-            verifyingKeySpinner.visibility = when (actionState) {
-                is ActionState.Verifying -> View.VISIBLE
-                else -> View.GONE
-            }
+        verifyingKeySpinner.visibility = when (actionState) {
+            is ActionState.Verifying -> View.VISIBLE
+            else -> View.GONE
+        }
 
-            when (val state = actionState) {
-                is ActionState.Generating -> statusMessage.visibility = View.GONE
-                is ActionState.Verifying -> statusMessage.visibility = View.GONE
-                is ActionState.Idle -> {
-                    if (hasConnectivity) {
-                        updateKeyStatus(state.verified, keyStatus)
-                    } else {
-                        updateOfflineStatus()
-                    }
+        when (val state = actionState) {
+            is ActionState.Generating -> statusMessage.visibility = View.GONE
+            is ActionState.Verifying -> statusMessage.visibility = View.GONE
+            is ActionState.Idle -> {
+                if (hasConnectivity) {
+                    updateKeyStatus(state.verified, keyStatus)
+                } else {
+                    updateOfflineStatus()
                 }
             }
         }
@@ -238,13 +238,11 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun updateButtons() {
-        jobTracker.newUiJob("updateButtons") {
-            val isIdle = actionState is ActionState.Idle
+        val isIdle = actionState is ActionState.Idle
 
-            generateKeyButton.setEnabled(isIdle && hasConnectivity)
-            verifyKeyButton.setEnabled(isIdle && hasConnectivity)
-            manageKeysButton.setEnabled(hasConnectivity)
-        }
+        generateKeyButton.setEnabled(isIdle && hasConnectivity)
+        verifyKeyButton.setEnabled(isIdle && hasConnectivity)
+        manageKeysButton.setEnabled(hasConnectivity)
     }
 
     private fun setStatusMessage(message: Int, color: Int) {
