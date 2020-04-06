@@ -5,6 +5,7 @@ import { links } from '../../config.json';
 import AccountExpiry from '../../shared/account-expiry';
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import RedeemVoucherContainer from '../containers/RedeemVoucherContainer';
 import { LoginState } from '../redux/account/reducers';
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
@@ -12,6 +13,11 @@ import * as Cell from './Cell';
 import styles from './ExpiredAccountErrorViewStyles';
 import ImageView from './ImageView';
 import { ModalAlert, ModalAlertType } from './Modal';
+import {
+  RedeemVoucherInput,
+  RedeemVoucherResponse,
+  RedeemVoucherSubmitButton,
+} from './RedeemVoucher';
 
 export enum RecoveryAction {
   openBrowser,
@@ -33,6 +39,8 @@ interface IExpiredAccountErrorViewProps {
 
 interface IExpiredAccountErrorViewState {
   showBlockWhenDisconnectedAlert: boolean;
+  showRedeemVoucherAlert: boolean;
+  redeemingVoucher: boolean;
 }
 
 export default class ExpiredAccountErrorView extends Component<
@@ -41,6 +49,8 @@ export default class ExpiredAccountErrorView extends Component<
 > {
   public state: IExpiredAccountErrorViewState = {
     showBlockWhenDisconnectedAlert: false,
+    showRedeemVoucherAlert: false,
+    redeemingVoucher: false,
   };
 
   public componentDidUpdate() {
@@ -64,8 +74,15 @@ export default class ExpiredAccountErrorView extends Component<
           )}
 
           {this.renderExternalPaymentButton()}
+
+          <AppButton.GreenButton
+            disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
+            onPress={this.onOpenRedeemVoucherAlert}>
+            {messages.pgettext('connect-view', 'Redeem voucher')}
+          </AppButton.GreenButton>
         </View>
 
+        {this.state.showRedeemVoucherAlert && this.renderRedeemVoucherAlert()}
         {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
       </View>
     );
@@ -149,7 +166,7 @@ export default class ExpiredAccountErrorView extends Component<
       <AppButton.BlockingButton
         disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
         onPress={this.onOpenExternalPayment}>
-        <AppButton.GreenButton>
+        <AppButton.GreenButton style={styles.button}>
           <AppButton.Label>{buttonText}</AppButton.Label>
           <AppButton.Icon source="icon-extLink" height={16} width={16} />
         </AppButton.GreenButton>
@@ -157,8 +174,30 @@ export default class ExpiredAccountErrorView extends Component<
     );
   }
 
-  private isNewAccount() {
-    return this.props.loginState.type === 'ok' && this.props.loginState.method === 'new_account';
+  private renderRedeemVoucherAlert() {
+    return (
+      <RedeemVoucherContainer
+        onSubmit={this.onVoucherSubmit}
+        onSuccess={this.props.hideWelcomeView}
+        onFailure={this.onVoucherResponse}>
+        <ModalAlert
+          buttons={[
+            <RedeemVoucherSubmitButton key="submit" />,
+            <AppButton.BlueButton
+              key="cancel"
+              disabled={this.state.redeemingVoucher}
+              onPress={this.onCloseRedeemVoucherAlert}>
+              {messages.pgettext('connect-view', 'Cancel')}
+            </AppButton.BlueButton>,
+          ]}>
+          <Text style={styles.fieldLabel}>
+            {messages.pgettext('connect-view', 'Enter voucher code')}
+          </Text>
+          <RedeemVoucherInput />
+          <RedeemVoucherResponse />
+        </ModalAlert>
+      </RedeemVoucherContainer>
+    );
   }
 
   private renderBlockWhenDisconnectedAlert() {
@@ -195,6 +234,10 @@ export default class ExpiredAccountErrorView extends Component<
     );
   }
 
+  private isNewAccount() {
+    return this.props.loginState.type === 'ok' && this.props.loginState.method === 'new_account';
+  }
+
   private onOpenExternalPayment = async (): Promise<void> => {
     if (this.getRecoveryAction() === RecoveryAction.disableBlockedWhenDisconnected) {
       this.setState({ showBlockWhenDisconnectedAlert: true });
@@ -214,6 +257,26 @@ export default class ExpiredAccountErrorView extends Component<
       return RecoveryAction.openBrowser;
     }
   }
+
+  private onOpenRedeemVoucherAlert = () => {
+    if (this.getRecoveryAction() === RecoveryAction.disableBlockedWhenDisconnected) {
+      this.setState({ showBlockWhenDisconnectedAlert: true });
+    } else {
+      this.setState({ showRedeemVoucherAlert: true });
+    }
+  };
+
+  private onCloseRedeemVoucherAlert = () => {
+    this.setState({ showRedeemVoucherAlert: false });
+  };
+
+  private onVoucherSubmit = () => {
+    this.setState({ redeemingVoucher: true });
+  };
+
+  private onVoucherResponse = () => {
+    this.setState({ redeemingVoucher: false });
+  };
 
   private onCloseBlockWhenDisconnectedInstructions = () => {
     this.setState({ showBlockWhenDisconnectedAlert: false });
