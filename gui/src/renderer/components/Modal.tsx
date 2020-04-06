@@ -99,8 +99,9 @@ export enum ModalAlertType {
 
 interface IModalAlertProps {
   type?: ModalAlertType;
-  message: string;
+  message?: string;
   buttons: React.ReactNode[];
+  children?: React.ReactNode;
 }
 
 export class ModalAlert extends Component<IModalAlertProps> {
@@ -121,7 +122,10 @@ export class ModalAlert extends Component<IModalAlertProps> {
             {this.props.type && (
               <View style={styles.modalAlertIcon}>{this.renderTypeIcon(this.props.type)}</View>
             )}
-            <Text style={styles.modalAlertMessage}>{this.props.message}</Text>
+            {this.props.message && (
+              <Text style={styles.modalAlertMessage}>{this.props.message}</Text>
+            )}
+            {this.props.children}
             {this.props.buttons.map((button, index) => (
               <View key={index} style={styles.modalAlertButtonContainer}>
                 {button}
