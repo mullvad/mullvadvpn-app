@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add possibility to create account in the desktop app.
+
 #### Android
 - Add WireGuard MTU setting.
 
