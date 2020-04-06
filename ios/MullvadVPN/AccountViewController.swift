@@ -63,12 +63,6 @@ class AccountViewController: UIViewController {
                 self?.updateAccountExpiry(expiryDate: newExpiryDate)
         }
 
-        // Make sure the buy button scales down the font size to fit the long labels.
-        // Changing baseline adjustment helps to prevent the text from being misaligned after
-        // being scaled down.
-        purchaseButton.titleLabel?.adjustsFontSizeToFitWidth = true
-        purchaseButton.titleLabel?.baselineAdjustment = .alignCenters
-
         accountTokenButton.setTitle(Account.shared.formattedToken, for: .normal)
 
         if let expiryDate = Account.shared.expiry {
@@ -98,9 +92,12 @@ class AccountViewController: UIViewController {
     }
 
     private func requestStoreProducts() {
+        let inAppPurchase = AppStoreSubscription.thirtyDays
+
+        purchaseButton.setTitle(inAppPurchase.localizedTitle, for: .normal)
         purchaseButton.isLoading = true
 
-        requestProductsSubscriber = AppStorePaymentManager.shared.requestProducts(with: [.thirtyDays])
+        requestProductsSubscriber = AppStorePaymentManager.shared.requestProducts(with: [inAppPurchase])
             .retry(10)
             .receive(on: DispatchQueue.main)
             .restrictUserInterfaceInteraction(with: self.purchaseButtonInteractionRestriction, animated: true)
