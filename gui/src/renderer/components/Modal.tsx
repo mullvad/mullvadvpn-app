@@ -105,13 +105,27 @@ interface IModalAlertProps {
 }
 
 export class ModalAlert extends Component<IModalAlertProps> {
-  public render() {
+  private element = document.createElement('div');
+  private modalContainer?: Element;
+
+  public componentDidMount() {
     const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
-    if (modalContainer !== null) {
-      return ReactDOM.createPortal(this.renderModal(), modalContainer);
+    if (modalContainer) {
+      this.modalContainer = modalContainer;
+      modalContainer.appendChild(this.element);
     } else {
-      throw Error('Modal container not found when rendering modal');
+      throw Error('Modal container not found when mounting modal');
     }
+  }
+
+  public componentWillUnmount() {
+    if (this.modalContainer) {
+      this.modalContainer.removeChild(this.element);
+    }
+  }
+
+  public render() {
+    return ReactDOM.createPortal(this.renderModal(), this.element);
   }
 
   private renderModal() {
