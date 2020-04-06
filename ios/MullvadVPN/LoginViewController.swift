@@ -11,14 +11,13 @@ import UIKit
 import os
 
 private let kMinimumAccountTokenLength = 10
-private let kValidAccountTokenCharacterSet = CharacterSet(charactersIn: "01234567890")
 
-class LoginViewController: UIViewController, UITextFieldDelegate, RootContainment {
+class LoginViewController: UIViewController, RootContainment {
 
     @IBOutlet var keyboardToolbar: UIToolbar!
     @IBOutlet var keyboardToolbarLoginButton: UIBarButtonItem!
     @IBOutlet var accountInputGroup: AccountInputGroupView!
-    @IBOutlet var accountTextField: UITextField!
+    @IBOutlet var accountTextField: AccountTextField!
     @IBOutlet var titleLabel: UILabel!
     @IBOutlet var messageLabel: UILabel!
     @IBOutlet var loginForm: UIView!
@@ -129,18 +128,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
         updateKeyboardToolbar()
     }
 
-    // MARK: - UITextFieldDelegate
-
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        // prevent the change if the replacement string contains disallowed characters
-        return string.unicodeScalars.allSatisfy { kValidAccountTokenCharacterSet.contains($0) }
-    }
-
     // MARK: - Actions
 
     @IBAction func unwindFromAccount(segue: UIStoryboardSegue) {
         loginState = .default
-        accountTextField.text = ""
+        accountTextField.autoformattingText = ""
         updateKeyboardToolbar()
     }
 
@@ -149,7 +141,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     }
 
     @IBAction func doLogin() {
-        let accountToken = accountTextField.text ?? ""
+        let accountToken = accountTextField.parsedToken
 
         beginLogin(method: .existingAccount)
 
@@ -168,7 +160,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     @IBAction func createNewAccount() {
         beginLogin(method: .newAccount)
 
-        accountTextField.text = ""
+        accountTextField.autoformattingText = ""
         updateKeyboardToolbar()
 
         loginSubscriber = Account.shared.loginWithNewAccount()
@@ -181,7 +173,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
                     self.endLogin(.failure(error))
                 }
             }, receiveValue: { (newAccountToken) in
-                self.accountTextField.text = newAccountToken
+                self.accountTextField.autoformattingText = newAccountToken
             })
     }
 
@@ -268,7 +260,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     }
 
     private func updateKeyboardToolbar() {
-        let accountTokenLength = accountTextField.text?.count ?? 0
+        let accountTokenLength = accountTextField.parsedToken.count
         let enableButton = accountTokenLength >= kMinimumAccountTokenLength
 
         keyboardToolbarLoginButton.isEnabled = enableButton

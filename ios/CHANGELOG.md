@@ -23,7 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Format account number in groups of 4 digits separated by whitespace on Login screen.
 
+### Fixed
+- Fix parsing of account numbers when pasting from pasteboard. Pasting of space separated account 
+  numbers is possible now.
 
 ## [2020.1] - 2020-04-08
 Initial release. Supports...
