@@ -33,7 +33,7 @@ class AccountExpiry {
     }
 
     var formattedDate: String {
-        return DateFormatter.localizedString(from: date, dateStyle: .medium, timeStyle: .medium)
+        return DateFormatter.localizedString(from: date, dateStyle: .medium, timeStyle: .short)
     }
 
 }
