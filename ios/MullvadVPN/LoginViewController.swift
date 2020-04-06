@@ -18,7 +18,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     @IBOutlet var keyboardToolbar: UIToolbar!
     @IBOutlet var keyboardToolbarLoginButton: UIBarButtonItem!
     @IBOutlet var accountInputGroup: AccountInputGroupView!
-    @IBOutlet var accountTextField: UITextField!
+    @IBOutlet var accountTextField: AccountTextField!
     @IBOutlet var titleLabel: UILabel!
     @IBOutlet var messageLabel: UILabel!
     @IBOutlet var loginForm: UIView!
@@ -140,7 +140,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
 
     @IBAction func unwindFromAccount(segue: UIStoryboardSegue) {
         loginState = .default
-        accountTextField.text = ""
+        accountTextField.autoformattingText = ""
         updateKeyboardToolbar()
     }
 
@@ -149,7 +149,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     }
 
     @IBAction func doLogin() {
-        let accountToken = accountTextField.text ?? ""
+        let accountToken = accountTextField.parsedToken
 
         beginLogin(method: .existingAccount)
 
@@ -168,7 +168,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     @IBAction func createNewAccount() {
         beginLogin(method: .newAccount)
 
-        accountTextField.text = ""
+        accountTextField.autoformattingText = ""
         updateKeyboardToolbar()
 
         loginSubscriber = Account.shared.loginWithNewAccount()
@@ -181,7 +181,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
                     self.endLogin(.failure(error))
                 }
             }, receiveValue: { (newAccountToken) in
-                self.accountTextField.text = newAccountToken
+                self.accountTextField.autoformattingText = newAccountToken
             })
     }
 
@@ -268,7 +268,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, RootContainmen
     }
 
     private func updateKeyboardToolbar() {
-        let accountTokenLength = accountTextField.text?.count ?? 0
+        let accountTokenLength = accountTextField.parsedToken.count
         let enableButton = accountTokenLength >= kMinimumAccountTokenLength
 
         keyboardToolbarLoginButton.isEnabled = enableButton

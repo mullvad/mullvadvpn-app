@@ -10,6 +10,8 @@ import UIKit
 
 @IBDesignable class AccountTextField: UITextField {
 
+    private let input = AccountTokenInput()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -22,6 +24,23 @@ import UIKit
 
     private func setup() {
         backgroundColor = UIColor.clear
+
+        delegate = input
+        pasteDelegate = input
+    }
+
+    var autoformattingText: String {
+        set {
+            input.replace(with: newValue)
+            input.updateTextField(self)
+        }
+        get {
+            input.formattedString
+        }
+    }
+
+    var parsedToken: String {
+        return input.parsedString
     }
 
     override func textRect(forBounds bounds: CGRect) -> CGRect {
@@ -31,4 +50,5 @@ import UIKit
     override func editingRect(forBounds bounds: CGRect) -> CGRect {
         return textRect(forBounds: bounds)
     }
+
 }
