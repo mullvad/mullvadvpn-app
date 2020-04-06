@@ -40,14 +40,14 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="93"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoIcon" translatesAutoresizingMaskIntoConstraints="NO" id="cKg-hE-JsS">
-                                        <rect key="frame" x="12" y="34.5" width="44.000000000000057" height="44.000000000000057"/>
+                                        <rect key="frame" x="12" y="34.5" width="44" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="cKg-hE-JsS" secondAttribute="height" multiplier="1:1" id="jln-Ze-Hhl"/>
                                             <constraint firstAttribute="width" constant="44" id="u6D-kY-AyW"/>
                                         </constraints>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uXv-Tf-PET">
-                                        <rect key="frame" x="335" y="44.5" width="24" height="24"/>
+                                        <rect key="frame" x="311" y="32.5" width="48" height="48"/>
                                         <accessibility key="accessibilityConfiguration" identifier="SettingsButton"/>
                                         <state key="normal" image="IconSettings"/>
                                         <connections>
@@ -117,7 +117,7 @@
                                         </constraints>
                                     </view>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="IconSuccess" translatesAutoresizingMaskIntoConstraints="NO" id="7ux-Tb-Fzq">
-                                        <rect key="frame" x="157.5" y="167" width="60" height="60"/>
+                                        <rect key="frame" x="127.5" y="137" width="120" height="120"/>
                                     </imageView>
                                     <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="V3j-Lb-fSQ" userLabel="Form">
                                         <rect key="frame" x="0.0" y="251" width="375" height="125.5"/>
@@ -142,9 +142,6 @@
                                                         <accessibility key="accessibilityConfiguration" identifier="LoginTextField"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                                         <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="numberPad" enablesReturnKeyAutomatically="YES" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no" textContentType="username"/>
-                                                        <connections>
-                                                            <outlet property="delegate" destination="BYZ-38-t0r" id="jeF-vG-YXi"/>
-                                                        </connections>
                                                     </textField>
                                                 </subviews>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -975,13 +972,13 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="598"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="N9k-cQ-tlw" userLabel="Content view">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="558"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="568"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wnl-L9-JqG" userLabel="Logo header">
                                                 <rect key="frame" x="0.0" y="0.0" width="375" height="100"/>
                                                 <subviews>
                                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoIcon" translatesAutoresizingMaskIntoConstraints="NO" id="WSx-4V-zIk">
-                                                        <rect key="frame" x="157.5" y="20" width="60.000000000000057" height="60.000000000000057"/>
+                                                        <rect key="frame" x="157.5" y="20" width="60" height="60"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="WSx-4V-zIk" secondAttribute="height" multiplier="1:1" id="ZtE-hc-rs8"/>
                                                             <constraint firstAttribute="width" constant="60" id="qGt-Am-MHR"/>
@@ -1011,7 +1008,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cas-Tk-gcz" customClass="LinkButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="20" y="516" width="20" height="22"/>
+                                                <rect key="frame" x="20" y="516" width="36" height="32"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" title="Privacy Policy" image="IconExtlink"/>
@@ -1139,31 +1136,31 @@
                         </view>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" id="aFz-H5-sPu" customClass="SelectLocationCell" customModule="MullvadVPN" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="173" width="375" height="43.5"/>
+                                <rect key="frame" x="0.0" y="173" width="375" height="48.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="aFz-H5-sPu" id="6nQ-gT-vzf">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="48.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5ag-N4-pUg" customClass="RelayStatusIndicatorView" customModule="MullvadVPN" customModuleProvider="target">
-                                            <rect key="frame" x="16" y="14" width="16" height="16"/>
+                                            <rect key="frame" x="16" y="16.5" width="16" height="16"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="16" id="QWj-hh-I3P"/>
                                                 <constraint firstAttribute="width" constant="16" id="TFV-yi-LXG"/>
                                             </constraints>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y7o-0b-MUV">
-                                            <rect key="frame" x="44" y="11" width="42" height="21.5"/>
+                                            <rect key="frame" x="44" y="11" width="42" height="26.5"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="IconTick" translatesAutoresizingMaskIntoConstraints="NO" id="e1o-Bl-zd5">
-                                            <rect key="frame" x="12" y="10" width="24" height="24"/>
+                                            <rect key="frame" x="0.0" y="0.5" width="48" height="48"/>
                                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </imageView>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KaW-bN-I51">
-                                            <rect key="frame" x="311" y="0.0" width="64" height="43.5"/>
+                                            <rect key="frame" x="311" y="0.0" width="64" height="48.5"/>
                                             <accessibility key="accessibilityConfiguration" identifier="ExpandButton"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="64" id="UU3-Di-65E"/>
