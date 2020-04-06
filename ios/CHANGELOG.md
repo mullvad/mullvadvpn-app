@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Fixed
 - Fix "invalid account" error that was mistakenly reported as "network error" during log in.
+- Fix parsing of pre-formatted account numbers when pasting from pasteboard on login screen.
+
+### Added
+- Format account number in groups of 4 digits separated by whitespace on login screen.
 
 ## [2020.1] - 2020-04-08
 Initial release. Supports...
