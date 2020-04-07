@@ -34,6 +34,9 @@ Line wrap the file at 100 chars.                                              Th
 - Allow `fc00::/7` instead of `fd00::/8` in the firewall when local network sharing is enabled.
   Should unblock all unique local addresses.
 - Upgrade from Electron 7 to Electron 8.
+- Formalize what operating system versions we support in the [readme](README.md). In practice
+  this means dropped support for Android 5 and 6 and Fedora 28 and 29 right away, Ubuntu 16.04
+  support will end as soon as Ubuntu 20.04 comes out.
 
 #### Windows
 - Windows 7 only: Address packet loss issues with OpenVPN on some systems by reverting the TAP
