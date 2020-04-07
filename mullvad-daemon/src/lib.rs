@@ -769,6 +769,11 @@ where
                         &constraints,
                         self.settings.get_bridge_state(),
                         retry_attempt,
+                        self.account_history
+                            .get(&account_token)
+                            .unwrap_or(None)
+                            .and_then(|entry| entry.wireguard)
+                            .is_some(),
                     )
                     .map_err(|_| ParameterGenerationError::NoMatchingRelay)
                     .and_then(|(relay, endpoint)| {
