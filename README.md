@@ -29,11 +29,10 @@ security.
 | Windows     | 7, 8.1 and 10      |
 | macOS       | The three latest major releases |
 | Linux (Ubuntu)| The two newest LTS releases and the two newest non-LTS releases |
-| Linux (Fedora) | The versions that are not yet [EOL] |
+| Linux (Fedora) | The versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life) |
+| Linux (Debian) | The versions that are not yet [EOL](https://wiki.debian.org/DebianReleases) |
 | Android | The four latest major releases|
 | iOS         | 13 and newer       |
-
-[EOL]: https://fedoraproject.org/wiki/End_of_life
 
 ## Features
 
