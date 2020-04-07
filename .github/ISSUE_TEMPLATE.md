@@ -1,17 +1,25 @@
+<!--
+  PLEASE READ THIS FIRST
+
 Thank you for wanting to help us improve the Mullvad VPN app by reporting
-issues.
+issues. But please read this first, since there is a chance you have a better
+option than filing an issue here: If...
 
-**Before reporting an issue**, please note that this is **not** the correct
-place for:
-* General Mullvad support - contact support@mullvad.net for that
+* you ran into a problem with the app - Send a problem report directly from
+within the app. Go to Settings -> Report a problem. That way our support team
+get the error logs they need and will get back to you much faster than anyone will
+on this issue tracker. You can just email support@mullvad.net as well for help.
 
-* Bugs and issues regarding the old Mullvad client.
-
-  With the old Mullvad client we mean the one written in python and
-  with version numbers such as 65, 66, 67 and similar.
-  This source code repository is only for the new Mullvad VPN app with version
-  numbers looking like `<year>.<number>`, such as 2018.1 and so on.
+* you want to suggest a feature or code improvement - First
+[search all existing open and closed issues](https://github.com/mullvad/mullvadvpn-app/issues?q=is%3Aissue)
+to see if maybe that feature has already been suggested. If not, go ahead with the issue.
+-->
 
 
-Please proceed and report an issue if you have found a bug or a problem with
-the new *Mullvad VPN app*, the one being developed in this repository.
+Operating system: <!-- Name AND version of operating system. For example Windows 10 or Android 9 -->
+
+App version: <!-- Version of the Mullvad VPN app you are running. For example 2020.4 -->
+
+### Issue description
+
+<!-- Describe the feature you want to suggest or what it is you want to report an issue about -->
