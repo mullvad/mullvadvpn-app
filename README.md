@@ -20,6 +20,23 @@ Support for iOS is in the making.
 You can find our code signing keys as well as instructions for how to cryptographically verify
 your download on [Mullvad's Open Source page].
 
+### Platform/OS support
+
+These are the operating systems and their versions that the app officially supports. It might
+work on many more versions, but we don't test for those and can't guarantee the quality or
+security.
+
+| OS/Platform | Supported versions |
+|-------------|--------------------|
+| Windows     | 7, 8.1 and 10      |
+| macOS       | The three latest major releases |
+| Linux (Ubuntu)| The two newest LTS releases and the two newest non-LTS releases |
+| Linux (Fedora) | The versions that are not yet [EOL] |
+| Android | The four latest major releases|
+| iOS         | 13 and newer       |
+
+[EOL]: https://fedoraproject.org/wiki/End_of_life
+
 ## Features
 
 Here is a table containing the features of the app accross platforms. This reflects the current
