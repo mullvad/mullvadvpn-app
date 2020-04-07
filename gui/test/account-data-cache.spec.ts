@@ -1,6 +1,6 @@
 import AccountDataCache, { AccountFetchRetryAction } from '../src/main/account-data-cache';
 import { IAccountData } from '../src/shared/daemon-rpc-types';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { expect, spy } from 'chai';
 
 describe('IAccountData cache', () => {
@@ -171,6 +171,44 @@ describe('IAccountData cache', () => {
       expect(firstError).to.have.been.called.once;
       expect(secondSuccess).to.have.been.called.once;
       return;
+    });
+  });
+
+  it('should refetch if account has expired', async () => {
+    const expiredSpy = spy();
+    const nonExpiredSpy = spy();
+
+    const update = new Promise((resolve, reject) => {
+      let firstAttempt = true;
+      const fetch = () => {
+        if (firstAttempt) {
+          expiredSpy();
+          firstAttempt = false;
+          setTimeout(() => clock.tick(60_000), 0);
+          return Promise.resolve({
+            expiry: new Date('1969-01-01').toISOString(),
+          });
+        } else {
+          nonExpiredSpy();
+          resolve();
+          return Promise.resolve(dummyAccountData);
+        }
+      };
+
+      const cache = new AccountDataCache(fetch, () => {});
+
+      cache.fetch(dummyAccountToken, {
+        onFinish: () => {},
+        onError: (_error: Error) => {
+          reject();
+          return AccountFetchRetryAction.stop;
+        },
+      });
+    });
+
+    return expect(update).to.eventually.be.fulfilled.then(() => {
+      expect(expiredSpy).to.have.been.called.once;
+      expect(nonExpiredSpy).to.have.been.called.once;
     });
   });
 });
