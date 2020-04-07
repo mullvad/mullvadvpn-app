@@ -65,7 +65,7 @@ describe('IAccountData cache', () => {
       );
 
       cache.fetch(dummyAccountToken, {
-        onFinish: spy(),
+        onFinish: () => {},
         onError: (_error: Error) => {
           reject();
           return AccountFetchRetryAction.stop;
@@ -94,7 +94,7 @@ describe('IAccountData cache', () => {
 
       cache.fetch(dummyAccountToken, {
         onFinish: () => reject(),
-        onError: spy((_error: Error) => AccountFetchRetryAction.retry),
+        onError: (_error: Error) => AccountFetchRetryAction.retry,
       });
     });
 
@@ -120,8 +120,8 @@ describe('IAccountData cache', () => {
       setTimeout(resolve, 12000);
 
       cache.fetch(dummyAccountToken, {
-        onFinish: spy(),
-        onError: spy((_error: Error) => AccountFetchRetryAction.stop),
+        onFinish: () => {},
+        onError: (_error: Error) => AccountFetchRetryAction.stop,
       });
     });
 
