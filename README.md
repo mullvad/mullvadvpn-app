@@ -3,22 +3,39 @@
 Welcome to the Mullvad VPN client app. This repository contains all the source code for the
 desktop and mobile versions of the app. For desktop this includes the system service/daemon
 ([`mullvad-daemon`](mullvad-daemon/)), a graphical user interface ([GUI](gui/)) and a
-command line interface ([CLI](mullvad-cli/)).
-
-The Android app uses the same backing system service for the tunnel and security but has
-a dedicated frontend in [android/](android/).
-
-iOS consists of a completely standalone implementation that resides in [ios/](ios/)
+command line interface ([CLI](mullvad-cli/)). The Android app uses the same backing
+system service for the tunnel and security but has a dedicated frontend in [android/](android/).
+iOS consists of a completely standalone implementation that resides in [ios/](ios/).
 
 ## Releases
 
 There are built and signed releases for macOS, Windows, Linux and Android available on
 [our website](https://mullvad.net/download/) and on
-[Github](https://github.com/mullvad/mullvadvpn-app/releases/).
+[Github](https://github.com/mullvad/mullvadvpn-app/releases/). The Andriod app is also available
+on [Google Play](https://play.google.com/store/apps/details?id=net.mullvad.mullvadvpn).
 Support for iOS is in the making.
 
 You can find our code signing keys as well as instructions for how to cryptographically verify
 your download on [Mullvad's Open Source page].
+
+### Platform/OS support
+
+These are the operating systems and their versions that the app officially supports. It might
+work on many more versions, but we don't test for those and can't guarantee the quality or
+security.
+
+| OS/Platform | Supported versions |
+|-------------|--------------------|
+| Windows     | 7, 8.1 and 10      |
+| macOS       | The three latest major releases |
+| Linux (Ubuntu)| The two newest LTS releases and the two newest non-LTS releases |
+| Linux (Fedora) | The versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life) |
+| Linux (Debian) | The versions that are not yet [EOL](https://wiki.debian.org/DebianReleases) |
+| Android | The four latest major releases|
+| iOS         | 13 and newer       |
+
+On Linux we test using the Gnome desktop environment. The app should, and probably does work
+in other DEs, but we don't regularly test those.
 
 ## Features
 
