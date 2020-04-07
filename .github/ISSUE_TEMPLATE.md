@@ -10,11 +10,15 @@ within the app. Go to Settings -> Report a problem. That way our support team
 get the error logs they need and will get back to you much faster than anyone will
 on this issue tracker. You can just email support@mullvad.net as well for help.
 
-* you want to suggest a feature or code improvement - First
-[search all existing open and closed issues](https://github.com/mullvad/mullvadvpn-app/issues?q=is%3Aissue)
+* you want to suggest a feature or code improvement - First search all existing open
+and closed issues (https://github.com/mullvad/mullvadvpn-app/issues?q=is%3Aissue)
 to see if maybe that feature has already been suggested. If not, go ahead with the issue.
+
+REMOVE THIS ENTIRE COMMENT BLOCK BEFORE POSTING
+---------------------------------------------------------
 -->
 
+## Issue report
 
 Operating system: <!-- Name AND version of operating system. For example Windows 10 or Android 9 -->
 
