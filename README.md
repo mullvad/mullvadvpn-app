@@ -34,6 +34,9 @@ security.
 | Android | The four latest major releases|
 | iOS         | 13 and newer       |
 
+On Linux we test using the Gnome desktop environment. The app should, and probably does work
+in other DEs, but we don't regularly test those.
+
 ## Features
 
 Here is a table containing the features of the app accross platforms. This reflects the current
