@@ -210,9 +210,14 @@ impl RelaySelector {
         relay_constraints: &RelayConstraints,
         bridge_state: &BridgeState,
         retry_attempt: u32,
+        wg_key_exists: bool,
     ) -> Result<(Relay, MullvadEndpoint), Error> {
-        let preferred_constraints =
-            self.preferred_constraints(relay_constraints, bridge_state, retry_attempt);
+        let preferred_constraints = self.preferred_constraints(
+            relay_constraints,
+            bridge_state,
+            retry_attempt,
+            wg_key_exists,
+        );
         if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(&preferred_constraints) {
             debug!(
                 "Relay matched on highest preference for retry attempt {}",
@@ -237,10 +242,15 @@ impl RelaySelector {
         original_constraints: &RelayConstraints,
         bridge_state: &BridgeState,
         retry_attempt: u32,
+        wg_key_exists: bool,
     ) -> RelayConstraints {
         let (preferred_port, preferred_protocol, preferred_tunnel) =
             if *bridge_state != BridgeState::On {
-                self.preferred_tunnel_constraints(retry_attempt, &original_constraints.location)
+                self.preferred_tunnel_constraints(
+                    retry_attempt,
+                    &original_constraints.location,
+                    wg_key_exists,
+                )
             } else {
                 (
                     Constraint::Any,
@@ -370,6 +380,7 @@ impl RelaySelector {
         &self,
         retry_attempt: u32,
         location_constraint: &Constraint<LocationConstraint>,
+        wg_key_exists: bool,
     ) -> (Constraint<u16>, TransportProtocol, TunnelProtocol) {
         #[cfg(not(target_os = "windows"))]
         {
@@ -381,7 +392,7 @@ impl RelaySelector {
                 });
             // If location does not support WireGuard, defer to preferred OpenVPN tunnel
             // constraints
-            if !location_supports_wireguard {
+            if !location_supports_wireguard || !wg_key_exists {
                 let (preferred_port, preferred_protocol) =
                     Self::preferred_openvpn_constraints(retry_attempt);
                 return (preferred_port, preferred_protocol, TunnelProtocol::OpenVpn);
