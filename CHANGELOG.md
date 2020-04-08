@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Security
+#### macOS
+- Prevent app from making requests to Apple when started. This also makes the app start instantly
+  when "block when disconnected" is enabled.
 
 
 ## [2020.4-beta2] - 2020-04-08

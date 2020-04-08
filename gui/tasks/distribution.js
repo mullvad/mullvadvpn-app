@@ -168,6 +168,7 @@ function packMac() {
     targets: builder.Platform.MAC.createTarget(),
     config: {
       ...config,
+      asarUnpack: ['**/*.node'],
       afterPack: (context) => {
         appOutDir = context.appOutDir;
         return Promise.resolve();
