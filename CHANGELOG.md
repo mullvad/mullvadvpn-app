@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.4-beta2] - 2020-04-08
 ### Added
 - Add possibility to create account in the desktop app.
 - Add possibility to pay with voucher in the desktop app.
