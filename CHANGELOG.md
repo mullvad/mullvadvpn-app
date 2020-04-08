@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Security
+#### macOS
+- Ship native Node modules unpacked to prevent malware checks by macOS on each run. The malware
+  checks delayed app startup when "block when disconnected" was enabled and performed system network
+  requests to Apple.
 
 
 ## [2020.4-beta2] - 2020-04-08
