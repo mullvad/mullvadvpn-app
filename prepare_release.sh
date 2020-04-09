@@ -43,6 +43,7 @@ git commit -S -m "Updating version in package files" \
     mullvad-daemon/Cargo.toml \
     mullvad-cli/Cargo.toml \
     mullvad-problem-report/Cargo.toml \
+    mullvad-setup/Cargo.toml \
     talpid-openvpn-plugin/Cargo.toml \
     Cargo.lock \
     android/build.gradle \
