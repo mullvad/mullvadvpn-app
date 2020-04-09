@@ -1,9 +1,20 @@
-# Screenshots for AppStore
+# Mullvad VPN iOS app
+
+This is the iOS version of the Mullvad VPN app. The app can be found on the Apple [App Store].
+
+All releases have signed git tags on the format `ios/<version>`. For changes between each
+release, see the [changelog].
+
+[App Store]: https://apps.apple.com/us/app/mullvad-vpn/id1488466513
+[changelog]: CHANGELOG.md
+
+
+## Screenshots for AppStore
 
 The process of taking AppStore screenshots is automated using a UI Testing bundle and Snapshot tool,
 a part of Fastlane tools.
 
-## Configuration
+### Configuration
 
 The screenshot script uses the real account token to log in, which is provided via Xcode build 
 configuration.
@@ -20,7 +31,7 @@ configuration.
    vim ios/Configurations/Screenshots.xcconfig
    ```
 
-## Prerequisitives
+### Prerequisitives
 
 1. Make sure you have [rvm](https://rvm.io) installed.
 1. Install Ruby 2.5.1 or later using `rvm install <VERSION>`.
@@ -31,7 +42,7 @@ configuration.
    bundle install
    ```
 
-## Take screenshots
+### Take screenshots
 
 Run the following command to take screenshots:
 
