@@ -5,13 +5,13 @@
     <key>method</key>
     <string>app-store</string>
     <key>teamID</key>
-    <string>G7CDBEG477</string>
+    <string>CKG9MXH72F</string>
     <key>signingStyle</key>
     <string>manual</string>
     <key>uploadSymbols</key>
     <true/>
     <key>signingCertificate</key>
-    <string>Apple Distribution: Amagicom AB</string>
+    <string>Apple Distribution: Mullvad VPN AB</string>
     <key>provisioningProfiles</key>
     <dict>
       <key>net.mullvad.MullvadVPN</key>
