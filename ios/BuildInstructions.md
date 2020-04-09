@@ -25,7 +25,8 @@ openssl req -new \
 
 # Upload Certificate Signing Request (CSR) to Apple
 
-1. Go to https://developer.apple.com/account/resources/certificates/add
+1. Go to https://developer.apple.com/account/resources/certificates/list
+1. Click the plus button (+) in the heading to create a new certificate
 1. Select "Apple Distribution" option from the given list, press "Continue"
 1. Select the previously created `cert_signing_request` file for upload
 1. Download the provided `distribution.cer` on disk
@@ -109,7 +110,8 @@ We will now create the provisioning profiles listed below using the Apple develo
 
 Follow these steps to add each of provisioning profiles:
 
-1. Go to https://developer.apple.com/account/resources/profiles/add
+1. Go to https://developer.apple.com/account/resources/profiles/list
+1. Click the plus button (+) in the heading to create a new provisioning profile
 1. Choose "App Store" under "Distribution", then hit "Continue"
 1. Choose the App ID (see the table above) and hit "Continue"
 1. Choose the distribution certificate that you had created after uploading the CSR 
