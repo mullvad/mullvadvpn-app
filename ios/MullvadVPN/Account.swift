@@ -26,7 +26,6 @@ enum AccountError: Error {
 
 /// A enum describing the error emitted during login
 enum AccountLoginError: Error {
-    case invalidAccount
     case network(MullvadAPI.Error)
     case communication(MullvadAPI.ResponseError)
     case tunnelConfiguration(TunnelManagerError)
@@ -57,11 +56,14 @@ extension AccountError: LocalizedError {
         case .createNew(.network), .createNew(.communication):
             return NSLocalizedString("Failed to create new account", comment: "")
 
-        case .login(.invalidAccount):
+        case .login(.communication(let serverError)) where serverError.code == .accountDoesNotExist:
             return NSLocalizedString("Invalid account", comment: "")
 
-        case .login(.network), .login(.communication):
+        case .login(.network):
             return NSLocalizedString("Network error", comment: "")
+
+        case .login(.communication):
+            return NSLocalizedString("Server error", comment: "")
 
         case .login(.tunnelConfiguration(.setAccount(let setAccountError))),
              .createNew(.tunnelConfiguration(.setAccount(let setAccountError))):
