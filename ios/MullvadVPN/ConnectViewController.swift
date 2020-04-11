@@ -145,7 +145,12 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
         startStopTunnelSubscriber = TunnelManager.shared.stopTunnel()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { (completion) in
-                // no-op
+                if case .failure(let error) = completion {
+                    os_log(.error, "Failed to stop the tunnel: %{public}s",
+                           error.localizedDescription)
+
+                    self.presentError(error, preferredStyle: .alert)
+                }
             })
     }
 
