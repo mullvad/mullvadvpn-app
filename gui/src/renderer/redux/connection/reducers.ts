@@ -27,7 +27,7 @@ const initialState: IConnectionReduxState = {
   city: undefined,
 };
 
-export default function(
+export default function (
   state: IConnectionReduxState = initialState,
   action: ReduxAction,
 ): IConnectionReduxState {

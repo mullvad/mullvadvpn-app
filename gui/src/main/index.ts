@@ -1185,11 +1185,7 @@ class ApplicationMain {
         accountExpiry &&
         !accountExpiry.hasExpired() &&
         !this.accountExpiryNotificationTimeout &&
-        accountExpiry.willHaveExpiredAt(
-          moment()
-            .add(3, 'days')
-            .toDate(),
-        )
+        accountExpiry.willHaveExpiredAt(moment().add(3, 'days').toDate())
       ) {
         this.notificationController.closeToExpiryNotification(accountExpiry);
         this.accountExpiryNotificationTimeout = global.setTimeout(() => {

@@ -71,12 +71,16 @@ export default class SelectLanguage extends Component<IProps, IState> {
               <NavigationBar>
                 <NavigationItems>
                   <BackBarItem action={this.props.onClose}>
-                    {// TRANSLATORS: Back button in navigation bar
-                    messages.pgettext('navigation-bar', 'Settings')}
+                    {
+                      // TRANSLATORS: Back button in navigation bar
+                      messages.pgettext('navigation-bar', 'Settings')
+                    }
                   </BackBarItem>
                   <TitleBarItem>
-                    {// TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('select-language-nav', 'Select language')}
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('select-language-nav', 'Select language')
+                    }
                   </TitleBarItem>
                 </NavigationItems>
               </NavigationBar>

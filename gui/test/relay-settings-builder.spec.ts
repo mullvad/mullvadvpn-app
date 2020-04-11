@@ -4,11 +4,7 @@ import RelaySettingsBuilder from '../src/shared/relay-settings-builder';
 
 describe('Relay settings builder', () => {
   it('should set location to any', () => {
-    expect(
-      RelaySettingsBuilder.normal()
-        .location.any()
-        .build(),
-    ).to.deep.equal({
+    expect(RelaySettingsBuilder.normal().location.any().build()).to.deep.equal({
       normal: {
         location: 'any',
       },
@@ -16,11 +12,7 @@ describe('Relay settings builder', () => {
   });
 
   it('should bound location to city', () => {
-    expect(
-      RelaySettingsBuilder.normal()
-        .location.city('se', 'mma')
-        .build(),
-    ).to.deep.equal({
+    expect(RelaySettingsBuilder.normal().location.city('se', 'mma').build()).to.deep.equal({
       normal: {
         location: {
           only: {
@@ -32,11 +24,7 @@ describe('Relay settings builder', () => {
   });
 
   it('should bound location to country', () => {
-    expect(
-      RelaySettingsBuilder.normal()
-        .location.country('se')
-        .build(),
-    ).to.deep.equal({
+    expect(RelaySettingsBuilder.normal().location.country('se').build()).to.deep.equal({
       normal: {
         location: {
           only: { country: 'se' },
@@ -80,27 +68,21 @@ describe('Relay settings builder', () => {
   });
 
   it('should set location from raw RelayLocation', () => {
-    expect(
-      RelaySettingsBuilder.normal()
-        .location.fromRaw('any')
-        .build(),
-    ).to.deep.equal({
+    expect(RelaySettingsBuilder.normal().location.fromRaw('any').build()).to.deep.equal({
       normal: {
         location: 'any',
       },
     });
 
-    expect(
-      RelaySettingsBuilder.normal()
-        .location.fromRaw({ country: 'se' })
-        .build(),
-    ).to.deep.equal({
-      normal: {
-        location: {
-          only: { country: 'se' },
+    expect(RelaySettingsBuilder.normal().location.fromRaw({ country: 'se' }).build()).to.deep.equal(
+      {
+        normal: {
+          location: {
+            only: { country: 'se' },
+          },
         },
       },
-    });
+    );
 
     expect(
       RelaySettingsBuilder.normal()

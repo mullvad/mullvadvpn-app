@@ -63,8 +63,10 @@ export default class WireguardKeys extends Component<IProps, IState> {
               <NavigationBar>
                 <NavigationItems>
                   <BackBarItem action={this.props.onClose}>
-                    {// TRANSLATORS: Back button in navigation bar
-                    messages.pgettext('wireguard-keys-nav', 'Advanced')}
+                    {
+                      // TRANSLATORS: Back button in navigation bar
+                      messages.pgettext('wireguard-keys-nav', 'Advanced')
+                    }
                   </BackBarItem>
                 </NavigationItems>
               </NavigationBar>

@@ -15,12 +15,7 @@ describe('components/NotificationArea', () => {
     latestStable: '2018.2',
   };
 
-  const defaultExpiry = new AccountExpiry(
-    moment()
-      .add(1, 'year')
-      .format(),
-    'en',
-  );
+  const defaultExpiry = new AccountExpiry(moment().add(1, 'year').format(), 'en');
 
   it('handles disconnecting state', () => {
     for (const reason of ['nothing', 'block'] as AfterDisconnect[]) {
@@ -260,12 +255,7 @@ describe('components/NotificationArea', () => {
   });
 
   it('handles time running low', () => {
-    const expiry = new AccountExpiry(
-      moment()
-        .add(2, 'days')
-        .format(),
-      'en',
-    );
+    const expiry = new AccountExpiry(moment().add(2, 'days').format(), 'en');
     const component = shallow(
       <NotificationArea
         tunnelState={{

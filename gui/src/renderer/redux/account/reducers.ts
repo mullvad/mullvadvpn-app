@@ -20,7 +20,7 @@ const initialState: IAccountReduxState = {
   status: { type: 'none' },
 };
 
-export default function(
+export default function (
   state: IAccountReduxState = initialState,
   action: ReduxAction,
 ): IAccountReduxState {

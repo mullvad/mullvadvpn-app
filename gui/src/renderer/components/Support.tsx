@@ -136,8 +136,10 @@ export default class Support extends Component<ISupportProps, ISupportState> {
               <NavigationBar>
                 <NavigationItems>
                   <BackBarItem action={this.props.onClose}>
-                    {// TRANSLATORS: Back button in navigation bar
-                    messages.pgettext('navigation-bar', 'Settings')}
+                    {
+                      // TRANSLATORS: Back button in navigation bar
+                      messages.pgettext('navigation-bar', 'Settings')
+                    }
                   </BackBarItem>
                 </NavigationItems>
               </NavigationBar>

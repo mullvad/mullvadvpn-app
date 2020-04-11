@@ -43,12 +43,16 @@ export default class Preferences extends Component<IProps> {
               <NavigationBar>
                 <NavigationItems>
                   <BackBarItem action={this.props.onClose}>
-                    {// TRANSLATORS: Back button in navigation bar
-                    messages.pgettext('navigation-bar', 'Settings')}
+                    {
+                      // TRANSLATORS: Back button in navigation bar
+                      messages.pgettext('navigation-bar', 'Settings')
+                    }
                   </BackBarItem>
                   <TitleBarItem>
-                    {// TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('preferences-nav', 'Preferences')}
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('preferences-nav', 'Preferences')
+                    }
                   </TitleBarItem>
                 </NavigationItems>
               </NavigationBar>
@@ -159,9 +163,7 @@ export default class Preferences extends Component<IProps> {
                           </Cell.FooterText>
                         </Cell.Footer>
                       </React.Fragment>
-                    ) : (
-                      undefined
-                    )}
+                    ) : undefined}
 
                     <Cell.Container>
                       <Cell.Label>

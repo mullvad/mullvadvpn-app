@@ -55,8 +55,9 @@ export default class ErrorBoundary extends Component<IProps, IState> {
     this.setState({ hasError: true });
 
     log.error(
-      `The error boundary caught an error: ${error.message}\nError stack: ${error.stack ||
-        'Not available'}\nComponent stack: ${info.componentStack}`,
+      `The error boundary caught an error: ${error.message}\nError stack: ${
+        error.stack || 'Not available'
+      }\nComponent stack: ${info.componentStack}`,
     );
   }
 

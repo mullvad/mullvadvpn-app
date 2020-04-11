@@ -129,12 +129,16 @@ export default class AdvancedSettings extends Component<IProps> {
               <NavigationBar>
                 <NavigationItems>
                   <BackBarItem action={this.props.onClose}>
-                    {// TRANSLATORS: Back button in navigation bar
-                    messages.pgettext('navigation-bar', 'Settings')}
+                    {
+                      // TRANSLATORS: Back button in navigation bar
+                      messages.pgettext('navigation-bar', 'Settings')
+                    }
                   </BackBarItem>
                   <TitleBarItem>
-                    {// TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('advanced-settings-nav', 'Advanced')}
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('advanced-settings-nav', 'Advanced')
+                    }
                   </TitleBarItem>
                 </NavigationItems>
               </NavigationBar>
@@ -242,13 +246,9 @@ export default class AdvancedSettings extends Component<IProps> {
                           value={this.props.openvpn.port}
                           onSelect={this.onSelectOpenVpnPort}
                         />
-                      ) : (
-                        undefined
-                      )}
+                      ) : undefined}
                     </View>
-                  ) : (
-                    undefined
-                  )}
+                  ) : undefined}
 
                   {this.props.tunnelProtocol === 'wireguard' ? (
                     <View style={styles.advanced_settings__content}>
@@ -260,9 +260,7 @@ export default class AdvancedSettings extends Component<IProps> {
                         onSelect={this.onSelectWireguardPort}
                       />
                     </View>
-                  ) : (
-                    undefined
-                  )}
+                  ) : undefined}
 
                   <Selector
                     title={
