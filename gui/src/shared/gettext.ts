@@ -67,29 +67,16 @@ function parseTranslation(locale: string, domain: string, catalogue: Gettext): b
 
 function setErrorHandler(catalogue: Gettext) {
   catalogue.on('error', (error) => {
-    // NOTE: locale is not publicly exposed
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const catalogueLocale = (catalogue as any).locale;
-
-    // Filter out the "no translation was found" errors for the source language.
-    // The catalogue's locale is set to an empty string when using the source translation.
-    if (
-      (catalogueLocale === '' || catalogueLocale === SOURCE_LANGUAGE) &&
-      error.indexOf('No translation was found') !== -1
-    ) {
-      return;
-    }
-
     log.warn(`Gettext error: ${error}`);
   });
 }
 
-// `{debug: false}` option prevents Gettext from printing the warnings to console in development
-// the errors are handled separately in the "error" handler below
-export const messages = new Gettext({ debug: false });
+const gettextOptions = { sourceLocale: SOURCE_LANGUAGE };
+
+export const messages = new Gettext(gettextOptions);
 messages.setTextDomain('messages');
 setErrorHandler(messages);
 
-export const relayLocations = new Gettext({ debug: false });
+export const relayLocations = new Gettext(gettextOptions);
 relayLocations.setTextDomain('relay-locations');
 setErrorHandler(relayLocations);
