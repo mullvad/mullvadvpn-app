@@ -23,7 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-
+### Fixed
+- Fix "invalid account" error that was mistakenly reported as "network error" during log in.
 
 ## [2020.1] - 2020-04-08
 Initial release. Supports...
