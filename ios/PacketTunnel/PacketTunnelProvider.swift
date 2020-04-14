@@ -134,7 +134,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
-        os_log(.default, log: tunnelProviderLog, "Stop tunnel received.")
+        os_log(.default, log: tunnelProviderLog, "Stop tunnel received. Reason: %{public}s", "\(String(reflecting: reason))")
 
         startStopTunnelSubscriber = stopTunnel().sink(receiveCompletion: { (completion) in
             os_log(.default, log: tunnelProviderLog, "Stopped the tunnel")

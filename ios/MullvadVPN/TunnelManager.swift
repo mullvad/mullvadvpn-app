@@ -19,6 +19,9 @@ enum TunnelManagerError: Error {
     /// A failure to start the tunnel
     case startTunnel(StartTunnelError)
 
+    /// A failure to stop the tunnel
+    case stopTunnel(Error)
+
     /// A failure to load the account with the assumption that it was already set up earlier
     case loadTunnel(LoadTunnelError)
 
@@ -56,6 +59,9 @@ extension TunnelManagerError: LocalizedError {
 
         case .startTunnel:
             return NSLocalizedString("Cannot start the tunnel", comment: "")
+
+        case .stopTunnel:
+            return NSLocalizedString("Cannot stop the tunnel", comment: "")
 
         default:
             return nil
@@ -377,10 +383,22 @@ class TunnelManager {
             }.eraseToAnyPublisher()
     }
 
-    func stopTunnel() -> AnyPublisher<(), Never> {
-        MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) { () -> Just<()> in
-            self.tunnelProvider?.connection.stopVPNTunnel()
-            return Just(())
+    func stopTunnel() -> AnyPublisher<(), TunnelManagerError> {
+        MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) { () -> AnyPublisher<(), TunnelManagerError> in
+            if let tunnelProvider = self.tunnelProvider {
+                // Disable on-demand when turning off the tunnel to prevent the tunnel from coming
+                // back up
+                tunnelProvider.isOnDemandEnabled = false
+
+                return tunnelProvider.saveToPreferences()
+                    .mapError { TunnelManagerError.stopTunnel($0) }
+                    .map { _ -> () in
+                        tunnelProvider.connection.stopVPNTunnel()
+                        return ()
+                }.eraseToAnyPublisher()
+            } else {
+                return Result.Publisher(()).eraseToAnyPublisher()
+            }
         }.eraseToAnyPublisher()
     }
 
@@ -799,6 +817,12 @@ class TunnelManager {
                 accountToken: accountToken,
                 passwordReference: passwordReference
             )
+
+            // Enable on-demand VPN, always connect the tunnel when on Wi-Fi or cellular
+            let alwaysOnRule = NEOnDemandRuleConnect()
+            alwaysOnRule.interfaceTypeMatch = .any
+            tunnelProvider.onDemandRules = [alwaysOnRule]
+            tunnelProvider.isOnDemandEnabled = true
 
             return tunnelProvider.saveToPreferences()
                 .mapError { SetupTunnelError.saveTunnel($0) }

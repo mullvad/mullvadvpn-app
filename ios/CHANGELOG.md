@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Added
 - Format account number in groups of 4 digits separated by whitespace on login screen.
+- Enable on-demand VPN with a single rule to always connect the tunnel when on Wi-Fi or cellular. 
+  Automatically disable on-demand VPN when manually disconnecting the tunnel from GUI to prevent the 
+  tunnel from coming back up.
 
 ## [2020.1] - 2020-04-08
 Initial release. Supports...
