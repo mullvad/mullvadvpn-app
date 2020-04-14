@@ -135,19 +135,17 @@ environment variables:
 
 `IOS_APPLE_ID_PASSWORD` accepts a keychain reference in form of `@keychain:<KEYCHAIN_ITEM_NAME>`.
 
-Use app specific password instead of the actual account password and save it to Keychain. The app 
-specific password can be created via AppStore Connect, and added to Keychain using the following
-commands (note that `altool` will be authorized to access the saved password):
+Use the app specific password instead of the actual account password and save it to Keychain. 
+The app specific password can be created via [Apple ID website] and added to Keychain using the 
+following command (note that `altool` will be authorized to access the saved password):
 
 ```
-ALTOOL_BIN=$(xcrun -find altool)
-
-security add-generic-password \
-  -a <APPLE_ID_EMAIL> \
-  -w <APP_SPECIFIC_PASSWORD> \
-  -s <KEYCHAIN_ITEM_NAME> \
-  -T "$ALTOOL_BIN"
+xcrun altool --store-password-in-keychain-item <KEYCHAIN_ITEM_NAME> \
+  -u <APPLE_ID_EMAIL> \
+  -p "<APP_SPECIFIC_PASSWORD>"
 ```
+
+[Apple ID website]: https://appleid.apple.com/account/manage
 
 # Automated build and deployment
 
@@ -172,6 +170,6 @@ security set-key-partition-list -S apple-tool:,apple: -s <KEYCHAIN>
 ```
 
 where `<KEYCHAIN>` is the name of the target Keychain where the signing credentials are stored. 
-This guide does not use a separate Keychain store, so use then use `login.keychain-db` then.
+This guide does not use a separate Keychain store, so use `login.keychain-db` then.
 
 Reference: https://docs.travis-ci.com/user/common-build-problems/#mac-macos-sierra-1012-code-signing-errors
