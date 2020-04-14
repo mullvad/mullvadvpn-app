@@ -148,7 +148,7 @@ std::vector<MIB_IF_ROW2>::iterator NetworkAdapterMonitor::findFilteredAdapter(co
 
 MIB_IF_ROW2 NetworkAdapterMonitor::getAdapter(NET_LUID luid) const
 {
-	MIB_IF_ROW2 rowOut;
+	MIB_IF_ROW2 rowOut = {0};
 	rowOut.InterfaceLuid = luid;
 	const auto status = m_dataProvider->getIfEntry2(&rowOut);
 
