@@ -66,6 +66,7 @@ lazy_static! {
     static ref MANGLE_TABLE_NAME_V4: CString = CString::new("mullvadmangle4").unwrap();
     static ref MANGLE_TABLE_NAME_V6: CString = CString::new("mullvadmangle6").unwrap();
     static ref MANGLE_CHAIN_NAME: CString = CString::new("mangle").unwrap();
+    static ref NAT_CHAIN_NAME: CString = CString::new("nat").unwrap();
 
     /// Allows controlling whether firewall rules should have packet counters or not from an env
     /// variable. Useful for debugging the rules.
@@ -209,6 +210,7 @@ struct PolicyBatch<'a> {
     out_chain: Chain<'a>,
     mangle_chain_v4: Chain<'a>,
     mangle_chain_v6: Chain<'a>,
+    nat_chain: Chain<'a>,
 }
 
 impl<'a> PolicyBatch<'a> {
@@ -241,12 +243,19 @@ impl<'a> PolicyBatch<'a> {
         let mangle_chain_v4 = create_mangle_chain(&tables.mangle_v4);
         let mangle_chain_v6 = create_mangle_chain(&tables.mangle_v6);
 
+        let mut nat_chain = Chain::new(&*NAT_CHAIN_NAME, &tables.main);
+        nat_chain.set_hook(nftnl::Hook::PostRouting, libc::NF_IP_PRI_NAT_SRC);
+        nat_chain.set_type(nftnl::ChainType::Nat);
+        nat_chain.set_policy(nftnl::Policy::Accept);
+        batch.add(&nat_chain, nftnl::MsgType::Add);
+
         PolicyBatch {
             batch,
             in_chain,
             out_chain,
             mangle_chain_v4,
             mangle_chain_v6,
+            nat_chain,
         }
     }
 
@@ -289,6 +298,14 @@ impl<'a> PolicyBatch<'a> {
         let mut rule = Rule::new(&self.out_chain);
         rule.add_expr(&nft_expr!(meta mark));
         rule.add_expr(&nft_expr!(cmp == split::MARK));
+        add_verdict(&mut rule, &Verdict::Accept);
+        self.batch.add(&rule, nftnl::MsgType::Add);
+
+        let mut rule = Rule::new(&self.nat_chain);
+        rule.add_expr(&nft_expr!(ct mark));
+        rule.add_expr(&nft_expr!(cmp == split::MARK));
+        // TODO: match oif interface
+        rule.add_expr(&nft_expr!(masquerade));
         add_verdict(&mut rule, &Verdict::Accept);
         self.batch.add(&rule, nftnl::MsgType::Add);
     }
