@@ -70,6 +70,7 @@
 		5888AD89227B18C40051EB06 /* RelayList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD88227B18C40051EB06 /* RelayList.swift */; };
 		588AE72F2362001F009F9F2E /* MutuallyExclusive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588AE72E2362001F009F9F2E /* MutuallyExclusive.swift */; };
 		588AE730236200E2009F9F2E /* MutuallyExclusive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588AE72E2362001F009F9F2E /* MutuallyExclusive.swift */; };
+		58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */; };
 		589AB4F7227B64450039131E /* BasicTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589AB4F6227B64450039131E /* BasicTableViewCell.swift */; };
 		58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */; };
 		58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
@@ -225,6 +226,7 @@
 		5888AD86227B17950051EB06 /* SelectLocationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationController.swift; sourceTree = "<group>"; };
 		5888AD88227B18C40051EB06 /* RelayList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayList.swift; sourceTree = "<group>"; };
 		588AE72E2362001F009F9F2E /* MutuallyExclusive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutuallyExclusive.swift; sourceTree = "<group>"; };
+		58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEProviderStopReason+Debug.swift"; sourceTree = "<group>"; };
 		5894E725236B2801008A2793 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		589AB4F6227B64450039131E /* BasicTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicTableViewCell.swift; sourceTree = "<group>"; };
 		58A1AA8623F43901009F7EA6 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
@@ -410,6 +412,7 @@
 				58FBDAAA22A52DC500EB69A3 /* MullvadVPN-Bridging-Header.h */,
 				5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */,
 				588AE72E2362001F009F9F2E /* MutuallyExclusive.swift */,
+				58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */,
 				5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */,
 				5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */,
 				58BFA5C522A7C97F00A6173D /* RelayCache.swift */,
@@ -853,6 +856,7 @@
 				582650872384117900FA7A86 /* ReplaceNilWithError.swift in Sources */,
 				58BFA5C722A7C97F00A6173D /* RelayCache.swift in Sources */,
 				58BFA5C022A7C8A900A6173D /* MullvadAPI.swift in Sources */,
+				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
 				58AEEF692344A43A00C9BBD5 /* TunnelConfigurationCoder.swift in Sources */,
 				584E96BD240FD4DA00D3334F /* Location.swift in Sources */,
 				58C6B36122C0EC82003C19AD /* AnyIPEndpoint+DNS64.swift in Sources */,
