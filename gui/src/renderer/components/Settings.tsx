@@ -51,8 +51,10 @@ export default class Settings extends Component<IProps> {
                 <NavigationItems>
                   <CloseBarItem action={this.props.onClose} />
                   <TitleBarItem>
-                    {// TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('navigation-bar', 'Settings')}
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('navigation-bar', 'Settings')
+                    }
                   </TitleBarItem>
                 </NavigationItems>
               </NavigationBar>
@@ -113,8 +115,10 @@ export default class Settings extends Component<IProps> {
         <View>
           <Cell.CellButton onPress={this.props.onViewAccount}>
             <Cell.Label>
-              {// TRANSLATORS: Navigation button to the 'Account' view
-              messages.pgettext('settings-view', 'Account')}
+              {
+                // TRANSLATORS: Navigation button to the 'Account' view
+                messages.pgettext('settings-view', 'Account')
+              }
             </Cell.Label>
             <Cell.SubText style={isOutOfTime ? styles.accountPaidUntilErrorLabel : undefined}>
               {isOutOfTime ? outOfTimeMessage : formattedExpiry}
@@ -125,16 +129,20 @@ export default class Settings extends Component<IProps> {
 
         <Cell.CellButton onPress={this.props.onViewPreferences}>
           <Cell.Label>
-            {// TRANSLATORS: Navigation button to the 'Preferences' view
-            messages.pgettext('settings-view', 'Preferences')}
+            {
+              // TRANSLATORS: Navigation button to the 'Preferences' view
+              messages.pgettext('settings-view', 'Preferences')
+            }
           </Cell.Label>
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
 
         <Cell.CellButton onPress={this.props.onViewAdvancedSettings}>
           <Cell.Label>
-            {// TRANSLATORS: Navigation button to the 'Advanced' settings view
-            messages.pgettext('settings-view', 'Advanced')}
+            {
+              // TRANSLATORS: Navigation button to the 'Advanced' settings view
+              messages.pgettext('settings-view', 'Advanced')
+            }
           </Cell.Label>
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
@@ -189,16 +197,20 @@ export default class Settings extends Component<IProps> {
       <View>
         <Cell.CellButton onPress={this.props.onViewSupport}>
           <Cell.Label>
-            {// TRANSLATORS: Navigation button to the 'Report a problem' help view
-            messages.pgettext('settings-view', 'Report a problem')}
+            {
+              // TRANSLATORS: Navigation button to the 'Report a problem' help view
+              messages.pgettext('settings-view', 'Report a problem')
+            }
           </Cell.Label>
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
 
         <Cell.CellButton disabled={this.props.isOffline} onPress={this.openFaqLink}>
           <Cell.Label>
-            {// TRANSLATORS: Link to the webpage
-            messages.pgettext('settings-view', 'FAQs & Guides')}
+            {
+              // TRANSLATORS: Link to the webpage
+              messages.pgettext('settings-view', 'FAQs & Guides')
+            }
           </Cell.Label>
           <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
@@ -206,8 +218,10 @@ export default class Settings extends Component<IProps> {
         <Cell.CellButton onPress={this.props.onViewSelectLanguage}>
           <Cell.UntintedIcon width={24} height={24} source="icon-language" />
           <Cell.Label>
-            {// TRANSLATORS: Navigation button to the 'Language' settings view
-            messages.pgettext('settings-view', 'Language')}
+            {
+              // TRANSLATORS: Navigation button to the 'Language' settings view
+              messages.pgettext('settings-view', 'Language')
+            }
           </Cell.Label>
           <Cell.SubText>{this.props.preferredLocaleDisplayName}</Cell.SubText>
           <Cell.Icon height={12} width={7} source="icon-chevron" />

@@ -175,7 +175,7 @@ const initialState: ISettingsReduxState = {
   },
 };
 
-export default function(
+export default function (
   state: ISettingsReduxState = initialState,
   action: ReduxAction,
 ): ISettingsReduxState {

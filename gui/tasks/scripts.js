@@ -4,7 +4,7 @@ const inject = require('gulp-inject-string');
 const TscWatchClient = require('tsc-watch/client');
 
 function makeWatchCompiler(onFirstSuccess) {
-  const compileScripts = function() {
+  const compileScripts = function () {
     const watch = new TscWatchClient();
     watch.on('first_success', onFirstSuccess);
     watch.start('--noClear', '--sourceMap', '--project', '.');

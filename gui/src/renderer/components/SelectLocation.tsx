@@ -93,8 +93,10 @@ export default class SelectLocation extends Component<IProps> {
                 <NavigationItems>
                   <CloseBarItem action={this.props.onClose} />
                   <TitleBarItem>
-                    {// TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('select-location-nav', 'Select location')}
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('select-location-nav', 'Select location')
+                    }
                   </TitleBarItem>
                 </NavigationItems>
                 <View style={styles.navigationBarAttachment}>

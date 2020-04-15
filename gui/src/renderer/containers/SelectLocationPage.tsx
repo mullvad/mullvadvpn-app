@@ -54,9 +54,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
       history.goBack();
 
       try {
-        const relayUpdate = RelaySettingsBuilder.normal()
-          .location.fromRaw(relayLocation)
-          .build();
+        const relayUpdate = RelaySettingsBuilder.normal().location.fromRaw(relayLocation).build();
 
         await props.app.updateRelaySettings(relayUpdate);
         await props.app.connectTunnel();

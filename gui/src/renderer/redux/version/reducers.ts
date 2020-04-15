@@ -18,7 +18,7 @@ const initialState: IVersionReduxState = {
   consistent: true,
 };
 
-export default function(
+export default function (
   state: IVersionReduxState = initialState,
   action: ReduxAction,
 ): IVersionReduxState {

@@ -18,7 +18,7 @@ const initialState: IUserInterfaceReduxState = {
   locationScope: LocationScope.relay,
 };
 
-export default function(
+export default function (
   state: IUserInterfaceReduxState = initialState,
   action: ReduxAction,
 ): IUserInterfaceReduxState {

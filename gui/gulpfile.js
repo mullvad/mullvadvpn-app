@@ -6,7 +6,7 @@ const assets = require('./tasks/assets');
 const watch = require('./tasks/watch');
 const dist = require('./tasks/distribution');
 
-task('clean', function(done) {
+task('clean', function (done) {
   rimraf('./build', done);
 });
 task('build', series('clean', assets.copyAll, scripts.build));

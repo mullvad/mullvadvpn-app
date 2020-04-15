@@ -10,7 +10,7 @@ const initialState: ISupportReduxState = {
   message: '',
 };
 
-export default function(
+export default function (
   state: ISupportReduxState = initialState,
   action: ReduxAction,
 ): ISupportReduxState {
