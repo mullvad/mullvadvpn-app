@@ -20,31 +20,30 @@ pub struct Settings {
 
 impl Settings {
     pub fn load() -> Self {
-        let mut data = match Self::load_data() {
-            Ok(settings) => settings,
-            #[cfg(windows)]
-            Err(error) if error.kind() == io::ErrorKind::NotFound => {
-                if Self::migrate_after_windows_update() {
-                    match SettingsData::load() {
-                        Ok(settings) => {
-                            info!("Successfully loaded migrated settings");
-                            settings
+        let mut data = Self::load_data()
+            .or_else(|error| match error.kind() {
+                #[cfg(windows)]
+                io::ErrorKind::NotFound => {
+                    if Self::migrate_after_windows_update() {
+                        let result = Self::load_data();
+
+                        match &result {
+                            Ok(_) => info!("Successfully loaded migrated settings"),
+                            Err(_) => warn!("Failed to load migrated settings, using defaults"),
                         }
-                        Err(_) => {
-                            warn!("Failed to load migrated settings, using defaults");
-                            SettingsData::default()
-                        }
+
+                        result
+                    } else {
+                        info!("Failed to migrate settings, using defaults");
+                        Err(error)
                     }
-                } else {
-                    info!("Failed to migrate settings, using defaults");
-                    SettingsData::default()
                 }
-            }
-            Err(_) => {
+                _ => Err(error),
+            })
+            .unwrap_or_else(|_| {
                 info!("Failed to load settings, using defaults");
                 SettingsData::default()
-            }
-        };
+            });
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
