@@ -5,7 +5,6 @@
 #include <libcommon/string.h>
 #include <sstream>
 
-
 using namespace std::placeholders; // for _1, _2 etc.
 
 namespace
@@ -61,7 +60,6 @@ bool IsConnectedAdapter(const MIB_IF_ROW2 &iface)
 
 } // anonymous namespace
 
-
 OfflineMonitor::OfflineMonitor
 (
 	std::shared_ptr<common::logging::ILogSink> logSink,
@@ -80,7 +78,6 @@ OfflineMonitor::OfflineMonitor
 {
 }
 
-
 OfflineMonitor::OfflineMonitor
 (
 	std::shared_ptr<common::logging::ILogSink> logSink,
@@ -89,7 +86,6 @@ OfflineMonitor::OfflineMonitor
 {
 }
 
-
 void OfflineMonitor::callback(const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *, NetworkAdapterMonitor::UpdateType)
 {
 	const auto previousConnectivity = m_connected;
@@ -97,12 +93,17 @@ void OfflineMonitor::callback(const std::vector<MIB_IF_ROW2> &adapters, const MI
 
 	if (previousConnectivity != m_connected)
 	{
-		m_notifier(m_connected);
+		std::stringstream ss;
+
+		ss << "Connectivity changed. Machine is: " << (m_connected ? "ONLINE" : "OFFLINE");
+		m_logSink->info(ss.str().c_str());
 
 		if (false == m_connected)
 		{
 			LogOfflineState();
 		}
+
+		m_notifier(m_connected);
 	}
 }
 
@@ -114,8 +115,6 @@ void OfflineMonitor::LogOfflineState()
 	//
 	// Not much of a problem really, this is temporary logging.
 	//
-
-	m_logSink->info("Machine is offline");
 
 	MIB_IF_TABLE2 *table;
 
