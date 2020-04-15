@@ -1,4 +1,4 @@
-use futures::{sync::oneshot, Async, Future};
+use futures01::{sync::oneshot, Async, Future};
 use ipnetwork::IpNetwork;
 use std::collections::HashMap;
 
