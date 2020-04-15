@@ -1,5 +1,5 @@
 use crate::tunnel_state_machine::TunnelCommand;
-use futures::sync::mpsc::UnboundedSender;
+use futures01::sync::mpsc::UnboundedSender;
 use std::sync::Weak;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
