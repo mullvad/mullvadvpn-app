@@ -13,7 +13,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     relay_list::RelayList,
-    settings::{self, Settings},
+    settings::Settings,
     states::{TargetState, TunnelState},
     version, wireguard, DaemonEvent,
 };
@@ -582,12 +582,7 @@ impl ManagementInterfaceApi for ManagementInterface {
         let future = self
             .send_command_to_daemon(DaemonCommand::SetBridgeSettings(tx, bridge_settings))
             .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .and_then(|settings_result| {
-                settings_result.map_err(|error| match error {
-                    settings::Error::InvalidProxyData(reason) => Error::invalid_params(reason),
-                    _ => Error::internal_error(),
-                })
-            });
+            .and_then(|settings_result| settings_result.map_err(|_| Error::internal_error()));
 
         Box::new(future)
     }
