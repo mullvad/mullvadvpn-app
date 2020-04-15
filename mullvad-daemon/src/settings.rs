@@ -1,15 +1,18 @@
 use log::info;
-use std::ops::{Deref, DerefMut};
+use mullvad_types::settings::Settings;
+use std::{
+    io,
+    ops::{Deref, DerefMut},
+};
 
 #[cfg(windows)]
 use {
     log::{error, warn},
-    mullvad_types::settings::Error as SettingsError,
     std::io::ErrorKind,
     talpid_core::logging::windows::log_sink,
 };
 
-pub use mullvad_types::settings::*;
+pub use mullvad_types::settings::Error;
 
 #[derive(Debug)]
 pub struct SettingsPersister {
@@ -18,7 +21,7 @@ pub struct SettingsPersister {
 
 impl SettingsPersister {
     pub fn load() -> Self {
-        let settings = match Settings::load() {
+        let settings = match Self::load_settings_from_file() {
             Ok(mut settings) => {
                 // Force IPv6 to be enabled on Android
                 if cfg!(target_os = "android") {
@@ -27,7 +30,7 @@ impl SettingsPersister {
                 settings
             }
             #[cfg(windows)]
-            Err(SettingsError::ReadError(ref _path, ref e)) if e.kind() == ErrorKind::NotFound => {
+            Err(error) if error.kind() == ErrorKind::NotFound => {
                 if Self::migrate_after_windows_update() {
                     match Settings::load() {
                         Ok(settings) => {
@@ -77,6 +80,13 @@ impl SettingsPersister {
                 false
             }
         }
+    }
+
+    fn load_settings_from_file() -> Result<Settings, io::Error> {
+        Settings::load().map_err(|error| match error {
+            Error::ReadError(_, io_error) => io_error,
+            _ => io::Error::new(io::ErrorKind::Other, "Failed to load settings"),
+        })
     }
 
     pub fn to_settings(&self) -> Settings {
