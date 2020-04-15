@@ -135,6 +135,9 @@ impl SettingsData {
         serde_json::from_slice(bytes).map_err(Error::ParseError)
     }
 
+    pub fn migrate_from_bytes(bytes: &[u8]) -> Result<Self> {
+        migrations::try_migrate_settings(&bytes)
+    }
 
     /// Serializes the settings and saves them to the file it was loaded from.
     fn save(&self) -> Result<()> {
