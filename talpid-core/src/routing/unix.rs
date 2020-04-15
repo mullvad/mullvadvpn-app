@@ -11,7 +11,7 @@ use std::{collections::HashMap, sync::mpsc::sync_channel};
 mod imp;
 
 #[cfg(target_os = "linux")]
-#[path = "linux/mod.rs"]
+#[path = "linux.rs"]
 mod imp;
 
 #[cfg(target_os = "android")]
