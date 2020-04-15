@@ -42,9 +42,6 @@ pub enum Error {
     #[error(display = "Unable to write settings to {}", _0)]
     WriteError(String, #[error(source)] io::Error),
 
-    #[error(display = "Invalid OpenVPN proxy configuration: {}", _0)]
-    InvalidProxyData(String),
-
     #[error(display = "Unable to read any version of the settings")]
     NoMatchingVersion,
 }
