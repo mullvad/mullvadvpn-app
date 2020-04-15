@@ -1,15 +1,18 @@
 use log::info;
-use std::ops::{Deref, DerefMut};
+use mullvad_types::settings::SettingsData;
+use std::{
+    io,
+    ops::{Deref, DerefMut},
+};
 
 #[cfg(windows)]
 use {
     log::{error, warn},
-    mullvad_types::settings::Error as SettingsError,
     std::io::ErrorKind,
     talpid_core::logging::windows::log_sink,
 };
 
-pub use mullvad_types::settings::*;
+pub use mullvad_types::settings::Error;
 
 #[derive(Clone, Debug)]
 pub struct Settings {
@@ -18,10 +21,10 @@ pub struct Settings {
 
 impl Settings {
     pub fn load() -> Self {
-        let mut data = match SettingsData::load() {
+        let mut data = match Self::load_data() {
             Ok(settings) => settings,
             #[cfg(windows)]
-            Err(SettingsError::ReadError(ref _path, ref e)) if e.kind() == ErrorKind::NotFound => {
+            Err(error) if error.kind() == ErrorKind::NotFound => {
                 if Self::migrate_after_windows_update() {
                     match SettingsData::load() {
                         Ok(settings) => {
@@ -76,6 +79,13 @@ impl Settings {
                 false
             }
         }
+    }
+
+    fn load_data() -> Result<SettingsData, io::Error> {
+        SettingsData::load().map_err(|error| match error {
+            Error::ReadError(_, io_error) => io_error,
+            _ => io::Error::new(io::ErrorKind::Other, "Failed to load settings"),
+        })
     }
 
     pub fn to_data(&self) -> SettingsData {
