@@ -304,7 +304,6 @@ impl<'a> PolicyBatch<'a> {
         let mut rule = Rule::new(&self.nat_chain);
         rule.add_expr(&nft_expr!(ct mark));
         rule.add_expr(&nft_expr!(cmp == split::MARK));
-        // TODO: match oif interface
         rule.add_expr(&nft_expr!(masquerade));
         add_verdict(&mut rule, &Verdict::Accept);
         self.batch.add(&rule, nftnl::MsgType::Add);
