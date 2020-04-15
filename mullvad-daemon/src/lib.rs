@@ -507,7 +507,7 @@ where
         );
         tokio_remote.spawn(|_| version_check_future);
 
-        let mut settings = settings::load();
+        let mut settings = SettingsPersister::load();
 
         if version::is_beta_version() && settings.get_show_beta_releases().is_none() {
             let _ = settings.set_show_beta_releases(true);
