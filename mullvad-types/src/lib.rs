@@ -22,7 +22,7 @@ pub enum DaemonEvent {
     TunnelState(states::TunnelState),
 
     /// The daemon settings changed.
-    Settings(settings::Settings),
+    Settings(settings::SettingsData),
 
     /// The daemon got an updated relay list.
     RelayList(relay_list::RelayList),

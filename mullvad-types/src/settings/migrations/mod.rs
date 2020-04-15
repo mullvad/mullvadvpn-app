@@ -1,4 +1,4 @@
-use super::{Error, Result, Settings};
+use super::{Error, Result, SettingsData};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::io::Read;
 mod v1;
@@ -38,12 +38,12 @@ impl Serialize for SettingsVersion {
 #[derive(Debug)]
 enum VersionedSettings {
     V1(v1::Settings),
-    V2(crate::settings::Settings),
+    V2(SettingsData),
 }
 
 impl VersionedSettings {
     /// Unrwaps the latest version of settings or panics.
-    fn unwrap(self) -> Settings {
+    fn unwrap(self) -> SettingsData {
         match self {
             VersionedSettings::V2(settings) => settings,
             lower => {
@@ -63,7 +63,7 @@ fn migrations() -> Vec<Box<dyn SettingsMigration>> {
     vec![Box::new(v1::Migration)]
 }
 
-pub fn try_migrate_settings(mut settings_file: &[u8]) -> Result<crate::settings::Settings> {
+pub fn try_migrate_settings(mut settings_file: &[u8]) -> Result<SettingsData> {
     let mut migrations_to_apply = vec![];
     let mut valid_settings = None;
 

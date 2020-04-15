@@ -41,7 +41,7 @@ use mullvad_types::{
     version::{AppVersion, AppVersionInfo},
     wireguard::KeygenEvent,
 };
-use settings::Settings;
+use settings::SettingsData;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
 use std::{
@@ -199,7 +199,7 @@ pub enum DaemonCommand {
     /// Set automatic key rotation interval for wireguard tunnels
     SetWireguardRotationInterval(oneshot::Sender<()>, Option<u32>),
     /// Get the daemon settings
-    GetSettings(oneshot::Sender<Settings>),
+    GetSettings(oneshot::Sender<SettingsData>),
     /// Generate new wireguard key
     GenerateWireguardKey(oneshot::Sender<wireguard::KeygenEvent>),
     /// Return a public key of the currently set wireguard private key, if there is one
@@ -414,7 +414,7 @@ pub trait EventListener {
     fn notify_new_state(&self, new_state: TunnelState);
 
     /// Notify that the settings changed.
-    fn notify_settings(&self, settings: Settings);
+    fn notify_settings(&self, settings: SettingsData);
 
     /// Notify that the relay list changed.
     fn notify_relay_list(&self, relay_list: RelayList);
@@ -436,7 +436,7 @@ pub struct Daemon<L: EventListener> {
     tx: DaemonEventSender,
     reconnection_loop_tx: Option<mpsc::Sender<()>>,
     event_listener: L,
-    settings: Settings,
+    settings: SettingsData,
     account_history: account_history::AccountHistory,
     wg_key_proxy: WireguardKeyProxy<HttpHandle>,
     accounts_proxy: AccountsProxy<HttpHandle>,
@@ -1695,7 +1695,7 @@ where
         }
     }
 
-    fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
+    fn on_get_settings(&self, tx: oneshot::Sender<SettingsData>) {
         Self::oneshot_send(tx, self.settings.clone(), "get_settings response");
     }
 

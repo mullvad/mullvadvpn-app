@@ -61,7 +61,7 @@ impl super::SettingsMigration for Migration {
     }
     fn migrate(&self, old: VersionedSettings) -> VersionedSettings {
         match old {
-            VersionedSettings::V1(old) => VersionedSettings::V2(crate::settings::Settings {
+            VersionedSettings::V1(old) => VersionedSettings::V2(crate::settings::SettingsData {
                 account_token: old.account_token,
                 relay_settings: migrate_relay_settings(old.relay_settings),
                 bridge_settings: old.bridge_settings,
