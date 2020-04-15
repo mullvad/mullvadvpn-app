@@ -112,7 +112,7 @@ impl Settings {
                 io::BufReader::new(file)
                     .read_to_end(&mut settings_bytes)
                     .map_err(|e| Error::ReadError("Failed to read settings file".to_owned(), e))?;
-                Self::parse_settings(&mut settings_bytes).or_else(|e| {
+                Self::load_from_bytes(&mut settings_bytes).or_else(|e| {
                     log::error!(
                         "{}",
                         e.display_chain_with_msg("Failed to parse settings file")
@@ -127,6 +127,11 @@ impl Settings {
             Err(e) => Err(Error::ReadError(path.display().to_string(), e)),
         }
     }
+
+    pub fn load_from_bytes(bytes: &[u8]) -> Result<Self> {
+        serde_json::from_slice(bytes).map_err(Error::ParseError)
+    }
+
 
     /// Serializes the settings and saves them to the file it was loaded from.
     fn save(&self) -> Result<()> {
@@ -160,10 +165,6 @@ impl Settings {
     fn get_settings_path() -> Result<PathBuf> {
         let dir = ::mullvad_paths::settings_dir().map_err(Error::DirectoryError)?;
         Ok(dir.join(SETTINGS_FILE))
-    }
-
-    fn parse_settings(bytes: &[u8]) -> Result<Settings> {
-        serde_json::from_slice(bytes).map_err(Error::ParseError)
     }
 
     pub fn get_account_token(&self) -> Option<String> {
