@@ -4,14 +4,16 @@ import android.content.Context
 import java.io.File
 import java.io.FileOutputStream
 
-class FileResourceExtractor(val asset: String, val destination: String) {
+class FileResourceExtractor(val asset: String) {
     fun extract(context: Context) {
-        if (!File(destination).exists()) {
-            extractFile(context)
+        val destination = File(context.filesDir, asset)
+
+        if (!destination.exists()) {
+            extractFile(context, destination)
         }
     }
 
-    private fun extractFile(context: Context) {
+    private fun extractFile(context: Context, destination: File) {
         val destinationStream = FileOutputStream(destination)
 
         context
