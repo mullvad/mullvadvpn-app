@@ -129,7 +129,7 @@ fn initialize(
     this: &JObject<'_>,
     vpn_service: &JObject<'_>,
     cache_dir: PathBuf,
-    log_dir: PathBuf,
+    resource_dir: PathBuf,
 ) -> Result<(), Error> {
     let android_context = create_android_context(env, *vpn_service)?;
     let daemon_command_channel = DaemonCommandChannel::new();
@@ -139,7 +139,7 @@ fn initialize(
         env,
         this,
         cache_dir,
-        log_dir,
+        resource_dir,
         daemon_command_channel,
         android_context,
     )?;
@@ -165,7 +165,7 @@ fn spawn_daemon(
     env: &JnixEnv<'_>,
     this: &JObject<'_>,
     cache_dir: PathBuf,
-    log_dir: PathBuf,
+    resource_dir: PathBuf,
     command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
 ) -> Result<(), Error> {
@@ -177,14 +177,16 @@ fn spawn_daemon(
 
     thread::spawn(move || {
         let jvm = android_context.jvm.clone();
-
-        match create_daemon(
-            listener,
+        let daemon = Daemon::start(
+            Some(resource_dir.clone()),
+            resource_dir,
             cache_dir,
-            log_dir,
+            listener,
             command_channel,
             android_context,
-        ) {
+        );
+
+        match daemon {
             Ok(daemon) => {
                 let _ = tx.send(Ok(()));
                 match daemon.run() {
@@ -193,7 +195,7 @@ fn spawn_daemon(
                 }
             }
             Err(error) => {
-                let _ = tx.send(Err(error));
+                let _ = tx.send(Err(Error::InitializeDaemon(error)));
             }
         }
 
@@ -201,26 +203,6 @@ fn spawn_daemon(
     });
 
     rx.recv().unwrap()
-}
-
-fn create_daemon(
-    listener: JniEventListener,
-    cache_dir: PathBuf,
-    log_dir: PathBuf,
-    command_channel: DaemonCommandChannel,
-    android_context: AndroidContext,
-) -> Result<Daemon<JniEventListener>, Error> {
-    let resource_dir = mullvad_paths::get_resource_dir();
-
-    Daemon::start(
-        Some(log_dir),
-        resource_dir,
-        cache_dir,
-        listener,
-        command_channel,
-        android_context,
-    )
-    .map_err(Error::InitializeDaemon)
 }
 
 fn notify_daemon_stopped(jvm: Arc<JavaVM>, daemon_object: GlobalRef) {

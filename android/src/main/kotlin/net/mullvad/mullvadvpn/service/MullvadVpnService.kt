@@ -14,10 +14,7 @@ import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
 
 private const val API_ROOT_CA_FILE = "api_root_ca.pem"
-private const val API_ROOT_CA_PATH = "/data/data/net.mullvad.mullvadvpn/api_root_ca.pem"
-
 private const val RELAYS_FILE = "relays.json"
-private const val RELAYS_PATH = "/data/data/net.mullvad.mullvadvpn/relays.json"
 
 class MullvadVpnService : TalpidVpnService() {
     private enum class PendingAction {
@@ -144,11 +141,8 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
-        FileResourceExtractor(API_ROOT_CA_FILE, API_ROOT_CA_PATH)
-            .extract(application)
-
-        FileResourceExtractor(RELAYS_FILE, RELAYS_PATH)
-            .extract(application)
+        FileResourceExtractor(API_ROOT_CA_FILE).extract(application)
+        FileResourceExtractor(RELAYS_FILE).extract(application)
 
         val newDaemon = MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
