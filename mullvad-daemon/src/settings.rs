@@ -18,14 +18,8 @@ pub struct Settings {
 
 impl Settings {
     pub fn load() -> Self {
-        let data = match SettingsData::load() {
-            Ok(mut settings) => {
-                // Force IPv6 to be enabled on Android
-                if cfg!(target_os = "android") {
-                    let _ = settings.set_enable_ipv6(true);
-                }
-                settings
-            }
+        let mut data = match SettingsData::load() {
+            Ok(settings) => settings,
             #[cfg(windows)]
             Err(SettingsError::ReadError(ref _path, ref e)) if e.kind() == ErrorKind::NotFound => {
                 if Self::migrate_after_windows_update() {
@@ -49,6 +43,11 @@ impl Settings {
                 SettingsData::default()
             }
         };
+
+        // Force IPv6 to be enabled on Android
+        if cfg!(target_os = "android") {
+            let _ = data.set_enable_ipv6(true);
+        }
 
         Settings { data }
     }
