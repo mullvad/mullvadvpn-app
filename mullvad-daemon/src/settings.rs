@@ -1,18 +1,14 @@
-#[cfg(windows)]
-use log::{error, warn};
-
 use log::info;
 
 #[cfg(windows)]
-use mullvad_types::settings::Error as SettingsError;
+use {
+    log::{error, warn},
+    mullvad_types::settings::Error as SettingsError,
+    std::io::ErrorKind,
+    talpid_core::logging::windows::log_sink,
+};
 
 pub use mullvad_types::settings::*;
-
-#[cfg(windows)]
-use std::io::ErrorKind;
-
-#[cfg(windows)]
-use talpid_core::logging::windows::log_sink;
 
 pub fn load() -> Settings {
     match Settings::load() {
