@@ -29,7 +29,5 @@ private:
 	bool m_connected;
 	NetworkAdapterMonitor m_netAdapterMonitor;
 
-	void LogOfflineState();
-
 	void callback(const std::vector<MIB_IF_ROW2> &adapters, const MIB_IF_ROW2 *adapter, NetworkAdapterMonitor::UpdateType type);
 };
