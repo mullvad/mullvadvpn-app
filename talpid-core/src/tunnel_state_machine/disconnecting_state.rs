@@ -3,7 +3,7 @@ use super::{
     TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::tunnel::CloseHandle;
-use futures::{
+use futures01::{
     sync::{mpsc, oneshot},
     Async, Future, Stream,
 };

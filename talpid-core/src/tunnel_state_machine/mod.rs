@@ -21,7 +21,8 @@ use crate::{
     offline,
     tunnel::tun_provider::TunProvider,
 };
-use futures::{
+
+use futures01::{
     sync::{mpsc, oneshot},
     Async, Future, Poll, Stream,
 };

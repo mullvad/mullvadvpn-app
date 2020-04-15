@@ -2,9 +2,9 @@
 #![cfg_attr(target_os = "windows", allow(dead_code))]
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
 use super::NetNode;
-use futures::{sync::oneshot, Future};
+use futures01::{sync::oneshot, Future};
 use ipnetwork::IpNetwork;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::mpsc::sync_channel};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -47,7 +47,7 @@ impl RouteManager {
     /// routes.
     pub fn new(required_routes: HashMap<IpNetwork, NetNode>) -> Result<Self, Error> {
         let (tx, rx) = oneshot::channel();
-        let (start_tx, start_rx) = oneshot::channel();
+        let (start_tx, start_rx) = sync_channel(1);
 
         std::thread::spawn(
             move || match imp::RouteManagerImpl::new(required_routes, rx) {
@@ -62,7 +62,7 @@ impl RouteManager {
                 }
             },
         );
-        match start_rx.wait() {
+        match start_rx.recv() {
             Ok(Ok(())) => Ok(Self { tx: Some(tx) }),
             Ok(Err(e)) => Err(e),
             Err(_) => Err(Error::RoutingManagerThreadPanic),

@@ -3,7 +3,7 @@ use super::{
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::firewall::FirewallPolicy;
-use futures::{sync::mpsc, Stream};
+use futures01::{sync::mpsc, Stream};
 use talpid_types::{
     tunnel::{self as talpid_tunnel, ErrorStateCause},
     ErrorExt,

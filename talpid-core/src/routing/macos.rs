@@ -8,7 +8,7 @@ use std::{
     process::{Command, ExitStatus, Stdio},
 };
 
-use futures::{stream, sync::oneshot, Async, Future, IntoFuture, Stream};
+use futures01::{stream, sync::oneshot, Async, Future, IntoFuture, Stream};
 use tokio_process::{Child, CommandExt};
 
 
@@ -208,7 +208,7 @@ impl RouteManagerImpl {
             .arg(ip_vers(destination))
             .arg(destination.to_string());
 
-        futures::lazy(move || cmd.spawn_async().into_future().and_then(|f| f))
+        futures01::lazy(move || cmd.spawn_async().into_future().and_then(|f| f))
             .map_err(Error::FailedToRemoveRoute)
     }
 
@@ -226,7 +226,7 @@ impl RouteManagerImpl {
             cmd.arg("-interface").arg(device);
         }
 
-        futures::lazy(move || cmd.spawn_async().into_future().and_then(|f| f))
+        futures01::lazy(move || cmd.spawn_async().into_future().and_then(|f| f))
             .map_err(Error::FailedToAddRoute)
     }
 
