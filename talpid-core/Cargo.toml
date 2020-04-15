@@ -13,6 +13,7 @@ cfg-if = "0.1"
 duct = "0.13"
 err-derive = "0.2.1"
 futures01 = { package = "futures", version = "0.1" }
+futures = { package = "futures", version = "0.3", features = [ "compat" ]}
 hex = "0.4"
 ipnetwork = "0.15"
 jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
@@ -55,7 +56,7 @@ rtnetlink = "0.2"
 netlink-packet-route = "0.2"
 netlink-proto = "0.2"
 netlink-sys = "0.2"
-futures = { package = "futures", version = "0.3" }
+new-tokio = { package = "tokio", version = "0.2", features =  [ "rt-core", "rt-threaded"] }
 nftnl = { version = "0.2.1", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
 which = { version = "3.1", default-features = false }
