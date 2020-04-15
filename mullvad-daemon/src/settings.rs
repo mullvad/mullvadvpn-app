@@ -30,14 +30,8 @@ pub struct SettingsPersister {
 
 impl SettingsPersister {
     pub fn load() -> Self {
-        let settings = match Self::load_settings_from_file() {
-            Ok(mut settings) => {
-                // Force IPv6 to be enabled on Android
-                if cfg!(target_os = "android") {
-                    let _ = settings.set_enable_ipv6(true);
-                }
-                settings
-            }
+        let mut settings = match Self::load_settings_from_file() {
+            Ok(settings) => settings,
             #[cfg(windows)]
             Err(LoadSettingsError::FileNotFound) => {
                 if Self::migrate_after_windows_update() {
@@ -61,6 +55,11 @@ impl SettingsPersister {
                 Settings::default()
             }
         };
+
+        // Force IPv6 to be enabled on Android
+        if cfg!(target_os = "android") {
+            let _ = settings.set_enable_ipv6(true);
+        }
 
         SettingsPersister { settings }
     }
