@@ -305,7 +305,7 @@ impl SettingsData {
     }
 
     pub fn get_show_beta_releases(&self) -> Option<bool> {
-        self.show_beta_releases.clone()
+        self.show_beta_releases
     }
 
     pub fn set_show_beta_releases(&mut self, enabled: bool) -> Result<bool> {
