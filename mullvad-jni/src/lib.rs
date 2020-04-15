@@ -42,9 +42,6 @@ pub enum Error {
     #[error(display = "Failed to create global reference to Java object")]
     CreateGlobalReference(#[error(cause)] jnix::jni::errors::Error),
 
-    #[error(display = "Failed to get cache directory path")]
-    GetCacheDir(#[error(source)] mullvad_paths::Error),
-
     #[error(display = "Failed to get Java VM instance")]
     GetJvmInstance(#[error(cause)] jnix::jni::errors::Error),
 
@@ -95,14 +92,16 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     env: JNIEnv<'_>,
     this: JObject<'_>,
     vpnService: JObject<'_>,
+    cacheDirectory: JObject<'_>,
 ) {
     let env = JnixEnv::from(env);
+    let cache_dir = PathBuf::from(String::from_java(&env, cacheDirectory));
 
     match *LOG_INIT_RESULT {
         Ok(ref log_dir) => {
             LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
 
-            if let Err(error) = initialize(&env, &this, &vpnService, log_dir.clone()) {
+            if let Err(error) = initialize(&env, &this, &vpnService, cache_dir, log_dir.clone()) {
                 log::error!("{}", error.display_chain());
             }
         }
@@ -129,13 +128,21 @@ fn initialize(
     env: &JnixEnv<'_>,
     this: &JObject<'_>,
     vpn_service: &JObject<'_>,
+    cache_dir: PathBuf,
     log_dir: PathBuf,
 ) -> Result<(), Error> {
     let android_context = create_android_context(env, *vpn_service)?;
     let daemon_command_channel = DaemonCommandChannel::new();
     let daemon_interface = Box::new(DaemonInterface::new(daemon_command_channel.sender()));
 
-    spawn_daemon(env, this, log_dir, daemon_command_channel, android_context)?;
+    spawn_daemon(
+        env,
+        this,
+        cache_dir,
+        log_dir,
+        daemon_command_channel,
+        android_context,
+    )?;
 
     set_daemon_interface_address(env, this, Box::into_raw(daemon_interface) as jlong);
 
@@ -157,6 +164,7 @@ fn create_android_context(
 fn spawn_daemon(
     env: &JnixEnv<'_>,
     this: &JObject<'_>,
+    cache_dir: PathBuf,
     log_dir: PathBuf,
     command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
@@ -170,7 +178,13 @@ fn spawn_daemon(
     thread::spawn(move || {
         let jvm = android_context.jvm.clone();
 
-        match create_daemon(listener, log_dir, command_channel, android_context) {
+        match create_daemon(
+            listener,
+            cache_dir,
+            log_dir,
+            command_channel,
+            android_context,
+        ) {
             Ok(daemon) => {
                 let _ = tx.send(Ok(()));
                 match daemon.run() {
@@ -191,12 +205,12 @@ fn spawn_daemon(
 
 fn create_daemon(
     listener: JniEventListener,
+    cache_dir: PathBuf,
     log_dir: PathBuf,
     command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
 ) -> Result<Daemon<JniEventListener>, Error> {
     let resource_dir = mullvad_paths::get_resource_dir();
-    let cache_dir = mullvad_paths::cache_dir().map_err(Error::GetCacheDir)?;
 
     Daemon::start(
         Some(log_dir),
