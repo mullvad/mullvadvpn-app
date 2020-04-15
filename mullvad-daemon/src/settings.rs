@@ -28,10 +28,7 @@ impl SettingsPersister {
             }
             #[cfg(windows)]
             Err(SettingsError::ReadError(ref _path, ref e)) if e.kind() == ErrorKind::NotFound => {
-                info!(
-                "No settings file found. Attempting migration from Windows Update backup location"
-            );
-                if migrate_after_windows_update() {
+                if Self::migrate_after_windows_update() {
                     match Settings::load() {
                         Ok(settings) => {
                             info!("Successfully loaded migrated settings");
@@ -56,6 +53,32 @@ impl SettingsPersister {
         SettingsPersister { settings }
     }
 
+    #[cfg(windows)]
+    fn migrate_after_windows_update() -> bool {
+        info!("No settings file found. Attempting migration from Windows Update backup location");
+
+        match unsafe {
+            ffi::WinUtil_MigrateAfterWindowsUpdate(Some(log_sink), b"Settings migrator\0".as_ptr())
+        } {
+            ffi::WinUtilMigrationStatus::Success => {
+                info!("Migration completed successfully");
+                true
+            }
+            ffi::WinUtilMigrationStatus::Aborted => {
+                error!("Migration was aborted to avoid overwriting current settings");
+                false
+            }
+            ffi::WinUtilMigrationStatus::NothingToMigrate => {
+                info!("Could not migrate settings - no backup present");
+                false
+            }
+            ffi::WinUtilMigrationStatus::Failed | _ => {
+                error!("Migration failed");
+                false
+            }
+        }
+    }
+
     pub fn to_settings(&self) -> Settings {
         self.settings.clone()
     }
@@ -75,29 +98,6 @@ impl DerefMut for SettingsPersister {
     }
 }
 
-#[cfg(windows)]
-fn migrate_after_windows_update() -> bool {
-    match unsafe {
-        ffi::WinUtil_MigrateAfterWindowsUpdate(Some(log_sink), b"Settings migrator\0".as_ptr())
-    } {
-        ffi::WinUtilMigrationStatus::Success => {
-            info!("Migration completed successfully");
-            true
-        }
-        ffi::WinUtilMigrationStatus::Aborted => {
-            error!("Migration was aborted to avoid overwriting current settings");
-            false
-        }
-        ffi::WinUtilMigrationStatus::NothingToMigrate => {
-            info!("Could not migrate settings - no backup present");
-            false
-        }
-        ffi::WinUtilMigrationStatus::Failed | _ => {
-            error!("Migration failed");
-            false
-        }
-    }
-}
 
 #[cfg(windows)]
 mod ffi {
