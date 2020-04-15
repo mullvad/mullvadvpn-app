@@ -79,7 +79,7 @@ pub fn spawn(
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
-    let offline_monitor = offline::spawn_monitor(
+    let mut offline_monitor = offline::spawn_monitor(
         Arc::downgrade(&command_tx),
         #[cfg(target_os = "android")]
         android_context.clone(),
