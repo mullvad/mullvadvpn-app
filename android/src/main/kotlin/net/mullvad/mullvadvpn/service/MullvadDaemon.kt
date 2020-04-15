@@ -24,7 +24,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
 
     init {
         System.loadLibrary("mullvad_jni")
-        initialize(vpnService, vpnService.cacheDir.absolutePath)
+        initialize(vpnService, vpnService.cacheDir.absolutePath, vpnService.filesDir.absolutePath)
 
         onSettingsChange.notify(getSettings())
     }
@@ -113,7 +113,11 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         return verifyWireguardKey(daemonInterfaceAddress)
     }
 
-    private external fun initialize(vpnService: MullvadVpnService, cacheDirectory: String)
+    private external fun initialize(
+        vpnService: MullvadVpnService,
+        cacheDirectory: String,
+        resourceDirectory: String
+    )
     private external fun deinitialize()
 
     private external fun connect(daemonInterfaceAddress: Long)

@@ -16,7 +16,6 @@ use jnix::{
     },
     FromJava, IntoJava, JnixEnv,
 };
-use lazy_static::lazy_static;
 use mullvad_daemon::{exception_logging, logging, version, Daemon, DaemonCommandChannel};
 use mullvad_types::account::AccountData;
 use std::{
@@ -29,12 +28,9 @@ use talpid_types::{android::AndroidContext, ErrorExt};
 
 const LOG_FILENAME: &str = "daemon.log";
 
-lazy_static! {
-    static ref LOG_INIT_RESULT: Result<PathBuf, String> =
-        start_logging().map_err(|error| error.display_chain());
-}
-
 static LOAD_CLASSES: Once = Once::new();
+static LOG_START: Once = Once::new();
+static mut LOG_INIT_RESULT: Option<Result<(), String>> = None;
 
 #[derive(Debug, err_derive::Error)]
 #[error(no_from)]
@@ -45,17 +41,11 @@ pub enum Error {
     #[error(display = "Failed to get Java VM instance")]
     GetJvmInstance(#[error(cause)] jnix::jni::errors::Error),
 
-    #[error(display = "Failed to get log directory path")]
-    GetLogDir(#[error(source)] mullvad_paths::Error),
-
     #[error(display = "Failed to initialize the mullvad daemon")]
     InitializeDaemon(#[error(source)] mullvad_daemon::Error),
 
     #[error(display = "Failed to spawn the JNI event listener")]
     SpawnJniEventListener(#[error(source)] jni_event_listener::Error),
-
-    #[error(display = "Failed to start logger")]
-    StartLogging(#[error(source)] logging::Error),
 }
 
 #[derive(IntoJava)]
@@ -93,35 +83,45 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     this: JObject<'_>,
     vpnService: JObject<'_>,
     cacheDirectory: JObject<'_>,
+    resourceDirectory: JObject<'_>,
 ) {
     let env = JnixEnv::from(env);
     let cache_dir = PathBuf::from(String::from_java(&env, cacheDirectory));
+    let resource_dir = PathBuf::from(String::from_java(&env, resourceDirectory));
 
-    match *LOG_INIT_RESULT {
-        Ok(ref log_dir) => {
+    match start_logging(&resource_dir) {
+        Ok(()) => {
             LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
 
-            if let Err(error) = initialize(&env, &this, &vpnService, cache_dir, log_dir.clone()) {
+            if let Err(error) = initialize(&env, &this, &vpnService, cache_dir, resource_dir) {
                 log::error!("{}", error.display_chain());
             }
         }
-        Err(ref message) => env
+        Err(message) => env
             .throw(message.as_str())
             .expect("Failed to throw exception"),
     }
 }
 
-fn start_logging() -> Result<PathBuf, Error> {
-    let log_dir = mullvad_paths::log_dir().map_err(Error::GetLogDir)?;
+fn start_logging(log_dir: &Path) -> Result<(), String> {
+    unsafe {
+        LOG_START.call_once(|| LOG_INIT_RESULT = Some(initialize_logging(log_dir)));
+        LOG_INIT_RESULT
+            .clone()
+            .expect("Logging not properly initialized")
+    }
+}
+
+fn initialize_logging(log_dir: &Path) -> Result<(), String> {
     let log_file = log_dir.join(LOG_FILENAME);
 
     logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
-        .map_err(Error::StartLogging)?;
+        .map_err(|error| error.display_chain_with_msg("Failed to start logger"))?;
     exception_logging::enable();
     log_panics::init();
     version::log_version();
 
-    Ok(log_dir)
+    Ok(())
 }
 
 fn initialize(
