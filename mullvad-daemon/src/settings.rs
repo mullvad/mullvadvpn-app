@@ -16,6 +16,12 @@ pub struct Settings {
     data: SettingsData,
 }
 
+impl Settings {
+    pub fn to_data(&self) -> SettingsData {
+        self.data.clone()
+    }
+}
+
 impl Deref for Settings {
     type Target = SettingsData;
 
