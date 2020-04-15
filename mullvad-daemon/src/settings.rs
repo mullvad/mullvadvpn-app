@@ -8,7 +8,6 @@ use std::{
 #[cfg(windows)]
 use {
     log::{error, warn},
-    std::io::ErrorKind,
     talpid_core::logging::windows::log_sink,
 };
 
@@ -24,7 +23,7 @@ impl Settings {
         let mut data = match Self::load_data() {
             Ok(settings) => settings,
             #[cfg(windows)]
-            Err(error) if error.kind() == ErrorKind::NotFound => {
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {
                 if Self::migrate_after_windows_update() {
                     match SettingsData::load() {
                         Ok(settings) => {
