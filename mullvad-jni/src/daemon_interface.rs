@@ -5,7 +5,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::RelaySettingsUpdate,
     relay_list::RelayList,
-    settings::Settings,
+    settings::SettingsData,
     states::{TargetState, TunnelState},
     version::AppVersionInfo,
     wireguard::{self, KeygenEvent},
@@ -119,7 +119,7 @@ impl DaemonInterface {
         Ok(rx.wait().map_err(|_| Error::NoResponse)?)
     }
 
-    pub fn get_settings(&self) -> Result<Settings> {
+    pub fn get_settings(&self) -> Result<SettingsData> {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(DaemonCommand::GetSettings(tx))?;

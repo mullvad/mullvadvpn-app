@@ -13,7 +13,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     relay_list::RelayList,
-    settings::Settings,
+    settings::SettingsData,
     states::{TargetState, TunnelState},
     version, wireguard, DaemonEvent,
 };
@@ -147,7 +147,7 @@ build_rpc_trait! {
 
         /// Returns the current daemon settings
         #[rpc(meta, name = "get_settings")]
-        fn get_settings(&self, Self::Metadata) -> BoxFuture<Settings, Error>;
+        fn get_settings(&self, Self::Metadata) -> BoxFuture<SettingsData, Error>;
 
         /// Generates new wireguard key for current account
         #[rpc(meta, name = "generate_wireguard_key")]
@@ -246,7 +246,7 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
     }
 
     /// Sends settings to all `settings` subscribers of the management interface.
-    fn notify_settings(&self, settings: Settings) {
+    fn notify_settings(&self, settings: SettingsData) {
         log::debug!("Broadcasting new settings");
         self.notify(DaemonEvent::Settings(settings));
     }
@@ -636,7 +636,7 @@ impl ManagementInterfaceApi for ManagementInterface {
         Box::new(future)
     }
 
-    fn get_settings(&self, _: Self::Metadata) -> BoxFuture<Settings, Error> {
+    fn get_settings(&self, _: Self::Metadata) -> BoxFuture<SettingsData, Error> {
         log::debug!("get_settings");
         let (tx, rx) = sync::oneshot::channel();
         let future = self

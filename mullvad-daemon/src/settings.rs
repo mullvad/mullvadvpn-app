@@ -14,8 +14,8 @@ use std::io::ErrorKind;
 #[cfg(windows)]
 use talpid_core::logging::windows::log_sink;
 
-pub fn load() -> Settings {
-    match Settings::load() {
+pub fn load() -> SettingsData {
+    match SettingsData::load() {
         Ok(mut settings) => {
             // Force IPv6 to be enabled on Android
             if cfg!(target_os = "android") {
@@ -29,24 +29,24 @@ pub fn load() -> Settings {
                 "No settings file found. Attempting migration from Windows Update backup location"
             );
             if migrate_after_windows_update() {
-                match Settings::load() {
+                match SettingsData::load() {
                     Ok(settings) => {
                         info!("Successfully loaded migrated settings");
                         settings
                     }
                     Err(_) => {
                         warn!("Failed to load migrated settings, using defaults");
-                        Settings::default()
+                        SettingsData::default()
                     }
                 }
             } else {
                 info!("Failed to migrate settings, using defaults");
-                Settings::default()
+                SettingsData::default()
             }
         }
         Err(_) => {
             info!("Failed to load settings, using defaults");
-            Settings::default()
+            SettingsData::default()
         }
     }
 }

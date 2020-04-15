@@ -7,7 +7,7 @@ use jnix::{
 };
 use mullvad_daemon::EventListener;
 use mullvad_types::{
-    relay_list::RelayList, settings::Settings, states::TunnelState, version::AppVersionInfo,
+    relay_list::RelayList, settings::SettingsData, states::TunnelState, version::AppVersionInfo,
     wireguard::KeygenEvent,
 };
 use std::{sync::mpsc, thread};
@@ -29,7 +29,7 @@ pub enum Error {
 enum Event {
     KeygenEvent(KeygenEvent),
     RelayList(RelayList),
-    Settings(Settings),
+    Settings(SettingsData),
     Tunnel(TunnelState),
     AppVersionInfo(AppVersionInfo),
 }
@@ -52,7 +52,7 @@ impl EventListener for JniEventListener {
         let _ = self.0.send(Event::Tunnel(state));
     }
 
-    fn notify_settings(&self, settings: Settings) {
+    fn notify_settings(&self, settings: SettingsData) {
         let _ = self.0.send(Event::Settings(settings));
     }
 
@@ -220,7 +220,7 @@ impl<'env> JniEventHandler<'env> {
         }
     }
 
-    fn handle_settings(&self, settings: Settings) {
+    fn handle_settings(&self, settings: SettingsData) {
         let java_settings = settings.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(

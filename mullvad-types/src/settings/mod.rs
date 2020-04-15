@@ -53,8 +53,11 @@ static SETTINGS_FILE: &str = "settings.json";
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-pub struct Settings {
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.Settings")
+)]
+pub struct SettingsData {
     account_token: Option<String>,
     relay_settings: RelaySettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -79,9 +82,9 @@ pub struct Settings {
     settings_version: migrations::SettingsVersion,
 }
 
-impl Default for Settings {
+impl Default for SettingsData {
     fn default() -> Self {
-        Settings {
+        SettingsData {
             account_token: None,
             relay_settings: RelaySettings::Normal(RelayConstraints {
                 location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
@@ -101,9 +104,9 @@ impl Default for Settings {
     }
 }
 
-impl Settings {
+impl SettingsData {
     /// Loads user settings from file. If no file is present it returns the defaults.
-    pub fn load() -> Result<Settings> {
+    pub fn load() -> Result<SettingsData> {
         let path = Self::get_settings_path()?;
         match File::open(&path) {
             Ok(file) => {
@@ -162,7 +165,7 @@ impl Settings {
         Ok(dir.join(SETTINGS_FILE))
     }
 
-    fn parse_settings(bytes: &[u8]) -> Result<Settings> {
+    fn parse_settings(bytes: &[u8]) -> Result<SettingsData> {
         serde_json::from_slice(bytes).map_err(Error::ParseError)
     }
 
