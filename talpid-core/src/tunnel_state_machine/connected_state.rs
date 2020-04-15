@@ -6,7 +6,7 @@ use crate::{
     firewall::FirewallPolicy,
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
-use futures::{
+use futures01::{
     sync::{mpsc, oneshot},
     Async, Future, Stream,
 };
