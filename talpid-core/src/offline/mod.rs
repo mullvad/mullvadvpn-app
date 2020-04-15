@@ -25,7 +25,7 @@ pub use self::imp::Error;
 pub struct MonitorHandle(imp::MonitorHandle);
 
 impl MonitorHandle {
-    pub fn is_offline(&self) -> bool {
+    pub fn is_offline(&mut self) -> bool {
         self.0.is_offline()
     }
 }
