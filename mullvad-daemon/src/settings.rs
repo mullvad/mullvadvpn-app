@@ -17,6 +17,45 @@ pub struct Settings {
 }
 
 impl Settings {
+    pub fn load() -> Self {
+        let data = match SettingsData::load() {
+            Ok(mut settings) => {
+                // Force IPv6 to be enabled on Android
+                if cfg!(target_os = "android") {
+                    let _ = settings.set_enable_ipv6(true);
+                }
+                settings
+            }
+            #[cfg(windows)]
+            Err(SettingsError::ReadError(ref _path, ref e)) if e.kind() == ErrorKind::NotFound => {
+                info!(
+                "No settings file found. Attempting migration from Windows Update backup location"
+            );
+                if migrate_after_windows_update() {
+                    match SettingsData::load() {
+                        Ok(settings) => {
+                            info!("Successfully loaded migrated settings");
+                            settings
+                        }
+                        Err(_) => {
+                            warn!("Failed to load migrated settings, using defaults");
+                            SettingsData::default()
+                        }
+                    }
+                } else {
+                    info!("Failed to migrate settings, using defaults");
+                    SettingsData::default()
+                }
+            }
+            Err(_) => {
+                info!("Failed to load settings, using defaults");
+                SettingsData::default()
+            }
+        };
+
+        Settings { data }
+    }
+
     pub fn to_data(&self) -> SettingsData {
         self.data.clone()
     }
@@ -34,45 +73,6 @@ impl DerefMut for Settings {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.data
     }
-}
-
-pub fn load() -> Settings {
-    let data = match SettingsData::load() {
-        Ok(mut settings) => {
-            // Force IPv6 to be enabled on Android
-            if cfg!(target_os = "android") {
-                let _ = settings.set_enable_ipv6(true);
-            }
-            settings
-        }
-        #[cfg(windows)]
-        Err(SettingsError::ReadError(ref _path, ref e)) if e.kind() == ErrorKind::NotFound => {
-            info!(
-                "No settings file found. Attempting migration from Windows Update backup location"
-            );
-            if migrate_after_windows_update() {
-                match SettingsData::load() {
-                    Ok(settings) => {
-                        info!("Successfully loaded migrated settings");
-                        settings
-                    }
-                    Err(_) => {
-                        warn!("Failed to load migrated settings, using defaults");
-                        SettingsData::default()
-                    }
-                }
-            } else {
-                info!("Failed to migrate settings, using defaults");
-                SettingsData::default()
-            }
-        }
-        Err(_) => {
-            info!("Failed to load settings, using defaults");
-            SettingsData::default()
-        }
-    };
-
-    Settings { data }
 }
 
 #[cfg(windows)]
