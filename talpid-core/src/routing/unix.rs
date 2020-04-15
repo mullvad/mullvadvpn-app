@@ -2,7 +2,7 @@
 #![cfg_attr(target_os = "windows", allow(dead_code))]
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
 use super::NetNode;
-use futures::{sync::oneshot, Future};
+use futures01::{sync::oneshot, Future};
 use ipnetwork::IpNetwork;
 use std::collections::HashMap;
 

@@ -8,7 +8,7 @@ use std::{
     process::{Command, ExitStatus, Stdio},
 };
 
-use futures::{stream, sync::oneshot, Async, Future, IntoFuture, Stream};
+use futures01::{stream, sync::oneshot, Async, Future, IntoFuture, Stream};
 use tokio_process::{Child, CommandExt};
 
 

@@ -30,6 +30,10 @@ impl Route {
             metric: None,
         }
     }
+
+    fn is_ipv4(&self) -> bool {
+        self.prefix.is_ipv4()
+    }
 }
 
 impl fmt::Display for Route {
