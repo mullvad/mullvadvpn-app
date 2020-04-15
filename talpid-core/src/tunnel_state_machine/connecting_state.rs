@@ -9,7 +9,7 @@ use crate::{
         self, tun_provider::TunProvider, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor,
     },
 };
-use futures::{
+use futures01::{
     sync::{mpsc, oneshot},
     Async, Future, Stream,
 };
