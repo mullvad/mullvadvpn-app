@@ -22,7 +22,6 @@ use crate::{
     mpsc::Sender,
     offline,
     routing::RouteManager,
-    split,
     tunnel::tun_provider::TunProvider,
 };
 

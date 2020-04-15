@@ -1,12 +1,14 @@
 #![cfg(target_os = "linux")]
+use crate::routing::{NetNode, Node, RequiredRoute, RouteManager};
+use ipnetwork::IpNetwork;
 use regex::Regex;
 use std::{
+    collections::HashSet,
     fs,
     io::{self, BufRead, BufReader, BufWriter, Read, Seek, Write},
-    net::{AddrParseError, IpAddr},
+    net::{IpAddr, Ipv4Addr},
     path::Path,
     process::Command,
-    str::FromStr,
 };
 use talpid_types::SPLIT_TUNNEL_CGROUP_NAME;
 
@@ -26,18 +28,6 @@ const RT_TABLES_PATH: &str = "/etc/iproute2/rt_tables";
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    /// Unable to list routing table entries.
-    #[error(display = "Failed to enumerate routes")]
-    EnumerateRoutes(#[error(source)] io::Error),
-
-    /// Unable to find the interface/ip pair used by the physical interface.
-    #[error(display = "No default route found")]
-    NoDefaultRoute,
-
-    /// Failed to parse string containing an IP address. May be invalid.
-    #[error(display = "Failed to parse IP address")]
-    ParseIpError(#[error(source)] AddrParseError),
-
     /// Failed to run the process.
     #[error(display = "Unable to execute process")]
     ExecFailed(#[error(source)] io::Error),
@@ -74,41 +64,13 @@ pub enum Error {
     #[error(display = "Unable to obtain PIDs from cgroup.procs")]
     ListCGroupPids(#[error(source)] io::Error),
 
+    /// Unable to add route to the exclusions table.
+    #[error(display = "Failed to add routing table entry")]
+    SetupRouting(#[error(source)] crate::routing::Error),
+
     /// Unable to add setup DNS routing.
     #[error(display = "Failed to add routing table DNS rules")]
-    SetDns(#[error(source)] io::Error),
-}
-
-struct DefaultRoute {
-    interface: String,
-    address: IpAddr,
-}
-
-/// Obtain the IP/interface of the physical interface
-fn get_default_route() -> Result<DefaultRoute, Error> {
-    // FIXME: use netlink
-    let mut cmd = Command::new("ip");
-    cmd.args(&["-4", "route", "list", "table", "main"]);
-    log::trace!("running cmd - {:?}", &cmd);
-    let out = cmd.output().map_err(Error::EnumerateRoutes)?;
-    let out_str = String::from_utf8_lossy(&out.stdout);
-
-    // Find "default" row
-    let expression = Regex::new(r"^default via ([0-9.]+) dev (\w+)").unwrap();
-
-    for line in out_str.lines() {
-        if let Some(captures) = expression.captures(&line) {
-            let ip_str = captures.get(1).unwrap().as_str();
-            let interface = captures.get(2).unwrap().as_str().to_string();
-
-            return Ok(DefaultRoute {
-                interface,
-                address: IpAddr::from_str(ip_str).map_err(Error::ParseIpError)?,
-            });
-        }
-    }
-
-    Err(Error::NoDefaultRoute)
+    SetDns(#[error(source)] crate::routing::Error),
 }
 
 /// Manage routing for split tunneling cgroup.
@@ -185,28 +147,8 @@ impl SplitTunnel {
         writeln!(file, "{} {}", self.table_id, ROUTING_TABLE_NAME).map_err(Error::RoutingTableSetup)
     }
 
-    /// Reset the split-tunneling routing table to its default state
-    fn reset_table() -> Result<(), Error> {
-        let _ = exec_ip(&["-4", "route", "flush", "table", ROUTING_TABLE_NAME]);
-
-        // Force routing through the physical interface
-        let default_route = get_default_route()?;
-        exec_ip(&[
-            "-4",
-            "route",
-            "add",
-            "default",
-            "via",
-            &default_route.address.to_string(),
-            "dev",
-            &default_route.interface,
-            "table",
-            ROUTING_TABLE_NAME,
-        ])
-    }
-
     /// Route PID-associated packets through the physical interface.
-    pub fn enable_routing(&self) -> Result<(), Error> {
+    pub fn enable_routing(&self, route_manager: &mut RouteManager) -> Result<(), Error> {
         // TODO: IPv6
 
         // Create the rule if it does not exist
@@ -231,11 +173,20 @@ impl SplitTunnel {
             ])?;
         }
 
-        Self::reset_table()
+        // Add default route for the exclusions table
+        let zero_network =
+            ipnetwork::IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0).unwrap();
+        let mut required_routes = HashSet::new();
+        required_routes.insert(
+            RequiredRoute::new(zero_network, NetNode::DefaultNode).table(self.table_id as u8),
+        );
+        route_manager
+            .add_routes(required_routes)
+            .map_err(Error::SetupRouting)
     }
 
     /// Stop routing PID-associated packets through the physical interface.
-    pub fn disable_routing(&self) -> Result<(), Error> {
+    pub fn disable_routing(&self) {
         // TODO: IPv6
 
         if let Err(e) = exec_ip(&[
@@ -251,35 +202,28 @@ impl SplitTunnel {
         ]) {
             log::warn!("Failed to delete routing policy: {}", e);
         }
-
-        Ok(())
     }
 
     /// Route DNS requests through the tunnel interface.
-    pub fn route_dns(&self, tunnel_alias: &str, dns_servers: &[IpAddr]) -> Result<(), Error> {
+    pub fn route_dns(
+        &self,
+        route_manager: &mut RouteManager,
+        tunnel_alias: &str,
+        dns_servers: &[IpAddr],
+    ) -> Result<(), Error> {
+        let mut dns_routes = HashSet::new();
+
         for server in dns_servers {
-            if let IpAddr::V4(addr) = server {
-                let addr = addr.to_string();
-                exec_ip(&[
-                    "-4",
-                    "route",
-                    "replace",
-                    &addr,
-                    "dev",
-                    tunnel_alias,
-                    "table",
-                    ROUTING_TABLE_NAME,
-                ])?;
-            }
+            dns_routes.insert(
+                RequiredRoute::new(
+                    IpNetwork::from(*server),
+                    Node::device(tunnel_alias.to_string()),
+                )
+                .table(self.table_id as u8),
+            );
         }
 
-        Ok(())
-    }
-
-    /// Reset DNS rules.
-    pub fn flush_dns(&self) -> Result<(), Error> {
-        // For now, simply flush it
-        Self::reset_table()
+        route_manager.add_routes(dns_routes).map_err(Error::SetDns)
     }
 }
 
