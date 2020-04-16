@@ -10,6 +10,9 @@ use std::{
 };
 use talpid_types::ErrorExt;
 
+#[cfg(not(target_os = "android"))]
+use {std::fs, talpid_types::ErrorExt};
+
 #[cfg(windows)]
 use {
     log::{error, warn},
@@ -19,6 +22,10 @@ use {
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
+    #[error(display = "Unable to remove settings file {}", _0)]
+    #[cfg(not(target_os = "android"))]
+    DeleteError(String, #[error(source)] io::Error),
+
     #[error(display = "Settings operation failed")]
     SettingsError(#[error(source)] mullvad_types::settings::Error),
 }
@@ -133,7 +140,18 @@ impl SettingsPersister {
     /// Resets default settings
     #[cfg(not(target_os = "android"))]
     pub fn reset(&mut self) -> Result<(), Error> {
-        self.settings.reset()
+        self.settings = Settings::default();
+        self.settings.save().or_else(|e| {
+            log::error!(
+                "{}",
+                e.display_chain_with_msg("Unable to save default settings")
+            );
+            log::error!("Will attempt to remove settings file");
+            Settings::get_settings_path().and_then(|path| {
+                fs::remove_file(&path)
+                    .map_err(|e| Error::DeleteError(path.display().to_string(), e))
+            })
+        })
     }
 
     pub fn to_settings(&self) -> Settings {
