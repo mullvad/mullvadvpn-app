@@ -1,4 +1,4 @@
-use log::info;
+use log::{debug, info};
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     settings::SettingsData,
@@ -25,6 +25,12 @@ pub enum Error {
     #[cfg(not(target_os = "android"))]
     DeleteError(String, #[error(source)] io::Error),
 
+    #[error(display = "Unable to serialize settings to JSON")]
+    SerializeError(#[error(source)] serde_json::Error),
+
+    #[error(display = "Unable to write settings to {}", _0)]
+    WriteError(String, #[error(source)] io::Error),
+
     #[error(display = "Settings operation failed")]
     SettingsError(#[error(source)] mullvad_types::settings::Error),
 }
@@ -38,7 +44,7 @@ pub struct Settings {
 impl Settings {
     /// Loads user settings from file. If no file is present it returns the defaults.
     pub fn load() -> Self {
-        let mut data = Self::load_data()
+        let data = Self::load_data()
             .or_else(|error| match error.kind() {
                 #[cfg(windows)]
                 io::ErrorKind::NotFound => {
@@ -63,14 +69,16 @@ impl Settings {
                 SettingsData::default()
             });
 
+        let mut settings = Settings { data };
+
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
-            if data.set_enable_ipv6(true) {
-                let _ = data.save();
+            if settings.data.set_enable_ipv6(true) {
+                let _ = settings.save();
             }
         }
 
-        Settings { data }
+        settings
     }
 
     #[cfg(windows)]
@@ -113,11 +121,24 @@ impl Settings {
             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Failed to parse settings data"))
     }
 
+    /// Serializes the settings and saves them to the file it was loaded from.
+    fn save(&mut self) -> Result<(), Error> {
+        let path = SettingsData::get_settings_path()?;
+
+        debug!("Writing settings to {}", path.display());
+        let mut file =
+            File::create(&path).map_err(|e| Error::WriteError(path.display().to_string(), e))?;
+
+        serde_json::to_writer_pretty(&mut file, &self.data).map_err(Error::SerializeError)?;
+        file.sync_all()
+            .map_err(|e| Error::WriteError(path.display().to_string(), e))
+    }
+
     /// Resets default settings
     #[cfg(not(target_os = "android"))]
     pub fn reset(&mut self) -> Result<(), Error> {
         self.data = SettingsData::default();
-        self.data.save().or_else(|e| {
+        self.save().or_else(|e| {
             log::error!(
                 "{}",
                 e.display_chain_with_msg("Unable to save default settings")
@@ -208,7 +229,7 @@ impl Settings {
 
     fn update(&mut self, should_save: bool) -> Result<bool, Error> {
         if should_save {
-            self.data.save().map(|_| true).map_err(Error::SettingsError)
+            self.save().map(|_| true)
         } else {
             Ok(false)
         }
