@@ -1,7 +1,7 @@
 export class Scheduler {
   private timer?: NodeJS.Timeout;
 
-  public schedule(action: () => void, delay: number) {
+  public schedule(action: () => void, delay = 0) {
     this.cancel();
     this.timer = global.setTimeout(action, delay);
   }

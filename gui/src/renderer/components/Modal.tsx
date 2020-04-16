@@ -2,6 +2,7 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Component, Styles, Text, View } from 'reactxp';
 import { colors } from '../../config.json';
+import { Scheduler } from '../../shared/scheduler';
 import ImageView from './ImageView';
 
 const MODAL_CONTAINER_ID = 'modalContainer';
@@ -108,18 +109,27 @@ interface IModalAlertProps {
 export class ModalAlert extends Component<IModalAlertProps> {
   private element = document.createElement('div');
   private modalContainer?: Element;
+  private appendScheduler = new Scheduler();
 
   public componentDidMount() {
     const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
     if (modalContainer) {
       this.modalContainer = modalContainer;
-      modalContainer.appendChild(this.element);
+
+      // Mounting the container element immediately results in a graphical issue with the dialog
+      // first rendering with the wrong proportions and then changing to the correct proportions.
+      // Postponing it to the next event cycle solves this issue.
+      this.appendScheduler.schedule(() => {
+        modalContainer.appendChild(this.element);
+      });
     } else {
       throw Error('Modal container not found when mounting modal');
     }
   }
 
   public componentWillUnmount() {
+    this.appendScheduler.cancel();
+
     if (this.modalContainer) {
       this.modalContainer.removeChild(this.element);
     }
