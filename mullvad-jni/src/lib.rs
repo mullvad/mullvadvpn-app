@@ -179,6 +179,7 @@ fn spawn_daemon(
         let jvm = android_context.jvm.clone();
         let daemon = Daemon::start(
             Some(resource_dir.clone()),
+            resource_dir.clone(),
             resource_dir,
             cache_dir,
             listener,
