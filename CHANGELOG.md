@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+#### Windows
+- Improve offline detection logic.
+
 ### Security
 #### macOS
 - Ship native Node modules unpacked to prevent malware checks by macOS on each run. The malware

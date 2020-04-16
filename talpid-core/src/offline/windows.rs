@@ -56,7 +56,7 @@ unsafe impl Send for BroadcastListener {}
 impl BroadcastListener {
     pub fn start(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<Self, Error> {
         let mut system_state = Arc::new(Mutex::new(SystemState {
-            network_connectivity: false,
+            network_connectivity: None,
             suspended: false,
             daemon_channel: sender,
         }));
@@ -205,7 +205,7 @@ impl BroadcastListener {
 
     pub fn is_offline(&self) -> bool {
         let state = self._system_state.lock();
-        state.is_offline_currently()
+        state.is_offline_currently().unwrap_or(false)
     }
 }
 
@@ -227,7 +227,7 @@ enum StateChange {
 }
 
 struct SystemState {
-    network_connectivity: bool,
+    network_connectivity: Option<bool>,
     suspended: bool,
     daemon_channel: Weak<UnboundedSender<TunnelCommand>>,
 }
@@ -237,7 +237,7 @@ impl SystemState {
         let old_state = self.is_offline_currently();
         match change {
             StateChange::NetworkConnectivity(connectivity) => {
-                self.network_connectivity = connectivity;
+                self.network_connectivity = Some(connectivity);
             }
 
             StateChange::Suspended(suspended) => {
@@ -248,15 +248,17 @@ impl SystemState {
         let new_state = self.is_offline_currently();
         if old_state != new_state {
             if let Some(daemon_channel) = self.daemon_channel.upgrade() {
-                if let Err(e) = daemon_channel.unbounded_send(TunnelCommand::IsOffline(new_state)) {
+                if let Err(e) = daemon_channel
+                    .unbounded_send(TunnelCommand::IsOffline(new_state.unwrap_or(false)))
+                {
                     log::error!("Failed to send new offline state to daemon: {}", e);
                 }
             }
         }
     }
 
-    fn is_offline_currently(&self) -> bool {
-        !self.network_connectivity || self.suspended
+    fn is_offline_currently(&self) -> Option<bool> {
+        Some(!self.network_connectivity? || self.suspended)
     }
 }
 
