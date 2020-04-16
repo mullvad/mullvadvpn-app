@@ -172,12 +172,7 @@ impl SettingsData {
     }
 
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> bool {
-        if allow_lan != self.allow_lan {
-            self.allow_lan = allow_lan;
-            true
-        } else {
-            false
-        }
+        Self::update_field(&mut self.allow_lan, allow_lan)
     }
 
     pub fn get_block_when_disconnected(&self) -> bool {
@@ -185,12 +180,7 @@ impl SettingsData {
     }
 
     pub fn set_block_when_disconnected(&mut self, block_when_disconnected: bool) -> bool {
-        if block_when_disconnected != self.block_when_disconnected {
-            self.block_when_disconnected = block_when_disconnected;
-            true
-        } else {
-            false
-        }
+        Self::update_field(&mut self.block_when_disconnected, block_when_disconnected)
     }
 
     pub fn get_auto_connect(&self) -> bool {
@@ -198,48 +188,26 @@ impl SettingsData {
     }
 
     pub fn set_auto_connect(&mut self, auto_connect: bool) -> bool {
-        if auto_connect != self.auto_connect {
-            self.auto_connect = auto_connect;
-            true
-        } else {
-            false
-        }
+        Self::update_field(&mut self.auto_connect, auto_connect)
     }
 
     pub fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> bool {
-        if self.tunnel_options.openvpn.mssfix != openvpn_mssfix {
-            self.tunnel_options.openvpn.mssfix = openvpn_mssfix;
-            true
-        } else {
-            false
-        }
+        Self::update_field(&mut self.tunnel_options.openvpn.mssfix, openvpn_mssfix)
     }
 
     pub fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> bool {
-        if self.tunnel_options.generic.enable_ipv6 != enable_ipv6 {
-            self.tunnel_options.generic.enable_ipv6 = enable_ipv6;
-            true
-        } else {
-            false
-        }
+        Self::update_field(&mut self.tunnel_options.generic.enable_ipv6, enable_ipv6)
     }
 
     pub fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> bool {
-        if self.tunnel_options.wireguard.mtu != mtu {
-            self.tunnel_options.wireguard.mtu = mtu;
-            true
-        } else {
-            false
-        }
+        Self::update_field(&mut self.tunnel_options.wireguard.mtu, mtu)
     }
 
     pub fn set_wireguard_rotation_interval(&mut self, automatic_rotation: Option<u32>) -> bool {
-        if self.tunnel_options.wireguard.automatic_rotation != automatic_rotation {
-            self.tunnel_options.wireguard.automatic_rotation = automatic_rotation;
-            true
-        } else {
-            false
-        }
+        Self::update_field(
+            &mut self.tunnel_options.wireguard.automatic_rotation,
+            automatic_rotation,
+        )
     }
 
     pub fn get_tunnel_options(&self) -> &TunnelOptions {
@@ -251,12 +219,7 @@ impl SettingsData {
     }
 
     pub fn set_show_beta_releases(&mut self, enabled: bool) -> bool {
-        if Some(enabled) != self.show_beta_releases {
-            self.show_beta_releases = Some(enabled);
-            true
-        } else {
-            false
-        }
+        Self::update_field(&mut self.show_beta_releases, Some(enabled))
     }
 
     pub fn get_bridge_settings(&self) -> &BridgeSettings {
@@ -264,12 +227,7 @@ impl SettingsData {
     }
 
     pub fn set_bridge_settings(&mut self, bridge_settings: BridgeSettings) -> bool {
-        if self.bridge_settings != bridge_settings {
-            self.bridge_settings = bridge_settings;
-            true
-        } else {
-            false
-        }
+        Self::update_field(&mut self.bridge_settings, bridge_settings)
     }
 
     pub fn get_bridge_state(&self) -> &BridgeState {
@@ -277,11 +235,22 @@ impl SettingsData {
     }
 
     pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> bool {
-        if self.bridge_state != bridge_state {
-            self.bridge_state = bridge_state;
+        if Self::update_field(&mut self.bridge_state, bridge_state) {
             if self.bridge_state == BridgeState::On {
                 self.relay_settings.ensure_bridge_compatibility();
             }
+            true
+        } else {
+            false
+        }
+    }
+
+    fn update_field<T>(field: &mut T, new_value: T) -> bool
+    where
+        T: Eq,
+    {
+        if *field != new_value {
+            *field = new_value;
             true
         } else {
             false
