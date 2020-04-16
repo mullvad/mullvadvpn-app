@@ -15,7 +15,13 @@ use {
     talpid_core::logging::windows::log_sink,
 };
 
-pub use mullvad_types::settings::Error;
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "Settings operation failed")]
+    SettingsError(#[error(source)] mullvad_types::settings::Error),
+}
+
 
 #[derive(Clone, Debug)]
 pub struct Settings {
@@ -111,59 +117,61 @@ impl Settings {
     /// Changes account number to the one given. Also saves the new settings to disk.
     /// The boolean in the Result indicates if the account token changed or not
     pub fn set_account_token(&mut self, account_token: Option<String>) -> Result<bool, Error> {
-        self.data.set_account_token(account_token)
+        Ok(self.data.set_account_token(account_token)?)
     }
 
     pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<bool, Error> {
-        self.data.update_relay_settings(update)
+        Ok(self.data.update_relay_settings(update)?)
     }
 
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool, Error> {
-        self.data.set_allow_lan(allow_lan)
+        Ok(self.data.set_allow_lan(allow_lan)?)
     }
 
     pub fn set_block_when_disconnected(
         &mut self,
         block_when_disconnected: bool,
     ) -> Result<bool, Error> {
-        self.data
-            .set_block_when_disconnected(block_when_disconnected)
+        Ok(self
+            .data
+            .set_block_when_disconnected(block_when_disconnected)?)
     }
 
     pub fn set_auto_connect(&mut self, auto_connect: bool) -> Result<bool, Error> {
-        self.data.set_auto_connect(auto_connect)
+        Ok(self.data.set_auto_connect(auto_connect)?)
     }
 
     pub fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> Result<bool, Error> {
-        self.data.set_openvpn_mssfix(openvpn_mssfix)
+        Ok(self.data.set_openvpn_mssfix(openvpn_mssfix)?)
     }
 
     pub fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> Result<bool, Error> {
-        self.data.set_enable_ipv6(enable_ipv6)
+        Ok(self.data.set_enable_ipv6(enable_ipv6)?)
     }
 
     pub fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<bool, Error> {
-        self.data.set_wireguard_mtu(mtu)
+        Ok(self.data.set_wireguard_mtu(mtu)?)
     }
 
     pub fn set_wireguard_rotation_interval(
         &mut self,
         automatic_rotation: Option<u32>,
     ) -> Result<bool, Error> {
-        self.data
-            .set_wireguard_rotation_interval(automatic_rotation)
+        Ok(self
+            .data
+            .set_wireguard_rotation_interval(automatic_rotation)?)
     }
 
     pub fn set_show_beta_releases(&mut self, enabled: bool) -> Result<bool, Error> {
-        self.data.set_show_beta_releases(enabled)
+        Ok(self.data.set_show_beta_releases(enabled)?)
     }
 
     pub fn set_bridge_settings(&mut self, bridge_settings: BridgeSettings) -> Result<bool, Error> {
-        self.data.set_bridge_settings(bridge_settings)
+        Ok(self.data.set_bridge_settings(bridge_settings)?)
     }
 
     pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> Result<bool, Error> {
-        self.data.set_bridge_state(bridge_state)
+        Ok(self.data.set_bridge_state(bridge_state)?)
     }
 }
 
