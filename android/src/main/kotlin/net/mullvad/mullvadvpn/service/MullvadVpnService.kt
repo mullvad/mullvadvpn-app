@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
+import android.util.Log
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -15,6 +17,7 @@ import net.mullvad.talpid.util.EventNotifier
 
 private const val API_ROOT_CA_FILE = "api_root_ca.pem"
 private const val RELAYS_FILE = "relays.json"
+private const val SETTINGS_FILE = "settings.json"
 
 class MullvadVpnService : TalpidVpnService() {
     private enum class PendingAction {
@@ -144,6 +147,8 @@ class MullvadVpnService : TalpidVpnService() {
         FileResourceExtractor(API_ROOT_CA_FILE).extract(application)
         FileResourceExtractor(RELAYS_FILE).extract(application)
 
+        migrateSettingsFromOldLocation()
+
         val newDaemon = MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
                 loggedIn = settings?.accountToken != null
@@ -183,6 +188,18 @@ class MullvadVpnService : TalpidVpnService() {
             connectivityListener,
             newLocationInfoCache
         ))
+    }
+
+    private fun migrateSettingsFromOldLocation() {
+        try {
+            val oldPath = File("/data/data/net.mullvad.mullvadvpn/", SETTINGS_FILE)
+
+            if (oldPath.exists()) {
+                oldPath.renameTo(File(filesDir, SETTINGS_FILE))
+            }
+        } catch (exception: Exception) {
+            Log.w("mullvad", "Failed to migrate settings file from old location")
+        }
     }
 
     private fun stop() {
