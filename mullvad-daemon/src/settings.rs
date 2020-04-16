@@ -1,4 +1,4 @@
-use log::info;
+use log::{debug, info};
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     settings::Settings,
@@ -26,6 +26,12 @@ pub enum Error {
     #[cfg(not(target_os = "android"))]
     DeleteError(String, #[error(source)] io::Error),
 
+    #[error(display = "Unable to serialize settings to JSON")]
+    SerializeError(#[error(source)] serde_json::Error),
+
+    #[error(display = "Unable to write settings to {}", _0)]
+    WriteError(String, #[error(source)] io::Error),
+
     #[error(display = "Settings operation failed")]
     SettingsError(#[error(source)] mullvad_types::settings::Error),
 }
@@ -45,16 +51,20 @@ pub struct SettingsPersister {
 impl SettingsPersister {
     /// Loads user settings from file. If no file is present it returns the defaults.
     pub fn load() -> Self {
-        let mut settings = Self::load_settings();
+        let settings = Self::load_settings();
+        let mut persister = SettingsPersister { settings };
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
-            if Self::update_field(&mut settings.tunnel_options.generic.enable_ipv6, true) {
-                let _ = settings.save();
+            if Self::update_field(
+                &mut persister.settings.tunnel_options.generic.enable_ipv6,
+                true,
+            ) {
+                let _ = persister.save();
             }
         }
 
-        SettingsPersister { settings }
+        persister
     }
 
     fn load_settings() -> Settings {
@@ -139,11 +149,24 @@ impl SettingsPersister {
         }
     }
 
+    /// Serializes the settings and saves them to the file it was loaded from.
+    fn save(&mut self) -> Result<(), Error> {
+        let path = Settings::get_settings_path()?;
+
+        debug!("Writing settings to {}", path.display());
+        let mut file =
+            File::create(&path).map_err(|e| Error::WriteError(path.display().to_string(), e))?;
+
+        serde_json::to_writer_pretty(&mut file, &self.settings).map_err(Error::SerializeError)?;
+        file.sync_all()
+            .map_err(|e| Error::WriteError(path.display().to_string(), e))
+    }
+
     /// Resets default settings
     #[cfg(not(target_os = "android"))]
     pub fn reset(&mut self) -> Result<(), Error> {
         self.settings = Settings::default();
-        self.settings.save().or_else(|e| {
+        self.save().or_else(|e| {
             log::error!(
                 "{}",
                 e.display_chain_with_msg("Unable to save default settings")
@@ -254,10 +277,7 @@ impl SettingsPersister {
 
     fn update(&mut self, should_save: bool) -> Result<bool, Error> {
         if should_save {
-            self.settings
-                .save()
-                .map(|_| true)
-                .map_err(Error::SettingsError)
+            self.save().map(|_| true)
         } else {
             Ok(false)
         }
