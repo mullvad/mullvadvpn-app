@@ -36,22 +36,22 @@ pub struct SettingsData {
     account_token: Option<String>,
     relay_settings: RelaySettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
-    bridge_settings: BridgeSettings,
+    pub bridge_settings: BridgeSettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
     bridge_state: BridgeState,
     /// If the daemon should allow communication with private (LAN) networks.
-    allow_lan: bool,
+    pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
     /// the firewall to not allow any traffic in or out.
     #[cfg_attr(target_os = "android", jnix(skip))]
-    block_when_disconnected: bool,
+    pub block_when_disconnected: bool,
     /// If the daemon should connect the VPN tunnel directly on start or not.
-    auto_connect: bool,
+    pub auto_connect: bool,
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
-    tunnel_options: TunnelOptions,
+    pub tunnel_options: TunnelOptions,
     /// Whether to notify users of beta updates.
-    show_beta_releases: Option<bool>,
+    pub show_beta_releases: Option<bool>,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     settings_version: migrations::SettingsVersion,
@@ -137,87 +137,16 @@ impl SettingsData {
         }
     }
 
-    pub fn get_allow_lan(&self) -> bool {
-        self.allow_lan
-    }
-
-    pub fn set_allow_lan(&mut self, allow_lan: bool) -> bool {
-        Self::update_field(&mut self.allow_lan, allow_lan)
-    }
-
-    pub fn get_block_when_disconnected(&self) -> bool {
-        self.block_when_disconnected
-    }
-
-    pub fn set_block_when_disconnected(&mut self, block_when_disconnected: bool) -> bool {
-        Self::update_field(&mut self.block_when_disconnected, block_when_disconnected)
-    }
-
-    pub fn get_auto_connect(&self) -> bool {
-        self.auto_connect
-    }
-
-    pub fn set_auto_connect(&mut self, auto_connect: bool) -> bool {
-        Self::update_field(&mut self.auto_connect, auto_connect)
-    }
-
-    pub fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> bool {
-        Self::update_field(&mut self.tunnel_options.openvpn.mssfix, openvpn_mssfix)
-    }
-
-    pub fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> bool {
-        Self::update_field(&mut self.tunnel_options.generic.enable_ipv6, enable_ipv6)
-    }
-
-    pub fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> bool {
-        Self::update_field(&mut self.tunnel_options.wireguard.mtu, mtu)
-    }
-
-    pub fn set_wireguard_rotation_interval(&mut self, automatic_rotation: Option<u32>) -> bool {
-        Self::update_field(
-            &mut self.tunnel_options.wireguard.automatic_rotation,
-            automatic_rotation,
-        )
-    }
-
-    pub fn get_tunnel_options(&self) -> &TunnelOptions {
-        &self.tunnel_options
-    }
-
-    pub fn get_show_beta_releases(&self) -> Option<bool> {
-        self.show_beta_releases
-    }
-
-    pub fn set_show_beta_releases(&mut self, enabled: bool) -> bool {
-        Self::update_field(&mut self.show_beta_releases, Some(enabled))
-    }
-
-    pub fn get_bridge_settings(&self) -> &BridgeSettings {
-        &self.bridge_settings
-    }
-
-    pub fn set_bridge_settings(&mut self, bridge_settings: BridgeSettings) -> bool {
-        Self::update_field(&mut self.bridge_settings, bridge_settings)
-    }
-
     pub fn get_bridge_state(&self) -> &BridgeState {
         &self.bridge_state
     }
 
     pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> bool {
-        if Self::update_field(&mut self.bridge_state, bridge_state) {
+        if self.bridge_state != bridge_state {
             if self.bridge_state == BridgeState::On {
                 self.relay_settings.ensure_bridge_compatibility();
             }
-            true
-        } else {
-            false
-        }
-    }
-
-    fn update_field<T: Eq>(field: &mut T, new_value: T) -> bool {
-        if *field != new_value {
-            *field = new_value;
+            self.bridge_state = bridge_state;
             true
         } else {
             false
