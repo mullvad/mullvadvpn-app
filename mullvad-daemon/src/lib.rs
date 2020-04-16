@@ -42,7 +42,7 @@ use mullvad_types::{
     version::{AppVersion, AppVersionInfo},
     wireguard::KeygenEvent,
 };
-use settings::Settings;
+use settings::SettingsPersister;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
 use std::{
@@ -437,7 +437,7 @@ pub struct Daemon<L: EventListener> {
     tx: DaemonEventSender,
     reconnection_loop_tx: Option<mpsc::Sender<()>>,
     event_listener: L,
-    settings: Settings,
+    settings: SettingsPersister,
     account_history: account_history::AccountHistory,
     wg_key_proxy: WireguardKeyProxy<HttpHandle>,
     accounts_proxy: AccountsProxy<HttpHandle>,
@@ -512,7 +512,7 @@ where
         } else {
             mullvad_paths::settings_dir().map_err(Error::PathError)?
         };
-        let mut settings = Settings::load(&settings_dir);
+        let mut settings = SettingsPersister::load(&settings_dir);
 
         if version::is_beta_version() && settings.get_show_beta_releases().is_none() {
             let _ = settings.set_show_beta_releases(true);

@@ -36,12 +36,12 @@ pub enum Error {
 
 
 #[derive(Clone, Debug)]
-pub struct Settings {
+pub struct SettingsPersister {
     data: SettingsData,
     path: PathBuf,
 }
 
-impl Settings {
+impl SettingsPersister {
     /// Loads user settings from file. If no file is present it returns the defaults.
     pub fn load(settings_dir: &Path) -> Self {
         let path = settings_dir.join(SETTINGS_FILE);
@@ -70,7 +70,7 @@ impl Settings {
                 (SettingsData::default(), true)
             });
 
-        let mut settings = Settings { data, path };
+        let mut settings = SettingsPersister { data, path };
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") && settings.tunnel_options.generic.enable_ipv6 == false {
@@ -285,7 +285,7 @@ impl Settings {
     }
 }
 
-impl Deref for Settings {
+impl Deref for SettingsPersister {
     type Target = SettingsData;
 
     fn deref(&self) -> &Self::Target {
