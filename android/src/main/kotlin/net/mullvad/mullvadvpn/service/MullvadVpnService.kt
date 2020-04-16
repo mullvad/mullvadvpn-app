@@ -5,7 +5,6 @@ import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -144,10 +143,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
-        FileResourceExtractor(API_ROOT_CA_FILE).extract(application)
-        FileResourceExtractor(RELAYS_FILE).extract(application)
-
-        migrateSettingsFromOldLocation()
+        prepareFiles()
 
         val newDaemon = MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
@@ -190,15 +186,20 @@ class MullvadVpnService : TalpidVpnService() {
         ))
     }
 
-    private fun migrateSettingsFromOldLocation() {
-        try {
-            val oldPath = File("/data/data/net.mullvad.mullvadvpn/", SETTINGS_FILE)
+    private fun prepareFiles() {
+        FileMigrator("/data/data/net.mullvad.mullvadvpn", filesDir).apply {
+            migrate(API_ROOT_CA_FILE)
+            migrate(RELAYS_FILE)
+            migrate("settings.json")
+            migrate("daemon.log")
+            migrate("daemon.old.log")
+            migrate("wireguard.log")
+            migrate("wireguard.old.log")
+        }
 
-            if (oldPath.exists()) {
-                oldPath.renameTo(File(filesDir, SETTINGS_FILE))
-            }
-        } catch (exception: Exception) {
-            Log.w("mullvad", "Failed to migrate settings file from old location")
+        FileResourceExtractor(this).apply {
+            extract(API_ROOT_CA_FILE)
+            extract(RELAYS_FILE)
         }
     }
 
