@@ -37,7 +37,7 @@ use mullvad_types::{
         RelaySettingsUpdate,
     },
     relay_list::{Relay, RelayList},
-    settings::SettingsData,
+    settings::Settings,
     states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
     wireguard::KeygenEvent,
@@ -200,7 +200,7 @@ pub enum DaemonCommand {
     /// Set automatic key rotation interval for wireguard tunnels
     SetWireguardRotationInterval(oneshot::Sender<()>, Option<u32>),
     /// Get the daemon settings
-    GetSettings(oneshot::Sender<SettingsData>),
+    GetSettings(oneshot::Sender<Settings>),
     /// Generate new wireguard key
     GenerateWireguardKey(oneshot::Sender<wireguard::KeygenEvent>),
     /// Return a public key of the currently set wireguard private key, if there is one
@@ -415,7 +415,7 @@ pub trait EventListener {
     fn notify_new_state(&self, new_state: TunnelState);
 
     /// Notify that the settings changed.
-    fn notify_settings(&self, settings: SettingsData);
+    fn notify_settings(&self, settings: Settings);
 
     /// Notify that the relay list changed.
     fn notify_relay_list(&self, relay_list: RelayList);
@@ -1701,7 +1701,7 @@ where
         }
     }
 
-    fn on_get_settings(&self, tx: oneshot::Sender<SettingsData>) {
+    fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
         Self::oneshot_send(tx, self.settings.to_data(), "get_settings response");
     }
 

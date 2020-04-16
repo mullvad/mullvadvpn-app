@@ -1,7 +1,7 @@
 use log::{debug, error, info};
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
-    settings::{SettingsData, TunnelOptions},
+    settings::{Settings, TunnelOptions},
 };
 use std::{
     fs::File,
@@ -37,7 +37,7 @@ pub enum Error {
 
 #[derive(Clone, Debug)]
 pub struct SettingsPersister {
-    data: SettingsData,
+    data: Settings,
     path: PathBuf,
 }
 
@@ -67,7 +67,7 @@ impl SettingsPersister {
             })
             .unwrap_or_else(|_| {
                 info!("Failed to load settings, using defaults");
-                (SettingsData::default(), true)
+                (Settings::default(), true)
             });
 
         let mut settings = SettingsPersister { data, path };
@@ -116,18 +116,18 @@ impl SettingsPersister {
         }
     }
 
-    fn load_data(path: &Path) -> Result<(SettingsData, bool), io::Error> {
+    fn load_data(path: &Path) -> Result<(Settings, bool), io::Error> {
         let file = File::open(&path)?;
 
         info!("Loading settings from {}", path.display());
         let mut settings_bytes = vec![];
         BufReader::new(file).read_to_end(&mut settings_bytes)?;
 
-        SettingsData::load_from_bytes(&settings_bytes)
+        Settings::load_from_bytes(&settings_bytes)
             .ok()
             .map(|data| (data, false))
             .or_else(|| {
-                SettingsData::migrate_from_bytes(&settings_bytes)
+                Settings::migrate_from_bytes(&settings_bytes)
                     .ok()
                     .map(|data| (data, true))
             })
@@ -148,7 +148,7 @@ impl SettingsPersister {
     /// Resets default settings
     #[cfg(not(target_os = "android"))]
     pub fn reset(&mut self) -> Result<(), Error> {
-        self.data = SettingsData::default();
+        self.data = Settings::default();
         self.save().or_else(|e| {
             log::error!(
                 "{}",
@@ -160,7 +160,7 @@ impl SettingsPersister {
         })
     }
 
-    pub fn to_data(&self) -> SettingsData {
+    pub fn to_data(&self) -> Settings {
         self.data.clone()
     }
 
@@ -286,7 +286,7 @@ impl SettingsPersister {
 }
 
 impl Deref for SettingsPersister {
-    type Target = SettingsData;
+    type Target = Settings;
 
     fn deref(&self) -> &Self::Target {
         &self.data

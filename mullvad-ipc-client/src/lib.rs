@@ -8,7 +8,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, RelaySettings, RelaySettingsUpdate},
     relay_list::RelayList,
-    settings::{SettingsData, TunnelOptions},
+    settings::{Settings, TunnelOptions},
     states::TunnelState,
     version::AppVersionInfo,
     wireguard, DaemonEvent,
@@ -171,7 +171,7 @@ impl DaemonRpcClient {
         self.call("get_tunnel_options", &NO_ARGS)
     }
 
-    pub fn get_settings(&mut self) -> Result<SettingsData> {
+    pub fn get_settings(&mut self) -> Result<Settings> {
         self.call("get_settings", &NO_ARGS)
     }
 

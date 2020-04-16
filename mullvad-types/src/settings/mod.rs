@@ -28,11 +28,8 @@ pub enum Error {
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(
-    target_os = "android",
-    jnix(class_name = "net.mullvad.mullvadvpn.model.Settings")
-)]
-pub struct SettingsData {
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+pub struct Settings {
     account_token: Option<String>,
     relay_settings: RelaySettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -57,9 +54,9 @@ pub struct SettingsData {
     settings_version: migrations::SettingsVersion,
 }
 
-impl Default for SettingsData {
+impl Default for Settings {
     fn default() -> Self {
-        SettingsData {
+        Settings {
             account_token: None,
             relay_settings: RelaySettings::Normal(RelayConstraints {
                 location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
@@ -79,7 +76,7 @@ impl Default for SettingsData {
     }
 }
 
-impl SettingsData {
+impl Settings {
     pub fn load_from_bytes(bytes: &[u8]) -> Result<Self> {
         serde_json::from_slice(bytes).map_err(Error::ParseError)
     }
