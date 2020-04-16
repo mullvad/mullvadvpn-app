@@ -56,7 +56,7 @@ unsafe impl Send for BroadcastListener {}
 impl BroadcastListener {
     pub fn start(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<Self, Error> {
         let mut system_state = Arc::new(Mutex::new(SystemState {
-            network_connectivity: false,
+            network_connectivity: true,
             suspended: false,
             daemon_channel: sender,
         }));
