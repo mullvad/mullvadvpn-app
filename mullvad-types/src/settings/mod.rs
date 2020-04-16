@@ -7,7 +7,6 @@ use jnix::IntoJava;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::path::PathBuf;
 use talpid_types::net::{openvpn, wireguard, GenericTunnelOptions};
 
 mod migrations;
@@ -17,17 +16,12 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    #[error(display = "Unable to create settings directory")]
-    DirectoryError(#[error(source)] mullvad_paths::Error),
-
     #[error(display = "Malformed settings")]
     ParseError(#[error(source)] serde_json::Error),
 
     #[error(display = "Unable to read any version of the settings")]
     NoMatchingVersion,
 }
-
-static SETTINGS_FILE: &str = "settings.json";
 
 
 /// Mullvad daemon settings.
@@ -89,11 +83,6 @@ impl Settings {
 
     pub fn migrate_from_bytes(bytes: &[u8]) -> Result<Self> {
         migrations::try_migrate_settings(&bytes)
-    }
-
-    pub fn get_settings_path() -> Result<PathBuf> {
-        let dir = ::mullvad_paths::settings_dir().map_err(Error::DirectoryError)?;
-        Ok(dir.join(SETTINGS_FILE))
     }
 
     pub fn get_account_token(&self) -> Option<String> {
