@@ -7,6 +7,7 @@ use std::{
     fs::File,
     io::{self, BufReader, Read},
     ops::Deref,
+    path::{Path, PathBuf},
 };
 
 #[cfg(not(target_os = "android"))]
@@ -17,6 +18,9 @@ use {
     log::{error, warn},
     talpid_core::logging::windows::log_sink,
 };
+
+
+static SETTINGS_FILE: &str = "settings.json";
 
 
 #[derive(err_derive::Error, Debug)]
@@ -30,26 +34,25 @@ pub enum Error {
 
     #[error(display = "Unable to write settings to {}", _0)]
     WriteError(String, #[error(source)] io::Error),
-
-    #[error(display = "Settings operation failed")]
-    SettingsError(#[error(source)] mullvad_types::settings::Error),
 }
 
 
 #[derive(Clone, Debug)]
 pub struct Settings {
     data: SettingsData,
+    path: PathBuf,
 }
 
 impl Settings {
     /// Loads user settings from file. If no file is present it returns the defaults.
-    pub fn load() -> Self {
-        let data = Self::load_data()
+    pub fn load(settings_dir: &Path) -> Self {
+        let path = settings_dir.join(SETTINGS_FILE);
+        let data = Self::load_data(&path)
             .or_else(|error| match error.kind() {
                 #[cfg(windows)]
                 io::ErrorKind::NotFound => {
                     if Self::migrate_after_windows_update() {
-                        let result = Self::load_data();
+                        let result = Self::load_data(&path);
 
                         match &result {
                             Ok(_) => info!("Successfully loaded migrated settings"),
@@ -69,7 +72,7 @@ impl Settings {
                 SettingsData::default()
             });
 
-        let mut settings = Settings { data };
+        let mut settings = Settings { data, path };
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
@@ -107,8 +110,7 @@ impl Settings {
         }
     }
 
-    fn load_data() -> Result<SettingsData, io::Error> {
-        let path = SettingsData::get_settings_path().unwrap();
+    fn load_data(path: &Path) -> Result<SettingsData, io::Error> {
         let file = File::open(&path)?;
 
         info!("Loading settings from {}", path.display());
@@ -123,15 +125,13 @@ impl Settings {
 
     /// Serializes the settings and saves them to the file it was loaded from.
     fn save(&mut self) -> Result<(), Error> {
-        let path = SettingsData::get_settings_path()?;
-
-        debug!("Writing settings to {}", path.display());
-        let mut file =
-            File::create(&path).map_err(|e| Error::WriteError(path.display().to_string(), e))?;
+        debug!("Writing settings to {}", self.path.display());
+        let mut file = File::create(&self.path)
+            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
 
         serde_json::to_writer_pretty(&mut file, &self.data).map_err(Error::SerializeError)?;
         file.sync_all()
-            .map_err(|e| Error::WriteError(path.display().to_string(), e))
+            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))
     }
 
     /// Resets default settings
@@ -144,10 +144,8 @@ impl Settings {
                 e.display_chain_with_msg("Unable to save default settings")
             );
             log::error!("Will attempt to remove settings file");
-            SettingsData::get_settings_path().and_then(|path| {
-                fs::remove_file(&path)
-                    .map_err(|e| Error::DeleteError(path.display().to_string(), e))
-            })
+            fs::remove_file(&self.path)
+                .map_err(|e| Error::DeleteError(self.path.display().to_string(), e))
         })
     }
 
