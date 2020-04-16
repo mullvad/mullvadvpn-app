@@ -507,7 +507,12 @@ where
         );
         tokio_remote.spawn(|_| version_check_future);
 
-        let mut settings = SettingsPersister::load();
+        let settings_dir = if cfg!(target_os = "android") {
+            resource_dir.clone()
+        } else {
+            mullvad_paths::settings_dir().map_err(Error::PathError)?
+        };
+        let mut settings = SettingsPersister::load(&settings_dir);
 
         if version::is_beta_version() && settings.show_beta_releases.is_none() {
             let _ = settings.set_show_beta_releases(true);
