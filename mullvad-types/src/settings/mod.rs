@@ -140,7 +140,7 @@ impl Settings {
 
     pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> bool {
         if self.bridge_state != bridge_state {
-            if self.bridge_state == BridgeState::On {
+            if bridge_state == BridgeState::On {
                 self.relay_settings.ensure_bridge_compatibility();
             }
             self.bridge_state = bridge_state;
