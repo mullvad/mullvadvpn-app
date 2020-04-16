@@ -1,4 +1,4 @@
-use log::{debug, info};
+use log::{debug, error, info};
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     settings::SettingsData,
@@ -9,15 +9,13 @@ use std::{
     ops::Deref,
     path::{Path, PathBuf},
 };
+use talpid_types::ErrorExt;
 
 #[cfg(not(target_os = "android"))]
-use {std::fs, talpid_types::ErrorExt};
+use std::fs;
 
 #[cfg(windows)]
-use {
-    log::{error, warn},
-    talpid_core::logging::windows::log_sink,
-};
+use {log::warn, talpid_core::logging::windows::log_sink};
 
 
 static SETTINGS_FILE: &str = "settings.json";
@@ -47,7 +45,7 @@ impl Settings {
     /// Loads user settings from file. If no file is present it returns the defaults.
     pub fn load(settings_dir: &Path) -> Self {
         let path = settings_dir.join(SETTINGS_FILE);
-        let data = Self::load_data(&path)
+        let (data, mut should_save) = Self::load_data(&path)
             .or_else(|error| match error.kind() {
                 #[cfg(windows)]
                 io::ErrorKind::NotFound => {
@@ -69,15 +67,22 @@ impl Settings {
             })
             .unwrap_or_else(|_| {
                 info!("Failed to load settings, using defaults");
-                SettingsData::default()
+                (SettingsData::default(), true)
             });
 
         let mut settings = Settings { data, path };
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
-            if settings.data.set_enable_ipv6(true) {
-                let _ = settings.save();
+            should_save |= settings.data.set_enable_ipv6(true);
+        }
+
+        if should_save {
+            if let Err(error) = settings.save() {
+                error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to save updated settings")
+                );
             }
         }
 
@@ -110,7 +115,7 @@ impl Settings {
         }
     }
 
-    fn load_data(path: &Path) -> Result<SettingsData, io::Error> {
+    fn load_data(path: &Path) -> Result<(SettingsData, bool), io::Error> {
         let file = File::open(&path)?;
 
         info!("Loading settings from {}", path.display());
@@ -119,7 +124,12 @@ impl Settings {
 
         SettingsData::load_from_bytes(&settings_bytes)
             .ok()
-            .or_else(|| SettingsData::migrate_from_bytes(&settings_bytes).ok())
+            .map(|data| (data, false))
+            .or_else(|| {
+                SettingsData::migrate_from_bytes(&settings_bytes)
+                    .ok()
+                    .map(|data| (data, true))
+            })
             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Failed to parse settings data"))
     }
 
