@@ -9,7 +9,7 @@ class FileResourceExtractor(val context: Context) {
         val destination = File(context.filesDir, asset)
 
         if (!destination.exists()) {
-            extractFile(context, destination)
+            extractFile(asset, destination)
         }
     }
 
