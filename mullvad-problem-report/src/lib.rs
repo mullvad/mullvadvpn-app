@@ -104,10 +104,15 @@ pub fn collect_report(
 ) -> Result<(), Error> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
-    let daemon_logs_dir = if cfg!(target_os = "android") {
-        Ok(android_log_dir.to_owned())
-    } else {
-        mullvad_paths::get_log_dir().map_err(LogError::GetLogDir)
+    let daemon_logs_dir = {
+        #[cfg(target_os = "android")]
+        {
+            Ok(android_log_dir.to_owned())
+        }
+        #[cfg(not(target_os = "android"))]
+        {
+            mullvad_paths::get_log_dir().map_err(LogError::GetLogDir)
+        }
     };
 
     let daemon_logs = daemon_logs_dir.and_then(list_logs);
