@@ -21,7 +21,7 @@ class MainActivity : FragmentActivity() {
 
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
-    private lateinit var problemReport: MullvadProblemReport
+    lateinit var problemReport: MullvadProblemReport
 
     private var service: MullvadVpnService.LocalBinder? = null
     private var serviceConnection: ServiceConnection? = null
