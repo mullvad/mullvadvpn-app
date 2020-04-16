@@ -179,7 +179,7 @@ impl SettingsPersister {
                 "{}",
                 e.display_chain_with_msg("Unable to save default settings")
             );
-            log::error!("Will attempt to remove settings file");
+            log::info!("Will attempt to remove settings file");
             fs::remove_file(&self.path)
                 .map_err(|e| Error::DeleteError(self.path.display().to_string(), e))
         })
