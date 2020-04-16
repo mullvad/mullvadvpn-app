@@ -176,7 +176,6 @@ OfflineMonitor::OfflineMonitor
 )
 	: m_logSink(logSink)
 	, m_notifier(notifier)
-	, m_connected(false)
 	, m_netAdapterMonitor(
 		m_logSink,
 		std::bind(&OfflineMonitor::callback, this, _1, _2, _3),
@@ -199,12 +198,23 @@ void OfflineMonitor::callback(const std::vector<MIB_IF_ROW2> &adapters, const MI
 	const auto previousConnectivity = m_connected;
 	m_connected = !adapters.empty();
 
-	if (previousConnectivity != m_connected)
+	if (false == m_firstNotificationSent
+		|| previousConnectivity != m_connected)
 	{
 		std::stringstream ss;
 
-		ss << "Connectivity changed. Machine is: " << (m_connected ? "ONLINE" : "OFFLINE");
-		m_logSink->info(ss.str().c_str());
+		if (m_firstNotificationSent)
+		{
+			ss << "Connectivity changed. Machine is: " << (m_connected ? "ONLINE" : "OFFLINE");
+			m_logSink->info(ss.str().c_str());
+		}
+		else
+		{
+			m_firstNotificationSent = true;
+
+			ss << "Initial connectivity established. Machine is: " << (m_connected ? "ONLINE" : "OFFLINE");
+			m_logSink->info(ss.str().c_str());
+		}
 
 		if (false == m_connected)
 		{
