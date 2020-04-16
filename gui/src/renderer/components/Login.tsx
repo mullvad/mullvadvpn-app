@@ -212,11 +212,17 @@ export default class Login extends Component<IProps, IState> {
   private formTitle() {
     switch (this.props.loginState.type) {
       case 'logging in':
-        return messages.pgettext('login-view', 'Logging in...');
+        return this.props.loginState.method === 'existing_account'
+          ? messages.pgettext('login-view', 'Logging in...')
+          : messages.pgettext('login-view', 'Creating account...');
       case 'failed':
-        return messages.pgettext('login-view', 'Login failed');
+        return this.props.loginState.method === 'existing_account'
+          ? messages.pgettext('login-view', 'Login failed')
+          : messages.pgettext('login-view', 'Error');
       case 'ok':
-        return messages.pgettext('login-view', 'Logged in');
+        return this.props.loginState.method === 'existing_account'
+          ? messages.pgettext('login-view', 'Logged in')
+          : messages.pgettext('login-view', 'Account created');
       default:
         return messages.pgettext('login-view', 'Login');
     }
@@ -231,11 +237,11 @@ export default class Login extends Component<IProps, IState> {
       case 'logging in':
         return this.props.loginState.method === 'existing_account'
           ? messages.pgettext('login-view', 'Checking account number')
-          : messages.pgettext('login-view', 'Creating new account');
+          : messages.pgettext('login-view', 'Please wait');
       case 'ok':
         return this.props.loginState.method === 'existing_account'
-          ? messages.pgettext('login-view', 'Correct account number')
-          : messages.pgettext('login-view', 'Account created');
+          ? messages.pgettext('login-view', 'Valid account number')
+          : messages.pgettext('login-view', 'Logged in');
       default:
         return messages.pgettext('login-view', 'Enter your account number');
     }
