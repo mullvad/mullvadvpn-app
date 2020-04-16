@@ -7,15 +7,8 @@ use jnix::IntoJava;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::{
-    fs::{self, File},
-    io,
-    path::PathBuf,
-};
-use talpid_types::{
-    net::{openvpn, wireguard, GenericTunnelOptions},
-    ErrorExt,
-};
+use std::{fs::File, io, path::PathBuf};
+use talpid_types::net::{openvpn, wireguard, GenericTunnelOptions};
 
 mod migrations;
 
@@ -26,9 +19,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error(display = "Unable to create settings directory")]
     DirectoryError(#[error(source)] mullvad_paths::Error),
-
-    #[error(display = "Unable to remove settings file {}", _0)]
-    DeleteError(String, #[error(source)] io::Error),
 
     #[error(display = "Malformed settings")]
     ParseError(#[error(source)] serde_json::Error),
@@ -118,22 +108,6 @@ impl Settings {
         serde_json::to_writer_pretty(&mut file, self).map_err(Error::SerializeError)?;
         file.sync_all()
             .map_err(|e| Error::WriteError(path.display().to_string(), e))
-    }
-
-    /// Resets default settings
-    pub fn reset(&mut self) -> Result<()> {
-        *self = Default::default();
-        self.save().or_else(|e| {
-            log::error!(
-                "{}",
-                e.display_chain_with_msg("Unable to save default settings")
-            );
-            log::error!("Will attempt to remove settings file");
-            Self::get_settings_path().and_then(|path| {
-                fs::remove_file(&path)
-                    .map_err(|e| Error::DeleteError(path.display().to_string(), e))
-            })
-        })
     }
 
     pub fn get_settings_path() -> Result<PathBuf> {
