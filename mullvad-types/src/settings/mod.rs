@@ -215,10 +215,7 @@ impl SettingsData {
         }
     }
 
-    fn update_field<T>(field: &mut T, new_value: T) -> bool
-    where
-        T: Eq,
-    {
+    fn update_field<T: Eq>(field: &mut T, new_value: T) -> bool {
         if *field != new_value {
             *field = new_value;
             true
