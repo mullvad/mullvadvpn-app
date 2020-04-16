@@ -1,7 +1,8 @@
 use log::info;
 use mullvad_types::settings::SettingsData;
 use std::{
-    io,
+    fs::File,
+    io::{self, BufReader, Read},
     ops::{Deref, DerefMut},
 };
 
@@ -80,10 +81,17 @@ impl Settings {
     }
 
     fn load_data() -> Result<SettingsData, io::Error> {
-        SettingsData::load().map_err(|error| match error {
-            Error::ReadError(_, io_error) => io_error,
-            _ => io::Error::new(io::ErrorKind::Other, "Failed to load settings"),
-        })
+        let path = SettingsData::get_settings_path().unwrap();
+        let file = File::open(&path)?;
+
+        info!("Loading settings from {}", path.display());
+        let mut settings_bytes = vec![];
+        BufReader::new(file).read_to_end(&mut settings_bytes)?;
+
+        SettingsData::load_from_bytes(&settings_bytes)
+            .ok()
+            .or_else(|| SettingsData::migrate_from_bytes(&settings_bytes).ok())
+            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Failed to parse settings data"))
     }
 
     pub fn to_data(&self) -> SettingsData {
