@@ -1,77 +1,60 @@
-import { StyleSheet, css } from 'aphrodite';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
+import { Component, Styles, Text, View } from 'reactxp';
 import { colors } from '../../config.json';
 import ImageView from './ImageView';
 
 const MODAL_CONTAINER_ID = 'modalContainer';
 
-const styles = StyleSheet.create({
-  modalAlertBackground: {
-    display: 'flex',
+const styles = {
+  modalAlertBackground: Styles.createViewStyle({
     flex: 1,
-    alignItems: 'center',
-    paddingLeft: '14px',
-    paddingRight: '14px',
-  },
-  modalAlert: {
-    display: 'flex',
-    flex: 1,
-    flexDirection: 'column',
-    backgroundColor: colors.darkBlue,
-    borderRadius: '11px',
-    padding: '16px',
-  },
-  modalAlertIcon: {
-    display: 'flex',
     justifyContent: 'center',
-    margin: '4px 0 12px',
-  },
-  modalAlertMessage: {
+    paddingLeft: 14,
+    paddingRight: 14,
+  }),
+  modalAlert: Styles.createViewStyle({
+    backgroundColor: colors.darkBlue,
+    borderRadius: 11,
+    padding: 16,
+  }),
+  modalAlertIcon: Styles.createViewStyle({
+    alignItems: 'center',
+    marginBottom: 12,
+    marginTop: 4,
+  }),
+  modalAlertMessage: Styles.createTextStyle({
     fontFamily: 'Open Sans',
-    fontSize: '16px',
-    fontWeight: 500,
-    lineHeight: '20px',
+    fontSize: 16,
+    fontWeight: '500',
+    lineHeight: 20,
     color: colors.white80,
-  },
-  modalAlertButtonContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    marginTop: '16px',
-  },
-  modalContent: {
-    position: 'absolute',
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  modalBackground: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    position: 'absolute',
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  modalContainer: {
-    position: 'relative',
-    flex: 1,
-  },
-});
+  }),
+  modalAlertButtonContainer: Styles.createViewStyle({
+    marginTop: 16,
+  }),
+};
 
 interface IModalContentProps {
   children?: React.ReactNode;
 }
 
 export const ModalContent: React.FC = (props: IModalContentProps) => {
-  return <div className={css(styles.modalContent)}>{props.children}</div>;
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}>
+      {props.children}
+    </div>
+  );
 };
 
 interface IModalBackgroundProps {
@@ -79,7 +62,22 @@ interface IModalBackgroundProps {
 }
 
 const ModalBackground: React.FC = (props: IModalBackgroundProps) => {
-  return <div className={css(styles.modalBackground)}>{props.children}</div>;
+  return (
+    <div
+      style={{
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        position: 'absolute',
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}>
+      {props.children}
+    </div>
+  );
 };
 
 interface IModalContainerProps {
@@ -88,7 +86,7 @@ interface IModalContainerProps {
 
 export const ModalContainer: React.FC = (props: IModalContainerProps) => {
   return (
-    <div id={MODAL_CONTAINER_ID} className={css(styles.modalContainer)}>
+    <div id={MODAL_CONTAINER_ID} style={{ position: 'relative', flex: 1 }}>
       <ModalContent>{props.children}</ModalContent>
     </div>
   );
@@ -106,7 +104,7 @@ interface IModalAlertProps {
   children?: React.ReactNode;
 }
 
-export class ModalAlert extends React.Component<IModalAlertProps> {
+export class ModalAlert extends Component<IModalAlertProps> {
   private element = document.createElement('div');
   private modalContainer?: Element;
 
@@ -133,24 +131,22 @@ export class ModalAlert extends React.Component<IModalAlertProps> {
   private renderModal() {
     return (
       <ModalBackground>
-        <div className={css(styles.modalAlertBackground)}>
-          <div className={css(styles.modalAlert)}>
+        <View style={styles.modalAlertBackground}>
+          <View style={styles.modalAlert}>
             {this.props.type && (
-              <div className={css(styles.modalAlertIcon)}>
-                {this.renderTypeIcon(this.props.type)}
-              </div>
+              <View style={styles.modalAlertIcon}>{this.renderTypeIcon(this.props.type)}</View>
             )}
             {this.props.message && (
-              <span className={css(styles.modalAlertMessage)}>{this.props.message}</span>
+              <Text style={styles.modalAlertMessage}>{this.props.message}</Text>
             )}
             {this.props.children}
             {this.props.buttons.map((button, index) => (
-              <div key={index} className={css(styles.modalAlertButtonContainer)}>
+              <View key={index} style={styles.modalAlertButtonContainer}>
                 {button}
-              </div>
+              </View>
             ))}
-          </div>
-        </div>
+          </View>
+        </View>
       </ModalBackground>
     );
   }
