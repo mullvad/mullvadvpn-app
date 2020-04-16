@@ -40,7 +40,7 @@ class MullvadProblemReport(val logDirectory: File) {
             if (!isActive) {
                 collectJob = GlobalScope.async(Dispatchers.Default) {
                     deleteReportFile()
-                    collectReport(problemReportPath.toString())
+                    collectReport(logDirectory.toString(), problemReportPath.toString())
                 }
             }
         }
@@ -73,7 +73,7 @@ class MullvadProblemReport(val logDirectory: File) {
         problemReportPath.delete()
     }
 
-    private external fun collectReport(reportPath: String): Boolean
+    private external fun collectReport(logDirectory: String, reportPath: String): Boolean
     private external fun sendProblemReport(
         userEmail: String,
         userMessage: String,
