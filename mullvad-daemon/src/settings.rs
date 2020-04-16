@@ -20,6 +20,7 @@ pub struct Settings {
 }
 
 impl Settings {
+    /// Loads user settings from file. If no file is present it returns the defaults.
     pub fn load() -> Self {
         let mut data = Self::load_data()
             .or_else(|error| match error.kind() {
