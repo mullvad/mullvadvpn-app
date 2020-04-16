@@ -7,7 +7,7 @@ use jnix::IntoJava;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::{fs::File, io, path::PathBuf};
+use std::path::PathBuf;
 use talpid_types::net::{openvpn, wireguard, GenericTunnelOptions};
 
 mod migrations;
@@ -22,12 +22,6 @@ pub enum Error {
 
     #[error(display = "Malformed settings")]
     ParseError(#[error(source)] serde_json::Error),
-
-    #[error(display = "Unable to serialize settings to JSON")]
-    SerializeError(#[error(source)] serde_json::Error),
-
-    #[error(display = "Unable to write settings to {}", _0)]
-    WriteError(String, #[error(source)] io::Error),
 
     #[error(display = "Unable to read any version of the settings")]
     NoMatchingVersion,
@@ -95,19 +89,6 @@ impl Settings {
 
     pub fn migrate_from_bytes(bytes: &[u8]) -> Result<Self> {
         migrations::try_migrate_settings(&bytes)
-    }
-
-    /// Serializes the settings and saves them to the file it was loaded from.
-    pub fn save(&self) -> Result<()> {
-        let path = Self::get_settings_path()?;
-
-        debug!("Writing settings to {}", path.display());
-        let mut file =
-            File::create(&path).map_err(|e| Error::WriteError(path.display().to_string(), e))?;
-
-        serde_json::to_writer_pretty(&mut file, self).map_err(Error::SerializeError)?;
-        file.sync_all()
-            .map_err(|e| Error::WriteError(path.display().to_string(), e))
     }
 
     pub fn get_settings_path() -> Result<PathBuf> {
