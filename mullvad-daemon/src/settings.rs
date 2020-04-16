@@ -7,6 +7,7 @@ use std::{
     fs::File,
     io::{self, BufReader, Read},
     ops::Deref,
+    path::{Path, PathBuf},
 };
 use talpid_types::ErrorExt;
 
@@ -20,6 +21,9 @@ use {
 };
 
 
+static SETTINGS_FILE: &str = "settings.json";
+
+
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Unable to remove settings file {}", _0)]
@@ -31,9 +35,6 @@ pub enum Error {
 
     #[error(display = "Unable to write settings to {}", _0)]
     WriteError(String, #[error(source)] io::Error),
-
-    #[error(display = "Settings operation failed")]
-    SettingsError(#[error(source)] mullvad_types::settings::Error),
 }
 
 #[derive(Debug)]
@@ -46,13 +47,15 @@ enum LoadSettingsError {
 #[derive(Debug)]
 pub struct SettingsPersister {
     settings: Settings,
+    path: PathBuf,
 }
 
 impl SettingsPersister {
     /// Loads user settings from file. If no file is present it returns the defaults.
-    pub fn load() -> Self {
-        let settings = Self::load_settings();
-        let mut persister = SettingsPersister { settings };
+    pub fn load(settings_dir: &Path) -> Self {
+        let path = settings_dir.join(SETTINGS_FILE);
+        let settings = Self::load_settings(&path);
+        let mut persister = SettingsPersister { settings, path };
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
@@ -67,11 +70,13 @@ impl SettingsPersister {
         persister
     }
 
-    fn load_settings() -> Settings {
-        Self::load_settings_from_file()
+    fn load_settings(path: &Path) -> Settings {
+        Self::load_settings_from_file(path)
             .or_else(|error| match error {
                 #[cfg(windows)]
-                LoadSettingsError::FileNotFound => Self::try_load_settings_after_windows_update(),
+                LoadSettingsError::FileNotFound => {
+                    Self::try_load_settings_after_windows_update(path)
+                }
                 _ => Err(error),
             })
             .unwrap_or_else(|_| {
@@ -80,9 +85,8 @@ impl SettingsPersister {
             })
     }
 
-    fn load_settings_from_file() -> Result<Settings, LoadSettingsError> {
-        let path = Settings::get_settings_path().unwrap();
-        let file = File::open(&path).map_err(|error| {
+    fn load_settings_from_file(path: &Path) -> Result<Settings, LoadSettingsError> {
+        let file = File::open(path).map_err(|error| {
             if error.kind() == io::ErrorKind::NotFound {
                 LoadSettingsError::FileNotFound
             } else {
@@ -108,11 +112,11 @@ impl SettingsPersister {
     }
 
     #[cfg(windows)]
-    fn try_load_settings_after_windows_update() -> Result<Settings, LoadSettingsError> {
+    fn try_load_settings_after_windows_update(path: &Path) -> Result<Settings, LoadSettingsError> {
         info!("No settings file found. Attempting migration from Windows Update backup location");
 
         if Self::migrate_after_windows_update() {
-            let result = Self::load_settings_from_file();
+            let result = Self::load_settings_from_file(path);
 
             match &result {
                 Ok(_) => info!("Successfully loaded migrated settings"),
@@ -151,15 +155,13 @@ impl SettingsPersister {
 
     /// Serializes the settings and saves them to the file it was loaded from.
     fn save(&mut self) -> Result<(), Error> {
-        let path = Settings::get_settings_path()?;
-
-        debug!("Writing settings to {}", path.display());
-        let mut file =
-            File::create(&path).map_err(|e| Error::WriteError(path.display().to_string(), e))?;
+        debug!("Writing settings to {}", self.path.display());
+        let mut file = File::create(&self.path)
+            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
 
         serde_json::to_writer_pretty(&mut file, &self.settings).map_err(Error::SerializeError)?;
         file.sync_all()
-            .map_err(|e| Error::WriteError(path.display().to_string(), e))
+            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))
     }
 
     /// Resets default settings
@@ -172,10 +174,8 @@ impl SettingsPersister {
                 e.display_chain_with_msg("Unable to save default settings")
             );
             log::error!("Will attempt to remove settings file");
-            Settings::get_settings_path().and_then(|path| {
-                fs::remove_file(&path)
-                    .map_err(|e| Error::DeleteError(path.display().to_string(), e))
-            })
+            fs::remove_file(&self.path)
+                .map_err(|e| Error::DeleteError(self.path.display().to_string(), e))
         })
     }
 

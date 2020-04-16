@@ -461,6 +461,7 @@ where
     pub fn start(
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
+        settings_dir: PathBuf,
         cache_dir: PathBuf,
         event_listener: L,
         command_channel: DaemonCommandChannel,
@@ -507,7 +508,7 @@ where
         );
         tokio_remote.spawn(|_| version_check_future);
 
-        let mut settings = SettingsPersister::load();
+        let mut settings = SettingsPersister::load(&settings_dir);
 
         if version::is_beta_version() && settings.show_beta_releases.is_none() {
             let _ = settings.set_show_beta_releases(true);
