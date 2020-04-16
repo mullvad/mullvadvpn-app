@@ -1,9 +1,12 @@
 use log::info;
-use mullvad_types::settings::Settings;
+use mullvad_types::{
+    relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
+    settings::Settings,
+};
 use std::{
     fs::File,
     io::{self, BufReader, Read},
-    ops::{Deref, DerefMut},
+    ops::Deref,
 };
 use talpid_types::ErrorExt;
 
@@ -122,8 +125,72 @@ impl SettingsPersister {
         }
     }
 
+    /// Resets default settings
+    #[cfg(not(target_os = "android"))]
+    pub fn reset(&mut self) -> Result<(), Error> {
+        self.settings.reset()
+    }
+
     pub fn to_settings(&self) -> Settings {
         self.settings.clone()
+    }
+
+    /// Changes account number to the one given. Also saves the new settings to disk.
+    /// The boolean in the Result indicates if the account token changed or not
+    pub fn set_account_token(&mut self, account_token: Option<String>) -> Result<bool, Error> {
+        self.settings.set_account_token(account_token)
+    }
+
+    pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<bool, Error> {
+        self.settings.update_relay_settings(update)
+    }
+
+    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool, Error> {
+        self.settings.set_allow_lan(allow_lan)
+    }
+
+    pub fn set_block_when_disconnected(
+        &mut self,
+        block_when_disconnected: bool,
+    ) -> Result<bool, Error> {
+        self.settings
+            .set_block_when_disconnected(block_when_disconnected)
+    }
+
+    pub fn set_auto_connect(&mut self, auto_connect: bool) -> Result<bool, Error> {
+        self.settings.set_auto_connect(auto_connect)
+    }
+
+    pub fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> Result<bool, Error> {
+        self.settings.set_openvpn_mssfix(openvpn_mssfix)
+    }
+
+    pub fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> Result<bool, Error> {
+        self.settings.set_enable_ipv6(enable_ipv6)
+    }
+
+    pub fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<bool, Error> {
+        self.settings.set_wireguard_mtu(mtu)
+    }
+
+    pub fn set_wireguard_rotation_interval(
+        &mut self,
+        automatic_rotation: Option<u32>,
+    ) -> Result<bool, Error> {
+        self.settings
+            .set_wireguard_rotation_interval(automatic_rotation)
+    }
+
+    pub fn set_show_beta_releases(&mut self, enabled: bool) -> Result<bool, Error> {
+        self.settings.set_show_beta_releases(enabled)
+    }
+
+    pub fn set_bridge_settings(&mut self, bridge_settings: BridgeSettings) -> Result<bool, Error> {
+        self.settings.set_bridge_settings(bridge_settings)
+    }
+
+    pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> Result<bool, Error> {
+        self.settings.set_bridge_state(bridge_state)
     }
 }
 
@@ -132,12 +199,6 @@ impl Deref for SettingsPersister {
 
     fn deref(&self) -> &Self::Target {
         &self.settings
-    }
-}
-
-impl DerefMut for SettingsPersister {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.settings
     }
 }
 
