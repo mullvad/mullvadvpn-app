@@ -101,7 +101,7 @@ impl SettingsData {
     }
 
     /// Serializes the settings and saves them to the file it was loaded from.
-    fn save(&self) -> Result<()> {
+    pub fn save(&self) -> Result<()> {
         let path = Self::get_settings_path()?;
 
         debug!("Writing settings to {}", path.display());
@@ -124,7 +124,7 @@ impl SettingsData {
 
     /// Changes account number to the one given. Also saves the new settings to disk.
     /// The boolean in the Result indicates if the account token changed or not
-    pub fn set_account_token(&mut self, mut account_token: Option<String>) -> Result<bool> {
+    pub fn set_account_token(&mut self, mut account_token: Option<String>) -> bool {
         if account_token.as_ref().map(String::len) == Some(0) {
             debug!("Setting empty account token is treated as unsetting it");
             account_token = None;
@@ -138,9 +138,9 @@ impl SettingsData {
                 info!("Changing account token")
             }
             self.account_token = account_token;
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
@@ -148,7 +148,7 @@ impl SettingsData {
         self.relay_settings.clone()
     }
 
-    pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<bool> {
+    pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> bool {
         let update_supports_bridge = update.supports_bridge();
         let new_settings = self.relay_settings.merge(update);
         if self.relay_settings != new_settings {
@@ -161,9 +161,9 @@ impl SettingsData {
             );
 
             self.relay_settings = new_settings;
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
@@ -171,12 +171,12 @@ impl SettingsData {
         self.allow_lan
     }
 
-    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool> {
+    pub fn set_allow_lan(&mut self, allow_lan: bool) -> bool {
         if allow_lan != self.allow_lan {
             self.allow_lan = allow_lan;
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
@@ -184,12 +184,12 @@ impl SettingsData {
         self.block_when_disconnected
     }
 
-    pub fn set_block_when_disconnected(&mut self, block_when_disconnected: bool) -> Result<bool> {
+    pub fn set_block_when_disconnected(&mut self, block_when_disconnected: bool) -> bool {
         if block_when_disconnected != self.block_when_disconnected {
             self.block_when_disconnected = block_when_disconnected;
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
@@ -197,51 +197,48 @@ impl SettingsData {
         self.auto_connect
     }
 
-    pub fn set_auto_connect(&mut self, auto_connect: bool) -> Result<bool> {
+    pub fn set_auto_connect(&mut self, auto_connect: bool) -> bool {
         if auto_connect != self.auto_connect {
             self.auto_connect = auto_connect;
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
-    pub fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> Result<bool> {
+    pub fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> bool {
         if self.tunnel_options.openvpn.mssfix != openvpn_mssfix {
             self.tunnel_options.openvpn.mssfix = openvpn_mssfix;
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
-    pub fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> Result<bool> {
+    pub fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> bool {
         if self.tunnel_options.generic.enable_ipv6 != enable_ipv6 {
             self.tunnel_options.generic.enable_ipv6 = enable_ipv6;
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
-    pub fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<bool> {
+    pub fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> bool {
         if self.tunnel_options.wireguard.mtu != mtu {
             self.tunnel_options.wireguard.mtu = mtu;
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
-    pub fn set_wireguard_rotation_interval(
-        &mut self,
-        automatic_rotation: Option<u32>,
-    ) -> Result<bool> {
+    pub fn set_wireguard_rotation_interval(&mut self, automatic_rotation: Option<u32>) -> bool {
         if self.tunnel_options.wireguard.automatic_rotation != automatic_rotation {
             self.tunnel_options.wireguard.automatic_rotation = automatic_rotation;
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
@@ -253,12 +250,12 @@ impl SettingsData {
         self.show_beta_releases
     }
 
-    pub fn set_show_beta_releases(&mut self, enabled: bool) -> Result<bool> {
+    pub fn set_show_beta_releases(&mut self, enabled: bool) -> bool {
         if Some(enabled) != self.show_beta_releases {
             self.show_beta_releases = Some(enabled);
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
@@ -266,12 +263,12 @@ impl SettingsData {
         &self.bridge_settings
     }
 
-    pub fn set_bridge_settings(&mut self, bridge_settings: BridgeSettings) -> Result<bool> {
+    pub fn set_bridge_settings(&mut self, bridge_settings: BridgeSettings) -> bool {
         if self.bridge_settings != bridge_settings {
             self.bridge_settings = bridge_settings;
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
@@ -279,15 +276,15 @@ impl SettingsData {
         &self.bridge_state
     }
 
-    pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> Result<bool> {
+    pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> bool {
         if self.bridge_state != bridge_state {
             self.bridge_state = bridge_state;
             if self.bridge_state == BridgeState::On {
                 self.relay_settings.ensure_bridge_compatibility();
             }
-            self.save().map(|_| true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 }
