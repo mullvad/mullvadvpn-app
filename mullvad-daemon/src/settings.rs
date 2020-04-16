@@ -49,7 +49,9 @@ impl SettingsPersister {
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
-            let _ = settings.set_enable_ipv6(true);
+            if Self::update_field(&mut settings.tunnel_options.generic.enable_ipv6, true) {
+                let _ = settings.save();
+            }
         }
 
         SettingsPersister { settings }
@@ -161,61 +163,104 @@ impl SettingsPersister {
     /// Changes account number to the one given. Also saves the new settings to disk.
     /// The boolean in the Result indicates if the account token changed or not
     pub fn set_account_token(&mut self, account_token: Option<String>) -> Result<bool, Error> {
-        Ok(self.settings.set_account_token(account_token)?)
+        let should_save = self.settings.set_account_token(account_token);
+        self.update(should_save)
     }
 
     pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<bool, Error> {
-        Ok(self.settings.update_relay_settings(update)?)
+        let should_save = self.settings.update_relay_settings(update);
+        self.update(should_save)
     }
 
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool, Error> {
-        Ok(self.settings.set_allow_lan(allow_lan)?)
+        let should_save = Self::update_field(&mut self.settings.allow_lan, allow_lan);
+        self.update(should_save)
     }
 
     pub fn set_block_when_disconnected(
         &mut self,
         block_when_disconnected: bool,
     ) -> Result<bool, Error> {
-        Ok(self
-            .settings
-            .set_block_when_disconnected(block_when_disconnected)?)
+        let should_save = Self::update_field(
+            &mut self.settings.block_when_disconnected,
+            block_when_disconnected,
+        );
+        self.update(should_save)
     }
 
     pub fn set_auto_connect(&mut self, auto_connect: bool) -> Result<bool, Error> {
-        Ok(self.settings.set_auto_connect(auto_connect)?)
+        let should_save = Self::update_field(&mut self.settings.auto_connect, auto_connect);
+        self.update(should_save)
     }
 
     pub fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> Result<bool, Error> {
-        Ok(self.settings.set_openvpn_mssfix(openvpn_mssfix)?)
+        let should_save = Self::update_field(
+            &mut self.settings.tunnel_options.openvpn.mssfix,
+            openvpn_mssfix,
+        );
+        self.update(should_save)
     }
 
     pub fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> Result<bool, Error> {
-        Ok(self.settings.set_enable_ipv6(enable_ipv6)?)
+        let should_save = Self::update_field(
+            &mut self.settings.tunnel_options.generic.enable_ipv6,
+            enable_ipv6,
+        );
+        self.update(should_save)
     }
 
     pub fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<bool, Error> {
-        Ok(self.settings.set_wireguard_mtu(mtu)?)
+        let should_save = Self::update_field(&mut self.settings.tunnel_options.wireguard.mtu, mtu);
+        self.update(should_save)
     }
 
     pub fn set_wireguard_rotation_interval(
         &mut self,
         automatic_rotation: Option<u32>,
     ) -> Result<bool, Error> {
-        Ok(self
-            .settings
-            .set_wireguard_rotation_interval(automatic_rotation)?)
+        let should_save = Self::update_field(
+            &mut self.settings.tunnel_options.wireguard.automatic_rotation,
+            automatic_rotation,
+        );
+        self.update(should_save)
     }
 
-    pub fn set_show_beta_releases(&mut self, enabled: bool) -> Result<bool, Error> {
-        Ok(self.settings.set_show_beta_releases(enabled)?)
+    pub fn set_show_beta_releases(&mut self, show_beta_releases: bool) -> Result<bool, Error> {
+        let should_save = Self::update_field(
+            &mut self.settings.show_beta_releases,
+            Some(show_beta_releases),
+        );
+        self.update(should_save)
     }
 
     pub fn set_bridge_settings(&mut self, bridge_settings: BridgeSettings) -> Result<bool, Error> {
-        Ok(self.settings.set_bridge_settings(bridge_settings)?)
+        let should_save = Self::update_field(&mut self.settings.bridge_settings, bridge_settings);
+        self.update(should_save)
     }
 
     pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> Result<bool, Error> {
-        Ok(self.settings.set_bridge_state(bridge_state)?)
+        let should_save = self.settings.set_bridge_state(bridge_state);
+        self.update(should_save)
+    }
+
+    fn update_field<T: Eq>(field: &mut T, new_value: T) -> bool {
+        if *field != new_value {
+            *field = new_value;
+            true
+        } else {
+            false
+        }
+    }
+
+    fn update(&mut self, should_save: bool) -> Result<bool, Error> {
+        if should_save {
+            self.settings
+                .save()
+                .map(|_| true)
+                .map_err(Error::SettingsError)
+        } else {
+            Ok(false)
+        }
     }
 }
 
