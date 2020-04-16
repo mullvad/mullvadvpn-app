@@ -36,6 +36,7 @@ pub struct SettingsPersister {
 }
 
 impl SettingsPersister {
+    /// Loads user settings from file. If no file is present it returns the defaults.
     pub fn load() -> Self {
         let mut settings = Self::load_settings();
 

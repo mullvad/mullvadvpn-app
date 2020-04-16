@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{
     fs::{self, File},
-    io::{self, Read},
+    io,
     path::PathBuf,
 };
 use talpid_types::{
@@ -26,9 +26,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error(display = "Unable to create settings directory")]
     DirectoryError(#[error(source)] mullvad_paths::Error),
-
-    #[error(display = "Unable to read settings from {}", _0)]
-    ReadError(String, #[error(source)] io::Error),
 
     #[error(display = "Unable to remove settings file {}", _0)]
     DeleteError(String, #[error(source)] io::Error),
@@ -102,32 +99,6 @@ impl Default for Settings {
 }
 
 impl Settings {
-    /// Loads user settings from file. If no file is present it returns the defaults.
-    pub fn load() -> Result<Settings> {
-        let path = Self::get_settings_path()?;
-        match File::open(&path) {
-            Ok(file) => {
-                info!("Loading settings from {}", path.display());
-                let mut settings_bytes = vec![];
-                io::BufReader::new(file)
-                    .read_to_end(&mut settings_bytes)
-                    .map_err(|e| Error::ReadError("Failed to read settings file".to_owned(), e))?;
-                Self::load_from_bytes(&mut settings_bytes).or_else(|e| {
-                    log::error!(
-                        "{}",
-                        e.display_chain_with_msg("Failed to parse settings file")
-                    );
-                    let settings = migrations::try_migrate_settings(&settings_bytes)?;
-                    if let Err(e) = settings.save() {
-                        log::error!("Failed to save settings after migration: {}", e);
-                    }
-                    Ok(settings)
-                })
-            }
-            Err(e) => Err(Error::ReadError(path.display().to_string(), e)),
-        }
-    }
-
     pub fn load_from_bytes(bytes: &[u8]) -> Result<Self> {
         serde_json::from_slice(bytes).map_err(Error::ParseError)
     }
