@@ -1,4 +1,4 @@
-use log::{debug, info};
+use log::{debug, error, info};
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     settings::Settings,
@@ -12,13 +12,10 @@ use std::{
 use talpid_types::ErrorExt;
 
 #[cfg(not(target_os = "android"))]
-use {std::fs, talpid_types::ErrorExt};
+use std::fs;
 
 #[cfg(windows)]
-use {
-    log::{error, warn},
-    talpid_core::logging::windows::log_sink,
-};
+use {log::warn, talpid_core::logging::windows::log_sink};
 
 
 static SETTINGS_FILE: &str = "settings.json";
@@ -54,23 +51,29 @@ impl SettingsPersister {
     /// Loads user settings from file. If no file is present it returns the defaults.
     pub fn load(settings_dir: &Path) -> Self {
         let path = settings_dir.join(SETTINGS_FILE);
-        let settings = Self::load_settings(&path);
-        let mut persister = SettingsPersister { settings, path };
+        let (mut settings, mut should_save) = Self::load_settings(&path);
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
-            if Self::update_field(
-                &mut persister.settings.tunnel_options.generic.enable_ipv6,
-                true,
-            ) {
-                let _ = persister.save();
+            should_save |=
+                Self::update_field(&mut settings.tunnel_options.generic.enable_ipv6, true);
+        }
+
+        let mut persister = SettingsPersister { settings, path };
+
+        if should_save {
+            if let Err(error) = persister.save() {
+                error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to save updated settings")
+                );
             }
         }
 
         persister
     }
 
-    fn load_settings(path: &Path) -> Settings {
+    fn load_settings(path: &Path) -> (Settings, bool) {
         Self::load_settings_from_file(path)
             .or_else(|error| match error {
                 #[cfg(windows)]
@@ -81,11 +84,11 @@ impl SettingsPersister {
             })
             .unwrap_or_else(|_| {
                 info!("Failed to load settings, using defaults");
-                Settings::default()
+                (Settings::default(), true)
             })
     }
 
-    fn load_settings_from_file(path: &Path) -> Result<Settings, LoadSettingsError> {
+    fn load_settings_from_file(path: &Path) -> Result<(Settings, bool), LoadSettingsError> {
         let file = File::open(path).map_err(|error| {
             if error.kind() == io::ErrorKind::NotFound {
                 LoadSettingsError::FileNotFound
@@ -101,18 +104,21 @@ impl SettingsPersister {
             .map_err(|_| LoadSettingsError::Other)?;
 
         Settings::load_from_bytes(&settings_bytes)
+            .map(|settings| (settings, false))
             .or_else(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to parse settings file")
                 );
-                Settings::migrate_from_bytes(&settings_bytes)
+                Settings::migrate_from_bytes(&settings_bytes).map(|settings| (settings, true))
             })
             .map_err(|_| LoadSettingsError::Other)
     }
 
     #[cfg(windows)]
-    fn try_load_settings_after_windows_update(path: &Path) -> Result<Settings, LoadSettingsError> {
+    fn try_load_settings_after_windows_update(
+        path: &Path,
+    ) -> Result<(Settings, bool), LoadSettingsError> {
         info!("No settings file found. Attempting migration from Windows Update backup location");
 
         if Self::migrate_after_windows_update() {
