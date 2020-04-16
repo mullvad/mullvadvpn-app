@@ -186,7 +186,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun prepareFiles() {
-        FileMigrator("/data/data/net.mullvad.mullvadvpn", filesDir).apply {
+        FileMigrator(File("/data/data/net.mullvad.mullvadvpn"), filesDir).apply {
             migrate(API_ROOT_CA_FILE)
             migrate(RELAYS_FILE)
             migrate("settings.json")
