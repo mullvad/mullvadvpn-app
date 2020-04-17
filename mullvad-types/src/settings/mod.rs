@@ -58,22 +58,22 @@ pub struct Settings {
     account_token: Option<String>,
     relay_settings: RelaySettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
-    bridge_settings: BridgeSettings,
+    pub bridge_settings: BridgeSettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
     bridge_state: BridgeState,
     /// If the daemon should allow communication with private (LAN) networks.
-    allow_lan: bool,
+    pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
     /// the firewall to not allow any traffic in or out.
     #[cfg_attr(target_os = "android", jnix(skip))]
-    block_when_disconnected: bool,
+    pub block_when_disconnected: bool,
     /// If the daemon should connect the VPN tunnel directly on start or not.
-    auto_connect: bool,
+    pub auto_connect: bool,
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
-    tunnel_options: TunnelOptions,
+    pub tunnel_options: TunnelOptions,
     /// Whether to notify users of beta updates.
-    show_beta_releases: Option<bool>,
+    pub show_beta_releases: Option<bool>,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     settings_version: migrations::SettingsVersion,
@@ -219,10 +219,6 @@ impl Settings {
         }
     }
 
-    pub fn get_allow_lan(&self) -> bool {
-        self.allow_lan
-    }
-
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool> {
         if allow_lan != self.allow_lan {
             self.allow_lan = allow_lan;
@@ -232,10 +228,6 @@ impl Settings {
         }
     }
 
-    pub fn get_block_when_disconnected(&self) -> bool {
-        self.block_when_disconnected
-    }
-
     pub fn set_block_when_disconnected(&mut self, block_when_disconnected: bool) -> Result<bool> {
         if block_when_disconnected != self.block_when_disconnected {
             self.block_when_disconnected = block_when_disconnected;
@@ -243,10 +235,6 @@ impl Settings {
         } else {
             Ok(false)
         }
-    }
-
-    pub fn get_auto_connect(&self) -> bool {
-        self.auto_connect
     }
 
     pub fn set_auto_connect(&mut self, auto_connect: bool) -> Result<bool> {
@@ -297,14 +285,6 @@ impl Settings {
         }
     }
 
-    pub fn get_tunnel_options(&self) -> &TunnelOptions {
-        &self.tunnel_options
-    }
-
-    pub fn get_show_beta_releases(&self) -> Option<bool> {
-        self.show_beta_releases.clone()
-    }
-
     pub fn set_show_beta_releases(&mut self, enabled: bool) -> Result<bool> {
         if Some(enabled) != self.show_beta_releases {
             self.show_beta_releases = Some(enabled);
@@ -312,10 +292,6 @@ impl Settings {
         } else {
             Ok(false)
         }
-    }
-
-    pub fn get_bridge_settings(&self) -> &BridgeSettings {
-        &self.bridge_settings
     }
 
     pub fn set_bridge_settings(&mut self, bridge_settings: BridgeSettings) -> Result<bool> {
