@@ -1,4 +1,5 @@
 use log::info;
+use std::ops::{Deref, DerefMut};
 
 #[cfg(windows)]
 use {
@@ -10,8 +11,27 @@ use {
 
 pub use mullvad_types::settings::*;
 
-pub fn load() -> Settings {
-    match Settings::load() {
+#[derive(Debug)]
+pub struct SettingsPersister {
+    settings: Settings,
+}
+
+impl Deref for SettingsPersister {
+    type Target = Settings;
+
+    fn deref(&self) -> &Self::Target {
+        &self.settings
+    }
+}
+
+impl DerefMut for SettingsPersister {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.settings
+    }
+}
+
+pub fn load() -> SettingsPersister {
+    let settings = match Settings::load() {
         Ok(mut settings) => {
             // Force IPv6 to be enabled on Android
             if cfg!(target_os = "android") {
@@ -44,7 +64,9 @@ pub fn load() -> Settings {
             info!("Failed to load settings, using defaults");
             Settings::default()
         }
-    }
+    };
+
+    SettingsPersister { settings }
 }
 
 #[cfg(windows)]

@@ -37,11 +37,12 @@ use mullvad_types::{
         RelaySettingsUpdate,
     },
     relay_list::{Relay, RelayList},
+    settings::Settings,
     states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
     wireguard::KeygenEvent,
 };
-use settings::Settings;
+use settings::SettingsPersister;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
 use std::{
@@ -436,7 +437,7 @@ pub struct Daemon<L: EventListener> {
     tx: DaemonEventSender,
     reconnection_loop_tx: Option<mpsc::Sender<()>>,
     event_listener: L,
-    settings: Settings,
+    settings: SettingsPersister,
     account_history: account_history::AccountHistory,
     wg_key_proxy: WireguardKeyProxy<HttpHandle>,
     accounts_proxy: AccountsProxy<HttpHandle>,
