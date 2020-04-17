@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add shell completions for the mullvad CLI.
+
 ### Fixed
 #### Windows
 - Improve offline detection logic.
