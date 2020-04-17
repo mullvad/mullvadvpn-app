@@ -1,5 +1,6 @@
 #![deny(rust_2018_idioms)]
 
+use futures01::Future;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -12,7 +13,6 @@ use std::{
     path::{Path, PathBuf},
 };
 use talpid_types::ErrorExt;
-use tokio_core::reactor::Core;
 
 
 pub mod metadata;
@@ -62,11 +62,11 @@ pub enum Error {
         source: io::Error,
     },
 
-    #[error(display = "Unable to create JSON-RPC 2.0 client")]
-    CreateRpcClientError(#[error(source)] mullvad_rpc::HttpError),
+    #[error(display = "Unable to create REST client")]
+    CreateRpcClientError(#[error(source)] mullvad_rpc::Error),
 
     #[error(display = "Error during RPC call")]
-    SendRpcError(#[error(source)] mullvad_rpc::Error),
+    SendRpcError(#[error(source)] mullvad_rpc::rest::Error),
 }
 
 /// These are errors that can happen during problem report collection.
@@ -255,14 +255,13 @@ pub fn send_problem_report(
 
     let ca_path = mullvad_paths::resources::get_api_ca_path();
 
-    let mut core = Core::new().unwrap();
-    let mut rpc_manager = mullvad_rpc::MullvadRpcFactory::new(ca_path);
-    let rpc_http_handle = rpc_manager
-        .new_connection_on_event_loop(&core.handle())
+    let mut rpc_manager = mullvad_rpc::MullvadRpcRuntime::new(ca_path.as_ref())
         .map_err(Error::CreateRpcClientError)?;
-    let mut rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_http_handle);
+    let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());
 
-    core.run(rpc_client.problem_report(user_email, user_message, &report_content, &metadata))
+    rpc_client
+        .problem_report(user_email, user_message, &report_content, &metadata)
+        .wait()
         .map_err(Error::SendRpcError)
 }
 
