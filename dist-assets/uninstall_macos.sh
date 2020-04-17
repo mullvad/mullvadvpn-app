@@ -18,15 +18,15 @@ DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
 sudo launchctl unload -w "$DAEMON_PLIST_PATH"
 sudo rm -f "$DAEMON_PLIST_PATH"
 
-echo "Removing app from /Applications ..."
-sudo rm -rf /Applications/Mullvad\ VPN.app
-sudo pkgutil --forget net.mullvad.vpn || true
-
 echo "Removing shell completion symlink ..."
 sudo rm -f /usr/local/share/zsh/site-functions/_mullvad
 
 echo "Removing CLI symlinks from /usr/local/bin/ ..."
 sudo rm -f /usr/local/bin/mullvad /usr/local/bin/mullvad-problem-report
+
+echo "Removing app from /Applications ..."
+sudo rm -rf /Applications/Mullvad\ VPN.app
+sudo pkgutil --forget net.mullvad.vpn || true
 
 read -p "Do you want to delete the log and cache files the app has created? (y/n) "
 if [[ "$REPLY" =~ [Yy]$ ]]; then
