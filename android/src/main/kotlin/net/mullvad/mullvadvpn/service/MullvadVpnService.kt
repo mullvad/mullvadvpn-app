@@ -185,8 +185,10 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun prepareFiles() {
-        FileResourceExtractor(API_ROOT_CA_FILE).extract(application)
-        FileResourceExtractor(RELAYS_FILE).extract(application)
+        FileResourceExtractor(this).apply {
+            extract(API_ROOT_CA_FILE)
+            extract(RELAYS_FILE)
+        }
     }
 
     private fun stop() {
