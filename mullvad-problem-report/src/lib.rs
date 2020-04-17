@@ -100,12 +100,22 @@ pub fn collect_report(
     extra_logs: &[&Path],
     output_path: &Path,
     redact_custom_strings: Vec<String>,
+    #[cfg(target_os = "android")] android_log_dir: &Path,
 ) -> Result<(), Error> {
     let mut problem_report = ProblemReport::new(redact_custom_strings);
 
-    let daemon_logs = mullvad_paths::get_log_dir()
-        .map_err(LogError::GetLogDir)
-        .and_then(list_logs);
+    let daemon_logs_dir = {
+        #[cfg(target_os = "android")]
+        {
+            Ok(android_log_dir.to_owned())
+        }
+        #[cfg(not(target_os = "android"))]
+        {
+            mullvad_paths::get_log_dir().map_err(LogError::GetLogDir)
+        }
+    };
+
+    let daemon_logs = daemon_logs_dir.and_then(list_logs);
     match daemon_logs {
         Ok(daemon_logs) => {
             let mut other_logs = Vec::new();
@@ -144,7 +154,7 @@ pub fn collect_report(
         None => {}
     }
     #[cfg(target_os = "android")]
-    match write_logcat_to_file() {
+    match write_logcat_to_file(android_log_dir) {
         Ok(logcat_path) => problem_report.add_log(&logcat_path),
         Err(error) => problem_report.add_error("Failed to collect logcat", &error),
     }
@@ -227,8 +237,8 @@ fn is_tunnel_log(path: &Path) -> bool {
 }
 
 #[cfg(target_os = "android")]
-fn write_logcat_to_file() -> Result<PathBuf, io::Error> {
-    let logcat_path = PathBuf::from("/data/data/net.mullvad.mullvadvpn/logcat.txt");
+fn write_logcat_to_file(log_dir: &Path) -> Result<PathBuf, io::Error> {
+    let logcat_path = log_dir.join("logcat.txt");
 
     duct::cmd!("logcat", "-d")
         .stderr_to_stdout()
