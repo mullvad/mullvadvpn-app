@@ -141,8 +141,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
-        FileResourceExtractor(API_ROOT_CA_FILE).extract(application)
-        FileResourceExtractor(RELAYS_FILE).extract(application)
+        prepareFiles()
 
         val newDaemon = MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
@@ -183,6 +182,11 @@ class MullvadVpnService : TalpidVpnService() {
             connectivityListener,
             newLocationInfoCache
         ))
+    }
+
+    private fun prepareFiles() {
+        FileResourceExtractor(API_ROOT_CA_FILE).extract(application)
+        FileResourceExtractor(RELAYS_FILE).extract(application)
     }
 
     private fun stop() {
