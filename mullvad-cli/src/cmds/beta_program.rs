@@ -29,7 +29,7 @@ impl Command for BetaProgram {
             ("get", Some(_)) => {
                 let mut rpc = new_rpc_client()?;
                 let settings = rpc.get_settings()?;
-                let enabled_str = if settings.get_show_beta_releases().unwrap_or(false) {
+                let enabled_str = if settings.show_beta_releases.unwrap_or(false) {
                     "on"
                 } else {
                     "off"

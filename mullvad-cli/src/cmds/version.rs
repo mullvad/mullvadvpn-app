@@ -20,7 +20,7 @@ impl Command for Version {
         println!("\tIs supported: {}", version_info.current_is_supported);
 
         let settings = rpc.get_settings()?;
-        let is_updated = if settings.get_show_beta_releases().unwrap_or(false) {
+        let is_updated = if settings.show_beta_releases.unwrap_or(false) {
             version_info.latest == current_version
         } else {
             version_info.latest_stable == current_version

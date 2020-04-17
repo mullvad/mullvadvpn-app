@@ -509,7 +509,7 @@ where
 
         let mut settings = SettingsPersister::load();
 
-        if version::is_beta_version() && settings.get_show_beta_releases().is_none() {
+        if version::is_beta_version() && settings.show_beta_releases.is_none() {
             let _ = settings.set_show_beta_releases(true);
         }
 
@@ -544,8 +544,8 @@ where
             tx: internal_event_tx.clone(),
         };
         let tunnel_command_tx = tunnel_state_machine::spawn(
-            settings.get_allow_lan(),
-            settings.get_block_when_disconnected(),
+            settings.allow_lan,
+            settings.block_when_disconnected,
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
@@ -567,7 +567,7 @@ where
         relay_selector.update();
 
         let initial_target_state = if settings.get_account_token().is_some() {
-            if settings.get_auto_connect() {
+            if settings.auto_connect {
                 // Note: Auto-connect overrides the cached target state
                 info!("Automatically connecting since auto-connect is turned on");
                 TargetState::Secured
@@ -612,7 +612,7 @@ where
                 token,
                 daemon
                     .settings
-                    .get_tunnel_options()
+                    .tunnel_options
                     .wireguard
                     .automatic_rotation
                     .map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64)),
@@ -758,7 +758,7 @@ where
                     self.last_generated_relay = None;
                     custom_relay
                         // TODO(emilsp): generate proxy settings for custom tunnels
-                        .to_tunnel_parameters(self.settings.get_tunnel_options().clone(), None)
+                        .to_tunnel_parameters(self.settings.tunnel_options.clone(), None)
                         .map_err(|e| {
                             log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
                             ParameterGenerationError::CustomTunnelHostResultionError
@@ -820,12 +820,12 @@ where
         account_token: String,
         retry_attempt: u32,
     ) -> Result<TunnelParameters, Error> {
-        let tunnel_options = self.settings.get_tunnel_options().clone();
+        let tunnel_options = self.settings.tunnel_options.clone();
         let location = relay.location.as_ref().expect("Relay has no location set");
         self.last_generated_bridge_relay = None;
         match endpoint {
             MullvadEndpoint::OpenVpn(endpoint) => {
-                let proxy_settings = match self.settings.get_bridge_settings() {
+                let proxy_settings = match &self.settings.bridge_settings {
                     BridgeSettings::Normal(settings) => {
                         let bridge_constraints = InternalBridgeConstraints {
                             location: settings.location.clone(),
@@ -1637,7 +1637,7 @@ where
                         &mut self.account_history,
                         account_token,
                         self.settings
-                            .get_tunnel_options()
+                            .tunnel_options
                             .wireguard
                             .automatic_rotation
                             .map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64)),

@@ -258,7 +258,7 @@ impl Tunnel {
 
     fn get_tunnel_options() -> Result<TunnelOptions> {
         let mut rpc = new_rpc_client()?;
-        Ok(rpc.get_settings()?.get_tunnel_options().clone())
+        Ok(rpc.get_settings()?.tunnel_options)
     }
 
     fn process_openvpn_mssfix_unset() -> Result<()> {
