@@ -165,7 +165,7 @@ impl Settings {
         })
     }
 
-    fn get_settings_path() -> Result<PathBuf> {
+    pub fn get_settings_path() -> Result<PathBuf> {
         let dir = ::mullvad_paths::settings_dir().map_err(Error::DirectoryError)?;
         Ok(dir.join(SETTINGS_FILE))
     }

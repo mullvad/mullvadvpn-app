@@ -1,18 +1,27 @@
 use log::info;
 use mullvad_types::settings::Settings;
 use std::{
-    io,
+    fs::File,
+    io::{self, BufReader, Read},
     ops::{Deref, DerefMut},
 };
+use talpid_types::ErrorExt;
 
 #[cfg(windows)]
 use {
     log::{error, warn},
-    std::io::ErrorKind,
     talpid_core::logging::windows::log_sink,
 };
 
 pub use mullvad_types::settings::Error;
+
+
+#[derive(Debug)]
+enum LoadSettingsError {
+    FileNotFound,
+    Other,
+}
+
 
 #[derive(Debug)]
 pub struct SettingsPersister {
@@ -30,7 +39,7 @@ impl SettingsPersister {
                 settings
             }
             #[cfg(windows)]
-            Err(error) if error.kind() == ErrorKind::NotFound => {
+            Err(LoadSettingsError::FileNotFound) => {
                 if Self::migrate_after_windows_update() {
                     match Settings::load() {
                         Ok(settings) => {
@@ -82,11 +91,31 @@ impl SettingsPersister {
         }
     }
 
-    fn load_settings_from_file() -> Result<Settings, io::Error> {
-        Settings::load().map_err(|error| match error {
-            Error::ReadError(_, io_error) => io_error,
-            _ => io::Error::new(io::ErrorKind::Other, "Failed to load settings"),
-        })
+    fn load_settings_from_file() -> Result<Settings, LoadSettingsError> {
+        let path = Settings::get_settings_path().unwrap();
+        let file = File::open(&path).map_err(|error| {
+            if error.kind() == io::ErrorKind::NotFound {
+                LoadSettingsError::FileNotFound
+            } else {
+                LoadSettingsError::Other
+            }
+        })?;
+
+        info!("Loading settings from {}", path.display());
+        let mut settings_bytes = vec![];
+        BufReader::new(file)
+            .read_to_end(&mut settings_bytes)
+            .map_err(|_| LoadSettingsError::Other)?;
+
+        Settings::load_from_bytes(&settings_bytes)
+            .or_else(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to parse settings file")
+                );
+                Settings::migrate_from_bytes(&settings_bytes)
+            })
+            .map_err(|_| LoadSettingsError::Other)
     }
 
     pub fn to_settings(&self) -> Settings {
