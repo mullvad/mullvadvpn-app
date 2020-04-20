@@ -258,6 +258,7 @@ describe('IAccountData cache', () => {
       expect(updateHandler).to.have.been.called.twice;
     });
   });
+
   it('should not perform a fetch if called twice synchronously', async () => {
     const fetchSpy = spy();
     const update = new Promise((resolve, _reject) => {
