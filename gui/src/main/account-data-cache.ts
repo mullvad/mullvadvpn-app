@@ -41,6 +41,8 @@ export default class AccountDataCache {
         this.watchers.push(watcher);
       }
 
+      this.clearFetchRetryTimeout();
+
       consumePromise(this.performFetch(accountToken));
     } else if (watcher) {
       watcher.onFinish();
@@ -48,17 +50,21 @@ export default class AccountDataCache {
   }
 
   public invalidate() {
-    if (this.fetchRetryTimeout) {
-      clearTimeout(this.fetchRetryTimeout);
-      this.fetchRetryTimeout = undefined;
-      this.fetchAttempt = 0;
-    }
+    this.clearFetchRetryTimeout();
 
     this.expiresAt = undefined;
     this.updateHandler();
     this.notifyWatchers((watcher) => {
       watcher.onError(new Error('Cancelled'));
     });
+  }
+
+  private clearFetchRetryTimeout() {
+    if (this.fetchRetryTimeout) {
+      clearTimeout(this.fetchRetryTimeout);
+      this.fetchRetryTimeout = undefined;
+      this.fetchAttempt = 0;
+    }
   }
 
   private setValue(value: IAccountData) {
