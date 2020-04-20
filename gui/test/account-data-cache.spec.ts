@@ -211,4 +211,51 @@ describe('IAccountData cache', () => {
       expect(nonExpiredSpy).to.have.been.called.once;
     });
   });
+
+  it('should clear scheduled retry if another fetch is performed', async () => {
+    const firstError = spy();
+    const secondSuccess = spy();
+    const updateHandler = spy();
+
+    const update = new Promise((resolve, reject) => {
+      let attempts = 0;
+      const fetch = () => {
+        attempts++;
+        if (attempts === 1) {
+          return Promise.reject(new Error('First attempt fails'));
+        } else if (attempts === 2) {
+          setTimeout(() => clock.tick(8000));
+          return Promise.resolve(dummyAccountData);
+        } else {
+          reject();
+          return Promise.resolve(dummyAccountData);
+        }
+      };
+
+      const cache = new AccountDataCache(fetch, updateHandler);
+
+      cache.fetch(dummyAccountToken, {
+        onFinish: () => {},
+        onError: (_error: Error) => {
+          firstError();
+          return AccountFetchRetryAction.retry;
+        },
+      });
+      setTimeout(() => {
+        cache.fetch(dummyAccountToken, {
+          onFinish: () => {
+            secondSuccess();
+            setTimeout(resolve);
+          },
+          onError: (_error: Error) => AccountFetchRetryAction.stop,
+        });
+      });
+    });
+
+    return expect(update).to.eventually.be.fulfilled.then(() => {
+      expect(firstError).to.have.been.called.once;
+      expect(secondSuccess).to.have.been.called.once;
+      expect(updateHandler).to.have.been.called.twice;
+    });
+  });
 });
