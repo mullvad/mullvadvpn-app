@@ -438,6 +438,7 @@ pub struct Daemon<L: EventListener> {
     account_history: account_history::AccountHistory,
     accounts_proxy: AccountsProxy,
     rpc_runtime: mullvad_rpc::MullvadRpcRuntime,
+    rpc_handle: mullvad_rpc::rest::MullvadRestHandle,
     wireguard_key_manager: wireguard::KeyManager,
     core_handle: event_loop::CoreHandle,
     relay_selector: relays::RelaySelector,
@@ -578,7 +579,8 @@ where
             settings,
             account_history,
             rpc_runtime,
-            accounts_proxy: AccountsProxy::new(rpc_handle),
+            accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
+            rpc_handle,
             wireguard_key_manager,
             core_handle,
             relay_selector,
@@ -688,6 +690,17 @@ where
     }
 
     fn handle_tunnel_state_transition(&mut self, tunnel_state_transition: TunnelStateTransition) {
+        match &tunnel_state_transition {
+            TunnelStateTransition::Disconnected
+            | TunnelStateTransition::Connected(_)
+            | TunnelStateTransition::Error(_) => {
+                // Reset the RPCs so that they fail immediately after the underlying socket gets
+                // invalidated due to the tunnel either coming up or breaking.
+                self.rpc_handle.service().reset();
+            }
+            _ => (),
+        };
+
         let tunnel_state = match tunnel_state_transition {
             TunnelStateTransition::Disconnected => TunnelState::Disconnected,
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
@@ -703,6 +716,7 @@ where
             }
             TunnelStateTransition::Error(error_state) => TunnelState::Error(error_state),
         };
+
 
         self.unschedule_reconnect();
 
