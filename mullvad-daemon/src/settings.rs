@@ -16,6 +16,12 @@ pub struct SettingsPersister {
     settings: Settings,
 }
 
+impl SettingsPersister {
+    pub fn to_settings(&self) -> Settings {
+        self.settings.clone()
+    }
+}
+
 impl Deref for SettingsPersister {
     type Target = Settings;
 
