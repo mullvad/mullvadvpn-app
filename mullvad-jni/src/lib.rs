@@ -18,6 +18,7 @@ use jnix::{
 };
 use lazy_static::lazy_static;
 use mullvad_daemon::{exception_logging, logging, version, Daemon, DaemonCommandChannel};
+use mullvad_rpc::rest::Error as RestError;
 use mullvad_types::account::AccountData;
 use std::{
     path::{Path, PathBuf},
@@ -75,13 +76,11 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
         match result {
             Ok(account_data) => GetAccountDataResult::Ok(account_data),
             Err(error) => match error {
-                daemon_interface::Error::RpcError(jsonrpc_client_core::Error(
-                    jsonrpc_client_core::ErrorKind::JsonRpcError(jsonrpc_core::Error {
-                        code: jsonrpc_core::ErrorCode::ServerError(-200),
-                        ..
-                    }),
-                    _,
-                )) => GetAccountDataResult::InvalidAccount,
+                daemon_interface::Error::RpcError(RestError::ApiError(status, _code))
+                    if status == mullvad_rpc::StatusCode::NOT_FOUND =>
+                {
+                    GetAccountDataResult::InvalidAccount
+                }
                 daemon_interface::Error::RpcError(_) => GetAccountDataResult::RpcError,
                 _ => GetAccountDataResult::OtherError,
             },
