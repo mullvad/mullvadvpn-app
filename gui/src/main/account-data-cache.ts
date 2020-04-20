@@ -41,6 +41,10 @@ export default class AccountDataCache {
         this.watchers.push(watcher);
       }
 
+      this.clearFetchRetryTimeout();
+      // If a scheduled retry is cancelled the fetchAttempt shouldn't be increased.
+      this.fetchAttempt = Math.max(0, this.fetchAttempt - 1);
+
       consumePromise(this.performFetch(accountToken));
     } else if (watcher) {
       watcher.onFinish();
@@ -48,17 +52,21 @@ export default class AccountDataCache {
   }
 
   public invalidate() {
-    if (this.fetchRetryTimeout) {
-      clearTimeout(this.fetchRetryTimeout);
-      this.fetchRetryTimeout = undefined;
-      this.fetchAttempt = 0;
-    }
+    this.clearFetchRetryTimeout();
+    this.fetchAttempt = 0;
 
     this.expiresAt = undefined;
     this.updateHandler();
     this.notifyWatchers((watcher) => {
       watcher.onError(new Error('Cancelled'));
     });
+  }
+
+  private clearFetchRetryTimeout() {
+    if (this.fetchRetryTimeout) {
+      clearTimeout(this.fetchRetryTimeout);
+      this.fetchRetryTimeout = undefined;
+    }
   }
 
   private setValue(value: IAccountData) {
