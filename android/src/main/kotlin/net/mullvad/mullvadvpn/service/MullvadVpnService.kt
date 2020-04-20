@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -185,6 +186,16 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun prepareFiles() {
+        FileMigrator(File("/data/data/net.mullvad.mullvadvpn"), filesDir).apply {
+            migrate(API_ROOT_CA_FILE)
+            migrate(RELAYS_FILE)
+            migrate("settings.json")
+            migrate("daemon.log")
+            migrate("daemon.old.log")
+            migrate("wireguard.log")
+            migrate("wireguard.old.log")
+        }
+
         FileResourceExtractor(this).apply {
             extract(API_ROOT_CA_FILE)
             extract(RELAYS_FILE)
