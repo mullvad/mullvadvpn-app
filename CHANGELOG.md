@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Change button colors on problem report no email confirmation dialog to match the desktop version.
+- Fix crash when attempting to run app from the non-default location, such as the SD card or from a
+  different user profile.
 
 ### Security
 #### macOS
