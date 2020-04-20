@@ -23,7 +23,7 @@ pub enum Error {
     NoSender,
 
     #[error(display = "Error performing RPC with the remote API")]
-    RpcError(#[error(source)] jsonrpc_client_core::Error),
+    RpcError(#[error(source)] mullvad_rpc::rest::Error),
 }
 
 type Result<T> = std::result::Result<T, Error>;

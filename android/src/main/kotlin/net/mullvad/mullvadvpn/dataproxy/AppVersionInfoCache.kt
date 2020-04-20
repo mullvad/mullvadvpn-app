@@ -35,7 +35,7 @@ class AppVersionInfoCache(
     val latest
         get() = appVersionInfo?.latest
     val isSupported
-        get() = appVersionInfo?.currentIsSupported ?: true
+        get() = appVersionInfo?.supported ?: true
 
     val isOutdated: Boolean
         get() {
