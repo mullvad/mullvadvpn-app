@@ -1255,7 +1255,8 @@ where
     fn set_account(&mut self, account_token: Option<String>) -> Result<bool, settings::Error> {
         let account_changed = self.settings.set_account_token(account_token.clone())?;
         if account_changed {
-            self.event_listener.notify_settings(self.settings.clone());
+            self.event_listener
+                .notify_settings(self.settings.to_settings());
 
             // Bump account history if a token was set
             if let Some(token) = account_token.clone() {
@@ -1355,7 +1356,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "update_relay_settings response");
                 if settings_changed {
-                    self.event_listener.notify_settings(self.settings.clone());
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
                     info!("Initiating tunnel restart because the relay settings changed");
                     self.reconnect_tunnel();
                 }
@@ -1370,7 +1372,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_allow_lan response");
                 if settings_changed {
-                    self.event_listener.notify_settings(self.settings.clone());
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
                     self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
                 }
             }
@@ -1384,7 +1387,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_show_beta_releases response");
                 if settings_changed {
-                    self.event_listener.notify_settings(self.settings.clone());
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
@@ -1403,7 +1407,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_block_when_disconnected response");
                 if settings_changed {
-                    self.event_listener.notify_settings(self.settings.clone());
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
                     self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
                         block_when_disconnected,
                     ));
@@ -1419,7 +1424,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set auto-connect response");
                 if settings_changed {
-                    self.event_listener.notify_settings(self.settings.clone());
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
@@ -1432,7 +1438,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_openvpn_mssfix response");
                 if settings_changed {
-                    self.event_listener.notify_settings(self.settings.clone());
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
                     if let Some(TunnelType::OpenVpn) = self.get_connected_tunnel_type() {
                         info!(
                             "Initiating tunnel restart because the OpenVPN mssfix setting changed"
@@ -1453,7 +1460,8 @@ where
         match self.settings.set_bridge_settings(new_settings) {
             Ok(settings_changes) => {
                 if settings_changes {
-                    self.event_listener.notify_settings(self.settings.clone());
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
                     self.reconnect_tunnel();
                 };
                 Self::oneshot_send(tx, Ok(()), "set_bridge_settings");
@@ -1477,7 +1485,8 @@ where
         let result = match self.settings.set_bridge_state(bridge_state) {
             Ok(settings_changed) => {
                 if settings_changed {
-                    self.event_listener.notify_settings(self.settings.clone());
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
                     log::info!("Initiating tunnel restart because bridge state changed");
                     self.reconnect_tunnel();
                 }
@@ -1501,7 +1510,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_enable_ipv6 response");
                 if settings_changed {
-                    self.event_listener.notify_settings(self.settings.clone());
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
                     info!("Initiating tunnel restart because the enable IPv6 setting changed");
                     self.reconnect_tunnel();
                 }
@@ -1516,7 +1526,8 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_wireguard_mtu response");
                 if settings_changed {
-                    self.event_listener.notify_settings(self.settings.clone());
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
                     if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
                         info!(
                             "Initiating tunnel restart because the WireGuard MTU setting changed"
@@ -1549,7 +1560,8 @@ where
                         );
                     }
 
-                    self.event_listener.notify_settings(self.settings.clone());
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
@@ -1697,7 +1709,7 @@ where
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
-        Self::oneshot_send(tx, self.settings.clone(), "get_settings response");
+        Self::oneshot_send(tx, self.settings.to_settings(), "get_settings response");
     }
 
     fn oneshot_send<T>(tx: oneshot::Sender<T>, t: T, msg: &'static str) {
