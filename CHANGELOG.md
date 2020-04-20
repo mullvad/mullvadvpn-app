@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Improve offline detection logic.
 
+#### Android
+- Change button colors on problem report no email confirmation dialog to match the desktop version.
+
 ### Security
 #### macOS
 - Ship native Node modules unpacked to prevent malware checks by macOS on each run. The malware
