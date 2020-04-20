@@ -15,9 +15,9 @@
               android:text="@string/confirm_no_email" />
     <Button android:id="@+id/send_button"
             android:text="@string/send_anyway"
-            style="@style/GreenButton" />
+            style="@style/RedButton" />
     <Button android:id="@+id/back_button"
             android:layout_marginTop="16dp"
             android:text="@string/back"
-            style="@style/RedButton" />
+            style="@style/BlueButton" />
 </LinearLayout>
