@@ -1458,6 +1458,7 @@ dependencies = [
  "mullvad-daemon 2020.4.0-beta2",
  "mullvad-paths 0.1.0",
  "mullvad-problem-report 2020.4.0-beta2",
+ "mullvad-rpc 0.1.0",
  "mullvad-types 0.1.0",
  "talpid-core 0.1.0",
  "talpid-types 0.1.0",
