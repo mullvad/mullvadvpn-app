@@ -21,10 +21,7 @@ export function loadTranslations(currentLocale: string, catalogue: Gettext) {
     preferredLocales.push(language);
   }
 
-  // NOTE: domain is not publicly exposed
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const domain = (catalogue as any).domain;
-
+  const domain = catalogue.domain;
   for (const locale of preferredLocales) {
     if (parseTranslation(locale, domain, catalogue)) {
       log.info(`Loaded translations ${locale}/${domain}`);
