@@ -41,6 +41,11 @@ export default class AccountDataCache {
         this.watchers.push(watcher);
       }
 
+      if (this.fetchRetryTimeout) {
+        clearTimeout(this.fetchRetryTimeout);
+        this.fetchRetryTimeout = undefined;
+      }
+
       consumePromise(this.performFetch(accountToken));
     } else if (watcher) {
       watcher.onFinish();
