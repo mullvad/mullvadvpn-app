@@ -258,4 +258,22 @@ describe('IAccountData cache', () => {
       expect(updateHandler).to.have.been.called.twice;
     });
   });
+  it('should not perform a fetch if called twice synchronously', async () => {
+    const fetchSpy = spy();
+    const update = new Promise((resolve, _reject) => {
+      const fetch = () => {
+        fetchSpy();
+        return Promise.resolve(dummyAccountData);
+      };
+
+      const cache = new AccountDataCache(fetch, () => {});
+      const onError = (_error: Error) => AccountFetchRetryAction.stop;
+      cache.fetch(dummyAccountToken, { onFinish: () => {}, onError });
+      cache.fetch(dummyAccountToken, { onFinish: () => resolve(), onError });
+    });
+
+    return expect(update).to.eventually.be.fulfilled.then(() => {
+      expect(fetchSpy).to.have.been.called.once;
+    });
+  });
 });
