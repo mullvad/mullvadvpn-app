@@ -19,6 +19,7 @@ interface IAccountFetchWatcher {
 export default class AccountDataCache {
   private currentAccount?: AccountToken;
   private expiresAt?: Date;
+  private performingFetch = false;
   private fetchAttempt = 0;
   private fetchRetryTimeout?: NodeJS.Timeout;
   private watchers: IAccountFetchWatcher[] = [];
@@ -35,7 +36,7 @@ export default class AccountDataCache {
       this.currentAccount = accountToken;
     }
 
-    // Only fetch is value has expired
+    // Only fetch if value has expired
     if (this.isExpired()) {
       if (watcher) {
         this.watchers.push(watcher);
@@ -45,7 +46,10 @@ export default class AccountDataCache {
       // If a scheduled retry is cancelled the fetchAttempt shouldn't be increased.
       this.fetchAttempt = Math.max(0, this.fetchAttempt - 1);
 
-      consumePromise(this.performFetch(accountToken));
+      // Only fetch if there's no fetch for this account number in progress.
+      if (!this.performingFetch) {
+        consumePromise(this.performFetch(accountToken));
+      }
     } else if (watcher) {
       watcher.onFinish();
     }
@@ -55,6 +59,7 @@ export default class AccountDataCache {
     this.clearFetchRetryTimeout();
     this.fetchAttempt = 0;
 
+    this.performingFetch = false;
     this.expiresAt = undefined;
     this.updateHandler();
     this.notifyWatchers((watcher) => {
@@ -80,6 +85,7 @@ export default class AccountDataCache {
   }
 
   private async performFetch(accountToken: AccountToken) {
+    this.performingFetch = true;
     try {
       // it's possible for invalidate() to be called or for a fetch for a different account token
       // to start before this fetch completes, so checking if the current account token is the one
@@ -89,10 +95,12 @@ export default class AccountDataCache {
       if (this.currentAccount === accountToken) {
         this.setValue(accountData);
         this.scheduleRefetchIfExpired(accountToken, accountData);
+        this.performingFetch = false;
       }
     } catch (error) {
       if (this.currentAccount === accountToken) {
         this.handleFetchError(accountToken, error);
+        this.performingFetch = false;
       }
     }
   }
