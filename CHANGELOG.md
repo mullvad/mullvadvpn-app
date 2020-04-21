@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 - Downgrade to Electron 7 due to issues with tray icon in Electron 8.
 
 ### Fixed
+- Allow IPv6 for WireGuard to work even when the MTU is set below the default value, but remains
+  above the minimum for IPv6
+
 #### Windows
 - Improve offline detection logic.
 

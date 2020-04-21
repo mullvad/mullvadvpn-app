@@ -19,9 +19,9 @@ pub struct Config {
     pub mtu: u16,
 }
 
-/// Smallest MTU that supports IPv6
-const SMALLEST_IPV6_MTU: u16 = 1380;
-const DEFAULT_MTU: u16 = SMALLEST_IPV6_MTU;
+/// Smallest MTU that supports IPv6 + WireGuard header length
+const SMALLEST_IPV6_MTU: u16 = 1280 + 12;
+const DEFAULT_MTU: u16 = 1380;
 
 /// Configuration errors
 #[derive(err_derive::Error, Debug)]
