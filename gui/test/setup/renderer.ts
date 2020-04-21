@@ -7,6 +7,7 @@ import chaiAsPromised from 'chai-as-promised';
 
 log.transports.console.level = false;
 log.transports.file.level = false;
+log.transports.mainConsole = null;
 
 chai.use(spies);
 chai.use(chaiAsPromised);

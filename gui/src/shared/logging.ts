@@ -42,7 +42,7 @@ export function setupLogging(logFile: string) {
   } else {
     // Configure logging to file
     log.transports.file.level = 'debug';
-    log.transports.file.resolvePath = (_variables) => logFile;
+    log.transports.file.file = logFile;
 
     log.debug(`Logging to ${logFile}`);
   }
