@@ -36,7 +36,7 @@ import {
   setupLogging,
 } from '../shared/logging';
 import consumePromise from '../shared/promise';
-import AccountDataCache, { AccountFetchRetryAction } from './account-data-cache';
+import AccountDataCache from './account-data-cache';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
 import {
   ConnectionObserver,
@@ -1139,13 +1139,11 @@ class ApplicationMain {
       this.accountDataCache.invalidate();
       this.accountDataCache.fetch(accountToken, {
         onFinish: () => resolve({ status: 'verified' }),
-        onError: (error): AccountFetchRetryAction => {
+        onError: (error) => {
           if (error instanceof InvalidAccountError) {
             reject(error);
-            return AccountFetchRetryAction.stop;
           } else {
             resolve({ status: 'deferred', error });
-            return AccountFetchRetryAction.retry;
           }
         },
       });
