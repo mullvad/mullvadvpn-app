@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add shell completions for the mullvad CLI.
 
+### Changed
+- Downgrade to Electron 7 due to issues with tray icon in Electron 8.
+
 ### Fixed
 #### Windows
 - Improve offline detection logic.
