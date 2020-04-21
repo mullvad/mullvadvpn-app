@@ -3,7 +3,7 @@ use std::{
     ffi::CString,
     net::{Ipv4Addr, Ipv6Addr},
 };
-use talpid_types::net::{wireguard, GenericTunnelOptions};
+use talpid_types::net::wireguard;
 
 /// Config required to set up a single WireGuard tunnel
 pub struct Config {
@@ -19,9 +19,7 @@ pub struct Config {
     pub mtu: u16,
 }
 
-/// Smallest MTU that supports IPv6
-const SMALLEST_IPV6_MTU: u16 = 1380;
-const DEFAULT_MTU: u16 = SMALLEST_IPV6_MTU;
+const DEFAULT_MTU: u16 = 1380;
 
 /// Configuration errors
 #[derive(err_derive::Error, Debug)]
@@ -49,41 +47,27 @@ impl Config {
             peer,
             &params.connection,
             &params.options,
-            &params.generic_options,
         )
     }
 
     /// Constructs a new Config struct
     pub fn new(
-        mut tunnel: wireguard::TunnelConfig,
+        tunnel: wireguard::TunnelConfig,
         mut peers: Vec<wireguard::PeerConfig>,
         connection_config: &wireguard::ConnectionConfig,
         wg_options: &wireguard::TunnelOptions,
-        generic_options: &GenericTunnelOptions,
     ) -> Result<Config, Error> {
         if peers.is_empty() {
             return Err(Error::NoPeersSuppliedError);
         }
         let mtu = wg_options.mtu.unwrap_or(DEFAULT_MTU);
-        let is_ipv6_enabled = mtu >= SMALLEST_IPV6_MTU && generic_options.enable_ipv6;
-
         for peer in &mut peers {
-            peer.allowed_ips = peer
-                .allowed_ips
-                .iter()
-                .cloned()
-                .filter(|ip| ip.is_ipv4() || is_ipv6_enabled)
-                .collect();
+            peer.allowed_ips = peer.allowed_ips.clone();
             if peer.allowed_ips.is_empty() {
                 return Err(Error::InvalidPeerIpError);
             }
         }
 
-        tunnel.addresses = tunnel
-            .addresses
-            .into_iter()
-            .filter(|ip| ip.is_ipv4() || is_ipv6_enabled)
-            .collect();
         if tunnel.addresses.is_empty() {
             return Err(Error::InvalidTunnelIpError);
         }
@@ -92,12 +76,7 @@ impl Config {
             tunnel,
             peers,
             ipv4_gateway: connection_config.ipv4_gateway,
-            // Only set the v6 gateway if setting a v6 gateway makes sense
-            ipv6_gateway: if is_ipv6_enabled {
-                connection_config.ipv6_gateway
-            } else {
-                None
-            },
+            ipv6_gateway: connection_config.ipv6_gateway,
             mtu,
         })
     }
