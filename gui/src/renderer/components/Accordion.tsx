@@ -1,137 +1,93 @@
 import * as React from 'react';
-import { Animated, Component, Styles, Types, UserInterface, View } from 'reactxp';
-import consumePromise from '../../shared/promise';
+import styled from 'styled-components';
 
 interface IProps {
   expanded: boolean;
   animationDuration: number;
-  style?: Types.AnimatedViewStyleRuleSet;
   children?: React.ReactNode;
 }
 
 interface IState {
-  applyAnimatedStyle: boolean;
   mountChildren: boolean;
+  containerHeight: string;
 }
 
-const containerOverflowStyle = Styles.createViewStyle({ overflow: 'hidden' });
+const Container = styled.div((props: { height: string; animationDuration: number }) => ({
+  display: 'flex',
+  height: props.height,
+  overflow: 'hidden',
+  transition: `height ${props.animationDuration}ms ease-in-out`,
+}));
 
-export default class Accordion extends Component<IProps, IState> {
+const Content = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  height: 'fit-content',
+});
+
+export default class Accordion extends React.Component<IProps, IState> {
+  private containerRef = React.createRef<HTMLDivElement>();
+
   public static defaultProps = {
     expanded: true,
     animationDuration: 350,
   };
 
   public state: IState = {
-    applyAnimatedStyle: false,
-    mountChildren: false,
+    mountChildren: this.props.expanded,
+    containerHeight: this.props.expanded ? 'auto' : '0',
   };
 
-  private heightValue = Animated.createValue(0);
-  private animatedStyle = Styles.createAnimatedViewStyle({
-    height: this.heightValue,
-  });
-
-  private containerRef = React.createRef<Animated.View>();
-  private contentRef = React.createRef<View>();
-  private animation?: Types.Animated.CompositeAnimation = undefined;
-
-  constructor(props: IProps) {
-    super(props);
-
-    this.state = {
-      applyAnimatedStyle: !props.expanded,
-      mountChildren: props.expanded,
-    };
-  }
-
-  public componentWillUnmount() {
-    if (this.animation) {
-      this.animation.stop();
-    }
-  }
-
-  public componentDidUpdate(oldProps: IProps, oldState: IState) {
-    if (this.props.expanded !== oldProps.expanded) {
-      // make sure the children are mounted first before expanding the accordion
-      if (this.props.expanded && !this.state.mountChildren) {
-        this.setState({ mountChildren: true });
-      } else {
-        consumePromise(this.animate(this.props.expanded));
-      }
-    } else if (this.state.mountChildren && !oldState.mountChildren) {
-      // run animations once the children are mounted
-      consumePromise(this.animate(this.props.expanded));
+  public componentDidUpdate(oldProps: IProps) {
+    if (this.props.expanded && !oldProps.expanded) {
+      this.expand();
+    } else if (!this.props.expanded && oldProps.expanded) {
+      this.collapse();
     }
   }
 
   public render() {
-    const { style, children, expanded, animationDuration, ...otherProps } = this.props;
-    const containerStyles = this.state.applyAnimatedStyle
-      ? [style, containerOverflowStyle, this.animatedStyle]
-      : [style];
-
     return (
-      <Animated.View {...otherProps} style={containerStyles} ref={this.containerRef}>
-        <View ref={this.contentRef}>{this.state.mountChildren && children}</View>
-      </Animated.View>
+      <Container
+        ref={this.containerRef}
+        height={this.state.containerHeight}
+        animationDuration={this.props.animationDuration}
+        onTransitionEnd={this.onTransitionEnd}>
+        <Content>{this.state.mountChildren && this.props.children}</Content>
+      </Container>
     );
   }
 
-  private async animate(expand: boolean) {
-    const containerView = this.containerRef.current;
-    const contentView = this.contentRef.current;
-    if (!containerView || !contentView) {
-      return;
+  private expand() {
+    // Make sure the children are mounted first before expanding the accordion
+    if (!this.state.mountChildren) {
+      this.setState({ mountChildren: true }, () => {
+        this.setState({ containerHeight: this.getContentHeight() });
+      });
+    } else {
+      this.setState({ containerHeight: this.getContentHeight() });
     }
+  }
 
-    if (this.animation) {
-      this.animation.stop();
-      this.animation = undefined;
-    }
-
-    const containerLayout = await UserInterface.measureLayoutRelativeToWindow(containerView);
-    const contentLayout = await UserInterface.measureLayoutRelativeToAncestor(
-      contentView,
-      containerView,
-    );
-
-    // the content is expanded when the animated style is not applied,
-    // so reset the initial animated value to the current layout's height.
-    if (!this.state.applyAnimatedStyle) {
-      this.heightValue.setValue(containerLayout.height);
-    }
-
-    const toValue = expand ? contentLayout.height : 0;
-
-    // calculate the animation duration based on travel distance
-    const multiplier =
-      Math.abs(toValue - containerLayout.height) / Math.max(1, contentLayout.height);
-    const duration = Math.ceil(this.props.animationDuration * multiplier);
-
-    const animation = Animated.timing(this.heightValue, {
-      toValue,
-      easing: Animated.Easing.InOut(),
-      duration,
-      useNativeDriver: true,
-    });
-
-    this.animation = animation;
-
-    const onAnimationEnd = ({ finished }: Types.Animated.EndResult) => {
-      if (finished) {
-        this.animation = undefined;
-
-        // reset the height after transition to let element layout naturally
-        // if animation finished without interruption
-        if (expand) {
-          this.setState({ applyAnimatedStyle: false });
-        }
-      }
-    };
-
-    this.setState({ applyAnimatedStyle: true }, () => {
-      animation.start(onAnimationEnd);
+  private collapse() {
+    // First change height to height in px since it's not possible to transition to/from auto
+    this.setState({ containerHeight: this.getContentHeight() }, () => {
+      // Make sure new height has been applied
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this.containerRef.current?.offsetHeight;
+      this.setState({ containerHeight: '0' });
     });
   }
+
+  private getContentHeight(): string {
+    return (this.containerRef.current?.scrollHeight ?? 0) + 'px';
+  }
+
+  private onTransitionEnd = () => {
+    if (this.props.expanded) {
+      // Height auto enables the container to grow if the content changes size
+      this.setState({ containerHeight: 'auto' });
+    }
+  };
 }
