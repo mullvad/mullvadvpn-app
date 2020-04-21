@@ -4,7 +4,6 @@ import log from 'electron-log';
 import mkdirp from 'mkdirp';
 import moment from 'moment';
 import * as path from 'path';
-import { sprintf } from 'sprintf-js';
 import * as uuid from 'uuid';
 import AccountExpiry from '../shared/account-expiry';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
@@ -373,7 +372,6 @@ class ApplicationMain {
         this.installGenericMenubarAppWindowHandlers(tray, windowController);
         this.installLinuxWindowCloseHandler(windowController);
         this.setLinuxAppMenu();
-        this.setLinuxTrayMenu(tray, windowController);
         window.setMenuBarVisibility(false);
         break;
       default:
@@ -1355,28 +1353,6 @@ class ApplicationMain {
       },
     ];
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-  }
-
-  private setLinuxTrayMenu(tray: Tray, windowController: WindowController) {
-    tray.setContextMenu(
-      Menu.buildFromTemplate([
-        {
-          label: sprintf(
-            // TRANSLATORS: The label displayed in the context menu that is opened when the user
-            // TRANSLATORS: clicks the icon in the linux system tray/status bar.
-            // TRANSLATORS: Available placeholder:
-            // TRANSLATORS: %(appname) - Name of the app, i.e. Mullvad VPN
-            messages.pgettext('status-icon-menu', 'Open %(appname)s'),
-            {
-              appname: app.getName(),
-            },
-          ),
-          click: () => {
-            windowController.show();
-          },
-        },
-      ]),
-    );
   }
 
   private addContextMenu(window: BrowserWindow) {
