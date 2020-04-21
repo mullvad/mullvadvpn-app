@@ -2,16 +2,14 @@ import log from 'electron-log';
 import moment from 'moment';
 import { AccountToken, IAccountData } from '../shared/daemon-rpc-types';
 import consumePromise from '../shared/promise';
+import { Scheduler } from '../shared/scheduler';
+import { InvalidAccountError } from './errors';
 
 const EXPIRED_ACCOUNT_REFRESH_PERIOD = 60_000;
 
-export enum AccountFetchRetryAction {
-  stop,
-  retry,
-}
 interface IAccountFetchWatcher {
   onFinish: () => void;
-  onError: (error: Error) => AccountFetchRetryAction;
+  onError: (error: Error) => void;
 }
 
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
@@ -20,8 +18,8 @@ export default class AccountDataCache {
   private currentAccount?: AccountToken;
   private expiresAt?: Date;
   private performingFetch = false;
-  private fetchAttempt = 0;
-  private fetchRetryTimeout?: NodeJS.Timeout;
+  private waitStrategy = new WaitStrategy();
+  private fetchRetryScheduler = new Scheduler();
   private watchers: IAccountFetchWatcher[] = [];
 
   constructor(
@@ -42,9 +40,9 @@ export default class AccountDataCache {
         this.watchers.push(watcher);
       }
 
-      this.clearFetchRetryTimeout();
+      this.fetchRetryScheduler.cancel();
       // If a scheduled retry is cancelled the fetchAttempt shouldn't be increased.
-      this.fetchAttempt = Math.max(0, this.fetchAttempt - 1);
+      this.waitStrategy.decrease();
 
       // Only fetch if there's no fetch for this account number in progress.
       if (!this.performingFetch) {
@@ -56,8 +54,8 @@ export default class AccountDataCache {
   }
 
   public invalidate() {
-    this.clearFetchRetryTimeout();
-    this.fetchAttempt = 0;
+    this.fetchRetryScheduler.cancel();
+    this.waitStrategy.reset();
 
     this.performingFetch = false;
     this.expiresAt = undefined;
@@ -65,13 +63,6 @@ export default class AccountDataCache {
     this.notifyWatchers((watcher) => {
       watcher.onError(new Error('Cancelled'));
     });
-  }
-
-  private clearFetchRetryTimeout() {
-    if (this.fetchRetryTimeout) {
-      clearTimeout(this.fetchRetryTimeout);
-      this.fetchRetryTimeout = undefined;
-    }
   }
 
   private setValue(value: IAccountData) {
@@ -95,6 +86,7 @@ export default class AccountDataCache {
       if (this.currentAccount === accountToken) {
         this.setValue(accountData);
         this.scheduleRefetchIfExpired(accountToken, accountData);
+        this.waitStrategy.reset();
         this.performingFetch = false;
       }
     } catch (error) {
@@ -113,24 +105,15 @@ export default class AccountDataCache {
   }
 
   private handleFetchError(accountToken: AccountToken, error: Error) {
-    let shouldRetry = true;
-
-    this.notifyWatchers((watcher) => {
-      if (watcher.onError(error) === AccountFetchRetryAction.stop) {
-        shouldRetry = false;
-      }
-    });
-
-    if (shouldRetry) {
+    this.notifyWatchers((w) => w.onError(error));
+    if (!(error instanceof InvalidAccountError)) {
       this.scheduleRetry(accountToken);
     }
   }
 
   private scheduleRetry(accountToken: AccountToken) {
-    this.fetchAttempt += 1;
-
-    // Max delay: 2^11 = 2048
-    const delay = Math.pow(2, Math.min(this.fetchAttempt + 2, 11)) * 1000;
+    this.waitStrategy.increase();
+    const delay = this.waitStrategy.delay();
 
     log.warn(`Failed to fetch account data. Retrying in ${delay} ms`);
 
@@ -138,13 +121,38 @@ export default class AccountDataCache {
   }
 
   private scheduleFetch(accountToken: AccountToken, delay: number) {
-    this.fetchRetryTimeout = global.setTimeout(() => {
-      this.fetchRetryTimeout = undefined;
+    this.fetchRetryScheduler.schedule(() => {
       consumePromise(this.performFetch(accountToken));
     }, delay);
   }
 
   private notifyWatchers(notify: (watcher: IAccountFetchWatcher) => void) {
     this.watchers.splice(0).forEach(notify);
+  }
+}
+
+const MAX_ATTEMPT = 9;
+
+class WaitStrategy {
+  private counter = 0;
+
+  public increase() {
+    if (this.counter < MAX_ATTEMPT) {
+      this.counter += 1;
+    }
+  }
+  public decrease() {
+    if (this.counter > 0) {
+      this.counter -= 1;
+    }
+  }
+
+  public reset() {
+    this.counter = 0;
+  }
+
+  public delay(): number {
+    // Max delay: 2^11 = 2048
+    return Math.pow(2, this.counter + 2) * 1000;
   }
 }
