@@ -28,7 +28,7 @@ val RFC3339_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSSSSSSSSS z
 class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     sealed class ActionState {
         class Idle(val verified: Boolean) : ActionState()
-        class Generating() : ActionState()
+        class Generating(val replacing: Boolean) : ActionState()
         class Verifying() : ActionState()
     }
 
@@ -46,6 +46,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 updateKeySpinners()
                 updateStatusMessage()
                 updateGenerateKeyButtonState()
+                updateGenerateKeyButtonText()
                 updateVerifyKeyButtonState()
                 updateVerifyingKeySpinner()
             }
@@ -268,7 +269,11 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun updateGenerateKeyButtonText() {
-        if (keyStatus is KeygenEvent.NewKey) {
+        val state = actionState
+        val replacingKey = state is ActionState.Generating && state.replacing
+        val hasKey = keyStatus is KeygenEvent.NewKey
+
+        if (hasKey || replacingKey) {
             generateKeyButton.setText(R.string.wireguard_replace_key)
         } else {
             generateKeyButton.setText(R.string.wireguard_generate_key)
@@ -304,7 +309,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private suspend fun onGenerateKeyPress() {
         synchronized(this) {
-            actionState = ActionState.Generating()
+            actionState = ActionState.Generating(keyStatus is KeygenEvent.NewKey)
             reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
         }
 
