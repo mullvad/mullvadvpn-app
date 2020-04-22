@@ -49,7 +49,7 @@ impl Lan {
 
     fn get(&self) -> Result<()> {
         let mut rpc = new_rpc_client()?;
-        let allow_lan = rpc.get_settings()?.get_allow_lan();
+        let allow_lan = rpc.get_settings()?.allow_lan;
         println!(
             "Local network sharing setting: {}",
             if allow_lan { "allow" } else { "block" }

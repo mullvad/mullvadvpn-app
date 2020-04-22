@@ -111,6 +111,8 @@ fn create_daemon(
     log_dir: Option<PathBuf>,
 ) -> Result<Daemon<ManagementInterfaceEventBroadcaster>, String> {
     let resource_dir = mullvad_paths::get_resource_dir();
+    let settings_dir = mullvad_paths::settings_dir()
+        .map_err(|e| e.display_chain_with_msg("Unable to get settings dir"))?;
     let cache_dir = mullvad_paths::cache_dir()
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
@@ -120,6 +122,7 @@ fn create_daemon(
     Daemon::start(
         log_dir,
         resource_dir,
+        settings_dir,
         cache_dir,
         event_listener,
         command_channel,

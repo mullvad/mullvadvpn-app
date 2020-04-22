@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -14,10 +15,7 @@ import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
 
 private const val API_ROOT_CA_FILE = "api_root_ca.pem"
-private const val API_ROOT_CA_PATH = "/data/data/net.mullvad.mullvadvpn/api_root_ca.pem"
-
 private const val RELAYS_FILE = "relays.json"
-private const val RELAYS_PATH = "/data/data/net.mullvad.mullvadvpn/relays.json"
 
 class MullvadVpnService : TalpidVpnService() {
     private enum class PendingAction {
@@ -144,11 +142,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
-        FileResourceExtractor(API_ROOT_CA_FILE, API_ROOT_CA_PATH)
-            .extract(application)
-
-        FileResourceExtractor(RELAYS_FILE, RELAYS_PATH)
-            .extract(application)
+        prepareFiles()
 
         val newDaemon = MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
@@ -189,6 +183,23 @@ class MullvadVpnService : TalpidVpnService() {
             connectivityListener,
             newLocationInfoCache
         ))
+    }
+
+    private fun prepareFiles() {
+        FileMigrator(File("/data/data/net.mullvad.mullvadvpn"), filesDir).apply {
+            migrate(API_ROOT_CA_FILE)
+            migrate(RELAYS_FILE)
+            migrate("settings.json")
+            migrate("daemon.log")
+            migrate("daemon.old.log")
+            migrate("wireguard.log")
+            migrate("wireguard.old.log")
+        }
+
+        FileResourceExtractor(this).apply {
+            extract(API_ROOT_CA_FILE)
+            extract(RELAYS_FILE)
+        }
     }
 
     private fun stop() {

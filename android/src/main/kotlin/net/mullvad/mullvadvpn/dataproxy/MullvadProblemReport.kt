@@ -7,9 +7,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 
-const val PROBLEM_REPORT_PATH = "/data/data/net.mullvad.mullvadvpn/problem_report.txt"
+const val PROBLEM_REPORT_FILE = "problem_report.txt"
 
-class MullvadProblemReport {
+class MullvadProblemReport(val logDirectory: File) {
+    private val problemReportPath = File(logDirectory, PROBLEM_REPORT_FILE)
+
     private var collectJob: Deferred<Boolean>? = null
     private var sendJob: Deferred<Boolean>? = null
 
@@ -38,7 +40,7 @@ class MullvadProblemReport {
             if (!isActive) {
                 collectJob = GlobalScope.async(Dispatchers.Default) {
                     deleteReportFile()
-                    collectReport(PROBLEM_REPORT_PATH)
+                    collectReport(logDirectory.absolutePath, problemReportPath.absolutePath)
                 }
             }
         }
@@ -51,7 +53,11 @@ class MullvadProblemReport {
             if (currentJob == null || currentJob.isCompleted) {
                 currentJob = GlobalScope.async(Dispatchers.Default) {
                     val result = (collectJob?.await() ?: false) &&
-                            sendProblemReport(userEmail, userMessage, PROBLEM_REPORT_PATH)
+                            sendProblemReport(
+                                userEmail,
+                                userMessage,
+                                problemReportPath.absolutePath
+                            )
 
                     if (result) {
                         deleteReportFile()
@@ -68,10 +74,10 @@ class MullvadProblemReport {
     }
 
     fun deleteReportFile() {
-        File(PROBLEM_REPORT_PATH).delete()
+        problemReportPath.delete()
     }
 
-    private external fun collectReport(reportPath: String): Boolean
+    private external fun collectReport(logDirectory: String, reportPath: String): Boolean
     private external fun sendProblemReport(
         userEmail: String,
         userMessage: String,

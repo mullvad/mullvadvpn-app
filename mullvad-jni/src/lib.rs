@@ -16,7 +16,6 @@ use jnix::{
     },
     FromJava, IntoJava, JnixEnv,
 };
-use lazy_static::lazy_static;
 use mullvad_daemon::{exception_logging, logging, version, Daemon, DaemonCommandChannel};
 use mullvad_types::account::AccountData;
 use std::{
@@ -29,12 +28,9 @@ use talpid_types::{android::AndroidContext, ErrorExt};
 
 const LOG_FILENAME: &str = "daemon.log";
 
-lazy_static! {
-    static ref LOG_INIT_RESULT: Result<PathBuf, String> =
-        start_logging().map_err(|error| error.display_chain());
-}
-
 static LOAD_CLASSES: Once = Once::new();
+static LOG_START: Once = Once::new();
+static mut LOG_INIT_RESULT: Option<Result<(), String>> = None;
 
 #[derive(Debug, err_derive::Error)]
 #[error(no_from)]
@@ -42,23 +38,14 @@ pub enum Error {
     #[error(display = "Failed to create global reference to Java object")]
     CreateGlobalReference(#[error(cause)] jnix::jni::errors::Error),
 
-    #[error(display = "Failed to get cache directory path")]
-    GetCacheDir(#[error(source)] mullvad_paths::Error),
-
     #[error(display = "Failed to get Java VM instance")]
     GetJvmInstance(#[error(cause)] jnix::jni::errors::Error),
-
-    #[error(display = "Failed to get log directory path")]
-    GetLogDir(#[error(source)] mullvad_paths::Error),
 
     #[error(display = "Failed to initialize the mullvad daemon")]
     InitializeDaemon(#[error(source)] mullvad_daemon::Error),
 
     #[error(display = "Failed to spawn the JNI event listener")]
     SpawnJniEventListener(#[error(source)] jni_event_listener::Error),
-
-    #[error(display = "Failed to start logger")]
-    StartLogging(#[error(source)] logging::Error),
 }
 
 #[derive(IntoJava)]
@@ -95,47 +82,67 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     env: JNIEnv<'_>,
     this: JObject<'_>,
     vpnService: JObject<'_>,
+    cacheDirectory: JObject<'_>,
+    resourceDirectory: JObject<'_>,
 ) {
     let env = JnixEnv::from(env);
+    let cache_dir = PathBuf::from(String::from_java(&env, cacheDirectory));
+    let resource_dir = PathBuf::from(String::from_java(&env, resourceDirectory));
 
-    match *LOG_INIT_RESULT {
-        Ok(ref log_dir) => {
+    match start_logging(&resource_dir) {
+        Ok(()) => {
             LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
 
-            if let Err(error) = initialize(&env, &this, &vpnService, log_dir.clone()) {
+            if let Err(error) = initialize(&env, &this, &vpnService, cache_dir, resource_dir) {
                 log::error!("{}", error.display_chain());
             }
         }
-        Err(ref message) => env
+        Err(message) => env
             .throw(message.as_str())
             .expect("Failed to throw exception"),
     }
 }
 
-fn start_logging() -> Result<PathBuf, Error> {
-    let log_dir = mullvad_paths::log_dir().map_err(Error::GetLogDir)?;
+fn start_logging(log_dir: &Path) -> Result<(), String> {
+    unsafe {
+        LOG_START.call_once(|| LOG_INIT_RESULT = Some(initialize_logging(log_dir)));
+        LOG_INIT_RESULT
+            .clone()
+            .expect("Logging not properly initialized")
+    }
+}
+
+fn initialize_logging(log_dir: &Path) -> Result<(), String> {
     let log_file = log_dir.join(LOG_FILENAME);
 
     logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
-        .map_err(Error::StartLogging)?;
+        .map_err(|error| error.display_chain_with_msg("Failed to start logger"))?;
     exception_logging::enable();
     log_panics::init();
     version::log_version();
 
-    Ok(log_dir)
+    Ok(())
 }
 
 fn initialize(
     env: &JnixEnv<'_>,
     this: &JObject<'_>,
     vpn_service: &JObject<'_>,
-    log_dir: PathBuf,
+    cache_dir: PathBuf,
+    resource_dir: PathBuf,
 ) -> Result<(), Error> {
     let android_context = create_android_context(env, *vpn_service)?;
     let daemon_command_channel = DaemonCommandChannel::new();
     let daemon_interface = Box::new(DaemonInterface::new(daemon_command_channel.sender()));
 
-    spawn_daemon(env, this, log_dir, daemon_command_channel, android_context)?;
+    spawn_daemon(
+        env,
+        this,
+        cache_dir,
+        resource_dir,
+        daemon_command_channel,
+        android_context,
+    )?;
 
     set_daemon_interface_address(env, this, Box::into_raw(daemon_interface) as jlong);
 
@@ -157,7 +164,8 @@ fn create_android_context(
 fn spawn_daemon(
     env: &JnixEnv<'_>,
     this: &JObject<'_>,
-    log_dir: PathBuf,
+    cache_dir: PathBuf,
+    resource_dir: PathBuf,
     command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
 ) -> Result<(), Error> {
@@ -169,8 +177,17 @@ fn spawn_daemon(
 
     thread::spawn(move || {
         let jvm = android_context.jvm.clone();
+        let daemon = Daemon::start(
+            Some(resource_dir.clone()),
+            resource_dir.clone(),
+            resource_dir,
+            cache_dir,
+            listener,
+            command_channel,
+            android_context,
+        );
 
-        match create_daemon(listener, log_dir, command_channel, android_context) {
+        match daemon {
             Ok(daemon) => {
                 let _ = tx.send(Ok(()));
                 match daemon.run() {
@@ -179,7 +196,7 @@ fn spawn_daemon(
                 }
             }
             Err(error) => {
-                let _ = tx.send(Err(error));
+                let _ = tx.send(Err(Error::InitializeDaemon(error)));
             }
         }
 
@@ -187,26 +204,6 @@ fn spawn_daemon(
     });
 
     rx.recv().unwrap()
-}
-
-fn create_daemon(
-    listener: JniEventListener,
-    log_dir: PathBuf,
-    command_channel: DaemonCommandChannel,
-    android_context: AndroidContext,
-) -> Result<Daemon<JniEventListener>, Error> {
-    let resource_dir = mullvad_paths::get_resource_dir();
-    let cache_dir = mullvad_paths::cache_dir().map_err(Error::GetCacheDir)?;
-
-    Daemon::start(
-        Some(log_dir),
-        resource_dir,
-        cache_dir,
-        listener,
-        command_channel,
-        android_context,
-    )
-    .map_err(Error::InitializeDaemon)
 }
 
 fn notify_daemon_stopped(jvm: Arc<JavaVM>, daemon_object: GlobalRef) {
@@ -801,13 +798,16 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateR
 pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemReport_collectReport(
     env: JNIEnv<'_>,
     _: JObject<'_>,
+    logDirectory: JString<'_>,
     outputPath: JString<'_>,
 ) -> jboolean {
     let env = JnixEnv::from(env);
+    let log_dir_string = String::from_java(&env, logDirectory);
+    let log_dir = Path::new(&log_dir_string);
     let output_path_string = String::from_java(&env, outputPath);
     let output_path = Path::new(&output_path_string);
 
-    match mullvad_problem_report::collect_report(&[], output_path, Vec::new()) {
+    match mullvad_problem_report::collect_report(&[], output_path, Vec::new(), log_dir) {
         Ok(()) => JNI_TRUE,
         Err(error) => {
             log::error!(

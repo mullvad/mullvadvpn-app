@@ -49,7 +49,7 @@ impl AutoConnect {
 
     fn get(&self) -> Result<()> {
         let mut rpc = new_rpc_client()?;
-        let auto_connect = rpc.get_settings()?.get_auto_connect();
+        let auto_connect = rpc.get_settings()?.auto_connect;
         println!("Autoconnect: {}", if auto_connect { "on" } else { "off" });
         Ok(())
     }

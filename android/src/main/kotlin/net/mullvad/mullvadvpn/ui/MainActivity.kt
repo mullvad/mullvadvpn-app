@@ -19,8 +19,9 @@ class MainActivity : FragmentActivity() {
         val KEY_SHOULD_CONNECT = "should_connect"
     }
 
-    val problemReport = MullvadProblemReport()
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
+
+    lateinit var problemReport: MullvadProblemReport
 
     private var service: MullvadVpnService.LocalBinder? = null
     private var serviceConnection: ServiceConnection? = null
@@ -64,6 +65,9 @@ class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        problemReport = MullvadProblemReport(filesDir)
+
         setContentView(R.layout.main)
 
         if (savedInstanceState == null) {

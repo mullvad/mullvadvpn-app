@@ -162,7 +162,7 @@ impl Bridge {
         let mut rpc = new_rpc_client()?;
         let settings = rpc.get_settings()?;
         println!("Bridge state - {}", settings.get_bridge_state());
-        match settings.get_bridge_settings() {
+        match settings.bridge_settings {
             BridgeSettings::Custom(proxy) => {
                 match proxy {
                     openvpn::ProxySettings::Local(local_proxy) => {

@@ -49,7 +49,7 @@ impl BlockWhenDisconnected {
 
     fn get(&self) -> Result<()> {
         let mut rpc = new_rpc_client()?;
-        let block_when_disconnected = rpc.get_settings()?.get_block_when_disconnected();
+        let block_when_disconnected = rpc.get_settings()?.block_when_disconnected;
         println!(
             "Network traffic will be {} when the VPN is disconnected",
             if block_when_disconnected {
