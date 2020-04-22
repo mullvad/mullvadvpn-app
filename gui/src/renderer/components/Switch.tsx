@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Animated, Component, GestureView, Styles, Types, View } from 'reactxp';
+import React from 'react';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
 
 interface IProps {
@@ -12,80 +12,42 @@ interface IState {
   isPressed: boolean;
 }
 
-const styles = {
-  holder: Styles.createViewStyle({
-    width: 52,
-    height: 32,
-    borderColor: colors.white,
-    borderWidth: 2,
-    borderStyle: 'solid',
-    borderRadius: 16,
-    padding: 2,
-  }),
-  knob: Styles.createViewStyle({
-    height: 24,
-    borderRadius: 24,
-  }),
-};
+const PAN_DISTANCE = 10;
 
-interface IPosition {
-  x: number;
-  y: number;
-}
+const SwitchContainer = styled.div({
+  position: 'relative',
+  width: '52px',
+  height: '32px',
+  borderColor: colors.white,
+  borderWidth: '2px',
+  borderStyle: 'solid',
+  borderRadius: '16px',
+  padding: '2px',
+});
 
-const SWITCH_DEFAULT_WIDTH = 24;
-const SWITCH_PRESSED_WIDTH = 28;
+const Knob = styled.div({}, (props: { isOn: boolean; isPressed: boolean }) => ({
+  position: 'absolute',
+  height: '24px',
+  borderRadius: '12px',
+  transition: 'all 200ms linear',
+  width: props.isPressed ? '28px' : '24px',
+  backgroundColor: props.isOn ? colors.green : colors.red,
+  // When enabled the button should be placed all the way to the right (100%) minus padding (2px).
+  left: props.isOn ? 'calc(100% - 2px)' : '2px',
+  // This moves the knob to the left making the right side aligned with the parent's right side.
+  transform: `translateX(${props.isOn ? '-100%' : '0'})`,
+}));
 
-export default class Switch extends Component<IProps, IState> {
-  public static defaultProps: Partial<IProps> = {
-    isOn: false,
-    onChange: undefined,
-  };
-
+export default class Switch extends React.Component<IProps, IState> {
   public state: IState = {
-    isOn: false,
+    isOn: this.props.isOn,
     isPressed: false,
   };
 
   private isPanning = false;
-  private startPos = { x: 0, y: 0 };
+  private startPos = 0;
   private startValue = false;
-
-  private translationValue = Animated.createValue(0);
-  private widthValue = Animated.createValue(SWITCH_DEFAULT_WIDTH);
-  private colorValue = Animated.createValue(0);
-  private interpolatedColorValue = Animated.interpolate(
-    this.colorValue,
-    [0, 1],
-    [colors.red, colors.green],
-  );
-  private animatedStyle = Styles.createAnimatedViewStyle({
-    width: this.widthValue,
-    backgroundColor: this.interpolatedColorValue,
-    transform: [
-      {
-        translateX: this.translationValue,
-      },
-    ],
-  });
-  private animation?: Types.Animated.CompositeAnimation;
-
-  constructor(props: IProps) {
-    super(props);
-
-    this.state.isOn = props.isOn;
-
-    if (props.isOn) {
-      this.translationValue.setValue(this.computeTranslation(props.isOn, false));
-      this.colorValue.setValue(1);
-    }
-  }
-
-  public componentWillUnmount() {
-    if (this.animation) {
-      this.animation.stop();
-    }
-  }
+  private changedDuringPan = false;
 
   public shouldComponentUpdate(nextProps: IProps, nextState: IState) {
     return (
@@ -95,131 +57,83 @@ export default class Switch extends Component<IProps, IState> {
     );
   }
 
-  public componentDidUpdate(prevProps: IProps, prevState: IState) {
+  public componentDidUpdate(prevProps: IProps, _prevState: IState) {
     if (
       this.props.isOn !== prevProps.isOn &&
       this.props.isOn !== this.state.isOn &&
       !this.isPanning
     ) {
       this.setState({ isOn: this.props.isOn });
-    } else if (prevState.isOn !== this.state.isOn || prevState.isPressed !== this.state.isPressed) {
-      this.animate();
     }
   }
 
   public render() {
     return (
-      <GestureView
-        preferredPan={Types.PreferredPanGesture.Horizontal}
-        onPanHorizontal={this.onPanHorizontal}
-        onTap={this.onTap}>
-        <View style={styles.holder}>
-          <Animated.View style={[styles.knob, this.animatedStyle]} />
-        </View>
-      </GestureView>
+      <SwitchContainer onClick={this.handleClick}>
+        <Knob
+          isOn={this.state.isOn}
+          isPressed={this.state.isPressed}
+          onMouseDown={this.handleMouseDown}
+        />
+      </SwitchContainer>
     );
   }
 
-  private onTap = (_gesture: Types.TapGestureState) => {
-    this.setState(
-      (state) => ({ isOn: !state.isOn, isPressed: false }),
-      () => {
-        this.notify();
-      },
-    );
-  };
-
-  private onPanHorizontal = (gesture: Types.PanGestureState) => {
-    if (this.isPanning) {
-      if (gesture.isComplete) {
-        this.isPanning = false;
-
-        this.setState({ isPressed: false }, () => {
-          if (this.startValue !== this.state.isOn) {
-            this.notify();
-          }
-        });
-      } else {
-        const currentPos = { x: gesture.clientX, y: gesture.clientY };
-        const nextOn = this.computeNextState(this.startPos, currentPos);
-
-        if (this.state.isOn !== nextOn) {
-          this.startPos = currentPos;
-
-          this.setState({ isOn: nextOn });
-        }
-      }
-    } else {
-      if (gesture.isComplete) {
-        return;
-      }
-
-      this.isPanning = true;
-      this.startPos = { x: gesture.clientX, y: gesture.clientY };
-      this.startValue = this.state.isOn;
-      this.setState({ isPressed: true });
+  private handleClick = () => {
+    if (!this.changedDuringPan) {
+      this.setState(
+        (state) => ({ isOn: !state.isOn, isPressed: false }),
+        () => this.notify(),
+      );
     }
   };
 
-  private computeNextState(initialPos: IPosition, currentPos: IPosition): boolean {
-    if (currentPos.x < initialPos.x && this.state.isOn) {
+  private handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    this.isPanning = true;
+    this.startValue = this.props.isOn;
+    this.startPos = event.clientX;
+    this.changedDuringPan = false;
+
+    document.addEventListener('mouseup', this.handleMouseUp);
+    document.addEventListener('mousemove', this.handleMouseMove);
+  };
+
+  private handleMouseUp = () => {
+    document.removeEventListener('mouseup', this.handleMouseUp);
+    document.removeEventListener('mousemove', this.handleMouseMove);
+
+    this.isPanning = false;
+    this.setState({ isPressed: false });
+
+    if (this.startValue !== this.state.isOn) {
+      this.notify();
+    }
+  };
+
+  private handleMouseMove = (event: MouseEvent) => {
+    if (this.isPanning) {
+      this.setState({ isPressed: true });
+
+      const nextOn = this.computeNextState(event.clientX);
+      if (this.state.isOn !== nextOn) {
+        this.startPos = event.clientX;
+        this.changedDuringPan = true;
+        this.setState({ isOn: nextOn });
+      }
+    }
+  };
+
+  private computeNextState(currentPos: number): boolean {
+    if (currentPos + PAN_DISTANCE < this.startPos && this.state.isOn) {
       return false;
-    } else if (currentPos.x > initialPos.x && !this.state.isOn) {
+    } else if (currentPos - PAN_DISTANCE > this.startPos && !this.state.isOn) {
       return true;
     } else {
       return this.state.isOn;
     }
   }
 
-  private computeKnobWidth(isPressed: boolean) {
-    return isPressed ? SWITCH_PRESSED_WIDTH : SWITCH_DEFAULT_WIDTH;
-  }
-
-  private computeTranslation(isOn: boolean, isPressed: boolean) {
-    if (isOn) {
-      return isPressed ? 16 : 20;
-    } else {
-      return 0;
-    }
-  }
-
-  private animate(onFinish?: (done: boolean) => void) {
-    const duration = 200;
-    const animation = Animated.parallel([
-      Animated.timing(this.translationValue, {
-        toValue: this.computeTranslation(this.state.isOn, this.state.isPressed),
-        duration,
-      }),
-      Animated.timing(this.widthValue, {
-        toValue: this.computeKnobWidth(this.state.isPressed),
-        duration,
-      }),
-      Animated.timing(this.colorValue, {
-        toValue: this.state.isOn ? 1 : 0,
-        duration,
-      }),
-    ]);
-
-    if (this.animation) {
-      this.animation.stop();
-    }
-
-    animation.start((options) => {
-      if (options.finished) {
-        this.animation = undefined;
-      }
-
-      if (onFinish) {
-        onFinish(options.finished);
-      }
-    });
-
-    this.animation = animation;
-  }
-
   private notify() {
-    if (this.props.onChange) {
-      this.props.onChange(this.state.isOn);
-    }
+    this.props.onChange?.(this.state.isOn);
   }
 }
