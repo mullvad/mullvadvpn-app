@@ -4,6 +4,7 @@
 #include "offlinemonitor.h"
 #include "routing/routemanager.h"
 #include "converters.h"
+#include "netconfig.h"
 #include <libshared/logging/logsinkadapter.h>
 #include <libshared/logging/unwind.h>
 #include <libshared/network/interfaceutils.h>
@@ -62,6 +63,34 @@ WinNet_EnsureBestMetric(
 		return WINNET_EBM_STATUS_FAILURE;
 	}
 };
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_EnableIpv6ForAdapter(
+	const wchar_t *deviceAlias,
+	MullvadLogSink logSink,
+	void *logSinkContext
+)
+{
+	try
+	{
+		if (nullptr == deviceAlias)
+		{
+			THROW_ERROR("Invalid argument: deviceAlias");
+		}
+
+		EnableIpv6ForAdapter(deviceAlias);
+		return true;
+	}
+	catch (const std::exception & err)
+	{
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
+		return false;
+	}
+	return false;
+}
 
 extern "C"
 WINNET_LINKAGE
