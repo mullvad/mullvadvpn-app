@@ -33,6 +33,22 @@ WinNet_EnsureBestMetric(
 	void *logSinkContext
 );
 
+enum WINNET_EI6_STATUS
+{
+	WINNET_EI6_STATUS_SUCCESS = 0,
+	WINNET_EI6_STATUS_FAILURE = 1,
+};
+
+extern "C"
+WINNET_LINKAGE
+WINNET_EI6_STATUS
+WINNET_API
+WinNet_EnableIpv6ForAdapter(
+	const wchar_t *deviceAlias,
+	MullvadLogSink logSink,
+	void *logSinkContext
+);
+
 enum WINNET_GTII_STATUS
 {
 	WINNET_GTII_STATUS_ENABLED = 0,
