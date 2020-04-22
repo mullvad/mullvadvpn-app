@@ -1,6 +1,7 @@
 LIBRARY winnet
 EXPORTS
 	WinNet_EnsureBestMetric
+	WinNet_EnableIpv6ForAdapter
 	WinNet_GetTapInterfaceIpv6Status
 	WinNet_GetTapInterfaceAlias
 	WinNet_ReleaseString
