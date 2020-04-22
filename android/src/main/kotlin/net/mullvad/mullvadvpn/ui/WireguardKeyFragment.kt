@@ -157,6 +157,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 keyStatus = newKeyStatus
             }
         }
+
+        actionState = ActionState.Idle(false)
     }
 
     override fun onSafelyPause() {
