@@ -42,12 +42,7 @@ impl Config {
     pub fn from_parameters(params: &wireguard::TunnelParameters) -> Result<Config, Error> {
         let tunnel = params.connection.tunnel.clone();
         let peer = vec![params.connection.peer.clone()];
-        Self::new(
-            tunnel,
-            peer,
-            &params.connection,
-            &params.options,
-        )
+        Self::new(tunnel, peer, &params.connection, &params.options)
     }
 
     /// Constructs a new Config struct
