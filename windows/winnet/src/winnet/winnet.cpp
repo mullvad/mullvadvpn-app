@@ -69,19 +69,19 @@ WINNET_LINKAGE
 bool
 WINNET_API
 WinNet_EnableIpv6ForAdapter(
-	const wchar_t *deviceAlias,
+	const wchar_t *deviceGuid,
 	MullvadLogSink logSink,
 	void *logSinkContext
 )
 {
 	try
 	{
-		if (nullptr == deviceAlias)
+		if (nullptr == deviceGuid)
 		{
-			THROW_ERROR("Invalid argument: deviceAlias");
+			THROW_ERROR("Invalid argument: deviceGuid");
 		}
 
-		EnableIpv6ForAdapter(deviceAlias);
+		EnableIpv6ForAdapter(deviceGuid);
 		return true;
 	}
 	catch (const std::exception & err)
@@ -160,6 +160,60 @@ WinNet_GetTapInterfaceAlias(
 		return true;
 	}
 	catch (const std::exception &err)
+	{
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
+		return false;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_InterfaceAliasToGuid(
+	const wchar_t *alias,
+	wchar_t **guid,
+	MullvadLogSink logSink,
+	void *logSinkContext
+)
+{
+	try
+	{
+		if (nullptr == guid)
+		{
+			THROW_ERROR("Invalid argument: guid");
+		}
+		if (nullptr == alias)
+		{
+			THROW_ERROR("Invalid argument: alias");
+		}
+
+		GUID tempGuid = { 0 };
+		NET_LUID luid = { 0 };
+
+		if (NO_ERROR != ConvertInterfaceAliasToLuid(alias, &luid))
+		{
+			THROW_ERROR("ConvertInterfaceAliasToLuid: invalid parameter");
+		}
+
+		if (NO_ERROR != ConvertInterfaceLuidToGuid(&luid, &tempGuid))
+		{
+			THROW_ERROR("ConvertInterfaceLuidToGuid: invalid parameter");
+		}
+
+		const auto guidStr = common::string::FormatGuid(tempGuid);
+
+		auto guidBuffer = new wchar_t[guidStr.size() + 1];
+		wcscpy(guidBuffer, guidStr.c_str());
+		*guid = guidBuffer;
+
+		return true;
+	}
+	catch (const std::exception & err)
 	{
 		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
 		return false;
