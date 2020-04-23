@@ -29,6 +29,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Downgrade to Electron 7 due to issues with tray icon in Electron 8.
 
+#### Android
+- Update the WireGuard Key screen so that it looks the same as on the desktop app. It is now reached
+  through the Advanced settings screen.
+
 ### Fixed
 - Enable IPv6 in WireGuard regardless of the specified MTU value, previously IPv6 was disabled if
   the MTU was below 1380.
