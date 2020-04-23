@@ -34,8 +34,8 @@ module.exports = {
     ],
     '@typescript-eslint/require-await': 'error',
     '@typescript-eslint/no-floating-promises': 'error',
+    '@typescript-eslint/no-unused-expressions': 'error',
     'no-return-await': 'error',
-    'no-unused-expressions': 'error',
 
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
