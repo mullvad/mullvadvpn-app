@@ -138,30 +138,11 @@ void SetIpv6BindingForBindName(INetCfg *netCfg, const std::wstring &bindName, bo
 	}
 }
 
-std::wstring FindAdapterGuidForAlias(const std::wstring &alias)
-{
-	const auto adapters = shared::network::InterfaceUtils::GetAllAdapters(
-		AF_UNSPEC,
-		GAA_FLAG_SKIP_UNICAST | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST
-	);
-	for (auto it = adapters.begin(); it != adapters.end(); ++it)
-	{
-		if (0 == it->alias().compare(alias))
-		{
-			return it->guid();
-		}
-	}
-
-	throw std::runtime_error("Cannot find GUID for given alias");
-}
-
 } // anonymous namespace
 
 
-void EnableIpv6ForAdapter(const std::wstring &alias)
+void EnableIpv6ForAdapter(const std::wstring &adapterGuid)
 {
-	std::wstring adapterGuid = FindAdapterGuidForAlias(alias);
-
 	//
 	// Initialize COM
 	//
@@ -190,7 +171,7 @@ void EnableIpv6ForAdapter(const std::wstring &alias)
 		nullptr,
 		CLSCTX_INPROC_SERVER,
 		IID_INetCfg,
-		reinterpret_cast<void**>(&netCfg)
+		reinterpret_cast<void **>(&netCfg)
 	);
 
 	if (S_OK != result)
@@ -204,7 +185,7 @@ void EnableIpv6ForAdapter(const std::wstring &alias)
 	scopeDest += [&netCfg]() { netCfg->Release(); };
 
 	INetCfgLock *netCfgLock = nullptr;
-	result = netCfg->QueryInterface(IID_INetCfgLock, reinterpret_cast<void**>(&netCfgLock));
+	result = netCfg->QueryInterface(IID_INetCfgLock, reinterpret_cast<void **>(&netCfgLock));
 
 	if (S_OK != result)
 	{

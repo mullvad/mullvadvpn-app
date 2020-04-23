@@ -3,7 +3,6 @@ use crate::logging;
 #[cfg(not(target_os = "android"))]
 use std::collections::HashMap;
 use std::{
-    ffi::OsString,
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::{Path, PathBuf},
@@ -348,14 +347,27 @@ fn try_enabling_ipv6(tunnel_parameters: &TunnelParameters) -> Result<()> {
         return Err(Error::EnableIpv6Error);
     }
 
-    let alias = match tunnel_parameters {
+    let guid_string: String;
+
+    let guid = match tunnel_parameters {
         TunnelParameters::OpenVpn(..) => {
-            crate::winnet::get_tap_interface_alias().map_err(Error::WinnetError)?
+            // TODO: This status check can be removed if it is certain
+            // that `enable_ipv6_for_adapter` is reliable.
+            let status =
+                crate::winnet::get_tap_interface_ipv6_status().map_err(Error::WinnetError)?;
+            if status {
+                return Ok(());
+            }
+
+            let alias = crate::winnet::get_tap_interface_alias().map_err(Error::WinnetError)?;
+            guid_string =
+                crate::winnet::interface_alias_to_guid(&alias).map_err(Error::WinnetError)?;
+            &guid_string
         }
-        TunnelParameters::Wireguard(..) => OsString::from("wg-mullvad"),
+        TunnelParameters::Wireguard(..) => "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}",
     };
 
-    crate::winnet::enable_ipv6_for_adapter(&alias).map_err(Error::WinnetError)
+    crate::winnet::enable_ipv6_for_adapter(&guid).map_err(Error::WinnetError)
 }
 
 #[cfg(target_os = "windows")]

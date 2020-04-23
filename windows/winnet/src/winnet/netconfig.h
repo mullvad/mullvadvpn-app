@@ -2,4 +2,4 @@
 
 #include <string>
 
-void EnableIpv6ForAdapter(const std::wstring &alias);
+void EnableIpv6ForAdapter(const std::wstring &guid);
