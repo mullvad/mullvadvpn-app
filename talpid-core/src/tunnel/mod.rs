@@ -10,6 +10,8 @@ use std::{
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
 use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
+#[cfg(target_os = "windows")]
+use talpid_types::ErrorExt;
 
 /// A module for all OpenVPN related tunnel management.
 #[cfg(not(target_os = "android"))]
@@ -207,22 +209,38 @@ impl TunnelMonitor {
 
     fn ensure_ipv6_can_be_used_if_enabled(tunnel_parameters: &TunnelParameters) -> Result<()> {
         let options = tunnel_parameters.get_generic_options();
-        if options.enable_ipv6 {
-            #[cfg(target_os = "windows")]
-            {
-                try_enabling_ipv6(tunnel_parameters)
+
+        #[cfg(target_os = "windows")]
+        match tunnel_parameters {
+            TunnelParameters::OpenVpn(..) => {
+                if options.enable_ipv6 {
+                    try_enabling_ipv6(tunnel_parameters)
+                } else {
+                    Ok(())
+                }
             }
-            #[cfg(not(target_os = "windows"))]
-            {
+            TunnelParameters::Wireguard(..) => {
+                // WireGuard always waits on an IPv6 interface,
+                // even if it's not in use
+                if let Err(e) = try_enabling_ipv6(tunnel_parameters) {
+                    log::error!("{}", e.display_chain_with_msg("Failed to enable IPv6"));
+                }
+                Ok(())
+            }
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            if options.enable_ipv6 {
                 let enabled = is_ipv6_enabled_in_os()?;
                 if enabled {
                     Ok(())
                 } else {
                     Err(Error::EnableIpv6Error)
                 }
+            } else {
+                Ok(())
             }
-        } else {
-            Ok(())
         }
     }
 
