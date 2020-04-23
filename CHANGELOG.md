@@ -29,9 +29,13 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Downgrade to Electron 7 due to issues with tray icon in Electron 8.
 
+#### Windows
+- When required, attempt to enable IPv6 for network adapters instead of failing.
+
 ### Fixed
 #### Windows
 - Improve offline detection logic.
+- Enable missing IPv6 interface on the WireGuard TUN adapter when it has been disabled by a users.
 
 #### Android
 - Change button colors on problem report no email confirmation dialog to match the desktop version.
