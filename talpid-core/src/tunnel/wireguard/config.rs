@@ -19,8 +19,6 @@ pub struct Config {
     pub mtu: u16,
 }
 
-/// Smallest MTU that supports IPv6
-const SMALLEST_IPV6_MTU: u16 = 1280;
 const DEFAULT_MTU: u16 = 1380;
 
 /// Configuration errors
@@ -65,25 +63,14 @@ impl Config {
             return Err(Error::NoPeersSuppliedError);
         }
         let mtu = wg_options.mtu.unwrap_or(DEFAULT_MTU);
-        let is_ipv6_enabled = mtu >= SMALLEST_IPV6_MTU && generic_options.enable_ipv6;
-
         for peer in &mut peers {
-            peer.allowed_ips = peer
-                .allowed_ips
-                .iter()
-                .cloned()
-                .filter(|ip| ip.is_ipv4() || is_ipv6_enabled)
-                .collect();
+            peer.allowed_ips = peer.allowed_ips.iter().cloned().collect();
             if peer.allowed_ips.is_empty() {
                 return Err(Error::InvalidPeerIpError);
             }
         }
 
-        tunnel.addresses = tunnel
-            .addresses
-            .into_iter()
-            .filter(|ip| ip.is_ipv4() || is_ipv6_enabled)
-            .collect();
+        tunnel.addresses = tunnel.addresses.into_iter().collect();
         if tunnel.addresses.is_empty() {
             return Err(Error::InvalidTunnelIpError);
         }
@@ -92,12 +79,7 @@ impl Config {
             tunnel,
             peers,
             ipv4_gateway: connection_config.ipv4_gateway,
-            // Only set the v6 gateway if setting a v6 gateway makes sense
-            ipv6_gateway: if is_ipv6_enabled {
-                connection_config.ipv6_gateway
-            } else {
-                None
-            },
+            ipv6_gateway: connection_config.ipv6_gateway,
             mtu,
         })
     }
