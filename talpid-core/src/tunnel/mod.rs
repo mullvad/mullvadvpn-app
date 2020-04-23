@@ -3,6 +3,7 @@ use crate::logging;
 #[cfg(not(target_os = "android"))]
 use std::collections::HashMap;
 use std::{
+    ffi::OsString,
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::{Path, PathBuf},
@@ -209,16 +210,17 @@ impl TunnelMonitor {
         let options = tunnel_parameters.get_generic_options();
         if options.enable_ipv6 {
             #[cfg(target_os = "windows")]
-            let enabled = match tunnel_parameters {
-                TunnelParameters::OpenVpn(_) => is_ipv6_enabled_in_os(true),
-                _ => is_ipv6_enabled_in_os(false),
-            }?;
+            {
+                try_enabling_ipv6(tunnel_parameters)
+            }
             #[cfg(not(target_os = "windows"))]
-            let enabled = is_ipv6_enabled_in_os()?;
-            if enabled {
-                Ok(())
-            } else {
-                Err(Error::EnableIpv6Error)
+            {
+                let enabled = is_ipv6_enabled_in_os()?;
+                if enabled {
+                    Ok(())
+                } else {
+                    Err(Error::EnableIpv6Error)
+                }
             }
         } else {
             Ok(())
@@ -325,6 +327,36 @@ impl InternalTunnelMonitor {
     }
 }
 
+
+#[cfg(target_os = "windows")]
+fn try_enabling_ipv6(tunnel_parameters: &TunnelParameters) -> Result<()> {
+    use winreg::{enums::*, RegKey};
+
+    const IPV6_DISABLED_ON_TUNNELS_MASK: u32 = 0x01;
+
+    // Check registry if IPv6 is disabled on tunnel interfaces, as documented in
+    // https://support.microsoft.com/en-us/help/929852/guidance-for-configuring-ipv6-in-windows-for-advanced-users
+    let globally_enabled = RegKey::predef(HKEY_LOCAL_MACHINE)
+        .open_subkey(r#"SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters"#)
+        .and_then(|ipv6_config| ipv6_config.get_value("DisabledComponents"))
+        .map(|ipv6_disabled_bits: u32| (ipv6_disabled_bits & IPV6_DISABLED_ON_TUNNELS_MASK) == 0)
+        .unwrap_or(true);
+
+    if !globally_enabled {
+        // TODO: Try to globally enable IPv6
+        log::debug!("IPv6 disabled in all tunnel interfaces");
+        return Err(Error::EnableIpv6Error);
+    }
+
+    let alias = match tunnel_parameters {
+        TunnelParameters::OpenVpn(..) => {
+            crate::winnet::get_tap_interface_alias().map_err(Error::WinnetError)?
+        }
+        TunnelParameters::Wireguard(..) => OsString::from("wg-mullvad"),
+    };
+
+    crate::winnet::enable_ipv6_for_adapter(&alias).map_err(Error::WinnetError)
+}
 
 #[cfg(target_os = "windows")]
 fn is_ipv6_enabled_in_os(check_tap: bool) -> Result<bool> {
