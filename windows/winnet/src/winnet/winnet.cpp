@@ -69,19 +69,19 @@ WINNET_LINKAGE
 WINNET_EI6_STATUS
 WINNET_API
 WinNet_EnableIpv6ForAdapter(
-	const wchar_t *deviceAlias,
+	const wchar_t *deviceGuid,
 	MullvadLogSink logSink,
 	void *logSinkContext
 )
 {
 	try
 	{
-		if (nullptr == deviceAlias)
+		if (nullptr == deviceGuid)
 		{
-			THROW_ERROR("Invalid argument: deviceAlias");
+			THROW_ERROR("Invalid argument: deviceGuid");
 		}
 
-		EnableIpv6ForAdapter(deviceAlias);
+		EnableIpv6ForAdapter(deviceGuid);
 		return WINNET_EI6_STATUS_SUCCESS;
 	}
 	catch (const std::exception & err)
@@ -163,6 +163,59 @@ WinNet_GetTapInterfaceAlias(
 		return true;
 	}
 	catch (const std::exception &err)
+	{
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
+		return false;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_InterfaceAliasToGuid(
+	wchar_t **guid,
+	const wchar_t *alias,
+	MullvadLogSink logSink,
+	void *logSinkContext
+)
+{
+	try
+	{
+		if (nullptr == guid)
+		{
+			THROW_ERROR("Invalid argument: guid");
+		}
+		if (nullptr == alias)
+		{
+			THROW_ERROR("Invalid argument: alias");
+		}
+
+		const auto currentAlias = InterfaceUtils::GetTapInterfaceAlias();
+
+		const auto adapters = shared::network::InterfaceUtils::GetAllAdapters(
+			AF_UNSPEC,
+			GAA_FLAG_SKIP_UNICAST | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST
+		);
+		for (auto it = adapters.begin(); it != adapters.end(); ++it)
+		{
+			if (0 == it->alias().compare(currentAlias))
+			{
+				const auto currentGuid = it->guid();
+				auto guidBuffer = new wchar_t[currentGuid.size() + 1];
+				wcscpy(guidBuffer, currentGuid.c_str());
+				*guid = guidBuffer;
+				return true;
+			}
+		}
+
+		THROW_ERROR("Cannot find GUID for given alias");
+	}
+	catch (const std::exception & err)
 	{
 		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
 		return false;

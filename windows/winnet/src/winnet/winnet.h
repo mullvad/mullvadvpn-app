@@ -44,7 +44,7 @@ WINNET_LINKAGE
 WINNET_EI6_STATUS
 WINNET_API
 WinNet_EnableIpv6ForAdapter(
-	const wchar_t *deviceAlias,
+	const wchar_t *deviceGuid,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );
@@ -71,6 +71,17 @@ bool
 WINNET_API
 WinNet_GetTapInterfaceAlias(
 	wchar_t **alias,
+	MullvadLogSink logSink,
+	void *logSinkContext
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_InterfaceAliasToGuid(
+	wchar_t **guid,
+	const wchar_t *alias,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );
