@@ -154,7 +154,7 @@ export default class NotificationArea extends Component<IProps, State> {
           return {
             visible: true,
             type: 'blocking',
-            reason: '',
+            reason: '“Always require VPN” is enabled.',
           };
         }
       // fallthrough
