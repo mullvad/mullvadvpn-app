@@ -429,6 +429,7 @@ impl RouteManagerImplInner {
 
     // Tries to coax a Route out of a RouteMessage, but only if it's a route from the main routing
     // table
+    // TODO: Change to account for different routing tables.
     fn parse_route_message(&self, msg: RouteMessage) -> Result<Option<Route>> {
         if msg.header.table != RT_TABLE_MAIN {
             return Ok(None);
