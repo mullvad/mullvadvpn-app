@@ -3,7 +3,11 @@ pub use self::api::{WinNet_ActivateConnectivityMonitor, WinNet_DeactivateConnect
 use crate::{logging::windows::log_sink, routing::Node};
 use ipnetwork::IpNetwork;
 use libc::{c_void, wchar_t};
-use std::{ffi::OsString, net::IpAddr, ptr};
+use std::{
+    ffi::{OsStr, OsString},
+    net::IpAddr,
+    ptr,
+};
 use widestring::WideCString;
 
 /// Errors that this module may produce.
@@ -16,6 +20,10 @@ pub enum Error {
     /// Supplied interface alias is invalid.
     #[error(display = "Supplied interface alias is invalid")]
     InvalidInterfaceAlias(#[error(source)] widestring::NulError<u16>),
+
+    /// Failed to enable IPv6 on the network interface.
+    #[error(display = "Failed to enable IPv6 on the network interface")]
+    EnableIpv6,
 
     /// Failed to read IPv6 status on the TAP network interface.
     #[error(display = "Failed to read IPv6 status on the TAP network interface")]
@@ -59,6 +67,26 @@ pub fn ensure_best_metric_for_interface(interface_alias: &str) -> Result<bool, E
             log::error!("Unexpected return code from WinNet_EnsureBestMetric: {}", i);
             Err(Error::MetricApplication)
         }
+    }
+}
+
+/// Enables IPv6 for a given interface.
+pub fn enable_ipv6_for_adapter(interface_alias: &OsStr) -> Result<(), Error> {
+    let interface_alias_ws =
+        WideCString::from_os_str(interface_alias).map_err(Error::InvalidInterfaceAlias)?;
+
+    let result = unsafe {
+        WinNet_EnableIpv6ForAdapter(
+            interface_alias_ws.as_ptr(),
+            Some(log_sink),
+            logging_context(),
+        )
+    };
+
+    if result {
+        Ok(())
+    } else {
+        Err(Error::EnableIpv6)
     }
 }
 
@@ -379,6 +407,13 @@ mod api {
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> u32;
+
+        #[link_name = "WinNet_EnableIpv6ForAdapter"]
+        pub fn WinNet_EnableIpv6ForAdapter(
+            tunnel_interface_alias: *const wchar_t,
+            sink: Option<LogSink>,
+            sink_context: *const u8,
+        ) -> bool;
 
         #[link_name = "WinNet_GetTapInterfaceIpv6Status"]
         pub fn WinNet_GetTapInterfaceIpv6Status(
