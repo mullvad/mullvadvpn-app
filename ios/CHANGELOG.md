@@ -24,6 +24,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Fixed
+- Fix relay selection for country wide constraints by respecting the `include_in_country` 
+  parameter.
+
+## [2020.2] - 2020-04-16
+### Fixed
 - Fix "invalid account" error that was mistakenly reported as "network error" during log in.
 - Fix parsing of pre-formatted account numbers when pasting from pasteboard on login screen.
 
