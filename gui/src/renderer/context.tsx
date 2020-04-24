@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === 'development') {
   AppContext.displayName = 'AppContext';
 }
 
-export default function withAppContext<Props>(BaseComponent: React.ComponentClass<Props>) {
+export default function withAppContext<Props>(BaseComponent: React.ComponentType<Props>) {
   // Exclude the IAppContext from props since those are injected props
   const wrappedComponent = (props: Omit<Props, keyof IAppContext>) => {
     return (

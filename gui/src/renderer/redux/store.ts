@@ -1,5 +1,5 @@
 import { connectRouter, push, replace, routerMiddleware } from 'connected-react-router';
-import { applyMiddleware, combineReducers, compose, createStore, Dispatch, Store } from 'redux';
+import { applyMiddleware, combineReducers, compose, createStore, Dispatch } from 'redux';
 
 import accountActions, { AccountAction } from './account/actions';
 import accountReducer, { IAccountReduxState } from './account/reducers';
@@ -32,13 +32,10 @@ export type ReduxAction =
   | SupportAction
   | VersionAction
   | UserInterfaceAction;
-export type ReduxStore = Store<IReduxState, ReduxAction>;
+export type ReduxStore = ReturnType<typeof configureStore>;
 export type ReduxDispatch = Dispatch<ReduxAction>;
 
-export default function configureStore(
-  routerHistory: History,
-  initialState?: IReduxState,
-): ReduxStore {
+export default function configureStore(routerHistory: History, initialState?: IReduxState) {
   const actionCreators = {
     ...accountActions,
     ...connectionActions,
