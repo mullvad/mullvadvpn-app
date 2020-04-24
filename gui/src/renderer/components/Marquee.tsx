@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Animated, Component, Styles, Types, UserInterface, View } from 'reactxp';
+import { Scheduler } from '../../shared/scheduler';
 
 const styles = {
   text: Styles.createTextStyle({
@@ -18,7 +19,7 @@ export default class Marquee extends Component<IMarqueeProps> {
   private textAnimation = Styles.createAnimatedTextStyle({ left: this.initialLeft });
   private textRef = React.createRef<Animated.Text>();
 
-  private animationTimeout?: number;
+  private animationScheduler = new Scheduler();
   private animation?: Types.Animated.CompositeAnimation;
 
   public componentDidMount() {
@@ -48,7 +49,7 @@ export default class Marquee extends Component<IMarqueeProps> {
   private startAnimation() {
     this.stopAnimation();
 
-    this.animationTimeout = setTimeout(async () => {
+    this.animationScheduler.schedule(async () => {
       if (this.textRef.current) {
         const textLayout = await UserInterface.measureLayoutRelativeToWindow(this.textRef.current);
         const viewLayout = await UserInterface.measureLayoutRelativeToWindow(this);
@@ -75,9 +76,7 @@ export default class Marquee extends Component<IMarqueeProps> {
   }
 
   private stopAnimation() {
-    clearTimeout(this.animationTimeout);
-    if (this.animation) {
-      this.animation.stop();
-    }
+    this.animationScheduler.cancel();
+    this.animation?.stop();
   }
 }

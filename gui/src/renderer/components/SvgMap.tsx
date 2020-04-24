@@ -9,6 +9,7 @@ import {
   Markers,
   ZoomableGroup,
 } from 'react-simple-maps';
+import { Scheduler } from '../../shared/scheduler';
 
 import geographyData from '../../../assets/geo/geometry.json';
 import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines.json';
@@ -69,7 +70,7 @@ export default class SvgMap extends React.Component<IProps, IState> {
     scale: 160,
   };
 
-  private transitionEndTimeout?: number;
+  private transitionEndScheduler = new Scheduler();
 
   constructor(props: IProps) {
     super(props);
@@ -101,15 +102,14 @@ export default class SvgMap extends React.Component<IProps, IState> {
 
   public componentDidUpdate(_prevProps: IProps, _prevState: IState) {
     if (this.state.viewportBboxes.length > 1) {
-      clearTimeout(this.transitionEndTimeout);
-      this.transitionEndTimeout = setTimeout(() => {
+      this.transitionEndScheduler.schedule(() => {
         this.setState((state) => this.removeOldViewportBboxes(state));
       }, MOVE_SPEED);
     }
   }
 
   public componentWillUnmount() {
-    clearTimeout(this.transitionEndTimeout);
+    this.transitionEndScheduler.cancel();
   }
 
   public render() {
