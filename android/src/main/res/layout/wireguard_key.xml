@@ -46,6 +46,7 @@
                                                               mullvad:clipboardLabel="@string/wireguard_public_key"
                                                               mullvad:copiedToast="@string/copied_wireguard_public_key"
                                                               mullvad:description="@string/public_key"
+                                                              mullvad:maxLength="20"
                                                               mullvad:whenMissing="showSpinner"/>
     <net.mullvad.mullvadvpn.ui.widget.InformationView android:id="@+id/key_age"
                                                       android:layout_width="match_parent"
