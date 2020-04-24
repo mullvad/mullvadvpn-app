@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <netcfgx.h>
 #include <devguid.h>
+#include <libcommon/registry/registry.h>
 #include <libcommon/error.h>
 #include <libcommon/string.h>
 #include <libcommon/memory.h>
@@ -143,6 +144,34 @@ void SetIpv6BindingForBindName(INetCfg *netCfg, const std::wstring &bindName, bo
 
 void EnableIpv6ForAdapter(const std::wstring &adapterGuid)
 {
+	try
+	{
+		//
+		// Avoid using the COM objects unless necessary
+		// due to slow performance.
+		//
+
+		const auto key = common::registry::Registry::OpenKey(
+			HKEY_LOCAL_MACHINE,
+			L"SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Linkage"
+		);
+		const auto bindings = key->readStringArray(L"Bind");
+
+		std::wstring matchString = std::wstring(L"\\Device\\").append(adapterGuid);
+
+		for (auto it = bindings.begin(); it != bindings.end(); ++it)
+		{
+			if (0 == _wcsicmp(it->c_str(), matchString.c_str()))
+			{
+				// return from function
+				return;
+			}
+		}
+	}
+	catch (...)
+	{
+	}
+
 	//
 	// Initialize COM
 	//
