@@ -665,3 +665,32 @@ fn ip_to_bytes(addr: IpAddr) -> Vec<u8> {
         IpAddr::V6(addr) => addr.octets().to_vec(),
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::collections::HashMap;
+
+
+    #[test]
+    fn test_drop_in_executor() {
+        let mut runtime = tokio02::runtime::Runtime::new().expect("Failed to initialize runtime");
+        runtime.block_on(async {
+            let manager = RouteManagerImplInner::new(HashMap::new())
+                .await
+                .expect("Failed to initialize route manager");
+            std::mem::drop(manager);
+        });
+    }
+
+    #[test]
+    fn test_drop() {
+        let mut runtime = tokio02::runtime::Runtime::new().expect("Failed to initialize runtime");
+        let manager = runtime.block_on(async {
+            RouteManagerImplInner::new(HashMap::new())
+                .await
+                .expect("Failed to initialize route manager")
+        });
+        std::mem::drop(manager);
+    }
+}
