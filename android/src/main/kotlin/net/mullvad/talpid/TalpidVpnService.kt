@@ -18,6 +18,11 @@ open class TalpidVpnService : VpnService() {
     }
 
     fun createTun(config: TunConfig): Int {
+        if (VpnService.prepare(this) != null) {
+            // VPN permission wasn't granted
+            return 0
+        }
+
         val builder = Builder().apply {
             for (address in config.addresses) {
                 addAddress(address, prefixForAddress(address))
