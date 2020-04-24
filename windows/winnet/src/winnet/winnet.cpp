@@ -94,47 +94,6 @@ WinNet_EnableIpv6ForAdapter(
 
 extern "C"
 WINNET_LINKAGE
-WINNET_GTII_STATUS
-WINNET_API
-WinNet_GetTapInterfaceIpv6Status(
-	MullvadLogSink logSink,
-	void *logSinkContext
-)
-{
-	try
-	{
-		MIB_IPINTERFACE_ROW iface = { 0 };
-
-		iface.InterfaceLuid = NetworkInterfaces::GetInterfaceLuid(InterfaceUtils::GetTapInterfaceAlias());
-		iface.Family = AF_INET6;
-
-		const auto status = GetIpInterfaceEntry(&iface);
-
-		if (NO_ERROR == status)
-		{
-			return WINNET_GTII_STATUS_ENABLED;
-		}
-
-		if (ERROR_NOT_FOUND == status)
-		{
-			return WINNET_GTII_STATUS_DISABLED;
-		}
-
-		THROW_WINDOWS_ERROR(status, "Resolve TAP IPv6 interface");
-	}
-	catch (const std::exception &err)
-	{
-		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
-		return WINNET_GTII_STATUS_FAILURE;
-	}
-	catch (...)
-	{
-		return WINNET_GTII_STATUS_FAILURE;
-	}
-}
-
-extern "C"
-WINNET_LINKAGE
 bool
 WINNET_API
 WinNet_GetTapInterfaceAlias(

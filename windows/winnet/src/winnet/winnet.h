@@ -43,22 +43,6 @@ WinNet_EnableIpv6ForAdapter(
 	void *logSinkContext
 );
 
-enum WINNET_GTII_STATUS
-{
-	WINNET_GTII_STATUS_ENABLED = 0,
-	WINNET_GTII_STATUS_DISABLED = 1,
-	WINNET_GTII_STATUS_FAILURE = 2,
-};
-
-extern "C"
-WINNET_LINKAGE
-WINNET_GTII_STATUS
-WINNET_API
-WinNet_GetTapInterfaceIpv6Status(
-	MullvadLogSink logSink,
-	void *logSinkContext
-);
-
 extern "C"
 WINNET_LINKAGE
 bool
