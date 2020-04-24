@@ -74,7 +74,8 @@ struct RelaySelector {
             case .only(let relayConstraint):
                 switch relayConstraint {
                 case .country(let countryCode):
-                    return relayWithLocation.location.countryCode == countryCode
+                    return relayWithLocation.location.countryCode == countryCode &&
+                        relayWithLocation.relay.includeInCountry
 
                 case .city(let countryCode, let cityCode):
                     return relayWithLocation.location.countryCode == countryCode &&
