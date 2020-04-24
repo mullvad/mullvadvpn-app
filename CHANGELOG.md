@@ -51,6 +51,10 @@ Line wrap the file at 100 chars.                                              Th
   checks delayed app startup when "block when disconnected" was enabled and performed system network
   requests to Apple.
 
+#### Android
+- Fix failure to create tunnel when app is started with auto-connect enabled. This would sometimes
+  lead to a traffic leak.
+
 
 ## [2020.4-beta2] - 2020-04-08
 ### Added
