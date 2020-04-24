@@ -94,32 +94,6 @@ pub fn enable_ipv6_for_adapter(interface_guid: &str) -> Result<(), Error> {
     }
 }
 
-/// Checks if IPv6 is enabled for the TAP interface
-pub fn get_tap_interface_ipv6_status() -> Result<bool, Error> {
-    // WinNet_GetTapInterfaceIpv6Status() will fail if the alias cannot be retrieved.
-    // Try to retrieve it first so that we may return a more specific error.
-    let _ = get_tap_interface_alias()?;
-    let tap_ipv6_status =
-        unsafe { WinNet_GetTapInterfaceIpv6Status(Some(log_sink), logging_context()) };
-
-    match tap_ipv6_status {
-        // Enabled
-        0 => Ok(true),
-        // Disabled
-        1 => Ok(false),
-        // Failure
-        2 => Err(Error::GetIpv6Status),
-        // Unexpected value
-        i => {
-            log::error!(
-                "Unexpected return code from WinNet_GetTapInterfaceIpv6Status: {}",
-                i
-            );
-            Err(Error::GetIpv6Status)
-        }
-    }
-}
-
 /// Dynamically determines the alias of the TAP adapter.
 pub fn get_tap_interface_alias() -> Result<OsString, Error> {
     let mut alias_ptr: *mut wchar_t = ptr::null_mut();
@@ -442,12 +416,6 @@ mod api {
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> bool;
-
-        #[link_name = "WinNet_GetTapInterfaceIpv6Status"]
-        pub fn WinNet_GetTapInterfaceIpv6Status(
-            sink: Option<LogSink>,
-            sink_context: *const u8,
-        ) -> u32;
 
         #[link_name = "WinNet_GetTapInterfaceAlias"]
         pub fn WinNet_GetTapInterfaceAlias(
