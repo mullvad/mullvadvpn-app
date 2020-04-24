@@ -198,7 +198,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                     DateTime.parse(key.dateCreated, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
 
                 publicKey.error = null
-                publicKey.information = publicKeyString.substring(0, 20) + "..."
+                publicKey.information = publicKeyString
                 keyAge.information = timeAgoFormatter.format(publicKeyAge)
             }
             is KeygenEvent.TooManyKeys, is KeygenEvent.GenerationFailure -> {
