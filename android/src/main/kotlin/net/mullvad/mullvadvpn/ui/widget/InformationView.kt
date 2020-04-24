@@ -71,6 +71,12 @@ open class InformationView : LinearLayout {
             updateStatus()
         }
 
+    var maxLength = 0
+        set(value) {
+            field = value
+            updateStatus()
+        }
+
     var whenMissing = WhenMissing.Nothing
         set(value) {
             field = value
@@ -120,6 +126,7 @@ open class InformationView : LinearLayout {
                 description.text = getString(R.styleable.InformationView_description) ?: ""
 
                 errorColor = getInteger(R.styleable.InformationView_errorColor, errorColor)
+                maxLength = getInteger(R.styleable.InformationView_maxLength, 0)
 
                 informationColor = getInteger(
                     R.styleable.InformationView_informationColor,
@@ -136,6 +143,7 @@ open class InformationView : LinearLayout {
     }
 
     private fun updateStatus() {
+        val information = this.information
         val hasText = information != null || error != null
 
         if (error != null) {
@@ -143,7 +151,12 @@ open class InformationView : LinearLayout {
             informationDisplay.text = error
         } else if (information != null) {
             informationDisplay.setTextColor(informationColor)
-            informationDisplay.text = information
+
+            if (maxLength == 0 || information.length <= maxLength) {
+                informationDisplay.text = information
+            } else {
+                informationDisplay.text = information.substring(0, maxLength) + "..."
+            }
         }
 
         if (whenMissing == WhenMissing.Hide && !hasText) {
