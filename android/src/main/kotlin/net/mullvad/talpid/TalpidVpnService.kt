@@ -20,7 +20,7 @@ open class TalpidVpnService : VpnService() {
     fun createTun(config: TunConfig): Int {
         if (VpnService.prepare(this) != null) {
             // VPN permission wasn't granted
-            return 0
+            return -1
         }
 
         val builder = Builder().apply {
