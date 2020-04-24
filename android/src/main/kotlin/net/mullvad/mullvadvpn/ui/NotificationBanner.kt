@@ -193,13 +193,19 @@ class NotificationBanner(
                     }
                 }
             }
+            is ErrorStateCause.VpnPermissionDenied -> R.string.vpn_permission_denied_error
         }
 
         // if the error state is null, we can assume that we are secure
         if (errorState?.isBlocking ?: true) {
             showError(R.string.blocking_internet, messageText)
         } else {
-            showError(R.string.not_blocking_internet, R.string.failed_to_block_internet)
+            val updatedMessageText = when (cause) {
+                is ErrorStateCause.VpnPermissionDenied -> messageText
+                else -> R.string.failed_to_block_internet
+            }
+
+            showError(R.string.not_blocking_internet, updatedMessageText)
         }
     }
 

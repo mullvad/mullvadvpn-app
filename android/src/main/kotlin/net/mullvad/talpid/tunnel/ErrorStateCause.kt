@@ -9,4 +9,5 @@ sealed class ErrorStateCause {
     class TunnelParameterError(val error: ParameterGenerationError) : ErrorStateCause()
     class IsOffline : ErrorStateCause()
     class TapAdapterProblem : ErrorStateCause()
+    class VpnPermissionDenied : ErrorStateCause()
 }

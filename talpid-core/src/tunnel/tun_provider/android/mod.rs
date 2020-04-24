@@ -63,6 +63,9 @@ pub enum Error {
 
     #[error(display = "Failed to create tunnel device")]
     TunnelDeviceError,
+
+    #[error(display = "Permission denied when trying to create tunnel")]
+    PermissionDenied,
 }
 
 /// Factory of tunnel devices on Android.
@@ -338,6 +341,7 @@ impl AndroidTunProvider {
 
         match result {
             JValue::Int(0) => Err(Error::TunnelDeviceError),
+            JValue::Int(-1) => Err(Error::PermissionDenied),
             JValue::Int(fd) => {
                 Self::wait_for_tunnel_up(fd, &config)?;
                 let tun = unsafe { File::from_raw_fd(fd) };

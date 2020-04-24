@@ -120,6 +120,9 @@
     server</string>
     <string name="start_tunnel_error">Failed to start tunnel
     connection</string>
+    <string name="vpn_permission_denied_error">VPN permission was
+    denied when creating the tunnel. Please try connecting
+    again.</string>
     <string name="no_matching_relay">No relay server matches the
     current settings</string>
     <string name="no_matching_bridge_relay">No bridge relay server
