@@ -4,6 +4,7 @@
 #include "offlinemonitor.h"
 #include "routing/routemanager.h"
 #include "converters.h"
+#include "netconfig.h"
 #include <libshared/logging/logsinkadapter.h>
 #include <libshared/logging/unwind.h>
 #include <libshared/network/interfaceutils.h>
@@ -65,43 +66,30 @@ WinNet_EnsureBestMetric(
 
 extern "C"
 WINNET_LINKAGE
-WINNET_GTII_STATUS
+bool
 WINNET_API
-WinNet_GetTapInterfaceIpv6Status(
+WinNet_EnableIpv6ForAdapter(
+	const wchar_t *deviceGuid,
 	MullvadLogSink logSink,
 	void *logSinkContext
 )
 {
 	try
 	{
-		MIB_IPINTERFACE_ROW iface = { 0 };
-
-		iface.InterfaceLuid = NetworkInterfaces::GetInterfaceLuid(InterfaceUtils::GetTapInterfaceAlias());
-		iface.Family = AF_INET6;
-
-		const auto status = GetIpInterfaceEntry(&iface);
-
-		if (NO_ERROR == status)
+		if (nullptr == deviceGuid)
 		{
-			return WINNET_GTII_STATUS_ENABLED;
+			THROW_ERROR("Invalid argument: deviceGuid");
 		}
 
-		if (ERROR_NOT_FOUND == status)
-		{
-			return WINNET_GTII_STATUS_DISABLED;
-		}
-
-		THROW_WINDOWS_ERROR(status, "Resolve TAP IPv6 interface");
+		EnableIpv6ForAdapter(deviceGuid);
+		return true;
 	}
-	catch (const std::exception &err)
+	catch (const std::exception & err)
 	{
 		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
-		return WINNET_GTII_STATUS_FAILURE;
+		return false;
 	}
-	catch (...)
-	{
-		return WINNET_GTII_STATUS_FAILURE;
-	}
+	return false;
 }
 
 extern "C"
@@ -131,6 +119,60 @@ WinNet_GetTapInterfaceAlias(
 		return true;
 	}
 	catch (const std::exception &err)
+	{
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
+		return false;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_InterfaceAliasToGuid(
+	const wchar_t *alias,
+	wchar_t **guid,
+	MullvadLogSink logSink,
+	void *logSinkContext
+)
+{
+	try
+	{
+		if (nullptr == guid)
+		{
+			THROW_ERROR("Invalid argument: guid");
+		}
+		if (nullptr == alias)
+		{
+			THROW_ERROR("Invalid argument: alias");
+		}
+
+		GUID tempGuid = { 0 };
+		NET_LUID luid = { 0 };
+
+		if (NO_ERROR != ConvertInterfaceAliasToLuid(alias, &luid))
+		{
+			THROW_ERROR("ConvertInterfaceAliasToLuid: invalid parameter");
+		}
+
+		if (NO_ERROR != ConvertInterfaceLuidToGuid(&luid, &tempGuid))
+		{
+			THROW_ERROR("ConvertInterfaceLuidToGuid: invalid parameter");
+		}
+
+		const auto guidStr = common::string::FormatGuid(tempGuid);
+
+		auto guidBuffer = new wchar_t[guidStr.size() + 1];
+		wcscpy(guidBuffer, guidStr.c_str());
+		*guid = guidBuffer;
+
+		return true;
+	}
+	catch (const std::exception & err)
 	{
 		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
 		return false;

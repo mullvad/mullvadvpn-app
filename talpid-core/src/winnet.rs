@@ -3,7 +3,11 @@ pub use self::api::{WinNet_ActivateConnectivityMonitor, WinNet_DeactivateConnect
 use crate::{logging::windows::log_sink, routing::Node};
 use ipnetwork::IpNetwork;
 use libc::{c_void, wchar_t};
-use std::{ffi::OsString, net::IpAddr, ptr};
+use std::{
+    ffi::{OsStr, OsString},
+    net::IpAddr,
+    ptr,
+};
 use widestring::WideCString;
 
 /// Errors that this module may produce.
@@ -16,6 +20,14 @@ pub enum Error {
     /// Supplied interface alias is invalid.
     #[error(display = "Supplied interface alias is invalid")]
     InvalidInterfaceAlias(#[error(source)] widestring::NulError<u16>),
+
+    /// Failed to enable IPv6 on the network interface.
+    #[error(display = "Failed to enable IPv6 on the network interface")]
+    EnableIpv6,
+
+    /// Failed to enable IPv6 on the network interface.
+    #[error(display = "Failed to obtain GUID for the network interface")]
+    GetInterfaceGuid,
 
     /// Failed to read IPv6 status on the TAP network interface.
     #[error(display = "Failed to read IPv6 status on the TAP network interface")]
@@ -62,29 +74,23 @@ pub fn ensure_best_metric_for_interface(interface_alias: &str) -> Result<bool, E
     }
 }
 
-/// Checks if IPv6 is enabled for the TAP interface
-pub fn get_tap_interface_ipv6_status() -> Result<bool, Error> {
-    // WinNet_GetTapInterfaceIpv6Status() will fail if the alias cannot be retrieved.
-    // Try to retrieve it first so that we may return a more specific error.
-    let _ = get_tap_interface_alias()?;
-    let tap_ipv6_status =
-        unsafe { WinNet_GetTapInterfaceIpv6Status(Some(log_sink), logging_context()) };
+/// Enables IPv6 for a given interface.
+pub fn enable_ipv6_for_adapter(interface_guid: &str) -> Result<(), Error> {
+    let interface_guid_ws =
+        WideCString::from_str(interface_guid).map_err(Error::InvalidInterfaceAlias)?;
 
-    match tap_ipv6_status {
-        // Enabled
-        0 => Ok(true),
-        // Disabled
-        1 => Ok(false),
-        // Failure
-        2 => Err(Error::GetIpv6Status),
-        // Unexpected value
-        i => {
-            log::error!(
-                "Unexpected return code from WinNet_GetTapInterfaceIpv6Status: {}",
-                i
-            );
-            Err(Error::GetIpv6Status)
-        }
+    let result = unsafe {
+        WinNet_EnableIpv6ForAdapter(
+            interface_guid_ws.as_ptr(),
+            Some(log_sink),
+            logging_context(),
+        )
+    };
+
+    if result {
+        Ok(())
+    } else {
+        Err(Error::EnableIpv6)
     }
 }
 
@@ -103,6 +109,30 @@ pub fn get_tap_interface_alias() -> Result<OsString, Error> {
     unsafe { WinNet_ReleaseString(alias_ptr) };
 
     Ok(alias.to_os_string())
+}
+
+/// Determines the interface guid for a given adapter alias.
+pub fn interface_alias_to_guid(interface_alias: &OsStr) -> Result<String, Error> {
+    let interface_alias =
+        WideCString::from_os_str(interface_alias).map_err(Error::InvalidInterfaceAlias)?;
+    let mut guid_ptr: *mut wchar_t = ptr::null_mut();
+    let status = unsafe {
+        WinNet_InterfaceAliasToGuid(
+            interface_alias.as_ptr(),
+            &mut guid_ptr as *mut _,
+            Some(log_sink),
+            logging_context(),
+        )
+    };
+
+    if !status {
+        return Err(Error::GetInterfaceGuid);
+    }
+
+    let guid = unsafe { WideCString::from_ptr_str(guid_ptr) };
+    unsafe { WinNet_ReleaseString(guid_ptr) };
+
+    Ok(guid.to_string_lossy())
 }
 
 #[allow(dead_code)]
@@ -380,15 +410,24 @@ mod api {
             sink_context: *const u8,
         ) -> u32;
 
-        #[link_name = "WinNet_GetTapInterfaceIpv6Status"]
-        pub fn WinNet_GetTapInterfaceIpv6Status(
+        #[link_name = "WinNet_EnableIpv6ForAdapter"]
+        pub fn WinNet_EnableIpv6ForAdapter(
+            tunnel_interface_alias: *const wchar_t,
             sink: Option<LogSink>,
             sink_context: *const u8,
-        ) -> u32;
+        ) -> bool;
 
         #[link_name = "WinNet_GetTapInterfaceAlias"]
         pub fn WinNet_GetTapInterfaceAlias(
             tunnel_interface_alias: *mut *mut wchar_t,
+            sink: Option<LogSink>,
+            sink_context: *const u8,
+        ) -> bool;
+
+        #[link_name = "WinNet_InterfaceAliasToGuid"]
+        pub fn WinNet_InterfaceAliasToGuid(
+            interface_alias: *const wchar_t,
+            interface_guid: *mut *mut wchar_t,
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> bool;

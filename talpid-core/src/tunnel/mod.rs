@@ -10,6 +10,8 @@ use std::{
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
 use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
+#[cfg(target_os = "windows")]
+use talpid_types::ErrorExt;
 
 /// A module for all OpenVPN related tunnel management.
 #[cfg(not(target_os = "android"))]
@@ -207,21 +209,38 @@ impl TunnelMonitor {
 
     fn ensure_ipv6_can_be_used_if_enabled(tunnel_parameters: &TunnelParameters) -> Result<()> {
         let options = tunnel_parameters.get_generic_options();
-        if options.enable_ipv6 {
-            #[cfg(target_os = "windows")]
-            let enabled = match tunnel_parameters {
-                TunnelParameters::OpenVpn(_) => is_ipv6_enabled_in_os(true),
-                _ => is_ipv6_enabled_in_os(false),
-            }?;
-            #[cfg(not(target_os = "windows"))]
-            let enabled = is_ipv6_enabled_in_os()?;
-            if enabled {
-                Ok(())
-            } else {
-                Err(Error::EnableIpv6Error)
+
+        #[cfg(target_os = "windows")]
+        match tunnel_parameters {
+            TunnelParameters::OpenVpn(..) => {
+                if options.enable_ipv6 {
+                    try_enabling_ipv6(tunnel_parameters)
+                } else {
+                    Ok(())
+                }
             }
-        } else {
-            Ok(())
+            TunnelParameters::Wireguard(..) => {
+                // WireGuard always waits on an IPv6 interface,
+                // even if it's not in use
+                if let Err(e) = try_enabling_ipv6(tunnel_parameters) {
+                    log::error!("{}", e.display_chain_with_msg("Failed to enable IPv6"));
+                }
+                Ok(())
+            }
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            if options.enable_ipv6 {
+                let enabled = is_ipv6_enabled_in_os()?;
+                if enabled {
+                    Ok(())
+                } else {
+                    Err(Error::EnableIpv6Error)
+                }
+            } else {
+                Ok(())
+            }
         }
     }
 
@@ -327,7 +346,7 @@ impl InternalTunnelMonitor {
 
 
 #[cfg(target_os = "windows")]
-fn is_ipv6_enabled_in_os(check_tap: bool) -> Result<bool> {
+fn try_enabling_ipv6(tunnel_parameters: &TunnelParameters) -> Result<()> {
     use winreg::{enums::*, RegKey};
 
     const IPV6_DISABLED_ON_TUNNELS_MASK: u32 = 0x01;
@@ -341,16 +360,24 @@ fn is_ipv6_enabled_in_os(check_tap: bool) -> Result<bool> {
         .unwrap_or(true);
 
     if !globally_enabled {
-        log::debug!("IPv6 disabled in tunnel interfaces");
+        // TODO: Try to globally enable IPv6
+        log::debug!("IPv6 disabled in all tunnel interfaces");
+        return Err(Error::EnableIpv6Error);
     }
 
-    if check_tap {
-        let enabled_on_tap =
-            crate::winnet::get_tap_interface_ipv6_status().map_err(Error::WinnetError)?;
-        Ok(globally_enabled && enabled_on_tap)
-    } else {
-        Ok(globally_enabled)
-    }
+    let guid_string: String;
+
+    let guid = match tunnel_parameters {
+        TunnelParameters::OpenVpn(..) => {
+            let alias = crate::winnet::get_tap_interface_alias().map_err(Error::WinnetError)?;
+            guid_string =
+                crate::winnet::interface_alias_to_guid(&alias).map_err(Error::WinnetError)?;
+            &guid_string
+        }
+        TunnelParameters::Wireguard(..) => "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}",
+    };
+
+    crate::winnet::enable_ipv6_for_adapter(&guid).map_err(Error::WinnetError)
 }
 
 #[cfg(not(target_os = "windows"))]

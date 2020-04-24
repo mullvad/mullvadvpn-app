@@ -1,7 +1,8 @@
 LIBRARY winnet
 EXPORTS
 	WinNet_EnsureBestMetric
-	WinNet_GetTapInterfaceIpv6Status
+	WinNet_InterfaceAliasToGuid
+	WinNet_EnableIpv6ForAdapter
 	WinNet_GetTapInterfaceAlias
 	WinNet_ReleaseString
 	WinNet_ActivateConnectivityMonitor

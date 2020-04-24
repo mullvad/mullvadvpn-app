@@ -33,18 +33,12 @@ WinNet_EnsureBestMetric(
 	void *logSinkContext
 );
 
-enum WINNET_GTII_STATUS
-{
-	WINNET_GTII_STATUS_ENABLED = 0,
-	WINNET_GTII_STATUS_DISABLED = 1,
-	WINNET_GTII_STATUS_FAILURE = 2,
-};
-
 extern "C"
 WINNET_LINKAGE
-WINNET_GTII_STATUS
+bool
 WINNET_API
-WinNet_GetTapInterfaceIpv6Status(
+WinNet_EnableIpv6ForAdapter(
+	const wchar_t *deviceGuid,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );
@@ -55,6 +49,17 @@ bool
 WINNET_API
 WinNet_GetTapInterfaceAlias(
 	wchar_t **alias,
+	MullvadLogSink logSink,
+	void *logSinkContext
+);
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_InterfaceAliasToGuid(
+	const wchar_t *alias,
+	wchar_t **guid,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );
