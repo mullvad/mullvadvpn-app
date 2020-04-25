@@ -11,7 +11,7 @@ class CopyableInformationView : InformationView {
     var clipboardLabel: String? = null
         set(value) {
             field = value
-            super.setEnabled(value != null)
+            shouldEnable = value != null
         }
 
     var copiedToast: String? = null
