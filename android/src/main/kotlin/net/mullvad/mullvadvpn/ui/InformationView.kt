@@ -8,7 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 
-class InformationView : LinearLayout {
+open class InformationView : LinearLayout {
     private val container =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
             val inflater = service as LayoutInflater
