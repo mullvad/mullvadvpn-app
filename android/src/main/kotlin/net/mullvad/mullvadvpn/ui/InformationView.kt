@@ -41,6 +41,12 @@ open class InformationView : LinearLayout {
     private val informationDisplay: TextView = findViewById(R.id.information_display)
     private val spinner: View = findViewById(R.id.spinner)
 
+    var shouldEnable = false
+        set(value) {
+            field = value
+            updateEnabled()
+        }
+
     var information: String? = null
         set(value) {
             field = value
@@ -119,6 +125,10 @@ open class InformationView : LinearLayout {
             informationDisplay.visibility = VISIBLE
         }
 
-        setEnabled(information != null)
+        updateEnabled()
+    }
+
+    private fun updateEnabled() {
+        setEnabled(shouldEnable && information != null)
     }
 }
