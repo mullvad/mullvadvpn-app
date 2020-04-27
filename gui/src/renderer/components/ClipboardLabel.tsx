@@ -1,20 +1,26 @@
+import log from 'electron-log';
 import * as React from 'react';
-import { Clipboard, Component, Text, Types } from 'reactxp';
+import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
+import { Scheduler } from '../../shared/scheduler';
 
 interface IProps {
   value: string;
   displayValue?: string;
   delay: number;
   message: string;
-  style?: Types.StyleRuleSetRecursive<Types.TextStyleRuleSet>;
+  className?: string;
 }
 
 interface IState {
   showsMessage: boolean;
 }
 
-export default class ClipboardLabel extends Component<IProps, IState> {
+const Label = styled.span({
+  cursor: 'pointer',
+});
+
+export default class ClipboardLabel extends React.Component<IProps, IState> {
   public static defaultProps: Partial<IProps> = {
     delay: 3000,
     message: messages.gettext('COPIED TO CLIPBOARD!'),
@@ -24,31 +30,28 @@ export default class ClipboardLabel extends Component<IProps, IState> {
     showsMessage: false,
   };
 
-  private timer?: NodeJS.Timeout;
+  private scheduler = new Scheduler();
 
   public componentWillUnmount() {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
+    this.scheduler.cancel();
   }
 
   public render() {
     const displayValue = this.props.displayValue || this.props.value;
     return (
-      <Text style={this.props.style} onPress={this.handlePress}>
+      <Label className={this.props.className} onClick={this.handlePress}>
         {this.state.showsMessage ? this.props.message : displayValue}
-      </Text>
+      </Label>
     );
   }
 
-  private handlePress = () => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  private handlePress = async () => {
+    try {
+      await navigator.clipboard.writeText(this.props.value);
+      this.scheduler.schedule(() => this.setState({ showsMessage: false }), this.props.delay);
+      this.setState({ showsMessage: true });
+    } catch (error) {
+      log.error(`Failed to copy to clipboard: ${error.message}`);
     }
-
-    this.timer = global.setTimeout(() => this.setState({ showsMessage: false }), this.props.delay);
-    this.setState({ showsMessage: true });
-
-    Clipboard.setText(this.props.value);
   };
 }

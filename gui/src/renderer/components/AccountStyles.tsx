@@ -1,5 +1,15 @@
 import { Styles } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
+import AccountTokenLabel from './AccountTokenLabel';
+
+export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
+  fontFamily: 'Open Sans',
+  fontSize: '16px',
+  lineHeight: '19px',
+  fontWeight: 800,
+  color: colors.white,
+});
 
 export default {
   account: Styles.createViewStyle({
