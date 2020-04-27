@@ -27,6 +27,9 @@ use talpid_types::{
 };
 
 #[cfg(target_os = "android")]
+use crate::tunnel::tun_provider;
+
+#[cfg(target_os = "android")]
 const MAX_ATTEMPTS_WITH_SAME_TUN: u32 = 5;
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 
@@ -395,6 +398,14 @@ impl TunnelState for ConnectingState {
                                     | tunnel::Error::WinnetError(
                                         crate::winnet::Error::GetTapAlias,
                                     ) => ErrorStateCause::TapAdapterProblem,
+                                    #[cfg(target_os = "android")]
+                                    tunnel::Error::WireguardTunnelMonitoringError(
+                                        tunnel::wireguard::Error::TunnelError(
+                                            tunnel::wireguard::TunnelError::SetupTunnelDeviceError(
+                                                tun_provider::Error::PermissionDenied,
+                                            ),
+                                        ),
+                                    ) => ErrorStateCause::VpnPermissionDenied,
                                     _ => ErrorStateCause::StartTunnelError,
                                 };
                                 ErrorState::enter(shared_values, block_reason)
