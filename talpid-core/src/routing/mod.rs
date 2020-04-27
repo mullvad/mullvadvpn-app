@@ -64,6 +64,8 @@ impl fmt::Display for Route {
 pub struct RequiredRoute {
     prefix: IpNetwork,
     node: NetNode,
+    #[cfg(target_os = "linux")]
+    table_id: u8,
 }
 
 impl RequiredRoute {
@@ -72,7 +74,16 @@ impl RequiredRoute {
         Self {
             node: node.into(),
             prefix,
+            #[cfg(target_os = "linux")]
+            table_id: RT_TABLE_MAIN,
         }
+    }
+
+    /// Sets the routing table ID of the route.
+    #[cfg(target_os = "linux")]
+    pub fn table(mut self, new_id: u8) -> Self {
+        self.table_id = new_id;
+        self
     }
 }
 

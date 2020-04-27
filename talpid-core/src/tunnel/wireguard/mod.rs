@@ -2,9 +2,9 @@ use self::config::Config;
 #[cfg(not(windows))]
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
-use crate::routing;
+use crate::routing::{self, RequiredRoute};
 use std::{
-    collections::HashMap,
+    collections::HashSet,
     path::Path,
     sync::{mpsc, Arc, Mutex},
 };
@@ -187,18 +187,18 @@ impl WireguardMonitor {
             })
     }
 
-    fn get_routes(
-        iface_name: &str,
-        config: &Config,
-    ) -> HashMap<ipnetwork::IpNetwork, crate::routing::NetNode> {
+    fn get_routes(iface_name: &str, config: &Config) -> HashSet<RequiredRoute> {
         let node = routing::Node::device(iface_name.to_string());
-        let mut routes: HashMap<_, _> = Self::get_tunnel_routes(config)
-            .map(|network| (network, node.clone().into()))
+        let mut routes: HashSet<RequiredRoute> = Self::get_tunnel_routes(config)
+            .map(|network| RequiredRoute::new(network, node.clone()))
             .collect();
 
         // route endpoints with specific routes
         for peer in config.peers.iter() {
-            routes.insert(peer.endpoint.ip().into(), routing::NetNode::DefaultNode);
+            routes.insert(RequiredRoute::new(
+                peer.endpoint.ip().into(),
+                routing::NetNode::DefaultNode,
+            ));
         }
 
         routes
