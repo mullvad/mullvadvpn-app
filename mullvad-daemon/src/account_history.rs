@@ -45,7 +45,7 @@ pub struct AccountHistory {
 
 impl AccountHistory {
     pub fn new(
-        cache_dir: &Path,
+        settings_dir: &Path,
         rpc_handle: MullvadRestHandle,
         tokio_remote: Remote,
     ) -> Result<AccountHistory> {
@@ -61,7 +61,7 @@ impl AccountHistory {
             // a share mode of zero ensures exclusive access to the file to *this* process
             options.share_mode(0);
         }
-        let path = cache_dir.join(ACCOUNT_HISTORY_FILE);
+        let path = settings_dir.join(ACCOUNT_HISTORY_FILE);
         log::info!("Opening account history file in {}", path.display());
         let mut reader = options
             .write(true)
