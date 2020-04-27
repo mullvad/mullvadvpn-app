@@ -12,6 +12,9 @@ mod imp;
 #[path = "unix.rs"]
 mod imp;
 
+#[cfg(target_os = "linux")]
+use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
+
 pub use imp::{Error, RouteManager};
 
 /// A netowrk route with a specific network node, destinaiton and an optional metric.
@@ -20,6 +23,8 @@ struct Route {
     node: Node,
     prefix: IpNetwork,
     metric: Option<u32>,
+    #[cfg(target_os = "linux")]
+    table_id: u8,
 }
 
 impl Route {
@@ -28,7 +33,15 @@ impl Route {
             node,
             prefix,
             metric: None,
+            #[cfg(target_os = "linux")]
+            table_id: RT_TABLE_MAIN,
         }
+    }
+
+    #[cfg(target_os = "linux")]
+    fn table(mut self, new_id: u8) -> Self {
+        self.table_id = new_id;
+        self
     }
 }
 
@@ -38,6 +51,8 @@ impl fmt::Display for Route {
         if let Some(metric) = &self.metric {
             write!(f, " metric {}", *metric)?;
         }
+        #[cfg(target_os = "linux")]
+        write!(f, " table {}", self.table_id)?;
         Ok(())
     }
 }
