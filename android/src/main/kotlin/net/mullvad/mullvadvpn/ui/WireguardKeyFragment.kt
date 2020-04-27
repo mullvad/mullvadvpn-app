@@ -1,75 +1,102 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
-import java.util.TimeZone
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.KeygenFailure
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.widget.Button
+import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
+import net.mullvad.mullvadvpn.ui.widget.InformationView
+import net.mullvad.mullvadvpn.ui.widget.InformationView.WhenMissing
+import net.mullvad.mullvadvpn.ui.widget.UrlButton
+import net.mullvad.mullvadvpn.util.JobTracker
+import net.mullvad.mullvadvpn.util.TimeAgoFormatter
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 
 val RFC3339_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSSSSSSSSS z")
-val KEY_AGE_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm")
 
 class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
-    private var currentJob: Job? = null
-    private var updateViewsJob: Job? = null
+    sealed class ActionState {
+        class Idle(val verified: Boolean) : ActionState()
+        class Generating(val replacing: Boolean) : ActionState()
+        class Verifying() : ActionState()
+    }
+
+    private val jobTracker = JobTracker()
+
+    private lateinit var timeAgoFormatter: TimeAgoFormatter
+
     private var tunnelStateListener: Int? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
-    private lateinit var urlController: BlockingController
-    private var generatingKey = false
-    private var validatingKey = false
 
-    private var resetReconnectionExpectedJob: Job? = null
+    private var actionState: ActionState = ActionState.Idle(false)
+        set(value) {
+            if (field != value) {
+                field = value
+                updateKeySpinners()
+                updateStatusMessage()
+                updateGenerateKeyButtonState()
+                updateGenerateKeyButtonText()
+                updateVerifyKeyButtonState()
+                updateVerifyingKeySpinner()
+            }
+        }
+
+    private var keyStatus: KeygenEvent? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                updateKeyInformation()
+                updateStatusMessage()
+                updateGenerateKeyButtonText()
+                updateVerifyKeyButtonState()
+            }
+        }
+
+    private var hasConnectivity = true
+        set(value) {
+            if (field != value) {
+                field = value
+                updateStatusMessage()
+                updateGenerateKeyButtonState()
+                updateVerifyKeyButtonState()
+                manageKeysButton.setEnabled(value)
+            }
+        }
+
     private var reconnectionExpected = false
         set(value) {
             field = value
 
-            resetReconnectionExpectedJob?.cancel()
+            jobTracker.cancelJob("resetReconnectionExpected")
 
             if (value == true) {
                 resetReconnectionExpected()
             }
         }
 
-    private lateinit var publicKey: TextView
-    private lateinit var publicKeyAge: TextView
+    private lateinit var publicKey: CopyableInformationView
+    private lateinit var keyAge: InformationView
     private lateinit var statusMessage: TextView
-    private lateinit var visitWebsiteView: View
-    private lateinit var generateButton: Button
-    private lateinit var generateSpinner: ProgressBar
-    private lateinit var verifyButton: Button
-    private lateinit var verifySpinner: ProgressBar
+    private lateinit var verifyingKeySpinner: View
+    private lateinit var manageKeysButton: UrlButton
+    private lateinit var generateKeyButton: Button
+    private lateinit var verifyKeyButton: Button
 
-    private fun resetReconnectionExpected() {
-        resetReconnectionExpectedJob = GlobalScope.launch(Dispatchers.Main) {
-            delay(20_000)
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
 
-            if (reconnectionExpected) {
-                reconnectionExpected = false
-                updateViews()
-            }
-        }
+        timeAgoFormatter = TimeAgoFormatter(context.resources)
     }
 
     override fun onSafelyCreateView(
@@ -84,96 +111,187 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         }
 
         statusMessage = view.findViewById<TextView>(R.id.wireguard_key_status)
-        visitWebsiteView = view.findViewById<View>(R.id.wireguard_manage_keys)
-        publicKey = view.findViewById<TextView>(R.id.wireguard_public_key)
-        generateButton = view.findViewById<Button>(R.id.wg_generate_key_button)
-        generateSpinner = view.findViewById<ProgressBar>(R.id.wg_generate_key_spinner)
-        verifyButton = view.findViewById<Button>(R.id.wg_verify_key_button)
-        verifySpinner = view.findViewById<ProgressBar>(R.id.wg_verify_key_spinner)
-        publicKeyAge = view.findViewById<TextView>(R.id.wireguard_key_age)
+        publicKey = view.findViewById(R.id.public_key)
+        keyAge = view.findViewById(R.id.key_age)
 
-        visitWebsiteView.visibility = View.VISIBLE
-        val keyUrl = parentActivity.getString(R.string.wg_key_url)
-
-        urlController = BlockingController(
-            object : BlockableView {
-                override fun setEnabled(enabled: Boolean) {
-                    if (!enabled || tunnelState is TunnelState.Error) {
-                        visitWebsiteView.setClickable(false)
-                        visitWebsiteView.setAlpha(0.5f)
-                    } else {
-                        visitWebsiteView.setClickable(true)
-                        visitWebsiteView.setAlpha(1f)
-                    }
-                }
-
-                override fun onClick(): Job {
-                    return GlobalScope.launch(Dispatchers.Default) {
-                        val token = daemon.getWwwAuthToken()
-                        val intent = Intent(Intent.ACTION_VIEW,
-                                            Uri.parse(keyUrl + "?token=" + token))
-                        startActivity(intent)
-                    }
-                }
+        generateKeyButton = view.findViewById<Button>(R.id.generate_key).apply {
+            setOnClickAction("action", jobTracker) {
+                onGenerateKeyPress()
             }
-        )
-        visitWebsiteView.setOnClickListener {
-            urlController.action()
         }
 
-        updateViews()
+        verifyKeyButton = view.findViewById<Button>(R.id.verify_key).apply {
+            setOnClickAction("action", jobTracker) {
+                onValidateKeyPress()
+            }
+        }
+
+        verifyingKeySpinner = view.findViewById(R.id.verifying_key_spinner)
+
+        manageKeysButton = view.findViewById<UrlButton>(R.id.manage_keys).apply {
+            prepare(daemon, jobTracker)
+        }
 
         return view
     }
 
-    private fun updateViewJob() = GlobalScope.launch(Dispatchers.Main) {
-        updateViews()
+    override fun onSafelyResume() {
+        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
+            jobTracker.newUiJob("tunnelStateUpdate") {
+                synchronized(this@WireguardKeyFragment) {
+                    tunnelState = uiState
+
+                    if (actionState is ActionState.Generating) {
+                        reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
+                    } else if (tunnelState is TunnelState.Connected) {
+                        reconnectionExpected = false
+                    }
+
+                    hasConnectivity = uiState is TunnelState.Connected ||
+                        uiState is TunnelState.Disconnected ||
+                        (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
+                }
+            }
+        }
+
+        keyStatusListener.onKeyStatusChange = { newKeyStatus ->
+            jobTracker.newUiJob("keyStatusUpdate") {
+                keyStatus = newKeyStatus
+            }
+        }
+
+        actionState = ActionState.Idle(false)
     }
 
-    private fun updateViews() {
-        clearErrorMessage()
+    override fun onSafelyPause() {
+        tunnelStateListener?.let { listener ->
+            connectionProxy.onUiStateChange.unsubscribe(listener)
+        }
 
-        setGenerateButton()
-        setVerifyButton()
+        if (!(actionState is ActionState.Idle)) {
+            actionState = ActionState.Idle(false)
+        }
 
-        when (val keyState = keyStatusListener.keyStatus) {
-            null -> {
-                publicKey.visibility = View.INVISIBLE
+        keyStatusListener.onKeyStatusChange = null
+        jobTracker.cancelAllJobs()
+    }
+
+    private fun updateKeySpinners() {
+        when (actionState) {
+            is ActionState.Generating -> {
+                publicKey.whenMissing = WhenMissing.ShowSpinner
+                keyAge.whenMissing = WhenMissing.ShowSpinner
             }
+            is ActionState.Verifying, is ActionState.Idle -> {
+                publicKey.whenMissing = WhenMissing.Nothing
+                keyAge.whenMissing = WhenMissing.Nothing
+            }
+        }
+    }
 
+    private fun updateKeyInformation() {
+        when (val keyState = keyStatus) {
             is KeygenEvent.NewKey -> {
                 val key = keyState.publicKey
                 val publicKeyString = Base64.encodeToString(key.key, Base64.NO_WRAP)
-                publicKey.visibility = View.VISIBLE
-                publicKey.setText(publicKeyString.substring(0, 20) + "...")
+                val publicKeyAge =
+                    DateTime.parse(key.dateCreated, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
 
-                publicKey.setOnClickListener {
-                    val label = parentActivity.getString(R.string.wireguard_key_copied_to_clibpoard)
-                    val clipboard = parentActivity
-                        .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    clipboard.setPrimaryClip(ClipData.newPlainText(label, publicKeyString))
-
-                    Toast.makeText(parentActivity, label, Toast.LENGTH_SHORT)
-                        .show()
-                }
-
-                publicKeyAge.setText(formatKeyDateCreated(key.dateCreated))
-
-                keyState.verified?.let { verified ->
-                    if (verified) {
-                        setStatusMessage(R.string.wireguard_key_valid, R.color.green)
-                    } else {
-                        setStatusMessage(R.string.wireguard_key_invalid, R.color.red)
-                    }
-                }
-
-                keyState.replacementFailure?.let { error -> showKeygenFailure(error) }
+                publicKey.error = null
+                publicKey.information = publicKeyString
+                keyAge.information = timeAgoFormatter.format(publicKeyAge)
             }
-            else -> {
-                showKeygenFailure(keyState.failure())
+            is KeygenEvent.TooManyKeys, is KeygenEvent.GenerationFailure -> {
+                publicKey.error = resources.getString(failureMessage(keyState.failure()!!))
+                publicKey.information = null
+                keyAge.information = null
+            }
+            null -> {
+                publicKey.error = null
+                publicKey.information = null
+                keyAge.information = null
             }
         }
-        drawNoConnectionState()
+    }
+
+    private fun updateStatusMessage() {
+        when (val state = actionState) {
+            is ActionState.Generating -> statusMessage.visibility = View.GONE
+            is ActionState.Verifying -> statusMessage.visibility = View.GONE
+            is ActionState.Idle -> {
+                if (hasConnectivity) {
+                    updateKeyStatus(state.verified, keyStatus)
+                } else {
+                    updateOfflineStatus()
+                }
+            }
+        }
+    }
+
+    private fun updateOfflineStatus() {
+        if (reconnectionExpected) {
+            setStatusMessage(R.string.wireguard_key_reconnecting, R.color.green)
+        } else {
+            setStatusMessage(R.string.wireguard_key_blocked_state_message, R.color.red)
+        }
+    }
+
+    private fun updateKeyStatus(verificationWasDone: Boolean, keyStatus: KeygenEvent?) {
+        if (keyStatus is KeygenEvent.NewKey) {
+            val replacementFailure = keyStatus.replacementFailure
+
+            if (replacementFailure != null) {
+                setStatusMessage(failureMessage(replacementFailure), R.color.red)
+            } else {
+                updateKeyIsValid(verificationWasDone, keyStatus.verified)
+            }
+        } else {
+            statusMessage.visibility = View.GONE
+        }
+    }
+
+    private fun updateKeyIsValid(verificationWasDone: Boolean, verified: Boolean?) {
+        when (verified) {
+            true -> setStatusMessage(R.string.wireguard_key_valid, R.color.green)
+            false -> setStatusMessage(R.string.wireguard_key_invalid, R.color.red)
+            null -> {
+                if (verificationWasDone) {
+                    setStatusMessage(R.string.wireguard_key_verification_failure, R.color.red)
+                } else {
+                    statusMessage.visibility = View.GONE
+                }
+            }
+        }
+    }
+
+    private fun updateGenerateKeyButtonState() {
+        generateKeyButton.setEnabled(actionState is ActionState.Idle && hasConnectivity)
+    }
+
+    private fun updateGenerateKeyButtonText() {
+        val state = actionState
+        val replacingKey = state is ActionState.Generating && state.replacing
+        val hasKey = keyStatus is KeygenEvent.NewKey
+
+        if (hasKey || replacingKey) {
+            generateKeyButton.setText(R.string.wireguard_replace_key)
+        } else {
+            generateKeyButton.setText(R.string.wireguard_generate_key)
+        }
+    }
+
+    private fun updateVerifyKeyButtonState() {
+        val isIdle = actionState is ActionState.Idle
+        val hasKey = keyStatus is KeygenEvent.NewKey
+
+        verifyKeyButton.setEnabled(isIdle && hasConnectivity && hasKey)
+    }
+
+    private fun updateVerifyingKeySpinner() {
+        verifyingKeySpinner.visibility = when (actionState) {
+            is ActionState.Verifying -> View.VISIBLE
+            else -> View.GONE
+        }
     }
 
     private fun setStatusMessage(message: Int, color: Int) {
@@ -182,175 +300,38 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         statusMessage.visibility = View.VISIBLE
     }
 
-    private fun clearErrorMessage() {
-        statusMessage.visibility = View.GONE
-    }
-
-    private fun showKeygenFailure(failure: KeygenFailure?) {
+    private fun failureMessage(failure: KeygenFailure): Int {
         when (failure) {
-            is KeygenFailure.TooManyKeys -> {
-                setStatusMessage(R.string.too_many_keys, R.color.red)
-            }
-            is KeygenFailure.GenerationFailure -> {
-                setStatusMessage(R.string.failed_to_generate_key, R.color.red)
-            }
+            is KeygenFailure.TooManyKeys -> return R.string.too_many_keys
+            is KeygenFailure.GenerationFailure -> return R.string.failed_to_generate_key
         }
     }
 
-    private fun setGenerateButton() {
-        generateButton.setClickable(true)
-        generateButton.setAlpha(1f)
-        if (validatingKey) {
-            generateButton.setClickable(false)
-            generateButton.setAlpha(0.5f)
-            return
-        }
-        if (generatingKey) {
-            generateButton.visibility = View.GONE
-            generateSpinner.visibility = View.VISIBLE
-            return
-        }
-        generateSpinner.visibility = View.GONE
-        generateButton.visibility = View.VISIBLE
-        if (keyStatusListener.keyStatus is KeygenEvent.NewKey) {
-            generateButton.setText(R.string.wireguard_replace_key)
-        } else {
-            generateButton.setText(R.string.wireguard_generate_key)
-        }
-
-        generateButton.setOnClickListener {
-            onGenerateKeyPress()
-        }
-    }
-
-    private fun setVerifyButton() {
-        verifyButton.setClickable(true)
-        verifyButton.setAlpha(1f)
-        val keyState = keyStatusListener.keyStatus
-        if (generatingKey || keyState?.failure() != null) {
-            verifyButton.setClickable(false)
-            verifyButton.setAlpha(0.5f)
-            return
-        }
-        if (validatingKey) {
-            verifyButton.visibility = View.GONE
-            verifySpinner.visibility = View.VISIBLE
-            return
-        }
-        verifySpinner.visibility = View.GONE
-        verifyButton.visibility = View.VISIBLE
-        verifyButton.setText(R.string.wireguard_verify_key)
-        verifyButton.setOnClickListener {
-            onValidateKeyPress()
-        }
-    }
-
-    private fun drawNoConnectionState() {
-        visitWebsiteView.setClickable(true)
-        visitWebsiteView.setAlpha(1f)
-
-        when (tunnelState) {
-            is TunnelState.Connecting, is TunnelState.Disconnecting -> {
-                if (!reconnectionExpected) {
-                    setStatusMessage(R.string.wireguard_key_connectivity, R.color.red)
-                    generateButton.visibility = View.GONE
-                    generateSpinner.visibility = View.VISIBLE
-                    verifyButton.visibility = View.GONE
-                    verifySpinner.visibility = View.VISIBLE
-                }
-            }
-            is TunnelState.Error -> {
-                setStatusMessage(R.string.wireguard_key_blocked_state_message, R.color.red)
-                generateButton.setClickable(false)
-                generateButton.setAlpha(0.5f)
-                verifyButton.setClickable(false)
-                verifyButton.setAlpha(0.5f)
-                visitWebsiteView.setClickable(false)
-                visitWebsiteView.setAlpha(0.5f)
-            }
-        }
-    }
-
-    private fun onGenerateKeyPress() {
-        currentJob?.cancel()
-
+    private suspend fun onGenerateKeyPress() {
         synchronized(this) {
-            generatingKey = true
-            validatingKey = false
+            actionState = ActionState.Generating(keyStatus is KeygenEvent.NewKey)
             reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
         }
 
-        updateViews()
+        keyStatus = null
+        keyStatusListener.generateKey().join()
 
-        currentJob = GlobalScope.launch(Dispatchers.Main) {
-            keyStatusListener.generateKey().join()
-            generatingKey = false
-            updateViews()
-        }
+        actionState = ActionState.Idle(false)
     }
 
-    private fun onValidateKeyPress() {
-        currentJob?.cancel()
-        validatingKey = true
-        generatingKey = false
-        updateViews()
-        currentJob = GlobalScope.launch(Dispatchers.Main) {
-            keyStatusListener.verifyKey().join()
-            validatingKey = false
-            when (val state = keyStatusListener.keyStatus) {
-                is KeygenEvent.NewKey -> {
-                    if (state.verified == null) {
-                        Toast.makeText(parentActivity,
-                            R.string.wireguard_key_verification_failure,
-                            Toast.LENGTH_SHORT).show()
-                    }
-                }
+    private suspend fun onValidateKeyPress() {
+        actionState = ActionState.Verifying()
+        keyStatusListener.verifyKey().join()
+        actionState = ActionState.Idle(true)
+    }
+
+    private fun resetReconnectionExpected() {
+        jobTracker.newBackgroundJob("resetReconnectionExpected") {
+            delay(20_000)
+
+            if (reconnectionExpected) {
+                reconnectionExpected = false
             }
-            updateViews()
         }
-    }
-
-    override fun onSafelyPause() {
-        tunnelStateListener?.let { listener ->
-            connectionProxy.onUiStateChange.unsubscribe(listener)
-        }
-
-        keyStatusListener.onKeyStatusChange = null
-        currentJob?.cancel()
-        updateViewsJob?.cancel()
-        resetReconnectionExpectedJob?.cancel()
-        validatingKey = false
-        generatingKey = false
-        urlController.onPause()
-    }
-
-    override fun onSafelyResume() {
-        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
-            synchronized(this@WireguardKeyFragment) {
-                tunnelState = uiState
-
-                if (generatingKey) {
-                    reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
-                } else if (tunnelState is TunnelState.Connected) {
-                    reconnectionExpected = false
-                }
-            }
-
-            updateViewsJob?.cancel()
-            updateViewsJob = updateViewJob()
-        }
-
-        keyStatusListener.onKeyStatusChange = { _ ->
-            updateViewsJob?.cancel()
-            updateViewsJob = updateViewJob()
-        }
-    }
-
-    private fun formatKeyDateCreated(rfc3339: String): String {
-        val dateCreated = DateTime.parse(rfc3339, RFC3339_FORMAT).withZone(DateTimeZone.UTC)
-        val localTimezone = DateTimeZone.forTimeZone(TimeZone.getDefault())
-        return parentActivity.getString(R.string.wireguard_key_age) +
-            " " +
-            KEY_AGE_FORMAT.print(dateCreated.withZone(localTimezone))
     }
 }

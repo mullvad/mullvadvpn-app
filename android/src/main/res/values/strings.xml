@@ -33,6 +33,8 @@
     <string name="settings_account">Account</string>
     <string name="less_than_a_day_left">less than a day
     left</string>
+    <string name="less_than_a_minute_ago">less than a minute
+    ago</string>
     <string name="out_of_time">Out of time</string>
     <string name="settings_preferences">Preferences</string>
     <string name="settings_advanced">Advanced</string>
@@ -45,7 +47,7 @@
     <string name="mullvad_account_number">Mullvad account
     number</string>
     <string name="copied_mullvad_account_number">Copied Mullvad
-    account number</string>
+    account number to clipboard</string>
     <string name="paid_until">Paid until</string>
     <string name="log_out">Log out</string>
     <string name="local_network_sharing">Local network
@@ -150,22 +152,25 @@
     your real location is masked with a private and secure location
     in the selected region</string>
     <string name="wireguard_key">WireGuard key</string>
-    <string name="wireguard_key_copied_to_clibpoard">Key copied to
-    clipboard</string>
-    <string name="wireguard_public_key">Public key</string>
+    <string name="public_key">Public key</string>
+    <string name="wireguard_key_generated">Key generated</string>
     <string name="wireguard_verify_key">Verify key</string>
     <string name="wireguard_generate_key">Generate key</string>
     <string name="wireguard_replace_key">Regenerate key</string>
     <string name="wireguard_manage_keys">Manage keys</string>
     <string name="wireguard_key_age">Key generated on</string>
-    <string name="wireguard_key_connectivity">Connectivity required
-    to manage your key.</string>
-    <string name="wireguard_key_blocked_state_message">Can\'t
-    manage keys in blocked state</string>
+    <string name="wireguard_key_reconnecting">Reconnecting with new
+    WireGuard key...</string>
+    <string name="wireguard_key_blocked_state_message">Unable to
+    manage keys while in a blocked state</string>
     <string name="wireguard_key_valid">Key is valid</string>
     <string name="wireguard_key_invalid">Key is invalid</string>
-    <string name="wireguard_key_verification_failure">Failed to
-    validate key</string>
+    <string name="wireguard_key_verification_failure">Key verification
+    failed</string>
+    <string name="wireguard_public_key">WireGuard public key
+    </string>
+    <string name="copied_wireguard_public_key">Copied WireGuard
+    public key to clipboard</string>
     <string name="account_url">
     https://mullvad.net/en/account</string>
     <string name="wg_key_url">
@@ -174,4 +179,6 @@
     https://mullvad.net/en/account/create</string>
     <string name="download_url">
     https://mullvad.net/en/download</string>
+    <string name="copied_to_clipboard">Copied to
+    clipboard</string>
 </resources>

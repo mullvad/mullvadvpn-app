@@ -1,0 +1,23 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <Button android:id="@+id/button"
+            android:gravity="center"
+            android:text=""
+            style="@style/Button" />
+    <ProgressBar android:id="@+id/spinner"
+                 android:layout_width="20dp"
+                 android:layout_height="20dp"
+                 android:layout_marginHorizontal="9dp"
+                 android:layout_gravity="right|center_vertical"
+                 android:indeterminate="true"
+                 android:indeterminateOnly="true"
+                 android:indeterminateDuration="600"
+                 android:indeterminateDrawable="@drawable/icon_spinner"
+                 android:visibility="gone" />
+    <ImageView android:id="@+id/image"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_marginHorizontal="9dp"
+               android:layout_gravity="right|center_vertical"
+               android:src="@android:color/transparent"
+               android:visibility="gone" />
+</merge>
