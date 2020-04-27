@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:mullvad="http://schemas.android.com/apk/res-auto"
               android:id="@+id/main_fragment"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
@@ -139,12 +140,10 @@
                   android:textColor="@color/white80"
                   android:textSize="13sp"
                   android:text="@string/dont_have_an_account" />
-        <Button android:id="@+id/create_account"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="9dp"
-                android:drawableRight="@drawable/icon_extlink"
-                android:text="@string/create_account"
-                style="@style/BlueButton" />
+        <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/create_account"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="wrap_content"
+                                                 mullvad:buttonColor="blue"
+                                                 mullvad:text="@string/create_account" />
     </LinearLayout>
 </LinearLayout>
