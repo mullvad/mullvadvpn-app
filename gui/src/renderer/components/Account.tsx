@@ -2,8 +2,7 @@ import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import AccountExpiry from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
-import styles from './AccountStyles';
-import AccountTokenLabel from './AccountTokenLabel';
+import styles, { StyledAccountTokenLabel } from './AccountStyles';
 import * as AppButton from './AppButton';
 import { Container, Layout } from './Layout';
 import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
@@ -49,10 +48,7 @@ export default class Account extends Component<IProps> {
                     <Text style={styles.account__row_label}>
                       {messages.pgettext('account-view', 'Account number')}
                     </Text>
-                    <AccountTokenLabel
-                      style={styles.account__row_value}
-                      accountToken={this.props.accountToken || ''}
-                    />
+                    <StyledAccountTokenLabel accountToken={this.props.accountToken || ''} />
                   </View>
 
                   <View style={styles.account__row}>
