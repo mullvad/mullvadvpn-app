@@ -225,7 +225,7 @@ impl RouteManagerImplInner {
     async fn get_default_routes_inner(&self, version: IpVersion) -> Result<HashSet<Route>> {
         let mut routes = HashSet::new();
         let mut route_request = self.handle.route().get(version).execute();
-        if let Some(route) = route_request
+        while let Some(route) = route_request
             .try_next()
             .await
             .map_err(failure::Fail::compat)
@@ -236,7 +236,7 @@ impl RouteManagerImplInner {
                     routes.insert(default_route);
                 }
             }
-        };
+        }
         Ok(routes)
     }
 
