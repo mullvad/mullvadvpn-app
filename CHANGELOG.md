@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add shell completions for the mullvad CLI.
 
+#### Android
+- Add possibility to create account from the login screen.
+
 ### Changed
 - Downgrade to Electron 7 due to issues with tray icon in Electron 8.
 - Use rustls instead of OpenSSL for TLS encryption to the API and GeoIP location service.
