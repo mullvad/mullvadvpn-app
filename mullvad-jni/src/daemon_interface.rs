@@ -47,6 +47,16 @@ impl DaemonInterface {
         Ok(())
     }
 
+    pub fn create_new_account(&self) -> Result<String> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::CreateNewAccount(tx))?;
+
+        rx.wait()
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::RpcError)
+    }
+
     pub fn disconnect(&self) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
