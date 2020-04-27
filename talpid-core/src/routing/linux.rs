@@ -103,6 +103,12 @@ impl RouteManagerImpl {
     }
 }
 
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
+struct RequiredDefaultRoute {
+    table_id: u8,
+    destination: IpNetwork,
+}
+
 pub struct RouteManagerImplInner {
     handle: Handle,
     messages: UnboundedReceiver<(NetlinkMessage<RtnlMessage>, SocketAddr)>,
@@ -112,7 +118,7 @@ pub struct RouteManagerImplInner {
     added_routes: HashSet<Route>,
     // default route tracking
     // destinations that should be routed through the default route
-    required_default_routes: HashSet<IpNetwork>,
+    required_default_routes: HashSet<RequiredDefaultRoute>,
     default_routes: HashSet<Route>,
     best_default_node_v4: Option<Node>,
     best_default_node_v6: Option<Node>,
@@ -144,7 +150,10 @@ impl RouteManagerImplInner {
                     required_normal_routes.insert(Route::new(node, destination));
                 }
                 NetNode::DefaultNode => {
-                    required_default_routes.insert(destination);
+                    required_default_routes.insert(RequiredDefaultRoute {
+                        table_id: RT_TABLE_MAIN,
+                        destination,
+                    });
                 }
             }
         }
@@ -174,15 +183,16 @@ impl RouteManagerImplInner {
             monitor.add_route(normal_route).await?;
         }
 
-        for prefix in monitor.required_default_routes.clone().into_iter() {
+        for route in monitor.required_default_routes.clone().into_iter() {
             if let (false, _, Some(default_node)) | (true, Some(default_node), _) = (
-                prefix.is_ipv4(),
+                route.destination.is_ipv4(),
                 &monitor.best_default_node_v4,
                 &monitor.best_default_node_v6,
             ) {
                 // best to pick a single node identifier rather than device + ip
-                let route = Route::new(default_node.clone(), prefix);
-                monitor.add_route(route).await?;
+                let new_route =
+                    Route::new(default_node.clone(), route.destination).table(route.table_id);
+                monitor.add_route(new_route).await?;
             }
         }
         Ok(monitor)
@@ -261,16 +271,20 @@ impl RouteManagerImplInner {
         if self.best_default_node_v4 != new_best_v4 && new_best_v4.is_some() {
             let new_node = new_best_v4.unwrap();
             let old_node = self.best_default_node_v4.take();
-            let v4_destinations: Vec<_> = self
+            let v4_routes: Vec<_> = self
                 .required_default_routes
                 .iter()
-                .filter(|ip| ip.is_ipv4())
+                .filter(|ip| ip.destination.is_ipv4())
                 .cloned()
                 .collect();
-            for destination in v4_destinations {
-                let new_route = Route::new(new_node.clone(), destination);
+            for route in v4_routes {
+                let new_route =
+                    Route::new(new_node.clone(), route.destination).table(route.table_id);
+
                 if let Some(old_node) = &old_node {
-                    let old_route = Route::new(old_node.clone(), destination);
+                    let old_route =
+                        Route::new(old_node.clone(), route.destination).table(route.table_id);
+
                     if let Err(e) = self.delete_route(&old_route).await {
                         log::error!("Failed to remove old route {} - {}", &old_route, e);
                     }
@@ -286,17 +300,20 @@ impl RouteManagerImplInner {
         if self.best_default_node_v6 != new_best_v6 && new_best_v6.is_some() {
             let new_node = new_best_v6.unwrap();
             let old_node = self.best_default_node_v6.take();
-            let v6_destinations: Vec<_> = self
+            let v6_routes: Vec<_> = self
                 .required_default_routes
                 .iter()
-                .filter(|ip| !ip.is_ipv4())
+                .filter(|ip| !ip.destination.is_ipv4())
                 .cloned()
                 .collect();
 
-            for destination in v6_destinations {
-                let new_route = Route::new(new_node.clone(), destination);
+            for route in v6_routes {
+                let new_route =
+                    Route::new(new_node.clone(), route.destination).table(route.table_id);
+
                 if let Some(old_node) = &old_node {
-                    let old_route = Route::new(old_node.clone(), destination);
+                    let old_route =
+                        Route::new(old_node.clone(), route.destination).table(route.table_id);
 
                     if let Err(e) = self.delete_route(&old_route).await {
                         log::error!("Failed to remove old route {} - {}", &old_route, e);
@@ -478,6 +495,7 @@ impl RouteManagerImplInner {
             node,
             prefix: prefix.unwrap(),
             metric,
+            table_id: msg.header.table,
         }))
     }
 
@@ -517,7 +535,7 @@ impl RouteManagerImplInner {
                 source_prefix_length: 0,
                 destination_prefix_length: route.prefix.prefix(),
                 tos: 0u8,
-                table: RT_TABLE_MAIN,
+                table: route.table_id,
                 protocol: RTPROT_STATIC,
                 scope: RT_SCOPE_UNIVERSE,
                 kind: RTN_UNICAST,
@@ -557,7 +575,8 @@ impl RouteManagerImplInner {
                     .handle
                     .route()
                     .add_v4()
-                    .destination_prefix(v4_prefix.ip(), v4_prefix.prefix());
+                    .destination_prefix(v4_prefix.ip(), v4_prefix.prefix())
+                    .table(route.table_id);
 
                 if v4_prefix.size() > 1 {
                     add_message = add_message.scope(RT_SCOPE_LINK)
@@ -581,7 +600,8 @@ impl RouteManagerImplInner {
                     .handle
                     .route()
                     .add_v6()
-                    .destination_prefix(v6_prefix.ip(), v6_prefix.prefix());
+                    .destination_prefix(v6_prefix.ip(), v6_prefix.prefix())
+                    .table(route.table_id);
 
                 if v6_prefix.size() > 1 {
                     add_message = add_message.scope(RT_SCOPE_LINK)
