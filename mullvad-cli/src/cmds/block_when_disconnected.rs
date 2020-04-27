@@ -5,7 +5,7 @@ pub struct BlockWhenDisconnected;
 
 impl Command for BlockWhenDisconnected {
     fn name(&self) -> &'static str {
-        "block-when-disconnected"
+        "always-require-vpn"
     }
 
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
@@ -14,7 +14,7 @@ impl Command for BlockWhenDisconnected {
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
                 clap::SubCommand::with_name("set")
-                    .about("Change the block when disconnected setting")
+                    .about("Change the always require VPN setting")
                     .arg(
                         clap::Arg::with_name("policy")
                             .required(true)
@@ -23,7 +23,7 @@ impl Command for BlockWhenDisconnected {
             )
             .subcommand(
                 clap::SubCommand::with_name("get")
-                    .about("Display the current block when disconnected setting"),
+                    .about("Display the current always require VPN setting"),
             )
     }
 
@@ -43,7 +43,7 @@ impl BlockWhenDisconnected {
     fn set(&self, block_when_disconnected: bool) -> Result<()> {
         let mut rpc = new_rpc_client()?;
         rpc.set_block_when_disconnected(block_when_disconnected)?;
-        println!("Changed block when disconnected setting");
+        println!("Changed always require VPN setting");
         Ok(())
     }
 
