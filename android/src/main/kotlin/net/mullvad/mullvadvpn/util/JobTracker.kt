@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class JobTracker {
@@ -47,6 +48,14 @@ class JobTracker {
 
     fun newUiJob(name: String, jobBody: suspend () -> Unit): Long {
         return newJob(name, GlobalScope.launch(Dispatchers.Main) { jobBody() })
+    }
+
+    suspend fun <T> runOnBackground(jobBody: suspend () -> T): T {
+        val job = GlobalScope.async(Dispatchers.Default) { jobBody() }
+
+        newJob(job)
+
+        return job.await()
     }
 
     fun cancelJob(name: String) {
