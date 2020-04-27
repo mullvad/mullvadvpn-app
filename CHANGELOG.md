@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Downgrade to Electron 7 due to issues with tray icon in Electron 8.
+- Rename "Block when disconnected" setting to "Always require VPN" and add additional explanation of the setting.
 
 #### Windows
 - When required, attempt to enable IPv6 for network adapters instead of failing.
