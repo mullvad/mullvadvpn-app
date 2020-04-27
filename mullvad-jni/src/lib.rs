@@ -328,6 +328,31 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_connect
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_createNewAccount<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        match daemon_interface.create_new_account() {
+            Ok(account) => account.into_java(&env).forget(),
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to create new account")
+                );
+                JObject::null()
+            }
+        }
+    } else {
+        JObject::null()
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_disconnect(
     _: JNIEnv<'_>,
     _: JObject<'_>,
