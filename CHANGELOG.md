@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Downgrade to Electron 7 due to issues with tray icon in Electron 8.
+- Use rustls instead of OpenSSL for TLS encryption to the API and GeoIP location service.
 
 #### Windows
 - When required, attempt to enable IPv6 for network adapters instead of failing.
