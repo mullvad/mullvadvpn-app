@@ -1,32 +1,14 @@
-use std::{io, thread};
-use tokio_core::reactor::Core;
+use tokio::runtime::{Builder, Runtime};
 
-/// Creates a new tokio event loop on a new thread, runs the provided `init` closure on the thread
-/// and sends back the result.
-/// Used to spawn futures on the core in the separate thread and be able to return sendable handles.
-pub fn create<F, T>(init: F) -> io::Result<T>
-where
-    F: FnOnce(&mut Core) -> T + Send + 'static,
-    T: Send + 'static,
-{
-    let (tx, rx) = std::sync::mpsc::channel();
-    thread::spawn(move || match create_core(init) {
-        Err(e) => tx.send(Err(e)).unwrap(),
-        Ok((mut core, out)) => {
-            tx.send(Ok(out)).unwrap();
-            loop {
-                core.turn(None);
-            }
-        }
-    });
-    rx.recv().unwrap()
-}
+/// Creates a new tokio runtime to be exclusively used for HTTP requests.
+// FIXME: Remove this once the daemon has migrated.
+pub fn create_runtime() -> Result<Runtime, crate::Error> {
+    let runtime = Builder::new()
+        .threaded_scheduler()
+        .core_threads(2)
+        .enable_all()
+        .thread_name("mullvad-rpc-event-loop")
+        .build();
 
-fn create_core<F, T>(init: F) -> io::Result<(Core, T)>
-where
-    F: FnOnce(&mut Core) -> T + Send + 'static,
-{
-    let mut core = Core::new()?;
-    let out = init(&mut core);
-    Ok((core, out))
+    runtime.map_err(crate::Error::TokioRuntimeError)
 }

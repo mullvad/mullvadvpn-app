@@ -1,7 +1,8 @@
 package net.mullvad.mullvadvpn.model
 
 data class AppVersionInfo(
-    val currentIsSupported: Boolean,
+    val supported: Boolean,
     val latestStable: String,
+    val latestBeta: String,
     val latest: String
 )

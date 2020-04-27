@@ -1,5 +1,5 @@
 use crate::{logging::windows::log_sink, tunnel_state_machine::TunnelCommand, winnet};
-use futures::sync::mpsc::UnboundedSender;
+use futures01::sync::mpsc::UnboundedSender;
 use parking_lot::Mutex;
 use std::{
     ffi::c_void,

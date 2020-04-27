@@ -1,7 +1,7 @@
 use crate::{account_history::AccountHistory, DaemonEventSender, InternalDaemonEvent};
 use chrono::offset::Utc;
 use futures::{future::Executor, stream::Stream, sync::oneshot, Async, Future, Poll};
-use jsonrpc_client_core::Error as JsonRpcError;
+use mullvad_rpc::rest::{Error as RestError, MullvadRestHandle};
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;
 use std::time::Duration;
@@ -17,8 +17,6 @@ use tokio_retry::{
 };
 use tokio_timer;
 
-const TOO_MANY_KEYS_ERROR_CODE: i64 = -703;
-
 /// Default automatic key rotation
 const DEFAULT_AUTOMATIC_KEY_ROTATION: Duration = Duration::from_secs(7 * 24 * 60 * 60);
 /// How long to wait before reattempting to rotate keys on failure
@@ -31,8 +29,8 @@ const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
 pub enum Error {
     #[error(display = "Failed to spawn future")]
     ExectuionError,
-    #[error(display = "Unexpected RPC error")]
-    RpcError(#[error(source)] jsonrpc_client_core::Error),
+    #[error(display = "Unexpected HTTP request error")]
+    RestError(#[error(source)] mullvad_rpc::rest::Error),
     #[error(display = "Account already has maximum number of keys")]
     TooManyKeys,
     #[error(display = "Failed to create rotation timer")]
@@ -43,7 +41,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 pub struct KeyManager {
     daemon_tx: DaemonEventSender,
-    http_handle: mullvad_rpc::HttpHandle,
+    http_handle: MullvadRestHandle,
     tokio_remote: Remote,
     current_job: Option<CancelHandle>,
 
@@ -54,7 +52,7 @@ pub struct KeyManager {
 impl KeyManager {
     pub(crate) fn new(
         daemon_tx: DaemonEventSender,
-        http_handle: mullvad_rpc::HttpHandle,
+        http_handle: MullvadRestHandle,
         tokio_remote: Remote,
     ) -> Self {
         Self {
@@ -149,6 +147,25 @@ impl KeyManager {
         ))
     }
 
+    /// Verifies whether a key is valid or not.
+    pub fn verify_wireguard_key(
+        &self,
+        account: AccountToken,
+        key: talpid_types::net::wireguard::PublicKey,
+    ) -> impl Future<Item = bool, Error = Error> {
+        let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
+        rpc.get_wireguard_key(account, &key)
+            .then(|response| match response {
+                Ok(_) => Ok(true),
+                Err(mullvad_rpc::rest::Error::ApiError(status, _code))
+                    if status == mullvad_rpc::StatusCode::NOT_FOUND =>
+                {
+                    Ok(false)
+                }
+                Err(err) => Err(Self::map_rpc_error(err)),
+            })
+    }
+
 
     /// Generate a new private key asynchronously. The new keys will be sent to the daemon channel.
     pub fn generate_key_async(&mut self, account: AccountToken) -> Result<()> {
@@ -160,11 +177,9 @@ impl KeyManager {
             .max_delay(Duration::from_secs(60 * 60))
             .map(jitter);
 
-        let should_retry = |err: &jsonrpc_client_core::Error| -> bool {
-            match err.kind() {
-                jsonrpc_client_core::ErrorKind::JsonRpcError(err)
-                    if err.code.code() == TOO_MANY_KEYS_ERROR_CODE =>
-                {
+        let should_retry = |err: &RestError| -> bool {
+            match err {
+                RestError::ApiError(_status, code) if code == mullvad_rpc::KEY_LIMIT_REACHED => {
                     false
                 }
                 _ => true,
@@ -225,13 +240,13 @@ impl KeyManager {
         &self,
         account: AccountToken,
         private_key: PrivateKey,
-    ) -> Box<dyn FnMut() -> Box<dyn Future<Item = WireguardData, Error = JsonRpcError> + Send> + Send>
+    ) -> Box<dyn FnMut() -> Box<dyn Future<Item = WireguardData, Error = RestError> + Send> + Send>
     {
         let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
         let public_key = private_key.public_key();
 
         let push_future =
-            move || -> Box<dyn Future<Item = WireguardData, Error = JsonRpcError> + Send> {
+            move || -> Box<dyn Future<Item = WireguardData, Error = RestError> + Send> {
                 let key = private_key.clone();
                 Box::new(rpc.push_wg_key(account.clone(), public_key.clone()).map(
                     move |addresses| WireguardData {
@@ -245,7 +260,7 @@ impl KeyManager {
     }
 
     fn replace_key_rpc(
-        http_handle: mullvad_rpc::HttpHandle,
+        http_handle: MullvadRestHandle,
         account: AccountToken,
         old_key: PublicKey,
         new_key: PrivateKey,
@@ -261,13 +276,16 @@ impl KeyManager {
             })
     }
 
-    fn map_rpc_error(err: jsonrpc_client_core::Error) -> Error {
-        match err.kind() {
+    fn map_rpc_error(err: mullvad_rpc::rest::Error) -> Error {
+        match &err {
             // TODO: Consider handling the invalid account case too.
-            jsonrpc_client_core::ErrorKind::JsonRpcError(err) if err.code.code() == -703 => {
+            mullvad_rpc::rest::Error::ApiError(status, message)
+                if *status == mullvad_rpc::StatusCode::BAD_REQUEST
+                    && message == mullvad_rpc::KEY_LIMIT_REACHED =>
+            {
                 Error::TooManyKeys
             }
-            _ => Error::RpcError(err),
+            _ => Error::RestError(err),
         }
     }
 
@@ -290,7 +308,7 @@ impl KeyManager {
 
     fn next_automatic_rotation(
         daemon_tx: DaemonEventSender,
-        http_handle: mullvad_rpc::HttpHandle,
+        http_handle: MullvadRestHandle,
         public_key: PublicKey,
         rotation_interval_secs: u64,
         account_token: AccountToken,
@@ -330,7 +348,7 @@ impl KeyManager {
 
     fn create_automatic_rotation(
         daemon_tx: DaemonEventSender,
-        http_handle: mullvad_rpc::HttpHandle,
+        http_handle: MullvadRestHandle,
         public_key: PublicKey,
         rotation_interval_secs: u64,
         account_token: AccountToken,
@@ -355,8 +373,8 @@ impl KeyManager {
                     }
                     Err(e) => {
                         log::error!(
-                            "Key rotation failed: {}. Retrying in {} seconds",
-                            e,
+                            "{}. Retrying in {} seconds",
+                            e.display_chain_with_msg("Key rotation failed:"),
                             AUTOMATIC_ROTATION_RETRY_DELAY.as_secs(),
                         );
                         Ok(old_public_key)
