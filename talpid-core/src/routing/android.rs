@@ -1,6 +1,6 @@
+use crate::routing::RequiredRoute;
 use futures01::{sync::oneshot, Async, Future};
-use ipnetwork::IpNetwork;
-use std::collections::HashMap;
+use std::collections::HashSet;
 
 /// Stub error type for routing errors on Android.
 #[derive(Debug, err_derive::Error)]
@@ -14,7 +14,7 @@ pub struct RouteManagerImpl {
 
 impl RouteManagerImpl {
     pub fn new(
-        _required_routes: HashMap<IpNetwork, super::NetNode>,
+        _required_routes: HashSet<RequiredRoute>,
         shutdown_rx: oneshot::Receiver<oneshot::Sender<()>>,
     ) -> Result<Self, Error> {
         Ok(RouteManagerImpl { shutdown_rx })

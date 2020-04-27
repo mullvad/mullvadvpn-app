@@ -1,8 +1,8 @@
-use crate::routing::{NetNode, Node, Route};
+use crate::routing::{NetNode, Node, RequiredRoute, Route};
 
 use ipnetwork::IpNetwork;
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::{BTreeMap, HashSet},
     io,
     net::IpAddr,
 };
@@ -73,7 +73,7 @@ pub struct RouteManagerImpl {
 impl RouteManagerImpl {
     /// Creates a new RouteManagerImplInner.
     pub fn new(
-        required_routes: HashMap<IpNetwork, NetNode>,
+        required_routes: HashSet<RequiredRoute>,
         shutdown_rx: old_oneshot::Receiver<old_oneshot::Sender<()>>,
     ) -> Result<Self> {
         let mut runtime = tokio02::runtime::Builder::new()
@@ -125,7 +125,7 @@ pub struct RouteManagerImplInner {
 }
 
 impl RouteManagerImplInner {
-    pub async fn new(required_routes: HashMap<IpNetwork, NetNode>) -> Result<Self> {
+    pub async fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
         let (mut connection, handle, messages) =
             rtnetlink::new_connection().map_err(Error::ConnectError)?;
 
@@ -144,15 +144,16 @@ impl RouteManagerImplInner {
         let mut required_normal_routes = HashSet::new();
         let mut required_default_routes = HashSet::new();
 
-        for (destination, node) in required_routes {
-            match node {
+        for route in required_routes {
+            match route.node {
                 NetNode::RealNode(node) => {
-                    required_normal_routes.insert(Route::new(node, destination));
+                    required_normal_routes
+                        .insert(Route::new(node, route.prefix).table(route.table_id));
                 }
                 NetNode::DefaultNode => {
                     required_default_routes.insert(RequiredDefaultRoute {
-                        table_id: RT_TABLE_MAIN,
-                        destination,
+                        table_id: route.table_id,
+                        destination: route.prefix,
                     });
                 }
             }
@@ -690,7 +691,7 @@ fn ip_to_bytes(addr: IpAddr) -> Vec<u8> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::collections::HashMap;
+    use std::collections::HashSet;
 
 
     /// Tests if dropping inside a tokio runtime panics
@@ -698,7 +699,7 @@ mod test {
     fn test_drop_in_executor() {
         let mut runtime = tokio02::runtime::Runtime::new().expect("Failed to initialize runtime");
         runtime.block_on(async {
-            let manager = RouteManagerImplInner::new(HashMap::new())
+            let manager = RouteManagerImplInner::new(HashSet::new())
                 .await
                 .expect("Failed to initialize route manager");
             std::mem::drop(manager);
@@ -710,7 +711,7 @@ mod test {
     fn test_drop() {
         let mut runtime = tokio02::runtime::Runtime::new().expect("Failed to initialize runtime");
         let manager = runtime.block_on(async {
-            RouteManagerImplInner::new(HashMap::new())
+            RouteManagerImplInner::new(HashSet::new())
                 .await
                 .expect("Failed to initialize route manager")
         });

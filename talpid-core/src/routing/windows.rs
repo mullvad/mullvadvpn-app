@@ -1,7 +1,6 @@
 use super::NetNode;
-use crate::winnet;
-use ipnetwork::IpNetwork;
-use std::collections::HashMap;
+use crate::{routing::RequiredRoute, winnet};
+use std::collections::HashSet;
 
 /// Windows routing errors.
 #[derive(err_derive::Error, Debug)]
@@ -22,12 +21,12 @@ pub struct RouteManager {
 impl RouteManager {
     /// Creates a new route manager that will apply the provided routes and ensure they exist until
     /// it's stopped.
-    pub fn new(required_routes: HashMap<IpNetwork, NetNode>) -> Result<Self> {
+    pub fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
         let routes: Vec<_> = required_routes
             .iter()
-            .map(|(destination, node)| {
-                let destination = winnet::WinNetIpNetwork::from(*destination);
-                match node {
+            .map(|route| {
+                let destination = winnet::WinNetIpNetwork::from(route.prefix);
+                match &route.node {
                     NetNode::DefaultNode => winnet::WinNetRoute::through_default_node(destination),
                     NetNode::RealNode(node) => {
                         winnet::WinNetRoute::new(winnet::WinNetNode::from(node), destination)

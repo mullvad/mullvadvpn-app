@@ -1,10 +1,9 @@
 #![cfg_attr(target_os = "android", allow(dead_code))]
 #![cfg_attr(target_os = "windows", allow(dead_code))]
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
-use super::NetNode;
+use super::RequiredRoute;
 use futures01::{sync::oneshot, Future};
-use ipnetwork::IpNetwork;
-use std::{collections::HashMap, sync::mpsc::sync_channel};
+use std::{collections::HashSet, sync::mpsc::sync_channel};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -43,9 +42,9 @@ pub struct RouteManager {
 
 impl RouteManager {
     /// Constructs a RouteManager and applies the required routes.
-    /// Takes a map of network destinations and network nodes as an argument, and applies said
+    /// Takes a set of network destinations and network nodes as an argument, and applies said
     /// routes.
-    pub fn new(required_routes: HashMap<IpNetwork, NetNode>) -> Result<Self, Error> {
+    pub fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self, Error> {
         let (tx, rx) = oneshot::channel();
         let (start_tx, start_rx) = sync_channel(1);
 
