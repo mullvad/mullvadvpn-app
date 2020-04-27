@@ -33,6 +33,10 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         connect(daemonInterfaceAddress)
     }
 
+    fun createNewAccount(): String? {
+        return createNewAccount(daemonInterfaceAddress)
+    }
+
     fun disconnect() {
         disconnect(daemonInterfaceAddress)
     }
@@ -121,6 +125,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     private external fun deinitialize()
 
     private external fun connect(daemonInterfaceAddress: Long)
+    private external fun createNewAccount(daemonInterfaceAddress: Long): String?
     private external fun disconnect(daemonInterfaceAddress: Long)
     private external fun generateWireguardKey(daemonInterfaceAddress: Long): KeygenEvent?
     private external fun getAccountData(
