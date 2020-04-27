@@ -29,6 +29,9 @@
     <string name="dont_have_an_account">Don\'t have an account
     number?</string>
     <string name="create_account">Create account</string>
+    <string name="creating_new_account">Creating new account</string>
+    <string name="failed_to_create_account">Failed to create account</string>
+    <string name="account_created">Account created</string>
     <string name="settings">Settings</string>
     <string name="settings_account">Account</string>
     <string name="less_than_a_day_left">less than a day
