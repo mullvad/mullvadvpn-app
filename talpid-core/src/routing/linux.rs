@@ -351,6 +351,34 @@ impl RouteManagerImplInner {
     }
 
     async fn cleanup_routes(&mut self) {
+        for required_route in &self.required_default_routes {
+            let best_node = if required_route.destination.is_ipv4() {
+                self.best_default_node_v4.clone()
+            } else {
+                self.best_default_node_v6.clone()
+            };
+
+            let best_node = match best_node {
+                None => continue,
+                Some(node) => node,
+            };
+
+            let route =
+                Route::new(best_node, required_route.destination).table(required_route.table_id);
+            if let Err(e) = self.delete_route(&route).await {
+                if let Error::NetlinkError(err) = &e {
+                    if let rtnetlink::ErrorKind::NetlinkError(msg) = err.get_ref().kind() {
+                        // -3 means that the route doesn't exist anymore anyway
+                        if msg.code == -3 {
+                            continue;
+                        }
+                    }
+                }
+                log::error!("Failed to remove route - {} - {}", route, e);
+            }
+        }
+        self.required_default_routes.clear();
+
         for route in self.added_routes.drain().collect::<Vec<_>>().iter() {
             if let Err(e) = self.delete_route(&route).await {
                 if let Error::NetlinkError(err) = &e {
