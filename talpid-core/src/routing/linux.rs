@@ -39,34 +39,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    /// Failed to add route.
-    #[error(display = "Failed to add route")]
-    FailedToAddRoute(#[error(source)] io::Error),
-
-    /// Failed to remove route.
-    #[error(display = "Failed to remove route")]
-    FailedToRemoveRoute(#[error(source)] io::Error),
-
-    /// Error while running "ip route".
-    #[error(display = "Error while running \"ip route\"")]
-    FailedToRunIp(#[error(source)] io::Error),
-
-    /// Invocation of `ip route` ended with a non-zero exit code
-    #[error(display = "ip returend a non-zero exit code")]
-    ErrorIpFailed,
-
-    /// Received unexpected output from `ip route`
-    #[error(display = "Received unexpected output from \"ip\"")]
-    UnexpectedOutput,
-
-    /// No default route exists
-    #[error(display = "No default route in \"ip route\" output")]
-    NoDefaultRoute,
-
-    /// Route table change stream failed.
-    #[error(display = "Route change listener failed")]
-    NetlinkConnectionError(#[error(source)] failure::Compat<rtnetlink::Error>),
-
     #[error(display = "Failed to open a netlink connection")]
     ConnectError(#[error(source)] io::Error),
 
