@@ -14,6 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
+import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
@@ -45,7 +46,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         accountInput = AccountInput(view, parentActivity.resources)
         accountInput.onLogin = { accountToken -> login(accountToken) }
 
-        view.findViewById<View>(R.id.create_account).setOnClickListener { createAccount() }
+        view.findViewById<Button>(R.id.create_account)
+            .setOnClickAction("createAccount", jobTracker) { createAccount() }
 
         fetchHistory()
 
