@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -71,11 +69,25 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         jobTracker.cancelAllJobs()
     }
 
-    private fun createAccount() {
-        val uri = Uri.parse(parentActivity.getString(R.string.create_account_url))
-        val intent = Intent(Intent.ACTION_VIEW, uri)
+    private suspend fun createAccount() {
+        title.setText(R.string.logging_in_title)
+        subtitle.setText(R.string.creating_new_account)
 
-        startActivity(intent)
+        loggingInStatus.visibility = View.VISIBLE
+        loginFailStatus.visibility = View.GONE
+        loggedInStatus.visibility = View.GONE
+
+        accountInput.state = LoginState.InProgress
+
+        val accountToken = jobTracker.runOnBackground {
+            daemon.createNewAccount()
+        }
+
+        if (accountToken == null) {
+            loginFailure(R.string.failed_to_create_account)
+        } else {
+            loggedIn(resources.getString(R.string.account_created))
+        }
     }
 
     private fun login(accountToken: String) {
@@ -114,22 +126,22 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             }
 
             if (loginSucceeded) {
-                loggedIn()
+                loggedIn("")
             } else {
-                loginFailure()
+                loginFailure(R.string.login_fail_description)
             }
         }
     }
 
-    private suspend fun loggedIn() {
-        showLoggedInMessage()
+    private suspend fun loggedIn(subtitleMessage: String) {
+        showLoggedInMessage(subtitleMessage)
         delay(1000)
         loggedIn.complete(Unit)
     }
 
-    private fun showLoggedInMessage() {
+    private fun showLoggedInMessage(subtitleMessage: String) {
         title.setText(R.string.logged_in_title)
-        subtitle.setText("")
+        subtitle.setText(subtitleMessage)
 
         loggingInStatus.visibility = View.GONE
         loginFailStatus.visibility = View.GONE
@@ -145,9 +157,9 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
     }
 
-    private fun loginFailure() {
+    private fun loginFailure(description: Int) {
         title.setText(R.string.login_fail_title)
-        subtitle.setText(R.string.login_fail_description)
+        subtitle.setText(description)
 
         loggingInStatus.visibility = View.GONE
         loginFailStatus.visibility = View.VISIBLE
