@@ -122,6 +122,7 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     child: Arc<C::ProcessHandle>,
     proxy_monitor: Option<Box<dyn ProxyMonitor>>,
     event_dispatcher: Option<talpid_ipc::IpcServer>,
+    #[cfg(windows)]
     log_path: Option<PathBuf>,
     closed: Arc<AtomicBool>,
     /// Keep the `TempFile` for the user-pass file in the struct, so it's removed on drop.
@@ -236,6 +237,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             child: Arc::new(child),
             proxy_monitor,
             event_dispatcher: Some(event_dispatcher),
+            #[cfg(windows)]
             log_path,
             closed: Arc::new(AtomicBool::new(false)),
             _user_pass_file: user_pass_file,
@@ -358,15 +360,13 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
     /// Performs a postmortem analysis to attempt to provide a more detailed error result.
     fn postmortem(&mut self) -> Error {
         #[cfg(windows)]
-        {
-            if let Some(log_path) = self.log_path.take() {
-                if let Ok(log) = fs::read_to_string(log_path) {
-                    if log.contains("There are no TAP-Windows adapters on this system") {
-                        return Error::MissingTapAdapter;
-                    }
-                    if log.contains("CreateFile failed on TAP device") {
-                        return Error::DisabledTapAdapter;
-                    }
+        if let Some(log_path) = self.log_path.take() {
+            if let Ok(log) = fs::read_to_string(log_path) {
+                if log.contains("There are no TAP-Windows adapters on this system") {
+                    return Error::MissingTapAdapter;
+                }
+                if log.contains("CreateFile failed on TAP device") {
+                    return Error::DisabledTapAdapter;
                 }
             }
         }
