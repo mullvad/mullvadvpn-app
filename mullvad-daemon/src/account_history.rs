@@ -45,10 +45,13 @@ pub struct AccountHistory {
 
 impl AccountHistory {
     pub fn new(
+        cache_dir: &Path,
         settings_dir: &Path,
         rpc_handle: MullvadRestHandle,
         tokio_remote: Remote,
     ) -> Result<AccountHistory> {
+        Self::migrate_from_old_file_location(cache_dir, settings_dir);
+
         let mut options = fs::OpenOptions::new();
         #[cfg(unix)]
         {
@@ -98,6 +101,32 @@ impl AccountHistory {
             log::error!("Failed to save account cache after opening it: {}", e);
         }
         Ok(history)
+    }
+
+    fn migrate_from_old_file_location(old_dir: &Path, new_dir: &Path) {
+        let old_path = old_dir.join(ACCOUNT_HISTORY_FILE);
+
+        if old_path.exists() {
+            let new_path = new_dir.join(ACCOUNT_HISTORY_FILE);
+
+            if new_path.exists() {
+                if let Err(error) = fs::remove_file(old_path) {
+                    log::warn!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to remove old account history file")
+                    );
+                }
+            } else {
+                if let Err(error) = fs::rename(old_path, new_path) {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to migrate account history file location"
+                        )
+                    );
+                }
+            }
+        }
     }
 
     fn try_old_format(reader: &mut io::BufReader<fs::File>) -> Result<Vec<AccountToken>> {
