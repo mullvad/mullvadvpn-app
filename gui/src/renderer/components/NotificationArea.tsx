@@ -52,7 +52,7 @@ function getTunnelParameterMessage(err: TunnelParameterError): string {
     case 'no_wireguard_key':
       return messages.pgettext(
         'in-app-notifications',
-        'WireGuard key not published to our servers. You can manage your key in Advanced settings.',
+        'Valid WireGuard key is missing. Manage keys under Advanced settings.',
       );
     case 'custom_tunnel_host_resultion_error':
       return messages.pgettext(
