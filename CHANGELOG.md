@@ -32,6 +32,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Downgrade to Electron 7 due to issues with tray icon in Electron 8.
 - Use rustls instead of OpenSSL for TLS encryption to the API and GeoIP location service.
+- Move location of the account data (including the WireGuard keys), so that it isn't lost when the
+  system cache is cleaned.
 
 #### Windows
 - When required, attempt to enable IPv6 for network adapters instead of failing.
