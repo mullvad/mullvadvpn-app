@@ -17,7 +17,7 @@ use jnix::{
     FromJava, IntoJava, JnixEnv,
 };
 use mullvad_daemon::{exception_logging, logging, version, Daemon, DaemonCommandChannel};
-use mullvad_rpc::rest::Error as RestError;
+use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::account::AccountData;
 use std::{
     path::{Path, PathBuf},
@@ -64,7 +64,7 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
             Ok(account_data) => GetAccountDataResult::Ok(account_data),
             Err(error) => match error {
                 daemon_interface::Error::RpcError(RestError::ApiError(status, _code))
-                    if status == mullvad_rpc::StatusCode::NOT_FOUND =>
+                    if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
                 {
                     GetAccountDataResult::InvalidAccount
                 }
