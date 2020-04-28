@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import net.mullvad.mullvadvpn.R
 
@@ -10,5 +11,13 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ) = inflater.inflate(R.layout.welcome, container, false)
+    ): View {
+        val view = inflater.inflate(R.layout.welcome, container, false)
+
+        view.findViewById<View>(R.id.settings).setOnClickListener {
+            parentActivity.openSettings()
+        }
+
+        return view
+    }
 }
