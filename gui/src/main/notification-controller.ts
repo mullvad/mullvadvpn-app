@@ -160,16 +160,6 @@ export default class NotificationController {
     });
   }
 
-  public notifyKeyGenerationFailed() {
-    const notification = new Notification({
-      title: this.notificationTitle,
-      body: messages.pgettext('notifications', 'Wireguard key generation failed'),
-      silent: true,
-      icon: this.notificationIcon,
-    });
-    this.scheduleNotification(notification);
-  }
-
   public closeToExpiryNotification(accountExpiry: AccountExpiry) {
     const duration = accountExpiry.durationUntilExpiry();
     const notification = new Notification({
