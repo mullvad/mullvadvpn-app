@@ -1,22 +1,19 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
+import net.mullvad.mullvadvpn.ui.widget.Button
+import net.mullvad.mullvadvpn.util.JobTracker
 
 class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var title: TextView
@@ -26,11 +23,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var loginFailStatus: View
     private lateinit var accountInput: AccountInput
 
+    private val jobTracker = JobTracker()
     private val loggedIn = CompletableDeferred<Unit>()
-
-    private var loginJob: Deferred<Boolean>? = null
-    private var advanceToNextScreenJob: Job? = null
-    private var fetchHistoryJob: Job? = null
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -50,7 +44,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         accountInput = AccountInput(view, parentActivity.resources)
         accountInput.onLogin = { accountToken -> login(accountToken) }
 
-        view.findViewById<View>(R.id.create_account).setOnClickListener { createAccount() }
+        view.findViewById<Button>(R.id.create_account)
+            .setOnClickAction("createAccount", jobTracker) { createAccount() }
 
         fetchHistory()
 
@@ -58,23 +53,41 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyResume() {
-        advanceToNextScreenJob = GlobalScope.launch(Dispatchers.Main) {
+        jobTracker.newUiJob("advanceToNextScreen") {
             loggedIn.join()
             openConnectScreen()
         }
+
         fetchHistory()
     }
 
     override fun onSafelyPause() {
-        advanceToNextScreenJob?.cancel()
-        fetchHistoryJob?.cancel()
+        jobTracker.cancelJob("advanceToNextScreen")
     }
 
-    private fun createAccount() {
-        val uri = Uri.parse(parentActivity.getString(R.string.create_account_url))
-        val intent = Intent(Intent.ACTION_VIEW, uri)
+    override fun onSafelyDestroyView() {
+        jobTracker.cancelAllJobs()
+    }
 
-        startActivity(intent)
+    private suspend fun createAccount() {
+        title.setText(R.string.logging_in_title)
+        subtitle.setText(R.string.creating_new_account)
+
+        loggingInStatus.visibility = View.VISIBLE
+        loginFailStatus.visibility = View.GONE
+        loggedInStatus.visibility = View.GONE
+
+        accountInput.state = LoginState.InProgress
+
+        val accountToken = jobTracker.runOnBackground {
+            daemon.createNewAccount()
+        }
+
+        if (accountToken == null) {
+            loginFailure(R.string.failed_to_create_account)
+        } else {
+            loggedIn(resources.getString(R.string.account_created))
+        }
     }
 
     private fun login(accountToken: String) {
@@ -91,45 +104,44 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     private fun fetchHistory() {
-        fetchHistoryJob?.cancel()
-        fetchHistoryJob = GlobalScope.launch(Dispatchers.Main) {
-            val history = GlobalScope.async(Dispatchers.Default) {
+        jobTracker.newUiJob("fetchHistory") {
+            accountInput.accountHistory = jobTracker.runOnBackground() {
                 daemon.getAccountHistory()
             }
-            accountInput.accountHistory = history.await()
         }
     }
 
     private fun performLogin(accountToken: String) = GlobalScope.launch(Dispatchers.Main) {
-        loginJob?.cancel()
-        loginJob = GlobalScope.async(Dispatchers.Default) {
-            val accountDataResult = daemon.getAccountData(accountToken)
+        jobTracker.newUiJob("login") {
+            val loginSucceeded = jobTracker.runOnBackground {
+                val accountDataResult = daemon.getAccountData(accountToken)
 
-            when (accountDataResult) {
-                is GetAccountDataResult.Ok, is GetAccountDataResult.RpcError -> {
-                    daemon.setAccount(accountToken)
-                    true
+                when (accountDataResult) {
+                    is GetAccountDataResult.Ok, is GetAccountDataResult.RpcError -> {
+                        daemon.setAccount(accountToken)
+                        true
+                    }
+                    else -> false
                 }
-                else -> false
             }
-        }
 
-        if (loginJob?.await() ?: false) {
-            loggedIn()
-        } else {
-            loginFailure()
+            if (loginSucceeded) {
+                loggedIn("")
+            } else {
+                loginFailure(R.string.login_fail_description)
+            }
         }
     }
 
-    private suspend fun loggedIn() {
-        showLoggedInMessage()
+    private suspend fun loggedIn(subtitleMessage: String) {
+        showLoggedInMessage(subtitleMessage)
         delay(1000)
         loggedIn.complete(Unit)
     }
 
-    private fun showLoggedInMessage() {
+    private fun showLoggedInMessage(subtitleMessage: String) {
         title.setText(R.string.logged_in_title)
-        subtitle.setText("")
+        subtitle.setText(subtitleMessage)
 
         loggingInStatus.visibility = View.GONE
         loginFailStatus.visibility = View.GONE
@@ -145,9 +157,9 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
     }
 
-    private fun loginFailure() {
+    private fun loginFailure(description: Int) {
         title.setText(R.string.login_fail_title)
-        subtitle.setText(R.string.login_fail_description)
+        subtitle.setText(description)
 
         loggingInStatus.visibility = View.GONE
         loginFailStatus.visibility = View.VISIBLE
