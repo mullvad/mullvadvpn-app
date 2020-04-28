@@ -66,7 +66,7 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        problemReport = MullvadProblemReport(filesDir)
+        problemReport = MullvadProblemReport(filesDir, filesDir)
 
         setContentView(R.layout.main)
 

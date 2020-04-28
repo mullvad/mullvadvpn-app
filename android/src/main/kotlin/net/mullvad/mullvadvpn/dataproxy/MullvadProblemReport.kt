@@ -9,7 +9,7 @@ import kotlinx.coroutines.async
 
 const val PROBLEM_REPORT_FILE = "problem_report.txt"
 
-class MullvadProblemReport(val logDirectory: File) {
+class MullvadProblemReport(val logDirectory: File, val resourceDirectory: File) {
     private val problemReportPath = File(logDirectory, PROBLEM_REPORT_FILE)
 
     private var collectJob: Deferred<Boolean>? = null
@@ -56,7 +56,8 @@ class MullvadProblemReport(val logDirectory: File) {
                             sendProblemReport(
                                 userEmail,
                                 userMessage,
-                                problemReportPath.absolutePath
+                                problemReportPath.absolutePath,
+                                resourceDirectory.absolutePath
                             )
 
                     if (result) {
@@ -81,6 +82,7 @@ class MullvadProblemReport(val logDirectory: File) {
     private external fun sendProblemReport(
         userEmail: String,
         userMessage: String,
-        reportPath: String
+        reportPath: String,
+        resourceDir: String
     ): Boolean
 }
