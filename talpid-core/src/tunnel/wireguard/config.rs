@@ -3,7 +3,7 @@ use std::{
     ffi::CString,
     net::{Ipv4Addr, Ipv6Addr},
 };
-use talpid_types::net::wireguard;
+use talpid_types::net::{wireguard, GenericTunnelOptions};
 
 /// Config required to set up a single WireGuard tunnel
 pub struct Config {
@@ -42,22 +42,34 @@ impl Config {
     pub fn from_parameters(params: &wireguard::TunnelParameters) -> Result<Config, Error> {
         let tunnel = params.connection.tunnel.clone();
         let peer = vec![params.connection.peer.clone()];
-        Self::new(tunnel, peer, &params.connection, &params.options)
+        Self::new(
+            tunnel,
+            peer,
+            &params.connection,
+            &params.options,
+            &params.generic_options,
+        )
     }
 
     /// Constructs a new Config struct
     pub fn new(
-        tunnel: wireguard::TunnelConfig,
+        mut tunnel: wireguard::TunnelConfig,
         mut peers: Vec<wireguard::PeerConfig>,
         connection_config: &wireguard::ConnectionConfig,
         wg_options: &wireguard::TunnelOptions,
+        generic_options: &GenericTunnelOptions,
     ) -> Result<Config, Error> {
         if peers.is_empty() {
             return Err(Error::NoPeersSuppliedError);
         }
         let mtu = wg_options.mtu.unwrap_or(DEFAULT_MTU);
         for peer in &mut peers {
-            peer.allowed_ips = peer.allowed_ips.clone();
+            peer.allowed_ips = peer
+                .allowed_ips
+                .iter()
+                .cloned()
+                .filter(|ip| ip.is_ipv4() || generic_options.enable_ipv6)
+                .collect();
             if peer.allowed_ips.is_empty() {
                 return Err(Error::InvalidPeerIpError);
             }
@@ -66,12 +78,23 @@ impl Config {
         if tunnel.addresses.is_empty() {
             return Err(Error::InvalidTunnelIpError);
         }
+        tunnel.addresses = tunnel
+            .addresses
+            .into_iter()
+            .filter(|ip| ip.is_ipv4() || generic_options.enable_ipv6)
+            .collect();
+
+        let ipv6_gateway = if generic_options.enable_ipv6 {
+            connection_config.ipv6_gateway
+        } else {
+            None
+        };
 
         Ok(Config {
             tunnel,
             peers,
             ipv4_gateway: connection_config.ipv4_gateway,
-            ipv6_gateway: connection_config.ipv6_gateway,
+            ipv6_gateway,
             mtu,
         })
     }
