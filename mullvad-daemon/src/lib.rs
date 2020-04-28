@@ -504,6 +504,7 @@ where
         }
 
         let account_history = account_history::AccountHistory::new(
+            &cache_dir,
             &settings_dir,
             rpc_handle.clone(),
             core_handle.remote.clone(),
