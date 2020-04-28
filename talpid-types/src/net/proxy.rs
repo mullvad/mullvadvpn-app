@@ -6,9 +6,7 @@ use std::fmt;
 #[serde(rename_all = "snake_case")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ProxyType {
-    /// Shadowsocks
     Shadowsocks,
-    /// Custom bridge
     Custom,
 }
 
@@ -23,7 +21,7 @@ impl fmt::Display for ProxyType {
 }
 
 
-/// Bridge endpoint, broadcast as part of TunnelEndpoint
+/// Bridge endpoint, broadcast as part of a [`crate::net::TunnelEndpoint`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ProxyEndpoint {
     #[serde(flatten)]

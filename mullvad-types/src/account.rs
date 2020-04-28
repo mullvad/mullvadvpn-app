@@ -3,8 +3,10 @@ use chrono::{offset::Utc, DateTime};
 use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 
+/// Identifier used to authenticate or identify a Mullvad account.
 pub type AccountToken = String;
 
+/// Account expiration info returned by the API via `/v1/me`.
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
@@ -13,8 +15,8 @@ pub struct AccountData {
     pub expiry: DateTime<Utc>,
 }
 
-/// Data-structure that's returned from successfuly invocation of the mullvad API's
-/// `submit_voucher(account, voucher)` RPC
+/// Data structure that's returned from successful invocation of the mullvad API's
+/// `/v1/submit-voucher` RPC.
 #[derive(serde::Deserialize, serde::Serialize, Debug)]
 pub struct VoucherSubmission {
     /// Amount of time added to the account
@@ -23,7 +25,8 @@ pub struct VoucherSubmission {
     pub new_expiry: DateTime<Utc>,
 }
 
-/// Mapping of mullvad-api errors
+/// Mapping of mullvad-api errors to enum variants. Used by frontends to explain why a voucher
+/// was rejected by the `/v1/submit-voucher` RPC.
 #[derive(err_derive::Error, Debug)]
 pub enum VoucherError {
     /// Error code -400
