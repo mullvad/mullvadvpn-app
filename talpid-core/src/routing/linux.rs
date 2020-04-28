@@ -382,21 +382,23 @@ impl RouteManagerImplInner {
         mut self,
         shutdown_rx: futures01::sync::oneshot::Receiver<futures01::sync::oneshot::Sender<()>>,
     ) -> Result<()> {
-        futures::select! {
-            shutdown_signal = shutdown_rx.compat().fuse() => {
-                log::trace!("Shutting down route manager");
-                self.cleanup_routes().await;
-                log::trace!("Route manager done");
-                if let Ok(shutdown_signal) = shutdown_signal {
-                    let _ = shutdown_signal.send(());
+        let mut shutdown = shutdown_rx.compat().fuse();
+        loop {
+            futures::select! {
+                shutdown_signal = shutdown => {
+                    log::trace!("Shutting down route manager");
+                    self.cleanup_routes().await;
+                    log::trace!("Route manager done");
+                    if let Ok(shutdown_signal) = shutdown_signal {
+                        let _ = shutdown_signal.send(());
+                    }
+                    return Ok(());
+                },
+                (route_change, socket) = self.messages.select_next_some().fuse() => {
+                    self.process_netlink_message(route_change).await?;
                 }
-                return Ok(());
-            },
-            (route_change, socket) = self.messages.select_next_some().fuse() => {
-                self.process_netlink_message(route_change).await?;
-            }
-        };
-        Ok(())
+            };
+        }
     }
 
     async fn process_netlink_message(&mut self, msg: NetlinkMessage<RtnlMessage>) -> Result<()> {
