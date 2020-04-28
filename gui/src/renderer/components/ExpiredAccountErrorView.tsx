@@ -7,10 +7,9 @@ import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import RedeemVoucherContainer from '../containers/RedeemVoucherContainer';
 import { LoginState } from '../redux/account/reducers';
-import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
-import styles from './ExpiredAccountErrorViewStyles';
+import styles, { StyledAccountTokenLabel } from './ExpiredAccountErrorViewStyles';
 import ImageView from './ImageView';
 import { ModalAlert, ModalAlertType } from './Modal';
 import {
@@ -121,10 +120,7 @@ export default class ExpiredAccountErrorView extends Component<
             {messages.pgettext('connect-view', 'Here’s your account number. Save it!')}
           </Text>
           <View style={styles.accountTokenContainer}>
-            <AccountTokenLabel
-              style={styles.accountToken}
-              accountToken={this.props.accountToken || ''}
-            />
+            <StyledAccountTokenLabel accountToken={this.props.accountToken || ''} />
           </View>
         </View>
 
