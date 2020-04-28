@@ -1,8 +1,8 @@
-use crate::routing::{NetNode, Node, Route};
+use crate::routing::{NetNode, Node, RequiredRoute, Route};
 
 use ipnetwork::IpNetwork;
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::{BTreeMap, HashSet},
     io,
     net::IpAddr,
 };
@@ -39,34 +39,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    /// Failed to add route.
-    #[error(display = "Failed to add route")]
-    FailedToAddRoute(#[error(source)] io::Error),
-
-    /// Failed to remove route.
-    #[error(display = "Failed to remove route")]
-    FailedToRemoveRoute(#[error(source)] io::Error),
-
-    /// Error while running "ip route".
-    #[error(display = "Error while running \"ip route\"")]
-    FailedToRunIp(#[error(source)] io::Error),
-
-    /// Invocation of `ip route` ended with a non-zero exit code
-    #[error(display = "ip returend a non-zero exit code")]
-    ErrorIpFailed,
-
-    /// Received unexpected output from `ip route`
-    #[error(display = "Received unexpected output from \"ip\"")]
-    UnexpectedOutput,
-
-    /// No default route exists
-    #[error(display = "No default route in \"ip route\" output")]
-    NoDefaultRoute,
-
-    /// Route table change stream failed.
-    #[error(display = "Route change listener failed")]
-    NetlinkConnectionError(#[error(source)] failure::Compat<rtnetlink::Error>),
-
     #[error(display = "Failed to open a netlink connection")]
     ConnectError(#[error(source)] io::Error),
 
@@ -101,7 +73,7 @@ pub struct RouteManagerImpl {
 impl RouteManagerImpl {
     /// Creates a new RouteManagerImplInner.
     pub fn new(
-        required_routes: HashMap<IpNetwork, NetNode>,
+        required_routes: HashSet<RequiredRoute>,
         shutdown_rx: old_oneshot::Receiver<old_oneshot::Sender<()>>,
     ) -> Result<Self> {
         let mut runtime = tokio02::runtime::Builder::new()
@@ -131,6 +103,12 @@ impl RouteManagerImpl {
     }
 }
 
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
+struct RequiredDefaultRoute {
+    table_id: u8,
+    destination: IpNetwork,
+}
+
 pub struct RouteManagerImplInner {
     handle: Handle,
     messages: UnboundedReceiver<(NetlinkMessage<RtnlMessage>, SocketAddr)>,
@@ -140,14 +118,14 @@ pub struct RouteManagerImplInner {
     added_routes: HashSet<Route>,
     // default route tracking
     // destinations that should be routed through the default route
-    required_default_routes: HashSet<IpNetwork>,
+    required_default_routes: HashSet<RequiredDefaultRoute>,
     default_routes: HashSet<Route>,
     best_default_node_v4: Option<Node>,
     best_default_node_v6: Option<Node>,
 }
 
 impl RouteManagerImplInner {
-    pub async fn new(required_routes: HashMap<IpNetwork, NetNode>) -> Result<Self> {
+    pub async fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
         let (mut connection, handle, messages) =
             rtnetlink::new_connection().map_err(Error::ConnectError)?;
 
@@ -166,13 +144,17 @@ impl RouteManagerImplInner {
         let mut required_normal_routes = HashSet::new();
         let mut required_default_routes = HashSet::new();
 
-        for (destination, node) in required_routes {
-            match node {
+        for route in required_routes {
+            match route.node {
                 NetNode::RealNode(node) => {
-                    required_normal_routes.insert(Route::new(node, destination));
+                    required_normal_routes
+                        .insert(Route::new(node, route.prefix).table(route.table_id));
                 }
                 NetNode::DefaultNode => {
-                    required_default_routes.insert(destination);
+                    required_default_routes.insert(RequiredDefaultRoute {
+                        table_id: route.table_id,
+                        destination: route.prefix,
+                    });
                 }
             }
         }
@@ -202,15 +184,16 @@ impl RouteManagerImplInner {
             monitor.add_route(normal_route).await?;
         }
 
-        for prefix in monitor.required_default_routes.clone().into_iter() {
+        for route in monitor.required_default_routes.clone().into_iter() {
             if let (false, _, Some(default_node)) | (true, Some(default_node), _) = (
-                prefix.is_ipv4(),
+                route.destination.is_ipv4(),
                 &monitor.best_default_node_v4,
                 &monitor.best_default_node_v6,
             ) {
                 // best to pick a single node identifier rather than device + ip
-                let route = Route::new(default_node.clone(), prefix);
-                monitor.add_route(route).await?;
+                let new_route =
+                    Route::new(default_node.clone(), route.destination).table(route.table_id);
+                monitor.add_route(new_route).await?;
             }
         }
         Ok(monitor)
@@ -289,16 +272,20 @@ impl RouteManagerImplInner {
         if self.best_default_node_v4 != new_best_v4 && new_best_v4.is_some() {
             let new_node = new_best_v4.unwrap();
             let old_node = self.best_default_node_v4.take();
-            let v4_destinations: Vec<_> = self
+            let v4_routes: Vec<_> = self
                 .required_default_routes
                 .iter()
-                .filter(|ip| ip.is_ipv4())
+                .filter(|ip| ip.destination.is_ipv4())
                 .cloned()
                 .collect();
-            for destination in v4_destinations {
-                let new_route = Route::new(new_node.clone(), destination);
+            for route in v4_routes {
+                let new_route =
+                    Route::new(new_node.clone(), route.destination).table(route.table_id);
+
                 if let Some(old_node) = &old_node {
-                    let old_route = Route::new(old_node.clone(), destination);
+                    let old_route =
+                        Route::new(old_node.clone(), route.destination).table(route.table_id);
+
                     if let Err(e) = self.delete_route(&old_route).await {
                         log::error!("Failed to remove old route {} - {}", &old_route, e);
                     }
@@ -314,17 +301,20 @@ impl RouteManagerImplInner {
         if self.best_default_node_v6 != new_best_v6 && new_best_v6.is_some() {
             let new_node = new_best_v6.unwrap();
             let old_node = self.best_default_node_v6.take();
-            let v6_destinations: Vec<_> = self
+            let v6_routes: Vec<_> = self
                 .required_default_routes
                 .iter()
-                .filter(|ip| !ip.is_ipv4())
+                .filter(|ip| !ip.destination.is_ipv4())
                 .cloned()
                 .collect();
 
-            for destination in v6_destinations {
-                let new_route = Route::new(new_node.clone(), destination);
+            for route in v6_routes {
+                let new_route =
+                    Route::new(new_node.clone(), route.destination).table(route.table_id);
+
                 if let Some(old_node) = &old_node {
-                    let old_route = Route::new(old_node.clone(), destination);
+                    let old_route =
+                        Route::new(old_node.clone(), route.destination).table(route.table_id);
 
                     if let Err(e) = self.delete_route(&old_route).await {
                         log::error!("Failed to remove old route {} - {}", &old_route, e);
@@ -362,6 +352,34 @@ impl RouteManagerImplInner {
     }
 
     async fn cleanup_routes(&mut self) {
+        for required_route in &self.required_default_routes {
+            let best_node = if required_route.destination.is_ipv4() {
+                self.best_default_node_v4.clone()
+            } else {
+                self.best_default_node_v6.clone()
+            };
+
+            let best_node = match best_node {
+                None => continue,
+                Some(node) => node,
+            };
+
+            let route =
+                Route::new(best_node, required_route.destination).table(required_route.table_id);
+            if let Err(e) = self.delete_route(&route).await {
+                if let Error::NetlinkError(err) = &e {
+                    if let rtnetlink::ErrorKind::NetlinkError(msg) = err.get_ref().kind() {
+                        // -3 means that the route doesn't exist anymore anyway
+                        if msg.code == -3 {
+                            continue;
+                        }
+                    }
+                }
+                log::error!("Failed to remove route - {} - {}", route, e);
+            }
+        }
+        self.required_default_routes.clear();
+
         for route in self.added_routes.drain().collect::<Vec<_>>().iter() {
             if let Err(e) = self.delete_route(&route).await {
                 if let Error::NetlinkError(err) = &e {
@@ -506,6 +524,7 @@ impl RouteManagerImplInner {
             node,
             prefix: prefix.unwrap(),
             metric,
+            table_id: msg.header.table,
         }))
     }
 
@@ -545,7 +564,7 @@ impl RouteManagerImplInner {
                 source_prefix_length: 0,
                 destination_prefix_length: route.prefix.prefix(),
                 tos: 0u8,
-                table: RT_TABLE_MAIN,
+                table: route.table_id,
                 protocol: RTPROT_STATIC,
                 scope: RT_SCOPE_UNIVERSE,
                 kind: RTN_UNICAST,
@@ -585,7 +604,8 @@ impl RouteManagerImplInner {
                     .handle
                     .route()
                     .add_v4()
-                    .destination_prefix(v4_prefix.ip(), v4_prefix.prefix());
+                    .destination_prefix(v4_prefix.ip(), v4_prefix.prefix())
+                    .table(route.table_id);
 
                 if v4_prefix.size() > 1 {
                     add_message = add_message.scope(RT_SCOPE_LINK)
@@ -609,7 +629,8 @@ impl RouteManagerImplInner {
                     .handle
                     .route()
                     .add_v6()
-                    .destination_prefix(v6_prefix.ip(), v6_prefix.prefix());
+                    .destination_prefix(v6_prefix.ip(), v6_prefix.prefix())
+                    .table(route.table_id);
 
                 if v6_prefix.size() > 1 {
                     add_message = add_message.scope(RT_SCOPE_LINK)
@@ -670,7 +691,7 @@ fn ip_to_bytes(addr: IpAddr) -> Vec<u8> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::collections::HashMap;
+    use std::collections::HashSet;
 
 
     /// Tests if dropping inside a tokio runtime panics
@@ -678,7 +699,7 @@ mod test {
     fn test_drop_in_executor() {
         let mut runtime = tokio02::runtime::Runtime::new().expect("Failed to initialize runtime");
         runtime.block_on(async {
-            let manager = RouteManagerImplInner::new(HashMap::new())
+            let manager = RouteManagerImplInner::new(HashSet::new())
                 .await
                 .expect("Failed to initialize route manager");
             std::mem::drop(manager);
@@ -690,7 +711,7 @@ mod test {
     fn test_drop() {
         let mut runtime = tokio02::runtime::Runtime::new().expect("Failed to initialize runtime");
         let manager = runtime.block_on(async {
-            RouteManagerImplInner::new(HashMap::new())
+            RouteManagerImplInner::new(HashSet::new())
                 .await
                 .expect("Failed to initialize route manager")
         });

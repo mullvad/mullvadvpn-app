@@ -1,8 +1,8 @@
-use crate::routing::{NetNode, Node, Route};
+use crate::routing::{NetNode, Node, RequiredRoute, Route};
 
 use ipnetwork::IpNetwork;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashSet,
     io,
     net::IpAddr,
     process::{Command, ExitStatus, Stdio},
@@ -75,7 +75,7 @@ pub struct RouteManagerImpl {
 
 impl RouteManagerImpl {
     pub fn new(
-        required_routes: HashMap<IpNetwork, NetNode>,
+        required_routes: HashSet<RequiredRoute>,
         shutdown_rx: oneshot::Receiver<oneshot::Sender<()>>,
     ) -> Result<Self> {
         let mut applied_routes = HashSet::new();
@@ -89,13 +89,13 @@ impl RouteManagerImpl {
             return Err(Error::NoDefaultRoute);
         }
 
-        for (destination, node) in required_routes.into_iter() {
-            match node {
+        for route in required_routes {
+            match route.node {
                 NetNode::DefaultNode => {
-                    default_destinations.insert(destination);
+                    default_destinations.insert(route.prefix);
                 }
 
-                NetNode::RealNode(node) => routes_to_apply.push(Route::new(node, destination)),
+                NetNode::RealNode(node) => routes_to_apply.push(Route::new(node, route.prefix)),
             }
         }
 
