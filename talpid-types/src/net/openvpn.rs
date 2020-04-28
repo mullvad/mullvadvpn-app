@@ -5,6 +5,8 @@ use crate::net::{
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 
+/// Information needed by `OpenVpnMonitor` to establish a tunnel connection.
+/// See [`crate::net::TunnelParameters`].
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct TunnelParameters {
     pub config: ConnectionConfig,
@@ -13,6 +15,7 @@ pub struct TunnelParameters {
     pub proxy: Option<ProxySettings>,
 }
 
+/// Connection configuration used by [`TunnelParameters`].
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct ConnectionConfig {
     pub endpoint: Endpoint,
@@ -30,9 +33,10 @@ impl ConnectionConfig {
     }
 }
 
-/// TunnelOptions contains options for an openvpn tunnel that should be applied
+/// `TunnelOptions` contains options for an OpenVPN tunnel that should be applied
 /// irrespective of the relay parameters - i.e. have nothing to do with the particular
 /// OpenVPN server, but do affect the connection.
+/// Stored in [`TunnelParameters`].
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 pub struct TunnelOptions {
     /// Optional argument for openvpn to try and limit TCP packet size,
@@ -40,14 +44,12 @@ pub struct TunnelOptions {
     pub mssfix: Option<u16>,
 }
 
+/// Proxy server options to be used by `OpenVpnMonitor` when starting a tunnel.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ProxySettings {
-    /// Generic proxy running independently on localhost.
     Local(LocalProxySettings),
-    /// Generic proxy running on remote host.
     Remote(RemoteProxySettings),
-    /// Bundled Shadowsocks proxy.
     Shadowsocks(ShadowsocksProxySettings),
 }
 
@@ -71,6 +73,7 @@ impl ProxySettings {
     }
 }
 
+/// Options for a generic proxy running on localhost.
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct LocalProxySettings {
     pub port: u16,
@@ -86,6 +89,7 @@ impl LocalProxySettings {
     }
 }
 
+/// Options for a generic proxy running on remote host.
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct RemoteProxySettings {
     pub address: SocketAddr,
@@ -107,6 +111,7 @@ pub struct ProxyAuth {
     pub password: String,
 }
 
+/// Options for a bundled Shadowsocks proxy.
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct ShadowsocksProxySettings {
     pub peer: SocketAddr,
@@ -124,6 +129,8 @@ impl ShadowsocksProxySettings {
     }
 }
 
+/// List of ciphers usable by a Shadowsocks proxy.
+/// Cf. [`ShadowsocksProxySettings::cipher`].
 pub static SHADOWSOCKS_CIPHERS: &[&str] = &[
     // Stream ciphers.
     "aes-128-cfb",
@@ -148,6 +155,7 @@ pub static SHADOWSOCKS_CIPHERS: &[&str] = &[
     "aes-256-pmac-siv",
 ];
 
+/// Checks whether the proxy settings to be used by `OpenVpnMonitor` are valid.
 pub fn validate_proxy_settings(proxy: &ProxySettings) -> Result<(), String> {
     match proxy {
         ProxySettings::Local(local) => {

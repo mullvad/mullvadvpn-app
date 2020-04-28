@@ -57,7 +57,7 @@ impl From<openvpn::TunnelParameters> for TunnelParameters {
     }
 }
 
-/// Type of the tunnel
+/// The tunnel protocol used by a [`TunnelEndpoint`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "tunnel_type")]
 pub enum TunnelType {
@@ -85,7 +85,6 @@ impl fmt::Display for TunnelType {
 pub struct TunnelEndpoint {
     #[serde(flatten)]
     pub endpoint: Endpoint,
-    /// Type of the tunnel
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_type: TunnelType,
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -167,6 +166,9 @@ impl fmt::Display for TransportProtocol {
     }
 }
 
+
+/// Returned when `TransportProtocol::from_str` fails to convert a string into a
+/// [`TransportProtocol`] object.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TransportProtocolParseError;
 
@@ -184,7 +186,9 @@ pub struct GenericTunnelOptions {
     pub enable_ipv6: bool,
 }
 
-/// Returns a vector of IP networks representing all of the internet.
+/// Returns a vector of IP networks representing all of the internet, 0.0.0.0/0.
+/// This may be used in [`crate::net::wireguard::PeerConfig`] to route all traffic
+/// to the tunnel interface.
 pub fn all_of_the_internet() -> Vec<ipnetwork::IpNetwork> {
     vec![
         "0.0.0.0/0".parse().expect("Failed to parse ipv6 network"),
