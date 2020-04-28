@@ -17,6 +17,7 @@ pub trait Match<T> {
     fn matches(&self, other: &T) -> bool;
 }
 
+/// Limits the set of [`crate::relay_list::Relay`]s that a `RelaySelector` may select.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
@@ -66,6 +67,8 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Match<T> for Constraint<T> {
     }
 }
 
+/// Specifies a specific endpoint or [`RelayConstraints`] to use when `mullvad-daemon` selects a
+/// relay.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
@@ -127,6 +130,7 @@ impl RelaySettings {
     }
 }
 
+/// Limits the set of [`crate::relay_list::Relay`]s that a `RelaySelector` may select.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(not(target_os = "android"), derive(Default))]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
@@ -199,6 +203,8 @@ impl fmt::Display for RelayConstraints {
 }
 
 
+/// Limits the set of [`crate::relay_list::Relay`]s used by a `RelaySelector` based on
+/// location.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
@@ -224,6 +230,7 @@ impl fmt::Display for LocationConstraint {
     }
 }
 
+/// Used in [`RelayConstraints`] to limit relay selection based on protocol.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub enum TunnelProtocol {
     #[serde(rename = "wireguard")]
@@ -241,6 +248,7 @@ impl fmt::Display for TunnelProtocol {
     }
 }
 
+/// Deprecated. Contains protocol-specific constraints for relay selection.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub enum TunnelConstraints {
     #[serde(rename = "openvpn")]
@@ -282,6 +290,7 @@ impl Match<WireguardEndpointData> for TunnelConstraints {
     }
 }
 
+/// [`Constraint`]s applicable to OpenVPN relay servers.
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct OpenVpnConstraints {
     pub port: Constraint<u16>,
@@ -308,6 +317,7 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
     }
 }
 
+/// [`Constraint`]s applicable to WireGuard relay servers.
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
@@ -335,6 +345,8 @@ impl Match<WireguardEndpointData> for WireguardConstraints {
 }
 
 
+/// Specifies a specific endpoint or [`BridgeConstraints`] to use when `mullvad-daemon` selects a
+/// bridge server.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BridgeSettings {
@@ -344,6 +356,7 @@ pub enum BridgeSettings {
 }
 
 
+/// Limits the set of bridge servers to use in `mullvad-daemon`.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct BridgeConstraints {
@@ -359,6 +372,7 @@ impl fmt::Display for BridgeConstraints {
     }
 }
 
+/// Setting indicating whether to connect to a bridge server, or to handle it automatically.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BridgeState {
@@ -387,6 +401,7 @@ pub struct InternalBridgeConstraints {
     pub transport_protocol: Constraint<TransportProtocol>,
 }
 
+/// Used to update the [`RelaySettings`] used in `mullvad-daemon`.
 #[derive(Debug, Deserialize, Serialize)]
 #[cfg_attr(target_os = "android", derive(FromJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
@@ -422,6 +437,7 @@ impl RelaySettingsUpdate {
     }
 }
 
+/// Used in [`RelaySettings`] to change relay constraints in the daemon.
 #[derive(Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(target_os = "android", derive(FromJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]

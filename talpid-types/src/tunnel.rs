@@ -17,7 +17,7 @@ pub enum TunnelStateTransition {
     Connected(TunnelEndpoint),
     /// Disconnecting tunnel.
     Disconnecting(ActionAfterDisconnect),
-    /// Tunnel is disconnected but secured by blocking all connections.
+    /// Tunnel is disconnected but usually secured by blocking all connections.
     Error(ErrorState),
 }
 
@@ -32,7 +32,7 @@ pub enum ActionAfterDisconnect {
     Reconnect,
 }
 
-/// Error state
+/// Represents the tunnel state machine entering an error state during a [`TunnelStateTransition`].
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
@@ -62,7 +62,7 @@ impl ErrorState {
 }
 
 
-/// Reason for entering the blocked state.
+/// Reason for the tunnel state machine entering an [`ErrorState`].
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "reason", content = "details")]

@@ -8,6 +8,7 @@ pub mod net;
 pub mod tunnel;
 
 
+/// Used to generate string representations of error chains.
 pub trait ErrorExt {
     /// Creates a string representation of the entire error chain.
     fn display_chain(&self) -> String;

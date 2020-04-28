@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::fmt;
 
+/// Used in the CLI to represent a failure by the tunnel to authenticate with a remote server.
 #[derive(Debug)]
 pub struct AuthFailed {
     reason: AuthFailedInner,

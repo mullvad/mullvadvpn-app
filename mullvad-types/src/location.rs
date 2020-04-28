@@ -7,6 +7,7 @@ pub type CountryCode = String;
 pub type CityCode = String;
 pub type Hostname = String;
 
+/// Describes the physical location of a [`crate::relay_list::Relay`] as returned by the API.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Location {
     pub country: String,
