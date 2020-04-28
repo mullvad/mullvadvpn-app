@@ -11,18 +11,21 @@ use std::{
 };
 
 
+/// Tunnel parameters required to start a `WireguardMonitor`.
+/// See [`crate::net::TunnelParameters`].
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
-/// Wireguard tunnel parameters
 pub struct TunnelParameters {
     pub connection: ConnectionConfig,
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
 }
 
+/// Connection-specific configuration in [`TunnelParameters`].
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct ConnectionConfig {
     pub tunnel: TunnelConfig,
     pub peer: PeerConfig,
+    /// Gateway used by the tunnel (a private address).
     pub ipv4_gateway: Ipv4Addr,
     pub ipv6_gateway: Option<Ipv6Addr>,
 }
@@ -38,18 +41,22 @@ impl ConnectionConfig {
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug, Hash)]
 pub struct PeerConfig {
+    /// Public key corresponding to the private key in [`TunnelConfig`].
     pub public_key: PublicKey,
+    /// Addresses that may be routed to the peer. Use `0.0.0.0/0` to route everything.
     pub allowed_ips: Vec<IpNetwork>,
+    /// IP address of the WireGuard server.
     pub endpoint: SocketAddr,
 }
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
 pub struct TunnelConfig {
     pub private_key: PrivateKey,
+    /// Local IP addresses associated with a key pair.
     pub addresses: Vec<IpAddr>,
 }
 
-/// Wireguard tunnel options
+/// Options in [`TunnelParameters`] that apply to any WireGuard connection.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(
