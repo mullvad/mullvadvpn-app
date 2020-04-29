@@ -92,6 +92,7 @@ open class Button : FrameLayout {
 
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
+        button.setEnabled(enabled)
 
         if (enabled) {
             alpha = 1.0f
