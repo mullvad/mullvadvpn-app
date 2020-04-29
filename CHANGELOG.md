@@ -24,17 +24,22 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add shell completions for the mullvad CLI.
-
 #### Android
 - Add possibility to create account from the login screen.
 
 ### Changed
-- Downgrade to Electron 7 due to issues with tray icon in Electron 8.
-- Use rustls instead of OpenSSL for TLS encryption to the API and GeoIP location service.
 - Move location of the account data (including the WireGuard keys), so that it isn't lost when the
   system cache is cleaned.
 - Rename "Block when disconnected" setting to "Always require VPN" and add additional explanation of the setting.
+
+
+## [2020.4-beta3] - 2020-04-29
+### Added
+- Add shell completions for the mullvad CLI. Installed for bash and zsh on Linux and zsh on macOS.
+
+### Changed
+- Downgrade to Electron 7 due to issues with tray icon in Electron 8.
+- Use rustls instead of OpenSSL for TLS encryption to the API and GeoIP location service.
 
 #### Windows
 - When required, attempt to enable IPv6 for network adapters instead of failing.
