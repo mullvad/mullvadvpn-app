@@ -7,4 +7,9 @@ data class ServiceInstance(
     val connectionProxy: ConnectionProxy,
     val connectivityListener: ConnectivityListener,
     val locationInfoCache: LocationInfoCache
-)
+) {
+    fun onDestroy() {
+        connectionProxy.onDestroy()
+        locationInfoCache.onDestroy()
+    }
+}
