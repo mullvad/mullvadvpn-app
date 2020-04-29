@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
@@ -164,7 +165,13 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
-        setUpInstance(daemon)
+        val settings = daemon.getSettings()
+
+        if (settings != null) {
+            setUpInstance(daemon, settings)
+        } else {
+            restart()
+        }
     }
 
     private fun prepareFiles() {
@@ -184,7 +191,7 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    private fun setUpInstance(daemon: MullvadDaemon) {
+    private fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
         val connectionProxy = ConnectionProxy(this@MullvadVpnService, daemon).apply {
             when (pendingAction) {
                 PendingAction.Connect -> connect()
@@ -196,7 +203,7 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
         val locationInfoCache = LocationInfoCache(daemon, connectionProxy, connectivityListener)
-        val settingsListener = SettingsListener(daemon)
+        val settingsListener = SettingsListener(daemon, settings)
 
         instance = ServiceInstance(
             daemon,
