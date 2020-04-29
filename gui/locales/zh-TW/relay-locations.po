@@ -462,6 +462,10 @@ msgstr "阿拉伯聯合大公國"
 msgid "Vancouver"
 msgstr "溫哥華"
 
+#. AT VIE
+msgid "Vienna"
+msgstr ""
+
 #. PL WAW
 msgid "Warsaw"
 msgstr "華沙"
@@ -477,4 +481,3 @@ msgstr "維也納"
 #. CH ZRH
 msgid "Zurich"
 msgstr "蘇黎世"
-
