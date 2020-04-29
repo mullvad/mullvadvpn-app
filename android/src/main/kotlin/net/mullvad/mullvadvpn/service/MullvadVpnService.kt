@@ -164,6 +164,27 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
+        setUpInstance(daemon)
+    }
+
+    private fun prepareFiles() {
+        FileMigrator(File("/data/data/net.mullvad.mullvadvpn"), filesDir).apply {
+            migrate(API_ROOT_CA_FILE)
+            migrate(RELAYS_FILE)
+            migrate("settings.json")
+            migrate("daemon.log")
+            migrate("daemon.old.log")
+            migrate("wireguard.log")
+            migrate("wireguard.old.log")
+        }
+
+        FileResourceExtractor(this).apply {
+            extract(API_ROOT_CA_FILE)
+            extract(RELAYS_FILE)
+        }
+    }
+
+    private fun setUpInstance(daemon: MullvadDaemon) {
         val connectionProxy = ConnectionProxy(this@MullvadVpnService, daemon).apply {
             when (pendingAction) {
                 PendingAction.Connect -> connect()
@@ -184,23 +205,6 @@ class MullvadVpnService : TalpidVpnService() {
             locationInfoCache,
             settingsListener
         )
-    }
-
-    private fun prepareFiles() {
-        FileMigrator(File("/data/data/net.mullvad.mullvadvpn"), filesDir).apply {
-            migrate(API_ROOT_CA_FILE)
-            migrate(RELAYS_FILE)
-            migrate("settings.json")
-            migrate("daemon.log")
-            migrate("daemon.old.log")
-            migrate("wireguard.log")
-            migrate("wireguard.old.log")
-        }
-
-        FileResourceExtractor(this).apply {
-            extract(API_ROOT_CA_FILE)
-            extract(RELAYS_FILE)
-        }
     }
 
     private fun stop() {
