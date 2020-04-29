@@ -462,6 +462,10 @@ msgstr "アラブ首長国連邦"
 msgid "Vancouver"
 msgstr "バンクーバー"
 
+#. AT VIE
+msgid "Vienna"
+msgstr "ウィーン"
+
 #. PL WAW
 msgid "Warsaw"
 msgstr "ワルシャワ"
@@ -477,4 +481,3 @@ msgstr "ウィーン"
 #. CH ZRH
 msgid "Zurich"
 msgstr "チューリッヒ"
-

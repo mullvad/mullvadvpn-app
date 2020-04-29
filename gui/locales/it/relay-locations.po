@@ -462,6 +462,10 @@ msgstr "Emirati Arabi Uniti"
 msgid "Vancouver"
 msgstr "Vancouver"
 
+#. AT VIE
+msgid "Vienna"
+msgstr "Vienna"
+
 #. PL WAW
 msgid "Warsaw"
 msgstr "Varsavia"
@@ -477,4 +481,3 @@ msgstr "Vienna"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zurigo"
-

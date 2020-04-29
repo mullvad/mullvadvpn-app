@@ -454,6 +454,10 @@ msgstr ""
 msgid "Vancouver"
 msgstr ""
 
+#. AT VIE
+msgid "Vienna"
+msgstr ""
+
 #. PL WAW
 msgid "Warsaw"
 msgstr ""
