@@ -5,7 +5,13 @@ msgstr ""
 msgid "BLOCKED CONNECTION"
 msgstr ""
 
+msgid "COPIED TO CLIPBOARD!"
+msgstr ""
+
 msgid "CREATING SECURE CONNECTION"
+msgstr ""
+
+msgid "FAILED TO SECURE CONNECTION"
 msgstr ""
 
 msgid "Invalid account number"
@@ -18,6 +24,13 @@ msgid "System default"
 msgstr ""
 
 msgid "UNSECURED CONNECTION"
+msgstr ""
+
+#. The remaining time left on the account measured in days.
+#. Available placeholders:
+#. %(duration)s - The remaining time measured in days.
+msgctxt "account-expiry"
+msgid "%(duration)s days"
 msgstr ""
 
 #. The remaining time left on the account displayed across the app.
@@ -37,10 +50,6 @@ msgstr ""
 
 msgctxt "account-view"
 msgid "Buy more credit"
-msgstr ""
-
-msgctxt "account-view"
-msgid "COPIED TO CLIPBOARD!"
 msgstr ""
 
 msgctxt "account-view"
@@ -73,11 +82,19 @@ msgid "Advanced"
 msgstr ""
 
 msgctxt "advanced-settings-view"
+msgid "Always require VPN"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
+msgstr ""
+
+msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "Block when disconnected"
+msgid "Back"
 msgstr ""
 
 #. The title for the shadowsocks bridge selector section.
@@ -90,6 +107,10 @@ msgid "Default"
 msgstr ""
 
 msgctxt "advanced-settings-view"
+msgid "Enable anyway"
+msgstr ""
+
+msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr ""
 
@@ -98,7 +119,7 @@ msgid "Enable IPv6 communication through the tunnel."
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "Mssfix"
+msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -121,6 +142,10 @@ msgid "OpenVPN %(portType)s port"
 msgstr ""
 
 msgctxt "advanced-settings-view"
+msgid "OpenVPN Mssfix"
+msgstr ""
+
+msgctxt "advanced-settings-view"
 msgid "OpenVPN transport protocol"
 msgstr ""
 
@@ -132,8 +157,24 @@ msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr ""
 
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "advanced-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr ""
+
 msgctxt "advanced-settings-view"
 msgid "TCP"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -145,14 +186,6 @@ msgid "UDP"
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
-msgstr ""
-
-msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr ""
 
@@ -161,7 +194,15 @@ msgid "WireGuard key"
 msgstr ""
 
 msgctxt "advanced-settings-view"
+msgid "WireGuard MTU"
+msgstr ""
+
+msgctxt "advanced-settings-view"
 msgid "WireGuard port"
+msgstr ""
+
+msgctxt "advanced-settings-view-wireguard"
+msgid "missing key"
 msgstr ""
 
 msgctxt "auth-failure"
@@ -190,11 +231,43 @@ msgid "%(city)s (%(hostname)s)"
 msgstr ""
 
 msgctxt "connect-view"
+msgid "Always require VPN"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Buy credit"
+msgstr ""
+
+msgctxt "connect-view"
 msgid "Buy more credit"
 msgstr ""
 
 msgctxt "connect-view"
-msgid "Disconnect and buy more credit"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Close"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Congrats!"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Disconnect"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Either buy credit on our website or redeem a voucher."
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Here’s your account number. Save it!"
 msgstr ""
 
 msgctxt "connect-view"
@@ -202,15 +275,27 @@ msgid "Out of time"
 msgstr ""
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
+msgid "Redeem voucher"
 msgstr ""
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
 msgstr ""
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
+msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
+msgstr ""
+
+msgctxt "connect-view"
+msgid "To start using the app, you first need to add time to your account."
+msgstr ""
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account."
+msgstr ""
+
+msgctxt "connect-view"
+msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
 msgstr ""
 
 #. The hostname line displayed below the country on the main screen
@@ -249,6 +334,10 @@ msgid "MULLVAD VPN"
 msgstr ""
 
 msgctxt "in-app-notifications"
+msgid "“Always require VPN” is enabled."
+msgstr ""
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr ""
 
@@ -265,6 +354,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr ""
 
 msgctxt "in-app-notifications"
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr ""
+
+msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
 msgstr ""
 
@@ -274,10 +367,6 @@ msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Failed to start tunnel connection"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "FAILURE - UNSECURED"
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -331,6 +420,10 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr ""
 
 msgctxt "in-app-notifications"
+msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
+msgstr ""
+
+msgctxt "in-app-notifications"
 msgid "Your kernel may be outdated"
 msgstr ""
 
@@ -339,15 +432,19 @@ msgid "Connecting to Mullvad system service..."
 msgstr ""
 
 msgctxt "login-view"
+msgid "Account created"
+msgstr ""
+
+msgctxt "login-view"
 msgid "Checking account number"
 msgstr ""
 
 msgctxt "login-view"
-msgid "Correct account number"
+msgid "Create account"
 msgstr ""
 
 msgctxt "login-view"
-msgid "Create account"
+msgid "Creating account..."
 msgstr ""
 
 msgctxt "login-view"
@@ -356,6 +453,14 @@ msgstr ""
 
 msgctxt "login-view"
 msgid "Enter your account number"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Error"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Failed to create account"
 msgstr ""
 
 msgctxt "login-view"
@@ -375,13 +480,28 @@ msgid "Login failed"
 msgstr ""
 
 msgctxt "login-view"
+msgid "Please wait"
+msgstr ""
+
+msgctxt "login-view"
 msgid "Unknown error"
+msgstr ""
+
+msgctxt "login-view"
+msgid "Valid account number"
 msgstr ""
 
 #. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
+msgstr ""
+
+#. The system notification displayed to the user when the account credit is close to expiry.
+#. Available placeholder:
+#. %(duration)s - remaining time, e.g. "2 days"
+msgctxt "notifications"
+msgid "Account credit expires in %(duration)s"
 msgstr ""
 
 msgctxt "notifications"
@@ -407,7 +527,7 @@ msgid "Connecting to %(location)s"
 msgstr ""
 
 msgctxt "notifications"
-msgid "Critical failure - Unsecured"
+msgid "Critical error (your attention is required)"
 msgstr ""
 
 msgctxt "notifications"
@@ -455,7 +575,15 @@ msgid "Automatically connect to a server when the app launches."
 msgstr ""
 
 msgctxt "preferences-view"
+msgid "Beta program"
+msgstr ""
+
+msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Enable to get notified when new beta versions of the app are released."
 msgstr ""
 
 msgctxt "preferences-view"
@@ -488,6 +616,26 @@ msgstr ""
 
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr ""
+
+msgctxt "redeem-voucher-view"
+msgid "An error occured."
+msgstr ""
+
+msgctxt "redeem-voucher-view"
+msgid "Redeem"
+msgstr ""
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code has already been used."
+msgstr ""
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code is invalid."
+msgstr ""
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher was successfully redeemed."
 msgstr ""
 
 #. Title label in navigation bar
@@ -575,6 +723,14 @@ msgid "Back"
 msgstr ""
 
 msgctxt "support-view"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "support-view"
+msgid "Continue anyway"
+msgstr ""
+
+msgctxt "support-view"
 msgid "Describe your problem"
 msgstr ""
 
@@ -626,11 +782,19 @@ msgid "Try again"
 msgstr ""
 
 msgctxt "support-view"
+msgid "Upgrade app"
+msgstr ""
+
+msgctxt "support-view"
 msgid "View app logs"
 msgstr ""
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
+msgstr ""
+
+msgctxt "support-view"
+msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
 msgstr ""
 
 msgctxt "support-view"
@@ -650,6 +814,10 @@ msgid "Disconnect"
 msgstr ""
 
 msgctxt "tunnel-control"
+msgid "Dismiss"
+msgstr ""
+
+msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr ""
 
@@ -658,15 +826,7 @@ msgid "Switch location"
 msgstr ""
 
 msgctxt "wireguard-key-view"
-msgid "Account has too many keys already"
-msgstr ""
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
-msgstr ""
-
-msgctxt "wireguard-key-view"
-msgid "Failed to replace key - %(failure)s"
 msgstr ""
 
 msgctxt "wireguard-key-view"
@@ -694,11 +854,19 @@ msgid "No key set"
 msgstr ""
 
 msgctxt "wireguard-key-view"
+msgid "Reconnecting with new WireGuard key..."
+msgstr ""
+
+msgctxt "wireguard-key-view"
 msgid "Regenerate key"
 msgstr ""
 
 msgctxt "wireguard-key-view"
 msgid "Unable to manage keys while in a blocked state"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
 msgstr ""
 
 msgctxt "wireguard-key-view"
