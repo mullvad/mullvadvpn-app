@@ -607,8 +607,8 @@ impl RouteManagerImplInner {
                     .destination_prefix(v4_prefix.ip(), v4_prefix.prefix())
                     .table(route.table_id);
 
-                if v4_prefix.size() > 1 {
-                    add_message = add_message.scope(RT_SCOPE_LINK)
+                if v4_prefix.prefix() > 0 && v4_prefix.prefix() < 32 {
+                    add_message = add_message.scope(RT_SCOPE_LINK);
                 }
 
                 if let Some(IpAddr::V4(node_address)) = route.node.get_address() {
@@ -632,8 +632,8 @@ impl RouteManagerImplInner {
                     .destination_prefix(v6_prefix.ip(), v6_prefix.prefix())
                     .table(route.table_id);
 
-                if v6_prefix.size() > 1 {
-                    add_message = add_message.scope(RT_SCOPE_LINK)
+                if v6_prefix.prefix() > 0 && v6_prefix.prefix() < 128 {
+                    add_message = add_message.scope(RT_SCOPE_LINK);
                 }
 
                 if let Some(IpAddr::V6(node_address)) = route.node.get_address() {
