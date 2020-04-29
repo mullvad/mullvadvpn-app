@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
@@ -25,6 +26,10 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
 
         accountLabel = view.findViewById<TextView>(R.id.account_number)
+
+        view.findViewById<UrlButton>(R.id.buy_credit).apply {
+            prepare(daemon, jobTracker)
+        }
 
         return view
     }
