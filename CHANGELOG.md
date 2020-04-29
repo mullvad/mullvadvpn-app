@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 - Use rustls instead of OpenSSL for TLS encryption to the API and GeoIP location service.
 - Move location of the account data (including the WireGuard keys), so that it isn't lost when the
   system cache is cleaned.
+- Rename "Block when disconnected" setting to "Always require VPN" and add additional explanation of the setting.
 
 #### Windows
 - When required, attempt to enable IPv6 for network adapters instead of failing.

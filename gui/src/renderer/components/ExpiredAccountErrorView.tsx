@@ -210,7 +210,7 @@ export default class ExpiredAccountErrorView extends Component<
         <Text style={styles.fieldLabel}>
           {messages.pgettext(
             'connect-view',
-            'You need to disable “Block when disconnected” in order to access the Internet to add time.',
+            'You need to disable “Always require VPN” in order to access the Internet to add time.',
           )}
         </Text>
         <Text style={styles.fieldLabel}>
@@ -220,7 +220,7 @@ export default class ExpiredAccountErrorView extends Component<
           )}
         </Text>
         <Cell.Container>
-          <Cell.Label>{messages.pgettext('connect-view', 'Block when disconnected')}</Cell.Label>
+          <Cell.Label>{messages.pgettext('connect-view', 'Always require VPN')}</Cell.Label>
           <Cell.Switch
             isOn={this.props.blockWhenDisconnected}
             onChange={this.props.setBlockWhenDisconnected}
