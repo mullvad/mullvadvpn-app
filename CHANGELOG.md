@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 #### Android
 - Add possibility to create account from the login screen.
+- Add welcome screen for newly created accounts.
 
 ### Changed
 - Move location of the account data (including the WireGuard keys), so that it isn't lost when the
