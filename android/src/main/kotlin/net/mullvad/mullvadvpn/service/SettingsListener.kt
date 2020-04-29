@@ -4,8 +4,8 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.talpid.util.EventNotifier
 
-class SettingsListener(val daemon: MullvadDaemon) {
-    var settings: Settings = daemon.getSettings()
+class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings) {
+    var settings: Settings = initialSettings
         private set(value) {
             settingsNotifier.notify(value)
             field = value
