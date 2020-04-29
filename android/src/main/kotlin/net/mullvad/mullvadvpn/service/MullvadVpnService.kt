@@ -175,8 +175,15 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
         val locationInfoCache = LocationInfoCache(daemon, connectionProxy, connectivityListener)
+        val settingsListener = SettingsListener(daemon)
 
-        instance = ServiceInstance(daemon, connectionProxy, connectivityListener, locationInfoCache)
+        instance = ServiceInstance(
+            daemon,
+            connectionProxy,
+            connectivityListener,
+            locationInfoCache,
+            settingsListener
+        )
     }
 
     private fun prepareFiles() {
