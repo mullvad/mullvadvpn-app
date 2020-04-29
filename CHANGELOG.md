@@ -23,8 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.4-beta3] - 2020-04-29
 ### Added
-- Add shell completions for the mullvad CLI.
+- Add shell completions for the mullvad CLI. Installed for bash and zsh on Linux and zsh on macOS.
 
 ### Changed
 - Downgrade to Electron 7 due to issues with tray icon in Electron 8.
