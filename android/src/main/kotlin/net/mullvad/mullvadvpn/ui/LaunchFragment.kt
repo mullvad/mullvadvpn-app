@@ -8,23 +8,16 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 
 class LaunchFragment : ServiceAwareFragment() {
     private val hasAccountToken = CompletableDeferred<Boolean>()
 
-    private var accountTokenCheckJob: Job? = null
     private lateinit var advanceToNextScreenJob: Job
 
     override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
-        accountTokenCheckJob = checkForAccountToken(serviceConnection.daemon)
-    }
-
-    override fun onNoServiceConnection() {
-        accountTokenCheckJob?.cancel()
+        hasAccountToken.complete(serviceConnection.settingsListener.settings.accountToken != null)
     }
 
     override fun onCreateView(
@@ -49,18 +42,6 @@ class LaunchFragment : ServiceAwareFragment() {
     override fun onPause() {
         advanceToNextScreenJob.cancel()
         super.onPause()
-    }
-
-    override fun onDestroy() {
-        accountTokenCheckJob?.cancel()
-        super.onDestroy()
-    }
-
-    private fun checkForAccountToken(daemon: MullvadDaemon) =
-            GlobalScope.async(Dispatchers.Default) {
-        val settings = daemon.getSettings()
-
-        hasAccountToken.complete(settings.accountToken != null)
     }
 
     private fun advanceToNextScreen() = GlobalScope.launch(Dispatchers.Main) {

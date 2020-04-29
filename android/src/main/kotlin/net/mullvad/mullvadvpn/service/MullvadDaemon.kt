@@ -69,7 +69,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         return getRelayLocations(daemonInterfaceAddress)
     }
 
-    fun getSettings(): Settings {
+    fun getSettings(): Settings? {
         return getSettings(daemonInterfaceAddress)
     }
 
