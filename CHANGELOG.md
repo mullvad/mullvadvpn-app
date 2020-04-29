@@ -32,6 +32,10 @@ Line wrap the file at 100 chars.                                              Th
   system cache is cleaned.
 - Rename "Block when disconnected" setting to "Always require VPN" and add additional explanation of the setting.
 
+### Fixed
+#### Android
+- Fix crash that sometimes happens right after some other unrelated crash.
+
 
 ## [2020.4-beta3] - 2020-04-29
 ### Added
