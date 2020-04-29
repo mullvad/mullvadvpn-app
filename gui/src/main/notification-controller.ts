@@ -79,9 +79,21 @@ export default class NotificationController {
         break;
       case 'error':
         if (tunnelState.details.isBlocking) {
-          this.showTunnelStateNotification(
-            messages.pgettext('notifications', 'Blocked all connections'),
-          );
+          if (
+            tunnelState.details.cause.reason === 'tunnel_parameter_error' &&
+            tunnelState.details.cause.details === 'no_wireguard_key'
+          ) {
+            this.showTunnelStateNotification(
+              messages.pgettext(
+                'notifications',
+                'Blocking internet: Valid WireGuard key is missing',
+              ),
+            );
+          } else {
+            this.showTunnelStateNotification(
+              messages.pgettext('notifications', 'Blocking internet'),
+            );
+          }
         } else {
           this.showTunnelStateNotification(
             messages.pgettext('notifications', 'Critical error (your attention is required)'),
@@ -146,16 +158,6 @@ export default class NotificationController {
 
       this.scheduleNotification(notification);
     });
-  }
-
-  public notifyKeyGenerationFailed() {
-    const notification = new Notification({
-      title: this.notificationTitle,
-      body: messages.pgettext('notifications', 'Wireguard key generation failed'),
-      silent: true,
-      icon: this.notificationIcon,
-    });
-    this.scheduleNotification(notification);
   }
 
   public closeToExpiryNotification(accountExpiry: AccountExpiry) {

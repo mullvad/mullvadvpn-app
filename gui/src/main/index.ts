@@ -583,7 +583,6 @@ class ApplicationMain {
     switch (event) {
       case 'too_many_keys':
       case 'generation_failure':
-        this.notificationController.notifyKeyGenerationFailed();
         this.wireguardPublicKey = undefined;
         break;
       default:
