@@ -1,8 +1,7 @@
-package net.mullvad.mullvadvpn.dataproxy
+package net.mullvad.mullvadvpn.service
 
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.talpid.util.EventNotifier
 
 class SettingsListener(val daemon: MullvadDaemon) {
