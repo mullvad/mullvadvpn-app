@@ -5,9 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import net.mullvad.mullvadvpn.util.JobTracker
+import org.joda.time.DateTime
+
+val POLL_INTERVAL: Long = 15 /* s */ * 1000 /* ms */
 
 class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private val jobTracker = JobTracker()
@@ -35,11 +39,22 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyResume() {
-        accountCache.onAccountDataChange = { account, _ -> updateAccountNumber(account) }
+        accountCache.onAccountDataChange = { account, expiry ->
+            updateAccountNumber(account)
+            checkExpiry(expiry)
+        }
+
+        jobTracker.newBackgroundJob("pollAccountData") {
+            while (true) {
+                accountCache.refetch()
+                delay(POLL_INTERVAL)
+            }
+        }
     }
 
     override fun onSafelyPause() {
         accountCache.onAccountDataChange = null
+        jobTracker.cancelJob("pollAccountData")
     }
 
     override fun onSafelyDestroyView() {
@@ -72,6 +87,23 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             }
 
             return parts.joinToString(" ")
+        }
+    }
+
+    private fun checkExpiry(maybeExpiry: DateTime?) {
+        maybeExpiry?.let { expiry ->
+            if (expiry.isAfterNow()) {
+                jobTracker.newUiJob("advanceToConnectScreen") {
+                    advanceToConnectScreen()
+                }
+            }
+        }
+    }
+
+    private fun advanceToConnectScreen() {
+        fragmentManager?.beginTransaction()?.apply {
+            replace(R.id.main_fragment, ConnectFragment())
+            commit()
         }
     }
 }
