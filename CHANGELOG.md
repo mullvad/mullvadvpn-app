@@ -30,7 +30,12 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Move location of the account data (including the WireGuard keys), so that it isn't lost when the
   system cache is cleaned.
-- Rename "Block when disconnected" setting to "Always require VPN" and add additional explanation of the setting.
+- Rename "Block when disconnected" setting to "Always require VPN" and add additional explanation
+  of the setting.
+
+### Fixed
+- Fixed bogus or absent update notifications on the desktop app due to incorrect deserialization of
+  a struct sent from the daemon.
 
 
 ## [2020.4-beta3] - 2020-04-29
