@@ -88,6 +88,7 @@ class JobTracker {
 
             jobs.clear()
             reaperJobs.clear()
+            namedJobs.clear()
         }
     }
 }
