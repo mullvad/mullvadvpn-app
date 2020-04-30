@@ -293,9 +293,10 @@ const tunnelStateSchema = oneOf(
 );
 
 const appVersionInfoSchema = partialObject({
-  current_is_supported: boolean,
-  latest_stable: string,
+  supported: boolean,
   latest: string,
+  latest_stable: string,
+  latest_beta: string,
 });
 
 export class ConnectionObserver {
