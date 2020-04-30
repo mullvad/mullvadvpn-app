@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 
 class JobTracker {
     private val jobs = HashMap<Long, Job>()
+    private val reaperJobs = HashMap<Long, Job>()
     private val namedJobs = HashMap<String, Long>()
 
     private var jobIdCounter = 0L
@@ -18,7 +19,9 @@ class JobTracker {
 
             jobIdCounter += 1
 
-            jobs.put(jobId, GlobalScope.launch(Dispatchers.Default) {
+            jobs.put(jobId, job)
+
+            reaperJobs.put(jobId, GlobalScope.launch(Dispatchers.Default) {
                 job.join()
 
                 synchronized(jobs) {
@@ -69,6 +72,7 @@ class JobTracker {
     fun cancelJob(jobId: Long) {
         synchronized(jobs) {
             jobs.remove(jobId)?.cancel()
+            reaperJobs.remove(jobId)?.cancel()
         }
     }
 
@@ -78,7 +82,12 @@ class JobTracker {
                 job.cancel()
             }
 
+            for (job in reaperJobs.values) {
+                job.cancel()
+            }
+
             jobs.clear()
+            reaperJobs.clear()
         }
     }
 }
