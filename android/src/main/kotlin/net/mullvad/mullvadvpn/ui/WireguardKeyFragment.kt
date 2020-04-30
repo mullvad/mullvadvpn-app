@@ -36,6 +36,9 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private lateinit var timeAgoFormatter: TimeAgoFormatter
 
+    private var greenColor: Int = 0
+    private var redColor: Int = 0
+
     private var tunnelStateListener: Int? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
 
@@ -96,7 +99,11 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        timeAgoFormatter = TimeAgoFormatter(context.resources)
+        val resources = context.resources
+
+        redColor = resources.getColor(R.color.red)
+        greenColor = resources.getColor(R.color.green)
+        timeAgoFormatter = TimeAgoFormatter(resources)
     }
 
     override fun onSafelyCreateView(
@@ -230,9 +237,9 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private fun updateOfflineStatus() {
         if (reconnectionExpected) {
-            setStatusMessage(R.string.wireguard_key_reconnecting, R.color.green)
+            setStatusMessage(R.string.wireguard_key_reconnecting, greenColor)
         } else {
-            setStatusMessage(R.string.wireguard_key_blocked_state_message, R.color.red)
+            setStatusMessage(R.string.wireguard_key_blocked_state_message, redColor)
         }
     }
 
@@ -241,7 +248,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             val replacementFailure = keyStatus.replacementFailure
 
             if (replacementFailure != null) {
-                setStatusMessage(failureMessage(replacementFailure), R.color.red)
+                setStatusMessage(failureMessage(replacementFailure), redColor)
             } else {
                 updateKeyIsValid(verificationWasDone, keyStatus.verified)
             }
@@ -252,11 +259,11 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private fun updateKeyIsValid(verificationWasDone: Boolean, verified: Boolean?) {
         when (verified) {
-            true -> setStatusMessage(R.string.wireguard_key_valid, R.color.green)
-            false -> setStatusMessage(R.string.wireguard_key_invalid, R.color.red)
+            true -> setStatusMessage(R.string.wireguard_key_valid, greenColor)
+            false -> setStatusMessage(R.string.wireguard_key_invalid, redColor)
             null -> {
                 if (verificationWasDone) {
-                    setStatusMessage(R.string.wireguard_key_verification_failure, R.color.red)
+                    setStatusMessage(R.string.wireguard_key_verification_failure, redColor)
                 } else {
                     statusMessage.visibility = View.GONE
                 }
@@ -296,7 +303,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private fun setStatusMessage(message: Int, color: Int) {
         statusMessage.setText(message)
-        statusMessage.setTextColor(resources.getColor(color))
+        statusMessage.setTextColor(color)
         statusMessage.visibility = View.VISIBLE
     }
 
