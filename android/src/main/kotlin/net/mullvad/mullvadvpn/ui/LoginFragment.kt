@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,11 @@ import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+    enum class LoginResult {
+        ExistingAccount,
+        NewAccount;
+    }
+
     private lateinit var title: TextView
     private lateinit var subtitle: TextView
     private lateinit var loggingInStatus: View
@@ -24,7 +30,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var accountInput: AccountInput
 
     private val jobTracker = JobTracker()
-    private val loggedIn = CompletableDeferred<Unit>()
+    private val loggedIn = CompletableDeferred<LoginResult>()
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -54,8 +60,10 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
     override fun onSafelyResume() {
         jobTracker.newUiJob("advanceToNextScreen") {
-            loggedIn.join()
-            openConnectScreen()
+            when (loggedIn.await()) {
+                LoginResult.ExistingAccount -> openNextScreen(ConnectFragment())
+                LoginResult.NewAccount -> openNextScreen(WelcomeFragment())
+            }
         }
 
         fetchHistory()
@@ -86,7 +94,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         if (accountToken == null) {
             loginFailure(R.string.failed_to_create_account)
         } else {
-            loggedIn(resources.getString(R.string.account_created))
+            loggedIn(resources.getString(R.string.account_created), LoginResult.NewAccount)
         }
     }
 
@@ -126,17 +134,17 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             }
 
             if (loginSucceeded) {
-                loggedIn("")
+                loggedIn("", LoginResult.ExistingAccount)
             } else {
                 loginFailure(R.string.login_fail_description)
             }
         }
     }
 
-    private suspend fun loggedIn(subtitleMessage: String) {
+    private suspend fun loggedIn(subtitleMessage: String, result: LoginResult) {
         showLoggedInMessage(subtitleMessage)
         delay(1000)
-        loggedIn.complete(Unit)
+        loggedIn.complete(result)
     }
 
     private fun showLoggedInMessage(subtitleMessage: String) {
@@ -150,9 +158,9 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         accountInput.state = LoginState.Success
     }
 
-    private fun openConnectScreen() {
+    private fun openNextScreen(fragment: Fragment) {
         fragmentManager?.beginTransaction()?.apply {
-            replace(R.id.main_fragment, ConnectFragment())
+            replace(R.id.main_fragment, fragment)
             commit()
         }
     }
