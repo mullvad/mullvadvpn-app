@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
@@ -28,10 +29,16 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var isStopping = false
 
-    private var connectionProxy: ConnectionProxy? = null
-    private var daemon: MullvadDaemon? = null
-    private var locationInfoCache: LocationInfoCache? = null
     private var startDaemonJob: Job? = null
+
+    private var instance: ServiceInstance? = null
+        set(value) {
+            if (field != value) {
+                field?.onDestroy()
+                field = value
+                serviceNotifier.notify(value)
+            }
+        }
 
     private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
@@ -40,7 +47,7 @@ class MullvadVpnService : TalpidVpnService() {
         set(value) {
             field = value
 
-            connectionProxy?.let { activeConnectionProxy ->
+            instance?.connectionProxy?.let { activeConnectionProxy ->
                 when (value) {
                     PendingAction.Connect -> activeConnectionProxy.connect()
                     PendingAction.Disconnect -> activeConnectionProxy.disconnect()
@@ -144,15 +151,13 @@ class MullvadVpnService : TalpidVpnService() {
     private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
         prepareFiles()
 
-        val newDaemon = MullvadDaemon(this@MullvadVpnService).apply {
+        val daemon = MullvadDaemon(this@MullvadVpnService).apply {
             onSettingsChange.subscribe { settings ->
                 loggedIn = settings?.accountToken != null
             }
 
             onDaemonStopped = {
-                locationInfoCache?.onDestroy()
-                connectionProxy?.onDestroy()
-                serviceNotifier.notify(null)
+                instance = null
 
                 if (!isStopping) {
                     restart()
@@ -160,29 +165,13 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
-        val newConnectionProxy = ConnectionProxy(this@MullvadVpnService, newDaemon).apply {
-            when (pendingAction) {
-                PendingAction.Connect -> connect()
-                PendingAction.Disconnect -> disconnect()
-                null -> {}
-            }
+        val settings = daemon.getSettings()
 
-            pendingAction = null
+        if (settings != null) {
+            setUpInstance(daemon, settings)
+        } else {
+            restart()
         }
-
-        val newLocationInfoCache =
-            LocationInfoCache(newDaemon, newConnectionProxy, connectivityListener)
-
-        daemon = newDaemon
-        connectionProxy = newConnectionProxy
-        locationInfoCache = newLocationInfoCache
-
-        serviceNotifier.notify(ServiceInstance(
-            newDaemon,
-            newConnectionProxy,
-            connectivityListener,
-            newLocationInfoCache
-        ))
     }
 
     private fun prepareFiles() {
@@ -202,6 +191,29 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
+    private fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
+        val connectionProxy = ConnectionProxy(this@MullvadVpnService, daemon).apply {
+            when (pendingAction) {
+                PendingAction.Connect -> connect()
+                PendingAction.Disconnect -> disconnect()
+                null -> {}
+            }
+
+            pendingAction = null
+        }
+
+        val locationInfoCache = LocationInfoCache(daemon, connectionProxy, connectivityListener)
+        val settingsListener = SettingsListener(daemon, settings)
+
+        instance = ServiceInstance(
+            daemon,
+            connectionProxy,
+            connectivityListener,
+            locationInfoCache,
+            settingsListener
+        )
+    }
+
     private fun stop() {
         isStopping = true
         stopDaemon()
@@ -210,7 +222,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun stopDaemon() {
         startDaemonJob?.cancel()
-        daemon?.shutdown()
+        instance?.daemon?.shutdown()
     }
 
     private fun tearDown() {

@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 #### Android
 - Fix crash when leaving WireGuard Key screen while key is still verifying.
+- Fix crash that sometimes happens right after some other unrelated crash.
 
 
 ## [2020.4-beta3] - 2020-04-29
