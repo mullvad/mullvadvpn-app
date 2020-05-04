@@ -5,10 +5,10 @@ import java.io.File
 import java.io.FileOutputStream
 
 class FileResourceExtractor(val context: Context) {
-    fun extract(asset: String) {
+    fun extract(asset: String, force: Boolean = false) {
         val destination = File(context.filesDir, asset)
 
-        if (!destination.exists()) {
+        if (!destination.exists() || force) {
             extractFile(asset, destination)
         }
     }
