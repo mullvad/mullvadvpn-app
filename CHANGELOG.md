@@ -35,10 +35,9 @@ Line wrap the file at 100 chars.                                              Th
   of the setting.
 
 ### Fixed
-- Fixed bogus or absent update notifications on the desktop app due to incorrect deserialization of
-  a struct sent from the daemon.
+- Fix bogus or absent update notifications on the desktop app due to incorrect deserialization of a
+  struct sent from the daemon.
 
-### Fixed
 #### Android
 - Fix crash when leaving WireGuard Key screen while key is still verifying.
 - Fix crash that sometimes happens right after some other unrelated crash.
