@@ -152,10 +152,6 @@ class MullvadVpnService : TalpidVpnService() {
         prepareFiles()
 
         val daemon = MullvadDaemon(this@MullvadVpnService).apply {
-            onSettingsChange.subscribe { settings ->
-                loggedIn = settings?.accountToken != null
-            }
-
             onDaemonStopped = {
                 instance = null
 
@@ -206,7 +202,12 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
         val locationInfoCache = LocationInfoCache(daemon, connectionProxy, connectivityListener)
-        val settingsListener = SettingsListener(daemon, settings)
+
+        val settingsListener = SettingsListener(daemon, settings).apply {
+            accountNumberNotifier.subscribe { accountNumber ->
+                loggedIn = accountNumber != null
+            }
+        }
 
         instance = ServiceInstance(
             daemon,
