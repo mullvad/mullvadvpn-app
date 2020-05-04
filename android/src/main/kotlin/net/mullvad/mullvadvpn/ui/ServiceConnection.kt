@@ -15,7 +15,7 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
 
     val keyStatusListener = KeyStatusListener(daemon)
     val appVersionInfoCache = AppVersionInfoCache(mainActivity, daemon, settingsListener)
-    val accountCache = AccountCache(settingsListener, daemon)
+    val accountCache = AccountCache(daemon, settingsListener)
     var relayListListener = RelayListListener(daemon, settingsListener)
 
     init {

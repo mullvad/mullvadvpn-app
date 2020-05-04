@@ -12,7 +12,7 @@ import org.joda.time.format.DateTimeFormat
 
 val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
 
-class AccountCache(val settingsListener: SettingsListener, val daemon: MullvadDaemon) {
+class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
     private var fetchJob: Job? = null
     private var accountNumber: String? = null
     private var accountExpiry: DateTime? = null
