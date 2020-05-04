@@ -185,9 +185,10 @@ class MullvadVpnService : TalpidVpnService() {
             migrate("wireguard.old.log")
         }
 
+        val shouldUnpackRelayList = lastUpdatedTime() > File(filesDir, RELAYS_FILE).lastModified()
         FileResourceExtractor(this).apply {
             extract(API_ROOT_CA_FILE)
-            extract(RELAYS_FILE)
+            extract(RELAYS_FILE, shouldUnpackRelayList)
         }
     }
 
@@ -240,5 +241,9 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
         startActivity(intent)
+    }
+
+    private fun lastUpdatedTime(): Long {
+        return packageManager.getPackageInfo(getPackageName(), 0).lastUpdateTime
     }
 }
