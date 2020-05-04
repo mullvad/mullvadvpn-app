@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Android
+- App will now use packaged relay list if it's newer than the cached one.
 
 
 ## [2020.4-beta3] - 2020-04-29
