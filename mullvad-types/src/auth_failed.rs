@@ -2,6 +2,9 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::fmt;
 
+/// Used by frontends to parse [`talpid_types::tunnel::ErrorStateCause::AuthFailed`], which may be
+/// returned in [`talpid_types::tunnel::ErrorStateCause`] when there is a failure to authenticate
+/// with a remote server.
 #[derive(Debug)]
 pub struct AuthFailed {
     reason: AuthFailedInner,

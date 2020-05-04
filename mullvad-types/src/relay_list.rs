@@ -15,6 +15,8 @@ use talpid_types::net::{
 };
 
 
+/// Stores a list of relays for each country obtained from the API using
+/// `mullvad_rpc::RelayListProxy`. This can also be passed to frontends.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
@@ -30,6 +32,7 @@ impl RelayList {
     }
 }
 
+/// A list of [`RelayListCity`]s within a country. Used by [`RelayList`].
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
@@ -39,6 +42,7 @@ pub struct RelayListCountry {
     pub cities: Vec<RelayListCity>,
 }
 
+/// A list of [`Relay`]s within a city. Used by [`RelayListCountry`].
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
@@ -52,6 +56,8 @@ pub struct RelayListCity {
     pub relays: Vec<Relay>,
 }
 
+/// Stores information for a relay returned by the API at `v1/relays` using
+/// `mullvad_rpc::RelayListProxy`.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
@@ -79,6 +85,7 @@ pub struct Relay {
     pub location: Option<Location>,
 }
 
+/// Provides protocol-specific information about a [`Relay`].
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 #[serde(default)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
@@ -100,6 +107,7 @@ impl RelayTunnels {
     }
 }
 
+/// Data needed to connect to an OpenVPN endpoint at a [`Relay`].
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct OpenVpnEndpointData {
     pub port: u16,
@@ -118,6 +126,7 @@ impl fmt::Display for OpenVpnEndpointData {
     }
 }
 
+/// Data needed to connect to a WireGuard endpoint at a [`Relay`].
 #[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Debug)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
@@ -149,6 +158,7 @@ impl fmt::Display for WireguardEndpointData {
     }
 }
 
+/// Used by `mullvad_rpc::RelayListProxy` to store bridge servers for a [`Relay`].
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct RelayBridges {
@@ -165,6 +175,7 @@ impl RelayBridges {
     }
 }
 
+/// Data needed to connect to a Shadowsocks endpoint at a [`Relay`].
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct ShadowsocksEndpointData {
     pub port: u16,
