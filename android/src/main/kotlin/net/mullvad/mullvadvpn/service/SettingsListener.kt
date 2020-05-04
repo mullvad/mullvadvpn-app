@@ -34,9 +34,7 @@ class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings)
         }
 
     fun onDestroy() {
-        if (listenerId != -1) {
-            daemon.onSettingsChange.unsubscribe(listenerId)
-        }
+        daemon.onSettingsChange.unsubscribe(listenerId)
 
         settingsNotifier.unsubscribeAll()
     }
