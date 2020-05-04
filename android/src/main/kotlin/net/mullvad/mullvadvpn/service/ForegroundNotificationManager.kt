@@ -265,8 +265,13 @@ class ForegroundNotificationManager(
 
     private fun buildTunnelAction(): NotificationCompat.Action {
         val intent = Intent(tunnelActionKey).setPackage("net.mullvad.mullvadvpn")
-        val pendingIntent =
-            PendingIntent.getBroadcast(service, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT
+
+        val pendingIntent = if (Build.VERSION.SDK_INT >= 26) {
+            PendingIntent.getForegroundService(service, 1, intent, flags)
+        } else {
+            PendingIntent.getService(service, 1, intent, flags)
+        }
 
         val icon = tunnelActionIcon
         val label = service.getString(tunnelActionText)
