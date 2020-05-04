@@ -13,7 +13,6 @@
 #
 
 # TAP device hardware ID
-!define DEPRECATED_TAP_HARDWARE_ID "tap0901"
 !define TAP_HARDWARE_ID "tapmullvad0901"
 
 # "sc" exit code
@@ -614,7 +613,7 @@
 
 	Push $R0
 
-	log::Initialize LOG_FILE
+	log::Initialize ${LOG_FILE}
 
 	log::Log "Running installer for ${PRODUCT_NAME} ${VERSION}"
 	log::LogWindowsVersion
@@ -720,10 +719,10 @@
 	${GetOptions} $0 "/S" $1
 	${If} ${Errors}
 		Push 1
-		log::Initialize LOG_VOID
+		log::Initialize ${LOG_VOID}
 	${Else}
 		Push 0
-		log::Initialize LOG_FILE
+		log::Initialize ${LOG_FILE}
 	${EndIf}
 	Pop $FullUninstall
 
