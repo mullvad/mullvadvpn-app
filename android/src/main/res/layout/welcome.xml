@@ -53,7 +53,7 @@
               android:textSize="13sp"
               android:text="@string/here_is_your_account_number" />
     <TextView android:id="@+id/account_number"
-              android:layout_width="wrap_content"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:paddingHorizontal="24dp"
               android:paddingVertical="11dp"
