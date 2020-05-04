@@ -13,7 +13,6 @@
 #
 
 # TAP device hardware ID
-!define DEPRECATED_TAP_HARDWARE_ID "tap0901"
 !define TAP_HARDWARE_ID "tapmullvad0901"
 
 # "sc" exit code
