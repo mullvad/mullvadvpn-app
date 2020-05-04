@@ -90,12 +90,7 @@ class MullvadVpnService : TalpidVpnService() {
         val action = intent?.action
 
         if (action == VpnService.SERVICE_INTERFACE || action == KEY_CONNECT_ACTION) {
-            if (loggedIn) {
-                pendingAction = PendingAction.Connect
-            } else {
-                pendingAction = null
-                openUi()
-            }
+            pendingAction = PendingAction.Connect
         } else if (action == KEY_DISCONNECT_ACTION) {
             pendingAction = PendingAction.Disconnect
         }
@@ -191,9 +186,21 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
+        val settingsListener = SettingsListener(daemon, settings).apply {
+            accountNumberNotifier.subscribe { accountNumber ->
+                loggedIn = accountNumber != null
+            }
+        }
+
         val connectionProxy = ConnectionProxy(this@MullvadVpnService, daemon).apply {
             when (pendingAction) {
-                PendingAction.Connect -> connect()
+                PendingAction.Connect -> {
+                    if (loggedIn) {
+                        connect()
+                    } else {
+                        openUi()
+                    }
+                }
                 PendingAction.Disconnect -> disconnect()
                 null -> {}
             }
@@ -202,12 +209,6 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
         val locationInfoCache = LocationInfoCache(daemon, connectionProxy, connectivityListener)
-
-        val settingsListener = SettingsListener(daemon, settings).apply {
-            accountNumberNotifier.subscribe { accountNumber ->
-                loggedIn = accountNumber != null
-            }
-        }
 
         instance = ServiceInstance(
             daemon,
