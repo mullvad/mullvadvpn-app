@@ -1,0 +1,813 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3\n"
+"Last-Translator: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: ko\n"
+
+msgid "BLOCKED CONNECTION"
+msgstr "연결 차단됨"
+
+msgid "CREATING SECURE CONNECTION"
+msgstr "보안 연결 생성중"
+
+msgid "Invalid account number"
+msgstr "잘못된 계정 번호"
+
+msgid "SECURE CONNECTION"
+msgstr "보안 연결"
+
+msgid "System default"
+msgstr "시스템 기본값"
+
+msgid "UNSECURED CONNECTION"
+msgstr "안전하지 않은 연결"
+
+#. The remaining time left on the account displayed across the app.
+#. Available placeholders:
+#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
+msgctxt "account-expiry"
+msgid "%(duration)s left"
+msgstr "%(duration)s 남음"
+
+msgctxt "account-view"
+msgid "Account"
+msgstr "계정"
+
+msgctxt "account-view"
+msgid "Account number"
+msgstr "계정 번호"
+
+msgctxt "account-view"
+msgid "Buy more credit"
+msgstr "더 많은 크레딧 구매"
+
+msgctxt "account-view"
+msgid "COPIED TO CLIPBOARD!"
+msgstr "클립보드에 복사됨!"
+
+msgctxt "account-view"
+msgid "Currently unavailable"
+msgstr "현재 이용 불가능"
+
+msgctxt "account-view"
+msgid "Key is valid"
+msgstr "올바른 키 입니다"
+
+msgctxt "account-view"
+msgid "Log out"
+msgstr "로그아웃"
+
+msgctxt "account-view"
+msgid "OUT OF TIME"
+msgstr "시간 초과"
+
+msgctxt "account-view"
+msgid "Paid until"
+msgstr "현재 지불한 기간"
+
+#. Title label in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Advanced"
+msgstr "고급"
+
+msgctxt "advanced-settings-view"
+msgid "Advanced"
+msgstr "고급"
+
+msgctxt "advanced-settings-view"
+msgid "Automatic"
+msgstr "자동"
+
+msgctxt "advanced-settings-view"
+msgid "Block when disconnected"
+msgstr "연결 해제시 차단"
+
+#. The title for the shadowsocks bridge selector section.
+msgctxt "advanced-settings-view"
+msgid "Bridge mode"
+msgstr "브릿지 모드"
+
+msgctxt "advanced-settings-view"
+msgid "Default"
+msgstr "기본"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6"
+msgstr "IPv6 활성화"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6 communication through the tunnel."
+msgstr "터널을 통한 IPv6 통신 활성화"
+
+msgctxt "advanced-settings-view"
+msgid "Mssfix"
+msgstr "Mssfix"
+
+msgctxt "advanced-settings-view"
+msgid "Off"
+msgstr "꺼짐"
+
+msgctxt "advanced-settings-view"
+msgid "On"
+msgstr "켜짐"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN"
+msgstr "OpenVPN"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "OpenVPN %(portType)s port"
+msgstr "OpenVPN %(portType)s 포트"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN transport protocol"
+msgstr "OpenVPN 통신 프로토콜"
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "advanced-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr "OpenVPN MSS값을 설정하세요. 유효 범위: %(min)d - %(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "TCP"
+msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "Tunnel protocol"
+msgstr "터널 프로토콜"
+
+msgctxt "advanced-settings-view"
+msgid "UDP"
+msgstr "UDP"
+
+msgctxt "advanced-settings-view"
+msgid ""
+"Unless connected to Mullvad, this setting will completely block your "
+"internet, even when you've disconnected or quit the app."
+msgstr ""
+"Mullvad에 연결되어 있지 않다면, 이 설정은 앱을 끄거나 연결이 해제되어 있는 상"
+"태에도 완전하게 인터넷 연결을 차단합니다."
+
+msgctxt "advanced-settings-view"
+msgid ""
+"Warning: Your internet won't work without a VPN connection, even when you've "
+"quit the app."
+msgstr "주의: 앱을 끄더라도 VPN 연결 없이는 인터넷 연결이 불가능하게 됩니다."
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard"
+msgstr "WireGuard"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard key"
+msgstr "WireGuard 키"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard port"
+msgstr "WireGuard 포트"
+
+msgctxt "auth-failure"
+msgid "Account authentication failed."
+msgstr "계정 인증 실패"
+
+msgctxt "auth-failure"
+msgid ""
+"This account has too many simultaneous connections. Disconnect another "
+"device or try connecting again shortly."
+msgstr ""
+"이 계정에 너무 많은 기기가 연결되어 있습니다. 다른 기기를 연결 해제 하거나 잠"
+"시후 다시 시도해 보세요."
+
+msgctxt "auth-failure"
+msgid ""
+"You have no more VPN time left on this account. Please log in on our website "
+"to buy more credit."
+msgstr ""
+"이 계정에 더 이상 남은 VPN 시간이 없습니다. 웹사이트에 로그인해 더 많은 크레"
+"딧을 구매하세요."
+
+msgctxt "auth-failure"
+msgid ""
+"You've logged in with an account number that is not valid. Please log out "
+"and try another one."
+msgstr ""
+"올바르지 않은 계정 번호로 로그인 했습니다. 로그아웃 후 다른 계정으로 로그인 "
+"하세요."
+
+#. The selected location label displayed on the main view, when a user selected a specific host to connect to.
+#. Example: Malmö (se-mma-001)
+#. Available placeholders:
+#. %(city)s - a city name
+#. %(hostname)s - a hostname
+msgctxt "connect-container"
+msgid "%(city)s (%(hostname)s)"
+msgstr "%(city)s (%(hostname)s)"
+
+msgctxt "connect-view"
+msgid "Buy more credit"
+msgstr "더 많은 크레딧 구매하기"
+
+msgctxt "connect-view"
+msgid "Disconnect and buy more credit"
+msgstr "연결 해제하고 더 많은 크레딧을 구매하세요"
+
+msgctxt "connect-view"
+msgid "Out of time"
+msgstr "시간 초과"
+
+msgctxt "connect-view"
+msgid ""
+"You have no more VPN time left on this account. Before you can buy more "
+"credit on our website, you first need to turn off the app's \"Block when "
+"disconnected\" option under Advanced settings."
+msgstr ""
+"이 계정에 더 이상 남은 VPN 시간이 없습니다. 웹사이트에서 더 많은 크레딧을 구"
+"매하기 전에 먼저 앱의 고급 설정에서 “연결 해제시 차단” 옵션을 해제하세요"
+
+msgctxt "connect-view"
+msgid ""
+"You have no more VPN time left on this account. Please log in on our website "
+"to buy more credit."
+msgstr ""
+"이 계정에 더 이상 남은 VPN 시간이 없습니다. 웹사이트에서 더 많은 크레딧을 구"
+"매하세요."
+
+msgctxt "connect-view"
+msgid ""
+"You have no more VPN time left on this account. To buy more credit on our "
+"website, you will need to access the Internet with an unsecured connection."
+msgstr ""
+"이 계정에 더 이상 남은 VPN 시간이 없습니다. 웹사이트에서 더 많은 크레딧을 구"
+"매하기 위해서는 안전하지 않은 연결을 통해 인터넷에 접속해야 합니다."
+
+#. The hostname line displayed below the country on the main screen
+#. Available placeholders:
+#. %(relay)s - the relay hostname
+#. %(bridge)s - the bridge hostname
+msgctxt "connection-info"
+msgid "%(relay)s via %(bridge)s"
+msgstr "%(bridge)s을(를) 통한 %(relay)s "
+
+#. The tunnel type line displayed below the hostname line on the main screen
+#. Available placeholders:
+#. %(tunnelType)s - the tunnel type, i.e OpenVPN
+#. %(bridgeType)s - the bridge type, i.e Shadowsocks
+msgctxt "connection-info"
+msgid "%(tunnelType)s via %(bridgeType)s"
+msgstr "%(bridgeType)s을(를) 통한 %(tunnelType)s"
+
+msgctxt "connection-info"
+msgid "In"
+msgstr "In"
+
+msgctxt "connection-info"
+msgid "Out"
+msgstr "Out"
+
+#. The message displayed to the user in case of critical error in the GUI
+#. Available placeholders:
+#. %(email)s - support email
+msgctxt "error-boundary-view"
+msgid "Something went wrong. Please contact us at %(email)s"
+msgstr "오류가 발생했습니다. %(email)s 으로 연락하시기 바랍니다."
+
+msgctxt "generic"
+msgid "MULLVAD VPN"
+msgstr "MULLVAD VPN"
+
+msgctxt "in-app-notifications"
+msgid "ACCOUNT CREDIT EXPIRES SOON"
+msgstr "계정 크레딧이 곧 만료됩니다"
+
+msgctxt "in-app-notifications"
+msgid "BLOCKING INTERNET"
+msgstr "인터넷 차단중"
+
+msgctxt "in-app-notifications"
+msgid ""
+"Could not configure IPv6, please enable it on your system or disable it in "
+"the app"
+msgstr ""
+"IPv6을 설정할 수 없습니다. IPv6을 시스템에서 활성화 하거나 앱에서 비활성화 하"
+"세요"
+
+msgctxt "in-app-notifications"
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "방화벽 규칙 적용을 실패했습니다. 기기가 안전하지 않을 수 있습니다."
+
+msgctxt "in-app-notifications"
+msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
+msgstr "커스텀 터널의 호스트를 확인하는데 실패했습니다. 설정을 변경하세요"
+
+msgctxt "in-app-notifications"
+msgid "Failed to set system DNS server"
+msgstr "시스템 DNS 서버를 설정할 수 없습니다."
+
+msgctxt "in-app-notifications"
+msgid "Failed to start tunnel connection"
+msgstr "터널 연결을 시작할 수 없습니다."
+
+msgctxt "in-app-notifications"
+msgid "FAILURE - UNSECURED"
+msgstr "실패 - 안전하지 않음"
+
+msgctxt "in-app-notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr "내부 버전 정보가 올바르지 않습니다. 앱을 재시작 하세요."
+
+msgctxt "in-app-notifications"
+msgid "INCONSISTENT VERSION"
+msgstr "버전 불일치"
+
+#. The in-app banner displayed to the user when the app update is available.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid "Install Mullvad VPN (%(version)s) to stay up to date"
+msgstr "Mullvad VPN (%(version)s)을 설치해 최신 상태를 유지하세요"
+
+msgctxt "in-app-notifications"
+msgid ""
+"No relay server matches the current settings. You can try changing the "
+"location or the relay settings."
+msgstr ""
+"현재 설정에서 사용할 수 있는 릴레이 서버가 없습니다. 위치나 릴레이 설정을 변"
+"경하세요."
+
+msgctxt "in-app-notifications"
+msgid "This device is offline, no tunnels can be established"
+msgstr "기기가 오프라인입니다. 터널을 수립할 수 없습니다."
+
+msgctxt "in-app-notifications"
+msgid "This might be caused by third party security software"
+msgstr "써드파티 보안 프로그램에 의해 발생할 수 있습니다."
+
+msgctxt "in-app-notifications"
+msgid ""
+"Unable to detect a working TAP adapter on this device. If you've disabled "
+"it, enable it again. Otherwise, please reinstall the app"
+msgstr ""
+"이 기기에서 작동하는 TAP 어댑터를 찾을 수 없습니다. 만약 비활성화 하였다면 다"
+"시 활성화 하고 그렇지 않다면 앱을 재설치 하세요"
+
+msgctxt "in-app-notifications"
+msgid "UNSUPPORTED VERSION"
+msgstr "미지원 버전"
+
+msgctxt "in-app-notifications"
+msgid "UPDATE AVAILABLE"
+msgstr "업데이트 가능"
+
+msgctxt "in-app-notifications"
+msgid ""
+"WireGuard key not published to our servers. You can manage your key in "
+"Advanced settings."
+msgstr ""
+"WireGuard 키가 서버에 업로드 되지 않았습니다. 고급 설정에서 키를 관리할 수 있"
+"습니다."
+
+#. The in-app banner displayed to the user when the running app becomes unsupported.
+#. Available placeholders:
+#. %(version)s - the newest available version of the app
+msgctxt "in-app-notifications"
+msgid ""
+"You are running an unsupported app version. Please upgrade to %(version)s "
+"now to ensure your security"
+msgstr ""
+"지원되지 않는 앱 버전을 실행중입니다. 안전을 보장하기 위해 %(version)s 버전으"
+"로 업데이트 하세요."
+
+msgctxt "in-app-notifications"
+msgid "Your kernel may be outdated"
+msgstr "사용중인 커널이 오래되었을 수 있습니다."
+
+msgctxt "launch-view"
+msgid "Connecting to Mullvad system service..."
+msgstr "Mullvad 시스템 서비스에 연결하는중…"
+
+msgctxt "login-view"
+msgid "Checking account number"
+msgstr "계정 번호를 확인하는 중"
+
+msgctxt "login-view"
+msgid "Correct account number"
+msgstr "올바른 계정 번호"
+
+msgctxt "login-view"
+msgid "Create account"
+msgstr "계정 생성"
+
+msgctxt "login-view"
+msgid "Don't have an account number?"
+msgstr "계정 번호가 없으신가요?"
+
+msgctxt "login-view"
+msgid "Enter your account number"
+msgstr "계정 번호를 입력하세요"
+
+msgctxt "login-view"
+msgid "Logged in"
+msgstr "로그인 됨"
+
+msgctxt "login-view"
+msgid "Logging in..."
+msgstr "로그인 중…"
+
+msgctxt "login-view"
+msgid "Login"
+msgstr "로그인"
+
+msgctxt "login-view"
+msgid "Login failed"
+msgstr "로그인 실패"
+
+msgctxt "login-view"
+msgid "Unknown error"
+msgstr "알 수 없는 오류"
+
+#. Back button in navigation bar
+#. Title label in navigation bar
+msgctxt "navigation-bar"
+msgid "Settings"
+msgstr "설정"
+
+msgctxt "notifications"
+msgid "Blocked all connections"
+msgstr "모든 연결 차단됨"
+
+#. The message showed when a server has been connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connected to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connected to %(location)s"
+msgstr "%(location)s에 연결됨"
+
+msgctxt "notifications"
+msgid "Connecting"
+msgstr "연결 중"
+
+#. The message showed when a server is being connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connecting to %(location)s"
+msgstr "%(location)s에 연결 중"
+
+msgctxt "notifications"
+msgid "Critical failure - Unsecured"
+msgstr "심각한 오류 - 안전하지 않음"
+
+msgctxt "notifications"
+msgid "Inconsistent internal version information, please restart the app"
+msgstr "내부 버전 정보가 올바르지 않습니다. 앱을 재시작 하세요."
+
+msgctxt "notifications"
+msgid "Reconnecting"
+msgstr "다시 연결 중"
+
+msgctxt "notifications"
+msgid "Secured"
+msgstr "안전함"
+
+msgctxt "notifications"
+msgid "Unsecured"
+msgstr "안전하지 않음"
+
+msgctxt "notifications"
+msgid "Wireguard key generation failed"
+msgstr "Wireguard 키 생성 실패"
+
+#. The system notification displayed to the user when the running app becomes unsupported.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid ""
+"You are running an unsupported app version. Please upgrade to %(version)s "
+"now to ensure your security"
+msgstr ""
+"지원되지 않는 앱 버전을 실행중입니다. 안전을 보장하기 위해 %(version)s 버전으"
+"로 업데이트 하세요."
+
+#. Title label in navigation bar
+msgctxt "preferences-nav"
+msgid "Preferences"
+msgstr "설정"
+
+msgctxt "preferences-view"
+msgid ""
+"Allows access to other devices on the same network for sharing, printing etc."
+msgstr "공유, 프린트등을 위한 같은 네트워크의 다른 기기들의 접근을 허용"
+
+msgctxt "preferences-view"
+msgid "Auto-connect"
+msgstr "자동 연결"
+
+msgctxt "preferences-view"
+msgid "Automatically connect to a server when the app launches."
+msgstr "앱이 실행되면 자동적으로 서버에 연결합니다"
+
+msgctxt "preferences-view"
+msgid ""
+"Enable or disable system notifications. The critical notifications will "
+"always be displayed."
+msgstr "시스템 알림을 켜거나 끕니다. 중요한 알림은 항상 표시됩니다."
+
+msgctxt "preferences-view"
+msgid "Launch app on start-up"
+msgstr "부팅시 앱 실행"
+
+msgctxt "preferences-view"
+msgid "Local network sharing"
+msgstr "로컬 네트워크 공유"
+
+msgctxt "preferences-view"
+msgid "Monochromatic tray icon"
+msgstr "단색 트레이 아이콘"
+
+msgctxt "preferences-view"
+msgid "Notifications"
+msgstr "알림"
+
+msgctxt "preferences-view"
+msgid "Preferences"
+msgstr "설정"
+
+msgctxt "preferences-view"
+msgid "Show only the tray icon when the app starts."
+msgstr "앱이 켜져 있을때만 트레이 아이콘을 표시합니다"
+
+msgctxt "preferences-view"
+msgid "Start minimized"
+msgstr "최소화 된 상태로 실행"
+
+msgctxt "preferences-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr "다색 아이콘을 대신하여 단색 트레이 아이콘을 사용합니다."
+
+#. Title label in navigation bar
+msgctxt "select-language-nav"
+msgid "Select language"
+msgstr "언어 설정"
+
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr "입구"
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr "출구"
+
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "위치 선택"
+
+msgctxt "select-location-view"
+msgid "Closest to exit server"
+msgstr "출구 서버에서 제일 가까운 위치"
+
+msgctxt "select-location-view"
+msgid ""
+"While connected, your real location is masked with a private and secure "
+"location in the selected region."
+msgstr ""
+"연결되는 동안 선택한 지역의 안전한 비공개 연결로 실제 위치를 보호합니다."
+
+msgctxt "select-location-view"
+msgid ""
+"While connected, your traffic will be routed through two secure locations, "
+"the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr ""
+"연결되는 동안 입구 (브릿지 서버) 와 출구 (VPN 서버)의 총 두 곳을 통해 트래픽"
+"이 전달됩니다."
+
+#. Navigation button to the 'Account' view
+msgctxt "settings-view"
+msgid "Account"
+msgstr "계정"
+
+#. Navigation button to the 'Advanced' settings view
+msgctxt "settings-view"
+msgid "Advanced"
+msgstr "고급"
+
+msgctxt "settings-view"
+msgid "App version"
+msgstr "앱 버전"
+
+#. Link to the webpage
+msgctxt "settings-view"
+msgid "FAQs & Guides"
+msgstr "자주 묻는 질문과 가이드"
+
+msgctxt "settings-view"
+msgid "Inconsistent internal version information, please restart the app."
+msgstr "내부 버전 정보가 올바르지 않습니다. 앱을 재시작 하세요."
+
+#. Navigation button to the 'Language' settings view
+msgctxt "settings-view"
+msgid "Language"
+msgstr "언어"
+
+msgctxt "settings-view"
+msgid "OUT OF TIME"
+msgstr "시간 초과"
+
+#. Navigation button to the 'Preferences' view
+msgctxt "settings-view"
+msgid "Preferences"
+msgstr "설정"
+
+msgctxt "settings-view"
+msgid "Quit app"
+msgstr "앱 종료"
+
+#. Navigation button to the 'Report a problem' help view
+msgctxt "settings-view"
+msgid "Report a problem"
+msgstr "문제 보고"
+
+msgctxt "settings-view"
+msgid "Update available, download to remain safe."
+msgstr "업데이트 이용 가능, 안전을 위해 다운로드 하세요"
+
+msgctxt "support-view"
+msgid "Back"
+msgstr "이전"
+
+msgctxt "support-view"
+msgid "Describe your problem"
+msgstr "문제를 설명하세요"
+
+msgctxt "support-view"
+msgid "Edit message"
+msgstr "메시지 수정"
+
+msgctxt "support-view"
+msgid "Failed to send"
+msgstr "전송 실패"
+
+#. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+#. Available placeholders:
+#. %(email)s
+msgctxt "support-view"
+msgid "If needed we will contact you on %(email)s"
+msgstr "필요하다면 %(email)s으로 연락 하겠습니다."
+
+msgctxt "support-view"
+msgid "Report a problem"
+msgstr "문제 보고"
+
+msgctxt "support-view"
+msgid "Send"
+msgstr "보내기"
+
+msgctxt "support-view"
+msgid "Send anyway"
+msgstr "그래도 보내기"
+
+msgctxt "support-view"
+msgid "Sending..."
+msgstr "보내는 중…"
+
+msgctxt "support-view"
+msgid "Sent"
+msgstr "보내기 완료"
+
+msgctxt "support-view"
+msgid "Thanks! We will look into this."
+msgstr "감사합니다! 저희가 확인하겠습니다."
+
+msgctxt "support-view"
+msgid ""
+"To help you more effectively, your app's log file will be attached to this "
+"message. Your data will remain secure and private, as it is anonymised "
+"before being sent over an encrypted channel."
+msgstr ""
+"지원의 효율성을 위해, 앱의 로그가 이 메시지에 첨부됩니다. 데이터는 암호화된 "
+"채널로 익명을 통해 전송되므로 비공개로 유지됩니다."
+
+msgctxt "support-view"
+msgid "Try again"
+msgstr "다시 시도"
+
+msgctxt "support-view"
+msgid "View app logs"
+msgstr "앱 로그 보기"
+
+msgctxt "support-view"
+msgid ""
+"You are about to send the problem report without a way for us to get back to "
+"you. If you want an answer to your report you will have to enter an email "
+"address."
+msgstr ""
+"답장 할 수 있는 방법이 없는채로 문제를 보고 하시겠습니까? 답장을 원하신다면 "
+"이메일 주소를 입력해주세요"
+
+msgctxt "support-view"
+msgid ""
+"You may need to go back to the app's main screen and click Disconnect before "
+"trying again. Don't worry, the information you entered will remain in the "
+"form."
+msgstr ""
+"앱의 메인 화면으로 가서 연결 해제 후 다시 시도하세요. 입력하신 정보는 그대로 "
+"남아있으니 걱정하지 않으셔도 됩니다."
+
+msgctxt "support-view"
+msgid "Your email (optional)"
+msgstr "이메일 주소 (선택)"
+
+msgctxt "tunnel-control"
+msgid "Cancel"
+msgstr "취소"
+
+msgctxt "tunnel-control"
+msgid "Disconnect"
+msgstr "연결 해제"
+
+msgctxt "tunnel-control"
+msgid "Secure my connection"
+msgstr "보안 연결하기"
+
+msgctxt "tunnel-control"
+msgid "Switch location"
+msgstr "위치 변경"
+
+msgctxt "wireguard-key-view"
+msgid "Account has too many keys already"
+msgstr "계정에 이미 키가 많습니다"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
+msgstr "키 생성에 실패하였습니다."
+
+msgctxt "wireguard-key-view"
+msgid "Failed to replace key - %(failure)s"
+msgstr "키를 변경하지 못했습니다 - %(failure)s"
+
+msgctxt "wireguard-key-view"
+msgid "Generate key"
+msgstr "키 생성"
+
+msgctxt "wireguard-key-view"
+msgid "Generating key"
+msgstr "키 생성중"
+
+msgctxt "wireguard-key-view"
+msgid "Key is invalid"
+msgstr "키가 올바르지 않습니다"
+
+msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr "키 검증 실패"
+
+msgctxt "wireguard-key-view"
+msgid "Manage keys"
+msgstr "키 관리"
+
+msgctxt "wireguard-key-view"
+msgid "No key set"
+msgstr "키가 없습니다"
+
+msgctxt "wireguard-key-view"
+msgid "Regenerate key"
+msgstr "키 재생성"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to manage keys while in a blocked state"
+msgstr "차단된 상태에서는 키를 관리할 수 없습니다"
+
+msgctxt "wireguard-key-view"
+msgid "Verify key"
+msgstr "키 검증"
+
+msgctxt "wireguard-keys"
+msgid "Key generated"
+msgstr "키 생성됨"
+
+msgctxt "wireguard-keys"
+msgid "Public key"
+msgstr "공개 키"
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "Advanced"
+msgstr "고급"
+
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard key"
+msgstr "WireGuard 키"
