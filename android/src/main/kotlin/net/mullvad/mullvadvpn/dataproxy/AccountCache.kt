@@ -13,6 +13,10 @@ import org.joda.time.format.DateTimeFormat
 val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
 
 class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
+    private val subscriptionId = settingsListener.accountNumberNotifier.subscribe { accountNumber ->
+        handleNewAccountNumber(accountNumber)
+    }
+
     private var fetchJob: Job? = null
     private var accountNumber: String? = null
     private var accountExpiry: DateTime? = null
@@ -25,19 +29,13 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
             }
         }
 
-    init {
-        settingsListener.onAccountNumberChange = { accountNumber ->
-            handleNewAccountNumber(accountNumber)
-        }
-    }
-
     fun refetch() {
         fetchJob?.cancel()
         fetchJob = fetchAccountExpiry()
     }
 
     fun onDestroy() {
-        settingsListener.onAccountNumberChange = null
+        settingsListener.accountNumberNotifier.unsubscribe(subscriptionId)
 
         fetchJob?.cancel()
     }
