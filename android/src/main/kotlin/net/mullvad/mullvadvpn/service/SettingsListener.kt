@@ -17,13 +17,7 @@ class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings)
         maybeSettings?.let { settings -> handleNewSettings(settings) }
     }
 
-    var onAccountNumberChange: ((String?) -> Unit)? = null
-        set(value) {
-            synchronized(this) {
-                field = value
-                value?.invoke(settings.accountToken)
-            }
-        }
+    val accountNumberNotifier = EventNotifier(initialSettings.accountToken)
 
     var onRelaySettingsChange: ((RelaySettings?) -> Unit)? = null
         set(value) {
@@ -34,10 +28,9 @@ class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings)
         }
 
     fun onDestroy() {
-        if (listenerId != -1) {
-            daemon.onSettingsChange.unsubscribe(listenerId)
-        }
+        daemon.onSettingsChange.unsubscribe(listenerId)
 
+        accountNumberNotifier.unsubscribeAll()
         settingsNotifier.unsubscribeAll()
     }
 
@@ -52,7 +45,7 @@ class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings)
     private fun handleNewSettings(newSettings: Settings) {
         synchronized(this) {
             if (settings.accountToken != newSettings.accountToken) {
-                onAccountNumberChange?.invoke(newSettings.accountToken)
+                accountNumberNotifier.notify(newSettings.accountToken)
             }
 
             if (settings.relaySettings != newSettings.relaySettings) {

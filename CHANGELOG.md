@@ -40,13 +40,14 @@ Line wrap the file at 100 chars.                                              Th
   in 2020.4-beta2. The app will now only install on Android 7 and later (API level 24).
 
 ### Fixed
-- Fixed bogus or absent update notifications on the desktop app due to incorrect deserialization of
-  a struct sent from the daemon.
+- Fix bogus or absent update notifications on the desktop app due to incorrect deserialization of a
+  struct sent from the daemon.
 
-### Fixed
 #### Android
 - Fix crash when leaving WireGuard Key screen while key is still verifying.
 - Fix crash that sometimes happens right after some other unrelated crash.
+- Fix app not connecting when pressing the notification or quick-settings tile when the service
+  isn't running. It would previously just open the app UI and stay in the disconnected state.
 
 
 ## [2020.4-beta3] - 2020-04-29
