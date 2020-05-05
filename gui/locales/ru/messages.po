@@ -8,13 +8,19 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2019-12-16 09:41\n"
+"PO-Revision-Date: 2020-05-05 07:34\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ПОДКЛЮЧЕНИЕ ЗАБЛОКИРОВАНО"
 
+msgid "COPIED TO CLIPBOARD!"
+msgstr "СКОПИРОВАНО В БУФЕР ОБМЕНА."
+
 msgid "CREATING SECURE CONNECTION"
 msgstr "СОЗДАНИЕ ЗАЩИЩЕННОГО ПОДКЛЮЧЕНИЯ"
+
+msgid "FAILED TO SECURE CONNECTION"
+msgstr "НЕ УДАЛОСЬ УСТАНОВИТЬ БЕЗОПАСНОЕ ПОДКЛЮЧЕНИЕ"
 
 msgid "Invalid account number"
 msgstr "Недействительный номер учетной записи"
@@ -27,6 +33,13 @@ msgstr "Системные настройки по умолчанию"
 
 msgid "UNSECURED CONNECTION"
 msgstr "НЕЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ"
+
+#. The remaining time left on the account measured in days.
+#. Available placeholders:
+#. %(duration)s - The remaining time measured in days.
+msgctxt "account-expiry"
+msgid "%(duration)s days"
+msgstr "%(duration)s сут"
 
 #. The remaining time left on the account displayed across the app.
 #. Available placeholders:
@@ -46,10 +59,6 @@ msgstr "Номер учетной записи"
 msgctxt "account-view"
 msgid "Buy more credit"
 msgstr "Пополнить баланс"
-
-msgctxt "account-view"
-msgid "COPIED TO CLIPBOARD!"
-msgstr "СКОПИРОВАНО В БУФЕР ОБМЕНА!"
 
 msgctxt "account-view"
 msgid "Currently unavailable"
@@ -81,12 +90,20 @@ msgid "Advanced"
 msgstr "Дополнительные"
 
 msgctxt "advanced-settings-view"
+msgid "Always require VPN"
+msgstr "Всегда требовать VPN"
+
+msgctxt "advanced-settings-view"
+msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
+msgstr "Внимание: при активации этого параметра для выхода в Интернет необходимо будет обязательно подключиться через Mullvad VPN."
+
+msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "Автоматически"
 
 msgctxt "advanced-settings-view"
-msgid "Block when disconnected"
-msgstr "Блокировать при отключении"
+msgid "Back"
+msgstr "Назад"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
@@ -98,6 +115,10 @@ msgid "Default"
 msgstr "По умолчанию"
 
 msgctxt "advanced-settings-view"
+msgid "Enable anyway"
+msgstr "Всё равно активировать"
+
+msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "Включить IPv6"
 
@@ -106,8 +127,8 @@ msgid "Enable IPv6 communication through the tunnel."
 msgstr "Включить передачу данных по IPv6 через туннель."
 
 msgctxt "advanced-settings-view"
-msgid "Mssfix"
-msgstr "MSSfix"
+msgid "If you disconnect or quit the app, this setting will block your internet."
+msgstr "Если разорвать соединение или закрыть приложение, то выход в Интернет будет заблокирован."
 
 msgctxt "advanced-settings-view"
 msgid "Off"
@@ -129,6 +150,10 @@ msgid "OpenVPN %(portType)s port"
 msgstr "Порт %(portType)s для OpenVPN"
 
 msgctxt "advanced-settings-view"
+msgid "OpenVPN Mssfix"
+msgstr "Параметр Mssfix для OpenVPN"
+
+msgctxt "advanced-settings-view"
 msgid "OpenVPN transport protocol"
 msgstr "Транспортный протокол OpenVPN"
 
@@ -140,9 +165,25 @@ msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "Установить значение MSS для OpenVPN. Диапазон значений: %(min)d — %(max)d."
 
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "advanced-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr "Установить значение MTU для WireGuard. Диапазон значений: %(min)d–%(max)d."
+
 msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr "Функция аварийного отключения, встроенная в приложение, всегда включена. Этот параметр дополнительно блокирует Интернет при нажатии \"Отключить\" или \"Выход\"."
+
+msgctxt "advanced-settings-view"
+msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
+msgstr "Чтобы активировать WireGuard, сгенерируйте ключ с помощью пункта \"Ключ WireGuard\" ниже."
 
 msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
@@ -153,14 +194,6 @@ msgid "UDP"
 msgstr "UDP"
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
-msgstr "Эта функция будет блокировать весь интернет-трафик при отсутствии подключения к Mullvad, даже если вы намеренно отключились или вышли из приложения."
-
-msgctxt "advanced-settings-view"
-msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
-msgstr "Внимание: интернет не будет работать без подключения к VPN, даже если вы выйдете из приложения."
-
-msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
@@ -169,8 +202,16 @@ msgid "WireGuard key"
 msgstr "Ключ WireGuard"
 
 msgctxt "advanced-settings-view"
+msgid "WireGuard MTU"
+msgstr "MTU для WireGuard"
+
+msgctxt "advanced-settings-view"
 msgid "WireGuard port"
 msgstr "Порт WireGuard"
+
+msgctxt "advanced-settings-view-wireguard"
+msgid "missing key"
+msgstr "отсутствует ключ"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -198,28 +239,72 @@ msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
+msgid "Always require VPN"
+msgstr "Всегда требовать VPN"
+
+msgctxt "connect-view"
+msgid "Buy credit"
+msgstr "Пополнить баланс"
+
+msgctxt "connect-view"
 msgid "Buy more credit"
 msgstr "Пополнить баланс"
 
 msgctxt "connect-view"
-msgid "Disconnect and buy more credit"
-msgstr "Отключиться и пополнить баланс"
+msgid "Cancel"
+msgstr "Отмена"
+
+msgctxt "connect-view"
+msgid "Close"
+msgstr "Закрыть"
+
+msgctxt "connect-view"
+msgid "Congrats!"
+msgstr "Поздравляем!"
+
+msgctxt "connect-view"
+msgid "Disconnect"
+msgstr "Отключить"
+
+msgctxt "connect-view"
+msgid "Either buy credit on our website or redeem a voucher."
+msgstr "Пополните баланс у нас на сайте или погасите ваучер."
+
+msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr "Введите код ваучера"
+
+msgctxt "connect-view"
+msgid "Here’s your account number. Save it!"
+msgstr "Вот номер вашей учетной записи. Сохраните его!"
 
 msgctxt "connect-view"
 msgid "Out of time"
 msgstr "Закончилось время"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
-msgstr "У этой учетной записи закончилось время на услуге VPN. Прежде чем можно будет пополнить баланс на нашем веб-сайте, нужно отключить функцию «Блокировать при отключении» в разделе настроек «Дополнительные»."
+msgid "Redeem voucher"
+msgstr "Погасить ваучер"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "У этой учетной записи закончилось время на услуге VPN. Войдите в учетную запись на нашем сайте и пополните баланс."
+msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
+msgstr "Внимание: если отключить этот параметр, то сетевой трафик при отсутствии VPN-подключения будет идти без ограничений. Чтобы ограничить трафик в отсутствие VPN, нужно будет вновь активировать этот параметр в дополнительных настройках."
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
-msgstr "У этой учетной записи закончилось время на услуге VPN. Чтобы пополнить баланс на нашем веб-сайте, вам нужно выйти в интернет по незащищенному подключению."
+msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
+msgstr "Чтобы добавить время, необходимо отключиться, а затем выйти в Интернет по незащищенному соединению."
+
+msgctxt "connect-view"
+msgid "To start using the app, you first need to add time to your account."
+msgstr "Чтобы пользоваться приложением, нужно добавить время на учетную запись."
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account."
+msgstr "На этой учетной записи времени VPN не осталось."
+
+msgctxt "connect-view"
+msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
+msgstr "Для выхода в Интернет и добавления времени необходимо отключить параметр \"Всегда требовать VPN\"."
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -257,6 +342,10 @@ msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
+msgid "“Always require VPN” is enabled."
+msgstr "Параметр \"Всегда требовать VPN\" включен."
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "ЗАКАНЧИВАЕТСЯ БАЛАНС НА УЧЕТНОЙ ЗАПИСИ"
 
@@ -273,6 +362,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Не удалось применить правила брандмауэра. Сейчас устройство может быть не защищено"
 
 msgctxt "in-app-notifications"
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "Не удалось заблокировать весь сетевой трафик. Устраните неисправность или сообщите нам о проблеме."
+
+msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
 msgstr "Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки"
 
@@ -283,10 +376,6 @@ msgstr "Не удалось установить системный DNS-серв
 msgctxt "in-app-notifications"
 msgid "Failed to start tunnel connection"
 msgstr "Не удалось запустить подключение к туннелю"
-
-msgctxt "in-app-notifications"
-msgid "FAILURE - UNSECURED"
-msgstr "ОШИБКА: НЕ ЗАЩИЩЕНО"
 
 msgctxt "in-app-notifications"
 msgid "Inconsistent internal version information, please restart the app"
@@ -339,6 +428,10 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr "Вы используете неподдерживаемую версию приложения. Чтобы обеспечить безопасность, обновитесь до версии %(version)s"
 
 msgctxt "in-app-notifications"
+msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
+msgstr "ВОЗМОЖНА УТЕЧКА СЕТЕВОГО ТРАФИКА"
+
+msgctxt "in-app-notifications"
 msgid "Your kernel may be outdated"
 msgstr "Возможно, ядро устарело"
 
@@ -347,16 +440,20 @@ msgid "Connecting to Mullvad system service..."
 msgstr "Подключение к системному сервису Mullvad..."
 
 msgctxt "login-view"
+msgid "Account created"
+msgstr "Учетная запись создана"
+
+msgctxt "login-view"
 msgid "Checking account number"
 msgstr "Проверка номера учетной записи"
 
 msgctxt "login-view"
-msgid "Correct account number"
-msgstr "Номер учетной записи подтвержден"
-
-msgctxt "login-view"
 msgid "Create account"
 msgstr "Создать учетную запись"
+
+msgctxt "login-view"
+msgid "Creating account..."
+msgstr "Создание учетной записи..."
 
 msgctxt "login-view"
 msgid "Don't have an account number?"
@@ -365,6 +462,14 @@ msgstr "У вас нет номера учетной записи?"
 msgctxt "login-view"
 msgid "Enter your account number"
 msgstr "Введите номер учетной записи"
+
+msgctxt "login-view"
+msgid "Error"
+msgstr "Ошибка"
+
+msgctxt "login-view"
+msgid "Failed to create account"
+msgstr "Не удалось создать учетную запись"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -383,14 +488,29 @@ msgid "Login failed"
 msgstr "Ошибка входа"
 
 msgctxt "login-view"
+msgid "Please wait"
+msgstr "Подождите"
+
+msgctxt "login-view"
 msgid "Unknown error"
 msgstr "Неизвестная ошибка"
+
+msgctxt "login-view"
+msgid "Valid account number"
+msgstr "Действительный номер учетной записи"
 
 #. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
 msgstr "Настройки"
+
+#. The system notification displayed to the user when the account credit is close to expiry.
+#. Available placeholder:
+#. %(duration)s - remaining time, e.g. "2 days"
+msgctxt "notifications"
+msgid "Account credit expires in %(duration)s"
+msgstr "Срок действия баланса учетной записи: %(duration)s"
 
 msgctxt "notifications"
 msgid "Blocked all connections"
@@ -415,8 +535,8 @@ msgid "Connecting to %(location)s"
 msgstr "Подключение: %(location)s"
 
 msgctxt "notifications"
-msgid "Critical failure - Unsecured"
-msgstr "Критическая ошибка: подключение не защищено"
+msgid "Critical error (your attention is required)"
+msgstr "Критическая ошибка (обратите внимание)"
 
 msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
@@ -463,8 +583,16 @@ msgid "Automatically connect to a server when the app launches."
 msgstr "Автоматически подключаться к серверу при запуске приложения."
 
 msgctxt "preferences-view"
+msgid "Beta program"
+msgstr "Бета-программа"
+
+msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Включить или отключить системные уведомления. Критические уведомления будут отображаться в любом случае."
+
+msgctxt "preferences-view"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "Включить оповещения о выходе новых бета-версий приложения."
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -497,6 +625,26 @@ msgstr "Запускать свернутым"
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Использовать в области уведомлений черно-белый значок вместо цветного."
+
+msgctxt "redeem-voucher-view"
+msgid "An error occured."
+msgstr "Произошла ошибка."
+
+msgctxt "redeem-voucher-view"
+msgid "Redeem"
+msgstr "Погасить"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code has already been used."
+msgstr "Этот код ваучера уже использовался."
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code is invalid."
+msgstr "Код ваучера недействителен."
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher was successfully redeemed."
+msgstr "Ваучер погашен."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -583,6 +731,14 @@ msgid "Back"
 msgstr "Назад"
 
 msgctxt "support-view"
+msgid "Cancel"
+msgstr "Отмена"
+
+msgctxt "support-view"
+msgid "Continue anyway"
+msgstr "Всё равно продолжить"
+
+msgctxt "support-view"
 msgid "Describe your problem"
 msgstr "Опишите проблему"
 
@@ -634,12 +790,20 @@ msgid "Try again"
 msgstr "Повторить попытку"
 
 msgctxt "support-view"
+msgid "Upgrade app"
+msgstr "Обновить приложение"
+
+msgctxt "support-view"
 msgid "View app logs"
 msgstr "Открыть журналы"
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
 msgstr "Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ, введите свой адрес электронной почты."
+
+msgctxt "support-view"
+msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
+msgstr "Вы используете старую версию приложения. Прежде чем сообщать о проблеме, обновите приложение и проверьте, не исчезла ли она."
 
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
@@ -658,6 +822,10 @@ msgid "Disconnect"
 msgstr "Отключить"
 
 msgctxt "tunnel-control"
+msgid "Dismiss"
+msgstr "Закрыть"
+
+msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "Защитить мое подключение"
 
@@ -666,16 +834,8 @@ msgid "Switch location"
 msgstr "Сменить местоположение"
 
 msgctxt "wireguard-key-view"
-msgid "Account has too many keys already"
-msgstr "В учетной записи уже слишком много ключей"
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
 msgstr "Не удалось сгенерировать ключ"
-
-msgctxt "wireguard-key-view"
-msgid "Failed to replace key - %(failure)s"
-msgstr "Не удалось заменить ключ. %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -702,12 +862,20 @@ msgid "No key set"
 msgstr "Ключ не задан"
 
 msgctxt "wireguard-key-view"
+msgid "Reconnecting with new WireGuard key..."
+msgstr "Повторное подключение с новым ключом WireGuard..."
+
+msgctxt "wireguard-key-view"
 msgid "Regenerate key"
 msgstr "Повторно сгенерировать ключ"
 
 msgctxt "wireguard-key-view"
 msgid "Unable to manage keys while in a blocked state"
 msgstr "Управлять ключами в заблокированном состоянии нельзя"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
+msgstr "Не удается повторно сгенерировать ключ: у вас уже максимальное количество ключей. Чтобы сгенерировать новый ключ, сначала нужно отозвать один ключ в разделе \"Управление ключами.\""
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"

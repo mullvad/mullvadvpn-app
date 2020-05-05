@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
-"PO-Revision-Date: 2019-12-16 09:41\n"
+"PO-Revision-Date: 2020-05-05 07:34\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -464,7 +464,7 @@ msgstr "Vancouver"
 
 #. AT VIE
 msgid "Vienna"
-msgstr ""
+msgstr "Wien"
 
 #. PL WAW
 msgid "Warsaw"
@@ -481,3 +481,4 @@ msgstr "Wien"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürich"
+

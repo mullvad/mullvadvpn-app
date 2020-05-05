@@ -8,13 +8,19 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2019-12-16 09:41\n"
+"PO-Revision-Date: 2020-05-05 07:34\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "被封鎖的連線"
 
+msgid "COPIED TO CLIPBOARD!"
+msgstr "已複製到剪貼簿！"
+
 msgid "CREATING SECURE CONNECTION"
 msgstr "建立安全連線"
+
+msgid "FAILED TO SECURE CONNECTION"
+msgstr "保護連線失敗"
 
 msgid "Invalid account number"
 msgstr "帳號無效"
@@ -27,6 +33,13 @@ msgstr "系統預設"
 
 msgid "UNSECURED CONNECTION"
 msgstr "不安全的連線"
+
+#. The remaining time left on the account measured in days.
+#. Available placeholders:
+#. %(duration)s - The remaining time measured in days.
+msgctxt "account-expiry"
+msgid "%(duration)s days"
+msgstr "%(duration)s 天"
 
 #. The remaining time left on the account displayed across the app.
 #. Available placeholders:
@@ -46,10 +59,6 @@ msgstr "帳戶編號"
 msgctxt "account-view"
 msgid "Buy more credit"
 msgstr "購買更多點數"
-
-msgctxt "account-view"
-msgid "COPIED TO CLIPBOARD!"
-msgstr "已複製到剪貼簿！"
 
 msgctxt "account-view"
 msgid "Currently unavailable"
@@ -81,12 +90,20 @@ msgid "Advanced"
 msgstr "進階"
 
 msgctxt "advanced-settings-view"
+msgid "Always require VPN"
+msgstr "始終需要 VPN"
+
+msgctxt "advanced-settings-view"
+msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
+msgstr "注意：啟用此功能，皆需 Mullvad VPN 連線才能上網。"
+
+msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "自動"
 
 msgctxt "advanced-settings-view"
-msgid "Block when disconnected"
-msgstr "中斷連線則封鎖"
+msgid "Back"
+msgstr "返回"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
@@ -98,6 +115,10 @@ msgid "Default"
 msgstr "預設"
 
 msgctxt "advanced-settings-view"
+msgid "Enable anyway"
+msgstr "仍然啟用"
+
+msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "啟用 IPv6"
 
@@ -106,8 +127,8 @@ msgid "Enable IPv6 communication through the tunnel."
 msgstr "透過通道啟用 IPv6 通訊。"
 
 msgctxt "advanced-settings-view"
-msgid "Mssfix"
-msgstr "Mssfix"
+msgid "If you disconnect or quit the app, this setting will block your internet."
+msgstr "如果您中斷連線或退出應用程式，此設定將會封鎖您的網路。"
 
 msgctxt "advanced-settings-view"
 msgid "Off"
@@ -129,6 +150,10 @@ msgid "OpenVPN %(portType)s port"
 msgstr "OpenVPN %(portType)s 連接埠"
 
 msgctxt "advanced-settings-view"
+msgid "OpenVPN Mssfix"
+msgstr "OpenVPN Mssfix"
+
+msgctxt "advanced-settings-view"
 msgid "OpenVPN transport protocol"
 msgstr "OpenVPN 傳輸通訊協定"
 
@@ -140,9 +165,25 @@ msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "設定 OpenVPN MSS 值。有效範圍：%(min)d - %(max)d。"
 
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "advanced-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr "設定 WireGuard MTU 值。有效範圍：%(min)d - %(max)d。"
+
 msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr "應用程式內建緊停開關 (Kill Switch) 始終處於開啟狀態。如果按一下「中斷連線」或「退出」，此設定還將封鎖您的網路。"
+
+msgctxt "advanced-settings-view"
+msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
+msgstr "若要啟用 WireGuard，請在底下「Wireguard 金鑰」設定下產生金鑰。"
 
 msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
@@ -153,14 +194,6 @@ msgid "UDP"
 msgstr "UDP"
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
-msgstr "除非連線到 Mullvad，否則此設置將完全封鎖您的網際網路，即使您已中斷連線或退出應用程式。"
-
-msgctxt "advanced-settings-view"
-msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
-msgstr "警告：若無 VPN 連線，您的網際網路將不會運作，即使您已退出應用程式。"
-
-msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
@@ -169,8 +202,16 @@ msgid "WireGuard key"
 msgstr "WireGuard 金鑰"
 
 msgctxt "advanced-settings-view"
+msgid "WireGuard MTU"
+msgstr "WireGuard MTU"
+
+msgctxt "advanced-settings-view"
 msgid "WireGuard port"
 msgstr "WireGuard 連接埠"
+
+msgctxt "advanced-settings-view-wireguard"
+msgid "missing key"
+msgstr "金鑰遺失"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -198,28 +239,72 @@ msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
+msgid "Always require VPN"
+msgstr "始終需要 VPN"
+
+msgctxt "connect-view"
+msgid "Buy credit"
+msgstr "購買點數"
+
+msgctxt "connect-view"
 msgid "Buy more credit"
 msgstr "購買更多點數"
 
 msgctxt "connect-view"
-msgid "Disconnect and buy more credit"
-msgstr "中斷連線並購買更多點數"
+msgid "Cancel"
+msgstr "取消"
+
+msgctxt "connect-view"
+msgid "Close"
+msgstr "關閉"
+
+msgctxt "connect-view"
+msgid "Congrats!"
+msgstr "恭喜！"
+
+msgctxt "connect-view"
+msgid "Disconnect"
+msgstr "中斷連線"
+
+msgctxt "connect-view"
+msgid "Either buy credit on our website or redeem a voucher."
+msgstr "在我們網站上購買點數或兌換憑證。"
+
+msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr "輸入憑證兌換碼"
+
+msgctxt "connect-view"
+msgid "Here’s your account number. Save it!"
+msgstr "以下是您的帳號。請妥善保管！"
 
 msgctxt "connect-view"
 msgid "Out of time"
 msgstr "逾時"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
-msgstr "您在此帳戶沒有更多 VPN 時間了。您必須先關閉應用程式「進階」設定下的「中斷連線時封鎖」選項，再到我們網站購買更多點數。"
+msgid "Redeem voucher"
+msgstr "兌換憑證"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "您在此帳戶沒有更多 VPN 時間了。請登入我們的網站，購買更多點數。"
+msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
+msgstr "注意，在 VPN 中斷連線時關閉它，將允許網路流量，直到您在「進階設定」下將其重新開啟。"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
-msgstr "您在此帳戶沒有更多 VPN 時間了。若要在我們網站上購買更多點數，您必須使用不安全的連線存取網際網路。"
+msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
+msgstr "若要追加，您需中斷連線並使用不安全的連線來存取網路。"
+
+msgctxt "connect-view"
+msgid "To start using the app, you first need to add time to your account."
+msgstr "需先在帳戶中加時，才能開始使用本應用程式。"
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account."
+msgstr "您這個帳戶已經沒有剩餘的 VPN 時間了。"
+
+msgctxt "connect-view"
+msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
+msgstr "您需要停用「始終需要 VPN」，才能上網加時。"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -257,6 +342,10 @@ msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
+msgid "“Always require VPN” is enabled."
+msgstr "「始終需要 VPN」已啟用。"
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "帳戶點數即將到期"
 
@@ -273,6 +362,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "無法套用防火牆規則。裝置目前可能不安全"
 
 msgctxt "in-app-notifications"
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "無法封鎖所有網路流量。請排除故障或向我們回報問題。"
+
+msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
 msgstr "無法解析自訂通道的主機。請考慮變更設定"
 
@@ -283,10 +376,6 @@ msgstr "無法設定系統 DNS 伺服器"
 msgctxt "in-app-notifications"
 msgid "Failed to start tunnel connection"
 msgstr "無法啟動通道連線"
-
-msgctxt "in-app-notifications"
-msgid "FAILURE - UNSECURED"
-msgstr "失敗 - 不安全"
 
 msgctxt "in-app-notifications"
 msgid "Inconsistent internal version information, please restart the app"
@@ -339,6 +428,10 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr "您正在執行不受支援的應用程式版本。請立即升級到 %(version)s，以確保您的安全"
 
 msgctxt "in-app-notifications"
+msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
+msgstr "您的網路流量可能正在洩露"
+
+msgctxt "in-app-notifications"
 msgid "Your kernel may be outdated"
 msgstr "您的核心已過期"
 
@@ -347,16 +440,20 @@ msgid "Connecting to Mullvad system service..."
 msgstr "連線 Mullvad 系統服務中..."
 
 msgctxt "login-view"
+msgid "Account created"
+msgstr "已建立帳戶"
+
+msgctxt "login-view"
 msgid "Checking account number"
 msgstr "檢查帳號中"
 
 msgctxt "login-view"
-msgid "Correct account number"
-msgstr "正確的帳號"
-
-msgctxt "login-view"
 msgid "Create account"
 msgstr "建立帳戶"
+
+msgctxt "login-view"
+msgid "Creating account..."
+msgstr "正在建立帳戶…"
 
 msgctxt "login-view"
 msgid "Don't have an account number?"
@@ -365,6 +462,14 @@ msgstr "沒有帳號？"
 msgctxt "login-view"
 msgid "Enter your account number"
 msgstr "輸入您的帳號"
+
+msgctxt "login-view"
+msgid "Error"
+msgstr "錯誤"
+
+msgctxt "login-view"
+msgid "Failed to create account"
+msgstr "無法建立帳戶"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -383,14 +488,29 @@ msgid "Login failed"
 msgstr "登入失敗"
 
 msgctxt "login-view"
+msgid "Please wait"
+msgstr "請稍候"
+
+msgctxt "login-view"
 msgid "Unknown error"
 msgstr "未知錯誤"
+
+msgctxt "login-view"
+msgid "Valid account number"
+msgstr "有效帳號"
 
 #. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
 msgstr "設定"
+
+#. The system notification displayed to the user when the account credit is close to expiry.
+#. Available placeholder:
+#. %(duration)s - remaining time, e.g. "2 days"
+msgctxt "notifications"
+msgid "Account credit expires in %(duration)s"
+msgstr "帳戶點數將在 %(duration)s 後到期"
 
 msgctxt "notifications"
 msgid "Blocked all connections"
@@ -415,8 +535,8 @@ msgid "Connecting to %(location)s"
 msgstr "正在連線到 %(location)s"
 
 msgctxt "notifications"
-msgid "Critical failure - Unsecured"
-msgstr "嚴重失敗 - 不安全"
+msgid "Critical error (your attention is required)"
+msgstr "嚴重錯誤 (需注意)"
 
 msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
@@ -463,8 +583,16 @@ msgid "Automatically connect to a server when the app launches."
 msgstr "啟動應用程式時，自動連線伺服器。"
 
 msgctxt "preferences-view"
+msgid "Beta program"
+msgstr "測試計劃"
+
+msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "啟用或停用系統通知。重要通知一律會顯示。"
+
+msgctxt "preferences-view"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "啟用後，即可在新測試版應用程式發佈時獲得通知"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -497,6 +625,26 @@ msgstr "啟動時永遠最小化"
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "使用單色系統匣圖示，而不是彩色的圖示。"
+
+msgctxt "redeem-voucher-view"
+msgid "An error occured."
+msgstr "發生錯誤了。"
+
+msgctxt "redeem-voucher-view"
+msgid "Redeem"
+msgstr "兌換"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code has already been used."
+msgstr "此憑證兌換碼已有人用過。"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code is invalid."
+msgstr "憑證兌換碼無效。"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher was successfully redeemed."
+msgstr "憑證已成功兌換。"
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -583,6 +731,14 @@ msgid "Back"
 msgstr "返回"
 
 msgctxt "support-view"
+msgid "Cancel"
+msgstr "取消"
+
+msgctxt "support-view"
+msgid "Continue anyway"
+msgstr "仍然繼續"
+
+msgctxt "support-view"
 msgid "Describe your problem"
 msgstr "描述您的問題"
 
@@ -634,12 +790,20 @@ msgid "Try again"
 msgstr "再試一次"
 
 msgctxt "support-view"
+msgid "Upgrade app"
+msgstr "將應用程式升級"
+
+msgctxt "support-view"
 msgid "View app logs"
 msgstr "檢視應用程式日誌"
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
 msgstr "您即將傳送的問題報告未包含回覆方式資訊。如果想收到您這份報告的回覆，請輸入您的電子郵件位址。"
+
+msgctxt "support-view"
+msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
+msgstr "您正在使用舊版應用程式。在傳送回報之前，請先升級並檢查問題是否仍然存在。"
 
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
@@ -658,6 +822,10 @@ msgid "Disconnect"
 msgstr "中斷連線"
 
 msgctxt "tunnel-control"
+msgid "Dismiss"
+msgstr "取消"
+
+msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "保護我的連線"
 
@@ -666,16 +834,8 @@ msgid "Switch location"
 msgstr "切換位置"
 
 msgctxt "wireguard-key-view"
-msgid "Account has too many keys already"
-msgstr "帳戶已有過多金鑰"
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
 msgstr "無法產生金鑰"
-
-msgctxt "wireguard-key-view"
-msgid "Failed to replace key - %(failure)s"
-msgstr "無法替換金鑰 - %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -702,12 +862,20 @@ msgid "No key set"
 msgstr "未設定金鑰"
 
 msgctxt "wireguard-key-view"
+msgid "Reconnecting with new WireGuard key..."
+msgstr "正在使用新 WireGuard 金鑰重新連線..."
+
+msgctxt "wireguard-key-view"
 msgid "Regenerate key"
 msgstr "重新產生金鑰"
 
 msgctxt "wireguard-key-view"
 msgid "Unable to manage keys while in a blocked state"
 msgstr "無法在封鎖狀態下管理金鑰"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
+msgstr "無法重新產生金鑰：您已達到最大金鑰數。若要產生新的金鑰，需先前往「管理金鑰」撤銷任一金鑰。"
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"

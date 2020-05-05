@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2019-12-16 09:41\n"
+"PO-Revision-Date: 2020-05-05 07:34\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -464,7 +464,7 @@ msgstr "温哥华"
 
 #. AT VIE
 msgid "Vienna"
-msgstr "維也納"
+msgstr "维也纳"
 
 #. PL WAW
 msgid "Warsaw"
@@ -481,3 +481,4 @@ msgstr "维也纳"
 #. CH ZRH
 msgid "Zurich"
 msgstr "苏黎世"
+

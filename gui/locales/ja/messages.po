@@ -8,13 +8,19 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2019-12-16 09:41\n"
+"PO-Revision-Date: 2020-05-05 07:34\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ブロックされた接続"
 
+msgid "COPIED TO CLIPBOARD!"
+msgstr "クリップボードにコピーしました！"
+
 msgid "CREATING SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立中"
+
+msgid "FAILED TO SECURE CONNECTION"
+msgstr "セキュリティ保護接続を確立できませんでした"
 
 msgid "Invalid account number"
 msgstr "アカウント番号が正しくありません"
@@ -27,6 +33,13 @@ msgstr "システムデフォルト"
 
 msgid "UNSECURED CONNECTION"
 msgstr "セキュリティ保護されていない接続"
+
+#. The remaining time left on the account measured in days.
+#. Available placeholders:
+#. %(duration)s - The remaining time measured in days.
+msgctxt "account-expiry"
+msgid "%(duration)s days"
+msgstr "%(duration)s 日"
 
 #. The remaining time left on the account displayed across the app.
 #. Available placeholders:
@@ -46,10 +59,6 @@ msgstr "アカウント番号"
 msgctxt "account-view"
 msgid "Buy more credit"
 msgstr "追加クレジットを購入する"
-
-msgctxt "account-view"
-msgid "COPIED TO CLIPBOARD!"
-msgstr "クリップボードにコピーしました！"
 
 msgctxt "account-view"
 msgid "Currently unavailable"
@@ -81,12 +90,20 @@ msgid "Advanced"
 msgstr "詳細"
 
 msgctxt "advanced-settings-view"
+msgid "Always require VPN"
+msgstr "常にVPNを要求する"
+
+msgctxt "advanced-settings-view"
+msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
+msgstr "注意：この設定を有効化すると、インターネットにアクセスするために常にMullvad VPNへの接続が必要になります。"
+
+msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "自動"
 
 msgctxt "advanced-settings-view"
-msgid "Block when disconnected"
-msgstr "接続解除時にブロックする"
+msgid "Back"
+msgstr "戻る"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
@@ -98,6 +115,10 @@ msgid "Default"
 msgstr "デフォルト"
 
 msgctxt "advanced-settings-view"
+msgid "Enable anyway"
+msgstr "それでも有効化する"
+
+msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "IPv6を有効化する"
 
@@ -106,8 +127,8 @@ msgid "Enable IPv6 communication through the tunnel."
 msgstr "トンネルを通じてIPv6 通信を有効化する"
 
 msgctxt "advanced-settings-view"
-msgid "Mssfix"
-msgstr "Mssfix"
+msgid "If you disconnect or quit the app, this setting will block your internet."
+msgstr "アプリを接続解除したり終了したりすると、この設定によってインターネットアクセスがブロックされます。"
 
 msgctxt "advanced-settings-view"
 msgid "Off"
@@ -129,6 +150,10 @@ msgid "OpenVPN %(portType)s port"
 msgstr "OpenVPN %(portType)s ポート"
 
 msgctxt "advanced-settings-view"
+msgid "OpenVPN Mssfix"
+msgstr "OpenVPN Mssfix"
+
+msgctxt "advanced-settings-view"
 msgid "OpenVPN transport protocol"
 msgstr "OpenVPN転送プロトコル"
 
@@ -140,9 +165,25 @@ msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "OpenVPN MSS の値を設定します。有効範囲：%(min)d ～ %(max)d。"
 
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "advanced-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr "WireGuard MTU の値を設定します。有効範囲：%(min)d ～ %(max)d"
+
 msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr "アプリに組み込まれているキルスイッチは常にオンになっています。この設定を有効にすると、「接続解除」または「終了」をクリックした場合にインターネットが補助的にブロックされます。"
+
+msgctxt "advanced-settings-view"
+msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
+msgstr "WireGuardを有効にするには、以下の「WireGuard鍵」の設定で鍵を生成します。"
 
 msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
@@ -153,14 +194,6 @@ msgid "UDP"
 msgstr "UDP"
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
-msgstr "Mullvadに接続していない限り、この設定は、接続を切断した場合でも、またはアプリを終了した場合でも、インターネットを完全にブロックします。"
-
-msgctxt "advanced-settings-view"
-msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
-msgstr "警告：インターネットは、アプリを終了しても、VPN との接続なしには利用できません。"
-
-msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
@@ -169,8 +202,16 @@ msgid "WireGuard key"
 msgstr "WireGuard鍵"
 
 msgctxt "advanced-settings-view"
+msgid "WireGuard MTU"
+msgstr "WireGuard MTU"
+
+msgctxt "advanced-settings-view"
 msgid "WireGuard port"
 msgstr "WireGuardポート"
+
+msgctxt "advanced-settings-view-wireguard"
+msgid "missing key"
+msgstr "見つからない鍵"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -198,28 +239,72 @@ msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
+msgid "Always require VPN"
+msgstr "常にVPNを要求する"
+
+msgctxt "connect-view"
+msgid "Buy credit"
+msgstr "クレジットを購入する"
+
+msgctxt "connect-view"
 msgid "Buy more credit"
 msgstr "追加クレジットを購入する"
 
 msgctxt "connect-view"
-msgid "Disconnect and buy more credit"
-msgstr "接続解除して追加クレジットを購入する"
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgctxt "connect-view"
+msgid "Close"
+msgstr "閉じる"
+
+msgctxt "connect-view"
+msgid "Congrats!"
+msgstr "おめでとうございます！"
+
+msgctxt "connect-view"
+msgid "Disconnect"
+msgstr "接続解除"
+
+msgctxt "connect-view"
+msgid "Either buy credit on our website or redeem a voucher."
+msgstr "当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。"
+
+msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr "バウチャーコードを入力"
+
+msgctxt "connect-view"
+msgid "Here’s your account number. Save it!"
+msgstr "これがあなたのアカウント番号です。保存してください！"
 
 msgctxt "connect-view"
 msgid "Out of time"
 msgstr "時間切れ"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
-msgstr "このアカウントにはもうVPNの残り時間がありません。弊社ウェブサイトで追加クレジットを購入できるようにするには、アプリの詳細設定で「接続解除時にブロックする」のオプションをオフにする必要があります。"
+msgid "Redeem voucher"
+msgstr "バウチャーを使用する"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "このアカウントにはもうVPNの残り時間がありません。弊社ウェブサイトにログインして、追加クレジットを購入してください。"
+msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
+msgstr "この設定をオフにすると、「詳細」設定で再びオンに戻すまで、VPN接続が解除されている間もネットワーク通信が許可されます。"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
-msgstr "このアカウントにはもうVPNの残り時間がありません。弊社ウェブサイトで追加クレジットを購入するには、セキュリティ保護されていない接続でインターネットにアクセスする必要があります。"
+msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
+msgstr "時間を追加するには、いったん接続を解除し、セキュリティ保護されていない接続でインターネットにアクセスする必要があります。"
+
+msgctxt "connect-view"
+msgid "To start using the app, you first need to add time to your account."
+msgstr "アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。"
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account."
+msgstr "このアカウントには、もう残っているVPN時間がありません。"
+
+msgctxt "connect-view"
+msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
+msgstr "インターネットにアクセスして時間を追加するには、「常にVPNを要求する」を無効にする必要があります。"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -257,6 +342,10 @@ msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
+msgid "“Always require VPN” is enabled."
+msgstr "「常にVPNを要求する」が有効になっています。"
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "アカウントのクレジットがもうすぐ無効になります。"
 
@@ -273,6 +362,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "ファイヤーウォール規則の適用に失敗しました。現在、デバイスがセキュリティ保護されていない可能性があります。"
 
 msgctxt "in-app-notifications"
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "すべてのネットワーク通信をブロックできませんでした。問題に対処するか、当社に問題を報告してください。"
+
+msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
 msgstr "カスタムトンネルのホストを解決できませんでした。設定変更を検討してください。"
 
@@ -283,10 +376,6 @@ msgstr "システムの DNS サーバーの設定に失敗しました"
 msgctxt "in-app-notifications"
 msgid "Failed to start tunnel connection"
 msgstr "トンネル接続の開始に失敗しました"
-
-msgctxt "in-app-notifications"
-msgid "FAILURE - UNSECURED"
-msgstr "失敗－セキュリティ保護されていません"
 
 msgctxt "in-app-notifications"
 msgid "Inconsistent internal version information, please restart the app"
@@ -339,6 +428,10 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr "未対応のアプリバージョンを実行中です。今すぐ %(version)s にアップデートしてセキュリティを確保してください。"
 
 msgctxt "in-app-notifications"
+msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
+msgstr "ネットワーク通信が漏洩している可能性があります。"
+
+msgctxt "in-app-notifications"
 msgid "Your kernel may be outdated"
 msgstr "お使いのカーネルが古い可能性があります"
 
@@ -347,16 +440,20 @@ msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad システムサービスに接続中..."
 
 msgctxt "login-view"
+msgid "Account created"
+msgstr "アカウントを作成しました"
+
+msgctxt "login-view"
 msgid "Checking account number"
 msgstr "アカウント番号を確認中"
 
 msgctxt "login-view"
-msgid "Correct account number"
-msgstr "正確なアカウント番号"
-
-msgctxt "login-view"
 msgid "Create account"
 msgstr "アカウントを作成する"
+
+msgctxt "login-view"
+msgid "Creating account..."
+msgstr "アカウントを作成中..."
 
 msgctxt "login-view"
 msgid "Don't have an account number?"
@@ -365,6 +462,14 @@ msgstr "アカウント番号を持っていませんか？"
 msgctxt "login-view"
 msgid "Enter your account number"
 msgstr "アカウント番号を入力してください"
+
+msgctxt "login-view"
+msgid "Error"
+msgstr "エラー"
+
+msgctxt "login-view"
+msgid "Failed to create account"
+msgstr "アカウントを作成できませんでした"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -383,14 +488,29 @@ msgid "Login failed"
 msgstr "ログインに失敗しました"
 
 msgctxt "login-view"
+msgid "Please wait"
+msgstr "お待ちください"
+
+msgctxt "login-view"
 msgid "Unknown error"
 msgstr "不明なエラー"
+
+msgctxt "login-view"
+msgid "Valid account number"
+msgstr "有効なアカウント番号"
 
 #. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
 msgstr "設定"
+
+#. The system notification displayed to the user when the account credit is close to expiry.
+#. Available placeholder:
+#. %(duration)s - remaining time, e.g. "2 days"
+msgctxt "notifications"
+msgid "Account credit expires in %(duration)s"
+msgstr "アカウントのクレジットが%(duration)s後に無効になります"
 
 msgctxt "notifications"
 msgid "Blocked all connections"
@@ -415,8 +535,8 @@ msgid "Connecting to %(location)s"
 msgstr "%(location)sに接続中"
 
 msgctxt "notifications"
-msgid "Critical failure - Unsecured"
-msgstr "重大な失敗－セキュリティ保護されていません"
+msgid "Critical error (your attention is required)"
+msgstr "クレジットエラー（ご注意ください）"
 
 msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
@@ -463,8 +583,16 @@ msgid "Automatically connect to a server when the app launches."
 msgstr "アプリ起動時に自動的にサーバーに接続します。"
 
 msgctxt "preferences-view"
+msgid "Beta program"
+msgstr "ベータプログラム"
+
+msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "システム通知を有効または無効にします。重要な通知は必ず表示されます。"
+
+msgctxt "preferences-view"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "有効化すると、アプリの新しいベータ版がリリースされたとき通知が届きます。"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -497,6 +625,26 @@ msgstr "最小化状態で起動"
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "多色ではなく単色のトレイアイコンを使います。"
+
+msgctxt "redeem-voucher-view"
+msgid "An error occured."
+msgstr "エラー発生。"
+
+msgctxt "redeem-voucher-view"
+msgid "Redeem"
+msgstr "使用する"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code has already been used."
+msgstr "バウチャーコードはすでに使用されています。"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code is invalid."
+msgstr "バウチャーコードが無効です。"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher was successfully redeemed."
+msgstr "バウチャーを正常に使用しました。"
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -583,6 +731,14 @@ msgid "Back"
 msgstr "戻る"
 
 msgctxt "support-view"
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgctxt "support-view"
+msgid "Continue anyway"
+msgstr "それでも続ける"
+
+msgctxt "support-view"
 msgid "Describe your problem"
 msgstr "問題の内容をご説明ください"
 
@@ -634,12 +790,20 @@ msgid "Try again"
 msgstr "再試行"
 
 msgctxt "support-view"
+msgid "Upgrade app"
+msgstr "アプリを更新する"
+
+msgctxt "support-view"
 msgid "View app logs"
 msgstr "アプリのログを表示"
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
 msgstr "お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。"
+
+msgctxt "support-view"
+msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
+msgstr "旧バージョンのアプリを使用中です。報告を送信する前にアプリを更新し、問題が引き続き発生するかどうかを確認してください。"
 
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
@@ -658,6 +822,10 @@ msgid "Disconnect"
 msgstr "接続解除"
 
 msgctxt "tunnel-control"
+msgid "Dismiss"
+msgstr "閉じる"
+
+msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "接続を保護する"
 
@@ -666,16 +834,8 @@ msgid "Switch location"
 msgstr "場所を切り替える"
 
 msgctxt "wireguard-key-view"
-msgid "Account has too many keys already"
-msgstr "アカウントがすでに所有している鍵が多すぎます"
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
 msgstr "鍵の生成に失敗しました"
-
-msgctxt "wireguard-key-view"
-msgid "Failed to replace key - %(failure)s"
-msgstr "鍵の交換に失敗しました - %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -702,12 +862,20 @@ msgid "No key set"
 msgstr "鍵が設定されていません"
 
 msgctxt "wireguard-key-view"
+msgid "Reconnecting with new WireGuard key..."
+msgstr "新しいWireGuard鍵に再度接続中..."
+
+msgctxt "wireguard-key-view"
 msgid "Regenerate key"
 msgstr "鍵を生成"
 
 msgctxt "wireguard-key-view"
 msgid "Unable to manage keys while in a blocked state"
 msgstr "ブロックされた状態では鍵を管理できません"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
+msgstr "鍵を再生成できません。所有している鍵の最大数に達しています。新しい鍵を生成するには、先に「鍵を管理」で1つを無効にする必要があります。"
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"
