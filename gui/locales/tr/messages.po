@@ -8,13 +8,19 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2019-12-16 09:41\n"
+"PO-Revision-Date: 2020-05-05 07:34\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ENGELLENEN BAĞLANTI"
 
+msgid "COPIED TO CLIPBOARD!"
+msgstr "PANOYA KOPYALANDI!"
+
 msgid "CREATING SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI OLUŞTURULUYOR"
+
+msgid "FAILED TO SECURE CONNECTION"
+msgstr "GÜVENLİ BAĞLANTI OLUŞTURULAMADI"
 
 msgid "Invalid account number"
 msgstr "Geçersiz hesap numarası"
@@ -27,6 +33,13 @@ msgstr "Sistem varsayılanı"
 
 msgid "UNSECURED CONNECTION"
 msgstr "GÜVENLİ OLMAYAN BAĞLANTI"
+
+#. The remaining time left on the account measured in days.
+#. Available placeholders:
+#. %(duration)s - The remaining time measured in days.
+msgctxt "account-expiry"
+msgid "%(duration)s days"
+msgstr "%(duration)s gün"
 
 #. The remaining time left on the account displayed across the app.
 #. Available placeholders:
@@ -46,10 +59,6 @@ msgstr "Hesap Kimliği"
 msgctxt "account-view"
 msgid "Buy more credit"
 msgstr "Daha fazla kredi satın alın"
-
-msgctxt "account-view"
-msgid "COPIED TO CLIPBOARD!"
-msgstr "PANOYA KOPYALANDI!"
 
 msgctxt "account-view"
 msgid "Currently unavailable"
@@ -81,12 +90,20 @@ msgid "Advanced"
 msgstr "Gelişmiş"
 
 msgctxt "advanced-settings-view"
+msgid "Always require VPN"
+msgstr "VPN her zaman açık"
+
+msgctxt "advanced-settings-view"
+msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
+msgstr "Dikkat: bu seçeneğin etkinleştirilmesi, internete erişim için her zaman bir Mullvad VPN bağlantısı gerektirir."
+
+msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "Otomatik"
 
 msgctxt "advanced-settings-view"
-msgid "Block when disconnected"
-msgstr "Bağlantı kesilince engelle"
+msgid "Back"
+msgstr "Geri"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
@@ -98,6 +115,10 @@ msgid "Default"
 msgstr "Varsayılan"
 
 msgctxt "advanced-settings-view"
+msgid "Enable anyway"
+msgstr "Yine de etkinleştir"
+
+msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "IPv6'yı etkinleştir"
 
@@ -106,8 +127,8 @@ msgid "Enable IPv6 communication through the tunnel."
 msgstr "Tünel üzerinden IPv6 iletişimini etkinleştir."
 
 msgctxt "advanced-settings-view"
-msgid "Mssfix"
-msgstr "Mssfix"
+msgid "If you disconnect or quit the app, this setting will block your internet."
+msgstr "Uygulamanın bağlantısını keserseniz veya uygulamadan çıkarsanız, bu ayar İnternet'e bağlanmanızı engeller."
 
 msgctxt "advanced-settings-view"
 msgid "Off"
@@ -129,6 +150,10 @@ msgid "OpenVPN %(portType)s port"
 msgstr "OpenVPN %(portType)s portu"
 
 msgctxt "advanced-settings-view"
+msgid "OpenVPN Mssfix"
+msgstr "OpenVPN Mssfix"
+
+msgctxt "advanced-settings-view"
 msgid "OpenVPN transport protocol"
 msgstr "OpenVPN taşıma protokolü"
 
@@ -140,9 +165,25 @@ msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "OpenVPN MSS değerini belirleyin. Geçerli aralık: %(min)d - %(max)d."
 
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "advanced-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr "WireGuard MTU değerini ayarlayın. Geçerli aralık: %(min)d - %(max)d."
+
 msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr "Uygulamanın dahili Kill Switch seçeneği her zaman açıktır. Bu ayar, Bağlantıyı Kes veya Çık seçeneklerini tıklamanız durumunda ayrıca İnternet'i de engeller."
+
+msgctxt "advanced-settings-view"
+msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
+msgstr "WireGuard'ı etkinleştirmek için, aşağıdaki \"WireGuard anahtarı\" seçeneğinin altında bir anahtar oluşturun."
 
 msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
@@ -153,14 +194,6 @@ msgid "UDP"
 msgstr "UDP"
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
-msgstr "Mullvad'a bağlı olmadığınız sürece bu ayar, internetinizi bağlantınız kesilse veya uygulamadan çıksanız dahi tamamen engelleyecektir."
-
-msgctxt "advanced-settings-view"
-msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
-msgstr "Uyarı: Uygulamadan çıksanız bile internetiniz bir VPN bağlantısı olmadan çalışmayacak."
-
-msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
@@ -169,8 +202,16 @@ msgid "WireGuard key"
 msgstr "WireGuard anahtarı"
 
 msgctxt "advanced-settings-view"
+msgid "WireGuard MTU"
+msgstr "WireGuard MTU"
+
+msgctxt "advanced-settings-view"
 msgid "WireGuard port"
 msgstr "WireGuard portu"
+
+msgctxt "advanced-settings-view-wireguard"
+msgid "missing key"
+msgstr "eksik anahtar"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -198,28 +239,72 @@ msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
+msgid "Always require VPN"
+msgstr "VPN her zaman açık"
+
+msgctxt "connect-view"
+msgid "Buy credit"
+msgstr "Kredi satın alın"
+
+msgctxt "connect-view"
 msgid "Buy more credit"
 msgstr "Daha fazla kredi satın al"
 
 msgctxt "connect-view"
-msgid "Disconnect and buy more credit"
-msgstr "Bağlantıyı kes ve daha fazla kredi satın al"
+msgid "Cancel"
+msgstr "İptal et"
+
+msgctxt "connect-view"
+msgid "Close"
+msgstr "Kapat"
+
+msgctxt "connect-view"
+msgid "Congrats!"
+msgstr "Tebrikler!"
+
+msgctxt "connect-view"
+msgid "Disconnect"
+msgstr "Bağlantıyı kes"
+
+msgctxt "connect-view"
+msgid "Either buy credit on our website or redeem a voucher."
+msgstr "Web sitemizden kredi satın alın veya kupon kullanın."
+
+msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr "Kupon kodunu girin"
+
+msgctxt "connect-view"
+msgid "Here’s your account number. Save it!"
+msgstr "İşte hesap numaranız. Kaydedin!"
 
 msgctxt "connect-view"
 msgid "Out of time"
 msgstr "Süre doldu"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
-msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Web sitemizden daha fazla kredi satın almadan önce uygulamanın Gelişmiş ayarlar sekmesi altındaki \"Bağlantı kesilince engelle\" seçeneğini kapatmanız gerekir."
+msgid "Redeem voucher"
+msgstr "Kuponu kullan"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Daha fazla kredi satın almak için lütfen web sitemizde oturum açın."
+msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
+msgstr "Devre dışı bırakmanın, Gelişmiş ayarlar altında tekrar etkinleştirene kadar VPN bağlantısını keserek ağ trafiğine izin verdiğini unutmayın."
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
-msgstr "Bu hesap için daha fazla VPN süreniz kalmadı. Web sitemizden daha fazla kredi satın almak için güvenli olmayan bir bağlantıyla internete erişmeniz gerekecek."
+msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
+msgstr "Ayrıca, güvenli olmayan bir bağlantıya sahip İnternet bağlantısını keserek İnternet'e erişmeniz gerekir."
+
+msgctxt "connect-view"
+msgid "To start using the app, you first need to add time to your account."
+msgstr "Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir."
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account."
+msgstr "Bu hesap için artık VPN süreniz kalmadı."
+
+msgctxt "connect-view"
+msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
+msgstr "Süre eklemek ve İnternet'e erişmek için “VPN her zaman açık” seçeneğini devre dışı bırakmanız gerekir."
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -257,6 +342,10 @@ msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
+msgid "“Always require VPN” is enabled."
+msgstr "“VPN her zaman açık” etkin."
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "HESAP KREDİSİNİN SÜRESİ YAKINDA DOLACAK"
 
@@ -273,6 +362,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Güvenlik duvarı kuralları uygulanamıyor. Cihaz şu an korumasız olabilir"
 
 msgctxt "in-app-notifications"
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "Tüm ağ trafiği engellenemedi. Lütfen sorunu çözmeyi deneyin veya bize bildirin."
+
+msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
 msgstr "Özel tünel, ana bilgisayarı çözümleyemiyor. Ayarları değiştirmeyi deneyin"
 
@@ -283,10 +376,6 @@ msgstr "Sistem DNS sunucusu belirlenemiyor"
 msgctxt "in-app-notifications"
 msgid "Failed to start tunnel connection"
 msgstr "Tünel bağlantısı başlatılamıyor"
-
-msgctxt "in-app-notifications"
-msgid "FAILURE - UNSECURED"
-msgstr "BAŞARISIZ - GÜVENLİ DEĞİL"
 
 msgctxt "in-app-notifications"
 msgid "Inconsistent internal version information, please restart the app"
@@ -339,6 +428,10 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %(version)s sürümüne yükseltin"
 
 msgctxt "in-app-notifications"
+msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
+msgstr "AĞ TRAFİĞİNİZDE SIZINTI OLABİLİR"
+
+msgctxt "in-app-notifications"
 msgid "Your kernel may be outdated"
 msgstr "Kernel'inizin süresi dolmuş olabilir"
 
@@ -347,16 +440,20 @@ msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad sistem hizmetlerine bağlanılıyor..."
 
 msgctxt "login-view"
+msgid "Account created"
+msgstr "Hesap oluşturuldu"
+
+msgctxt "login-view"
 msgid "Checking account number"
 msgstr "Hesap numarası kontrol ediliyor"
 
 msgctxt "login-view"
-msgid "Correct account number"
-msgstr "Doğru hesap numarası"
-
-msgctxt "login-view"
 msgid "Create account"
 msgstr "Hesap oluştur"
+
+msgctxt "login-view"
+msgid "Creating account..."
+msgstr "Hesap oluşturuluyor..."
 
 msgctxt "login-view"
 msgid "Don't have an account number?"
@@ -365,6 +462,14 @@ msgstr "Hesap numaranız yok mu?"
 msgctxt "login-view"
 msgid "Enter your account number"
 msgstr "Hesap numaranızı girin"
+
+msgctxt "login-view"
+msgid "Error"
+msgstr "Hata"
+
+msgctxt "login-view"
+msgid "Failed to create account"
+msgstr "Hesap oluşturulamadı"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -383,14 +488,29 @@ msgid "Login failed"
 msgstr "Oturum açma başarısız"
 
 msgctxt "login-view"
+msgid "Please wait"
+msgstr "Lütfen bekleyin"
+
+msgctxt "login-view"
 msgid "Unknown error"
 msgstr "Bilinmeyen hata"
+
+msgctxt "login-view"
+msgid "Valid account number"
+msgstr "Geçerli hesap numarası"
 
 #. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
 msgstr "Ayarlar"
+
+#. The system notification displayed to the user when the account credit is close to expiry.
+#. Available placeholder:
+#. %(duration)s - remaining time, e.g. "2 days"
+msgctxt "notifications"
+msgid "Account credit expires in %(duration)s"
+msgstr "Hesap kredisinin süresi %(duration)s içinde doluyor"
 
 msgctxt "notifications"
 msgid "Blocked all connections"
@@ -415,8 +535,8 @@ msgid "Connecting to %(location)s"
 msgstr "%(location)s konumuna bağlanılıyor"
 
 msgctxt "notifications"
-msgid "Critical failure - Unsecured"
-msgstr "Kritik hata - Güvenli Değil"
+msgid "Critical error (your attention is required)"
+msgstr "Kritik hata (lütfen dikkat edin)"
 
 msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
@@ -463,8 +583,16 @@ msgid "Automatically connect to a server when the app launches."
 msgstr "Uygulama başladığında bir sunucuya otomatik olarak bağlan."
 
 msgctxt "preferences-view"
+msgid "Beta program"
+msgstr "Beta program"
+
+msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Sistem bildirimlerini açın veya kapatın. Önemli bildirimler her zaman gösterilir."
+
+msgctxt "preferences-view"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "Uygulamanın yeni beta sürümleri yayınlandığında bildirim almayı etkinleştirin."
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -497,6 +625,26 @@ msgstr "Küçültülmüş olarak başlat"
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Renkli yerine monokrom bir sistem çubuğu simgesi kullan."
+
+msgctxt "redeem-voucher-view"
+msgid "An error occured."
+msgstr "Bir hata oluştu."
+
+msgctxt "redeem-voucher-view"
+msgid "Redeem"
+msgstr "Kullan"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code has already been used."
+msgstr "Kupon kodu zaten kullanılmış."
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code is invalid."
+msgstr "Kupon kodu geçersiz."
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher was successfully redeemed."
+msgstr "Kupon başarıyla kullanıldı."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -583,6 +731,14 @@ msgid "Back"
 msgstr "Geri"
 
 msgctxt "support-view"
+msgid "Cancel"
+msgstr "İptal et"
+
+msgctxt "support-view"
+msgid "Continue anyway"
+msgstr "Yine de devam et"
+
+msgctxt "support-view"
 msgid "Describe your problem"
 msgstr "Sorununuzu açıklayın"
 
@@ -634,12 +790,20 @@ msgid "Try again"
 msgstr "Tekrar dene"
 
 msgctxt "support-view"
+msgid "Upgrade app"
+msgstr "Uygulamayı yükselt"
+
+msgctxt "support-view"
 msgid "View app logs"
 msgstr "Uygulama kayıtlarını görüntüle"
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
 msgstr "Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz."
+
+msgctxt "support-view"
+msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
+msgstr "Şu anda uygulamanın eski bir sürümünü kullanıyorsunuz. Lütfen yeni sürüme geçin ve rapor göndermeden önce sorunun hala devam edip etmediğine bakın."
 
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
@@ -658,6 +822,10 @@ msgid "Disconnect"
 msgstr "Bağlantıyı Kes"
 
 msgctxt "tunnel-control"
+msgid "Dismiss"
+msgstr "Reddet"
+
+msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "Bağlantımı güvenceye al"
 
@@ -666,16 +834,8 @@ msgid "Switch location"
 msgstr "Konum değiştir"
 
 msgctxt "wireguard-key-view"
-msgid "Account has too many keys already"
-msgstr "Hesap zaten çok fazla anahtara sahip"
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
 msgstr "Anahtar oluşturulamadı"
-
-msgctxt "wireguard-key-view"
-msgid "Failed to replace key - %(failure)s"
-msgstr "Anahtar değiştirilemedi - %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -702,12 +862,20 @@ msgid "No key set"
 msgstr "Anahtar seti yok"
 
 msgctxt "wireguard-key-view"
+msgid "Reconnecting with new WireGuard key..."
+msgstr "Yeni WireGuard anahtarıyla yeniden bağlanılıyor..."
+
+msgctxt "wireguard-key-view"
 msgid "Regenerate key"
 msgstr "Yeniden anahtar oluştur"
 
 msgctxt "wireguard-key-view"
 msgid "Unable to manage keys while in a blocked state"
 msgstr "Kilitli durumdayken anahtarları yönetemezsiniz"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
+msgstr "Anahtar yeniden oluşturulamıyor: zaten maksimum sayıda anahtara sahipsiniz. Yeni bir anahtar oluşturmak için önce \"Anahtarları yönet\" seçeneğinin altından bir anahtarı iptal etmeniz gerekir."
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"
