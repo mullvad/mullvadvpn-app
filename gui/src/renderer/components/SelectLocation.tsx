@@ -44,6 +44,7 @@ interface ISelectLocationSnapshot {
 
 export default class SelectLocation extends Component<IProps> {
   private scrollView = React.createRef<CustomScrollbars>();
+  private spacePreAllocationViewRef = React.createRef<SpacePreAllocationView>();
   private selectedExitLocationRef = React.createRef<React.ReactInstance>();
   private selectedBridgeLocationRef = React.createRef<React.ReactInstance>();
 
@@ -128,27 +129,33 @@ export default class SelectLocation extends Component<IProps> {
               </NavigationBar>
               <View style={styles.container}>
                 <NavigationScrollbars ref={this.scrollView}>
-                  <View style={styles.content}>
-                    {this.props.locationScope === LocationScope.relay ? (
-                      <ExitLocations
-                        ref={this.exitLocationList}
-                        source={this.props.relayLocations}
-                        defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
-                        selectedValue={this.props.selectedExitLocation}
-                        selectedElementRef={this.selectedExitLocationRef}
-                        onSelect={this.onSelectExitLocation}
-                      />
-                    ) : (
-                      <BridgeLocations
-                        ref={this.bridgeLocationList}
-                        source={this.props.bridgeLocations}
-                        defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
-                        selectedValue={this.props.selectedBridgeLocation}
-                        selectedElementRef={this.selectedBridgeLocationRef}
-                        onSelect={this.onSelectBridgeLocation}
-                      />
-                    )}
-                  </View>
+                  <SpacePreAllocationView ref={this.spacePreAllocationViewRef}>
+                    <View style={styles.content}>
+                      {this.props.locationScope === LocationScope.relay ? (
+                        <ExitLocations
+                          ref={this.exitLocationList}
+                          source={this.props.relayLocations}
+                          defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
+                          selectedValue={this.props.selectedExitLocation}
+                          selectedElementRef={this.selectedExitLocationRef}
+                          onSelect={this.onSelectExitLocation}
+                          onWillExpand={this.onWillExpand}
+                          onTransitionEnd={this.spacePreAllocationViewRef.current?.reset}
+                        />
+                      ) : (
+                        <BridgeLocations
+                          ref={this.bridgeLocationList}
+                          source={this.props.bridgeLocations}
+                          defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
+                          selectedValue={this.props.selectedBridgeLocation}
+                          selectedElementRef={this.selectedBridgeLocationRef}
+                          onSelect={this.onSelectBridgeLocation}
+                          onWillExpand={this.onWillExpand}
+                          onTransitionEnd={this.spacePreAllocationViewRef.current?.reset}
+                        />
+                      )}
+                    </View>
+                  </SpacePreAllocationView>
                 </NavigationScrollbars>
               </View>
             </NavigationContainer>
@@ -219,4 +226,39 @@ export default class SelectLocation extends Component<IProps> {
       this.props.onSelectClosestToExit();
     }
   };
+
+  private onWillExpand = (locationRect: DOMRect, expandedContentHeight: number) => {
+    locationRect.height += expandedContentHeight;
+    this.spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
+    this.scrollView.current?.scrollIntoView(locationRect);
+  };
+}
+
+interface ISpacePreAllocationView {
+  children?: React.ReactNode;
+}
+
+class SpacePreAllocationView extends Component<ISpacePreAllocationView> {
+  private ref = React.createRef<HTMLDivElement>();
+
+  public allocate(height: number) {
+    if (this.ref.current) {
+      this.minHeight = this.ref.current.offsetHeight + height + 'px';
+    }
+  }
+
+  public reset = () => {
+    this.minHeight = 'auto';
+  };
+
+  public render() {
+    return <div ref={this.ref}>{this.props.children}</div>;
+  }
+
+  private set minHeight(value: string) {
+    const element = this.ref.current;
+    if (element) {
+      element.style.minHeight = value;
+    }
+  }
 }

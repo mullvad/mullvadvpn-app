@@ -1,4 +1,5 @@
 import * as React from 'react';
+import ReactDOM from 'react-dom';
 import { Component, Styles, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
@@ -18,6 +19,8 @@ interface IProps {
   expanded: boolean;
   onSelect?: (location: RelayLocation) => void;
   onExpand?: (location: RelayLocation, value: boolean) => void;
+  onWillExpand?: (locationRect: DOMRect, expandedContentHeight: number) => void;
+  onTransitionEnd?: () => void;
   children?: RelayRowElement | RelayRowElement[];
 }
 
@@ -30,6 +33,8 @@ const styles = {
 };
 
 export default class CityRow extends Component<IProps> {
+  private buttonRef = React.createRef<Cell.CellButton>();
+
   public static compareProps(oldProps: IProps, nextProps: IProps): boolean {
     if (React.Children.count(oldProps.children) !== React.Children.count(nextProps.children)) {
       return false;
@@ -70,6 +75,7 @@ export default class CityRow extends Component<IProps> {
     return (
       <View>
         <Cell.CellButton
+          ref={this.buttonRef}
           onPress={this.handlePress}
           disabled={!this.props.hasActiveRelays}
           selected={this.props.selected}
@@ -83,7 +89,15 @@ export default class CityRow extends Component<IProps> {
           {hasChildren && <ChevronButton onPress={this.toggleCollapse} up={this.props.expanded} />}
         </Cell.CellButton>
 
-        {hasChildren && <Accordion expanded={this.props.expanded}>{this.props.children}</Accordion>}
+        {hasChildren && (
+          <Accordion
+            expanded={this.props.expanded}
+            onWillExpand={this.onWillExpand}
+            onTransitionEnd={this.props.onTransitionEnd}
+            animationDuration={150}>
+            {this.props.children}
+          </Accordion>
+        )}
       </View>
     );
   }
@@ -98,6 +112,14 @@ export default class CityRow extends Component<IProps> {
   private handlePress = () => {
     if (this.props.onSelect) {
       this.props.onSelect(this.props.location);
+    }
+  };
+
+  private onWillExpand = (nextHeight: number) => {
+    const buttonNode = ReactDOM.findDOMNode(this.buttonRef.current);
+    if (buttonNode instanceof HTMLElement) {
+      const buttonRect = buttonNode.getBoundingClientRect();
+      this.props.onWillExpand?.(buttonRect, nextHeight);
     }
   };
 }
