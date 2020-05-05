@@ -751,9 +751,9 @@ class ApplicationMain {
     function nextUpgrade(
       current: string,
       latest: string,
-      latestStable: string,
+      latestStable: string?,
     ): string | undefined {
-      if (settings.showBetaReleases) {
+      if (settings.showBetaReleases || latestStable === null) {
         return current === latest ? undefined : latest;
       } else {
         return current === latestStable ? undefined : latestStable;

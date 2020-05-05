@@ -295,7 +295,7 @@ const tunnelStateSchema = oneOf(
 const appVersionInfoSchema = partialObject({
   supported: boolean,
   latest: string,
-  latest_stable: string,
+  latest_stable: maybe(string),
   latest_beta: string,
 });
 

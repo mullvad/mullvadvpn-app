@@ -224,10 +224,17 @@ pub fn load_cache(cache_dir: &Path) -> AppVersionInfo {
                 "{}",
                 error.display_chain_with_msg("Unable to load cached version info")
             );
+
             // If we don't have a cache, start out with sane defaults.
+            let latest_stable = if PRODUCT_VERSION.contains("-") {
+                None
+            } else {
+                Some(PRODUCT_VERSION.to_owned())
+            };
+
             AppVersionInfo {
                 supported: true,
-                latest_stable: PRODUCT_VERSION.to_owned(),
+                latest_stable,
                 latest_beta: PRODUCT_VERSION.to_owned(),
                 latest: PRODUCT_VERSION.to_owned(),
             }

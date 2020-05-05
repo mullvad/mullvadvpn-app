@@ -18,7 +18,7 @@ pub struct AppVersionInfo {
     /// Latest version
     pub latest: AppVersion,
     /// Latest stable version
-    pub latest_stable: AppVersion,
+    pub latest_stable: Option<AppVersion>,
     /// Equal to `latest_stable` when the newest release is a stable release. But will contain
     /// beta versions when those are out for testing.
     pub latest_beta: AppVersion,
