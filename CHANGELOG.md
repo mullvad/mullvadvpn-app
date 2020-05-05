@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - App will now use packaged relay list if it's newer than the cached one.
+- Fix relay list sort order
 
 #### Windows
 - Fix uninstaller log file deleting code. So log files are properly deleted on uninstall,
