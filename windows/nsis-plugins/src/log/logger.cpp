@@ -26,6 +26,7 @@ Utf8FileLogSink::Utf8FileLogSink(const std::wstring &file, bool append, bool flu
 
 		if (FALSE == seekStatus)
 		{
+			CloseHandle(m_logfile);
 			THROW_WINDOWS_ERROR(GetLastError(), "Seek to end offset in existing log file");
 		}
 	}

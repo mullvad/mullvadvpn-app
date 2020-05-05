@@ -237,7 +237,7 @@ void __declspec(dllexport) NSISCALL Initialize
 
 				const auto logfile = decltype(logpath)(logpath).append(L"install.log");
 
-				g_logger = new Logger(std::make_unique<Utf8FileLogSink>(logfile));
+				g_logger = new Logger(std::make_unique<Utf8FileLogSink>(logfile, false));
 
 				break;
 
