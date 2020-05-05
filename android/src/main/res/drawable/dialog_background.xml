@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-       android:shape="rectangle">
-    <corners android:radius="11dp" />
-    <solid android:color="@color/darkBlue" />
-</shape>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+       android:insetTop="@dimen/dialog_margin"
+       android:insetLeft="@dimen/dialog_margin"
+       android:insetRight="@dimen/dialog_margin"
+       android:insetBottom="@dimen/dialog_margin">
+    <shape android:shape="rectangle">
+        <corners android:radius="11dp" />
+        <solid android:color="@color/darkBlue" />
+    </shape>
+</inset>
