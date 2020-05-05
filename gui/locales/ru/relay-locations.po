@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2019-12-16 09:41\n"
+"PO-Revision-Date: 2020-05-05 07:34\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -461,6 +461,10 @@ msgstr "Объединённые Арабские Эмираты"
 #. CA VAN
 msgid "Vancouver"
 msgstr "Ванкувер"
+
+#. AT VIE
+msgid "Vienna"
+msgstr "Вена"
 
 #. PL WAW
 msgid "Warsaw"
