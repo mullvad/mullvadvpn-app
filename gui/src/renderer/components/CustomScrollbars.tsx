@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Scheduler } from '../../shared/scheduler';
 
 const AUTOHIDE_TIMEOUT = 1000;
 
@@ -54,7 +55,7 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
   private scrollableRef = React.createRef<HTMLDivElement>();
   private trackRef = React.createRef<HTMLDivElement>();
   private thumbRef = React.createRef<HTMLDivElement>();
-  private autoHideTimer?: NodeJS.Timeout;
+  private autoHideScheduler = new Scheduler();
 
   public scrollToTop() {
     const scrollable = this.scrollableRef.current;
@@ -83,6 +84,29 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
 
       const scrollTop = this.computeScrollTop(scrollable, child, scrollPosition);
       this.scrollTo(0, scrollTop);
+    }
+  }
+
+  public scrollIntoView(elementRect: DOMRect) {
+    const scrollable = this.scrollableRef.current;
+    if (scrollable) {
+      const scrollableRect = scrollable.getBoundingClientRect();
+      // The element position needs to be relative to the parent, not the document
+      const elementTop = elementRect.top - scrollableRect.top;
+      const bottomOverflow = elementTop + elementRect.height - scrollableRect.height;
+
+      let scrollDistance = 0;
+      if (elementTop < 0) {
+        scrollDistance = elementTop;
+      } else if (bottomOverflow > 0) {
+        // Prevent the elements top from being scrolled out of the visible area
+        scrollDistance = Math.min(bottomOverflow, elementTop);
+      }
+
+      scrollable.scrollBy({
+        top: scrollDistance,
+        behavior: 'smooth',
+      });
     }
   }
 
@@ -130,7 +154,7 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
   }
 
   public componentWillUnmount() {
-    this.stopAutoHide();
+    this.autoHideScheduler.cancel();
 
     document.removeEventListener('mousemove', this.handleMouseMove);
     document.removeEventListener('mouseup', this.handleMouseUp);
@@ -206,7 +230,7 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
   };
 
   private handleEnterTrack = () => {
-    this.stopAutoHide();
+    this.autoHideScheduler.cancel();
     this.setState({
       isTrackHovered: true,
       showScrollIndicators: true,
@@ -326,10 +350,7 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
   }
 
   private startAutoHide() {
-    if (this.autoHideTimer) {
-      clearTimeout(this.autoHideTimer);
-    }
-    this.autoHideTimer = global.setTimeout(() => {
+    this.autoHideScheduler.schedule(() => {
       this.setState({
         showScrollIndicators: false,
         showTrack: false,
@@ -339,23 +360,12 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
   }
 
   private startAutoShrink() {
-    if (this.autoHideTimer) {
-      clearTimeout(this.autoHideTimer);
-    }
-
-    this.autoHideTimer = global.setTimeout(() => {
+    this.autoHideScheduler.schedule(() => {
       this.setState({
         showTrack: false,
         isWide: false,
       });
     }, AUTOHIDE_TIMEOUT);
-  }
-
-  private stopAutoHide() {
-    if (this.autoHideTimer) {
-      clearTimeout(this.autoHideTimer);
-      this.autoHideTimer = undefined;
-    }
   }
 
   private isPointInsideOfElement(element: HTMLElement, point: { x: number; y: number }) {
