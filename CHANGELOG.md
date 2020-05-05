@@ -50,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
   isn't running. It would previously just open the app UI and stay in the disconnected state.
 - Fix crash when requesting to connect from notification or quick-settings tile.
 - Fix relay list sort order
+- Fix version update notifications not appearing.
 
 
 ## [2020.4-beta3] - 2020-04-29
