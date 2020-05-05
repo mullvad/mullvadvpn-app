@@ -7,7 +7,7 @@ class RelayList {
     val countries: List<RelayCountry>
 
     constructor(model: net.mullvad.mullvadvpn.model.RelayList) {
-        countries = model.countries
+        var relayCountries = model.countries
             .map { country ->
                 val cities = mutableListOf<RelayCity>()
                 val relayCountry = RelayCountry(country.name, country.code, false, cities)
@@ -21,15 +21,22 @@ class RelayList {
                     for (relay in validCityRelays) {
                         relays.add(Relay(relayCity, relay.hostname, relay.active))
                     }
+                    relays.sortBy({ it.name })
 
                     if (relays.isNotEmpty()) {
                         cities.add(relayCity)
                     }
                 }
 
+                cities.sortBy({ it.name })
                 relayCountry
             }
             .filter { country -> country.cities.isNotEmpty() }
+            .toMutableList()
+
+        relayCountries.sortBy({ it.name })
+
+        countries = relayCountries.toList()
     }
 
     fun findItemForLocation(
