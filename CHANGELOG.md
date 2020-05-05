@@ -32,8 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix relay list sort order
 
 #### Windows
-- Fix uninstaller log file deleting code. So log files are properly deleted on uninstall,
-  and the install.log is cleared on upgrade.
+- Remove all log files on uninstall. Clear install.log on upgrades.
 
 
 ## [2020.4-beta3] - 2020-04-29
