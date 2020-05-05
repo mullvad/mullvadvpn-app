@@ -23,13 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-### Added
-#### Android
-- App will now use packaged relay list if it's newer than the cached one.
-
 ### Fixed
 - Fix bogus or absent update notifications on the desktop app due to incorrect deserialization of a
   struct sent from the daemon.
+
+#### Android
+- App will now use packaged relay list if it's newer than the cached one.
 
 #### Windows
 - Fix uninstaller log file deleting code. So log files are properly deleted on uninstall,
