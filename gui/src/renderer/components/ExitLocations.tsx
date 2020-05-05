@@ -13,6 +13,8 @@ interface IExitLocationsProps {
   selectedValue?: RelayLocation;
   selectedElementRef?: React.Ref<React.ReactInstance>;
   onSelect?: (value: LocationSelection<never>) => void;
+  onWillExpand?: (locationRect: DOMRect, additionalHeight: number) => void;
+  onWillCollapse?: () => void;
 }
 
 const ExitLocations = React.forwardRef(function ExitLocationsT(
@@ -30,7 +32,11 @@ const ExitLocations = React.forwardRef(function ExitLocationsT(
       selectedValue={selectedValue}
       selectedElementRef={props.selectedElementRef}
       onSelect={props.onSelect}>
-      <RelayLocations source={props.source} />
+      <RelayLocations
+        source={props.source}
+        onWillExpand={props.onWillExpand}
+        onWillCollapse={props.onWillCollapse}
+      />
     </LocationList>
   );
 });
