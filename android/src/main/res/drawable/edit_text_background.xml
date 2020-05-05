@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+          android:shape="rectangle">
+    <item android:state_enabled="false">
+        <inset android:insetTop="1dp"
+               android:insetBottom="1dp"
+               android:insetLeft="1dp"
+               android:insetRight="1dp">
+            <shape android:shape="rectangle">
+                <corners android:radius="@dimen/edit_text_corner_radius" />
+                <solid android:color="@color/white20" />
+            </shape>
+        </inset>
+    </item>
+    <item android:state_enabled="true">
+        <inset android:insetTop="1dp"
+               android:insetBottom="1dp"
+               android:insetLeft="1dp">
+            <shape android:shape="rectangle">
+                <corners android:radius="@dimen/edit_text_corner_radius" />
+                <solid android:color="@color/white" />
+            </shape>
+        </inset>
+    </item>
+</selector>

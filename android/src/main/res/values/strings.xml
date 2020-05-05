@@ -30,6 +30,9 @@
     account. Buy credit on our website.</string>
     <string name="buy_credit">Buy credit</string>
     <string name="redeem_voucher">Redeem voucher</string>
+    <string name="enter_voucher_code">Enter voucher code</string>
+    <string name="voucher_hint">XXXX-XXXX-XXXX-XXXX</string>
+    <string name="redeem">Redeem</string>
     <string name="settings">Settings</string>
     <string name="settings_account">Account</string>
     <string name="less_than_a_day_left">less than a day left</string>
