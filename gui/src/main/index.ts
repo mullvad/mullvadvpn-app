@@ -139,8 +139,9 @@ class ApplicationMain {
   };
 
   private upgradeVersion: IAppUpgradeInfo = {
-    currentIsSupported: true,
+    supported: true,
     latestStable: '',
+    latestBeta: '',
     latest: '',
     nextUpgrade: undefined,
   };
@@ -782,7 +783,7 @@ class ApplicationMain {
       process.env.NODE_ENV !== 'development' &&
       !this.shouldSuppressNotifications(true) &&
       currentVersionInfo.isConsistent &&
-      !latestVersionInfo.currentIsSupported &&
+      !latestVersionInfo.supported &&
       upgradeVersion
     ) {
       this.notificationController.notifyUnsupportedVersion(upgradeVersion);
