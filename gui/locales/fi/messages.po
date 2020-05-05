@@ -8,13 +8,19 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2019-12-16 09:41\n"
+"PO-Revision-Date: 2020-05-05 07:34\n"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ESTETTY YHTEYS"
 
+msgid "COPIED TO CLIPBOARD!"
+msgstr "KOPIOITU LEIKEPÖYDÄLLE!"
+
 msgid "CREATING SECURE CONNECTION"
 msgstr "LUODAAN SUOJATTU YHTEYS"
+
+msgid "FAILED TO SECURE CONNECTION"
+msgstr "YHTEYDEN SUOJAAMINEN EPÄONNISTUI"
 
 msgid "Invalid account number"
 msgstr "Virheellinen tilin numero"
@@ -27,6 +33,13 @@ msgstr "Järjestelmän oletusarvo"
 
 msgid "UNSECURED CONNECTION"
 msgstr "SUOJAAMATON YHTEYS"
+
+#. The remaining time left on the account measured in days.
+#. Available placeholders:
+#. %(duration)s - The remaining time measured in days.
+msgctxt "account-expiry"
+msgid "%(duration)s days"
+msgstr "%(duration)s päivää"
 
 #. The remaining time left on the account displayed across the app.
 #. Available placeholders:
@@ -46,10 +59,6 @@ msgstr "Tilin numero"
 msgctxt "account-view"
 msgid "Buy more credit"
 msgstr "Uudista tilaus"
-
-msgctxt "account-view"
-msgid "COPIED TO CLIPBOARD!"
-msgstr "KOPIOITU LEIKEPÖYDÄLLE!"
 
 msgctxt "account-view"
 msgid "Currently unavailable"
@@ -81,12 +90,20 @@ msgid "Advanced"
 msgstr "Lisäasetukset"
 
 msgctxt "advanced-settings-view"
+msgid "Always require VPN"
+msgstr "Edellytä aina VPN-yhteyttä"
+
+msgctxt "advanced-settings-view"
+msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
+msgstr "Huomio: jos tämä otetaan käyttöön, verkkoon yhdistäminen vaatii aina Mullvad VPN -yhteyden."
+
+msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "Automaattinen"
 
 msgctxt "advanced-settings-view"
-msgid "Block when disconnected"
-msgstr "Estä, kun yhteyttä ei ole luotu"
+msgid "Back"
+msgstr "Takaisin"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
@@ -98,6 +115,10 @@ msgid "Default"
 msgstr "Oletus"
 
 msgctxt "advanced-settings-view"
+msgid "Enable anyway"
+msgstr "Ota silti käyttöön"
+
+msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
 msgstr "Salli IPv6"
 
@@ -106,8 +127,8 @@ msgid "Enable IPv6 communication through the tunnel."
 msgstr "Salli IPv6-yhteys tunnelin kautta."
 
 msgctxt "advanced-settings-view"
-msgid "Mssfix"
-msgstr "Mssfix"
+msgid "If you disconnect or quit the app, this setting will block your internet."
+msgstr "Jos katkaiset sovellusyhteyden tai suljet sovelluksen, tämä asetus estää verkkoyhteyden."
 
 msgctxt "advanced-settings-view"
 msgid "Off"
@@ -129,6 +150,10 @@ msgid "OpenVPN %(portType)s port"
 msgstr "OpenVPN %(portType)s -portti"
 
 msgctxt "advanced-settings-view"
+msgid "OpenVPN Mssfix"
+msgstr "OpenVPN Mssfix"
+
+msgctxt "advanced-settings-view"
 msgid "OpenVPN transport protocol"
 msgstr "OpenVPN-siirtoprotokolla"
 
@@ -140,9 +165,25 @@ msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "Aseta OpenVPN MSS -arvo asteikolla %(min)d - %(max)d."
 
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "advanced-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr "Aseta WireGuardin MTU-arvo väliltä %(min)d - %(max)d."
+
 msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr "Sovelluksen sisäänrakennettu tappokytkin on aina käytössä. Tämä asetus estää lisäksi verkkoyhteyden, jos katkaiset sovellusyhteyden tai suljet sovelluksen."
+
+msgctxt "advanced-settings-view"
+msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
+msgstr "Salli WireGuard luomalla avain \"WireGuard-avain\" -asetuksen kautta alla."
 
 msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
@@ -153,14 +194,6 @@ msgid "UDP"
 msgstr "UDP"
 
 msgctxt "advanced-settings-view"
-msgid "Unless connected to Mullvad, this setting will completely block your internet, even when you've disconnected or quit the app."
-msgstr "Jos et ole yhteydessä Mullvadiin, tämä asetus estää kaiken internetliikenteesi, myös silloin kun olet katkaissut yhteyden tai sulkenut sovelluksen."
-
-msgctxt "advanced-settings-view"
-msgid "Warning: Your internet won't work without a VPN connection, even when you've quit the app."
-msgstr "Varoitus: Internetyhteytesi ei toimi ilman VPN-yhteyttä, vaikka sulkisitkin sovelluksen."
-
-msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
@@ -169,8 +202,16 @@ msgid "WireGuard key"
 msgstr "WireGuard-avain"
 
 msgctxt "advanced-settings-view"
+msgid "WireGuard MTU"
+msgstr "WireGuard MTU"
+
+msgctxt "advanced-settings-view"
 msgid "WireGuard port"
 msgstr "WireGuard-portti"
+
+msgctxt "advanced-settings-view-wireguard"
+msgid "missing key"
+msgstr "puuttuva avain"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
@@ -198,28 +239,72 @@ msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
+msgid "Always require VPN"
+msgstr "Edellytä aina VPN-yhteyttä"
+
+msgctxt "connect-view"
+msgid "Buy credit"
+msgstr "Osta käyttöaikaa"
+
+msgctxt "connect-view"
 msgid "Buy more credit"
 msgstr "Uudista tilaus"
 
 msgctxt "connect-view"
-msgid "Disconnect and buy more credit"
-msgstr "Katkaise yhteys ja osta lisää käyttöaikaa"
+msgid "Cancel"
+msgstr "Peruuta"
+
+msgctxt "connect-view"
+msgid "Close"
+msgstr "Sulje"
+
+msgctxt "connect-view"
+msgid "Congrats!"
+msgstr "Onnittelut!"
+
+msgctxt "connect-view"
+msgid "Disconnect"
+msgstr "Katkaise yhteys"
+
+msgctxt "connect-view"
+msgid "Either buy credit on our website or redeem a voucher."
+msgstr "Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki."
+
+msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr "Syötä kuponkikoodi"
+
+msgctxt "connect-view"
+msgid "Here’s your account number. Save it!"
+msgstr "Tässä tulee tilisi numero. Laita se talteen!"
 
 msgctxt "connect-view"
 msgid "Out of time"
 msgstr "Ei käyttöaikaa"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Before you can buy more credit on our website, you first need to turn off the app's \"Block when disconnected\" option under Advanced settings."
-msgstr "VPN-käyttöaikasi tällä tilillä on kulunut loppuun. Ennen kun voit ostaa lisää sivustollamme, sinun on otettava \"Estä, kun yhteyttä ei ole luotu\" -vaihtoehto pois käytöstä lisäasetuksissa."
+msgid "Redeem voucher"
+msgstr "Lunasta kuponki"
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "VPN-käyttöaikasi tällä tilillä on kulunut loppuun. Kirjaudu sisään sivustollemme ostaaksesi lisää."
+msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
+msgstr "Muista, että asetuksen poistaminen käytöstä sallii verkkoliikenteen ilman VPN-yhteyttä, kunnes otat sen takaisin käyttöön lisäasetuksista."
 
 msgctxt "connect-view"
-msgid "You have no more VPN time left on this account. To buy more credit on our website, you will need to access the Internet with an unsecured connection."
-msgstr "VPN-käyttöaikasi tällä tilillä on kulunut loppuun. Ostaaksesi lisää sivustollamme, sinun pitää yhdistää verkkoon suojaamattomalla yhteydellä."
+msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
+msgstr "Sinun on katkaistava yhteys ja käytettävä internetiä suojaamattoman yhteyden kautta."
+
+msgctxt "connect-view"
+msgid "To start using the app, you first need to add time to your account."
+msgstr "Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi."
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account."
+msgstr "Sinulla ei ole enempää VPN-aikaa jäljellä tällä tilillä."
+
+msgctxt "connect-view"
+msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
+msgstr "Jotta pääset internetiin lisäämään aikaa, sinun on poistettava \"Edellytä aina VPN-yhteyttä\" -asetus käytöstä."
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -257,6 +342,10 @@ msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
+msgid "“Always require VPN” is enabled."
+msgstr "\"Edellytä aina VPN-yhteyttä\" on käytössä."
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "TILIN KÄYTTÖAIKA PÄÄTTYY PIAN"
 
@@ -273,6 +362,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Palomuurisääntöjä ei voitu ottaa käyttöön. Laite ei välttämättä ole suojattu."
 
 msgctxt "in-app-notifications"
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vian etsintää tai raportoi meille ongelmasta."
+
+msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
 msgstr "Muokatun tunnelin isännän selvittäminen epäonnistui. Harkitse asetusten muuttamista."
 
@@ -283,10 +376,6 @@ msgstr "Järjestelmän DNS-palvelimen asetus epäonnistui"
 msgctxt "in-app-notifications"
 msgid "Failed to start tunnel connection"
 msgstr "Tunneliyhteyden muodostaminen epäonnistui"
-
-msgctxt "in-app-notifications"
-msgid "FAILURE - UNSECURED"
-msgstr "VIRHE - EI SUOJAUSTA"
 
 msgctxt "in-app-notifications"
 msgid "Inconsistent internal version information, please restart the app"
@@ -339,6 +428,10 @@ msgid "You are running an unsupported app version. Please upgrade to %(version)s
 msgstr "Sovellusversiosi ei ole tuettu. Taataksesi turvallisuutesi päivitä versioon %(version)s nyt."
 
 msgctxt "in-app-notifications"
+msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
+msgstr "VERKKOLIIKENTEESI SAATTAA VUOTAA"
+
+msgctxt "in-app-notifications"
 msgid "Your kernel may be outdated"
 msgstr "Käyttöjärjestelmäytimesi saattaa olla vanhentunut"
 
@@ -347,16 +440,20 @@ msgid "Connecting to Mullvad system service..."
 msgstr "Yhdistetään Mullvad-järjestelmäpalveluun..."
 
 msgctxt "login-view"
+msgid "Account created"
+msgstr "Tili luotu"
+
+msgctxt "login-view"
 msgid "Checking account number"
 msgstr "Tarkistetaan tilin numeroa"
 
 msgctxt "login-view"
-msgid "Correct account number"
-msgstr "Oikea tilin numero"
-
-msgctxt "login-view"
 msgid "Create account"
 msgstr "Luo tili"
+
+msgctxt "login-view"
+msgid "Creating account..."
+msgstr "Luodaan tiliä..."
 
 msgctxt "login-view"
 msgid "Don't have an account number?"
@@ -365,6 +462,14 @@ msgstr "Eikö sinulla ole tilinumeroa?"
 msgctxt "login-view"
 msgid "Enter your account number"
 msgstr "Syötä tilisi numero"
+
+msgctxt "login-view"
+msgid "Error"
+msgstr "Virhe"
+
+msgctxt "login-view"
+msgid "Failed to create account"
+msgstr "Tilin luonti epäonnistui"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -383,14 +488,29 @@ msgid "Login failed"
 msgstr "Sisäänkirjautuminen epäonnistui"
 
 msgctxt "login-view"
+msgid "Please wait"
+msgstr "Odota"
+
+msgctxt "login-view"
 msgid "Unknown error"
 msgstr "Tuntematon virhe"
+
+msgctxt "login-view"
+msgid "Valid account number"
+msgstr "Oikea tilin numero"
 
 #. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
 msgstr "Asetukset"
+
+#. The system notification displayed to the user when the account credit is close to expiry.
+#. Available placeholder:
+#. %(duration)s - remaining time, e.g. "2 days"
+msgctxt "notifications"
+msgid "Account credit expires in %(duration)s"
+msgstr "Tilin käyttöajan vanhenemiseen %(duration)s"
 
 msgctxt "notifications"
 msgid "Blocked all connections"
@@ -415,8 +535,8 @@ msgid "Connecting to %(location)s"
 msgstr "Yhdistetään sijaintiin %(location)s"
 
 msgctxt "notifications"
-msgid "Critical failure - Unsecured"
-msgstr "Vakava virhe - Ei suojattu"
+msgid "Critical error (your attention is required)"
+msgstr "Vakava virhe (vaatii huomiotasi)"
 
 msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
@@ -463,8 +583,16 @@ msgid "Automatically connect to a server when the app launches."
 msgstr "Yhdistä palvelimeen automaattisesti, kun sovellus avataan."
 
 msgctxt "preferences-view"
+msgid "Beta program"
+msgstr "Betaohjelma"
+
+msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr "Salli tai estä järjestelmän ilmoitukset. Tärkeät ilmoitukset näytetään aina."
+
+msgctxt "preferences-view"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "Ota käyttöön niin saat ilmoituksen uusista sovelluksen betaversioista."
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -497,6 +625,26 @@ msgstr "Käynnistä pienennettynä"
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Käytä yksiväristä ilmaisinalueen kuvaketta värillisen asemesta."
+
+msgctxt "redeem-voucher-view"
+msgid "An error occured."
+msgstr "Ilmeni virhe."
+
+msgctxt "redeem-voucher-view"
+msgid "Redeem"
+msgstr "Lunasta"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code has already been used."
+msgstr "Kuponkikoodi on jo käytetty."
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code is invalid."
+msgstr "Kuponkikoodi ei kelpaa."
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher was successfully redeemed."
+msgstr "Kupongin lunastus onnistui."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -583,6 +731,14 @@ msgid "Back"
 msgstr "Takaisin"
 
 msgctxt "support-view"
+msgid "Cancel"
+msgstr "Peruuta"
+
+msgctxt "support-view"
+msgid "Continue anyway"
+msgstr "Jatka silti"
+
+msgctxt "support-view"
 msgid "Describe your problem"
 msgstr "Kuvaile ongelmaasi"
 
@@ -634,12 +790,20 @@ msgid "Try again"
 msgstr "Yritä uudelleen"
 
 msgctxt "support-view"
+msgid "Upgrade app"
+msgstr "Päivitä sovellus"
+
+msgctxt "support-view"
 msgid "View app logs"
 msgstr "Tarkastele sovelluslokeja"
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
 msgstr "Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite."
+
+msgctxt "support-view"
+msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
+msgstr "Käytät sovelluksen vanhaa versiota. Ennen raportin lähettämistä päivitä uudempaan ja tarkista, vieläkö ongelma ilmenee."
 
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
@@ -658,6 +822,10 @@ msgid "Disconnect"
 msgstr "Katkaise yhteys"
 
 msgctxt "tunnel-control"
+msgid "Dismiss"
+msgstr "Jätä huomiotta"
+
+msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "Suojaa yhteyteni"
 
@@ -666,16 +834,8 @@ msgid "Switch location"
 msgstr "Vaihda sijaintia"
 
 msgctxt "wireguard-key-view"
-msgid "Account has too many keys already"
-msgstr "Tilillä on jo liian monta avainta"
-
-msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
 msgstr "Avaimen luominen epäonnistui"
-
-msgctxt "wireguard-key-view"
-msgid "Failed to replace key - %(failure)s"
-msgstr "Avaimen korvaaminen epäonnistui - %(failure)s"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
@@ -702,12 +862,20 @@ msgid "No key set"
 msgstr "Ei määritettyä avainta"
 
 msgctxt "wireguard-key-view"
+msgid "Reconnecting with new WireGuard key..."
+msgstr "Yhdistetään uudelleen uudella WireGuard-avaimella..."
+
+msgctxt "wireguard-key-view"
 msgid "Regenerate key"
 msgstr "Luo uusi avain"
 
 msgctxt "wireguard-key-view"
 msgid "Unable to manage keys while in a blocked state"
 msgstr "Avainten hallinta ei onnistu estetyssä tilassa"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
+msgstr "Avaimen luonti ei onnistu, sillä sinulla on jo enimmäismäärä avaimia. Luo uusi avain kumoamalla jokin toinen kohdassa \"Hallitse avaimia\"."
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"
