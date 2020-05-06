@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.app.Dialog
+import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
@@ -12,6 +13,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.EditText
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.SegmentedInputFormatter
@@ -21,14 +23,33 @@ const val FULL_VOUCHER_CODE_LENGTH = "XXXX-XXXX-XXXX-XXXX".length
 class RedeemVoucherDialogFragment : DialogFragment() {
     private val jobTracker = JobTracker()
 
+    private lateinit var parentActivity: MainActivity
+    private lateinit var voucherInput: EditText
+
+    private var redeemButton: Button? = null
+    private var subscriptionId: Int? = null
+
+    private var daemon: MullvadDaemon? = null
+        set(value) {
+            field = value
+            updateRedeemButton()
+        }
+
     private var voucherInputIsValid = false
         set(value) {
             field = value
             updateRedeemButton()
         }
 
-    private lateinit var redeemButton: Button
-    private lateinit var voucherInput: EditText
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        parentActivity = context as MainActivity
+
+        subscriptionId = parentActivity.serviceNotifier.subscribe { connection ->
+            daemon = connection?.daemon
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -83,8 +104,18 @@ class RedeemVoucherDialogFragment : DialogFragment() {
         super.onDestroyView()
     }
 
+    override fun onDetach() {
+        subscriptionId?.let { id ->
+            parentActivity.serviceNotifier.unsubscribe(id)
+        }
+
+        super.onDetach()
+    }
+
     private fun updateRedeemButton() {
-        redeemButton.setEnabled(voucherInputIsValid)
+        redeemButton?.apply {
+            setEnabled(voucherInputIsValid && daemon != null)
+        }
     }
 
     inner class ValidVoucherCodeChecker : TextWatcher {
