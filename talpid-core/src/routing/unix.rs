@@ -45,6 +45,7 @@ pub enum Error {
 #[derive(Debug)]
 pub enum RouteManagerCommand {
     AddRoutes(HashSet<RequiredRoute>),
+    ClearRoutes,
     Shutdown(oneshot::Sender<()>),
 }
 
@@ -108,6 +109,17 @@ impl RouteManager {
     pub fn add_routes(&mut self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
         if let Some(tx) = &self.manage_tx {
             let _ = tx.unbounded_send(RouteManagerCommand::AddRoutes(routes));
+            Ok(())
+        } else {
+            Err(Error::RouteManagerDown)
+        }
+    }
+
+    /// Removes all routes previously applied in [`RouteManager::new`] or
+    /// [`RouteManager::add_routes`].
+    pub fn clear_routes(&mut self) -> Result<(), Error> {
+        if let Some(tx) = &self.manage_tx {
+            let _ = tx.unbounded_send(RouteManagerCommand::ClearRoutes);
             Ok(())
         } else {
             Err(Error::RouteManagerDown)
