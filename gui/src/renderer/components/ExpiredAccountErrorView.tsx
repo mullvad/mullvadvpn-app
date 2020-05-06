@@ -210,7 +210,7 @@ export default class ExpiredAccountErrorView extends Component<
         <Text style={styles.fieldLabel}>
           {messages.pgettext(
             'connect-view',
-            'You need to disable “Always require VPN” in order to access the Internet to add time.',
+            'You need to disable "Always require VPN" in order to access the Internet to add time.',
           )}
         </Text>
         <Text style={styles.fieldLabel}>

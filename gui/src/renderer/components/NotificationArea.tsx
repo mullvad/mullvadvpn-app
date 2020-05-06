@@ -154,7 +154,7 @@ export default class NotificationArea extends Component<IProps, State> {
           return {
             visible: true,
             type: 'blocking',
-            reason: messages.pgettext('in-app-notifications', '“Always require VPN” is enabled.'),
+            reason: messages.pgettext('in-app-notifications', '"Always require VPN" is enabled.'),
           };
         }
       // fallthrough
