@@ -140,7 +140,7 @@ export default class SelectLocation extends Component<IProps> {
                           selectedElementRef={this.selectedExitLocationRef}
                           onSelect={this.onSelectExitLocation}
                           onWillExpand={this.onWillExpand}
-                          onWillCollapse={this.spacePreAllocationViewRef.current?.reset}
+                          onTransitionEnd={this.spacePreAllocationViewRef.current?.reset}
                         />
                       ) : (
                         <BridgeLocations
@@ -151,7 +151,7 @@ export default class SelectLocation extends Component<IProps> {
                           selectedElementRef={this.selectedBridgeLocationRef}
                           onSelect={this.onSelectBridgeLocation}
                           onWillExpand={this.onWillExpand}
-                          onWillCollapse={this.spacePreAllocationViewRef.current?.reset}
+                          onTransitionEnd={this.spacePreAllocationViewRef.current?.reset}
                         />
                       )}
                     </View>
@@ -239,12 +239,11 @@ interface ISpacePreAllocationView {
 }
 
 class SpacePreAllocationView extends Component<ISpacePreAllocationView> {
-  ref = React.createRef<HTMLDivElement>();
+  private ref = React.createRef<HTMLDivElement>();
 
-  public allocate(additionalHeight: number) {
-    this.reset();
+  public allocate(height: number) {
     if (this.ref.current) {
-      this.minHeight = this.ref.current.offsetHeight + additionalHeight + 'px';
+      this.minHeight = this.ref.current.offsetHeight + height + 'px';
     }
   }
 

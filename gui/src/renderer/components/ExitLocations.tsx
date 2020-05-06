@@ -14,7 +14,7 @@ interface IExitLocationsProps {
   selectedElementRef?: React.Ref<React.ReactInstance>;
   onSelect?: (value: LocationSelection<never>) => void;
   onWillExpand?: (locationRect: DOMRect, expandedContentHeight: number) => void;
-  onWillCollapse?: () => void;
+  onTransitionEnd?: () => void;
 }
 
 const ExitLocations = React.forwardRef(function ExitLocationsT(
@@ -35,7 +35,7 @@ const ExitLocations = React.forwardRef(function ExitLocationsT(
       <RelayLocations
         source={props.source}
         onWillExpand={props.onWillExpand}
-        onWillCollapse={props.onWillCollapse}
+        onTransitionEnd={props.onTransitionEnd}
       />
     </LocationList>
   );

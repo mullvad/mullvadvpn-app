@@ -22,7 +22,7 @@ interface IBridgeLocationsProps {
   selectedElementRef?: React.Ref<React.ReactInstance>;
   onSelect?: (value: LocationSelection<SpecialBridgeLocationType>) => void;
   onWillExpand?: (locationRect: DOMRect, expandedContentHeight: number) => void;
-  onWillCollapse?: () => void;
+  onTransitionEnd?: () => void;
 }
 
 const BridgeLocations = React.forwardRef(function BridgeLocationsT(
@@ -54,7 +54,7 @@ const BridgeLocations = React.forwardRef(function BridgeLocationsT(
       <RelayLocations
         source={props.source}
         onWillExpand={props.onWillExpand}
-        onWillCollapse={props.onWillCollapse}
+        onTransitionEnd={props.onTransitionEnd}
       />
     </LocationList>
   );

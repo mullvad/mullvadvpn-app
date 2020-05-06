@@ -5,8 +5,8 @@ interface IProps {
   expanded: boolean;
   animationDuration: number;
   children?: React.ReactNode;
-  onWillExpand?: (nextHeight: number) => void;
-  onWillCollapse?: () => void;
+  onWillExpand?: (contentHeight: number) => void;
+  onTransitionEnd?: () => void;
 }
 
 interface IState {
@@ -81,7 +81,6 @@ export default class Accordion extends React.Component<IProps, IState> {
   private collapse() {
     // First change height to height in px since it's not possible to transition to/from auto
     this.setState({ containerHeight: this.getContentHeightWithUnit() }, () => {
-      this.props.onWillCollapse?.();
       // Make sure new height has been applied
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this.containerRef.current?.offsetHeight;
@@ -98,13 +97,14 @@ export default class Accordion extends React.Component<IProps, IState> {
   }
 
   private onWillExpand() {
-    const nextHeight = this.getContentHeight();
-    if (nextHeight) {
-      this.props.onWillExpand?.(nextHeight);
+    const contentHeight = this.getContentHeight();
+    if (contentHeight) {
+      this.props.onWillExpand?.(contentHeight);
     }
   }
 
   private onTransitionEnd = () => {
+    this.props.onTransitionEnd?.();
     if (this.props.expanded) {
       // Height auto enables the container to grow if the content changes size
       this.setState({ containerHeight: 'auto' });

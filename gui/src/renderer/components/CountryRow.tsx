@@ -19,7 +19,7 @@ interface IProps {
   onSelect?: (location: RelayLocation) => void;
   onExpand?: (location: RelayLocation, value: boolean) => void;
   onWillExpand?: (locationRect: DOMRect, expandedContentHeight: number) => void;
-  onWillCollapse?: () => void;
+  onTransitionEnd?: () => void;
   children?: CityRowElement | CityRowElement[];
 }
 
@@ -102,7 +102,7 @@ export default class CountryRow extends Component<IProps> {
           <Accordion
             expanded={this.props.expanded}
             onWillExpand={this.onWillExpand}
-            onWillCollapse={this.props.onWillCollapse}
+            onTransitionEnd={this.props.onTransitionEnd}
             animationDuration={150}>
             {this.props.children}
           </Accordion>

@@ -247,7 +247,7 @@ interface IRelayLocationsProps {
   onSelect?: (location: RelayLocation) => void;
   onExpand?: (location: RelayLocation, expand: boolean) => void;
   onWillExpand?: (locationRect: DOMRect, expandedContentHeight: number) => void;
-  onWillCollapse?: () => void;
+  onTransitionEnd?: () => void;
 }
 
 interface ICommonCellProps<T> {
@@ -272,7 +272,7 @@ export class RelayLocations extends Component<IRelayLocationsProps> {
               onSelect={this.handleSelection}
               onExpand={this.handleExpand}
               onWillExpand={this.props.onWillExpand}
-              onWillCollapse={this.props.onWillCollapse}
+              onTransitionEnd={this.props.onTransitionEnd}
               {...this.getCommonCellProps<CountryRow>(countryLocation)}>
               {relayCountry.cities.map((relayCity) => {
                 const cityLocation: RelayLocation = {
@@ -288,7 +288,7 @@ export class RelayLocations extends Component<IRelayLocationsProps> {
                     onSelect={this.handleSelection}
                     onExpand={this.handleExpand}
                     onWillExpand={this.props.onWillExpand}
-                    onWillCollapse={this.props.onWillCollapse}
+                    onTransitionEnd={this.props.onTransitionEnd}
                     {...this.getCommonCellProps<CityRow>(cityLocation)}>
                     {relayCity.relays.map((relay) => {
                       const relayLocation: RelayLocation = {
