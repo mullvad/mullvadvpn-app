@@ -21,6 +21,12 @@ const val FULL_VOUCHER_CODE_LENGTH = "XXXX-XXXX-XXXX-XXXX".length
 class RedeemVoucherDialogFragment : DialogFragment() {
     private val jobTracker = JobTracker()
 
+    private var voucherInputIsValid = false
+        set(value) {
+            field = value
+            updateRedeemButton()
+        }
+
     private lateinit var redeemButton: Button
     private lateinit var voucherInput: EditText
 
@@ -77,6 +83,10 @@ class RedeemVoucherDialogFragment : DialogFragment() {
         super.onDestroyView()
     }
 
+    private fun updateRedeemButton() {
+        redeemButton.setEnabled(voucherInputIsValid)
+    }
+
     inner class ValidVoucherCodeChecker : TextWatcher {
         private var editRecursionCount = 0
 
@@ -90,7 +100,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
             editRecursionCount -= 1
 
             if (editRecursionCount == 0) {
-                redeemButton.setEnabled(text.length == FULL_VOUCHER_CODE_LENGTH)
+                voucherInputIsValid = text.length == FULL_VOUCHER_CODE_LENGTH
             }
         }
     }
