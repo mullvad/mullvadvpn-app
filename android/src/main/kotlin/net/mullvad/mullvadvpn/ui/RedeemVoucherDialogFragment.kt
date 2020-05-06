@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.EditText
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.util.JobTracker
@@ -120,13 +121,15 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     }
 
     private suspend fun submitVoucher() {
-        val submission = jobTracker.runOnBackground {
+        val result = jobTracker.runOnBackground {
             daemon?.submitVoucher(voucherInput.text.toString())
         }
 
-        submission?.apply {
-            if (timeAdded > 0) {
-                dismiss()
+        when (result) {
+            is VoucherSubmissionResult.Ok -> {
+                if (result.submission.timeAdded > 0) {
+                    dismiss()
+                }
             }
         }
     }

@@ -37,6 +37,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/mullvadvpn/model/TunnelState$Disconnected",
     "net/mullvad/mullvadvpn/model/TunnelState$Disconnecting",
     "net/mullvad/mullvadvpn/model/VoucherSubmission",
+    "net/mullvad/mullvadvpn/model/VoucherSubmissionResult",
     "net/mullvad/mullvadvpn/model/WireguardEndpointData",
     "net/mullvad/mullvadvpn/service/MullvadDaemon",
     "net/mullvad/mullvadvpn/service/MullvadVpnService",
