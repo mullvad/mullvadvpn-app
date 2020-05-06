@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.EditText
+import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.mullvadvpn.service.MullvadDaemon
@@ -25,6 +26,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     private val jobTracker = JobTracker()
 
     private lateinit var parentActivity: MainActivity
+    private lateinit var errorMessage: TextView
     private lateinit var voucherInput: EditText
 
     private var redeemButton: Button? = null
@@ -79,6 +81,8 @@ class RedeemVoucherDialogFragment : DialogFragment() {
             }
         }
 
+        errorMessage = view.findViewById(R.id.error)
+
         view.findViewById<Button>(R.id.cancel).setOnClickAction("action", jobTracker) {
             activity?.onBackPressed()
         }
@@ -121,6 +125,8 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     }
 
     private suspend fun submitVoucher() {
+        errorMessage.visibility = View.INVISIBLE
+
         val result = jobTracker.runOnBackground {
             daemon?.submitVoucher(voucherInput.text.toString())
         }
@@ -131,6 +137,18 @@ class RedeemVoucherDialogFragment : DialogFragment() {
                     dismiss()
                 }
             }
+            is VoucherSubmissionResult.InvalidVoucher -> showError(R.string.invalid_voucher)
+            is VoucherSubmissionResult.VoucherAlreadyUsed -> {
+                showError(R.string.voucher_already_used)
+            }
+            else -> showError(R.string.error_occurred)
+        }
+    }
+
+    private fun showError(message: Int) {
+        errorMessage.apply {
+            setText(message)
+            visibility = View.VISIBLE
         }
     }
 
