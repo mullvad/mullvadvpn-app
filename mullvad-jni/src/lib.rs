@@ -18,7 +18,7 @@ use jnix::{
 };
 use mullvad_daemon::{exception_logging, logging, version, Daemon, DaemonCommandChannel};
 use mullvad_rpc::{rest::Error as RestError, StatusCode};
-use mullvad_types::account::AccountData;
+use mullvad_types::account::{AccountData, VoucherSubmission};
 use std::{
     path::{Path, PathBuf},
     ptr,
@@ -71,6 +71,33 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
                 daemon_interface::Error::RpcError(_) => GetAccountDataResult::RpcError,
                 _ => GetAccountDataResult::OtherError,
             },
+        }
+    }
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum VoucherSubmissionResult {
+    Ok(VoucherSubmission),
+    InvalidVoucher,
+    VoucherAlreadyUsed,
+    RpcError,
+    OtherError,
+}
+
+impl From<Result<VoucherSubmission, daemon_interface::Error>> for VoucherSubmissionResult {
+    fn from(result: Result<VoucherSubmission, daemon_interface::Error>) -> Self {
+        match result {
+            Ok(submission) => VoucherSubmissionResult::Ok(submission),
+            Err(daemon_interface::Error::RpcError(RestError::ApiError(_, code))) => {
+                match code.as_str() {
+                    "INVALID_VOUCHER" => VoucherSubmissionResult::InvalidVoucher,
+                    "VOUCHER_USED" => VoucherSubmissionResult::VoucherAlreadyUsed,
+                    _ => VoucherSubmissionResult::RpcError,
+                }
+            }
+            Err(daemon_interface::Error::RpcError(_)) => VoucherSubmissionResult::RpcError,
+            _ => VoucherSubmissionResult::OtherError,
         }
     }
 }
