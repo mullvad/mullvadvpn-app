@@ -832,22 +832,15 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_submitV
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    let result = if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
         let voucher = String::from_java(&env, voucher);
 
-        match daemon_interface.submit_voucher(voucher) {
-            Ok(voucher_submission) => voucher_submission.into_java(&env).forget(),
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to submit voucher")
-                );
-                JObject::null()
-            }
-        }
+        VoucherSubmissionResult::from(daemon_interface.submit_voucher(voucher))
     } else {
-        JObject::null()
-    }
+        VoucherSubmissionResult::OtherError
+    };
+
+    result.into_java(&env).forget()
 }
 
 #[no_mangle]
