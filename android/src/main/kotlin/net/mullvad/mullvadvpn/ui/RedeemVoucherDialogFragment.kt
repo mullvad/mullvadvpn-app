@@ -72,8 +72,9 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
         redeemButton = view.findViewById<Button>(R.id.redeem).apply {
             setEnabled(false)
+
             setOnClickAction("action", jobTracker) {
-                dismiss()
+                submitVoucher()
             }
         }
 
@@ -115,6 +116,18 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     private fun updateRedeemButton() {
         redeemButton?.apply {
             setEnabled(voucherInputIsValid && daemon != null)
+        }
+    }
+
+    private suspend fun submitVoucher() {
+        val submission = jobTracker.runOnBackground {
+            daemon?.submitVoucher(voucherInput.text.toString())
+        }
+
+        submission?.apply {
+            if (timeAdded > 0) {
+                dismiss()
+            }
         }
     }
 
