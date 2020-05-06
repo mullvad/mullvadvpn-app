@@ -1,7 +1,7 @@
 use futures::{sync::oneshot, Future};
 use mullvad_daemon::{DaemonCommand, DaemonCommandSender};
 use mullvad_types::{
-    account::AccountData,
+    account::{AccountData, VoucherSubmission},
     location::GeoIpLocation,
     relay_constraints::RelaySettingsUpdate,
     relay_list::RelayList,
@@ -208,6 +208,17 @@ impl DaemonInterface {
 
     pub fn shutdown(&self) -> Result<()> {
         self.send_command(DaemonCommand::Shutdown)
+    }
+
+    pub fn submit_voucher(&self, voucher: String) -> Result<VoucherSubmission> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::SubmitVoucher(tx, voucher))?;
+
+        rx.wait()
+            .map_err(|_| Error::NoResponse)?
+            .wait()
+            .map_err(Error::RpcError)
     }
 
     pub fn update_relay_settings(&self, update: RelaySettingsUpdate) -> Result<()> {
