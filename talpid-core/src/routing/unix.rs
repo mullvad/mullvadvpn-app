@@ -37,10 +37,14 @@ pub enum Error {
     /// Failed to spawn route manager future
     #[error(display = "Failed to spawn route manager on the provided executor")]
     FailedToSpawnManager,
+    /// Attempt to use route manager that has been dropped
+    #[error(display = "Cannot send message to route manager since it is down")]
+    RouteManagerDown,
 }
 
 #[derive(Debug)]
 pub enum RouteManagerCommand {
+    AddRoutes(HashSet<RequiredRoute>),
     Shutdown(oneshot::Sender<()>),
 }
 
@@ -97,6 +101,16 @@ impl RouteManager {
             if wait_rx.wait().is_err() {
                 log::error!("RouteManager paniced while shutting down");
             }
+        }
+    }
+
+    /// Applies the given routes until [`RouteManager::stop`] is called.
+    pub fn add_routes(&mut self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
+        if let Some(tx) = &self.manage_tx {
+            let _ = tx.unbounded_send(RouteManagerCommand::AddRoutes(routes));
+            Ok(())
+        } else {
+            Err(Error::RouteManagerDown)
         }
     }
 }

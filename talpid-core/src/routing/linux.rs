@@ -155,7 +155,31 @@ impl RouteManagerImplInner {
 
         let iface_map = Self::initialize_link_map(&handle).await?;
 
+        let mut monitor = Self {
+            iface_map,
+            handle,
+            messages,
 
+            required_default_routes: HashSet::new(),
+            added_routes: HashSet::new(),
+
+            default_routes: HashSet::new(),
+            best_default_node_v4: None,
+            best_default_node_v6: None,
+        };
+
+        monitor.default_routes = monitor.get_default_routes().await?;
+        monitor.best_default_node_v4 =
+            Self::pick_best_default_node(&monitor.default_routes, IpVersion::V4);
+        monitor.best_default_node_v6 =
+            Self::pick_best_default_node(&monitor.default_routes, IpVersion::V6);
+
+        monitor.add_required_routes(required_routes).await?;
+
+        Ok(monitor)
+    }
+
+    async fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
         let mut required_normal_routes = HashSet::new();
         let mut required_default_routes = HashSet::new();
 
@@ -174,43 +198,25 @@ impl RouteManagerImplInner {
             }
         }
 
-        let mut monitor = Self {
-            iface_map,
-            handle,
-            messages,
-
-            required_default_routes,
-            added_routes: HashSet::new(),
-
-            default_routes: HashSet::new(),
-            best_default_node_v4: None,
-            best_default_node_v6: None,
-        };
-
-        monitor.default_routes = monitor.get_default_routes().await?;
-        monitor.best_default_node_v4 =
-            Self::pick_best_default_node(&monitor.default_routes, IpVersion::V4);
-        monitor.best_default_node_v6 =
-            Self::pick_best_default_node(&monitor.default_routes, IpVersion::V6);
-
-
         for normal_route in required_normal_routes.into_iter() {
-            monitor.add_route(normal_route).await?;
+            self.add_route(normal_route).await?;
         }
 
-        for route in monitor.required_default_routes.clone().into_iter() {
+        for route in required_default_routes.into_iter() {
+            self.required_default_routes.insert(route);
             if let (false, _, Some(default_node)) | (true, Some(default_node), _) = (
                 route.destination.is_ipv4(),
-                &monitor.best_default_node_v4,
-                &monitor.best_default_node_v6,
+                &self.best_default_node_v4,
+                &self.best_default_node_v6,
             ) {
                 // best to pick a single node identifier rather than device + ip
                 let new_route =
                     Route::new(default_node.clone(), route.destination).table(route.table_id);
-                monitor.add_route(new_route).await?;
+                self.add_route(new_route).await?;
             }
         }
-        Ok(monitor)
+
+        Ok(())
     }
 
     async fn get_default_routes(&self) -> Result<HashSet<Route>> {
@@ -417,21 +423,30 @@ impl RouteManagerImplInner {
         loop {
             futures::select! {
                 command = manage_rx.select_next_some().fuse() => {
-                    match command {
-                        RouteManagerCommand::Shutdown(shutdown_signal) => {
-                            log::trace!("Shutting down route manager");
-                            self.cleanup_routes().await;
-                            log::trace!("Route manager done");
-                            let _ = shutdown_signal.send(());
-                            return Ok(());
-                        }
-                    }
+                    self.process_command(command).await?;
                 },
                 (route_change, socket) = self.messages.select_next_some().fuse() => {
                     self.process_netlink_message(route_change).await?;
                 }
             };
         }
+    }
+
+    async fn process_command(&mut self, command: RouteManagerCommand) -> Result<()> {
+        match command {
+            RouteManagerCommand::Shutdown(shutdown_signal) => {
+                log::trace!("Shutting down route manager");
+                self.cleanup_routes().await;
+                log::trace!("Route manager done");
+                let _ = shutdown_signal.send(());
+                return Ok(());
+            }
+            RouteManagerCommand::AddRoutes(routes) => {
+                log::debug!("Adding routes: {:?}", routes);
+                self.add_required_routes(routes).await?;
+            }
+        }
+        Ok(())
     }
 
     async fn process_netlink_message(&mut self, msg: NetlinkMessage<RtnlMessage>) -> Result<()> {
