@@ -834,8 +834,16 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_submitV
 
     let result = if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
         let voucher = String::from_java(&env, voucher);
+        let raw_result = daemon_interface.submit_voucher(voucher);
 
-        VoucherSubmissionResult::from(daemon_interface.submit_voucher(voucher))
+        if let Err(ref error) = &raw_result {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to submit voucher code")
+            );
+        }
+
+        VoucherSubmissionResult::from(raw_result)
     } else {
         VoucherSubmissionResult::OtherError
     };
