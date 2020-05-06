@@ -1,18 +1,16 @@
-use crate::routing::{NetNode, Node, RequiredRoute, Route};
+use crate::routing::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route};
 
 use ipnetwork::IpNetwork;
 use std::{
     collections::{BTreeMap, HashSet},
     io,
     net::IpAddr,
+    thread,
 };
 
-use futures01::sync::oneshot as old_oneshot;
+use futures01::{stream::Stream as old_stream, sync::mpsc as old_mpsc};
 
-use futures::{
-    channel::mpsc::UnboundedReceiver, compat::Future01CompatExt, future::FutureExt, StreamExt,
-    TryStreamExt,
-};
+use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, TryStreamExt};
 
 
 use netlink_packet_route::{
@@ -65,7 +63,7 @@ pub enum Error {
 }
 
 pub struct RouteManagerImpl {
-    shutdown_rx: old_oneshot::Receiver<old_oneshot::Sender<()>>,
+    manage_rx: old_mpsc::UnboundedReceiver<RouteManagerCommand>,
     manager: RouteManagerImplInner,
     runtime: tokio02::runtime::Runtime,
 }
@@ -74,7 +72,7 @@ impl RouteManagerImpl {
     /// Creates a new RouteManagerImplInner.
     pub fn new(
         required_routes: HashSet<RequiredRoute>,
-        shutdown_rx: old_oneshot::Receiver<old_oneshot::Sender<()>>,
+        manage_rx: old_mpsc::UnboundedReceiver<RouteManagerCommand>,
     ) -> Result<Self> {
         let mut runtime = tokio02::runtime::Builder::new()
             .basic_scheduler()
@@ -87,7 +85,7 @@ impl RouteManagerImpl {
         let manager = runtime.block_on(RouteManagerImplInner::new(required_routes))?;
 
         Ok(Self {
-            shutdown_rx,
+            manage_rx,
             runtime,
             manager,
         })
@@ -95,11 +93,28 @@ impl RouteManagerImpl {
 
     pub fn wait(self) -> Result<()> {
         let Self {
-            shutdown_rx,
+            manage_rx,
             mut runtime,
             manager,
         } = self;
-        runtime.block_on(manager.into_future(shutdown_rx))
+
+        let (new_manage_tx, new_manage_rx) = futures::channel::mpsc::unbounded();
+
+        thread::spawn(move || {
+            for msg in manage_rx.wait() {
+                match msg {
+                    Ok(msg) => {
+                        if new_manage_tx.unbounded_send(msg).is_err() {
+                            log::error!("RouteManager receiver unexpectedly dropped");
+                            break;
+                        }
+                    }
+                    Err(_) => break,
+                }
+            }
+        });
+
+        runtime.block_on(manager.into_future(new_manage_rx))
     }
 }
 
@@ -158,7 +173,6 @@ impl RouteManagerImplInner {
                 }
             }
         }
-
 
         let mut monitor = Self {
             iface_map,
@@ -398,19 +412,20 @@ impl RouteManagerImplInner {
 
     pub async fn into_future(
         mut self,
-        shutdown_rx: futures01::sync::oneshot::Receiver<futures01::sync::oneshot::Sender<()>>,
+        mut manage_rx: UnboundedReceiver<RouteManagerCommand>,
     ) -> Result<()> {
-        let mut shutdown = shutdown_rx.compat().fuse();
         loop {
             futures::select! {
-                shutdown_signal = shutdown => {
-                    log::trace!("Shutting down route manager");
-                    self.cleanup_routes().await;
-                    log::trace!("Route manager done");
-                    if let Ok(shutdown_signal) = shutdown_signal {
-                        let _ = shutdown_signal.send(());
+                command = manage_rx.select_next_some().fuse() => {
+                    match command {
+                        RouteManagerCommand::Shutdown(shutdown_signal) => {
+                            log::trace!("Shutting down route manager");
+                            self.cleanup_routes().await;
+                            log::trace!("Route manager done");
+                            let _ = shutdown_signal.send(());
+                            return Ok(());
+                        }
                     }
-                    return Ok(());
                 },
                 (route_change, socket) = self.messages.select_next_some().fuse() => {
                     self.process_netlink_message(route_change).await?;
