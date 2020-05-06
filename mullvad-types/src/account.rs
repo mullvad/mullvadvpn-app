@@ -17,7 +17,7 @@ pub struct AccountData {
 
 /// Data structure that's returned from successful invocation of the mullvad API's
 /// `/v1/submit-voucher` RPC.
-#[derive(serde::Deserialize, serde::Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct VoucherSubmission {
     /// Amount of time added to the account
     pub time_added: u64,
