@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.model.VoucherSubmission
+import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.talpid.util.EventNotifier
 
 class MullvadDaemon(val vpnService: MullvadVpnService) {
@@ -110,7 +110,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         shutdown(daemonInterfaceAddress)
     }
 
-    fun submitVoucher(voucher: String): VoucherSubmission? {
+    fun submitVoucher(voucher: String): VoucherSubmissionResult {
         return submitVoucher(daemonInterfaceAddress, voucher)
     }
 
@@ -155,7 +155,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     private external fun submitVoucher(
         daemonInterfaceAddress: Long,
         voucher: String
-    ): VoucherSubmission?
+    ): VoucherSubmissionResult
     private external fun updateRelaySettings(
         daemonInterfaceAddress: Long,
         update: RelaySettingsUpdate
