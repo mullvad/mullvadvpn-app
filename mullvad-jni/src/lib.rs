@@ -797,6 +797,34 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdow
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_submitVoucher<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    voucher: JString<'_>,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let voucher = String::from_java(&env, voucher);
+
+        match daemon_interface.submit_voucher(voucher) {
+            Ok(voucher_submission) => voucher_submission.into_java(&env).forget(),
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to submit voucher")
+                );
+                JObject::null()
+            }
+        }
+    } else {
+        JObject::null()
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateRelaySettings(
     env: JNIEnv<'_>,
     _: JObject<'_>,
