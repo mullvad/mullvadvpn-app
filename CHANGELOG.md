@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.4-beta4] - 2020-05-06
 ### Fixed
 - Fix bogus or absent update notifications on the desktop app due to incorrect deserialization of a
   struct sent from the daemon.
