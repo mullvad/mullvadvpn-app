@@ -8,12 +8,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import android.widget.EditText
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.util.JobTracker
+import net.mullvad.mullvadvpn.util.SegmentedInputFormatter
 
 class RedeemVoucherDialogFragment : DialogFragment() {
     private val jobTracker = JobTracker()
+
+    private lateinit var voucherInput: EditText
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -21,6 +25,16 @@ class RedeemVoucherDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.redeem_voucher, container, false)
+
+        voucherInput = view.findViewById(R.id.voucher_code)
+
+        SegmentedInputFormatter(voucherInput, '-').apply {
+            allCaps = true
+
+            isValidInputCharacter = { character ->
+                ('A' <= character && character <= 'Z') || ('0' <= character && character <= '9')
+            }
+        }
 
         view.findViewById<Button>(R.id.cancel).setOnClickAction("action", jobTracker) {
             activity?.onBackPressed()
