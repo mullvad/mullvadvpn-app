@@ -27,7 +27,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Add possibility to create account from the login screen.
 - Add welcome screen for newly created accounts.
-- App will now use packaged relay list if it's newer than the cached one.
 
 ### Changed
 - Move location of the account data (including the WireGuard keys), so that it isn't lost when the
@@ -39,9 +38,6 @@ Line wrap the file at 100 chars.                                              Th
 - Adjust the minimum supported Android version to correctly reflect the supported versions decided
   in 2020.4-beta2. The app will now only install on Android 7 and later (API level 24).
 
-### Fixed
-- Fix bogus or absent update notifications on the desktop app due to incorrect deserialization of a
-  struct sent from the daemon.
 
 #### Android
 - Fix crash when leaving WireGuard Key screen while key is still verifying.
@@ -49,8 +45,20 @@ Line wrap the file at 100 chars.                                              Th
 - Fix app not connecting when pressing the notification or quick-settings tile when the service
   isn't running. It would previously just open the app UI and stay in the disconnected state.
 - Fix crash when requesting to connect from notification or quick-settings tile.
-- Fix relay list sort order
 - Fix version update notifications not appearing.
+
+
+## [2020.4-beta4] - 2020-05-06
+### Fixed
+- Fix bogus or absent update notifications on the desktop app due to incorrect deserialization of a
+  struct sent from the daemon.
+
+#### Android
+- App will now use packaged relay list if it's newer than the cached one.
+- Fix relay list sort order.
+
+#### Windows
+- Remove all log files on uninstall. Clear install.log on upgrades.
 
 
 ## [2020.4-beta3] - 2020-04-29
