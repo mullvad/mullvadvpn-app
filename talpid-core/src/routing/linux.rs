@@ -445,6 +445,10 @@ impl RouteManagerImplInner {
                 log::debug!("Adding routes: {:?}", routes);
                 self.add_required_routes(routes).await?;
             }
+            RouteManagerCommand::ClearRoutes => {
+                log::debug!("Clearing routes");
+                self.cleanup_routes().await;
+            }
         }
         Ok(())
     }
