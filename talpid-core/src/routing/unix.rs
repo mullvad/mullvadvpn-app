@@ -10,6 +10,7 @@ use futures01::{
     Future,
 };
 use std::{collections::HashSet, sync::mpsc::sync_channel};
+use talpid_types::ErrorExt;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -31,9 +32,9 @@ pub enum Error {
     /// Routing manager thread panicked before starting routing manager
     #[error(display = "Routing manager thread panicked before starting routing manager")]
     RoutingManagerThreadPanic,
-    /// Platform sepcific error occured
-    #[error(display = "Failed to create route manager")]
-    FailedToInitializeManager(#[error(source)] imp::Error),
+    /// Platform specific error occured
+    #[error(display = "Internal route manager error")]
+    PlatformError(#[error(source)] imp::Error),
     /// Failed to spawn route manager future
     #[error(display = "Failed to spawn route manager on the provided executor")]
     FailedToSpawnManager,
@@ -44,7 +45,10 @@ pub enum Error {
 
 #[derive(Debug)]
 pub enum RouteManagerCommand {
-    AddRoutes(HashSet<RequiredRoute>),
+    AddRoutes(
+        HashSet<RequiredRoute>,
+        oneshot::Sender<Result<(), PlatformError>>,
+    ),
     ClearRoutes,
     Shutdown(oneshot::Sender<()>),
 }
@@ -73,7 +77,7 @@ impl RouteManager {
                     }
                 }
                 Err(e) => {
-                    let _ = start_tx.send(Err(Error::FailedToInitializeManager(e)));
+                    let _ = start_tx.send(Err(Error::PlatformError(e)));
                 }
             },
         );
@@ -108,13 +112,24 @@ impl RouteManager {
     /// Applies the given routes until [`RouteManager::stop`] is called.
     pub fn add_routes(&mut self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
         if let Some(tx) = &self.manage_tx {
+            let (result_tx, result_rx) = oneshot::channel();
             if tx
-                .unbounded_send(RouteManagerCommand::AddRoutes(routes))
+                .unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
                 .is_err()
             {
                 return Err(Error::RouteManagerDown);
             }
-            Ok(())
+
+            match result_rx.wait() {
+                Ok(result) => result.map_err(Error::PlatformError),
+                Err(error) => {
+                    log::trace!(
+                        "{}",
+                        error.display_chain_with_msg("oneshot channel is closed")
+                    );
+                    Ok(())
+                }
+            }
         } else {
             Err(Error::RouteManagerDown)
         }
