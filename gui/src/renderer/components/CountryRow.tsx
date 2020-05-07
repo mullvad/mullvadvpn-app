@@ -1,6 +1,6 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom';
 import { Component, Styles, View } from 'reactxp';
+import styled from 'styled-components';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import Accordion from './Accordion';
 import * as Cell from './Cell';
@@ -28,14 +28,15 @@ const styles = {
     flexDirection: 'column',
     flex: 0,
   }),
-  base: Styles.createViewStyle({
-    paddingRight: 0,
-    paddingLeft: 16,
-  }),
 };
 
+const Button = styled(Cell.CellButton)({
+  paddingRight: 0,
+  paddingLeft: 16,
+});
+
 export default class CountryRow extends Component<IProps> {
-  private buttonRef = React.createRef<Cell.CellButton>();
+  private buttonRef = React.createRef<HTMLButtonElement>();
 
   public static compareProps(oldProps: IProps, nextProps: IProps) {
     if (React.Children.count(oldProps.children) !== React.Children.count(nextProps.children)) {
@@ -82,10 +83,9 @@ export default class CountryRow extends Component<IProps> {
 
     return (
       <View style={styles.container}>
-        <Cell.CellButton
+        <Button
           ref={this.buttonRef}
-          style={styles.base}
-          onPress={this.handlePress}
+          onClick={this.handleClick}
           disabled={!this.props.hasActiveRelays}
           selected={this.props.selected}>
           <RelayStatusIndicator
@@ -96,7 +96,7 @@ export default class CountryRow extends Component<IProps> {
           {hasChildren ? (
             <ChevronButton onClick={this.toggleCollapse} up={this.props.expanded} />
           ) : null}
-        </Cell.CellButton>
+        </Button>
 
         {hasChildren && (
           <Accordion
@@ -118,16 +118,15 @@ export default class CountryRow extends Component<IProps> {
     event.stopPropagation();
   };
 
-  private handlePress = () => {
+  private handleClick = () => {
     if (this.props.onSelect) {
       this.props.onSelect(this.props.location);
     }
   };
 
   private onWillExpand = (nextHeight: number) => {
-    const buttonNode = ReactDOM.findDOMNode(this.buttonRef.current);
-    if (buttonNode instanceof HTMLElement) {
-      const buttonRect = buttonNode.getBoundingClientRect();
+    const buttonRect = this.buttonRef.current?.getBoundingClientRect();
+    if (buttonRect) {
       this.props.onWillExpand?.(buttonRect, nextHeight);
     }
   };

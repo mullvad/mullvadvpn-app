@@ -1,5 +1,11 @@
 import { Styles } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
+import * as Cell from './Cell';
+
+export const OutOfTimeSubText = styled(Cell.SubText)((props: { isOutOfTime: boolean }) => ({
+  color: props.isOutOfTime ? colors.red : undefined,
+}));
 
 export default {
   settings: Styles.createViewStyle({
@@ -36,9 +42,6 @@ export default {
     paddingLeft: 24,
     paddingRight: 24,
   }),
-  accountPaidUntilErrorLabel: Styles.createTextStyle({
-    color: colors.red,
-  }),
   cellFooterLabel: Styles.createTextStyle({
     fontFamily: 'Open Sans',
     fontSize: 13,
@@ -46,8 +49,5 @@ export default {
     lineHeight: 20,
     letterSpacing: -0.2,
     color: colors.white60,
-  }),
-  appVersionLabel: Styles.createTextStyle({
-    flex: 0,
   }),
 };

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Component, Styles, View } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import CustomScrollbars from './CustomScrollbars';
@@ -35,14 +36,15 @@ const styles = {
   container: Styles.createViewStyle({
     flex: 1,
   }),
-  selector: Styles.createViewStyle({
-    marginBottom: 0,
-  }),
   // plain CSS style
   scrollview: {
     flex: 1,
   },
 };
+
+const StyledSelector = (styled(Selector)({
+  marginBottom: 0,
+}) as unknown) as new <T>() => Selector<T>;
 
 export default class SelectLanguage extends Component<IProps, IState> {
   private scrollView = React.createRef<CustomScrollbars>();
@@ -92,8 +94,7 @@ export default class SelectLanguage extends Component<IProps, IState> {
                       {messages.pgettext('select-language-nav', 'Select language')}
                     </HeaderTitle>
                   </SettingsHeader>
-                  <Selector
-                    style={styles.selector}
+                  <StyledSelector
                     title=""
                     values={this.state.source}
                     value={this.props.preferredLocale}
