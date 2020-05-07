@@ -444,10 +444,10 @@ impl RouteManagerImplInner {
                 log::trace!("Route manager done");
                 let _ = shutdown_signal.send(());
             }
-            RouteManagerCommand::AddRoutes(routes) => {
+            RouteManagerCommand::AddRoutes(routes, result_rx) => {
                 log::debug!("Adding routes: {:?}", routes);
                 if let Err(error) = self.add_required_routes(routes).await {
-                    log::error!("{}", error.display_chain_with_msg("Failed to add routes"));
+                    let _ = result_rx.send(Err(error));
                 }
             }
             RouteManagerCommand::ClearRoutes => {
