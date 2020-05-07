@@ -50,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
   isn't running. It would previously just open the app UI and stay in the disconnected state.
 - Fix crash when requesting to connect from notification or quick-settings tile.
 - Fix version update notifications not appearing.
+- Fix UI losing any settings updates that happen after leaving the app and then coming back.
 
 
 ## [2020.4-beta4] - 2020-05-06
