@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Button, Component, Styles, Text, Types, View } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import ImageView from './ImageView';
@@ -78,9 +79,6 @@ const brandStyles = {
     flexDirection: 'row',
     alignItems: 'center',
   }),
-  icon: Styles.createViewStyle({
-    marginLeft: 6,
-  }),
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
     fontSize: 24,
@@ -92,11 +90,15 @@ const brandStyles = {
   }),
 };
 
+const Logo = styled(ImageView)({
+  marginLeft: '6px',
+});
+
 export class Brand extends Component {
   public render() {
     return (
       <View style={brandStyles.container}>
-        <ImageView width={44} height={44} source="logo-icon" style={brandStyles.icon} />
+        <Logo width={44} height={44} source="logo-icon" />
         <Text style={brandStyles.title}>{messages.pgettext('generic', 'MULLVAD VPN')}</Text>
       </View>
     );

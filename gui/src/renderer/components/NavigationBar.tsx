@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Animated, Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
 import CustomScrollbars, { IScrollEvent } from './CustomScrollbars';
 import ImageView from './ImageView';
@@ -61,10 +62,6 @@ const styles = {
     default: Styles.createViewStyle({
       cursor: 'default',
     }),
-    icon: Styles.createViewStyle({
-      flex: 0,
-      opacity: 0.6,
-    }),
   },
   backBarButton: {
     default: Styles.createViewStyle({
@@ -82,10 +79,6 @@ const styles = {
       fontSize: 13,
       fontWeight: '600',
       color: colors.white60,
-    }),
-    icon: Styles.createViewStyle({
-      opacity: 0.6,
-      marginRight: 8,
     }),
   },
   scopeBar: {
@@ -605,6 +598,11 @@ export function TitleBarItem(props: ITitleBarItemProps) {
   );
 }
 
+const CloseBarItemIcon = styled(ImageView)({
+  flex: 0,
+  opacity: 0.6,
+});
+
 interface ICloseBarItemProps {
   action: () => void;
 }
@@ -617,11 +615,16 @@ export class CloseBarItem extends Component<ICloseBarItemProps> {
 
     return (
       <Button style={[styles.closeBarItem.default]} onPress={this.props.action}>
-        <ImageView height={24} width={24} style={[styles.closeBarItem.icon]} source={iconName} />
+        <CloseBarItemIcon height={24} width={24} source={iconName} />
       </Button>
     );
   }
 }
+
+const BackBarItemIcon = styled(ImageView)({
+  opacity: 0.6,
+  marginRight: '8px',
+});
 
 interface IBackBarItemProps {
   children?: React.ReactText;
@@ -633,7 +636,7 @@ export class BackBarItem extends Component<IBackBarItemProps> {
     return (
       <Button style={styles.backBarButton.default} onPress={this.props.action}>
         <View style={styles.backBarButton.content}>
-          <ImageView style={styles.backBarButton.icon} source="icon-back" />
+          <BackBarItemIcon source="icon-back" />
           <Text style={styles.backBarButton.label}>{this.props.children}</Text>
         </View>
       </Button>

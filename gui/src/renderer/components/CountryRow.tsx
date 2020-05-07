@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, Styles, Types, View } from 'reactxp';
+import { Component, Styles, View } from 'reactxp';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import Accordion from './Accordion';
 import * as Cell from './Cell';
@@ -88,7 +88,7 @@ export default class CountryRow extends Component<IProps> {
           />
           <Cell.Label>{this.props.name}</Cell.Label>
           {hasChildren ? (
-            <ChevronButton onPress={this.toggleCollapse} up={this.props.expanded} />
+            <ChevronButton onClick={this.toggleCollapse} up={this.props.expanded} />
           ) : null}
         </Cell.CellButton>
 
@@ -97,7 +97,7 @@ export default class CountryRow extends Component<IProps> {
     );
   }
 
-  private toggleCollapse = (event: Types.SyntheticEvent) => {
+  private toggleCollapse = (event: React.MouseEvent) => {
     if (this.props.onExpand) {
       this.props.onExpand(this.props.location, !this.props.expanded);
     }

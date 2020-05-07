@@ -4,8 +4,7 @@ import { colors } from '../../config.json';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
-import ImageView from './ImageView';
-import styles from './RedeemVoucherStyles';
+import styles, { Spinner } from './RedeemVoucherStyles';
 
 interface IRedeemVoucherContextValue {
   onSubmit: () => void;
@@ -141,9 +140,7 @@ export class RedeemVoucherResponse extends Component {
       <RedeemVoucherContext.Consumer>
         {(context) => {
           if (context.submitting) {
-            return (
-              <ImageView source="icon-spinner" style={styles.spinner} height={20} width={20} />
-            );
+            return <Spinner source="icon-spinner" height={20} width={20} />;
           }
 
           if (context.response) {

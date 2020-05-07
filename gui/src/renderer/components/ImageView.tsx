@@ -1,73 +1,59 @@
 import * as React from 'react';
-import { Component, Types, View } from 'reactxp';
+import styled from 'styled-components';
 
-interface IProps {
+export interface IImageViewProps extends IImageMaskProps {
+  onClick?: (event: React.MouseEvent) => void;
+  className?: string;
+}
+
+interface IImageMaskProps {
   source: string;
   width?: number;
   height?: number;
+  disabled?: boolean;
   tintColor?: string;
   tintHoverColor?: string;
-  disabled?: boolean;
-  onPress?: (event: Types.SyntheticEvent) => void;
-  style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
 }
 
-interface IState {
-  hovered: boolean;
-}
+const Wrapper = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+});
 
-export default class ImageView extends Component<IProps, IState> {
-  public state = { hovered: false };
+const ImageMask = styled.div((props: IImageMaskProps) => {
+  const maskWidth = props.width ? `${props.width}px` : 'auto';
+  const maskHeight = props.height ? `${props.height}px` : 'auto';
+  return {
+    maskImage: `url('${props.source}')`,
+    maskRepeat: 'no-repeat',
+    maskSize: `${maskWidth} ${maskHeight}`,
+    maskPosition: 'center',
+    lineHeight: 0,
+    backgroundColor: props.tintColor,
+    ':hover': {
+      backgroundColor: (!props.disabled && props.tintHoverColor) || props.tintColor,
+    },
+  };
+});
 
-  public render() {
-    const { source, width, height, tintColor, tintHoverColor, ...otherProps } = this.props;
-    const url = `../../assets/images/${source}.svg`;
-    let image;
+const HiddenImage = styled.img({ visibility: 'hidden' });
 
-    const activeTintColor = (this.state.hovered && tintHoverColor) || tintColor;
+export default function ImageView(props: IImageViewProps) {
+  const url = `../../assets/images/${props.source}.svg`;
 
-    if (activeTintColor) {
-      const maskWidth = typeof width === 'number' ? `${width}px` : 'auto';
-      const maskHeight = typeof height === 'number' ? `${height}px` : 'auto';
-      image = (
-        <div
-          style={{
-            WebkitMaskImage: `url('${url}')`,
-            WebkitMaskRepeat: 'no-repeat',
-            WebkitMaskSize: `${maskWidth} ${maskHeight}`,
-            backgroundColor: activeTintColor,
-            lineHeight: 0,
-          }}>
-          <img
-            src={url}
-            width={width}
-            height={height}
-            style={{
-              visibility: 'hidden',
-            }}
-          />
-        </div>
-      );
-    } else {
-      image = <img src={url} width={width} height={height} />;
-    }
-
+  if (props.tintColor) {
+    const { source: _source, ...otherProps } = props;
     return (
-      <View {...otherProps} onMouseEnter={this.onHoverStart} onMouseLeave={this.onHoverEnd}>
-        {image}
-      </View>
+      <ImageMask source={url} {...otherProps}>
+        <HiddenImage src={url} width={props.width} height={props.height} />
+      </ImageMask>
+    );
+  } else {
+    return (
+      <Wrapper onClick={props.onClick} className={props.className}>
+        <img src={url} width={props.width} height={props.height} />
+      </Wrapper>
     );
   }
-
-  private onHoverStart = () => {
-    if (!this.props.disabled) {
-      this.setState({ hovered: true });
-    }
-  };
-
-  private onHoverEnd = () => {
-    if (!this.props.disabled) {
-      this.setState({ hovered: false });
-    }
-  };
 }
