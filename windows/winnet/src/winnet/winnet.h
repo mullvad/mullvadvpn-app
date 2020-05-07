@@ -173,6 +173,13 @@ WinNet_DeleteRoute(
 	const WINNET_ROUTE *route
 );
 
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
+WinNet_DeleteAppliedRoutes(
+);
+
 enum WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE
 {
 	// Best default route changed.
