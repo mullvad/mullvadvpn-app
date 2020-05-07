@@ -20,7 +20,6 @@ const config = {
   compression: compression,
   extraResources: [
     { from: distAssets('ca.crt'), to: '.' },
-    { from: distAssets('api_root_ca.pem'), to: '.' },
     { from: distAssets('relays.json'), to: '.' },
     { from: root('CHANGELOG.md'), to: '.' },
   ],

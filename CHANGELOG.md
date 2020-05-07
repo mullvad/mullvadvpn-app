@@ -33,6 +33,8 @@ Line wrap the file at 100 chars.                                              Th
   system cache is cleaned.
 - Rename "Block when disconnected" setting to "Always require VPN" and add additional explanation
   of the setting.
+- Embed TLS certificates used for HTTPS into the binary rather than loading them from disk at
+  runtime
 
 #### Android
 - Adjust the minimum supported Android version to correctly reflect the supported versions decided

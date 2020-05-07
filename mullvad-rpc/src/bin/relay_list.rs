@@ -4,8 +4,7 @@ use futures01::future::Future;
 use mullvad_rpc::{MullvadRpcRuntime, RelayListProxy};
 
 fn main() {
-    let mut runtime = MullvadRpcRuntime::new("dist-assets/api_root_ca.pem".as_ref())
-        .expect("Failed to load runtime");
+    let mut runtime = MullvadRpcRuntime::new().expect("Failed to load runtime");
 
     let relay_list_request = RelayListProxy::new(runtime.mullvad_rest_handle()).relay_list();
 
