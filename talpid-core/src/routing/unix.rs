@@ -108,7 +108,12 @@ impl RouteManager {
     /// Applies the given routes until [`RouteManager::stop`] is called.
     pub fn add_routes(&mut self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
         if let Some(tx) = &self.manage_tx {
-            let _ = tx.unbounded_send(RouteManagerCommand::AddRoutes(routes));
+            if tx
+                .unbounded_send(RouteManagerCommand::AddRoutes(routes))
+                .is_err()
+            {
+                return Err(Error::RouteManagerDown);
+            }
             Ok(())
         } else {
             Err(Error::RouteManagerDown)
@@ -119,7 +124,9 @@ impl RouteManager {
     /// [`RouteManager::add_routes`].
     pub fn clear_routes(&mut self) -> Result<(), Error> {
         if let Some(tx) = &self.manage_tx {
-            let _ = tx.unbounded_send(RouteManagerCommand::ClearRoutes);
+            if tx.unbounded_send(RouteManagerCommand::ClearRoutes).is_err() {
+                return Err(Error::RouteManagerDown);
+            }
             Ok(())
         } else {
             Err(Error::RouteManagerDown)
