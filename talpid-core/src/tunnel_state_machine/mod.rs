@@ -19,6 +19,7 @@ use crate::{
     firewall::{Firewall, FirewallArguments},
     mpsc::Sender,
     offline,
+    routing::RouteManager,
     tunnel::tun_provider::TunProvider,
 };
 
@@ -27,6 +28,7 @@ use futures01::{
     Async, Future, Poll, Stream,
 };
 use std::{
+    collections::HashSet,
     io,
     path::{Path, PathBuf},
     sync::{mpsc as sync_mpsc, Arc},
@@ -231,9 +233,11 @@ impl TunnelStateMachine {
         };
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
+        let route_manager = RouteManager::new(HashSet::new()).unwrap(); // FIXME: don't unwrap
         let mut shared_values = SharedTunnelStateValues {
             firewall,
             dns_monitor,
+            route_manager,
             allow_lan,
             block_when_disconnected,
             is_offline,
@@ -317,6 +321,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
 struct SharedTunnelStateValues {
     firewall: Firewall,
     dns_monitor: DnsMonitor,
+    route_manager: RouteManager,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,
     /// Should network access be allowed when in the disconnected state.

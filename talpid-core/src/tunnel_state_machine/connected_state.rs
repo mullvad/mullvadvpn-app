@@ -89,12 +89,23 @@ impl ConnectedState {
         }
     }
 
+    fn reset_routes(shared_values: &mut SharedTunnelStateValues) {
+        if let Err(error) = shared_values.route_manager.clear_routes() {
+            log::error!(
+                "Failed to clear routes: {:?}",
+                error.display_chain_with_msg("Failed to clear routes")
+            );
+        }
+    }
+
     fn disconnect(
         self,
         shared_values: &mut SharedTunnelStateValues,
         after_disconnect: AfterDisconnect,
     ) -> EventConsequence<Self> {
         Self::reset_dns(shared_values);
+        Self::reset_routes(shared_values);
+
         EventConsequence::NewState(DisconnectingState::enter(
             shared_values,
             (self.close_handle, self.tunnel_close_event, after_disconnect),
@@ -185,6 +196,7 @@ impl ConnectedState {
         match poll_result {
             Ok(Async::Ready(block_reason)) => {
                 if let Some(reason) = block_reason {
+                    Self::reset_routes(shared_values);
                     return NewState(ErrorState::enter(shared_values, reason));
                 }
             }
@@ -194,6 +206,7 @@ impl ConnectedState {
 
         log::info!("Tunnel closed. Reconnecting.");
         Self::reset_dns(shared_values);
+        Self::reset_routes(shared_values);
         NewState(ConnectingState::enter(shared_values, 0))
     }
 }
