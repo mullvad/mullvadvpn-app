@@ -1,8 +1,6 @@
-package net.mullvad.mullvadvpn.dataproxy
+package net.mullvad.mullvadvpn.service
 
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
-import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.service.SettingsListener
 import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
