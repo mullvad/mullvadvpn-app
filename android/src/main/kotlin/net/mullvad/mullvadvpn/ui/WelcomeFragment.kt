@@ -52,7 +52,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         jobTracker.newBackgroundJob("pollAccountData") {
             while (true) {
-                accountCache.refetch()
+                accountCache.fetchAccountExpiry()
                 delay(POLL_INTERVAL)
             }
         }
