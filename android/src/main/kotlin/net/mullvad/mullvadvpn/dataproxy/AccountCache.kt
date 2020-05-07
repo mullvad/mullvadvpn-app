@@ -40,11 +40,10 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
             synchronized(this@AccountCache) {
                 if (this@AccountCache.accountNumber === accountNumber) {
-                    accountExpiry = accountData?.expiry?.let { expiry ->
-                        DateTime.parse(expiry, EXPIRY_FORMAT)
+                    accountData?.expiry?.let { expiry ->
+                        accountExpiry = DateTime.parse(expiry, EXPIRY_FORMAT)
+                        notifyChange()
                     }
-
-                    notifyChange()
                 }
             }
         }
