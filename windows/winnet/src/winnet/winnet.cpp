@@ -385,6 +385,35 @@ extern "C"
 WINNET_LINKAGE
 bool
 WINNET_API
+WinNet_DeleteAppliedRoutes()
+{
+	AutoLockType lock(g_RouteManagerLock);
+
+	if (nullptr == g_RouteManager)
+	{
+		return false;
+	}
+
+	try
+	{
+		g_RouteManager->deleteAppliedRoutes();
+		return true;
+	}
+	catch (const std::exception & err)
+	{
+		common::error::UnwindException(err, g_RouteManagerLogSink);
+		return false;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
+bool
+WINNET_API
 WinNet_DeleteRoute(
 	const WINNET_ROUTE *route
 )
