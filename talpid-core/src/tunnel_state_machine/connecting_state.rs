@@ -5,6 +5,7 @@ use super::{
 };
 use crate::{
     firewall::FirewallPolicy,
+    routing::RouteManager,
     tunnel::{
         self, tun_provider::TunProvider, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor,
     },
@@ -68,18 +69,21 @@ impl ConnectingState {
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         tun_provider: &mut TunProvider,
+        route_manager: &mut RouteManager,
         retry_attempt: u32,
     ) -> crate::tunnel::Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
         let on_tunnel_event = move |event| {
             let _ = event_tx.unbounded_send(event);
         };
+
         let monitor = TunnelMonitor::start(
             &parameters,
             log_dir,
             resource_dir,
             on_tunnel_event,
             tun_provider,
+            route_manager,
         )?;
         let close_handle = Some(monitor.close_handle());
         let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
@@ -170,6 +174,10 @@ impl ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         after_disconnect: AfterDisconnect,
     ) -> EventConsequence<Self> {
+        if let Err(error) = shared_values.route_manager.clear_routes() {
+            log::error!("{}", error.display_chain_with_msg("Failed to clear routes"));
+        }
+
         EventConsequence::NewState(DisconnectingState::enter(
             shared_values,
             (self.close_handle, self.tunnel_close_event, after_disconnect),
@@ -359,6 +367,7 @@ impl TunnelState for ConnectingState {
                         &shared_values.log_dir,
                         &shared_values.resource_dir,
                         &mut shared_values.tun_provider,
+                        &mut shared_values.route_manager,
                         retry_attempt,
                     ) {
                         Ok(connecting_state) => {

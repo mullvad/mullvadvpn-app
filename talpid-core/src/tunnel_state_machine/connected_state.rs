@@ -95,6 +95,14 @@ impl ConnectedState {
         after_disconnect: AfterDisconnect,
     ) -> EventConsequence<Self> {
         Self::reset_dns(shared_values);
+
+        if let Err(error) = shared_values.route_manager.clear_routes() {
+            log::error!(
+                "Failed to clear routes: {:?}",
+                error.display_chain_with_msg("Failed to clear routes")
+            );
+        }
+
         EventConsequence::NewState(DisconnectingState::enter(
             shared_values,
             (self.close_handle, self.tunnel_close_event, after_disconnect),
