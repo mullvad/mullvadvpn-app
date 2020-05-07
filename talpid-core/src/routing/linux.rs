@@ -62,6 +62,9 @@ pub enum Error {
 
     #[error(display = "Unknown device index - {}", _0)]
     UnknownDeviceIndex(u32),
+
+    #[error(display = "Shutting down route manager")]
+    Shutdown,
 }
 
 pub struct RouteManagerImpl {
@@ -443,6 +446,7 @@ impl RouteManagerImplInner {
                 self.cleanup_routes().await;
                 log::trace!("Route manager done");
                 let _ = shutdown_signal.send(());
+                return Err(Error::Shutdown);
             }
             RouteManagerCommand::AddRoutes(routes, result_rx) => {
                 log::debug!("Adding routes: {:?}", routes);
