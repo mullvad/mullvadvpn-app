@@ -251,22 +251,6 @@ pub fn send_problem_report(
     user_email: &str,
     user_message: &str,
     report_path: &Path,
-    #[cfg(target_os = "android")] resource_dir: &Path,
-) -> Result<(), Error> {
-    #[cfg(not(target_os = "android"))]
-    let ca_path = mullvad_paths::resources::get_api_ca_path();
-
-    #[cfg(target_os = "android")]
-    let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
-
-    send_problem_report_inner(user_email, user_message, report_path, &ca_path)
-}
-
-pub fn send_problem_report_inner(
-    user_email: &str,
-    user_message: &str,
-    report_path: &Path,
-    ca_path: &Path,
 ) -> Result<(), Error> {
     let report_content = normalize_newlines(
         read_file_lossy(report_path, REPORT_MAX_SIZE).map_err(|source| {
@@ -280,7 +264,7 @@ pub fn send_problem_report_inner(
         ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
 
     let mut rpc_manager =
-        mullvad_rpc::MullvadRpcRuntime::new(ca_path).map_err(Error::CreateRpcClientError)?;
+        mullvad_rpc::MullvadRpcRuntime::new().map_err(Error::CreateRpcClientError)?;
     let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());
 
     rpc_client
