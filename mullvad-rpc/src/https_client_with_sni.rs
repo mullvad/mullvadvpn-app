@@ -32,6 +32,8 @@ pub enum Error {
 
 // Old LetsEncrypt root certificate
 const OLD_ROOT_CERT: &[u8] = include_bytes!("old_le_root_cert.pem");
+// New LetsEncrypt root certificate
+const NEW_ROOT_CERT: &[u8] = include_bytes!("new_le_root_cert.pem");
 
 /// A Connector for the `https` scheme.
 #[derive(Clone)]
@@ -67,6 +69,13 @@ impl HttpsConnectorWithSni {
             .expect("Failed to add old root cert");
         if num_failures > 0 || num_certs_added != 1 {
             panic!("Failed to add old root cert");
+        }
+
+        let (num_certs_added, num_failures) = cert_store
+            .add_pem_file(&mut BufReader::new(NEW_ROOT_CERT))
+            .expect("Failed to add new root cert");
+        if num_failures > 0 || num_certs_added != 1 {
+            panic!("Failed to add new root cert");
         }
 
         cert_store
