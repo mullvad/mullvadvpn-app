@@ -4,12 +4,14 @@ import net.mullvad.talpid.ConnectivityListener
 
 data class ServiceInstance(
     val daemon: MullvadDaemon,
+    val accountCache: AccountCache,
     val connectionProxy: ConnectionProxy,
     val connectivityListener: ConnectivityListener,
     val locationInfoCache: LocationInfoCache,
     val settingsListener: SettingsListener
 ) {
     fun onDestroy() {
+        accountCache.onDestroy()
         connectionProxy.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()

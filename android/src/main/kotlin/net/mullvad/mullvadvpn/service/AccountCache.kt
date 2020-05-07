@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.dataproxy
+package net.mullvad.mullvadvpn.service
 
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.service.MullvadDaemon
