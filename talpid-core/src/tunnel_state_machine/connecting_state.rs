@@ -5,6 +5,7 @@ use super::{
 };
 use crate::{
     firewall::FirewallPolicy,
+    routing::RouteManager,
     tunnel::{
         self, tun_provider::TunProvider, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor,
     },
@@ -68,18 +69,21 @@ impl ConnectingState {
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         tun_provider: &mut TunProvider,
+        route_manager: &mut RouteManager,
         retry_attempt: u32,
     ) -> crate::tunnel::Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
         let on_tunnel_event = move |event| {
             let _ = event_tx.unbounded_send(event);
         };
+
         let monitor = TunnelMonitor::start(
             &parameters,
             log_dir,
             resource_dir,
             on_tunnel_event,
             tun_provider,
+            route_manager,
         )?;
         let close_handle = Some(monitor.close_handle());
         let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
@@ -165,11 +169,22 @@ impl ConnectingState {
         }
     }
 
+    fn reset_routes(shared_values: &mut SharedTunnelStateValues) {
+        if let Err(error) = shared_values.route_manager.clear_routes() {
+            log::error!(
+                "Failed to clear routes: {:?}",
+                error.display_chain_with_msg("Failed to clear routes")
+            );
+        }
+    }
+
     fn disconnect(
         self,
         shared_values: &mut SharedTunnelStateValues,
         after_disconnect: AfterDisconnect,
     ) -> EventConsequence<Self> {
+        Self::reset_routes(shared_values);
+
         EventConsequence::NewState(DisconnectingState::enter(
             shared_values,
             (self.close_handle, self.tunnel_close_event, after_disconnect),
@@ -270,6 +285,7 @@ impl ConnectingState {
         match poll_result {
             Ok(Async::Ready(block_reason)) => {
                 if let Some(reason) = block_reason {
+                    Self::reset_routes(shared_values);
                     return EventConsequence::NewState(ErrorState::enter(shared_values, reason));
                 }
             }
@@ -281,6 +297,7 @@ impl ConnectingState {
             "Tunnel closed. Reconnecting, attempt {}.",
             self.retry_attempt + 1
         );
+        Self::reset_routes(shared_values);
         EventConsequence::NewState(ConnectingState::enter(
             shared_values,
             self.retry_attempt + 1,
@@ -359,6 +376,7 @@ impl TunnelState for ConnectingState {
                         &shared_values.log_dir,
                         &shared_values.resource_dir,
                         &mut shared_values.tun_provider,
+                        &mut shared_values.route_manager,
                         retry_attempt,
                     ) {
                         Ok(connecting_state) => {

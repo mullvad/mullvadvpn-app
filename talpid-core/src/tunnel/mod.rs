@@ -1,5 +1,5 @@
 use self::tun_provider::TunProvider;
-use crate::logging;
+use crate::{logging, routing::RouteManager};
 #[cfg(not(target_os = "android"))]
 use std::collections::HashMap;
 use std::{
@@ -149,6 +149,7 @@ impl TunnelMonitor {
         resource_dir: &Path,
         on_event: L,
         tun_provider: &mut TunProvider,
+        route_manager: &mut RouteManager,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Clone + Sync + 'static,
@@ -164,9 +165,13 @@ impl TunnelMonitor {
             #[cfg(target_os = "android")]
             TunnelParameters::OpenVpn(_) => Err(Error::UnsupportedPlatform),
 
-            TunnelParameters::Wireguard(config) => {
-                Self::start_wireguard_tunnel(&config, log_file, on_event, tun_provider)
-            }
+            TunnelParameters::Wireguard(config) => Self::start_wireguard_tunnel(
+                &config,
+                log_file,
+                on_event,
+                tun_provider,
+                route_manager,
+            ),
         }
     }
 
@@ -175,6 +180,7 @@ impl TunnelMonitor {
         log: Option<PathBuf>,
         on_event: L,
         tun_provider: &mut TunProvider,
+        route_manager: &mut RouteManager,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + Clone + 'static,
@@ -185,6 +191,7 @@ impl TunnelMonitor {
             log.as_ref().map(|p| p.as_path()),
             on_event,
             tun_provider,
+            route_manager,
         )?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),
