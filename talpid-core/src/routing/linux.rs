@@ -1,5 +1,7 @@
 use crate::routing::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route};
 
+use talpid_types::ErrorExt;
+
 use ipnetwork::IpNetwork;
 use std::{
     collections::{BTreeMap, HashSet},
@@ -426,7 +428,9 @@ impl RouteManagerImplInner {
                     self.process_command(command).await?;
                 },
                 (route_change, socket) = self.messages.select_next_some().fuse() => {
-                    self.process_netlink_message(route_change).await?;
+                    if let Err(error) = self.process_netlink_message(route_change).await {
+                        log::error!("{}", error.display_chain_with_msg("Failed to process netlink message"));
+                    }
                 }
             };
         }
@@ -439,11 +443,12 @@ impl RouteManagerImplInner {
                 self.cleanup_routes().await;
                 log::trace!("Route manager done");
                 let _ = shutdown_signal.send(());
-                return Ok(());
             }
             RouteManagerCommand::AddRoutes(routes) => {
                 log::debug!("Adding routes: {:?}", routes);
-                self.add_required_routes(routes).await?;
+                if let Err(error) = self.add_required_routes(routes).await {
+                    log::error!("{}", error.display_chain_with_msg("Failed to add routes"));
+                }
             }
             RouteManagerCommand::ClearRoutes => {
                 log::debug!("Clearing routes");
