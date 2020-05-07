@@ -32,6 +32,7 @@ public:
 	
 	void addRoutes(const std::vector<Route> &routes);
 	void deleteRoutes(const std::vector<Route> &routes);
+	void deleteAppliedRoutes();
 
 	using DefaultRouteChangedEventType = DefaultRouteMonitor::EventType;
 

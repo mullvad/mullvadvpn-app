@@ -170,6 +170,8 @@ impl ConnectingState {
     }
 
     fn reset_routes(shared_values: &mut SharedTunnelStateValues) {
+        #[cfg(windows)]
+        shared_values.route_manager.clear_default_route_callbacks();
         if let Err(error) = shared_values.route_manager.clear_routes() {
             log::error!(
                 "Failed to clear routes: {:?}",
