@@ -465,11 +465,10 @@ where
         command_channel: DaemonCommandChannel,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
-        let ca_path = resource_dir.join(mullvad_paths::resources::API_CA_FILENAME);
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
 
-        let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache_dir(&cache_dir, &ca_path)
+        let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache_dir(&cache_dir)
             .map_err(Error::InitRpcFactory)?;
         let rpc_handle = rpc_runtime.mullvad_rest_handle();
 

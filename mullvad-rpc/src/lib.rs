@@ -53,24 +53,21 @@ pub enum Error {
 
 impl MullvadRpcRuntime {
     /// Create a new `MullvadRpcRuntime`.
-    pub fn new(ca_path: &Path) -> Result<Self, Error> {
-        let https_connector =
-            HttpsConnectorWithSni::new(&ca_path).map_err(Error::ConnectorError)?;
+    pub fn new() -> Result<Self, Error> {
         Ok(MullvadRpcRuntime {
             cached_dns_resolver: CachedDnsResolver::new(API_HOST.to_owned(), None, API_IP),
             runtime: event_loop::create_runtime()?,
-            https_connector,
+            https_connector: HttpsConnectorWithSni::new(),
         })
     }
 
     /// Create a new `MullvadRpcRuntime` using the specified cache directory.
-    pub fn with_cache_dir(cache_dir: &Path, ca_path: &Path) -> Result<Self, Error> {
+    pub fn with_cache_dir(cache_dir: &Path) -> Result<Self, Error> {
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
         let cached_dns_resolver =
             CachedDnsResolver::new(API_HOST.to_owned(), Some(cache_file), API_IP);
 
-        let https_connector =
-            HttpsConnectorWithSni::new(&ca_path).map_err(Error::ConnectorError)?;
+        let https_connector = HttpsConnectorWithSni::new();
 
         Ok(MullvadRpcRuntime {
             cached_dns_resolver,
