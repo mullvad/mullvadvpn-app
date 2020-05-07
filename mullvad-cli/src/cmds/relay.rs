@@ -116,7 +116,7 @@ impl Command for Relay {
                     )
                     .subcommand(
                         clap::SubCommand::with_name("tunnel")
-                            .about("Set inidividual tunnel constraints")
+                            .about("Set individual tunnel constraints")
                             .arg(
                                 clap::Arg::with_name("vpn protocol")
                                     .required(true)
