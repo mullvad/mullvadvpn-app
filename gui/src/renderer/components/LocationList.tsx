@@ -220,7 +220,7 @@ interface ISpecialLocationProps<T> {
 export class SpecialLocation<T> extends Component<ISpecialLocationProps<T>> {
   public render() {
     return (
-      <Cell.CellButton selected={this.props.isSelected} onPress={this.onSelect}>
+      <Cell.CellButton selected={this.props.isSelected} onClick={this.onSelect}>
         <Cell.Icon
           source={this.props.isSelected ? 'icon-tick' : this.props.icon}
           tintColor={colors.white}

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom';
-import { Component, Styles, View } from 'reactxp';
+import { Component, View } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import Accordion from './Accordion';
@@ -24,16 +24,14 @@ interface IProps {
   children?: RelayRowElement | RelayRowElement[];
 }
 
-const styles = {
-  base: Styles.createButtonStyle({
-    paddingRight: 0,
-    paddingLeft: 32,
-    backgroundColor: colors.blue40,
-  }),
-};
+const Button = styled(Cell.CellButton)((props: { selected: boolean }) => ({
+  paddingRight: 0,
+  paddingLeft: 32,
+  backgroundColor: !props.selected ? colors.blue40 : undefined,
+}));
 
 export default class CityRow extends Component<IProps> {
-  private buttonRef = React.createRef<Cell.CellButton>();
+  private buttonRef = React.createRef<HTMLButtonElement>();
 
   public static compareProps(oldProps: IProps, nextProps: IProps): boolean {
     if (React.Children.count(oldProps.children) !== React.Children.count(nextProps.children)) {
@@ -74,12 +72,11 @@ export default class CityRow extends Component<IProps> {
 
     return (
       <View>
-        <Cell.CellButton
+        <Button
           ref={this.buttonRef}
-          onPress={this.handlePress}
+          onClick={this.handleClick}
           disabled={!this.props.hasActiveRelays}
-          selected={this.props.selected}
-          style={styles.base}>
+          selected={this.props.selected}>
           <RelayStatusIndicator
             active={this.props.hasActiveRelays}
             selected={this.props.selected}
@@ -87,7 +84,7 @@ export default class CityRow extends Component<IProps> {
           <Cell.Label>{this.props.name}</Cell.Label>
 
           {hasChildren && <ChevronButton onClick={this.toggleCollapse} up={this.props.expanded} />}
-        </Cell.CellButton>
+        </Button>
 
         {hasChildren && (
           <Accordion
@@ -109,16 +106,15 @@ export default class CityRow extends Component<IProps> {
     event.stopPropagation();
   };
 
-  private handlePress = () => {
+  private handleClick = () => {
     if (this.props.onSelect) {
       this.props.onSelect(this.props.location);
     }
   };
 
   private onWillExpand = (nextHeight: number) => {
-    const buttonNode = ReactDOM.findDOMNode(this.buttonRef.current);
-    if (buttonNode instanceof HTMLElement) {
-      const buttonRect = buttonNode.getBoundingClientRect();
+    const buttonRect = this.buttonRef.current?.getBoundingClientRect();
+    if (buttonRect) {
       this.props.onWillExpand?.(buttonRect, nextHeight);
     }
   };

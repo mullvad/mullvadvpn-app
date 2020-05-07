@@ -1,5 +1,20 @@
 import { Styles } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
+import * as Cell from './Cell';
+import Selector from './Selector';
+
+export const InputFrame = styled(Cell.InputFrame)({
+  flex: 0,
+});
+
+export const BlockWhenDisconnectedLabel = styled(Cell.Label)({
+  letterSpacing: -0.5,
+});
+
+export const TunnelProtocolSelector = (styled(Selector)({
+  marginBottom: 0,
+}) as unknown) as new <T>() => Selector<T>;
 
 export default {
   advanced_settings: Styles.createViewStyle({
@@ -18,9 +33,6 @@ export default {
   }),
   advanced_settings__tunnel_protocol: Styles.createViewStyle({
     marginBottom: 24,
-  }),
-  advanced_settings__tunnel_protocol_selector: Styles.createViewStyle({
-    marginBottom: 0,
   }),
   advanced_settings__wgkeys_cell: Styles.createViewStyle({
     marginBottom: 24,
@@ -54,11 +66,5 @@ export default {
   }),
   advanced_settings__cell_footer_internet_warning_label: Styles.createTextStyle({
     marginTop: 4,
-  }),
-  advanced_settings__input_frame: Styles.createViewStyle({
-    flex: 0,
-  }),
-  advanced_settings__block_when_disconnected_label: Styles.createTextStyle({
-    letterSpacing: -0.5,
   }),
 };

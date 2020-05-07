@@ -5,6 +5,7 @@ import { colors } from '../../config.json';
 interface IProps {
   isOn: boolean;
   onChange?: (isOn: boolean) => void;
+  className?: string;
 }
 
 interface IState {
@@ -70,7 +71,10 @@ export default class Switch extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <SwitchContainer ref={this.containerRef} onClick={this.handleClick}>
+      <SwitchContainer
+        ref={this.containerRef}
+        onClick={this.handleClick}
+        className={this.props.className}>
         <Knob
           isOn={this.state.isOn}
           isPressed={this.state.isPressed}

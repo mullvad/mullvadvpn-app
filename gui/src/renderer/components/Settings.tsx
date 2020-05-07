@@ -15,7 +15,7 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import styles from './SettingsStyles';
+import styles, { OutOfTimeSubText } from './SettingsStyles';
 
 import { LoginState } from '../redux/account/reducers';
 
@@ -113,21 +113,21 @@ export default class Settings extends Component<IProps> {
     return (
       <View>
         <View>
-          <Cell.CellButton onPress={this.props.onViewAccount}>
+          <Cell.CellButton onClick={this.props.onViewAccount}>
             <Cell.Label>
               {
                 // TRANSLATORS: Navigation button to the 'Account' view
                 messages.pgettext('settings-view', 'Account')
               }
             </Cell.Label>
-            <Cell.SubText style={isOutOfTime ? styles.accountPaidUntilErrorLabel : undefined}>
+            <OutOfTimeSubText isOutOfTime={isOutOfTime}>
               {isOutOfTime ? outOfTimeMessage : formattedExpiry}
-            </Cell.SubText>
+            </OutOfTimeSubText>
             <Cell.Icon height={12} width={7} source="icon-chevron" />
           </Cell.CellButton>
         </View>
 
-        <Cell.CellButton onPress={this.props.onViewPreferences}>
+        <Cell.CellButton onClick={this.props.onViewPreferences}>
           <Cell.Label>
             {
               // TRANSLATORS: Navigation button to the 'Preferences' view
@@ -137,7 +137,7 @@ export default class Settings extends Component<IProps> {
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
 
-        <Cell.CellButton onPress={this.props.onViewAdvancedSettings}>
+        <Cell.CellButton onClick={this.props.onViewAdvancedSettings}>
           <Cell.Label>
             {
               // TRANSLATORS: Navigation button to the 'Advanced' settings view
@@ -181,10 +181,10 @@ export default class Settings extends Component<IProps> {
 
     return (
       <View>
-        <Cell.CellButton disabled={this.props.isOffline} onPress={this.openDownloadLink}>
+        <Cell.CellButton disabled={this.props.isOffline} onClick={this.openDownloadLink}>
           {icon}
           <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
-          <Cell.SubText style={styles.appVersionLabel}>{this.props.appVersion}</Cell.SubText>
+          <Cell.SubText>{this.props.appVersion}</Cell.SubText>
           <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
         {footer}
@@ -195,7 +195,7 @@ export default class Settings extends Component<IProps> {
   private renderBottomButtons() {
     return (
       <View>
-        <Cell.CellButton onPress={this.props.onViewSupport}>
+        <Cell.CellButton onClick={this.props.onViewSupport}>
           <Cell.Label>
             {
               // TRANSLATORS: Navigation button to the 'Report a problem' help view
@@ -205,7 +205,7 @@ export default class Settings extends Component<IProps> {
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
 
-        <Cell.CellButton disabled={this.props.isOffline} onPress={this.openFaqLink}>
+        <Cell.CellButton disabled={this.props.isOffline} onClick={this.openFaqLink}>
           <Cell.Label>
             {
               // TRANSLATORS: Link to the webpage
@@ -215,7 +215,7 @@ export default class Settings extends Component<IProps> {
           <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
 
-        <Cell.CellButton onPress={this.props.onViewSelectLanguage}>
+        <Cell.CellButton onClick={this.props.onViewSelectLanguage}>
           <Cell.UntintedIcon width={24} height={24} source="icon-language" />
           <Cell.Label>
             {

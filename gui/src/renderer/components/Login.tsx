@@ -6,11 +6,15 @@ import { messages } from '../../shared/gettext';
 import { formatAccountToken } from '../lib/account';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
-import * as Cell from './Cell';
 import { Brand, SettingsBarButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
-import styles, { AccountDropdownRemoveIcon, InputSubmitIcon } from './LoginStyles';
+import styles, {
+  AccountDropdownItemButton,
+  AccountDropdownItemButtonLabel,
+  AccountDropdownRemoveIcon,
+  InputSubmitIcon,
+} from './LoginStyles';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { LoginState } from '../redux/account/reducers';
@@ -445,16 +449,10 @@ class AccountDropdownItem extends Component<IAccountDropdownItemProps> {
     return (
       <View>
         <View style={styles.account_dropdown__spacer} />
-        <Cell.CellButton
-          style={styles.account_dropdown__item}
-          hoverStyle={styles.account_dropdown__item_hover}>
-          <Cell.Label
-            textStyle={styles.account_dropdown__label}
-            containerStyle={styles.account_dropdown__label_container}
-            cellHoverTextStyle={styles.account_dropdown__label_hover}
-            onPress={this.handleSelect}>
+        <AccountDropdownItemButton>
+          <AccountDropdownItemButtonLabel onClick={this.handleSelect}>
             {this.props.label}
-          </Cell.Label>
+          </AccountDropdownItemButtonLabel>
           <AccountDropdownRemoveIcon
             tintColor={colors.blue40}
             tintHoverColor={colors.blue}
@@ -463,7 +461,7 @@ class AccountDropdownItem extends Component<IAccountDropdownItemProps> {
             width={16}
             onClick={this.handleRemove}
           />
-        </Cell.CellButton>
+        </AccountDropdownItemButton>
       </View>
     );
   }

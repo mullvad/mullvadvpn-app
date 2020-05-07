@@ -2,6 +2,7 @@ import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import ImageView from './ImageView';
+import * as Cell from './Cell';
 
 export const AccountDropdownRemoveIcon = styled(ImageView)({
   justifyContent: 'center',
@@ -20,6 +21,31 @@ export const InputSubmitIcon = styled(ImageView)((props: { visible: boolean }) =
   justifyContent: 'center',
   opacity: props.visible ? 1 : 0,
 }));
+
+export const AccountDropdownItemButton = styled(Cell.CellButton)({
+  padding: '0px',
+  marginBottom: '0px',
+  flexDirection: 'row',
+  alignItems: 'stretch',
+  backgroundColor: colors.white60,
+  cursor: 'default',
+  ':not(:disabled):hover': {
+    backgroundColor: colors.white40,
+  },
+});
+
+export const AccountDropdownItemButtonLabel = styled(Cell.Label)({
+  padding: '11px 0px 11px 12px',
+  margin: '0',
+  color: colors.blue80,
+  borderWidth: 0,
+  textAlign: 'left',
+  marginLeft: 0,
+  cursor: 'default',
+  [AccountDropdownItemButton + ':hover']: {
+    color: colors.blue,
+  },
+});
 
 export default {
   login_footer: Styles.createViewStyle({
@@ -83,30 +109,6 @@ export default {
     height: 1,
     backgroundColor: colors.darkBlue,
   }),
-  account_dropdown__item: Styles.createViewStyle({
-    paddingTop: 0,
-    paddingRight: 0,
-    paddingLeft: 0,
-    paddingBottom: 0,
-    marginBottom: 0,
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    backgroundColor: colors.white60,
-    cursor: 'default',
-  }),
-  account_dropdown__item_hover: Styles.createViewStyle({
-    backgroundColor: colors.white40,
-  }),
-  account_dropdown__label_hover: Styles.createTextStyle({
-    color: colors.blue,
-  }),
-  account_dropdown__label_container: Styles.createViewStyle({
-    paddingLeft: 12,
-    paddingTop: 11,
-    paddingBottom: 11,
-    marginHorizontal: 0,
-    marginVertical: 0,
-  }),
 
   login_footer__prompt: Styles.createTextStyle({
     color: colors.white80,
@@ -149,12 +151,5 @@ export default {
     color: colors.blue,
     backgroundColor: 'transparent',
     flex: 1,
-  }),
-  account_dropdown__label: Styles.createTextStyle({
-    color: colors.blue80,
-    borderWidth: 0,
-    textAlign: 'left',
-    marginLeft: 0,
-    cursor: 'default',
   }),
 };

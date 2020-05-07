@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Component, Styles } from 'reactxp';
+import { Component } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import * as Cell from './Cell';
@@ -13,13 +14,11 @@ interface IProps {
   onSelect?: (location: RelayLocation) => void;
 }
 
-const styles = {
-  base: Styles.createViewStyle({
-    paddingRight: 0,
-    paddingLeft: 48,
-    backgroundColor: colors.blue20,
-  }),
-};
+const Button = styled(Cell.CellButton)((props: { selected: boolean }) => ({
+  paddingRight: 0,
+  paddingLeft: 48,
+  backgroundColor: !props.selected ? colors.blue20 : undefined,
+}));
 
 export default class RelayRow extends Component<IProps> {
   public static compareProps(oldProps: IProps, nextProps: IProps) {
@@ -37,19 +36,18 @@ export default class RelayRow extends Component<IProps> {
 
   public render() {
     return (
-      <Cell.CellButton
-        onPress={this.handlePress}
+      <Button
+        onClick={this.handleClick}
         selected={this.props.selected}
-        disabled={!this.props.active}
-        style={styles.base}>
+        disabled={!this.props.active}>
         <RelayStatusIndicator active={this.props.active} selected={this.props.selected} />
 
         <Cell.Label>{this.props.hostname}</Cell.Label>
-      </Cell.CellButton>
+      </Button>
     );
   }
 
-  private handlePress = () => {
+  private handleClick = () => {
     if (this.props.onSelect) {
       this.props.onSelect(this.props.location);
     }
