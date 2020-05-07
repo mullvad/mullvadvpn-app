@@ -1,5 +1,11 @@
 import { Styles } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
+import ImageView from './ImageView';
+
+export const Spinner = styled(ImageView)({
+  marginTop: '8px',
+});
 
 export default {
   textInput: Styles.createTextInputStyle({
@@ -35,9 +41,6 @@ export default {
   }),
   redeemVoucherResponseEmpty: Styles.createViewStyle({
     height: 20,
-    marginTop: 8,
-  }),
-  spinner: Styles.createViewStyle({
     marginTop: 8,
   }),
 };

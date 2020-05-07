@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { Button, Component, Styles, Text, TextInput, Types, View } from 'reactxp';
 import { colors } from '../../config.json';
-import styles from './CellStyles';
-import ImageView from './ImageView';
+import styles, { StyledIcon } from './CellStyles';
+import { IImageViewProps } from './ImageView';
 import { default as SwitchControl } from './Switch';
+
+export { StyledIcon as UntintedIcon } from './CellStyles';
 
 interface ICellButtonProps {
   children?: React.ReactNode;
@@ -326,24 +328,19 @@ export const SubText = function CellSubText(props: SubTextProps) {
   );
 };
 
-export const Icon = function CellIcon(props: ImageView['props']) {
-  const { children: _children, style, tintColor, tintHoverColor, ...otherProps } = props;
+export const Icon = function CellIcon(props: IImageViewProps) {
+  const { tintColor, tintHoverColor, ...otherProps } = props;
 
   return (
     <CellHoverContext.Consumer>
       {(hovered) => (
-        <ImageView
+        <StyledIcon
           tintColor={(hovered && tintHoverColor) || tintColor || colors.white60}
-          style={[styles.icon, style]}
           {...otherProps}
         />
       )}
     </CellHoverContext.Consumer>
   );
-};
-
-export const UntintedIcon = function CellIcon(props: ImageView['props']) {
-  return <ImageView {...props} style={[styles.icon, props.style]} />;
 };
 
 export const Footer = function CellFooter({ children }: IContainerProps) {

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Component, Styles, Text, View } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { SettingsBarButton } from './HeaderBar';
@@ -13,9 +14,6 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: -150,
-  }),
-  logo: Styles.createViewStyle({
-    marginBottom: 5,
   }),
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
@@ -34,6 +32,10 @@ const styles = {
   }),
 };
 
+const Logo = styled(ImageView)({
+  marginBottom: '5px',
+});
+
 interface IProps {
   openSettings: () => void;
 }
@@ -47,7 +49,7 @@ export default class Launch extends Component<IProps> {
         </Header>
         <Container>
           <View style={styles.container}>
-            <ImageView height={106} width={106} source="logo-icon" style={styles.logo} />
+            <Logo height={106} width={106} source="logo-icon" />
             <Text style={styles.title}>{messages.pgettext('generic', 'MULLVAD VPN')}</Text>
             <Text style={styles.subtitle}>
               {messages.pgettext('launch-view', 'Connecting to Mullvad system service...')}

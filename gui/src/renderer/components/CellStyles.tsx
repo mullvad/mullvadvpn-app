@@ -1,5 +1,11 @@
 import { Styles } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
+import ImageView from './ImageView';
+
+export const StyledIcon = styled(ImageView)({
+  marginLeft: '8px',
+});
 
 export default {
   cellButton: {
@@ -104,9 +110,6 @@ export default {
       flexBasis: undefined,
     }),
   },
-  icon: Styles.createViewStyle({
-    marginLeft: 8,
-  }),
   subtext: Styles.createTextStyle({
     color: colors.white60,
     fontFamily: 'Open Sans',

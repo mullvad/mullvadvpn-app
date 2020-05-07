@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-import { Component, Styles, Types, View } from 'reactxp';
+import { Component, Styles, View } from 'reactxp';
 import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import Accordion from './Accordion';
@@ -86,7 +86,7 @@ export default class CityRow extends Component<IProps> {
           />
           <Cell.Label>{this.props.name}</Cell.Label>
 
-          {hasChildren && <ChevronButton onPress={this.toggleCollapse} up={this.props.expanded} />}
+          {hasChildren && <ChevronButton onClick={this.toggleCollapse} up={this.props.expanded} />}
         </Cell.CellButton>
 
         {hasChildren && (
@@ -102,7 +102,7 @@ export default class CityRow extends Component<IProps> {
     );
   }
 
-  private toggleCollapse = (event: Types.SyntheticEvent) => {
+  private toggleCollapse = (event: React.MouseEvent) => {
     if (this.props.onExpand) {
       this.props.onExpand(this.props.location, !this.props.expanded);
     }

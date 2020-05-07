@@ -1,6 +1,7 @@
 import log from 'electron-log';
 import * as React from 'react';
 import { Component, Styles, Text, View } from 'reactxp';
+import styled from 'styled-components';
 import { colors, links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import PlatformWindowContainer from '../containers/PlatformWindowContainer';
@@ -23,9 +24,6 @@ const styles = {
     justifyContent: 'center',
     backgroundColor: colors.blue,
   }),
-  logo: Styles.createViewStyle({
-    marginBottom: 5,
-  }),
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
     fontSize: 24,
@@ -47,6 +45,10 @@ const styles = {
     fontWeight: '900',
   }),
 };
+
+const Logo = styled(ImageView)({
+  marginBottom: '5px',
+});
 
 export default class ErrorBoundary extends Component<IProps, IState> {
   public state = { hasError: false };
@@ -77,7 +79,7 @@ export default class ErrorBoundary extends Component<IProps, IState> {
           <Layout>
             <Container>
               <View style={styles.container}>
-                <ImageView height={106} width={106} source="logo-icon" style={styles.logo} />
+                <Logo height={106} width={106} source="logo-icon" />
                 <Text style={styles.title}>{messages.pgettext('generic', 'MULLVAD VPN')}</Text>
                 <Text style={styles.subtitle}>{reachBackMessage}</Text>
               </View>

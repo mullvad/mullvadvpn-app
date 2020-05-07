@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Component, Styles, Types, View } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as Cell from './Cell';
 
@@ -21,9 +22,6 @@ interface ISelectorProps<T> {
 const styles = {
   section: Styles.createViewStyle({
     marginBottom: 24,
-  }),
-  invisibleIcon: Styles.createViewStyle({
-    opacity: 0,
   }),
 };
 
@@ -58,6 +56,10 @@ export default class Selector<T> extends Component<ISelectorProps<T>> {
   }
 }
 
+const StyledCellIcon = styled(Cell.Icon)((props: { visible: boolean }) => ({
+  opacity: props.visible ? 1 : 0,
+}));
+
 interface ISelectorCellProps<T> {
   value: T;
   selected: boolean;
@@ -73,8 +75,8 @@ export class SelectorCell<T> extends Component<ISelectorCellProps<T>> {
         onPress={this.onPress}
         selected={this.props.selected}
         disabled={this.props.disabled}>
-        <Cell.Icon
-          style={this.props.selected ? undefined : styles.invisibleIcon}
+        <StyledCellIcon
+          visible={this.props.selected}
           source="icon-tick"
           width={24}
           height={24}

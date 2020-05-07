@@ -10,7 +10,7 @@ import * as Cell from './Cell';
 import { Brand, SettingsBarButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
-import styles from './LoginStyles';
+import styles, { AccountDropdownRemoveIcon, InputSubmitIcon } from './LoginStyles';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { LoginState } from '../redux/account/reducers';
@@ -301,16 +301,6 @@ export default class Login extends Component<IProps, IState> {
     return classes;
   }
 
-  private accountInputArrowStyles(): Types.ViewStyleRuleSet[] {
-    const classes = [styles.input_arrow];
-
-    if (this.props.loginState.type === 'logging in') {
-      classes.push(styles.input_arrow__invisible);
-    }
-
-    return classes;
-  }
-
   private allowInteraction() {
     return this.props.loginState.type !== 'logging in' && this.props.loginState.type !== 'ok';
   }
@@ -376,8 +366,8 @@ export default class Login extends Component<IProps, IState> {
               ref={this.accountInput}
             />
             <Animated.View style={this.accountInputButtonStyles()} onPress={this.onSubmit}>
-              <ImageView
-                style={this.accountInputArrowStyles()}
+              <InputSubmitIcon
+                visible={this.props.loginState.type !== 'logging in'}
                 source="icon-arrow"
                 height={16}
                 width={24}
@@ -465,14 +455,13 @@ class AccountDropdownItem extends Component<IAccountDropdownItemProps> {
             onPress={this.handleSelect}>
             {this.props.label}
           </Cell.Label>
-          <ImageView
-            style={styles.account_dropdown__remove}
+          <AccountDropdownRemoveIcon
             tintColor={colors.blue40}
             tintHoverColor={colors.blue}
             source="icon-close-sml"
             height={16}
             width={16}
-            onPress={this.handleRemove}
+            onClick={this.handleRemove}
           />
         </Cell.CellButton>
       </View>
