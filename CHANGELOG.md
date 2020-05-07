@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add a new Let's Encrypt root certificate
+
 #### Android
 - Add possibility to create account from the login screen.
 - Add welcome screen for newly created accounts.
