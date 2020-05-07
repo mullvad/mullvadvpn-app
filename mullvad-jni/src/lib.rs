@@ -851,21 +851,14 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     userEmail: JString<'_>,
     userMessage: JString<'_>,
     outputPath: JString<'_>,
-    resourceDir: JString<'_>,
 ) -> jboolean {
     let env = JnixEnv::from(env);
     let user_email = String::from_java(&env, userEmail);
     let user_message = String::from_java(&env, userMessage);
     let output_path_string = String::from_java(&env, outputPath);
-    let resource_dir = String::from_java(&env, resourceDir);
     let output_path = Path::new(&output_path_string);
 
-    match mullvad_problem_report::send_problem_report(
-        &user_email,
-        &user_message,
-        output_path,
-        &resource_dir.as_ref(),
-    ) {
+    match mullvad_problem_report::send_problem_report(&user_email, &user_message, output_path) {
         Ok(()) => JNI_TRUE,
         Err(error) => {
             log::error!(
