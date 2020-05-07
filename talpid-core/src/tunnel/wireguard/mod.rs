@@ -46,8 +46,6 @@ pub enum Error {
 pub struct WireguardMonitor {
     /// Tunnel implementation
     tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
-    /// Route manager
-    route_handle: routing::RouteManager,
     /// Callback to signal tunnel events
     event_callback: Box<dyn Fn(TunnelEvent) + Send + Sync + 'static>,
     close_msg_sender: mpsc::Sender<CloseMsg>,
@@ -62,6 +60,7 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         on_event: F,
         tun_provider: &mut TunProvider,
+        route_manager: &mut routing::RouteManager,
     ) -> Result<WireguardMonitor> {
         let tunnel = Box::new(WgGoTunnel::start_tunnel(
             &config,
@@ -70,12 +69,12 @@ impl WireguardMonitor {
             Self::get_tunnel_routes(config),
         )?);
         let iface_name = tunnel.get_interface_name().to_string();
-        #[cfg_attr(not(windows), allow(unused_mut))]
-        let mut route_handle = routing::RouteManager::new(Self::get_routes(&iface_name, &config))
+        route_manager
+            .add_routes(Self::get_routes(&iface_name, &config))
             .map_err(Error::SetupRoutingError)?;
 
         #[cfg(target_os = "windows")]
-        route_handle
+        route_manager
             .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ());
 
         let event_callback = Box::new(on_event.clone());
@@ -83,7 +82,6 @@ impl WireguardMonitor {
         let (pinger_tx, pinger_rx) = mpsc::channel();
         let monitor = WireguardMonitor {
             tunnel: Arc::new(Mutex::new(Some(tunnel))),
-            route_handle,
             event_callback,
             close_msg_sender,
             close_msg_receiver,
@@ -143,11 +141,6 @@ impl WireguardMonitor {
         };
 
         let _ = self.pinger_stop_sender.send(());
-
-        // Clear routes manually - otherwise there will be some log spam since the tunnel device
-        // can be removed before the routes are cleared, which automatically clears some of the
-        // routes that were set.
-        self.route_handle.stop();
 
         self.stop_tunnel();
 
