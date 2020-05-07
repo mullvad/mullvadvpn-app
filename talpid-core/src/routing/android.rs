@@ -1,5 +1,5 @@
-use crate::routing::RequiredRoute;
-use futures01::{sync::oneshot, Async, Future};
+use crate::routing::{imp::RouteManagerCommand, RequiredRoute};
+use futures01::{stream::Stream, sync::mpsc};
 use std::collections::HashSet;
 
 /// Stub error type for routing errors on Android.
@@ -9,30 +9,26 @@ pub struct Error;
 
 /// Stub route manager for Android
 pub struct RouteManagerImpl {
-    shutdown_rx: oneshot::Receiver<oneshot::Sender<()>>,
+    manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>,
 }
 
 impl RouteManagerImpl {
     pub fn new(
         _required_routes: HashSet<RequiredRoute>,
-        shutdown_rx: oneshot::Receiver<oneshot::Sender<()>>,
+        manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>,
     ) -> Result<Self, Error> {
-        Ok(RouteManagerImpl { shutdown_rx })
+        Ok(RouteManagerImpl { manage_rx })
     }
-}
 
-impl Future for RouteManagerImpl {
-    type Item = ();
-    type Error = Error;
-
-    fn poll(&mut self) -> Result<Async<()>, Error> {
-        match self.shutdown_rx.poll() {
-            Ok(Async::Ready(result_tx)) => {
-                result_tx.send(()).map_err(|()| Error)?;
-                Ok(Async::Ready(()))
+    pub fn wait(self) -> Result<(), Error> {
+        for msg in self.manage_rx.wait() {
+            if let Ok(command) = msg {
+                if let RouteManagerCommand::Shutdown(tx) = command {
+                    tx.send(()).map_err(|()| Error)?;
+                    break;
+                }
             }
-            Ok(Async::NotReady) => Ok(Async::NotReady),
-            Err(_) => Ok(Async::Ready(())),
         }
+        Ok(())
     }
 }
