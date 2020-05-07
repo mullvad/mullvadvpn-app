@@ -15,7 +15,6 @@ import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
 
-private const val API_ROOT_CA_FILE = "api_root_ca.pem"
 private const val RELAYS_FILE = "relays.json"
 
 class MullvadVpnService : TalpidVpnService() {
@@ -167,7 +166,6 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun prepareFiles() {
         FileMigrator(File("/data/data/net.mullvad.mullvadvpn"), filesDir).apply {
-            migrate(API_ROOT_CA_FILE)
             migrate(RELAYS_FILE)
             migrate("settings.json")
             migrate("daemon.log")
@@ -180,7 +178,6 @@ class MullvadVpnService : TalpidVpnService() {
             lastUpdatedTime() > File(filesDir, RELAYS_FILE).lastModified()
 
         FileResourceExtractor(this).apply {
-            extract(API_ROOT_CA_FILE)
             extract(RELAYS_FILE, shouldOverwriteRelayList)
         }
     }

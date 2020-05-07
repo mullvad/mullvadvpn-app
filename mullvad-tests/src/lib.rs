@@ -5,7 +5,6 @@ use futures::sync::oneshot;
 use jsonrpc_client_core::{Future, Transport};
 use jsonrpc_client_ipc::IpcTransport;
 use mullvad_ipc_client::DaemonRpcClient;
-use mullvad_paths::resources::API_CA_FILENAME;
 use notify::{RawEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use std::{
     cmp,
@@ -211,13 +210,9 @@ fn prepare_test_dirs() -> (TempDir, PathBuf, PathBuf, PathBuf) {
 }
 
 fn prepare_resource_dir(resource_dir: &Path) {
-    let assets_dir = PathBuf::from(ASSETS_DIR);
-    let api_certificate_src = assets_dir.join(API_CA_FILENAME);
     let openvpn_binary = resource_dir.join(OPENVPN_EXECUTABLE_FILE);
     let talpid_openvpn_plugin = resource_dir.join(TALPID_OPENVPN_PLUGIN_FILE);
-    let api_certificate_dst = resource_dir.join(API_CA_FILENAME);
 
-    fs::copy(api_certificate_src, api_certificate_dst).expect("Failed to copy API certificate");
     fs::copy(MOCK_OPENVPN_EXECUTABLE_PATH, openvpn_binary)
         .expect("Failed to copy mock OpenVPN binary");
     File::create(talpid_openvpn_plugin).expect("Failed to create mock Talpid OpenVPN plugin");

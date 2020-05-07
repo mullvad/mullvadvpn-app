@@ -464,8 +464,6 @@ this procedure, the `integration-tests.sh` script can be used to run all integra
   - **linux/** - Scripts and configuration files for the deb and rpm artifacts
   - **pkg-scripts/** - Scripts bundled with and executed by the macOS pkg installer
   - **windows/** - Windows NSIS installer configuration and assets
-  - **api_root_ca.pem** - The root CA for the api.mullvad.net endpoint. The app uses certificate
-    pinning
   - **ca.crt** - The Mullvad relay server root CA. Bundled with the app and only OpenVPN relays
     signed by this CA are trusted
 

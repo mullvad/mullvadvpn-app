@@ -110,7 +110,6 @@ lint.dependsOn lintKotlin
 
 task copyExtraAssets(type: Copy) {
     from "$repoRootPath/dist-assets"
-    include "api_root_ca.pem"
     include "relays.json"
     into extraAssetsDirectory
 }

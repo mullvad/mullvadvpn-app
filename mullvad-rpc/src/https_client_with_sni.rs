@@ -3,10 +3,8 @@ use hyper::{client::HttpConnector, service::Service, Uri};
 use hyper_rustls::MaybeHttpsStream;
 use std::{
     fmt,
-    fs::File,
     future::Future,
     io::{self, BufReader},
-    path::Path,
     pin::Pin,
     str,
     sync::Arc,
@@ -15,22 +13,10 @@ use std::{
 use tokio_rustls::rustls;
 use webpki::DNSNameRef;
 
-
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
-pub enum Error {
-    #[error(display = "Failed to parse cert file")]
-    CertError,
-
-    #[error(display = "Root certificate error")]
-    RootCertError(webpki::Error),
-
-    #[error(display = "Failed to read cert file")]
-    ReadCertError(#[error(source)] io::Error),
-
-    #[error(display = "Failed to read trust anchor")]
-    ReadRootError(#[error(source)] io::Error),
-}
+// Old LetsEncrypt root certificate
+const OLD_ROOT_CERT: &[u8] = include_bytes!("../old_le_root_cert.pem");
+// New LetsEncrypt root certificate
+const NEW_ROOT_CERT: &[u8] = include_bytes!("../new_le_root_cert.pem");
 
 /// A Connector for the `https` scheme.
 #[derive(Clone)]
@@ -47,34 +33,37 @@ impl HttpsConnectorWithSni {
     ///
     /// This uses hyper's default `HttpConnector`, and default `TlsConnector`.
     /// If you wish to use something besides the defaults, use `From::from`.
-    pub fn new<P: AsRef<Path>>(ca_path: P) -> Result<Self, Error> {
+    pub fn new() -> Self {
         let mut http = HttpConnector::new();
         http.enforce_http(false);
 
         let mut config = rustls::ClientConfig::new();
         config.enable_sni = true;
-        config.root_store = Self::read_cert_store(ca_path)?;
+        config.root_store = Self::read_cert_store();
 
-        Ok(HttpsConnectorWithSni::from((http, config)))
+        HttpsConnectorWithSni::from((http, config))
     }
 
-    fn read_cert_store(ca_path: impl AsRef<Path>) -> Result<rustls::RootCertStore, Error> {
+    fn read_cert_store() -> rustls::RootCertStore {
         let mut cert_store = rustls::RootCertStore::empty();
 
-
-        let cert_file = File::open(ca_path).map_err(Error::ReadCertError)?;
-        let mut cert_reader = BufReader::new(&cert_file);
-        let (_num_certs_added, num_failures) = cert_store
-            .add_pem_file(&mut cert_reader)
-            .map_err(|_| Error::CertError)?;
-        // add_pem_file() returns an Ok(i32, i32), where the second integer represents the amount
-        // of errors encountered. Go figure.
-        if num_failures > 0 {
-            return Err(Error::CertError);
+        let (num_certs_added, num_failures) = cert_store
+            .add_pem_file(&mut BufReader::new(OLD_ROOT_CERT))
+            .expect("Failed to add old root cert");
+        if num_failures > 0 || num_certs_added != 1 {
+            panic!("Failed to add old root cert");
         }
 
-        Ok(cert_store)
+        let (num_certs_added, num_failures) = cert_store
+            .add_pem_file(&mut BufReader::new(NEW_ROOT_CERT))
+            .expect("Failed to add new root cert");
+        if num_failures > 0 || num_certs_added != 1 {
+            panic!("Failed to add new root cert");
+        }
+
+        cert_store
     }
+
 
     /// Configure a hostname to use with SNI.
     ///
@@ -144,5 +133,15 @@ impl Service<Uri> for HttpsConnectorWithSni {
 
 
         Box::pin(fut)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::HttpsConnectorWithSni;
+
+    #[test]
+    fn test_cert_loading() {
+        let _certs = HttpsConnectorWithSni::read_cert_store();
     }
 }
