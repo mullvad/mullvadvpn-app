@@ -9,21 +9,25 @@
 import Foundation
 import Security
 
-struct KeychainError: Error, LocalizedError {
-    let code: OSStatus
+extension Keychain {
+    struct Error: Swift.Error, LocalizedError {
+        let code: OSStatus
 
-    var errorDescription: String? {
-        return SecCopyErrorMessageString(code, nil) as String?
+        var errorDescription: String? {
+            return SecCopyErrorMessageString(code, nil) as String?
+        }
     }
+
 }
 
-extension KeychainError {
 
-    static let duplicateItem = KeychainError(code: errSecDuplicateItem)
-    static let itemNotFound = KeychainError(code: errSecItemNotFound)
+extension Keychain.Error {
 
-    static func ~= (lhs: KeychainError, rhs: Error) -> Bool {
-        guard let rhsError = rhs as? KeychainError else { return false }
+    static let duplicateItem = Keychain.Error(code: errSecDuplicateItem)
+    static let itemNotFound = Keychain.Error(code: errSecItemNotFound)
+
+    static func ~= (lhs: Keychain.Error, rhs: Swift.Error) -> Bool {
+        guard let rhsError = rhs as? Keychain.Error else { return false }
         return lhs.code == rhsError.code
     }
 }
