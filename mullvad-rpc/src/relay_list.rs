@@ -69,12 +69,12 @@ impl ServerRelayList {
         for (code, location) in locations.into_iter() {
             match split_location_code(&code) {
                 Some((country_code, city_code)) => {
+                    let country_code = country_code.to_lowercase();
+                    let city_code = city_code.to_lowercase();
                     let country = countries
-                        .entry(country_code.to_string())
-                        .or_insert_with(|| location_to_country(&location, country_code.to_owned()));
-                    country
-                        .cities
-                        .push(location_to_city(&location, city_code.to_owned()));
+                        .entry(country_code.clone())
+                        .or_insert_with(|| location_to_country(&location, country_code));
+                    country.cities.push(location_to_city(&location, city_code));
                 }
                 None => {
                     log::error!("Bad location code - {}", code);
@@ -102,7 +102,8 @@ impl ServerRelayList {
         openvpn: OpenVpn,
     ) {
         let openvpn_endpoint_data = openvpn.ports;
-        for openvpn_relay in openvpn.relays.into_iter() {
+        for mut openvpn_relay in openvpn.relays.into_iter() {
+            openvpn_relay.to_lower();
             if let Some((country_code, city_code)) = split_location_code(&openvpn_relay.location) {
                 if let Some(country) = countries.get_mut(country_code) {
                     if let Some(city) = country
@@ -155,7 +156,8 @@ impl ServerRelayList {
                 public_key,
             };
 
-        for wireguard_relay in relays {
+        for mut wireguard_relay in relays {
+            wireguard_relay.relay.to_lower();
             if let Some((country_code, city_code)) =
                 split_location_code(&wireguard_relay.relay.location)
             {
@@ -205,7 +207,8 @@ impl ServerRelayList {
             shadowsocks,
         } = bridges;
 
-        for bridge_relay in relays {
+        for mut bridge_relay in relays {
+            bridge_relay.to_lower();
             if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location) {
                 if let Some(country) = countries.get_mut(country_code) {
                     if let Some(city) = country
@@ -312,6 +315,13 @@ struct Relay {
     ipv4_addr_in: Ipv4Addr,
     weight: u64,
     include_in_country: bool,
+}
+
+impl Relay {
+    fn to_lower(&mut self) {
+        self.hostname = self.hostname.to_lowercase();
+        self.location = self.location.to_lowercase();
+    }
 }
 
 #[derive(Debug, serde::Deserialize)]
