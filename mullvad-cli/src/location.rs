@@ -23,27 +23,23 @@ pub fn get_subcommand() -> clap::App<'static, 'static> {
 }
 
 pub fn get_constraint(matches: &clap::ArgMatches<'_>) -> Constraint<LocationConstraint> {
-    let country = matches.value_of("country").unwrap();
-    let city = matches.value_of("city");
-    let hostname = matches.value_of("hostname");
+    let country_original = matches.value_of("country").unwrap();
+    let country = country_original.to_lowercase();
+    let city = matches.value_of("city").map(str::to_lowercase);
+    let hostname = matches.value_of("hostname").map(str::to_lowercase);
 
-    match (country, city, hostname) {
+    match (country_original, city, hostname) {
         ("any", None, None) => Constraint::Any,
         ("any", ..) => clap::Error::with_description(
             "City can't be given when selecting 'any' country",
             clap::ErrorKind::InvalidValue,
         )
         .exit(),
-        (country, None, None) => Constraint::Only(LocationConstraint::Country(country.to_owned())),
-        (country, Some(city), None) => Constraint::Only(LocationConstraint::City(
-            country.to_owned(),
-            city.to_owned(),
-        )),
-        (country, Some(city), Some(hostname)) => Constraint::Only(LocationConstraint::Hostname(
-            country.to_owned(),
-            city.to_owned(),
-            hostname.to_owned(),
-        )),
+        (_, None, None) => Constraint::Only(LocationConstraint::Country(country)),
+        (_, Some(city), None) => Constraint::Only(LocationConstraint::City(country, city)),
+        (_, Some(city), Some(hostname)) => {
+            Constraint::Only(LocationConstraint::Hostname(country, city, hostname))
+        }
         (..) => clap::Error::with_description(
             "Invalid country, city and hostname combination given",
             clap::ErrorKind::InvalidValue,
