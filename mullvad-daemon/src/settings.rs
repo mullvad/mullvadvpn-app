@@ -4,15 +4,12 @@ use mullvad_types::{
     settings::Settings,
 };
 use std::{
-    fs::File,
-    io::{self, BufReader, Read},
+    fs::{self, File},
+    io,
     ops::Deref,
     path::{Path, PathBuf},
 };
 use talpid_types::ErrorExt;
-
-#[cfg(not(target_os = "android"))]
-use std::fs;
 
 #[cfg(windows)]
 use {log::warn, talpid_core::logging::windows::log_sink};
@@ -89,19 +86,12 @@ impl SettingsPersister {
     }
 
     fn load_settings_from_file(path: &Path) -> Result<(Settings, bool), LoadSettingsError> {
-        let file = File::open(path).map_err(|error| {
-            if error.kind() == io::ErrorKind::NotFound {
-                LoadSettingsError::FileNotFound
-            } else {
-                LoadSettingsError::Other
-            }
-        })?;
-
         info!("Loading settings from {}", path.display());
-        let mut settings_bytes = vec![];
-        BufReader::new(file)
-            .read_to_end(&mut settings_bytes)
-            .map_err(|_| LoadSettingsError::Other)?;
+
+        let settings_bytes = fs::read(path).map_err(|error| match error.kind() {
+            io::ErrorKind::NotFound => LoadSettingsError::FileNotFound,
+            _ => LoadSettingsError::Other
+        })?;
 
         Settings::load_from_bytes(&settings_bytes)
             .map(|settings| (settings, false))
