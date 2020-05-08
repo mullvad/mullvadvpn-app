@@ -29,6 +29,7 @@
     <string name="pay_to_start_using">To start using the app, you first need to add time to your
     account. Either buy credit on our website or redeem a voucher.</string>
     <string name="buy_credit">Buy credit</string>
+    <string name="buy_more_credit">Buy more credit</string>
     <string name="redeem_voucher">Redeem voucher</string>
     <string name="enter_voucher_code">Enter voucher code</string>
     <string name="voucher_hint">XXXX-XXXX-XXXX-XXXX</string>
@@ -41,6 +42,8 @@
     <string name="less_than_a_day_left">less than a day left</string>
     <string name="less_than_a_minute_ago">less than a minute ago</string>
     <string name="out_of_time">Out of time</string>
+    <string name="no_more_vpn_time_left">You have no more VPN time left on this account. Either buy
+    credit on our website or redeem a voucher.</string>
     <string name="settings_preferences">Preferences</string>
     <string name="settings_advanced">Advanced</string>
     <string name="app_version">App version</string>
