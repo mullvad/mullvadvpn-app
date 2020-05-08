@@ -12,10 +12,13 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.util.JobTracker
 
 val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
 
 class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+    private val jobTracker = JobTracker()
+
     private lateinit var actionButton: ConnectActionButton
     private lateinit var switchLocationButton: SwitchLocationButton
     private lateinit var headerBar: HeaderBar
@@ -98,9 +101,16 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             updateTunnelStateJob?.cancel()
             updateTunnelStateJob = updateTunnelState(uiState, connectionProxy.state)
         }
+
+        accountCache.onAccountDataChange = { _, expiry ->
+            if (expiry?.isBeforeNow() ?: false) {
+                openOutOfTimeScreen()
+            }
+        }
     }
 
     override fun onSafelyPause() {
+        accountCache.onAccountDataChange = null
         keyStatusListener.onKeyStatusChange = null
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
@@ -117,6 +127,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyDestroyView() {
+        jobTracker.cancelAllJobs()
         switchLocationButton.onDestroy()
     }
 
@@ -151,6 +162,15 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             replace(R.id.main_fragment, SelectLocationFragment())
             addToBackStack(null)
             commit()
+        }
+    }
+
+    private fun openOutOfTimeScreen() {
+        jobTracker.newUiJob("openOutOfTimeScreen") {
+            fragmentManager?.beginTransaction()?.apply {
+                replace(R.id.main_fragment, OutOfTimeFragment())
+                commit()
+            }
         }
     }
 }
