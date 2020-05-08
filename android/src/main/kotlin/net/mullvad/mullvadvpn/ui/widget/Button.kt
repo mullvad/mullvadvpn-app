@@ -13,13 +13,15 @@ import net.mullvad.mullvadvpn.util.JobTracker
 open class Button : FrameLayout {
     enum class ButtonColor {
         Blue,
-        Green;
+        Green,
+        Red;
 
         companion object {
             internal fun fromCode(code: Int): ButtonColor {
                 when (code) {
                     0 -> return Blue
                     1 -> return Green
+                    2 -> return Red
                     else -> throw Exception("Invalid buttonColor attribute value")
                 }
             }
@@ -49,6 +51,7 @@ open class Button : FrameLayout {
             val backgroundResource = when (value) {
                 ButtonColor.Blue -> R.drawable.blue_button_background
                 ButtonColor.Green -> R.drawable.green_button_background
+                ButtonColor.Red -> R.drawable.red_button_background
             }
 
             button.setBackgroundResource(backgroundResource)
