@@ -31,10 +31,16 @@ pub enum Error {
     WriteError(String, #[error(source)] io::Error),
 }
 
-#[derive(Debug)]
+#[derive(err_derive::Error, Debug)]
 enum LoadSettingsError {
+    #[error(display = "Cannot find settings file")]
     FileNotFound,
-    Other,
+
+    #[error(display = "Unable to read settings file")]
+    Other(#[error(source)] io::Error),
+
+    #[error(display = "Unable to parse settings file")]
+    ParseError(#[error(source)] mullvad_types::settings::Error),
 }
 
 
@@ -79,8 +85,11 @@ impl SettingsPersister {
                 }
                 _ => Err(error),
             })
-            .unwrap_or_else(|_| {
-                info!("Failed to load settings, using defaults");
+            .unwrap_or_else(|error| {
+                info!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to load settings. Using defaults.")
+                );
                 (Settings::default(), true)
             })
     }
@@ -88,21 +97,20 @@ impl SettingsPersister {
     fn load_settings_from_file(path: &Path) -> Result<(Settings, bool), LoadSettingsError> {
         info!("Loading settings from {}", path.display());
 
-        let settings_bytes = fs::read(path).map_err(|error| match error.kind() {
-            io::ErrorKind::NotFound => LoadSettingsError::FileNotFound,
-            _ => LoadSettingsError::Other
+        let settings_bytes = fs::read(path).map_err(|error| {
+            if error.kind() == io::ErrorKind::NotFound {
+                LoadSettingsError::FileNotFound
+            } else {
+                LoadSettingsError::Other(error)
+            }
         })?;
 
         Settings::load_from_bytes(&settings_bytes)
             .map(|settings| (settings, false))
-            .or_else(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to parse settings file")
-                );
+            .or_else(|_| {
                 Settings::migrate_from_bytes(&settings_bytes).map(|settings| (settings, true))
             })
-            .map_err(|_| LoadSettingsError::Other)
+            .map_err(LoadSettingsError::ParseError)
     }
 
     #[cfg(windows)]
