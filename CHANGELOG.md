@@ -42,7 +42,7 @@ Line wrap the file at 100 chars.                                              Th
 - Adjust the minimum supported Android version to correctly reflect the supported versions decided
   in 2020.4-beta2. The app will now only install on Android 7 and later (API level 24).
 
-
+### Fixed
 #### Android
 - Fix crash when leaving WireGuard Key screen while key is still verifying.
 - Fix crash that sometimes happens right after some other unrelated crash.
@@ -50,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
   isn't running. It would previously just open the app UI and stay in the disconnected state.
 - Fix crash when requesting to connect from notification or quick-settings tile.
 - Fix version update notifications not appearing.
+- Fix UI losing any settings updates that happen after leaving the app and then coming back.
 
 
 ## [2020.4-beta4] - 2020-05-06
