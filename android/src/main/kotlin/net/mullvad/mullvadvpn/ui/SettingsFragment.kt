@@ -15,8 +15,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.dataproxy.AccountCache
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
+import net.mullvad.mullvadvpn.service.AccountCache
 import org.joda.time.DateTime
 
 class SettingsFragment : ServiceAwareFragment() {
@@ -121,7 +121,7 @@ class SettingsFragment : ServiceAwareFragment() {
 
     private fun configureListeners() {
         accountCache?.apply {
-            refetch()
+            fetchAccountExpiry()
 
             onAccountDataChange = { account, expiry ->
                 updateAccountInfoJob?.cancel()
