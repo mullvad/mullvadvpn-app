@@ -75,7 +75,8 @@ matrix:
         - ./gradlew --console plain assembleDebug
         # Run ktlint with extra andorid rules
         - ktlint -a
-        - source ../ci/ci-android-xml.sh && tidy-verify-xml
+        - cd ..
+        - source ci/ci-android-xml.sh && tidy-verify-xml
 
     # iOS
     - language: swift
