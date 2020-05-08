@@ -26,8 +26,8 @@
     <string name="account_created">Account created</string>
     <string name="congrats">Congrats!</string>
     <string name="here_is_your_account_number">Here\'s your account number. Save it!</string>
-    <string name="pay_to_start_using">To start using the app, you first need to add time to you
-    account. Buy credit on our website.</string>
+    <string name="pay_to_start_using">To start using the app, you first need to add time to your
+    account. Either buy credit on our website or redeem a voucher.</string>
     <string name="buy_credit">Buy credit</string>
     <string name="redeem_voucher">Redeem voucher</string>
     <string name="enter_voucher_code">Enter voucher code</string>
