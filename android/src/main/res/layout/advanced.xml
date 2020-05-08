@@ -63,8 +63,7 @@
                   android:hint="@string/hint_default"
                   android:textColorHint="@color/white80"
                   android:textColor="@color/white"
-                  android:textSize="20sp"
-                  />
+                  android:textSize="20sp" />
     </LinearLayout>
     <TextView android:id="@+id/wireguard_mtu_footer"
               android:layout_width="match_parent"
