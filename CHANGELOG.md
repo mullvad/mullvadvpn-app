@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
   of the setting.
 - Embed TLS certificates used for HTTPS into the binary rather than loading them from disk at
   runtime
+- Ignore case when setting the relay or bridge location in the CLI.
 
 #### Android
 - Adjust the minimum supported Android version to correctly reflect the supported versions decided
