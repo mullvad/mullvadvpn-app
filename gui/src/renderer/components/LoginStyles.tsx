@@ -1,5 +1,25 @@
 import { Styles } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
+import ImageView from './ImageView';
+
+export const AccountDropdownRemoveIcon = styled(ImageView)({
+  justifyContent: 'center',
+  paddingTop: '10px',
+  paddingRight: '12px',
+  paddingBottom: '12px',
+  paddingLeft: '12px',
+  marginLeft: '0px',
+});
+
+export const InputSubmitIcon = styled(ImageView)((props: { visible: boolean }) => ({
+  flex: 0,
+  borderWidth: '0px',
+  width: '48px',
+  alignItems: 'center',
+  justifyContent: 'center',
+  opacity: props.visible ? 1 : 0,
+}));
 
 export default {
   login_footer: Styles.createViewStyle({
@@ -59,16 +79,6 @@ export default {
     backgroundColor: colors.white,
     opacity: 0,
   }),
-  input_arrow: Styles.createViewStyle({
-    flex: 0,
-    borderWidth: 0,
-    width: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-  }),
-  input_arrow__invisible: Styles.createViewStyle({
-    opacity: 0,
-  }),
   account_dropdown__spacer: Styles.createViewStyle({
     height: 1,
     backgroundColor: colors.darkBlue,
@@ -86,14 +96,6 @@ export default {
   }),
   account_dropdown__item_hover: Styles.createViewStyle({
     backgroundColor: colors.white40,
-  }),
-  account_dropdown__remove: Styles.createViewStyle({
-    justifyContent: 'center',
-    paddingTop: 10,
-    paddingRight: 12,
-    paddingBottom: 12,
-    paddingLeft: 12,
-    marginLeft: 0,
   }),
   account_dropdown__label_hover: Styles.createTextStyle({
     color: colors.blue,
