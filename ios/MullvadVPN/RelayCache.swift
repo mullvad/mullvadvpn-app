@@ -15,8 +15,7 @@ enum RelayCacheError: Error {
     case defaultLocationNotFound
     case io(Error)
     case coding(Error)
-    case network(MullvadAPI.Error)
-    case server(JsonRpcResponseError<MullvadAPI.ResponseCode>)
+    case rpc(MullvadRpc.Error)
 }
 
 /// A enum describing the source of the relay list
@@ -31,7 +30,7 @@ enum RelayListSource {
 class RelayCache {
 
     /// Mullvad API client
-    private let apiClient: MullvadAPI
+    private let rpc: MullvadRpc
 
     /// The cache location used by the class instance
     private let cacheFileURL: URL
@@ -51,7 +50,7 @@ class RelayCache {
     }
 
     init(cacheFileURL: URL, networkSession: URLSession = URLSession.shared) {
-        apiClient = MullvadAPI(session: networkSession)
+        rpc = MullvadRpc(session: networkSession)
         self.cacheFileURL = cacheFileURL
     }
 
@@ -153,14 +152,9 @@ class RelayCache {
     }
 
     private func downloadRelays() -> AnyPublisher<RelayList, RelayCacheError> {
-        apiClient.getRelayList()
-            .mapError({ (networkError) -> RelayCacheError in
-                return .network(networkError)
-            })
-            .flatMap({ (response) in
-                return response.result.publisher
-                    .mapError { RelayCacheError.server($0) }
-            }).eraseToAnyPublisher()
+        rpc.getRelayList()
+            .mapError { .rpc($0) }
+            .eraseToAnyPublisher()
     }
 
     private func saveRelayListToCache(relayList: RelayList) -> AnyPublisher<CachedRelayList, RelayCacheError> {

@@ -1,5 +1,5 @@
 //
-//  MullvadAPI.swift
+//  MullvadRpc.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 02/05/2019.
@@ -32,7 +32,7 @@ struct SendAppStoreReceiptResponse: Codable {
     }
 }
 
-class MullvadAPI {
+class MullvadRpc {
     private let session: URLSession
 
     /// A enum mapping the integer codes returned by Mullvad API with the corresponding enum
@@ -73,101 +73,123 @@ class MullvadAPI {
         case other(Int)
     }
 
-    /// An error type emitted by `MullvadAPI`
+    /// An error type emitted by `MullvadRpc`
     enum Error: Swift.Error {
         /// A network communication error
         case network(URLError)
+
+        /// A server error
+        case server(JsonRpcResponseError<ResponseCode>)
 
         /// An error occured when decoding the JSON response
         case decoding(Swift.Error)
 
         /// An error occured when encoding the JSON request
         case encoding(Swift.Error)
-    }
 
-    typealias ResponseError = JsonRpcResponseError<ResponseCode>
-    typealias Response<T: Decodable> = JsonRpcResponse<T, ResponseCode>
+        var localizedDescription: String {
+            switch self {
+            case .network(let urlError):
+                return "Network error: \(urlError.localizedDescription)"
+
+            case .server(let serverError):
+                return "Server error: \(serverError.localizedDescription)"
+
+            case .encoding(let encodingError):
+                return "Encoding error: \(encodingError.localizedDescription)"
+
+            case .decoding(let decodingError):
+                return "Decoding error: \(decodingError.localizedDescription)"
+            }
+        }
+    }
 
     init(session: URLSession = URLSession.shared) {
         self.session = session
     }
 
-    func createAccount() -> AnyPublisher<Response<String>, MullvadAPI.Error> {
+    func createAccount() -> AnyPublisher<String, MullvadRpc.Error> {
         let request = JsonRpcRequest(method: "create_account", params: [])
 
-        return MullvadAPI.makeDataTaskPublisher(request: request)
+        return MullvadRpc.makeDataTaskPublisher(request: request)
     }
 
-    func getRelayList() -> AnyPublisher<Response<RelayList>, MullvadAPI.Error> {
+    func getRelayList() -> AnyPublisher<RelayList, MullvadRpc.Error> {
         let request = JsonRpcRequest(method: "relay_list_v3", params: [])
 
-        return MullvadAPI.makeDataTaskPublisher(request: request)
+        return MullvadRpc.makeDataTaskPublisher(request: request)
     }
 
-    func getAccountExpiry(accountToken: String) -> AnyPublisher<Response<Date>, MullvadAPI.Error> {
+    func getAccountExpiry(accountToken: String) -> AnyPublisher<Date, MullvadRpc.Error> {
         let request = JsonRpcRequest(method: "get_expiry", params: [AnyEncodable(accountToken)])
 
-        return MullvadAPI.makeDataTaskPublisher(request: request)
+        return MullvadRpc.makeDataTaskPublisher(request: request)
     }
 
-    func pushWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<Response<WireguardAssociatedAddresses>, MullvadAPI.Error> {
+    func pushWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<WireguardAssociatedAddresses, MullvadRpc.Error> {
         let request = JsonRpcRequest(method: "push_wg_key", params: [
             AnyEncodable(accountToken),
             AnyEncodable(publicKey)
         ])
 
-        return MullvadAPI.makeDataTaskPublisher(request: request)
+        return MullvadRpc.makeDataTaskPublisher(request: request)
     }
 
-    func replaceWireguardKey(accountToken: String, oldPublicKey: Data, newPublicKey: Data) -> AnyPublisher<Response<WireguardAssociatedAddresses>, MullvadAPI.Error> {
+    func replaceWireguardKey(accountToken: String, oldPublicKey: Data, newPublicKey: Data) -> AnyPublisher<WireguardAssociatedAddresses, MullvadRpc.Error> {
         let request = JsonRpcRequest(method: "replace_wg_key", params: [
             AnyEncodable(accountToken),
             AnyEncodable(oldPublicKey),
             AnyEncodable(newPublicKey)
         ])
 
-        return MullvadAPI.makeDataTaskPublisher(request: request)
+        return MullvadRpc.makeDataTaskPublisher(request: request)
     }
 
-    func checkWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<Response<Bool>, MullvadAPI.Error> {
+    func checkWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<Bool, MullvadRpc.Error> {
         let request = JsonRpcRequest(method: "check_wg_key", params: [
             AnyEncodable(accountToken),
             AnyEncodable(publicKey)
         ])
 
-        return MullvadAPI.makeDataTaskPublisher(request: request)
+        return MullvadRpc.makeDataTaskPublisher(request: request)
     }
 
-    func removeWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<Response<Bool>, MullvadAPI.Error> {
+    func removeWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<Bool, MullvadRpc.Error> {
         let request = JsonRpcRequest(method: "remove_wg_key", params: [
             AnyEncodable(accountToken),
             AnyEncodable(publicKey)
         ])
 
-        return MullvadAPI.makeDataTaskPublisher(request: request)
+        return MullvadRpc.makeDataTaskPublisher(request: request)
     }
 
-    func sendAppStoreReceipt(accountToken: String, receiptData: Data) -> AnyPublisher<Response<SendAppStoreReceiptResponse>, MullvadAPI.Error> {
+    func sendAppStoreReceipt(accountToken: String, receiptData: Data) -> AnyPublisher<SendAppStoreReceiptResponse, MullvadRpc.Error> {
         let request = JsonRpcRequest(method: "apple_payment", params: [
             AnyEncodable(accountToken),
             AnyEncodable(receiptData)
         ])
 
-        return MullvadAPI.makeDataTaskPublisher(request: request)
+        return MullvadRpc.makeDataTaskPublisher(request: request)
     }
 
-    private static func makeDataTaskPublisher<T: Decodable>(request: JsonRpcRequest) -> AnyPublisher<Response<T>, MullvadAPI.Error> {
+    private static func makeDataTaskPublisher<T: Decodable>(request: JsonRpcRequest) -> AnyPublisher<T, MullvadRpc.Error> {
         return Just(request)
             .encode(encoder: makeJSONEncoder())
-            .mapError { MullvadAPI.Error.encoding($0) }
+            .mapError { MullvadRpc.Error.encoding($0) }
             .map { self.makeURLRequest(httpBody: $0) }
             .flatMap {
                 URLSession.shared.dataTaskPublisher(for: $0)
-                    .mapError { MullvadAPI.Error.network($0) }
-                    .flatMap { (data, response) in
+                    .mapError { MullvadRpc.Error.network($0) }
+                    .flatMap { (data, httpResponse) in
                         Just(data)
-                            .decode(type: Response<T>.self, decoder: makeJSONDecoder())
-                            .mapError { MullvadAPI.Error.decoding($0) }
+                            .decode(type: JsonRpcResponse<T, ResponseCode>.self, decoder: makeJSONDecoder())
+                            .mapError { MullvadRpc.Error.decoding($0) }
+                            .flatMap { (serverResponse) in
+                                // unwrap JsonRpcResponse.result
+                                serverResponse.result
+                                    .mapError { MullvadRpc.Error.server($0) }
+                                    .publisher
+                            }
                 }
         }.eraseToAnyPublisher()
     }
@@ -201,7 +223,7 @@ class MullvadAPI {
 
 extension JsonRpcResponseError: LocalizedError
     where
-    ResponseCode == MullvadAPI.ResponseCode
+    ResponseCode == MullvadRpc.ResponseCode
 {
     var errorDescription: String? {
         switch code {

@@ -24,9 +24,12 @@ private enum WireguardKeysViewState {
     case regeneratingKey
 }
 
-enum VerifyWireguardPublicKeyError {
-    case network(MullvadAPI.Error)
-    case server(MullvadAPI.ResponseError)
+private struct VerifyWireguardPublicKeyError: Error {
+    var underlyingError: MullvadRpc.Error
+
+    init(_ error: MullvadRpc.Error) {
+        self.underlyingError = error
+    }
 }
 
 extension VerifyWireguardPublicKeyError: LocalizedError {
@@ -35,12 +38,14 @@ extension VerifyWireguardPublicKeyError: LocalizedError {
     }
 
     var failureReason: String? {
-        switch self {
-        case .network(.network(let urlError)):
+        switch underlyingError {
+        case .network(let urlError):
             return urlError.localizedDescription
+
         case .server(let serverError):
             return serverError.errorDescription
-        default:
+
+        case .decoding, .encoding:
             return NSLocalizedString("Internal error", comment: "")
         }
     }
@@ -60,7 +65,7 @@ class WireguardKeysViewController: UIViewController {
     private var creationDateTimerSubscriber: AnyCancellable?
     private var copyToPasteboardSubscriber: AnyCancellable?
 
-    private let apiClient = MullvadAPI()
+    private let rpc = MullvadRpc()
     private var publicKey: WireguardPublicKey?
 
     private var state: WireguardKeysViewState = .default {
@@ -207,18 +212,13 @@ class WireguardKeysViewController: UIViewController {
     }
 
     private func verifyKey(accountToken: String, publicKey: WireguardPublicKey) {
-        verifyKeySubscriber = apiClient.checkWireguardKey(
+        verifyKeySubscriber = rpc.checkWireguardKey(
             accountToken: accountToken,
             publicKey: publicKey.rawRepresentation
         )
             .retry(1)
             .receive(on: DispatchQueue.main)
-            .mapError { VerifyWireguardPublicKeyError.network($0) }
-            .flatMap({ (response) in
-                response.result
-                    .mapError { VerifyWireguardPublicKeyError.server($0) }
-                    .publisher
-            })
+            .mapError { VerifyWireguardPublicKeyError($0) }
             .handleEvents(receiveSubscription: { _ in
                 self.updateViewState(.verifyingKey)
             })
