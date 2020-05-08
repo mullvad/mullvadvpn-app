@@ -158,6 +158,12 @@ private struct SimulatorTunnelInfo {
     /// Whether configuration is enabled
     var isEnabled = false
 
+    /// Whether on-demand VPN is enabled
+    var isOnDemandEnabled = false
+
+    /// On-demand VPN rules
+    var onDemandRules = [NEOnDemandRule]()
+
     /// Protocol configuration
     var protocolConfiguration: NEVPNProtocol?
 
@@ -174,6 +180,26 @@ class SimulatorTunnelProviderManager: VPNTunnelProviderManagerProtocol, Equatabl
     private var tunnelInfo: SimulatorTunnelInfo
     private var identifier: String {
         lock.withCriticalBlock { tunnelInfo.identifier }
+    }
+
+    var isOnDemandEnabled: Bool {
+        get {
+            lock.withCriticalBlock { tunnelInfo.isOnDemandEnabled }
+        }
+        set {
+            lock.withCriticalBlock {
+                tunnelInfo.isOnDemandEnabled = newValue
+            }
+        }
+    }
+
+    var onDemandRules: [NEOnDemandRule] {
+        get {
+            lock.withCriticalBlock { tunnelInfo.onDemandRules }
+        }
+        set {
+            lock.withCriticalBlock { tunnelInfo.onDemandRules = newValue }
+        }
     }
 
     var isEnabled: Bool {

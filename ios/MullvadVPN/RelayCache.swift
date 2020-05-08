@@ -29,7 +29,7 @@ enum RelayListSource {
 
 class RelayCache {
 
-    /// Mullvad API client
+    /// Mullvad Rpc client
     private let rpc: MullvadRpc
 
     /// The cache location used by the class instance
