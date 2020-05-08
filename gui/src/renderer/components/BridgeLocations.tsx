@@ -21,6 +21,8 @@ interface IBridgeLocationsProps {
   selectedValue?: LiftedConstraint<RelayLocation>;
   selectedElementRef?: React.Ref<React.ReactInstance>;
   onSelect?: (value: LocationSelection<SpecialBridgeLocationType>) => void;
+  onWillExpand?: (locationRect: DOMRect, expandedContentHeight: number) => void;
+  onTransitionEnd?: () => void;
 }
 
 const BridgeLocations = React.forwardRef(function BridgeLocationsT(
@@ -49,7 +51,11 @@ const BridgeLocations = React.forwardRef(function BridgeLocationsT(
           {messages.pgettext('select-location-view', 'Closest to exit server')}
         </SpecialLocation>
       </SpecialLocations>
-      <RelayLocations source={props.source} />
+      <RelayLocations
+        source={props.source}
+        onWillExpand={props.onWillExpand}
+        onTransitionEnd={props.onTransitionEnd}
+      />
     </LocationList>
   );
 });
