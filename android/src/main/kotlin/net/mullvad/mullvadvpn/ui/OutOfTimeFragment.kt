@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
@@ -73,10 +74,18 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
         accountCache.onAccountDataChange = { _, expiry ->
             checkExpiry(expiry)
         }
+
+        jobTracker.newBackgroundJob("pollAccountData") {
+            while (true) {
+                accountCache.fetchAccountExpiry()
+                delay(POLL_INTERVAL)
+            }
+        }
     }
 
     override fun onSafelyPause() {
         accountCache.onAccountDataChange = null
+        jobTracker.cancelJob("pollAccountData")
     }
 
     override fun onSafelyDestroyView() {
