@@ -27,6 +27,7 @@ class MullvadVpnService : TalpidVpnService() {
     private val serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
     private var isStopping = false
+    private var loggedIn = false
 
     private var startDaemonJob: Job? = null
 
@@ -67,12 +68,6 @@ class MullvadVpnService : TalpidVpnService() {
         set(value) {
             field = value
             notificationManager.lockedToForeground = value
-        }
-
-    private var loggedIn = false
-        set(value) {
-            field = value
-            notificationManager.loggedIn = value
         }
 
     override fun onCreate() {
