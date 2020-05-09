@@ -30,33 +30,26 @@ class ForegroundNotificationManager(
         service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     private val listenerId = serviceNotifier.subscribe { newServiceInstance ->
-        serviceInstance = newServiceInstance
+        connectionProxy = newServiceInstance?.connectionProxy
     }
-
-    private var serviceInstance: ServiceInstance? = null
-        set(value) {
-            synchronized(this) {
-                if (value != null) {
-                    connectionProxy = value.connectionProxy.apply {
-                        connectionListenerId = onStateChange.subscribe { state ->
-                            tunnelState = state
-                        }
-                    }
-                } else {
-                    connectionProxy = null
-                    connectionListenerId?.let { listenerId ->
-                        field?.connectionProxy?.onStateChange?.unsubscribe(listenerId)
-                    }
-                }
-
-                field = value
-            }
-        }
 
     private val badgeColor = service.resources.getColor(R.color.colorPrimary)
 
     private var connectionListenerId: Int? = null
     private var connectionProxy: ConnectionProxy? = null
+        set(value) {
+            if (field != value) {
+                connectionListenerId?.let { listenerId ->
+                    field?.onStateChange?.unsubscribe(listenerId)
+                }
+
+                connectionListenerId = value?.onStateChange?.subscribe { state ->
+                    tunnelState = state
+                }
+
+                field = value
+            }
+        }
 
     private var onForeground = false
     private var reconnecting = false
@@ -197,7 +190,7 @@ class ForegroundNotificationManager(
 
     fun onDestroy() {
         serviceNotifier.unsubscribe(listenerId)
-        serviceInstance = null
+        connectionProxy = null
 
         service.apply {
             unregisterReceiver(connectReceiver)
