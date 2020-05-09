@@ -53,6 +53,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix version update notifications not appearing.
 - Fix UI losing any settings updates that happen after leaving the app and then coming back.
 - Fix account expiration date disappearing in some circumstances.
+- Fix notification reappearing after quitting the application.
 
 
 ## [2020.4-beta4] - 2020-05-06
