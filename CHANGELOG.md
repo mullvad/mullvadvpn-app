@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add possibility to create account from the login screen.
 - Add welcome screen for newly created accounts.
 - Allow submitting voucher codes to add time to the account.
+- Add Out Of Time screen for user to add more time to account once it expires.
 
 ### Changed
 - Move location of the account data (including the WireGuard keys), so that it isn't lost when the
