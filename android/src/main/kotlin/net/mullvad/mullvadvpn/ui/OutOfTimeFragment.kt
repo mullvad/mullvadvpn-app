@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import net.mullvad.mullvadvpn.util.JobTracker
 
@@ -26,10 +27,24 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             prepare(daemon, jobTracker)
         }
 
+        view.findViewById<Button>(R.id.redeem_voucher).apply {
+            setOnClickAction("openRedeemVoucherDialog", jobTracker) {
+                showRedeemVoucherDialog()
+            }
+        }
+
         return view
     }
 
     override fun onSafelyDestroyView() {
         jobTracker.cancelAllJobs()
+    }
+
+    private fun showRedeemVoucherDialog() {
+        val transaction = fragmentManager?.beginTransaction()
+
+        transaction?.addToBackStack(null)
+
+        RedeemVoucherDialogFragment().show(transaction, null)
     }
 }
