@@ -12,6 +12,8 @@ import net.mullvad.mullvadvpn.util.JobTracker
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private val jobTracker = JobTracker()
 
+    private lateinit var disconnectButton: Button
+
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -21,6 +23,12 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
 
         view.findViewById<View>(R.id.settings).setOnClickListener {
             parentActivity.openSettings()
+        }
+
+        disconnectButton = view.findViewById<Button>(R.id.disconnect).apply {
+            setOnClickAction("disconnect", jobTracker) {
+                connectionProxy.disconnect()
+            }
         }
 
         view.findViewById<UrlButton>(R.id.buy_credit).apply {
