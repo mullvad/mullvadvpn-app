@@ -14,6 +14,8 @@ import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private val jobTracker = JobTracker()
 
+    private lateinit var headerBar: HeaderBar
+
     private lateinit var buyCreditButton: UrlButton
     private lateinit var disconnectButton: Button
     private lateinit var redeemButton: Button
@@ -25,6 +27,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             field = value
             updateDisconnectButton()
             updateBuyButtons()
+            headerBar.setState(value)
         }
 
     override fun onSafelyCreateView(
@@ -37,6 +40,8 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
         view.findViewById<View>(R.id.settings).setOnClickListener {
             parentActivity.openSettings()
         }
+
+        headerBar = HeaderBar(view, resources)
 
         disconnectButton = view.findViewById<Button>(R.id.disconnect).apply {
             setOnClickAction("disconnect", jobTracker) {
