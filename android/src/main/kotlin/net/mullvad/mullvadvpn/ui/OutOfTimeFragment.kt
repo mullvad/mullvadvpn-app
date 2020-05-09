@@ -14,7 +14,9 @@ import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private val jobTracker = JobTracker()
 
+    private lateinit var buyCreditButton: UrlButton
     private lateinit var disconnectButton: Button
+    private lateinit var redeemButton: Button
 
     private var tunnelStateListener: Int? = null
 
@@ -22,6 +24,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
         set(value) {
             field = value
             updateDisconnectButton()
+            updateBuyButtons()
         }
 
     override fun onSafelyCreateView(
@@ -41,11 +44,11 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             }
         }
 
-        view.findViewById<UrlButton>(R.id.buy_credit).apply {
+        buyCreditButton = view.findViewById<UrlButton>(R.id.buy_credit).apply {
             prepare(daemon, jobTracker)
         }
 
-        view.findViewById<Button>(R.id.redeem_voucher).apply {
+        redeemButton = view.findViewById<Button>(R.id.redeem_voucher).apply {
             setOnClickAction("openRedeemVoucherDialog", jobTracker) {
                 showRedeemVoucherDialog()
             }
@@ -97,5 +100,12 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
                 visibility = View.GONE
             }
         }
+    }
+
+    private fun updateBuyButtons() {
+        val hasConnectivity = tunnelState is TunnelState.Disconnected
+
+        buyCreditButton.setEnabled(hasConnectivity)
+        redeemButton.setEnabled(hasConnectivity)
     }
 }
