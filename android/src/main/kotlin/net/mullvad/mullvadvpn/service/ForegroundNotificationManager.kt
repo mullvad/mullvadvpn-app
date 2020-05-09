@@ -197,6 +197,7 @@ class ForegroundNotificationManager(
 
     fun onDestroy() {
         serviceNotifier.unsubscribe(listenerId)
+        serviceInstance = null
 
         service.apply {
             unregisterReceiver(connectReceiver)
