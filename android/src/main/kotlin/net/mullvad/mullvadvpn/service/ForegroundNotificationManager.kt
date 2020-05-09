@@ -38,7 +38,7 @@ class ForegroundNotificationManager(
             synchronized(this) {
                 if (value != null) {
                     connectionProxy = value.connectionProxy.apply {
-                        onStateChange.subscribe { state ->
+                        connectionListenerId = onStateChange.subscribe { state ->
                             tunnelState = state
                         }
                     }
