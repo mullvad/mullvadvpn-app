@@ -5,8 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.widget.UrlButton
+import net.mullvad.mullvadvpn.util.JobTracker
 
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+    private val jobTracker = JobTracker()
+
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -18,6 +22,14 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             parentActivity.openSettings()
         }
 
+        view.findViewById<UrlButton>(R.id.buy_credit).apply {
+            prepare(daemon, jobTracker)
+        }
+
         return view
+    }
+
+    override fun onSafelyDestroyView() {
+        jobTracker.cancelAllJobs()
     }
 }
