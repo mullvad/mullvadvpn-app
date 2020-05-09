@@ -10,6 +10,7 @@ import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import org.joda.time.DateTime
 
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private val jobTracker = JobTracker()
@@ -68,6 +69,16 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
         return view
     }
 
+    override fun onSafelyResume() {
+        accountCache.onAccountDataChange = { _, expiry ->
+            checkExpiry(expiry)
+        }
+    }
+
+    override fun onSafelyPause() {
+        accountCache.onAccountDataChange = null
+    }
+
     override fun onSafelyDestroyView() {
         jobTracker.cancelAllJobs()
 
@@ -112,5 +123,22 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
 
         buyCreditButton.setEnabled(hasConnectivity)
         redeemButton.setEnabled(hasConnectivity)
+    }
+
+    private fun checkExpiry(maybeExpiry: DateTime?) {
+        maybeExpiry?.let { expiry ->
+            if (expiry.isAfterNow()) {
+                jobTracker.newUiJob("advanceToConnectScreen") {
+                    advanceToConnectScreen()
+                }
+            }
+        }
+    }
+
+    private fun advanceToConnectScreen() {
+        fragmentManager?.beginTransaction()?.apply {
+            replace(R.id.main_fragment, ConnectFragment())
+            commit()
+        }
     }
 }
