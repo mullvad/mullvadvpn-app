@@ -30,33 +30,43 @@ class ForegroundNotificationManager(
         service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     private val listenerId = serviceNotifier.subscribe { newServiceInstance ->
-        serviceInstance = newServiceInstance
+        connectionProxy = newServiceInstance?.connectionProxy
+        settingsListener = newServiceInstance?.settingsListener
     }
 
-    private var serviceInstance: ServiceInstance? = null
+    private val badgeColor = service.resources.getColor(R.color.colorPrimary)
+
+    private var connectionListenerId: Int? = null
+    private var connectionProxy: ConnectionProxy? = null
         set(value) {
-            synchronized(this) {
-                if (value != null) {
-                    connectionProxy = value.connectionProxy.apply {
-                        onStateChange.subscribe { state ->
-                            tunnelState = state
-                        }
-                    }
-                } else {
-                    connectionProxy = null
-                    connectionListenerId?.let { listenerId ->
-                        field?.connectionProxy?.onStateChange?.unsubscribe(listenerId)
-                    }
+            if (field != value) {
+                connectionListenerId?.let { listenerId ->
+                    field?.onStateChange?.unsubscribe(listenerId)
+                }
+
+                connectionListenerId = value?.onStateChange?.subscribe { state ->
+                    tunnelState = state
                 }
 
                 field = value
             }
         }
 
-    private val badgeColor = service.resources.getColor(R.color.colorPrimary)
+    private var loginListenerId: Int? = null
+    private var settingsListener: SettingsListener? = null
+        set(value) {
+            if (field != value) {
+                loginListenerId?.let { listenerId ->
+                    field?.accountNumberNotifier?.unsubscribe(listenerId)
+                }
 
-    private var connectionListenerId: Int? = null
-    private var connectionProxy: ConnectionProxy? = null
+                loginListenerId = value?.accountNumberNotifier?.subscribe { accountNumber ->
+                    loggedIn = accountNumber != null
+                }
+
+                field = value
+            }
+        }
 
     private var onForeground = false
     private var reconnecting = false
@@ -71,6 +81,12 @@ class ForegroundNotificationManager(
                     value.actionAfterDisconnect == ActionAfterDisconnect.Reconnect) ||
                 (value is TunnelState.Connecting && reconnecting)
 
+            updateNotification()
+        }
+
+    private var loggedIn = false
+        set(value) {
+            field = value
             updateNotification()
         }
 
@@ -170,12 +186,6 @@ class ForegroundNotificationManager(
         }
     }
 
-    var loggedIn = false
-        set(value) {
-            field = value
-            updateNotification()
-        }
-
     var lockedToForeground = false
         set(value) {
             field = value
@@ -197,6 +207,8 @@ class ForegroundNotificationManager(
 
     fun onDestroy() {
         serviceNotifier.unsubscribe(listenerId)
+        connectionProxy = null
+        settingsListener = null
 
         service.apply {
             unregisterReceiver(connectReceiver)
