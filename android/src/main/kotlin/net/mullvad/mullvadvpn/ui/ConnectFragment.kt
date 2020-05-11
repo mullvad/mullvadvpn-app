@@ -8,11 +8,13 @@ import android.widget.ImageButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.JobTracker
+import org.joda.time.DateTime
 
 val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
 
@@ -105,6 +107,8 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         accountCache.onAccountDataChange = { _, expiry ->
             if (expiry?.isBeforeNow() ?: false) {
                 openOutOfTimeScreen()
+            } else if (expiry != null) {
+                scheduleNextAccountExpiryCheck(expiry)
             }
         }
     }
@@ -171,6 +175,22 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
                 replace(R.id.main_fragment, OutOfTimeFragment())
                 commit()
             }
+        }
+    }
+
+    private fun scheduleNextAccountExpiryCheck(expiration: DateTime) {
+        jobTracker.newBackgroundJob("refetchAccountExpiry") {
+            val millisUntilExpiration = expiration.millis - DateTime.now().millis
+
+            delay(millisUntilExpiration)
+            accountCache.fetchAccountExpiry()
+
+            // If the account ran out of time but is still connected, fetching the expiry again will
+            // fail. Therefore, after a timeout of 5 seconds the app will assume the account time
+            // really expired and move to the out of time screen. However, if fetching the expiry
+            // succeeds, this job is cancelled and replaced with a new scheduled check.
+            delay(5_000)
+            openOutOfTimeScreen()
         }
     }
 }
