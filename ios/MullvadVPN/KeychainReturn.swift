@@ -37,11 +37,7 @@ extension Set: KeychainAttributeDecodable, KeychainAttributeEncodable
 {
     init?(attributes: [CFString: Any]) {
         let items = Keychain.Return.allCases.filter { (returnType) -> Bool in
-            if let value = attributes[returnType.attributeKey] as? Bool, value {
-                return true
-            } else {
-                return false
-            }
+            return attributes[returnType.attributeKey] as? Bool == .some(true)
         }
 
         if items.isEmpty {
