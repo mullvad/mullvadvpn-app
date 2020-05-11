@@ -104,6 +104,8 @@ open class Button : FrameLayout {
     init {
         button.setOnClickListener {
             jobTracker?.newUiJob(clickJobName!!) {
+                setEnabled(false)
+
                 if (showSpinner) {
                     image.visibility = GONE
                     spinner.visibility = VISIBLE
@@ -116,6 +118,8 @@ open class Button : FrameLayout {
                 if (detailImage != null) {
                     image.visibility = VISIBLE
                 }
+
+                setEnabled(true)
             }
         }
     }

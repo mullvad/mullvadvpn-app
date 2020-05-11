@@ -18,7 +18,7 @@ use jnix::{
 };
 use mullvad_daemon::{exception_logging, logging, version, Daemon, DaemonCommandChannel};
 use mullvad_rpc::{rest::Error as RestError, StatusCode};
-use mullvad_types::account::AccountData;
+use mullvad_types::account::{AccountData, VoucherSubmission};
 use std::{
     path::{Path, PathBuf},
     ptr,
@@ -71,6 +71,33 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
                 daemon_interface::Error::RpcError(_) => GetAccountDataResult::RpcError,
                 _ => GetAccountDataResult::OtherError,
             },
+        }
+    }
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum VoucherSubmissionResult {
+    Ok(VoucherSubmission),
+    InvalidVoucher,
+    VoucherAlreadyUsed,
+    RpcError,
+    OtherError,
+}
+
+impl From<Result<VoucherSubmission, daemon_interface::Error>> for VoucherSubmissionResult {
+    fn from(result: Result<VoucherSubmission, daemon_interface::Error>) -> Self {
+        match result {
+            Ok(submission) => VoucherSubmissionResult::Ok(submission),
+            Err(daemon_interface::Error::RpcError(RestError::ApiError(_, code))) => {
+                match code.as_str() {
+                    "INVALID_VOUCHER" => VoucherSubmissionResult::InvalidVoucher,
+                    "VOUCHER_USED" => VoucherSubmissionResult::VoucherAlreadyUsed,
+                    _ => VoucherSubmissionResult::RpcError,
+                }
+            }
+            Err(daemon_interface::Error::RpcError(_)) => VoucherSubmissionResult::RpcError,
+            _ => VoucherSubmissionResult::OtherError,
         }
     }
 }
@@ -793,6 +820,35 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdow
             );
         }
     }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_submitVoucher<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    voucher: JString<'_>,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    let result = if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let voucher = String::from_java(&env, voucher);
+        let raw_result = daemon_interface.submit_voucher(voucher);
+
+        if let Err(ref error) = &raw_result {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to submit voucher code")
+            );
+        }
+
+        VoucherSubmissionResult::from(raw_result)
+    } else {
+        VoucherSubmissionResult::OtherError
+    };
+
+    result.into_java(&env).forget()
 }
 
 #[no_mangle]

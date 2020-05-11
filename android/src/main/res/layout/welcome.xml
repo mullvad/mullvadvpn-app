@@ -53,7 +53,7 @@
               android:textSize="13sp"
               android:text="@string/here_is_your_account_number" />
     <TextView android:id="@+id/account_number"
-              android:layout_width="wrap_content"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:paddingHorizontal="24dp"
               android:paddingVertical="11dp"
@@ -82,9 +82,15 @@
         <net.mullvad.mullvadvpn.ui.widget.UrlButton android:id="@+id/buy_credit"
                                                     android:layout_width="match_parent"
                                                     android:layout_height="wrap_content"
+                                                    android:layout_marginBottom="24dp"
                                                     mullvad:buttonColor="green"
                                                     mullvad:text="@string/buy_credit"
                                                     mullvad:url="@string/account_url"
                                                     mullvad:withToken="true" />
+        <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/redeem_voucher"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="wrap_content"
+                                                 mullvad:buttonColor="green"
+                                                 mullvad:text="@string/redeem_voucher" />
     </LinearLayout>
 </LinearLayout>
