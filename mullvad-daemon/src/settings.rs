@@ -4,18 +4,15 @@ use mullvad_types::{
     settings::Settings,
 };
 use std::{
-    fs::File,
-    io::{self, BufReader, Read},
+    fs::{self, File},
+    io,
     ops::Deref,
     path::{Path, PathBuf},
 };
 use talpid_types::ErrorExt;
 
-#[cfg(not(target_os = "android"))]
-use std::fs;
-
 #[cfg(windows)]
-use {log::warn, talpid_core::logging::windows::log_sink};
+use talpid_core::logging::windows::log_sink;
 
 
 static SETTINGS_FILE: &str = "settings.json";
@@ -34,10 +31,20 @@ pub enum Error {
     WriteError(String, #[error(source)] io::Error),
 }
 
-#[derive(Debug)]
+#[derive(err_derive::Error, Debug)]
 enum LoadSettingsError {
+    #[error(display = "Cannot find settings file")]
     FileNotFound,
-    Other,
+
+    #[error(display = "Unable to read settings file")]
+    Other(#[error(source)] io::Error),
+
+    #[error(display = "Unable to parse settings file")]
+    ParseError(#[error(source)] mullvad_types::settings::Error),
+
+    #[cfg(windows)]
+    #[error(display = "Failed to restore Windows Update backup: {}", _0)]
+    WinMigrationError(ffi::WinUtilMigrationStatus),
 }
 
 
@@ -82,37 +89,32 @@ impl SettingsPersister {
                 }
                 _ => Err(error),
             })
-            .unwrap_or_else(|_| {
-                info!("Failed to load settings, using defaults");
+            .unwrap_or_else(|error| {
+                info!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to load settings. Using defaults.")
+                );
                 (Settings::default(), true)
             })
     }
 
     fn load_settings_from_file(path: &Path) -> Result<(Settings, bool), LoadSettingsError> {
-        let file = File::open(path).map_err(|error| {
+        info!("Loading settings from {}", path.display());
+
+        let settings_bytes = fs::read(path).map_err(|error| {
             if error.kind() == io::ErrorKind::NotFound {
                 LoadSettingsError::FileNotFound
             } else {
-                LoadSettingsError::Other
+                LoadSettingsError::Other(error)
             }
         })?;
 
-        info!("Loading settings from {}", path.display());
-        let mut settings_bytes = vec![];
-        BufReader::new(file)
-            .read_to_end(&mut settings_bytes)
-            .map_err(|_| LoadSettingsError::Other)?;
-
         Settings::load_from_bytes(&settings_bytes)
             .map(|settings| (settings, false))
-            .or_else(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to parse settings file")
-                );
+            .or_else(|_| {
                 Settings::migrate_from_bytes(&settings_bytes).map(|settings| (settings, true))
             })
-            .map_err(|_| LoadSettingsError::Other)
+            .map_err(LoadSettingsError::ParseError)
     }
 
     #[cfg(windows)]
@@ -121,41 +123,15 @@ impl SettingsPersister {
     ) -> Result<(Settings, bool), LoadSettingsError> {
         info!("No settings file found. Attempting migration from Windows Update backup location");
 
-        if Self::migrate_after_windows_update() {
-            let result = Self::load_settings_from_file(path);
-
-            match &result {
-                Ok(_) => info!("Successfully loaded migrated settings"),
-                Err(_) => warn!("Failed to load migrated settings, using defaults"),
-            }
-
-            result
-        } else {
-            Err(LoadSettingsError::Other)
-        }
+        Self::migrate_after_windows_update()?;
+        Self::load_settings_from_file(path)
     }
 
     #[cfg(windows)]
-    fn migrate_after_windows_update() -> bool {
-        match unsafe {
+    fn migrate_after_windows_update() -> Result<(), LoadSettingsError> {
+        unsafe {
             ffi::WinUtil_MigrateAfterWindowsUpdate(Some(log_sink), b"Settings migrator\0".as_ptr())
-        } {
-            ffi::WinUtilMigrationStatus::Success => {
-                info!("Migration completed successfully");
-                true
-            }
-            ffi::WinUtilMigrationStatus::Aborted => {
-                error!("Migration was aborted to avoid overwriting current settings");
-                false
-            }
-            ffi::WinUtilMigrationStatus::NothingToMigrate => {
-                info!("Could not migrate settings - no backup present");
-                false
-            }
-            ffi::WinUtilMigrationStatus::Failed | _ => {
-                error!("Migration failed");
-                false
-            }
+                .into()
         }
     }
 
@@ -301,8 +277,10 @@ impl Deref for SettingsPersister {
 
 #[cfg(windows)]
 mod ffi {
+    use std::fmt;
     use talpid_core::logging::windows::LogSink;
 
+    #[derive(Debug)]
     #[allow(dead_code)]
     #[repr(u32)]
     pub enum WinUtilMigrationStatus {
@@ -310,7 +288,31 @@ mod ffi {
         Aborted = 1,
         NothingToMigrate = 2,
         Failed = 3,
-        Dummy = 9001,
+    }
+
+    impl fmt::Display for WinUtilMigrationStatus {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            use WinUtilMigrationStatus::*;
+            write!(
+                f,
+                "{}",
+                match self {
+                    Success => "Migration completed successfully",
+                    Aborted => "Migration was aborted to avoid overwriting current settings",
+                    NothingToMigrate => "Could not migrate settings - no backup present",
+                    Failed => "Migration failed",
+                }
+            )
+        }
+    }
+
+    impl Into<Result<(), super::LoadSettingsError>> for WinUtilMigrationStatus {
+        fn into(self) -> Result<(), super::LoadSettingsError> {
+            match self {
+                WinUtilMigrationStatus::Success => Ok(()),
+                val => Err(super::LoadSettingsError::WinMigrationError(val)),
+            }
+        }
     }
 
     #[allow(non_snake_case)]
