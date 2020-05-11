@@ -13,7 +13,6 @@
                   android:gravity="center_vertical | left"
                   android:clickable="true"
                   android:background="?android:attr/selectableItemBackground">
-
         <ImageView android:layout_width="24dp"
                    android:layout_height="24dp"
                    android:layout_marginRight="8dp"

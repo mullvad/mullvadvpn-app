@@ -15,7 +15,6 @@
                   android:gravity="center_vertical | left"
                   android:clickable="true"
                   android:background="?android:attr/selectableItemBackground">
-
         <ImageView android:layout_width="24dp"
                    android:layout_height="24dp"
                    android:layout_marginRight="8dp"
@@ -47,7 +46,7 @@
                                                               mullvad:copiedToast="@string/copied_wireguard_public_key"
                                                               mullvad:description="@string/public_key"
                                                               mullvad:maxLength="20"
-                                                              mullvad:whenMissing="showSpinner"/>
+                                                              mullvad:whenMissing="showSpinner" />
     <net.mullvad.mullvadvpn.ui.widget.InformationView android:id="@+id/key_age"
                                                       android:layout_width="match_parent"
                                                       android:layout_height="wrap_content"
@@ -55,7 +54,7 @@
                                                       android:paddingHorizontal="24dp"
                                                       android:paddingVertical="12dp"
                                                       mullvad:description="@string/wireguard_key_generated"
-                                                      mullvad:whenMissing="showSpinner"/>
+                                                      mullvad:whenMissing="showSpinner" />
     <FrameLayout android:layout_width="wrap_content"
                  android:layout_height="wrap_content"
                  android:paddingHorizontal="24dp"

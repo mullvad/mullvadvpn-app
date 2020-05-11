@@ -47,14 +47,12 @@
                         android:paddingLeft="20dp"
                         android:paddingRight="10dp"
                         android:background="?android:attr/selectableItemBackground">
-
             <RelativeLayout android:id="@+id/notification_status_container"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentLeft="true"
                             android:layout_alignBottom="@id/notification_title">
-
                 <ImageView android:id="@+id/notification_status"
                            android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
@@ -146,7 +144,6 @@
                       android:gravity="start"
                       android:clickable="true"
                       android:background="?android:attr/selectableItemBackground">
-
             <LinearLayout android:layout_width="wrap_content"
                           android:layout_height="wrap_content"
                           android:orientation="horizontal">
