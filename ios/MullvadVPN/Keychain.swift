@@ -11,8 +11,8 @@ import Security
 
 protocol KeychainAttributeDecodable {
     init?(attributes: [CFString: Any])
-
 }
+
 protocol KeychainAttributeEncodable {
     func keychainRepresentation() -> [CFString: Any]
     func updateKeychainAttributes(in attributes: inout [CFString: Any])

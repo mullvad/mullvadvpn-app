@@ -10,38 +10,38 @@ import Foundation
 import Security
 
 extension Keychain {
-    enum Return: KeychainAttributeEncodable {
+    enum Return: KeychainAttributeEncodable, CaseIterable {
         case data
         case attributes
         case persistentReference
 
-        func updateKeychainAttributes(in attributes: inout [CFString: Any]) {
+        fileprivate var attributeKey: CFString {
             switch self {
             case .attributes:
-                attributes[kSecReturnAttributes] = true
+                return kSecReturnAttributes
             case .data:
-                attributes[kSecReturnData] = true
+                return kSecReturnData
             case .persistentReference:
-                attributes[kSecReturnPersistentRef] = true
+                return kSecReturnPersistentRef
             }
+        }
+
+        func updateKeychainAttributes(in attributes: inout [CFString: Any]) {
+            attributes[attributeKey] = true
         }
     }
 }
 
-extension Set: KeychainAttributeDecodable, KeychainAttributeEncodable where Element == Keychain.Return {
+extension Set: KeychainAttributeDecodable, KeychainAttributeEncodable
+    where Element == Keychain.Return
+{
     init?(attributes: [CFString: Any]) {
-        var items = [Keychain.Return]()
-
-        if let value = attributes[kSecReturnAttributes] as? Bool, value {
-            items.append(.attributes)
-        }
-
-        if let value = attributes[kSecReturnData] as? Bool, value {
-            items.append(.data)
-        }
-
-        if let value = attributes[kSecReturnPersistentRef] as? Bool, value {
-            items.append(.persistentReference)
+        let items = Keychain.Return.allCases.filter { (returnType) -> Bool in
+            if let value = attributes[returnType.attributeKey] as? Bool, value {
+                return true
+            } else {
+                return false
+            }
         }
 
         if items.isEmpty {
@@ -52,6 +52,10 @@ extension Set: KeychainAttributeDecodable, KeychainAttributeEncodable where Elem
     }
 
     func updateKeychainAttributes(in attributes: inout [CFString : Any]) {
+        Keychain.Return.allCases.forEach { (returnType) in
+            attributes.removeValue(forKey: returnType.attributeKey)
+        }
+
         forEach { $0.updateKeychainAttributes(in: &attributes) }
     }
 }
