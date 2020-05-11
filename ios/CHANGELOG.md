@@ -23,9 +23,14 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add automatic key rotation every 4 days.
+
 ### Fixed
 - Fix relay selection for country wide constraints by respecting the `include_in_country` 
   parameter.
+- Fix defect when manually regenerating the private key from Settings would automatically connect
+  the tunnel.
 
 ## [2020.2] - 2020-04-16
 ### Fixed
