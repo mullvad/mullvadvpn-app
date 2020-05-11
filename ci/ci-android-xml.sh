@@ -7,6 +7,7 @@ function tidy-up-android-xml {
     tidy -xml \
         -m  \
         -i  \
+        -w 100 \
         --quiet yes \
         --indent-attributes yes \
         --indent-spaces 4 \
