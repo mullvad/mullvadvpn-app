@@ -6,6 +6,8 @@
                   value="0" />
             <enum name="green"
                   value="1" />
+            <enum name="red"
+                  value="2" />
         </attr>
         <attr name="detailImage"
               format="reference" />

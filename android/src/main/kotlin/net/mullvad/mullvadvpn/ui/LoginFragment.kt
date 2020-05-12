@@ -13,12 +13,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
+import net.mullvad.mullvadvpn.service.AccountCache
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.util.JobTracker
+import org.joda.time.DateTime
 
 class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     enum class LoginResult {
-        ExistingAccount,
+        ExistingAccountWithTime,
+        ExistingAccountOutOfTime,
         NewAccount;
     }
 
@@ -61,7 +64,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     override fun onSafelyResume() {
         jobTracker.newUiJob("advanceToNextScreen") {
             when (loggedIn.await()) {
-                LoginResult.ExistingAccount -> openNextScreen(ConnectFragment())
+                LoginResult.ExistingAccountWithTime -> openNextScreen(ConnectFragment())
+                LoginResult.ExistingAccountOutOfTime -> openNextScreen(OutOfTimeFragment())
                 LoginResult.NewAccount -> openNextScreen(WelcomeFragment())
             }
         }
@@ -121,20 +125,32 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
     private fun performLogin(accountToken: String) = GlobalScope.launch(Dispatchers.Main) {
         jobTracker.newUiJob("login") {
-            val loginSucceeded = jobTracker.runOnBackground {
+            val loginResult = jobTracker.runOnBackground {
                 val accountDataResult = daemon.getAccountData(accountToken)
 
                 when (accountDataResult) {
-                    is GetAccountDataResult.Ok, is GetAccountDataResult.RpcError -> {
+                    is GetAccountDataResult.Ok -> {
                         daemon.setAccount(accountToken)
-                        true
+
+                        val expiryString = accountDataResult.accountData.expiry
+                        val expiry = DateTime.parse(expiryString, AccountCache.EXPIRY_FORMAT)
+
+                        if (expiry.isAfterNow()) {
+                            LoginResult.ExistingAccountWithTime
+                        } else {
+                            LoginResult.ExistingAccountOutOfTime
+                        }
                     }
-                    else -> false
+                    is GetAccountDataResult.RpcError -> {
+                        daemon.setAccount(accountToken)
+                        LoginResult.ExistingAccountWithTime
+                    }
+                    else -> null
                 }
             }
 
-            if (loginSucceeded) {
-                loggedIn("", LoginResult.ExistingAccount)
+            if (loginResult != null) {
+                loggedIn("", loginResult)
             } else {
                 loginFailure(R.string.login_fail_description)
             }

@@ -5,9 +5,11 @@ import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
-
 class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
+    companion object {
+        public val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
+    }
+
     private val jobTracker = JobTracker()
     private val subscriptionId = settingsListener.accountNumberNotifier.subscribe { accountNumber ->
         handleNewAccountNumber(accountNumber)
