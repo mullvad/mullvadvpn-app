@@ -9,6 +9,7 @@ import RedeemVoucherContainer from '../containers/RedeemVoucherContainer';
 import { LoginState } from '../redux/account/reducers';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
+import CustomScrollbars from './CustomScrollbars';
 import styles, { StyledAccountTokenLabel } from './ExpiredAccountErrorViewStyles';
 import ImageView from './ImageView';
 import { ModalAlert, ModalAlertType } from './Modal';
@@ -60,30 +61,32 @@ export default class ExpiredAccountErrorView extends Component<
 
   public render() {
     return (
-      <View style={styles.container}>
-        <View style={styles.body}>{this.renderContent()}</View>
+      <CustomScrollbars style={styles.scrollview} fillContainer>
+        <View style={styles.container}>
+          <View style={styles.body}>{this.renderContent()}</View>
 
-        <View style={styles.footer}>
-          {this.getRecoveryAction() === RecoveryAction.disconnect && (
-            <AppButton.BlockingButton onPress={this.props.onDisconnect}>
-              <AppButton.RedButton style={styles.button}>
-                {messages.pgettext('connect-view', 'Disconnect')}
-              </AppButton.RedButton>
-            </AppButton.BlockingButton>
-          )}
+          <View style={styles.footer}>
+            {this.getRecoveryAction() === RecoveryAction.disconnect && (
+              <AppButton.BlockingButton onPress={this.props.onDisconnect}>
+                <AppButton.RedButton style={styles.button}>
+                  {messages.pgettext('connect-view', 'Disconnect')}
+                </AppButton.RedButton>
+              </AppButton.BlockingButton>
+            )}
 
-          {this.renderExternalPaymentButton()}
+            {this.renderExternalPaymentButton()}
 
-          <AppButton.GreenButton
-            disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
-            onPress={this.onOpenRedeemVoucherAlert}>
-            {messages.pgettext('connect-view', 'Redeem voucher')}
-          </AppButton.GreenButton>
+            <AppButton.GreenButton
+              disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
+              onPress={this.onOpenRedeemVoucherAlert}>
+              {messages.pgettext('connect-view', 'Redeem voucher')}
+            </AppButton.GreenButton>
+          </View>
+
+          {this.state.showRedeemVoucherAlert && this.renderRedeemVoucherAlert()}
+          {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
         </View>
-
-        {this.state.showRedeemVoucherAlert && this.renderRedeemVoucherAlert()}
-        {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
-      </View>
+      </CustomScrollbars>
     );
   }
 

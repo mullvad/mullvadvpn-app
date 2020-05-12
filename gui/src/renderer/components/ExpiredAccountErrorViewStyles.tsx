@@ -12,9 +12,17 @@ export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
 });
 
 export default {
+  // plain CSS style
+  scrollview: {
+    flex: 1,
+  },
   container: Styles.createViewStyle({
     flex: 1,
     paddingTop: 24,
+    // ReactXP don't allow setting 'minHeight' and don't allow percentages. This will work well
+    // without the '@ts-ignore' when moving away from ReactXP.
+    // @ts-ignore
+    minHeight: '100%',
   }),
   body: Styles.createViewStyle({
     flex: 1,
