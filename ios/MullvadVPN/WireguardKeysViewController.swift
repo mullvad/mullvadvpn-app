@@ -59,7 +59,8 @@ class WireguardKeysViewController: UIViewController {
     @IBOutlet var verifyKeyButton: UIButton!
     @IBOutlet var wireguardKeyStatusView: WireguardKeyStatusView!
 
-    private var fetchKeySubscriber: AnyCancellable?
+    private var tunnelStateSubscriber: AnyCancellable?
+    private var loadKeySubscriber: AnyCancellable?
     private var verifyKeySubscriber: AnyCancellable?
     private var regenerateKeySubscriber: AnyCancellable?
     private var creationDateTimerSubscriber: AnyCancellable?
@@ -99,6 +100,18 @@ class WireguardKeysViewController: UIViewController {
                     self.updateCreationDateLabel(with: creationDate)
                 }
         }
+
+        tunnelStateSubscriber = TunnelManager.shared.$tunnelState
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: {  [weak self] (tunnelState) in
+                guard let self = self else { return }
+
+                // Reload the public key when the tunnel is reconnecting
+                // Normally this may happen in response to private key change
+                if case .reconnecting = tunnelState {
+                    self.loadPublicKey(animated: true)
+                }
+            })
 
         loadPublicKey(animated: false)
     }
@@ -160,7 +173,7 @@ class WireguardKeysViewController: UIViewController {
     }
 
     private func loadPublicKey(animated: Bool) {
-        fetchKeySubscriber = TunnelManager.shared.getWireguardPublicKey()
+        loadKeySubscriber = TunnelManager.shared.getWireguardPublicKey()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { (completion) in
                 switch completion {
