@@ -10,6 +10,19 @@ export default {
     flexDirection: 'column',
     flex: 1,
   }),
+  // plain CSS style
+  wgkeys__scrollview: {
+    flex: 1,
+  },
+  wgkeys__scrollable: {
+    minHeight: '100%',
+  },
+  wgkeys__content: Styles.createViewStyle({
+    // ReactXP don't allow setting 'minHeight' and don't allow percentages. This will work well
+    // without the '@ts-ignore' when moving away from ReactXP.
+    // @ts-ignore
+    minHeight: '100%',
+  }),
   wgkeys__messages: Styles.createViewStyle({
     flex: 1,
   }),

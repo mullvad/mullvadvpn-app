@@ -189,6 +189,7 @@ export class NavigationContainer extends Component<INavigationContainerProps> {
 interface INavigationScrollbarsProps {
   onScroll?: (value: IScrollEvent) => void;
   style?: React.CSSProperties;
+  scrollableStyle?: React.CSSProperties;
   children?: React.ReactNode;
 }
 
@@ -204,6 +205,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
 });
 
 interface IPrivateNavigationScrollbars extends INavigationScrollbarsProps {
+  scrollableStyle?: React.CSSProperties;
   forwardedRef?: React.Ref<CustomScrollbars>;
 }
 
@@ -216,6 +218,7 @@ class PrivateNavigationScrollbars extends Component<IPrivateNavigationScrollbars
       <CustomScrollbars
         ref={this.props.forwardedRef}
         style={this.props.style}
+        scrollableStyle={this.props.scrollableStyle}
         onScroll={this.onScroll}>
         {this.props.children}
       </CustomScrollbars>
