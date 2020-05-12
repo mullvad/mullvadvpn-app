@@ -8,6 +8,7 @@ interface IProps {
   trackPadding: { x: number; y: number };
   onScroll?: (value: IScrollEvent) => void;
   style?: React.CSSProperties;
+  fillContainer?: boolean;
   children?: React.ReactNode;
 }
 
@@ -173,6 +174,7 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
       autoHide: _autoHide,
       trackPadding: _trackPadding,
       onScroll: _onScroll,
+      fillContainer,
       children,
       ...otherProps
     } = this.props;
@@ -194,7 +196,7 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
         />
         <div
           className="custom-scrollbars__scrollable"
-          style={{ overflow: 'auto' }}
+          style={{ overflow: 'auto', flex: fillContainer ? '1' : undefined }}
           onScroll={this.onScroll}
           ref={this.scrollableRef}>
           {children}
