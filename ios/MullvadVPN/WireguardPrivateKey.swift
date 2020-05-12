@@ -52,7 +52,7 @@ extension WireguardPrivateKey: Equatable {
 }
 
 /// A struct holding a public key used for Wireguard with associated metadata
-struct WireguardPublicKey {
+struct WireguardPublicKey: Codable, Equatable {
     /// Refers to private key creation date
     let creationDate: Date
 

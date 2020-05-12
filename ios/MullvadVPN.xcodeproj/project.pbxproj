@@ -64,6 +64,7 @@
 		587AD7CA2342283900E93A53 /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587AD7C92342283900E93A53 /* Account.swift */; };
 		587B08E0229433EB000E6F17 /* LoginState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B08DF229433EB000E6F17 /* LoginState.swift */; };
 		587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587CBFE222807F530028DED3 /* UIColor+Helpers.swift */; };
+		588534BF246193D90018B744 /* AutomaticKeyRotationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588534BD246193C00018B744 /* AutomaticKeyRotationManager.swift */; };
 		5888AD7F2279B6BF0051EB06 /* RelayStatusIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD7E2279B6BF0051EB06 /* RelayStatusIndicatorView.swift */; };
 		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
 		5888AD87227B17950051EB06 /* SelectLocationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationController.swift */; };
@@ -85,8 +86,6 @@
 		58ADDB3E227B1CD900FAFEA7 /* MullvadRpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ADDB3D227B1CD900FAFEA7 /* MullvadRpc.swift */; };
 		58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
 		58AEEF662344A37400C9BBD5 /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
-		58AEEF682344A40800C9BBD5 /* TunnelConfigurationCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF672344A40800C9BBD5 /* TunnelConfigurationCoder.swift */; };
-		58AEEF692344A43A00C9BBD5 /* TunnelConfigurationCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF672344A40800C9BBD5 /* TunnelConfigurationCoder.swift */; };
 		58AEEF6B2344A46200C9BBD5 /* TunnelConfigurationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF6A2344A46200C9BBD5 /* TunnelConfigurationManager.swift */; };
 		58AEEF6C2344A49D00C9BBD5 /* TunnelConfigurationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF6A2344A46200C9BBD5 /* TunnelConfigurationManager.swift */; };
 		58B0A2A8238EE68200BC001D /* RelaySelectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584B26F3237434D00073B10E /* RelaySelectorTests.swift */; };
@@ -135,6 +134,8 @@
 		58DF28A52417CB4B00E836B0 /* AppStorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */; };
 		58EC4E6C23915325003F5C5B /* Bundle+MullvadVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EC4E6B23915325003F5C5B /* Bundle+MullvadVersion.swift */; };
 		58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */; };
+		58F840AF2464382C0044E708 /* KeychainItemRevision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840AE2464382C0044E708 /* KeychainItemRevision.swift */; };
+		58F840B02464382C0044E708 /* KeychainItemRevision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840AE2464382C0044E708 /* KeychainItemRevision.swift */; };
 		58FAEDEF245069C700CB0F5B /* KeychainAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */; };
 		58FAEDF1245069CA00CB0F5B /* KeychainAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */; };
 		58FAEDF4245088B300CB0F5B /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
@@ -237,6 +238,7 @@
 		587AD7C92342283900E93A53 /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
 		587B08DF229433EB000E6F17 /* LoginState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginState.swift; sourceTree = "<group>"; };
 		587CBFE222807F530028DED3 /* UIColor+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Helpers.swift"; sourceTree = "<group>"; };
+		588534BD246193C00018B744 /* AutomaticKeyRotationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyRotationManager.swift; sourceTree = "<group>"; };
 		5888AD7E2279B6BF0051EB06 /* RelayStatusIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayStatusIndicatorView.swift; sourceTree = "<group>"; };
 		5888AD82227B11080051EB06 /* SelectLocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationCell.swift; sourceTree = "<group>"; };
 		5888AD86227B17950051EB06 /* SelectLocationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationController.swift; sourceTree = "<group>"; };
@@ -252,7 +254,6 @@
 		58ADDB3B227B1BD200FAFEA7 /* JsonRpc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonRpc.swift; sourceTree = "<group>"; };
 		58ADDB3D227B1CD900FAFEA7 /* MullvadRpc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadRpc.swift; sourceTree = "<group>"; };
 		58AEEF642344A36000C9BBD5 /* KeychainError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainError.swift; sourceTree = "<group>"; };
-		58AEEF672344A40800C9BBD5 /* TunnelConfigurationCoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelConfigurationCoder.swift; sourceTree = "<group>"; };
 		58AEEF6A2344A46200C9BBD5 /* TunnelConfigurationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelConfigurationManager.swift; sourceTree = "<group>"; };
 		58B0A2A0238EE67E00BC001D /* MullvadVPNTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadVPNTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		58B0A2A4238EE67E00BC001D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -293,6 +294,7 @@
 		58EC4E6B23915325003F5C5B /* Bundle+MullvadVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+MullvadVersion.swift"; sourceTree = "<group>"; };
 		58ECD29123F178FD004298B6 /* Screenshots.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Screenshots.xcconfig; sourceTree = "<group>"; };
 		58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerActivityIndicatorView.swift; sourceTree = "<group>"; };
+		58F840AE2464382C0044E708 /* KeychainItemRevision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainItemRevision.swift; sourceTree = "<group>"; };
 		58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainAttributes.swift; sourceTree = "<group>"; };
 		58FAEDF6245088E100CB0F5B /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
 		58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainMatchLimit.swift; sourceTree = "<group>"; };
@@ -406,6 +408,7 @@
 				58FD5BE624192A2B00112C88 /* AppStoreReceipt.swift */,
 				58CE5E6A224146210008646E /* Assets.xcassets */,
 				5845F839236C6A7200B2D93C /* AutoDisposableSink.swift */,
+				588534BD246193C00018B744 /* AutomaticKeyRotationManager.swift */,
 				589AB4F6227B64450039131E /* BasicTableViewCell.swift */,
 				58EC4E6B23915325003F5C5B /* Bundle+MullvadVersion.swift */,
 				584E96B9240D791E00D3334F /* CancellableDelayPublisher.swift */,
@@ -425,6 +428,7 @@
 				58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */,
 				58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */,
 				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
+				58F840AE2464382C0044E708 /* KeychainItemRevision.swift */,
 				58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */,
 				58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */,
 				58CE5E6C224146210008646E /* LaunchScreen.storyboard */,
@@ -467,7 +471,6 @@
 				5807E2BF2432038B00F5FF30 /* String+Split.swift */,
 				5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */,
 				587AD7C523421D7000E93A53 /* TunnelConfiguration.swift */,
-				58AEEF672344A40800C9BBD5 /* TunnelConfigurationCoder.swift */,
 				58AEEF6A2344A46200C9BBD5 /* TunnelConfigurationManager.swift */,
 				5845F837236C466400B2D93C /* TunnelControlViewController.swift */,
 				5835B7CB233B76CB0096D79F /* TunnelManager.swift */,
@@ -849,6 +852,7 @@
 				58FD5BF624291F1A00112C88 /* AppStorePaymentPublisher.swift in Sources */,
 				587AD7CA2342283900E93A53 /* Account.swift in Sources */,
 				58A8BE8323A0F362006B74AC /* UIAlertController+Error.swift in Sources */,
+				58F840AF2464382C0044E708 /* KeychainItemRevision.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
 				588AE72F2362001F009F9F2E /* MutuallyExclusive.swift in Sources */,
 				5888AD89227B18C40051EB06 /* RelayList.swift in Sources */,
@@ -857,7 +861,6 @@
 				58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
-				58AEEF682344A40800C9BBD5 /* TunnelConfigurationCoder.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
 				58FAEDFF24533A7000CB0F5B /* KeychainReturn.swift in Sources */,
 			);
@@ -874,6 +877,7 @@
 				58BFA5CD22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
 				58BFA5C222A7C92900A6173D /* JsonRpc.swift in Sources */,
 				588AE730236200E2009F9F2E /* MutuallyExclusive.swift in Sources */,
+				58F840B02464382C0044E708 /* KeychainItemRevision.swift in Sources */,
 				58C6B35122BB7CFD003C19AD /* IPAddressRange.swift in Sources */,
 				587AD7C723421D8600E93A53 /* TunnelConfiguration.swift in Sources */,
 				58BFA5C322A7C93400A6173D /* RelayList.swift in Sources */,
@@ -898,12 +902,12 @@
 				58BFA5C722A7C97F00A6173D /* RelayCache.swift in Sources */,
 				58BFA5C022A7C8A900A6173D /* MullvadRpc.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
-				58AEEF692344A43A00C9BBD5 /* TunnelConfigurationCoder.swift in Sources */,
 				584E96BD240FD4DA00D3334F /* Location.swift in Sources */,
 				58FAEDF8245088E100CB0F5B /* Keychain.swift in Sources */,
 				58C6B36122C0EC82003C19AD /* AnyIPEndpoint+DNS64.swift in Sources */,
 				58C6B36722C106FC003C19AD /* WireguardCommand.swift in Sources */,
 				58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
+				588534BF246193D90018B744 /* AutomaticKeyRotationManager.swift in Sources */,
 				584B26FF237435A90073B10E /* RelaySelector+RelayCache.swift in Sources */,
 				58781CCE22AE8918009B9D8E /* RelayConstraints.swift in Sources */,
 				58781CD522AFBA39009B9D8E /* RelaySelector.swift in Sources */,
