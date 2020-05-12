@@ -5,10 +5,12 @@ import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import accountActions from '../redux/account/actions';
 import * as AppButton from './AppButton';
+import { ModalAlert } from './Modal';
 import {
   StyledEmptyResponse,
   StyledErrorResponse,
   StyledInput,
+  StyledLabel,
   StyledSpinner,
   StyledSuccessResponse,
 } from './RedeemVoucherStyles';
@@ -169,5 +171,27 @@ export function RedeemVoucherSubmitButton() {
     <AppButton.GreenButton key="cancel" disabled={!valueValid || submitting} onPress={onSubmit}>
       {messages.pgettext('redeem-voucher-view', 'Redeem')}
     </AppButton.GreenButton>
+  );
+}
+
+interface IRedeemVoucherAlertProps {
+  onClose?: () => void;
+}
+
+export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
+  const { submitting } = useContext(RedeemVoucherContext);
+
+  return (
+    <ModalAlert
+      buttons={[
+        <RedeemVoucherSubmitButton key="submit" />,
+        <AppButton.BlueButton key="cancel" disabled={submitting} onPress={props.onClose}>
+          {messages.pgettext('redeem-voucher-alert', 'Cancel')}
+        </AppButton.BlueButton>,
+      ]}>
+      <StyledLabel>{messages.pgettext('redeem-voucher-alert', 'Enter voucher code')}</StyledLabel>
+      <RedeemVoucherInput />
+      <RedeemVoucherResponse />
+    </ModalAlert>
   );
 }
