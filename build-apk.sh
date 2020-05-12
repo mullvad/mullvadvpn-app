@@ -87,7 +87,6 @@ for ARCHITECTURE in $ARCHITECTURES; do
     esac
 
     echo "Building mullvad-daemon for $TARGET"
-    source env.sh "$TARGET"
     cargo +stable build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
 
     cp -a "$SCRIPT_DIR/dist-assets/binaries/$TARGET" "$SCRIPT_DIR/android/build/extraJni/$ABI"
