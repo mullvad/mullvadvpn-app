@@ -12,7 +12,11 @@ use std::{
 
 use futures01::{stream::Stream as old_stream, sync::mpsc as old_mpsc};
 
-use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, TryStreamExt};
+use futures::{
+    channel::mpsc::{self, UnboundedReceiver},
+    future::FutureExt,
+    StreamExt, TryStreamExt,
+};
 
 
 use netlink_packet_route::{
@@ -103,7 +107,7 @@ impl RouteManagerImpl {
             manager,
         } = self;
 
-        let (new_manage_tx, new_manage_rx) = futures::channel::mpsc::unbounded();
+        let (new_manage_tx, new_manage_rx) = mpsc::unbounded();
 
         thread::spawn(move || {
             for msg in manage_rx.wait() {
@@ -184,6 +188,26 @@ impl RouteManagerImplInner {
         Ok(monitor)
     }
 
+    async fn add_required_default_routes(
+        &mut self,
+        required_default_routes: HashSet<RequiredDefaultRoute>,
+    ) -> Result<()> {
+        for route in required_default_routes.into_iter() {
+            if let (false, _, Some(default_node)) | (true, Some(default_node), _) = (
+                route.destination.is_ipv4(),
+                &self.best_default_node_v4,
+                &self.best_default_node_v6,
+            ) {
+                // best to pick a single node identifier rather than device + ip
+                let new_route =
+                    Route::new(default_node.clone(), route.destination).table(route.table_id);
+                self.add_route(new_route).await?;
+            }
+            self.required_default_routes.insert(route);
+        }
+        Ok(())
+    }
+
     async fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
         let mut required_normal_routes = HashSet::new();
         let mut required_default_routes = HashSet::new();
@@ -207,18 +231,21 @@ impl RouteManagerImplInner {
             self.add_route(normal_route).await?;
         }
 
-        for route in required_default_routes.into_iter() {
-            self.required_default_routes.insert(route);
-            if let (false, _, Some(default_node)) | (true, Some(default_node), _) = (
-                route.destination.is_ipv4(),
-                &self.best_default_node_v4,
-                &self.best_default_node_v6,
-            ) {
-                // best to pick a single node identifier rather than device + ip
-                let new_route =
-                    Route::new(default_node.clone(), route.destination).table(route.table_id);
-                self.add_route(new_route).await?;
-            }
+        if self
+            .add_required_default_routes(required_default_routes.clone())
+            .await
+            .is_err()
+        {
+            log::trace!("Refreshing default routes which may be stale");
+
+            self.default_routes = self.get_default_routes().await?;
+            self.best_default_node_v4 =
+                Self::pick_best_default_node(&self.default_routes, IpVersion::V4);
+            self.best_default_node_v6 =
+                Self::pick_best_default_node(&self.default_routes, IpVersion::V6);
+
+            self.add_required_default_routes(required_default_routes)
+                .await?;
         }
 
         Ok(())
@@ -450,8 +477,10 @@ impl RouteManagerImplInner {
             }
             RouteManagerCommand::AddRoutes(routes, result_rx) => {
                 log::debug!("Adding routes: {:?}", routes);
-                if let Err(error) = self.add_required_routes(routes).await {
+                if let Err(error) = self.add_required_routes(routes.clone()).await {
                     let _ = result_rx.send(Err(error));
+                } else {
+                    let _ = result_rx.send(Ok(()));
                 }
             }
             RouteManagerCommand::ClearRoutes => {
