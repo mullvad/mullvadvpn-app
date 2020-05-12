@@ -17,7 +17,7 @@ RUSTC_VERSION=`rustc +stable --version`
 PRODUCT_VERSION=$(node -p "require('./gui/package.json').version" | sed -Ee 's/\.0//g')
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"$SCRIPT_DIR/target"}
 
-source env.sh ""
+source env.sh
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
     BUILD_MODE="release"
