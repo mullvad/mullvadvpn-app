@@ -10,7 +10,14 @@ import * as AppButton from './AppButton';
 import ClipboardLabel from './ClipboardLabel';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
-import { BackBarItem, NavigationBar, NavigationContainer, NavigationItems } from './NavigationBar';
+import {
+  BackBarItem,
+  NavigationBar,
+  NavigationContainer,
+  NavigationItems,
+  NavigationScrollbars,
+  TitleBarItem,
+} from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import styles from './WireguardKeysStyles';
 
@@ -68,62 +75,72 @@ export default class WireguardKeys extends Component<IProps, IState> {
                       messages.pgettext('wireguard-keys-nav', 'Advanced')
                     }
                   </BackBarItem>
+                  <TitleBarItem>
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('wireguard-keys-nav', 'WireGuard key')
+                    }
+                  </TitleBarItem>
                 </NavigationItems>
               </NavigationBar>
+
+              <View style={styles.wgkeys__container}>
+                <NavigationScrollbars style={styles.wgkeys__scrollview} fillContainer>
+                  <View style={styles.wgkeys__content}>
+                    <SettingsHeader>
+                      <HeaderTitle>
+                        {messages.pgettext('wireguard-keys-nav', 'WireGuard key')}
+                      </HeaderTitle>
+                    </SettingsHeader>
+
+                    <View style={styles.wgkeys__row}>
+                      <Text style={styles.wgkeys__row_label}>
+                        {messages.pgettext('wireguard-keys', 'Public key')}
+                      </Text>
+
+                      <View style={styles.wgkeys__row_value}>{this.getKeyText()}</View>
+                    </View>
+                    <View style={styles.wgkeys__row}>
+                      <Text style={styles.wgkeys__row_label}>
+                        {messages.pgettext('wireguard-keys', 'Key generated')}
+                      </Text>
+                      <Text style={styles.wgkeys__row_value}>{this.ageOfKeyString()}</Text>
+                    </View>
+
+                    <View style={styles.wgkeys__messages}>
+                      {this.props.isOffline ? (
+                        this.offlineLabel()
+                      ) : (
+                        <View style={styles.wgkeys__row}>{this.keyValidityLabel()}</View>
+                      )}
+                    </View>
+
+                    <View style={styles.wgkeys__row}>{this.getGenerateButton()}</View>
+                    <View style={styles.wgkeys__row}>
+                      <AppButton.BlueButton
+                        disabled={this.isVerifyButtonDisabled()}
+                        onPress={this.getOnVerifyKeyCb()}>
+                        <AppButton.Label>
+                          {messages.pgettext('wireguard-key-view', 'Verify key')}
+                        </AppButton.Label>
+                      </AppButton.BlueButton>
+                    </View>
+                    <View style={styles.wgkeys__row}>
+                      <AppButton.BlockingButton
+                        disabled={this.props.isOffline}
+                        onPress={this.props.onVisitWebsiteKey}>
+                        <AppButton.BlueButton>
+                          <AppButton.Label>
+                            {messages.pgettext('wireguard-key-view', 'Manage keys')}
+                          </AppButton.Label>
+                          <AppButton.Icon source="icon-extLink" height={16} width={16} />
+                        </AppButton.BlueButton>
+                      </AppButton.BlockingButton>
+                    </View>
+                  </View>
+                </NavigationScrollbars>
+              </View>
             </NavigationContainer>
-
-            <View style={styles.wgkeys__container}>
-              <SettingsHeader>
-                <HeaderTitle>
-                  {messages.pgettext('wireguard-keys-nav', 'WireGuard key')}
-                </HeaderTitle>
-              </SettingsHeader>
-
-              <View style={styles.wgkeys__row}>
-                <Text style={styles.wgkeys__row_label}>
-                  {messages.pgettext('wireguard-keys', 'Public key')}
-                </Text>
-
-                <View style={styles.wgkeys__row_value}>{this.getKeyText()}</View>
-              </View>
-              <View style={styles.wgkeys__row}>
-                <Text style={styles.wgkeys__row_label}>
-                  {messages.pgettext('wireguard-keys', 'Key generated')}
-                </Text>
-                <Text style={styles.wgkeys__row_value}>{this.ageOfKeyString()}</Text>
-              </View>
-
-              <View style={styles.wgkeys__messages}>
-                {this.props.isOffline ? (
-                  this.offlineLabel()
-                ) : (
-                  <View style={styles.wgkeys__row}>{this.keyValidityLabel()}</View>
-                )}
-              </View>
-
-              <View style={styles.wgkeys__row}>{this.getGenerateButton()}</View>
-              <View style={styles.wgkeys__row}>
-                <AppButton.BlueButton
-                  disabled={this.isVerifyButtonDisabled()}
-                  onPress={this.getOnVerifyKeyCb()}>
-                  <AppButton.Label>
-                    {messages.pgettext('wireguard-key-view', 'Verify key')}
-                  </AppButton.Label>
-                </AppButton.BlueButton>
-              </View>
-              <View style={styles.wgkeys__row}>
-                <AppButton.BlockingButton
-                  disabled={this.props.isOffline}
-                  onPress={this.props.onVisitWebsiteKey}>
-                  <AppButton.BlueButton>
-                    <AppButton.Label>
-                      {messages.pgettext('wireguard-key-view', 'Manage keys')}
-                    </AppButton.Label>
-                    <AppButton.Icon source="icon-extLink" height={16} width={16} />
-                  </AppButton.BlueButton>
-                </AppButton.BlockingButton>
-              </View>
-            </View>
           </View>
         </Container>
       </Layout>
