@@ -45,6 +45,8 @@ pub enum Error {
 
 #[derive(Debug)]
 pub enum RouteManagerCommand {
+    /// Attempt to add routes to the routing table. This may return an error upon failure,
+    /// depending on the platform.
     AddRoutes(
         HashSet<RequiredRoute>,
         oneshot::Sender<Result<(), PlatformError>>,

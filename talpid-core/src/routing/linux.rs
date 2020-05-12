@@ -8,11 +8,18 @@ use std::{
     io,
     net::IpAddr,
     thread,
+    time::Duration,
 };
 
 use futures01::{stream::Stream as old_stream, sync::mpsc as old_mpsc};
 
-use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, TryStreamExt};
+use futures::{
+    channel::mpsc::{self, UnboundedReceiver, UnboundedSender},
+    future::FutureExt,
+    StreamExt, TryStreamExt,
+};
+
+use tokio02::sync::oneshot;
 
 
 use netlink_packet_route::{
@@ -31,6 +38,10 @@ use rtnetlink::{
 };
 
 use libc::{AF_INET, AF_INET6};
+
+/// If adding some routes fails (except in the constructor), the manager will retry once after
+/// this interval.
+const ROUTE_ADD_RETRY_DURATION: Duration = Duration::from_secs(1);
 
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -103,7 +114,7 @@ impl RouteManagerImpl {
             manager,
         } = self;
 
-        let (new_manage_tx, new_manage_rx) = futures::channel::mpsc::unbounded();
+        let (new_manage_tx, new_manage_rx) = mpsc::unbounded();
 
         thread::spawn(move || {
             for msg in manage_rx.wait() {
@@ -142,6 +153,10 @@ pub struct RouteManagerImplInner {
     default_routes: HashSet<Route>,
     best_default_node_v4: Option<Node>,
     best_default_node_v6: Option<Node>,
+
+    queue_abort_handles: Vec<oneshot::Sender<()>>,
+    queue_tx: UnboundedSender<HashSet<RequiredRoute>>,
+    queue_rx: UnboundedReceiver<HashSet<RequiredRoute>>,
 }
 
 impl RouteManagerImplInner {
@@ -160,6 +175,8 @@ impl RouteManagerImplInner {
 
         let iface_map = Self::initialize_link_map(&handle).await?;
 
+        let (queue_tx, queue_rx) = mpsc::unbounded();
+
         let mut monitor = Self {
             iface_map,
             handle,
@@ -171,6 +188,10 @@ impl RouteManagerImplInner {
             default_routes: HashSet::new(),
             best_default_node_v4: None,
             best_default_node_v6: None,
+
+            queue_abort_handles: vec![],
+            queue_tx,
+            queue_rx,
         };
 
         monitor.default_routes = monitor.get_default_routes().await?;
@@ -182,6 +203,40 @@ impl RouteManagerImplInner {
         monitor.add_required_routes(required_routes).await?;
 
         Ok(monitor)
+    }
+
+    // Try to add routes after a delay
+    async fn queue_required_routes(
+        &mut self,
+        required_routes: HashSet<RequiredRoute>,
+    ) -> Result<()> {
+        let mut route_queue = HashSet::new();
+        for route in required_routes {
+            route_queue.insert(route);
+        }
+
+        use tokio02::time;
+
+        let (abort_tx, abort_rx) = oneshot::channel();
+        let queue_tx = self.queue_tx.clone();
+
+        tokio02::spawn(async move {
+            let delay = time::delay_for(ROUTE_ADD_RETRY_DURATION);
+            match futures::future::select(delay, abort_rx).await {
+                futures::future::Either::Left(_) => {
+                    if let Err(_) = queue_tx.unbounded_send(route_queue) {
+                        log::debug!("Queue channel unexpectedly down");
+                    }
+                }
+                _ => {
+                    log::trace!("Cancelled queued routes");
+                }
+            }
+        });
+
+        self.queue_abort_handles.push(abort_tx);
+
+        Ok(())
     }
 
     async fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
@@ -377,6 +432,10 @@ impl RouteManagerImplInner {
     }
 
     async fn cleanup_routes(&mut self) {
+        for tx in self.queue_abort_handles.drain(..) {
+            let _ = tx.send(());
+        }
+
         for required_route in &self.required_default_routes {
             let best_node = if required_route.destination.is_ipv4() {
                 self.best_default_node_v4.clone()
@@ -430,6 +489,11 @@ impl RouteManagerImplInner {
                 command = manage_rx.select_next_some().fuse() => {
                     self.process_command(command).await?;
                 },
+                queued_routes = self.queue_rx.select_next_some().fuse() => {
+                    if let Err(error) = self.process_queue(queued_routes).await {
+                        log::error!("{}", error.display_chain_with_msg("Failed to add routes"));
+                    }
+                },
                 (route_change, socket) = self.messages.select_next_some().fuse() => {
                     if let Err(error) = self.process_netlink_message(route_change).await {
                         log::error!("{}", error.display_chain_with_msg("Failed to process netlink message"));
@@ -437,6 +501,11 @@ impl RouteManagerImplInner {
                 }
             };
         }
+    }
+
+    async fn process_queue(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
+        log::debug!("Adding queued routes: {:?}", required_routes);
+        self.add_required_routes(required_routes).await
     }
 
     async fn process_command(&mut self, command: RouteManagerCommand) -> Result<()> {
@@ -448,10 +517,14 @@ impl RouteManagerImplInner {
                 let _ = shutdown_signal.send(());
                 return Err(Error::Shutdown);
             }
-            RouteManagerCommand::AddRoutes(routes, result_rx) => {
+            RouteManagerCommand::AddRoutes(routes, _result_rx) => {
                 log::debug!("Adding routes: {:?}", routes);
-                if let Err(error) = self.add_required_routes(routes).await {
-                    let _ = result_rx.send(Err(error));
+                if let Err(error) = self.add_required_routes(routes.clone()).await {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to add routes. Queueing new attempt.")
+                    );
+                    let _ = self.queue_required_routes(routes).await;
                 }
             }
             RouteManagerCommand::ClearRoutes => {
