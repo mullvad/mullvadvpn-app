@@ -13,7 +13,9 @@ import styles, {
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import { Layout } from './Layout';
+import { ModalContainer } from './Modal';
 import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
+import { RedeemVoucherButton } from './RedeemVoucher';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
@@ -31,58 +33,63 @@ interface IProps {
 export default class Account extends React.Component<IProps> {
   public render() {
     return (
-      <Layout>
-        <StyledContainer>
-          <NavigationBar>
-            <NavigationItems>
-              <BackBarItem action={this.props.onClose}>
-                {
-                  // TRANSLATORS: Back button in navigation bar
-                  messages.pgettext('navigation-bar', 'Settings')
-                }
-              </BackBarItem>
-            </NavigationItems>
-          </NavigationBar>
+      <ModalContainer>
+        <Layout>
+          <StyledContainer>
+            <NavigationBar>
+              <NavigationItems>
+                <BackBarItem action={this.props.onClose}>
+                  {
+                    // TRANSLATORS: Back button in navigation bar
+                    messages.pgettext('navigation-bar', 'Settings')
+                  }
+                </BackBarItem>
+              </NavigationItems>
+            </NavigationBar>
 
-          <AccountContainer>
-            <SettingsHeader>
-              <HeaderTitle>{messages.pgettext('account-view', 'Account')}</HeaderTitle>
-            </SettingsHeader>
+            <AccountContainer>
+              <SettingsHeader>
+                <HeaderTitle>{messages.pgettext('account-view', 'Account')}</HeaderTitle>
+              </SettingsHeader>
 
-            <AccountRow>
-              <AccountRowLabel>
-                {messages.pgettext('account-view', 'Account number')}
-              </AccountRowLabel>
-              <AccountRowValue
-                as={AccountTokenLabel}
-                accountToken={this.props.accountToken || ''}
-              />
-            </AccountRow>
+              <AccountRow>
+                <AccountRowLabel>
+                  {messages.pgettext('account-view', 'Account number')}
+                </AccountRowLabel>
+                <AccountRowValue
+                  as={AccountTokenLabel}
+                  accountToken={this.props.accountToken || ''}
+                />
+              </AccountRow>
 
-            <AccountRow>
-              <AccountRowLabel>{messages.pgettext('account-view', 'Paid until')}</AccountRowLabel>
-              <FormattedAccountExpiry
-                expiry={this.props.accountExpiry}
-                locale={this.props.expiryLocale}
-              />
-            </AccountRow>
+              <AccountRow>
+                <AccountRowLabel>{messages.pgettext('account-view', 'Paid until')}</AccountRowLabel>
+                <FormattedAccountExpiry
+                  expiry={this.props.accountExpiry}
+                  locale={this.props.expiryLocale}
+                />
+              </AccountRow>
 
-            <AccountFooter>
-              <AppButton.BlockingButton
-                disabled={this.props.isOffline}
-                onPress={this.props.onBuyMore}>
-                <AppButton.GreenButton style={styles.account__buy_button}>
-                  <AppButton.Label>{messages.gettext('Buy more credit')}</AppButton.Label>
-                  <AppButton.Icon source="icon-extLink" height={16} width={16} />
-                </AppButton.GreenButton>
-              </AppButton.BlockingButton>
-              <AppButton.RedButton onPress={this.props.onLogout}>
-                {messages.pgettext('account-view', 'Log out')}
-              </AppButton.RedButton>
-            </AccountFooter>
-          </AccountContainer>
-        </StyledContainer>
-      </Layout>
+              <AccountFooter>
+                <AppButton.BlockingButton
+                  disabled={this.props.isOffline}
+                  onPress={this.props.onBuyMore}>
+                  <AppButton.GreenButton style={styles.button}>
+                    <AppButton.Label>{messages.gettext('Buy more credit')}</AppButton.Label>
+                    <AppButton.Icon source="icon-extLink" height={16} width={16} />
+                  </AppButton.GreenButton>
+                </AppButton.BlockingButton>
+
+                <RedeemVoucherButton style={styles.button} />
+
+                <AppButton.RedButton onPress={this.props.onLogout}>
+                  {messages.pgettext('account-view', 'Log out')}
+                </AppButton.RedButton>
+              </AccountFooter>
+            </AccountContainer>
+          </StyledContainer>
+        </Layout>
+      </ModalContainer>
     );
   }
 }

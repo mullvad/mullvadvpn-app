@@ -52,7 +52,7 @@ export const AccountFooter = styled.div({
 });
 
 export default {
-  account__buy_button: Styles.createViewStyle({
+  button: Styles.createViewStyle({
     marginBottom: 24,
   }),
 };
