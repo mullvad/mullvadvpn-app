@@ -1,9 +1,12 @@
 import React, { useCallback, useContext, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Types } from 'reactxp';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import accountActions from '../redux/account/actions';
+import { IReduxState } from '../redux/store';
 import * as AppButton from './AppButton';
 import { ModalAlert } from './Modal';
 import {
@@ -193,5 +196,30 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
       <RedeemVoucherInput />
       <RedeemVoucherResponse />
     </ModalAlert>
+  );
+}
+
+interface IRedeemVoucherButtonProps {
+  style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
+}
+
+export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
+  const isBlocked = useSelector((state: IReduxState) => state.connection.isBlocked);
+  const [showAlert, setShowAlert] = useState(false);
+
+  const onPress = useCallback(() => setShowAlert(true), []);
+  const onAlertClose = useCallback(() => setShowAlert(false), []);
+
+  return (
+    <>
+      <AppButton.GreenButton disabled={isBlocked} onPress={onPress} style={props.style}>
+        {messages.pgettext('redeem-voucher-alert', 'Redeem voucher')}
+      </AppButton.GreenButton>
+      {showAlert && (
+        <RedeemVoucherContainer onSuccess={onAlertClose}>
+          <RedeemVoucherAlert onClose={onAlertClose} />
+        </RedeemVoucherContainer>
+      )}
+    </>
   );
 }
