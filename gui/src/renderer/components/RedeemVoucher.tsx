@@ -1,10 +1,19 @@
-import * as React from 'react';
-import { Component, Text, TextInput, View } from 'reactxp';
-import { colors } from '../../config.json';
+import React, { useCallback, useContext, useState } from 'react';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { useAppContext } from '../context';
+import useActions from '../lib/actionsHook';
+import accountActions from '../redux/account/actions';
 import * as AppButton from './AppButton';
-import styles, { Spinner } from './RedeemVoucherStyles';
+import {
+  StyledEmptyResponse,
+  StyledErrorResponse,
+  StyledInput,
+  StyledSpinner,
+  StyledSuccessResponse,
+} from './RedeemVoucherStyles';
+
+const MIN_VOUCHER_LENGTH = 16;
 
 interface IRedeemVoucherContextValue {
   onSubmit: () => void;
@@ -39,162 +48,126 @@ const RedeemVoucherContext = React.createContext<IRedeemVoucherContextValue>({
 });
 
 interface IRedeemVoucherProps {
-  submitVoucher: (voucherCode: string) => Promise<VoucherResponse>;
-  updateAccountExpiry: (expiry: string) => void;
   onSubmit?: () => void;
   onSuccess?: () => void;
   onFailure?: () => void;
   children?: React.ReactNode;
 }
 
-interface IRedeemVoucherState {
-  value: string;
-  submitting: boolean;
-  response?: VoucherResponse;
-}
+export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
+  const { onSubmit, onSuccess, onFailure } = props;
 
-export class RedeemVoucher extends Component<IRedeemVoucherProps, IRedeemVoucherState> {
-  public state = {
-    value: '',
-    submitting: false,
-    response: undefined,
-  };
+  const { submitVoucher } = useAppContext();
+  const { updateAccountExpiry } = useActions(accountActions);
 
-  public render() {
-    return (
-      <RedeemVoucherContext.Provider
-        value={{
-          onSubmit: this.onSubmit,
-          value: this.state.value,
-          setValue: this.setValue,
-          valueValid: RedeemVoucher.isValueValid(this.state.value),
-          submitting: this.state.submitting,
-          response: this.state.response,
-        }}>
-        {this.props.children}
-      </RedeemVoucherContext.Provider>
-    );
-  }
+  const [value, setValue] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [response, setResponse] = useState<VoucherResponse>();
 
-  private setValue = (value: string) => {
-    this.setState({ value });
-  };
+  const valueValid = value.length >= MIN_VOUCHER_LENGTH;
 
-  private static isValueValid(value: string): boolean {
-    return value.length >= 16;
-  }
-
-  private onSubmit = async () => {
-    if (!RedeemVoucher.isValueValid(this.state.value)) {
+  const onSubmitWrapper = useCallback(async () => {
+    if (!valueValid) {
       return;
     }
 
-    this.setState({ submitting: true });
+    setSubmitting(true);
+    onSubmit?.();
+    const response = await submitVoucher(value);
 
-    if (this.props.onSubmit) {
-      this.props.onSubmit();
-    }
-
-    const response = await this.props.submitVoucher(this.state.value);
-
+    setSubmitting(false);
+    setResponse(response);
     if (response.type === 'success') {
-      this.setState({ value: '', submitting: false, response });
-      this.props.updateAccountExpiry(response.new_expiry);
-      if (this.props.onSuccess) {
-        this.props.onSuccess();
-      }
+      setValue('');
+      updateAccountExpiry(response.new_expiry);
+      onSuccess?.();
     } else {
-      this.setState({ submitting: false, response });
-      if (this.props.onFailure) {
-        this.props.onFailure();
-      }
+      onFailure?.();
     }
-  };
+  }, [value, valueValid, onSubmit, submitVoucher, updateAccountExpiry, onSuccess, onFailure]);
+
+  return (
+    <RedeemVoucherContext.Provider
+      value={{ onSubmit: onSubmitWrapper, value, setValue, valueValid, submitting, response }}>
+      {props.children}
+    </RedeemVoucherContext.Provider>
+  );
 }
 
-export class RedeemVoucherInput extends Component {
-  public render() {
-    return (
-      <RedeemVoucherContext.Consumer>
-        {(context) => (
-          <View>
-            <TextInput
-              style={styles.textInput}
-              value={context.value}
-              placeholder={'XXXX-XXXX-XXXX-XXXX'}
-              placeholderTextColor={colors.blue40}
-              autoCorrect={false}
-              onChangeText={context.setValue}
-              onSubmitEditing={context.onSubmit}
-            />
-          </View>
-        )}
-      </RedeemVoucherContext.Consumer>
-    );
-  }
+export function RedeemVoucherInput() {
+  const { value, setValue, onSubmit } = useContext(RedeemVoucherContext);
+
+  const onChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setValue(event.target.value);
+    },
+    [setValue],
+  );
+
+  const onKeyPress = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        onSubmit();
+      }
+    },
+    [onSubmit],
+  );
+
+  return (
+    <StyledInput
+      value={value}
+      placeholder={'XXXX-XXXX-XXXX-XXXX'}
+      onChange={onChange}
+      onKeyPress={onKeyPress}
+    />
+  );
 }
 
-export class RedeemVoucherResponse extends Component {
-  public render() {
-    return (
-      <RedeemVoucherContext.Consumer>
-        {(context) => {
-          if (context.submitting) {
-            return <Spinner source="icon-spinner" height={20} width={20} />;
-          }
+export function RedeemVoucherResponse() {
+  const { response, submitting } = useContext(RedeemVoucherContext);
 
-          if (context.response) {
-            switch (context.response.type) {
-              case 'success':
-                return (
-                  <Text style={styles.redeemVoucherResponseSuccess}>
-                    {messages.pgettext('redeem-voucher-view', 'Voucher was successfully redeemed.')}
-                  </Text>
-                );
-              case 'invalid':
-                return (
-                  <Text style={styles.redeemVoucherResponseError}>
-                    {messages.pgettext('redeem-voucher-view', 'Voucher code is invalid.')}
-                  </Text>
-                );
-              case 'already_used':
-                return (
-                  <Text style={styles.redeemVoucherResponseError}>
-                    {messages.pgettext(
-                      'redeem-voucher-view',
-                      'Voucher code has already been used.',
-                    )}
-                  </Text>
-                );
-              case 'error':
-                return (
-                  <Text style={styles.redeemVoucherResponseError}>
-                    {messages.pgettext('redeem-voucher-view', 'An error occured.')}
-                  </Text>
-                );
-            }
-          }
-
-          return <View style={styles.redeemVoucherResponseEmpty} />;
-        }}
-      </RedeemVoucherContext.Consumer>
-    );
+  if (submitting) {
+    return <StyledSpinner source="icon-spinner" height={20} width={20} />;
   }
+
+  if (response) {
+    switch (response.type) {
+      case 'success':
+        return (
+          <StyledSuccessResponse>
+            {messages.pgettext('redeem-voucher-view', 'Voucher was successfully redeemed.')}
+          </StyledSuccessResponse>
+        );
+      case 'invalid':
+        return (
+          <StyledErrorResponse>
+            {messages.pgettext('redeem-voucher-view', 'Voucher code is invalid.')}
+          </StyledErrorResponse>
+        );
+      case 'already_used':
+        return (
+          <StyledErrorResponse>
+            {messages.pgettext('redeem-voucher-view', 'Voucher code has already been used.')}
+          </StyledErrorResponse>
+        );
+      case 'error':
+        return (
+          <StyledErrorResponse>
+            {messages.pgettext('redeem-voucher-view', 'An error occured.')}
+          </StyledErrorResponse>
+        );
+    }
+  }
+
+  return <StyledEmptyResponse />;
 }
 
-export class RedeemVoucherSubmitButton extends Component {
-  public render() {
-    return (
-      <RedeemVoucherContext.Consumer>
-        {(context) => (
-          <AppButton.GreenButton
-            key="cancel"
-            disabled={!context.valueValid || context.submitting}
-            onPress={context.onSubmit}>
-            {messages.pgettext('redeem-voucher-view', 'Redeem')}
-          </AppButton.GreenButton>
-        )}
-      </RedeemVoucherContext.Consumer>
-    );
-  }
+export function RedeemVoucherSubmitButton() {
+  const { valueValid, onSubmit, submitting } = useContext(RedeemVoucherContext);
+
+  return (
+    <AppButton.GreenButton key="cancel" disabled={!valueValid || submitting} onPress={onSubmit}>
+      {messages.pgettext('redeem-voucher-view', 'Redeem')}
+    </AppButton.GreenButton>
+  );
 }
