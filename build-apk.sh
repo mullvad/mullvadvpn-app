@@ -89,7 +89,6 @@ for ARCHITECTURE in $ARCHITECTURES; do
     echo "Building mullvad-daemon for $TARGET"
     cargo +stable build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
 
-    cp -a "$SCRIPT_DIR/dist-assets/binaries/$TARGET" "$SCRIPT_DIR/android/build/extraJni/$ABI"
     cp "$SCRIPT_DIR/target/$TARGET/$BUILD_TYPE/libmullvad_jni.so" "$SCRIPT_DIR/android/build/extraJni/$ABI/"
 done
 
