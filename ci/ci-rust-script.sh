@@ -5,7 +5,7 @@ set -eux
 RUST_TOOLCHAIN_CHANNEL=$1
 export RUSTFLAGS="--deny unused_imports --deny dead_code --deny unused_mut --deny unused_variables --deny unused_parens"
 
-source env.sh ""
+source env.sh
 
 case "$(uname -s)" in
   Linux*|Darwin*)
