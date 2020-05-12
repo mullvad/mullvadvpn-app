@@ -23,7 +23,7 @@ enum PacketTunnelProviderError: Error {
     case missingKeychainConfigurationReference
 
     /// Failure to read the tunnel configuration from Keychain
-    case cannotReadTunnelConfiguration(TunnelConfigurationManagerError)
+    case cannotReadTunnelConfiguration(TunnelConfigurationManager.Error)
 
     /// Failure to set network settings
     case setNetworkSettings(Error)
@@ -67,6 +67,7 @@ enum PacketTunnelProviderError: Error {
 }
 
 struct PacketTunnelConfiguration {
+    var persistentKeychainReference: Data
     var tunnelConfig: TunnelConfiguration
     var selectorResult: RelaySelectorResult
 }
@@ -108,6 +109,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private let exclusivityQueue = DispatchQueue(label: "net.mullvad.vpn.packet-tunnel.exclusivity-queue")
     private let executionQueue = DispatchQueue(label: "net.mullvad.vpn.packet-tunnel.execution-queue")
 
+    private var keyRotationManager: AutomaticKeyRotationManager?
+
     override init() {
         super.init()
 
@@ -115,18 +118,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     override func startTunnel(options: [String : NSObject]?, completionHandler: @escaping (Error?) -> Void) {
-        os_log(.default, log: tunnelProviderLog, "Start tunnel received.")
-
         startStopTunnelSubscriber = self.startTunnel()
             .sink(receiveCompletion: { (completion) in
                 switch completion {
                 case .finished:
-                    os_log(.default, log: tunnelProviderLog, "Started the tunnel")
-
                     completionHandler(nil)
 
                 case .failure(let error):
-                    os_log(.error, log: tunnelProviderLog, "Failed to start the tunnel: %{public}s", error.localizedDescription)
+                    os_log(.error, log: tunnelProviderLog,
+                           "Failed to start the tunnel: %{public}s", error.localizedDescription)
 
                     completionHandler(error)
                 }
@@ -134,13 +134,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
-        os_log(.default, log: tunnelProviderLog, "Stop tunnel received. Reason: %{public}s", "\(String(reflecting: reason))")
-
-        startStopTunnelSubscriber = stopTunnel().sink(receiveCompletion: { (completion) in
-            os_log(.default, log: tunnelProviderLog, "Stopped the tunnel")
-
-            completionHandler()
-        })
+        startStopTunnelSubscriber = stopTunnel(reason: reason)
+            .sink(receiveCompletion: { (completion) in
+                completionHandler()
+            })
     }
 
     override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
@@ -148,8 +145,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             .mapError { PacketTunnelProviderError.ipcHandler($0) }
             .receive(on: executionQueue)
             .flatMap { (request) -> AnyPublisher<AnyEncodable, PacketTunnelProviderError> in
-                os_log(.default, log: tunnelProviderLog,
-                       "Received IPC request: %{public}s", "\(request)")
+                os_log(.default, log: tunnelProviderLog, "IPC request: %{public}s", "\(request)")
 
                 switch request {
 
@@ -168,7 +164,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 .mapError { PacketTunnelProviderError.ipcHandler($0) }
         }).autoDisposableSink(cancellableSet: cancellableSet, receiveCompletion: { (completion) in
             if case .failure(let error) = completion {
-                os_log(.error, log: tunnelProviderLog, "Failed to handle the app message: %{public}s", error.localizedDescription)
+                os_log(.error, log: tunnelProviderLog,
+                       "Failed to handle the app message: %{public}s", error.localizedDescription)
                 completionHandler?(nil)
             }
         }, receiveValue: { (responseData) in
@@ -196,29 +193,36 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             exclusivityQueue: exclusivityQueue,
             executionQueue: executionQueue
         ) { () -> AnyPublisher<(), PacketTunnelProviderError> in
-            os_log(.default, log: tunnelProviderLog, "Starting the tunnel")
+            os_log(.default, log: tunnelProviderLog, "Start the tunnel")
 
             self.startedTunnel = true
 
             return self.makePacketTunnelConfigAndApplyNetworkSettings()
-                .flatMap {
+                .flatMap { (packetTunnelConfiguration) in
                     Self.startWireguard(
                         packetFlow: self.packetFlow,
-                        configuration: $0.wireguardConfig
+                        configuration: packetTunnelConfiguration.wireguardConfig
                     )
                         .receive(on: self.executionQueue)
                         .handleEvents(receiveOutput: { (wireguardDevice) in
                             self.wireguardDevice = wireguardDevice
+
+                            self.startKeyRotation(
+                                persistentKeychainReference: packetTunnelConfiguration
+                                    .persistentKeychainReference
+                            )
                         }).map { _ in () }
             }.eraseToAnyPublisher()
         }.eraseToAnyPublisher()
     }
 
-    private func stopTunnel() -> AnyPublisher<(), Never> {
+    private func stopTunnel(reason: NEProviderStopReason) -> AnyPublisher<(), Never> {
         MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) { () -> AnyPublisher<(), Never> in
-            os_log(.default, log: tunnelProviderLog, "Stopping the tunnel")
+            os_log(.default, log: tunnelProviderLog,
+                   "Stop the tunnel. Reason: %{public}s", "\(String(reflecting: reason))")
 
             self.startedTunnel = false
+            self.stopKeyRotation()
 
             if let device = self.wireguardDevice {
                 self.wireguardDevice = nil
@@ -267,11 +271,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             }, receiveCompletion: { (completion) in
                 switch completion {
                 case .finished:
-                    os_log(.default, log: tunnelProviderLog, "Set new tunnel settings")
+                    os_log(.default, log: tunnelProviderLog, "Reloaded the tunnel with new settings")
 
                 case .failure(let error):
                     os_log(.default, log: tunnelProviderLog,
-                           "Failed to set the new tunnel settings: %{public}s",
+                           "Failed to reload the tunnel with new settings: %{public}s",
                            error.localizedDescription)
                 }
 
@@ -293,7 +297,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             location: selectorResult.location
         )
 
-        os_log(.default, log: tunnelProviderLog, "Selected relay: %{public}s",
+        os_log(.default, log: tunnelProviderLog, "Select relay: %{public}s",
                selectorResult.relay.hostname)
     }
 
@@ -314,17 +318,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     /// Returns a `PacketTunnelConfig` that contains the tunnel configuration and selected relay
     private func makePacketTunnelConfig() -> AnyPublisher<PacketTunnelConfiguration, PacketTunnelProviderError> {
-        let keychainRef = (protocolConfiguration as? NETunnelProviderProtocol)?.passwordReference
-
-        return Just(keychainRef)
-            .setFailureType(to: PacketTunnelProviderError.self)
-            .replaceNil(with: PacketTunnelProviderError.missingKeychainConfigurationReference)
-            .flatMap { (keychainRef) in
-                Self.readTunnelConfiguration(keychainReference: keychainRef).publisher
+        return getConfigurationPersistentKeychainReference()
+            .publisher
+            .flatMap { (persistentKeychainReference) in
+                Self.readTunnelConfiguration(keychainReference: persistentKeychainReference)
+                    .publisher
                     .flatMap { (tunnelConfiguration) in
                         Self.selectRelayEndpoint(relayConstraints: tunnelConfiguration.relayConstraints)
-                            .map { (selectorResult) in
+                            .map { (selectorResult) -> PacketTunnelConfiguration in
                                 PacketTunnelConfiguration(
+                                    persistentKeychainReference: persistentKeychainReference,
                                     tunnelConfig: tunnelConfiguration,
                                     selectorResult: selectorResult)
                         }
@@ -351,10 +354,43 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         .eraseToAnyPublisher()
     }
 
+    /// Returns the persistent keychain reference for the VPN configuration or an error if it's
+    /// missing
+    private func getConfigurationPersistentKeychainReference() -> Result<Data, PacketTunnelProviderError> {
+        return protocolConfiguration.passwordReference.map { .success($0) }
+            ?? .failure(.missingKeychainConfigurationReference)
+    }
+
+    private func startKeyRotation(persistentKeychainReference: Data) {
+        let keyRotationManager = AutomaticKeyRotationManager(
+            persistentKeychainReference: persistentKeychainReference
+        )
+
+        keyRotationManager.keyRotationEventHandler = { (keyRotationEvent) in
+            self.reloadTunnel().autoDisposableSink(
+                cancellableSet: self.cancellableSet,
+                receiveCompletion: { (completion) in
+                    // no-op
+            })
+        }
+
+        stopKeyRotation()
+        self.keyRotationManager = keyRotationManager
+
+        keyRotationManager.startAutomaticRotation()
+    }
+
+
+    private func stopKeyRotation() {
+        keyRotationManager?.stopAutomaticRotation()
+        keyRotationManager = nil
+    }
+
     /// Read tunnel configuration from Keychain
     private class func readTunnelConfiguration(keychainReference: Data) -> Result<TunnelConfiguration, PacketTunnelProviderError> {
-        return TunnelConfigurationManager.load(persistentKeychainRef: keychainReference)
+        TunnelConfigurationManager.load(searchTerm: .persistentReference(keychainReference))
             .mapError { PacketTunnelProviderError.cannotReadTunnelConfiguration($0) }
+            .map { $0.tunnelConfiguration }
     }
 
     /// Load relay cache with potential networking to refresh the cache and pick the relay for the
