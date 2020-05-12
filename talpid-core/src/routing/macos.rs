@@ -105,10 +105,7 @@ impl RouteManagerImpl {
         Ok(manager)
     }
 
-    fn add_required_routes(
-        &mut self,
-        required_routes: HashSet<RequiredRoute>,
-    ) -> Result<()> {
+    fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
         let mut routes_to_apply = vec![];
         let mut default_destinations = HashSet::new();
 
