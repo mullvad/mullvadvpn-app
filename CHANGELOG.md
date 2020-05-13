@@ -59,6 +59,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix UI losing any settings updates that happen after leaving the app and then coming back.
 - Fix account expiration date disappearing in some circumstances.
 - Fix notification reappearing after quitting the application.
+- Retry when fetching account expiration fails.
 
 
 ## [2020.4] - 2020-05-12
