@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.service
 
+import kotlin.math.min
+import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
@@ -29,10 +31,20 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     fun fetchAccountExpiry() {
         accountNumber?.let { account ->
             jobTracker.newBackgroundJob("fetch") {
-                val result = daemon.getAccountData(account)
+                var retryAttempt = 0
 
-                if (result is GetAccountDataResult.Ok) {
-                    handleNewExpiry(account, result.accountData.expiry)
+                while (true) {
+                    val result = daemon.getAccountData(account)
+
+                    if (result is GetAccountDataResult.Ok) {
+                        handleNewExpiry(account, result.accountData.expiry)
+                        break
+                    } else if (result is GetAccountDataResult.InvalidAccount) {
+                        break
+                    }
+
+                    retryAttempt += 1
+                    delay(calculateRetryFetchDelay(retryAttempt))
                 }
             }
         }
@@ -64,5 +76,12 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
     private fun notifyChange() {
         onAccountDataChange?.invoke(accountNumber, accountExpiry)
+    }
+
+    private fun calculateRetryFetchDelay(retryAttempt: Int): Long {
+        // delay in seconds = 2 ^ retryAttempt capped at 2^13 (8192)
+        val exponent = min(retryAttempt, 13)
+
+        return (1L shl exponent) * 1000L
     }
 }
