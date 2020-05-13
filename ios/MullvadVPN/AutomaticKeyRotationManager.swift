@@ -11,10 +11,10 @@ import Foundation
 import os
 
 /// A private key rotation retry interval on failure (in seconds)
-private let retryIntervalOnFailure = 300
+private let kRetryIntervalOnFailure = 300
 
 /// A private key rotation interval (in days)
-private let rotationInterval = 1
+private let kRotationInterval = 1
 
 class AutomaticKeyRotationManager {
 
@@ -111,9 +111,9 @@ class AutomaticKeyRotationManager {
                     os_log(.error, log: tunnelProviderLog,
                            "Failed to rotate the private key: %{public}s. Retry in %d seconds.",
                            error.localizedDescription,
-                           retryIntervalOnFailure)
+                           kRetryIntervalOnFailure)
 
-                    self.scheduleRetry(deadline: .now() + .seconds(retryIntervalOnFailure))
+                    self.scheduleRetry(deadline: .now() + .seconds(kRetryIntervalOnFailure))
                 }
             }) { [weak self] (keyRotationEvent) in
                 guard let self = self else { return }
@@ -135,7 +135,7 @@ class AutomaticKeyRotationManager {
                     os_log(.error, log: tunnelProviderLog,
                            "Failed to compute the next private rotation date. Retry in %d seconds.")
 
-                    self.scheduleRetry(deadline: .now() + .seconds(retryIntervalOnFailure))
+                    self.scheduleRetry(deadline: .now() + .seconds(kRetryIntervalOnFailure))
                 }
         }
     }
@@ -211,7 +211,7 @@ class AutomaticKeyRotationManager {
     }
 
     class func nextRotation(creationDate: Date) -> Date? {
-        return Calendar.current.date(byAdding: .day, value: rotationInterval, to: creationDate)
+        return Calendar.current.date(byAdding: .day, value: kRotationInterval, to: creationDate)
     }
 
     class func shouldRotateKey(creationDate: Date) -> Bool {
