@@ -613,7 +613,7 @@ class TunnelManager {
                         .map { $0.tunnelConfiguration.relayConstraints }
                         .flatMapError { (error) -> Result<RelayConstraints, TunnelConfigurationManager.Error> in
                             // Return default constraints if the config is not found in Keychain
-                            if case .getFromKeychain(.itemNotFound) = error {
+                            if case .lookupEntry(.itemNotFound) = error {
                                 return .success(TunnelConfiguration().relayConstraints)
                             } else {
                                 return .failure(error)
@@ -760,7 +760,7 @@ class TunnelManager {
             .map { $0.tunnelConfiguration }
             .flatMapError { (error) -> Result<TunnelConfiguration, TunnelConfigurationManager.Error> in
                 // Return default tunnel configuration if the config is not found in Keychain
-                if case .getFromKeychain(.itemNotFound) = error {
+                if case .lookupEntry(.itemNotFound) = error {
                     let defaultConfiguration = TunnelConfiguration()
 
                     return TunnelConfigurationManager
