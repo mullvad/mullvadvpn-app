@@ -12,37 +12,34 @@ import Security
 /// Service name used for keychain items
 private let kServiceName = "Mullvad VPN"
 
+/// Maximum number of attempts to perform when updating the Keychain entry "atomically"
+private let kMaxAtomicUpdateRetryLimit = 20
+
 enum TunnelConfigurationManager {}
 
 extension TunnelConfigurationManager {
 
     enum Error: Swift.Error {
+        /// A failure to encode the given tunnel configuration
         case encode(Swift.Error)
-        case decode(Swift.Error)
-        case addToKeychain(Keychain.Error)
-        case updateKeychain(Keychain.Error)
-        case removeKeychainItem(Keychain.Error)
-        case getFromKeychain(Keychain.Error)
-        case getPersistentKeychainRef(Keychain.Error)
 
-        var localizedDescription: String {
-            switch self {
-            case .encode(let error):
-                return error.localizedDescription
-            case .decode(let error):
-                return error.localizedDescription
-            case .addToKeychain(let error):
-                return error.localizedDescription
-            case .updateKeychain(let error):
-                return error.localizedDescription
-            case .removeKeychainItem(let error):
-                return error.localizedDescription
-            case .getFromKeychain(let error):
-                return error.localizedDescription
-            case .getPersistentKeychainRef(let error):
-                return error.localizedDescription
-            }
-        }
+        /// A failure to decode the data stored in Keychain
+        case decode(Swift.Error)
+
+        /// A failure to add a new entry to Keychain
+        case addEntry(Keychain.Error)
+
+        /// A failure to update the existing entry in Keychain
+        case updateEntry(Keychain.Error)
+
+        /// A failure to atomically update a Keychain entry after multiple attempts
+        case updateEntryAtomicallyRetryLimitExceeded
+
+        /// A failure to remove an entry in Keychain
+        case removeEntry(Keychain.Error)
+
+        /// A failure to query the entry in Keychain
+        case lookupEntry(Keychain.Error)
     }
 
     typealias Result<T> = Swift.Result<T, Error>
@@ -82,7 +79,7 @@ extension TunnelConfigurationManager {
         query.return = [.data, .attributes]
 
         return Keychain.findFirst(query: query)
-            .mapError { .getFromKeychain($0) }
+            .mapError { .lookupEntry($0) }
             .flatMap { (attributes) in
                 let attributes = attributes!
                 let account = attributes.account!
@@ -113,7 +110,7 @@ extension TunnelConfigurationManager {
                 KeychainItemRevision.firstRevision().store(in: &attributes)
 
                 return Keychain.add(attributes)
-                    .mapError { .addToKeychain($0) }
+                    .mapError { .addEntry($0) }
                     .map { _ in () }
         }
     }
@@ -132,7 +129,7 @@ extension TunnelConfigurationManager {
         queryAttributes.return = [.attributes]
 
         return Keychain.findFirst(query: queryAttributes)
-            .mapError { .getFromKeychain($0) }
+            .mapError { .lookupEntry($0) }
             .flatMap { (itemAttributes) -> Result<Bool> in
                 let itemAttributes = itemAttributes!
 
@@ -154,7 +151,7 @@ extension TunnelConfigurationManager {
                     return .success(false)
                 } else {
                     return Keychain.update(query: searchAttributes, update: updateAttributes)
-                        .mapError { .updateKeychain($0) }
+                        .mapError { .updateEntry($0) }
                         .map { true }
                 }
         }
@@ -169,12 +166,12 @@ extension TunnelConfigurationManager {
                        using changeConfiguration: (inout TunnelConfiguration) -> Void)
         -> Result<TunnelConfiguration>
     {
-        while true {
+        for _ in (0 ..< kMaxAtomicUpdateRetryLimit) {
             var searchQuery = searchTerm.makeKeychainAttributes()
             searchQuery.return = [.attributes, .data]
 
             let result = Keychain.findFirst(query: searchQuery)
-                .mapError { TunnelConfigurationManager.Error.getFromKeychain($0) }
+                .mapError { .lookupEntry($0) }
                 .flatMap { (itemAttributes) -> Result<TunnelConfiguration> in
                     let itemAttributes = itemAttributes!
                     let serializedData = itemAttributes.valueData!
@@ -213,24 +210,26 @@ extension TunnelConfigurationManager {
                                     nextRevision.store(in: &updateAttributes)
 
                                     return Keychain.update(query: updateQuery, update: updateAttributes)
-                                        .mapError { TunnelConfigurationManager.Error.updateKeychain($0) }
+                                        .mapError { .updateEntry($0) }
                                         .map { tunnelConfig }
                             }
                         }
             }
 
             // Retry if Keychain reported that the item was not found when updating
-            if case .failure(.updateKeychain(.itemNotFound)) = result  {
+            if case .failure(.updateEntry(.itemNotFound)) = result  {
                 continue
             } else {
                 return result
             }
         }
+
+        return .failure(.updateEntryAtomicallyRetryLimitExceeded)
     }
 
     static func remove(searchTerm: KeychainSearchTerm) -> Result<()> {
         return Keychain.delete(query: searchTerm.makeKeychainAttributes())
-            .mapError { .removeKeychainItem($0) }
+            .mapError { .removeEntry($0) }
     }
 
     /// Get a persistent reference to the Keychain item for the given account token
@@ -240,7 +239,7 @@ extension TunnelConfigurationManager {
         query.return = [.persistentReference]
 
         return Keychain.findFirst(query: query)
-            .mapError { .getPersistentKeychainRef($0) }
+            .mapError { .lookupEntry($0) }
             .map { (attributes) -> Data in
                 return attributes!.valuePersistentReference!
         }
