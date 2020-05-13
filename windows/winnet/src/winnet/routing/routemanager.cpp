@@ -209,27 +209,7 @@ RouteManager::~RouteManager()
 	m_routeMonitorV4.reset();
 	m_routeMonitorV6.reset();
 
-	//
-	// Delete all routes owned by us.
-	//
-
-	for (const auto &record : m_routes)
-	{
-		try
-		{
-			deleteFromRoutingTable(record.registeredRoute);
-		}
-		catch (const std::exception &ex)
-		{
-			std::wstringstream ss;
-
-			ss << L"Failed to delete route as part of cleaning up, Route: "
-				<< FormatRegisteredRoute(record.registeredRoute);
-
-			m_logSink->error(common::string::ToAnsi(ss.str()).c_str());
-			m_logSink->error(ex.what());
-		}
-	}
+	deleteAppliedRoutes();
 }
 
 void RouteManager::addRoutes(const std::vector<Route> &routes)
@@ -300,6 +280,33 @@ void RouteManager::deleteRoutes(const std::vector<Route> &routes)
 			THROW_ERROR("Failed during batch removal of routes");
 		}
 	}
+}
+
+void RouteManager::deleteAppliedRoutes()
+{
+	//
+	// Delete all routes owned by us.
+	//
+
+	for (const auto &record : m_routes)
+	{
+		try
+		{
+			deleteFromRoutingTable(record.registeredRoute);
+		}
+		catch (const std::exception & ex)
+		{
+			std::wstringstream ss;
+
+			ss << L"Failed to delete route while clearing applied routes, Route: "
+				<< FormatRegisteredRoute(record.registeredRoute);
+
+			m_logSink->error(common::string::ToAnsi(ss.str()).c_str());
+			m_logSink->error(ex.what());
+		}
+	}
+
+	m_routes.clear();
 }
 
 RouteManager::CallbackHandle RouteManager::registerDefaultRouteChangedCallback(DefaultRouteChangedCallback callback)

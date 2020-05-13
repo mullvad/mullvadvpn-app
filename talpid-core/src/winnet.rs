@@ -289,17 +289,8 @@ impl Drop for WinNetRoute {
     }
 }
 
-pub fn activate_routing_manager(routes: &[WinNetRoute]) -> bool {
-    if unsafe { WinNet_ActivateRouteManager(Some(log_sink), logging_context()) } {
-        if routing_manager_add_routes(routes) {
-            true
-        } else {
-            deactivate_routing_manager();
-            false
-        }
-    } else {
-        false
-    }
+pub fn activate_routing_manager() -> bool {
+    unsafe { WinNet_ActivateRouteManager(Some(log_sink), logging_context()) }
 }
 
 pub struct WinNetCallbackHandle {
@@ -360,6 +351,10 @@ pub fn routing_manager_add_routes(routes: &[WinNetRoute]) -> bool {
     unsafe { WinNet_AddRoutes(ptr, length) }
 }
 
+pub fn routing_manager_delete_applied_routes() -> bool {
+    unsafe { WinNet_DeleteAppliedRoutes() }
+}
+
 pub fn deactivate_routing_manager() {
     unsafe { WinNet_DeactivateRouteManager() }
 }
@@ -399,6 +394,9 @@ mod api {
 
         // #[link_name = "WinNet_DeleteRoute"]
         // pub fn WinNet_DeleteRoute(route: *const super::WinNetRoute) -> bool;
+
+        #[link_name = "WinNet_DeleteAppliedRoutes"]
+        pub fn WinNet_DeleteAppliedRoutes() -> bool;
 
         #[link_name = "WinNet_DeactivateRouteManager"]
         pub fn WinNet_DeactivateRouteManager();
