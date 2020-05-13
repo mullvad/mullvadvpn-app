@@ -43,6 +43,10 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     override fun onSafelyResume() {
         accountCache.onAccountDataChange = { accountNumber, accountExpiry ->
             updateViewJob = updateView(accountNumber, accountExpiry)
+
+            if (accountExpiry == null) {
+                accountCache.fetchAccountExpiry()
+            }
         }
     }
 
