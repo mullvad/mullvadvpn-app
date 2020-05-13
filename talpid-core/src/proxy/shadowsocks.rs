@@ -204,7 +204,7 @@ impl ShadowsocksProxyMonitor {
 
     fn parse_port(logline: &str) -> Result<u16> {
         // TODO: Compile once and reuse.
-        let re = Regex::new(r"(?:TCP Listening on \d+\.\d+\.\d+\.\d+:)(\d+$)").unwrap();
+        let re = Regex::new(r"(?:TCP listening on \d+\.\d+\.\d+\.\d+:)(\d+$)").unwrap();
 
         if let Some(captures) = re.captures(logline) {
             return Ok(captures[1].parse().map_err(|_| {
