@@ -27,24 +27,12 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
         }
 
     fun fetchAccountExpiry() {
-        accountNumber?.let { accountNumberUsedForFetch ->
+        accountNumber?.let { account ->
             jobTracker.newBackgroundJob("fetch") {
-                val accountData = accountNumberUsedForFetch?.let { account ->
-                    val result = daemon.getAccountData(account)
+                val result = daemon.getAccountData(account)
 
-                    when (result) {
-                        is GetAccountDataResult.Ok -> result.accountData
-                        else -> null
-                    }
-                }
-
-                synchronized(this@AccountCache) {
-                    if (this@AccountCache.accountNumber === accountNumberUsedForFetch) {
-                        accountData?.expiry?.let { expiry ->
-                            accountExpiry = DateTime.parse(expiry, EXPIRY_FORMAT)
-                            notifyChange()
-                        }
-                    }
+                if (result is GetAccountDataResult.Ok) {
+                    handleNewExpiry(account, result.accountData.expiry)
                 }
             }
         }
@@ -62,6 +50,15 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
             notifyChange()
             fetchAccountExpiry()
+        }
+    }
+
+    private fun handleNewExpiry(accountNumberUsedForFetch: String, expiryString: String) {
+        synchronized(this) {
+            if (accountNumber === accountNumberUsedForFetch) {
+                accountExpiry = DateTime.parse(expiryString, EXPIRY_FORMAT)
+                notifyChange()
+            }
         }
     }
 
