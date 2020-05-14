@@ -231,10 +231,8 @@ impl SettingsPersister {
     }
 
     pub fn set_show_beta_releases(&mut self, show_beta_releases: bool) -> Result<bool, Error> {
-        let should_save = Self::update_field(
-            &mut self.settings.show_beta_releases,
-            Some(show_beta_releases),
-        );
+        let should_save =
+            Self::update_field(&mut self.settings.show_beta_releases, show_beta_releases);
         self.update(should_save)
     }
 

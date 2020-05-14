@@ -39,7 +39,7 @@ export interface IUpdateBlockWhenDisconnectedAction {
 
 export interface IUpdateShowBetaReleasesAction {
   type: 'UPDATE_SHOW_BETA_NOTIFICATIONS';
-  showBetaReleases?: boolean;
+  showBetaReleases: boolean;
 }
 
 export interface IUpdateBridgeSettingsAction {
@@ -171,7 +171,7 @@ function updateBlockWhenDisconnected(
   };
 }
 
-function updateShowBetaReleases(showBetaReleases?: boolean): IUpdateShowBetaReleasesAction {
+function updateShowBetaReleases(showBetaReleases: boolean): IUpdateShowBetaReleasesAction {
   return {
     type: 'UPDATE_SHOW_BETA_NOTIFICATIONS',
     showBetaReleases,

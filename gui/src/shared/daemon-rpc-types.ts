@@ -289,7 +289,7 @@ export interface ISettings {
   allowLan: boolean;
   autoConnect: boolean;
   blockWhenDisconnected: boolean;
-  showBetaReleases?: boolean;
+  showBetaReleases: boolean;
   relaySettings: RelaySettings;
   tunnelOptions: ITunnelOptions;
   bridgeSettings: BridgeSettings;

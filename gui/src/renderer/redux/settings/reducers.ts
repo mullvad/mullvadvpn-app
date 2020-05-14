@@ -126,7 +126,7 @@ export interface ISettingsReduxState {
   bridgeSettings: BridgeSettingsRedux;
   bridgeState: BridgeState;
   blockWhenDisconnected: boolean;
-  showBetaReleases?: boolean;
+  showBetaReleases: boolean;
   openVpn: {
     mssfix?: number;
   };
@@ -167,7 +167,7 @@ const initialState: ISettingsReduxState = {
   },
   bridgeState: 'auto',
   blockWhenDisconnected: false,
-  showBetaReleases: undefined,
+  showBetaReleases: false,
   openVpn: {},
   wireguard: {},
   wireguardKeyState: {

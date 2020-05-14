@@ -92,7 +92,7 @@ class ApplicationMain {
     allowLan: false,
     autoConnect: false,
     blockWhenDisconnected: false,
-    showBetaReleases: undefined,
+    showBetaReleases: false,
     relaySettings: {
       normal: {
         location: 'any',

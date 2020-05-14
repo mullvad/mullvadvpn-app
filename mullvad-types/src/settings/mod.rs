@@ -48,7 +48,7 @@ pub struct Settings {
     /// might be located.
     pub tunnel_options: TunnelOptions,
     /// Whether to notify users of beta updates.
-    pub show_beta_releases: Option<bool>,
+    pub show_beta_releases: bool,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     settings_version: migrations::SettingsVersion,
@@ -70,7 +70,7 @@ impl Default for Settings {
             block_when_disconnected: false,
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
-            show_beta_releases: None,
+            show_beta_releases: false,
             settings_version: migrations::SettingsVersion::V2,
         }
     }
