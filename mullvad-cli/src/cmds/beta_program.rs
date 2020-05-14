@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Error, Result, PRODUCT_VERSION};
 use clap::value_t_or_exit;
 
 pub struct BetaProgram;
@@ -29,7 +29,7 @@ impl Command for BetaProgram {
             ("get", Some(_)) => {
                 let mut rpc = new_rpc_client()?;
                 let settings = rpc.get_settings()?;
-                let enabled_str = if settings.show_beta_releases.unwrap_or(false) {
+                let enabled_str = if settings.show_beta_releases {
                     "on"
                 } else {
                     "off"
@@ -38,12 +38,19 @@ impl Command for BetaProgram {
                 Ok(())
             }
             ("set", Some(matches)) => {
-                let enabled_str = value_t_or_exit!(matches.value_of("policy"), String);
+                let enable_str = value_t_or_exit!(matches.value_of("policy"), String);
+                let enable = enable_str == "on";
+
+                if !enable && PRODUCT_VERSION.contains("beta") {
+                    return Err(Error::InvalidCommand(
+                        "The beta program must be enabled while running a beta version",
+                    ));
+                }
 
                 let mut rpc = new_rpc_client()?;
-                rpc.set_show_beta_releases(enabled_str == "on")?;
+                rpc.set_show_beta_releases(enable)?;
 
-                println!("Beta program: {}", enabled_str);
+                println!("Beta program: {}", enable_str);
                 Ok(())
             }
             _ => {

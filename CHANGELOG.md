@@ -42,6 +42,7 @@ Line wrap the file at 100 chars.                                              Th
 - Ignore case when setting the relay or bridge location in the CLI.
 - Upgrade OpenVPN from 2.4.8 to 2.4.9 and the OpenSSL version it uses from 1.1.1d to 1.1.1g.
 - Upgrade shadowsocks-rust to version 1.8.10
+- Always enable the beta program when running a beta version.
 
 #### Android
 - Adjust the minimum supported Android version to correctly reflect the supported versions decided

@@ -343,7 +343,7 @@ const settingsSchema = partialObject({
   allow_lan: boolean,
   auto_connect: boolean,
   block_when_disconnected: boolean,
-  show_beta_releases: maybe(boolean),
+  show_beta_releases: boolean,
   bridge_settings: bridgeSettingsSchema,
   bridge_state: enumeration('on', 'auto', 'off'),
   relay_settings: relaySettingsSchema,

@@ -498,7 +498,7 @@ where
 
         let mut settings = SettingsPersister::load(&settings_dir);
 
-        if version::is_beta_version() && settings.show_beta_releases.is_none() {
+        if version::is_beta_version() {
             let _ = settings.set_show_beta_releases(true);
         }
 

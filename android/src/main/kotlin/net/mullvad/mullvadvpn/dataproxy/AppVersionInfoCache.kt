@@ -20,7 +20,7 @@ class AppVersionInfoCache(
     private val setUpJob = setUp()
 
     private val settingsListenerId = settingsListener.subscribe { settings ->
-        showBetaReleases = settings.showBetaReleases ?: false
+        showBetaReleases = settings.showBetaReleases
     }
 
     private var appVersionInfo: AppVersionInfo? = null

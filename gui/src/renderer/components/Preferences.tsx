@@ -18,7 +18,7 @@ export interface IProps {
   autoStart: boolean;
   autoConnect: boolean;
   allowLan: boolean;
-  showBetaReleases?: boolean;
+  showBetaReleases: boolean;
   enableSystemNotifications: boolean;
   monochromaticIcon: boolean;
   startMinimized: boolean;
@@ -170,7 +170,7 @@ export default class Preferences extends Component<IProps> {
                         {messages.pgettext('preferences-view', 'Beta program')}
                       </Cell.Label>
                       <Cell.Switch
-                        isOn={this.props.showBetaReleases || false}
+                        isOn={this.props.showBetaReleases}
                         onChange={this.props.setShowBetaReleases}
                       />
                     </Cell.Container>
