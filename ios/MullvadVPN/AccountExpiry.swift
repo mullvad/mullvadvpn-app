@@ -11,15 +11,6 @@ import Foundation
 class AccountExpiry {
     let date: Date
 
-    private lazy var relativeFormatter: DateComponentsFormatter = {
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .full
-        formatter.allowedUnits = [.minute, .hour, .day, .month, .year]
-        formatter.maximumUnitCount = 1
-
-        return formatter
-    }()
-
     init(date: Date) {
         self.date = date
     }
@@ -29,7 +20,11 @@ class AccountExpiry {
     }
 
     var formattedRemainingTime: String? {
-        return relativeFormatter.string(from: Date(), to: date)
+        return CustomDateComponentsFormatting.localizedString(
+            from: Date(),
+            to: date,
+            unitsStyle: .full
+        )
     }
 
     var formattedDate: String {
