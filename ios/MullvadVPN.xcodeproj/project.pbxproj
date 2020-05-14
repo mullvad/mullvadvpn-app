@@ -77,6 +77,9 @@
 		5896AE80246ACE79005B36CB /* KeychainClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */; };
 		5896AE81246ACE81005B36CB /* KeychainMatchLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */; };
 		5896AE82246ACE84005B36CB /* KeychainReturn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */; };
+		5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
+		5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */; };
+		5896AE88246D7FAF005B36CB /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
 		589AB4F7227B64450039131E /* BasicTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589AB4F6227B64450039131E /* BasicTableViewCell.swift */; };
 		58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */; };
 		58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
@@ -246,6 +249,8 @@
 		588AE72E2362001F009F9F2E /* MutuallyExclusive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutuallyExclusive.swift; sourceTree = "<group>"; };
 		58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEProviderStopReason+Debug.swift"; sourceTree = "<group>"; };
 		5894E725236B2801008A2793 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormatting.swift; sourceTree = "<group>"; };
+		5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormattingTests.swift; sourceTree = "<group>"; };
 		589AB4F6227B64450039131E /* BasicTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicTableViewCell.swift; sourceTree = "<group>"; };
 		58A1AA8623F43901009F7EA6 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionPanelView.swift; sourceTree = "<group>"; };
@@ -362,6 +367,7 @@
 				58B0A2A4238EE67E00BC001D /* Info.plist */,
 				584B26F3237434D00073B10E /* RelaySelectorTests.swift */,
 				5807E2C1243203D000F5FF30 /* StringTests.swift */,
+				5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */,
 			);
 			path = MullvadVPNTests;
 			sourceTree = "<group>";
@@ -482,6 +488,7 @@
 				58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */,
 				5877152F23981F7B001F8237 /* WireguardKeysViewController.swift */,
 				58C6B35322BB87C4003C19AD /* WireguardPrivateKey.swift */,
+				5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -764,6 +771,7 @@
 				5896AE80246ACE79005B36CB /* KeychainClass.swift in Sources */,
 				582AE3132440CA2700E6733A /* AccountTokenInput.swift in Sources */,
 				58B0A2AA238EE6A900BC001D /* RelaySelector.swift in Sources */,
+				5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */,
 				5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */,
 				5896AE82246ACE84005B36CB /* KeychainReturn.swift in Sources */,
 				58B0A2A8238EE68200BC001D /* RelaySelectorTests.swift in Sources */,
@@ -772,6 +780,7 @@
 				58B0A2AB238EE6BF00BC001D /* RelayList.swift in Sources */,
 				58B0A2AD238EE6EC00BC001D /* MullvadEndpoint.swift in Sources */,
 				58FAEDF4245088B300CB0F5B /* KeychainError.swift in Sources */,
+				5896AE88246D7FAF005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
 				582AE3122440CA0D00E6733A /* AccountTokenInputTests.swift in Sources */,
 				5896AE7E246ACE65005B36CB /* KeychainAttributes.swift in Sources */,
 				58B0A2A9238EE6A100BC001D /* RelayConstraints.swift in Sources */,
@@ -854,6 +863,7 @@
 				58A8BE8323A0F362006B74AC /* UIAlertController+Error.swift in Sources */,
 				58F840AF2464382C0044E708 /* KeychainItemRevision.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
+				5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
 				588AE72F2362001F009F9F2E /* MutuallyExclusive.swift in Sources */,
 				5888AD89227B18C40051EB06 /* RelayList.swift in Sources */,
 				587AD7C623421D7000E93A53 /* TunnelConfiguration.swift in Sources */,

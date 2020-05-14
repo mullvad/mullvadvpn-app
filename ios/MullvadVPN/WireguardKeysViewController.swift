@@ -75,15 +75,6 @@ class WireguardKeysViewController: UIViewController {
         }
     }
 
-    private lazy var relativeFormatter: DateComponentsFormatter = {
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .full
-        formatter.allowedUnits = [.minute, .hour, .day, .month, .year]
-        formatter.maximumUnitCount = 1
-
-        return formatter
-    }()
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -153,18 +144,12 @@ class WireguardKeysViewController: UIViewController {
     // MARK: - Private
 
     private func formatKeyGenerationElapsedTime(with creationDate: Date) -> String? {
-        let elapsedTime = Date().timeIntervalSince(creationDate)
-
-        if elapsedTime >= 60 {
-            if let formattedInterval = relativeFormatter.string(from: elapsedTime) {
-                return String.localizedStringWithFormat(
-                    NSLocalizedString("%@ ago", comment: ""),
-                    formattedInterval)
-            } else {
-                return nil
-            }
-        } else {
-            return NSLocalizedString("Less than a minute ago", comment: "")
+        return CustomDateComponentsFormatting.localizedString(
+            from: creationDate,
+            to: Date(),
+            unitsStyle: .full
+        ).map { (formattedInterval) -> String in
+            return String(format: NSLocalizedString("%@ ago", comment: ""), formattedInterval)
         }
     }
 

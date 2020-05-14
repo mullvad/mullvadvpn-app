@@ -31,6 +31,8 @@ Line wrap the file at 100 chars.                                              Th
   parameter.
 - Fix defect when manually regenerating the private key from Settings would automatically connect
   the tunnel.
+- Properly format date intervals close to 1 day or less than 1 minute. Enforce intervals between 1 
+  and 90 days to always be displayed in days quantity.
 
 ## [2020.2] - 2020-04-16
 ### Fixed
