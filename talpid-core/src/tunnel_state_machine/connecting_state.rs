@@ -359,10 +359,7 @@ impl TunnelState for ConnectingState {
                     ErrorState::enter(shared_values, ErrorStateCause::StartTunnelError)
                 } else {
                     #[cfg(target_os = "linux")]
-                    if let Err(error) = shared_values
-                        .split_tunnel
-                        .enable_routing(&mut shared_values.route_manager)
-                    {
+                    if let Err(error) = shared_values.route_manager.enable_exclusions_routes() {
                         error!(
                             "{}",
                             error.display_chain_with_msg("Failed to set up split tunneling")

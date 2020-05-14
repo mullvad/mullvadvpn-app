@@ -82,12 +82,8 @@ impl ConnectedState {
 
         #[cfg(target_os = "linux")]
         shared_values
-            .split_tunnel
-            .route_dns(
-                &mut shared_values.route_manager,
-                &self.metadata.interface,
-                &dns_ips,
-            )
+            .route_manager
+            .route_exclusions_dns(&self.metadata.interface, &dns_ips)
             .map_err(BoxedError::new)?;
 
         Ok(())

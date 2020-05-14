@@ -1,12 +1,18 @@
-use crate::routing::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route};
+use crate::{
+    routing::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route},
+    split,
+};
 
 use talpid_types::ErrorExt;
 
 use ipnetwork::IpNetwork;
+use regex::Regex;
 use std::{
     collections::{BTreeMap, HashSet},
-    io,
-    net::IpAddr,
+    fs,
+    io::{self, BufRead, BufReader, Read, Seek, Write},
+    net::{IpAddr, Ipv4Addr},
+    process::Command,
     thread,
 };
 
@@ -35,6 +41,9 @@ use rtnetlink::{
 };
 
 use libc::{AF_INET, AF_INET6};
+
+const ROUTING_TABLE_NAME: &str = "mullvad_exclusions";
+const RT_TABLES_PATH: &str = "/etc/iproute2/rt_tables";
 
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -67,8 +76,24 @@ pub enum Error {
     #[error(display = "Unknown device index - {}", _0)]
     UnknownDeviceIndex(u32),
 
+    /// Unable to create routing table for tagged connections and packets.
+    #[error(display = "Unable to create routing table for split tunneling")]
+    ExclusionsRoutingTableSetup(#[error(source)] io::Error),
+
+    /// Unable to create routing table for tagged connections and packets.
+    #[error(display = "Cannot find a free routing table ID in rt_tables")]
+    NoFreeRoutingTableId,
+
     #[error(display = "Shutting down route manager")]
     Shutdown,
+
+    /// Failed to run the process.
+    #[error(display = "Unable to execute process")]
+    ExecFailed(#[error(source)] io::Error),
+
+    /// ip command returned an error status.
+    #[error(display = "ip command failed")]
+    IpFailed,
 }
 
 pub struct RouteManagerImpl {
@@ -146,6 +171,8 @@ pub struct RouteManagerImplInner {
     default_routes: HashSet<Route>,
     best_default_node_v4: Option<Node>,
     best_default_node_v6: Option<Node>,
+
+    split_table_id: i32,
 }
 
 impl RouteManagerImplInner {
@@ -163,6 +190,7 @@ impl RouteManagerImplInner {
         tokio02::spawn(connection);
 
         let iface_map = Self::initialize_link_map(&handle).await?;
+        let split_table_id = Self::initialize_exclusions_table().await?;
 
         let mut monitor = Self {
             iface_map,
@@ -175,6 +203,8 @@ impl RouteManagerImplInner {
             default_routes: HashSet::new(),
             best_default_node_v4: None,
             best_default_node_v6: None,
+
+            split_table_id,
         };
 
         monitor.default_routes = monitor.get_default_routes().await?;
@@ -186,6 +216,155 @@ impl RouteManagerImplInner {
         monitor.add_required_routes(required_routes).await?;
 
         Ok(monitor)
+    }
+
+    /// Set up policy-based routing table for marked packets.
+    /// Returns the routing table id.
+    async fn initialize_exclusions_table() -> Result<i32> {
+        // Add routing table to /etc/iproute2/rt_tables, if it does not exist
+
+        let file = fs::OpenOptions::new()
+            .read(true)
+            .open(RT_TABLES_PATH)
+            .map_err(Error::ExclusionsRoutingTableSetup)?;
+        let buf_reader = BufReader::new(file);
+        let expression = Regex::new(r"^\s*(\d+)\s+(\w+)").unwrap();
+
+        let mut used_ids = Vec::<i32>::new();
+
+        for line in buf_reader.lines() {
+            let line = line.map_err(Error::ExclusionsRoutingTableSetup)?;
+            if let Some(captures) = expression.captures(&line) {
+                let table_id = captures
+                    .get(1)
+                    .unwrap()
+                    .as_str()
+                    .parse::<i32>()
+                    .expect("Table ID does not fit i32");
+                let table_name = captures.get(2).unwrap().as_str();
+
+                if table_name == ROUTING_TABLE_NAME {
+                    // The table has already been added
+                    return Ok(table_id);
+                }
+
+                used_ids.push(table_id);
+            }
+        }
+
+        used_ids.sort_unstable();
+
+        // Assign a free id to the table
+        let mut table_id = 1;
+        loop {
+            if used_ids.binary_search(&table_id).is_err() {
+                break;
+            }
+
+            table_id += 1;
+
+            if table_id >= 256 {
+                return Err(Error::NoFreeRoutingTableId);
+            }
+        }
+
+        let mut file = fs::OpenOptions::new()
+            .read(true)
+            .append(true)
+            .open(RT_TABLES_PATH)
+            .map_err(Error::ExclusionsRoutingTableSetup)?;
+
+        if let Ok(_) = file.seek(io::SeekFrom::End(-1)) {
+            // Append newline if necessary
+            let mut buffer = [0u8];
+            let _ = file.read_exact(&mut buffer);
+            if buffer[0] != b'\n' {
+                writeln!(file).map_err(Error::ExclusionsRoutingTableSetup)?;
+            }
+        }
+
+        writeln!(file, "{} {}", table_id, ROUTING_TABLE_NAME)
+            .map_err(Error::ExclusionsRoutingTableSetup)?;
+        Ok(table_id)
+    }
+
+    /// Route PID-associated packets through the physical interface.
+    async fn enable_exclusions_routes(&mut self) -> Result<()> {
+        // TODO: IPv6
+
+        let table_id_str = &self.split_table_id.to_string();
+
+        // Create the rule if it does not exist
+        let mut cmd = Command::new("ip");
+        cmd.args(&["-4", "rule", "list", "table", table_id_str]);
+        log::trace!("running cmd - {:?}", &cmd);
+        let out = cmd.output().map_err(Error::ExecFailed)?;
+
+        let missing_rule =
+            !out.status.success() || String::from_utf8_lossy(&out.stdout).trim().is_empty();
+        if missing_rule {
+            exec_ip(&[
+                "-4",
+                "rule",
+                "add",
+                "from",
+                "all",
+                "fwmark",
+                &split::MARK.to_string(),
+                "lookup",
+                table_id_str,
+            ])?;
+        }
+
+        // Add default route for the exclusions table
+        let zero_network =
+            ipnetwork::IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0).unwrap();
+        let mut required_routes = HashSet::new();
+        required_routes.insert(
+            RequiredRoute::new(zero_network, NetNode::DefaultNode).table(self.split_table_id as u8),
+        );
+        self.add_required_routes(required_routes).await
+    }
+
+    /// Stop routing PID-associated packets through the physical interface.
+    async fn disable_exclusions_routes(&self) {
+        // TODO: IPv6
+
+        if let Err(e) = exec_ip(&[
+            "-4",
+            "rule",
+            "del",
+            "from",
+            "all",
+            "fwmark",
+            &split::MARK.to_string(),
+            "lookup",
+            &self.split_table_id.to_string(),
+        ]) {
+            log::warn!("Failed to delete routing policy: {}", e);
+        }
+    }
+
+    /// Route DNS requests through the tunnel interface.
+    #[cfg(target_os = "linux")]
+    async fn route_exclusions_dns(
+        &mut self,
+        tunnel_alias: &str,
+        dns_servers: &[IpAddr],
+    ) -> Result<()> {
+        let mut dns_routes = HashSet::new();
+
+        for server in dns_servers {
+            dns_routes.insert(
+                RequiredRoute::new(
+                    IpNetwork::from(*server),
+                    Node::device(tunnel_alias.to_string()),
+                )
+                .table(self.split_table_id as u8),
+            );
+        }
+
+        self.add_required_routes(dns_routes).await
     }
 
     async fn add_required_default_routes(
@@ -477,11 +656,17 @@ impl RouteManagerImplInner {
             }
             RouteManagerCommand::AddRoutes(routes, result_rx) => {
                 log::debug!("Adding routes: {:?}", routes);
-                if let Err(error) = self.add_required_routes(routes.clone()).await {
-                    let _ = result_rx.send(Err(error));
-                } else {
-                    let _ = result_rx.send(Ok(()));
-                }
+                let _ = result_rx.send(self.add_required_routes(routes.clone()).await);
+            }
+            RouteManagerCommand::EnableExclusionsRoutes(result_rx) => {
+                let _ = result_rx.send(self.enable_exclusions_routes().await);
+            }
+            RouteManagerCommand::DisableExclusionsRoutes => {
+                self.disable_exclusions_routes().await;
+            }
+            RouteManagerCommand::RouteExclusionsDns(tunnel_alias, dns_servers, result_rx) => {
+                let _ =
+                    result_rx.send(self.route_exclusions_dns(&tunnel_alias, &dns_servers).await);
             }
             RouteManagerCommand::ClearRoutes => {
                 log::debug!("Clearing routes");
@@ -757,6 +942,20 @@ fn ip_to_bytes(addr: IpAddr) -> Vec<u8> {
     match addr {
         IpAddr::V4(addr) => addr.octets().to_vec(),
         IpAddr::V6(addr) => addr.octets().to_vec(),
+    }
+}
+
+fn exec_ip(args: &[&str]) -> Result<()> {
+    let mut cmd = Command::new("ip");
+    cmd.args(args);
+
+    log::trace!("running cmd - {:?}", &cmd);
+
+    let status = cmd.status().map_err(Error::ExecFailed)?;
+    if status.success() {
+        Ok(())
+    } else {
+        Err(Error::IpFailed)
     }
 }
 

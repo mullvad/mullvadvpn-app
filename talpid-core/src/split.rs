@@ -1,14 +1,8 @@
 #![cfg(target_os = "linux")]
-use crate::routing::{NetNode, Node, RequiredRoute, RouteManager};
-use ipnetwork::IpNetwork;
-use regex::Regex;
 use std::{
-    collections::HashSet,
     fs,
-    io::{self, BufRead, BufReader, BufWriter, Read, Seek, Write},
-    net::{IpAddr, Ipv4Addr},
+    io::{self, BufRead, BufReader, BufWriter, Write},
     path::Path,
-    process::Command,
 };
 use talpid_types::SPLIT_TUNNEL_CGROUP_NAME;
 
@@ -21,25 +15,10 @@ pub const NETCLS_CLASSID: u32 = 0x4d9f41;
 /// This should be an arbitrary but unique integer.
 pub const MARK: i32 = 0xf41;
 
-const ROUTING_TABLE_NAME: &str = "mullvad_exclusions";
-const RT_TABLES_PATH: &str = "/etc/iproute2/rt_tables";
-
 /// Errors related to split tunneling.
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    /// Failed to run the process.
-    #[error(display = "Unable to execute process")]
-    ExecFailed(#[error(source)] io::Error),
-
-    /// ip command returned an error status.
-    #[error(display = "ip command failed")]
-    IpFailed,
-
-    /// Unable to create routing table for tagged connections and packets.
-    #[error(display = "Unable to create routing table")]
-    RoutingTableSetup(#[error(source)] io::Error),
-
     /// Unable to create cgroup.
     #[error(display = "Unable to initialize net_cls cgroup instance")]
     InitNetClsCGroup(#[error(source)] nix::Error),
@@ -63,168 +42,6 @@ pub enum Error {
     /// Unable to read cgroup.procs.
     #[error(display = "Unable to obtain PIDs from cgroup.procs")]
     ListCGroupPids(#[error(source)] io::Error),
-
-    /// Unable to add route to the exclusions table.
-    #[error(display = "Failed to add routing table entry")]
-    SetupRouting(#[error(source)] crate::routing::Error),
-
-    /// Unable to add setup DNS routing.
-    #[error(display = "Failed to add routing table DNS rules")]
-    SetDns(#[error(source)] crate::routing::Error),
-}
-
-/// Manage routing for split tunneling cgroup.
-pub struct SplitTunnel {
-    table_id: i32,
-}
-
-impl SplitTunnel {
-    /// Object that allows specified applications to not pass through the tunnel
-    pub fn new() -> Result<SplitTunnel, Error> {
-        let mut tunnel = SplitTunnel { table_id: 0 };
-        tunnel.initialize_routing_table()?;
-        Ok(tunnel)
-    }
-
-    /// Set up policy-based routing for marked packets.
-    fn initialize_routing_table(&mut self) -> Result<(), Error> {
-        // Add routing table to /etc/iproute2/rt_tables, if it does not exist
-
-        let file = fs::OpenOptions::new()
-            .read(true)
-            .open(RT_TABLES_PATH)
-            .map_err(Error::RoutingTableSetup)?;
-        let buf_reader = BufReader::new(file);
-        let expression = Regex::new(r"^\s*(\d+)\s+(\w+)").unwrap();
-
-        let mut used_ids = Vec::<i32>::new();
-
-        for line in buf_reader.lines() {
-            let line = line.map_err(Error::RoutingTableSetup)?;
-            if let Some(captures) = expression.captures(&line) {
-                let table_id = captures
-                    .get(1)
-                    .unwrap()
-                    .as_str()
-                    .parse::<i32>()
-                    .expect("Table ID does not fit i32");
-                let table_name = captures.get(2).unwrap().as_str();
-
-                if table_name == ROUTING_TABLE_NAME {
-                    // The table has already been added
-                    self.table_id = table_id;
-                    return Ok(());
-                }
-
-                used_ids.push(table_id);
-            }
-        }
-
-        used_ids.sort_unstable();
-        for id in 1..256 {
-            if used_ids.binary_search(&id).is_err() {
-                // Assign a free id to the table
-                self.table_id = id;
-                break;
-            }
-        }
-
-        let mut file = fs::OpenOptions::new()
-            .read(true)
-            .append(true)
-            .open(RT_TABLES_PATH)
-            .map_err(Error::RoutingTableSetup)?;
-
-        if let Ok(_) = file.seek(io::SeekFrom::End(-1)) {
-            // Append newline if necessary
-            let mut buffer = [0u8];
-            let _ = file.read_exact(&mut buffer);
-            if buffer[0] != b'\n' {
-                writeln!(file).map_err(Error::RoutingTableSetup)?;
-            }
-        }
-
-        writeln!(file, "{} {}", self.table_id, ROUTING_TABLE_NAME).map_err(Error::RoutingTableSetup)
-    }
-
-    /// Route PID-associated packets through the physical interface.
-    pub fn enable_routing(&self, route_manager: &mut RouteManager) -> Result<(), Error> {
-        // TODO: IPv6
-
-        // Create the rule if it does not exist
-        let mut cmd = Command::new("ip");
-        cmd.args(&["-4", "rule", "list", "table", ROUTING_TABLE_NAME]);
-        log::trace!("running cmd - {:?}", &cmd);
-        let out = cmd.output().map_err(Error::ExecFailed)?;
-
-        let missing_rule =
-            !out.status.success() || String::from_utf8_lossy(&out.stdout).trim().is_empty();
-        if missing_rule {
-            exec_ip(&[
-                "-4",
-                "rule",
-                "add",
-                "from",
-                "all",
-                "fwmark",
-                &MARK.to_string(),
-                "lookup",
-                ROUTING_TABLE_NAME,
-            ])?;
-        }
-
-        // Add default route for the exclusions table
-        let zero_network =
-            ipnetwork::IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0).unwrap();
-        let mut required_routes = HashSet::new();
-        required_routes.insert(
-            RequiredRoute::new(zero_network, NetNode::DefaultNode).table(self.table_id as u8),
-        );
-        route_manager
-            .add_routes(required_routes)
-            .map_err(Error::SetupRouting)
-    }
-
-    /// Stop routing PID-associated packets through the physical interface.
-    pub fn disable_routing(&self) {
-        // TODO: IPv6
-
-        if let Err(e) = exec_ip(&[
-            "-4",
-            "rule",
-            "del",
-            "from",
-            "all",
-            "fwmark",
-            &MARK.to_string(),
-            "lookup",
-            ROUTING_TABLE_NAME,
-        ]) {
-            log::warn!("Failed to delete routing policy: {}", e);
-        }
-    }
-
-    /// Route DNS requests through the tunnel interface.
-    pub fn route_dns(
-        &self,
-        route_manager: &mut RouteManager,
-        tunnel_alias: &str,
-        dns_servers: &[IpAddr],
-    ) -> Result<(), Error> {
-        let mut dns_routes = HashSet::new();
-
-        for server in dns_servers {
-            dns_routes.insert(
-                RequiredRoute::new(
-                    IpNetwork::from(*server),
-                    Node::device(tunnel_alias.to_string()),
-                )
-                .table(self.table_id as u8),
-            );
-        }
-
-        route_manager.add_routes(dns_routes).map_err(Error::SetDns)
-    }
 }
 
 /// Manages PIDs to exclude from the tunnel.
@@ -341,19 +158,5 @@ impl PidManager {
         }
 
         Ok(())
-    }
-}
-
-fn exec_ip(args: &[&str]) -> Result<(), Error> {
-    let mut cmd = Command::new("ip");
-    cmd.args(args);
-
-    log::trace!("running cmd - {:?}", &cmd);
-
-    let status = cmd.status().map_err(Error::ExecFailed)?;
-    if status.success() {
-        Ok(())
-    } else {
-        Err(Error::IpFailed)
     }
 }
