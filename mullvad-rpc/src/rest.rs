@@ -44,18 +44,14 @@ pub enum Error {
     #[error(display = "Timer error")]
     TimerError(#[error(source)] tokio::time::Error),
 
-    #[error(display = "Deserialization error")]
-    DeserializationError,
+    #[error(display = "Failed to deserialize data")]
+    DeserializeError(#[error(source)] serde_json::Error),
 
     #[error(display = "Failed to send request to rest client")]
     SendError,
 
     #[error(display = "Failed to receive response from rest client")]
     ReceiveError,
-
-    /// Serde error
-    #[error(display = "Serialization error")]
-    Serde(#[error(source)] serde_json::Error),
 
     /// When the http status code of the response is not 200 OK.
     #[error(display = "Http error. Status code {}", _0)]
@@ -513,7 +509,7 @@ pub async fn deserialize_body<T: serde::de::DeserializeOwned>(mut response: Resp
         body.extend(&chunk?);
     }
 
-    serde_json::from_slice(&body).map_err(Error::Serde)
+    serde_json::from_slice(&body).map_err(Error::DeserializeError)
 }
 
 pub async fn parse_rest_response(
