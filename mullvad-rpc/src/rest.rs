@@ -41,9 +41,6 @@ pub enum Error {
     #[error(display = "Request timed out")]
     TimeoutError(#[error(source)] tokio::time::Elapsed),
 
-    #[error(display = "Timer error")]
-    TimerError(#[error(source)] tokio::time::Error),
-
     #[error(display = "Failed to deserialize data")]
     DeserializeError(#[error(source)] serde_json::Error),
 
@@ -60,9 +57,6 @@ pub enum Error {
     /// The string given was not a valid URI.
     #[error(display = "Not a valid URI")]
     UriError(#[error(source)] http::uri::InvalidUri),
-
-    #[error(display = "Failed to spawn future in a backwards-compatible fashion")]
-    SpawnError(#[error(source)] tokio::task::JoinError),
 }
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
