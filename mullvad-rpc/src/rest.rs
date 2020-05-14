@@ -50,8 +50,8 @@ pub enum Error {
     #[error(display = "Failed to receive response from rest client")]
     ReceiveError,
 
-    /// When the http status code of the response is not 200 OK.
-    #[error(display = "Http error. Status code {}", _0)]
+    /// Unexpected response code
+    #[error(display = "Unexpected response status code {} - {}", _0, _1)]
     ApiError(StatusCode, String),
 
     /// The string given was not a valid URI.
