@@ -38,9 +38,9 @@ const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 /// How often the updater should wake up to check the cache of the in-memory cache of relays.
 /// This check is very cheap. The only reason to not have it very often is because if downloading
 /// constantly fails it will try very often and fill the logs etc.
-const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 5);
+const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 15);
 /// How old the cached relays need to be to trigger an update
-const UPDATE_INTERVAL: Duration = Duration::from_secs(3600);
+const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]

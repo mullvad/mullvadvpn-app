@@ -20,7 +20,7 @@ use tokio_timer;
 /// Default automatic key rotation
 const DEFAULT_AUTOMATIC_KEY_ROTATION: Duration = Duration::from_secs(7 * 24 * 60 * 60);
 /// How long to wait before reattempting to rotate keys on failure
-const AUTOMATIC_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(5);
+const AUTOMATIC_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(60 * 15);
 /// How often to check whether the key has expired.
 /// A short interval is used in case the computer is ever suspended.
 const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
