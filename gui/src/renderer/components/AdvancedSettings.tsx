@@ -4,7 +4,11 @@ import { sprintf } from 'sprintf-js';
 import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { WgKeyState } from '../redux/settings/reducers';
-import styles from './AdvancedSettingsStyles';
+import styles, {
+  BlockWhenDisconnectedLabel,
+  InputFrame,
+  TunnelProtocolSelector,
+} from './AdvancedSettingsStyles';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import { Container, Layout } from './Layout';
@@ -181,10 +185,9 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     </Cell.Footer>
 
                     <Cell.Container>
-                      <Cell.Label
-                        textStyle={styles.advanced_settings__block_when_disconnected_label}>
+                      <BlockWhenDisconnectedLabel>
                         {messages.pgettext('advanced-settings-view', 'Always require VPN')}
-                      </Cell.Label>
+                      </BlockWhenDisconnectedLabel>
                       <Cell.Switch
                         isOn={this.props.blockWhenDisconnected}
                         onChange={this.setBlockWhenDisconnected}
@@ -204,12 +207,11 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                         styles.advanced_settings__content,
                         styles.advanced_settings__tunnel_protocol,
                       ]}>
-                      <Selector
+                      <TunnelProtocolSelector
                         title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
                         values={this.tunnelProtocolItems(hasWireguardKey)}
                         value={this.props.tunnelProtocol}
                         onSelect={this.onSelectTunnelProtocol}
-                        style={styles.advanced_settings__tunnel_protocol_selector}
                       />
                       {!hasWireguardKey && (
                         <Text style={styles.advanced_settings__wg_no_key}>
@@ -281,20 +283,18 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                       <Cell.Label>
                         {messages.pgettext('advanced-settings-view', 'OpenVPN Mssfix')}
                       </Cell.Label>
-                      <Cell.InputFrame style={styles.advanced_settings__input_frame}>
-                        <Cell.AutoSizingTextInputContainer>
-                          <Cell.Input
-                            value={this.props.mssfix ? this.props.mssfix.toString() : ''}
-                            keyboardType={'numeric'}
-                            maxLength={4}
-                            placeholder={messages.pgettext('advanced-settings-view', 'Default')}
-                            onSubmit={this.onMssfixSubmit}
-                            validateValue={AdvancedSettings.mssfixIsValid}
-                            submitOnBlur={true}
-                            modifyValue={AdvancedSettings.removeNonNumericCharacters}
-                          />
-                        </Cell.AutoSizingTextInputContainer>
-                      </Cell.InputFrame>
+                      <InputFrame>
+                        <Cell.AutoSizingTextInput
+                          value={this.props.mssfix ? this.props.mssfix.toString() : ''}
+                          inputMode={'numeric'}
+                          maxLength={4}
+                          placeholder={messages.pgettext('advanced-settings-view', 'Default')}
+                          onSubmitValue={this.onMssfixSubmit}
+                          validateValue={AdvancedSettings.mssfixIsValid}
+                          submitOnBlur={true}
+                          modifyValue={AdvancedSettings.removeNonNumericCharacters}
+                        />
+                      </InputFrame>
                     </Cell.Container>
                     <Cell.Footer>
                       <Cell.FooterText>
@@ -319,22 +319,18 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                       <Cell.Label>
                         {messages.pgettext('advanced-settings-view', 'WireGuard MTU')}
                       </Cell.Label>
-                      <Cell.InputFrame style={styles.advanced_settings__input_frame}>
-                        <Cell.AutoSizingTextInputContainer>
-                          <Cell.Input
-                            value={
-                              this.props.wireguardMtu ? this.props.wireguardMtu.toString() : ''
-                            }
-                            keyboardType={'numeric'}
-                            maxLength={4}
-                            placeholder={messages.pgettext('advanced-settings-view', 'Default')}
-                            onSubmit={this.onWireguardMtuSubmit}
-                            validateValue={AdvancedSettings.wireguarMtuIsValid}
-                            submitOnBlur={true}
-                            modifyValue={AdvancedSettings.removeNonNumericCharacters}
-                          />
-                        </Cell.AutoSizingTextInputContainer>
-                      </Cell.InputFrame>
+                      <InputFrame>
+                        <Cell.AutoSizingTextInput
+                          value={this.props.wireguardMtu ? this.props.wireguardMtu.toString() : ''}
+                          inputMode={'numeric'}
+                          maxLength={4}
+                          placeholder={messages.pgettext('advanced-settings-view', 'Default')}
+                          onSubmitValue={this.onWireguardMtuSubmit}
+                          validateValue={AdvancedSettings.wireguarMtuIsValid}
+                          submitOnBlur={true}
+                          modifyValue={AdvancedSettings.removeNonNumericCharacters}
+                        />
+                      </InputFrame>
                     </Cell.Container>
                     <Cell.Footer>
                       <Cell.FooterText>
@@ -356,7 +352,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     </Cell.Footer>
 
                     <View style={styles.advanced_settings__wgkeys_cell}>
-                      <Cell.CellButton onPress={this.props.onViewWireguardKeys}>
+                      <Cell.CellButton onClick={this.props.onViewWireguardKeys}>
                         <Cell.Label>
                           {messages.pgettext('advanced-settings-view', 'WireGuard key')}
                         </Cell.Label>

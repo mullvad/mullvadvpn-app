@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Component, Styles, Types, View } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as Cell from './Cell';
@@ -11,21 +10,19 @@ export interface ISelectorItem<T> {
 }
 
 interface ISelectorProps<T> {
-  style?: Types.ViewStyleRuleSet;
   title?: string;
   values: Array<ISelectorItem<T>>;
   value: T;
   onSelect: (value: T) => void;
   selectedCellRef?: React.Ref<SelectorCell<T>>;
+  className?: string;
 }
 
-const styles = {
-  section: Styles.createViewStyle({
-    marginBottom: 24,
-  }),
-};
+const Section = styled(Cell.Section)({
+  marginBottom: 24,
+});
 
-export default class Selector<T> extends Component<ISelectorProps<T>> {
+export default class Selector<T> extends React.Component<ISelectorProps<T>> {
   public render() {
     const items = this.props.values.map((item, i) => {
       const selected = item.value === this.props.value;
@@ -45,13 +42,13 @@ export default class Selector<T> extends Component<ISelectorProps<T>> {
 
     if (this.props.title) {
       return (
-        <Cell.Section style={[styles.section, this.props.style]}>
+        <Section className={this.props.className}>
           <Cell.SectionTitle>{this.props.title}</Cell.SectionTitle>
           {items}
-        </Cell.Section>
+        </Section>
       );
     } else {
-      return <View style={[styles.section, this.props.style]}>{items}</View>;
+      return <Section className={this.props.className}>{items}</Section>;
     }
   }
 }
@@ -68,11 +65,11 @@ interface ISelectorCellProps<T> {
   children?: React.ReactText;
 }
 
-export class SelectorCell<T> extends Component<ISelectorCellProps<T>> {
+export class SelectorCell<T> extends React.Component<ISelectorCellProps<T>> {
   public render() {
     return (
       <Cell.CellButton
-        onPress={this.onPress}
+        onClick={this.onClick}
         selected={this.props.selected}
         disabled={this.props.disabled}>
         <StyledCellIcon
@@ -87,7 +84,7 @@ export class SelectorCell<T> extends Component<ISelectorCellProps<T>> {
     );
   }
 
-  private onPress = () => {
+  private onClick = () => {
     if (!this.props.selected) {
       this.props.onSelect(this.props.value);
     }
