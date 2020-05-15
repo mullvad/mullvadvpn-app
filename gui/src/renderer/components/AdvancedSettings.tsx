@@ -406,7 +406,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
             {messages.pgettext('advanced-settings-view', 'Enable anyway')}
           </AppButton.RedButton>,
           <AppButton.BlueButton key="back" onPress={this.hideConfirmBlockWhenDisconnectedAlert}>
-            {messages.pgettext('advanced-settings-view', 'Back')}
+            {messages.gettext('Back')}
           </AppButton.BlueButton>,
         ]}>
         <ModalMessage>

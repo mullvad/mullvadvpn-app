@@ -235,7 +235,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             {messages.pgettext('support-view', 'Send anyway')}
           </AppButton.RedButton>,
           <AppButton.BlueButton key="cancel" onPress={this.onCancelNoEmailDialog}>
-            {messages.pgettext('support-view', 'Back')}
+            {messages.gettext('Back')}
           </AppButton.BlueButton>,
         ]}
       />
@@ -269,7 +269,7 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             {messages.pgettext('support-view', 'Continue anyway')}
           </AppButton.RedButton>,
           <AppButton.BlueButton key="cancel" onPress={this.props.onClose}>
-            {messages.pgettext('support-view', 'Cancel')}
+            {messages.gettext('Cancel')}
           </AppButton.BlueButton>,
         ]}
       />
