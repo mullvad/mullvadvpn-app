@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 
-PRODUCT_VERSION="$(node -p "require('$SCRIPT_DIR/gui/package.json').version" | sed -Ee 's/\.0//g')"
+PRODUCT_VERSION="$(sed -n -e 's/^ *versionName "\([^"]*\)"$/\1/p' android/build.gradle)"
 BUILD_TYPE="release"
 GRADLE_TASK="assembleRelease"
 BUNDLE_TASK="bundleRelease"
