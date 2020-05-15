@@ -8,8 +8,10 @@ cd "$SCRIPT_DIR"
 
 PRODUCT_VERSION="$(sed -n -e 's/^ *versionName "\([^"]*\)"$/\1/p' android/build.gradle)"
 BUILD_TYPE="release"
+GRADLE_BUILD_TYPE="release"
 GRADLE_TASK="assembleRelease"
 BUNDLE_TASK="bundleRelease"
+BUILT_APK_SUFFIX="-release"
 FILE_SUFFIX=""
 CARGO_ARGS="--release"
 BUILD_BUNDLE="no"
@@ -17,10 +19,17 @@ BUILD_BUNDLE="no"
 while [ ! -z "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
         BUILD_TYPE="debug"
+        GRADLE_BUILD_TYPE="debug"
         GRADLE_TASK="assembleDebug"
         BUNDLE_TASK="bundleDebug"
+        BUILT_APK_SUFFIX="-debug"
         FILE_SUFFIX="-debug"
         CARGO_ARGS=""
+    elif [[ "${1:-""}" == "--fdroid" ]]; then
+        GRADLE_BUILD_TYPE="fdroid"
+        GRADLE_TASK="assembleFdroid"
+        BUNDLE_TASK="bundleFdroid"
+        BUILT_APK_SUFFIX="-fdroid-unsigned"
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
     fi
@@ -28,7 +37,7 @@ while [ ! -z "${1:-""}" ]; do
     shift 1
 done
 
-if [[ "$BUILD_TYPE" == "release" ]]; then
+if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     if [ ! -f "$SCRIPT_DIR/android/keystore.properties" ]; then
         echo "ERROR: No keystore.properties file found" >&2
         echo "       Please configure the signing keys as described in the README" >&2
@@ -98,13 +107,13 @@ cd "$SCRIPT_DIR/android"
 ./gradlew --console plain "$GRADLE_TASK"
 
 mkdir -p "$SCRIPT_DIR/dist"
-cp  "$SCRIPT_DIR/android/build/outputs/apk/$BUILD_TYPE/android-$BUILD_TYPE.apk" \
+cp  "$SCRIPT_DIR/android/build/outputs/apk/$GRADLE_BUILD_TYPE/android${BUILT_APK_SUFFIX}.apk" \
     "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.apk"
 
 if [[ "$BUILD_BUNDLE" == "yes" ]]; then
     ./gradlew --console plain "$BUNDLE_TASK"
 
-    cp  "$SCRIPT_DIR/android/build/outputs/bundle/$BUILD_TYPE/android.aab" \
+    cp  "$SCRIPT_DIR/android/build/outputs/bundle/$GRADLE_BUILD_TYPE/android.aab" \
         "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.aab"
 fi
 
