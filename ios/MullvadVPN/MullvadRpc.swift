@@ -26,7 +26,6 @@ struct SendAppStoreReceiptResponse: Codable {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.day, .hour]
         formatter.unitsStyle = .full
-        formatter.maximumUnitCount = 1
 
         return formatter.string(from: timeAdded)
     }
