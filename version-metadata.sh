@@ -8,6 +8,9 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+COMMAND="$1"
+shift 1
+
 function inject_version {
     # Regex that only matches valid Mullvad VPN versions. It also captures
     # relevant values into capture groups, read out via BASH_REMATCH[x].
@@ -25,10 +28,21 @@ function inject_version {
     local semver_minor=${BASH_REMATCH[2]}
     local semver_patch="0"
 
-    # Electron GUI
-    cp gui/package.json gui/package.json.bak
-    cp gui/package-lock.json gui/package-lock.json.bak
-    (cd gui/ && npm version "$semver_version" --no-git-tag-version --allow-same-version)
+    if [[ "${2:-""}" != "--only-android" ]]; then
+        # Electron GUI
+        cp gui/package.json gui/package.json.bak
+        cp gui/package-lock.json gui/package-lock.json.bak
+        (cd gui/ && npm version "$semver_version" --no-git-tag-version --allow-same-version)
+
+        # Windows C++
+        cp dist-assets/windows/version.h dist-assets/windows/version.h.bak
+        cat <<EOF > dist-assets/windows/version.h
+#define MAJOR_VERSION $semver_major
+#define MINOR_VERSION $semver_minor
+#define PATCH_VERSION $semver_patch
+#define PRODUCT_VERSION "$product_version"
+EOF
+    fi
 
     # Rust crates
     sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$semver_version\"/g" \
@@ -37,15 +51,6 @@ function inject_version {
         mullvad-problem-report/Cargo.toml \
         mullvad-setup/Cargo.toml \
         talpid-openvpn-plugin/Cargo.toml
-
-    # Windows C++
-    cp dist-assets/windows/version.h dist-assets/windows/version.h.bak
-    cat <<EOF > dist-assets/windows/version.h
-#define MAJOR_VERSION $semver_major
-#define MINOR_VERSION $semver_minor
-#define PATCH_VERSION $semver_patch
-#define PRODUCT_VERSION "$product_version"
-EOF
 
     # Android
     if [[ ("$(uname -s)" == "Linux") ]]; then
@@ -65,17 +70,21 @@ EOF
 
 function restore_backup {
     set +e
-    # Electron GUI
-    mv gui/package.json.bak gui/package.json
-    mv gui/package-lock.json.bak gui/package-lock.json
+
+    if [[ "${1:-""}" != "--only-android" ]]; then
+        # Electron GUI
+        mv gui/package.json.bak gui/package.json
+        mv gui/package-lock.json.bak gui/package-lock.json
+        # Windows C++
+        mv dist-assets/windows/version.h.bak dist-assets/windows/version.h
+    fi
+
     # Rust crates
     mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml
     mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml
     mv mullvad-problem-report/Cargo.toml.bak mullvad-problem-report/Cargo.toml
     mv mullvad-setup/Cargo.toml.bak mullvad-setup/Cargo.toml
     mv talpid-openvpn-plugin/Cargo.toml.bak talpid-openvpn-plugin/Cargo.toml
-    # Windows C++
-    mv dist-assets/windows/version.h.bak dist-assets/windows/version.h
     # Android
     if [[ ("$(uname -s)" == "Linux") ]]; then
         mv android/build.gradle.bak android/build.gradle
@@ -85,17 +94,21 @@ function restore_backup {
 
 function delete_backup {
     set +e
-    # Electron GUI
-    rm gui/package.json.bak
-    rm gui/package-lock.json.bak
+
+    if [[ "${1:-""}" != "--only-android" ]]; then
+        # Electron GUI
+        rm gui/package.json.bak
+        rm gui/package-lock.json.bak
+        # Windows C++
+        rm dist-assets/windows/version.h.bak
+    fi
+
     # Rust crates
     rm mullvad-daemon/Cargo.toml.bak
     rm mullvad-cli/Cargo.toml.bak
     rm mullvad-problem-report/Cargo.toml.bak
     rm mullvad-setup/Cargo.toml.bak
     rm talpid-openvpn-plugin/Cargo.toml.bak
-    # Windows C++
-    rm dist-assets/windows/version.h.bak
     # Android
     if [[ ("$(uname -s)" == "Linux") ]]; then
         rm android/build.gradle.bak
@@ -103,15 +116,15 @@ function delete_backup {
     set -e
 }
 
-case "$1" in
+case "$COMMAND" in
     "inject")
-        inject_version "$2"
+        inject_version "$@"
         ;;
     "restore-backup")
-        restore_backup
+        restore_backup "$@"
         ;;
     "delete-backup")
-        delete_backup
+        delete_backup "$@"
         ;;
     *)
         echo "Invalid command"
