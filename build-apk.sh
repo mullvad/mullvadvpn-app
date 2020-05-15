@@ -14,6 +14,7 @@ BUNDLE_TASK="bundleRelease"
 BUILT_APK_SUFFIX="-release"
 FILE_SUFFIX=""
 CARGO_ARGS="--release"
+EXTRA_WGGO_ARGS=""
 BUILD_BUNDLE="no"
 
 while [ ! -z "${1:-""}" ]; do
@@ -33,6 +34,7 @@ while [ ! -z "${1:-""}" ]; do
         BUILT_APK_SUFFIX="-fdroid-unsigned"
         FILE_SUFFIX=""
         CARGO_ARGS="--release"
+        EXTRA_WGGO_ARGS="--no-docker"
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
     fi
@@ -84,7 +86,7 @@ trap 'restore_metadata_backups' EXIT
 cp Cargo.lock Cargo.lock.bak
 ./version-metadata.sh inject $PRODUCT_VERSION
 
-./wireguard/build-wireguard-go.sh --android
+./wireguard/build-wireguard-go.sh --android $EXTRA_WGGO_ARGS
 
 
 ARCHITECTURES="aarch64 armv7 x86_64 i686"
