@@ -15,6 +15,17 @@ function is_android_build {
     return 1
 }
 
+function is_docker_build {
+    for arg in "$@"
+    do
+        case "$arg" in
+            "--no-docker")
+                return 1
+        esac
+    done
+    return 0
+}
+
 
 function win_deduce_lib_executable_path {
     msbuild_path="$(which msbuild.exe)"
@@ -82,15 +93,19 @@ function build_android {
     echo "Building for android"
     local docker_image_hash="f432cb779611284ce69aca59a90a8a601171d4c29728561ae32bd228b1699198"
 
-    docker run --rm \
-        -v "$(pwd)/../":/workspace \
-        --entrypoint "/workspace/wireguard/libwg/build-android.sh" \
-        mullvadvpn/mullvad-android-app-build@sha256:$docker_image_hash
+    if is_docker_build $@; then
+        docker run --rm \
+            -v "$(pwd)/../":/workspace \
+            --entrypoint "/workspace/wireguard/libwg/build-android.sh" \
+            mullvadvpn/mullvad-android-app-build@sha256:$docker_image_hash
+    else
+        ./libwg/build-android.sh
+    fi
 }
 
 function build_wireguard_go {
     if is_android_build $@; then
-        build_android
+        build_android $@
         return
     fi
 
