@@ -45,6 +45,14 @@ android {
         }
     }
 
+    buildTypes {
+        fdroid {
+            initWith release
+            minifyEnabled false
+            signingConfig null
+        }
+    }
+
     sourceSets {
         main {
             assets {
