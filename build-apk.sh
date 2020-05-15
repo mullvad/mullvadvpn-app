@@ -48,6 +48,16 @@ if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     fi
 fi
 
+if [ -f "./gradlew" ]; then
+    GRADLE_CMD="./gradlew"
+elif which gradle > /dev/null; then
+    GRADLE_CMD="gradle"
+else
+    echo "ERROR: No gradle command found" >&2
+    echo "       Please either install gradle or restore the gradlew file" >&2
+    exit 2
+fi
+
 if [[ "$BUILD_TYPE" == "debug" || "$(git describe)" != "$PRODUCT_VERSION" ]]; then
     GIT_COMMIT="$(git rev-parse HEAD | head -c 6)"
     PRODUCT_VERSION="${PRODUCT_VERSION}-dev-${GIT_COMMIT}"
@@ -59,7 +69,7 @@ else
 fi
 
 pushd "$SCRIPT_DIR/android"
-./gradlew --console plain clean
+$GRADLE_CMD --console plain clean
 mkdir -p "build/extraJni"
 popd
 
@@ -107,14 +117,14 @@ done
 ./update-relays.sh
 
 cd "$SCRIPT_DIR/android"
-./gradlew --console plain "$GRADLE_TASK"
+$GRADLE_CMD --console plain "$GRADLE_TASK"
 
 mkdir -p "$SCRIPT_DIR/dist"
 cp  "$SCRIPT_DIR/android/build/outputs/apk/$GRADLE_BUILD_TYPE/android${BUILT_APK_SUFFIX}.apk" \
     "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.apk"
 
 if [[ "$BUILD_BUNDLE" == "yes" ]]; then
-    ./gradlew --console plain "$BUNDLE_TASK"
+    $GRADLE_CMD --console plain "$BUNDLE_TASK"
 
     cp  "$SCRIPT_DIR/android/build/outputs/bundle/$GRADLE_BUILD_TYPE/android.aab" \
         "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.aab"
