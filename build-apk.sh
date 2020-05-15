@@ -56,7 +56,20 @@ else
 fi
 
 pushd "$SCRIPT_DIR/android"
-./gradlew --console plain clean
+
+# Fallback to the system-wide gradle command if the gradlew script is removed.
+# It is removed by the F-Droid build process before the build starts.
+if [ -f "gradlew" ]; then
+    GRADLE_CMD="./gradlew"
+elif which gradle > /dev/null; then
+    GRADLE_CMD="gradle"
+else
+    echo "ERROR: No gradle command found" >&2
+    echo "       Please either install gradle or restore the gradlew file" >&2
+    exit 2
+fi
+
+$GRADLE_CMD --console plain clean
 mkdir -p "build/extraJni"
 popd
 
@@ -104,14 +117,14 @@ done
 ./update-relays.sh
 
 cd "$SCRIPT_DIR/android"
-./gradlew --console plain "$GRADLE_TASK"
+$GRADLE_CMD --console plain "$GRADLE_TASK"
 
 mkdir -p "$SCRIPT_DIR/dist"
 cp  "$SCRIPT_DIR/android/build/outputs/apk/$GRADLE_BUILD_TYPE/android${BUILT_APK_SUFFIX}.apk" \
     "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.apk"
 
 if [[ "$BUILD_BUNDLE" == "yes" ]]; then
-    ./gradlew --console plain "$BUNDLE_TASK"
+    $GRADLE_CMD --console plain "$BUNDLE_TASK"
 
     cp  "$SCRIPT_DIR/android/build/outputs/bundle/$GRADLE_BUILD_TYPE/android.aab" \
         "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.aab"
