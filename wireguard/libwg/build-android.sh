@@ -7,7 +7,7 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $script_dir
 
 # Keep a GOPATH in the build directory to maintain a cache of downloaded libraries
-GOPATH=$script_dir/../../build/android-go-path/
+export GOPATH=$script_dir/../../build/android-go-path/
 mkdir -p $GOPATH
 
 for arch in arm arm64 x86_64 x86; do
