@@ -13,6 +13,7 @@ describe('components/NotificationArea', () => {
     current: '2018.2',
     latest: '2018.2-beta1',
     latestStable: '2018.2',
+    nextUpgrade: null,
   };
 
   const defaultExpiry = new AccountExpiry(moment().add(1, 'year').format(), 'en');

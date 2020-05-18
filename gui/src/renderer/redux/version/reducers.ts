@@ -5,7 +5,7 @@ export interface IVersionReduxState {
   currentIsSupported: boolean;
   latest?: string;
   latestStable?: string;
-  nextUpgrade?: string;
+  nextUpgrade: string | null;
   consistent: boolean;
 }
 
@@ -14,7 +14,7 @@ const initialState: IVersionReduxState = {
   currentIsSupported: true,
   latest: undefined,
   latestStable: undefined,
-  nextUpgrade: undefined,
+  nextUpgrade: null,
   consistent: true,
 };
 
