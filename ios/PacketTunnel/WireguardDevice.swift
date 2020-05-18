@@ -33,8 +33,8 @@ class WireguardDevice {
         /// A failure that indicates that Wireguard has already been started
         case alreadyStarted
 
-        /// A failure to resolve endpoints
-        case resolveEndpoints(Swift.Error)
+        /// A failure to resolve an endpoint
+        case resolveEndpoint(AnyIPEndpoint, Swift.Error)
 
         var localizedDescription: String {
             switch self {
@@ -46,8 +46,8 @@ class WireguardDevice {
                 return "Wireguard has not been started yet"
             case .alreadyStarted:
                 return "Wireguard has already been started"
-            case .resolveEndpoints(let resolutionError):
-                return "Failed to resolve endpoints: \(resolutionError.localizedDescription)"
+            case .resolveEndpoint(let endpoint, let error):
+                return "Failed to resolve the endpoint: \(endpoint). Error: \(error.localizedDescription)"
             }
         }
     }
@@ -75,9 +75,6 @@ class WireguardDevice {
     /// Network routes monitor
     private var networkMonitor: NWPathMonitor?
 
-    /// A subscriber used when resolving peer addresses
-    private var peerResolutionSubscriber: AnyCancellable?
-
     /// A tunnel device descriptor
     private let tunFd: Int32
 
@@ -85,8 +82,11 @@ class WireguardDevice {
     /// with the specific Wireguard tunnel.
     private var wireguardHandle: Int32?
 
-    /// An instance of `WireguardConfiguration`
+    /// Active configuration
     private var configuration: WireguardConfiguration?
+
+    /// Active configuration with resolved endpoints
+    private var resolvedConfiguration: WireguardConfiguration?
 
     /// Returns a Wireguard version
     class var version: String {
@@ -135,31 +135,28 @@ class WireguardDevice {
 
     // MARK: - Public methods
 
-    func start(configuration: WireguardConfiguration) -> AnyPublisher<(), Error> {
-        return Deferred {
-            Future { (fulfill) in
+    func start(configuration: WireguardConfiguration) -> Future<(), Error> {
+        return Future { (fulfill) in
+            self.workQueue.async {
                 fulfill(self._start(configuration: configuration))
             }
-        }.subscribe(on: workQueue)
-            .eraseToAnyPublisher()
+        }
     }
 
-    func stop() -> AnyPublisher<(), Error> {
-        Deferred {
-            Future { (fulfill) in
+    func stop() -> Future<(), Error> {
+        return Future { (fulfill) in
+            self.workQueue.async {
                 fulfill(self._stop())
             }
-        }.subscribe(on: workQueue)
-            .eraseToAnyPublisher()
+        }
     }
 
-    func setConfig(configuration: WireguardConfiguration) -> AnyPublisher<(), Error> {
-        Deferred {
-            Future { (fulfill) in
+    func setConfig(configuration: WireguardConfiguration) -> Future<(), Error> {
+        return Future { (fulfill) in
+            self.workQueue.async {
                 fulfill(self._setConfig(configuration: configuration))
             }
-        }.subscribe(on: workQueue)
-            .eraseToAnyPublisher()
+        }
     }
 
     func getInterfaceName() -> String? {
@@ -191,14 +188,18 @@ class WireguardDevice {
             return .failure(.alreadyStarted)
         }
 
-        let handle = configuration.baseline().toRawWireguardConfigString()
+        let resolvedConfiguration = Self.resolveConfiguration(configuration)
+        let handle = resolvedConfiguration
+            .baseline()
+            .toRawWireguardConfigString()
             .withCString { wgTurnOn($0, self.tunFd) }
 
         if handle < 0 {
             return .failure(.start(handle))
         } else {
-            wireguardHandle = handle
+            self.wireguardHandle = handle
             self.configuration = configuration
+            self.resolvedConfiguration = resolvedConfiguration
 
             startNetworkMonitor()
 
@@ -220,13 +221,17 @@ class WireguardDevice {
         }
     }
 
-    private func _setConfig(configuration: WireguardConfiguration) -> Result<(), Error> {
-        if let handle = wireguardHandle, let activeConfiguration = self.configuration {
-            let wireguardCommands = activeConfiguration.transition(to: configuration)
+    private func _setConfig(configuration newConfiguration: WireguardConfiguration) -> Result<(), Error> {
+        if let handle = wireguardHandle,
+            let oldResolvedConfigration = self.resolvedConfiguration
+        {
+            let newResolvedConfiguration = Self.resolveConfiguration(newConfiguration)
+            let wireguardCommands = oldResolvedConfigration.transition(to: newResolvedConfiguration)
 
             Self.setWireguardConfig(handle: handle, commands: wireguardCommands)
 
-            self.configuration = configuration
+            self.configuration = newConfiguration
+            self.resolvedConfiguration = newResolvedConfiguration
 
             return .success(())
         } else {
@@ -240,6 +245,55 @@ class WireguardDevice {
 
         _ = commands.toRawWireguardConfigString()
             .withCString { wgSetConfig(handle, $0) }
+    }
+
+    private class func resolveConfiguration(_ configuration: WireguardConfiguration)
+        -> WireguardConfiguration
+    {
+        return WireguardConfiguration(
+            privateKey: configuration.privateKey,
+            peers: resolvePeers(configuration.peers),
+            allowedIPs: configuration.allowedIPs
+        )
+    }
+
+    private class func resolvePeers(_ peers: [WireguardPeer]) -> [WireguardPeer] {
+        var newPeers = [WireguardPeer]()
+
+        for peer in peers {
+            switch self.resolvePeer(peer) {
+            case .success(let resolvedPeer):
+                newPeers.append(resolvedPeer)
+            case .failure(_):
+                // Fix me: Ignore resolution error and carry on with the last known peer
+                newPeers.append(peer)
+            }
+        }
+
+        return newPeers
+    }
+
+    private class func resolvePeer(_ peer: WireguardPeer) -> Result<WireguardPeer, Error> {
+        switch peer.withReresolvedEndpoint() {
+        case .success(let resolvedPeer):
+            if "\(peer.endpoint.ip)" == "\(resolvedPeer.endpoint.ip)" {
+                os_log(.debug, log: wireguardDeviceLog,
+                       "DNS64: mapped %{public}s to itself", "\(resolvedPeer.endpoint.ip)")
+            } else {
+                os_log(.debug, log: wireguardDeviceLog,
+                       "DNS64: mapped %{public}s to %{public}s",
+                       "\(peer.endpoint.ip)", "\(resolvedPeer.endpoint.ip)")
+            }
+
+            return .success(resolvedPeer)
+
+        case .failure(let error):
+            os_log(.error, log: wireguardDeviceLog,
+                   "Failed to re-resolve the peer: %{public}s. Error: %{public}s",
+                   "\(peer.endpoint.ip)", error.localizedDescription)
+
+            return .failure(.resolveEndpoint(peer.endpoint, error))
+        }
     }
 
     // MARK: - Network monitoring
@@ -264,30 +318,16 @@ class WireguardDevice {
                    String(describing: path.status),
                    String(describing: path.availableInterfaces))
 
-            // Re-resolve endpoints on network changes and update Wireguard configuration
-            if let activeConfiguration = self.configuration {
-                self.peerResolutionSubscriber = activeConfiguration
-                    .withReresolvedPeers(maxRetryOnFailure: 1)
-                    .mapError { WireguardDevice.Error.resolveEndpoints($0) }
-                    .sink(receiveCompletion: { (completion) in
-                        switch completion {
-                        case .finished:
-                            os_log(.debug, log: wireguardDeviceLog, "Re-resolved endpoints")
+            // Re-resolve endpoints on network changes
+            if let currentConfiguration = self.configuration,
+                let oldResolvedConfigration = self.resolvedConfiguration
+            {
+                let newResolvedConfiguration = Self.resolveConfiguration(currentConfiguration)
+                let commands = oldResolvedConfigration.transition(to: newResolvedConfiguration)
 
-                        case .failure(let error):
-                            os_log(.error, log: wireguardDeviceLog,
-                                   "Failed to re-resolve endpoints: %{public}s",
-                                   error.localizedDescription)
-                        }
-                    }, receiveValue: { (reresolvedConfiguration) in
-                        let commands = activeConfiguration
-                            .transition(to: reresolvedConfiguration)
+                Self.setWireguardConfig(handle: handle, commands: commands)
 
-                        Self.setWireguardConfig(
-                            handle: handle,
-                            commands: commands
-                        )
-                    })
+                self.resolvedConfiguration = newResolvedConfiguration
             }
 
             // Tell Wireguard to re-open sockets and bind them to the new network interface

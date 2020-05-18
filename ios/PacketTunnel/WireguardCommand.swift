@@ -17,23 +17,10 @@ struct WireguardPeer: Hashable {
 extension WireguardPeer {
 
     func withReresolvedEndpoint() -> Result<WireguardPeer, Error> {
-        self.endpoint.withReresolvedIP()
+        return self.endpoint.withReresolvedIP()
             .map { WireguardPeer(endpoint: $0, publicKey: self.publicKey) }
     }
 
-}
-
-extension WireguardPeer {
-
-    /// Returns a 0.0.0.0/0 for IPv4 and ::0/0 for IPv6
-    var anyAllowedIP: IPAddressRange {
-        switch endpoint {
-        case .ipv4:
-            return IPAddressRange(address: IPv4Address.any, networkPrefixLength: 0)
-        case .ipv6:
-            return IPAddressRange(address: IPv6Address.any, networkPrefixLength: 0)
-        }
-    }
 }
 
 enum WireguardCommand {
@@ -41,6 +28,7 @@ enum WireguardCommand {
     case listenPort(UInt16)
     case replacePeers
     case peer(WireguardPeer)
+    case replaceAllowedIPs
     case allowedIP(IPAddressRange)
 }
 
@@ -66,6 +54,9 @@ extension WireguardCommand {
             return ["public_key=\(keyString)", "endpoint=\(endpointString)"]
                 .joined(separator: "\n")
 
+        case .replaceAllowedIPs:
+            return "replace_allowed_ips=true"
+
         case .allowedIP(let ipAddressRange):
             return "allowed_ip=\(ipAddressRange)"
         }
@@ -75,7 +66,7 @@ extension WireguardCommand {
 
 extension Array where Element == WireguardCommand {
     func toRawWireguardConfigString() -> String {
-        map { $0.toRawWireguardCommand() }
+        return map { $0.toRawWireguardCommand() }
             .joined(separator: "\n")
     }
 }

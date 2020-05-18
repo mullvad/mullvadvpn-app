@@ -51,12 +51,6 @@ extension AnyIPEndpoint {
 
         freeaddrinfo(resultPointer)
 
-        if "\(resolvedAddress.ip)" == "\(self.ip)" {
-            os_log(.debug, "DNS64: mapped %{public}s to itself", "\(resolvedAddress.ip)")
-        } else {
-            os_log(.debug, "DNS64: mapped %{public}s to %{public}s", "\(self.ip)", "\(resolvedAddress.ip)")
-        }
-
         return .success(resolvedAddress)
     }
 }
