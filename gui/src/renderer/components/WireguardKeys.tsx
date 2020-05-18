@@ -95,14 +95,14 @@ export default class WireguardKeys extends Component<IProps, IState> {
 
                     <View style={styles.wgkeys__row}>
                       <Text style={styles.wgkeys__row_label}>
-                        {messages.pgettext('wireguard-keys', 'Public key')}
+                        {messages.pgettext('wireguard-key-view', 'Public key')}
                       </Text>
 
                       <View style={styles.wgkeys__row_value}>{this.getKeyText()}</View>
                     </View>
                     <View style={styles.wgkeys__row}>
                       <Text style={styles.wgkeys__row_label}>
-                        {messages.pgettext('wireguard-keys', 'Key generated')}
+                        {messages.pgettext('wireguard-key-view', 'Key generated')}
                       </Text>
                       <Text style={styles.wgkeys__row_value}>{this.ageOfKeyString()}</Text>
                     </View>
@@ -260,7 +260,7 @@ export default class WireguardKeys extends Component<IProps, IState> {
         if (key.valid === true) {
           return (
             <Text style={styles.wgkeys__valid_key}>
-              {messages.pgettext('account-view', 'Key is valid')}
+              {messages.pgettext('wireguard-key-view', 'Key is valid')}
             </Text>
           );
         } else if (key.valid === false) {

@@ -158,8 +158,8 @@ export default class ExpiredAccountErrorView extends Component<
 
   private renderExternalPaymentButton() {
     const buttonText = this.isNewAccount()
-      ? messages.pgettext('connect-view', 'Buy credit')
-      : messages.pgettext('connect-view', 'Buy more credit');
+      ? messages.gettext('Buy credit')
+      : messages.gettext('Buy more credit');
 
     return (
       <AppButton.BlockingButton
@@ -186,7 +186,7 @@ export default class ExpiredAccountErrorView extends Component<
               key="cancel"
               disabled={this.state.redeemingVoucher}
               onPress={this.onCloseRedeemVoucherAlert}>
-              {messages.pgettext('connect-view', 'Cancel')}
+              {messages.gettext('Cancel')}
             </AppButton.BlueButton>,
           ]}>
           <Text style={styles.fieldLabel}>
@@ -207,7 +207,7 @@ export default class ExpiredAccountErrorView extends Component<
           <AppButton.BlueButton
             key="cancel"
             onPress={this.onCloseBlockWhenDisconnectedInstructions}>
-            {messages.pgettext('connect-view', 'Close')}
+            {messages.gettext('Close')}
           </AppButton.BlueButton>,
         ]}>
         <Text style={styles.fieldLabel}>

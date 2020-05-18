@@ -72,9 +72,7 @@ export default class Account extends React.Component<IProps> {
                 disabled={this.props.isOffline}
                 onPress={this.props.onBuyMore}>
                 <AppButton.GreenButton style={styles.account__buy_button}>
-                  <AppButton.Label>
-                    {messages.pgettext('account-view', 'Buy more credit')}
-                  </AppButton.Label>
+                  <AppButton.Label>{messages.gettext('Buy more credit')}</AppButton.Label>
                   <AppButton.Icon source="icon-extLink" height={16} width={16} />
                 </AppButton.GreenButton>
               </AppButton.BlockingButton>
