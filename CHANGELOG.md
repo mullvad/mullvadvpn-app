@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix crash when that happened sometimes when the app tried to start the daemon service on recent
   Android versions.
 - Fix quitting the app sometimes failing.
+- Fix WireGuard key status events being lost by the UI, causing stale information to be shown.
 
 
 ## [2020.5-beta1] - 2020-05-18
