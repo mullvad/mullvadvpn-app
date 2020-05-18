@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+#### Android
+- Fix crash when that happened sometimes when the app tried to start the daemon service on recent
+  Android versions.
 
 
 ## [2020.5-beta1] - 2020-05-18
