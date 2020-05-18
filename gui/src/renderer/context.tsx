@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useContext } from 'react';
 import App from './app';
 
 export interface IAppContext {
@@ -9,6 +9,10 @@ export const AppContext = React.createContext<IAppContext | undefined>(undefined
 if (process.env.NODE_ENV === 'development') {
   AppContext.displayName = 'AppContext';
 }
+
+const missingContextError = new Error(
+  'The context value is empty. Make sure to wrap the component in AppContext.Provider.',
+);
 
 export default function withAppContext<Props>(BaseComponent: React.ComponentType<Props>) {
   // Exclude the IAppContext from props since those are injected props
@@ -23,9 +27,7 @@ export default function withAppContext<Props>(BaseComponent: React.ComponentType
 
             return <BaseComponent {...mergedProps} />;
           } else {
-            throw new Error(
-              'The context value is empty. Make sure to wrap the component in AppContext.Provider.',
-            );
+            throw missingContextError;
           }
         }}
       </AppContext.Consumer>
@@ -38,4 +40,13 @@ export default function withAppContext<Props>(BaseComponent: React.ComponentType
   }
 
   return wrappedComponent;
+}
+
+export function useAppContext(): App {
+  const appContext = useContext(AppContext);
+  if (appContext) {
+    return appContext.app;
+  } else {
+    throw missingContextError;
+  }
 }

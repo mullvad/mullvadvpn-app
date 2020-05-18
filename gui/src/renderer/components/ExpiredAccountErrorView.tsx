@@ -5,7 +5,7 @@ import { links } from '../../config.json';
 import AccountExpiry from '../../shared/account-expiry';
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import RedeemVoucherContainer from '../containers/RedeemVoucherContainer';
+import { RedeemVoucherContainer } from '../components/RedeemVoucher';
 import { LoginState } from '../redux/account/reducers';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
