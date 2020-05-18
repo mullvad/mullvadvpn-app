@@ -626,6 +626,10 @@ class ApplicationMain {
       consumePromise(this.fetchWireguardKey());
     }
 
+    if (oldSettings.showBetaReleases !== newSettings.showBetaReleases) {
+      this.setLatestVersion(this.upgradeVersion);
+    }
+
     if (this.windowController) {
       IpcMainEventChannel.settings.notify(this.windowController.webContents, newSettings);
     }
