@@ -3,6 +3,7 @@ import fs from 'fs';
 import { po } from 'gettext-parser';
 import Gettext from 'node-gettext';
 import path from 'path';
+import { LocalizationContexts } from './localization-contexts';
 
 const SOURCE_LANGUAGE = 'en';
 const LOCALES_DIR = path.resolve(__dirname, '../../locales');
@@ -70,7 +71,17 @@ function setErrorHandler(catalogue: Gettext) {
 
 const gettextOptions = { sourceLocale: SOURCE_LANGUAGE };
 
-export const messages = new Gettext(gettextOptions);
+declare class GettextWithAppContexts extends Gettext {
+  pgettext(msgctxt: LocalizationContexts, msgid: string): string;
+  npgettext(
+    msgctxt: LocalizationContexts,
+    msgid: string,
+    msgidPlural: string,
+    count: number,
+  ): string;
+}
+
+export const messages = new Gettext(gettextOptions) as GettextWithAppContexts;
 messages.setTextDomain('messages');
 setErrorHandler(messages);
 
