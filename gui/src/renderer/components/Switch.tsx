@@ -6,6 +6,7 @@ interface IProps {
   isOn: boolean;
   onChange?: (isOn: boolean) => void;
   className?: string;
+  disabled?: boolean;
 }
 
 interface IState {
@@ -15,29 +16,36 @@ interface IState {
 
 const PAN_DISTANCE = 10;
 
-const SwitchContainer = styled.div({
+const SwitchContainer = styled.div({}, (props: { disabled: boolean }) => ({
   position: 'relative',
   width: '52px',
   height: '32px',
-  borderColor: colors.white,
+  borderColor: props.disabled ? colors.white20 : colors.white80,
   borderWidth: '2px',
   borderStyle: 'solid',
   borderRadius: '16px',
   padding: '2px',
-});
-
-const Knob = styled.div({}, (props: { isOn: boolean; isPressed: boolean }) => ({
-  position: 'absolute',
-  height: '24px',
-  borderRadius: '12px',
-  transition: 'all 200ms linear',
-  width: props.isPressed ? '28px' : '24px',
-  backgroundColor: props.isOn ? colors.green : colors.red,
-  // When enabled the button should be placed all the way to the right (100%) minus padding (2px).
-  left: props.isOn ? 'calc(100% - 2px)' : '2px',
-  // This moves the knob to the left making the right side aligned with the parent's right side.
-  transform: `translateX(${props.isOn ? '-100%' : '0'})`,
 }));
+
+const Knob = styled.div({}, (props: { isOn: boolean; isPressed: boolean; disabled: boolean }) => {
+  let backgroundColor = props.isOn ? colors.green : colors.red;
+  if (props.disabled) {
+    backgroundColor = props.isOn ? colors.green40 : colors.red40;
+  }
+
+  return {
+    position: 'absolute',
+    height: '24px',
+    borderRadius: '12px',
+    transition: 'all 200ms linear',
+    width: props.isPressed ? '28px' : '24px',
+    backgroundColor,
+    // When enabled the button should be placed all the way to the right (100%) minus padding (2px).
+    left: props.isOn ? 'calc(100% - 2px)' : '2px',
+    // This moves the knob to the left making the right side aligned with the parent's right side.
+    transform: `translateX(${props.isOn ? '-100%' : '0'})`,
+  };
+});
 
 export default class Switch extends React.Component<IProps, IState> {
   public state: IState = {
@@ -74,8 +82,10 @@ export default class Switch extends React.Component<IProps, IState> {
       <SwitchContainer
         ref={this.containerRef}
         onClick={this.handleClick}
+        disabled={this.props.disabled ?? false}
         className={this.props.className}>
         <Knob
+          disabled={this.props.disabled ?? false}
           isOn={this.state.isOn}
           isPressed={this.state.isPressed}
           onMouseDown={this.handleMouseDown}
@@ -85,6 +95,10 @@ export default class Switch extends React.Component<IProps, IState> {
   }
 
   private handleClick = () => {
+    if (this.props.disabled) {
+      return;
+    }
+
     if (!this.changedDuringPan) {
       this.setState((state) => ({ isOn: !state.isOn }), this.notify);
     }
@@ -94,6 +108,10 @@ export default class Switch extends React.Component<IProps, IState> {
   };
 
   private handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (this.props.disabled) {
+      return;
+    }
+
     this.isPanning = true;
     this.startPos = event.clientX;
     this.changedDuringPan = false;
@@ -103,6 +121,10 @@ export default class Switch extends React.Component<IProps, IState> {
   };
 
   private handleMouseUp = (event: MouseEvent) => {
+    if (this.props.disabled) {
+      return;
+    }
+
     document.removeEventListener('mouseup', this.handleMouseUp);
     document.removeEventListener('mousemove', this.handleMouseMove);
 
@@ -119,6 +141,10 @@ export default class Switch extends React.Component<IProps, IState> {
   };
 
   private handleMouseMove = (event: MouseEvent) => {
+    if (this.props.disabled) {
+      return;
+    }
+
     if (this.isPanning) {
       this.setState({ isPressed: true });
 

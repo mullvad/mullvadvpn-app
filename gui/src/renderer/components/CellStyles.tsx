@@ -51,7 +51,7 @@ export const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps
   },
 }));
 
-export const StyledLabel = styled.div({
+export const StyledLabel = styled.div({}, (props: { disabled: boolean }) => ({
   margin: '14px 0 14px 8px',
   flex: 1,
   fontFamily: 'DINPro',
@@ -59,9 +59,9 @@ export const StyledLabel = styled.div({
   fontWeight: 900,
   lineHeight: '26px',
   letterSpacing: -0.2,
-  color: colors.white,
+  color: props.disabled ? colors.white40 : colors.white,
   textAlign: 'left',
-});
+}));
 
 export const StyledSubText = styled.span({
   color: colors.white60,

@@ -4,26 +4,38 @@ import {
   StyledAutoSizingTextInputWrapper,
   StyledAutoSizingTextInputFiller,
   StyledCellButton,
-  StyledSection,
+  StyledContainer,
+  StyledLabel,
   StyledInput,
+  StyledSection,
 } from './CellStyles';
+import { default as StandaloneSwitch } from './Switch';
 
 export {
-  StyledContainer as Container,
   StyledFooter as Footer,
   StyledFooterBoldText as FooterBoldText,
   StyledFooterText as FooterText,
   StyledIcon as UntintedIcon,
   StyledInputFrame as InputFrame,
-  StyledLabel as Label,
   StyledSectionTitle as SectionTitle,
   StyledSubText as SubText,
   StyledTintedIcon as Icon,
 } from './CellStyles';
 
-export { default as Switch } from './Switch';
-
 const CellSectionContext = React.createContext<boolean>(false);
+const CellDisabledContext = React.createContext<boolean>(false);
+
+interface IContainerProps extends React.HTMLAttributes<HTMLDivElement> {
+  disabled?: boolean;
+}
+
+export function Container({ disabled, ...otherProps }: IContainerProps) {
+  return (
+    <CellDisabledContext.Provider value={disabled ?? false}>
+      <StyledContainer {...otherProps} />
+    </CellDisabledContext.Provider>
+  );
+}
 
 interface ICellButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   selected?: boolean;
@@ -48,6 +60,16 @@ export function Section(props: ISectionProps) {
       <CellSectionContext.Provider value={true}>{props.children}</CellSectionContext.Provider>
     </StyledSection>
   );
+}
+
+export function Label(props: React.HTMLAttributes<HTMLDivElement>) {
+  const disabled = useContext(CellDisabledContext);
+  return <StyledLabel disabled={disabled} {...props} />;
+}
+
+export function Switch(props: StandaloneSwitch['props']) {
+  const disabled = useContext(CellDisabledContext);
+  return <StandaloneSwitch disabled={disabled} {...props} />;
 }
 
 interface IInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -104,16 +126,21 @@ export class Input extends React.Component<IInputProps, IInputState> {
     } = this.props;
 
     return (
-      <StyledInput
-        type="text"
-        valid={validateValue?.(this.state.value)}
-        onChange={this.onChange}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-        onKeyPress={this.onKeyPress}
-        value={this.state.value}
-        {...otherProps}
-      />
+      <CellDisabledContext.Consumer>
+        {(disabled) => (
+          <StyledInput
+            type="text"
+            valid={validateValue?.(this.state.value)}
+            onChange={this.onChange}
+            onFocus={this.onFocus}
+            onBlur={this.onBlur}
+            onKeyPress={this.onKeyPress}
+            value={this.state.value}
+            disabled={disabled}
+            {...otherProps}
+          />
+        )}
+      </CellDisabledContext.Consumer>
     );
   }
 
