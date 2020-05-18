@@ -11,9 +11,6 @@ import Foundation
 import NetworkExtension
 import os
 
-/// Max number of attempts before giving up on NAT64 resolution
-private let kMaxDns64ResolutionRetryLimit = 3
-
 /// A class describing the `wireguard-go` interactions
 ///
 /// - Thread safety:
@@ -277,34 +274,26 @@ class WireguardDevice {
     }
 
     private class func resolvePeer(_ peer: WireguardPeer) -> Result<WireguardPeer, Error> {
-        var resolutionError: Swift.Error?
-
-        for attempt in (1 ... kMaxDns64ResolutionRetryLimit) {
-            switch peer.withReresolvedEndpoint() {
-            case .success(let resolvedPeer):
-                if "\(peer.endpoint.ip)" == "\(resolvedPeer.endpoint.ip)" {
-                    os_log(.debug, log: wireguardDeviceLog,
-                           "DNS64: mapped %{public}s to itself", "\(resolvedPeer.endpoint.ip)")
-                } else {
-                    os_log(.debug, log: wireguardDeviceLog,
-                           "DNS64: mapped %{public}s to %{public}s",
-                           "\(peer.endpoint.ip)", "\(resolvedPeer.endpoint.ip)")
-                }
-
-                return .success(resolvedPeer)
-
-            case .failure(let error):
-                os_log(.error, log: wireguardDeviceLog,
-                       "Failed to re-resolve the peer: %{public}s. Error: %{public}s. [Attempt %d/%d]",
-                       "\(peer.endpoint)",
-                    error.localizedDescription,
-                    attempt, kMaxDns64ResolutionRetryLimit)
-
-                resolutionError = error
+        switch peer.withReresolvedEndpoint() {
+        case .success(let resolvedPeer):
+            if "\(peer.endpoint.ip)" == "\(resolvedPeer.endpoint.ip)" {
+                os_log(.debug, log: wireguardDeviceLog,
+                       "DNS64: mapped %{public}s to itself", "\(resolvedPeer.endpoint.ip)")
+            } else {
+                os_log(.debug, log: wireguardDeviceLog,
+                       "DNS64: mapped %{public}s to %{public}s",
+                       "\(peer.endpoint.ip)", "\(resolvedPeer.endpoint.ip)")
             }
-        }
 
-        return .failure(.peerResolution(resolutionError!))
+            return .success(resolvedPeer)
+
+        case .failure(let error):
+            os_log(.error, log: wireguardDeviceLog,
+                   "Failed to re-resolve the peer: %{public}s. Error: %{public}s",
+                   "\(peer.endpoint.ip)", error.localizedDescription)
+
+            return .failure(.peerResolution(error))
+        }
     }
 
     // MARK: - Network monitoring
