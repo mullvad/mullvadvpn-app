@@ -84,7 +84,7 @@ func wgSetLogger(loggerFn uintptr) {
 }
 
 //export wgTurnOn
-func wgTurnOn(settings string, tunFd int32) int32 {
+func wgTurnOn(settings *C.char, tunFd int32) int32 {
 	logger := &device.Logger{
 		Debug: log.New(&CLogger{level: 0}, "", 0),
 		Info:  log.New(&CLogger{level: 1}, "", 0),
@@ -104,7 +104,7 @@ func wgTurnOn(settings string, tunFd int32) int32 {
 	logger.Info.Println("Attaching to interface")
 	device := device.NewDevice(tun, logger)
 
-	setError := device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
+	setError := device.IpcSetOperation(bufio.NewReader(strings.NewReader(C.GoString(settings))))
 	if setError != nil {
 		logger.Error.Println(setError)
 		return -1
@@ -137,12 +137,12 @@ func wgTurnOff(tunnelHandle int32) {
 }
 
 //export wgSetConfig
-func wgSetConfig(tunnelHandle int32, settings string) int64 {
+func wgSetConfig(tunnelHandle int32, settings *C.char) int64 {
 	device, ok := tunnelHandles[tunnelHandle]
 	if !ok {
 		return 0
 	}
-	err := device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
+	err := device.IpcSetOperation(bufio.NewReader(strings.NewReader(C.GoString(settings))))
 	if err != nil {
 		device.Error.Println(err)
 		return err.ErrorCode()

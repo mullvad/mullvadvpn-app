@@ -192,7 +192,7 @@ class WireguardDevice {
         }
 
         let handle = configuration.baseline().toRawWireguardConfigString()
-            .withGoString { wgTurnOn($0, self.tunFd) }
+            .withCString { wgTurnOn($0, self.tunFd) }
 
         if handle < 0 {
             return .failure(.start(handle))
@@ -239,7 +239,7 @@ class WireguardDevice {
         guard !commands.isEmpty else { return }
 
         _ = commands.toRawWireguardConfigString()
-            .withGoString { wgSetConfig(handle, $0) }
+            .withCString { wgSetConfig(handle, $0) }
     }
 
     // MARK: - Network monitoring
@@ -311,12 +311,6 @@ enum WireguardLogLevel: Int32 {
         case .error:
             return .error
         }
-    }
-}
-
-private extension String {
-    func withGoString<R>(_ block: (_ goString: gostring_t) throws -> R) rethrows -> R {
-        return try withCString { try block(gostring_t(p: $0, n: utf8.count)) }
     }
 }
 
