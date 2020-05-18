@@ -23,8 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.5-beta1] - 2020-05-18
 ### Added
-- Add a new Let's Encrypt root certificate
+- Add a new Let's Encrypt root certificate.
 
 #### Android
 - Add possibility to create account from the login screen.
@@ -38,11 +41,13 @@ Line wrap the file at 100 chars.                                              Th
 - Rename "Block when disconnected" setting to "Always require VPN" and add additional explanation
   of the setting.
 - Embed TLS certificates used for HTTPS into the binary rather than loading them from disk at
-  runtime
+  runtime.
 - Ignore case when setting the relay or bridge location in the CLI.
 - Upgrade OpenVPN from 2.4.8 to 2.4.9 and the OpenSSL version it uses from 1.1.1d to 1.1.1g.
-- Upgrade shadowsocks-rust to version 1.8.10
+- Upgrade shadowsocks-rust to version 1.8.10.
 - Always enable the beta program when running a beta version.
+- Increase relay list download failure retry interval from 5 to 15 minutes. And from 5 seconds
+  to 15 minutes for the WireGuard key rotation retry interval.
 
 #### Android
 - Adjust the minimum supported Android version to correctly reflect the supported versions decided
