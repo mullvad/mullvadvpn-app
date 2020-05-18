@@ -13,6 +13,7 @@ export interface IUpdateVersionAction {
   type: 'UPDATE_VERSION';
   version: string;
   consistent: boolean;
+  currentIsBeta: boolean;
 }
 
 export type VersionAction = IUpdateLatestAction | IUpdateVersionAction;
@@ -24,11 +25,16 @@ function updateLatest(latestInfo: IUpdateLatestActionPayload): IUpdateLatestActi
   };
 }
 
-function updateVersion(version: string, consistent: boolean): IUpdateVersionAction {
+function updateVersion(
+  version: string,
+  consistent: boolean,
+  currentIsBeta: boolean,
+): IUpdateVersionAction {
   return {
     type: 'UPDATE_VERSION',
     version,
     consistent,
+    currentIsBeta,
   };
 }
 
