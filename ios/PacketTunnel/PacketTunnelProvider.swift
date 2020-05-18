@@ -366,7 +366,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             persistentKeychainReference: persistentKeychainReference
         )
 
-        keyRotationManager.keyRotationEventHandler = { (keyRotationEvent) in
+        keyRotationManager.eventHandler = { (keyRotationEvent) in
             self.reloadTunnel().autoDisposableSink(
                 cancellableSet: self.cancellableSet,
                 receiveCompletion: { (completion) in

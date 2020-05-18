@@ -50,22 +50,31 @@ class AutomaticKeyRotationManager {
     private let persistentKeychainReference: Data
     private var rotateKeySubscriber: AnyCancellable?
 
+    /// A dispatch queue used for synchronization
     private let dispatchQueue = DispatchQueue(label: "net.mullvad.vpn.key-manager", qos: .background)
-    private var retryWorkItem: DispatchWorkItem?
 
+    /// A timer source used to schedule a delayed key rotation
+    private var timerSource: DispatchSourceTimer?
+
+    /// Internal lock used for access synchronization to public members of this class
+    private let lock = NSLock()
+
+    /// Internal variable indicating that the key rotation has already started
     private var isAutomaticRotationEnabled = false
 
-    private let lock = NSLock()
-    private var _keyRotationEventHandler: ((KeyRotationEvent) -> Void)?
-    var keyRotationEventHandler: ((KeyRotationEvent) -> Void)? {
+    /// A variable backing the `eventHandler` public property
+    private var _eventHandler: ((KeyRotationEvent) -> Void)?
+
+    /// An event handler that's invoked when key rotation occurred
+    var eventHandler: ((KeyRotationEvent) -> Void)? {
         get {
             lock.withCriticalBlock {
-                self._keyRotationEventHandler
+                self._eventHandler
             }
         }
         set {
             lock.withCriticalBlock {
-                self._keyRotationEventHandler = newValue
+                self._eventHandler = newValue
             }
         }
     }
@@ -93,7 +102,7 @@ class AutomaticKeyRotationManager {
 
             self.isAutomaticRotationEnabled = false
             self.rotateKeySubscriber?.cancel()
-            self.retryWorkItem?.cancel()
+            self.timerSource?.cancel()
         }
     }
 
@@ -113,7 +122,7 @@ class AutomaticKeyRotationManager {
                            error.localizedDescription,
                            kRetryIntervalOnFailure)
 
-                    self.scheduleRetry(deadline: .now() + .seconds(kRetryIntervalOnFailure))
+                    self.scheduleRetry(wallDeadline: .now() + .seconds(kRetryIntervalOnFailure))
                 }
             }) { [weak self] (keyRotationEvent) in
                 guard let self = self else { return }
@@ -121,7 +130,7 @@ class AutomaticKeyRotationManager {
                 if keyRotationEvent.isNew {
                     os_log(.default, log: tunnelProviderLog, "Finished private key rotation")
 
-                    self.keyRotationEventHandler?(keyRotationEvent)
+                    self.eventHandler?(keyRotationEvent)
                 }
 
                 if let rotationDate = Self.nextRotation(creationDate: keyRotationEvent.creationDate) {
@@ -130,26 +139,26 @@ class AutomaticKeyRotationManager {
                     os_log(.default, log: tunnelProviderLog,
                            "Next private key rotation on %{public}s", "\(rotationDate)")
 
-                    self.scheduleRetry(deadline: .now() + .seconds(Int(interval)))
+                    self.scheduleRetry(wallDeadline: .now() + .seconds(Int(interval)))
                 } else {
                     os_log(.error, log: tunnelProviderLog,
                            "Failed to compute the next private rotation date. Retry in %d seconds.")
 
-                    self.scheduleRetry(deadline: .now() + .seconds(kRetryIntervalOnFailure))
+                    self.scheduleRetry(wallDeadline: .now() + .seconds(kRetryIntervalOnFailure))
                 }
         }
     }
 
-    private func scheduleRetry(deadline: DispatchTime) {
-        // cancel any pending work
-        retryWorkItem?.cancel()
-
-        // schedule new work
-        let workItem = DispatchWorkItem { [weak self] in
+    private func scheduleRetry(wallDeadline: DispatchWallTime) {
+        let timerSource = DispatchSource.makeTimerSource(queue: dispatchQueue)
+        timerSource.setEventHandler { [weak self] in
             self?.performKeyRotation()
         }
-        retryWorkItem = workItem
-        dispatchQueue.asyncAfter(deadline: deadline, execute: workItem)
+
+        timerSource.schedule(wallDeadline: wallDeadline)
+        timerSource.activate()
+
+        self.timerSource = timerSource
     }
 
     private func tryRotatingPrivateKey() -> AnyPublisher<KeyRotationEvent, Error> {
