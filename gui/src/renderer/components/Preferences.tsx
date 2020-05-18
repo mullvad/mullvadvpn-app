@@ -19,6 +19,7 @@ export interface IProps {
   autoConnect: boolean;
   allowLan: boolean;
   showBetaReleases: boolean;
+  isBeta: boolean;
   enableSystemNotifications: boolean;
   monochromaticIcon: boolean;
   startMinimized: boolean;
@@ -165,7 +166,7 @@ export default class Preferences extends Component<IProps> {
                       </React.Fragment>
                     ) : undefined}
 
-                    <Cell.Container>
+                    <Cell.Container disabled={this.props.isBeta}>
                       <Cell.Label>
                         {messages.pgettext('preferences-view', 'Beta program')}
                       </Cell.Label>
@@ -176,10 +177,15 @@ export default class Preferences extends Component<IProps> {
                     </Cell.Container>
                     <Cell.Footer>
                       <Cell.FooterText>
-                        {messages.pgettext(
-                          'preferences-view',
-                          'Enable to get notified when new beta versions of the app are released.',
-                        )}
+                        {this.props.isBeta
+                          ? messages.pgettext(
+                              'preferences-view',
+                              'This option is unavailable while using a beta version.',
+                            )
+                          : messages.pgettext(
+                              'preferences-view',
+                              'Enable to get notified when new beta versions of the app are released.',
+                            )}
                       </Cell.FooterText>
                     </Cell.Footer>
                   </View>
