@@ -39,6 +39,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private var greenColor: Int = 0
     private var redColor: Int = 0
 
+    private var keyStatusListenerId: Int? = null
     private var tunnelStateListener: Int? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected()
 
@@ -161,7 +162,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             }
         }
 
-        keyStatusListener.onKeyStatusChange = { newKeyStatus ->
+        keyStatusListenerId = keyStatusListener.onKeyStatusChange.subscribe { newKeyStatus ->
             jobTracker.newUiJob("keyStatusUpdate") {
                 keyStatus = newKeyStatus
             }
@@ -175,11 +176,14 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             connectionProxy.onUiStateChange.unsubscribe(listener)
         }
 
+        keyStatusListenerId?.let { listener ->
+            keyStatusListener.onKeyStatusChange.unsubscribe(listener)
+        }
+
         if (!(actionState is ActionState.Idle)) {
             actionState = ActionState.Idle(false)
         }
 
-        keyStatusListener.onKeyStatusChange = null
         jobTracker.cancelAllJobs()
     }
 
