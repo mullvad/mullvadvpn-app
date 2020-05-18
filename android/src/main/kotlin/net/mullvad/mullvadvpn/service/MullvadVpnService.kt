@@ -58,12 +58,6 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
-    private var bindCount = 0
-        set(value) {
-            field = value
-            isBound = bindCount != 0
-        }
-
     private var isBound = false
         set(value) {
             field = value
@@ -93,13 +87,13 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     override fun onBind(intent: Intent): IBinder {
-        bindCount += 1
+        isBound = true
 
         return super.onBind(intent) ?: binder
     }
 
     override fun onRebind(intent: Intent) {
-        bindCount += 1
+        isBound = true
 
         if (isStopping) {
             restart()
@@ -112,7 +106,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     override fun onUnbind(intent: Intent): Boolean {
-        bindCount -= 1
+        isBound = false
 
         return true
     }
