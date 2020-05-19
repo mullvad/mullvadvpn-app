@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { Types } from 'reactxp';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import accountActions from '../redux/account/actions';
@@ -62,6 +63,7 @@ interface IRedeemVoucherProps {
 export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
   const { onSubmit, onSuccess, onFailure } = props;
 
+  const closeScheduler = useScheduler();
   const { submitVoucher } = useAppContext();
   const { updateAccountExpiry } = useActions(accountActions);
 
@@ -84,8 +86,10 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
     setResponse(response);
     if (response.type === 'success') {
       setValue('');
-      updateAccountExpiry(response.new_expiry);
-      onSuccess?.();
+      closeScheduler.schedule(() => {
+        updateAccountExpiry(response.new_expiry);
+        onSuccess?.();
+      }, 1000);
     } else {
       onFailure?.();
     }
@@ -100,7 +104,8 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
 }
 
 export function RedeemVoucherInput() {
-  const { value, setValue, onSubmit } = useContext(RedeemVoucherContext);
+  const { value, setValue, onSubmit, submitting, response } = useContext(RedeemVoucherContext);
+  const disabled = submitting || response?.type === 'success';
 
   const onChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,6 +125,7 @@ export function RedeemVoucherInput() {
 
   return (
     <StyledInput
+      disabled={disabled}
       value={value}
       placeholder={'XXXX-XXXX-XXXX-XXXX'}
       onChange={onChange}
@@ -168,10 +174,11 @@ export function RedeemVoucherResponse() {
 }
 
 export function RedeemVoucherSubmitButton() {
-  const { valueValid, onSubmit, submitting } = useContext(RedeemVoucherContext);
+  const { valueValid, onSubmit, submitting, response } = useContext(RedeemVoucherContext);
+  const disabled = submitting || response?.type === 'success';
 
   return (
-    <AppButton.GreenButton key="cancel" disabled={!valueValid || submitting} onPress={onSubmit}>
+    <AppButton.GreenButton key="cancel" disabled={!valueValid || disabled} onPress={onSubmit}>
       {messages.pgettext('redeem-voucher-view', 'Redeem')}
     </AppButton.GreenButton>
   );
@@ -182,13 +189,14 @@ interface IRedeemVoucherAlertProps {
 }
 
 export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
-  const { submitting } = useContext(RedeemVoucherContext);
+  const { submitting, response } = useContext(RedeemVoucherContext);
+  const cancelDisabled = submitting || response?.type === 'success';
 
   return (
     <ModalAlert
       buttons={[
         <RedeemVoucherSubmitButton key="submit" />,
-        <AppButton.BlueButton key="cancel" disabled={submitting} onPress={props.onClose}>
+        <AppButton.BlueButton key="cancel" disabled={cancelDisabled} onPress={props.onClose}>
           {messages.pgettext('redeem-voucher-alert', 'Cancel')}
         </AppButton.BlueButton>,
       ]}>
@@ -208,7 +216,7 @@ export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
   const [showAlert, setShowAlert] = useState(false);
 
   const onPress = useCallback(() => setShowAlert(true), []);
-  const onAlertClose = useCallback(() => setShowAlert(false), []);
+  const onClose = useCallback(() => setShowAlert(false), []);
 
   return (
     <>
@@ -216,8 +224,8 @@ export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
         {messages.pgettext('redeem-voucher-alert', 'Redeem voucher')}
       </AppButton.GreenButton>
       {showAlert && (
-        <RedeemVoucherContainer onSuccess={onAlertClose}>
-          <RedeemVoucherAlert onClose={onAlertClose} />
+        <RedeemVoucherContainer onSuccess={onClose}>
+          <RedeemVoucherAlert onClose={onClose} />
         </RedeemVoucherContainer>
       )}
     </>
