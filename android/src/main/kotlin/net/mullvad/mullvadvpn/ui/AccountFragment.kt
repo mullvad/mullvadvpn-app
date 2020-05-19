@@ -34,6 +34,10 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
         view.findViewById<UrlButton>(R.id.buy_credit).prepare(daemon, jobTracker)
 
+        view.findViewById<Button>(R.id.redeem_voucher).setOnClickAction("redeem", jobTracker) {
+            showRedeemVoucherDialog()
+        }
+
         view.findViewById<Button>(R.id.logout).setOnClickAction("logout", jobTracker) {
             logout()
         }
@@ -73,6 +77,14 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             accountExpiryView.information = null
             accountCache.fetchAccountExpiry()
         }
+    }
+
+    private fun showRedeemVoucherDialog() {
+        val transaction = fragmentManager?.beginTransaction()
+
+        transaction?.addToBackStack(null)
+
+        RedeemVoucherDialogFragment().show(transaction, null)
     }
 
     private suspend fun logout() {
