@@ -6,21 +6,32 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 
-PRODUCT_VERSION="$(node -p "require('$SCRIPT_DIR/gui/package.json').version" | sed -Ee 's/\.0//g')"
+PRODUCT_VERSION="$(sed -n -e 's/^ *versionName "\([^"]*\)"$/\1/p' android/build.gradle)"
 BUILD_TYPE="release"
+GRADLE_BUILD_TYPE="release"
 GRADLE_TASK="assembleRelease"
 BUNDLE_TASK="bundleRelease"
+BUILT_APK_SUFFIX="-release"
 FILE_SUFFIX=""
 CARGO_ARGS="--release"
+EXTRA_WGGO_ARGS=""
 BUILD_BUNDLE="no"
 
 while [ ! -z "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
         BUILD_TYPE="debug"
+        GRADLE_BUILD_TYPE="debug"
         GRADLE_TASK="assembleDebug"
         BUNDLE_TASK="bundleDebug"
+        BUILT_APK_SUFFIX="-debug"
         FILE_SUFFIX="-debug"
         CARGO_ARGS=""
+    elif [[ "${1:-""}" == "--fdroid" ]]; then
+        GRADLE_BUILD_TYPE="fdroid"
+        GRADLE_TASK="assembleFdroid"
+        BUNDLE_TASK="bundleFdroid"
+        BUILT_APK_SUFFIX="-fdroid-unsigned"
+        EXTRA_WGGO_ARGS="--no-docker"
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
     fi
@@ -28,7 +39,7 @@ while [ ! -z "${1:-""}" ]; do
     shift 1
 done
 
-if [[ "$BUILD_TYPE" == "release" ]]; then
+if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     if [ ! -f "$SCRIPT_DIR/android/keystore.properties" ]; then
         echo "ERROR: No keystore.properties file found" >&2
         echo "       Please configure the signing keys as described in the README" >&2
@@ -47,22 +58,35 @@ else
 fi
 
 pushd "$SCRIPT_DIR/android"
-./gradlew --console plain clean
+
+# Fallback to the system-wide gradle command if the gradlew script is removed.
+# It is removed by the F-Droid build process before the build starts.
+if [ -f "gradlew" ]; then
+    GRADLE_CMD="./gradlew"
+elif which gradle > /dev/null; then
+    GRADLE_CMD="gradle"
+else
+    echo "ERROR: No gradle command found" >&2
+    echo "       Please either install gradle or restore the gradlew file" >&2
+    exit 2
+fi
+
+$GRADLE_CMD --console plain clean
 mkdir -p "build/extraJni"
 popd
 
 function restore_metadata_backups() {
     pushd "$SCRIPT_DIR"
-    ./version-metadata.sh restore-backup
+    ./version-metadata.sh restore-backup --only-android
     mv Cargo.lock.bak Cargo.lock || true
     popd
 }
 trap 'restore_metadata_backups' EXIT
 
 cp Cargo.lock Cargo.lock.bak
-./version-metadata.sh inject $PRODUCT_VERSION
+./version-metadata.sh inject $PRODUCT_VERSION --only-android
 
-./wireguard/build-wireguard-go.sh --android
+./wireguard/build-wireguard-go.sh --android $EXTRA_WGGO_ARGS
 
 
 ARCHITECTURES="aarch64 armv7 x86_64 i686"
@@ -95,16 +119,16 @@ done
 ./update-relays.sh
 
 cd "$SCRIPT_DIR/android"
-./gradlew --console plain "$GRADLE_TASK"
+$GRADLE_CMD --console plain "$GRADLE_TASK"
 
 mkdir -p "$SCRIPT_DIR/dist"
-cp  "$SCRIPT_DIR/android/build/outputs/apk/$BUILD_TYPE/android-$BUILD_TYPE.apk" \
+cp  "$SCRIPT_DIR/android/build/outputs/apk/$GRADLE_BUILD_TYPE/android${BUILT_APK_SUFFIX}.apk" \
     "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.apk"
 
 if [[ "$BUILD_BUNDLE" == "yes" ]]; then
-    ./gradlew --console plain "$BUNDLE_TASK"
+    $GRADLE_CMD --console plain "$BUNDLE_TASK"
 
-    cp  "$SCRIPT_DIR/android/build/outputs/bundle/$BUILD_TYPE/android.aab" \
+    cp  "$SCRIPT_DIR/android/build/outputs/bundle/$GRADLE_BUILD_TYPE/android.aab" \
         "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.aab"
 fi
 

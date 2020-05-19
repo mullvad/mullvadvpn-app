@@ -45,6 +45,14 @@ android {
         }
     }
 
+    buildTypes {
+        fdroid {
+            initWith release
+            minifyEnabled false
+            signingConfig null
+        }
+    }
+
     sourceSets {
         main {
             assets {
@@ -83,7 +91,7 @@ buildscript {
         google()
 
         maven {
-            url = uri("https://plugins.gradle.org/m2/")
+            url "https://plugins.gradle.org/m2/"
         }
     }
 
