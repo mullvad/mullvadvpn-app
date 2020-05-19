@@ -89,7 +89,11 @@ extension PacketTunnelConfiguration {
 
         return WireguardConfiguration(
             privateKey: tunnelConfig.interface.privateKey,
-            peers: wireguardPeers
+            peers: wireguardPeers,
+            allowedIPs: [
+                IPAddressRange(address: IPv4Address.any, networkPrefixLength: 0),
+                IPAddressRange(address: IPv6Address.any, networkPrefixLength: 0)
+            ]
         )
     }
 }

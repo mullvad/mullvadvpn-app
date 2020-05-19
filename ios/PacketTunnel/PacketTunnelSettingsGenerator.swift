@@ -29,7 +29,7 @@ struct PacketTunnelSettingsGenerator {
 
     private func dnsSettings() -> NEDNSSettings {
         let serverAddresses = [mullvadEndpoint.ipv4Gateway, mullvadEndpoint.ipv6Gateway]
-            .map { String(reflecting: $0) }
+            .map { "\($0)" }
 
         let dnsSettings = NEDNSSettings(servers: serverAddresses)
 
@@ -51,14 +51,6 @@ struct PacketTunnelSettingsGenerator {
             NEIPv4Route.default() // 0.0.0.0/0
         ]
 
-        let relayAddressRange = IPAddressRange(address: mullvadEndpoint.ipv4Relay.ip, networkPrefixLength: 32)
-
-        ipv4Settings.excludedRoutes = [
-            NEIPv4Route(
-                destinationAddress: "\(relayAddressRange.address)",
-                subnetMask: ipv4SubnetMaskString(of: relayAddressRange))
-        ]
-
         return ipv4Settings
     }
 
@@ -66,20 +58,20 @@ struct PacketTunnelSettingsGenerator {
         let interfaceAddresses = tunnelConfiguration.interface.addresses
         let ipv6AddressRanges = interfaceAddresses.filter { $0.address is IPv6Address }
 
+        let addresses = ipv6AddressRanges.map { "\($0.address)" }
+
+        // The smallest prefix that will have any effect on iOS is /120
+        let networkPrefixLengths = ipv6AddressRanges
+            .map { NSNumber(value: min(120, $0.networkPrefixLength)) }
+
         let ipv6Settings = NEIPv6Settings(
-            addresses: ipv6AddressRanges.map { "\($0.address)" },
-            networkPrefixLengths: ipv6AddressRanges.map { NSNumber(value: $0.networkPrefixLength) }
+            addresses: addresses,
+            networkPrefixLengths: networkPrefixLengths
         )
 
         ipv6Settings.includedRoutes = [
             NEIPv6Route.default() // ::0
         ]
-
-        if let ipv6Relay = mullvadEndpoint.ipv6Relay {
-            ipv6Settings.excludedRoutes = [
-                NEIPv6Route(destinationAddress: "\(ipv6Relay.ip)", networkPrefixLength: 128)
-            ]
-        }
 
         return ipv6Settings
     }
