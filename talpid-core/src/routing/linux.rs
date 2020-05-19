@@ -1,6 +1,6 @@
 use crate::{
     routing::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route},
-    split,
+    split_tunnel,
 };
 
 use talpid_types::ErrorExt;
@@ -310,7 +310,7 @@ impl RouteManagerImplInner {
                 "from",
                 "all",
                 "fwmark",
-                &split::MARK.to_string(),
+                &split_tunnel::MARK.to_string(),
                 "lookup",
                 table_id_str,
             ])?;
@@ -337,7 +337,7 @@ impl RouteManagerImplInner {
             "from",
             "all",
             "fwmark",
-            &split::MARK.to_string(),
+            &split_tunnel::MARK.to_string(),
             "lookup",
             &self.split_table_id.to_string(),
         ]) {

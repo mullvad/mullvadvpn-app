@@ -56,7 +56,7 @@ use std::{
     time::Duration,
 };
 #[cfg(target_os = "linux")]
-use talpid_core::split;
+use talpid_core::split_tunnel;
 use talpid_core::{
     mpsc::Sender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
@@ -99,7 +99,7 @@ pub enum Error {
 
     #[cfg(target_os = "linux")]
     #[error(display = "Unable to initialize split tunneling")]
-    InitSplitTunneling(#[error(source)] split::Error),
+    InitSplitTunneling(#[error(source)] split_tunnel::Error),
 
     #[error(display = "No wireguard private key available")]
     NoKeyAvailable,
@@ -450,7 +450,7 @@ pub struct Daemon<L: EventListener> {
     target_state: TargetState,
     state: DaemonExecutionState,
     #[cfg(target_os = "linux")]
-    exclude_pids: split::PidManager,
+    exclude_pids: split_tunnel::PidManager,
     rx: Wait<UnboundedReceiver<InternalDaemonEvent>>,
     tx: DaemonEventSender,
     reconnection_loop_tx: Option<mpsc::Sender<()>>,
@@ -595,7 +595,7 @@ where
             target_state: initial_target_state,
             state: DaemonExecutionState::Running,
             #[cfg(target_os = "linux")]
-            exclude_pids: split::PidManager::new().map_err(Error::InitSplitTunneling)?,
+            exclude_pids: split_tunnel::PidManager::new().map_err(Error::InitSplitTunneling)?,
             rx: internal_event_rx.wait(),
             tx: internal_event_tx,
             reconnection_loop_tx: None,

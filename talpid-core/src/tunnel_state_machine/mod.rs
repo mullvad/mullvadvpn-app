@@ -53,7 +53,7 @@ pub enum Error {
     /// Unable to set up split tunneling
     #[cfg(target_os = "linux")]
     #[error(display = "Failed to initialize split tunneling")]
-    InitSplitTunneling(#[error(source)] crate::split::Error),
+    InitSplitTunneling(#[error(source)] crate::split_tunnel::Error),
 
     /// Failed to initialize the system firewall integration.
     #[error(display = "Failed to initialize the system firewall integration")]

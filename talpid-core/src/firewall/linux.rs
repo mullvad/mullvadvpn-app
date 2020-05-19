@@ -1,5 +1,5 @@
 use super::{FirewallArguments, FirewallPolicy, FirewallT};
-use crate::{split, tunnel};
+use crate::{split_tunnel, tunnel};
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use libc;
@@ -283,8 +283,8 @@ impl<'a> PolicyBatch<'a> {
         for chain in &mangle_chains {
             let mut rule = Rule::new(chain);
             rule.add_expr(&nft_expr!(meta cgroup));
-            rule.add_expr(&nft_expr!(cmp == split::NETCLS_CLASSID));
-            rule.add_expr(&nft_expr!(immediate data split::MARK));
+            rule.add_expr(&nft_expr!(cmp == split_tunnel::NETCLS_CLASSID));
+            rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
             rule.add_expr(&nft_expr!(ct mark set));
             rule.add_expr(&nft_expr!(meta mark set));
             self.batch.add(&rule, nftnl::MsgType::Add);
@@ -292,19 +292,19 @@ impl<'a> PolicyBatch<'a> {
 
         let mut rule = Rule::new(&self.in_chain);
         rule.add_expr(&nft_expr!(ct mark));
-        rule.add_expr(&nft_expr!(cmp == split::MARK));
+        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
         add_verdict(&mut rule, &Verdict::Accept);
         self.batch.add(&rule, nftnl::MsgType::Add);
 
         let mut rule = Rule::new(&self.out_chain);
         rule.add_expr(&nft_expr!(meta mark));
-        rule.add_expr(&nft_expr!(cmp == split::MARK));
+        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
         add_verdict(&mut rule, &Verdict::Accept);
         self.batch.add(&rule, nftnl::MsgType::Add);
 
         let mut rule = Rule::new(&self.nat_chain);
         rule.add_expr(&nft_expr!(ct mark));
-        rule.add_expr(&nft_expr!(cmp == split::MARK));
+        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
         rule.add_expr(&nft_expr!(masquerade));
         add_verdict(&mut rule, &Verdict::Accept);
         self.batch.add(&rule, nftnl::MsgType::Add);

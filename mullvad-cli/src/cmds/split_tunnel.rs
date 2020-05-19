@@ -1,9 +1,9 @@
 use crate::{new_rpc_client, Command, Result};
 use clap::value_t_or_exit;
 
-pub struct Split;
+pub struct SplitTunnel;
 
-impl Command for Split {
+impl Command for SplitTunnel {
     fn name(&self) -> &'static str {
         "split-tunnel"
     }
@@ -37,7 +37,7 @@ fn create_pid_subcommand() -> clap::App<'static, 'static> {
         .subcommand(clap::SubCommand::with_name("list"))
 }
 
-impl Split {
+impl SplitTunnel {
     fn handle_pid_cmd(matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("add", Some(matches)) => {
