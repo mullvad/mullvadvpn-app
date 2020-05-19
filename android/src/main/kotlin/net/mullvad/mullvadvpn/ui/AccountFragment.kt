@@ -10,6 +10,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
+import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import org.joda.time.DateTime
 
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
@@ -30,6 +31,8 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         view.findViewById<View>(R.id.back).setOnClickListener {
             parentActivity.onBackPressed()
         }
+
+        view.findViewById<UrlButton>(R.id.buy_credit).prepare(daemon, jobTracker)
 
         view.findViewById<Button>(R.id.logout).setOnClickAction("logout", jobTracker) {
             logout()
