@@ -6,10 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import java.text.DateFormat
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
@@ -18,8 +14,6 @@ import org.joda.time.DateTime
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
-
-    private var updateViewJob: Job? = null
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -42,10 +36,8 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     override fun onSafelyResume() {
         accountCache.onAccountDataChange = { accountNumber, accountExpiry ->
-            updateViewJob = updateView(accountNumber, accountExpiry)
-
-            if (accountExpiry == null) {
-                accountCache.fetchAccountExpiry()
+            jobTracker.newUiJob("updateView") {
+                updateView(accountNumber, accountExpiry)
             }
         }
     }
@@ -54,10 +46,15 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         accountCache.onAccountDataChange = null
     }
 
-    private fun updateView(accountNumber: String?, accountExpiry: DateTime?) =
-            GlobalScope.launch(Dispatchers.Main) {
+    private fun updateView(accountNumber: String?, accountExpiry: DateTime?) {
         accountNumberView.information = accountNumber
-        accountExpiryView.information = accountExpiry?.let { expiry -> formatExpiry(expiry) }
+
+        if (accountExpiry != null) {
+            accountExpiryView.information = formatExpiry(accountExpiry)
+        } else {
+            accountExpiryView.information = null
+            accountCache.fetchAccountExpiry()
+        }
     }
 
     private fun formatExpiry(expiry: DateTime): String {
@@ -73,8 +70,10 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         goToLoginScreen()
     }
 
-    private fun clearAccountNumber() = GlobalScope.launch(Dispatchers.Default) {
-        daemon.setAccount(null)
+    private fun clearAccountNumber() {
+        jobTracker.newBackgroundJob("clearAccountNumber") {
+            daemon.setAccount(null)
+        }
     }
 
     private fun clearBackStack() {
