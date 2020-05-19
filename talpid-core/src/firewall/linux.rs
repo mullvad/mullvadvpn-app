@@ -88,7 +88,7 @@ enum End {
 }
 
 /// The Linux implementation for the firewall and DNS.
-pub struct Firewall;
+pub struct Firewall(());
 
 struct FirewallTables {
     main: Table,
@@ -100,7 +100,7 @@ impl FirewallT for Firewall {
     type Error = Error;
 
     fn new(_args: FirewallArguments) -> Result<Self> {
-        Ok(Firewall)
+        Ok(Firewall(()))
     }
 
     fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
