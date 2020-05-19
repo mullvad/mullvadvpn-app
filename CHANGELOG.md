@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix crash when that happened sometimes when the app tried to start the daemon service on recent
   Android versions.
+- Fix quitting the app sometimes failing.
 
 
 ## [2020.5-beta1] - 2020-05-18
