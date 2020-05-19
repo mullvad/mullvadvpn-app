@@ -14,7 +14,7 @@ import os
 private let kRetryIntervalOnFailure = 300
 
 /// A private key rotation interval (in days)
-private let kRotationInterval = 1
+private let kRotationInterval = 4
 
 class AutomaticKeyRotationManager {
 
