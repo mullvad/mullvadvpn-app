@@ -36,6 +36,8 @@ This is a folder with gettext translations for Mullvad VPN app.
    1. Upload `payload.zip` to Crowdin via web interface (Settings -> Translations -> Upload 
       translations).
 
+1. Add the language to `SUPPORTED_LOCALE_LIST` in `app.tsx`.
+
 ## Updating translations template
 
 ### messages.pot
