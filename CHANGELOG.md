@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
   Android versions.
 - Fix quitting the app sometimes failing.
 - Fix WireGuard key status events being lost by the UI, causing stale information to be shown.
+- Fix time left in account not showing in settings screen.
 
 
 ## [2020.5-beta1] - 2020-05-18
