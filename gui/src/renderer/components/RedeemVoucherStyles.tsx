@@ -2,6 +2,15 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import ImageView from './ImageView';
 
+export const StyledLabel = styled.span({
+  fontFamily: 'Open Sans',
+  fontSize: '13px',
+  fontWeight: 600,
+  lineHeight: '20px',
+  color: colors.white,
+  marginBottom: '9px',
+});
+
 export const StyledInput = styled.input({
   flex: 1,
   overflow: 'hidden',

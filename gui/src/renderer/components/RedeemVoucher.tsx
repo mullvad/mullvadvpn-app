@@ -1,14 +1,19 @@
 import React, { useCallback, useContext, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Types } from 'reactxp';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import accountActions from '../redux/account/actions';
+import { IReduxState } from '../redux/store';
 import * as AppButton from './AppButton';
+import { ModalAlert } from './Modal';
 import {
   StyledEmptyResponse,
   StyledErrorResponse,
   StyledInput,
+  StyledLabel,
   StyledSpinner,
   StyledSuccessResponse,
 } from './RedeemVoucherStyles';
@@ -169,5 +174,52 @@ export function RedeemVoucherSubmitButton() {
     <AppButton.GreenButton key="cancel" disabled={!valueValid || submitting} onPress={onSubmit}>
       {messages.pgettext('redeem-voucher-view', 'Redeem')}
     </AppButton.GreenButton>
+  );
+}
+
+interface IRedeemVoucherAlertProps {
+  onClose?: () => void;
+}
+
+export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
+  const { submitting } = useContext(RedeemVoucherContext);
+
+  return (
+    <ModalAlert
+      buttons={[
+        <RedeemVoucherSubmitButton key="submit" />,
+        <AppButton.BlueButton key="cancel" disabled={submitting} onPress={props.onClose}>
+          {messages.pgettext('redeem-voucher-alert', 'Cancel')}
+        </AppButton.BlueButton>,
+      ]}>
+      <StyledLabel>{messages.pgettext('redeem-voucher-alert', 'Enter voucher code')}</StyledLabel>
+      <RedeemVoucherInput />
+      <RedeemVoucherResponse />
+    </ModalAlert>
+  );
+}
+
+interface IRedeemVoucherButtonProps {
+  style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
+}
+
+export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
+  const isBlocked = useSelector((state: IReduxState) => state.connection.isBlocked);
+  const [showAlert, setShowAlert] = useState(false);
+
+  const onPress = useCallback(() => setShowAlert(true), []);
+  const onAlertClose = useCallback(() => setShowAlert(false), []);
+
+  return (
+    <>
+      <AppButton.GreenButton disabled={isBlocked} onPress={onPress} style={props.style}>
+        {messages.pgettext('redeem-voucher-alert', 'Redeem voucher')}
+      </AppButton.GreenButton>
+      {showAlert && (
+        <RedeemVoucherContainer onSuccess={onAlertClose}>
+          <RedeemVoucherAlert onClose={onAlertClose} />
+        </RedeemVoucherContainer>
+      )}
+    </>
   );
 }
