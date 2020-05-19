@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+#### Android
+- Fix quitting the app sometimes failing.
 
 
 ## [2020.5-beta1] - 2020-05-18
