@@ -54,10 +54,12 @@
                                                           android:paddingVertical="12dp"
                                                           mullvad:description="@string/paid_until"
                                                           mullvad:whenMissing="hide" />
-        <Button android:id="@+id/logout"
-                android:layout_marginTop="12dp"
-                android:layout_marginHorizontal="24dp"
-                android:text="@string/log_out"
-                style="@style/RedButton" />
+        <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/logout"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="wrap_content"
+                                                 android:layout_marginTop="12dp"
+                                                 android:layout_marginHorizontal="24dp"
+                                                 mullvad:text="@string/log_out"
+                                                 mullvad:buttonColor="red" />
     </LinearLayout>
 </LinearLayout>

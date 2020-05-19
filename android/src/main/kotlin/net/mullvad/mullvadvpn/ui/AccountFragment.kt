@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import java.text.DateFormat
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
 import org.joda.time.DateTime
@@ -30,7 +31,9 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
-        view.findViewById<View>(R.id.logout).setOnClickListener { logout() }
+        view.findViewById<Button>(R.id.logout).setOnClickAction("logout", jobTracker) {
+            logout()
+        }
 
         accountNumberView = view.findViewById<CopyableInformationView>(R.id.account_number).apply {
             displayFormatter = { rawAccountNumber -> addSpacesToAccountNumber(rawAccountNumber) }
@@ -69,14 +72,14 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
     }
 
-    private fun logout() {
+    private suspend fun logout() {
         clearAccountNumber()
         clearBackStack()
         goToLoginScreen()
     }
 
-    private fun clearAccountNumber() {
-        jobTracker.newBackgroundJob("clearAccountNumber") {
+    private suspend fun clearAccountNumber() {
+        jobTracker.runOnBackground {
             daemon.setAccount(null)
         }
     }
