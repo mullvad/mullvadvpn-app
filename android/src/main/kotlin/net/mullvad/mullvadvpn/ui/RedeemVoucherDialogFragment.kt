@@ -129,16 +129,18 @@ class RedeemVoucherDialogFragment : DialogFragment() {
         }
 
         when (result) {
-            is VoucherSubmissionResult.Ok -> {
-                if (result.submission.timeAdded > 0) {
-                    dismiss()
-                }
-            }
+            is VoucherSubmissionResult.Ok -> handleAddedTime(result.submission.timeAdded)
             is VoucherSubmissionResult.InvalidVoucher -> showError(R.string.invalid_voucher)
             is VoucherSubmissionResult.VoucherAlreadyUsed -> {
                 showError(R.string.voucher_already_used)
             }
             else -> showError(R.string.error_occurred)
+        }
+    }
+
+    private fun handleAddedTime(timeAdded: Long) {
+        if (timeAdded > 0) {
+            dismiss()
         }
     }
 
