@@ -1,0 +1,7 @@
+- Fix many app crashes and bugs.
+- Add possibility to create account from the login screen.
+- Allow submitting voucher codes to add time to the account.
+- Move location of the account data (including the WireGuard keys), so that it isn't lost when the
+  system cache is cleaned.
+- Adjust the minimum supported Android version to correctly reflect the supported versions decided
+  in 2020.4-beta2. The app will now only install on Android 7 and later (API level 24).
