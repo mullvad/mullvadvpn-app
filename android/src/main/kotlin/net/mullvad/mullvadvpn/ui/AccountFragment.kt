@@ -18,6 +18,19 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private val timeStyle = DateFormat.SHORT
     private val expiryFormatter = DateFormat.getDateTimeInstance(dateStyle, timeStyle)
 
+    private var oldAccountExpiry: DateTime? = null
+
+    private var currentAccountExpiry: DateTime? = null
+        set(value) {
+            field = value
+
+            synchronized(this) {
+                if (value != oldAccountExpiry) {
+                    oldAccountExpiry = null
+                }
+            }
+        }
+
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
 
@@ -32,7 +45,9 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
-        view.findViewById<UrlButton>(R.id.buy_credit).prepare(daemon, jobTracker)
+        view.findViewById<UrlButton>(R.id.buy_credit).prepare(daemon, jobTracker) {
+            checkForAddedTime()
+        }
 
         view.findViewById<Button>(R.id.redeem_voucher).setOnClickAction("redeem", jobTracker) {
             showRedeemVoucherDialog()
@@ -60,14 +75,26 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
         accountCache.onAccountExpiryChange.subscribe(this) { accountExpiry ->
             jobTracker.newUiJob("updateAccountExpiry") {
+                currentAccountExpiry = accountExpiry
                 updateAccountExpiry(accountExpiry)
             }
+        }
+
+        oldAccountExpiry?.let { expiry ->
+            accountCache.invalidateAccountExpiry(expiry)
         }
     }
 
     override fun onSafelyPause() {
         accountCache.onAccountNumberChange.unsubscribe(this)
         accountCache.onAccountExpiryChange.unsubscribe(this)
+    }
+
+    private fun checkForAddedTime() {
+        currentAccountExpiry?.let { expiry ->
+            oldAccountExpiry = expiry
+            accountCache.invalidateAccountExpiry(expiry)
+        }
     }
 
     private fun updateAccountExpiry(accountExpiry: DateTime?) {
