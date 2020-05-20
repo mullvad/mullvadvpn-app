@@ -15,10 +15,12 @@ import android.widget.EditText
 import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
+import net.mullvad.mullvadvpn.service.AccountCache
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.SegmentedInputFormatter
+import org.joda.time.DateTime
 
 const val FULL_VOUCHER_CODE_LENGTH = "XXXX-XXXX-XXXX-XXXX".length
 
@@ -29,6 +31,9 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     private lateinit var errorMessage: TextView
     private lateinit var voucherInput: EditText
 
+    private var accountCache: AccountCache? = null
+    private var accountExpiry: DateTime? = null
+    private var accountExpiryListener: Int? = null
     private var redeemButton: Button? = null
 
     private var daemon: MullvadDaemon? = null
@@ -50,6 +55,15 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
         parentActivity.serviceNotifier.subscribe(this) { connection ->
             daemon = connection?.daemon
+
+            accountCache?.onAccountExpiryChange?.unsubscribe(this@RedeemVoucherDialogFragment)
+
+            accountCache = connection?.accountCache?.apply {
+                onAccountExpiryChange
+                    .subscribe(this@RedeemVoucherDialogFragment) { newAccountExpiry ->
+                        accountExpiry = newAccountExpiry
+                    }
+            }
         }
     }
 
@@ -112,6 +126,10 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     override fun onDetach() {
         parentActivity.serviceNotifier.unsubscribe(this)
 
+        accountExpiryListener?.let { id ->
+            accountCache?.onAccountExpiryChange?.unsubscribe(id)
+        }
+
         super.onDetach()
     }
 
@@ -140,6 +158,10 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
     private fun handleAddedTime(timeAdded: Long) {
         if (timeAdded > 0) {
+            accountExpiry?.let { oldAccountExpiry ->
+                accountCache?.invalidateAccountExpiry(oldAccountExpiry)
+            }
+
             dismiss()
         }
     }
