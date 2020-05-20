@@ -45,7 +45,12 @@ class UrlButton : Button {
         super.showSpinner = true
     }
 
-    fun prepare(daemon: MullvadDaemon, jobTracker: JobTracker, jobName: String = "fetchUrl") {
+    fun prepare(
+        daemon: MullvadDaemon,
+        jobTracker: JobTracker,
+        jobName: String = "fetchUrl",
+        extraOnClickAction: (suspend () -> Unit)? = null
+    ) {
         synchronized(this) {
             super.setEnabled(shouldEnable)
 
@@ -55,6 +60,7 @@ class UrlButton : Button {
                 super.setEnabled(false)
 
                 context.startActivity(buildIntent(jobTracker))
+                extraOnClickAction?.invoke()
 
                 super.setEnabled(true)
             }
