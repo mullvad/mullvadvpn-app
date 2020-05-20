@@ -5,28 +5,17 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.talpid.util.EventNotifier
 
 class KeyStatusListener(val daemon: MullvadDaemon) {
     private val setUpJob = setUp()
 
+    val onKeyStatusChange = EventNotifier<KeygenEvent?>(null)
+
     var keyStatus: KeygenEvent? = null
         private set(value) {
-            synchronized(this) {
-                field = value
-
-                if (value != null) {
-                    onKeyStatusChange?.invoke(value)
-                }
-            }
-        }
-
-    var onKeyStatusChange: ((KeygenEvent) -> Unit)? = null
-        set(value) {
             field = value
-
-            synchronized(this) {
-                keyStatus?.let { status -> value?.invoke(status) }
-            }
+            value?.let { newKeyStatus -> onKeyStatusChange.notify(newKeyStatus) }
         }
 
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
@@ -67,6 +56,7 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
     fun onDestroy() {
         setUpJob.cancel()
         daemon.onKeygenEvent = null
+        onKeyStatusChange.unsubscribeAll()
     }
 
     private fun retryKeyGeneration() = GlobalScope.launch(Dispatchers.Default) {
