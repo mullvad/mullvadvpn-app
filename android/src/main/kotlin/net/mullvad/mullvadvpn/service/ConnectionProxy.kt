@@ -177,6 +177,8 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
                     putExtra(MainActivity.KEY_SHOULD_CONNECT, true)
                 }
 
+                uiState = state
+
                 context.startActivity(activityIntent)
             }
         }
