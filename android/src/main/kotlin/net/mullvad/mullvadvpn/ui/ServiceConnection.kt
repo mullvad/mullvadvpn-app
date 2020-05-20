@@ -26,5 +26,6 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
         appVersionInfoCache.onDestroy()
         keyStatusListener.onDestroy()
         relayListListener.onDestroy()
+        connectionProxy.mainActivity = null
     }
 }
