@@ -19,10 +19,6 @@ class AppVersionInfoCache(
 
     private val setUpJob = setUp()
 
-    private val settingsListenerId = settingsListener.subscribe { settings ->
-        showBetaReleases = settings.showBetaReleases
-    }
-
     private var appVersionInfo: AppVersionInfo? = null
         set(value) {
             synchronized(this) {
@@ -81,6 +77,12 @@ class AppVersionInfoCache(
     var version: String? = null
         private set
 
+    init {
+        settingsListener.subscribe(this) { settings ->
+            showBetaReleases = settings.showBetaReleases
+        }
+    }
+
     fun onCreate() {
         context.getSharedPreferences(LEGACY_SHARED_PREFERENCES, Context.MODE_PRIVATE)
             .edit()
@@ -90,7 +92,7 @@ class AppVersionInfoCache(
 
     fun onDestroy() {
         setUpJob.cancel()
-        settingsListener.unsubscribe(settingsListenerId)
+        settingsListener.unsubscribe(this)
         daemon.onAppVersionInfoChange = null
     }
 
