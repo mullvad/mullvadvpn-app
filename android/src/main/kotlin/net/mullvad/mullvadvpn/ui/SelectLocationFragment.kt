@@ -9,10 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ViewSwitcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.KeygenEvent
@@ -28,16 +24,19 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
     private lateinit var relayListAdapter: RelayListAdapter
     private lateinit var relayListContainer: ViewSwitcher
 
-    private var updateRelayListJob: Job? = null
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
         relayListAdapter = RelayListAdapter(context.resources).apply {
             onSelect = { relayItem ->
-                updateLocationConstraint(relayItem)
-                maybeConnect()
-                close()
+                jobTracker.newBackgroundJob("selectRelay") {
+                    updateLocationConstraint(relayItem)
+                    maybeConnect()
+
+                    jobTracker.newUiJob("close") {
+                        close()
+                    }
+                }
             }
         }
     }
@@ -61,16 +60,14 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
 
     override fun onSafelyResume() {
         relayListListener.onRelayListChange = { relayList, selectedItem ->
-            updateRelayListJob = updateRelayList(relayList, selectedItem)
+            jobTracker.newUiJob("updateRelayList") {
+                updateRelayList(relayList, selectedItem)
+            }
         }
     }
 
     override fun onSafelyPause() {
         relayListListener.onRelayListChange = null
-    }
-
-    override fun onSafelyDestroyView() {
-        updateRelayListJob?.cancel()
     }
 
     fun close() {
@@ -86,16 +83,14 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         }
     }
 
-    private fun updateLocationConstraint(relayItem: RelayItem?) =
-            GlobalScope.launch(Dispatchers.Default) {
+    private fun updateLocationConstraint(relayItem: RelayItem?) {
         val constraint: Constraint<LocationConstraint> =
             relayItem?.run { Constraint.Only(location) } ?: Constraint.Any()
 
         daemon.updateRelaySettings(RelaySettingsUpdate.Normal(RelayConstraintsUpdate(constraint)))
     }
 
-    private fun updateRelayList(relayList: RelayList, selectedItem: RelayItem?) =
-            GlobalScope.launch(Dispatchers.Main) {
+    private fun updateRelayList(relayList: RelayList, selectedItem: RelayItem?) {
         relayListAdapter.onRelayListChange(relayList, selectedItem)
 
         if (relayList.countries.isEmpty()) {
