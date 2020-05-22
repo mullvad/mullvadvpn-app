@@ -15,7 +15,6 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var allowLanToggle: CellSwitch
     private lateinit var autoConnectToggle: CellSwitch
 
-    private var subscriptionId: Int? = null
     private var updateUiJob: Job? = null
 
     override fun onSafelyCreateView(
@@ -51,7 +50,9 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        settingsListener.subscribe({ settings -> updateUi(settings) })
+        settingsListener.subscribe(this) { settings ->
+            updateUi(settings)
+        }
 
         return view
     }
@@ -65,7 +66,7 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     override fun onSafelyDestroyView() {
-        subscriptionId?.let { id -> settingsListener.unsubscribe(id) }
+        settingsListener.unsubscribe(this)
     }
 
     private fun boolToSwitchState(pref: Boolean): CellSwitch.State {
