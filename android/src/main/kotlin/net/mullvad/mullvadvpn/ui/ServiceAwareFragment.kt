@@ -10,22 +10,18 @@ abstract class ServiceAwareFragment : Fragment() {
     var serviceConnection: ServiceConnection? = null
         private set
 
-    private var subscriptionId: Int? = null
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
         parentActivity = context as MainActivity
 
-        subscriptionId = parentActivity.serviceNotifier.subscribe { connection ->
+        parentActivity.serviceNotifier.subscribe(this) { connection ->
             configureServiceConnection(connection)
         }
     }
 
     override fun onDetach() {
-        subscriptionId?.let { id ->
-            parentActivity.serviceNotifier.unsubscribe(id)
-        }
+        parentActivity.serviceNotifier.unsubscribe(this)
 
         super.onDetach()
     }
