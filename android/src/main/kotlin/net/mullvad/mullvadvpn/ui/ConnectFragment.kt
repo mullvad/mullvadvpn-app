@@ -13,14 +13,11 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 
 val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
 
 class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
-    private val jobTracker = JobTracker()
-
     private lateinit var actionButton: ConnectActionButton
     private lateinit var switchLocationButton: SwitchLocationButton
     private lateinit var headerBar: HeaderBar

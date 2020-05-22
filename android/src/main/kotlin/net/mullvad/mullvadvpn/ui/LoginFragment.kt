@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.service.AccountCache
 import net.mullvad.mullvadvpn.ui.widget.Button
-import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 
 class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
@@ -29,7 +28,6 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var loginFailStatus: View
     private lateinit var accountInput: AccountInput
 
-    private val jobTracker = JobTracker()
     private val loggedIn = CompletableDeferred<LoginResult>()
 
     override fun onSafelyCreateView(

@@ -13,14 +13,11 @@ import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
-import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 
 val POLL_INTERVAL: Long = 15 /* s */ * 1000 /* ms */
 
 class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
-    private val jobTracker = JobTracker()
-
     private lateinit var accountLabel: TextView
 
     override fun onSafelyCreateView(
