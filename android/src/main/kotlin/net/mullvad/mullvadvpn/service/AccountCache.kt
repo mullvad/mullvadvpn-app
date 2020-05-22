@@ -30,14 +30,6 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
 
-    var onAccountDataChange: ((String?, DateTime?) -> Unit)? = null
-        set(value) {
-            synchronized(this) {
-                field = value
-                notifyChange()
-            }
-        }
-
     init {
         settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
             handleNewAccountNumber(accountNumber)
@@ -61,7 +53,7 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
                     retryAttempt += 1
                     delay(calculateRetryFetchDelay(retryAttempt))
-                } while (onAccountDataChange != null || onAccountExpiryChange.hasListeners())
+                } while (onAccountExpiryChange.hasListeners())
             }
         }
     }
@@ -76,7 +68,6 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
             accountNumber = newAccountNumber
             accountExpiry = null
 
-            notifyChange()
             fetchAccountExpiry()
         }
     }
@@ -85,13 +76,8 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
         synchronized(this) {
             if (accountNumber === accountNumberUsedForFetch) {
                 accountExpiry = DateTime.parse(expiryString, EXPIRY_FORMAT)
-                notifyChange()
             }
         }
-    }
-
-    private fun notifyChange() {
-        onAccountDataChange?.invoke(accountNumber, accountExpiry)
     }
 
     private fun calculateRetryFetchDelay(retryAttempt: Int): Long {
