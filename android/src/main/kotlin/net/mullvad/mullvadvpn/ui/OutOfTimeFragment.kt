@@ -66,7 +66,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     }
 
     override fun onSafelyResume() {
-        accountCache.onAccountDataChange = { _, expiry ->
+        accountCache.onAccountExpiryChange.subscribe(this) { expiry ->
             checkExpiry(expiry)
         }
 
@@ -79,7 +79,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     }
 
     override fun onSafelyPause() {
-        accountCache.onAccountDataChange = null
+        accountCache.onAccountExpiryChange.unsubscribe(this)
         jobTracker.cancelJob("pollAccountData")
     }
 
