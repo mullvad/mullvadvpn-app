@@ -65,8 +65,8 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
     private fun handleNewAccountNumber(newAccountNumber: String?) {
         synchronized(this) {
-            accountNumber = newAccountNumber
             accountExpiry = null
+            accountNumber = newAccountNumber
 
             fetchAccountExpiry()
         }
