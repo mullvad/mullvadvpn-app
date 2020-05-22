@@ -33,8 +33,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private var updateTunnelStateJob: Job? = null
 
     private var isTunnelInfoExpanded = false
-    private var keyStatusListenerId: Int? = null
-    private var tunnelStateListener: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +81,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         notificationBanner.onResume()
 
-        keyStatusListenerId = keyStatusListener.onKeyStatusChange.subscribe { keyStatus ->
+        keyStatusListener.onKeyStatusChange.subscribe(this) { keyStatus ->
             updateKeyStatusJob.cancel()
             updateKeyStatusJob = updateKeyStatus(keyStatus)
         }
@@ -100,7 +98,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             switchLocationButton.location = selectedRelayItem
         }
 
-        tunnelStateListener = connectionProxy.onUiStateChange.subscribe { uiState ->
+        connectionProxy.onUiStateChange.subscribe(this) { uiState ->
             updateTunnelStateJob?.cancel()
             updateTunnelStateJob = updateTunnelState(uiState, connectionProxy.state)
         }
@@ -119,13 +117,8 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
 
-        keyStatusListenerId?.let { listener ->
-            keyStatusListener.onKeyStatusChange.unsubscribe(listener)
-        }
-
-        tunnelStateListener?.let { listener ->
-            connectionProxy.onUiStateChange.unsubscribe(listener)
-        }
+        keyStatusListener.onKeyStatusChange.unsubscribe(this)
+        connectionProxy.onUiStateChange.unsubscribe(this)
 
         updateLocationInfoJob?.cancel()
         updateTunnelStateJob?.cancel()
