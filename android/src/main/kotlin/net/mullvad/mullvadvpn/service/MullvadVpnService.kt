@@ -180,7 +180,7 @@ class MullvadVpnService : TalpidVpnService() {
 
         val accountCache = AccountCache(daemon, settingsListener)
 
-        val connectionProxy = ConnectionProxy(this@MullvadVpnService, daemon).apply {
+        val connectionProxy = ConnectionProxy(this, daemon).apply {
             when (pendingAction) {
                 PendingAction.Connect -> {
                     if (loggedIn) {
