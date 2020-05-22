@@ -9,9 +9,12 @@ import { LoginState } from '../redux/account/reducers';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import CustomScrollbars from './CustomScrollbars';
-import styles, { StyledAccountTokenLabel } from './ExpiredAccountErrorViewStyles';
+import styles, {
+  ModalCellContainer,
+  StyledAccountTokenLabel,
+} from './ExpiredAccountErrorViewStyles';
 import ImageView from './ImageView';
-import { ModalAlert, ModalAlertType } from './Modal';
+import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import { RedeemVoucherContainer, RedeemVoucherAlert } from './RedeemVoucher';
 
 export enum RecoveryAction {
@@ -185,25 +188,25 @@ export default class ExpiredAccountErrorView extends Component<
             {messages.gettext('Close')}
           </AppButton.BlueButton>,
         ]}>
-        <Text style={styles.fieldLabel}>
+        <ModalMessage>
           {messages.pgettext(
             'connect-view',
             'You need to disable "Always require VPN" in order to access the Internet to add time.',
           )}
-        </Text>
-        <Text style={styles.fieldLabel}>
+        </ModalMessage>
+        <ModalMessage>
           {messages.pgettext(
             'connect-view',
             'Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings.',
           )}
-        </Text>
-        <Cell.Container>
+        </ModalMessage>
+        <ModalCellContainer>
           <Cell.Label>{messages.pgettext('connect-view', 'Always require VPN')}</Cell.Label>
           <Cell.Switch
             isOn={this.props.blockWhenDisconnected}
             onChange={this.props.setBlockWhenDisconnected}
           />
-        </Cell.Container>
+        </ModalCellContainer>
       </ModalAlert>
     );
   }
