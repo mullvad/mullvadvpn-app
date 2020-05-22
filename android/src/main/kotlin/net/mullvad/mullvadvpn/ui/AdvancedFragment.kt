@@ -6,10 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
 
@@ -19,8 +15,6 @@ private const val MAX_MTU_VALUE = 1420
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var wireguardMtuInput: CellInput
     private lateinit var wireguardKeysMenu: View
-
-    private var updateUiJob: Job? = null
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -37,7 +31,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             CellInput(view.findViewById(R.id.wireguard_mtu_input), MIN_MTU_VALUE, MAX_MTU_VALUE)
 
         wireguardMtuInput.onSubmit = { mtu ->
-            GlobalScope.launch(Dispatchers.Default) {
+            jobTracker.newBackgroundJob("updateMtu") {
                 daemon.setWireguardMtu(mtu)
             }
         }
@@ -60,8 +54,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     private fun updateUi(settings: Settings) {
-        updateUiJob?.cancel()
-        updateUiJob = GlobalScope.launch(Dispatchers.Main) {
+        jobTracker.newUiJob("updateUi") {
             if (!wireguardMtuInput.hasFocus) {
                 wireguardMtuInput.value = settings.tunnelOptions.wireguard.mtu
             }
@@ -70,7 +63,6 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     override fun onSafelyDestroyView() {
         settingsListener.unsubscribe(this)
-        updateUiJob?.cancel()
     }
 
     private fun openSubFragment(fragment: Fragment) {
