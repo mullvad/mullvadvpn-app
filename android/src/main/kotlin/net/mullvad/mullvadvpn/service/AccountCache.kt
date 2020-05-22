@@ -33,7 +33,7 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
             jobTracker.newBackgroundJob("fetch") {
                 var retryAttempt = 0
 
-                while (onAccountDataChange != null) {
+                do {
                     val result = daemon.getAccountData(account)
 
                     if (result is GetAccountDataResult.Ok) {
@@ -45,7 +45,7 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
                     retryAttempt += 1
                     delay(calculateRetryFetchDelay(retryAttempt))
-                }
+                } while (onAccountDataChange != null)
             }
         }
     }

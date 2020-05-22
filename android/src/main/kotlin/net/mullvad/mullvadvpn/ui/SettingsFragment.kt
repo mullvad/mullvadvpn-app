@@ -121,12 +121,12 @@ class SettingsFragment : ServiceAwareFragment() {
 
     private fun configureListeners() {
         accountCache?.apply {
-            fetchAccountExpiry()
-
             onAccountDataChange = { account, expiry ->
                 updateAccountInfoJob?.cancel()
                 updateAccountInfoJob = updateAccountInfo(account != null, expiry)
             }
+
+            fetchAccountExpiry()
         }
 
         versionInfoCache?.apply {
