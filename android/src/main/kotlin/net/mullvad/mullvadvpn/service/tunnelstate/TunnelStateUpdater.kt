@@ -12,16 +12,16 @@ class TunnelStateUpdater(context: Context, serviceNotifier: EventNotifier<Servic
     private var stateSubscriptionId: Int? = null
 
     init {
-        serviceNotifier.subscribe { serviceInstance ->
+        serviceNotifier.subscribe(this) { serviceInstance ->
             onNewServiceInstance(serviceInstance)
         }
     }
 
     private fun onNewServiceInstance(serviceInstance: ServiceInstance?) {
-        stateSubscriptionId?.let { id -> connectionProxy?.onStateChange?.unsubscribe(id) }
+        connectionProxy?.onStateChange?.unsubscribe(this)
 
         connectionProxy = serviceInstance?.connectionProxy?.apply {
-            stateSubscriptionId = onStateChange.subscribe { newState ->
+            onStateChange.subscribe(this@TunnelStateUpdater) { newState ->
                 persistence.state = newState
             }
         }
