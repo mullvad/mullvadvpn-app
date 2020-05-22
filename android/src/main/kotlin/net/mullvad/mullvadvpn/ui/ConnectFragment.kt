@@ -5,13 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 import org.joda.time.DateTime
 
@@ -24,10 +19,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var notificationBanner: NotificationBanner
     private lateinit var status: ConnectionStatus
     private lateinit var locationInfo: LocationInfo
-
-    private lateinit var updateKeyStatusJob: Job
-    private var updateLocationInfoJob: Job? = null
-    private var updateTunnelStateJob: Job? = null
 
     private var isTunnelInfoExpanded = false
 
@@ -68,8 +59,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         switchLocationButton = SwitchLocationButton(view, resources)
         switchLocationButton.onClick = { openSwitchLocationScreen() }
 
-        updateKeyStatusJob = updateKeyStatus(keyStatusListener.keyStatus)
-
         return view
     }
 
@@ -79,13 +68,13 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         notificationBanner.onResume()
 
         keyStatusListener.onKeyStatusChange.subscribe(this) { keyStatus ->
-            updateKeyStatusJob.cancel()
-            updateKeyStatusJob = updateKeyStatus(keyStatus)
+            jobTracker.newUiJob("updateKeyStatus") {
+                notificationBanner.keyState = keyStatus
+            }
         }
 
         locationInfoCache.onNewLocation = { location ->
-            updateLocationInfoJob?.cancel()
-            updateLocationInfoJob = GlobalScope.launch(Dispatchers.Main) {
+            jobTracker.newUiJob("updateLocationInfo") {
                 locationInfo.location = location
             }
         }
@@ -96,8 +85,9 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
 
         connectionProxy.onUiStateChange.subscribe(this) { uiState ->
-            updateTunnelStateJob?.cancel()
-            updateTunnelStateJob = updateTunnelState(uiState, connectionProxy.state)
+            jobTracker.newUiJob("updateTunnelState") {
+                updateTunnelState(uiState, connectionProxy.state)
+            }
         }
 
         accountCache.onAccountDataChange = { _, expiry ->
@@ -117,8 +107,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         keyStatusListener.onKeyStatusChange.unsubscribe(this)
         connectionProxy.onUiStateChange.unsubscribe(this)
 
-        updateLocationInfoJob?.cancel()
-        updateTunnelStateJob?.cancel()
         notificationBanner.onPause()
 
         isTunnelInfoExpanded = locationInfo.isTunnelInfoExpanded
@@ -133,8 +121,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         state.putBoolean(KEY_IS_TUNNEL_INFO_EXPANDED, isTunnelInfoExpanded)
     }
 
-    private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) =
-        GlobalScope.launch(Dispatchers.Main) {
+    private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) {
         notificationBanner.tunnelState = realState
         locationInfo.state = realState
         headerBar.setState(realState)
@@ -142,10 +129,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         actionButton.tunnelState = uiState
         switchLocationButton.state = uiState
-    }
-
-    private fun updateKeyStatus(keyStatus: KeygenEvent?) = GlobalScope.launch(Dispatchers.Main) {
-        notificationBanner.keyState = keyStatus
     }
 
     private fun openSwitchLocationScreen() {
