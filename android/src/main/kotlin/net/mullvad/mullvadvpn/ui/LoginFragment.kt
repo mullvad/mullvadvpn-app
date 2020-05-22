@@ -72,10 +72,6 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         jobTracker.cancelJob("advanceToNextScreen")
     }
 
-    override fun onSafelyDestroyView() {
-        jobTracker.cancelAllJobs()
-    }
-
     private suspend fun createAccount() {
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.creating_new_account)

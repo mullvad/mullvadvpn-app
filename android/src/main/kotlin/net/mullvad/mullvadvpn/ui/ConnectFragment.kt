@@ -125,7 +125,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyDestroyView() {
-        jobTracker.cancelAllJobs()
         switchLocationButton.onDestroy()
     }
 

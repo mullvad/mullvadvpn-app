@@ -23,6 +23,12 @@ abstract class ServiceAwareFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        jobTracker.cancelAllJobs()
+
+        super.onDestroyView()
+    }
+
     override fun onDetach() {
         parentActivity.serviceNotifier.unsubscribe(this)
 
