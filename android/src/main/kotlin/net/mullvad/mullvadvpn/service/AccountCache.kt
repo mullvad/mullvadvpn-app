@@ -4,6 +4,7 @@ import kotlin.math.min
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.util.JobTracker
+import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
@@ -15,7 +16,19 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     private val jobTracker = JobTracker()
 
     private var accountNumber: String? = null
+        set(value) {
+            field = value
+            onAccountNumberChange.notify(value)
+        }
+
     private var accountExpiry: DateTime? = null
+        set(value) {
+            field = value
+            onAccountExpiryChange.notify(value)
+        }
+
+    val onAccountNumberChange = EventNotifier<String?>(null)
+    val onAccountExpiryChange = EventNotifier<DateTime?>(null)
 
     var onAccountDataChange: ((String?, DateTime?) -> Unit)? = null
         set(value) {
@@ -48,7 +61,7 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
                     retryAttempt += 1
                     delay(calculateRetryFetchDelay(retryAttempt))
-                } while (onAccountDataChange != null)
+                } while (onAccountDataChange != null || onAccountExpiryChange.hasListeners())
             }
         }
     }
