@@ -10,10 +10,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.service.AccountCache
@@ -32,8 +28,6 @@ class SettingsFragment : ServiceAwareFragment() {
 
     private var accountCache: AccountCache? = null
     private var versionInfoCache: AppVersionInfoCache? = null
-    private var updateAccountInfoJob: Job? = null
-    private var updateVersionInfoJob: Job? = null
 
     override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
         accountCache = serviceConnection.accountCache
@@ -113,26 +107,20 @@ class SettingsFragment : ServiceAwareFragment() {
         super.onPause()
     }
 
-    override fun onDestroyView() {
-        updateAccountInfoJob?.cancel()
-        updateVersionInfoJob?.cancel()
-        super.onDestroyView()
-    }
-
     private fun configureListeners() {
         accountCache?.apply {
             onAccountDataChange = { account, expiry ->
-                updateAccountInfoJob?.cancel()
-                updateAccountInfoJob = updateAccountInfo(account != null, expiry)
+                jobTracker.newUiJob("updateAccountInfo") {
+                    updateAccountInfo(account != null, expiry)
+                }
             }
 
             fetchAccountExpiry()
         }
 
-        versionInfoCache?.apply {
-            onUpdate = {
-                updateVersionInfoJob?.cancel()
-                updateVersionInfoJob = updateVersionInfo()
+        versionInfoCache?.onUpdate = {
+            jobTracker.newUiJob("updateVersionInfo") {
+                updateVersionInfo()
             }
         }
     }
@@ -157,10 +145,7 @@ class SettingsFragment : ServiceAwareFragment() {
         startActivity(intent)
     }
 
-    private fun updateAccountInfo(
-        loggedIn: Boolean,
-        expiry: DateTime?
-    ) = GlobalScope.launch(Dispatchers.Main) {
+    private fun updateAccountInfo(loggedIn: Boolean, expiry: DateTime?) {
         updateLoggedInStatus(loggedIn)
         remainingTimeLabel.accountExpiry = expiry
     }
@@ -177,7 +162,7 @@ class SettingsFragment : ServiceAwareFragment() {
         advancedMenu.visibility = visibility
     }
 
-    private fun updateVersionInfo() = GlobalScope.launch(Dispatchers.Main) {
+    private fun updateVersionInfo() {
         val isOutdated = versionInfoCache?.isOutdated ?: false
         val isSupported = versionInfoCache?.isSupported ?: true
 
