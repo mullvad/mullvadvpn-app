@@ -173,7 +173,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
         val settingsListener = SettingsListener(daemon, settings).apply {
-            accountNumberNotifier.subscribe { accountNumber ->
+            accountNumberNotifier.subscribe(this@MullvadVpnService) { accountNumber ->
                 loggedIn = accountNumber != null
             }
         }
