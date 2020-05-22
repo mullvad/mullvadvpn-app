@@ -4,9 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.KeyStatusListener
@@ -190,7 +187,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
     }
 
     private fun leaveFragment() {
-        GlobalScope.launch(Dispatchers.Main) {
+        jobTracker.newUiJob("leaveFragment") {
             when (onNoService) {
                 OnNoService.GoBack -> parentActivity.onBackPressed()
                 OnNoService.GoToLaunchScreen -> parentActivity.returnToLaunchScreen()
