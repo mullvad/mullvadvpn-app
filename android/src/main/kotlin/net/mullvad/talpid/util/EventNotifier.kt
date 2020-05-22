@@ -1,7 +1,7 @@
 package net.mullvad.talpid.util
 
 class EventNotifier<T>(private val initialValue: T) {
-    private val listeners = HashMap<Int, (T) -> Unit>()
+    private val listeners = HashMap<Any, (T) -> Unit>()
 
     private var idCounter = 0
     private var latestEvent = initialValue
@@ -16,19 +16,25 @@ class EventNotifier<T>(private val initialValue: T) {
         }
     }
 
+    fun subscribe(id: Any, listener: (T) -> Unit) {
+        synchronized(this) {
+            listeners.put(id, listener)
+            listener(latestEvent)
+        }
+    }
+
     fun subscribe(listener: (T) -> Unit): Int {
         synchronized(this) {
             val id = idCounter
 
             idCounter += 1
-            listeners.put(id, listener)
-            listener(latestEvent)
+            subscribe(id, listener)
 
             return id
         }
     }
 
-    fun unsubscribe(id: Int) {
+    fun unsubscribe(id: Any) {
         synchronized(this) {
             listeners.remove(id)
         }
