@@ -7,10 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.service.AccountCache
@@ -123,7 +120,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
     }
 
-    private fun performLogin(accountToken: String) = GlobalScope.launch(Dispatchers.Main) {
+    private fun performLogin(accountToken: String) {
         jobTracker.newUiJob("login") {
             val loginResult = jobTracker.runOnBackground {
                 val accountDataResult = daemon.getAccountData(accountToken)
