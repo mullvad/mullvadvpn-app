@@ -13,7 +13,6 @@ import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.service.AccountCache
-import org.joda.time.DateTime
 
 class SettingsFragment : ServiceAwareFragment() {
     private lateinit var accountMenu: View
@@ -102,16 +101,26 @@ class SettingsFragment : ServiceAwareFragment() {
     override fun onPause() {
         active = false
         versionInfoCache?.onUpdate = null
-        accountCache?.onAccountDataChange = null
+
+        accountCache?.apply {
+            onAccountNumberChange.unsubscribe(this@SettingsFragment)
+            onAccountExpiryChange.unsubscribe(this@SettingsFragment)
+        }
 
         super.onPause()
     }
 
     private fun configureListeners() {
         accountCache?.apply {
-            onAccountDataChange = { account, expiry ->
+            onAccountNumberChange.subscribe(this@SettingsFragment) { account ->
+                jobTracker.newUiJob("updateLoggedInStatus") {
+                    updateLoggedInStatus(account != null)
+                }
+            }
+
+            onAccountExpiryChange.subscribe(this@SettingsFragment) { expiry ->
                 jobTracker.newUiJob("updateAccountInfo") {
-                    updateAccountInfo(account != null, expiry)
+                    remainingTimeLabel.accountExpiry = expiry
                 }
             }
 
@@ -143,11 +152,6 @@ class SettingsFragment : ServiceAwareFragment() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(parentActivity.getString(urlResourceId)))
 
         startActivity(intent)
-    }
-
-    private fun updateAccountInfo(loggedIn: Boolean, expiry: DateTime?) {
-        updateLoggedInStatus(loggedIn)
-        remainingTimeLabel.accountExpiry = expiry
     }
 
     private fun updateLoggedInStatus(loggedIn: Boolean) {
