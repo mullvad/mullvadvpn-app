@@ -30,7 +30,6 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     private lateinit var voucherInput: EditText
 
     private var redeemButton: Button? = null
-    private var subscriptionId: Int? = null
 
     private var daemon: MullvadDaemon? = null
         set(value) {
@@ -49,7 +48,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
         parentActivity = context as MainActivity
 
-        subscriptionId = parentActivity.serviceNotifier.subscribe { connection ->
+        parentActivity.serviceNotifier.subscribe(this) { connection ->
             daemon = connection?.daemon
         }
     }
@@ -111,9 +110,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     }
 
     override fun onDetach() {
-        subscriptionId?.let { id ->
-            parentActivity.serviceNotifier.unsubscribe(id)
-        }
+        parentActivity.serviceNotifier.unsubscribe(this)
 
         super.onDetach()
     }
