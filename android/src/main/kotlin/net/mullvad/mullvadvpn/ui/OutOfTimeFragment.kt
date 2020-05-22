@@ -9,13 +9,10 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
-import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import org.joda.time.DateTime
 
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
-    private val jobTracker = JobTracker()
-
     private lateinit var headerBar: HeaderBar
 
     private lateinit var buyCreditButton: UrlButton
