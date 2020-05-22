@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import java.text.DateFormat
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
@@ -31,8 +32,17 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
+    private var hasConnectivity = true
+        set(value) {
+            field = value
+            buyCreditButton.setEnabled(value)
+            redeemVoucherButton.setEnabled(value)
+        }
+
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
+    private lateinit var buyCreditButton: Button
+    private lateinit var redeemVoucherButton: Button
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -45,12 +55,16 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
-        view.findViewById<UrlButton>(R.id.buy_credit).prepare(daemon, jobTracker) {
-            checkForAddedTime()
+        buyCreditButton = view.findViewById<UrlButton>(R.id.buy_credit).apply {
+            prepare(daemon, jobTracker) {
+                checkForAddedTime()
+            }
         }
 
-        view.findViewById<Button>(R.id.redeem_voucher).setOnClickAction("redeem", jobTracker) {
-            showRedeemVoucherDialog()
+        redeemVoucherButton = view.findViewById<Button>(R.id.redeem_voucher).apply {
+            setOnClickAction("redeem", jobTracker) {
+                showRedeemVoucherDialog()
+            }
         }
 
         view.findViewById<Button>(R.id.logout).setOnClickAction("logout", jobTracker) {
@@ -77,6 +91,14 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             jobTracker.newUiJob("updateAccountExpiry") {
                 currentAccountExpiry = accountExpiry
                 updateAccountExpiry(accountExpiry)
+            }
+        }
+
+        connectionProxy.onUiStateChange.subscribe(this) { uiState ->
+            jobTracker.newUiJob("updateHasConnectivity") {
+                hasConnectivity = uiState is TunnelState.Connected ||
+                    uiState is TunnelState.Disconnected ||
+                    (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
             }
         }
 
