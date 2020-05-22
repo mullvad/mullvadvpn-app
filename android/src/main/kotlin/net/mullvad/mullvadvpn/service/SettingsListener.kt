@@ -40,7 +40,11 @@ class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings)
         return settingsNotifier.subscribe(listener)
     }
 
-    fun unsubscribe(id: Int) {
+    fun subscribe(id: Any, listener: (Settings) -> Unit) {
+        settingsNotifier.subscribe(id, listener)
+    }
+
+    fun unsubscribe(id: Any) {
         settingsNotifier.unsubscribe(id)
     }
 
