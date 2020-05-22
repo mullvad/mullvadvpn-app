@@ -13,9 +13,6 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     }
 
     private val jobTracker = JobTracker()
-    private val subscriptionId = settingsListener.accountNumberNotifier.subscribe { accountNumber ->
-        handleNewAccountNumber(accountNumber)
-    }
 
     private var accountNumber: String? = null
     private var accountExpiry: DateTime? = null
@@ -27,6 +24,12 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
                 notifyChange()
             }
         }
+
+    init {
+        settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
+            handleNewAccountNumber(accountNumber)
+        }
+    }
 
     fun fetchAccountExpiry() {
         accountNumber?.let { account ->
@@ -51,7 +54,7 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     }
 
     fun onDestroy() {
-        settingsListener.accountNumberNotifier.unsubscribe(subscriptionId)
+        settingsListener.accountNumberNotifier.unsubscribe(this)
         jobTracker.cancelAllJobs()
     }
 
