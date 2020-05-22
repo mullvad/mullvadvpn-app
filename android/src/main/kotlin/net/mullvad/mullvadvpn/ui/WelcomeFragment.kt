@@ -49,8 +49,11 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyResume() {
-        accountCache.onAccountDataChange = { account, expiry ->
+        accountCache.onAccountNumberChange.subscribe(this) { account ->
             updateAccountNumber(account)
+        }
+
+        accountCache.onAccountExpiryChange.subscribe(this) { expiry ->
             checkExpiry(expiry)
         }
 
@@ -63,7 +66,8 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyPause() {
-        accountCache.onAccountDataChange = null
+        accountCache.onAccountNumberChange.unsubscribe(this)
+        accountCache.onAccountExpiryChange.unsubscribe(this)
         jobTracker.cancelJob("pollAccountData")
     }
 
