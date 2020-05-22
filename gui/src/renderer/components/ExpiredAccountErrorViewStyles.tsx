@@ -2,6 +2,7 @@ import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import AccountTokenLabel from './AccountTokenLabel';
+import * as Cell from './Cell';
 
 export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
   fontFamily: 'Open Sans',
@@ -9,6 +10,10 @@ export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
   fontSize: '24px',
   fontWeight: 800,
   color: colors.white,
+});
+
+export const ModalCellContainer = styled(Cell.Container)({
+  marginTop: '16px',
 });
 
 export default {
