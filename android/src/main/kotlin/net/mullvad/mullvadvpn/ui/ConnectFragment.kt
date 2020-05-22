@@ -90,7 +90,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             }
         }
 
-        accountCache.onAccountDataChange = { _, expiry ->
+        accountCache.onAccountExpiryChange.subscribe(this) { expiry ->
             if (expiry?.isBeforeNow() ?: false) {
                 openOutOfTimeScreen()
             } else if (expiry != null) {
@@ -100,10 +100,10 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyPause() {
-        accountCache.onAccountDataChange = null
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
 
+        accountCache.onAccountExpiryChange.unsubscribe(this)
         keyStatusListener.onKeyStatusChange.unsubscribe(this)
         connectionProxy.onUiStateChange.unsubscribe(this)
 
