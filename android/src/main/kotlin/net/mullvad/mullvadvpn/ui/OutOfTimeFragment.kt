@@ -84,7 +84,6 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     }
 
     override fun onSafelyDestroyView() {
-        jobTracker.cancelAllJobs()
         connectionProxy.onStateChange.unsubscribe(this)
     }
 

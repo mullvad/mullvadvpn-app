@@ -67,10 +67,6 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         jobTracker.cancelJob("pollAccountData")
     }
 
-    override fun onSafelyDestroyView() {
-        jobTracker.cancelAllJobs()
-    }
-
     private fun updateAccountNumber(rawAccountNumber: String?) {
         val accountText = rawAccountNumber?.let { account ->
             addSpacesToAccountText(account)

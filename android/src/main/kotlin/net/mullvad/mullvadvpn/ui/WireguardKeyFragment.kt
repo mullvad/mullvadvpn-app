@@ -173,8 +173,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         if (!(actionState is ActionState.Idle)) {
             actionState = ActionState.Idle(false)
         }
-
-        jobTracker.cancelAllJobs()
     }
 
     private fun updateKeySpinners() {
