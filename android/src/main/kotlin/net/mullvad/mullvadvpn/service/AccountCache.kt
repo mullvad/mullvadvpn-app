@@ -37,23 +37,25 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     }
 
     fun fetchAccountExpiry() {
-        accountNumber?.let { account ->
-            jobTracker.newBackgroundJob("fetch") {
-                var retryAttempt = 0
+        synchronized(this) {
+            accountNumber?.let { account ->
+                jobTracker.newBackgroundJob("fetch") {
+                    var retryAttempt = 0
 
-                do {
-                    val result = daemon.getAccountData(account)
+                    do {
+                        val result = daemon.getAccountData(account)
 
-                    if (result is GetAccountDataResult.Ok) {
-                        handleNewExpiry(account, result.accountData.expiry)
-                        break
-                    } else if (result is GetAccountDataResult.InvalidAccount) {
-                        break
-                    }
+                        if (result is GetAccountDataResult.Ok) {
+                            handleNewExpiry(account, result.accountData.expiry)
+                            break
+                        } else if (result is GetAccountDataResult.InvalidAccount) {
+                            break
+                        }
 
-                    retryAttempt += 1
-                    delay(calculateRetryFetchDelay(retryAttempt))
-                } while (onAccountExpiryChange.hasListeners())
+                        retryAttempt += 1
+                        delay(calculateRetryFetchDelay(retryAttempt))
+                    } while (onAccountExpiryChange.hasListeners())
+                }
             }
         }
     }
