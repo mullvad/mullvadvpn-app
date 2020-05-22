@@ -29,22 +29,14 @@ class ForegroundNotificationManager(
     private val notificationManager =
         service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    private val listenerId = serviceNotifier.subscribe { newServiceInstance ->
-        connectionProxy = newServiceInstance?.connectionProxy
-        settingsListener = newServiceInstance?.settingsListener
-    }
-
     private val badgeColor = service.resources.getColor(R.color.colorPrimary)
 
-    private var connectionListenerId: Int? = null
     private var connectionProxy: ConnectionProxy? = null
         set(value) {
             if (field != value) {
-                connectionListenerId?.let { listenerId ->
-                    field?.onStateChange?.unsubscribe(listenerId)
-                }
+                field?.onStateChange?.unsubscribe(this)
 
-                connectionListenerId = value?.onStateChange?.subscribe { state ->
+                value?.onStateChange?.subscribe(this) { state ->
                     tunnelState = state
                 }
 
@@ -56,11 +48,9 @@ class ForegroundNotificationManager(
     private var settingsListener: SettingsListener? = null
         set(value) {
             if (field != value) {
-                loginListenerId?.let { listenerId ->
-                    field?.accountNumberNotifier?.unsubscribe(listenerId)
-                }
+                field?.accountNumberNotifier?.unsubscribe(this)
 
-                loginListenerId = value?.accountNumberNotifier?.subscribe { accountNumber ->
+                value?.accountNumberNotifier?.subscribe(this) { accountNumber ->
                     loggedIn = accountNumber != null
                 }
 
@@ -197,6 +187,11 @@ class ForegroundNotificationManager(
             initChannel()
         }
 
+        serviceNotifier.subscribe(this) { newServiceInstance ->
+            connectionProxy = newServiceInstance?.connectionProxy
+            settingsListener = newServiceInstance?.settingsListener
+        }
+
         service.apply {
             registerReceiver(connectReceiver, IntentFilter(KEY_CONNECT_ACTION))
             registerReceiver(disconnectReceiver, IntentFilter(KEY_DISCONNECT_ACTION))
@@ -206,7 +201,7 @@ class ForegroundNotificationManager(
     }
 
     fun onDestroy() {
-        serviceNotifier.unsubscribe(listenerId)
+        serviceNotifier.unsubscribe(this)
         connectionProxy = null
         settingsListener = null
 
