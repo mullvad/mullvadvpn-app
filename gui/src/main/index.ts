@@ -65,10 +65,12 @@ export interface ICurrentAppVersionInfo {
   gui: string;
   daemon: string;
   isConsistent: boolean;
+  currentIsBeta: boolean;
 }
 
 export interface IAppUpgradeInfo extends IAppVersionInfo {
-  nextUpgrade?: string;
+  // Null is used since undefined properties get filtered out when sending through IPC.
+  nextUpgrade: string | null;
 }
 
 type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
@@ -136,6 +138,7 @@ class ApplicationMain {
     daemon: '',
     gui: '',
     isConsistent: true,
+    currentIsBeta: false,
   };
 
   private upgradeVersion: IAppUpgradeInfo = {
@@ -143,7 +146,7 @@ class ApplicationMain {
     latestStable: '',
     latestBeta: '',
     latest: '',
-    nextUpgrade: undefined,
+    nextUpgrade: null,
   };
 
   // The UI locale which is set once from onReady handler
@@ -626,6 +629,10 @@ class ApplicationMain {
       consumePromise(this.fetchWireguardKey());
     }
 
+    if (oldSettings.showBetaReleases !== newSettings.showBetaReleases) {
+      this.setLatestVersion(this.upgradeVersion);
+    }
+
     if (this.windowController) {
       IpcMainEventChannel.settings.notify(this.windowController.webContents, newSettings);
     }
@@ -735,6 +742,7 @@ class ApplicationMain {
       daemon: daemonVersion,
       gui: guiVersion,
       isConsistent: daemonVersion === guiVersion,
+      currentIsBeta: guiVersion.includes('beta'),
     };
 
     this.currentVersion = versionInfo;
@@ -748,15 +756,11 @@ class ApplicationMain {
   private setLatestVersion(latestVersionInfo: IAppVersionInfo) {
     const settings = this.settings;
 
-    function nextUpgrade(
-      current: string,
-      latest: string,
-      latestStable: string,
-    ): string | undefined {
+    function nextUpgrade(current: string, latest: string, latestStable: string): string | null {
       if (settings.showBetaReleases) {
-        return current === latest ? undefined : latest;
+        return current === latest ? null : latest;
       } else {
-        return current === latestStable ? undefined : latestStable;
+        return current === latestStable ? null : latestStable;
       }
     }
 

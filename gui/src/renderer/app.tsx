@@ -731,7 +731,11 @@ export default class AppRenderer {
   }
 
   private setCurrentVersion(versionInfo: ICurrentAppVersionInfo) {
-    this.reduxActions.version.updateVersion(versionInfo.gui, versionInfo.isConsistent);
+    this.reduxActions.version.updateVersion(
+      versionInfo.gui,
+      versionInfo.isConsistent,
+      versionInfo.currentIsBeta,
+    );
   }
 
   private setUpgradeVersion(upgradeVersion: IAppUpgradeInfo) {

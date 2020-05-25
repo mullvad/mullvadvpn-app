@@ -3,18 +3,20 @@ import { ReduxAction } from '../store';
 export interface IVersionReduxState {
   current: string;
   currentIsSupported: boolean;
+  currentIsBeta: boolean;
   latest?: string;
   latestStable?: string;
-  nextUpgrade?: string;
+  nextUpgrade: string | null;
   consistent: boolean;
 }
 
 const initialState: IVersionReduxState = {
   current: '',
   currentIsSupported: true,
+  currentIsBeta: false,
   latest: undefined,
   latestStable: undefined,
-  nextUpgrade: undefined,
+  nextUpgrade: null,
   consistent: true,
 };
 
@@ -34,6 +36,7 @@ export default function (
         ...state,
         current: action.version,
         consistent: action.consistent,
+        currentIsBeta: action.currentIsBeta,
       };
 
     default:
