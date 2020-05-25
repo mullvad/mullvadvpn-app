@@ -1,4 +1,6 @@
 fn main() {
+    tonic_build::compile_protos("proto/openvpn_plugin.proto").unwrap();
+
     #[cfg(windows)]
     {
         let product_version = env!("CARGO_PKG_VERSION").replacen(".0", "", 1);
