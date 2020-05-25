@@ -1,5 +1,11 @@
 import { Styles } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
+import * as AppButton from './AppButton';
+
+export const StyledBlueButton = styled(AppButton.BlueButton)({
+  marginBottom: 16,
+});
 
 export default {
   support: Styles.createViewStyle({
@@ -50,12 +56,6 @@ export default {
   support__status_icon: Styles.createViewStyle({
     alignItems: 'center',
     marginBottom: 32,
-  }),
-  view_logs_button: Styles.createViewStyle({
-    marginBottom: 16,
-  }),
-  edit_message_button: Styles.createViewStyle({
-    marginBottom: 16,
   }),
   support__form_email: Styles.createTextStyle({
     flex: 1,

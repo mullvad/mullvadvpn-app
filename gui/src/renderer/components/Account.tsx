@@ -1,21 +1,22 @@
 import * as React from 'react';
 import AccountExpiry from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
-import styles, {
+import {
   AccountContainer,
   AccountFooter,
   AccountOutOfTime,
   AccountRow,
   AccountRowLabel,
   AccountRowValue,
+  StyledBuyCreditButton,
   StyledContainer,
+  StyledRedeemVoucherButton,
 } from './AccountStyles';
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import { Layout } from './Layout';
 import { ModalContainer } from './Modal';
 import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
-import { RedeemVoucherButton } from './RedeemVoucher';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
@@ -73,16 +74,16 @@ export default class Account extends React.Component<IProps> {
               <AccountFooter>
                 <AppButton.BlockingButton
                   disabled={this.props.isOffline}
-                  onPress={this.props.onBuyMore}>
-                  <AppButton.GreenButton style={styles.button}>
+                  onClick={this.props.onBuyMore}>
+                  <StyledBuyCreditButton>
                     <AppButton.Label>{messages.gettext('Buy more credit')}</AppButton.Label>
                     <AppButton.Icon source="icon-extLink" height={16} width={16} />
-                  </AppButton.GreenButton>
+                  </StyledBuyCreditButton>
                 </AppButton.BlockingButton>
 
-                <RedeemVoucherButton style={styles.button} />
+                <StyledRedeemVoucherButton />
 
-                <AppButton.RedButton onPress={this.props.onLogout}>
+                <AppButton.RedButton onClick={this.props.onLogout}>
                   {messages.pgettext('account-view', 'Log out')}
                 </AppButton.RedButton>
               </AccountFooter>

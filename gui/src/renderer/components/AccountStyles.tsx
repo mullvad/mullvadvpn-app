@@ -1,7 +1,8 @@
-import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import * as AppButton from './AppButton';
 import { Container } from './Layout';
+import { RedeemVoucherButton } from './RedeemVoucher';
 
 export const StyledContainer = styled(Container)({
   backgroundColor: colors.darkBlue,
@@ -51,8 +52,9 @@ export const AccountFooter = styled.div({
   padding: '0 24px',
 });
 
-export default {
-  button: Styles.createViewStyle({
-    marginBottom: 24,
-  }),
+const buttonStyle = {
+  marginBottom: 24,
 };
+
+export const StyledRedeemVoucherButton = styled(RedeemVoucherButton)(buttonStyle);
+export const StyledBuyCreditButton = styled(AppButton.GreenButton)(buttonStyle);

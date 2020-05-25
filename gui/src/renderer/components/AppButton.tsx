@@ -1,56 +1,31 @@
 import log from 'electron-log';
-import * as React from 'react';
-import { Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
+import React, { useContext } from 'react';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
-import consumePromise from '../../shared/promise';
-import styles from './AppButtonStyles';
+import {
+  StyledButton,
+  StyledButtonContent,
+  StyledLabel,
+  StyledLabelContainer,
+} from './AppButtonStyles';
 import ImageView from './ImageView';
 
 const ButtonContext = React.createContext({
   textAdjustment: 0,
-  textRef: React.createRef<PrivateLabel>(),
+  textRef: React.createRef<HTMLDivElement>(),
 });
 
 interface ILabelProps {
   children?: React.ReactText;
 }
 
-interface IPrivateLabelProps {
-  textAdjustment: number;
-  children?: React.ReactText;
-}
-
-class PrivateLabel extends Component<IPrivateLabelProps> {
-  public render() {
-    const { textAdjustment, children } = this.props;
-    const textAdjustmentStyle = Styles.createViewStyle(
-      {
-        paddingRight: textAdjustment > 0 ? textAdjustment : 0,
-        paddingLeft: textAdjustment < 0 ? Math.abs(textAdjustment) : 0,
-      },
-      false,
-    );
-
-    return (
-      <View style={[styles.labelContainer, textAdjustmentStyle]}>
-        <Text style={styles.label}>{children}</Text>
-      </View>
-    );
-  }
-}
-
-export class Label extends Component<ILabelProps> {
-  public render() {
-    return (
-      <ButtonContext.Consumer>
-        {(context) => (
-          <PrivateLabel ref={context.textRef} textAdjustment={context.textAdjustment}>
-            {this.props.children}
-          </PrivateLabel>
-        )}
-      </ButtonContext.Consumer>
-    );
-  }
+export function Label(props: ILabelProps) {
+  const { textAdjustment, textRef } = useContext(ButtonContext);
+  return (
+    <StyledLabelContainer ref={textRef} textAdjustment={textAdjustment}>
+      <StyledLabel>{props.children}</StyledLabel>
+    </StyledLabelContainer>
+  );
 }
 
 interface IIconProps {
@@ -59,100 +34,74 @@ interface IIconProps {
   height?: number;
 }
 
-export class Icon extends Component<IIconProps> {
-  public render() {
-    return (
-      <ImageView
-        source={this.props.source}
-        width={this.props.width}
-        height={this.props.height}
-        tintColor={colors.white}
-      />
-    );
-  }
+export function Icon(props: IIconProps) {
+  return <ImageView {...props} tintColor={colors.white} />;
 }
 
-interface IProps {
+export interface IProps {
   children?: React.ReactNode;
-  style?: Types.StyleRuleSetRecursive<Types.ButtonStyleRuleSet>;
+  className?: string;
   disabled?: boolean;
-  onPress?: () => void;
+  onClick?: () => void;
   textOffset?: number;
 }
 
 interface IState {
-  hovered: boolean;
   textAdjustment: number;
 }
 
-class BaseButton extends Component<IProps, IState> {
+class BaseButton extends React.Component<IProps, IState> {
   public state: IState = {
-    hovered: false,
     textAdjustment: 0,
   };
 
-  private containerRef = React.createRef<View>();
-  private textViewRef = React.createRef<PrivateLabel>();
+  private buttonRef = React.createRef<HTMLButtonElement>();
+  private textRef = React.createRef<HTMLDivElement>();
 
   public componentDidMount() {
-    consumePromise(this.forceUpdateTextAdjustment());
+    this.updateTextAdjustment();
+  }
+
+  public componentDidUpdate() {
+    this.updateTextAdjustment();
   }
 
   public render() {
-    const { children, style, ...otherProps } = this.props;
-
     return (
       <ButtonContext.Provider
         value={{
           textAdjustment: this.state.textAdjustment,
-          textRef: this.textViewRef,
+          textRef: this.textRef,
         }}>
-        <Button
-          {...otherProps}
-          style={[styles.common, this.backgroundStyle(), style]}
-          onHoverStart={this.onHoverStart}
-          onHoverEnd={this.onHoverEnd}>
-          <View style={styles.content} ref={this.containerRef} onLayout={this.onLayout}>
-            {React.Children.map(children, (child) =>
+        <StyledButton
+          ref={this.buttonRef}
+          disabled={this.props.disabled}
+          onClick={this.props.onClick}
+          className={this.props.className}>
+          <StyledButtonContent>
+            {React.Children.map(this.props.children, (child) =>
               typeof child === 'string' ? <Label>{child as string}</Label> : child,
             )}
-          </View>
-        </Button>
+          </StyledButtonContent>
+        </StyledButton>
       </ButtonContext.Provider>
     );
   }
 
-  protected backgroundStyle = (): Types.ButtonStyleRuleSet => {
-    throw new Error('Implement backgroundStyle in subclasses.');
-  };
-  protected onHoverStart = () => (!this.props.disabled ? this.setState({ hovered: true }) : null);
-  protected onHoverEnd = () => (!this.props.disabled ? this.setState({ hovered: false }) : null);
+  private updateTextAdjustment() {
+    const textOffset = this.props.textOffset ?? 0;
 
-  private async forceUpdateTextAdjustment() {
-    const containerView = this.containerRef.current;
-    if (containerView) {
-      const containerLayout = await UserInterface.measureLayoutRelativeToAncestor(
-        containerView,
-        this,
-      );
+    const buttonRect = this.buttonRef.current?.getBoundingClientRect();
+    const textRect = this.textRef.current?.getBoundingClientRect();
 
-      await this.updateTextAdjustment(containerLayout);
-    }
-  }
-
-  private async updateTextAdjustment(containerLayout: Types.LayoutInfo) {
-    const textOffset = this.props.textOffset || 0;
-    const labelView = this.textViewRef.current;
-
-    if (labelView) {
-      // calculate the title layout frame
-      const labelLayout = await UserInterface.measureLayoutRelativeToAncestor(labelView, this);
+    if (buttonRect && textRect) {
+      const leftDiff = textRect.left - buttonRect.left;
 
       // calculate the remaining space at the right hand side
-      const trailingSpace = containerLayout.width - (labelLayout.x + labelLayout.width);
+      const trailingSpace = buttonRect.width - (leftDiff + textRect.width);
 
       // calculate text adjustment
-      const textAdjustment = labelLayout.x - trailingSpace - textOffset;
+      const textAdjustment = leftDiff - trailingSpace - textOffset;
 
       // re-render the view with the new text adjustment if it changed
       if (this.state.textAdjustment !== textAdjustment) {
@@ -160,10 +109,6 @@ class BaseButton extends Component<IProps, IState> {
       }
     }
   }
-
-  private onLayout = (containerLayout: Types.ViewOnLayoutEvent) => {
-    consumePromise(this.updateTextAdjustment(containerLayout));
-  };
 }
 
 interface IBlockingState {
@@ -172,11 +117,11 @@ interface IBlockingState {
 
 interface IBlockingProps {
   children?: React.ReactNode;
-  onPress: () => Promise<void>;
+  onClick: () => Promise<void>;
   disabled?: boolean;
 }
 
-export class BlockingButton extends Component<IBlockingProps, IBlockingState> {
+export class BlockingButton extends React.Component<IBlockingProps, IBlockingState> {
   public state = {
     isBlocked: false,
   };
@@ -187,7 +132,7 @@ export class BlockingButton extends Component<IBlockingProps, IBlockingState> {
         return React.cloneElement(child as React.ReactElement, {
           ...child.props,
           disabled: this.state.isBlocked || this.props.disabled,
-          onPress: this.onPress,
+          onClick: this.onClick,
         });
       } else {
         return child;
@@ -195,36 +140,49 @@ export class BlockingButton extends Component<IBlockingProps, IBlockingState> {
     });
   }
 
-  private onPress = () => {
+  private onClick = () => {
     this.setState({ isBlocked: true }, async () => {
       try {
-        await this.props.onPress();
+        await this.props.onClick();
       } catch (error) {
-        log.error(`onPress() failed - ${error}`);
+        log.error(`onClick() failed - ${error}`);
       }
       this.setState({ isBlocked: false });
     });
   };
 }
 
-export class RedButton extends BaseButton {
-  protected backgroundStyle = () => (this.state.hovered ? styles.redHover : styles.red);
-}
+export const RedButton = styled(BaseButton)({
+  backgroundColor: colors.red,
+  ':not(:disabled):hover': {
+    backgroundColor: colors.red95,
+  },
+});
 
-export class GreenButton extends BaseButton {
-  protected backgroundStyle = () => (this.state.hovered ? styles.greenHover : styles.green);
-}
+export const GreenButton = styled(BaseButton)({
+  backgroundColor: colors.green,
+  ':not(:disabled):hover': {
+    backgroundColor: colors.green90,
+  },
+});
 
-export class BlueButton extends BaseButton {
-  protected backgroundStyle = () => (this.state.hovered ? styles.blueHover : styles.blue);
-}
+export const BlueButton = styled(BaseButton)({
+  backgroundColor: colors.blue80,
+  ':not(:disabled):hover': {
+    backgroundColor: colors.blue60,
+  },
+});
 
-export class TransparentButton extends BaseButton {
-  protected backgroundStyle = () =>
-    this.state.hovered ? styles.transparentHover : styles.transparent;
-}
+export const TransparentButton = styled(BaseButton)({
+  backgroundColor: colors.white20,
+  ':not(:disabled):hover': {
+    backgroundColor: colors.white40,
+  },
+});
 
-export class RedTransparentButton extends BaseButton {
-  protected backgroundStyle = () =>
-    this.state.hovered ? styles.redTransparentHover : styles.redTransparent;
-}
+export const RedTransparentButton = styled(BaseButton)({
+  backgroundColor: colors.red60,
+  ':not(:disabled):hover': {
+    backgroundColor: colors.red80,
+  },
+});

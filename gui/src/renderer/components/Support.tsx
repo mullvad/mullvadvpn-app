@@ -8,7 +8,7 @@ import { Container, Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalContainer } from './Modal';
 import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import styles from './SupportStyles';
+import styles, { StyledBlueButton } from './SupportStyles';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { ISupportReportForm } from '../redux/support/actions';
@@ -231,10 +231,10 @@ export default class Support extends Component<ISupportProps, ISupportState> {
         type={ModalAlertType.Warning}
         message={message}
         buttons={[
-          <AppButton.RedButton key="proceed" onPress={this.onSend}>
+          <AppButton.RedButton key="proceed" onClick={this.onSend}>
             {messages.pgettext('support-view', 'Send anyway')}
           </AppButton.RedButton>,
-          <AppButton.BlueButton key="cancel" onPress={this.onCancelNoEmailDialog}>
+          <AppButton.BlueButton key="cancel" onClick={this.onCancelNoEmailDialog}>
             {messages.gettext('Back')}
           </AppButton.BlueButton>,
         ]}
@@ -261,14 +261,14 @@ export default class Support extends Component<ISupportProps, ISupportState> {
           <AppButton.GreenButton
             key="upgrade"
             disabled={this.props.isOffline}
-            onPress={this.openDownloadLink}>
+            onClick={this.openDownloadLink}>
             <AppButton.Label>{messages.pgettext('support-view', 'Upgrade app')}</AppButton.Label>
             <AppButton.Icon height={16} width={16} source="icon-extLink" />
           </AppButton.GreenButton>,
-          <AppButton.RedButton key="proceed" onPress={this.acknowledgeOutdateVersion}>
+          <AppButton.RedButton key="proceed" onClick={this.acknowledgeOutdateVersion}>
             {messages.pgettext('support-view', 'Continue anyway')}
           </AppButton.RedButton>,
-          <AppButton.BlueButton key="cancel" onPress={this.props.onClose}>
+          <AppButton.BlueButton key="cancel" onClick={this.props.onClose}>
             {messages.gettext('Cancel')}
           </AppButton.BlueButton>,
         ]}
@@ -301,18 +301,15 @@ export default class Support extends Component<ISupportProps, ISupportState> {
             </View>
           </View>
           <View style={styles.support__footer}>
-            <AppButton.BlueButton
-              style={styles.view_logs_button}
-              onPress={this.onViewLog}
-              disabled={this.state.disableActions}>
+            <StyledBlueButton onClick={this.onViewLog} disabled={this.state.disableActions}>
               <AppButton.Label>
                 {messages.pgettext('support-view', 'View app logs')}
               </AppButton.Label>
               <AppButton.Icon source="icon-extLink" height={16} width={16} />
-            </AppButton.BlueButton>
+            </StyledBlueButton>
             <AppButton.GreenButton
               disabled={!this.validate() || this.state.disableActions}
-              onPress={this.onSend}>
+              onClick={this.onSend}>
               {messages.pgettext('support-view', 'Send')}
             </AppButton.GreenButton>
           </View>
@@ -406,10 +403,10 @@ export default class Support extends Component<ISupportProps, ISupportState> {
           </View>
         </View>
         <View style={styles.support__footer}>
-          <AppButton.BlueButton style={styles.edit_message_button} onPress={this.handleEditMessage}>
+          <StyledBlueButton onClick={this.handleEditMessage}>
             {messages.pgettext('support-view', 'Edit message')}
-          </AppButton.BlueButton>
-          <AppButton.GreenButton onPress={this.onSend}>
+          </StyledBlueButton>
+          <AppButton.GreenButton onClick={this.onSend}>
             {messages.pgettext('support-view', 'Try again')}
           </AppButton.GreenButton>
         </View>

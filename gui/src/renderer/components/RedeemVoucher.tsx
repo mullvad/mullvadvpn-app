@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Types } from 'reactxp';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useScheduler } from '../../shared/scheduler';
@@ -178,7 +177,7 @@ export function RedeemVoucherSubmitButton() {
   const disabled = submitting || response?.type === 'success';
 
   return (
-    <AppButton.GreenButton key="cancel" disabled={!valueValid || disabled} onPress={onSubmit}>
+    <AppButton.GreenButton key="cancel" disabled={!valueValid || disabled} onClick={onSubmit}>
       {messages.pgettext('redeem-voucher-view', 'Redeem')}
     </AppButton.GreenButton>
   );
@@ -196,7 +195,7 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
     <ModalAlert
       buttons={[
         <RedeemVoucherSubmitButton key="submit" />,
-        <AppButton.BlueButton key="cancel" disabled={cancelDisabled} onPress={props.onClose}>
+        <AppButton.BlueButton key="cancel" disabled={cancelDisabled} onClick={props.onClose}>
           {messages.pgettext('redeem-voucher-alert', 'Cancel')}
         </AppButton.BlueButton>,
       ]}>
@@ -208,19 +207,19 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
 }
 
 interface IRedeemVoucherButtonProps {
-  style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
+  className?: string;
 }
 
 export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
   const isBlocked = useSelector((state: IReduxState) => state.connection.isBlocked);
   const [showAlert, setShowAlert] = useState(false);
 
-  const onPress = useCallback(() => setShowAlert(true), []);
+  const onClick = useCallback(() => setShowAlert(true), []);
   const onClose = useCallback(() => setShowAlert(false), []);
 
   return (
     <>
-      <AppButton.GreenButton disabled={isBlocked} onPress={onPress} style={props.style}>
+      <AppButton.GreenButton disabled={isBlocked} onClick={onClick} className={props.className}>
         {messages.pgettext('redeem-voucher-alert', 'Redeem voucher')}
       </AppButton.GreenButton>
       {showAlert && (
