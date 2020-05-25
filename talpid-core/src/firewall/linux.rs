@@ -210,7 +210,8 @@ struct PolicyBatch<'a> {
     out_chain: Chain<'a>,
     mangle_chain_v4: Chain<'a>,
     mangle_chain_v6: Chain<'a>,
-    nat_chain: Chain<'a>,
+    nat_chain_v4: Chain<'a>,
+    nat_chain_v6: Chain<'a>,
 }
 
 impl<'a> PolicyBatch<'a> {
@@ -244,11 +245,17 @@ impl<'a> PolicyBatch<'a> {
         let mangle_chain_v4 = add_mangle_chain(&tables.mangle_v4);
         let mangle_chain_v6 = add_mangle_chain(&tables.mangle_v6);
 
-        let mut nat_chain = Chain::new(&*NAT_CHAIN_NAME, &tables.main);
-        nat_chain.set_hook(nftnl::Hook::PostRouting, libc::NF_IP_PRI_NAT_SRC);
-        nat_chain.set_type(nftnl::ChainType::Nat);
-        nat_chain.set_policy(nftnl::Policy::Accept);
-        batch.add(&nat_chain, nftnl::MsgType::Add);
+        let mut add_nat_chain = |table| {
+            let mut chain = Chain::new(&*NAT_CHAIN_NAME, table);
+            chain.set_hook(nftnl::Hook::PostRouting, libc::NF_IP_PRI_NAT_SRC);
+            chain.set_type(nftnl::ChainType::Nat);
+            chain.set_policy(nftnl::Policy::Accept);
+            batch.add(&chain, nftnl::MsgType::Add);
+
+            chain
+        };
+        let nat_chain_v4 = add_nat_chain(&tables.mangle_v4);
+        let nat_chain_v6 = add_nat_chain(&tables.mangle_v6);
 
         PolicyBatch {
             batch,
@@ -256,7 +263,8 @@ impl<'a> PolicyBatch<'a> {
             out_chain,
             mangle_chain_v4,
             mangle_chain_v6,
-            nat_chain,
+            nat_chain_v4,
+            nat_chain_v6,
         }
     }
 
@@ -302,12 +310,15 @@ impl<'a> PolicyBatch<'a> {
         add_verdict(&mut rule, &Verdict::Accept);
         self.batch.add(&rule, nftnl::MsgType::Add);
 
-        let mut rule = Rule::new(&self.nat_chain);
-        rule.add_expr(&nft_expr!(ct mark));
-        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
-        rule.add_expr(&nft_expr!(masquerade));
-        add_verdict(&mut rule, &Verdict::Accept);
-        self.batch.add(&rule, nftnl::MsgType::Add);
+        let nat_chains = [&self.nat_chain_v4, &self.nat_chain_v6];
+        for chain in &nat_chains {
+            let mut rule = Rule::new(chain);
+            rule.add_expr(&nft_expr!(ct mark));
+            rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+            rule.add_expr(&nft_expr!(masquerade));
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
     }
 
     fn add_loopback_rules(&mut self) -> Result<()> {
