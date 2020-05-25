@@ -26,7 +26,6 @@ class MainActivity : FragmentActivity() {
 
     private var service: MullvadVpnService.LocalBinder? = null
     private var serviceConnection: ServiceConnection? = null
-    private var serviceConnectionSubscription: Int? = null
     private var shouldConnect = false
 
     private val serviceConnectionManager = object : android.content.ServiceConnection {
@@ -35,7 +34,7 @@ class MainActivity : FragmentActivity() {
 
             service = localBinder
 
-            serviceConnectionSubscription = localBinder.serviceNotifier.subscribe { service ->
+            localBinder.serviceNotifier.subscribe(this@MainActivity) { service ->
                 serviceConnection?.onDestroy()
 
                 val newConnection = service?.let { safeService ->
@@ -52,14 +51,8 @@ class MainActivity : FragmentActivity() {
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
-            serviceConnectionSubscription?.let { subscriptionId ->
-                service?.apply {
-                    serviceNotifier.unsubscribe(subscriptionId)
-                }
-            }
-
+            service?.serviceNotifier?.unsubscribe(this@MainActivity)
             serviceConnection = null
-            serviceConnectionSubscription = null
             serviceNotifier.notify(null)
         }
     }

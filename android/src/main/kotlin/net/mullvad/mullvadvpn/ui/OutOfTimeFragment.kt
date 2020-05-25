@@ -22,8 +22,6 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     private lateinit var disconnectButton: Button
     private lateinit var redeemButton: Button
 
-    private var tunnelStateListener: Int? = null
-
     private var tunnelState: TunnelState = TunnelState.Disconnected()
         set(value) {
             field = value
@@ -61,7 +59,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             }
         }
 
-        tunnelStateListener = connectionProxy.onStateChange.subscribe() { newState ->
+        connectionProxy.onStateChange.subscribe(this) { newState ->
             jobTracker.newUiJob("updateTunnelState") {
                 tunnelState = newState
             }
@@ -90,10 +88,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
 
     override fun onSafelyDestroyView() {
         jobTracker.cancelAllJobs()
-
-        tunnelStateListener?.let { id ->
-            connectionProxy.onStateChange.unsubscribe(id)
-        }
+        connectionProxy.onStateChange.unsubscribe(this)
     }
 
     private fun showRedeemVoucherDialog() {

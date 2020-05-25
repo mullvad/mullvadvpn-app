@@ -1,9 +1,16 @@
 package net.mullvad.talpid.util
 
+// Manages listeners interested in receiving events of type T
+//
+// The listeners subscribe using an ID object. This ID is used later on for unsubscribing. The only
+// requirement is that the object uses the default implementation of the `hashCode` and `equals`
+// methods inherited from `Any` (or `Object` in Java).
+//
+// If the ID object class (or any of its super-classes) overrides `hashCode` or `equals`,
+// unsubscribe might not work correctly.
 class EventNotifier<T>(private val initialValue: T) {
-    private val listeners = HashMap<Int, (T) -> Unit>()
+    private val listeners = HashMap<Any, (T) -> Unit>()
 
-    private var idCounter = 0
     private var latestEvent = initialValue
 
     fun notify(event: T) {
@@ -16,19 +23,14 @@ class EventNotifier<T>(private val initialValue: T) {
         }
     }
 
-    fun subscribe(listener: (T) -> Unit): Int {
+    fun subscribe(id: Any, listener: (T) -> Unit) {
         synchronized(this) {
-            val id = idCounter
-
-            idCounter += 1
             listeners.put(id, listener)
             listener(latestEvent)
-
-            return id
         }
     }
 
-    fun unsubscribe(id: Int) {
+    fun unsubscribe(id: Any) {
         synchronized(this) {
             listeners.remove(id)
         }

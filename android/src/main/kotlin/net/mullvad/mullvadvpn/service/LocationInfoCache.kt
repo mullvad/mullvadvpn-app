@@ -31,17 +31,6 @@ class LocationInfoCache(
     private var fetchIdCounter = 0L
     private var fetchIdIsActive = false
 
-    private val connectivityListenerId =
-        connectivityListener.connectivityNotifier.subscribe { isConnected ->
-            if (isConnected && state is TunnelState.Disconnected) {
-                fetchLocation(true)
-            }
-        }
-
-    private val realStateListenerId = connectionProxy.onStateChange.subscribe { realState ->
-        state = realState
-    }
-
     var onNewLocation: ((GeoIpLocation?) -> Unit)? = null
         set(value) {
             field = value
@@ -88,9 +77,21 @@ class LocationInfoCache(
             }
         }
 
+    init {
+        connectivityListener.connectivityNotifier.subscribe(this) { isConnected ->
+            if (isConnected && state is TunnelState.Disconnected) {
+                fetchLocation(true)
+            }
+        }
+
+        connectionProxy.onStateChange.subscribe(this) { realState ->
+            state = realState
+        }
+    }
+
     fun onDestroy() {
-        connectivityListener.connectivityNotifier.unsubscribe(connectivityListenerId)
-        connectionProxy.onStateChange.unsubscribe(realStateListenerId)
+        connectivityListener.connectivityNotifier.unsubscribe(this)
+        connectionProxy.onStateChange.unsubscribe(this)
         cancelFetch()
     }
 

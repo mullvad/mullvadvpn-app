@@ -173,14 +173,14 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
         val settingsListener = SettingsListener(daemon, settings).apply {
-            accountNumberNotifier.subscribe { accountNumber ->
+            accountNumberNotifier.subscribe(this@MullvadVpnService) { accountNumber ->
                 loggedIn = accountNumber != null
             }
         }
 
         val accountCache = AccountCache(daemon, settingsListener)
 
-        val connectionProxy = ConnectionProxy(this@MullvadVpnService, daemon).apply {
+        val connectionProxy = ConnectionProxy(this, daemon).apply {
             when (pendingAction) {
                 PendingAction.Connect -> {
                     if (loggedIn) {

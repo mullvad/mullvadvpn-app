@@ -20,7 +20,6 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var wireguardMtuInput: CellInput
     private lateinit var wireguardKeysMenu: View
 
-    private var subscriptionId: Int? = null
     private var updateUiJob: Job? = null
 
     override fun onSafelyCreateView(
@@ -53,7 +52,9 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        settingsListener.subscribe({ settings -> updateUi(settings) })
+        settingsListener.subscribe(this) { settings ->
+            updateUi(settings)
+        }
 
         return view
     }
@@ -68,7 +69,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     override fun onSafelyDestroyView() {
-        subscriptionId?.let { id -> settingsListener.unsubscribe(id) }
+        settingsListener.unsubscribe(this)
         updateUiJob?.cancel()
     }
 
