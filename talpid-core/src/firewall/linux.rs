@@ -61,8 +61,9 @@ lazy_static! {
     static ref IN_CHAIN_NAME: CString = CString::new("input").unwrap();
     static ref OUT_CHAIN_NAME: CString = CString::new("output").unwrap();
 
-    /// We need two separate tables for compatibility with older kernels,
-    /// where the base filter type may not be `nftnl::ChainType::Route` for inet tables.
+    /// We need two separate tables for compatibility with older kernels (holds true for kernel
+    /// version 4.19 but not 5.6), where the base filter type may not be `nftnl::ChainType::Route`
+    /// or `nftnl::ChainType::Nat` for inet tables.
     static ref MANGLE_TABLE_NAME_V4: CString = CString::new("mullvadmangle4").unwrap();
     static ref MANGLE_TABLE_NAME_V6: CString = CString::new("mullvadmangle6").unwrap();
     static ref MANGLE_CHAIN_NAME: CString = CString::new("mangle").unwrap();
