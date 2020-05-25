@@ -31,6 +31,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix WireGuard key status events being lost by the UI, causing stale information to be shown.
 - Fix time left in account not showing in settings screen.
 
+#### Windows
+- Fix race in network adapter monitor that could result in data corruption and crashes.
 
 ## [2020.5-beta1] - 2020-05-18
 ### Added

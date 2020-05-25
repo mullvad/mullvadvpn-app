@@ -9,7 +9,7 @@
 #include <windows.h>
 #include <functional>
 #include <vector>
-
+#include <mutex>
 
 class NetworkAdapterMonitor
 {
@@ -58,6 +58,8 @@ private:
 	FilterType m_filter;
 
 	std::shared_ptr<IDataProvider> m_dataProvider;
+
+	std::mutex m_callbackLock;
 
 	MIB_IF_ROW2 getAdapter(NET_LUID luid) const;
 

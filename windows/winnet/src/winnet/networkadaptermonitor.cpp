@@ -276,6 +276,16 @@ void __stdcall NetworkAdapterMonitor::Callback(void *context, MIB_IPINTERFACE_RO
 {
 	auto inst = reinterpret_cast<NetworkAdapterMonitor *>(context);
 
+	//
+	// Calls into this function are supposed to be serialized by Windows.
+	// That's not true on Windows 10 :-(
+	//
+	// This can be easily reproduced by changing the callback to never return,
+	// and observing more events being delivered.
+	//
+
+	std::scoped_lock<std::mutex> lock(inst->m_callbackLock);
+
 	try
 	{
 		inst->callback(hint, updateType);
