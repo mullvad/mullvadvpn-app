@@ -89,7 +89,7 @@ export default class Settings extends Component<IProps> {
   private renderQuitButton() {
     return (
       <View style={styles.quitButtonFooter}>
-        <AppButton.RedButton onPress={this.props.onQuit}>
+        <AppButton.RedButton onClick={this.props.onQuit}>
           {messages.pgettext('settings-view', 'Quit app')}
         </AppButton.RedButton>
       </View>

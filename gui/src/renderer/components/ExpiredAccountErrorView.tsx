@@ -12,6 +12,8 @@ import CustomScrollbars from './CustomScrollbars';
 import styles, {
   ModalCellContainer,
   StyledAccountTokenLabel,
+  StyledBuyCreditButton,
+  StyledDisconnectButton,
 } from './ExpiredAccountErrorViewStyles';
 import ImageView from './ImageView';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
@@ -63,10 +65,10 @@ export default class ExpiredAccountErrorView extends Component<
 
           <View style={styles.footer}>
             {this.getRecoveryAction() === RecoveryAction.disconnect && (
-              <AppButton.BlockingButton onPress={this.props.onDisconnect}>
-                <AppButton.RedButton style={styles.button}>
+              <AppButton.BlockingButton onClick={this.props.onDisconnect}>
+                <StyledDisconnectButton>
                   {messages.pgettext('connect-view', 'Disconnect')}
-                </AppButton.RedButton>
+                </StyledDisconnectButton>
               </AppButton.BlockingButton>
             )}
 
@@ -74,7 +76,7 @@ export default class ExpiredAccountErrorView extends Component<
 
             <AppButton.GreenButton
               disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
-              onPress={this.onOpenRedeemVoucherAlert}>
+              onClick={this.onOpenRedeemVoucherAlert}>
               {messages.pgettext('connect-view', 'Redeem voucher')}
             </AppButton.GreenButton>
           </View>
@@ -160,11 +162,11 @@ export default class ExpiredAccountErrorView extends Component<
     return (
       <AppButton.BlockingButton
         disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
-        onPress={this.onOpenExternalPayment}>
-        <AppButton.GreenButton style={styles.button}>
+        onClick={this.onOpenExternalPayment}>
+        <StyledBuyCreditButton>
           <AppButton.Label>{buttonText}</AppButton.Label>
           <AppButton.Icon source="icon-extLink" height={16} width={16} />
-        </AppButton.GreenButton>
+        </StyledBuyCreditButton>
       </AppButton.BlockingButton>
     );
   }
@@ -184,7 +186,7 @@ export default class ExpiredAccountErrorView extends Component<
         buttons={[
           <AppButton.BlueButton
             key="cancel"
-            onPress={this.onCloseBlockWhenDisconnectedInstructions}>
+            onClick={this.onCloseBlockWhenDisconnectedInstructions}>
             {messages.gettext('Close')}
           </AppButton.BlueButton>,
         ]}>

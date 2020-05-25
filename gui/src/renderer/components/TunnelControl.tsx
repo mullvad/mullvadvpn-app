@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Component, Styles, Types, View } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
@@ -7,7 +8,7 @@ import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import Marquee from './Marquee';
-import { IMainButtonProps, ISideButtonProps, MultiButton } from './MultiButton';
+import { MultiButton } from './MultiButton';
 import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
 
 interface ITunnelControlProps {
@@ -20,6 +21,10 @@ interface ITunnelControlProps {
   onReconnect: () => void;
   onSelectLocation: () => void;
 }
+
+const SwitchLocationButton = styled(AppButton.TransparentButton)({
+  marginBottom: 16,
+});
 
 const styles = {
   body: Styles.createViewStyle({
@@ -38,9 +43,6 @@ const styles = {
   }),
   wrapper: Styles.createViewStyle({
     flex: 1,
-  }),
-  switch_location_button: Styles.createViewStyle({
-    marginBottom: 16,
   }),
   status_security: Styles.createTextStyle({
     fontFamily: 'Open Sans',
@@ -76,49 +78,45 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
 
     const SwitchLocation = () => {
       return (
-        <AppButton.TransparentButton
-          style={styles.switch_location_button}
-          onPress={this.props.onSelectLocation}>
+        <SwitchLocationButton onClick={this.props.onSelectLocation}>
           {messages.pgettext('tunnel-control', 'Switch location')}
-        </AppButton.TransparentButton>
+        </SwitchLocationButton>
       );
     };
 
     const SelectedLocation = () => (
-      <AppButton.TransparentButton
-        style={styles.switch_location_button}
-        onPress={this.props.onSelectLocation}>
+      <SwitchLocationButton onClick={this.props.onSelectLocation}>
         <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
         <AppButton.Icon height={12} width={7} source="icon-chevron" />
-      </AppButton.TransparentButton>
+      </SwitchLocationButton>
     );
 
     const Connect = () => (
-      <AppButton.GreenButton onPress={this.props.onConnect}>
+      <AppButton.GreenButton onClick={this.props.onConnect}>
         {messages.pgettext('tunnel-control', 'Secure my connection')}
       </AppButton.GreenButton>
     );
 
-    const Disconnect = (props: IMainButtonProps) => (
-      <AppButton.RedTransparentButton onPress={this.props.onDisconnect} {...props}>
+    const Disconnect = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
+      <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
         {messages.pgettext('tunnel-control', 'Disconnect')}
       </AppButton.RedTransparentButton>
     );
 
-    const Cancel = (props: IMainButtonProps) => (
-      <AppButton.RedTransparentButton onPress={this.props.onDisconnect} {...props}>
+    const Cancel = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
+      <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
         {messages.pgettext('tunnel-control', 'Cancel')}
       </AppButton.RedTransparentButton>
     );
 
-    const Dismiss = (props: IMainButtonProps) => (
-      <AppButton.RedTransparentButton onPress={this.props.onDisconnect} {...props}>
+    const Dismiss = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
+      <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
         {messages.pgettext('tunnel-control', 'Dismiss')}
       </AppButton.RedTransparentButton>
     );
 
-    const Reconnect = (props: ISideButtonProps) => (
-      <AppButton.RedTransparentButton onPress={this.props.onReconnect} {...props}>
+    const Reconnect = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
+      <AppButton.RedTransparentButton onClick={this.props.onReconnect} {...props}>
         <ImageView height={22} width={22} source="icon-reload" tintColor="white" />
       </AppButton.RedTransparentButton>
     );

@@ -2,6 +2,7 @@ import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import AccountTokenLabel from './AccountTokenLabel';
+import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 
 export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
@@ -15,6 +16,13 @@ export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
 export const ModalCellContainer = styled(Cell.Container)({
   marginTop: '16px',
 });
+
+const buttonStyle = {
+  marginBottom: 24,
+};
+
+export const StyledBuyCreditButton = styled(AppButton.GreenButton)(buttonStyle);
+export const StyledDisconnectButton = styled(AppButton.RedButton)(buttonStyle);
 
 export default {
   // plain CSS style
@@ -78,8 +86,5 @@ export default {
   accountTokenContainer: Styles.createViewStyle({
     height: 68,
     justifyContent: 'center',
-  }),
-  button: Styles.createViewStyle({
-    marginBottom: 24,
   }),
 };
