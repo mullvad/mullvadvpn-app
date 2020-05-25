@@ -20,8 +20,8 @@ use std::{
     thread,
     time::Duration,
 };
-use talpid_ipc;
 use talpid_types::net::openvpn;
+use tokio02::task;
 #[cfg(target_os = "linux")]
 use which;
 
@@ -33,13 +33,17 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
+    /// Failed to initialize the tokio runtime.
+    #[error(display = "Failed to initialize the tokio runtime")]
+    RuntimeError(#[error(source)] io::Error),
+
     /// Unable to start, wait for or kill the OpenVPN process.
     #[error(display = "Error in OpenVPN process management: {}", _0)]
     ChildProcessError(&'static str, #[error(source)] io::Error),
 
-    /// Unable to start or manage the IPC server listening for events from OpenVPN.
-    #[error(display = "Unable to start or manage the event dispatcher IPC server")]
-    EventDispatcherError(#[error(source)] talpid_ipc::Error),
+    /// Unable to start the IPC server.
+    #[error(display = "Unable to start the event dispatcher IPC server")]
+    EventDispatcherError(#[error(source)] event_server::Error),
 
     /// The OpenVPN event dispatcher exited unexpectedly
     #[error(display = "The OpenVPN event dispatcher exited unexpectedly")]
@@ -121,13 +125,16 @@ const OPENVPN_BIN_FILENAME: &str = "openvpn.exe";
 pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     child: Arc<C::ProcessHandle>,
     proxy_monitor: Option<Box<dyn ProxyMonitor>>,
-    event_dispatcher: Option<talpid_ipc::IpcServer>,
     log_path: Option<PathBuf>,
     closed: Arc<AtomicBool>,
     /// Keep the `TempFile` for the user-pass file in the struct, so it's removed on drop.
     _user_pass_file: mktemp::TempFile,
     /// Keep the 'TempFile' for the proxy user-pass file in the struct, so it's removed on drop.
     _proxy_auth_file: Option<mktemp::TempFile>,
+
+    runtime: tokio02::runtime::Runtime,
+    event_server_abort_tx: triggered::Trigger,
+    server_join_handle: Option<task::JoinHandle<std::result::Result<(), event_server::Error>>>,
 }
 
 impl OpenVpnMonitor<OpenVpnCommand> {
@@ -223,11 +230,39 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
     {
-        let event_dispatcher =
-            event_server::start(on_event).map_err(Error::EventDispatcherError)?;
+        let uuid = uuid::Uuid::new_v4().to_string();
+        let ipc_path = if cfg!(windows) {
+            format!("//./pipe/talpid-openvpn-{}", uuid)
+        } else {
+            format!("/tmp/talpid-openvpn-{}", uuid)
+        };
+
+        let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
+
+        let mut runtime = tokio02::runtime::Builder::new()
+            .threaded_scheduler()
+            .core_threads(1)
+            .enable_all()
+            .build()
+            .map_err(Error::RuntimeError)?;
+
+        let (start_tx, start_rx) = mpsc::channel();
+        let server_join_handle = runtime.spawn(event_server::start(
+            ipc_path.clone(),
+            start_tx,
+            on_event,
+            event_server_abort_rx,
+        ));
+        if let Err(_) = start_rx.recv() {
+            return Err(runtime
+                .block_on(server_join_handle)
+                .expect("Failed to resolve quit handle future")
+                .map_err(Error::EventDispatcherError)
+                .unwrap_err());
+        }
 
         let child = cmd
-            .plugin(plugin_path, vec![event_dispatcher.path().to_owned()])
+            .plugin(plugin_path, vec![ipc_path])
             .log(log_path.as_ref().map(|p| p.as_path()))
             .start()
             .map_err(|e| Error::ChildProcessError("Failed to start", e))?;
@@ -235,11 +270,14 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         Ok(OpenVpnMonitor {
             child: Arc::new(child),
             proxy_monitor,
-            event_dispatcher: Some(event_dispatcher),
             log_path,
             closed: Arc::new(AtomicBool::new(false)),
             _user_pass_file: user_pass_file,
             _proxy_auth_file: proxy_auth_file,
+
+            runtime,
+            event_server_abort_tx,
+            server_join_handle: Some(server_join_handle),
         })
     }
 
@@ -332,20 +370,25 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         let child_wait_handle = self.child.clone();
         let closed_handle = self.closed.clone();
         let child_close_handle = self.close_handle();
-        let event_dispatcher = self.event_dispatcher.take().expect("No event_dispatcher");
-        let dispatcher_handle = event_dispatcher.close_handle();
 
         let (child_tx, rx) = mpsc::channel();
         let dispatcher_tx = child_tx.clone();
+
+        let event_server_abort_tx = self.event_server_abort_tx.clone();
 
         thread::spawn(move || {
             let result = child_wait_handle.wait();
             let closed = closed_handle.load(Ordering::SeqCst);
             child_tx.send(WaitResult::Child(result, closed)).unwrap();
-            dispatcher_handle.close();
+            event_server_abort_tx.trigger();
         });
-        thread::spawn(move || {
-            event_dispatcher.wait();
+
+        let server_join_handle = self
+            .server_join_handle
+            .take()
+            .expect("No event server quit handle");
+        self.runtime.spawn(async move {
+            let _ = server_join_handle.await;
             dispatcher_tx.send(WaitResult::EventDispatcher).unwrap();
             let _ = child_close_handle.close();
         });
@@ -569,55 +612,120 @@ impl ProcessHandle for OpenVpnProcHandle {
 
 
 mod event_server {
-    use jsonrpc_core::{Error, IoHandler, MetaIoHandler};
-    use jsonrpc_macros::build_rpc_trait;
-    use std::collections::HashMap;
-    use talpid_ipc;
-    use uuid;
+    use futures::stream::TryStreamExt;
+    use parity_tokio_ipc::{Endpoint as IpcEndpoint, SecurityAttributes};
+    use std::{
+        collections::HashMap,
+        pin::Pin,
+        task::{Context, Poll},
+    };
+    use tokio02::io::{AsyncRead, AsyncWrite};
+    use tonic::{
+        self,
+        transport::{server::Connected, Server},
+        Request, Response,
+    };
 
-    /// Construct and start the IPC server with the given event listener callback.
-    pub fn start<L>(on_event: L) -> std::result::Result<talpid_ipc::IpcServer, talpid_ipc::Error>
-    where
-        L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
-    {
-        let uuid = uuid::Uuid::new_v4().to_string();
-        let ipc_path = if cfg!(windows) {
-            format!("//./pipe/talpid-openvpn-{}", uuid)
-        } else {
-            format!("/tmp/talpid-openvpn-{}", uuid)
-        };
-        let rpc = OpenVpnEventApiImpl { on_event };
-        let mut io = IoHandler::new();
-        io.extend_with(rpc.to_delegate());
-        let meta_io: MetaIoHandler<()> = MetaIoHandler::from(io);
-        talpid_ipc::IpcServer::start(meta_io, &ipc_path)
+    mod proto {
+        tonic::include_proto!("talpid_openvpn_plugin");
+    }
+    use proto::{
+        openvpn_event_proxy_server::{OpenvpnEventProxy, OpenvpnEventProxyServer},
+        Empty, EventType,
+    };
+
+    #[derive(err_derive::Error, Debug)]
+    pub enum Error {
+        /// Failure to set up the IPC server.
+        #[error(display = "Failed to create pipe or Unix socket")]
+        StartServer(#[error(source)] std::io::Error),
+
+        /// An error occurred while the server was running.
+        #[error(display = "Tonic error")]
+        TonicError(#[error(source)] tonic::transport::Error),
     }
 
-    build_rpc_trait! {
-        pub trait OpenVpnEventApi {
-
-            #[rpc(name = "openvpn_event")]
-            fn openvpn_event(&self, openvpn_plugin::EventType, HashMap<String, String>)
-                -> Result<(), Error>;
-        }
-    }
-
-    struct OpenVpnEventApiImpl<L> {
+    /// Implements a gRPC service used to process events sent to by OpenVPN.
+    #[derive(Debug)]
+    pub struct OpenvpnEventProxyImpl<L> {
         on_event: L,
     }
 
-    impl<L> OpenVpnEventApi for OpenVpnEventApiImpl<L>
+    #[tonic::async_trait]
+    impl<L> OpenvpnEventProxy for OpenvpnEventProxyImpl<L>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
     {
-        fn openvpn_event(
+        async fn event(
             &self,
-            event: openvpn_plugin::EventType,
-            env: HashMap<String, String>,
-        ) -> Result<(), Error> {
-            log::trace!("OpenVPN event {:?}", event);
-            (self.on_event)(event, env);
-            Ok(())
+            request: Request<EventType>,
+        ) -> std::result::Result<Response<Empty>, tonic::Status> {
+            log::info!("OpenVPN event {:?}", request);
+
+            let request = request.into_inner();
+
+            let event_type = openvpn_plugin::EventType::try_from(request.event)
+                .ok_or(tonic::Status::invalid_argument("Unknown event type"))?;
+
+            (self.on_event)(event_type, request.env);
+
+            Ok(Response::new(Empty {}))
+        }
+    }
+
+    pub async fn start<L>(
+        ipc_path: String,
+        server_start_tx: std::sync::mpsc::Sender<()>,
+        on_event: L,
+        abort_rx: triggered::Listener,
+    ) -> std::result::Result<(), Error>
+    where
+        L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
+    {
+        let mut endpoint = IpcEndpoint::new(ipc_path.clone());
+        endpoint.set_security_attributes(SecurityAttributes::allow_everyone_create().unwrap());
+        let incoming = endpoint.incoming().map_err(Error::StartServer)?;
+        let _ = server_start_tx.send(());
+
+        let server = OpenvpnEventProxyImpl { on_event };
+
+        Server::builder()
+            .add_service(OpenvpnEventProxyServer::new(server))
+            .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
+            .await
+            .map_err(Error::TonicError)
+    }
+
+    #[derive(Debug)]
+    pub struct StreamBox<T: AsyncRead + AsyncWrite>(pub T);
+    impl<T: AsyncRead + AsyncWrite> Connected for StreamBox<T> {}
+    impl<T: AsyncRead + AsyncWrite + Unpin> AsyncRead for StreamBox<T> {
+        fn poll_read(
+            mut self: Pin<&mut Self>,
+            cx: &mut Context<'_>,
+            buf: &mut [u8],
+        ) -> Poll<std::io::Result<usize>> {
+            Pin::new(&mut self.0).poll_read(cx, buf)
+        }
+    }
+    impl<T: AsyncRead + AsyncWrite + Unpin> AsyncWrite for StreamBox<T> {
+        fn poll_write(
+            mut self: Pin<&mut Self>,
+            cx: &mut Context<'_>,
+            buf: &[u8],
+        ) -> Poll<std::io::Result<usize>> {
+            Pin::new(&mut self.0).poll_write(cx, buf)
+        }
+
+        fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<std::io::Result<()>> {
+            Pin::new(&mut self.0).poll_flush(cx)
+        }
+
+        fn poll_shutdown(
+            mut self: Pin<&mut Self>,
+            cx: &mut Context<'_>,
+        ) -> Poll<std::io::Result<()>> {
+            Pin::new(&mut self.0).poll_shutdown(cx)
         }
     }
 }

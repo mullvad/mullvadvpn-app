@@ -14,15 +14,18 @@ crate-type = ["cdylib"]
 err-derive = "0.2.1"
 log = "0.4"
 env_logger = "0.7"
-jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
-jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
-tokio-reactor = "0.1"
-tokio = "0.1"
-futures = "0.1"
+parity-tokio-ipc = "0.7"
+tokio = { package = "tokio", version = "0.2", features =  [ "rt-core", "rt-threaded"] }
 
 openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde", "log"] }
-talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
+
+tonic = "0.2"
+tower = "0.3"
+prost = "0.6"
+
+[build-dependencies]
+tonic-build = { version = "0.2", default-features = false, features = ["transport", "prost"] }
 
 
 [target.'cfg(windows)'.build-dependencies]
