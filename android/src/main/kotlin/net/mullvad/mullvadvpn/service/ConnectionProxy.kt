@@ -172,8 +172,12 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
             if (activity != null) {
                 activity.requestVpnPermission(intent)
             } else {
-                val activityIntent = Intent(context, MainActivity::class.java)
-                    .putExtra(MainActivity.KEY_SHOULD_CONNECT, true)
+                val activityIntent = Intent(context, MainActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    putExtra(MainActivity.KEY_SHOULD_CONNECT, true)
+                }
+
+                uiState = state
 
                 context.startActivity(activityIntent)
             }
