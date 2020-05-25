@@ -16,6 +16,10 @@ export const ModalCellContainer = styled(Cell.Container)({
   marginTop: '16px',
 });
 
+export const StyledButton = styled.button({
+  marginBottom: 24,
+});
+
 export default {
   // plain CSS style
   scrollview: {
@@ -78,8 +82,5 @@ export default {
   accountTokenContainer: Styles.createViewStyle({
     height: 68,
     justifyContent: 'center',
-  }),
-  button: Styles.createViewStyle({
-    marginBottom: 24,
   }),
 };

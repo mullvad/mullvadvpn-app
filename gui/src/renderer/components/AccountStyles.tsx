@@ -1,4 +1,3 @@
-import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { Container } from './Layout';
@@ -51,8 +50,6 @@ export const AccountFooter = styled.div({
   padding: '0 24px',
 });
 
-export default {
-  button: Styles.createViewStyle({
-    marginBottom: 24,
-  }),
-};
+export const StyledButton = styled.button({
+  marginBottom: 24,
+});

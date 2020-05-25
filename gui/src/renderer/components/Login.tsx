@@ -400,7 +400,7 @@ export default class Login extends Component<IProps, IState> {
           {messages.pgettext('login-view', "Don't have an account number?")}
         </Text>
         <AppButton.BlueButton
-          onPress={this.props.createNewAccount}
+          onClick={this.props.createNewAccount}
           disabled={!this.allowInteraction()}>
           {messages.pgettext('login-view', 'Create account')}
         </AppButton.BlueButton>

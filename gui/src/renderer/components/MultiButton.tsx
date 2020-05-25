@@ -1,49 +1,40 @@
-import * as React from 'react';
-import { Component, Styles, Types, View } from 'reactxp';
+import React from 'react';
+import styled from 'styled-components';
+import * as AppButton from './AppButton';
 
 const SIDE_BUTTON_WIDTH = 50;
 
-const styles = {
-  buttonRow: Styles.createViewStyle({
-    flexDirection: 'row',
-  }),
-  mainButton: Styles.createViewStyle({
-    flex: 1,
-    borderTopRightRadius: 0,
-    borderBottomRightRadius: 0,
-  }),
-  sideButton: Styles.createViewStyle({
-    borderTopLeftRadius: 0,
-    borderBottomLeftRadius: 0,
-    width: SIDE_BUTTON_WIDTH,
-    alignItems: 'center',
-    marginLeft: 1,
-  }),
-};
+const ButtonRow = styled.div({
+  display: 'flex',
+  flexDirection: 'row',
+});
 
-interface IProps {
-  mainButton: React.ComponentType<IMainButtonProps>;
-  sideButton: React.ComponentType<ISideButtonProps>;
+const MainButton = styled.button({
+  display: 'flex',
+  flex: 1,
+  borderTopRightRadius: 0,
+  borderBottomRightRadius: 0,
+});
+
+const SideButton = styled.button({
+  display: 'flex',
+  borderTopLeftRadius: 0,
+  borderBottomLeftRadius: 0,
+  width: SIDE_BUTTON_WIDTH,
+  alignItems: 'center',
+  marginLeft: 1,
+});
+
+interface IMultiButtonProps {
+  mainButton: React.ComponentType<AppButton.IProps>;
+  sideButton: React.ComponentType<AppButton.IProps>;
 }
 
-export interface IMainButtonProps {
-  textOffset: number;
-  style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
-}
-
-export interface ISideButtonProps {
-  style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
-}
-
-export class MultiButton extends Component<IProps> {
-  public render() {
-    const { mainButton: MainButton, sideButton: SideButton } = this.props;
-
-    return (
-      <View style={styles.buttonRow}>
-        <MainButton textOffset={SIDE_BUTTON_WIDTH} style={styles.mainButton} />
-        <SideButton style={styles.sideButton} />
-      </View>
-    );
-  }
+export function MultiButton(props: IMultiButtonProps) {
+  return (
+    <ButtonRow>
+      <MainButton as={props.mainButton} textOffset={SIDE_BUTTON_WIDTH} />
+      <SideButton as={props.sideButton} />
+    </ButtonRow>
+  );
 }

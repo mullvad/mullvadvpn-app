@@ -119,7 +119,7 @@ export default class WireguardKeys extends Component<IProps, IState> {
                     <View style={styles.wgkeys__row}>
                       <AppButton.BlueButton
                         disabled={this.isVerifyButtonDisabled()}
-                        onPress={this.getOnVerifyKeyCb()}>
+                        onClick={this.getOnVerifyKeyCb()}>
                         <AppButton.Label>
                           {messages.pgettext('wireguard-key-view', 'Verify key')}
                         </AppButton.Label>
@@ -128,7 +128,7 @@ export default class WireguardKeys extends Component<IProps, IState> {
                     <View style={styles.wgkeys__row}>
                       <AppButton.BlockingButton
                         disabled={this.props.isOffline}
-                        onPress={this.props.onVisitWebsiteKey}>
+                        onClick={this.props.onVisitWebsiteKey}>
                         <AppButton.BlueButton>
                           <AppButton.Label>
                             {messages.pgettext('wireguard-key-view', 'Manage keys')}
@@ -203,7 +203,7 @@ export default class WireguardKeys extends Component<IProps, IState> {
         return this.busyButton(messages.pgettext('wireguard-key-view', 'Generating key'));
     }
     return (
-      <AppButton.GreenButton disabled={this.props.isOffline} onPress={generateKey}>
+      <AppButton.GreenButton disabled={this.props.isOffline} onClick={generateKey}>
         <AppButton.Label>{buttonText}</AppButton.Label>
       </AppButton.GreenButton>
     );

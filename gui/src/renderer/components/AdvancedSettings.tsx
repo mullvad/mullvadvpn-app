@@ -402,10 +402,10 @@ export default class AdvancedSettings extends Component<IProps, IState> {
       <ModalAlert
         type={ModalAlertType.Info}
         buttons={[
-          <AppButton.RedButton key="confirm" onPress={this.confirmEnableBlockWhenDisconnected}>
+          <AppButton.RedButton key="confirm" onClick={this.confirmEnableBlockWhenDisconnected}>
             {messages.pgettext('advanced-settings-view', 'Enable anyway')}
           </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onPress={this.hideConfirmBlockWhenDisconnectedAlert}>
+          <AppButton.BlueButton key="back" onClick={this.hideConfirmBlockWhenDisconnectedAlert}>
             {messages.gettext('Back')}
           </AppButton.BlueButton>,
         ]}>

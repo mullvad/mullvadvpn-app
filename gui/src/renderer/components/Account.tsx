@@ -1,13 +1,14 @@
 import * as React from 'react';
 import AccountExpiry from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
-import styles, {
+import {
   AccountContainer,
   AccountFooter,
   AccountOutOfTime,
   AccountRow,
   AccountRowLabel,
   AccountRowValue,
+  StyledButton,
   StyledContainer,
 } from './AccountStyles';
 import AccountTokenLabel from './AccountTokenLabel';
@@ -73,16 +74,16 @@ export default class Account extends React.Component<IProps> {
               <AccountFooter>
                 <AppButton.BlockingButton
                   disabled={this.props.isOffline}
-                  onPress={this.props.onBuyMore}>
-                  <AppButton.GreenButton style={styles.button}>
+                  onClick={this.props.onBuyMore}>
+                  <StyledButton as={AppButton.GreenButton}>
                     <AppButton.Label>{messages.gettext('Buy more credit')}</AppButton.Label>
                     <AppButton.Icon source="icon-extLink" height={16} width={16} />
-                  </AppButton.GreenButton>
+                  </StyledButton>
                 </AppButton.BlockingButton>
 
-                <RedeemVoucherButton style={styles.button} />
+                <StyledButton as={RedeemVoucherButton} />
 
-                <AppButton.RedButton onPress={this.props.onLogout}>
+                <AppButton.RedButton onClick={this.props.onLogout}>
                   {messages.pgettext('account-view', 'Log out')}
                 </AppButton.RedButton>
               </AccountFooter>
