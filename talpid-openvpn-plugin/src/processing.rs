@@ -1,56 +1,57 @@
 use super::{Arguments, Error};
-use jsonrpc_client_core::{
-    expand_params, jsonrpc_client, Future, Result as ClientResult, Transport,
-};
-use jsonrpc_client_ipc::IpcTransport;
-use std::{collections::HashMap, sync::mpsc, thread};
-use tokio::{reactor::Handle, runtime::Runtime};
+use parity_tokio_ipc::Endpoint as IpcEndpoint;
+use std::collections::HashMap;
+use tower::service_fn;
 
+use tonic::{
+    self,
+    transport::{Endpoint, Uri},
+};
+
+use tokio::runtime::{self, Runtime};
+
+
+pub mod proto {
+    tonic::include_proto!("talpid_openvpn_plugin");
+}
+use proto::open_vpn_event_proxy_client::OpenVpnEventProxyClient;
 
 /// Struct processing OpenVPN events and notifies listeners over IPC
 pub struct EventProcessor {
-    ipc_client: EventProxy,
-    client_result_rx: mpsc::Receiver<ClientResult<()>>,
+    ipc_client: OpenVpnEventProxyClient<tonic::transport::Channel>,
+    runtime: Runtime,
 }
 
 impl EventProcessor {
     pub fn new(arguments: Arguments) -> Result<EventProcessor, Error> {
         log::trace!("Creating EventProcessor");
-        let (start_tx, start_rx) = mpsc::channel();
-        let (client_result_tx, client_result_rx) = mpsc::channel();
-        thread::spawn(move || {
-            let mut rt = match Runtime::new().map_err(Error::CreateRuntime) {
-                Err(e) => {
-                    let _ = start_tx.send(Err(e));
-                    return;
-                }
-                Ok(rt) => rt,
-            };
-            let (client, client_handle) =
-                match IpcTransport::new(&arguments.ipc_socket_path, &Handle::default())
-                    .map_err(Error::CreateTransport)
-                    .map(|transport| transport.into_client())
-                {
-                    Err(e) => {
-                        let _ = start_tx.send(Err(e));
-                        return;
-                    }
-                    Ok((client, client_handle)) => (client, client_handle),
-                };
-
-            let _ = start_tx.send(Ok(client_handle));
-            let _ = client_result_tx.send(rt.block_on(client));
-        });
-
-        let client_handle = start_rx
-            .recv()
-            .expect("No start result from EventProcessor thread")?;
-        let ipc_client = EventProxy::new(client_handle);
+        let mut runtime = runtime::Builder::new()
+            .basic_scheduler()
+            .core_threads(1)
+            .enable_all()
+            .build()
+            .expect("Failed to initialize runtime");
+        let ipc_client = runtime
+            .block_on(Self::spawn_client(arguments.ipc_socket_path.clone()))
+            .expect("Failed to initialize event proxy client");
 
         Ok(EventProcessor {
             ipc_client,
-            client_result_rx,
+            runtime,
         })
+    }
+
+    async fn spawn_client(
+        ipc_path: String,
+    ) -> Result<OpenVpnEventProxyClient<tonic::transport::Channel>, tonic::transport::Error> {
+        // The URI will be ignored
+        let channel = Endpoint::from_static("lttp://[::]:50051")
+            .connect_with_connector(service_fn(move |_: Uri| {
+                IpcEndpoint::connect(ipc_path.clone())
+            }))
+            .await?;
+
+        Ok(OpenVpnEventProxyClient::new(channel))
     }
 
     pub fn process_event(
@@ -58,25 +59,13 @@ impl EventProcessor {
         event: openvpn_plugin::EventType,
         env: HashMap<String, String>,
     ) -> Result<(), Error> {
-        log::trace!("Processing \"{:?}\" event", event);
-        let call_future = self
-            .ipc_client
-            .openvpn_event(event, env)
-            .map_err(Error::SendEvent);
-        call_future.wait()?;
-        self.check_client_status()
-    }
+        log::debug!("Processing \"{:?}\" event", event);
 
-    fn check_client_status(&mut self) -> Result<(), Error> {
-        use std::sync::mpsc::TryRecvError::*;
-        match self.client_result_rx.try_recv() {
-            Err(Empty) => Ok(()),
-            Err(Disconnected) | Ok(Ok(())) => Err(Error::Shutdown),
-            Ok(Err(e)) => Err(Error::SendEvent(e)),
-        }
+        let future = self.ipc_client.openvpn_event(proto::EventType {
+            event: event as i16 as i32,
+            env: env.clone(),
+        });
+        let response = self.runtime.block_on(future);
+        response.map(|_| ()).map_err(Error::SendEvent)
     }
 }
-
-jsonrpc_client!(pub struct EventProxy {
-    pub fn openvpn_event(&mut self, event: openvpn_plugin::EventType, env: HashMap<String, String>) -> Future<()>;
-});

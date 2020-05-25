@@ -34,6 +34,12 @@ uuid = { version = "0.7", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4"
 
+parity-tokio-ipc = "0.7"
+tokio02 = { package = "tokio", version = "0.2", features =  [ "rt-core", "rt-threaded"] }
+triggered = "0.1.1"
+tonic = "0.2"
+prost = "0.6"
+
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.17"
@@ -57,7 +63,6 @@ netlink-packet-route = "0.2"
 netlink-proto = "0.2"
 netlink-sys = "0.2"
 futures = { package = "futures", version = "0.3" }
-tokio02 = { package = "tokio", version = "0.2", features =  [ "rt-core", "rt-threaded"] }
 nftnl = { version = "0.3", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
 which = { version = "3.1", default-features = false }
@@ -77,6 +82,10 @@ winapi = { version = "0.3.6", features = ["handleapi", "ifdef", "libloaderapi", 
 socket2 = "0.3"
 rand = "0.7"
 pnet_packet = "0.22"
+
+[build-dependencies]
+tonic-build = { version = "0.2", default-features = false, features = ["transport", "prost"] }
+
 
 [dev-dependencies]
 tempfile = "3.0"
