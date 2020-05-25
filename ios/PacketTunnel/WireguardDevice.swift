@@ -190,7 +190,7 @@ class WireguardDevice {
 
         let resolvedConfiguration = Self.resolveConfiguration(configuration)
         let handle = resolvedConfiguration
-            .baseline()
+            .uapiConfiguration()
             .toRawWireguardConfigString()
             .withCString { wgTurnOn($0, self.tunFd) }
 
@@ -222,13 +222,11 @@ class WireguardDevice {
     }
 
     private func _setConfig(configuration newConfiguration: WireguardConfiguration) -> Result<(), Error> {
-        if let handle = wireguardHandle,
-            let oldResolvedConfigration = self.resolvedConfiguration
-        {
+        if let handle = wireguardHandle {
             let newResolvedConfiguration = Self.resolveConfiguration(newConfiguration)
-            let wireguardCommands = oldResolvedConfigration.transition(to: newResolvedConfiguration)
+            let commands = newResolvedConfiguration.uapiConfiguration()
 
-            Self.setWireguardConfig(handle: handle, commands: wireguardCommands)
+            Self.setWireguardConfig(handle: handle, commands: commands)
 
             self.configuration = newConfiguration
             self.resolvedConfiguration = newResolvedConfiguration
@@ -319,14 +317,11 @@ class WireguardDevice {
                    String(describing: path.availableInterfaces))
 
             // Re-resolve endpoints on network changes
-            if let currentConfiguration = self.configuration,
-                let oldResolvedConfigration = self.resolvedConfiguration
-            {
+            if let currentConfiguration = self.configuration {
                 let newResolvedConfiguration = Self.resolveConfiguration(currentConfiguration)
-                let commands = oldResolvedConfigration.transition(to: newResolvedConfiguration)
+                let commands = newResolvedConfiguration.endpointUapiConfiguration()
 
                 Self.setWireguardConfig(handle: handle, commands: commands)
-
                 self.resolvedConfiguration = newResolvedConfiguration
             }
 
