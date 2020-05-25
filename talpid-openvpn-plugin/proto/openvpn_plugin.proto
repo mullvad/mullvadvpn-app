@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package talpid_openvpn_plugin;
+
+service OpenVpnEventProxy {
+    rpc OpenvpnEvent(EventType) returns (Empty) {}
+}
+
+message EventType {
+    int32 event = 1;
+    map<string, string> env = 2;
+}
+
+message Empty {
+}

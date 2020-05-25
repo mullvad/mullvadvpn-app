@@ -33,6 +33,14 @@ tokio-executor = "0.1"
 uuid = { version = "0.7", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4"
+tonic = "0.2"
+prost = "0.6"
+parity-tokio-ipc = "0.7"
+tokio02 = { package = "tokio", version = "0.2", features =  [ "rt-core", "rt-threaded"] }
+triggered = "0.1.1"
+
+[build-dependencies]
+tonic-build = "0.2"
 
 
 [target.'cfg(unix)'.dependencies]
@@ -57,7 +65,6 @@ netlink-packet-route = "0.2"
 netlink-proto = "0.2"
 netlink-sys = "0.2"
 futures = { package = "futures", version = "0.3" }
-tokio02 = { package = "tokio", version = "0.2", features =  [ "rt-core", "rt-threaded"] }
 nftnl = { version = "0.3", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
 which = { version = "3.1", default-features = false }
