@@ -33,14 +33,6 @@ tokio-executor = "0.1"
 uuid = { version = "0.7", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4"
-tonic = "0.2"
-prost = "0.6"
-parity-tokio-ipc = "0.7"
-tokio02 = { package = "tokio", version = "0.2", features =  [ "rt-core", "rt-threaded"] }
-triggered = "0.1.1"
-
-[build-dependencies]
-tonic-build = "0.2"
 
 
 [target.'cfg(unix)'.dependencies]
@@ -84,6 +76,17 @@ winapi = { version = "0.3.6", features = ["handleapi", "ifdef", "libloaderapi", 
 socket2 = "0.3"
 rand = "0.7"
 pnet_packet = "0.22"
+
+[target.'cfg(not(target_os = "android"))'.dependencies]
+parity-tokio-ipc = "0.7"
+tokio02 = { package = "tokio", version = "0.2", features =  [ "rt-core", "rt-threaded"] }
+triggered = "0.1.1"
+tonic = "0.2"
+prost = "0.6"
+
+[target.'cfg(not(target_os = "android"))'.build-dependencies]
+tonic-build = "0.2"
+
 
 [dev-dependencies]
 tempfile = "3.0"
