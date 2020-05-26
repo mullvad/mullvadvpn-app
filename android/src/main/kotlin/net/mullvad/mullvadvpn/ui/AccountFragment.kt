@@ -28,7 +28,10 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
         view.findViewById<View>(R.id.logout).setOnClickListener { logout() }
 
-        accountNumberView = view.findViewById(R.id.account_number)
+        accountNumberView = view.findViewById<CopyableInformationView>(R.id.account_number).apply {
+            displayFormatter = { rawAccountNumber -> addSpacesToAccountNumber(rawAccountNumber) }
+        }
+
         accountExpiryView = view.findViewById(R.id.account_expiry)
 
         return view
@@ -95,5 +98,18 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             replace(R.id.main_fragment, LoginFragment())
             commit()
         }
+    }
+
+    private fun addSpacesToAccountNumber(rawAccountNumber: String): String {
+        return rawAccountNumber
+            .asSequence()
+            .fold(StringBuilder()) { formattedAccountNumber, nextDigit ->
+                if ((formattedAccountNumber.length % 5) == 4) {
+                    formattedAccountNumber.append(' ')
+                }
+
+                formattedAccountNumber.append(nextDigit)
+            }
+            .toString()
     }
 }
