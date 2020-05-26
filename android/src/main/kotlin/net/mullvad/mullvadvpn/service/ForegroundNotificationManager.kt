@@ -44,7 +44,6 @@ class ForegroundNotificationManager(
             }
         }
 
-    private var loginListenerId: Int? = null
     private var settingsListener: SettingsListener? = null
         set(value) {
             if (field != value) {
