@@ -355,6 +355,19 @@ class TunnelManager {
         }.eraseToAnyPublisher()
     }
 
+    /// Refresh tunnel state.
+    /// Use this method to update the tunnel state when app transitions from suspended to active
+    /// state.
+    func refreshTunnelState() -> AnyPublisher<(), TunnelManagerError> {
+        MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) {
+            () -> AnyPublisher<(), TunnelManagerError> in
+            if let status = self.tunnelProvider?.connection.status {
+                self.updateTunnelState(connectionStatus: status)
+            }
+            return Result.Publisher(()).eraseToAnyPublisher()
+        }.eraseToAnyPublisher()
+    }
+
     func startTunnel() -> AnyPublisher<(), TunnelManagerError> {
         MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) {
             Just(self.accountToken)
