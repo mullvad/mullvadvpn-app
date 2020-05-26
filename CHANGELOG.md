@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+#### Android
+- Prevent commands to connect or disconnect to be sent when the device is locked.
+
 ### Fixed
 #### Android
 - Fix crash when that happened sometimes when the app tried to start the daemon service on recent
