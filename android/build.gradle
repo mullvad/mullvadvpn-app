@@ -1,6 +1,3 @@
-import org.jmailen.gradle.kotlinter.tasks.FormatTask
-import org.jmailen.gradle.kotlinter.tasks.LintTask
-
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
@@ -96,25 +93,10 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.2'
+        classpath 'com.android.tools.build:gradle:3.6.0'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.20'
-        classpath 'org.jmailen.gradle:kotlinter-gradle:1.22.0'
     }
 }
-
-task lintKotlin(type: LintTask, group: 'verification') {
-    source files('src/main/kotlin')
-    reports = [
-        'plain': file('build/reports/kotlin-lint-report.txt'),
-    ]
-}
-
-task format(type: FormatTask, group: 'formatting') {
-    source files('src/main/kotlin')
-    report file('build/reports/kotlin-format-report.txt')
-}
-
-lint.dependsOn lintKotlin
 
 task copyExtraAssets(type: Copy) {
     from "$repoRootPath/dist-assets"
