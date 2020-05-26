@@ -41,6 +41,12 @@ open class InformationView : LinearLayout {
     private val informationDisplay: TextView = findViewById(R.id.information_display)
     private val spinner: View = findViewById(R.id.spinner)
 
+    var displayFormatter: ((String) -> String)? = null
+        set(value) {
+            field = value
+            updateStatus()
+        }
+
     var shouldEnable = false
         set(value) {
             field = value
@@ -150,12 +156,14 @@ open class InformationView : LinearLayout {
             informationDisplay.setTextColor(errorColor)
             informationDisplay.text = error
         } else if (information != null) {
+            val formattedInformation = displayFormatter?.invoke(information) ?: information
+
             informationDisplay.setTextColor(informationColor)
 
-            if (maxLength == 0 || information.length <= maxLength) {
-                informationDisplay.text = information
+            if (maxLength == 0 || formattedInformation.length <= maxLength) {
+                informationDisplay.text = formattedInformation
             } else {
-                informationDisplay.text = information.substring(0, maxLength) + "..."
+                informationDisplay.text = formattedInformation.substring(0, maxLength) + "..."
             }
         }
 
