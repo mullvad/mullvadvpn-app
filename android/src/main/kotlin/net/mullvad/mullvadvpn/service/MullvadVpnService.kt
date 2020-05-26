@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.service
 
+import android.app.KeyguardManager
+import android.content.Context
 import android.content.Intent
 import android.net.VpnService
 import android.os.Binder
@@ -40,6 +42,7 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
+    private lateinit var keyguardManager: KeyguardManager
     private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
 
@@ -67,6 +70,7 @@ class MullvadVpnService : TalpidVpnService() {
     override fun onCreate() {
         super.onCreate()
 
+        keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         notificationManager = ForegroundNotificationManager(this, serviceNotifier)
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
@@ -75,12 +79,15 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val startResult = super.onStartCommand(intent, flags, startId)
-        val action = intent?.action
 
-        if (action == VpnService.SERVICE_INTERFACE || action == KEY_CONNECT_ACTION) {
-            pendingAction = PendingAction.Connect
-        } else if (action == KEY_DISCONNECT_ACTION) {
-            pendingAction = PendingAction.Disconnect
+        if (!keyguardManager.isDeviceLocked) {
+            val action = intent?.action
+
+            if (action == VpnService.SERVICE_INTERFACE || action == KEY_CONNECT_ACTION) {
+                pendingAction = PendingAction.Connect
+            } else if (action == KEY_DISCONNECT_ACTION) {
+                pendingAction = PendingAction.Disconnect
+            }
         }
 
         return startResult
