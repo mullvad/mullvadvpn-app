@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 #### Android
 - Show the remaining account time in the Settings screen in days if it's less than 3 months.
+- Prevent commands to connect or disconnect to be sent when the device is locked.
 
 ### Fixed
 #### Android
