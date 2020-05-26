@@ -62,6 +62,7 @@ fn main() {
 
 #[cfg(not(windows))]
 fn main() {
+    #[cfg(not(target_os = "android"))]
     generate_grpc_code();
 
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
@@ -92,6 +93,7 @@ fn declare_libs_dir(base: &str) {
     println!("cargo:rustc-link-search={}", lib_dir.display());
 }
 
+#[cfg(not(target_os = "android"))]
 fn generate_grpc_code() {
     tonic_build::compile_protos("../talpid-openvpn-plugin/proto/openvpn_plugin.proto").unwrap();
 }
