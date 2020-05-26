@@ -12,6 +12,10 @@ import net.mullvad.mullvadvpn.ui.widget.InformationView
 import org.joda.time.DateTime
 
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
+    private val dateStyle = DateFormat.MEDIUM
+    private val timeStyle = DateFormat.SHORT
+    private val expiryFormatter = DateFormat.getDateTimeInstance(dateStyle, timeStyle)
+
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
 
@@ -53,18 +57,11 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         accountNumberView.information = accountNumber
 
         if (accountExpiry != null) {
-            accountExpiryView.information = formatExpiry(accountExpiry)
+            accountExpiryView.information = expiryFormatter.format(accountExpiry.toDate())
         } else {
             accountExpiryView.information = null
             accountCache.fetchAccountExpiry()
         }
-    }
-
-    private fun formatExpiry(expiry: DateTime): String {
-        val expiryInstant = expiry.toDate()
-        val formatter = DateFormat.getDateTimeInstance()
-
-        return formatter.format(expiryInstant)
     }
 
     private fun logout() {
