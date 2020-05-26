@@ -13,14 +13,13 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.ViewSwitcher
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
+import net.mullvad.mullvadvpn.util.JobTracker
 
 class ProblemReportFragment : Fragment() {
+    private val jobTracker = JobTracker()
+
     private lateinit var problemReport: MullvadProblemReport
 
     private lateinit var bodyContainer: ViewSwitcher
@@ -39,8 +38,6 @@ class ProblemReportFragment : Fragment() {
 
     private lateinit var editMessageButton: Button
     private lateinit var tryAgainButton: Button
-
-    private var sendReportJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -80,8 +77,9 @@ class ProblemReportFragment : Fragment() {
         tryAgainButton = view.findViewById<Button>(R.id.try_again_button)
 
         sendButton.setOnClickListener {
-            sendReportJob?.cancel()
-            sendReportJob = sendReport(true)
+            jobTracker.newUiJob("sendReport") {
+                sendReport(true)
+            }
         }
 
         editMessageButton.setOnClickListener {
@@ -89,7 +87,9 @@ class ProblemReportFragment : Fragment() {
         }
 
         tryAgainButton.setOnClickListener {
-            sendReportJob = sendReport(false)
+            jobTracker.newUiJob("sendReport") {
+                sendReport(false)
+            }
         }
 
         userEmailInput.setText(problemReport.userEmail)
@@ -102,8 +102,6 @@ class ProblemReportFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        sendReportJob?.cancel()
-
         problemReport.userEmail = userEmailInput.text.toString()
         problemReport.userMessage = userMessageInput.text.toString()
         problemReport.deleteReportFile()
@@ -111,7 +109,7 @@ class ProblemReportFragment : Fragment() {
         super.onDestroyView()
     }
 
-    private fun sendReport(shouldConfirmNoEmail: Boolean) = GlobalScope.launch(Dispatchers.Main) {
+    private suspend fun sendReport(shouldConfirmNoEmail: Boolean) {
         val userEmail = userEmailInput.text.trim().toString()
 
         problemReport.userEmail = userEmail

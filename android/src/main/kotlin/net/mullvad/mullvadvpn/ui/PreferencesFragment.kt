@@ -4,18 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
 
 class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var allowLanToggle: CellSwitch
     private lateinit var autoConnectToggle: CellSwitch
-
-    private var updateUiJob: Job? = null
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -58,8 +52,7 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     private fun updateUi(settings: Settings) {
-        updateUiJob?.cancel()
-        updateUiJob = GlobalScope.launch(Dispatchers.Main) {
+        jobTracker.newUiJob("updateUi") {
             allowLanToggle.state = boolToSwitchState(settings.allowLan)
             autoConnectToggle.state = boolToSwitchState(settings.autoConnect)
         }

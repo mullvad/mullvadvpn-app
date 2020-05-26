@@ -7,15 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.service.AccountCache
 import net.mullvad.mullvadvpn.ui.widget.Button
-import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 
 class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
@@ -32,7 +28,6 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var loginFailStatus: View
     private lateinit var accountInput: AccountInput
 
-    private val jobTracker = JobTracker()
     private val loggedIn = CompletableDeferred<LoginResult>()
 
     override fun onSafelyCreateView(
@@ -77,10 +72,6 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         jobTracker.cancelJob("advanceToNextScreen")
     }
 
-    override fun onSafelyDestroyView() {
-        jobTracker.cancelAllJobs()
-    }
-
     private suspend fun createAccount() {
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.creating_new_account)
@@ -123,7 +114,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
     }
 
-    private fun performLogin(accountToken: String) = GlobalScope.launch(Dispatchers.Main) {
+    private fun performLogin(accountToken: String) {
         jobTracker.newUiJob("login") {
             val loginResult = jobTracker.runOnBackground {
                 val accountDataResult = daemon.getAccountData(accountToken)

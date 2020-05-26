@@ -2,8 +2,11 @@ package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
 import android.support.v4.app.Fragment
+import net.mullvad.mullvadvpn.util.JobTracker
 
 abstract class ServiceAwareFragment : Fragment() {
+    val jobTracker = JobTracker()
+
     lateinit var parentActivity: MainActivity
         private set
 
@@ -18,6 +21,12 @@ abstract class ServiceAwareFragment : Fragment() {
         parentActivity.serviceNotifier.subscribe(this) { connection ->
             configureServiceConnection(connection)
         }
+    }
+
+    override fun onDestroyView() {
+        jobTracker.cancelAllJobs()
+
+        super.onDestroyView()
     }
 
     override fun onDetach() {

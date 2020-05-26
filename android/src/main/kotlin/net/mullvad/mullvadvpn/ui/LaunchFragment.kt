@@ -5,16 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 
 class LaunchFragment : ServiceAwareFragment() {
     private val hasAccountToken = CompletableDeferred<Boolean>()
-
-    private lateinit var advanceToNextScreenJob: Job
 
     override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
         hasAccountToken.complete(serviceConnection.settingsListener.settings.accountToken != null)
@@ -36,15 +30,19 @@ class LaunchFragment : ServiceAwareFragment() {
 
     override fun onResume() {
         super.onResume()
-        advanceToNextScreenJob = advanceToNextScreen()
+
+        jobTracker.newUiJob("advanceToNextScreen") {
+            advanceToNextScreen()
+        }
     }
 
     override fun onPause() {
-        advanceToNextScreenJob.cancel()
+        jobTracker.cancelJob("advanceToNextScreen")
+
         super.onPause()
     }
 
-    private fun advanceToNextScreen() = GlobalScope.launch(Dispatchers.Main) {
+    private suspend fun advanceToNextScreen() {
         if (hasAccountToken.await()) {
             advanceToConnectScreen()
         } else {

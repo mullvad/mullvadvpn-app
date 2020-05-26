@@ -17,7 +17,6 @@ import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView.WhenMissing
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
-import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.TimeAgoFormatter
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -31,8 +30,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         class Generating(val replacing: Boolean) : ActionState()
         class Verifying() : ActionState()
     }
-
-    private val jobTracker = JobTracker()
 
     private lateinit var timeAgoFormatter: TimeAgoFormatter
 
@@ -176,8 +173,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         if (!(actionState is ActionState.Idle)) {
             actionState = ActionState.Idle(false)
         }
-
-        jobTracker.cancelAllJobs()
     }
 
     private fun updateKeySpinners() {
