@@ -37,10 +37,12 @@ class RemainingTimeLabel(val context: Context, val view: View) {
 
                 if (remainingTimeInfo.years > 0) {
                     label.setText(getRemainingText(R.plurals.years_left, remainingTimeInfo.years))
-                } else if (remainingTimeInfo.months > 0) {
+                } else if (remainingTimeInfo.months >= 3) {
                     label.setText(getRemainingText(R.plurals.months_left, remainingTimeInfo.months))
-                } else if (remainingTimeInfo.days > 0) {
-                    label.setText(getRemainingText(R.plurals.days_left, remainingTimeInfo.days))
+                } else if (remainingTimeInfo.months > 0 || remainingTimeInfo.days >= 1) {
+                    label.setText(
+                        getRemainingText(R.plurals.days_left, remainingTime.standardDays.toInt())
+                    )
                 } else {
                     label.setText(R.string.less_than_a_day_left)
                 }
