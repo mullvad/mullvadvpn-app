@@ -71,7 +71,7 @@ class MullvadVpnService : TalpidVpnService() {
         super.onCreate()
 
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        notificationManager = ForegroundNotificationManager(this, serviceNotifier)
+        notificationManager = ForegroundNotificationManager(this, serviceNotifier, keyguardManager)
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
         setUp()
