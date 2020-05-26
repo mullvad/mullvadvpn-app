@@ -26,7 +26,9 @@ impl EventProcessor {
     pub fn new(arguments: Arguments) -> Result<EventProcessor, Error> {
         log::trace!("Creating EventProcessor");
         let mut runtime = Runtime::new().expect("Failed to initialize runtime");
-        let ipc_client = runtime.block_on(Self::spawn_client(arguments.ipc_socket_path.clone()));
+        let ipc_client = runtime
+            .block_on(Self::spawn_client(arguments.ipc_socket_path.clone()))
+            .expect("Failed to initialize event proxy client");
 
         Ok(EventProcessor {
             ipc_client,
@@ -34,18 +36,17 @@ impl EventProcessor {
         })
     }
 
-    async fn spawn_client(ipc_path: String) -> OpenVpnEventProxyClient<tonic::transport::Channel> {
+    async fn spawn_client(
+        ipc_path: String,
+    ) -> Result<OpenVpnEventProxyClient<tonic::transport::Channel>, tonic::transport::Error> {
         // The URI will be ignored
-        // FIXME: do not unwrap
-        let channel = Endpoint::try_from("lttp://[::]:50051")
-            .unwrap()
+        let channel = Endpoint::from_static("lttp://[::]:50051")
             .connect_with_connector(service_fn(move |_: Uri| {
                 IpcEndpoint::connect(ipc_path.clone())
             }))
-            .await
-            .unwrap();
+            .await?;
 
-        OpenVpnEventProxyClient::new(channel)
+        Ok(OpenVpnEventProxyClient::new(channel))
     }
 
     pub fn process_event(
