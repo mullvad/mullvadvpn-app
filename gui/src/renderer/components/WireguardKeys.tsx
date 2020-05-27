@@ -36,12 +36,18 @@ export interface IProps {
 
 export interface IState {
   recentlyGeneratedKey: boolean;
+  userHasInitiatedVerification: boolean;
 }
 
 export default class WireguardKeys extends Component<IProps, IState> {
   public state = {
     recentlyGeneratedKey: false,
+    userHasInitiatedVerification: false,
   };
+
+  public componentDidMount() {
+    this.verifyKey();
+  }
 
   public componentDidUpdate(prevProps: IProps) {
     const prevKey =
@@ -119,7 +125,7 @@ export default class WireguardKeys extends Component<IProps, IState> {
                     <View style={styles.wgkeys__row}>
                       <AppButton.BlueButton
                         disabled={this.isVerifyButtonDisabled()}
-                        onClick={this.getOnVerifyKeyCb()}>
+                        onClick={this.handleVerifyKeyPress}>
                         <AppButton.Label>
                           {messages.pgettext('wireguard-key-view', 'Verify key')}
                         </AppButton.Label>
@@ -168,18 +174,21 @@ export default class WireguardKeys extends Component<IProps, IState> {
     }
   }
 
-  private getOnVerifyKeyCb() {
-    return () => {
-      switch (this.props.keyState.type) {
-        case 'key-set': {
-          const key = this.props.keyState.key;
-          this.props.onVerifyKey(key);
-          break;
-        }
-        default:
-          log.error(`onVerifyKey called from invalid state -  ${this.props.keyState.type}`);
+  private handleVerifyKeyPress = () => {
+    this.setState({ userHasInitiatedVerification: true });
+    this.verifyKey();
+  };
+
+  private verifyKey() {
+    switch (this.props.keyState.type) {
+      case 'key-set': {
+        const key = this.props.keyState.key;
+        this.props.onVerifyKey(key);
+        break;
       }
-    };
+      default:
+        log.error(`onVerifyKey called from invalid state -  ${this.props.keyState.type}`);
+    }
   }
 
   /// Action button can either generate or verify a key
@@ -254,10 +263,12 @@ export default class WireguardKeys extends Component<IProps, IState> {
   private keyValidityLabel() {
     switch (this.props.keyState.type) {
       case 'being-verified':
-        return <ImageView source="icon-spinner" height={20} width={20} />;
+        return this.state.userHasInitiatedVerification ? (
+          <ImageView source="icon-spinner" height={20} width={20} />
+        ) : null;
       case 'key-set': {
         const key = this.props.keyState.key;
-        if (key.valid === true) {
+        if (key.valid === true && this.state.userHasInitiatedVerification) {
           return (
             <Text style={styles.wgkeys__valid_key}>
               {messages.pgettext('wireguard-key-view', 'Key is valid')}
