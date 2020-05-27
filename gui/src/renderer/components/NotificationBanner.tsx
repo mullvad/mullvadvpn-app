@@ -105,7 +105,7 @@ export class NotificationOpenLinkAction extends Component<INotifcationOpenLinkAc
 
   public render() {
     return (
-      <BlockingButton onPress={this.props.onPress}>
+      <BlockingButton onClick={this.props.onPress}>
         <Button
           style={styles.actionButton}
           onHoverStart={this.onHoverStart}
