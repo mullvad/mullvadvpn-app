@@ -1,6 +1,4 @@
 import * as React from 'react';
-import { Component, Types, View } from 'reactxp';
-
 import SvgMap from './SvgMap';
 
 // Higher zoom level is more zoomed in
@@ -21,7 +19,7 @@ interface IProps {
   zoomLevel: ZoomLevel;
   showMarker: boolean;
   markerStyle: MarkerStyle;
-  style?: Types.StyleRuleSetRecursive<Types.ViewStyleRuleSet>;
+  className?: string;
 }
 
 interface IState {
@@ -31,7 +29,9 @@ interface IState {
   };
 }
 
-export default class Map extends Component<IProps, IState> {
+export default class Map extends React.Component<IProps, IState> {
+  private containerRef = React.createRef<HTMLDivElement>();
+
   public state: IState = {
     bounds: {
       width: 0,
@@ -43,7 +43,7 @@ export default class Map extends Component<IProps, IState> {
     const { width, height } = this.state.bounds;
     const readyToRenderTheMap = width > 0 && height > 0;
     return (
-      <View style={this.props.style} onLayout={this.onLayout}>
+      <div className={this.props.className} ref={this.containerRef}>
         {readyToRenderTheMap && (
           <SvgMap
             width={width}
@@ -55,8 +55,16 @@ export default class Map extends Component<IProps, IState> {
             markerImagePath={this.markerImage(this.props.markerStyle)}
           />
         )}
-      </View>
+      </div>
     );
+  }
+
+  public componentDidMount() {
+    this.updateBounds();
+  }
+
+  public componentDidUpdate() {
+    this.updateBounds();
   }
 
   public shouldComponentUpdate(nextProps: IProps, nextState: IState) {
@@ -75,14 +83,26 @@ export default class Map extends Component<IProps, IState> {
     );
   }
 
-  private onLayout = (layoutInfo: Types.ViewOnLayoutEvent) => {
-    this.setState({
-      bounds: {
-        width: layoutInfo.width,
-        height: layoutInfo.height,
-      },
-    });
-  };
+  private updateBounds() {
+    const containerRect = this.containerRef.current?.getBoundingClientRect();
+    if (containerRect) {
+      this.setState((state) => {
+        if (
+          containerRect.width === state.bounds.width &&
+          containerRect.height === state.bounds.height
+        ) {
+          return null;
+        } else {
+          return {
+            bounds: {
+              width: containerRect.width,
+              height: containerRect.height,
+            },
+          };
+        }
+      });
+    }
+  }
 
   // TODO: Remove zoom level in favor of center + coordinate span
   // TODO: Zoomlevels below 2.22 makes australia invisible
