@@ -309,6 +309,9 @@ class TunnelManager {
 
     @Published private(set) var tunnelState = TunnelState.disconnected
 
+    /// A last known public key
+    @Published private(set) var publicKey: WireguardPublicKey?
+
     /// Initialize the TunnelManager with the tunnel from the system
     ///
     /// The given account token is used to ensure that the system tunnel was configured for the same
@@ -320,9 +323,12 @@ class TunnelManager {
                 .receive(on: self.executionQueue)
                 .flatMap { (tunnels) -> AnyPublisher<(), LoadTunnelError> in
 
-                    // Migrate tunnel configuration if needed
                     if let accountToken = accountToken {
+                        // Migrate tunnel configuration if needed
                         self.migrateTunnelConfiguration(accountToken: accountToken)
+
+                        // Load last known public key
+                        self.loadPublicKey(accountToken: accountToken)
                     }
 
                     // No tunnels found. Save the account token.
@@ -363,6 +369,11 @@ class TunnelManager {
             () -> AnyPublisher<(), TunnelManagerError> in
             if let status = self.tunnelProvider?.connection.status {
                 self.updateTunnelState(connectionStatus: status)
+            }
+
+            // Reload the last known public key
+            if let accountToken = self.accountToken {
+                self.loadPublicKey(accountToken: accountToken)
             }
             return Result.Publisher(()).eraseToAnyPublisher()
         }.eraseToAnyPublisher()
@@ -421,15 +432,21 @@ class TunnelManager {
                             .mapError { SetAccountError.setup($0) }
                     }
 
+                    let publicKey = tunnelConfig.interface.privateKey.publicKey
+
+                    // Save the last known public key
+                    self.publicKey = publicKey
+
                     // Make sure to avoid pushing the wireguard keys when addresses are assigned
                     guard tunnelConfig.interface.addresses.isEmpty else {
                         return setupTunnelPublisher.eraseToAnyPublisher()
                     }
 
                     // Send wireguard key to the server
-                    let publicKey = tunnelConfig.interface.privateKey.publicKey.rawRepresentation
-
-                    return self.rpc.pushWireguardKey(accountToken: accountToken, publicKey: publicKey)
+                    return self.rpc.pushWireguardKey(
+                        accountToken: accountToken,
+                        publicKey: publicKey.rawRepresentation
+                    )
                         .mapError { SetAccountError.pushWireguardKey($0) }
                         .flatMap { (addresses) in
                             self.updateAssociatedAddresses(
@@ -525,6 +542,7 @@ class TunnelManager {
             .handleEvents(receiveCompletion: { (completion) in
                 if case .finished = completion {
                     self.accountToken = nil
+                    self.publicKey = nil
                     self.tunnelProvider = nil
                     self.tunnelIpc = nil
 
@@ -572,9 +590,12 @@ class TunnelManager {
                                     .map { _ in () }
                                     .publisher
                             }.receive(on: self.executionQueue)
-                                .flatMap { _ in
+                                .flatMap { _ -> AnyPublisher<(), RegenerateWireguardPrivateKeyError> in
+                                    // Save new public key
+                                    self.publicKey = newPrivateKey.publicKey
+
                                     // Ignore Packet Tunnel IPC errors but log them
-                                    self.reloadPacketTunnelConfiguration()
+                                    return self.reloadPacketTunnelConfiguration()
                                         .handleEvents(receiveCompletion: { (completion) in
                                             if case .failure(let error) = completion {
                                                 os_log(.error, "Failed to tell the tunnel to reload configuration: %{public}s", error.localizedDescription)
@@ -582,6 +603,7 @@ class TunnelManager {
                                         })
                                         .replaceError(with: ())
                                         .setFailureType(to: RegenerateWireguardPrivateKeyError.self)
+                                        .eraseToAnyPublisher()
                             }
                     }
                     .mapError { TunnelManagerError.regenerateWireguardPrivateKey($0) }
@@ -632,20 +654,6 @@ class TunnelManager {
                                 return .failure(error)
                             }
                     }.mapError { .getRelayConstraints($0) }
-                        .publisher
-            }
-        }.eraseToAnyPublisher()
-    }
-
-    func getWireguardPublicKey() -> AnyPublisher<WireguardPublicKey, TunnelManagerError> {
-        MutuallyExclusive(exclusivityQueue: exclusivityQueue, executionQueue: executionQueue) {
-            Just(self.accountToken)
-                .setFailureType(to: TunnelManagerError.self)
-                .replaceNil(with: .missingAccount)
-                .flatMap { (accountToken) in
-                    TunnelConfigurationManager.load(searchTerm: .accountToken(accountToken))
-                        .map { $0.tunnelConfiguration.interface.privateKey.publicKey }
-                        .mapError { .getWireguardPublicKey($0) }
                         .publisher
             }
         }.eraseToAnyPublisher()
@@ -708,6 +716,18 @@ class TunnelManager {
         updateTunnelState(connectionStatus: connection.status)
     }
 
+    private func loadPublicKey(accountToken: String) {
+        switch TunnelConfigurationManager.load(searchTerm: .accountToken(accountToken)) {
+        case .success(let entry):
+            self.publicKey = entry.tunnelConfiguration.interface.privateKey.publicKey
+
+        case .failure(let error):
+            os_log(.error, "Failed to load the public key: %{public}s", error.localizedDescription)
+
+            self.publicKey = nil
+        }
+    }
+
     /// Initiates the `tunnelState` update
     private func updateTunnelState(connectionStatus: NEVPNStatus) {
         os_log(.default, "VPN Status: %{public}s", "\(connectionStatus)")
@@ -751,6 +771,12 @@ class TunnelManager {
                         .eraseToAnyPublisher()
 
                 case .reasserting:
+                    // Refresh the last known public key on reconnect to cover the possibility of
+                    // the key being changed due to key rotation.
+                    if let accountToken = self.accountToken {
+                        self.loadPublicKey(accountToken: accountToken)
+                    }
+
                     return self.getTunnelConnectionInfo()
                         .mapError { .ipcRequest($0) }
                         .map { .reconnecting($0) }

@@ -59,7 +59,7 @@ class WireguardKeysViewController: UIViewController {
     @IBOutlet var verifyKeyButton: UIButton!
     @IBOutlet var wireguardKeyStatusView: WireguardKeyStatusView!
 
-    private var tunnelStateSubscriber: AnyCancellable?
+    private var publicKeySubscriber: AnyCancellable?
     private var loadKeySubscriber: AnyCancellable?
     private var verifyKeySubscriber: AnyCancellable?
     private var regenerateKeySubscriber: AnyCancellable?
@@ -67,7 +67,6 @@ class WireguardKeysViewController: UIViewController {
     private var copyToPasteboardSubscriber: AnyCancellable?
 
     private let rpc = MullvadRpc()
-    private var publicKey: WireguardPublicKey?
 
     private var state: WireguardKeysViewState = .default {
         didSet {
@@ -78,39 +77,29 @@ class WireguardKeysViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Reset Storyboard placeholders
-        setPublicKeyTitle(string: "-", animated: false)
-        creationDateLabel.text = "-"
-
         creationDateTimerSubscriber = Timer.publish(every: kCreationDateRefreshInterval, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                guard let self = self else { return }
+                let publicKey = TunnelManager.shared.publicKey
 
-                if let creationDate = self.publicKey?.creationDate {
-                    self.updateCreationDateLabel(with: creationDate)
-                }
+                self?.updatePublicKey(publicKey: publicKey, animated: true)
         }
 
-        tunnelStateSubscriber = TunnelManager.shared.$tunnelState
+        publicKeySubscriber = TunnelManager.shared.$publicKey
+            .dropFirst()
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: {  [weak self] (tunnelState) in
-                guard let self = self else { return }
-
-                // Reload the public key when the tunnel is reconnecting
-                // Normally this may happen in response to private key change
-                if case .reconnecting = tunnelState {
-                    self.loadPublicKey(animated: true)
-                }
+            .sink(receiveValue: {  [weak self] (publicKey) in
+                self?.updatePublicKey(publicKey: publicKey, animated: true)
             })
 
-        loadPublicKey(animated: false)
+        // Set public key title without animation
+        updatePublicKey(publicKey: TunnelManager.shared.publicKey, animated: false)
     }
 
     // MARK: - IBActions
 
     @IBAction func copyPublicKey(_ sender: Any) {
-        guard let publicKey = self.publicKey else { return }
+        guard let publicKey = TunnelManager.shared.publicKey else { return }
 
         UIPasteboard.general.string = publicKey.stringRepresentation()
 
@@ -121,12 +110,11 @@ class WireguardKeysViewController: UIViewController {
         copyToPasteboardSubscriber =
             Just(()).cancellableDelay(for: .seconds(3), scheduler: DispatchQueue.main)
                 .sink(receiveValue: { [weak self] () in
-                    guard let self = self, let publicKey = self.publicKey else { return }
+                    guard let self = self else { return }
 
-                    let displayKey = publicKey
-                        .stringRepresentation(maxLength: kDisplayPublicKeyMaxLength)
+                    let publicKey = TunnelManager.shared.publicKey
 
-                    self.setPublicKeyTitle(string: displayKey, animated: true)
+                    self.updatePublicKey(publicKey: publicKey, animated: true)
                 })
     }
 
@@ -136,7 +124,7 @@ class WireguardKeysViewController: UIViewController {
 
     @IBAction func handleVerifyKey(_ sender: Any) {
         guard let accountToken = Account.shared.token,
-            let publicKey = publicKey else { return }
+            let publicKey = TunnelManager.shared.publicKey else { return }
 
         verifyKey(accountToken: accountToken, publicKey: publicKey)
     }
@@ -157,30 +145,16 @@ class WireguardKeysViewController: UIViewController {
         creationDateLabel.text = formatKeyGenerationElapsedTime(with: creationDate) ?? "-"
     }
 
-    private func loadPublicKey(animated: Bool) {
-        loadKeySubscriber = TunnelManager.shared.getWireguardPublicKey()
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { (completion) in
-                switch completion {
-                case .finished:
-                    break
+    private func updatePublicKey(publicKey: WireguardPublicKey?, animated: Bool) {
+        if let publicKey = publicKey {
+            let displayKey = publicKey
+                .stringRepresentation(maxLength: kDisplayPublicKeyMaxLength)
 
-                case .failure(let error):
-                    os_log(.error, "Failed to receive the public key for Wireguard: %{public}s",
-                           error.localizedDescription)
-
-                    self.presentError(error, preferredStyle: .alert)
-                }
-            }) { [weak self] (publicKey) in
-                guard let self = self else { return }
-
-                let displayKey = publicKey
-                    .stringRepresentation(maxLength: kDisplayPublicKeyMaxLength)
-
-                self.setPublicKeyTitle(string: displayKey, animated: animated)
-                self.updateCreationDateLabel(with: publicKey.creationDate)
-
-                self.publicKey = publicKey
+            setPublicKeyTitle(string: displayKey, animated: animated)
+            updateCreationDateLabel(with: publicKey.creationDate)
+        } else {
+            setPublicKeyTitle(string: "-", animated: animated)
+            creationDateLabel.text = "-"
         }
     }
 
@@ -245,7 +219,7 @@ class WireguardKeysViewController: UIViewController {
             .sink { (completion) in
                 switch completion {
                 case .finished:
-                    self.loadPublicKey(animated: true)
+                    break
 
                 case .failure(let error):
                     os_log(.error, "Failed to re-generate the private key: %{public}s",
