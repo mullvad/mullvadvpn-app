@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Component, Styles, View } from 'reactxp';
+import styled from 'styled-components';
 import AccountExpiry from '../../shared/account-expiry';
 import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
 import NotificationAreaContainer from '../containers/NotificationAreaContainer';
@@ -27,18 +28,18 @@ interface IProps {
 
 type MarkerOrSpinner = 'marker' | 'spinner';
 
+const StyledMap = styled(Map)({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 0,
+});
+
 const styles = {
   connect: Styles.createViewStyle({
     flex: 1,
-  }),
-  map: Styles.createViewStyle({
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    // @ts-ignore
-    zIndex: 0,
   }),
   body: Styles.createViewStyle({
     flex: 1,
@@ -144,7 +145,7 @@ export default class Connect extends Component<IProps, IState> {
   private renderMap() {
     return (
       <View style={styles.connect}>
-        <Map style={styles.map} {...this.getMapProps()} />
+        <StyledMap {...this.getMapProps()} />
         <View style={styles.container}>
           {/* show spinner when connecting */}
           {this.showMarkerOrSpinner() === 'spinner' ? (
