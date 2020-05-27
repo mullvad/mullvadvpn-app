@@ -32,6 +32,11 @@ Line wrap the file at 100 chars.                                              Th
 - Show the remaining account time in the Settings screen in days if it's less than 3 months.
 - Prevent commands to connect or disconnect to be sent when the device is locked.
 
+#### Linux
+- Send an ICMP reject message or TCP reset packet when blocking outgoing packets to prevent
+  timeouts.
+
+
 ### Fixed
 - Show both WireGuard and OpenVPN servers in location list when protocol is set to automatic on Linux and macOS.
 
