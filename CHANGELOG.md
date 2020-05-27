@@ -27,6 +27,11 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Show the remaining account time in the Settings screen in days if it's less than 3 months.
 
+#### Linux
+- Send an ICMP reject message or TCP reset packet when dropping outgoing packets to prevent
+  timeouts.
+
+
 ### Fixed
 #### Android
 - Fix crash when that happened sometimes when the app tried to start the daemon service on recent
