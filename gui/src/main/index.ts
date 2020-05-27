@@ -691,10 +691,12 @@ class ApplicationMain {
                     return relay.tunnels.wireguard.length > 0;
 
                   case 'any':
-                    // TODO: once wireguard is stable, by default we should only filter by
-                    // hasToHaveOpenvpn || hasToHaveWg, until then, only filter wireguard
-                    // relays if tunnel constraints specify wireguard tunnels.
-                    return relay.tunnels.openvpn.length > 0;
+                    // TODO: Drop win32 check when Wireguard becomes default on Windows
+                    if (process.platform === 'win32') {
+                      return relay.tunnels.openvpn.length > 0;
+                    } else {
+                      return relay.tunnels.openvpn.length > 0 || relay.tunnels.wireguard.length > 0;
+                    }
 
                   default:
                     return false;
