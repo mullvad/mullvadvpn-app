@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service
 
+import android.app.KeyguardManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -24,12 +25,23 @@ val KEY_DISCONNECT_ACTION = "net.mullvad.mullvadvpn.disconnect_action"
 
 class ForegroundNotificationManager(
     val service: MullvadVpnService,
-    val serviceNotifier: EventNotifier<ServiceInstance?>
+    val serviceNotifier: EventNotifier<ServiceInstance?>,
+    val keyguardManager: KeyguardManager
 ) {
     private val notificationManager =
         service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     private val badgeColor = service.resources.getColor(R.color.colorPrimary)
+
+    private val deviceLockListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val action = intent.action
+
+            if (action == Intent.ACTION_USER_PRESENT || action == Intent.ACTION_SCREEN_OFF) {
+                deviceIsUnlocked = !keyguardManager.isDeviceLocked
+            }
+        }
+    }
 
     private var connectionProxy: ConnectionProxy? = null
         set(value) {
@@ -44,7 +56,6 @@ class ForegroundNotificationManager(
             }
         }
 
-    private var loginListenerId: Int? = null
     private var settingsListener: SettingsListener? = null
         set(value) {
             if (field != value) {
@@ -72,6 +83,14 @@ class ForegroundNotificationManager(
                 (value is TunnelState.Connecting && reconnecting)
 
             updateNotification()
+        }
+
+    private var deviceIsUnlocked = true
+        set(value) {
+            if (field != value) {
+                field = value
+                updateNotification()
+            }
         }
 
     private var loggedIn = false
@@ -195,6 +214,10 @@ class ForegroundNotificationManager(
         service.apply {
             registerReceiver(connectReceiver, IntentFilter(KEY_CONNECT_ACTION))
             registerReceiver(disconnectReceiver, IntentFilter(KEY_DISCONNECT_ACTION))
+            registerReceiver(deviceLockListener, IntentFilter().apply {
+                addAction(Intent.ACTION_USER_PRESENT)
+                addAction(Intent.ACTION_SCREEN_OFF)
+            })
         }
 
         updateNotification()
@@ -263,7 +286,7 @@ class ForegroundNotificationManager(
             .setContentTitle(service.getString(notificationText))
             .setContentIntent(pendingIntent)
 
-        if (loggedIn) {
+        if (loggedIn && deviceIsUnlocked) {
             builder.addAction(buildTunnelAction())
         }
 
