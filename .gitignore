@@ -30,6 +30,7 @@
 /windows/**/*.user
 /android/keystore.properties
 /android/local.properties
+/android/play-api-key.json
 /wireguard/libwg/libwg.h
 /wireguard/libwg/libwg.exp
 /wireguard/libwg/exports.def

@@ -10,7 +10,7 @@ XCASSETS_DIR = File.join(SCRIPT_DIR, "MullvadVPN/Assets.xcassets")
 XCASSETS_APPICON_DIR = File.join(XCASSETS_DIR, "AppIcon.appiconset")
 
 # graphical assets sources
-APPICON_PATH = File.join(ROOT_DIR, "graphics/icon-ios.svg")
+APPICON_PATH = File.join(ROOT_DIR, "graphics/icon-square.svg")
 GRAPHICAL_ASSETS_DIR = File.join(ROOT_DIR, "gui/assets/images")
 ADDITIONAL_ASSETS_DIR = File.join(SCRIPT_DIR, "AdditionalAssets")
 
