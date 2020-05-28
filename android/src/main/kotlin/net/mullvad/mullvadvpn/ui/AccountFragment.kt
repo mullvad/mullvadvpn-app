@@ -42,20 +42,25 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     override fun onSafelyResume() {
-        accountCache.onAccountDataChange = { accountNumber, accountExpiry ->
-            jobTracker.newUiJob("updateView") {
-                updateView(accountNumber, accountExpiry)
+        accountCache.onAccountNumberChange.subscribe(this) { accountNumber ->
+            jobTracker.newUiJob("updateAccountNumber") {
+                accountNumberView.information = accountNumber
+            }
+        }
+
+        accountCache.onAccountExpiryChange.subscribe(this) { accountExpiry ->
+            jobTracker.newUiJob("updateAccountExpiry") {
+                updateAccountExpiry(accountExpiry)
             }
         }
     }
 
     override fun onSafelyPause() {
-        accountCache.onAccountDataChange = null
+        accountCache.onAccountNumberChange.unsubscribe(this)
+        accountCache.onAccountExpiryChange.unsubscribe(this)
     }
 
-    private fun updateView(accountNumber: String?, accountExpiry: DateTime?) {
-        accountNumberView.information = accountNumber
-
+    private fun updateAccountExpiry(accountExpiry: DateTime?) {
         if (accountExpiry != null) {
             accountExpiryView.information = expiryFormatter.format(accountExpiry.toDate())
         } else {

@@ -4,6 +4,7 @@ import kotlin.math.min
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.util.JobTracker
+import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
@@ -15,15 +16,19 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     private val jobTracker = JobTracker()
 
     private var accountNumber: String? = null
-    private var accountExpiry: DateTime? = null
-
-    var onAccountDataChange: ((String?, DateTime?) -> Unit)? = null
         set(value) {
-            synchronized(this) {
-                field = value
-                notifyChange()
-            }
+            field = value
+            onAccountNumberChange.notify(value)
         }
+
+    private var accountExpiry: DateTime? = null
+        set(value) {
+            field = value
+            onAccountExpiryChange.notify(value)
+        }
+
+    val onAccountNumberChange = EventNotifier<String?>(null)
+    val onAccountExpiryChange = EventNotifier<DateTime?>(null)
 
     init {
         settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
@@ -32,23 +37,25 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     }
 
     fun fetchAccountExpiry() {
-        accountNumber?.let { account ->
-            jobTracker.newBackgroundJob("fetch") {
-                var retryAttempt = 0
+        synchronized(this) {
+            accountNumber?.let { account ->
+                jobTracker.newBackgroundJob("fetch") {
+                    var retryAttempt = 0
 
-                do {
-                    val result = daemon.getAccountData(account)
+                    do {
+                        val result = daemon.getAccountData(account)
 
-                    if (result is GetAccountDataResult.Ok) {
-                        handleNewExpiry(account, result.accountData.expiry)
-                        break
-                    } else if (result is GetAccountDataResult.InvalidAccount) {
-                        break
-                    }
+                        if (result is GetAccountDataResult.Ok) {
+                            handleNewExpiry(account, result.accountData.expiry)
+                            break
+                        } else if (result is GetAccountDataResult.InvalidAccount) {
+                            break
+                        }
 
-                    retryAttempt += 1
-                    delay(calculateRetryFetchDelay(retryAttempt))
-                } while (onAccountDataChange != null)
+                        retryAttempt += 1
+                        delay(calculateRetryFetchDelay(retryAttempt))
+                    } while (onAccountExpiryChange.hasListeners())
+                }
             }
         }
     }
@@ -60,10 +67,9 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
     private fun handleNewAccountNumber(newAccountNumber: String?) {
         synchronized(this) {
-            accountNumber = newAccountNumber
             accountExpiry = null
+            accountNumber = newAccountNumber
 
-            notifyChange()
             fetchAccountExpiry()
         }
     }
@@ -72,13 +78,8 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
         synchronized(this) {
             if (accountNumber === accountNumberUsedForFetch) {
                 accountExpiry = DateTime.parse(expiryString, EXPIRY_FORMAT)
-                notifyChange()
             }
         }
-    }
-
-    private fun notifyChange() {
-        onAccountDataChange?.invoke(accountNumber, accountExpiry)
     }
 
     private fun calculateRetryFetchDelay(retryAttempt: Int): Long {

@@ -30,6 +30,12 @@ class EventNotifier<T>(private val initialValue: T) {
         }
     }
 
+    fun hasListeners(): Boolean {
+        synchronized(this) {
+            return !listeners.isEmpty()
+        }
+    }
+
     fun unsubscribe(id: Any) {
         synchronized(this) {
             listeners.remove(id)
