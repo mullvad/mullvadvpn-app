@@ -21,8 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let simulatorTunnelProvider = SimulatorTunnelProviderHost()
     #endif
 
-
     private var loadTunnelSubscriber: AnyCancellable?
+    private var refreshTunnelSubscriber: AnyCancellable?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         #if targetEnvironment(simulator)
@@ -60,6 +60,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             })
 
         return true
+    }
+
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        refreshTunnelSubscriber = TunnelManager.shared.refreshTunnelState()
+            .sink(receiveCompletion: { (_) in
+                // no-op
+            })
     }
 
     private func didPresentTheMainController() {
