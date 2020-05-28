@@ -37,6 +37,10 @@ pub enum Error {
     #[error(display = "Error in OpenVPN process management: {}", _0)]
     ChildProcessError(&'static str, #[error(source)] io::Error),
 
+    /// Unable to start the IPC server.
+    #[error(display = "Unable to start the event dispatcher IPC server")]
+    EventDispatcherError,
+
     /// The OpenVPN event dispatcher exited unexpectedly
     #[error(display = "The OpenVPN event dispatcher exited unexpectedly")]
     EventDispatcherExited,
@@ -239,11 +243,14 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             .expect("Failed to initialize runtime");
         let ipc_path_copy = ipc_path.clone();
 
+        let (start_tx, start_rx) = mpsc::channel();
         let server_quit_handle = runtime.spawn(event_server::start(
             ipc_path_copy,
+            start_tx,
             on_event,
             event_server_abort_rx,
         ));
+        start_rx.recv().map_err(|_| Error::EventDispatcherError)?;
 
         let child = cmd
             .plugin(plugin_path, vec![ipc_path.to_string()])
@@ -648,6 +655,7 @@ mod event_server {
 
     pub async fn start<L>(
         ipc_path: String,
+        server_start_tx: std::sync::mpsc::Sender<()>,
         on_event: L,
         abort_rx: triggered::Listener,
     ) -> std::result::Result<(), tonic::transport::Error>
@@ -657,6 +665,7 @@ mod event_server {
         let mut endpoint = IpcEndpoint::new(ipc_path.clone());
         endpoint.set_security_attributes(SecurityAttributes::allow_everyone_create().unwrap());
         let incoming = endpoint.incoming().expect("failed to open new socket");
+        let _ = server_start_tx.send(());
 
         let server = OpenvpnEventProxyImpl { on_event };
 
