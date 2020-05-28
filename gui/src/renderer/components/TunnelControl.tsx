@@ -55,26 +55,25 @@ const styles = {
     flexDirection: 'column',
     marginBottom: 2,
   }),
-  status_location_text: Styles.createTextStyle({
-    fontFamily: 'DINPro',
-    fontSize: 34,
-    lineHeight: 38,
-    fontWeight: '900',
-    overflow: 'hidden',
-    letterSpacing: -0.9,
-    color: colors.white,
-  }),
 };
+
+const StyledMarquee = styled(Marquee)({
+  fontFamily: 'DINPro',
+  fontSize: '34px',
+  lineHeight: '38px',
+  fontWeight: 900,
+  overflow: 'hidden',
+  letterSpacing: -0.9,
+  color: colors.white,
+});
 
 export default class TunnelControl extends Component<ITunnelControlProps> {
   public render() {
     const Location = ({ children }: { children?: React.ReactNode }) => (
       <View style={styles.status_location}>{children}</View>
     );
-    const City = () => <Marquee style={styles.status_location_text}>{this.props.city}</Marquee>;
-    const Country = () => (
-      <Marquee style={styles.status_location_text}>{this.props.country}</Marquee>
-    );
+    const City = () => <StyledMarquee>{this.props.city}</StyledMarquee>;
+    const Country = () => <StyledMarquee>{this.props.country}</StyledMarquee>;
 
     const SwitchLocation = () => {
       return (
