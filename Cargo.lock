@@ -1356,6 +1356,7 @@ dependencies = [
  "err-derive 0.3.0",
  "futures",
  "lazy_static",
+ "log",
  "mullvad-paths",
  "mullvad-types",
  "nix 0.19.1",
