@@ -85,6 +85,7 @@ pub fn ensure_best_metric_for_interface(interface_alias: &str) -> Result<bool, E
     }
 }
 
+#[derive(Debug, Clone)]
 #[allow(dead_code)]
 #[repr(u32)]
 pub enum WinNetAddrFamily {
@@ -121,15 +122,33 @@ pub struct WinNetDefaultRoute {
     pub gateway: WinNetIp,
 }
 
-impl From<WinNetIp> for IpAddr {
-    fn from(addr: WinNetIp) -> IpAddr {
+impl From<WinNetIp> for Ipv4Addr {
+    fn from(addr: WinNetIp) -> Ipv4Addr {
         match addr.addr_family {
             WinNetAddrFamily::IPV4 => {
                 let mut bytes: [u8; 4] = Default::default();
                 bytes.clone_from_slice(&addr.ip_bytes[..4]);
-                IpAddr::V4(Ipv4Addr::from(bytes))
+                Ipv4Addr::from(bytes)
             }
-            WinNetAddrFamily::IPV6 => IpAddr::V6(Ipv6Addr::from(addr.ip_bytes)),
+            WinNetAddrFamily::IPV6 => panic!("address family mismatch"),
+        }
+    }
+}
+
+impl From<WinNetIp> for Ipv6Addr {
+    fn from(addr: WinNetIp) -> Ipv6Addr {
+        match addr.addr_family {
+            WinNetAddrFamily::IPV4 => panic!("address family mismatch"),
+            WinNetAddrFamily::IPV6 => Ipv6Addr::from(addr.ip_bytes),
+        }
+    }
+}
+
+impl From<WinNetIp> for IpAddr {
+    fn from(addr: WinNetIp) -> IpAddr {
+        match addr.addr_family {
+            WinNetAddrFamily::IPV4 => IpAddr::V4(Ipv4Addr::from(addr)),
+            WinNetAddrFamily::IPV6 => IpAddr::V6(Ipv6Addr::from(addr)),
         }
     }
 }

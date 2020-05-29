@@ -7,9 +7,20 @@ use crate::{
     firewall::FirewallPolicy,
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
+#[cfg(windows)]
+use crate::{
+    split_tunnel::{self, SplitTunnel},
+    winnet::{self, get_best_default_route, interface_luid_to_ip, WinNetAddrFamily},
+};
 use cfg_if::cfg_if;
 use futures::{channel::mpsc, stream::Fuse, StreamExt};
 use std::net::IpAddr;
+#[cfg(windows)]
+use std::{
+    ffi::OsStr,
+    net::{Ipv4Addr, Ipv6Addr},
+    sync::{Arc, Mutex},
+};
 use talpid_types::{
     net::TunnelParameters,
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -116,6 +127,137 @@ impl ConnectedState {
         }
     }
 
+    #[cfg(target_os = "windows")]
+    pub unsafe extern "system" fn split_tunnel_default_route_change_handler(
+        event_type: winnet::WinNetDefaultRouteChangeEventType,
+        address_family: WinNetAddrFamily,
+        default_route: winnet::WinNetDefaultRoute,
+        ctx: *mut libc::c_void,
+    ) {
+        // Update the "internet interface" IP when best default route changes
+        let ctx = &mut *(ctx as *mut SplitTunnelDefaultRouteChangeHandlerContext);
+
+        let result = match event_type {
+            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => {
+                let ip = interface_luid_to_ip(address_family.clone(), default_route.interface_luid);
+
+                // TODO: Should we block here?
+                let ip = match ip {
+                    Ok(Some(ip)) => ip,
+                    Ok(None) => {
+                        log::error!("Failed to obtain new default route address: none found",);
+                        // Early return
+                        return;
+                    }
+                    Err(error) => {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg(
+                                "Failed to obtain new default route address"
+                            )
+                        );
+                        // Early return
+                        return;
+                    }
+                };
+
+                match address_family {
+                    WinNetAddrFamily::IPV4 => {
+                        let ip = Ipv4Addr::from(ip);
+                        ctx.internet_ipv4 = ip;
+                    }
+                    WinNetAddrFamily::IPV6 => {
+                        let ip = Ipv6Addr::from(ip);
+                        ctx.internet_ipv6 = Some(ip);
+                    }
+                }
+
+                ctx.register_ips()
+            }
+            // no default route
+            winnet::WinNetDefaultRouteChangeEventType::DefaultRouteRemoved => {
+                match address_family {
+                    WinNetAddrFamily::IPV4 => {
+                        ctx.internet_ipv4 = Ipv4Addr::new(0, 0, 0, 0);
+                    }
+                    WinNetAddrFamily::IPV6 => {
+                        ctx.internet_ipv6 = None;
+                    }
+                }
+                ctx.register_ips()
+            }
+        };
+
+        if let Err(error) = result {
+            // TODO: Should we block here?
+            log::error!(
+                "{}",
+                error.display_chain_with_msg(
+                    "Failed to register new addresses in split tunnel driver"
+                )
+            );
+        }
+    }
+
+    #[cfg(windows)]
+    fn update_split_tunnel_addresses(
+        &self,
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> Result<(), BoxedError> {
+        // Identify tunnel IP addresses
+        // TODO: Multiple IP addresses?
+        let mut tunnel_ipv4 = None;
+        let mut tunnel_ipv6 = None;
+
+        for ip in &self.metadata.ips {
+            match ip {
+                IpAddr::V4(address) => tunnel_ipv4 = Some(address.clone()),
+                IpAddr::V6(address) => tunnel_ipv6 = Some(address.clone()),
+            }
+        }
+
+        // Identify IP address that gives us Internet access
+        let internet_ipv4 = get_best_default_route(WinNetAddrFamily::IPV4)
+            .map_err(BoxedError::new)?
+            .map(|route| interface_luid_to_ip(WinNetAddrFamily::IPV4, route.interface_luid))
+            .transpose()
+            .map_err(BoxedError::new)?
+            .flatten();
+        let internet_ipv6 = get_best_default_route(WinNetAddrFamily::IPV6)
+            .map_err(BoxedError::new)?
+            .map(|route| interface_luid_to_ip(WinNetAddrFamily::IPV6, route.interface_luid))
+            .transpose()
+            .map_err(BoxedError::new)?
+            .flatten();
+
+        let tunnel_ipv4 = tunnel_ipv4.unwrap_or(Ipv4Addr::new(0, 0, 0, 0));
+        let internet_ipv4 = Ipv4Addr::from(internet_ipv4.unwrap_or_default());
+        let internet_ipv6 = internet_ipv6.map(|addr| Ipv6Addr::from(addr));
+
+        let context = SplitTunnelDefaultRouteChangeHandlerContext::new(
+            shared_values.split_tunnel.clone(),
+            tunnel_ipv4,
+            tunnel_ipv6,
+            internet_ipv4,
+            internet_ipv6,
+        );
+
+        shared_values
+            .split_tunnel
+            .lock()
+            .expect("Thread unexpectedly panicked while holding the mutex")
+            .register_ips(tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6)
+            .map_err(BoxedError::new)?;
+
+        #[cfg(target_os = "windows")]
+        shared_values.route_manager.add_default_route_callback(
+            Some(Self::split_tunnel_default_route_change_handler),
+            context,
+        );
+
+        Ok(())
+    }
+
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
         let dns_ips = self.get_dns_servers(shared_values);
         shared_values
@@ -147,6 +289,18 @@ impl ConnectedState {
         }
     }
 
+    #[cfg(windows)]
+    fn apply_split_tunnel_config<T: AsRef<OsStr>>(
+        shared_values: &SharedTunnelStateValues,
+        paths: &[T],
+    ) -> Result<(), split_tunnel::Error> {
+        let split_tunnel = shared_values
+            .split_tunnel
+            .lock()
+            .expect("Thread unexpectedly panicked while holding the mutex");
+        split_tunnel.set_paths(paths)
+    }
+
     fn disconnect(
         self,
         shared_values: &mut SharedTunnelStateValues,
@@ -154,6 +308,24 @@ impl ConnectedState {
     ) -> EventConsequence {
         Self::reset_dns(shared_values);
         Self::reset_routes(shared_values);
+
+        #[cfg(windows)]
+        if let Err(error) = shared_values
+            .split_tunnel
+            .lock()
+            .expect("Thread unexpectedly panicked while holding the mutex")
+            .register_ips(
+                Ipv4Addr::new(0, 0, 0, 0),
+                None,
+                Ipv4Addr::new(0, 0, 0, 0),
+                None,
+            )
+        {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to unregister IP addresses")
+            );
+        }
 
         EventConsequence::NewState(DisconnectingState::enter(
             shared_values,
@@ -254,6 +426,11 @@ impl ConnectedState {
                 shared_values.bypass_socket(fd, done_tx);
                 SameState(self.into())
             }
+            #[cfg(windows)]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                let _ = result_tx.send(Self::apply_split_tunnel_config(shared_values, &paths));
+                SameState(self.into())
+            }
         }
     }
 
@@ -323,6 +500,19 @@ impl TunnelState for ConnectedState {
                 ),
             )
         } else {
+            #[cfg(windows)]
+            if let Err(error) = connected_state.update_split_tunnel_addresses(shared_values) {
+                log::error!("{}", error.display_chain());
+                return DisconnectingState::enter(
+                    shared_values,
+                    (
+                        connected_state.close_handle,
+                        connected_state.tunnel_close_event,
+                        AfterDisconnect::Block(ErrorStateCause::StartTunnelError),
+                    ),
+                );
+            }
+
             (
                 TunnelStateWrapper::from(connected_state),
                 TunnelStateTransition::Connected(tunnel_endpoint),
@@ -355,5 +545,46 @@ impl TunnelState for ConnectedState {
                 self.handle_tunnel_close_event(block_reason, shared_values)
             }
         }
+    }
+}
+
+#[cfg(target_os = "windows")]
+struct SplitTunnelDefaultRouteChangeHandlerContext {
+    split_tunnel: Arc<Mutex<SplitTunnel>>,
+    pub tunnel_ipv4: Ipv4Addr,
+    pub tunnel_ipv6: Option<Ipv6Addr>,
+    pub internet_ipv4: Ipv4Addr,
+    pub internet_ipv6: Option<Ipv6Addr>,
+}
+
+#[cfg(target_os = "windows")]
+impl SplitTunnelDefaultRouteChangeHandlerContext {
+    pub fn new(
+        split_tunnel: Arc<Mutex<SplitTunnel>>,
+        tunnel_ipv4: Ipv4Addr,
+        tunnel_ipv6: Option<Ipv6Addr>,
+        internet_ipv4: Ipv4Addr,
+        internet_ipv6: Option<Ipv6Addr>,
+    ) -> Self {
+        SplitTunnelDefaultRouteChangeHandlerContext {
+            split_tunnel,
+            tunnel_ipv4,
+            tunnel_ipv6,
+            internet_ipv4,
+            internet_ipv6,
+        }
+    }
+
+    pub fn register_ips(&self) -> Result<(), split_tunnel::Error> {
+        let split_tunnel = self
+            .split_tunnel
+            .lock()
+            .expect("Thread unexpectedly panicked while holding the mutex");
+        split_tunnel.register_ips(
+            self.tunnel_ipv4,
+            self.tunnel_ipv6,
+            self.internet_ipv4,
+            self.internet_ipv6,
+        )
     }
 }

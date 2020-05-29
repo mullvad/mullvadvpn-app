@@ -3,7 +3,11 @@ use super::{
     TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::firewall::FirewallPolicy;
+#[cfg(windows)]
+use crate::split_tunnel;
 use futures::StreamExt;
+#[cfg(windows)]
+use std::ffi::OsStr;
 use talpid_types::{
     tunnel::{self as talpid_tunnel, ErrorStateCause, FirewallPolicyError},
     ErrorExt,
@@ -60,6 +64,18 @@ impl ErrorState {
                 false
             }
         }
+    }
+
+    #[cfg(windows)]
+    fn apply_split_tunnel_config<T: AsRef<OsStr>>(
+        shared_values: &SharedTunnelStateValues,
+        paths: &[T],
+    ) -> Result<(), split_tunnel::Error> {
+        let split_tunnel = shared_values
+            .split_tunnel
+            .lock()
+            .expect("Thread unexpectedly panicked while holding the mutex");
+        split_tunnel.set_paths(paths)
     }
 }
 
@@ -151,10 +167,15 @@ impl TunnelState for ErrorState {
             Some(TunnelCommand::Block(reason)) => {
                 NewState(ErrorState::enter(shared_values, reason))
             }
-
             #[cfg(target_os = "android")]
             Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
                 shared_values.bypass_socket(fd, done_tx);
+                SameState(self.into())
+            }
+            #[cfg(windows)]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                // TODO: Do nothing here?
+                let _ = result_tx.send(Self::apply_split_tunnel_config(shared_values, &paths));
                 SameState(self.into())
             }
         }
