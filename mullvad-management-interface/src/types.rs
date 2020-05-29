@@ -359,6 +359,20 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for RelayLocatio
 
 impl From<&mullvad_types::settings::Settings> for Settings {
     fn from(settings: &mullvad_types::settings::Settings) -> Self {
+        #[cfg(windows)]
+        let split_tunnel_apps = {
+            let mut converted_list = vec![];
+            for path in settings.split_tunnel_apps.clone().iter() {
+                match path.as_path().as_os_str().to_str() {
+                    Some(path) => converted_list.push(path.to_string()),
+                    None => {
+                        log::error!("failed to convert OS string: {:?}", path);
+                    }
+                }
+            }
+            converted_list
+        };
+
         Self {
             account_token: settings.get_account_token().unwrap_or_default(),
             relay_settings: Some(RelaySettings::from(settings.get_relay_settings())),
@@ -369,6 +383,14 @@ impl From<&mullvad_types::settings::Settings> for Settings {
             auto_connect: settings.auto_connect,
             tunnel_options: Some(TunnelOptions::from(&settings.tunnel_options)),
             show_beta_releases: settings.show_beta_releases,
+            #[cfg(windows)]
+            split_tunnel: settings.split_tunnel,
+            #[cfg(windows)]
+            split_tunnel_apps,
+            #[cfg(not(windows))]
+            split_tunnel: false,
+            #[cfg(not(windows))]
+            split_tunnel_apps: Vec::new(),
         }
     }
 }
