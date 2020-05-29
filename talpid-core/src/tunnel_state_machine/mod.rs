@@ -11,6 +11,8 @@ use self::{
     disconnecting_state::{AfterDisconnect, DisconnectingState},
     error_state::ErrorState,
 };
+#[cfg(windows)]
+use crate::split_tunnel;
 use crate::{
     dns::DnsMonitor,
     firewall::{Firewall, FirewallArguments},
@@ -19,6 +21,11 @@ use crate::{
     routing::RouteManager,
     tunnel::{tun_provider::TunProvider, TunnelEvent},
 };
+#[cfg(windows)]
+use std::ffi::OsString;
+#[cfg(windows)]
+use std::sync::Mutex;
+
 use futures::{
     channel::{mpsc, oneshot},
     stream, StreamExt,
@@ -47,9 +54,9 @@ pub enum Error {
     OfflineMonitorError(#[error(source)] crate::offline::Error),
 
     /// Unable to set up split tunneling
-    #[cfg(target_os = "linux")]
+    #[cfg(target_os = "windows")]
     #[error(display = "Failed to initialize split tunneling")]
-    InitSplitTunneling(#[error(source)] crate::split_tunnel::Error),
+    InitSplitTunneling(#[error(source)] split_tunnel::Error),
 
     /// Failed to initialize the system firewall integration.
     #[error(display = "Failed to initialize the system firewall integration")]
@@ -86,6 +93,7 @@ pub async fn spawn(
     shutdown_tx: oneshot::Sender<()>,
     reset_firewall: bool,
     #[cfg(target_os = "android")] android_context: AndroidContext,
+    #[cfg(windows)] exclude_paths: Vec<OsString>,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
@@ -127,6 +135,8 @@ pub async fn spawn(
             cache_dir,
             command_rx,
             reset_firewall,
+            #[cfg(windows)]
+            exclude_paths,
         );
         let state_machine = match state_machine {
             Ok(state_machine) => {
@@ -176,6 +186,12 @@ pub enum TunnelCommand {
     /// Bypass a socket, allowing traffic to flow through outside the tunnel.
     #[cfg(target_os = "android")]
     BypassSocket(RawFd, oneshot::Sender<()>),
+    /// Set applications that are allowed to send and receive traffic outside of the tunnel.
+    #[cfg(windows)]
+    SetExcludedApps(
+        oneshot::Sender<Result<(), split_tunnel::Error>>,
+        Vec<OsString>,
+    ),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
@@ -213,6 +229,7 @@ impl TunnelStateMachine {
         cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
         reset_firewall: bool,
+        #[cfg(windows)] exclude_paths: Vec<OsString>,
     ) -> Result<Self, Error> {
         let args = FirewallArguments {
             initialize_blocked: block_when_disconnected || !reset_firewall,
@@ -224,6 +241,14 @@ impl TunnelStateMachine {
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
         let route_manager = RouteManager::new(runtime.clone(), HashSet::new())
             .map_err(Error::InitRouteManagerError)?;
+
+        #[cfg(windows)]
+        let split_tunnel = split_tunnel::SplitTunnel::new().map_err(Error::InitSplitTunneling)?;
+        #[cfg(windows)]
+        split_tunnel
+            .set_paths(&exclude_paths)
+            .map_err(Error::InitSplitTunneling)?;
+
         let mut shared_values = SharedTunnelStateValues {
             runtime,
             firewall,
@@ -240,6 +265,8 @@ impl TunnelStateMachine {
             resource_dir,
             #[cfg(target_os = "linux")]
             connectivity_check_was_enabled: None,
+            #[cfg(windows)]
+            split_tunnel: Arc::new(Mutex::new(split_tunnel)),
         };
 
         let (initial_state, _) = DisconnectedState::enter(&mut shared_values, reset_firewall);
@@ -320,6 +347,9 @@ struct SharedTunnelStateValues {
     /// NetworkManager's connecitivity check state.
     #[cfg(target_os = "linux")]
     connectivity_check_was_enabled: Option<bool>,
+    /// Management of excluded apps.
+    #[cfg(windows)]
+    split_tunnel: Arc<Mutex<split_tunnel::SplitTunnel>>,
 }
 
 impl SharedTunnelStateValues {
