@@ -185,8 +185,6 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
-        val accountCache = AccountCache(daemon, settingsListener)
-
         val connectionProxy = ConnectionProxy(this, daemon).apply {
             when (pendingAction) {
                 PendingAction.Connect -> {
@@ -203,16 +201,7 @@ class MullvadVpnService : TalpidVpnService() {
             pendingAction = null
         }
 
-        val locationInfoCache = LocationInfoCache(daemon, connectionProxy, connectivityListener)
-
-        instance = ServiceInstance(
-            daemon,
-            accountCache,
-            connectionProxy,
-            connectivityListener,
-            locationInfoCache,
-            settingsListener
-        )
+        instance = ServiceInstance(daemon, connectionProxy, connectivityListener, settingsListener)
     }
 
     private fun stop() {

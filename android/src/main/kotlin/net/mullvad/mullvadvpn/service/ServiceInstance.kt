@@ -2,14 +2,15 @@ package net.mullvad.mullvadvpn.service
 
 import net.mullvad.talpid.ConnectivityListener
 
-data class ServiceInstance(
+class ServiceInstance(
     val daemon: MullvadDaemon,
-    val accountCache: AccountCache,
     val connectionProxy: ConnectionProxy,
     val connectivityListener: ConnectivityListener,
-    val locationInfoCache: LocationInfoCache,
     val settingsListener: SettingsListener
 ) {
+    val accountCache = AccountCache(daemon, settingsListener)
+    val locationInfoCache = LocationInfoCache(daemon, connectionProxy, connectivityListener)
+
     fun onDestroy() {
         accountCache.onDestroy()
         connectionProxy.onDestroy()
