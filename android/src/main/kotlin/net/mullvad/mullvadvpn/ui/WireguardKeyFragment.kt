@@ -32,6 +32,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private lateinit var timeAgoFormatter: TimeAgoFormatter
+    private lateinit var titleController: CollapsibleTitleController
 
     private var greenColor: Int = 0
     private var redColor: Int = 0
@@ -135,6 +136,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             prepare(daemon, jobTracker)
         }
 
+        titleController = CollapsibleTitleController(view)
+
         return view
     }
 
@@ -173,6 +176,10 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         if (!(actionState is ActionState.Idle)) {
             actionState = ActionState.Idle(false)
         }
+    }
+
+    override fun onSafelyDestroyView() {
+        titleController.onDestroy()
     }
 
     private fun updateKeySpinners() {
