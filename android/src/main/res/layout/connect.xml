@@ -193,7 +193,6 @@
                 android:paddingHorizontal="8dp"
                 android:text="@string/switch_location"
                 android:drawableRight="@drawable/icon_chevron"
-                android:paddingRight="8dp"
                 style="@style/White20Button" />
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="wrap_content"
