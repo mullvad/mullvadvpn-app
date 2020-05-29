@@ -10,6 +10,7 @@ import net.mullvad.mullvadvpn.model.Settings
 class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var allowLanToggle: CellSwitch
     private lateinit var autoConnectToggle: CellSwitch
+    private lateinit var titleController: CollapsibleTitleController
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -48,6 +49,8 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
             updateUi(settings)
         }
 
+        titleController = CollapsibleTitleController(view)
+
         return view
     }
 
@@ -59,6 +62,7 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     override fun onSafelyDestroyView() {
+        titleController.onDestroy()
         settingsListener.unsubscribe(this)
     }
 
