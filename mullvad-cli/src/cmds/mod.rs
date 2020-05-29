@@ -37,9 +37,9 @@ pub use self::relay::Relay;
 mod reset;
 pub use self::reset::Reset;
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", windows))]
 mod split_tunnel;
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", windows))]
 pub use self::split_tunnel::SplitTunnel;
 
 mod status;
@@ -67,7 +67,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(CustomDns),
         Box::new(Relay),
         Box::new(Reset),
-        #[cfg(target_os = "linux")]
+        #[cfg(any(target_os = "linux", windows))]
         Box::new(SplitTunnel),
         Box::new(Status),
         Box::new(Tunnel),
