@@ -7,8 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import java.text.DateFormat
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
+import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import org.joda.time.DateTime
 
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
@@ -16,8 +19,30 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private val timeStyle = DateFormat.SHORT
     private val expiryFormatter = DateFormat.getDateTimeInstance(dateStyle, timeStyle)
 
+    private var oldAccountExpiry: DateTime? = null
+
+    private var currentAccountExpiry: DateTime? = null
+        set(value) {
+            field = value
+
+            synchronized(this) {
+                if (value != oldAccountExpiry) {
+                    oldAccountExpiry = null
+                }
+            }
+        }
+
+    private var hasConnectivity = true
+        set(value) {
+            field = value
+            buyCreditButton.setEnabled(value)
+            redeemVoucherButton.setEnabled(value)
+        }
+
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
+    private lateinit var buyCreditButton: Button
+    private lateinit var redeemVoucherButton: Button
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -30,7 +55,21 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
-        view.findViewById<View>(R.id.logout).setOnClickListener { logout() }
+        buyCreditButton = view.findViewById<UrlButton>(R.id.buy_credit).apply {
+            prepare(daemon, jobTracker) {
+                checkForAddedTime()
+            }
+        }
+
+        redeemVoucherButton = view.findViewById<Button>(R.id.redeem_voucher).apply {
+            setOnClickAction("redeem", jobTracker) {
+                showRedeemVoucherDialog()
+            }
+        }
+
+        view.findViewById<Button>(R.id.logout).setOnClickAction("logout", jobTracker) {
+            logout()
+        }
 
         accountNumberView = view.findViewById<CopyableInformationView>(R.id.account_number).apply {
             displayFormatter = { rawAccountNumber -> addSpacesToAccountNumber(rawAccountNumber) }
@@ -50,14 +89,34 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
         accountCache.onAccountExpiryChange.subscribe(this) { accountExpiry ->
             jobTracker.newUiJob("updateAccountExpiry") {
+                currentAccountExpiry = accountExpiry
                 updateAccountExpiry(accountExpiry)
             }
+        }
+
+        connectionProxy.onUiStateChange.subscribe(this) { uiState ->
+            jobTracker.newUiJob("updateHasConnectivity") {
+                hasConnectivity = uiState is TunnelState.Connected ||
+                    uiState is TunnelState.Disconnected ||
+                    (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
+            }
+        }
+
+        oldAccountExpiry?.let { expiry ->
+            accountCache.invalidateAccountExpiry(expiry)
         }
     }
 
     override fun onSafelyPause() {
         accountCache.onAccountNumberChange.unsubscribe(this)
         accountCache.onAccountExpiryChange.unsubscribe(this)
+    }
+
+    private fun checkForAddedTime() {
+        currentAccountExpiry?.let { expiry ->
+            oldAccountExpiry = expiry
+            accountCache.invalidateAccountExpiry(expiry)
+        }
     }
 
     private fun updateAccountExpiry(accountExpiry: DateTime?) {
@@ -69,14 +128,22 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
     }
 
-    private fun logout() {
+    private fun showRedeemVoucherDialog() {
+        val transaction = fragmentManager?.beginTransaction()
+
+        transaction?.addToBackStack(null)
+
+        RedeemVoucherDialogFragment().show(transaction, null)
+    }
+
+    private suspend fun logout() {
         clearAccountNumber()
         clearBackStack()
         goToLoginScreen()
     }
 
-    private fun clearAccountNumber() {
-        jobTracker.newBackgroundJob("clearAccountNumber") {
+    private suspend fun clearAccountNumber() {
+        jobTracker.runOnBackground {
             daemon.setAccount(null)
         }
     }

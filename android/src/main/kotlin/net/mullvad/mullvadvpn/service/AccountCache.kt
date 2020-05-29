@@ -8,6 +8,13 @@ import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
+// Number of retry attempts to check for a changed expiry before giving up.
+// Current value will force the cache to keep fetching for about four minutes or until a new expiry
+// value is received.
+// This is only used if the expiry was invalidated and fetching a new expiry returns the same value
+// as before the invalidation.
+const val MAX_INVALIDATED_RETRIES = 7
+
 class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
     companion object {
         public val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
@@ -26,6 +33,8 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
             field = value
             onAccountExpiryChange.notify(value)
         }
+
+    private var oldAccountExpiry: DateTime? = null
 
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
@@ -46,8 +55,9 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
                         val result = daemon.getAccountData(account)
 
                         if (result is GetAccountDataResult.Ok) {
-                            handleNewExpiry(account, result.accountData.expiry)
-                            break
+                            if (handleNewExpiry(account, result.accountData.expiry, retryAttempt)) {
+                                break
+                            }
                         } else if (result is GetAccountDataResult.InvalidAccount) {
                             break
                         }
@@ -56,6 +66,15 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
                         delay(calculateRetryFetchDelay(retryAttempt))
                     } while (onAccountExpiryChange.hasListeners())
                 }
+            }
+        }
+    }
+
+    fun invalidateAccountExpiry(accountExpiryToInvalidate: DateTime) {
+        synchronized(this) {
+            if (accountExpiry == accountExpiryToInvalidate) {
+                oldAccountExpiry = accountExpiryToInvalidate
+                fetchAccountExpiry()
             }
         }
     }
@@ -74,11 +93,26 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
         }
     }
 
-    private fun handleNewExpiry(accountNumberUsedForFetch: String, expiryString: String) {
+    private fun handleNewExpiry(
+        accountNumberUsedForFetch: String,
+        expiryString: String,
+        retryAttempt: Int
+    ): Boolean {
         synchronized(this) {
-            if (accountNumber === accountNumberUsedForFetch) {
-                accountExpiry = DateTime.parse(expiryString, EXPIRY_FORMAT)
+            if (accountNumber !== accountNumberUsedForFetch) {
+                return true
             }
+
+            val newAccountExpiry = DateTime.parse(expiryString, EXPIRY_FORMAT)
+
+            if (newAccountExpiry != oldAccountExpiry || retryAttempt >= MAX_INVALIDATED_RETRIES) {
+                accountExpiry = newAccountExpiry
+                oldAccountExpiry = null
+
+                return true
+            }
+
+            return false
         }
     }
 
