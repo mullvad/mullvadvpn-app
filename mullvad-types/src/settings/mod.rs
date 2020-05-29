@@ -11,6 +11,8 @@ use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::net::IpAddr;
+#[cfg(target_os = "windows")]
+use std::{collections::HashSet, path::PathBuf};
 use talpid_types::net::{self, openvpn, GenericTunnelOptions};
 
 mod migrations;
@@ -56,6 +58,12 @@ pub struct Settings {
     pub tunnel_options: TunnelOptions,
     /// Whether to notify users of beta updates.
     pub show_beta_releases: bool,
+    /// Whether to enable split tunneling for [`Settings::split_tunnel_apps`].
+    #[cfg(windows)]
+    pub split_tunnel: bool,
+    /// List of applications to exclude from the tunnel.
+    #[cfg(windows)]
+    pub split_tunnel_apps: HashSet<PathBuf>,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     settings_version: migrations::SettingsVersion,
@@ -76,6 +84,10 @@ impl Default for Settings {
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
             show_beta_releases: false,
+            #[cfg(windows)]
+            split_tunnel: false,
+            #[cfg(windows)]
+            split_tunnel_apps: HashSet::new(),
             settings_version: migrations::CURRENT_SETTINGS_VERSION,
         }
     }

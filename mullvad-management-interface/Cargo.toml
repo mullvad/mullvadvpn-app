@@ -20,6 +20,7 @@ parity-tokio-ipc = "0.8"
 futures = "0.3"
 tokio = { version = "0.2", features =  [ "rt-util" ] }
 triggered = "0.1.1"
+log = "0.4"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.19"
