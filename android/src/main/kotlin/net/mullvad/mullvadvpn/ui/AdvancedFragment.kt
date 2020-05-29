@@ -15,6 +15,7 @@ private const val MAX_MTU_VALUE = 1420
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var wireguardMtuInput: CellInput
     private lateinit var wireguardKeysMenu: View
+    private lateinit var titleController: CollapsibleTitleController
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -50,6 +51,8 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             updateUi(settings)
         }
 
+        titleController = CollapsibleTitleController(view)
+
         return view
     }
 
@@ -62,6 +65,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     override fun onSafelyDestroyView() {
+        titleController.onDestroy()
         settingsListener.unsubscribe(this)
     }
 
