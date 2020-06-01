@@ -9,11 +9,13 @@ class ServiceInstance(
     val settingsListener: SettingsListener
 ) {
     val accountCache = AccountCache(daemon, settingsListener)
+    val keyStatusListener = KeyStatusListener(daemon)
     val locationInfoCache = LocationInfoCache(daemon, connectionProxy, connectivityListener)
 
     fun onDestroy() {
         accountCache.onDestroy()
         connectionProxy.onDestroy()
+        keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
     }
