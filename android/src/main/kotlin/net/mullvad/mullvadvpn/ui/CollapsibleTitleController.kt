@@ -122,6 +122,9 @@ class CollapsibleTitleController(val parentView: View) {
         }
     }
 
+    val fullCollapseScrollOffset: Float
+        get() = scrollInterpolation.end
+
     init {
         update()
     }
