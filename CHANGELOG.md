@@ -42,6 +42,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix WireGuard key status events being lost by the UI, causing stale information to be shown.
 - Fix time left in account not showing in settings screen.
 - Fix attempt to connect when the app doesn't have the VPN permission.
+- Fix crash that happened sometimes when the WireGuard key was loaded too quickly.
 
 #### Windows
 - Fix race in network adapter monitor that could result in data corruption and crashes.
