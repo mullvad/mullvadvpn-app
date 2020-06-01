@@ -39,7 +39,7 @@ pub enum Error {
 
     /// Unable to start the IPC server.
     #[error(display = "Unable to start the event dispatcher IPC server")]
-    EventDispatcherError,
+    EventDispatcherError(#[error(source)] event_server::Error),
 
     /// The OpenVPN event dispatcher exited unexpectedly
     #[error(display = "The OpenVPN event dispatcher exited unexpectedly")]
@@ -130,7 +130,7 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
 
     runtime: tokio02::runtime::Runtime,
     event_server_abort_tx: triggered::Trigger,
-    server_quit_handle: Option<task::JoinHandle<std::result::Result<(), tonic::transport::Error>>>,
+    server_quit_handle: Option<task::JoinHandle<std::result::Result<(), event_server::Error>>>,
 }
 
 impl OpenVpnMonitor<OpenVpnCommand> {
@@ -235,7 +235,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
 
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
 
-        let runtime = tokio02::runtime::Builder::new()
+        let mut runtime = tokio02::runtime::Builder::new()
             .threaded_scheduler()
             .core_threads(1)
             .enable_all()
@@ -250,7 +250,13 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             on_event,
             event_server_abort_rx,
         ));
-        start_rx.recv().map_err(|_| Error::EventDispatcherError)?;
+        if let Err(_) = start_rx.recv() {
+            return Err(runtime
+                .block_on(server_quit_handle)
+                .expect("Failed to resolve quit handle future")
+                .map_err(Error::EventDispatcherError)
+                .unwrap_err());
+        }
 
         let child = cmd
             .plugin(plugin_path, vec![ipc_path.to_string()])
@@ -625,6 +631,17 @@ mod event_server {
         Empty, EventType,
     };
 
+    #[derive(err_derive::Error, Debug)]
+    pub enum Error {
+        /// Failure to set up the IPC server.
+        #[error(display = "Failed to create pipe or Unix socket")]
+        StartServer(#[error(source)] std::io::Error),
+
+        /// An error occurred while the server was running.
+        #[error(display = "Tonic error")]
+        TonicError(#[error(source)] tonic::transport::Error),
+    }
+
     /// Implements a gRPC service used to process events sent to by OpenVPN.
     #[derive(Debug)]
     pub struct OpenvpnEventProxyImpl<L> {
@@ -658,13 +675,13 @@ mod event_server {
         server_start_tx: std::sync::mpsc::Sender<()>,
         on_event: L,
         abort_rx: triggered::Listener,
-    ) -> std::result::Result<(), tonic::transport::Error>
+    ) -> std::result::Result<(), Error>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
     {
         let mut endpoint = IpcEndpoint::new(ipc_path.clone());
         endpoint.set_security_attributes(SecurityAttributes::allow_everyone_create().unwrap());
-        let incoming = endpoint.incoming().expect("failed to open new socket");
+        let incoming = endpoint.incoming().map_err(Error::StartServer)?;
         let _ = server_start_tx.send(());
 
         let server = OpenvpnEventProxyImpl { on_event };
@@ -673,6 +690,7 @@ mod event_server {
             .add_service(OpenvpnEventProxyServer::new(server))
             .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
             .await
+            .map_err(Error::TonicError)
     }
 
     #[derive(Debug)]
