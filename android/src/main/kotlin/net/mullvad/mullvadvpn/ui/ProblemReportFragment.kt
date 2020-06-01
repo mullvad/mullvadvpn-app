@@ -39,6 +39,8 @@ class ProblemReportFragment : Fragment() {
     private lateinit var editMessageButton: Button
     private lateinit var tryAgainButton: Button
 
+    private lateinit var titleController: CollapsibleTitleController
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -98,6 +100,8 @@ class ProblemReportFragment : Fragment() {
         setSendButtonEnabled(!userMessageInput.text.isEmpty())
         userMessageInput.addTextChangedListener(InputWatcher())
 
+        titleController = CollapsibleTitleController(view)
+
         return view
     }
 
@@ -105,6 +109,8 @@ class ProblemReportFragment : Fragment() {
         problemReport.userEmail = userEmailInput.text.toString()
         problemReport.userMessage = userMessageInput.text.toString()
         problemReport.deleteReportFile()
+
+        titleController.onDestroy()
 
         super.onDestroyView()
     }
