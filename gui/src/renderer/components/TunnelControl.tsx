@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, Styles, Types, View } from 'reactxp';
+import { Component, Styles, View } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { TunnelState } from '../../shared/daemon-rpc-types';
@@ -27,22 +27,11 @@ const SwitchLocationButton = styled(AppButton.TransparentButton)({
 });
 
 const styles = {
-  body: Styles.createViewStyle({
-    paddingTop: 0,
-    paddingLeft: 24,
-    paddingRight: 24,
-    paddingBottom: 0,
-    marginTop: 176,
-    flex: 1,
-  }),
   footer: Styles.createViewStyle({
     flex: 0,
     paddingBottom: 16,
     paddingLeft: 24,
     paddingRight: 24,
-  }),
-  wrapper: Styles.createViewStyle({
-    flex: 1,
   }),
   status_security: Styles.createTextStyle({
     fontFamily: 'Open Sans',
@@ -51,31 +40,40 @@ const styles = {
     lineHeight: 22,
     marginBottom: 2,
   }),
-  status_location: Styles.createTextStyle({
-    flexDirection: 'column',
-    marginBottom: 2,
-  }),
-  status_location_text: Styles.createTextStyle({
-    fontFamily: 'DINPro',
-    fontSize: 34,
-    lineHeight: 38,
-    fontWeight: '900',
-    overflow: 'hidden',
-    letterSpacing: -0.9,
-    color: colors.white,
-  }),
 };
+
+const Body = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  padding: '0 24px',
+  marginTop: '176px',
+  flex: 1,
+});
+
+const Wrapper = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+});
+
+const Location = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  marginBottom: 2,
+});
+
+const StyledMarquee = styled(Marquee)({
+  fontFamily: 'DINPro',
+  fontSize: '34px',
+  lineHeight: '38px',
+  fontWeight: 900,
+  overflow: 'hidden',
+  letterSpacing: -0.9,
+  color: colors.white,
+});
 
 export default class TunnelControl extends Component<ITunnelControlProps> {
   public render() {
-    const Location = ({ children }: { children?: React.ReactNode }) => (
-      <View style={styles.status_location}>{children}</View>
-    );
-    const City = () => <Marquee style={styles.status_location_text}>{this.props.city}</Marquee>;
-    const Country = () => (
-      <Marquee style={styles.status_location_text}>{this.props.country}</Marquee>
-    );
-
     const SwitchLocation = () => {
       return (
         <SwitchLocationButton onClick={this.props.onSelectLocation}>
@@ -153,8 +151,8 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
             <Body>
               <Secured displayStyle={SecuredDisplayStyle.securing} />
               <Location>
-                <City />
-                <Country />
+                {this.renderCity()}
+                {this.renderCountry()}
               </Location>
               <ConnectionPanelContainer />
             </Body>
@@ -170,8 +168,8 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
             <Body>
               <Secured displayStyle={SecuredDisplayStyle.secured} />
               <Location>
-                <City />
-                <Country />
+                {this.renderCity()}
+                {this.renderCountry()}
               </Location>
               <ConnectionPanelContainer />
             </Body>
@@ -217,9 +215,7 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
           <Wrapper>
             <Body>
               <Secured displayStyle={SecuredDisplayStyle.secured} />
-              <Location>
-                <Country />
-              </Location>
+              <Location>{this.renderCountry()}</Location>
             </Body>
             <Footer>
               <SelectedLocation />
@@ -233,9 +229,7 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
           <Wrapper>
             <Body>
               <Secured displayStyle={SecuredDisplayStyle.unsecured} />
-              <Location>
-                <Country />
-              </Location>
+              <Location>{this.renderCountry()}</Location>
             </Body>
             <Footer>
               <SelectedLocation />
@@ -248,20 +242,12 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
         throw new Error(`Unknown TunnelState: ${this.props.tunnelState}`);
     }
   }
-}
 
-interface IContainerProps {
-  children?: Types.ReactNode;
-}
-
-class Wrapper extends Component<IContainerProps> {
-  public render() {
-    return <View style={styles.wrapper}>{this.props.children}</View>;
+  private renderCity() {
+    return <StyledMarquee>{this.props.city}</StyledMarquee>;
   }
-}
 
-class Body extends Component<IContainerProps> {
-  public render() {
-    return <View style={styles.body}>{this.props.children}</View>;
+  private renderCountry() {
+    return <StyledMarquee>{this.props.country}</StyledMarquee>;
   }
 }
