@@ -1,16 +1,13 @@
-package net.mullvad.mullvadvpn.dataproxy
+package net.mullvad.mullvadvpn.service
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.KeygenEvent
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.talpid.util.EventNotifier
 
 class KeyStatusListener(val daemon: MullvadDaemon) {
-    private val setUpJob = setUp()
-
-    val onKeyStatusChange = EventNotifier<KeygenEvent?>(null)
+    val onKeyStatusChange = EventNotifier(getInitialKeyStatus())
 
     var keyStatus: KeygenEvent? = null
         private set(value) {
@@ -18,16 +15,17 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
             value?.let { newKeyStatus -> onKeyStatusChange.notify(newKeyStatus) }
         }
 
-    private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
+    init {
         daemon.onKeygenEvent = { event -> keyStatus = event }
-        val wireguardKey = daemon.getWireguardKey()
-        if (wireguardKey != null) {
-            keyStatus = KeygenEvent.NewKey(wireguardKey, null, null)
+    }
+
+    private fun getInitialKeyStatus(): KeygenEvent? {
+        return daemon.getWireguardKey()?.let { wireguardKey ->
+            KeygenEvent.NewKey(wireguardKey, null, null)
         }
     }
 
     fun generateKey() = GlobalScope.launch(Dispatchers.Default) {
-        setUpJob.join()
         val oldStatus = keyStatus
         val newStatus = daemon.generateWireguardKey()
         val newFailure = newStatus?.failure()
@@ -41,7 +39,6 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
     }
 
     fun verifyKey() = GlobalScope.launch(Dispatchers.Default) {
-        setUpJob.join()
         val verified = daemon.verifyWireguardKey()
         // Only update verification status if the key is actually there
         when (val state = keyStatus) {
@@ -54,13 +51,11 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
     }
 
     fun onDestroy() {
-        setUpJob.cancel()
         daemon.onKeygenEvent = null
         onKeyStatusChange.unsubscribeAll()
     }
 
     private fun retryKeyGeneration() = GlobalScope.launch(Dispatchers.Default) {
-        setUpJob.join()
         keyStatus = daemon.generateWireguardKey()
     }
 }
