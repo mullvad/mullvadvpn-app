@@ -47,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix crash when entering split-screen mode whilst on the Report a Problem screen.
 - Fix invalid back stack history when connection to service is lost and the app returns to the
   launch screen.
+- Fix app leaving settings screen when entering split-screen mode.
 
 #### Windows
 - Fix race in network adapter monitor that could result in data corruption and crashes.
