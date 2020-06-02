@@ -13,7 +13,7 @@ use futures01::{
 use talpid_types::{
     net::{Endpoint, TunnelParameters},
     tunnel::ErrorStateCause,
-    ErrorExt,
+    BoxedError, ErrorExt,
 };
 
 pub struct ConnectedStateBootstrap {
@@ -69,10 +69,7 @@ impl ConnectedState {
         }
     }
 
-    fn set_dns(
-        &self,
-        shared_values: &mut SharedTunnelStateValues,
-    ) -> Result<(), crate::dns::Error> {
+    fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
         let mut dns_ips = vec![self.metadata.ipv4_gateway.into()];
         if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
             dns_ips.push(ipv6_gateway.into());
@@ -81,6 +78,15 @@ impl ConnectedState {
         shared_values
             .dns_monitor
             .set(&self.metadata.interface, &dns_ips)
+            .map_err(BoxedError::new)?;
+
+        #[cfg(target_os = "linux")]
+        shared_values
+            .route_manager
+            .route_exclusions_dns(&self.metadata.interface, &dns_ips)
+            .map_err(BoxedError::new)?;
+
+        Ok(())
     }
 
     fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
@@ -235,10 +241,7 @@ impl TunnelState for ConnectedState {
                 ),
             )
         } else if let Err(error) = connected_state.set_dns(shared_values) {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to set system DNS settings")
-            );
+            log::error!("{}", error.display_chain_with_msg("Failed to set DNS"));
             DisconnectingState::enter(
                 shared_values,
                 (

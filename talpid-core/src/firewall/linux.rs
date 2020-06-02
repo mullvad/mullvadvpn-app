@@ -1,5 +1,5 @@
 use super::{FirewallArguments, FirewallPolicy, FirewallT};
-use crate::tunnel;
+use crate::{split_tunnel, tunnel};
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use libc;
@@ -15,6 +15,9 @@ use std::{
     net::{IpAddr, Ipv4Addr},
 };
 use talpid_types::net::{Endpoint, TransportProtocol};
+
+/// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
+const MANGLE_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_MANGLE;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -55,8 +58,16 @@ lazy_static! {
     /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
     /// replaced by allowing the table name to be configured from the public API of this crate.
     static ref TABLE_NAME: CString = CString::new("mullvad").unwrap();
-    static ref IN_CHAIN_NAME: CString = CString::new("in").unwrap();
-    static ref OUT_CHAIN_NAME: CString = CString::new("out").unwrap();
+    static ref IN_CHAIN_NAME: CString = CString::new("input").unwrap();
+    static ref OUT_CHAIN_NAME: CString = CString::new("output").unwrap();
+
+    /// We need two separate tables for compatibility with older kernels (holds true for kernel
+    /// version 4.19 but not 5.6), where the base filter type may not be `nftnl::ChainType::Route`
+    /// or `nftnl::ChainType::Nat` for inet tables.
+    static ref MANGLE_TABLE_NAME_V4: CString = CString::new("mullvadmangle4").unwrap();
+    static ref MANGLE_TABLE_NAME_V6: CString = CString::new("mullvadmangle6").unwrap();
+    static ref MANGLE_CHAIN_NAME: CString = CString::new("mangle").unwrap();
+    static ref NAT_CHAIN_NAME: CString = CString::new("nat").unwrap();
 
     /// Allows controlling whether firewall rules should have packet counters or not from an env
     /// variable. Useful for debugging the rules.
@@ -78,39 +89,50 @@ enum End {
 }
 
 /// The Linux implementation for the firewall and DNS.
-pub struct Firewall {
-    table_name: CString,
+pub struct Firewall(());
+
+struct FirewallTables {
+    main: Table,
+    mangle_v4: Table,
+    mangle_v6: Table,
 }
 
 impl FirewallT for Firewall {
     type Error = Error;
 
     fn new(_args: FirewallArguments) -> Result<Self> {
-        Ok(Firewall {
-            table_name: TABLE_NAME.clone(),
-        })
+        Ok(Firewall(()))
     }
 
     fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
-        let table = Table::new(&self.table_name, ProtoFamily::Inet);
-        let batch = PolicyBatch::new(&table).finalize(&policy)?;
+        let tables = FirewallTables {
+            main: Table::new(&*TABLE_NAME, ProtoFamily::Inet),
+            mangle_v4: Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
+            mangle_v6: Table::new(&*MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),
+        };
+        let batch = PolicyBatch::new(&tables).finalize(&policy)?;
         self.send_and_process(&batch)?;
-        self.verify_tables(&[&TABLE_NAME])
+        self.verify_tables(&[&TABLE_NAME, &MANGLE_TABLE_NAME_V4, &MANGLE_TABLE_NAME_V6])
     }
 
     fn reset_policy(&mut self) -> Result<()> {
-        let table = Table::new(&self.table_name, ProtoFamily::Inet);
-        let batch = {
-            let mut batch = Batch::new();
-            // Our batch will add and remove the table even though the goal is just to remove it.
-            // This because only removing it throws a strange error if the table does not exist.
-            batch.add(&table, nftnl::MsgType::Add);
-            batch.add(&table, nftnl::MsgType::Del);
-            batch.finalize()
-        };
-
+        let tables = [
+            Table::new(&*TABLE_NAME, ProtoFamily::Inet),
+            Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
+            Table::new(&*MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),
+        ];
+        let mut batch = Batch::new();
+        for table in &tables {
+            // Our batch will add and remove the table even though the goal is just to remove
+            // it. This because only removing it throws a strange error if the
+            // table does not exist.
+            batch.add(table, nftnl::MsgType::Add);
+            batch.add(table, nftnl::MsgType::Del);
+        }
+        let batch = batch.finalize();
         log::debug!("Removing table and chain from netfilter");
-        self.send_and_process(&batch)
+        self.send_and_process(&batch)?;
+        Ok(())
     }
 }
 
@@ -187,42 +209,117 @@ struct PolicyBatch<'a> {
     batch: Batch,
     in_chain: Chain<'a>,
     out_chain: Chain<'a>,
+    mangle_chain_v4: Chain<'a>,
+    mangle_chain_v6: Chain<'a>,
+    nat_chain_v4: Chain<'a>,
+    nat_chain_v6: Chain<'a>,
 }
 
 impl<'a> PolicyBatch<'a> {
     /// Bootstrap a new nftnl message batch object and add the initial messages creating the
     /// table and chains.
-    pub fn new(table: &'a Table) -> Self {
+    pub fn new(tables: &'a FirewallTables) -> Self {
         let mut batch = Batch::new();
-        let mut out_chain = Chain::new(&*OUT_CHAIN_NAME, table);
-        let mut in_chain = Chain::new(&*IN_CHAIN_NAME, table);
+        let mut out_chain = Chain::new(&*OUT_CHAIN_NAME, &tables.main);
+        let mut in_chain = Chain::new(&*IN_CHAIN_NAME, &tables.main);
         out_chain.set_hook(nftnl::Hook::Out, 0);
         in_chain.set_hook(nftnl::Hook::In, 0);
         out_chain.set_policy(nftnl::Policy::Drop);
         in_chain.set_policy(nftnl::Policy::Drop);
 
-        // A little dance that will make sure the table exists, but is cleared.
-        batch.add(table, nftnl::MsgType::Add);
-        batch.add(table, nftnl::MsgType::Del);
-        batch.add(table, nftnl::MsgType::Add);
+        Self::flush_table(&mut batch, &tables.main);
         batch.add(&out_chain, nftnl::MsgType::Add);
         batch.add(&in_chain, nftnl::MsgType::Add);
+
+        Self::flush_table(&mut batch, &tables.mangle_v4);
+        Self::flush_table(&mut batch, &tables.mangle_v6);
+
+        let mut add_mangle_chain = |table| {
+            let mut chain = Chain::new(&*MANGLE_CHAIN_NAME, table);
+            chain.set_hook(nftnl::Hook::Out, MANGLE_CHAIN_PRIORITY);
+            chain.set_type(nftnl::ChainType::Route);
+            chain.set_policy(nftnl::Policy::Accept);
+            batch.add(&chain, nftnl::MsgType::Add);
+
+            chain
+        };
+        let mangle_chain_v4 = add_mangle_chain(&tables.mangle_v4);
+        let mangle_chain_v6 = add_mangle_chain(&tables.mangle_v6);
+
+        let mut add_nat_chain = |table| {
+            let mut chain = Chain::new(&*NAT_CHAIN_NAME, table);
+            chain.set_hook(nftnl::Hook::PostRouting, libc::NF_IP_PRI_NAT_SRC);
+            chain.set_type(nftnl::ChainType::Nat);
+            chain.set_policy(nftnl::Policy::Accept);
+            batch.add(&chain, nftnl::MsgType::Add);
+
+            chain
+        };
+        let nat_chain_v4 = add_nat_chain(&tables.mangle_v4);
+        let nat_chain_v6 = add_nat_chain(&tables.mangle_v6);
 
         PolicyBatch {
             batch,
             in_chain,
             out_chain,
+            mangle_chain_v4,
+            mangle_chain_v6,
+            nat_chain_v4,
+            nat_chain_v6,
         }
+    }
+
+    /// Creates the table if it does not exist and clears it otherwise.
+    fn flush_table(batch: &mut Batch, table: &'a Table) {
+        batch.add(table, nftnl::MsgType::Add);
+        batch.add(table, nftnl::MsgType::Del);
+        batch.add(table, nftnl::MsgType::Add);
     }
 
     /// Finalize the nftnl message batch by adding every firewall rule needed to satisfy the given
     /// policy.
     pub fn finalize(mut self, policy: &FirewallPolicy) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
+        self.add_split_tunneling_rules();
         self.add_dhcp_client_rules();
         self.add_policy_specific_rules(policy)?;
 
         Ok(self.batch.finalize())
+    }
+
+    fn add_split_tunneling_rules(&mut self) {
+        let mangle_chains = [&self.mangle_chain_v4, &self.mangle_chain_v6];
+        for chain in &mangle_chains {
+            let mut rule = Rule::new(chain);
+            rule.add_expr(&nft_expr!(meta cgroup));
+            rule.add_expr(&nft_expr!(cmp == split_tunnel::NETCLS_CLASSID));
+            rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
+            rule.add_expr(&nft_expr!(ct mark set));
+            rule.add_expr(&nft_expr!(meta mark set));
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+
+        let mut rule = Rule::new(&self.in_chain);
+        rule.add_expr(&nft_expr!(ct mark));
+        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+        add_verdict(&mut rule, &Verdict::Accept);
+        self.batch.add(&rule, nftnl::MsgType::Add);
+
+        let mut rule = Rule::new(&self.out_chain);
+        rule.add_expr(&nft_expr!(meta mark));
+        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+        add_verdict(&mut rule, &Verdict::Accept);
+        self.batch.add(&rule, nftnl::MsgType::Add);
+
+        let nat_chains = [&self.nat_chain_v4, &self.nat_chain_v6];
+        for chain in &nat_chains {
+            let mut rule = Rule::new(chain);
+            rule.add_expr(&nft_expr!(ct mark));
+            rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+            rule.add_expr(&nft_expr!(masquerade));
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
     }
 
     fn add_loopback_rules(&mut self) -> Result<()> {

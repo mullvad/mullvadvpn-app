@@ -12,6 +12,9 @@ use futures01::{
 use std::{collections::HashSet, sync::mpsc::sync_channel};
 use talpid_types::ErrorExt;
 
+#[cfg(target_os = "linux")]
+use std::net::IpAddr;
+
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
 mod imp;
@@ -51,6 +54,16 @@ pub enum RouteManagerCommand {
     ),
     ClearRoutes,
     Shutdown(oneshot::Sender<()>),
+    #[cfg(target_os = "linux")]
+    EnableExclusionsRoutes(oneshot::Sender<Result<(), PlatformError>>),
+    #[cfg(target_os = "linux")]
+    DisableExclusionsRoutes,
+    #[cfg(target_os = "linux")]
+    RouteExclusionsDns(
+        String,
+        Vec<IpAddr>,
+        oneshot::Sender<Result<(), PlatformError>>,
+    ),
 }
 
 /// RouteManager applies a set of routes to the route table.
@@ -143,6 +156,78 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
             Ok(())
+        } else {
+            Err(Error::RouteManagerDown)
+        }
+    }
+
+    /// Route PID-associated packets through the physical interface.
+    #[cfg(target_os = "linux")]
+    pub fn enable_exclusions_routes(&self) -> Result<(), Error> {
+        if let Some(tx) = &self.manage_tx {
+            let (result_tx, result_rx) = oneshot::channel();
+            if tx
+                .unbounded_send(RouteManagerCommand::EnableExclusionsRoutes(result_tx))
+                .is_err()
+            {
+                return Err(Error::RouteManagerDown);
+            }
+
+            match result_rx.wait() {
+                Ok(result) => result.map_err(Error::PlatformError),
+                Err(error) => {
+                    log::trace!("{}", error.display_chain_with_msg("channel is closed"));
+                    Ok(())
+                }
+            }
+        } else {
+            Err(Error::RouteManagerDown)
+        }
+    }
+
+    /// Stop routing PID-associated packets through the physical interface.
+    #[cfg(target_os = "linux")]
+    pub fn disable_exclusions_routes(&self) -> Result<(), Error> {
+        if let Some(tx) = &self.manage_tx {
+            if tx
+                .unbounded_send(RouteManagerCommand::DisableExclusionsRoutes)
+                .is_err()
+            {
+                return Err(Error::RouteManagerDown);
+            }
+            Ok(())
+        } else {
+            Err(Error::RouteManagerDown)
+        }
+    }
+
+    /// Route DNS requests through the tunnel interface.
+    #[cfg(target_os = "linux")]
+    pub fn route_exclusions_dns(
+        &mut self,
+        tunnel_alias: &str,
+        dns_servers: &[IpAddr],
+    ) -> Result<(), Error> {
+        if let Some(tx) = &self.manage_tx {
+            let (result_tx, result_rx) = oneshot::channel();
+            if tx
+                .unbounded_send(RouteManagerCommand::RouteExclusionsDns(
+                    tunnel_alias.to_string(),
+                    dns_servers.to_vec(),
+                    result_tx,
+                ))
+                .is_err()
+            {
+                return Err(Error::RouteManagerDown);
+            }
+
+            match result_rx.wait() {
+                Ok(result) => result.map_err(Error::PlatformError),
+                Err(error) => {
+                    log::trace!("{}", error.display_chain_with_msg("channel is closed"));
+                    Ok(())
+                }
+            }
         } else {
             Err(Error::RouteManagerDown)
         }

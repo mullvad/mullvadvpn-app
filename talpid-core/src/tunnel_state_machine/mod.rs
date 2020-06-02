@@ -50,6 +50,11 @@ pub enum Error {
     #[error(display = "Unable to spawn offline state monitor")]
     OfflineMonitorError(#[error(source)] crate::offline::Error),
 
+    /// Unable to set up split tunneling
+    #[cfg(target_os = "linux")]
+    #[error(display = "Failed to initialize split tunneling")]
+    InitSplitTunneling(#[error(source)] crate::split_tunnel::Error),
+
     /// Failed to initialize the system firewall integration.
     #[error(display = "Failed to initialize the system firewall integration")]
     InitFirewallError(#[error(source)] crate::firewall::Error),
@@ -235,6 +240,7 @@ impl TunnelStateMachine {
                 allow_lan: None,
             }
         };
+
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
         let route_manager =

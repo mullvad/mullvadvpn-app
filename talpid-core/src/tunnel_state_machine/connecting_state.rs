@@ -358,6 +358,14 @@ impl TunnelState for ConnectingState {
                     );
                     ErrorState::enter(shared_values, ErrorStateCause::StartTunnelError)
                 } else {
+                    #[cfg(target_os = "linux")]
+                    if let Err(error) = shared_values.route_manager.enable_exclusions_routes() {
+                        error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to set up split tunneling")
+                        );
+                    }
+
                     #[cfg(target_os = "android")]
                     {
                         if retry_attempt > 0 && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0 {
