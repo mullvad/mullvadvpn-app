@@ -44,13 +44,13 @@ pub enum Error {
 }
 
 /// Manages PIDs to exclude from the tunnel.
-pub struct PidManager;
+pub struct PidManager(());
 
 impl PidManager {
     /// Create object to manage split-tunnel PIDs.
     pub fn new() -> Result<PidManager, Error> {
         Self::create_cgroup()?;
-        Ok(PidManager {})
+        Ok(PidManager(()))
     }
 
     /// Set up cgroup used to track PIDs for split tunneling.
@@ -127,8 +127,6 @@ impl PidManager {
 
     /// Return a list of PIDs that are excluded from the tunnel.
     pub fn list(&self) -> Result<Vec<i32>, Error> {
-        // TODO: manage child PIDs somehow?
-
         let exclusions_path = Path::new(NETCLS_DIR)
             .join(SPLIT_TUNNEL_CGROUP_NAME)
             .join("cgroup.procs");
