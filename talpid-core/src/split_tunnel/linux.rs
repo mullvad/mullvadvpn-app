@@ -1,4 +1,3 @@
-#![cfg(target_os = "linux")]
 use std::{
     fs,
     io::{self, BufRead, BufReader, BufWriter, Write},
