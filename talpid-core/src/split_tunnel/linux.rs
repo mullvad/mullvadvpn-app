@@ -87,7 +87,7 @@ impl PidManager {
     }
 
     /// Add PIDs to exclude from the tunnel.
-    pub fn add_list(&self, pids: &[i32]) -> Result<(), Error> {
+    pub fn add_list<T: Into<i32> + ToString>(&self, pids: &[T]) -> Result<(), Error> {
         let exclusions_path = Path::new(NETCLS_DIR)
             .join(SPLIT_TUNNEL_CGROUP_NAME)
             .join("cgroup.procs");
