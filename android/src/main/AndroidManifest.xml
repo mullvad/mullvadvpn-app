@@ -12,7 +12,7 @@
                  tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="net.mullvad.mullvadvpn.ui.MainActivity"
                   android:label="@string/app_name"
-                  android:configChanges="orientation"
+                  android:configChanges="orientation|screenSize|screenLayout"
                   android:screenOrientation="portrait"
                   android:windowSoftInputMode="adjustPan">
             <intent-filter>
