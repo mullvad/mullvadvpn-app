@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.ViewSwitcher
 import kotlinx.coroutines.CompletableDeferred
@@ -38,6 +39,9 @@ class ProblemReportFragment : Fragment() {
 
     private lateinit var editMessageButton: Button
     private lateinit var tryAgainButton: Button
+
+    private lateinit var scrollArea: ScrollView
+    private lateinit var titleController: CollapsibleTitleController
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -98,6 +102,9 @@ class ProblemReportFragment : Fragment() {
         setSendButtonEnabled(!userMessageInput.text.isEmpty())
         userMessageInput.addTextChangedListener(InputWatcher())
 
+        scrollArea = view.findViewById(R.id.scroll_area)
+        titleController = CollapsibleTitleController(view)
+
         return view
     }
 
@@ -105,6 +112,8 @@ class ProblemReportFragment : Fragment() {
         problemReport.userEmail = userEmailInput.text.toString()
         problemReport.userMessage = userMessageInput.text.toString()
         problemReport.deleteReportFile()
+
+        titleController.onDestroy()
 
         super.onDestroyView()
     }
@@ -189,6 +198,8 @@ class ProblemReportFragment : Fragment() {
 
         sendStatusLabel.setText(R.string.sent)
         sendDetailsLabel.setText(R.string.sent_thanks)
+
+        scrollArea.scrollTo(0, titleController.fullCollapseScrollOffset.toInt())
     }
 
     private fun showErrorScreen() {
@@ -203,6 +214,8 @@ class ProblemReportFragment : Fragment() {
 
         editMessageButton.visibility = View.VISIBLE
         tryAgainButton.visibility = View.VISIBLE
+
+        scrollArea.scrollTo(0, titleController.fullCollapseScrollOffset.toInt())
     }
 
     private fun setSendButtonEnabled(enabled: Boolean) {

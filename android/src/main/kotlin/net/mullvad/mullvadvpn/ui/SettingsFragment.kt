@@ -22,6 +22,7 @@ class SettingsFragment : ServiceAwareFragment() {
     private lateinit var preferencesMenu: View
     private lateinit var advancedMenu: View
     private lateinit var remainingTimeLabel: RemainingTimeLabel
+    private lateinit var titleController: CollapsibleTitleController
 
     private var active = false
 
@@ -87,6 +88,7 @@ class SettingsFragment : ServiceAwareFragment() {
         appVersionLabel = view.findViewById<TextView>(R.id.app_version_label)
         appVersionFooter = view.findViewById(R.id.app_version_footer)
         remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
+        titleController = CollapsibleTitleController(view)
 
         return view
     }
@@ -108,6 +110,11 @@ class SettingsFragment : ServiceAwareFragment() {
         }
 
         super.onPause()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        titleController.onDestroy()
     }
 
     private fun configureListeners() {

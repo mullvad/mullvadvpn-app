@@ -43,6 +43,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var accountNumberView: CopyableInformationView
     private lateinit var buyCreditButton: Button
     private lateinit var redeemVoucherButton: Button
+    private lateinit var titleController: CollapsibleTitleController
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -77,6 +78,8 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
         accountExpiryView = view.findViewById(R.id.account_expiry)
 
+        titleController = CollapsibleTitleController(view)
+
         return view
     }
 
@@ -110,6 +113,10 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     override fun onSafelyPause() {
         accountCache.onAccountNumberChange.unsubscribe(this)
         accountCache.onAccountExpiryChange.unsubscribe(this)
+    }
+
+    override fun onSafelyDestroyView() {
+        titleController.onDestroy()
     }
 
     private fun checkForAddedTime() {
