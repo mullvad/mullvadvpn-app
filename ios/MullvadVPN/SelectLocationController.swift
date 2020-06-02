@@ -19,7 +19,7 @@ enum SelectLocationControllerError: Error {
 
 class SelectLocationController: UITableViewController {
 
-    private let relayCache = try! RelayCache.withDefaultLocation().get()
+    private let relayCache = try! RelayCache.withDefaultLocationAndEphemeralSession().get()
     private var relayList: RelayList?
     private var relayConstraints: RelayConstraints?
     private var expandedItems = [RelayLocation]()

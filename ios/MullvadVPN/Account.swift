@@ -106,7 +106,7 @@ class Account {
     static let newAccountExpiryUserInfoKey = "newAccountExpiry"
 
     static let shared = Account()
-    private let rpc = MullvadRpc()
+    private let rpc = MullvadRpc.withEphemeralURLSession()
 
     /// Returns true if user agreed to terms of service, otherwise false
     var isAgreedToTermsOfService: Bool {

@@ -49,17 +49,22 @@ class RelayCache {
         return containerURL.flatMap { URL(fileURLWithPath: "relays.json", relativeTo: $0) }
     }
 
-    init(cacheFileURL: URL, networkSession: URLSession = URLSession.shared) {
+    init(cacheFileURL: URL, networkSession: URLSession) {
         rpc = MullvadRpc(session: networkSession)
         self.cacheFileURL = cacheFileURL
     }
 
-    class func withDefaultLocation() -> Result<RelayCache, RelayCacheError> {
+    class func withDefaultLocation(networkSession: URLSession) -> Result<RelayCache, RelayCacheError> {
         if let cacheFileURL = defaultCacheFileURL {
-            return .success(RelayCache(cacheFileURL: cacheFileURL))
+            return .success(RelayCache(cacheFileURL: cacheFileURL, networkSession: networkSession))
         } else {
             return .failure(.defaultLocationNotFound)
         }
+    }
+
+
+    class func withDefaultLocationAndEphemeralSession() -> Result<RelayCache, RelayCacheError> {
+        return withDefaultLocation(networkSession: URLSession(configuration: .ephemeral))
     }
 
     /// Read the relay cache and update it from remote if needed.

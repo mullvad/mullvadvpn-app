@@ -12,7 +12,7 @@ import Foundation
 extension RelaySelector {
 
     static func loadedFromRelayCache() -> AnyPublisher<RelaySelector, RelayCacheError> {
-        return RelayCache.withDefaultLocation().publisher
+        return RelayCache.withDefaultLocationAndEphemeralSession().publisher
             .flatMap { $0.read() }
             .map { RelaySelector(relayList: $0.relayList) }
             .eraseToAnyPublisher()

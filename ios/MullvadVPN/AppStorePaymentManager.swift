@@ -98,7 +98,7 @@ class AppStorePaymentManager {
     static let shared = AppStorePaymentManager(queue: SKPaymentQueue.default())
 
     private let queue: SKPaymentQueue
-    private let rpc = MullvadRpc()
+    private let rpc = MullvadRpc.withEphemeralURLSession()
 
     private var paymentQueueSubscriber: AnyCancellable?
     private var sendReceiptSubscriber: AnyCancellable?
