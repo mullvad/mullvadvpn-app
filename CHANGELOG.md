@@ -45,6 +45,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix attempt to connect when the app doesn't have the VPN permission.
 - Fix crash that happened sometimes when the WireGuard key was loaded too quickly.
 - Fix crash when entering split-screen mode whilst on the Report a Problem screen.
+- Fix invalid back stack history when connection to service is lost and the app returns to the
+  launch screen.
 
 #### Windows
 - Fix race in network adapter monitor that could result in data corruption and crashes.
