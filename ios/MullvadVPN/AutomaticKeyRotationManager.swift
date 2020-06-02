@@ -46,7 +46,7 @@ class AutomaticKeyRotationManager {
         var publicKey: WireguardPublicKey
     }
 
-    private let rpc = MullvadRpc()
+    private let rpc = MullvadRpc.withEphemeralURLSession()
     private let persistentKeychainReference: Data
     private var rotateKeySubscriber: AnyCancellable?
 

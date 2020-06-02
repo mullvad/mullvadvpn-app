@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
   and 90 days to always be displayed in days quantity.
 - Fix a number of errors in DNS64 resolution and IPv6 support.
 - Update the tunnel state when the app returns from suspended state.
+- Disable `URLSession` cache.
 
 ## [2020.2] - 2020-04-16
 ### Fixed

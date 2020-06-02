@@ -66,7 +66,7 @@ class WireguardKeysViewController: UIViewController {
     private var creationDateTimerSubscriber: AnyCancellable?
     private var copyToPasteboardSubscriber: AnyCancellable?
 
-    private let rpc = MullvadRpc()
+    private let rpc = MullvadRpc.withEphemeralURLSession()
 
     private var state: WireguardKeysViewState = .default {
         didSet {

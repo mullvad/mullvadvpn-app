@@ -290,7 +290,7 @@ class TunnelManager {
     /// A queue used for access synchronization to the TunnelManager members
     private let executionQueue = DispatchQueue(label: "net.mullvad.vpn.tunnel-manager.execution-queue")
 
-    private let rpc = MullvadRpc()
+    private let rpc = MullvadRpc.withEphemeralURLSession()
     private var tunnelProvider: TunnelProviderManagerType?
     private var tunnelIpc: PacketTunnelIpc?
 

@@ -103,26 +103,31 @@ class MullvadRpc {
         }
     }
 
-    init(session: URLSession = URLSession.shared) {
+    /// Returns an instance of `MullvadRpc` configured with ephemeral `URLSession` configuration
+    class func withEphemeralURLSession() -> MullvadRpc {
+        return MullvadRpc(session: URLSession(configuration: .ephemeral))
+    }
+
+    init(session: URLSession) {
         self.session = session
     }
 
     func createAccount() -> AnyPublisher<String, MullvadRpc.Error> {
         let request = JsonRpcRequest(method: "create_account", params: [])
 
-        return MullvadRpc.makeDataTaskPublisher(request: request)
+        return makeDataTaskPublisher(request: request)
     }
 
     func getRelayList() -> AnyPublisher<RelayList, MullvadRpc.Error> {
         let request = JsonRpcRequest(method: "relay_list_v3", params: [])
 
-        return MullvadRpc.makeDataTaskPublisher(request: request)
+        return makeDataTaskPublisher(request: request)
     }
 
     func getAccountExpiry(accountToken: String) -> AnyPublisher<Date, MullvadRpc.Error> {
         let request = JsonRpcRequest(method: "get_expiry", params: [AnyEncodable(accountToken)])
 
-        return MullvadRpc.makeDataTaskPublisher(request: request)
+        return makeDataTaskPublisher(request: request)
     }
 
     func pushWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<WireguardAssociatedAddresses, MullvadRpc.Error> {
@@ -131,7 +136,7 @@ class MullvadRpc {
             AnyEncodable(publicKey)
         ])
 
-        return MullvadRpc.makeDataTaskPublisher(request: request)
+        return makeDataTaskPublisher(request: request)
     }
 
     func replaceWireguardKey(accountToken: String, oldPublicKey: Data, newPublicKey: Data) -> AnyPublisher<WireguardAssociatedAddresses, MullvadRpc.Error> {
@@ -141,7 +146,7 @@ class MullvadRpc {
             AnyEncodable(newPublicKey)
         ])
 
-        return MullvadRpc.makeDataTaskPublisher(request: request)
+        return makeDataTaskPublisher(request: request)
     }
 
     func checkWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<Bool, MullvadRpc.Error> {
@@ -150,7 +155,7 @@ class MullvadRpc {
             AnyEncodable(publicKey)
         ])
 
-        return MullvadRpc.makeDataTaskPublisher(request: request)
+        return makeDataTaskPublisher(request: request)
     }
 
     func removeWireguardKey(accountToken: String, publicKey: Data) -> AnyPublisher<Bool, MullvadRpc.Error> {
@@ -159,7 +164,7 @@ class MullvadRpc {
             AnyEncodable(publicKey)
         ])
 
-        return MullvadRpc.makeDataTaskPublisher(request: request)
+        return makeDataTaskPublisher(request: request)
     }
 
     func sendAppStoreReceipt(accountToken: String, receiptData: Data) -> AnyPublisher<SendAppStoreReceiptResponse, MullvadRpc.Error> {
@@ -168,20 +173,20 @@ class MullvadRpc {
             AnyEncodable(receiptData)
         ])
 
-        return MullvadRpc.makeDataTaskPublisher(request: request)
+        return makeDataTaskPublisher(request: request)
     }
 
-    private static func makeDataTaskPublisher<T: Decodable>(request: JsonRpcRequest) -> AnyPublisher<T, MullvadRpc.Error> {
+    private func makeDataTaskPublisher<T: Decodable>(request: JsonRpcRequest) -> AnyPublisher<T, MullvadRpc.Error> {
         return Just(request)
-            .encode(encoder: makeJSONEncoder())
+            .encode(encoder: Self.makeJSONEncoder())
             .mapError { MullvadRpc.Error.encoding($0) }
-            .map { self.makeURLRequest(httpBody: $0) }
+            .map { Self.makeURLRequest(httpBody: $0) }
             .flatMap {
-                URLSession.shared.dataTaskPublisher(for: $0)
+                self.session.dataTaskPublisher(for: $0)
                     .mapError { MullvadRpc.Error.network($0) }
                     .flatMap { (data, httpResponse) in
                         Just(data)
-                            .decode(type: JsonRpcResponse<T, ResponseCode>.self, decoder: makeJSONDecoder())
+                            .decode(type: JsonRpcResponse<T, ResponseCode>.self, decoder: Self.makeJSONDecoder())
                             .mapError { MullvadRpc.Error.decoding($0) }
                             .flatMap { (serverResponse) in
                                 // unwrap JsonRpcResponse.result
