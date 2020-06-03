@@ -1,0 +1,367 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+#. AL
+msgid "Albania"
+msgstr "Albania"
+
+#. AL TIA
+msgid "Tirana"
+msgstr "Tirana"
+
+#. AU
+msgid "Australia"
+msgstr "Australia"
+
+#. AU ADL
+msgid "Adelaide"
+msgstr "Adelaide"
+
+#. AU BNE
+msgid "Brisbane"
+msgstr "Brisbane"
+
+#. AU CBR
+msgid "Canberra"
+msgstr "Canberra"
+
+#. AU MEL
+msgid "Melbourne"
+msgstr "Melbourne"
+
+#. AU PER
+msgid "Perth"
+msgstr "Perth"
+
+#. AU SYD
+msgid "Sydney"
+msgstr "Sydney"
+
+#. AT
+msgid "Austria"
+msgstr "Austria"
+
+#. AT VIE
+msgid "Vienna"
+msgstr "Wiedeń"
+
+#. BE
+msgid "Belgium"
+msgstr "Belgia"
+
+#. BE BRU
+msgid "Brussels"
+msgstr "Bruksela"
+
+#. BR
+msgid "Brazil"
+msgstr "Brazylia"
+
+#. BR SAO
+msgid "Sao Paulo"
+msgstr "São Paulo"
+
+#. BG
+msgid "Bulgaria"
+msgstr "Bułgaria"
+
+#. BG SOF
+msgid "Sofia"
+msgstr "Sofia"
+
+#. CA
+msgid "Canada"
+msgstr "Kanada"
+
+#. CA MTR
+msgid "Montreal"
+msgstr "Montreal"
+
+#. CA TOR
+msgid "Toronto"
+msgstr "Toronto"
+
+#. CA VAN
+msgid "Vancouver"
+msgstr "Vancouver"
+
+#. CZ
+msgid "Czech Republic"
+msgstr "Czechy"
+
+#. CZ PRG
+msgid "Prague"
+msgstr "Praga"
+
+#. DK
+msgid "Denmark"
+msgstr "Dania"
+
+#. DK CPH
+msgid "Copenhagen"
+msgstr "Kopenhaga"
+
+#. FI
+msgid "Finland"
+msgstr "Finlandia"
+
+#. FI HEL
+msgid "Helsinki"
+msgstr "Helsinki"
+
+#. FR
+msgid "France"
+msgstr ""
+
+#. FR PAR
+msgid "Paris"
+msgstr "Paryż"
+
+#. DE
+msgid "Germany"
+msgstr "Niemcy"
+
+#. DE FRA
+msgid "Frankfurt"
+msgstr "Frankfurt nad Menem"
+
+#. GR
+msgid "Greece"
+msgstr "Grecja"
+
+#. GR ATH
+msgid "Athens"
+msgstr "Ateny"
+
+#. HK
+msgid "Hong Kong"
+msgstr "Hongkong"
+
+#. HU
+msgid "Hungary"
+msgstr "Węgry"
+
+#. HU BUD
+msgid "Budapest"
+msgstr "Budapeszt"
+
+#. IE
+msgid "Ireland"
+msgstr "Irlandia"
+
+#. IE DUB
+msgid "Dublin"
+msgstr "Dublin"
+
+#. IL
+msgid "Israel"
+msgstr "Izrael"
+
+#. IL TLV
+msgid "Tel Aviv"
+msgstr ""
+
+#. IT
+msgid "Italy"
+msgstr "Włochy"
+
+#. IT MIL
+msgid "Milan"
+msgstr "Mediolan"
+
+#. JP
+msgid "Japan"
+msgstr "Japonia"
+
+#. JP TYO
+msgid "Tokyo"
+msgstr "Tokio"
+
+#. LV
+msgid "Latvia"
+msgstr "Łotwa"
+
+#. LV RIX
+msgid "Riga"
+msgstr "Ryga"
+
+#. LU
+msgid "Luxembourg"
+msgstr "Luksemburg"
+
+#. MD
+msgid "Moldova"
+msgstr "Mołdawia"
+
+#. MD KIV
+msgid "Chisinau"
+msgstr "Kiszyniów"
+
+#. NL
+msgid "Netherlands"
+msgstr "Holandia"
+
+#. NL AMS
+msgid "Amsterdam"
+msgstr "Amsterdam"
+
+#. NZ
+msgid "New Zealand"
+msgstr "Nowa Zelandia"
+
+#. NZ AKL
+msgid "Auckland"
+msgstr "Auckland"
+
+#. NO
+msgid "Norway"
+msgstr ""
+
+#. NO OSL
+msgid "Oslo"
+msgstr "Oslo"
+
+#. PL
+msgid "Poland"
+msgstr "Polska"
+
+#. PL WAW
+msgid "Warsaw"
+msgstr "Warszawa"
+
+#. PT
+msgid "Portugal"
+msgstr "Portugalia"
+
+#. PT LIS
+msgid "Lisbon"
+msgstr "Lizbona"
+
+#. RO
+msgid "Romania"
+msgstr "Rumunia"
+
+#. RO BUH
+msgid "Bucharest"
+msgstr "Bukareszt"
+
+#. RS
+msgid "Serbia"
+msgstr "Serbia"
+
+#. RS BEG
+msgid "Belgrade"
+msgstr "Belgrad"
+
+#. RS INI
+msgid "Nis"
+msgstr "Nisz"
+
+#. SG
+msgid "Singapore"
+msgstr "Singapur"
+
+#. ES
+msgid "Spain"
+msgstr "Hiszpania"
+
+#. ES MAD
+msgid "Madrid"
+msgstr "Madryt"
+
+#. SE
+msgid "Sweden"
+msgstr "Szwecja"
+
+#. SE GOT
+msgid "Gothenburg"
+msgstr "Göteborg"
+
+#. SE HEL
+msgid "Helsingborg"
+msgstr "Helsingborg"
+
+#. SE MMA
+msgid "Malmö"
+msgstr "Malmö"
+
+#. SE STO
+msgid "Stockholm"
+msgstr "Sztokholm"
+
+#. CH
+msgid "Switzerland"
+msgstr "Szwajcaria"
+
+#. CH ZRH
+msgid "Zurich"
+msgstr "Zurych"
+
+#. GB
+msgid "UK"
+msgstr "Wielka Brytania"
+
+#. GB LON
+msgid "London"
+msgstr "Londyn"
+
+#. GB MNC
+msgid "Manchester"
+msgstr "Manchester"
+
+#. AE
+msgid "United Arab Emirates"
+msgstr "Zjednoczone Emiraty Arabskie"
+
+#. AE DXB
+msgid "Dubai"
+msgstr "Dubaj"
+
+#. US
+msgid "USA"
+msgstr "Stany Zjednoczone"
+
+#. US ATL
+msgid "Atlanta, GA"
+msgstr "Atlanta, GA"
+
+#. US CHI
+msgid "Chicago, IL"
+msgstr "Chicago, IL"
+
+#. US DAL
+msgid "Dallas, TX"
+msgstr "Dallas, TX"
+
+#. US DEN
+msgid "Denver, CO"
+msgstr "Denver, CO"
+
+#. US LAX
+msgid "Los Angeles, CA"
+msgstr "Los Angeles, CA"
+
+#. US MIA
+msgid "Miami, FL"
+msgstr "Miami, FL"
+
+#. US NYC
+msgid "New York, NY"
+msgstr "Nowy Jork, NY"
+
+#. US PHX
+msgid "Phoenix, AZ"
+msgstr "Phoenix, AZ"
+
+#. US SLC
+msgid "Salt Lake City, UT"
+msgstr "Salt Lake City, UT"
+
+#. US SEA
+msgid "Seattle, WA"
+msgstr "Seattle, WA"
+
+#. US UYK
+msgid "Secaucus, NJ"
+msgstr ""
