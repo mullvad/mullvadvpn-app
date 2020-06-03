@@ -33,6 +33,11 @@ Line wrap the file at 100 chars.                                              Th
 - Prevent commands to connect or disconnect to be sent when the device is locked.
 - Make settings screens scrollable.
 
+#### Linux
+- Send an ICMP reject message or TCP reset packet when blocking outgoing packets to prevent
+  timeouts.
+
+
 ### Fixed
 - Show both WireGuard and OpenVPN servers in location list when protocol is set to automatic on Linux and macOS.
 
