@@ -103,7 +103,9 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
     private fun checkExpiry(maybeExpiry: DateTime?) {
         maybeExpiry?.let { expiry ->
-            if (expiry.isAfterNow()) {
+            val tomorrow = DateTime.now().plusDays(1)
+
+            if (expiry.isAfter(tomorrow)) {
                 jobTracker.newUiJob("advanceToConnectScreen") {
                     advanceToConnectScreen()
                 }
