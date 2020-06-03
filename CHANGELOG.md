@@ -54,6 +54,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix invalid back stack history when connection to service is lost and the app returns to the
   launch screen.
 - Fix app leaving settings screen when entering split-screen mode.
+- Fix app sometimes leaving Welcome screen prematurely after creating an account.
 
 #### Windows
 - Fix race in network adapter monitor that could result in data corruption and crashes.
