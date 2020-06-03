@@ -5,8 +5,10 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.View
+import android.view.View.MeasureSpec
 import android.widget.ImageView
 import android.widget.TextView
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -43,6 +45,12 @@ class NotificationBanner(
     private val message: TextView = parentView.findViewById(R.id.notification_message)
     private val icon: View = parentView.findViewById(R.id.notification_icon)
 
+    private var height: Int by observable(0) { _, oldValue, newValue ->
+        if (oldValue != newValue) {
+            onHeightChange?.invoke(newValue)
+        }
+    }
+
     private var updateJob: Job? = null
 
     private var externalLink: ExternalLink? = null
@@ -69,6 +77,10 @@ class NotificationBanner(
             }
         }
     )
+
+    var onHeightChange by observable<((Int) -> Unit)?>(null) { _, _, newListener ->
+        newListener?.invoke(height)
+    }
 
     var keyState: KeygenEvent? = null
         set(value) {
@@ -242,6 +254,8 @@ class NotificationBanner(
             banner.setClickable(true)
             icon.visibility = View.VISIBLE
         }
+
+        height = recalculateHeight()
     }
 
     private fun hide() {
@@ -250,6 +264,17 @@ class NotificationBanner(
             banner.animate().translationY(-banner.height.toFloat()).setDuration(350).withEndAction {
                 banner.visibility = View.INVISIBLE
             }
+        }
+    }
+
+    private fun recalculateHeight(): Int {
+        banner.apply {
+            val widthSpec = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.AT_MOST)
+            val heightSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+
+            measure(widthSpec, heightSpec)
+
+            return measuredHeight
         }
     }
 
