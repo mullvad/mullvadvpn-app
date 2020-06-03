@@ -1,10 +1,12 @@
 package net.mullvad.mullvadvpn.ui
 
+import android.graphics.Rect
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ScrollView
 import android.widget.TextView
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
@@ -27,6 +29,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var loggedInStatus: View
     private lateinit var loginFailStatus: View
     private lateinit var accountInput: AccountInput
+    private lateinit var scrollArea: ScrollView
 
     private val loggedIn = CompletableDeferred<LoginResult>()
 
@@ -51,7 +54,10 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         view.findViewById<Button>(R.id.create_account)
             .setOnClickAction("createAccount", jobTracker) { createAccount() }
 
+        scrollArea = view.findViewById(R.id.scroll_area)
+
         fetchHistory()
+        scrollToShow(accountInput.input)
 
         return view
     }
@@ -72,6 +78,12 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         jobTracker.cancelJob("advanceToNextScreen")
     }
 
+    private fun scrollToShow(view: View) {
+        val rectangle = Rect(0, 0, view.width, view.height)
+
+        scrollArea.requestChildRectangleOnScreen(view, rectangle, false)
+    }
+
     private suspend fun createAccount() {
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.creating_new_account)
@@ -81,6 +93,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loggedInStatus.visibility = View.GONE
 
         accountInput.state = LoginState.InProgress
+
+        scrollToShow(loggingInStatus)
 
         val accountToken = jobTracker.runOnBackground {
             daemon.createNewAccount()
@@ -102,6 +116,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loggedInStatus.visibility = View.GONE
 
         accountInput.state = LoginState.InProgress
+
+        scrollToShow(loggingInStatus)
 
         performLogin(accountToken)
     }
@@ -163,6 +179,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loggedInStatus.visibility = View.VISIBLE
 
         accountInput.state = LoginState.Success
+
+        scrollToShow(loggedInStatus)
     }
 
     private fun openNextScreen(fragment: Fragment) {
@@ -181,5 +199,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loggedInStatus.visibility = View.GONE
 
         accountInput.state = LoginState.Failure
+
+        scrollToShow(accountInput.input)
     }
 }
