@@ -481,4 +481,3 @@ msgstr "Viyana"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürih"
-
