@@ -16,6 +16,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var actionButton: ConnectActionButton
     private lateinit var switchLocationButton: SwitchLocationButton
     private lateinit var headerBar: HeaderBar
+    private lateinit var body: View
     private lateinit var notificationBanner: NotificationBanner
     private lateinit var status: ConnectionStatus
     private lateinit var locationInfo: LocationInfo
@@ -42,7 +43,12 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
 
         headerBar = HeaderBar(view, resources)
+
+        body = view.findViewById(R.id.body)
+
         notificationBanner = NotificationBanner(view, parentActivity, appVersionInfoCache, daemon)
+        notificationBanner.onHeightChange = { newHeight -> updateBodyPaddingTop(newHeight) }
+
         status = ConnectionStatus(view, resources)
 
         locationInfo = LocationInfo(view, context!!)
@@ -119,6 +125,14 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     override fun onSafelySaveInstanceState(state: Bundle) {
         isTunnelInfoExpanded = locationInfo.isTunnelInfoExpanded
         state.putBoolean(KEY_IS_TUNNEL_INFO_EXPANDED, isTunnelInfoExpanded)
+    }
+
+    private fun updateBodyPaddingTop(newPaddingTop: Int) {
+        body.apply {
+            if (paddingTop != newPaddingTop) {
+                setPadding(paddingLeft, newPaddingTop, paddingRight, paddingBottom)
+            }
+        }
     }
 
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) {
