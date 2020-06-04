@@ -13,6 +13,7 @@ import android.view.WindowManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.service.MullvadVpnService
@@ -111,7 +112,10 @@ class MainActivity : FragmentActivity() {
     fun enterSecureScreen(screen: Fragment) {
         synchronized(this) {
             visibleSecureScreens.add(screen)
-            window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+
+            if (!BuildConfig.DEBUG) {
+                window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
         }
     }
 
@@ -119,7 +123,7 @@ class MainActivity : FragmentActivity() {
         synchronized(this) {
             visibleSecureScreens.remove(screen)
 
-            if (visibleSecureScreens.isEmpty()) {
+            if (!BuildConfig.DEBUG && visibleSecureScreens.isEmpty()) {
                 window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
         }
