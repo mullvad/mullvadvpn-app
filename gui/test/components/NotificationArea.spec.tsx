@@ -9,9 +9,9 @@ import { expect } from 'chai';
 describe('components/NotificationArea', () => {
   const defaultVersion = {
     consistent: true,
-    currentIsSupported: true,
+    supported: true,
     current: '2018.2',
-    currentIsBeta: false,
+    isBeta: false,
     latest: '2018.2-beta1',
     latestStable: '2018.2',
     nextUpgrade: null,
@@ -191,7 +191,7 @@ describe('components/NotificationArea', () => {
         }}
         version={{
           ...defaultVersion,
-          currentIsSupported: false,
+          supported: false,
           current: '2018.1',
           nextUpgrade: '2018.2',
         }}

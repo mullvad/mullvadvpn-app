@@ -65,7 +65,7 @@ export interface ICurrentAppVersionInfo {
   gui: string;
   daemon: string;
   isConsistent: boolean;
-  currentIsBeta: boolean;
+  isBeta: boolean;
 }
 
 export interface IAppUpgradeInfo extends IAppVersionInfo {
@@ -138,7 +138,7 @@ class ApplicationMain {
     daemon: '',
     gui: '',
     isConsistent: true,
-    currentIsBeta: false,
+    isBeta: false,
   };
 
   private upgradeVersion: IAppUpgradeInfo = {
@@ -744,7 +744,7 @@ class ApplicationMain {
       daemon: daemonVersion,
       gui: guiVersion,
       isConsistent: daemonVersion === guiVersion,
-      currentIsBeta: guiVersion.includes('beta'),
+      isBeta: guiVersion.includes('beta'),
     };
 
     this.currentVersion = versionInfo;

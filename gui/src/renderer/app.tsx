@@ -734,7 +734,7 @@ export default class AppRenderer {
     this.reduxActions.version.updateVersion(
       versionInfo.gui,
       versionInfo.isConsistent,
-      versionInfo.currentIsBeta,
+      versionInfo.isBeta,
     );
   }
 
