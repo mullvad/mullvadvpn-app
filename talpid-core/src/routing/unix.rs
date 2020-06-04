@@ -148,7 +148,7 @@ impl RouteManager {
 
     /// Route PID-associated packets through the physical interface.
     #[cfg(target_os = "linux")]
-    pub fn enable_exclusions_routes(&self) -> Result<(), Error> {
+    pub fn enable_exclusions_routes(&mut self) -> Result<(), Error> {
         if let Some(tx) = &self.manage_tx {
             let (result_tx, result_rx) = oneshot::channel();
             if tx
@@ -158,7 +158,7 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            match result_rx.wait() {
+            match self.runtime.block_on(result_rx) {
                 Ok(result) => result.map_err(Error::PlatformError),
                 Err(error) => {
                     log::trace!("{}", error.display_chain_with_msg("channel is closed"));
@@ -206,7 +206,7 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            match result_rx.wait() {
+            match self.runtime.block_on(result_rx) {
                 Ok(result) => result.map_err(Error::PlatformError),
                 Err(error) => {
                     log::trace!("{}", error.display_chain_with_msg("channel is closed"));
