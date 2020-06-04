@@ -15,6 +15,8 @@ import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import org.joda.time.DateTime
 
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
+    override val isSecureScreen = true
+
     private val dateStyle = DateFormat.MEDIUM
     private val timeStyle = DateFormat.SHORT
     private val expiryFormatter = DateFormat.getDateTimeInstance(dateStyle, timeStyle)
