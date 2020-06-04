@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.ViewSwitcher
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
@@ -21,6 +22,17 @@ import net.mullvad.mullvadvpn.util.JobTracker
 class ProblemReportFragment : Fragment() {
     private val jobTracker = JobTracker()
 
+    private var showingEmail by observable(false) { _, oldValue, newValue ->
+        if (oldValue != newValue) {
+            if (newValue == true) {
+                parentActivity.enterSecureScreen(this)
+            } else {
+                parentActivity.leaveSecureScreen(this)
+            }
+        }
+    }
+
+    private lateinit var parentActivity: MainActivity
     private lateinit var problemReport: MullvadProblemReport
 
     private lateinit var bodyContainer: ViewSwitcher
@@ -46,7 +58,7 @@ class ProblemReportFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        val parentActivity = context as MainActivity
+        parentActivity = context as MainActivity
 
         problemReport = parentActivity.problemReport
         problemReport.collect()
@@ -116,6 +128,12 @@ class ProblemReportFragment : Fragment() {
         titleController.onDestroy()
 
         super.onDestroyView()
+    }
+
+    override fun onDetach() {
+        showingEmail = false
+
+        super.onDetach()
     }
 
     private suspend fun sendReport(shouldConfirmNoEmail: Boolean) {
@@ -194,6 +212,8 @@ class ProblemReportFragment : Fragment() {
             responseMessageLabel.visibility = View.VISIBLE
             responseEmailLabel.visibility = View.VISIBLE
             responseEmailLabel.text = userEmail
+
+            showingEmail = true
         }
 
         sendStatusLabel.setText(R.string.sent)
