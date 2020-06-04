@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 - Prevent commands to connect or disconnect to be sent when the device is locked.
 - Make settings screens scrollable.
 - Make connect screen scrollable.
+- Make Login screen scrollable.
 
 #### Linux
 - Send an ICMP reject message or TCP reset packet when blocking outgoing packets to prevent
