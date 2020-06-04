@@ -1,11 +1,16 @@
-import { app, nativeImage, NativeImage, Notification, shell } from 'electron';
+import { app, nativeImage, NativeImage, Notification } from 'electron';
 import os from 'os';
 import path from 'path';
-import { sprintf } from 'sprintf-js';
-import config from '../config.json';
-import AccountExpiry from '../shared/account-expiry';
 import { TunnelState } from '../shared/daemon-rpc-types';
-import { messages } from '../shared/gettext';
+import {
+  BlockWhenDisconnectedNotificationProvider,
+  ConnectedNotificationProvider,
+  ConnectingNotificationProvider,
+  DisconnectedNotificationProvider,
+  ErrorNotificationProvider,
+  ReconnectingNotificationProvider,
+  SystemNotification,
+} from '../shared/notifications/notification';
 import consumePromise from '../shared/promise';
 
 export default class NotificationController {
@@ -16,7 +21,7 @@ export default class NotificationController {
   private notificationTitle = process.platform === 'linux' ? app.name : '';
   private notificationIcon?: NativeImage;
 
-  constructor() {
+  constructor(private openLink: (url: string, withAuth?: boolean) => Promise<void>) {
     let usePngIcon;
     if (process.platform === 'linux') {
       usePngIcon = true;
@@ -34,147 +39,30 @@ export default class NotificationController {
     }
   }
 
-  public notifyTunnelState(tunnelState: TunnelState) {
-    switch (tunnelState.state) {
-      case 'connecting':
-        if (!this.reconnecting) {
-          const details = tunnelState.details;
-          if (details && details.location && details.location.hostname) {
-            const msg = sprintf(
-              // TRANSLATORS: The message showed when a server is being connected to.
-              // TRANSLATORS: Available placeholder:
-              // TRANSLATORS: %(location) - name of the server location we're connecting to (e.g. "se-got-003")
-              messages.pgettext('notifications', 'Connecting to %(location)s'),
-              {
-                location: details.location.hostname,
-              },
-            );
-            this.showTunnelStateNotification(msg);
-          } else {
-            this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting'));
-          }
-        }
-        break;
-      case 'connected':
-        {
-          const details = tunnelState.details;
-          if (details.location && details.location.hostname) {
-            const msg = sprintf(
-              // TRANSLATORS: The message showed when a server has been connected to.
-              // TRANSLATORS: Available placeholder:
-              // TRANSLATORS: %(location) - name of the server location we're connected to (e.g. "se-got-003")
-              messages.pgettext('notifications', 'Connected to %(location)s'),
-              {
-                location: details.location.hostname,
-              },
-            );
-            this.showTunnelStateNotification(msg);
-          } else {
-            this.showTunnelStateNotification(messages.pgettext('notifications', 'Secured'));
-          }
-        }
-        break;
-      case 'disconnected':
-        this.showTunnelStateNotification(messages.pgettext('notifications', 'Unsecured'));
-        break;
-      case 'error':
-        if (tunnelState.details.isBlocking) {
-          if (
-            tunnelState.details.cause.reason === 'tunnel_parameter_error' &&
-            tunnelState.details.cause.details === 'no_wireguard_key'
-          ) {
-            this.showTunnelStateNotification(
-              messages.pgettext(
-                'notifications',
-                'Blocking internet: Valid WireGuard key is missing',
-              ),
-            );
-          } else {
-            this.showTunnelStateNotification(
-              messages.pgettext('notifications', 'Blocking internet'),
-            );
-          }
-        } else {
-          this.showTunnelStateNotification(
-            messages.pgettext('notifications', 'Critical error (your attention is required)'),
-          );
-        }
-        break;
-      case 'disconnecting':
-        switch (tunnelState.details) {
-          case 'nothing':
-          case 'block':
-            // no-op
-            break;
-          case 'reconnect':
-            this.showTunnelStateNotification(messages.pgettext('notifications', 'Reconnecting'));
-            this.reconnecting = true;
-            return;
-        }
-        break;
+  public notifyTunnelState(
+    evaluate: (notification: SystemNotification) => boolean,
+    tunnelState: TunnelState,
+    blockWhenDisconnected: boolean,
+  ) {
+    const notification: SystemNotification | undefined = [
+      new ConnectingNotificationProvider({ tunnelState, reconnecting: this.reconnecting }),
+      new ConnectedNotificationProvider({ tunnelState }),
+      new ReconnectingNotificationProvider({ tunnelState }),
+      new BlockWhenDisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
+      new DisconnectedNotificationProvider({ tunnelState }),
+      new ErrorNotificationProvider({ tunnelState }),
+    ].find((notification) => evaluate(notification))!;
+
+    if (notification) {
+      this.showTunnelStateNotification(notification);
+
+      if (notification instanceof ReconnectingNotificationProvider) {
+        this.reconnecting = true;
+        return;
+      }
     }
 
     this.reconnecting = false;
-  }
-
-  public notifyInconsistentVersion() {
-    this.presentNotificationOnce('inconsistent-version', () => {
-      const notification = new Notification({
-        title: this.notificationTitle,
-        body: messages.pgettext(
-          'notifications',
-          'Inconsistent internal version information, please restart the app',
-        ),
-        silent: true,
-        icon: this.notificationIcon,
-      });
-      this.scheduleNotification(notification);
-    });
-  }
-
-  public notifyUnsupportedVersion(upgradeVersion: string) {
-    this.presentNotificationOnce('unsupported-version', () => {
-      const notification = new Notification({
-        title: this.notificationTitle,
-        body: sprintf(
-          // TRANSLATORS: The system notification displayed to the user when the running app becomes unsupported.
-          // TRANSLATORS: Available placeholder:
-          // TRANSLATORS: %(version) - the newest available version of the app
-          messages.pgettext(
-            'notifications',
-            'You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security',
-          ),
-          {
-            version: upgradeVersion,
-          },
-        ),
-        silent: true,
-        icon: this.notificationIcon,
-      });
-
-      notification.on('click', () => {
-        consumePromise(shell.openExternal(config.links.download));
-      });
-
-      this.scheduleNotification(notification);
-    });
-  }
-
-  public closeToExpiryNotification(accountExpiry: AccountExpiry) {
-    const duration = accountExpiry.durationUntilExpiry();
-    const notification = new Notification({
-      title: this.notificationTitle,
-      body: sprintf(
-        // TRANSLATORS: The system notification displayed to the user when the account credit is close to expiry.
-        // TRANSLATORS: Available placeholder:
-        // TRANSLATORS: %(duration)s - remaining time, e.g. "2 days"
-        messages.pgettext('notifications', 'Account credit expires in %(duration)s'),
-        { duration },
-      ),
-      silent: true,
-      icon: this.notificationIcon,
-    });
-    this.scheduleNotification(notification);
   }
 
   public cancelPendingNotifications() {
@@ -187,7 +75,40 @@ export default class NotificationController {
     this.lastTunnelStateAnnouncement = undefined;
   }
 
-  private showTunnelStateNotification(message: string) {
+  public notify(systemNotification: SystemNotification) {
+    if (this.suppressDueToAlreadyPresented(systemNotification)) {
+      return;
+    }
+
+    const notification = this.createNotification(systemNotification);
+    this.addPendingNotification(notification);
+    notification.show();
+
+    setTimeout(() => notification.close(), 4000);
+
+    return notification;
+  }
+
+  private createNotification(systemNotification: SystemNotification) {
+    const notification = new Notification({
+      title: this.notificationTitle,
+      body: systemNotification.message,
+      silent: true,
+      icon: this.notificationIcon,
+    });
+
+    if (systemNotification.action) {
+      const { withAuth, url } = systemNotification.action;
+      notification.on('click', () => {
+        consumePromise(this.openLink(url, withAuth));
+      });
+    }
+
+    return notification;
+  }
+
+  private showTunnelStateNotification(systemNotification: SystemNotification) {
+    const message = systemNotification.message;
     const lastAnnouncement = this.lastTunnelStateAnnouncement;
     const sameAsLastNotification = lastAnnouncement && lastAnnouncement.body === message;
 
@@ -195,39 +116,29 @@ export default class NotificationController {
       return;
     }
 
-    const newNotification = new Notification({
-      title: this.notificationTitle,
-      body: message,
-      silent: true,
-      icon: this.notificationIcon,
-    });
-
     if (lastAnnouncement) {
       lastAnnouncement.notification.close();
     }
 
-    this.lastTunnelStateAnnouncement = {
-      body: message,
-      notification: newNotification,
-    };
+    const newNotification = this.notify(systemNotification);
 
-    this.scheduleNotification(newNotification);
-  }
-
-  private presentNotificationOnce(notificationName: string, presentNotification: () => void) {
-    const presented = this.presentedNotifications;
-    if (!presented[notificationName]) {
-      presented[notificationName] = true;
-      presentNotification();
+    if (newNotification) {
+      this.lastTunnelStateAnnouncement = {
+        body: message,
+        notification: newNotification,
+      };
     }
   }
 
-  private scheduleNotification(notification: Notification) {
-    this.addPendingNotification(notification);
-
-    notification.show();
-
-    setTimeout(() => notification.close(), 4000);
+  private suppressDueToAlreadyPresented(notification: SystemNotification) {
+    const presented = this.presentedNotifications;
+    const notificationName = notification.constructor.name;
+    if (!notification.presentOnce || !presented[notificationName]) {
+      presented[notificationName] = true;
+      return false;
+    } else {
+      return true;
+    }
   }
 
   private addPendingNotification(notification: Notification) {
