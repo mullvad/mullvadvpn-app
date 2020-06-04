@@ -6,8 +6,10 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
+import android.view.WindowManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -27,6 +29,7 @@ class MainActivity : FragmentActivity() {
     private var service: MullvadVpnService.LocalBinder? = null
     private var serviceConnection: ServiceConnection? = null
     private var shouldConnect = false
+    private var visibleSecureScreens = HashSet<Fragment>()
 
     private val serviceConnectionManager = object : android.content.ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
@@ -103,6 +106,23 @@ class MainActivity : FragmentActivity() {
         serviceConnection?.onDestroy()
 
         super.onDestroy()
+    }
+
+    fun enterSecureScreen(screen: Fragment) {
+        synchronized(this) {
+            visibleSecureScreens.add(screen)
+            window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+
+    fun leaveSecureScreen(screen: Fragment) {
+        synchronized(this) {
+            visibleSecureScreens.remove(screen)
+
+            if (visibleSecureScreens.isEmpty()) {
+                window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+        }
     }
 
     fun openSettings() {
