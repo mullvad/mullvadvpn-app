@@ -19,7 +19,7 @@ pub use imp::{Error, RouteManager};
 
 /// A netowrk route with a specific network node, destinaiton and an optional metric.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
-struct Route {
+pub struct Route {
     node: Node,
     prefix: IpNetwork,
     metric: Option<u32>,
