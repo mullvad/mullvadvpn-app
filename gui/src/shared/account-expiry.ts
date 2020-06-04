@@ -40,15 +40,21 @@ export default class AccountExpiry {
     }
   }
 
-  public remainingTime(): string {
+  public remainingTime(shouldCapitalizeFirstLetter?: boolean): string {
     const duration = this.durationUntilExpiry();
 
-    return sprintf(
+    const remaining = sprintf(
       // TRANSLATORS: The remaining time left on the account displayed across the app.
       // TRANSLATORS: Available placeholders:
       // TRANSLATORS: %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
       messages.pgettext('account-expiry', '%(duration)s left'),
       { duration },
     );
+
+    return shouldCapitalizeFirstLetter ? capitalizeFirstLetter(remaining) : remaining;
   }
+}
+
+function capitalizeFirstLetter(inputString: string): string {
+  return inputString.charAt(0).toUpperCase() + inputString.slice(1);
 }
