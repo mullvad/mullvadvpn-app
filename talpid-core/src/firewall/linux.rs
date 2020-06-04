@@ -507,6 +507,8 @@ impl<'a> PolicyBatch<'a> {
 
         let mut out_rule = Rule::new(&self.out_chain);
         check_endpoint(&mut out_rule, End::Dst, endpoint);
+        out_rule.add_expr(&nft_expr!(meta skuid));
+        out_rule.add_expr(&nft_expr!(cmp == 0u32));
         add_verdict(&mut out_rule, &Verdict::Accept);
 
         self.batch.add(&out_rule, nftnl::MsgType::Add);
