@@ -1,4 +1,4 @@
-import { messages } from '../../shared/gettext';
+import { messages } from './gettext';
 
 export enum AuthFailureKind {
   invalidAccount,
