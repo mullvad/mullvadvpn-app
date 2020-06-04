@@ -1,19 +1,18 @@
 use crate::routing::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route};
 
+use futures::{
+    channel::mpsc,
+    future,
+    stream::{FusedStream, Stream, StreamExt, TryStreamExt},
+};
 use ipnetwork::IpNetwork;
 use std::{
     collections::HashSet,
     io,
     net::IpAddr,
-    process::{Command, ExitStatus, Stdio},
+    process::{ExitStatus, Stdio},
 };
-
-use futures01::{
-    stream,
-    sync::{mpsc, oneshot},
-    Async, Future, IntoFuture, Stream,
-};
-use tokio_process::{Child, CommandExt};
+use tokio02::{io::AsyncBufReadExt, process::Command};
 
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -38,22 +37,9 @@ pub enum Error {
     #[error(display = "Error while running \"route -nv monitor\"")]
     FailedToMonitorRoutes(#[error(source)] io::Error),
 
-    /// No default route in "route -n get default" output.
-    #[error(display = "No default route in \"route -n get default\" output")]
-    NoDefaultRoute,
-
     /// Unexpected output from netstat
     #[error(display = "Unexpected output from netstat")]
     BadOutputFromNetstat,
-}
-
-enum RouteManagerState {
-    Listening(ChangeListener),
-    ObtainingDefaultRoutes(
-        Box<dyn Future<Item = (Option<Node>, Option<Node>), Error = Error> + Send>,
-    ),
-    Applying(Box<dyn Future<Item = (), Error = ()> + Send>),
-    Shutdown(Box<dyn Future<Item = (), Error = ()> + Send>),
 }
 
 /// Route manager can be in 1 of 4 states -
@@ -70,42 +56,83 @@ enum RouteManagerState {
 pub struct RouteManagerImpl {
     default_destinations: HashSet<IpNetwork>,
     applied_routes: HashSet<Route>,
-    current_state: RouteManagerState,
     v4_gateway: Option<Node>,
     v6_gateway: Option<Node>,
-    manage_rx: Option<mpsc::UnboundedReceiver<RouteManagerCommand>>,
+    connectivity_change:
+        Option<Box<dyn FusedStream<Item = std::io::Result<()>> + Unpin + Send + Sync>>,
 }
 
 
 impl RouteManagerImpl {
-    pub fn new(
-        required_routes: HashSet<RequiredRoute>,
-        manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>,
-    ) -> Result<Self> {
-        let change_listener = ChangeListener::new().map_err(Error::FailedToMonitorRoutes)?;
+    pub async fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
+        let v4_gateway = Self::get_default_node_cmd("-inet").await?;
+        let v6_gateway = Self::get_default_node_cmd("-inet6").await?;
 
-        let v4_gateway = Self::get_default_node_cmd("-inet").wait()?;
-        let v6_gateway = Self::get_default_node_cmd("-inet6").wait()?;
-
-        if v4_gateway.is_none() && v6_gateway.is_none() {
-            return Err(Error::NoDefaultRoute);
-        }
+        let monitor = listen_for_default_route_changes().await?;
 
         let mut manager = Self {
             default_destinations: HashSet::new(),
             applied_routes: HashSet::new(),
-            current_state: RouteManagerState::Listening(change_listener),
-            manage_rx: Some(manage_rx),
+            connectivity_change: Some(Box::new(monitor.fuse())),
             v4_gateway,
             v6_gateway,
         };
 
-        manager.add_required_routes(required_routes)?;
+        manager.add_required_routes(required_routes).await?;
 
         Ok(manager)
     }
 
-    fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
+    pub async fn run(mut self, manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>) {
+        let mut manage_rx = manage_rx.fuse();
+        let mut connectivity_change = self.connectivity_change.take().unwrap();
+
+        loop {
+            futures::select! {
+                command = manage_rx.next() => {
+                    match command {
+                        Some(RouteManagerCommand::Shutdown(tx)) => {
+                            self.cleanup_routes().await;
+                            let _ = tx.send(());
+                            return;
+                        },
+
+                        Some(RouteManagerCommand::AddRoutes(routes, result_tx)) => {
+                            let result = self.add_required_routes(routes).await;
+                            let _ = result_tx.send(result);
+                        },
+                        Some(RouteManagerCommand::ClearRoutes) => {
+                            self.cleanup_routes().await;
+                        },
+                        None => {
+                            break;
+                        }
+                    }
+                },
+
+                _result = connectivity_change.select_next_some() => {
+                    let v4_gateway = Self::get_default_node_cmd("-inet").await.unwrap_or(None);
+                    let v6_gateway = Self::get_default_node_cmd("-inet6").await.unwrap_or(None);
+
+                    if v4_gateway != self.v4_gateway {
+                        self.v4_gateway = v4_gateway;
+                        self.apply_new_default_route(&self.v4_gateway, true).await;
+                    }
+
+                    if v6_gateway != self.v6_gateway {
+                        self.v6_gateway = v6_gateway;
+                        self.apply_new_default_route(&self.v6_gateway, false).await;
+                    }
+                },
+                complete => {
+                    break;
+                }
+            };
+        }
+        self.cleanup_routes().await;
+    }
+
+    async fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
         let mut routes_to_apply = vec![];
         let mut default_destinations = HashSet::new();
 
@@ -120,40 +147,38 @@ impl RouteManagerImpl {
         }
 
         for route in routes_to_apply {
-            Self::add_route(&route).wait()?;
+            Self::add_route(&route).await?;
             self.applied_routes.insert(route);
         }
+
         for destination in default_destinations.iter() {
             match (&self.v4_gateway, &self.v6_gateway, destination.is_ipv4()) {
                 (Some(gateway), _, true) | (_, Some(gateway), false) => {
                     let route = Route::new(gateway.clone(), *destination);
-                    Self::add_route(&route).wait()?;
+                    Self::add_route(&route).await?;
                     self.applied_routes.insert(route);
                 }
                 _ => (),
             };
         }
 
+        self.default_destinations = default_destinations;
+
         Ok(())
     }
 
     // Retrieves the node that's currently used to reach 0.0.0.0/0
     // Arguments can be either -inet or -inet6
-    fn get_default_node_cmd(
-        if_family: &'static str,
-    ) -> impl Future<Item = Option<Node>, Error = Error> {
+    async fn get_default_node_cmd(if_family: &'static str) -> Result<Option<Node>> {
         let mut cmd = Command::new("route");
         cmd.arg("-n").arg("get").arg(if_family).arg("default");
 
-        cmd.output_async()
-            .map_err(Error::FailedToRunRoute)
-            .and_then(|output| {
-                let output = String::from_utf8(output.stdout).map_err(|e| {
-                    log::error!("Failed to parse utf-8 bytes from output of netstat - {}", e);
-                    Error::BadOutputFromNetstat
-                })?;
-                Ok(Self::parse_route(&output))
-            })
+        let output = cmd.output().await.map_err(Error::FailedToRunRoute)?;
+        let output = String::from_utf8(output.stdout).map_err(|e| {
+            log::error!("Failed to parse utf-8 bytes from output of netstat - {}", e);
+            Error::BadOutputFromNetstat
+        })?;
+        Ok(Self::parse_route(&output))
     }
 
     fn parse_route(route_output: &str) -> Option<Node> {
@@ -193,9 +218,7 @@ impl RouteManagerImpl {
             .and_then(|ip_str| ip_str.parse().ok())
     }
 
-    pub fn delete_route(
-        destination: IpNetwork,
-    ) -> impl Future<Item = ExitStatus, Error = Error> + Send {
+    async fn delete_route(destination: IpNetwork) -> Result<ExitStatus> {
         let mut cmd = Command::new("route");
         cmd.arg("-q")
             .arg("-n")
@@ -203,11 +226,11 @@ impl RouteManagerImpl {
             .arg(ip_vers(destination))
             .arg(destination.to_string());
 
-        futures01::lazy(move || cmd.spawn_async().into_future().and_then(|f| f))
-            .map_err(Error::FailedToRemoveRoute)
+        cmd.status().await.map_err(Error::FailedToRemoveRoute)
     }
 
-    fn add_route(route: &Route) -> impl Future<Item = ExitStatus, Error = Error> + Send {
+
+    async fn add_route(route: &Route) -> Result<ExitStatus> {
         let mut cmd = Command::new("route");
         cmd.arg("-q")
             .arg("-n")
@@ -221,183 +244,49 @@ impl RouteManagerImpl {
             cmd.arg("-interface").arg(device);
         }
 
-        futures01::lazy(move || cmd.spawn_async().into_future().and_then(|f| f))
-            .map_err(Error::FailedToAddRoute)
+        cmd.status().await.map_err(Error::FailedToAddRoute)
     }
 
-    fn cleanup_routes(&self) -> impl Future<Item = (), Error = ()> + Send {
-        let remove_route_future = |route: &Route| {
-            Self::delete_route(route.prefix).then(|removal| {
-                match removal {
-                    Ok(status) => {
-                        if !status.success() {
-                            log::debug!("Failed to remove route during shutdown");
-                        }
-                    }
-                    Err(e) => log::error!("Failed to remove route during shutdown - {}", e),
-                };
-                Ok(())
-            })
-        };
-        let mut routes_to_remove: Vec<_> = self
+    async fn cleanup_routes(&self) -> () {
+        let destinations_to_remove = self
             .applied_routes
             .iter()
-            .map(remove_route_future)
-            .collect();
-        routes_to_remove.extend(self.default_destinations.iter().filter_map(|dest| {
-            match (&self.v4_gateway, &self.v6_gateway, dest.is_ipv4()) {
-                (Some(gateway), _, true) | (_, Some(gateway), false) => {
-                    let route = Route::new(gateway.clone(), *dest);
-                    Some(remove_route_future(&route))
+            .map(|route| &route.prefix)
+            .chain(self.default_destinations.iter());
+
+        for destination in destinations_to_remove {
+            match Self::delete_route(*destination).await {
+                Ok(status) => {
+                    if !status.success() {
+                        log::debug!("Failed to remove route during shutdown");
+                    }
                 }
-                _ => None,
-            }
-        }));
-        stream::futures_ordered(routes_to_remove).for_each(|_| Ok(()))
+                Err(e) => log::error!("Failed to remove route during shutdown - {}", e),
+            };
+        }
     }
 
-    fn shutdown_future(
-        &self,
-        shutdown_done_tx: Option<oneshot::Sender<()>>,
-    ) -> impl Future<Item = (), Error = ()> + Send {
-        self.cleanup_routes().and_then(|_| {
-            if let Some(tx) = shutdown_done_tx {
-                if tx.send(()).is_err() {
-                    log::debug!("RouteManager already dropped")
-                }
-            }
-            Ok(())
-        })
-    }
+    async fn apply_new_default_route(&self, new_node: &Option<Node>, v4: bool) {
+        for destination in self.default_destinations.iter() {
+            if destination.is_ipv4() == v4 {
+                let _ = Self::delete_route(*destination).await;
 
-    fn apply_new_default_routes(
-        &self,
-        new_v4: Option<Node>,
-        new_v6: Option<Node>,
-    ) -> impl Future<Item = (), Error = ()> + Send {
-        let apply_route_future = |route: &Route| {
-            let add_route_future = Self::add_route(route);
-            // always try to remove old route first - if it's still set, the new one won't be
-            // applied
-            Self::delete_route(route.prefix)
-                .then(|_| add_route_future)
-                .then(|addition| {
-                    match addition {
+                if let Some(node) = new_node {
+                    log::error!("Resetting default route for {}", destination);
+                    match Self::add_route(&Route::new(node.clone(), *destination)).await {
                         Ok(status) => {
                             if !status.success() {
-                                log::info!("Failed to reapply route");
+                                log::error!("Failed to reapply route");
                             }
                         }
                         Err(e) => log::error!("Failed to reset route: {}", e),
                     }
-                    Ok(())
-                })
-        };
-
-
-        let add_new_routes = self.default_destinations.iter().filter_map(|dest| {
-            match (&new_v4, &new_v6, dest.is_ipv4()) {
-                (Some(gateway), _, true) | (_, Some(gateway), false) => {
-                    let new_route = Route::new(gateway.clone(), *dest);
-                    Some(apply_route_future(&new_route))
-                }
-
-                _ => None,
-            }
-        });
-
-        stream::futures_ordered(add_new_routes).for_each(|_| Ok(()))
-    }
-
-    fn get_default_routes_future(
-        &self,
-    ) -> impl Future<Item = (Option<Node>, Option<Node>), Error = Error> + Send {
-        Self::get_default_node_cmd("-inet").join(Self::get_default_node_cmd("-inet6"))
-    }
-}
-
-impl Future for RouteManagerImpl {
-    type Item = ();
-    type Error = Error;
-    fn poll(&mut self) -> Result<Async<()>> {
-        if let Some(mut manage_rx) = self.manage_rx.take() {
-            match manage_rx.poll() {
-                Ok(Async::Ready(Some(command))) => match command {
-                    RouteManagerCommand::Shutdown(tx) => {
-                        self.current_state =
-                            RouteManagerState::Shutdown(Box::new(self.shutdown_future(Some(tx))));
-                    }
-                    RouteManagerCommand::AddRoutes(routes, result_tx) => {
-                        self.manage_rx = Some(manage_rx);
-                        log::debug!("Adding routes: {:?}", routes);
-                        if let Err(error) = self.add_required_routes(routes) {
-                            let _ = result_tx.send(Err(error));
-                        } else {
-                            let _ = result_tx.send(Ok(()));
-                        }
-                    }
-                    RouteManagerCommand::ClearRoutes => {
-                        self.manage_rx = Some(manage_rx);
-                        log::debug!("Clearing routes");
-                        let _ = self.cleanup_routes().wait();
-                    }
-                },
-                // handle is already dropped
-                Ok(Async::Ready(None)) | Err(_) => {
-                    self.current_state =
-                        RouteManagerState::Shutdown(Box::new(self.shutdown_future(None)));
-                }
-                Ok(Async::NotReady) => {
-                    self.manage_rx = Some(manage_rx);
-                }
-            };
-        }
-
-
-        loop {
-            match &mut self.current_state {
-                RouteManagerState::Listening(listener) => {
-                    match listener.poll().map_err(Error::FailedToMonitorRoutes)? {
-                        Async::Ready(()) => {
-                            self.current_state = RouteManagerState::ObtainingDefaultRoutes(
-                                Box::new(self.get_default_routes_future()),
-                            );
-                        }
-                        Async::NotReady => break,
-                    }
-                }
-
-                RouteManagerState::ObtainingDefaultRoutes(f) => match f.poll()? {
-                    Async::Ready((v4_gateway, v6_gateway)) => {
-                        self.current_state = RouteManagerState::Applying(Box::new(
-                            self.apply_new_default_routes(v4_gateway, v6_gateway),
-                        ));
-                    }
-                    Async::NotReady => break,
-                },
-
-                RouteManagerState::Applying(f) => {
-                    match f.poll() {
-                        // the future for reapplying routes never fails - just logs failures
-                        Err(_) => unreachable!(),
-                        Ok(Async::NotReady) => break,
-                        Ok(Async::Ready(_)) => {
-                            self.current_state = RouteManagerState::Listening(
-                                ChangeListener::new().map_err(Error::FailedToMonitorRoutes)?,
-                            );
-                        }
-                    }
-                }
-
-                RouteManagerState::Shutdown(shutdown_future) => {
-                    return Ok(shutdown_future.poll().unwrap_or(Async::Ready(())));
                 }
             }
         }
-
-        Ok(Async::NotReady)
     }
 }
+
 
 fn ip_vers(prefix: IpNetwork) -> &'static str {
     if prefix.is_ipv4() {
@@ -408,50 +297,58 @@ fn ip_vers(prefix: IpNetwork) -> &'static str {
 }
 
 
-pub struct ChangeListener {
-    process: Child,
-    lines: tokio_io::io::Lines<std::io::BufReader<tokio_process::ChildStdout>>,
-}
+/// Returns a stream that produces an item whenever a default route is either added or deleted from
+/// the routing table.
+async fn listen_for_default_route_changes() -> Result<impl Stream<Item = std::io::Result<()>>> {
+    let mut cmd = Command::new("route");
+    cmd.arg("-n")
+        .arg("monitor")
+        .arg("-")
+        .stderr(Stdio::null())
+        .stdout(Stdio::piped())
+        .stdin(Stdio::null());
 
-impl ChangeListener {
-    pub fn new() -> std::io::Result<Self> {
-        let mut cmd = Command::new("route");
-        cmd.arg("-vn").arg("monitor").stdout(Stdio::piped());
 
-        let mut process = cmd.spawn_async()?;
+    let mut process = cmd.spawn().map_err(Error::FailedToMonitorRoutes)?;
+    let reader = tokio02::io::BufReader::new(process.stdout.take().unwrap());
+    let lines = reader.lines();
 
-        let reader = std::io::BufReader::new(process.stdout().take().unwrap());
-        let lines = tokio_io::io::lines(reader);
+    // route -n monitor will produce netlink messages in the following format
+    // ```
+    // got message of size 176 on Thu Jun  4 10:08:05 2020
+    // RTM_DELETE: Delete Route: len 176, pid: 109, seq 1151, errno 3, ifscope 23,
+    // flags:<UP,GATEWAY,STATIC,IFSCOPE>
+    // locks:  inits:
+    // sockaddrs: <DST,GATEWAY,NETMASK,IFP,IFA>
+    //  default 192.168.44.1 default  192.168.44.90
+    // ```
+    // On the second line of the message, the message type is specified. Only messages with the
+    // type 'RTM_ADD' or 'RTM_DELETE' are considered. On the 6th line, message attribute values are
+    // shown. To detect a change for a default route in the routing table, check whether this line
+    // contains 'default'.  Whenever an empty line is encountered, the message has been sent, so
+    // the state can be reset.
 
-        Ok(Self { process, lines })
-    }
-}
+    let mut add_or_delete_message = false;
+    let mut contains_default = false;
 
-impl Future for ChangeListener {
-    type Item = ();
-    type Error = std::io::Error;
-
-    fn poll(&mut self) -> std::io::Result<Async<Self::Item>> {
-        match self.process.poll() {
-            Ok(Async::NotReady) => (),
-            Ok(Async::Ready(status)) => {
-                log::debug!("route listener exited - {:?}", status);
-                return Ok(Async::Ready(()));
+    let monitor = lines.try_filter_map(move |line| {
+        if add_or_delete_message {
+            if line.contains("default") {
+                contains_default = true;
             }
-            Err(e) => return Err(e),
-        };
-        loop {
-            return match self.lines.poll()? {
-                Async::NotReady => Ok(Async::NotReady),
-                Async::Ready(Some(line)) => {
-                    if line.starts_with("RTM_DELETE") || line.starts_with("RTM_ADD") {
-                        Ok(Async::Ready(()))
-                    } else {
-                        continue;
-                    }
+            if line.trim().is_empty() {
+                add_or_delete_message = false;
+                if contains_default {
+                    contains_default = false;
+                    return future::ready(Ok(Some(())));
                 }
-                Async::Ready(None) => Ok(Async::Ready(())),
-            };
+            }
+        } else {
+            add_or_delete_message = line.starts_with("RTM_ADD:") || line.starts_with("RTM_DELETE:");
         }
-    }
+        future::ready(Ok(None))
+    });
+
+
+    Ok(monitor)
 }
