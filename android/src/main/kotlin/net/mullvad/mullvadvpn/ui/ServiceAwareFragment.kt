@@ -7,6 +7,8 @@ import net.mullvad.mullvadvpn.util.JobTracker
 abstract class ServiceAwareFragment : Fragment() {
     val jobTracker = JobTracker()
 
+    open val isSecureScreen = false
+
     lateinit var parentActivity: MainActivity
         private set
 
@@ -17,6 +19,10 @@ abstract class ServiceAwareFragment : Fragment() {
         super.onAttach(context)
 
         parentActivity = context as MainActivity
+
+        if (isSecureScreen) {
+            parentActivity.enterSecureScreen(this)
+        }
 
         parentActivity.serviceNotifier.subscribe(this) { connection ->
             configureServiceConnection(connection)
@@ -31,6 +37,10 @@ abstract class ServiceAwareFragment : Fragment() {
 
     override fun onDetach() {
         parentActivity.serviceNotifier.unsubscribe(this)
+
+        if (isSecureScreen) {
+            parentActivity.leaveSecureScreen(this)
+        }
 
         super.onDetach()
     }
