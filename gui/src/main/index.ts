@@ -2,7 +2,6 @@ import { execFile } from 'child_process';
 import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, Tray } from 'electron';
 import log from 'electron-log';
 import mkdirp from 'mkdirp';
-import moment from 'moment';
 import * as path from 'path';
 import * as uuid from 'uuid';
 import AccountExpiry from '../shared/account-expiry';
@@ -27,6 +26,7 @@ import {
 import { loadTranslations, messages } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcMainEventChannel } from '../shared/ipc-event-channel';
+import * as notifications from '../shared/notifications/notification';
 import {
   backupLogFile,
   getLogsDirectory,
@@ -464,9 +464,10 @@ class ApplicationMain {
 
     // notify user about inconsistent version
     if (
-      process.env.NODE_ENV !== 'development' &&
-      !this.shouldSuppressNotifications(true) &&
-      !this.currentVersion.isConsistent
+      this.evaluateNotificationCondition(
+        notifications.inconsistentVersion,
+        this.currentVersion.isConsistent,
+      )
     ) {
       this.notificationController.notifyInconsistentVersion();
     }
@@ -602,9 +603,7 @@ class ApplicationMain {
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
     consumePromise(this.updateLocation());
 
-    if (!this.shouldSuppressNotifications(false)) {
-      this.notificationController.notifyTunnelState(newState);
-    }
+    this.notificationController.notifyTunnelState(this.evaluateNotificationCondition, newState);
 
     if (this.windowController) {
       IpcMainEventChannel.tunnel.notify(this.windowController.webContents, newState);
@@ -785,13 +784,14 @@ class ApplicationMain {
 
     // notify user to update the app if it became unsupported
     if (
-      process.env.NODE_ENV !== 'development' &&
-      !this.shouldSuppressNotifications(true) &&
-      currentVersionInfo.isConsistent &&
-      !latestVersionInfo.supported &&
-      upgradeVersion
+      this.evaluateNotificationCondition(
+        notifications.unsupportedVersion,
+        latestVersionInfo.supported,
+        currentVersionInfo.isConsistent,
+        upgradeVersion,
+      )
     ) {
-      this.notificationController.notifyUnsupportedVersion(upgradeVersion);
+      this.notificationController.notifyUnsupportedVersion(upgradeVersion!);
     }
 
     if (this.windowController) {
@@ -1180,10 +1180,8 @@ class ApplicationMain {
     if (this.accountData) {
       const accountExpiry = new AccountExpiry(this.accountData.expiry, this.locale);
       if (
-        accountExpiry &&
-        !accountExpiry.hasExpired() &&
-        !this.accountExpiryNotificationTimeout &&
-        accountExpiry.willHaveExpiredAt(moment().add(3, 'days').toDate())
+        this.evaluateNotificationCondition(notifications.accountExpiry, accountExpiry) &&
+        !this.accountExpiryNotificationTimeout
       ) {
         this.notificationController.closeToExpiryNotification(accountExpiry);
         this.accountExpiryNotificationTimeout = global.setTimeout(() => {
@@ -1482,6 +1480,24 @@ class ApplicationMain {
         return true;
     }
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private evaluateNotificationCondition = <T extends any[]>(
+    notification: notifications.Notification<T>,
+    ...args: T
+  ) => {
+    const systemNotification = notification.systemNotification;
+    if (systemNotification) {
+      const suppressDueToDevelopment =
+        systemNotification.supressInDevelopment && process.env.NODE_ENV === 'development';
+      const supressDueToPreference = this.shouldSuppressNotifications(systemNotification.important);
+      return (
+        !suppressDueToDevelopment && !supressDueToPreference && notification.condition(...args)
+      );
+    } else {
+      return false;
+    }
+  };
 }
 
 const applicationMain = new ApplicationMain();

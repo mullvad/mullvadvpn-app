@@ -4,8 +4,8 @@ import path from 'path';
 import { sprintf } from 'sprintf-js';
 import config from '../config.json';
 import AccountExpiry from '../shared/account-expiry';
-import { TunnelState } from '../shared/daemon-rpc-types';
-import { messages } from '../shared/gettext';
+import { TunnelState, ITunnelStateRelayInfo } from '../shared/daemon-rpc-types';
+import * as notifications from '../shared/notifications/notification';
 import consumePromise from '../shared/promise';
 
 export default class NotificationController {
@@ -34,97 +34,50 @@ export default class NotificationController {
     }
   }
 
-  public notifyTunnelState(tunnelState: TunnelState) {
-    switch (tunnelState.state) {
-      case 'connecting':
-        if (!this.reconnecting) {
-          const details = tunnelState.details;
-          if (details && details.location && details.location.hostname) {
-            const msg = sprintf(
-              // TRANSLATORS: The message showed when a server is being connected to.
-              // TRANSLATORS: Available placeholder:
-              // TRANSLATORS: %(location) - name of the server location we're connecting to (e.g. "se-got-003")
-              messages.pgettext('notifications', 'Connecting to %(location)s'),
-              {
-                location: details.location.hostname,
-              },
-            );
-            this.showTunnelStateNotification(msg);
-          } else {
-            this.showTunnelStateNotification(messages.pgettext('notifications', 'Connecting'));
-          }
-        }
-        break;
-      case 'connected':
-        {
-          const details = tunnelState.details;
-          if (details.location && details.location.hostname) {
-            const msg = sprintf(
-              // TRANSLATORS: The message showed when a server has been connected to.
-              // TRANSLATORS: Available placeholder:
-              // TRANSLATORS: %(location) - name of the server location we're connected to (e.g. "se-got-003")
-              messages.pgettext('notifications', 'Connected to %(location)s'),
-              {
-                location: details.location.hostname,
-              },
-            );
-            this.showTunnelStateNotification(msg);
-          } else {
-            this.showTunnelStateNotification(messages.pgettext('notifications', 'Secured'));
-          }
-        }
-        break;
-      case 'disconnected':
-        this.showTunnelStateNotification(messages.pgettext('notifications', 'Unsecured'));
-        break;
-      case 'error':
-        if (tunnelState.details.isBlocking) {
-          if (
-            tunnelState.details.cause.reason === 'tunnel_parameter_error' &&
-            tunnelState.details.cause.details === 'no_wireguard_key'
-          ) {
-            this.showTunnelStateNotification(
-              messages.pgettext(
-                'notifications',
-                'Blocking internet: Valid WireGuard key is missing',
-              ),
-            );
-          } else {
-            this.showTunnelStateNotification(
-              messages.pgettext('notifications', 'Blocking internet'),
-            );
-          }
-        } else {
-          this.showTunnelStateNotification(
-            messages.pgettext('notifications', 'Critical error (your attention is required)'),
-          );
-        }
-        break;
-      case 'disconnecting':
-        switch (tunnelState.details) {
-          case 'nothing':
-          case 'block':
-            // no-op
-            break;
-          case 'reconnect':
-            this.showTunnelStateNotification(messages.pgettext('notifications', 'Reconnecting'));
-            this.reconnecting = true;
-            return;
-        }
-        break;
+  public notifyTunnelState(
+    evaluator: (
+      notification: notifications.Notification<[TunnelState]>,
+      tunnelState: TunnelState,
+    ) => boolean,
+    tunnelState: TunnelState,
+  ) {
+    let message: string | undefined;
+    if (evaluator(notifications.connectingTo, tunnelState) && !this.reconnecting) {
+      tunnelState = tunnelState as { state: 'connecting'; details?: ITunnelStateRelayInfo };
+      message = sprintf(notifications.connectingTo.systemNotification.message, {
+        location: tunnelState.details?.location?.hostname,
+      });
+    } else if (evaluator(notifications.connecting, tunnelState) && !this.reconnecting) {
+      message = notifications.connecting.systemNotification.message;
+    } else if (evaluator(notifications.connectedTo, tunnelState)) {
+      tunnelState = tunnelState as { state: 'connected'; details: ITunnelStateRelayInfo };
+      message = sprintf(notifications.connectedTo.systemNotification.message, {
+        location: tunnelState.details?.location?.hostname,
+      });
+    } else if (evaluator(notifications.connected, tunnelState)) {
+      message = notifications.connected.systemNotification.message;
+    } else if (evaluator(notifications.disconnected, tunnelState)) {
+      message = notifications.disconnected.systemNotification.message;
+    } else if (evaluator(notifications.nonBlockingError, tunnelState)) {
+      message = notifications.nonBlockingError.systemNotification.message;
+    } else if (evaluator(notifications.error, tunnelState)) {
+      message = notifications.error.systemNotification.message(tunnelState);
+    } else if (evaluator(notifications.reconnecting, tunnelState)) {
+      message = notifications.reconnecting.systemNotification.message;
+      this.reconnecting = true;
     }
 
     this.reconnecting = false;
+    if (message) {
+      this.showTunnelStateNotification(message);
+    }
   }
 
   public notifyInconsistentVersion() {
     this.presentNotificationOnce('inconsistent-version', () => {
       const notification = new Notification({
         title: this.notificationTitle,
-        body: messages.pgettext(
-          'notifications',
-          'Inconsistent internal version information, please restart the app',
-        ),
+        body: notifications.inconsistentVersion.systemNotification.message,
         silent: true,
         icon: this.notificationIcon,
       });
@@ -136,18 +89,9 @@ export default class NotificationController {
     this.presentNotificationOnce('unsupported-version', () => {
       const notification = new Notification({
         title: this.notificationTitle,
-        body: sprintf(
-          // TRANSLATORS: The system notification displayed to the user when the running app becomes unsupported.
-          // TRANSLATORS: Available placeholder:
-          // TRANSLATORS: %(version) - the newest available version of the app
-          messages.pgettext(
-            'notifications',
-            'You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security',
-          ),
-          {
-            version: upgradeVersion,
-          },
-        ),
+        body: sprintf(notifications.unsupportedVersion.systemNotification.message, {
+          version: upgradeVersion,
+        }),
         silent: true,
         icon: this.notificationIcon,
       });
@@ -164,13 +108,9 @@ export default class NotificationController {
     const duration = accountExpiry.durationUntilExpiry();
     const notification = new Notification({
       title: this.notificationTitle,
-      body: sprintf(
-        // TRANSLATORS: The system notification displayed to the user when the account credit is close to expiry.
-        // TRANSLATORS: Available placeholder:
-        // TRANSLATORS: %(duration)s - remaining time, e.g. "2 days"
-        messages.pgettext('notifications', 'Account credit expires in %(duration)s'),
-        { duration },
-      ),
+      body: sprintf(notifications.accountExpiry.systemNotification.message, {
+        duration,
+      }),
       silent: true,
       icon: this.notificationIcon,
     });
