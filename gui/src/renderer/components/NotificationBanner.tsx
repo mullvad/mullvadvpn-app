@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Animated, Button, Component, Styles, Text, Types, UserInterface, View } from 'reactxp';
 import { colors } from '../../config.json';
+import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
 import consumePromise from '../../shared/promise';
 import { BlockingButton } from './AppButton';
 import ImageView from './ImageView';
@@ -151,7 +152,7 @@ export class NotificationActions extends Component<INotificationActionsProps> {
 }
 
 interface INotificationIndicatorProps {
-  type: 'success' | 'warning' | 'error';
+  type: InAppNotificationIndicatorType;
   children?: React.ReactNode;
 }
 
@@ -162,7 +163,7 @@ export class NotificationIndicator extends Component<INotificationIndicatorProps
 }
 
 interface INotificationBannerProps {
-  children: React.ReactNode; // Array<NotificationContent | NotificationActions>,
+  children?: React.ReactNode; // Array<NotificationContent | NotificationActions>,
   style?: Types.ViewStyleRuleSet;
   visible: boolean;
   animationDuration: number;
