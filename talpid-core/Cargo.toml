@@ -33,9 +33,8 @@ tokio-executor = "0.1"
 uuid = { version = "0.7", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4"
-
 parity-tokio-ipc = "0.7"
-tokio02 = { package = "tokio", version = "0.2", features =  [ "rt-core", "rt-threaded"] }
+tokio02 = { package = "tokio", version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream"] }
 triggered = "0.1.1"
 tonic = "0.2"
 prost = "0.6"
@@ -43,7 +42,6 @@ prost = "0.6"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.17"
-tokio-process = "0.2"
 tokio-io = "0.1"
 
 
