@@ -1,8 +1,23 @@
-import moment from 'moment';
-import * as React from 'react';
-import { Component, Types } from 'reactxp';
-import { sprintf } from 'sprintf-js';
-import { messages } from '../../shared/gettext';
+import { shell } from 'electron';
+import log from 'electron-log';
+import React, { useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { Types } from 'reactxp';
+import AccountExpiry from '../../shared/account-expiry';
+import {
+  AccountExpiryNotificationProvider,
+  BlockWhenDisconnectedNotificationProvider,
+  ConnectingNotificationProvider,
+  ErrorNotificationProvider,
+  InAppNotificationProvider,
+  InconsistentVersionNotificationProvider,
+  NotificationAction,
+  ReconnectingNotificationProvider,
+  UnsupportedVersionNotificationProvider,
+  UpdateAvailableNotificationProvider,
+} from '../../shared/notifications/notification';
+import { useAppContext } from '../context';
+import { IReduxState } from '../redux/store';
 import {
   NotificationActions,
   NotificationBanner,
@@ -13,313 +28,82 @@ import {
   NotificationTitle,
 } from './NotificationBanner';
 
-import AccountExpiry from '../../shared/account-expiry';
-import { ErrorStateCause, TunnelParameterError, TunnelState } from '../../shared/daemon-rpc-types';
-import { parseAuthFailure } from '../lib/auth-failure';
-import { IVersionReduxState } from '../redux/version/reducers';
-
 interface IProps {
   style?: Types.ViewStyleRuleSet;
-  accountExpiry?: AccountExpiry;
-  tunnelState: TunnelState;
-  version: IVersionReduxState;
-  blockWhenDisconnected: boolean;
-  onOpenDownloadLink: () => Promise<void>;
-  onOpenBuyMoreLink: () => Promise<void>;
 }
 
-type NotificationAreaPresentation =
-  | { type: 'failure-unsecured'; reason: string }
-  | { type: 'blocking'; reason: string }
-  | { type: 'inconsistent-version' }
-  | { type: 'unsupported-version'; upgradeVersion: string }
-  | { type: 'update-available'; upgradeVersion: string }
-  | { type: 'expires-soon'; timeLeft: string };
+export default function NotificationArea(props: IProps) {
+  const accountExpiry = useSelector((state: IReduxState) =>
+    state.account.expiry
+      ? new AccountExpiry(state.account.expiry, state.userInterface.locale)
+      : undefined,
+  );
+  const tunnelState = useSelector((state: IReduxState) => state.connection.status);
+  const version = useSelector((state: IReduxState) => state.version);
+  const blockWhenDisconnected = useSelector(
+    (state: IReduxState) => state.settings.blockWhenDisconnected,
+  );
 
-type State = NotificationAreaPresentation & {
-  visible: boolean;
-};
+  const notificationProviders: InAppNotificationProvider[] = [
+    new ConnectingNotificationProvider({ tunnelState }),
+    new ReconnectingNotificationProvider(tunnelState),
+    new BlockWhenDisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
+    new ErrorNotificationProvider(tunnelState),
+    new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
+    new UnsupportedVersionNotificationProvider(version),
+    new UpdateAvailableNotificationProvider(version),
+  ];
 
-function getTunnelParameterMessage(err: TunnelParameterError): string {
-  switch (err) {
-    /// TODO: once bridge constraints can be set, add a more descriptive error message
-    case 'no_matching_bridge_relay':
-    case 'no_matching_relay':
-      return messages.pgettext(
-        'in-app-notifications',
-        'No relay server matches the current settings. You can try changing the location or the relay settings.',
-      );
-    case 'no_wireguard_key':
-      return messages.pgettext(
-        'in-app-notifications',
-        'Valid WireGuard key is missing. Manage keys under Advanced settings.',
-      );
-    case 'custom_tunnel_host_resultion_error':
-      return messages.pgettext(
-        'in-app-notifications',
-        'Failed to resolve host of custom tunnel. Consider changing the settings',
-      );
+  if (accountExpiry) {
+    notificationProviders.push(new AccountExpiryNotificationProvider({ accountExpiry }));
   }
-}
 
-function getErrorCauseMessage(blockReason: ErrorStateCause): string {
-  switch (blockReason.reason) {
-    case 'auth_failed':
-      return parseAuthFailure(blockReason.details).message;
-    case 'ipv6_unavailable':
-      return messages.pgettext(
-        'in-app-notifications',
-        'Could not configure IPv6, please enable it on your system or disable it in the app',
+  const notificationProvider = notificationProviders.find((notification) =>
+    notification.mayDisplay(),
+  );
+
+  if (notificationProvider) {
+    const notification = notificationProvider.getInAppNotification();
+
+    if (notification) {
+      return (
+        <NotificationBanner style={props.style} visible>
+          <NotificationIndicator type={notification.indicator} />
+          <NotificationContent>
+            <NotificationTitle>{notification.title}</NotificationTitle>
+            <NotificationSubtitle>{notification.subtitle}</NotificationSubtitle>
+          </NotificationContent>
+          {notification.action && <NotificationActionWrapper action={notification.action} />}
+        </NotificationBanner>
       );
-    case 'set_firewall_policy_error': {
-      let extraMessage = null;
-      switch (process.platform) {
-        case 'linux':
-          extraMessage = messages.pgettext('in-app-notifications', 'Your kernel may be outdated');
-          break;
-        case 'win32':
-          extraMessage = messages.pgettext(
-            'in-app-notifications',
-            'This might be caused by third party security software',
-          );
-          break;
-      }
-      return `${messages.pgettext(
-        'in-app-notifications',
-        'Failed to apply firewall rules. The device might currently be unsecured',
-      )}${extraMessage ? '. ' + extraMessage : ''}`;
-    }
-    case 'set_dns_error':
-      return messages.pgettext('in-app-notifications', 'Failed to set system DNS server');
-    case 'start_tunnel_error':
-      return messages.pgettext('in-app-notifications', 'Failed to start tunnel connection');
-    case 'tunnel_parameter_error':
-      return getTunnelParameterMessage(blockReason.details);
-    case 'is_offline':
-      return messages.pgettext(
-        'in-app-notifications',
-        'This device is offline, no tunnels can be established',
+    } else {
+      log.error(
+        `Notification providers mayDisplay() returned true but getInAppNotification() returned undefined for ${notificationProvider.constructor.name}`,
       );
-    case 'tap_adapter_problem':
-      return messages.pgettext(
-        'in-app-notifications',
-        "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app",
-      );
-  }
-}
-
-function capitalizeFirstLetter(inputString: string): string {
-  return inputString.charAt(0).toUpperCase() + inputString.slice(1);
-}
-
-export default class NotificationArea extends Component<IProps, State> {
-  public static getDerivedStateFromProps(props: IProps, state: State) {
-    const { accountExpiry, blockWhenDisconnected, tunnelState, version } = props;
-
-    switch (tunnelState.state) {
-      case 'connecting':
-        return {
-          visible: true,
-          type: 'blocking',
-          reason: '',
-        };
-
-      case 'error':
-        if (tunnelState.details.isBlocking) {
-          return {
-            visible: true,
-            type: 'blocking',
-            reason: getErrorCauseMessage(tunnelState.details.cause),
-          };
-        } else {
-          return {
-            visible: true,
-            type: 'failure-unsecured',
-            reason: getErrorCauseMessage(tunnelState.details.cause),
-          };
-        }
-
-      case 'disconnecting':
-        if (tunnelState.details === 'reconnect') {
-          return {
-            visible: true,
-            type: 'blocking',
-            reason: '',
-          };
-        }
-      // fallthrough
-
-      case 'disconnected':
-        if (blockWhenDisconnected) {
-          return {
-            visible: true,
-            type: 'blocking',
-            reason: messages.pgettext('in-app-notifications', '"Always require VPN" is enabled.'),
-          };
-        }
-      // fallthrough
-
-      default:
-        if (!version.consistent) {
-          return {
-            visible: true,
-            type: 'inconsistent-version',
-          };
-        }
-
-        if (!version.supported && version.nextUpgrade) {
-          return {
-            visible: true,
-            type: 'unsupported-version',
-            upgradeVersion: version.nextUpgrade,
-          };
-        }
-
-        if (version.nextUpgrade && version.nextUpgrade !== version.current) {
-          return {
-            visible: true,
-            type: 'update-available',
-            upgradeVersion: version.nextUpgrade,
-          };
-        }
-
-        if (accountExpiry && accountExpiry.willHaveExpiredAt(moment().add(3, 'days').toDate())) {
-          return {
-            visible: true,
-            type: 'expires-soon',
-            timeLeft: capitalizeFirstLetter(accountExpiry.remainingTime()),
-          };
-        }
-
-        return {
-          ...state,
-          visible: false,
-        };
     }
   }
 
-  public state: State = {
-    type: 'blocking',
-    reason: '',
-    visible: false,
-  };
+  return <NotificationBanner style={props.style} visible={false} />;
+}
 
-  public render() {
-    return (
-      <NotificationBanner style={this.props.style} visible={this.state.visible}>
-        {this.state.type === 'failure-unsecured' && (
-          <React.Fragment>
-            <NotificationIndicator type={'error'} />
-            <NotificationContent>
-              <NotificationTitle>
-                {messages.pgettext('in-app-notifications', 'YOU MIGHT BE LEAKING NETWORK TRAFFIC')}
-              </NotificationTitle>
-              <NotificationSubtitle>
-                {messages.pgettext(
-                  'in-app-notifications',
-                  'Failed to block all network traffic. Please troubleshoot or report the problem to us.',
-                )}
-              </NotificationSubtitle>
-            </NotificationContent>
-          </React.Fragment>
-        )}
+interface INotificationActionWrapperProps {
+  action: NotificationAction;
+}
 
-        {this.state.type === 'blocking' && (
-          <React.Fragment>
-            <NotificationIndicator type={'error'} />
-            <NotificationContent>
-              <NotificationTitle>
-                {messages.pgettext('in-app-notifications', 'BLOCKING INTERNET')}
-              </NotificationTitle>
-              <NotificationSubtitle>{this.state.reason}</NotificationSubtitle>
-            </NotificationContent>
-          </React.Fragment>
-        )}
+function NotificationActionWrapper(props: INotificationActionWrapperProps) {
+  const { openLinkWithAuth } = useAppContext();
 
-        {this.state.type === 'inconsistent-version' && (
-          <React.Fragment>
-            <NotificationIndicator type={'error'} />
-            <NotificationContent>
-              <NotificationTitle>
-                {messages.pgettext('in-app-notifications', 'INCONSISTENT VERSION')}
-              </NotificationTitle>
-              <NotificationSubtitle>
-                {messages.pgettext(
-                  'in-app-notifications',
-                  'Inconsistent internal version information, please restart the app',
-                )}
-              </NotificationSubtitle>
-            </NotificationContent>
-          </React.Fragment>
-        )}
+  const handlePress = useCallback(() => {
+    if (props.action.withAuth) {
+      return openLinkWithAuth(props.action.url);
+    } else {
+      return shell.openExternal(props.action.url);
+    }
+  }, []);
 
-        {this.state.type === 'unsupported-version' && (
-          <React.Fragment>
-            <NotificationIndicator type={'error'} />
-            <NotificationContent>
-              <NotificationTitle>
-                {messages.pgettext('in-app-notifications', 'UNSUPPORTED VERSION')}
-              </NotificationTitle>
-              <NotificationSubtitle>
-                {sprintf(
-                  // TRANSLATORS: The in-app banner displayed to the user when the running app becomes unsupported.
-                  // TRANSLATORS: Available placeholders:
-                  // TRANSLATORS: %(version)s - the newest available version of the app
-                  messages.pgettext(
-                    'in-app-notifications',
-                    'You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security',
-                  ),
-                  { version: this.state.upgradeVersion },
-                )}
-              </NotificationSubtitle>
-            </NotificationContent>
-            <NotificationActions>
-              <NotificationOpenLinkAction onPress={this.props.onOpenDownloadLink} />
-            </NotificationActions>
-          </React.Fragment>
-        )}
-
-        {this.state.type === 'update-available' && (
-          <React.Fragment>
-            <NotificationIndicator type={'warning'} />
-            <NotificationContent>
-              <NotificationTitle>
-                {messages.pgettext('in-app-notifications', 'UPDATE AVAILABLE')}
-              </NotificationTitle>
-              <NotificationSubtitle>
-                {sprintf(
-                  // TRANSLATORS: The in-app banner displayed to the user when the app update is available.
-                  // TRANSLATORS: Available placeholders:
-                  // TRANSLATORS: %(version)s - the newest available version of the app
-                  messages.pgettext(
-                    'in-app-notifications',
-                    'Install Mullvad VPN (%(version)s) to stay up to date',
-                  ),
-                  { version: this.state.upgradeVersion },
-                )}
-              </NotificationSubtitle>
-            </NotificationContent>
-            <NotificationActions>
-              <NotificationOpenLinkAction onPress={this.props.onOpenDownloadLink} />
-            </NotificationActions>
-          </React.Fragment>
-        )}
-
-        {this.state.type === 'expires-soon' && (
-          <React.Fragment>
-            <NotificationIndicator type={'warning'} />
-            <NotificationContent>
-              <NotificationTitle>
-                {messages.pgettext('in-app-notifications', 'ACCOUNT CREDIT EXPIRES SOON')}
-              </NotificationTitle>
-              <NotificationSubtitle>{this.state.timeLeft}</NotificationSubtitle>
-            </NotificationContent>
-            <NotificationActions>
-              <NotificationOpenLinkAction onPress={this.props.onOpenBuyMoreLink} />
-            </NotificationActions>
-          </React.Fragment>
-        )}
-      </NotificationBanner>
-    );
-  }
+  return (
+    <NotificationActions>
+      <NotificationOpenLinkAction onPress={handlePress} />
+    </NotificationActions>
+  );
 }
