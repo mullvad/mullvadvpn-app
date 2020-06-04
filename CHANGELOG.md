@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Show the remaining account time in the Settings screen in days if it's less than 3 months.
 - Prevent commands to connect or disconnect to be sent when the device is locked.
 - Make all screens scrollable to better handle small screens and split-screen mode.
+- Prevent screens showing potentially sensitive data from being recorded.
 
 #### Linux
 - Send an ICMP reject message or TCP reset packet when blocking outgoing packets to prevent
