@@ -11,7 +11,7 @@ const mapStateToProps = (state: IReduxState) => ({
   autoStart: state.settings.autoStart,
   allowLan: state.settings.allowLan,
   showBetaReleases: state.settings.showBetaReleases,
-  isBeta: state.version.currentIsBeta,
+  isBeta: state.version.isBeta,
   autoConnect: state.settings.guiSettings.autoConnect,
   enableSystemNotifications: state.settings.guiSettings.enableSystemNotifications,
   monochromaticIcon: state.settings.guiSettings.monochromaticIcon,
