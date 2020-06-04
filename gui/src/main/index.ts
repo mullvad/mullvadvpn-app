@@ -1,8 +1,7 @@
 import { execFile } from 'child_process';
-import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, Tray } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, shell, Tray } from 'electron';
 import log from 'electron-log';
 import mkdirp from 'mkdirp';
-import moment from 'moment';
 import * as path from 'path';
 import * as uuid from 'uuid';
 import AccountExpiry from '../shared/account-expiry';
@@ -27,6 +26,11 @@ import {
 import { loadTranslations, messages } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcMainEventChannel } from '../shared/ipc-event-channel';
+import {
+  AccountExpiryNotificationProvider,
+  InconsistentVersionNotificationProvider,
+  UnsupportedVersionNotificationProvider,
+} from '../shared/notifications/notification';
 import {
   backupLogFile,
   getLogsDirectory,
@@ -76,7 +80,11 @@ export interface IAppUpgradeInfo extends IAppVersionInfo {
 type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
 
 class ApplicationMain {
-  private notificationController = new NotificationController();
+  private notificationController = new NotificationController({
+    openLink: (url: string, withAuth?: boolean) => this.openLink(url, withAuth),
+    isWindowVisible: () => this.windowController?.isVisible() ?? false,
+    areSystemNotificationsEnabled: () => this.guiSettings.enableSystemNotifications,
+  });
   private windowController?: WindowController;
   private trayIconController?: TrayIconController;
 
@@ -463,12 +471,11 @@ class ApplicationMain {
     consumePromise(this.fetchLatestVersion());
 
     // notify user about inconsistent version
-    if (
-      process.env.NODE_ENV !== 'development' &&
-      !this.shouldSuppressNotifications(true) &&
-      !this.currentVersion.isConsistent
-    ) {
-      this.notificationController.notifyInconsistentVersion();
+    const notificationProvider = new InconsistentVersionNotificationProvider({
+      consistent: this.currentVersion.isConsistent,
+    });
+    if (notificationProvider.mayDisplay()) {
+      this.notificationController.notify(notificationProvider.getSystemNotification());
     }
 
     // reset the reconnect backoff when connection established.
@@ -602,9 +609,7 @@ class ApplicationMain {
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
     consumePromise(this.updateLocation());
 
-    if (!this.shouldSuppressNotifications(false)) {
-      this.notificationController.notifyTunnelState(newState);
-    }
+    this.notificationController.notifyTunnelState(newState, this.settings.blockWhenDisconnected);
 
     if (this.windowController) {
       IpcMainEventChannel.tunnel.notify(this.windowController.webContents, newState);
@@ -784,14 +789,13 @@ class ApplicationMain {
     this.upgradeVersion = upgradeInfo;
 
     // notify user to update the app if it became unsupported
-    if (
-      process.env.NODE_ENV !== 'development' &&
-      !this.shouldSuppressNotifications(true) &&
-      currentVersionInfo.isConsistent &&
-      !latestVersionInfo.supported &&
-      upgradeVersion
-    ) {
-      this.notificationController.notifyUnsupportedVersion(upgradeVersion);
+    const notificationProvider = new UnsupportedVersionNotificationProvider({
+      supported: latestVersionInfo.supported,
+      consistent: currentVersionInfo.isConsistent,
+      nextUpgrade: upgradeVersion,
+    });
+    if (notificationProvider.mayDisplay()) {
+      this.notificationController.notify(notificationProvider.getSystemNotification());
     }
 
     if (this.windowController) {
@@ -804,16 +808,6 @@ class ApplicationMain {
       this.setLatestVersion(await this.daemonRpc.getVersionInfo());
     } catch (error) {
       log.error(`Failed to request the version info: ${error.message}`);
-    }
-  }
-
-  private shouldSuppressNotifications(isCriticalNotification: boolean): boolean {
-    const isVisible = this.windowController ? this.windowController.isVisible() : false;
-
-    if (isCriticalNotification) {
-      return isVisible;
-    } else {
-      return isVisible || !this.guiSettings.enableSystemNotifications;
     }
   }
 
@@ -1194,13 +1188,12 @@ class ApplicationMain {
   private notifyOfAccountExpiry() {
     if (this.accountData) {
       const accountExpiry = new AccountExpiry(this.accountData.expiry, this.locale);
-      if (
-        accountExpiry &&
-        !accountExpiry.hasExpired() &&
-        !this.accountExpiryNotificationTimeout &&
-        accountExpiry.willHaveExpiredAt(moment().add(3, 'days').toDate())
-      ) {
-        this.notificationController.closeToExpiryNotification(accountExpiry);
+      const notificationProvider = new AccountExpiryNotificationProvider({
+        accountExpiry,
+        tooSoon: this.accountExpiryNotificationTimeout !== undefined,
+      });
+      if (notificationProvider.mayDisplay()) {
+        this.notificationController.notify(notificationProvider.getSystemNotification());
         this.accountExpiryNotificationTimeout = global.setTimeout(() => {
           this.accountExpiryNotificationTimeout = undefined;
           this.notifyOfAccountExpiry();
@@ -1495,6 +1488,20 @@ class ApplicationMain {
         return !this.guiSettings.startMinimized;
       default:
         return true;
+    }
+  }
+
+  private async openLink(url: string, withAuth?: boolean) {
+    if (withAuth) {
+      let token = '';
+      try {
+        token = await this.daemonRpc.getWwwAuthToken();
+      } catch (e) {
+        log.error(`Failed to get the WWW auth token: ${e.message}`);
+      }
+      return shell.openExternal(`${url}?token=${token}`);
+    } else {
+      return shell.openExternal(url);
     }
   }
 }
