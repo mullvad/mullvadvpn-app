@@ -1682,19 +1682,18 @@ dependencies = [
 
 [[package]]
 name = "nftnl"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "err-derive 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "libc 0.2.69 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "nftnl-sys 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nftnl-sys 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "nftnl-sys"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "cfg-if 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2858,7 +2857,7 @@ dependencies = [
  "netlink-packet-route 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "netlink-proto 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "netlink-sys 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "nftnl 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nftnl 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "nix 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify 4.0.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn-plugin 0.3.0 (git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event)",
@@ -4106,8 +4105,8 @@ dependencies = [
 "checksum netlink-packet-utils 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ca26de3f3fe7cc09a925255291049c65699a95db6f124fa8019dc0bb396fdaff"
 "checksum netlink-proto 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "844a78a78bee85b99686973856e57ce339ef2490660305d26e35bb74a672ad15"
 "checksum netlink-sys 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "aee128bb9bcc04f426d9b5e0bf3077726776b5b41770a3b2e4db5f52295625bf"
-"checksum nftnl 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9c5311764dc98555fbf77d4c8161da87dfd6d63934cf92ecb933f156713ebd47"
-"checksum nftnl-sys 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3b9df6d98f492d1afcb861267a2d49396c1ac466c2dd814143cd8dd79675b2a3"
+"checksum nftnl 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b7528eff501558f9f892c5001e945b0d7e980cb464a7969101c94e18481c4563"
+"checksum nftnl-sys 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "fe241d8ce673ef755c8d2b8717cd74990d4e0a61d437792054750ce9a35743d0"
 "checksum nix 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)" = "6c722bee1037d430d0f8e687bbdbf222f27cc6e4e68d5caf630857bb2b6dbdce"
 "checksum nix 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3b2e0b4f3320ed72aaedb9a5ac838690a8047c7b275da22711fddff4f8a14229"
 "checksum nix 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)" = "50e4785f2c3b7589a0d0c1dd60285e1188adac4006e8abd6dd578e1567027363"
