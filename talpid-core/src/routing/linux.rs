@@ -13,16 +13,9 @@ use std::{
     io::{self, BufRead, BufReader, Read, Seek, Write},
     net::{IpAddr, Ipv4Addr},
     process::Command,
-    thread,
 };
 
-use futures01::{stream::Stream as old_stream, sync::mpsc as old_mpsc};
-
-use futures::{
-    channel::mpsc::{self, UnboundedReceiver},
-    future::FutureExt,
-    StreamExt, TryStreamExt,
-};
+use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, TryStreamExt};
 
 
 use netlink_packet_route::{
@@ -96,61 +89,61 @@ pub enum Error {
     IpFailed,
 }
 
-pub struct RouteManagerImpl {
-    manage_rx: old_mpsc::UnboundedReceiver<RouteManagerCommand>,
-    manager: RouteManagerImplInner,
-    runtime: tokio02::runtime::Runtime,
-}
+// pub struct RouteManagerImpl {
+//     manage_rx: old_mpsc::UnboundedReceiver<RouteManagerCommand>,
+//     manager: RouteManagerImplInner,
+//     runtime: tokio02::runtime::Runtime,
+// }
 
-impl RouteManagerImpl {
-    /// Creates a new RouteManagerImplInner.
-    pub fn new(
-        required_routes: HashSet<RequiredRoute>,
-        manage_rx: old_mpsc::UnboundedReceiver<RouteManagerCommand>,
-    ) -> Result<Self> {
-        let mut runtime = tokio02::runtime::Builder::new()
-            .basic_scheduler()
-            .core_threads(1)
-            .enable_all()
-            .thread_name("mullvad-route-manager-event-loop")
-            .build()
-            .map_err(Error::EventLoopError)?;
+// impl RouteManagerImpl {
+//     /// Creates a new RouteManagerImplInner.
+//     pub fn new(
+//         required_routes: HashSet<RequiredRoute>,
+//         manage_rx: UnboundedReceiver<RouteManagerCommand>,
+//     ) -> Result<Self> {
+//         let mut runtime = tokio02::runtime::Builder::new()
+//             .basic_scheduler()
+//             .core_threads(1)
+//             .enable_all()
+//             .thread_name("mullvad-route-manager-event-loop")
+//             .build()
+//             .map_err(Error::EventLoopError)?;
 
-        let manager = runtime.block_on(RouteManagerImplInner::new(required_routes))?;
+//         let manager = runtime.block_on(RouteManagerImplInner::new(required_routes))?;
 
-        Ok(Self {
-            manage_rx,
-            runtime,
-            manager,
-        })
-    }
+//         Ok(Self {
+//             manage_rx,
+//             runtime,
+//             manager,
+//         })
+//     }
 
-    pub fn wait(self) -> Result<()> {
-        let Self {
-            manage_rx,
-            mut runtime,
-            manager,
-        } = self;
+//     pub fn wait(self) -> Result<()> {
+//         let Self {
+//             manage_rx,
+//             mut runtime,
+//             manager,
+//         } = self;
 
-        let (new_manage_tx, new_manage_rx) = mpsc::unbounded();
+//         let (new_manage_tx, new_manage_rx) = mpsc::unbounded();
 
-        thread::spawn(move || {
-            for msg in manage_rx.wait() {
-                match msg {
-                    Ok(msg) => {
-                        if new_manage_tx.unbounded_send(msg).is_err() {
-                            log::error!("RouteManager receiver unexpectedly dropped");
-                            break;
-                        }
-                    }
-                    Err(_) => break,
-                }
-            }
-        });
+//         thread::spawn(move || {
+//             for msg in manage_rx.wait() {
+//                 match msg {
+//                     Ok(msg) => {
+//                         if new_manage_tx.unbounded_send(msg).is_err() {
+//                             log::error!("RouteManager receiver unexpectedly dropped");
+//                             break;
+//                         }
+//                     }
+//                     Err(_) => break,
+//                 }
+//             }
+//         });
 
-        runtime.block_on(manager.into_future(new_manage_rx))
-    }
-}
+//         runtime.block_on(manager.into_future(new_manage_rx))
+//     }
+// }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 struct RequiredDefaultRoute {
@@ -158,7 +151,9 @@ struct RequiredDefaultRoute {
     destination: IpNetwork,
 }
 
-pub struct RouteManagerImplInner {
+pub struct RouteManagerImpl {
+    manage_rx: Option<UnboundedReceiver<RouteManagerCommand>>,
+
     handle: Handle,
     messages: UnboundedReceiver<(NetlinkMessage<RtnlMessage>, SocketAddr)>,
     iface_map: BTreeMap<u32, String>,
@@ -175,8 +170,11 @@ pub struct RouteManagerImplInner {
     split_table_id: i32,
 }
 
-impl RouteManagerImplInner {
-    pub async fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
+impl RouteManagerImpl {
+    pub async fn new(
+        required_routes: HashSet<RequiredRoute>,
+        manage_rx: UnboundedReceiver<RouteManagerCommand>,
+    ) -> Result<Self> {
         let (mut connection, handle, messages) =
             rtnetlink::new_connection().map_err(Error::ConnectError)?;
 
@@ -193,6 +191,8 @@ impl RouteManagerImplInner {
         let split_table_id = Self::initialize_exclusions_table().await?;
 
         let mut monitor = Self {
+            manage_rx: Some(manage_rx),
+
             iface_map,
             handle,
             messages,
@@ -627,13 +627,11 @@ impl RouteManagerImplInner {
     }
 
 
-    pub async fn into_future(
-        mut self,
-        mut manage_rx: UnboundedReceiver<RouteManagerCommand>,
-    ) -> Result<()> {
+    pub async fn run(mut self) -> Result<()> {
+        let mut manage_rx = self.manage_rx.take().unwrap().fuse();
         loop {
             futures::select! {
-                command = manage_rx.select_next_some().fuse() => {
+                command = manage_rx.select_next_some() => {
                     self.process_command(command).await?;
                 },
                 (route_change, socket) = self.messages.select_next_some().fuse() => {
@@ -932,7 +930,7 @@ impl RouteManagerImplInner {
     }
 }
 
-impl Drop for RouteManagerImplInner {
+impl Drop for RouteManagerImpl {
     fn drop(&mut self) {
         futures::executor::block_on(self.cleanup_routes())
     }
