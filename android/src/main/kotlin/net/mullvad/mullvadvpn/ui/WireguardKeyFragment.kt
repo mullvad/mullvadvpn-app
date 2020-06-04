@@ -25,6 +25,8 @@ import org.joda.time.format.DateTimeFormat
 val RFC3339_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSSSSSSSSS z")
 
 class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+    override val isSecureScreen = true
+
     sealed class ActionState {
         class Idle(val verified: Boolean) : ActionState()
         class Generating(val replacing: Boolean) : ActionState()
