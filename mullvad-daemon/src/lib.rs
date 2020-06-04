@@ -311,7 +311,7 @@ impl DaemonExecutionState {
 
         match self {
             Exiting => {
-                mem::replace(self, Finished);
+                let _ = mem::replace(self, Finished);
             }
             Running | Finished => {}
         };
