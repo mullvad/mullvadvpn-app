@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Show both WireGuard and OpenVPN servers in location list when protocol is set to automatic on Linux and macOS.
+- Show in app notification warning about unsupported version if version is unsupported.
 
 #### Android
 - Fix crash when that happened sometimes when the app tried to start the daemon service on recent
