@@ -102,6 +102,10 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             } else if (expiry != null) {
                 scheduleNextAccountExpiryCheck(expiry)
             }
+
+            jobTracker.newUiJob("updateAccountExpiry") {
+                notificationBanner.accountExpiry = expiry
+            }
         }
     }
 
