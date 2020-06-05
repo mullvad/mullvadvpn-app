@@ -242,7 +242,7 @@ export default class AppRenderer {
       await IpcRendererEventChannel.account.login(accountToken);
       actions.account.updateAccountToken(accountToken);
       actions.account.loggedIn();
-      this.redirectToConnect(true);
+      this.redirectToConnect();
     } catch (error) {
       actions.account.loginFailed(error);
     }
@@ -267,7 +267,7 @@ export default class AppRenderer {
       const accountToken = await IpcRendererEventChannel.account.create();
       const accountExpiry = new Date().toISOString();
       actions.account.accountCreated(accountToken, accountExpiry);
-      this.redirectToConnect(false);
+      this.redirectToConnect();
     } catch (error) {
       actions.account.createAccountFailed(error);
     }
@@ -431,20 +431,9 @@ export default class AppRenderer {
     return preferredLocale ? preferredLocale.name : '';
   }
 
-  private redirectToConnect(connect: boolean) {
+  private redirectToConnect() {
     // Redirect the user after some time to allow for the 'Logged in' screen to be visible
-    this.loginTimer = global.setTimeout(async () => {
-      this.memoryHistory.replace('/connect');
-
-      if (connect) {
-        try {
-          log.info('Auto-connecting the tunnel');
-          await this.connectTunnel();
-        } catch (error) {
-          log.error(`Failed to auto-connect the tunnel: ${error.message}`);
-        }
-      }
-    }, 1000);
+    this.loginTimer = global.setTimeout(() => this.memoryHistory.replace('/connect'), 1000);
   }
 
   private loadTranslations(locale: string) {
