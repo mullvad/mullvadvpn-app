@@ -1108,6 +1108,7 @@ class ApplicationMain {
       }
 
       await this.daemonRpc.setAccount(accountToken);
+      consumePromise(this.autoConnect());
     } catch (error) {
       log.error(`Failed to login: ${error.message}`);
 
@@ -1115,6 +1116,20 @@ class ApplicationMain {
         throw Error(messages.gettext('Invalid account number'));
       } else {
         throw error;
+      }
+    }
+  }
+
+  private async autoConnect() {
+    if (
+      !this.accountData ||
+      !new AccountExpiry(this.accountData.expiry, this.locale).hasExpired()
+    ) {
+      try {
+        log.info('Auto-connecting the tunnel');
+        await this.daemonRpc.connectTunnel();
+      } catch (error) {
+        log.error(`Failed to auto-connect the tunnel: ${error.message}`);
       }
     }
   }
