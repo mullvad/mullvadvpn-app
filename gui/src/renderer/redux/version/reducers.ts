@@ -28,7 +28,10 @@ export default function (
     case 'UPDATE_LATEST':
       return {
         ...state,
-        ...action.latestInfo,
+        nextUpgrade: action.latestInfo.nextUpgrade,
+        supported: action.latestInfo.supported,
+        latest: action.latestInfo.latest,
+        latestStable: action.latestInfo.latestStable,
       };
 
     case 'UPDATE_VERSION':
