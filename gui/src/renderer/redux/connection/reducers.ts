@@ -33,7 +33,17 @@ export default function (
 ): IConnectionReduxState {
   switch (action.type) {
     case 'NEW_LOCATION':
-      return { ...state, ...action.newLocation };
+      return {
+        ...state,
+        ipv4: action.newLocation.ipv4,
+        ipv6: action.newLocation.ipv6,
+        country: action.newLocation.country,
+        city: action.newLocation.city,
+        latitude: action.newLocation.latitude,
+        longitude: action.newLocation.longitude,
+        hostname: action.newLocation.hostname,
+        bridgeHostname: action.newLocation.bridgeHostname,
+      };
 
     case 'UPDATE_BLOCK_STATE':
       return { ...state, isBlocked: action.isBlocked };
