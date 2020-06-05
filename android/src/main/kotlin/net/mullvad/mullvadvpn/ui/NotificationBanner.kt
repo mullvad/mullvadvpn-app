@@ -18,10 +18,12 @@ import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.mullvadvpn.util.TimeLeftFormatter
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import net.mullvad.talpid.tunnel.ParameterGenerationError
+import org.joda.time.DateTime
 
 class NotificationBanner(
     val parentView: View,
@@ -32,6 +34,7 @@ class NotificationBanner(
     enum class ExternalLink { Download, KeyManagement }
 
     private val resources = context.resources
+    private val timeLeftFormatter = TimeLeftFormatter(resources)
 
     private val keyManagementUrl = context.getString(R.string.wg_key_url)
     private val downloadUrl = Uri.parse(context.getString(R.string.download_url))
@@ -82,6 +85,7 @@ class NotificationBanner(
         newListener?.invoke(height)
     }
 
+    var accountExpiry by observable<DateTime?>(null) { _, _, _ -> update() }
     var keyState by observable<KeygenEvent?>(null) { _, _, _ -> update() }
     var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, _ -> update() }
 
@@ -103,7 +107,11 @@ class NotificationBanner(
 
     private fun update() {
         externalLink = null
-        updateBasedOnTunnelState() || updateBasedOnKeyState() || updateBasedOnVersionInfo()
+
+        updateBasedOnTunnelState() ||
+            updateBasedOnKeyState() ||
+            updateBasedOnVersionInfo() ||
+            updateBasedOnAccountExpiry()
     }
 
     private fun updateBasedOnKeyState(): Boolean {
@@ -144,9 +152,7 @@ class NotificationBanner(
     }
 
     private fun updateBasedOnVersionInfo(): Boolean {
-        if (!versionInfoCache.isOutdated && versionInfoCache.isSupported) {
-            hide()
-        } else {
+        if (versionInfoCache.isOutdated || !versionInfoCache.isSupported) {
             val title: Int
             val statusImage: Drawable
             val template: Int
@@ -167,6 +173,23 @@ class NotificationBanner(
             externalLink = ExternalLink.Download
 
             show(statusImage, title, description)
+
+            return true
+        } else {
+            return false
+        }
+    }
+
+    private fun updateBasedOnAccountExpiry(): Boolean {
+        val expiry = accountExpiry
+        val threeDaysFromNow = DateTime.now().plusDays(3)
+
+        if (expiry != null && expiry.isBefore(threeDaysFromNow)) {
+            val timeLeft = timeLeftFormatter.format(expiry)
+
+            show(warningImage, R.string.account_credit_expires_soon, timeLeft)
+        } else {
+            hide()
         }
 
         return true
