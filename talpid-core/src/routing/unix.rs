@@ -2,14 +2,12 @@
 #![cfg_attr(target_os = "windows", allow(dead_code))]
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
 use super::RequiredRoute;
-use futures01::{
-    sync::{
-        mpsc::{unbounded, UnboundedSender},
-        oneshot,
-    },
-    Future,
+
+use futures::channel::{
+    mpsc::{self, UnboundedSender},
+    oneshot,
 };
-use std::{collections::HashSet, sync::mpsc::sync_channel};
+use std::collections::HashSet;
 use talpid_types::ErrorExt;
 
 #[cfg(target_os = "linux")]
@@ -71,6 +69,7 @@ pub enum RouteManagerCommand {
 /// the route will be adjusted dynamically when the default route changes.
 pub struct RouteManager {
     manage_tx: Option<UnboundedSender<RouteManagerCommand>>,
+    runtime: tokio02::runtime::Runtime,
 }
 
 impl RouteManager {
@@ -78,29 +77,15 @@ impl RouteManager {
     /// Takes a set of network destinations and network nodes as an argument, and applies said
     /// routes.
     pub fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self, Error> {
-        let (manage_tx, manage_rx) = unbounded();
-        let (start_tx, start_rx) = sync_channel(1);
+        let (manage_tx, manage_rx) = mpsc::unbounded();
+        let mut runtime = tokio02::runtime::Runtime::new().expect("Failed to spawn runtime");
+        let manager = runtime.block_on(imp::RouteManagerImpl::new(required_routes))?;
+        runtime.handle().spawn(manager.run(manage_rx));
 
-        std::thread::spawn(
-            move || match imp::RouteManagerImpl::new(required_routes, manage_rx) {
-                Ok(route_manager) => {
-                    let _ = start_tx.send(Ok(()));
-                    if let Err(e) = route_manager.wait() {
-                        log::error!("Route manager failed - {}", e);
-                    }
-                }
-                Err(e) => {
-                    let _ = start_tx.send(Err(Error::PlatformError(e)));
-                }
-            },
-        );
-        match start_rx.recv() {
-            Ok(Ok(())) => Ok(Self {
-                manage_tx: Some(manage_tx),
-            }),
-            Ok(Err(e)) => Err(e),
-            Err(_) => Err(Error::RoutingManagerThreadPanic),
-        }
+        Ok(Self {
+            runtime,
+            manage_tx: Some(manage_tx),
+        })
     }
 
     /// Stops RouteManager and removes all of the applied routes.
@@ -116,7 +101,7 @@ impl RouteManager {
                 return;
             }
 
-            if wait_rx.wait().is_err() {
+            if self.runtime.block_on(wait_rx).is_err() {
                 log::error!("RouteManager paniced while shutting down");
             }
         }
@@ -133,7 +118,7 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            match result_rx.wait() {
+            match self.runtime.block_on(result_rx) {
                 Ok(result) => result.map_err(Error::PlatformError),
                 Err(error) => {
                     log::trace!(
@@ -163,7 +148,7 @@ impl RouteManager {
 
     /// Route PID-associated packets through the physical interface.
     #[cfg(target_os = "linux")]
-    pub fn enable_exclusions_routes(&self) -> Result<(), Error> {
+    pub fn enable_exclusions_routes(&mut self) -> Result<(), Error> {
         if let Some(tx) = &self.manage_tx {
             let (result_tx, result_rx) = oneshot::channel();
             if tx
@@ -173,7 +158,7 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            match result_rx.wait() {
+            match self.runtime.block_on(result_rx) {
                 Ok(result) => result.map_err(Error::PlatformError),
                 Err(error) => {
                     log::trace!("{}", error.display_chain_with_msg("channel is closed"));
@@ -221,7 +206,7 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            match result_rx.wait() {
+            match self.runtime.block_on(result_rx) {
                 Ok(result) => result.map_err(Error::PlatformError),
                 Err(error) => {
                     log::trace!("{}", error.display_chain_with_msg("channel is closed"));
