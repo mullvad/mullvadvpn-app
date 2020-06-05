@@ -20,24 +20,15 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
         public val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
     }
 
-    private val jobTracker = JobTracker()
-
-    private var accountNumber: String? = null
-        set(value) {
-            field = value
-            onAccountNumberChange.notify(value)
-        }
-
-    private var accountExpiry: DateTime? = null
-        set(value) {
-            field = value
-            onAccountExpiryChange.notify(value)
-        }
-
-    private var oldAccountExpiry: DateTime? = null
-
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
+
+    private val jobTracker = JobTracker()
+
+    private var accountNumber by onAccountNumberChange.notifiable()
+    private var accountExpiry by onAccountExpiryChange.notifiable()
+
+    private var oldAccountExpiry: DateTime? = null
 
     init {
         settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
