@@ -82,17 +82,8 @@ class NotificationBanner(
         newListener?.invoke(height)
     }
 
-    var keyState: KeygenEvent? = null
-        set(value) {
-            field = value
-            update()
-        }
-
-    var tunnelState: TunnelState = TunnelState.Disconnected()
-        set(value) {
-            field = value
-            update()
-        }
+    var keyState by observable<KeygenEvent?>(null) { _, _, _ -> update() }
+    var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, _ -> update() }
 
     init {
         banner.setOnClickListener { onClick() }
