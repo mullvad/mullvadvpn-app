@@ -59,7 +59,7 @@ class NotificationBanner(
     private var externalLink: ExternalLink? = null
     private var visible = false
 
-    private val keyManagementController = BlockingController(
+    private val clickController = BlockingController(
         object : BlockableView {
             override fun setEnabled(enabled: Boolean) {
                 if (enabled) {
@@ -71,13 +71,19 @@ class NotificationBanner(
                 }
             }
 
-            override fun onClick(): Job {
-                return GlobalScope.launch(Dispatchers.Default) {
-                    val token = daemon.getWwwAuthToken()
-                    val url = Uri.parse(keyManagementUrl + "?token=" + token)
+            override fun onClick() = GlobalScope.launch(Dispatchers.Default) {
+                buildUrl()?.let { url ->
                     context.startActivity(Intent(Intent.ACTION_VIEW, url))
                 }
             }
+
+            private fun buildUrl() = when (externalLink) {
+                ExternalLink.Download -> downloadUrl
+                ExternalLink.KeyManagement -> Uri.parse(keyManagementUrl + buildUrlTokenParameter())
+                null -> null
+            }
+
+            private fun buildUrlTokenParameter() = "?token=${daemon.getWwwAuthToken()}"
         }
     )
 
@@ -90,7 +96,7 @@ class NotificationBanner(
     var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, _ -> update() }
 
     init {
-        banner.setOnClickListener { onClick() }
+        banner.setOnClickListener { clickController.action() }
     }
 
     fun onResume() {
@@ -102,7 +108,7 @@ class NotificationBanner(
     fun onPause() {
         versionInfoCache.onUpdate = null
         updateJob?.cancel()
-        keyManagementController.onPause()
+        clickController.onPause()
     }
 
     private fun update() {
@@ -289,19 +295,6 @@ class NotificationBanner(
             measure(widthSpec, heightSpec)
 
             return measuredHeight
-        }
-    }
-
-    private fun onClick() {
-        val externalLink = this.externalLink
-
-        when (externalLink) {
-            ExternalLink.Download -> {
-                context.startActivity(Intent(Intent.ACTION_VIEW, this.downloadUrl))
-            }
-            ExternalLink.KeyManagement -> {
-                this.keyManagementController.action()
-            }
         }
     }
 }
