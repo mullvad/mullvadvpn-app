@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make all screens scrollable to better handle small screens and split-screen mode.
 - Ignore touch events when another view is shown on top of the app in order to prevent tapjacking
   attacks.
+- Prevent screens showing potentially sensitive data from being recorded.
 
 #### Linux
 - Send an ICMP reject message or TCP reset packet when blocking outgoing packets to prevent
