@@ -28,85 +28,63 @@ export default function (
     case 'START_LOGIN':
       return {
         ...state,
-        ...{
-          status: { type: 'logging in', method: 'existing_account' },
-          accountToken: action.accountToken,
-        },
+        status: { type: 'logging in', method: 'existing_account' },
+        accountToken: action.accountToken,
       };
     case 'LOGGED_IN':
       return {
         ...state,
-        ...{
-          status: { type: 'ok', method: 'existing_account' },
-        },
+        status: { type: 'ok', method: 'existing_account' },
       };
     case 'LOGIN_FAILED':
       return {
         ...state,
-        ...{
-          status: { type: 'failed', method: 'existing_account', error: action.error },
-          accountToken: undefined,
-        },
+        status: { type: 'failed', method: 'existing_account', error: action.error },
+        accountToken: undefined,
       };
     case 'LOGGED_OUT':
       return {
         ...state,
-        ...{
-          status: { type: 'none' },
-          accountToken: undefined,
-          expiry: undefined,
-        },
+        status: { type: 'none' },
+        accountToken: undefined,
+        expiry: undefined,
       };
     case 'RESET_LOGIN_ERROR':
       return {
         ...state,
-        ...{
-          status: { type: 'none' },
-        },
+        status: { type: 'none' },
       };
     case 'START_CREATE_ACCOUNT':
       return {
         ...state,
-        ...{
-          status: { type: 'logging in', method: 'new_account' },
-        },
+        status: { type: 'logging in', method: 'new_account' },
       };
     case 'CREATE_ACCOUNT_FAILED':
       return {
         ...state,
-        ...{
-          status: { type: 'failed', method: 'new_account', error: action.error },
-        },
+        status: { type: 'failed', method: 'new_account', error: action.error },
       };
     case 'ACCOUNT_CREATED':
       return {
         ...state,
-        ...{
-          status: { type: 'ok', method: 'new_account' },
-          accountToken: action.token,
-          expiry: action.expiry,
-        },
+        status: { type: 'ok', method: 'new_account' },
+        accountToken: action.token,
+        expiry: action.expiry,
       };
     case 'UPDATE_ACCOUNT_TOKEN':
       return {
         ...state,
-        ...{
-          accountToken: action.token,
-        },
+        accountToken: action.token,
       };
     case 'UPDATE_ACCOUNT_HISTORY':
       return {
         ...state,
-        ...{
-          accountHistory: action.accountHistory,
-        },
+        accountHistory: action.accountHistory,
       };
     case 'UPDATE_ACCOUNT_EXPIRY':
       return {
         ...state,
-        ...{
-          expiry: action.expiry,
-        },
+        expiry: action.expiry,
       };
   }
 
