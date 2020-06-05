@@ -31,13 +31,18 @@ class NotificationBanner(
     val versionInfoCache: AppVersionInfoCache,
     val daemon: MullvadDaemon
 ) {
-    enum class ExternalLink { Download, KeyManagement }
+    enum class ExternalLink {
+        BuyMoreTime,
+        Download,
+        KeyManagement
+    }
 
     private val resources = context.resources
     private val timeLeftFormatter = TimeLeftFormatter(resources)
 
-    private val keyManagementUrl = context.getString(R.string.wg_key_url)
+    private val buyMoreTimeUrl = context.getString(R.string.account_url)
     private val downloadUrl = Uri.parse(context.getString(R.string.download_url))
+    private val keyManagementUrl = context.getString(R.string.wg_key_url)
 
     private val errorImage = resources.getDrawable(R.drawable.icon_notification_error, null)
     private val warningImage = resources.getDrawable(R.drawable.icon_notification_warning, null)
@@ -78,6 +83,7 @@ class NotificationBanner(
             }
 
             private fun buildUrl() = when (externalLink) {
+                ExternalLink.BuyMoreTime -> Uri.parse(buyMoreTimeUrl + buildUrlTokenParameter())
                 ExternalLink.Download -> downloadUrl
                 ExternalLink.KeyManagement -> Uri.parse(keyManagementUrl + buildUrlTokenParameter())
                 null -> null
@@ -192,6 +198,8 @@ class NotificationBanner(
 
         if (expiry != null && expiry.isBefore(threeDaysFromNow)) {
             val timeLeft = timeLeftFormatter.format(expiry)
+
+            externalLink = ExternalLink.BuyMoreTime
 
             show(warningImage, R.string.account_credit_expires_soon, timeLeft)
         } else {
