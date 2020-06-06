@@ -57,9 +57,9 @@ class MullvadTileService : TileService() {
         val intent = Intent(this, MullvadVpnService::class.java)
 
         if (secured) {
-            intent.action = KEY_DISCONNECT_ACTION
+            intent.action = MullvadVpnService.KEY_DISCONNECT_ACTION
         } else {
-            intent.action = KEY_CONNECT_ACTION
+            intent.action = MullvadVpnService.KEY_CONNECT_ACTION
         }
 
         if (Build.VERSION.SDK_INT >= 26) {

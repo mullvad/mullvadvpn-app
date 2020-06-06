@@ -20,6 +20,11 @@ import net.mullvad.talpid.util.EventNotifier
 private const val RELAYS_FILE = "relays.json"
 
 class MullvadVpnService : TalpidVpnService() {
+    companion object {
+        val KEY_CONNECT_ACTION = "net.mullvad.mullvadvpn.connect_action"
+        val KEY_DISCONNECT_ACTION = "net.mullvad.mullvadvpn.disconnect_action"
+    }
+
     private enum class PendingAction {
         Connect,
         Disconnect,
