@@ -183,18 +183,6 @@ class ForegroundNotificationManager(
             }
         }
 
-    private val connectReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            connectionProxy?.connect()
-        }
-    }
-
-    private val disconnectReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            connectionProxy?.disconnect()
-        }
-    }
-
     var lockedToForeground = false
         set(value) {
             field = value
@@ -212,8 +200,6 @@ class ForegroundNotificationManager(
         }
 
         service.apply {
-            registerReceiver(connectReceiver, IntentFilter(KEY_CONNECT_ACTION))
-            registerReceiver(disconnectReceiver, IntentFilter(KEY_DISCONNECT_ACTION))
             registerReceiver(deviceLockListener, IntentFilter().apply {
                 addAction(Intent.ACTION_USER_PRESENT)
                 addAction(Intent.ACTION_SCREEN_OFF)
@@ -227,11 +213,6 @@ class ForegroundNotificationManager(
         serviceNotifier.unsubscribe(this)
         connectionProxy = null
         settingsListener = null
-
-        service.apply {
-            unregisterReceiver(connectReceiver)
-            unregisterReceiver(disconnectReceiver)
-        }
 
         notificationManager.cancel(FOREGROUND_NOTIFICATION_ID)
     }
