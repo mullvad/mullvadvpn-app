@@ -20,8 +20,6 @@ import net.mullvad.talpid.util.EventNotifier
 
 val CHANNEL_ID = "vpn_tunnel_status"
 val FOREGROUND_NOTIFICATION_ID: Int = 1
-val KEY_CONNECT_ACTION = "net.mullvad.mullvadvpn.connect_action"
-val KEY_DISCONNECT_ACTION = "net.mullvad.mullvadvpn.disconnect_action"
 
 class ForegroundNotificationManager(
     val service: MullvadVpnService,
@@ -161,22 +159,22 @@ class ForegroundNotificationManager(
             val state = tunnelState
 
             return when (state) {
-                is TunnelState.Disconnected -> KEY_CONNECT_ACTION
-                is TunnelState.Connecting -> KEY_DISCONNECT_ACTION
-                is TunnelState.Connected -> KEY_DISCONNECT_ACTION
+                is TunnelState.Disconnected -> MullvadVpnService.KEY_CONNECT_ACTION
+                is TunnelState.Connecting -> MullvadVpnService.KEY_DISCONNECT_ACTION
+                is TunnelState.Connected -> MullvadVpnService.KEY_DISCONNECT_ACTION
                 is TunnelState.Disconnecting -> {
                     when (state.actionAfterDisconnect) {
-                        ActionAfterDisconnect.Reconnect -> KEY_DISCONNECT_ACTION
-                        else -> KEY_CONNECT_ACTION
+                        ActionAfterDisconnect.Reconnect -> MullvadVpnService.KEY_DISCONNECT_ACTION
+                        else -> MullvadVpnService.KEY_CONNECT_ACTION
                     }
                 }
-                is TunnelState.Error -> KEY_DISCONNECT_ACTION
+                is TunnelState.Error -> MullvadVpnService.KEY_DISCONNECT_ACTION
             }
         }
 
     private val tunnelActionIcon: Int
         get() {
-            if (tunnelActionKey == KEY_CONNECT_ACTION) {
+            if (tunnelActionKey == MullvadVpnService.KEY_CONNECT_ACTION) {
                 return R.drawable.icon_notification_connect
             } else {
                 return R.drawable.icon_notification_disconnect
