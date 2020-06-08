@@ -11,6 +11,7 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.notifications.TunnelStateNotification
 import net.mullvad.talpid.util.EventNotifier
+import net.mullvad.talpid.util.autoSubscribable
 
 class ForegroundNotificationManager(
     val service: MullvadVpnService,
@@ -29,25 +30,14 @@ class ForegroundNotificationManager(
         }
     }
 
-    private var connectionProxy by observable<ConnectionProxy?>(null) { _, oldValue, newValue ->
-        if (oldValue != newValue) {
-            oldValue?.onStateChange?.unsubscribe(this)
-
-            newValue?.onStateChange?.subscribe(this) { state ->
-                tunnelState = state
-            }
-        }
+    private var accountNumberEvents by autoSubscribable<String?>(this, null) { accountNumber ->
+        loggedIn = accountNumber != null
     }
 
-    private var settingsListener by observable<SettingsListener?>(null) { _, oldValue, newValue ->
-        if (oldValue != newValue) {
-            oldValue?.accountNumberNotifier?.unsubscribe(this)
-
-            newValue?.accountNumberNotifier?.subscribe(this) { accountNumber ->
-                loggedIn = accountNumber != null
-            }
+    private var tunnelStateEvents
+        by autoSubscribable<TunnelState>(this, TunnelState.Disconnected()) { newState ->
+            tunnelState = newState
         }
-    }
 
     private var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, state ->
         tunnelStateNotification.tunnelState = state
@@ -69,8 +59,8 @@ class ForegroundNotificationManager(
 
     init {
         serviceNotifier.subscribe(this) { newServiceInstance ->
-            connectionProxy = newServiceInstance?.connectionProxy
-            settingsListener = newServiceInstance?.settingsListener
+            accountNumberEvents = newServiceInstance?.settingsListener?.accountNumberNotifier
+            tunnelStateEvents = newServiceInstance?.connectionProxy?.onStateChange
         }
 
         service.apply {
@@ -85,8 +75,9 @@ class ForegroundNotificationManager(
 
     fun onDestroy() {
         serviceNotifier.unsubscribe(this)
-        connectionProxy = null
-        settingsListener = null
+
+        accountNumberEvents = null
+        tunnelStateEvents = null
 
         service.unregisterReceiver(deviceLockListener)
 
