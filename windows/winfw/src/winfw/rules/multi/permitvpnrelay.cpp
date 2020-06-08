@@ -6,11 +6,12 @@
 #include <libwfp/conditions/conditionprotocol.h>
 #include <libwfp/conditions/conditionip.h>
 #include <libwfp/conditions/conditionport.h>
+#include <libwfp/conditions/conditionapplication.h>
 #include <libcommon/error.h>
 
 using namespace wfp::conditions;
 
-namespace rules::baseline
+namespace rules::multi
 {
 
 namespace
@@ -42,13 +43,39 @@ std::unique_ptr<ConditionProtocol> CreateProtocolCondition(PermitVpnRelay::Proto
 	};
 }
 
+const GUID &TranslateSublayer(PermitVpnRelay::Sublayer sublayer)
+{
+	switch (sublayer)
+	{
+		case PermitVpnRelay::Sublayer::Baseline: return MullvadGuids::SublayerBaseline();
+		case PermitVpnRelay::Sublayer::Dns: return MullvadGuids::SublayerDns();
+		default:
+		{
+			THROW_ERROR("Missing case handler in switch clause");
+		}
+	};
+}
+
 } // anonymous namespace
 
-PermitVpnRelay::PermitVpnRelay(const wfp::IpAddress &relay, uint16_t relayPort, Protocol protocol)
+PermitVpnRelay::PermitVpnRelay
+(
+	const wfp::IpAddress &relay,
+	uint16_t relayPort,
+	Protocol protocol,
+	const std::vector<std::wstring> &approvedApplications,
+	Sublayer sublayer
+)
 	: m_relay(relay)
 	, m_relayPort(relayPort)
 	, m_protocol(protocol)
+	, m_approvedApplications(approvedApplications)
+	, m_sublayer(sublayer)
 {
+	if (m_approvedApplications.empty())
+	{
+		THROW_ERROR("Cannot configure relay access without list of approved applications");
+	}
 }
 
 bool PermitVpnRelay::apply(IObjectInstaller &objectInstaller)
@@ -65,7 +92,7 @@ bool PermitVpnRelay::apply(IObjectInstaller &objectInstaller)
 		.description(L"This filter is part of a rule that permits communication with a VPN relay")
 		.provider(MullvadGuids::Provider())
 		.layer(LayerFromIp(m_relay))
-		.sublayer(MullvadGuids::SublayerBaseline())
+		.sublayer(TranslateSublayer(m_sublayer))
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
 
@@ -74,6 +101,11 @@ bool PermitVpnRelay::apply(IObjectInstaller &objectInstaller)
 	conditionBuilder.add_condition(ConditionIp::Remote(m_relay));
 	conditionBuilder.add_condition(ConditionPort::Remote(m_relayPort));
 	conditionBuilder.add_condition(CreateProtocolCondition(m_protocol));
+
+	for (const auto &app : m_approvedApplications)
+	{
+		conditionBuilder.add_condition(std::make_unique<ConditionApplication>(app));
+	}
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
