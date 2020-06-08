@@ -564,6 +564,8 @@ where
             tunnel_state_machine_shutdown_tx,
             #[cfg(target_os = "android")]
             android_context,
+            #[cfg(windows)]
+            Self::get_approved_applications(),
         )
         .map_err(Error::TunnelError)?;
 
@@ -634,6 +636,19 @@ where
         Ok(daemon)
     }
 
+    fn get_approved_applications() -> Vec<PathBuf> {
+        let resource_dir = mullvad_paths::get_resource_dir();
+        let make_path = |dir: &PathBuf, filename: &str| {
+            let mut path = dir.clone();
+            path.push(filename);
+            path
+        };
+        vec![
+            make_path(&resource_dir, "mullvad-daemon.exe"),
+            make_path(&resource_dir, "openvpn.exe"),
+            make_path(&resource_dir, "sslocal.exe"),
+        ]
+    }
 
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.

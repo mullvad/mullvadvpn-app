@@ -7,6 +7,8 @@ use std::fmt;
 use std::net::IpAddr;
 #[cfg(unix)]
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+#[cfg(windows)]
+use std::path::PathBuf;
 use talpid_types::net::Endpoint;
 
 
@@ -169,6 +171,9 @@ pub struct FirewallArguments {
     pub initialize_blocked: bool,
     /// This argument is required for the blocked state to configure the firewall correctly.
     pub allow_lan: Option<bool>,
+    /// List of applications that are approved for communicating with the relay.
+    #[cfg(windows)]
+    pub approved_applications: Vec<PathBuf>,
 }
 
 impl Firewall {
