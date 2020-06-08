@@ -4,12 +4,13 @@ import android.content.Context
 import android.view.View
 import android.widget.TextView
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.util.TimeLeftFormatter
 import org.joda.time.DateTime
 import org.joda.time.Duration
-import org.joda.time.PeriodType
 
 class RemainingTimeLabel(val context: Context, val view: View) {
     private val resources = context.resources
+    private val formatter = TimeLeftFormatter(resources)
 
     private val expiredColor = resources.getColor(R.color.red)
     private val normalColor = resources.getColor(R.color.white60)
@@ -32,21 +33,7 @@ class RemainingTimeLabel(val context: Context, val view: View) {
                 label.setText(R.string.out_of_time)
                 label.setTextColor(expiredColor)
             } else {
-                val remainingTimeInfo =
-                    remainingTime.toPeriodTo(expiry, PeriodType.yearMonthDayTime())
-
-                if (remainingTimeInfo.years > 0) {
-                    label.setText(getRemainingText(R.plurals.years_left, remainingTimeInfo.years))
-                } else if (remainingTimeInfo.months >= 3) {
-                    label.setText(getRemainingText(R.plurals.months_left, remainingTimeInfo.months))
-                } else if (remainingTimeInfo.months > 0 || remainingTimeInfo.days >= 1) {
-                    label.setText(
-                        getRemainingText(R.plurals.days_left, remainingTime.standardDays.toInt())
-                    )
-                } else {
-                    label.setText(R.string.less_than_a_day_left)
-                }
-
+                label.setText(formatter.format(expiry, remainingTime))
                 label.setTextColor(normalColor)
             }
         } else {

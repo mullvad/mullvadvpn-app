@@ -18,10 +18,12 @@ import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.mullvadvpn.util.TimeLeftFormatter
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import net.mullvad.talpid.tunnel.ParameterGenerationError
+import org.joda.time.DateTime
 
 class NotificationBanner(
     val parentView: View,
@@ -29,12 +31,18 @@ class NotificationBanner(
     val versionInfoCache: AppVersionInfoCache,
     val daemon: MullvadDaemon
 ) {
-    enum class ExternalLink { Download, KeyManagement }
+    enum class ExternalLink {
+        BuyMoreTime,
+        Download,
+        KeyManagement
+    }
 
     private val resources = context.resources
+    private val timeLeftFormatter = TimeLeftFormatter(resources)
 
-    private val keyManagementUrl = context.getString(R.string.wg_key_url)
+    private val buyMoreTimeUrl = context.getString(R.string.account_url)
     private val downloadUrl = Uri.parse(context.getString(R.string.download_url))
+    private val keyManagementUrl = context.getString(R.string.wg_key_url)
 
     private val errorImage = resources.getDrawable(R.drawable.icon_notification_error, null)
     private val warningImage = resources.getDrawable(R.drawable.icon_notification_warning, null)
@@ -56,7 +64,7 @@ class NotificationBanner(
     private var externalLink: ExternalLink? = null
     private var visible = false
 
-    private val keyManagementController = BlockingController(
+    private val clickController = BlockingController(
         object : BlockableView {
             override fun setEnabled(enabled: Boolean) {
                 if (enabled) {
@@ -68,13 +76,20 @@ class NotificationBanner(
                 }
             }
 
-            override fun onClick(): Job {
-                return GlobalScope.launch(Dispatchers.Default) {
-                    val token = daemon.getWwwAuthToken()
-                    val url = Uri.parse(keyManagementUrl + "?token=" + token)
+            override fun onClick() = GlobalScope.launch(Dispatchers.Default) {
+                buildUrl()?.let { url ->
                     context.startActivity(Intent(Intent.ACTION_VIEW, url))
                 }
             }
+
+            private fun buildUrl() = when (externalLink) {
+                ExternalLink.BuyMoreTime -> Uri.parse(buyMoreTimeUrl + buildUrlTokenParameter())
+                ExternalLink.Download -> downloadUrl
+                ExternalLink.KeyManagement -> Uri.parse(keyManagementUrl + buildUrlTokenParameter())
+                null -> null
+            }
+
+            private fun buildUrlTokenParameter() = "?token=${daemon.getWwwAuthToken()}"
         }
     )
 
@@ -82,20 +97,12 @@ class NotificationBanner(
         newListener?.invoke(height)
     }
 
-    var keyState: KeygenEvent? = null
-        set(value) {
-            field = value
-            update()
-        }
-
-    var tunnelState: TunnelState = TunnelState.Disconnected()
-        set(value) {
-            field = value
-            update()
-        }
+    var accountExpiry by observable<DateTime?>(null) { _, _, _ -> update() }
+    var keyState by observable<KeygenEvent?>(null) { _, _, _ -> update() }
+    var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, _ -> update() }
 
     init {
-        banner.setOnClickListener { onClick() }
+        banner.setOnClickListener { clickController.action() }
     }
 
     fun onResume() {
@@ -107,12 +114,16 @@ class NotificationBanner(
     fun onPause() {
         versionInfoCache.onUpdate = null
         updateJob?.cancel()
-        keyManagementController.onPause()
+        clickController.onPause()
     }
 
     private fun update() {
         externalLink = null
-        updateBasedOnTunnelState() || updateBasedOnKeyState() || updateBasedOnVersionInfo()
+
+        updateBasedOnTunnelState() ||
+            updateBasedOnKeyState() ||
+            updateBasedOnVersionInfo() ||
+            updateBasedOnAccountExpiry()
     }
 
     private fun updateBasedOnKeyState(): Boolean {
@@ -153,9 +164,7 @@ class NotificationBanner(
     }
 
     private fun updateBasedOnVersionInfo(): Boolean {
-        if (!versionInfoCache.isOutdated && versionInfoCache.isSupported) {
-            hide()
-        } else {
+        if (versionInfoCache.isOutdated || !versionInfoCache.isSupported) {
             val title: Int
             val statusImage: Drawable
             val template: Int
@@ -176,6 +185,25 @@ class NotificationBanner(
             externalLink = ExternalLink.Download
 
             show(statusImage, title, description)
+
+            return true
+        } else {
+            return false
+        }
+    }
+
+    private fun updateBasedOnAccountExpiry(): Boolean {
+        val expiry = accountExpiry
+        val threeDaysFromNow = DateTime.now().plusDays(3)
+
+        if (expiry != null && expiry.isBefore(threeDaysFromNow)) {
+            val timeLeft = timeLeftFormatter.format(expiry)
+
+            externalLink = ExternalLink.BuyMoreTime
+
+            show(warningImage, R.string.account_credit_expires_soon, timeLeft)
+        } else {
+            hide()
         }
 
         return true
@@ -275,19 +303,6 @@ class NotificationBanner(
             measure(widthSpec, heightSpec)
 
             return measuredHeight
-        }
-    }
-
-    private fun onClick() {
-        val externalLink = this.externalLink
-
-        when (externalLink) {
-            ExternalLink.Download -> {
-                context.startActivity(Intent(Intent.ACTION_VIEW, this.downloadUrl))
-            }
-            ExternalLink.KeyManagement -> {
-                this.keyManagementController.action()
-            }
         }
     }
 }
