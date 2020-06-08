@@ -11,6 +11,7 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.notifications.TunnelStateNotification
 import net.mullvad.talpid.util.EventNotifier
+import net.mullvad.talpid.util.autoSubscribable
 
 class ForegroundNotificationManager(
     val service: MullvadVpnService,
@@ -29,30 +30,15 @@ class ForegroundNotificationManager(
         }
     }
 
-    private var connectionProxy by observable<ConnectionProxy?>(null) { _, oldValue, newValue ->
-        if (oldValue != newValue) {
-            oldValue?.onStateChange?.unsubscribe(this)
+    private var accountNumberEvents by autoSubscribable<String?>(this, null) { accountNumber ->
+        loggedIn = accountNumber != null
+    }
 
-            newValue?.onStateChange?.subscribe(this) { state ->
-                tunnelState = state
-            }
+    private var tunnelStateEvents
+        by autoSubscribable<TunnelState>(this, TunnelState.Disconnected()) { newState ->
+            tunnelStateNotification.tunnelState = newState
+            updateNotification()
         }
-    }
-
-    private var settingsListener by observable<SettingsListener?>(null) { _, oldValue, newValue ->
-        if (oldValue != newValue) {
-            oldValue?.accountNumberNotifier?.unsubscribe(this)
-
-            newValue?.accountNumberNotifier?.subscribe(this) { accountNumber ->
-                loggedIn = accountNumber != null
-            }
-        }
-    }
-
-    private var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, state ->
-        tunnelStateNotification.tunnelState = state
-        updateNotification()
-    }
 
     private var deviceIsUnlocked by observable(!keyguardManager.isDeviceLocked) { _, _, _ ->
         updateNotificationAction()
@@ -62,6 +48,9 @@ class ForegroundNotificationManager(
 
     private var onForeground = false
 
+    private val tunnelState
+        get() = tunnelStateEvents?.latestEvent ?: TunnelState.Disconnected()
+
     private val shouldBeOnForeground
         get() = lockedToForeground || !(tunnelState is TunnelState.Disconnected)
 
@@ -69,8 +58,8 @@ class ForegroundNotificationManager(
 
     init {
         serviceNotifier.subscribe(this) { newServiceInstance ->
-            connectionProxy = newServiceInstance?.connectionProxy
-            settingsListener = newServiceInstance?.settingsListener
+            accountNumberEvents = newServiceInstance?.settingsListener?.accountNumberNotifier
+            tunnelStateEvents = newServiceInstance?.connectionProxy?.onStateChange
         }
 
         service.apply {
@@ -85,8 +74,9 @@ class ForegroundNotificationManager(
 
     fun onDestroy() {
         serviceNotifier.unsubscribe(this)
-        connectionProxy = null
-        settingsListener = null
+
+        accountNumberEvents = null
+        tunnelStateEvents = null
 
         service.unregisterReceiver(deviceLockListener)
 
