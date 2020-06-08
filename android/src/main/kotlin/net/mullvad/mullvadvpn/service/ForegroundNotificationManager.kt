@@ -12,6 +12,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.support.v4.app.NotificationCompat
+import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.MainActivity
@@ -41,61 +42,41 @@ class ForegroundNotificationManager(
         }
     }
 
-    private var connectionProxy: ConnectionProxy? = null
-        set(value) {
-            if (field != value) {
-                field?.onStateChange?.unsubscribe(this)
+    private var connectionProxy by observable<ConnectionProxy?>(null) { _, oldValue, newValue ->
+        if (oldValue != newValue) {
+            oldValue?.onStateChange?.unsubscribe(this)
 
-                value?.onStateChange?.subscribe(this) { state ->
-                    tunnelState = state
-                }
-
-                field = value
+            newValue?.onStateChange?.subscribe(this) { state ->
+                tunnelState = state
             }
         }
+    }
 
-    private var settingsListener: SettingsListener? = null
-        set(value) {
-            if (field != value) {
-                field?.accountNumberNotifier?.unsubscribe(this)
+    private var settingsListener by observable<SettingsListener?>(null) { _, oldValue, newValue ->
+        if (oldValue != newValue) {
+            oldValue?.accountNumberNotifier?.unsubscribe(this)
 
-                value?.accountNumberNotifier?.subscribe(this) { accountNumber ->
-                    loggedIn = accountNumber != null
-                }
-
-                field = value
+            newValue?.accountNumberNotifier?.subscribe(this) { accountNumber ->
+                loggedIn = accountNumber != null
             }
         }
+    }
 
     private var onForeground = false
     private var reconnecting = false
     private var showingReconnecting = false
 
-    private var tunnelState: TunnelState = TunnelState.Disconnected()
-        set(value) {
-            field = value
+    private var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, state ->
+        reconnecting =
+            (state is TunnelState.Disconnecting &&
+                state.actionAfterDisconnect == ActionAfterDisconnect.Reconnect) ||
+            (state is TunnelState.Connecting && reconnecting)
 
-            reconnecting =
-                (value is TunnelState.Disconnecting &&
-                    value.actionAfterDisconnect == ActionAfterDisconnect.Reconnect) ||
-                (value is TunnelState.Connecting && reconnecting)
+        updateNotification()
+    }
 
-            updateNotification()
-        }
-
-    private var deviceIsUnlocked = true
-        set(value) {
-            if (field != value) {
-                field = value
-                updateNotification()
-            }
-        }
-
-    private var loggedIn = false
-        set(value) {
-            field = value
-            updateNotification()
-        }
+    private var deviceIsUnlocked by observable(true) { _, _, _ -> updateNotification() }
+    private var loggedIn by observable(false) { _, _, _ -> updateNotification() }
 
     private val shouldBeOnForeground
         get() = lockedToForeground || !(tunnelState is TunnelState.Disconnected)
@@ -181,11 +162,7 @@ class ForegroundNotificationManager(
             }
         }
 
-    var lockedToForeground = false
-        set(value) {
-            field = value
-            updateNotificationForegroundStatus()
-        }
+    var lockedToForeground by observable(false) { _, _, _ -> updateNotificationForegroundStatus() }
 
     init {
         if (Build.VERSION.SDK_INT >= 26) {
