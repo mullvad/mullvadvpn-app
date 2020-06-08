@@ -42,6 +42,27 @@ std::optional<FwContext::PingableHosts> ConvertPingableHosts(const PingableHosts
 	return converted;
 }
 
+std::vector<std::wstring> ConvertApprovedApplications
+(
+	WinFwApprovedApplications *approvedApplications
+)
+{
+	if (nullptr == approvedApplications
+		|| 0 == approvedApplications->numApps)
+	{
+		THROW_ERROR("Invalid list of approved applications (empty list)");
+	}
+
+	std::vector<std::wstring> converted;
+
+	for (size_t i = 0; i < approvedApplications->numApps; ++i)
+	{
+		converted.emplace_back(std::wstring(approvedApplications->apps[i]));
+	}
+
+	return converted;
+}
+
 } // anonymous namespace
 
 WINFW_LINKAGE
@@ -49,6 +70,7 @@ bool
 WINFW_API
 WinFw_Initialize(
 	uint32_t timeout,
+	WinFwApprovedApplications *approvedApplications,
 	MullvadLogSink logSink,
 	void *logSinkContext
 )
@@ -70,7 +92,8 @@ WinFw_Initialize(
 		g_logSink = logSink;
 		g_logSinkContext = logSinkContext;
 
-		g_fwContext = new FwContext(timeout_ms);
+		g_fwContext = new FwContext(timeout_ms,
+			ConvertApprovedApplications(approvedApplications));
 	}
 	catch (std::exception &err)
 	{
@@ -96,6 +119,7 @@ WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
 	const WinFwSettings *settings,
+	WinFwApprovedApplications *approvedApplications,
 	MullvadLogSink logSink,
 	void *logSinkContext
 )
@@ -122,7 +146,8 @@ WinFw_InitializeBlocked(
 		g_logSink = logSink;
 		g_logSinkContext = logSinkContext;
 
-		g_fwContext = new FwContext(timeout_ms, *settings);
+		g_fwContext = new FwContext(timeout_ms, *settings,
+			ConvertApprovedApplications(approvedApplications));
 	}
 	catch (std::exception &err)
 	{

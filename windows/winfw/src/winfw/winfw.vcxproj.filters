@@ -34,9 +34,6 @@
     <ClCompile Include="rules\baseline\permitping.cpp">
       <Filter>rules\baseline</Filter>
     </ClCompile>
-    <ClCompile Include="rules\baseline\permitvpnrelay.cpp">
-      <Filter>rules\baseline</Filter>
-    </ClCompile>
     <ClCompile Include="rules\baseline\permitvpntunnel.cpp">
       <Filter>rules\baseline</Filter>
     </ClCompile>
@@ -57,6 +54,9 @@
     </ClCompile>
     <ClCompile Include="rules\shared.cpp">
       <Filter>rules</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\multi\permitvpnrelay.cpp">
+      <Filter>rules\multi</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -99,9 +99,6 @@
     <ClInclude Include="rules\baseline\permitping.h">
       <Filter>rules\baseline</Filter>
     </ClInclude>
-    <ClInclude Include="rules\baseline\permitvpnrelay.h">
-      <Filter>rules\baseline</Filter>
-    </ClInclude>
     <ClInclude Include="rules\baseline\permitvpntunnel.h">
       <Filter>rules\baseline</Filter>
     </ClInclude>
@@ -126,6 +123,9 @@
     <ClInclude Include="rules\shared.h">
       <Filter>rules</Filter>
     </ClInclude>
+    <ClInclude Include="rules\multi\permitvpnrelay.h">
+      <Filter>rules\multi</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rules">
@@ -136,6 +136,9 @@
     </Filter>
     <Filter Include="rules\dns">
       <UniqueIdentifier>{9b35e8a4-84be-4ac3-9b6f-eb21cc02e065}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rules\multi">
+      <UniqueIdentifier>{005cce7c-ed9d-4675-8e4f-759c9682b77e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
