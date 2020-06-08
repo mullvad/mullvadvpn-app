@@ -75,7 +75,10 @@ class ForegroundNotificationManager(
         updateNotification()
     }
 
-    private var deviceIsUnlocked by observable(true) { _, _, _ -> updateNotification() }
+    private var deviceIsUnlocked by observable(!keyguardManager.isDeviceLocked) { _, _, _ ->
+        updateNotification()
+    }
+
     private var loggedIn by observable(false) { _, _, _ -> updateNotification() }
 
     private val shouldBeOnForeground
