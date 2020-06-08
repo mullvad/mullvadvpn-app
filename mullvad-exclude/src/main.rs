@@ -5,7 +5,8 @@ use std::{
     env,
     error::Error as StdError,
     ffi::{CStr, CString, NulError},
-    fs, io,
+    fs,
+    io::{self, BufWriter, Write},
     os::unix::ffi::OsStrExt,
     path::Path,
 };
@@ -82,7 +83,16 @@ fn run() -> Result<void::Void, Error> {
     // Set the cgroup of this process
     let cgroup_dir = Path::new(NETCLS_DIR).join(SPLIT_TUNNEL_CGROUP_NAME);
     let procs_path = cgroup_dir.join("cgroup.procs");
-    fs::write(procs_path, getpid().to_string().as_bytes()).map_err(Error::AddProcToCGroup)?;
+
+    let file = fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(procs_path)
+        .map_err(Error::AddProcToCGroup)?;
+
+    BufWriter::new(file)
+        .write_all(getpid().to_string().as_bytes())
+        .map_err(Error::AddProcToCGroup)?;
 
     // Drop root privileges
     let real_uid = getuid();
