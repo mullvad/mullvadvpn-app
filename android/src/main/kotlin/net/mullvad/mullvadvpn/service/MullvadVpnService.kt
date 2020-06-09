@@ -8,6 +8,7 @@ import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import java.io.File
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -41,14 +42,12 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var startDaemonJob: Job? = null
 
-    private var instance: ServiceInstance? = null
-        set(value) {
-            if (field != value) {
-                field?.onDestroy()
-                field = value
-                serviceNotifier.notify(value)
-            }
+    private var instance by observable<ServiceInstance?>(null) { _, oldInstance, newInstance ->
+        if (newInstance != oldInstance) {
+            oldInstance?.onDestroy()
+            serviceNotifier.notify(newInstance)
         }
+    }
 
     private lateinit var keyguardManager: KeyguardManager
     private lateinit var notificationManager: ForegroundNotificationManager
