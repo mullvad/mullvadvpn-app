@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
+import net.mullvad.talpid.util.autoSubscribable
 
 private const val RELAYS_FILE = "relays.json"
 
@@ -45,8 +46,15 @@ class MullvadVpnService : TalpidVpnService() {
     private var instance by observable<ServiceInstance?>(null) { _, oldInstance, newInstance ->
         if (newInstance != oldInstance) {
             oldInstance?.onDestroy()
+
+            accountNumberEvents = newInstance?.accountCache?.onAccountNumberChange
+
             serviceNotifier.notify(newInstance)
         }
+    }
+
+    private var accountNumberEvents by autoSubscribable<String?>(this, null) { accountNumber ->
+        loggedIn = accountNumber != null
     }
 
     private lateinit var keyguardManager: KeyguardManager
@@ -192,11 +200,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
-        val settingsListener = SettingsListener(daemon, settings).apply {
-            accountNumberNotifier.subscribe(this@MullvadVpnService) { accountNumber ->
-                loggedIn = accountNumber != null
-            }
-        }
+        val settingsListener = SettingsListener(daemon, settings)
 
         val connectionProxy = ConnectionProxy(this, daemon).apply {
             when (pendingAction) {
