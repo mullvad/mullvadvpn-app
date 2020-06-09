@@ -14,6 +14,7 @@ import org.joda.time.Duration
 class AccountExpiryNotification(val context: Context) {
     companion object {
         val NOTIFICATION_ID: Int = 2
+        val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
     }
 
     private val resources = context.resources
@@ -30,25 +31,31 @@ class AccountExpiryNotification(val context: Context) {
 
     var accountExpiry by observable<DateTime?>(null) { _, oldValue, newValue ->
         if (oldValue != newValue) {
-            if (newValue != null) {
-                channel.notificationManager.notify(NOTIFICATION_ID, build(newValue))
-            } else {
-                channel.notificationManager.cancel(NOTIFICATION_ID)
-            }
+            update(newValue)
         }
     }
 
-    private fun build(expiry: DateTime): Notification {
+    private fun update(accountExpiry: DateTime?) {
+        val remainingTime = accountExpiry?.let { expiry -> Duration(DateTime.now(), expiry) }
+
+        if (remainingTime != null && remainingTime.isShorterThan(REMAINING_TIME_FOR_REMINDERS)) {
+            val notification = build(accountExpiry, remainingTime)
+
+            channel.notificationManager.notify(NOTIFICATION_ID, notification)
+        } else {
+            channel.notificationManager.cancel(NOTIFICATION_ID)
+        }
+    }
+
+    private fun build(expiry: DateTime, remainingTime: Duration): Notification {
         val intent = Intent(Intent.ACTION_VIEW, buyMoreTimeUrl)
         val flags = PendingIntent.FLAG_UPDATE_CURRENT
         val pendingIntent = PendingIntent.getActivity(context, 1, intent, flags)
 
-        return channel.buildNotification(pendingIntent, format(expiry))
+        return channel.buildNotification(pendingIntent, format(expiry, remainingTime))
     }
 
-    private fun format(expiry: DateTime): String {
-        val remainingTime = Duration(DateTime.now(), expiry)
-
+    private fun format(expiry: DateTime, remainingTime: Duration): String {
         if (remainingTime.isShorterThan(Duration.ZERO)) {
             return resources.getString(R.string.account_credit_has_expired)
         } else {
