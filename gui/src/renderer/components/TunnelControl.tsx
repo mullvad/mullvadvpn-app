@@ -13,6 +13,7 @@ import SecuredLabel, { SecuredDisplayStyle } from './SecuredLabel';
 
 interface ITunnelControlProps {
   tunnelState: TunnelState;
+  blockWhenDisconnected: boolean;
   selectedRelayName: string;
   city?: string;
   country?: string;
@@ -224,11 +225,14 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
           </Wrapper>
         );
 
-      case 'disconnected':
+      case 'disconnected': {
+        const displayStyle = this.props.blockWhenDisconnected
+          ? SecuredDisplayStyle.blocked
+          : SecuredDisplayStyle.unsecured;
         return (
           <Wrapper>
             <Body>
-              <Secured displayStyle={SecuredDisplayStyle.unsecured} />
+              <Secured displayStyle={displayStyle} />
               <Location>{this.renderCountry()}</Location>
             </Body>
             <Footer>
@@ -237,6 +241,7 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
             </Footer>
           </Wrapper>
         );
+      }
 
       default:
         throw new Error(`Unknown TunnelState: ${this.props.tunnelState}`);
