@@ -214,6 +214,8 @@ class ForegroundNotificationManager(
         connectionProxy = null
         settingsListener = null
 
+        service.unregisterReceiver(deviceLockListener)
+
         notificationManager.cancel(FOREGROUND_NOTIFICATION_ID)
     }
 
