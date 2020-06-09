@@ -18,6 +18,7 @@ interface IProps {
   connection: IConnectionReduxState;
   loginState: LoginState;
   accountExpiry?: AccountExpiry;
+  blockWhenDisconnected: boolean;
   selectedRelayName: string;
   onSettings: () => void;
   onSelectLocation: () => void;
@@ -156,6 +157,7 @@ export default class Connect extends Component<IProps, IState> {
 
           <TunnelControl
             tunnelState={this.props.connection.status}
+            blockWhenDisconnected={this.props.blockWhenDisconnected}
             selectedRelayName={this.props.selectedRelayName}
             city={this.props.connection.city}
             country={this.props.connection.country}
