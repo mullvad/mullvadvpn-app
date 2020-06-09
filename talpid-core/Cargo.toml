@@ -15,7 +15,7 @@ err-derive = "0.2.1"
 futures01 = { package = "futures", version = "0.1" }
 futures = { package = "futures", version = "0.3", features = [ "compat" ]}
 hex = "0.4"
-ipnetwork = "0.15"
+ipnetwork = "0.16"
 jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 lazy_static = "1.0"

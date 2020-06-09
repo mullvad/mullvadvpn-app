@@ -10,7 +10,7 @@ publish = false
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 err-derive = "0.2.1"
-ipnetwork = "0.15"
+ipnetwork = "0.16"
 lazy_static = "1.1.0"
 log = "0.4"
 regex = "1"
