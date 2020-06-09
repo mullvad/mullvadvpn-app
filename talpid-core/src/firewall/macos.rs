@@ -1,6 +1,6 @@
 use super::{FirewallArguments, FirewallPolicy, FirewallT};
 use ipnetwork::IpNetwork;
-use pfctl::{DropAction, FilterRuleAction};
+use pfctl::{DropAction, FilterRuleAction, Uid};
 use std::{
     env,
     net::{IpAddr, Ipv4Addr},
@@ -14,6 +14,8 @@ type Result<T> = std::result::Result<T, Error>;
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
 /// replaced by allowing the anchor name to be configured from the public API of this crate.
 const ANCHOR_NAME: &'static str = "mullvad";
+
+const ROOT_UID: u32 = 0;
 
 /// The macOS firewall and DNS implementation.
 pub struct Firewall {
@@ -194,6 +196,7 @@ impl Firewall {
             .proto(pfctl_proto)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
+            .user(Uid::from(ROOT_UID))
             .quick(true)
             .build()?)
     }
