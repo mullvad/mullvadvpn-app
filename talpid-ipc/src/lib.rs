@@ -6,8 +6,10 @@ use std::{io, thread};
 use jsonrpc_core::{MetaIoHandler, Metadata};
 use jsonrpc_ipc_server::{MetaExtractor, NoopExtractor, SecurityAttributes, Server, ServerBuilder};
 
-
 use std::fmt;
+
+#[cfg(windows)]
+mod win;
 
 /// An Id created by the Ipc server that the client can use to connect to it
 pub type IpcServerId = String;
@@ -78,6 +80,8 @@ impl IpcServer {
             fs::set_permissions(&path, PermissionsExt::from_mode(0o766))
                 .map_err(Error::PermissionsError)?;
         }
+        #[cfg(windows)]
+        win::deny_network_access(path).map_err(Error::PermissionsError)?;
         Ok(server)
     }
 
