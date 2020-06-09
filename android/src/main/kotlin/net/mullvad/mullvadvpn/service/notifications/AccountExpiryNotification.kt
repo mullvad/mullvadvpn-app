@@ -9,11 +9,12 @@ import android.net.Uri
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
-class AccountExpiryNotification(val context: Context) {
+class AccountExpiryNotification(val context: Context, val daemon: MullvadDaemon) {
     companion object {
         val NOTIFICATION_ID: Int = 2
         val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
@@ -23,7 +24,7 @@ class AccountExpiryNotification(val context: Context) {
     private val jobTracker = JobTracker()
     private val resources = context.resources
 
-    private val buyMoreTimeUrl = Uri.parse(resources.getString(R.string.account_url))
+    private val buyMoreTimeUrl = resources.getString(R.string.account_url)
 
     private val channel = NotificationChannel(
         context,
@@ -35,11 +36,11 @@ class AccountExpiryNotification(val context: Context) {
 
     var accountExpiry by observable<DateTime?>(null) { _, oldValue, newValue ->
         if (oldValue != newValue) {
-            update(newValue)
+            jobTracker.newUiJob("update") { update(newValue) }
         }
     }
 
-    private fun update(accountExpiry: DateTime?) {
+    private suspend fun update(accountExpiry: DateTime?) {
         val remainingTime = accountExpiry?.let { expiry -> Duration(DateTime.now(), expiry) }
 
         if (remainingTime != null && remainingTime.isShorterThan(REMAINING_TIME_FOR_REMINDERS)) {
@@ -59,8 +60,12 @@ class AccountExpiryNotification(val context: Context) {
         update(accountExpiry)
     }
 
-    private fun build(expiry: DateTime, remainingTime: Duration): Notification {
-        val intent = Intent(Intent.ACTION_VIEW, buyMoreTimeUrl)
+    private suspend fun build(expiry: DateTime, remainingTime: Duration): Notification {
+        val url = jobTracker.runOnBackground {
+            Uri.parse("$buyMoreTimeUrl?token=${daemon.getWwwAuthToken()}")
+        }
+
+        val intent = Intent(Intent.ACTION_VIEW, url)
         val flags = PendingIntent.FLAG_UPDATE_CURRENT
         val pendingIntent = PendingIntent.getActivity(context, 1, intent, flags)
 
