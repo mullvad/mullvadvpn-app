@@ -11,14 +11,13 @@
 #include "rules/baseline/permitlan.h"
 #include "rules/baseline/permitlanservice.h"
 #include "rules/baseline/permitloopback.h"
-#include "rules/baseline/permitvpnrelay.h"
 #include "rules/baseline/permitvpntunnel.h"
 #include "rules/baseline/permitvpntunnelservice.h"
 #include "rules/baseline/permitping.h"
 #include "rules/baseline/permitdns.h"
 #include "rules/dns/blockall.h"
-#include "rules/dns/permitnontunnel.h"
 #include "rules/dns/permittunnel.h"
+#include "rules/multi/permitvpnrelay.h"
 #include <libwfp/transaction.h>
 #include <libwfp/filterengine.h>
 #include <libcommon/error.h>
@@ -30,12 +29,12 @@ using namespace rules;
 namespace
 {
 
-baseline::PermitVpnRelay::Protocol TranslateProtocol(WinFwProtocol protocol)
+multi::PermitVpnRelay::Protocol TranslateProtocol(WinFwProtocol protocol)
 {
 	switch (protocol)
 	{
-		case Tcp: return baseline::PermitVpnRelay::Protocol::Tcp;
-		case Udp: return baseline::PermitVpnRelay::Protocol::Udp;
+		case Tcp: return multi::PermitVpnRelay::Protocol::Tcp;
+		case Udp: return multi::PermitVpnRelay::Protocol::Udp;
 		default:
 		{
 			THROW_ERROR("Missing case handler in switch clause");
@@ -48,16 +47,20 @@ baseline::PermitVpnRelay::Protocol TranslateProtocol(WinFwProtocol protocol)
 // a local resolver to leave the machine. From the local resolver the request will either be
 // resolved from cache, or forwarded out onto the Internet.
 //
-// Therefore, whenever the PermitLan rule might be activated, we must also do proper DNS management
-// to prevent leaks.
+// Therefore, we're unconditionally lifting all DNS traffic out of the baseline sublayer and restricting
+// it in the DNS sublayer instead. The PermitDNS rule in the baseline sublayer accomplishes this.
+//
+// This has implications for the way the relay access is configured. In the regular case there
+// is no issue: The PermitVpnRelay rule can be installed in the baseline sublayer.
+//
+// However, if the relay is running on the DNS port (53), it would be blocked unless the DNS
+// sublayer permits this traffic. For this reason, whenever the relay is on port 53, the
+// PermitVpnRelay rule has to be installed to the DNS sublayer instead of the baseline sublayer.
 //
 void AppendSettingsRules
 (
 	FwContext::Ruleset &ruleset,
-	const WinFwSettings &settings,
-	std::optional<std::wstring> tunnelInterfaceAlias = std::nullopt,
-	std::optional<std::vector<wfp::IpAddress> > nonTunnelDnsServers = std::nullopt,
-	std::optional<std::vector<wfp::IpAddress> > tunnelDnsServers = std::nullopt
+	const WinFwSettings &settings
 )
 {
 	if (settings.permitDhcp)
@@ -79,18 +82,32 @@ void AppendSettingsRules
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitDns>());
 	ruleset.emplace_back(std::make_unique<dns::BlockAll>());
+}
 
-	if (nonTunnelDnsServers.has_value())
-	{
-		ruleset.emplace_back(std::make_unique<dns::PermitNonTunnel>(
-			tunnelInterfaceAlias, nonTunnelDnsServers.value()));
-	}
+//
+// Refer comment on `AppendSettingsRules`.
+//
+void AppendRelayRules
+(
+	FwContext::Ruleset &ruleset,
+	const WinFwRelay &relay,
+	const std::vector<std::wstring> &approvedApplications
+)
+{
+	auto sublayer =
+	(
+		DNS_SERVER_PORT == relay.port
+		? rules::multi::PermitVpnRelay::Sublayer::Dns
+		: rules::multi::PermitVpnRelay::Sublayer::Baseline
+	);
 
-	if (tunnelInterfaceAlias.has_value() && tunnelDnsServers.has_value())
-	{
-		ruleset.emplace_back(std::make_unique<dns::PermitTunnel>(
-			tunnelInterfaceAlias.value(), tunnelDnsServers.value()));
-	}
+	ruleset.emplace_back(std::make_unique<multi::PermitVpnRelay>(
+		wfp::IpAddress(relay.ip),
+		relay.port,
+		TranslateProtocol(relay.protocol),
+		approvedApplications,
+		sublayer
+	));
 }
 
 void AppendNetBlockedRules(FwContext::Ruleset &ruleset)
@@ -99,23 +116,15 @@ void AppendNetBlockedRules(FwContext::Ruleset &ruleset)
 	ruleset.emplace_back(std::make_unique<baseline::PermitLoopback>());
 }
 
-std::optional<std::vector<wfp::IpAddress> >
-CreateRelayDnsExclusion(const WinFwRelay &relay)
-{
-	if (relay.port != DNS_SERVER_PORT)
-	{
-		return std::nullopt;
-	}
-
-	std::vector<wfp::IpAddress> result = { wfp::IpAddress(relay.ip) };
-
-	return std::move(result);
-}
-
 } // anonymous namespace
 
-FwContext::FwContext(uint32_t timeout)
-	: m_baseline(0)
+FwContext::FwContext
+(
+	uint32_t timeout,
+	const std::vector<std::wstring> &approvedApplications
+)
+	: m_approvedApplications(approvedApplications)
+	, m_baseline(0)
 	, m_activePolicy(Policy::None)
 {
 	auto engine = wfp::FilterEngine::StandardSession(timeout);
@@ -134,8 +143,14 @@ FwContext::FwContext(uint32_t timeout)
 	m_activePolicy = Policy::None;
 }
 
-FwContext::FwContext(uint32_t timeout, const WinFwSettings &settings)
-	: m_baseline(0)
+FwContext::FwContext
+(
+	uint32_t timeout,
+	const WinFwSettings &settings,
+	const std::vector<std::wstring> &approvedApplications
+)
+	: m_approvedApplications(approvedApplications)
+	, m_baseline(0)
 	, m_activePolicy(Policy::None)
 {
 	auto engine = wfp::FilterEngine::StandardSession(timeout);
@@ -166,13 +181,8 @@ bool FwContext::applyPolicyConnecting
 	Ruleset ruleset;
 
 	AppendNetBlockedRules(ruleset);
-	AppendSettingsRules(ruleset, settings, std::nullopt, CreateRelayDnsExclusion(relay));
-
-	ruleset.emplace_back(std::make_unique<baseline::PermitVpnRelay>(
-		wfp::IpAddress(relay.ip),
-		relay.port,
-		TranslateProtocol(relay.protocol)
-	));
+	AppendSettingsRules(ruleset, settings);
+	AppendRelayRules(ruleset, relay, m_approvedApplications);
 
 	//
 	// Permit pinging the gateway inside the tunnel.
@@ -208,20 +218,11 @@ bool FwContext::applyPolicyConnected
 	Ruleset ruleset;
 
 	AppendNetBlockedRules(ruleset);
+	AppendSettingsRules(ruleset, settings);
+	AppendRelayRules(ruleset, relay, m_approvedApplications);
 
-	AppendSettingsRules
-	(
-		ruleset,
-		settings,
-		std::make_optional<>(tunnelInterfaceAlias),
-		CreateRelayDnsExclusion(relay),
-		std::make_optional<>(tunnelDnsServers)
-	);
-
-	ruleset.emplace_back(std::make_unique<baseline::PermitVpnRelay>(
-		wfp::IpAddress(relay.ip),
-		relay.port,
-		TranslateProtocol(relay.protocol)
+	ruleset.emplace_back(std::make_unique<dns::PermitTunnel>(
+		tunnelInterfaceAlias, tunnelDnsServers
 	));
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(

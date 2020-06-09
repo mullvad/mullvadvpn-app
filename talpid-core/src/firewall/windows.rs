@@ -52,12 +52,29 @@ impl FirewallT for Firewall {
 
     fn new(args: FirewallArguments) -> Result<Self, Self::Error> {
         let logging_context = b"WinFw\0".as_ptr();
+
+        let app_strings = args
+            .approved_applications
+            .iter()
+            .map(|app| Self::to_widestring(app.to_string_lossy()))
+            .collect::<Vec<_>>();
+        let app_ptrs = app_strings
+            .iter()
+            .map(|app| app.as_ptr())
+            .collect::<Vec<_>>();
+
+        let approved_applications = WinFwApprovedApplications {
+            apps: app_ptrs.as_ptr(),
+            num_apps: app_ptrs.len(),
+        };
+
         if args.initialize_blocked {
             let cfg = &WinFwSettings::new(args.allow_lan.unwrap());
             unsafe {
                 WinFw_InitializeBlocked(
                     WINFW_TIMEOUT_SECONDS,
                     &cfg,
+                    &approved_applications,
                     Some(log_sink),
                     logging_context,
                 )
@@ -65,8 +82,13 @@ impl FirewallT for Firewall {
             };
         } else {
             unsafe {
-                WinFw_Initialize(WINFW_TIMEOUT_SECONDS, Some(log_sink), logging_context)
-                    .into_result()?
+                WinFw_Initialize(
+                    WINFW_TIMEOUT_SECONDS,
+                    &approved_applications,
+                    Some(log_sink),
+                    logging_context,
+                )
+                .into_result()?
             };
         }
 
@@ -172,6 +194,11 @@ impl Firewall {
 
     fn widestring_ip(ip: IpAddr) -> WideCString {
         let buf = ip.to_string().encode_utf16().collect::<Vec<_>>();
+        WideCString::new(buf).unwrap()
+    }
+
+    fn to_widestring<T: AsRef<str>>(string: T) -> WideCString {
+        let buf = string.as_ref().encode_utf16().collect::<Vec<_>>();
         WideCString::new(buf).unwrap()
     }
 
@@ -284,6 +311,12 @@ mod winfw {
         pub num_addresses: usize,
     }
 
+    #[repr(C)]
+    pub struct WinFwApprovedApplications {
+        pub apps: *const *const libc::wchar_t,
+        pub num_apps: usize,
+    }
+
     #[allow(dead_code)]
     #[repr(u8)]
     #[derive(Clone, Copy)]
@@ -303,6 +336,7 @@ mod winfw {
         #[link_name = "WinFw_Initialize"]
         pub fn WinFw_Initialize(
             timeout: libc::c_uint,
+            approved_applications: *const WinFwApprovedApplications,
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> InitializationResult;
@@ -311,6 +345,7 @@ mod winfw {
         pub fn WinFw_InitializeBlocked(
             timeout: libc::c_uint,
             settings: &WinFwSettings,
+            approved_applications: *const WinFwApprovedApplications,
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> InitializationResult;

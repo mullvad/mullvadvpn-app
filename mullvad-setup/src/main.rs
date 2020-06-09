@@ -69,6 +69,8 @@ fn reset_firewall() -> Result<(), Error> {
     let mut firewall = Firewall::new(FirewallArguments {
         initialize_blocked: false,
         allow_lan: None,
+        #[cfg(windows)]
+        approved_applications: vec!["foobar".into()],
     })
     .map_err(Error::FirewallError)?;
 

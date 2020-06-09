@@ -13,10 +13,15 @@ class FwContext
 {
 public:
 
-	FwContext(uint32_t timeout);
+	FwContext(uint32_t timeout, const std::vector<std::wstring> &approvedApplications);
 
 	// This ctor applies the "blocked" policy.
-	FwContext(uint32_t timeout, const WinFwSettings &settings);
+	FwContext
+	(
+		uint32_t timeout,
+		const WinFwSettings &settings,
+		const std::vector<std::wstring> &approvedApplications
+	);
 
 	struct PingableHosts
 	{
@@ -68,6 +73,8 @@ private:
 
 	bool applyRuleset(const Ruleset &ruleset);
 	bool applyRulesetDirectly(const Ruleset &ruleset, SessionController &controller);
+
+	const std::vector<std::wstring> m_approvedApplications;
 
 	std::unique_ptr<SessionController> m_sessionController;
 
