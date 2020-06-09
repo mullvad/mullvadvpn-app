@@ -68,11 +68,9 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
-    private var isBound = false
-        set(value) {
-            field = value
-            notificationManager.lockedToForeground = value
-        }
+    private var isBound by observable(false) { _, _, isBound ->
+        notificationManager.lockedToForeground = isBound
+    }
 
     override fun onCreate() {
         super.onCreate()
