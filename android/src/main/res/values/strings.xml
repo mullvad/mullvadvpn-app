@@ -10,6 +10,9 @@
     <string name="foreground_notification_channel_name">VPN tunnel status</string>
     <string name="foreground_notification_channel_description">Shows current VPN tunnel
     status</string>
+    <string name="account_time_notification_channel_name">Account time reminders</string>
+    <string name="account_time_notification_channel_description">Shows reminders when the account
+    time is about to expire</string>
     <string name="connecting_to_daemon">Connecting to Mullvad system service...</string>
     <string name="login_title">Login</string>
     <string name="login_description">Enter your account number</string>
@@ -41,6 +44,9 @@
     <string name="settings_account">Account</string>
     <string name="less_than_a_day_left">less than a day left</string>
     <string name="less_than_a_minute_ago">less than a minute ago</string>
+    <string name="account_credit_expires_in_a_few_minutes">Account credit expires in a few
+    minutes</string>
+    <string name="account_credit_has_expired">Account credit has expired</string>
     <string name="out_of_time">Out of time</string>
     <string name="no_more_vpn_time_left">You have no more VPN time left on this account. Either buy
     credit on our website or redeem a voucher.</string>
