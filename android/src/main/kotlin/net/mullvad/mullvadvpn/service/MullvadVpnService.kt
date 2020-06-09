@@ -14,11 +14,13 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
 import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
 import net.mullvad.talpid.util.autoSubscribable
+import org.joda.time.DateTime
 
 private const val RELAYS_FILE = "relays.json"
 
@@ -48,6 +50,7 @@ class MullvadVpnService : TalpidVpnService() {
             oldInstance?.onDestroy()
 
             accountNumberEvents = newInstance?.accountCache?.onAccountNumberChange
+            accountExpiryEvents = newInstance?.accountCache?.onAccountExpiryChange
 
             serviceNotifier.notify(newInstance)
         }
@@ -57,6 +60,11 @@ class MullvadVpnService : TalpidVpnService() {
         loggedIn = accountNumber != null
     }
 
+    private var accountExpiryEvents by autoSubscribable<DateTime?>(this, null) { expiry ->
+        accountExpiryNotification.accountExpiry = expiry
+    }
+
+    private lateinit var accountExpiryNotification: AccountExpiryNotification
     private lateinit var keyguardManager: KeyguardManager
     private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
@@ -84,6 +92,7 @@ class MullvadVpnService : TalpidVpnService() {
         super.onCreate()
         Log.d(TAG, "Initializing service")
 
+        accountExpiryNotification = AccountExpiryNotification(this)
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         notificationManager = ForegroundNotificationManager(this, serviceNotifier, keyguardManager)
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
