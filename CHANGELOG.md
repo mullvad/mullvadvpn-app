@@ -33,16 +33,13 @@ Line wrap the file at 100 chars.                                              Th
   timeouts.
 
 #### macOS
-- Use `SCNetworkReachability` to help determine connectivity of host.
+- Use `SCNetworkReachability` to help determine connectivity of host. Helps bring the app online
+  faster when the computer wakes up from sleep.
 
 #### Android
 - Show the remaining account time in the Settings screen in days if it's less than 3 months.
 - Prevent commands to connect or disconnect to be sent when the device is locked.
 - Make all screens scrollable to better handle small screens and split-screen mode.
-- Ignore touch events when another view is shown on top of the app in order to prevent tapjacking
-  attacks.
-- Prevent screens showing potentially sensitive data from being recorded.
-
 
 ### Fixed
 - Show both WireGuard and OpenVPN servers in location list when protocol is set to automatic on
@@ -68,10 +65,30 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix race in network adapter monitor that could result in data corruption and crashes.
-- Upgrade `miow` dependency to stop daemon from crashing when the named pipes
-  were accessed with `accesschk.exe`.
+- Upgrade `miow` dependency to stop daemon from crashing when the management interface named pipes
+  were accessed with `accesschk.exe` and some web browsers.
 - Fix race that may rarely occur during install when obtaining the GUID of a newly created TAP
   adapter.
+
+### Security
+- Tighten the firewall rules that were allowing traffic to the relay server over the physical
+  network interface. On Linux and macOS now only processes running under root are allowed to send
+  traffic to this port and IP. On Windows only the Mullvad VPN binaries are allowed to send.
+  This fixes audit ticket `MUL-02-002`.
+
+#### Windows
+- Tighten the firewall rule allowing traffic on port 53 to the relay server IP on the physical
+  interfaces if the VPN tunnel is established on port 53 to only allow UDP. This fixes
+  audit ticket `MUL-02-004`.
+- Deny access to the management interface named pipe for the `NT AUTHORITY\NETWORK` group.
+  This makes the named pipe no longer accessible under the `IPC$` network share.
+  This fixes audit ticket `MUL-02-007`.
+
+#### Android
+- Ignore touch events when another view is shown on top of the app in order to prevent tapjacking
+  attacks. Fixes audit ticket `MUL-02-003`.
+- Prevent screens showing potentially sensitive data from being recorded. Fixes audit
+  ticket `MUL-02-003`.
 
 
 ## [2020.5-beta1] - 2020-05-18
