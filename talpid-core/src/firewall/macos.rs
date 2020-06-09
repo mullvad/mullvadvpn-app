@@ -1,6 +1,6 @@
 use super::{FirewallArguments, FirewallPolicy, FirewallT};
 use ipnetwork::IpNetwork;
-use pfctl::FilterRuleAction;
+use pfctl::{DropAction, FilterRuleAction};
 use std::{
     env,
     net::{IpAddr, Ipv4Addr},
@@ -70,8 +70,15 @@ impl Firewall {
         new_filter_rules.append(&mut self.get_allow_dhcp_client_rules()?);
         new_filter_rules.append(&mut self.get_policy_specific_rules(policy)?);
 
+        let return_out_rule = self
+            .create_rule_builder(FilterRuleAction::Drop(DropAction::Return))
+            .direction(pfctl::Direction::Out)
+            .quick(true)
+            .build()?;
+        new_filter_rules.push(return_out_rule);
+
         let drop_all_rule = self
-            .create_rule_builder(FilterRuleAction::Drop)
+            .create_rule_builder(FilterRuleAction::Drop(DropAction::Drop))
             .quick(true)
             .build()?;
         new_filter_rules.push(drop_all_rule);
@@ -193,14 +200,14 @@ impl Firewall {
 
     fn get_block_dns_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
         let block_tcp_dns_rule = self
-            .create_rule_builder(FilterRuleAction::Drop)
+            .create_rule_builder(FilterRuleAction::Drop(DropAction::Return))
             .direction(pfctl::Direction::Out)
             .quick(true)
             .proto(pfctl::Proto::Tcp)
             .to(pfctl::Port::from(53))
             .build()?;
         let block_udp_dns_rule = self
-            .create_rule_builder(FilterRuleAction::Drop)
+            .create_rule_builder(FilterRuleAction::Drop(DropAction::Return))
             .direction(pfctl::Direction::Out)
             .quick(true)
             .proto(pfctl::Proto::Udp)
@@ -396,10 +403,17 @@ impl Firewall {
         let mut builder = pfctl::FilterRuleBuilder::default();
         builder.action(action);
         let rule_log = pfctl::RuleLog::IncludeMatchingState;
-        if (self.rule_logging == RuleLogging::Pass && action == FilterRuleAction::Pass)
-            || (self.rule_logging == RuleLogging::Drop && action == FilterRuleAction::Drop)
-            || self.rule_logging == RuleLogging::All
-        {
+        let do_log = match action {
+            FilterRuleAction::Pass => match self.rule_logging {
+                RuleLogging::All | RuleLogging::Pass => true,
+                _ => false,
+            },
+            FilterRuleAction::Drop(..) => match self.rule_logging {
+                RuleLogging::All | RuleLogging::Drop => true,
+                _ => false,
+            },
+        };
+        if do_log {
             builder.log(rule_log);
         }
         builder
