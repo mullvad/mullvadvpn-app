@@ -68,7 +68,7 @@ tun = "0.4.3"
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
-pfctl = "0.3"
+pfctl = "0.4"
 system-configuration = "0.3"
 tun = "0.4.3"
 
