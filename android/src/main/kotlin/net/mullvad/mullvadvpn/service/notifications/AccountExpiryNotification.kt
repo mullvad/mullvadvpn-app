@@ -7,7 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
@@ -15,8 +17,10 @@ class AccountExpiryNotification(val context: Context) {
     companion object {
         val NOTIFICATION_ID: Int = 2
         val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
+        val TIME_BETWEEN_CHECKS: Long = 12 /* h */ * 60 /* min */ * 60 /* s */ * 1000 /* ms */
     }
 
+    private val jobTracker = JobTracker()
     private val resources = context.resources
 
     private val buyMoreTimeUrl = Uri.parse(resources.getString(R.string.account_url))
@@ -42,9 +46,17 @@ class AccountExpiryNotification(val context: Context) {
             val notification = build(accountExpiry, remainingTime)
 
             channel.notificationManager.notify(NOTIFICATION_ID, notification)
+
+            jobTracker.newUiJob("scheduleUpdate") { scheduleUpdate() }
         } else {
             channel.notificationManager.cancel(NOTIFICATION_ID)
+            jobTracker.cancelJob("scheduleUpdate")
         }
+    }
+
+    private suspend fun scheduleUpdate() {
+        delay(TIME_BETWEEN_CHECKS)
+        update(accountExpiry)
     }
 
     private fun build(expiry: DateTime, remainingTime: Duration): Notification {
