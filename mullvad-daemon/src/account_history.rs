@@ -105,27 +105,18 @@ impl AccountHistory {
 
     fn migrate_from_old_file_location(old_dir: &Path, new_dir: &Path) {
         let old_path = old_dir.join(ACCOUNT_HISTORY_FILE);
+        let new_path = new_dir.join(ACCOUNT_HISTORY_FILE);
+        if !old_path.exists() || new_path.exists() || new_path == old_path {
+            return;
+        }
 
-        if old_path.exists() {
-            let new_path = new_dir.join(ACCOUNT_HISTORY_FILE);
-
-            if new_path.exists() {
-                if let Err(error) = fs::remove_file(old_path) {
-                    log::warn!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to remove old account history file")
-                    );
-                }
-            } else {
-                if let Err(error) = fs::rename(old_path, new_path) {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg(
-                            "Failed to migrate account history file location"
-                        )
-                    );
-                }
-            }
+        if let Err(error) = fs::copy(&old_path, &new_path) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to migrate account history file location")
+            );
+        } else {
+            let _ = fs::remove_file(old_path);
         }
     }
 
