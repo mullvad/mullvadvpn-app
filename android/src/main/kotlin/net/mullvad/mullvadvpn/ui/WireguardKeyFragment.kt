@@ -224,8 +224,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private fun updateStatusMessage() {
         when (val state = actionState) {
-            is ActionState.Generating -> statusMessage.visibility = View.GONE
-            is ActionState.Verifying -> statusMessage.visibility = View.GONE
+            is ActionState.Generating -> statusMessage.visibility = View.INVISIBLE
+            is ActionState.Verifying -> statusMessage.visibility = View.INVISIBLE
             is ActionState.Idle -> {
                 if (hasConnectivity) {
                     updateKeyStatus(state.verified, keyStatus)
@@ -254,7 +254,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 updateKeyIsValid(verificationWasDone, keyStatus.verified)
             }
         } else {
-            statusMessage.visibility = View.GONE
+            statusMessage.visibility = View.INVISIBLE
         }
     }
 
@@ -266,7 +266,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 if (verificationWasDone) {
                     setStatusMessage(R.string.wireguard_key_verification_failure, redColor)
                 } else {
-                    statusMessage.visibility = View.GONE
+                    statusMessage.visibility = View.INVISIBLE
                 }
             }
         }
@@ -298,7 +298,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private fun updateVerifyingKeySpinner() {
         verifyingKeySpinner.visibility = when (actionState) {
             is ActionState.Verifying -> View.VISIBLE
-            else -> View.GONE
+            else -> View.INVISIBLE
         }
     }
 
