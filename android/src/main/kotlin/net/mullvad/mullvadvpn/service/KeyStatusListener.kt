@@ -9,14 +9,14 @@ import net.mullvad.talpid.util.EventNotifier
 class KeyStatusListener(val daemon: MullvadDaemon) {
     val onKeyStatusChange = EventNotifier(getInitialKeyStatus())
 
-    var keyStatus: KeygenEvent? = null
-        private set(value) {
-            field = value
-            value?.let { newKeyStatus -> onKeyStatusChange.notify(newKeyStatus) }
-        }
+    var keyStatus by onKeyStatusChange.notifiable()
 
     init {
-        daemon.onKeygenEvent = { event -> keyStatus = event }
+        daemon.onKeygenEvent = { event ->
+            if (event != null) {
+                keyStatus = event
+            }
+        }
     }
 
     private fun getInitialKeyStatus(): KeygenEvent? {

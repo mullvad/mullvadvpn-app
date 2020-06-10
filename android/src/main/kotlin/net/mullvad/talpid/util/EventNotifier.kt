@@ -1,5 +1,7 @@
 package net.mullvad.talpid.util
 
+import kotlin.properties.Delegates.observable
+
 // Manages listeners interested in receiving events of type T
 //
 // The listeners subscribe using an ID object. This ID is used later on for unsubscribing. The only
@@ -46,5 +48,9 @@ class EventNotifier<T>(private val initialValue: T) {
         synchronized(this) {
             listeners.clear()
         }
+    }
+
+    fun notifiable() = observable(latestEvent) { _, _, newValue ->
+        notify(newValue)
     }
 }
