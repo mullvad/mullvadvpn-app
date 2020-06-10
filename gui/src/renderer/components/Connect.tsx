@@ -3,8 +3,8 @@ import { Component, Styles, View } from 'reactxp';
 import styled from 'styled-components';
 import AccountExpiry from '../../shared/account-expiry';
 import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
-import NotificationAreaContainer from '../containers/NotificationAreaContainer';
-import { AuthFailureKind, parseAuthFailure } from '../lib/auth-failure';
+import NotificationArea from '../components/NotificationArea';
+import { AuthFailureKind, parseAuthFailure } from '../../shared/auth-failure';
 import { LoginState } from '../redux/account/reducers';
 import { IConnectionReduxState } from '../redux/connection/reducers';
 import { Brand, HeaderBarStyle, SettingsBarButton } from './HeaderBar';
@@ -18,6 +18,7 @@ interface IProps {
   connection: IConnectionReduxState;
   loginState: LoginState;
   accountExpiry?: AccountExpiry;
+  blockWhenDisconnected: boolean;
   selectedRelayName: string;
   onSettings: () => void;
   onSelectLocation: () => void;
@@ -156,6 +157,7 @@ export default class Connect extends Component<IProps, IState> {
 
           <TunnelControl
             tunnelState={this.props.connection.status}
+            blockWhenDisconnected={this.props.blockWhenDisconnected}
             selectedRelayName={this.props.selectedRelayName}
             city={this.props.connection.city}
             country={this.props.connection.country}
@@ -165,7 +167,7 @@ export default class Connect extends Component<IProps, IState> {
             onSelectLocation={this.props.onSelectLocation}
           />
 
-          <NotificationAreaContainer style={styles.notificationArea} />
+          <NotificationArea style={styles.notificationArea} />
         </View>
       </View>
     );
