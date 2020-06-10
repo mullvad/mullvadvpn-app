@@ -104,6 +104,10 @@ impl AccountHistory {
     }
 
     fn migrate_from_old_file_location(old_dir: &Path, new_dir: &Path) {
+        if old_dir == new_dir {
+            return;
+        }
+
         let old_path = old_dir.join(ACCOUNT_HISTORY_FILE);
 
         if old_path.exists() {
