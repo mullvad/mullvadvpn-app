@@ -50,8 +50,4 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
         daemon.onKeygenEvent = null
         onKeyStatusChange.unsubscribeAll()
     }
-
-    private fun retryKeyGeneration() = GlobalScope.launch(Dispatchers.Default) {
-        keyStatus = daemon.generateWireguardKey()
-    }
 }
