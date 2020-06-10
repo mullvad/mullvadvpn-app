@@ -12,11 +12,7 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
     var keyStatus by onKeyStatusChange.notifiable()
 
     init {
-        daemon.onKeygenEvent = { event ->
-            if (event != null) {
-                keyStatus = event
-            }
-        }
+        daemon.onKeygenEvent = { event -> keyStatus = event }
     }
 
     private fun getInitialKeyStatus(): KeygenEvent? {
