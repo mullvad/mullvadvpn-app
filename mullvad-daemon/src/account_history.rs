@@ -50,7 +50,9 @@ impl AccountHistory {
         rpc_handle: MullvadRestHandle,
         tokio_remote: Remote,
     ) -> Result<AccountHistory> {
-        Self::migrate_from_old_file_location(cache_dir, settings_dir);
+        if cache_dir != settings_dir {
+            Self::migrate_from_old_file_location(cache_dir, settings_dir);
+        }
 
         let mut options = fs::OpenOptions::new();
         #[cfg(unix)]
