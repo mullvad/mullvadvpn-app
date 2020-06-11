@@ -71,7 +71,8 @@ impl Drop for WinHandle {
 }
 
 pub fn deny_network_access<T: AsRef<OsStr>>(ipc_path: T) -> Result<(), io::Error> {
-    let ipc_w: Vec<_> = ipc_path.as_ref().encode_wide().collect();
+    let mut ipc_w: Vec<_> = ipc_path.as_ref().encode_wide().collect();
+    ipc_w.push(0u16);
 
     let pipe_handle = unsafe {
         CreateFileW(
