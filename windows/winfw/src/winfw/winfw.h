@@ -45,17 +45,6 @@ typedef struct tag_WinFwRelay
 }
 WinFwRelay;
 
-//
-// This structure is used to define the set of applications
-// that are allowed to communicate with the relay.
-//
-typedef struct tag_WinFwApprovedApplications
-{
-	const wchar_t **apps;
-	size_t numApps;
-}
-WinFwApprovedApplications;
-
 #pragma pack(pop)
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -78,7 +67,6 @@ bool
 WINFW_API
 WinFw_Initialize(
 	uint32_t timeout,
-	WinFwApprovedApplications *approvedApplications,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );
@@ -100,7 +88,6 @@ WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
 	const WinFwSettings *settings,
-	WinFwApprovedApplications *approvedApplications,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );
@@ -160,6 +147,7 @@ WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
 	const WinFwRelay *relay,
+	const wchar_t *relayClient,
 	const PingableHosts *pingableHosts
 );
 
@@ -186,6 +174,7 @@ WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
 	const WinFwRelay *relay,
+	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
 	const wchar_t *v4DnsHost,
 	const wchar_t *v6DnsHost

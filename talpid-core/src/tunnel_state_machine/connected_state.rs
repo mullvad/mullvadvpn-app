@@ -16,6 +16,10 @@ use talpid_types::{
     BoxedError, ErrorExt,
 };
 
+#[cfg(windows)]
+use crate::tunnel::TunnelMonitor;
+
+
 pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,
     pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
@@ -55,6 +59,11 @@ impl ConnectedState {
             peer_endpoint,
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
+            #[cfg(windows)]
+            relay_client: TunnelMonitor::get_relay_client(
+                &shared_values.resource_dir,
+                &self.tunnel_parameters,
+            ),
         };
         shared_values.firewall.apply_policy(policy)
     }

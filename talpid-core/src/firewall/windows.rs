@@ -1,11 +1,12 @@
 use crate::logging::windows::log_sink;
 
-use std::{net::IpAddr, ptr};
+use std::{net::IpAddr, path::Path, ptr};
 
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, FirewallT};
 use crate::winnet;
 use log::{debug, error, trace};
+use std::os::windows::ffi::OsStrExt;
 use talpid_types::net::Endpoint;
 use widestring::WideCString;
 
@@ -53,28 +54,12 @@ impl FirewallT for Firewall {
     fn new(args: FirewallArguments) -> Result<Self, Self::Error> {
         let logging_context = b"WinFw\0".as_ptr();
 
-        let app_strings = args
-            .approved_applications
-            .iter()
-            .map(|app| Self::to_widestring(app.to_string_lossy()))
-            .collect::<Vec<_>>();
-        let app_ptrs = app_strings
-            .iter()
-            .map(|app| app.as_ptr())
-            .collect::<Vec<_>>();
-
-        let approved_applications = WinFwApprovedApplications {
-            apps: app_ptrs.as_ptr(),
-            num_apps: app_ptrs.len(),
-        };
-
         if args.initialize_blocked {
             let cfg = &WinFwSettings::new(args.allow_lan.unwrap());
             unsafe {
                 WinFw_InitializeBlocked(
                     WINFW_TIMEOUT_SECONDS,
                     &cfg,
-                    &approved_applications,
                     Some(log_sink),
                     logging_context,
                 )
@@ -82,13 +67,8 @@ impl FirewallT for Firewall {
             };
         } else {
             unsafe {
-                WinFw_Initialize(
-                    WINFW_TIMEOUT_SECONDS,
-                    &approved_applications,
-                    Some(log_sink),
-                    logging_context,
-                )
-                .into_result()?
+                WinFw_Initialize(WINFW_TIMEOUT_SECONDS, Some(log_sink), logging_context)
+                    .into_result()?
             };
         }
 
@@ -102,6 +82,7 @@ impl FirewallT for Firewall {
                 peer_endpoint,
                 pingable_hosts,
                 allow_lan,
+                relay_client,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
                 // TODO: Determine interface alias at runtime
@@ -110,15 +91,17 @@ impl FirewallT for Firewall {
                     &cfg,
                     "wg-mullvad".to_string(),
                     &pingable_hosts,
+                    &relay_client,
                 )
             }
             FirewallPolicy::Connected {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
+                relay_client,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                self.set_connected_state(&peer_endpoint, &cfg, &tunnel)
+                self.set_connected_state(&peer_endpoint, &cfg, &tunnel, &relay_client)
             }
             FirewallPolicy::Blocked { allow_lan } => {
                 let cfg = &WinFwSettings::new(allow_lan);
@@ -154,6 +137,7 @@ impl Firewall {
         winfw_settings: &WinFwSettings,
         _tunnel_iface_alias: String,
         pingable_hosts: &Vec<IpAddr>,
+        relay_client: &Path,
     ) -> Result<(), Error> {
         trace!("Applying 'connecting' firewall policy");
         let ip_str = Self::widestring_ip(endpoint.address.ip());
@@ -165,10 +149,18 @@ impl Firewall {
             protocol: WinFwProt::from(endpoint.protocol),
         };
 
+        let mut relay_client: Vec<u16> = relay_client.as_os_str().encode_wide().collect();
+        relay_client.push(0u16);
+
         if pingable_hosts.is_empty() {
             unsafe {
-                return WinFw_ApplyPolicyConnecting(winfw_settings, &winfw_relay, ptr::null())
-                    .into_result();
+                return WinFw_ApplyPolicyConnecting(
+                    winfw_settings,
+                    &winfw_relay,
+                    relay_client.as_ptr(),
+                    ptr::null(),
+                )
+                .into_result();
             }
         }
 
@@ -188,7 +180,13 @@ impl Firewall {
         };
 
         unsafe {
-            WinFw_ApplyPolicyConnecting(winfw_settings, &winfw_relay, &pingable_hosts).into_result()
+            WinFw_ApplyPolicyConnecting(
+                winfw_settings,
+                &winfw_relay,
+                relay_client.as_ptr(),
+                &pingable_hosts,
+            )
+            .into_result()
         }
     }
 
@@ -197,16 +195,12 @@ impl Firewall {
         WideCString::new(buf).unwrap()
     }
 
-    fn to_widestring<T: AsRef<str>>(string: T) -> WideCString {
-        let buf = string.as_ref().encode_utf16().collect::<Vec<_>>();
-        WideCString::new(buf).unwrap()
-    }
-
     fn set_connected_state(
         &mut self,
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
         tunnel_metadata: &crate::tunnel::TunnelMetadata,
+        relay_client: &Path,
     ) -> Result<(), Error> {
         trace!("Applying 'connected' firewall policy");
         let ip_str = Self::widestring_ip(endpoint.address.ip());
@@ -239,10 +233,14 @@ impl Firewall {
             None => ptr::null(),
         };
 
+        let mut relay_client: Vec<u16> = relay_client.as_os_str().encode_wide().collect();
+        relay_client.push(0u16);
+
         unsafe {
             WinFw_ApplyPolicyConnected(
                 winfw_settings,
                 &winfw_relay,
+                relay_client.as_ptr(),
                 tunnel_alias.as_ptr(),
                 v4_gateway.as_ptr(),
                 v6_gateway_ptr,
@@ -311,12 +309,6 @@ mod winfw {
         pub num_addresses: usize,
     }
 
-    #[repr(C)]
-    pub struct WinFwApprovedApplications {
-        pub apps: *const *const libc::wchar_t,
-        pub num_apps: usize,
-    }
-
     #[allow(dead_code)]
     #[repr(u8)]
     #[derive(Clone, Copy)]
@@ -336,7 +328,6 @@ mod winfw {
         #[link_name = "WinFw_Initialize"]
         pub fn WinFw_Initialize(
             timeout: libc::c_uint,
-            approved_applications: *const WinFwApprovedApplications,
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> InitializationResult;
@@ -345,7 +336,6 @@ mod winfw {
         pub fn WinFw_InitializeBlocked(
             timeout: libc::c_uint,
             settings: &WinFwSettings,
-            approved_applications: *const WinFwApprovedApplications,
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> InitializationResult;
@@ -357,6 +347,7 @@ mod winfw {
         pub fn WinFw_ApplyPolicyConnecting(
             settings: &WinFwSettings,
             relay: &WinFwRelay,
+            relayClient: *const libc::wchar_t,
             pingable_hosts: *const WinFwPingableHosts,
         ) -> ApplyConnectingResult;
 
@@ -364,6 +355,7 @@ mod winfw {
         pub fn WinFw_ApplyPolicyConnected(
             settings: &WinFwSettings,
             relay: &WinFwRelay,
+            relayClient: *const libc::wchar_t,
             tunnelIfaceAlias: *const libc::wchar_t,
             v4Gateway: *const libc::wchar_t,
             v6Gateway: *const libc::wchar_t,

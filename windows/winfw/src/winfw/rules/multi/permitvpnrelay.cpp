@@ -63,19 +63,15 @@ PermitVpnRelay::PermitVpnRelay
 	const wfp::IpAddress &relay,
 	uint16_t relayPort,
 	Protocol protocol,
-	const std::vector<std::wstring> &approvedApplications,
+	const std::wstring &relayClient,
 	Sublayer sublayer
 )
 	: m_relay(relay)
 	, m_relayPort(relayPort)
 	, m_protocol(protocol)
-	, m_approvedApplications(approvedApplications)
+	, m_relayClient(relayClient)
 	, m_sublayer(sublayer)
 {
-	if (m_approvedApplications.empty())
-	{
-		THROW_ERROR("Cannot configure relay access without list of approved applications");
-	}
 }
 
 bool PermitVpnRelay::apply(IObjectInstaller &objectInstaller)
@@ -101,11 +97,7 @@ bool PermitVpnRelay::apply(IObjectInstaller &objectInstaller)
 	conditionBuilder.add_condition(ConditionIp::Remote(m_relay));
 	conditionBuilder.add_condition(ConditionPort::Remote(m_relayPort));
 	conditionBuilder.add_condition(CreateProtocolCondition(m_protocol));
-
-	for (const auto &app : m_approvedApplications)
-	{
-		conditionBuilder.add_condition(std::make_unique<ConditionApplication>(app));
-	}
+	conditionBuilder.add_condition(std::make_unique<ConditionApplication>(m_relayClient));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
