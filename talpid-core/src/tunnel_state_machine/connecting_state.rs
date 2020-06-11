@@ -60,6 +60,8 @@ impl ConnectingState {
             peer_endpoint,
             pingable_hosts: gateway_list_from_params(params),
             allow_lan: shared_values.allow_lan,
+            #[cfg(windows)]
+            relay_client: TunnelMonitor::get_relay_client(&shared_values.resource_dir, &params),
         };
         shared_values.firewall.apply_policy(policy)
     }
