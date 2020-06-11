@@ -190,7 +190,7 @@ impl TunnelMonitor {
                     "openvpn.exe"
                 }
             }
-            _ => "mullvad-daemon.exe",
+            _ => return std::env::current_exe().unwrap(),
         };
         resource_dir.join(process_string)
     }
