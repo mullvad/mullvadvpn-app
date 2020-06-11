@@ -22,7 +22,7 @@ import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
 
-import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main';
+import { ICurrentAppVersionInfo } from '../main';
 import { loadTranslations, messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-channel';
@@ -34,6 +34,7 @@ import {
   BridgeSettings,
   BridgeState,
   IAccountData,
+  IAppVersionInfo,
   ILocation,
   IRelayList,
   ISettings,
@@ -166,7 +167,7 @@ export default class AppRenderer {
       this.setCurrentVersion(currentVersion);
     });
 
-    IpcRendererEventChannel.upgradeVersion.listen((upgradeVersion: IAppUpgradeInfo) => {
+    IpcRendererEventChannel.upgradeVersion.listen((upgradeVersion: IAppVersionInfo) => {
       this.setUpgradeVersion(upgradeVersion);
     });
 
@@ -730,7 +731,7 @@ export default class AppRenderer {
     );
   }
 
-  private setUpgradeVersion(upgradeVersion: IAppUpgradeInfo) {
+  private setUpgradeVersion(upgradeVersion: IAppVersionInfo) {
     this.reduxActions.version.updateLatest(upgradeVersion);
   }
 
