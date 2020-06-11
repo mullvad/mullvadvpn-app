@@ -27,6 +27,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Show a system notification when the account time will soon run out.
 
+### Fixed
+#### Windows
+- Fix window flickering by disabling window animations.
+
 
 ## [2020.5-beta2] - 2020-06-16
 ### Added
