@@ -4,13 +4,14 @@ import * as uuid from 'uuid';
 
 import { IGuiSettingsState } from './gui-settings-state';
 
-import { IAppUpgradeInfo, ICurrentAppVersionInfo } from '../main/index';
+import { ICurrentAppVersionInfo } from '../main/index';
 import { IWindowShapeParameters } from '../main/window-controller';
 import {
   AccountToken,
   BridgeSettings,
   BridgeState,
   IAccountData,
+  IAppVersionInfo,
   ILocation,
   IRelayList,
   ISettings,
@@ -32,7 +33,7 @@ export interface IAppStateSnapshot {
   location?: ILocation;
   relayListPair: IRelayListPair;
   currentVersion: ICurrentAppVersionInfo;
-  upgradeVersion: IAppUpgradeInfo;
+  upgradeVersion: IAppVersionInfo;
   guiSettings: IGuiSettingsState;
   wireguardPublicKey?: IWireguardPublicKey;
 }
@@ -267,7 +268,7 @@ export class IpcRendererEventChannel {
     listen: listen(CURRENT_VERSION_CHANGED),
   };
 
-  public static upgradeVersion: IReceiver<IAppUpgradeInfo> = {
+  public static upgradeVersion: IReceiver<IAppVersionInfo> = {
     listen: listen(UPGRADE_VERSION_CHANGED),
   };
 
@@ -364,7 +365,7 @@ export class IpcMainEventChannel {
     notify: sender(CURRENT_VERSION_CHANGED),
   };
 
-  public static upgradeVersion: ISender<IAppUpgradeInfo> = {
+  public static upgradeVersion: ISender<IAppVersionInfo> = {
     notify: sender(UPGRADE_VERSION_CHANGED),
   };
 
