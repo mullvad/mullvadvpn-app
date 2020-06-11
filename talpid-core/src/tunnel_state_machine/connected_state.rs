@@ -16,6 +16,12 @@ use talpid_types::{
     BoxedError, ErrorExt,
 };
 
+#[cfg(windows)]
+use talpid_types::net::openvpn;
+
+#[cfg(windows)]
+use std::path::PathBuf;
+
 pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,
     pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
@@ -55,8 +61,32 @@ impl ConnectedState {
             peer_endpoint,
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
+            #[cfg(windows)]
+            relay_client: Self::get_relay_client(shared_values, &self.tunnel_parameters),
         };
         shared_values.firewall.apply_policy(policy)
+    }
+
+    #[cfg(windows)]
+    fn get_relay_client(
+        shared_values: &SharedTunnelStateValues,
+        params: &TunnelParameters,
+    ) -> PathBuf {
+        let resource_dir = shared_values.resource_dir.to_path_buf();
+        let process_string = match params {
+            TunnelParameters::OpenVpn(params) => {
+                if let Some(proxy) = &params.proxy {
+                    match proxy {
+                        openvpn::ProxySettings::Shadowsocks(..) => "sslocal.exe",
+                        _ => "openvpn.exe",
+                    }
+                } else {
+                    "openvpn.exe"
+                }
+            }
+            _ => "mullvad-daemon.exe",
+        };
+        resource_dir.join(process_string)
     }
 
     fn get_endpoint_from_params(&self) -> Endpoint {

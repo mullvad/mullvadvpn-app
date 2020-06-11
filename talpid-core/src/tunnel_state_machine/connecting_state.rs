@@ -60,8 +60,32 @@ impl ConnectingState {
             peer_endpoint,
             pingable_hosts: gateway_list_from_params(params),
             allow_lan: shared_values.allow_lan,
+            #[cfg(windows)]
+            relay_client: Self::get_relay_client(shared_values, params),
         };
         shared_values.firewall.apply_policy(policy)
+    }
+
+    #[cfg(windows)]
+    fn get_relay_client(
+        shared_values: &SharedTunnelStateValues,
+        params: &TunnelParameters,
+    ) -> PathBuf {
+        let resource_dir = shared_values.resource_dir.to_path_buf();
+        let process_string = match params {
+            TunnelParameters::OpenVpn(params) => {
+                if let Some(proxy) = &params.proxy {
+                    match proxy {
+                        openvpn::ProxySettings::Shadowsocks(..) => "sslocal.exe",
+                        _ => "openvpn.exe",
+                    }
+                } else {
+                    "openvpn.exe"
+                }
+            }
+            _ => "mullvad-daemon.exe",
+        };
+        resource_dir.join(process_string)
     }
 
     fn start_tunnel(

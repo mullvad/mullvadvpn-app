@@ -94,6 +94,9 @@ pub enum FirewallPolicy {
         pingable_hosts: Vec<IpAddr>,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
+        /// A process that is allowed to send packets to the relay.
+        #[cfg(windows)]
+        relay_client: PathBuf,
     },
 
     /// Allow traffic only to server and over tunnel interface
@@ -104,6 +107,9 @@ pub enum FirewallPolicy {
         tunnel: crate::tunnel::TunnelMetadata,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
+        /// A process that is allowed to send packets to the relay.
+        #[cfg(windows)]
+        relay_client: PathBuf,
     },
 
     /// Block all network traffic in and out from the computer.
@@ -120,6 +126,7 @@ impl fmt::Display for FirewallPolicy {
                 peer_endpoint,
                 pingable_hosts,
                 allow_lan,
+                ..
             } => write!(
                 f,
                 "Connecting to {} with gateways {}, {} LAN",
@@ -135,6 +142,7 @@ impl fmt::Display for FirewallPolicy {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
+                ..
             } => write!(
                 f,
                 "Connected to {} over \"{}\" (ip: {}, v4 gw: {}, v6 gw: {:?}), {} LAN",
@@ -171,9 +179,6 @@ pub struct FirewallArguments {
     pub initialize_blocked: bool,
     /// This argument is required for the blocked state to configure the firewall correctly.
     pub allow_lan: Option<bool>,
-    /// List of applications that are approved for communicating with the relay.
-    #[cfg(windows)]
-    pub approved_applications: Vec<PathBuf>,
 }
 
 impl Firewall {
