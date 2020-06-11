@@ -12,11 +12,7 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
     var keyStatus by onKeyStatusChange.notifiable()
 
     init {
-        daemon.onKeygenEvent = { event ->
-            if (event != null) {
-                keyStatus = event
-            }
-        }
+        daemon.onKeygenEvent = { event -> keyStatus = event }
     }
 
     private fun getInitialKeyStatus(): KeygenEvent? {
@@ -53,9 +49,5 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
     fun onDestroy() {
         daemon.onKeygenEvent = null
         onKeyStatusChange.unsubscribeAll()
-    }
-
-    private fun retryKeyGeneration() = GlobalScope.launch(Dispatchers.Default) {
-        keyStatus = daemon.generateWireguardKey()
     }
 }
