@@ -15,13 +15,15 @@ pub struct AppVersionInfo {
     ///   issues, so using it is no longer recommended.
     /// The user should really upgrade when this is false.
     pub supported: bool,
-    /// Latest version
-    pub latest: AppVersion,
     /// Latest stable version
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub latest_stable: AppVersion,
     /// Equal to `latest_stable` when the newest release is a stable release. But will contain
     /// beta versions when those are out for testing.
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub latest_beta: AppVersion,
+    /// Whether should update to newer version
+    pub suggested_upgrade: Option<AppVersion>,
 }
 
 pub type AppVersion = String;
