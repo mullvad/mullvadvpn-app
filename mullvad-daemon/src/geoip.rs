@@ -1,4 +1,4 @@
-use futures::{self, Future};
+use futures01::{self, Future};
 use mullvad_rpc::{self, rest::RequestServiceHandle};
 use mullvad_types::location::{AmIMullvad, GeoIpLocation};
 
