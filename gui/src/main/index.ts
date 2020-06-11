@@ -77,11 +77,6 @@ export interface ICurrentAppVersionInfo {
   isBeta: boolean;
 }
 
-export interface IAppUpgradeInfo extends IAppVersionInfo {
-  // Null is used since undefined properties get filtered out when sending through IPC.
-  nextUpgrade: string | null;
-}
-
 type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
 
 class ApplicationMain {
@@ -154,12 +149,9 @@ class ApplicationMain {
     isBeta: false,
   };
 
-  private upgradeVersion: IAppUpgradeInfo = {
+  private upgradeVersion: IAppVersionInfo = {
     supported: true,
-    latestStable: '',
-    latestBeta: '',
-    latest: '',
-    nextUpgrade: null,
+    suggestedUpgrade: undefined,
   };
 
   // The UI locale which is set once from onReady handler
@@ -785,45 +777,23 @@ class ApplicationMain {
   }
 
   private setLatestVersion(latestVersionInfo: IAppVersionInfo) {
-    const settings = this.settings;
-
-    function nextUpgrade(current: string, latest: string, latestStable: string): string | null {
-      if (settings.showBetaReleases) {
-        return current === latest ? null : latest;
-      } else {
-        return current === latestStable ? null : latestStable;
-      }
-    }
-
-    const currentVersionInfo = this.currentVersion;
-    const latestVersion = latestVersionInfo.latest;
-    const latestStableVersion = latestVersionInfo.latestStable;
-
-    const upgradeVersion = nextUpgrade(
-      currentVersionInfo.daemon,
-      latestVersion,
-      latestStableVersion,
-    );
-
-    const upgradeInfo = {
-      ...latestVersionInfo,
-      nextUpgrade: upgradeVersion,
-    };
-
-    this.upgradeVersion = upgradeInfo;
+    this.upgradeVersion = latestVersionInfo;
 
     // notify user to update the app if it became unsupported
     const notificationProvider = new UnsupportedVersionNotificationProvider({
       supported: latestVersionInfo.supported,
-      consistent: currentVersionInfo.isConsistent,
-      nextUpgrade: upgradeVersion,
+      consistent: this.currentVersion.isConsistent,
+      suggestedUpgrade: latestVersionInfo.suggestedUpgrade,
     });
     if (notificationProvider.mayDisplay()) {
       this.notificationController.notify(notificationProvider.getSystemNotification());
     }
 
     if (this.windowController) {
-      IpcMainEventChannel.upgradeVersion.notify(this.windowController.webContents, upgradeInfo);
+      IpcMainEventChannel.upgradeVersion.notify(
+        this.windowController.webContents,
+        latestVersionInfo,
+      );
     }
   }
 
