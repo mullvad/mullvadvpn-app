@@ -5,14 +5,14 @@ import { InAppNotification, InAppNotificationProvider } from './notification';
 
 interface UpdateAvailableNotificationContext {
   current: string;
-  nextUpgrade: string | null;
+  suggestedUpgrade?: string;
 }
 
 export class UpdateAvailableNotificationProvider implements InAppNotificationProvider {
   public constructor(private context: UpdateAvailableNotificationContext) {}
 
   public mayDisplay() {
-    return this.context.nextUpgrade !== null && this.context.nextUpgrade !== this.context.current;
+    return this.context.suggestedUpgrade !== undefined;
   }
 
   public getInAppNotification(): InAppNotification {
@@ -24,7 +24,7 @@ export class UpdateAvailableNotificationProvider implements InAppNotificationPro
         'in-app-notifications',
         'Install Mullvad VPN (%(version)s) to stay up to date',
       ),
-      { version: this.context.nextUpgrade },
+      { version: this.context.suggestedUpgrade },
     );
 
     return {
