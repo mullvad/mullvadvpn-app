@@ -13,7 +13,8 @@ import kotlin.properties.Delegates.observable
 class EventNotifier<T>(private val initialValue: T) {
     private val listeners = HashMap<Any, (T) -> Unit>()
 
-    private var latestEvent = initialValue
+    var latestEvent = initialValue
+        private set
 
     fun notify(event: T) {
         synchronized(this) {
