@@ -15,9 +15,7 @@ const mapStateToProps = (state: IReduxState, props: IAppContext) => ({
   expiryLocale: state.userInterface.locale,
   appVersion: state.version.current,
   consistentVersion: state.version.consistent,
-  upToDateVersion: state.settings.showBetaReleases
-    ? state.version.current === state.version.latest
-    : state.version.current === state.version.latestStable,
+  upToDateVersion: state.version.suggestedUpgrade ? false : true,
   isOffline: state.connection.isBlocked,
 });
 const mapDispatchToProps = (dispatch: ReduxDispatch) => {
