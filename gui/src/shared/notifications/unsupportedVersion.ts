@@ -11,7 +11,7 @@ import {
 interface UnsupportedVersionNotificationContext {
   supported: boolean;
   consistent: boolean;
-  nextUpgrade: string | null;
+  suggestedUpgrade?: string;
 }
 
 export class UnsupportedVersionNotificationProvider
@@ -19,7 +19,11 @@ export class UnsupportedVersionNotificationProvider
   public constructor(private context: UnsupportedVersionNotificationContext) {}
 
   public mayDisplay() {
-    return this.context.consistent && !this.context.supported && this.context.nextUpgrade !== null;
+    return (
+      this.context.consistent &&
+      !this.context.supported &&
+      this.context.suggestedUpgrade !== undefined
+    );
   }
 
   public getSystemNotification(): SystemNotification {
@@ -31,7 +35,7 @@ export class UnsupportedVersionNotificationProvider
         'notifications',
         'You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security',
       ),
-      { version: this.context.nextUpgrade },
+      { version: this.context.suggestedUpgrade },
     );
 
     return {
@@ -52,7 +56,7 @@ export class UnsupportedVersionNotificationProvider
         'in-app-notifications',
         'You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security',
       ),
-      { version: this.context.nextUpgrade },
+      { version: this.context.suggestedUpgrade },
     );
 
     return {
