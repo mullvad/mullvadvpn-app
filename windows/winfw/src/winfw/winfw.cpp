@@ -42,27 +42,6 @@ std::optional<FwContext::PingableHosts> ConvertPingableHosts(const PingableHosts
 	return converted;
 }
 
-std::vector<std::wstring> ConvertApprovedApplications
-(
-	WinFwApprovedApplications *approvedApplications
-)
-{
-	if (nullptr == approvedApplications
-		|| 0 == approvedApplications->numApps)
-	{
-		THROW_ERROR("Invalid list of approved applications (empty list)");
-	}
-
-	std::vector<std::wstring> converted;
-
-	for (size_t i = 0; i < approvedApplications->numApps; ++i)
-	{
-		converted.emplace_back(std::wstring(approvedApplications->apps[i]));
-	}
-
-	return converted;
-}
-
 } // anonymous namespace
 
 WINFW_LINKAGE
@@ -70,7 +49,6 @@ bool
 WINFW_API
 WinFw_Initialize(
 	uint32_t timeout,
-	WinFwApprovedApplications *approvedApplications,
 	MullvadLogSink logSink,
 	void *logSinkContext
 )
@@ -92,8 +70,7 @@ WinFw_Initialize(
 		g_logSink = logSink;
 		g_logSinkContext = logSinkContext;
 
-		g_fwContext = new FwContext(timeout_ms,
-			ConvertApprovedApplications(approvedApplications));
+		g_fwContext = new FwContext(timeout_ms);
 	}
 	catch (std::exception &err)
 	{
@@ -119,7 +96,6 @@ WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
 	const WinFwSettings *settings,
-	WinFwApprovedApplications *approvedApplications,
 	MullvadLogSink logSink,
 	void *logSinkContext
 )
@@ -146,8 +122,7 @@ WinFw_InitializeBlocked(
 		g_logSink = logSink;
 		g_logSinkContext = logSinkContext;
 
-		g_fwContext = new FwContext(timeout_ms, *settings,
-			ConvertApprovedApplications(approvedApplications));
+		g_fwContext = new FwContext(timeout_ms, *settings);
 	}
 	catch (std::exception &err)
 	{
@@ -206,6 +181,7 @@ WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
 	const WinFwRelay *relay,
+	const wchar_t *relayClient,
 	const PingableHosts *pingableHosts
 )
 {
@@ -226,7 +202,17 @@ WinFw_ApplyPolicyConnecting(
 			THROW_ERROR("Invalid argument: relay");
 		}
 
-		return g_fwContext->applyPolicyConnecting(*settings, *relay, ConvertPingableHosts(pingableHosts));
+		if (nullptr == relayClient)
+		{
+			THROW_ERROR("Invalid argument: relayClient");
+		}
+
+		return g_fwContext->applyPolicyConnecting(
+			*settings,
+			*relay,
+			relayClient,
+			ConvertPingableHosts(pingableHosts)
+		);
 	}
 	catch (std::exception &err)
 	{
@@ -249,6 +235,7 @@ WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
 	const WinFwRelay *relay,
+	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
 	const wchar_t *v4DnsHost,
 	const wchar_t *v6DnsHost
@@ -271,6 +258,11 @@ WinFw_ApplyPolicyConnected(
 			THROW_ERROR("Invalid argument: relay");
 		}
 
+		if (nullptr == relayClient)
+		{
+			THROW_ERROR("Invalid argument: relayClient");
+		}
+
 		if (nullptr == tunnelInterfaceAlias)
 		{
 			THROW_ERROR("Invalid argument: tunnelInterfaceAlias");
@@ -291,6 +283,7 @@ WinFw_ApplyPolicyConnected(
 		return g_fwContext->applyPolicyConnected(
 			*settings,
 			*relay,
+			relayClient,
 			tunnelInterfaceAlias,
 			tunnelDnsServers
 		);

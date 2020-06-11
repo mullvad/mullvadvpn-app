@@ -91,7 +91,7 @@ void AppendRelayRules
 (
 	FwContext::Ruleset &ruleset,
 	const WinFwRelay &relay,
-	const std::vector<std::wstring> &approvedApplications
+	const std::wstring &relayClient
 )
 {
 	auto sublayer =
@@ -105,7 +105,7 @@ void AppendRelayRules
 		wfp::IpAddress(relay.ip),
 		relay.port,
 		TranslateProtocol(relay.protocol),
-		approvedApplications,
+		relayClient,
 		sublayer
 	));
 }
@@ -120,11 +120,9 @@ void AppendNetBlockedRules(FwContext::Ruleset &ruleset)
 
 FwContext::FwContext
 (
-	uint32_t timeout,
-	const std::vector<std::wstring> &approvedApplications
+	uint32_t timeout
 )
-	: m_approvedApplications(approvedApplications)
-	, m_baseline(0)
+	: m_baseline(0)
 	, m_activePolicy(Policy::None)
 {
 	auto engine = wfp::FilterEngine::StandardSession(timeout);
@@ -146,11 +144,9 @@ FwContext::FwContext
 FwContext::FwContext
 (
 	uint32_t timeout,
-	const WinFwSettings &settings,
-	const std::vector<std::wstring> &approvedApplications
+	const WinFwSettings &settings
 )
-	: m_approvedApplications(approvedApplications)
-	, m_baseline(0)
+	: m_baseline(0)
 	, m_activePolicy(Policy::None)
 {
 	auto engine = wfp::FilterEngine::StandardSession(timeout);
@@ -175,6 +171,7 @@ bool FwContext::applyPolicyConnecting
 (
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
+	const std::wstring &relayClient,
 	const std::optional<PingableHosts> &pingableHosts
 )
 {
@@ -182,7 +179,7 @@ bool FwContext::applyPolicyConnecting
 
 	AppendNetBlockedRules(ruleset);
 	AppendSettingsRules(ruleset, settings);
-	AppendRelayRules(ruleset, relay, m_approvedApplications);
+	AppendRelayRules(ruleset, relay, relayClient);
 
 	//
 	// Permit pinging the gateway inside the tunnel.
@@ -211,6 +208,7 @@ bool FwContext::applyPolicyConnected
 (
 	const WinFwSettings &settings,
 	const WinFwRelay &relay,
+	const std::wstring &relayClient,
 	const std::wstring &tunnelInterfaceAlias,
 	const std::vector<wfp::IpAddress> &tunnelDnsServers
 )
@@ -219,7 +217,7 @@ bool FwContext::applyPolicyConnected
 
 	AppendNetBlockedRules(ruleset);
 	AppendSettingsRules(ruleset, settings);
-	AppendRelayRules(ruleset, relay, m_approvedApplications);
+	AppendRelayRules(ruleset, relay, relayClient);
 
 	ruleset.emplace_back(std::make_unique<dns::PermitTunnel>(
 		tunnelInterfaceAlias, tunnelDnsServers

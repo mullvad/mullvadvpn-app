@@ -7,20 +7,20 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <string>
 #include <optional>
 
 class FwContext
 {
 public:
 
-	FwContext(uint32_t timeout, const std::vector<std::wstring> &approvedApplications);
+	FwContext(uint32_t timeout);
 
 	// This ctor applies the "blocked" policy.
 	FwContext
 	(
 		uint32_t timeout,
-		const WinFwSettings &settings,
-		const std::vector<std::wstring> &approvedApplications
+		const WinFwSettings &settings
 	);
 
 	struct PingableHosts
@@ -33,6 +33,7 @@ public:
 	(
 		const WinFwSettings &settings,
 		const WinFwRelay &relay,
+		const std::wstring &relayClient,
 		const std::optional<PingableHosts> &pingableHosts
 	);
 
@@ -40,6 +41,7 @@ public:
 	(
 		const WinFwSettings &settings,
 		const WinFwRelay &relay,
+		const std::wstring &relayClient,
 		const std::wstring &tunnelInterfaceAlias,
 		const std::vector<wfp::IpAddress> &tunnelDnsServers
 	);
@@ -73,8 +75,6 @@ private:
 
 	bool applyRuleset(const Ruleset &ruleset);
 	bool applyRulesetDirectly(const Ruleset &ruleset, SessionController &controller);
-
-	const std::vector<std::wstring> m_approvedApplications;
 
 	std::unique_ptr<SessionController> m_sessionController;
 

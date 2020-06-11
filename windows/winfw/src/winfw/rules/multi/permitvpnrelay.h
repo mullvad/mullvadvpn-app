@@ -3,7 +3,6 @@
 #include <winfw/rules/ifirewallrule.h>
 #include <libwfp/ipaddress.h>
 #include <string>
-#include <vector>
 
 namespace rules::multi
 {
@@ -29,7 +28,7 @@ public:
 		const wfp::IpAddress &relay,
 		uint16_t relayPort,
 		Protocol protocol,
-		const std::vector<std::wstring> &approvedApplications,
+		const std::wstring &relayClient,
 		Sublayer sublayer
 	);
 	
@@ -40,7 +39,7 @@ private:
 	const wfp::IpAddress m_relay;
 	const uint16_t m_relayPort;
 	const Protocol m_protocol;
-	const std::vector<std::wstring> m_approvedApplications;
+	const std::wstring m_relayClient;
 	const Sublayer m_sublayer;
 };
 
