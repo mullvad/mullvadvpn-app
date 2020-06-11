@@ -158,6 +158,7 @@ class ApplicationMain {
     latestBeta: '',
     latest: '',
     nextUpgrade: null,
+    shouldUpdate: false,
   };
 
   // The UI locale which is set once from onReady handler
@@ -788,11 +789,9 @@ class ApplicationMain {
     const latestVersion = latestVersionInfo.latest;
     const latestStableVersion = latestVersionInfo.latestStable;
 
-    const upgradeVersion = nextUpgrade(
-      currentVersionInfo.daemon,
-      latestVersion,
-      latestStableVersion,
-    );
+    const upgradeVersion = latestVersionInfo.shouldUpdate
+      ? nextUpgrade(currentVersionInfo.daemon, latestVersion, latestStableVersion)
+      : null;
 
     const upgradeInfo = {
       ...latestVersionInfo,
@@ -818,6 +817,7 @@ class ApplicationMain {
 
   private async fetchLatestVersion() {
     try {
+      // this.setLatestVersion(await this.daemonRpc.getVersionInfo());
       this.setLatestVersion(await this.daemonRpc.getVersionInfo());
     } catch (error) {
       log.error(`Failed to request the version info: ${error.message}`);

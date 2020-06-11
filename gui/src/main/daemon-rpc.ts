@@ -297,6 +297,7 @@ const appVersionInfoSchema = partialObject({
   latest: string,
   latest_stable: string,
   latest_beta: string,
+  should_update: boolean,
 });
 
 export class ConnectionObserver {

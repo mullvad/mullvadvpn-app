@@ -282,6 +282,7 @@ export interface IAppVersionInfo {
   latest: string;
   latestStable: string;
   latestBeta: string;
+  shouldUpdate: boolean;
 }
 
 export interface ISettings {
