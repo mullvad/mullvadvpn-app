@@ -87,7 +87,6 @@ pub fn spawn(
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     shutdown_tx: oneshot::Sender<()>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
-    #[cfg(windows)] approved_applications: Vec<PathBuf>,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
@@ -120,8 +119,6 @@ pub fn spawn(
             command_rx,
             state_change_listener,
             shutdown_tx,
-            #[cfg(target_os = "windows")]
-            approved_applications,
         ) {
             Ok((mut reactor, event_loop)) => {
                 startup_result_tx.send(Ok(())).expect(
@@ -162,7 +159,6 @@ fn create_event_loop(
     commands: mpsc::UnboundedReceiver<TunnelCommand>,
     state_change_listener: impl Sender<TunnelStateTransition>,
     shutdown_tx: oneshot::Sender<()>,
-    #[cfg(windows)] approved_applications: Vec<PathBuf>,
 ) -> Result<(Core, impl Future<Item = (), Error = Error>), Error> {
     let reactor = Core::new().map_err(Error::ReactorError)?;
     let state_machine = TunnelStateMachine::new(
@@ -175,8 +171,6 @@ fn create_event_loop(
         resource_dir,
         cache_dir,
         commands,
-        #[cfg(windows)]
-        approved_applications,
     )?;
 
     let future = state_machine
@@ -234,21 +228,16 @@ impl TunnelStateMachine {
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
-        #[cfg(windows)] approved_applications: Vec<PathBuf>,
     ) -> Result<Self, Error> {
         let args = if block_when_disconnected {
             FirewallArguments {
                 initialize_blocked: true,
                 allow_lan: Some(allow_lan),
-                #[cfg(windows)]
-                approved_applications,
             }
         } else {
             FirewallArguments {
                 initialize_blocked: false,
                 allow_lan: None,
-                #[cfg(windows)]
-                approved_applications,
             }
         };
 
