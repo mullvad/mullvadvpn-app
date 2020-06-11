@@ -1,7 +1,7 @@
 #[cfg(target_os = "android")]
-use futures::future::{Executor, Future};
+use futures01::future::{Executor, Future};
 #[cfg(not(target_os = "android"))]
-use futures::{
+use futures01::{
     future::{self, Executor, Future},
     sync::oneshot,
 };

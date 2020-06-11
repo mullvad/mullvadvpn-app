@@ -1,6 +1,6 @@
 use crate::{account_history::AccountHistory, DaemonEventSender, InternalDaemonEvent};
 use chrono::offset::Utc;
-use futures::{future::Executor, stream::Stream, sync::oneshot, Async, Future, Poll};
+use futures01::{future::Executor, stream::Stream, sync::oneshot, Async, Future, Poll};
 use mullvad_rpc::rest::{Error as RestError, MullvadRestHandle};
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;

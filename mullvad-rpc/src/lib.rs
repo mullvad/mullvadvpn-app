@@ -5,10 +5,11 @@ use futures01::future::Future as Future01;
 use hyper::Method;
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
-    version::{AppVersion, AppVersionInfo},
+    version::AppVersion,
 };
 use std::{
     collections::BTreeMap,
+    future::Future,
     net::{IpAddr, Ipv4Addr},
     path::Path,
 };
@@ -278,12 +279,12 @@ pub struct AppVersionProxy {
     handle: rest::MullvadRestHandle,
 }
 
-#[derive(serde::Deserialize)]
-struct AppVersionResponse {
-    supported: bool,
-    latest: AppVersion,
-    latest_stable: Option<AppVersion>,
-    latest_beta: AppVersion,
+#[derive(serde::Deserialize, Debug)]
+pub struct AppVersionResponse {
+    pub supported: bool,
+    pub latest: AppVersion,
+    pub latest_stable: Option<AppVersion>,
+    pub latest_beta: AppVersion,
 }
 
 impl AppVersionProxy {
@@ -295,7 +296,7 @@ impl AppVersionProxy {
         &self,
         version: AppVersion,
         platform: &str,
-    ) -> impl Future01<Item = AppVersionInfo, Error = rest::Error> {
+    ) -> impl Future<Output = Result<AppVersionResponse, rest::Error>> {
         let service = self.handle.service.clone();
 
         let request = rest::send_request(
@@ -307,20 +308,7 @@ impl AppVersionProxy {
             StatusCode::OK,
         );
 
-        let future = async move {
-            let response: AppVersionResponse = rest::deserialize_body(request.await?).await?;
-
-            let version_info = AppVersionInfo {
-                supported: response.supported,
-                latest: response.latest,
-                latest_stable: response.latest_stable.unwrap_or_else(|| "".to_owned()),
-                latest_beta: response.latest_beta,
-            };
-
-            Ok(version_info)
-        };
-
-        self.handle.service.compat_spawn(future)
+        async move { rest::deserialize_body(request.await?).await }
     }
 }
 

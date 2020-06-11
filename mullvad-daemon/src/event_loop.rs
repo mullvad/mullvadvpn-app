@@ -1,4 +1,4 @@
-use futures::{sync::oneshot, Future};
+use futures01::{sync::oneshot, Future};
 use std::thread;
 use tokio_core::reactor::{Core, Remote};
 
