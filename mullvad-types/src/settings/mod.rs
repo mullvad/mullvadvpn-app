@@ -48,6 +48,7 @@ pub struct Settings {
     /// might be located.
     pub tunnel_options: TunnelOptions,
     /// Whether to notify users of beta updates.
+    #[serde(deserialize_with = "deserialize_show_beta_releases")]
     pub show_beta_releases: bool,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -180,5 +181,69 @@ impl Default for TunnelOptions {
                 enable_ipv6: cfg!(target_os = "android"),
             },
         }
+    }
+}
+
+/// Used to deserialize the `show_beta_releases` field in the settings struct, as it used to be
+/// a nullable field, but it is no longer.
+fn deserialize_show_beta_releases<'de, D: serde::de::Deserializer<'de>>(
+    field: D,
+) -> std::result::Result<bool, D::Error> {
+    Option::deserialize(field).map(|value| value.unwrap_or(false))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_deserialization_of_2020_4_format() {
+        let old_settings = br#"{
+              "account_token": "0000000000000000",
+              "relay_settings": {
+                "normal": {
+                  "location": {
+                    "only": {
+                      "country": "gb"
+                    }
+                  },
+                  "tunnel_protocol": {
+                    "only": "wireguard"
+                  },
+                  "wireguard_constraints": {
+                    "port": "any"
+                  },
+                  "openvpn_constraints": {
+                    "port": "any",
+                    "protocol": "any"
+                  }
+                }
+              },
+              "bridge_settings": {
+                "normal": {
+                  "location": "any"
+                }
+              },
+              "bridge_state": "auto",
+              "allow_lan": true,
+              "block_when_disconnected": false,
+              "auto_connect": true,
+              "tunnel_options": {
+                "openvpn": {
+                  "mssfix": null
+                },
+                "wireguard": {
+                  "mtu": null,
+                  "automatic_rotation": null
+                },
+                "generic": {
+                  "enable_ipv6": true
+                }
+              },
+              "settings_version": 2,
+              "show_beta_releases": null
+        }"#;
+
+        let _ = Settings::load_from_bytes(old_settings).unwrap();
     }
 }
