@@ -71,7 +71,8 @@ impl Drop for WinHandle {
 }
 
 pub fn deny_network_access<T: AsRef<OsStr>>(ipc_path: T) -> Result<(), io::Error> {
-    let ipc_w: Vec<_> = ipc_path.as_ref().encode_wide().collect();
+    let mut ipc_w: Vec<_> = ipc_path.as_ref().encode_wide().collect();
+    ipc_w.push(0u16);
 
     let pipe_handle = unsafe {
         CreateFileW(
@@ -142,11 +143,7 @@ pub fn deny_network_access<T: AsRef<OsStr>>(ipc_path: T) -> Result<(), io::Error
         )
     };
     if result != ERROR_SUCCESS {
-        // A non-zero error code in WinError.h
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            format!("SetEntriesInAclW failed: {}", result),
-        ));
+        return Err(io::Error::from_raw_os_error(result as i32));
     }
 
     let result = unsafe {
@@ -164,11 +161,7 @@ pub fn deny_network_access<T: AsRef<OsStr>>(ipc_path: T) -> Result<(), io::Error
     unsafe { LocalFree(new_dacl as *mut _) };
 
     if result != ERROR_SUCCESS {
-        // A non-zero error code in WinError.h
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            format!("SetSecurityInfo failed: {}", result),
-        ));
+        return Err(io::Error::from_raw_os_error(result as i32));
     }
 
     Ok(())
