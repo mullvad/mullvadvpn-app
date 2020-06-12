@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
+import android.util.Log
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -69,6 +70,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.d("mullvad", "Initializing service")
 
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         notificationManager = ForegroundNotificationManager(this, serviceNotifier, keyguardManager)
@@ -78,6 +80,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("mullvad", "Starting service")
         val startResult = super.onStartCommand(intent, flags, startId)
 
         if (!keyguardManager.isDeviceLocked) {
@@ -94,12 +97,14 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     override fun onBind(intent: Intent): IBinder {
+        Log.d("mullvad", "New connection to service")
         isBound = true
 
         return super.onBind(intent) ?: binder
     }
 
     override fun onRebind(intent: Intent) {
+        Log.d("mullvad", "Connection to service restored")
         isBound = true
 
         if (isStopping) {
@@ -113,12 +118,14 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     override fun onUnbind(intent: Intent): Boolean {
+        Log.d("mullvad", "Closed all connections to service")
         isBound = false
 
         return true
     }
 
     override fun onDestroy() {
+        Log.d("mullvad", "Service has stopped")
         tearDown()
         notificationManager.onDestroy()
         super.onDestroy()
@@ -139,10 +146,12 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
+        Log.d("mullvad", "Starting daemon")
         prepareFiles()
 
         val daemon = MullvadDaemon(this@MullvadVpnService).apply {
             onDaemonStopped = {
+                Log.d("mullvad", "Daemon has stopped")
                 instance = null
 
                 if (!isStopping) {
@@ -205,12 +214,14 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun stop() {
+        Log.d("mullvad", "Stopping service")
         isStopping = true
         stopDaemon()
         stopSelf()
     }
 
     private fun stopDaemon() {
+        Log.d("mullvad", "Stopping daemon")
         startDaemonJob?.cancel()
         instance?.daemon?.shutdown()
     }
@@ -220,6 +231,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun restart() {
+        Log.d("mullvad", "Restarting service")
         tearDown()
         setUp()
     }
