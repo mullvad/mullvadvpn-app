@@ -192,11 +192,6 @@ class ApplicationMain {
       app.commandLine.appendSwitch('wm-window-animations-disabled');
     }
 
-    // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
-    if (process.platform === 'linux') {
-      app.commandLine.appendSwitch('--disable-gpu');
-    }
-
     this.overrideAppPaths();
 
     if (this.ensureSingleInstance()) {
