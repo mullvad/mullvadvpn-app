@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "error.h"
 #include <iostream>
+#include <chrono>
 #include <sstream>
 #include <string>
 #include <optional>
@@ -27,6 +28,8 @@ namespace
 constexpr wchar_t DEPRECATED_TAP_HARDWARE_ID[] = L"tap0901";
 constexpr wchar_t TAP_HARDWARE_ID[] = L"tapmullvad0901";
 constexpr wchar_t TAP_BASE_ALIAS[] = L"Mullvad";
+
+constexpr std::chrono::milliseconds REGISTRY_GET_TIMEOUT_MS{ 10000 };
 
 enum ReturnCodes
 {
@@ -231,6 +234,87 @@ std::wstring GetDeviceInstanceId(
 	return deviceInstanceId.data();
 }
 
+bool TryGetRegistryValueTimeout(
+	HKEY key,
+	const wchar_t *subkey,
+	const wchar_t *value,
+	DWORD flags,
+	DWORD *type,
+	void *data,
+	DWORD *dataSize
+)
+{
+	HANDLE changeEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
+
+	if (nullptr == changeEvent)
+	{
+		THROW_WINDOWS_ERROR(GetLastError(), "CreateEventW");
+	}
+
+	common::memory::ScopeDestructor scopeDestructor;
+	scopeDestructor += [changeEvent]() {
+		CloseHandle(changeEvent);
+	};
+
+	auto initialTime = std::chrono::steady_clock::now();
+
+	for (;;)
+	{
+		const auto status = RegGetValueW(key, subkey, value, flags, type, data, dataSize);
+
+		if (ERROR_SUCCESS == status)
+		{
+			// We're done
+			return true;
+		}
+
+		if (ERROR_FILE_NOT_FOUND != status)
+		{
+			THROW_WINDOWS_ERROR(status, "RegGetValueW");
+		}
+
+		//
+		// Wait for the registry value to be created
+		//
+
+		auto currentTime = std::chrono::steady_clock::now();
+		auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - initialTime);
+		auto timeDelta = (REGISTRY_GET_TIMEOUT_MS - elapsedTime).count();
+
+		if (timeDelta <= 0)
+		{
+			return false;
+		}
+
+		const auto notifyResult = RegNotifyChangeKeyValue(
+			key,
+			subkey != nullptr, // Watch subkeys
+			REG_NOTIFY_CHANGE_LAST_SET,
+			changeEvent,
+			TRUE
+		);
+
+		if (ERROR_SUCCESS != notifyResult)
+		{
+			THROW_WINDOWS_ERROR(notifyResult, "RegNotifyChangeKeyValue");
+		}
+
+		const auto waitResult = WaitForSingleObject(changeEvent, static_cast<DWORD>(timeDelta));
+		if (WAIT_OBJECT_0 == waitResult)
+		{
+			// Try again
+			continue;
+		}
+
+		if (WAIT_TIMEOUT != waitResult)
+		{
+			THROW_WINDOWS_ERROR(GetLastError(), "WaitForSingleObject");
+		}
+
+		return false;
+	}
+}
+
 std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInfoData)
 {
 	HKEY hNet = SetupDiOpenDevRegKey(
@@ -247,10 +331,15 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 		THROW_SETUPAPI_ERROR(GetLastError(), "SetupDiOpenDevRegKey");
 	}
 
+	common::memory::ScopeDestructor scopeDestructor;
+	scopeDestructor += [hNet]() {
+		RegCloseKey(hNet);
+	};
+
 	std::vector<wchar_t> instanceId(MAX_PATH + 1);
 	DWORD strSize = static_cast<DWORD>(instanceId.size() * sizeof(wchar_t));
 
-	const auto status = RegGetValueW(
+	if (!TryGetRegistryValueTimeout(
 		hNet,
 		nullptr,
 		L"NetCfgInstanceId",
@@ -258,13 +347,9 @@ std::wstring GetNetCfgInstanceId(HDEVINFO devInfo, const SP_DEVINFO_DATA &devInf
 		nullptr,
 		instanceId.data(),
 		&strSize
-	);
-
-	RegCloseKey(hNet);
-
-	if (ERROR_SUCCESS != status)
+	))
 	{
-		THROW_WINDOWS_ERROR(status, "RegGetValueW");
+		THROW_ERROR("Timed out waiting for NetCfgInstanceId.");
 	}
 
 	return instanceId.data();
