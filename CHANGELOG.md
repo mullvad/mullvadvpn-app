@@ -68,6 +68,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix race in network adapter monitor that could result in data corruption and crashes.
 - Upgrade `miow` dependency to stop daemon from crashing when the named pipes
   were accessed with `accesschk.exe`.
+- Fix race that may rarely occur during install when obtaining the GUID of a newly created TAP
+  adapter.
 
 
 ## [2020.5-beta1] - 2020-05-18
