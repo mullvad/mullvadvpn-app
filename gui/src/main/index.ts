@@ -4,7 +4,11 @@ import log from 'electron-log';
 import mkdirp from 'mkdirp';
 import * as path from 'path';
 import * as uuid from 'uuid';
-import { AccountExpiryFormatter, hasExpired } from '../shared/account-expiry';
+import {
+  AccountExpiryFormatter,
+  hasExpired,
+  remainingMilliseconds,
+} from '../shared/account-expiry';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import {
   AccountToken,
@@ -27,17 +31,18 @@ import { loadTranslations, messages } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcMainEventChannel } from '../shared/ipc-event-channel';
 import {
-  AccountExpiryNotificationProvider,
-  InconsistentVersionNotificationProvider,
-  UnsupportedVersionNotificationProvider,
-} from '../shared/notifications/notification';
-import {
   backupLogFile,
   getLogsDirectory,
   getMainLogFile,
   getRendererLogFile,
   setupLogging,
 } from '../shared/logging';
+import {
+  AccountExpiredNotificationProvider,
+  CloseToAccountExpiryNotificationProvider,
+  InconsistentVersionNotificationProvider,
+  UnsupportedVersionNotificationProvider,
+} from '../shared/notifications/notification';
 import consumePromise from '../shared/promise';
 import { Scheduler } from '../shared/scheduler';
 import AccountDataCache from './account-data-cache';
@@ -165,7 +170,7 @@ class ApplicationMain {
 
   private wireguardPublicKey?: IWireguardPublicKey;
 
-  private accountExpiryNotificationTimeout?: NodeJS.Timeout;
+  private accountExpiryNotificationScheduler = new Scheduler();
 
   private accountDataCache = new AccountDataCache(
     (accountToken) => {
@@ -178,7 +183,7 @@ class ApplicationMain {
         IpcMainEventChannel.account.notify(this.windowController.webContents, accountData);
       }
 
-      this.notifyOfAccountExpiry();
+      this.handleAccountExpiry();
     },
   );
 
@@ -1164,12 +1169,8 @@ class ApplicationMain {
     try {
       await this.daemonRpc.setAccount();
 
-      if (this.accountExpiryNotificationTimeout) {
-        global.clearTimeout(this.accountExpiryNotificationTimeout);
-        this.accountExpiryNotificationTimeout = undefined;
-      }
-
       this.autoConnectFallbackScheduler.cancel();
+      this.accountExpiryNotificationScheduler.cancel();
     } catch (error) {
       log.info(`Failed to logout: ${error.message}`);
 
@@ -1219,19 +1220,29 @@ class ApplicationMain {
     }
   }
 
-  private notifyOfAccountExpiry() {
+  private handleAccountExpiry() {
     if (this.accountData) {
-      const notificationProvider = new AccountExpiryNotificationProvider({
+      const expiredNotification = new AccountExpiredNotificationProvider({
+        accountExpiry: this.accountData.expiry,
+        tunnelState: this.tunnelState,
+      });
+      const closeToExpiryNotification = new CloseToAccountExpiryNotificationProvider({
         accountExpiry: this.accountData.expiry,
         accountExpiryFormatter: new AccountExpiryFormatter(this.accountData.expiry, this.locale),
-        tooSoon: this.accountExpiryNotificationTimeout !== undefined,
+        tooSoon: this.accountExpiryNotificationScheduler.isRunning,
       });
-      if (notificationProvider.mayDisplay()) {
-        this.notificationController.notify(notificationProvider.getSystemNotification());
-        this.accountExpiryNotificationTimeout = global.setTimeout(() => {
-          this.accountExpiryNotificationTimeout = undefined;
-          this.notifyOfAccountExpiry();
-        }, 12 * 60 * 60 * 1000); // Every 12 hours
+
+      if (expiredNotification.mayDisplay()) {
+        this.accountExpiryNotificationScheduler.cancel();
+        this.notificationController.notify(expiredNotification.getSystemNotification());
+      } else if (closeToExpiryNotification.mayDisplay()) {
+        this.notificationController.notify(closeToExpiryNotification.getSystemNotification());
+
+        const twelveHours = 12 * 60 * 60 * 1000;
+        const delay = Math.min(twelveHours, remainingMilliseconds(this.accountData.expiry));
+        this.accountExpiryNotificationScheduler.schedule(() => {
+          this.handleAccountExpiry();
+        }, delay);
       }
     }
   }

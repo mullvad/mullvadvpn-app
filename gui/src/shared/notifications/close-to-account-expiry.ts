@@ -9,15 +9,15 @@ import {
   SystemNotificationProvider,
 } from './notification';
 
-interface AccountExpiryContext {
+interface CloseToAccountExpiryNotificationContext {
   accountExpiry: string;
   accountExpiryFormatter: AccountExpiryFormatter;
   tooSoon?: boolean;
 }
 
-export class AccountExpiryNotificationProvider
+export class CloseToAccountExpiryNotificationProvider
   implements InAppNotificationProvider, SystemNotificationProvider {
-  public constructor(private context: AccountExpiryContext) {}
+  public constructor(private context: CloseToAccountExpiryNotificationContext) {}
 
   public mayDisplay() {
     return (
@@ -34,7 +34,7 @@ export class AccountExpiryNotificationProvider
       // TRANSLATORS: %(duration)s - remaining time, e.g. "2 days"
       messages.pgettext('notifications', 'Account credit expires in %(duration)s'),
       {
-        duration: this.context.accountExpiryFormatter.remainingTime(),
+        duration: this.context.accountExpiryFormatter.durationUntilExpiry(),
       },
     );
 

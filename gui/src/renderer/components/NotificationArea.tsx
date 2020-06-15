@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { Types } from 'reactxp';
 import { AccountExpiryFormatter } from '../../shared/account-expiry';
 import {
-  AccountExpiryNotificationProvider,
+  CloseToAccountExpiryNotificationProvider,
   BlockWhenDisconnectedNotificationProvider,
   ConnectingNotificationProvider,
   ErrorNotificationProvider,
@@ -53,7 +53,7 @@ export default function NotificationArea(props: IProps) {
 
   if (accountExpiry) {
     notificationProviders.push(
-      new AccountExpiryNotificationProvider({
+      new CloseToAccountExpiryNotificationProvider({
         accountExpiry,
         accountExpiryFormatter: new AccountExpiryFormatter(accountExpiry, locale),
       }),
