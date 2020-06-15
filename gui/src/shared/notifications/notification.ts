@@ -29,7 +29,8 @@ export interface InAppNotificationProvider extends NotificationProvider {
   getInAppNotification(): InAppNotification | undefined;
 }
 
-export * from './account-expiry';
+export * from './account-expired';
+export * from './close-to-account-expiry';
 export * from './block-when-disconnected';
 export * from './connected';
 export * from './connecting';
