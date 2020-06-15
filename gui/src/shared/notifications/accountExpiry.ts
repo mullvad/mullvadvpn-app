@@ -2,7 +2,7 @@ import moment from 'moment';
 import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import AccountExpiry from '../account-expiry';
+import { hasExpired, formatRemainingTime } from '../account-expiry';
 import {
   InAppNotification,
   InAppNotificationProvider,
@@ -11,7 +11,8 @@ import {
 } from './notification';
 
 interface AccountExpiryContext {
-  accountExpiry: AccountExpiry;
+  accountExpiry: string;
+  locale: string;
   tooSoon?: boolean;
 }
 
@@ -20,10 +21,12 @@ export class AccountExpiryNotificationProvider
   public constructor(private context: AccountExpiryContext) {}
 
   public mayDisplay() {
+    const willHaveExpiredInThreeDays = moment(this.context.accountExpiry).isSameOrBefore(
+      moment().add(3, 'days'),
+    );
+
     return (
-      !this.context.accountExpiry.hasExpired() &&
-      this.context.accountExpiry.willHaveExpiredAt(moment().add(3, 'days').toDate()) &&
-      !this.context.tooSoon
+      !hasExpired(this.context.accountExpiry) && willHaveExpiredInThreeDays && !this.context.tooSoon
     );
   }
 
@@ -34,7 +37,7 @@ export class AccountExpiryNotificationProvider
       // TRANSLATORS: %(duration)s - remaining time, e.g. "2 days"
       messages.pgettext('notifications', 'Account credit expires in %(duration)s'),
       {
-        duration: this.context.accountExpiry.remainingTime(),
+        duration: formatRemainingTime(this.context.accountExpiry, this.context.locale),
       },
     );
 
@@ -49,7 +52,7 @@ export class AccountExpiryNotificationProvider
     return {
       indicator: 'warning',
       title: messages.pgettext('in-app-notifications', 'ACCOUNT CREDIT EXPIRES SOON'),
-      subtitle: this.context.accountExpiry.remainingTime(true),
+      subtitle: formatRemainingTime(this.context.accountExpiry, this.context.locale, true),
       action: { type: 'open-url', url: links.purchase, withAuth: true },
     };
   }
