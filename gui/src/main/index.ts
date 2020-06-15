@@ -39,6 +39,7 @@ import {
   setupLogging,
 } from '../shared/logging';
 import consumePromise from '../shared/promise';
+import { Scheduler } from '../shared/scheduler';
 import AccountDataCache from './account-data-cache';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
 import {
@@ -58,6 +59,8 @@ import WindowController from './window-controller';
 
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
+
+const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 
 enum AppQuitStage {
   unready,
@@ -178,6 +181,9 @@ class ApplicationMain {
       this.notifyOfAccountExpiry();
     },
   );
+
+  private autoConnectOnWireguardKeyEvent = false;
+  private autoConnectFallbackScheduler = new Scheduler();
 
   public run() {
     // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
@@ -588,6 +594,10 @@ class ApplicationMain {
     if (this.windowController) {
       IpcMainEventChannel.wireguardKeys.notify(this.windowController.webContents, wireguardKey);
     }
+
+    if (wireguardKey) {
+      this.wireguardKeygenEventAutoConnect();
+    }
   }
 
   private handleWireguardKeygenEvent(event: KeygenEvent) {
@@ -599,9 +609,12 @@ class ApplicationMain {
       default:
         this.wireguardPublicKey = event.newKey;
     }
+
     if (this.windowController) {
       IpcMainEventChannel.wireguardKeys.notifyKeygenEvent(this.windowController.webContents, event);
     }
+
+    this.wireguardKeygenEventAutoConnect();
   }
 
   private setTunnelState(newState: TunnelState) {
@@ -1101,16 +1114,34 @@ class ApplicationMain {
         log.warn(`Failed to get account data, logging in anyway: ${verification.error.message}`);
       }
 
+      this.autoConnectOnWireguardKeyEvent = true;
       await this.daemonRpc.setAccount(accountToken);
-      consumePromise(this.autoConnect());
+
+      // Fallback if daemon doesn't send event.
+      if (this.autoConnectOnWireguardKeyEvent) {
+        this.autoConnectFallbackScheduler.schedule(
+          () => this.wireguardKeygenEventAutoConnect(),
+          AUTO_CONNECT_FALLBACK_DELAY,
+        );
+      }
     } catch (error) {
       log.error(`Failed to login: ${error.message}`);
+
+      this.autoConnectOnWireguardKeyEvent = false;
 
       if (error instanceof InvalidAccountError) {
         throw Error(messages.gettext('Invalid account number'));
       } else {
         throw error;
       }
+    }
+  }
+
+  private wireguardKeygenEventAutoConnect() {
+    if (this.autoConnectOnWireguardKeyEvent) {
+      this.autoConnectOnWireguardKeyEvent = false;
+      this.autoConnectFallbackScheduler.cancel();
+      consumePromise(this.autoConnect());
     }
   }
 
@@ -1136,6 +1167,8 @@ class ApplicationMain {
         global.clearTimeout(this.accountExpiryNotificationTimeout);
         this.accountExpiryNotificationTimeout = undefined;
       }
+
+      this.autoConnectFallbackScheduler.cancel();
     } catch (error) {
       log.info(`Failed to logout: ${error.message}`);
 
