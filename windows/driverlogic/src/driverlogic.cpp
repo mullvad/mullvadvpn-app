@@ -244,16 +244,14 @@ bool TryGetRegistryValueTimeout(
 	DWORD *dataSize
 )
 {
-	HANDLE changeEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
-
-	if (nullptr == changeEvent)
-	{
-		THROW_WINDOWS_ERROR(GetLastError(), "CreateEventW");
-	}
+	HANDLE changeEvent = nullptr;
 
 	common::memory::ScopeDestructor scopeDestructor;
 	scopeDestructor += [changeEvent]() {
-		CloseHandle(changeEvent);
+		if (nullptr != changeEvent)
+		{
+			CloseHandle(changeEvent);
+		}
 	};
 
 	auto initialTime = std::chrono::steady_clock::now();
@@ -271,6 +269,16 @@ bool TryGetRegistryValueTimeout(
 		if (ERROR_FILE_NOT_FOUND != status)
 		{
 			THROW_WINDOWS_ERROR(status, "RegGetValueW");
+		}
+
+		if (nullptr == changeEvent)
+		{
+			changeEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
+
+			if (nullptr == changeEvent)
+			{
+				THROW_WINDOWS_ERROR(GetLastError(), "CreateEventW");
+			}
 		}
 
 		//
