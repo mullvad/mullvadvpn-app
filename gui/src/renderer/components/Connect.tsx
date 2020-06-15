@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component, Styles, View } from 'reactxp';
 import styled from 'styled-components';
-import AccountExpiry from '../../shared/account-expiry';
+import { hasExpired } from '../../shared/account-expiry';
 import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
 import NotificationArea from '../components/NotificationArea';
 import { AuthFailureKind, parseAuthFailure } from '../../shared/auth-failure';
@@ -17,7 +17,7 @@ import TunnelControl from './TunnelControl';
 interface IProps {
   connection: IConnectionReduxState;
   loginState: LoginState;
-  accountExpiry?: AccountExpiry;
+  accountExpiry?: string;
   blockWhenDisconnected: boolean;
   selectedRelayName: string;
   onSettings: () => void;
@@ -135,7 +135,7 @@ export default class Connect extends Component<IProps, IState> {
 
     // Use the account expiry to deduce the account state
     if (this.props.accountExpiry) {
-      return this.props.accountExpiry.hasExpired();
+      return hasExpired(this.props.accountExpiry);
     }
 
     // Do not assume that the account hasn't expired if the expiry is not available at the moment

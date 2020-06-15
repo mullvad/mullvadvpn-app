@@ -4,7 +4,7 @@ import log from 'electron-log';
 import mkdirp from 'mkdirp';
 import * as path from 'path';
 import * as uuid from 'uuid';
-import AccountExpiry from '../shared/account-expiry';
+import { hasExpired } from '../shared/account-expiry';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import {
   AccountToken,
@@ -1147,10 +1147,7 @@ class ApplicationMain {
   }
 
   private async autoConnect() {
-    if (
-      !this.accountData ||
-      !new AccountExpiry(this.accountData.expiry, this.locale).hasExpired()
-    ) {
+    if (!this.accountData || !hasExpired(this.accountData.expiry)) {
       try {
         log.info('Auto-connecting the tunnel');
         await this.daemonRpc.connectTunnel();
@@ -1221,9 +1218,9 @@ class ApplicationMain {
 
   private notifyOfAccountExpiry() {
     if (this.accountData) {
-      const accountExpiry = new AccountExpiry(this.accountData.expiry, this.locale);
       const notificationProvider = new AccountExpiryNotificationProvider({
-        accountExpiry,
+        accountExpiry: this.accountData.expiry,
+        locale: this.locale,
         tooSoon: this.accountExpiryNotificationTimeout !== undefined,
       });
       if (notificationProvider.mayDisplay()) {
