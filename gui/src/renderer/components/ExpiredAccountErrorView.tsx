@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
-import AccountExpiry from '../../shared/account-expiry';
+import { hasExpired } from '../../shared/account-expiry';
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { LoginState } from '../redux/account/reducers';
@@ -29,7 +29,7 @@ interface IExpiredAccountErrorViewProps {
   isBlocked: boolean;
   blockWhenDisconnected: boolean;
   accountToken?: AccountToken;
-  accountExpiry?: AccountExpiry;
+  accountExpiry?: string;
   loginState: LoginState;
   hideWelcomeView: () => void;
   onExternalLinkWithAuth: (url: string) => Promise<void>;
@@ -52,7 +52,7 @@ export default class ExpiredAccountErrorView extends Component<
   };
 
   public componentDidUpdate() {
-    if (this.props.accountExpiry && !this.props.accountExpiry.hasExpired()) {
+    if (this.props.accountExpiry && !hasExpired(this.props.accountExpiry)) {
       this.props.hideWelcomeView();
     }
   }

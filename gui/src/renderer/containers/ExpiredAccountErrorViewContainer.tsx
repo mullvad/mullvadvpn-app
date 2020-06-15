@@ -1,7 +1,6 @@
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import AccountExpiry from '../../shared/account-expiry';
 import ExpiredAccountErrorView from '../components/ExpiredAccountErrorView';
 import accountActions from '../redux/account/actions';
 
@@ -10,9 +9,7 @@ import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => ({
   accountToken: state.account.accountToken,
-  accountExpiry: state.account.expiry
-    ? new AccountExpiry(state.account.expiry, state.userInterface.locale)
-    : undefined,
+  accountExpiry: state.account.expiry,
   loginState: state.account.status,
   isBlocked: state.connection.isBlocked,
   blockWhenDisconnected: state.settings.blockWhenDisconnected,

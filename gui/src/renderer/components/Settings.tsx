@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component, Text, View } from 'reactxp';
 import { colors, links } from '../../config.json';
-import AccountExpiry from '../../shared/account-expiry';
+import { AccountExpiryFormatter, hasExpired } from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
@@ -103,9 +103,9 @@ export default class Settings extends Component<IProps> {
     }
 
     const expiry = this.props.accountExpiry
-      ? new AccountExpiry(this.props.accountExpiry, this.props.expiryLocale)
+      ? new AccountExpiryFormatter(this.props.accountExpiry, this.props.expiryLocale)
       : null;
-    const isOutOfTime = expiry ? expiry.hasExpired() : false;
+    const isOutOfTime = this.props.accountExpiry ? hasExpired(this.props.accountExpiry) : false;
     const formattedExpiry = expiry ? expiry.remainingTime().toUpperCase() : '';
 
     const outOfTimeMessage = messages.pgettext('settings-view', 'OUT OF TIME');
