@@ -44,7 +44,7 @@ export default function NotificationArea(props: IProps) {
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
     new BlockWhenDisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
-    new ErrorNotificationProvider(tunnelState),
+    new ErrorNotificationProvider({ tunnelState, accountExpiry }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),
     new UpdateAvailableNotificationProvider(version),

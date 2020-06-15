@@ -1,4 +1,6 @@
-import { parseAuthFailure } from '../auth-failure';
+import { sprintf } from 'sprintf-js';
+import { hasExpired } from '../account-expiry';
+import { AuthFailureKind, parseAuthFailure } from '../auth-failure';
 import { IErrorState, TunnelState, TunnelParameterError } from '../daemon-rpc-types';
 import { messages } from '../gettext';
 import {
@@ -7,37 +9,61 @@ import {
   SystemNotificationProvider,
 } from './notification';
 
+interface ErrorNotificationContext {
+  tunnelState: TunnelState;
+  accountExpiry?: string;
+}
+
 export class ErrorNotificationProvider
   implements SystemNotificationProvider, InAppNotificationProvider {
-  public constructor(private context: TunnelState) {}
+  public constructor(private context: ErrorNotificationContext) {}
 
-  public mayDisplay = () => this.context.state === 'error';
+  public mayDisplay = () => this.context.tunnelState.state === 'error';
 
   public getSystemNotification() {
-    return this.context.state === 'error'
+    return this.context.tunnelState.state === 'error'
       ? {
-          message: getSystemNotificationMessage(this.context),
-          critical: !this.context.details.isBlocking,
+          message: getSystemNotificationMessage(
+            this.context.tunnelState,
+            this.context.accountExpiry,
+          ),
+          critical: !this.context.tunnelState.details.isBlocking,
         }
       : undefined;
   }
 
   public getInAppNotification(): InAppNotification | undefined {
-    return this.context.state === 'error'
+    return this.context.tunnelState.state === 'error'
       ? {
           indicator: 'error',
-          title: this.context.details.isBlocking
+          title: this.context.tunnelState.details.isBlocking
             ? messages.pgettext('in-app-notifications', 'BLOCKING INTERNET')
             : messages.pgettext('in-app-notifications', 'YOU MIGHT BE LEAKING NETWORK TRAFFIC'),
-          subtitle: getInAppNotificationSubtitle(this.context),
+          subtitle: getInAppNotificationSubtitle(this.context.tunnelState),
         }
       : undefined;
   }
 }
 
-function getSystemNotificationMessage(tunnelState: { state: 'error'; details: IErrorState }) {
+function getSystemNotificationMessage(
+  tunnelState: { state: 'error'; details: IErrorState },
+  accountExpiry?: string,
+) {
   if (!tunnelState.details.isBlocking) {
     return messages.pgettext('notifications', 'Critical error (your attention is required)');
+  } else if (
+    (tunnelState.details.cause.reason === 'auth_failed' &&
+      parseAuthFailure(tunnelState.details.cause.details).kind ===
+        AuthFailureKind.expiredAccount) ||
+    (accountExpiry && hasExpired(accountExpiry))
+  ) {
+    return sprintf('%(blocking)s %(message)s', {
+      blocking: messages.pgettext('notifications', 'Blocking internet:'),
+      message: messages.pgettext(
+        'notifications',
+        'You have no more VPN time left on this account.',
+      ),
+    });
   } else if (
     tunnelState.details.cause.reason === 'tunnel_parameter_error' &&
     tunnelState.details.cause.details === 'no_wireguard_key'
