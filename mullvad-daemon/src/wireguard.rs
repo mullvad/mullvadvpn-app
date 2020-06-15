@@ -112,7 +112,7 @@ impl KeyManager {
         self.reset();
         let private_key = PrivateKey::new_from_random();
 
-        self.run_future_sync(self.push_future_generator(account, private_key)())
+        self.run_future_sync(self.push_future_generator(account, private_key, None)())
             .map_err(Self::map_rpc_error)
     }
 
@@ -168,38 +168,60 @@ impl KeyManager {
 
 
     /// Generate a new private key asynchronously. The new keys will be sent to the daemon channel.
-    pub fn generate_key_async(&mut self, account: AccountToken) -> Result<()> {
+    pub fn generate_key_async(
+        &mut self,
+        account: AccountToken,
+        timeout: Option<Duration>,
+    ) -> Result<()> {
         self.reset();
         let private_key = PrivateKey::new_from_random();
-        let future_generator = self.push_future_generator(account.clone(), private_key);
+
+        let error_tx = self.daemon_tx.clone();
+        let error_account = account.clone();
+
+        let mut inner_future_generator =
+            self.push_future_generator(account.clone(), private_key, timeout);
+
+        let future_generator = move || {
+            let fut = inner_future_generator();
+            let error_tx = error_tx.clone();
+            let error_account = error_account.clone();
+            fut.map_err(move |err| {
+                let should_retry = match &err {
+                    RestError::ApiError(_status, code)
+                        if code == mullvad_rpc::KEY_LIMIT_REACHED =>
+                    {
+                        false
+                    }
+                    _ => true,
+                };
+
+                let _ = error_tx.send(InternalDaemonEvent::WgKeyEvent((
+                    error_account,
+                    Err(Self::map_rpc_error(err)),
+                )));
+
+                should_retry
+            })
+        };
+
 
         let retry_strategy = ExponentialBackoff::from_millis(300)
             .max_delay(Duration::from_secs(60 * 60))
             .map(jitter);
 
-        let should_retry = |err: &RestError| -> bool {
-            match err {
-                RestError::ApiError(_status, code) if code == mullvad_rpc::KEY_LIMIT_REACHED => {
-                    false
-                }
-                _ => true,
-            }
-        };
 
         let upload_future =
-            RetryIf::spawn(retry_strategy, future_generator, should_retry).map_err(move |err| {
+            RetryIf::spawn(retry_strategy, future_generator, |should_retry: &bool| {
+                *should_retry
+            })
+            .map_err(move |err| {
                 match err {
                     // This should really be unreachable, since the retry strategy is infinite.
-                    tokio_retry::Error::OperationError(e) => {
-                        log::error!(
-                            "{}",
-                            e.display_chain_with_msg("Failed to generate wireguard key:")
-                        );
-                        Self::map_rpc_error(e)
-                    }
+                    tokio_retry::Error::OperationError(_) => {}
                     tokio_retry::Error::TimerError(timer_error) => {
                         log::error!("Tokio timer error {}", timer_error);
-                        Error::ExectuionError
+                        ()
                     }
                 }
             });
@@ -215,9 +237,7 @@ impl KeyManager {
                         Ok(wireguard_data),
                     )));
                 }
-                Err(CancelErr::Inner(e)) => {
-                    let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((account, Err(e))));
-                }
+                Err(CancelErr::Inner(_)) => {}
                 Err(CancelErr::Cancelled) => {
                     log::error!("Key generation cancelled");
                 }
@@ -240,6 +260,7 @@ impl KeyManager {
         &self,
         account: AccountToken,
         private_key: PrivateKey,
+        timeout: Option<Duration>,
     ) -> Box<dyn FnMut() -> Box<dyn Future<Item = WireguardData, Error = RestError> + Send> + Send>
     {
         let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
@@ -248,16 +269,18 @@ impl KeyManager {
         let push_future =
             move || -> Box<dyn Future<Item = WireguardData, Error = RestError> + Send> {
                 let key = private_key.clone();
-                Box::new(rpc.push_wg_key(account.clone(), public_key.clone()).map(
-                    move |addresses| WireguardData {
-                        private_key: key,
-                        addresses,
-                        created: Utc::now(),
-                    },
-                ))
+                Box::new(
+                    rpc.push_wg_key(account.clone(), public_key.clone(), timeout)
+                        .map(move |addresses| WireguardData {
+                            private_key: key,
+                            addresses,
+                            created: Utc::now(),
+                        }),
+                )
             };
         Box::new(push_future)
     }
+
 
     fn replace_key_rpc(
         http_handle: MullvadRestHandle,
