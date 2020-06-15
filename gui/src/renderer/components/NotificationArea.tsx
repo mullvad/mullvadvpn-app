@@ -4,7 +4,7 @@ import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Types } from 'reactxp';
 import {
-  AccountExpiryNotificationProvider,
+  CloseToAccountExpiryNotificationProvider,
   BlockWhenDisconnectedNotificationProvider,
   ConnectingNotificationProvider,
   ErrorNotificationProvider,
@@ -51,7 +51,9 @@ export default function NotificationArea(props: IProps) {
   ];
 
   if (accountExpiry) {
-    notificationProviders.push(new AccountExpiryNotificationProvider({ accountExpiry, locale }));
+    notificationProviders.push(
+      new CloseToAccountExpiryNotificationProvider({ accountExpiry, locale }),
+    );
   }
 
   const notificationProvider = notificationProviders.find((notification) =>

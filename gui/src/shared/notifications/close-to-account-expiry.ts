@@ -2,7 +2,7 @@ import moment from 'moment';
 import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import { hasExpired, formatRemainingTime } from '../account-expiry';
+import { formatDurationUntilExpiry, formatRemainingTime, hasExpired } from '../account-expiry';
 import {
   InAppNotification,
   InAppNotificationProvider,
@@ -10,15 +10,15 @@ import {
   SystemNotificationProvider,
 } from './notification';
 
-interface AccountExpiryContext {
+interface CloseToAccountExpiryNotificationContext {
   accountExpiry: string;
   locale: string;
   tooSoon?: boolean;
 }
 
-export class AccountExpiryNotificationProvider
+export class CloseToAccountExpiryNotificationProvider
   implements InAppNotificationProvider, SystemNotificationProvider {
-  public constructor(private context: AccountExpiryContext) {}
+  public constructor(private context: CloseToAccountExpiryNotificationContext) {}
 
   public mayDisplay() {
     const willHaveExpiredInThreeDays = moment(this.context.accountExpiry).isSameOrBefore(
@@ -37,7 +37,7 @@ export class AccountExpiryNotificationProvider
       // TRANSLATORS: %(duration)s - remaining time, e.g. "2 days"
       messages.pgettext('notifications', 'Account credit expires in %(duration)s'),
       {
-        duration: formatRemainingTime(this.context.accountExpiry, this.context.locale),
+        duration: formatDurationUntilExpiry(this.context.accountExpiry, this.context.locale),
       },
     );
 
