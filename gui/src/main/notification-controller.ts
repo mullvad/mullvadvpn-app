@@ -47,14 +47,18 @@ export default class NotificationController {
     }
   }
 
-  public notifyTunnelState(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
+  public notifyTunnelState(
+    tunnelState: TunnelState,
+    blockWhenDisconnected: boolean,
+    accountExpiry?: string,
+  ) {
     const notificationProviders: SystemNotificationProvider[] = [
       new ConnectingNotificationProvider({ tunnelState, reconnecting: this.reconnecting }),
       new ConnectedNotificationProvider(tunnelState),
       new ReconnectingNotificationProvider(tunnelState),
       new BlockWhenDisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
       new DisconnectedNotificationProvider(tunnelState),
-      new ErrorNotificationProvider(tunnelState),
+      new ErrorNotificationProvider({ tunnelState, accountExpiry }),
     ];
 
     const notificationProvider = notificationProviders.find((notification) =>
