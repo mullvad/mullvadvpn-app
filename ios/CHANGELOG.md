@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.3] - 2020-06-12
 ### Added
 - Add automatic key rotation every 4 days.
 
