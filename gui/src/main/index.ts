@@ -623,7 +623,11 @@ class ApplicationMain {
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
     consumePromise(this.updateLocation());
 
-    this.notificationController.notifyTunnelState(newState, this.settings.blockWhenDisconnected);
+    this.notificationController.notifyTunnelState(
+      newState,
+      this.settings.blockWhenDisconnected,
+      this.accountData?.expiry,
+    );
 
     if (this.windowController) {
       IpcMainEventChannel.tunnel.notify(this.windowController.webContents, newState);
