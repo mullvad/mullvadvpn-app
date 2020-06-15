@@ -49,6 +49,8 @@ Line wrap the file at 100 chars.                                              Th
   Linux and macOS.
 - Fix missing in app notification about unsupported version.
 - Prevent auto-connect on login if the account is out of time.
+- Fix race that caused WireGuard key upload to fail which could cause the "too many keys" error and
+  the tunnel to invalidly fall back to OpenVPN.
 
 #### Android
 - Fix crash when that happened sometimes when the app tried to start the daemon service on recent
