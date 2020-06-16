@@ -16,6 +16,7 @@ name = "mullvad"
 path = "src/main.rs"
 
 [dependencies]
+async-trait = "0.1"
 base64 = "0.10"
 chrono = { version = "0.4", features = ["serde"] }
 clap = "2.32"
@@ -30,6 +31,18 @@ mullvad-types = { path = "../mullvad-types" }
 mullvad-paths = { path = "../mullvad-paths" }
 talpid-types = { path = "../talpid-types" }
 talpid-ipc = { path = "../talpid-ipc" }
+
+tonic = "0.2"
+tower = "0.3"
+prost = "0.6"
+prost-types = "0.6"
+futures03 = { package = "futures", version = "0.3", features = [ "compat" ]}
+tokio = { version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream"] }
+
+parity-tokio-ipc = "0.7"
+
+[build-dependencies]
+tonic-build = { version = "0.2", default-features = false, features = ["transport", "prost"] }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"

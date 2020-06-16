@@ -2,6 +2,7 @@ use crate::{new_rpc_client, Command, Result};
 
 pub struct Version;
 
+#[async_trait::async_trait]
 impl Command for Version {
     fn name(&self) -> &'static str {
         "version"
@@ -12,7 +13,7 @@ impl Command for Version {
             .about("Shows current version, and the currently supported versions")
     }
 
-    fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_rpc_client()?;
         let current_version = rpc.get_current_version()?;
         println!("Current version: {}", current_version);

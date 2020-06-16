@@ -43,6 +43,18 @@ talpid-core = { path = "../talpid-core" }
 talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 
+tonic = "0.2"
+tower = "0.3"
+prost = "0.6"
+prost-types = "0.6"
+
+parity-tokio-ipc = "0.7"
+
+triggered = "0.1.1"
+
+[build-dependencies]
+tonic-build = { version = "0.2", default-features = false, features = ["transport", "prost"] }
+
 [target.'cfg(target_os="android")'.dependencies]
 android_logger = "0.8"
 

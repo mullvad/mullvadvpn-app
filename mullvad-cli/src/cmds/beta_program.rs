@@ -3,6 +3,7 @@ use clap::value_t_or_exit;
 
 pub struct BetaProgram;
 
+#[async_trait::async_trait]
 impl Command for BetaProgram {
     fn name(&self) -> &'static str {
         "beta-program"
@@ -24,7 +25,7 @@ impl Command for BetaProgram {
             .subcommand(clap::SubCommand::with_name("get").about("Get beta notifications setting"))
     }
 
-    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("get", Some(_)) => {
                 let mut rpc = new_rpc_client()?;

@@ -6,6 +6,7 @@ use talpid_types::tunnel::{ErrorState, ErrorStateCause};
 
 pub struct Status;
 
+#[async_trait::async_trait]
 impl Command for Status {
     fn name(&self) -> &'static str {
         "status"
@@ -31,7 +32,7 @@ impl Command for Status {
             )
     }
 
-    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_rpc_client()?;
         let state = rpc.get_state()?;
 
