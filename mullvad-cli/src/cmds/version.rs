@@ -19,22 +19,20 @@ impl Command for Version {
         let version_info = rpc.get_version_info()?;
         println!("\tIs supported: {}", version_info.supported);
 
-        let settings = rpc.get_settings()?;
-        let is_updated = if settings.show_beta_releases {
-            version_info.latest == current_version
-        } else {
-            version_info.latest_stable == current_version
-        };
-        println!("\tIs up to date: {}", is_updated);
-
-        if version_info.latest_stable != version_info.latest {
-            println!(
-                "Latest version: {} (latest stable: {})",
-                version_info.latest, version_info.latest_stable
-            );
-        } else {
-            println!("Latest version: {}", version_info.latest_stable);
+        match version_info.suggested_upgrade {
+            Some(version) => println!("\tSuggested update: {}", version),
+            None => println!("\tNo newer version is available"),
         }
+
+        if !version_info.latest_stable.is_empty() {
+            println!("\tLatest stable version: {}", version_info.latest_stable);
+        }
+
+        let settings = rpc.get_settings()?;
+        if settings.show_beta_releases {
+            println!("\t Latest beta version: {}", version_info.latest_beta);
+        };
+
         Ok(())
     }
 }
