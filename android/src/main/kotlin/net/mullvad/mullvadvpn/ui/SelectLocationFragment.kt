@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayItemDividerDecoration
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
+import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var relayListAdapter: RelayListAdapter
@@ -77,7 +78,7 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
     private fun configureRelayList(relayList: RecyclerView) {
         relayList.apply {
             layoutManager = LinearLayoutManager(context!!)
-            adapter = relayListAdapter
+            adapter = AdapterWithHeader(relayListAdapter, R.layout.select_location_header)
 
             addItemDecoration(RelayItemDividerDecoration(context!!))
         }
