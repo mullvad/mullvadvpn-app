@@ -1,5 +1,6 @@
 #![deny(rust_2018_idioms)]
 
+use async_trait::async_trait;
 use clap::{crate_authors, crate_description};
 use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
 use std::{collections::HashMap, io};
@@ -13,6 +14,19 @@ pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/produc
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+mod proto {
+    tonic::include_proto!("mullvad_daemon.management_interface");
+}
+use proto::management_service_client::ManagementServiceClient;
+
+use parity_tokio_ipc::Endpoint as IpcEndpoint;
+use tower::service_fn;
+use tonic::{
+    self,
+    transport::{Endpoint, Uri},
+};
+use tokio;
+
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to connect to daemon")]
@@ -24,9 +38,31 @@ pub enum Error {
     #[error(display = "Failed to communicate with mullvad-daemon over RPC")]
     RpcClientError(#[error(source)] mullvad_ipc_client::Error),
 
+    #[error(display = "Failed to connect to mullvad-daemon over RPC")]
+    GrpcClientSetup(#[error(source)] tonic::transport::Error),
+
+    #[error(display = "Failed to communicate with mullvad-daemon over RPC")]
+    GrpcClientError(#[error(source)] tonic::Status),
+
     /// The given command is not correct in some way
     #[error(display = "Invalid command: {}", _0)]
     InvalidCommand(&'static str),
+}
+
+pub async fn new_grpc_client() -> Result<ManagementServiceClient<tonic::transport::Channel>> {
+    // FIXME
+    let ipc_path = "//./pipe/Mullvad VPNQWE";
+    let ipc_path = std::path::PathBuf::from("/var/run/mullvad-vpnQWE");
+
+    // The URI will be ignored
+    let channel = Endpoint::from_static("lttp://[::]:50051")
+        .connect_with_connector(service_fn(move |_: Uri| {
+            IpcEndpoint::connect(ipc_path.clone())
+        }))
+        .await
+        .map_err(Error::GrpcClientSetup)?;
+
+    Ok(ManagementServiceClient::new(channel))
 }
 
 pub fn new_rpc_client() -> Result<DaemonRpcClient> {
@@ -36,8 +72,9 @@ pub fn new_rpc_client() -> Result<DaemonRpcClient> {
     }
 }
 
-fn main() {
-    let exit_code = match run() {
+#[tokio::main]
+async fn main() {
+    let exit_code = match run().await {
         Ok(_) => 0,
         Err(error) => {
             eprintln!("{}", error.display_chain());
@@ -47,7 +84,7 @@ fn main() {
     std::process::exit(exit_code);
 }
 
-fn run() -> Result<()> {
+async fn run() -> Result<()> {
     env_logger::init();
 
     let commands = cmds::get_commands();
@@ -85,7 +122,7 @@ fn run() -> Result<()> {
         }
         (sub_name, Some(sub_matches)) => {
             if let Some(cmd) = commands.get(sub_name) {
-                cmd.run(sub_matches)
+                cmd.run(sub_matches).await
             } else {
                 unreachable!("No command matched");
             }
@@ -109,10 +146,11 @@ fn build_cli(commands: &HashMap<&'static str, Box<dyn Command>>) -> clap::App<'s
         .subcommands(commands.values().map(|cmd| cmd.clap_subcommand()))
 }
 
+#[async_trait]
 pub trait Command {
     fn name(&self) -> &'static str;
 
     fn clap_subcommand(&self) -> clap::App<'static, 'static>;
 
-    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()>;
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()>;
 }
