@@ -232,4 +232,33 @@ describe('IAccountData cache', () => {
       expect(fetchSpy).to.have.been.called.once;
     });
   });
+
+  it('should refetch one minute before expiry', async () => {
+    const date = new Date();
+    date.setMinutes(date.getMinutes() + 3);
+    const expiry = date.toISOString();
+
+    const update = new Promise((resolve, reject) => {
+      let firstAttempt = true;
+      const fetch = () => {
+        if (firstAttempt) {
+          firstAttempt = false;
+          setTimeout(() => clock.tick(120_000), 0);
+          return Promise.resolve({ expiry });
+        } else {
+          resolve();
+          return Promise.resolve({ expiry });
+        }
+      };
+
+      const cache = new AccountDataCache(fetch, () => {});
+
+      cache.fetch(dummyAccountToken, {
+        onFinish: () => {},
+        onError: (_error: Error) => reject(),
+      });
+    });
+
+    return expect(update).to.eventually.be.fulfilled;
+  });
 });
