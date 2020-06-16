@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.5-beta2] - 2020-06-16
 ### Added
 #### Android
 - Add buttons to buy credit and redeem voucher in Account screen.
