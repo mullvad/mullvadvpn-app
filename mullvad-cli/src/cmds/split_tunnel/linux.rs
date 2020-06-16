@@ -3,6 +3,7 @@ use clap::value_t_or_exit;
 
 pub struct SplitTunnel;
 
+#[async_trait::async_trait]
 impl Command for SplitTunnel {
     fn name(&self) -> &'static str {
         "split-tunnel"
@@ -15,7 +16,7 @@ impl Command for SplitTunnel {
             .subcommand(create_pid_subcommand())
     }
 
-    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("pid", Some(pid_matches)) => Self::handle_pid_cmd(pid_matches),
             _ => unreachable!("unhandled comand"),

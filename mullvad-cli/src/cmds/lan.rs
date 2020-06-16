@@ -3,6 +3,7 @@ use clap::value_t_or_exit;
 
 pub struct Lan;
 
+#[async_trait::async_trait]
 impl Command for Lan {
     fn name(&self) -> &'static str {
         "lan"
@@ -27,7 +28,7 @@ impl Command for Lan {
             )
     }
 
-    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             let allow_lan = value_t_or_exit!(set_matches.value_of("policy"), String);
             self.set(allow_lan == "allow")

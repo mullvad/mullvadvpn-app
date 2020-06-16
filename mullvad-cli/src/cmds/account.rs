@@ -4,6 +4,7 @@ use mullvad_types::account::{AccountToken, VoucherError};
 
 pub struct Account;
 
+#[async_trait::async_trait]
 impl Command for Account {
     fn name(&self) -> &'static str {
         "account"
@@ -49,7 +50,7 @@ impl Command for Account {
             )
     }
 
-    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             let token = value_t_or_exit!(set_matches.value_of("token"), String);
             self.set(Some(token))
