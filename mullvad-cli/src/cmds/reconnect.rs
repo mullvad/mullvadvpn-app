@@ -1,8 +1,9 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{new_grpc_client, Command, Result};
 use talpid_types::ErrorExt;
 
 pub struct Reconnect;
 
+#[async_trait::async_trait]
 impl Command for Reconnect {
     fn name(&self) -> &'static str {
         "reconnect"
@@ -12,9 +13,9 @@ impl Command for Reconnect {
         clap::SubCommand::with_name(self.name()).about("Command the client to reconnect")
     }
 
-    fn run(&self, _matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let mut rpc = new_rpc_client()?;
-        if let Err(e) = rpc.reconnect() {
+    async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
+        let mut rpc = new_grpc_client().await?;
+        if let Err(e) = rpc.reconnect(()).await {
             eprintln!("{}", e.display_chain());
         }
         Ok(())

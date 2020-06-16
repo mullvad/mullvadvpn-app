@@ -22,6 +22,17 @@ pub type Result<T> = std::result::Result<T, jsonrpc_client_core::Error>;
 pub use jsonrpc_client_core::{Error, ErrorKind};
 pub use jsonrpc_client_pubsub::Error as PubSubError;
 
+mod proto {
+    tonic::include_proto!("mullvad_daemon.management_interface");
+}
+use proto::management_service_client::ManagementServiceClient;
+use parity_tokio_ipc::Endpoint as IpcEndpoint;
+use tower::service_fn;
+use tonic::{
+    self,
+    transport::{Endpoint, Uri},
+};
+
 pub fn new_standalone_ipc_client(path: &impl AsRef<Path>) -> io::Result<DaemonRpcClient> {
     let path = path.as_ref().to_string_lossy().to_string();
 
@@ -60,11 +71,39 @@ pub fn new_standalone_transport<
         .map(|(rpc_client, server_handle, executor)| {
             let subscriber =
                 jsonrpc_client_pubsub::Subscriber::new(executor, rpc_client.clone(), server_handle);
+
+            // FIXME: spawning gRPC client here, temporarily
+            let mut runtime = tokio02::runtime::Builder::new()
+                .basic_scheduler()
+                .core_threads(1)
+                .enable_all()
+                .build()
+                .expect("FIXME: failed to create runtime");
+
+            // FIXME: don't unwrap
+            let grpc_client = runtime.block_on(spawn_grpc_client()).unwrap();
+
             DaemonRpcClient {
+                runtime,
+                grpc_client,
                 rpc_client,
                 subscriber,
             }
         })
+}
+
+async fn spawn_grpc_client() -> std::result::Result<ManagementServiceClient<tonic::transport::Channel>, tonic::transport::Error> {
+    // FIXME
+    //let ipc_path = "//./pipe/Mullvad VPNQWE";
+    let ipc_path = std::path::PathBuf::from("/var/run/mullvad-vpnQWE");
+
+    let channel = Endpoint::from_static("lttp://[::]:50051")
+        .connect_with_connector(service_fn(move |_: Uri| {
+            IpcEndpoint::connect(ipc_path.clone())
+        }))
+        .await?;
+
+    Ok(ManagementServiceClient::new(channel))
 }
 
 fn spawn_transport<
@@ -85,6 +124,8 @@ fn spawn_transport<
 }
 
 pub struct DaemonRpcClient {
+    runtime: tokio02::runtime::Runtime,
+    grpc_client: ManagementServiceClient<tonic::transport::Channel>,
     rpc_client: jsonrpc_client_core::ClientHandle,
     subscriber: jsonrpc_client_pubsub::Subscriber<tokio::runtime::current_thread::Handle>,
 }
@@ -92,11 +133,23 @@ pub struct DaemonRpcClient {
 
 impl DaemonRpcClient {
     pub fn connect(&mut self) -> Result<()> {
-        self.call("connect", &NO_ARGS)
+        if let Err(e) = self.runtime.block_on(self.grpc_client.connect_daemon(())) {
+            // TODO: Fix return type
+            log::error!("command failed: {}", e);
+            return Err(jsonrpc_client_core::ErrorKind::TransportError.into());
+        }
+        Ok(())
+        //self.call("connect", &NO_ARGS)
     }
 
     pub fn disconnect(&mut self) -> Result<()> {
-        self.call("disconnect", &NO_ARGS)
+        if let Err(e) = self.runtime.block_on(self.grpc_client.disconnect_daemon(())) {
+            // TODO: Fix return type
+            log::error!("command failed: {}", e);
+            return Err(jsonrpc_client_core::ErrorKind::TransportError.into());
+        }
+        Ok(())
+        //self.call("disconnect", &NO_ARGS)
     }
 
     pub fn reconnect(&mut self) -> Result<()> {
@@ -188,7 +241,22 @@ impl DaemonRpcClient {
     }
 
     pub fn get_version_info(&mut self) -> Result<AppVersionInfo> {
-        self.call("get_version_info", &NO_ARGS)
+        match self.runtime.block_on(self.grpc_client.get_version_info(())) {
+            Ok(response) => {
+                let info = response.into_inner();
+                Ok(AppVersionInfo {
+                    supported: info.supported,
+                    latest_stable: info.latest_stable,
+                    latest_beta: info.latest_beta,
+                    suggested_upgrade: Some(info.suggested_upgrade),
+                })
+            }
+            Err(e) => {
+                // TODO: Fix return type
+                log::error!("command failed: {}", e);
+                Err(jsonrpc_client_core::ErrorKind::TransportError.into())
+            }
+        }
     }
 
     pub fn set_account(&mut self, account: Option<AccountToken>) -> Result<()> {
