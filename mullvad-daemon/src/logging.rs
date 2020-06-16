@@ -25,6 +25,7 @@ pub enum Error {
 }
 
 pub const SILENCED_CRATES: &[&str] = &[
+    "h2",
     "jsonrpc_core",
     // jsonrpc_core does some logging under the "rpc" target as well.
     "rpc",
