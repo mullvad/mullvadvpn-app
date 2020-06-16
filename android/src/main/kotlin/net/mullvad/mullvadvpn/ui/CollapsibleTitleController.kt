@@ -5,13 +5,13 @@ import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup.MarginLayoutParams
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.ui.widget.ListenableScrollView
 import net.mullvad.mullvadvpn.util.LinearInterpolation
+import net.mullvad.mullvadvpn.util.ListenableScrollableView
 
 // In order to use this view controller, the parent view must contain four views with specific IDs:
 //
-// 1. A `ListenableScrollView` with the ID `scroll_area`, which is used to animate the title based
-//    on the scroll offset.
+// 1. A `View` with the ID `scroll_area` and that implements `ListenableScrollableView`, which is
+//    used to animate the title based on the scroll offset.
 // 2. A view inside the `scroll_area` with the ID `expanded_title`. This view is made invisible so
 //    that it's not drawn, but it is used to measure the layout and the animation positions.
 // 3. A view outside the `scroll_area` with the ID `collapsed_title`. This view is also made
@@ -104,16 +104,20 @@ class CollapsibleTitleController(val parentView: View) {
     }
 
     private val scrollAreaLayoutListener: LayoutListener = LayoutListener() {
-        scrollOffset = scrollArea.scrollY.toFloat()
+        scrollOffset = scrollArea.verticalScrollOffset.toFloat()
     }
 
-    private val scrollArea = parentView.findViewById<ListenableScrollView>(R.id.scroll_area).apply {
-        onScrollListener = { _, top, _, _ ->
+    private val scrollArea = parentView.findViewById<View>(R.id.scroll_area).let { view ->
+        val scrollableView = view as ListenableScrollableView
+
+        view.addOnLayoutChangeListener(scrollAreaLayoutListener)
+
+        scrollableView.onScrollListener = { _, top, _, _ ->
             scrollOffset = top.toFloat()
             update()
         }
 
-        addOnLayoutChangeListener(scrollAreaLayoutListener)
+        scrollableView
     }
 
     private var scrollOffsetUpdated = false
@@ -146,7 +150,7 @@ class CollapsibleTitleController(val parentView: View) {
 
     fun onDestroy() {
         scrollArea.onScrollListener = null
-        scrollArea.removeOnLayoutChangeListener(scrollAreaLayoutListener)
+        (scrollArea as View).removeOnLayoutChangeListener(scrollAreaLayoutListener)
 
         collapsedTitle.removeOnLayoutChangeListener(collapsedTitleLayoutListener)
         expandedTitle.removeOnLayoutChangeListener(expandedTitleLayoutListener)
