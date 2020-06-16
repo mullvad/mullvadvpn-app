@@ -337,6 +337,7 @@ impl WireguardKeyProxy {
         &mut self,
         account_token: AccountToken,
         public_key: wireguard::PublicKey,
+        timeout: Option<std::time::Duration>,
     ) -> impl Future01<Item = mullvad_types::wireguard::AssociatedAddresses, Error = rest::Error>
     {
         #[derive(serde::Serialize)]
@@ -347,17 +348,22 @@ impl WireguardKeyProxy {
         let service = self.handle.service.clone();
         let body = PublishRequest { pubkey: public_key };
 
-        let request = rest::post_request_with_json(
-            &self.handle.factory,
-            service,
-            &"/v1/wireguard-keys",
-            &body,
-            Some(account_token),
-            StatusCode::CREATED,
-        );
+        let request = self.handle.factory.post_json(&"/v1/wireguard-keys", &body);
+
+        let future = async move {
+            let mut request = request?;
+            if let Some(timeout) = timeout {
+                request.set_timeout(timeout);
+            }
+            request.set_auth(Some(account_token))?;
+            let response = service.request(request).await?;
+            rest::parse_rest_response(response, StatusCode::CREATED).await
+        };
+
+
         self.handle
             .service
-            .compat_spawn(async move { rest::deserialize_body(request.await?).await })
+            .compat_spawn(async move { rest::deserialize_body(future.await?).await })
     }
 
     pub fn replace_wg_key(

@@ -82,6 +82,9 @@ type BoxFuture<T, E> = Box<dyn Future<Item = T, Error = E> + Send>;
 
 const TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
+/// Timeout for first WireGuard key pushing
+const FIRST_KEY_PUSH_TIMEOUT: Duration = Duration::from_secs(5);
+
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -1643,7 +1646,10 @@ where
                 .unwrap_or(true)
             {
                 log::info!("Automatically generating new wireguard key for account");
-                if let Err(e) = self.wireguard_key_manager.generate_key_async(account) {
+                if let Err(e) = self
+                    .wireguard_key_manager
+                    .generate_key_async(account, Some(FIRST_KEY_PUSH_TIMEOUT))
+                {
                     log::error!(
                         "{}",
                         e.display_chain_with_msg("Failed to start generating wireguard key")
