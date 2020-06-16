@@ -15,11 +15,19 @@ path = "src/main.rs"
 clap = "2.32"
 env_logger = "0.7"
 err-derive = "0.2.1"
+prost = "0.6"
+prost-types = "0.6"
+tonic = "0.2"
+tower = "0.3"
+tokio = { version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream"] }
+parity-tokio-ipc = "0.7"
 
-mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-paths = { path = "../mullvad-paths" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
+
+[build-dependencies]
+tonic-build = { version = "0.2", default-features = false, features = ["transport", "prost"] }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"

@@ -1,4 +1,4 @@
-use mullvad_types::relay_constraints::{Constraint, LocationConstraint};
+use crate::proto::RelayLocation;
 
 pub fn get_subcommand() -> clap::App<'static, 'static> {
     clap::SubCommand::with_name("location")
@@ -22,30 +22,55 @@ pub fn get_subcommand() -> clap::App<'static, 'static> {
         )
 }
 
-pub fn get_constraint(matches: &clap::ArgMatches<'_>) -> Constraint<LocationConstraint> {
+pub fn get_constraint(matches: &clap::ArgMatches<'_>) -> RelayLocation {
     let country_original = matches.value_of("country").unwrap();
     let country = country_original.to_lowercase();
     let city = matches.value_of("city").map(str::to_lowercase);
     let hostname = matches.value_of("hostname").map(str::to_lowercase);
 
     match (country_original, city, hostname) {
-        ("any", None, None) => Constraint::Any,
+        ("any", None, None) => RelayLocation::default(),
         ("any", ..) => clap::Error::with_description(
             "City can't be given when selecting 'any' country",
             clap::ErrorKind::InvalidValue,
         )
         .exit(),
-        (_, None, None) => Constraint::Only(LocationConstraint::Country(country)),
-        (_, Some(city), None) => Constraint::Only(LocationConstraint::City(country, city)),
-        (_, Some(city), Some(hostname)) => {
-            Constraint::Only(LocationConstraint::Hostname(country, city, hostname))
-        }
+        (_, None, None) => RelayLocation {
+            country,
+            ..Default::default()
+        },
+        (_, Some(city), None) => RelayLocation {
+            country,
+            city,
+            ..Default::default()
+        },
+        (_, Some(city), Some(hostname)) => RelayLocation {
+            country,
+            city,
+            hostname,
+        },
         (..) => clap::Error::with_description(
             "Invalid country, city and hostname combination given",
             clap::ErrorKind::InvalidValue,
         )
         .exit(),
     }
+}
+
+pub fn format_location(location: Option<&RelayLocation>) -> String {
+    if let Some(location) = location {
+        if !location.hostname.is_empty() {
+            return format!(
+                "city {}, {}, hostname {}",
+                location.city, location.country, location.hostname
+            );
+        } else if !location.city.is_empty() {
+            return format!("city {}, {}", location.city, location.country);
+        } else if !location.country.is_empty() {
+            return format!("country {}", location.country);
+        }
+    }
+    "any location".to_string()
 }
 
 fn country_code_validator(code: String) -> std::result::Result<(), String> {
