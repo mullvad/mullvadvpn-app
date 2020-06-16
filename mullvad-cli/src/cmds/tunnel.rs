@@ -5,6 +5,7 @@ use mullvad_types::settings::TunnelOptions;
 
 pub struct Tunnel;
 
+#[async_trait::async_trait]
 impl Command for Tunnel {
     fn name(&self) -> &'static str {
         "tunnel"
@@ -19,7 +20,7 @@ impl Command for Tunnel {
             .subcommand(create_ipv6_subcommand())
     }
 
-    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("openvpn", Some(openvpn_matches)) => Self::handle_openvpn_cmd(openvpn_matches),
             ("wireguard", Some(wg_matches)) => Self::handle_wireguard_cmd(wg_matches),
