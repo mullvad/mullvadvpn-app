@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Show system notification when account has expired.
+
 #### Android
 - Show a system notification when the account time will soon run out.
 
