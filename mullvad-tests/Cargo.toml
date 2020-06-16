@@ -12,13 +12,11 @@ integration-tests = []
 
 [dependencies]
 duct = "0.13"
-mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-rpc = { path = "../mullvad-rpc" }
 mullvad-types = { path = "../mullvad-types" }
 notify = "4.0"
 openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde"] }
-talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 tempfile = "3.0"
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }

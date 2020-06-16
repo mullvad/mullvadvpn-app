@@ -1,8 +1,9 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{new_grpc_client, Command, Result};
 use clap::value_t_or_exit;
 
 pub struct SplitTunnel;
 
+#[async_trait::async_trait]
 impl Command for SplitTunnel {
     fn name(&self) -> &'static str {
         "split-tunnel"
@@ -15,9 +16,9 @@ impl Command for SplitTunnel {
             .subcommand(create_pid_subcommand())
     }
 
-    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
-            ("pid", Some(pid_matches)) => Self::handle_pid_cmd(pid_matches),
+            ("pid", Some(pid_matches)) => Self::handle_pid_cmd(pid_matches).await,
             _ => unreachable!("unhandled comand"),
         }
     }
@@ -38,27 +39,40 @@ fn create_pid_subcommand() -> clap::App<'static, 'static> {
 }
 
 impl SplitTunnel {
-    fn handle_pid_cmd(matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn handle_pid_cmd(matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("add", Some(matches)) => {
                 let pid = value_t_or_exit!(matches.value_of("pid"), i32);
-                new_rpc_client()?.add_split_tunnel_process(pid)?;
+                new_grpc_client()
+                    .await?
+                    .add_split_tunnel_process(pid)
+                    .await?;
                 Ok(())
             }
             ("delete", Some(matches)) => {
                 let pid = value_t_or_exit!(matches.value_of("pid"), i32);
-                new_rpc_client()?.remove_split_tunnel_process(pid)?;
+                new_grpc_client()
+                    .await?
+                    .remove_split_tunnel_process(pid)
+                    .await?;
                 Ok(())
             }
             ("clear", Some(_)) => {
-                new_rpc_client()?.clear_split_tunnel_processes()?;
+                new_grpc_client()
+                    .await?
+                    .clear_split_tunnel_processes(())
+                    .await?;
                 Ok(())
             }
             ("list", Some(_)) => {
-                let pids = new_rpc_client()?.get_split_tunnel_processes()?;
+                let mut pids_stream = new_grpc_client()
+                    .await?
+                    .get_split_tunnel_processes(())
+                    .await?
+                    .into_inner();
                 println!("Excluded PIDs:");
 
-                for pid in pids.iter() {
+                while let Some(pid) = pids_stream.message().await? {
                     println!("    {}", pid);
                 }
 

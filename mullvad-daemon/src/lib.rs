@@ -17,6 +17,8 @@ pub mod rpc_uniqueness_check;
 mod settings;
 pub mod version;
 mod version_check;
+#[cfg(target_os = "windows")]
+mod windows_permissions;
 
 use futures::future::{abortable, AbortHandle};
 use futures01::{
