@@ -19,6 +19,7 @@ use talpid_types::net::{
 
 pub struct Relay;
 
+#[async_trait::async_trait]
 impl Command for Relay {
     fn name(&self) -> &'static str {
         "relay"
@@ -155,7 +156,7 @@ impl Command for Relay {
             )
     }
 
-    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             self.set(set_matches)
         } else if matches.subcommand_matches("get").is_some() {

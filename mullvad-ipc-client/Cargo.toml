@@ -22,6 +22,18 @@ tokio-timer = "0.1"
 futures = "0.1"
 log = "0.4"
 
+# TODO: limit features etc.
+tonic = "0.2"
+tower = "0.3"
+prost = "0.6"
+prost-types = "0.6"
+futures03 = { package = "futures", version = "0.3", features = [ "compat" ]}
+tokio02 = { package = "tokio", version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream"] }
+parity-tokio-ipc = "0.7"
+
+
+[build-dependencies]
+tonic-build = { version = "0.2", default-features = false, features = ["transport", "prost"] }
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3.5", features = ["accctrl", "aclapi", "securitybaseapi", "winbase", "winerror", "winnt"] }

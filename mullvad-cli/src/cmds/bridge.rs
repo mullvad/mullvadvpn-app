@@ -8,6 +8,7 @@ use std::net::{IpAddr, SocketAddr};
 
 pub struct Bridge;
 
+#[async_trait::async_trait]
 impl Command for Bridge {
     fn name(&self) -> &'static str {
         "bridge"
@@ -24,7 +25,7 @@ impl Command for Bridge {
             .subcommand(clap::SubCommand::with_name("list").about("List bridge relays"))
     }
 
-    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("set", Some(set_matches)) => Self::handle_set(set_matches),
             ("get", _) => Self::handle_get(),
