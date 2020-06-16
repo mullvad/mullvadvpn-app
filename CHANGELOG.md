@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add Korean, Polish and Thai languages to the desktop app.
+- Show system notification when account has expired.
 
 #### Android
 - Show a system notification when the account time will soon run out.
