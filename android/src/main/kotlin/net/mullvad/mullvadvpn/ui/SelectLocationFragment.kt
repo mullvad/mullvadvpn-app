@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.ViewSwitcher
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.KeygenEvent
@@ -23,7 +22,6 @@ import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var relayListAdapter: RelayListAdapter
-    private lateinit var relayListContainer: ViewSwitcher
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -50,9 +48,6 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         val view = inflater.inflate(R.layout.select_location, container, false)
 
         view.findViewById<ImageButton>(R.id.close).setOnClickListener { close() }
-
-        relayListContainer = view.findViewById<ViewSwitcher>(R.id.relay_list_container)
-        relayListContainer.showNext()
 
         configureRelayList(view.findViewById<RecyclerView>(R.id.relay_list))
 
@@ -93,12 +88,6 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
 
     private fun updateRelayList(relayList: RelayList, selectedItem: RelayItem?) {
         relayListAdapter.onRelayListChange(relayList, selectedItem)
-
-        if (relayList.countries.isEmpty()) {
-            relayListContainer.showPrevious()
-        } else if (relayListContainer.displayedChild == 0) {
-            relayListContainer.showNext()
-        }
     }
 
     private fun maybeConnect() {
