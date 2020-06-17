@@ -1229,20 +1229,20 @@ class ApplicationMain {
       const closeToExpiryNotification = new CloseToAccountExpiryNotificationProvider({
         accountExpiry: this.accountData.expiry,
         accountExpiryFormatter: new AccountExpiryFormatter(this.accountData.expiry, this.locale),
-        tooSoon: this.accountExpiryNotificationScheduler.isRunning,
       });
 
       if (expiredNotification.mayDisplay()) {
         this.accountExpiryNotificationScheduler.cancel();
         this.notificationController.notify(expiredNotification.getSystemNotification());
-      } else if (closeToExpiryNotification.mayDisplay()) {
+      } else if (
+        !this.accountExpiryNotificationScheduler.isRunning &&
+        closeToExpiryNotification.mayDisplay()
+      ) {
         this.notificationController.notify(closeToExpiryNotification.getSystemNotification());
 
         const twelveHours = 12 * 60 * 60 * 1000;
         const delay = Math.min(twelveHours, remainingMilliseconds(this.accountData.expiry));
-        this.accountExpiryNotificationScheduler.schedule(() => {
-          this.handleAccountExpiry();
-        }, delay);
+        this.accountExpiryNotificationScheduler.schedule(() => this.handleAccountExpiry(), delay);
       }
     }
   }
