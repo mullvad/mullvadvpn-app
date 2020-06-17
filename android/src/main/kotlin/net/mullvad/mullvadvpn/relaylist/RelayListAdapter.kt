@@ -52,11 +52,17 @@ class RelayListAdapter(private val resources: Resources) : Adapter<RelayItemHold
     override fun getItemCount() =
         relayList?.countries?.map { country -> country.visibleItemCount }?.sum() ?: 0
 
-    fun onRelayListChange(relayList: RelayList, selectedItem: RelayItem?) {
-        this.relayList = relayList
-        this.selectedItem = selectedItem
+    fun onRelayListChange(newRelayList: RelayList, newSelectedItem: RelayItem?) {
+        val initializedRelayList = relayList == null
 
-        notifyDataSetChanged()
+        relayList = newRelayList
+        selectedItem = newSelectedItem
+
+        if (initializedRelayList) {
+            notifyItemRangeInserted(0, getItemCount())
+        } else {
+            notifyDataSetChanged()
+        }
     }
 
     fun selectItem(item: RelayItem?, holder: RelayItemHolder?) {
