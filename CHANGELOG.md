@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add Korean, Polish and Thai languages to the desktop app.
 - Show system notification when account has expired.
 
+### Changed
+- Upgrade from Electron 7 to Electron 8.
+
 #### Android
 - Show a system notification when the account time will soon run out.
 
