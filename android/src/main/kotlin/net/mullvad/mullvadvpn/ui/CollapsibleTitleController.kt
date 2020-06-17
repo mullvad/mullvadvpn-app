@@ -10,11 +10,11 @@ import net.mullvad.mullvadvpn.util.ListenableScrollableView
 
 // In order to use this view controller, the parent view must contain four views with specific IDs:
 //
-// 1. A `View` with the ID `scroll_area` and that implements `ListenableScrollableView`, which is
-//    used to animate the title based on the scroll offset.
-// 2. A view inside the `scroll_area` with the ID `expanded_title`. This view is made invisible so
+// 1. A scroll area `View` with the `scrollAreaId` that implements `ListenableScrollableView`, which
+//    is used to animate the title based on the scroll offset.
+// 2. A view inside the scroll area with the ID `expanded_title`. This view is made invisible so
 //    that it's not drawn, but it is used to measure the layout and the animation positions.
-// 3. A view outside the `scroll_area` with the ID `collapsed_title`. This view is also made
+// 3. A view outside the scroll area with the ID `collapsed_title`. This view is also made
 //    invisible just like the `expanded_view`.
 // 4. A view with the ID `title`. This is the view that's actually drawn, and it's position and size
 //    are interpolated from the expanded title to the collapsed title. This view should be placed
@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.util.ListenableScrollableView
 // The animation interpolation is calculated based on the Y scroll offset of the scroll area. Once
 // the offset reaches a value that completely hides the expanded title inside the scroll view, the
 // animation finishes with the title being in the collapsed state.
-class CollapsibleTitleController(val parentView: View) {
+class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.scroll_area) {
     private inner class LayoutListener(val listener: () -> Unit) : OnLayoutChangeListener {
         override fun onLayoutChange(
             view: View,
@@ -107,7 +107,7 @@ class CollapsibleTitleController(val parentView: View) {
         scrollOffset = scrollArea.verticalScrollOffset.toFloat()
     }
 
-    private val scrollArea = parentView.findViewById<View>(R.id.scroll_area).let { view ->
+    private val scrollArea = parentView.findViewById<View>(scrollAreaId).let { view ->
         val scrollableView = view as ListenableScrollableView
 
         view.addOnLayoutChangeListener(scrollAreaLayoutListener)
