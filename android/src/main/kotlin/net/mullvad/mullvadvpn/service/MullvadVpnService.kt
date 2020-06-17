@@ -23,6 +23,9 @@ private const val RELAYS_FILE = "relays.json"
 class MullvadVpnService : TalpidVpnService() {
     companion object {
         private val TAG = "mullvad"
+
+        val KEY_CONNECT_ACTION = "net.mullvad.mullvadvpn.connect_action"
+        val KEY_DISCONNECT_ACTION = "net.mullvad.mullvadvpn.disconnect_action"
     }
 
     private enum class PendingAction {
