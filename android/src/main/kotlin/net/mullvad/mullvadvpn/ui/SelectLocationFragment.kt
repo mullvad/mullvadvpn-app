@@ -49,7 +49,12 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
 
         view.findViewById<ImageButton>(R.id.close).setOnClickListener { close() }
 
-        configureRelayList(view.findViewById<RecyclerView>(R.id.relay_list))
+        view.findViewById<RecyclerView>(R.id.relay_list).apply {
+            layoutManager = LinearLayoutManager(parentActivity)
+            adapter = AdapterWithHeader(relayListAdapter, R.layout.select_location_header)
+
+            addItemDecoration(RelayItemDividerDecoration(parentActivity))
+        }
 
         return view
     }
@@ -70,13 +75,6 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         activity?.onBackPressed()
     }
 
-    private fun configureRelayList(relayList: RecyclerView) {
-        relayList.apply {
-            layoutManager = LinearLayoutManager(context!!)
-            adapter = AdapterWithHeader(relayListAdapter, R.layout.select_location_header)
-
-            addItemDecoration(RelayItemDividerDecoration(context!!))
-        }
     }
 
     private fun updateLocationConstraint(relayItem: RelayItem?) {
