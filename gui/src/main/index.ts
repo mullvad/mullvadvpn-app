@@ -1227,21 +1227,21 @@ class ApplicationMain {
       const closeToExpiryNotification = new CloseToAccountExpiryNotificationProvider({
         accountExpiry: this.accountData.expiry,
         locale: this.locale,
-        tooSoon: this.accountExpiryNotificationScheduler.isRunning,
       });
 
       if (expiredNotification.mayDisplay()) {
         this.accountExpiryNotificationScheduler.cancel();
         this.notificationController.notify(expiredNotification.getSystemNotification());
-      } else if (closeToExpiryNotification.mayDisplay()) {
+      } else if (
+        !this.accountExpiryNotificationScheduler.isRunning &&
+        closeToExpiryNotification.mayDisplay()
+      ) {
         this.notificationController.notify(closeToExpiryNotification.getSystemNotification());
 
         const twelveHours = 12 * 60 * 60 * 1000;
         const remainingMilliseconds = moment(this.accountData.expiry).diff(new Date());
         const delay = Math.min(twelveHours, remainingMilliseconds);
-        this.accountExpiryNotificationScheduler.schedule(() => {
-          this.handleAccountExpiry();
-        }, delay);
+        this.accountExpiryNotificationScheduler.schedule(() => this.handleAccountExpiry(), delay);
       }
     }
   }

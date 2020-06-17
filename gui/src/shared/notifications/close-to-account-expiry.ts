@@ -13,7 +13,6 @@ import {
 interface CloseToAccountExpiryNotificationContext {
   accountExpiry: string;
   locale: string;
-  tooSoon?: boolean;
 }
 
 export class CloseToAccountExpiryNotificationProvider
@@ -25,9 +24,7 @@ export class CloseToAccountExpiryNotificationProvider
       moment().add(3, 'days'),
     );
 
-    return (
-      !hasExpired(this.context.accountExpiry) && willHaveExpiredInThreeDays && !this.context.tooSoon
-    );
+    return !hasExpired(this.context.accountExpiry) && willHaveExpiredInThreeDays;
   }
 
   public getSystemNotification(): SystemNotification {
