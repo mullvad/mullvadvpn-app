@@ -631,7 +631,7 @@ mod event_server {
     }
     use proto::{
         openvpn_event_proxy_server::{OpenvpnEventProxy, OpenvpnEventProxyServer},
-        Empty, EventType,
+        EventType,
     };
 
     #[derive(err_derive::Error, Debug)]
@@ -659,7 +659,7 @@ mod event_server {
         async fn event(
             &self,
             request: Request<EventType>,
-        ) -> std::result::Result<Response<Empty>, tonic::Status> {
+        ) -> std::result::Result<Response<()>, tonic::Status> {
             log::info!("OpenVPN event {:?}", request);
 
             let request = request.into_inner();
@@ -669,7 +669,7 @@ mod event_server {
 
             (self.on_event)(event_type, request.env);
 
-            Ok(Response::new(Empty {}))
+            Ok(Response::new(()))
         }
     }
 
