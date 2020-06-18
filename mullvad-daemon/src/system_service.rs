@@ -251,6 +251,7 @@ impl PersistentServiceStatus {
             exit_code,
             checkpoint: checkpoint as u32,
             wait_hint,
+            process_id: None,
         };
 
         log::debug!(
