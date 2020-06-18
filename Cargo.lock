@@ -1419,7 +1419,7 @@ dependencies = [
  "tokio-timer 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "windows-service 0.2.0 (git+https://github.com/mullvad/windows-service-rs.git?rev=1d5f9cc65658429414f2d62e4581e5a3e2532b99)",
+ "windows-service 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "winres 0.1.11 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -3723,15 +3723,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "winapi"
-version = "0.3.7"
-source = "git+https://github.com/mullvad/winapi-rs.git?rev=4bcf5cab87124bbeef8c1a445137494d874f8082#4bcf5cab87124bbeef8c1a445137494d874f8082"
-dependencies = [
- "winapi-i686-pc-windows-gnu 0.4.0 (git+https://github.com/mullvad/winapi-rs.git?rev=4bcf5cab87124bbeef8c1a445137494d874f8082)",
- "winapi-x86_64-pc-windows-gnu 0.4.0 (git+https://github.com/mullvad/winapi-rs.git?rev=4bcf5cab87124bbeef8c1a445137494d874f8082)",
-]
-
-[[package]]
-name = "winapi"
 version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
@@ -3747,11 +3738,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "winapi-i686-pc-windows-gnu"
 version = "0.4.0"
-source = "git+https://github.com/mullvad/winapi-rs.git?rev=4bcf5cab87124bbeef8c1a445137494d874f8082#4bcf5cab87124bbeef8c1a445137494d874f8082"
-
-[[package]]
-name = "winapi-i686-pc-windows-gnu"
-version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -3761,11 +3747,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "winapi 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
-
-[[package]]
-name = "winapi-x86_64-pc-windows-gnu"
-version = "0.4.0"
-source = "git+https://github.com/mullvad/winapi-rs.git?rev=4bcf5cab87124bbeef8c1a445137494d874f8082#4bcf5cab87124bbeef8c1a445137494d874f8082"
 
 [[package]]
 name = "winapi-x86_64-pc-windows-gnu"
@@ -3794,13 +3775,13 @@ dependencies = [
 
 [[package]]
 name = "windows-service"
-version = "0.2.0"
-source = "git+https://github.com/mullvad/windows-service-rs.git?rev=1d5f9cc65658429414f2d62e4581e5a3e2532b99#1d5f9cc65658429414f2d62e4581e5a3e2532b99"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "err-derive 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "widestring 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "winapi 0.3.7 (git+https://github.com/mullvad/winapi-rs.git?rev=4bcf5cab87124bbeef8c1a445137494d874f8082)",
+ "winapi 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -4228,17 +4209,14 @@ dependencies = [
 "checksum which 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5475d47078209a02e60614f7ba5e645ef3ed60f771920ac1906d7c1cc65024c8"
 "checksum widestring 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "effc0e4ff8085673ea7b9b2e3c73f6bd4d118810c9009ed8f1e16bd96c331db6"
 "checksum winapi 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)" = "167dc9d6949a9b857f3451275e911c3f44255842c1f7a76f33c55103a909087a"
-"checksum winapi 0.3.7 (git+https://github.com/mullvad/winapi-rs.git?rev=4bcf5cab87124bbeef8c1a445137494d874f8082)" = "<none>"
 "checksum winapi 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)" = "8093091eeb260906a183e6ae1abdba2ef5ef2257a21801128899c3fc699229c6"
 "checksum winapi-build 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "2d315eee3b34aca4797b2da6b13ed88266e6d612562a0c46390af8299fc699bc"
-"checksum winapi-i686-pc-windows-gnu 0.4.0 (git+https://github.com/mullvad/winapi-rs.git?rev=4bcf5cab87124bbeef8c1a445137494d874f8082)" = "<none>"
 "checksum winapi-i686-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6"
 "checksum winapi-util 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7168bab6e1daee33b4557efd0e95d5ca70a03706d39fa5f3fe7a236f584b03c9"
-"checksum winapi-x86_64-pc-windows-gnu 0.4.0 (git+https://github.com/mullvad/winapi-rs.git?rev=4bcf5cab87124bbeef8c1a445137494d874f8082)" = "<none>"
 "checksum winapi-x86_64-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 "checksum wincolor 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "96f5016b18804d24db43cebf3c77269e7569b8954a8464501c216cc5e070eaa9"
 "checksum winconsole 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3ef84b96d10db72dd980056666d7f1e7663ce93d82fa33b63e71c966f4cf5032"
-"checksum windows-service 0.2.0 (git+https://github.com/mullvad/windows-service-rs.git?rev=1d5f9cc65658429414f2d62e4581e5a3e2532b99)" = "<none>"
+"checksum windows-service 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ec02723e93664f41cc0540260697352a5efcddd837900d7ef208dc16674d5717"
 "checksum winreg 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "b2986deb581c4fe11b621998a5e53361efe6b48a151178d0cd9eeffa4dc6acc9"
 "checksum winres 0.1.11 (registry+https://github.com/rust-lang/crates.io-index)" = "ff4fb510bbfe5b8992ff15f77a2e6fe6cf062878f0eda00c0f44963a807ca5dc"
 "checksum ws2_32-sys 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d59cefebd0c892fa2dd6de581e937301d8552cb44489cdff035c6187cb63fa5e"
