@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Show system notification when account has expired.
+- Add fish shell completions for the mullvad CLI.
 
 ### Changed
 - Upgrade from Electron 7 to Electron 8.

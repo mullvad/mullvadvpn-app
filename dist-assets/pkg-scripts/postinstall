@@ -63,5 +63,7 @@ mkdir -p /usr/local/bin
 ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad" /usr/local/bin/mullvad
 ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-problem-report" /usr/local/bin/mullvad-problem-report
 
+ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad.fish" /usr/share/fish/vendor_completions.d
+
 mkdir -p "$ZSH_COMPLETIONS_DIR"
 ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/_mullvad" "$ZSH_COMPLETIONS_DIR/_mullvad"
