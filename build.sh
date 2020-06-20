@@ -138,7 +138,7 @@ echo "Building Rust code in release mode using $RUSTC_VERSION..."
 if [[ ("$(uname -s)" == "Darwin") || ("$(uname -s)" == "Linux") ]]; then
     pushd mullvad-cli
     mkdir -p "$SCRIPT_DIR/dist-assets/shell-completions"
-    for sh in bash zsh; do
+    for sh in bash zsh fish; do
         echo "Generating shell completion script for $sh..."
         cargo +stable run $CARGO_ARGS --release --features shell-completions -- \
             shell-completions "$sh" "$SCRIPT_DIR/dist-assets/shell-completions/"

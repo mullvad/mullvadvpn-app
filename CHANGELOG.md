@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add Korean, Polish and Thai languages to the desktop app.
 - Show system notification when account has expired.
+- Add fish shell completions for the mullvad CLI.
 
 #### Android
 - Show a system notification when the account time will soon run out.
