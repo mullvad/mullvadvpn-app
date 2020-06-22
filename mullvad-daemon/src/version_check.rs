@@ -17,8 +17,7 @@ use std::{
 };
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
-use tokio02::{fs::File, io::AsyncRead};
-use tokio_timer::{TimeoutError, Timer};
+use tokio02::{fs::File};
 
 const VERSION_INFO_FILENAME: &str = "version-info.json";
 
