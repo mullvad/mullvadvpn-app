@@ -273,6 +273,7 @@ impl ProblemReportProxy {
     }
 }
 
+#[derive(Clone)]
 pub struct AppVersionProxy {
     handle: rest::MullvadRestHandle,
 }
