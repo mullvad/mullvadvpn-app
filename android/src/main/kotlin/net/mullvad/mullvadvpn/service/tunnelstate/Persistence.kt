@@ -12,10 +12,12 @@ private const val SHARED_PREFERENCES = "tunnel_state"
 private const val KEY_TUNNEL_STATE = "tunnel_state"
 
 // TODO: Maybe replace using this with actually persisting the endpoint information
-private val dummyTunnelEndpoint = TunnelEndpoint(Endpoint(
-    InetSocketAddress.createUnresolved("dummy", 53),
-    TransportProtocol.Tcp
-))
+private val dummyTunnelEndpoint = TunnelEndpoint(
+    Endpoint(
+        InetSocketAddress.createUnresolved("dummy", 53),
+        TransportProtocol.Tcp
+    )
+)
 
 internal class Persistence(context: Context) {
     val sharedPreferences =

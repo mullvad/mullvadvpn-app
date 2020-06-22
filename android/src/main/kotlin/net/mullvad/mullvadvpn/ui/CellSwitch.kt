@@ -167,10 +167,13 @@ class CellSwitch : LinearLayout {
 
     init {
         setBackground(resources.getDrawable(R.drawable.cell_switch_background, null))
-        addView(knobView, LinearLayout.LayoutParams(knobSize, knobSize).apply {
-            gravity = Gravity.CENTER_VERTICAL
-            leftMargin = resources.getDimensionPixelSize(R.dimen.cell_switch_knob_margin)
-        })
+        addView(
+            knobView,
+            LinearLayout.LayoutParams(knobSize, knobSize).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                leftMargin = resources.getDimensionPixelSize(R.dimen.cell_switch_knob_margin)
+            }
+        )
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
