@@ -69,9 +69,9 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private var accountExpiryNotification
-        by observable<AccountExpiryNotification?>(null) { _, oldNotification, _ ->
-            oldNotification?.accountExpiry = null
-        }
+    by observable<AccountExpiryNotification?>(null) { _, oldNotification, _ ->
+        oldNotification?.accountExpiry = null
+    }
 
     private lateinit var keyguardManager: KeyguardManager
     private lateinit var notificationManager: ForegroundNotificationManager

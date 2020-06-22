@@ -132,11 +132,11 @@ class NotificationBanner(
             null -> return false
             is KeygenEvent.NewKey -> return false
             is KeygenEvent.TooManyKeys -> {
-                        externalLink = ExternalLink.KeyManagement
-                        showError(R.string.wireguard_error, R.string.too_many_keys)
+                externalLink = ExternalLink.KeyManagement
+                showError(R.string.wireguard_error, R.string.too_many_keys)
             }
             is KeygenEvent.GenerationFailure -> {
-                        showError(R.string.wireguard_error, R.string.failed_to_generate_key)
+                showError(R.string.wireguard_error, R.string.failed_to_generate_key)
             }
         }
 
