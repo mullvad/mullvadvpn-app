@@ -99,6 +99,10 @@ impl MullvadRpcRuntime {
     pub fn rest_handle(&mut self) -> rest::RequestServiceHandle {
         self.new_request_service(None)
     }
+
+    pub fn runtime(&mut self) -> &mut tokio::runtime::Runtime {
+        &mut self.runtime
+    }
 }
 
 impl Drop for MullvadRpcRuntime {
