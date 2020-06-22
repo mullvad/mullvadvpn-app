@@ -158,7 +158,7 @@ class ApplicationMain {
     latestBeta: '',
     latest: '',
     nextUpgrade: null,
-    shouldUpdate: false,
+    newerVersionAvailable: false,
   };
 
   // The UI locale which is set once from onReady handler
@@ -789,7 +789,7 @@ class ApplicationMain {
     const latestVersion = latestVersionInfo.latest;
     const latestStableVersion = latestVersionInfo.latestStable;
 
-    const upgradeVersion = latestVersionInfo.shouldUpdate
+    const upgradeVersion = latestVersionInfo.newerVersionAvailable
       ? nextUpgrade(currentVersionInfo.daemon, latestVersion, latestStableVersion)
       : null;
 
