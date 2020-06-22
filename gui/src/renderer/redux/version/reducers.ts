@@ -4,10 +4,9 @@ export interface IVersionReduxState {
   current: string;
   supported: boolean;
   isBeta: boolean;
-  latest?: string;
+  latestBeta?: string;
   latestStable?: string;
-  newerVersionAvailable: boolean;
-  nextUpgrade: string | null;
+  suggestedUpgrade?: string;
   consistent: boolean;
 }
 
@@ -15,10 +14,9 @@ const initialState: IVersionReduxState = {
   current: '',
   supported: true,
   isBeta: false,
-  latest: undefined,
+  latestBeta: undefined,
   latestStable: undefined,
-  newerVersionAvailable: false,
-  nextUpgrade: null,
+  suggestedUpgrade: undefined,
   consistent: true,
 };
 
@@ -30,11 +28,10 @@ export default function (
     case 'UPDATE_LATEST':
       return {
         ...state,
-        nextUpgrade: action.latestInfo.nextUpgrade,
         supported: action.latestInfo.supported,
-        latest: action.latestInfo.latest,
+        latestBeta: action.latestInfo.latestBeta,
         latestStable: action.latestInfo.latestStable,
-        newerVersionAvailable: action.latestInfo.newerVersionAvailable,
+        suggestedUpgrade: action.latestInfo.suggestedUpgrade,
       };
 
     case 'UPDATE_VERSION':

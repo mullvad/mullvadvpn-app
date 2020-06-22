@@ -34,6 +34,7 @@ import {
   BridgeSettings,
   BridgeState,
   IAccountData,
+  IAppVersionInfo,
   ILocation,
   IRelayList,
   ISettings,
@@ -727,7 +728,7 @@ export default class AppRenderer {
     );
   }
 
-  private setUpgradeVersion(upgradeVersion: IAppUpgradeInfo) {
+  private setUpgradeVersion(upgradeVersion: IAppVersionInfo) {
     this.reduxActions.version.updateLatest(upgradeVersion);
   }
 
