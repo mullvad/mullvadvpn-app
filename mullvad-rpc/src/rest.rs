@@ -329,7 +329,7 @@ pub struct RequestFactory {
     host: String,
     address: Option<IpAddr>,
     path_prefix: Option<String>,
-    timeout: Duration,
+    pub timeout: Duration,
 }
 
 
@@ -547,7 +547,7 @@ pub async fn handle_error_response<T>(response: Response) -> Result<T> {
 #[derive(Clone)]
 pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
-    pub(crate) factory: RequestFactory,
+    pub factory: RequestFactory,
 }
 
 impl MullvadRestHandle {
