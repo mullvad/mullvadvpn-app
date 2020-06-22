@@ -24,7 +24,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+
 - Add fish shell completions for the mullvad CLI.
+
+#### Android
+- Show a system notification when the account time will soon run out.
 
 ## [2020.5-beta2] - 2020-06-16
 ### Added

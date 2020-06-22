@@ -8,15 +8,19 @@ import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import java.io.File
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
 import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
+import net.mullvad.talpid.util.autoSubscribable
+import org.joda.time.DateTime
 
 private const val RELAYS_FILE = "relays.json"
 
@@ -41,13 +45,32 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var startDaemonJob: Job? = null
 
-    private var instance: ServiceInstance? = null
-        set(value) {
-            if (field != value) {
-                field?.onDestroy()
-                field = value
-                serviceNotifier.notify(value)
+    private var instance by observable<ServiceInstance?>(null) { _, oldInstance, newInstance ->
+        if (newInstance != oldInstance) {
+            oldInstance?.onDestroy()
+
+            accountExpiryNotification = newInstance?.daemon?.let { daemon ->
+                AccountExpiryNotification(this, daemon)
             }
+
+            accountNumberEvents = newInstance?.accountCache?.onAccountNumberChange
+            accountExpiryEvents = newInstance?.accountCache?.onAccountExpiryChange
+
+            serviceNotifier.notify(newInstance)
+        }
+    }
+
+    private var accountNumberEvents by autoSubscribable<String?>(this, null) { accountNumber ->
+        loggedIn = accountNumber != null
+    }
+
+    private var accountExpiryEvents by autoSubscribable<DateTime?>(this, null) { expiry ->
+        accountExpiryNotification?.accountExpiry = expiry
+    }
+
+    private var accountExpiryNotification
+        by observable<AccountExpiryNotification?>(null) { _, oldNotification, _ ->
+            oldNotification?.accountExpiry = null
         }
 
     private lateinit var keyguardManager: KeyguardManager
@@ -69,11 +92,9 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
-    private var isBound = false
-        set(value) {
-            field = value
-            notificationManager.lockedToForeground = value
-        }
+    private var isBound by observable(false) { _, _, isBound ->
+        notificationManager.lockedToForeground = isBound
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -195,11 +216,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
-        val settingsListener = SettingsListener(daemon, settings).apply {
-            accountNumberNotifier.subscribe(this@MullvadVpnService) { accountNumber ->
-                loggedIn = accountNumber != null
-            }
-        }
+        val settingsListener = SettingsListener(daemon, settings)
 
         val connectionProxy = ConnectionProxy(this, daemon).apply {
             when (pendingAction) {
