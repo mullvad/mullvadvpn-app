@@ -156,9 +156,9 @@ class CollapsibleTitleController(val parentView: View) {
     private fun update() {
         val shouldUpdate =
             scrollOffsetUpdated ||
-            scaleInterpolation.updated ||
-            xOffsetInterpolation.updated ||
-            yOffsetInterpolation.updated
+                scaleInterpolation.updated ||
+                xOffsetInterpolation.updated ||
+                yOffsetInterpolation.updated
 
         if (shouldUpdate) {
             val progress = maxOf(0.0f, minOf(1.0f, scrollInterpolation.progress(scrollOffset)))

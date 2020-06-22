@@ -59,8 +59,10 @@ class TunnelStateNotification(val context: Context) {
 
     var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, newState ->
         reconnecting =
-            (newState is TunnelState.Disconnecting &&
-                newState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect) ||
+            (
+            newState is TunnelState.Disconnecting &&
+                newState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect
+            ) ||
             (newState is TunnelState.Connecting && reconnecting)
 
         update()

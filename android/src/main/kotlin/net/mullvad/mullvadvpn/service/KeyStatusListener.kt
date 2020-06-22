@@ -26,9 +26,11 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
         val newStatus = daemon.generateWireguardKey()
         val newFailure = newStatus?.failure()
         if (oldStatus is KeygenEvent.NewKey && newFailure != null) {
-            keyStatus = KeygenEvent.NewKey(oldStatus.publicKey,
-                            oldStatus.verified,
-                            newFailure)
+            keyStatus = KeygenEvent.NewKey(
+                oldStatus.publicKey,
+                oldStatus.verified,
+                newFailure
+            )
         } else {
             keyStatus = newStatus ?: KeygenEvent.GenerationFailure()
         }
@@ -39,9 +41,11 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
         // Only update verification status if the key is actually there
         when (val state = keyStatus) {
             is KeygenEvent.NewKey -> {
-                keyStatus = KeygenEvent.NewKey(state.publicKey,
-                                verified,
-                                state.replacementFailure)
+                keyStatus = KeygenEvent.NewKey(
+                    state.publicKey,
+                    verified,
+                    state.replacementFailure
+                )
             }
         }
     }

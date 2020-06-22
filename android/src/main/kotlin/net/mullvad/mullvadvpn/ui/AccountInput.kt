@@ -81,13 +81,15 @@ class AccountInput(
 
         input.apply {
             addTextChangedListener(InputWatcher())
-            setOnTouchListener(OnTouchListener {
-                _, event ->
-                if (MotionEvent.ACTION_UP == event.getAction()) {
-                    shouldShowAccountHistory = true
+            setOnTouchListener(
+                OnTouchListener {
+                    _, event ->
+                    if (MotionEvent.ACTION_UP == event.getAction()) {
+                        shouldShowAccountHistory = true
+                    }
+                    false
                 }
-                false
-            })
+            )
         }
 
         container.apply {
@@ -155,10 +157,14 @@ class AccountInput(
     private fun updateAccountHistory() {
         accountHistory?.let { history ->
             accountHistoryList.apply {
-                setAdapter(ArrayAdapter(context,
-                                    R.layout.account_history_entry,
-                                    R.id.account_history_entry_text_view,
-                                    history))
+                setAdapter(
+                    ArrayAdapter(
+                        context,
+                        R.layout.account_history_entry,
+                        R.id.account_history_entry_text_view,
+                        history
+                    )
+                )
 
                 setOnItemClickListener { _, _, idx, _ ->
                     val accountNumber = history[idx]
