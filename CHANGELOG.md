@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Android
+- Show a system notification when the account time will soon run out.
 
 
 ## [2020.5-beta2] - 2020-06-16

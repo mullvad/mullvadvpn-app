@@ -37,6 +37,10 @@ class NotificationChannel(
         }
     }
 
+    fun buildNotification(intent: PendingIntent, title: String): Notification {
+        return buildNotification(intent, title, emptyList())
+    }
+
     fun buildNotification(intent: PendingIntent, title: Int): Notification {
         return buildNotification(intent, title, emptyList())
     }
@@ -46,10 +50,18 @@ class NotificationChannel(
         title: Int,
         actions: List<NotificationCompat.Action>
     ): Notification {
+        return buildNotification(pendingIntent, context.getString(title), actions)
+    }
+
+    fun buildNotification(
+        pendingIntent: PendingIntent,
+        title: String,
+        actions: List<NotificationCompat.Action>
+    ): Notification {
         val builder = NotificationCompat.Builder(context, id)
             .setSmallIcon(R.drawable.small_logo_black)
             .setColor(badgeColor)
-            .setContentTitle(context.getString(title))
+            .setContentTitle(title)
             .setContentIntent(pendingIntent)
 
         for (action in actions) {
