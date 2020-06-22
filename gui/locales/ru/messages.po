@@ -3,15 +3,32 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
 "X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Project-ID: 350815\n"
 "X-Crowdin-Language: ru\n"
 "X-Crowdin-File: messages.pot\n"
+"X-Crowdin-File-ID: 12\n"
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2020-05-05 07:34\n"
+"PO-Revision-Date: 2020-06-22 15:10\n"
+
+msgid "Back"
+msgstr "Назад"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ПОДКЛЮЧЕНИЕ ЗАБЛОКИРОВАНО"
+
+msgid "Buy credit"
+msgstr "Пополнить баланс"
+
+msgid "Buy more credit"
+msgstr "Пополнить баланс"
+
+msgid "Cancel"
+msgstr "Отмена"
+
+msgid "Close"
+msgstr "Закрыть"
 
 msgid "COPIED TO CLIPBOARD!"
 msgstr "СКОПИРОВАНО В БУФЕР ОБМЕНА."
@@ -57,16 +74,8 @@ msgid "Account number"
 msgstr "Номер учетной записи"
 
 msgctxt "account-view"
-msgid "Buy more credit"
-msgstr "Пополнить баланс"
-
-msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "Сейчас недоступно"
-
-msgctxt "account-view"
-msgid "Key is valid"
-msgstr "Ключ действителен"
 
 msgctxt "account-view"
 msgid "Log out"
@@ -100,10 +109,6 @@ msgstr "Внимание: при активации этого параметр�
 msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "Автоматически"
-
-msgctxt "advanced-settings-view"
-msgid "Back"
-msgstr "Назад"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
@@ -243,22 +248,6 @@ msgid "Always require VPN"
 msgstr "Всегда требовать VPN"
 
 msgctxt "connect-view"
-msgid "Buy credit"
-msgstr "Пополнить баланс"
-
-msgctxt "connect-view"
-msgid "Buy more credit"
-msgstr "Пополнить баланс"
-
-msgctxt "connect-view"
-msgid "Cancel"
-msgstr "Отмена"
-
-msgctxt "connect-view"
-msgid "Close"
-msgstr "Закрыть"
-
-msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "Поздравляем!"
 
@@ -269,10 +258,6 @@ msgstr "Отключить"
 msgctxt "connect-view"
 msgid "Either buy credit on our website or redeem a voucher."
 msgstr "Пополните баланс у нас на сайте или погасите ваучер."
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "Введите код ваучера"
 
 msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
@@ -303,8 +288,8 @@ msgid "You have no more VPN time left on this account."
 msgstr "На этой учетной записи времени VPN не осталось."
 
 msgctxt "connect-view"
-msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
-msgstr "Для выхода в Интернет и добавления времени необходимо отключить параметр \"Всегда требовать VPN\"."
+msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
+msgstr "Для выхода в Интернет и добавления времени необходимо отключить параметр «Всегда требовать VPN»."
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -342,8 +327,8 @@ msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
-msgid "“Always require VPN” is enabled."
-msgstr "Параметр \"Всегда требовать VPN\" включен."
+msgid "\"Always require VPN\" is enabled."
+msgstr "Параметр «Всегда требовать VPN» включен."
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -417,8 +402,8 @@ msgid "UPDATE AVAILABLE"
 msgstr "ЕСТЬ ОБНОВЛЕНИЕ"
 
 msgctxt "in-app-notifications"
-msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
-msgstr "Ключ WireGuard не публикуется на наших серверах. Управлять ключом можно в «Дополнительных настройках»."
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "Не найден корректный ключ WireGuard. Управлять ключами можно в разделе «Дополнительные настройки»."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -513,8 +498,12 @@ msgid "Account credit expires in %(duration)s"
 msgstr "Срок действия баланса учетной записи: %(duration)s"
 
 msgctxt "notifications"
-msgid "Blocked all connections"
-msgstr "Все подключения заблокированы"
+msgid "Blocking internet"
+msgstr "Блокируется доступ в Интернет"
+
+msgctxt "notifications"
+msgid "Blocking internet: Valid WireGuard key is missing"
+msgstr "Блокируется доступ в Интернет: не найден корректный ключ WireGuard"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -553,10 +542,6 @@ msgstr "Подключение защищено"
 msgctxt "notifications"
 msgid "Unsecured"
 msgstr "Подключение не защищено"
-
-msgctxt "notifications"
-msgid "Wireguard key generation failed"
-msgstr "Ошибка генерации ключа WireGuard"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -623,8 +608,24 @@ msgid "Start minimized"
 msgstr "Запускать свернутым"
 
 msgctxt "preferences-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "Параметр недоступен в бета-версии."
+
+msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Использовать в области уведомлений черно-белый значок вместо цветного."
+
+msgctxt "redeem-voucher-alert"
+msgid "Cancel"
+msgstr "Отмена"
+
+msgctxt "redeem-voucher-alert"
+msgid "Enter voucher code"
+msgstr "Введите код ваучера"
+
+msgctxt "redeem-voucher-alert"
+msgid "Redeem voucher"
+msgstr "Погасить ваучер"
 
 msgctxt "redeem-voucher-view"
 msgid "An error occured."
@@ -725,14 +726,6 @@ msgstr "Сообщить о проблеме"
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Есть обновление. Чтобы оставаться в безопасности, обновитесь."
-
-msgctxt "support-view"
-msgid "Back"
-msgstr "Назад"
-
-msgctxt "support-view"
-msgid "Cancel"
-msgstr "Отмена"
 
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -846,8 +839,16 @@ msgid "Generating key"
 msgstr "Идет генерация ключа"
 
 msgctxt "wireguard-key-view"
+msgid "Key generated"
+msgstr "Ключ сгенерирован"
+
+msgctxt "wireguard-key-view"
 msgid "Key is invalid"
 msgstr "Ключ недействителен"
+
+msgctxt "wireguard-key-view"
+msgid "Key is valid"
+msgstr "Ключ действителен"
 
 msgctxt "wireguard-key-view"
 msgid "Key verification failed"
@@ -860,6 +861,10 @@ msgstr "Управление ключами"
 msgctxt "wireguard-key-view"
 msgid "No key set"
 msgstr "Ключ не задан"
+
+msgctxt "wireguard-key-view"
+msgid "Public key"
+msgstr "Открытый ключ"
 
 msgctxt "wireguard-key-view"
 msgid "Reconnecting with new WireGuard key..."
@@ -881,19 +886,12 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Проверка ключа"
 
-msgctxt "wireguard-keys"
-msgid "Key generated"
-msgstr "Ключ сгенерирован"
-
-msgctxt "wireguard-keys"
-msgid "Public key"
-msgstr "Открытый ключ"
-
 #. Back button in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "Advanced"
 msgstr "Дополнительные"
 
+#. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "Ключ WireGuard"

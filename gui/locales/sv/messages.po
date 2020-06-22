@@ -3,15 +3,32 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Project-ID: 350815\n"
 "X-Crowdin-Language: sv-SE\n"
 "X-Crowdin-File: messages.pot\n"
+"X-Crowdin-File-ID: 12\n"
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2020-05-05 07:34\n"
+"PO-Revision-Date: 2020-06-22 15:10\n"
+
+msgid "Back"
+msgstr "Tillbaka"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ANSLUTNINGEN BLOCKERAD"
+
+msgid "Buy credit"
+msgstr "Köp kredit"
+
+msgid "Buy more credit"
+msgstr "Köp mer kredit"
+
+msgid "Cancel"
+msgstr "Avbryt"
+
+msgid "Close"
+msgstr "Stäng"
 
 msgid "COPIED TO CLIPBOARD!"
 msgstr "KOPIERAT TILL URKLIPP!"
@@ -57,16 +74,8 @@ msgid "Account number"
 msgstr "Kontonummer"
 
 msgctxt "account-view"
-msgid "Buy more credit"
-msgstr "Köp mer kredit"
-
-msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "Inte tillgänglig för närvarande"
-
-msgctxt "account-view"
-msgid "Key is valid"
-msgstr "Nyckeln är giltig"
 
 msgctxt "account-view"
 msgid "Log out"
@@ -100,10 +109,6 @@ msgstr "Obs! Om du aktiverar detta kommer det alltid att krävas en Mullvad VPN-
 msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "Automatisk"
-
-msgctxt "advanced-settings-view"
-msgid "Back"
-msgstr "Tillbaka"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
@@ -243,22 +248,6 @@ msgid "Always require VPN"
 msgstr "Kräv alltid VPN"
 
 msgctxt "connect-view"
-msgid "Buy credit"
-msgstr "Köp kredit"
-
-msgctxt "connect-view"
-msgid "Buy more credit"
-msgstr "Köp mer kredit"
-
-msgctxt "connect-view"
-msgid "Cancel"
-msgstr "Avbryt"
-
-msgctxt "connect-view"
-msgid "Close"
-msgstr "Stäng"
-
-msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "Grattis!"
 
@@ -269,10 +258,6 @@ msgstr "Koppla från"
 msgctxt "connect-view"
 msgid "Either buy credit on our website or redeem a voucher."
 msgstr "Du kan antingen köpa kredit på vår webbplats eller lösa in en kupong."
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "Ange kupongkod"
 
 msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
@@ -303,7 +288,7 @@ msgid "You have no more VPN time left on this account."
 msgstr "Du har ingen VPN-tid kvar på det här kontot."
 
 msgctxt "connect-view"
-msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
+msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
 msgstr "Du måste inaktivera \"Kräv alltid VPN\" för att öppna internet och lägga till tid."
 
 #. The hostname line displayed below the country on the main screen
@@ -342,7 +327,7 @@ msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
-msgid "“Always require VPN” is enabled."
+msgid "\"Always require VPN\" is enabled."
 msgstr "\"Kräv alltid VPN\" är aktiverat."
 
 msgctxt "in-app-notifications"
@@ -417,8 +402,8 @@ msgid "UPDATE AVAILABLE"
 msgstr "UPPDATERING TILLGÄNGLIG"
 
 msgctxt "in-app-notifications"
-msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
-msgstr "WireGuard-nyckel är inte publicerad på våra servrar. Du kan hantera din nyckel i Avancerade inställningar."
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "Giltig WireGuard-nyckel saknas. Hantera nycklar i avancerade inställningar."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -513,8 +498,12 @@ msgid "Account credit expires in %(duration)s"
 msgstr "Kontokrediten slutar gälla om %(duration)s"
 
 msgctxt "notifications"
-msgid "Blocked all connections"
-msgstr "Blockera alla anslutningar"
+msgid "Blocking internet"
+msgstr "Blockerar internet"
+
+msgctxt "notifications"
+msgid "Blocking internet: Valid WireGuard key is missing"
+msgstr "Blockerar internet: giltig WireGuard-nyckel saknas"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -553,10 +542,6 @@ msgstr "Skyddad"
 msgctxt "notifications"
 msgid "Unsecured"
 msgstr "Oskyddad"
-
-msgctxt "notifications"
-msgid "Wireguard key generation failed"
-msgstr "Det gick inte att generera WireGuard-nyckel"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -623,8 +608,24 @@ msgid "Start minimized"
 msgstr "Starta minimerat"
 
 msgctxt "preferences-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "Det här alternativet är inte tillgängligt när du använder en betaversion."
+
+msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Använd en enfärgad systemfältsikon i stället för en flerfärgad."
+
+msgctxt "redeem-voucher-alert"
+msgid "Cancel"
+msgstr "Avbryt"
+
+msgctxt "redeem-voucher-alert"
+msgid "Enter voucher code"
+msgstr "Ange kupongkod"
+
+msgctxt "redeem-voucher-alert"
+msgid "Redeem voucher"
+msgstr "Lös in kupong"
 
 msgctxt "redeem-voucher-view"
 msgid "An error occured."
@@ -725,14 +726,6 @@ msgstr "Rapportera ett problem"
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Uppdatering tillgänglig. Ladda ned för att vara säker."
-
-msgctxt "support-view"
-msgid "Back"
-msgstr "Tillbaka"
-
-msgctxt "support-view"
-msgid "Cancel"
-msgstr "Avbryt"
 
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -846,8 +839,16 @@ msgid "Generating key"
 msgstr "Genererar nyckel"
 
 msgctxt "wireguard-key-view"
+msgid "Key generated"
+msgstr "Nyckel har genererats"
+
+msgctxt "wireguard-key-view"
 msgid "Key is invalid"
 msgstr "Nyckeln är ogiltig"
+
+msgctxt "wireguard-key-view"
+msgid "Key is valid"
+msgstr "Nyckeln är giltig"
 
 msgctxt "wireguard-key-view"
 msgid "Key verification failed"
@@ -860,6 +861,10 @@ msgstr "Hantera nycklar"
 msgctxt "wireguard-key-view"
 msgid "No key set"
 msgstr "Ingen nyckel har angetts"
+
+msgctxt "wireguard-key-view"
+msgid "Public key"
+msgstr "Offentlig nyckel"
 
 msgctxt "wireguard-key-view"
 msgid "Reconnecting with new WireGuard key..."
@@ -881,19 +886,12 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Verifiera nyckel"
 
-msgctxt "wireguard-keys"
-msgid "Key generated"
-msgstr "Nyckel har genererats"
-
-msgctxt "wireguard-keys"
-msgid "Public key"
-msgstr "Offentlig nyckel"
-
 #. Back button in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "Advanced"
 msgstr "Avancerat"
 
+#. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard-nyckel"

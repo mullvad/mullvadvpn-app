@@ -3,15 +3,32 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Project-ID: 350815\n"
 "X-Crowdin-Language: it\n"
 "X-Crowdin-File: messages.pot\n"
+"X-Crowdin-File-ID: 12\n"
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Italian\n"
 "Language: it_IT\n"
-"PO-Revision-Date: 2020-05-05 07:34\n"
+"PO-Revision-Date: 2020-06-22 15:10\n"
+
+msgid "Back"
+msgstr "Indietro"
 
 msgid "BLOCKED CONNECTION"
 msgstr "CONNESSIONE BLOCCATA"
+
+msgid "Buy credit"
+msgstr "Acquista credito"
+
+msgid "Buy more credit"
+msgstr "Acquista altro credito"
+
+msgid "Cancel"
+msgstr "Annulla"
+
+msgid "Close"
+msgstr "Chiudi"
 
 msgid "COPIED TO CLIPBOARD!"
 msgstr "COPIATO NEGLI APPUNTI!"
@@ -57,16 +74,8 @@ msgid "Account number"
 msgstr "Numero di account"
 
 msgctxt "account-view"
-msgid "Buy more credit"
-msgstr "Acquista altro credito"
-
-msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "Attualmente non disponibile"
-
-msgctxt "account-view"
-msgid "Key is valid"
-msgstr "La chiave è valida"
 
 msgctxt "account-view"
 msgid "Log out"
@@ -100,10 +109,6 @@ msgstr "Attenzione: abilitando questa opzione, si richiederà sempre una conness
 msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "Automatico"
-
-msgctxt "advanced-settings-view"
-msgid "Back"
-msgstr "Indietro"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
@@ -243,22 +248,6 @@ msgid "Always require VPN"
 msgstr "Richiedi sempre VPN"
 
 msgctxt "connect-view"
-msgid "Buy credit"
-msgstr "Acquista credito"
-
-msgctxt "connect-view"
-msgid "Buy more credit"
-msgstr "Acquista altro credito"
-
-msgctxt "connect-view"
-msgid "Cancel"
-msgstr "Annulla"
-
-msgctxt "connect-view"
-msgid "Close"
-msgstr "Chiudi"
-
-msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "Complimenti!"
 
@@ -269,10 +258,6 @@ msgstr "Disconnetti"
 msgctxt "connect-view"
 msgid "Either buy credit on our website or redeem a voucher."
 msgstr "Acquista credito sul nostro sito web o riscatta un voucher."
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "Inserisci codice voucher"
 
 msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
@@ -303,8 +288,8 @@ msgid "You have no more VPN time left on this account."
 msgstr "Hai esaurito il tempo VPN su questo account."
 
 msgctxt "connect-view"
-msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
-msgstr "Devi disabilitare “Richiedi sempre VPN” per accedere a Internet e aggiungere tempo."
+msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
+msgstr "Devi disabilitare \"Richiedi sempre VPN\" per accedere a Internet e aggiungere tempo."
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -342,8 +327,8 @@ msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
-msgid "“Always require VPN” is enabled."
-msgstr "L'opzione “Richiedi sempre VPN” è abilitata."
+msgid "\"Always require VPN\" is enabled."
+msgstr "\"Richiedi sempre VPN\" abilitato."
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -417,8 +402,8 @@ msgid "UPDATE AVAILABLE"
 msgstr "AGGIORNAMENTO DISPONIBILE"
 
 msgctxt "in-app-notifications"
-msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
-msgstr "Chiave WireGuard non pubblicata sui nostri server. Puoi gestire la tua chiave nelle impostazioni avanzate."
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "Manca una chiave WireGuard valida. Gestisci le chiavi da Impostazioni avanzate."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -513,8 +498,12 @@ msgid "Account credit expires in %(duration)s"
 msgstr "Il credito dell'account scade tra %(duration)s"
 
 msgctxt "notifications"
-msgid "Blocked all connections"
-msgstr "Tutte le connessioni bloccate"
+msgid "Blocking internet"
+msgstr "Blocco di Internet"
+
+msgctxt "notifications"
+msgid "Blocking internet: Valid WireGuard key is missing"
+msgstr "Blocco di Internet: manca una chiave WireGuard valida"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -553,10 +542,6 @@ msgstr "Protetto"
 msgctxt "notifications"
 msgid "Unsecured"
 msgstr "Non protetto"
-
-msgctxt "notifications"
-msgid "Wireguard key generation failed"
-msgstr "Generazione della chiave WireGuard non riuscita"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -623,8 +608,24 @@ msgid "Start minimized"
 msgstr "Avvia ridotta a icona"
 
 msgctxt "preferences-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "Opzione non disponibile nelle versioni beta."
+
+msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Usa un'icona nell'area di notifica monocromatica e non colorata."
+
+msgctxt "redeem-voucher-alert"
+msgid "Cancel"
+msgstr "Annulla"
+
+msgctxt "redeem-voucher-alert"
+msgid "Enter voucher code"
+msgstr "Inserisci codice voucher"
+
+msgctxt "redeem-voucher-alert"
+msgid "Redeem voucher"
+msgstr "Riscatta voucher"
 
 msgctxt "redeem-voucher-view"
 msgid "An error occured."
@@ -725,14 +726,6 @@ msgstr "Segnala un problema"
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Aggiornamento disponibile; scarica per rimanere protetto."
-
-msgctxt "support-view"
-msgid "Back"
-msgstr "Indietro"
-
-msgctxt "support-view"
-msgid "Cancel"
-msgstr "Annulla"
 
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -846,8 +839,16 @@ msgid "Generating key"
 msgstr "Generazione della chiave"
 
 msgctxt "wireguard-key-view"
+msgid "Key generated"
+msgstr "Chiave generata"
+
+msgctxt "wireguard-key-view"
 msgid "Key is invalid"
 msgstr "La chiave non è valida"
+
+msgctxt "wireguard-key-view"
+msgid "Key is valid"
+msgstr "La chiave è valida"
 
 msgctxt "wireguard-key-view"
 msgid "Key verification failed"
@@ -860,6 +861,10 @@ msgstr "Gestisci chiavi"
 msgctxt "wireguard-key-view"
 msgid "No key set"
 msgstr "Nessun set di chiavi"
+
+msgctxt "wireguard-key-view"
+msgid "Public key"
+msgstr "Chiave pubblica"
 
 msgctxt "wireguard-key-view"
 msgid "Reconnecting with new WireGuard key..."
@@ -881,19 +886,12 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Verifica chiave"
 
-msgctxt "wireguard-keys"
-msgid "Key generated"
-msgstr "Chiave generata"
-
-msgctxt "wireguard-keys"
-msgid "Public key"
-msgstr "Chiave pubblica"
-
 #. Back button in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "Advanced"
 msgstr "Avanzate"
 
+#. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "Chiave WireGuard"

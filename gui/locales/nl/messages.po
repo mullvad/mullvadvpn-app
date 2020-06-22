@@ -3,15 +3,32 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Project-ID: 350815\n"
 "X-Crowdin-Language: nl\n"
 "X-Crowdin-File: messages.pot\n"
+"X-Crowdin-File-ID: 12\n"
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2020-05-05 07:34\n"
+"PO-Revision-Date: 2020-06-22 15:10\n"
+
+msgid "Back"
+msgstr "Terug"
 
 msgid "BLOCKED CONNECTION"
 msgstr "VERBINDING GEBLOKKEERD"
+
+msgid "Buy credit"
+msgstr "Krediet kopen"
+
+msgid "Buy more credit"
+msgstr "Meer krediet kopen"
+
+msgid "Cancel"
+msgstr "Annuleren"
+
+msgid "Close"
+msgstr "Sluiten"
 
 msgid "COPIED TO CLIPBOARD!"
 msgstr "GEKOPIEERD NAAR KLEMBORD!"
@@ -57,16 +74,8 @@ msgid "Account number"
 msgstr "Accountnummer"
 
 msgctxt "account-view"
-msgid "Buy more credit"
-msgstr "Meer krediet kopen"
-
-msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "Momenteel niet beschikbaar"
-
-msgctxt "account-view"
-msgid "Key is valid"
-msgstr "Sleutel is geldig"
 
 msgctxt "account-view"
 msgid "Log out"
@@ -100,10 +109,6 @@ msgstr "Opgelet: dit inschakelen vereist altijd een Mullvad VPN-verbinding om he
 msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "Automatisch"
-
-msgctxt "advanced-settings-view"
-msgid "Back"
-msgstr "Terug"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
@@ -243,22 +248,6 @@ msgid "Always require VPN"
 msgstr "Altijd VPN vereisen"
 
 msgctxt "connect-view"
-msgid "Buy credit"
-msgstr "Krediet kopen"
-
-msgctxt "connect-view"
-msgid "Buy more credit"
-msgstr "Meer krediet kopen"
-
-msgctxt "connect-view"
-msgid "Cancel"
-msgstr "Annuleren"
-
-msgctxt "connect-view"
-msgid "Close"
-msgstr "Sluiten"
-
-msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "Gefeliciteerd!"
 
@@ -269,10 +258,6 @@ msgstr "Verbinding verbreken"
 msgctxt "connect-view"
 msgid "Either buy credit on our website or redeem a voucher."
 msgstr "Koop krediet op onze website of wissel een voucher in."
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "Voer vouchercode in"
 
 msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
@@ -303,7 +288,7 @@ msgid "You have no more VPN time left on this account."
 msgstr "U hebt geen VPN-tijd meer op dit account."
 
 msgctxt "connect-view"
-msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
+msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
 msgstr "U moet \"Altijd VPN vereisen\" uitschakelen voor toegang tot het internet om tijd toe te voegen."
 
 #. The hostname line displayed below the country on the main screen
@@ -342,7 +327,7 @@ msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
-msgid "“Always require VPN” is enabled."
+msgid "\"Always require VPN\" is enabled."
 msgstr "\"Altijd VPN vereisen\" is ingeschakeld."
 
 msgctxt "in-app-notifications"
@@ -417,8 +402,8 @@ msgid "UPDATE AVAILABLE"
 msgstr "UPDATE BESCHIKBAAR"
 
 msgctxt "in-app-notifications"
-msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
-msgstr "WireGuard-sleutel niet gepubliceerd op onze servers. U kunt uw sleutel beheren in Geavanceerde instellingen."
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -513,8 +498,12 @@ msgid "Account credit expires in %(duration)s"
 msgstr "Accountkrediet verloopt over %(duration)s"
 
 msgctxt "notifications"
-msgid "Blocked all connections"
-msgstr "Alle verbindingen geblokkeerd"
+msgid "Blocking internet"
+msgstr "Internet blokkeren"
+
+msgctxt "notifications"
+msgid "Blocking internet: Valid WireGuard key is missing"
+msgstr "Internet blokkeren: Geldige WireGuard-sleutel ontbreekt"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -553,10 +542,6 @@ msgstr "Beveiligd"
 msgctxt "notifications"
 msgid "Unsecured"
 msgstr "Niet beveiligd"
-
-msgctxt "notifications"
-msgid "Wireguard key generation failed"
-msgstr "Genereren van WireGuard-sleutel mislukt"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -623,8 +608,24 @@ msgid "Start minimized"
 msgstr "Geminimaliseerd opstarten"
 
 msgctxt "preferences-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "Deze optie is niet beschikbaar in een bètaversie."
+
+msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Gebruik een monochroom pictogram op de taakbalk in plaats van een gekleurd."
+
+msgctxt "redeem-voucher-alert"
+msgid "Cancel"
+msgstr "Annuleren"
+
+msgctxt "redeem-voucher-alert"
+msgid "Enter voucher code"
+msgstr "Voer vouchercode in"
+
+msgctxt "redeem-voucher-alert"
+msgid "Redeem voucher"
+msgstr "Voucher inwisselen"
 
 msgctxt "redeem-voucher-view"
 msgid "An error occured."
@@ -725,14 +726,6 @@ msgstr "Een probleem rapporteren"
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Update beschikbaar, download deze voor optimale beveiliging."
-
-msgctxt "support-view"
-msgid "Back"
-msgstr "Terug"
-
-msgctxt "support-view"
-msgid "Cancel"
-msgstr "Annuleren"
 
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -846,8 +839,16 @@ msgid "Generating key"
 msgstr "Sleutel wordt gegenereerd"
 
 msgctxt "wireguard-key-view"
+msgid "Key generated"
+msgstr "Sleutel gegenereerd"
+
+msgctxt "wireguard-key-view"
 msgid "Key is invalid"
 msgstr "Sleutel is ongeldig"
+
+msgctxt "wireguard-key-view"
+msgid "Key is valid"
+msgstr "Sleutel is geldig"
 
 msgctxt "wireguard-key-view"
 msgid "Key verification failed"
@@ -860,6 +861,10 @@ msgstr "Sleutels beheren"
 msgctxt "wireguard-key-view"
 msgid "No key set"
 msgstr "Geen sleutel ingesteld"
+
+msgctxt "wireguard-key-view"
+msgid "Public key"
+msgstr "Openbare sleutel"
 
 msgctxt "wireguard-key-view"
 msgid "Reconnecting with new WireGuard key..."
@@ -881,19 +886,12 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Sleutel verifiëren"
 
-msgctxt "wireguard-keys"
-msgid "Key generated"
-msgstr "Sleutel gegenereerd"
-
-msgctxt "wireguard-keys"
-msgid "Public key"
-msgstr "Openbare sleutel"
-
 #. Back button in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "Advanced"
 msgstr "Geavanceerd"
 
+#. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard-sleutel"

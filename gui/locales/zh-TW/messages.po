@@ -3,15 +3,32 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Project-ID: 350815\n"
 "X-Crowdin-Language: zh-TW\n"
 "X-Crowdin-File: messages.pot\n"
+"X-Crowdin-File-ID: 12\n"
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2020-05-05 07:34\n"
+"PO-Revision-Date: 2020-06-22 15:10\n"
+
+msgid "Back"
+msgstr "返回"
 
 msgid "BLOCKED CONNECTION"
 msgstr "被封鎖的連線"
+
+msgid "Buy credit"
+msgstr "購買點數"
+
+msgid "Buy more credit"
+msgstr "購買更多點數"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Close"
+msgstr "關閉"
 
 msgid "COPIED TO CLIPBOARD!"
 msgstr "已複製到剪貼簿！"
@@ -57,16 +74,8 @@ msgid "Account number"
 msgstr "帳戶編號"
 
 msgctxt "account-view"
-msgid "Buy more credit"
-msgstr "購買更多點數"
-
-msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "目前不可用"
-
-msgctxt "account-view"
-msgid "Key is valid"
-msgstr "金鑰有效"
 
 msgctxt "account-view"
 msgid "Log out"
@@ -100,10 +109,6 @@ msgstr "注意：啟用此功能，皆需 Mullvad VPN 連線才能上網。"
 msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "自動"
-
-msgctxt "advanced-settings-view"
-msgid "Back"
-msgstr "返回"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
@@ -243,22 +248,6 @@ msgid "Always require VPN"
 msgstr "始終需要 VPN"
 
 msgctxt "connect-view"
-msgid "Buy credit"
-msgstr "購買點數"
-
-msgctxt "connect-view"
-msgid "Buy more credit"
-msgstr "購買更多點數"
-
-msgctxt "connect-view"
-msgid "Cancel"
-msgstr "取消"
-
-msgctxt "connect-view"
-msgid "Close"
-msgstr "關閉"
-
-msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "恭喜！"
 
@@ -269,10 +258,6 @@ msgstr "中斷連線"
 msgctxt "connect-view"
 msgid "Either buy credit on our website or redeem a voucher."
 msgstr "在我們網站上購買點數或兌換憑證。"
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "輸入憑證兌換碼"
 
 msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
@@ -303,7 +288,7 @@ msgid "You have no more VPN time left on this account."
 msgstr "您這個帳戶已經沒有剩餘的 VPN 時間了。"
 
 msgctxt "connect-view"
-msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
+msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
 msgstr "您需要停用「始終需要 VPN」，才能上網加時。"
 
 #. The hostname line displayed below the country on the main screen
@@ -342,7 +327,7 @@ msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
-msgid "“Always require VPN” is enabled."
+msgid "\"Always require VPN\" is enabled."
 msgstr "「始終需要 VPN」已啟用。"
 
 msgctxt "in-app-notifications"
@@ -417,8 +402,8 @@ msgid "UPDATE AVAILABLE"
 msgstr "可用的更新"
 
 msgctxt "in-app-notifications"
-msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
-msgstr "WireGuard 金鑰未發佈到我們伺服器。您可以在「進階」設定中管理金鑰。"
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。"
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -513,8 +498,12 @@ msgid "Account credit expires in %(duration)s"
 msgstr "帳戶點數將在 %(duration)s 後到期"
 
 msgctxt "notifications"
-msgid "Blocked all connections"
-msgstr "已封鎖所有連線"
+msgid "Blocking internet"
+msgstr "正在封鎖網路"
+
+msgctxt "notifications"
+msgid "Blocking internet: Valid WireGuard key is missing"
+msgstr "正在封鎖網路：缺少有效的 WireGuard 金鑰"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -553,10 +542,6 @@ msgstr "安全"
 msgctxt "notifications"
 msgid "Unsecured"
 msgstr "不安全"
-
-msgctxt "notifications"
-msgid "Wireguard key generation failed"
-msgstr "WireGuard 金鑰產生失敗"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -623,8 +608,24 @@ msgid "Start minimized"
 msgstr "啟動時永遠最小化"
 
 msgctxt "preferences-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "測試版無法使用此選項。"
+
+msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "使用單色系統匣圖示，而不是彩色的圖示。"
+
+msgctxt "redeem-voucher-alert"
+msgid "Cancel"
+msgstr "取消"
+
+msgctxt "redeem-voucher-alert"
+msgid "Enter voucher code"
+msgstr "輸入憑證兌換碼"
+
+msgctxt "redeem-voucher-alert"
+msgid "Redeem voucher"
+msgstr "兌換憑證"
 
 msgctxt "redeem-voucher-view"
 msgid "An error occured."
@@ -725,14 +726,6 @@ msgstr "回報問題"
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "更新可用，請下載以保持安全。"
-
-msgctxt "support-view"
-msgid "Back"
-msgstr "返回"
-
-msgctxt "support-view"
-msgid "Cancel"
-msgstr "取消"
 
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -846,8 +839,16 @@ msgid "Generating key"
 msgstr "正在產生金鑰"
 
 msgctxt "wireguard-key-view"
+msgid "Key generated"
+msgstr "已產生金鑰"
+
+msgctxt "wireguard-key-view"
 msgid "Key is invalid"
 msgstr "金鑰無效"
+
+msgctxt "wireguard-key-view"
+msgid "Key is valid"
+msgstr "金鑰有效"
 
 msgctxt "wireguard-key-view"
 msgid "Key verification failed"
@@ -860,6 +861,10 @@ msgstr "管理金鑰"
 msgctxt "wireguard-key-view"
 msgid "No key set"
 msgstr "未設定金鑰"
+
+msgctxt "wireguard-key-view"
+msgid "Public key"
+msgstr "公開金鑰"
 
 msgctxt "wireguard-key-view"
 msgid "Reconnecting with new WireGuard key..."
@@ -881,19 +886,12 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "驗證金鑰"
 
-msgctxt "wireguard-keys"
-msgid "Key generated"
-msgstr "已產生金鑰"
-
-msgctxt "wireguard-keys"
-msgid "Public key"
-msgstr "公開金鑰"
-
 #. Back button in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "Advanced"
 msgstr "進階"
 
+#. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard 金鑰"

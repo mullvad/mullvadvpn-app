@@ -3,15 +3,32 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Project-ID: 350815\n"
 "X-Crowdin-Language: fi\n"
 "X-Crowdin-File: messages.pot\n"
+"X-Crowdin-File-ID: 12\n"
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2020-05-05 07:34\n"
+"PO-Revision-Date: 2020-06-22 15:10\n"
+
+msgid "Back"
+msgstr "Takaisin"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ESTETTY YHTEYS"
+
+msgid "Buy credit"
+msgstr "Osta käyttöaikaa"
+
+msgid "Buy more credit"
+msgstr "Uudista tilaus"
+
+msgid "Cancel"
+msgstr "Peruuta"
+
+msgid "Close"
+msgstr "Sulje"
 
 msgid "COPIED TO CLIPBOARD!"
 msgstr "KOPIOITU LEIKEPÖYDÄLLE!"
@@ -57,16 +74,8 @@ msgid "Account number"
 msgstr "Tilin numero"
 
 msgctxt "account-view"
-msgid "Buy more credit"
-msgstr "Uudista tilaus"
-
-msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "Ei saatavilla"
-
-msgctxt "account-view"
-msgid "Key is valid"
-msgstr "Validi avain"
 
 msgctxt "account-view"
 msgid "Log out"
@@ -100,10 +109,6 @@ msgstr "Huomio: jos tämä otetaan käyttöön, verkkoon yhdistäminen vaatii ai
 msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "Automaattinen"
-
-msgctxt "advanced-settings-view"
-msgid "Back"
-msgstr "Takaisin"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
@@ -243,22 +248,6 @@ msgid "Always require VPN"
 msgstr "Edellytä aina VPN-yhteyttä"
 
 msgctxt "connect-view"
-msgid "Buy credit"
-msgstr "Osta käyttöaikaa"
-
-msgctxt "connect-view"
-msgid "Buy more credit"
-msgstr "Uudista tilaus"
-
-msgctxt "connect-view"
-msgid "Cancel"
-msgstr "Peruuta"
-
-msgctxt "connect-view"
-msgid "Close"
-msgstr "Sulje"
-
-msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "Onnittelut!"
 
@@ -269,10 +258,6 @@ msgstr "Katkaise yhteys"
 msgctxt "connect-view"
 msgid "Either buy credit on our website or redeem a voucher."
 msgstr "Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki."
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "Syötä kuponkikoodi"
 
 msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
@@ -303,7 +288,7 @@ msgid "You have no more VPN time left on this account."
 msgstr "Sinulla ei ole enempää VPN-aikaa jäljellä tällä tilillä."
 
 msgctxt "connect-view"
-msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
+msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
 msgstr "Jotta pääset internetiin lisäämään aikaa, sinun on poistettava \"Edellytä aina VPN-yhteyttä\" -asetus käytöstä."
 
 #. The hostname line displayed below the country on the main screen
@@ -342,7 +327,7 @@ msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
-msgid "“Always require VPN” is enabled."
+msgid "\"Always require VPN\" is enabled."
 msgstr "\"Edellytä aina VPN-yhteyttä\" on käytössä."
 
 msgctxt "in-app-notifications"
@@ -417,8 +402,8 @@ msgid "UPDATE AVAILABLE"
 msgstr "PÄIVITYS SAATAVILLA"
 
 msgctxt "in-app-notifications"
-msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
-msgstr "WireGuard-avainta ei ole julkistettu palvelimillamme. Voit hallita avaintasi lisäasetuksissa."
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "Validi WireGuard-avain puuttuu. Hallinnoi avaimia lisäasetuksissa."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
@@ -513,8 +498,12 @@ msgid "Account credit expires in %(duration)s"
 msgstr "Tilin käyttöajan vanhenemiseen %(duration)s"
 
 msgctxt "notifications"
-msgid "Blocked all connections"
-msgstr "Kaikki yhteydet estetty"
+msgid "Blocking internet"
+msgstr "Verkkoyhteys estetään"
+
+msgctxt "notifications"
+msgid "Blocking internet: Valid WireGuard key is missing"
+msgstr "Verkkoyhteys estetään: validi WireGuard-avain puuttuu"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -553,10 +542,6 @@ msgstr "Suojattu"
 msgctxt "notifications"
 msgid "Unsecured"
 msgstr "Suojaamaton"
-
-msgctxt "notifications"
-msgid "Wireguard key generation failed"
-msgstr "Wireguard-avaimen luonti epäonnistui"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
@@ -623,8 +608,24 @@ msgid "Start minimized"
 msgstr "Käynnistä pienennettynä"
 
 msgctxt "preferences-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "Tämä toiminto ei ole käytössä betaversiossa."
+
+msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
 msgstr "Käytä yksiväristä ilmaisinalueen kuvaketta värillisen asemesta."
+
+msgctxt "redeem-voucher-alert"
+msgid "Cancel"
+msgstr "Peruuta"
+
+msgctxt "redeem-voucher-alert"
+msgid "Enter voucher code"
+msgstr "Syötä kuponkikoodi"
+
+msgctxt "redeem-voucher-alert"
+msgid "Redeem voucher"
+msgstr "Lunasta kuponki"
 
 msgctxt "redeem-voucher-view"
 msgid "An error occured."
@@ -725,14 +726,6 @@ msgstr "Raportoi ongelmasta"
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Päivitys saatavilla. Lataa se pysyäksesi turvassa."
-
-msgctxt "support-view"
-msgid "Back"
-msgstr "Takaisin"
-
-msgctxt "support-view"
-msgid "Cancel"
-msgstr "Peruuta"
 
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -846,8 +839,16 @@ msgid "Generating key"
 msgstr "Avainta luodaan"
 
 msgctxt "wireguard-key-view"
+msgid "Key generated"
+msgstr "Avain luotu"
+
+msgctxt "wireguard-key-view"
 msgid "Key is invalid"
 msgstr "Virheellinen avain"
+
+msgctxt "wireguard-key-view"
+msgid "Key is valid"
+msgstr "Kelvollinen avain"
 
 msgctxt "wireguard-key-view"
 msgid "Key verification failed"
@@ -860,6 +861,10 @@ msgstr "Hallitse avaimia"
 msgctxt "wireguard-key-view"
 msgid "No key set"
 msgstr "Ei määritettyä avainta"
+
+msgctxt "wireguard-key-view"
+msgid "Public key"
+msgstr "Julkinen avain"
 
 msgctxt "wireguard-key-view"
 msgid "Reconnecting with new WireGuard key..."
@@ -881,19 +886,12 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Todenna avain"
 
-msgctxt "wireguard-keys"
-msgid "Key generated"
-msgstr "Avain luotu"
-
-msgctxt "wireguard-keys"
-msgid "Public key"
-msgstr "Yleinen avain"
-
 #. Back button in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "Advanced"
 msgstr "Lisäasetukset"
 
+#. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard-avain"
