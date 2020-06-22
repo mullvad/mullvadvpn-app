@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Show a system notification when the account time will soon run out.
 
+### Changed
+- Change version string parsing to never suggest the user to upgrade to an older version.
+
 
 ## [2020.5-beta2] - 2020-06-16
 ### Added
