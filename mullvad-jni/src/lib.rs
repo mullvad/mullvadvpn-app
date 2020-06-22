@@ -570,7 +570,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getCurr
 
     if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
         match daemon_interface.get_current_version() {
-            Ok(location) => location.into_java(&env).forget(),
+            Ok(version) => version.into_java(&env).forget(),
             Err(error) => {
                 log::error!(
                     "{}",
