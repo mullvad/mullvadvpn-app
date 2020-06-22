@@ -116,7 +116,8 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
             val currentState = uiState
 
             if (currentState is TunnelState.Disconnecting &&
-                    currentState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect) {
+                currentState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect
+            ) {
                 return false
             } else {
                 scheduleToResetAnticipatedState()

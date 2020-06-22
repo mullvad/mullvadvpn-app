@@ -63,11 +63,11 @@ class MullvadProblemReport {
             if (currentJob == null || currentJob.isCompleted) {
                 currentJob = GlobalScope.async(Dispatchers.Default) {
                     val result = (collectJob?.await() ?: false) &&
-                            sendProblemReport(
-                                userEmail,
-                                userMessage,
-                                problemReportPath.await().absolutePath
-                            )
+                        sendProblemReport(
+                            userEmail,
+                            userMessage,
+                            problemReportPath.await().absolutePath
+                        )
 
                     if (result) {
                         deleteReportFile()

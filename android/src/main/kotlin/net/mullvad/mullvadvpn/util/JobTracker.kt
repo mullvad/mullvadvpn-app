@@ -21,13 +21,16 @@ class JobTracker {
 
             jobs.put(jobId, job)
 
-            reaperJobs.put(jobId, GlobalScope.launch(Dispatchers.Default) {
-                job.join()
+            reaperJobs.put(
+                jobId,
+                GlobalScope.launch(Dispatchers.Default) {
+                    job.join()
 
-                synchronized(jobs) {
-                    jobs.remove(jobId)
+                    synchronized(jobs) {
+                        jobs.remove(jobId)
+                    }
                 }
-            })
+            )
 
             return jobId
         }
