@@ -29,36 +29,16 @@ class AppVersionInfoCache(
 
     val latestStable
         get() = appVersionInfo?.latestStable
-    val latest
-        get() = appVersionInfo?.latest
+    val latestBeta
+        get() = appVersionInfo?.latestBeta
     val isSupported
         get() = appVersionInfo?.supported ?: true
 
-    val isOutdated: Boolean
-        get() {
-            if (showBetaReleases) {
-                return version != null && latest != null && latest != version
-            } else {
-                return version != null && latestStable != null && latestStable != version
-            }
-        }
+    val isOutdated
+        get() = appVersionInfo?.suggestedUpgrade != null
 
-    val upgradeVersion: String?
-        get() {
-            if (showBetaReleases) {
-                if (version == latest) {
-                    return null
-                } else {
-                    return latest
-                }
-            } else {
-                if (version == latestStable) {
-                    return null
-                } else {
-                    return latestStable
-                }
-            }
-        }
+    val upgradeVersion
+        get() = appVersionInfo?.suggestedUpgrade
 
     var onUpdate: (() -> Unit)? = null
         set(value) {
