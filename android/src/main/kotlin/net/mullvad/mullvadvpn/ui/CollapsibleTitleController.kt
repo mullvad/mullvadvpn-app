@@ -78,11 +78,6 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
         scrollInterpolation.end = expandedTitleHeight + expandedTitleMarginTop
     }
 
-    private val expandedTitle = parentView.findViewById<View>(R.id.expanded_title).apply {
-        addOnLayoutChangeListener(expandedTitleLayoutListener)
-        visibility = View.INVISIBLE
-    }
-
     private val titleLayoutListener: LayoutListener = LayoutListener() {
         val (x, y) = calculateViewCoordinates(title)
 
@@ -144,7 +139,17 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
     val fullCollapseScrollOffset: Float
         get() = scrollInterpolation.end
 
+    var expandedTitle by observable<View?>(null) { _, oldView, newView ->
+        oldView?.removeOnLayoutChangeListener(expandedTitleLayoutListener)
+        newView?.apply {
+            addOnLayoutChangeListener(expandedTitleLayoutListener)
+            expandedTitleLayoutListener.listener(this)
+            visibility = View.INVISIBLE
+        }
+    }
+
     init {
+        expandedTitle = parentView.findViewById<View>(R.id.expanded_title)
         update()
     }
 
