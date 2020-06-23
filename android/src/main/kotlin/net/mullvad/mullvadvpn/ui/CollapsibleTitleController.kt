@@ -170,7 +170,11 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
                 yOffsetInterpolation.updated
 
         if (shouldUpdate) {
-            val progress = maxOf(0.0f, minOf(1.0f, scrollInterpolation.progress(scrollOffset)))
+            val progress = if (expandedTitleView != null) {
+                maxOf(0.0f, minOf(1.0f, scrollInterpolation.progress(scrollOffset)))
+            } else {
+                1.0f
+            }
 
             val scale = scaleInterpolation.interpolate(progress)
             val offsetX = xOffsetInterpolation.interpolate(progress)
