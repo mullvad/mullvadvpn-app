@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.util.ListenableScrollableView
 // the offset reaches a value that completely hides the expanded title inside the scroll view, the
 // animation finishes with the title being in the collapsed state.
 class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.scroll_area) {
-    private inner class LayoutListener(val listener: () -> Unit) : OnLayoutChangeListener {
+    private inner class LayoutListener(val listener: (View) -> Unit) : OnLayoutChangeListener {
         override fun onLayoutChange(
             view: View,
             left: Int,
@@ -36,7 +36,7 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
             oldRight: Int,
             oldBottom: Int
         ) {
-            listener.invoke()
+            listener.invoke(view)
             update()
         }
     }
@@ -46,7 +46,7 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
     private val xOffsetInterpolation = LinearInterpolation()
     private val yOffsetInterpolation = LinearInterpolation()
 
-    private val collapsedTitleLayoutListener: LayoutListener = LayoutListener() {
+    private val collapsedTitleLayoutListener: LayoutListener = LayoutListener() { collapsedTitle ->
         val (x, y) = calculateViewCoordinates(collapsedTitle)
 
         collapsedTitleHeight = collapsedTitle.height.toFloat()
@@ -56,12 +56,12 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
         yOffsetInterpolation.end = y
     }
 
-    private val collapsedTitle = parentView.findViewById<View>(R.id.collapsed_title).apply {
+    private val collapsedTitleView = parentView.findViewById<View>(R.id.collapsed_title).apply {
         addOnLayoutChangeListener(collapsedTitleLayoutListener)
         visibility = View.INVISIBLE
     }
 
-    private val expandedTitleLayoutListener: LayoutListener = LayoutListener() {
+    private val expandedTitleLayoutListener: LayoutListener = LayoutListener() { expandedTitle ->
         val (x, y) = calculateViewCoordinates(expandedTitle)
 
         val expandedTitleMarginTop = when (val layoutParams = expandedTitle.layoutParams) {
@@ -78,7 +78,7 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
         scrollInterpolation.end = expandedTitleHeight + expandedTitleMarginTop
     }
 
-    private val titleLayoutListener: LayoutListener = LayoutListener() {
+    private val titleLayoutListener: LayoutListener = LayoutListener() { title ->
         val (x, y) = calculateViewCoordinates(title)
 
         titleWidth = title.width.toFloat()
@@ -90,7 +90,7 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
         yOffsetInterpolation.reference = y
     }
 
-    private val title = parentView.findViewById<View>(R.id.title).apply {
+    private val titleView = parentView.findViewById<View>(R.id.title).apply {
         addOnLayoutChangeListener(titleLayoutListener)
 
         // Setting the scale pivot point to the left corner simplifies the calculations
@@ -139,7 +139,7 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
     val fullCollapseScrollOffset: Float
         get() = scrollInterpolation.end
 
-    var expandedTitle by observable<View?>(null) { _, oldView, newView ->
+    var expandedTitleView by observable<View?>(null) { _, oldView, newView ->
         oldView?.removeOnLayoutChangeListener(expandedTitleLayoutListener)
         newView?.apply {
             addOnLayoutChangeListener(expandedTitleLayoutListener)
@@ -149,7 +149,7 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
     }
 
     init {
-        expandedTitle = parentView.findViewById<View>(R.id.expanded_title)
+        expandedTitleView = parentView.findViewById<View>(R.id.expanded_title)
         update()
     }
 
@@ -157,9 +157,9 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
         scrollArea.onScrollListener = null
         (scrollArea as View).removeOnLayoutChangeListener(scrollAreaLayoutListener)
 
-        collapsedTitle.removeOnLayoutChangeListener(collapsedTitleLayoutListener)
-        expandedTitle.removeOnLayoutChangeListener(expandedTitleLayoutListener)
-        title.removeOnLayoutChangeListener(titleLayoutListener)
+        collapsedTitleView.removeOnLayoutChangeListener(collapsedTitleLayoutListener)
+        expandedTitleView?.removeOnLayoutChangeListener(expandedTitleLayoutListener)
+        titleView.removeOnLayoutChangeListener(titleLayoutListener)
     }
 
     private fun update() {
@@ -176,7 +176,7 @@ class CollapsibleTitleController(val parentView: View, scrollAreaId: Int = R.id.
             val offsetX = xOffsetInterpolation.interpolate(progress)
             val offsetY = yOffsetInterpolation.interpolate(progress)
 
-            title.apply {
+            titleView.apply {
                 scaleX = scale
                 scaleY = scale
                 translationX = offsetX
