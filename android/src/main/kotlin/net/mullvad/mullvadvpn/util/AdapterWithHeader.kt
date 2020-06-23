@@ -4,7 +4,9 @@ import android.support.v7.widget.RecyclerView.Adapter
 import android.support.v7.widget.RecyclerView.AdapterDataObserver
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import kotlin.properties.Delegates.observable
 
 class AdapterWithHeader<H : ViewHolder>(
     val adapter: Adapter<H>,
@@ -56,6 +58,14 @@ class AdapterWithHeader<H : ViewHolder>(
         }
     }
 
+    private var headerView: View? by observable<View?>(null) { _, _, newView ->
+        newView?.let { view -> onHeaderAvailable?.invoke(view) }
+    }
+
+    var onHeaderAvailable by observable<((View) -> Unit)?>(null) { _, _, listener ->
+        headerView?.let { header -> listener?.invoke(header) }
+    }
+
     init {
         adapter.registerAdapterDataObserver(observer)
     }
@@ -99,6 +109,8 @@ class AdapterWithHeader<H : ViewHolder>(
         if (viewType == 0) {
             val inflater = LayoutInflater.from(parentView.context)
             val view = inflater.inflate(headerLayoutId, parentView, false)
+
+            headerView = view
 
             return HeaderOrHolder.Header(view)
         } else {
