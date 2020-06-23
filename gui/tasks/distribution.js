@@ -154,7 +154,7 @@ const config = {
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
       distAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
-      distAssets('shell-completions/_mullvad') + '=/usr/local/share/zsh/site-functions/_mullvad',
+      distAssets('shell-completions/_mullvad') + '=/usr/share/zsh/site-functions/_mullvad',
     ],
     afterInstall: distAssets('linux/after-install.sh'),
     afterRemove: distAssets('linux/after-remove.sh'),
