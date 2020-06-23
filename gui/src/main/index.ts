@@ -186,9 +186,10 @@ class ApplicationMain {
   private autoConnectFallbackScheduler = new Scheduler();
 
   public run() {
-    // Since electron's GPU blacklists are broken, GPU acceleration won't work on older distros
-    if (process.platform === 'linux') {
-      app.commandLine.appendSwitch('--disable-gpu');
+    // Remove window animations to combat window flickering when opening window. Can be removed when
+    // this issue has been resolved: https://github.com/electron/electron/issues/12130
+    if (process.platform === 'win32') {
+      app.commandLine.appendSwitch('wm-window-animations-disabled');
     }
 
     this.overrideAppPaths();
