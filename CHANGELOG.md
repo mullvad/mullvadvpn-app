@@ -26,9 +26,14 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 
 - Add fish shell completions for the mullvad CLI.
+- Add Korean, Polish and Thai languages to the desktop app.
 
 #### Android
 - Show a system notification when the account time will soon run out.
+
+### Fixed
+#### Windows
+- Fix window flickering by disabling window animations.
 
 ## [2020.5-beta2] - 2020-06-16
 ### Added

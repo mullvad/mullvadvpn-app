@@ -2,7 +2,22 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
+msgid "Back"
+msgstr ""
+
 msgid "BLOCKED CONNECTION"
+msgstr ""
+
+msgid "Buy credit"
+msgstr ""
+
+msgid "Buy more credit"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Close"
 msgstr ""
 
 msgid "COPIED TO CLIPBOARD!"
@@ -49,15 +64,7 @@ msgid "Account number"
 msgstr ""
 
 msgctxt "account-view"
-msgid "Buy more credit"
-msgstr ""
-
-msgctxt "account-view"
 msgid "Currently unavailable"
-msgstr ""
-
-msgctxt "account-view"
-msgid "Key is valid"
 msgstr ""
 
 msgctxt "account-view"
@@ -91,10 +98,6 @@ msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Automatic"
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "Back"
 msgstr ""
 
 #. The title for the shadowsocks bridge selector section.
@@ -235,22 +238,6 @@ msgid "Always require VPN"
 msgstr ""
 
 msgctxt "connect-view"
-msgid "Buy credit"
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Buy more credit"
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Cancel"
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Close"
-msgstr ""
-
-msgctxt "connect-view"
 msgid "Congrats!"
 msgstr ""
 
@@ -260,10 +247,6 @@ msgstr ""
 
 msgctxt "connect-view"
 msgid "Either buy credit on our website or redeem a voucher."
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
 msgstr ""
 
 msgctxt "connect-view"
@@ -295,7 +278,7 @@ msgid "You have no more VPN time left on this account."
 msgstr ""
 
 msgctxt "connect-view"
-msgid "You need to disable “Always require VPN” in order to access the Internet to add time."
+msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
 msgstr ""
 
 #. The hostname line displayed below the country on the main screen
@@ -334,7 +317,7 @@ msgid "MULLVAD VPN"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "“Always require VPN” is enabled."
+msgid "\"Always require VPN\" is enabled."
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -409,7 +392,7 @@ msgid "UPDATE AVAILABLE"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "WireGuard key not published to our servers. You can manage your key in Advanced settings."
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr ""
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
@@ -505,7 +488,11 @@ msgid "Account credit expires in %(duration)s"
 msgstr ""
 
 msgctxt "notifications"
-msgid "Blocked all connections"
+msgid "Blocking internet"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Blocking internet: Valid WireGuard key is missing"
 msgstr ""
 
 #. The message showed when a server has been connected to.
@@ -544,10 +531,6 @@ msgstr ""
 
 msgctxt "notifications"
 msgid "Unsecured"
-msgstr ""
-
-msgctxt "notifications"
-msgid "Wireguard key generation failed"
 msgstr ""
 
 #. The system notification displayed to the user when the running app becomes unsupported.
@@ -615,7 +598,23 @@ msgid "Start minimized"
 msgstr ""
 
 msgctxt "preferences-view"
+msgid "This option is unavailable while using a beta version."
+msgstr ""
+
+msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr ""
+
+msgctxt "redeem-voucher-alert"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "redeem-voucher-alert"
+msgid "Enter voucher code"
+msgstr ""
+
+msgctxt "redeem-voucher-alert"
+msgid "Redeem voucher"
 msgstr ""
 
 msgctxt "redeem-voucher-view"
@@ -716,14 +715,6 @@ msgstr ""
 
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
-msgstr ""
-
-msgctxt "support-view"
-msgid "Back"
-msgstr ""
-
-msgctxt "support-view"
-msgid "Cancel"
 msgstr ""
 
 msgctxt "support-view"
@@ -838,7 +829,15 @@ msgid "Generating key"
 msgstr ""
 
 msgctxt "wireguard-key-view"
+msgid "Key generated"
+msgstr ""
+
+msgctxt "wireguard-key-view"
 msgid "Key is invalid"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Key is valid"
 msgstr ""
 
 msgctxt "wireguard-key-view"
@@ -851,6 +850,10 @@ msgstr ""
 
 msgctxt "wireguard-key-view"
 msgid "No key set"
+msgstr ""
+
+msgctxt "wireguard-key-view"
+msgid "Public key"
 msgstr ""
 
 msgctxt "wireguard-key-view"
@@ -873,19 +876,12 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr ""
 
-msgctxt "wireguard-keys"
-msgid "Key generated"
-msgstr ""
-
-msgctxt "wireguard-keys"
-msgid "Public key"
-msgstr ""
-
 #. Back button in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "Advanced"
 msgstr ""
 
+#. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr ""

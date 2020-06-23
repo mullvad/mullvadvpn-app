@@ -1,20 +1,20 @@
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Project-ID: 350815\n"
-"X-Crowdin-Language: nb\n"
+"X-Crowdin-Language: pl\n"
 "X-Crowdin-File: relay-locations.pot\n"
 "X-Crowdin-File-ID: 14\n"
 "Project-Id-Version: mullvad-app\n"
-"Language-Team: Norwegian Bokmal\n"
-"Language: nb_NO\n"
+"Language-Team: Polish\n"
+"Language: pl_PL\n"
 "PO-Revision-Date: 2020-06-22 15:10\n"
 
 #. AU ADL
 msgid "Adelaide"
-msgstr "Adelaide"
+msgstr "Adelajda"
 
 #. AL
 msgid "Albania"
@@ -26,7 +26,7 @@ msgstr "Amsterdam"
 
 #. GR ATH
 msgid "Athens"
-msgstr "Athen"
+msgstr "Ateny"
 
 #. US ATL
 msgid "Atlanta, GA"
@@ -42,7 +42,7 @@ msgstr "Australia"
 
 #. AT
 msgid "Austria"
-msgstr "Østerrike"
+msgstr "Austria"
 
 #. BE
 msgid "Belgium"
@@ -50,7 +50,7 @@ msgstr "Belgia"
 
 #. RS BEG
 msgid "Belgrade"
-msgstr "Beograd"
+msgstr "Belgrad"
 
 #. US BOS
 msgid "Boston, MA"
@@ -58,7 +58,7 @@ msgstr "Boston, MA"
 
 #. BR
 msgid "Brazil"
-msgstr "Brasil"
+msgstr "Brazylia"
 
 #. AU BNE
 msgid "Brisbane"
@@ -66,23 +66,23 @@ msgstr "Brisbane"
 
 #. BE BRU
 msgid "Brussels"
-msgstr "Brussel"
+msgstr "Bruksela"
 
 #. RO BUH
 msgid "Bucharest"
-msgstr "București"
+msgstr "Bukareszt"
 
 #. HU BUD
 msgid "Budapest"
-msgstr "Budapest"
+msgstr "Budapeszt"
 
 #. BG
 msgid "Bulgaria"
-msgstr "Bulgaria"
+msgstr "Bułgaria"
 
 #. CA
 msgid "Canada"
-msgstr "Canada"
+msgstr "Kanada"
 
 #. AU CBR
 msgid "Canberra"
@@ -98,7 +98,7 @@ msgstr "Chicago, IL"
 
 #. MD KIV
 msgid "Chisinau"
-msgstr "Chișinău"
+msgstr "Kiszyniów"
 
 #. US CLE
 msgid "Cleveland, OH"
@@ -106,11 +106,11 @@ msgstr "Cleveland, OH"
 
 #. DK CPH
 msgid "Copenhagen"
-msgstr "København"
+msgstr "Kopenhaga"
 
 #. CZ
 msgid "Czech Republic"
-msgstr "Tsjekkia"
+msgstr "Czechy"
 
 #. US DAL
 msgid "Dallas, TX"
@@ -118,7 +118,7 @@ msgstr "Dallas, TX"
 
 #. DK
 msgid "Denmark"
-msgstr "Danmark"
+msgstr "Dania"
 
 #. US DEN
 msgid "Denver, CO"
@@ -126,7 +126,7 @@ msgstr "Denver, CO"
 
 #. AE DXB
 msgid "Dubai"
-msgstr "Dubai"
+msgstr "Dubaj"
 
 #. IE DUB
 msgid "Dublin"
@@ -134,11 +134,11 @@ msgstr "Dublin"
 
 #. FI
 msgid "Finland"
-msgstr "Finland"
+msgstr "Finlandia"
 
 #. FR
 msgid "France"
-msgstr "Frankrike"
+msgstr "Francja"
 
 #. DE FRA
 msgid "Frankfurt"
@@ -146,7 +146,7 @@ msgstr "Frankfurt"
 
 #. DE
 msgid "Germany"
-msgstr "Tyskland"
+msgstr "Niemcy"
 
 #. SE GOT
 msgid "Gothenburg"
@@ -154,7 +154,7 @@ msgstr "Göteborg"
 
 #. GR
 msgid "Greece"
-msgstr "Hellas"
+msgstr "Grecja"
 
 #. SE HEL
 msgid "Helsingborg"
@@ -166,7 +166,7 @@ msgstr "Helsinki"
 
 #. HK HKG
 msgid "Hong Kong"
-msgstr "Hong Kong"
+msgstr "Hongkong"
 
 #. US HNL
 msgid "Honolulu, HI"
@@ -174,23 +174,23 @@ msgstr "Honolulu, HI"
 
 #. HU
 msgid "Hungary"
-msgstr "Ungarn"
+msgstr "Węgry"
 
 #. IN
 msgid "India"
-msgstr "India"
+msgstr "Indie"
 
 #. IE
 msgid "Ireland"
-msgstr "Irland"
+msgstr "Irlandia"
 
 #. IL
 msgid "Israel"
-msgstr "Israel"
+msgstr "Izrael"
 
 #. IT
 msgid "Italy"
-msgstr "Italia"
+msgstr "Włochy"
 
 #. US JAN
 msgid "Jackson, MS"
@@ -198,7 +198,7 @@ msgstr "Jackson, MS"
 
 #. JP
 msgid "Japan"
-msgstr "Japan"
+msgstr "Japonia"
 
 #. ZA JNB
 msgid "Johannesburg"
@@ -206,19 +206,19 @@ msgstr "Johannesburg"
 
 #. UA IEV
 msgid "Kiev"
-msgstr "Kiev"
+msgstr "Kijów"
 
 #. LV
 msgid "Latvia"
-msgstr "Latvia"
+msgstr "Łotwa"
 
 #. PT LIS
 msgid "Lisbon"
-msgstr "Lisboa"
+msgstr "Lizbona"
 
 #. GB LON
 msgid "London"
-msgstr "London"
+msgstr "Londyn"
 
 #. US LAX
 msgid "Los Angeles, CA"
@@ -230,11 +230,11 @@ msgstr "Louisville, KY"
 
 #. LU LUX
 msgid "Luxembourg"
-msgstr "Luxembourg"
+msgstr "Luksemburg"
 
 #. ES MAD
 msgid "Madrid"
-msgstr "Madrid"
+msgstr "Madryt"
 
 #. SE MMA
 msgid "Malmö"
@@ -246,7 +246,7 @@ msgstr "Manchester"
 
 #. FR MRS
 msgid "Marseille"
-msgstr "Marseille"
+msgstr "Marsylia"
 
 #. AU MEL
 msgid "Melbourne"
@@ -258,7 +258,7 @@ msgstr "Miami, FL"
 
 #. IT MIL
 msgid "Milan"
-msgstr "Milano"
+msgstr "Mediolan"
 
 #. US MKE
 msgid "Milwaukee, WI"
@@ -270,7 +270,7 @@ msgstr "Minneapolis/St. Paul Apt, MN"
 
 #. MD
 msgid "Moldova"
-msgstr "Moldova"
+msgstr "Mołdawia"
 
 #. CA MTR
 msgid "Montreal"
@@ -278,23 +278,23 @@ msgstr "Montreal"
 
 #. NL
 msgid "Netherlands"
-msgstr "Nederland"
+msgstr "Holandia"
 
 #. US NYC
 msgid "New York, NY"
-msgstr "New York, NY"
+msgstr "Nowy Jork, NY"
 
 #. NZ
 msgid "New Zealand"
-msgstr "New Zealand"
+msgstr "Nowa Zelandia"
 
 #. RS INI
 msgid "Nis"
-msgstr "Niš"
+msgstr "Nisz"
 
 #. NO
 msgid "Norway"
-msgstr "Norge"
+msgstr "Norwegia"
 
 #. US OKC
 msgid "Oklahoma City, OK"
@@ -306,7 +306,7 @@ msgstr "Oslo"
 
 #. FR PAR
 msgid "Paris"
-msgstr "Paris"
+msgstr "Paryż"
 
 #. AU PER
 msgid "Perth"
@@ -314,7 +314,7 @@ msgstr "Perth"
 
 #. US PHL
 msgid "Philadelphia, PA"
-msgstr "Philadelphia, PA"
+msgstr "Filadelfia, PA"
 
 #. US PHX
 msgid "Phoenix, AZ"
@@ -326,7 +326,7 @@ msgstr "Piscataway, NJ"
 
 #. PL
 msgid "Poland"
-msgstr "Polen"
+msgstr "Polska"
 
 #. US PDX
 msgid "Portland, OR"
@@ -334,11 +334,11 @@ msgstr "Portland, OR"
 
 #. PT
 msgid "Portugal"
-msgstr "Portugal"
+msgstr "Portugalia"
 
 #. CZ PRG
 msgid "Prague"
-msgstr "Praha"
+msgstr "Praga"
 
 #. IN PNQ
 msgid "Pune"
@@ -350,11 +350,11 @@ msgstr "Richmond, VA"
 
 #. LV RIX
 msgid "Riga"
-msgstr "Riga"
+msgstr "Ryga"
 
 #. RO
 msgid "Romania"
-msgstr "Romania"
+msgstr "Rumunia"
 
 #. US SLC
 msgid "Salt Lake City, UT"
@@ -370,7 +370,7 @@ msgstr "San Jose, CA"
 
 #. BR SAO
 msgid "Sao Paulo"
-msgstr "Sao Paulo"
+msgstr "São Paulo"
 
 #. US SEA
 msgid "Seattle, WA"
@@ -386,7 +386,7 @@ msgstr "Serbia"
 
 #. SG SIN
 msgid "Singapore"
-msgstr "Singapore"
+msgstr "Singapur"
 
 #. US FSD
 msgid "Sioux Falls, SD"
@@ -398,11 +398,11 @@ msgstr "Sofia"
 
 #. ZA
 msgid "South Africa"
-msgstr "Sør-Afrika"
+msgstr "Republika Południowej Afryki"
 
 #. ES
 msgid "Spain"
-msgstr "Spania"
+msgstr "Hiszpania"
 
 #. US STL
 msgid "St. Louis, MO"
@@ -414,15 +414,15 @@ msgstr "Stamford, CT"
 
 #. SE STO
 msgid "Stockholm"
-msgstr "Stockholm"
+msgstr "Sztokholm"
 
 #. SE
 msgid "Sweden"
-msgstr "Sverige"
+msgstr "Szwecja"
 
 #. CH
 msgid "Switzerland"
-msgstr "Sveits"
+msgstr "Szwajcaria"
 
 #. AU SYD
 msgid "Sydney"
@@ -430,7 +430,7 @@ msgstr "Sydney"
 
 #. IL TLV
 msgid "Tel Aviv"
-msgstr "Tel Aviv"
+msgstr "Tel Awiw"
 
 #. AL TIA
 msgid "Tirana"
@@ -438,7 +438,7 @@ msgstr "Tirana"
 
 #. JP TYO
 msgid "Tokyo"
-msgstr "Tokyo"
+msgstr "Tokio"
 
 #. CA TOR
 msgid "Toronto"
@@ -446,11 +446,11 @@ msgstr "Toronto"
 
 #. GB
 msgid "UK"
-msgstr "Storbritannia"
+msgstr "Wielka Brytania"
 
 #. US
 msgid "USA"
-msgstr "USA"
+msgstr "Stany Zjednoczone"
 
 #. UA
 msgid "Ukraine"
@@ -458,7 +458,7 @@ msgstr "Ukraina"
 
 #. AE
 msgid "United Arab Emirates"
-msgstr "De forente arabiske emirater"
+msgstr "Zjednoczone Emiraty Arabskie"
 
 #. CA VAN
 msgid "Vancouver"
@@ -466,7 +466,7 @@ msgstr "Vancouver"
 
 #. AT VIE
 msgid "Vienna"
-msgstr "Wien"
+msgstr "Wiedeń"
 
 #. PL WAW
 msgid "Warsaw"
@@ -474,13 +474,13 @@ msgstr "Warszawa"
 
 #. US WAS
 msgid "Washington DC"
-msgstr "Washington DC"
+msgstr "Waszyngton, DC"
 
 #. AT VIE
 msgid "Wien"
-msgstr "Wien"
+msgstr "Wiedeń"
 
 #. CH ZRH
 msgid "Zurich"
-msgstr "Zürich"
+msgstr "Zurych"
 

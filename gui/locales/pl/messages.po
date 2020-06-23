@@ -1,147 +1,147 @@
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 "X-Crowdin-Project: mullvad-app\n"
 "X-Crowdin-Project-ID: 350815\n"
-"X-Crowdin-Language: zh-CN\n"
+"X-Crowdin-Language: pl\n"
 "X-Crowdin-File: messages.pot\n"
 "X-Crowdin-File-ID: 12\n"
 "Project-Id-Version: mullvad-app\n"
-"Language-Team: Chinese Simplified\n"
-"Language: zh_CN\n"
+"Language-Team: Polish\n"
+"Language: pl_PL\n"
 "PO-Revision-Date: 2020-06-22 15:10\n"
 
 msgid "Back"
-msgstr "返回"
+msgstr "Wstecz"
 
 msgid "BLOCKED CONNECTION"
-msgstr "已阻止连接"
+msgstr "ZABLOKOWANE POŁĄCZENIE"
 
 msgid "Buy credit"
-msgstr "购买额度"
+msgstr "Kup doładowanie"
 
 msgid "Buy more credit"
-msgstr "购买更多额度"
+msgstr "Doładuj konto"
 
 msgid "Cancel"
-msgstr "取消"
+msgstr "Anuluj"
 
 msgid "Close"
-msgstr "关闭"
+msgstr "Zamknij"
 
 msgid "COPIED TO CLIPBOARD!"
-msgstr "已复制到剪贴板！"
+msgstr "SKOPIOWANO DO SCHOWKA!"
 
 msgid "CREATING SECURE CONNECTION"
-msgstr "正在创建安全连接"
+msgstr "TWORZENIE BEZPIECZNEGO POŁĄCZENIA"
 
 msgid "FAILED TO SECURE CONNECTION"
-msgstr "无法保护连接"
+msgstr "BŁĄD ZABEZPIECZANIA POŁĄCZENIA"
 
 msgid "Invalid account number"
-msgstr "帐号无效"
+msgstr "Nieprawidłowy numer konta"
 
 msgid "SECURE CONNECTION"
-msgstr "安全连接"
+msgstr "BEZPIECZNE POŁĄCZENIE"
 
 msgid "System default"
-msgstr "系统默认值"
+msgstr "Domyślne ustawienie systemowe"
 
 msgid "UNSECURED CONNECTION"
-msgstr "未受保护的连接"
+msgstr "NIEZABEZPIECZONE POŁĄCZENIE"
 
 #. The remaining time left on the account measured in days.
 #. Available placeholders:
 #. %(duration)s - The remaining time measured in days.
 msgctxt "account-expiry"
 msgid "%(duration)s days"
-msgstr "%(duration)s 天"
+msgstr "%(duration)s dni"
 
 #. The remaining time left on the account displayed across the app.
 #. Available placeholders:
 #. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
 msgctxt "account-expiry"
 msgid "%(duration)s left"
-msgstr "剩余 %(duration)s"
+msgstr "pozostało: %(duration)s"
 
 msgctxt "account-view"
 msgid "Account"
-msgstr "帐户"
+msgstr "Konto"
 
 msgctxt "account-view"
 msgid "Account number"
-msgstr "帐号"
+msgstr "Numer konta"
 
 msgctxt "account-view"
 msgid "Currently unavailable"
-msgstr "当前不可用"
+msgstr "Obecnie niedostępne"
 
 msgctxt "account-view"
 msgid "Log out"
-msgstr "退出"
+msgstr "Wyloguj się"
 
 msgctxt "account-view"
 msgid "OUT OF TIME"
-msgstr "已没有时间"
+msgstr "KONIEC CZASU"
 
 msgctxt "account-view"
 msgid "Paid until"
-msgstr "到期时间"
+msgstr "Płatne do"
 
 #. Title label in navigation bar
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
-msgstr "高级"
+msgstr "Zaawansowane"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
-msgstr "高级"
+msgstr "Zaawansowane"
 
 msgctxt "advanced-settings-view"
 msgid "Always require VPN"
-msgstr "始终需要 VPN"
+msgstr "Zawsze wymagaj VPN"
 
 msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
-msgstr "注意：启用此选项后，将始终需要 Mullvad VPN 才能连接到网络。"
+msgstr "Uwaga: wskutek włączenia tej opcji w celu uzyskania dostępu do Internetu zawsze wymagane będzie połączenie przez Mullvad VPN."
 
 msgctxt "advanced-settings-view"
 msgid "Automatic"
-msgstr "自动"
+msgstr "Automatycznie"
 
 #. The title for the shadowsocks bridge selector section.
 msgctxt "advanced-settings-view"
 msgid "Bridge mode"
-msgstr "桥接模式"
+msgstr "Tryb mostu"
 
 msgctxt "advanced-settings-view"
 msgid "Default"
-msgstr "默认"
+msgstr "Domyślnie"
 
 msgctxt "advanced-settings-view"
 msgid "Enable anyway"
-msgstr "仍然启用"
+msgstr "Mimo to włącz"
 
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6"
-msgstr "启用 IPv6"
+msgstr "Włącz IPv6"
 
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
-msgstr "启用通过隧道进行 IPv6 通信。"
+msgstr "Włącz komunikację IPv6 przez tunel."
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
-msgstr "如果断开连接或退出应用，此设置将阻止您的网络连接。"
+msgstr "Jeśli rozłączysz się lub zamkniesz aplikację, to ustawienie będzie blokować dostęp do Internetu."
 
 msgctxt "advanced-settings-view"
 msgid "Off"
-msgstr "关"
+msgstr "Wył."
 
 msgctxt "advanced-settings-view"
 msgid "On"
-msgstr "开"
+msgstr "Wł."
 
 msgctxt "advanced-settings-view"
 msgid "OpenVPN"
@@ -152,7 +152,7 @@ msgstr "OpenVPN"
 #. %(portType)s - a selected protocol (either TCP or UDP)
 msgctxt "advanced-settings-view"
 msgid "OpenVPN %(portType)s port"
-msgstr "OpenVPN %(portType)s 端口"
+msgstr "Port %(portType)s OpenVPN"
 
 msgctxt "advanced-settings-view"
 msgid "OpenVPN Mssfix"
@@ -160,7 +160,7 @@ msgstr "OpenVPN Mssfix"
 
 msgctxt "advanced-settings-view"
 msgid "OpenVPN transport protocol"
-msgstr "OpenVPN 传输协议"
+msgstr "Protokół transportowy OpenVPN"
 
 #. The hint displayed below the Mssfix input field.
 #. Available placeholders:
@@ -168,7 +168,7 @@ msgstr "OpenVPN 传输协议"
 #. %(min)d - the minimum possible mssfix value
 msgctxt "advanced-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr "设置 OpenVPN MSS 值。值范围：%(min)d - %(max)d。"
+msgstr "Ustaw wartość MSS OpenVPN. Prawidłowy zakres: %(min)d - %(max)d."
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -176,7 +176,7 @@ msgstr "设置 OpenVPN MSS 值。值范围：%(min)d - %(max)d。"
 #. %(min)d - the minimum possible wireguard mtu value
 msgctxt "advanced-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
-msgstr "设置 WireGuard MTU 值。有效范围：%(min)d - %(max)d。"
+msgstr "Ustaw wartość MTU WireGuard. Prawidłowy zakres: %(min)d - %(max)d."
 
 msgctxt "advanced-settings-view"
 msgid "TCP"
@@ -184,15 +184,15 @@ msgstr "TCP"
 
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr "应用的内置切断开关始终处于开启状态。如果点击“断开连接”或“退出”，此设置还将阻止您的网络连接。"
+msgstr "Wbudowany kill switch aplikacji jest zawsze włączony. To ustawienie dodatkowo blokuje dostęp do Internetu w razie kliknięcia przycisku Rozłącz lub Zamknij."
 
 msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
-msgstr "要启用 WireGuard，请在下面的“WireGuard 密钥”设置下生成密钥。"
+msgstr "Aby włączyć WireGuard, wygeneruj klucz w poniższym obszarze ustawienia „Klucz WireGuard”."
 
 msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
-msgstr "隧道协议"
+msgstr "Protokół tunelowania"
 
 msgctxt "advanced-settings-view"
 msgid "UDP"
@@ -204,35 +204,35 @@ msgstr "WireGuard"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard key"
-msgstr "WireGuard 密钥"
+msgstr "Klucz WireGuard"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
+msgstr "MTU WireGuard"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard port"
-msgstr "WireGuard 端口"
+msgstr "Port WireGuard"
 
 msgctxt "advanced-settings-view-wireguard"
 msgid "missing key"
-msgstr "缺少密钥"
+msgstr "brakujący klucz"
 
 msgctxt "auth-failure"
 msgid "Account authentication failed."
-msgstr "帐户身份验证失败。"
+msgstr "Niepowodzenie uwierzytelnienia konta."
 
 msgctxt "auth-failure"
 msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
-msgstr "此帐户的同步连接数过多。请断开另一个设备或者稍后再次尝试连接。"
+msgstr "To konto ma zbyt wiele jednoczesnych połączeń. Odłącz któreś z połączonych urządzeń lub po chwili spróbuj połączyć się ponownie."
 
 msgctxt "auth-failure"
 msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "此帐户已没有 VPN 时间。请登录我们的网站购买更多额度。"
+msgstr "Na tym koncie nie masz już czasu VPN. Aby je doładować, zaloguj się w naszej witrynie."
 
 msgctxt "auth-failure"
 msgid "You've logged in with an account number that is not valid. Please log out and try another one."
-msgstr "您登录时使用的帐号无效。请退出并尝试其他帐号。"
+msgstr "Zalogowano się przy użyciu nieprawidłowego numeru konta. Wyloguj się i wypróbuj inny numer."
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -245,51 +245,51 @@ msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
 msgid "Always require VPN"
-msgstr "始终需要 VPN"
+msgstr "Zawsze wymagaj VPN"
 
 msgctxt "connect-view"
 msgid "Congrats!"
-msgstr "恭喜！"
+msgstr "Gratulacje!"
 
 msgctxt "connect-view"
 msgid "Disconnect"
-msgstr "断开连接"
+msgstr "Rozłącz"
 
 msgctxt "connect-view"
 msgid "Either buy credit on our website or redeem a voucher."
-msgstr "在我们的网站上购买额度或兑换优惠券。"
+msgstr "Doładuj w naszej witrynie internetowej lub zrealizuj kupon."
 
 msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
-msgstr "以下是您的帐号。请妥善保存！"
+msgstr "Oto Twój numer konta. Zachowaj go!"
 
 msgctxt "connect-view"
 msgid "Out of time"
-msgstr "已没有时间"
+msgstr "Koniec czasu"
 
 msgctxt "connect-view"
 msgid "Redeem voucher"
-msgstr "兑换优惠券"
+msgstr "Zrealizuj kupon"
 
 msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "注意，在 VPN 断开连接时关闭此选项将允许网络流量，直到您在“高级”设置下将其重新打开。"
+msgstr "Pamiętaj, że wyłączenie tej opcji umożliwi ruch sieciowy po rozłączeniu z VPN, dopóki nie włączysz jej ponownie w obszarze Ustawienia zaawansowane."
 
 msgctxt "connect-view"
 msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
-msgstr "要添加更多，您需要断开连接并使用不安全的连接访问网络。"
+msgstr "Aby dodać więcej, musisz rozłączyć się i uzyskać dostęp do Internetu za pomocą niezabezpieczonego połączenia."
 
 msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
-msgstr "要开始使用本应用，您首先需要向帐户中充入时间。"
+msgstr "Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta."
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account."
-msgstr "此帐户没有更多的 VPN 时间了。"
+msgstr "Na tym koncie nie masz już czasu VPN."
 
 msgctxt "connect-view"
 msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
-msgstr "您需要禁用“始终需要 VPN”来访问网络以增加时间。"
+msgstr "Aby uzyskać dostęp do Internetu w celu wydłużenia czasu, musisz wyłączyć opcję „Zawsze wymagaj VPN”."
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -297,7 +297,7 @@ msgstr "您需要禁用“始终需要 VPN”来访问网络以增加时间。"
 #. %(bridge)s - the bridge hostname
 msgctxt "connection-info"
 msgid "%(relay)s via %(bridge)s"
-msgstr "%(relay)s，经由 %(bridge)s"
+msgstr "%(relay)s przez %(bridge)s"
 
 #. The tunnel type line displayed below the hostname line on the main screen
 #. Available placeholders:
@@ -305,22 +305,22 @@ msgstr "%(relay)s，经由 %(bridge)s"
 #. %(bridgeType)s - the bridge type, i.e Shadowsocks
 msgctxt "connection-info"
 msgid "%(tunnelType)s via %(bridgeType)s"
-msgstr "%(tunnelType)s，经由 %(bridgeType)s"
+msgstr "%(tunnelType)s przez %(bridgeType)s"
 
 msgctxt "connection-info"
 msgid "In"
-msgstr "内部"
+msgstr "Wejście"
 
 msgctxt "connection-info"
 msgid "Out"
-msgstr "外部"
+msgstr "Wyjście"
 
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
 msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
-msgstr "出错了。请发送电子邮件到 %(email)s，与我们联系"
+msgstr "Coś poszło nie tak. Skontaktuj się z nami pod adresem %(email)s"
 
 msgctxt "generic"
 msgid "MULLVAD VPN"
@@ -328,571 +328,571 @@ msgstr "MULLVAD VPN"
 
 msgctxt "in-app-notifications"
 msgid "\"Always require VPN\" is enabled."
-msgstr "“始终需要 VPN”已启用。"
+msgstr "Opcja „Zawsze wymagaj VPN” jest włączona."
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "帐户额度即将到期"
+msgstr "DOŁADOWANIE KONTA WKRÓTCE WYGASA"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
-msgstr "正在阻止网络"
+msgstr "BLOKOWANIE INTERNETU"
 
 msgctxt "in-app-notifications"
 msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
-msgstr "无法配置 IPv6，请在您的系统上启用此功能或者在应用中将其禁用"
+msgstr "Nie można skonfigurować protokołu IPv6, włącz go w systemie lub wyłącz w aplikacji"
 
 msgctxt "in-app-notifications"
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "无法应用防火墙规则。设备当前可能不会受到保护"
+msgstr "Błąd stosowania reguł zapory. Urządzenie może być obecnie niezabezpieczone"
 
 msgctxt "in-app-notifications"
 msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "无法阻止所有网络流量。请排除故障或向我们报告问题。"
+msgstr "Błąd blokowania całego ruchu sieciowego. Rozwiąż problem lub zgłoś go nam."
 
 msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
-msgstr "无法解析自定义隧道的主机。请考虑更改设置"
+msgstr "Błąd określania hosta tunelu niestandardowego. Rozważ zmianę ustawień"
 
 msgctxt "in-app-notifications"
 msgid "Failed to set system DNS server"
-msgstr "无法设置系统 DNS 服务器"
+msgstr "Niepowodzenie ustawienia systemowego serwera DNS"
 
 msgctxt "in-app-notifications"
 msgid "Failed to start tunnel connection"
-msgstr "无法启动隧道连接"
+msgstr "Niepowodzenie uruchomienia połączenia tunelowego"
 
 msgctxt "in-app-notifications"
 msgid "Inconsistent internal version information, please restart the app"
-msgstr "内部版本信息不一致，请重启应用"
+msgstr "Niespójne wewnętrzne informacje o wersji, ponownie uruchom aplikację"
 
 msgctxt "in-app-notifications"
 msgid "INCONSISTENT VERSION"
-msgstr "版本不一致"
+msgstr "NIESPÓJNA WERSJA"
 
 #. The in-app banner displayed to the user when the app update is available.
 #. Available placeholders:
 #. %(version)s - the newest available version of the app
 msgctxt "in-app-notifications"
 msgid "Install Mullvad VPN (%(version)s) to stay up to date"
-msgstr "安装 Mullvad VPN (%(version)s) 以保持最新状态"
+msgstr "Aby być na bieżąco, zainstaluj Mullvad VPN (%(version)s)"
 
 msgctxt "in-app-notifications"
 msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
-msgstr "没有中继服务器与当前设置匹配。您可以尝试更改位置或中继设置。"
+msgstr "Żaden serwer przekazujący nie odpowiada bieżącym ustawieniom. Możesz spróbować zmienić lokalizację lub ustawienia przekazywania."
 
 msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
-msgstr "此设备已离线，无法建立隧道"
+msgstr "To urządzenie jest offline, nie można ustanowić tuneli"
 
 msgctxt "in-app-notifications"
 msgid "This might be caused by third party security software"
-msgstr "这可能是由第三方安全软件引起的"
+msgstr "Może to być spowodowane przez oprogramowanie zabezpieczające innej firmy"
 
 msgctxt "in-app-notifications"
 msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
-msgstr "在此设备上无法检测到正在运行的 TAP 适配器。如果您已禁用 TAP 适配器，请将其启用。否则，请重新安装应用"
+msgstr "Nie można wykryć działającej karty sieciowej TAP na tym urządzeniu. Jeśli ją wyłączono, włącz ją ponownie. W przeciwnym razie ponownie zainstaluj aplikację"
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
-msgstr "不受支持的版本"
+msgstr "WERSJA NIEOBSŁUGIWANA"
 
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
-msgstr "有可用更新"
+msgstr "DOSTĘPNA JEST AKTUALIZACJA"
 
 msgctxt "in-app-notifications"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥。"
+msgstr "Brak prawidłowego klucza WireGuard. Zarządzaj kluczami w obszarze Ustawienia zaawansowane."
 
 #. The in-app banner displayed to the user when the running app becomes unsupported.
 #. Available placeholders:
 #. %(version)s - the newest available version of the app
 msgctxt "in-app-notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "您正在运行不受支持的应用版本。请立即升级到 %(version)s 以确保您的安全"
+msgstr "Używasz nieobsługiwanej wersji aplikacji. Aby zapewnić sobie bezpieczeństwo, zaktualizuj teraz do wersji %(version)s"
 
 msgctxt "in-app-notifications"
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr "您的网络流量可能在泄露"
+msgstr "TWÓJ RUCH SIECIOWY MOŻE WYCIEKAĆ"
 
 msgctxt "in-app-notifications"
 msgid "Your kernel may be outdated"
-msgstr "您的内核已过期"
+msgstr "Jądro systemu może być nieaktualne"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
-msgstr "正在连接到 Mullvad 系统服务…"
+msgstr "Łączenie z usługą systemową Mullvad..."
 
 msgctxt "login-view"
 msgid "Account created"
-msgstr "已创建帐户"
+msgstr "Utworzono konto"
 
 msgctxt "login-view"
 msgid "Checking account number"
-msgstr "正在检查帐号"
+msgstr "Sprawdzanie numeru konta"
 
 msgctxt "login-view"
 msgid "Create account"
-msgstr "创建帐户"
+msgstr "Utwórz konto"
 
 msgctxt "login-view"
 msgid "Creating account..."
-msgstr "正在创建帐户…"
+msgstr "Tworzenie konta..."
 
 msgctxt "login-view"
 msgid "Don't have an account number?"
-msgstr "没有帐号？"
+msgstr "Nie masz numeru konta?"
 
 msgctxt "login-view"
 msgid "Enter your account number"
-msgstr "输入您的帐号"
+msgstr "Wprowadź numer konta"
 
 msgctxt "login-view"
 msgid "Error"
-msgstr "错误"
+msgstr "Błąd"
 
 msgctxt "login-view"
 msgid "Failed to create account"
-msgstr "无法创建帐户"
+msgstr "Nie można utworzyć konta"
 
 msgctxt "login-view"
 msgid "Logged in"
-msgstr "已登录"
+msgstr "Zalogowano jako"
 
 msgctxt "login-view"
 msgid "Logging in..."
-msgstr "登录中…"
+msgstr "Logowanie..."
 
 msgctxt "login-view"
 msgid "Login"
-msgstr "登录"
+msgstr "Logowanie"
 
 msgctxt "login-view"
 msgid "Login failed"
-msgstr "登录失败"
+msgstr "Błąd logowania"
 
 msgctxt "login-view"
 msgid "Please wait"
-msgstr "请稍候"
+msgstr "Czekaj"
 
 msgctxt "login-view"
 msgid "Unknown error"
-msgstr "未知错误"
+msgstr "Nieznany błąd"
 
 msgctxt "login-view"
 msgid "Valid account number"
-msgstr "有效帐号"
+msgstr "Prawidłowy numer konta"
 
 #. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
-msgstr "设置"
+msgstr "Ustawienia"
 
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
 msgctxt "notifications"
 msgid "Account credit expires in %(duration)s"
-msgstr "帐户额度将在 %(duration)s后到期"
+msgstr "Doładowanie konta wygasa za %(duration)s"
 
 msgctxt "notifications"
 msgid "Blocking internet"
-msgstr "正在阻止网络"
+msgstr "Blokowanie Internetu"
 
 msgctxt "notifications"
 msgid "Blocking internet: Valid WireGuard key is missing"
-msgstr "正在阻止网络：缺少有效的 WireGuard 密钥"
+msgstr "Blokowanie Internetu: brak prawidłowego klucza WireGuard"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
 #. %(location) - name of the server location we're connected to (e.g. "se-got-003")
 msgctxt "notifications"
 msgid "Connected to %(location)s"
-msgstr "已连接到 %(location)s"
+msgstr "Połączono z %(location)s"
 
 msgctxt "notifications"
 msgid "Connecting"
-msgstr "正在连接"
+msgstr "Łączenie"
 
 #. The message showed when a server is being connected to.
 #. Available placeholder:
 #. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
 msgctxt "notifications"
 msgid "Connecting to %(location)s"
-msgstr "正在连接到 %(location)s"
+msgstr "Łączenie z %(location)s"
 
 msgctxt "notifications"
 msgid "Critical error (your attention is required)"
-msgstr "严重错误（需要注意）"
+msgstr "Błąd krytyczny (wymagana uwaga)"
 
 msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
-msgstr "内部版本信息不一致，请重启应用"
+msgstr "Niespójne wewnętrzne informacje o wersji, ponownie uruchom aplikację"
 
 msgctxt "notifications"
 msgid "Reconnecting"
-msgstr "正在重新连接"
+msgstr "Ponowne łączenie"
 
 msgctxt "notifications"
 msgid "Secured"
-msgstr "已受保护"
+msgstr "Zabezpieczone"
 
 msgctxt "notifications"
 msgid "Unsecured"
-msgstr "未受保护"
+msgstr "Niezabezpieczone"
 
 #. The system notification displayed to the user when the running app becomes unsupported.
 #. Available placeholder:
 #. %(version) - the newest available version of the app
 msgctxt "notifications"
 msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "您正在运行不受支持的应用版本。请立即升级到 %(version)s 以确保您的安全"
+msgstr "Używasz nieobsługiwanej wersji aplikacji. Aby zapewnić sobie bezpieczeństwo, zaktualizuj teraz do wersji %(version)s"
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
 msgid "Preferences"
-msgstr "偏好设置"
+msgstr "Preferencje"
 
 msgctxt "preferences-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "允许访问同一个网络上的其他设备以进行共享和打印等。"
+msgstr "Umożliwia dostęp do innych urządzeń w tej samej sieci w celu udostępniania, drukowania itd."
 
 msgctxt "preferences-view"
 msgid "Auto-connect"
-msgstr "自动连接"
+msgstr "Automatyczne łączenie"
 
 msgctxt "preferences-view"
 msgid "Automatically connect to a server when the app launches."
-msgstr "在应用启动时自动连接到服务器。"
+msgstr "Automatycznie łącz z serwerem po uruchomieniu aplikacji."
 
 msgctxt "preferences-view"
 msgid "Beta program"
-msgstr "测试计划"
+msgstr "Program Beta"
 
 msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
-msgstr "启用或禁用系统通知。将始终显示关键通知。"
+msgstr "Włącz lub wyłącz powiadomienia systemowe. Krytyczne powiadomienia będą zawsze wyświetlane."
 
 msgctxt "preferences-view"
 msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "启用以在新的测试版应用发布时获得通知。"
+msgstr "Włącz, aby otrzymywać powiadomienia o wydaniu nowych wersji beta aplikacji."
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
-msgstr "设备启动时启动应用"
+msgstr "Uruchom aplikację na starcie"
 
 msgctxt "preferences-view"
 msgid "Local network sharing"
-msgstr "本地网络共享"
+msgstr "Udostępnianie sieci lokalnej"
 
 msgctxt "preferences-view"
 msgid "Monochromatic tray icon"
-msgstr "单色托盘图标"
+msgstr "Monochromatyczna ikona na pasku"
 
 msgctxt "preferences-view"
 msgid "Notifications"
-msgstr "通知"
+msgstr "Powiadomienia"
 
 msgctxt "preferences-view"
 msgid "Preferences"
-msgstr "偏好设置"
+msgstr "Preferencje"
 
 msgctxt "preferences-view"
 msgid "Show only the tray icon when the app starts."
-msgstr "应用启动时仅显示托盘图标。"
+msgstr "Ikonę na pasku pokazuj tylko przy uruchamianiu aplikacji."
 
 msgctxt "preferences-view"
 msgid "Start minimized"
-msgstr "启动时最小化"
+msgstr "Uruchom zminimalizowaną"
 
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
-msgstr "使用测试版本时此选项不可用。"
+msgstr "W wersji beta ta opcja jest niedostępna."
 
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
-msgstr "使用单色托盘图标而不是彩色图标。"
+msgstr "Użyj monochromatycznej ikony na pasku, zamiast kolorowej."
 
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
-msgstr "取消"
+msgstr "Anuluj"
 
 msgctxt "redeem-voucher-alert"
 msgid "Enter voucher code"
-msgstr "输入优惠码"
+msgstr "Wprowadź kod kuponu"
 
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
-msgstr "兑换优惠券"
+msgstr "Zrealizuj kupon"
 
 msgctxt "redeem-voucher-view"
 msgid "An error occured."
-msgstr "出错了。"
+msgstr "Wystąpił błąd."
 
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
-msgstr "兑换"
+msgstr "Zrealizuj"
 
 msgctxt "redeem-voucher-view"
 msgid "Voucher code has already been used."
-msgstr "该优惠券码已被使用。"
+msgstr "Kod z tego kuponu został już użyty."
 
 msgctxt "redeem-voucher-view"
 msgid "Voucher code is invalid."
-msgstr "该优惠券码无效。"
+msgstr "Nieprawidłowy kod kuponu."
 
 msgctxt "redeem-voucher-view"
 msgid "Voucher was successfully redeemed."
-msgstr "优惠券已成功兑换。"
+msgstr "Kupon został zrealizowany."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
 msgid "Select language"
-msgstr "选择语言"
+msgstr "Wybierz język"
 
 msgctxt "select-location-nav"
 msgid "Entry"
-msgstr "入口"
+msgstr "Wejście"
 
 msgctxt "select-location-nav"
 msgid "Exit"
-msgstr "出口"
+msgstr "Wyjście"
 
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
-msgstr "选择位置"
+msgstr "Wybierz lokalizację"
 
 msgctxt "select-location-view"
 msgid "Closest to exit server"
-msgstr "最靠近出口服务器"
+msgstr "Najbliżej serwera wyjściowego"
 
 msgctxt "select-location-view"
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
-msgstr "连接时，将使用选定区域中一个私密且安全的位置隐藏您的真实位置。"
+msgstr "Podczas połączenia Twoja prawdziwa lokalizacja jest maskowana prywatną i bezpieczną lokalizacją w wybranym regionie."
 
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
-msgstr "连接时，您的流量将通过两个安全位置路由，即入口点（桥接服务器）和出口点（VPN 服务器）。"
+msgstr "Podczas połączenia ruch będzie kierowany przez dwie bezpieczne lokalizacje, punkt wejścia (serwer mostu) i punkt wyjścia (serwer VPN)."
 
 #. Navigation button to the 'Account' view
 msgctxt "settings-view"
 msgid "Account"
-msgstr "帐户"
+msgstr "Konto"
 
 #. Navigation button to the 'Advanced' settings view
 msgctxt "settings-view"
 msgid "Advanced"
-msgstr "高级"
+msgstr "Zaawansowane"
 
 msgctxt "settings-view"
 msgid "App version"
-msgstr "应用版本"
+msgstr "Wersja aplikacji"
 
 #. Link to the webpage
 msgctxt "settings-view"
 msgid "FAQs & Guides"
-msgstr "常见问题解答与指南"
+msgstr "Często zadawane pytania i poradniki"
 
 msgctxt "settings-view"
 msgid "Inconsistent internal version information, please restart the app."
-msgstr "内部版本信息不一致，请重启应用。"
+msgstr "Niespójne wewnętrzne informacje o wersji, ponownie uruchom aplikację."
 
 #. Navigation button to the 'Language' settings view
 msgctxt "settings-view"
 msgid "Language"
-msgstr "语言"
+msgstr "Język"
 
 msgctxt "settings-view"
 msgid "OUT OF TIME"
-msgstr "已没有时间"
+msgstr "KONIEC CZASU"
 
 #. Navigation button to the 'Preferences' view
 msgctxt "settings-view"
 msgid "Preferences"
-msgstr "偏好设置"
+msgstr "Preferencje"
 
 msgctxt "settings-view"
 msgid "Quit app"
-msgstr "退出应用"
+msgstr "Zamknij aplikację"
 
 #. Navigation button to the 'Report a problem' help view
 msgctxt "settings-view"
 msgid "Report a problem"
-msgstr "报告问题"
+msgstr "Zgłoś problem"
 
 msgctxt "settings-view"
 msgid "Update available, download to remain safe."
-msgstr "有可用更新，请下载以保持安全。"
+msgstr "Dostępna jest aktualizacja. Aby zachować bezpieczeństwo, pobierz ją."
 
 msgctxt "support-view"
 msgid "Continue anyway"
-msgstr "仍然继续"
+msgstr "Mimo to kontynuuj"
 
 msgctxt "support-view"
 msgid "Describe your problem"
-msgstr "描述您的问题"
+msgstr "Opisz problem"
 
 msgctxt "support-view"
 msgid "Edit message"
-msgstr "编辑消息"
+msgstr "Edytuj wiadomość"
 
 msgctxt "support-view"
 msgid "Failed to send"
-msgstr "无法发送"
+msgstr "Błąd wysyłania"
 
 #. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
 #. Available placeholders:
 #. %(email)s
 msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
-msgstr "如果需要，我们将通过 %(email)s 与您联系"
+msgstr "W razie potrzeby skontaktujemy się z Tobą pod adresem %(email)s"
 
 msgctxt "support-view"
 msgid "Report a problem"
-msgstr "报告问题"
+msgstr "Zgłoś problem"
 
 msgctxt "support-view"
 msgid "Send"
-msgstr "发送"
+msgstr "Wyślij"
 
 msgctxt "support-view"
 msgid "Send anyway"
-msgstr "仍然发送"
+msgstr "Mimo to wyślij"
 
 msgctxt "support-view"
 msgid "Sending..."
-msgstr "正在发送…"
+msgstr "Wysyłanie..."
 
 msgctxt "support-view"
 msgid "Sent"
-msgstr "已发送"
+msgstr "Wysłano"
 
 msgctxt "support-view"
 msgid "Thanks! We will look into this."
-msgstr "谢谢！我们将对此进行调查。"
+msgstr "Dziękujemy! Sprawdzimy to."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
-msgstr "为了更有效地帮助您，您应用的日志文件将附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。"
+msgstr "Aby pomóc Ci skuteczniej, do tej wiadomości dołączony zostanie plik dzienników aplikacji. Twoje dane pozostaną bezpieczne i prywatne, ponieważ przed wysłaniem zaszyfrowanym kanałem zostają one zanonimizowane."
 
 msgctxt "support-view"
 msgid "Try again"
-msgstr "重试"
+msgstr "Spróbuj ponownie"
 
 msgctxt "support-view"
 msgid "Upgrade app"
-msgstr "升级应用"
+msgstr "Zaktualizuj aplikację"
 
 msgctxt "support-view"
 msgid "View app logs"
-msgstr "查看应用日志"
+msgstr "Wyświetl dzienniki aplikacji"
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
-msgstr "您即将发送问题报告，但没有提供让我们可以联系到您的方式。如果您希望获得回复，必须输入您的电子邮件地址。"
+msgstr "Za chwilę wyślesz zgłoszenie problemu, nie umożliwiając nam skontaktowania się z Tobą. Aby uzyskać odpowiedź na zgłoszenie, musisz podać adres e-mail."
 
 msgctxt "support-view"
 msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
-msgstr "您正在使用旧版本的应用。在发送报告之前，请先升级并查看问题是否仍然存在。"
+msgstr "Używasz starej wersji aplikacji. Przed wysłaniem zgłoszenia zaktualizuj i sprawdź, czy problem nadal występuje."
 
 msgctxt "support-view"
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
-msgstr "在重试之前，您需要返回应用的主屏幕并点击“断开连接”。别担心，您输入的信息将保留在窗体中。"
+msgstr "Być może przed ponowną próbą trzeba będzie wrócić do głównego ekranu aplikacji i kliknąć przycisk Rozłącz. Nie martw się, wprowadzone informacje pozostaną w formularzu."
 
 msgctxt "support-view"
 msgid "Your email (optional)"
-msgstr "您的电子邮件（可选）"
+msgstr "Twój adres e-mail (opcjonalnie)"
 
 msgctxt "tunnel-control"
 msgid "Cancel"
-msgstr "取消"
+msgstr "Anuluj"
 
 msgctxt "tunnel-control"
 msgid "Disconnect"
-msgstr "断开连接"
+msgstr "Rozłącz"
 
 msgctxt "tunnel-control"
 msgid "Dismiss"
-msgstr "关闭"
+msgstr "Odrzuć"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
-msgstr "保护我的连接"
+msgstr "Zabezpiecz moje połączenie"
 
 msgctxt "tunnel-control"
 msgid "Switch location"
-msgstr "切换位置"
+msgstr "Zmień lokalizację"
 
 msgctxt "wireguard-key-view"
 msgid "Failed to generate a key"
-msgstr "无法生成密钥"
+msgstr "Nie można wygenerować klucza"
 
 msgctxt "wireguard-key-view"
 msgid "Generate key"
-msgstr "生成密钥"
+msgstr "Wygeneruj klucz"
 
 msgctxt "wireguard-key-view"
 msgid "Generating key"
-msgstr "正在生成密钥"
+msgstr "Generowanie klucza"
 
 msgctxt "wireguard-key-view"
 msgid "Key generated"
-msgstr "已生成密钥"
+msgstr "Wygenerowano klucz"
 
 msgctxt "wireguard-key-view"
 msgid "Key is invalid"
-msgstr "密钥无效"
+msgstr "Nieprawidłowy klucz"
 
 msgctxt "wireguard-key-view"
 msgid "Key is valid"
-msgstr "密钥有效"
+msgstr "Prawidłowy klucz"
 
 msgctxt "wireguard-key-view"
 msgid "Key verification failed"
-msgstr "密钥验证失败"
+msgstr "Błąd weryfikacji klucza"
 
 msgctxt "wireguard-key-view"
 msgid "Manage keys"
-msgstr "管理密钥"
+msgstr "Zarządzaj kluczami"
 
 msgctxt "wireguard-key-view"
 msgid "No key set"
-msgstr "未设置密钥"
+msgstr "Nie ustawiono klucza"
 
 msgctxt "wireguard-key-view"
 msgid "Public key"
-msgstr "公钥"
+msgstr "Klucz publiczny"
 
 msgctxt "wireguard-key-view"
 msgid "Reconnecting with new WireGuard key..."
-msgstr "正在使用新的 wireGuard 密钥重新连接…"
+msgstr "Ponowne łączenie z nowym kluczem WireGuard..."
 
 msgctxt "wireguard-key-view"
 msgid "Regenerate key"
-msgstr "重新生成密钥"
+msgstr "Ponownie wygeneruj klucz"
 
 msgctxt "wireguard-key-view"
 msgid "Unable to manage keys while in a blocked state"
-msgstr "无法在阻止状态下管理密钥"
+msgstr "W stanie zablokowanym nie można zarządzać kluczami"
 
 msgctxt "wireguard-key-view"
 msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
-msgstr "无法重新生成密钥：您已达到最大密钥数。要生成新密钥，首先需要在“管理密钥”下撤销一个密钥。"
+msgstr "Nie można ponownie wygenerować klucza: masz już maksymalną liczbę kluczy. Aby wygenerować nowy klucz, musisz najpierw unieważnić stary w obszarze „Zarządzaj kluczami”."
 
 msgctxt "wireguard-key-view"
 msgid "Verify key"
-msgstr "验证密钥"
+msgstr "Zweryfikuj klucz"
 
 #. Back button in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "Advanced"
-msgstr "高级"
+msgstr "Zaawansowane"
 
 #. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
-msgstr "WireGuard 密钥"
+msgstr "Klucz WireGuard"
 

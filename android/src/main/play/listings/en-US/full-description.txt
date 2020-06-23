@@ -16,29 +16,20 @@ Mitigate ISP blocking and throttling.
 
 Bypass geographical restrictions with our global network of VPN servers.
 
-Our Android app uses WireGuard, a superior VPN protocol that connects fast and doesn’t drain your
-battery.
+Our Android app uses WireGuard, a superior VPN protocol that connects fast and doesn’t drain your battery.
 
 <b>How does Mullvad VPN work?</b>
 
 Mullvad VPN allows you to browse the web securely and privately.
 
-With Mullvad, your traffic travels through an encrypted tunnel to one of our VPN servers and then
-onward to the website you are visiting. In this way, websites will only see our server’s identity
-instead of yours. In addition, any information that your internet service provider (ISP) saves
-cannot be tied specifically to you.
+With Mullvad, your traffic travels through an encrypted tunnel to one of our VPN servers and then onward to the website you are visiting. In this way, websites will only see our server’s identity instead of yours. In addition, any information that your internet service provider (ISP) saves cannot be tied specifically to you.
 
-Using a VPN is a great first step toward protecting your privacy. We believe that privacy is a
-universal right.
+Using a VPN is a great first step toward protecting your privacy. We believe that privacy is a universal right.
 
 <b>For your right to privacy</b>
 
-Mullvad was founded in 2009 purely with the ambition of upholding the universal right to privacy
-&mdash; for you, for us, for everyone. And not only that, we want to make Internet censorship and
-mass surveillance ineffective.
+Mullvad was founded in 2009 purely with the ambition of upholding the universal right to privacy &mdash; for you, for us, for everyone. And not only that, we want to make Internet censorship and mass surveillance ineffective.
 
 That's a tall order, but if you want to make a change, you've gotta start somewhere.
 
-Since our humble beginning, our VPN service has helped to keep users' online activity, identity, and
-location private. Over the years, we've been blazing a trail forward to provide the most secure and
-anonymous VPN out there  for everyone, for us, for you.
+Since our humble beginning, our VPN service has helped to keep users' online activity, identity, and location private. Over the years, we've been blazing a trail forward to provide the most secure and anonymous VPN out there  for everyone, for us, for you.
