@@ -41,6 +41,7 @@ class MullvadVpnService : TalpidVpnService() {
     private val serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
     private var isStopping = false
+    private var shouldStop = false
     private var loggedIn = false
 
     private var startDaemonJob: Job? = null
@@ -121,6 +122,15 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
+        if (shouldStop) {
+            shouldStop = false
+
+            if (isStopping) {
+                restart()
+                isStopping = false
+            }
+        }
+
         return startResult
     }
 
@@ -148,6 +158,10 @@ class MullvadVpnService : TalpidVpnService() {
     override fun onUnbind(intent: Intent): Boolean {
         Log.d(TAG, "Closed all connections to service")
         isBound = false
+
+        if (shouldStop) {
+            stop()
+        }
 
         return true
     }
@@ -240,6 +254,7 @@ class MullvadVpnService : TalpidVpnService() {
     private fun stop() {
         Log.d(TAG, "Stopping service")
         isStopping = true
+        shouldStop = true
         stopDaemon()
         stopSelf()
     }
