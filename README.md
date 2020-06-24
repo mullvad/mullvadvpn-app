@@ -442,6 +442,20 @@ this procedure, the `integration-tests.sh` script can be used to run all integra
   `linux`, `mac` or `win`
 - `$ npm test` - run tests
 
+
+## Tray icon on Linux
+
+The requirements for displaying a tray icon varies between different desktop environments. If the
+tray icon doesn't appear, try installing one of these packages:
+- `libappindicator3-1`
+- `libappindicator1`
+- `libappindicator`
+
+If you're using GNOME, try installing one of these GNOME Shell extensions:
+- `TopIconsFix`
+- `TopIcons Plus`
+
+
 ## Repository structure
 
 ### Electron GUI app and electron-builder packaging assets
@@ -621,11 +635,6 @@ Instructions for how to handle locales and translations are found
 
 Mullvad has used external pentesting companies to carry out security audits of this VPN app. Read
 more about them in the [audits readme](./audits/README.md)
-
-## Quirks
-
-- If you want to modify babel-configurations please note that `BABEL_ENV=development` must be used
-  for [react-native](https://github.com/facebook/react-native/issues/8723)
 
 # License
 
