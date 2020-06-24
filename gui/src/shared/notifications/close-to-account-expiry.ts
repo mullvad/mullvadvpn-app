@@ -2,7 +2,7 @@ import moment from 'moment';
 import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import AccountExpiry from '../account-expiry';
+import { formatDurationUntilExpiry, formatRemainingTime, hasExpired } from '../account-expiry';
 import {
   InAppNotification,
   InAppNotificationProvider,
@@ -10,21 +10,21 @@ import {
   SystemNotificationProvider,
 } from './notification';
 
-interface AccountExpiryContext {
-  accountExpiry: AccountExpiry;
-  tooSoon?: boolean;
+interface CloseToAccountExpiryNotificationContext {
+  accountExpiry: string;
+  locale: string;
 }
 
-export class AccountExpiryNotificationProvider
+export class CloseToAccountExpiryNotificationProvider
   implements InAppNotificationProvider, SystemNotificationProvider {
-  public constructor(private context: AccountExpiryContext) {}
+  public constructor(private context: CloseToAccountExpiryNotificationContext) {}
 
   public mayDisplay() {
-    return (
-      !this.context.accountExpiry.hasExpired() &&
-      this.context.accountExpiry.willHaveExpiredAt(moment().add(3, 'days').toDate()) &&
-      !this.context.tooSoon
+    const willHaveExpiredInThreeDays = moment(this.context.accountExpiry).isSameOrBefore(
+      moment().add(3, 'days'),
     );
+
+    return !hasExpired(this.context.accountExpiry) && willHaveExpiredInThreeDays;
   }
 
   public getSystemNotification(): SystemNotification {
@@ -34,7 +34,7 @@ export class AccountExpiryNotificationProvider
       // TRANSLATORS: %(duration)s - remaining time, e.g. "2 days"
       messages.pgettext('notifications', 'Account credit expires in %(duration)s'),
       {
-        duration: this.context.accountExpiry.remainingTime(),
+        duration: formatDurationUntilExpiry(this.context.accountExpiry, this.context.locale),
       },
     );
 
@@ -49,7 +49,7 @@ export class AccountExpiryNotificationProvider
     return {
       indicator: 'warning',
       title: messages.pgettext('in-app-notifications', 'ACCOUNT CREDIT EXPIRES SOON'),
-      subtitle: this.context.accountExpiry.remainingTime(true),
+      subtitle: formatRemainingTime(this.context.accountExpiry, this.context.locale, true),
       action: { type: 'open-url', url: links.purchase, withAuth: true },
     };
   }

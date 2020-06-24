@@ -29,13 +29,14 @@ export interface InAppNotificationProvider extends NotificationProvider {
   getInAppNotification(): InAppNotification | undefined;
 }
 
-export * from './accountExpiry';
-export * from './blockWhenDisconnected';
+export * from './account-expired';
+export * from './close-to-account-expiry';
+export * from './block-when-disconnected';
 export * from './connected';
 export * from './connecting';
 export * from './disconnected';
 export * from './error';
-export * from './inconsistentVersion';
+export * from './inconsistent-version';
 export * from './reconnecting';
-export * from './unsupportedVersion';
-export * from './updateAvailable';
+export * from './unsupported-version';
+export * from './update-available';

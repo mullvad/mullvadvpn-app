@@ -3,9 +3,8 @@ import log from 'electron-log';
 import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Types } from 'reactxp';
-import AccountExpiry from '../../shared/account-expiry';
 import {
-  AccountExpiryNotificationProvider,
+  CloseToAccountExpiryNotificationProvider,
   BlockWhenDisconnectedNotificationProvider,
   ConnectingNotificationProvider,
   ErrorNotificationProvider,
@@ -33,11 +32,8 @@ interface IProps {
 }
 
 export default function NotificationArea(props: IProps) {
-  const accountExpiry = useSelector((state: IReduxState) =>
-    state.account.expiry
-      ? new AccountExpiry(state.account.expiry, state.userInterface.locale)
-      : undefined,
-  );
+  const accountExpiry = useSelector((state: IReduxState) => state.account.expiry);
+  const locale = useSelector((state: IReduxState) => state.userInterface.locale);
   const tunnelState = useSelector((state: IReduxState) => state.connection.status);
   const version = useSelector((state: IReduxState) => state.version);
   const blockWhenDisconnected = useSelector(
@@ -48,14 +44,16 @@ export default function NotificationArea(props: IProps) {
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
     new BlockWhenDisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
-    new ErrorNotificationProvider(tunnelState),
+    new ErrorNotificationProvider({ tunnelState, accountExpiry }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),
     new UpdateAvailableNotificationProvider(version),
   ];
 
   if (accountExpiry) {
-    notificationProviders.push(new AccountExpiryNotificationProvider({ accountExpiry }));
+    notificationProviders.push(
+      new CloseToAccountExpiryNotificationProvider({ accountExpiry, locale }),
+    );
   }
 
   const notificationProvider = notificationProviders.find((notification) =>

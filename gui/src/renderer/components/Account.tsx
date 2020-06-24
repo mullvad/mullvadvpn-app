@@ -1,5 +1,5 @@
 import * as React from 'react';
-import AccountExpiry from '../../shared/account-expiry';
+import { formatDate, hasExpired } from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
 import {
   AccountContainer,
@@ -97,14 +97,12 @@ export default class Account extends React.Component<IProps> {
 
 function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
   if (props.expiry) {
-    const expiry = new AccountExpiry(props.expiry, props.locale);
-
-    if (expiry.hasExpired()) {
+    if (hasExpired(props.expiry)) {
       return (
         <AccountOutOfTime>{messages.pgettext('account-view', 'OUT OF TIME')}</AccountOutOfTime>
       );
     } else {
-      return <AccountRowValue>{expiry.formattedDate()}</AccountRowValue>;
+      return <AccountRowValue>{formatDate(props.expiry, props.locale)}</AccountRowValue>;
     }
   } else {
     return (
