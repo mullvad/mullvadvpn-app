@@ -329,6 +329,7 @@ pub struct RequestFactory {
     host: String,
     address: Option<IpAddr>,
     path_prefix: Option<String>,
+    pub timeout: Duration,
 }
 
 
@@ -338,20 +339,26 @@ impl RequestFactory {
             host,
             address,
             path_prefix,
+            timeout: DEFAULT_TIMEOUT,
         }
     }
 
     pub fn request(&self, path: &str, method: Method) -> Result<RestRequest> {
-        self.hyper_request(path, method).map(RestRequest::from)
+        self.hyper_request(path, method)
+            .map(RestRequest::from)
+            .map(|req| self.set_request_timeout(req))
     }
 
     pub fn get(&self, path: &str) -> Result<RestRequest> {
-        self.hyper_request(path, Method::GET).map(RestRequest::from)
+        self.hyper_request(path, Method::GET)
+            .map(RestRequest::from)
+            .map(|req| self.set_request_timeout(req))
     }
 
     pub fn post(&self, path: &str) -> Result<RestRequest> {
         self.hyper_request(path, Method::POST)
             .map(RestRequest::from)
+            .map(|req| self.set_request_timeout(req))
     }
 
     pub fn post_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<RestRequest> {
@@ -398,6 +405,11 @@ impl RequestFactory {
         let prefix = self.path_prefix.as_ref().map(AsRef::as_ref).unwrap_or("");
         let uri = format!("https://{}/{}{}", host, prefix, path);
         hyper::Uri::from_str(&uri).map_err(Error::UriError)
+    }
+
+    fn set_request_timeout(&self, mut request: RestRequest) -> RestRequest {
+        request.timeout = self.timeout;
+        request
     }
 }
 
@@ -535,7 +547,7 @@ pub async fn handle_error_response<T>(response: Response) -> Result<T> {
 #[derive(Clone)]
 pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
-    pub(crate) factory: RequestFactory,
+    pub factory: RequestFactory,
 }
 
 impl MullvadRestHandle {

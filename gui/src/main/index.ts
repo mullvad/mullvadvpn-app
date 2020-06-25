@@ -64,6 +64,9 @@ const DAEMON_RPC_PATH =
 
 const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 
+/// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
+const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
+
 enum AppQuitStage {
   unready,
   initiated,
@@ -75,11 +78,6 @@ export interface ICurrentAppVersionInfo {
   daemon: string;
   isConsistent: boolean;
   isBeta: boolean;
-}
-
-export interface IAppUpgradeInfo extends IAppVersionInfo {
-  // Null is used since undefined properties get filtered out when sending through IPC.
-  nextUpgrade: string | null;
 }
 
 type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };
@@ -154,12 +152,9 @@ class ApplicationMain {
     isBeta: false,
   };
 
-  private upgradeVersion: IAppUpgradeInfo = {
+  private upgradeVersion: IAppVersionInfo = {
     supported: true,
-    latestStable: '',
-    latestBeta: '',
-    latest: '',
-    nextUpgrade: null,
+    suggestedUpgrade: undefined,
   };
 
   // The UI locale which is set once from onReady handler
@@ -773,7 +768,7 @@ class ApplicationMain {
       daemon: daemonVersion,
       gui: guiVersion,
       isConsistent: daemonVersion === guiVersion,
-      isBeta: guiVersion.includes('beta'),
+      isBeta: IS_BETA.test(guiVersion),
     };
 
     this.currentVersion = versionInfo;
@@ -785,45 +780,23 @@ class ApplicationMain {
   }
 
   private setLatestVersion(latestVersionInfo: IAppVersionInfo) {
-    const settings = this.settings;
-
-    function nextUpgrade(current: string, latest: string, latestStable: string): string | null {
-      if (settings.showBetaReleases) {
-        return current === latest ? null : latest;
-      } else {
-        return current === latestStable ? null : latestStable;
-      }
-    }
-
-    const currentVersionInfo = this.currentVersion;
-    const latestVersion = latestVersionInfo.latest;
-    const latestStableVersion = latestVersionInfo.latestStable;
-
-    const upgradeVersion = nextUpgrade(
-      currentVersionInfo.daemon,
-      latestVersion,
-      latestStableVersion,
-    );
-
-    const upgradeInfo = {
-      ...latestVersionInfo,
-      nextUpgrade: upgradeVersion,
-    };
-
-    this.upgradeVersion = upgradeInfo;
+    this.upgradeVersion = latestVersionInfo;
 
     // notify user to update the app if it became unsupported
     const notificationProvider = new UnsupportedVersionNotificationProvider({
       supported: latestVersionInfo.supported,
-      consistent: currentVersionInfo.isConsistent,
-      nextUpgrade: upgradeVersion,
+      consistent: this.currentVersion.isConsistent,
+      suggestedUpgrade: latestVersionInfo.suggestedUpgrade,
     });
     if (notificationProvider.mayDisplay()) {
       this.notificationController.notify(notificationProvider.getSystemNotification());
     }
 
     if (this.windowController) {
-      IpcMainEventChannel.upgradeVersion.notify(this.windowController.webContents, upgradeInfo);
+      IpcMainEventChannel.upgradeVersion.notify(
+        this.windowController.webContents,
+        latestVersionInfo,
+      );
     }
   }
 

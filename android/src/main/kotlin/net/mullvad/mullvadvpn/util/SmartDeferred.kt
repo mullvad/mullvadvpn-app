@@ -12,9 +12,11 @@ class SmartDeferred<T>(private val deferred: Deferred<T>) {
 
     fun awaitThen(action: T.() -> Unit): Long? {
         if (active) {
-            return jobTracker.newJob(GlobalScope.launch(Dispatchers.Default) {
-                deferred.await().action()
-            })
+            return jobTracker.newJob(
+                GlobalScope.launch(Dispatchers.Default) {
+                    deferred.await().action()
+                }
+            )
         } else {
             return null
         }

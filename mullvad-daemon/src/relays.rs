@@ -2,7 +2,7 @@
 //! updated as well.
 
 use chrono::{DateTime, Local};
-use futures::Future;
+use futures01::Future;
 use mullvad_rpc::{rest::MullvadRestHandle, RelayListProxy};
 use mullvad_types::{
     endpoint::MullvadEndpoint,

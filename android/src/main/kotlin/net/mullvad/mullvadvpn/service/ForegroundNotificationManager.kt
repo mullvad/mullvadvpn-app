@@ -35,10 +35,10 @@ class ForegroundNotificationManager(
     }
 
     private var tunnelStateEvents
-        by autoSubscribable<TunnelState>(this, TunnelState.Disconnected()) { newState ->
-            tunnelStateNotification.tunnelState = newState
-            updateNotification()
-        }
+    by autoSubscribable<TunnelState>(this, TunnelState.Disconnected()) { newState ->
+        tunnelStateNotification.tunnelState = newState
+        updateNotification()
+    }
 
     private var deviceIsUnlocked by observable(!keyguardManager.isDeviceLocked) { _, _, _ ->
         updateNotificationAction()
@@ -63,10 +63,13 @@ class ForegroundNotificationManager(
         }
 
         service.apply {
-            registerReceiver(deviceLockListener, IntentFilter().apply {
-                addAction(Intent.ACTION_USER_PRESENT)
-                addAction(Intent.ACTION_SCREEN_OFF)
-            })
+            registerReceiver(
+                deviceLockListener,
+                IntentFilter().apply {
+                    addAction(Intent.ACTION_USER_PRESENT)
+                    addAction(Intent.ACTION_SCREEN_OFF)
+                }
+            )
         }
 
         updateNotification()

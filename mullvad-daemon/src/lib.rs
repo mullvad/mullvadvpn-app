@@ -1,4 +1,5 @@
 #![deny(rust_2018_idioms)]
+#![recursion_limit = "256"]
 
 #[macro_use]
 extern crate serde;
@@ -17,7 +18,7 @@ mod settings;
 pub mod version;
 mod version_check;
 
-use futures::{
+use futures01::{
     future::{self, Executor},
     stream::Wait,
     sync::{
@@ -337,7 +338,7 @@ pub struct DaemonCommandChannel {
 
 impl DaemonCommandChannel {
     pub fn new() -> Self {
-        let (untracked_sender, receiver) = futures::sync::mpsc::unbounded();
+        let (untracked_sender, receiver) = futures01::sync::mpsc::unbounded();
         let sender = DaemonCommandSender(Arc::new(untracked_sender));
 
         Self { sender, receiver }
@@ -464,6 +465,7 @@ pub struct Daemon<L: EventListener> {
     rpc_runtime: mullvad_rpc::MullvadRpcRuntime,
     rpc_handle: mullvad_rpc::rest::MullvadRestHandle,
     wireguard_key_manager: wireguard::KeyManager,
+    version_updater_handle: version_check::VersionUpdaterHandle,
     core_handle: event_loop::CoreHandle,
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
@@ -510,14 +512,6 @@ where
 
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
 
-        let app_version_info = version_check::load_cache(&cache_dir);
-        let version_check_future = version_check::VersionUpdater::new(
-            rpc_handle.clone(),
-            cache_dir.clone(),
-            internal_event_tx.to_specialized_sender(),
-            app_version_info.clone(),
-        );
-        core_handle.remote.spawn(|_| version_check_future);
 
         let mut settings = SettingsPersister::load(&settings_dir);
 
@@ -525,6 +519,15 @@ where
             let _ = settings.set_show_beta_releases(true);
         }
 
+        let app_version_info = version_check::load_cache(&cache_dir);
+        let (version_updater, version_updater_handle) = version_check::VersionUpdater::new(
+            rpc_handle.clone(),
+            cache_dir.clone(),
+            internal_event_tx.to_specialized_sender(),
+            app_version_info.clone(),
+            settings.show_beta_releases,
+        );
+        rpc_runtime.runtime().spawn(version_updater.run());
         let account_history = account_history::AccountHistory::new(
             &cache_dir,
             &settings_dir,
@@ -609,6 +612,7 @@ where
             accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
             rpc_handle,
             wireguard_key_manager,
+            version_updater_handle,
             core_handle,
             relay_selector,
             last_generated_relay: None,
@@ -1458,6 +1462,9 @@ where
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
+                    let runtime = self.rpc_runtime.runtime();
+                    let mut handle = self.version_updater_handle.clone();
+                    runtime.block_on(async { handle.set_show_beta_releases(enabled).await });
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),

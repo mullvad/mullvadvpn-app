@@ -54,7 +54,7 @@ matrix:
         - sudo /opt/android/android-ndk-r20/build/tools/make-standalone-toolchain.sh --platform=android-21 --arch=arm64 --install-dir=/opt/android/toolchains/android21-aarch64
         - sudo apt install tidy
         - |
-            curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.34.2/ktlint &&
+            curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.37.0/ktlint &&
             chmod a+x ktlint &&
             sudo mv ktlint /usr/local/bin/
         - |

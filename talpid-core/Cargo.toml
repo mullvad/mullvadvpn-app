@@ -38,6 +38,7 @@ tokio02 = { package = "tokio", version = "0.2", features =  [ "io-util", "proces
 triggered = "0.1.1"
 tonic = "0.2"
 prost = "0.6"
+rand = "0.7"
 
 
 [target.'cfg(unix)'.dependencies]
@@ -87,3 +88,5 @@ tonic-build = { version = "0.2", default-features = false, features = ["transpor
 
 [dev-dependencies]
 tempfile = "3.0"
+quickcheck = "0.9"
+quickcheck_macros = "0.9"
