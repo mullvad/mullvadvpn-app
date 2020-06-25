@@ -124,7 +124,24 @@ impl ConnectivityMonitor {
     }
 
     fn wait_loop(&mut self, iter_delay: Duration) -> Result<(), Error> {
-        while self.check_connectivity()? && !self.should_shut_down(iter_delay) {}
+        let mut last_iteration = Instant::now();
+        while !self.should_shut_down(iter_delay) {
+            let mut current_iteration = Instant::now();
+            let time_slept = current_iteration - last_iteration;
+            if time_slept < (iter_delay * 2) {
+                self.check_connectivity()?;
+                let end = Instant::now();
+                if end - current_iteration > Duration::from_secs(1) {
+                    current_iteration = end;
+                }
+            } else {
+                // Loop was suspended for too long, so it's safer to assume that the host still has
+                // connectivity.
+                self.reset_pinger();
+                self.conn_state.reset_after_suspension(current_iteration);
+            }
+            last_iteration = current_iteration;
+        }
         Ok(())
     }
 
@@ -137,8 +154,7 @@ impl ConnectivityMonitor {
                 let new_stats = new_stats?;
 
                 if self.conn_state.update(now, new_stats) {
-                    self.initial_ping_timestamp = None;
-                    self.num_pings_sent = 0;
+                    self.reset_pinger();
                     return Ok(true);
                 }
 
@@ -184,6 +200,14 @@ impl ConnectivityMonitor {
         self.initial_ping_timestamp
             .map(|initial_ping_timestamp| initial_ping_timestamp.elapsed() > PING_TIMEOUT)
             .unwrap_or(false)
+    }
+
+    /// Reset timeouts - assume that the last time bytes were received is now.
+    fn reset_pinger(&mut self) {
+        self.initial_ping_timestamp = None;
+        self.num_pings_sent = 0;
+        #[cfg(unix)]
+        self.pinger.reset();
     }
 }
 
@@ -261,6 +285,17 @@ impl ConnState {
             }
         }
     }
+
+    pub fn reset_after_suspension(&mut self, now: Instant) {
+        if let ConnState::Connected {
+            ref mut rx_timestamp,
+            ..
+        } = self
+        {
+            *rx_timestamp = now;
+        }
+    }
+
     // check if last time data was received is too long ago
     pub fn rx_timed_out(&self) -> bool {
         match self {
