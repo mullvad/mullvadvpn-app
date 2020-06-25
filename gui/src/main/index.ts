@@ -64,6 +64,9 @@ const DAEMON_RPC_PATH =
 
 const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 
+/// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
+const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
+
 enum AppQuitStage {
   unready,
   initiated,
@@ -765,7 +768,7 @@ class ApplicationMain {
       daemon: daemonVersion,
       gui: guiVersion,
       isConsistent: daemonVersion === guiVersion,
-      isBeta: guiVersion.includes('beta'),
+      isBeta: IS_BETA.test(guiVersion),
     };
 
     this.currentVersion = versionInfo;
