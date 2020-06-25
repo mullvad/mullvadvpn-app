@@ -38,7 +38,9 @@ Line wrap the file at 100 chars.                                              Th
   and 90 days to always be displayed in days quantity.
 - Fix a number of errors in DNS64 resolution and IPv6 support.
 - Update the tunnel state when the app returns from suspended state.
-- Disable `URLSession` cache.
+- Disable `URLSession` cache. Fixes audit finding [`MUL-02-001`]
+
+[`MUL-02-001`]: ../audits/2020-06-12-cure53.md#miscellaneous-issues
 
 ## [2020.2] - 2020-04-16
 ### Fixed

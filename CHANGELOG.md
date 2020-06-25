@@ -94,22 +94,26 @@ Line wrap the file at 100 chars.                                              Th
 - Tighten the firewall rules that were allowing traffic to the relay server over the physical
   network interface. On Linux and macOS now only processes running under root are allowed to send
   traffic to this port and IP. On Windows only the Mullvad VPN binaries are allowed to send.
-  This fixes audit ticket `MUL-02-002`.
+  This fixes audit ticket [`MUL-02-002`].
 
 #### Windows
 - Tighten the firewall rule allowing traffic on port 53 to the relay server IP on the physical
   interfaces if the VPN tunnel is established on port 53 to only allow UDP. This fixes
-  audit ticket `MUL-02-004`.
+  audit ticket [`MUL-02-004`].
 - Deny access to the management interface named pipe for the `NT AUTHORITY\NETWORK` group.
   This makes the named pipe no longer accessible under the `IPC$` network share.
-  This fixes audit ticket `MUL-02-007`.
+  This fixes audit ticket [`MUL-02-007`].
 
 #### Android
 - Ignore touch events when another view is shown on top of the app in order to prevent tapjacking
-  attacks. Fixes audit ticket `MUL-02-003`.
+  attacks. Fixes audit ticket [`MUL-02-003`].
 - Prevent screens showing potentially sensitive data from being recorded. Fixes audit
-  ticket `MUL-02-003`.
+  ticket [`MUL-02-003`].
 
+[`MUL-02-002`]: audits/2020-06-12-cure53.md#identified-vulnerabilities
+[`MUL-02-003`]: audits/2020-06-12-cure53.md#miscellaneous-issues
+[`MUL-02-004`]: audits/2020-06-12-cure53.md#miscellaneous-issues
+[`MUL-02-007`]: audits/2020-06-12-cure53.md#identified-vulnerabilities
 
 ## [2020.5-beta1] - 2020-05-18
 ### Added
