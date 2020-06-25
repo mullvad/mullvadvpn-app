@@ -28,12 +28,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Upgrade from Electron 7 to Electron 8.
+- Change version string parsing to never suggest the user to upgrade to an older version.
 
 #### Android
 - Show a system notification when the account time will soon run out.
-
-### Changed
-- Change version string parsing to never suggest the user to upgrade to an older version.
 
 ### Fixed
 #### Windows
