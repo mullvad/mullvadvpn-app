@@ -16,6 +16,7 @@ import {
 import consumePromise from '../shared/promise';
 
 interface NotificationControllerDelegate {
+  openApp(): void;
   openLink(url: string, withAuth?: boolean): Promise<void>;
   isWindowVisible(): boolean;
   areSystemNotificationsEnabled(): boolean;
@@ -114,9 +115,17 @@ export default class NotificationController {
     });
 
     if (systemNotification.action) {
-      const { withAuth, url } = systemNotification.action;
       notification.on('click', () => {
-        consumePromise(this.notificationControllerDelegate.openLink(url, withAuth));
+        consumePromise(
+          this.notificationControllerDelegate.openLink(
+            systemNotification.action!.url,
+            systemNotification.action!.withAuth,
+          ),
+        );
+      });
+    } else {
+      notification.on('click', () => {
+        this.notificationControllerDelegate.openApp();
       });
     }
 

@@ -84,6 +84,7 @@ type AccountVerification = { status: 'verified' } | { status: 'deferred'; error:
 
 class ApplicationMain {
   private notificationController = new NotificationController({
+    openApp: () => this.windowController?.show(),
     openLink: (url: string, withAuth?: boolean) => this.openLink(url, withAuth),
     isWindowVisible: () => this.windowController?.isVisible() ?? false,
     areSystemNotificationsEnabled: () => this.guiSettings.enableSystemNotifications,
