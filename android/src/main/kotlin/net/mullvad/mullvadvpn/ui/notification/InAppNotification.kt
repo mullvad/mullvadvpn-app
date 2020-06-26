@@ -7,6 +7,8 @@ abstract class InAppNotification {
     private val changeMonitor = ChangeMonitor()
     protected val jobTracker = JobTracker()
 
+    var controller: InAppNotificationController? = null
+
     var status by changeMonitor.monitor(StatusLevel.Error)
         protected set
 
@@ -33,7 +35,10 @@ abstract class InAppNotification {
     }
 
     protected fun update() {
-        if (changeMonitor.changed) {
+        val controller = this.controller
+
+        if (controller != null && changeMonitor.changed) {
+            controller.notificationChanged(this@InAppNotification)
             changeMonitor.reset()
         }
     }
