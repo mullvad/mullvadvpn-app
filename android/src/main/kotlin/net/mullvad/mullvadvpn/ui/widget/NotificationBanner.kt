@@ -11,8 +11,11 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.notification.InAppNotification
 import net.mullvad.mullvadvpn.ui.notification.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
+import net.mullvad.mullvadvpn.util.JobTracker
 
 class NotificationBanner : FrameLayout {
+    private val jobTracker = JobTracker()
+
     private val container =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
             val inflater = service as LayoutInflater
@@ -51,6 +54,10 @@ class NotificationBanner : FrameLayout {
 
     init {
         setBackgroundResource(R.color.darkBlue)
+
+        setOnClickListener {
+            jobTracker.newUiJob("click") { onClick() }
+        }
     }
 
     fun onResume() {
@@ -63,6 +70,18 @@ class NotificationBanner : FrameLayout {
 
     fun onDestroy() {
         notifications.onDestroy()
+    }
+
+    private suspend fun onClick() {
+        notifications.current?.onClick?.let { action ->
+            alpha = 0.5f
+            setClickable(false)
+
+            jobTracker.runOnBackground(action)
+
+            setClickable(true)
+            alpha = 1.0f
+        }
     }
 
     private fun update(notification: InAppNotification) {
