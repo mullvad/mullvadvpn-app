@@ -56,7 +56,7 @@ state of latest master, not necessarily any existing release.
 This app is a privacy preserving VPN client. As such it goes to great lengths to stop traffic
 leaks. And basically all settings default to the more secure/private option. The user has to
 explicitly allow more loose rules if desired. See the [dedicated security document] for details
-on what the app blocks and allows and how it does it.
+on what the app blocks and allows, as well as how it does it.
 
 [dedicated security document]: docs/security.md
 
