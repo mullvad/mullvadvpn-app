@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.ui.widget
 
+import android.animation.Animator
+import android.animation.Animator.AnimatorListener
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -16,6 +19,27 @@ import net.mullvad.mullvadvpn.util.JobTracker
 class NotificationBanner : FrameLayout {
     private val jobTracker = JobTracker()
 
+    private val animationListener = object : AnimatorListener {
+        override fun onAnimationCancel(animation: Animator) {}
+        override fun onAnimationRepeat(animation: Animator) {}
+
+        override fun onAnimationStart(animation: Animator) {
+            visibility = View.VISIBLE
+        }
+
+        override fun onAnimationEnd(animation: Animator) {
+            if (reversedAnimation) {
+                // Banner is now hidden
+                visibility = View.INVISIBLE
+            }
+        }
+    }
+
+    private val animation = ObjectAnimator.ofFloat(this, "translationY", 0.0f).apply {
+        addListener(animationListener)
+        setDuration(350)
+    }
+
     private val container =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
             val inflater = service as LayoutInflater
@@ -30,6 +54,8 @@ class NotificationBanner : FrameLayout {
     private val title: TextView = container.findViewById(R.id.notification_title)
     private val message: TextView = container.findViewById(R.id.notification_message)
     private val icon: View = container.findViewById(R.id.notification_icon)
+
+    private var reversedAnimation = false
 
     val notifications = InAppNotificationController { notification ->
         if (notification != null) {
@@ -72,6 +98,10 @@ class NotificationBanner : FrameLayout {
         notifications.onDestroy()
     }
 
+    protected override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
+        animation.setFloatValues(-height.toFloat(), 0.0f)
+    }
+
     private suspend fun onClick() {
         notifications.current?.onClick?.let { action ->
             alpha = 0.5f
@@ -112,16 +142,15 @@ class NotificationBanner : FrameLayout {
     }
 
     private fun animateChange() {
-        val shouldShow = notifications.current != null
+        val notification = notifications.current
 
-        if (shouldShow && visibility == View.INVISIBLE) {
-            visibility = View.VISIBLE
-            translationY = -height.toFloat()
-            animate().translationY(0.0F).setDuration(350).start()
+        if (notification != null && visibility == View.INVISIBLE) {
+            reversedAnimation = false
+            update(notification)
+            animation.start()
         } else if (!shouldShow && visibility == View.VISIBLE) {
-            animate().translationY(-height.toFloat()).setDuration(350).withEndAction {
-                visibility = View.INVISIBLE
-            }
+            reversedAnimation = true
+            animation.reverse()
         }
     }
 }
