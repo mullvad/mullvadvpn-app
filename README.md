@@ -634,7 +634,7 @@ Instructions for how to handle locales and translations are found
 ## Audits, pentests and external security reviews
 
 Mullvad has used external pentesting companies to carry out security audits of this VPN app. Read
-more about them in the [audits readme](./audits/README.md)
+more about them in the [audits readme](./audits/README.md).
 
 # License
 
