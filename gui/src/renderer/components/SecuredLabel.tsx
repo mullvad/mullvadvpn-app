@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, Styles, Text, Types } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 
@@ -11,59 +11,32 @@ export enum SecuredDisplayStyle {
   failedToSecure,
 }
 
-interface IProps {
-  displayStyle: SecuredDisplayStyle;
-  style: Types.TextStyleRuleSet;
-}
-
-const styles = {
-  securing: Styles.createTextStyle({
-    color: colors.white,
-  }),
-  secured: Styles.createTextStyle({
-    color: colors.green,
-  }),
-  unsecured: Styles.createTextStyle({
-    color: colors.red,
-  }),
+const securedDisplayStyleColorMap = {
+  [SecuredDisplayStyle.securing]: colors.white,
+  [SecuredDisplayStyle.secured]: colors.green,
+  [SecuredDisplayStyle.blocked]: colors.green,
+  [SecuredDisplayStyle.unsecured]: colors.red,
+  [SecuredDisplayStyle.failedToSecure]: colors.red,
 };
 
-export default class SecuredLabel extends Component<IProps> {
-  public render() {
-    return <Text style={[this.props.style, this.getTextStyle()]}>{this.getText()}</Text>;
-  }
+const securedDisplayStyleTextMap = {
+  [SecuredDisplayStyle.securing]: messages.gettext('CREATING SECURE CONNECTION'),
+  [SecuredDisplayStyle.secured]: messages.gettext('SECURE CONNECTION'),
+  [SecuredDisplayStyle.blocked]: messages.gettext('BLOCKED CONNECTION'),
+  [SecuredDisplayStyle.unsecured]: messages.gettext('UNSECURED CONNECTION'),
+  [SecuredDisplayStyle.failedToSecure]: messages.gettext('FAILED TO SECURE CONNECTION'),
+};
 
-  private getText() {
-    switch (this.props.displayStyle) {
-      case SecuredDisplayStyle.secured:
-        return messages.gettext('SECURE CONNECTION');
+const StyledSecuredLabel = styled.span((props: { displayStyle: SecuredDisplayStyle }) => ({
+  color: securedDisplayStyleColorMap[props.displayStyle],
+}));
 
-      case SecuredDisplayStyle.blocked:
-        return messages.gettext('BLOCKED CONNECTION');
+interface ISecuredLabelProps {
+  displayStyle: SecuredDisplayStyle;
+  className?: string;
+}
 
-      case SecuredDisplayStyle.securing:
-        return messages.gettext('CREATING SECURE CONNECTION');
-
-      case SecuredDisplayStyle.unsecured:
-        return messages.gettext('UNSECURED CONNECTION');
-
-      case SecuredDisplayStyle.failedToSecure:
-        return messages.gettext('FAILED TO SECURE CONNECTION');
-    }
-  }
-
-  private getTextStyle() {
-    switch (this.props.displayStyle) {
-      case SecuredDisplayStyle.secured:
-      case SecuredDisplayStyle.blocked:
-        return styles.secured;
-
-      case SecuredDisplayStyle.securing:
-        return styles.securing;
-
-      case SecuredDisplayStyle.unsecured:
-      case SecuredDisplayStyle.failedToSecure:
-        return styles.unsecured;
-    }
-  }
+export default function SecuredLabel(props: ISecuredLabelProps) {
+  const text = securedDisplayStyleTextMap[props.displayStyle];
+  return <StyledSecuredLabel {...props}>{text}</StyledSecuredLabel>;
 }
