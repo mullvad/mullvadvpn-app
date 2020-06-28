@@ -1,4 +1,3 @@
-import { push } from 'connected-react-router';
 import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -17,12 +16,8 @@ const mapStateToProps = (state: IReduxState) => {
   };
 };
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
-  const history = bindActionCreators({ push }, dispatch);
   const { resetLoginError, updateAccountToken } = bindActionCreators(accountActions, dispatch);
   return {
-    openSettings: () => {
-      history.push('/settings');
-    },
     login: (account: string) => {
       consumePromise(props.app.login(account));
     },

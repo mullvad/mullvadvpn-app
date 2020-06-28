@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
+import Launch from './components/Launch';
 import TransitionContainer, { TransitionView } from './components/TransitionContainer';
 import AccountPage from './containers/AccountPage';
 import AdvancedSettingsPage from './containers/AdvancedSettingsPage';
 import ConnectPage from './containers/ConnectPage';
-import LaunchPage from './containers/LaunchPage';
 import LoginPage from './containers/LoginPage';
 import PlatformWindowContainer from './containers/PlatformWindowContainer';
 import PreferencesPage from './containers/PreferencesPage';
@@ -60,7 +60,7 @@ class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
         <TransitionContainer {...transitionProps}>
           <TransitionView viewId={location.key || ''}>
             <Switch key={location.key} location={location}>
-              <Route exact={true} path="/" component={LaunchPage} />
+              <Route exact={true} path="/" component={Launch} />
               <Route exact={true} path="/login" component={LoginPage} />
               <Route exact={true} path="/connect" component={ConnectPage} />
               <Route exact={true} path="/settings" component={SettingsPage} />

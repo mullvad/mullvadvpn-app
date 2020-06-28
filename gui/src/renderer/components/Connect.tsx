@@ -7,7 +7,7 @@ import NotificationArea from '../components/NotificationArea';
 import { AuthFailureKind, parseAuthFailure } from '../../shared/auth-failure';
 import { LoginState } from '../redux/account/reducers';
 import { IConnectionReduxState } from '../redux/connection/reducers';
-import { Brand, HeaderBarStyle, SettingsBarButton } from './HeaderBar';
+import { Brand, HeaderBarStyle, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
@@ -20,7 +20,6 @@ interface IProps {
   accountExpiry?: string;
   blockWhenDisconnected: boolean;
   selectedRelayName: string;
-  onSettings: () => void;
   onSelectLocation: () => void;
   onConnect: () => void;
   onDisconnect: () => void;
@@ -95,7 +94,7 @@ export default class Connect extends Component<IProps, IState> {
         <Layout>
           <Header barStyle={this.headerBarStyle()}>
             <Brand />
-            <SettingsBarButton onPress={this.props.onSettings} />
+            <HeaderBarSettingsButton />
           </Header>
           <Container>
             {this.state.isAccountExpired ||

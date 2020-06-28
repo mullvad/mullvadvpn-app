@@ -76,9 +76,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const history = bindActionCreators({ push }, dispatch);
 
   return {
-    onSettings: () => {
-      history.push('/settings');
-    },
     onSelectLocation: () => {
       history.push('/select-location');
     },

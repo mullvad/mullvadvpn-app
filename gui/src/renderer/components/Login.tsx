@@ -6,7 +6,7 @@ import { messages } from '../../shared/gettext';
 import { formatAccountToken } from '../lib/account';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
-import { Brand, SettingsBarButton } from './HeaderBar';
+import { Brand, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 import styles, {
@@ -23,7 +23,6 @@ interface IProps {
   accountToken?: AccountToken;
   accountHistory: AccountToken[];
   loginState: LoginState;
-  openSettings?: () => void;
   openExternalLink: (type: string) => void;
   login: (accountToken: AccountToken) => void;
   resetLoginError: () => void;
@@ -105,7 +104,7 @@ export default class Login extends Component<IProps, IState> {
       <Layout>
         <Header>
           <Brand />
-          <SettingsBarButton onPress={this.props.openSettings} />
+          <HeaderBarSettingsButton />
         </Header>
         <Container>
           <View style={styles.login_form}>
