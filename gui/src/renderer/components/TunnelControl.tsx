@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Component, Styles, View } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { TunnelState } from '../../shared/daemon-rpc-types';
@@ -27,21 +26,22 @@ const SwitchLocationButton = styled(AppButton.TransparentButton)({
   marginBottom: 16,
 });
 
-const styles = {
-  footer: Styles.createViewStyle({
-    flex: 0,
-    paddingBottom: 16,
-    paddingLeft: 24,
-    paddingRight: 24,
-  }),
-  status_security: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 16,
-    fontWeight: '800',
-    lineHeight: 22,
-    marginBottom: 2,
-  }),
-};
+const Secured = styled(SecuredLabel)({
+  fontFamily: 'Open Sans',
+  fontSize: '16px',
+  fontWeight: 800,
+  lineHeight: '22px',
+  marginBottom: '2px',
+});
+
+const Footer = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 0,
+  paddingBottom: '16px',
+  paddingLeft: '24px',
+  paddingRight: '24px',
+});
 
 const Body = styled.div({
   display: 'flex',
@@ -73,7 +73,7 @@ const StyledMarquee = styled(Marquee)({
   color: colors.white,
 });
 
-export default class TunnelControl extends Component<ITunnelControlProps> {
+export default class TunnelControl extends React.Component<ITunnelControlProps> {
   public render() {
     const SwitchLocation = () => {
       return (
@@ -118,13 +118,6 @@ export default class TunnelControl extends Component<ITunnelControlProps> {
       <AppButton.RedTransparentButton onClick={this.props.onReconnect} {...props}>
         <ImageView height={22} width={22} source="icon-reload" tintColor="white" />
       </AppButton.RedTransparentButton>
-    );
-
-    const Secured = ({ displayStyle }: { displayStyle: SecuredDisplayStyle }) => (
-      <SecuredLabel style={styles.status_security} displayStyle={displayStyle} />
-    );
-    const Footer = ({ children }: { children: React.ReactNode }) => (
-      <View style={styles.footer}>{children}</View>
     );
 
     let state = this.props.tunnelState.state;
