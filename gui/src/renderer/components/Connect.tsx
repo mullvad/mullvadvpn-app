@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component, Styles, View } from 'reactxp';
+import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { hasExpired } from '../../shared/account-expiry';
 import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
@@ -38,32 +38,25 @@ const StyledMap = styled(Map)({
   zIndex: 0,
 });
 
+const StyledContainer = styled(Container)({
+  position: 'relative',
+});
+
+const Content = styled.div({
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+  position: 'relative', // need this for z-index to work to cover the map
+  zIndex: 1,
+});
+
+const StatusIcon = styled(ImageView)({
+  position: 'absolute',
+  alignSelf: 'center',
+  marginTop: 94,
+});
+
 const styles = {
-  connect: Styles.createViewStyle({
-    flex: 1,
-  }),
-  body: Styles.createViewStyle({
-    flex: 1,
-    paddingTop: 0,
-    paddingLeft: 24,
-    paddingRight: 24,
-    paddingBottom: 0,
-    marginTop: 176,
-  }),
-  container: Styles.createViewStyle({
-    flex: 1,
-    flexDirection: 'column',
-    position: 'relative' /* need this for z-index to work to cover the map */,
-    // @ts-ignore
-    zIndex: 1,
-  }),
-  statusIcon: Styles.createViewStyle({
-    position: 'absolute',
-    alignSelf: 'center',
-    width: 60,
-    height: 60,
-    marginTop: 94,
-  }),
   notificationArea: Styles.createViewStyle({
     position: 'absolute',
     left: 0,
@@ -76,7 +69,7 @@ interface IState {
   isAccountExpired: boolean;
 }
 
-export default class Connect extends Component<IProps, IState> {
+export default class Connect extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
 
@@ -97,7 +90,7 @@ export default class Connect extends Component<IProps, IState> {
             <Brand />
             <SettingsBarButton onPress={this.props.onSettings} />
           </Header>
-          <Container>
+          <StyledContainer>
             {this.state.isAccountExpired ||
             (this.props.loginState.type === 'ok' &&
               this.props.loginState.method === 'new_account') ? (
@@ -105,7 +98,7 @@ export default class Connect extends Component<IProps, IState> {
             ) : (
               this.renderMap()
             )}
-          </Container>
+          </StyledContainer>
         </Layout>
       </ModalContainer>
     );
@@ -145,14 +138,12 @@ export default class Connect extends Component<IProps, IState> {
 
   private renderMap() {
     return (
-      <View style={styles.connect}>
+      <>
         <StyledMap {...this.getMapProps()} />
-        <View style={styles.container}>
+        <Content>
           {/* show spinner when connecting */}
           {this.showMarkerOrSpinner() === 'spinner' ? (
-            <View style={styles.statusIcon}>
-              <ImageView source="icon-spinner" height={60} width={60} />
-            </View>
+            <StatusIcon source="icon-spinner" height={60} width={60} />
           ) : null}
 
           <TunnelControl
@@ -168,8 +159,8 @@ export default class Connect extends Component<IProps, IState> {
           />
 
           <NotificationArea style={styles.notificationArea} />
-        </View>
-      </View>
+        </Content>
+      </>
     );
   }
 
