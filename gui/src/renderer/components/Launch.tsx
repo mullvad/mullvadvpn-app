@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Component, Styles, Text, View } from 'reactxp';
+import { Styles, Text, View } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import { SettingsBarButton } from './HeaderBar';
+import { HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 
@@ -37,27 +37,21 @@ const Logo = styled(ImageView)({
   marginBottom: '5px',
 });
 
-interface IProps {
-  openSettings: () => void;
-}
-
-export default class Launch extends Component<IProps> {
-  public render() {
-    return (
-      <Layout>
-        <Header>
-          <SettingsBarButton onPress={this.props.openSettings} />
-        </Header>
-        <Container>
-          <View style={styles.container}>
-            <Logo height={106} width={106} source="logo-icon" />
-            <Text style={styles.title}>{messages.pgettext('generic', 'MULLVAD VPN')}</Text>
-            <Text style={styles.subtitle}>
-              {messages.pgettext('launch-view', 'Connecting to Mullvad system service...')}
-            </Text>
-          </View>
-        </Container>
-      </Layout>
-    );
-  }
+export default function Launch() {
+  return (
+    <Layout>
+      <Header>
+        <HeaderBarSettingsButton />
+      </Header>
+      <Container>
+        <View style={styles.container}>
+          <Logo height={106} width={106} source="logo-icon" />
+          <Text style={styles.title}>{messages.pgettext('generic', 'MULLVAD VPN')}</Text>
+          <Text style={styles.subtitle}>
+            {messages.pgettext('launch-view', 'Connecting to Mullvad system service...')}
+          </Text>
+        </View>
+      </Container>
+    </Layout>
+  );
 }
