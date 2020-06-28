@@ -18,6 +18,7 @@ export class Header extends Component<HeaderBar['props']> {
 }
 
 export const Container = styled.div({
+  position: 'relative',
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
