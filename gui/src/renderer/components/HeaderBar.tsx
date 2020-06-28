@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Button, Component, Styles, Text, Types, View } from 'reactxp';
+import React, { useCallback } from 'react';
+import { useHistory } from 'react-router';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
@@ -12,121 +12,92 @@ export enum HeaderBarStyle {
   success = 'success',
 }
 
-export interface IHeaderBarProps {
-  barStyle: HeaderBarStyle;
-  style?: Types.ViewStyleRuleSet;
-}
-
-const headerBarStyles = {
-  container: {
-    base: Styles.createViewStyle({
-      paddingTop: 12,
-      paddingBottom: 12,
-      paddingLeft: 12,
-      paddingRight: 12,
-    }),
-    darwin: Styles.createViewStyle({
-      paddingTop: 24,
-    }),
-  },
-  content: Styles.createViewStyle({
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    // the size of "brand" logo
-    minHeight: 51,
-  }),
-  barStyle: {
-    default: Styles.createViewStyle({
-      backgroundColor: colors.blue,
-    }),
-    defaultDark: Styles.createViewStyle({
-      backgroundColor: colors.darkBlue,
-    }),
-    error: Styles.createViewStyle({
-      backgroundColor: colors.red,
-    }),
-    success: Styles.createViewStyle({
-      backgroundColor: colors.green,
-    }),
-  },
+const headerBarStyleColorMap = {
+  [HeaderBarStyle.default]: colors.blue,
+  [HeaderBarStyle.defaultDark]: colors.darkBlue,
+  [HeaderBarStyle.error]: colors.red,
+  [HeaderBarStyle.success]: colors.green,
 };
 
-export default class HeaderBar extends Component<IHeaderBarProps> {
-  public static defaultProps: IHeaderBarProps = {
-    barStyle: HeaderBarStyle.default,
-  };
+const HeaderBarContainer = styled.div({}, (props: { barStyle?: HeaderBarStyle }) => ({
+  padding: '12px',
+  paddingTop: process.platform === 'darwin' ? '24px' : '12px',
+  backgroundColor: headerBarStyleColorMap[props.barStyle ?? HeaderBarStyle.default],
+}));
 
-  public render() {
-    const style = [
-      headerBarStyles.container.base,
-      process.platform === 'darwin' ? headerBarStyles.container.darwin : undefined,
-      headerBarStyles.barStyle[this.props.barStyle],
-      this.props.style,
-    ];
-
-    return (
-      <View style={style}>
-        <View style={headerBarStyles.content}>{this.props.children}</View>
-      </View>
-    );
-  }
-}
-
-const brandStyles = {
-  container: Styles.createViewStyle({
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  }),
-  title: Styles.createTextStyle({
-    fontFamily: 'DINPro',
-    fontSize: 24,
-    fontWeight: '900',
-    lineHeight: 30,
-    letterSpacing: -0.5,
-    color: colors.white80,
-    marginLeft: 9,
-  }),
-};
-
-const Logo = styled(ImageView)({
-  marginLeft: '6px',
+const HeaderBarContent = styled.div({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
 });
 
-export class Brand extends Component {
-  public render() {
-    return (
-      <View style={brandStyles.container}>
-        <Logo width={44} height={44} source="logo-icon" />
-        <Text style={brandStyles.title}>{messages.pgettext('generic', 'MULLVAD VPN')}</Text>
-      </View>
-    );
-  }
+interface IHeaderBarProps {
+  barStyle?: HeaderBarStyle;
+  className?: string;
+  children?: React.ReactNode;
 }
 
-interface ISettingsButtonProps {
-  onPress?: () => void;
+export default function HeaderBar(props: IHeaderBarProps) {
+  return (
+    <HeaderBarContainer barStyle={props.barStyle} className={props.className}>
+      <HeaderBarContent>{props.children}</HeaderBarContent>
+    </HeaderBarContainer>
+  );
 }
 
-const settingsBarButtonStyle = Styles.createButtonStyle({
+const BrandContainer = styled.div({
+  display: 'flex',
+  flex: 1,
+  alignItems: 'center',
+});
+
+const Title = styled.span({
+  fontFamily: 'DINPro',
+  fontSize: '24px',
+  fontWeight: 900,
+  lineHeight: '30px',
+  letterSpacing: -0.5,
+  color: colors.white80,
+  marginLeft: '9px',
+});
+
+const Logo = styled(ImageView)({
+  margin: '4px 0 3px 6px',
+});
+
+export function Brand() {
+  return (
+    <BrandContainer>
+      <Logo width={44} height={44} source="logo-icon" />
+      <Title>{messages.pgettext('generic', 'MULLVAD VPN')}</Title>
+    </BrandContainer>
+  );
+}
+
+const HeaderBarSettingsButtonContainer = styled.button({
   cursor: 'default',
   padding: 0,
   marginLeft: 8,
+  backgroundColor: 'transparent',
+  border: 'none',
 });
 
-export class SettingsBarButton extends Component<ISettingsButtonProps> {
-  public render() {
-    return (
-      <Button style={settingsBarButtonStyle} onPress={this.props.onPress}>
-        <ImageView
-          height={24}
-          width={24}
-          source="icon-settings"
-          tintColor={'rgba(255, 255, 255, 0.8)'}
-          tintHoverColor={'rgba(255, 255, 255, 1.0)'}
-        />
-      </Button>
-    );
-  }
+export function HeaderBarSettingsButton() {
+  const history = useHistory();
+
+  const openSettings = useCallback(() => {
+    history.push('/settings');
+  }, [history]);
+
+  return (
+    <HeaderBarSettingsButtonContainer onClick={openSettings}>
+      <ImageView
+        height={24}
+        width={24}
+        source="icon-settings"
+        tintColor={'rgba(255, 255, 255, 0.8)'}
+        tintHoverColor={'rgba(255, 255, 255, 1.0)'}
+      />
+    </HeaderBarSettingsButtonContainer>
+  );
 }
