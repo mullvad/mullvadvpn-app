@@ -20,7 +20,11 @@ class UnderNotificationBannerBehavior(
         body: ScrollView,
         dependency: View
     ): Boolean {
-        val newPaddingTop = dependency.height
+        val newPaddingTop = if (dependency.visibility == View.VISIBLE) {
+            dependency.height + dependency.translationY.toInt()
+        } else {
+            0
+        }
 
         body.getChildAt(0).apply {
             if (paddingTop != newPaddingTop) {
