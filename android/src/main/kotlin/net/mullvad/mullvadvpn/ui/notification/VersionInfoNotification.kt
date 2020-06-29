@@ -29,19 +29,25 @@ class VersionInfoNotification(
 
     private fun updateVersionInfo(isOutdated: Boolean, isSupported: Boolean, upgrade: String?) {
         if (isOutdated || !isSupported) {
-            val template: Int
+            if (upgrade != null) {
+                val template: Int
 
-            if (isSupported) {
-                status = StatusLevel.Warning
-                title = updateAvailable
-                template = R.string.update_available_description
+                if (isSupported) {
+                    status = StatusLevel.Warning
+                    title = updateAvailable
+                    template = R.string.update_available_description
+                } else {
+                    status = StatusLevel.Error
+                    title = unsupportedVersion
+                    template = R.string.unsupported_version_description
+                }
+
+                message = context.getString(template, upgrade)
             } else {
                 status = StatusLevel.Error
                 title = unsupportedVersion
-                template = R.string.unsupported_version_description
+                message = context.getString(R.string.unsupported_version_without_upgrade)
             }
-
-            message = context.getString(template, upgrade)
 
             shouldShow = true
         } else {
