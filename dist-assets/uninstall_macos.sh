@@ -18,8 +18,14 @@ DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
 sudo launchctl unload -w "$DAEMON_PLIST_PATH"
 sudo rm -f "$DAEMON_PLIST_PATH"
 
-echo "Removing shell completion symlink ..."
+echo "Removing zsh shell completion symlink ..."
 sudo rm -f /usr/local/share/zsh/site-functions/_mullvad
+
+FISH_COMPLETIONS_PATH="/usr/local/share/fish/vendor_completions.d/mullvad.fish"
+if [ -h "$FISH_COMPLETIONS_PATH" ]; then
+    echo "Removing fish shell completion symlink ..."
+    sudo rm -f "$FISH_COMPLETIONS_PATH"
+fi
 
 echo "Removing CLI symlinks from /usr/local/bin/ ..."
 sudo rm -f /usr/local/bin/mullvad /usr/local/bin/mullvad-problem-report
