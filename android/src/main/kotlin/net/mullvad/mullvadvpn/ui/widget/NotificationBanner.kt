@@ -30,7 +30,16 @@ class NotificationBanner : FrameLayout {
         override fun onAnimationEnd(animation: Animator) {
             if (reversedAnimation) {
                 // Banner is now hidden
+                val notification = notifications.current
+
                 visibility = View.INVISIBLE
+
+                if (notification != null) {
+                    // Notification changed, restart animation
+                    update(notification)
+                    reversedAnimation = false
+                    animation.start()
+                }
             }
         }
     }
@@ -60,11 +69,7 @@ class NotificationBanner : FrameLayout {
 
     private var reversedAnimation = false
 
-    val notifications = InAppNotificationController { notification ->
-        if (notification != null) {
-            update(notification)
-        }
-
+    val notifications = InAppNotificationController { _ ->
         animateChange()
     }
 
@@ -87,6 +92,8 @@ class NotificationBanner : FrameLayout {
         setOnClickListener {
             jobTracker.newUiJob("click") { onClick() }
         }
+
+        visibility = View.INVISIBLE
     }
 
     fun onResume() {
@@ -148,12 +155,17 @@ class NotificationBanner : FrameLayout {
         val notification = notifications.current
 
         if (notification != null && visibility == View.INVISIBLE) {
+            // Banner is not currently shown but must be shown
             reversedAnimation = false
             update(notification)
             animation.start()
-        } else if (!shouldShow && visibility == View.VISIBLE) {
+        } else if (visibility == View.VISIBLE && (!animation.isRunning() || !reversedAnimation)) {
+            // Either the banner is shown or it is in the process of being shown, but the
+            // notification must be hidden or replaced
             reversedAnimation = true
             animation.reverse()
         }
+        // If the banner is animating to be hidden, it will automatically start showing when the
+        // hide animation ends
     }
 }
