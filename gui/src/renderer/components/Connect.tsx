@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { hasExpired } from '../../shared/account-expiry';
 import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
@@ -55,14 +54,12 @@ const StatusIcon = styled(ImageView)({
   marginTop: 94,
 });
 
-const styles = {
-  notificationArea: Styles.createViewStyle({
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-  }),
-};
+const StyledNotificationArea = styled(NotificationArea)({
+  position: 'absolute',
+  left: 0,
+  top: 0,
+  right: 0,
+});
 
 interface IState {
   isAccountExpired: boolean;
@@ -157,7 +154,7 @@ export default class Connect extends React.Component<IProps, IState> {
             onSelectLocation={this.props.onSelectLocation}
           />
 
-          <NotificationArea style={styles.notificationArea} />
+          <StyledNotificationArea />
         </Content>
       </>
     );

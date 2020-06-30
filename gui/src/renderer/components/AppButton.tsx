@@ -133,8 +133,6 @@ export class BlockingButton extends React.Component<IBlockingProps, IBlockingSta
           ...child.props,
           disabled: this.state.isBlocked || this.props.disabled,
           onClick: this.onClick,
-          // TODO: Remove when NotificationOpenLinkAction has been converted from ReactXP
-          onPress: this.onClick,
         });
       } else {
         return child;

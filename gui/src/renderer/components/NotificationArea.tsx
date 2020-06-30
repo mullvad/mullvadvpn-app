@@ -2,7 +2,6 @@ import { shell } from 'electron';
 import log from 'electron-log';
 import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { Types } from 'reactxp';
 import {
   CloseToAccountExpiryNotificationProvider,
   BlockWhenDisconnectedNotificationProvider,
@@ -28,7 +27,7 @@ import {
 } from './NotificationBanner';
 
 interface IProps {
-  style?: Types.ViewStyleRuleSet;
+  className?: string;
 }
 
 export default function NotificationArea(props: IProps) {
@@ -65,7 +64,7 @@ export default function NotificationArea(props: IProps) {
 
     if (notification) {
       return (
-        <NotificationBanner style={props.style} visible>
+        <NotificationBanner className={props.className} visible>
           <NotificationIndicator type={notification.indicator} />
           <NotificationContent>
             <NotificationTitle>{notification.title}</NotificationTitle>
@@ -81,7 +80,7 @@ export default function NotificationArea(props: IProps) {
     }
   }
 
-  return <NotificationBanner style={props.style} visible={false} />;
+  return <NotificationBanner className={props.className} visible={false} />;
 }
 
 interface INotificationActionWrapperProps {
@@ -91,7 +90,7 @@ interface INotificationActionWrapperProps {
 function NotificationActionWrapper(props: INotificationActionWrapperProps) {
   const { openLinkWithAuth } = useAppContext();
 
-  const handlePress = useCallback(() => {
+  const handleClick = useCallback(() => {
     if (props.action.withAuth) {
       return openLinkWithAuth(props.action.url);
     } else {
@@ -101,7 +100,7 @@ function NotificationActionWrapper(props: INotificationActionWrapperProps) {
 
   return (
     <NotificationActions>
-      <NotificationOpenLinkAction onPress={handlePress} />
+      <NotificationOpenLinkAction onClick={handleClick} />
     </NotificationActions>
   );
 }
