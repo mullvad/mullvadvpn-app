@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
@@ -145,6 +145,12 @@ export function NotificationBanner(props: INotificationBannerProps) {
   const contentRef = useRef() as React.RefObject<HTMLDivElement>;
   const collapsibleRef = useRef() as React.RefObject<HTMLDivElement>;
 
+  // Save last non-undefined children to be able to show them during the hide-transition.
+  const prevChildren = useRef<React.ReactNode>();
+  useEffect(() => {
+    prevChildren.current = props.children ?? prevChildren.current;
+  }, [props.children]);
+
   const onTransitionEnd = useCallback(() => setAlignBottom(false), []);
 
   useLayoutEffect(() => {
@@ -163,7 +169,7 @@ export function NotificationBanner(props: INotificationBannerProps) {
       collapsibleHeight={collapsibleRef.current?.getBoundingClientRect().height ?? 0}
       className={props.className}
       onTransitionEnd={onTransitionEnd}>
-      <Content ref={contentRef}>{props.children}</Content>
+      <Content ref={contentRef}>{props.visible ? props.children : prevChildren.current}</Content>
     </Collapsible>
   );
 }
