@@ -35,6 +35,21 @@ impl Pinger {
         Ok(())
     }
 
+    pub fn reset(&mut self) {
+        let processes = std::mem::replace(&mut self.processes, vec![]);
+        for proc in processes {
+            if proc
+                .try_wait()
+                .map(|maybe_stopped| maybe_stopped.is_none())
+                .unwrap_or(false)
+            {
+                if let Err(err) = proc.kill() {
+                    log::error!("Failed to kill ping process - {}", err);
+                }
+            }
+        }
+    }
+
     fn try_deplete_process_list(&mut self) {
         self.processes.retain(|child| {
             match child.try_wait() {
