@@ -315,6 +315,7 @@ impl AppVersionProxy {
 
 /// Error code for when an account has too many keys. Returned when trying to push a new key.
 pub const KEY_LIMIT_REACHED: &str = "KEY_LIMIT_REACHED";
+#[derive(Clone)]
 pub struct WireguardKeyProxy {
     handle: rest::MullvadRestHandle,
 }
@@ -325,13 +326,12 @@ impl WireguardKeyProxy {
         Self { handle }
     }
 
-
     pub fn push_wg_key(
         &mut self,
         account_token: AccountToken,
         public_key: wireguard::PublicKey,
         timeout: Option<std::time::Duration>,
-    ) -> impl Future01<Item = mullvad_types::wireguard::AssociatedAddresses, Error = rest::Error>
+    ) -> impl Future<Output = Result<mullvad_types::wireguard::AssociatedAddresses, rest::Error>> + 'static
     {
         #[derive(serde::Serialize)]
         struct PublishRequest {
@@ -342,30 +342,24 @@ impl WireguardKeyProxy {
         let body = PublishRequest { pubkey: public_key };
 
         let request = self.handle.factory.post_json(&"/v1/wireguard-keys", &body);
-
-        let future = async move {
+        async move {
             let mut request = request?;
             if let Some(timeout) = timeout {
                 request.set_timeout(timeout);
             }
             request.set_auth(Some(account_token))?;
             let response = service.request(request).await?;
-            rest::parse_rest_response(response, StatusCode::CREATED).await
-        };
-
-
-        self.handle
-            .service
-            .compat_spawn(async move { rest::deserialize_body(future.await?).await })
+            rest::deserialize_body(rest::parse_rest_response(response, StatusCode::CREATED).await?)
+                .await
+        }
     }
 
-    pub fn replace_wg_key(
+    pub async fn replace_wg_key(
         &mut self,
         account_token: AccountToken,
         old: wireguard::PublicKey,
         new: wireguard::PublicKey,
-    ) -> impl Future01<Item = mullvad_types::wireguard::AssociatedAddresses, Error = rest::Error>
-    {
+    ) -> Result<mullvad_types::wireguard::AssociatedAddresses, rest::Error> {
         #[derive(serde::Serialize)]
         struct ReplacementRequest {
             old: wireguard::PublicKey,
@@ -375,29 +369,27 @@ impl WireguardKeyProxy {
         let service = self.handle.service.clone();
         let body = ReplacementRequest { old, new };
 
-        let request = rest::post_request_with_json(
+        let response = rest::post_request_with_json(
             &self.handle.factory,
             service,
             &"/v1/replace-wireguard-key",
             &body,
             Some(account_token),
             StatusCode::CREATED,
-        );
+        )
+        .await?;
 
-        self.handle
-            .service
-            .compat_spawn(async move { rest::deserialize_body(request.await?).await })
+        rest::deserialize_body(response).await
     }
 
-    pub fn get_wireguard_key(
+    pub async fn get_wireguard_key(
         &mut self,
         account_token: AccountToken,
         key: &wireguard::PublicKey,
-    ) -> impl Future01<Item = mullvad_types::wireguard::AssociatedAddresses, Error = rest::Error>
-    {
+    ) -> Result<mullvad_types::wireguard::AssociatedAddresses, rest::Error> {
         let service = self.handle.service.clone();
 
-        let request = rest::send_request(
+        let response = rest::send_request(
             &self.handle.factory,
             service,
             &format!(
@@ -407,20 +399,20 @@ impl WireguardKeyProxy {
             Method::GET,
             Some(account_token),
             StatusCode::OK,
-        );
-        self.handle
-            .service
-            .compat_spawn(async move { rest::deserialize_body(request.await?).await })
+        )
+        .await?;
+
+        rest::deserialize_body(response).await
     }
 
-    pub fn remove_wireguard_key(
+    pub async fn remove_wireguard_key(
         &mut self,
         account_token: AccountToken,
         key: &wireguard::PublicKey,
-    ) -> impl Future01<Item = (), Error = rest::Error> {
+    ) -> Result<(), rest::Error> {
         let service = self.handle.service.clone();
 
-        let request = rest::send_request(
+        let _ = rest::send_request(
             &self.handle.factory,
             service,
             &format!(
@@ -430,11 +422,8 @@ impl WireguardKeyProxy {
             Method::DELETE,
             Some(account_token),
             StatusCode::NO_CONTENT,
-        );
-
-        self.handle.service.compat_spawn(async move {
-            let _ = request.await?;
-            Ok(())
-        })
+        )
+        .await?;
+        Ok(())
     }
 }

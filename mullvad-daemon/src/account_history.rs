@@ -1,20 +1,13 @@
-#[cfg(target_os = "android")]
-use futures01::future::{Executor, Future};
-#[cfg(not(target_os = "android"))]
-use futures01::{
-    future::{self, Executor, Future},
-    sync::oneshot,
-};
 use mullvad_rpc::{rest::MullvadRestHandle, WireguardKeyProxy};
 use mullvad_types::{account::AccountToken, wireguard::WireguardData};
 use std::{
     collections::VecDeque,
     fs,
+    future::Future,
     io::{self, Seek, Write},
     path::Path,
 };
 use talpid_types::ErrorExt;
-use tokio_core::reactor::Remote;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -39,7 +32,6 @@ pub struct AccountHistory {
     file: io::BufWriter<fs::File>,
     accounts: VecDeque<AccountEntry>,
     rpc_handle: MullvadRestHandle,
-    tokio_remote: Remote,
 }
 
 
@@ -48,7 +40,6 @@ impl AccountHistory {
         cache_dir: &Path,
         settings_dir: &Path,
         rpc_handle: MullvadRestHandle,
-        tokio_remote: Remote,
     ) -> Result<AccountHistory> {
         Self::migrate_from_old_file_location(cache_dir, settings_dir);
 
@@ -95,7 +86,6 @@ impl AccountHistory {
             file,
             accounts,
             rpc_handle,
-            tokio_remote,
         };
         if let Err(e) = history.save_to_disk() {
             log::error!("Failed to save account cache after opening it: {}", e);
@@ -170,10 +160,16 @@ impl AccountHistory {
         &self,
         account: &str,
         wg_data: &WireguardData,
-    ) -> impl Future<Item = (), Error = ()> {
+    ) -> impl Future<Output = ()> + 'static {
         let mut rpc = WireguardKeyProxy::new(self.rpc_handle.clone());
-        rpc.remove_wireguard_key(String::from(account), &wg_data.private_key.public_key())
-            .map_err(|e| log::error!("Failed to remove WireGuard key: {}", e))
+        let pub_key = wg_data.private_key.public_key();
+        let account = String::from(account);
+
+        async move {
+            if let Err(err) = rpc.remove_wireguard_key(account, &pub_key).await {
+                log::error!("Failed to remove WireGuard key: {}", err);
+            }
+        }
     }
 
     /// Always inserts a new entry at the start of the list
@@ -186,10 +182,9 @@ impl AccountHistory {
         if self.accounts.len() > ACCOUNT_HISTORY_LIMIT {
             let last_entry = self.accounts.pop_back().unwrap();
             if let Some(wg_data) = last_entry.wireguard {
-                let fut = self.create_remove_wg_key_rpc(&last_entry.account, &wg_data);
-                if let Err(e) = self.tokio_remote.execute(fut) {
-                    log::error!("Failed to spawn future to remove WireGuard key: {:?}", e);
-                }
+                self.rpc_handle
+                    .service()
+                    .spawn(self.create_remove_wg_key_rpc(&last_entry.account, &wg_data));
             }
         }
 
@@ -213,10 +208,9 @@ impl AccountHistory {
         };
 
         if let Some(wg_data) = entry.wireguard {
-            let fut = self.create_remove_wg_key_rpc(account, &wg_data);
-            if let Err(e) = self.tokio_remote.execute(fut) {
-                log::error!("Failed to spawn future to remove WireGuard key: {:?}", e);
-            }
+            self.rpc_handle
+                .service()
+                .spawn(self.create_remove_wg_key_rpc(account, &wg_data))
         }
 
         let _ = self.accounts.pop_front();
@@ -224,35 +218,31 @@ impl AccountHistory {
     }
 
     /// Remove account history
-    #[cfg(not(target_os = "android"))]
     pub fn clear(&mut self) -> Result<()> {
-        let mut rpc = WireguardKeyProxy::new(self.rpc_handle.clone());
-
         log::debug!("account_history::clear");
 
-        let mut removal_futures = Vec::with_capacity(ACCOUNT_HISTORY_LIMIT);
+        let rpc = WireguardKeyProxy::new(self.rpc_handle.clone());
 
-        for entry in self.accounts.iter() {
-            if let Some(wg_data) = &entry.wireguard {
-                let fut = rpc
-                    .remove_wireguard_key(entry.account.clone(), &wg_data.private_key.public_key())
-                    .map_err(|e| log::error!("Failed to remove WireGuard key: {}", e));
-                removal_futures.push(fut);
-            }
-        }
+        let removal: Vec<_> = self
+            .accounts
+            .drain(0..)
+            .filter_map(move |entry| {
+                let account = entry.account.clone();
+                let mut rpc = rpc.clone();
+                entry.wireguard.map(move |wg_data| {
+                    let public_key = wg_data.private_key.public_key();
+                    async move {
+                        if let Err(err) = rpc.remove_wireguard_key(account, &public_key).await {
+                            log::error!("Failed to remove WireGuard key: {}", err);
+                        }
+                    }
+                })
+            })
+            .collect();
 
-        let joined_futs = future::join_all(removal_futures);
-        let (tx, rx) = oneshot::channel();
 
-        let execute_result = self.tokio_remote.execute(joined_futs.then(|result| {
-            let _ = tx.send(result);
-            Ok(())
-        }));
-        if let Err(e) = execute_result {
-            log::error!("Failed to spawn future to remove WireGuard keys: {:?}", e);
-        } else {
-            let _ = rx.wait();
-        }
+        let joined_futs = futures::future::join_all(removal);
+        self.rpc_handle.service().block_on(joined_futs);
 
         self.accounts = VecDeque::new();
         self.save_to_disk()
