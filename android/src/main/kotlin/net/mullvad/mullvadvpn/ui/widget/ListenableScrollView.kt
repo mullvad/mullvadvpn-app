@@ -3,9 +3,15 @@ package net.mullvad.mullvadvpn.ui.widget
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.ScrollView
+import net.mullvad.mullvadvpn.util.ListenableScrollableView
 
-class ListenableScrollView : ScrollView {
-    var onScrollListener: ((Int, Int, Int, Int) -> Unit)? = null
+class ListenableScrollView : ScrollView, ListenableScrollableView {
+    override val horizontalScrollOffset
+        get() = scrollX
+    override val verticalScrollOffset
+        get() = scrollY
+
+    override var onScrollListener: ((Int, Int, Int, Int) -> Unit)? = null
 
     constructor(context: Context) : super(context) {}
 

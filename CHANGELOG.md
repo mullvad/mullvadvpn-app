@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Show a system notification when the account time will soon run out.
+- Changed how the Select Location screen scrolls so that more items can be viewed at the same time.
 
 ### Fixed
 #### Windows
