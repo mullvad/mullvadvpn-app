@@ -1,0 +1,55 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:mullvad="http://schemas.android.com/apk/res-auto"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@color/darkBlue"
+             android:elevation="3dp"
+             android:gravity="left">
+    <TextView android:id="@+id/title"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="@color/white"
+              android:textSize="16sp"
+              android:textStyle="bold"
+              android:text="@string/split_tunnelling" />
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical">
+        <FrameLayout android:layout_width="match_parent"
+                     android:layout_height="wrap_content">
+            <LinearLayout android:id="@+id/back"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_weight="0"
+                          android:padding="12dp"
+                          android:orientation="horizontal"
+                          android:gravity="center_vertical | left"
+                          android:clickable="true"
+                          android:background="?android:attr/selectableItemBackground">
+                <ImageView android:layout_width="24dp"
+                           android:layout_height="24dp"
+                           android:layout_marginRight="8dp"
+                           android:src="@drawable/icon_back" />
+                <TextView android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:textColor="@color/white60"
+                          android:textSize="13sp"
+                          android:textStyle="bold"
+                          android:text="@string/settings_advanced" />
+            </LinearLayout>
+            <TextView android:id="@+id/collapsed_title"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_marginHorizontal="4dp"
+                      android:layout_gravity="center"
+                      android:textColor="@color/white"
+                      android:textSize="16sp"
+                      android:textStyle="bold"
+                      android:text="@string/split_tunnelling" />
+        </FrameLayout>
+        <net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView android:id="@+id/app_list"
+                                                             android:layout_width="match_parent"
+                                                             android:layout_height="match_parent"
+                                                             android:scrollbars="vertical" />
+    </LinearLayout>
+</FrameLayout>
