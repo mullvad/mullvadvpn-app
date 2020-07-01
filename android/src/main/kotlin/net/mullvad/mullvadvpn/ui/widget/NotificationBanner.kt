@@ -28,17 +28,19 @@ class NotificationBanner : FrameLayout {
         }
 
         override fun onAnimationEnd(animation: Animator) {
-            if (reversedAnimation) {
-                // Banner is now hidden
-                val notification = notifications.current
+            synchronized(this@NotificationBanner) {
+                if (reversedAnimation) {
+                    // Banner is now hidden
+                    val notification = notifications.current
 
-                visibility = View.INVISIBLE
+                    visibility = View.INVISIBLE
 
-                if (notification != null) {
-                    // Notification changed, restart animation
-                    update(notification)
-                    reversedAnimation = false
-                    animation.start()
+                    if (notification != null) {
+                        // Notification changed, restart animation
+                        update(notification)
+                        reversedAnimation = false
+                        animation.start()
+                    }
                 }
             }
         }
@@ -70,7 +72,9 @@ class NotificationBanner : FrameLayout {
     private var reversedAnimation = false
 
     val notifications = InAppNotificationController { _ ->
-        animateChange()
+        synchronized(this@NotificationBanner) {
+            animateChange()
+        }
     }
 
     constructor(context: Context) : super(context) {}
