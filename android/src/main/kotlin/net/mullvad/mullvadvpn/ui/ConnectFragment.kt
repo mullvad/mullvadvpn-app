@@ -8,6 +8,11 @@ import android.widget.ImageButton
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
+import net.mullvad.mullvadvpn.ui.notification.KeyStatusNotification
+import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
+import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
+import net.mullvad.mullvadvpn.ui.widget.NotificationBanner
 import org.joda.time.DateTime
 
 val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
@@ -43,7 +48,14 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         headerBar = HeaderBar(view, resources)
 
-        notificationBanner = NotificationBanner(view, parentActivity, appVersionInfoCache, daemon)
+        notificationBanner = view.findViewById<NotificationBanner>(R.id.notification_banner).apply {
+            notifications.apply {
+                register(TunnelStateNotification(parentActivity, connectionProxy))
+                register(KeyStatusNotification(parentActivity, daemon, keyStatusListener))
+                register(VersionInfoNotification(parentActivity, appVersionInfoCache))
+                register(AccountExpiryNotification(parentActivity, daemon, accountCache))
+            }
+        }
 
         status = ConnectionStatus(view, resources)
 
@@ -69,12 +81,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         notificationBanner.onResume()
 
-        keyStatusListener.onKeyStatusChange.subscribe(this) { keyStatus ->
-            jobTracker.newUiJob("updateKeyStatus") {
-                notificationBanner.keyState = keyStatus
-            }
-        }
-
         locationInfoCache.onNewLocation = { location ->
             jobTracker.newUiJob("updateLocationInfo") {
                 locationInfo.location = location
@@ -98,10 +104,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             } else if (expiry != null) {
                 scheduleNextAccountExpiryCheck(expiry)
             }
-
-            jobTracker.newUiJob("updateAccountExpiry") {
-                notificationBanner.accountExpiry = expiry
-            }
         }
     }
 
@@ -119,6 +121,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyDestroyView() {
+        notificationBanner.onDestroy()
         switchLocationButton.onDestroy()
     }
 
@@ -128,7 +131,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) {
-        notificationBanner.tunnelState = realState
         locationInfo.state = realState
         headerBar.setState(realState)
         status.setState(realState)
