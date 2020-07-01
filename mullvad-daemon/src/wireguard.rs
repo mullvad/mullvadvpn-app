@@ -1,20 +1,23 @@
 use crate::{account_history::AccountHistory, DaemonEventSender, InternalDaemonEvent};
 use chrono::offset::Utc;
-use futures01::{future::Executor, stream::Stream, sync::oneshot, Async, Future, Poll};
-use mullvad_rpc::rest::{Error as RestError, MullvadRestHandle};
+use mullvad_rpc::rest::{CancelHandle, Cancellable, Error as RestError, MullvadRestHandle};
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;
-use std::time::Duration;
-use talpid_core::mpsc::Sender;
+use std::{
+    future::Future,
+    pin::Pin,
+    time::{Duration, Instant},
+};
+
+use talpid_core::{
+    future_retry::{retry_future_with_backoff, ExponentialBackoff, Jittered},
+    mpsc::Sender,
+};
+
 pub use talpid_types::net::wireguard::{
     ConnectionConfig, PrivateKey, TunnelConfig, TunnelParameters,
 };
 use talpid_types::ErrorExt;
-use tokio_core::reactor::Remote;
-use tokio_retry::{
-    strategy::{jitter, ExponentialBackoff},
-    RetryIf,
-};
 use tokio_timer;
 
 /// Default automatic key rotation
@@ -27,8 +30,6 @@ const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to spawn future")]
-    ExectuionError,
     #[error(display = "Unexpected HTTP request error")]
     RestError(#[error(source)] mullvad_rpc::rest::Error),
     #[error(display = "Account already has maximum number of keys")]
@@ -42,7 +43,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub struct KeyManager {
     daemon_tx: DaemonEventSender,
     http_handle: MullvadRestHandle,
-    tokio_remote: Remote,
     current_job: Option<CancelHandle>,
 
     abort_scheduler_tx: Option<CancelHandle>,
@@ -50,15 +50,10 @@ pub struct KeyManager {
 }
 
 impl KeyManager {
-    pub(crate) fn new(
-        daemon_tx: DaemonEventSender,
-        http_handle: MullvadRestHandle,
-        tokio_remote: Remote,
-    ) -> Self {
+    pub(crate) fn new(daemon_tx: DaemonEventSender, http_handle: MullvadRestHandle) -> Self {
         Self {
             daemon_tx,
             http_handle,
-            tokio_remote,
             current_job: None,
             abort_scheduler_tx: None,
             auto_rotation_interval: Duration::new(0, 0),
@@ -112,24 +107,12 @@ impl KeyManager {
         self.reset();
         let private_key = PrivateKey::new_from_random();
 
-        self.run_future_sync(self.push_future_generator(account, private_key, None)())
+        self.http_handle
+            .service()
+            .block_on(self.push_future_generator(account, private_key, None)())
             .map_err(Self::map_rpc_error)
     }
 
-    /// Run a future on the given tokio remote
-    fn run_future_sync<T: Send + 'static, E: Send + 'static>(
-        &mut self,
-        fut: impl Future<Item = T, Error = E> + Send + 'static,
-    ) -> std::result::Result<T, E> {
-        self.reset();
-        let (tx, rx) = oneshot::channel();
-
-        let _ = self.tokio_remote.execute(fut.then(|result| {
-            let _ = tx.send(result);
-            Ok(())
-        }));
-        rx.wait().unwrap()
-    }
 
     /// Replace a key for an account synchronously
     pub fn replace_key(
@@ -138,8 +121,9 @@ impl KeyManager {
         old_key: PublicKey,
     ) -> Result<WireguardData> {
         self.reset();
+
         let new_key = PrivateKey::new_from_random();
-        self.run_future_sync(Self::replace_key_rpc(
+        self.http_handle.service().block_on(Self::replace_key_rpc(
             self.http_handle.clone(),
             account,
             old_key,
@@ -152,10 +136,10 @@ impl KeyManager {
         &self,
         account: AccountToken,
         key: talpid_types::net::wireguard::PublicKey,
-    ) -> impl Future<Item = bool, Error = Error> {
+    ) -> impl Future<Output = Result<bool>> {
         let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
-        rpc.get_wireguard_key(account, &key)
-            .then(|response| match response {
+        async move {
+            match rpc.get_wireguard_key(account, &key).await {
                 Ok(_) => Ok(true),
                 Err(mullvad_rpc::rest::Error::ApiError(status, _code))
                     if status == mullvad_rpc::StatusCode::NOT_FOUND =>
@@ -163,16 +147,13 @@ impl KeyManager {
                     Ok(false)
                 }
                 Err(err) => Err(Self::map_rpc_error(err)),
-            })
+            }
+        }
     }
 
 
     /// Generate a new private key asynchronously. The new keys will be sent to the daemon channel.
-    pub fn generate_key_async(
-        &mut self,
-        account: AccountToken,
-        timeout: Option<Duration>,
-    ) -> Result<()> {
+    pub fn generate_key_async(&mut self, account: AccountToken, timeout: Option<Duration>) {
         self.reset();
         let private_key = PrivateKey::new_from_random();
 
@@ -186,73 +167,62 @@ impl KeyManager {
             let fut = inner_future_generator();
             let error_tx = error_tx.clone();
             let error_account = error_account.clone();
-            fut.map_err(move |err| {
-                let should_retry = match &err {
-                    RestError::ApiError(_status, code)
-                        if code == mullvad_rpc::KEY_LIMIT_REACHED =>
-                    {
-                        false
+            async move {
+                let response = fut.await;
+                match response {
+                    Ok(addresses) => Ok(addresses),
+                    Err(err) => {
+                        let should_retry = if let RestError::ApiError(_status, code) = &err {
+                            code != mullvad_rpc::KEY_LIMIT_REACHED
+                        } else {
+                            true
+                        };
+                        let _ = error_tx.send(InternalDaemonEvent::WgKeyEvent((
+                            error_account,
+                            Err(Self::map_rpc_error(err)),
+                        )));
+                        Err(should_retry)
                     }
-                    _ => true,
-                };
-
-                let _ = error_tx.send(InternalDaemonEvent::WgKeyEvent((
-                    error_account,
-                    Err(Self::map_rpc_error(err)),
-                )));
-
-                should_retry
-            })
+                }
+            }
         };
 
 
-        let retry_strategy = ExponentialBackoff::from_millis(300)
-            .max_delay(Duration::from_secs(60 * 60))
-            .map(jitter);
+        let retry_strategy = Jittered::jitter(
+            ExponentialBackoff::from_millis(300).max_delay(Duration::from_secs(60 * 60)),
+        );
 
+        let should_retry = move |result: &std::result::Result<_, bool>| -> bool {
+            match result {
+                Ok(_) => false,
+                Err(should_retry) => *should_retry,
+            }
+        };
 
         let upload_future =
-            RetryIf::spawn(retry_strategy, future_generator, |should_retry: &bool| {
-                *should_retry
-            })
-            .map_err(move |err| {
-                match err {
-                    // This should really be unreachable, since the retry strategy is infinite.
-                    tokio_retry::Error::OperationError(_) => {}
-                    tokio_retry::Error::TimerError(timer_error) => {
-                        log::error!("Tokio timer error {}", timer_error);
-                        ()
-                    }
-                }
-            });
+            retry_future_with_backoff(future_generator, should_retry, retry_strategy);
 
 
-        let (fut, cancel_handle) = Cancellable::new(upload_future);
+        let (cancellable_upload, cancel_handle) = Cancellable::new(Box::pin(upload_future));
         let daemon_tx = self.daemon_tx.clone();
-        let fut = fut.then(move |result| {
-            match result {
-                Ok(wireguard_data) => {
+        let future = async move {
+            match cancellable_upload.await {
+                Ok(Ok(wireguard_data)) => {
                     let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
                         account,
                         Ok(wireguard_data),
                     )));
                 }
-                Err(CancelErr::Inner(_)) => {}
-                Err(CancelErr::Cancelled) => {
+                Ok(Err(_)) => {}
+                Err(_) => {
                     log::error!("Key generation cancelled");
                 }
-            };
-            Ok(())
-        });
+            }
+        };
 
-        let result = self
-            .tokio_remote
-            .execute(fut)
-            .map_err(|_| Error::ExectuionError);
-        if result.is_ok() {
-            self.current_job = Some(cancel_handle);
-        }
-        result
+
+        self.http_handle.service().spawn(Box::pin(future));
+        self.current_job = Some(cancel_handle);
     }
 
 
@@ -261,42 +231,49 @@ impl KeyManager {
         account: AccountToken,
         private_key: PrivateKey,
         timeout: Option<Duration>,
-    ) -> Box<dyn FnMut() -> Box<dyn Future<Item = WireguardData, Error = RestError> + Send> + Send>
-    {
+    ) -> Box<
+        dyn FnMut() -> Pin<
+                Box<dyn Future<Output = std::result::Result<WireguardData, RestError>> + Send>,
+            > + Send,
+    > {
         let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
         let public_key = private_key.public_key();
 
         let push_future =
-            move || -> Box<dyn Future<Item = WireguardData, Error = RestError> + Send> {
+            move || -> std::pin::Pin<Box<dyn Future<Output = std::result::Result<WireguardData,  RestError>> + Send >> {
                 let key = private_key.clone();
-                Box::new(
-                    rpc.push_wg_key(account.clone(), public_key.clone(), timeout)
-                        .map(move |addresses| WireguardData {
-                            private_key: key,
-                            addresses,
-                            created: Utc::now(),
-                        }),
-                )
+                let address_future = rpc
+                    .push_wg_key(account.clone(), public_key.clone(), timeout);
+                Box::pin(async move {
+                    let addresses = address_future.await?;
+                    Ok(WireguardData {
+                        private_key: key,
+                        addresses,
+                        created: Utc::now(),
+                    })
+                })
             };
         Box::new(push_future)
     }
 
 
-    fn replace_key_rpc(
+    async fn replace_key_rpc(
         http_handle: MullvadRestHandle,
         account: AccountToken,
         old_key: PublicKey,
         new_key: PrivateKey,
-    ) -> impl Future<Item = WireguardData, Error = Error> + Send {
+    ) -> Result<WireguardData> {
         let mut rpc = mullvad_rpc::WireguardKeyProxy::new(http_handle);
         let new_public_key = new_key.public_key();
-        rpc.replace_wg_key(account, old_key.key, new_public_key)
-            .map_err(Self::map_rpc_error)
-            .map(move |addresses| WireguardData {
-                private_key: new_key,
-                addresses,
-                created: Utc::now(),
-            })
+        let addresses = rpc
+            .replace_wg_key(account, old_key.key, new_public_key)
+            .await
+            .map_err(Self::map_rpc_error)?;
+        Ok(WireguardData {
+            private_key: new_key,
+            addresses,
+            created: Utc::now(),
+        })
     }
 
     fn map_rpc_error(err: mullvad_rpc::rest::Error) -> Error {
@@ -312,100 +289,89 @@ impl KeyManager {
         }
     }
 
-    fn create_rotation_check(
-        key: PublicKey,
-        rotation_interval_secs: u64,
-    ) -> impl Future<Item = (), Error = Error> + Send {
-        tokio_timer::wheel()
-            .build()
-            .interval(KEY_CHECK_INTERVAL)
-            .map_err(Error::RotationScheduleError)
-            .take_while(move |_| {
-                Ok(
-                    (Utc::now().signed_duration_since(key.created)).num_seconds() as u64
-                        <= rotation_interval_secs,
-                )
-            })
-            .for_each(|_| Ok(()))
+    async fn key_rotation_timer(key: PublicKey, rotation_interval_secs: u64) {
+        let mut interval = tokio02::time::interval(KEY_CHECK_INTERVAL);
+        loop {
+            interval.tick().await;
+            if (Utc::now().signed_duration_since(key.created)).num_seconds() as u64
+                >= rotation_interval_secs
+            {
+                return;
+            }
+        }
     }
 
-    fn next_automatic_rotation(
+    async fn next_automatic_rotation(
         daemon_tx: DaemonEventSender,
         http_handle: MullvadRestHandle,
         public_key: PublicKey,
         rotation_interval_secs: u64,
         account_token: AccountToken,
-    ) -> impl Future<Item = PublicKey, Error = Error> + Send {
-        let expiration_timer =
-            Self::create_rotation_check(public_key.clone(), rotation_interval_secs);
+    ) -> Result<PublicKey> {
         let account_token_copy = account_token.clone();
+        Self::key_rotation_timer(public_key.clone(), rotation_interval_secs).await;
 
-        expiration_timer
-            .and_then(move |_| {
-                log::info!("Replacing WireGuard key");
-
-                let private_key = PrivateKey::new_from_random();
-                Self::replace_key_rpc(http_handle, account_token, public_key, private_key)
-            })
-            .then(move |rpc_result| {
-                match rpc_result {
-                    Ok(data) => {
-                        // Update account data
-                        let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
-                            account_token_copy,
-                            Ok(data.clone()),
-                        )));
-                        Ok(data.get_public_key())
-                    }
-                    Err(Error::TooManyKeys) => {
-                        let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
-                            account_token_copy,
-                            Err(Error::TooManyKeys),
-                        )));
-                        Err(Error::TooManyKeys)
-                    }
-                    Err(unknown_err) => Err(unknown_err),
-                }
-            })
+        let private_key = PrivateKey::new_from_random();
+        let rpc_result =
+            Self::replace_key_rpc(http_handle, account_token, public_key, private_key).await;
+        match rpc_result {
+            Ok(data) => {
+                // Update account data
+                let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
+                    account_token_copy,
+                    Ok(data.clone()),
+                )));
+                Ok(data.get_public_key())
+            }
+            Err(Error::TooManyKeys) => {
+                let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
+                    account_token_copy,
+                    Err(Error::TooManyKeys),
+                )));
+                Err(Error::TooManyKeys)
+            }
+            Err(unknown_err) => Err(unknown_err),
+        }
     }
 
-    fn create_automatic_rotation(
+    async fn create_automatic_rotation(
         daemon_tx: DaemonEventSender,
         http_handle: MullvadRestHandle,
-        public_key: PublicKey,
+        mut public_key: PublicKey,
         rotation_interval_secs: u64,
         account_token: AccountToken,
-    ) -> impl Future<Item = (), Error = ()> + Send {
-        tokio_timer::wheel()
-            .build()
-            .interval(AUTOMATIC_ROTATION_RETRY_DELAY)
-            .map_err(Error::RotationScheduleError)
-            .fold(public_key, move |old_public_key, _| {
-                let fut = Self::next_automatic_rotation(
-                    daemon_tx.clone(),
-                    http_handle.clone(),
-                    old_public_key.clone(),
-                    rotation_interval_secs,
-                    account_token.clone(),
-                );
-                fut.then(|result| match result {
-                    Ok(new_public_key) => Ok(new_public_key),
-                    Err(Error::TooManyKeys) => {
-                        log::error!("Account has too many keys, stopping automatic rotation");
-                        Err(Error::TooManyKeys)
-                    }
-                    Err(e) => {
-                        log::error!(
-                            "{}. Retrying in {} seconds",
-                            e.display_chain_with_msg("Key rotation failed:"),
-                            AUTOMATIC_ROTATION_RETRY_DELAY.as_secs(),
-                        );
-                        Ok(old_public_key)
-                    }
-                })
-            })
-            .map_err(|_| ())
-            .map(|_| ())
+    ) {
+        let mut interval = tokio02::time::interval_at(
+            (Instant::now() + AUTOMATIC_ROTATION_RETRY_DELAY).into(),
+            AUTOMATIC_ROTATION_RETRY_DELAY,
+        );
+
+        loop {
+            let daemon_tx = daemon_tx.clone();
+            interval.tick().await;
+            let new_key_result = Self::next_automatic_rotation(
+                daemon_tx,
+                http_handle.clone(),
+                public_key.clone(),
+                rotation_interval_secs,
+                account_token.clone(),
+            )
+            .await;
+            match new_key_result {
+                Ok(new_key) => public_key = new_key,
+                Err(Error::TooManyKeys) => {
+                    log::error!("Account has too many keys, stopping automatic rotation");
+                    return;
+                }
+                Err(err) => {
+                    log::error!(
+                        "{}. Retrying in {} seconds",
+                        err.display_chain_with_msg("Key rotation failed:"),
+                        AUTOMATIC_ROTATION_RETRY_DELAY.as_secs(),
+                    );
+                }
+            }
+        }
     }
 
     fn run_automatic_rotation(&mut self, account_token: AccountToken, public_key: PublicKey) {
@@ -425,11 +391,9 @@ impl KeyManager {
             self.auto_rotation_interval.as_secs(),
             account_token,
         );
-        let (fut, cancel_handle) = Cancellable::new(fut);
+        let (cancellable, cancel_handle) = Cancellable::new(Box::pin(fut));
 
-        if let Err(e) = self.tokio_remote.execute(fut.map_err(|_| ())) {
-            log::error!("Failed to execute auto key rotation: {:?}", e.kind());
-        }
+        self.http_handle.service().spawn(cancellable);
         self.abort_scheduler_tx = Some(cancel_handle);
     }
 
@@ -437,57 +401,6 @@ impl KeyManager {
         if let Some(cancel_handle) = self.abort_scheduler_tx.take() {
             log::info!("Stopping automatic key rotation");
             cancel_handle.cancel();
-        }
-    }
-}
-
-pub enum CancelErr<E> {
-    Cancelled,
-    Inner(E),
-}
-
-pub struct Cancellable<T, E, F: Future<Item = T, Error = E>> {
-    rx: oneshot::Receiver<()>,
-    f: F,
-}
-
-pub struct CancelHandle {
-    tx: oneshot::Sender<()>,
-}
-
-impl CancelHandle {
-    fn cancel(self) {
-        let _ = self.tx.send(());
-    }
-}
-
-
-impl<T, E, F> Cancellable<T, E, F>
-where
-    F: Future<Item = T, Error = E>,
-{
-    fn new(f: F) -> (Self, CancelHandle) {
-        let (tx, rx) = oneshot::channel();
-        (Self { f, rx }, CancelHandle { tx })
-    }
-}
-
-impl<T, E, F> Future for Cancellable<T, E, F>
-where
-    F: Future<Item = T, Error = E>,
-{
-    type Item = T;
-    type Error = CancelErr<E>;
-
-    fn poll(&mut self) -> Poll<T, CancelErr<E>> {
-        match self.rx.poll() {
-            Ok(Async::Ready(_)) | Err(_) => return Err(CancelErr::Cancelled),
-            Ok(Async::NotReady) => (),
-        };
-
-        match self.f.poll() {
-            Ok(v) => Ok(v),
-            Err(e) => Err(CancelErr::Inner(e)),
         }
     }
 }

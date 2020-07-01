@@ -1,9 +1,8 @@
 use futures::{
     channel::{mpsc, oneshot},
-    future::{self, Either},
     sink::SinkExt,
     stream::StreamExt,
-    TryFutureExt,
+    FutureExt, TryFutureExt,
 };
 use futures01::Future as OldFuture;
 use hyper::{
@@ -11,7 +10,16 @@ use hyper::{
     header::{self, HeaderValue},
     Method, Uri,
 };
-use std::{collections::BTreeMap, future::Future, mem, net::IpAddr, str::FromStr, time::Duration};
+use std::{
+    collections::BTreeMap,
+    future::Future,
+    mem,
+    net::IpAddr,
+    pin::Pin,
+    str::FromStr,
+    task::{Context, Poll},
+    time::Duration,
+};
 use tokio::runtime::Handle;
 
 pub use hyper::StatusCode;
@@ -180,14 +188,10 @@ impl RequestServiceHandle {
     /// Resets the corresponding RequestService, dropping all in-flight requests.
     pub fn reset(&self) {
         let mut tx = self.tx.clone();
-        let (done_tx, done_rx) = oneshot::channel();
 
-        self.handle.spawn(async move {
+        self.handle.block_on(async move {
             let _ = tx.send(RequestCommand::Reset).await;
-            let _ = done_tx.send(());
         });
-
-        let _ = futures::executor::block_on(done_rx);
     }
 
     /// Submits a `RestRequest` for exectuion to the request service.
@@ -221,6 +225,13 @@ impl RequestServiceHandle {
     /// Spawns a future on the RPC runtime.
     pub fn spawn<T: Send + 'static>(&self, future: impl Future<Output = T> + Send + 'static) {
         let _ = self.handle.spawn(future);
+    }
+
+    pub fn block_on<T: Send + 'static>(
+        &self,
+        future: impl Future<Output = T> + Send + 'static,
+    ) -> T {
+        self.handle.block_on(future)
     }
 }
 
@@ -427,7 +438,7 @@ pub struct CancelHandle {
 }
 
 impl CancelHandle {
-    fn cancel(self) {
+    pub fn cancel(self) {
         let _ = self.tx.send(());
     }
 }
@@ -435,18 +446,41 @@ impl CancelHandle {
 
 impl<F> Cancellable<F>
 where
-    F: Future + Unpin,
+    F: Future,
 {
-    fn new(f: F) -> (Self, CancelHandle) {
+    pub fn new(f: F) -> (Self, CancelHandle) {
         let (tx, rx) = oneshot::channel();
         (Self { f, rx }, CancelHandle { tx })
     }
 
     async fn into_future(self) -> std::result::Result<F::Output, CancelErr> {
-        match future::select(self.rx, self.f).await {
-            Either::Left(_) => Err(CancelErr(())),
-            Either::Right((value, _)) => Ok(value),
+        futures::select! {
+            _cancelled = self.rx.fuse() => {
+                Err(CancelErr(()))
+            },
+            value = self.f.fuse() => {
+                Ok(value)
+            }
         }
+    }
+}
+
+
+impl<F: Future<Output = T> + Unpin, T: Unpin> Future for Cancellable<F> {
+    type Output = std::result::Result<T, CancelErr>;
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        let inner = self.get_mut();
+
+        if let Poll::Ready(ready) = inner.f.poll_unpin(cx) {
+            return Poll::Ready(Ok(ready));
+        }
+
+        if let Poll::Ready(_) = inner.rx.poll_unpin(cx) {
+            return Poll::Ready(Err(CancelErr(())));
+        }
+
+        Poll::Pending
     }
 }
 

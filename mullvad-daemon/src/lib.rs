@@ -528,13 +528,9 @@ where
             settings.show_beta_releases,
         );
         rpc_runtime.runtime().spawn(version_updater.run());
-        let account_history = account_history::AccountHistory::new(
-            &cache_dir,
-            &settings_dir,
-            rpc_handle.clone(),
-            core_handle.remote.clone(),
-        )
-        .map_err(Error::LoadAccountHistory)?;
+        let account_history =
+            account_history::AccountHistory::new(&cache_dir, &settings_dir, rpc_handle.clone())
+                .map_err(Error::LoadAccountHistory)?;
 
         // Restore the tunnel to a previous state
         let target_cache = cache_dir.join(TARGET_START_STATE_FILE);
@@ -573,11 +569,8 @@ where
         )
         .map_err(Error::TunnelError)?;
 
-        let wireguard_key_manager = wireguard::KeyManager::new(
-            internal_event_tx.clone(),
-            rpc_handle.clone(),
-            core_handle.remote.clone(),
-        );
+        let wireguard_key_manager =
+            wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
 
         // Attempt to download a fresh relay list
         relay_selector.update();
@@ -1653,15 +1646,8 @@ where
                 .unwrap_or(true)
             {
                 log::info!("Automatically generating new wireguard key for account");
-                if let Err(e) = self
-                    .wireguard_key_manager
-                    .generate_key_async(account, Some(FIRST_KEY_PUSH_TIMEOUT))
-                {
-                    log::error!(
-                        "{}",
-                        e.display_chain_with_msg("Failed to start generating wireguard key")
-                    );
-                }
+                self.wireguard_key_manager
+                    .generate_key_async(account, Some(FIRST_KEY_PUSH_TIMEOUT));
             } else {
                 log::info!("Account already has wireguard key");
             }
@@ -1778,17 +1764,20 @@ where
             }
         };
 
-        let fut = self
+        let verification_rpc = self
             .wireguard_key_manager
-            .verify_wireguard_key(account, public_key)
-            .and_then(|is_valid| {
-                Self::oneshot_send(tx, is_valid, "verify_wireguard_key response");
-                Ok(())
-            })
-            .map_err(|e: wireguard::Error| log::error!("Failed to verify wireguard key - {}", e));
-        if let Err(e) = self.core_handle.remote.execute(fut) {
-            log::error!("Failed to spawn a future to verify wireguard key: {:?}", e);
-        }
+            .verify_wireguard_key(account, public_key);
+
+        self.rpc_handle.service().spawn(async move {
+            match verification_rpc.await {
+                Ok(is_valid) => {
+                    Self::oneshot_send(tx, is_valid, "verify_wireguard_key response");
+                }
+                Err(err) => {
+                    log::error!("Failed to verify wireguard key - {}", err);
+                }
+            }
+        });
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
