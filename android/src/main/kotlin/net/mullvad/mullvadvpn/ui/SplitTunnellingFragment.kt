@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
@@ -11,9 +12,14 @@ import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
-    private val appListAdapter = AppListAdapter()
-
+    private lateinit var appListAdapter: AppListAdapter
     private lateinit var titleController: CollapsibleTitleController
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        appListAdapter = AppListAdapter(context)
+    }
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
