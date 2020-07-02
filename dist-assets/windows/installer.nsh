@@ -734,6 +734,13 @@
 		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" prepare-restart'
 		Pop $0
 		Pop $1
+	${Else}
+		# Remove keys
+		SetOutPath "$TEMP"
+		File "${BUILD_RESOURCES_DIR}\mullvad.exe"
+		nsExec::ExecToStack '"$TEMP\mullvad.exe" account clear-history'
+		Pop $0
+		Pop $1
 	${EndIf}
 
 	nsExec::ExecToStack '"$SYSDIR\sc.exe" stop mullvadvpn'
