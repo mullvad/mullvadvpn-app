@@ -36,8 +36,11 @@ class AppListAdapter(context: Context) : Adapter<AppListItemHolder>() {
             .getInstalledApplications(0)
             .map { info -> AppInfo(info, packageManager.getApplicationLabel(info).toString()) }
 
-        appList.clear()
-        appList.addAll(applications)
+        appList.apply {
+            clear()
+            addAll(applications)
+            sortBy { info -> info.label }
+        }
 
         jobTracker.newUiJob("notifyAppListChanges") {
             notifyItemRangeInserted(0, applications.size)
