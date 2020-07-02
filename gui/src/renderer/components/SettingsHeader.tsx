@@ -26,7 +26,6 @@ const styles = {
     overflow: 'visible',
     color: colors.white80,
     lineHeight: 20,
-    letterSpacing: -0.2,
   }),
   spacer: Styles.createViewStyle({
     height: 8,

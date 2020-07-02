@@ -116,7 +116,6 @@ export default {
     fontSize: 13,
     fontWeight: '600',
     lineHeight: 18,
-    letterSpacing: -0.2,
     marginBottom: 8,
   }),
   title: Styles.createTextStyle({
@@ -124,7 +123,6 @@ export default {
     fontSize: 32,
     fontWeight: '900',
     lineHeight: 44,
-    letterSpacing: -0.7,
     color: colors.white,
     marginBottom: 7,
     flex: 0,
@@ -134,7 +132,6 @@ export default {
     fontSize: 13,
     lineHeight: 15,
     fontWeight: '600',
-    letterSpacing: -0.2,
     color: colors.white80,
     marginBottom: 8,
   }),

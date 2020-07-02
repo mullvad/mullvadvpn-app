@@ -8,10 +8,6 @@ export const InputFrame = styled(Cell.InputFrame)({
   flex: 0,
 });
 
-export const BlockWhenDisconnectedLabel = styled(Cell.Label)({
-  letterSpacing: -0.5,
-});
-
 export const TunnelProtocolSelector = (styled(Selector)({
   marginBottom: 0,
 }) as unknown) as new <T>() => Selector<T>;
@@ -60,7 +56,6 @@ export default {
     fontSize: 20,
     fontWeight: '900',
     lineHeight: 26,
-    letterSpacing: -0.2,
     color: colors.white,
     flex: 0,
   }),

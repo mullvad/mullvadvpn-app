@@ -91,7 +91,6 @@ export default {
     overflow: 'visible',
     color: colors.white60,
     lineHeight: 20,
-    letterSpacing: -0.2,
   }),
   support__sent_email: Styles.createTextStyle({
     fontWeight: '900',
@@ -110,7 +109,6 @@ export default {
     fontSize: 34,
     fontWeight: '900',
     lineHeight: 38,
-    letterSpacing: -0.9,
     color: colors.white,
     marginBottom: 4,
   }),

@@ -47,7 +47,6 @@ export default {
     fontSize: 13,
     fontWeight: '600',
     lineHeight: 20,
-    letterSpacing: -0.2,
     color: colors.white60,
   }),
 };

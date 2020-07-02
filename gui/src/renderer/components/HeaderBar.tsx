@@ -56,7 +56,6 @@ const Title = styled.span({
   fontSize: '24px',
   fontWeight: 900,
   lineHeight: '30px',
-  letterSpacing: -0.5,
   color: colors.white80,
   marginLeft: '9px',
 });

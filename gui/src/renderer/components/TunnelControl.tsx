@@ -69,7 +69,6 @@ const StyledMarquee = styled(Marquee)({
   lineHeight: '38px',
   fontWeight: 900,
   overflow: 'hidden',
-  letterSpacing: -0.9,
   color: colors.white,
 });
 

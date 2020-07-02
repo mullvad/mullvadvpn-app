@@ -30,7 +30,6 @@ export const AccountRowLabel = styled(AccountRowText)({
   fontSize: '13px',
   fontWeight: 600,
   lineHeight: '20px',
-  letterSpacing: -0.2,
   marginBottom: '9px',
   color: colors.white60,
 });

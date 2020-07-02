@@ -29,7 +29,6 @@ const styles = {
     fontSize: 24,
     fontWeight: '900',
     lineHeight: 30,
-    letterSpacing: -0.5,
     color: colors.white60,
     marginBottom: 4,
   }),

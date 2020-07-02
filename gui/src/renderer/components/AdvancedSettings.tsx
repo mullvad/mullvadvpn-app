@@ -4,11 +4,7 @@ import { sprintf } from 'sprintf-js';
 import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { WgKeyState } from '../redux/settings/reducers';
-import styles, {
-  BlockWhenDisconnectedLabel,
-  InputFrame,
-  TunnelProtocolSelector,
-} from './AdvancedSettingsStyles';
+import styles, { InputFrame, TunnelProtocolSelector } from './AdvancedSettingsStyles';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import { Container, Layout } from './Layout';
@@ -185,9 +181,9 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     </Cell.Footer>
 
                     <Cell.Container>
-                      <BlockWhenDisconnectedLabel>
+                      <Cell.Label>
                         {messages.pgettext('advanced-settings-view', 'Always require VPN')}
-                      </BlockWhenDisconnectedLabel>
+                      </Cell.Label>
                       <Cell.Switch
                         isOn={this.props.blockWhenDisconnected}
                         onChange={this.setBlockWhenDisconnected}
