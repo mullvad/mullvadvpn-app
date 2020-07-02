@@ -32,6 +32,8 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
                     titleController.expandedTitleView = headerView.findViewById(R.id.expanded_title)
                 }
             }
+
+            addItemDecoration(ListItemDividerDecoration(parentActivity))
         }
 
         return view
