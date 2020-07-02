@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.applist
 
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.View
@@ -15,9 +14,9 @@ class AppListItemHolder(private val packageManager: PackageManager, view: View) 
     private val name: TextView = view.findViewById(R.id.name)
     private val excluded: CellSwitch = view.findViewById(R.id.excluded)
 
-    var appInfo by observable<ApplicationInfo?>(null) { _, _, info ->
+    var appInfo by observable<AppInfo?>(null) { _, _, info ->
         if (info != null) {
-            name.text = packageManager.getApplicationLabel(info)
+            name.text = info.label
         } else {
             name.text = ""
         }
