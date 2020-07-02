@@ -50,10 +50,9 @@ export const AccountDropdownItemButtonLabel = styled(Cell.Label)({
 export default {
   login_footer: Styles.createViewStyle({
     flex: 0,
-    paddingTop: 16,
-    paddingBottom: 24,
-    paddingLeft: 24,
-    paddingRight: 24,
+    paddingTop: 18,
+    paddingBottom: 22,
+    paddingHorizontal: 22,
     backgroundColor: colors.darkBlue,
   }),
   status_icon: Styles.createViewStyle({
@@ -68,8 +67,8 @@ export default {
     overflow: 'visible',
     paddingTop: 0,
     paddingBottom: 0,
-    paddingLeft: 24,
-    paddingRight: 24,
+    paddingLeft: 22,
+    paddingRight: 22,
     marginTop: 83,
     marginBottom: 0,
     marginRight: 0,
@@ -121,9 +120,9 @@ export default {
   // TODO: Use bigText in comonStyles when converted from ReactXP
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '900',
-    lineHeight: 44,
+    lineHeight: 40,
     color: colors.white,
     marginBottom: 7,
     flex: 0,

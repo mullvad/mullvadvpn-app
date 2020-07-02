@@ -4,7 +4,7 @@ import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 
 export const StyledBlueButton = styled(AppButton.BlueButton)({
-  marginBottom: 16,
+  marginBottom: 18,
 });
 
 export default {
@@ -46,10 +46,9 @@ export default {
     overflow: 'hidden',
   }),
   support__footer: Styles.createViewStyle({
-    paddingTop: 16,
-    paddingBottom: 16,
-    paddingLeft: 24,
-    paddingRight: 24,
+    paddingTop: 18,
+    paddingBottom: 22,
+    paddingHorizontal: 22,
     flexDirection: 'column',
     flex: 0,
   }),
@@ -107,9 +106,9 @@ export default {
   support__send_status: Styles.createTextStyle({
     // TODO: Use bigText in comonStyles when converted from ReactXP
     fontFamily: 'DINPro',
-    fontSize: 34,
+    fontSize: 30,
     fontWeight: '900',
-    lineHeight: 38,
+    lineHeight: 34,
     color: colors.white,
     marginBottom: 4,
   }),

@@ -7,6 +7,10 @@ export const OutOfTimeSubText = styled(Cell.SubText)((props: { isOutOfTime: bool
   color: props.isOutOfTime ? colors.red : undefined,
 }));
 
+export const CellIcon = styled(Cell.UntintedIcon)({
+  marginRight: '8px',
+});
+
 export default {
   settings: Styles.createViewStyle({
     backgroundColor: colors.darkBlue,
@@ -27,20 +31,18 @@ export default {
     flex: 1,
   },
   cellSpacer: Styles.createViewStyle({
-    height: 24,
+    height: 20,
     flex: 0,
   }),
   cellFooter: Styles.createViewStyle({
-    paddingTop: 8,
-    paddingRight: 24,
-    paddingBottom: 24,
-    paddingLeft: 24,
+    paddingTop: 6,
+    paddingHorizontal: 22,
+    paddingBottom: 20,
   }),
   quitButtonFooter: Styles.createViewStyle({
-    paddingTop: 24,
-    paddingBottom: 19,
-    paddingLeft: 24,
-    paddingRight: 24,
+    paddingTop: 20,
+    paddingBottom: 22,
+    paddingHorizontal: 22,
   }),
   cellFooterLabel: Styles.createTextStyle({
     fontFamily: 'Open Sans',

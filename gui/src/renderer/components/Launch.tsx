@@ -27,6 +27,7 @@ const styles = {
     fontFamily: 'Open Sans',
     fontSize: 14,
     lineHeight: 20,
+    marginHorizontal: 22,
     color: colors.white40,
     textAlign: 'center',
   }),

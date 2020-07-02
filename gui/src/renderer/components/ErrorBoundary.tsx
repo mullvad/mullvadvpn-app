@@ -37,7 +37,7 @@ const styles = {
     fontSize: 14,
     lineHeight: 20,
     color: colors.white40,
-    marginHorizontal: 20,
+    marginHorizontal: 22,
     textAlign: 'center',
   }),
   email: Styles.createTextStyle({

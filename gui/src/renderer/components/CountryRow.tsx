@@ -31,8 +31,13 @@ const styles = {
 };
 
 const Button = styled(Cell.CellButton)({
-  paddingRight: 0,
-  paddingLeft: 16,
+  paddingRight: '16px',
+  // The actual padding is 22px except for the tick icon which has 18.
+  paddingLeft: '18px',
+});
+
+const StyledChevronButton = styled(ChevronButton)({
+  marginLeft: '18px',
 });
 
 export default class CountryRow extends Component<IProps> {
@@ -94,7 +99,7 @@ export default class CountryRow extends Component<IProps> {
           />
           <Cell.Label>{this.props.name}</Cell.Label>
           {hasChildren ? (
-            <ChevronButton onClick={this.toggleCollapse} up={this.props.expanded} />
+            <StyledChevronButton onClick={this.toggleCollapse} up={this.props.expanded} />
           ) : null}
         </Button>
 

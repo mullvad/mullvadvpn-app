@@ -18,8 +18,8 @@ const PAN_DISTANCE = 10;
 
 const SwitchContainer = styled.div({}, (props: { disabled: boolean }) => ({
   position: 'relative',
-  width: '52px',
-  height: '32px',
+  width: '48px',
+  height: '30px',
   borderColor: props.disabled ? colors.white20 : colors.white80,
   borderWidth: '2px',
   borderStyle: 'solid',
@@ -35,10 +35,10 @@ const Knob = styled.div({}, (props: { isOn: boolean; isPressed: boolean; disable
 
   return {
     position: 'absolute',
-    height: '24px',
-    borderRadius: '12px',
+    height: '22px',
+    borderRadius: '11px',
     transition: 'all 200ms linear',
-    width: props.isPressed ? '28px' : '24px',
+    width: props.isPressed ? '26px' : '22px',
     backgroundColor,
     // When enabled the button should be placed all the way to the right (100%) minus padding (2px).
     left: props.isOn ? 'calc(100% - 2px)' : '2px',

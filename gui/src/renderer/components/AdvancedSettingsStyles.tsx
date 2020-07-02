@@ -28,10 +28,10 @@ export default {
     flex: 0,
   }),
   advanced_settings__tunnel_protocol: Styles.createViewStyle({
-    marginBottom: 24,
+    marginBottom: 20,
   }),
   advanced_settings__wgkeys_cell: Styles.createViewStyle({
-    marginBottom: 24,
+    marginBottom: 20,
   }),
   advanced_settings__wg_no_key: Styles.createTextStyle({
     fontFamily: 'Open Sans',
@@ -40,6 +40,6 @@ export default {
     lineHeight: 20,
     color: colors.red,
     marginTop: 12,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
   }),
 };

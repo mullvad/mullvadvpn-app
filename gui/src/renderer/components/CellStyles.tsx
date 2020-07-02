@@ -8,8 +8,8 @@ export const StyledContainer = styled.div({
   display: 'flex',
   backgroundColor: colors.blue,
   alignItems: 'center',
-  paddingLeft: '16px',
-  paddingRight: '12px',
+  paddingLeft: '22px',
+  paddingRight: '16px',
 });
 
 export const StyledSection = styled.div({
@@ -19,7 +19,7 @@ export const StyledSection = styled.div({
 
 export const StyledSectionTitle = styled.span(buttonText, {
   backgroundColor: colors.blue,
-  padding: '14px 24px',
+  padding: '14px 16px 14px 22px',
   marginBottom: '1px',
 });
 
@@ -30,7 +30,7 @@ interface IStyledCellButtonProps {
 
 export const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps) => ({
   display: 'flex',
-  padding: '0 16px',
+  padding: '0 16px 0 22px',
   marginBottom: '1px',
   flex: 1,
   alignItems: 'center',
@@ -48,7 +48,7 @@ export const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps
 }));
 
 export const StyledLabel = styled.div(buttonText, (props: { disabled: boolean }) => ({
-  margin: '14px 0 14px 8px',
+  margin: '14px 0',
   flex: 1,
   color: props.disabled ? colors.white40 : colors.white,
   textAlign: 'left',
@@ -60,13 +60,10 @@ export const StyledSubText = styled.span(smallText, {
   flex: -1,
   textAlign: 'right',
   marginLeft: '8px',
+  marginRight: '8px',
 });
 
-export const StyledIcon = styled(ImageView)({
-  marginLeft: '8px',
-});
-
-export const StyledTintedIcon = styled(StyledIcon).attrs((props: IImageViewProps) => ({
+export const StyledTintedIcon = styled(ImageView).attrs((props: IImageViewProps) => ({
   tintColor: props.tintColor ?? colors.white60,
   tintHoverColor: props.tintHoverColor ?? props.tintColor ?? colors.white60,
 }))((props: IImageViewProps) => ({
@@ -76,7 +73,7 @@ export const StyledTintedIcon = styled(StyledIcon).attrs((props: IImageViewProps
 }));
 
 export const StyledFooter = styled.div({
-  padding: '8px 24px 24px',
+  padding: '6px 22px 20px',
 });
 
 export const StyledFooterText = styled.span(smallText);
@@ -89,13 +86,13 @@ export const StyledInputFrame = styled.div({
   flexGrow: 0,
   backgroundColor: 'rgba(255,255,255,0.1)',
   borderRadius: '4px',
-  padding: '4px',
+  padding: '4px 8px',
 });
 
 const inputTextStyles: React.CSSProperties = {
   ...mediumText,
   fontWeight: 600,
-  height: '26px',
+  height: '28px',
   textAlign: 'right',
   padding: '0px',
 };

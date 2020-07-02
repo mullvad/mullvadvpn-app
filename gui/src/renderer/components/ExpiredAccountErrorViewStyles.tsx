@@ -14,11 +14,13 @@ export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
 });
 
 export const ModalCellContainer = styled(Cell.Container)({
-  marginTop: '16px',
+  marginTop: '18px',
+  paddingLeft: '12px',
+  paddingRight: '12px',
 });
 
 const buttonStyle = {
-  marginBottom: 24,
+  marginBottom: '18px',
 };
 
 export const StyledBuyCreditButton = styled(AppButton.GreenButton)(buttonStyle);
@@ -31,7 +33,7 @@ export default {
   },
   container: Styles.createViewStyle({
     flex: 1,
-    paddingTop: 24,
+    paddingTop: 22,
     // ReactXP don't allow setting 'minHeight' and don't allow percentages. This will work well
     // without the '@ts-ignore' when moving away from ReactXP.
     // @ts-ignore
@@ -39,19 +41,20 @@ export default {
   }),
   body: Styles.createViewStyle({
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 22,
   }),
   footer: Styles.createViewStyle({
     flex: 0,
-    paddingVertical: 24,
-    paddingHorizontal: 24,
+    paddingTop: 18,
+    paddingBottom: 22,
+    paddingHorizontal: 22,
     backgroundColor: colors.darkBlue,
   }),
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '900',
-    lineHeight: 40,
+    lineHeight: 38,
     color: colors.white,
     marginBottom: 8,
   }),
@@ -61,7 +64,7 @@ export default {
     lineHeight: 20,
     fontWeight: '600',
     color: colors.white,
-    marginBottom: 24,
+    marginBottom: 20,
   }),
   statusIcon: Styles.createViewStyle({
     alignSelf: 'center',

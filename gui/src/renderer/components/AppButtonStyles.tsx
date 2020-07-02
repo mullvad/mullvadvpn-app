@@ -30,5 +30,5 @@ export const StyledButtonContent = styled.div({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: 9,
+  padding: '9px',
 });

@@ -15,7 +15,7 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import styles, { OutOfTimeSubText } from './SettingsStyles';
+import styles, { CellIcon, OutOfTimeSubText } from './SettingsStyles';
 
 import { LoginState } from '../redux/account/reducers';
 
@@ -168,7 +168,7 @@ export default class Settings extends Component<IProps> {
         ? inconsistentVersionMessage
         : updateAvailableMessage;
 
-      icon = <Cell.UntintedIcon source="icon-alert" tintColor={colors.red} />;
+      icon = <CellIcon source="icon-alert" tintColor={colors.red} />;
       footer = (
         <View style={styles.cellFooter}>
           <Text style={styles.cellFooterLabel}>{message}</Text>
@@ -215,7 +215,7 @@ export default class Settings extends Component<IProps> {
         </Cell.CellButton>
 
         <Cell.CellButton onClick={this.props.onViewSelectLanguage}>
-          <Cell.UntintedIcon width={24} height={24} source="icon-language" />
+          <CellIcon width={24} height={24} source="icon-language" />
           <Cell.Label>
             {
               // TRANSLATORS: Navigation button to the 'Language' settings view

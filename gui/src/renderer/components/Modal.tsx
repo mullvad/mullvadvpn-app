@@ -77,7 +77,7 @@ const ModalAlertIcon = styled.div({
 const ModalAlertButtonContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  marginTop: '16px',
+  marginTop: '18px',
 });
 
 interface IModalAlertProps {
@@ -158,7 +158,7 @@ export class ModalAlert extends React.Component<IModalAlertProps> {
 
 export const ModalMessage = styled.span({
   fontFamily: 'Open Sans',
-  fontSize: '14px',
+  fontSize: '13px',
   fontWeight: 500,
   lineHeight: '20px',
   color: colors.white80,
