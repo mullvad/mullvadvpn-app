@@ -18,7 +18,6 @@ import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelayConstraintsUpdate
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.relaylist.RelayItemDividerDecoration
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
 import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
@@ -75,7 +74,7 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
                 }
             }
 
-            addItemDecoration(RelayItemDividerDecoration(parentActivity))
+            addItemDecoration(ListItemDividerDecoration(parentActivity))
         }
 
         return view
