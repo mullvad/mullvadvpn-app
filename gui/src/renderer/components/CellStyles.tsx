@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { buttonText, mediumText, smallText } from './common-styles';
 import ImageView, { IImageViewProps } from './ImageView';
 
 export const StyledContainer = styled.div({
@@ -16,15 +17,10 @@ export const StyledSection = styled.div({
   flexDirection: 'column',
 });
 
-export const StyledSectionTitle = styled.span({
+export const StyledSectionTitle = styled.span(buttonText, {
   backgroundColor: colors.blue,
   padding: '14px 24px',
   marginBottom: '1px',
-  fontFamily: 'DINPro',
-  fontSize: '20px',
-  fontWeight: 900,
-  lineHeight: '26px',
-  color: colors.white,
 });
 
 interface IStyledCellButtonProps {
@@ -51,22 +47,15 @@ export const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps
   },
 }));
 
-export const StyledLabel = styled.div({}, (props: { disabled: boolean }) => ({
+export const StyledLabel = styled.div(buttonText, (props: { disabled: boolean }) => ({
   margin: '14px 0 14px 8px',
   flex: 1,
-  fontFamily: 'DINPro',
-  fontSize: '20px',
-  fontWeight: 900,
-  lineHeight: '26px',
-  letterSpacing: -0.2,
   color: props.disabled ? colors.white40 : colors.white,
   textAlign: 'left',
 }));
 
-export const StyledSubText = styled.span({
+export const StyledSubText = styled.span(smallText, {
   color: colors.white60,
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
   fontWeight: 800,
   flex: -1,
   textAlign: 'right',
@@ -90,14 +79,7 @@ export const StyledFooter = styled.div({
   padding: '8px 24px 24px',
 });
 
-export const StyledFooterText = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '13px',
-  fontWeight: 600,
-  lineHeight: '20px',
-  letterSpacing: -0.2,
-  color: colors.white80,
-});
+export const StyledFooterText = styled.span(smallText);
 
 export const StyledFooterBoldText = styled(StyledFooterText)({
   fontWeight: 900,
@@ -111,10 +93,8 @@ export const StyledInputFrame = styled.div({
 });
 
 const inputTextStyles: React.CSSProperties = {
-  fontFamily: 'Open Sans',
-  fontSize: '20px',
+  ...mediumText,
   fontWeight: 600,
-  lineHeight: '26px',
   height: '26px',
   textAlign: 'right',
   padding: '0px',

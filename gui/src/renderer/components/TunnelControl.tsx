@@ -1,10 +1,10 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { colors } from '../../config.json';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
+import { bigText } from './common-styles';
 import ImageView from './ImageView';
 import Marquee from './Marquee';
 import { MultiButton } from './MultiButton';
@@ -64,12 +64,8 @@ const Location = styled.div({
 });
 
 const StyledMarquee = styled(Marquee)({
-  fontFamily: 'DINPro',
-  fontSize: '34px',
-  lineHeight: '38px',
-  fontWeight: 900,
+  ...bigText,
   overflow: 'hidden',
-  color: colors.white,
 });
 
 export default class TunnelControl extends React.Component<ITunnelControlProps> {

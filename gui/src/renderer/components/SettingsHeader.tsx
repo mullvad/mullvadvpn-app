@@ -12,6 +12,7 @@ const styles = {
       paddingBottom: 24,
     }),
   },
+  // TODO: Use bigText in comonStyles when converted from ReactXP
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
     fontSize: 32,
@@ -19,6 +20,7 @@ const styles = {
     lineHeight: 36,
     color: colors.white,
   }),
+  // TODO: Use smallText in comonStyles when converted from ReactXP
   subtitle: Styles.createTextStyle({
     fontFamily: 'Open Sans',
     fontSize: 13,

@@ -42,24 +42,4 @@ export default {
     marginTop: 12,
     paddingHorizontal: 24,
   }),
-  advanced_settings__cell_hover: Styles.createButtonStyle({
-    backgroundColor: colors.blue80,
-  }),
-  advanced_settings__cell_selected_hover: Styles.createButtonStyle({
-    backgroundColor: colors.green,
-  }),
-  advanced_settings__cell_icon_invisible: Styles.createViewStyle({
-    opacity: 0,
-  }),
-  advanced_settings__cell_label: Styles.createTextStyle({
-    fontFamily: 'DINPro',
-    fontSize: 20,
-    fontWeight: '900',
-    lineHeight: 26,
-    color: colors.white,
-    flex: 0,
-  }),
-  advanced_settings__cell_footer_internet_warning_label: Styles.createTextStyle({
-    marginTop: 4,
-  }),
 };

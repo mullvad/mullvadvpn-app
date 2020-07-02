@@ -118,6 +118,7 @@ export default {
     lineHeight: 18,
     marginBottom: 8,
   }),
+  // TODO: Use bigText in comonStyles when converted from ReactXP
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
     fontSize: 32,

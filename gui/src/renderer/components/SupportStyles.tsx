@@ -105,6 +105,7 @@ export default {
     color: colors.green,
   }),
   support__send_status: Styles.createTextStyle({
+    // TODO: Use bigText in comonStyles when converted from ReactXP
     fontFamily: 'DINPro',
     fontSize: 34,
     fontWeight: '900',
