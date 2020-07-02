@@ -25,10 +25,12 @@ class AppListAdapter(context: Context) : Adapter<AppListHolder>() {
         val inflater = LayoutInflater.from(parentView.context)
         val view = inflater.inflate(R.layout.app_list_item, parentView, false)
 
-        return AppListHolder(view)
+        return AppListHolder(packageManager, view)
     }
 
-    override fun onBindViewHolder(holder: AppListHolder, position: Int) {}
+    override fun onBindViewHolder(holder: AppListHolder, position: Int) {
+        holder.appInfo = appList.get(position)
+    }
 
     private fun populateAppList(context: Context) {
         val applications = context.packageManager.getInstalledApplications(0)
