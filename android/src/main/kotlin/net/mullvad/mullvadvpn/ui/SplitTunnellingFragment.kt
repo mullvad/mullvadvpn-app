@@ -28,6 +28,10 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
     ): View {
         val view = inflater.inflate(R.layout.split_tunnelling, container, false)
 
+        view.findViewById<View>(R.id.back).setOnClickListener {
+            activity?.onBackPressed()
+        }
+
         titleController = CollapsibleTitleController(view, R.id.app_list)
 
         view.findViewById<CustomRecyclerView>(R.id.app_list).apply {
