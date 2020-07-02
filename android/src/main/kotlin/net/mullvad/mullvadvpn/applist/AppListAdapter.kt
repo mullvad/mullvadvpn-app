@@ -24,7 +24,7 @@ class AppListAdapter(context: Context) : Adapter<AppListItemHolder>() {
         val inflater = LayoutInflater.from(parentView.context)
         val view = inflater.inflate(R.layout.app_list_item, parentView, false)
 
-        return AppListItemHolder(packageManager, view)
+        return AppListItemHolder(packageManager, jobTracker, view)
     }
 
     override fun onBindViewHolder(holder: AppListItemHolder, position: Int) {
