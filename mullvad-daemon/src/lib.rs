@@ -172,6 +172,8 @@ pub enum DaemonCommand {
     GetAccountHistory(oneshot::Sender<Vec<AccountToken>>),
     /// Request account history
     RemoveAccountFromHistory(oneshot::Sender<()>, AccountToken),
+    /// Clear account history
+    ClearAccountHistory(oneshot::Sender<()>),
     /// Get the list of countries and cities where there are relays.
     GetRelayLocations(oneshot::Sender<RelayList>),
     /// Trigger an asynchronous relay list update. This returns before the relay list is actually
@@ -988,6 +990,7 @@ where
             RemoveAccountFromHistory(tx, account_token) => {
                 self.on_remove_account_from_history(tx, account_token)
             }
+            ClearAccountHistory(tx) => self.on_clear_account_history(tx),
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
             SetShowBetaReleases(tx, enabled) => self.on_set_show_beta_releases(tx, enabled),
@@ -1325,6 +1328,19 @@ where
     ) {
         if self.account_history.remove_account(&account_token).is_ok() {
             Self::oneshot_send(tx, (), "remove_account_from_history response");
+        }
+    }
+
+    fn on_clear_account_history(&mut self, tx: oneshot::Sender<()>) {
+        match self.account_history.clear() {
+            Ok(_) => {
+                self.set_target_state(TargetState::Unsecured);
+                Self::oneshot_send(tx, (), "clear_account_history response");
+            }
+            Err(err) => log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to clear account history")
+            ),
         }
     }
 

@@ -195,6 +195,10 @@ impl DaemonRpcClient {
         self.call("set_account", &[account])
     }
 
+    pub fn clear_account_history(&mut self) -> Result<()> {
+        self.call("clear_account_history", &NO_ARGS)
+    }
+
     pub fn set_enable_ipv6(&mut self, enabled: bool) -> Result<()> {
         self.call("set_enable_ipv6", &[enabled])
     }

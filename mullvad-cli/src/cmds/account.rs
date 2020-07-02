@@ -31,6 +31,10 @@ impl Command for Account {
                     .about("Removes the account number from the settings"),
             )
             .subcommand(
+                clap::SubCommand::with_name("clear-history")
+                    .about("Clear account history, along with removing all associated keys"),
+            )
+            .subcommand(
                 clap::SubCommand::with_name("create")
                     .about("Creates a new account and sets it as the active one"),
             )
@@ -49,10 +53,12 @@ impl Command for Account {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             let token = value_t_or_exit!(set_matches.value_of("token"), String);
             self.set(Some(token))
-        } else if let Some(_matches) = matches.subcommand_matches("unset") {
-            self.set(None)
         } else if let Some(_matches) = matches.subcommand_matches("get") {
             self.get()
+        } else if let Some(_matches) = matches.subcommand_matches("unset") {
+            self.set(None)
+        } else if let Some(_matches) = matches.subcommand_matches("clear-history") {
+            self.clear_history()
         } else if let Some(_matches) = matches.subcommand_matches("create") {
             self.create()
         } else if let Some(matches) = matches.subcommand_matches("redeem") {
@@ -137,5 +143,12 @@ impl Account {
             mullvad_ipc_client::ErrorKind::JsonRpcError(ref rpc_error) => rpc_error.code.code(),
             _ => 0,
         }
+    }
+
+    fn clear_history(&self) -> Result<()> {
+        let mut rpc = new_rpc_client()?;
+        rpc.clear_account_history()?;
+        println!("Removed account history and all associated keys");
+        Ok(())
     }
 }
