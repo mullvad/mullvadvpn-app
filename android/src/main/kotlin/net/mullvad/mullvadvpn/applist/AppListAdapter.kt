@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.applist
 
 import android.content.Context
-import android.content.pm.ApplicationInfo
 import android.support.v7.widget.RecyclerView.Adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,7 +8,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class AppListAdapter(context: Context) : Adapter<AppListItemHolder>() {
-    private val appList = ArrayList<ApplicationInfo>()
+    private val appList = ArrayList<AppInfo>()
     private val jobTracker = JobTracker()
     private val packageManager = context.packageManager
 
@@ -33,7 +32,9 @@ class AppListAdapter(context: Context) : Adapter<AppListItemHolder>() {
     }
 
     private fun populateAppList(context: Context) {
-        val applications = context.packageManager.getInstalledApplications(0)
+        val applications = packageManager
+            .getInstalledApplications(0)
+            .map { info -> AppInfo(info, packageManager.getApplicationLabel(info).toString()) }
 
         appList.clear()
         appList.addAll(applications)
