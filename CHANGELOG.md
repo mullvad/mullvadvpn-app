@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade from Electron 7 to Electron 8.
 - Change version string parsing to never suggest the user to upgrade to an older version.
 - Make connectivity checker more resilient to suspension.
+- Make uninstaller on desktop platforms attempt to remove WireGuard keys from accounts.
 
 #### Android
 - Show a system notification when the account time will soon run out.
