@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.ui
 
+import android.animation.Animator
+import android.animation.Animator.AnimatorListener
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -12,7 +15,21 @@ import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+    private val excludeApplicationsFadeOutListener = object : AnimatorListener {
+        override fun onAnimationCancel(animation: Animator) {}
+        override fun onAnimationRepeat(animation: Animator) {}
+        override fun onAnimationStart(animation: Animator) {}
+
+        override fun onAnimationEnd(animation: Animator) {
+            if (!appListAdapter.enabled) {
+                excludeApplications.visibility = View.GONE
+            }
+        }
+    }
+
     private lateinit var appListAdapter: AppListAdapter
+    private lateinit var excludeApplicationsFadeOut: ObjectAnimator
+
     private lateinit var titleController: CollapsibleTitleController
 
     private lateinit var excludeApplications: View
@@ -59,6 +76,12 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
     private fun configureHeader(header: View) {
         excludeApplications = header.findViewById(R.id.exclude_applications)
 
+        excludeApplicationsFadeOut =
+            ObjectAnimator.ofFloat(excludeApplications, "alpha", 1.0f, 0.0f).apply {
+                addListener(excludeApplicationsFadeOutListener)
+                setDuration(200)
+            }
+
         header.findViewById<CellSwitch>(R.id.enabled_toggle).listener = { toggleState ->
             when (toggleState) {
                 CellSwitch.State.ON -> enable()
@@ -70,10 +93,11 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
     private fun enable() {
         appListAdapter.enabled = true
         excludeApplications.visibility = View.VISIBLE
+        excludeApplicationsFadeOut.reverse()
     }
 
     private fun disable() {
         appListAdapter.enabled = false
-        excludeApplications.visibility = View.GONE
+        excludeApplicationsFadeOut.start()
     }
 }
