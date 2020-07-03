@@ -33,7 +33,7 @@ export const NotificationOpenLinkActionButton = styled.button({
   flex: 1,
   justifyContent: 'center',
   cursor: 'default',
-  padding: '0 5px',
+  padding: '4px',
   background: 'transparent',
   border: 'none',
 });
@@ -68,6 +68,7 @@ export const NotificationContent = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
+  paddingRight: '4px',
 });
 
 export const NotificationActions = styled.div({
@@ -75,7 +76,6 @@ export const NotificationActions = styled.div({
   flex: 0,
   flexDirection: 'column',
   justifyContent: 'center',
-  marginLeft: 5,
 });
 
 interface INotificationIndicatorProps {
@@ -128,7 +128,7 @@ const Collapsible = styled.div({}, (props: ICollapsibleProps) => {
 const Content = styled.div({
   display: 'flex',
   flexDirection: 'row',
-  padding: '8px 10px 8px 20px',
+  padding: '8px 12px 8px 16px',
   height: 'fit-content',
 });
 

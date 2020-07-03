@@ -20,7 +20,7 @@ const headerBarStyleColorMap = {
 };
 
 const HeaderBarContainer = styled.div({}, (props: { barStyle?: HeaderBarStyle }) => ({
-  padding: '12px',
+  padding: '12px 16px',
   paddingTop: process.platform === 'darwin' ? '24px' : '12px',
   backgroundColor: headerBarStyleColorMap[props.barStyle ?? HeaderBarStyle.default],
 }));
@@ -29,6 +29,8 @@ const HeaderBarContent = styled.div({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
+  // In views without the brand components we still want the Header to have the same height.
+  minHeight: '51px',
 });
 
 interface IHeaderBarProps {
@@ -61,7 +63,7 @@ const Title = styled.span({
 });
 
 const Logo = styled(ImageView)({
-  margin: '4px 0 3px 6px',
+  margin: '4px 0 3px',
 });
 
 export function Brand() {
