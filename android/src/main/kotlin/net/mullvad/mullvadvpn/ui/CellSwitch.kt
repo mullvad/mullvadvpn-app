@@ -186,6 +186,13 @@ class CellSwitch : LinearLayout {
         return super.onTouchEvent(event)
     }
 
+    fun toggle() {
+        when (state) {
+            State.ON -> state = State.OFF
+            State.OFF -> state = State.ON
+        }
+    }
+
     fun forcefullySetState(newState: State) {
         when (newState) {
             State.ON -> {
