@@ -52,7 +52,7 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        appListAdapter = AppListAdapter(context)
+        appListAdapter = AppListAdapter(context, splitTunnelling)
     }
 
     override fun onSafelyCreateView(
