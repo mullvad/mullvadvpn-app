@@ -12,6 +12,7 @@ class AppListAdapter(context: Context) : Adapter<AppListItemHolder>() {
     private val appList = ArrayList<AppInfo>()
     private val jobTracker = JobTracker()
     private val packageManager = context.packageManager
+    private val thisPackageName = context.packageName
 
     var enabled by observable(false) { _, oldValue, newValue ->
         if (oldValue != newValue) {
@@ -45,6 +46,7 @@ class AppListAdapter(context: Context) : Adapter<AppListItemHolder>() {
     private fun populateAppList(context: Context) {
         val applications = packageManager
             .getInstalledApplications(0)
+            .filter { info -> info.packageName != thisPackageName }
             .map { info -> AppInfo(info, packageManager.getApplicationLabel(info).toString()) }
 
         appList.apply {
