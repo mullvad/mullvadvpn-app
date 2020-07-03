@@ -2,9 +2,10 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:paddingHorizontal="16dp"
-              android:background="@color/blue40"
+              android:background="@drawable/app_list_item_background"
               android:orientation="horizontal"
-              android:gravity="center">
+              android:gravity="center"
+              android:clickable="true">
     <ProgressBar android:id="@+id/loading"
                  android:layout_width="40dp"
                  android:layout_height="40dp"
