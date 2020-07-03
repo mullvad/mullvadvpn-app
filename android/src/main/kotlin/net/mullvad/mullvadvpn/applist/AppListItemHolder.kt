@@ -51,6 +51,15 @@ class AppListItemHolder(
         view.setOnClickListener {
             excluded.toggle()
         }
+
+        excluded.listener = { state ->
+            appInfo?.info?.packageName?.let { app ->
+                when (state) {
+                    CellSwitch.State.ON -> splitTunnelling.excludeApp(app)
+                    CellSwitch.State.OFF -> splitTunnelling.includeApp(app)
+                }
+            }
+        }
     }
 
     private fun hideIcon() {
