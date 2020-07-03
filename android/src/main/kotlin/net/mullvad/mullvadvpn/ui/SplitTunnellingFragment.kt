@@ -41,6 +41,7 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
     }
 
     private lateinit var appListAdapter: AppListAdapter
+    private lateinit var enabledToggle: CellSwitch
     private lateinit var excludeApplicationsFadeOut: ObjectAnimator
     private lateinit var loadingSpinnerFadeIn: ObjectAnimator
     private lateinit var titleController: CollapsibleTitleController
@@ -103,11 +104,17 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
                 setDuration(200)
             }
 
-        header.findViewById<CellSwitch>(R.id.enabled_toggle).listener = { toggleState ->
-            when (toggleState) {
-                CellSwitch.State.ON -> enable()
-                CellSwitch.State.OFF -> disable()
+        enabledToggle = header.findViewById<CellSwitch>(R.id.enabled_toggle).apply {
+            listener = { toggleState ->
+                when (toggleState) {
+                    CellSwitch.State.ON -> enable()
+                    CellSwitch.State.OFF -> disable()
+                }
             }
+        }
+
+        header.findViewById<View>(R.id.enabled).setOnClickListener {
+            enabledToggle.toggle()
         }
     }
 
