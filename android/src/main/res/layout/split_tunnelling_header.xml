@@ -42,11 +42,13 @@
                                               android:layout_height="32dp"
                                               android:layout_weight="0" />
     </LinearLayout>
-    <LinearLayout android:layout_width="match_parent"
+    <LinearLayout android:id="@+id/exclude_applications"
+                  android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:layout_marginTop="24dp"
                   android:paddingHorizontal="16dp"
                   android:background="@drawable/cell_button_background"
+                  android:visibility="gone"
                   android:gravity="center">
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
