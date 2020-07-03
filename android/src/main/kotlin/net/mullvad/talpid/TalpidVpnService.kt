@@ -17,6 +17,8 @@ open class TalpidVpnService : VpnService() {
 
     private var currentTunConfig = defaultTunConfig()
 
+    protected var disallowedApps: List<String>? = null
+
     val connectivityListener = ConnectivityListener()
 
     override fun onCreate() {
@@ -90,6 +92,12 @@ open class TalpidVpnService : VpnService() {
 
             for (route in config.routes) {
                 addRoute(route.address, route.prefixLength.toInt())
+            }
+
+            disallowedApps?.let { apps ->
+                for (app in apps) {
+                    addDisallowedApplication(app)
+                }
             }
 
             setMtu(config.mtu)
