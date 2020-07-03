@@ -126,6 +126,10 @@ build_rpc_trait! {
         #[rpc(meta, name = "remove_account_from_history")]
         fn remove_account_from_history(&self, Self::Metadata, AccountToken) -> BoxFuture<(), Error>;
 
+        /// Removes all accounts from history, removing any associated keys in the process
+        #[rpc(meta, name = "clear_account_history")]
+        fn clear_account_history(&self, Self::Metadata) -> BoxFuture<(), Error>;
+
         /// Sets openvpn's mssfix parameter
         #[rpc(meta, name = "set_openvpn_mssfix")]
         fn set_openvpn_mssfix(&self, Self::Metadata, Option<u16>) -> BoxFuture<(), Error>;
@@ -598,6 +602,15 @@ impl ManagementInterfaceApi for ManagementInterface {
         let (tx, rx) = sync::oneshot::channel();
         let future = self
             .send_command_to_daemon(DaemonCommand::RemoveAccountFromHistory(tx, account_token))
+            .and_then(|_| rx.map_err(|_| Error::internal_error()));
+        Box::new(future)
+    }
+
+    fn clear_account_history(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
+        log::debug!("clear_account_history");
+        let (tx, rx) = sync::oneshot::channel();
+        let future = self
+            .send_command_to_daemon(DaemonCommand::ClearAccountHistory(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
     }

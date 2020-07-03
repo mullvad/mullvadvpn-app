@@ -1,32 +1,30 @@
 use rand::{distributions::OpenClosed01, Rng};
-use std::{future::Future, marker::Unpin, time::Duration};
+use std::{future::Future, time::Duration};
 
 /// Since timers often exhibit weird behavior if they are running for too long, a workaround is
 /// required - run a timer for 60 seconds until a delay is shorter than 5 minutes.
 const MAX_SINGLE_DELAY: Duration = Duration::from_secs(5 * 60);
 
 /// Retries a future until it should stop as determined by the retry function.
-pub fn retry_future_with_backoff<
+pub async fn retry_future_with_backoff<
     F: FnMut() -> O + 'static,
     R: FnMut(&T) -> bool + 'static,
     D: Iterator<Item = Duration> + 'static,
     O: Future<Output = T>,
-    T: Unpin,
+    T,
 >(
     mut factory: F,
     mut should_retry: R,
     mut delays: D,
-) -> impl Future<Output = T> + 'static {
-    async move {
-        loop {
-            let current_result = factory().await;
-            if should_retry(&current_result) {
-                if let Some(delay) = delays.next() {
-                    sleep(delay).await;
-                }
-            } else {
-                return current_result;
+) -> T {
+    loop {
+        let current_result = factory().await;
+        if should_retry(&current_result) {
+            if let Some(delay) = delays.next() {
+                sleep(delay).await;
             }
+        } else {
+            return current_result;
         }
     }
 }
