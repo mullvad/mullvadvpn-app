@@ -45,6 +45,7 @@ class AppListAdapter(context: Context) : Adapter<AppListHolder>() {
     private fun populateAppList(context: Context) {
         val applications = packageManager
             .getInstalledApplications(0)
+            .filter { info -> info.packageName != "net.mullvad.mullvadvpn" }
             .map { info -> AppInfo(info, packageManager.getApplicationLabel(info).toString()) }
 
         appList.apply {
