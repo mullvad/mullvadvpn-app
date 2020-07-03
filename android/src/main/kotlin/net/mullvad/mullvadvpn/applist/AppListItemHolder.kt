@@ -39,6 +39,12 @@ class AppListItemHolder(
         }
     }
 
+    init {
+        view.setOnClickListener {
+            excluded.toggle()
+        }
+    }
+
     private fun hideIcon() {
         icon.visibility = View.GONE
         loading.visibility = View.VISIBLE
