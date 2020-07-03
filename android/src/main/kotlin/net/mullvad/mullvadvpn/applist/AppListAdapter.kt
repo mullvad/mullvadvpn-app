@@ -13,6 +13,11 @@ class AppListAdapter(context: Context) : Adapter<AppListHolder>() {
     private val jobTracker = JobTracker()
     private val packageManager = context.packageManager
 
+    var onListReady: (suspend () -> Unit)? = null
+
+    var isListReady = false
+        private set
+
     var enabled by observable(false) { _, oldValue, newValue ->
         if (oldValue != newValue) {
             if (newValue == true) {
@@ -55,6 +60,8 @@ class AppListAdapter(context: Context) : Adapter<AppListHolder>() {
         }
 
         jobTracker.newUiJob("notifyAppListChanges") {
+            isListReady = true
+            onListReady?.invoke()
             notifyItemRangeInserted(0, applications.size)
         }
     }
