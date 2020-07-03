@@ -60,4 +60,14 @@
                   android:textStyle="bold"
                   android:text="@string/exclude_applications" />
     </LinearLayout>
+    <ProgressBar android:id="@+id/loading_spinner"
+                 android:layout_width="60dp"
+                 android:layout_height="60dp"
+                 android:layout_gravity="center"
+                 android:layout_marginTop="24dp"
+                 android:indeterminate="true"
+                 android:indeterminateOnly="true"
+                 android:indeterminateDuration="600"
+                 android:indeterminateDrawable="@drawable/icon_spinner"
+                 android:visibility="gone" />
 </LinearLayout>
