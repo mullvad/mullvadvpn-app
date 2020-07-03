@@ -15,6 +15,8 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
     private lateinit var appListAdapter: AppListAdapter
     private lateinit var titleController: CollapsibleTitleController
 
+    private lateinit var excludeApplications: View
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -39,6 +41,7 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
 
             adapter = AdapterWithHeader(appListAdapter, R.layout.split_tunnelling_header).apply {
                 onHeaderAvailable = { headerView ->
+                    configureHeader(headerView)
                     titleController.expandedTitleView = headerView.findViewById(R.id.expanded_title)
                 }
             }
@@ -51,5 +54,26 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
 
     override fun onSafelyDestroyView() {
         titleController.onDestroy()
+    }
+
+    private fun configureHeader(header: View) {
+        excludeApplications = header.findViewById(R.id.exclude_applications)
+
+        header.findViewById<CellSwitch>(R.id.enabled_toggle).listener = { toggleState ->
+            when (toggleState) {
+                CellSwitch.State.ON -> enable()
+                CellSwitch.State.OFF -> disable()
+            }
+        }
+    }
+
+    private fun enable() {
+        appListAdapter.enabled = true
+        excludeApplications.visibility = View.VISIBLE
+    }
+
+    private fun disable() {
+        appListAdapter.enabled = false
+        excludeApplications.visibility = View.GONE
     }
 }
