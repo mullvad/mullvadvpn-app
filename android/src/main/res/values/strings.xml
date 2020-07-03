@@ -46,7 +46,8 @@
     <string name="less_than_a_minute_ago">less than a minute ago</string>
     <string name="account_credit_expires_in_a_few_minutes">Account credit expires in a few
     minutes</string>
-    <string name="account_credit_has_expired">You have no more VPN time left on this account.</string>
+    <string name="account_credit_has_expired">You have no more VPN time left on this
+    account.</string>
     <string name="out_of_time">Out of time</string>
     <string name="no_more_vpn_time_left">You have no more VPN time left on this account. Either buy
     credit on our website or redeem a voucher.</string>
