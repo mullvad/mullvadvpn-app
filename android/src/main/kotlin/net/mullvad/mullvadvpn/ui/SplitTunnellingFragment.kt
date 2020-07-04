@@ -105,6 +105,12 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
             }
 
         enabledToggle = header.findViewById<CellSwitch>(R.id.enabled_toggle).apply {
+            if (appListAdapter.enabled) {
+                forcefullySetState(CellSwitch.State.ON)
+            } else {
+                forcefullySetState(CellSwitch.State.OFF)
+            }
+
             listener = { toggleState ->
                 when (toggleState) {
                     CellSwitch.State.ON -> enable()
