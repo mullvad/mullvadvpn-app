@@ -84,6 +84,12 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
         return view
     }
 
+    override fun onSafelyPause() {
+        jobTracker.newBackgroundJob("persistExcludedApps") {
+            splitTunnelling.persist()
+        }
+    }
+
     override fun onSafelyDestroyView() {
         titleController.onDestroy()
     }
