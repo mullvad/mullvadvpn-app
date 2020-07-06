@@ -57,7 +57,9 @@ class AsyncOperation: Operation, OperationProtocol {
             if !self._isCancelled {
                 self.setCancelled(true)
 
-                self.operationDidCancel()
+                if self._isExecuting {
+                    self.operationDidCancel()
+                }
             }
         }
     }
