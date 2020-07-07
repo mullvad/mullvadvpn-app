@@ -8,20 +8,14 @@ export GOROOT="$HOME/go"
 export PATH="$PATH:$GOROOT/bin"
 
 # Ensure Rust crates know which tools to use for cross-compilation
-export TOOLCHAINS_DIR="$HOME/android-ndk-toolchains"
+export TOOLCHAIN_DIR="$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin"
 
-export AR_i686_linux_android="$TOOLCHAINS_DIR/android21-x86/bin/i686-linux-android-ar"
-export AR_x86_64_linux_android="$TOOLCHAINS_DIR/android21-x86_64/bin/x86_64-linux-android-ar"
-export AR_aarch64_linux_android="$TOOLCHAINS_DIR/android21-arm64/bin/aarch64-linux-android-ar"
-export AR_armv7_linux_androideabi="$TOOLCHAINS_DIR/android21-arm/bin/arm-linux-androideabi-ar"
+export AR_i686_linux_android="$TOOLCHAIN_DIR/i686-linux-android-ar"
+export AR_x86_64_linux_android="$TOOLCHAIN_DIR/x86_64-linux-android-ar"
+export AR_aarch64_linux_android="$TOOLCHAIN_DIR/aarch64-linux-android-ar"
+export AR_armv7_linux_androideabi="$TOOLCHAIN_DIR/arm-linux-androideabi-ar"
 
-export CC_i686_linux_android="$TOOLCHAINS_DIR/android21-x86/bin/i686-linux-android21-clang"
-export CC_x86_64_linux_android="$TOOLCHAINS_DIR/android21-x86_64/bin/x86_64-linux-android21-clang"
-export CC_aarch64_linux_android="$TOOLCHAINS_DIR/android21-arm64/bin/aarch64-linux-android21-clang"
-export CC_armv7_linux_androideabi="$TOOLCHAINS_DIR/android21-arm/bin/armv7a-linux-androideabi21-clang"
-
-# Ensure the C cross-compilers are accessible to the libwg-go build
-export ANDROID_TOOLCHAIN_ROOT_arm="$TOOLCHAINS_DIR/android21-arm"
-export ANDROID_TOOLCHAIN_ROOT_x86="$TOOLCHAINS_DIR/android21-x86"
-export ANDROID_TOOLCHAIN_ROOT_arm64="$TOOLCHAINS_DIR/android21-arm64"
-export ANDROID_TOOLCHAIN_ROOT_x86_64="$TOOLCHAINS_DIR/android21-x86_64"
+export CC_i686_linux_android="$TOOLCHAIN_DIR/i686-linux-android21-clang"
+export CC_x86_64_linux_android="$TOOLCHAIN_DIR/x86_64-linux-android21-clang"
+export CC_aarch64_linux_android="$TOOLCHAIN_DIR/aarch64-linux-android21-clang"
+export CC_armv7_linux_androideabi="$TOOLCHAIN_DIR/armv7a-linux-androideabi21-clang"
