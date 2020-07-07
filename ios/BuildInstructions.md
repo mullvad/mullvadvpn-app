@@ -147,6 +147,15 @@ xcrun altool --store-password-in-keychain-item <KEYCHAIN_ITEM_NAME> \
 
 [Apple ID website]: https://appleid.apple.com/account/manage
 
+# Install Xcode project dependencies
+
+Xcode project uses a pre-build action to bundle the relay list with the app, which depends on `jq`. 
+You can install it with `brew install jq`. See [jq website] for more installation options.
+
+[jq website]: https://stedolan.github.io/jq/download/
+
+The log output is saved to `ios/prebuild.log`.
+
 # Automated build and deployment
 
 Build script does not bump the build number, so make sure to do that manually and commit to repo:
