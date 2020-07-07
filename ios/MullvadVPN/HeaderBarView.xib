@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HeaderBarView" customModule="MullvadVPN" customModuleProvider="target">
+            <connections>
+                <outlet property="contentView" destination="ov3-nw-UAQ" id="xIt-HC-BNQ"/>
+                <outlet property="settingsButton" destination="TCH-Bw-nMr" id="g2X-ry-UC8"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="ov3-nw-UAQ">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="107"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoIcon" translatesAutoresizingMaskIntoConstraints="NO" id="ZOX-0C-1fD">
+                    <rect key="frame" x="20" y="41.5" width="44" height="44"/>
+                    <constraints>
+                        <constraint firstAttribute="width" secondItem="ZOX-0C-1fD" secondAttribute="height" multiplier="1:1" id="2q1-l2-vu7"/>
+                        <constraint firstAttribute="width" constant="44" id="tDk-Mj-nnP"/>
+                    </constraints>
+                </imageView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TCH-Bw-nMr">
+                    <rect key="frame" x="370" y="51.5" width="24" height="24"/>
+                    <accessibility key="accessibilityConfiguration" identifier="SettingsButton"/>
+                    <state key="normal" image="IconSettings"/>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MULLVAD VPN" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qnt-qI-YIW">
+                    <rect key="frame" x="72" y="42" width="168" height="43"/>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
+                    <color key="textColor" white="1" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <constraints>
+                <constraint firstAttribute="bottomMargin" secondItem="Qnt-qI-YIW" secondAttribute="bottom" constant="22" id="C4h-d6-8jh"/>
+                <constraint firstItem="TCH-Bw-nMr" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Qnt-qI-YIW" secondAttribute="trailing" constant="8" symbolic="YES" id="auJ-gc-6ue"/>
+                <constraint firstItem="Qnt-qI-YIW" firstAttribute="leading" secondItem="ZOX-0C-1fD" secondAttribute="trailing" constant="8" id="cD3-Tp-tkQ"/>
+                <constraint firstItem="TCH-Bw-nMr" firstAttribute="centerY" secondItem="Qnt-qI-YIW" secondAttribute="centerY" id="dAi-dp-MzM"/>
+                <constraint firstItem="ZOX-0C-1fD" firstAttribute="centerY" secondItem="Qnt-qI-YIW" secondAttribute="centerY" id="gut-cS-uB1"/>
+                <constraint firstAttribute="trailingMargin" secondItem="TCH-Bw-nMr" secondAttribute="trailing" id="qSf-ZX-xQs"/>
+                <constraint firstItem="Qnt-qI-YIW" firstAttribute="top" secondItem="ov3-nw-UAQ" secondAttribute="topMargin" constant="22" id="rTh-9P-ArN"/>
+                <constraint firstItem="ZOX-0C-1fD" firstAttribute="leading" secondItem="ov3-nw-UAQ" secondAttribute="leadingMargin" id="urJ-3h-lgX"/>
+            </constraints>
+            <nil key="simulatedTopBarMetrics"/>
+            <nil key="simulatedBottomBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <edgeInsets key="layoutMargins" top="20" left="12" bottom="0.0" right="16"/>
+            <point key="canvasLocation" x="84.057971014492765" y="-652.56696428571422"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="IconSettings" width="24" height="24"/>
+        <image name="LogoIcon" width="253" height="253"/>
+    </resources>
+</document>

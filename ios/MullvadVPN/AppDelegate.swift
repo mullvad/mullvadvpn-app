@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     fatalError("Failed to restore the account: \(error.localizedDescription)")
                 }
 
-                let rootViewController = self.mainStoryboard.instantiateViewController(identifier: ViewControllerIdentifier.root.rawValue) as! RootContainerViewController
+                let rootViewController = RootContainerViewController()
 
                 let showMainController = { (_ animated: Bool) in
                     self.showMainController(in: rootViewController, animated: animated) {

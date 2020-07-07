@@ -47,9 +47,8 @@ class RootContainerViewController: UIViewController {
         return viewControllers.last
     }
 
-    @IBOutlet var headerBarView: UIView!
-    @IBOutlet var headerBarSettingsButton: UIButton!
-    @IBOutlet var transitionContainer: UIView!
+    private let headerBarView = HeaderBarView(bundle: nil)
+    private let transitionContainer = UIView(frame: UIScreen.main.bounds)
 
     private(set) var headerBarStyle = HeaderBarStyle.default
     private(set) var headerBarHidden = false
@@ -76,6 +75,8 @@ class RootContainerViewController: UIViewController {
         margins.right = 24
         view.layoutMargins = margins
 
+        addTransitionView()
+        addHeaderBarView()
         updateHeaderBarBackground()
     }
 
@@ -157,8 +158,10 @@ class RootContainerViewController: UIViewController {
 
     /// Request to display settings controller
     func showSettings(navigateTo route: SettingsNavigationRoute? = nil, animated: Bool) {
-        guard let navController = self.storyboard?
-            .instantiateViewController(identifier: ViewControllerIdentifier.settings.rawValue)
+        let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
+
+        guard let navController = mainStoryboard
+            .instantiateViewController(withIdentifier: ViewControllerIdentifier.settings.rawValue)
             as? UINavigationController else { return }
 
         if let route = route {
@@ -169,7 +172,49 @@ class RootContainerViewController: UIViewController {
         present(navController, animated: animated)
     }
 
+    /// Enable or disable the settings bar button displayed in the header bar
+    func setEnableSettingsButton(_ isEnabled: Bool) {
+        headerBarView.settingsButton.isEnabled = isEnabled
+    }
+
     // MARK: - Private
+
+    private func addTransitionView() {
+        let constraints = [
+            transitionContainer.topAnchor.constraint(equalTo: view.topAnchor),
+            transitionContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            transitionContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            transitionContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ]
+
+        transitionContainer.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(transitionContainer)
+
+        NSLayoutConstraint.activate(constraints)
+    }
+
+    private func addHeaderBarView() {
+        let constraints = [
+            headerBarView.topAnchor.constraint(equalTo: view.topAnchor),
+            headerBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            headerBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ]
+
+        headerBarView.translatesAutoresizingMaskIntoConstraints = false
+        headerBarView.settingsButton.addTarget(
+            self,
+            action: #selector(handleSettingsButtonTap),
+            for: .touchUpInside
+        )
+
+        view.addSubview(headerBarView)
+
+        NSLayoutConstraint.activate(constraints)
+    }
+
+    @objc private func handleSettingsButtonTap() {
+        showSettings(animated: true)
+    }
 
     private func setViewControllersInternal(_ newViewControllers: [UIViewController], isUnwinding: Bool, animated: Bool, completion: CompletionHandler? = nil) {
         // Dot not handle appearance events when the container itself is not visible
