@@ -168,6 +168,8 @@
 		58EC4E6C23915325003F5C5B /* Bundle+MullvadVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EC4E6B23915325003F5C5B /* Bundle+MullvadVersion.swift */; };
 		58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */; };
 		58F3C0962492617E003E76BE /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E973DD24850EB600096F90 /* AsyncOperation.swift */; };
+		58F3C0A2249CA1E0003E76BE /* HeaderBarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A1249CA1E0003E76BE /* HeaderBarView.xib */; };
+		58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C0A3249CB069003E76BE /* HeaderBarView.swift */; };
 		58F840AF2464382C0044E708 /* KeychainItemRevision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840AE2464382C0044E708 /* KeychainItemRevision.swift */; };
 		58F840B02464382C0044E708 /* KeychainItemRevision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840AE2464382C0044E708 /* KeychainItemRevision.swift */; };
 		58F840B22464491D0044E708 /* ChainedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840B12464491D0044E708 /* ChainedError.swift */; };
@@ -348,6 +350,8 @@
 		58EC4E6B23915325003F5C5B /* Bundle+MullvadVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+MullvadVersion.swift"; sourceTree = "<group>"; };
 		58ECD29123F178FD004298B6 /* Screenshots.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Screenshots.xcconfig; sourceTree = "<group>"; };
 		58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerActivityIndicatorView.swift; sourceTree = "<group>"; };
+		58F3C0A1249CA1E0003E76BE /* HeaderBarView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HeaderBarView.xib; sourceTree = "<group>"; };
+		58F3C0A3249CB069003E76BE /* HeaderBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBarView.swift; sourceTree = "<group>"; };
 		58F840AE2464382C0044E708 /* KeychainItemRevision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainItemRevision.swift; sourceTree = "<group>"; };
 		58F840B12464491D0044E708 /* ChainedError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainedError.swift; sourceTree = "<group>"; };
 		58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainAttributes.swift; sourceTree = "<group>"; };
@@ -498,6 +502,8 @@
 				58C6B35D22BBBFE3003C19AD /* Data+HexCoding.swift */,
 				58B9EB142489139B00095626 /* DisplayChainedError.swift */,
 				5873884C239E6D7E00E96C4E /* EmbeddedViewContainerView.swift */,
+				58F3C0A3249CB069003E76BE /* HeaderBarView.swift */,
+				58F3C0A1249CA1E0003E76BE /* HeaderBarView.xib */,
 				58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */,
 				58CE5E6F224146210008646E /* Info.plist */,
 				5840250022B1124600E4CFEC /* IpAddress+Codable.swift */,
@@ -775,6 +781,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58F3C0A2249CA1E0003E76BE /* HeaderBarView.xib in Resources */,
 				58CE5E6E224146210008646E /* LaunchScreen.storyboard in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 				58CE5E69224146200008646E /* Main.storyboard in Resources */,
@@ -922,6 +929,7 @@
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
 				5873884D239E6D7E00E96C4E /* EmbeddedViewContainerView.swift in Sources */,
 				582650862384116F00FA7A86 /* ReplaceNilWithError.swift in Sources */,
+				58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
 				580EE20624B3222200F9D8A1 /* ExclusivityController.swift in Sources */,
