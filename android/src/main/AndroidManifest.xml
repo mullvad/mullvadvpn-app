@@ -8,6 +8,7 @@
                  android:icon="@mipmap/ic_launcher"
                  android:roundIcon="@mipmap/ic_launcher"
                  android:theme="@style/AppTheme"
+                 android:extractNativeLibs="true"
                  android:allowBackup="false"
                  tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="net.mullvad.mullvadvpn.ui.MainActivity"
