@@ -6,7 +6,6 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import UIKit
 
 enum TunnelControlAction {
@@ -26,7 +25,7 @@ protocol TunnelControlViewControllerDelegate: class {
     func tunnelControlViewController(_ controller: TunnelControlViewController, handleAction action: TunnelControlAction) -> Void
 }
 
-class TunnelControlViewController: UIViewController {
+class TunnelControlViewController: UIViewController, TunnelObserver {
 
     @IBOutlet var disconnectedView: UIView!
     @IBOutlet var connectingView: UIView!
@@ -34,18 +33,28 @@ class TunnelControlViewController: UIViewController {
 
     weak var delegate: TunnelControlViewControllerDelegate?
 
-    private var tunnelStateSubscriber: AnyCancellable?
     private var controlsView: UIView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tunnelStateSubscriber = TunnelManager.shared.$tunnelState
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] (tunnelState) in
-                self?.didReceiveTunnelState(tunnelState)
+        TunnelManager.shared.addObserver(self)
+        self.didReceiveTunnelState(TunnelManager.shared.tunnelState)
+    }
+
+    // MARK: - TunnelObserver
+
+    func tunnelStateDidChange(tunnelState: TunnelState) {
+        DispatchQueue.main.async {
+            self.didReceiveTunnelState(tunnelState)
         }
     }
+
+    func tunnelPublicKeyDidChange(publicKey: WireguardPublicKey?) {
+        // no-op
+    }
+
+    /// MARK: - Private
 
     private func didReceiveTunnelState(_ tunnelState: TunnelState) {
         switch tunnelState {
@@ -59,7 +68,6 @@ class TunnelControlViewController: UIViewController {
             addControlsView(connectedView)
         }
     }
-
 
     private func addControlsView(_ nextControlsView: UIView) {
         guard controlsView != nextControlsView else { return }

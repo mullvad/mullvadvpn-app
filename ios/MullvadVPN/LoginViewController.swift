@@ -6,11 +6,21 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import UIKit
 import os
 
 private let kMinimumAccountTokenLength = 10
+
+enum AuthenticationMethod {
+    case existingAccount, newAccount
+}
+
+enum LoginState {
+    case `default`
+    case authenticating(AuthenticationMethod)
+    case failure(Account.Error)
+    case success(AuthenticationMethod)
+}
 
 class LoginViewController: UIViewController, RootContainment {
 
@@ -25,8 +35,6 @@ class LoginViewController: UIViewController, RootContainment {
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
     @IBOutlet var statusImageView: UIImageView!
     @IBOutlet var createAccountButton: AppButton!
-
-    private var loginSubscriber: AnyCancellable?
 
     private var loginState = LoginState.default {
         didSet {
@@ -46,6 +54,7 @@ class LoginViewController: UIViewController, RootContainment {
         return false
     }
 
+    private let alertPresenter = AlertPresenter()
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -145,16 +154,17 @@ class LoginViewController: UIViewController, RootContainment {
 
         beginLogin(method: .existingAccount)
 
-        loginSubscriber = Account.shared.login(with: accountToken)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { (completionResult) in
-                switch completionResult {
-                case .finished:
-                    self.endLogin(.success(.existingAccount))
-                case .failure(let error):
-                    self.endLogin(.failure(error))
-                }
-            }, receiveValue: { _ in })
+        Account.shared.login(with: accountToken) { (result) in
+            switch result {
+            case .success:
+                self.endLogin(.success(.existingAccount))
+
+            case .failure(let error):
+                error.logChain(message: "Failed to log in with existing account")
+
+                self.endLogin(.failure(error))
+            }
+        }
     }
 
     @IBAction func createNewAccount() {
@@ -163,18 +173,18 @@ class LoginViewController: UIViewController, RootContainment {
         accountTextField.autoformattingText = ""
         updateKeyboardToolbar()
 
-        loginSubscriber = Account.shared.loginWithNewAccount()
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { (completionResult) in
-                switch completionResult {
-                case .finished:
-                    self.endLogin(.success(.newAccount))
-                case .failure(let error):
-                    self.endLogin(.failure(error))
-                }
-            }, receiveValue: { (newAccountToken) in
+        Account.shared.loginWithNewAccount { (result) in
+            switch result {
+            case .success(let (newAccountToken, _)):
                 self.accountTextField.autoformattingText = newAccountToken
-            })
+
+                self.endLogin(.success(.newAccount))
+            case .failure(let error):
+                error.logChain(message: "Failed to log in with new account")
+
+                self.endLogin(.failure(error))
+            }
+        }
     }
 
     // MARK: - Private
@@ -195,10 +205,10 @@ class LoginViewController: UIViewController, RootContainment {
             fallthrough
 
         case .success:
-            rootContainerController?.headerBarSettingsButton.isEnabled = false
+            rootContainerController?.setEnableSettingsButton(false)
 
         case .default, .failure:
-            rootContainerController?.headerBarSettingsButton.isEnabled = true
+            rootContainerController?.setEnableSettingsButton(true)
             createAccountButton.isEnabled = true
             activityIndicator.stopAnimating()
         }
@@ -246,7 +256,7 @@ class LoginViewController: UIViewController, RootContainment {
         } else if case .success = loginState {
             // Navigate to the main view after 1s delay
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-                self.rootContainerController?.headerBarSettingsButton.isEnabled = true
+                self.rootContainerController?.setEnableSettingsButton(true)
 
                 self.performSegue(withIdentifier: SegueIdentifier.Login.showConnect.rawValue,
                                   sender: self)
@@ -307,7 +317,12 @@ private extension LoginState {
             }
 
         case .failure(let error):
-            return error.failureReason ?? ""
+            switch error {
+            case .createAccount(let rpcError), .verifyAccount(let rpcError):
+                return rpcError.errorChainDescription ?? ""
+            case .tunnelConfiguration:
+                return NSLocalizedString("Internal error", comment: "")
+            }
 
         case .success(let method):
             switch method {

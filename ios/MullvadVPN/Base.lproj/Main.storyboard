@@ -869,13 +869,13 @@
             </objects>
             <point key="canvasLocation" x="2576.8000000000002" y="-1258.0209895052474"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Settings Navigation Controller-->
         <scene sceneID="er3-W2-NkS">
             <objects>
-                <navigationController storyboardIdentifier="Settings" id="Kqv-qu-mfF" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="Settings" id="Kqv-qu-mfF" customClass="SettingsNavigationController" customModule="MullvadVPN" customModuleProvider="target" sceneMemberID="viewController">
                     <navigationItem key="navigationItem" id="7IR-NQ-qLb"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" barStyle="black" largeTitles="YES" id="7PK-0x-byW" customClass="CustomNavigationBar" customModule="MullvadVPN" customModuleProvider="target">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="108"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </navigationBar>

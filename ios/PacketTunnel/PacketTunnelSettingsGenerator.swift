@@ -13,7 +13,7 @@ import os
 
 struct PacketTunnelSettingsGenerator {
     let mullvadEndpoint: MullvadEndpoint
-    let tunnelConfiguration: TunnelConfiguration
+    let tunnelConfiguration: TunnelSettings
 
     func networkSettings() -> NEPacketTunnelNetworkSettings {
         let tunnelRemoteAddress = "\(mullvadEndpoint.ipv4Relay.ip)"

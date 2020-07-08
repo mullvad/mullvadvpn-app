@@ -6,21 +6,22 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import UIKit
 import NetworkExtension
 import os
 
-class ConnectViewController: UIViewController, RootContainment, TunnelControlViewControllerDelegate {
+class ConnectViewController: UIViewController,
+    RootContainment,
+    TunnelControlViewControllerDelegate,
+    TunnelObserver
+{
 
     @IBOutlet var secureLabel: UILabel!
     @IBOutlet var countryLabel: UILabel!
     @IBOutlet var cityLabel: UILabel!
     @IBOutlet var connectionPanel: ConnectionPanelView!
 
-    private var setRelaysSubscriber: AnyCancellable?
-    private var startStopTunnelSubscriber: AnyCancellable?
-    private var tunnelStateSubscriber: AnyCancellable?
+    private let alertPresenter = AlertPresenter()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -55,9 +56,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
 
         connectionPanel.collapseButton.addTarget(self, action: #selector(handleConnectionPanelButton(_:)), for: .touchUpInside)
 
-        tunnelStateSubscriber = TunnelManager.shared.$tunnelState
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.tunnelState, on: self)
+        TunnelManager.shared.addObserver(self)
+        self.tunnelState = TunnelManager.shared.tunnelState
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -72,6 +72,18 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
             tunnelControlController.view.translatesAutoresizingMaskIntoConstraints = false
             tunnelControlController.delegate = self
         }
+    }
+
+    // MARK: - TunnelObserver
+
+    func tunnelStateDidChange(tunnelState: TunnelState) {
+        DispatchQueue.main.async {
+            self.tunnelState = tunnelState
+        }
+    }
+
+    func tunnelPublicKeyDidChange(publicKey: WireguardPublicKey?) {
+        // no-op
     }
 
     // MARK: - TunnelControlViewControllerDelegate
@@ -129,29 +141,47 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
     }
 
     private func connectTunnel() {
-        startStopTunnelSubscriber = TunnelManager.shared.startTunnel()
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { (completion) in
-                if case .failure(let error) = completion {
-                    os_log(.error, "Failed to start the tunnel: %{public}s",
-                           error.localizedDescription)
+        TunnelManager.shared.startTunnel { (result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    break
 
-                    self.presentError(error, preferredStyle: .alert)
+                case .failure(let error):
+                    error.logChain(message: "Failed to start the VPN tunnel")
+
+                    let alertController = UIAlertController(
+                        title: NSLocalizedString("Failed to start the VPN tunnel", comment: ""),
+                        message: error.errorChainDescription,
+                        preferredStyle: .alert
+                    )
+                    alertController.addAction(
+                        UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
+                    )
+
+                    self.alertPresenter.enqueue(alertController, presentingController: self)
                 }
-            })
+            }
+        }
     }
 
     private func disconnectTunnel() {
-        startStopTunnelSubscriber = TunnelManager.shared.stopTunnel()
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { (completion) in
-                if case .failure(let error) = completion {
-                    os_log(.error, "Failed to stop the tunnel: %{public}s",
-                           error.localizedDescription)
+        TunnelManager.shared.stopTunnel { (result) in
+            if case .failure(let error) = result {
+                error.logChain(message: "Failed to stop the VPN tunnel")
 
-                    self.presentError(error, preferredStyle: .alert)
-                }
-            })
+                let alertController = UIAlertController(
+                    title: NSLocalizedString("Failed to stop the VPN tunnel", comment: ""),
+                    message: error.errorChainDescription,
+                    preferredStyle: .alert
+                )
+                alertController.addAction(
+                    UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
+                )
+
+                self.alertPresenter.enqueue(alertController, presentingController: self)
+            }
+        }
     }
 
     private func showAccountViewForExpiredAccount() {
@@ -176,18 +206,18 @@ class ConnectViewController: UIViewController, RootContainment, TunnelControlVie
 
         let relayConstraints = RelayConstraints(location: .only(selectedLocation))
 
-        setRelaysSubscriber = TunnelManager.shared.setRelayConstraints(relayConstraints)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { (completion) in
-                switch completion {
-                case .finished:
-                    os_log(.debug, "Updated relay constraints: %{public}s", String(reflecting: relayConstraints))
-                    self.connectTunnel()
+        TunnelManager.shared.setRelayConstraints(relayConstraints) { [weak self] (result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    os_log(.debug, "Updated relay constraints: %{public}s", "\(relayConstraints)")
+                    self?.connectTunnel()
 
                 case .failure(let error):
                     os_log(.error, "Failed to update relay constraints: %{public}s", error.localizedDescription)
                 }
-            })
+            }
+        }
     }
 
 }

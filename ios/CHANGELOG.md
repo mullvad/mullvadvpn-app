@@ -23,7 +23,19 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Ship the initial relay list with the app, and do once an hour periodic refresh in background.
+- Refresh account expiry when visiting settings.
 
+### Fixed
+- Fix the issue when starting the tunnel could take longer than expected due to the app refreshing 
+  the relay list.
+- Fix the issue when regenerating the WireGuard key and dismissing the settings at the same 
+  time could lead to the revoked key still being used by the tunnel, leaving the tunnel unusable.
+
+### Changed
+- Remove the public WireGuard inside the VPN tunnel during the log out, if VPN is active at that 
+  time.
 
 ## [2020.3] - 2020-06-12
 ### Added

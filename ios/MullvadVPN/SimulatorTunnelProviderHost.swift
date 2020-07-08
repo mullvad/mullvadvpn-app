@@ -8,14 +8,12 @@
 
 #if targetEnvironment(simulator)
 
-import Combine
 import Foundation
 import Network
 import NetworkExtension
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
-    private let cancellableSet = CancellableSet()
     private var connectionInfo: TunnelConnectionInfo?
 
     func startTunnel(options: [String: Any]?, completionHandler: @escaping (Error?) -> Void) {
@@ -47,27 +45,33 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     }
 
     func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
-        PacketTunnelIpcHandler.decodeRequest(messageData: messageData)
-            .receive(on: DispatchQueue.main)
-            .flatMap { (request) -> AnyPublisher<AnyEncodable, PacketTunnelIpcHandlerError> in
+        DispatchQueue.main.async {
+            let completeRequest = { (response: AnyEncodable) in
+                switch PacketTunnelIpcHandler.encodeResponse(response: response) {
+                case .success(let data):
+                    completionHandler?(data)
+
+                case .failure:
+                    completionHandler?(nil)
+                }
+
+            }
+
+            let result = PacketTunnelIpcHandler.decodeRequest(messageData: messageData)
+            switch result {
+            case .success(let request):
                 switch request {
-                case .reloadConfiguration:
-                    return Result.Publisher(AnyEncodable(true))
-                        .eraseToAnyPublisher()
+                case .reloadTunnelSettings:
+                    return completeRequest(AnyEncodable(true))
 
                 case .tunnelInformation:
-                    return Result.Publisher(AnyEncodable(self.connectionInfo))
-                        .eraseToAnyPublisher()
+                    return completeRequest(AnyEncodable(self.connectionInfo))
                 }
-        }.flatMap({ (response) in
-            return PacketTunnelIpcHandler.encodeResponse(response: response)
-        }).autoDisposableSink(cancellableSet: cancellableSet, receiveCompletion: { (completion) in
-            if case .failure = completion {
+
+            case .failure:
                 completionHandler?(nil)
             }
-        }, receiveValue: { (responseData) in
-            completionHandler?(responseData)
-        })
+        }
     }
 
 }
