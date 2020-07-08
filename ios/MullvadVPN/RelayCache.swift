@@ -323,10 +323,10 @@ class RelayCache {
                 return Result { try MullvadRpc.makeJSONDecoder().decode(RelayList.self, from: data) }
                     .mapError { RelayCacheError.decodePrebundledRelays($0) }
                     .map { (relayList) -> CachedRelayList in
-                        let now = Date()
-                        let updatedAt = Calendar.current.date(byAdding: .second, value: -kUpdateIntervalSeconds, to: now) ?? now
-
-                        return CachedRelayList(relayList: Self.filterRelayList(relayList), updatedAt: updatedAt)
+                        return CachedRelayList(
+                            relayList: Self.filterRelayList(relayList),
+                            updatedAt: Date(timeIntervalSince1970: 0)
+                        )
                 }
         }
     }
