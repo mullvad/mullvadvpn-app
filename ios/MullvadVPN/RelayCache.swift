@@ -222,9 +222,13 @@ class RelayCache {
     }
 
     private func scheduleRepeatingTimer(startTime: DispatchWallTime) {
-        let timerSource = DispatchSource.makeTimerSource()
+        let timerSource = DispatchSource.makeTimerSource(queue: dispatchQueue)
         timerSource.setEventHandler { [weak self] in
-            self?.updateRelays()
+            guard let self = self else { return }
+
+            if self.isPeriodicUpdatesEnabled {
+                self.updateRelays()
+            }
         }
 
         timerSource.schedule(wallDeadline: startTime, repeating: .seconds(kUpdateIntervalSeconds))
