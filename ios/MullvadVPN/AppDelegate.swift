@@ -6,7 +6,6 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import UIKit
 import StoreKit
 
@@ -21,9 +20,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let simulatorTunnelProvider = SimulatorTunnelProviderHost()
     #endif
 
-    private var loadTunnelSubscriber: AnyCancellable?
-    private var refreshTunnelSubscriber: AnyCancellable?
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         #if targetEnvironment(simulator)
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
@@ -31,11 +27,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let accountToken = Account.shared.token
 
-        loadTunnelSubscriber = TunnelManager.shared.loadTunnel(accountToken: accountToken)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { (completion) in
-                if case .failure(let error) = completion {
-                    fatalError("Failed to restore the account: \(error.localizedDescription)")
+        RelayCache.shared.updateRelays()
+
+        TunnelManager.shared.loadTunnel(accountToken: accountToken) { (result) in
+            DispatchQueue.main.async {
+                if case .failure(let error) = result {
+                    fatalError(error.displayChain(message: "Failed to load the tunnel for account"))
                 }
 
                 let rootViewController = RootContainerViewController()
@@ -57,16 +54,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
 
                 self.window?.rootViewController = rootViewController
-            })
+            }
+        }
 
         return true
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        refreshTunnelSubscriber = TunnelManager.shared.refreshTunnelState()
-            .sink(receiveCompletion: { (_) in
-                // no-op
-            })
+        TunnelManager.shared.refreshTunnelState(completionHandler: nil)
     }
 
     private func didPresentTheMainController() {

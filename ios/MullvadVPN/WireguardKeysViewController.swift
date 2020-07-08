@@ -6,13 +6,12 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import Foundation
 import UIKit
 import os
 
 /// A UI refresh interval for the public key creation date (in seconds)
-private let kCreationDateRefreshInterval = TimeInterval(60)
+private let kCreationDateRefreshInterval = Int(60)
 
 /// A maximum number of characters to display out of the entire public key representation
 private let kDisplayPublicKeyMaxLength = 20
@@ -24,34 +23,7 @@ private enum WireguardKeysViewState {
     case regeneratingKey
 }
 
-private struct VerifyWireguardPublicKeyError: Error {
-    var underlyingError: MullvadRpc.Error
-
-    init(_ error: MullvadRpc.Error) {
-        self.underlyingError = error
-    }
-}
-
-extension VerifyWireguardPublicKeyError: LocalizedError {
-    var errorDescription: String? {
-        return NSLocalizedString("Cannot verify the public key", comment: "")
-    }
-
-    var failureReason: String? {
-        switch underlyingError {
-        case .network(let urlError):
-            return urlError.localizedDescription
-
-        case .server(let serverError):
-            return serverError.errorDescription
-
-        case .decoding, .encoding:
-            return NSLocalizedString("Internal error", comment: "")
-        }
-    }
-}
-
-class WireguardKeysViewController: UIViewController {
+class WireguardKeysViewController: UIViewController, TunnelObserver {
 
     @IBOutlet var publicKeyButton: UIButton!
     @IBOutlet var creationDateLabel: UILabel!
@@ -59,14 +31,10 @@ class WireguardKeysViewController: UIViewController {
     @IBOutlet var verifyKeyButton: UIButton!
     @IBOutlet var wireguardKeyStatusView: WireguardKeyStatusView!
 
-    private var publicKeySubscriber: AnyCancellable?
-    private var loadKeySubscriber: AnyCancellable?
-    private var verifyKeySubscriber: AnyCancellable?
-    private var regenerateKeySubscriber: AnyCancellable?
-    private var creationDateTimerSubscriber: AnyCancellable?
-    private var copyToPasteboardSubscriber: AnyCancellable?
+    private var publicKeyPeriodicUpdateTimer: DispatchSourceTimer?
+    private var copyToPasteboardWork: DispatchWorkItem?
 
-    private let rpc = MullvadRpc.withEphemeralURLSession()
+    private let alertPresenter = AlertPresenter()
 
     private var state: WireguardKeysViewState = .default {
         didSet {
@@ -77,23 +45,36 @@ class WireguardKeysViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        creationDateTimerSubscriber = Timer.publish(every: kCreationDateRefreshInterval, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                let publicKey = TunnelManager.shared.publicKey
-
-                self?.updatePublicKey(publicKey: publicKey, animated: true)
-        }
-
-        publicKeySubscriber = TunnelManager.shared.$publicKey
-            .dropFirst()
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: {  [weak self] (publicKey) in
-                self?.updatePublicKey(publicKey: publicKey, animated: true)
-            })
-
-        // Set public key title without animation
+        TunnelManager.shared.addObserver(self)
         updatePublicKey(publicKey: TunnelManager.shared.publicKey, animated: false)
+
+        startPublicKeyPeriodicUpdate()
+    }
+
+    private func startPublicKeyPeriodicUpdate() {
+        let interval = DispatchTimeInterval.seconds(kCreationDateRefreshInterval)
+        let timerSource = DispatchSource.makeTimerSource(queue: .main)
+        timerSource.setEventHandler { [weak self] () -> Void in
+            let publicKey = TunnelManager.shared.publicKey
+
+            self?.updatePublicKey(publicKey: publicKey, animated: true)
+        }
+        timerSource.schedule(deadline: .now() + interval, repeating: interval)
+        timerSource.activate()
+
+        self.publicKeyPeriodicUpdateTimer = timerSource
+    }
+
+    // MARK: - TunnelObserver
+
+    func tunnelStateDidChange(tunnelState: TunnelState) {
+        // no-op
+    }
+
+    func tunnelPublicKeyDidChange(publicKey: WireguardPublicKey?) {
+        DispatchQueue.main.async {
+            self.updatePublicKey(publicKey: publicKey, animated: true)
+        }
     }
 
     // MARK: - IBActions
@@ -107,15 +88,16 @@ class WireguardKeysViewController: UIViewController {
             string: NSLocalizedString("COPIED TO PASTEBOARD!", comment: ""),
             animated: true)
 
-        copyToPasteboardSubscriber =
-            Just(()).cancellableDelay(for: .seconds(3), scheduler: DispatchQueue.main)
-                .sink(receiveValue: { [weak self] () in
-                    guard let self = self else { return }
+        let dispatchWork = DispatchWorkItem { [weak self] in
+            let publicKey = TunnelManager.shared.publicKey
 
-                    let publicKey = TunnelManager.shared.publicKey
+            self?.updatePublicKey(publicKey: publicKey, animated: true)
+        }
 
-                    self.updatePublicKey(publicKey: publicKey, animated: true)
-                })
+        DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(3), execute: dispatchWork)
+
+        self.copyToPasteboardWork?.cancel()
+        self.copyToPasteboardWork = dispatchWork
     }
 
     @IBAction func handleRegenerateKey(_ sender: Any) {
@@ -123,10 +105,7 @@ class WireguardKeysViewController: UIViewController {
     }
 
     @IBAction func handleVerifyKey(_ sender: Any) {
-        guard let accountToken = Account.shared.token,
-            let publicKey = TunnelManager.shared.publicKey else { return }
-
-        verifyKey(accountToken: accountToken, publicKey: publicKey)
+        verifyKey()
     }
 
     // MARK: - Private
@@ -183,50 +162,58 @@ class WireguardKeysViewController: UIViewController {
         verifyKeyButton.isEnabled = enabled
     }
 
-    private func verifyKey(accountToken: String, publicKey: WireguardPublicKey) {
-        verifyKeySubscriber = rpc.checkWireguardKey(
-            accountToken: accountToken,
-            publicKey: publicKey.rawRepresentation
-        )
-            .retry(1)
-            .receive(on: DispatchQueue.main)
-            .mapError { VerifyWireguardPublicKeyError($0) }
-            .handleEvents(receiveSubscription: { _ in
-                self.updateViewState(.verifyingKey)
-            })
-            .sink(receiveCompletion: { (completion) in
-                switch completion {
-                case .finished:
-                    break
+    private func verifyKey() {
+        self.updateViewState(.verifyingKey)
+
+        TunnelManager.shared.verifyPublicKey { (result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let isValid):
+                    self.updateViewState(.verifiedKey(isValid))
 
                 case .failure(let error):
-                    self.presentError(error, preferredStyle: .alert)
+                    let alertController = UIAlertController(
+                        title: NSLocalizedString("Cannot verify the key", comment: ""),
+                        message: error.errorChainDescription,
+                        preferredStyle: .alert
+                    )
+                    alertController.addAction(
+                        UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
+                    )
+
+                    self.alertPresenter.enqueue(alertController, presentingController: self)
                     self.updateViewState(.default)
                 }
-            }) { (isValid) in
-                self.updateViewState(.verifiedKey(isValid))
+            }
         }
     }
 
     private func regeneratePrivateKey() {
-        regenerateKeySubscriber = TunnelManager.shared.regeneratePrivateKey()
-            .receive(on: DispatchQueue.main)
-            .handleEvents(receiveSubscription: { (_) in
-                self.updateViewState(.regeneratingKey)
-            }, receiveCompletion: { (completion) in
-                self.updateViewState(.default)
-            })
-            .sink { (completion) in
-                switch completion {
-                case .finished:
+        self.updateViewState(.regeneratingKey)
+
+        TunnelManager.shared.regeneratePrivateKey { (result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
                     break
 
                 case .failure(let error):
-                    os_log(.error, "Failed to re-generate the private key: %{public}s",
-                           error.errorDescription ?? "")
+                    let alertController = UIAlertController(
+                        title: NSLocalizedString("Cannot regenerate the key", comment: ""),
+                        message: error.errorChainDescription,
+                        preferredStyle: .alert
+                    )
+                    alertController.addAction(
+                        UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
+                    )
 
-                    self.presentError(error, preferredStyle: .alert)
+                    error.logChain(message: "Failed to regenerate the private key")
+
+                    self.alertPresenter.enqueue(alertController, presentingController: self)
                 }
+
+                self.updateViewState(.default)
+            }
         }
     }
 

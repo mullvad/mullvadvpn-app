@@ -6,7 +6,6 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import CryptoKit
 import Foundation
 
 /// A convenience wrapper around the wireguard key
@@ -16,30 +15,27 @@ struct WireguardPrivateKey {
     let creationDate: Date
 
     /// Private key's raw representation
-    var rawRepresentation: Data {
-        innerPrivateKey.rawRepresentation
-    }
+    private(set) var rawRepresentation: Data
 
     /// Public key
     var publicKey: WireguardPublicKey {
         WireguardPublicKey(
             creationDate: creationDate,
-            rawRepresentation: innerPrivateKey.publicKey.rawRepresentation
+            rawRepresentation: Curve25519.generatePublicKey(fromPrivateKey: rawRepresentation)
         )
     }
 
-    /// An inner impelementation of a private key
-    private let innerPrivateKey: Curve25519.KeyAgreement.PrivateKey
-
     /// Initialize the new private key
     init() {
-        innerPrivateKey = Curve25519.KeyAgreement.PrivateKey()
+        rawRepresentation = Curve25519.generatePrivateKey()
         creationDate = Date()
     }
 
     /// Load with the existing private key
-    init(rawRepresentation: Data, createdAt: Date) throws {
-        innerPrivateKey = try Curve25519.KeyAgreement.PrivateKey(rawRepresentation: rawRepresentation)
+    init?(rawRepresentation: Data, createdAt: Date) {
+        guard rawRepresentation.count == Curve25519.keyLength else { return nil }
+
+        self.rawRepresentation = rawRepresentation
         creationDate = createdAt
     }
 
@@ -81,7 +77,7 @@ extension WireguardPrivateKey: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
-        try container.encode(innerPrivateKey.rawRepresentation, forKey: .privateKeyData)
+        try container.encode(rawRepresentation, forKey: .privateKeyData)
         try container.encode(creationDate, forKey: .creationDate)
     }
 
@@ -89,7 +85,15 @@ extension WireguardPrivateKey: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let privateKeyBytes = try container.decode(Data.self, forKey: .privateKeyData)
         let creationDate = try container.decode(Date.self, forKey: .creationDate)
-
-        self = try .init(rawRepresentation: privateKeyBytes, createdAt: creationDate)
+        
+        if let instance = WireguardPrivateKey(rawRepresentation: privateKeyBytes, createdAt: creationDate) {
+            self = instance
+        } else {
+            throw DecodingError.dataCorruptedError(
+                forKey: CodingKeys.privateKeyData,
+                in: container,
+                debugDescription: "Invalid key data"
+            )
+        }
     }
 }

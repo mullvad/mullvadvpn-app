@@ -6,88 +6,10 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import Foundation
 import NetworkExtension
 import StoreKit
 import os
-
-/// A enum describing the errors emitted by `Account`
-enum AccountError: Error {
-    /// A failure to perform the login
-    case login(AccountLoginError)
-
-    /// A failure to login with the new account
-    case createNew(CreateAccountError)
-
-    /// A failure to log out
-    case logout(TunnelManagerError)
-}
-
-/// A enum describing the error emitted during login
-enum AccountLoginError: Error {
-    case rpc(MullvadRpc.Error)
-    case tunnelConfiguration(TunnelManagerError)
-}
-
-enum CreateAccountError: Error {
-    case rpc(MullvadRpc.Error)
-    case tunnelConfiguration(TunnelManagerError)
-}
-
-extension AccountError: LocalizedError {
-    var errorDescription: String? {
-        switch self {
-        case .login:
-            return NSLocalizedString("Log in error", comment: "")
-
-        case .logout:
-            return NSLocalizedString("Log out error", comment: "")
-
-        case .createNew:
-            return NSLocalizedString("Create account error", comment: "")
-        }
-    }
-
-    var failureReason: String? {
-        switch self {
-        case .createNew(.rpc):
-            return NSLocalizedString("Failed to create new account", comment: "")
-
-        case .login(.rpc(.server(let serverError))) where serverError.code == .accountDoesNotExist:
-            return NSLocalizedString("Invalid account", comment: "")
-
-        case .login(.rpc(.network)):
-            return NSLocalizedString("Network error", comment: "")
-
-        case .login(.rpc(.server)):
-            return NSLocalizedString("Server error", comment: "")
-
-        case .login(.tunnelConfiguration(.setAccount(let setAccountError))),
-             .createNew(.tunnelConfiguration(.setAccount(let setAccountError))):
-            switch setAccountError {
-            case .pushWireguardKey(.network):
-                return NSLocalizedString("Network error", comment: "")
-
-            case .pushWireguardKey(.server(let serverError)):
-                return serverError.errorDescription ?? serverError.message
-
-            case .setup(.saveTunnel(let systemError as NEVPNError))
-                where systemError.code == .configurationReadWriteFailed:
-                return NSLocalizedString("Permission denied to add a VPN profile", comment: "")
-
-            default:
-                return NSLocalizedString("Internal error", comment: "")
-            }
-
-        case .logout:
-            return NSLocalizedString("Internal error", comment: "")
-
-        default:
-            return nil
-        }
-    }
-}
 
 /// A enum holding the `UserDefaults` string keys
 private enum UserDefaultsKeys: String {
@@ -99,14 +21,25 @@ private enum UserDefaultsKeys: String {
 /// A class that groups the account related operations
 class Account {
 
+    enum Error: ChainedError {
+        /// A failure to create the new account token
+        case createAccount(MullvadRpc.Error)
+
+        /// A failure to verify the account token
+        case verifyAccount(MullvadRpc.Error)
+
+        /// A failure to configure a tunnel
+        case tunnelConfiguration(TunnelManager.Error)
+    }
+
     /// A notification name used to broadcast the changes to account expiry
     static let didUpdateAccountExpiryNotification = Notification.Name("didUpdateAccountExpiry")
 
     /// A notification userInfo key that holds the `Date` with the new account expiry
     static let newAccountExpiryUserInfoKey = "newAccountExpiry"
 
+    /// A shared instance of `Account`
     static let shared = Account()
-    private let rpc = MullvadRpc.withEphemeralURLSession()
 
     /// Returns true if user agreed to terms of service, otherwise false
     var isAgreedToTermsOfService: Bool {
@@ -114,8 +47,13 @@ class Account {
     }
 
     /// Returns the currently used account token
-    var token: String? {
-        return UserDefaults.standard.string(forKey: UserDefaultsKeys.accountToken.rawValue)
+    private(set) var token: String? {
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.accountToken.rawValue)
+        }
+        get {
+            return UserDefaults.standard.string(forKey: UserDefaultsKeys.accountToken.rawValue)
+        }
     }
 
     var formattedToken: String? {
@@ -123,9 +61,23 @@ class Account {
     }
 
     /// Returns the account expiry for the currently used account token
-    var expiry: Date? {
-        return UserDefaults.standard.object(forKey: UserDefaultsKeys.accountExpiry.rawValue) as? Date
+    private(set) var expiry: Date? {
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.accountExpiry.rawValue)
+        }
+        get {
+            return UserDefaults.standard.object(forKey: UserDefaultsKeys.accountExpiry.rawValue) as? Date
+        }
     }
+
+    private enum ExclusivityCategory {
+        case exclusive
+    }
+
+    private let rpc = MullvadRpc.withEphemeralURLSession()
+    private var updateExpiryTask: URLSessionTask?
+    private let operationQueue = OperationQueue()
+    private lazy var exclusivityController = ExclusivityController<ExclusivityCategory>(operationQueue: operationQueue)
 
     var isLoggedIn: Bool {
         return token != nil
@@ -136,60 +88,133 @@ class Account {
         UserDefaults.standard.set(true, forKey: UserDefaultsKeys.isAgreedToTermsOfService.rawValue)
     }
 
-    func loginWithNewAccount() -> AnyPublisher<String, AccountError> {
-        return rpc.createAccount()
-            .mapError { CreateAccountError.rpc($0) }
-            .flatMap { (newAccountToken) in
-                TunnelManager.shared.setAccount(accountToken: newAccountToken)
-                    .mapError { CreateAccountError.tunnelConfiguration($0) }
-                    .map { (newAccountToken, Date()) }
-        }.mapError { AccountError.createNew($0) }
-            .receive(on: DispatchQueue.main)
-            .map { (accountToken, expiry) -> String in
-                self.saveAccountToPreferences(accountToken: accountToken, expiry: expiry)
+    func loginWithNewAccount(completionHandler: @escaping (Result<(String, Date), Error>) -> Void) {
+        let operation = rpc.createAccount().operation()
 
-                return accountToken
-        }.eraseToAnyPublisher()
+        operation.addDidFinishBlockObserver({ (operation, result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let newAccountToken):
+                    let expiry = Date()
+                    self.setupTunnel(accountToken: newAccountToken, expiry: expiry) { (result) in
+                        completionHandler(result.map { (newAccountToken, expiry) })
+                    }
+
+                case .failure(let error):
+                    completionHandler(.failure(.createAccount(error)))
+                }
+            }
+        })
+
+        exclusivityController.addOperation(operation, categories: [.exclusive])
     }
 
     /// Perform the login and save the account token along with expiry (if available) to the
     /// application preferences.
-    func login(with accountToken: String) -> AnyPublisher<(), AccountError> {
-        return rpc.getAccountExpiry(accountToken: accountToken)
-            .mapError { AccountLoginError.rpc($0) }
-            .flatMap { (expiry) in
-                TunnelManager.shared.setAccount(accountToken: accountToken)
-                    .mapError { AccountLoginError.tunnelConfiguration($0) }
-                    .map { expiry }
-        }.mapError { AccountError.login($0) }
-            .receive(on: DispatchQueue.main)
-            .map { (expiry) in
-                self.saveAccountToPreferences(accountToken: accountToken, expiry: expiry)
-        }.eraseToAnyPublisher()
+    func login(with accountToken: String, completionHandler: @escaping (Result<Date, Error>) -> Void) {
+        let operation = rpc.getAccountExpiry(accountToken: accountToken)
+            .operation()
+
+        operation.addDidFinishBlockObserver { (operation, result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let expiry):
+                    self.setupTunnel(accountToken: accountToken, expiry: expiry) { (result) in
+                        completionHandler(result.map { expiry })
+                    }
+
+                case .failure(let error):
+                    completionHandler(.failure(.verifyAccount(error)))
+                }
+            }
+        }
+
+        exclusivityController.addOperation(operation, categories: [.exclusive])
     }
 
     /// Perform the logout by erasing the account token and expiry from the application preferences.
-    func logout() -> AnyPublisher<(), AccountError> {
-        return TunnelManager.shared.unsetAccount()
-            .receive(on: DispatchQueue.main)
-            .mapError { AccountError.logout($0) }
-            .map(self.removeAccountFromPreferences)
-            .eraseToAnyPublisher()
+    func logout(completionHandler: @escaping (Result<(), Error>) -> Void) {
+        let operation = ResultOperation<(), Error> { (finish) in
+            TunnelManager.shared.unsetAccount { (result) in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success:
+                        self.removeFromPreferences()
+
+                        finish(.success(()))
+
+                    case .failure(let error):
+                        finish(.failure(.tunnelConfiguration(error)))
+                    }
+                }
+            }
+        }
+
+        operation.addDidFinishBlockObserver { (operation, result) in
+            DispatchQueue.main.async {
+                completionHandler(result)
+            }
+        }
+
+        exclusivityController.addOperation(operation, categories: [.exclusive])
     }
 
-    private func saveAccountToPreferences(accountToken: String, expiry: Date) {
-        let preferences = UserDefaults.standard
+    func updateAccountExpiry() {
+        let makeRequest = ResultOperation { () -> MullvadRpc.Request<Date>? in
+            return self.token.flatMap { (accountToken) -> MullvadRpc.Request<Date>? in
+                self.rpc.getAccountExpiry(accountToken: accountToken)
+            }
+        }
 
-        preferences.set(accountToken, forKey: UserDefaultsKeys.accountToken.rawValue)
-        preferences.set(expiry, forKey: UserDefaultsKeys.accountExpiry.rawValue)
+        let sendRequest = rpc.getAccountExpiry()
+            .injectResult(from: makeRequest)
+
+        sendRequest.addDidFinishBlockObserver { (operation, result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let expiry):
+                    self.expiry = expiry
+                    self.postExpiryUpdateNotification(newExpiry: expiry)
+
+                case .failure(let error):
+                    error.logChain(message: "Failed to update account expiry")
+                }
+            }
+        }
+
+        exclusivityController.addOperations([makeRequest, sendRequest], categories: [.exclusive])
     }
 
-    private func removeAccountFromPreferences() {
+    private func setupTunnel(accountToken: String, expiry: Date, completionHandler: @escaping (Result<(), Error>) -> Void) {
+        TunnelManager.shared.setAccount(accountToken: accountToken) { (managerResult) in
+            DispatchQueue.main.async {
+                switch managerResult {
+                case .success:
+                    self.token = accountToken
+                    self.expiry = expiry
+
+                    completionHandler(.success(()))
+
+                case .failure(let error):
+                    completionHandler(.failure(.tunnelConfiguration(error)))
+                }
+            }
+        }
+    }
+
+    private func removeFromPreferences() {
         let preferences = UserDefaults.standard
 
         preferences.removeObject(forKey: UserDefaultsKeys.accountToken.rawValue)
         preferences.removeObject(forKey: UserDefaultsKeys.accountExpiry.rawValue)
 
+    }
+
+    fileprivate func postExpiryUpdateNotification(newExpiry: Date) {
+        NotificationCenter.default.post(
+            name: Self.didUpdateAccountExpiryNotification,
+            object: self, userInfo: [Self.newAccountExpiryUserInfoKey: newExpiry]
+        )
     }
 }
 
