@@ -50,6 +50,15 @@ struct RelayList: Codable {
 
 extension RelayList {
 
+    /// Returns the total number of relays
+    var numRelays: Int {
+        return countries.reduce(0) { (accum, country) -> Int in
+            return country.cities.reduce(accum, { (accum, city) -> Int in
+                return accum + city.relays.count
+            })
+        }
+    }
+
     /// Returns an alphabetically sorted `RelayList`
     func sorted() -> Self {
         let lexicalComparator = { (a: String, b: String) -> Bool in
