@@ -23,9 +23,10 @@ class RelayItemHolder(
     private val relayColor = context.getColor(R.color.blue20)
     private val selectedColor = context.getColor(R.color.green)
 
-    private val countryPadding = view.resources.getDimensionPixelSize(R.dimen.country_row_padding)
-    private val cityPadding = view.resources.getDimensionPixelSize(R.dimen.city_row_padding)
-    private val relayPadding = view.resources.getDimensionPixelSize(R.dimen.relay_row_padding)
+    private val resources = view.resources
+    private val countryPadding = resources.getDimensionPixelSize(R.dimen.country_row_padding)
+    private val cityPadding = resources.getDimensionPixelSize(R.dimen.city_row_padding)
+    private val relayPadding = resources.getDimensionPixelSize(R.dimen.relay_row_padding)
 
     var item: RelayItem? = null
         set(value) {
