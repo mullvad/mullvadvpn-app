@@ -144,43 +144,41 @@ These instructions are for building the app for Android **under Linux**.
 sudo apt install zip default-jdk
 ```
 
-#### Download and install the SDK and NDK:
+#### Download and install the SDK
 ```bash
 wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
 unzip sdk-tools-linux-4333796.zip
 ./tools/bin/sdkmanager "platforms;android-28" "build-tools;28.0.3" "platform-tools"
+```
 
-wget https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip
-unzip android-ndk-r20-linux-x86_64.zip
-./android-ndk-r20/build/tools/make-standalone-toolchain.sh \
-  --platform=android-21 \
-  --arch=arm64 \
-  --install-dir=$PWD/toolchains/android21-aarch64
-./android-ndk-r20/build/tools/make-standalone-toolchain.sh \
-  --platform=android-21 \
-  --arch=arm \
-  --install-dir=$PWD/toolchains/android21-armv7
-./android-ndk-r20/build/tools/make-standalone-toolchain.sh \
-  --platform=android-21 \
-  --arch=x86_64 \
-  --install-dir=$PWD/toolchains/android21-x86_64
-./android-ndk-r20/build/tools/make-standalone-toolchain.sh \
-  --platform=android-21 \
-  --arch=x86 \
-  --install-dir=$PWD/toolchains/android21-i686
+The following environment variable must be exported after the SDK is installed
+
+```bash
+export ANDROID_HOME="$PWD"
+```
+
+### Download and install the NDK
+
+The NDK should be placed in a new directory.
+
+```bash
+wget https://dl.google.com/android/repository/android-ndk-r20b-linux-x86_64.zip
+unzip android-ndk-r20b-linux-x86_64.zip
 ```
 
 Set up the required environment variables:
 ```
-export AR_aarch64_linux_android="$PWD/toolchains/android21-aarch64/bin/aarch64-linux-android-ar"
-export AR_armv7_linux_androideabi="$PWD/toolchains/android21-armv7/bin/arm-linux-androideabi-ar"
-export AR_x86_64_linux_android="$PWD/toolchains/android21-x86_64/bin/x86_64-linux-android-ar"
-export AR_i686_linux_android="$PWD/toolchains/android21-i686/bin/i686-linux-android-ar"
-export CC_aarch64_linux_android="$PWD/toolchains/android21-aarch64/bin/aarch64-linux-android21-clang"
-export CC_armv7_linux_androideabi="$PWD/toolchains/android21-armv7/bin/armv7a-linux-androideabi21-clang"
-export CC_x86_64_linux_android="$PWD/toolchains/android21-x86_64/bin/x86_64-linux-android21-clang"
-export CC_i686_linux_android="$PWD/toolchains/android21-i686/bin/i686-linux-android21-clang"
-export ANDROID_HOME="$PWD"
+cd android-ndk-r20b
+export ANDROID_NDK_HOME="$PWD"
+export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android-ar"
+export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/arm-linux-androideabi-ar"
+export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-ar"
+export AR_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android-ar"
+export CC_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android21-clang"
+export CC_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi21-clang"
+export CC_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android21-clang"
+export CC_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android21-clang"
 ```
 
 #### Configuring Rust
@@ -200,20 +198,20 @@ you want as long as the `ANDROID_HOME` variable is set accordingly.
 Add to `~/.cargo/config`:
 ```
 [target.aarch64-linux-android]
-ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
+ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
+linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
 
 [target.armv7-linux-androideabi]
-ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
-linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang"
+ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
+linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang"
 
 [target.x86_64-linux-android]
-ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
-linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
+ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
+linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
 
 [target.i686-linux-android]
-ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar"
-linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
+ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar"
+linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
 ```
 
 #### Signing the release APK
