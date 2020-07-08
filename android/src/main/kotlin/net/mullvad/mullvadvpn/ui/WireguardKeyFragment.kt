@@ -98,11 +98,9 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        val resources = context.resources
-
-        redColor = resources.getColor(R.color.red)
-        greenColor = resources.getColor(R.color.green)
-        timeAgoFormatter = TimeAgoFormatter(resources)
+        redColor = context.getColor(R.color.red)
+        greenColor = context.getColor(R.color.green)
+        timeAgoFormatter = TimeAgoFormatter(context.resources)
     }
 
     override fun onSafelyCreateView(

@@ -17,7 +17,7 @@ class NotificationChannel(
     val importance: Int
 ) {
     private val badgeColor by lazy {
-        context.resources.getColor(R.color.colorPrimary)
+        context.getColor(R.color.colorPrimary)
     }
 
     val notificationManager =

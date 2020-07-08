@@ -59,7 +59,7 @@ open class InformationView : LinearLayout {
             updateStatus()
         }
 
-    var errorColor = context.resources.getColor(R.color.red)
+    var errorColor = context.getColor(R.color.red)
         set(value) {
             field = value
             updateStatus()
@@ -71,7 +71,7 @@ open class InformationView : LinearLayout {
             updateStatus()
         }
 
-    var informationColor = context.resources.getColor(R.color.white)
+    var informationColor = context.getColor(R.color.white)
         set(value) {
             field = value
             updateStatus()

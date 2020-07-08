@@ -46,7 +46,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             parentActivity.openSettings()
         }
 
-        headerBar = HeaderBar(view, resources)
+        headerBar = HeaderBar(view, parentActivity)
 
         notificationBanner = view.findViewById<NotificationBanner>(R.id.notification_banner).apply {
             notifications.apply {
@@ -57,7 +57,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             }
         }
 
-        status = ConnectionStatus(view, resources)
+        status = ConnectionStatus(view, parentActivity)
 
         locationInfo = LocationInfo(view, context!!)
         locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded

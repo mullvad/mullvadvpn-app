@@ -38,7 +38,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             parentActivity.openSettings()
         }
 
-        headerBar = HeaderBar(view, resources)
+        headerBar = HeaderBar(view, parentActivity)
 
         disconnectButton = view.findViewById<Button>(R.id.disconnect).apply {
             setOnClickAction("disconnect", jobTracker) {

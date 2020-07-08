@@ -1,15 +1,15 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.res.Resources
+import android.content.Context
 import android.view.View
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 
-class HeaderBar(val parentView: View, val resources: Resources) {
+class HeaderBar(val parentView: View, context: Context) {
     private val headerBar: View = parentView.findViewById(R.id.header_bar)
 
-    private val securedColor = resources.getColor(R.color.green)
-    private val unsecuredColor = resources.getColor(R.color.red)
+    private val securedColor = context.getColor(R.color.green)
+    private val unsecuredColor = context.getColor(R.color.red)
 
     fun setState(state: TunnelState) {
         when (state) {
