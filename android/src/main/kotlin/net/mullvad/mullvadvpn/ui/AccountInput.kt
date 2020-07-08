@@ -31,6 +31,7 @@ class AccountInput(val parentView: View, context: Context) {
                 shouldShowAccountHistory = true
             }
         }
+
     private var usingErrorColor = false
         set(value) {
             field = value
