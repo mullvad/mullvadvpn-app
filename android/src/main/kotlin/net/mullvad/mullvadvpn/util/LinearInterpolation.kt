@@ -4,7 +4,7 @@ import kotlin.properties.Delegates.observable
 import kotlin.reflect.KProperty
 
 class LinearInterpolation {
-    private val observer = { property: KProperty<*>, oldValue: Float, newValue: Float ->
+    private val observer = { _: KProperty<*>, oldValue: Float, newValue: Float ->
         if (!updated && oldValue != newValue) {
             updated = true
         }
