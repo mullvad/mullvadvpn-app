@@ -239,7 +239,11 @@ class AutomaticKeyRotationManager {
     private func scheduleRetry(wallDeadline: DispatchWallTime) {
         let timerSource = DispatchSource.makeTimerSource(queue: dispatchQueue)
         timerSource.setEventHandler { [weak self] in
-            self?.performKeyRotation()
+            guard let self = self else { return }
+
+            if self.isAutomaticRotationEnabled {
+                self.performKeyRotation()
+            }
         }
         
         timerSource.schedule(wallDeadline: wallDeadline)
