@@ -9,7 +9,7 @@ class InAppNotificationController(private val onNotificationChanged: (InAppNotif
     private var currentIndex: Int? = null
 
     var current by observable<InAppNotification?>(null) { _, _, notification ->
-        onNotificationChanged?.invoke(notification)
+        onNotificationChanged.invoke(notification)
     }
 
     fun register(notification: InAppNotification) {
