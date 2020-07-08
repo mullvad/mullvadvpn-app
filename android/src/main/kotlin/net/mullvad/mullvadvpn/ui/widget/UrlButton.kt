@@ -41,7 +41,7 @@ class UrlButton : Button {
 
     init {
         super.setEnabled(false)
-        super.detailImage = context.resources.getDrawable(R.drawable.icon_extlink)
+        super.detailImage = context.getDrawable(R.drawable.icon_extlink)
         super.showSpinner = true
     }
 
