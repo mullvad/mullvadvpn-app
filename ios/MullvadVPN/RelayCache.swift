@@ -150,21 +150,7 @@ class RelayCache {
 
     func updateRelays() {
         dispatchQueue.async {
-            switch Self.read(cacheFileURL: self.cacheFileURL) {
-            case .success(let cachedRelays):
-                let nextUpdate = Self.nextUpdateDate(lastUpdatedAt: cachedRelays.updatedAt)
-
-                if let nextUpdate = nextUpdate, nextUpdate <= Date() {
-                    self.downloadRelays()
-                }
-
-            case .failure(let readError):
-                readError.logChain(message: "Failed to read the relay cache")
-
-                if Self.shouldDownloadRelaysOnReadFailure(readError) {
-                    self.downloadRelays()
-                }
-            }
+            self._updateRelays()
         }
     }
 
@@ -194,6 +180,24 @@ class RelayCache {
     }
 
     // MARK: - Private instance methods
+
+    private func _updateRelays() {
+        switch Self.read(cacheFileURL: self.cacheFileURL) {
+        case .success(let cachedRelays):
+            let nextUpdate = Self.nextUpdateDate(lastUpdatedAt: cachedRelays.updatedAt)
+
+            if let nextUpdate = nextUpdate, nextUpdate <= Date() {
+                self.downloadRelays()
+            }
+
+        case .failure(let readError):
+            readError.logChain(message: "Failed to read the relay cache")
+
+            if Self.shouldDownloadRelaysOnReadFailure(readError) {
+                self.downloadRelays()
+            }
+        }
+    }
 
     private func downloadRelays() {
         let newDownloadRequest = makeDownloadTask { (result) in
@@ -227,7 +231,7 @@ class RelayCache {
             guard let self = self else { return }
 
             if self.isPeriodicUpdatesEnabled {
-                self.updateRelays()
+                self._updateRelays()
             }
         }
 
