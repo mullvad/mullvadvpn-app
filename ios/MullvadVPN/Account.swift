@@ -75,7 +75,6 @@ class Account {
     }
 
     private let rpc = MullvadRpc.withEphemeralURLSession()
-    private var updateExpiryTask: URLSessionTask?
     private let operationQueue = OperationQueue()
     private lazy var exclusivityController = ExclusivityController<ExclusivityCategory>(operationQueue: operationQueue)
 

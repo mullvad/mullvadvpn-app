@@ -54,7 +54,6 @@ class LoginViewController: UIViewController, RootContainment {
         return false
     }
 
-    private let alertPresenter = AlertPresenter()
     override func viewDidLoad() {
         super.viewDidLoad()
 
