@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.res.Resources
+import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.style.MetricAffectingSpan
@@ -16,15 +16,12 @@ import net.mullvad.mullvadvpn.ui.AccountInputContainer.BorderState
 
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
-class AccountInput(
-    val parentView: View,
-    val resources: Resources
-) {
-    private val disabledBackgroundColor = resources.getColor(R.color.white20)
-    private val disabledTextColor = resources.getColor(R.color.white)
-    private val enabledBackgroundColor = resources.getColor(R.color.white)
-    private val enabledTextColor = resources.getColor(R.color.blue)
-    private val errorTextColor = resources.getColor(R.color.red)
+class AccountInput(val parentView: View, context: Context) {
+    private val disabledBackgroundColor = context.getColor(R.color.white20)
+    private val disabledTextColor = context.getColor(R.color.white)
+    private val enabledBackgroundColor = context.getColor(R.color.white)
+    private val enabledTextColor = context.getColor(R.color.blue)
+    private val errorTextColor = context.getColor(R.color.red)
 
     private var inputHasFocus = false
         set(value) {

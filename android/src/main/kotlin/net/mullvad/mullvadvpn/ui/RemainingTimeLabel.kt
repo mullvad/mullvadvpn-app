@@ -12,8 +12,8 @@ class RemainingTimeLabel(val context: Context, val view: View) {
     private val resources = context.resources
     private val formatter = TimeLeftFormatter(resources)
 
-    private val expiredColor = resources.getColor(R.color.red)
-    private val normalColor = resources.getColor(R.color.white60)
+    private val expiredColor = context.getColor(R.color.red)
+    private val normalColor = context.getColor(R.color.white60)
 
     private val label = view.findViewById<TextView>(R.id.remaining_time)
 

@@ -6,10 +6,10 @@ import android.widget.EditText
 import net.mullvad.mullvadvpn.R
 
 class CellInput(val input: EditText, val minValue: Int, val maxValue: Int) {
-    private val resources = input.context.resources
+    private val context = input.context
 
-    private val validInputColor = resources.getColor(R.color.white)
-    private val invalidInputColor = resources.getColor(R.color.red)
+    private val validInputColor = context.getColor(R.color.white)
+    private val invalidInputColor = context.getColor(R.color.red)
 
     var value
         get() = input.text.toString().trim().toIntOrNull()
