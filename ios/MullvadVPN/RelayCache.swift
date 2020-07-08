@@ -200,7 +200,7 @@ class RelayCache {
     }
 
     private func downloadRelays() {
-        let newDownloadRequest = makeDownloadTask { (result) in
+        let newDownloadRequest = startDownloadTask { (result) in
             let result = result.flatMap { (relayList) -> Result<CachedRelayList, RelayCacheError> in
                 let cachedRelayList = CachedRelayList(relayList: relayList, updatedAt: Date())
 
@@ -241,7 +241,7 @@ class RelayCache {
         self.timerSource = timerSource
     }
 
-    private func makeDownloadTask(completionHandler: @escaping (Result<RelayList, RelayCacheError>) -> Void) -> MullvadRpc.Request<RelayList>? {
+    private func startDownloadTask(completionHandler: @escaping (Result<RelayList, RelayCacheError>) -> Void) -> MullvadRpc.Request<RelayList>? {
         let request = rpc.getRelayList()
 
         request.start { (result) in
