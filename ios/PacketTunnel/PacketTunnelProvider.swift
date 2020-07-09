@@ -382,7 +382,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private func updateNetworkSettings(packetTunnelConfig: PacketTunnelConfiguration, completionHandler: @escaping (Result<(), PacketTunnelProviderError>) -> Void) {
         let settingsGenerator = PacketTunnelSettingsGenerator(
             mullvadEndpoint: packetTunnelConfig.selectorResult.endpoint,
-            tunnelConfiguration: packetTunnelConfig.tunnelSettings
+            tunnelSettings: packetTunnelConfig.tunnelSettings
         )
 
         setTunnelNetworkSettings(settingsGenerator.networkSettings()) { (error) in
