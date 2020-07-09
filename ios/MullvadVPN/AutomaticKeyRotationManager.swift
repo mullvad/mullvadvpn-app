@@ -245,7 +245,7 @@ class AutomaticKeyRotationManager {
                 self.performKeyRotation()
             }
         }
-        
+
         timerSource.schedule(wallDeadline: wallDeadline)
         timerSource.activate()
 

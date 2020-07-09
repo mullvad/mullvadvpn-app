@@ -658,7 +658,7 @@ class TunnelManager {
             let result = Self.updateTunnelSettings(accountToken: accountToken) { (tunnelSettings) in
                 tunnelSettings.relayConstraints = constraints
             }
-            
+
             guard case .success = result else {
                 finish(result.map { _ in () })
                 return

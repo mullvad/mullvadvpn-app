@@ -85,7 +85,7 @@ extension WireguardPrivateKey: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let privateKeyBytes = try container.decode(Data.self, forKey: .privateKeyData)
         let creationDate = try container.decode(Date.self, forKey: .creationDate)
-        
+
         if let instance = WireguardPrivateKey(rawRepresentation: privateKeyBytes, createdAt: creationDate) {
             self = instance
         } else {

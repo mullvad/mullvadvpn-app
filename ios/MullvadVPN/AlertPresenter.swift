@@ -81,7 +81,7 @@ private struct AlertPresenterUIKitHooks {
         let swizzledBlockIMP: BlockImpType = { (receiver, animated) in
             let superIMP = originalIMP.map { unsafeBitCast($0, to: MethodType.self) }
             superIMP?(receiver, originalSelector, animated)
-            
+
             Self.handleViewDidDisappear(receiver, animated)
         }
 
