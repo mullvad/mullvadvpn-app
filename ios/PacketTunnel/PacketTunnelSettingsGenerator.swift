@@ -13,7 +13,7 @@ import os
 
 struct PacketTunnelSettingsGenerator {
     let mullvadEndpoint: MullvadEndpoint
-    let tunnelConfiguration: TunnelSettings
+    let tunnelSettings: TunnelSettings
 
     func networkSettings() -> NEPacketTunnelNetworkSettings {
         let tunnelRemoteAddress = "\(mullvadEndpoint.ipv4Relay.ip)"
@@ -40,7 +40,7 @@ struct PacketTunnelSettingsGenerator {
     }
 
     private func ipv4Settings() -> NEIPv4Settings {
-        let interfaceAddresses = tunnelConfiguration.interface.addresses
+        let interfaceAddresses = tunnelSettings.interface.addresses
         let ipv4AddressRanges = interfaceAddresses.filter { $0.address is IPv4Address }
 
         let ipv4Settings = NEIPv4Settings(
@@ -55,7 +55,7 @@ struct PacketTunnelSettingsGenerator {
     }
 
     private func ipv6Settings() -> NEIPv6Settings {
-        let interfaceAddresses = tunnelConfiguration.interface.addresses
+        let interfaceAddresses = tunnelSettings.interface.addresses
         let ipv6AddressRanges = interfaceAddresses.filter { $0.address is IPv6Address }
 
         let addresses = ipv6AddressRanges.map { "\($0.address)" }
