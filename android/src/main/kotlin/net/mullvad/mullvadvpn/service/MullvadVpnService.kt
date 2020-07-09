@@ -235,7 +235,7 @@ class MullvadVpnService : TalpidVpnService() {
         val connectionProxy = ConnectionProxy(this, daemon).apply {
             when (pendingAction) {
                 PendingAction.Connect -> {
-                    if (loggedIn) {
+                    if (settings.accountToken != null) {
                         connect()
                     } else {
                         openUi()
