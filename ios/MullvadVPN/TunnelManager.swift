@@ -163,19 +163,19 @@ class TunnelManager {
         /// provider configuration is detected.
         case removeInconsistentVPNConfiguration(Swift.Error)
 
-        /// A failure to read tunnel configuration
+        /// A failure to read tunnel settings
         case readTunnelSettings(TunnelSettingsManager.Error)
 
-        /// A failure to add the tunnel configuration
+        /// A failure to add the tunnel settings
         case addTunnelSettings(TunnelSettingsManager.Error)
 
-        /// A failure to update the tunnel configuration
+        /// A failure to update the tunnel settings
         case updateTunnelSettings(TunnelSettingsManager.Error)
 
-        /// A failure to remove the tunnel configuration from Keychain
+        /// A failure to remove the tunnel settings from Keychain
         case removeTunnelSettings(TunnelSettingsManager.Error)
 
-        /// Unable to obtain the persistent keychain reference for the tunnel configuration
+        /// Unable to obtain the persistent keychain reference for the tunnel settings
         case obtainPersistentKeychainReference(TunnelSettingsManager.Error)
 
         /// A failure to push the public WireGuard key
