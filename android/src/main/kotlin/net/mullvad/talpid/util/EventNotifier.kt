@@ -18,11 +18,11 @@ class EventNotifier<T>(private val initialValue: T) {
 
     fun notify(event: T) {
         synchronized(this) {
+            latestEvent = event
+
             for (listener in listeners.values) {
                 listener(event)
             }
-
-            latestEvent = event
         }
     }
 
