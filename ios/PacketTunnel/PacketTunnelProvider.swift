@@ -243,11 +243,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                             return
                         }
 
-                        RelayCache.shared.startPeriodicUpdates(completionHandler: nil)
-
                         let persistentKeychainReference = packetTunnelConfig.persistentKeychainReference
                         let keyRotationManager = AutomaticKeyRotationManager(persistentKeychainReference: persistentKeychainReference)
-
                         keyRotationManager.eventHandler = { (keyRotationEvent) in
                             self.dispatchQueue.async {
                                 self.reloadTunnelSettings { (result) in
@@ -265,8 +262,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                         self.wireguardDevice = device
                         self.keyRotationManager = keyRotationManager
 
-                        keyRotationManager.startAutomaticRotation {
-                            completionHandler(.success(()))
+                        RelayCache.shared.startPeriodicUpdates {
+                            keyRotationManager.startAutomaticRotation {
+                                self.dispatchQueue.async {
+                                    completionHandler(.success(()))
+                                }
+                            }
                         }
                     }
                 }
@@ -281,20 +282,20 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 return
         }
 
-        RelayCache.shared.stopPeriodicUpdates(completionHandler: nil)
+        RelayCache.shared.stopPeriodicUpdates {
+            keyRotationManager.stopAutomaticRotation {
+                device.stop { (result) in
+                    self.dispatchQueue.async {
+                        self.wireguardDevice = nil
+                        self.keyRotationManager = nil
 
-        keyRotationManager.stopAutomaticRotation {
-            device.stop { (result) in
-                self.dispatchQueue.async {
-                    self.wireguardDevice = nil
-                    self.keyRotationManager = nil
+                        if case .failure(let error) = result {
+                            error.logChain(message: "Failed to stop the tunnel", log: tunnelProviderLog)
+                        }
 
-                    if case .failure(let error) = result {
-                        error.logChain(message: "Failed to stop the tunnel", log: tunnelProviderLog)
+                        // Ignore all errors at this point
+                        completionHandler()
                     }
-
-                    // Ignore all errors at this point
-                    completionHandler()
                 }
             }
         }
