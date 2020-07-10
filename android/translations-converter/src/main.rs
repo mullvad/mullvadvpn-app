@@ -61,7 +61,7 @@ fn main() {
         }
 
         generate_translations(
-            &known_strings,
+            known_strings.clone(),
             gettext::load_file(&locale_file),
             destination_dir.join("strings.xml"),
         );
@@ -92,16 +92,16 @@ fn android_locale_directory(locale: &str) -> String {
 /// match known Android string resource values, and obtains the string resource ID for the
 /// translation. An Android string resource XML file is created with the translated strings.
 fn generate_translations(
-    known_strings: &HashMap<String, String>,
+    mut known_strings: HashMap<String, String>,
     translations: Vec<gettext::MsgEntry>,
     output_path: impl AsRef<Path>,
 ) {
     let mut localized_resource = android::StringResources::new();
 
     for translation in translations {
-        if let Some(android_key) = known_strings.get(&translation.id) {
+        if let Some(android_key) = known_strings.remove(&translation.id) {
             localized_resource.push(android::StringResource {
-                name: android_key.clone(),
+                name: android_key,
                 value: translation.value,
             });
         }
@@ -109,4 +109,10 @@ fn generate_translations(
 
     fs::write(output_path, localized_resource.to_string())
         .expect("Failed to create Android locale file");
+
+    println!("Missing translations:");
+
+    for (missing_translation, id) in known_strings {
+        println!("  {}: {}", id, missing_translation);
+    }
 }
