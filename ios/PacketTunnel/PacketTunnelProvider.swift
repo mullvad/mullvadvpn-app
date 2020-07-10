@@ -159,15 +159,18 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
-        let operation = AsyncBlockOperation { (finish) in
-            os_log(.default, log: tunnelProviderLog, "Stop the tunnel. Reason: %{public}s", "\(reason)")
+        dispatchQueue.async {
+            let operation = AsyncBlockOperation { (finish) in
+                os_log(.default, log: tunnelProviderLog, "Stop the tunnel. Reason: %{public}s", "\(reason)")
 
-            self.doStopTunnel {
-                completionHandler()
+                self.doStopTunnel {
+                    completionHandler()
+                }
             }
-        }
 
-        exclusivityController.addOperation(operation, categories: [.exclusive])
+            self.pendingStartCompletion = nil
+            self.exclusivityController.addOperation(operation, categories: [.exclusive])
+        }
     }
 
     override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
