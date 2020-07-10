@@ -12,7 +12,19 @@ pub struct StringResources {
 /// An entry in an Android string resources file.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StringResource {
-    name: String,
+    /// The string resource ID.
+    pub name: String,
+
+    /// The string value.
     #[serde(rename = "$value")]
-    value: String,
+    pub value: String,
+}
+
+impl IntoIterator for StringResources {
+    type Item = StringResource;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.entries.into_iter()
+    }
 }
