@@ -148,6 +148,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                         self.pendingStartCompletion?(error)
                     }
 
+                    self.pendingStartCompletion = nil
                     finish()
                 }
             }
