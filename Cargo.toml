@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "android/translations-converter",
     "mullvad-daemon",
     "mullvad-cli",
     "mullvad-setup",
