@@ -28,10 +28,10 @@ class AutomaticKeyRotationManager {
         /// An RPC failure
         case rpc(MullvadRpc.Error)
 
-        /// A failure to read the tunnel configuration
+        /// A failure to read the tunnel settings
         case readTunnelSettings(TunnelSettingsManager.Error)
 
-        /// A failure to update tunnel configuration
+        /// A failure to update tunnel settings
         case updateTunnelSettings(TunnelSettingsManager.Error)
 
         var errorDescription: String? {

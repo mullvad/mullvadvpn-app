@@ -20,7 +20,7 @@ enum TunnelSettingsManager {}
 extension TunnelSettingsManager {
 
     enum Error: ChainedError {
-        /// A failure to encode the given tunnel configuration
+        /// A failure to encode the given tunnel settings
         case encode(Swift.Error)
 
         /// A failure to decode the data stored in Keychain
@@ -44,7 +44,7 @@ extension TunnelSettingsManager {
 
     typealias Result<T> = Swift.Result<T, Error>
 
-    /// Keychain access level that should be used for all items containing tunnel configuration
+    /// Keychain access level that should be used for all items containing tunnel settings
     private static let keychainAccessibleLevel = Keychain.Accessible.afterFirstUnlock
 
     enum KeychainSearchTerm {
@@ -157,7 +157,7 @@ extension TunnelSettingsManager {
         }
     }
 
-    /// Reads the tunnel configuration from Keychain, then passes it to the given closure for
+    /// Reads the tunnel settings from Keychain, then passes it to the given closure for
     /// modifications, saves the result back to Keychain.
     ///
     /// The given block may run multiple times if Keychain entry was changed between read and write

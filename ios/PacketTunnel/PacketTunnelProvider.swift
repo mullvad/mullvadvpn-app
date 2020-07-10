@@ -18,11 +18,11 @@ enum PacketTunnelProviderError: ChainedError {
     /// Failure to satisfy the relay constraint
     case noRelaySatisfyingConstraint
 
-    /// Missing the persistent keychain reference to the tunnel configuration
+    /// Missing the persistent keychain reference to the tunnel settings
     case missingKeychainConfigurationReference
 
-    /// Failure to read the tunnel configuration from Keychain
-    case cannotReadTunnelConfiguration(TunnelSettingsManager.Error)
+    /// Failure to read the tunnel settings from Keychain
+    case cannotReadTunnelSettings(TunnelSettingsManager.Error)
 
     /// Failure to set network settings
     case setNetworkSettings(Error)
@@ -47,8 +47,8 @@ enum PacketTunnelProviderError: ChainedError {
         case .missingKeychainConfigurationReference:
             return "Invalid protocol configuration"
 
-        case .cannotReadTunnelConfiguration:
-            return "Failure reading tunnel configuration"
+        case .cannotReadTunnelSettings:
+            return "Failure reading tunnel settings"
 
         case .setNetworkSettings:
             return "Failure to set system network settings"
@@ -414,9 +414,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         exclusivityController.addOperation(operation, categories: [.exclusive])
     }
 
-    /// Returns a `PacketTunnelConfig` that contains the tunnel configuration and selected relay
+    /// Returns a `PacketTunnelConfig` that contains the tunnel settings and selected relay
     private class func makePacketTunnelConfig(keychainReference: Data, completionHandler: @escaping (Result<PacketTunnelConfiguration, PacketTunnelProviderError>) -> Void) {
-        switch Self.readTunnelConfiguration(keychainReference: keychainReference) {
+        switch Self.readTunnelSettings(keychainReference: keychainReference) {
         case .success(let tunnelSettings):
             Self.selectRelayEndpoint(relayConstraints: tunnelSettings.relayConstraints) { (result) in
                 let result = result.map { (selectorResult) -> PacketTunnelConfiguration in
@@ -434,10 +434,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 
-    /// Read tunnel configuration from Keychain
-    private class func readTunnelConfiguration(keychainReference: Data) -> Result<TunnelSettings, PacketTunnelProviderError> {
+    /// Read tunnel settings from Keychain
+    private class func readTunnelSettings(keychainReference: Data) -> Result<TunnelSettings, PacketTunnelProviderError> {
         TunnelSettingsManager.load(searchTerm: .persistentReference(keychainReference))
-            .mapError { PacketTunnelProviderError.cannotReadTunnelConfiguration($0) }
+            .mapError { PacketTunnelProviderError.cannotReadTunnelSettings($0) }
             .map { $0.tunnelSettings }
     }
 
