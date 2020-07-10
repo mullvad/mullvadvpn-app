@@ -143,7 +143,7 @@ class TunnelManager {
         /// Account token is not set
         case missingAccount
 
-        /// A failure to stop the VPN tunnel via system call
+        /// A failure to start the VPN tunnel via system call
         case startVPNTunnel(Swift.Error)
 
         /// A failure to load the system VPN configurations created by the app
