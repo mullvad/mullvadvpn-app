@@ -56,6 +56,20 @@ impl IntoIterator for StringResources {
     }
 }
 
+impl StringResource {
+    /// Create a new Android string resource entry.
+    ///
+    /// The name is the resource ID, and the value will be properly escaped.
+    pub fn new(name: String, value: &str) -> Self {
+        let value = value
+            .replace(r"\", r"\\")
+            .replace("\"", "\\\"")
+            .replace(r"'", r"\'");
+
+        StringResource { name, value }
+    }
+}
+
 // Unfortunately, direct serialization to XML isn't working correctly.
 impl Display for StringResources {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {

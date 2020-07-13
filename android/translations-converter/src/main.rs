@@ -28,12 +28,15 @@ fn main() {
         serde_xml_rs::from_reader(strings_file).expect("Failed to read string resources file");
 
     let line_breaks = Regex::new(r"\s*\n\s*").unwrap();
+    let apostrophes = Regex::new(r"\\'").unwrap();
 
     let known_strings: HashMap<_, _> = string_resources
         .into_iter()
         .map(|string| {
             let android_id = string.name;
-            let string_value = line_breaks.replace_all(&string.value, " ").into_owned();
+            let without_line_breaks = line_breaks.replace_all(&string.value, " ");
+            let without_escaped_apostrophes = apostrophes.replace_all(&without_line_breaks, "'");
+            let string_value = without_escaped_apostrophes.into_owned();
 
             (string_value, android_id)
         })
@@ -100,10 +103,10 @@ fn generate_translations(
 
     for translation in translations {
         if let Some(android_key) = known_strings.remove(&translation.id) {
-            localized_resource.push(android::StringResource {
-                name: android_key,
-                value: translation.value,
-            });
+            localized_resource.push(android::StringResource::new(
+                android_key,
+                &translation.value,
+            ));
         }
     }
 
