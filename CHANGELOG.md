@@ -45,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix Connect screen sometimes becoming unusually tall. This ended up causing the screen to be
   scrolled up and made the UI elements unable to be seen until the user scrolled down.
 - Fix app restarting itself after quitting.
+- Fix notification sometimes not being dismissible.
 
 
 ## [2020.5] - 2020-06-25
