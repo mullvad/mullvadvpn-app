@@ -61,7 +61,6 @@ const styles = {
     lineHeight: 15,
     fontWeight: '600',
     color: 'rgb(255, 255, 255)',
-    letterSpacing: -0.2,
   }),
   header: Styles.createViewStyle({
     flexDirection: 'row',

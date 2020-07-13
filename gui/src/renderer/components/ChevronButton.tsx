@@ -13,8 +13,6 @@ const Icon = styled(Cell.Icon)({
   flex: 0,
   alignSelf: 'stretch',
   justifyContent: 'center',
-  paddingRight: '16px',
-  paddingLeft: '16px',
 });
 
 export default function ChevronButton(props: IProps) {

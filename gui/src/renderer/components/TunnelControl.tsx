@@ -1,10 +1,10 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { colors } from '../../config.json';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import ConnectionPanelContainer from '../containers/ConnectionPanelContainer';
 import * as AppButton from './AppButton';
+import { bigText } from './common-styles';
 import ImageView from './ImageView';
 import Marquee from './Marquee';
 import { MultiButton } from './MultiButton';
@@ -23,7 +23,7 @@ interface ITunnelControlProps {
 }
 
 const SwitchLocationButton = styled(AppButton.TransparentButton)({
-  marginBottom: 16,
+  marginBottom: '18px',
 });
 
 const Secured = styled(SecuredLabel)({
@@ -38,15 +38,15 @@ const Footer = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 0,
-  paddingBottom: '16px',
-  paddingLeft: '24px',
-  paddingRight: '24px',
+  paddingBottom: '22px',
+  paddingLeft: '22px',
+  paddingRight: '22px',
 });
 
 const Body = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  padding: '0 24px',
+  padding: '0 22px',
   marginTop: '176px',
   flex: 1,
 });
@@ -64,13 +64,12 @@ const Location = styled.div({
 });
 
 const StyledMarquee = styled(Marquee)({
-  fontFamily: 'DINPro',
-  fontSize: '34px',
-  lineHeight: '38px',
-  fontWeight: 900,
+  ...bigText,
   overflow: 'hidden',
-  letterSpacing: -0.9,
-  color: colors.white,
+});
+
+const SelectedLocationChevron = styled(AppButton.Icon)({
+  margin: '0 4px',
 });
 
 export default class TunnelControl extends React.Component<ITunnelControlProps> {
@@ -86,7 +85,7 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
     const SelectedLocation = () => (
       <SwitchLocationButton onClick={this.props.onSelectLocation}>
         <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
-        <AppButton.Icon height={12} width={7} source="icon-chevron" />
+        <SelectedLocationChevron height={12} width={7} source="icon-chevron" />
       </SwitchLocationButton>
     );
 

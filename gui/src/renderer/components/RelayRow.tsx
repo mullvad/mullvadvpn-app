@@ -16,7 +16,7 @@ interface IProps {
 
 const Button = styled(Cell.CellButton)((props: { selected: boolean }) => ({
   paddingRight: 0,
-  paddingLeft: 48,
+  paddingLeft: '50px',
   backgroundColor: !props.selected ? colors.blue20 : undefined,
 }));
 

@@ -25,8 +25,15 @@ export default {
   }),
   wgkeys__row: Styles.createViewStyle({
     paddingVertical: 0,
-    paddingHorizontal: 24,
-    marginBottom: 24,
+    paddingHorizontal: 22,
+    marginBottom: 20,
+  }),
+  wgkeys__button_row: Styles.createViewStyle({
+    paddingHorizontal: 22,
+    marginBottom: 18,
+  }),
+  wgkeys__last_button: Styles.createViewStyle({
+    marginBottom: 22,
   }),
   wgkeys__row_label: Styles.createTextStyle({
     flex: 1,
@@ -34,7 +41,6 @@ export default {
     fontSize: 13,
     fontWeight: '600',
     lineHeight: 20,
-    letterSpacing: -0.2,
     color: colors.white60,
     marginBottom: 9,
   }),

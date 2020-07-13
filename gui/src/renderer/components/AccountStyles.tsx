@@ -17,8 +17,8 @@ export const AccountContainer = styled.div({
 });
 
 export const AccountRow = styled.div({
-  padding: '0 24px',
-  marginBottom: '24px',
+  padding: '0 22px',
+  marginBottom: '20px',
 });
 
 const AccountRowText = styled.span({
@@ -30,7 +30,6 @@ export const AccountRowLabel = styled(AccountRowText)({
   fontSize: '13px',
   fontWeight: 600,
   lineHeight: '20px',
-  letterSpacing: -0.2,
   marginBottom: '9px',
   color: colors.white60,
 });
@@ -49,11 +48,11 @@ export const AccountOutOfTime = styled(AccountRowValue)({
 export const AccountFooter = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  padding: '0 24px',
+  padding: '0 22px',
 });
 
 const buttonStyle = {
-  marginBottom: 24,
+  marginBottom: '18px',
 };
 
 export const StyledRedeemVoucherButton = styled(RedeemVoucherButton)(buttonStyle);

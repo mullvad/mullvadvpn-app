@@ -19,7 +19,7 @@ interface ISelectorProps<T> {
 }
 
 const Section = styled(Cell.Section)({
-  marginBottom: 24,
+  marginBottom: 20,
 });
 
 export default class Selector<T> extends React.Component<ISelectorProps<T>> {
@@ -55,6 +55,7 @@ export default class Selector<T> extends React.Component<ISelectorProps<T>> {
 
 const StyledCellIcon = styled(Cell.Icon)((props: { visible: boolean }) => ({
   opacity: props.visible ? 1 : 0,
+  marginRight: '8px',
 }));
 
 interface ISelectorCellProps<T> {

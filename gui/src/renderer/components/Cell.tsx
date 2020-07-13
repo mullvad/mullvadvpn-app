@@ -15,12 +15,12 @@ export {
   StyledFooter as Footer,
   StyledFooterBoldText as FooterBoldText,
   StyledFooterText as FooterText,
-  StyledIcon as UntintedIcon,
   StyledInputFrame as InputFrame,
   StyledSectionTitle as SectionTitle,
   StyledSubText as SubText,
   StyledTintedIcon as Icon,
 } from './CellStyles';
+export { default as UntintedIcon } from './ImageView';
 
 const CellSectionContext = React.createContext<boolean>(false);
 const CellDisabledContext = React.createContext<boolean>(false);

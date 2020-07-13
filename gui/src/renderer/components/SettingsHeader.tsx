@@ -6,19 +6,21 @@ const styles = {
   header: {
     default: Styles.createViewStyle({
       flex: 0,
-      paddingTop: 4,
-      paddingRight: 24,
-      paddingLeft: 24,
-      paddingBottom: 24,
+      paddingTop: 2,
+      paddingRight: 20,
+      paddingLeft: 20,
+      paddingBottom: 20,
     }),
   },
+  // TODO: Use bigText in comonStyles when converted from ReactXP
   title: Styles.createTextStyle({
     fontFamily: 'DINPro',
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '900',
-    lineHeight: 36,
+    lineHeight: 34,
     color: colors.white,
   }),
+  // TODO: Use smallText in comonStyles when converted from ReactXP
   subtitle: Styles.createTextStyle({
     fontFamily: 'Open Sans',
     fontSize: 13,
@@ -26,7 +28,6 @@ const styles = {
     overflow: 'visible',
     color: colors.white80,
     lineHeight: 20,
-    letterSpacing: -0.2,
   }),
   spacer: Styles.createViewStyle({
     height: 8,

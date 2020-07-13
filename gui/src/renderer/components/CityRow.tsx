@@ -25,10 +25,14 @@ interface IProps {
 }
 
 const Button = styled(Cell.CellButton)((props: { selected: boolean }) => ({
-  paddingRight: 0,
-  paddingLeft: 32,
+  paddingRight: '16px',
+  paddingLeft: '34px',
   backgroundColor: !props.selected ? colors.blue40 : undefined,
 }));
+
+const StyledChevronButton = styled(ChevronButton)({
+  marginLeft: '18px',
+});
 
 export default class CityRow extends Component<IProps> {
   private buttonRef = React.createRef<HTMLButtonElement>();
@@ -83,7 +87,9 @@ export default class CityRow extends Component<IProps> {
           />
           <Cell.Label>{this.props.name}</Cell.Label>
 
-          {hasChildren && <ChevronButton onClick={this.toggleCollapse} up={this.props.expanded} />}
+          {hasChildren && (
+            <StyledChevronButton onClick={this.toggleCollapse} up={this.props.expanded} />
+          )}
         </Button>
 
         {hasChildren && (
