@@ -50,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix app restarting itself after quitting.
 - Fix connect action from quick-settings tile or notification sometimes opening the UI instead of
   connecting.
+- Fix notification sometimes not being dismissible.
 
 
 ## [2020.5] - 2020-06-25
