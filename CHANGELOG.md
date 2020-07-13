@@ -37,6 +37,9 @@ Line wrap the file at 100 chars.                                              Th
 - Show a system notification when the account time will soon run out.
 - Changed how the Select Location screen scrolls so that more items can be viewed at the same time.
 
+#### Windows
+- Upgrade Wintun from 0.7 to 0.8.1.
+
 ### Fixed
 #### Windows
 - Fix window flickering by disabling window animations.
