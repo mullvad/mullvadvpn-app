@@ -8,7 +8,8 @@
 //!
 //! To make the comparison work on most strings, the Android and gettext messages are normalized
 //! first. This means that new lines in the XML files are removed and collapsed into a single space
-//! and apostrophes are unescaped.
+//! and there is also a small workaround for having different apostrophe characters in the GUI in
+//! some messages.
 //!
 //! Note that this conversion procedure is very raw and likely very brittle, so while it works for
 //! most cases, it is important to keep in mind that this is just a helper tool and manual steps are
