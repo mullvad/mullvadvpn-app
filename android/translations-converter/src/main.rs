@@ -3,8 +3,12 @@
 //! The procedure for converting the translations is relatively simple. The base Android string
 //! resources file is first loaded, and then each gettext translation file is loaded and compared to
 //! the Android base strings. For every translation string that matches exactly the Android base
-//! string value, the translated string is used in the new Android strings file for the respective
-//! locale.
+//! string value (after a normalization pass described below), the translated string is used in the
+//! new Android strings file for the respective locale.
+//!
+//! To make the comparison work on most strings, the Android and gettext messages are normalized
+//! first. This means that new lines in the XML files are removed and collapsed into a single space
+//! and apostrophes are unescaped.
 //!
 //! Note that this conversion procedure is very raw and likely very brittle, so while it works for
 //! most cases, it is important to keep in mind that this is just a helper tool and manual steps are
@@ -13,7 +17,6 @@
 mod android;
 mod gettext;
 
-use regex::Regex;
 use std::{
     collections::HashMap,
     fs::{self, File},
@@ -24,21 +27,17 @@ fn main() {
     let resources_dir = Path::new("../src/main/res");
     let strings_file = File::open(resources_dir.join("values/strings.xml"))
         .expect("Failed to open string resources file");
-    let string_resources: android::StringResources =
+    let mut string_resources: android::StringResources =
         serde_xml_rs::from_reader(strings_file).expect("Failed to read string resources file");
 
-    let line_breaks = Regex::new(r"\s*\n\s*").unwrap();
-    let apostrophes = Regex::new(r"\\'").unwrap();
+    string_resources.normalize();
 
     let known_strings: HashMap<_, _> = string_resources
         .into_iter()
         .map(|string| {
             let android_id = string.name;
-            let without_line_breaks = line_breaks.replace_all(&string.value, " ");
-            let without_escaped_apostrophes = apostrophes.replace_all(&without_line_breaks, "'");
-            let string_value = without_escaped_apostrophes.into_owned();
 
-            (string_value, android_id)
+            (string.value, android_id)
         })
         .collect();
 

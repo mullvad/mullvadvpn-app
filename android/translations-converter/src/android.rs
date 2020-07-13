@@ -1,8 +1,15 @@
+use lazy_static::lazy_static;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt::{self, Display, Formatter},
     ops::{Deref, DerefMut},
 };
+
+lazy_static! {
+    static ref LINE_BREAKS: Regex = Regex::new(r"\s*\n\s*").unwrap();
+    static ref APOSTROPHES: Regex = Regex::new(r"\\'").unwrap();
+}
 
 /// Contents of an Android string resources file.
 ///
@@ -29,6 +36,15 @@ impl StringResources {
     pub fn new() -> Self {
         StringResources {
             entries: Vec::new(),
+        }
+    }
+
+    /// Normalize the strings into a common format.
+    ///
+    /// Allows the string values to be compared to the gettext messages.
+    pub fn normalize(&mut self) {
+        for entry in &mut self.entries {
+            entry.normalize();
         }
     }
 }
@@ -67,6 +83,18 @@ impl StringResource {
             .replace(r"'", r"\'");
 
         StringResource { name, value }
+    }
+
+    /// Normalize the string value into a common format.
+    ///
+    /// Makes it possible to compare the Android strings with the gettext messages.
+    pub fn normalize(&mut self) {
+        // Collapse line breaks present in the XML file
+        let value = LINE_BREAKS.replace_all(&self.value, " ");
+        // Unescape apostrophes
+        let value = APOSTROPHES.replace_all(&value, "'");
+
+        self.value = value.into_owned();
     }
 }
 
