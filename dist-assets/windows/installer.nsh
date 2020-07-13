@@ -74,7 +74,7 @@
 !macro ExtractWintun
 
 	SetOutPath "$TEMP"
-	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wintun\mullvad-wintun-amd64.msi"
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\mullvad-wintun-amd64.msi"
 
 !macroend
 
