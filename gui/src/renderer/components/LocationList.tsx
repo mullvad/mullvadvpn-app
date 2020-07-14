@@ -1,4 +1,5 @@
 import * as React from 'react';
+import styled from 'styled-components';
 import { Component, View } from 'reactxp';
 import { colors } from '../../config.json';
 import {
@@ -210,6 +211,14 @@ export function SpecialLocations<T>(props: ISpecialLocationsProps<T>) {
   );
 }
 
+const StyledSpecialLocationCellButton = styled(Cell.CellButton)({
+  paddingLeft: '18px',
+});
+
+const StyledSpecialLocationIcon = styled(Cell.Icon)({
+  marginRight: '8px',
+});
+
 interface ISpecialLocationProps<T> {
   icon: SpecialLocationIcon;
   value: T;
@@ -220,15 +229,15 @@ interface ISpecialLocationProps<T> {
 export class SpecialLocation<T> extends Component<ISpecialLocationProps<T>> {
   public render() {
     return (
-      <Cell.CellButton selected={this.props.isSelected} onClick={this.onSelect}>
-        <Cell.Icon
+      <StyledSpecialLocationCellButton selected={this.props.isSelected} onClick={this.onSelect}>
+        <StyledSpecialLocationIcon
           source={this.props.isSelected ? 'icon-tick' : this.props.icon}
           tintColor={colors.white}
           height={24}
           width={24}
         />
         <Cell.Label>{this.props.children}</Cell.Label>
-      </Cell.CellButton>
+      </StyledSpecialLocationCellButton>
     );
   }
 
