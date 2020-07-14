@@ -31,8 +31,8 @@ class CellSwitch : LinearLayout {
 
     var listener: ((State) -> Unit)? = null
 
-    private val onColor = resources.getColor(R.color.green)
-    private val offColor = resources.getColor(R.color.red)
+    private val onColor = context.getColor(R.color.green)
+    private val offColor = context.getColor(R.color.red)
 
     private val knobSize = resources.getDimensionPixelSize(R.dimen.cell_switch_knob_size)
     private val knobImage = ShapeDrawable(OvalShape()).apply {

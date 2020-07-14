@@ -17,15 +17,16 @@ class RelayItemHolder(
     private val relayActive: ImageView = view.findViewById(R.id.relay_active)
     private val selectedIcon: View = view.findViewById(R.id.selected)
 
-    private val resources = view.context.resources
-    private val countryColor = resources.getColor(R.color.blue)
-    private val cityColor = resources.getColor(R.color.blue40)
-    private val relayColor = resources.getColor(R.color.blue20)
-    private val selectedColor = resources.getColor(R.color.green)
+    private val context = view.context
+    private val countryColor = context.getColor(R.color.blue)
+    private val cityColor = context.getColor(R.color.blue40)
+    private val relayColor = context.getColor(R.color.blue20)
+    private val selectedColor = context.getColor(R.color.green)
 
-    private val countryPadding = view.resources.getDimensionPixelSize(R.dimen.country_row_padding)
-    private val cityPadding = view.resources.getDimensionPixelSize(R.dimen.city_row_padding)
-    private val relayPadding = view.resources.getDimensionPixelSize(R.dimen.relay_row_padding)
+    private val resources = view.resources
+    private val countryPadding = resources.getDimensionPixelSize(R.dimen.country_row_padding)
+    private val cityPadding = resources.getDimensionPixelSize(R.dimen.city_row_padding)
+    private val relayPadding = resources.getDimensionPixelSize(R.dimen.relay_row_padding)
 
     var item: RelayItem? = null
         set(value) {
