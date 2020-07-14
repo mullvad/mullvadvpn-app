@@ -7,9 +7,14 @@
 //! new Android strings file for the respective locale.
 //!
 //! To make the comparison work on most strings, the Android and gettext messages are normalized
-//! first. This means that new lines in the XML files are removed and collapsed into a single space
-//! and there is also a small workaround for having different apostrophe characters in the GUI in
-//! some messages.
+//! first. This means that new lines in the XML files are removed and collapsed into a single space,
+//! the message parameters are changed so that they are in a common format, and there is also a
+//! small workaround for having different apostrophe characters in the GUI in some messages.
+//!
+//! One dangerous assumption for the normalization is that the named parameters for the GUI are
+//! supplied in the declared order on Android. This is because it's not possible to figure out the
+//! order when only named parameters are used, and Android strings only supported numbered
+//! parameters.
 //!
 //! Note that this conversion procedure is very raw and likely very brittle, so while it works for
 //! most cases, it is important to keep in mind that this is just a helper tool and manual steps are

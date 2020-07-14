@@ -8,6 +8,7 @@ use std::{
 
 lazy_static! {
     static ref APOSTROPHE_VARIATION: Regex = Regex::new("’").unwrap();
+    static ref PARAMETERS: Regex = Regex::new(r"%\([^)]*\)").unwrap();
 }
 
 /// A message entry in a gettext translation file.
@@ -33,8 +34,10 @@ pub fn load_file(file_path: impl AsRef<Path>) -> Vec<MsgEntry> {
         if let Some(msg_id) = parse_line(line, "msgid \"", "\"") {
             current_id = Some(normalize(msg_id));
         } else {
-            if let Some(value) = parse_line(line, "msgstr \"", "\"").map(String::from) {
+            if let Some(translation) = parse_line(line, "msgstr \"", "\"") {
                 if let Some(id) = current_id.take() {
+                    let value = normalize(translation);
+
                     entries.push(MsgEntry { id, value });
                 }
             }
@@ -59,5 +62,9 @@ fn parse_line<'l>(line: &'l str, prefix: &str, suffix: &str) -> Option<&'l str> 
 
 fn normalize(string: &str) -> String {
     // Use a single common apostrophe character
-    APOSTROPHE_VARIATION.replace_all(&string, "'").into_owned()
+    let string = APOSTROPHE_VARIATION.replace_all(&string, "'");
+    // Mark where parameters are positioned, removing the parameter name
+    let string = PARAMETERS.replace_all(&string, "%");
+
+    string.into_owned()
 }
