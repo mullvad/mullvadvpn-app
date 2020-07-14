@@ -1,4 +1,7 @@
-use crate::{ping_monitor::Pinger, tunnel::wireguard::stats::Stats};
+use crate::{
+    ping_monitor::{new_pinger, Pinger},
+    tunnel::wireguard::stats::Stats,
+};
 use std::{
     net::Ipv4Addr,
     sync::{mpsc, Mutex, Weak},
@@ -66,7 +69,7 @@ pub struct ConnectivityMonitor {
     conn_state: ConnState,
     initial_ping_timestamp: Option<Instant>,
     num_pings_sent: u32,
-    pinger: Pinger,
+    pinger: Box<dyn Pinger>,
     close_receiver: mpsc::Receiver<()>,
 }
 
@@ -78,7 +81,7 @@ impl ConnectivityMonitor {
         tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
         close_receiver: mpsc::Receiver<()>,
     ) -> Result<Self, Error> {
-        let pinger = Pinger::new(addr, interface).map_err(Error::PingError)?;
+        let pinger = new_pinger(addr, interface).map_err(Error::PingError)?;
 
         let now = Instant::now();
 
@@ -100,15 +103,13 @@ impl ConnectivityMonitor {
         }
 
         let start = Instant::now();
-        let mut now = start;
         while start.elapsed() < PING_TIMEOUT {
-            if self.check_connectivity(now)? {
+            if self.check_connectivity(Instant::now())? {
                 return Ok(true);
             }
             if self.should_shut_down(DELAY_ON_INITIAL_SETUP) {
                 return Ok(false);
             }
-            now = Instant::now();
         }
         Ok(false)
     }
@@ -131,7 +132,7 @@ impl ConnectivityMonitor {
             let mut current_iteration = Instant::now();
             let time_slept = current_iteration - last_iteration;
             if time_slept < (iter_delay * 2) {
-                if !self.check_connectivity(current_iteration)? {
+                if !self.check_connectivity(Instant::now())? {
                     return Ok(());
                 }
 
@@ -162,7 +163,7 @@ impl ConnectivityMonitor {
                     return Ok(true);
                 }
 
-                self.maybe_send_ping()?;
+                self.maybe_send_ping(now)?;
                 Ok(!self.ping_timed_out() && self.conn_state.connected())
             }
         }
@@ -179,7 +180,7 @@ impl ConnectivityMonitor {
             .map(|tunnel| tunnel.get_tunnel_stats().map_err(Error::ConfigReadError))
     }
 
-    fn maybe_send_ping(&mut self) -> Result<(), Error> {
+    fn maybe_send_ping(&mut self, now: Instant) -> Result<(), Error> {
         // Only send out a ping if we haven't received a byte in a while or no traffic has flowed
         // in the last 2 minutes, but if a ping already has been sent out, only send one out every
         // 3 seconds.
@@ -193,7 +194,7 @@ impl ConnectivityMonitor {
         {
             self.pinger.send_icmp().map_err(Error::PingError)?;
             if self.initial_ping_timestamp.is_none() {
-                self.initial_ping_timestamp = Some(Instant::now());
+                self.initial_ping_timestamp = Some(now);
             }
             self.num_pings_sent += 1;
         }
@@ -210,7 +211,6 @@ impl ConnectivityMonitor {
     fn reset_pinger(&mut self) {
         self.initial_ping_timestamp = None;
         self.num_pings_sent = 0;
-        #[cfg(unix)]
         self.pinger.reset();
     }
 }

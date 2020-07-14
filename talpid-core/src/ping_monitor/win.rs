@@ -60,13 +60,6 @@ impl Pinger {
         })
     }
 
-    pub fn send_icmp(&mut self) -> Result<()> {
-        let dest = SocketAddr::new(IpAddr::from(self.addr), 0);
-        let request = self.next_ping_request();
-        self.send_ping_request(&request, dest)
-    }
-
-
     fn send_ping_request(
         &mut self,
         request: &EchoRequestPacket<'static>,
@@ -115,5 +108,13 @@ impl Pinger {
         let seq = self.seq;
         self.seq += 1;
         seq
+    }
+}
+
+impl super::Pinger for Pinger {
+    fn send_icmp(&mut self) -> Result<()> {
+        let dest = SocketAddr::new(IpAddr::from(self.addr), 0);
+        let request = self.next_ping_request();
+        self.send_ping_request(&request, dest)
     }
 }
