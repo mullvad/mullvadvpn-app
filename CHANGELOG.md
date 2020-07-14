@@ -41,6 +41,8 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade Wintun from 0.7 to 0.8.1.
 
 ### Fixed
+- Fix connectivity monitor for WireGuard not disconnecting from a relay when connectivity is lost.
+
 #### Windows
 - Fix window flickering by disabling window animations.
 
