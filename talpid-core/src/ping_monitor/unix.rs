@@ -25,8 +25,21 @@ impl Pinger {
         })
     }
 
+
+    fn try_deplete_process_list(&mut self) {
+        self.processes.retain(|child| {
+            match child.try_wait() {
+                // child has terminated, doesn't have to be retained
+                Ok(Some(_)) => false,
+                _ => true,
+            }
+        });
+    }
+}
+
+impl super::Pinger for Pinger {
     // Send an ICMP packet without waiting for a reply
-    pub fn send_icmp(&mut self) -> Result<(), Error> {
+    fn send_icmp(&mut self) -> Result<(), Error> {
         self.try_deplete_process_list();
 
         let cmd = ping_cmd(self.addr, 1, &self.interface_name);
@@ -35,7 +48,7 @@ impl Pinger {
         Ok(())
     }
 
-    pub fn reset(&mut self) {
+    fn reset(&mut self) {
         let processes = std::mem::replace(&mut self.processes, vec![]);
         for proc in processes {
             if proc
@@ -48,16 +61,6 @@ impl Pinger {
                 }
             }
         }
-    }
-
-    fn try_deplete_process_list(&mut self) {
-        self.processes.retain(|child| {
-            match child.try_wait() {
-                // child has terminated, doesn't have to be retained
-                Ok(Some(_)) => false,
-                _ => true,
-            }
-        });
     }
 }
 
