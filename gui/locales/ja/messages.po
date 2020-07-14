@@ -628,7 +628,7 @@ msgid "Redeem voucher"
 msgstr "バウチャーを使用する"
 
 msgctxt "redeem-voucher-view"
-msgid "An error occured."
+msgid "An error occurred."
 msgstr "エラー発生。"
 
 msgctxt "redeem-voucher-view"

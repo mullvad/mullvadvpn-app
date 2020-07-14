@@ -628,7 +628,7 @@ msgid "Redeem voucher"
 msgstr "바우처 사용"
 
 msgctxt "redeem-voucher-view"
-msgid "An error occured."
+msgid "An error occurred."
 msgstr "오류가 발생했습니다."
 
 msgctxt "redeem-voucher-view"

@@ -163,7 +163,7 @@ export function RedeemVoucherResponse() {
       case 'error':
         return (
           <StyledErrorResponse>
-            {messages.pgettext('redeem-voucher-view', 'An error occured.')}
+            {messages.pgettext('redeem-voucher-view', 'An error occurred.')}
           </StyledErrorResponse>
         );
     }
