@@ -42,7 +42,6 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var isStopping = false
     private var shouldStop = false
-    private var loggedIn = false
 
     private var startDaemonJob: Job? = null
 
@@ -54,15 +53,10 @@ class MullvadVpnService : TalpidVpnService() {
                 AccountExpiryNotification(this, daemon)
             }
 
-            accountNumberEvents = newInstance?.accountCache?.onAccountNumberChange
             accountExpiryEvents = newInstance?.accountCache?.onAccountExpiryChange
 
             serviceNotifier.notify(newInstance)
         }
-    }
-
-    private var accountNumberEvents by autoSubscribable<String?>(this, null) { accountNumber ->
-        loggedIn = accountNumber != null
     }
 
     private var accountExpiryEvents by autoSubscribable<DateTime?>(this, null) { expiry ->
@@ -235,7 +229,7 @@ class MullvadVpnService : TalpidVpnService() {
         val connectionProxy = ConnectionProxy(this, daemon).apply {
             when (pendingAction) {
                 PendingAction.Connect -> {
-                    if (loggedIn) {
+                    if (settings.accountToken != null) {
                         connect()
                     } else {
                         openUi()
