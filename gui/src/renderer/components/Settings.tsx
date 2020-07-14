@@ -11,11 +11,10 @@ import {
   NavigationBar,
   NavigationContainer,
   NavigationItems,
-  NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import styles, { CellIcon, OutOfTimeSubText } from './SettingsStyles';
+import styles, { CellIcon, OutOfTimeSubText, StyledNavigationScrollbars } from './SettingsStyles';
 
 import { LoginState } from '../redux/account/reducers';
 
@@ -60,7 +59,7 @@ export default class Settings extends Component<IProps> {
               </NavigationBar>
 
               <View style={styles.container}>
-                <NavigationScrollbars style={styles.scrollview}>
+                <StyledNavigationScrollbars>
                   <View style={styles.content}>
                     {showLargeTitle && (
                       <SettingsHeader>
@@ -74,7 +73,7 @@ export default class Settings extends Component<IProps> {
                     </View>
                     {this.renderQuitButton()}
                   </View>
-                </NavigationScrollbars>
+                </StyledNavigationScrollbars>
               </View>
             </NavigationContainer>
           </View>

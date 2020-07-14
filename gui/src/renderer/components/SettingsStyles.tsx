@@ -2,6 +2,7 @@ import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as Cell from './Cell';
+import { NavigationScrollbars } from './NavigationBar';
 
 export const OutOfTimeSubText = styled(Cell.SubText)((props: { isOutOfTime: boolean }) => ({
   color: props.isOutOfTime ? colors.red : undefined,
@@ -9,6 +10,10 @@ export const OutOfTimeSubText = styled(Cell.SubText)((props: { isOutOfTime: bool
 
 export const CellIcon = styled(Cell.UntintedIcon)({
   marginRight: '8px',
+});
+
+export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
+  flex: 1,
 });
 
 export default {
@@ -26,10 +31,6 @@ export default {
     justifyContent: 'space-between',
     overflow: 'visible',
   }),
-  // plain CSS style
-  scrollview: {
-    flex: 1,
-  },
   cellSpacer: Styles.createViewStyle({
     height: 20,
     flex: 0,

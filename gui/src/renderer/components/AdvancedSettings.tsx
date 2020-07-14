@@ -4,7 +4,11 @@ import { sprintf } from 'sprintf-js';
 import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { WgKeyState } from '../redux/settings/reducers';
-import styles, { InputFrame, TunnelProtocolSelector } from './AdvancedSettingsStyles';
+import styles, {
+  InputFrame,
+  StyledNavigationScrollbars,
+  TunnelProtocolSelector,
+} from './AdvancedSettingsStyles';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import { Container, Layout } from './Layout';
@@ -14,7 +18,6 @@ import {
   NavigationBar,
   NavigationContainer,
   NavigationItems,
-  NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
 import Selector, { ISelectorItem } from './Selector';
@@ -155,7 +158,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                 </NavigationBar>
 
                 <View style={styles.advanced_settings__container}>
-                  <NavigationScrollbars style={styles.advanced_settings__scrollview}>
+                  <StyledNavigationScrollbars>
                     <SettingsHeader>
                       <HeaderTitle>
                         {messages.pgettext('advanced-settings-view', 'Advanced')}
@@ -355,7 +358,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                         <Cell.Icon height={12} width={7} source="icon-chevron" />
                       </Cell.CellButton>
                     </View>
-                  </NavigationScrollbars>
+                  </StyledNavigationScrollbars>
                 </View>
               </NavigationContainer>
             </View>

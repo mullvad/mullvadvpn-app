@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { Component, View } from 'reactxp';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
@@ -16,11 +16,10 @@ import {
   NavigationContainer,
   NavigationItems,
   NavigationScrollbars,
-  ScopeBar,
-  ScopeBarItem,
   TitleBarItem,
 } from './NavigationBar';
-import styles from './SelectLocationStyles';
+import { ScopeBarItem } from './ScopeBar';
+import styles, { StyledScopeBar } from './SelectLocationStyles';
 import { HeaderSubTitle } from './SettingsHeader';
 
 interface IProps {
@@ -113,8 +112,7 @@ export default class SelectLocation extends Component<IProps> {
                         )}
                   </HeaderSubTitle>
                   {this.props.allowBridgeSelection && (
-                    <ScopeBar
-                      style={styles.scopeBar}
+                    <StyledScopeBar
                       defaultSelectedIndex={this.props.locationScope}
                       onChange={this.props.onChangeLocationScope}>
                       <ScopeBarItem>
@@ -123,7 +121,7 @@ export default class SelectLocation extends Component<IProps> {
                       <ScopeBarItem>
                         {messages.pgettext('select-location-nav', 'Exit')}
                       </ScopeBarItem>
-                    </ScopeBar>
+                    </StyledScopeBar>
                   )}
                 </View>
               </NavigationBar>

@@ -1,5 +1,11 @@
 import { Styles } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { ScopeBar } from './ScopeBar';
+
+export const StyledScopeBar = styled(ScopeBar)({
+  marginTop: '8px',
+});
 
 export default {
   select_location: Styles.createViewStyle({
@@ -16,9 +22,6 @@ export default {
   navigationBarAttachment: Styles.createTextStyle({
     marginTop: 8,
     paddingHorizontal: 4,
-  }),
-  scopeBar: Styles.createViewStyle({
-    marginTop: 8,
   }),
   selectedCell: Styles.createViewStyle({
     backgroundColor: colors.green,

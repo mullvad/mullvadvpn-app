@@ -4,6 +4,7 @@ import { colors } from '../../config.json';
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
+import CustomScrollbars from './CustomScrollbars';
 
 export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
   fontFamily: 'Open Sans',
@@ -26,11 +27,11 @@ const buttonStyle = {
 export const StyledBuyCreditButton = styled(AppButton.GreenButton)(buttonStyle);
 export const StyledDisconnectButton = styled(AppButton.RedButton)(buttonStyle);
 
+export const StyledCustomScrollbars = styled(CustomScrollbars)({
+  flex: 1,
+});
+
 export default {
-  // plain CSS style
-  scrollview: {
-    flex: 1,
-  },
   container: Styles.createViewStyle({
     flex: 1,
     paddingTop: 22,

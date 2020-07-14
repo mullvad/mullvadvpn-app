@@ -1,5 +1,11 @@
 import { Styles } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { NavigationScrollbars } from './NavigationBar';
+
+export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
+  flex: 1,
+});
 
 export default {
   wgkeys: Styles.createViewStyle({
@@ -10,10 +16,6 @@ export default {
     flexDirection: 'column',
     flex: 1,
   }),
-  // plain CSS style
-  wgkeys__scrollview: {
-    flex: 1,
-  },
   wgkeys__content: Styles.createViewStyle({
     // ReactXP don't allow setting 'minHeight' and don't allow percentages. This will work well
     // without the '@ts-ignore' when moving away from ReactXP.
