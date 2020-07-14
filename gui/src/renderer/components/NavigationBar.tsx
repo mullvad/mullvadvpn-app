@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useLayoutEffect, useRef, useState } from 'react';
+import { colors } from '../../config.json';
 import CustomScrollbars, { IScrollEvent } from './CustomScrollbars';
 import {
   StyledBackBarItemButton,
@@ -231,7 +232,16 @@ export function CloseBarItem(props: ICloseBarItemProps) {
   // Use the arrow down icon on Linux, to avoid confusion with the close button in the window
   // title bar.
   const iconName = process.platform === 'linux' ? 'icon-close-down' : 'icon-close';
-  return <StyledCloseBarItemIcon height={24} width={24} source={iconName} onClick={props.action} />;
+  return (
+    <StyledCloseBarItemIcon
+      height={24}
+      width={24}
+      source={iconName}
+      onClick={props.action}
+      tintColor={colors.white60}
+      tintHoverColor={colors.white80}
+    />
+  );
 }
 
 interface IBackBarItemProps {
@@ -242,7 +252,7 @@ interface IBackBarItemProps {
 export function BackBarItem(props: IBackBarItemProps) {
   return (
     <StyledBackBarItemButton onClick={props.action}>
-      <StyledBackBarItemIcon source="icon-back" />
+      <StyledBackBarItemIcon source="icon-back" tintColor={colors.white60} />
       <StyledBackBarItemLabel>{props.children}</StyledBackBarItemLabel>
     </StyledBackBarItemButton>
   );

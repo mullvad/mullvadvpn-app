@@ -66,7 +66,6 @@ export const StyledTitleBarItemMeasuringLabel = styled(StyledTitleBarItemLabel)(
 
 export const StyledCloseBarItemIcon = styled(ImageView)({
   flex: 0,
-  opacity: 0.6,
 });
 
 export const StyledBackBarItemButton = styled.button({
@@ -83,8 +82,10 @@ export const StyledBackBarItemButton = styled.button({
 });
 
 export const StyledBackBarItemIcon = styled(ImageView)({
-  opacity: 0.6,
   marginRight: '8px',
+  [StyledBackBarItemButton + ':hover &']: {
+    backgroundColor: colors.white80,
+  },
 });
 
 export const StyledBackBarItemLabel = styled.span({
@@ -93,4 +94,7 @@ export const StyledBackBarItemLabel = styled.span({
   fontWeight: 600,
   color: colors.white60,
   whiteSpace: 'nowrap',
+  [StyledBackBarItemButton + ':hover &']: {
+    color: colors.white80,
+  },
 });
