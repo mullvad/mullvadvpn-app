@@ -1,0 +1,96 @@
+import styled from 'styled-components';
+import { colors } from '../../config.json';
+import ImageView from './ImageView';
+
+export const StyledNavigationBarSeparator = styled.div({
+  backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  height: '1px',
+});
+
+export const StyledNavigationItems = styled.div({
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'row',
+});
+
+export const StyledNavigationBar = styled.div({
+  flex: 0,
+  padding: '12px',
+  paddingTop: process.platform === 'darwin' ? '24px' : '12px',
+});
+
+export const StyledNavigationBarWrapper = styled.div({
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+  overflow: 'hidden',
+});
+
+export const StyledTitleBarItemContainer = styled.div({
+  display: 'flex',
+  flex: 1,
+  minWidth: 0,
+  flexDirection: 'column',
+  justifyContent: 'center',
+});
+
+interface ITitleBarItemLabelProps {
+  titleAdjustment: number;
+  visible?: boolean;
+}
+
+export const StyledTitleBarItemLabel = styled.span({}, (props: ITitleBarItemLabelProps) => ({
+  fontFamily: 'Open Sans',
+  fontSize: '16px',
+  fontWeight: 600,
+  lineHeight: '22px',
+  color: colors.white,
+  padding: '0 5px',
+  textAlign: 'center',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  marginLeft: props.titleAdjustment + 'px',
+  opacity: props.visible ? 1 : 0,
+  transition: 'opacity 250ms ease-in-out',
+}));
+
+export const StyledTitleBarItemMeasuringLabel = styled(StyledTitleBarItemLabel)({
+  position: 'absolute',
+  opacity: 0,
+});
+
+export const StyledCloseBarItemIcon = styled(ImageView)({
+  flex: 0,
+  opacity: 0.6,
+});
+
+export const StyledBackBarItemButton = styled.button({
+  position: 'relative',
+  borderWidth: 0,
+  padding: 0,
+  margin: 0,
+  cursor: 'default',
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: 'transparent',
+  zIndex: 1,
+});
+
+export const StyledBackBarItemIcon = styled(ImageView)({
+  opacity: 0.6,
+  marginRight: '8px',
+});
+
+export const StyledBackBarItemLabel = styled.span({
+  fontFamily: 'Open Sans',
+  fontSize: '13px',
+  fontWeight: 600,
+  color: colors.white60,
+  whiteSpace: 'nowrap',
+});

@@ -36,11 +36,11 @@ const styles = {
   container: Styles.createViewStyle({
     flex: 1,
   }),
-  // plain CSS style
-  scrollview: {
-    flex: 1,
-  },
 };
+
+const StyledNavigationScrollbars = styled(NavigationScrollbars)({
+  flex: 1,
+});
 
 const StyledSelector = (styled(Selector)({
   marginBottom: 0,
@@ -88,7 +88,7 @@ export default class SelectLanguage extends Component<IProps, IState> {
               </NavigationBar>
 
               <View style={styles.container}>
-                <NavigationScrollbars style={styles.scrollview}>
+                <StyledNavigationScrollbars>
                   <SettingsHeader>
                     <HeaderTitle>
                       {messages.pgettext('select-language-nav', 'Select language')}
@@ -101,7 +101,7 @@ export default class SelectLanguage extends Component<IProps, IState> {
                     onSelect={this.props.setPreferredLocale}
                     selectedCellRef={this.selectedCellRef}
                   />
-                </NavigationScrollbars>
+                </StyledNavigationScrollbars>
               </View>
             </NavigationContainer>
           </View>

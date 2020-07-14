@@ -8,11 +8,11 @@ import { messages } from '../../shared/gettext';
 import { LoginState } from '../redux/account/reducers';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
-import CustomScrollbars from './CustomScrollbars';
 import styles, {
   ModalCellContainer,
   StyledAccountTokenLabel,
   StyledBuyCreditButton,
+  StyledCustomScrollbars,
   StyledDisconnectButton,
 } from './ExpiredAccountErrorViewStyles';
 import ImageView from './ImageView';
@@ -59,7 +59,7 @@ export default class ExpiredAccountErrorView extends Component<
 
   public render() {
     return (
-      <CustomScrollbars style={styles.scrollview} fillContainer>
+      <StyledCustomScrollbars fillContainer>
         <View style={styles.container}>
           <View style={styles.body}>{this.renderContent()}</View>
 
@@ -84,7 +84,7 @@ export default class ExpiredAccountErrorView extends Component<
           {this.state.showRedeemVoucherAlert && this.renderRedeemVoucherAlert()}
           {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
         </View>
-      </CustomScrollbars>
+      </StyledCustomScrollbars>
     );
   }
 

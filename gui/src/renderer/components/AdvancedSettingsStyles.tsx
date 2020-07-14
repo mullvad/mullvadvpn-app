@@ -2,6 +2,7 @@ import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as Cell from './Cell';
+import { NavigationScrollbars } from './NavigationBar';
 import Selector from './Selector';
 
 export const InputFrame = styled(Cell.InputFrame)({
@@ -12,6 +13,10 @@ export const TunnelProtocolSelector = (styled(Selector)({
   marginBottom: 0,
 }) as unknown) as new <T>() => Selector<T>;
 
+export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
+  flex: 1,
+});
+
 export default {
   advanced_settings: Styles.createViewStyle({
     backgroundColor: colors.darkBlue,
@@ -20,10 +25,6 @@ export default {
   advanced_settings__container: Styles.createViewStyle({
     flex: 1,
   }),
-  // plain CSS style
-  advanced_settings__scrollview: {
-    flex: 1,
-  },
   advanced_settings__content: Styles.createViewStyle({
     flex: 0,
   }),

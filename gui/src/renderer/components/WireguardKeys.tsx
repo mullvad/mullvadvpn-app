@@ -15,11 +15,10 @@ import {
   NavigationBar,
   NavigationContainer,
   NavigationItems,
-  NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import styles from './WireguardKeysStyles';
+import styles, { StyledNavigationScrollbars } from './WireguardKeysStyles';
 
 export interface IProps {
   keyState: WgKeyState;
@@ -91,7 +90,7 @@ export default class WireguardKeys extends Component<IProps, IState> {
               </NavigationBar>
 
               <View style={styles.wgkeys__container}>
-                <NavigationScrollbars style={styles.wgkeys__scrollview} fillContainer>
+                <StyledNavigationScrollbars fillContainer>
                   <View style={styles.wgkeys__content}>
                     <SettingsHeader>
                       <HeaderTitle>
@@ -144,7 +143,7 @@ export default class WireguardKeys extends Component<IProps, IState> {
                       </AppButton.BlockingButton>
                     </View>
                   </View>
-                </NavigationScrollbars>
+                </StyledNavigationScrollbars>
               </View>
             </NavigationContainer>
           </View>
