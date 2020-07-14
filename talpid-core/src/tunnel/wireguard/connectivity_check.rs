@@ -100,13 +100,15 @@ impl ConnectivityMonitor {
         }
 
         let start = Instant::now();
+        let mut now = start;
         while start.elapsed() < PING_TIMEOUT {
-            if self.check_connectivity()? {
+            if self.check_connectivity(now)? {
                 return Ok(true);
             }
             if self.should_shut_down(DELAY_ON_INITIAL_SETUP) {
                 return Ok(false);
             }
+            now = Instant::now();
         }
         Ok(false)
     }
@@ -129,7 +131,10 @@ impl ConnectivityMonitor {
             let mut current_iteration = Instant::now();
             let time_slept = current_iteration - last_iteration;
             if time_slept < (iter_delay * 2) {
-                self.check_connectivity()?;
+                if !self.check_connectivity(current_iteration)? {
+                    return Ok(());
+                }
+
                 let end = Instant::now();
                 if end - current_iteration > Duration::from_secs(1) {
                     current_iteration = end;
@@ -146,8 +151,7 @@ impl ConnectivityMonitor {
     }
 
     /// Returns true if connection is established
-    fn check_connectivity(&mut self) -> Result<bool, Error> {
-        let now = Instant::now();
+    fn check_connectivity(&mut self, now: Instant) -> Result<bool, Error> {
         match self.get_stats() {
             None => Ok(false),
             Some(new_stats) => {
