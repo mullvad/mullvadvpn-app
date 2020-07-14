@@ -628,7 +628,7 @@ msgid "Redeem voucher"
 msgstr "兑换优惠券"
 
 msgctxt "redeem-voucher-view"
-msgid "An error occured."
+msgid "An error occurred."
 msgstr "出错了。"
 
 msgctxt "redeem-voucher-view"
