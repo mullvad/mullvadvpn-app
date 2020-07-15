@@ -48,7 +48,6 @@ tokio-io = "0.1"
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.2.3", features = ["derive"] }
-rand = "0.7"
 
 
 [target.'cfg(target_os = "linux")'.dependencies]
@@ -79,7 +78,6 @@ widestring = "0.4"
 winreg = "0.6"
 winapi = { version = "0.3.6", features = ["handleapi", "ifdef", "libloaderapi", "netioapi", "synchapi", "winbase", "winuser"] }
 socket2 = "0.3"
-rand = "0.7"
 pnet_packet = "0.22"
 
 [build-dependencies]
