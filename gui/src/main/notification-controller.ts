@@ -98,7 +98,9 @@ export default class NotificationController {
       this.addPendingNotification(notification);
       notification.show();
 
-      setTimeout(() => notification.close(), 4000);
+      if (!systemNotification.critical) {
+        setTimeout(() => notification.close(), 4000);
+      }
 
       return notification;
     } else {
@@ -112,6 +114,7 @@ export default class NotificationController {
       body: systemNotification.message,
       silent: true,
       icon: this.notificationIcon,
+      timeoutType: systemNotification.critical ? 'never' : 'default',
     });
 
     if (systemNotification.action) {
