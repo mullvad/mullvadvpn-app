@@ -95,7 +95,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
         purchaseButton.setTitle(inAppPurchase.localizedTitle, for: .normal)
         purchaseButton.isLoading = true
 
-        purchaseButtonInteractionRestriction.raise(animated: true)
+        purchaseButtonInteractionRestriction.increase(animated: true)
 
         AppStorePaymentManager.shared.requestProducts(with: [inAppPurchase]) { [weak self] (result) in
             DispatchQueue.main.async {
@@ -112,7 +112,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
                 }
 
                 self.purchaseButton.isLoading = false
-                self.purchaseButtonInteractionRestriction.lift(animated: true)
+                self.purchaseButtonInteractionRestriction.decrease(animated: true)
             }
         }
     }
@@ -273,7 +273,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
             self.alertPresenter.enqueue(alertController, presentingController: self)
 
             if transaction.payment == self.pendingPayment {
-                self.compoundInteractionRestriction.lift(animated: true)
+                self.compoundInteractionRestriction.decrease(animated: true)
             }
         }
     }
@@ -283,7 +283,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
             self.showTimeAddedConfirmationAlert(with: response, context: .purchase)
 
             if transaction.payment == self.pendingPayment {
-                self.compoundInteractionRestriction.lift(animated: true)
+                self.compoundInteractionRestriction.decrease(animated: true)
             }
         }
     }
@@ -322,7 +322,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
         let payment = SKPayment(product: product)
         self.pendingPayment = payment
 
-        compoundInteractionRestriction.raise(animated: true)
+        compoundInteractionRestriction.increase(animated: true)
 
         AppStorePaymentManager.shared.addPayment(payment, for: accountToken)
     }
@@ -330,7 +330,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
     @IBAction func restorePurchases() {
         guard let accountToken = Account.shared.token else { return }
 
-        compoundInteractionRestriction.raise(animated: true)
+        compoundInteractionRestriction.increase(animated: true)
 
         AppStorePaymentManager.shared.restorePurchases(for: accountToken) { (result) in
             DispatchQueue.main.async {
@@ -350,7 +350,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
                     self.alertPresenter.enqueue(alertController, presentingController: self)
                 }
 
-                self.compoundInteractionRestriction.lift(animated: true)
+                self.compoundInteractionRestriction.decrease(animated: true)
             }
         }
     }

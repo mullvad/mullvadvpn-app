@@ -10,11 +10,11 @@ import Foundation
 
 /// A protocol describing a common interface for the implementations of user interaction restriction
 protocol UserInterfaceInteractionRestrictionProtocol {
-    /// Lift the user interface interaction restrictions
-    func lift(animated: Bool)
+    /// Increase the user interface interaction restrictions
+    func increase(animated: Bool)
 
-    /// Raise the user interface interaction restrictions
-    func raise(animated: Bool)
+    /// Decrease the user interface interaction restrictions
+    func decrease(animated: Bool)
 }
 
 /// A counter based user interface interaction restriction implementation
@@ -29,7 +29,7 @@ class UserInterfaceInteractionRestriction: UserInterfaceInteractionRestrictionPr
         self.action = action
     }
 
-    func raise(animated: Bool) {
+    func increase(animated: Bool) {
         DispatchQueue.main.async {
             if self.counter == 0 {
                 self.action(false, animated)
@@ -38,7 +38,7 @@ class UserInterfaceInteractionRestriction: UserInterfaceInteractionRestrictionPr
         }
     }
 
-    func lift(animated: Bool) {
+    func decrease(animated: Bool) {
         DispatchQueue.main.async {
             guard self.counter > 0 else { return }
 
@@ -60,11 +60,11 @@ class CompoundUserInterfaceInteractionRestriction: UserInterfaceInteractionRestr
         self.restrictions = restrictions
     }
 
-    func lift(animated: Bool) {
-        restrictions.forEach { $0.lift(animated: animated) }
+    func decrease(animated: Bool) {
+        restrictions.forEach { $0.decrease(animated: animated) }
     }
 
-    func raise(animated: Bool) {
-        restrictions.forEach { $0.raise(animated: animated) }
+    func increase(animated: Bool) {
+        restrictions.forEach { $0.increase(animated: animated) }
     }
 }
