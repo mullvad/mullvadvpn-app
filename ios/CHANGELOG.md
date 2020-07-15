@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add support for iOS 12.
 - Ship the initial relay list with the app, and do once an hour periodic refresh in background.
 - Refresh account expiry when visiting settings.
 
