@@ -9,6 +9,7 @@ import {
   ConnectingNotificationProvider,
   DisconnectedNotificationProvider,
   ErrorNotificationProvider,
+  NotificationAction,
   ReconnectingNotificationProvider,
   SystemNotification,
   SystemNotificationProvider,
@@ -117,22 +118,28 @@ export default class NotificationController {
       timeoutType: systemNotification.critical ? 'never' : 'default',
     });
 
-    if (systemNotification.action) {
-      notification.on('click', () => {
-        consumePromise(
-          this.notificationControllerDelegate.openLink(
-            systemNotification.action!.url,
-            systemNotification.action!.withAuth,
-          ),
-        );
-      });
+    // Action buttons are only available on macOS.
+    if (process.platform === 'darwin') {
+      if (systemNotification.action) {
+        notification.actions = [{ type: 'button', text: systemNotification.action.text }];
+        notification.on('action', () => this.performAction(systemNotification.action));
+      }
+      notification.on('click', () => this.notificationControllerDelegate.openApp());
     } else {
-      notification.on('click', () => {
-        this.notificationControllerDelegate.openApp();
-      });
+      if (systemNotification.action) {
+        notification.on('click', () => this.performAction(systemNotification.action));
+      } else {
+        notification.on('click', () => this.notificationControllerDelegate.openApp());
+      }
     }
 
     return notification;
+  }
+
+  private performAction(action?: NotificationAction) {
+    if (action && action.type === 'open-url') {
+      consumePromise(this.notificationControllerDelegate.openLink(action.url, action.withAuth));
+    }
   }
 
   private showTunnelStateNotification(systemNotification: SystemNotification) {

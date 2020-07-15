@@ -27,7 +27,11 @@ export class UnsupportedVersionNotificationProvider
     return {
       message,
       critical: true,
-      action: { type: 'open-url', url: links.download },
+      action: {
+        type: 'open-url',
+        url: links.download,
+        text: messages.pgettext('notifications', 'Upgrade'),
+      },
       presentOnce: { value: true, name: this.constructor.name },
       suppressInDevelopment: true,
     };
