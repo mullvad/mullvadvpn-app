@@ -177,7 +177,7 @@ class ConnectionPanelAddressRow: UIView {
     }
 }
 
-class ConnectionPanelCollapseButton: UIButton {
+class ConnectionPanelCollapseButton: CustomButton {
 
     enum Style {
         case up, down
@@ -200,43 +200,28 @@ class ConnectionPanelCollapseButton: UIButton {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
         commonInit()
-        updateButtonImage()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-
         commonInit()
-        updateButtonImage()
     }
 
     private func commonInit() {
         setTitleColor(UIColor.white, for: .normal)
         setTitleColor(UIColor.lightGray, for: .highlighted)
         setTitleColor(UIColor.lightGray, for: .disabled)
+
+        contentHorizontalAlignment = .leading
+        imageAlignment = .trailing
+        inlineImageSpacing = 0
+
+        updateButtonImage()
     }
 
     private func updateButtonImage() {
         setImage(style.image, for: .normal)
-    }
-
-    override func imageRect(forContentRect contentRect: CGRect) -> CGRect {
-        let titleRect = self.titleRect(forContentRect: contentRect)
-        var imageRect = super.imageRect(forContentRect: contentRect)
-
-        imageRect.origin.x = titleRect.maxX
-
-        return imageRect
-    }
-
-    override func titleRect(forContentRect contentRect: CGRect) -> CGRect {
-        var titleRect = super.titleRect(forContentRect: contentRect)
-
-        titleRect.origin.x = 0
-
-        return titleRect
     }
 
 }
