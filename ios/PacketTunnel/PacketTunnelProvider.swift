@@ -30,6 +30,9 @@ enum PacketTunnelProviderError: ChainedError {
     /// Failure to start the Wireguard backend
     case startWireguardDevice(WireguardDevice.Error)
 
+    /// Failure to stop the Wireguard backend
+    case stopWireguardDevice(WireguardDevice.Error)
+
     /// Failure to update the Wireguard configuration
     case updateWireguardConfiguration(Error)
 
@@ -55,6 +58,9 @@ enum PacketTunnelProviderError: ChainedError {
 
         case .startWireguardDevice:
             return "Failure to start the WireGuard device"
+
+        case .stopWireguardDevice:
+            return "Failure to stop the WireGuard device"
 
         case .updateWireguardConfiguration:
             return "Failure to update the Wireguard configuration"
@@ -156,8 +162,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         os_log(.default, log: tunnelProviderLog, "Stop the tunnel. Reason: %{public}s", "\(reason)")
 
         let operation = AsyncBlockOperation { (finish) in
-            self.doStopTunnel {
-                os_log(.default, log: tunnelProviderLog, "Stopped the tunnel")
+            self.doStopTunnel { (result) in
+                switch result {
+                case .success:
+                    os_log(.default, log: tunnelProviderLog, "Stopped the tunnel")
+                case .failure(let error):
+                    error.logChain(message: "Failed to stop the tunnel", log: tunnelProviderLog)
+                }
+
                 completionHandler()
                 finish()
             }
@@ -268,10 +280,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 
-    private func doStopTunnel(completionHandler: @escaping () -> Void) {
+    private func doStopTunnel(completionHandler: @escaping (Result<(), PacketTunnelProviderError>) -> Void) {
         guard let device = self.wireguardDevice, let keyRotationManager = self.keyRotationManager
             else {
-                completionHandler()
+                completionHandler(.success(()))
                 return
         }
 
@@ -282,12 +294,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                         self.wireguardDevice = nil
                         self.keyRotationManager = nil
 
-                        if case .failure(let error) = result {
-                            error.logChain(message: "Failed to stop the tunnel", log: tunnelProviderLog)
-                        }
-
-                        // Ignore all errors at this point
-                        completionHandler()
+                        let result = result.mapError({ (error) -> PacketTunnelProviderError in
+                            return .stopWireguardDevice(error)
+                        })
+                        completionHandler(result)
                     }
                 }
             }
