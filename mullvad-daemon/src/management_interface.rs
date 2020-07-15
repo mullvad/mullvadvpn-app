@@ -20,6 +20,7 @@ use mullvad_types::{
 use parking_lot::RwLock;
 use std::{
     collections::{hash_map::Entry, HashMap},
+    str::FromStr,
     sync::{Arc, mpsc},
 };
 use talpid_ipc;
@@ -431,6 +432,7 @@ impl ManagementService for ManagementServiceImpl {
     
     async fn set_bridge_settings(&self, request: Request<proto::BridgeSettings>) -> ServiceResult<()> {
         use mullvad_types::relay_constraints::LocationConstraint;
+        use talpid_types::net;
         use proto::bridge_settings::Type as BridgeSettingType;
 
         let settings = request.into_inner().r#type.ok_or(tonic::Status::invalid_argument("no settings provided"))?;
@@ -463,10 +465,15 @@ impl ManagementService for ManagementServiceImpl {
                     location: constraint
                 })
             }
-            BridgeSettingType::Local(_) => BridgeSettings::Normal(BridgeConstraints {
-                // TODO
-                location: Constraint::Any
-            }),
+            BridgeSettingType::Local(proxy_settings) => {
+                let proxy_settings = net::openvpn::ProxySettings::Local(net::openvpn::LocalProxySettings {
+                    port: proxy_settings.port as u16,
+                    peer: proxy_settings.peer.parse().map_err(|_| {
+                        tonic::Status::invalid_argument("failed to parse peer address")
+                    })?,
+                });
+                BridgeSettings::Custom(proxy_settings)
+            }
             BridgeSettingType::Remote(_) => BridgeSettings::Normal(BridgeConstraints {
                 // TODO
                 location: Constraint::Any
