@@ -12,6 +12,30 @@ protocol DisplayChainedError {
     var errorChainDescription: String? { get }
 }
 
+extension RestError: DisplayChainedError {
+    var errorChainDescription: String? {
+        switch self {
+        case .network(let urlError):
+            return urlError.localizedDescription
+        case .server(let serverError):
+            if let knownErrorDescription = serverError.errorDescription {
+                return knownErrorDescription
+            } else {
+                return String(
+                    format: NSLocalizedString("Server error: %@", comment: ""),
+                    serverError.error ?? "(empty)"
+                )
+            }
+        case .encodePayload:
+            return NSLocalizedString("Server request encoding error", comment: "")
+        case .decodeSuccessResponse:
+            return NSLocalizedString("Server success response decoding error", comment: "")
+        case .decodeErrorResponse:
+            return NSLocalizedString("Server error response decoding error", comment: "")
+        }
+    }
+}
+
 extension MullvadRpc.Error: DisplayChainedError {
     var errorChainDescription: String? {
         switch self {
@@ -114,8 +138,8 @@ extension Account.Error: DisplayChainedError {
 
     var errorChainDescription: String? {
         switch self {
-        case .createAccount(let rpcError), .verifyAccount(let rpcError):
-            return rpcError.errorChainDescription
+        case .createAccount(let restError), .verifyAccount(let restError):
+            return restError.errorChainDescription
 
         case .tunnelConfiguration(let tunnelError):
             return tunnelError.errorChainDescription
