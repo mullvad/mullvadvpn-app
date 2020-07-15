@@ -158,7 +158,11 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
         view.isUserInteractionEnabled = enableUserInteraction
 
         // Prevent view controller from being swiped away by user
-        isModalInPresentation = !enableUserInteraction
+        if #available(iOS 13.0, *) {
+            isModalInPresentation = !enableUserInteraction
+        } else {
+            // Fallback on earlier versions
+        }
 
         // Hide back button in navigation bar
         navigationItem.setHidesBackButton(!enableUserInteraction, animated: animated)

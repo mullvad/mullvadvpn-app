@@ -6,27 +6,32 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
+import DiffableDataSources
 import UIKit
 import os
 
 private let kCellIdentifier = "Cell"
 
-enum SelectLocationControllerError: Error {
-    case loadRelayList(RelayCacheError)
-    case getRelayConstraints(TunnelManagerError)
-}
+class SelectLocationController: UITableViewController, RelayCacheObserver {
 
-class SelectLocationController: UITableViewController {
+    private enum Error: ChainedError {
+        case loadRelayList(RelayCacheError)
+        case getRelayConstraints(TunnelManager.Error)
 
-    private let relayCache = try! RelayCache.withDefaultLocationAndEphemeralSession().get()
+        var errorDescription: String? {
+            switch self {
+            case .loadRelayList:
+                return "Failure to load a relay list"
+            case .getRelayConstraints:
+                return "Failure to get relay constraints"
+            }
+        }
+    }
+
     private var relayList: RelayList?
     private var relayConstraints: RelayConstraints?
     private var expandedItems = [RelayLocation]()
     private var dataSource: DataSource?
-    private var loadDataSubscriber: AnyCancellable?
-
-    @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
 
     var selectedLocation: RelayLocation?
 
@@ -58,7 +63,7 @@ class SelectLocationController: UITableViewController {
 
         tableView.dataSource = dataSource
 
-        addActivityIndicatorView()
+        RelayCache.shared.addObserver(self)
         loadData()
     }
 
@@ -92,38 +97,62 @@ class SelectLocationController: UITableViewController {
         }
     }
 
+    // MARK: - RelayCacheObserver
+
+    func relayCache(_ relayCache: RelayCache, didUpdateCachedRelayList cachedRelayList: CachedRelayList) {
+        self.didReceiveCachedRelays(cachedRelayList: cachedRelayList) { (result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let (cachedRelayList, relayConstraints)):
+                    self.didReceive(relayList: cachedRelayList.relayList, relayConstraints: relayConstraints)
+
+                case .failure(let error):
+                    error.logChain()
+                }
+            }
+        }
+    }
+
     // MARK: - Relay list handling
 
     private func loadData() {
-        loadDataSubscriber = relayCache.read()
-            .mapError { SelectLocationControllerError.loadRelayList($0) }
-            .map { $0.relayList.sorted() }
-            .flatMap({ (filteredRelayList) in
-                TunnelManager.shared.getRelayConstraints()
-                    .mapError { SelectLocationControllerError.getRelayConstraints($0) }
-                    .map { (filteredRelayList, $0) }
-            })
-            .receive(on: DispatchQueue.main)
-            .handleEvents(receiveSubscription: { [weak self] _ in
-                self?.activityIndicator.startAnimating()
-            }, receiveCompletion: { [weak self] _ in
-                self?.activityIndicator.stopAnimating()
-            }, receiveCancel: { [weak self] () in
-                self?.activityIndicator.stopAnimating()
-            })
-            .sink(receiveCompletion: { (completion) in
-                if case .failure(let error) = completion {
-                    os_log(.error, "Failed to load the SelectLocation controller: %{public}s", error.localizedDescription)
-                }
-            }) { [weak self] (result) in
-                let (relayList, constraints) = result
+        fetchRelays { (result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let (cachedRelayList, relayConstraints)):
+                    self.didReceive(relayList: cachedRelayList.relayList, relayConstraints: relayConstraints)
 
-                self?.didReceive(relayList: relayList, relayConstraints: constraints)
+                case .failure(let error):
+                    error.logChain()
+                }
             }
+        }
+    }
+
+    private func fetchRelays(completionHandler: @escaping (Result<(CachedRelayList, RelayConstraints), Error>) -> Void) {
+        RelayCache.shared.read { (result) in
+            switch result {
+            case .success(let cachedRelayList):
+                self.didReceiveCachedRelays(cachedRelayList: cachedRelayList, completionHandler: completionHandler)
+
+            case .failure(let error):
+                completionHandler(.failure(.loadRelayList(error)))
+            }
+        }
+    }
+
+    private func didReceiveCachedRelays(cachedRelayList: CachedRelayList, completionHandler: @escaping (Result<(CachedRelayList, RelayConstraints), Error>) -> Void) {
+        TunnelManager.shared.getRelayConstraints { (result) in
+            let result = result
+                .map { (cachedRelayList, $0) }
+                .mapError { Error.getRelayConstraints($0) }
+
+            completionHandler(result)
+        }
     }
 
     private func didReceive(relayList: RelayList, relayConstraints: RelayConstraints) {
-        self.relayList = relayList
+        self.relayList = relayList.sorted()
         self.relayConstraints = relayConstraints
 
         let relayLocation = relayConstraints.location.value
@@ -214,21 +243,6 @@ class SelectLocationController: UITableViewController {
             tableView.tableHeaderView = header
         }
     }
-
-    // MARK: - Activity indicator
-
-    private func addActivityIndicatorView() {
-        view.addSubview(activityIndicator)
-
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            activityIndicator.widthAnchor.constraint(equalToConstant: 48),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 48),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -60)
-        ])
-    }
 }
 
 private extension RelayList {
@@ -311,10 +325,10 @@ private enum DataSourceSection {
 }
 
 /// Data source type
-private typealias DataSource = UITableViewDiffableDataSource<DataSourceSection, DataSourceItem>
+private typealias DataSource = TableViewDiffableDataSource<DataSourceSection, DataSourceItem>
 
 /// Data source snapshot type
-private typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<DataSourceSection, DataSourceItem>
+private typealias DataSourceSnapshot = DiffableDataSourceSnapshot<DataSourceSection, DataSourceItem>
 
 /// A wrapper type for RelayList to be able to represent it as a flat list
 private enum DataSourceItem: Hashable {

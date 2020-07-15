@@ -7,12 +7,11 @@
 //
 
 import UIKit
-import Combine
 
 class SettingsCell: BasicTableViewCell {
 
     private let preferredMargins = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 12)
-    private var appDidBecomeActiveSubscriber: AnyCancellable?
+    private var appDidBecomeActiveObserver: NSObjectProtocol?
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -21,6 +20,7 @@ class SettingsCell: BasicTableViewCell {
         selectedBackgroundView?.backgroundColor = UIColor.Cell.selectedAltBackgroundColor
 
         contentView.layoutMargins = preferredMargins
+        separatorInset = .zero
 
         enableDisclosureViewTintColorFix()
     }
@@ -28,9 +28,10 @@ class SettingsCell: BasicTableViewCell {
     /// `UITableViewCell` resets the disclosure view image when the app goes in background
     /// This fix ensures that the image is tinted when the app becomes active again.
     private func enableDisclosureViewTintColorFix() {
-        appDidBecomeActiveSubscriber = NotificationCenter.default
-            .publisher(for: UIApplication.didBecomeActiveNotification, object: nil)
-            .sink { [weak self] (_) in
+        appDidBecomeActiveObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: nil) { [weak self] (note) in
                 self?.updateDisclosureViewTintColor()
         }
 
