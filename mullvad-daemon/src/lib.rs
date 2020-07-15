@@ -56,7 +56,6 @@ use std::{
     mem,
     path::PathBuf,
     sync::{mpsc, Arc, Weak},
-    thread,
     time::Duration,
 };
 #[cfg(target_os = "linux")]
@@ -467,7 +466,7 @@ pub struct Daemon<L: EventListener> {
     exclude_pids: split_tunnel::PidManager,
     rx: Wait<UnboundedReceiver<InternalDaemonEvent>>,
     tx: DaemonEventSender,
-    reconnection_loop_tx: Option<mpsc::Sender<()>>,
+    reconnection_job: Option<CancelHandle>,
     event_listener: L,
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
@@ -485,7 +484,6 @@ pub struct Daemon<L: EventListener> {
     /// oneshot channel that completes once the tunnel state machine has been shut down
     tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
     cache_dir: PathBuf,
-    wg_reconnect_delay: Option<CancelHandle>,
 }
 
 impl<L> Daemon<L>
@@ -608,7 +606,7 @@ where
             exclude_pids: split_tunnel::PidManager::new().map_err(Error::InitSplitTunneling)?,
             rx: internal_event_rx.wait(),
             tx: internal_event_tx,
-            reconnection_loop_tx: None,
+            reconnection_job: None,
             event_listener,
             settings,
             account_history,
@@ -625,7 +623,6 @@ where
             shutdown_callbacks: vec![],
             tunnel_state_machine_shutdown_signal,
             cache_dir,
-            wg_reconnect_delay: None,
         };
 
         daemon.ensure_wireguard_keys_for_current_account();
@@ -956,21 +953,18 @@ where
 
     fn schedule_reconnect(&mut self, delay: Duration) {
         let tunnel_command_tx = self.tx.to_specialized_sender();
-        let (tx, rx) = mpsc::channel();
-
-        self.reconnection_loop_tx = Some(tx);
-
-        thread::spawn(move || {
+        let (future, cancel_handle) = Cancellable::new(Box::pin(async move {
+            tokio02::time::delay_for(delay).await;
+            log::debug!("Attempting to reconnect");
             let (result_tx, _result_rx) = oneshot::channel();
+            let _ = tunnel_command_tx.send(DaemonCommand::SetTargetState(
+                result_tx,
+                TargetState::Secured,
+            ));
+        }));
 
-            if let Err(mpsc::RecvTimeoutError::Timeout) = rx.recv_timeout(delay) {
-                debug!("Attempting to reconnect");
-                let _ = tunnel_command_tx.send(DaemonCommand::SetTargetState(
-                    result_tx,
-                    TargetState::Secured,
-                ));
-            }
-        });
+        self.spawn_future(future);
+        self.reconnection_job = Some(cancel_handle);
     }
 
     fn schedule_delayed_wg_reconnect(&mut self) {
@@ -987,16 +981,12 @@ where
         }));
 
         self.spawn_future(future);
-        self.wg_reconnect_delay = Some(cancel_handle);
+        self.reconnection_job = Some(cancel_handle);
     }
 
     fn unschedule_reconnect(&mut self) {
-        if let Some(tx) = self.reconnection_loop_tx.take() {
-            let _ = tx.send(());
-        }
-
-        if let Some(wg_handle) = self.wg_reconnect_delay.take() {
-            wg_handle.cancel();
+        if let Some(job) = self.reconnection_job.take() {
+            job.cancel();
         }
     }
 
