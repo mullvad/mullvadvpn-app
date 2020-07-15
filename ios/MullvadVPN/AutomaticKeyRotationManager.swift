@@ -25,8 +25,8 @@ struct KeyRotationResult {
 class AutomaticKeyRotationManager {
 
     enum Error: ChainedError {
-        /// An RPC failure
-        case rpc(MullvadRpc.Error)
+        /// REST error
+        case rest(RestError)
 
         /// A failure to read the tunnel settings
         case readTunnelSettings(TunnelSettingsManager.Error)
@@ -36,8 +36,8 @@ class AutomaticKeyRotationManager {
 
         var errorDescription: String? {
             switch self {
-            case .rpc:
-                return "RPC error"
+            case .rest:
+                return "REST error"
             case .readTunnelSettings:
                 return "Read tunnel settings error"
             case .updateTunnelSettings:
@@ -46,7 +46,7 @@ class AutomaticKeyRotationManager {
         }
     }
 
-    private let rpc = MullvadRpc.withEphemeralURLSession()
+    private let rest = MullvadRest(session: URLSession(configuration: .ephemeral))
     private let persistentKeychainReference: Data
 
     /// A dispatch queue used for synchronization
@@ -61,8 +61,8 @@ class AutomaticKeyRotationManager {
     /// Internal variable indicating that the key rotation has already started
     private var isAutomaticRotationEnabled = false
 
-    /// An RPC request for replacing the key on server
-    private var request: MullvadRpc.Request<WireguardAssociatedAddresses>?
+    /// A REST request for replacing the key on server
+    private var request: URLSessionTask?
 
     /// A variable backing the `eventHandler` public property
     private var _eventHandler: ((KeyRotationResult) -> Void)?
@@ -123,7 +123,7 @@ class AutomaticKeyRotationManager {
             let currentPrivateKey = keychainEntry.tunnelSettings.interface.privateKey
 
             if Self.shouldRotateKey(creationDate: currentPrivateKey.creationDate) {
-                let request = replaceKey(accountToken: keychainEntry.accountToken, oldPublicKey: currentPrivateKey.publicKey) { (result) in
+                let result = makeReplaceKeyTask(accountToken: keychainEntry.accountToken, oldPublicKey: currentPrivateKey.publicKey) { (result) in
                     let result = result.map { (tunnelSettings) -> KeyRotationResult in
                         let newPrivateKey = tunnelSettings.interface.privateKey
 
@@ -137,7 +137,13 @@ class AutomaticKeyRotationManager {
                     self.didCompleteKeyRotation(result: result)
                 }
 
-                self.request = request
+                switch result {
+                case .success(let newTask):
+                    self.request = newTask
+                case .failure(let error):
+                    self.request = nil
+                    self.didCompleteKeyRotation(result: .failure(.rest(error)))
+                }
             } else {
                 let event = KeyRotationResult(
                     isNew: false,
@@ -153,31 +159,30 @@ class AutomaticKeyRotationManager {
         }
     }
 
-    private func replaceKey(
+    private func makeReplaceKeyTask(
         accountToken: String,
         oldPublicKey: WireguardPublicKey,
-        completionHandler: @escaping (Result<TunnelSettings, Error>) -> Void) -> MullvadRpc.Request<WireguardAssociatedAddresses>
+        completionHandler: @escaping (Result<TunnelSettings, Error>) -> Void) -> Result<URLSessionDataTask, RestError>
     {
         let newPrivateKey = WireguardPrivateKey()
-
-        let request = rpc.replaceWireguardKey(
-            accountToken: accountToken,
-            oldPublicKey: oldPublicKey.rawRepresentation,
-            newPublicKey: newPrivateKey.publicKey.rawRepresentation
+        let payload = TokenPayload(
+            token: accountToken,
+            payload: ReplaceWireguardKeyRequest(
+                old: oldPublicKey.rawRepresentation,
+                new: newPrivateKey.publicKey.rawRepresentation
+            )
         )
 
-        request.start { (result) in
+        return rest.replaceWireguardKey().dataTask(payload: payload) { (result) in
             self.dispatchQueue.async {
                 let updateResult = result.mapError { (error) -> Error in
-                    return .rpc(error)
+                    return .rest(error)
                 }.flatMap { (addresses) -> Result<TunnelSettings, Error> in
                     self.updateTunnelSettings(privateKey: newPrivateKey, addresses: addresses)
                 }
                 completionHandler(updateResult)
             }
         }
-
-        return request
     }
 
     private func updateTunnelSettings(privateKey: WireguardPrivateKey, addresses: WireguardAssociatedAddresses) -> Result<TunnelSettings, Error> {
@@ -218,7 +223,7 @@ class AutomaticKeyRotationManager {
                 nextRotationTime = .now() + .seconds(kRetryIntervalOnFailure)
             }
 
-        case .failure(.rpc(.network(let urlError))) where urlError.code == .cancelled:
+        case .failure(.rest(.network(let urlError))) where urlError.code == .cancelled:
             os_log(.default, log: tunnelProviderLog, "Key rotation was cancelled")
             break
 
