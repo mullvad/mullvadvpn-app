@@ -437,7 +437,6 @@ impl ManagementService for ManagementServiceImpl {
 
         let settings = request.into_inner().r#type.ok_or(tonic::Status::invalid_argument("no settings provided"))?;
 
-        // FIXME: use correct settings
         let settings = match settings {
             BridgeSettingType::Normal(constraints) => {
                 let constraint = match constraints.location {
@@ -491,10 +490,17 @@ impl ManagementService for ManagementServiceImpl {
                 });
                 BridgeSettings::Custom(proxy_settings)
             }
-            BridgeSettingType::Shadowsocks(_) => BridgeSettings::Normal(BridgeConstraints {
-                // TODO
-                location: Constraint::Any
-            }),
+            BridgeSettingType::Shadowsocks(proxy_settings) => {
+                let peer = proxy_settings.peer.parse().map_err(|_| {
+                    tonic::Status::invalid_argument("failed to parse peer address")
+                })?;
+                let proxy_settings = net::openvpn::ProxySettings::Shadowsocks(net::openvpn::ShadowsocksProxySettings {
+                    peer,
+                    password: proxy_settings.password,
+                    cipher: proxy_settings.cipher,
+                });
+                BridgeSettings::Custom(proxy_settings)
+            }
         };
 
         log::debug!("set_bridge_settings({:?})", settings);
