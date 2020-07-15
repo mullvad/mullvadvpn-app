@@ -6,12 +6,11 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import Foundation
 import StoreKit
 
 enum AppStoreReceipt {
-    enum Error: Swift.Error {
+    enum Error: ChainedError {
         /// AppStore receipt file does not exist or file URL is not available
         case doesNotExist
 
@@ -21,17 +20,20 @@ enum AppStoreReceipt {
         /// Failure to refresh the receipt from AppStore
         case refresh(Swift.Error)
 
-        var localizedDescription: String {
+        var errorDescription: String? {
             switch self {
             case .doesNotExist:
                 return "AppStore receipt file does not exist on disk"
-            case .io(let ioError):
-                return "Read error: \(ioError.localizedDescription)"
-            case .refresh(let refreshError):
-                return "Receipt refresh error: \(refreshError.localizedDescription)"
+            case .io:
+                return "Read error"
+            case .refresh:
+                return "Receipt refresh error"
             }
         }
     }
+
+    /// An operation queue used to run receipt refresh requests
+    private static let operationQueue = OperationQueue()
 
     /// Read AppStore receipt from disk
     static func readFromDisk() -> Result<Data, Error> {
@@ -51,29 +53,68 @@ enum AppStoreReceipt {
 
     /// Read AppStore receipt from disk or refresh it from the AppStore if it's missing
     /// This call may trigger a sign in with AppStore prompt to appear
-    static func fetch(forceRefresh: Bool = false, receiptProperties: [String: Any]? = nil) -> AnyPublisher<Data, Error> {
-        let refreshReceiptPublisher = Deferred {
-            SKReceiptRefreshRequest(receiptProperties: receiptProperties)
-                .publisher
-                .mapError { .refresh($0) }
-                .flatMap({ _ -> Result<Data, Error>.Publisher in
-                    return self.readFromDisk().publisher
-                })
+    static func fetch(forceRefresh: Bool = false, receiptProperties: [String: Any]? = nil,
+                      completionHandler: @escaping (Result<Data, Error>) -> Void)
+    {
+        if forceRefresh {
+            refreshReceipt(receiptProperties: receiptProperties,
+                           completionHandler: completionHandler)
+        } else {
+            switch self.readFromDisk() {
+            case .success(let data):
+                completionHandler(.success(data))
+
+            case .failure(let error):
+                // Refresh the receipt from AppStore if it's not on disk
+                if case .doesNotExist = error {
+                    refreshReceipt(receiptProperties: receiptProperties,
+                                   completionHandler: completionHandler)
+                } else {
+                    completionHandler(.failure(error))
+                }
+            }
+        }
+    }
+
+    private static func refreshReceipt(receiptProperties: [String: Any]?, completionHandler: @escaping (Result<Data, Error>) -> Void) {
+        let refreshOperation = ReceiptRefreshOperation(receiptProperties: receiptProperties)
+        refreshOperation.addDidFinishBlockObserver { (operation, result) in
+            let result = result
+                .mapError { Error.refresh($0) }
+                .flatMap { Self.readFromDisk() }
+            completionHandler(result)
         }
 
-        if forceRefresh {
-            return refreshReceiptPublisher.eraseToAnyPublisher()
-        } else {
-            return Deferred { self.readFromDisk().publisher }
-                .catch({ (readError) -> AnyPublisher<Data, Error> in
-                    // Refresh the receipt from AppStore if it's not on disk
-                    if case .doesNotExist = readError {
-                        return refreshReceiptPublisher.eraseToAnyPublisher()
-                    } else {
-                        return Fail(error: readError).eraseToAnyPublisher()
-                    }
-                })
-                .eraseToAnyPublisher()
-        }
+        operationQueue.addOperation(refreshOperation)
+    }
+}
+
+
+private class ReceiptRefreshOperation: AsyncOperation, OutputOperation, SKRequestDelegate {
+    typealias Output = Result<(), Error>
+
+    private let request: SKReceiptRefreshRequest
+
+    init(receiptProperties: [String: Any]?) {
+        request = SKReceiptRefreshRequest(receiptProperties: receiptProperties)
+    }
+
+    override func main() {
+        request.delegate = self
+        request.start()
+    }
+
+    override func operationDidCancel() {
+        request.cancel()
+    }
+
+    // - MARK: SKRequestDelegate
+
+    func requestDidFinish(_ request: SKRequest) {
+        finish(with: .success(()))
+    }
+
+    func request(_ request: SKRequest, didFailWithError error: Error) {
+        finish(with: .failure(error))
     }
 }
