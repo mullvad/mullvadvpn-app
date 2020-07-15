@@ -174,8 +174,8 @@ class LoginViewController: UIViewController, RootContainment {
 
         Account.shared.loginWithNewAccount { (result) in
             switch result {
-            case .success(let (newAccountToken, _)):
-                self.accountTextField.autoformattingText = newAccountToken
+            case .success(let response):
+                self.accountTextField.autoformattingText = response.token
 
                 self.endLogin(.success(.newAccount))
             case .failure(let error):
