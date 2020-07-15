@@ -10,7 +10,7 @@ use crate::{
 use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use talpid_types::net::{openvpn::ProxySettings, TransportProtocol};
+use talpid_types::net::{openvpn::ProxySettings, TransportProtocol, TunnelType};
 
 
 pub trait Match<T> {
@@ -107,7 +107,7 @@ impl RelaySettings {
     pub(crate) fn ensure_bridge_compatibility(&mut self) {
         match self {
             RelaySettings::Normal(ref mut constraints) => {
-                if constraints.tunnel_protocol == Constraint::Only(TunnelProtocol::Wireguard) {
+                if constraints.tunnel_protocol == Constraint::Only(TunnelType::Wireguard) {
                     constraints.tunnel_protocol = Constraint::Any;
                 }
                 if constraints.openvpn_constraints.protocol
@@ -138,7 +138,7 @@ impl RelaySettings {
 pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
     #[cfg_attr(target_os = "android", jnix(skip))]
-    pub tunnel_protocol: Constraint<TunnelProtocol>,
+    pub tunnel_protocol: Constraint<TunnelType>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub wireguard_constraints: WireguardConstraints,
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -150,7 +150,7 @@ impl Default for RelayConstraints {
     fn default() -> Self {
         RelayConstraints {
             location: Constraint::Any,
-            tunnel_protocol: Constraint::Only(TunnelProtocol::Wireguard),
+            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
             wireguard_constraints: WireguardConstraints::default(),
             openvpn_constraints: OpenVpnConstraints::default(),
         }
@@ -185,10 +185,10 @@ impl fmt::Display for RelayConstraints {
             Constraint::Only(ref tunnel_protocol) => {
                 tunnel_protocol.fmt(f)?;
                 match tunnel_protocol {
-                    TunnelProtocol::Wireguard => {
+                    TunnelType::Wireguard => {
                         write!(f, " over {}", &self.wireguard_constraints)?;
                     }
-                    TunnelProtocol::OpenVpn => {
+                    TunnelType::OpenVpn => {
                         write!(f, " over {}", &self.openvpn_constraints)?;
                     }
                 };
@@ -226,24 +226,6 @@ impl fmt::Display for LocationConstraint {
             LocationConstraint::Hostname(country, city, hostname) => {
                 write!(f, "city {}, {}, hostname {}", city, country, hostname)
             }
-        }
-    }
-}
-
-/// Used in [`RelayConstraints`] to limit relay selection based on protocol.
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
-pub enum TunnelProtocol {
-    #[serde(rename = "wireguard")]
-    Wireguard,
-    #[serde(rename = "openvpn")]
-    OpenVpn,
-}
-
-impl fmt::Display for TunnelProtocol {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self {
-            TunnelProtocol::Wireguard => write!(f, "WireGuard"),
-            TunnelProtocol::OpenVpn => write!(f, "OpenVPN"),
         }
     }
 }
@@ -421,7 +403,7 @@ impl RelaySettingsUpdate {
                 endpoint.endpoint().protocol == TransportProtocol::Tcp
             }
             RelaySettingsUpdate::Normal(update) => {
-                if let Some(Constraint::Only(TunnelProtocol::Wireguard)) = &update.tunnel_protocol {
+                if let Some(Constraint::Only(TunnelType::Wireguard)) = &update.tunnel_protocol {
                     false
                 } else if let Some(constraints) = &update.openvpn_constraints {
                     if let Constraint::Only(TransportProtocol::Udp) = &constraints.protocol {
@@ -445,7 +427,7 @@ impl RelaySettingsUpdate {
 pub struct RelayConstraintsUpdate {
     pub location: Option<Constraint<LocationConstraint>>,
     #[cfg_attr(target_os = "android", jnix(default))]
-    pub tunnel_protocol: Option<Constraint<TunnelProtocol>>,
+    pub tunnel_protocol: Option<Constraint<TunnelType>>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub wireguard_constraints: Option<WireguardConstraints>,
     #[cfg_attr(target_os = "android", jnix(default))]

@@ -9,7 +9,7 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
-        OpenVpnConstraints, RelayConstraints, TunnelProtocol, WireguardConstraints,
+        OpenVpnConstraints, RelayConstraints, WireguardConstraints,
     },
     relay_list::{OpenVpnEndpointData, Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
@@ -24,7 +24,7 @@ use std::{
     time::{self, Duration, SystemTime},
 };
 use talpid_types::{
-    net::{all_of_the_internet, openvpn::ProxySettings, wireguard, TransportProtocol},
+    net::{all_of_the_internet, openvpn::ProxySettings, wireguard, TransportProtocol, TunnelType},
     ErrorExt,
 };
 
@@ -252,11 +252,7 @@ impl RelaySelector {
                     wg_key_exists,
                 )
             } else {
-                (
-                    Constraint::Any,
-                    TransportProtocol::Tcp,
-                    TunnelProtocol::OpenVpn,
-                )
+                (Constraint::Any, TransportProtocol::Tcp, TunnelType::OpenVpn)
             };
 
 
@@ -290,7 +286,7 @@ impl RelaySelector {
 
                 relay_constraints.tunnel_protocol = Constraint::Only(preferred_tunnel);
             }
-            Constraint::Only(TunnelProtocol::OpenVpn) => {
+            Constraint::Only(TunnelType::OpenVpn) => {
                 let openvpn_constraints = &mut relay_constraints.openvpn_constraints;
                 *openvpn_constraints = original_constraints.openvpn_constraints;
                 if *bridge_state == BridgeState::On && openvpn_constraints.protocol.is_any() {
@@ -304,7 +300,7 @@ impl RelaySelector {
                     openvpn_constraints.protocol = Constraint::Only(preferred_protocol);
                 }
             }
-            Constraint::Only(TunnelProtocol::Wireguard) => {
+            Constraint::Only(TunnelType::Wireguard) => {
                 relay_constraints.wireguard_constraints =
                     original_constraints.wireguard_constraints;
                 // This ensures that if after the first 2 failed attempts the daemon does not
@@ -381,7 +377,7 @@ impl RelaySelector {
         retry_attempt: u32,
         location_constraint: &Constraint<LocationConstraint>,
         wg_key_exists: bool,
-    ) -> (Constraint<u16>, TransportProtocol, TunnelProtocol) {
+    ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
         #[cfg(not(target_os = "windows"))]
         {
             let location_supports_wireguard =
@@ -395,7 +391,7 @@ impl RelaySelector {
             if !location_supports_wireguard || !wg_key_exists {
                 let (preferred_port, preferred_protocol) =
                     Self::preferred_openvpn_constraints(retry_attempt);
-                return (preferred_port, preferred_protocol, TunnelProtocol::OpenVpn);
+                return (preferred_port, preferred_protocol, TunnelType::OpenVpn);
             }
 
 
@@ -406,17 +402,17 @@ impl RelaySelector {
                 0 if location_supports_wireguard => (
                     Constraint::Any,
                     TransportProtocol::Udp,
-                    TunnelProtocol::Wireguard,
+                    TunnelType::Wireguard,
                 ),
                 1 => (
                     Constraint::Only(53),
                     TransportProtocol::Udp,
-                    TunnelProtocol::Wireguard,
+                    TunnelType::Wireguard,
                 ),
                 _ => {
                     let (preferred_port, preferred_protocol) =
                         Self::preferred_openvpn_constraints(retry_attempt - 2);
-                    (preferred_port, preferred_protocol, TunnelProtocol::OpenVpn)
+                    (preferred_port, preferred_protocol, TunnelType::OpenVpn)
                 }
             }
         }
@@ -427,7 +423,7 @@ impl RelaySelector {
                 Self::preferred_openvpn_constraints(retry_attempt);
 
 
-            (preferred_port, preferred_protocol, TunnelProtocol::OpenVpn)
+            (preferred_port, preferred_protocol, TunnelType::OpenVpn)
         }
     }
 
@@ -492,7 +488,7 @@ impl RelaySelector {
                 };
                 relay
             }
-            Constraint::Only(TunnelProtocol::Wireguard) => {
+            Constraint::Only(TunnelType::Wireguard) => {
                 let mut relay = relay.clone();
                 relay.tunnels = RelayTunnels {
                     wireguard: Self::matching_wireguard_tunnels(
@@ -504,7 +500,7 @@ impl RelaySelector {
                 relay
             }
 
-            Constraint::Only(TunnelProtocol::OpenVpn) => {
+            Constraint::Only(TunnelType::OpenVpn) => {
                 let mut relay = relay.clone();
                 relay.tunnels = RelayTunnels {
                     openvpn: Self::matching_openvpn_tunnels(
@@ -522,8 +518,8 @@ impl RelaySelector {
             Constraint::Any => {
                 !relay.tunnels.openvpn.is_empty() || !relay.tunnels.wireguard.is_empty()
             }
-            Constraint::Only(TunnelProtocol::OpenVpn) => !relay.tunnels.openvpn.is_empty(),
-            Constraint::Only(TunnelProtocol::Wireguard) => !relay.tunnels.wireguard.is_empty(),
+            Constraint::Only(TunnelType::OpenVpn) => !relay.tunnels.openvpn.is_empty(),
+            Constraint::Only(TunnelType::Wireguard) => !relay.tunnels.wireguard.is_empty(),
         };
 
         if relay_matches {
@@ -657,13 +653,13 @@ impl RelaySelector {
             // TODO: Handle Constraint::Any case by selecting from both openvpn and wireguard
             // tunnels once wireguard is mature enough
             #[cfg(not(target_os = "android"))]
-            Constraint::Only(TunnelProtocol::OpenVpn) | Constraint::Any => relay
+            Constraint::Only(TunnelType::OpenVpn) | Constraint::Any => relay
                 .tunnels
                 .openvpn
                 .choose(&mut self.rng)
                 .cloned()
                 .map(|endpoint| endpoint.into_mullvad_endpoint(relay.ipv4_addr_in.into())),
-            Constraint::Only(TunnelProtocol::Wireguard) => relay
+            Constraint::Only(TunnelType::Wireguard) => relay
                 .tunnels
                 .wireguard
                 .choose(&mut self.rng)
@@ -689,7 +685,7 @@ impl RelaySelector {
                     )
                 }),
             #[cfg(target_os = "android")]
-            Constraint::Only(TunnelProtocol::OpenVpn) => None,
+            Constraint::Only(TunnelType::OpenVpn) => None,
         }
     }
 

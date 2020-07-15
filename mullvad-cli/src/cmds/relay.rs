@@ -9,11 +9,13 @@ use std::{
 use mullvad_types::{
     relay_constraints::{
         Constraint, OpenVpnConstraints, RelayConstraintsUpdate, RelaySettingsUpdate,
-        TunnelProtocol, WireguardConstraints,
+        WireguardConstraints,
     },
     ConnectionConfig, CustomTunnelEndpoint,
 };
-use talpid_types::net::{all_of_the_internet, openvpn, wireguard, Endpoint, TransportProtocol};
+use talpid_types::net::{
+    all_of_the_internet, openvpn, wireguard, Endpoint, TransportProtocol, TunnelType,
+};
 
 pub struct Relay;
 
@@ -318,8 +320,8 @@ impl Relay {
 
     fn set_tunnel_protocol(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let tunnel_protocol = match matches.value_of("tunnel protocol").unwrap() {
-            "wireguard" => Constraint::Only(TunnelProtocol::Wireguard),
-            "openvpn" => Constraint::Only(TunnelProtocol::OpenVpn),
+            "wireguard" => Constraint::Only(TunnelType::Wireguard),
+            "openvpn" => Constraint::Only(TunnelType::OpenVpn),
             "any" => Constraint::Any,
             _ => unreachable!(),
         };

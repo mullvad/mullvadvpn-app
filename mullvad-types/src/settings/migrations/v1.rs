@@ -3,13 +3,13 @@ use crate::{
     custom_tunnel::CustomTunnelEndpoint,
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
-        OpenVpnConstraints, RelaySettings as NewRelaySettings, TunnelProtocol,
-        WireguardConstraints,
+        OpenVpnConstraints, RelaySettings as NewRelaySettings, WireguardConstraints,
     },
     settings::TunnelOptions,
 };
 use serde::{Deserialize, Serialize};
 use std::io::Read;
+use talpid_types::net::TunnelType;
 
 
 /// Mullvad daemon settings.
@@ -95,7 +95,7 @@ fn migrate_relay_settings(relay_settings: RelaySettings) -> NewRelaySettings {
                 }
                 Constraint::Only(TunnelConstraints::Wireguard(constraints)) => {
                     new_constraints.wireguard_constraints = constraints;
-                    new_constraints.tunnel_protocol = Constraint::Only(TunnelProtocol::Wireguard);
+                    new_constraints.tunnel_protocol = Constraint::Only(TunnelType::Wireguard);
                 }
             };
             crate::relay_constraints::RelaySettings::Normal(new_constraints)
