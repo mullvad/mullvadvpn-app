@@ -179,7 +179,7 @@ message BridgeSettings {
 	}
 
 	message LocalProxySettings {
-		int32 port = 1;
+		uint32 port = 1;
 		string peer = 2;
 	}
 	message RemoteProxySettings {
