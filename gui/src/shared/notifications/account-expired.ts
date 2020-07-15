@@ -28,7 +28,12 @@ export class AccountExpiredNotificationProvider implements SystemNotificationPro
       ),
       critical: true,
       presentOnce: { value: true, name: this.constructor.name },
-      action: { type: 'open-url', url: links.purchase, withAuth: true },
+      action: {
+        type: 'open-url',
+        url: links.purchase,
+        withAuth: true,
+        text: messages.pgettext('notifications', 'Buy more'),
+      },
     };
   }
 }

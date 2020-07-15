@@ -41,7 +41,12 @@ export class CloseToAccountExpiryNotificationProvider
     return {
       message,
       critical: true,
-      action: { type: 'open-url', url: links.purchase, withAuth: true },
+      action: {
+        type: 'open-url',
+        url: links.purchase,
+        withAuth: true,
+        text: messages.pgettext('notifications', 'Buy more'),
+      },
     };
   }
 
