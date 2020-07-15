@@ -12,7 +12,7 @@ use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeConstraints, BridgeState, Constraint, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate},
-    relay_list::{RelayList, RelayListCountry},
+    relay_list::{Relay, RelayList, RelayListCountry},
     settings::{Settings, TunnelOptions},
     states::{TargetState, TunnelState},
     version, wireguard, DaemonEvent,
@@ -24,7 +24,7 @@ use std::{
     sync::{Arc, mpsc},
 };
 use talpid_ipc;
-use talpid_types::ErrorExt;
+use talpid_types::{ErrorExt, net::TransportProtocol};
 use uuid;
 use futures::compat::Future01CompatExt;
 
@@ -879,8 +879,86 @@ fn convert_tunnel_options(settings: &TunnelOptions) -> proto::TunnelOptions {
 }
 
 fn convert_relay_list_country(country: &RelayListCountry) -> proto::RelayListCountry {
-    // TODO
-    proto::RelayListCountry::default()
+    let mut proto_country = proto::RelayListCountry {
+        name: country.name.clone(),
+        code: country.code.clone(),
+        cities: Vec::with_capacity(country.cities.len()),
+    };
+
+    for city in &country.cities {
+        proto_country.cities.push(proto::RelayListCity {
+            name: city.name.clone(),
+            code: city.code.clone(),
+            latitude: city.latitude,
+            longitude: city.longitude,
+            relays: city.relays.iter().map(|relay| convert_relay(relay)).collect(),
+        });
+    }
+
+    proto_country
+}
+
+fn convert_relay(relay: &Relay) -> proto::Relay {
+    proto::Relay {
+        hostname: relay.hostname.clone(),
+        ipv4_addr_in: relay.ipv4_addr_in.to_string(),
+        ipv6_addr_in: relay.ipv6_addr_in.map(|addr| addr.to_string()).unwrap_or_default(),
+        include_in_country: relay.include_in_country,
+        active: relay.active,
+        owned: relay.owned,
+        provider: relay.provider.clone(),
+        weight: relay.weight,
+        tunnels: Some(proto::RelayTunnels {
+            openvpn: relay.tunnels.openvpn.iter().map(|endpoint| {
+                let protocol = match endpoint.protocol {
+                    TransportProtocol::Udp => proto::TransportProtocol::Udp,
+                    TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
+                };
+                proto::OpenVpnEndpointData {
+                    port: endpoint.port as u32,
+                    protocol: protocol as i32,
+                }
+            }).collect(),
+            wireguard: relay.tunnels.wireguard.iter().map(|endpoint| {
+                let port_ranges = endpoint.port_ranges.iter().map(|range| {
+                    proto::PortRange {
+                        first: range.0 as u32,
+                        last: range.1 as u32,
+                    }
+                }).collect();
+                proto::WireguardEndpointData {
+                    port_ranges,
+                    ipv4_gateway: endpoint.ipv4_gateway.to_string(),
+                    ipv6_gateway: endpoint.ipv6_gateway.to_string(),
+                    public_key: endpoint.public_key.as_bytes().to_vec(),
+                }
+            }).collect(),
+        }),
+        bridges: Some(proto::RelayBridges {
+            shadowsocks: relay.bridges.shadowsocks.iter().map(|endpoint| {
+                let protocol = match endpoint.protocol {
+                    TransportProtocol::Udp => proto::TransportProtocol::Udp,
+                    TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
+                };
+                proto::ShadowsocksEndpointData {
+                    port: endpoint.port as u32,
+                    cipher: endpoint.cipher.clone(),
+                    password: endpoint.password.clone(),
+                    protocol: protocol as i32,
+                }
+            }).collect(),
+        }),
+        location: relay.location.as_ref().map(|location| {
+            proto::Location {
+                country: location.country.clone(),
+                country_code: location.country_code.clone(),
+                city: location.city.clone(),
+                city_code: location.city_code.clone(),
+                latitude: location.latitude,
+                longitude: location.longitude,
+            }
+        }),
+    }
 }
 
 build_rpc_trait! {
