@@ -41,8 +41,14 @@ open class TalpidVpnService : VpnService() {
         }
 
         val vpnInterface = builder.establish()
+        val tunFd = vpnInterface?.detachFd()
 
-        return vpnInterface?.detachFd() ?: 0
+        if (tunFd != null) {
+            waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
+            return tunFd
+        } else {
+            return 0
+        }
     }
 
     fun bypass(socket: Int): Boolean {
@@ -56,4 +62,6 @@ open class TalpidVpnService : VpnService() {
             else -> throw RuntimeException("Invalid IP address (not IPv4 nor IPv6)")
         }
     }
+
+    private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
 }
