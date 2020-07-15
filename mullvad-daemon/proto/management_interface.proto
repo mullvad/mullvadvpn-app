@@ -356,7 +356,7 @@ message Relay {
 	fixed64 weight = 8;
 	RelayTunnels tunnels = 9;
 	RelayBridges bridges = 10;
-	repeated Location location = 11;
+	Location location = 11;
 }
 
 message Location {
