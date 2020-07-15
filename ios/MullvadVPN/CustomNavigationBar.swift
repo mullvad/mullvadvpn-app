@@ -27,6 +27,14 @@ class CustomNavigationBar: UINavigationBar {
         margins.left = 24
         margins.right = 24
         layoutMargins = margins
+
+        if #available(iOS 13, *) {
+            // no-op
+        } else {
+            barTintColor = .secondaryColor
+            shadowImage = UIImage()
+            isTranslucent = false
+        }
     }
 
 }
