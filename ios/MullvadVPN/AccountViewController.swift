@@ -6,12 +6,11 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import StoreKit
 import UIKit
 import os
 
-class AccountViewController: UIViewController {
+class AccountViewController: UIViewController, AppStorePaymentObserver {
 
     @IBOutlet var accountTokenButton: UIButton!
     @IBOutlet var purchaseButton: InAppPurchaseButton!
@@ -20,16 +19,14 @@ class AccountViewController: UIViewController {
     @IBOutlet var expiryLabel: UILabel!
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
 
-    private var accountExpirySubscriber: AnyCancellable?
-    private var logoutSubscriber: AnyCancellable?
-    private var copyToPasteboardSubscriber: AnyCancellable?
-    private var requestProductsSubscriber: AnyCancellable?
-    private var purchaseSubscriber: AnyCancellable?
-    private var restorePurchasesSubscriber: AnyCancellable?
+    private var copyToPasteboardWork: DispatchWorkItem?
+    private var accountExpiryObserver: NSObjectProtocol?
+
+    private var pendingPayment: SKPayment?
+    private let alertPresenter = AlertPresenter()
 
     private lazy var purchaseButtonInteractionRestriction =
-        UserInterfaceInteractionRestriction(scheduler: DispatchQueue.main) {
-            [weak self] (enableUserInteraction, _) in
+        UserInterfaceInteractionRestriction { [weak self] (enableUserInteraction, _) in
             // Make sure to disable the button if the product is not loaded
             self?.purchaseButton.isEnabled = enableUserInteraction &&
                 self?.product != nil &&
@@ -37,8 +34,7 @@ class AccountViewController: UIViewController {
     }
 
     private lazy var viewControllerInteractionRestriction =
-        UserInterfaceInteractionRestriction(scheduler: DispatchQueue.main) {
-            [weak self] (enableUserInteraction, animated) in
+        UserInterfaceInteractionRestriction { [weak self] (enableUserInteraction, animated) in
             self?.setEnableUserInteraction(enableUserInteraction, animated: true)
     }
 
@@ -53,11 +49,13 @@ class AccountViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        accountExpirySubscriber = NotificationCenter.default
-            .publisher(for: Account.didUpdateAccountExpiryNotification, object: Account.shared)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] (notification) in
-                guard let newExpiryDate = notification
+        AppStorePaymentManager.shared.addPaymentObserver(self)
+
+        accountExpiryObserver = NotificationCenter.default.addObserver(
+            forName: Account.didUpdateAccountExpiryNotification,
+            object: Account.shared,
+            queue: OperationQueue.main) { [weak self] (note) in
+                guard let newExpiryDate = note
                     .userInfo?[Account.newAccountExpiryUserInfoKey] as? Date else { return }
 
                 self?.updateAccountExpiry(expiryDate: newExpiryDate)
@@ -97,21 +95,26 @@ class AccountViewController: UIViewController {
         purchaseButton.setTitle(inAppPurchase.localizedTitle, for: .normal)
         purchaseButton.isLoading = true
 
-        requestProductsSubscriber = AppStorePaymentManager.shared.requestProducts(with: [inAppPurchase])
-            .retry(10)
-            .receive(on: DispatchQueue.main)
-            .restrictUserInterfaceInteraction(with: self.purchaseButtonInteractionRestriction, animated: true)
-            .sink(receiveCompletion: { [weak self] (completion) in
-                if case .failure(let error) = completion {
-                    self?.didFailLoadingProducts(with: error)
+        purchaseButtonInteractionRestriction.raise(animated: true)
+
+        AppStorePaymentManager.shared.requestProducts(with: [inAppPurchase]) { [weak self] (result) in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+
+                switch result {
+                case .success(let response):
+                    if let product = response.products.first {
+                        self.setProduct(product, animated: true)
+                    }
+
+                case .failure(let error):
+                    self.didFailLoadingProducts(with: error)
                 }
 
-                self?.purchaseButton.isLoading = false
-                }, receiveValue: { [weak self] (response) in
-                    if let product = response.products.first {
-                        self?.setProduct(product, animated: true)
-                    }
-            })
+                self.purchaseButton.isLoading = false
+                self.purchaseButtonInteractionRestriction.lift(animated: true)
+            }
+        }
     }
 
     private func setProduct(_ product: SKProduct, animated: Bool) {
@@ -179,7 +182,7 @@ class AccountViewController: UIViewController {
         )
         alertController.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel))
 
-        present(alertController, animated: true)
+        alertPresenter.enqueue(alertController, presentingController: self)
     }
 
     private func showLogoutConfirmation(completion: @escaping (Bool) -> Void, animated: Bool) {
@@ -211,7 +214,7 @@ class AccountViewController: UIViewController {
             })
         )
 
-        present(alertController, animated: animated)
+        alertPresenter.enqueue(alertController, presentingController: self)
     }
 
     private func confirmLogout() {
@@ -223,24 +226,68 @@ class AccountViewController: UIViewController {
             message: message,
             preferredStyle: .alert)
 
-        present(alertController, animated: true) {
-            self.logoutSubscriber = Account.shared.logout()
-                .delay(for: .seconds(1), scheduler: DispatchQueue.main)
-                .sink(receiveCompletion: { (completion) in
-                    switch completion {
-                    case .failure(let error):
-                        alertController.dismiss(animated: true) {
-                            self.presentError(error, preferredStyle: .alert)
-                        }
+        alertPresenter.enqueue(alertController, presentingController: self) {
+            Account.shared.logout { (result) in
+                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+                    alertController.dismiss(animated: true) {
+                        switch result {
+                        case .failure(let error):
+                            error.logChain(message: "Failed to log out")
 
-                    case .finished:
-                        self.performSegue(
-                            withIdentifier: SegueIdentifier.Account.logout.rawValue,
-                            sender: self)
+                            let errorAlertController = UIAlertController(
+                                title: NSLocalizedString("Failed to log out", comment: ""),
+                                message: error.errorChainDescription,
+                                preferredStyle: .alert
+                            )
+                            errorAlertController.addAction(
+                                UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
+                            )
+                            self.alertPresenter.enqueue(errorAlertController, presentingController: self)
+
+                        case .success:
+                            self.performSegue(
+                                withIdentifier: SegueIdentifier.Account.logout.rawValue,
+                                sender: self
+                            )
+                        }
                     }
-                })
+                }
+            }
         }
     }
+
+    // MARK: - AppStorePaymentObserver
+
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String?, didFailWithError error: AppStorePaymentManager.Error) {
+        DispatchQueue.main.async {
+            let alertController = UIAlertController(
+                title: NSLocalizedString("Cannot complete the purchase", comment: ""),
+                message: error.errorChainDescription,
+                preferredStyle: .alert
+            )
+
+            alertController.addAction(
+                UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
+            )
+
+            self.alertPresenter.enqueue(alertController, presentingController: self)
+
+            if transaction.payment == self.pendingPayment {
+                self.compoundInteractionRestriction.lift(animated: true)
+            }
+        }
+    }
+
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: SendAppStoreReceiptResponse) {
+        DispatchQueue.main.async {
+            self.showTimeAddedConfirmationAlert(with: response, context: .purchase)
+
+            if transaction.payment == self.pendingPayment {
+                self.compoundInteractionRestriction.lift(animated: true)
+            }
+        }
+    }
+
 
     // MARK: - Actions
 
@@ -259,44 +306,53 @@ class AccountViewController: UIViewController {
             NSLocalizedString("COPIED TO PASTEBOARD!", comment: ""),
             for: .normal)
 
-        copyToPasteboardSubscriber =
-            Just(Account.shared.formattedToken)
-                .cancellableDelay(for: .seconds(3), scheduler: DispatchQueue.main)
-                .sink(receiveValue: { [weak self] (accountToken) in
-                    self?.accountTokenButton.setTitle(accountToken, for: .normal)
-                })
+        let dispatchWork = DispatchWorkItem { [weak self] in
+            self?.accountTokenButton.setTitle(Account.shared.formattedToken, for: .normal)
+        }
+
+        DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(3), execute: dispatchWork)
+
+        self.copyToPasteboardWork?.cancel()
+        self.copyToPasteboardWork = dispatchWork
     }
 
     @IBAction func doPurchase() {
-        guard let product = product else { return }
+        guard let product = product, let accountToken = Account.shared.token else { return }
 
         let payment = SKPayment(product: product)
+        self.pendingPayment = payment
 
-        purchaseSubscriber = AppStorePaymentManager.shared
-            .addPayment(payment, for: Account.shared.token!)
-            .receive(on: DispatchQueue.main)
-            .restrictUserInterfaceInteraction(with: compoundInteractionRestriction, animated: true)
-            .sink(receiveCompletion: { [weak self] (completion) in
-                if case .failure(let error) = completion {
-                    self?.presentError(error, preferredStyle: .alert)
-                }
-                }, receiveValue: { [weak self] (response) in
-                    self?.showTimeAddedConfirmationAlert(with: response, context: .purchase)
-            })
+        compoundInteractionRestriction.raise(animated: true)
+
+        AppStorePaymentManager.shared.addPayment(payment, for: accountToken)
     }
 
     @IBAction func restorePurchases() {
-        restorePurchasesSubscriber = AppStorePaymentManager.shared
-            .restorePurchases(for: Account.shared.token!)
-            .receive(on: DispatchQueue.main)
-            .restrictUserInterfaceInteraction(with: compoundInteractionRestriction, animated: true)
-            .sink(receiveCompletion: { [weak self] (completion) in
-                if case .failure(let error) = completion {
-                    self?.presentError(error, preferredStyle: .alert)
+        guard let accountToken = Account.shared.token else { return }
+
+        compoundInteractionRestriction.raise(animated: true)
+
+        AppStorePaymentManager.shared.restorePurchases(for: accountToken) { (result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let response):
+                    self.showTimeAddedConfirmationAlert(with: response, context: .restoration)
+
+                case .failure(let error):
+                    let alertController = UIAlertController(
+                        title: NSLocalizedString("Cannot restore purchases", comment: ""),
+                        message: error.errorChainDescription,
+                        preferredStyle: .alert
+                    )
+                    alertController.addAction(
+                        UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
+                    )
+                    self.alertPresenter.enqueue(alertController, presentingController: self)
                 }
-                }, receiveValue: { [weak self] (response) in
-                    self?.showTimeAddedConfirmationAlert(with: response, context: .restoration)
-            })
+
+                self.compoundInteractionRestriction.lift(animated: true)
+            }
+        }
     }
 
 }

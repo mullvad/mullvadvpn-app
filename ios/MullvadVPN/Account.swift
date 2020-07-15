@@ -223,17 +223,25 @@ extension Account: AppStorePaymentObserver {
         paymentManager.addPaymentObserver(self)
     }
 
-    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, didFailWithError error: AppStorePaymentManager.Error) {
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String?, didFailWithError error: AppStorePaymentManager.Error) {
         // no-op
     }
 
-    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, didFinishWithResponse response: SendAppStoreReceiptResponse) {
-        UserDefaults.standard.set(response.newExpiry,
-                                  forKey: UserDefaultsKeys.accountExpiry.rawValue)
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: SendAppStoreReceiptResponse) {
+        let newExpiry = response.newExpiry
 
-        NotificationCenter.default.post(
-            name: Self.didUpdateAccountExpiryNotification,
-            object: self, userInfo: [Self.newAccountExpiryUserInfoKey: response.newExpiry]
-        )
+        let operation = AsyncBlockOperation { (finish) in
+            DispatchQueue.main.async {
+                // Make sure that payment corresponds to the active account token
+                if self.token == accountToken {
+                    self.expiry = newExpiry
+                    self.postExpiryUpdateNotification(newExpiry: newExpiry)
+                }
+
+                finish()
+            }
+        }
+
+        exclusivityController.addOperation(operation, categories: [.exclusive])
     }
 }

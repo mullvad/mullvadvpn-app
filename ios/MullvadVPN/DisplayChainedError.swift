@@ -123,3 +123,39 @@ extension Account.Error: DisplayChainedError {
     }
 
 }
+
+extension AppStorePaymentManager.Error: DisplayChainedError {
+    var errorChainDescription: String? {
+        switch self {
+        case .noAccountSet:
+            return NSLocalizedString("Internal error: account is not set", comment: "")
+
+        case .readReceipt(let readReceiptError):
+            return String(format: NSLocalizedString("Cannot read the receipt: %@", comment: ""), readReceiptError.errorChainDescription ?? "")
+
+        case .sendReceipt(let rpcError):
+            let reason = rpcError.errorChainDescription ?? ""
+
+            return String(format: NSLocalizedString(#"Failed to send the receipt to server: %@\n\nPlease retry by using the "Restore purchases" button."#, comment: ""), reason)
+
+        case .storePayment(let storeError):
+            return storeError.localizedDescription
+        }
+    }
+}
+
+extension AppStoreReceipt.Error: DisplayChainedError {
+    var errorChainDescription: String? {
+        switch self {
+        case .doesNotExist:
+            return NSLocalizedString("AppStore receipt does not exist", comment: "")
+
+        case .io(let readError):
+            return String(format: NSLocalizedString("Read error: %@", comment: ""),
+                          readError.localizedDescription)
+
+        case .refresh(let refreshError):
+            return String(format: NSLocalizedString("Failed to refresh the receipt: %@", comment: ""), refreshError.localizedDescription)
+        }
+    }
+}
