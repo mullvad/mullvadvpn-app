@@ -28,14 +28,17 @@ use futures01::{
     Future, Stream,
 };
 use log::{debug, error, info, warn};
-use mullvad_rpc::AccountsProxy;
+use mullvad_rpc::{
+    rest::{CancelHandle, Cancellable},
+    AccountsProxy,
+};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
     relay_constraints::{
         BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, RelaySettings,
-        RelaySettingsUpdate,
+        RelaySettingsUpdate, TunnelProtocol,
     },
     relay_list::{Relay, RelayList},
     settings::Settings,
@@ -85,6 +88,9 @@ const TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Timeout for first WireGuard key pushing
 const FIRST_KEY_PUSH_TIMEOUT: Duration = Duration::from_secs(5);
+
+/// Delay between generating a new WireGuard key and reconnecting
+const WG_RECONNECT_DELAY: Duration = Duration::from_secs(30);
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -263,6 +269,8 @@ pub(crate) enum InternalDaemonEvent {
             Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
         ),
     ),
+    /// Reconnect the tunnel after a new key has been generated after a slight delay
+    WgReconnect,
     /// New Account created
     NewAccountEvent(
         AccountToken,
@@ -477,6 +485,7 @@ pub struct Daemon<L: EventListener> {
     /// oneshot channel that completes once the tunnel state machine has been shut down
     tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
     cache_dir: PathBuf,
+    wg_reconnect_delay: Option<CancelHandle>,
 }
 
 impl<L> Daemon<L>
@@ -616,6 +625,7 @@ where
             shutdown_callbacks: vec![],
             tunnel_state_machine_shutdown_signal,
             cache_dir,
+            wg_reconnect_delay: None,
         };
 
         daemon.ensure_wireguard_keys_for_current_account();
@@ -707,6 +717,7 @@ where
             Command(command) => self.handle_command(command),
             TriggerShutdown => self.trigger_shutdown_event(),
             WgKeyEvent(key_event) => self.handle_wireguard_key_event(key_event),
+            WgReconnect => self.handle_wireguard_reconnect(),
             NewAccountEvent(account_token, tx) => self.handle_new_account_event(account_token, tx),
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info)
@@ -962,11 +973,41 @@ where
         });
     }
 
+    fn schedule_delayed_wg_reconnect(&mut self) {
+        let tunnel_command_tx = self.tx.clone();
+
+        let (future, cancel_handle) = Cancellable::new(Box::pin(async move {
+            tokio02::time::delay_for(WG_RECONNECT_DELAY).await;
+            if tunnel_command_tx
+                .send(InternalDaemonEvent::WgReconnect)
+                .is_err()
+            {
+                log::error!("Failed to send delayed reconnect command to daemon");
+            }
+        }));
+
+        self.spawn_future(future);
+        self.wg_reconnect_delay = Some(cancel_handle);
+    }
+
     fn unschedule_reconnect(&mut self) {
         if let Some(tx) = self.reconnection_loop_tx.take() {
             let _ = tx.send(());
         }
+
+        if let Some(wg_handle) = self.wg_reconnect_delay.take() {
+            wg_handle.cancel();
+        }
     }
+
+    fn spawn_future<F>(&mut self, fut: F)
+    where
+        F: std::future::Future + Send + 'static,
+        F::Output: Send,
+    {
+        self.rpc_runtime.runtime().spawn(fut);
+    }
+
 
     fn handle_command(&mut self, command: DaemonCommand) {
         use self::DaemonCommand::*;
@@ -1063,9 +1104,11 @@ where
                     });
                 account_entry.wireguard = Some(data);
                 match self.account_history.insert(account_entry) {
-                    Ok(_) => self
-                        .event_listener
-                        .notify_key_event(KeygenEvent::NewKey(public_key)),
+                    Ok(_) => {
+                        self.schedule_delayed_wg_reconnect();
+                        self.event_listener
+                            .notify_key_event(KeygenEvent::NewKey(public_key))
+                    }
                     Err(e) => {
                         log::error!(
                             "{}",
@@ -1089,6 +1132,31 @@ where
                 );
                 self.event_listener
                     .notify_key_event(KeygenEvent::GenerationFailure);
+            }
+        }
+    }
+
+    // Reconnect if tunnel is connecting or connected to ensure that a new key is used.
+    fn handle_wireguard_reconnect(&mut self) {
+        // Only reconnect if the user wants to be secured
+        if self.target_state == TargetState::Secured {
+            match self.tunnel_state {
+                // Only reconnect if the tunnel is not already reconnecting
+                TunnelState::Connecting { .. } | TunnelState::Connected { .. } => {
+                    if let RelaySettings::Normal(normal_settings) =
+                        &self.settings.get_relay_settings()
+                    {
+                        // Only reconnect if the user hasn't specified OpenVPN as the only protocol
+                        if let Constraint::Only(TunnelProtocol::OpenVpn) =
+                            normal_settings.tunnel_protocol
+                        {
+                            return;
+                        }
+
+                        self.connect_tunnel();
+                    }
+                }
+                _ => (),
             }
         }
     }
