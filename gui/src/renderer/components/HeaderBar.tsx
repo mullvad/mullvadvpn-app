@@ -96,8 +96,8 @@ export function HeaderBarSettingsButton() {
         height={24}
         width={24}
         source="icon-settings"
-        tintColor={'rgba(255, 255, 255, 0.8)'}
-        tintHoverColor={'rgba(255, 255, 255, 1.0)'}
+        tintColor={colors.white80}
+        tintHoverColor={colors.white}
       />
     </HeaderBarSettingsButtonContainer>
   );

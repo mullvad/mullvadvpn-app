@@ -7,7 +7,7 @@ interface IProps {
   autoHide: boolean;
   trackPadding: { x: number; y: number };
   onScroll?: (value: IScrollEvent) => void;
-  style?: React.CSSProperties;
+  className?: string;
   fillContainer?: boolean;
   children?: React.ReactNode;
 }

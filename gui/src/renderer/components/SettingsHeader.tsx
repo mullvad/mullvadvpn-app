@@ -1,76 +1,31 @@
 import * as React from 'react';
-import { Component, Styles, Text, Types, View } from 'reactxp';
-import { colors } from '../../config.json';
+import styled from 'styled-components';
+import { bigText, smallText } from './common-styles';
 
-const styles = {
-  header: {
-    default: Styles.createViewStyle({
-      flex: 0,
-      paddingTop: 2,
-      paddingRight: 20,
-      paddingLeft: 20,
-      paddingBottom: 20,
-    }),
+export const Container = styled.div({
+  flex: 0,
+  padding: '2px 20px 20px',
+});
+
+export const ContentWrapper = styled.div({
+  ':not(:first-child)': {
+    paddingTop: '8px',
   },
-  // TODO: Use bigText in comonStyles when converted from ReactXP
-  title: Styles.createTextStyle({
-    fontFamily: 'DINPro',
-    fontSize: 30,
-    fontWeight: '900',
-    lineHeight: 34,
-    color: colors.white,
-  }),
-  // TODO: Use smallText in comonStyles when converted from ReactXP
-  subtitle: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    fontWeight: '600',
-    overflow: 'visible',
-    color: colors.white80,
-    lineHeight: 20,
-  }),
-  spacer: Styles.createViewStyle({
-    height: 8,
-  }),
-};
+});
+
+export const HeaderTitle = styled.span(bigText);
+export const HeaderSubTitle = styled.span(smallText);
 
 interface ISettingsHeaderProps {
-  style?: Types.ViewStyleRuleSet;
+  children?: React.ReactNode;
 }
 
-interface ISettingsTextProps {
-  style?: Types.TextStyleRuleSet;
-}
-
-export default class SettingsHeader extends Component<ISettingsHeaderProps> {
-  public render() {
-    return (
-      <View style={[styles.header.default, this.props.style]}>
-        {React.Children.map(this.props.children, (child, index) => {
-          if (React.isValidElement(child) && index > 0) {
-            return (
-              <React.Fragment>
-                <View style={styles.spacer} />
-                {child}
-              </React.Fragment>
-            );
-          } else {
-            return child;
-          }
-        })}
-      </View>
-    );
-  }
-}
-
-export class HeaderTitle extends Component<ISettingsTextProps> {
-  public render() {
-    return <Text style={[styles.title, this.props.style]}>{this.props.children}</Text>;
-  }
-}
-
-export class HeaderSubTitle extends Component<ISettingsTextProps> {
-  public render() {
-    return <Text style={[styles.subtitle, this.props.style]}>{this.props.children}</Text>;
-  }
+export default function SettingsHeader(props: ISettingsHeaderProps) {
+  return (
+    <Container>
+      {React.Children.map(props.children, (child) => {
+        return React.isValidElement(child) ? <ContentWrapper>{child}</ContentWrapper> : undefined;
+      })}
+    </Container>
+  );
 }
