@@ -23,10 +23,10 @@ class Account {
 
     enum Error: ChainedError {
         /// A failure to create the new account token
-        case createAccount(MullvadRpc.Error)
+        case createAccount(RestError)
 
         /// A failure to verify the account token
-        case verifyAccount(MullvadRpc.Error)
+        case verifyAccount(RestError)
 
         /// A failure to configure a tunnel
         case tunnelConfiguration(TunnelManager.Error)
@@ -74,7 +74,7 @@ class Account {
         case exclusive
     }
 
-    private let rpc = MullvadRpc.withEphemeralURLSession()
+    private let rest = MullvadRest()
     private let operationQueue = OperationQueue()
     private lazy var exclusivityController = ExclusivityController<ExclusivityCategory>(operationQueue: operationQueue)
 
@@ -87,16 +87,15 @@ class Account {
         UserDefaults.standard.set(true, forKey: UserDefaultsKeys.isAgreedToTermsOfService.rawValue)
     }
 
-    func loginWithNewAccount(completionHandler: @escaping (Result<(String, Date), Error>) -> Void) {
-        let operation = rpc.createAccount().operation()
+    func loginWithNewAccount(completionHandler: @escaping (Result<AccountResponse, Error>) -> Void) {
+        let operation = rest.createAccount().operation(payload: EmptyPayload())
 
         operation.addDidFinishBlockObserver({ (operation, result) in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let newAccountToken):
-                    let expiry = Date()
-                    self.setupTunnel(accountToken: newAccountToken, expiry: expiry) { (result) in
-                        completionHandler(result.map { (newAccountToken, expiry) })
+                case .success(let response):
+                    self.setupTunnel(accountToken: response.token, expiry: response.expires) { (result) in
+                        completionHandler(result.map { response })
                     }
 
                 case .failure(let error):
@@ -110,16 +109,16 @@ class Account {
 
     /// Perform the login and save the account token along with expiry (if available) to the
     /// application preferences.
-    func login(with accountToken: String, completionHandler: @escaping (Result<Date, Error>) -> Void) {
-        let operation = rpc.getAccountExpiry(accountToken: accountToken)
-            .operation()
+    func login(with accountToken: String, completionHandler: @escaping (Result<AccountResponse, Error>) -> Void) {
+        let operation = rest.getAccountExpiry()
+            .operation(payload: .init(token: accountToken, payload: EmptyPayload()))
 
         operation.addDidFinishBlockObserver { (operation, result) in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let expiry):
-                    self.setupTunnel(accountToken: accountToken, expiry: expiry) { (result) in
-                        completionHandler(result.map { expiry })
+                case .success(let response):
+                    self.setupTunnel(accountToken: response.token, expiry: response.expires) { (result) in
+                        completionHandler(result.map { response })
                     }
 
                 case .failure(let error):
@@ -159,21 +158,22 @@ class Account {
     }
 
     func updateAccountExpiry() {
-        let makeRequest = ResultOperation { () -> MullvadRpc.Request<Date>? in
-            return self.token.flatMap { (accountToken) -> MullvadRpc.Request<Date>? in
-                self.rpc.getAccountExpiry(accountToken: accountToken)
+        let makeRequest = ResultOperation { () -> TokenPayload<EmptyPayload>? in
+            return self.token.flatMap { (token) in
+                return TokenPayload(token: token, payload: EmptyPayload())
             }
         }
 
-        let sendRequest = rpc.getAccountExpiry()
+        let sendRequest = rest.getAccountExpiry()
+            .operation(payload: nil)
             .injectResult(from: makeRequest)
 
         sendRequest.addDidFinishBlockObserver { (operation, result) in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let expiry):
-                    self.expiry = expiry
-                    self.postExpiryUpdateNotification(newExpiry: expiry)
+                case .success(let response):
+                    self.expiry = response.expires
+                    self.postExpiryUpdateNotification(newExpiry: response.expires)
 
                 case .failure(let error):
                     error.logChain(message: "Failed to update account expiry")
