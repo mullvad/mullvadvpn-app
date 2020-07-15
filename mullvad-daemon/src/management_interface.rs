@@ -430,23 +430,49 @@ impl ManagementService for ManagementServiceImpl {
     }
     
     async fn set_bridge_settings(&self, request: Request<proto::BridgeSettings>) -> ServiceResult<()> {
+        use mullvad_types::relay_constraints::LocationConstraint;
         use proto::bridge_settings::Type as BridgeSettingType;
 
-        // TODO: correctly handle None-case (return correct error, etc.)
-        let settings = request.into_inner().r#type.unwrap();
+        let settings = request.into_inner().r#type.ok_or(tonic::Status::invalid_argument("no settings provided"))?;
 
         // FIXME: use correct settings
         let settings = match settings {
-            BridgeSettingType::Normal(constraints) => BridgeSettings::Normal(BridgeConstraints {
-                location: Constraint::Any
-            }),
+            BridgeSettingType::Normal(constraints) => {
+                let constraint = match constraints.location {
+                    None => Constraint::Any,
+                    Some(location) => {
+                        let hostname = location.hostname;
+                        match hostname.len() {
+                            0 => Constraint::Any,
+                            1 => Constraint::Only(LocationConstraint::Country(hostname[0].clone())),
+                            2 => Constraint::Only(LocationConstraint::City(
+                                hostname[0].clone(),
+                                hostname[1].clone(),
+                            )),
+                            3 => Constraint::Only(LocationConstraint::Hostname(
+                                hostname[0].clone(),
+                                hostname[1].clone(),
+                                hostname[2].clone(),
+                            )),
+                            _ => return Err(tonic::Status::invalid_argument("expected 1-3 elements")),
+                        }
+                    }
+                };
+
+                BridgeSettings::Normal(BridgeConstraints {
+                    location: constraint
+                })
+            }
             BridgeSettingType::Local(_) => BridgeSettings::Normal(BridgeConstraints {
+                // TODO
                 location: Constraint::Any
             }),
             BridgeSettingType::Remote(_) => BridgeSettings::Normal(BridgeConstraints {
+                // TODO
                 location: Constraint::Any
             }),
             BridgeSettingType::Shadowsocks(_) => BridgeSettings::Normal(BridgeConstraints {
+                // TODO
                 location: Constraint::Any
             }),
         };
