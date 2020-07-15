@@ -466,18 +466,31 @@ impl ManagementService for ManagementServiceImpl {
                 })
             }
             BridgeSettingType::Local(proxy_settings) => {
+                let peer = proxy_settings.peer.parse().map_err(|_| {
+                    tonic::Status::invalid_argument("failed to parse peer address")
+                })?;
                 let proxy_settings = net::openvpn::ProxySettings::Local(net::openvpn::LocalProxySettings {
                     port: proxy_settings.port as u16,
-                    peer: proxy_settings.peer.parse().map_err(|_| {
-                        tonic::Status::invalid_argument("failed to parse peer address")
-                    })?,
+                    peer,
                 });
                 BridgeSettings::Custom(proxy_settings)
             }
-            BridgeSettingType::Remote(_) => BridgeSettings::Normal(BridgeConstraints {
-                // TODO
-                location: Constraint::Any
-            }),
+            BridgeSettingType::Remote(proxy_settings) => {
+                let address = proxy_settings.address.parse().map_err(|_| {
+                    tonic::Status::invalid_argument("failed to parse IP address")
+                })?;
+                let auth = proxy_settings.auth.map(|auth| {
+                    net::openvpn::ProxyAuth {
+                        username: auth.username,
+                        password: auth.password,
+                    }
+                });
+                let proxy_settings = net::openvpn::ProxySettings::Remote(net::openvpn::RemoteProxySettings {
+                    address,
+                    auth,
+                });
+                BridgeSettings::Custom(proxy_settings)
+            }
             BridgeSettingType::Shadowsocks(_) => BridgeSettings::Normal(BridgeConstraints {
                 // TODO
                 location: Constraint::Any
