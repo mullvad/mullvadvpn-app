@@ -868,9 +868,15 @@ fn convert_bridge_settings(settings: &BridgeSettings) -> proto::BridgeSettings {
     proto::BridgeSettings::default()
 }
 
-fn convert_bridge_state(settings: &BridgeState) -> proto::BridgeState {
-    // TODO
-    proto::BridgeState::default()
+fn convert_bridge_state(state: &BridgeState) -> proto::BridgeState {
+    let state = match state {
+        BridgeState::Auto => proto::bridge_state::State::Auto,
+        BridgeState::On => proto::bridge_state::State::On,
+        BridgeState::Off => proto::bridge_state::State::Off,
+    };
+    proto::BridgeState {
+        state: state as i32
+    }
 }
 
 fn convert_tunnel_options(settings: &TunnelOptions) -> proto::TunnelOptions {
