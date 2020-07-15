@@ -7,6 +7,7 @@
 //
 
 import Combine
+import DiffableDataSources
 import UIKit
 import os
 
@@ -311,10 +312,10 @@ private enum DataSourceSection {
 }
 
 /// Data source type
-private typealias DataSource = UITableViewDiffableDataSource<DataSourceSection, DataSourceItem>
+private typealias DataSource = TableViewDiffableDataSource<DataSourceSection, DataSourceItem>
 
 /// Data source snapshot type
-private typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<DataSourceSection, DataSourceItem>
+private typealias DataSourceSnapshot = DiffableDataSourceSnapshot<DataSourceSection, DataSourceItem>
 
 /// A wrapper type for RelayList to be able to represent it as a flat list
 private enum DataSourceItem: Hashable {

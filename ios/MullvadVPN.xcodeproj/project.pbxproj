@@ -172,6 +172,7 @@
 		58F3C09A249B9852003E76BE /* x25519.c in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C098249B978C003E76BE /* x25519.c */; };
 		58F3C09C249B99DD003E76BE /* Curve25519.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C09B249B99DD003E76BE /* Curve25519.swift */; };
 		58F3C09D249B99DD003E76BE /* Curve25519.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C09B249B99DD003E76BE /* Curve25519.swift */; };
+		58F3C0A0249BBF1E003E76BE /* DiffableDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 58F3C09F249BBF1E003E76BE /* DiffableDataSources */; };
 		58F3C0A2249CA1E0003E76BE /* HeaderBarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A1249CA1E0003E76BE /* HeaderBarView.xib */; };
 		58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C0A3249CB069003E76BE /* HeaderBarView.swift */; };
 		58F3C0A624A50157003E76BE /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
@@ -386,6 +387,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58F3C0A0249BBF1E003E76BE /* DiffableDataSources in Frameworks */,
 				586BD68422B7BBE400BB7F9F /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -455,12 +457,13 @@
 		58CE5E57224146200008646E = {
 			isa = PBXGroup;
 			children = (
+				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
-				58CE5E62224146200008646E /* MullvadVPN */,
-				58CE5E7A224146470008646E /* PacketTunnel */,
-				58B0A2A1238EE67E00BC001D /* MullvadVPNTests */,
-				58D0C79423F1CE7000FE9BA7 /* MullvadVPNScreenshots */,
 				0E15C74FDCF763609B367486 /* Frameworks */,
+				58CE5E62224146200008646E /* MullvadVPN */,
+				58D0C79423F1CE7000FE9BA7 /* MullvadVPNScreenshots */,
+				58B0A2A1238EE67E00BC001D /* MullvadVPNTests */,
+				58CE5E7A224146470008646E /* PacketTunnel */,
 				58CE5E61224146200008646E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -675,6 +678,9 @@
 				58CE5E80224146470008646E /* PBXTargetDependency */,
 			);
 			name = MullvadVPN;
+			packageProductDependencies = (
+				58F3C09F249BBF1E003E76BE /* DiffableDataSources */,
+			);
 			productName = MullvadVPN;
 			productReference = 58CE5E60224146200008646E /* MullvadVPN.app */;
 			productType = "com.apple.product-type.application";
@@ -768,6 +774,9 @@
 				Base,
 			);
 			mainGroup = 58CE5E57224146200008646E;
+			packageReferences = (
+				58F3C09E249BBF1E003E76BE /* XCRemoteSwiftPackageReference "DiffableDataSources" */,
+			);
 			productRefGroup = 58CE5E61224146200008646E /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1502,6 +1511,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		58F3C09E249BBF1E003E76BE /* XCRemoteSwiftPackageReference "DiffableDataSources" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ra1028/DiffableDataSources.git";
+			requirement = {
+				kind = exactVersion;
+				version = 0.4.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		58F3C09F249BBF1E003E76BE /* DiffableDataSources */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 58F3C09E249BBF1E003E76BE /* XCRemoteSwiftPackageReference "DiffableDataSources" */;
+			productName = DiffableDataSources;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 58CE5E58224146200008646E /* Project object */;
 }
