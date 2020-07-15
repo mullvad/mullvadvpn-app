@@ -1,5 +1,5 @@
 //
-//  TunnelConfigurationManager.swift
+//  TunnelSettingsManager.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 02/10/2019.
@@ -15,12 +15,12 @@ private let kServiceName = "Mullvad VPN"
 /// Maximum number of attempts to perform when updating the Keychain entry "atomically"
 private let kMaxAtomicUpdateRetryLimit = 20
 
-enum TunnelConfigurationManager {}
+enum TunnelSettingsManager {}
 
-extension TunnelConfigurationManager {
+extension TunnelSettingsManager {
 
-    enum Error: Swift.Error {
-        /// A failure to encode the given tunnel configuration
+    enum Error: ChainedError {
+        /// A failure to encode the given tunnel settings
         case encode(Swift.Error)
 
         /// A failure to decode the data stored in Keychain
@@ -44,7 +44,7 @@ extension TunnelConfigurationManager {
 
     typealias Result<T> = Swift.Result<T, Error>
 
-    /// Keychain access level that should be used for all items containing tunnel configuration
+    /// Keychain access level that should be used for all items containing tunnel settings
     private static let keychainAccessibleLevel = Keychain.Accessible.afterFirstUnlock
 
     enum KeychainSearchTerm {
@@ -71,7 +71,7 @@ extension TunnelConfigurationManager {
 
     struct KeychainEntry {
         let accountToken: String
-        let tunnelConfiguration: TunnelConfiguration
+        let tunnelSettings: TunnelSettings
     }
 
     static func load(searchTerm: KeychainSearchTerm) -> Result<KeychainEntry> {
@@ -86,11 +86,11 @@ extension TunnelConfigurationManager {
                 let data = attributes.valueData!
 
                 return Self.decode(data: data)
-                    .map { KeychainEntry(accountToken: account, tunnelConfiguration: $0) }
+                    .map { KeychainEntry(accountToken: account, tunnelSettings: $0) }
         }
     }
 
-    static func add(configuration: TunnelConfiguration, account: String) -> Result<()> {
+    static func add(configuration: TunnelSettings, account: String) -> Result<()> {
         Self.encode(tunnelConfig: configuration)
             .flatMap { (data) -> Result<()> in
                 var attributes = KeychainSearchTerm.accountToken(account)
@@ -157,14 +157,14 @@ extension TunnelConfigurationManager {
         }
     }
 
-    /// Reads the tunnel configuration from Keychain, then passes it to the given closure for
+    /// Reads the tunnel settings from Keychain, then passes it to the given closure for
     /// modifications, saves the result back to Keychain.
     ///
     /// The given block may run multiple times if Keychain entry was changed between read and write
     /// operations.
     static func update(searchTerm: KeychainSearchTerm,
-                       using changeConfiguration: (inout TunnelConfiguration) -> Void)
-        -> Result<TunnelConfiguration>
+                       using changeConfiguration: (inout TunnelSettings) -> Void)
+        -> Result<TunnelSettings>
     {
         for _ in (0 ..< kMaxAtomicUpdateRetryLimit) {
             var searchQuery = searchTerm.makeKeychainAttributes()
@@ -172,7 +172,7 @@ extension TunnelConfigurationManager {
 
             let result = Keychain.findFirst(query: searchQuery)
                 .mapError { .lookupEntry($0) }
-                .flatMap { (itemAttributes) -> Result<TunnelConfiguration> in
+                .flatMap { (itemAttributes) -> Result<TunnelSettings> in
                     let itemAttributes = itemAttributes!
                     let serializedData = itemAttributes.valueData!
                     let account = itemAttributes.account!
@@ -185,12 +185,12 @@ extension TunnelConfigurationManager {
                         ?? KeychainItemRevision.firstRevision()
 
                     return Self.decode(data: serializedData)
-                        .flatMap { (tunnelConfig) -> Result<TunnelConfiguration> in
+                        .flatMap { (tunnelConfig) -> Result<TunnelSettings> in
                             var tunnelConfig = tunnelConfig
                             changeConfiguration(&tunnelConfig)
 
                             return Self.encode(tunnelConfig: tunnelConfig)
-                                .flatMap { (newData) -> Result<TunnelConfiguration> in
+                                .flatMap { (newData) -> Result<TunnelSettings> in
                                     // `SecItemUpdate` does not accept query parameters when using
                                     // persistent reference, so constraint the query to account
                                     // token instead now when we know it
@@ -245,13 +245,13 @@ extension TunnelConfigurationManager {
         }
     }
 
-    private static func encode(tunnelConfig: TunnelConfiguration) -> Result<Data> {
+    private static func encode(tunnelConfig: TunnelSettings) -> Result<Data> {
         return Swift.Result { try JSONEncoder().encode(tunnelConfig) }
             .mapError { .encode($0) }
     }
 
-    private static func decode(data: Data) -> Result<TunnelConfiguration> {
-        return Swift.Result { try JSONDecoder().decode(TunnelConfiguration.self, from: data) }
+    private static func decode(data: Data) -> Result<TunnelSettings> {
+        return Swift.Result { try JSONDecoder().decode(TunnelSettings.self, from: data) }
             .mapError { .decode($0) }
     }
 }

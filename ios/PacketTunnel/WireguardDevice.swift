@@ -6,7 +6,6 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import Foundation
 import NetworkExtension
 import os
@@ -20,7 +19,7 @@ class WireguardDevice {
     typealias WireguardLogHandler = (WireguardLogLevel, String) -> Void
 
     /// An error type describing the errors returned by `WireguardDevice`
-    enum Error: Swift.Error {
+    enum Error: ChainedError {
         /// A failure to obtain the tunnel device file descriptor
         case cannotLocateSocketDescriptor
 
@@ -36,7 +35,7 @@ class WireguardDevice {
         /// A failure to resolve an endpoint
         case resolveEndpoint(AnyIPEndpoint, Swift.Error)
 
-        var localizedDescription: String {
+        var errorDescription: String? {
             switch self {
             case .cannotLocateSocketDescriptor:
                 return "Unable to locate the file descriptor for socket."
@@ -46,8 +45,8 @@ class WireguardDevice {
                 return "Wireguard has not been started yet"
             case .alreadyStarted:
                 return "Wireguard has already been started"
-            case .resolveEndpoint(let endpoint, let error):
-                return "Failed to resolve the endpoint: \(endpoint). Error: \(error.localizedDescription)"
+            case .resolveEndpoint(let endpoint, _):
+                return "Failed to resolve the endpoint: \(endpoint)"
             }
         }
     }
@@ -84,9 +83,6 @@ class WireguardDevice {
 
     /// Active configuration
     private var configuration: WireguardConfiguration?
-
-    /// Active configuration with resolved endpoints
-    private var resolvedConfiguration: WireguardConfiguration?
 
     /// Returns a Wireguard version
     class var version: String {
@@ -135,26 +131,61 @@ class WireguardDevice {
 
     // MARK: - Public methods
 
-    func start(configuration: WireguardConfiguration) -> Future<(), Error> {
-        return Future { (fulfill) in
-            self.workQueue.async {
-                fulfill(self._start(configuration: configuration))
+    func start(configuration: WireguardConfiguration, completionHandler: @escaping (Result<(), Error>) -> Void) {
+        workQueue.async {
+            guard self.wireguardHandle == nil else {
+                completionHandler(.failure(.alreadyStarted))
+                return
+            }
+
+            let resolvedConfiguration = Self.resolveConfiguration(configuration)
+            let handle = resolvedConfiguration
+                .uapiConfiguration()
+                .toRawWireguardConfigString()
+                .withCString { wgTurnOn($0, self.tunFd) }
+
+            if handle >= 0 {
+                self.wireguardHandle = handle
+                self.configuration = configuration
+
+                self.startNetworkMonitor()
+
+                completionHandler(.success(()))
+            } else {
+                completionHandler(.failure(.start(handle)))
             }
         }
     }
 
-    func stop() -> Future<(), Error> {
-        return Future { (fulfill) in
-            self.workQueue.async {
-                fulfill(self._stop())
+    func stop(completionHandler: @escaping (Result<(), Error>) -> Void) {
+        workQueue.async {
+            if let handle = self.wireguardHandle {
+                self.networkMonitor?.cancel()
+                self.networkMonitor = nil
+
+                wgTurnOff(handle)
+                self.wireguardHandle = nil
+
+                completionHandler(.success(()))
+            } else {
+                completionHandler(.failure(.notStarted))
             }
         }
     }
 
-    func setConfig(configuration: WireguardConfiguration) -> Future<(), Error> {
-        return Future { (fulfill) in
-            self.workQueue.async {
-                fulfill(self._setConfig(configuration: configuration))
+    func setConfiguration(_ newConfiguration: WireguardConfiguration, completionHandler: @escaping (Result<(), Error>) -> Void) {
+        workQueue.async {
+            if let handle = self.wireguardHandle {
+                let resolvedConfiguration = Self.resolveConfiguration(newConfiguration)
+                let commands = resolvedConfiguration.uapiConfiguration()
+
+                Self.setWireguardConfig(handle: handle, commands: commands)
+
+                self.configuration = newConfiguration
+
+                completionHandler(.success(()))
+            } else {
+                completionHandler(.failure(.notStarted))
             }
         }
     }
@@ -182,60 +213,6 @@ class WireguardDevice {
     }
 
     // MARK: - Private methods
-
-    private func _start(configuration: WireguardConfiguration) -> Result<(), Error> {
-        guard wireguardHandle == nil else {
-            return .failure(.alreadyStarted)
-        }
-
-        let resolvedConfiguration = Self.resolveConfiguration(configuration)
-        let handle = resolvedConfiguration
-            .uapiConfiguration()
-            .toRawWireguardConfigString()
-            .withCString { wgTurnOn($0, self.tunFd) }
-
-        if handle < 0 {
-            return .failure(.start(handle))
-        } else {
-            self.wireguardHandle = handle
-            self.configuration = configuration
-            self.resolvedConfiguration = resolvedConfiguration
-
-            startNetworkMonitor()
-
-            return .success(())
-        }
-    }
-
-    private func _stop() -> Result<(), Error> {
-        if let handle = wireguardHandle {
-            networkMonitor?.cancel()
-            networkMonitor = nil
-
-            wgTurnOff(handle)
-            wireguardHandle = nil
-
-            return .success(())
-        } else {
-            return .failure(.notStarted)
-        }
-    }
-
-    private func _setConfig(configuration newConfiguration: WireguardConfiguration) -> Result<(), Error> {
-        if let handle = wireguardHandle {
-            let newResolvedConfiguration = Self.resolveConfiguration(newConfiguration)
-            let commands = newResolvedConfiguration.uapiConfiguration()
-
-            Self.setWireguardConfig(handle: handle, commands: commands)
-
-            self.configuration = newConfiguration
-            self.resolvedConfiguration = newResolvedConfiguration
-
-            return .success(())
-        } else {
-            return .failure(.notStarted)
-        }
-    }
 
     private class func setWireguardConfig(handle: Int32, commands: [WireguardCommand]) {
         // Ignore empty payloads
@@ -318,11 +295,10 @@ class WireguardDevice {
 
             // Re-resolve endpoints on network changes
             if let currentConfiguration = self.configuration {
-                let newResolvedConfiguration = Self.resolveConfiguration(currentConfiguration)
-                let commands = newResolvedConfiguration.endpointUapiConfiguration()
+                let resolvedConfiguration = Self.resolveConfiguration(currentConfiguration)
+                let commands = resolvedConfiguration.endpointUapiConfiguration()
 
                 Self.setWireguardConfig(handle: handle, commands: commands)
-                self.resolvedConfiguration = newResolvedConfiguration
             }
 
             // Tell Wireguard to re-open sockets and bind them to the new network interface
