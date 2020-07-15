@@ -11,7 +11,7 @@ use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     location::GeoIpLocation,
-    relay_constraints::{BridgeSettings, BridgeConstraints, BridgeState, Constraint, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate},
+    relay_constraints::{BridgeSettings, BridgeConstraints, BridgeState, Constraint, LocationConstraint, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate},
     relay_list::{Relay, RelayList, RelayListCountry},
     settings::{Settings, TunnelOptions},
     states::{TargetState, TunnelState},
@@ -431,7 +431,6 @@ impl ManagementService for ManagementServiceImpl {
     }
     
     async fn set_bridge_settings(&self, request: Request<proto::BridgeSettings>) -> ServiceResult<()> {
-        use mullvad_types::relay_constraints::LocationConstraint;
         use talpid_types::net;
         use proto::bridge_settings::Type as BridgeSettingType;
 
@@ -864,8 +863,65 @@ fn convert_relay_settings(settings: &RelaySettings) -> proto::RelaySettings {
 }
 
 fn convert_bridge_settings(settings: &BridgeSettings) -> proto::BridgeSettings {
-    // TODO
-    proto::BridgeSettings::default()
+    use proto::bridge_settings::{self, Type as BridgeSettingType};
+    use talpid_types::net;
+
+    let settings = match settings {
+        BridgeSettings::Normal(constraints) => {
+            let location = match &constraints.location {
+                Constraint::Any => None,
+                Constraint::Only(location) => Some(match location {
+                    LocationConstraint::Country(country) => {
+                        [country.clone()].to_vec()
+                    }
+                    LocationConstraint::City(country, city) => {
+                        [country.clone(), city.clone()].to_vec()
+                    }
+                    LocationConstraint::Hostname(country, city, host) => {
+                        [country.clone(), city.clone(), host.clone()].to_vec()
+                    }
+                })
+            };
+
+            BridgeSettingType::Normal(proto::bridge_settings::BridgeConstraints {
+                location: location.map(|location| proto::RelayLocation {
+                    hostname: location
+                }),
+            })
+        }
+        BridgeSettings::Custom(proxy_settings) => {
+            match proxy_settings {
+                net::openvpn::ProxySettings::Local(proxy_settings) => {
+                    BridgeSettingType::Local(bridge_settings::LocalProxySettings {
+                        port: proxy_settings.port as u32,
+                        peer: proxy_settings.peer.to_string(),
+                    })
+                }
+                net::openvpn::ProxySettings::Remote(proxy_settings) => {
+                    BridgeSettingType::Remote(bridge_settings::RemoteProxySettings {
+                        address: proxy_settings.address.to_string(),
+                        auth: proxy_settings.auth.as_ref().map(|auth| {
+                            bridge_settings::RemoteProxyAuth {
+                                username: auth.username.clone(),
+                                password: auth.password.clone(),
+                            }
+                        }),
+                    })
+                }
+                net::openvpn::ProxySettings::Shadowsocks(proxy_settings) => {
+                    BridgeSettingType::Shadowsocks(bridge_settings::ShadowsocksProxySettings {
+                        peer: proxy_settings.peer.to_string(),
+                        password: proxy_settings.password.clone(),
+                        cipher: proxy_settings.cipher.clone(),
+                    })
+                }
+            }
+        }
+    };
+
+    proto::BridgeSettings {
+        r#type: Some(settings),
+    }
 }
 
 fn convert_bridge_state(state: &BridgeState) -> proto::BridgeState {
