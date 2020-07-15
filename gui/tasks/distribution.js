@@ -132,7 +132,8 @@ const config = {
       distAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
       distAssets('shell-completions/_mullvad') + '=/usr/local/share/zsh/site-functions/_mullvad',
-      distAssets('shell-completions/mullvad.fish') + '=/usr/share/fish/vendor_completions.d',
+      distAssets('shell-completions/mullvad.fish') +
+        '=/usr/share/fish/vendor_completions.d/mullvad.fish',
     ],
     afterInstall: distAssets('linux/after-install.sh'),
     afterRemove: distAssets('linux/after-remove.sh'),
@@ -157,7 +158,8 @@ const config = {
       distAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
       distAssets('shell-completions/_mullvad') + '=/usr/share/zsh/site-functions/_mullvad',
-      distAssets('shell-completions/mullvad.fish') + '=/usr/share/fish/vendor_completions.d',
+      distAssets('shell-completions/mullvad.fish') +
+        '=/usr/share/fish/vendor_completions.d/mullvad.fish',
     ],
     afterInstall: distAssets('linux/after-install.sh'),
     afterRemove: distAssets('linux/after-remove.sh'),
