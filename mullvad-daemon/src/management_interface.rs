@@ -879,9 +879,19 @@ fn convert_bridge_state(state: &BridgeState) -> proto::BridgeState {
     }
 }
 
-fn convert_tunnel_options(settings: &TunnelOptions) -> proto::TunnelOptions {
-    // TODO
-    proto::TunnelOptions::default()
+fn convert_tunnel_options(options: &TunnelOptions) -> proto::TunnelOptions {
+    proto::TunnelOptions {
+        openvpn: Some(proto::tunnel_options::OpenvpnOptions {
+            mssfix: options.openvpn.mssfix.unwrap_or_default() as u32,
+        }),
+        wireguard: Some(proto::tunnel_options::WireguardOptions {
+            mtu: options.wireguard.mtu.unwrap_or_default() as u32,
+            automatic_rotation: options.wireguard.automatic_rotation.unwrap_or_default() as u32,
+        }),
+        generic: Some(proto::tunnel_options::GenericOptions {
+            enable_ipv6: options.generic.enable_ipv6,
+        }),
+    }
 }
 
 fn convert_relay_list_country(country: &RelayListCountry) -> proto::RelayListCountry {
