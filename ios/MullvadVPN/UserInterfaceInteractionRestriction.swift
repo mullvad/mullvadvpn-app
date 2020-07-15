@@ -6,35 +6,31 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import Foundation
 
 /// A protocol describing a common interface for the implementations of user interaction restriction
 protocol UserInterfaceInteractionRestrictionProtocol {
-    /// Raise the user interface interaction restrictions
-    func lift(animated: Bool)
+    /// Increase the user interface interaction restrictions
+    func increase(animated: Bool)
 
-    /// Lift the user interface interaction restrictions
-    func raise(animated: Bool)
+    /// Decrease the user interface interaction restrictions
+    func decrease(animated: Bool)
 }
 
 /// A counter based user interface interaction restriction implementation
-class UserInterfaceInteractionRestriction<S: Scheduler>
-    : UserInterfaceInteractionRestrictionProtocol
+class UserInterfaceInteractionRestriction: UserInterfaceInteractionRestrictionProtocol
 {
     typealias Action = (_ disableUserInteraction: Bool, _ animated: Bool) -> Void
 
     private let action: Action
-    private let scheduler: S
     private var counter: UInt = 0
 
-    init(scheduler: S, action: @escaping Action) {
+    init(action: @escaping Action) {
         self.action = action
-        self.scheduler = scheduler
     }
 
-    func raise(animated: Bool) {
-        scheduler.schedule {
+    func increase(animated: Bool) {
+        DispatchQueue.main.async {
             if self.counter == 0 {
                 self.action(false, animated)
             }
@@ -42,8 +38,8 @@ class UserInterfaceInteractionRestriction<S: Scheduler>
         }
     }
 
-    func lift(animated: Bool) {
-        scheduler.schedule {
+    func decrease(animated: Bool) {
+        DispatchQueue.main.async {
             guard self.counter > 0 else { return }
 
             self.counter -= 1
@@ -64,27 +60,11 @@ class CompoundUserInterfaceInteractionRestriction: UserInterfaceInteractionRestr
         self.restrictions = restrictions
     }
 
-    func lift(animated: Bool) {
-        restrictions.forEach { $0.lift(animated: animated) }
+    func decrease(animated: Bool) {
+        restrictions.forEach { $0.decrease(animated: animated) }
     }
 
-    func raise(animated: Bool) {
-        restrictions.forEach { $0.raise(animated: animated) }
-    }
-}
-
-extension Publisher {
-    func restrictUserInterfaceInteraction(
-        with restriction: UserInterfaceInteractionRestrictionProtocol,
-        animated: Bool
-    ) -> Publishers.HandleEvents<Self>
-    {
-        return handleEvents(receiveSubscription: { _ in
-            restriction.raise(animated: animated)
-        }, receiveCompletion: { _ in
-            restriction.lift(animated: animated)
-        }, receiveCancel: { () in
-            restriction.lift(animated: animated)
-        })
+    func increase(animated: Bool) {
+        restrictions.forEach { $0.increase(animated: animated) }
     }
 }

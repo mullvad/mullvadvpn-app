@@ -6,7 +6,6 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import Foundation
 import StoreKit
 import os
@@ -39,38 +38,51 @@ protocol AppStorePaymentObserver: class {
     func appStorePaymentManager(
         _ manager: AppStorePaymentManager,
         transaction: SKPaymentTransaction,
+        accountToken: String?,
         didFailWithError error: AppStorePaymentManager.Error)
 
     func appStorePaymentManager(
         _ manager: AppStorePaymentManager,
         transaction: SKPaymentTransaction,
+        accountToken: String,
         didFinishWithResponse response: SendAppStoreReceiptResponse)
 }
 
 /// A type-erasing weak container for `AppStorePaymentObserver`
-private class WeakAnyAppStorePaymentObserver: AppStorePaymentObserver {
+private class AnyAppStorePaymentObserver: WeakObserverBox, Equatable {
     private(set) weak var inner: AppStorePaymentObserver?
 
-    init(_ inner: AppStorePaymentObserver) {
+    init<T: AppStorePaymentObserver>(_ inner: T) {
         self.inner = inner
     }
 
     func appStorePaymentManager(_ manager: AppStorePaymentManager,
                                 transaction: SKPaymentTransaction,
+                                accountToken: String?,
                                 didFailWithError error: AppStorePaymentManager.Error)
     {
-        inner?.appStorePaymentManager(manager, transaction: transaction, didFailWithError: error)
+        self.inner?.appStorePaymentManager(
+            manager,
+            transaction: transaction,
+            accountToken: accountToken,
+            didFailWithError: error)
     }
 
     func appStorePaymentManager(_ manager: AppStorePaymentManager,
                                 transaction: SKPaymentTransaction,
+                                accountToken: String,
                                 didFinishWithResponse response: SendAppStoreReceiptResponse)
     {
-        inner?.appStorePaymentManager(manager,
-                                      transaction: transaction,
-                                      didFinishWithResponse: response)
+        self.inner?.appStorePaymentManager(
+            manager,
+            transaction: transaction,
+            accountToken: accountToken,
+            didFinishWithResponse: response)
     }
 
+    static func == (lhs: AnyAppStorePaymentObserver, rhs: AnyAppStorePaymentObserver) -> Bool {
+        return lhs.inner === rhs.inner
+    }
 }
 
 protocol AppStorePaymentManagerDelegate: class {
@@ -81,29 +93,36 @@ protocol AppStorePaymentManagerDelegate: class {
                                 didRequestAccountTokenFor payment: SKPayment) -> String?
 }
 
-class AppStorePaymentManager {
+class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
-    enum SendAppStoreReceiptError: Swift.Error {
-        case read(AppStoreReceipt.Error)
-        case rpc(MullvadRpc.Error)
-    }
-
-    enum Error: Swift.Error {
+    enum Error: ChainedError {
         case noAccountSet
         case storePayment(Swift.Error)
-        case sendReceipt(SendAppStoreReceiptError)
+        case readReceipt(AppStoreReceipt.Error)
+        case sendReceipt(MullvadRpc.Error)
+
+        var errorDescription: String? {
+            switch self {
+            case .noAccountSet:
+                return "Account is not set"
+            case .storePayment:
+                return "Store payment error"
+            case .readReceipt:
+                return "Read recept error"
+            case .sendReceipt:
+                return "Send receipt error"
+            }
+        }
     }
 
     /// A shared instance of `AppStorePaymentManager`
     static let shared = AppStorePaymentManager(queue: SKPaymentQueue.default())
 
+    private let operationQueue = OperationQueue()
     private let queue: SKPaymentQueue
     private let rpc = MullvadRpc.withEphemeralURLSession()
 
-    private var paymentQueueSubscriber: AnyCancellable?
-    private var sendReceiptSubscriber: AnyCancellable?
-
-    private var observers = [WeakAnyAppStorePaymentObserver]()
+    private var observerList = ObserverList<AnyAppStorePaymentObserver>()
     private let lock = NSRecursiveLock()
 
     private weak var classDelegate: AppStorePaymentManagerDelegate?
@@ -133,45 +152,25 @@ class AppStorePaymentManager {
     }
 
     func startPaymentQueueMonitoring() {
-        paymentQueueSubscriber = queue.publisher.sink { [weak self] (transaction) in
-            self?.handleTransaction(transaction)
+        queue.add(self)
+    }
+
+    // MARK: - SKPaymentTransactionObserver
+
+    func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
+        for transaction in transactions {
+            self.handleTransaction(transaction)
         }
     }
 
     // MARK: - Payment observation
 
-    func addPaymentObserver(_ observer: AppStorePaymentObserver) {
-        lock.withCriticalBlock {
-            let isAlreadyObserving = self.observers.contains(where: { $0.inner === observer })
-
-            if !isAlreadyObserving {
-                self.observers.append(WeakAnyAppStorePaymentObserver(observer))
-                self.compactObservers()
-            }
-        }
+    func addPaymentObserver<T: AppStorePaymentObserver>(_ observer: T) {
+        self.observerList.append(AnyAppStorePaymentObserver(observer))
     }
 
-    func removePaymentObserver(_ observer: AppStorePaymentObserver) {
-        lock.withCriticalBlock {
-            let index = self.observers.firstIndex(where: { $0.inner === observer })
-            if let index = index {
-                self.observers.remove(at: index)
-            }
-        }
-    }
-
-    private func compactObservers() {
-        lock.withCriticalBlock {
-            observers.removeAll(where: { $0.inner == nil })
-        }
-    }
-
-    private func enumerateObservers(_ body: (AppStorePaymentObserver) -> Void) {
-        lock.withCriticalBlock {
-            observers.forEach { (observer) in
-                body(observer)
-            }
-        }
+    func removePaymentObserver<T: AppStorePaymentObserver>(_ observer: T) {
+        observerList.remove(AnyAppStorePaymentObserver(observer))
     }
 
     // MARK: - Account token and payment mapping
@@ -196,46 +195,75 @@ class AppStorePaymentManager {
 
     // MARK: - Products and payments
 
-    func requestProducts(with productIdentifiers: Set<AppStoreSubscription>)
-        -> SKRequestPublisher<SKProductsRequestSubscription>
+    func requestProducts(with productIdentifiers: Set<AppStoreSubscription>,
+                         completionHandler: @escaping (Result<SKProductsResponse, Swift.Error>) -> Void)
     {
         let productIdentifiers = productIdentifiers.productIdentifiersSet
 
-        return SKProductsRequest(productIdentifiers: productIdentifiers).publisher
+        let retryStrategy = RetryStrategy(
+            maxRetries: 10,
+            waitStrategy: .constant(2),
+            waitTimerType: .deadline
+        )
+
+        let operation = RetryOperation(strategy: retryStrategy) { () -> ProductsRequestOperation in
+            let request = SKProductsRequest(productIdentifiers: productIdentifiers)
+            return ProductsRequestOperation(request: request)
+        }
+
+        operation.addDidFinishBlockObserver { (operation, result) in
+            completionHandler(result)
+        }
+
+        operationQueue.addOperation(operation)
     }
 
-    func addPayment(_ payment: SKPayment, for accountToken: String) -> AppStorePaymentPublisher {
+    func addPayment(_ payment: SKPayment, for accountToken: String) {
         associateAccountToken(accountToken, and: payment)
-
-        return AppStorePaymentPublisher(paymentManager: self, queue: queue, payment: payment)
+        queue.add(payment)
     }
 
-    func restorePurchases(for accountToken: String) -> AnyPublisher<SendAppStoreReceiptResponse, AppStorePaymentManager.Error> {
-        return sendAppStoreReceipt(accountToken: accountToken, forceRefresh: true)
+    func restorePurchases(
+        for accountToken: String,
+        completionHandler: @escaping (Result<SendAppStoreReceiptResponse, AppStorePaymentManager.Error>) -> Void) {
+        return sendAppStoreReceipt(
+            accountToken: accountToken,
+            forceRefresh: true,
+            completionHandler: completionHandler
+        )
     }
 
     // MARK: - Private methods
 
-    private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool) ->
-        AnyPublisher<SendAppStoreReceiptResponse, AppStorePaymentManager.Error>
+    private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool, completionHandler: @escaping (Result<SendAppStoreReceiptResponse, Error>) -> Void)
     {
-        return AppStoreReceipt.fetch(forceRefresh: forceRefresh)
-            .mapError { SendAppStoreReceiptError.read($0) }
-            .flatMap { (receiptData) in
-                self.rpc.sendAppStoreReceipt(
+        AppStoreReceipt.fetch(forceRefresh: forceRefresh) { (result) in
+            switch result {
+            case .success(let receiptData):
+                let request = self.rpc.sendAppStoreReceipt(
                     accountToken: accountToken,
                     receiptData: receiptData
-                ).mapError { SendAppStoreReceiptError.rpc($0) }
+                )
+
+                request.start { (result) in
+                    switch result {
+                    case .success(let response):
+                        os_log(
+                            .info,
+                            "AppStore Receipt was processed. Time added: %{public}.2f, New expiry: %{private}s",
+                            response.timeAdded, "\(response.newExpiry)")
+
+                        completionHandler(.success(response))
+
+                    case .failure(let error):
+                        completionHandler(.failure(.sendReceipt(error)))
+                    }
+                }
+
+            case .failure(let error):
+                completionHandler(.failure(.readReceipt(error)))
+            }
         }
-        .receive(on: DispatchQueue.main)
-        .handleEvents(receiveOutput: { (response) in
-            os_log(
-                .info,
-                "AppStore Receipt was processed. Time added: %{public}.2f, New expiry: %{private}s",
-                response.timeAdded, "\(response.newExpiry)")
-        })
-            .mapError { AppStorePaymentManager.Error.sendReceipt($0) }
-            .eraseToAnyPublisher()
     }
 
     private func handleTransaction(_ transaction: SKPaymentTransaction) {
@@ -272,97 +300,101 @@ class AppStorePaymentManager {
     private func didFailPurchase(transaction: SKPaymentTransaction) {
         queue.finishTransaction(transaction)
 
-        enumerateObservers { (observer) in
+        guard let accountToken = deassociateAccountToken(transaction.payment) else {
+            observerList.forEach { (observer) in
+                observer.appStorePaymentManager(
+                    self,
+                    transaction: transaction,
+                    accountToken: nil,
+                    didFailWithError: .noAccountSet)
+            }
+            return
+        }
+
+        observerList.forEach { (observer) in
             observer.appStorePaymentManager(
                 self,
                 transaction: transaction,
+                accountToken: accountToken,
                 didFailWithError: .storePayment(transaction.error!))
         }
 
-        _ = deassociateAccountToken(transaction.payment)
     }
 
     private func didFinishOrRestorePurchase(transaction: SKPaymentTransaction) {
-        let accountToken = deassociateAccountToken(transaction.payment)
+        guard let accountToken = deassociateAccountToken(transaction.payment) else {
+            observerList.forEach { (observer) in
+                observer.appStorePaymentManager(
+                    self,
+                    transaction: transaction,
+                    accountToken: nil,
+                    didFailWithError: .noAccountSet)
+            }
+            return
+        }
 
-        sendReceiptSubscriber = Just(accountToken)
-            .setFailureType(to: AppStorePaymentManager.Error.self)
-            .replaceNil(with: .noAccountSet)
-            .flatMap({ (accountToken) in
-                self.sendAppStoreReceipt(accountToken: accountToken, forceRefresh: false)
-                    .retry(1)
-            })
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { [weak self] (completion) in
-                guard let self = self else { return }
-
-                switch completion {
-                case .finished:
+        sendAppStoreReceipt(accountToken: accountToken, forceRefresh: false) { (result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let response):
                     self.queue.finishTransaction(transaction)
 
-                case .failure(let error):
-                    os_log(.error, "Failed to upload the AppStore receipt: %{public}s",
-                           error.localizedDescription)
-
-                    self.enumerateObservers { (observer) in
+                    self.observerList.forEach { (observer) in
                         observer.appStorePaymentManager(
                             self,
                             transaction: transaction,
+                            accountToken: accountToken,
+                            didFinishWithResponse: response)
+                    }
+
+                case .failure(let error):
+                    error.logChain(message: "Failed to upload the AppStore receipt")
+
+                    self.observerList.forEach { (observer) in
+                        observer.appStorePaymentManager(
+                            self,
+                            transaction: transaction,
+                            accountToken: accountToken,
                             didFailWithError: error)
                     }
                 }
-            }, receiveValue: { [weak self] (response) in
-                guard let self = self else { return }
-
-                self.enumerateObservers { (observer) in
-                    observer.appStorePaymentManager(
-                        self,
-                        transaction: transaction,
-                        didFinishWithResponse: response)
-                }
-            })
+            }
+        }
     }
 
 }
 
+private class ProductsRequestOperation: AsyncOperation, OutputOperation, SKProductsRequestDelegate {
+    typealias Output = Result<SKProductsResponse, Error>
 
-extension AppStorePaymentManager.Error: LocalizedError {
+    private let request: SKProductsRequest
 
-    var errorDescription: String? {
-        switch self {
-        case .noAccountSet:
-            return nil
-        case .storePayment:
-            return NSLocalizedString("AppStore payment", comment: "")
-        case .sendReceipt:
-            return NSLocalizedString("Communication error", comment: "")
-        }
+    init(request: SKProductsRequest) {
+        self.request = request
+        super.init()
+
+        request.delegate = self
     }
 
-    var failureReason: String? {
-        switch self {
-        case .storePayment(let storeError):
-            return storeError.localizedDescription
-        case .sendReceipt(.rpc(.network(let urlError))):
-            return urlError.localizedDescription
-        case .sendReceipt(.rpc(.server(let serverError))):
-            return serverError.errorDescription
-        case .sendReceipt(.read(.refresh(let storeError))):
-            return storeError.localizedDescription
-        default:
-            return NSLocalizedString("Internal error", comment: "")
-        }
+    override func main() {
+        request.start()
     }
 
-    var recoverySuggestion: String? {
-        switch self {
-        case .noAccountSet:
-            return nil
-        case .storePayment:
-            return nil
-        case .sendReceipt:
-            return NSLocalizedString(
-                #"Please retry by using the "Restore purchases" button"#, comment: "")
-        }
+    override func operationDidCancel() {
+        request.cancel()
+    }
+
+    // - MARK: SKProductsRequestDelegate
+
+    func requestDidFinish(_ request: SKRequest) {
+        // no-op
+    }
+
+    func request(_ request: SKRequest, didFailWithError error: Error) {
+        finish(with: .failure(error))
+    }
+
+    func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
+        finish(with: .success(response))
     }
 }
