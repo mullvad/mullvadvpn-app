@@ -47,6 +47,10 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
+        view.findViewById<View>(R.id.split_tunnelling).setOnClickListener {
+            openSubFragment(SplitTunnellingFragment())
+        }
+
         settingsListener.subscribe(this) { settings ->
             updateUi(settings)
         }

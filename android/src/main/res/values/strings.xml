@@ -159,6 +159,11 @@
     <string name="wireguard_key_verification_failure">Key verification failed</string>
     <string name="wireguard_public_key">WireGuard public key</string>
     <string name="copied_wireguard_public_key">Copied WireGuard public key to clipboard</string>
+    <string name="split_tunnelling">Split tunnelling</string>
+    <string name="split_tunnelling_description">Split tunnelling makes it possible to select which
+    applications should not be routed through the VPN tunnel.</string>
+    <string name="enabled">Enabled</string>
+    <string name="exclude_applications">Exclude applications</string>
     <string name="account_url">https://mullvad.net/en/account</string>
     <string name="wg_key_url">https://mullvad.net/account/ports</string>
     <string name="create_account_url">https://mullvad.net/en/account/create</string>
