@@ -26,6 +26,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Show system notification when account has expired.
 - Add fish shell completions for the mullvad CLI.
+- Reconnect with a new key when WireGuard key is rotated automatically, previously the tunnel would
+  time out before reconnecting.
 
 ### Changed
 - Upgrade from Electron 7 to Electron 8.
