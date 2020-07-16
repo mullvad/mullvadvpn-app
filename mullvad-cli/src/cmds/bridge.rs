@@ -1,8 +1,14 @@
-use crate::{location, new_rpc_client, Command, Result};
+use crate::{location, new_grpc_client, Command, Error, Result};
 use clap::value_t;
 
-use mullvad_types::relay_constraints::{BridgeConstraints, BridgeSettings, BridgeState};
-use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
+use crate::proto::{
+    BridgeSettings,
+    BridgeState,
+    bridge_settings::{Type as BridgeSettingsType},
+    bridge_state::{State as BridgeStateType},
+};
+use crate::proto::bridge_settings::*;
+use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
 
 use std::net::{IpAddr, SocketAddr};
 
@@ -27,9 +33,9 @@ impl Command for Bridge {
 
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
-            ("set", Some(set_matches)) => Self::handle_set(set_matches),
-            ("get", _) => Self::handle_get(),
-            ("list", _) => Self::list_bridge_relays(),
+            ("set", Some(set_matches)) => Self::handle_set(set_matches).await,
+            ("get", _) => Self::handle_get().await,
+            ("list", _) => Self::list_bridge_relays().await,
             _ => unreachable!("unhandled command"),
         }
     }
@@ -146,64 +152,71 @@ fn create_set_state_subcommand() -> clap::App<'static, 'static> {
 }
 
 impl Bridge {
-    fn handle_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn handle_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("location", Some(location_matches)) => {
-                Self::handle_set_bridge_location(location_matches)
+                Self::handle_set_bridge_location(location_matches).await
             }
             ("custom", Some(custom_matches)) => {
-                Self::handle_bridge_set_custom_settings(custom_matches)
+                Self::handle_bridge_set_custom_settings(custom_matches).await
             }
-            ("state", Some(set_matches)) => Self::handle_set_bridge_state(set_matches),
+            ("state", Some(set_matches)) => Self::handle_set_bridge_state(set_matches).await,
             _ => unreachable!("unhandled command"),
         }
     }
 
-    fn handle_get() -> Result<()> {
-        let mut rpc = new_rpc_client()?;
-        let settings = rpc.get_settings()?;
-        println!("Bridge state - {}", settings.get_bridge_state());
-        match settings.bridge_settings {
-            BridgeSettings::Custom(proxy) => {
-                match proxy {
-                    openvpn::ProxySettings::Local(local_proxy) => {
-                        Self::print_local_proxy(&local_proxy)
-                    }
-                    openvpn::ProxySettings::Remote(remote_proxy) => {
-                        Self::print_remote_proxy(&remote_proxy)
-                    }
-                    openvpn::ProxySettings::Shadowsocks(shadowsocks_proxy) => {
-                        Self::print_shadowsocks_proxy(&shadowsocks_proxy)
-                    }
-                };
+    async fn handle_get() -> Result<()> {
+        let mut rpc = new_grpc_client().await?;
+        let settings = rpc.get_settings(())
+            .await
+            .map_err(Error::GrpcClientError)?
+            .into_inner();
+        println!("Bridge state - {:?}", settings.bridge_state.unwrap());
+        match settings.bridge_settings.unwrap().r#type.unwrap() {
+            BridgeSettingsType::Local(local_proxy) => {
+                Self::print_local_proxy(&local_proxy)
             }
-            BridgeSettings::Normal(constraints) => {
-                println!("Bridge constraints: {}", constraints);
+            BridgeSettingsType::Remote(remote_proxy) => {
+                Self::print_remote_proxy(&remote_proxy)
+            }
+            BridgeSettingsType::Shadowsocks(shadowsocks_proxy) => {
+                Self::print_shadowsocks_proxy(&shadowsocks_proxy)
+            }
+            BridgeSettingsType::Normal(constraints) => {
+                println!("Bridge constraints: {:?}", constraints);
             }
         };
         Ok(())
     }
 
-    fn handle_set_bridge_location(matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let location = location::get_constraint(matches);
-        let mut rpc = new_rpc_client()?;
-        rpc.set_bridge_settings(BridgeSettings::Normal(BridgeConstraints { location }))?;
+    async fn handle_set_bridge_location(matches: &clap::ArgMatches<'_>) -> Result<()> {
+        let hostname = location::get_constraint(matches);
+        let mut rpc = new_grpc_client().await?;
+        rpc.set_bridge_settings(BridgeSettings {
+            r#type: Some(BridgeSettingsType::Normal(BridgeConstraints {
+                location: Some(crate::proto::RelayLocation {
+                    hostname
+                })
+            }))
+        }).await.map_err(Error::GrpcClientError)?;
         Ok(())
     }
 
-    fn handle_set_bridge_state(matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn handle_set_bridge_state(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let state = match matches.value_of("state").unwrap() {
-            "auto" => BridgeState::Auto,
-            "on" => BridgeState::On,
-            "off" => BridgeState::Off,
+            "auto" => BridgeStateType::Auto as i32,
+            "on" => BridgeStateType::On as i32,
+            "off" => BridgeStateType::Off as i32,
             _ => unreachable!(),
         };
-        let mut rpc = new_rpc_client()?;
-        rpc.set_bridge_state(state)?;
+        let mut rpc = new_grpc_client().await?;
+        rpc.set_bridge_state(BridgeState { state })
+            .await
+            .map_err(Error::GrpcClientError)?;
         Ok(())
     }
 
-    fn handle_bridge_set_custom_settings(matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn handle_bridge_set_custom_settings(matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(args) = matches.subcommand_matches("local") {
             let local_port =
                 value_t!(args.value_of("local-port"), u16).unwrap_or_else(|e| e.exit());
@@ -212,19 +225,24 @@ impl Bridge {
             let remote_port =
                 value_t!(args.value_of("remote-port"), u16).unwrap_or_else(|e| e.exit());
 
-            let proxy = openvpn::LocalProxySettings {
-                port: local_port,
-                peer: SocketAddr::new(remote_ip, remote_port),
+            let proxy = LocalProxySettings {
+                port: local_port as u32,
+                peer: SocketAddr::new(remote_ip, remote_port).to_string(),
             };
 
+            // TODO: validate
+            /*
             let packed_proxy = openvpn::ProxySettings::Local(proxy);
 
             if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
                 panic!(error);
             }
+            */
 
-            let mut rpc = new_rpc_client()?;
-            rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))?;
+            let mut rpc = new_grpc_client().await?;
+            rpc.set_bridge_settings(BridgeSettings {
+                r#type: Some(BridgeSettingsType::Local(proxy))
+            }).await.map_err(Error::GrpcClientError)?;
         } else if let Some(args) = matches.subcommand_matches("remote") {
             let remote_ip =
                 value_t!(args.value_of("remote-ip"), IpAddr).unwrap_or_else(|e| e.exit());
@@ -234,26 +252,29 @@ impl Bridge {
             let password = args.value_of("password");
 
             let auth = match (username, password) {
-                (Some(username), Some(password)) => Some(openvpn::ProxyAuth {
+                (Some(username), Some(password)) => Some(RemoteProxyAuth {
                     username: username.to_string(),
                     password: password.to_string(),
                 }),
                 _ => None,
             };
 
-            let proxy = openvpn::RemoteProxySettings {
-                address: SocketAddr::new(remote_ip, remote_port),
+            let proxy = RemoteProxySettings {
+                address: SocketAddr::new(remote_ip, remote_port).to_string(),
                 auth,
             };
 
-            let packed_proxy = openvpn::ProxySettings::Remote(proxy);
-
-            if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
+            // TODO: validate settings
+            /*
+            if let Err(error) = openvpn::validate_proxy_settings(&proxy) {
                 panic!(error);
             }
+            */
 
-            let mut rpc = new_rpc_client()?;
-            rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))?;
+            let mut rpc = new_grpc_client().await?;
+            rpc.set_bridge_settings(BridgeSettings {
+                r#type: Some(BridgeSettingsType::Remote(proxy))
+            }).await.map_err(Error::GrpcClientError)?;
         } else if let Some(args) = matches.subcommand_matches("shadowsocks") {
             let remote_ip =
                 value_t!(args.value_of("remote-ip"), IpAddr).unwrap_or_else(|e| e.exit());
@@ -262,20 +283,25 @@ impl Bridge {
             let password = args.value_of("password").unwrap().to_string();
             let cipher = args.value_of("cipher").unwrap().to_string();
 
-            let proxy = openvpn::ShadowsocksProxySettings {
-                peer: SocketAddr::new(remote_ip, remote_port),
+            let proxy = ShadowsocksProxySettings {
+                peer: SocketAddr::new(remote_ip, remote_port).to_string(),
                 password,
                 cipher,
             };
 
+            // TODO: validate settings
+            /*
             let packed_proxy = openvpn::ProxySettings::Shadowsocks(proxy);
 
             if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
                 panic!(error);
             }
+            */
 
-            let mut rpc = new_rpc_client()?;
-            rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))?;
+            let mut rpc = new_grpc_client().await?;
+            rpc.set_bridge_settings(BridgeSettings {
+                r#type: Some(BridgeSettingsType::Shadowsocks(proxy))
+            }).await.map_err(Error::GrpcClientError)?;
         } else {
             unreachable!("unhandled proxy type");
         }
@@ -284,17 +310,15 @@ impl Bridge {
         Ok(())
     }
 
-    fn print_local_proxy(proxy: &openvpn::LocalProxySettings) {
+    fn print_local_proxy(proxy: &LocalProxySettings) {
         println!("proxy: local");
         println!("  local port: {}", proxy.port);
-        println!("  peer IP: {}", proxy.peer.ip());
-        println!("  peer port: {}", proxy.peer.port());
+        println!("  peer address: {}", proxy.peer);
     }
 
-    fn print_remote_proxy(proxy: &openvpn::RemoteProxySettings) {
+    fn print_remote_proxy(proxy: &RemoteProxySettings) {
         println!("proxy: remote");
-        println!("  server IP: {}", proxy.address.ip());
-        println!("  server port: {}", proxy.address.port());
+        println!("  server address: {}", proxy.address);
 
         if let Some(ref auth) = proxy.auth {
             println!("  auth username: {}", auth.username);
@@ -304,49 +328,35 @@ impl Bridge {
         }
     }
 
-    fn print_shadowsocks_proxy(proxy: &openvpn::ShadowsocksProxySettings) {
+    fn print_shadowsocks_proxy(proxy: &ShadowsocksProxySettings) {
         println!("proxy: Shadowsocks");
-        println!("  peer IP: {}", proxy.peer.ip());
-        println!("  peer port: {}", proxy.peer.port());
+        println!("  peer address: {}", proxy.peer);
         println!("  password: {}", proxy.password);
         println!("  cipher: {}", proxy.cipher);
     }
 
-    fn list_bridge_relays() -> Result<()> {
-        let mut rpc = new_rpc_client()?;
-        let mut locations = rpc.get_relay_locations()?;
+    async fn list_bridge_relays() -> Result<()> {
+        let mut rpc = new_grpc_client().await?;
+        let mut locations = rpc
+            .get_relay_locations(())
+            .await
+            .map_err(Error::GrpcClientError)?
+            .into_inner();
 
-        locations.countries = locations
-            .countries
-            .into_iter()
-            .filter_map(|mut country| {
-                country.cities = country
-                    .cities
-                    .into_iter()
-                    .filter_map(|mut city| {
-                        city.relays
-                            .retain(|relay| relay.active && !relay.bridges.is_empty());
-                        if !city.relays.is_empty() {
-                            Some(city)
-                        } else {
-                            None
-                        }
-                    })
-                    .collect();
-                if !country.cities.is_empty() {
-                    Some(country)
-                } else {
-                    None
-                }
-            })
-            .collect();
+        let mut countries = Vec::new();
 
-        locations
-            .countries
-            .sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
-        for mut country in locations.countries {
-            country
-                .cities
+        while let Some(country) = locations.message().await? {
+            countries.push(country);
+        }
+
+        // TODO: filter inactive relays from `country.cities.relays`
+        // TODO: filter bridgeless relays from `country.cities.relays`
+        // TODO: filter relayless cities from `country.cities`
+        // TODO: filter cityless countries from `countries`
+
+        countries.sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
+        for mut country in countries {
+            country.cities
                 .sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
             println!("{} ({})", country.name, country.code);
             for mut city in country.cities {
