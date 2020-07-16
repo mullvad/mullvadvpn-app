@@ -957,10 +957,7 @@ where
             tokio02::time::delay_for(delay).await;
             log::debug!("Attempting to reconnect");
             let (result_tx, _result_rx) = oneshot::channel();
-            let _ = tunnel_command_tx.send(DaemonCommand::SetTargetState(
-                result_tx,
-                TargetState::Secured,
-            ));
+            let _ = tunnel_command_tx.send(DaemonCommand::Reconnect);
         }));
 
         self.spawn_future(future);
