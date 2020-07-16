@@ -1,12 +1,22 @@
 package net.mullvad.talpid
 
 import android.net.VpnService
+import android.os.ParcelFileDescriptor
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
+import kotlin.properties.Delegates.observable
 import net.mullvad.talpid.tun_provider.TunConfig
 
 open class TalpidVpnService : VpnService() {
+    private var activeTunDevice by observable<Int?>(null) { _, oldTunDevice, _ ->
+        oldTunDevice?.let { oldTunFd ->
+            ParcelFileDescriptor.adoptFd(oldTunFd).close()
+        }
+    }
+
+    private var currentTunConfig = defaultTunConfig()
+
     val connectivityListener = ConnectivityListener()
 
     override fun onCreate() {
@@ -17,7 +27,53 @@ open class TalpidVpnService : VpnService() {
         connectivityListener.unregister(this)
     }
 
-    fun createTun(config: TunConfig): Int {
+    fun getTun(config: TunConfig): Int {
+        synchronized(this) {
+            val tunDevice = activeTunDevice
+
+            if (config == currentTunConfig && tunDevice != null) {
+                return tunDevice
+            } else {
+                val newTunDevice = createTun(config)
+
+                currentTunConfig = config
+                activeTunDevice = newTunDevice
+
+                return newTunDevice
+            }
+        }
+    }
+
+    fun createTun() {
+        synchronized(this) {
+            activeTunDevice = createTun(currentTunConfig)
+        }
+    }
+
+    fun createTunIfClosed() {
+        synchronized(this) {
+            if (activeTunDevice == null) {
+                activeTunDevice = createTun(currentTunConfig)
+            }
+        }
+    }
+
+    fun recreateTunIfOpen(config: TunConfig) {
+        synchronized(this) {
+            if (activeTunDevice != null) {
+                currentTunConfig = config
+                activeTunDevice = createTun(config)
+            }
+        }
+    }
+
+    fun closeTun() {
+        synchronized(this) {
+            activeTunDevice = null
+        }
+    }
+
+    private fun createTun(config: TunConfig): Int {
         if (VpnService.prepare(this) != null) {
             // VPN permission wasn't granted
             return -1
@@ -63,5 +119,6 @@ open class TalpidVpnService : VpnService() {
         }
     }
 
+    private external fun defaultTunConfig(): TunConfig
     private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
 }
