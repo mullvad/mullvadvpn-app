@@ -10,6 +10,7 @@ use mullvad_paths;
 use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
+    ConnectionConfig,
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeConstraints, BridgeState, Constraint, LocationConstraint, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate},
     relay_list::{Relay, RelayList, RelayListCountry},
@@ -24,7 +25,7 @@ use std::{
     sync::{Arc, mpsc},
 };
 use talpid_ipc;
-use talpid_types::{ErrorExt, net::TransportProtocol};
+use talpid_types::{net::{TransportProtocol, TunnelType}, ErrorExt};
 use uuid;
 use futures::compat::Future01CompatExt;
 
@@ -817,45 +818,73 @@ fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> Relay
 }
 
 fn convert_relay_settings(settings: &RelaySettings) -> proto::RelaySettings {
-    /*
+    use proto::{connection_config, relay_settings};
+
     let endpoint = match settings {
         RelaySettings::CustomTunnelEndpoint(endpoint) => {
-            // TODO
-            //CustomRelaySettings
-
-            proto::relay_settings::Endpoint::Custom(x)
+            relay_settings::Endpoint::Custom(proto::CustomRelaySettings {
+                host: endpoint.host.clone(),
+                config: Some(proto::ConnectionConfig {
+                    config: Some(match &endpoint.config {
+                        ConnectionConfig::OpenVpn(config) => {
+                            connection_config::Config::Openvpn(connection_config::OpenvpnConfig {
+                                address: config.endpoint.address.to_string(),
+                                protocol: match config.endpoint.protocol {
+                                    TransportProtocol::Tcp => proto::TransportProtocol::Tcp as i32,
+                                    TransportProtocol::Udp => proto::TransportProtocol::Udp as i32,
+                                },
+                                username: config.username.clone(),
+                                password: config.password.clone(),
+                            })
+                        }
+                        ConnectionConfig::Wireguard(config) => {
+                            connection_config::Config::Wireguard(connection_config::WireguardConfig {
+                                tunnel: Some(connection_config::wireguard_config::TunnelConfig {
+                                    private_key: config.tunnel.private_key.to_bytes().to_vec(),
+                                    addresses: config.tunnel.addresses.iter().map(|address| {
+                                        address.to_string()
+                                    }).collect(),
+                                }),
+                                peer: Some(connection_config::wireguard_config::PeerConfig {
+                                    public_key: config.peer.public_key.as_bytes().to_vec(),
+                                    allowed_ips: config.peer.allowed_ips.iter().map(|address| {
+                                        address.to_string()
+                                    }).collect(),
+                                    endpoint: config.peer.endpoint.to_string(),
+                                }),
+                                ipv4_gateway: config.ipv4_gateway.to_string(),
+                                ipv6_gateway: config.ipv6_gateway.as_ref()
+                                    .map(|address| address.to_string())
+                                    .unwrap_or_default(),
+                            })
+                        }
+                    }),
+                }),
+            })
         }
         RelaySettings::Normal(constraints) => {
-            // TODO
-            //NormalRelaySettings
-            // NOTE: optional
-            
-            //#[prost(uint32, tag="1")]
-            //pub port: u32,
-            // NOTE: (optional) OpenVPN only
-            //#[prost(enumeration="TransportProtocol", tag="2")]
-            //pub protocol: i32,
+            relay_settings::Endpoint::Normal(proto::NormalRelaySettings {
+                location: convert_location_constraint(&constraints.location),
+                tunnel_type: match constraints.tunnel_protocol {
+                    Constraint::Any => proto::TunnelType::AnyTunnel as i32,
+                    Constraint::Only(TunnelType::Wireguard) => proto::TunnelType::Wireguard as i32,
+                    Constraint::Only(TunnelType::OpenVpn) => proto::TunnelType::Openvpn as i32,
+                },
 
-            p
+                wireguard_constraints: Some(proto::normal_relay_settings::WireguardConstraints {
+                    port: constraints.wireguard_constraints.port.unwrap_or(0) as u32,
+                }),
 
-            
+                openvpn_constraints: Some(proto::normal_relay_settings::OpenvpnConstraints {
+                    port: constraints.openvpn_constraints.port.unwrap_or(0) as u32,
+                    protocol: constraints.openvpn_constraints.protocol.map(|protocol| match protocol {
+                        TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
+                        TransportProtocol::Udp => proto::TransportProtocol::Udp,
+                    }).unwrap_or(proto::TransportProtocol::AnyProtocol) as i32,
+                }),
+            })
         }
     };
-    */
-
-    // FIXME: don't ignore input
-    // FIXME: custom endpoint
-    let constraints = proto::NormalRelaySettings {
-        location: Some(proto::RelayLocation {
-            hostname: vec![],
-        }),
-        tunnel_type: proto::TunnelType::Openvpn as i32,
-        // FIXME: optional
-        port: 0,
-        // FIXME: optional, openvpn only
-        protocol: proto::TransportProtocol::Tcp as i32,
-    };
-    let endpoint = proto::relay_settings::Endpoint::Normal(constraints);
 
     proto::RelaySettings {
         endpoint: Some(endpoint),
@@ -868,25 +897,8 @@ fn convert_bridge_settings(settings: &BridgeSettings) -> proto::BridgeSettings {
 
     let settings = match settings {
         BridgeSettings::Normal(constraints) => {
-            let location = match &constraints.location {
-                Constraint::Any => None,
-                Constraint::Only(location) => Some(match location {
-                    LocationConstraint::Country(country) => {
-                        [country.clone()].to_vec()
-                    }
-                    LocationConstraint::City(country, city) => {
-                        [country.clone(), city.clone()].to_vec()
-                    }
-                    LocationConstraint::Hostname(country, city, host) => {
-                        [country.clone(), city.clone(), host.clone()].to_vec()
-                    }
-                })
-            };
-
             BridgeSettingType::Normal(proto::bridge_settings::BridgeConstraints {
-                location: location.map(|location| proto::RelayLocation {
-                    hostname: location
-                }),
+                location: convert_location_constraint(&constraints.location),
             })
         }
         BridgeSettings::Custom(proxy_settings) => {
@@ -922,6 +934,26 @@ fn convert_bridge_settings(settings: &BridgeSettings) -> proto::BridgeSettings {
     proto::BridgeSettings {
         r#type: Some(settings),
     }
+}
+
+fn convert_location_constraint(location: &Constraint<LocationConstraint>) -> Option<proto::RelayLocation> {
+    let location = match location {
+        Constraint::Any => None,
+        Constraint::Only(location) => Some(match location {
+            LocationConstraint::Country(country) => {
+                [country.clone()].to_vec()
+            }
+            LocationConstraint::City(country, city) => {
+                [country.clone(), city.clone()].to_vec()
+            }
+            LocationConstraint::Hostname(country, city, host) => {
+                [country.clone(), city.clone(), host.clone()].to_vec()
+            }
+        })
+    };
+    location.map(|location| proto::RelayLocation {
+        hostname: location
+    })
 }
 
 fn convert_bridge_state(state: &BridgeState) -> proto::BridgeState {
