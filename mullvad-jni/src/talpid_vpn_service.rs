@@ -1,8 +1,11 @@
 use ipnetwork::IpNetwork;
-use jnix::jni::{
-    objects::JObject,
-    sys::{jboolean, jint, JNI_FALSE},
-    JNIEnv,
+use jnix::{
+    jni::{
+        objects::JObject,
+        sys::{jboolean, jint, JNI_FALSE},
+        JNIEnv,
+    },
+    IntoJava, JnixEnv,
 };
 use nix::sys::{
     select::{pselect, FdSet},
@@ -15,6 +18,7 @@ use std::{
     os::unix::io::RawFd,
     time::{Duration, Instant},
 };
+use talpid_core::tunnel::TunConfig;
 use talpid_types::ErrorExt;
 
 #[derive(Debug, err_derive::Error)]
@@ -27,6 +31,17 @@ enum Error {
 
     #[error(display = "Timed out while waiting for tunnel device to receive data")]
     TunnelDeviceTimeout,
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_talpid_TalpidVpnService_defaultTunConfig<'env>(
+    env: JNIEnv<'env>,
+    _this: JObject<'_>,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    TunConfig::default().into_java(&env).forget()
 }
 
 #[no_mangle]
